@@ -87,8 +87,8 @@ class Probe
 	 */
 	private static function rearrangeData($data)
 	{
-		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo", "account-type",
-				"community", "keywords", "location", "about", "hide",
+		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo", "header",
+				"account-type", "community", "keywords", "location", "about", "hide",
 				"batch", "notify", "poll", "request", "confirm", "subscribe", "poco",
 				"following", "followers", "inbox", "outbox", "sharedinbox",
 				"priority", "network", "pubkey", "manually-approve", "baseurl", "gsid"];
@@ -1016,18 +1016,18 @@ class Probe
 		$curlResult = DI::httpRequest()->get($noscrape_url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return [];
+			return $data;
 		}
 		$content = $curlResult->getBody();
 		if (!$content) {
 			Logger::info('Empty body', ['url' => $noscrape_url]);
-			return [];
+			return $data;
 		}
 
 		$json = json_decode($content, true);
 		if (!is_array($json)) {
 			Logger::info('No json data', ['url' => $noscrape_url]);
-			return [];
+			return $data;
 		}
 
 		if (!empty($json["fn"])) {
@@ -2222,8 +2222,9 @@ class Probe
 
 		$data = ['name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
 			'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
-			'photo' => $profile['photo'], 'account-type' => $profile['contact-type'],
-			'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
+			'photo' => Contact::getAvatarUrlForId($profile['id'], $profile['updated']),
+			'header' => $profile['header'] ? Contact::getHeaderUrlForId($profile['id'], $profile['updated']) : '',
+			'account-type' => $profile['contact-type'], 'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
 			'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'], 
 			'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
 			'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],

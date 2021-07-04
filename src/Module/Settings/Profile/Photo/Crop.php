@@ -28,6 +28,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo;
+use Friendica\Model\Profile;
 use Friendica\Module\BaseSettings;
 use Friendica\Network\HTTPException;
 
@@ -137,12 +138,9 @@ class Crop extends BaseSettings
 				Contact::updateSelfFromUserID(local_user(), true);
 
 				info(DI::l10n()->t('Shift-reload the page or clear browser cache if the new photo does not display immediately.'));
-				// Update global directory in background
-				if ($path && strlen(DI::config()->get('system', 'directory'))) {
-					Worker::add(PRIORITY_LOW, 'Directory', DI::baseUrl()->get() . '/' . $path);
-				}
 
-				Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
+				// Update global directory in background
+				Profile::publishUpdate(local_user());
 			} else {
 				notice(DI::l10n()->t('Unable to process image'));
 			}
@@ -183,9 +181,7 @@ class Crop extends BaseSettings
 			Contact::updateSelfFromUserID(local_user(), true);
 
 			// Update global directory in background
-			if (Session::get('my_url') && strlen(DI::config()->get('system', 'directory'))) {
-				Worker::add(PRIORITY_LOW, 'Directory', Session::get('my_url'));
-			}
+			Profile::publishUpdate(local_user());
 
 			info(DI::l10n()->t('Profile picture successfully updated.'));
 

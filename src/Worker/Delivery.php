@@ -30,13 +30,11 @@ use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Activity;
-use Friendica\Util\Strings;
 use Friendica\Util\Network;
 use Friendica\Core\Worker;
 use Friendica\Model\Conversation;
 use Friendica\Model\FContact;
 use Friendica\Model\Item;
-use Friendica\Model\Post;
 use Friendica\Protocol\Relay;
 
 class Delivery
@@ -216,11 +214,6 @@ class Delivery
 			$contact['network'] = Protocol::DIASPORA;
 		}
 
-		// Ensure that local contacts are delivered locally
-		if (Model\Contact::isLocal($contact['url'])) {
-			$contact['network'] = Protocol::DFRN;
-		}
-
 		Logger::notice('Delivering', ['cmd' => $cmd, 'uri-id' => $post_uriid, 'followup' => $followup, 'network' => $contact['network']]);
 
 		switch ($contact['network']) {
@@ -315,40 +308,6 @@ class Delivery
 		}
 
 		Logger::debug('Notifier entry: ' . $contact["url"] . ' ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' entry: ' . $atom);
-
-		// perform local delivery if we are on the same site
-		if (Model\Contact::isLocal($contact['url'])) {
-			$condition = ['nurl' => Strings::normaliseLink($contact['url']), 'self' => true];
-			$target_self = DBA::selectFirst('contact', ['uid'], $condition);
-			if (!DBA::isResult($target_self)) {
-				return;
-			}
-			$target_uid = $target_self['uid'];
-
-			// Check if the user has got this contact
-			$cid = Model\Contact::getIdForURL($owner['url'], $target_uid);
-			if (!$cid) {
-				// Otherwise there should be a public contact
-				$cid = Model\Contact::getIdForURL($owner['url']);
-				if (!$cid) {
-					return;
-				}
-			}
-
-			$target_importer = DFRN::getImporter($cid, $target_uid);
-			if (empty($target_importer)) {
-				// This should never happen
-				return;
-			}
-
-			DFRN::import($atom, $target_importer, Conversation::PARCEL_LOCAL_DFRN, Conversation::PUSH);
-
-			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::DFRN);
-			}
-
-			return;
-		}
 
 		$protocol = Model\Post\DeliveryData::DFRN;
 

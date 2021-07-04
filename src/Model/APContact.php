@@ -26,6 +26,7 @@ use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
@@ -210,6 +211,11 @@ class APContact
 			$apcontact['photo'] = JsonLD::fetchElement($compacted['as:icon'], 'as:url', '@id');
 		}
 
+		$apcontact['header'] = JsonLD::fetchElement($compacted, 'as:image', '@id');
+		if (is_array($apcontact['header']) || !empty($compacted['as:image']['as:url']['@id'])) {
+			$apcontact['header'] = JsonLD::fetchElement($compacted['as:image'], 'as:url', '@id');
+		}
+
 		if (empty($apcontact['alias'])) {
 			$apcontact['alias'] = JsonLD::fetchElement($compacted, 'as:url', '@id');
 			if (is_array($apcontact['alias'])) {
@@ -277,6 +283,8 @@ class APContact
 				$apcontact['statuses_count'] = $outbox['totalItems'];
 			}
 		}
+
+		$apcontact['discoverable'] = JsonLD::fetchElement($compacted, 'toot:discoverable', '@value');
 
 		// To-Do
 
@@ -349,6 +357,9 @@ class APContact
 			DBA::delete('apcontact', ['url' => $url]);
 		}
 
+		// Limit the length on incoming fields
+		$apcontact = DBStructure::getFieldsForTable('apcontact', $apcontact);
+
 		if (DBA::exists('apcontact', ['url' => $apcontact['url']])) {
 			DBA::update('apcontact', $apcontact, ['url' => $apcontact['url']]);
 		} else {
@@ -357,7 +368,7 @@ class APContact
 
 		Logger::info('Updated profile', ['url' => $url]);
 
-		return $apcontact;
+		return DBA::selectFirst('apcontact', [], ['url' => $apcontact['url']]) ?: [];
 	}
 
 	/**

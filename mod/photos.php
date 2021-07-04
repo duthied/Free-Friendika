@@ -37,7 +37,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
-use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
@@ -73,7 +72,7 @@ function photos_init(App $a) {
 		$a->profile_uid = $user['uid'];
 		$is_owner = (local_user() && (local_user() == $a->profile_uid));
 
-		$profile = Profile::getByNickname($nick, $a->profile_uid);
+		$profile = User::getOwnerDataByNick($nick);
 
 		$account_type = Contact::getAccountType($profile);
 
@@ -1275,7 +1274,7 @@ function photos_content(App $a)
 		}
 
 		if (!empty($link_item['parent']) && !empty($link_item['uid'])) {
-			$condition = ["`parent` = ? AND `gravity` != ?",  $link_item['parent'], GRAVITY_PARENT];
+			$condition = ["`parent` = ? AND `gravity` = ?",  $link_item['parent'], GRAVITY_COMMENT];
 			$total = Post::count($condition);
 
 			$pager = new Pager(DI::l10n(), DI::args()->getQueryString());

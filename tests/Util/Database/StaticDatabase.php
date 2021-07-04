@@ -39,6 +39,9 @@ class StaticDatabase extends Database
 	 */
 	private static $staticConnection;
 
+	/** @var bool  */
+	private $_locked = false;
+
 	/**
 	 * Override the behaviour of connect, due there is just one, static connection at all
 	 *
@@ -74,6 +77,31 @@ class StaticDatabase extends Database
 		}
 
 		$this->in_transaction = true;
+		return true;
+	}
+
+	/** Mock for locking tables */
+	public function lock($table)
+	{
+		if ($this->_locked) {
+			return false;
+		}
+
+		$this->in_transaction = true;
+		$this->_locked = true;
+
+		return true;
+	}
+
+	/** Mock for unlocking tables */
+	public function unlock()
+	{
+		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
+		$this->performCommit();
+
+		$this->in_transaction = false;
+		$this->_locked = false;
+
 		return true;
 	}
 
@@ -161,18 +189,6 @@ class StaticDatabase extends Database
 	public static function getGlobConnection()
 	{
 		return self::$staticConnection;
-	}
-
-	/**
-	 * Perform a global commit for every nested transaction of the static connection
-	 */
-	public static function statCommit()
-	{
-		if (isset(self::$staticConnection)) {
-			while (self::$staticConnection->getTransactionDepth() > 0) {
-				self::$staticConnection->commit();
-			}
-		}
 	}
 
 	/**

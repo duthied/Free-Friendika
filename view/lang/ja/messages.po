@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-16 07:41+0000\n"
-"PO-Revision-Date: 2021-05-19 09:06+0000\n"
-"Last-Translator: XMPPはいいぞ\n"
+"POT-Creation-Date: 2021-06-15 17:22+0000\n"
+"PO-Revision-Date: 2021-06-14 03:25+0000\n"
+"Last-Translator: Transifex Bot <>\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,28 +21,28 @@ msgstr ""
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: include/api.php:1137
+#: include/api.php:1135
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] "一日の最大投稿数 %d 件を超えたため、投稿できませんでした。"
 
-#: include/api.php:1151
+#: include/api.php:1149
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural ""
 "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] "一週間の最大投稿数 %d 件を超えたため、投稿できませんでした。"
 
-#: include/api.php:1165
+#: include/api.php:1163
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr "月間の最大投稿数 %d 件を超えたため、投稿できませんでした。"
 
-#: include/api.php:4528 mod/photos.php:107 mod/photos.php:211
+#: include/api.php:4526 mod/photos.php:107 mod/photos.php:211
 #: mod/photos.php:639 mod/photos.php:1043 mod/photos.php:1060
-#: mod/photos.php:1609 src/Model/User.php:1045 src/Model/User.php:1053
-#: src/Model/User.php:1061 src/Module/Settings/Profile/Photo/Crop.php:97
+#: mod/photos.php:1609 src/Model/User.php:1100 src/Model/User.php:1108
+#: src/Model/User.php:1116 src/Module/Settings/Profile/Photo/Crop.php:97
 #: src/Module/Settings/Profile/Photo/Crop.php:113
 #: src/Module/Settings/Profile/Photo/Crop.php:129
 #: src/Module/Settings/Profile/Photo/Crop.php:178
@@ -56,7 +56,7 @@ msgstr "プロフィール写真"
 msgid "%1$s poked %2$s"
 msgstr "%1$s が %2$s にpokeを送りました"
 
-#: include/conversation.php:227 src/Model/Item.php:2523
+#: include/conversation.php:227 src/Model/Item.php:2605
 msgid "event"
 msgstr "イベント"
 
@@ -64,7 +64,7 @@ msgstr "イベント"
 msgid "status"
 msgstr "ステータス"
 
-#: include/conversation.php:235 mod/tagger.php:90 src/Model/Item.php:2525
+#: include/conversation.php:235 mod/tagger.php:90 src/Model/Item.php:2607
 msgid "photo"
 msgstr "写真"
 
@@ -84,21 +84,21 @@ msgstr "選択"
 msgid "Delete"
 msgstr "削除"
 
-#: include/conversation.php:600 src/Object/Post.php:449
-#: src/Object/Post.php:450
+#: include/conversation.php:600 src/Object/Post.php:453
+#: src/Object/Post.php:454
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr "%sのプロフィールを確認 @ %s"
 
-#: include/conversation.php:613 src/Object/Post.php:437
+#: include/conversation.php:613 src/Object/Post.php:441
 msgid "Categories:"
 msgstr "カテゴリ:"
 
-#: include/conversation.php:614 src/Object/Post.php:438
+#: include/conversation.php:614 src/Object/Post.php:442
 msgid "Filed under:"
 msgstr "格納先:"
 
-#: include/conversation.php:621 src/Object/Post.php:463
+#: include/conversation.php:621 src/Object/Post.php:467
 #, php-format
 msgid "%s from %s"
 msgstr "%s から %s"
@@ -107,10 +107,10 @@ msgstr "%s から %s"
 msgid "View in context"
 msgstr "文脈で表示する"
 
-#: include/conversation.php:638 include/conversation.php:1224
+#: include/conversation.php:638 include/conversation.php:1222
 #: mod/editpost.php:104 mod/message.php:204 mod/message.php:374
 #: mod/photos.php:1536 mod/wallmessage.php:155 src/Module/Item/Compose.php:159
-#: src/Object/Post.php:497
+#: src/Object/Post.php:501
 msgid "Please wait"
 msgstr "お待ち下さい"
 
@@ -122,108 +122,108 @@ msgstr "削除"
 msgid "Delete Selected Items"
 msgstr "選択した項目を削除"
 
-#: include/conversation.php:744 include/conversation.php:747
-#: include/conversation.php:750 include/conversation.php:753
+#: include/conversation.php:742 include/conversation.php:745
+#: include/conversation.php:748 include/conversation.php:751
 #, php-format
 msgid "You had been addressed (%s)."
 msgstr ""
 
-#: include/conversation.php:756
+#: include/conversation.php:754
 #, php-format
 msgid "You are following %s."
 msgstr ""
 
-#: include/conversation.php:759
+#: include/conversation.php:757
 msgid "Tagged"
 msgstr ""
 
-#: include/conversation.php:772 include/conversation.php:1116
-#: include/conversation.php:1154
+#: include/conversation.php:770 include/conversation.php:1114
+#: include/conversation.php:1152
 #, php-format
 msgid "%s reshared this."
 msgstr "%s が再共有しました。"
 
-#: include/conversation.php:774
+#: include/conversation.php:772
 msgid "Reshared"
 msgstr ""
 
-#: include/conversation.php:774
+#: include/conversation.php:772
 #, php-format
-msgid "Reshared by %s"
+msgid "Reshared by %s <%s>"
 msgstr ""
 
-#: include/conversation.php:777
+#: include/conversation.php:775
 #, php-format
 msgid "%s is participating in this thread."
 msgstr ""
 
-#: include/conversation.php:780
+#: include/conversation.php:778
 msgid "Stored"
 msgstr ""
 
-#: include/conversation.php:783
+#: include/conversation.php:781
 msgid "Global"
 msgstr ""
 
-#: include/conversation.php:786
+#: include/conversation.php:784
 msgid "Relayed"
 msgstr ""
 
-#: include/conversation.php:786
+#: include/conversation.php:784
 #, php-format
-msgid "Relayed by %s."
+msgid "Relayed by %s <%s>"
 msgstr ""
 
-#: include/conversation.php:789
+#: include/conversation.php:787
 msgid "Fetched"
 msgstr ""
 
-#: include/conversation.php:789
+#: include/conversation.php:787
 #, php-format
-msgid "Fetched because of %s"
+msgid "Fetched because of %s <%s>"
 msgstr ""
 
-#: include/conversation.php:949 view/theme/frio/theme.php:323
+#: include/conversation.php:947 view/theme/frio/theme.php:323
 msgid "Follow Thread"
 msgstr "このスレッドをフォロー"
 
-#: include/conversation.php:950 src/Model/Contact.php:986
+#: include/conversation.php:948 src/Model/Contact.php:999
 msgid "View Status"
 msgstr "ステータスを見る"
 
-#: include/conversation.php:951 include/conversation.php:973
-#: src/Model/Contact.php:912 src/Model/Contact.php:978
-#: src/Model/Contact.php:987 src/Module/Directory.php:166
+#: include/conversation.php:949 include/conversation.php:971
+#: src/Model/Contact.php:925 src/Model/Contact.php:991
+#: src/Model/Contact.php:1000 src/Module/Directory.php:166
 #: src/Module/Settings/Profile/Index.php:240
 msgid "View Profile"
 msgstr "プロフィールを見る"
 
-#: include/conversation.php:952 src/Model/Contact.php:988
+#: include/conversation.php:950 src/Model/Contact.php:1001
 msgid "View Photos"
 msgstr "写真を見る"
 
-#: include/conversation.php:953 src/Model/Contact.php:979
-#: src/Model/Contact.php:989
+#: include/conversation.php:951 src/Model/Contact.php:992
+#: src/Model/Contact.php:1002
 msgid "Network Posts"
 msgstr "ネットワーク投稿"
 
-#: include/conversation.php:954 src/Model/Contact.php:980
-#: src/Model/Contact.php:990
+#: include/conversation.php:952 src/Model/Contact.php:993
+#: src/Model/Contact.php:1003
 msgid "View Contact"
 msgstr "コンタクトを見る"
 
-#: include/conversation.php:955 src/Model/Contact.php:992
+#: include/conversation.php:953 src/Model/Contact.php:1005
 msgid "Send PM"
 msgstr "PMを送る"
 
-#: include/conversation.php:956 src/Module/Admin/Blocklist/Contact.php:84
+#: include/conversation.php:954 src/Module/Admin/Blocklist/Contact.php:84
 #: src/Module/Admin/Users/Active.php:140 src/Module/Admin/Users/Index.php:154
 #: src/Module/Contact.php:633 src/Module/Contact.php:891
 #: src/Module/Contact.php:1173
 msgid "Block"
 msgstr "ブロック"
 
-#: include/conversation.php:957 src/Module/Contact.php:634
+#: include/conversation.php:955 src/Module/Contact.php:634
 #: src/Module/Contact.php:892 src/Module/Contact.php:1181
 #: src/Module/Notifications/Introductions.php:113
 #: src/Module/Notifications/Introductions.php:191
@@ -231,273 +231,273 @@ msgstr "ブロック"
 msgid "Ignore"
 msgstr "無視"
 
-#: include/conversation.php:961 src/Object/Post.php:424
+#: include/conversation.php:959 src/Object/Post.php:428
 msgid "Languages"
 msgstr "言語"
 
-#: include/conversation.php:965 src/Model/Contact.php:993
+#: include/conversation.php:963 src/Model/Contact.php:1006
 msgid "Poke"
 msgstr "Pokeを送る"
 
-#: include/conversation.php:970 mod/follow.php:146 src/Content/Widget.php:76
-#: src/Model/Contact.php:981 src/Model/Contact.php:994
+#: include/conversation.php:968 mod/follow.php:146 src/Content/Widget.php:76
+#: src/Model/Contact.php:994 src/Model/Contact.php:1007
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "つながる/フォローする"
 
-#: include/conversation.php:1101
+#: include/conversation.php:1099
 #, php-format
 msgid "%s likes this."
 msgstr "%s がいいねしました"
 
-#: include/conversation.php:1104
+#: include/conversation.php:1102
 #, php-format
 msgid "%s doesn't like this."
 msgstr "%s はこれを好きではないようです"
 
-#: include/conversation.php:1107
+#: include/conversation.php:1105
 #, php-format
 msgid "%s attends."
 msgstr "%s が参加します。"
 
-#: include/conversation.php:1110
+#: include/conversation.php:1108
 #, php-format
 msgid "%s doesn't attend."
 msgstr "%s は欠席します。"
 
-#: include/conversation.php:1113
+#: include/conversation.php:1111
 #, php-format
 msgid "%s attends maybe."
 msgstr "%s は様子見しています。"
 
-#: include/conversation.php:1122
+#: include/conversation.php:1120
 msgid "and"
 msgstr "と"
 
-#: include/conversation.php:1125
+#: include/conversation.php:1123
 #, php-format
 msgid "and %d other people"
 msgstr "と他 %d 人"
 
-#: include/conversation.php:1133
+#: include/conversation.php:1131
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this"
 msgstr "<span  %1$s>%2$d 人</span> がいいねしました"
 
-#: include/conversation.php:1134
+#: include/conversation.php:1132
 #, php-format
 msgid "%s like this."
 msgstr "%s がいいねしました"
 
-#: include/conversation.php:1137
+#: include/conversation.php:1135
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this"
 msgstr "<span  %1$s>%2$d 人</span> がこれを好きでは無いようです"
 
-#: include/conversation.php:1138
+#: include/conversation.php:1136
 #, php-format
 msgid "%s don't like this."
 msgstr "%s はこれを好きではないようです"
 
-#: include/conversation.php:1141
+#: include/conversation.php:1139
 #, php-format
 msgid "<span  %1$s>%2$d people</span> attend"
 msgstr "<span  %1$s>%2$d 人</span> が参加します"
 
-#: include/conversation.php:1142
+#: include/conversation.php:1140
 #, php-format
 msgid "%s attend."
 msgstr "%s が参加します。"
 
-#: include/conversation.php:1145
+#: include/conversation.php:1143
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't attend"
 msgstr "<span  %1$s>%2$d 人</span> が欠席します"
 
-#: include/conversation.php:1146
+#: include/conversation.php:1144
 #, php-format
 msgid "%s don't attend."
 msgstr "%s は欠席します。"
 
-#: include/conversation.php:1149
+#: include/conversation.php:1147
 #, php-format
 msgid "<span  %1$s>%2$d people</span> attend maybe"
 msgstr "<span  %1$s>%2$d 人</span> が様子見しています"
 
-#: include/conversation.php:1150
+#: include/conversation.php:1148
 #, php-format
 msgid "%s attend maybe."
 msgstr "%s は様子見しています。"
 
-#: include/conversation.php:1153
+#: include/conversation.php:1151
 #, php-format
 msgid "<span  %1$s>%2$d people</span> reshared this"
 msgstr "<span  %1$s>%2$d 人</span> が再共有しました"
 
-#: include/conversation.php:1183
+#: include/conversation.php:1181
 msgid "Visible to <strong>everybody</strong>"
 msgstr "<strong>すべての人</strong> が閲覧可能です"
 
-#: include/conversation.php:1184 src/Module/Item/Compose.php:153
-#: src/Object/Post.php:966
+#: include/conversation.php:1182 src/Module/Item/Compose.php:153
+#: src/Object/Post.php:970
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr "画像/動画/音声/ウェブページのURLを入力してください:"
 
-#: include/conversation.php:1185
+#: include/conversation.php:1183
 msgid "Tag term:"
 msgstr "用語のタグ付け:"
 
-#: include/conversation.php:1186 src/Module/Filer/SaveTag.php:69
+#: include/conversation.php:1184 src/Module/Filer/SaveTag.php:69
 msgid "Save to Folder:"
 msgstr "保存先のフォルダ:"
 
-#: include/conversation.php:1187
+#: include/conversation.php:1185
 msgid "Where are you right now?"
 msgstr "どこにいますか？:"
 
-#: include/conversation.php:1188
+#: include/conversation.php:1186
 msgid "Delete item(s)?"
 msgstr "これ(ら)の項目を削除しますか？"
 
-#: include/conversation.php:1198
+#: include/conversation.php:1196
 msgid "New Post"
 msgstr "新しい投稿"
 
-#: include/conversation.php:1201
+#: include/conversation.php:1199
 msgid "Share"
 msgstr "共有"
 
-#: include/conversation.php:1202 mod/editpost.php:89 mod/photos.php:1382
-#: src/Module/Contact/Poke.php:154 src/Object/Post.php:957
+#: include/conversation.php:1200 mod/editpost.php:89 mod/photos.php:1382
+#: src/Module/Contact/Poke.php:154 src/Object/Post.php:961
 msgid "Loading..."
 msgstr "読み込み中…"
 
-#: include/conversation.php:1203 mod/editpost.php:90 mod/message.php:202
+#: include/conversation.php:1201 mod/editpost.php:90 mod/message.php:202
 #: mod/message.php:371 mod/wallmessage.php:153
 msgid "Upload photo"
 msgstr "写真をアップロード"
 
-#: include/conversation.php:1204 mod/editpost.php:91
+#: include/conversation.php:1202 mod/editpost.php:91
 msgid "upload photo"
 msgstr "写真をアップロード"
 
-#: include/conversation.php:1205 mod/editpost.php:92
+#: include/conversation.php:1203 mod/editpost.php:92
 msgid "Attach file"
 msgstr "ファイルを添付"
 
-#: include/conversation.php:1206 mod/editpost.php:93
+#: include/conversation.php:1204 mod/editpost.php:93
 msgid "attach file"
 msgstr "ファイルを添付"
 
-#: include/conversation.php:1207 src/Module/Item/Compose.php:145
-#: src/Object/Post.php:958
+#: include/conversation.php:1205 src/Module/Item/Compose.php:145
+#: src/Object/Post.php:962
 msgid "Bold"
 msgstr "太字"
 
-#: include/conversation.php:1208 src/Module/Item/Compose.php:146
-#: src/Object/Post.php:959
+#: include/conversation.php:1206 src/Module/Item/Compose.php:146
+#: src/Object/Post.php:963
 msgid "Italic"
 msgstr "斜体"
 
-#: include/conversation.php:1209 src/Module/Item/Compose.php:147
-#: src/Object/Post.php:960
+#: include/conversation.php:1207 src/Module/Item/Compose.php:147
+#: src/Object/Post.php:964
 msgid "Underline"
 msgstr "下線"
 
-#: include/conversation.php:1210 src/Module/Item/Compose.php:148
-#: src/Object/Post.php:961
+#: include/conversation.php:1208 src/Module/Item/Compose.php:148
+#: src/Object/Post.php:965
 msgid "Quote"
 msgstr "引用"
 
-#: include/conversation.php:1211 src/Module/Item/Compose.php:149
-#: src/Object/Post.php:962
+#: include/conversation.php:1209 src/Module/Item/Compose.php:149
+#: src/Object/Post.php:966
 msgid "Code"
 msgstr "コード"
 
-#: include/conversation.php:1212 src/Module/Item/Compose.php:150
-#: src/Object/Post.php:963
+#: include/conversation.php:1210 src/Module/Item/Compose.php:150
+#: src/Object/Post.php:967
 msgid "Image"
 msgstr "画像"
 
-#: include/conversation.php:1213 src/Module/Item/Compose.php:151
-#: src/Object/Post.php:964
+#: include/conversation.php:1211 src/Module/Item/Compose.php:151
+#: src/Object/Post.php:968
 msgid "Link"
 msgstr "リンク"
 
-#: include/conversation.php:1214 src/Module/Item/Compose.php:152
-#: src/Object/Post.php:965
+#: include/conversation.php:1212 src/Module/Item/Compose.php:152
+#: src/Object/Post.php:969
 msgid "Link or Media"
 msgstr "リンク／メディア"
 
-#: include/conversation.php:1215
+#: include/conversation.php:1213
 msgid "Video"
 msgstr "動画"
 
-#: include/conversation.php:1216 mod/editpost.php:100
+#: include/conversation.php:1214 mod/editpost.php:100
 #: src/Module/Item/Compose.php:155
 msgid "Set your location"
 msgstr "現在地を設定"
 
-#: include/conversation.php:1217 mod/editpost.php:101
+#: include/conversation.php:1215 mod/editpost.php:101
 msgid "set location"
 msgstr "現在地を設定"
 
-#: include/conversation.php:1218 mod/editpost.php:102
+#: include/conversation.php:1216 mod/editpost.php:102
 msgid "Clear browser location"
 msgstr "ブラウザの現在地を解除"
 
-#: include/conversation.php:1219 mod/editpost.php:103
+#: include/conversation.php:1217 mod/editpost.php:103
 msgid "clear location"
 msgstr "現在地を解除"
 
-#: include/conversation.php:1221 mod/editpost.php:117
+#: include/conversation.php:1219 mod/editpost.php:117
 #: src/Module/Item/Compose.php:160
 msgid "Set title"
 msgstr "件名を設定"
 
-#: include/conversation.php:1223 mod/editpost.php:119
+#: include/conversation.php:1221 mod/editpost.php:119
 #: src/Module/Item/Compose.php:161
 msgid "Categories (comma-separated list)"
 msgstr "カテゴリ（半角カンマ区切り）"
 
-#: include/conversation.php:1225 mod/editpost.php:105
+#: include/conversation.php:1223 mod/editpost.php:105
 msgid "Permission settings"
 msgstr "権限設定"
 
-#: include/conversation.php:1226 mod/editpost.php:134 mod/events.php:578
+#: include/conversation.php:1224 mod/editpost.php:134 mod/events.php:578
 #: mod/photos.php:969 mod/photos.php:1335
 msgid "Permissions"
 msgstr "許可"
 
-#: include/conversation.php:1235 mod/editpost.php:114
+#: include/conversation.php:1233 mod/editpost.php:114
 msgid "Public post"
 msgstr "一般公開の投稿"
 
-#: include/conversation.php:1239 mod/editpost.php:125 mod/events.php:573
+#: include/conversation.php:1237 mod/editpost.php:125 mod/events.php:573
 #: mod/photos.php:1381 mod/photos.php:1438 mod/photos.php:1513
-#: src/Module/Item/Compose.php:154 src/Object/Post.php:967
+#: src/Module/Item/Compose.php:154 src/Object/Post.php:971
 msgid "Preview"
 msgstr "プレビュー"
 
-#: include/conversation.php:1243 mod/dfrn_request.php:642 mod/editpost.php:128
+#: include/conversation.php:1241 mod/dfrn_request.php:642 mod/editpost.php:128
 #: mod/fbrowser.php:105 mod/fbrowser.php:134 mod/follow.php:152
-#: mod/photos.php:1037 mod/photos.php:1143 mod/tagrm.php:37 mod/tagrm.php:127
+#: mod/photos.php:1037 mod/photos.php:1143 mod/tagrm.php:37 mod/tagrm.php:129
 #: mod/unfollow.php:100 src/Module/Contact.php:467
 #: src/Module/RemoteFollow.php:110
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: include/conversation.php:1250 mod/editpost.php:132
-#: src/Model/Profile.php:450 src/Module/Contact.php:344
+#: include/conversation.php:1248 mod/editpost.php:132
+#: src/Model/Profile.php:460 src/Module/Contact.php:344
 msgid "Message"
 msgstr "メッセージ"
 
-#: include/conversation.php:1251 mod/editpost.php:133
+#: include/conversation.php:1249 mod/editpost.php:133
 #: src/Module/Settings/TwoFactor/Trusted.php:101
 msgid "Browser"
 msgstr "ブラウザ"
 
-#: include/conversation.php:1253 mod/editpost.php:136
+#: include/conversation.php:1251 mod/editpost.php:136
 msgid "Open Compose page"
 msgstr "作成ページを開く"
 
@@ -828,8 +828,8 @@ msgid "Please visit %s to approve or reject the request."
 msgstr "%s を開いて、リクエストを承諾・拒否してください。"
 
 #: mod/api.php:52 mod/api.php:57 mod/dfrn_confirm.php:78 mod/editpost.php:37
-#: mod/events.php:231 mod/follow.php:55 mod/follow.php:135 mod/item.php:184
-#: mod/item.php:189 mod/item.php:909 mod/message.php:69 mod/message.php:112
+#: mod/events.php:231 mod/follow.php:55 mod/follow.php:135 mod/item.php:185
+#: mod/item.php:190 mod/item.php:910 mod/message.php:69 mod/message.php:112
 #: mod/notes.php:44 mod/ostatus_subscribe.php:30 mod/photos.php:176
 #: mod/photos.php:922 mod/repair_ostatus.php:31 mod/settings.php:47
 #: mod/settings.php:65 mod/settings.php:498 mod/suggest.php:34
@@ -837,11 +837,9 @@ msgstr "%s を開いて、リクエストを承諾・拒否してください。
 #: mod/unfollow.php:82 mod/wall_attach.php:78 mod/wall_attach.php:81
 #: mod/wall_upload.php:99 mod/wall_upload.php:102 mod/wallmessage.php:35
 #: mod/wallmessage.php:59 mod/wallmessage.php:96 mod/wallmessage.php:120
-#: src/Module/Attach.php:56 src/Module/BaseApi.php:74
-#: src/Module/BaseApi.php:80 src/Module/BaseApi.php:87
-#: src/Module/BaseApi.php:93 src/Module/BaseApi.php:100
-#: src/Module/BaseApi.php:106 src/Module/BaseApi.php:113
-#: src/Module/BaseApi.php:119 src/Module/BaseNotifications.php:88
+#: src/Module/Attach.php:56 src/Module/BaseApi.php:69
+#: src/Module/BaseApi.php:80 src/Module/BaseApi.php:91
+#: src/Module/BaseApi.php:102 src/Module/BaseNotifications.php:88
 #: src/Module/Contact.php:385 src/Module/Contact/Advanced.php:43
 #: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:16
 #: src/Module/FriendSuggest.php:44 src/Module/Group.php:45
@@ -908,7 +906,7 @@ msgstr "アクセスが拒否されました。"
 msgid "User not found."
 msgstr "ユーザーが見つかりません。"
 
-#: mod/cal.php:143 mod/display.php:283 src/Module/Profile/Profile.php:94
+#: mod/cal.php:143 mod/display.php:284 src/Module/Profile/Profile.php:94
 #: src/Module/Profile/Profile.php:109 src/Module/Profile/Status.php:109
 #: src/Module/Update/Profile.php:55
 msgid "Access to this profile has been restricted."
@@ -956,10 +954,10 @@ msgstr "日"
 msgid "list"
 msgstr "リスト"
 
-#: mod/cal.php:297 src/Console/User.php:182 src/Model/User.php:607
+#: mod/cal.php:297 src/Console/User.php:182 src/Model/User.php:662
 #: src/Module/Admin/Users/Active.php:73 src/Module/Admin/Users/Blocked.php:74
 #: src/Module/Admin/Users/Index.php:80 src/Module/Admin/Users/Pending.php:71
-#: src/Module/Api/Twitter/ContactEndpoint.php:73
+#: src/Module/Api/Twitter/ContactEndpoint.php:71
 msgid "User not found"
 msgstr "ユーザーが見つかりません"
 
@@ -1023,7 +1021,7 @@ msgstr "' %s 'のユーザーレコードが見つかりません"
 
 #: mod/dfrn_confirm.php:398
 msgid "Our site encryption key is apparently messed up."
-msgstr "当サイトの暗号化キーが破損しているようです。"
+msgstr "当サイトの暗号化鍵が破損しているようです。"
 
 #: mod/dfrn_confirm.php:409
 msgid "Empty site URL was provided or URL could not be decrypted by us."
@@ -1052,7 +1050,7 @@ msgstr "このサーバ上のあなたのコンタクトの資格情報を設定
 msgid "Unable to update your contact profile details on our system"
 msgstr "このサーバ上のあなたのコンタクトプロフィールの詳細を更新できません"
 
-#: mod/dfrn_poll.php:135 mod/dfrn_poll.php:506
+#: mod/dfrn_poll.php:136 mod/dfrn_poll.php:509
 #, php-format
 msgid "%1$s welcomes %2$s"
 msgstr "%2$sさん、%1$sへようこそ"
@@ -1121,11 +1119,11 @@ msgstr "どうやらあなたはすでに%sと友達です。"
 msgid "Invalid profile URL."
 msgstr "無効なプロフィールURL。"
 
-#: mod/dfrn_request.php:355 src/Model/Contact.php:2159
+#: mod/dfrn_request.php:355 src/Model/Contact.php:2177
 msgid "Disallowed profile URL."
 msgstr "許可されていないプロフィールURL。"
 
-#: mod/dfrn_request.php:361 src/Model/Contact.php:2164
+#: mod/dfrn_request.php:361 src/Model/Contact.php:2182
 #: src/Module/Friendica.php:80
 msgid "Blocked domain"
 msgstr "ブロックされたドメイン"
@@ -1221,11 +1219,11 @@ msgstr "%sはあなたを知っています"
 msgid "Add a personal note:"
 msgstr "個人メモを追加します。"
 
-#: mod/display.php:235 mod/display.php:319
+#: mod/display.php:235 mod/display.php:320
 msgid "The requested item doesn't exist or has been deleted."
 msgstr "要求された項目は存在しないか、削除されました。"
 
-#: mod/display.php:399
+#: mod/display.php:400
 msgid "The feed for this item is unavailable."
 msgstr "この項目のフィードは利用できません。"
 
@@ -1335,7 +1333,7 @@ msgid "Description:"
 msgstr "説明："
 
 #: mod/events.php:563 src/Model/Event.php:84 src/Model/Event.php:111
-#: src/Model/Event.php:472 src/Model/Event.php:959 src/Model/Profile.php:358
+#: src/Model/Event.php:472 src/Model/Event.php:959 src/Model/Profile.php:368
 #: src/Module/Contact.php:654 src/Module/Directory.php:156
 #: src/Module/Notifications/Introductions.php:172
 #: src/Module/Profile/Profile.php:190
@@ -1362,7 +1360,7 @@ msgstr "このイベントを共有する"
 #: src/Module/Install.php:245 src/Module/Install.php:287
 #: src/Module/Install.php:324 src/Module/Invite.php:174
 #: src/Module/Item/Compose.php:144 src/Module/Profile/Profile.php:243
-#: src/Module/Settings/Profile/Index.php:237 src/Object/Post.php:956
+#: src/Module/Settings/Profile/Index.php:237 src/Object/Post.php:960
 #: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
 #: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
@@ -1372,7 +1370,7 @@ msgstr "送信する"
 msgid "Basic"
 msgstr "ベーシック"
 
-#: mod/events.php:577 src/Module/Admin/Site.php:587 src/Module/Contact.php:961
+#: mod/events.php:577 src/Module/Admin/Site.php:584 src/Module/Contact.php:961
 #: src/Module/Profile/Profile.php:245
 msgid "Advanced"
 msgstr "詳細"
@@ -1401,7 +1399,7 @@ msgstr "このコンタクトは既に追加されています。"
 
 #: mod/follow.php:100
 msgid "The network type couldn't be detected. Contact can't be added."
-msgstr "ネットワークタイプを検出できませんでした。コンタクトを追加できません。"
+msgstr "ネットワークの種類を検出できませんでした。コンタクトを追加できません。"
 
 #: mod/follow.php:108
 msgid "Diaspora support isn't enabled. Contact can't be added."
@@ -1437,27 +1435,27 @@ msgstr "ステータスメッセージと投稿"
 msgid "The contact could not be added."
 msgstr "コンタクトを追加できませんでした。"
 
-#: mod/item.php:135 mod/item.php:139
+#: mod/item.php:136 mod/item.php:140
 msgid "Unable to locate original post."
 msgstr "元の投稿が見つかりません。"
 
-#: mod/item.php:340 mod/item.php:345
+#: mod/item.php:341 mod/item.php:346
 msgid "Empty post discarded."
 msgstr "空の投稿は破棄されました。"
 
-#: mod/item.php:709
+#: mod/item.php:717
 msgid "Post updated."
 msgstr "投稿が更新されました。"
 
-#: mod/item.php:726 mod/item.php:731
+#: mod/item.php:727 mod/item.php:732
 msgid "Item wasn't stored."
 msgstr "項目が保存されませんでした。"
 
-#: mod/item.php:742
+#: mod/item.php:743
 msgid "Item couldn't be fetched."
 msgstr "項目を取得できませんでした。"
 
-#: mod/item.php:888 src/Module/Admin/Themes/Details.php:39
+#: mod/item.php:889 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:47
 #: src/Module/Debug/ItemBody.php:60
 msgid "Item not found."
@@ -1601,19 +1599,11 @@ msgstr "パスワードは%s変更されました"
 msgid "No keywords to match. Please add keywords to your profile."
 msgstr "合致するキーワードが有りません。あなたのプロフィールにキーワードを追加してください。"
 
-#: mod/match.php:105 src/Content/Pager.php:216
-msgid "first"
-msgstr "最初"
-
-#: mod/match.php:110 src/Content/Pager.php:276
-msgid "next"
-msgstr "次"
-
-#: mod/match.php:120 src/Module/BaseSearch.php:117
+#: mod/match.php:93 src/Module/BaseSearch.php:117
 msgid "No matches"
 msgstr "一致する項目がありません"
 
-#: mod/match.php:125
+#: mod/match.php:98
 msgid "Profile Match"
 msgstr "一致するプロフィール"
 
@@ -1985,12 +1975,12 @@ msgstr "CCWを回転（左）"
 
 #: mod/photos.php:1377 mod/photos.php:1434 mod/photos.php:1509
 #: src/Module/Contact.php:1104 src/Module/Item/Compose.php:142
-#: src/Object/Post.php:953
+#: src/Object/Post.php:957
 msgid "This is you"
 msgstr "これはあなたです"
 
 #: mod/photos.php:1379 mod/photos.php:1436 mod/photos.php:1511
-#: src/Object/Post.php:491 src/Object/Post.php:955
+#: src/Object/Post.php:495 src/Object/Post.php:959
 msgid "Comment"
 msgstr "コメント"
 
@@ -2185,7 +2175,7 @@ msgstr "追加機能"
 
 #: mod/settings.php:564 mod/settings.php:662 mod/settings.php:797
 #: src/Module/Admin/Addons/Index.php:69 src/Module/Admin/Features.php:87
-#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:582
+#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:579
 #: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:66
 #: src/Module/Settings/Delegation.php:170 src/Module/Settings/Display.php:189
 msgid "Save Settings"
@@ -2210,7 +2200,7 @@ msgstr "%s接続の組み込みサポートは%s"
 
 #: mod/settings.php:588
 msgid "OStatus (GNU Social)"
-msgstr ""
+msgstr "OStatus （GNU Social）"
 
 #: mod/settings.php:619
 msgid "Email access is disabled on this site."
@@ -2772,7 +2762,7 @@ msgstr "あなたは投稿でタグ付けされています"
 
 #: mod/settings.php:856
 msgid "You are poked/prodded/etc. in a post"
-msgstr "あなたは突かれた/突かれた/などです。投稿で"
+msgstr ""
 
 #: mod/settings.php:858
 msgid "Activate desktop notifications"
@@ -2857,15 +2847,15 @@ msgstr "利用可能な提案はありません。新しいサイトの場合は
 msgid "Friend Suggestions"
 msgstr "友達の提案"
 
-#: mod/tagrm.php:113
+#: mod/tagrm.php:115
 msgid "Remove Item Tag"
 msgstr "タグの削除"
 
-#: mod/tagrm.php:115
+#: mod/tagrm.php:117
 msgid "Select a tag to remove: "
 msgstr "削除するタグを選択:"
 
-#: mod/tagrm.php:126 src/Module/Settings/Delegation.php:179
+#: mod/tagrm.php:128 src/Module/Settings/Delegation.php:179
 #: src/Module/Settings/TwoFactor/Trusted.php:104
 msgid "Remove"
 msgstr "削除"
@@ -2966,7 +2956,7 @@ msgstr "ファイルサイズ上限 %s を超えています。"
 msgid "File upload failed."
 msgstr "アップロードが失敗しました。"
 
-#: mod/wall_upload.php:233
+#: mod/wall_upload.php:233 src/Model/Photo.php:953
 msgid "Wall Photos"
 msgstr "ウォール写真"
 
@@ -2990,7 +2980,7 @@ msgid ""
 "your site allow private mail from unknown senders."
 msgstr "%s からの返信を受け取りたい場合は、サイトのプライバシー設定で「不明な送信者からのプライベートメール」を許可しているか確認してください。"
 
-#: src/App.php:311
+#: src/App.php:312
 msgid "No system theme config value set."
 msgstr "システムテーマの構成値が設定されていません。"
 
@@ -3006,18 +2996,18 @@ msgstr "この項目を削除しますか？"
 msgid ""
 "Block this author? They won't be able to follow you nor see your public "
 "posts, and you won't be able to see their posts and their notifications."
-msgstr ""
+msgstr "この作者をブロックしますか？その人はあなたをフォローできなくなり、あなたの公開された投稿を見ることができなくなります。また、あなたはその人の投稿や通知を見ることができなくなります。"
 
 #: src/App/Page.php:299
 msgid "toggle mobile"
 msgstr "モバイルを切り替え"
 
-#: src/App/Router.php:234
+#: src/App/Router.php:236
 #, php-format
 msgid "Method not allowed for this module. Allowed method(s): %s"
 msgstr "そのメソッドは、このモジュールでは許可されていません。 このメソッド(たち)が許可されています: %s"
 
-#: src/App/Router.php:236 src/Module/HTTPException/PageNotFound.php:32
+#: src/App/Router.php:238 src/Module/HTTPException/PageNotFound.php:32
 msgid "Page not found."
 msgstr "ページが見つかりません。"
 
@@ -3630,46 +3620,54 @@ msgstr "埋め込みが無効です"
 msgid "Embedded content"
 msgstr "埋め込みコンテンツ"
 
+#: src/Content/Pager.php:216
+msgid "first"
+msgstr "最初"
+
 #: src/Content/Pager.php:221
 msgid "prev"
 msgstr "前の"
+
+#: src/Content/Pager.php:276
+msgid "next"
+msgstr "次"
 
 #: src/Content/Pager.php:281
 msgid "last"
 msgstr "最終"
 
-#: src/Content/Text/BBCode.php:942 src/Content/Text/BBCode.php:1605
-#: src/Content/Text/BBCode.php:1606
+#: src/Content/Text/BBCode.php:942 src/Content/Text/BBCode.php:1607
+#: src/Content/Text/BBCode.php:1608
 msgid "Image/photo"
 msgstr "画像/写真"
 
-#: src/Content/Text/BBCode.php:1064
+#: src/Content/Text/BBCode.php:1066
 #, php-format
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1089 src/Model/Item.php:3024
-#: src/Model/Item.php:3030 src/Model/Item.php:3031
+#: src/Content/Text/BBCode.php:1091 src/Model/Item.php:3113
+#: src/Model/Item.php:3119 src/Model/Item.php:3120
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1523 src/Content/Text/HTML.php:951
+#: src/Content/Text/BBCode.php:1525 src/Content/Text/HTML.php:951
 msgid "Click to open/close"
 msgstr "クリックして開閉"
 
-#: src/Content/Text/BBCode.php:1554
+#: src/Content/Text/BBCode.php:1556
 msgid "$1 wrote:"
 msgstr "$1 の投稿："
 
-#: src/Content/Text/BBCode.php:1608 src/Content/Text/BBCode.php:1609
+#: src/Content/Text/BBCode.php:1610 src/Content/Text/BBCode.php:1611
 msgid "Encrypted content"
 msgstr "暗号化されたコンテンツ"
 
-#: src/Content/Text/BBCode.php:1822
+#: src/Content/Text/BBCode.php:1824
 msgid "Invalid source protocol"
 msgstr "無効なソースプロトコル"
 
-#: src/Content/Text/BBCode.php:1837
+#: src/Content/Text/BBCode.php:1839
 msgid "Invalid link protocol"
 msgstr "無効なリンクプロトコル"
 
@@ -3681,7 +3679,7 @@ msgstr "さらにエントリを読み込んでいます..."
 msgid "The end"
 msgstr "終わり"
 
-#: src/Content/Text/HTML.php:893 src/Model/Profile.php:444
+#: src/Content/Text/HTML.php:893 src/Model/Profile.php:454
 #: src/Module/Contact.php:340
 msgid "Follow"
 msgstr "フォロー"
@@ -3802,7 +3800,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:532 src/Model/Contact.php:1410
+#: src/Content/Widget.php:532 src/Model/Contact.php:1423
 msgid "News"
 msgstr "ニュース"
 
@@ -3810,15 +3808,15 @@ msgstr "ニュース"
 msgid "All"
 msgstr ""
 
-#: src/Content/Widget/CalendarExport.php:63
+#: src/Content/Widget/CalendarExport.php:54
 msgid "Export"
 msgstr "輸出する"
 
-#: src/Content/Widget/CalendarExport.php:64
+#: src/Content/Widget/CalendarExport.php:55
 msgid "Export calendar as ical"
 msgstr "カレンダーをicalとしてエクスポート"
 
-#: src/Content/Widget/CalendarExport.php:65
+#: src/Content/Widget/CalendarExport.php:56
 msgid "Export calendar as csv"
 msgstr "カレンダーをcsvとしてエクスポート"
 
@@ -3974,7 +3972,7 @@ msgstr "PHP register_argc_argv"
 msgid ""
 "Error: the \"openssl_pkey_new\" function on this system is not able to "
 "generate encryption keys"
-msgstr "エラー：このシステムの\"openssl_pkey_new \"関数は暗号化キーを生成できません"
+msgstr "エラー：このシステムの\"openssl_pkey_new \"関数は暗号化鍵を生成できません"
 
 #: src/Core/Installer.php:335
 msgid ""
@@ -3984,7 +3982,7 @@ msgstr "Windowsで実行している場合は、「 http://www.php.net/manual/en
 
 #: src/Core/Installer.php:338
 msgid "Generate encryption keys"
-msgstr "暗号化キーを生成する"
+msgstr "暗号化鍵を生成する"
 
 #: src/Core/Installer.php:390
 msgid ""
@@ -4069,7 +4067,8 @@ msgid "Program execution functions"
 msgstr ""
 
 #: src/Core/Installer.php:468
-msgid "Error: Program execution functions required but not enabled."
+msgid ""
+"Error: Program execution functions (proc_open) required but not enabled."
 msgstr ""
 
 #: src/Core/Installer.php:474
@@ -4486,33 +4485,33 @@ msgstr "ユーザープロフィール作成エラー"
 msgid "Done. You can now login with your username and password"
 msgstr "完了しました。これでであなたのユーザー名とパスワードでログインできます。 "
 
-#: src/Database/DBStructure.php:64
+#: src/Database/DBStructure.php:65
 #, php-format
 msgid "The database version had been set to %s."
 msgstr ""
 
-#: src/Database/DBStructure.php:77
+#: src/Database/DBStructure.php:78
 #, php-format
 msgid ""
 "The post update is at version %d, it has to be at %d to safely drop the "
 "tables."
 msgstr ""
 
-#: src/Database/DBStructure.php:89
+#: src/Database/DBStructure.php:90
 msgid "No unused tables found."
 msgstr ""
 
-#: src/Database/DBStructure.php:94
+#: src/Database/DBStructure.php:95
 msgid ""
 "These tables are not used for friendica and will be deleted when you execute"
 " \"dbstructure drop -e\":"
 msgstr ""
 
-#: src/Database/DBStructure.php:132
+#: src/Database/DBStructure.php:133
 msgid "There are no tables on MyISAM or InnoDB with the Antelope file format."
 msgstr ""
 
-#: src/Database/DBStructure.php:156
+#: src/Database/DBStructure.php:157
 #, php-format
 msgid ""
 "\n"
@@ -4520,43 +4519,43 @@ msgid ""
 "%s\n"
 msgstr "\nデータベースの更新中にエラー%dが発生しました：\n%s\n"
 
-#: src/Database/DBStructure.php:159
+#: src/Database/DBStructure.php:160
 msgid "Errors encountered performing database changes: "
 msgstr "データベース変更の実行中に発生したエラー："
 
-#: src/Database/DBStructure.php:439
+#: src/Database/DBStructure.php:550
 msgid "Another database update is currently running."
 msgstr ""
 
-#: src/Database/DBStructure.php:443
+#: src/Database/DBStructure.php:554
 #, php-format
 msgid "%s: Database update"
 msgstr "%s ：データベースの更新"
 
-#: src/Database/DBStructure.php:743
+#: src/Database/DBStructure.php:854
 #, php-format
 msgid "%s: updating %s table."
 msgstr "%s ： %sテーブルを更新しています。"
 
-#: src/Factory/Api/Mastodon/Error.php:32
+#: src/Factory/Api/Mastodon/Error.php:38
 msgid "Record not found"
 msgstr ""
 
-#: src/Factory/Api/Mastodon/Error.php:41
+#: src/Factory/Api/Mastodon/Error.php:48
 msgid "Unprocessable Entity"
 msgstr ""
 
-#: src/Factory/Api/Mastodon/Error.php:50
+#: src/Factory/Api/Mastodon/Error.php:58
 #: src/Module/Special/HTTPException.php:50
 msgid "Unauthorized"
 msgstr "認証されていません"
 
-#: src/Factory/Api/Mastodon/Error.php:59
+#: src/Factory/Api/Mastodon/Error.php:68
 msgid ""
 "Token is not authorized with a valid user or is missing a required scope"
 msgstr ""
 
-#: src/Factory/Api/Mastodon/Error.php:68
+#: src/Factory/Api/Mastodon/Error.php:78
 #: src/Module/Special/HTTPException.php:53
 msgid "Internal Server Error"
 msgstr "内部サーバーエラー"
@@ -4619,82 +4618,82 @@ msgstr "%sは%sと友達になりました"
 msgid "Legacy module file not found: %s"
 msgstr "レガシーモジュールファイルが見つかりません： %s"
 
-#: src/Model/Contact.php:982 src/Model/Contact.php:995
+#: src/Model/Contact.php:995 src/Model/Contact.php:1008
 msgid "UnFollow"
 msgstr "フォロー解除"
 
-#: src/Model/Contact.php:991
+#: src/Model/Contact.php:1004
 msgid "Drop Contact"
 msgstr "コンタクトを削除"
 
-#: src/Model/Contact.php:1001 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1014 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:111
 #: src/Module/Notifications/Introductions.php:189
 msgid "Approve"
 msgstr "承認する"
 
-#: src/Model/Contact.php:1406
+#: src/Model/Contact.php:1419
 msgid "Organisation"
 msgstr "組織"
 
-#: src/Model/Contact.php:1414
+#: src/Model/Contact.php:1427
 msgid "Forum"
 msgstr "フォーラム"
 
-#: src/Model/Contact.php:2169
+#: src/Model/Contact.php:2187
 msgid "Connect URL missing."
 msgstr "接続URLがありません。"
 
-#: src/Model/Contact.php:2178
+#: src/Model/Contact.php:2196
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "コンタクトを追加できませんでした。ページの \"設定\" -> \"ソーシャルネットワーク\" で、関連するネットワーク認証情報を確認してください。"
 
-#: src/Model/Contact.php:2219
+#: src/Model/Contact.php:2237
 msgid ""
 "This site is not configured to allow communications with other networks."
 msgstr "このサイトは、他のネットワークとの通信を許可するように構成されていません。"
 
-#: src/Model/Contact.php:2220 src/Model/Contact.php:2233
+#: src/Model/Contact.php:2238 src/Model/Contact.php:2251
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "互換性のある通信プロトコルまたはフィードは見つかりませんでした。"
 
-#: src/Model/Contact.php:2231
+#: src/Model/Contact.php:2249
 msgid "The profile address specified does not provide adequate information."
 msgstr "指定されたプロフィールアドレスは、適切な情報を提供しません。"
 
-#: src/Model/Contact.php:2236
+#: src/Model/Contact.php:2254
 msgid "An author or name was not found."
 msgstr "著者または名前が見つかりませんでした。"
 
-#: src/Model/Contact.php:2239
+#: src/Model/Contact.php:2257
 msgid "No browser URL could be matched to this address."
 msgstr "このアドレスに一致するブラウザURLはありません。"
 
-#: src/Model/Contact.php:2242
+#: src/Model/Contact.php:2260
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "@スタイルのIDアドレスを既知のプロトコルまたは電子メールのコンタクトと一致させることができません。"
 
-#: src/Model/Contact.php:2243
+#: src/Model/Contact.php:2261
 msgid "Use mailto: in front of address to force email check."
 msgstr "メールチェックを強制するには、アドレスの前にmailto：を使用します。"
 
-#: src/Model/Contact.php:2249
+#: src/Model/Contact.php:2267
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "指定されたプロフィールアドレスは、このサイトで無効にされたネットワークに属します。"
 
-#: src/Model/Contact.php:2254
+#: src/Model/Contact.php:2272
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "限定公開のプロフィールです。この人はあなたから直接/個人的な通知を受け取ることができません。"
 
-#: src/Model/Contact.php:2313
+#: src/Model/Contact.php:2331
 msgid "Unable to retrieve contact information."
 msgstr "コンタクト情報を取得できません。"
 
@@ -4811,110 +4810,110 @@ msgstr "グループ名："
 msgid "Edit groups"
 msgstr "グループを編集"
 
-#: src/Model/Item.php:1582
+#: src/Model/Item.php:1659
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2527
+#: src/Model/Item.php:2609
 msgid "activity"
 msgstr "アクティビティ"
 
-#: src/Model/Item.php:2529
+#: src/Model/Item.php:2611
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2532
+#: src/Model/Item.php:2614
 msgid "post"
 msgstr "投稿"
 
-#: src/Model/Item.php:2646
+#: src/Model/Item.php:2728
 #, php-format
 msgid "Content warning: %s"
 msgstr "コンテンツの警告： %s"
 
-#: src/Model/Item.php:2989
+#: src/Model/Item.php:3078
 msgid "bytes"
 msgstr "バイト"
 
-#: src/Model/Item.php:3018 src/Model/Item.php:3019
+#: src/Model/Item.php:3107 src/Model/Item.php:3108
 msgid "View on separate page"
 msgstr "個別のページで見る"
 
-#: src/Model/Mail.php:120 src/Model/Mail.php:258
+#: src/Model/Mail.php:136 src/Model/Mail.php:268
 msgid "[no subject]"
 msgstr "[件名なし]"
 
-#: src/Model/Profile.php:346 src/Module/Profile/Profile.php:252
+#: src/Model/Profile.php:356 src/Module/Profile/Profile.php:252
 #: src/Module/Profile/Profile.php:254
 msgid "Edit profile"
 msgstr "プロフィール編集"
 
-#: src/Model/Profile.php:348
+#: src/Model/Profile.php:358
 msgid "Change profile photo"
 msgstr "プロフィール写真を変更"
 
-#: src/Model/Profile.php:361 src/Module/Directory.php:161
+#: src/Model/Profile.php:371 src/Module/Directory.php:161
 #: src/Module/Profile/Profile.php:180
 msgid "Homepage:"
 msgstr "ホームページ："
 
-#: src/Model/Profile.php:362 src/Module/Contact.php:658
+#: src/Model/Profile.php:372 src/Module/Contact.php:658
 #: src/Module/Notifications/Introductions.php:174
 msgid "About:"
 msgstr "この場所について:"
 
-#: src/Model/Profile.php:363 src/Module/Contact.php:656
+#: src/Model/Profile.php:373 src/Module/Contact.php:656
 #: src/Module/Profile/Profile.php:176
 msgid "XMPP:"
 msgstr "XMPP："
 
-#: src/Model/Profile.php:446 src/Module/Contact.php:342
+#: src/Model/Profile.php:456 src/Module/Contact.php:342
 msgid "Unfollow"
 msgstr "フォロー解除"
 
-#: src/Model/Profile.php:448
+#: src/Model/Profile.php:458
 msgid "Atom feed"
 msgstr "Atomフィード"
 
-#: src/Model/Profile.php:456 src/Module/Contact.php:338
+#: src/Model/Profile.php:466 src/Module/Contact.php:338
 #: src/Module/Notifications/Introductions.php:186
 msgid "Network:"
 msgstr "ネットワーク："
 
-#: src/Model/Profile.php:486 src/Model/Profile.php:583
+#: src/Model/Profile.php:496 src/Model/Profile.php:593
 msgid "g A l F d"
 msgstr "g A l F d"
 
-#: src/Model/Profile.php:487
+#: src/Model/Profile.php:497
 msgid "F d"
 msgstr "F d"
 
-#: src/Model/Profile.php:549 src/Model/Profile.php:634
+#: src/Model/Profile.php:559 src/Model/Profile.php:644
 msgid "[today]"
 msgstr "[今日]"
 
-#: src/Model/Profile.php:559
+#: src/Model/Profile.php:569
 msgid "Birthday Reminders"
 msgstr "誕生日のリマインダー"
 
-#: src/Model/Profile.php:560
+#: src/Model/Profile.php:570
 msgid "Birthdays this week:"
 msgstr "今週の誕生日："
 
-#: src/Model/Profile.php:621
+#: src/Model/Profile.php:631
 msgid "[No description]"
 msgstr "[説明なし]"
 
-#: src/Model/Profile.php:647
+#: src/Model/Profile.php:657
 msgid "Event Reminders"
 msgstr "イベントリマインダー"
 
-#: src/Model/Profile.php:648
+#: src/Model/Profile.php:658
 msgid "Upcoming events the next 7 days:"
 msgstr "今後7日間の今後のイベント："
 
-#: src/Model/Profile.php:823
+#: src/Model/Profile.php:833
 #, php-format
 msgid "OpenWebAuth: %1$s welcomes %2$s"
 msgstr "OpenWebAuth: %2$sさん、%1$sへようこそ"
@@ -4954,136 +4953,136 @@ msgstr "アップロードされたファイルが保存されるフォルダで
 msgid "Enter a valid existing folder"
 msgstr "有効な既存のフォルダを入力してください"
 
-#: src/Model/User.php:186 src/Model/User.php:931
+#: src/Model/User.php:186 src/Model/User.php:986
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr "重大なエラー：セキュリティキーの生成に失敗しました。"
 
-#: src/Model/User.php:549
+#: src/Model/User.php:571 src/Model/User.php:604
 msgid "Login failed"
 msgstr "ログインに失敗しました"
 
-#: src/Model/User.php:581
+#: src/Model/User.php:636
 msgid "Not enough information to authenticate"
 msgstr "認証に十分な情報がありません"
 
-#: src/Model/User.php:676
+#: src/Model/User.php:731
 msgid "Password can't be empty"
 msgstr "パスワードは空にできません"
 
-#: src/Model/User.php:695
+#: src/Model/User.php:750
 msgid "Empty passwords are not allowed."
 msgstr "空のパスワードは許可されていません。"
 
-#: src/Model/User.php:699
+#: src/Model/User.php:754
 msgid ""
 "The new password has been exposed in a public data dump, please choose "
 "another."
 msgstr "新しいパスワードは公開データダンプで公開されています。別のパスワードを選択してください。"
 
-#: src/Model/User.php:705
+#: src/Model/User.php:760
 msgid ""
 "The password can't contain accentuated letters, white spaces or colons (:)"
 msgstr "パスワードには、アクセント文字、空白、またはコロン（:)を含めることはできません"
 
-#: src/Model/User.php:811
+#: src/Model/User.php:866
 msgid "Passwords do not match. Password unchanged."
 msgstr "パスワードが一致していません。パスワードは変更されていません。"
 
-#: src/Model/User.php:818
+#: src/Model/User.php:873
 msgid "An invitation is required."
 msgstr "招待状が必要です。"
 
-#: src/Model/User.php:822
+#: src/Model/User.php:877
 msgid "Invitation could not be verified."
 msgstr "招待を確認できませんでした。"
 
-#: src/Model/User.php:830
+#: src/Model/User.php:885
 msgid "Invalid OpenID url"
 msgstr "無効なOpenID URL"
 
-#: src/Model/User.php:843 src/Security/Authentication.php:224
+#: src/Model/User.php:898 src/Security/Authentication.php:224
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr "指定したOpenIDでログイン中に問題が発生しました。 IDの正しいスペルを確認してください。"
 
-#: src/Model/User.php:843 src/Security/Authentication.php:224
+#: src/Model/User.php:898 src/Security/Authentication.php:224
 msgid "The error message was:"
 msgstr "エラーメッセージは次のとおりです。"
 
-#: src/Model/User.php:849
+#: src/Model/User.php:904
 msgid "Please enter the required information."
 msgstr "必要な情報を入力してください。"
 
-#: src/Model/User.php:863
+#: src/Model/User.php:918
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr "system.username_min_length（ %s ）とsystem.username_max_length（ %s ）は、お互いを除外し、値を交換しています。"
 
-#: src/Model/User.php:870
+#: src/Model/User.php:925
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] "ユーザー名は少なくとも%s文字である必要があります。"
 
-#: src/Model/User.php:874
+#: src/Model/User.php:929
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] "ユーザー名は最大で%s文字にする必要があります。"
 
-#: src/Model/User.php:882
+#: src/Model/User.php:937
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr "それはあなたのフルネーム（ファースト/ラスト）ではないようです。"
 
-#: src/Model/User.php:887
+#: src/Model/User.php:942
 msgid "Your email domain is not among those allowed on this site."
 msgstr "あなたのメールドメインは、このサイトで許可されているものではありません。"
 
-#: src/Model/User.php:891
+#: src/Model/User.php:946
 msgid "Not a valid email address."
 msgstr "有効な電子メールアドレスではありません。"
 
-#: src/Model/User.php:894
+#: src/Model/User.php:949
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr "そのニックネームは、ノード管理者によって登録がブロックされました。"
 
-#: src/Model/User.php:898 src/Model/User.php:906
+#: src/Model/User.php:953 src/Model/User.php:961
 msgid "Cannot use that email."
 msgstr "そのメールは使用できません。"
 
-#: src/Model/User.php:913
+#: src/Model/User.php:968
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr "ニックネームにはa-z、0-9、および _ のみを含めることができます。"
 
-#: src/Model/User.php:921 src/Model/User.php:978
+#: src/Model/User.php:976 src/Model/User.php:1033
 msgid "Nickname is already registered. Please choose another."
 msgstr "ニックネームはすでに登録されています。別のものを選択してください。"
 
-#: src/Model/User.php:965 src/Model/User.php:969
+#: src/Model/User.php:1020 src/Model/User.php:1024
 msgid "An error occurred during registration. Please try again."
 msgstr "登録中にエラーが発生しました。もう一度試してください。"
 
-#: src/Model/User.php:992
+#: src/Model/User.php:1047
 msgid "An error occurred creating your default profile. Please try again."
 msgstr "既定のプロフィールの作成中にエラーが発生しました。もう一度試してください。"
 
-#: src/Model/User.php:999
+#: src/Model/User.php:1054
 msgid "An error occurred creating your self contact. Please try again."
 msgstr "自己コンタクトの作成中にエラーが発生しました。もう一度試してください。"
 
-#: src/Model/User.php:1004
+#: src/Model/User.php:1059
 msgid "Friends"
 msgstr "友だち"
 
-#: src/Model/User.php:1008
+#: src/Model/User.php:1063
 msgid ""
 "An error occurred creating your default contact group. Please try again."
 msgstr "既定のコンタクトグループの作成中にエラーが発生しました。もう一度試してください。"
 
-#: src/Model/User.php:1199
+#: src/Model/User.php:1256
 #, php-format
 msgid ""
 "\n"
@@ -5091,7 +5090,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1202
+#: src/Model/User.php:1259
 #, php-format
 msgid ""
 "\n"
@@ -5123,12 +5122,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1235 src/Model/User.php:1342
+#: src/Model/User.php:1292 src/Model/User.php:1399
 #, php-format
 msgid "Registration details for %s"
 msgstr "%s の登録の詳細"
 
-#: src/Model/User.php:1255
+#: src/Model/User.php:1312
 #, php-format
 msgid ""
 "\n"
@@ -5143,12 +5142,12 @@ msgid ""
 "\t\t"
 msgstr "\n\t\t\t%1$s さん、\n\t\t\t\t%2$s に登録していただきありがとうございます。アカウントは管理者による承認待ちです。\n\n\t\t\tログインの詳細は次のとおりです。\n\n\t\t\tサイトの場所：\t%3$s\n\t\t\tログイン名：\t\t%4$s\n\t\t\tパスワード：\t\t%5$s\n\t\t"
 
-#: src/Model/User.php:1274
+#: src/Model/User.php:1331
 #, php-format
 msgid "Registration at %s"
 msgstr "%s登録"
 
-#: src/Model/User.php:1298
+#: src/Model/User.php:1355
 #, php-format
 msgid ""
 "\n"
@@ -5157,7 +5156,7 @@ msgid ""
 "\t\t\t"
 msgstr "\n\t\t\t%1$sさん、\n\t\t\t\t%2$sで登録していただきありがとうございます。アカウントが作成されました。\n\t\t"
 
-#: src/Model/User.php:1306
+#: src/Model/User.php:1363
 #, php-format
 msgid ""
 "\n"
@@ -5217,9 +5216,9 @@ msgstr "有効にする"
 #: src/Module/Admin/Addons/Index.php:67
 #: src/Module/Admin/Blocklist/Contact.php:78
 #: src/Module/Admin/Blocklist/Server.php:88
-#: src/Module/Admin/Federation.php:141 src/Module/Admin/Item/Delete.php:65
+#: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:65
 #: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:64
-#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:579
+#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:576
 #: src/Module/Admin/Summary.php:232 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
 #: src/Module/Admin/Users/Active.php:136
@@ -5549,26 +5548,26 @@ msgstr "機能 %s をロック"
 msgid "Manage Additional Features"
 msgstr "追加機能を管理する"
 
-#: src/Module/Admin/Federation.php:54
+#: src/Module/Admin/Federation.php:56
 msgid "Other"
 msgstr "その他"
 
-#: src/Module/Admin/Federation.php:108 src/Module/Admin/Federation.php:268
+#: src/Module/Admin/Federation.php:118 src/Module/Admin/Federation.php:348
 msgid "unknown"
 msgstr "未知の"
 
-#: src/Module/Admin/Federation.php:136
+#: src/Module/Admin/Federation.php:154
 msgid ""
 "This page offers you some numbers to the known part of the federated social "
 "network your Friendica node is part of. These numbers are not complete but "
 "only reflect the part of the network your node is aware of."
 msgstr "このページでは、Friendicaノードが属するフェデレーションソーシャルネットワークの既知の部分について統計を提供します。これらの数値は完全なものではなく、ノードが認識しているネットワークの部分のみを反映しています。"
 
-#: src/Module/Admin/Federation.php:142 src/Module/BaseAdmin.php:87
+#: src/Module/Admin/Federation.php:160 src/Module/BaseAdmin.php:87
 msgid "Federation Statistics"
 msgstr "フェデレーション統計"
 
-#: src/Module/Admin/Federation.php:146
+#: src/Module/Admin/Federation.php:164
 #, php-format
 msgid ""
 "Currently this node is aware of %d nodes with %d registered users from the "
@@ -5765,275 +5764,289 @@ msgstr "ジョブパラメータ"
 msgid "Priority"
 msgstr "優先度"
 
-#: src/Module/Admin/Site.php:69
+#: src/Module/Admin/Site.php:70
 msgid "Can not parse base url. Must have at least <scheme>://<domain>"
 msgstr "ベースURLを解析できません。少なくとも<scheme>://<domain>が必要です"
 
-#: src/Module/Admin/Site.php:123
+#: src/Module/Admin/Site.php:124
 msgid "Relocation started. Could take a while to complete."
 msgstr ""
 
-#: src/Module/Admin/Site.php:249
+#: src/Module/Admin/Site.php:248
 msgid "Invalid storage backend setting value."
 msgstr "無効なストレージバックエンド設定値です。"
 
-#: src/Module/Admin/Site.php:449 src/Module/Settings/Display.php:134
+#: src/Module/Admin/Site.php:446 src/Module/Settings/Display.php:134
 msgid "No special theme for mobile devices"
 msgstr "モバイルデバイス向けの特別なテーマはありません"
 
-#: src/Module/Admin/Site.php:466 src/Module/Settings/Display.php:144
+#: src/Module/Admin/Site.php:463 src/Module/Settings/Display.php:144
 #, php-format
 msgid "%s - (Experimental)"
 msgstr "%s （実験的）"
 
-#: src/Module/Admin/Site.php:478
+#: src/Module/Admin/Site.php:475
 msgid "No community page for local users"
 msgstr "ローカルユーザー向けのコミュニティページはありません"
 
-#: src/Module/Admin/Site.php:479
+#: src/Module/Admin/Site.php:476
 msgid "No community page"
 msgstr "コミュニティページなし"
 
-#: src/Module/Admin/Site.php:480
+#: src/Module/Admin/Site.php:477
 msgid "Public postings from users of this site"
 msgstr "このサイトのユーザーからの一般公開投稿"
 
-#: src/Module/Admin/Site.php:481
+#: src/Module/Admin/Site.php:478
 msgid "Public postings from the federated network"
 msgstr "フェデレーションネットワークからの一般公開投稿"
 
-#: src/Module/Admin/Site.php:482
+#: src/Module/Admin/Site.php:479
 msgid "Public postings from local users and the federated network"
 msgstr "ローカルユーザーとフェデレーションネットワークからの一般公開投稿"
 
-#: src/Module/Admin/Site.php:488
+#: src/Module/Admin/Site.php:485
 msgid "Multi user instance"
 msgstr "マルチユーザーインスタンス"
 
-#: src/Module/Admin/Site.php:516
+#: src/Module/Admin/Site.php:513
 msgid "Closed"
 msgstr "閉まっている"
 
-#: src/Module/Admin/Site.php:517
+#: src/Module/Admin/Site.php:514
 msgid "Requires approval"
 msgstr "承認が必要"
 
-#: src/Module/Admin/Site.php:518
+#: src/Module/Admin/Site.php:515
 msgid "Open"
 msgstr "開いた"
 
-#: src/Module/Admin/Site.php:522 src/Module/Install.php:215
+#: src/Module/Admin/Site.php:519 src/Module/Install.php:215
 msgid "No SSL policy, links will track page SSL state"
 msgstr "SSLポリシーはありません。リンクはページのSSL状態を追跡します"
 
-#: src/Module/Admin/Site.php:523 src/Module/Install.php:216
+#: src/Module/Admin/Site.php:520 src/Module/Install.php:216
 msgid "Force all links to use SSL"
 msgstr "すべてのリンクに強制的にSSLを使用させる"
 
-#: src/Module/Admin/Site.php:524 src/Module/Install.php:217
+#: src/Module/Admin/Site.php:521 src/Module/Install.php:217
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr "自己署名証明書、ローカルリンクのみにSSLを使用（非開示）"
 
-#: src/Module/Admin/Site.php:528
+#: src/Module/Admin/Site.php:525
 msgid "Don't check"
 msgstr "チェックしない"
 
-#: src/Module/Admin/Site.php:529
+#: src/Module/Admin/Site.php:526
 msgid "check the stable version"
 msgstr "安定版を確認してください"
 
-#: src/Module/Admin/Site.php:530
+#: src/Module/Admin/Site.php:527
 msgid "check the development version"
 msgstr "開発バージョンを確認する"
 
-#: src/Module/Admin/Site.php:534
+#: src/Module/Admin/Site.php:531
 msgid "none"
 msgstr ""
 
-#: src/Module/Admin/Site.php:535
+#: src/Module/Admin/Site.php:532
 msgid "Local contacts"
 msgstr ""
 
-#: src/Module/Admin/Site.php:536
+#: src/Module/Admin/Site.php:533
 msgid "Interactors"
 msgstr ""
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:546
 msgid "Database (legacy)"
 msgstr "データベース（レガシー）"
 
-#: src/Module/Admin/Site.php:580 src/Module/BaseAdmin.php:90
+#: src/Module/Admin/Site.php:577 src/Module/BaseAdmin.php:90
 msgid "Site"
 msgstr "サイト"
 
-#: src/Module/Admin/Site.php:581
+#: src/Module/Admin/Site.php:578
 msgid "General Information"
 msgstr ""
 
-#: src/Module/Admin/Site.php:583
+#: src/Module/Admin/Site.php:580
 msgid "Republish users to directory"
 msgstr "ユーザーをディレクトリに再公開する"
 
-#: src/Module/Admin/Site.php:584 src/Module/Register.php:139
+#: src/Module/Admin/Site.php:581 src/Module/Register.php:139
 msgid "Registration"
 msgstr "登録"
 
-#: src/Module/Admin/Site.php:585
+#: src/Module/Admin/Site.php:582
 msgid "File upload"
 msgstr "ファイルのアップロード"
 
-#: src/Module/Admin/Site.php:586
+#: src/Module/Admin/Site.php:583
 msgid "Policies"
 msgstr "ポリシー"
 
-#: src/Module/Admin/Site.php:588
+#: src/Module/Admin/Site.php:585
 msgid "Auto Discovered Contact Directory"
 msgstr "自動検出されたコンタクトディレクトリ"
 
-#: src/Module/Admin/Site.php:589
+#: src/Module/Admin/Site.php:586
 msgid "Performance"
 msgstr "性能"
 
-#: src/Module/Admin/Site.php:590
+#: src/Module/Admin/Site.php:587
 msgid "Worker"
 msgstr "ワーカー"
 
-#: src/Module/Admin/Site.php:591
+#: src/Module/Admin/Site.php:588
 msgid "Message Relay"
 msgstr "メッセージ中継"
 
-#: src/Module/Admin/Site.php:592
+#: src/Module/Admin/Site.php:589
+msgid ""
+"Use the command \"console relay\" in the command line to add or remove "
+"relays."
+msgstr ""
+
+#: src/Module/Admin/Site.php:590
+msgid "The system is not subscribed to any relays at the moment."
+msgstr ""
+
+#: src/Module/Admin/Site.php:591
+msgid "The system is currently subscribed to the following relays:"
+msgstr ""
+
+#: src/Module/Admin/Site.php:593
 msgid "Relocate Instance"
 msgstr "インスタンスの再配置"
 
-#: src/Module/Admin/Site.php:593
+#: src/Module/Admin/Site.php:594
 msgid ""
 "<strong>Warning!</strong> Advanced function. Could make this server "
 "unreachable."
 msgstr ""
 
-#: src/Module/Admin/Site.php:597
+#: src/Module/Admin/Site.php:598
 msgid "Site name"
 msgstr "サイト名"
 
-#: src/Module/Admin/Site.php:598
+#: src/Module/Admin/Site.php:599
 msgid "Sender Email"
 msgstr "送信者のメール"
 
-#: src/Module/Admin/Site.php:598
+#: src/Module/Admin/Site.php:599
 msgid ""
 "The email address your server shall use to send notification emails from."
 msgstr "サーバーが通知メールの送信に使用するメールアドレス。"
 
-#: src/Module/Admin/Site.php:599
+#: src/Module/Admin/Site.php:600
 msgid "Name of the system actor"
 msgstr ""
 
-#: src/Module/Admin/Site.php:599
+#: src/Module/Admin/Site.php:600
 msgid ""
 "Name of the internal system account that is used to perform ActivityPub "
 "requests. This must be an unused username. If set, this can't be changed "
 "again."
 msgstr ""
 
-#: src/Module/Admin/Site.php:600
+#: src/Module/Admin/Site.php:601
 msgid "Banner/Logo"
 msgstr "バナー/ロゴ"
 
-#: src/Module/Admin/Site.php:601
+#: src/Module/Admin/Site.php:602
 msgid "Email Banner/Logo"
 msgstr ""
 
-#: src/Module/Admin/Site.php:602
+#: src/Module/Admin/Site.php:603
 msgid "Shortcut icon"
 msgstr "ショートカットアイコン"
 
-#: src/Module/Admin/Site.php:602
+#: src/Module/Admin/Site.php:603
 msgid "Link to an icon that will be used for browsers."
 msgstr "ブラウザーに使用されるアイコンへのリンク。"
 
-#: src/Module/Admin/Site.php:603
+#: src/Module/Admin/Site.php:604
 msgid "Touch icon"
 msgstr "タッチアイコン"
 
-#: src/Module/Admin/Site.php:603
+#: src/Module/Admin/Site.php:604
 msgid "Link to an icon that will be used for tablets and mobiles."
 msgstr "タブレットやモバイルで使用されるアイコンへのリンク。"
 
-#: src/Module/Admin/Site.php:604
+#: src/Module/Admin/Site.php:605
 msgid "Additional Info"
 msgstr "追加情報"
 
-#: src/Module/Admin/Site.php:604
+#: src/Module/Admin/Site.php:605
 #, php-format
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at %s/servers."
 msgstr "パブリックサーバーの場合：追加の情報をここに追加して、 %s/servers にリストできます。"
 
-#: src/Module/Admin/Site.php:605
+#: src/Module/Admin/Site.php:606
 msgid "System language"
 msgstr "システム言語"
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:607
 msgid "System theme"
 msgstr "システムテーマ"
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:607
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a "
 "href=\"/admin/themes\" id=\"cnftheme\">Change default theme settings</a>"
 msgstr "既定のシステムテーマ - ユーザープロフィールによって上書きされる場合があります -<a href=\"/admin/themes\" id=\"cnftheme\">既定のテーマ設定を変更します</a>"
 
-#: src/Module/Admin/Site.php:607
+#: src/Module/Admin/Site.php:608
 msgid "Mobile system theme"
 msgstr "モバイルシステムのテーマ"
 
-#: src/Module/Admin/Site.php:607
+#: src/Module/Admin/Site.php:608
 msgid "Theme for mobile devices"
 msgstr "モバイルデバイスのテーマ"
 
-#: src/Module/Admin/Site.php:608 src/Module/Install.php:225
+#: src/Module/Admin/Site.php:609 src/Module/Install.php:225
 msgid "SSL link policy"
 msgstr "SSLリンクポリシー"
 
-#: src/Module/Admin/Site.php:608 src/Module/Install.php:227
+#: src/Module/Admin/Site.php:609 src/Module/Install.php:227
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr "生成されたリンクにSSLの使用を強制する必要があるかどうかを決定します"
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:610
 msgid "Force SSL"
 msgstr "SSLを強制する"
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:610
 msgid ""
 "Force all Non-SSL requests to SSL - Attention: on some systems it could lead"
 " to endless loops."
 msgstr "すべての非SSL要求をSSLに強制する-注意：一部のシステムでは、無限ループにつながる可能性があります。"
 
-#: src/Module/Admin/Site.php:610
+#: src/Module/Admin/Site.php:611
 msgid "Hide help entry from navigation menu"
 msgstr "ナビゲーションメニューからヘルプエントリを非表示にする"
 
-#: src/Module/Admin/Site.php:610
+#: src/Module/Admin/Site.php:611
 msgid ""
 "Hides the menu entry for the Help pages from the navigation menu. You can "
 "still access it calling /help directly."
 msgstr "ナビゲーションメニューからヘルプページのメニューエントリを非表示にします。 / helpを直接呼び出してアクセスできます。"
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:612
 msgid "Single user instance"
 msgstr "シングルユーザーインスタンス"
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:612
 msgid "Make this instance multi-user or single-user for the named user"
 msgstr "指定されたユーザーに対してこのインスタンスをマルチユーザーまたはシングルユーザーにします"
 
-#: src/Module/Admin/Site.php:613
+#: src/Module/Admin/Site.php:614
 msgid "File storage backend"
 msgstr "ファイルストレージバックエンド"
 
-#: src/Module/Admin/Site.php:613
+#: src/Module/Admin/Site.php:614
 msgid ""
 "The backend used to store uploaded data. If you change the storage backend, "
 "you can manually move the existing files. If you do not do so, the files "
@@ -6042,191 +6055,191 @@ msgid ""
 " for more information about the choices and the moving procedure."
 msgstr "アップロードされたデータを保存するために使用されるバックエンド。ストレージバックエンドを変更する場合、既存のファイルを手動で移動できます。変更しない場合、変更前にアップロードされたファイルは古いバックエンドで引き続き利用できます。選択肢と移動手順の詳細については、<a href=\"/help/Settings#1_2_3_1\">設定ドキュメント</a>をご覧ください。"
 
-#: src/Module/Admin/Site.php:615
+#: src/Module/Admin/Site.php:616
 msgid "Maximum image size"
 msgstr "最大画像サイズ"
 
-#: src/Module/Admin/Site.php:615
+#: src/Module/Admin/Site.php:616
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
 "limits."
 msgstr "アップロードされる画像の最大サイズ（バイト単位）。デフォルトは0で、制限がないことを意味します。"
 
-#: src/Module/Admin/Site.php:616
+#: src/Module/Admin/Site.php:617
 msgid "Maximum image length"
 msgstr "最大画像長"
 
-#: src/Module/Admin/Site.php:616
+#: src/Module/Admin/Site.php:617
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
 msgstr "アップロードされた画像の最長辺のピクセル単位の最大長。デフォルトは-1で、制限がないことを意味します。"
 
-#: src/Module/Admin/Site.php:617
+#: src/Module/Admin/Site.php:618
 msgid "JPEG image quality"
 msgstr "JPEG画像品質"
 
-#: src/Module/Admin/Site.php:617
+#: src/Module/Admin/Site.php:618
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
 msgstr "アップロードされたJPEGSは、この品質設定[0-100]で保存されます。デフォルトは100で、完全な品質です。"
 
-#: src/Module/Admin/Site.php:619
+#: src/Module/Admin/Site.php:620
 msgid "Register policy"
 msgstr "登録ポリシー"
 
-#: src/Module/Admin/Site.php:620
+#: src/Module/Admin/Site.php:621
 msgid "Maximum Daily Registrations"
 msgstr "毎日の最大登録数"
 
-#: src/Module/Admin/Site.php:620
+#: src/Module/Admin/Site.php:621
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
 msgstr "上記で登録が許可されている場合、これは1日に受け入れる新しいユーザー登録の最大数を設定します。レジスタがクローズに設定されている場合、この設定は効果がありません。"
 
-#: src/Module/Admin/Site.php:621
+#: src/Module/Admin/Site.php:622
 msgid "Register text"
 msgstr "登録テキスト"
 
-#: src/Module/Admin/Site.php:621
+#: src/Module/Admin/Site.php:622
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
 msgstr "登録ページに目立つように表示されます。ここでBBCodeを使用できます。"
 
-#: src/Module/Admin/Site.php:622
+#: src/Module/Admin/Site.php:623
 msgid "Forbidden Nicknames"
 msgstr "禁止されたニックネーム"
 
-#: src/Module/Admin/Site.php:622
+#: src/Module/Admin/Site.php:623
 msgid ""
 "Comma separated list of nicknames that are forbidden from registration. "
 "Preset is a list of role names according RFC 2142."
 msgstr "登録が禁止されているニックネームのカンマ区切りリスト。プリセットは、RFC 2142に基づくロール名のリストです。"
 
-#: src/Module/Admin/Site.php:623
+#: src/Module/Admin/Site.php:624
 msgid "Accounts abandoned after x days"
 msgstr "x日の間 放置されたアカウント"
 
-#: src/Module/Admin/Site.php:623
+#: src/Module/Admin/Site.php:624
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr "放置アカウントの外部サイトについてポーリングを停止しシステムリソースを節約します。時間制限なしの場合は0を入力します。"
 
-#: src/Module/Admin/Site.php:624
+#: src/Module/Admin/Site.php:625
 msgid "Allowed friend domains"
 msgstr "許可された友達ドメイン"
 
-#: src/Module/Admin/Site.php:624
+#: src/Module/Admin/Site.php:625
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr "このサイトとの友達関係を確立できるドメインのカンマ区切りリスト。ワイルドカードが使用できます。すべてのドメインを許可するには空白にしてください。"
 
-#: src/Module/Admin/Site.php:625
+#: src/Module/Admin/Site.php:626
 msgid "Allowed email domains"
 msgstr "許可されたメールドメイン"
 
-#: src/Module/Admin/Site.php:625
+#: src/Module/Admin/Site.php:626
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr "このサイトへの登録用の電子メールアドレスで許可されるドメインのカンマ区切りリスト。ワイルドカードが使用できます。すべてのドメインを許可するには空白にしてください。"
 
-#: src/Module/Admin/Site.php:626
+#: src/Module/Admin/Site.php:627
 msgid "No OEmbed rich content"
 msgstr "OEmbed リッチコンテンツなし"
 
-#: src/Module/Admin/Site.php:626
+#: src/Module/Admin/Site.php:627
 msgid ""
 "Don't show the rich content (e.g. embedded PDF), except from the domains "
 "listed below."
 msgstr "以下にリストされているドメインを除き、リッチコンテンツ（埋め込みPDFなど）を表示しないでください。"
 
-#: src/Module/Admin/Site.php:627
+#: src/Module/Admin/Site.php:628
 msgid "Trusted third-party domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:627
+#: src/Module/Admin/Site.php:628
 msgid ""
 "Comma separated list of domains from which content is allowed to be embedded"
 " in posts like with OEmbed. All sub-domains of the listed domains are "
 "allowed as well."
 msgstr ""
 
-#: src/Module/Admin/Site.php:628
+#: src/Module/Admin/Site.php:629
 msgid "Block public"
 msgstr "一般公開をブロック"
 
-#: src/Module/Admin/Site.php:628
+#: src/Module/Admin/Site.php:629
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr "このサイトの一般公開済み個人ページを除き、すべてのページで非ログイン状態のアクセスをブロックするには、ここをチェックします。"
 
-#: src/Module/Admin/Site.php:629
+#: src/Module/Admin/Site.php:630
 msgid "Force publish"
 msgstr "公開を強制する"
 
-#: src/Module/Admin/Site.php:629
+#: src/Module/Admin/Site.php:630
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr "このサイトのすべてのプロフィールがサイトディレクトリにリストされるように強制するには、チェックします。"
 
-#: src/Module/Admin/Site.php:629
+#: src/Module/Admin/Site.php:630
 msgid "Enabling this may violate privacy laws like the GDPR"
 msgstr "これを有効にすると、GDPRなどのプライバシー法に違反する可能性があります。"
 
-#: src/Module/Admin/Site.php:630
+#: src/Module/Admin/Site.php:631
 msgid "Global directory URL"
 msgstr "グローバルディレクトリURL"
 
-#: src/Module/Admin/Site.php:630
+#: src/Module/Admin/Site.php:631
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
 msgstr "グローバルディレクトリへのURL。これが設定されていない場合、グローバルディレクトリはアプリケーションで全く利用できなくなります。"
 
-#: src/Module/Admin/Site.php:631
+#: src/Module/Admin/Site.php:632
 msgid "Private posts by default for new users"
 msgstr "新規ユーザー向けの 既定のプライベート投稿"
 
-#: src/Module/Admin/Site.php:631
+#: src/Module/Admin/Site.php:632
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
 msgstr "すべての新しいメンバーの既定の投稿許可を、一般公開ではなく既定のプライバシーグループに設定します。"
 
-#: src/Module/Admin/Site.php:632
+#: src/Module/Admin/Site.php:633
 msgid "Don't include post content in email notifications"
 msgstr "メール通知に投稿本文を含めないでください"
 
-#: src/Module/Admin/Site.php:632
+#: src/Module/Admin/Site.php:633
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
 msgstr "プライバシー対策として、このサイトから送信されるメール通知に投稿/コメント/プライベートメッセージなどのコンテンツを含めないでください。"
 
-#: src/Module/Admin/Site.php:633
+#: src/Module/Admin/Site.php:634
 msgid "Disallow public access to addons listed in the apps menu."
 msgstr "アプリメニューにリストされているアドオンへの公開アクセスを許可しません。"
 
-#: src/Module/Admin/Site.php:633
+#: src/Module/Admin/Site.php:634
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
 msgstr "このチェックボックスをオンにすると、アプリメニューにリストされているアドオンがメンバーのみに制限されます。"
 
-#: src/Module/Admin/Site.php:634
+#: src/Module/Admin/Site.php:635
 msgid "Don't embed private images in posts"
 msgstr "投稿にプライベート画像を埋め込まないでください"
 
-#: src/Module/Admin/Site.php:634
+#: src/Module/Admin/Site.php:635
 msgid ""
 "Don't replace locally-hosted private photos in posts with an embedded copy "
 "of the image. This means that contacts who receive posts containing private "
@@ -6234,11 +6247,11 @@ msgid ""
 "while."
 msgstr "投稿内のローカルでホストされているプライベート写真を画像の埋め込みコピーで置き換えないでください。つまり、プライベート写真を含む投稿を受け取ったコンタクトは、各画像を認証して読み込む必要があり、時間がかかる場合があります。"
 
-#: src/Module/Admin/Site.php:635
+#: src/Module/Admin/Site.php:636
 msgid "Explicit Content"
 msgstr "明示的なコンテンツ"
 
-#: src/Module/Admin/Site.php:635
+#: src/Module/Admin/Site.php:636
 msgid ""
 "Set this to announce that your node is used mostly for explicit content that"
 " might not be suited for minors. This information will be published in the "
@@ -6247,234 +6260,234 @@ msgid ""
 "will be shown at the user registration page."
 msgstr "これを設定して、このノードが主に未成年者には適さない可能性のある露骨なコンテンツを目的とすることを通知します。この情報はノード情報で公開され、たとえばグローバルディレクトリによって使用され、参加するノードのリストからノードをフィルタリングします。さらに、これに関するメモがユーザー登録ページに表示されます。"
 
-#: src/Module/Admin/Site.php:636
+#: src/Module/Admin/Site.php:637
 msgid "Allow Users to set remote_self"
 msgstr "ユーザーがremote_selfを設定できるようにする"
 
-#: src/Module/Admin/Site.php:636
+#: src/Module/Admin/Site.php:637
 msgid ""
 "With checking this, every user is allowed to mark every contact as a "
 "remote_self in the repair contact dialog. Setting this flag on a contact "
 "causes mirroring every posting of that contact in the users stream."
 msgstr "これをチェックすると、すべてのユーザーがコンタクトの修復ダイアログですべてのコンタクトをremote_selfとしてマークできます。コンタクトにこのフラグを設定すると、ユーザーストリームでそのコンタクトのすべての投稿がミラーリングされます。"
 
-#: src/Module/Admin/Site.php:637
+#: src/Module/Admin/Site.php:638
 msgid "Block multiple registrations"
 msgstr "複数の登録をブロックする"
 
-#: src/Module/Admin/Site.php:637
+#: src/Module/Admin/Site.php:638
 msgid "Disallow users to register additional accounts for use as pages."
 msgstr "ユーザーがページとして使用する追加のアカウントを登録できないようにします。"
 
-#: src/Module/Admin/Site.php:638
+#: src/Module/Admin/Site.php:639
 msgid "Disable OpenID"
 msgstr "OpenIDを無効にする"
 
-#: src/Module/Admin/Site.php:638
+#: src/Module/Admin/Site.php:639
 msgid "Disable OpenID support for registration and logins."
 msgstr "登録とログインのOpenIDサポートを無効にします。"
 
-#: src/Module/Admin/Site.php:639
+#: src/Module/Admin/Site.php:640
 msgid "No Fullname check"
 msgstr "氏名チェックなし"
 
-#: src/Module/Admin/Site.php:639
+#: src/Module/Admin/Site.php:640
 msgid ""
 "Allow users to register without a space between the first name and the last "
 "name in their full name."
 msgstr "ユーザーがフルネームの名と姓の間にスペースを入れずに登録できるようにします。"
 
-#: src/Module/Admin/Site.php:640
+#: src/Module/Admin/Site.php:641
 msgid "Community pages for visitors"
 msgstr "訪問者向けのコミュニティページ"
 
-#: src/Module/Admin/Site.php:640
+#: src/Module/Admin/Site.php:641
 msgid ""
 "Which community pages should be available for visitors. Local users always "
 "see both pages."
 msgstr "訪問者が利用できるコミュニティページ。ローカルユーザーには常に両方のページが表示されます。"
 
-#: src/Module/Admin/Site.php:641
+#: src/Module/Admin/Site.php:642
 msgid "Posts per user on community page"
 msgstr "コミュニティページのユーザーごとの投稿"
 
-#: src/Module/Admin/Site.php:641
+#: src/Module/Admin/Site.php:642
 msgid ""
 "The maximum number of posts per user on the community page. (Not valid for "
 "\"Global Community\")"
 msgstr "コミュニティページのユーザーごとの投稿の最大数。 （「グローバルコミュニティ」には無効）"
 
-#: src/Module/Admin/Site.php:642
+#: src/Module/Admin/Site.php:643
 msgid "Disable OStatus support"
 msgstr "OStatusサポートを無効にする"
 
-#: src/Module/Admin/Site.php:642
+#: src/Module/Admin/Site.php:643
 msgid ""
 "Disable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All "
 "communications in OStatus are public, so privacy warnings will be "
 "occasionally displayed."
 msgstr "組み込みのOStatus（StatusNet、GNU Socialなど）互換機能を無効にします。 OStatusの通信はすべて公開されているため、プライバシーに関する警告がときどき表示されます。"
 
-#: src/Module/Admin/Site.php:643
+#: src/Module/Admin/Site.php:644
 msgid "OStatus support can only be enabled if threading is enabled."
 msgstr "OStatusサポートは、スレッドが有効な場合にのみ有効にできます。"
 
-#: src/Module/Admin/Site.php:645
+#: src/Module/Admin/Site.php:646
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
 msgstr "Friendicaがサブディレクトリにインストールされたため、Diasporaサポートを有効にできません。"
 
-#: src/Module/Admin/Site.php:646
+#: src/Module/Admin/Site.php:647
 msgid "Enable Diaspora support"
 msgstr "Diasporaサポートを有効にする"
 
-#: src/Module/Admin/Site.php:646
+#: src/Module/Admin/Site.php:647
 msgid "Provide built-in Diaspora network compatibility."
 msgstr "組み込みのDiasporaネットワーク互換機能を提供します。"
 
-#: src/Module/Admin/Site.php:647
+#: src/Module/Admin/Site.php:648
 msgid "Only allow Friendica contacts"
 msgstr "Friendicaコンタクトのみを許可する"
 
-#: src/Module/Admin/Site.php:647
+#: src/Module/Admin/Site.php:648
 msgid ""
 "All contacts must use Friendica protocols. All other built-in communication "
 "protocols disabled."
 msgstr "すべてのコンタクトはFriendicaプロトコルを使用する必要があります。他のすべての組み込み通信プロトコルは無効です。"
 
-#: src/Module/Admin/Site.php:648
+#: src/Module/Admin/Site.php:649
 msgid "Verify SSL"
 msgstr "SSLを検証する"
 
-#: src/Module/Admin/Site.php:648
+#: src/Module/Admin/Site.php:649
 msgid ""
 "If you wish, you can turn on strict certificate checking. This will mean you"
 " cannot connect (at all) to self-signed SSL sites."
 msgstr "必要に応じて、厳密な証明書チェックをオンにすることができます。これは、自己署名SSLサイトに（まったく）接続できないことを意味します。"
 
-#: src/Module/Admin/Site.php:649
+#: src/Module/Admin/Site.php:650
 msgid "Proxy user"
 msgstr "プロキシユーザー"
 
-#: src/Module/Admin/Site.php:650
+#: src/Module/Admin/Site.php:651
 msgid "Proxy URL"
 msgstr "プロキシURL"
 
-#: src/Module/Admin/Site.php:651
+#: src/Module/Admin/Site.php:652
 msgid "Network timeout"
 msgstr "ネットワークタイムアウト"
 
-#: src/Module/Admin/Site.php:651
+#: src/Module/Admin/Site.php:652
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
 msgstr "値は秒単位です。無制限の場合は0に設定します（推奨されません）。"
 
-#: src/Module/Admin/Site.php:652
+#: src/Module/Admin/Site.php:653
 msgid "Maximum Load Average"
 msgstr "最大負荷平均"
 
-#: src/Module/Admin/Site.php:652
+#: src/Module/Admin/Site.php:653
 #, php-format
 msgid ""
 "Maximum system load before delivery and poll processes are deferred - "
 "default %d."
 msgstr "このシステム 負荷/Load を超えると、配信・ポーリングプロセスの実行は延期されます。 - 既定の値は%dです。"
 
-#: src/Module/Admin/Site.php:653
+#: src/Module/Admin/Site.php:654
 msgid "Maximum Load Average (Frontend)"
 msgstr "最大負荷平均（フロントエンド）"
 
-#: src/Module/Admin/Site.php:653
+#: src/Module/Admin/Site.php:654
 msgid "Maximum system load before the frontend quits service - default 50."
 msgstr "フロントエンドがサービスを終了する前の最大システム負荷-デフォルト50"
 
-#: src/Module/Admin/Site.php:654
+#: src/Module/Admin/Site.php:655
 msgid "Minimal Memory"
 msgstr "最小限のメモリ"
 
-#: src/Module/Admin/Site.php:654
+#: src/Module/Admin/Site.php:655
 msgid ""
 "Minimal free memory in MB for the worker. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
 msgstr "ワーカーの最小空きメモリ（MB）。 / proc / meminfoへのアクセスが必要-デフォルトは0（無効）。"
 
-#: src/Module/Admin/Site.php:655
+#: src/Module/Admin/Site.php:656
 msgid "Periodically optimize tables"
 msgstr ""
 
-#: src/Module/Admin/Site.php:655
+#: src/Module/Admin/Site.php:656
 msgid "Periodically optimize tables like the cache and the workerqueue"
 msgstr ""
 
-#: src/Module/Admin/Site.php:657
+#: src/Module/Admin/Site.php:658
 msgid "Discover followers/followings from contacts"
 msgstr ""
 
-#: src/Module/Admin/Site.php:657
+#: src/Module/Admin/Site.php:658
 msgid ""
 "If enabled, contacts are checked for their followers and following contacts."
 msgstr ""
 
-#: src/Module/Admin/Site.php:658
+#: src/Module/Admin/Site.php:659
 msgid "None - deactivated"
 msgstr ""
 
-#: src/Module/Admin/Site.php:659
+#: src/Module/Admin/Site.php:660
 msgid ""
 "Local contacts - contacts of our local contacts are discovered for their "
 "followers/followings."
 msgstr ""
 
-#: src/Module/Admin/Site.php:660
+#: src/Module/Admin/Site.php:661
 msgid ""
 "Interactors - contacts of our local contacts and contacts who interacted on "
 "locally visible postings are discovered for their followers/followings."
 msgstr ""
 
-#: src/Module/Admin/Site.php:662
+#: src/Module/Admin/Site.php:663
 msgid "Synchronize the contacts with the directory server"
 msgstr ""
 
-#: src/Module/Admin/Site.php:662
+#: src/Module/Admin/Site.php:663
 msgid ""
 "if enabled, the system will check periodically for new contacts on the "
 "defined directory server."
 msgstr ""
 
-#: src/Module/Admin/Site.php:664
+#: src/Module/Admin/Site.php:665
 msgid "Days between requery"
 msgstr "再クエリの間隔"
 
-#: src/Module/Admin/Site.php:664
+#: src/Module/Admin/Site.php:665
 msgid "Number of days after which a server is requeried for his contacts."
 msgstr "コンタクトについてサーバーが再照会されるまでの日数。"
 
-#: src/Module/Admin/Site.php:665
+#: src/Module/Admin/Site.php:666
 msgid "Discover contacts from other servers"
 msgstr "他のサーバーからコンタクトを発見する"
 
-#: src/Module/Admin/Site.php:665
+#: src/Module/Admin/Site.php:666
 msgid ""
 "Periodically query other servers for contacts. The system queries Friendica,"
 " Mastodon and Hubzilla servers."
 msgstr ""
 
-#: src/Module/Admin/Site.php:666
+#: src/Module/Admin/Site.php:667
 msgid "Search the local directory"
 msgstr "ローカルディレクトリを検索する"
 
-#: src/Module/Admin/Site.php:666
+#: src/Module/Admin/Site.php:667
 msgid ""
 "Search the local directory instead of the global directory. When searching "
 "locally, every search will be executed on the global directory in the "
 "background. This improves the search results when the search is repeated."
 msgstr "グローバルディレクトリではなくローカルディレクトリを検索します。ローカルで検索する場合、すべての検索はバックグラウンドでグローバルディレクトリで実行されます。これにより、同じ検索を繰り返した場合の検索結果が改善されます。"
 
-#: src/Module/Admin/Site.php:668
+#: src/Module/Admin/Site.php:669
 msgid "Publish server information"
 msgstr "サーバー情報を公開する"
 
-#: src/Module/Admin/Site.php:668
+#: src/Module/Admin/Site.php:669
 msgid ""
 "If enabled, general server and usage data will be published. The data "
 "contains the name and version of the server, number of users with public "
@@ -6482,50 +6495,50 @@ msgid ""
 " href=\"http://the-federation.info/\">the-federation.info</a> for details."
 msgstr "有効にすると、一般的なサーバーと使用状況データが公開されます。データには、サーバーの名前とバージョン、パブリックプロフィールを持つユーザーの数、投稿の数、およびアクティブ化されたプロトコルとコネクタが含まれます。詳細については、<a href=\"http://the-federation.info/\"> the-federation.info </a>をご覧ください。"
 
-#: src/Module/Admin/Site.php:670
+#: src/Module/Admin/Site.php:671
 msgid "Check upstream version"
 msgstr "アップストリームバージョンを確認する"
 
-#: src/Module/Admin/Site.php:670
+#: src/Module/Admin/Site.php:671
 msgid ""
 "Enables checking for new Friendica versions at github. If there is a new "
 "version, you will be informed in the admin panel overview."
 msgstr "githubで新しいFriendicaバージョンのチェックを有効にします。新しいバージョンがある場合は、管理パネルの概要で通知されます。"
 
-#: src/Module/Admin/Site.php:671
+#: src/Module/Admin/Site.php:672
 msgid "Suppress Tags"
 msgstr "タグを非表示"
 
-#: src/Module/Admin/Site.php:671
+#: src/Module/Admin/Site.php:672
 msgid "Suppress showing a list of hashtags at the end of the posting."
 msgstr "投稿の最後にハッシュタグのリストを表示しないようにします。"
 
-#: src/Module/Admin/Site.php:672
+#: src/Module/Admin/Site.php:673
 msgid "Clean database"
 msgstr "データベースを消去"
 
-#: src/Module/Admin/Site.php:672
+#: src/Module/Admin/Site.php:673
 msgid ""
 "Remove old remote items, orphaned database records and old content from some"
 " other helper tables."
 msgstr "古いリモート項目、孤立したデータベースレコード、および古いコンテンツを他のヘルパーテーブルから削除します。"
 
-#: src/Module/Admin/Site.php:673
+#: src/Module/Admin/Site.php:674
 msgid "Lifespan of remote items"
 msgstr "リモート項目の寿命"
 
-#: src/Module/Admin/Site.php:673
+#: src/Module/Admin/Site.php:674
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "remote items will be deleted. Own items, and marked or filed items are "
 "always kept. 0 disables this behaviour."
 msgstr "データベースのクリーンアップが有効な場合、これはリモート項目が削除されるまでの日数を定義します。自身の項目、およびマークまたはファイルされた項目は常に保持されます。 0はこの動作を無効にします。"
 
-#: src/Module/Admin/Site.php:674
+#: src/Module/Admin/Site.php:675
 msgid "Lifespan of unclaimed items"
 msgstr "請求されていない項目の寿命"
 
-#: src/Module/Admin/Site.php:674
+#: src/Module/Admin/Site.php:675
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "unclaimed remote items (mostly content from the relay) will be deleted. "
@@ -6533,206 +6546,184 @@ msgid ""
 "items if set to 0."
 msgstr "データベースのクリーンアップが有効になっている場合、これは、要求されていないリモート項目（主に中継からのコンテンツ）が削除されるまでの日数を定義します。デフォルト値は90日です。 0に設定されている場合、リモート項目の一般的なライフスパン値がデフォルトになります。"
 
-#: src/Module/Admin/Site.php:675
+#: src/Module/Admin/Site.php:676
 msgid "Lifespan of raw conversation data"
 msgstr "Raw会話データの寿命"
 
-#: src/Module/Admin/Site.php:675
+#: src/Module/Admin/Site.php:676
 msgid ""
 "The conversation data is used for ActivityPub and OStatus, as well as for "
 "debug purposes. It should be safe to remove it after 14 days, default is 90 "
 "days."
 msgstr "会話データは、ActivityPubおよびOStatusに使用されるほか、デバッグにも使用されます。 14日後に削除しても安全です。デフォルトは90日です。"
 
-#: src/Module/Admin/Site.php:676
+#: src/Module/Admin/Site.php:677
 msgid "Path to item cache"
 msgstr "項目キャッシュへのパス"
 
-#: src/Module/Admin/Site.php:676
+#: src/Module/Admin/Site.php:677
 msgid "The item caches buffers generated bbcode and external images."
 msgstr "項目は、生成されたbbcodeと外部画像のバッファーをキャッシュします。"
 
-#: src/Module/Admin/Site.php:677
+#: src/Module/Admin/Site.php:678
 msgid "Cache duration in seconds"
 msgstr "秒単位のキャッシュ期間"
 
-#: src/Module/Admin/Site.php:677
+#: src/Module/Admin/Site.php:678
 msgid ""
 "How long should the cache files be hold? Default value is 86400 seconds (One"
 " day). To disable the item cache, set the value to -1."
 msgstr "キャッシュファイルを保持する期間デフォルト値は86400秒（1日）です。項目キャッシュを無効にするには、値を-1に設定します。"
 
-#: src/Module/Admin/Site.php:678
+#: src/Module/Admin/Site.php:679
 msgid "Maximum numbers of comments per post"
 msgstr "投稿あたりのコメントの最大数"
 
-#: src/Module/Admin/Site.php:678
+#: src/Module/Admin/Site.php:679
 msgid "How much comments should be shown for each post? Default value is 100."
 msgstr "各投稿に表示されるコメントの数は？デフォルト値は100です。"
 
-#: src/Module/Admin/Site.php:679
+#: src/Module/Admin/Site.php:680
 msgid "Maximum numbers of comments per post on the display page"
 msgstr ""
 
-#: src/Module/Admin/Site.php:679
+#: src/Module/Admin/Site.php:680
 msgid ""
 "How many comments should be shown on the single view for each post? Default "
 "value is 1000."
 msgstr ""
 
-#: src/Module/Admin/Site.php:680
+#: src/Module/Admin/Site.php:681
 msgid "Temp path"
 msgstr "一時パス"
 
-#: src/Module/Admin/Site.php:680
+#: src/Module/Admin/Site.php:681
 msgid ""
 "If you have a restricted system where the webserver can't access the system "
 "temp path, enter another path here."
 msgstr "Webサーバーがシステムの一時パスにアクセスできない制限されたシステムがある場合は、ここに別のパスを入力します。"
 
-#: src/Module/Admin/Site.php:681
+#: src/Module/Admin/Site.php:682
 msgid "Disable picture proxy"
 msgstr "画像プロキシを無効にする"
 
-#: src/Module/Admin/Site.php:681
+#: src/Module/Admin/Site.php:682
 msgid ""
 "The picture proxy increases performance and privacy. It shouldn't be used on"
 " systems with very low bandwidth."
 msgstr "画像プロキシは、パフォーマンスとプライバシーを向上させます。帯域幅が非常に低いシステムでは使用しないでください。"
 
-#: src/Module/Admin/Site.php:682
+#: src/Module/Admin/Site.php:683
 msgid "Only search in tags"
 msgstr "タグでのみ検索"
 
-#: src/Module/Admin/Site.php:682
+#: src/Module/Admin/Site.php:683
 msgid "On large systems the text search can slow down the system extremely."
 msgstr "大規模なシステムでは、テキスト検索によりシステムの速度が著しく低下する可能性があります。"
 
-#: src/Module/Admin/Site.php:684
+#: src/Module/Admin/Site.php:685
 msgid "New base url"
 msgstr "新しいベースURL"
 
-#: src/Module/Admin/Site.php:684
+#: src/Module/Admin/Site.php:685
 msgid ""
 "Change base url for this server. Sends relocate message to all Friendica and"
 " Diaspora* contacts of all users."
 msgstr "このサーバーのベースURLを変更します。すべてのユーザーのFriendicaおよびDiaspora *のすべてのコンタクトに再配置メッセージを送信します。"
 
-#: src/Module/Admin/Site.php:686
+#: src/Module/Admin/Site.php:687
 msgid "RINO Encryption"
 msgstr "RINO暗号化"
 
-#: src/Module/Admin/Site.php:686
+#: src/Module/Admin/Site.php:687
 msgid "Encryption layer between nodes."
 msgstr "ノード間の暗号化レイヤー。"
 
-#: src/Module/Admin/Site.php:686 src/Module/Admin/Site.php:694
+#: src/Module/Admin/Site.php:687 src/Module/Admin/Site.php:693
 #: src/Module/Contact.php:562 src/Module/Settings/TwoFactor/Index.php:118
 msgid "Disabled"
 msgstr "無効"
 
-#: src/Module/Admin/Site.php:686
+#: src/Module/Admin/Site.php:687
 msgid "Enabled"
 msgstr "有効化"
 
-#: src/Module/Admin/Site.php:688
+#: src/Module/Admin/Site.php:689
 msgid "Maximum number of parallel workers"
 msgstr "並列ワーカーの最大数"
 
-#: src/Module/Admin/Site.php:688
+#: src/Module/Admin/Site.php:689
 #, php-format
 msgid ""
 "On shared hosters set this to %d. On larger systems, values of %d are great."
 " Default value is %d."
 msgstr "共有ホスティング事業者では、これを%dに設定します。大規模なシステムでは、 %dの値は素晴らしいでしょう。既定の値は%dです。"
 
-#: src/Module/Admin/Site.php:689
+#: src/Module/Admin/Site.php:690
 msgid "Enable fastlane"
 msgstr "fastlaneを有効にする"
 
-#: src/Module/Admin/Site.php:689
+#: src/Module/Admin/Site.php:690
 msgid ""
 "When enabed, the fastlane mechanism starts an additional worker if processes"
 " with higher priority are blocked by processes of lower priority."
 msgstr "有効にすると、優先度の高いプロセスが優先度の低いプロセスによってブロックされた場合、fastlaneメカニズムは追加のワーカーを開始します。"
 
-#: src/Module/Admin/Site.php:691
-msgid "Use relay servers"
-msgstr "中継サーバーを使用する"
-
-#: src/Module/Admin/Site.php:691
-msgid ""
-"Enables the receiving of public posts from relay servers. They will be "
-"included in the search, subscribed tags and on the global community page."
-msgstr "中継サーバーからの公開投稿の受信を有効にします。それらは、検索や購読しているタグ、グローバルコミュニティのページに掲載されます。"
-
 #: src/Module/Admin/Site.php:692
-msgid "\"Social Relay\" server"
-msgstr ""
-
-#: src/Module/Admin/Site.php:692
-#, php-format
-msgid ""
-"Address of the \"Social Relay\" server where public posts should be send to."
-" For example %s. ActivityRelay servers are administrated via the \"console "
-"relay\" command line command."
-msgstr ""
-
-#: src/Module/Admin/Site.php:693
 msgid "Direct relay transfer"
 msgstr "直接中継転送"
 
-#: src/Module/Admin/Site.php:693
+#: src/Module/Admin/Site.php:692
 msgid ""
 "Enables the direct transfer to other servers without using the relay servers"
 msgstr "中継サーバーを使用せずに他のサーバーに直接転送できるようにします"
 
-#: src/Module/Admin/Site.php:694
+#: src/Module/Admin/Site.php:693
 msgid "Relay scope"
 msgstr "中継スコープ"
 
-#: src/Module/Admin/Site.php:694
+#: src/Module/Admin/Site.php:693
 msgid ""
 "Can be \"all\" or \"tags\". \"all\" means that every public post should be "
 "received. \"tags\" means that only posts with selected tags should be "
 "received."
 msgstr "\"all \"または\"tags \"にすることができます。 「すべて」は、すべての一般公開投稿を受信することを意味します。 「タグ」は、選択したタグのある投稿のみを受信することを意味します。"
 
-#: src/Module/Admin/Site.php:694
+#: src/Module/Admin/Site.php:693
 msgid "all"
 msgstr "すべて"
 
-#: src/Module/Admin/Site.php:694
+#: src/Module/Admin/Site.php:693
 msgid "tags"
 msgstr "タグ"
 
-#: src/Module/Admin/Site.php:695
+#: src/Module/Admin/Site.php:694
 msgid "Server tags"
 msgstr "サーバータグ"
 
-#: src/Module/Admin/Site.php:695
+#: src/Module/Admin/Site.php:694
 msgid "Comma separated list of tags for the \"tags\" subscription."
 msgstr "\"tags \"サブスクリプションのタグのコンマ区切りリスト。"
 
-#: src/Module/Admin/Site.php:696
+#: src/Module/Admin/Site.php:695
 msgid "Deny Server tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:696
+#: src/Module/Admin/Site.php:695
 msgid "Comma separated list of tags that are rejected."
 msgstr ""
 
-#: src/Module/Admin/Site.php:697
+#: src/Module/Admin/Site.php:696
 msgid "Allow user tags"
 msgstr "ユーザータグを許可する"
 
-#: src/Module/Admin/Site.php:697
+#: src/Module/Admin/Site.php:696
 msgid ""
 "If enabled, the tags from the saved searches will used for the \"tags\" "
 "subscription in addition to the \"relay_server_tags\"."
 msgstr "有効にすると、保存された検索のタグが、\"relay_server_tags \"に加えて\"tags \"サブスクリプションに使用されます。"
 
-#: src/Module/Admin/Site.php:700
+#: src/Module/Admin/Site.php:699
 msgid "Start Relocation"
 msgstr "再配置を開始"
 
@@ -7182,7 +7173,7 @@ msgstr "ユーザーからのメモ"
 msgid "Deny"
 msgstr "拒否する"
 
-#: src/Module/Api/Mastodon/Apps.php:47 src/Module/Api/Mastodon/Apps.php:58
+#: src/Module/Api/Mastodon/Apps.php:58
 msgid "Missing parameters"
 msgstr ""
 
@@ -7217,11 +7208,11 @@ msgstr ""
 msgid "Posts from %s can't be unshared"
 msgstr ""
 
-#: src/Module/Api/Twitter/ContactEndpoint.php:65 src/Module/Contact.php:400
+#: src/Module/Api/Twitter/ContactEndpoint.php:63 src/Module/Contact.php:400
 msgid "Contact not found"
 msgstr "コンタクトが見つかりません"
 
-#: src/Module/Api/Twitter/ContactEndpoint.php:135
+#: src/Module/Api/Twitter/ContactEndpoint.php:133
 msgid "Profile not found"
 msgstr ""
 
@@ -7319,12 +7310,12 @@ msgstr "アドオン機能"
 msgid "User registrations waiting for confirmation"
 msgstr "確認待ちのユーザー登録"
 
-#: src/Module/BaseApi.php:133
+#: src/Module/BaseApi.php:116
 #, php-format
 msgid "API endpoint %s %s is not implemented"
 msgstr ""
 
-#: src/Module/BaseApi.php:134
+#: src/Module/BaseApi.php:117
 msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr ""
@@ -7683,7 +7674,7 @@ msgstr "コンタクトグループを整理する"
 msgid "Search your contacts"
 msgstr "コンタクトを検索する"
 
-#: src/Module/Contact.php:883 src/Module/Search/Index.php:192
+#: src/Module/Contact.php:883 src/Module/Search/Index.php:194
 #, php-format
 msgid "Results for: %s"
 msgstr "結果： %s"
@@ -7812,7 +7803,7 @@ msgstr "ポーリング/フィードURL"
 msgid "New photo from this URL"
 msgstr "このURLからの新しい写真"
 
-#: src/Module/Contact/Contacts.php:31 src/Module/Conversation/Network.php:175
+#: src/Module/Contact/Contacts.php:31 src/Module/Conversation/Network.php:177
 msgid "Invalid contact."
 msgstr "無効なコンタクト。"
 
@@ -7919,7 +7910,7 @@ msgid "Hide"
 msgstr ""
 
 #: src/Module/Conversation/Community.php:149 src/Module/Search/Index.php:139
-#: src/Module/Search/Index.php:179
+#: src/Module/Search/Index.php:181
 msgid "No results."
 msgstr "結果がありません。"
 
@@ -7937,45 +7928,45 @@ msgstr "コミュニティオプションは利用できません。"
 msgid "Not available."
 msgstr "利用不可。"
 
-#: src/Module/Conversation/Network.php:161
+#: src/Module/Conversation/Network.php:163
 msgid "No such group"
 msgstr "そのようなグループはありません"
 
-#: src/Module/Conversation/Network.php:165
+#: src/Module/Conversation/Network.php:167
 #, php-format
 msgid "Group: %s"
 msgstr "グループ： %s"
 
-#: src/Module/Conversation/Network.php:241
+#: src/Module/Conversation/Network.php:243
 msgid "Latest Activity"
 msgstr "最近の操作"
 
-#: src/Module/Conversation/Network.php:244
+#: src/Module/Conversation/Network.php:246
 msgid "Sort by latest activity"
 msgstr "最終更新順に並び替え"
 
-#: src/Module/Conversation/Network.php:249
+#: src/Module/Conversation/Network.php:251
 msgid "Latest Posts"
 msgstr "最新の投稿"
 
-#: src/Module/Conversation/Network.php:252
+#: src/Module/Conversation/Network.php:254
 msgid "Sort by post received date"
 msgstr "投稿を受信した順に並び替え"
 
-#: src/Module/Conversation/Network.php:257
+#: src/Module/Conversation/Network.php:259
 #: src/Module/Settings/Profile/Index.php:242
 msgid "Personal"
 msgstr "パーソナル"
 
-#: src/Module/Conversation/Network.php:260
+#: src/Module/Conversation/Network.php:262
 msgid "Posts that mention or involve you"
 msgstr "あなたに言及または関与している投稿"
 
-#: src/Module/Conversation/Network.php:265 src/Object/Post.php:334
+#: src/Module/Conversation/Network.php:267 src/Object/Post.php:334
 msgid "Starred"
 msgstr "スター付き"
 
-#: src/Module/Conversation/Network.php:268
+#: src/Module/Conversation/Network.php:270
 msgid "Favourite Posts"
 msgstr "お気に入りの投稿"
 
@@ -8769,7 +8760,7 @@ msgstr ""
 
 #: src/Module/Manifest.php:42
 msgid "A Decentralized Social Network"
-msgstr ""
+msgstr "分権化されたソーシャルネットワーク"
 
 #: src/Module/Notifications/Introductions.php:78
 msgid "Show Ignored Requests"
@@ -8782,7 +8773,7 @@ msgstr "無視されたリクエストを隠す"
 #: src/Module/Notifications/Introductions.php:94
 #: src/Module/Notifications/Introductions.php:163
 msgid "Notification type:"
-msgstr "通知タイプ："
+msgstr "通知の種類："
 
 #: src/Module/Notifications/Introductions.php:97
 msgid "Suggested by:"
@@ -8856,15 +8847,22 @@ msgstr "未読を表示"
 msgid "Show all"
 msgstr "すべて表示する"
 
-#: src/Module/OAuth/Authorize.php:49
+#: src/Module/OAuth/Authorize.php:54
 msgid "Unsupported or missing response type"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:54 src/Module/OAuth/Token.php:55
+#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:58
 msgid "Incomplete request data"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:79
+#: src/Module/OAuth/Authorize.php:106
+#, php-format
+msgid ""
+"Please copy the following authentication code into your application and "
+"close this window: %s"
+msgstr ""
+
+#: src/Module/OAuth/Token.php:82
 msgid "Unsupported or missing grant type"
 msgstr ""
 
@@ -9007,7 +9005,7 @@ msgstr "招待コード："
 
 #: src/Module/Register.php:145
 msgid "Your Full Name (e.g. Joe Smith, real or real-looking): "
-msgstr "あなたの氏名（例：ジョー・スミス、本物または本物の見た目）："
+msgstr "あなたの氏名（例：ジョー・スミス、本物または本物のような）："
 
 #: src/Module/Register.php:146
 msgid ""
@@ -9119,7 +9117,7 @@ msgstr "ログインしたユーザーのみが検索を実行できます。"
 msgid "Only one search per minute is permitted for not logged in users."
 msgstr "ログインしていないユーザーには、1分間に1つの検索のみが許可されます。"
 
-#: src/Module/Search/Index.php:190
+#: src/Module/Search/Index.php:192
 #, php-format
 msgid "Items tagged with: %s"
 msgstr "タグ付けされた項目： %s"
@@ -9529,7 +9527,7 @@ msgstr "プロフィール写真をアップロード"
 
 #: src/Module/Settings/Profile/Index.php:252
 msgid "Display name:"
-msgstr ""
+msgstr "表示名:"
 
 #: src/Module/Settings/Profile/Index.php:255
 msgid "Street Address:"
@@ -9644,7 +9642,7 @@ msgstr ""
 
 #: src/Module/Settings/Profile/Photo/Index.php:128
 msgid "Upload Profile Picture"
-msgstr ""
+msgstr "プロフィール画像をアップロード"
 
 #: src/Module/Settings/Profile/Photo/Index.php:129
 msgid "Upload Picture:"
@@ -10392,70 +10390,70 @@ msgstr ""
 msgid "Remote comment"
 msgstr ""
 
-#: src/Object/Post.php:417
+#: src/Object/Post.php:421
 msgid "Pushed"
 msgstr ""
 
-#: src/Object/Post.php:417
+#: src/Object/Post.php:421
 msgid "Pulled"
 msgstr ""
 
-#: src/Object/Post.php:451
+#: src/Object/Post.php:455
 msgid "to"
 msgstr "に"
 
-#: src/Object/Post.php:452
+#: src/Object/Post.php:456
 msgid "via"
 msgstr "投稿先:"
 
-#: src/Object/Post.php:453
+#: src/Object/Post.php:457
 msgid "Wall-to-Wall"
 msgstr "壁間"
 
-#: src/Object/Post.php:454
+#: src/Object/Post.php:458
 msgid "via Wall-To-Wall:"
 msgstr "Wall-to-Wall経由："
 
-#: src/Object/Post.php:492
+#: src/Object/Post.php:496
 #, php-format
 msgid "Reply to %s"
 msgstr "%sへの返信"
 
-#: src/Object/Post.php:495
+#: src/Object/Post.php:499
 msgid "More"
 msgstr "更に"
 
-#: src/Object/Post.php:513
+#: src/Object/Post.php:517
 msgid "Notifier task is pending"
 msgstr "通知タスクは保留中です"
 
-#: src/Object/Post.php:514
+#: src/Object/Post.php:518
 msgid "Delivery to remote servers is pending"
 msgstr "リモートサーバーへの配信は保留中です"
 
-#: src/Object/Post.php:515
+#: src/Object/Post.php:519
 msgid "Delivery to remote servers is underway"
 msgstr "リモートサーバーへの配信が進行中です"
 
-#: src/Object/Post.php:516
+#: src/Object/Post.php:520
 msgid "Delivery to remote servers is mostly done"
 msgstr "リモートサーバーへの配信はもうすぐ完了します"
 
-#: src/Object/Post.php:517
+#: src/Object/Post.php:521
 msgid "Delivery to remote servers is done"
 msgstr "リモートサーバーへの配信が完了しました"
 
-#: src/Object/Post.php:537
+#: src/Object/Post.php:541
 #, php-format
 msgid "%d comment"
 msgid_plural "%d comments"
 msgstr[0] "%dコメント"
 
-#: src/Object/Post.php:538
+#: src/Object/Post.php:542
 msgid "Show more"
 msgstr "もっと見せる"
 
-#: src/Object/Post.php:539
+#: src/Object/Post.php:543
 msgid "Show fewer"
 msgstr "表示を減らす"
 
@@ -10561,20 +10559,20 @@ msgstr "学校教育"
 msgid "Contact information and Social Networks"
 msgstr "コンタクト情報とソーシャルネットワーク"
 
-#: src/Security/Authentication.php:210 src/Security/Authentication.php:262
+#: src/Security/Authentication.php:210
 msgid "Login failed."
 msgstr "ログインに失敗しました。"
 
-#: src/Security/Authentication.php:273
+#: src/Security/Authentication.php:251
 msgid "Login failed. Please check your credentials."
 msgstr "ログインに失敗しました。認証情報を確かめてください。"
 
-#: src/Security/Authentication.php:392
+#: src/Security/Authentication.php:370
 #, php-format
 msgid "Welcome %s"
 msgstr "ようこそ%s"
 
-#: src/Security/Authentication.php:393
+#: src/Security/Authentication.php:371
 msgid "Please upload a profile photo."
 msgstr "プロフィール写真をアップロードしてください。"
 
@@ -10667,7 +10665,7 @@ msgstr ""
 msgid "%1$d %2$s ago"
 msgstr "%1$d%2$s前"
 
-#: src/Worker/Delivery.php:570
+#: src/Worker/Delivery.php:529
 msgid "(no subject)"
 msgstr ""
 

@@ -30,9 +30,9 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Notification;
+use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
@@ -326,7 +326,7 @@ function settings_post(App $a)
 	$detailed_notif   = (($_POST['detailed_notif'] == 1) ? 1 : 0);
 
 	$notify_ignored   = (($_POST['notify_ignored'] == 1) ? 1 : 0);
-	
+
 	$notify = 0;
 
 	if (!empty($_POST['notify1'])) {
@@ -447,37 +447,14 @@ function settings_post(App $a)
 		$fields['openidserver'] = '';
 	}
 
-	if (!DBA::update('user', $fields, ['uid' => local_user()])) {
+	$profile_fields = ['publish' => $publish, 'net-publish' => $net_publish, 'hide-friends' => $hide_friends];
+
+	if (!User::update($fields, local_user()) || !Profile::update($profile_fields, local_user())) {
 		notice(DI::l10n()->t('Settings were not updated.'));
 	}
 
 	// clear session language
 	unset($_SESSION['language']);
-
-	q("UPDATE `profile`
-		SET `publish` = %d,
-		`name` = '%s',
-		`net-publish` = %d,
-		`hide-friends` = %d
-		WHERE `uid` = %d",
-		intval($publish),
-		DBA::escape($username),
-		intval($net_publish),
-		intval($hide_friends),
-		intval(local_user())
-	);
-
-	Contact::updateSelfFromUserID(local_user());
-
-	if (($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
-		// Update global directory in background
-		$url = $_SESSION['my_url'];
-		if ($url && strlen(DI::config()->get('system', 'directory'))) {
-			Worker::add(PRIORITY_LOW, "Directory", $url);
-		}
-	}
-
-	Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 
 	DI::baseUrl()->redirect('settings');
 	return; // NOTREACHED
@@ -525,21 +502,20 @@ function settings_content(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'addon')) {
-		$settings_addons = "";
+		$addon_settings_forms = [];
 
-		$r = q("SELECT * FROM `hook` WHERE `hook` = 'addon_settings' ");
-		if (!DBA::isResult($r)) {
-			$settings_addons = DI::l10n()->t('No Addon settings configured');
+		foreach (DI::dba()->selectToArray('hook', ['file', 'function'], ['hook' => 'addon_settings']) as $hook) {
+			$data = '';
+			Hook::callSingle(DI::app(), 'addon_settings', [$hook['file'], $hook['function']], $data);
+			$addon_settings_forms[] = $data;
 		}
-
-		Hook::callAll('addon_settings', $settings_addons);
-
 
 		$tpl = Renderer::getMarkupTemplate('settings/addons.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_addon"),
 			'$title'	=> DI::l10n()->t('Addon Settings'),
-			'$settings_addons' => $settings_addons
+			'$no_addons_settings_configured' => DI::l10n()->t('No Addon settings configured'),
+			'$addon_settings_forms' => $addon_settings_forms,
 		]);
 		return $o;
 	}

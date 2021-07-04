@@ -32,10 +32,10 @@ class Field extends BaseFactory
 {
 	/**
 	 * @param ProfileField $profileField
-	 * @return \Friendica\Api\Entity\Mastodon\Field
+	 * @return \Friendica\Object\Api\Mastodon\Field
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function createFromProfileField(ProfileField $profileField)
+	public function createFromProfileField(ProfileField $profileField): \Friendica\Object\Api\Mastodon\Field
 	{
 		return new \Friendica\Object\Api\Mastodon\Field($profileField->label, BBCode::convert($profileField->value, false, BBCode::ACTIVITYPUB));
 	}
@@ -45,7 +45,7 @@ class Field extends BaseFactory
 	 * @return Fields
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function createFromProfileFields(ProfileFields $profileFields)
+	public function createFromProfileFields(ProfileFields $profileFields): Fields
 	{
 		$fields = [];
 

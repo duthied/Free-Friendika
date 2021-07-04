@@ -39,6 +39,7 @@ use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -68,7 +69,6 @@ class Post
 	private $thread = null;
 	private $redirect_url = null;
 	private $owner_url = '';
-	private $owner_photo = '';
 	private $owner_name = '';
 	private $wall_to_wall = false;
 	private $threaded = false;
@@ -401,9 +401,13 @@ class Post
 		}
 
 		// Fetching of Diaspora posts doesn't always work. There are issues with reshares and possibly comments
-		if (($item['network'] != Protocol::DIASPORA) && empty($comment) && !empty(Session::get('remote_comment'))) {
+		if (!local_user() && ($item['network'] != Protocol::DIASPORA) && !empty(Session::get('remote_comment'))) {
 			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('Remote comment'),
 				str_replace('{uri}', urlencode($item['uri']), Session::get('remote_comment'))];
+
+			// Ensure to either display the remote comment or the local activities
+			$buttons = [];
+			$comment_html = '';
 		} else {
 			$remote_comment = '';
 		}
@@ -455,7 +459,7 @@ class Post
 			'profile_url'     => $profile_link,
 			'name'            => $profile_name,
 			'item_photo_menu_html' => item_photo_menu($item),
-			'thumb'           => DI::baseUrl()->remove($item['author-avatar']),
+			'thumb'           => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['author-link'], $item['uid'], Proxy::SIZE_THUMB)),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title,
@@ -469,7 +473,7 @@ class Post
 			'shiny'           => $shiny,
 			'owner_self'      => $item['author-link'] == Session::get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
-			'owner_photo'     => DI::baseUrl()->remove($item['owner-avatar']),
+			'owner_photo'     => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['owner-link'], $item['uid'], Proxy::SIZE_THUMB)),
 			'owner_name'      => $this->getOwnerName(),
 			'plink'           => Item::getPlink($item),
 			'edpost'          => $edpost,
@@ -1002,7 +1006,6 @@ class Post
 					// Put this person as the wall owner of the wall-to-wall notice.
 
 					$this->owner_url = Contact::magicLinkByContact($a->page_contact);
-					$this->owner_photo = $a->page_contact['thumb'];
 					$this->owner_name = $a->page_contact['name'];
 					$this->wall_to_wall = true;
 				} elseif ($this->getDataValue('owner-link')) {
@@ -1020,7 +1023,6 @@ class Post
 						// But it could be somebody else with the same name. It just isn't highly likely.
 
 
-						$this->owner_photo = $this->getDataValue('owner-avatar');
 						$this->owner_name = $this->getDataValue('owner-name');
 						$this->wall_to_wall = true;
 
@@ -1036,7 +1038,6 @@ class Post
 		if (!$this->wall_to_wall) {
 			$this->setTemplate('wall');
 			$this->owner_url = '';
-			$this->owner_photo = '';
 			$this->owner_name = '';
 		}
 	}

@@ -87,8 +87,13 @@ class Notification extends BaseRepository
 	public function setSeen(bool $seen = true, Model\Notification $notify = null)
 	{
 		if (empty($notify)) {
+			$this->dba->update('notification', ['seen' => $seen], ['uid' => local_user()]);
 			$conditions = ['uid' => local_user()];
 		} else {
+			if (!empty($notify->{'uri-id'})) {
+				$this->dba->update('notification', ['seen' => $seen], ['uid' => local_user(), 'target-uri-id' => $notify->{'uri-id'}]);
+			}
+
 			$conditions = ['(`link` = ? OR (`parent` != 0 AND `parent` = ? AND `otype` = ?)) AND `uid` = ?',
 				$notify->link,
 				$notify->parent,

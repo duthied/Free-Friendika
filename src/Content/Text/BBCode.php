@@ -953,6 +953,10 @@ class BBCode
 	 */
 	public static function fetchShareAttributes($text)
 	{
+		// See Issue https://github.com/friendica/friendica/issues/10454
+		// Hashtags in usernames are expanded to links. This here is a quick fix. 
+		$text = preg_replace('/([@!#])\[url\=.*?\](.*?)\[\/url\]/ism', '$1$2', $text);
+
 		$attributes = [];
 		if (!preg_match("/(.*?)\[share(.*?)\](.*)\[\/share\]/ism", $text, $matches)) {
 			return $attributes;
@@ -997,7 +1001,7 @@ class BBCode
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
 
-				$author_contact = Contact::getByURL($attributes['profile'], false, ['url', 'addr', 'name', 'micro']);
+				$author_contact = Contact::getByURL($attributes['profile'], false, ['id', 'url', 'addr', 'name', 'micro']);
 				$author_contact['url'] = ($author_contact['url'] ?? $attributes['profile']);
 				$author_contact['addr'] = ($author_contact['addr'] ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
 
@@ -1005,7 +1009,9 @@ class BBCode
 				$attributes['avatar']   = ($author_contact['micro'] ?? '') ?: $attributes['avatar'];
 				$attributes['profile']  = ($author_contact['url']   ?? '') ?: $attributes['profile'];
 
-				if ($attributes['avatar']) {
+				if (!empty($author_contact['id'])) {
+					$attributes['avatar'] = Contact::getAvatarUrlForId($author_contact['id'], ProxyUtils::SIZE_THUMB);
+				} elseif ($attributes['avatar']) {
 					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
 				}
 
@@ -1039,7 +1045,9 @@ class BBCode
 
 		switch ($simplehtml) {
 			case self::API:
-				$text = ($is_quote_share? '<br>' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
+				$text = ($is_quote_share? '<br>' : '') .
+				'<p><b><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . "</a>:</b> </p>\n" .
+				'<blockquote class="shared_content">' . $content . '</blockquote>';
 				break;
 			case self::DIASPORA:
 				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0) {
@@ -2194,9 +2202,7 @@ class BBCode
 					}
 				}
 
-				$success = Item::replaceTag($body, $inform, $profile_uid, $tag, $network);
-
-				if ($success['replaced']) {
+				if (($success = Item::replaceTag($body, $inform, $profile_uid, $tag, $network)) && $success['replaced']) {
 					$tagged[] = $tag;
 				}
 			}

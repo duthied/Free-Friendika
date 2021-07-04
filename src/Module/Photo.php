@@ -27,8 +27,14 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo as MPhoto;
+use Friendica\Model\Post;
+use Friendica\Model\Profile;
+use Friendica\Model\Storage\ExternalResource;
+use Friendica\Model\Storage\SystemResource;
 use Friendica\Util\Proxy;
 use Friendica\Object\Image;
+use Friendica\Util\Images;
+use Friendica\Util\Network;
 
 /**
  * Photo Module
@@ -44,11 +50,6 @@ class Photo extends BaseModule
 	public static function rawContent(array $parameters = [])
 	{
 		$totalstamp = microtime(true);
-		$a = DI::app();
-		// @TODO: Replace with parameter from router
-		if ($a->argc <= 1 || $a->argc > 4) {
-			throw new \Friendica\Network\HTTPException\BadRequestException();
-		}
 
 		if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
 			header("HTTP/1.1 304 Not Modified");
@@ -66,33 +67,34 @@ class Photo extends BaseModule
 			exit;
 		}
 
+		Profile::addVisitorCookieForHTTPSigner();
+
 		$customsize = 0;
+		$square_resize = true;
 		$photo = false;
 		$scale = null;
-		// @TODO: Replace with parameter from router
 		$stamp = microtime(true);
-		switch($a->argc) {
-			case 4:
-				$customsize = intval($a->argv[2]);
-				$uid = MPhoto::stripExtension($a->argv[3]);
-				$photo = self::getAvatar($uid, $a->argv[1]);
-				break;
-			case 3:
-				$uid = MPhoto::stripExtension($a->argv[2]);
-				$photo = self::getAvatar($uid, $a->argv[1]);
-				break;
-			case 2:
-				$photoid = MPhoto::stripExtension($a->argv[1]);
-				$scale = 0;
-				if (substr($photoid, -2, 1) == "-") {
-					$scale = intval(substr($photoid, -1, 1));
-					$photoid = substr($photoid, 0, -2);
-				}
-				$photo = MPhoto::getPhoto($photoid, $scale);
-				if ($photo === false) {
-					throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));
-				}
-				break;
+		if (!empty($parameters['customsize'])) {
+			$customsize = intval($parameters['customsize']);
+			$uid = MPhoto::stripExtension($parameters['name']);
+			$photo = self::getAvatar($uid, $parameters['type'], $customsize);
+			$square_resize = !in_array($parameters['type'], ['media', 'preview']);
+		} elseif (!empty($parameters['type'])) {
+			$uid = MPhoto::stripExtension($parameters['name']);
+			$photo = self::getAvatar($uid, $parameters['type'], Proxy::PIXEL_SMALL);
+		} elseif (!empty($parameters['name'])) {
+			$photoid = MPhoto::stripExtension($parameters['name']);
+			$scale = 0;
+			if (substr($photoid, -2, 1) == "-") {
+				$scale = intval(substr($photoid, -1, 1));
+				$photoid = substr($photoid, 0, -2);
+			}
+			$photo = MPhoto::getPhoto($photoid, $scale);
+			if ($photo === false) {
+				throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));
+			}
+		} else {
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 		$fetch = microtime(true) - $stamp;
 
@@ -104,6 +106,15 @@ class Photo extends BaseModule
 
 		$stamp = microtime(true);
 		$imgdata = MPhoto::getImageDataForPhoto($photo);
+
+		// The mimetype for an external or system resource can only be known reliably after it had been fetched
+		if (in_array($photo['backend-class'], [ExternalResource::NAME, SystemResource::NAME])) {
+			$mimetype = Images::getMimeTypeByData($imgdata);
+			if (!empty($mimetype)) {
+				$photo['type'] = $mimetype;
+			}
+		}
+
 		$data = microtime(true) - $stamp;
 
 		if (empty($imgdata)) {
@@ -112,9 +123,13 @@ class Photo extends BaseModule
 		}
 
 		// if customsize is set and image is not a gif, resize it
-		if ($photo['type'] !== "image/gif" && $customsize > 0 && $customsize < 501) {
+		if ($photo['type'] !== "image/gif" && $customsize > 0 && $customsize <= Proxy::PIXEL_THUMB && $square_resize) {
 			$img = new Image($imgdata, $photo['type']);
 			$img->scaleToSquare($customsize);
+			$imgdata = $img->asString();
+		} elseif ($photo['type'] !== "image/gif" && $customsize > 0) {
+			$img = new Image($imgdata, $photo['type']);
+			$img->scaleDown($customsize);
 			$imgdata = $img->asString();
 		}
 
@@ -157,9 +172,83 @@ class Photo extends BaseModule
 		exit();
 	}
 
-	private static function getAvatar($uid, $type="avatar")
+	private static function getAvatar($uid, $type="avatar", $customsize)
 	{
 		switch($type) {
+			case "preview":
+				$media = DBA::selectFirst('post-media', ['preview', 'url', 'type', 'uri-id'], ['id' => $uid]);
+				if (empty($media)) {
+					return false;
+				}
+				$url = $media['preview'];
+
+				if (empty($url) && ($media['type'] == Post\Media::IMAGE)) {
+					$url = $media['url'];
+				}
+
+				if (empty($url)) {
+					return false;
+				}
+
+				if (Network::isLocalLink($url) && preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $url, $matches)) {
+					return MPhoto::getPhoto($matches[1], $matches[2]);
+				}
+		
+				return MPhoto::createPhotoForExternalResource($url, (int)local_user());
+			case "media":
+				$media = DBA::selectFirst('post-media', ['url', 'uri-id'], ['id' => $uid, 'type' => Post\Media::IMAGE]);
+				if (empty($media)) {
+					return false;
+				}
+
+				if (Network::isLocalLink($media['url']) && preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $media['url'], $matches)) {
+					return MPhoto::getPhoto($matches[1], $matches[2]);
+				}
+
+				return MPhoto::createPhotoForExternalResource($media['url'], (int)local_user());
+			case "contact":
+				$contact = Contact::getById($uid, ['uid', 'url', 'avatar', 'photo', 'xmpp', 'addr']);
+				if (empty($contact)) {
+					return false;
+				}
+				If (($contact['uid'] != 0) && empty($contact['photo']) && empty($contact['avatar'])) {
+					$contact = Contact::getByURL($contact['url'], false, ['avatar', 'photo', 'xmpp', 'addr']);
+				}
+				if (!empty($contact['photo']) && !empty($contact['avatar'])) {
+					// Fetch photo directly
+					$resourceid = MPhoto::ridFromURI($contact['photo']);
+					if (!empty($resourceid)) {
+						$photo = MPhoto::selectFirst([], ['resource-id' => $resourceid], ['order' => ['scale']]);
+						if (!empty($photo)) {
+							return $photo;
+						}
+					}
+					// We continue with the avatar link when the photo link is invalid
+					$url = $contact['avatar'];
+				} elseif (!empty($contact['avatar'])) {
+					$url = $contact['avatar'];
+				} elseif ($customsize <= Proxy::PIXEL_MICRO) {
+					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
+				} elseif ($customsize <= Proxy::PIXEL_THUMB) {
+					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
+				} else {
+					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
+				}
+				return MPhoto::createPhotoForExternalResource($url);
+			case "header":
+				$contact = Contact::getById($uid, ['uid', 'url', 'header']);
+				if (empty($contact)) {
+					return false;
+				}
+				If (($contact['uid'] != 0) && empty($contact['header'])) {
+					$contact = Contact::getByURL($contact['url'], false, ['header']);
+				}
+				if (!empty($contact['header'])) {
+					$url = $contact['header'];
+				} else {
+					$url = DI::baseUrl() . '/images/blank.png';
+				}
+				return MPhoto::createPhotoForExternalResource($url);
 			case "profile":
 			case "custom":
 				$scale = 4;
@@ -188,8 +277,13 @@ class Photo extends BaseModule
 				default:
 					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
 			}
-	
-			$photo = MPhoto::createPhotoForSystemResource($default);
+
+			$parts = parse_url($default);
+			if (!empty($parts['scheme']) || !empty($parts['host'])) {
+				$photo = MPhoto::createPhotoForExternalResource($default);
+			} else {
+				$photo = MPhoto::createPhotoForSystemResource($default);
+			}
 		}
 		return $photo;
 	}

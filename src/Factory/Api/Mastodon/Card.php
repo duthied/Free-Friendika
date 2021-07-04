@@ -31,11 +31,12 @@ class Card extends BaseFactory
 {
 	/**
 	 * @param int $uriId Uri-ID of the item
+	 *
 	 * @return \Friendica\Object\Api\Mastodon\Card
 	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @throws \ImagickException*@throws \Exception
 	 */
-	public function createFromUriId(int $uriId)
+	public function createFromUriId(int $uriId): \Friendica\Object\Api\Mastodon\Card
 	{
 		$item = Post::selectFirst(['body'], ['uri-id' => $uriId]);
 		if (!empty($item['body'])) {

@@ -40,7 +40,7 @@ class Favourited extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		// @todo provide HTTP link header
@@ -70,6 +70,7 @@ class Favourited extends BaseApi
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
+			self::setBoundaries($item['thr-parent-id']);
 			$statuses[] = DI::mstdnStatus()->createFromUriId($item['thr-parent-id'], $uid);
 		}
 		DBA::close($items);
@@ -78,6 +79,7 @@ class Favourited extends BaseApi
 			array_reverse($statuses);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($statuses);
 	}
 }

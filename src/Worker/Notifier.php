@@ -39,8 +39,9 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
-use Friendica\Protocol\Relay;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /*
  * The notifier is typically called with:
@@ -248,6 +249,20 @@ class Notifier
 				$direct_forum_delivery = true;
 			}
 
+			$exclusive_delivery = false;
+
+			$exclusive_targets = Tag::getByURIId($parent['uri-id'], [Tag::EXCLUSIVE_MENTION]);
+			if (!empty($exclusive_targets)) {
+				$exclusive_delivery = true;
+				Logger::info('Possible Exclusively delivering', ['uid' => $target_item['uid'], 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id']]);
+				foreach ($exclusive_targets as $target) {
+					if (Strings::compareLink($owner['url'], $target['url'])) {
+						$exclusive_delivery = false;
+						Logger::info('False Exclusively delivering', ['uid' => $target_item['uid'], 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'url' => $target['url']]);
+					}
+				}
+			}
+
 			if ($relay_to_owner) {
 				// local followup to remote post
 				$followup = true;
@@ -282,6 +297,16 @@ class Notifier
 				}
 
 				Logger::log('Notify ' . $target_item["guid"] .' via PuSH: ' . ($push_notify ? "Yes":"No"), Logger::DEBUG);
+			} elseif ($exclusive_delivery) {
+				$followup = true;
+
+				foreach ($exclusive_targets as $target) {
+					$cid = Contact::getIdForURL($target['url'], $uid, false);
+					if ($cid) {
+						$recipients_followup[] = $cid;
+						Logger::info('Exclusively delivering', ['uid' => $target_item['uid'], 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'url' => $target['url']]);
+					}
+				}
 			} else {
 				$followup = false;
 
@@ -313,7 +338,7 @@ class Notifier
 				/// @todo Possibly we should not uplink when the author is the forum itself?
 
 				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)
-					&& ($target_item['verb'] != Activity::ANNOUNCE)) {						
+					&& ($target_item['verb'] != Activity::ANNOUNCE)) {
 					Worker::add($a->queue['priority'], 'Notifier', Delivery::UPLINK, $post_uriid, $sender_uid);
 				}
 
@@ -416,12 +441,12 @@ class Notifier
 		$batch_delivery = false;
 
 		if ($public_message && !in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION]) && !$followup) {
-			$relay_list = [];
+			$participants = [];
 
 			if ($diaspora_delivery && !$unlisted) {
 				$batch_delivery = true;
 
-				$relay_list_stmt = DBA::p(
+				$participants_stmt = DBA::p(
 					"SELECT
 						`batch`, `network`, `protocol`,
 						ANY_VALUE(`id`) AS `id`,
@@ -440,17 +465,11 @@ class Notifier
 					$owner['uid'],
 					Contact::SHARING
 				);
-				$relay_list = DBA::toArray($relay_list_stmt);
+				$participants = DBA::toArray($participants_stmt);
 
 				// Fetch the participation list
 				// The function will ensure that there are no duplicates
-				$relay_list = Diaspora::participantsForThread($target_item, $relay_list);
-
-				// Add the relay to the list, avoid duplicates.
-				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
-				if (!$followup && !Item::isForumPost($target_item, $owner) && !self::isForumPost($target_item)) {
-					$relay_list = Relay::getList($target_id, $relay_list, [Protocol::DFRN, Protocol::DIASPORA]);
-				}
+				$participants = Diaspora::participantsForThread($target_item, $participants);
 			}
 
 			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
@@ -458,7 +477,7 @@ class Notifier
 
 			$contacts = DBA::toArray(DBA::select('contact', ['id', 'url', 'addr', 'name', 'network', 'protocol'], $condition));
 
-			$conversants = array_merge($contacts, $relay_list);
+			$conversants = array_merge($contacts, $participants);
 
 			$delivery_queue_count += self::delivery($cmd, $post_uriid, $sender_uid, $target_item, $thr_parent, $owner, $batch_delivery, true, $conversants, $ap_contacts, []);
 
@@ -494,29 +513,32 @@ class Notifier
 	/**
 	 * Deliver the message to the contacts
 	 *
-	 * @param string $cmd 
-	 * @param int $post_uriid 
+	 * @param string $cmd
+	 * @param int $post_uriid
 	 * @param int $sender_uid
-	 * @param array $target_item 
-	 * @param array $thr_parent 
-	 * @param array $owner 
-	 * @param bool $batch_delivery 
-	 * @param array $contacts 
-	 * @param array $ap_contacts 
-	 * @param array $conversants 
-	 * @return int 
-	 * @throws InternalServerErrorException 
-	 * @throws Exception 
+	 * @param array $target_item
+	 * @param array $thr_parent
+	 * @param array $owner
+	 * @param bool $batch_delivery
+	 * @param array $contacts
+	 * @param array $ap_contacts
+	 * @param array $conversants
+	 * @return int
+	 * @throws InternalServerErrorException
+	 * @throws Exception
 	 */
 	private static function delivery(string $cmd, int $post_uriid, int $sender_uid, array $target_item, array $thr_parent, array $owner, bool $batch_delivery, bool $in_batch, array $contacts, array $ap_contacts, array $conversants = [])
 	{
-		$a = DI::app(); 
+		$a = DI::app();
 		$delivery_queue_count = 0;
 
 		foreach ($contacts as $contact) {
-			// Ensure that local contacts are delivered via DFRN
-			if (Contact::isLocal($contact['url'])) {
-				$contact['network'] = Protocol::DFRN;
+			// Direct delivery of local contacts
+			if ($target_uid = User::getIdForURL($contact['url'])) {
+				Logger::info('Direct delivery', ['uri-id' => $target_item['uri-id'], 'target' => $target_uid]);
+				$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH];
+				Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
+				continue;
 			}
 
 			// Deletions are always sent via DFRN as well.
@@ -575,19 +597,19 @@ class Notifier
 	/**
 	 * Deliver the message via OStatus
 	 *
-	 * @param int $target_id 
-	 * @param array $target_item 
-	 * @param array $owner 
-	 * @param array $url_recipients 
-	 * @param bool $public_message 
-	 * @param bool $push_notify 
-	 * @return int 
-	 * @throws InternalServerErrorException 
-	 * @throws Exception 
+	 * @param int $target_id
+	 * @param array $target_item
+	 * @param array $owner
+	 * @param array $url_recipients
+	 * @param bool $public_message
+	 * @param bool $push_notify
+	 * @return int
+	 * @throws InternalServerErrorException
+	 * @throws Exception
 	 */
 	private static function deliverOStatus(int $target_id, array $target_item, array $owner, array $url_recipients, bool $public_message, bool $push_notify)
 	{
-		$a = DI::app(); 
+		$a = DI::app();
 		$delivery_queue_count = 0;
 
 		$url_recipients = array_filter($url_recipients);
@@ -774,6 +796,16 @@ class Notifier
 
 		foreach ($inboxes as $inbox => $receivers) {
 			$contacts = array_merge($contacts, $receivers);
+
+			if ((count($receivers) == 1) && Network::isLocalLink($inbox)) {
+				$contact = Contact::getById($receivers[0], ['url']);
+				if ($target_uid = User::getIdForURL($contact['url'])) {
+					$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH, 'post-reason' => Item::PR_BCC];
+					Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
+					Logger::info('Delivered locally', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
+					continue;
+				}
+			}
 
 			Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 

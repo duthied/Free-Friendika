@@ -120,6 +120,7 @@ HELP;
 				$output = ob_get_clean();
 				break;
 			case "dumpsql":
+				DBStructure::writeStructure();
 				ob_start();
 				DBStructure::printStructure($basePath);
 				$output = ob_get_clean();

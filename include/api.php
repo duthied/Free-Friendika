@@ -42,6 +42,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
+use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
@@ -57,6 +58,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Security\FKOAuth1;
+use Friendica\Security\OAuth;
 use Friendica\Security\OAuth1\OAuthRequest;
 use Friendica\Security\OAuth1\OAuthUtil;
 use Friendica\Util\DateTimeFormat;
@@ -88,6 +90,11 @@ $called_api = [];
  */
 function api_user()
 {
+	$user = OAuth::getCurrentUserID();
+	if (!empty($user)) {
+		return $user;
+	}
+
 	if (!empty($_SESSION['allow_api'])) {
 		return local_user();
 	}
@@ -175,7 +182,6 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
  *
  * @param App $a App
- * @param bool $do_login try to log in when not logged in, otherwise quit silently
  * @throws ForbiddenException
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
@@ -186,7 +192,7 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  *               'authenticated' => return status,
  *               'user_record' => return authenticated user record
  */
-function api_login(App $a, bool $do_login = true)
+function api_login(App $a)
 {
 	$_SESSION["allow_api"] = false;
 
@@ -217,10 +223,6 @@ function api_login(App $a, bool $do_login = true)
 			die();
 		} catch (Exception $e) {
 			Logger::warning(API_LOG_PREFIX . 'OAuth error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
-		}
-
-		if (!$do_login) {
-			return;
 		}
 
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
@@ -264,9 +266,6 @@ function api_login(App $a, bool $do_login = true)
 	}
 
 	if (!DBA::isResult($record)) {
-		if (!$do_login) {
-			return;
-		}
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
@@ -602,7 +601,7 @@ function api_get_user(App $a, $contact_id = null)
 			api_login($a);
 			return false;
 		} else {
-			$user = $_SESSION['uid'];
+			$user = api_user();
 			$extra_query = "AND `contact`.`uid` = %d AND `contact`.`self` ";
 		}
 	}
@@ -1186,12 +1185,12 @@ function api_statuses_update($type)
 					INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN
 						(SELECT `resource-id` FROM `photo` WHERE `id` = ?) AND `photo`.`uid` = ?
 					ORDER BY `photo`.`width` DESC LIMIT 2", $id, api_user()));
-				
+
 			if (!empty($media)) {
 				$ressources[] = $media[0]['resource-id'];
 				$phototypes = Images::supportedTypes();
 				$ext = $phototypes[$media[0]['type']];
-			
+
 				$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
 					'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
 					'size' => $media[0]['datasize'],
@@ -1199,7 +1198,7 @@ function api_statuses_update($type)
 					'description' => $media[0]['desc'] ?? '',
 					'width' => $media[0]['width'],
 					'height' => $media[0]['height']];
-			
+
 				if (count($media) > 1) {
 					$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
 					$attachment['preview-width'] = $media[1]['width'];
@@ -4554,12 +4553,7 @@ function api_account_update_profile_image($type)
 	Contact::updateSelfFromUserID(api_user(), true);
 
 	// Update global directory in background
-	$url = DI::baseUrl() . '/profile/' . DI::app()->user['nickname'];
-	if ($url && strlen(DI::config()->get('system', 'directory'))) {
-		Worker::add(PRIORITY_LOW, "Directory", $url);
-	}
-
-	Worker::add(PRIORITY_LOW, 'ProfileUpdate', api_user());
+	Profile::publishUpdate(api_user());
 
 	// output for client
 	if ($data) {
@@ -4610,11 +4604,7 @@ function api_account_update_profile($type)
 		DBA::update('contact', ['about' => $_POST['description']], ['id' => $api_user['id']]);
 	}
 
-	Worker::add(PRIORITY_LOW, 'ProfileUpdate', $local_user);
-	// Update global directory in background
-	if ($api_user['url'] && strlen(DI::config()->get('system', 'directory'))) {
-		Worker::add(PRIORITY_LOW, "Directory", $api_user['url']);
-	}
+	Profile::publishUpdate($local_user);
 
 	return api_account_verify_credentials($type);
 }

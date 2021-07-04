@@ -297,13 +297,22 @@
 				</div>
 				<div id="admin-settings-relay-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-relay">
 					<div class="panel-body">
-						{{include file="field_checkbox.tpl" field=$relay_subscribe}}
-						{{include file="field_input.tpl" field=$relay_server}}
-						{{include file="field_checkbox.tpl" field=$relay_directly}}
+						{{if $relay_list}}
+							<p>{{$relay_list_title}}</p>
+							<ul id="relay-list">
+								{{foreach $relay_list as $relay}}
+								<li>{{$relay.url}}</li>
+								{{/foreach}}
+							</ul>
+						{{else}}
+							<p>{{$no_relay_list}}</p>
+						{{/if}}
+						<p>{{$relay_description}}</p>
 						{{include file="field_select.tpl" field=$relay_scope}}
 						{{include file="field_input.tpl" field=$relay_server_tags}}
 						{{include file="field_input.tpl" field=$relay_deny_tags}}
 						{{include file="field_checkbox.tpl" field=$relay_user_tags}}
+						{{include file="field_checkbox.tpl" field=$relay_directly}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>

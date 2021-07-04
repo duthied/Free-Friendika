@@ -49,7 +49,7 @@ class Accounts extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {
@@ -95,6 +95,7 @@ class Accounts extends BaseApi
 
 		$members = DBA::select('group_member', ['contact-id'], $condition, $params);
 		while ($member = DBA::fetch($members)) {
+			self::setBoundaries($member['contact-id']);
 			$accounts[] = DI::mstdnAccount()->createFromContactId($member['contact-id'], $uid);
 		}
 		DBA::close($members);
@@ -103,6 +104,7 @@ class Accounts extends BaseApi
 			array_reverse($accounts);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($accounts);
 	}
 }

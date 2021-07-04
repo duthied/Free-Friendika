@@ -37,16 +37,15 @@ class Show extends BaseApi
 {
 	public static function rawContent(array $parameters = [])
 	{
-		if (self::login(self::SCOPE_READ) === false) {
-			throw new HTTPException\ForbiddenException();
-		}
+		self::checkAllowedScope(self::SCOPE_READ);
+		$uid = self::getCurrentUserID();
 
 		// retrieve general information about profiles for user
 		$directory = DI::config()->get('system', 'directory');
 
-		$profile = Profile::getByUID(self::$current_user_id);
+		$profile = Profile::getByUID($uid);
 		
-		$profileFields = DI::profileField()->select(['uid' => self::$current_user_id, 'psid' => PermissionSet::PUBLIC]);
+		$profileFields = DI::profileField()->select(['uid' => $uid, 'psid' => PermissionSet::PUBLIC]);
 
 		$profile = self::formatProfile($profile, $profileFields);
 
@@ -58,7 +57,7 @@ class Show extends BaseApi
 		}
 
 		// return settings, authenticated user and profiles data
-		$self = Contact::selectFirst(['nurl'], ['uid' => self::$current_user_id, 'self' => true]);
+		$self = Contact::selectFirst(['nurl'], ['uid' => $uid, 'self' => true]);
 
 		$result = [
 			'multi_profiles' => false,

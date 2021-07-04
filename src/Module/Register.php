@@ -248,10 +248,6 @@ class Register extends BaseModule
 			DI::baseUrl()->redirect('register/');
 		}
 
-
-		// Overwriting the "tar pit" field with the real one
-		$arr['email'] = $arr['field1'];
-
 		if ($additional_account) {
 			$user = DBA::selectFirst('user', ['email'], ['uid' => local_user()]);
 			if (!DBA::isResult($user)) {
@@ -264,6 +260,9 @@ class Register extends BaseModule
 
 			$arr['password1'] = $arr['confirm'] = $arr['parent_password'];
 			$arr['repeat'] = $arr['email'] = $user['email'];
+		} else {
+			// Overwriting the "tar pit" field with the real one
+			$arr['email'] = $arr['field1'];
 		}
 
 		if ($arr['email'] != $arr['repeat']) {

@@ -11,20 +11,21 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 
 ## Clients
 
-Supported mobile apps:
+### Supported apps
 
-- [AndStatus](http://andstatus.org)
-- [Husky](https://husky.fwgs.ru)
-- [Subway Tooter](https://github.com/tateisu/SubwayTooter)
-- [Tusky](https://tusky.app)
-- [Twidere](https://github.com/TwidereProject/)
-- [twitlatte](https://github.com/moko256/twitlatte)
-- [Yuito](https://github.com/accelforce/Yuito)
+For supported apps please have a look at the [FAQ](help/FAQ#clients)
 
-Unsupported mobile apps:
+### Unsupported apps
+
+#### Android
 
 - [Fedilab](https://framagit.org/tom79/fedilab) Automatically uses the legacy API, see issue: https://framagit.org/tom79/fedilab/-/issues/520
 - [Mammut](https://github.com/jamiesanson/Mammut) There are problems with the token request, see issue https://github.com/jamiesanson/Mammut/issues/19
+
+#### iOS
+
+- [Mast](https://github.com/Beesitech/Mast) Doesn't accept the entered instance name. Claims that it is invalid (Message is: "Not a valid instance (may be closed or dead)")
+- [Toot!](https://apps.apple.com/app/toot/id1229021451)
 
 ## Entities
 
@@ -73,6 +74,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 
 - [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance#fetch-instance)
+- GET /api/v1/instance/rules Undocumented, returns Terms of Service
 - [`GET /api/v1/instance/peers`](https://docs.joinmastodon.org/methods/instance#list-of-connected-domains)
 - [`GET /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
 - [`POST /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
@@ -119,17 +121,30 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 ## Currently unimplemented endpoints
 
-These emdpoints are planned to be implemented
+These emdpoints are planned to be implemented somewhere in the future.
 
 - [`PATCH /api/v1/accounts/update_credentials`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
+
+## Dummy endpoints
+
+These endpoints are returning empty data to avoid error messages when using third party clients.
+They refer to features that don't exist in Friendica yet.
+
+- [`GET /api/v1/accounts/:id/identity_proofs`](https://docs.joinmastodon.org/methods/accounts/)
+- [`GET /api/v1/announcements`](https://docs.joinmastodon.org/methods/announcements/)
+- [`GET /api/v1/endorsements`](https://docs.joinmastodon.org/methods/accounts/endorsements/)
+- [`GET /api/v1/filters`](https://docs.joinmastodon.org/methods/accounts/filters/)
+- [`GET /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
+- [`GET /api/v1/scheduled_statuses`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 
 ## Non supportable endpoints
 
-These endpoints won't be implemented, since they refer to functionality that doesn't exist in Friendica
+These endpoints won't be implemented at the moment.
+They refer to features or data that don't exist in Friendica yet.
 
+- POST /api/meta Misskey API endpoint.
 - [`POST /api/v1/accounts`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1/accounts/:id/identity_proofs`](https://docs.joinmastodon.org/methods/accounts/)
+- [`GET /api/v1/accounts/:id/featured_tags`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/pin`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/unpin`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/admin/accounts`](https://docs.joinmastodon.org/methods/admin/)
@@ -138,30 +153,31 @@ These endpoints won't be implemented, since they refer to functionality that doe
 - [`GET /api/v1/admin/reports`](https://docs.joinmastodon.org/methods/admin/)
 - [`GET /api/v1/admin/reports/:id`](https://docs.joinmastodon.org/methods/admin/)
 - [`POST /api/v1/admin/reports/:id/{action}`](https://docs.joinmastodon.org/methods/admin/)
-- [`GET /api/v1/announcements`](https://docs.joinmastodon.org/methods/announcements/)
 - [`POST /api/v1/announcements/:id/dismiss`](https://docs.joinmastodon.org/methods/announcements/)
 - [`PUT /api/v1/announcements/:id/reactions/{name}`](https://docs.joinmastodon.org/methods/announcements/)
 - [`DELETE /api/v1/announcements/:id/reactions/{name}`](https://docs.joinmastodon.org/methods/announcements/)
 - [`GET /api/v1/domain_blocks`](https://docs.joinmastodon.org/methods/accounts/domain_blocks/)
 - [`POST /api/v1/domain_blocks`](https://docs.joinmastodon.org/methods/accounts/domain_blocks/)
 - [`DELETE /api/v1/domain_blocks`](https://docs.joinmastodon.org/methods/accounts/domain_blocks/)
-- [`GET /api/v1/endorsements`](https://docs.joinmastodon.org/methods/accounts/endorsements/)
 - [`GET /api/v1/featured_tags`](https://docs.joinmastodon.org/methods/accounts/featured_tags/)
 - [`POST /api/v1/featured_tags`](https://docs.joinmastodon.org/methods/accounts/featured_tags/)
 - [`DELETE /api/v1/featured_tags/:id`](https://docs.joinmastodon.org/methods/accounts/featured_tags/)
 - [`GET /api/v1/featured_tags/suggestions`](https://docs.joinmastodon.org/methods/accounts/featured_tags/)
-- [`GET /api/v1/filters`](https://docs.joinmastodon.org/methods/accounts/filters/)
 - [`GET /api/v1/filters/:id`](https://docs.joinmastodon.org/methods/accounts/filters/)
 - [`POST /api/v1/filters/:id`](https://docs.joinmastodon.org/methods/accounts/filters/)
 - [`PUT /api/v1/filters/:id`](https://docs.joinmastodon.org/methods/accounts/filters/)
 - [`DELETE /api/v1/filters/:id`](https://docs.joinmastodon.org/methods/accounts/filters/)
-- [`GET /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
+- [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
 - [`POST /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
 - [`GET /api/v1/polls/:id`](https://docs.joinmastodon.org/methods/statuses/polls/)
 - [`POST /api/v1/polls/:id/votes`](https://docs.joinmastodon.org/methods/statuses/polls/)
+- [`DELETE /api/v1/push/subscription`](https://docs.joinmastodon.org/methods/notifications/push/)
+- [`GET /api/v1/push/subscription`](https://docs.joinmastodon.org/methods/notifications/push/)
+- [`PUSH /api/v1/push/subscription`](https://docs.joinmastodon.org/methods/notifications/push/)
+- [`PUT /api/v1/push/subscription`](https://docs.joinmastodon.org/methods/notifications/push/)
 - [`POST /api/v1/reports`](https://docs.joinmastodon.org/methods/accounts/reports/)
-- [`GET /api/v1/scheduled_statuses`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`GET /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`PUT /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`DELETE /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
+- [`GET /api/v1/streaming`](https://docs.joinmastodon.org/methods/timelines/streaming/)
 - [`DELETE /api/v1/suggestions/:id`](https://docs.joinmastodon.org/methods/accounts/suggestions/)

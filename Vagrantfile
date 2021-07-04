@@ -34,10 +34,14 @@ Vagrant.configure(2) do |config|
   #
   #   # Customize the amount of memory on the VM:
     vb.memory = server_memory
+
+    unless Vagrant.has_plugin?("vagrant-vbguest")
+      raise 'vagrant-vbguest plugin is not installed! Install with "vagrant plugin install vagrant-vbguest"'
+    end
   end
 
   # Enable provisioning with a shell script.
-  config.vm.provision "shell", path: "./bin/dev/vagrant_provision.sh"
+  config.vm.provision "shell", path: "./bin/dev/vagrant_provision.sh", privileged: true
     # run: "always"
     # run: "once"
 end

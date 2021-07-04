@@ -25,6 +25,7 @@ use Exception;
 use Friendica\Core\Config\IConfig;
 use Friendica\Database\Database;
 use Friendica\Model\Storage;
+use Friendica\Network\IHTTPRequest;
 use Psr\Log\LoggerInterface;
 
 
@@ -60,6 +61,8 @@ class StorageManager
 	private $logger;
 	/** @var L10n */
 	private $l10n;
+	/** @var IHTTPRequest */
+	private $httpRequest;
 
 	/** @var Storage\IStorage */
 	private $currentBackend;
@@ -70,12 +73,13 @@ class StorageManager
 	 * @param LoggerInterface $logger
 	 * @param L10n            $l10n
 	 */
-	public function __construct(Database $dba, IConfig $config, LoggerInterface $logger, L10n $l10n)
+	public function __construct(Database $dba, IConfig $config, LoggerInterface $logger, L10n $l10n, IHTTPRequest $httpRequest)
 	{
-		$this->dba      = $dba;
-		$this->config   = $config;
-		$this->logger   = $logger;
-		$this->l10n     = $l10n;
+		$this->dba         = $dba;
+		$this->config      = $config;
+		$this->logger      = $logger;
+		$this->l10n        = $l10n;
+		$this->httpRequest = $httpRequest;
 		$this->backends = $config->get('storage', 'backends', self::DEFAULT_BACKENDS);
 
 		$currentName = $this->config->get('storage', 'name', '');
@@ -126,6 +130,9 @@ class StorageManager
 					case Storage\SystemResource::getName():
 						$this->backendInstances[$name] = new Storage\SystemResource();
 						break;
+					case Storage\ExternalResource::getName():
+						$this->backendInstances[$name] = new Storage\ExternalResource($this->httpRequest);
+						break;
 					default:
 						$data = [
 							'name'    => $name,
@@ -158,7 +165,7 @@ class StorageManager
 	public function isValidBackend(string $name = null, bool $onlyUserBackend = false)
 	{
 		return array_key_exists($name, $this->backends) ||
-		       (!$onlyUserBackend && $name === Storage\SystemResource::getName());
+		       (!$onlyUserBackend && in_array($name, [Storage\SystemResource::getName(), Storage\ExternalResource::getName()]));
 	}
 
 	/**

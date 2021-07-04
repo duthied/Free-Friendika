@@ -51,6 +51,8 @@ class Federation extends BaseAdmin
 			'socialhome'  => ['name' => 'SocialHome', 'color' => '#52056b'], // lilac from the Django Image used at the Socialhome homepage
 			'wordpress'   => ['name' => 'WordPress', 'color' => '#016087'], // Background color of the homepage
 			'writefreely' => ['name' => 'WriteFreely', 'color' => '#292929'], // Font color of the homepage
+			'mistpark'    => ['name' => 'Nomad projects (Mistpark, Osada, Roadhouse, Zap)', 'color' => '#348a4a'], // Green like the Mistpark green
+			'relay'       => ['name' => 'ActivityPub Relay', 'color' => '#888888'], // Grey like the second color of the ActivityPub logo
 			'other'       => ['name' => DI::l10n()->t('Other'), 'color' => '#F1007E'], // ActivityPub main color
 		];
 
@@ -80,6 +82,10 @@ class Federation extends BaseAdmin
 
 				if (in_array($gserver['platform'], ['Red Matrix', 'redmatrix', 'red'])) {
 					$version['version'] = 'Red ' . $version['version'];
+				} elseif (in_array($gserver['platform'], ['osada', 'mistpark', 'roadhouse', 'zap'])) {
+					$version['version'] = $gserver['platform'] . ' ' . $version['version'];
+				} elseif (in_array($gserver['platform'], ['activityrelay', 'pub-relay', 'selective-relay', 'aoderelay'])) {
+					$version['version'] = $gserver['platform'] . '-' . $version['version'];
 				}
 
 				$versionCounts[] = $version;
@@ -92,12 +98,16 @@ class Federation extends BaseAdmin
 				$platform = 'friendica';
 			} elseif (in_array($platform, ['red matrix', 'redmatrix', 'red'])) {
 				$platform = 'hubzilla';
+			} elseif (in_array($platform, ['mistpark', 'osada', 'roadhouse', 'zap'])) {
+				$platform = 'mistpark';
 			} elseif(stristr($platform, 'pleroma')) {
 				$platform = 'pleroma';
 			} elseif(stristr($platform, 'statusnet')) {
 				$platform = 'gnusocial';
 			} elseif(stristr($platform, 'wordpress')) {
 				$platform = 'wordpress';
+			} elseif (in_array($platform, ['activityrelay', 'pub-relay', 'selective-relay', 'aoderelay'])) {
+				$platform = 'relay';
 			} elseif (!in_array($platform, $platforms)) {
 				$platform = 'other';
 			}
@@ -122,9 +132,17 @@ class Federation extends BaseAdmin
 				$versionCounts = self::reformaPleromaVersions($versionCounts);
 			} elseif ($platform == 'diaspora') {
 				$versionCounts = self::reformaDiasporaVersions($versionCounts);
+			} elseif ($platform == 'relay') {
+				$versionCounts = self::reformatRelayVersions($versionCounts);
+			} elseif (in_array($platform, ['funkwhale', 'mastodon', 'mobilizon', 'misskey'])) {
+				$versionCounts = self::removeVersionSuffixes($versionCounts);
 			}
 
-			$versionCounts = self::sortVersion($versionCounts);
+			if (!in_array($platform, ['other', 'relay', 'mistpark'])) {
+				$versionCounts = self::sortVersion($versionCounts);
+			} else {
+				ksort($versionCounts);
+			}
 
 			$gserver['platform'] = $systems[$platform]['name'];
 
@@ -239,6 +257,68 @@ class Federation extends BaseAdmin
 				} else {
 					$compacted[$part] += $versionCounts[$key]['total'];
 				}
+			}
+		}
+
+		$versionCounts = [];
+		foreach ($compacted as $version => $pl_total) {
+			$versionCounts[] = ['version' => $version, 'total' => $pl_total];
+		}
+
+		return $versionCounts;
+	}
+
+	/**
+	 * Clean up version numbers
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with cleaned version numbers
+	 */
+	private static function removeVersionSuffixes(array $versionCounts)
+	{
+		$compacted = [];
+		foreach ($versionCounts as $key => $value) {
+			$version = $versionCounts[$key]['version'];
+
+			foreach ([' ', '+', '-', '#', '_', '~'] as $delimiter) {
+				$parts = explode($delimiter, trim($version));
+				$version = array_shift($parts);
+			}
+
+			if (empty($compacted[$version])) {
+				$compacted[$version] = $versionCounts[$key]['total'];
+			} else {
+				$compacted[$version] += $versionCounts[$key]['total'];
+			}
+		}
+
+		$versionCounts = [];
+		foreach ($compacted as $version => $pl_total) {
+			$versionCounts[] = ['version' => $version, 'total' => $pl_total];
+		}
+
+		return $versionCounts;
+	}
+
+	/**
+	 * Clean up relay version numbers
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with cleaned version numbers
+	 */
+	private static function reformatRelayVersions(array $versionCounts)
+	{
+		$compacted = [];
+		foreach ($versionCounts as $key => $value) {
+			$version = $versionCounts[$key]['version'];
+
+			$parts = explode(' ', trim($version));
+			$version = array_shift($parts);
+
+			if (empty($compacted[$version])) {
+				$compacted[$version] = $versionCounts[$key]['total'];
+			} else {
+				$compacted[$version] += $versionCounts[$key]['total'];
 			}
 		}
 

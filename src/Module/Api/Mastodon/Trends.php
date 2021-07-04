@@ -45,7 +45,8 @@ class Trends extends BaseApi
 		$tags = Tag::getGlobalTrendingHashtags(24, 20);
 		foreach ($tags as $tag) {
 			$tag['name'] = $tag['term'];
-			$hashtag = new \Friendica\Object\Api\Mastodon\Tag(DI::baseUrl(), $tag);
+			$history = [['day' => (string)time(), 'uses' => (string)$tag['score'], 'accounts' => (string)$tag['authors']]];
+			$hashtag = new \Friendica\Object\Api\Mastodon\Tag(DI::baseUrl(), $tag, $history);
 			$trending[] = $hashtag->toArray();
 		}
 

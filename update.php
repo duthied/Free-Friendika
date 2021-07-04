@@ -49,9 +49,11 @@ use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
+use Friendica\Model\Profile;
 use Friendica\Model\Storage;
 use Friendica\Worker\Delivery;
 
@@ -97,8 +99,9 @@ function update_1298()
 					DBA::update('profile', [$translateKey => $key], ['id' => $data['id']]);
 					Logger::notice('Updated contact', ['action' => 'update', 'contact' => $data['id'], "$translateKey" => $key,
 						'was' => $data[$translateKey]]);
-					Worker::add(PRIORITY_LOW, 'ProfileUpdate', $data['id']);
+
 					Contact::updateSelfFromUserID($data['id']);
+					Profile::publishUpdate($data['id']);
 					$success++;
 				}
 			}
@@ -152,7 +155,9 @@ function update_1323()
 {
 	$users = DBA::select('user', ['uid']);
 	while ($user = DBA::fetch($users)) {
-		Contact::updateSelfFromUserID($user['uid']);
+		if (Contact::updateSelfFromUserID($user['uid'])) {
+			Profile::publishUpdate($user['uid']);
+		}
 	}
 	DBA::close($users);
 
@@ -834,7 +839,7 @@ function update_1404()
 	while ($task = DBA::fetch($tasks)) {
 		$parameters = json_decode($task['parameter'], true);
 	
-		if (in_array($parameters[0], [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+		if (is_array($parameters) && count($parameters) && in_array($parameters[0], [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
 			continue;
 		}
 	
@@ -911,4 +916,32 @@ function update_1413()
 	if (!DBA::e("UPDATE `post-user` SET `post-reason` = `post-type` WHERE `post-type` >= 64 and `post-type` <= 75")) {
 		return Update::FAILED;
 	}
+}
+
+function update_1419()
+{
+	$mails = DBA::select('mail', ['id', 'from-url', 'uri', 'parent-uri', 'guid'], [], ['order' => ['id']]);
+	while ($mail = DBA::fetch($mails)) {
+		$fields = [];
+		$fields['author-id'] = Contact::getIdForURL($mail['from-url'], 0, false);
+		if (empty($fields['author-id'])) {
+			continue;
+		}
+
+		$fields['uri-id']        = ItemURI::insert(['uri' => $mail['uri'], 'guid' => $mail['guid']]);
+		$fields['parent-uri-id'] = ItemURI::getIdByURI($mail['parent-uri']);
+
+		$reply = DBA::selectFirst('mail', ['uri', 'uri-id', 'guid'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+		if (!empty($reply)) {
+			$fields['thr-parent'] = $reply['uri'];
+			if (!empty($reply['uri-id'])) {
+				$fields['thr-parent-id'] = $reply['uri-id'];
+			} else {
+				$fields['thr-parent-id'] = ItemURI::insert(['uri' => $reply['uri'], 'guid' => $reply['guid']]);
+			}
+		}
+
+		DBA::update('mail', $fields, ['id' => $mail['id']]);
+	}
+	return Update::SUCCESS;
 }

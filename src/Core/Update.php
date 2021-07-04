@@ -213,6 +213,8 @@ class Update
 					if ($sendMail) {
 						self::updateSuccessful($stored, $current);
 					}
+				} else {
+					Logger::warning('Update lock could not be acquired');
 				}
 			}
 		}

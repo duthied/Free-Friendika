@@ -81,7 +81,7 @@ class FilesystemStorageTest extends StorageTest
 	public function testMissingDirPermissions()
 	{
 		$this->expectException(StorageException::class);
-		$this->expectExceptionMessageRegExp("/Filesystem storage failed to create \".*\". Check you write permissions./");
+		$this->expectExceptionMessageMatches("/Filesystem storage failed to create \".*\". Check you write permissions./");
 		$this->root->getChild('storage')->chmod(000);
 
 		$instance = $this->getInstance();
@@ -97,7 +97,7 @@ class FilesystemStorageTest extends StorageTest
 		static::markTestIncomplete("Cannot catch file_put_content() error due vfsStream failure");
 
 		$this->expectException(StorageException::class);
-		$this->expectExceptionMessageRegExp("/Filesystem storage failed to save data to \".*\". Check your write permissions/");
+		$this->expectExceptionMessageMatches("/Filesystem storage failed to save data to \".*\". Check your write permissions/");
 
 		vfsStream::create(['storage' => ['f0' => ['c0' => ['k0i0' => '']]]], $this->root);
 

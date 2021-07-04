@@ -194,7 +194,7 @@ class Summary extends BaseAdmin
 		];
 
 		$users = 0;
-		$pageFlagsCountStmt = DBA::p('SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`');
+		$pageFlagsCountStmt = DBA::p('SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` WHERE `uid` != ? GROUP BY `page-flags`', 0);
 		while ($pageFlagsCount = DBA::fetch($pageFlagsCountStmt)) {
 			$accounts[$pageFlagsCount['page-flags']][1] = $pageFlagsCount['count'];
 			$users += $pageFlagsCount['count'];

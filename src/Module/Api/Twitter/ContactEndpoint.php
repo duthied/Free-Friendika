@@ -39,9 +39,7 @@ abstract class ContactEndpoint extends BaseApi
 	{
 		parent::init($parameters);
 
-		if (!self::login(self::SCOPE_READ)) {
-			throw new HTTPException\UnauthorizedException();
-		}
+		self::checkAllowedScope(self::SCOPE_READ);
 	}
 
 	/**
@@ -54,7 +52,7 @@ abstract class ContactEndpoint extends BaseApi
 	 */
 	protected static function getUid(int $contact_id = null, string $screen_name = null)
 	{
-		$uid = self::$current_user_id;
+		$uid = self::getCurrentUserID();
 
 		if ($contact_id || $screen_name) {
 			// screen_name trumps user_id when both are provided
@@ -129,7 +127,7 @@ abstract class ContactEndpoint extends BaseApi
 	protected static function ids($rel, int $uid, int $cursor = -1, int $count = self::DEFAULT_COUNT, bool $stringify_ids = false)
 	{
 		$hide_friends = false;
-		if ($uid != self::$current_user_id) {
+		if ($uid != self::getCurrentUserID()) {
 			$profile = Profile::getByUID($uid);
 			if (empty($profile)) {
 				throw new HTTPException\NotFoundException(DI::l10n()->t('Profile not found'));

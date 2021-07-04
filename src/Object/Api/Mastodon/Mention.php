@@ -50,7 +50,7 @@ class Mention extends BaseDataTransferObject
 	 */
 	public function __construct(BaseURL $baseUrl, array $tag, array $contact)
 	{
-		$this->id       = $contact['id'] ?? 0;
+		$this->id       = (string)($contact['id'] ?? 0);
 		$this->username = $tag['name'];
 		$this->url      = $tag['url'];
 
@@ -59,6 +59,8 @@ class Mention extends BaseDataTransferObject
 				strpos($contact['url'], $baseUrl->get() . '/') === 0 ?
 					$contact['nick'] :
 					$contact['addr'];
+
+			$this->username = $contact['nick'];
 		} else {
 			$this->acct = '';
 		}

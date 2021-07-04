@@ -28,9 +28,12 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Util\Images;
+use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 /**
@@ -157,6 +160,10 @@ class Media
 	 */
 	public static function fetchAdditionalData(array $media)
 	{
+		if (Network::isLocalLink($media['url'])) {
+			$media = self::fetchLocalData($media);
+		}
+
 		// Fetch the mimetype or size if missing.
 		if (empty($media['mimetype']) || empty($media['size'])) {
 			$timeout = DI::config()->get('system', 'xrd_timeout');
@@ -212,6 +219,36 @@ class Media
 			$media['publisher-name'] = $data['publisher_name'] ?? null;
 			$media['publisher-image'] = $data['publisher_img'] ?? null;
 		}
+		return $media;
+	}
+
+	/**
+	 * Fetch media data from local resources
+	 * @param array $media 
+	 * @return array media with added data
+	 */
+	private static function fetchLocalData(array $media)
+	{
+		if (!preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $media['url'] ?? '', $matches)) {
+			return $media;
+		}
+		$photo = Photo::selectFirst([], ['resource-id' => $matches[1], 'scale' => $matches[2]]);
+		if (!empty($photo)) {
+			$media['mimetype'] = $photo['type'];
+			$media['size'] = $photo['datasize'];
+			$media['width'] = $photo['width'];
+			$media['height'] = $photo['height'];
+		}
+
+		if (!preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $media['preview'] ?? '', $matches)) {
+			return $media;
+		}
+		$photo = Photo::selectFirst([], ['resource-id' => $matches[1], 'scale' => $matches[2]]);
+		if (!empty($photo)) {
+			$media['preview-width'] = $photo['width'];
+			$media['preview-height'] = $photo['height'];
+		}
+
 		return $media;
 	}
 
@@ -351,7 +388,7 @@ class Media
 
 		foreach ($attachments as $attachment) {
 			// Only store attachments that are part of the unshared body
-			if (strpos($unshared_body, $attachment['url']) !== false) {
+			if (Item::containsLink($unshared_body, $attachment['url'], $attachment['type'])) {
 				self::insert($attachment);
 			}
 		}
@@ -494,10 +531,10 @@ class Media
 
 	/**
 	 * Split the attachment media in the three segments "visual", "link" and "additional"
-	 * 
-	 * @param int    $uri_id 
+	 *
+	 * @param int    $uri_id
 	 * @param string $guid
-	 * @param array  $links ist of links that shouldn't be added 
+	 * @param array  $links ist of links that shouldn't be added
 	 * @return array attachments
 	 */
 	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [])
@@ -526,7 +563,7 @@ class Media
 					continue 2;
 				}
 			}
-			
+
 			if (!empty($medium['preview'])) {
 				$previews[] = $medium['preview'];
 			}
@@ -600,7 +637,7 @@ class Media
 		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
 
 		foreach (self::getByURIId($uriid, [self::IMAGE, self::AUDIO, self::VIDEO]) as $media) {
-			if (Item::containsLink($body, $media['url'])) {
+			if (Item::containsLink($body, $media['url'], $media['type'])) {
 				continue;
 			}
 
@@ -630,5 +667,65 @@ class Media
 		}
 
 		return $body;
+	}
+
+	/**
+	 * Get preview link for given media id
+	 *
+	 * @param integer $id   media id
+	 * @param string  $size One of the ProxyUtils::SIZE_* constants
+	 * @return string preview link
+	 */
+	public static function getPreviewUrlForId(int $id, string $size = ''):string
+	{
+		$url = DI::baseUrl() . '/photo/preview/';
+		switch ($size) {
+			case Proxy::SIZE_MICRO:
+				$url .= Proxy::PIXEL_MICRO . '/';
+				break;
+			case Proxy::SIZE_THUMB:
+				$url .= Proxy::PIXEL_THUMB . '/';
+				break;
+			case Proxy::SIZE_SMALL:
+				$url .= Proxy::PIXEL_SMALL . '/';
+				break;
+			case Proxy::SIZE_MEDIUM:
+				$url .= Proxy::PIXEL_MEDIUM . '/';
+				break;
+			case Proxy::SIZE_LARGE:
+				$url .= Proxy::PIXEL_LARGE . '/';
+				break;
+		}
+		return $url . $id;
+	}
+
+	/**
+	 * Get media link for given media id
+	 *
+	 * @param integer $id   media id
+	 * @param string  $size One of the ProxyUtils::SIZE_* constants
+	 * @return string media link
+	 */
+	public static function getUrlForId(int $id, string $size = ''):string
+	{
+		$url = DI::baseUrl() . '/photo/media/';
+		switch ($size) {
+			case Proxy::SIZE_MICRO:
+				$url .= Proxy::PIXEL_MICRO . '/';
+				break;
+			case Proxy::SIZE_THUMB:
+				$url .= Proxy::PIXEL_THUMB . '/';
+				break;
+			case Proxy::SIZE_SMALL:
+				$url .= Proxy::PIXEL_SMALL . '/';
+				break;
+			case Proxy::SIZE_MEDIUM:
+				$url .= Proxy::PIXEL_MEDIUM . '/';
+				break;
+			case Proxy::SIZE_LARGE:
+				$url .= Proxy::PIXEL_LARGE . '/';
+				break;
+		}
+		return $url . $id;
 	}
 }

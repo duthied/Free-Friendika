@@ -548,4 +548,15 @@ class Network
 			exit;
 		}
 	}
+
+	/**
+	 * Check if the given URL is a local link
+	 *
+	 * @param string $url 
+	 * @return bool 
+	 */
+	public static function isLocalLink(string $url)
+	{
+		return (strpos(Strings::normaliseLink($url), Strings::normaliseLink(DI::baseUrl())) !== false);
+	}
 }

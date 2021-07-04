@@ -38,7 +38,7 @@ class Direct extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
@@ -48,22 +48,22 @@ class Direct extends BaseApi
 			'limit'    => 20, // Maximum number of results to return. Defaults to 20.
 		]);
 
-		$params = ['order' => ['id' => true], 'limit' => $request['limit']];
+		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ['uid' => $uid];
 
 		if (!empty($request['max_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`id` < ?", $request['max_id']]);
+			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);
 		}
 
 		if (!empty($request['since_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`id` > ?", $request['since_id']]);
+			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['since_id']]);
 		}
 
 		if (!empty($request['min_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`id` > ?", $request['min_id']]);
+			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
 
-			$params['order'] = ['id'];
+			$params['order'] = ['uri-id'];
 		}
 
 		$mails = DBA::select('mail', ['id'], $condition, $params);
@@ -71,6 +71,7 @@ class Direct extends BaseApi
 		$statuses = [];
 
 		while ($mail = DBA::fetch($mails)) {
+			self::setBoundaries($mail['uri-id']);
 			$statuses[] = DI::mstdnStatus()->createFromMailId($mail['id']);
 		}
 
@@ -78,6 +79,7 @@ class Direct extends BaseApi
 			array_reverse($statuses);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($statuses);
 	}
 }

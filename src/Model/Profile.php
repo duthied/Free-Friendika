@@ -29,13 +29,16 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Core\Session;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -82,6 +85,71 @@ class Profile
 	public static function getListByUser(int $uid, array $fields = [])
 	{
 		return DBA::selectToArray('profile', $fields, ['uid' => $uid]);
+	}
+
+	/**
+	 * Update a profile entry and distribute the changes if needed
+	 *
+	 * @param array $fields
+	 * @param integer $uid
+	 * @return boolean
+	 */
+	public static function update(array $fields, int $uid): bool
+	{
+		$old_owner = User::getOwnerDataById($uid);
+		if (empty($old_owner)) {
+			return false;
+		}
+
+		if (!DBA::update('profile', $fields, ['uid' => $uid])) {
+			return false;
+		}
+
+		$update = Contact::updateSelfFromUserID($uid);
+
+		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			return false;
+		}
+
+		if ($old_owner['name'] != $owner['name']) {
+			User::update(['username' => $owner['name']], $uid);
+		}
+
+		$profile_fields = ['postal-code', 'dob', 'prv_keywords', 'homepage'];
+		foreach ($profile_fields as $field) {
+			if ($old_owner[$field] != $owner[$field]) {
+				$update = true;
+			}
+		}
+
+		if ($update) {
+			self::publishUpdate($uid, ($old_owner['net-publish'] != $owner['net-publish']));
+		}
+
+		return true;
+	}
+
+	/**
+	 * Publish a changed profile
+	 * @param int  $uid
+	 * @param bool $force Force publishing to the directory
+	 */
+	public static function publishUpdate(int $uid, bool $force = false)
+	{
+		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			return;
+		}
+
+		if ($owner['net-publish'] || $force) {
+			// Update global directory in background
+			if (Search::getGlobalDirectory()) {
+				Worker::add(PRIORITY_LOW, 'Directory', $owner['url']);
+			}
+		}
+
+		Worker::add(PRIORITY_LOW, 'ProfileUpdate', $uid);
 	}
 
 	/**
@@ -216,28 +284,6 @@ class Profile
 	}
 
 	/**
-	 * Get all profile data of a local user
-	 *
-	 * If the viewer is an authenticated remote viewer, the profile displayed is the
-	 * one that has been configured for his/her viewing in the Contact manager.
-	 * Passing a non-zero profile ID can also allow a preview of a selected profile
-	 * by the owner
-	 *
-	 * Includes all available profile data
-	 *
-	 * @param string $nickname   nick
-	 * @param int    $uid        uid
-	 * @param int    $profile_id ID of the profile
-	 * @return array
-	 * @throws \Exception
-	 */
-	public static function getByNickname($nickname, $uid = 0)
-	{
-		$profile = DBA::selectFirst('owner-view', [], ['nickname' => $nickname, 'uid' => $uid]);
-		return $profile;
-	}
-
-	/**
 	 * Formats a profile for display in the sidebar.
 	 *
 	 * It is very difficult to templatise the HTML completely
@@ -263,8 +309,20 @@ class Profile
 		$o = '';
 		$location = false;
 
-		// This function can also use contact information in $profile
-		$is_contact = !empty($profile['cid']);
+		// This function can also use contact information in $profile, but the 'cid'
+		// value is going to be coming from 'owner-view', which means it's the wrong
+		// contact ID for the user viewing this page. Use 'nurl' to look up the
+		// correct contact table entry for the logged-in user.
+		$profile_contact = [];
+
+		if (!empty($profile['nurl'])) {
+			if (local_user() && ($profile['uid'] ?? 0) != local_user()) {
+				$profile_contact = Contact::getByURL($profile['nurl'], null, ['rel'], local_user());
+			}
+			if (!empty($profile['cid']) && self::getMyURL()) {
+				$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
+			}
+		}
 
 		if (empty($profile['nickname'])) {
 			Logger::warning('Received profile with no nickname', ['profile' => $profile, 'callstack' => System::callstack(10)]);
@@ -287,19 +345,21 @@ class Profile
 			$profile_url = DI::baseUrl()->get() . '/profile/' . $profile['nickname'];
 		}
 
+		if (!empty($profile['id'])) {
+			$cid = $profile['id'];
+		} else {
+			$cid = Contact::getIdForURL($profile_url, false);
+		}
+
 		$follow_link = null;
 		$unfollow_link = null;
 		$subscribe_feed_link = null;
 		$wallmessage_link = null;
 
+		// Who is the logged-in user to this profile?
 		$visitor_contact = [];
 		if (!empty($profile['uid']) && self::getMyURL()) {
 			$visitor_contact = Contact::selectFirst(['rel'], ['uid' => $profile['uid'], 'nurl' => Strings::normaliseLink(self::getMyURL())]);
-		}
-
-		$profile_contact = [];
-		if (!empty($profile['cid']) && self::getMyURL()) {
-			$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
 		}
 
 		$profile_is_dfrn = $profile['network'] == Protocol::DFRN;
@@ -332,17 +392,19 @@ class Profile
 				$subscribe_feed_link = 'dfrn_poll/' . $profile['nickname'];
 			}
 
-			if (Contact::canReceivePrivateMessages($profile)) {
+			if (Contact::canReceivePrivateMessages($profile_contact)) {
 				if ($visitor_is_followed || $visitor_is_following) {
-					$wallmessage_link = $visitor_base_path . '/message/new/' . base64_encode($profile['addr'] ?? '');
+					$wallmessage_link = $visitor_base_path . '/message/new/' . $profile_contact['id'];
 				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
 					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 				}
 			}
 		}
 
-		// show edit profile to yourself
-		if (!$is_contact && $local_user_is_self) {
+		// show edit profile to yourself, but only if this is not meant to be
+		// rendered as a "contact". i.e., if 'self' (a "contact" table column) isn't
+		// set in $profile.
+		if (!isset($profile['self']) && $local_user_is_self) {
 			$profile['edit'] = [DI::baseUrl() . '/settings/profile', DI::l10n()->t('Edit profile'), '', DI::l10n()->t('Edit profile')];
 			$profile['menu'] = [
 				'chg_photo' => DI::l10n()->t('Change profile photo'),
@@ -431,11 +493,9 @@ class Profile
 			$p['address'] = BBCode::convert($p['address']);
 		}
 
-		if (isset($p['photo'])) {
-			$p['photo'] = ProxyUtils::proxifyUrl($p['photo'], false, ProxyUtils::SIZE_SMALL);
-		}
+		$p['photo'] = Contact::getAvatarUrlForId($cid, ProxyUtils::SIZE_SMALL);
 
-		$p['url'] = Contact::magicLink(($p['url'] ?? '') ?: $profile_url);
+		$p['url'] = Contact::magicLinkById($cid);
 
 		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
@@ -754,11 +814,11 @@ class Profile
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($handle);
 		if (!$cid) {
-			Logger::log('unable to finger ' . $handle, Logger::DEBUG);
+			Logger::info('Handle not found', ['handle' => $handle]);
 			return [];
 		}
 
-		$visitor = DBA::selectFirst('contact', [], ['id' => $cid]);
+		$visitor = Contact::getById($cid);
 
 		// Authenticate the visitor.
 		$_SESSION['authenticated'] = 1;
@@ -775,6 +835,19 @@ class Profile
 		Logger::info('Authenticated visitor', ['url' => $visitor['url']]);
 
 		return $visitor;
+	}
+
+	/**
+	 * Set the visitor cookies (see remote_user()) for signed HTTP requests
+	 * @return array Visitor contact array
+	 */
+	public static function addVisitorCookieForHTTPSigner()
+	{
+		$requester = HTTPSignature::getSigner('', $_SERVER);
+		if (empty($requester)) {
+			return [];
+		}
+		return Profile::addVisitorCookieForHandle($requester);
 	}
 
 	/**

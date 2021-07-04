@@ -68,13 +68,9 @@ class Transmitter
 	 */
 	public static function addRelayServerInboxes(array $inboxes = [])
 	{
-		$contacts = DBA::select('apcontact', ['inbox'],
-			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)",
-				'Application', 0, Contact::FRIEND]);
-		while ($contact = DBA::fetch($contacts)) {
+		foreach (Relay::getList(['inbox']) as $contact) {
 			$inboxes[$contact['inbox']] = $contact['inbox'];
 		}
-		DBA::close($contacts);
 
 		return $inboxes;
 	}
@@ -92,7 +88,7 @@ class Transmitter
 			return $inboxes;
 		}
 
-		$relays = Relay::getList($item_id, [], [Protocol::ACTIVITYPUB]);
+		$relays = Relay::getDirectRelayList($item_id);
 		if (empty($relays)) {
 			return $inboxes;
 		}
@@ -147,7 +143,7 @@ class Transmitter
 
 		return $success;
 	}
-	
+
 	/**
 	 * Collects a list of contacts of the given owner
 	 *
@@ -320,71 +316,66 @@ class Transmitter
 	 */
 	public static function getProfile($uid)
 	{
-		if ($uid != 0) {
-			$condition = ['uid' => $uid, 'blocked' => false, 'account_expired' => false,
-				'account_removed' => false, 'verified' => true];
-			$fields = ['guid', 'nickname', 'pubkey', 'account-type', 'page-flags'];
-			$user = DBA::selectFirst('user', $fields, $condition);
-			if (!DBA::isResult($user)) {
-				return [];
-			}
-
-			$fields = ['locality', 'region', 'country-name'];
-			$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
-			if (!DBA::isResult($profile)) {
-				return [];
-			}
-
-			$fields = ['name', 'url', 'location', 'about', 'avatar', 'photo'];
-			$contact = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
-			if (!DBA::isResult($contact)) {
-				return [];
-			}
-		} else {
-			$contact = User::getSystemAccount();
-			$user = ['guid' => '', 'nickname' => $contact['nick'], 'pubkey' => $contact['pubkey'],
-				'account-type' => $contact['contact-type'], 'page-flags' => User::PAGE_FLAGS_NORMAL];
-			$profile = ['locality' => '', 'region' => '', 'country-name' => ''];
-		}
+		$owner = User::getOwnerDataById($uid);
 
 		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = $contact['url'];
+		$data['id'] = $owner['url'];
 
-		if (!empty($user['guid'])) {
-			$data['diaspora:guid'] = $user['guid'];
+		if (!empty($owner['guid'])) {
+			$data['diaspora:guid'] = $owner['guid'];
 		}
 
-		$data['type'] = ActivityPub::ACCOUNT_TYPES[$user['account-type']];
-		
+		$data['type'] = ActivityPub::ACCOUNT_TYPES[$owner['account-type']];
+
 		if ($uid != 0) {
-			$data['following'] = DI::baseUrl() . '/following/' . $user['nickname'];
-			$data['followers'] = DI::baseUrl() . '/followers/' . $user['nickname'];
-			$data['inbox'] = DI::baseUrl() . '/inbox/' . $user['nickname'];
-			$data['outbox'] = DI::baseUrl() . '/outbox/' . $user['nickname'];
+			$data['following'] = DI::baseUrl() . '/following/' . $owner['nick'];
+			$data['followers'] = DI::baseUrl() . '/followers/' . $owner['nick'];
+			$data['inbox'] = DI::baseUrl() . '/inbox/' . $owner['nick'];
+			$data['outbox'] = DI::baseUrl() . '/outbox/' . $owner['nick'];
 		} else {
 			$data['inbox'] = DI::baseUrl() . '/friendica/inbox';
 		}
 
-		$data['preferredUsername'] = $user['nickname'];
-		$data['name'] = $contact['name'];
+		$data['preferredUsername'] = $owner['nick'];
+		$data['name'] = $owner['name'];
 
-		if (!empty($profile['country-name'] . $profile['region'] . $profile['locality'])) {
-			$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $profile['country-name'],
-				'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
+		if (!empty($owner['country-name'] . $owner['region'] . $owner['locality'])) {
+			$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $owner['country-name'],
+				'vcard:region' => $owner['region'], 'vcard:locality' => $owner['locality']];
 		}
 
-		if (!empty($contact['about'])) {
-			$data['summary'] = BBCode::convert($contact['about'], false);
+		if (!empty($owner['about'])) {
+			$data['summary'] = BBCode::convert($owner['about'], false);
 		}
 
-		$data['url'] = $contact['url'];
-		$data['manuallyApprovesFollowers'] = in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
-		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',
-			'owner' => $contact['url'],
-			'publicKeyPem' => $user['pubkey']];
+		$data['url'] = $owner['url'];
+		$data['manuallyApprovesFollowers'] = in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
+		$data['discoverable'] = $owner['net-publish'];
+		$data['publicKey'] = ['id' => $owner['url'] . '#main-key',
+			'owner' => $owner['url'],
+			'publicKeyPem' => $owner['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => DI::baseUrl() . '/inbox'];
-		$data['icon'] = ['type' => 'Image',
-			'url' => $contact['photo']];
+		$data['icon'] = ['type' => 'Image', 'url' => Contact::getAvatarUrlForId($owner['id'], '', $owner['updated'])];
+
+		$resourceid = Photo::ridFromURI($owner['photo']);
+		if (!empty($resourceid)) {
+			$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
+			if (!empty($photo['type'])) {
+				$data['icon']['mediaType'] = $photo['type'];
+			}
+		}
+
+		if (!empty($owner['header'])) {
+			$data['image'] = ['type' => 'Image', 'url' => Contact::getHeaderUrlForId($owner['id'], '', $owner['updated'])];
+
+			$resourceid = Photo::ridFromURI($owner['header']);
+			if (!empty($resourceid)) {
+				$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
+				if (!empty($photo['type'])) {
+					$data['image']['mediaType'] = $photo['type'];
+				}
+			}
+		}
 
 		$data['generator'] = self::getService();
 
@@ -533,6 +524,8 @@ class Transmitter
 			$actor_profile = APContact::getByURL($item['author-link']);
 		}
 
+		$exclusive = false;
+
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		if ($item['private'] != Item::PRIVATE) {
@@ -557,6 +550,12 @@ class Transmitter
 			foreach ($terms as $term) {
 				$profile = APContact::getByURL($term['url'], false);
 				if (!empty($profile)) {
+					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
+						$exclusive = true;
+						if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
+							$data['cc'][] = $profile['followers'];
+						}
+					}
 					$data['to'][] = $profile['url'];
 				}
 			}
@@ -604,7 +603,7 @@ class Transmitter
 							// But comments to forums aren't directed to the followers collection
 							// This rule is only valid when the actor isn't the forum.
 							// The forum needs to transmit their content to their followers.
-							if (($profile['type'] == 'Group') && ($profile['url'] != $actor_profile['url'])) {
+							if (($profile['type'] == 'Group') && ($profile['url'] != ($actor_profile['url'] ?? ''))) {
 								$data['to'][] = $profile['url'];
 							} else {
 								$data['cc'][] = $profile['url'];
@@ -612,8 +611,10 @@ class Transmitter
 									$data['cc'][] = $actor_profile['followers'];
 								}
 							}
-						} else {
-							// Public thread parent post always are directed to the followers
+						} elseif (!$exclusive) {
+							// Public thread parent post always are directed to the followers.
+							// This mustn't be done by posts that are directed to forum servers via the exclusive mention.
+							// But possibly in that case we could add the "followers" collection of the forum to the message.
 							if (($item['private'] != Item::PRIVATE) && !$forum_mode) {
 								$data['cc'][] = $actor_profile['followers'];
 							}
@@ -694,10 +695,10 @@ class Transmitter
 	/**
 	 * Check if a given contact should be delivered via AP
 	 *
-	 * @param array $contact 
-	 * @param array $networks 
-	 * @return bool 
-	 * @throws Exception 
+	 * @param array $contact
+	 * @param array $networks
+	 * @return bool
+	 * @throws Exception
 	 */
 	private static function isAPContact(array $contact, array $networks)
 	{
@@ -748,10 +749,6 @@ class Transmitter
 
 		$contacts = DBA::select('contact', ['id', 'url', 'network', 'protocol', 'gsid'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			if (Contact::isLocal($contact['url'])) {
-				continue;
-			}
-
 			if (!self::isAPContact($contact, $networks)) {
 				continue;
 			}
@@ -766,7 +763,7 @@ class Transmitter
 
 			$profile = APContact::getByURL($contact['url'], false);
 			if (!empty($profile)) {
-				if (empty($profile['sharedinbox']) || $personal) {
+				if (empty($profile['sharedinbox']) || $personal || Contact::isLocal($contact['url'])) {
 					$target = $profile['inbox'];
 				} else {
 					$target = $profile['sharedinbox'];
@@ -829,15 +826,11 @@ class Transmitter
 				if ($item_profile && ($receiver == $item_profile['followers']) && ($uid == $profile_uid)) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal, self::isAPPost($last_id)));
 				} else {
-					if (Contact::isLocal($receiver)) {
-						continue;
-					}
-
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
 						$contact = Contact::getByURLForUser($receiver, $uid, false, ['id']);
 
-						if (empty($profile['sharedinbox']) || $personal || $blindcopy) {
+						if (empty($profile['sharedinbox']) || $personal || $blindcopy || Contact::isLocal($receiver)) {
 							$target = $profile['inbox'];
 						} else {
 							$target = $profile['sharedinbox'];
@@ -868,24 +861,19 @@ class Transmitter
 			return [];
 		}
 
-		$mail['uri-id'] = ItemURI::insert(['uri' => $mail['uri'], 'guid' => $mail['guid']]);
-
-		$reply = DBA::selectFirst('mail', ['uri', 'from-url', 'guid'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+		$reply = DBA::selectFirst('mail', ['uri', 'uri-id', 'from-url'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
 
 		// Making the post more compatible for Mastodon by:
 		// - Making it a note and not an article (no title)
 		// - Moving the title into the "summary" field that is used as a "content warning"
 
-		if ($use_title) {
-			$mail['body']         = $mail['body'];
-			$mail['title']        = $mail['title'];
-		} else {
+		if (!$use_title) {
 			$mail['body']         = '[abstract]' . $mail['title'] . "[/abstract]\n" . $mail['body'];
 			$mail['title']        = '';
 		}
 
 		$mail['author-link']      = $mail['owner-link'] = $mail['from-url'];
-		$mail['author-id']        = Contact::getIdForURL($mail['author-link'], 0, false); 
+		$mail['owner-id']         = $mail['author-id'];
 		$mail['allow_cid']        = '<'.$mail['contact-id'].'>';
 		$mail['allow_gid']        = '';
 		$mail['deny_cid']         = '';
@@ -893,9 +881,9 @@ class Transmitter
 		$mail['private']          = Item::PRIVATE;
 		$mail['deleted']          = false;
 		$mail['edited']           = $mail['created'];
-		$mail['plink']            = $mail['uri'];
-		$mail['thr-parent']       = $reply['uri'];
-		$mail['thr-parent-id']    = ItemURI::insert(['uri' => $reply['uri'], 'guid' => $reply['guid']]);
+		$mail['plink']            = DI::baseUrl() . '/message/' . $mail['id'];
+		$mail['parent-uri']       = $reply['uri'];
+		$mail['parent-uri-id']    = $reply['uri-id'];
 		$mail['parent-author-id'] = Contact::getIdForURL($reply['from-url'], 0, false);
 		$mail['gravity']          = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
 		$mail['event-type']       = '';
@@ -1066,7 +1054,7 @@ class Transmitter
 				if (!empty($self['uid'])) {
 					$forum_item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['uri-id' => $item['uri-id'], 'uid' => $self['uid']]);
 					if (DBA::isResult($forum_item)) {
-						$item = $forum_item; 
+						$item = $forum_item;
 					}
 				}
 			}
@@ -1285,10 +1273,24 @@ class Transmitter
 				}
 				$urls[] = $attachment['url'];
 
-				$attachments[] = ['type' => 'Document',
+				$attach = ['type' => 'Document',
 					'mediaType' => $attachment['mimetype'],
 					'url' => $attachment['url'],
 					'name' => $attachment['description']];
+
+				if (!empty($attachment['height'])) {
+					$attach['height'] = $attachment['height'];
+				}
+
+				if (!empty($attachment['width'])) {
+					$attach['width'] = $attachment['width'];
+				}
+
+				if (!empty($attachment['preview'])) {
+					$attach['image'] = $attachment['preview'];
+				}
+
+				$attachments[] = $attach;
 			}
 		}
 
@@ -1303,10 +1305,24 @@ class Transmitter
 				}
 				$urls[] = $attachment['url'];
 
-				$attachments[] = ['type' => 'Document',
+				$attach = ['type' => 'Document',
 					'mediaType' => $attachment['mimetype'],
 					'url' => $attachment['url'],
 					'name' => $attachment['description']];
+
+				if (!empty($attachment['height'])) {
+					$attach['height'] = $attachment['height'];
+				}
+
+				if (!empty($attachment['width'])) {
+					$attach['width'] = $attachment['width'];
+				}
+
+				if (!empty($attachment['preview'])) {
+					$attach['image'] = $attachment['preview'];
+				}
+
+				$attachments[] = $attach;
 			}
 			// Currently deactivated, since it creates side effects on Mastodon and Pleroma.
 			// It will be activated, once this cleared.
@@ -1530,11 +1546,20 @@ class Transmitter
 
 		if ($type == 'Note') {
 			$body = $item['raw-body'] ?? self::removePictures($body);
-		} elseif (($type == 'Article') && empty($data['summary'])) {
-			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-			$summary = preg_replace_callback($regexp, ['self', 'mentionAddrCallback'], $body);
-			$data['summary'] = BBCode::toPlaintext(Plaintext::shorten(self::removePictures($summary), 1000));
 		}
+
+		/**
+		 * @todo Improve the automated summary
+		 * This part is currently deactivated. The automated summary seems to be more
+		 * confusing than helping. But possibly we will find a better way.
+		 * So the code is left here for now as a reminder
+		 *
+		 * } elseif (($type == 'Article') && empty($data['summary'])) {
+		 * 		$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
+		 * 		$summary = preg_replace_callback($regexp, ['self', 'mentionAddrCallback'], $body);
+		 * 		$data['summary'] = BBCode::toPlaintext(Plaintext::shorten(self::removePictures($summary), 1000));
+		 * }
+		 */
 
 		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
 			$body = self::prependMentions($body, $item['uri-id'], $item['author-link']);

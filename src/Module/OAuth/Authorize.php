@@ -24,6 +24,7 @@ namespace Friendica\Module\OAuth;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Security\OAuth;
 
 /**
  * @see https://docs.joinmastodon.org/spec/oauth/
@@ -31,6 +32,8 @@ use Friendica\Module\BaseApi;
  */
 class Authorize extends BaseApi
 {
+	private static $oauth_code = '';
+
 	/**
 	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -38,11 +41,12 @@ class Authorize extends BaseApi
 	public static function rawContent(array $parameters = [])
 	{
 		$request = self::getRequest([
-			'response_type' => '',
-			'client_id'     => '',
+			'force_login'   => '', // Forces the user to re-login, which is necessary for authorizing with multiple accounts from the same instance.
+			'response_type' => '', // Should be set equal to "code".
+			'client_id'     => '', // Client ID, obtained during app registration.
 			'client_secret' => '', // Isn't normally provided. We will use it if present.
-			'redirect_uri'  => '',
-			'scope'         => 'read',
+			'redirect_uri'  => '', // Set a URI to redirect the user to. If this parameter is set to "urn:ietf:wg:oauth:2.0:oob" then the authorization code will be shown instead. Must match one of the redirect URIs declared during app registration.
+			'scope'         => 'read', // List of requested OAuth scopes, separated by spaces (or by pluses, if using query parameters). Must be a subset of scopes declared during app registration. If not provided, defaults to "read".
 			'state'         => '',
 		]);
 
@@ -56,16 +60,16 @@ class Authorize extends BaseApi
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Incomplete request data'));
 		}
 
-		$application = self::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
+		$application = OAuth::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
 		if (empty($application)) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		// @todo Compare the application scope and requested scope
 
-		$request = $_REQUEST;
-		unset($request['pagename']);
-		$redirect = 'oauth/authorize?' . http_build_query($request);
+		$redirect_request = $_REQUEST;
+		unset($redirect_request['pagename']);
+		$redirect = 'oauth/authorize?' . http_build_query($redirect_request);
 
 		$uid = local_user();
 		if (empty($uid)) {
@@ -75,18 +79,31 @@ class Authorize extends BaseApi
 			Logger::info('Already logged in user', ['uid' => $uid]);
 		}
 
-		if (!self::existsTokenForUser($application, $uid) && !DI::session()->get('oauth_acknowledge')) {
+		if (!OAuth::existsTokenForUser($application, $uid) && !DI::session()->get('oauth_acknowledge')) {
 			Logger::info('Redirect to acknowledge');
 			DI::app()->redirect('oauth/acknowledge?' . http_build_query(['return_path' => $redirect, 'application' => $application['name']]));
 		}
 
 		DI::session()->remove('oauth_acknowledge');
 
-		$token = self::createTokenForUser($application, $uid, $request['scope']);
+		$token = OAuth::createTokenForUser($application, $uid, $request['scope']);
 		if (!$token) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DI::app()->redirect($application['redirect_uri'] . (strpos($application['redirect_uri'], '?') ? '&' : '?') . http_build_query(['code' => $token['code'], 'state' => $request['state']]));
+		if ($application['redirect_uri'] != 'urn:ietf:wg:oauth:2.0:oob') {
+			DI::app()->redirect($application['redirect_uri'] . (strpos($application['redirect_uri'], '?') ? '&' : '?') . http_build_query(['code' => $token['code'], 'state' => $request['state']]));
+		}
+
+		self::$oauth_code = $token['code'];
+	}
+
+	public static function content(array $parameters = [])
+	{
+		if (empty(self::$oauth_code)) {
+			return '';
+		}
+
+		return DI::l10n()->t('Please copy the following authentication code into your application and close this window: %s', self::$oauth_code);
 	}
 }

@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2021.06-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1418
+-- Friendica 2021.06-rc (Siberian Iris)
+-- DB_UPDATE_VERSION 1424
 -- ------------------------------------------
 
 
@@ -120,6 +120,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`photo` varchar(255) DEFAULT '' COMMENT 'Link to the profile photo of the contact',
 	`thumb` varchar(255) DEFAULT '' COMMENT 'Link to the profile photo (thumb size)',
 	`micro` varchar(255) DEFAULT '' COMMENT 'Link to the profile photo (micro size)',
+	`header` varchar(255) COMMENT 'Header picture',
 	`site-pubkey` text COMMENT '',
 	`issued-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`dfrn-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -339,10 +340,12 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`outbox` varchar(255) COMMENT '',
 	`sharedinbox` varchar(255) COMMENT '',
 	`manually-approve` boolean COMMENT '',
+	`discoverable` boolean COMMENT 'Mastodon extension: true if profile is published in their directory',
 	`nick` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`name` varchar(255) COMMENT '',
 	`about` text COMMENT '',
 	`photo` varchar(255) COMMENT '',
+	`header` varchar(255) COMMENT 'Header picture',
 	`addr` varchar(255) COMMENT '',
 	`alias` varchar(255) COMMENT '',
 	`pubkey` text COMMENT '',
@@ -751,6 +754,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	`from-photo` varchar(255) NOT NULL DEFAULT '' COMMENT 'contact photo link of the sender',
 	`from-url` varchar(255) NOT NULL DEFAULT '' COMMENT 'profile linke of the sender',
 	`contact-id` varchar(255) COMMENT 'contact.id',
+	`author-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the author of the mail',
 	`convid` int unsigned COMMENT 'conv.id',
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`body` mediumtext COMMENT '',
@@ -759,7 +763,11 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	`replied` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`unknown` boolean NOT NULL DEFAULT '0' COMMENT 'if sender not in the contact table this is 1',
 	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-id` int unsigned COMMENT 'Item-uri id of the related mail',
 	`parent-uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related mail',
+	`thr-parent` varchar(255) COMMENT '',
+	`thr-parent-id` int unsigned COMMENT 'Id of the item-uri table that contains the thread parent uri',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'creation time of the private message',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_seen` (`uid`,`seen`),
@@ -767,7 +775,15 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	 INDEX `uri` (`uri`(64)),
 	 INDEX `parent-uri` (`parent-uri`(64)),
 	 INDEX `contactid` (`contact-id`(32)),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `author-id` (`author-id`),
+	 INDEX `uri-id` (`uri-id`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	 INDEX `thr-parent-id` (`thr-parent-id`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='private messages';
 
 --
@@ -805,6 +821,33 @@ CREATE TABLE IF NOT EXISTS `manage` (
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`mid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='table of accounts that can manage each other';
+
+--
+-- TABLE notification
+--
+CREATE TABLE IF NOT EXISTS `notification` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uid` mediumint unsigned COMMENT 'Owner User id',
+	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
+	`type` tinyint unsigned COMMENT '',
+	`actor-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the actor that caused the notification',
+	`target-uri-id` int unsigned COMMENT 'Item-uri id of the related post',
+	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
+	`created` datetime COMMENT '',
+	`seen` boolean DEFAULT '0' COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uid_vid_type_actor-id_target-uri-id` (`uid`,`vid`,`type`,`actor-id`,`target-uri-id`),
+	 INDEX `vid` (`vid`),
+	 INDEX `actor-id` (`actor-id`),
+	 INDEX `target-uri-id` (`target-uri-id`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	 INDEX `seen_uid` (`seen`,`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`actor-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`target-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='notifications';
 
 --
 -- TABLE notify
@@ -1672,7 +1715,9 @@ CREATE VIEW `post-user-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`
+	`parent-post-author`.`network` AS `parent-author-network`,
+	`parent-post-author`.`blocked` AS `parent-author-blocked`,
+	`parent-post-author`.`hidden` AS `parent-author-hidden`
 	FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
@@ -1832,7 +1877,9 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`
+	`parent-post-author`.`network` AS `parent-author-network`,
+	`parent-post-author`.`blocked` AS `parent-author-blocked`,
+	`parent-post-author`.`hidden` AS `parent-author-hidden`
 	FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
@@ -1896,6 +1943,31 @@ CREATE VIEW `post-view` AS SELECT
 	`post-content`.`target-type` AS `target-type`,
 	`post-content`.`target` AS `target`,
 	`post-content`.`resource-id` AS `resource-id`,
+	`post`.`author-id` AS `contact-id`,
+	`author`.`url` AS `contact-link`,
+	`author`.`addr` AS `contact-addr`,
+	`author`.`name` AS `contact-name`,
+	`author`.`nick` AS `contact-nick`,
+	`author`.`thumb` AS `contact-avatar`,
+	`author`.`network` AS `contact-network`,
+	`author`.`blocked` AS `contact-blocked`,
+	`author`.`hidden` AS `contact-hidden`,
+	`author`.`readonly` AS `contact-readonly`,
+	`author`.`archive` AS `contact-archive`,
+	`author`.`pending` AS `contact-pending`,
+	`author`.`rel` AS `contact-rel`,
+	`author`.`uid` AS `contact-uid`,
+	`author`.`contact-type` AS `contact-contact-type`,
+	IF (`post`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `author`.`writable`) AS `writable`,
+	false AS `self`,
+	`author`.`id` AS `cid`,
+	`author`.`alias` AS `alias`,
+	`author`.`photo` AS `photo`,
+	`author`.`name-date` AS `name-date`,
+	`author`.`uri-date` AS `uri-date`,
+	`author`.`avatar-date` AS `avatar-date`,
+	`author`.`thumb` AS `thumb`,
+	`author`.`dfrn-id` AS `dfrn-id`,
 	`post`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -1931,7 +2003,9 @@ CREATE VIEW `post-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`
+	`parent-post-author`.`network` AS `parent-author-network`,
+	`parent-post-author`.`blocked` AS `parent-author-blocked`,
+	`parent-post-author`.`hidden` AS `parent-author-hidden`
 	FROM `post`
 			STRAIGHT_JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post`.`author-id`
@@ -1991,6 +2065,31 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post-content`.`target-type` AS `target-type`,
 	`post-content`.`target` AS `target`,
 	`post-content`.`resource-id` AS `resource-id`,
+	`post-thread`.`author-id` AS `contact-id`,
+	`author`.`url` AS `contact-link`,
+	`author`.`addr` AS `contact-addr`,
+	`author`.`name` AS `contact-name`,
+	`author`.`nick` AS `contact-nick`,
+	`author`.`thumb` AS `contact-avatar`,
+	`author`.`network` AS `contact-network`,
+	`author`.`blocked` AS `contact-blocked`,
+	`author`.`hidden` AS `contact-hidden`,
+	`author`.`readonly` AS `contact-readonly`,
+	`author`.`archive` AS `contact-archive`,
+	`author`.`pending` AS `contact-pending`,
+	`author`.`rel` AS `contact-rel`,
+	`author`.`uid` AS `contact-uid`,
+	`author`.`contact-type` AS `contact-contact-type`,
+	IF (`post`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `author`.`writable`) AS `writable`,
+	false AS `self`,
+	`author`.`id` AS `cid`,
+	`author`.`alias` AS `alias`,
+	`author`.`photo` AS `photo`,
+	`author`.`name-date` AS `name-date`,
+	`author`.`uri-date` AS `uri-date`,
+	`author`.`avatar-date` AS `avatar-date`,
+	`author`.`thumb` AS `thumb`,
+	`author`.`dfrn-id` AS `dfrn-id`,
 	`post-thread`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -2026,7 +2125,9 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`
+	`parent-post-author`.`network` AS `parent-author-network`,
+	`parent-post-author`.`blocked` AS `parent-author-blocked`,
+	`parent-post-author`.`hidden` AS `parent-author-hidden`
 	FROM `post-thread`
 			INNER JOIN `post` ON `post`.`uri-id` = `post-thread`.`uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread`.`author-id`
@@ -2158,6 +2259,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`photo` AS `photo`,
 	`contact`.`thumb` AS `thumb`,
 	`contact`.`micro` AS `micro`,
+	`contact`.`header` AS `header`,
 	`contact`.`site-pubkey` AS `site-pubkey`,
 	`contact`.`issued-id` AS `issued-id`,
 	`contact`.`dfrn-id` AS `dfrn-id`,

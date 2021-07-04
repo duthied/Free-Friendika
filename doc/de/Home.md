@@ -54,7 +54,7 @@ Friendica - Dokumentation und Ressourcen
 * [Class Autoloading](help/autoloader) (EN)
 * [Using Composer](help/Composer) (EN)
 * [Code-Referenz (mit doxygen generiert - setzt Cookies)](doc/html/)
-* [Twitter/GNU Social API Functions](help/api) (EN)
+* [API Dokumentation](help/api) (EN)
 * [Translation of Friendica](help/translations) (EN)
 * [Run tests](help/Tests) (EN)
 
@@ -64,9 +64,10 @@ Friendica - Dokumentation und Ressourcen
 * Support Kanäle
   * Friendica Support Forum: [@helpers@forum.friendi.ca](https://forum.friendi.ca/~helpers)
   * [Mailing Listen Archiv](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) zum Abonnieren der Liste eine E-Mail an ``support-request(at)friendi.ca?subject=subscribe`` senden
-  * XMPP/Jabber MUC: support(at)forum.friendi.ca
-  * IRC: [#friendica auf irc.freenode.net](https://webchat.freenode.net/?settings=#friendica)
-  * Matrix: [#friendi.ca](https://matrix.to/#/#friendi.ca:matrix.org) oder [#friendica-en](https://matrix.to/#/#friendica-en:matrix.org) auf matrix.org
+  * Chats der Friendica Community (die IRC, Matrix und XMPP Räume sind mit einer Brücke verbunden) Logs dieser öffentlichen Chaträume können [hier aus dem IRC](https://gnusociarg.nsupdate.info/2021/%23frie) und [hier aus der Matrix](https://view.matrix.org/alias/%23friendi.ca:matrix.org/) gefunden werden.
+    * XMPP/Jabber MUC: support(at)forum.friendi.ca
+    * IRC: #friendica auf libera.chat oder  [#friendica auf irc.freenode.net](https://webchat.freenode.net/?settings=#friendica)
+    * Matrix: [#friendi.ca](https://matrix.to/#/#friendi.ca:matrix.org) oder [#friendica-en](https://matrix.to/#/#friendica-en:matrix.org) auf matrix.org
 
 **Über diese Seite**
 

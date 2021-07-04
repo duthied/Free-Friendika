@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1418);
+	define('DB_UPDATE_VERSION', 1424);
 }
 
 return [
@@ -177,6 +177,7 @@ return [
 			"photo" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo of the contact"],
 			"thumb" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (thumb size)"],
 			"micro" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (micro size)"],
+			"header" => ["type" => "varchar(255)", "comment" => "Header picture"],
 			"site-pubkey" => ["type" => "text", "comment" => ""],
 			"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -400,10 +401,12 @@ return [
 			"outbox" => ["type" => "varchar(255)", "comment" => ""],
 			"sharedinbox" => ["type" => "varchar(255)", "comment" => ""],
 			"manually-approve" => ["type" => "boolean", "comment" => ""],
+			"discoverable" => ["type" => "boolean", "comment" => "Mastodon extension: true if profile is published in their directory"],
 			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"name" => ["type" => "varchar(255)", "comment" => ""],
 			"about" => ["type" => "text", "comment" => ""],
 			"photo" => ["type" => "varchar(255)", "comment" => ""],
+			"header" => ["type" => "varchar(255)", "comment" => "Header picture"],
 			"addr" => ["type" => "varchar(255)", "comment" => ""],
 			"alias" => ["type" => "varchar(255)", "comment" => ""],
 			"pubkey" => ["type" => "text", "comment" => ""],
@@ -818,6 +821,7 @@ return [
 			"from-photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "contact photo link of the sender"],
 			"from-url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "profile linke of the sender"],
 			"contact-id" => ["type" => "varchar(255)", "relation" => ["contact" => "id"], "comment" => "contact.id"],
+			"author-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of the mail"],
 			"convid" => ["type" => "int unsigned", "relation" => ["conv" => "id"], "comment" => "conv.id"],
 			"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"body" => ["type" => "mediumtext", "comment" => ""],
@@ -826,7 +830,11 @@ return [
 			"replied" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"unknown" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if sender not in the contact table this is 1"],
 			"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the related mail"],
 			"parent-uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related mail"],
+			"thr-parent" => ["type" => "varchar(255)", "comment" => ""],
+			"thr-parent-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the thread parent uri"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation time of the private message"],
 		],
 		"indexes" => [
@@ -836,6 +844,10 @@ return [
 			"uri" => ["uri(64)"],
 			"parent-uri" => ["parent-uri(64)"],
 			"contactid" => ["contact-id(32)"],
+			"author-id" => ["author-id"],
+			"uri-id" => ["uri-id"],
+			"parent-uri-id" => ["parent-uri-id"],
+			"thr-parent-id" => ["thr-parent-id"],
 		]
 	],
 	"mailacct" => [
@@ -871,6 +883,29 @@ return [
 			"PRIMARY" => ["id"],
 			"uid_mid" => ["UNIQUE", "uid", "mid"],
 			"mid" => ["mid"],
+		]
+	],
+	"notification" => [
+		"comment" => "notifications",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
+			"vid" => ["type" => "smallint unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
+			"type" => ["type" => "tinyint unsigned", "comment" => ""],
+			"actor-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Link to the contact table with uid=0 of the actor that caused the notification"],
+			"target-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the related post"],
+			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],
+			"created" => ["type" => "datetime", "comment" => ""],
+			"seen" => ["type" => "boolean", "default" => "0", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uid_vid_type_actor-id_target-uri-id" => ["UNIQUE", "uid", "vid", "type", "actor-id", "target-uri-id"],
+			"vid" => ["vid"],
+			"actor-id" => ["actor-id"],
+			"target-uri-id" => ["target-uri-id"],
+			"parent-uri-id" => ["parent-uri-id"],
+			"seen_uid" => ["seen", "uid"],
 		]
 	],
 	"notify" => [

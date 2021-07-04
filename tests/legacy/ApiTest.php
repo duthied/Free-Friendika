@@ -157,8 +157,8 @@ class ApiTest extends FixtureTest
 	 */
 	private function assertStatus(array $status = [])
 	{
-		self::assertInternalType('string', $status['text'] ?? '');
-		self::assertInternalType('int', $status['id'] ?? '');
+		self::assertIsString($status['text'] ?? '');
+		self::assertIsInt($status['id'] ?? '');
 		// We could probably do more checks here.
 	}
 
@@ -171,9 +171,9 @@ class ApiTest extends FixtureTest
 	 */
 	private function assertList(array $list = [])
 	{
-		self::assertInternalType('string', $list['name']);
-		self::assertInternalType('int', $list['id']);
-		self::assertInternalType('string', $list['id_str']);
+		self::assertIsString($list['name']);
+		self::assertIsInt($list['id']);
+		self::assertIsString('string', $list['id_str']);
 		self::assertContains($list['mode'], ['public', 'private']);
 		// We could probably do more checks here.
 	}
@@ -189,7 +189,7 @@ class ApiTest extends FixtureTest
 	private function assertXml($result = '', $root_element = '')
 	{
 		self::assertStringStartsWith('<?xml version="1.0"?>', $result);
-		self::assertContains('<' . $root_element, $result);
+		self::assertStringContainsString('<' . $root_element, $result);
 		// We could probably do more checks here.
 	}
 
@@ -762,7 +762,7 @@ class ApiTest extends FixtureTest
 	public function testApiRssExtraWithoutUserInfo()
 	{
 		$result = api_rss_extra($this->app, [], null);
-		self::assertInternalType('array', $result['$user']);
+		self::assertIsArray($result['$user']);
 		self::assertArrayHasKey('alternate', $result['$rss']);
 		self::assertArrayHasKey('self', $result['$rss']);
 		self::assertArrayHasKey('base', $result['$rss']);
@@ -1505,7 +1505,7 @@ class ApiTest extends FixtureTest
 		$result             = api_search('json');
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
-			self::assertContains('reply', $status['text'], '', true);
+			self::assertStringContainsStringIgnoringCase('reply', $status['text'], '', true);
 		}
 	}
 
@@ -1521,7 +1521,7 @@ class ApiTest extends FixtureTest
 		$result            = api_search('json');
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
-			self::assertContains('reply', $status['text'], '', true);
+			self::assertStringContainsStringIgnoringCase('reply', $status['text'], '', true);
 		}
 	}
 
@@ -1537,7 +1537,7 @@ class ApiTest extends FixtureTest
 		$result          = api_search('json');
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
-			self::assertContains('reply', $status['text'], '', true);
+			self::assertStringContainsStringIgnoringCase('reply', $status['text'], '', true);
 		}
 	}
 
@@ -1551,7 +1551,7 @@ class ApiTest extends FixtureTest
 		$result        = api_search('json');
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
-			self::assertContains('#friendica', $status['text'], '', true);
+			self::assertStringContainsStringIgnoringCase('#friendica', $status['text'], '', true);
 		}
 	}
 
@@ -2266,6 +2266,7 @@ class ApiTest extends FixtureTest
 			[
 				'network' => 'feed',
 				'title'   => 'item_title',
+				'uri-id'  => 1,
 				// We need a long string to test that it is correctly cut
 				'body'    => 'perspiciatis impedit voluptatem quis molestiae ea qui ' .
 				             'reiciendis dolorum aut ducimus sunt consequatur inventore dolor ' .
@@ -2308,11 +2309,12 @@ class ApiTest extends FixtureTest
 			[
 				'network' => 'feed',
 				'title'   => 'item_title',
+				'uri-id'  => -1,
 				'body'    => '',
 				'plink'   => 'item_plink'
 			]
 		);
-		self::assertEquals('item_title', $result['text']);
+		self::assertEquals("item_title", $result['text']);
 		self::assertEquals('<h4>item_title</h4><br>item_plink', $result['html']);
 	}
 
@@ -2325,8 +2327,9 @@ class ApiTest extends FixtureTest
 	{
 		$result = api_convert_item(
 			[
-				'title' => 'item_title',
-				'body'  => 'item_title item_body'
+				'title'  => 'item_title',
+				'body'   => 'item_title item_body',
+				'uri-id' => 1,
 			]
 		);
 		self::assertEquals('item_title item_body', $result['text']);
@@ -2352,7 +2355,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetAttachmentsWithImage()
 	{
 		$body = '[img]http://via.placeholder.com/1x1.png[/img]';
-		self::assertInternalType('array', api_get_attachments($body));
+		self::assertIsArray(api_get_attachments($body));
 	}
 
 	/**
@@ -2364,7 +2367,7 @@ class ApiTest extends FixtureTest
 	{
 		$_SERVER['HTTP_USER_AGENT'] = 'AndStatus';
 		$body                       = '[img]http://via.placeholder.com/1x1.png[/img]';
-		self::assertInternalType('array', api_get_attachments($body));
+		self::assertIsArray(api_get_attachments($body));
 	}
 
 	/**
@@ -2375,7 +2378,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetEntitities()
 	{
 		$text = 'text';
-		self::assertInternalType('array', api_get_entitities($text, 'bbcode'));
+		self::assertIsArray(api_get_entitities($text, 'bbcode'));
 	}
 
 	/**
@@ -2388,10 +2391,10 @@ class ApiTest extends FixtureTest
 		$_REQUEST['include_entities'] = 'true';
 		$text                         = 'text';
 		$result                       = api_get_entitities($text, 'bbcode');
-		self::assertInternalType('array', $result['hashtags']);
-		self::assertInternalType('array', $result['symbols']);
-		self::assertInternalType('array', $result['urls']);
-		self::assertInternalType('array', $result['user_mentions']);
+		self::assertIsArray($result['hashtags']);
+		self::assertIsArray($result['symbols']);
+		self::assertIsArray($result['urls']);
+		self::assertIsArray($result['user_mentions']);
 	}
 
 	/**
@@ -2529,7 +2532,7 @@ class ApiTest extends FixtureTest
 		$result = api_account_rate_limit_status('json');
 		self::assertEquals(150, $result['hash']['remaining_hits']);
 		self::assertEquals(150, $result['hash']['hourly_limit']);
-		self::assertInternalType('int', $result['hash']['reset_time_in_seconds']);
+		self::assertIsInt($result['hash']['reset_time_in_seconds']);
 	}
 
 	/**
@@ -2874,7 +2877,7 @@ class ApiTest extends FixtureTest
 		$_POST['text']        = 'message_text';
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$result               = api_direct_messages_new('json');
-		self::assertContains('message_text', $result['direct_message']['text']);
+		self::assertStringContainsString('message_text', $result['direct_message']['text']);
 		self::assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
 		self::assertEquals(1, $result['direct_message']['friendica_seen']);
 	}
@@ -2891,8 +2894,8 @@ class ApiTest extends FixtureTest
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$_REQUEST['title']    = 'message_title';
 		$result               = api_direct_messages_new('json');
-		self::assertContains('message_text', $result['direct_message']['text']);
-		self::assertContains('message_title', $result['direct_message']['text']);
+		self::assertStringContainsString('message_text', $result['direct_message']['text']);
+		self::assertStringContainsString('message_title', $result['direct_message']['text']);
 		self::assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
 		self::assertEquals(1, $result['direct_message']['friendica_seen']);
 	}

@@ -32,6 +32,7 @@ use Friendica\Core\PConfig\IPConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session\ISession;
 use Friendica\Database\Database;
+use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Module\BaseNotifications;
 use Friendica\Network\HTTPException\InternalServerErrorException;
@@ -239,7 +240,7 @@ class Notification extends BaseFactory
 				$formattedNotifications[] = new \Friendica\Object\Notification\Notification([
 					'label' => 'notification',
 					'link'  => $this->baseUrl->get(true) . '/notification/' . $notification->id,
-					'image' => Proxy::proxifyUrl($notification->photo, false, Proxy::SIZE_MICRO),
+					'image' => Contact::getAvatarUrlForUrl($notification->url, $notification->uid, Proxy::SIZE_MICRO),
 					'url'   => $notification->url,
 					'text'  => strip_tags(BBCode::convert($notification->msg)),
 					'when'  => DateTimeFormat::local($notification->date, 'r'),

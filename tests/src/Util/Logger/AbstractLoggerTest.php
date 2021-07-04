@@ -106,8 +106,8 @@ abstract class AbstractLoggerTest extends MockedTest
 		$logger->emergency('A {psr} test', ['psr' => 'working']);
 		$logger->alert('An {array} test', ['array' => ['it', 'is', 'working']]);
 		$text = $this->getContent();
-		self::assertContains('A working test', $text);
-		self::assertContains('An ["it","is","working"] test', $text);
+		self::assertStringContainsString('A working test', $text);
+		self::assertStringContainsString('An ["it","is","working"] test', $text);
 	}
 
 	/**
@@ -119,9 +119,9 @@ abstract class AbstractLoggerTest extends MockedTest
 		$logger->emergency('A test');
 
 		$text = $this->getContent();
-		self::assertContains('"file":"' . self::FILE . '"', $text);
-		self::assertContains('"line":' . self::LINE, $text);
-		self::assertContains('"function":"' . self::FUNC . '"', $text);
+		self::assertStringContainsString('"file":"' . self::FILE . '"', $text);
+		self::assertStringContainsString('"line":' . self::LINE, $text);
+		self::assertStringContainsString('"function":"' . self::FUNC . '"', $text);
 	}
 
 	/**
@@ -157,7 +157,7 @@ abstract class AbstractLoggerTest extends MockedTest
 
 		self::assertLogline($text);
 
-		self::assertContains(@json_encode($context), $text);
+		self::assertStringContainsString(@json_encode($context), $text);
 	}
 
 	/**
@@ -176,7 +176,7 @@ abstract class AbstractLoggerTest extends MockedTest
 
 		self::assertLogline($text);
 
-		self::assertContains(@json_encode($assertion), $this->getContent());
+		self::assertStringContainsString(@json_encode($assertion), $this->getContent());
 	}
 
 	public function testNoObjectHandling()
@@ -187,6 +187,6 @@ abstract class AbstractLoggerTest extends MockedTest
 
 		self::assertLogline($text);
 
-		self::assertContains('test', $this->getContent());
+		self::assertStringContainsString('test', $this->getContent());
 	}
 }

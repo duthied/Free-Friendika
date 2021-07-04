@@ -37,7 +37,7 @@ class Mutes extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {
@@ -77,6 +77,7 @@ class Mutes extends BaseApi
 
 		$followers = DBA::select('user-contact', ['cid'], $condition, $parameters);
 		while ($follower = DBA::fetch($followers)) {
+			self::setBoundaries($follower['cid']);
 			$accounts[] = DI::mstdnAccount()->createFromContactId($follower['cid'], $uid);
 		}
 		DBA::close($followers);
@@ -85,6 +86,7 @@ class Mutes extends BaseApi
 			array_reverse($accounts);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($accounts);
 	}
 }

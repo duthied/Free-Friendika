@@ -22,25 +22,36 @@
 namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\Database\Database;
 use Friendica\Model\Contact;
-use Friendica\Model\Notification as ModelNotification;
+use Friendica\Model\Post;
+use Friendica\Model\Verb;
+use Friendica\Protocol\Activity;
+use Psr\Log\LoggerInterface;
 
 class Notification extends BaseFactory
 {
-	public function createFromNotifyId(int $id)
+	/** @var Database */
+	private $dba;
+	/** @var Account */
+	private $mstdnAccountFactory;
+	/** @var Status */
+	private $mstdnStatusFactory;
+
+	public function __construct(LoggerInterface $logger, Database $dba, Account $mstdnAccountFactory, Status $mstdnStatusFactoryFactory)
 	{
-		$notification = DBA::selectFirst('notify', [], ['id' => $id]);
-		if (!DBA::isResult($notification)) {
+		parent::__construct($logger);
+		$this->dba                 = $dba;
+		$this->mstdnAccountFactory = $mstdnAccountFactory;
+		$this->mstdnStatusFactory  = $mstdnStatusFactoryFactory;
+	}
+
+	public function createFromNotificationId(int $id)
+	{
+		$notification = $this->dba->selectFirst('notification', [], ['id' => $id]);
+		if (!$this->dba->isResult($notification)) {
 			return null;
 		}
-
-		$cid = Contact::getIdForURL($notification['url'], 0, false);
-		if (empty($cid)) {
-			return null;
-		}
-
 		/*
 		follow         = Someone followed you
 		follow_request = Someone requested to follow you
@@ -51,32 +62,30 @@ class Notification extends BaseFactory
 		status         = Someone you enabled notifications for has posted a status
 		*/
 
-		switch ($notification['type']) {
-			case ModelNotification\Type::INTRO:
-				$type = 'follow_request';
-				break;
-
-			case ModelNotification\Type::WALL:
-			case ModelNotification\Type::COMMENT:
-			case ModelNotification\Type::MAIL:
-			case ModelNotification\Type::TAG_SELF:
-			case ModelNotification\Type::POKE:
-				$type = 'mention';
-				break;
-
-			case ModelNotification\Type::SHARE:
-				$type = 'status';
-				break;
-
-			default:
-				return null;
+		if (($notification['vid'] == Verb::getID(Activity::FOLLOW)) && ($notification['type'] == Post\UserNotification::NOTIF_NONE)) {
+			$contact = Contact::getById($notification['actor-id'], ['pending']);
+			$type    = $contact['pending'] ? $type    = 'follow_request' : 'follow';
+		} elseif (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
+			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
+			$type = 'reblog';
+		} elseif (in_array($notification['vid'], [Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE)]) &&
+			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
+			$type = 'favourite';
+		} elseif ($notification['type'] == Post\UserNotification::NOTIF_SHARED) {
+			$type = 'status';
+		} elseif (in_array($notification['type'], [Post\UserNotification::NOTIF_EXPLICIT_TAGGED,
+			Post\UserNotification::NOTIF_IMPLICIT_TAGGED, Post\UserNotification::NOTIF_DIRECT_COMMENT,
+			Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT, Post\UserNotification::NOTIF_THREAD_COMMENT])) {
+			$type = 'mention';
+		} else {
+			return null;
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($cid);
+		$account = $this->mstdnAccountFactory->createFromContactId($notification['actor-id'], $notification['uid']);
 
-		if (!empty($notification['uri-id'])) {
+		if (!empty($notification['target-uri-id'])) {
 			try {
-				$status = DI::mstdnStatus()->createFromUriId($notification['uri-id'], $notification['uid']);
+				$status = $this->mstdnStatusFactory->createFromUriId($notification['target-uri-id'], $notification['uid']);
 			} catch (\Throwable $th) {
 				$status = null;
 			}
@@ -84,6 +93,6 @@ class Notification extends BaseFactory
 			$status = null;
 		}
 
-		return new \Friendica\Object\Api\Mastodon\Notification($id, $type, $notification['date'], $account, $status);
+		return new \Friendica\Object\Api\Mastodon\Notification($id, $type, $notification['created'], $account, $status);
 	}
 }

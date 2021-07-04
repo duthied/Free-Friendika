@@ -21,6 +21,7 @@
 
 namespace Friendica\Factory\Api\Mastodon;
 
+use Exception;
 use Friendica\Object\Api\Mastodon\Relationship as RelationshipEntity;
 use Friendica\BaseFactory;
 use Friendica\Model\Contact;
@@ -31,9 +32,9 @@ class Relationship extends BaseFactory
 	 * @param int $contactId Contact ID (public or user contact)
 	 * @param int $uid User ID
 	 * @return RelationshipEntity
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function createFromContactId(int $contactId, int $uid)
+	public function createFromContactId(int $contactId, int $uid): RelationshipEntity
 	{
 		$cdata = Contact::getPublicAndUserContacID($contactId, $uid);
 		if (!empty($cdata)) {

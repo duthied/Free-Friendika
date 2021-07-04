@@ -116,16 +116,17 @@ class Session
 		$session = DI::session();
 
 		$session->set('remote', []);
+		$remote = [];
 
 		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($session->get('my_url')), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
 		while ($contact = DBA::fetch($remote_contacts)) {
 			if (($contact['uid'] == 0) || Contact\User::isBlocked($contact['id'], $contact['uid'])) {
 				continue;
 			}
-
-			$session->set('remote', [$contact['uid'] => $contact['id']]);
+			$remote[$contact['uid']] = $contact['id'];
 		}
 		DBA::close($remote_contacts);
+		$session->set('remote', $remote);
 	}
 
 	/**

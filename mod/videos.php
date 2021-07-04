@@ -30,7 +30,6 @@ use Friendica\DI;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Security\Security;
@@ -56,7 +55,7 @@ function videos_init(App $a)
 		$a->data['user'] = $user[0];
 		$a->profile_uid = $user[0]['uid'];
 
-		$profile = Profile::getByNickname($nick, $a->profile_uid);
+		$profile = User::getOwnerDataByNick($nick);
 
 		$account_type = Contact::getAccountType($profile);
 

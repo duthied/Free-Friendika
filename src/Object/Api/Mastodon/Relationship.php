@@ -79,7 +79,7 @@ class Relationship extends BaseDataTransferObject
 	 */
 	public function __construct(int $contactId, array $contactRecord = [], bool $blocked = false, bool $muted = false)
 	{
-		$this->id                   = $contactId;
+		$this->id                   = (string)$contactId;
 		$this->following            = false;
 		$this->requested            = false;
 		$this->endorsed             = false;

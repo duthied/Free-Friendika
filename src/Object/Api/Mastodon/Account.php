@@ -28,6 +28,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy;
 
 /**
  * Class Account
@@ -108,15 +109,14 @@ class Account extends BaseDataTransferObject
 		$userContactCreated = $userContact['created'] ?? DBA::NULL_DATETIME;
 
 		$created = $userContactCreated < $publicContactCreated && ($userContactCreated != DBA::NULL_DATETIME) ? $userContactCreated : $publicContactCreated;
-		$this->created_at      = DateTimeFormat::utc($created, DateTimeFormat::ATOM);
+		$this->created_at      = DateTimeFormat::utc($created, DateTimeFormat::JSON);
 
 		$this->note            = BBCode::convert($publicContact['about'], false);
 		$this->url             = $publicContact['url'];
-		$this->avatar          = $userContact['avatar'] ?? $publicContact['avatar'];
-		$this->avatar_static   = $userContact['avatar'] ?? $publicContact['avatar'];
-		// No header picture in Friendica
-		$this->header          = '';
-		$this->header_static   = '';
+		$this->avatar          = Contact::getAvatarUrlForId($userContact['id'] ?? 0 ?: $publicContact['id'], Proxy::SIZE_SMALL, $userContact['updated'] ?? '' ?: $publicContact['updated']);
+		$this->avatar_static   = $this->avatar;
+		$this->header          = Contact::getHeaderUrlForId($userContact['id'] ?? 0 ?: $publicContact['id'], '', $userContact['updated'] ?? '' ?: $publicContact['updated']);
+		$this->header_static   = $this->header;
 		$this->followers_count = $apcontact['followers_count'] ?? 0;
 		$this->following_count = $apcontact['following_count'] ?? 0;
 		$this->statuses_count  = $apcontact['statuses_count'] ?? 0;

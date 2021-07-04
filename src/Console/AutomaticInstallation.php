@@ -30,7 +30,6 @@ use Friendica\Core\Installer;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
 use Friendica\Util\BasePath;
-use Friendica\Util\ConfigFileLoader;
 use RuntimeException;
 
 class AutomaticInstallation extends Console
@@ -66,7 +65,7 @@ Options
     -H|--dbhost <host>        The host of the mysql/mariadb database (env MYSQL_HOST)
     -p|--dbport <port>        The port of the mysql/mariadb database (env MYSQL_PORT)
     -d|--dbdata <database>    The name of the mysql/mariadb database (env MYSQL_DATABASE)
-    -U|--dbuser <username>    The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
+    -u|--dbuser <username>    The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
     -P|--dbpass <password>    The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
     -U|--url <url>            The full base URL of Friendica - f.e. 'https://friendica.local/sub' (env FRIENDICA_URL) 
     -B|--phppath <php_path>   The path of the PHP binary (env FRIENDICA_PHP_PATH)
@@ -112,7 +111,7 @@ HELP;
 	protected function doExecute()
 	{
 		// Initialise the app
-		$this->out("Initializing setup...\n");
+		$this->out("Initializing setup...");
 
 		$installer = new Installer();
 
@@ -121,10 +120,10 @@ HELP;
 		$basepath     = new BasePath($basePathConf);
 		$installer->setUpCache($configCache, $basepath->getPath());
 
-		$this->out(" Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// Check Environment
-		$this->out("Checking environment...\n");
+		$this->out("Checking environment...");
 
 		$installer->resetChecks();
 
@@ -133,24 +132,26 @@ HELP;
 			throw new RuntimeException($errorMessage);
 		}
 
-		$this->out(" Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// if a config file is set,
 		$config_file = $this->getOption(['f', 'file']);
 
 		if (!empty($config_file)) {
-
+			$this->out("Loading config file '$config_file'...");
 			if (!file_exists($config_file)) {
-				throw new RuntimeException("ERROR: Config file does not exist.\n");
+				throw new RuntimeException("ERROR: Config file does not exist.");
 			}
 
-			//reload the config cache
-			$loader = new ConfigFileLoader($config_file);
-			$loader->setupCache($configCache);
-
+			//append config file to the config cache
+			$config = include($config_file);
+			if (!is_array($config)) {
+				throw new Exception('Error loading config file ' . $config_file);
+			}
+			$configCache->load($config, Cache::SOURCE_FILE);
 		} else {
 			// Creating config file
-			$this->out("Creating config file...\n");
+			$this->out("Creating config file...");
 
 			$save_db = $this->getOption(['s', 'savedb'], false);
 
@@ -161,7 +162,7 @@ HELP;
 				$this->getOption(['d', 'dbdata'],
 					($save_db) ? getenv('MYSQL_DATABASE') : ''));
 			$configCache->set('database', 'username',
-				$this->getOption(['U', 'dbuser'],
+				$this->getOption(['u', 'dbuser'],
 					($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : ''));
 			$configCache->set('database', 'password',
 				$this->getOption(['P', 'dbpass'],
@@ -202,10 +203,10 @@ HELP;
 			$installer->createConfig($configCache);
 		}
 
-		$this->out("Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// Check database connection
-		$this->out("Checking database...\n");
+		$this->out("Checking database...");
 
 		$installer->resetChecks();
 
@@ -214,7 +215,7 @@ HELP;
 			throw new RuntimeException($errorMessage);
 		}
 
-		$this->out(" Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// Install database
 		$this->out("Inserting data into database...\n");
@@ -228,24 +229,24 @@ HELP;
 
 		if (!empty($config_file) && $config_file != 'config' . DIRECTORY_SEPARATOR . 'local.config.php') {
 			// Copy config file
-			$this->out("Copying config file...\n");
-			if (!copy($basePathConf . DIRECTORY_SEPARATOR . $config_file, $basePathConf . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
+			$this->out("Copying config file...");
+			if (!copy($config_file, $basePathConf . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
 				throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $basePathConf . "'" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
 			}
 		}
 
-		$this->out(" Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// Install theme
-		$this->out("Installing theme\n");
+		$this->out("Installing theme");
 		if (!empty($this->config->get('system', 'theme'))) {
 			Theme::install($this->config->get('system', 'theme'));
-			$this->out(" Complete\n\n");
+			$this->out(" Complete\n");
 		} else {
-			$this->out(" Theme setting is empty. Please check the file 'config/local.config.php'\n\n");
+			$this->out(" Theme setting is empty. Please check the file 'config/local.config.php'\n");
 		}
 
-		$this->out("\nInstallation is finished\n");
+		$this->out("\nInstallation is finished");
 
 		return 0;
 	}

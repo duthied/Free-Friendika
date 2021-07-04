@@ -29,12 +29,21 @@ use Friendica\Module\BaseApi;
  */
 class Filters extends BaseApi
 {
+	public static function post(array $parameters = [])
+	{
+		self::checkAllowedScope(self::SCOPE_WRITE);
+
+		self::unsupported('post');
+	}
+
 	/**
 	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		System::jsonError(404, ['error' => 'Record not found']);
+		self::checkAllowedScope(self::SCOPE_READ);
+
+		System::jsonExit([]);
 	}
 }

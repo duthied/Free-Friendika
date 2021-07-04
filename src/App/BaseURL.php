@@ -232,7 +232,7 @@ class BaseURL
 	{
 		$parsed = @parse_url($url);
 
-		if (empty($parsed)) {
+		if (empty($parsed) || empty($parsed['host'])) {
 			return false;
 		}
 

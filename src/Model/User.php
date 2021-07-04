@@ -312,8 +312,8 @@ class User
 	 */
 	public static function getIdForURL(string $url)
 	{
-		// Avoid any database requests when the hostname isn't even part of the url.
-		if (!strpos($url, DI::baseUrl()->getHostname())) {
+		// Avoid database queries when the local node hostname isn't even part of the url.
+		if (!Contact::isLocal($url)) {
 			return 0;
 		}
 
@@ -391,7 +391,12 @@ class User
 			if (!DBA::exists('user', ['uid' => $uid]) || !$repairMissing) {
 				return false;
 			}
-			Contact::createSelfFromUserId($uid);
+			if (!DBA::exists('profile', ['uid' => $uid])) {
+				DBA::insert('profile', ['uid' => $uid]);
+			}
+			if (!DBA::exists('contact', ['uid' => $uid, 'self' => true])) {
+				Contact::createSelfFromUserId($uid);
+			}
 			$owner = self::getOwnerDataById($uid, false);
 		}
 
@@ -407,7 +412,7 @@ class User
 
 		// Check for correct url and normalised nurl
 		$url = DI::baseUrl() . '/profile/' . $owner['nickname'];
-		$repair = ($owner['url'] != $url) || ($owner['nurl'] != Strings::normaliseLink($owner['url']));
+		$repair = empty($owner['network']) || ($owner['url'] != $url) || ($owner['nurl'] != Strings::normaliseLink($owner['url']));
 
 		if (!$repair) {
 			// Check if "addr" is present and correct
@@ -1123,12 +1128,50 @@ class User
 					Photo::update(['profile' => 1], ['resource-id' => $resource_id]);
 				}
 			}
+
+			Contact::updateSelfFromUserID($uid, true);
 		}
 
 		Hook::callAll('register_account', $uid);
 
 		$return['user'] = $user;
 		return $return;
+	}
+
+	/**
+	 * Update a user entry and distribute the changes if needed
+	 *
+	 * @param array $fields
+	 * @param integer $uid
+	 * @return boolean
+	 */
+	public static function update(array $fields, int $uid): bool
+	{
+		$old_owner = self::getOwnerDataById($uid);
+		if (empty($old_owner)) {
+			return false;
+		}
+
+		if (!DBA::update('user', $fields, ['uid' => $uid])) {
+			return false;
+		}
+
+		$update = Contact::updateSelfFromUserID($uid);
+
+		$owner = self::getOwnerDataById($uid);
+		if (empty($owner)) {
+			return false;
+		}
+
+		if ($old_owner['name'] != $owner['name']) {
+			Profile::update(['name' => $owner['name']], $uid);
+		}
+
+		if ($update) {
+			Profile::publishUpdate($uid);
+		}
+
+		return true;
 	}
 
 	/**
@@ -1462,6 +1505,10 @@ class User
 	 */
 	public static function identities($uid)
 	{
+		if (empty($uid)) {
+			return [];
+		}
+
 		$identities = [];
 
 		$user = DBA::selectFirst('user', ['uid', 'nickname', 'username', 'parent-uid'], ['uid' => $uid]);

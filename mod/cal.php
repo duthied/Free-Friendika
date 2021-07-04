@@ -34,7 +34,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
@@ -67,7 +67,7 @@ function cal_init(App $a)
 		return;
 	}
 
-	$a->profile = Profile::getByNickname($nick, $a->profile_uid);
+	$a->profile = User::getOwnerDataByNick($nick);
 	if (empty($a->profile)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
@@ -84,7 +84,7 @@ function cal_init(App $a)
 		'$about' => BBCode::convert($a->profile['about']),
 	]);
 
-	$cal_widget = Widget\CalendarExport::getHTML();
+	$cal_widget = Widget\CalendarExport::getHTML($user['uid']);
 
 	if (empty(DI::page()['aside'])) {
 		DI::page()['aside'] = '';

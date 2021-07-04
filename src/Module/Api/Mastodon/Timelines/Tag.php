@@ -40,12 +40,19 @@ class Tag extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['hashtag'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
+
+		/**
+		 * @todo Respect missing parameters
+		 * @see https://github.com/tootsuite/mastodon/blob/main/app/controllers/api/v1/timelines/tag_controller.rb
+		 * 
+		 * There seem to be the parameters "any", "all", and "none".
+		 */
 
 		$request = self::getRequest([
 			'local'           => false, // If true, return only local statuses. Defaults to false.
@@ -100,6 +107,7 @@ class Tag extends BaseApi
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
+			self::setBoundaries($item['uri-id']);
 			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
 		}
 		DBA::close($items);
@@ -108,6 +116,7 @@ class Tag extends BaseApi
 			array_reverse($statuses);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($statuses);
 	}
 }

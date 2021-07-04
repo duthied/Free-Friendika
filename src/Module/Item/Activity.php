@@ -31,7 +31,6 @@ use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
-use Friendica\Util\Strings;
 
 /**
  * Performs an activity (like, dislike, announce, attendyes, attendno, attendmaybe)
@@ -90,7 +89,7 @@ class Activity extends BaseModule
 	{
 		$fields = ['uri-id', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 		$item = Post::selectFirst($fields, ['id' => $itemId, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
-		if (!DBA::isResult($item) || ($item['body'] == '')) {
+		if (!DBA::isResult($item)) {
 			return;
 		}
 

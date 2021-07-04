@@ -221,5 +221,10 @@ return [
 	],
 	Network\IHTTPRequest::class => [
 		'instanceOf' => Network\HTTPRequest::class,
-	]
+	],
+	Factory\Api\Mastodon\Error::class => [
+		'constructParams' => [
+			$_SERVER
+		],
+	],
 ];

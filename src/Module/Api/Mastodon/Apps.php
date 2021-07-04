@@ -50,7 +50,7 @@ class Apps extends BaseApi
 		if (!empty($postdata)) {
 			$postrequest = json_decode($postdata, true);
 			if (!empty($postrequest) && is_array($postrequest)) {
-				$request = array_merge($request, $$postrequest);
+				$request = array_merge($request, $postrequest);
 			}
 		}
 			
@@ -80,6 +80,6 @@ class Apps extends BaseApi
 			DI::mstdnError()->InternalError();
 		}
 
-		System::jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId()));
+		System::jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId())->toArray());
 	}
 }

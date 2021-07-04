@@ -29,11 +29,11 @@ use Friendica\Module\BaseApi;
 /**
  * @see https://docs.joinmastodon.org/methods/timelines/conversations/
  */
-class Conversation extends BaseApi
+class Conversations extends BaseApi
 {
 	public static function delete(array $parameters = [])
 	{
-		self::login(self::SCOPE_WRITE);
+		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		if (!empty($parameters['id'])) {
@@ -52,7 +52,7 @@ class Conversation extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
@@ -85,6 +85,7 @@ class Conversation extends BaseApi
 		$conversations = [];
 
 		while ($conv = DBA::fetch($convs)) {
+			self::setBoundaries($conv['id']);
 			$conversations[] = DI::mstdnConversation()->CreateFromConvId($conv['id']);
 		}
 
@@ -94,6 +95,7 @@ class Conversation extends BaseApi
 			array_reverse($conversations);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($conversations);
 	}
 }

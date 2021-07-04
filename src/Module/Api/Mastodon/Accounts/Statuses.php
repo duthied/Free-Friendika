@@ -42,6 +42,8 @@ class Statuses extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		$uid = self::getCurrentUserID();
+
 		if (empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
@@ -65,8 +67,6 @@ class Statuses extends BaseApi
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
-
-		$uid = self::getCurrentUserID();
 
 		if (!$uid) {
 			$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED],
@@ -108,6 +108,7 @@ class Statuses extends BaseApi
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
+			self::setBoundaries($item['uri-id']);
 			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
 		}
 		DBA::close($items);
@@ -116,6 +117,7 @@ class Statuses extends BaseApi
 			array_reverse($statuses);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($statuses);
 	}
 }

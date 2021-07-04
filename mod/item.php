@@ -40,6 +40,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\APContact;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
@@ -410,21 +411,22 @@ function item_post(App $a) {
 				}
 			}
 
-			$success = ItemHelper::replaceTag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network);
-			if ($success['replaced']) {
-				$tagged[] = $tag;
-			}
-			// When the forum is private or the forum is addressed with a "!" make the post private
-			if (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
-				$private_forum = $success['contact']['prv'];
-				$only_to_forum = ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
-				$private_id = $success['contact']['id'];
-				$forum_contact = $success['contact'];
-			} elseif (!empty($success['contact']['forum']) && ($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
-				$private_forum = false;
-				$only_to_forum = true;
-				$private_id = $success['contact']['id'];
-				$forum_contact = $success['contact'];
+			if ($success = ItemHelper::replaceTag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network)) {
+				if ($success['replaced']) {
+					$tagged[] = $tag;
+				}
+				// When the forum is private or the forum is addressed with a "!" make the post private
+				if (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
+					$private_forum = $success['contact']['prv'];
+					$only_to_forum = ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
+					$private_id = $success['contact']['id'];
+					$forum_contact = $success['contact'];
+				} elseif (!empty($success['contact']['forum']) && ($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
+					$private_forum = false;
+					$only_to_forum = true;
+					$private_id = $success['contact']['id'];
+					$forum_contact = $success['contact'];
+				}
 			}
 		}
 
@@ -434,21 +436,34 @@ function item_post(App $a) {
 	$original_contact_id = $contact_id;
 
 	if (!$toplevel_item_id && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
-		// we tagged a forum in a top level post. Now we change the post
-		$private = $private_forum;
+		// we tagged a forum in a top level post. Now we change the post		
+		$private = $private_forum ? Item::PRIVATE : Item::UNLISTED;
 
-		$str_group_allow = '';
-		$str_contact_deny = '';
-		$str_group_deny = '';
-		if ($private_forum) {
-			$str_contact_allow = '<' . $private_id . '>';
-		} else {
-			$str_contact_allow = '';
+		if ($only_to_forum) {
+			$postopts = '';
 		}
-		$contact_id = $private_id;
-		$contact_record = $forum_contact;
-		$_REQUEST['origin'] = false;
-		$wall = 0;
+
+		if (!$private_forum) {
+			$str_contact_allow = '';
+			$str_group_allow   = '';
+			$str_contact_deny  = '';
+			$str_group_deny    = '';
+		}
+
+		if ($private_forum || !APContact::getByURL($forum_contact['url'])) {
+			$str_group_allow = '';
+			$str_contact_deny = '';
+			$str_group_deny = '';
+			if ($private_forum) {
+				$str_contact_allow = '<' . $private_id . '>';
+			} else {
+				$str_contact_allow = '';
+			}
+			$contact_id = $private_id;
+			$contact_record = $forum_contact;
+			$_REQUEST['origin'] = false;
+			$wall = 0;
+		}
 	}
 
 	/*
@@ -712,13 +727,6 @@ function item_post(App $a) {
 	unset($datarray['edit']);
 	unset($datarray['self']);
 	unset($datarray['api_source']);
-
-	if ($origin) {
-		$signed = Diaspora::createCommentSignature($uid, $datarray);
-		if (!empty($signed)) {
-			$datarray['diaspora_signed_text'] = json_encode($signed);
-		}
-	}
 
 	$post_id = Item::insert($datarray);
 

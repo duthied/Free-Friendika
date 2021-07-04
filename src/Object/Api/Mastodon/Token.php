@@ -22,12 +22,11 @@
 namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\BaseDataTransferObject;
-use Friendica\Util\DateTimeFormat;
 
 /**
- * Class Error
+ * Class Token
  *
- * @see https://docs.joinmastodon.org/entities/error
+ * @see https://docs.joinmastodon.org/entities/token/
  */
 class Token extends BaseDataTransferObject
 {
@@ -37,7 +36,7 @@ class Token extends BaseDataTransferObject
 	protected $token_type;
 	/** @var string */
 	protected $scope;
-	/** @var string (Datetime) */
+	/** @var int (timestamp) */
 	protected $created_at;
 
 	/**
@@ -53,6 +52,6 @@ class Token extends BaseDataTransferObject
 		$this->access_token = $access_token;
 		$this->token_type   = $token_type;
 		$this->scope        = $scope;
-		$this->created_at   = DateTimeFormat::utc($created_at, DateTimeFormat::ATOM);
+		$this->created_at   = strtotime($created_at);
 	}
 }

@@ -119,7 +119,7 @@ class ExpirePosts
 		Logger::notice('Adding missing entries');
 
 		$rows = 0;
-		$userposts = DBA::select('post-user', [], ["`uri-id` not in (select `uri-id` from `post`)"], ['group_by' => ['uri-id']]);
+		$userposts = DBA::select('post-user', [], ["`uri-id` not in (select `uri-id` from `post`)"]);
 		while ($fields = DBA::fetch($userposts)) {
 			$post_fields = DBStructure::getFieldsForTable('post', $fields);
 			DBA::insert('post', $post_fields, Database::INSERT_IGNORE);
@@ -133,7 +133,7 @@ class ExpirePosts
 		}
 
 		$rows = 0;
-		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `uri-id` not in (select `uri-id` from `post-thread`)", GRAVITY_PARENT], ['group_by' => ['uri-id']]);
+		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `uri-id` not in (select `uri-id` from `post-thread`)", GRAVITY_PARENT]);
 		while ($fields = DBA::fetch($userposts)) {
 			$post_fields = DBStructure::getFieldsForTable('post-thread', $fields);
 			$post_fields['commented'] = $post_fields['changed'] = $post_fields['created'];
@@ -181,7 +181,10 @@ class ExpirePosts
 			AND NOT EXISTS(SELECT `uri-id` FROM `post-user` WHERE `uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `parent-uri-id` FROM `post-user` WHERE `parent-uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `thr-parent-id` FROM `post-user` WHERE `thr-parent-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `external-id` FROM `post-user` WHERE `external-id` = `item-uri`.`id`)", $item['uri-id']]);
+			AND NOT EXISTS(SELECT `external-id` FROM `post-user` WHERE `external-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `uri-id` FROM `mail` WHERE `uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `parent-uri-id` FROM `mail` WHERE `parent-uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `thr-parent-id` FROM `mail` WHERE `thr-parent-id` = `item-uri`.`id`)", $item['uri-id']]);
 
 		Logger::notice('Start deleting orphaned URI-ID', ['last-id' => $item['uri-id']]);
 		$affected_count = 0;

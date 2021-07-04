@@ -33,14 +33,14 @@ class Dismiss extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		self::login(self::SCOPE_WRITE);
+		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DBA::update('notify', ['seen' => true], ['uid' => $uid, 'id' => $parameters['id']]);
+		DBA::update('notification', ['seen' => true], ['uid' => $uid, 'id' => $parameters['id']]);
 
 		System::jsonExit([]);
 	}

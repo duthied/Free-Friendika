@@ -39,7 +39,7 @@ class Bookmarks extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
@@ -52,7 +52,7 @@ class Bookmarks extends BaseApi
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
-		$condition = ['pinned' => true, 'uid' => $uid];
+		$condition = ['starred' => true, 'uid' => $uid];
 
 		if (!empty($request['max_id'])) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);
@@ -72,6 +72,7 @@ class Bookmarks extends BaseApi
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
+			self::setBoundaries($item['uri-id']);
 			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
 		}
 		DBA::close($items);
@@ -80,6 +81,7 @@ class Bookmarks extends BaseApi
 			array_reverse($statuses);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($statuses);
 	}
 }

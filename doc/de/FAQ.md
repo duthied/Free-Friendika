@@ -36,9 +36,10 @@ Wenn Du Deinen Account nicht nutzen kannst, kannst Du einen Account auf einer ö
 Wenn du dir keinen weiteren Friendica Account einrichten willst, kannst du auch gerne über einen der folgenden alternativen Kanäle Hilfe suchen:
 
   * Friendica Support Forum: [@helpers@forum.friendi.ca](https://forum.friendi.ca/~helpers)
-  * XMPP: support(at)forum.friendi.ca
-  * IRC: [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
-  * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
+  * Chats der Friendica Community (die IRC, Matrix und XMPP Räume sind mit einer Brücke verbunden) Logs dieser öffentlichen Chaträume können [hier aus dem IRC](https://gnusociarg.nsupdate.info/2021/%23frie) und [hier aus der Matrix](https://view.matrix.org/alias/%23friendi.ca:matrix.org/) gefunden werden.
+    * XMPP: support(at)forum.friendi.ca
+    * IRC: #friendica aut libera.chat oder [#friendica auf freenode.net](https://webchat.freenode.net/?settings=#friendica)
+    * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
   * [Mailing List](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca)
   <!--- * [XMPP](xmpp:support@forum.friendi.ca?join)
 	https://github.com/github/markup/issues/202
@@ -193,26 +194,63 @@ Beispiel: Friendica Support
 
 Friendica verwendet eine [Twitter/GNU Social](help/api) kompatible API.
 Das bedeutet, dass du jeden Twitter/GNU Social Client verwenden kannst in dem du den API Pfad entsprechend änderst.
+Seit der Version 2021.06 unterstützt Friendica außerdem die [Mastodon API](help/API-Mastodon) die mit vielen Mastodon-Clients läuft.
 
-Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell für Friendica entwickelt werden:
+Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden oder die mit Friendica kompatibel sind:
 
-* Android
-  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) (Gibt es im Google Playstore oder als [binary Repository](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854) für F-Droid)
-  * [Fedilab](https://gitlab.com/tom79/mastalab) (Gibt es im F-Droid und dem Google Play Store)
-  * [DiCa](https://dica.mixi.cool/) (Gibt es bei Google Play)
-  * AndStatus
-  * Twidere
-  * Mustard and Mustard-Mod
-* SailfishOS
-  * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
-* Linux
-  * Hotot
-  * Choqok
-* MacOS X
-  * Hotot
-* Windows
-  * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) für Windows 10
-  * Hotot
+#### Android
+
+* [AndStatus](http://andstatus.org) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.andstatus.app), [Google Play](https://play.google.com/store/apps/details?id=org.andstatus.app))
+* [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
+* [DiCa](https://dica.mixi.cool/) (Gibt es bei Google Play)
+* [Fedi](https://play.google.com/store/apps/details?id=com.fediverse.app)
+* [Fedilab](https://fedilab.app) ([F-Droid](https://f-droid.org/app/fr.gouv.etalab.mastodon), [Google Play](https://play.google.com/store/apps/details?id=app.fedilab.android))
+* [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) (Gibt es im Google Playstore oder als [binary Repository](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854) für F-Droid)
+* [Husky](https://husky.fwgs.ru)
+* [Roma](https://play.google.com/store/apps/details?id=tech.bigfig.roma)
+* [Subway Tooter](https://github.com/tateisu/SubwayTooter)
+* [Tooot](https://tooot.app/)
+* [Tusky](https://tusky.app)
+* [Twidere](https://dimension.im/) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.mariotaku.twidere), [Google Play](https://play.google.com/store/apps/details?id=com.twidere.twiderex), [GitHub](https://github.com/TwidereProject/Twidere-Android))
+* [TwidereX](https://github.com/TwidereProject/TwidereX-Android)
+* [twitlatte](https://github.com/moko256/twitlatte)
+* [Yuito](https://github.com/accelforce/Yuito)
+
+#### SailfishOS
+
+* [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
+
+#### iOS
+
+- [Amaroq](https://github.com/ReticentJohn/Amaroq/tree/master)
+- [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
+- [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
+- [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
+- [StarPterano](https://apps.apple.com/de/app/starpterano/id1436972796)
+- [Stella](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048?l=ms)
+- [Tooot](https://tooot.app/)
+- [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) Der eingegene Hostname muss in Groß-/Kleinschreibung mit dem Hostnamen des Systems übereinstimmen. Die aktuelle Version stürzt bei Benachrichtungen bom Typ "status" ab.
+
+#### Linux
+
+* [Choqok](https://choqok.kde.org)
+* [Whalebird](https://whalebird.social)
+* [TheDesk](https://ja.mstdn.wiki/TheDesk)
+* [Toot](https://toot.readthedocs.io/en/latest/)
+* [Tootle](https://github.com/bleakgrey/tootle)
+
+#### MacOS
+
+- [Mastonaut](https://mastonaut.app/)
+
+#### Windows
+
+* [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) für Windows 10
+
+#### Web
+
+- [Halcyon](https://www.halcyon.social/)
+- [Pinafore](https://github.com/nolanlawson/pinafore)
 
 Admin
 --------

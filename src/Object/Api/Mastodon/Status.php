@@ -100,7 +100,7 @@ class Status extends BaseDataTransferObject
 	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $reblog)
 	{
 		$this->id         = (string)$item['uri-id'];
-		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::ATOM);
+		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::JSON);
 
 		if ($item['gravity'] == GRAVITY_COMMENT) {
 			$this->in_reply_to_id         = (string)$item['thr-parent-id'];
@@ -114,7 +114,12 @@ class Status extends BaseDataTransferObject
 		$this->visibility = $visibility[$item['private']];
 
 		$languages = json_decode($item['language'], true);
-		$this->language = is_array($languages) ? array_key_first($languages) : null;
+		if (is_array($languages)) {
+			reset($languages);
+			$this->language = key($languages);
+		} else {
+			$this->language = null;
+		}
 
 		$this->uri = $item['uri'];
 		$this->url = $item['plink'] ?? null;

@@ -558,8 +558,10 @@ class HTTPSignature
 		if (!empty($key['url']) && !empty($key['type']) && ($key['type'] == 'Tombstone')) {
 			Logger::info('Actor is a tombstone', ['key' => $key]);
 
-			// We now delete everything that we possibly knew from this actor
-			Contact::deleteContactByUrl($key['url']);
+			if (!Contact::isLocal($key['url'])) {
+				// We now delete everything that we possibly knew from this actor
+				Contact::deleteContactByUrl($key['url']);
+			}
 			return null;
 		}
 
@@ -638,16 +640,17 @@ class HTTPSignature
 
 		$profile = APContact::getByURL($url);
 		if (!empty($profile)) {
-			Logger::log('Taking key from id ' . $id, Logger::DEBUG);
+			Logger::info('Taking key from id', ['id' => $id]);
 			return ['url' => $url, 'pubkey' => $profile['pubkey'], 'type' => $profile['type']];
 		} elseif ($url != $actor) {
 			$profile = APContact::getByURL($actor);
 			if (!empty($profile)) {
-				Logger::log('Taking key from actor ' . $actor, Logger::DEBUG);
+				Logger::info('Taking key from actor', ['actor' => $actor]);
 				return ['url' => $actor, 'pubkey' => $profile['pubkey'], 'type' => $profile['type']];
 			}
 		}
 
+		Logger::notice('Key could not be fetched', ['url' => $url, 'actor' => $actor]);
 		return false;
 	}
 }

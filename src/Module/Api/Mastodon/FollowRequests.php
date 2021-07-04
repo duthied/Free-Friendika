@@ -45,7 +45,7 @@ class FollowRequests extends BaseApi
 	 */
 	public static function post(array $parameters = [])
 	{
-		self::login(self::SCOPE_FOLLOW);
+		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
 		$introduction = DI::intro()->selectFirst(['id' => $parameters['id'], 'uid' => $uid]);
@@ -83,7 +83,7 @@ class FollowRequests extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
@@ -91,8 +91,6 @@ class FollowRequests extends BaseApi
 			'max_id' => 0,
 			'limit'  => 40, // Maximum number of results to return. Defaults to 40. Paginate using the HTTP Link header.
 		]);
-
-		$baseUrl = DI::baseUrl();
 
 		$introductions = DI::intro()->selectByBoundaries(
 			['`uid` = ? AND NOT `ignore`', $uid],
@@ -106,6 +104,7 @@ class FollowRequests extends BaseApi
 
 		foreach ($introductions as $key => $introduction) {
 			try {
+				self::setBoundaries($introduction->id);
 				$return[] = DI::mstdnFollowRequest()->createFromIntroduction($introduction);
 			} catch (HTTPException\InternalServerErrorException $exception) {
 				DI::intro()->delete($introduction);
@@ -113,22 +112,7 @@ class FollowRequests extends BaseApi
 			}
 		}
 
-		$base_query = [];
-		if (isset($_GET['limit'])) {
-			$base_query['limit'] = $request['limit'];
-		}
-
-		$links = [];
-		if ($introductions->getTotalCount() > $request['limit']) {
-			$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['max_id' => $introductions[count($introductions) - 1]->id]) . '>; rel="next"';
-		}
-
-		if (count($introductions)) {
-			$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['min_id' => $introductions[0]->id]) . '>; rel="prev"';
-		}
-
-		header('Link: ' . implode(', ', $links));
-
+		self::setLinkHeader();
 		System::jsonExit($return);
 	}
 }

@@ -26,7 +26,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Profile;
+use Friendica\Model\Contact;
 use Friendica\Model\User;
 
 /**
@@ -50,20 +50,20 @@ class NoScrape extends BaseModule
 			System::jsonError(403, 'Authentication required');
 		}
 
-		Profile::load($a, $which);
+		$profile = User::getOwnerDataByNick($which);
 
-		if (empty($a->profile['uid'])) {
+		if (empty($profile['uid'])) {
 			System::jsonError(404, 'Profile not found');
 		}
 
 		$json_info = [
-			'addr'         => $a->profile['addr'],
+			'addr'         => $profile['addr'],
 			'nick'         => $which,
-			'guid'         => $a->profile['guid'],
-			'key'          => $a->profile['upubkey'],
+			'guid'         => $profile['guid'],
+			'key'          => $profile['upubkey'],
 			'homepage'     => DI::baseUrl() . "/profile/{$which}",
-			'comm'         => ($a->profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY),
-			'account-type' => $a->profile['account-type'],
+			'comm'         => ($profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY),
+			'account-type' => $profile['account-type'],
 		];
 
 		$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
@@ -71,30 +71,28 @@ class NoScrape extends BaseModule
 			$json_info["dfrn-{$dfrn}"] = DI::baseUrl() . "/dfrn_{$dfrn}/{$which}";
 		}
 
-		if (!$a->profile['net-publish']) {
+		if (!$profile['net-publish']) {
 			$json_info['hide'] = true;
 			System::jsonExit($json_info);
 		}
 
-		$keywords = $a->profile['pub_keywords'] ?? '';
+		$keywords = $profile['pub_keywords'] ?? '';
 		$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], $keywords);
 		$keywords = explode(',', $keywords);
 
-		$contactPhoto = DBA::selectFirst('contact', ['photo'], ['self' => true, 'uid' => $a->profile['uid']]);
-
-		$json_info['fn']       = $a->profile['name'];
-		$json_info['photo']    = $contactPhoto["photo"];
+		$json_info['fn']       = $profile['name'];
+		$json_info['photo']    = Contact::getAvatarUrlForUrl($profile['url'], $profile['uid']);
 		$json_info['tags']     = $keywords;
-		$json_info['language'] = $a->profile['language'];
+		$json_info['language'] = $profile['language'];
 
-		if (!empty($a->profile['last-item'])) {
-			$json_info['updated'] = date("c", strtotime($a->profile['last-item']));
+		if (!empty($profile['last-item'])) {
+			$json_info['updated'] = date("c", strtotime($profile['last-item']));
 		}
 
-		if (!($a->profile['hide-friends'] ?? false)) {
+		if (!($profile['hide-friends'] ?? false)) {
 			$json_info['contacts'] = DBA::count('contact',
 				[
-					'uid'     => $a->profile['uid'],
+					'uid'     => $profile['uid'],
 					'self'    => 0,
 					'blocked' => 0,
 					'pending' => 0,
@@ -106,13 +104,13 @@ class NoScrape extends BaseModule
 
 		// We display the last activity (post or login), reduced to year and week number
 		$last_active = 0;
-		$condition   = ['uid' => $a->profile['uid'], 'self' => true];
+		$condition   = ['uid' => $profile['uid'], 'self' => true];
 		$contact     = DBA::selectFirst('contact', ['last-item'], $condition);
 		if (DBA::isResult($contact)) {
 			$last_active = strtotime($contact['last-item']);
 		}
 
-		$condition = ['uid' => $a->profile['uid']];
+		$condition = ['uid' => $profile['uid']];
 		$user      = DBA::selectFirst('user', ['login_date'], $condition);
 		if (DBA::isResult($user)) {
 			if ($last_active < strtotime($user['login_date'])) {
@@ -124,8 +122,8 @@ class NoScrape extends BaseModule
 		//These are optional fields.
 		$profile_fields = ['about', 'locality', 'region', 'postal-code', 'country-name'];
 		foreach ($profile_fields as $field) {
-			if (!empty($a->profile[$field])) {
-				$json_info["$field"] = $a->profile[$field];
+			if (!empty($profile[$field])) {
+				$json_info["$field"] = $profile[$field];
 			}
 		}
 

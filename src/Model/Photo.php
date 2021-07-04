@@ -27,6 +27,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\Storage\ExternalResource;
 use Friendica\Model\Storage\SystemResource;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
@@ -244,13 +245,17 @@ class Photo
 	 * Construct a photo array for a system resource image
 	 *
 	 * @param string $filename Image file name relative to code root
-	 * @param string $mimetype Image mime type. Defaults to "image/jpeg"
+	 * @param string $mimetype Image mime type. Is guessed by file name when empty.
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function createPhotoForSystemResource($filename, $mimetype = "image/jpeg")
+	public static function createPhotoForSystemResource($filename, $mimetype = '')
 	{
+		if (empty($mimetype)) {
+			$mimetype = Images::guessTypeByExtension($filename);
+		}
+
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
 
@@ -263,6 +268,33 @@ class Photo
 		return $photo;
 	}
 
+	/**
+	 * Construct a photo array for an external resource image
+	 *
+	 * @param string $url      Image URL
+	 * @param int    $uid      User ID of the requesting person
+	 * @param string $mimetype Image mime type. Is guessed by file name when empty.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function createPhotoForExternalResource($url, $uid = 0, $mimetype = '')
+	{
+		if (empty($mimetype)) {
+			$mimetype = Images::guessTypeByExtension($url);
+		}
+
+		$fields = self::getFields();
+		$values = array_fill(0, count($fields), "");
+
+		$photo                  = array_combine($fields, $values);
+		$photo['backend-class'] = ExternalResource::NAME;
+		$photo['backend-ref']   = json_encode(['url' => $url, 'uid' => $uid]);
+		$photo['type']          = $mimetype;
+		$photo['cacheable']     = true;
+
+		return $photo;
+	}
 
 	/**
 	 * store photo metadata in db and binary in default backend

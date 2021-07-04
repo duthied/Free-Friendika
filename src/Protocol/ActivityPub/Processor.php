@@ -126,6 +126,7 @@ class Processor
 		$data['url'] = $attachment['url'];
 		$data['mimetype'] = $attachment['mediaType'];
 		$data['height'] = $attachment['height'] ?? null;
+		$data['width'] = $attachment['width'] ?? null;
 		$data['size'] = $attachment['size'] ?? null;
 		$data['preview'] = $attachment['image'] ?? null;
 		$data['description'] = $attachment['name'] ?? null;
@@ -599,6 +600,12 @@ class Processor
 
 			if (!empty($activity['directmessage'])) {
 				self::postMail($activity, $item);
+				continue;
+			}
+
+			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) &&
+				($item['post-reason'] == Item::PR_BCC) && !Contact::isSharingByURL($activity['author'], $receiver)) {
+				Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
 				continue;
 			}
 
