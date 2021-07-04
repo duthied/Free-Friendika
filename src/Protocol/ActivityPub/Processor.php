@@ -126,6 +126,7 @@ class Processor
 		$data['url'] = $attachment['url'];
 		$data['mimetype'] = $attachment['mediaType'];
 		$data['height'] = $attachment['height'] ?? null;
+		$data['width'] = $attachment['width'] ?? null;
 		$data['size'] = $attachment['size'] ?? null;
 		$data['preview'] = $attachment['image'] ?? null;
 		$data['description'] = $attachment['name'] ?? null;
