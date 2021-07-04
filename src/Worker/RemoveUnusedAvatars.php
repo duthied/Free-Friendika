@@ -103,7 +103,7 @@ class RemoveUnusedAvatars
 		Logger::notice('Contact fix done', ['total' => $total, 'updated1' => $updated1, 'updated2' => $updated2, 'deleted' => $deleted]);
 	}
 
-	public static function deleteDuplicates()
+	private static function deleteDuplicates()
 	{
 		$size = [4 => 'photo', 5 => 'thumb', 6 => 'micro'];
 
