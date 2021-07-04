@@ -37,7 +37,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
-use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
@@ -73,7 +72,7 @@ function photos_init(App $a) {
 		$a->profile_uid = $user['uid'];
 		$is_owner = (local_user() && (local_user() == $a->profile_uid));
 
-		$profile = Profile::getByNickname($nick);
+		$profile = 	User::getOwnerDataByNick($nick);
 
 		$account_type = Contact::getAccountType($profile);
 

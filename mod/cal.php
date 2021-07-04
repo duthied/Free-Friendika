@@ -34,7 +34,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
@@ -67,7 +67,7 @@ function cal_init(App $a)
 		return;
 	}
 
-	$a->profile = Profile::getByNickname($nick);
+	$a->profile = User::getOwnerDataByNick($nick);
 	if (empty($a->profile)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
