@@ -27,7 +27,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Profile;
 use Friendica\Model\User;
 
 /**
@@ -51,7 +50,7 @@ class NoScrape extends BaseModule
 			System::jsonError(403, 'Authentication required');
 		}
 
-		$profile = Profile::getByNickname($which);
+		$profile = User::getOwnerDataByNick($which);
 
 		if (empty($profile['uid'])) {
 			System::jsonError(404, 'Profile not found');

@@ -316,73 +316,48 @@ class Transmitter
 	 */
 	public static function getProfile($uid)
 	{
-		if ($uid != 0) {
-			$condition = ['uid' => $uid, 'blocked' => false, 'account_expired' => false,
-				'account_removed' => false, 'verified' => true];
-			$fields = ['guid', 'nickname', 'pubkey', 'account-type', 'page-flags'];
-			$user = DBA::selectFirst('user', $fields, $condition);
-			if (!DBA::isResult($user)) {
-				return [];
-			}
-
-			$fields = ['locality', 'region', 'country-name', 'net-publish'];
-			$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
-			if (!DBA::isResult($profile)) {
-				return [];
-			}
-
-			$fields = ['id', 'name', 'url', 'location', 'about', 'avatar', 'photo', 'updated'];
-			$contact = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
-			if (!DBA::isResult($contact)) {
-				return [];
-			}
-		} else {
-			$contact = User::getSystemAccount();
-			$user = ['guid' => '', 'nickname' => $contact['nick'], 'pubkey' => $contact['pubkey'],
-				'account-type' => $contact['contact-type'], 'page-flags' => User::PAGE_FLAGS_NORMAL];
-			$profile = ['locality' => '', 'region' => '', 'country-name' => '', 'net-publish' => false];
-		}
+		$owner = User::getOwnerDataById($uid);
 
 		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = $contact['url'];
+		$data['id'] = $owner['url'];
 
-		if (!empty($user['guid'])) {
-			$data['diaspora:guid'] = $user['guid'];
+		if (!empty($owner['guid'])) {
+			$data['diaspora:guid'] = $owner['guid'];
 		}
 
-		$data['type'] = ActivityPub::ACCOUNT_TYPES[$user['account-type']];
+		$data['type'] = ActivityPub::ACCOUNT_TYPES[$owner['account-type']];
 
 		if ($uid != 0) {
-			$data['following'] = DI::baseUrl() . '/following/' . $user['nickname'];
-			$data['followers'] = DI::baseUrl() . '/followers/' . $user['nickname'];
-			$data['inbox'] = DI::baseUrl() . '/inbox/' . $user['nickname'];
-			$data['outbox'] = DI::baseUrl() . '/outbox/' . $user['nickname'];
+			$data['following'] = DI::baseUrl() . '/following/' . $owner['nick'];
+			$data['followers'] = DI::baseUrl() . '/followers/' . $owner['nick'];
+			$data['inbox'] = DI::baseUrl() . '/inbox/' . $owner['nick'];
+			$data['outbox'] = DI::baseUrl() . '/outbox/' . $owner['nick'];
 		} else {
 			$data['inbox'] = DI::baseUrl() . '/friendica/inbox';
 		}
 
-		$data['preferredUsername'] = $user['nickname'];
-		$data['name'] = $contact['name'];
+		$data['preferredUsername'] = $owner['nick'];
+		$data['name'] = $owner['name'];
 
-		if (!empty($profile['country-name'] . $profile['region'] . $profile['locality'])) {
-			$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $profile['country-name'],
-				'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
+		if (!empty($owner['country-name'] . $owner['region'] . $owner['locality'])) {
+			$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $owner['country-name'],
+				'vcard:region' => $owner['region'], 'vcard:locality' => $owner['locality']];
 		}
 
-		if (!empty($contact['about'])) {
-			$data['summary'] = BBCode::convert($contact['about'], false);
+		if (!empty($owner['about'])) {
+			$data['summary'] = BBCode::convert($owner['about'], false);
 		}
 
-		$data['url'] = $contact['url'];
-		$data['manuallyApprovesFollowers'] = in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
-		$data['discoverable'] = $profile['net-publish'];
-		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',
-			'owner' => $contact['url'],
-			'publicKeyPem' => $user['pubkey']];
+		$data['url'] = $owner['url'];
+		$data['manuallyApprovesFollowers'] = in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
+		$data['discoverable'] = $owner['net-publish'];
+		$data['publicKey'] = ['id' => $owner['url'] . '#main-key',
+			'owner' => $owner['url'],
+			'publicKeyPem' => $owner['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => DI::baseUrl() . '/inbox'];
-		$data['icon'] = ['type' => 'Image', 'url' => Contact::getAvatarUrlForId($contact['id'], '', $contact['updated'])];
+		$data['icon'] = ['type' => 'Image', 'url' => Contact::getAvatarUrlForId($owner['id'], '', $owner['updated'])];
 
-		$resourceid = Photo::ridFromURI($contact['photo']);
+		$resourceid = Photo::ridFromURI($owner['photo']);
 		if (!empty($resourceid)) {
 			$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
 			if (!empty($photo['type'])) {
@@ -390,10 +365,10 @@ class Transmitter
 			}
 		}
 
-		if (!empty($contact['header'])) {
-			$data['image'] = ['type' => 'Image', 'url' => Contact::getHeaderUrlForId($contact['id'], '', $contact['updated'])];
+		if (!empty($owner['header'])) {
+			$data['image'] = ['type' => 'Image', 'url' => Contact::getHeaderUrlForId($owner['id'], '', $owner['updated'])];
 
-			$resourceid = Photo::ridFromURI($contact['header']);
+			$resourceid = Photo::ridFromURI($owner['header']);
 			if (!empty($resourceid)) {
 				$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
 				if (!empty($photo['type'])) {
@@ -1302,7 +1277,7 @@ class Transmitter
 					'mediaType' => $attachment['mimetype'],
 					'url' => $attachment['url'],
 					'name' => $attachment['description']];
-				
+
 				if (!empty($attachment['height'])) {
 					$attach['height'] = $attachment['height'];
 				}
@@ -1310,7 +1285,7 @@ class Transmitter
 				if (!empty($attachment['width'])) {
 					$attach['width'] = $attachment['width'];
 				}
-	
+
 				if (!empty($attachment['preview'])) {
 					$attach['image'] = $attachment['preview'];
 				}
@@ -1334,7 +1309,7 @@ class Transmitter
 					'mediaType' => $attachment['mimetype'],
 					'url' => $attachment['url'],
 					'name' => $attachment['description']];
-				
+
 				if (!empty($attachment['height'])) {
 					$attach['height'] = $attachment['height'];
 				}
@@ -1347,7 +1322,7 @@ class Transmitter
 					$attach['image'] = $attachment['preview'];
 				}
 
-				$attachments[] = $attach;	
+				$attachments[] = $attach;
 			}
 			// Currently deactivated, since it creates side effects on Mastodon and Pleroma.
 			// It will be activated, once this cleared.

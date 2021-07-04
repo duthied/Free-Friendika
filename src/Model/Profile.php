@@ -284,21 +284,6 @@ class Profile
 	}
 
 	/**
-	 * Get the profile for the given nick name
-	 *
-	 * Includes all available profile data
-	 *
-	 * @param string $nickname   nick
-	 * @return array
-	 * @throws \Exception
-	 */
-	public static function getByNickname($nickname)
-	{
-		$profile = DBA::selectFirst('owner-view', [], ['nickname' => $nickname]);
-		return $profile;
-	}
-
-	/**
 	 * Formats a profile for display in the sidebar.
 	 *
 	 * It is very difficult to templatise the HTML completely
