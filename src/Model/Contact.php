@@ -630,7 +630,7 @@ class Contact
 	{
 		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey',
 			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
-			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco'];
+			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return false;
@@ -655,7 +655,7 @@ class Contact
 			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
 			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
 			'contact-type' => $user['account-type'], 'prvkey' => $user['prvkey'],
-			'pubkey' => $user['pubkey'], 'xmpp' => $profile['xmpp']];
+			'pubkey' => $user['pubkey'], 'xmpp' => $profile['xmpp'], 'network' => Protocol::DFRN];
 
 		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
 		$fields['url'] = DI::baseUrl() . '/profile/' . $user['nickname'];
