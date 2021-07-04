@@ -72,7 +72,7 @@ function photos_init(App $a) {
 		$a->profile_uid = $user['uid'];
 		$is_owner = (local_user() && (local_user() == $a->profile_uid));
 
-		$profile = 	User::getOwnerDataByNick($nick);
+		$profile = User::getOwnerDataByNick($nick);
 
 		$account_type = Contact::getAccountType($profile);
 
