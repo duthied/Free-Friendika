@@ -143,7 +143,7 @@ class Transmitter
 
 		return $success;
 	}
-	
+
 	/**
 	 * Collects a list of contacts of the given owner
 	 *
@@ -351,7 +351,7 @@ class Transmitter
 		}
 
 		$data['type'] = ActivityPub::ACCOUNT_TYPES[$user['account-type']];
-		
+
 		if ($uid != 0) {
 			$data['following'] = DI::baseUrl() . '/following/' . $user['nickname'];
 			$data['followers'] = DI::baseUrl() . '/followers/' . $user['nickname'];
@@ -720,10 +720,10 @@ class Transmitter
 	/**
 	 * Check if a given contact should be delivered via AP
 	 *
-	 * @param array $contact 
-	 * @param array $networks 
-	 * @return bool 
-	 * @throws Exception 
+	 * @param array $contact
+	 * @param array $networks
+	 * @return bool
+	 * @throws Exception
 	 */
 	private static function isAPContact(array $contact, array $networks)
 	{
@@ -1079,7 +1079,7 @@ class Transmitter
 				if (!empty($self['uid'])) {
 					$forum_item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['uri-id' => $item['uri-id'], 'uid' => $self['uid']]);
 					if (DBA::isResult($forum_item)) {
-						$item = $forum_item; 
+						$item = $forum_item;
 					}
 				}
 			}
@@ -1298,10 +1298,24 @@ class Transmitter
 				}
 				$urls[] = $attachment['url'];
 
-				$attachments[] = ['type' => 'Document',
+				$attach = ['type' => 'Document',
 					'mediaType' => $attachment['mimetype'],
 					'url' => $attachment['url'],
 					'name' => $attachment['description']];
+				
+				if (!empty($attachment['height'])) {
+					$attach['height'] = $attachment['height'];
+				}
+
+				if (!empty($attachment['width'])) {
+					$attach['width'] = $attachment['width'];
+				}
+	
+				if (!empty($attachment['preview'])) {
+					$attach['image'] = $attachment['preview'];
+				}
+
+				$attachments[] = $attach;
 			}
 		}
 
@@ -1316,10 +1330,24 @@ class Transmitter
 				}
 				$urls[] = $attachment['url'];
 
-				$attachments[] = ['type' => 'Document',
+				$attach = ['type' => 'Document',
 					'mediaType' => $attachment['mimetype'],
 					'url' => $attachment['url'],
 					'name' => $attachment['description']];
+				
+				if (!empty($attachment['height'])) {
+					$attach['height'] = $attachment['height'];
+				}
+
+				if (!empty($attachment['width'])) {
+					$attach['width'] = $attachment['width'];
+				}
+
+				if (!empty($attachment['preview'])) {
+					$attach['image'] = $attachment['preview'];
+				}
+
+				$attachments[] = $attach;	
 			}
 			// Currently deactivated, since it creates side effects on Mastodon and Pleroma.
 			// It will be activated, once this cleared.
@@ -1550,7 +1578,7 @@ class Transmitter
 		 * This part is currently deactivated. The automated summary seems to be more
 		 * confusing than helping. But possibly we will find a better way.
 		 * So the code is left here for now as a reminder
-		 * 
+		 *
 		 * } elseif (($type == 'Article') && empty($data['summary'])) {
 		 * 		$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
 		 * 		$summary = preg_replace_callback($regexp, ['self', 'mentionAddrCallback'], $body);

@@ -1112,14 +1112,6 @@ class Receiver
 						'image' => $pageImage,
 					];
 					break;
-				case 'as:Link':
-					$attachlist[] = [
-						'type' => str_replace('as:', '', JsonLD::fetchElement($attachment, '@type')),
-						'mediaType' => JsonLD::fetchElement($attachment, 'as:mediaType', '@value'),
-						'name' => JsonLD::fetchElement($attachment, 'as:name', '@value'),
-						'url' => JsonLD::fetchElement($attachment, 'as:href', '@id')
-					];
-					break;
 				case 'as:Image':
 					$mediaType = JsonLD::fetchElement($attachment, 'as:mediaType', '@value');
 					$imageFullUrl = JsonLD::fetchElement($attachment, 'as:url', '@id');
@@ -1181,7 +1173,10 @@ class Receiver
 						'type' => str_replace('as:', '', JsonLD::fetchElement($attachment, '@type')),
 						'mediaType' => JsonLD::fetchElement($attachment, 'as:mediaType', '@value'),
 						'name' => JsonLD::fetchElement($attachment, 'as:name', '@value'),
-						'url' => JsonLD::fetchElement($attachment, 'as:url', '@id')
+						'url' => JsonLD::fetchElement($attachment, 'as:url', '@id'),
+						'height' => JsonLD::fetchElement($attachment, 'as:height', '@value'),
+						'width' => JsonLD::fetchElement($attachment, 'as:width', '@value'),
+						'image' => JsonLD::fetchElement($attachment, 'as:image', '@id')
 					];
 			}
 		}
