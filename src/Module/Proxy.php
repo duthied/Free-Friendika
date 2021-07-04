@@ -23,6 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
@@ -47,10 +48,6 @@ class Proxy extends BaseModule
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		if (!local_user()) {
-			throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
-		}
-
 		// Set application instance here
 		$a = DI::app();
 
@@ -91,6 +88,11 @@ class Proxy extends BaseModule
 
 		if (empty($request['url'])) {
 			throw new \Friendica\Network\HTTPException\BadRequestException();
+		}
+
+		if (!local_user()) {
+			Logger::info('Redirecting not logged in user to original address', ['url' => $request['url']]);
+			System::externalRedirect($request['url']);
 		}
 
 		// Webserver already tried direct cache...
