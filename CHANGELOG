@@ -26,6 +26,7 @@ Version 2021.07 (unreleased)
     Fixed problems with forum delivery [annando]
     Fixed a problem fetching photos in private postings [annando]
     Fixed a problem with author names containing hash tags [annando]
+    Fixed a problem when following local contacts [annando]
     Fixed problems with the addon settings [MrPetovan]
     Removed the Diaspora* relay support [annando]
     Removed the system user from the user countings [annando]
