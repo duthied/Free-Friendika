@@ -2051,7 +2051,11 @@ class Contact
 		}
 
 		if (self::isLocal($ret['url'])) {
-			Logger::info('Local contacts are not updated here.');
+			if ($contact['uid'] == 0) {
+				Logger::info('Local contacts are not updated here.');
+			} else {
+				self::updateFromPublicContact($id, $contact);
+			}
 			return true;
 		}
 
@@ -2186,6 +2190,26 @@ class Contact
 		return true;
 	}
 
+	private static function updateFromPublicContact(int $id, array $contact)
+	{
+		$public = self::getByURL($contact['url'], false);
+
+		$fields = [];
+
+		foreach ($contact as $field => $value) {
+			if ($field == 'uid') {
+				continue;
+			}
+			if ($public[$field] != $value) {
+				$fields[$field] = $public[$field];
+			}
+		}
+		if (!empty($fields)) {
+			DBA::update('contact', $fields, ['id' => $id, 'self' => false]);
+			Logger::info('Updating local contact', ['id' => $id]);
+		}
+	}
+
 	/**
 	 * @param integer $url contact url
 	 * @return integer Contact id
@@ -2294,8 +2318,10 @@ class Contact
 		}
 
 		if (!empty($arr['contact']['name'])) {
+			$probed = false;
 			$ret = $arr['contact'];
 		} else {
+			$probed = true;			
 			$ret = Probe::uri($url, $network, $user['uid']);
 		}
 
@@ -2439,6 +2465,10 @@ class Contact
 		// pull feed and consume it, which should subscribe to the hub.
 		if ($contact['network'] == Protocol::OSTATUS) {
 			Worker::add(PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
+		}
+
+		if ($probed) {
+			self::updateFromProbeArray($contact_id, $ret);
 		} else {
 			Worker::add(PRIORITY_HIGH, 'UpdateContact', $contact_id);
 		}
