@@ -412,7 +412,7 @@ class User
 
 		// Check for correct url and normalised nurl
 		$url = DI::baseUrl() . '/profile/' . $owner['nickname'];
-		$repair = ($owner['url'] != $url) || ($owner['nurl'] != Strings::normaliseLink($owner['url']));
+		$repair = empty($owner['network']) || ($owner['url'] != $url) || ($owner['nurl'] != Strings::normaliseLink($owner['url']));
 
 		if (!$repair) {
 			// Check if "addr" is present and correct
