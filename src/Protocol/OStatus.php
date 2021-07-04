@@ -1207,7 +1207,7 @@ class OStatus
 			}
 
 			// Is it a remote picture? Then make a smaller preview here
-			$preview = ProxyUtils::proxifyUrl($preview, false, ProxyUtils::SIZE_SMALL);
+			$preview = ProxyUtils::proxifyUrl($preview, ProxyUtils::SIZE_SMALL);
 
 			// Is it a local picture? Then make it smaller here
 			$preview = str_replace(["-0.jpg", "-0.png"], ["-2.jpg", "-2.png"], $preview);

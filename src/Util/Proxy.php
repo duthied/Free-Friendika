@@ -80,13 +80,12 @@ class Proxy
 	 * system.proxy_disabled is set to false.
 	 *
 	 * @param string $url       The URL to proxyfy
-	 * @param bool   $writemode Returns a local path the remote URL should be saved to
 	 * @param string $size      One of the ProxyUtils::SIZE_* constants
 	 *
 	 * @return string The proxyfied URL or relative path
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function proxifyUrl($url, $writemode = false, $size = '')
+	public static function proxifyUrl($url, $size = '')
 	{
 		// Get application instance
 		$a = DI::app();
@@ -114,16 +113,8 @@ class Proxy
 		// Image URL may have encoded ampersands for display which aren't desirable for proxy
 		$url = html_entity_decode($url, ENT_NOQUOTES, 'utf-8');
 
-		// Creating a sub directory to reduce the amount of files in the cache directory
-		$basepath = $a->getBasePath() . '/proxy';
-
 		$shortpath = hash('md5', $url);
 		$longpath = substr($shortpath, 0, 2);
-
-		if (is_dir($basepath) && $writemode && !is_dir($basepath . '/' . $longpath)) {
-			mkdir($basepath . '/' . $longpath);
-			chmod($basepath . '/' . $longpath, 0777);
-		}
 
 		$longpath .= '/' . strtr(base64_encode($url), '+/', '-_');
 
@@ -142,13 +133,8 @@ class Proxy
 		}
 
 		// Too long files aren't supported by Apache
-		// Writemode in combination with long files shouldn't be possible
-		if ((strlen($proxypath) > 250) && $writemode) {
-			return $shortpath;
-		} elseif (strlen($proxypath) > 250) {
+		if (strlen($proxypath) > 250) {
 			return DI::baseUrl() . '/proxy/' . $shortpath . '?url=' . urlencode($url);
-		} elseif ($writemode) {
-			return $longpath;
 		} else {
 			return $proxypath . $size;
 		}

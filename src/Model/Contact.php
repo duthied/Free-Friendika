@@ -1517,7 +1517,7 @@ class Contact
 		if (Proxy::isLocalImage($avatar)) {
 			return $avatar;
 		} else {
-			return Proxy::proxifyUrl($avatar, false, $size);
+			return Proxy::proxifyUrl($avatar, $size);
 		}
 	}
 

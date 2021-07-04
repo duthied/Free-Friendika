@@ -1012,7 +1012,7 @@ class BBCode
 				if (!empty($author_contact['id'])) {
 					$attributes['avatar'] = Contact::getAvatarUrlForId($author_contact['id'], ProxyUtils::SIZE_THUMB);
 				} elseif ($attributes['avatar']) {
-					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
+					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], ProxyUtils::SIZE_THUMB);
 				}
 
 				$content = preg_replace(Strings::autoLinkRegEx(), '<a href="$1">$1</a>', $match[3]);

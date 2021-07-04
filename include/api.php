@@ -2678,7 +2678,7 @@ function api_get_attachments(&$body)
 			if (DI::config()->get("system", "proxy_disabled")) {
 				$attachments[] = ["url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
 			} else {
-				$attachments[] = ["url" => ProxyUtils::proxifyUrl($image, false), "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
+				$attachments[] = ["url" => ProxyUtils::proxifyUrl($image), "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
 			}
 		}
 	}
@@ -2703,7 +2703,7 @@ function api_get_entitities(&$text, $bbcode)
 		preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
 
 		foreach ($images[1] as $image) {
-			$replace = ProxyUtils::proxifyUrl($image, false);
+			$replace = ProxyUtils::proxifyUrl($image);
 			$text = str_replace($image, $replace, $text);
 		}
 		return [];
@@ -2818,7 +2818,7 @@ function api_get_entitities(&$text, $bbcode)
 				// If image cache is activated, then use the following sizes:
 				// thumb  (150), small (340), medium (600) and large (1024)
 				if (!DI::config()->get("system", "proxy_disabled")) {
-					$media_url = ProxyUtils::proxifyUrl($url, false);
+					$media_url = ProxyUtils::proxifyUrl($url);
 
 					$sizes = [];
 					$scale = Images::getScalingDimensions($image[0], $image[1], 150);
