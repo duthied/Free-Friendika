@@ -45,7 +45,7 @@ class Link
 			Logger::info('Found', ['id' => $id, 'url' => $url]);
 		} else {
 			$mime = self::fetchMimeType($url);
-		
+
 			DBA::insert('post-link', ['uri-id' => $uri_id, 'url' => $url, 'mimetype' => $mime]);
 			$id = DBA::lastInsertId();
 			Logger::info('Inserted', ['id' => $id, 'url' => $url]);
@@ -79,6 +79,7 @@ class Link
 	private static function fetchMimeType(string $url)
 	{
 		$timeout = DI::config()->get('system', 'xrd_timeout');
+
 		$curlResult = DI::httpRequest()->head($url, ['timeout' => $timeout]);
 		if ($curlResult->isSuccess()) {
 			if (empty($media['mimetype'])) {
