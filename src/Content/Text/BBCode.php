@@ -437,6 +437,9 @@ class BBCode
 		$text = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $2 ', $text);
 		$text = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $text);
 
+		// Remove attachment
+		$text = self::removeAttachment($text);
+
 		$naked_text = HTML::toPlaintext(self::convert($text, false, 0, true), 0, !$keep_urls);
 
 		return $naked_text;
@@ -958,7 +961,7 @@ class BBCode
 	public static function fetchShareAttributes($text)
 	{
 		// See Issue https://github.com/friendica/friendica/issues/10454
-		// Hashtags in usernames are expanded to links. This here is a quick fix. 
+		// Hashtags in usernames are expanded to links. This here is a quick fix.
 		$text = preg_replace('/([@!#])\[url\=.*?\](.*?)\[\/url\]/ism', '$1$2', $text);
 
 		$attributes = [];
@@ -2130,8 +2133,8 @@ class BBCode
 	/**
 	 * Expand tags to URLs
 	 *
-	 * @param string $body 
-	 * @return string body with expanded tags 
+	 * @param string $body
+	 * @return string body with expanded tags
 	 */
 	public static function expandTags(string $body)
 	{
