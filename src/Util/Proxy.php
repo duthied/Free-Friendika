@@ -21,6 +21,8 @@
 
 namespace Friendica\Util;
 
+use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\DI;
 
 /**
@@ -28,12 +30,6 @@ use Friendica\DI;
  */
 class Proxy
 {
-
-	/**
-	 * Default time to keep images in proxy storage
-	 */
-	const DEFAULT_TIME = 86400; // 1 Day
-
 	/**
 	 * Sizes constants
 	 */
@@ -121,6 +117,8 @@ class Proxy
 		if ($size != '') {
 			$size = ':' . $size;
 		}
+
+		Logger::info('Created proxy link', ['url' => $url, 'callstack' => System::callstack(20)]);
 
 		// Too long files aren't supported by Apache
 		if (strlen($proxypath) > 250) {
