@@ -53,6 +53,7 @@ Database Tables
 | [post-category](help/database/db_post-category) | post relation to categories |
 | [post-content](help/database/db_post-content) | Content for all posts |
 | [post-delivery-data](help/database/db_post-delivery-data) | Delivery data for items |
+| [post-link](help/database/db_post-link) | Post related external links |
 | [post-media](help/database/db_post-media) | Attached media |
 | [post-tag](help/database/db_post-tag) | post relation to tags |
 | [post-thread](help/database/db_post-thread) | Thread related data |

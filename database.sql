@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2021.06-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1424
+-- Friendica 2021.09-dev (Siberian Iris)
+-- DB_UPDATE_VERSION 1425
 -- ------------------------------------------
 
 
@@ -1102,6 +1102,19 @@ CREATE TABLE IF NOT EXISTS `post-delivery-data` (
 	 PRIMARY KEY(`uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
+
+--
+-- TABLE post-link
+--
+CREATE TABLE IF NOT EXISTS `post-link` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`url` varbinary(511) NOT NULL COMMENT 'External URL',
+	`mimetype` varchar(60) COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Post related external links';
 
 --
 -- TABLE post-media

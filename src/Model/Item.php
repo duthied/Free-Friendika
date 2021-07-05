@@ -2755,6 +2755,7 @@ class Item
 		}
 		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links);
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
+		$item['body'] = Post\Link::insertFromBody($item['uri-id'], $item['body']);
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
 		self::putInCache($item);
@@ -2780,13 +2781,13 @@ class Item
 
 		if (!empty($shared_attachments)) {
 			$s = self::addVisualAttachments($shared_attachments, $item, $s, true);
-			$s = self::addLinkAttachment($shared_attachments, $body, $s, true, []);
+			$s = self::addLinkAttachment($shared_uri_id, $shared_attachments, $body, $s, true, []);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
 		}
 
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
-		$s = self::addLinkAttachment($attachments, $body, $s, false, $shared_links);
+		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
 
 		// Map.
@@ -2967,7 +2968,7 @@ class Item
 	 * @param array  $ignore_links A list of URLs to ignore
 	 * @return string modified content
 	 */
-	private static function addLinkAttachment(array $attachments, string $body, string $content, bool $shared, array $ignore_links)
+	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links)
 	{
 		$stamp1 = microtime(true);
 		// @ToDo Check only for audio and video
@@ -3050,6 +3051,14 @@ class Item
 							$data['provider_url'] .= ':' . $parts['port'];
 						}
 					}
+				}
+
+				if (!empty($data['image'])) {
+					$data['image']   = Post\Link::getByLink($uriid, $data['image']);
+				}
+
+				if (!empty($data['preview'])) {
+					$data['preview'] = Post\Link::getByLink($uriid, $data['preview']);
 				}
 
 				// @todo Use a template

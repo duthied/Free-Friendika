@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1424);
+	define('DB_UPDATE_VERSION', 1425);
 }
 
 return [
@@ -1149,6 +1149,19 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
+		]
+	],
+	"post-link" => [
+		"comment" => "Post related external links",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"url" => ["type" => "varbinary(511)", "not null" => "1", "comment" => "External URL"],
+			"mimetype" => ["type" => "varchar(60)", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uri-id-url" => ["UNIQUE", "uri-id", "url"],
 		]
 	],
 	"post-media" => [
