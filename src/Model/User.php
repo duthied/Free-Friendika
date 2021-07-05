@@ -146,6 +146,15 @@ class User
 		$system['sprvkey'] = $system['uprvkey'] = $system['prvkey'];
 		$system['spubkey'] = $system['upubkey'] = $system['pubkey'];
 		$system['nickname'] = $system['nick'];
+		$system['page-flags'] = User::PAGE_FLAGS_SOAPBOX;
+		$system['account-type'] = $system['contact-type'];
+		$system['guid'] = '';
+		$system['nickname'] = $system['nick'];
+		$system['pubkey'] = $system['pubkey'];
+		$system['locality'] = '';
+		$system['region'] = '';
+		$system['country-name'] = '';
+		$system['net-publish'] = false;
 
 		// Ensure that the user contains data
 		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => 0]);
