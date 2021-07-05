@@ -40,10 +40,7 @@ class Proxy extends BaseModule
 {
 
 	/**
-	 * Initializer method for this class.
-	 *
-	 * Sets application instance and checks if /proxy/ path is writable.
-	 *
+	 * Fetch remote image content
 	 */
 	public static function rawContent(array $parameters = [])
 	{
@@ -81,8 +78,7 @@ class Proxy extends BaseModule
 		$fetchResult = HTTPSignature::fetchRaw($request['url'], local_user(), ['timeout' => 10]);
 		$img_str = $fetchResult->getBody();
 
-		// If there is an error then return an error
-		if ((substr($fetchResult->getReturnCode(), 0, 1) == '4') || empty($img_str)) {
+		if (!$fetchResult->isSuccess() || empty($img_str)) {
 			Logger::info('Error fetching image', ['image' => $request['url'], 'return' => $fetchResult->getReturnCode(), 'empty' => empty($img_str)]);
 			self::responseError();
 			// stop.

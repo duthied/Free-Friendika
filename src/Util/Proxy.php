@@ -87,21 +87,11 @@ class Proxy
 	 */
 	public static function proxifyUrl($url, $size = '')
 	{
-		// Get application instance
-		$a = DI::app();
-
 		// Trim URL first
 		$url = trim($url);
 
-		// Is no http in front of it?
-		/// @TODO To weak test for being a valid URL
-		if (substr($url, 0, 4) !== 'http') {
-			return $url;
-		}
-
-		// Only continue if it isn't a local image and the isn't deactivated
-		if (self::isLocalImage($url)) {
-			$url = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/', DI::baseUrl() . '/', $url);
+		// Quit if not an HTTP/HTTPS link or if local
+		if (!in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https']) || self::isLocalImage($url)) {
 			return $url;
 		}
 
@@ -175,11 +165,7 @@ class Proxy
 			return true;
 		}
 
-		// links normalised - bug #431
-		$baseurl = Strings::normaliseLink(DI::baseUrl());
-		$url = Strings::normaliseLink($url);
-
-		return (substr($url, 0, strlen($baseurl)) == $baseurl);
+		return Network::isLocalLink($url);
 	}
 
 	/**
