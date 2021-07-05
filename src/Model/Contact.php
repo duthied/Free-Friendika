@@ -2989,7 +2989,8 @@ class Contact
 		$search .= '%';
 
 		$results = DBA::p("SELECT * FROM `contact`
-			WHERE NOT `unsearchable` AND `network` IN (?, ?, ?, ?) AND
+			WHERE (NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` where `publish` OR `net-publish`))
+				AND `network` IN (?, ?, ?, ?) AND
 				NOT `failed` AND `uid` = ? AND
 				(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?) $extra_sql
 				ORDER BY `nurl` DESC LIMIT 1000",
