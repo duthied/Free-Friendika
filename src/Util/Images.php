@@ -193,18 +193,7 @@ class Images
 		$filesize = strlen($img_str);
 
 		try {
-			if (function_exists("getimagesizefromstring")) {
-				$data = @getimagesizefromstring($img_str);
-			} else {
-				$tempfile = tempnam(get_temppath(), "cache");
-
-				$stamp1 = microtime(true);
-				file_put_contents($tempfile, $img_str);
-				DI::profiler()->saveTimestamp($stamp1, "file");
-
-				$data = getimagesize($tempfile);
-				unlink($tempfile);
-			}
+			$data = @getimagesizefromstring($img_str);
 		} catch (\Exception $e) {
 			return [];
 		}
