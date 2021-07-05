@@ -1008,9 +1008,6 @@ class Item
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
 
-		// Fill the cache field
-		self::putInCache($item);
-
 		if (stristr($item['verb'], Activity::POKE)) {
 			$notify_type = Delivery::POKE;
 		} else {

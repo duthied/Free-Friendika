@@ -433,6 +433,10 @@ class BBCode
 	 */
 	public static function toPlaintext($text, $keep_urls = true)
 	{
+		// Remove pictures in advance to avoid unneeded proxy calls
+		$text = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $2 ', $text);
+		$text = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $text);
+
 		$naked_text = HTML::toPlaintext(self::convert($text, false, 0, true), 0, !$keep_urls);
 
 		return $naked_text;

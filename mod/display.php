@@ -334,8 +334,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$o .= conversation($a, [$item], 'display', $update_uid, false, 'commented', $item_uid);
 
 	// Preparing the meta header
-	$description = trim(HTML::toPlaintext(BBCode::convert($item["body"], false), 0, true));
-	$title = trim(HTML::toPlaintext(BBCode::convert($item["title"], false), 0, true));
+	$description = trim(BBCode::toPlaintext($item["body"]));
+	$title = trim(BBCode::toPlaintext($item["title"]));
 	$author_name = $item["author-name"];
 
 	$image = DI::baseUrl()->remove($item["author-avatar"]);

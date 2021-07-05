@@ -1199,7 +1199,7 @@ class Feed
 		// Remove the share element before fetching the first line
 		$title = trim(preg_replace("/\[share.*?\](.*?)\[\/share\]/ism","\n$1\n",$item['body']));
 
-		$title = HTML::toPlaintext(BBCode::convert($title, false), 0, true)."\n";
+		$title = BBCode::toPlaintext($title)."\n";
 		$pos = strpos($title, "\n");
 		$trailer = "";
 		if (($pos == 0) || ($pos > 100)) {
