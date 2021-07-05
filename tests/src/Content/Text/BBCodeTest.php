@@ -52,9 +52,6 @@ class BBCodeTest extends MockedTest
 			->with('system', 'allowed_link_protocols')
 			->andReturn(null);
 		$this->configMock->shouldReceive('get')
-			->with('system', 'itemcache_duration')
-			->andReturn(-1);
-		$this->configMock->shouldReceive('get')
 			->with('system', 'url')
 			->andReturn('friendica.local');
 		$this->configMock->shouldReceive('get')

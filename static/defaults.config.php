@@ -570,10 +570,6 @@ return [
 		// xrd_timeout (Integer)
 		// Timeout in seconds for fetching the XRD links.
 		'xrd_timeout' => 20,
-
-		// proxy_file_chmod (Octal Integer like 0640)
-		// If set, defines the files permissions for downloaded files in the /proxy/ directory, default is system-dependent
-		'proxy_file_chmod' => 0,
 	],
 	'experimental' => [
 		// exp_themes (Boolean)
