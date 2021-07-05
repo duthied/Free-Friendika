@@ -1107,7 +1107,7 @@ class Feed
 		XML::addElement($doc, $entry, "id", $item["uri"]);
 		XML::addElement($doc, $entry, "title", html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 
-		$body = OStatus::formatPicturePost($item['body']);
+		$body = OStatus::formatPicturePost($item['body'], $item['uri-id']);
 
 		$body = BBCode::convert($body, false, BBCode::OSTATUS);
 
