@@ -103,19 +103,19 @@ class Link
 	 */
 	public static function insertFromBody(int $uriid, string $body)
 	{
-		if (preg_match_all("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[img\=([0-9]*)x([0-9]*)\](http.*?)\[\/img\]/ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				$body = str_replace($picture[3], self::getByLink($uriid, $picture[3]), $body);
 			}
 		}
 
-		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[img=(http[^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				$body = str_replace($picture[1], self::getByLink($uriid, $picture[1]), $body);
 			}
 		}
 
-		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[img\](http[^\[\]]*)\[\/img\]/ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				$body = str_replace($picture[1], self::getByLink($uriid, $picture[1]), $body);
 			}
