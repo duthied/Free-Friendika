@@ -198,7 +198,6 @@ class Site extends BaseAdmin
 		$max_display_comments   = (!empty($_POST['max_display_comments'])   ? intval($_POST['max_display_comments'])          : 0);
 		$temppath               = (!empty($_POST['temppath'])               ? Strings::escapeTags(trim($_POST['temppath']))   : '');
 		$singleuser             = (!empty($_POST['singleuser'])             ? Strings::escapeTags(trim($_POST['singleuser'])) : '');
-		$proxy_disabled         = !empty($_POST['proxy_disabled']);
 		$only_tag_search        = !empty($_POST['only_tag_search']);
 		$rino                   = (!empty($_POST['rino'])                   ? intval($_POST['rino'])                          : 0);
 		$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? Strings::escapeTags(trim($_POST['check_new_version_url'])) : 'none');
@@ -402,7 +401,6 @@ class Site extends BaseAdmin
 
 		DI::config()->set('system', 'temppath', $temppath);
 
-		DI::config()->set('system', 'proxy_disabled'   , $proxy_disabled);
 		DI::config()->set('system', 'only_tag_search'  , $only_tag_search);
 
 		DI::config()->set('system', 'worker_queues'    , $worker_queues);
@@ -668,7 +666,6 @@ class Site extends BaseAdmin
 			'$max_comments'           => ['max_comments', DI::l10n()->t('Maximum numbers of comments per post'), DI::config()->get('system', 'max_comments'), DI::l10n()->t('How much comments should be shown for each post? Default value is 100.')],
 			'$max_display_comments'   => ['max_display_comments', DI::l10n()->t('Maximum numbers of comments per post on the display page'), DI::config()->get('system', 'max_display_comments'), DI::l10n()->t('How many comments should be shown on the single view for each post? Default value is 1000.')],
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
-			'$proxy_disabled'         => ['proxy_disabled', DI::l10n()->t('Disable picture proxy'), DI::config()->get('system', 'proxy_disabled'), DI::l10n()->t('The picture proxy increases performance and privacy. It shouldn\'t be used on systems with very low bandwidth.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
 
 			'$relocate_url'           => ['relocate_url', DI::l10n()->t('New base url'), DI::baseUrl()->get(), DI::l10n()->t('Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.')],

@@ -72,8 +72,7 @@ class Proxy
 	 * Transform a remote URL into a local one.
 	 *
 	 * This function only performs the URL replacement on http URL and if the
-	 * provided URL isn't local, "the isn't deactivated" (sic) and if the config
-	 * system.proxy_disabled is set to false.
+	 * provided URL isn't local
 	 *
 	 * @param string $url       The URL to proxyfy
 	 * @param string $size      One of the ProxyUtils::SIZE_* constants
@@ -88,11 +87,6 @@ class Proxy
 
 		// Quit if not an HTTP/HTTPS link or if local
 		if (!in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https']) || self::isLocalImage($url)) {
-			return $url;
-		}
-
-		// Is the proxy disabled?
-		if (DI::config()->get('system', 'proxy_disabled')) {
 			return $url;
 		}
 
