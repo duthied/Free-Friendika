@@ -78,7 +78,7 @@ class Acl extends BaseModule
 		$contacts = [];
 		foreach ($result as $contact) {
 			$contacts[] = [
-				'photo'   => Contact::getMicro($contact, '', true),
+				'photo'   => Contact::getMicro($contact, true),
 				'name'    => htmlspecialchars($contact['name']),
 				'nick'    => $contact['addr'] ?: $contact['url'],
 				'network' => $contact['network'],

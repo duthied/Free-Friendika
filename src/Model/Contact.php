@@ -1497,67 +1497,46 @@ class Contact
 	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	private static function getAvatarPath(array $contact, string $field, string $size, string $avatar, $no_update = false)
+	private static function getAvatarPath(array $contact, string $size, $no_update = false)
 	{
-		if (!empty($contact)) {
-			$contact = self::checkAvatarCacheByArray($contact, $no_update);
-			if (!empty($contact['id'])) {
-				return self::getAvatarUrlForId($contact['id'], $size, $contact['updated'] ?? '');
-			} elseif (!empty($contact[$field])) {
-				return $contact[$field];
-			} elseif (!empty($contact['avatar'])) {
-				$avatar = $contact['avatar'];
-			}
-		}
-
-		if (empty($avatar)) {
-			$avatar = self::getDefaultAvatar([], $size);
-		}
-
-		if (Proxy::isLocalImage($avatar)) {
-			return $avatar;
-		} else {
-			return Proxy::proxifyUrl($avatar, $size);
-		}
+		$contact = self::checkAvatarCacheByArray($contact, $no_update);
+		return self::getAvatarUrlForId($contact['id'], $size, $contact['updated'] ?? '');
 	}
 
 	/**
 	 * Return the photo path for a given contact array
 	 *
 	 * @param array  $contact   Contact array
-	 * @param string $avatar    Avatar path that is displayed when no photo had been found
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getPhoto(array $contact, string $avatar = '', bool $no_update = false)
+	public static function getPhoto(array $contact, bool $no_update = false)
 	{
-		return self::getAvatarPath($contact, 'photo', Proxy::SIZE_SMALL, $avatar, $no_update);
+		return self::getAvatarPath($contact, Proxy::SIZE_SMALL, $no_update);
 	}
 
 	/**
 	 * Return the photo path (thumb size) for a given contact array
 	 *
 	 * @param array  $contact   Contact array
-	 * @param string $avatar    Avatar path that is displayed when no photo had been found
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getThumb(array $contact, string $avatar = '', bool $no_update = false)
+	public static function getThumb(array $contact, bool $no_update = false)
 	{
-		return self::getAvatarPath($contact, 'thumb', Proxy::SIZE_THUMB, $avatar, $no_update);
+		return self::getAvatarPath($contact, Proxy::SIZE_THUMB, $no_update);
 	}
 
 	/**
 	 * Return the photo path (micro size) for a given contact array
 	 *
 	 * @param array  $contact   Contact array
-	 * @param string $avatar    Avatar path that is displayed when no photo had been found
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getMicro(array $contact, string $avatar = '', bool $no_update = false)
+	public static function getMicro(array $contact, bool $no_update = false)
 	{
-		return self::getAvatarPath($contact, 'micro', Proxy::SIZE_MICRO, $avatar, $no_update);
+		return self::getAvatarPath($contact, Proxy::SIZE_MICRO, $no_update);
 	}
 
 	/**

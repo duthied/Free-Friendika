@@ -1111,7 +1111,7 @@ class Contact extends BaseModule
 			'url'          => $url,
 			'img_hover'    => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
 			'photo_menu'   => Model\Contact::photoMenu($contact),
-			'thumb'        => Model\Contact::getThumb($contact, '', true),
+			'thumb'        => Model\Contact::getThumb($contact, true),
 			'alt_text'     => $alt_text,
 			'name'         => $contact['name'],
 			'nick'         => $contact['nick'],

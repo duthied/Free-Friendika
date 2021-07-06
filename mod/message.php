@@ -325,7 +325,7 @@ function message_content(App $a)
 			$to_name_e = $message['name'];
 
 			$contact = Contact::getByURL($message['from-url'], false, ['thumb', 'addr', 'id', 'avatar']);
-			$from_photo = Contact::getThumb($contact, $message['from-photo']);
+			$from_photo = Contact::getThumb($contact);
 
 			$mails[] = [
 				'id' => $message['id'],
@@ -457,7 +457,7 @@ function render_messages(array $msg, $t)
 		}
 
 		$contact = Contact::getByURL($rr['url'], false, ['thumb', 'addr', 'id', 'avatar']);
-		$from_photo = Contact::getThumb($contact, $rr['thumb'] ?: $rr['from-photo']);
+		$from_photo = Contact::getThumb($contact);
 
 		$rslt .= Renderer::replaceMacros($tpl, [
 			'$id' => $rr['id'],
