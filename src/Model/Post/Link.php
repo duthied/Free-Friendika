@@ -35,7 +35,7 @@ class Link
 {
 	public static function getByLink(int $uri_id, string $url, $size = '')
 	{
-		if (empty($url) || Proxy::isLocalImage($url)) {
+		if (empty($uri_id) || empty($url) || Proxy::isLocalImage($url)) {
 			return $url;
 		}
 
