@@ -1022,8 +1022,6 @@ class BBCode
 
 				if (!empty($author_contact['id'])) {
 					$attributes['avatar'] = Contact::getAvatarUrlForId($author_contact['id'], ProxyUtils::SIZE_THUMB);
-				} elseif ($attributes['avatar'] && $uriid) {
-					$attributes['avatar'] = Post\Link::getByLink($uriid, $attributes['avatar'], ProxyUtils::SIZE_THUMB);
 				} elseif ($attributes['avatar']) {
 					$attributes['avatar'] = self::proxyUrl($attributes['avatar'], self::INTERNAL, $uriid, ProxyUtils::SIZE_THUMB);
 				}
