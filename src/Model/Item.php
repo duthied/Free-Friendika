@@ -2781,7 +2781,7 @@ class Item
 
 		if (!empty($shared_attachments)) {
 			$s = self::addVisualAttachments($shared_attachments, $item, $s, true);
-			$s = self::addLinkAttachment($shared_uri_id, $shared_attachments, $body, $s, true, []);
+			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, []);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
 		}
