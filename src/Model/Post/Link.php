@@ -39,16 +39,21 @@ class Link
 			return $url;
 		}
 
+		if (!in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'])) {
+			Logger::info('Bad URL, quitting', ['uri-id' => $uri_id, 'url' => $url]);
+			return $url;
+		}
+
 		$link = DBA::selectFirst('post-link', ['id'], ['uri-id' => $uri_id, 'url' => $url]);
 		if (!empty($link['id'])) {
 			$id = $link['id'];
-			Logger::info('Found', ['id' => $id, 'url' => $url]);
+			Logger::info('Found', ['id' => $id, 'uri-id' => $uri_id, 'url' => $url]);
 		} else {
 			$mime = self::fetchMimeType($url);
 
 			DBA::insert('post-link', ['uri-id' => $uri_id, 'url' => $url, 'mimetype' => $mime]);
 			$id = DBA::lastInsertId();
-			Logger::info('Inserted', ['id' => $id, 'url' => $url]);
+			Logger::info('Inserted', ['id' => $id, 'uri-id' => $uri_id, 'url' => $url]);
 		}
 
 		if (empty($id)) {
@@ -106,9 +111,7 @@ class Link
 
 		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				if (parse_url($picture[1], PHP_URL_SCHEME)) {
-					$body = str_replace($picture[1], self::getByLink($uriid, $picture[1]), $body);
-				}
+				$body = str_replace($picture[1], self::getByLink($uriid, $picture[1]), $body);
 			}
 		}
 
