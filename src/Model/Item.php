@@ -2640,7 +2640,7 @@ class Item
 		) {
 			self::addRedirToImageTags($item);
 
-			$item['rendered-html'] = BBCode::convert($item['body']);
+			$item['rendered-html'] = BBCode::convert($item['body'], true, BBCode::INTERNAL, false, $item['uri-id']);
 			$item['rendered-hash'] = hash('md5', BBCode::VERSION . '::' . $body);
 
 			$hook_data = ['item' => $item, 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
@@ -2755,7 +2755,6 @@ class Item
 		}
 		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links);
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
-		$item['body'] = Post\Link::insertFromBody($item['uri-id'], $item['body']);
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
 		self::putInCache($item);
