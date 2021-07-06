@@ -2649,6 +2649,7 @@ function api_add_attachments_to_body(array $item)
 /**
  *
  * @param string $body
+ * @param int    $uriid
  *
  * @return array
  * @throws InternalServerErrorException
