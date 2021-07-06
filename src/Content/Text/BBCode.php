@@ -446,15 +446,15 @@ class BBCode
 		return $naked_text;
 	}
 
-	private static function proxyUrl($image, $simplehtml = self::INTERNAL, $uriid = 0)
+	private static function proxyUrl($image, $simplehtml = self::INTERNAL, $uriid = 0, $size = '')
 	{
 		// Only send proxied pictures to API and for internal display
 		if (!in_array($simplehtml, [self::INTERNAL, self::API])) {
 			return $image;
 		} elseif ($uriid) {
-			return Post\Link::getByLink($uriid, $image);
+			return Post\Link::getByLink($uriid, $image, $size);
 		} else {
-			return ProxyUtils::proxifyUrl($image);
+			return ProxyUtils::proxifyUrl($image, $size);
 		}
 	}
 
@@ -1025,7 +1025,7 @@ class BBCode
 				} elseif ($attributes['avatar'] && $uriid) {
 					$attributes['avatar'] = Post\Link::getByLink($uriid, $attributes['avatar'], ProxyUtils::SIZE_THUMB);
 				} elseif ($attributes['avatar']) {
-					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], ProxyUtils::SIZE_THUMB);
+					$attributes['avatar'] = self::proxyUrl($attributes['avatar'], self::INTERNAL, $uriid, ProxyUtils::SIZE_THUMB);
 				}
 
 				$content = preg_replace(Strings::autoLinkRegEx(), '<a href="$1">$1</a>', $match[3]);
