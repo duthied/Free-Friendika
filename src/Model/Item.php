@@ -3052,16 +3052,8 @@ class Item
 					}
 				}
 
-				if (!empty($data['image'])) {
-					$data['image']   = Post\Link::getByLink($uriid, $data['image']);
-				}
-
-				if (!empty($data['preview'])) {
-					$data['preview'] = Post\Link::getByLink($uriid, $data['preview']);
-				}
-
 				// @todo Use a template
-				$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
+				$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data, $uriid);
 			} elseif (!self::containsLink($content, $data['url'], Post\Media::HTML)) {
 				$rendered = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/link.tpl'), [
 					'$url'  => $data['url'],

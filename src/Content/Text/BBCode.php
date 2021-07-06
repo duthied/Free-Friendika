@@ -618,10 +618,11 @@ class BBCode
 	 * @param integer $simplehtml
 	 * @param bool    $tryoembed
 	 * @param array   $data
+	 * @param int     $uriid
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertAttachment($text, $simplehtml = self::INTERNAL, $tryoembed = true, array $data = [])
+	public static function convertAttachment($text, $simplehtml = self::INTERNAL, $tryoembed = true, array $data = [], $uriid = 0)
 	{
 		$data = $data ?: self::getAttachmentData($text);
 		if (empty($data) || empty($data['url'])) {
@@ -658,12 +659,12 @@ class BBCode
 
 			if (!empty($data['title']) && !empty($data['url'])) {
 				if (!empty($data['image']) && empty($data['text']) && ($data['type'] == 'photo')) {
-					$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
+					$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
 				} else {
 					if (!empty($data['image'])) {
-						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br>', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
+						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
 					} elseif (!empty($data['preview'])) {
-						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br>', $data['url'], self::proxyUrl($data['preview'], $simplehtml), $data['title']);
+						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br>', $data['url'], self::proxyUrl($data['preview'], $simplehtml, $uriid), $data['title']);
 					}
 					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
 				}
@@ -1411,16 +1412,7 @@ class BBCode
 				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
 					$text = self::removeAttachment($text, true);
 				} else {
-					$data = self::getAttachmentData($text);
-					if (!empty($data['image'])) {
-						$data['image']   = Post\Link::getByLink($uriid, $data['image']);
-					}
-	
-					if (!empty($data['preview'])) {
-						$data['preview'] = Post\Link::getByLink($uriid, $data['preview']);
-					}
-
-					$text = self::convertAttachment($text, $simple_html, $try_oembed, $data);
+					$text = self::convertAttachment($text, $simple_html, $try_oembed, [], $uriid);
 				}
 
 				$nosmile = strpos($text, '[nosmile]') !== false;
