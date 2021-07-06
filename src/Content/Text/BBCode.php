@@ -1411,7 +1411,16 @@ class BBCode
 				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
 					$text = self::removeAttachment($text, true);
 				} else {
-					$text = self::convertAttachment($text, $simple_html, $try_oembed);
+					$data = self::getAttachmentData($text);
+					if (!empty($data['image'])) {
+						$data['image']   = Post\Link::getByLink($uriid, $data['image']);
+					}
+	
+					if (!empty($data['preview'])) {
+						$data['preview'] = Post\Link::getByLink($uriid, $data['preview']);
+					}
+
+					$text = self::convertAttachment($text, $simple_html, $try_oembed, $data);
 				}
 
 				$nosmile = strpos($text, '[nosmile]') !== false;
