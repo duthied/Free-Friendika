@@ -67,11 +67,11 @@ class Event
 			$o = '';
 
 			if (!empty($event['summary'])) {
-				$o .= "<h3>" . BBCode::convert(Strings::escapeHtml($event['summary']), false, $simple) . "</h3>";
+				$o .= "<h3>" . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['summary']), $simple) . "</h3>";
 			}
 
 			if (!empty($event['desc'])) {
-				$o .= "<div>" . BBCode::convert(Strings::escapeHtml($event['desc']), false, $simple) . "</div>";
+				$o .= "<div>" . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['desc']), $simple) . "</div>";
 			}
 
 			$o .= "<h4>" . DI::l10n()->t('Starts:') . "</h4><p>" . $event_start . "</p>";
@@ -81,7 +81,7 @@ class Event
 			}
 
 			if (!empty($event['location'])) {
-				$o .= "<h4>" . DI::l10n()->t('Location:') . "</h4><p>" . BBCode::convert(Strings::escapeHtml($event['location']), false, $simple) . "</p>";
+				$o .= "<h4>" . DI::l10n()->t('Location:') . "</h4><p>" . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['location']), $simple) . "</p>";
 			}
 
 			return $o;
@@ -89,7 +89,7 @@ class Event
 
 		$o = '<div class="vevent">' . "\r\n";
 
-		$o .= '<div class="summary event-summary">' . BBCode::convert(Strings::escapeHtml($event['summary']), false, $simple) . '</div>' . "\r\n";
+		$o .= '<div class="summary event-summary">' . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['summary']), $simple) . '</div>' . "\r\n";
 
 		$o .= '<div class="event-start"><span class="event-label">' . DI::l10n()->t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 			. DateTimeFormat::utc($event['start'], (!empty($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
@@ -104,12 +104,12 @@ class Event
 		}
 
 		if (!empty($event['desc'])) {
-			$o .= '<div class="description event-description">' . BBCode::convert(Strings::escapeHtml($event['desc']), false, $simple) . '</div>' . "\r\n";
+			$o .= '<div class="description event-description">' . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['desc']), $simple) . '</div>' . "\r\n";
 		}
 
 		if (!empty($event['location'])) {
 			$o .= '<div class="event-location"><span class="event-label">' . DI::l10n()->t('Location:') . '</span>&nbsp;<span class="location">'
-				. BBCode::convert(Strings::escapeHtml($event['location']), false, $simple)
+				. BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['location']), $simple)
 				. '</span></div>' . "\r\n";
 
 			// Include a map of the location if the [map] BBCode is used.
@@ -621,9 +621,9 @@ class Event
 				$drop =                  [DI::baseUrl() . '/events/drop/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
 			}
 
-			$title = BBCode::convert(Strings::escapeHtml($event['summary']));
+			$title = BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['summary']));
 			if (!$title) {
-				list($title, $_trash) = explode("<br", BBCode::convert(Strings::escapeHtml($event['desc'])), BBCode::API);
+				list($title, $_trash) = explode("<br", BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['desc'])), BBCode::API);
 			}
 
 			$author_link = $event['author-link'];
@@ -631,9 +631,9 @@ class Event
 			$event['author-link'] = Contact::magicLink($author_link);
 
 			$html = self::getHTML($event);
-			$event['summary']  = BBCode::convert(Strings::escapeHtml($event['summary']));
-			$event['desc']     = BBCode::convert(Strings::escapeHtml($event['desc']));
-			$event['location'] = BBCode::convert(Strings::escapeHtml($event['location']));
+			$event['summary']  = BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['summary']));
+			$event['desc']     = BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['desc']));
+			$event['location'] = BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['location']));
 			$event_list[] = [
 				'id'       => $event['id'],
 				'start'    => $start,
