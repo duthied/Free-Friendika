@@ -1729,7 +1729,7 @@ class BBCode
 				// start which is always required). Allow desc with a missing summary for compatibility.
 
 				if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
-					$sub = Event::getHTML($ev, $simple_html);
+					$sub = Event::getHTML($ev, $simple_html, $uriid);
 
 					$text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism", '', $text);
 					$text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/ism", '', $text);

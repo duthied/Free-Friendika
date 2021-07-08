@@ -41,11 +41,13 @@ use Friendica\Util\XML;
 class Event
 {
 
-	public static function getHTML(array $event, $simple = false)
+	public static function getHTML(array $event, $simple = false, $uriid = 0)
 	{
 		if (empty($event)) {
 			return '';
 		}
+
+		$uriid = $event['uri-id'] ?? $uriid;
 
 		$bd_format = DI::l10n()->t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8 AM.
 
@@ -67,11 +69,11 @@ class Event
 			$o = '';
 
 			if (!empty($event['summary'])) {
-				$o .= "<h3>" . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['summary']), $simple) . "</h3>";
+				$o .= "<h3>" . BBCode::convertForItem($uriid, Strings::escapeHtml($event['summary']), $simple) . "</h3>";
 			}
 
 			if (!empty($event['desc'])) {
-				$o .= "<div>" . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['desc']), $simple) . "</div>";
+				$o .= "<div>" . BBCode::convertForItem($uriid, Strings::escapeHtml($event['desc']), $simple) . "</div>";
 			}
 
 			$o .= "<h4>" . DI::l10n()->t('Starts:') . "</h4><p>" . $event_start . "</p>";
@@ -81,7 +83,7 @@ class Event
 			}
 
 			if (!empty($event['location'])) {
-				$o .= "<h4>" . DI::l10n()->t('Location:') . "</h4><p>" . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['location']), $simple) . "</p>";
+				$o .= "<h4>" . DI::l10n()->t('Location:') . "</h4><p>" . BBCode::convertForItem($uriid, Strings::escapeHtml($event['location']), $simple) . "</p>";
 			}
 
 			return $o;
@@ -89,7 +91,7 @@ class Event
 
 		$o = '<div class="vevent">' . "\r\n";
 
-		$o .= '<div class="summary event-summary">' . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['summary']), $simple) . '</div>' . "\r\n";
+		$o .= '<div class="summary event-summary">' . BBCode::convertForItem($uriid, Strings::escapeHtml($event['summary']), $simple) . '</div>' . "\r\n";
 
 		$o .= '<div class="event-start"><span class="event-label">' . DI::l10n()->t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 			. DateTimeFormat::utc($event['start'], (!empty($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
@@ -104,12 +106,12 @@ class Event
 		}
 
 		if (!empty($event['desc'])) {
-			$o .= '<div class="description event-description">' . BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['desc']), $simple) . '</div>' . "\r\n";
+			$o .= '<div class="description event-description">' . BBCode::convertForItem($uriid, Strings::escapeHtml($event['desc']), $simple) . '</div>' . "\r\n";
 		}
 
 		if (!empty($event['location'])) {
 			$o .= '<div class="event-location"><span class="event-label">' . DI::l10n()->t('Location:') . '</span>&nbsp;<span class="location">'
-				. BBCode::convertForItem($event['uri-id'], Strings::escapeHtml($event['location']), $simple)
+				. BBCode::convertForItem($uriid, Strings::escapeHtml($event['location']), $simple)
 				. '</span></div>' . "\r\n";
 
 			// Include a map of the location if the [map] BBCode is used.
