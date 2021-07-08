@@ -183,6 +183,7 @@ return [
 			"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the contact url"],
 			"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"pubkey" => ["type" => "text", "comment" => "RSA public key 4096 bit"],
@@ -260,7 +261,8 @@ return [
 			"uid_contact-type" => ["uid", "contact-type"],
 			"uid_self_contact-type" => ["uid", "self", "contact-type"],
 			"self_network_uid" => ["self", "network", "uid"],
-			"gsid" => ["gsid"]
+			"gsid" => ["gsid"],
+			"uri-id" => ["uri-id"],
 		]
 	],
 	"item-uri" => [

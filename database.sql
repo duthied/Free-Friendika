@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`dfrn-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`nurl` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the contact url',
 	`addr` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`alias` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`pubkey` text COMMENT 'RSA public key 4096 bit',
@@ -202,7 +203,9 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `uid_self_contact-type` (`uid`,`self`,`contact-type`),
 	 INDEX `self_network_uid` (`self`,`network`,`uid`),
 	 INDEX `gsid` (`gsid`),
+	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contact table';
 

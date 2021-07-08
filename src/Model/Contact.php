@@ -185,6 +185,12 @@ class Contact
 			$fields['gsid'] = GServer::getID($fields['baseurl'], true);
 		}
 
+		if (!empty($fields['url']) && !empty($fields['guid'])) {
+			$fields['uri-id'] = ItemURI::insert(['uri' => $fields['url'], 'guid' => $fields['guid']]);
+		} elseif (!empty($fields['url'])) {
+			$fields['uri-id'] = ItemURI::getIdByURI($fields['url']);
+		}
+
 		if (empty($fields['created'])) {
 			$fields['created'] = DateTimeFormat::utcNow();
 		}
@@ -2144,9 +2150,10 @@ class Contact
 			return true;
 		}
 
-		$ret['nurl'] = Strings::normaliseLink($ret['url']);
+		$ret['nurl']    = Strings::normaliseLink($ret['url']);
+		$ret['uri-id']  = ItemURI::getIdByURI($ret['url']);
 		$ret['updated'] = $updated;
-		$ret['failed'] = false;
+		$ret['failed']  = false;
 
 		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
 		if (empty($pubkey) && !empty($new_pubkey)) {
