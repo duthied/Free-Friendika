@@ -1886,7 +1886,7 @@ class Contact
 	{
 		if (Strings::normaliseLink($new_url) != Strings::normaliseLink($old_url)) {
 			Logger::notice('New URL differs from old URL', ['old' => $old_url, 'new' => $new_url]);
-			// @todo It is to decide what to do when the URL is changed
+			return;
 		}
 
 		if (!DBA::update('contact', $fields, ['id' => $id])) {
@@ -2071,6 +2071,14 @@ class Contact
 		if (($ret['network'] == Protocol::PHANTOM) || (($ret['network'] == Protocol::FEED) && ($ret['network'] != $contact['network']))) {
 			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
 			return false;
+		}
+
+		if (Strings::normaliseLink($ret['url']) != Strings::normaliseLink($contact['url'])) {
+			$cid = self::getIdForURL($ret['url']);
+			if (!empty($cid) && ($cid != $id)) {
+				Logger::notice('URL of contact changed.', ['id' => $id, 'new_id' => $cid, 'old' => $contact['url'], 'new' => $ret['url']]);
+				return self::updateFromProbeArray($cid, $ret);
+			}
 		}
 
 		if (isset($ret['hide']) && is_bool($ret['hide'])) {

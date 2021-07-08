@@ -2640,7 +2640,7 @@ class Item
 		) {
 			self::addRedirToImageTags($item);
 
-			$item['rendered-html'] = BBCode::convert($item['body'], true, BBCode::INTERNAL, false, $item['uri-id']);
+			$item['rendered-html'] = BBCode::convertForItem($item['uri-id'], $item['body']);
 			$item['rendered-hash'] = hash('md5', BBCode::VERSION . '::' . $body);
 
 			$hook_data = ['item' => $item, 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];

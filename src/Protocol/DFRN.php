@@ -918,7 +918,7 @@ class DFRN
 				$htmlbody = "[b]" . $item['title'] . "[/b]\n\n" . $htmlbody;
 			}
 
-			$htmlbody = BBCode::convert($htmlbody, false, BBCode::OSTATUS, false, $item['uri-id']);
+			$htmlbody = BBCode::convert($item['uri-id'], $htmlbody, BBCode::OSTATUS);
 		}
 
 		$author = self::addEntryAuthor($doc, "author", $item["author-link"], $item);

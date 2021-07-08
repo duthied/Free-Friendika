@@ -1264,6 +1264,37 @@ class BBCode
 	}
 
 	/**
+	 * Converts a BBCode message for a given ID to a HTML message
+	 *
+	 * BBcode 2 HTML was written by WAY2WEB.net
+	 * extended to work with Mistpark/Friendica - Mike Macgirvin
+	 *
+	 * Simple HTML values meaning:
+	 * - 0: Friendica display
+	 * - 1: Unused
+	 * - 2: Used for Windows Phone push, Friendica API
+	 * - 3: Used before converting to Markdown in bb2diaspora.php
+	 * - 4: Used for WordPress, Libertree (before Markdown), pump.io and tumblr
+	 * - 5: Unused
+	 * - 6: Unused
+	 * - 7: Used for dfrn, OStatus
+	 * - 8: Used for Twitter, WP backlink text setting
+	 * - 9: ActivityPub
+	 *
+	 * @param int    $uriid
+	 * @param string $text
+	 * @param int    $simple_html
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function convertForItem(int $uriid, string $text, int $simple_html = self::INTERNAL)
+	{
+		$try_oembed = ($simple_html == self::INTERNAL);
+
+		return self::convert($text, $try_oembed, $simple_html, false, $uriid);
+	}
+
+	/**
 	 * Converts a BBCode message to HTML message
 	 *
 	 * BBcode 2 HTML was written by WAY2WEB.net

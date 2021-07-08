@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.09-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1425
+-- DB_UPDATE_VERSION 1426
 -- ------------------------------------------
 
 
@@ -563,6 +563,7 @@ CREATE TABLE IF NOT EXISTS `event` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
 	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact_id (ID of the contact in contact table)',
 	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the event uri',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'creation time',
 	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'last edit time',
 	`start` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'event start time',
@@ -581,8 +582,10 @@ CREATE TABLE IF NOT EXISTS `event` (
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_start` (`uid`,`start`),
 	 INDEX `cid` (`cid`),
+	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Events';
 
 --

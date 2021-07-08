@@ -273,6 +273,7 @@ class Event
 		$event['cid']       = intval($arr['cid']       ?? 0);
 		$event['guid']      =       ($arr['guid']      ?? '') ?: System::createUUID();
 		$event['uri']       =       ($arr['uri']       ?? '') ?: Item::newURI($event['uid'], $event['guid']);
+		$event['uri-id']    = ItemURI::insert(['uri' => $event['uri'], 'guid' => $event['guid']]);
 		$event['type']      =       ($arr['type']      ?? '') ?: 'event';
 		$event['summary']   =        $arr['summary']   ?? '';
 		$event['desc']      =        $arr['desc']      ?? '';
@@ -937,7 +938,7 @@ class Event
 		$tpl = Renderer::getMarkupTemplate('event_stream_item.tpl');
 		$return = Renderer::replaceMacros($tpl, [
 			'$id'             => $item['event-id'],
-			'$title'          => BBCode::convert($item['event-summary']),
+			'$title'          => BBCode::convertForItem($item['uri-id'], $item['event-summary']),
 			'$dtstart_label'  => DI::l10n()->t('Starts:'),
 			'$dtstart_title'  => $dtstart_title,
 			'$dtstart_dt'     => $dtstart_dt,
@@ -955,7 +956,7 @@ class Event
 			'$author_name'    => $item['author-name'],
 			'$author_link'    => $profile_link,
 			'$author_avatar'  => $item['author-avatar'],
-			'$description'    => BBCode::convert($item['event-desc']),
+			'$description'    => BBCode::convertForItem($item['uri-id'], $item['event-desc']),
 			'$location_label' => DI::l10n()->t('Location:'),
 			'$show_map_label' => DI::l10n()->t('Show map'),
 			'$hide_map_label' => DI::l10n()->t('Hide map'),

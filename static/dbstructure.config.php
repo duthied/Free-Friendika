@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1425);
+	define('DB_UPDATE_VERSION', 1426);
 }
 
 return [
@@ -628,6 +628,7 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact_id (ID of the contact in contact table)"],
 			"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the event uri"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation time"],
 			"edited" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "last edit time"],
 			"start" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "event start time"],
@@ -648,6 +649,7 @@ return [
 			"PRIMARY" => ["id"],
 			"uid_start" => ["uid", "start"],
 			"cid" => ["cid"],
+			"uri-id" => ["uri-id"],
 		]
 	],
 	"fcontact" => [

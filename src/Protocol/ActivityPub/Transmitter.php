@@ -1464,7 +1464,7 @@ class Transmitter
 	{
 		$event = [];
 		$event['name'] = $item['event-summary'];
-		$event['content'] = BBCode::convert($item['event-desc'], false, BBCode::ACTIVITYPUB, false, $item['uri-id']);
+		$event['content'] = BBCode::convertForItem($item['uri-id'], $item['event-desc'], BBCode::ACTIVITYPUB);
 		$event['startTime'] = DateTimeFormat::utc($item['event-start'] . '+00:00', DateTimeFormat::ATOM);
 
 		if (!$item['event-nofinish']) {
@@ -1571,7 +1571,7 @@ class Transmitter
 			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
 			$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
 
-			$data['content'] = BBCode::convert($body, false, BBCode::ACTIVITYPUB, false, $item['uri-id']);
+			$data['content'] = BBCode::convertForItem($item['uri-id'], $body, BBCode::ACTIVITYPUB);
 		}
 
 		// The regular "content" field does contain a minimized HTML. This is done since systems like
@@ -1583,7 +1583,7 @@ class Transmitter
 			$richbody = preg_replace_callback($regexp, ['self', 'mentionCallback'], $item['body']);
 			$richbody = BBCode::removeAttachment($richbody);
 
-			$data['contentMap'][$language] = BBCode::convert($richbody, false, BBCode::EXTERNAL, false, $item['uri-id']);
+			$data['contentMap'][$language] = BBCode::convertForItem($item['uri-id'], $richbody, BBCode::EXTERNAL);
 		}
 
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];

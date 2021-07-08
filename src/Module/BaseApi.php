@@ -25,9 +25,11 @@ use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPInputData;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -279,6 +281,60 @@ class BaseApi extends BaseModule
 		if (empty($token[$scope])) {
 			Logger::warning('The requested scope is not allowed', ['scope' => $scope, 'application' => $token]);
 			DI::mstdnError()->Forbidden();
+		}
+	}
+
+	public static function checkThrottleLimit()
+	{
+		$uid = self::getCurrentUserID();
+
+		// Check for throttling (maximum posts per day, week and month)
+		$throttle_day = DI::config()->get('system', 'throttle_limit_day');
+		if ($throttle_day > 0) {
+			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
+
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, $uid, $datefrom];
+			$posts_day = Post::count($condition);
+
+			if ($posts_day > $throttle_day) {
+				Logger::info('Daily posting limit reached', ['uid' => $uid, 'posts' => $posts_day, 'limit' => $throttle_day]);
+				$error = DI::l10n()->t('Too Many Requests');
+				$error_description = DI::l10n()->tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day);
+				$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+				System::jsonError(429, $errorobj->toArray());
+			}
+		}
+
+		$throttle_week = DI::config()->get('system', 'throttle_limit_week');
+		if ($throttle_week > 0) {
+			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
+
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, $uid, $datefrom];
+			$posts_week = Post::count($condition);
+
+			if ($posts_week > $throttle_week) {
+				Logger::info('Weekly posting limit reached', ['uid' => $uid, 'posts' => $posts_week, 'limit' => $throttle_week]);
+				$error = DI::l10n()->t('Too Many Requests');
+				$error_description = DI::l10n()->tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week);
+				$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+				System::jsonError(429, $errorobj->toArray());
+			}
+		}
+
+		$throttle_month = DI::config()->get('system', 'throttle_limit_month');
+		if ($throttle_month > 0) {
+			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
+
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, $uid, $datefrom];
+			$posts_month = Post::count($condition);
+
+			if ($posts_month > $throttle_month) {
+				Logger::info('Monthly posting limit reached', ['uid' => $uid, 'posts' => $posts_month, 'limit' => $throttle_month]);
+				$error = DI::l10n()->t('Too Many Requests');
+				$error_description = DI::l10n()->t("Monthly posting limit of %d post reached. The post was rejected.", "Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month);
+				$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+				System::jsonError(429, $errorobj->toArray());
+			}
 		}
 	}
 

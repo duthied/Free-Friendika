@@ -1803,7 +1803,7 @@ class OStatus
 
 		if (!$toplevel) {
 			if (!empty($item['title'])) {
-				$title = BBCode::convert($item['title'], false, BBCode::OSTATUS, false, $item['uri-id']);
+				$title = BBCode::convertForItem($item['uri-id'], $item['title'], BBCode::OSTATUS);
 			} else {
 				$title = sprintf("New note by %s", $owner["nick"]);
 			}
@@ -1892,7 +1892,7 @@ class OStatus
 			$body = "[b]".$item['title']."[/b]\n\n".$body;
 		}
 
-		$body = BBCode::convert($body, false, BBCode::OSTATUS, false, $item['uri-id']);
+		$body = BBCode::convertForItem($item['uri-id'], $body, BBCode::OSTATUS);
 
 		XML::addElement($doc, $entry, "content", $body, ["type" => "html"]);
 
