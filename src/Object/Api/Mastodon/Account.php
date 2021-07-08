@@ -111,7 +111,7 @@ class Account extends BaseDataTransferObject
 		$created = $userContactCreated < $publicContactCreated && ($userContactCreated != DBA::NULL_DATETIME) ? $userContactCreated : $publicContactCreated;
 		$this->created_at      = DateTimeFormat::utc($created, DateTimeFormat::JSON);
 
-		$this->note            = BBCode::convertForItem($publicContact['uri-id'] ?? 0, $publicContact['about'], BBCode::API);
+		$this->note            = BBCode::convertForItem($publicContact['uri-id'] ?? 0, $publicContact['about'], BBCode::EXTERNAL);
 		$this->url             = $publicContact['url'];
 		$this->avatar          = Contact::getAvatarUrlForId($userContact['id'] ?? 0 ?: $publicContact['id'], Proxy::SIZE_SMALL, $userContact['updated'] ?? '' ?: $publicContact['updated']);
 		$this->avatar_static   = $this->avatar;
