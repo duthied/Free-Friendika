@@ -152,6 +152,19 @@ return [
 			"email" => ["email(64)"],
 		]
 	],
+	"item-uri" => [
+		"comment" => "URI and GUID for items",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
+			"uri" => ["type" => "varbinary(255)", "not null" => "1", "comment" => "URI of an item"],
+			"guid" => ["type" => "varbinary(255)", "comment" => "A unique identifier for an item"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uri" => ["UNIQUE", "uri"],
+			"guid" => ["guid"]
+		]
+	],
 	"contact" => [
 		"comment" => "contact table",
 		"fields" => [
@@ -263,19 +276,6 @@ return [
 			"self_network_uid" => ["self", "network", "uid"],
 			"gsid" => ["gsid"],
 			"uri-id" => ["uri-id"],
-		]
-	],
-	"item-uri" => [
-		"comment" => "URI and GUID for items",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
-			"uri" => ["type" => "varbinary(255)", "not null" => "1", "comment" => "URI of an item"],
-			"guid" => ["type" => "varbinary(255)", "comment" => "A unique identifier for an item"]
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uri" => ["UNIQUE", "uri"],
-			"guid" => ["guid"]
 		]
 	],
 	"tag" => [

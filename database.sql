@@ -95,6 +95,18 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
 --
+-- TABLE item-uri
+--
+CREATE TABLE IF NOT EXISTS `item-uri` (
+	`id` int unsigned NOT NULL auto_increment,
+	`uri` varbinary(255) NOT NULL COMMENT 'URI of an item',
+	`guid` varbinary(255) COMMENT 'A unique identifier for an item',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri` (`uri`),
+	 INDEX `guid` (`guid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='URI and GUID for items';
+
+--
 -- TABLE contact
 --
 CREATE TABLE IF NOT EXISTS `contact` (
@@ -208,18 +220,6 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contact table';
-
---
--- TABLE item-uri
---
-CREATE TABLE IF NOT EXISTS `item-uri` (
-	`id` int unsigned NOT NULL auto_increment,
-	`uri` varbinary(255) NOT NULL COMMENT 'URI of an item',
-	`guid` varbinary(255) COMMENT 'A unique identifier for an item',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `uri` (`uri`),
-	 INDEX `guid` (`guid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='URI and GUID for items';
 
 --
 -- TABLE tag
