@@ -294,7 +294,7 @@ class BaseApi extends BaseModule
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
 			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, $uid, $datefrom];
-			$posts_day = Post::count($condition);
+			$posts_day = Post::countThread($condition);
 
 			if ($posts_day > $throttle_day) {
 				Logger::info('Daily posting limit reached', ['uid' => $uid, 'posts' => $posts_day, 'limit' => $throttle_day]);
@@ -310,7 +310,7 @@ class BaseApi extends BaseModule
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
 			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, $uid, $datefrom];
-			$posts_week = Post::count($condition);
+			$posts_week = Post::countThread($condition);
 
 			if ($posts_week > $throttle_week) {
 				Logger::info('Weekly posting limit reached', ['uid' => $uid, 'posts' => $posts_week, 'limit' => $throttle_week]);
@@ -326,7 +326,7 @@ class BaseApi extends BaseModule
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
 			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, $uid, $datefrom];
-			$posts_month = Post::count($condition);
+			$posts_month = Post::countThread($condition);
 
 			if ($posts_month > $throttle_month) {
 				Logger::info('Monthly posting limit reached', ['uid' => $uid, 'posts' => $posts_month, 'limit' => $throttle_month]);

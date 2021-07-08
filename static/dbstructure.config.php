@@ -1326,6 +1326,7 @@ return [
 			"post-user-id" => ["post-user-id"],
 			"commented" => ["commented"],
 			"uid_received" => ["uid", "received"],
+			"uid_wall_received" => ["uid", "wall", "received"],
 			"uid_pinned" => ["uid", "pinned"],
 			"uid_commented" => ["uid", "commented"],
 			"uid_starred" => ["uid", "starred"],
