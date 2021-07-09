@@ -192,10 +192,6 @@ class Processor
 	 */
 	public static function createItem($activity)
 	{
-		if (empty($activity['reply-to-id'])) {
-			$activity['reply-to-id'] = $activity['id'];
-		}
-
 		$item = [];
 		$item['verb'] = Activity::POST;
 		$item['thr-parent'] = $activity['reply-to-id'];
