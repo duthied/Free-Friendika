@@ -2028,7 +2028,7 @@ class Contact
 		// 'xmpp', 'sensitive'
 
 		$fields = ['uid', 'uri-id', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
-			'manually-approve', 'unsearchable', 'url', 'guid', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
+			'manually-approve', 'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
@@ -2112,6 +2112,7 @@ class Contact
 		}
 
 		$update = false;
+		$guid = $ret['guid'] ?? '';
 
 		// make sure to not overwrite existing values with blank entries except some technical fields
 		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];
@@ -2157,10 +2158,10 @@ class Contact
 			return true;
 		}
 
-		if (empty($ret['guid'])) {
+		if (empty($guid)) {
 			$ret['uri-id'] = ItemURI::getIdByURI($ret['url']);
 		} else {
-			$ret['uri-id']  = ItemURI::insert(['uri' => $ret['uri'], 'guid' => $ret['guid']]);
+			$ret['uri-id']  = ItemURI::insert(['uri' => $ret['uri'], 'guid' => $guid]);
 		}
 
 		$ret['nurl']    = Strings::normaliseLink($ret['url']);
