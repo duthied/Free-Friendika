@@ -33,10 +33,18 @@ return [
 			'theme'    => 'frio',
 		],
 	],
+	'item-uri'    => [
+		[
+			'id'   => 42,
+			'uri'  => 'http://localhost/profile/selfcontact',
+			'guid' => '42',
+		],
+	],
 	'contact' => [
 		[
 			'id'      => 42,
 			'uid'     => 42,
+			'uri-id'  => 42,
 			'name'    => 'Self contact',
 			'nick'    => 'selfcontact',
 			'self'    => 1,

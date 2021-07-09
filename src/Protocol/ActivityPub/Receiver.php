@@ -333,7 +333,8 @@ class Receiver
 		$object_type = self::fetchObjectType($activity, $object_id, $uid);
 
 		// Fetch the content only on activities where this matters
-		if (in_array($type, ['as:Create', 'as:Update', 'as:Announce'])) {
+		// We can receive "#emojiReaction" when fetching content from Hubzilla systems
+		if (in_array($type, ['as:Create', 'as:Update', 'as:Announce']) || strpos($type, '#emojiReaction')) {
 			// Always fetch on "Announce"
 			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $uid);
 			if (empty($object_data)) {
@@ -501,7 +502,7 @@ class Receiver
 		if (!empty($activity['from-relay'])) {
 			$object_data['from-relay'] = $activity['from-relay'];
 		}
-		
+
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
@@ -627,7 +628,7 @@ class Receiver
 	 * @param array   $activity
 	 * @param string  $actor
 	 * @param array   $tags
-	 * @param boolean $fetch_unlisted 
+	 * @param boolean $fetch_unlisted
 	 *
 	 * @return array with receivers (user id)
 	 * @throws \Exception
@@ -687,7 +688,7 @@ class Receiver
 					$receivers[0] = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
 				}
 
-				// Add receiver "-1" for unlisted posts 
+				// Add receiver "-1" for unlisted posts
 				if ($fetch_unlisted && ($receiver == self::PUBLIC_COLLECTION) && ($element == 'as:cc')) {
 					$receivers[-1] = ['uid' => -1, 'type' => self::TARGET_GLOBAL];
 				}
@@ -950,7 +951,7 @@ class Receiver
 				Logger::info('Empty id');
 				return false;
 			}
-	
+
 			if ($id != $object_id) {
 				Logger::info('Fetched id differs from provided id', ['provided' => $object_id, 'fetched' => $id]);
 				return false;
@@ -1232,7 +1233,7 @@ class Receiver
 		if (empty($object['as:url'])) {
 			return $object_data;
 		}
-		
+
 		$urls = $object['as:url'];
 		$keys = array_keys($urls);
 		if (!is_numeric(array_pop($keys))) {

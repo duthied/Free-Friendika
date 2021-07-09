@@ -1072,12 +1072,12 @@ class Contact
 			return 0;
 		}
 
-		$contact = self::getByURL($url, false, ['id', 'network'], $uid);
+		$contact = self::getByURL($url, false, ['id', 'network', 'uri-id'], $uid);
 
 		if (!empty($contact)) {
 			$contact_id = $contact["id"];
 
-			if (empty($update)) {
+			if (empty($update) && (!empty($contact['uri-id']) || is_bool($update))) {
 				Logger::debug('Contact found', ['url' => $url, 'uid' => $uid, 'update' => $update, 'cid' => $contact_id]);
 				return $contact_id;
 			}
@@ -2157,7 +2157,7 @@ class Contact
 		if (empty($guid)) {
 			$ret['uri-id'] = ItemURI::getIdByURI($ret['url']);
 		} else {
-			$ret['uri-id'] = ItemURI::insert(['uri' => $ret['uri'], 'guid' => $guid]);
+			$ret['uri-id'] = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
 		}
 
 		$ret['nurl']    = Strings::normaliseLink($ret['url']);
