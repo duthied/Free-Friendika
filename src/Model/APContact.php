@@ -124,7 +124,7 @@ class APContact
 				$apcontact = DBA::selectFirst('apcontact', [], ['addr' => $url]);
 			}
 
-			if (DBA::isResult($apcontact) && ($apcontact['updated'] > $ref_update) && !empty($apcontact['pubkey'])) {
+			if (DBA::isResult($apcontact) && ($apcontact['updated'] > $ref_update) && !empty($apcontact['pubkey']) && !empty($apcontact['uri-id'])) {
 				return $apcontact;
 			}
 
@@ -352,7 +352,7 @@ class APContact
 		if (empty($apcontact['uuid'])) {
 			$apcontact['uri-id'] = ItemURI::getIdByURI($apcontact['url']);
 		} else {
-			$apcontact['uri-id'] = ItemURI::insert(['uri' => $apcontact['uri'], 'guid' => $apcontact['uuid']]);
+			$apcontact['uri-id'] = ItemURI::insert(['uri' => $apcontact['url'], 'guid' => $apcontact['uuid']]);
 		}
 
 		$apcontact['updated'] = DateTimeFormat::utcNow();
