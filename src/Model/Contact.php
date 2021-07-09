@@ -2027,8 +2027,8 @@ class Contact
 		// These fields aren't updated by this routine:
 		// 'xmpp', 'sensitive'
 
-		$fields = ['uid', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
-			'manually-approve', 'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
+		$fields = ['uid', 'uri-id', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
+			'manually-approve', 'unsearchable', 'url', 'guid', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
@@ -2055,6 +2055,9 @@ class Contact
 
 		$uid = $contact['uid'];
 		unset($contact['uid']);
+
+		$uriid = $contact['uri-id'];
+		unset($contact['uri-id']);
 
 		$pubkey = $contact['pubkey'];
 		unset($contact['pubkey']);
@@ -2128,6 +2131,10 @@ class Contact
 			unset($ret['last-item']);
 		}
 
+		if (empty($uriid)) {
+			$update = true;
+		}
+
 		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
 			self::updateAvatar($id, $ret['photo'], $update);
 		}
@@ -2150,8 +2157,13 @@ class Contact
 			return true;
 		}
 
+		if (empty($ret['guid'])) {
+			$ret['uri-id'] = ItemURI::getIdByURI($ret['url']);
+		} else {
+			$ret['uri-id']  = ItemURI::insert(['uri' => $ret['uri'], 'guid' => $ret['guid']]);
+		}
+
 		$ret['nurl']    = Strings::normaliseLink($ret['url']);
-		$ret['uri-id']  = ItemURI::getIdByURI($ret['url']);
 		$ret['updated'] = $updated;
 		$ret['failed']  = false;
 
