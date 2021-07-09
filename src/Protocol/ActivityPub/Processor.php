@@ -26,6 +26,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
@@ -191,6 +192,10 @@ class Processor
 	 */
 	public static function createItem($activity)
 	{
+		if (empty($activity['reply-to-id'])) {
+			$activity['reply-to-id'] = $activity['id'];
+		}
+
 		$item = [];
 		$item['verb'] = Activity::POST;
 		$item['thr-parent'] = $activity['reply-to-id'];
