@@ -1264,7 +1264,7 @@ class BBCode
 	}
 
 	/**
-	 * Converts a BBCode message for a given ID to a HTML message
+	 * Converts a BBCode message for a given URI-ID to a HTML message
 	 *
 	 * BBcode 2 HTML was written by WAY2WEB.net
 	 * extended to work with Mistpark/Friendica - Mike Macgirvin
@@ -1287,7 +1287,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertForItem(int $uriid = 0, string $text = null, int $simple_html = self::INTERNAL)
+	public static function convertForUriId(int $uriid = 0, string $text = null, int $simple_html = self::INTERNAL)
 	{
 		$try_oembed = ($simple_html == self::INTERNAL);
 
