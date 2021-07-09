@@ -1300,7 +1300,7 @@ class Receiver
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function processObject($object)
+	private static function processObject($object)
 	{
 		if (!JsonLD::fetchElement($object, '@id')) {
 			return false;
