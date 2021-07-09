@@ -60,7 +60,7 @@ class FContact
 					$update = true;
 				}
 
-				if ($person["guid"] == "") {
+				if (empty($person['guid']) || empty($person['uri-id'])) {
 					$update = true;
 				}
 			}
