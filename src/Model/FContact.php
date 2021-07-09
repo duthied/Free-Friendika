@@ -100,6 +100,7 @@ class FContact
 			'batch' => $arr["batch"], 'notify' => $arr["notify"],
 			'poll' => $arr["poll"], 'confirm' => $arr["confirm"],
 			'alias' => $arr["alias"], 'pubkey' => $arr["pubkey"],
+			'uri-id' => ItemURI::insert(['uri' => $arr['url'], 'guid' => $arr['guid']]),
 			'updated' => DateTimeFormat::utcNow()];
 
 		$condition = ['url' => $arr["url"], 'network' => $arr["network"]];

@@ -335,6 +335,7 @@ CREATE TABLE IF NOT EXISTS `addon` (
 --
 CREATE TABLE IF NOT EXISTS `apcontact` (
 	`url` varbinary(255) NOT NULL COMMENT 'URL of the contact',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the apcontact url',
 	`uuid` varchar(255) COMMENT '',
 	`type` varchar(20) NOT NULL COMMENT '',
 	`following` varchar(255) COMMENT '',
@@ -367,6 +368,8 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	 INDEX `baseurl` (`baseurl`(190)),
 	 INDEX `sharedinbox` (`sharedinbox`(190)),
 	 INDEX `gsid` (`gsid`),
+	 UNIQUE INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='ActivityPub compatible contacts - used in the ActivityPub implementation';
 
@@ -598,6 +601,7 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT 'unique id',
 	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the fcontact url',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`photo` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`request` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -614,7 +618,9 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `addr` (`addr`(32)),
-	 UNIQUE INDEX `url` (`url`(190))
+	 UNIQUE INDEX `url` (`url`(190)),
+	 UNIQUE INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Diaspora compatible contacts - used in the Diaspora implementation';
 
 --

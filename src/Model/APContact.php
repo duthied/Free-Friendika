@@ -349,6 +349,12 @@ class APContact
 			$apcontact['alias'] = null;
 		}
 
+		if (empty($apcontact['uuid'])) {
+			$apcontact['uri-id'] = ItemURI::getIdByURI($apcontact['url']);
+		} else {
+			$apcontact['uri-id'] = ItemURI::insert(['uri' => $apcontact['uri'], 'guid' => $apcontact['uuid']]);
+		}
+
 		$apcontact['updated'] = DateTimeFormat::utcNow();
 
 		// We delete the old entry when the URL is changed

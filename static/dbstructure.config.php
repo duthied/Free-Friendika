@@ -395,6 +395,7 @@ return [
 		"comment" => "ActivityPub compatible contacts - used in the ActivityPub implementation",
 		"fields" => [
 			"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "URL of the contact"],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the apcontact url"],
 			"uuid" => ["type" => "varchar(255)", "comment" => ""],
 			"type" => ["type" => "varchar(20)", "not null" => "1", "comment" => ""],
 			"following" => ["type" => "varchar(255)", "comment" => ""],
@@ -428,7 +429,8 @@ return [
 			"followers" => ["followers(190)"],
 			"baseurl" => ["baseurl(190)"],
 			"sharedinbox" => ["sharedinbox(190)"],
-			"gsid" => ["gsid"]
+			"gsid" => ["gsid"],
+			"uri-id" => ["UNIQUE", "uri-id"],
 		]
 	],
 	"application" => [
@@ -660,6 +662,7 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "unique id"],
 			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the fcontact url"],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"request" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -679,6 +682,7 @@ return [
 			"PRIMARY" => ["id"],
 			"addr" => ["addr(32)"],
 			"url" => ["UNIQUE", "url(190)"],
+			"uri-id" => ["UNIQUE", "uri-id"],
 		]
 	],
 	"fsuggest" => [

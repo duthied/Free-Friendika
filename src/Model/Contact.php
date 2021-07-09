@@ -185,11 +185,7 @@ class Contact
 			$fields['gsid'] = GServer::getID($fields['baseurl'], true);
 		}
 
-		if (!empty($fields['url']) && !empty($fields['guid'])) {
-			$fields['uri-id'] = ItemURI::insert(['uri' => $fields['url'], 'guid' => $fields['guid']]);
-		} elseif (!empty($fields['url'])) {
-			$fields['uri-id'] = ItemURI::getIdByURI($fields['url']);
-		}
+		$fields['uri-id'] = ItemURI::getIdByURI($fields['url']);
 
 		if (empty($fields['created'])) {
 			$fields['created'] = DateTimeFormat::utcNow();
@@ -2161,7 +2157,7 @@ class Contact
 		if (empty($guid)) {
 			$ret['uri-id'] = ItemURI::getIdByURI($ret['url']);
 		} else {
-			$ret['uri-id']  = ItemURI::insert(['uri' => $ret['uri'], 'guid' => $guid]);
+			$ret['uri-id'] = ItemURI::insert(['uri' => $ret['uri'], 'guid' => $guid]);
 		}
 
 		$ret['nurl']    = Strings::normaliseLink($ret['url']);

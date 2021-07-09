@@ -9,6 +9,7 @@ Fields
 | Field            | Description                                                         | Type           | Null | Key | Default             | Extra |
 | ---------------- | ------------------------------------------------------------------- | -------------- | ---- | --- | ------------------- | ----- |
 | url              | URL of the contact                                                  | varbinary(255) | NO   | PRI | NULL                |       |
+| uri-id           | Id of the item-uri table entry that contains the apcontact url      | int unsigned   | YES  |     | NULL                |       |
 | uuid             |                                                                     | varchar(255)   | YES  |     | NULL                |       |
 | type             |                                                                     | varchar(20)    | NO   |     | NULL                |       |
 | following        |                                                                     | varchar(255)   | YES  |     | NULL                |       |
@@ -47,12 +48,14 @@ Indexes
 | baseurl     | baseurl(190)     |
 | sharedinbox | sharedinbox(190) |
 | gsid        | gsid             |
+| uri-id      | UNIQUE, uri-id   |
 
 Foreign Keys
 ------------
 
 | Field | Target Table | Target Field |
 |-------|--------------|--------------|
+| uri-id | [item-uri](help/database/db_item-uri) | id |
 | gsid | [gserver](help/database/db_gserver) | id |
 
 Return to [database documentation](help/database)
