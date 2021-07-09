@@ -157,6 +157,27 @@ class Post
 	}
 
 	/**
+	 * Counts the post-thread-user-view records satisfying the provided condition
+	 *
+	 * @param array        $condition array of fields for condition
+	 * @param array        $params    Array of several parameters
+	 *
+	 * @return int
+	 *
+	 * Example:
+	 * $condition = ["uid" => 1, "network" => 'dspr'];
+	 * or:
+	 * $condition = ["`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr'];
+	 *
+	 * $count = Post::count($condition);
+	 * @throws \Exception
+	 */
+	public static function countThread(array $condition = [], array $params = [])
+	{
+		return DBA::count('post-thread-user-view', $condition, $params);
+	}
+
+	/**
 	 * Counts the post-view records satisfying the provided condition
 	 *
 	 * @param array        $condition array of fields for condition

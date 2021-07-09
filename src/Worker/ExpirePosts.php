@@ -183,6 +183,10 @@ class ExpirePosts
 			AND NOT EXISTS(SELECT `thr-parent-id` FROM `post-user` WHERE `thr-parent-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `external-id` FROM `post-user` WHERE `external-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `uri-id` FROM `mail` WHERE `uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `uri-id` FROM `event` WHERE `uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `uri-id` FROM `contact` WHERE `uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `uri-id` FROM `apcontact` WHERE `uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `uri-id` FROM `fcontact` WHERE `uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `parent-uri-id` FROM `mail` WHERE `parent-uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `thr-parent-id` FROM `mail` WHERE `thr-parent-id` = `item-uri`.`id`)", $item['uri-id']]);
 

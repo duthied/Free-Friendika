@@ -21,6 +21,8 @@
 
 namespace Friendica\Util;
 
+use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\DI;
 
 /**
@@ -28,12 +30,6 @@ use Friendica\DI;
  */
 class Proxy
 {
-
-	/**
-	 * Default time to keep images in proxy storage
-	 */
-	const DEFAULT_TIME = 86400; // 1 Day
-
 	/**
 	 * Sizes constants
 	 */
@@ -76,54 +72,29 @@ class Proxy
 	 * Transform a remote URL into a local one.
 	 *
 	 * This function only performs the URL replacement on http URL and if the
-	 * provided URL isn't local, "the isn't deactivated" (sic) and if the config
-	 * system.proxy_disabled is set to false.
+	 * provided URL isn't local
 	 *
 	 * @param string $url       The URL to proxyfy
-	 * @param bool   $writemode Returns a local path the remote URL should be saved to
 	 * @param string $size      One of the ProxyUtils::SIZE_* constants
 	 *
 	 * @return string The proxyfied URL or relative path
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function proxifyUrl($url, $writemode = false, $size = '')
+	public static function proxifyUrl($url, $size = '')
 	{
-		// Get application instance
-		$a = DI::app();
-
 		// Trim URL first
 		$url = trim($url);
 
-		// Is no http in front of it?
-		/// @TODO To weak test for being a valid URL
-		if (substr($url, 0, 4) !== 'http') {
-			return $url;
-		}
-
-		// Only continue if it isn't a local image and the isn't deactivated
-		if (self::isLocalImage($url)) {
-			$url = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/', DI::baseUrl() . '/', $url);
-			return $url;
-		}
-
-		// Is the proxy disabled?
-		if (DI::config()->get('system', 'proxy_disabled')) {
+		// Quit if not an HTTP/HTTPS link or if local
+		if (!in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https']) || self::isLocalImage($url)) {
 			return $url;
 		}
 
 		// Image URL may have encoded ampersands for display which aren't desirable for proxy
 		$url = html_entity_decode($url, ENT_NOQUOTES, 'utf-8');
 
-		// Creating a sub directory to reduce the amount of files in the cache directory
-		$basepath = $a->getBasePath() . '/proxy';
-
 		$shortpath = hash('md5', $url);
 		$longpath = substr($shortpath, 0, 2);
-
-		if (is_dir($basepath) && $writemode && !is_dir($basepath . '/' . $longpath)) {
-			mkdir($basepath . '/' . $longpath);
-			chmod($basepath . '/' . $longpath, 0777);
-		}
 
 		$longpath .= '/' . strtr(base64_encode($url), '+/', '-_');
 
@@ -141,14 +112,11 @@ class Proxy
 			$size = ':' . $size;
 		}
 
+		Logger::info('Created proxy link', ['url' => $url, 'callstack' => System::callstack(20)]);
+
 		// Too long files aren't supported by Apache
-		// Writemode in combination with long files shouldn't be possible
-		if ((strlen($proxypath) > 250) && $writemode) {
-			return $shortpath;
-		} elseif (strlen($proxypath) > 250) {
+		if (strlen($proxypath) > 250) {
 			return DI::baseUrl() . '/proxy/' . $shortpath . '?url=' . urlencode($url);
-		} elseif ($writemode) {
-			return $longpath;
 		} else {
 			return $proxypath . $size;
 		}
@@ -189,11 +157,7 @@ class Proxy
 			return true;
 		}
 
-		// links normalised - bug #431
-		$baseurl = Strings::normaliseLink(DI::baseUrl());
-		$url = Strings::normaliseLink($url);
-
-		return (substr($url, 0, strlen($baseurl)) == $baseurl);
+		return Network::isLocalLink($url);
 	}
 
 	/**

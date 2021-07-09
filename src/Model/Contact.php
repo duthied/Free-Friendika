@@ -185,6 +185,8 @@ class Contact
 			$fields['gsid'] = GServer::getID($fields['baseurl'], true);
 		}
 
+		$fields['uri-id'] = ItemURI::getIdByURI($fields['url']);
+
 		if (empty($fields['created'])) {
 			$fields['created'] = DateTimeFormat::utcNow();
 		}
@@ -1497,67 +1499,46 @@ class Contact
 	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	private static function getAvatarPath(array $contact, string $field, string $size, string $avatar, $no_update = false)
+	private static function getAvatarPath(array $contact, string $size, $no_update = false)
 	{
-		if (!empty($contact)) {
-			$contact = self::checkAvatarCacheByArray($contact, $no_update);
-			if (!empty($contact['id'])) {
-				return self::getAvatarUrlForId($contact['id'], $size, $contact['updated'] ?? '');
-			} elseif (!empty($contact[$field])) {
-				return $contact[$field];
-			} elseif (!empty($contact['avatar'])) {
-				$avatar = $contact['avatar'];
-			}
-		}
-
-		if (empty($avatar)) {
-			$avatar = self::getDefaultAvatar([], $size);
-		}
-
-		if (Proxy::isLocalImage($avatar)) {
-			return $avatar;
-		} else {
-			return Proxy::proxifyUrl($avatar, false, $size);
-		}
+		$contact = self::checkAvatarCacheByArray($contact, $no_update);
+		return self::getAvatarUrlForId($contact['id'], $size, $contact['updated'] ?? '');
 	}
 
 	/**
 	 * Return the photo path for a given contact array
 	 *
 	 * @param array  $contact   Contact array
-	 * @param string $avatar    Avatar path that is displayed when no photo had been found
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getPhoto(array $contact, string $avatar = '', bool $no_update = false)
+	public static function getPhoto(array $contact, bool $no_update = false)
 	{
-		return self::getAvatarPath($contact, 'photo', Proxy::SIZE_SMALL, $avatar, $no_update);
+		return self::getAvatarPath($contact, Proxy::SIZE_SMALL, $no_update);
 	}
 
 	/**
 	 * Return the photo path (thumb size) for a given contact array
 	 *
 	 * @param array  $contact   Contact array
-	 * @param string $avatar    Avatar path that is displayed when no photo had been found
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getThumb(array $contact, string $avatar = '', bool $no_update = false)
+	public static function getThumb(array $contact, bool $no_update = false)
 	{
-		return self::getAvatarPath($contact, 'thumb', Proxy::SIZE_THUMB, $avatar, $no_update);
+		return self::getAvatarPath($contact, Proxy::SIZE_THUMB, $no_update);
 	}
 
 	/**
 	 * Return the photo path (micro size) for a given contact array
 	 *
 	 * @param array  $contact   Contact array
-	 * @param string $avatar    Avatar path that is displayed when no photo had been found
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getMicro(array $contact, string $avatar = '', bool $no_update = false)
+	public static function getMicro(array $contact, bool $no_update = false)
 	{
-		return self::getAvatarPath($contact, 'micro', Proxy::SIZE_MICRO, $avatar, $no_update);
+		return self::getAvatarPath($contact, Proxy::SIZE_MICRO, $no_update);
 	}
 
 	/**
@@ -1907,7 +1888,7 @@ class Contact
 	{
 		if (Strings::normaliseLink($new_url) != Strings::normaliseLink($old_url)) {
 			Logger::notice('New URL differs from old URL', ['old' => $old_url, 'new' => $new_url]);
-			// @todo It is to decide what to do when the URL is changed
+			return;
 		}
 
 		if (!DBA::update('contact', $fields, ['id' => $id])) {
@@ -2042,7 +2023,7 @@ class Contact
 		// These fields aren't updated by this routine:
 		// 'xmpp', 'sensitive'
 
-		$fields = ['uid', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
+		$fields = ['uid', 'uri-id', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
 			'manually-approve', 'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
@@ -2071,6 +2052,9 @@ class Contact
 		$uid = $contact['uid'];
 		unset($contact['uid']);
 
+		$uriid = $contact['uri-id'];
+		unset($contact['uri-id']);
+
 		$pubkey = $contact['pubkey'];
 		unset($contact['pubkey']);
 
@@ -2092,6 +2076,14 @@ class Contact
 		if (($ret['network'] == Protocol::PHANTOM) || (($ret['network'] == Protocol::FEED) && ($ret['network'] != $contact['network']))) {
 			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
 			return false;
+		}
+
+		if (Strings::normaliseLink($ret['url']) != Strings::normaliseLink($contact['url'])) {
+			$cid = self::getIdForURL($ret['url']);
+			if (!empty($cid) && ($cid != $id)) {
+				Logger::notice('URL of contact changed.', ['id' => $id, 'new_id' => $cid, 'old' => $contact['url'], 'new' => $ret['url']]);
+				return self::updateFromProbeArray($cid, $ret);
+			}
 		}
 
 		if (isset($ret['hide']) && is_bool($ret['hide'])) {
@@ -2116,6 +2108,7 @@ class Contact
 		}
 
 		$update = false;
+		$guid = $ret['guid'] ?? '';
 
 		// make sure to not overwrite existing values with blank entries except some technical fields
 		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];
@@ -2133,6 +2126,10 @@ class Contact
 			$update = true;
 		} else {
 			unset($ret['last-item']);
+		}
+
+		if (empty($uriid)) {
+			$update = true;
 		}
 
 		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
@@ -2157,9 +2154,15 @@ class Contact
 			return true;
 		}
 
-		$ret['nurl'] = Strings::normaliseLink($ret['url']);
+		if (empty($guid)) {
+			$ret['uri-id'] = ItemURI::getIdByURI($ret['url']);
+		} else {
+			$ret['uri-id'] = ItemURI::insert(['uri' => $ret['uri'], 'guid' => $guid]);
+		}
+
+		$ret['nurl']    = Strings::normaliseLink($ret['url']);
 		$ret['updated'] = $updated;
-		$ret['failed'] = false;
+		$ret['failed']  = false;
 
 		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
 		if (empty($pubkey) && !empty($new_pubkey)) {

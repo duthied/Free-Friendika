@@ -1195,7 +1195,7 @@ class OStatus
 	 * @return string The cleaned body
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function formatPicturePost($body)
+	public static function formatPicturePost($body, $uriid)
 	{
 		$siteinfo = BBCode::getAttachedData($body);
 
@@ -1207,7 +1207,7 @@ class OStatus
 			}
 
 			// Is it a remote picture? Then make a smaller preview here
-			$preview = ProxyUtils::proxifyUrl($preview, false, ProxyUtils::SIZE_SMALL);
+			$preview = Post\Link::getByLink($uriid, $preview, ProxyUtils::SIZE_SMALL);
 
 			// Is it a local picture? Then make it smaller here
 			$preview = str_replace(["-0.jpg", "-0.png"], ["-2.jpg", "-2.png"], $preview);
@@ -1803,7 +1803,7 @@ class OStatus
 
 		if (!$toplevel) {
 			if (!empty($item['title'])) {
-				$title = BBCode::convert($item['title'], false, BBCode::OSTATUS);
+				$title = BBCode::convertForUriId($item['uri-id'], $item['title'], BBCode::OSTATUS);
 			} else {
 				$title = sprintf("New note by %s", $owner["nick"]);
 			}
@@ -1886,13 +1886,13 @@ class OStatus
 		XML::addElement($doc, $entry, "title", html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
-		$body = self::formatPicturePost($body);
+		$body = self::formatPicturePost($body, $item['uri-id']);
 
 		if (!empty($item['title'])) {
 			$body = "[b]".$item['title']."[/b]\n\n".$body;
 		}
 
-		$body = BBCode::convert($body, false, BBCode::OSTATUS);
+		$body = BBCode::convertForUriId($item['uri-id'], $body, BBCode::OSTATUS);
 
 		XML::addElement($doc, $entry, "content", $body, ["type" => "html"]);
 

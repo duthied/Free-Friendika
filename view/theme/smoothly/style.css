@@ -4620,7 +4620,6 @@ div #datebrowse-sidebar.widget {
 	margin: 25px 0 25px 0;
 }
 
-#id_itemcache,
 #id_basepath,
 #id_temppath,
 #id_lockpath,
@@ -4633,7 +4632,6 @@ div #datebrowse-sidebar.widget {
 	width: 440px;
 }
 
-#id_itemcache_duration,
 #id_abandon_days,
 #id_maxloadavg,
 #id_poll_interval,

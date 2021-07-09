@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1424);
+	define('DB_UPDATE_VERSION', 1426);
 }
 
 return [
@@ -152,6 +152,19 @@ return [
 			"email" => ["email(64)"],
 		]
 	],
+	"item-uri" => [
+		"comment" => "URI and GUID for items",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
+			"uri" => ["type" => "varbinary(255)", "not null" => "1", "comment" => "URI of an item"],
+			"guid" => ["type" => "varbinary(255)", "comment" => "A unique identifier for an item"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uri" => ["UNIQUE", "uri"],
+			"guid" => ["guid"]
+		]
+	],
 	"contact" => [
 		"comment" => "contact table",
 		"fields" => [
@@ -183,6 +196,7 @@ return [
 			"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the contact url"],
 			"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"pubkey" => ["type" => "text", "comment" => "RSA public key 4096 bit"],
@@ -260,20 +274,8 @@ return [
 			"uid_contact-type" => ["uid", "contact-type"],
 			"uid_self_contact-type" => ["uid", "self", "contact-type"],
 			"self_network_uid" => ["self", "network", "uid"],
-			"gsid" => ["gsid"]
-		]
-	],
-	"item-uri" => [
-		"comment" => "URI and GUID for items",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
-			"uri" => ["type" => "varbinary(255)", "not null" => "1", "comment" => "URI of an item"],
-			"guid" => ["type" => "varbinary(255)", "comment" => "A unique identifier for an item"]
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uri" => ["UNIQUE", "uri"],
-			"guid" => ["guid"]
+			"gsid" => ["gsid"],
+			"uri-id" => ["uri-id"],
 		]
 	],
 	"tag" => [
@@ -393,6 +395,7 @@ return [
 		"comment" => "ActivityPub compatible contacts - used in the ActivityPub implementation",
 		"fields" => [
 			"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "URL of the contact"],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the apcontact url"],
 			"uuid" => ["type" => "varchar(255)", "comment" => ""],
 			"type" => ["type" => "varchar(20)", "not null" => "1", "comment" => ""],
 			"following" => ["type" => "varchar(255)", "comment" => ""],
@@ -426,7 +429,8 @@ return [
 			"followers" => ["followers(190)"],
 			"baseurl" => ["baseurl(190)"],
 			"sharedinbox" => ["sharedinbox(190)"],
-			"gsid" => ["gsid"]
+			"gsid" => ["gsid"],
+			"uri-id" => ["UNIQUE", "uri-id"],
 		]
 	],
 	"application" => [
@@ -628,6 +632,7 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact_id (ID of the contact in contact table)"],
 			"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the event uri"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation time"],
 			"edited" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "last edit time"],
 			"start" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "event start time"],
@@ -648,6 +653,7 @@ return [
 			"PRIMARY" => ["id"],
 			"uid_start" => ["uid", "start"],
 			"cid" => ["cid"],
+			"uri-id" => ["uri-id"],
 		]
 	],
 	"fcontact" => [
@@ -656,6 +662,7 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "unique id"],
 			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the fcontact url"],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"request" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -675,6 +682,7 @@ return [
 			"PRIMARY" => ["id"],
 			"addr" => ["addr(32)"],
 			"url" => ["UNIQUE", "url(190)"],
+			"uri-id" => ["UNIQUE", "uri-id"],
 		]
 	],
 	"fsuggest" => [
@@ -1151,6 +1159,19 @@ return [
 			"PRIMARY" => ["uri-id"],
 		]
 	],
+	"post-link" => [
+		"comment" => "Post related external links",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"url" => ["type" => "varbinary(511)", "not null" => "1", "comment" => "External URL"],
+			"mimetype" => ["type" => "varchar(60)", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uri-id-url" => ["UNIQUE", "uri-id", "url"],
+		]
+	],
 	"post-media" => [
 		"comment" => "Attached media",
 		"fields" => [
@@ -1311,6 +1332,7 @@ return [
 			"post-user-id" => ["post-user-id"],
 			"commented" => ["commented"],
 			"uid_received" => ["uid", "received"],
+			"uid_wall_received" => ["uid", "wall", "received"],
 			"uid_pinned" => ["uid", "pinned"],
 			"uid_commented" => ["uid", "commented"],
 			"uid_starred" => ["uid", "starred"],

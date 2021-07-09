@@ -37,6 +37,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Photo;
+use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
@@ -251,7 +252,7 @@ class BBCode
 		$post = self::getAttachmentData($body);
 
 		// Get all linked images with alternative image description
-		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[img=(http[^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (Photo::isLocal($picture[1])) {
 					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => $picture[2]];
@@ -433,18 +434,27 @@ class BBCode
 	 */
 	public static function toPlaintext($text, $keep_urls = true)
 	{
+		// Remove pictures in advance to avoid unneeded proxy calls
+		$text = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $2 ', $text);
+		$text = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $text);
+
+		// Remove attachment
+		$text = self::removeAttachment($text);
+
 		$naked_text = HTML::toPlaintext(self::convert($text, false, 0, true), 0, !$keep_urls);
 
 		return $naked_text;
 	}
 
-	private static function proxyUrl($image, $simplehtml = self::INTERNAL)
+	private static function proxyUrl($image, $simplehtml = self::INTERNAL, $uriid = 0, $size = '')
 	{
 		// Only send proxied pictures to API and for internal display
-		if (in_array($simplehtml, [self::INTERNAL, self::API])) {
-			return ProxyUtils::proxifyUrl($image);
-		} else {
+		if (!in_array($simplehtml, [self::INTERNAL, self::API])) {
 			return $image;
+		} elseif ($uriid) {
+			return Post\Link::getByLink($uriid, $image, $size);
+		} else {
+			return ProxyUtils::proxifyUrl($image, $size);
 		}
 	}
 
@@ -608,10 +618,11 @@ class BBCode
 	 * @param integer $simplehtml
 	 * @param bool    $tryoembed
 	 * @param array   $data
+	 * @param int     $uriid
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertAttachment($text, $simplehtml = self::INTERNAL, $tryoembed = true, array $data = [])
+	public static function convertAttachment($text, $simplehtml = self::INTERNAL, $tryoembed = true, array $data = [], $uriid = 0)
 	{
 		$data = $data ?: self::getAttachmentData($text);
 		if (empty($data) || empty($data['url'])) {
@@ -648,12 +659,12 @@ class BBCode
 
 			if (!empty($data['title']) && !empty($data['url'])) {
 				if (!empty($data['image']) && empty($data['text']) && ($data['type'] == 'photo')) {
-					$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
+					$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
 				} else {
 					if (!empty($data['image'])) {
-						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br>', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
+						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
 					} elseif (!empty($data['preview'])) {
-						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br>', $data['url'], self::proxyUrl($data['preview'], $simplehtml), $data['title']);
+						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br>', $data['url'], self::proxyUrl($data['preview'], $simplehtml, $uriid), $data['title']);
 					}
 					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
 				}
@@ -929,7 +940,7 @@ class BBCode
 		return ['body' => $new_body, 'images' => $saved_image];
 	}
 
-	private static function interpolateSavedImagesIntoItemBody($body, array $images)
+	private static function interpolateSavedImagesIntoItemBody($uriid, $body, array $images)
 	{
 		$newbody = $body;
 
@@ -939,7 +950,7 @@ class BBCode
 			// it loops over the array starting from the first element and going sequentially
 			// to the last element
 			$newbody = str_replace('[$#saved_image' . $cnt . '#$]',
-				'<img src="' . self::proxyUrl($image) . '" alt="' . DI::l10n()->t('Image/photo') . '" />', $newbody);
+				'<img src="' . self::proxyUrl($image, self::INTERNAL, $uriid) . '" alt="' . DI::l10n()->t('Image/photo') . '" />', $newbody);
 			$cnt++;
 		}
 
@@ -954,7 +965,7 @@ class BBCode
 	public static function fetchShareAttributes($text)
 	{
 		// See Issue https://github.com/friendica/friendica/issues/10454
-		// Hashtags in usernames are expanded to links. This here is a quick fix. 
+		// Hashtags in usernames are expanded to links. This here is a quick fix.
 		$text = preg_replace('/([@!#])\[url\=.*?\](.*?)\[\/url\]/ism', '$1$2', $text);
 
 		$attributes = [];
@@ -989,11 +1000,11 @@ class BBCode
 	 * @param  callable $callback
 	 * @return string The BBCode string with all [share] blocks replaced
 	 */
-	public static function convertShare($text, callable $callback)
+	public static function convertShare($text, callable $callback, int $uriid = 0)
 	{
 		$return = preg_replace_callback(
 			"/(.*?)\[share(.*?)\](.*)\[\/share\]/ism",
-			function ($match) use ($callback) {
+			function ($match) use ($callback, $uriid) {
 				$attribute_string = $match[2];
 				$attributes = [];
 				foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
@@ -1012,7 +1023,7 @@ class BBCode
 				if (!empty($author_contact['id'])) {
 					$attributes['avatar'] = Contact::getAvatarUrlForId($author_contact['id'], ProxyUtils::SIZE_THUMB);
 				} elseif ($attributes['avatar']) {
-					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
+					$attributes['avatar'] = self::proxyUrl($attributes['avatar'], self::INTERNAL, $uriid, ProxyUtils::SIZE_THUMB);
 				}
 
 				$content = preg_replace(Strings::autoLinkRegEx(), '<a href="$1">$1</a>', $match[3]);
@@ -1253,6 +1264,37 @@ class BBCode
 	}
 
 	/**
+	 * Converts a BBCode message for a given URI-ID to a HTML message
+	 *
+	 * BBcode 2 HTML was written by WAY2WEB.net
+	 * extended to work with Mistpark/Friendica - Mike Macgirvin
+	 *
+	 * Simple HTML values meaning:
+	 * - 0: Friendica display
+	 * - 1: Unused
+	 * - 2: Used for Windows Phone push, Friendica API
+	 * - 3: Used before converting to Markdown in bb2diaspora.php
+	 * - 4: Used for WordPress, Libertree (before Markdown), pump.io and tumblr
+	 * - 5: Unused
+	 * - 6: Unused
+	 * - 7: Used for dfrn, OStatus
+	 * - 8: Used for Twitter, WP backlink text setting
+	 * - 9: ActivityPub
+	 *
+	 * @param int    $uriid
+	 * @param string $text
+	 * @param int    $simple_html
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function convertForUriId(int $uriid = 0, string $text = null, int $simple_html = self::INTERNAL)
+	{
+		$try_oembed = ($simple_html == self::INTERNAL);
+
+		return self::convert($text, $try_oembed, $simple_html, false, $uriid);
+	}
+
+	/**
 	 * Converts a BBCode message to HTML message
 	 *
 	 * BBcode 2 HTML was written by WAY2WEB.net
@@ -1274,10 +1316,11 @@ class BBCode
 	 * @param bool   $try_oembed
 	 * @param int    $simple_html
 	 * @param bool   $for_plaintext
+	 * @param int    $uriid
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convert(string $text = null, $try_oembed = true, $simple_html = self::INTERNAL, $for_plaintext = false)
+	public static function convert(string $text = null, $try_oembed = true, $simple_html = self::INTERNAL, $for_plaintext = false, $uriid = 0)
 	{
 		// Accounting for null default column values
 		if (is_null($text) || $text === '') {
@@ -1288,8 +1331,8 @@ class BBCode
 
 		$a = DI::app();
 
-		$text = self::performWithEscapedTags($text, ['code'], function ($text) use ($try_oembed, $simple_html, $for_plaintext, $a) {
-			$text = self::performWithEscapedTags($text, ['noparse', 'nobb', 'pre'], function ($text) use ($try_oembed, $simple_html, $for_plaintext, $a) {
+		$text = self::performWithEscapedTags($text, ['code'], function ($text) use ($try_oembed, $simple_html, $for_plaintext, $a, $uriid) {
+			$text = self::performWithEscapedTags($text, ['noparse', 'nobb', 'pre'], function ($text) use ($try_oembed, $simple_html, $for_plaintext, $a, $uriid) {
 				/*
 				 * preg_match_callback function to replace potential Oembed tags with Oembed content
 				 *
@@ -1398,7 +1441,7 @@ class BBCode
 				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
 					$text = self::removeAttachment($text, true);
 				} else {
-					$text = self::convertAttachment($text, $simple_html, $try_oembed);
+					$text = self::convertAttachment($text, $simple_html, $try_oembed, [], $uriid);
 				}
 
 				$nosmile = strpos($text, '[nosmile]') !== false;
@@ -1573,12 +1616,12 @@ class BBCode
 				// [img=widthxheight]image source[/img]
 				$text = preg_replace_callback(
 					"/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism",
-					function ($matches) use ($simple_html) {
+					function ($matches) use ($simple_html, $uriid) {
 						if (strpos($matches[3], "data:image/") === 0) {
 							return $matches[0];
 						}
 
-						$matches[3] = self::proxyUrl($matches[3], $simple_html);
+						$matches[3] = self::proxyUrl($matches[3], $simple_html, $uriid);
 						return "[img=" . $matches[1] . "x" . $matches[2] . "]" . $matches[3] . "[/img]";
 					},
 					$text
@@ -1588,8 +1631,8 @@ class BBCode
 				$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
 
 				$text = preg_replace_callback("/\[img\=(.*?)\](.*?)\[\/img\]/ism",
-					function ($matches) use ($simple_html) {
-						$matches[1] = self::proxyUrl($matches[1], $simple_html);
+					function ($matches) use ($simple_html, $uriid) {
+						$matches[1] = self::proxyUrl($matches[1], $simple_html, $uriid);
 						$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
 						return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '" title="' . $matches[2] . '">';
 					},
@@ -1599,12 +1642,12 @@ class BBCode
 				// [img]pathtoimage[/img]
 				$text = preg_replace_callback(
 					"/\[img\](.*?)\[\/img\]/ism",
-					function ($matches) use ($simple_html) {
+					function ($matches) use ($simple_html, $uriid) {
 						if (strpos($matches[1], "data:image/") === 0) {
 							return $matches[0];
 						}
 
-						$matches[1] = self::proxyUrl($matches[1], $simple_html);
+						$matches[1] = self::proxyUrl($matches[1], $simple_html, $uriid);
 						return "[img]" . $matches[1] . "[/img]";
 					},
 					$text
@@ -1686,7 +1729,7 @@ class BBCode
 				// start which is always required). Allow desc with a missing summary for compatibility.
 
 				if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
-					$sub = Event::getHTML($ev, $simple_html);
+					$sub = Event::getHTML($ev, $simple_html, $uriid);
 
 					$text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism", '', $text);
 					$text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/ism", '', $text);
@@ -1849,10 +1892,10 @@ class BBCode
 					$text,
 					function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
 						return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
-					}
+					}, $uriid
 				);
 
-				$text = self::interpolateSavedImagesIntoItemBody($text, $saved_image);
+				$text = self::interpolateSavedImagesIntoItemBody($uriid, $text, $saved_image);
 
 				return $text;
 			}); // Escaped noparse, nobb, pre
@@ -2126,8 +2169,8 @@ class BBCode
 	/**
 	 * Expand tags to URLs
 	 *
-	 * @param string $body 
-	 * @return string body with expanded tags 
+	 * @param string $body
+	 * @return string body with expanded tags
 	 */
 	public static function expandTags(string $body)
 	{

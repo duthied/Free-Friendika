@@ -140,6 +140,8 @@ class Statuses extends BaseApi
 			$item['gravity']     = GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 		} else {
+			self::checkThrottleLimit();
+
 			$item['gravity']     = GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		}

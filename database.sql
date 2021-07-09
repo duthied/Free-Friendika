@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2021.06-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1424
+-- Friendica 2021.09-dev (Siberian Iris)
+-- DB_UPDATE_VERSION 1426
 -- ------------------------------------------
 
 
@@ -95,6 +95,18 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
 --
+-- TABLE item-uri
+--
+CREATE TABLE IF NOT EXISTS `item-uri` (
+	`id` int unsigned NOT NULL auto_increment,
+	`uri` varbinary(255) NOT NULL COMMENT 'URI of an item',
+	`guid` varbinary(255) COMMENT 'A unique identifier for an item',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri` (`uri`),
+	 INDEX `guid` (`guid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='URI and GUID for items';
+
+--
 -- TABLE contact
 --
 CREATE TABLE IF NOT EXISTS `contact` (
@@ -126,6 +138,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`dfrn-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`nurl` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the contact url',
 	`addr` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`alias` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`pubkey` text COMMENT 'RSA public key 4096 bit',
@@ -202,21 +215,11 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `uid_self_contact-type` (`uid`,`self`,`contact-type`),
 	 INDEX `self_network_uid` (`self`,`network`,`uid`),
 	 INDEX `gsid` (`gsid`),
+	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contact table';
-
---
--- TABLE item-uri
---
-CREATE TABLE IF NOT EXISTS `item-uri` (
-	`id` int unsigned NOT NULL auto_increment,
-	`uri` varbinary(255) NOT NULL COMMENT 'URI of an item',
-	`guid` varbinary(255) COMMENT 'A unique identifier for an item',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `uri` (`uri`),
-	 INDEX `guid` (`guid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='URI and GUID for items';
 
 --
 -- TABLE tag
@@ -332,6 +335,7 @@ CREATE TABLE IF NOT EXISTS `addon` (
 --
 CREATE TABLE IF NOT EXISTS `apcontact` (
 	`url` varbinary(255) NOT NULL COMMENT 'URL of the contact',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the apcontact url',
 	`uuid` varchar(255) COMMENT '',
 	`type` varchar(20) NOT NULL COMMENT '',
 	`following` varchar(255) COMMENT '',
@@ -364,6 +368,8 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	 INDEX `baseurl` (`baseurl`(190)),
 	 INDEX `sharedinbox` (`sharedinbox`(190)),
 	 INDEX `gsid` (`gsid`),
+	 UNIQUE INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='ActivityPub compatible contacts - used in the ActivityPub implementation';
 
@@ -563,6 +569,7 @@ CREATE TABLE IF NOT EXISTS `event` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
 	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact_id (ID of the contact in contact table)',
 	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the event uri',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'creation time',
 	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'last edit time',
 	`start` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'event start time',
@@ -581,8 +588,10 @@ CREATE TABLE IF NOT EXISTS `event` (
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_start` (`uid`,`start`),
 	 INDEX `cid` (`cid`),
+	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Events';
 
 --
@@ -592,6 +601,7 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT 'unique id',
 	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the fcontact url',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`photo` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`request` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -608,7 +618,9 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `addr` (`addr`(32)),
-	 UNIQUE INDEX `url` (`url`(190))
+	 UNIQUE INDEX `url` (`url`(190)),
+	 UNIQUE INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Diaspora compatible contacts - used in the Diaspora implementation';
 
 --
@@ -1104,6 +1116,19 @@ CREATE TABLE IF NOT EXISTS `post-delivery-data` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
 
 --
+-- TABLE post-link
+--
+CREATE TABLE IF NOT EXISTS `post-link` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`url` varbinary(511) NOT NULL COMMENT 'External URL',
+	`mimetype` varchar(60) COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Post related external links';
+
+--
 -- TABLE post-media
 --
 CREATE TABLE IF NOT EXISTS `post-media` (
@@ -1278,6 +1303,7 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `post-user-id` (`post-user-id`),
 	 INDEX `commented` (`commented`),
 	 INDEX `uid_received` (`uid`,`received`),
+	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `uid_pinned` (`uid`,`pinned`),
 	 INDEX `uid_commented` (`uid`,`commented`),
 	 INDEX `uid_starred` (`uid`,`starred`),

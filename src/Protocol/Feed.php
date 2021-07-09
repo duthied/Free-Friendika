@@ -1107,9 +1107,9 @@ class Feed
 		XML::addElement($doc, $entry, "id", $item["uri"]);
 		XML::addElement($doc, $entry, "title", html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 
-		$body = OStatus::formatPicturePost($item['body']);
+		$body = OStatus::formatPicturePost($item['body'], $item['uri-id']);
 
-		$body = BBCode::convert($body, false, BBCode::OSTATUS);
+		$body = BBCode::convertForUriId($item['uri-id'], $body, BBCode::OSTATUS, false);
 
 		XML::addElement($doc, $entry, "content", $body, ["type" => "html"]);
 
@@ -1186,7 +1186,7 @@ class Feed
 	private static function getTitle(array $item)
 	{
 		if ($item['title'] != '') {
-			return BBCode::convert($item['title'], false, BBCode::OSTATUS);
+			return BBCode::convertForUriId($item['uri-id'], $item['title'], BBCode::OSTATUS);
 		}
 
 		// Fetch information about the post
@@ -1199,7 +1199,7 @@ class Feed
 		// Remove the share element before fetching the first line
 		$title = trim(preg_replace("/\[share.*?\](.*?)\[\/share\]/ism","\n$1\n",$item['body']));
 
-		$title = HTML::toPlaintext(BBCode::convert($title, false), 0, true)."\n";
+		$title = BBCode::toPlaintext($title)."\n";
 		$pos = strpos($title, "\n");
 		$trailer = "";
 		if (($pos == 0) || ($pos > 100)) {

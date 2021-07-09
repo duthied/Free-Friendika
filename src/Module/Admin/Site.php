@@ -194,13 +194,10 @@ class Site extends BaseAdmin
 		$dbclean_unclaimed      = (!empty($_POST['dbclean_unclaimed'])      ? intval($_POST['dbclean_unclaimed'])             : 0);
 		$dbclean_expire_conv    = (!empty($_POST['dbclean_expire_conv'])    ? intval($_POST['dbclean_expire_conv'])           : 0);
 		$suppress_tags          = !empty($_POST['suppress_tags']);
-		$itemcache              = (!empty($_POST['itemcache'])              ? Strings::escapeTags(trim($_POST['itemcache']))  : '');
-		$itemcache_duration     = (!empty($_POST['itemcache_duration'])     ? intval($_POST['itemcache_duration'])            : 0);
 		$max_comments           = (!empty($_POST['max_comments'])           ? intval($_POST['max_comments'])                  : 0);
 		$max_display_comments   = (!empty($_POST['max_display_comments'])   ? intval($_POST['max_display_comments'])          : 0);
 		$temppath               = (!empty($_POST['temppath'])               ? Strings::escapeTags(trim($_POST['temppath']))   : '');
 		$singleuser             = (!empty($_POST['singleuser'])             ? Strings::escapeTags(trim($_POST['singleuser'])) : '');
-		$proxy_disabled         = !empty($_POST['proxy_disabled']);
 		$only_tag_search        = !empty($_POST['only_tag_search']);
 		$rino                   = (!empty($_POST['rino'])                   ? intval($_POST['rino'])                          : 0);
 		$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? Strings::escapeTags(trim($_POST['check_new_version_url'])) : 'none');
@@ -395,12 +392,6 @@ class Site extends BaseAdmin
 
 		DI::config()->set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
 
-		if ($itemcache != '') {
-			$itemcache = BasePath::getRealPath($itemcache);
-		}
-
-		DI::config()->set('system', 'itemcache', $itemcache);
-		DI::config()->set('system', 'itemcache_duration', $itemcache_duration);
 		DI::config()->set('system', 'max_comments', $max_comments);
 		DI::config()->set('system', 'max_display_comments', $max_display_comments);
 
@@ -410,7 +401,6 @@ class Site extends BaseAdmin
 
 		DI::config()->set('system', 'temppath', $temppath);
 
-		DI::config()->set('system', 'proxy_disabled'   , $proxy_disabled);
 		DI::config()->set('system', 'only_tag_search'  , $only_tag_search);
 
 		DI::config()->set('system', 'worker_queues'    , $worker_queues);
@@ -506,7 +496,6 @@ class Site extends BaseAdmin
 
 		// Automatically create temporary paths
 		get_temppath();
-		get_itemcachepath();
 
 		/* Register policy */
 		$register_choices = [
@@ -674,12 +663,9 @@ class Site extends BaseAdmin
 			'$dbclean_expire_days'    => ['dbclean_expire_days', DI::l10n()->t('Lifespan of remote items'), DI::config()->get('system', 'dbclean-expire-days'), DI::l10n()->t('When the database cleanup is enabled, this defines the days after which remote items will be deleted. Own items, and marked or filed items are always kept. 0 disables this behaviour.')],
 			'$dbclean_unclaimed'      => ['dbclean_unclaimed', DI::l10n()->t('Lifespan of unclaimed items'), DI::config()->get('system', 'dbclean-expire-unclaimed'), DI::l10n()->t('When the database cleanup is enabled, this defines the days after which unclaimed remote items (mostly content from the relay) will be deleted. Default value is 90 days. Defaults to the general lifespan value of remote items if set to 0.')],
 			'$dbclean_expire_conv'    => ['dbclean_expire_conv', DI::l10n()->t('Lifespan of raw conversation data'), DI::config()->get('system', 'dbclean_expire_conversation'), DI::l10n()->t('The conversation data is used for ActivityPub and OStatus, as well as for debug purposes. It should be safe to remove it after 14 days, default is 90 days.')],
-			'$itemcache'              => ['itemcache', DI::l10n()->t('Path to item cache'), DI::config()->get('system', 'itemcache'), DI::l10n()->t('The item caches buffers generated bbcode and external images.')],
-			'$itemcache_duration'     => ['itemcache_duration', DI::l10n()->t('Cache duration in seconds'), DI::config()->get('system', 'itemcache_duration'), DI::l10n()->t('How long should the cache files be hold? Default value is 86400 seconds (One day). To disable the item cache, set the value to -1.')],
 			'$max_comments'           => ['max_comments', DI::l10n()->t('Maximum numbers of comments per post'), DI::config()->get('system', 'max_comments'), DI::l10n()->t('How much comments should be shown for each post? Default value is 100.')],
 			'$max_display_comments'   => ['max_display_comments', DI::l10n()->t('Maximum numbers of comments per post on the display page'), DI::config()->get('system', 'max_display_comments'), DI::l10n()->t('How many comments should be shown on the single view for each post? Default value is 1000.')],
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
-			'$proxy_disabled'         => ['proxy_disabled', DI::l10n()->t('Disable picture proxy'), DI::config()->get('system', 'proxy_disabled'), DI::l10n()->t('The picture proxy increases performance and privacy. It shouldn\'t be used on systems with very low bandwidth.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
 
 			'$relocate_url'           => ['relocate_url', DI::l10n()->t('New base url'), DI::baseUrl()->get(), DI::l10n()->t('Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.')],

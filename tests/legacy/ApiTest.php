@@ -2344,7 +2344,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetAttachments()
 	{
 		$body = 'body';
-		self::assertEmpty(api_get_attachments($body));
+		self::assertEmpty(api_get_attachments($body, 0));
 	}
 
 	/**
@@ -2355,7 +2355,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetAttachmentsWithImage()
 	{
 		$body = '[img]http://via.placeholder.com/1x1.png[/img]';
-		self::assertIsArray(api_get_attachments($body));
+		self::assertIsArray(api_get_attachments($body, 0));
 	}
 
 	/**
@@ -2367,7 +2367,7 @@ class ApiTest extends FixtureTest
 	{
 		$_SERVER['HTTP_USER_AGENT'] = 'AndStatus';
 		$body                       = '[img]http://via.placeholder.com/1x1.png[/img]';
-		self::assertIsArray(api_get_attachments($body));
+		self::assertIsArray(api_get_attachments($body, 0));
 	}
 
 	/**
@@ -2378,7 +2378,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetEntitities()
 	{
 		$text = 'text';
-		self::assertIsArray(api_get_entitities($text, 'bbcode'));
+		self::assertIsArray(api_get_entitities($text, 'bbcode', 0));
 	}
 
 	/**
@@ -2390,7 +2390,7 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['include_entities'] = 'true';
 		$text                         = 'text';
-		$result                       = api_get_entitities($text, 'bbcode');
+		$result                       = api_get_entitities($text, 'bbcode', 0);
 		self::assertIsArray($result['hashtags']);
 		self::assertIsArray($result['symbols']);
 		self::assertIsArray($result['urls']);

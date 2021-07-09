@@ -64,7 +64,6 @@ use Friendica\Security\OAuth1\OAuthUtil;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -2552,10 +2551,10 @@ function api_convert_item($item)
 {
 	$body = api_add_attachments_to_body($item);
 
-	$entities = api_get_entitities($statustext, $body);
+	$entities = api_get_entitities($statustext, $body, $item['uri-id']);
 
 	// Add pictures to the attachment array and remove them from the body
-	$attachments = api_get_attachments($body);
+	$attachments = api_get_attachments($body, $item['uri-id']);
 
 	// Workaround for ostatus messages where the title is identically to the body
 	$html = BBCode::convert(api_clean_plain_items($body), false, BBCode::API, true);
@@ -2650,11 +2649,12 @@ function api_add_attachments_to_body(array $item)
 /**
  *
  * @param string $body
+ * @param int    $uriid
  *
  * @return array
  * @throws InternalServerErrorException
  */
-function api_get_attachments(&$body)
+function api_get_attachments(&$body, $uriid)
 {
 	$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 	$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
@@ -2675,11 +2675,7 @@ function api_get_attachments(&$body)
 		$imagedata = Images::getInfoFromURLCached($image);
 
 		if ($imagedata) {
-			if (DI::config()->get("system", "proxy_disabled")) {
-				$attachments[] = ["url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
-			} else {
-				$attachments[] = ["url" => ProxyUtils::proxifyUrl($image, false), "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
-			}
+			$attachments[] = ["url" => Post\Link::getByLink($uriid, $image), "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
 		}
 	}
 
@@ -2695,7 +2691,7 @@ function api_get_attachments(&$body)
  * @throws InternalServerErrorException
  * @todo Links at the first character of the post
  */
-function api_get_entitities(&$text, $bbcode)
+function api_get_entitities(&$text, $bbcode, $uriid)
 {
 	$include_entities = strtolower($_REQUEST['include_entities'] ?? 'false');
 
@@ -2703,7 +2699,7 @@ function api_get_entitities(&$text, $bbcode)
 		preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
 
 		foreach ($images[1] as $image) {
-			$replace = ProxyUtils::proxifyUrl($image, false);
+			$replace = Post\Link::getByLink($uriid, $image);
 			$text = str_replace($image, $replace, $text);
 		}
 		return [];
@@ -2815,31 +2811,8 @@ function api_get_entitities(&$text, $bbcode)
 		if (!($start === false)) {
 			$image = Images::getInfoFromURLCached($url);
 			if ($image) {
-				// If image cache is activated, then use the following sizes:
-				// thumb  (150), small (340), medium (600) and large (1024)
-				if (!DI::config()->get("system", "proxy_disabled")) {
-					$media_url = ProxyUtils::proxifyUrl($url, false);
-
-					$sizes = [];
-					$scale = Images::getScalingDimensions($image[0], $image[1], 150);
-					$sizes["thumb"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
-
-					if (($image[0] > 150) || ($image[1] > 150)) {
-						$scale = Images::getScalingDimensions($image[0], $image[1], 340);
-						$sizes["small"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
-					}
-
-					$scale = Images::getScalingDimensions($image[0], $image[1], 600);
-					$sizes["medium"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
-
-					if (($image[0] > 600) || ($image[1] > 600)) {
-						$scale = Images::getScalingDimensions($image[0], $image[1], 1024);
-						$sizes["large"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
-					}
-				} else {
-					$media_url = $url;
-					$sizes["medium"] = ["w" => $image[0], "h" => $image[1], "resize" => "fit"];
-				}
+				$media_url = Post\Link::getByLink($uriid, $url);
+				$sizes["medium"] = ["w" => $image[0], "h" => $image[1], "resize" => "fit"];
 
 				$entities["media"][] = [
 							"id" => $start+1,

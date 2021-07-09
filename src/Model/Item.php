@@ -1008,9 +1008,6 @@ class Item
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
 
-		// Fill the cache field
-		self::putInCache($item);
-
 		if (stristr($item['verb'], Activity::POKE)) {
 			$notify_type = Delivery::POKE;
 		} else {
@@ -2643,7 +2640,7 @@ class Item
 		) {
 			self::addRedirToImageTags($item);
 
-			$item['rendered-html'] = BBCode::convert($item['body']);
+			$item['rendered-html'] = BBCode::convertForUriId($item['uri-id'], $item['body']);
 			$item['rendered-hash'] = hash('md5', BBCode::VERSION . '::' . $body);
 
 			$hook_data = ['item' => $item, 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
@@ -2783,13 +2780,13 @@ class Item
 
 		if (!empty($shared_attachments)) {
 			$s = self::addVisualAttachments($shared_attachments, $item, $s, true);
-			$s = self::addLinkAttachment($shared_attachments, $body, $s, true, []);
+			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, []);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
 		}
 
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
-		$s = self::addLinkAttachment($attachments, $body, $s, false, $shared_links);
+		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
 
 		// Map.
@@ -2970,7 +2967,7 @@ class Item
 	 * @param array  $ignore_links A list of URLs to ignore
 	 * @return string modified content
 	 */
-	private static function addLinkAttachment(array $attachments, string $body, string $content, bool $shared, array $ignore_links)
+	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links)
 	{
 		$stamp1 = microtime(true);
 		// @ToDo Check only for audio and video
@@ -3056,7 +3053,7 @@ class Item
 				}
 
 				// @todo Use a template
-				$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
+				$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data, $uriid);
 			} elseif (!self::containsLink($content, $data['url'], Post\Media::HTML)) {
 				$rendered = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/link.tpl'), [
 					'$url'  => $data['url'],
