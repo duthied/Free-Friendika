@@ -1287,7 +1287,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertForItem(int $uriid, string $text, int $simple_html = self::INTERNAL)
+	public static function convertForItem(int $uriid = 0, string $text = null, int $simple_html = self::INTERNAL)
 	{
 		$try_oembed = ($simple_html == self::INTERNAL);
 
