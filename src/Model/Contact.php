@@ -1077,7 +1077,7 @@ class Contact
 		if (!empty($contact)) {
 			$contact_id = $contact["id"];
 
-			if (empty($update) && (!empty($contact['uri-id']) || is_bool($update))) {
+			if (empty($update)) {
 				Logger::debug('Contact found', ['url' => $url, 'uid' => $uid, 'update' => $update, 'cid' => $contact_id]);
 				return $contact_id;
 			}
