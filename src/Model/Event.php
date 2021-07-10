@@ -589,10 +589,10 @@ class Event
 		$last_date = '';
 		$fmt = DI::l10n()->t('l, F j');
 		foreach ($event_result as $event) {
-			$item = Post::selectFirst(['plink', 'author-name', 'author-avatar', 'author-link', 'private'], ['id' => $event['itemid']]);
+			$item = Post::selectFirst(['plink', 'author-name', 'author-avatar', 'author-link', 'private', 'uri-id'], ['id' => $event['itemid']]);
 			if (!DBA::isResult($item)) {
 				// Using default values when no item had been found
-				$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => '', 'private' => Item::PUBLIC];
+				$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => '', 'private' => Item::PUBLIC, 'uri-id' => ($event['uri-id'] ?? 0)];
 			}
 
 			$event = array_merge($event, $item);
