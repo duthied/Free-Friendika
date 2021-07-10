@@ -1709,10 +1709,20 @@ aside .panel-body {
 	right: 0;
 	top: 0;
 }
-.shared_header .preferences {
-	top: 7px;
-	right: 9px;
+.shared_header {
+	margin-left: 0px;
+	margin-top: 0px;
+	padding-top: 0px;
+	margin-bottom: 10px;
+	border-top: none;
+	color: inherit;
 }
+blockquote.shared_content {
+	padding: 0px;
+	margin-inline-start: 0px;
+	color: inherit;
+}
+
 .wall-item-network {
 	font-size: 13px;
 }
@@ -1836,19 +1846,6 @@ aside .panel-body {
 }
 .vevent:hover {
 	box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.15) inset, 0 1px 1px rgba(0, 0, 0, 0.05);
-}
-.shared_header {
-	margin-left: 0px;
-	margin-top: 0px;
-	padding-top: 0px;
-	margin-bottom: 10px;
-	border-top: none;
-	color: inherit;
-}
-blockquote.shared_content {
-	padding: 0px;
-	margin-left: 0px;
-	color: inherit;
 }
 code > .hl-main {
 	padding: 10px 10px 1px 0;
