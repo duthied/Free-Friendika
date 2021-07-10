@@ -2247,9 +2247,9 @@ class ApiTest extends FixtureTest
 	{
 		$_GET['getUserObjects'] = 'false';
 		$result                 = api_format_messages(
-			['id' => 1, 'title' => 'item_title', 'body' => '[b]item_body[/b]'],
-			['id' => 2, 'screen_name' => 'recipient_name'],
-			['id' => 3, 'screen_name' => 'sender_name']
+			['id' => 1, 'uri-id' => 1, 'title' => 'item_title', 'body' => '[b]item_body[/b]'],
+			['id' => 2, 'uri-id' => 2, 'screen_name' => 'recipient_name'],
+			['id' => 3, 'uri-id' => 3, 'screen_name' => 'sender_name']
 		);
 		self::assertTrue(!isset($result['sender']));
 		self::assertTrue(!isset($result['recipient']));
