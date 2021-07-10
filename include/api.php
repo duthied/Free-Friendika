@@ -2525,12 +2525,12 @@ function api_format_messages($item, $recipient, $sender)
 	if (!empty($_GET['getText'])) {
 		$ret['title'] = $item['title'];
 		if ($_GET['getText'] == 'html') {
-			$ret['text'] = BBCode::convert($item['body'], false);
+			$ret['text'] = BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::API);
 		} elseif ($_GET['getText'] == 'plain') {
-			$ret['text'] = trim(HTML::toPlaintext(BBCode::convert(api_clean_plain_items($item['body']), false, BBCode::API, true), 0));
+			$ret['text'] = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], api_clean_plain_items($item['body']), BBCode::API), 0));
 		}
 	} else {
-		$ret['text'] = $item['title'] . "\n" . HTML::toPlaintext(BBCode::convert(api_clean_plain_items($item['body']), false, BBCode::API, true), 0);
+		$ret['text'] = $item['title'] . "\n" . HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], api_clean_plain_items($item['body']), BBCode::API), 0);
 	}
 	if (!empty($_GET['getUserObjects']) && $_GET['getUserObjects'] == 'false') {
 		unset($ret['sender']);
@@ -2557,7 +2557,7 @@ function api_convert_item($item)
 	$attachments = api_get_attachments($body, $item['uri-id']);
 
 	// Workaround for ostatus messages where the title is identically to the body
-	$html = BBCode::convert(api_clean_plain_items($body), false, BBCode::API, true);
+	$html = BBCode::convertForUriId($item['uri-id'], api_clean_plain_items($body), BBCode::API);
 	$statusbody = trim(HTML::toPlaintext($html, 0));
 
 	// handle data: images
@@ -2575,7 +2575,7 @@ function api_convert_item($item)
 		$statustext = mb_substr($statustext, 0, 1000) . "... \n" . ($item['plink'] ?? '');
 	}
 
-	$statushtml = BBCode::convert(BBCode::removeAttachment($body), false, BBCode::API, true);
+	$statushtml = BBCode::convertForUriId($item['uri-id'], BBCode::removeAttachment($body), BBCode::API);
 
 	// Workaround for clients with limited HTML parser functionality
 	$search = ["<br>", "<blockquote>", "</blockquote>",
@@ -2589,7 +2589,7 @@ function api_convert_item($item)
 	$statushtml = str_replace($search, $replace, $statushtml);
 
 	if ($item['title'] != "") {
-		$statushtml = "<br><h4>" . BBCode::convert($item['title']) . "</h4><br>" . $statushtml;
+		$statushtml = "<br><h4>" . BBCode::convertForUriId($item['uri-id'], $item['title']) . "</h4><br>" . $statushtml;
 	}
 
 	do {
@@ -2607,7 +2607,7 @@ function api_convert_item($item)
 
 	// feeds without body should contain the link
 	if ((($item['network'] ?? Protocol::PHANTOM) == Protocol::FEED) && (strlen($item['body']) == 0)) {
-		$statushtml .= BBCode::convert($item['plink']);
+		$statushtml .= BBCode::convertForUriId($item['uri-id'], $item['plink']);
 	}
 
 	return [
@@ -3054,7 +3054,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		'external_url' => DI::baseUrl() . "/display/" . $item['guid'],
 		'friendica_activities' => api_format_items_activities($item, $type),
 		'friendica_title' => $item['title'],
-		'friendica_html' => BBCode::convert($item['body'], false)
+		'friendica_html' => BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::EXTERNAL)
 	];
 
 	if (count($converted["attachments"]) > 0) {

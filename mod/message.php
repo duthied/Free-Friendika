@@ -314,14 +314,9 @@ function message_content(App $a)
 				$sparkle = ' sparkle';
 			}
 
-			$extracted = item_extract_images($message['body']);
-			if ($extracted['images']) {
-				$message['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $message['contact-id']);
-			}
-
 			$from_name_e = $message['from-name'];
 			$subject_e = $message['title'];
-			$body_e = BBCode::convert($message['body']);
+			$body_e = BBCode::convertForUriId($message['uri-id'], $message['body']);
 			$to_name_e = $message['name'];
 
 			$contact = Contact::getByURL($message['from-url'], false, ['thumb', 'addr', 'id', 'avatar']);

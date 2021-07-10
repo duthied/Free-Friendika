@@ -486,11 +486,11 @@ class Profile
 		}
 
 		if (isset($p['about'])) {
-			$p['about'] = BBCode::convert($p['about']);
+			$p['about'] = BBCode::convertForUriId($profile['uri-id'] ?? 0, $p['about']);
 		}
 
 		if (isset($p['address'])) {
-			$p['address'] = BBCode::convert($p['address']);
+			$p['address'] = BBCode::convertForUriId($profile['uri-id'] ?? 0, $p['address']);
 		}
 
 		$p['photo'] = Contact::getAvatarUrlForId($cid, ProxyUtils::SIZE_SMALL);
@@ -670,13 +670,13 @@ class Profile
 					$istoday = true;
 				}
 
-				$title = strip_tags(html_entity_decode(BBCode::convert($rr['summary']), ENT_QUOTES, 'UTF-8'));
+				$title = strip_tags(html_entity_decode(BBCode::convertForUriId($rr['uri-id'], $rr['summary']), ENT_QUOTES, 'UTF-8'));
 
 				if (strlen($title) > 35) {
 					$title = substr($title, 0, 32) . '... ';
 				}
 
-				$description = substr(strip_tags(BBCode::convert($rr['desc'])), 0, 32) . '... ';
+				$description = substr(strip_tags(BBCode::convertForUriId($rr['uri-id'], $rr['desc'])), 0, 32) . '... ';
 				if (!$description) {
 					$description = DI::l10n()->t('[No description]');
 				}

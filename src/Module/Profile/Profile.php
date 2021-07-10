@@ -169,7 +169,7 @@ class Profile extends BaseProfile
 		}
 
 		if ($a->profile['about']) {
-			$basic_fields += self::buildField('about', DI::l10n()->t('Description:'), BBCode::convert($a->profile['about']));
+			$basic_fields += self::buildField('about', DI::l10n()->t('Description:'), BBCode::convertForUriId($a->profile['uri-id'], $a->profile['about']));
 		}
 
 		if ($a->profile['xmpp']) {
@@ -218,7 +218,7 @@ class Profile extends BaseProfile
 			$custom_fields += self::buildField(
 				'custom_' . $profile_field->order,
 				$profile_field->label,
-				BBCode::convert($profile_field->value),
+				BBCode::convertForUriId($a->profile['uri-id'], $profile_field->value),
 				'aprofile custom'
 			);
 		};

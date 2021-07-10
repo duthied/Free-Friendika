@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.09-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1426
+-- DB_UPDATE_VERSION 1427
 -- ------------------------------------------
 
 
@@ -2291,6 +2291,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`dfrn-id` AS `dfrn-id`,
 	`contact`.`url` AS `url`,
 	`contact`.`nurl` AS `nurl`,
+	`contact`.`uri-id` AS `uri-id`,
 	`contact`.`addr` AS `addr`,
 	`contact`.`alias` AS `alias`,
 	`contact`.`pubkey` AS `pubkey`,

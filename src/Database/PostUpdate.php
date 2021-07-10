@@ -100,6 +100,9 @@ class PostUpdate
 		if (!self::update1426()) {
 			return false;
 		}
+		if (!self::update1427()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -955,6 +958,53 @@ class PostUpdate
 
 		if ($rows <= 100) {
 			DI::config()->set("system", "post_update_version", 1426);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * update the "uri-id" field in the event table
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1427()
+	{
+		// Was the script completed?
+		if (DI::config()->get("system", "post_update_version") >= 1427) {
+			return true;
+		}
+
+		$condition = ["`uri-id` IS NULL"];
+		Logger::info('Start', ['rest' => DBA::count('event', $condition)]);
+
+		$rows = 0;
+		$events = DBA::select('event', ['id', 'uri', 'guid'], $condition, ['limit' => 1000]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($event = DBA::fetch($events)) {
+			if (!empty($event['guid'])) {
+				$uriid = ItemURI::insert(['uri' => $event['uri'], 'guid' => $event['guid']]);
+			} else {
+				$uriid = ItemURI::getIdByURI($event['uri']);
+			}
+			DBA::update('event', ['uri-id' => $uriid], ['id' => $event['id']]);
+			++$rows;
+		}
+		DBA::close($events);
+
+		Logger::info('Processed', ['rows' => $rows]);
+
+		if ($rows <= 100) {
+			DI::config()->set("system", "post_update_version", 1427);
 			Logger::info('Done');
 			return true;
 		}
