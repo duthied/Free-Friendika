@@ -91,6 +91,15 @@ class PostUpdate
 		if (!self::update1400()) {
 			return false;
 		}
+		if (!self::update1424()) {
+			return false;
+		}
+		if (!self::update1425()) {
+			return false;
+		}
+		if (!self::update1426()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -771,7 +780,7 @@ class PostUpdate
 	}
 
 	/**
-	 * update the "hash" field in the photo table
+	 * update the "external-id" field in the post table
 	 *
 	 * @return bool "true" when the job is done
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -810,6 +819,142 @@ class PostUpdate
 
 		if ($rows <= 100) {
 			DI::config()->set("system", "post_update_version", 1400);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * update the "uri-id" field in the contact table
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1424()
+	{
+		// Was the script completed?
+		if (DI::config()->get("system", "post_update_version") >= 1424) {
+			return true;
+		}
+
+		$condition = ["`uri-id` IS NULL"];
+		Logger::info('Start', ['rest' => DBA::count('contact', $condition)]);
+
+		$rows = 0;
+		$contacts = DBA::select('contact', ['id', 'url'], $condition, ['limit' => 1000]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($contact = DBA::fetch($contacts)) {
+			DBA::update('contact', ['uri-id' => ItemURI::getIdByURI($contact['url'])], ['id' => $contact['id']]);
+			++$rows;
+		}
+		DBA::close($contacts);
+
+		Logger::info('Processed', ['rows' => $rows]);
+
+		if ($rows <= 100) {
+			DI::config()->set("system", "post_update_version", 1424);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * update the "uri-id" field in the fcontact table
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1425()
+	{
+		// Was the script completed?
+		if (DI::config()->get("system", "post_update_version") >= 1425) {
+			return true;
+		}
+
+		$condition = ["`uri-id` IS NULL"];
+		Logger::info('Start', ['rest' => DBA::count('fcontact', $condition)]);
+
+		$rows = 0;
+		$fcontacts = DBA::select('fcontact', ['id', 'url', 'guid'], $condition, ['limit' => 1000]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($fcontact = DBA::fetch($fcontacts)) {
+			if (!empty($fcontact['guid'])) {
+				$uriid = ItemURI::insert(['uri' => $fcontact['url'], 'guid' => $fcontact['guid']]);
+			} else {
+				$uriid = ItemURI::getIdByURI($fcontact['url']);
+			}
+			DBA::update('fcontact', ['uri-id' => $uriid], ['id' => $fcontact['id']]);
+			++$rows;
+		}
+		DBA::close($fcontacts);
+
+		Logger::info('Processed', ['rows' => $rows]);
+
+		if ($rows <= 100) {
+			DI::config()->set("system", "post_update_version", 1425);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * update the "uri-id" field in the apcontact table
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1426()
+	{
+		// Was the script completed?
+		if (DI::config()->get("system", "post_update_version") >= 1426) {
+			return true;
+		}
+
+		$condition = ["`uri-id` IS NULL"];
+		Logger::info('Start', ['rest' => DBA::count('apcontact', $condition)]);
+
+		$rows = 0;
+		$apcontacts = DBA::select('apcontact', ['url', 'uuid'], $condition, ['limit' => 1000]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($apcontact = DBA::fetch($apcontacts)) {
+			if (!empty($apcontact['uuid'])) {
+				$uriid = ItemURI::insert(['uri' => $apcontact['url'], 'guid' => $apcontact['uuid']]);
+			} else {
+				$uriid = ItemURI::getIdByURI($apcontact['url']);
+			}
+			DBA::update('apcontact', ['uri-id' => $uriid], ['url' => $apcontact['url']]);
+			++$rows;
+		}
+		DBA::close($apcontacts);
+
+		Logger::info('Processed', ['rows' => $rows]);
+
+		if ($rows <= 100) {
+			DI::config()->set("system", "post_update_version", 1426);
 			Logger::info('Done');
 			return true;
 		}
