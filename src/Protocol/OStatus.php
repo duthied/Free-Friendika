@@ -1418,7 +1418,7 @@ class OStatus
 		XML::addElement($doc, $author, "name", $owner["nick"]);
 		XML::addElement($doc, $author, "email", $owner["addr"]);
 		if ($show_profile) {
-			XML::addElement($doc, $author, "summary", BBCode::convert($owner["about"], false, BBCode::OSTATUS));
+			XML::addElement($doc, $author, "summary", BBCode::convertForUriId($owner['uri-id'], $owner["about"], BBCode::OSTATUS));
 		}
 
 		$attributes = ["rel" => "alternate", "type" => "text/html", "href" => $owner["url"]];
@@ -1445,7 +1445,7 @@ class OStatus
 		XML::addElement($doc, $author, "poco:preferredUsername", $owner["nick"]);
 		XML::addElement($doc, $author, "poco:displayName", $owner["name"]);
 		if ($show_profile) {
-			XML::addElement($doc, $author, "poco:note", BBCode::convert($owner["about"], false, BBCode::OSTATUS));
+			XML::addElement($doc, $author, "poco:note", BBCode::convertForUriId($owner['uri-id'], $owner["about"], BBCode::OSTATUS));
 
 			if (trim($owner["location"]) != "") {
 				$element = $doc->createElement("poco:address");

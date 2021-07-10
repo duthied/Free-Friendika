@@ -1109,7 +1109,7 @@ class Feed
 
 		$body = OStatus::formatPicturePost($item['body'], $item['uri-id']);
 
-		$body = BBCode::convertForUriId($item['uri-id'], $body, BBCode::OSTATUS, false);
+		$body = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
 
 		XML::addElement($doc, $entry, "content", $body, ["type" => "html"]);
 
@@ -1186,7 +1186,7 @@ class Feed
 	private static function getTitle(array $item)
 	{
 		if ($item['title'] != '') {
-			return BBCode::convertForUriId($item['uri-id'], $item['title'], BBCode::OSTATUS);
+			return BBCode::convertForUriId($item['uri-id'], $item['title'], BBCode::ACTIVITYPUB);
 		}
 
 		// Fetch information about the post

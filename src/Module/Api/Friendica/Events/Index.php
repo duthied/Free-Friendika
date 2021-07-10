@@ -55,7 +55,7 @@ class Index extends BaseApi
 				'cid'       => $event['cid'],
 				'uri'       => $event['uri'],
 				'name'      => $event['summary'],
-				'desc'      => BBCode::convert($event['desc']),
+				'desc'      => BBCode::convertForUriId($event['uri-id'], $event['desc']),
 				'startTime' => $event['start'],
 				'endTime'   => $event['finish'],
 				'type'      => $event['type'],

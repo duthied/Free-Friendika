@@ -729,6 +729,7 @@
 			"dfrn-id" => ["contact", "dfrn-id"],
 			"url" => ["contact", "url"],
 			"nurl" => ["contact", "nurl"],
+			"uri-id" => ["contact", "uri-id"],
 			"addr" => ["contact", "addr"],
 			"alias" => ["contact", "alias"],
 			"pubkey" => ["contact", "pubkey"],

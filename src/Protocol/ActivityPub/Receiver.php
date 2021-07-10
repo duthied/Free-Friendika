@@ -1345,8 +1345,7 @@ class Receiver
 			// Some AP software allow formatted text in post location, so we run all the text converters we have to boil
 			// down to HTML and then finally format to plaintext.
 			$location = Markdown::convert($location);
-			$location = BBCode::convert($location);
-			$location = HTML::toPlaintext($location);
+			$location = BBCode::toPlaintext($location);
 		}
 
 		$object_data['sc:identifier'] = JsonLD::fetchElement($object, 'sc:identifier', '@value');

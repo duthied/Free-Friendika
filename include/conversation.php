@@ -47,91 +47,6 @@ use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
-function item_extract_images($body) {
-
-	$saved_image = [];
-	$orig_body = $body;
-	$new_body = '';
-
-	$cnt = 0;
-	$img_start = strpos($orig_body, '[img');
-	$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
-	$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
-	while (($img_st_close !== false) && ($img_end !== false)) {
-
-		$img_st_close++; // make it point to AFTER the closing bracket
-		$img_end += $img_start;
-
-		if (!strcmp(substr($orig_body, $img_start + $img_st_close, 5), 'data:')) {
-			// This is an embedded image
-
-			$saved_image[$cnt] = substr($orig_body, $img_start + $img_st_close, $img_end - ($img_start + $img_st_close));
-			$new_body = $new_body . substr($orig_body, 0, $img_start) . '[!#saved_image' . $cnt . '#!]';
-
-			$cnt++;
-		} else {
-			$new_body = $new_body . substr($orig_body, 0, $img_end + strlen('[/img]'));
-		}
-
-		$orig_body = substr($orig_body, $img_end + strlen('[/img]'));
-
-		if ($orig_body === false) {
-			// in case the body ends on a closing image tag
-			$orig_body = '';
-		}
-
-		$img_start = strpos($orig_body, '[img');
-		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
-		$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
-	}
-
-	$new_body = $new_body . $orig_body;
-
-	return ['body' => $new_body, 'images' => $saved_image];
-}
-
-function item_redir_and_replace_images($body, $images, $cid) {
-
-	$origbody = $body;
-	$newbody = '';
-
-	$cnt = 1;
-	$pos = BBCode::getTagPosition($origbody, 'url', 0);
-	while ($pos !== false && $cnt < 1000) {
-
-		$search = '/\[url\=(.*?)\]\[!#saved_image([0-9]*)#!\]\[\/url\]' . '/is';
-		$replace = '[url=' . DI::baseUrl() . '/redir/' . $cid
-				   . '?url=' . '$1' . '][!#saved_image' . '$2' .'#!][/url]';
-
-		$newbody .= substr($origbody, 0, $pos['start']['open']);
-		$subject = substr($origbody, $pos['start']['open'], $pos['end']['close'] - $pos['start']['open']);
-		$origbody = substr($origbody, $pos['end']['close']);
-		if ($origbody === false) {
-			$origbody = '';
-		}
-
-		$subject = preg_replace($search, $replace, $subject);
-		$newbody .= $subject;
-
-		$cnt++;
-		// Isn't this supposed to use $cnt value for $occurrences? - @MrPetovan
-		$pos = BBCode::getTagPosition($origbody, 'url', 0);
-	}
-	$newbody .= $origbody;
-
-	$cnt = 0;
-	foreach ($images as $image) {
-		/*
-		 * We're depending on the property of 'foreach' (specified on the PHP website) that
-		 * it loops over the array starting from the first element and going sequentially
-		 * to the last element.
-		 */
-		$newbody = str_replace('[!#saved_image' . $cnt . '#!]', '[img]' . $image . '[/img]', $newbody);
-		$cnt++;
-	}
-	return $newbody;
-}
-
 /**
  * Render actions localized
  *
@@ -141,11 +56,6 @@ function item_redir_and_replace_images($body, $images, $cid) {
  */
 function localize_item(&$item)
 {
-	$extracted = item_extract_images($item['body']);
-	if ($extracted['images']) {
-		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
-	}
-
 	/// @todo The following functionality needs to be cleaned up.
 	if (!empty($item['verb'])) {
 		$activity = DI::activity();
@@ -258,13 +168,6 @@ function localize_item(&$item)
 				$item['body'] = str_replace($mtch[0], '@[url=' . Contact::magicLink($mtch[1]) . ']', $item['body']);
 			}
 		}
-	}
-
-	// add zrl's to public images
-	$photo_pattern = "/\[url=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[img(.*?)\]h(.*?)\[\/img\]\[\/url\]/is";
-	if (preg_match($photo_pattern, $item['body'])) {
-		$photo_replace = '[url=' . Profile::zrl('$1' . '/photos/' . '$2' . '/image/' . '$3' , true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
-		$item['body'] = BBCode::pregReplaceInTag($photo_pattern, $photo_replace, 'url', $item['body']);
 	}
 
 	// add sparkle links to appropriate permalinks

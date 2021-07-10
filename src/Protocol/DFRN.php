@@ -765,12 +765,13 @@ class DFRN
 	 * @param DOMDocument $doc      XML document
 	 * @param string      $element  Element name for the activity
 	 * @param string      $activity activity value
+	 * @param int         $uriid    Uri-Id of the post
 	 *
 	 * @return \DOMElement XML activity object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function createActivity(DOMDocument $doc, $element, $activity)
+	private static function createActivity(DOMDocument $doc, $element, $activity, $uriid)
 	{
 		if ($activity) {
 			$entry = $doc->createElement($element);
@@ -817,7 +818,7 @@ class DFRN
 				}
 			}
 			if ($r->content) {
-				XML::addElement($doc, $entry, "content", BBCode::convert($r->content), ["type" => "html"]);
+				XML::addElement($doc, $entry, "content", BBCode::convertForUriId($uriid, $r->content, BBCode::EXTERNAL), ["type" => "html"]);
 			}
 
 			return $entry;
@@ -918,7 +919,7 @@ class DFRN
 				$htmlbody = "[b]" . $item['title'] . "[/b]\n\n" . $htmlbody;
 			}
 
-			$htmlbody = BBCode::convertForUriId($item['uri-id'], $htmlbody, BBCode::OSTATUS);
+			$htmlbody = BBCode::convertForUriId($item['uri-id'], $htmlbody, BBCode::ACTIVITYPUB);
 		}
 
 		$author = self::addEntryAuthor($doc, "author", $item["author-link"], $item);
@@ -1033,12 +1034,12 @@ class DFRN
 			XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::COMMENT);
 		}
 
-		$actobj = self::createActivity($doc, "activity:object", $item['object']);
+		$actobj = self::createActivity($doc, "activity:object", $item['object'], $item['uri-id']);
 		if ($actobj) {
 			$entry->appendChild($actobj);
 		}
 
-		$actarg = self::createActivity($doc, "activity:target", $item['target']);
+		$actarg = self::createActivity($doc, "activity:target", $item['target'], $item['uri-id']);
 		if ($actarg) {
 			$entry->appendChild($actarg);
 		}
