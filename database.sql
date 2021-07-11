@@ -2482,6 +2482,7 @@ CREATE VIEW `account-view` AS SELECT
 DROP VIEW IF EXISTS `account-user-view`;
 CREATE VIEW `account-user-view` AS SELECT 
 	`ucontact`.`id` AS `id`,
+	`contact`.`id` AS `pid`,
 	`ucontact`.`uid` AS `uid`,
 	`contact`.`url` AS `url`,
 	`contact`.`nurl` AS `nurl`,

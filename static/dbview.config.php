@@ -916,6 +916,7 @@
 	"account-user-view" => [
 		"fields" => [
 			"id" => ["ucontact", "id"],
+			"pid" => ["contact", "id"],
 			"uid" => ["ucontact", "uid"],
 			"url" => ["contact", "url"],
 			"nurl" => ["contact", "nurl"],
