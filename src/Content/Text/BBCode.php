@@ -1287,11 +1287,11 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertForUriId(int $uriid = 0, string $text = null, int $simple_html = self::INTERNAL)
+	public static function convertForUriId($uriid, string $text = null, int $simple_html = self::INTERNAL)
 	{
 		$try_oembed = ($simple_html == self::INTERNAL);
 
-		return self::convert($text, $try_oembed, $simple_html, false, $uriid);
+		return self::convert($text, $try_oembed, $simple_html, false, $uriid ?? 0);
 	}
 
 	/**
