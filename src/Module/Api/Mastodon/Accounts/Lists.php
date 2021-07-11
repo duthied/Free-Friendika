@@ -52,7 +52,7 @@ class Lists extends BaseApi
 
 		$lists = [];
 
-		$cdata = Contact::getPublicAndUserContacID($id, $uid);
+		$cdata = Contact::getPublicAndUserContactID($id, $uid);
 		if (!empty($cdata['user'])) {
 			$groups = DBA::select('group_member', ['gid'], ['contact-id' => $cdata['user']]);
 			while ($group = DBA::fetch($groups)) {

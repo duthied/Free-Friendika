@@ -39,7 +39,7 @@ class User
 	 */
 	public static function setBlocked($cid, $uid, $blocked)
 	{
-		$cdata = Contact::getPublicAndUserContacID($cid, $uid);
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return;
 		}
@@ -62,7 +62,7 @@ class User
 	 */
 	public static function isBlocked($cid, $uid)
 	{
-		$cdata = Contact::getPublicAndUserContacID($cid, $uid);
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return false;
 		}
@@ -102,7 +102,7 @@ class User
 	 */
 	public static function setIgnored($cid, $uid, $ignored)
 	{
-		$cdata = Contact::getPublicAndUserContacID($cid, $uid);
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return;
 		}
@@ -125,7 +125,7 @@ class User
 	 */
 	public static function isIgnored($cid, $uid)
 	{
-		$cdata = Contact::getPublicAndUserContacID($cid, $uid);
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return false;
 		}
@@ -165,7 +165,7 @@ class User
 	 */
 	public static function setCollapsed($cid, $uid, $collapsed)
 	{
-		$cdata = Contact::getPublicAndUserContacID($cid, $uid);
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return;
 		}
@@ -185,7 +185,7 @@ class User
 	 */
 	public static function isCollapsed($cid, $uid)
 	{
-		$cdata = Contact::getPublicAndUserContacID($cid, $uid);
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return;
 		}

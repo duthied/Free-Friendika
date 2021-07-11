@@ -283,7 +283,7 @@ class Contact extends BaseModule
 			$contact_id = intval($a->argv[1]);
 
 			// Ensure to use the user contact when the public contact was provided
-			$data = Model\Contact::getPublicAndUserContacID($contact_id, local_user());
+			$data = Model\Contact::getPublicAndUserContactID($contact_id, local_user());
 			if (!empty($data['user']) && ($contact_id == $data['public'])) {
 				$contact_id = $data['user'];
 			}
@@ -915,7 +915,7 @@ class Contact extends BaseModule
 	public static function getTabsHTML(array $contact, int $active_tab)
 	{
 		$cid = $pcid = $contact['id'];
-		$data = Model\Contact::getPublicAndUserContacID($contact['id'], local_user());
+		$data = Model\Contact::getPublicAndUserContactID($contact['id'], local_user());
 		if (!empty($data['user']) && ($contact['id'] == $data['public'])) {
 			$cid = $data['user'];
 		} elseif (!empty($data['public'])) {

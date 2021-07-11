@@ -45,7 +45,7 @@ class Note extends BaseApi
 			'comment' => '',
 		]);
 
-		$cdata = Contact::getPublicAndUserContacID($parameters['id'], $uid);
+		$cdata = Contact::getPublicAndUserContactID($parameters['id'], $uid);
 		if (empty($cdata['user'])) {
 			DI::mstdnError()->RecordNotFound();
 		}

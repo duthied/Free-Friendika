@@ -345,7 +345,7 @@ class Transmitter
 		}
 
 		if (!empty($owner['about'])) {
-			$data['summary'] = BBCode::convertForUriId($owner['uri-id'], $owner['about'], BBCode::EXTERNAL);
+			$data['summary'] = BBCode::convertForUriId($owner['uri-id'] ?? 0, $owner['about'], BBCode::EXTERNAL);
 		}
 
 		$data['url'] = $owner['url'];

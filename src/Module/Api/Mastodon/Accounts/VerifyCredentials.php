@@ -46,7 +46,7 @@ class VerifyCredentials extends BaseApi
 			DI::mstdnError()->InternalError();
 		}
 
-		$cdata = Contact::getPublicAndUserContacID($self['id'], $uid);
+		$cdata = Contact::getPublicAndUserContactID($self['id'], $uid);
 		if (empty($cdata)) {
 			DI::mstdnError()->InternalError();
 		}
