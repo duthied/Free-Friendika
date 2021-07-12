@@ -161,7 +161,7 @@ class PermissionSet extends BaseRepository
 	 */
 	public function selectByContactId($contact_id, $uid)
 	{
-		$cdata = Model\Contact::getPublicAndUserContacID($contact_id, $uid);
+		$cdata = Model\Contact::getPublicAndUserContactID($contact_id, $uid);
 		if (!empty($cdata)) {
 			$public_contact_str = '<' . $cdata['public'] . '>';
 			$user_contact_str = '<' . $cdata['user'] . '>';

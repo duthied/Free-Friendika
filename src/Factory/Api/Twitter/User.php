@@ -39,7 +39,7 @@ class User extends BaseFactory
 	 */
 	public function createFromContactId(int $contactId, $uid = 0, $skip_status = false, $include_user_entities = true)
 	{
-		$cdata = Contact::getPublicAndUserContacID($contactId, $uid);
+		$cdata = Contact::getPublicAndUserContactID($contactId, $uid);
 		if (!empty($cdata)) {
 			$publicContact = Contact::getById($cdata['public']);
 			$userContact = Contact::getById($cdata['user']);

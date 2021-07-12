@@ -45,7 +45,8 @@ class PostUpdate
 {
 	// Needed for the helper function to read from the legacy term table
 	const OBJECT_TYPE_POST  = 1;
-	const VERSION = 1400;
+
+	const VERSION = 1427;
 
 	/**
 	 * Calls the post update functions

@@ -332,7 +332,7 @@ class Contact
 			return false;
 		}
 
-		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		$cdata = self::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata['user'])) {
 			return false;
 		}
@@ -378,7 +378,7 @@ class Contact
 			return false;
 		}
 
-		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		$cdata = self::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata['user'])) {
 			return false;
 		}
@@ -507,7 +507,48 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getPublicAndUserContacID($cid, $uid)
+	public static function getPublicAndUserContactID($cid, $uid)
+	{
+		// We have to use the legacy function as long as the post update hasn't finished
+		if (DI::config()->get('system', 'post_update_version') < 1427) {
+			return self::legacyGetPublicAndUserContactID($cid, $uid);
+		}
+
+		if (empty($uid) || empty($cid)) {
+			return [];
+		}
+
+		$contact = DBA::selectFirst('account-user-view', ['id', 'uid', 'pid'], ['id' => $cid]);
+		if (!DBA::isResult($contact) || !in_array($contact['uid'], [0, $uid])) {
+			return [];
+		}
+
+		$pcid = $contact['pid'];
+		if ($contact['uid'] == $uid) {
+			$ucid = $contact['id'];
+		} else {
+			$contact = DBA::selectFirst('account-user-view', ['id', 'uid'], ['pid' => $cid, 'uid' => $uid]);
+			if (DBA::isResult($contact)) {
+				$ucid = $contact['id'];
+			} else {
+				$ucid = 0;
+			}
+		}
+
+		return ['public' => $pcid, 'user' => $ucid];
+	}
+
+	/**
+	 * Helper function for "getPublicAndUserContactID"
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 *
+	 * @return array with public and user's contact id
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function legacyGetPublicAndUserContactID($cid, $uid)
 	{
 		if (empty($uid) || empty($cid)) {
 			return [];
@@ -2588,7 +2629,7 @@ class Contact
 	 */
 	public static function unfollow(int $cid, int $uid)
 	{
-		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		$cdata = self::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata['user'])) {
 			return false;
 		}

@@ -60,7 +60,7 @@ class Account extends BaseFactory
 	 */
 	public function createFromContactId(int $contactId, $uid = 0): \Friendica\Object\Api\Mastodon\Account
 	{
-		$cdata = Contact::getPublicAndUserContacID($contactId, $uid);
+		$cdata = Contact::getPublicAndUserContactID($contactId, $uid);
 		if (!empty($cdata)) {
 			$publicContact = Contact::getById($cdata['public']);
 			$userContact   = Contact::getById($cdata['user']);

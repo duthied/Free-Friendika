@@ -205,7 +205,7 @@ abstract class ContactEndpoint extends BaseApi
 
 			// Conversion to public contact ids
 			array_walk($ids, function (&$contactId) use ($uid, $stringify_ids) {
-				$cdata = Contact::getPublicAndUserContacID($contactId, $uid);
+				$cdata = Contact::getPublicAndUserContactID($contactId, $uid);
 				if ($stringify_ids) {
 					$contactId = (string)$cdata['public'];
 				} else {

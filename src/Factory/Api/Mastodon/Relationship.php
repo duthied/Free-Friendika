@@ -36,7 +36,7 @@ class Relationship extends BaseFactory
 	 */
 	public function createFromContactId(int $contactId, int $uid): RelationshipEntity
 	{
-		$cdata = Contact::getPublicAndUserContacID($contactId, $uid);
+		$cdata = Contact::getPublicAndUserContactID($contactId, $uid);
 		if (!empty($cdata)) {
 			$cid = $cdata['user'];
 		} else {

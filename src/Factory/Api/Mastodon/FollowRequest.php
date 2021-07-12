@@ -49,7 +49,7 @@ class FollowRequest extends BaseFactory
 	 */
 	public function createFromIntroduction(Introduction $introduction): \Friendica\Object\Api\Mastodon\FollowRequest
 	{
-		$cdata = Contact::getPublicAndUserContacID($introduction->{'contact-id'}, $introduction->uid);
+		$cdata = Contact::getPublicAndUserContactID($introduction->{'contact-id'}, $introduction->uid);
 
 		if (empty($cdata)) {
 			$this->logger->warning('Wrong introduction data', ['Introduction' => $introduction]);

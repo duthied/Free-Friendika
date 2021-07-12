@@ -251,7 +251,7 @@ function update_1348()
 	// Insert a permissionset with id=0
 	// Inserting it without an ID and then changing the value to 0 tricks the auto increment
 	if (!DBA::exists('permissionset', ['id' => 0])) {
-		DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
+		DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);
 		$lastid = DBA::lastInsertId();
 		if ($lastid != 0) {
 			DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
@@ -767,8 +767,8 @@ function update_1398()
 function update_1399()
 {
 	if (!DBA::e("UPDATE `post-thread-user` INNER JOIN `post-user` ON `post-user`.`uid` = `post-thread-user`.`uid` AND `post-user`.`uri-id` = `post-thread-user`.`uri-id`
-		SET `post-thread-user`.`contact-id` = `post-user`.`contact-id`, `post-thread-user`.`unseen` = `post-user`.`unseen`, 
-		`post-thread-user`.`hidden` = `post-user`.`hidden`, `post-thread-user`.`origin` = `post-user`.`origin`, 
+		SET `post-thread-user`.`contact-id` = `post-user`.`contact-id`, `post-thread-user`.`unseen` = `post-user`.`unseen`,
+		`post-thread-user`.`hidden` = `post-user`.`hidden`, `post-thread-user`.`origin` = `post-user`.`origin`,
 		`post-thread-user`.`psid` = `post-user`.`psid`, `post-thread-user`.`post-user-id` = `post-user`.`id`")) {
 			return Update::FAILED;
 	}
@@ -780,7 +780,7 @@ function update_1400()
 {
 	if (!DBA::e("INSERT IGNORE INTO `post` (`uri-id`, `parent-uri-id`, `thr-parent-id`, `owner-id`, `author-id`, `network`,
 		`created`, `received`, `edited`, `gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted`, `global`)
-		SELECT `uri-id`, `parent-uri-id`, `thr-parent-id`, `owner-id`, `author-id`, `network`, `created`, `received`, `edited`, 
+		SELECT `uri-id`, `parent-uri-id`, `thr-parent-id`, `owner-id`, `author-id`, `network`, `created`, `received`, `edited`,
 			`gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted`, `global` FROM `item`")) {
 			return Update::FAILED;
 	}
@@ -838,11 +838,11 @@ function update_1404()
 	$tasks = DBA::select('workerqueue', ['id', 'command', 'parameter'], ['command' => ['notifier', 'delivery', 'apdelivery', 'done' => false]]);
 	while ($task = DBA::fetch($tasks)) {
 		$parameters = json_decode($task['parameter'], true);
-	
+
 		if (is_array($parameters) && count($parameters) && in_array($parameters[0], [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
 			continue;
 		}
-	
+
 		switch (strtolower($task['command'])) {
 			case 'notifier':
 				if (count($parameters) == 3) {
@@ -852,7 +852,7 @@ function update_1404()
 				if (!DBA::isResult($item)) {
 					continue 2;
 				}
-	
+
 				$parameters[1] = $item['uri-id'];
 				$parameters[2] = $item['uid'];
 				break;
@@ -864,7 +864,7 @@ function update_1404()
 				if (!DBA::isResult($item)) {
 					continue 2;
 				}
-	
+
 				$parameters[1] = $item['uri-id'];
 				$parameters[3] = $item['uid'];
 				break;
@@ -872,16 +872,16 @@ function update_1404()
 				if (count($parameters) == 6) {
 					continue 2;
 				}
-	
+
 				if (empty($parameters[4])) {
 					$parameters[4] = [];
 				}
-	
+
 				$item = DBA::selectFirst('item', ['uri-id'], ['id' => $parameters[1]]);
 				if (!DBA::isResult($item)) {
 					continue 2;
 				}
-	
+
 				$parameters[5] = $item['uri-id'];
 				break;
 			default:
@@ -943,5 +943,24 @@ function update_1419()
 
 		DBA::update('mail', $fields, ['id' => $mail['id']]);
 	}
+	return Update::SUCCESS;
+}
+
+function update_1429()
+{
+	if (!DBA::e("UPDATE `contact` SET `uri-id` = null WHERE NOT `uri-id` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `fcontact` SET `uri-id` = null WHERE NOT `uri-id` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `apcontact` SET `uri-id` = null WHERE NOT `uri-id` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	DI::config()->set("system", "post_update_version", 1423);
+
 	return Update::SUCCESS;
 }
