@@ -1495,6 +1495,7 @@ class Diaspora
 
 		$contact = self::allowedContactByHandle($importer, $sender, true);
 		if (!$contact) {
+			//self::sendRetraction($item, $owner, $contact, in_array($item['private'], [self::UNLISTED, self::PUBLIC]));
 			return false;
 		}
 

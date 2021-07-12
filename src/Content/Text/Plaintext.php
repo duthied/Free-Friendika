@@ -31,16 +31,22 @@ class Plaintext
 	 *
 	 * @param  string $msg
 	 * @param  int    $limit
+	 * @param  int    $uid
 	 * @return string
 	 *
 	 * @todo For Twitter URLs aren't shortened, but they have to be calculated as if.
 	 */
-	public static function shorten($msg, $limit)
+	public static function shorten($msg, $limit, $uid = 0)
 	{
+		$ellipsis = html_entity_decode("&#x2026;", ENT_QUOTES, 'UTF-8');
+
+		if (!empty($uid) && DI::pConfig()->get($uid, 'system', 'simple_shortening')) {
+			return iconv_substr(iconv_substr(trim($msg), 0, $limit, "UTF-8"), 0, -3, "UTF-8") . $ellipsis;
+		}
+
 		$lines = explode("\n", $msg);
 		$msg = "";
 		$recycle = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
-		$ellipsis = html_entity_decode("&#x2026;", ENT_QUOTES, 'UTF-8');
 		foreach ($lines as $row => $line) {
 			if (iconv_strlen(trim($msg . "\n" . $line), "UTF-8") <= $limit) {
 				$msg = trim($msg . "\n" . $line);
@@ -241,7 +247,7 @@ class Plaintext
 				} elseif (DI::pConfig()->get($item['uid'], 'system', 'no_intelligent_shortening')) {
 					$post['url'] = $item['plink'];
 				}
-				$msg = self::shorten($msg, $limit);
+				$msg = self::shorten($msg, $limit, $item['uid']);
 			}
 		}
 
