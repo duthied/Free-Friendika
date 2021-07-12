@@ -36,7 +36,7 @@ class Plaintext
 	 *
 	 * @todo For Twitter URLs aren't shortened, but they have to be calculated as if.
 	 */
-	public static function shorten(string $msg, int $limit, int $uid = 0)
+	public static function shorten(string $msg, int $limit, int $uid = 0):string
 	{
 		$ellipsis = html_entity_decode("&#x2026;", ENT_QUOTES, 'UTF-8');
 
