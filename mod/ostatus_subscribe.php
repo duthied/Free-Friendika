@@ -22,7 +22,9 @@
 use Friendica\App;
 use Friendica\Core\Protocol;
 use Friendica\DI;
+use Friendica\Model\APContact;
 use Friendica\Model\Contact;
+use Friendica\Protocol\ActivityPub;
 
 function ostatus_subscribe_content(App $a)
 {
@@ -32,11 +34,11 @@ function ostatus_subscribe_content(App $a)
 		// NOTREACHED
 	}
 
-	$o = '<h2>' . DI::l10n()->t('Subscribing to OStatus contacts') . '</h2>';
+	$o = '<h2>' . DI::l10n()->t('Subscribing to contacts') . '</h2>';
 
 	$uid = local_user();
 
-	$counter = intval($_REQUEST['counter']);
+	$counter = intval($_REQUEST['counter'] ?? 0);
 
 	if (DI::pConfig()->get($uid, 'ostatus', 'legacy_friends') == '') {
 
@@ -51,17 +53,38 @@ function ostatus_subscribe_content(App $a)
 			return $o . DI::l10n()->t('Couldn\'t fetch information for contact.');
 		}
 
-		$api = $contact['baseurl'] . '/api/';
+		if ($contact['network'] == Protocol::OSTATUS) {
+			$api = $contact['baseurl'] . '/api/';
 
-		// Fetching friends
-		$curlResult = DI::httpRequest()->get($api . 'statuses/friends.json?screen_name=' . $contact['nick']);
+			// Fetching friends
+			$curlResult = DI::httpRequest()->get($api . 'statuses/friends.json?screen_name=' . $contact['nick']);
 
-		if (!$curlResult->isSuccess()) {
+			if (!$curlResult->isSuccess()) {
+				DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
+				return $o . DI::l10n()->t('Couldn\'t fetch friends for contact.');
+			}
+
+			$friends = $curlResult->getBody();
+			if (empty($friends)) {
+				DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
+				return $o . DI::l10n()->t('Couldn\'t fetch following contacts.');
+			}
+			DI::pConfig()->set($uid, 'ostatus', 'legacy_friends', $friends);
+		} elseif ($apcontact = APContact::getByURL($contact['url'])) {
+			if (empty($apcontact['following'])) {
+				DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
+				return $o . DI::l10n()->t('Couldn\'t fetch remote profile.');
+			}
+			$followings = ActivityPub::fetchItems($apcontact['following']);
+			if (empty($followings)) {
+				DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
+				return $o . DI::l10n()->t('Couldn\'t fetch following contacts.');
+			}
+			DI::pConfig()->set($uid, 'ostatus', 'legacy_friends', json_encode($followings));
+		} else {
 			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
-			return $o . DI::l10n()->t('Couldn\'t fetch friends for contact.');
+			return $o . DI::l10n()->t('Unsupported network');
 		}
-
-		DI::pConfig()->set($uid, 'ostatus', 'legacy_friends', $curlResult->getBody());
 	}
 
 	$friends = json_decode(DI::pConfig()->get($uid, 'ostatus', 'legacy_friends'));
@@ -82,13 +105,13 @@ function ostatus_subscribe_content(App $a)
 
 	$friend = $friends[$counter++];
 
-	$url = $friend->statusnet_profile_url;
+	$url = $friend->statusnet_profile_url ?? $friend;
 
 	$o .= '<p>' . $counter . '/' . $total . ': ' . $url;
 
 	$probed = Contact::getByURL($url);
-	if ($probed['network'] == Protocol::OSTATUS) {
-		$result = Contact::createFromProbe($a->user, $probed['url'], true, Protocol::OSTATUS);
+	if (in_array($probed['network'], Protocol::FEDERATED)) {
+		$result = Contact::createFromProbe($a->user, $probed['url']);
 		if ($result['success']) {
 			$o .= ' - ' . DI::l10n()->t('success');
 		} else {

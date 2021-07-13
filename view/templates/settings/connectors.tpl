@@ -16,8 +16,6 @@
 		{{include file="field_checkbox.tpl" field=$no_intelligent_shortening}}
 		{{include file="field_checkbox.tpl" field=$simple_shortening}}
 		{{include file="field_checkbox.tpl" field=$attach_link_title}}
-		{{include file="field_checkbox.tpl" field=$ostatus_autofriend}}
-		{{$default_group nofilter}}
 		{{include file="field_input.tpl" field=$legacy_contact}}
 
 		<p><a href="{{$repair_ostatus_url}}">{{$repair_ostatus_text}}</a></p>

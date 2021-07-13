@@ -476,20 +476,11 @@ class User
 	 */
 	public static function getDefaultGroup($uid, $network = '')
 	{
-		$default_group = 0;
-
-		if ($network == Protocol::OSTATUS) {
-			$default_group = DI::pConfig()->get($uid, "ostatus", "default_group");
-		}
-
-		if ($default_group != 0) {
-			return $default_group;
-		}
-
 		$user = DBA::selectFirst('user', ['def_gid'], ['uid' => $uid]);
-
 		if (DBA::isResult($user)) {
 			$default_group = $user["def_gid"];
+		} else {
+			$default_group = 0;
 		}
 
 		return $default_group;
