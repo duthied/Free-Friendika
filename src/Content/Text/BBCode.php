@@ -51,7 +51,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2021-05-21';
+	const VERSION = '2021-07-13';
 
 	const INTERNAL = 0;
 	const EXTERNAL = 1;
@@ -417,9 +417,9 @@ class BBCode
 				if (empty($attach_data['url'])) {
 					return $match[0];
 				} elseif (empty($attach_data['title']) || $no_link_desc) {
-					return "\n[url]" . $attach_data['url'] . "[/url]\n";
+					return " \n[url]" . $attach_data['url'] . "[/url]\n";
 				} else {
-					return "\n[url=" . $attach_data['url'] . ']' . $attach_data['title'] . "[/url]\n";
+					return " \n[url=" . $attach_data['url'] . ']' . $attach_data['title'] . "[/url]\n";
 				}
 		}, $body);
 	}
@@ -1057,7 +1057,7 @@ class BBCode
 		switch ($simplehtml) {
 			case self::API:
 				$text = ($is_quote_share? '<br>' : '') .
-				'<p><b><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . "</a>:</b> </p>\n" .
+				'<b><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . "</a>:</b><br>\n" .
 				'<blockquote class="shared_content">' . $content . '</blockquote>';
 				break;
 			case self::DIASPORA:
@@ -1431,18 +1431,18 @@ class BBCode
 					} while ($oldtext != $text);
 				}
 
-				// Add HTML new lines
-				$text = str_replace("\n", '<br>', $text);
-
 				/// @todo Have a closer look at the different html modes
 				// Handle attached links or videos
-				if ($simple_html == self::ACTIVITYPUB) {
+				if (in_array($simple_html, [self::API, self::ACTIVITYPUB])) {
 					$text = self::removeAttachment($text);
 				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
 					$text = self::removeAttachment($text, true);
 				} else {
 					$text = self::convertAttachment($text, $simple_html, $try_oembed, [], $uriid);
 				}
+
+				// Add HTML new lines
+				$text = str_replace("\n", '<br>', $text);
 
 				$nosmile = strpos($text, '[nosmile]') !== false;
 				$text = str_replace('[nosmile]', '', $text);
@@ -1749,7 +1749,7 @@ class BBCode
 				}
 
 				if (!$for_plaintext) {
-					if (in_array($simple_html, [self::OSTATUS, self::ACTIVITYPUB])) {
+					if (in_array($simple_html, [self::OSTATUS, self::API, self::ACTIVITYPUB])) {
 						$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 						$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 					}
@@ -1782,7 +1782,7 @@ class BBCode
 				$text = preg_replace("/#\[url\=.*?\]\^\[\/url\]\[url\=(.*?)\](.*?)\[\/url\]/i",
 							"[bookmark=$1]$2[/bookmark]", $text);
 
-				if (in_array($simple_html, [self::API, self::OSTATUS, self::TWITTER])) {
+				if (in_array($simple_html, [self::OSTATUS, self::TWITTER])) {
 					$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
 					//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
 					$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$text);
@@ -1821,7 +1821,7 @@ class BBCode
 				 * - [url=<anything>]#<term>[/url]
 				 */
 				$text = preg_replace_callback("/(?:#\[url\=[^\[\]]*\]|\[url\=[^\[\]]*\]#)(.*?)\[\/url\]/ism", function($matches) use ($simple_html) {
-					if ($simple_html == BBCode::ACTIVITYPUB) {
+					if ($simple_html == self::ACTIVITYPUB) {
 						return '<a href="' . DI::baseUrl() . '/search?tag=' . rawurlencode($matches[1])
 							. '" data-tag="' . XML::escape($matches[1]) . '" rel="tag ugc">#'
 							. XML::escape($matches[1]) . '</a>';
@@ -2115,7 +2115,7 @@ class BBCode
 	{
 		$ret = [];
 
-		BBCode::performWithEscapedTags($string, ['noparse', 'pre', 'code', 'img'], function ($string) use (&$ret) {
+		self::performWithEscapedTags($string, ['noparse', 'pre', 'code', 'img'], function ($string) use (&$ret) {
 			// Convert hashtag links to hashtags
 			$string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2 ', $string);
 
@@ -2222,8 +2222,8 @@ class BBCode
 	 */
 	public static function setMentions($body, $profile_uid = 0, $network = '')
 	{
-		BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network) {
-			$tags = BBCode::getTags($body);
+		self::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network) {
+			$tags = self::getTags($body);
 
 			$tagged = [];
 			$inform = '';
