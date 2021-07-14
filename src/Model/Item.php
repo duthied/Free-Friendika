@@ -38,8 +38,6 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\HTTPSignature;
-use Friendica\Util\LDSignature;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy;
@@ -544,30 +542,25 @@ class Item
 
 		if (!empty($item['author-id']) && Contact::isBlocked($item['author-id'])) {
 			Logger::notice('Author is blocked node-wide', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
-			self::remoteDelete($item);
 			return false;
 		}
 
 		if (!empty($item['author-link']) && Network::isUrlBlocked($item['author-link'])) {
 			Logger::notice('Author server is blocked', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
-			self::remoteDelete($item);
 			return false;
 		}
 
 		if (!empty($item['owner-id']) && Contact::isBlocked($item['owner-id'])) {
 			Logger::notice('Owner is blocked node-wide', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
-			self::remoteDelete($item);
 			return false;
 		}
 
 		if (!empty($item['owner-link']) && Network::isUrlBlocked($item['owner-link'])) {
 			Logger::notice('Owner server is blocked', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
-			self::remoteDelete($item);
 			return false;
 		}
 
 		if (!empty($item['uid']) && !self::isAllowedByUser($item, $item['uid'])) {
-			self::remoteDelete($item);
 			return false;
 		}
 
@@ -588,40 +581,6 @@ class Item
 		}
 
 		return true;
-	}
-
-	/**
-	 * Try to delete the remote (unwanted) item
-	 *
-	 * @param array $item 
-	 */
-	private static function remoteDelete(array $item)
-	{
-		if ($item['gravity'] == GRAVITY_PARENT) {
-			return;
-		}
-		return;
-
-		$owner   = User::getOwnerDataById($item['uid']);
-		$contact = Contact::getById($item['contact-id']);
-
-		if (FContact::getByURL($contact['addr'], false)) {
-			Logger::info('Send Diaspora retraction for post', ['addr' => $contact['addr'], 'item' => $item]);
-			Diaspora::sendRetraction($item, $owner, $contact, in_array($item['private'], [self::UNLISTED, self::PUBLIC]));
-		} elseif ($profile = APContact::getByURL($contact['url'], false)) {
-			Logger::info('Send ActivityPub deletion for post', ['url' => $contact['url'], 'item' => $item]);
-			$data = ['@context' => ActivityPub::CONTEXT,
-				'id' => $item['uri'] . '/Delete',
-				'type' => 'Delete',
-				'actor' => $owner['url'],
-				'object' => ['type' => 'Tombstone', 'id' => $item['uri']],
-				'to' => [$profile['url']]];
-
-			$signed = LDSignature::sign($data, $owner);
-			return HTTPSignature::transmit($signed, $profile['inbox'], $item['uid']);
-		} else {
-			Logger::info('Unsupported protocol for deletion', ['network' => $contact['network']]);
-		}
 	}
 
 	/**
