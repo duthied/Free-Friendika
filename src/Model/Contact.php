@@ -2211,10 +2211,10 @@ class Contact
 		}
 
 		if ((!empty($ret['addr']) && ($ret['addr'] != $contact['addr'])) || (!empty($ret['alias']) && ($ret['alias'] != $contact['alias']))) {
-			$ret['uri-date'] = DateTimeFormat::utcNow();
+			$ret['uri-date'] = $updated;
 		}
 
-		if (($ret['name'] != $contact['name']) || ($ret['nick'] != $contact['nick'])) {
+		if ((!empty($ret['name']) && ($ret['name'] != $contact['name'])) || (!empty($ret['nick']) && ($ret['nick'] != $contact['nick']))) {
 			$ret['name-date'] = $updated;
 		}
 
