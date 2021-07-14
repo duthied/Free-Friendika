@@ -534,7 +534,7 @@ class Notifier
 
 		foreach ($contacts as $contact) {
 			// Direct delivery of local contacts
-			if ($target_uid = User::getIdForURL($contact['url'])) {
+			if (!in_array($cmd, [Delivery::RELOCATION, Delivery::SUGGESTION, Delivery::DELETION, Delivery::MAIL]) && $target_uid = User::getIdForURL($contact['url'])) {
 				Logger::info('Direct delivery', ['uri-id' => $target_item['uri-id'], 'target' => $target_uid]);
 				$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH];
 				Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
