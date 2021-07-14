@@ -553,7 +553,7 @@ function settings_content(App $a)
 			/// @todo Isn't it supposed to be a $a->internalRedirect() call?
 			DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . DI::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
 		}
-		
+
 		$settings_connectors = '';
 		Hook::callAll('connector_settings', $settings_connectors);
 
@@ -849,7 +849,7 @@ function settings_content(App $a)
 		'$importcontact' => DI::l10n()->t('Import Contacts'),
 		'$importcontact_text' => DI::l10n()->t('Upload a CSV file that contains the handle of your followed accounts in the first column you exported from the old account.'),
 		'$importcontact_button' => DI::l10n()->t('Upload File'),
-		'$importcontact_maxsize' => DI::config()->get('system', 'max_csv_file_size', 30720), 
+		'$importcontact_maxsize' => DI::config()->get('system', 'max_csv_file_size', 30720),
 		'$relocate' => DI::l10n()->t('Relocate'),
 		'$relocate_text' => DI::l10n()->t("If you have moved this profile from another server, and some of your contacts don't receive your updates, try pushing this button."),
 		'$relocate_button' => DI::l10n()->t("Resend relocate message to contacts"),
