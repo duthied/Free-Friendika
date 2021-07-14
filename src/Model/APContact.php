@@ -272,6 +272,11 @@ class APContact
 
 		if (!empty($apcontact['followers'])) {
 			$followers = ActivityPub::fetchContent($apcontact['followers']);
+			// Mastodon seriously allows for this condition? 
+			// Jul 14 2021 - See https://mastodon.online/@goes11 for a negative followers count
+			if ($followers['totalItems'] < 0) {
+			  $followers['totalItems'] = 0;
+			}
 			if (!empty($followers['totalItems'])) {
 				$apcontact['followers_count'] = $followers['totalItems'];
 			}
