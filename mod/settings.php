@@ -139,8 +139,6 @@ function settings_post(App $a)
 			DI::pConfig()->set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			DI::pConfig()->set(local_user(), 'system', 'simple_shortening', intval($_POST['simple_shortening']));
 			DI::pConfig()->set(local_user(), 'system', 'attach_link_title', intval($_POST['attach_link_title']));
-			DI::pConfig()->set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
-			DI::pConfig()->set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
 			DI::pConfig()->set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
 		} elseif (!empty($_POST['imap-submit'])) {
 			$mail_server       =                 $_POST['mail_server']       ?? '';
@@ -549,8 +547,6 @@ function settings_content(App $a)
 		$no_intelligent_shortening = intval(DI::pConfig()->get(local_user(), 'system', 'no_intelligent_shortening'));
 		$simple_shortening         = intval(DI::pConfig()->get(local_user(), 'system', 'simple_shortening'));
 		$attach_link_title         = intval(DI::pConfig()->get(local_user(), 'system', 'attach_link_title'));
-		$ostatus_autofriend        = intval(DI::pConfig()->get(local_user(), 'system', 'ostatus_autofriend'));
-		$default_group             = DI::pConfig()->get(local_user(), 'ostatus', 'default_group');
 		$legacy_contact            = DI::pConfig()->get(local_user(), 'ostatus', 'legacy_contact');
 
 		if (!empty($legacy_contact)) {
@@ -616,9 +612,7 @@ function settings_content(App $a)
 			'$no_intelligent_shortening' => ['no_intelligent_shortening', DI::l10n()->t('Disable intelligent shortening'), $no_intelligent_shortening, DI::l10n()->t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.')],
 			'$simple_shortening' => ['simple_shortening', DI::l10n()->t('Enable simple text shortening'), $simple_shortening, DI::l10n()->t('Normally the system shortens posts at the next line feed. If this option is enabled then the system will shorten the text at the maximum character limit.')],
 			'$attach_link_title' => ['attach_link_title', DI::l10n()->t('Attach the link title'), $attach_link_title, DI::l10n()->t('When activated, the title of the attached link will be added as a title on posts to Diaspora. This is mostly helpful with "remote-self" contacts that share feed content.')],
-			'$ostatus_autofriend' => ['snautofollow', DI::l10n()->t("Automatically follow any GNU Social \x28OStatus\x29 followers/mentioners"), $ostatus_autofriend, DI::l10n()->t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.')],
-			'$default_group' => Group::displayGroupSelection(local_user(), $default_group, DI::l10n()->t("Default group for OStatus contacts")),
-			'$legacy_contact' => ['legacy_contact', DI::l10n()->t('Your legacy GNU Social account'), $legacy_contact, DI::l10n()->t("If you enter your old GNU Social/Statusnet account name here \x28in the format user@domain.tld\x29, your contacts will be added automatically. The field will be emptied when done.")],
+			'$legacy_contact' => ['legacy_contact', DI::l10n()->t('Your legacy ActivityPub/GNU Social account'), $legacy_contact, DI::l10n()->t("If you enter your old account name from an ActivityPub based system or your GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.")],
 
 			'$repair_ostatus_url' => DI::baseUrl() . '/repair_ostatus',
 			'$repair_ostatus_text' => DI::l10n()->t('Repair OStatus subscriptions'),
@@ -855,7 +849,7 @@ function settings_content(App $a)
 		'$importcontact' => DI::l10n()->t('Import Contacts'),
 		'$importcontact_text' => DI::l10n()->t('Upload a CSV file that contains the handle of your followed accounts in the first column you exported from the old account.'),
 		'$importcontact_button' => DI::l10n()->t('Upload File'),
-		'$importcontact_maxsize' => DI::config()->get('system', 'max_csv_file_size', 30720), 
+		'$importcontact_maxsize' => DI::config()->get('system', 'max_csv_file_size', 30720),
 		'$relocate' => DI::l10n()->t('Relocate'),
 		'$relocate_text' => DI::l10n()->t("If you have moved this profile from another server, and some of your contacts don't receive your updates, try pushing this button."),
 		'$relocate_button' => DI::l10n()->t("Resend relocate message to contacts"),

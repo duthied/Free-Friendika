@@ -169,24 +169,6 @@ function salmon_post(App $a, $xml = '') {
 		intval($importer['uid'])
 	);
 
-	if (!DBA::isResult($r)) {
-		Logger::log('Author ' . $author_link . ' unknown to user ' . $importer['uid'] . '.');
-
-		if (DI::pConfig()->get($importer['uid'], 'system', 'ostatus_autofriend')) {
-			$result = Contact::createFromProbe($importer, $author_link);
-
-			if ($result['success']) {
-				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s')
-					AND `uid` = %d LIMIT 1",
-					DBA::escape(Protocol::OSTATUS),
-					DBA::escape($author_link),
-					DBA::escape($author_link),
-					intval($importer['uid'])
-				);
-			}
-		}
-	}
-
 	if (!empty($r[0]['gsid'])) {
 		GServer::setProtocol($r[0]['gsid'], Post\DeliveryData::OSTATUS);
 	}
@@ -194,7 +176,6 @@ function salmon_post(App $a, $xml = '') {
 	// Have we ignored the person?
 	// If so we can not accept this post.
 
-	//if((DBA::isResult($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == Contact::FOLLOWER) || ($r[0]['blocked']))) {
 	if (DBA::isResult($r) && $r[0]['blocked']) {
 		Logger::log('Ignoring this author.');
 		throw new \Friendica\Network\HTTPException\AcceptedException();
