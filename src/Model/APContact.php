@@ -266,6 +266,11 @@ class APContact
 		if (!empty($apcontact['following'])) {
 			$following = ActivityPub::fetchContent($apcontact['following']);
 			if (!empty($following['totalItems'])) {
+				// Mastodon seriously allows for this condition? 
+				// Jul 14 2021 - See https://mastodon.social/@BLUW for a negative following count
+				if ($following['totalItems'] < 0) {
+					$following['totalItems'] = 0;
+				}
 				$apcontact['following_count'] = $following['totalItems'];
 			}
 		}
@@ -273,6 +278,11 @@ class APContact
 		if (!empty($apcontact['followers'])) {
 			$followers = ActivityPub::fetchContent($apcontact['followers']);
 			if (!empty($followers['totalItems'])) {
+				// Mastodon seriously allows for this condition? 
+				// Jul 14 2021 - See https://mastodon.online/@goes11 for a negative followers count
+				if ($followers['totalItems'] < 0) {
+					$followers['totalItems'] = 0;
+				}
 				$apcontact['followers_count'] = $followers['totalItems'];
 			}
 		}
