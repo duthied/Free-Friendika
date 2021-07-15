@@ -286,7 +286,7 @@ class Introduction implements \JsonSerializable
 		$this->knowYou       = $data['knowYou'] ?? false;
 		$this->note          = $data['note'] ?? '';
 		$this->request       = $data['request'] ?? '';
-		$this->dfrnId        = $data['dfrn_id'] ?? -1;
+		$this->dfrnId        = -1;
 		$this->addr          = $data['addr'] ?? '';
 		$this->network       = $data['network'] ?? '';
 		$this->uid           = $data['uid'] ?? -1;

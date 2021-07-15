@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-14 02:55+0000\n"
+"POT-Creation-Date: 2021-07-15 08:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgstr ""
 msgid "%1$s poked %2$s"
 msgstr ""
 
-#: include/conversation.php:138 src/Model/Item.php:2647
+#: include/conversation.php:138 src/Model/Item.php:2606
 msgid "event"
 msgstr ""
 
@@ -62,7 +62,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: include/conversation.php:146 mod/tagger.php:90 src/Model/Item.php:2649
+#: include/conversation.php:146 mod/tagger.php:90 src/Model/Item.php:2608
 msgid "photo"
 msgstr ""
 
@@ -184,32 +184,32 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: include/conversation.php:852 src/Model/Contact.php:1045
+#: include/conversation.php:852 src/Model/Contact.php:1043
 msgid "View Status"
 msgstr ""
 
 #: include/conversation.php:853 include/conversation.php:875
-#: src/Model/Contact.php:971 src/Model/Contact.php:1037
-#: src/Model/Contact.php:1046 src/Module/Directory.php:166
+#: src/Model/Contact.php:969 src/Model/Contact.php:1035
+#: src/Model/Contact.php:1044 src/Module/Directory.php:166
 #: src/Module/Settings/Profile/Index.php:224
 msgid "View Profile"
 msgstr ""
 
-#: include/conversation.php:854 src/Model/Contact.php:1047
+#: include/conversation.php:854 src/Model/Contact.php:1045
 msgid "View Photos"
 msgstr ""
 
-#: include/conversation.php:855 src/Model/Contact.php:1038
-#: src/Model/Contact.php:1048
+#: include/conversation.php:855 src/Model/Contact.php:1036
+#: src/Model/Contact.php:1046
 msgid "Network Posts"
 msgstr ""
 
-#: include/conversation.php:856 src/Model/Contact.php:1039
-#: src/Model/Contact.php:1049
+#: include/conversation.php:856 src/Model/Contact.php:1037
+#: src/Model/Contact.php:1047
 msgid "View Contact"
 msgstr ""
 
-#: include/conversation.php:857 src/Model/Contact.php:1051
+#: include/conversation.php:857 src/Model/Contact.php:1049
 msgid "Send PM"
 msgstr ""
 
@@ -223,7 +223,7 @@ msgstr ""
 #: include/conversation.php:859 src/Module/Contact.php:634
 #: src/Module/Contact.php:892 src/Module/Contact.php:1181
 #: src/Module/Notifications/Introductions.php:113
-#: src/Module/Notifications/Introductions.php:191
+#: src/Module/Notifications/Introductions.php:185
 #: src/Module/Notifications/Notification.php:59
 msgid "Ignore"
 msgstr ""
@@ -232,12 +232,12 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-#: include/conversation.php:867 src/Model/Contact.php:1052
+#: include/conversation.php:867 src/Model/Contact.php:1050
 msgid "Poke"
 msgstr ""
 
-#: include/conversation.php:872 mod/follow.php:146 src/Content/Widget.php:76
-#: src/Model/Contact.php:1040 src/Model/Contact.php:1053
+#: include/conversation.php:872 mod/follow.php:138 src/Content/Widget.php:76
+#: src/Model/Contact.php:1038 src/Model/Contact.php:1051
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr ""
@@ -476,11 +476,10 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
-#: include/conversation.php:1145 mod/dfrn_request.php:642 mod/editpost.php:128
-#: mod/fbrowser.php:105 mod/fbrowser.php:134 mod/follow.php:152
-#: mod/photos.php:1036 mod/photos.php:1142 mod/tagrm.php:37 mod/tagrm.php:129
-#: mod/unfollow.php:100 src/Module/Contact.php:467
-#: src/Module/RemoteFollow.php:110
+#: include/conversation.php:1145 mod/editpost.php:128 mod/fbrowser.php:105
+#: mod/fbrowser.php:134 mod/follow.php:144 mod/photos.php:1036
+#: mod/photos.php:1142 mod/tagrm.php:37 mod/tagrm.php:129 mod/unfollow.php:97
+#: src/Module/Contact.php:467 src/Module/RemoteFollow.php:110
 msgid "Cancel"
 msgstr ""
 
@@ -823,17 +822,17 @@ msgstr ""
 msgid "Please visit %s to approve or reject the request."
 msgstr ""
 
-#: mod/api.php:52 mod/api.php:57 mod/dfrn_confirm.php:78 mod/editpost.php:37
-#: mod/events.php:231 mod/follow.php:55 mod/follow.php:135 mod/item.php:185
-#: mod/item.php:190 mod/item.php:917 mod/message.php:69 mod/message.php:112
-#: mod/notes.php:44 mod/ostatus_subscribe.php:32 mod/photos.php:175
-#: mod/photos.php:921 mod/repair_ostatus.php:31 mod/settings.php:47
-#: mod/settings.php:65 mod/settings.php:474 mod/suggest.php:34
-#: mod/uimport.php:32 mod/unfollow.php:35 mod/unfollow.php:50
-#: mod/unfollow.php:82 mod/wall_attach.php:78 mod/wall_attach.php:81
-#: mod/wall_upload.php:99 mod/wall_upload.php:102 mod/wallmessage.php:35
-#: mod/wallmessage.php:59 mod/wallmessage.php:96 mod/wallmessage.php:120
-#: src/Module/Attach.php:56 src/Module/BaseApi.php:81 src/Module/BaseApi.php:92
+#: mod/api.php:52 mod/api.php:57 mod/editpost.php:37 mod/events.php:231
+#: mod/follow.php:55 mod/follow.php:130 mod/item.php:185 mod/item.php:190
+#: mod/item.php:917 mod/message.php:69 mod/message.php:112 mod/notes.php:44
+#: mod/ostatus_subscribe.php:32 mod/photos.php:175 mod/photos.php:921
+#: mod/repair_ostatus.php:31 mod/settings.php:47 mod/settings.php:65
+#: mod/settings.php:474 mod/suggest.php:34 mod/uimport.php:32
+#: mod/unfollow.php:35 mod/unfollow.php:50 mod/unfollow.php:82
+#: mod/wall_attach.php:78 mod/wall_attach.php:81 mod/wall_upload.php:99
+#: mod/wall_upload.php:102 mod/wallmessage.php:35 mod/wallmessage.php:59
+#: mod/wallmessage.php:96 mod/wallmessage.php:120 src/Module/Attach.php:56
+#: src/Module/BaseApi.php:81 src/Module/BaseApi.php:92
 #: src/Module/BaseApi.php:103 src/Module/BaseApi.php:114
 #: src/Module/BaseNotifications.php:88 src/Module/Contact.php:385
 #: src/Module/Contact/Advanced.php:43 src/Module/Delegation.php:118
@@ -886,7 +885,7 @@ msgid "No"
 msgstr ""
 
 #: mod/cal.php:46 mod/cal.php:50 mod/follow.php:38 mod/redir.php:34
-#: mod/redir.php:203 src/Module/Conversation/Community.php:194
+#: mod/redir.php:176 src/Module/Conversation/Community.php:194
 #: src/Module/Debug/ItemBody.php:38 src/Module/Diaspora/Receive.php:51
 #: src/Module/Item/Follow.php:42 src/Module/Item/Ignore.php:41
 #: src/Module/Item/Pin.php:42 src/Module/Item/Pin.php:57
@@ -968,251 +967,11 @@ msgstr ""
 msgid "calendar"
 msgstr ""
 
-#: mod/dfrn_confirm.php:84 src/Module/Profile/Profile.php:82
-msgid "Profile not found."
-msgstr ""
-
-#: mod/dfrn_confirm.php:139 mod/redir.php:56 mod/redir.php:157
-#: src/Module/Contact/Advanced.php:53 src/Module/Contact/Advanced.php:104
-#: src/Module/Contact/Contacts.php:36 src/Module/FriendSuggest.php:54
-#: src/Module/FriendSuggest.php:93 src/Module/Group.php:105
-msgid "Contact not found."
-msgstr ""
-
-#: mod/dfrn_confirm.php:140
-msgid ""
-"This may occasionally happen if contact was requested by both persons and it "
-"has already been approved."
-msgstr ""
-
-#: mod/dfrn_confirm.php:241
-msgid "Response from remote site was not understood."
-msgstr ""
-
-#: mod/dfrn_confirm.php:248 mod/dfrn_confirm.php:254
-msgid "Unexpected response from remote site: "
-msgstr ""
-
-#: mod/dfrn_confirm.php:263
-msgid "Confirmation completed successfully."
-msgstr ""
-
-#: mod/dfrn_confirm.php:275
-msgid "Temporary failure. Please wait and try again."
-msgstr ""
-
-#: mod/dfrn_confirm.php:278
-msgid "Introduction failed or was revoked."
-msgstr ""
-
-#: mod/dfrn_confirm.php:283
-msgid "Remote site reported: "
-msgstr ""
-
-#: mod/dfrn_confirm.php:388
-#, php-format
-msgid "No user record found for '%s' "
-msgstr ""
-
-#: mod/dfrn_confirm.php:398
-msgid "Our site encryption key is apparently messed up."
-msgstr ""
-
-#: mod/dfrn_confirm.php:409
-msgid "Empty site URL was provided or URL could not be decrypted by us."
-msgstr ""
-
-#: mod/dfrn_confirm.php:425
-msgid "Contact record was not found for you on our site."
-msgstr ""
-
-#: mod/dfrn_confirm.php:439
-#, php-format
-msgid "Site public key not available in contact record for URL %s."
-msgstr ""
-
-#: mod/dfrn_confirm.php:455
-msgid ""
-"The ID provided by your system is a duplicate on our system. It should work "
-"if you try again."
-msgstr ""
-
-#: mod/dfrn_confirm.php:466
-msgid "Unable to set your contact credentials on our system."
-msgstr ""
-
-#: mod/dfrn_confirm.php:522
-msgid "Unable to update your contact profile details on our system"
-msgstr ""
-
-#: mod/dfrn_poll.php:136 mod/dfrn_poll.php:509
-#, php-format
-msgid "%1$s welcomes %2$s"
-msgstr ""
-
-#: mod/dfrn_request.php:113
-msgid "This introduction has already been accepted."
-msgstr ""
-
-#: mod/dfrn_request.php:131 mod/dfrn_request.php:369
-msgid "Profile location is not valid or does not contain profile information."
-msgstr ""
-
-#: mod/dfrn_request.php:135 mod/dfrn_request.php:373
-msgid "Warning: profile location has no identifiable owner name."
-msgstr ""
-
-#: mod/dfrn_request.php:138 mod/dfrn_request.php:376
-msgid "Warning: profile location has no profile photo."
-msgstr ""
-
-#: mod/dfrn_request.php:142 mod/dfrn_request.php:380
-#, php-format
-msgid "%d required parameter was not found at the given location"
-msgid_plural "%d required parameters were not found at the given location"
-msgstr[0] ""
-msgstr[1] ""
-
-#: mod/dfrn_request.php:180
-msgid "Introduction complete."
-msgstr ""
-
-#: mod/dfrn_request.php:216
-msgid "Unrecoverable protocol error."
-msgstr ""
-
-#: mod/dfrn_request.php:243 src/Module/RemoteFollow.php:54
-msgid "Profile unavailable."
-msgstr ""
-
-#: mod/dfrn_request.php:264
-#, php-format
-msgid "%s has received too many connection requests today."
-msgstr ""
-
-#: mod/dfrn_request.php:265
-msgid "Spam protection measures have been invoked."
-msgstr ""
-
-#: mod/dfrn_request.php:266
-msgid "Friends are advised to please try again in 24 hours."
-msgstr ""
-
-#: mod/dfrn_request.php:290 src/Module/RemoteFollow.php:60
-msgid "Invalid locator"
-msgstr ""
-
-#: mod/dfrn_request.php:326
-msgid "You have already introduced yourself here."
-msgstr ""
-
-#: mod/dfrn_request.php:329
-#, php-format
-msgid "Apparently you are already friends with %s."
-msgstr ""
-
-#: mod/dfrn_request.php:349
-msgid "Invalid profile URL."
-msgstr ""
-
-#: mod/dfrn_request.php:355 src/Model/Contact.php:2341
-msgid "Disallowed profile URL."
-msgstr ""
-
-#: mod/dfrn_request.php:361 src/Model/Contact.php:2346
-#: src/Module/Friendica.php:80
-msgid "Blocked domain"
-msgstr ""
-
-#: mod/dfrn_request.php:428 src/Module/Contact.php:157
-msgid "Failed to update contact record."
-msgstr ""
-
-#: mod/dfrn_request.php:448
-msgid "Your introduction has been sent."
-msgstr ""
-
-#: mod/dfrn_request.php:480 src/Module/RemoteFollow.php:72
-msgid ""
-"Remote subscription can't be done for your network. Please subscribe "
-"directly on your system."
-msgstr ""
-
-#: mod/dfrn_request.php:496
-msgid "Please login to confirm introduction."
-msgstr ""
-
-#: mod/dfrn_request.php:504
-msgid ""
-"Incorrect identity currently logged in. Please login to <strong>this</"
-"strong> profile."
-msgstr ""
-
-#: mod/dfrn_request.php:518 mod/dfrn_request.php:533
-msgid "Confirm"
-msgstr ""
-
-#: mod/dfrn_request.php:529
-msgid "Hide this contact"
-msgstr ""
-
-#: mod/dfrn_request.php:531
-#, php-format
-msgid "Welcome home %s."
-msgstr ""
-
-#: mod/dfrn_request.php:532
-#, php-format
-msgid "Please confirm your introduction/connection request to %s."
-msgstr ""
-
-#: mod/dfrn_request.php:600 mod/display.php:179 mod/photos.php:835
-#: mod/videos.php:128 src/Module/Conversation/Community.php:188
-#: src/Module/Debug/Probe.php:39 src/Module/Debug/WebFinger.php:38
-#: src/Module/Directory.php:49 src/Module/Search/Index.php:50
-#: src/Module/Search/Index.php:55
+#: mod/display.php:179 mod/photos.php:835 mod/videos.php:128
+#: src/Module/Conversation/Community.php:188 src/Module/Debug/Probe.php:39
+#: src/Module/Debug/WebFinger.php:38 src/Module/Directory.php:49
+#: src/Module/Search/Index.php:50 src/Module/Search/Index.php:55
 msgid "Public access denied."
-msgstr ""
-
-#: mod/dfrn_request.php:636 src/Module/RemoteFollow.php:104
-msgid "Friend/Connection Request"
-msgstr ""
-
-#: mod/dfrn_request.php:637
-#, php-format
-msgid ""
-"Enter your Webfinger address (user@domain.tld) or profile URL here. If this "
-"isn't supported by your system (for example it doesn't work with Diaspora), "
-"you have to subscribe to <strong>%s</strong> directly on your system"
-msgstr ""
-
-#: mod/dfrn_request.php:638 src/Module/RemoteFollow.php:106
-#, php-format
-msgid ""
-"If you are not yet a member of the free social web, <a href=\"%s\">follow "
-"this link to find a public Friendica node and join us today</a>."
-msgstr ""
-
-#: mod/dfrn_request.php:639 src/Module/RemoteFollow.php:107
-msgid "Your Webfinger address or profile URL:"
-msgstr ""
-
-#: mod/dfrn_request.php:640 mod/follow.php:147 src/Module/RemoteFollow.php:108
-msgid "Please answer the following:"
-msgstr ""
-
-#: mod/dfrn_request.php:641 mod/follow.php:74 mod/unfollow.php:99
-#: src/Module/RemoteFollow.php:109
-msgid "Submit Request"
-msgstr ""
-
-#: mod/dfrn_request.php:648 mod/follow.php:161
-#, php-format
-msgid "%s knows you"
-msgstr ""
-
-#: mod/dfrn_request.php:649 mod/follow.php:162
-msgid "Add a personal note:"
 msgstr ""
 
 #: mod/display.php:235 mod/display.php:320
@@ -1331,7 +1090,7 @@ msgstr ""
 #: mod/events.php:563 src/Model/Event.php:86 src/Model/Event.php:113
 #: src/Model/Event.php:475 src/Model/Event.php:962 src/Model/Profile.php:420
 #: src/Module/Contact.php:654 src/Module/Directory.php:156
-#: src/Module/Notifications/Introductions.php:172
+#: src/Module/Notifications/Introductions.php:166
 #: src/Module/Profile/Profile.php:190
 msgid "Location:"
 msgstr ""
@@ -1389,6 +1148,10 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
+#: mod/follow.php:74 mod/unfollow.php:96 src/Module/RemoteFollow.php:109
+msgid "Submit Request"
+msgstr ""
+
 #: mod/follow.php:84
 msgid "You already added this contact."
 msgstr ""
@@ -1405,29 +1168,42 @@ msgstr ""
 msgid "OStatus support is disabled. Contact can't be added."
 msgstr ""
 
-#: mod/follow.php:148 mod/unfollow.php:97
+#: mod/follow.php:139 src/Module/RemoteFollow.php:108
+msgid "Please answer the following:"
+msgstr ""
+
+#: mod/follow.php:140 mod/unfollow.php:94
 msgid "Your Identity Address:"
 msgstr ""
 
-#: mod/follow.php:149 mod/unfollow.php:103
+#: mod/follow.php:141 mod/unfollow.php:100
 #: src/Module/Admin/Blocklist/Contact.php:100 src/Module/Contact.php:650
 #: src/Module/Notifications/Introductions.php:108
-#: src/Module/Notifications/Introductions.php:183
+#: src/Module/Notifications/Introductions.php:177
 msgid "Profile URL"
 msgstr ""
 
-#: mod/follow.php:150 src/Module/Contact.php:660
-#: src/Module/Notifications/Introductions.php:176
+#: mod/follow.php:142 src/Module/Contact.php:660
+#: src/Module/Notifications/Introductions.php:170
 #: src/Module/Profile/Profile.php:203
 msgid "Tags:"
 msgstr ""
 
-#: mod/follow.php:171 mod/unfollow.php:113 src/Module/BaseProfile.php:63
+#: mod/follow.php:153
+#, php-format
+msgid "%s knows you"
+msgstr ""
+
+#: mod/follow.php:154
+msgid "Add a personal note:"
+msgstr ""
+
+#: mod/follow.php:163 mod/unfollow.php:110 src/Module/BaseProfile.php:63
 #: src/Module/Contact.php:939
 msgid "Status Messages and Posts"
 msgstr ""
 
-#: mod/follow.php:203
+#: mod/follow.php:191
 msgid "The contact could not be added."
 msgstr ""
 
@@ -1628,7 +1404,7 @@ msgid "Message collection failure."
 msgstr ""
 
 #: mod/message.php:121 src/Module/Notifications/Introductions.php:114
-#: src/Module/Notifications/Introductions.php:155
+#: src/Module/Notifications/Introductions.php:149
 #: src/Module/Notifications/Notification.php:56
 msgid "Discard"
 msgstr ""
@@ -2033,8 +1809,15 @@ msgstr ""
 msgid "{0} and %d others requested registration"
 msgstr ""
 
-#: mod/redir.php:50 mod/redir.php:130
+#: mod/redir.php:50 mod/redir.php:103
 msgid "Bad Request."
+msgstr ""
+
+#: mod/redir.php:56 mod/redir.php:130 src/Module/Contact/Advanced.php:53
+#: src/Module/Contact/Advanced.php:104 src/Module/Contact/Contacts.php:36
+#: src/Module/FriendSuggest.php:54 src/Module/FriendSuggest.php:93
+#: src/Module/Group.php:105
+msgid "Contact not found."
 msgstr ""
 
 #: mod/removeme.php:63
@@ -2912,15 +2695,15 @@ msgid ""
 "select \"Export account\""
 msgstr ""
 
-#: mod/unfollow.php:65 mod/unfollow.php:133
+#: mod/unfollow.php:65 mod/unfollow.php:130
 msgid "You aren't following this contact."
 msgstr ""
 
-#: mod/unfollow.php:71 mod/unfollow.php:139
+#: mod/unfollow.php:71 mod/unfollow.php:136
 msgid "Unfollowing is currently not supported by your network."
 msgstr ""
 
-#: mod/unfollow.php:95
+#: mod/unfollow.php:92
 msgid "Disconnect/Unfollow"
 msgstr ""
 
@@ -3652,8 +3435,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1108 src/Model/Item.php:3175
-#: src/Model/Item.php:3181 src/Model/Item.php:3182
+#: src/Content/Text/BBCode.php:1108 src/Model/Item.php:3134
+#: src/Model/Item.php:3140 src/Model/Item.php:3141
 msgid "Link to source"
 msgstr ""
 
@@ -3808,7 +3591,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:532 src/Model/Contact.php:1469
+#: src/Content/Widget.php:532 src/Model/Contact.php:1467
 msgid "News"
 msgstr ""
 
@@ -4629,82 +4412,85 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1041 src/Model/Contact.php:1054
+#: src/Model/Contact.php:1039 src/Model/Contact.php:1052
 msgid "UnFollow"
 msgstr ""
 
-#: src/Model/Contact.php:1050
+#: src/Model/Contact.php:1048
 msgid "Drop Contact"
 msgstr ""
 
-#: src/Model/Contact.php:1060 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1058 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:111
-#: src/Module/Notifications/Introductions.php:189
+#: src/Module/Notifications/Introductions.php:183
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1465
+#: src/Model/Contact.php:1463
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1473
+#: src/Model/Contact.php:1471
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2351
+#: src/Model/Contact.php:2327
+msgid "Disallowed profile URL."
+msgstr ""
+
+#: src/Model/Contact.php:2332 src/Module/Friendica.php:80
+msgid "Blocked domain"
+msgstr ""
+
+#: src/Model/Contact.php:2337
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2360
+#: src/Model/Contact.php:2346
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2403
-msgid ""
-"This site is not configured to allow communications with other networks."
-msgstr ""
-
-#: src/Model/Contact.php:2404 src/Model/Contact.php:2417
-msgid "No compatible communication protocols or feeds were discovered."
-msgstr ""
-
-#: src/Model/Contact.php:2415
+#: src/Model/Contact.php:2383
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2420
+#: src/Model/Contact.php:2385
+msgid "No compatible communication protocols or feeds were discovered."
+msgstr ""
+
+#: src/Model/Contact.php:2388
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2423
+#: src/Model/Contact.php:2391
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2426
+#: src/Model/Contact.php:2394
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2427
+#: src/Model/Contact.php:2395
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2433
+#: src/Model/Contact.php:2401
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2438
+#: src/Model/Contact.php:2406
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2497
+#: src/Model/Contact.php:2465
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -4821,33 +4607,33 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1701
+#: src/Model/Item.php:1660
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2651
+#: src/Model/Item.php:2610
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2653
+#: src/Model/Item.php:2612
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2656
+#: src/Model/Item.php:2615
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:2770
+#: src/Model/Item.php:2729
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3140
+#: src/Model/Item.php:3099
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3169 src/Model/Item.php:3170
+#: src/Model/Item.php:3128 src/Model/Item.php:3129
 msgid "View on separate page"
 msgstr ""
 
@@ -4870,7 +4656,7 @@ msgid "Homepage:"
 msgstr ""
 
 #: src/Model/Profile.php:424 src/Module/Contact.php:658
-#: src/Module/Notifications/Introductions.php:174
+#: src/Module/Notifications/Introductions.php:168
 msgid "About:"
 msgstr ""
 
@@ -4888,7 +4674,7 @@ msgid "Atom feed"
 msgstr ""
 
 #: src/Model/Profile.php:516 src/Module/Contact.php:338
-#: src/Module/Notifications/Introductions.php:186
+#: src/Module/Notifications/Introductions.php:180
 msgid "Network:"
 msgstr ""
 
@@ -7393,6 +7179,10 @@ msgstr[1] ""
 msgid "Could not access contact record."
 msgstr ""
 
+#: src/Module/Contact.php:157
+msgid "Failed to update contact record."
+msgstr ""
+
 #: src/Module/Contact.php:417
 msgid "You can't block yourself"
 msgstr ""
@@ -7592,7 +7382,7 @@ msgstr ""
 msgid "Awaiting connection acknowledge"
 msgstr ""
 
-#: src/Module/Contact.php:642 src/Module/Notifications/Introductions.php:177
+#: src/Module/Contact.php:642 src/Module/Notifications/Introductions.php:171
 msgid "Hide this contact from others"
 msgstr ""
 
@@ -8781,7 +8571,7 @@ msgid "Hide Ignored Requests"
 msgstr ""
 
 #: src/Module/Notifications/Introductions.php:94
-#: src/Module/Notifications/Introductions.php:163
+#: src/Module/Notifications/Introductions.php:157
 msgid "Notification type:"
 msgstr ""
 
@@ -8819,11 +8609,11 @@ msgstr ""
 msgid "Subscriber"
 msgstr ""
 
-#: src/Module/Notifications/Introductions.php:201
+#: src/Module/Notifications/Introductions.php:195
 msgid "No introductions."
 msgstr ""
 
-#: src/Module/Notifications/Introductions.php:202
+#: src/Module/Notifications/Introductions.php:196
 #: src/Module/Notifications/Notifications.php:133
 #, php-format
 msgid "No more %s notifications."
@@ -8905,6 +8695,10 @@ msgstr ""
 
 #: src/Module/Profile/Contacts.php:121
 msgid "No contacts."
+msgstr ""
+
+#: src/Module/Profile/Profile.php:82
+msgid "Profile not found."
 msgstr ""
 
 #: src/Module/Profile/Profile.php:135
@@ -9108,8 +8902,26 @@ msgstr ""
 msgid "Your registration is pending approval by the site owner."
 msgstr ""
 
+#: src/Module/RemoteFollow.php:54
+msgid "Profile unavailable."
+msgstr ""
+
+#: src/Module/RemoteFollow.php:60
+msgid "Invalid locator"
+msgstr ""
+
 #: src/Module/RemoteFollow.php:67
 msgid "The provided profile link doesn't seem to be valid"
+msgstr ""
+
+#: src/Module/RemoteFollow.php:72
+msgid ""
+"Remote subscription can't be done for your network. Please subscribe "
+"directly on your system."
+msgstr ""
+
+#: src/Module/RemoteFollow.php:104
+msgid "Friend/Connection Request"
 msgstr ""
 
 #: src/Module/RemoteFollow.php:105
@@ -9118,6 +8930,17 @@ msgid ""
 "Enter your Webfinger address (user@domain.tld) or profile URL here. If this "
 "isn't supported by your system, you have to subscribe to <strong>%s</strong> "
 "or <strong>%s</strong> directly on your system."
+msgstr ""
+
+#: src/Module/RemoteFollow.php:106
+#, php-format
+msgid ""
+"If you are not yet a member of the free social web, <a href=\"%s\">follow "
+"this link to find a public Friendica node and join us today</a>."
+msgstr ""
+
+#: src/Module/RemoteFollow.php:107
+msgid "Your Webfinger address or profile URL:"
 msgstr ""
 
 #: src/Module/Search/Index.php:54
@@ -10465,7 +10288,7 @@ msgstr ""
 msgid "Show fewer"
 msgstr ""
 
-#: src/Protocol/Diaspora.php:3435
+#: src/Protocol/Diaspora.php:3434
 msgid "Attachments:"
 msgstr ""
 
@@ -10673,7 +10496,7 @@ msgstr ""
 msgid "%1$d %2$s ago"
 msgstr ""
 
-#: src/Worker/Delivery.php:529
+#: src/Worker/Delivery.php:521
 msgid "(no subject)"
 msgstr ""
 

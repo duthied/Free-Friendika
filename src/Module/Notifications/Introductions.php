@@ -135,13 +135,7 @@ class Introductions extends BaseNotifications
 					$friend = ['duplex', DI::l10n()->t('Friend'), '1', $helptext2, true];
 					$follower = ['duplex', DI::l10n()->t('Subscriber'), '0', $helptext3, false];
 
-					$contact = DBA::selectFirst('contact', ['network', 'protocol'], ['id' => $notification->getContactId()]);
-
-					if (($contact['network'] != Protocol::DFRN) || ($contact['protocol'] == Protocol::ACTIVITYPUB)) {
-						$action = 'follow_confirm';
-					} else {
-						$action = 'dfrn_confirm';
-					}
+					$action = 'follow_confirm';
 
 					$header = $notification->getName();
 

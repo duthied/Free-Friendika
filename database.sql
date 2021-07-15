@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.09-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1429
+-- DB_UPDATE_VERSION 1430
 -- ------------------------------------------
 
 
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`self` boolean NOT NULL DEFAULT '0' COMMENT '1 if the contact is the user him/her self',
 	`remote_self` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`rel` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'The kind of the relation between the user and the contact',
-	`duplex` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`duplex` boolean NOT NULL DEFAULT '0' COMMENT 'Deprecated',
 	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Network of the contact',
 	`protocol` char(4) NOT NULL DEFAULT '' COMMENT 'Protocol of the contact',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name that this contact is known by',
@@ -133,9 +133,9 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`thumb` varchar(255) DEFAULT '' COMMENT 'Link to the profile photo (thumb size)',
 	`micro` varchar(255) DEFAULT '' COMMENT 'Link to the profile photo (micro size)',
 	`header` varchar(255) COMMENT 'Header picture',
-	`site-pubkey` text COMMENT '',
-	`issued-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`dfrn-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`site-pubkey` text COMMENT 'Deprecated',
+	`issued-id` varchar(255) NOT NULL DEFAULT '' COMMENT 'Deprecated',
+	`dfrn-id` varchar(255) NOT NULL DEFAULT '' COMMENT 'Deprecated',
 	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`nurl` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the contact url',
@@ -150,8 +150,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`confirm` varchar(255) COMMENT '',
 	`subscribe` varchar(255) COMMENT '',
 	`poco` varchar(255) COMMENT '',
-	`aes_allow` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`ret-aes` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`aes_allow` boolean NOT NULL DEFAULT '0' COMMENT 'Deprecated',
+	`ret-aes` boolean NOT NULL DEFAULT '0' COMMENT 'Deprecated',
 	`usehub` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`subhub` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`hub-verify` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -205,8 +205,6 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `nurl_uid` (`nurl`(128),`uid`),
 	 INDEX `nick_uid` (`nick`(128),`uid`),
 	 INDEX `attag_uid` (`attag`(96),`uid`),
-	 INDEX `dfrn-id` (`dfrn-id`(64)),
-	 INDEX `issued-id` (`issued-id`(64)),
 	 INDEX `network_uid_lastupdate` (`network`,`uid`,`last-update`),
 	 INDEX `uid_network_self_lastupdate` (`uid`,`network`,`self`,`last-update`),
 	 INDEX `uid_lastitem` (`uid`,`last-item`),
@@ -461,20 +459,6 @@ CREATE TABLE IF NOT EXISTS `cache` (
 	 PRIMARY KEY(`k`),
 	 INDEX `k_expires` (`k`,`expires`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Stores temporary data';
-
---
--- TABLE challenge
---
-CREATE TABLE IF NOT EXISTS `challenge` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`challenge` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`dfrn-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`type` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`last_update` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `expire` (`expire`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
 -- TABLE config
@@ -1684,7 +1668,6 @@ CREATE VIEW `post-user-view` AS SELECT
 	`contact`.`uri-date` AS `uri-date`,
 	`contact`.`avatar-date` AS `avatar-date`,
 	`contact`.`thumb` AS `thumb`,
-	`contact`.`dfrn-id` AS `dfrn-id`,
 	`post-user`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -1846,7 +1829,6 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`contact`.`uri-date` AS `uri-date`,
 	`contact`.`avatar-date` AS `avatar-date`,
 	`contact`.`thumb` AS `thumb`,
-	`contact`.`dfrn-id` AS `dfrn-id`,
 	`post-thread-user`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -1993,7 +1975,6 @@ CREATE VIEW `post-view` AS SELECT
 	`author`.`uri-date` AS `uri-date`,
 	`author`.`avatar-date` AS `avatar-date`,
 	`author`.`thumb` AS `thumb`,
-	`author`.`dfrn-id` AS `dfrn-id`,
 	`post`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -2115,7 +2096,6 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`author`.`uri-date` AS `uri-date`,
 	`author`.`avatar-date` AS `avatar-date`,
 	`author`.`thumb` AS `thumb`,
-	`author`.`dfrn-id` AS `dfrn-id`,
 	`post-thread`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -2270,7 +2250,6 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`self` AS `self`,
 	`contact`.`remote_self` AS `remote_self`,
 	`contact`.`rel` AS `rel`,
-	`contact`.`duplex` AS `duplex`,
 	`contact`.`network` AS `network`,
 	`contact`.`protocol` AS `protocol`,
 	`contact`.`name` AS `name`,
@@ -2286,9 +2265,6 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`thumb` AS `thumb`,
 	`contact`.`micro` AS `micro`,
 	`contact`.`header` AS `header`,
-	`contact`.`site-pubkey` AS `site-pubkey`,
-	`contact`.`issued-id` AS `issued-id`,
-	`contact`.`dfrn-id` AS `dfrn-id`,
 	`contact`.`url` AS `url`,
 	`contact`.`nurl` AS `nurl`,
 	`contact`.`uri-id` AS `uri-id`,
@@ -2302,8 +2278,6 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`poll` AS `poll`,
 	`contact`.`confirm` AS `confirm`,
 	`contact`.`poco` AS `poco`,
-	`contact`.`aes_allow` AS `aes_allow`,
-	`contact`.`ret-aes` AS `ret-aes`,
 	`contact`.`usehub` AS `usehub`,
 	`contact`.`subhub` AS `subhub`,
 	`contact`.`hub-verify` AS `hub-verify`,
@@ -2547,12 +2521,6 @@ CREATE VIEW `account-user-view` AS SELECT
 	`ucontact`.`subhub` AS `subhub`,
 	`ucontact`.`hub-verify` AS `hub-verify`,
 	`ucontact`.`reason` AS `reason`,
-	`ucontact`.`duplex` AS `dfrn-duplex`,
-	`ucontact`.`ret-aes` AS `dfrn-ret-aes`,
-	`ucontact`.`site-pubkey` AS `dfrn-site-pubkey`,
-	`ucontact`.`issued-id` AS `dfrn-issued-id`,
-	`ucontact`.`dfrn-id` AS `dfrn-id`,
-	`ucontact`.`aes_allow` AS `dfrn-aes_allow`,
 	`contact`.`request` AS `dfrn-request`,
 	`contact`.`notify` AS `dfrn-notify`,
 	`contact`.`poll` AS `dfrn-poll`,

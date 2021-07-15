@@ -38,7 +38,6 @@ use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
@@ -811,13 +810,11 @@ class Contact
 		}
 
 		$protocol = $contact['network'];
-		if (($protocol == Protocol::DFRN) && !self::isLegacyDFRNContact($contact)) {
-			$protocol = Protocol::ACTIVITYPUB;
+		if (($protocol == Protocol::DFRN) && !empty($contact['protocol'])) {
+			$protocol = $contact['protocol'];
 		}
 
-		if (($protocol == Protocol::DFRN) && $dissolve) {
-			DFRN::deliver($user, $contact, 'placeholder', true);
-		} elseif (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
+		if (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
 			// create an unfollow slap
 			$item = [];
 			$item['verb'] = Activity::O_UNFOLLOW;
@@ -2274,18 +2271,6 @@ class Contact
 	}
 
 	/**
-	 * Detects if a given contact array belongs to a legacy DFRN connection
-	 *
-	 * @param array $contact
-	 * @return boolean
-	 */
-	public static function isLegacyDFRNContact($contact)
-	{
-		// Newer Friendica contacts are connected via AP, then these fields aren't set
-		return !empty($contact['dfrn-id']) || !empty($contact['issued-id']);
-	}
-
-	/**
 	 * Detects the communication protocol for a given contact url.
 	 * This is used to detect Friendica contacts that we can communicate via AP.
 	 *
@@ -2386,24 +2371,6 @@ class Contact
 		}
 
 		$protocol = self::getProtocol($ret['url'], $ret['network']);
-
-		if (($protocol === Protocol::DFRN) && !DBA::isResult($contact)) {
-			if ($interactive) {
-				if (strlen(DI::baseUrl()->getUrlPath())) {
-					$myaddr = bin2hex(DI::baseUrl() . '/profile/' . $user['nickname']);
-				} else {
-					$myaddr = bin2hex($user['nickname'] . '@' . DI::baseUrl()->getHostname());
-				}
-
-				DI::baseUrl()->redirect($ret['request'] . "&addr=$myaddr");
-
-				// NOTREACHED
-			}
-		} elseif (DI::config()->get('system', 'dfrn_only') && ($ret['network'] != Protocol::DFRN)) {
-			$result['message'] = DI::l10n()->t('This site is not configured to allow communications with other networks.') . EOL;
-			$result['message'] .= DI::l10n()->t('No compatible communication protocols or feeds were discovered.') . EOL;
-			return $result;
-		}
 
 		// This extra param just confuses things, remove it
 		if ($protocol === Protocol::DIASPORA) {

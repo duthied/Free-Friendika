@@ -15,7 +15,6 @@ Database Tables
 | [attach](help/database/db_attach) | file attachments |
 | [auth_codes](help/database/db_auth_codes) | OAuth usage |
 | [cache](help/database/db_cache) | Stores temporary data |
-| [challenge](help/database/db_challenge) |  |
 | [clients](help/database/db_clients) | OAuth usage |
 | [config](help/database/db_config) | main configuration storage |
 | [contact](help/database/db_contact) | contact table |

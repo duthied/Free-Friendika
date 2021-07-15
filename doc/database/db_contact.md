@@ -15,7 +15,7 @@ Fields
 | self                      | 1 if the contact is the user him/her self                    | boolean            | NO   |     | 0                   |                |
 | remote_self               |                                                              | boolean            | NO   |     | 0                   |                |
 | rel                       | The kind of the relation between the user and the contact    | tinyint unsigned   | NO   |     | 0                   |                |
-| duplex                    |                                                              | boolean            | NO   |     | 0                   |                |
+| duplex                    | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
 | network                   | Network of the contact                                       | char(4)            | NO   |     |                     |                |
 | protocol                  | Protocol of the contact                                      | char(4)            | NO   |     |                     |                |
 | name                      | Name that this contact is known by                           | varchar(255)       | NO   |     |                     |                |
@@ -31,9 +31,9 @@ Fields
 | thumb                     | Link to the profile photo (thumb size)                       | varchar(255)       | YES  |     |                     |                |
 | micro                     | Link to the profile photo (micro size)                       | varchar(255)       | YES  |     |                     |                |
 | header                    | Header picture                                               | varchar(255)       | YES  |     | NULL                |                |
-| site-pubkey               |                                                              | text               | YES  |     | NULL                |                |
-| issued-id                 |                                                              | varchar(255)       | NO   |     |                     |                |
-| dfrn-id                   |                                                              | varchar(255)       | NO   |     |                     |                |
+| site-pubkey               | Deprecated                                                   | text               | YES  |     | NULL                |                |
+| issued-id                 | Deprecated                                                   | varchar(255)       | NO   |     |                     |                |
+| dfrn-id                   | Deprecated                                                   | varchar(255)       | NO   |     |                     |                |
 | url                       |                                                              | varchar(255)       | NO   |     |                     |                |
 | nurl                      |                                                              | varchar(255)       | NO   |     |                     |                |
 | uri-id                    | Id of the item-uri table entry that contains the contact url | int unsigned       | YES  |     | NULL                |                |
@@ -48,8 +48,8 @@ Fields
 | confirm                   |                                                              | varchar(255)       | YES  |     | NULL                |                |
 | subscribe                 |                                                              | varchar(255)       | YES  |     | NULL                |                |
 | poco                      |                                                              | varchar(255)       | YES  |     | NULL                |                |
-| aes_allow                 |                                                              | boolean            | NO   |     | 0                   |                |
-| ret-aes                   |                                                              | boolean            | NO   |     | 0                   |                |
+| aes_allow                 | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
+| ret-aes                   | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
 | usehub                    |                                                              | boolean            | NO   |     | 0                   |                |
 | subhub                    |                                                              | boolean            | NO   |     | 0                   |                |
 | hub-verify                |                                                              | varchar(255)       | NO   |     |                     |                |
@@ -109,8 +109,6 @@ Indexes
 | nurl_uid                    | nurl(128), uid                       |
 | nick_uid                    | nick(128), uid                       |
 | attag_uid                   | attag(96), uid                       |
-| dfrn-id                     | dfrn-id(64)                          |
-| issued-id                   | issued-id(64)                        |
 | network_uid_lastupdate      | network, uid, last-update            |
 | uid_network_self_lastupdate | uid, network, self, last-update      |
 | uid_lastitem                | uid, last-item                       |
