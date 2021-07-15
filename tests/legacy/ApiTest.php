@@ -3519,43 +3519,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_friendica_remoteauth() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaRemoteauth()
-	{
-		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		api_friendica_remoteauth();
-	}
-
-	/**
-	 * Test the api_friendica_remoteauth() function with an URL.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaRemoteauthWithUrl()
-	{
-		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		$_GET['url']   = 'url';
-		$_GET['c_url'] = 'url';
-		api_friendica_remoteauth();
-	}
-
-	/**
-	 * Test the api_friendica_remoteauth() function with a correct URL.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaRemoteauthWithCorrectUrl()
-	{
-		$this->markTestIncomplete("We can't use an assertion here because of App->redirect().");
-		$_GET['url']   = 'url';
-		$_GET['c_url'] = $this->selfUser['nurl'];
-		api_friendica_remoteauth();
-	}
-
-	/**
 	 * Test the api_share_as_retweet() function.
 	 *
 	 * @return void
