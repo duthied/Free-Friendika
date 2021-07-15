@@ -84,9 +84,6 @@ function unfollow_content(App $a)
 		// NOTREACHED
 	}
 
-	// Makes the connection request for friendica contacts easier
-	$_SESSION['fastlane'] = $contact['url'];
-
 	if (!empty($_REQUEST['auto'])) {
 		unfollow_process($contact['url']);
 	}

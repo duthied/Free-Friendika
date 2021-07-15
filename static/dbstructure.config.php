@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1429);
+	define('DB_UPDATE_VERSION', 1430);
 }
 
 return [
@@ -175,7 +175,7 @@ return [
 			"self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 if the contact is the user him/her self"],
 			"remote_self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"rel" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "The kind of the relation between the user and the contact"],
-			"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Deprecated"],
 			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network of the contact"],
 			"protocol" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Protocol of the contact"],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name that this contact is known by"],
@@ -191,9 +191,9 @@ return [
 			"thumb" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (thumb size)"],
 			"micro" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (micro size)"],
 			"header" => ["type" => "varchar(255)", "comment" => "Header picture"],
-			"site-pubkey" => ["type" => "text", "comment" => ""],
-			"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"site-pubkey" => ["type" => "text", "comment" => "Deprecated"],
+			"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Deprecated"],
+			"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Deprecated"],
 			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the contact url"],
@@ -208,8 +208,8 @@ return [
 			"confirm" => ["type" => "varchar(255)", "comment" => ""],
 			"subscribe" => ["type" => "varchar(255)", "comment" => ""],
 			"poco" => ["type" => "varchar(255)", "comment" => ""],
-			"aes_allow" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"ret-aes" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"aes_allow" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Deprecated"],
+			"ret-aes" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Deprecated"],
 			"usehub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"subhub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"hub-verify" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -265,8 +265,6 @@ return [
 			"nurl_uid" => ["nurl(128)", "uid"],
 			"nick_uid" => ["nick(128)", "uid"],
 			"attag_uid" => ["attag(96)", "uid"],
-			"dfrn-id" => ["dfrn-id(64)"],
-			"issued-id" => ["issued-id(64)"],
 			"network_uid_lastupdate" => ["network", "uid", "last-update"],
 			"uid_network_self_lastupdate" => ["uid", "network", "self", "last-update"],
 			"uid_lastitem" => ["uid", "last-item"],
@@ -522,21 +520,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["k"],
 			"k_expires" => ["k", "expires"],
-		]
-	],
-	"challenge" => [
-		"comment" => "",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"challenge" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"last_update" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"expire" => ["expire"],
 		]
 	],
 	"config" => [

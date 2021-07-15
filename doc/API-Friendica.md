@@ -689,15 +689,6 @@ General description of profile data in API returns:
 
 ---
 
-### GET api/friendica/remoteauth
-
-Similar as /redir, redirects to `url` after DFRN authentication.
-
-#### Parameters
-
-- `c_url`: url of remote contact to auth to
-- `url`: string, url to redirect after auth
-
 ## Deprecated endpoints
 
 - POST api/statuses/mediap

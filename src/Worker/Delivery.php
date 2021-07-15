@@ -340,17 +340,9 @@ class Delivery
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				return;
 			}
-		} elseif ($cmd != self::RELOCATION) {
+		} else {
 			// DFRN payload over Diaspora transport layer
 			$deliver_status = DFRN::transmit($owner, $contact, $atom);
-			if (($deliver_status < 200) && (empty($server_protocol) || ($server_protocol == Model\Post\DeliveryData::LEGACY_DFRN))) {
-				// Legacy DFRN
-				$deliver_status = DFRN::deliver($owner, $contact, $atom);
-				$protocol = Model\Post\DeliveryData::LEGACY_DFRN;
-			}
-		} else {
-			$deliver_status = DFRN::deliver($owner, $contact, $atom);
-			$protocol = Model\Post\DeliveryData::LEGACY_DFRN;
 		}
 
 		Logger::info('DFRN Delivery', ['cmd' => $cmd, 'url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id'], 'return' => $deliver_status]);

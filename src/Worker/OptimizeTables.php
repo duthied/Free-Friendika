@@ -42,7 +42,6 @@ class OptimizeTables
 
 		DBA::e("OPTIMIZE TABLE `auth_codes`");
 		DBA::e("OPTIMIZE TABLE `cache`");
-		DBA::e("OPTIMIZE TABLE `challenge`");
 		DBA::e("OPTIMIZE TABLE `locks`");
 		DBA::e("OPTIMIZE TABLE `oembed`");
 		DBA::e("OPTIMIZE TABLE `parsed_url`");

@@ -118,17 +118,12 @@ function follow_content(App $a)
 		$contact['url'] = $contact['addr'];
 	}
 
-	if (($protocol === Protocol::DFRN) && !DBA::isResult($contact)) {
-		$request = $contact['request'];
-		$tpl = Renderer::getMarkupTemplate('dfrn_request.tpl');
-	} else {
-		if (!empty($_REQUEST['auto'])) {
-			follow_process($a, $contact['url']);
-		}
-	
-		$request = DI::baseUrl() . '/follow';
-		$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
+	if (!empty($_REQUEST['auto'])) {
+		follow_process($a, $contact['url']);
 	}
+
+	$request = DI::baseUrl() . '/follow';
+	$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 
 	$owner = User::getOwnerDataById($uid);
 	if (empty($owner)) {
@@ -138,9 +133,6 @@ function follow_content(App $a)
 	}
 
 	$myaddr = $owner['url'];
-
-	// Makes the connection request for friendica contacts easier
-	$_SESSION['fastlane'] = $contact['url'];
 
 	$o = Renderer::replaceMacros($tpl, [
 		'$header'        => DI::l10n()->t('Connect/Follow'),
@@ -181,10 +173,6 @@ function follow_content(App $a)
 function follow_process(App $a, string $url)
 {
 	$return_path = 'follow?url=' . urlencode($url);
-
-	// Makes the connection request for friendica contacts easier
-	// This is just a precaution if maybe this page is called somewhere directly via POST
-	$_SESSION['fastlane'] = $url;
 
 	$result = Contact::createFromProbe($a->user, $url, true);
 

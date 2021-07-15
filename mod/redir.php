@@ -50,7 +50,7 @@ function redir_init(App $a) {
 		throw new \Friendica\Network\HTTPException\BadRequestException(DI::l10n()->t('Bad Request.'));
 	}
 
-	$fields = ['id', 'uid', 'nurl', 'url', 'addr', 'name', 'network', 'poll', 'issued-id', 'dfrn-id', 'duplex', 'pending'];
+	$fields = ['id', 'uid', 'nurl', 'url', 'addr', 'name'];
 	$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => [0, local_user()]]);
 	if (!DBA::isResult($contact)) {
 		throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('Contact not found.'));
@@ -97,33 +97,6 @@ function redir_init(App $a) {
 			Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
 			$a->redirect($target_url);
 		}
-	}
-
-	// Doing remote auth with dfrn.
-	if (local_user() && (!empty($contact['dfrn-id']) || !empty($contact['issued-id'])) && empty($contact['pending'])) {
-		$dfrn_id = $orig_id = (($contact['issued-id']) ? $contact['issued-id'] : $contact['dfrn-id']);
-
-		if ($contact['duplex'] && $contact['issued-id']) {
-			$orig_id = $contact['issued-id'];
-			$dfrn_id = '1:' . $orig_id;
-		}
-		if ($contact['duplex'] && $contact['dfrn-id']) {
-			$orig_id = $contact['dfrn-id'];
-			$dfrn_id = '0:' . $orig_id;
-		}
-
-		$sec = Strings::getRandomHex();
-
-		$fields = ['uid' => local_user(), 'cid' => $cid, 'dfrn_id' => $dfrn_id,
-			'sec' => $sec, 'expire' => time() + 45];
-		DBA::insert('profile_check', $fields);
-
-		Logger::log('mod_redir: ' . $contact['name'] . ' ' . $sec, Logger::DEBUG);
-
-		$dest = (!empty($url) ? '&destination_url=' . $url : '');
-
-		System::externalRedirect($contact['poll'] . '?dfrn_id=' . $dfrn_id
-			. '&dfrn_version=' . DFRN_PROTOCOL_VERSION . '&type=profile&sec=' . $sec . $dest . $quiet);
 	}
 
 	if (empty($url)) {
