@@ -245,11 +245,12 @@ return [
 		'/hovercard'                  => [Module\Contact\Hovercard::class, [R::GET]],
 	],
 
-	'/credits'               => [Module\Credits::class,        [R::GET]],
-
-	'/delegation'=> [Module\Delegation::class,       [R::GET, R::POST]],
-	'/dirfind'   => [Module\Search\Directory::class, [R::GET]],
-	'/directory' => [Module\Directory::class,        [R::GET]],
+	'/credits'                  => [Module\Credits::class,          [R::GET]],
+	'/delegation'               => [Module\Delegation::class,       [R::GET, R::POST]],
+	'/dfrn_notify[/{nickname}]' => [Module\DFRN\Notify::class,      [R::POST]],
+	'/dfrn_poll/{nickname}'     => [Module\DFRN\Poll::class,        [R::GET]],
+	'/dirfind'                  => [Module\Search\Directory::class, [R::GET]],
+	'/directory'                => [Module\Directory::class,        [R::GET]],
 
 	'/feed'     => [
 		'/{nickname}'          => [Module\Feed::class, [R::GET]],

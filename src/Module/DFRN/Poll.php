@@ -19,18 +19,21 @@
  *
  */
 
-use Friendica\App;
-use Friendica\Protocol\OStatus;
-use Friendica\Network\HTTPException;
+namespace Friendica\Module\DFRN;
 
-function dfrn_poll_init(App $a)
+use Friendica\BaseModule;
+use Friendica\Protocol\OStatus;
+
+/**
+ * DFRN Poll
+ */
+class Poll extends BaseModule
 {
-	if ($a->argc > 1) {
-		$nickname = $a->argv[1];
+	public static function rawContent(array $parameters = [])
+	{
 		header("Content-type: application/atom+xml");
 		$last_update = $_GET['last_update'] ?? '';
-		echo OStatus::feed($nickname, $last_update, 10);
+		echo OStatus::feed($parameters['nickname'], $last_update, 10);
 		exit();
 	}
-	throw new HTTPException\BadRequestException();
 }
