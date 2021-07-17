@@ -2117,7 +2117,7 @@ class Contact
 		}
 
 		if (Strings::normaliseLink($ret['url']) != Strings::normaliseLink($contact['url'])) {
-			$cid = self::getIdForURL($ret['url']);
+			$cid = self::getIdForURL($ret['url'], 0, false);
 			if (!empty($cid) && ($cid != $id)) {
 				Logger::notice('URL of contact changed.', ['id' => $id, 'new_id' => $cid, 'old' => $contact['url'], 'new' => $ret['url']]);
 				return self::updateFromProbeArray($cid, $ret);
