@@ -1808,7 +1808,7 @@ class Contact
 
 		// User contacts use are updated through the public contacts
 		if (($uid != 0) && !in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
-			$pcid = self::getIdForURL($contact['url'], false);
+			$pcid = self::getIdForURL($contact['url'], 0, false);
 			if (!empty($pcid)) {
 				Logger::debug('Update the private contact via the public contact', ['id' => $cid, 'uid' => $uid, 'public' => $pcid]);
 				self::updateAvatar($pcid, $avatar, $force, true);
