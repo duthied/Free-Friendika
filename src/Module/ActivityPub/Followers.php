@@ -19,40 +19,36 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\ActivityPub;
 
 use Friendica\BaseModule;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 
 /**
- * ActivityPub Following
+ * ActivityPub Followers
  */
-class Following extends BaseModule
+class Followers extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$a = DI::app();
-
-		// @TODO: Replace with parameter from router
-		if (empty($a->argv[1])) {
+		if (empty($parameters['nickname'])) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		// @TODO: Replace with parameter from router
-		$owner = User::getOwnerDataByNick($a->argv[1]);
+		$owner = User::getOwnerDataByNick($parameters['nickname']);
 		if (empty($owner)) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$page = $_REQUEST['page'] ?? null;
 
-		$following = ActivityPub\Transmitter::getContacts($owner, [Contact::SHARING, Contact::FRIEND], 'following', $page);
+		$followers = ActivityPub\Transmitter::getContacts($owner, [Contact::FOLLOWER, Contact::FRIEND], 'followers', $page);
 
 		header('Content-Type: application/activity+json');
-		echo json_encode($following);
+		echo json_encode($followers);
 		exit();
 	}
 }

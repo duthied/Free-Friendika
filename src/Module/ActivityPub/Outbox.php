@@ -19,40 +19,35 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\ActivityPub;
 
 use Friendica\BaseModule;
-use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\HTTPSignature;
 
 /**
- * ActivityPub Followers
+ * ActivityPub Outbox
  */
-class Followers extends BaseModule
+class Outbox extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$a = DI::app();
-
-		// @TODO: Replace with parameter from router
-		if (empty($a->argv[1])) {
+		if (empty($parameters['nickname'])) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		// @TODO: Replace with parameter from router
-		$owner = User::getOwnerDataByNick($a->argv[1]);
+		$owner = User::getOwnerDataByNick($parameters['nickname']);
 		if (empty($owner)) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$page = $_REQUEST['page'] ?? null;
 
-		$followers = ActivityPub\Transmitter::getContacts($owner, [Contact::FOLLOWER, Contact::FRIEND], 'followers', $page);
-
+		$requester = HTTPSignature::getSigner('', $_SERVER);
+		$outbox = ActivityPub\Transmitter::getOutbox($owner, $page, $requester);
 		header('Content-Type: application/activity+json');
-		echo json_encode($followers);
+		echo json_encode($outbox);
 		exit();
 	}
 }

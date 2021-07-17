@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\ActivityPub;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
@@ -36,8 +36,6 @@ class Inbox extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$a = DI::app();
-
 		$postdata = Network::postdata();
 
 		if (empty($postdata)) {
@@ -51,13 +49,12 @@ class Inbox extends BaseModule
 				$filename = 'failed-activitypub';
 			}
 			$tempfile = tempnam(get_temppath(), $filename);
-			file_put_contents($tempfile, json_encode(['argv' => $a->argv, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-			Logger::log('Incoming message stored under ' . $tempfile);
+			file_put_contents($tempfile, json_encode(['parameters' => $parameters, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+			Logger::notice('Incoming message stored', ['file' => $tempfile]);
 		}
 
-		// @TODO: Replace with parameter from router
-		if (!empty($a->argv[1])) {
-			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
+		if (!empty($parameters['nickname'])) {
+			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $parameters['nickname']]);
 			if (!DBA::isResult($user)) {
 				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
