@@ -1,0 +1,10 @@
+# This file prevents browser access to Friendica command-line scripts on Apache-powered web servers.
+# It isn't meant to be edited manually, please check the base Friendica folder for the .htaccess-dist file instead.
+
+<IfModule authz_host_module>
+    Require all denied
+</IfModule>
+<IfModule !authz_host_module>
+    Order Allow,Deny
+    Deny from all
+</IfModule>

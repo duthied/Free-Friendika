@@ -1,0 +1,1 @@
+<script type="text/javascript" src="view/js/country.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>

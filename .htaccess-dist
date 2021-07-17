@@ -1,0 +1,43 @@
+# This file is meant to be copied to ".htaccess" on Apache-powered web servers.
+# The created .htaccess file can be edited manually and will not be overwritten by Friendica updates.
+
+Options -Indexes
+AddType application/x-java-archive .jar
+AddType audio/ogg .oga
+#AddHandler php53-cgi .php
+
+<FilesMatch "\.(out|log)$">
+  <IfModule authz_host_module>
+    #Apache 2.4
+    Require all denied
+  </IfModule>
+  <IfModule !authz_host_module>
+    #Apache 2.2
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  # Protect repository directory from browsing
+  RewriteRule "(^|/)\.git" - [F]
+
+  # Rewrite current-style URLs of the form 'index.php?pagename=x'.
+  # Also place auth information into REMOTE_USER for sites running
+  # in CGI mode.
+
+  # If you have troubles or use VirtualDocumentRoot
+  # uncomment this and set it to the path where your friendica installation is
+  # i.e.:
+  # Friendica url: http://some.example.com
+  # RewriteBase /
+  # Friendica url: http://some.example.com/friendica
+  # RewriteBase /friendica/
+  #
+  #RewriteBase /
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.php?pagename=$1 [E=REMOTE_USER:%{HTTP:Authorization},L,QSA]
+
+</IfModule>
