@@ -224,7 +224,7 @@ class Media
 
 	/**
 	 * Fetch media data from local resources
-	 * @param array $media 
+	 * @param array $media
 	 * @return array media with added data
 	 */
 	private static function fetchLocalData(array $media)
@@ -388,7 +388,7 @@ class Media
 
 		foreach ($attachments as $attachment) {
 			// Only store attachments that are part of the unshared body
-			if (Item::containsLink($unshared_body, $attachment['url'], $attachment['type'])) {
+			if (Item::containsLink($unshared_body, $attachment['preview'] ?? $attachment['url'], $attachment['type'])) {
 				self::insert($attachment);
 			}
 		}
