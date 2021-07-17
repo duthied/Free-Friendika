@@ -1033,9 +1033,9 @@ class Item
 				$ev['guid']      = $item['guid'];
 				$ev['plink']     = $item['plink'];
 				$ev['network']   = $item['network'];
-				$ev['protocol']  = $item['protocol'];
-				$ev['direction'] = $item['direction'];
-				$ev['source']    = $item['source'];
+				$ev['protocol']  = $item['protocol'] ?? Conversation::PARCEL_UNKNOWN;
+				$ev['direction'] = $item['direction'] ?? Conversation::UNKNOWN;
+				$ev['source']    = $item['source'] ?? '';
 
 				$event = DBA::selectFirst('event', ['id'], ['uri' => $item['uri'], 'uid' => $item['uid']]);
 				if (DBA::isResult($event)) {
