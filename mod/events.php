@@ -206,9 +206,6 @@ function events_post(App $a)
 	$datarray['deny_gid']  = $str_group_deny;
 	$datarray['private']   = $private_event;
 	$datarray['id']        = $event_id;
-	$datarray['network']   = Protocol::DFRN;
-	$datarray['protocol']  = Conversation::PARCEL_DIRECT;
-	$datarray['direction'] = Conversation::PUSH;
 
 	if (intval($_REQUEST['preview'])) {
 		$html = Event::getHTML($datarray);
@@ -216,9 +213,17 @@ function events_post(App $a)
 		exit();
 	}
 
-	$uri_id = Event::store($datarray);
+	$event_id = Event::store($datarray);
 
-	if (!$cid) {
+	$item = ['network' => Protocol::DFRN, 'protocol' => Conversation::PARCEL_DIRECT, 'direction' => Conversation::PUSH];	
+	$item = Event::getItemArrayForId($event_id, $item);
+	if (Item::insert($item)) {
+		$uri_id = $item['uri-id'];
+	} else {
+		$uri_id = 0;
+	}
+
+	if (!$cid && $uri_id) {
 		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, (int)$uri_id, (int)$uid);
 	}
 
