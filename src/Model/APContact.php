@@ -148,6 +148,19 @@ class APContact
 			$url = $apcontact['url'];
 		}
 
+		// Detect multiple fast repeating request to the same address
+		// See https://github.com/friendica/friendica/issues/9303
+		$cachekey = 'apcontact:getByURL:' . $url;
+		$result = DI::cache()->get($cachekey);
+		if (!is_null($result)) {
+			Logger::notice('Multiple requests for the address', ['url' => $url, 'update' => $update, 'callstack' => System::callstack(20), 'result' => $result]);
+			if (!empty($fetched_contact)) {
+				return $fetched_contact;
+			}
+		} else {
+			DI::cache()->set($cachekey, System::callstack(20), Duration::FIVE_MINUTES);
+		}
+
 		$curlResult = HTTPSignature::fetchRaw($url);
 		$failed = empty($curlResult) || empty($curlResult->getBody()) ||
 			(!$curlResult->isSuccess() && ($curlResult->getReturnCode() != 410));
@@ -169,16 +182,6 @@ class APContact
 		$compacted = JsonLD::compact($data);
 		if (empty($compacted['@id'])) {
 			return $fetched_contact;
-		}
-
-		// Detect multiple fast repeating request to the same address
-		// See https://github.com/friendica/friendica/issues/9303
-		$cachekey = 'apcontact:getByURL:' . $url;
-		$result = DI::cache()->get($cachekey);
-		if (!is_null($result)) {
-			Logger::notice('Multiple requests for the address', ['url' => $url, 'update' => $update, 'callstack' => System::callstack(20), 'result' => $result]);
-		} else {
-			DI::cache()->set($cachekey, System::callstack(20), Duration::FIVE_MINUTES);
 		}
 
 		$apcontact['url'] = $compacted['@id'];

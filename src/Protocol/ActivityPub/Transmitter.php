@@ -235,7 +235,7 @@ class Transmitter
 	 */
 	public static function getOutbox($owner, $page = null, $requester = '')
 	{
-		$public_contact = Contact::getIdForURL($owner['url']);
+		$public_contact = Contact::getIdForURL($owner['url'], 0, false);
 		$condition = ['uid' => 0, 'contact-id' => $public_contact,
 			'private' => [Item::PUBLIC, Item::UNLISTED]];
 
