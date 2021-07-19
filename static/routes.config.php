@@ -348,7 +348,7 @@ return [
 		'/token'       => [Module\OAuth\Token::class,       [R::POST]],
 	],
 
-	'/objects/{guid}[/{activity}]' => [Module\Objects::class, [R::GET]],
+	'/objects/{guid}[/{activity}]' => [Module\ActivityPub\Objects::class, [R::GET]],
 
 	'/oembed'         => [
 		'/b2h'    => [Module\Oembed::class, [R::GET]],
