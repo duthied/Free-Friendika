@@ -333,7 +333,7 @@ class Probe
 	public static function uri($uri, $network = '', $uid = -1)
 	{
 		// Local profiles aren't probed via network
-		if (empty($network) && strpos($uri, DI::baseUrl()->getHostname())) {
+		if (empty($network) && Contact::isLocal($uri)) {
 			$data = self::localProbe($uri);
 			if (!empty($data)) {
 				return $data;
@@ -2201,39 +2201,33 @@ class Probe
 	 */
 	private static function localProbe(string $url)
 	{
-		$uid = User::getIdForURL($url);
-		if (empty($uid)) {
-			return [];
-		}
+		if ($uid = User::getIdForURL($url)) {
+			$profile   = User::getOwnerDataById($uid);
+			$approfile = ActivityPub\Transmitter::getProfile($uid);
 
-		$profile = User::getOwnerDataById($uid);
-		if (empty($profile)) {
-			return [];
-		}
+			if (empty($profile['gsid'])) {
+				$profile['gsid'] = GServer::getID($approfile['generator']['url']);
+			}
 
-		$approfile = ActivityPub\Transmitter::getProfile($uid);
-		if (empty($approfile)) {
-			return [];
+			$data = ['name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
+				'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
+				'photo' => Contact::getAvatarUrlForId($profile['id'], $profile['updated']),
+				'header' => $profile['header'] ? Contact::getHeaderUrlForId($profile['id'], $profile['updated']) : '',
+				'account-type' => $profile['contact-type'], 'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
+				'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'], 
+				'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
+				'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],
+				'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $profile['poco'], 
+				'following' => $approfile['following'], 'followers' => $approfile['followers'],
+				'inbox' => $approfile['inbox'], 'outbox' => $approfile['outbox'],
+				'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN, 
+				'pubkey' => $profile['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $profile['gsid'],
+				'manually-approve' => in_array($profile['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])];
+		} else {
+			// Default values for non existing targets
+			$data = ['name' => $url, 'nick' => $url, 'url' => $url, 'network' => Protocol::PHANTOM,
+				'photo' => DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO];
 		}
-
-		if (empty($profile['gsid'])) {
-			$profile['gsid'] = GServer::getID($approfile['generator']['url']);
-		}
-
-		$data = ['name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
-			'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
-			'photo' => Contact::getAvatarUrlForId($profile['id'], $profile['updated']),
-			'header' => $profile['header'] ? Contact::getHeaderUrlForId($profile['id'], $profile['updated']) : '',
-			'account-type' => $profile['contact-type'], 'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
-			'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'], 
-			'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
-			'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],
-			'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $profile['poco'], 
-			'following' => $approfile['following'], 'followers' => $approfile['followers'],
-			'inbox' => $approfile['inbox'], 'outbox' => $approfile['outbox'],
-			'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN, 
-			'pubkey' => $profile['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $profile['gsid'],
-			'manually-approve' => in_array($profile['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])];
 		return self::rearrangeData($data);		
 	}
 }

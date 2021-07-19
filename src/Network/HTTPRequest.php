@@ -74,6 +74,10 @@ class HTTPRequest implements IHTTPRequest
 	{
 		$stamp1 = microtime(true);
 
+		if (Network::isLocalLink($url)) {
+			$this->logger->info('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
+		}
+
 		if (strlen($url) > 1000) {
 			$this->logger->debug('URL is longer than 1000 characters.', ['url' => $url, 'callstack' => System::callstack(20)]);
 			$this->profiler->saveTimestamp($stamp1, 'network');
@@ -226,6 +230,10 @@ class HTTPRequest implements IHTTPRequest
 	{
 		$stamp1 = microtime(true);
 
+		if (Network::isLocalLink($url)) {
+			$this->logger->info('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
+		}
+
 		if (Network::isUrlBlocked($url)) {
 			$this->logger->info('Domain is blocked.' . ['url' => $url]);
 			$this->profiler->saveTimestamp($stamp1, 'network');
@@ -328,6 +336,10 @@ class HTTPRequest implements IHTTPRequest
 	 */
 	public function finalUrl(string $url, int $depth = 1, bool $fetchbody = false)
 	{
+		if (Network::isLocalLink($url)) {
+			$this->logger->info('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
+		}
+
 		if (Network::isUrlBlocked($url)) {
 			$this->logger->info('Domain is blocked.', ['url' => $url]);
 			return $url;

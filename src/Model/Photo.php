@@ -804,30 +804,33 @@ class Photo
 	}
 
 	/**
-	 * Returns the GUID from picture links
+	 * Fetch the guid and scale from picture links
 	 *
 	 * @param string $name Picture link
-	 * @return string GUID
-	 * @throws \Exception
+	 * @return array
 	 */
-	public static function getGUID($name)
+	public static function getResourceData(string $name):array
 	{
 		$base = DI::baseUrl()->get();
 
 		$guid = str_replace([Strings::normaliseLink($base), '/photo/'], '', Strings::normaliseLink($name));
 
+		if (parse_url($guid, PHP_URL_SCHEME)) {
+			return [];
+		}
+
 		$guid = self::stripExtension($guid);
 		if (substr($guid, -2, 1) != "-") {
-			return '';
+			return [];
 		}
 
 		$scale = intval(substr($guid, -1, 1));
 		if (!is_numeric($scale)) {
-			return '';
+			return [];
 		}
 
 		$guid = substr($guid, 0, -2);
-		return $guid;
+		return ['guid' => $guid, 'scale' => $scale];
 	}
 
 	/**
@@ -839,13 +842,12 @@ class Photo
 	 */
 	public static function isLocal($name)
 	{
-		$guid = self::getGUID($name);
-
-		if (empty($guid)) {
+		$data = self::getResourceData($name);
+		if (empty($data)) {
 			return false;
 		}
 
-		return DBA::exists('photo', ['resource-id' => $guid]);
+		return DBA::exists('photo', ['resource-id' => $data['guid'], 'scale' => $data['scale']]);
 	}
 
 	/**

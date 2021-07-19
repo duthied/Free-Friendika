@@ -31,11 +31,13 @@ use Friendica\DI;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\ActivityPub\Transmitter;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 class APContact
 {
@@ -50,6 +52,20 @@ class APContact
 		$addr_parts = explode('@', $addr);
 		if (count($addr_parts) != 2) {
 			return [];
+		}
+
+		if (Contact::isLocal($addr) && ($local_uid = User::getIdForURL($addr)) && ($local_owner = User::getOwnerDataById($local_uid))) {
+			$data = [
+				'addr'      => $local_owner['addr'],
+				'baseurl'   => $local_owner['baseurl'],
+				'url'       => $local_owner['url'],
+				'subscribe' => $local_owner['baseurl'] . '/follow?url={uri}'];
+
+			if (!empty($local_owner['alias']) && ($local_owner['url'] != $local_owner['alias'])) {
+				$data['alias'] = $local_owner['alias'];
+			}
+
+			return $data;
 		}
 
 		$data = ['addr' => $addr];
@@ -148,37 +164,49 @@ class APContact
 			$url = $apcontact['url'];
 		}
 
-		$curlResult = HTTPSignature::fetchRaw($url);
-		$failed = empty($curlResult) || empty($curlResult->getBody()) ||
-			(!$curlResult->isSuccess() && ($curlResult->getReturnCode() != 410));
-
-		if (!$failed) {
-			$data = json_decode($curlResult->getBody(), true);
-			$failed = empty($data) || !is_array($data);
-		}
-
-		if (!$failed && ($curlResult->getReturnCode() == 410)) {
-			$data = ['@context' => ActivityPub::CONTEXT, 'id' => $url, 'type' => 'Tombstone'];
-		}
-
-		if ($failed) {
-			self::markForArchival($fetched_contact ?: []);
-			return $fetched_contact;
-		}
-
-		$compacted = JsonLD::compact($data);
-		if (empty($compacted['@id'])) {
-			return $fetched_contact;
-		}
-
 		// Detect multiple fast repeating request to the same address
 		// See https://github.com/friendica/friendica/issues/9303
 		$cachekey = 'apcontact:getByURL:' . $url;
 		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
 			Logger::notice('Multiple requests for the address', ['url' => $url, 'update' => $update, 'callstack' => System::callstack(20), 'result' => $result]);
+			if (!empty($fetched_contact)) {
+				return $fetched_contact;
+			}
 		} else {
 			DI::cache()->set($cachekey, System::callstack(20), Duration::FIVE_MINUTES);
+		}
+
+		if (Network::isLocalLink($url) && ($local_uid = User::getIdForURL($url))) {
+			$data  = Transmitter::getProfile($local_uid);
+			$local_owner = User::getOwnerDataById($local_uid);
+		}
+
+		if (empty($data)) {
+			$local_owner = [];
+
+			$curlResult = HTTPSignature::fetchRaw($url);
+			$failed = empty($curlResult) || empty($curlResult->getBody()) ||
+				(!$curlResult->isSuccess() && ($curlResult->getReturnCode() != 410));
+
+			if (!$failed) {
+				$data = json_decode($curlResult->getBody(), true);
+				$failed = empty($data) || !is_array($data);
+			}
+
+			if (!$failed && ($curlResult->getReturnCode() == 410)) {
+				$data = ['@context' => ActivityPub::CONTEXT, 'id' => $url, 'type' => 'Tombstone'];
+			}
+
+			if ($failed) {
+				self::markForArchival($fetched_contact ?: []);
+				return $fetched_contact;
+			}
+		}
+
+		$compacted = JsonLD::compact($data);
+		if (empty($compacted['@id'])) {
+			return $fetched_contact;
 		}
 
 		$apcontact['url'] = $compacted['@id'];
@@ -264,9 +292,13 @@ class APContact
 		}
 
 		if (!empty($apcontact['following'])) {
-			$following = ActivityPub::fetchContent($apcontact['following']);
+			if (!empty($local_owner)) {
+				$following = ActivityPub\Transmitter::getContacts($local_owner, [Contact::SHARING, Contact::FRIEND], 'following');
+			} else {
+				$following = ActivityPub::fetchContent($apcontact['following']);
+			}
 			if (!empty($following['totalItems'])) {
-				// Mastodon seriously allows for this condition? 
+				// Mastodon seriously allows for this condition?
 				// Jul 14 2021 - See https://mastodon.social/@BLUW for a negative following count
 				if ($following['totalItems'] < 0) {
 					$following['totalItems'] = 0;
@@ -276,9 +308,13 @@ class APContact
 		}
 
 		if (!empty($apcontact['followers'])) {
-			$followers = ActivityPub::fetchContent($apcontact['followers']);
+			if (!empty($local_owner)) {
+				$followers = ActivityPub\Transmitter::getContacts($local_owner, [Contact::FOLLOWER, Contact::FRIEND], 'followers');
+			} else {
+				$followers = ActivityPub::fetchContent($apcontact['followers']);
+			}
 			if (!empty($followers['totalItems'])) {
-				// Mastodon seriously allows for this condition? 
+				// Mastodon seriously allows for this condition?
 				// Jul 14 2021 - See https://mastodon.online/@goes11 for a negative followers count
 				if ($followers['totalItems'] < 0) {
 					$followers['totalItems'] = 0;
@@ -288,7 +324,11 @@ class APContact
 		}
 
 		if (!empty($apcontact['outbox'])) {
-			$outbox = ActivityPub::fetchContent($apcontact['outbox']);
+			if (!empty($local_owner)) {
+				$outbox = ActivityPub\Transmitter::getOutbox($local_owner);
+			} else {
+				$outbox = ActivityPub::fetchContent($apcontact['outbox']);
+			}
 			if (!empty($outbox['totalItems'])) {
 				$apcontact['statuses_count'] = $outbox['totalItems'];
 			}

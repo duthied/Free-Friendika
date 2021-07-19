@@ -22,8 +22,8 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Photo;
 
 /**
  * Image utilities
@@ -184,7 +184,17 @@ class Images
 			return $data;
 		}
 
-		$img_str = DI::httpRequest()->fetch($url, 4);
+		if (Network::isLocalLink($url) && ($data = Photo::getResourceData($url))) {
+			$photo = Photo::selectFirst([], ['resource-id' => $data['guid'], 'scale' => $data['scale']]);
+			if (!empty($photo)) {
+				$img_str = Photo::getImageDataForPhoto($photo);
+			}
+			// @todo Possibly add a check for locally stored files
+		}
+
+		if (empty($img_str)) {
+			$img_str = DI::httpRequest()->fetch($url, 4);
+		}
 
 		if (!$img_str) {
 			return [];

@@ -453,6 +453,11 @@ class Contact
 	 */
 	public static function isLocal($url)
 	{
+		if (!parse_url($url, PHP_URL_SCHEME)) {
+			$addr_parts = explode('@', $url);
+			return (count($addr_parts) == 2) && ($addr_parts[1] == DI::baseUrl()->getHostname());
+		}
+
 		return Strings::compareLink(self::getBasepath($url, true), DI::baseUrl());
 	}
 
@@ -1808,7 +1813,7 @@ class Contact
 
 		// User contacts use are updated through the public contacts
 		if (($uid != 0) && !in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
-			$pcid = self::getIdForURL($contact['url'], false);
+			$pcid = self::getIdForURL($contact['url'], 0, false);
 			if (!empty($pcid)) {
 				Logger::debug('Update the private contact via the public contact', ['id' => $cid, 'uid' => $uid, 'public' => $pcid]);
 				self::updateAvatar($pcid, $avatar, $force, true);
@@ -2117,7 +2122,7 @@ class Contact
 		}
 
 		if (Strings::normaliseLink($ret['url']) != Strings::normaliseLink($contact['url'])) {
-			$cid = self::getIdForURL($ret['url']);
+			$cid = self::getIdForURL($ret['url'], 0, false);
 			if (!empty($cid) && ($cid != $id)) {
 				Logger::notice('URL of contact changed.', ['id' => $id, 'new_id' => $cid, 'old' => $contact['url'], 'new' => $ret['url']]);
 				return self::updateFromProbeArray($cid, $ret);
