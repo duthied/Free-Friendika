@@ -1033,9 +1033,9 @@ class Item
 				$ev['guid']      = $item['guid'];
 				$ev['plink']     = $item['plink'];
 				$ev['network']   = $item['network'];
-				$ev['protocol']  = $item['protocol'];
-				$ev['direction'] = $item['direction'];
-				$ev['source']    = $item['source'];
+				$ev['protocol']  = $item['protocol'] ?? Conversation::PARCEL_UNKNOWN;
+				$ev['direction'] = $item['direction'] ?? Conversation::UNKNOWN;
+				$ev['source']    = $item['source'] ?? '';
 
 				$event = DBA::selectFirst('event', ['id'], ['uri' => $item['uri'], 'uid' => $item['uid']]);
 				if (DBA::isResult($event)) {
@@ -2883,7 +2883,7 @@ class Item
 
 		// @todo In the future we should make a single for the template engine with all media in it. This allows more flexibilty.
 		foreach ($attachments['visual'] as $attachment) {
-			if (self::containsLink($item['body'], $attachment['url'], $attachment['type'])) {
+			if (self::containsLink($item['body'], $attachment['preview'] ?? $attachment['url'], $attachment['type'])) {
 				continue;
 			}
 

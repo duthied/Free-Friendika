@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\ActivityPub;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
