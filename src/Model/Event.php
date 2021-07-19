@@ -259,16 +259,6 @@ class Event
 	 */
 	public static function store($arr)
 	{
-		$network = $arr['network'] ?? Protocol::DFRN;
-		$protocol = $arr['protocol'] ?? Conversation::PARCEL_UNKNOWN;
-		$direction = $arr['direction'] ?? Conversation::UNKNOWN;
-		$source = $arr['source'] ?? '';
-
-		unset($arr['network']);
-		unset($arr['protocol']);
-		unset($arr['direction']);
-		unset($arr['source']);
-
 		$event = [];
 		$event['id']        = intval($arr['id']        ?? 0);
 		$event['uid']       = intval($arr['uid']       ?? 0);
@@ -294,28 +284,17 @@ class Event
 		if ($event['finish'] < DBA::NULL_DATETIME) {
 			$event['finish'] = DBA::NULL_DATETIME;
 		}
-		$private = intval($arr['private'] ?? 0);
-
-		if ($event['cid']) {
-			$conditions = ['id' => $event['cid']];
-		} else {
-			$conditions = ['uid' => $event['uid'], 'self' => true];
-		}
-
-		$contact = DBA::selectFirst('contact', [], $conditions);
-		if (!DBA::isResult($contact)) {
-			Logger::warning('Contact not found', ['condition' => $conditions, 'callstack' => System::callstack(20)]);
-		}
 
 		// Existing event being modified.
 		if ($event['id']) {
 			// has the event actually changed?
 			$existing_event = DBA::selectFirst('event', ['edited'], ['id' => $event['id'], 'uid' => $event['uid']]);
-			if (!DBA::isResult($existing_event) || ($existing_event['edited'] === $event['edited'])) {
-
-				$item = Post::selectFirst(['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
-
-				return DBA::isResult($item) ? $item['id'] : 0;
+			if (!DBA::isResult($existing_event)) {
+				return 0;
+			}
+			
+			if ($existing_event['edited'] === $event['edited']) {
+				return $event['id'];
 			}
 
 			$updated_fields = [
@@ -340,10 +319,6 @@ class Event
 
 				$fields = ['body' => self::getBBCode($event), 'object' => $object, 'edited' => $event['edited']];
 				Item::update($fields, ['id' => $item['id']]);
-
-				$uriid = $item['uri-id'];
-			} else {
-				$uriid = 0;
 			}
 
 			Hook::callAll('event_updated', $event['id']);
@@ -351,60 +326,69 @@ class Event
 			// New event. Store it.
 			DBA::insert('event', $event);
 
-			$uriid = 0;
-
-			// Don't create an item for birthday events
-			if ($event['type'] == 'event') {
-				$event['id'] = DBA::lastInsertId();
-
-				$item_arr = [];
-
-				$item_arr['uid']           = $event['uid'];
-				$item_arr['contact-id']    = $event['cid'];
-				$item_arr['uri']           = $event['uri'];
-				$item_arr['uri-id']        = ItemURI::getIdByURI($event['uri']);
-				$item_arr['guid']          = $event['guid'];
-				$item_arr['plink']         = $arr['plink'] ?? '';
-				$item_arr['post-type']     = Item::PT_EVENT;
-				$item_arr['wall']          = $event['cid'] ? 0 : 1;
-				$item_arr['contact-id']    = $contact['id'];
-				$item_arr['owner-name']    = $contact['name'];
-				$item_arr['owner-link']    = $contact['url'];
-				$item_arr['owner-avatar']  = $contact['thumb'];
-				$item_arr['author-name']   = $contact['name'];
-				$item_arr['author-link']   = $contact['url'];
-				$item_arr['author-avatar'] = $contact['thumb'];
-				$item_arr['title']         = '';
-				$item_arr['allow_cid']     = $event['allow_cid'];
-				$item_arr['allow_gid']     = $event['allow_gid'];
-				$item_arr['deny_cid']      = $event['deny_cid'];
-				$item_arr['deny_gid']      = $event['deny_gid'];
-				$item_arr['private']       = $private;
-				$item_arr['visible']       = 1;
-				$item_arr['verb']          = Activity::POST;
-				$item_arr['object-type']   = Activity\ObjectType::EVENT;
-				$item_arr['post-type']     = Item::PT_EVENT;
-				$item_arr['origin']        = $event['cid'] === 0 ? 1 : 0;
-				$item_arr['body']          = self::getBBCode($event);
-				$item_arr['event-id']      = $event['id'];
-				$item_arr['network']       = $network;
-				$item_arr['protocol']      = $protocol;
-				$item_arr['direction']     = $direction;
-				$item_arr['source']        = $source;
-
-				$item_arr['object']  = '<object><type>' . XML::escape(Activity\ObjectType::EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
-				$item_arr['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
-				$item_arr['object'] .= '</object>' . "\n";
-
-				if (Item::insert($item_arr)) {
-					$uriid = $item_arr['uri-id'];
-				}
-			}
+			$event['id'] = DBA::lastInsertId();
 
 			Hook::callAll("event_created", $event['id']);
 		}
 
-		return $uriid;
+		return $event['id'];
+	}
+
+	public static function getItemArrayForId(int $event_id, array $item = []):array
+	{
+		if (empty($event_id)) {
+			return [];
+		}
+
+		$event = DBA::selectFirst('event', [], ['id' => $event_id]);
+		if ($event['type'] != 'event') {
+			return [];
+		}
+
+		if ($event['cid']) {
+			$conditions = ['id' => $event['cid']];
+		} else {
+			$conditions = ['uid' => $event['uid'], 'self' => true];
+		}
+
+		$contact = DBA::selectFirst('contact', [], $conditions);
+
+		$event['id'] = $event_id;
+
+		$item['uid']           = $event['uid'];
+		$item['contact-id']    = $event['cid'];
+		$item['uri']           = $event['uri'];
+		$item['uri-id']        = ItemURI::getIdByURI($event['uri']);
+		$item['guid']          = $event['guid'];
+		$item['plink']         = $arr['plink'] ?? '';
+		$item['post-type']     = Item::PT_EVENT;
+		$item['wall']          = $event['cid'] ? 0 : 1;
+		$item['contact-id']    = $contact['id'];
+		$item['owner-name']    = $contact['name'];
+		$item['owner-link']    = $contact['url'];
+		$item['owner-avatar']  = $contact['thumb'];
+		$item['author-name']   = $contact['name'];
+		$item['author-link']   = $contact['url'];
+		$item['author-avatar'] = $contact['thumb'];
+		$item['title']         = '';
+		$item['allow_cid']     = $event['allow_cid'];
+		$item['allow_gid']     = $event['allow_gid'];
+		$item['deny_cid']      = $event['deny_cid'];
+		$item['deny_gid']      = $event['deny_gid'];
+		$item['private']       = intval($event['private'] ?? 0);;
+		$item['visible']       = 1;
+		$item['verb']          = Activity::POST;
+		$item['object-type']   = Activity\ObjectType::EVENT;
+		$item['post-type']     = Item::PT_EVENT;
+		$item['origin']        = $event['cid'] === 0 ? 1 : 0;
+		$item['body']          = self::getBBCode($event);
+		$item['event-id']      = $event['id'];
+
+		$item['object']  = '<object><type>' . XML::escape(Activity\ObjectType::EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
+		$item['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
+		$item['object'] .= '</object>' . "\n";
+
+		return $item;
 	}
 
 	/**
@@ -519,8 +503,8 @@ class Event
 		}
 
 		// Query for the event by event id
-		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user-view`.`id` AS `itemid` FROM `event`
-			LEFT JOIN `post-user-view` ON `post-user-view`.`event-id` = `event`.`id` AND `post-user-view`.`uid` = `event`.`uid`
+		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user`.`id` AS `itemid` FROM `event`
+			LEFT JOIN `post-user` ON `post-user`.`event-id` = `event`.`id` AND `post-user`.`uid` = `event`.`uid`
 			WHERE `event`.`uid` = ? AND `event`.`id` = ? $sql_extra",
 			$owner_uid, $event_id));
 
@@ -557,9 +541,8 @@ class Event
 		}
 
 		// Query for the event by date.
-		// @todo Slow query (518 seconds to run), to be optimzed
-		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user-view`.`id` AS `itemid` FROM `event`
-				LEFT JOIN `post-user-view` ON `post-user-view`.`event-id` = `event`.`id` AND `post-user-view`.`uid` = `event`.`uid`
+		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user`.`id` AS `itemid` FROM `event`
+				LEFT JOIN `post-user` ON `post-user`.`event-id` = `event`.`id` AND `post-user`.`uid` = `event`.`uid`
 				WHERE `event`.`uid` = ? AND `event`.`ignore` = ?
 				AND ((NOT `adjust` AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?)
 				OR  (`adjust` AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?))" . $sql_extra,

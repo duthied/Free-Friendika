@@ -396,6 +396,8 @@ class Processor
 	 *
 	 * @param array $activity Activity array
 	 * @param array $item
+	 * 
+	 * @return int event id
 	 * @throws \Exception
 	 */
 	public static function createEvent($activity, $item)
@@ -419,14 +421,16 @@ class Processor
 		$event['direction'] = $item['direction'];
 		$event['source']    = $item['source'];
 
-		$condition = ['uri' => $item['uri'], 'uid' => $item['uid']];
-		$ev = DBA::selectFirst('event', ['id'], $condition);
+		$ev = DBA::selectFirst('event', ['id'], ['uri' => $item['uri'], 'uid' => $item['uid']]);
 		if (DBA::isResult($ev)) {
 			$event['id'] = $ev['id'];
 		}
 
 		$event_id = Event::store($event);
+
 		Logger::info('Event was stored', ['id' => $event_id]);
+
+		return $event_id;
 	}
 
 	/**
@@ -625,7 +629,9 @@ class Processor
 			}
 
 			if (($item['gravity'] != GRAVITY_ACTIVITY) && ($activity['object_type'] == 'as:Event')) {
-				self::createEvent($activity, $item);
+				$event_id = self::createEvent($activity, $item);
+
+				$item = Event::getItemArrayForId($event_id, $item);
 			}
 
 			$item_id = Item::insert($item);
