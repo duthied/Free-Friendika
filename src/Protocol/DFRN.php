@@ -1976,8 +1976,9 @@ class DFRN
 					}
 
 					$event_id = Event::store($ev);
-					Logger::log("Event ".$event_id." was stored", Logger::DEBUG);
-					return;
+					Logger::info('Event was stored', ['id' => $event_id]);
+
+					$item = Event::getItemArrayForId($event_id, $item);
 				}
 			}
 		}

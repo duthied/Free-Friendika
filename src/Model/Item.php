@@ -1042,8 +1042,10 @@ class Item
 					$ev['id'] = $event['id'];
 				}
 
-				$item['event-id'] = Event::store($ev);
-				Logger::info('Event was stored', ['id' => $item['event-id']]);
+				$event_id = Event::store($ev);
+				$item = Event::getItemArrayForId($event_id, $item);
+
+				Logger::info('Event was stored', ['id' => $event_id]);
 			}
 		}
 
