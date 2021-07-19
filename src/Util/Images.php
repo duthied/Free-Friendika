@@ -189,6 +189,7 @@ class Images
 			if (!empty($photo)) {
 				$img_str = Photo::getImageDataForPhoto($photo);
 			}
+			// @todo Possibly add a check for locally stored files
 		}
 
 		if (empty($img_str)) {
