@@ -455,9 +455,7 @@ class Contact
 	{
 		if (!parse_url($url, PHP_URL_SCHEME)) {
 			$addr_parts = explode('@', $url);
-			if (count($addr_parts) == 2) {
-				return $addr_parts[1] == DI::baseUrl()->getHostname();
-			}
+			return (count($addr_parts) == 2) && ($addr_parts[1] == DI::baseUrl()->getHostname());
 		}
 
 		return Strings::compareLink(self::getBasepath($url, true), DI::baseUrl());
