@@ -185,7 +185,7 @@ class Images
 		}
 
 		if (Network::isLocalLink($url) && ($data = Photo::getResourceData($url))) {
-			$photo = Photo::getPhoto($data['guid'], $data['scale']);
+			$photo = Photo::selectFirst([], ['resource-id' => $data['guid'], 'scale' => $data['scale']]);
 			if (!empty($photo)) {
 				$img_str = Photo::getImageDataForPhoto($photo);
 			}
