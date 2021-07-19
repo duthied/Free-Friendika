@@ -235,26 +235,28 @@ class Transmitter
 	 */
 	public static function getOutbox($owner, $page = null, $requester = '')
 	{
-		$public_contact = Contact::getIdForURL($owner['url']);
-		$condition = ['uid' => 0, 'contact-id' => $public_contact,
-			'private' => [Item::PUBLIC, Item::UNLISTED]];
+		$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
 
 		if (!empty($requester)) {
 			$requester_id = Contact::getIdForURL($requester, $owner['uid']);
 			if (!empty($requester_id)) {
 				$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $owner['uid']);
 				if (!empty($permissionSets)) {
-					$condition = ['uid' => $owner['uid'], 'origin' => true,
-						'psid' => array_merge($permissionSets->column('id'),
+					$condition = ['psid' => array_merge($permissionSets->column('id'),
 							[DI::permissionSet()->getIdFromACL($owner['uid'], '', '', '', '')])];
 				}
 			}
 		}
 
 		$condition = array_merge($condition,
-			['author-id' => $public_contact,
-			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
-			'deleted' => false, 'visible' => true]);
+			['uid'           => $owner['uid'],
+			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
+			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'network'        => Protocol::FEDERATED,
+			'parent-network' => Protocol::FEDERATED,
+			'origin'         => true,
+			'deleted'        => false,
+			'visible'        => true]);
 
 		$count = Post::count($condition);
 
@@ -268,8 +270,6 @@ class Transmitter
 		} else {
 			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
-
-			$condition['parent-network'] = Protocol::NATIVE_SUPPORT;
 
 			$items = Post::select(['id'], $condition, ['limit' => [($page - 1) * 20, 20], 'order' => ['created' => true]]);
 			while ($item = Post::fetch($items)) {
