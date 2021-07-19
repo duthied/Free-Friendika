@@ -333,7 +333,7 @@ class Probe
 	public static function uri($uri, $network = '', $uid = -1)
 	{
 		// Local profiles aren't probed via network
-		if (empty($network) && strpos($uri, DI::baseUrl()->getHostname())) {
+		if (empty($network) && Contact::isLocal($uri)) {
 			$data = self::localProbe($uri);
 			if (!empty($data)) {
 				return $data;

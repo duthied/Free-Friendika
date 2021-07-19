@@ -54,6 +54,20 @@ class APContact
 			return [];
 		}
 
+		if (Contact::isLocal($addr) && ($local_uid = User::getIdForURL($addr)) && ($local_owner = User::getOwnerDataById($local_uid))) {
+			$data = [
+				'addr'      => $local_owner['addr'],
+				'baseurl'   => $local_owner['baseurl'],
+				'url'       => $local_owner['url'],
+				'subscribe' => $local_owner['baseurl'] . '/follow?url={uri}'];
+
+			if (!empty($local_owner['alias']) && ($local_owner['url'] != $local_owner['alias'])) {
+				$data['alias'] = $local_owner['alias'];
+			}
+
+			return $data;
+		}
+
 		$data = ['addr' => $addr];
 		$template = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
 		$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), 'application/jrd+json');
@@ -284,7 +298,7 @@ class APContact
 				$following = ActivityPub::fetchContent($apcontact['following']);
 			}
 			if (!empty($following['totalItems'])) {
-				// Mastodon seriously allows for this condition? 
+				// Mastodon seriously allows for this condition?
 				// Jul 14 2021 - See https://mastodon.social/@BLUW for a negative following count
 				if ($following['totalItems'] < 0) {
 					$following['totalItems'] = 0;
@@ -300,7 +314,7 @@ class APContact
 				$followers = ActivityPub::fetchContent($apcontact['followers']);
 			}
 			if (!empty($followers['totalItems'])) {
-				// Mastodon seriously allows for this condition? 
+				// Mastodon seriously allows for this condition?
 				// Jul 14 2021 - See https://mastodon.online/@goes11 for a negative followers count
 				if ($followers['totalItems'] < 0) {
 					$followers['totalItems'] = 0;
