@@ -1642,7 +1642,13 @@ class Item
 			return '';
 		}
 
-		$ld = new Language(DI::l10n()->getAvailableLanguages());
+		$availableLanguages = DI::l10n()->getAvailableLanguages();
+		// See https://github.com/friendica/friendica/issues/10511
+		// Persian is manually added to language detection until a persian translation is provided for the interface, at
+		// which point it will be automatically available through `getAvailableLanguages()` and this should be removed.
+		$availableLanguages['fa'] = 'fa';
+
+		$ld = new Language($availableLanguages);
 		$languages = $ld->detect($naked_body)->limit(0, 3)->close();
 		if (is_array($languages)) {
 			return json_encode($languages);
