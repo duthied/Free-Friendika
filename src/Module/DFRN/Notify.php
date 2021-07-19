@@ -24,6 +24,7 @@ namespace Friendica\Module\DFRN;
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\User;
@@ -54,7 +55,7 @@ class Notify extends BaseModule
 			self::dispatchPrivate($user, $postdata);
 		} elseif (!self::dispatchPublic($postdata)) {
 			require_once 'mod/salmon.php';
-			salmon_post($a, $postdata);
+			salmon_post(DI::app(), $postdata);
 		}
 	}
 
