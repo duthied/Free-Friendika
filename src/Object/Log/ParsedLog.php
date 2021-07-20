@@ -64,7 +64,13 @@ class ParsedLog
 
 	private function parse($logline)
 	{
-		list($logline, $jsonsource) = explode(' - ', $logline);
+		// if data is empty is serialized as '[]'. To ease the parsing
+		// let's replace it with '{""}'. It will be replaced by null later
+		$logline = str_replace(' [] - {', ' {""} - {', $logline);
+
+		// here we hope that there will not be the string ' - {' inside the $jsonsource value
+		list($logline, $jsonsource) = explode(' - {', $logline);
+		$jsonsource                 = '{' . $jsonsource;
 
 		$jsondata = null;
 
@@ -73,13 +79,14 @@ class ParsedLog
 
 			$jsondata = '{"' . $jsondata;
 		}
+
 		preg_match(self::REGEXP, $logline, $matches);
 
 		$this->date    = $matches[1];
 		$this->context = $matches[2];
 		$this->level   = $matches[3];
-		$this->message = $matches[4];
-		$this->data    = $jsondata;
+		$this->message = trim($matches[4]);
+		$this->data    = $jsondata == '{""}' ? null : $jsondata;
 		$this->source  = $jsonsource;
 		$this->try_fix_json();
 
@@ -96,7 +103,7 @@ class ParsedLog
 	 */
 	private function try_fix_json()
 	{
-		if (is_null($this->data) || $this->data == "") {
+		if (is_null($this->data) || $this->data == '') {
 			return;
 		}
 		try {
