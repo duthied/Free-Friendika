@@ -57,10 +57,7 @@ use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
-use Friendica\Security\FKOAuth1;
 use Friendica\Security\OAuth;
-use Friendica\Security\OAuth1\OAuthRequest;
-use Friendica\Security\OAuth1\OAuthUtil;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
@@ -206,24 +203,6 @@ function api_login(App $a)
 	}
 
 	if (empty($_SERVER['PHP_AUTH_USER'])) {
-		// Try OAuth when no user is provided
-		$oauth1 = new FKOAuth1();
-		// login with oauth
-		try {
-			$request = OAuthRequest::from_request();
-			list($consumer, $token) = $oauth1->verify_request($request);
-			if (!is_null($token)) {
-				$oauth1->loginUser($token->uid);
-				Session::set('allow_api', true);
-				return;
-			}
-			echo __FILE__.__LINE__.__FUNCTION__ . "<pre>";
-			var_dump($consumer, $token);
-			die();
-		} catch (Exception $e) {
-			Logger::warning(API_LOG_PREFIX . 'OAuth error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
-		}
-
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		throw new UnauthorizedException("This API requires login");
@@ -4056,48 +4035,6 @@ api_register_func('api/direct_messages/conversation', 'api_direct_messages_conve
 api_register_func('api/direct_messages/all', 'api_direct_messages_all', true);
 api_register_func('api/direct_messages/sent', 'api_direct_messages_sentbox', true);
 api_register_func('api/direct_messages', 'api_direct_messages_inbox', true);
-
-/**
- * Returns an OAuth Request Token.
- *
- * @see https://oauth.net/core/1.0/#auth_step1
- */
-function api_oauth_request_token()
-{
-	$oauth1 = new FKOAuth1();
-	try {
-		$r = $oauth1->fetch_request_token(OAuthRequest::from_request());
-	} catch (Exception $e) {
-		echo "error=" . OAuthUtil::urlencode_rfc3986($e->getMessage());
-		exit();
-	}
-	echo $r;
-	exit();
-}
-
-/**
- * Returns an OAuth Access Token.
- *
- * @return array|string
- * @see https://oauth.net/core/1.0/#auth_step3
- */
-function api_oauth_access_token()
-{
-	$oauth1 = new FKOAuth1();
-	try {
-		$r = $oauth1->fetch_access_token(OAuthRequest::from_request());
-	} catch (Exception $e) {
-		echo "error=". OAuthUtil::urlencode_rfc3986($e->getMessage());
-		exit();
-	}
-	echo $r;
-	exit();
-}
-
-/// @TODO move to top of file or somewhere better
-api_register_func('api/oauth/request_token', 'api_oauth_request_token', false);
-api_register_func('api/oauth/access_token', 'api_oauth_access_token', false);
-
 
 /**
  * delete a complete photoalbum with all containing photos from database through api

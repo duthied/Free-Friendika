@@ -40,14 +40,12 @@ class OptimizeTables
 
 		Logger::info('Optimize start');
 
-		DBA::e("OPTIMIZE TABLE `auth_codes`");
 		DBA::e("OPTIMIZE TABLE `cache`");
 		DBA::e("OPTIMIZE TABLE `locks`");
 		DBA::e("OPTIMIZE TABLE `oembed`");
 		DBA::e("OPTIMIZE TABLE `parsed_url`");
 		DBA::e("OPTIMIZE TABLE `profile_check`");
 		DBA::e("OPTIMIZE TABLE `session`");
-		DBA::e("OPTIMIZE TABLE `tokens`");
 
 		Logger::info('Optimize end');
 

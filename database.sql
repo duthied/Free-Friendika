@@ -232,21 +232,6 @@ CREATE TABLE IF NOT EXISTS `tag` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
 
 --
--- TABLE clients
---
-CREATE TABLE IF NOT EXISTS `clients` (
-	`client_id` varchar(20) NOT NULL COMMENT '',
-	`pw` varchar(20) NOT NULL DEFAULT '' COMMENT '',
-	`redirect_uri` varchar(200) NOT NULL DEFAULT '' COMMENT '',
-	`name` text COMMENT '',
-	`icon` text COMMENT '',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	 PRIMARY KEY(`client_id`),
-	 INDEX `uid` (`uid`),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
-
---
 -- TABLE permissionset
 --
 CREATE TABLE IF NOT EXISTS `permissionset` (
@@ -433,20 +418,6 @@ CREATE TABLE IF NOT EXISTS `attach` (
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='file attachments';
-
---
--- TABLE auth_codes
---
-CREATE TABLE IF NOT EXISTS `auth_codes` (
-	`id` varchar(40) NOT NULL COMMENT '',
-	`client_id` varchar(20) NOT NULL DEFAULT '' COMMENT '',
-	`redirect_uri` varchar(200) NOT NULL DEFAULT '' COMMENT '',
-	`expires` int NOT NULL DEFAULT 0 COMMENT '',
-	`scope` varchar(250) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `client_id` (`client_id`),
-	FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --
 -- TABLE cache
@@ -1485,23 +1456,6 @@ CREATE TABLE IF NOT EXISTS `storage` (
 	`data` longblob NOT NULL COMMENT 'file data',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Data stored by Database storage backend';
-
---
--- TABLE tokens
---
-CREATE TABLE IF NOT EXISTS `tokens` (
-	`id` varchar(40) NOT NULL COMMENT '',
-	`secret` text COMMENT '',
-	`client_id` varchar(20) NOT NULL DEFAULT '',
-	`expires` int NOT NULL DEFAULT 0 COMMENT '',
-	`scope` varchar(200) NOT NULL DEFAULT '' COMMENT '',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	 PRIMARY KEY(`id`),
-	 INDEX `client_id` (`client_id`),
-	 INDEX `uid` (`uid`),
-	FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --
 -- TABLE userd

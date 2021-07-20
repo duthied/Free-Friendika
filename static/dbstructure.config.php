@@ -289,21 +289,6 @@ return [
 			"url" => ["url"]
 		]
 	],
-	"clients" => [
-		"comment" => "OAuth usage",
-		"fields" => [
-			"client_id" => ["type" => "varchar(20)", "not null" => "1", "primary" => "1", "comment" => ""],
-			"pw" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
-			"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-			"name" => ["type" => "text", "comment" => ""],
-			"icon" => ["type" => "text", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["client_id"],
-			"uid" => ["uid"],
-		]
-	],
 	"permissionset" => [
 		"comment" => "",
 		"fields" => [
@@ -492,21 +477,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid" => ["uid"],
-		]
-	],
-	"auth_codes" => [
-		"comment" => "OAuth usage",
-		"fields" => [
-			"id" => ["type" => "varchar(40)", "not null" => "1", "primary" => "1", "comment" => ""],
-			"client_id" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "foreign" => ["clients" => "client_id"],
-				"comment" => ""],
-			"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-			"expires" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
-			"scope" => ["type" => "varchar(250)", "not null" => "1", "default" => "", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"client_id" => ["client_id"]
 		]
 	],
 	"cache" => [
@@ -1504,22 +1474,6 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"]
-		]
-	],
-	"tokens" => [
-		"comment" => "OAuth usage",
-		"fields" => [
-			"id" => ["type" => "varchar(40)", "not null" => "1", "primary" => "1", "comment" => ""],
-			"secret" => ["type" => "text", "comment" => ""],
-			"client_id" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "foreign" => ["clients" => "client_id"]],
-			"expires" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
-			"scope" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"client_id" => ["client_id"],
-			"uid" => ["uid"]
 		]
 	],
 	"userd" => [
