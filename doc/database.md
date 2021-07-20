@@ -13,9 +13,7 @@ Database Tables
 | [application](help/database/db_application) | OAuth application |
 | [application-token](help/database/db_application-token) | OAuth user token |
 | [attach](help/database/db_attach) | file attachments |
-| [auth_codes](help/database/db_auth_codes) | OAuth usage |
 | [cache](help/database/db_cache) | Stores temporary data |
-| [clients](help/database/db_clients) | OAuth usage |
 | [config](help/database/db_config) | main configuration storage |
 | [contact](help/database/db_contact) | contact table |
 | [contact-relation](help/database/db_contact-relation) | Contact relations |
@@ -69,7 +67,6 @@ Database Tables
 | [session](help/database/db_session) | web session storage |
 | [storage](help/database/db_storage) | Data stored by Database storage backend |
 | [tag](help/database/db_tag) | tags and mentions |
-| [tokens](help/database/db_tokens) | OAuth usage |
 | [user](help/database/db_user) | The local users |
 | [user-contact](help/database/db_user-contact) | User specific public contact data |
 | [userd](help/database/db_userd) | Deleted usernames |

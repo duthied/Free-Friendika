@@ -66,63 +66,6 @@ function settings_post(App $a)
 		return;
 	}
 
-	$old_page_flags = $a->user['page-flags'];
-
-	if (($a->argc > 1) && ($a->argv[1] === 'oauth') && !empty($_POST['remove'])) {
-		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
-
-		$key = $_POST['remove'];
-		DBA::delete('tokens', ['id' => $key, 'uid' => local_user()]);
-		DI::baseUrl()->redirect('settings/oauth/', true);
-		return;
-	}
-
-	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && !empty($_POST['submit'])) {
-		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
-
-		$name     = $_POST['name']     ?? '';
-		$key      = $_POST['key']      ?? '';
-		$secret   = $_POST['secret']   ?? '';
-		$redirect = $_POST['redirect'] ?? '';
-		$icon     = $_POST['icon']     ?? '';
-
-		if ($name == "" || $key == "" || $secret == "") {
-			notice(DI::l10n()->t("Missing some important data!"));
-		} else {
-			if ($_POST['submit'] == DI::l10n()->t("Update")) {
-				q("UPDATE clients SET
-							client_id='%s',
-							pw='%s',
-							name='%s',
-							redirect_uri='%s',
-							icon='%s',
-							uid=%d
-						WHERE client_id='%s'",
-					DBA::escape($key),
-					DBA::escape($secret),
-					DBA::escape($name),
-					DBA::escape($redirect),
-					DBA::escape($icon),
-					local_user(),
-					DBA::escape($key)
-				);
-			} else {
-				q("INSERT INTO clients
-							(client_id, pw, name, redirect_uri, icon, uid)
-						VALUES ('%s', '%s', '%s', '%s', '%s',%d)",
-					DBA::escape($key),
-					DBA::escape($secret),
-					DBA::escape($name),
-					DBA::escape($redirect),
-					DBA::escape($icon),
-					local_user()
-				);
-			}
-		}
-		DI::baseUrl()->redirect('settings/oauth/', true);
-		return;
-	}
-
 	if (($a->argc > 1) && ($a->argv[1] == 'addon')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/addon', 'settings_addon');
 

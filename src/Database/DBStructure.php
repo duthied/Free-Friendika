@@ -81,7 +81,8 @@ class DBStructure
 
 		$old_tables = ['fserver', 'gcign', 'gcontact', 'gcontact-relation', 'gfollower' ,'glink', 'item-delivery-data',
 			'item-activity', 'item-content', 'item_id', 'participation', 'poll', 'poll_result', 'queue', 'retriever_rule',
-			'deliverq', 'dsprphotoq', 'ffinder', 'sign', 'spam', 'term', 'user-item', 'thread', 'item', 'challenge'];
+			'deliverq', 'dsprphotoq', 'ffinder', 'sign', 'spam', 'term', 'user-item', 'thread', 'item', 'challenge',
+			'auth_codes', 'clients', 'tokens'];
 
 		$tables = DBA::selectToArray(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_NAME'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_TYPE' => 'BASE TABLE']);
@@ -1369,7 +1370,7 @@ class DBStructure
 			echo "permissionset: Table not found\n";
 		}
 
-		if (!self::existsForeignKeyForField('tokens', 'client_id')) {
+		if (self::existsTable('tokens') && self::existsTable('clients') && !self::existsForeignKeyForField('tokens', 'client_id')) {
 			$tokens = DBA::p("SELECT `tokens`.`id` FROM `tokens`
 				LEFT JOIN `clients` ON `clients`.`client_id` = `tokens`.`client_id`
 				WHERE `clients`.`client_id` IS NULL");
