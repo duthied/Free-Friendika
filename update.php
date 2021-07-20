@@ -694,16 +694,30 @@ function update_1396()
 		return Update::SUCCESS;
 	}
 
-	if (!DBA::e("INSERT IGNORE INTO `post-content`(`uri-id`, `title`, `content-warning`, `body`, `raw-body`,
-		`location`, `coord`, `language`, `app`, `rendered-hash`, `rendered-html`,
-		`object-type`, `object`, `target-type`, `target`, `resource-id`, `plink`)
-		SELECT `item-content`.`uri-id`, `item-content`.`title`, `item-content`.`content-warning`,
-			`item-content`.`body`, `item-content`.`raw-body`, `item-content`.`location`, `item-content`.`coord`,
-			`item-content`.`language`, `item-content`.`app`, `item-content`.`rendered-hash`,
-			`item-content`.`rendered-html`, `item-content`.`object-type`, `item-content`.`object`,
-			`item-content`.`target-type`, `item-content`.`target`, `item`.`resource-id`, `item-content`.`plink`
-			FROM `item-content` INNER JOIN `item` ON `item`.`uri-id` = `item-content`.`uri-id`")) {
-		return Update::FAILED;
+	if (DBStructure::existsColumn('item-content', ['raw-body'])) {
+		if (!DBA::e("INSERT IGNORE INTO `post-content`(`uri-id`, `title`, `content-warning`, `body`, `raw-body`,
+			`location`, `coord`, `language`, `app`, `rendered-hash`, `rendered-html`,
+			`object-type`, `object`, `target-type`, `target`, `resource-id`, `plink`)
+			SELECT `item-content`.`uri-id`, `item-content`.`title`, `item-content`.`content-warning`,
+				`item-content`.`body`, `item-content`.`raw-body`, `item-content`.`location`, `item-content`.`coord`,
+				`item-content`.`language`, `item-content`.`app`, `item-content`.`rendered-hash`,
+				`item-content`.`rendered-html`, `item-content`.`object-type`, `item-content`.`object`,
+				`item-content`.`target-type`, `item-content`.`target`, `item`.`resource-id`, `item-content`.`plink`
+				FROM `item-content` INNER JOIN `item` ON `item`.`uri-id` = `item-content`.`uri-id`")) {
+			return Update::FAILED;
+		}
+	} else {
+		if (!DBA::e("INSERT IGNORE INTO `post-content`(`uri-id`, `title`, `content-warning`, `body`,
+			`location`, `coord`, `language`, `app`, `rendered-hash`, `rendered-html`,
+			`object-type`, `object`, `target-type`, `target`, `resource-id`, `plink`)
+			SELECT `item-content`.`uri-id`, `item-content`.`title`, `item-content`.`content-warning`,
+				`item-content`.`body`, `item-content`.`location`, `item-content`.`coord`,
+				`item-content`.`language`, `item-content`.`app`, `item-content`.`rendered-hash`,
+				`item-content`.`rendered-html`, `item-content`.`object-type`, `item-content`.`object`,
+				`item-content`.`target-type`, `item-content`.`target`, `item`.`resource-id`, `item-content`.`plink`
+				FROM `item-content` INNER JOIN `item` ON `item`.`uri-id` = `item-content`.`uri-id`")) {
+			return Update::FAILED;
+		}
 	}
 	return Update::SUCCESS;
 }
@@ -826,7 +840,7 @@ function update_1400()
 function pre_update_1403()
 {
 	// Necessary before a primary key change
-	if (!DBA::e("DROP TABLE `parsed_url`")) {
+	if (DBStructure::existsTable('parsed_url') && !DBA::e("DROP TABLE `parsed_url`")) {
 		return Update::FAILED;
 	}
 
