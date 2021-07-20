@@ -23,7 +23,6 @@ namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -35,12 +34,12 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\GServer;
 use Friendica\Model\Item;
-use Friendica\Model\ItemURI;
-use Friendica\Model\Profile;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
+use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Relay;
@@ -310,13 +309,18 @@ class Transmitter
 	/**
 	 * Return the ActivityPub profile of the given user
 	 *
-	 * @param integer $uid User ID
+	 * @param int $uid User ID
 	 * @return array with profile data
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getProfile($uid)
+	public static function getProfile(int $uid): array
 	{
 		$owner = User::getOwnerDataById($uid);
+		if (!isset($owner['id'])) {
+			DI::logger()->error('Unable to find owner data for uid', ['uid' => $uid, 'callstack' => System::callstack(20)]);
+			throw new HTTPException\NotFoundException('User not found.');
+		}
 
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data['id'] = $owner['url'];
@@ -1855,10 +1859,11 @@ class Transmitter
 	 * @param string  $inbox Target inbox
 	 *
 	 * @return boolean was the transmission successful?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function sendProfileUpdate($uid, $inbox)
+	public static function sendProfileUpdate(int $uid, string $inbox): bool
 	{
 		$owner = User::getOwnerDataById($uid);
 		$profile = APContact::getByURL($owner['url']);

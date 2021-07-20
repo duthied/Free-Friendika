@@ -23,6 +23,7 @@ namespace Friendica\Network;
 
 use DOMDocument;
 use DomXPath;
+use Exception;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -2198,10 +2199,17 @@ class Probe
 	 *
 	 * @param string $url
 	 * @return array probed data
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
 	 */
-	private static function localProbe(string $url)
+	private static function localProbe(string $url): array
 	{
-		if ($uid = User::getIdForURL($url)) {
+		try {
+			$uid = User::getIdForURL($url);
+			if (!$uid) {
+				throw new HTTPException\NotFoundException('User not found.');
+			}
+
 			$profile   = User::getOwnerDataById($uid);
 			$approfile = ActivityPub\Transmitter::getProfile($uid);
 
@@ -2209,25 +2217,30 @@ class Probe
 				$profile['gsid'] = GServer::getID($approfile['generator']['url']);
 			}
 
-			$data = ['name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
+			$data = [
+				'name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
 				'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
 				'photo' => Contact::getAvatarUrlForId($profile['id'], $profile['updated']),
 				'header' => $profile['header'] ? Contact::getHeaderUrlForId($profile['id'], $profile['updated']) : '',
 				'account-type' => $profile['contact-type'], 'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
-				'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'], 
+				'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'],
 				'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
 				'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],
-				'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $profile['poco'], 
+				'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $profile['poco'],
 				'following' => $approfile['following'], 'followers' => $approfile['followers'],
 				'inbox' => $approfile['inbox'], 'outbox' => $approfile['outbox'],
-				'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN, 
+				'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN,
 				'pubkey' => $profile['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $profile['gsid'],
-				'manually-approve' => in_array($profile['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])];
-		} else {
+				'manually-approve' => in_array($profile['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])
+			];
+		} catch (Exception $e) {
 			// Default values for non existing targets
-			$data = ['name' => $url, 'nick' => $url, 'url' => $url, 'network' => Protocol::PHANTOM,
-				'photo' => DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO];
+			$data = [
+				'name' => $url, 'nick' => $url, 'url' => $url, 'network' => Protocol::PHANTOM,
+				'photo' => DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO
+			];
 		}
-		return self::rearrangeData($data);		
+
+		return self::rearrangeData($data);
 	}
 }
