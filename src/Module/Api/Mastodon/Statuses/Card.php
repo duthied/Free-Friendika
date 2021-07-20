@@ -23,7 +23,9 @@ namespace Friendica\Module\Api\Mastodon\Statuses;
 
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException;
 
 /**
  * @see https://docs.joinmastodon.org/methods/statuses/
@@ -42,11 +44,11 @@ class Card extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$request = self::getRequest([
-			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
-		]);
-
 		$id = $parameters['id'];
+
+		if (!Post::exists(['uri-id' => $id, 'uid' => [0, $uid]])) {
+			throw new HTTPException\NotFoundException('Item with URI ID ' . $id . ' not found' . ($uid ? ' for user ' . $uid : '.'));
+		}
 
 		$card = DI::mstdnCard()->createFromUriId($id);
 
