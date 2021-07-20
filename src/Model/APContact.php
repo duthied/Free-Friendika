@@ -330,6 +330,11 @@ class APContact
 				$outbox = ActivityPub::fetchContent($apcontact['outbox']);
 			}
 			if (!empty($outbox['totalItems'])) {
+				// Mastodon seriously allows for this condition?
+				// Jul 20 2021 - See https://chaos.social/@m11 for a negative posts count
+				if ($outbox['totalItems'] < 0) {
+					$outbox['totalItems'] = 0;
+				}
 				$apcontact['statuses_count'] = $outbox['totalItems'];
 			}
 		}
