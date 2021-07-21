@@ -451,7 +451,7 @@ class BBCode
 		// Only send proxied pictures to API and for internal display
 		if (!in_array($simplehtml, [self::INTERNAL, self::API])) {
 			return $image;
-		} elseif ($uriid) {
+		} elseif ($uriid > 0) {
 			return Post\Link::getByLink($uriid, $image, $size);
 		} else {
 			return ProxyUtils::proxifyUrl($image, $size);

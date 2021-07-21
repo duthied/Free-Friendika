@@ -23,6 +23,7 @@ namespace Friendica\Model\Post;
 
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Proxy;
@@ -52,7 +53,7 @@ class Link
 		} else {
 			$mime = self::fetchMimeType($url);
 
-			DBA::insert('post-link', ['uri-id' => $uri_id, 'url' => $url, 'mimetype' => $mime]);
+			DBA::insert('post-link', ['uri-id' => $uri_id, 'url' => $url, 'mimetype' => $mime], Database::INSERT_IGNORE);
 			$id = DBA::lastInsertId();
 			Logger::info('Inserted', ['id' => $id, 'uri-id' => $uri_id, 'url' => $url]);
 		}

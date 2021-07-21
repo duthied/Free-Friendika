@@ -297,7 +297,7 @@ class UserNotification
 			$fields['target-uri-id'] = $item['uri-id'];
 		}
 
-		return DBA::insert('notification', $fields);
+		return DBA::insert('notification', $fields, Database::INSERT_IGNORE);
 	}
 
 	/**
@@ -318,7 +318,7 @@ class UserNotification
 			'created' => DateTimeFormat::utcNow(),
 		];
 
-		return DBA::insert('notification', $fields);
+		return DBA::insert('notification', $fields, Database::INSERT_IGNORE);
 	}
 
 	/**
