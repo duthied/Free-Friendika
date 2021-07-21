@@ -60,7 +60,7 @@ return [
 			'/accounts'                          => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/accounts/{id:\d+}'                 => [Module\Api\Mastodon\Accounts::class,                 [R::GET         ]],
 			'/accounts/{id:\d+}/statuses'        => [Module\Api\Mastodon\Accounts\Statuses::class,        [R::GET         ]],
-			'/accounts/{id:\d+}/featured_tags'   => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
+			'/accounts/{id:\d+}/featured_tags'   => [Module\Api\Mastodon\Accounts\FeaturedTags::class,    [R::GET         ]], // Dummy, not supported
 			'/accounts/{id:\d+}/followers'       => [Module\Api\Mastodon\Accounts\Followers::class,       [R::GET         ]],
 			'/accounts/{id:\d+}/following'       => [Module\Api\Mastodon\Accounts\Following::class,       [R::GET         ]],
 			'/accounts/{id:\d+}/lists'           => [Module\Api\Mastodon\Accounts\Lists::class,           [R::GET         ]],
