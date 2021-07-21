@@ -50,25 +50,39 @@ class Context extends BaseApi
 
 		$id = $parameters['id'];
 
-		$parent = Post::selectFirst(['parent-uri-id'], ['uri-id' => $id]);
-		if (!DBA::isResult($parent)) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
 		$parents  = [];
 		$children = [];
 
-		$posts = Post::selectPosts(['uri-id', 'thr-parent-id'],
-			['parent-uri-id' => $parent['parent-uri-id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]], []);
-		while ($post = Post::fetch($posts)) {
-			if ($post['uri-id'] == $post['thr-parent-id']) {
-				continue;
-			}
-			$parents[$post['uri-id']] = $post['thr-parent-id'];
+		$parent = Post::selectFirst(['parent-uri-id'], ['uri-id' => $id]);
+		if (DBA::isResult($parent)) {
+			$posts = Post::selectPosts(['uri-id', 'thr-parent-id'],
+				['parent-uri-id' => $parent['parent-uri-id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]]);
+			while ($post = Post::fetch($posts)) {
+				if ($post['uri-id'] == $post['thr-parent-id']) {
+					continue;
+				}
+				$parents[$post['uri-id']] = $post['thr-parent-id'];
 
-			$children[$post['thr-parent-id']][] = $post['uri-id'];
+				$children[$post['thr-parent-id']][] = $post['uri-id'];
+			}
+			DBA::close($posts);
+		} else {
+			$parent = DBA::selectFirst('mail', ['parent-uri-id'], ['uri-id' => $id, 'uid' => $uid]);
+			if (DBA::isResult($parent)) {
+				$posts = DBA::select('mail', ['uri-id', 'thr-parent-id'], ['parent-uri-id' => $parent['parent-uri-id']]);
+				while ($post = DBA::fetch($posts)) {
+					if ($post['uri-id'] == $post['thr-parent-id']) {
+						continue;
+					}
+					$parents[$post['uri-id']] = $post['thr-parent-id'];
+
+					$children[$post['thr-parent-id']][] = $post['uri-id'];
+				}
+				DBA::close($posts);
+			} else {
+				DI::mstdnError()->RecordNotFound();
+			}
 		}
-		DBA::close($posts);
 
 		$statuses = ['ancestors' => [], 'descendants' => []];
 

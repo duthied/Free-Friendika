@@ -66,7 +66,7 @@ class Direct extends BaseApi
 			$params['order'] = ['uri-id'];
 		}
 
-		$mails = DBA::select('mail', ['id'], $condition, $params);
+		$mails = DBA::select('mail', ['id', 'uri-id'], $condition, $params);
 
 		$statuses = [];
 
