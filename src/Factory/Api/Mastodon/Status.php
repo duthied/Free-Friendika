@@ -25,6 +25,7 @@ use Friendica\BaseFactory;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\Database;
+use Friendica\Database\DBA;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
@@ -79,6 +80,10 @@ class Status extends BaseFactory
 			'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
+			$mail = DBA::selectFirst('mail', ['id'], ['uri-id' => $uriId, 'uid' => $uid]);
+			if ($mail) {
+				return $this->createFromMailId($mail['id']);
+			}
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
 
