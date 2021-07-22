@@ -446,7 +446,7 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `profile_check` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+	if (DBStructure::existsTable('profile_check') && !DBA::e("DELETE FROM `profile_check` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
 		return Update::FAILED;
 	}
 
@@ -498,7 +498,7 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `profile_check` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+	if (DBStructure::existsTable('profile_check') && !DBA::e("DELETE FROM `profile_check` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
 		return Update::FAILED;
 	}
 
