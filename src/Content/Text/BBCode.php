@@ -1264,6 +1264,39 @@ class BBCode
 	}
 
 	/**
+	 * Replace names in mentions with nicknames
+	 *
+	 * @param string $body
+	 * @return string Body with replaced mentions
+	 */
+	public static function setMentionsToNicknames(string $body):string
+	{
+		$regexp = "/([@!])\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
+		return preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
+	}
+
+	/**
+	 * Callback function to replace a Friendica style mention in a mention with the nickname
+	 *
+	 * @param array $match Matching values for the callback
+	 * @return string Replaced mention
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function mentionCallback($match)
+	{
+		if (empty($match[2])) {
+			return '';
+		}
+
+		$data = Contact::getByURL($match[2], false, ['url', 'nick']);
+		if (empty($data['nick'])) {
+			return $match[0];
+		}
+
+		return $match[1] . '[url=' . $data['url'] . ']' . $data['nick'] . '[/url]';
+	}
+
+	/**
 	 * Converts a BBCode message for a given URI-ID to a HTML message
 	 *
 	 * BBcode 2 HTML was written by WAY2WEB.net
