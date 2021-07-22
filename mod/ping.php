@@ -138,7 +138,7 @@ function ping_init(App $a)
 
 		$condition = ["`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
 			local_user(), Verb::getID(Activity::FOLLOW)];
-		$items = Post::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition);
+		$items = Post::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition, ['limit' => 1000]);
 		if (DBA::isResult($items)) {
 			$items_unseen = Post::toArray($items, false);
 			$arr = ['items' => $items_unseen];
@@ -253,8 +253,8 @@ function ping_init(App $a)
 
 		$data['intro']    = $intro_count;
 		$data['mail']     = $mail_count;
-		$data['net']      = $network_count;
-		$data['home']     = $home_count;
+		$data['net']      = ($network_count < 1000) ? $network_count : '999+';
+		$data['home']     = ($home_count < 1000) ? $home_count : '999+';
 		$data['register'] = $register_count;
 
 		$data['all-events']       = $all_events;

@@ -170,7 +170,7 @@ class ExpirePosts
 	{
 		// We have to avoid deleting newly created "item-uri" entries.
 		// So we fetch a post that had been stored yesterday and only delete older ones.
-		$item = Post::selectFirst(['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY", 0, 1],
+		$item = Post::selectFirstThread(['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY", 0, 1],
 			['order' => ['received' => true]]);
 		if (empty($item['uri-id'])) {
 			Logger::warning('No item with uri-id found - we better quit here');

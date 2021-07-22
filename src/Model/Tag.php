@@ -545,13 +545,21 @@ class Tag
 	 */
 	public static function setGlobalTrendingHashtags(int $period, int $limit = 10)
 	{
+		// Get a uri-id that is at least X hours old.
+		// We use the uri-id in the query for the hash tags since this is much faster
+		$post = Post::selectFirstThread(['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? HOUR", 0, $period],
+			['order' => ['received' => true]]);
+		if (empty($post['uri-id'])) {
+			return [];
+		}
+
 		$block_sql = self::getBlockedSQL();
 
 		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`, COUNT(DISTINCT(`author-id`)) as `authors`
 			FROM `tag-search-view`
-			WHERE `private` = ? AND `uid` = ? AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR) $block_sql
+			WHERE `private` = ? AND `uid` = ? AND `uri-id` > ? $block_sql
 			GROUP BY `term` ORDER BY `authors` DESC, `score` DESC LIMIT ?",
-			Item::PUBLIC, 0, $period, $limit);
+			Item::PUBLIC, 0, $post['uri-id'], $limit);
 
 		if (DBA::isResult($tagsStmt)) {
 			$tags = DBA::toArray($tagsStmt);
@@ -590,13 +598,21 @@ class Tag
 	 */
 	public static function setLocalTrendingHashtags(int $period, int $limit = 10)
 	{
+		// Get a uri-id that is at least X hours old.
+		// We use the uri-id in the query for the hash tags since this is much faster
+		$post = Post::selectFirstThread(['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? HOUR", 0, $period],
+			['order' => ['received' => true]]);
+		if (empty($post['uri-id'])) {
+			return [];
+		}
+
 		$block_sql = self::getBlockedSQL();
 
 		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`, COUNT(DISTINCT(`author-id`)) as `authors`
 			FROM `tag-search-view`
-			WHERE `private` = ? AND `wall` AND `origin` AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR) $block_sql
+			WHERE `private` = ? AND `wall` AND `origin` AND `uri-id` > ? $block_sql
 			GROUP BY `term` ORDER BY `authors` DESC, `score` DESC LIMIT ?",
-			Item::PUBLIC, $period, $limit);
+			Item::PUBLIC, $post['uri-id'], $limit);
 
 		if (DBA::isResult($tagsStmt)) {
 			$tags = DBA::toArray($tagsStmt);
