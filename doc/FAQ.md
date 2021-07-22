@@ -210,7 +210,6 @@ Here is a list of known working clients:
 
 #### iOS
 
-* [Amaroq](https://github.com/ReticentJohn/Amaroq/tree/master)
 * [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
 * [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
 * [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
