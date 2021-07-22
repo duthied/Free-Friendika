@@ -215,8 +215,9 @@ class ForumManager
 				AND `contact`.`network` IN (?, ?) AND `contact`.`contact-type` = ?
 				AND NOT `contact`.`blocked` AND NOT `contact`.`hidden`
 				AND NOT `contact`.`pending` AND NOT `contact`.`archive`
+				AND `contact`.`uid` = ?
 				GROUP BY `contact`.`id`",
-			local_user(), Protocol::DFRN, Protocol::ACTIVITYPUB, Contact::TYPE_COMMUNITY
+			local_user(), Protocol::DFRN, Protocol::ACTIVITYPUB, Contact::TYPE_COMMUNITY, local_user()
 		);
 
 		return DBA::toArray($stmtContacts);
