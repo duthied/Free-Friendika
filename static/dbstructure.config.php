@@ -1368,22 +1368,6 @@ return [
 			"pub_keywords" => ["FULLTEXT", "pub_keywords"],
 		]
 	],
-	"profile_check" => [
-		"comment" => "DFRN remote auth use",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
-			"dfrn_id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"sec" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uid" => ["uid"],
-			"cid" => ["cid"],
-		]
-	],
 	"profile_field" => [
 		"comment" => "Custom profile fields",
 		"fields" => [

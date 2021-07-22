@@ -59,7 +59,6 @@ Database Tables
 | [post-user-notification](help/database/db_post-user-notification) | User post notifications |
 | [process](help/database/db_process) | Currently running system processes |
 | [profile](help/database/db_profile) | user profiles data |
-| [profile_check](help/database/db_profile_check) | DFRN remote auth use |
 | [profile_field](help/database/db_profile_field) | Custom profile fields |
 | [push_subscriber](help/database/db_push_subscriber) | Used for OStatus: Contains feed subscribers |
 | [register](help/database/db_register) | registrations requiring admin approval |

@@ -1350,23 +1350,6 @@ CREATE TABLE IF NOT EXISTS `profile` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='user profiles data';
 
 --
--- TABLE profile_check
---
-CREATE TABLE IF NOT EXISTS `profile_check` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
-	`dfrn_id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`sec` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
-	 INDEX `cid` (`cid`),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='DFRN remote auth use';
-
---
 -- TABLE profile_field
 --
 CREATE TABLE IF NOT EXISTS `profile_field` (
