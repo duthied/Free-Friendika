@@ -1264,6 +1264,39 @@ class BBCode
 	}
 
 	/**
+	 * Replace names in mentions with nicknames
+	 *
+	 * @param string $body
+	 * @return string Body with replaced mentions
+	 */
+	public static function setMentionsToNicknames(string $body):string
+	{
+		$regexp = "/([@!])\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
+		return preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
+	}
+
+	/**
+	 * Callback function to replace a Friendica style mention in a mention with the nickname
+	 *
+	 * @param array $match Matching values for the callback
+	 * @return string Replaced mention
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function mentionCallback($match)
+	{
+		if (empty($match[2])) {
+			return '';
+		}
+
+		$data = Contact::getByURL($match[2], false, ['url', 'nick']);
+		if (empty($data['nick'])) {
+			return $match[0];
+		}
+
+		return $match[1] . '[url=' . $data['url'] . ']' . $data['nick'] . '[/url]';
+	}
+
+	/**
 	 * Converts a BBCode message for a given URI-ID to a HTML message
 	 *
 	 * BBcode 2 HTML was written by WAY2WEB.net
@@ -1748,6 +1781,27 @@ class BBCode
 					}
 				}
 
+				// Handle mentions and hashtag links
+				if ($simple_html == self::DIASPORA) {
+					// The ! is converted to @ since Diaspora only understands the @
+					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'@<a href="$2">$3</a>',
+						$text);
+				} elseif (in_array($simple_html, [self::OSTATUS, self::ACTIVITYPUB])) {
+					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'<span class="h-card"><a href="$2" class="u-url mention">$1<span>$3</span></a></span>',
+						$text);
+					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'<a href="$2" class="mention hashtag" rel="tag">$1<span>$3</span></a>',
+						$text);
+				} elseif (in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::API])) {
+					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'<bdi>$1<a href="$2" class="userinfo mention" title="$3">$3</a></bdi>',
+						$text);
+				} else {
+					$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
+				}
+				
 				if (!$for_plaintext) {
 					if (in_array($simple_html, [self::OSTATUS, self::API, self::ACTIVITYPUB])) {
 						$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
@@ -1756,24 +1810,6 @@ class BBCode
 				} else {
 					$text = preg_replace("(\[url\](.*?)\[\/url\])ism", " $1 ", $text);
 					$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::removePictureLinksCallback', $text);
-				}
-
-				// Remove all hashtag addresses
-				if ($simple_html && !in_array($simple_html, [self::DIASPORA, self::OSTATUS, self::ACTIVITYPUB])) {
-					$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
-				} elseif ($simple_html == self::DIASPORA) {
-					// The ! is converted to @ since Diaspora only understands the @
-					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
-						'@<a href="$2">$3</a>',
-						$text);
-				} elseif (in_array($simple_html, [self::OSTATUS, self::ACTIVITYPUB])) {
-					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
-						'$1<span class="vcard"><a href="$2" class="url u-url mention" title="$3"><span class="fn nickname mention">$3</span></a></span>',
-						$text);
-				} elseif (!$simple_html) {
-					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
-						'<bdi>$1<a href="$2" class="userinfo mention" title="$3">$3</a></bdi>',
-						$text);
 				}
 
 				// Bookmarks in red - will be converted to bookmarks in friendica

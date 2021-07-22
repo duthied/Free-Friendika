@@ -1344,27 +1344,6 @@ class Transmitter
 	}
 
 	/**
-	 * Callback function to replace a Friendica style mention in a mention that is used on AP
-	 *
-	 * @param array $match Matching values for the callback
-	 * @return string Replaced mention
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	private static function mentionCallback($match)
-	{
-		if (empty($match[1])) {
-			return '';
-		}
-
-		$data = Contact::getByURL($match[1], false, ['url', 'alias', 'nick']);
-		if (empty($data['nick'])) {
-			return $match[0];
-		}
-
-		return '[url=' . $data['url'] . ']@' . $data['nick'] . '[/url]';
-	}
-
-	/**
 	 * Callback function to replace a Friendica style mention in a mention for a summary
 	 *
 	 * @param array $match Matching values for the callback
@@ -1568,8 +1547,7 @@ class Transmitter
 		if ($type == 'Event') {
 			$data = array_merge($data, self::createEvent($item));
 		} else {
-			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-			$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
+			$body = BBCode::setMentionsToNicknames($body);
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
 		}
@@ -1579,8 +1557,7 @@ class Transmitter
 		// The contentMap does contain the unmodified HTML.
 		$language = self::getLanguage($item);
 		if (!empty($language)) {
-			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-			$richbody = preg_replace_callback($regexp, ['self', 'mentionCallback'], $item['body']);
+			$richbody = BBCode::setMentionsToNicknames($item['body']);
 			$richbody = BBCode::removeAttachment($richbody);
 
 			$data['contentMap'][$language] = BBCode::convertForUriId($item['uri-id'], $richbody, BBCode::EXTERNAL);
