@@ -212,6 +212,7 @@ Here is a list of known working clients:
 
 * [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
 * [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
+* [Metatext](https://apps.apple.com/app/metatext/id1523996615)
 * [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
 * [StarPterano](https://apps.apple.com/de/app/starpterano/id1436972796) Uses an OAuth method where you have to manually copy and paste the provided code.
 * [Stella](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048?l=ms)
@@ -226,7 +227,7 @@ Here is a list of known working clients:
 * [Toot](https://toot.readthedocs.io/en/latest/)
 * [Tootle](https://github.com/bleakgrey/tootle)
 
-#### MacOS
+#### macOS
 
 - [Mastonaut](https://mastonaut.app/)
 
