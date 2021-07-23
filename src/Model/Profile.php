@@ -287,45 +287,25 @@ class Profile
 		// correct contact table entry for the logged-in user.
 		$profile_contact = [];
 
-		if (!empty($profile['nurl'])) {
-			if (local_user() && ($profile['uid'] ?? 0) != local_user()) {
-				$profile_contact = Contact::getByURL($profile['nurl'], null, ['rel'], local_user());
-			}
-			if (!empty($profile['cid']) && self::getMyURL()) {
-				$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
-			}
+		if (local_user() && ($profile['uid'] ?? 0) != local_user()) {
+			$profile_contact = Contact::getByURL($profile['nurl'], null, [], local_user());
+		}
+		if (!empty($profile['cid']) && self::getMyURL()) {
+			$profile_contact = Contact::selectFirst([], ['id' => $profile['cid']]);
 		}
 
-		if (empty($profile['nickname'])) {
-			Logger::warning('Received profile with no nickname', ['profile' => $profile, 'callstack' => System::callstack(10)]);
-			return $o;
-		}
+		$profile['picdate'] = urlencode($profile['picdate']);
 
-		$profile['picdate'] = urlencode($profile['picdate'] ?? '');
-
-		if (($profile['network'] != '') && ($profile['network'] != Protocol::DFRN)) {
-			$profile['network_link'] = Strings::formatNetworkName($profile['network'], $profile['url']);
-		} else {
-			$profile['network_link'] = '';
-		}
+		$profile['network_link'] = '';
 
 		Hook::callAll('profile_sidebar_enter', $profile);
 
-		if (isset($profile['url'])) {
-			$profile_url = $profile['url'];
-		} else {
-			$profile_url = DI::baseUrl()->get() . '/profile/' . $profile['nickname'];
-		}
+		$profile_url = $profile['url'];
 
-		if (!empty($profile['id'])) {
-			$cid = $profile['id'];
-		} else {
-			$cid = Contact::getIdForURL($profile_url, false);
-		}
+		$cid = $profile['id'];
 
 		$follow_link = null;
 		$unfollow_link = null;
-		$subscribe_feed_link = null;
 		$wallmessage_link = null;
 
 		// Who is the logged-in user to this profile?
@@ -334,8 +314,6 @@ class Profile
 			$visitor_contact = Contact::selectFirst(['rel'], ['uid' => $profile['uid'], 'nurl' => Strings::normaliseLink(self::getMyURL())]);
 		}
 
-		$profile_is_dfrn = $profile['network'] == Protocol::DFRN;
-		$profile_is_native = in_array($profile['network'], Protocol::NATIVE_SUPPORT);
 		$local_user_is_self = self::getMyURL() && ($profile['url'] == self::getMyURL());
 		$visitor_is_authenticated = (bool)self::getMyURL();
 		$visitor_is_following =
@@ -352,16 +330,12 @@ class Profile
 				if (!empty($profile['nickname']) && strpos($profile_url, DI::baseUrl()->get()) === 0) {
 					$follow_link = 'remote_follow/' . $profile['nickname'];
 				}
-			} elseif ($profile_is_native) {
+			} else {
 				if ($visitor_is_following) {
 					$unfollow_link = $visitor_base_path . '/unfollow?url=' . urlencode($profile_url) . '&auto=1';
 				} else {
 					$follow_link =  $visitor_base_path .'/follow?url=' . urlencode($profile_url) . '&auto=1';
 				}
-			}
-
-			if ($profile_is_dfrn) {
-				$subscribe_feed_link = 'dfrn_poll/' . $profile['nickname'];
 			}
 
 			if (Contact::canReceivePrivateMessages($profile_contact)) {
@@ -478,7 +452,7 @@ class Profile
 			'$unfollow' => DI::l10n()->t('Unfollow'),
 			'$unfollow_link' => $unfollow_link,
 			'$subscribe_feed' => DI::l10n()->t('Atom feed'),
-			'$subscribe_feed_link' => $subscribe_feed_link,
+			'$subscribe_feed_link' => $profile['poll'],
 			'$wallmessage' => DI::l10n()->t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
 			'$account_type' => $account_type,
