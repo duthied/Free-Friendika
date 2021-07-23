@@ -29,9 +29,10 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 
 /**
- * Loads a profile for the HoverCard view
+ * Loads a profile for the hCard page
+ * @see http://microformats.org/wiki/hcard
  */
-class HoverCard extends BaseModule
+class HCard extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
@@ -41,7 +42,7 @@ class HoverCard extends BaseModule
 			// A logged in user views a profile of a user
 			$nickname = $a->user['nickname'];
 		} elseif (empty($parameters['action'])) {
-			// Show the profile hovercard
+			// Show the profile hCard
 			$nickname = $parameters['profile'];
 		} else {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('No profile'));
