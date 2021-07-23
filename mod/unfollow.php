@@ -104,7 +104,6 @@ function unfollow_content(App $a)
 		'$keywords_label'=> ''
 	]);
 
-	DI::page()['aside'] = '';
 	DI::page()['aside'] = Widget\VCard::getHTML(Contact::getByURL($contact['url'], false));
 
 	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => DI::l10n()->t('Status Messages and Posts')]);

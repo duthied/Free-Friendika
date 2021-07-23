@@ -264,7 +264,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	if (DBA::isResult($parent)) {
-		$page_uid = ($page_uid ?? 0) ?: $parent['uid'];
+		$page_uid = $page_uid ?? 0 ?: $parent['uid'];
 		$is_remote_contact = Session::getRemoteContactID($page_uid);
 		if ($is_remote_contact) {
 			$item_uid = $parent['uid'];
