@@ -38,7 +38,7 @@ class Contacts extends BaseModule
 
 		$localContactId = Model\Contact::getPublicIdByUserId(local_user());
 
-		Model\Profile::load($app, '', $contact);
+		DI::page()['aside'] = Widget\VCard::getHTML($contact);
 
 		$condition = [
 			'blocked' => false,

@@ -308,42 +308,7 @@ class Contact extends BaseModule
 
 			$a->data['contact'] = $contact;
 
-			if (($contact['network'] != '') && ($contact['network'] != Protocol::DFRN)) {
-				$network_link = Strings::formatNetworkName($contact['network'], $contact['url']);
-			} else {
-				$network_link = '';
-			}
-
-			$follow_link = '';
-			$unfollow_link = '';
-			if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-				if ($contact['uid'] && in_array($contact['rel'], [Model\Contact::SHARING, Model\Contact::FRIEND])) {
-					$unfollow_link = 'unfollow?url=' . urlencode($contact['url']) . '&auto=1';
-				} elseif(!$contact['pending']) {
-					$follow_link = 'follow?url=' . urlencode($contact['url']) . '&auto=1';
-				}
-			}
-
-			$wallmessage_link = '';
-			if ($contact['uid'] && Model\Contact::canReceivePrivateMessages($contact)) {
-				$wallmessage_link = 'message/new/' . $contact['id'];
-			}
-
-			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
-				'$name'         => $contact['name'],
-				'$photo'        => Model\Contact::getPhoto($contact),
-				'$url'          => Model\Contact::magicLinkByContact($contact, $contact['url']),
-				'$addr'         => $contact['addr'] ?? '',
-				'$network_link' => $network_link,
-				'$network'      => DI::l10n()->t('Network:'),
-				'$account_type' => Model\Contact::getAccountType($contact),
-				'$follow'       => DI::l10n()->t('Follow'),
-				'$follow_link'   => $follow_link,
-				'$unfollow'     => DI::l10n()->t('Unfollow'),
-				'$unfollow_link' => $unfollow_link,
-				'$wallmessage'  => DI::l10n()->t('Message'),
-				'$wallmessage_link' => $wallmessage_link,
-			]);
+			$vcard_widget = Widget\VCard::getHTML($contact);
 
 			$findpeople_widget = '';
 			$follow_widget = '';
@@ -578,14 +543,14 @@ class Contact extends BaseModule
 					Model\Contact::MIRROR_FORWARDED => DI::l10n()->t('Mirror as forwarded posting'),
 					Model\Contact::MIRROR_OWN_POST => DI::l10n()->t('Mirror as my own posting')];
 			} elseif (in_array($contact['network'], [Protocol::ACTIVITYPUB])) {
-				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'), 
+				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'),
 				Model\Contact::MIRROR_NATIVE_RESHARE => DI::l10n()->t('Native reshare')];
 			} elseif (in_array($contact['network'], [Protocol::DFRN])) {
-				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'), 
+				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'),
 				Model\Contact::MIRROR_OWN_POST => DI::l10n()->t('Mirror as my own posting'),
 				Model\Contact::MIRROR_NATIVE_RESHARE => DI::l10n()->t('Native reshare')];
 			} else {
-				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'), 
+				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'),
 					Model\Contact::MIRROR_OWN_POST => DI::l10n()->t('Mirror as my own posting')];
 			}
 
@@ -669,7 +634,7 @@ class Contact extends BaseModule
 					$contact['remote_self'],
 					DI::l10n()->t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
 					$remote_self_options
-				],	
+				],
 			]);
 
 			$arr = ['contact' => $contact, 'output' => $o];
@@ -1002,11 +967,11 @@ class Contact extends BaseModule
 		}
 
 		if (DBA::isResult($contact)) {
-			DI::page()['aside'] = '';
-
 			if (!$update) {
 				$profiledata = Model\Contact::getByURLForUser($contact['url'], local_user());
-				Model\Profile::load($a, '', $profiledata, true);
+				DI::page()['aside'] = Widget\VCard::getHTML($profiledata);
+			} else {
+				DI::page()['aside'] = '';
 			}
 
 			if ($contact['uid'] == 0) {
@@ -1026,15 +991,13 @@ class Contact extends BaseModule
 		$o = self::getTabsHTML($contact, self::TAB_POSTS);
 
 		if (DBA::isResult($contact)) {
-			DI::page()['aside'] = '';
-
 			$profiledata = Model\Contact::getByURLForUser($contact['url'], local_user());
 
 			if (local_user() && in_array($profiledata['network'], Protocol::FEDERATED)) {
 				$profiledata['remoteconnect'] = DI::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);
 			}
 
-			Model\Profile::load($a, '', $profiledata, true);
+			DI::page()['aside'] = Widget\VCard::getHTML($profiledata);
 
 			if ($contact['uid'] == 0) {
 				$o .= Model\Contact::getPostsFromId($contact['id']);
@@ -1115,7 +1078,7 @@ class Contact extends BaseModule
 			'alt_text'     => $alt_text,
 			'name'         => $contact['name'],
 			'nick'         => $contact['nick'],
-			'details'      => $contact['location'], 
+			'details'      => $contact['location'],
 			'tags'         => $contact['keywords'],
 			'about'        => $contact['about'],
 			'account_type' => Model\Contact::getAccountType($contact),

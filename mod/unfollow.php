@@ -20,12 +20,12 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Widget;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Util\Strings;
 
@@ -104,8 +104,7 @@ function unfollow_content(App $a)
 		'$keywords_label'=> ''
 	]);
 
-	DI::page()['aside'] = '';
-	Profile::load($a, '', Contact::getByURL($contact['url'], false));
+	DI::page()['aside'] = Widget\VCard::getHTML(Contact::getByURL($contact['url'], false));
 
 	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => DI::l10n()->t('Status Messages and Posts')]);
 

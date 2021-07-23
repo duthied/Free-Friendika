@@ -211,38 +211,12 @@ class Profile
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function load(App $a, $nickname, array $profiledata = [], $show_connect = true)
+	public static function load(App $a, $nickname)
 	{
-		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
-
-		if (!DBA::isResult($user) && empty($profiledata)) {
-			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
-			return;
-		}
-
-		if (count($profiledata) > 0) {
-			// Ensure to have a "nickname" field
-			if (empty($profiledata['nickname']) && !empty($profiledata['nick'])) {
-				$profiledata['nickname'] = $profiledata['nick'];
-			}
-
-			// Add profile data to sidebar
-			DI::page()['aside'] .= self::sidebar($a, $profiledata, true, $show_connect);
-
-			if (!DBA::isResult($user)) {
-				return;
-			}
-		}
-
-		$profile = !empty($user['uid']) ? User::getOwnerDataById($user['uid'], false) : [];
-
-		if (empty($profile) && empty($profiledata)) {
-			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
-			return;
-		}
-
+		$profile = User::getOwnerDataByNick($nickname);
 		if (empty($profile)) {
-			$profile = ['uid' => 0, 'name' => $nickname];
+			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
+			return;
 		}
 
 		$a->profile = $profile;
@@ -253,7 +227,7 @@ class Profile
 
 		DI::page()['title'] = $a->profile['name'] . ' @ ' . DI::config()->get('config', 'sitename');
 
-		if (!$profiledata && !DI::pConfig()->get(local_user(), 'system', 'always_my_theme')) {
+		if (!DI::pConfig()->get(local_user(), 'system', 'always_my_theme')) {
 			$a->setCurrentTheme($a->profile['theme']);
 			$a->setCurrentMobileTheme($a->profile['mobile-theme']);
 		}
@@ -269,16 +243,14 @@ class Profile
 			require_once $theme_info_file;
 		}
 
-		$block = ((DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) ? true : false);
+		$block = (DI::config()->get('system', 'block_public') && !Session::isAuthenticated());
 
 		/**
 		 * @todo
 		 * By now, the contact block isn't shown, when a different profile is given
 		 * But: When this profile was on the same server, then we could display the contacts
 		 */
-		if (!$profiledata) {
-			DI::page()['aside'] .= self::sidebar($a, $a->profile, $block, $show_connect);
-		}
+		DI::page()['aside'] .= self::sidebar($a, $a->profile, $block);
 
 		return;
 	}
@@ -304,7 +276,7 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	private static function sidebar(App $a, array $profile, $block = 0, $show_connect = true)
+	private static function sidebar(App $a, array $profile, $block = 0)
 	{
 		$o = '';
 		$location = false;
@@ -315,45 +287,25 @@ class Profile
 		// correct contact table entry for the logged-in user.
 		$profile_contact = [];
 
-		if (!empty($profile['nurl'])) {
-			if (local_user() && ($profile['uid'] ?? 0) != local_user()) {
-				$profile_contact = Contact::getByURL($profile['nurl'], null, ['rel'], local_user());
-			}
-			if (!empty($profile['cid']) && self::getMyURL()) {
-				$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
-			}
+		if (local_user() && ($profile['uid'] ?? 0) != local_user()) {
+			$profile_contact = Contact::getByURL($profile['nurl'], null, [], local_user());
+		}
+		if (!empty($profile['cid']) && self::getMyURL()) {
+			$profile_contact = Contact::selectFirst([], ['id' => $profile['cid']]);
 		}
 
-		if (empty($profile['nickname'])) {
-			Logger::warning('Received profile with no nickname', ['profile' => $profile, 'callstack' => System::callstack(10)]);
-			return $o;
-		}
+		$profile['picdate'] = urlencode($profile['picdate']);
 
-		$profile['picdate'] = urlencode($profile['picdate'] ?? '');
-
-		if (($profile['network'] != '') && ($profile['network'] != Protocol::DFRN)) {
-			$profile['network_link'] = Strings::formatNetworkName($profile['network'], $profile['url']);
-		} else {
-			$profile['network_link'] = '';
-		}
+		$profile['network_link'] = '';
 
 		Hook::callAll('profile_sidebar_enter', $profile);
 
-		if (isset($profile['url'])) {
-			$profile_url = $profile['url'];
-		} else {
-			$profile_url = DI::baseUrl()->get() . '/profile/' . $profile['nickname'];
-		}
+		$profile_url = $profile['url'];
 
-		if (!empty($profile['id'])) {
-			$cid = $profile['id'];
-		} else {
-			$cid = Contact::getIdForURL($profile_url, false);
-		}
+		$cid = $profile['id'];
 
 		$follow_link = null;
 		$unfollow_link = null;
-		$subscribe_feed_link = null;
 		$wallmessage_link = null;
 
 		// Who is the logged-in user to this profile?
@@ -362,8 +314,6 @@ class Profile
 			$visitor_contact = Contact::selectFirst(['rel'], ['uid' => $profile['uid'], 'nurl' => Strings::normaliseLink(self::getMyURL())]);
 		}
 
-		$profile_is_dfrn = $profile['network'] == Protocol::DFRN;
-		$profile_is_native = in_array($profile['network'], Protocol::NATIVE_SUPPORT);
 		$local_user_is_self = self::getMyURL() && ($profile['url'] == self::getMyURL());
 		$visitor_is_authenticated = (bool)self::getMyURL();
 		$visitor_is_following =
@@ -374,22 +324,18 @@ class Profile
 			|| in_array($profile_contact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND]);
 		$visitor_base_path = self::getMyURL() ? preg_replace('=/profile/(.*)=ism', '', self::getMyURL()) : '';
 
-		if (!$local_user_is_self && $show_connect) {
+		if (!$local_user_is_self) {
 			if (!$visitor_is_authenticated) {
 				// Remote follow is only available for local profiles
 				if (!empty($profile['nickname']) && strpos($profile_url, DI::baseUrl()->get()) === 0) {
 					$follow_link = 'remote_follow/' . $profile['nickname'];
 				}
-			} elseif ($profile_is_native) {
+			} else {
 				if ($visitor_is_following) {
 					$unfollow_link = $visitor_base_path . '/unfollow?url=' . urlencode($profile_url) . '&auto=1';
 				} else {
 					$follow_link =  $visitor_base_path .'/follow?url=' . urlencode($profile_url) . '&auto=1';
 				}
-			}
-
-			if ($profile_is_dfrn) {
-				$subscribe_feed_link = 'dfrn_poll/' . $profile['nickname'];
 			}
 
 			if (Contact::canReceivePrivateMessages($profile_contact)) {
@@ -495,7 +441,7 @@ class Profile
 
 		$p['photo'] = Contact::getAvatarUrlForId($cid, ProxyUtils::SIZE_SMALL);
 
-		$p['url'] = Contact::magicLinkById($cid);
+		$p['url'] = Contact::magicLinkById($cid, $profile['url']);
 
 		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
@@ -506,7 +452,7 @@ class Profile
 			'$unfollow' => DI::l10n()->t('Unfollow'),
 			'$unfollow_link' => $unfollow_link,
 			'$subscribe_feed' => DI::l10n()->t('Atom feed'),
-			'$subscribe_feed_link' => $subscribe_feed_link,
+			'$subscribe_feed_link' => $profile['poll'],
 			'$wallmessage' => DI::l10n()->t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
 			'$account_type' => $account_type,

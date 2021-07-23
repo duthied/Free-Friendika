@@ -20,6 +20,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Widget;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\DI;
@@ -75,7 +76,7 @@ function follow_content(App $a)
 
 	// Don't try to add a pending contact
 	$user_contact = DBA::selectFirst('contact', ['pending'], ["`uid` = ? AND ((`rel` != ?) OR (`network` = ?)) AND
-		(`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?", 
+		(`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
 		$uid, Contact::FOLLOWER, Protocol::DFRN, Strings::normaliseLink($url),
 		Strings::normaliseLink($url), $url, Protocol::STATUSNET]);
 
@@ -157,7 +158,7 @@ function follow_content(App $a)
 	DI::page()['aside'] = '';
 
 	if ($protocol != Protocol::PHANTOM) {
-		Profile::load($a, '', $contact, false);
+		DI::page()['aside'] = Widget\VCard::getHTML(Contact::getByURL($contact['url'], false));
 
 		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'),
 			['$title' => DI::l10n()->t('Status Messages and Posts')]

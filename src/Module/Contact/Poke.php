@@ -3,6 +3,7 @@
 namespace Friendica\Module\Contact;
 
 use Friendica\BaseModule;
+use Friendica\Content\Widget;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -135,7 +136,7 @@ class Poke extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		Model\Profile::load(DI::app(), '', Model\Contact::getByURL($contact["url"], false));
+		DI::page()['aside'] = Widget\VCard::getHTML(Model\Contact::getByURL($contact["url"], false));
 
 		$verbs = [];
 		foreach (DI::l10n()->getPokeVerbs() as $verb => $translations) {

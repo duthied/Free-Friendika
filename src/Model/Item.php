@@ -468,18 +468,14 @@ class Item
 		// Checking if there is already an item with the same guid
 		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
 		if (Post::exists($condition)) {
-			Logger::notice('Found already existing item', [
-				'guid' => $item['guid'],
-				'uid' => $item['uid'],
-				'network' => $item['network']
-			]);
+			Logger::notice('Found already existing item', $condition);
 			return true;
 		}
 
 		$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'],
 			'network' => [$item['network'], Protocol::DFRN]];
 		if (Post::exists($condition)) {
-			Logger::notice('duplicated item with the same uri found.', $item);
+			Logger::notice('duplicated item with the same uri found.', $condition);
 			return true;
 		}
 
@@ -487,7 +483,7 @@ class Item
 		if (in_array($item['network'], [Protocol::DFRN, Protocol::DIASPORA])) {
 			$condition = ['guid' => $item['guid'], 'uid' => $item['uid']];
 			if (Post::exists($condition)) {
-				Logger::notice('duplicated item with the same guid found.', $item);
+				Logger::notice('duplicated item with the same guid found.', $condition);
 				return true;
 			}
 		} elseif ($item['network'] == Protocol::OSTATUS) {
