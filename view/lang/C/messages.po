@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-20 17:39+0000\n"
+"POT-Creation-Date: 2021-07-23 12:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -864,7 +864,7 @@ msgstr ""
 msgid "Access denied."
 msgstr ""
 
-#: mod/cal.php:72 mod/cal.php:133 src/Module/HoverCard.php:53
+#: mod/cal.php:72 mod/cal.php:133 src/Module/HCard.php:54
 #: src/Module/Profile/Common.php:41 src/Module/Profile/Common.php:53
 #: src/Module/Profile/Contacts.php:40 src/Module/Profile/Contacts.php:51
 #: src/Module/Profile/Status.php:58 src/Module/Register.php:254
@@ -3387,8 +3387,8 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:953 src/Content/Text/BBCode.php:1656
-#: src/Content/Text/BBCode.php:1657
+#: src/Content/Text/BBCode.php:953 src/Content/Text/BBCode.php:1689
+#: src/Content/Text/BBCode.php:1690
 msgid "Image/photo"
 msgstr ""
 
@@ -3403,23 +3403,23 @@ msgstr ""
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1574 src/Content/Text/HTML.php:951
+#: src/Content/Text/BBCode.php:1607 src/Content/Text/HTML.php:951
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1605
+#: src/Content/Text/BBCode.php:1638
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1659 src/Content/Text/BBCode.php:1660
+#: src/Content/Text/BBCode.php:1692 src/Content/Text/BBCode.php:1693
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1873
+#: src/Content/Text/BBCode.php:1909
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1888
+#: src/Content/Text/BBCode.php:1924
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -8208,6 +8208,10 @@ msgstr ""
 msgid "Add contact to group"
 msgstr ""
 
+#: src/Module/HCard.php:48
+msgid "No profile"
+msgstr ""
+
 #: src/Module/HTTPException/MethodNotAllowed.php:32
 msgid "Method Not Allowed."
 msgstr ""
@@ -8219,10 +8223,6 @@ msgstr ""
 #: src/Module/Home.php:54
 #, php-format
 msgid "Welcome to %s"
-msgstr ""
-
-#: src/Module/HoverCard.php:47
-msgid "No profile"
 msgstr ""
 
 #: src/Module/Install.php:188
