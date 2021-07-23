@@ -878,8 +878,8 @@ class Feed
 			Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA];
 
 		if ($filter === 'comments') {
-			$condition[0] .= " AND `object-type` = ? ";
-			$condition[] = Activity\ObjectType::COMMENT;
+			$condition[0] .= " AND `gravity` = ? ";
+			$condition[] = GRAVITY_COMMENT;
 		}
 
 		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {

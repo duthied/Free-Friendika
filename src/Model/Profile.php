@@ -211,38 +211,12 @@ class Profile
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function load(App $a, $nickname, array $profiledata = [], $show_connect = true)
+	public static function load(App $a, $nickname)
 	{
-		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
-
-		if (!DBA::isResult($user) && empty($profiledata)) {
-			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
-			return;
-		}
-
-		if (count($profiledata) > 0) {
-			// Ensure to have a "nickname" field
-			if (empty($profiledata['nickname']) && !empty($profiledata['nick'])) {
-				$profiledata['nickname'] = $profiledata['nick'];
-			}
-
-			// Add profile data to sidebar
-			DI::page()['aside'] .= self::sidebar($a, $profiledata, true, $show_connect);
-
-			if (!DBA::isResult($user)) {
-				return;
-			}
-		}
-
-		$profile = !empty($user['uid']) ? User::getOwnerDataById($user['uid'], false) : [];
-
-		if (empty($profile) && empty($profiledata)) {
-			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
-			return;
-		}
-
+		$profile = User::getOwnerDataByNick($nickname);
 		if (empty($profile)) {
-			$profile = ['uid' => 0, 'name' => $nickname];
+			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
+			return;
 		}
 
 		$a->profile = $profile;
@@ -253,7 +227,7 @@ class Profile
 
 		DI::page()['title'] = $a->profile['name'] . ' @ ' . DI::config()->get('config', 'sitename');
 
-		if (!$profiledata && !DI::pConfig()->get(local_user(), 'system', 'always_my_theme')) {
+		if (!DI::pConfig()->get(local_user(), 'system', 'always_my_theme')) {
 			$a->setCurrentTheme($a->profile['theme']);
 			$a->setCurrentMobileTheme($a->profile['mobile-theme']);
 		}
@@ -269,16 +243,14 @@ class Profile
 			require_once $theme_info_file;
 		}
 
-		$block = ((DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) ? true : false);
+		$block = (DI::config()->get('system', 'block_public') && !Session::isAuthenticated());
 
 		/**
 		 * @todo
 		 * By now, the contact block isn't shown, when a different profile is given
 		 * But: When this profile was on the same server, then we could display the contacts
 		 */
-		if (!$profiledata) {
-			DI::page()['aside'] .= self::sidebar($a, $a->profile, $block, $show_connect);
-		}
+		DI::page()['aside'] .= self::sidebar($a, $a->profile, $block);
 
 		return;
 	}
@@ -304,7 +276,7 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	private static function sidebar(App $a, array $profile, $block = 0, $show_connect = true)
+	private static function sidebar(App $a, array $profile, $block = 0)
 	{
 		$o = '';
 		$location = false;
@@ -374,7 +346,7 @@ class Profile
 			|| in_array($profile_contact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND]);
 		$visitor_base_path = self::getMyURL() ? preg_replace('=/profile/(.*)=ism', '', self::getMyURL()) : '';
 
-		if (!$local_user_is_self && $show_connect) {
+		if (!$local_user_is_self) {
 			if (!$visitor_is_authenticated) {
 				// Remote follow is only available for local profiles
 				if (!empty($profile['nickname']) && strpos($profile_url, DI::baseUrl()->get()) === 0) {
@@ -495,7 +467,7 @@ class Profile
 
 		$p['photo'] = Contact::getAvatarUrlForId($cid, ProxyUtils::SIZE_SMALL);
 
-		$p['url'] = Contact::magicLinkById($cid);
+		$p['url'] = Contact::magicLinkById($cid, $profile['url']);
 
 		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [

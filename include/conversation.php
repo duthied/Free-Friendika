@@ -272,7 +272,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 	$ssl_state = (local_user() ? true : false);
 
-	$profile_owner = 0;
 	$live_update_div = '';
 
 	$blocklist = conv_get_blocklist();
@@ -281,7 +280,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 	if ($mode === 'network') {
 		$items = conversation_add_children($items, false, $order, $uid);
-		$profile_owner = local_user();
 		if (!$update) {
 			/*
 			 * The special div is needed for liveUpdate to kick in for this page.
@@ -308,7 +306,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		}
 	} elseif ($mode === 'profile') {
 		$items = conversation_add_children($items, false, $order, $uid);
-		$profile_owner = $a->profile['uid'];
 
 		if (!$update) {
 			$tab = 'posts';
@@ -322,13 +319,12 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				 */
 
 				$live_update_div = '<div id="live-profile"></div>' . "\r\n"
-					. "<script> var profile_uid = " . $a->profile['uid']
+					. "<script> var profile_uid = " . $uid
 					. "; var netargs = '?f='; </script>\r\n";
 			}
 		}
 	} elseif ($mode === 'notes') {
 		$items = conversation_add_children($items, false, $order, local_user());
-		$profile_owner = local_user();
 
 		if (!$update) {
 			$live_update_div = '<div id="live-notes"></div>' . "\r\n"
@@ -337,7 +333,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		}
 	} elseif ($mode === 'display') {
 		$items = conversation_add_children($items, false, $order, $uid);
-		$profile_owner = $a->profile['uid'];
 
 		if (!$update) {
 			$live_update_div = '<div id="live-display"></div>' . "\r\n"
@@ -346,7 +341,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		}
 	} elseif ($mode === 'community') {
 		$items = conversation_add_children($items, true, $order, $uid);
-		$profile_owner = 0;
 
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
@@ -357,7 +351,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		}
 	} elseif ($mode === 'contacts') {
 		$items = conversation_add_children($items, false, $order, $uid);
-		$profile_owner = 0;
 
 		if (!$update) {
 			$live_update_div = '<div id="live-contact"></div>' . "\r\n"
@@ -368,7 +361,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		$live_update_div = '<div id="live-search"></div>' . "\r\n";
 	}
 
-	$page_dropping = ((local_user() && local_user() == $profile_owner) ? true : false);
+	$page_dropping = ((local_user() && local_user() == $uid) ? true : false);
 
 	if (!$update) {
 		$_SESSION['return_path'] = DI::args()->getQueryString();

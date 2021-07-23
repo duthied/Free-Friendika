@@ -22,6 +22,7 @@
 namespace Friendica\Module\Contact;
 
 use Friendica\BaseModule;
+use Friendica\Content\Widget;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -104,7 +105,7 @@ class Advanced extends BaseModule
 			throw new BadRequestException(DI::l10n()->t('Contact not found.'));
 		}
 
-		Model\Profile::load(DI::app(), "", Model\Contact::getByURL($contact["url"], false));
+		DI::page()['aside'] = Widget\VCard::getHTML($contact);
 
 		$warning = DI::l10n()->t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
 		$info    = DI::l10n()->t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');

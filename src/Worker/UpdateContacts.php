@@ -55,9 +55,9 @@ class UpdateContacts
 		$ids = self::getContactsToUpdate($condition, [], $limit);
 		Logger::info('Fetched federated user contacts', ['count' => count($ids)]);
 
-		$conditions = ["`id` IN (SELECT `author-id` FROM `post-user` WHERE `author-id` = `contact`.`id`)",
-			"`id` IN (SELECT `owner-id` FROM `post-user` WHERE `owner-id` = `contact`.`id`)",
-			"`id` IN (SELECT `causer-id` FROM `post-user` WHERE `causer-id` = `contact`.`id`)",
+		$conditions = ["`id` IN (SELECT `author-id` FROM `post` WHERE `author-id` = `contact`.`id`)",
+			"`id` IN (SELECT `owner-id` FROM `post` WHERE `owner-id` = `contact`.`id`)",
+			"`id` IN (SELECT `causer-id` FROM `post` WHERE `causer-id` = `contact`.`id`)",
 			"`id` IN (SELECT `cid` FROM `post-tag` WHERE `cid` = `contact`.`id`)",
 			"`id` IN (SELECT `cid` FROM `user-contact` WHERE `cid` = `contact`.`id`)"];
 

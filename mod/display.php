@@ -21,7 +21,7 @@
 
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
+use Friendica\Content\Widget;
 use Friendica\Core\ACL;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -32,8 +32,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
-use Friendica\Model\Profile;
-use Friendica\Module\Objects;
+use Friendica\Module\ActivityPub\Objects;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
@@ -126,7 +125,7 @@ function display_init(App $a)
 		}
 	}
 
-	Profile::load($a, $nick, $profiledata);
+	DI::page()['aside'] = Widget\VCard::getHTML($profiledata);
 }
 
 function display_fetchauthor($a, $item)
@@ -257,6 +256,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$is_remote_contact = false;
 	$item_uid = local_user();
+	$page_uid = 0;
 
 	$parent = null;
 	if (!empty($parent_uri_id)) {
@@ -264,21 +264,21 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	if (DBA::isResult($parent)) {
-		$a->profile['uid'] = ($a->profile['uid'] ?? 0) ?: $parent['uid'];
-		$is_remote_contact = Session::getRemoteContactID($a->profile['uid']);
+		$page_uid = ($page_uid ?? 0) ?: $parent['uid'];
+		$is_remote_contact = Session::getRemoteContactID($page_uid);
 		if ($is_remote_contact) {
 			$item_uid = $parent['uid'];
 		}
 	} else {
-		$a->profile = ['uid' => intval($item['uid'])];
+		$page_uid = $item['uid'];
 	}
 
-	$page_contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $a->profile['uid']]);
+	$page_contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $page_uid]);
 	if (DBA::isResult($page_contact)) {
 		$a->page_contact = $page_contact;
 	}
 
-	$is_owner = (local_user() && (in_array($a->profile['uid'], [local_user(), 0])) ? true : false);
+	$is_owner = (local_user() && (in_array($page_uid, [local_user(), 0])) ? true : false);
 
 	if (!empty($a->profile['hidewall']) && !$is_owner && !$is_remote_contact) {
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
@@ -299,9 +299,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		];
 		$o .= status_editor($a, $x, 0, true);
 	}
-	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['uid']);
+	$sql_extra = Item::getPermissionsSQLByUserId($page_uid);
 
-	if (local_user() && (local_user() == $a->profile['uid'])) {
+	if (local_user() && (local_user() == $page_uid)) {
 		$condition = ['parent-uri-id' => $parent_uri_id, 'uid' => local_user(), 'unseen' => true];
 		$unseen = Post::exists($condition);
 	} else {
@@ -314,7 +314,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$condition = ["`uri-id` = ? AND `uid` IN (0, ?) " . $sql_extra, $uri_id, $item_uid];
 	$fields = ['parent-uri-id', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id', 'owner-id', 'contact-id'];
-	$item = Post::selectFirstForUser($a->profile['uid'], $fields, $condition);
+	$item = Post::selectFirstForUser($page_uid, $fields, $condition);
 
 	if (!DBA::isResult($item)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));
