@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-23 13:06+0000\n"
+"POT-Creation-Date: 2021-07-23 13:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -484,7 +484,7 @@ msgid "Cancel"
 msgstr ""
 
 #: include/conversation.php:1145 mod/editpost.php:132
-#: src/Content/Widget/VCard.php:95 src/Model/Profile.php:456
+#: src/Content/Widget/VCard.php:96 src/Model/Profile.php:456
 msgid "Message"
 msgstr ""
 
@@ -1058,7 +1058,7 @@ msgstr ""
 msgid "Description:"
 msgstr ""
 
-#: mod/events.php:568 src/Content/Widget/VCard.php:87 src/Model/Event.php:86
+#: mod/events.php:568 src/Content/Widget/VCard.php:88 src/Model/Event.php:86
 #: src/Model/Event.php:113 src/Model/Event.php:459 src/Model/Event.php:945
 #: src/Model/Profile.php:366 src/Module/Contact.php:619
 #: src/Module/Directory.php:156 src/Module/Notifications/Introductions.php:166
@@ -1169,7 +1169,7 @@ msgstr ""
 msgid "Add a personal note:"
 msgstr ""
 
-#: mod/follow.php:164 mod/unfollow.php:110 src/Module/BaseProfile.php:63
+#: mod/follow.php:164 mod/unfollow.php:109 src/Module/BaseProfile.php:63
 #: src/Module/Contact.php:904
 msgid "Status Messages and Posts"
 msgstr ""
@@ -2658,11 +2658,11 @@ msgid ""
 "select \"Export account\""
 msgstr ""
 
-#: mod/unfollow.php:65 mod/unfollow.php:130
+#: mod/unfollow.php:65 mod/unfollow.php:129
 msgid "You aren't following this contact."
 msgstr ""
 
-#: mod/unfollow.php:71 mod/unfollow.php:136
+#: mod/unfollow.php:71 mod/unfollow.php:135
 msgid "Unfollowing is currently not supported by your network."
 msgstr ""
 
@@ -3431,7 +3431,7 @@ msgstr ""
 msgid "The end"
 msgstr ""
 
-#: src/Content/Text/HTML.php:893 src/Content/Widget/VCard.php:91
+#: src/Content/Text/HTML.php:893 src/Content/Widget/VCard.php:92
 #: src/Model/Profile.php:450
 msgid "Follow"
 msgstr ""
@@ -3608,17 +3608,17 @@ msgstr[1] ""
 msgid "More Trending Tags"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:86 src/Model/Profile.php:371
+#: src/Content/Widget/VCard.php:87 src/Model/Profile.php:371
 #: src/Module/Contact.php:621 src/Module/Profile/Profile.php:176
 msgid "XMPP:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:89 src/Model/Profile.php:462
+#: src/Content/Widget/VCard.php:90 src/Model/Profile.php:462
 #: src/Module/Notifications/Introductions.php:180
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:93 src/Model/Profile.php:452
+#: src/Content/Widget/VCard.php:94 src/Model/Profile.php:452
 msgid "Unfollow"
 msgstr ""
 
