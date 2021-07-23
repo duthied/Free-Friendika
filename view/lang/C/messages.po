@@ -864,7 +864,7 @@ msgstr ""
 msgid "Access denied."
 msgstr ""
 
-#: mod/cal.php:72 mod/cal.php:133 src/Module/HoverCard.php:53
+#: mod/cal.php:72 mod/cal.php:133 src/Module/HCard.php:54
 #: src/Module/Profile/Common.php:41 src/Module/Profile/Common.php:53
 #: src/Module/Profile/Contacts.php:40 src/Module/Profile/Contacts.php:51
 #: src/Module/Profile/Status.php:58 src/Module/Register.php:254
@@ -8208,6 +8208,10 @@ msgstr ""
 msgid "Add contact to group"
 msgstr ""
 
+#: src/Module/HCard.php:48
+msgid "No profile"
+msgstr ""
+
 #: src/Module/HTTPException/MethodNotAllowed.php:32
 msgid "Method Not Allowed."
 msgstr ""
@@ -8219,10 +8223,6 @@ msgstr ""
 #: src/Module/Home.php:54
 #, php-format
 msgid "Welcome to %s"
-msgstr ""
-
-#: src/Module/HoverCard.php:47
-msgid "No profile"
 msgstr ""
 
 #: src/Module/Install.php:188

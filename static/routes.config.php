@@ -292,7 +292,7 @@ return [
 	'/hashtag'                    => [Module\Hashtag::class,           [R::GET]],
 	'/help[/{doc:.+}]'            => [Module\Help::class,              [R::GET]],
 	'/home'                       => [Module\Home::class,              [R::GET]],
-	'/hcard/{profile}[/{action}]' => [Module\HoverCard::class,         [R::GET]],
+	'/hcard/{profile}[/{action}]' => [Module\HCard::class,             [R::GET]],
 	'/inbox[/{nickname}]'         => [Module\ActivityPub\Inbox::class, [R::GET, R::POST]],
 	'/invite'                     => [Module\Invite::class,            [R::GET, R::POST]],
 
