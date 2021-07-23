@@ -49,8 +49,8 @@ class VCard
 			$network_link = '';
 		}
 
-		$follow_link = '';
-		$unfollow_link = '';
+		$follow_link      = '';
+		$unfollow_link    = '';
 		$wallmessage_link = '';
 
 		if (local_user()) {
@@ -60,6 +60,7 @@ class VCard
 				$pending = $contact['pending'];
 			} else {
 				$pcontact = Contact::selectFirst(['id', 'rel', 'pending'], ['uid' => local_user(), 'uri-id' => $contact['uri-id']]);
+
 				$id      = $pcontact['id'] ?? 0;
 				$rel     = $pcontact['rel'] ?? Contact::NOTHING;
 				$pending = $pcontact['pending'] ?? false;
