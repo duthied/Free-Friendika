@@ -1594,7 +1594,7 @@ class User
 			return true;
 		}
 
-		if (DBA::exists('manage', ['muid' => $uid])) {
+		if (DBA::exists('manage', ['uid' => $uid])) {
 			return true;
 		}
 
