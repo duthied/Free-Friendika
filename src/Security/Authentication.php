@@ -310,15 +310,6 @@ class Authentication
 			$a->timezone = $user_record['timezone'];
 		}
 
-		$masterUid = $user_record['uid'];
-
-		if ($this->session->get('submanage')) {
-			$user = $this->dba->selectFirst('user', ['uid'], ['uid' => $this->session->get('submanage')]);
-			if ($this->dba->isResult($user)) {
-				$masterUid = $user['uid'];
-			}
-		}
-
 		$contact = $this->dba->selectFirst('contact', ['id'], ['uid' => $user_record['uid'], 'self' => true]);
 		if ($this->dba->isResult($contact)) {
 			$a->contact_id = $contact['id'];
@@ -331,10 +322,8 @@ class Authentication
 			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
 
 			// Set the login date for all identities of the user
-			if (!empty($masterUid)) {
-				$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
-					['parent-uid' => $masterUid, 'account_removed' => false]);
-			}
+			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
+				['parent-uid' => $user_record['uid'], 'account_removed' => false]);
 		}
 
 		if ($login_initial) {
