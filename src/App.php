@@ -69,11 +69,11 @@ class App
 	public $videowidth              = 425;
 	public $videoheight             = 350;
 	public $theme_events_in_profile = true;
-	public $queue;
 
-	private $timezone = '';
+	private $timezone      = '';
 	private $profile_owner = 0;
 	private $contact_id    = 0;
+	private $queue         = [];
 
 	/**
 	 * @var App\Mode The Mode of the Application
@@ -133,8 +133,8 @@ class App
 	/**
 	 * Set the profile owner ID
 	 *
-	 * @param int $owner_id 
-	 * @return void 
+	 * @param int $owner_id
+	 * @return void
 	 */
 	public function setProfileOwner(int $owner_id)
 	{
@@ -144,7 +144,7 @@ class App
 	/**
 	 * Get the profile owner ID
 	 *
-	 * @return int 
+	 * @return int
 	 */
 	public function getProfileOwner():int
 	{
@@ -153,9 +153,9 @@ class App
 
 	/**
 	 * Set the contact ID
-	 * 
-	 * @param int $contact_id 
-	 * @return void 
+	 *
+	 * @param int $contact_id
+	 * @return void
 	 */
 	public function setContactId(int $contact_id)
 	{
@@ -165,7 +165,7 @@ class App
 	/**
 	 * Get the contact ID
 	 *
-	 * @return int 
+	 * @return int
 	 */
 	public function getContactId():int
 	{
@@ -174,9 +174,9 @@ class App
 
 	/**
 	 * Set the timezone
-	 * 
-	 * @param int $timezone 
-	 * @return void 
+	 *
+	 * @param int $timezone
+	 * @return void
 	 */
 	public function setTimeZone(string $timezone)
 	{
@@ -186,11 +186,26 @@ class App
 	/**
 	 * Get the timezone
 	 *
-	 * @return int 
+	 * @return int
 	 */
 	public function getTimeZone():string
 	{
 		return $this->timezone;
+	}
+
+	public function setQueue(array $queue)
+	{
+		$this->queue = $queue;
+	}
+
+	public function getQueue()
+	{
+		return $this->queue ?? [];
+	}
+
+	public function getQueueValue(string $index)
+	{
+		return $this->queue[$index] ?? null;
 	}
 
 	/**
