@@ -544,7 +544,7 @@ class Profile
 
 					$rr['link'] = Contact::magicLinkById($rr['cid']);
 					$rr['title'] = $rr['name'];
-					$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $a->timezone, 'UTC', $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
+					$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $a->getTimeZone(), 'UTC', $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
 					$rr['startime'] = null;
 					$rr['today'] = $today;
 				}
@@ -603,8 +603,8 @@ class Profile
 					$total++;
 				}
 
-				$strt = DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC', 'UTC', 'Y-m-d');
-				if ($strt === DateTimeFormat::timezoneNow($a->timezone, 'Y-m-d')) {
+				$strt = DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->getTimeZone() : 'UTC', 'UTC', 'Y-m-d');
+				if ($strt === DateTimeFormat::timezoneNow($a->getTimeZone(), 'Y-m-d')) {
 					$istoday = true;
 				}
 
@@ -619,17 +619,17 @@ class Profile
 					$description = DI::l10n()->t('[No description]');
 				}
 
-				$strt = DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC');
+				$strt = DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->getTimeZone() : 'UTC');
 
-				if (substr($strt, 0, 10) < DateTimeFormat::timezoneNow($a->timezone, 'Y-m-d')) {
+				if (substr($strt, 0, 10) < DateTimeFormat::timezoneNow($a->getTimeZone(), 'Y-m-d')) {
 					continue;
 				}
 
-				$today = ((substr($strt, 0, 10) === DateTimeFormat::timezoneNow($a->timezone, 'Y-m-d')) ? true : false);
+				$today = ((substr($strt, 0, 10) === DateTimeFormat::timezoneNow($a->getTimeZone(), 'Y-m-d')) ? true : false);
 
 				$rr['title'] = $title;
 				$rr['description'] = $description;
-				$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC', 'UTC', $bd_format)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
+				$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->getTimeZone() : 'UTC', 'UTC', $bd_format)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
 				$rr['startime'] = $strt;
 				$rr['today'] = $today;
 

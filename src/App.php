@@ -62,7 +62,6 @@ class App
 	public $argv;
 	/** @deprecated 2019.09 - use App\Arguments->getArgc() */
 	public $argc;
-	public $timezone;
 	public $theme_info = [];
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
@@ -72,6 +71,7 @@ class App
 	public $theme_events_in_profile = true;
 	public $queue;
 
+	private $timezone = '';
 	private $profile_owner = 0;
 	private $contact_id    = 0;
 
@@ -170,6 +170,27 @@ class App
 	public function getContactId():int
 	{
 		return $this->contact_id;
+	}
+
+	/**
+	 * Set the timezone
+	 * 
+	 * @param int $timezone 
+	 * @return void 
+	 */
+	public function setTimeZone(string $timezone)
+	{
+		$this->timezone = $timezone;
+	}
+
+	/**
+	 * Get the timezone
+	 *
+	 * @return int 
+	 */
+	public function getTimeZone():string
+	{
+		return $this->timezone;
 	}
 
 	/**
