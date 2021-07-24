@@ -599,7 +599,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		'$remove' => DI::l10n()->t('remove'),
 		'$mode' => $mode,
 		'$update' => $update,
-		'$user' => $a->user,
 		'$threads' => $threads,
 		'$dropping' => ($page_dropping ? DI::l10n()->t('Delete Selected Items') : False),
 	]);
