@@ -54,17 +54,17 @@ function display_init(App $a)
 	$item = null;
 	$item_user = local_user();
 
-	$fields = ['uri-id', 'parent-uri-id', 'author-id', 'body', 'uid', 'guid', 'gravity'];
+	$fields = ['uri-id', 'parent-uri-id', 'author-id', 'author-link', 'body', 'uid', 'guid', 'gravity'];
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
-		$nick = "";
+		$nick = '';
 
 		// Does the local user have this item?
 		if (local_user()) {
 			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'uid' => local_user()]);
 			if (DBA::isResult($item)) {
-				$nick = $a->user["nickname"];
+				$nick = $a->user['nickname'];
 			}
 		}
 
@@ -110,42 +110,28 @@ function display_init(App $a)
 		$item = $parent ?: $item;
 	}
 
-	$profiledata = display_fetchauthor($a, $item);
-
-	if (strstr(Strings::normaliseLink($profiledata['url']), Strings::normaliseLink(DI::baseUrl()))) {
-		$nickname = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/profile/', '', Strings::normaliseLink($profiledata['url']));
-
-		if (!empty($a->user['nickname']) && $nickname != $a->user['nickname']) {
-			$profile = DBA::selectFirst('owner-view', [], ['nickname' => $nickname]);
-			if (DBA::isResult($profile)) {
-				$profiledata = $profile;
-			}
-			$profiledata["network"] = Protocol::DFRN;
-		} else {
-			$profiledata = [];
-		}
-	}
+	$profiledata = display_fetchauthor($item);
 
 	DI::page()['aside'] = Widget\VCard::getHTML($profiledata);
 }
 
-function display_fetchauthor($a, $item)
+function display_fetchauthor($item)
 {
-	$author = DBA::selectFirst('contact', ['name', 'nick', 'photo', 'network', 'url'], ['id' => $item['author-id']]);
-
-	$profiledata = [];
-	$profiledata['uid'] = -1;
-	$profiledata['id'] = -1;
-	$profiledata['nickname'] = $author['nick'];
-	$profiledata['name'] = $author['name'];
-	$profiledata['picdate'] = '';
-	$profiledata['photo'] = $author['photo'];
-	$profiledata['url'] = $author['url'];
-	$profiledata['network'] = $author['network'];
+	$profiledata = Contact::getByURLForUser($item['author-link'], local_user());
 
 	// Check for a repeated message
 	$shared = Item::getShareArray($item);
 	if (!empty($shared) && empty($shared['comment'])) {
+		$profiledata = [];
+		$profiledata['uid'] = -1;
+		$profiledata['id'] = -1;
+		$profiledata['nickname'] = '';
+		$profiledata['name'] = '';
+		$profiledata['picdate'] = '';
+		$profiledata['photo'] = '';
+		$profiledata['url'] = '';
+		$profiledata['network'] = '';
+
 		if (!empty($shared['author'])) {
 			$profiledata['name'] = $shared['author'];
 		}
@@ -158,17 +144,17 @@ function display_fetchauthor($a, $item)
 			$profiledata['photo'] = $shared['avatar'];
 		}
 
-		$profiledata["nickname"] = $profiledata["name"];
-		$profiledata["network"] = Protocol::matchByProfileUrl($profiledata["url"]);
+		$profiledata['nickname'] = $profiledata['name'];
+		$profiledata['network'] = Protocol::matchByProfileUrl($profiledata['url']);
 
-		$profiledata["address"] = "";
-		$profiledata["about"] = "";
+		$profiledata['address'] = '';
+		$profiledata['about'] = '';
+
+		$profiledata = Contact::getByURLForUser($profiledata['url'], local_user()) ?: $profiledata;
 	}
 
-	$profiledata = Contact::getByURLForUser($profiledata["url"], local_user()) ?: $profiledata;
-
-	if (!empty($profiledata["photo"])) {
-		$profiledata["photo"] = DI::baseUrl()->remove($profiledata["photo"]);
+	if (!empty($profiledata['photo'])) {
+		$profiledata['photo'] = DI::baseUrl()->remove($profiledata['photo']);
 	}
 
 	return $profiledata;
@@ -340,13 +326,13 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$o .= conversation($a, [$item], 'display', $update_uid, false, 'commented', $item_uid);
 
 	// Preparing the meta header
-	$description = trim(BBCode::toPlaintext($item["body"]));
-	$title = trim(BBCode::toPlaintext($item["title"]));
-	$author_name = $item["author-name"];
+	$description = trim(BBCode::toPlaintext($item['body']));
+	$title = trim(BBCode::toPlaintext($item['title']));
+	$author_name = $item['author-name'];
 
-	$image = DI::baseUrl()->remove($item["author-avatar"]);
+	$image = DI::baseUrl()->remove($item['author-avatar']);
 
-	if ($title == "") {
+	if ($title == '') {
 		$title = $author_name;
 	}
 
