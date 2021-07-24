@@ -56,9 +56,6 @@ use Psr\Log\LoggerInterface;
  */
 class App
 {
-	private $profile_owner;
-	private $contact_id;
-
 	public $user;
 	public $data = [];
 	/** @deprecated 2019.09 - use App\Arguments->getArgv() or Arguments->get() */
@@ -74,6 +71,9 @@ class App
 	public $videoheight             = 350;
 	public $theme_events_in_profile = true;
 	public $queue;
+
+	private $profile_owner;
+	private $contact_id;
 
 	/**
 	 * @var App\Mode The Mode of the Application
@@ -130,22 +130,44 @@ class App
 	 */
 	private $pConfig;
 
+	/**
+	 * Set the profile owner ID
+	 *
+	 * @param int $owner_id 
+	 * @return void 
+	 */
 	public function setProfileOwner(int $owner_id)
 	{
 		$this->profile_owner = $owner_id;
 	}
 
-	public function getProfileOwner()
+	/**
+	 * Get the profile owner ID
+	 *
+	 * @return int 
+	 */
+	public function getProfileOwner():int
 	{
 		return $this->profile_owner;
 	}
 
+	/**
+	 * Set the contact ID
+	 * 
+	 * @param int $contact_id 
+	 * @return void 
+	 */
 	public function setContactId(int $contact_id)
 	{
 		$this->contact_id = $contact_id;
 	}
 
-	public function getContactId()
+	/**
+	 * Get the contact ID
+	 *
+	 * @return int 
+	 */
+	public function getContactId():int
 	{
 		return $this->contact_id;
 	}
