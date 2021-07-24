@@ -72,8 +72,8 @@ class App
 	public $theme_events_in_profile = true;
 	public $queue;
 
-	private $profile_owner;
-	private $contact_id;
+	private $profile_owner = 0;
+	private $contact_id    = 0;
 
 	/**
 	 * @var App\Mode The Mode of the Application
