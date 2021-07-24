@@ -177,9 +177,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$item = Post::selectFirst(['uid', 'parent-uri-id'], ['uri-id' => $uri_id, 'uid' => $update_uid]);
 		if (!empty($item)) {
 			if ($item['uid'] != 0) {
-				$a->profile_owner = intval($item['uid']);
+				$a->setProfileOwner($item['uid']);
 			} else {
-				$a->profile_owner = intval($update_uid);
+				$a->setProfileOwner($update_uid);
 			}
 			$parent_uri_id = $item['parent-uri-id'];
 		}

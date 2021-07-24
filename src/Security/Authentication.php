@@ -144,7 +144,7 @@ class Authentication
 			if ($this->session->get('visitor_id') && !$this->session->get('uid')) {
 				$contact = $this->dba->selectFirst('contact', ['id'], ['id' => $this->session->get('visitor_id')]);
 				if ($this->dba->isResult($contact)) {
-					$a->contact_id = $contact['id'];
+					$a->setContactId($contact['id']);
 				}
 			}
 
@@ -312,7 +312,7 @@ class Authentication
 
 		$contact = $this->dba->selectFirst('contact', ['id'], ['uid' => $user_record['uid'], 'self' => true]);
 		if ($this->dba->isResult($contact)) {
-			$a->contact_id = $contact['id'];
+			$a->setContactId($contact['id']);
 			$this->session->set('cid', $contact['id']);
 		}
 

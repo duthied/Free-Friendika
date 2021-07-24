@@ -87,7 +87,7 @@ class Compose extends BaseModule
 				$compose_title = DI::l10n()->t('Compose new personal note');
 				$type = 'note';
 				$doesFederate = false;
-				$contact_allow_list = [$a->contact_id];
+				$contact_allow_list = [$a->getContactId()];
 				$group_allow_list = [];
 				$contact_deny_list = [];
 				$group_deny_list = [];
@@ -130,7 +130,7 @@ class Compose extends BaseModule
 		DI::page()->registerFooterScript(Theme::getPathForFile('js/linkPreview.js'));
 		DI::page()->registerFooterScript(Theme::getPathForFile('js/compose.js'));
 
-		$contact = Contact::getById($a->contact_id);
+		$contact = Contact::getById($a->getContactId());
 
 		$tpl = Renderer::getMarkupTemplate('item/compose.tpl');
 		return Renderer::replaceMacros($tpl, [

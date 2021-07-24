@@ -219,13 +219,13 @@ class Profile
 			return [];
 		}
 
-		$a->profile_owner = $profile['uid'];
+		$a->setProfileOwner($profile['uid']);
 
 		DI::page()['title'] = $profile['name'] . ' @ ' . DI::config()->get('config', 'sitename');
 
 		if (!DI::pConfig()->get(local_user(), 'system', 'always_my_theme')) {
 			$a->setCurrentTheme($profile['theme']);
-			$a->setCurrentMobileTheme(DI::pConfig()->get($a->profile_owner, 'system', 'mobile_theme'));
+			$a->setCurrentMobileTheme(DI::pConfig()->get($a->getProfileOwner(), 'system', 'mobile_theme'));
 		}
 
 		/*
@@ -768,7 +768,7 @@ class Profile
 
 		Session::setVisitorsContacts();
 
-		$a->contact_id = $visitor['id'];
+		$a->setContactId($visitor['id']);
 
 		Logger::info('Authenticated visitor', ['url' => $visitor['url']]);
 
@@ -829,7 +829,7 @@ class Profile
 		 */
 		Hook::callAll('magic_auth_success', $arr);
 
-		$a->contact_id = $arr['visitor']['id'];
+		$a->setContactId($arr['visitor']['id']);
 
 		info(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
 
@@ -871,7 +871,7 @@ class Profile
 	 */
 	public static function getThemeUid(App $a)
 	{
-		$uid = !empty($a->profile_owner) ? intval($a->profile_owner) : 0;
+		$uid = !empty($a->getProfileOwner()) ? intval($a->getProfileOwner()) : 0;
 		if (local_user() && (DI::pConfig()->get(local_user(), 'system', 'always_my_theme') || !$uid)) {
 			return local_user();
 		}

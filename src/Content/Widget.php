@@ -334,7 +334,7 @@ class Widget
 	{
 		$a = DI::app();
 
-		$uid = intval($a->profile_owner);
+		$uid = intval($a->getProfileOwner());
 
 		if (!Feature::isEnabled($uid, 'categories')) {
 			return '';

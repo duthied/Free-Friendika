@@ -64,11 +64,11 @@ function notes_content(App $a, $update = false)
 			'acl_data' => '',
 		];
 
-		$o .= status_editor($a, $x, $a->contact_id);
+		$o .= status_editor($a, $x, $a->getContactId());
 	}
 
 	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
-		'contact-id'=> $a->contact_id];
+		'contact-id'=> $a->getContactId()];
 
 	if (DI::mode()->isMobile()) {
 		$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',

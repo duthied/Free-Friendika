@@ -65,7 +65,7 @@ class Magic extends BaseModule
 		$contact = DBA::selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
 
 		// Redirect if the contact is already authenticated on this site.
-		if (!empty($a->contact_id) && strpos($contact['nurl'], Strings::normaliseLink(DI::baseUrl()->get())) !== false) {
+		if (!empty($a->getContactId()) && strpos($contact['nurl'], Strings::normaliseLink(DI::baseUrl()->get())) !== false) {
 			if ($test) {
 				$ret['success'] = true;
 				$ret['message'] .= 'Local site - you are already authenticated.' . EOL;

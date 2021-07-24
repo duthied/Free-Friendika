@@ -936,7 +936,7 @@ class Post
 			$uid = $conv->getProfileOwner();
 			$parent_uid = $this->getDataValue('uid');
 
-			$contact = Contact::getById($a->contact_id);
+			$contact = Contact::getById($a->getContactId());
 
 			$default_text = $this->getDefaultText();
 

@@ -2685,7 +2685,7 @@ class Item
 					continue;
 				}
 
-				if ((local_user() == $item['uid']) && ($item['private'] == self::PRIVATE) && ($item['contact-id'] != $app->contact_id) && ($item['network'] == Protocol::DFRN)) {
+				if ((local_user() == $item['uid']) && ($item['private'] == self::PRIVATE) && ($item['contact-id'] != $app->getContactId()) && ($item['network'] == Protocol::DFRN)) {
 					$img_url = 'redir/' . $item['contact-id'] . '?url=' . urlencode($mtch[1]);
 					$item['body'] = str_replace($mtch[0], '[img]' . $img_url . '[/img]', $item['body']);
 				}

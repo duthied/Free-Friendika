@@ -58,7 +58,7 @@ function redir_init(App $a) {
 
 	$contact_url = $contact['url'];
 
-	if (!empty($a->contact_id) && $a->contact_id == $cid) {
+	if (!empty($a->getContactId()) && $a->getContactId() == $cid) {
 		// Local user is already authenticated.
 		redir_check_url($contact_url, $url);
 		$a->redirect($url ?: $contact_url);
@@ -73,7 +73,7 @@ function redir_init(App $a) {
 			$cid = $contact['id'];
 		}
 
-		if (!empty($a->contact_id) && $a->contact_id == $cid) {
+		if (!empty($a->getContactId()) && $a->getContactId() == $cid) {
 			// Local user is already authenticated.
 			redir_check_url($contact_url, $url);
 			$target_url = $url ?: $contact_url;

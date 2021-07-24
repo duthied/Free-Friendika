@@ -60,7 +60,7 @@ class Poke extends BaseModule
 		$deny_cid      = ($private ? '' : $a->user['deny_cid']);
 		$deny_gid      = ($private ? '' : $a->user['deny_gid']);
 
-		$actor = Contact::getById($a->contact_id);
+		$actor = Contact::getById($a->getContactId());
 
 		$uri = Model\Item::newURI($uid);
 

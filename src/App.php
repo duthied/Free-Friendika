@@ -56,8 +56,9 @@ use Psr\Log\LoggerInterface;
  */
 class App
 {
-	public $profile_owner;
-	public $contact_id;
+	private $profile_owner;
+	private $contact_id;
+
 	public $user;
 	public $data = [];
 	/** @deprecated 2019.09 - use App\Arguments->getArgv() or Arguments->get() */
@@ -128,6 +129,26 @@ class App
 	 * @var IPConfig
 	 */
 	private $pConfig;
+
+	public function setProfileOwner(int $owner_id)
+	{
+		$this->profile_owner = $owner_id;
+	}
+
+	public function getProfileOwner()
+	{
+		return $this->profile_owner;
+	}
+
+	public function setContactId(int $contact_id)
+	{
+		$this->contact_id = $contact_id;
+	}
+
+	public function getContactId()
+	{
+		return $this->contact_id;
+	}
 
 	/**
 	 * Returns the current config cache of this node
