@@ -76,6 +76,11 @@
 		</div>
 		{{/if}}
 
-		{{if $network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$network_link nofilter}}</dd></dl>{{/if}}
+		{{if $network_link}}
+		<div class="network">
+			<span class="network-label icon"><i class="fa fa-{{$network_avatar}}"></i></span>
+			<span class="x-network">{{$network_link nofilter}}</span>
+		</div>
+		{{/if}}
 	</div>
 </div>
