@@ -261,16 +261,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$page_uid = $item['uid'];
 	}
 
-	$page_contact = DBA::selectFirst('contact', ['id', 'url', 'network', 'name'], ['self' => true, 'uid' => $page_uid]);
-	if (DBA::isResult($page_contact)) {
-		// "$a->page_contact" is only used in "checkWallToWall" in Post.php.
-		// It is used for the wall post feature that has its issues.
-		// It can't work with AP or Diaspora since the creator can't sign the post with their private key.
-		$a->page_contact = $page_contact;
+	if (!empty($page_uid) && ($page_uid != local_user())) {
 		$page_user = User::getById($page_uid);
 	}
 
-	$is_owner = (local_user() && (in_array($page_uid, [local_user(), 0])) ? true : false);
+	$is_owner = local_user() && (in_array($page_uid, [local_user(), 0]));
 
 	if (!empty($page_user['hidewall']) && !$is_owner && !$is_remote_contact) {
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));

@@ -142,9 +142,9 @@ class Authentication
 
 		if ($this->session->get('authenticated')) {
 			if ($this->session->get('visitor_id') && !$this->session->get('uid')) {
-				$contact = $this->dba->selectFirst('contact', [], ['id' => $this->session->get('visitor_id')]);
+				$contact = $this->dba->selectFirst('contact', ['id'], ['id' => $this->session->get('visitor_id')]);
 				if ($this->dba->isResult($contact)) {
-					$a->contact = $contact;
+					$a->contact_id = $contact['id'];
 				}
 			}
 
@@ -319,19 +319,9 @@ class Authentication
 			}
 		}
 
-		$a->identities = User::identities($masterUid);
-
-		if ($login_initial) {
-			$this->logger->info('auth_identities: ' . print_r($a->identities, true));
-		}
-
-		if ($login_refresh) {
-			$this->logger->info('auth_identities refresh: ' . print_r($a->identities, true));
-		}
-
-		$contact = $this->dba->selectFirst('contact', [], ['uid' => $user_record['uid'], 'self' => true]);
+		$contact = $this->dba->selectFirst('contact', ['id'], ['uid' => $user_record['uid'], 'self' => true]);
 		if ($this->dba->isResult($contact)) {
-			$a->contact = $contact;
+			$a->contact_id = $contact['id'];
 			$this->session->set('cid', $contact['id']);
 		}
 

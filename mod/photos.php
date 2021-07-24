@@ -890,7 +890,8 @@ function photos_content(App $a)
 
 	if (!$remote_contact && local_user()) {
 		$contact_id = $_SESSION['cid'];
-		$contact = $a->contact;
+
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 	}
 
 	if ($user['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {

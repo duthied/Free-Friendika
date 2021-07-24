@@ -11,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Util\XML;
@@ -59,7 +60,7 @@ class Poke extends BaseModule
 		$deny_cid      = ($private ? '' : $a->user['deny_cid']);
 		$deny_gid      = ($private ? '' : $a->user['deny_gid']);
 
-		$actor = $a->contact;
+		$actor = Contact::getById($a->contact_id);
 
 		$uri = Model\Item::newURI($uid);
 

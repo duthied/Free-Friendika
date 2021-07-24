@@ -57,16 +57,14 @@ use Psr\Log\LoggerInterface;
 class App
 {
 	public $profile_owner;
+	public $contact_id;
 	public $user;
-	public $contact;
-	public $page_contact;
 	public $data = [];
 	/** @deprecated 2019.09 - use App\Arguments->getArgv() or Arguments->get() */
 	public $argv;
 	/** @deprecated 2019.09 - use App\Arguments->getArgc() */
 	public $argc;
 	public $timezone;
-	public $identities;
 	public $theme_info = [];
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php

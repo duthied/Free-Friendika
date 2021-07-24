@@ -768,7 +768,7 @@ class Profile
 
 		Session::setVisitorsContacts();
 
-		$a->contact = $visitor;
+		$a->contact_id = $visitor['id'];
 
 		Logger::info('Authenticated visitor', ['url' => $visitor['url']]);
 
@@ -829,7 +829,7 @@ class Profile
 		 */
 		Hook::callAll('magic_auth_success', $arr);
 
-		$a->contact = $arr['visitor'];
+		$a->contact_id = $arr['visitor']['id'];
 
 		info(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
 

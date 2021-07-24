@@ -28,6 +28,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
@@ -86,7 +87,7 @@ class Compose extends BaseModule
 				$compose_title = DI::l10n()->t('Compose new personal note');
 				$type = 'note';
 				$doesFederate = false;
-				$contact_allow_list = [$a->contact['id']];
+				$contact_allow_list = [$a->contact_id];
 				$group_allow_list = [];
 				$contact_deny_list = [];
 				$group_deny_list = [];
@@ -129,6 +130,8 @@ class Compose extends BaseModule
 		DI::page()->registerFooterScript(Theme::getPathForFile('js/linkPreview.js'));
 		DI::page()->registerFooterScript(Theme::getPathForFile('js/compose.js'));
 
+		$contact = Contact::getById($a->contact_id);
+
 		$tpl = Renderer::getMarkupTemplate('item/compose.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$compose_title'=> $compose_title,
@@ -138,9 +141,9 @@ class Compose extends BaseModule
 			'$type'         => $type,
 			'$wall'         => $wall,
 			'$default'      => '',
-			'$mylink'       => DI::baseUrl()->remove($a->contact['url']),
+			'$mylink'       => DI::baseUrl()->remove($contact['url']),
 			'$mytitle'      => DI::l10n()->t('This is you'),
-			'$myphoto'      => DI::baseUrl()->remove($a->contact['thumb']),
+			'$myphoto'      => DI::baseUrl()->remove($contact['thumb']),
 			'$submit'       => DI::l10n()->t('Submit'),
 			'$edbold'       => DI::l10n()->t('Bold'),
 			'$editalic'     => DI::l10n()->t('Italic'),

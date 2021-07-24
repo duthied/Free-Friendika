@@ -289,7 +289,7 @@ class Nav
 			$nav['messages']['outbox'] = ['message/sent', DI::l10n()->t('Outbox'), '', DI::l10n()->t('Outbox')];
 			$nav['messages']['new'] = ['message/new', DI::l10n()->t('New Message'), '', DI::l10n()->t('New Message')];
 
-			if (is_array($a->identities) && count($a->identities) > 1) {
+			if (User::hasIdentities(DI::session()->get('submanage') ?: local_user())) {
 				$nav['delegation'] = ['delegation', DI::l10n()->t('Accounts'), '', DI::l10n()->t('Manage other pages')];
 			}
 
