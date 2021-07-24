@@ -9,14 +9,24 @@
 	<form action="{{$baseurl}}/admin/storage/{{$storage.prefix}}" method="post">
 		<input type='hidden' name='form_security_token' value="{{$form_security_token}}">
 		<h3>{{$storage.name}}</h3>
-		{{foreach from=$storage.form item=$field}}
-		{{include file=$field.field field=$field}}
-		{{/foreach}}
+		{{if $storage.form}}
+			{{foreach from=$storage.form item=$field}}
+				{{include file=$field.field field=$field}}
+			{{/foreach}}
+		{{else}}
+			{{$noconfig}}
+		{{/if}}
 
 		{{if $storage.form}}
-		<div class="submit"><input type="submit" name="submit_save" value="{{$save}}" /></div>
+		<input type="submit" name="submit_save" value="{{$save}}"/>
+		{{if $storage.active}}
+		<input type="submit" name="submit_save_set" value="{{$save_reload}}"/>
+		{{else}}
+		<input type="submit" name="submit_save_set" value="{{$save_activate}}"/>
 		{{/if}}
-		<div class="submit"><input type="submit" name="submit_save_set" value="{{$save_set}}" /></div>
+		{{else}}
+		<br /><input type="submit" name="submit_save_set" {{if $storage.active}}disabled="disabled"{{/if}} value="{{$activate}}"/>
+		{{/if}}
 	</form>
 		{{/foreach}}
 

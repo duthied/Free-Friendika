@@ -22,15 +22,25 @@
 			</div>
 			<div id="admin-settings-{{$storage.prefix}}-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-{{$storage.prefix}}">
 				<div class="panel-body">
-					{{foreach from=$storage.form item=$field}}
-					{{include file=$field.field field=$field}}
-					{{/foreach}}
+					{{if $storage.form}}
+						{{foreach from=$storage.form item=$field}}
+							{{include file=$field.field field=$field}}
+						{{/foreach}}
+					{{else}}
+						 {{$noconfig}}
+					{{/if}}
 				</div>
 				<div class="panel-footer">
 					{{if $storage.form}}
 					<input type="submit" name="submit_save" class="btn btn-primary" value="{{$save}}"/>
+						{{if $storage.active}}
+					<input type="submit" name="submit_save_set" class="btn btn-primary" value="{{$save_reload}}"/>
+						{{else}}
+					<input type="submit" name="submit_save_set" class="btn btn-primary" value="{{$save_activate}}"/>
+						{{/if}}
+					{{else}}
+					<input type="submit" name="submit_save_set" class="btn btn-primary" {{if $storage.active}}disabled="disabled"{{/if}} value="{{$activate}}"/>
 					{{/if}}
-					<input type="submit" name="submit_save_set" class="btn btn-primary" value="{{$save_set}}"/>
 				</div>
 			</div>
 		</div>

@@ -116,6 +116,7 @@ class Storage extends BaseAdmin
 				'name'   => $name,
 				'prefix' => $storage_form_prefix,
 				'form'   => $storage_form,
+				'active' => $name === $current_storage_backend::getName(),
 			];
 		}
 
@@ -125,8 +126,10 @@ class Storage extends BaseAdmin
 			'$title'                 => DI::l10n()->t('Administration'),
 			'$page'                  => DI::l10n()->t('Storage'),
 			'$save'                  => DI::l10n()->t('Save'),
-			'$save_set'              => DI::l10n()->t('Save & Activate'),
-			'$clear'                 => DI::l10n()->t('Clear'),
+			'$save_activate'         => DI::l10n()->t('Save & Activate'),
+			'$activate'              => DI::l10n()->t('Activate'),
+			'$save_reload'           => DI::l10n()->t('Save & Reload'),
+			'$noconfig'              => DI::l10n()->t('This backend doesn\'t have custom settings'),
 			'$baseurl'               => DI::baseUrl()->get(true),
 			'$form_security_token'   => self::getFormSecurityToken("admin_storage"),
 			'$storagebackend'        => $current_storage_backend,
