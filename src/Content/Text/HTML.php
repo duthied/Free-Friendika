@@ -802,22 +802,6 @@ class HTML
 	}
 
 	/**
-	 * Get html for contact block.
-	 *
-	 * @deprecated since version 2019.03
-	 * @see ContactBlock::getHTML()
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function contactBlock()
-	{
-		$a = DI::app();
-
-		return ContactBlock::getHTML($a->profile);
-	}
-
-	/**
 	 * Format contacts as picture links or as text links
 	 *
 	 * @param array   $contact  Array with contacts which contains an array with

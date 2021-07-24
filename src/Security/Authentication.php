@@ -332,8 +332,7 @@ class Authentication
 		$contact = $this->dba->selectFirst('contact', [], ['uid' => $user_record['uid'], 'self' => true]);
 		if ($this->dba->isResult($contact)) {
 			$a->contact = $contact;
-			$a->cid     = $contact['id'];
-			$this->session->set('cid', $a->cid);
+			$this->session->set('cid', $contact['id']);
 		}
 
 		header('X-Account-Management-Status: active; name="' . $user_record['username'] . '"; id="' . $user_record['nickname'] . '"');

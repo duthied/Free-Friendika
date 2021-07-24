@@ -23,6 +23,7 @@ namespace Friendica\Module\Profile;
 
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
+use Friendica\Content\Widget;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -45,26 +46,25 @@ class Contacts extends Module\BaseProfile
 		$nickname = $parameters['nickname'];
 		$type = $parameters['type'] ?? 'all';
 
-		Model\Profile::load($a, $nickname);
-
-		if (empty($a->profile)) {
+		$profile = Model\Profile::load($a, $nickname);
+		if (empty($profile)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		$is_owner = $a->profile['uid'] == local_user();
+		$is_owner = $profile['uid'] == local_user();
 
-		if (!empty($a->profile['hide-friends']) && !$is_owner) {
+		if (!empty($profile['hide-friends']) && !$is_owner) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		Nav::setSelected('home');
 
-		$o = self::getTabsHTML($a, 'contacts', $is_owner, $nickname);
+		$o = self::getTabsHTML($a, 'contacts', $is_owner, $profile);
 
-		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, Session::isAuthenticated() && $a->profile['uid'] != local_user());
+		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, Session::isAuthenticated() && $profile['uid'] != local_user());
 
 		$condition = [
-			'uid'     => $a->profile['uid'],
+			'uid'     => $profile['uid'],
 			'blocked' => false,
 			'pending' => false,
 			'hidden'  => false,
@@ -103,7 +103,7 @@ class Contacts extends Module\BaseProfile
 				$title = DI::l10n()->tt('Mutual friend (%s)', 'Mutual friends (%s)', $total);
 				$desc = DI::l10n()->t(
 					'These contacts both follow and are followed by <strong>%s</strong>.',
-					htmlentities($a->profile['name'], ENT_COMPAT, 'UTF-8')
+					htmlentities($profile['name'], ENT_COMPAT, 'UTF-8')
 				);
 				break;
 			case 'all':

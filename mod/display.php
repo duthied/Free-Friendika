@@ -32,6 +32,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Module\ActivityPub\Objects;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
@@ -134,6 +135,7 @@ function display_fetchauthor($a, $item)
 
 	$profiledata = [];
 	$profiledata['uid'] = -1;
+	$profiledata['id'] = -1;
 	$profiledata['nickname'] = $author['nick'];
 	$profiledata['name'] = $author['name'];
 	$profiledata['picdate'] = '';
@@ -189,9 +191,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$item = Post::selectFirst(['uid', 'parent-uri-id'], ['uri-id' => $uri_id, 'uid' => $update_uid]);
 		if (!empty($item)) {
 			if ($item['uid'] != 0) {
-				$a->profile = ['uid' => intval($item['uid'])];
+				$a->profile_owner = intval($item['uid']);
 			} else {
-				$a->profile = ['uid' => intval($update_uid)];
+				$a->profile_owner = intval($update_uid);
 			}
 			$parent_uri_id = $item['parent-uri-id'];
 		}
@@ -273,14 +275,18 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$page_uid = $item['uid'];
 	}
 
-	$page_contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $page_uid]);
+	$page_contact = DBA::selectFirst('contact', ['id', 'url', 'network', 'name'], ['self' => true, 'uid' => $page_uid]);
 	if (DBA::isResult($page_contact)) {
+		// "$a->page_contact" is only used in "checkWallToWall" in Post.php.
+		// It is used for the wall post feature that has its issues.
+		// It can't work with AP or Diaspora since the creator can't sign the post with their private key.
 		$a->page_contact = $page_contact;
+		$page_user = User::getById($page_uid);
 	}
 
 	$is_owner = (local_user() && (in_array($page_uid, [local_user(), 0])) ? true : false);
 
-	if (!empty($a->profile['hidewall']) && !$is_owner && !$is_remote_contact) {
+	if (!empty($page_user['hidewall']) && !$is_owner && !$is_remote_contact) {
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
 	}
 

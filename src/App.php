@@ -56,28 +56,21 @@ use Psr\Log\LoggerInterface;
  */
 class App
 {
-	public $profile;
-	public $profile_uid;
+	public $profile_owner;
 	public $user;
-	public $cid;
 	public $contact;
-	public $contacts;
 	public $page_contact;
-	public $content;
 	public $data = [];
 	/** @deprecated 2019.09 - use App\Arguments->getArgv() or Arguments->get() */
 	public $argv;
 	/** @deprecated 2019.09 - use App\Arguments->getArgc() */
 	public $argc;
 	public $timezone;
-	public $interactive = true;
 	public $identities;
 	public $theme_info = [];
-	public $category;
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
 
-	public $sourcename              = '';
 	public $videowidth              = 425;
 	public $videoheight             = 350;
 	public $theme_events_in_profile = true;
@@ -317,10 +310,10 @@ class App
 
 		$page_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
-		if ($this->profile_uid && ($this->profile_uid != local_user())) {
+		if (!empty($this->profile_owner) && ($this->profile_owner != local_user())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
-			$user = $this->database->selectFirst('user', ['theme'], ['uid' => $this->profile_uid]);
+			$user = $this->database->selectFirst('user', ['theme'], ['uid' => $this->profile_owner]);
 			if ($this->database->isResult($user) && !$this->pConfig->get(local_user(), 'system', 'always_my_theme')) {
 				$page_theme = $user['theme'];
 			}
@@ -350,11 +343,11 @@ class App
 
 		$page_mobile_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
-		if ($this->profile_uid && ($this->profile_uid != local_user())) {
+		if (!empty($this->profile_owner) && ($this->profile_owner != local_user())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
 			if (!$this->pConfig->get(local_user(), 'system', 'always_my_theme')) {
-				$page_mobile_theme = $this->pConfig->get($this->profile_uid, 'system', 'mobile-theme');
+				$page_mobile_theme = $this->pConfig->get($this->profile_owner, 'system', 'mobile-theme');
 			}
 		}
 
@@ -547,7 +540,7 @@ class App
 				$this->baseURL->redirect('search');
 			}
 
-			// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
+			// Initialize module that can set the current theme in the init() method, either directly or via App->profile_owner
 			$page['page_title'] = $moduleName;
 
 			if (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED)) {

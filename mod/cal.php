@@ -25,13 +25,11 @@
 
 use Friendica\App;
 use Friendica\Content\Nav;
-use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\User;
@@ -52,52 +50,34 @@ function cal_init(App $a)
 
 	Nav::setSelected('events');
 
-	$nick = $a->argv[1];
-	$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
-	if (!DBA::isResult($user)) {
-		throw new HTTPException\NotFoundException();
-	}
-
-	$a->data['user'] = $user;
-	$a->profile_uid = $user['uid'];
-
 	// if it's a json request abort here becaus we don't
 	// need the widget data
 	if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
 		return;
 	}
 
-	$a->profile = User::getOwnerDataByNick($nick);
-	if (empty($a->profile)) {
+	$owner = User::getOwnerDataByNick($a->argv[1]);
+	if (empty($owner)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
-
-	$account_type = Contact::getAccountType($a->profile);
-
-	$tpl = Renderer::getMarkupTemplate('widget/vcard.tpl');
-
-	$vcard_widget = Renderer::replaceMacros($tpl, [
-		'$name' => $a->profile['name'],
-		'$photo' => $a->profile['photo'],
-		'$addr' => $a->profile['addr'] ?: '',
-		'$account_type' => $account_type,
-		'$about' => BBCode::convert($a->profile['about']),
-	]);
-
-	$cal_widget = Widget\CalendarExport::getHTML($user['uid']);
 
 	if (empty(DI::page()['aside'])) {
 		DI::page()['aside'] = '';
 	}
 
-	DI::page()['aside'] .= $vcard_widget;
-	DI::page()['aside'] .= $cal_widget;
+	DI::page()['aside'] .= Widget\VCard::getHTML($owner);
+	DI::page()['aside'] .= Widget\CalendarExport::getHTML($owner['uid']);
 
 	return;
 }
 
 function cal_content(App $a)
 {
+	$owner = User::getOwnerDataByNick($a->argv[1]);
+	if (empty($owner)) {
+		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+	}
+
 	Nav::setSelected('events');
 
 	// get the translation strings for the callendar
@@ -110,7 +90,7 @@ function cal_content(App $a)
 
 	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($htpl, [
-		'$module_url' => '/cal/' . $a->data['user']['nickname'],
+		'$module_url' => '/cal/' . $owner['nickname'],
 		'$modparams' => 2,
 		'$i18n' => $i18n,
 	]);
@@ -127,19 +107,16 @@ function cal_content(App $a)
 	}
 
 	// Setup permissions structures
-	$owner_uid = intval($a->data['user']['uid']);
-	$nick = $a->data['user']['nickname'];
-	if (empty($a->profile)) {
-		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
-	}
+	$owner_uid = intval($owner['uid']);
+	$nick = $owner['nickname'];
 
-	$contact_id = Session::getRemoteContactID($a->profile['uid']);
+	$contact_id = Session::getRemoteContactID($owner['uid']);
 
-	$remote_contact = $contact_id && DBA::exists('contact', ['id' => $contact_id, 'uid' => $a->profile['uid']]);
+	$remote_contact = $contact_id && DBA::exists('contact', ['id' => $contact_id, 'uid' => $owner['uid']]);
 
-	$is_owner = local_user() == $a->profile['uid'];
+	$is_owner = local_user() == $owner['uid'];
 
-	if ($a->profile['hidewall'] && !$is_owner && !$remote_contact) {
+	if ($owner['hidewall'] && !$is_owner && !$remote_contact) {
 		notice(DI::l10n()->t('Access to this profile has been restricted.'));
 		return;
 	}
@@ -150,7 +127,7 @@ function cal_content(App $a)
 	$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
 
 	// get the tab navigation bar
-	$tabs = BaseProfile::getTabsHTML($a, 'cal', false, $a->data['user']['nickname']);
+	$tabs = BaseProfile::getTabsHTML($a, 'cal', false, $owner);
 
 	// The view mode part is similiar to /mod/events.php
 	if ($mode == 'view') {

@@ -297,13 +297,11 @@ function notice($s)
 		return;
 	}
 
-	$a = DI::app();
 	if (empty($_SESSION['sysmsg'])) {
 		$_SESSION['sysmsg'] = [];
 	}
-	if ($a->interactive) {
-		$_SESSION['sysmsg'][] = $s;
-	}
+
+	$_SESSION['sysmsg'][] = $s;
 }
 
 /**
@@ -315,14 +313,15 @@ function notice($s)
  */
 function info($s)
 {
-	$a = DI::app();
+	if (empty($_SESSION)) {
+		return;
+	}
 
 	if (empty($_SESSION['sysmsg_info'])) {
 		$_SESSION['sysmsg_info'] = [];
 	}
-	if ($a->interactive) {
-		$_SESSION['sysmsg_info'][] = $s;
-	}
+
+	$_SESSION['sysmsg_info'][] = $s;
 }
 
 function feed_birthday($uid, $tz)

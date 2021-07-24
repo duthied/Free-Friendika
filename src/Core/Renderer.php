@@ -48,7 +48,6 @@ class Renderer
 	 * beyond are used.
 	 */
 	public static $theme = [
-		'sourcename' => '',
 		'videowidth' => 425,
 		'videoheight' => 350,
 		'stylesheet' => '',

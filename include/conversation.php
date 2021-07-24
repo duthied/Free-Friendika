@@ -1134,7 +1134,6 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$preview'      => DI::l10n()->t('Preview'),
 		'$jotplugins'   => $jotplugins,
 		'$notes_cid'    => $notes_cid,
-		'$sourceapp'    => DI::l10n()->t($a->sourcename),
 		'$cancel'       => DI::l10n()->t('Cancel'),
 		'$rand_num'     => Crypto::randomDigits(12),
 

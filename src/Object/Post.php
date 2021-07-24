@@ -970,7 +970,6 @@ class Post
 				'$prompttext'  => DI::l10n()->t('Please enter a image/video/audio/webpage URL:'),
 				'$preview'     => DI::l10n()->t('Preview'),
 				'$indent'      => $indent,
-				'$sourceapp'   => DI::l10n()->t($a->sourcename),
 				'$rand_num'    => Crypto::randomDigits(12)
 			]);
 		}

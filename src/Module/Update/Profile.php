@@ -29,6 +29,7 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Profile as ProfileModel;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Util\DateTimeFormat;
 
@@ -38,21 +39,22 @@ class Profile extends BaseModule
 	{
 		$a = DI::app();
 
-		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['uid'])) {
+		// Ensure we've got a profile owner if updating.
+		$a->profile_owner = intval($_GET['p'] ?? 0);
+
+		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile_owner)) {
 			throw new ForbiddenException();
 		}
 
-		$profile_uid = intval($_GET['p'] ?? 0);
+		$remote_contact = Session::getRemoteContactID($a->profile_owner);
+		$is_owner = local_user() == $a->profile_owner;
+		$last_updated_key = "profile:" . $a->profile_owner . ":" . local_user() . ":" . $remote_contact;
 
-		// Ensure we've got a profile owner if updating.
-		$a->profile['uid'] = $profile_uid;
-
-		$remote_contact = Session::getRemoteContactID($a->profile['uid']);
-		$is_owner = local_user() == $a->profile['uid'];
-		$last_updated_key = "profile:" . $a->profile['uid'] . ":" . local_user() . ":" . $remote_contact;
-
-		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
-			throw new ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
+		if (!$is_owner && !$remote_contact) {
+			$user = User::getById($a->profile_owner, ['hidewall']);
+			if ($user['hidewall']) {
+				throw new ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
+			}
 		}
 
 		$o = '';
@@ -62,7 +64,7 @@ class Profile extends BaseModule
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['uid']);
+		$sql_extra = Item::getPermissionsSQLByUserId($a->profile_owner);
 
 		$last_updated_array = Session::get('last_updated', []);
 
@@ -86,7 +88,7 @@ class Profile extends BaseModule
 				AND `visible` AND (NOT `deleted` OR `gravity` = ?)
 				AND `wall` $sql_extra4 $sql_extra
 			GROUP BY `parent-uri-id` ORDER BY `received` DESC",
-			$a->profile['uid'],
+			$a->profile_owner,
 			GRAVITY_ACTIVITY
 		);
 
@@ -99,7 +101,7 @@ class Profile extends BaseModule
 		$last_updated_array[$last_updated_key] = time();
 		Session::set('last_updated', $last_updated_array);
 
-		if ($is_owner && !$profile_uid && !DI::config()->get('theme', 'hide_eventlist')) {
+		if ($is_owner && !$a->profile_owner && !DI::config()->get('theme', 'hide_eventlist')) {
 			$o .= ProfileModel::getBirthdays();
 			$o .= ProfileModel::getEventsReminderHTML();
 		}
@@ -113,7 +115,7 @@ class Profile extends BaseModule
 
 		$items = DBA::toArray($items_stmt);
 
-		$o .= conversation($a, $items, 'profile', $profile_uid, false, 'received', $a->profile['uid']);
+		$o .= conversation($a, $items, 'profile', $a->profile_owner, false, 'received', $a->profile_owner);
 
 		System::htmlUpdateExit($o);
 	}

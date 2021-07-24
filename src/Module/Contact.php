@@ -156,12 +156,6 @@ class Contact extends BaseModule
 		if (!DBA::isResult($r)) {
 			notice(DI::l10n()->t('Failed to update contact record.'));
 		}
-
-		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
-		if (DBA::isResult($contact)) {
-			$a->data['contact'] = $contact;
-		}
-
 		return;
 	}
 
@@ -305,8 +299,6 @@ class Contact extends BaseModule
 					DI::baseUrl()->redirect('profile/' . $contact['nick'] . '/profile');
 				}
 			}
-
-			$a->data['contact'] = $contact;
 
 			$vcard_widget = Widget\VCard::getHTML($contact);
 
@@ -453,9 +445,7 @@ class Contact extends BaseModule
 
 		$_SESSION['return_path'] = DI::args()->getQueryString();
 
-		if (!empty($a->data['contact']) && is_array($a->data['contact'])) {
-			$contact = $a->data['contact'];
-
+		if (!empty($contact) && is_array($contact)) {
 			DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_head.tpl'), [
 				'$baseurl' => DI::baseUrl()->get(true),
 			]);

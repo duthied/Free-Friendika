@@ -171,7 +171,6 @@ class Compose extends BaseModule
 			'$group_deny'   => implode(',', $group_deny_list),
 
 			'$jotplugins'   => $jotplugins,
-			'$sourceapp'    => DI::l10n()->t($a->sourcename),
 			'$rand_num'     => Crypto::randomDigits(12),
 			'$acl_selector'  => ACL::getFullSelectorHTML(DI::page(), $a->user, $doesFederate, [
 				'allow_cid' => $contact_allow_list,

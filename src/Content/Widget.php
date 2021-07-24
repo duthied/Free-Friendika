@@ -334,7 +334,7 @@ class Widget
 	{
 		$a = DI::app();
 
-		$uid = intval($a->profile['uid']);
+		$uid = intval($a->profile_owner);
 
 		if (!Feature::isEnabled($uid, 'categories')) {
 			return '';
@@ -416,23 +416,20 @@ class Widget
 	/**
 	 * Insert a tag cloud widget for the present profile.
 	 *
+	 * @param int $uid   User ID
 	 * @param int $limit Max number of displayed tags.
 	 * @return string HTML formatted output.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function tagCloud($limit = 50)
+	public static function tagCloud(int $uid, int $limit = 50)
 	{
-		$a = DI::app();
-
-		$uid = intval($a->profile['uid']);
-
-		if (!$uid || !$a->profile['url']) {
+		if (empty($uid)) {
 			return '';
 		}
 
 		if (Feature::isEnabled($uid, 'tagadelic')) {
-			$owner_id = Contact::getIdForURL($a->profile['url'], 0, false);
+			$owner_id = Contact::getPublicIdByUserId($uid);
 
 			if (!$owner_id) {
 				return '';

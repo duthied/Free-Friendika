@@ -39,11 +39,9 @@ class BaseProfile extends BaseModule
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getTabsHTML(App $a, string $current, bool $is_owner, string $nickname = null)
+	public static function getTabsHTML(App $a, string $current, bool $is_owner, array $profile)
 	{
-		if (is_null($nickname)) {
-			$nickname = $a->user['nickname'];
-		}
+		$nickname = $profile['nickname'];
 
 		$baseProfileUrl = DI::baseUrl() . '/profile/' . $nickname;
 
@@ -116,7 +114,7 @@ class BaseProfile extends BaseModule
 			];
 		}
 
-		if (empty($a->profile['hide-friends'])) {
+		if (empty($profile['hide-friends'])) {
 			$tabs[] = [
 				'label' => DI::l10n()->t('Contacts'),
 				'url'   => $baseProfileUrl . '/contacts',

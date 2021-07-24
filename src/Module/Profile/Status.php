@@ -52,20 +52,20 @@ class Status extends BaseProfile
 
 		$a = DI::app();
 
-		ProfileModel::load($a, $parameters['nickname']);
+		$profile = ProfileModel::load($a, $parameters['nickname']);
 
-		if (empty($a->profile)) {
+		if (empty($profile)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		if (!$a->profile['net-publish']) {
+		if (!$profile['net-publish']) {
 			DI::page()['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 		}
 
-		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/dfrn_poll/' . $parameters['nickname'] . '" title="DFRN: ' . DI::l10n()->t('%s\'s timeline', $a->profile['name']) . '"/>' . "\n";
-		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/" title="' . DI::l10n()->t('%s\'s posts', $a->profile['name']) . '"/>' . "\n";
-		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/comments" title="' . DI::l10n()->t('%s\'s comments', $a->profile['name']) . '"/>' . "\n";
-		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/activity" title="' . DI::l10n()->t('%s\'s timeline', $a->profile['name']) . '"/>' . "\n";
+		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/dfrn_poll/' . $parameters['nickname'] . '" title="DFRN: ' . DI::l10n()->t('%s\'s timeline', $profile['name']) . '"/>' . "\n";
+		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/" title="' . DI::l10n()->t('%s\'s posts', $profile['name']) . '"/>' . "\n";
+		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/comments" title="' . DI::l10n()->t('%s\'s comments', $profile['name']) . '"/>' . "\n";
+		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/activity" title="' . DI::l10n()->t('%s\'s timeline', $profile['name']) . '"/>' . "\n";
 
 		$category = $datequery = $datequery2 = '';
 
@@ -91,42 +91,42 @@ class Status extends BaseProfile
 
 		$hashtags = $_GET['tag'] ?? '';
 
-		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['uid'])) {
+		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($profile['uid'])) {
 			return Login::form();
 		}
 
 		$o = '';
 
-		if ($a->profile['uid'] == local_user()) {
+		if ($profile['uid'] == local_user()) {
 			Nav::setSelected('home');
 		}
 
-		$remote_contact = Session::getRemoteContactID($a->profile['uid']);
-		$is_owner = local_user() == $a->profile['uid'];
-		$last_updated_key = "profile:" . $a->profile['uid'] . ":" . local_user() . ":" . $remote_contact;
+		$remote_contact = Session::getRemoteContactID($profile['uid']);
+		$is_owner = local_user() == $profile['uid'];
+		$last_updated_key = "profile:" . $profile['uid'] . ":" . local_user() . ":" . $remote_contact;
 
-		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
+		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact) {
 			notice(DI::l10n()->t('Access to this profile has been restricted.'));
 			return '';
 		}
 
-		$o .= self::getTabsHTML($a, 'status', $is_owner, $a->profile['nickname']);
+		$o .= self::getTabsHTML($a, 'status', $is_owner, $profile);
 
-		$o .= Widget::commonFriendsVisitor($a->profile['uid'], $a->profile['nickname']);
+		$o .= Widget::commonFriendsVisitor($profile['uid'], $profile['nickname']);
 
-		$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
+		$commpage = $profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$commvisitor = $commpage && $remote_contact;
 
-		DI::page()['aside'] .= Widget::postedByYear(DI::baseUrl() . '/profile/' . $a->profile['nickname'] . '/status', $a->profile['profile_uid'] ?? 0, true);
-		DI::page()['aside'] .= Widget::categories(DI::baseUrl() . '/profile/' . $a->profile['nickname'] . '/status', XML::escape($category));
-		DI::page()['aside'] .= Widget::tagCloud();
+		DI::page()['aside'] .= Widget::postedByYear(DI::baseUrl() . '/profile/' . $profile['nickname'] . '/status', $profile['profile_uid'] ?? 0, true);
+		DI::page()['aside'] .= Widget::categories(DI::baseUrl() . '/profile/' . $profile['nickname'] . '/status', XML::escape($category));
+		DI::page()['aside'] .= Widget::tagCloud($profile['uid']);
 
-		if (Security::canWriteToUserWall($a->profile['uid'])) {
+		if (Security::canWriteToUserWall($profile['uid'])) {
 			$x = [
 				'is_owner' => $is_owner,
-				'allow_location' => ($is_owner || $commvisitor) && $a->profile['allow_location'],
+				'allow_location' => ($is_owner || $commvisitor) && $profile['allow_location'],
 				'default_location' => $is_owner ? $a->user['default-location'] : '',
-				'nickname' => $a->profile['nickname'],
+				'nickname' => $profile['nickname'],
 				'lockstate' => is_array($a->user)
 				&& (strlen($a->user['allow_cid'])
 					|| strlen($a->user['allow_gid'])
@@ -136,25 +136,25 @@ class Status extends BaseProfile
 				'acl' => $is_owner ? ACL::getFullSelectorHTML(DI::page(), $a->user, true) : '',
 				'bang' => '',
 				'visitor' => $is_owner || $commvisitor ? 'block' : 'none',
-				'profile_uid' => $a->profile['uid'],
+				'profile_uid' => $profile['uid'],
 			];
 
 			$o .= status_editor($a, $x);
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-		$condition = Item::getPermissionsConditionArrayByUserId($a->profile['uid']);
+		$condition = Item::getPermissionsConditionArrayByUserId($profile['uid']);
 
 		$last_updated_array = Session::get('last_updated', []);
 
 		if (!empty($category)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `category-view` WHERE `name` = ? AND `type` = ? AND `uid` = ?)",
-				$category, Category::CATEGORY, $a->profile['uid']]);
+				$category, Category::CATEGORY, $profile['uid']]);
 		}
 
 		if (!empty($hashtags)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` = ? AND `uid` = ?)",
-				$hashtags, $a->profile['uid']]);
+				$hashtags, $profile['uid']]);
 		}
 
 		if (!empty($datequery)) {
@@ -166,9 +166,9 @@ class Status extends BaseProfile
 
 		// Does the profile page belong to a forum?
 		// If not then we can improve the performance with an additional condition
-		$condition2 = ['uid' => $a->profile['uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
+		$condition2 = ['uid' => $profile['uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
 		if (!DBA::exists('user', $condition2)) {
-			$condition = DBA::mergeConditions($condition, ['contact-id' => $a->profile['id']]);
+			$condition = DBA::mergeConditions($condition, ['contact-id' => $profile['id']]);
 		}
 
 		if (DI::mode()->isMobile()) {
@@ -186,7 +186,7 @@ class Status extends BaseProfile
 			GRAVITY_PARENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), GRAVITY_PARENT,
 			Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::OSTATUS]);
 
-		$condition = DBA::mergeConditions($condition, ['uid' => $a->profile['uid'], 'network' => Protocol::FEDERATED,
+		$condition = DBA::mergeConditions($condition, ['uid' => $profile['uid'], 'network' => Protocol::FEDERATED,
 			'visible' => true, 'deleted' => false]);
 
 		$pager = new Pager(DI::l10n(), $args->getQueryString(), $itemspage_network);
@@ -213,25 +213,25 @@ class Status extends BaseProfile
 
 		$items = Post::toArray($items_stmt);
 
-		if ($pager->getStart() == 0 && !empty($a->profile['uid'])) {
+		if ($pager->getStart() == 0 && !empty($profile['uid'])) {
 			$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
-			$remote_user = Session::getRemoteContactID($a->profile['uid']);
+			$remote_user = Session::getRemoteContactID($profile['uid']);
 			if (!empty($remote_user)) {
-				$permissionSets = DI::permissionSet()->selectByContactId($remote_user, $a->profile['uid']);
+				$permissionSets = DI::permissionSet()->selectByContactId($remote_user, $profile['uid']);
 				if (!empty($permissionSets)) {
 					$condition = ['psid' => array_merge($permissionSets->column('id'),
-							[DI::permissionSet()->getIdFromACL($a->profile['uid'], '', '', '', '')])];
+							[DI::permissionSet()->getIdFromACL($profile['uid'], '', '', '', '')])];
 				}
-			} elseif ($a->profile['uid'] == local_user()) {
+			} elseif ($profile['uid'] == local_user()) {
 				$condition = [];
 			}
 	
-			$pinned_items = Post::selectPinned($a->profile['uid'], ['uri-id', 'pinned'], $condition);
+			$pinned_items = Post::selectPinned($profile['uid'], ['uri-id', 'pinned'], $condition);
 			$pinned = Post::toArray($pinned_items);
 			$items = array_merge($items, $pinned);
 		}
 
-		$o .= conversation($a, $items, 'profile', false, false, 'pinned_received', $a->profile['uid']);
+		$o .= conversation($a, $items, 'profile', false, false, 'pinned_received', $profile['uid']);
 
 		$o .= $pager->renderMinimal(count($items));
 
