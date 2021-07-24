@@ -75,8 +75,6 @@ function photos_init(App $a) {
 		$ret = ['success' => false];
 
 		if ($albums) {
-			$a->data['albums'] = $albums;
-
 			if ($albums_visible) {
 				$ret['success'] = true;
 			}
@@ -919,8 +917,9 @@ function photos_content(App $a)
 		$albumselect = '';
 
 		$albumselect .= '<option value="" ' . (!$selname ? ' selected="selected" ' : '') . '>&lt;current year&gt;</option>';
-		if (!empty($a->data['albums'])) {
-			foreach ($a->data['albums'] as $album) {
+		$albums = Photo::getAlbums($owner_uid);
+		if (!empty($albums)) {
+			foreach ($albums as $album) {
 				if (($album['album'] === '') || ($album['album'] === Photo::CONTACT_PHOTOS) || ($album['album'] === DI::l10n()->t(Photo::CONTACT_PHOTOS))) {
 					continue;
 				}
