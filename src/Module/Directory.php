@@ -76,12 +76,6 @@ class Directory extends BaseModule
 		if ($profiles['total'] === 0) {
 			notice(DI::l10n()->t('No entries (some entries may be hidden).'));
 		} else {
-			if (in_array('small', $app->argv)) {
-				$photo = 'thumb';
-			} else {
-				$photo = 'photo';
-			}
-
 			foreach ($profiles['entries'] as $entry) {
 				$contact = Model\Contact::getByURLForUser($entry['url'], local_user());
 				if (!empty($contact)) {

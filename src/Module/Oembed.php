@@ -39,26 +39,24 @@ class Oembed extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
-		$a = DI::app();
-
 		// Unused form: /oembed/b2h?url=...
-		if ($a->argv[1] == 'b2h') {
+		if (DI::args()->getArgv()[1] == 'b2h') {
 			$url = ["", trim(hex2bin($_REQUEST['url']))];
 			echo Content\OEmbed::replaceCallback($url);
 			exit();
 		}
 
 		// Unused form: /oembed/h2b?text=...
-		if ($a->argv[1] == 'h2b') {
+		if (DI::args()->getArgv()[1] == 'h2b') {
 			$text = trim(hex2bin($_REQUEST['text']));
 			echo Content\OEmbed::HTML2BBCode($text);
 			exit();
 		}
 
 		// @TODO: Replace with parameter from router
-		if ($a->argc == 2) {
+		if (DI::args()->getArgc() == 2) {
 			echo '<html><body>';
-			$url = Strings::base64UrlDecode($a->argv[1]);
+			$url = Strings::base64UrlDecode(DI::args()->getArgv()[1]);
 			$j = Content\OEmbed::fetchURL($url);
 
 			// workaround for media.ccc.de (and any other endpoint that return size 0)

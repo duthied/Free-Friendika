@@ -48,15 +48,10 @@ class Feed extends BaseModule
 		$last_update = $_GET['last_update'] ?? '';
 		$nocache     = !empty($_GET['nocache']) && local_user();
 
-		// @TODO: Replace with parameter from router
-		if ($a->argc < 2) {
-			throw new \Friendica\Network\HTTPException\BadRequestException();
-		}
-
 		$type = null;
 		// @TODO: Replace with parameter from router
-		if ($a->argc > 2) {
-			$type = $a->argv[2];
+		if (DI::args()->getArgc() > 2) {
+			$type = DI::args()->getArgv()[2];
 		}
 
 		switch ($type) {
@@ -72,10 +67,8 @@ class Feed extends BaseModule
 				$type = 'posts';
 		}
 
-		// @TODO: Replace with parameter from router
-		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml; charset=utf-8");
-		echo ProtocolFeed::atom($nickname, $last_update, 10, $type, $nocache, true);
+		echo ProtocolFeed::atom($parameters['nickname'], $last_update, 10, $type, $nocache, true);
 		exit();
 	}
 }

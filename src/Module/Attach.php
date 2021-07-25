@@ -37,12 +37,11 @@ class Attach extends BaseModule
 	public static function rawContent(array $parameters = [])
 	{
 		$a = DI::app();
-		if ($a->argc != 2) {
+		if (empty($parameters['item'])) {
 			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
-		// @TODO: Replace with parameter from router
-		$item_id = intval($a->argv[1]);
+		$item_id = intval($parameters['item']);
 
 		// Check for existence
 		$item = MAttach::exists(['id' => $item_id]);

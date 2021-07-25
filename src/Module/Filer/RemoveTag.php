@@ -39,10 +39,9 @@ class RemoveTag extends BaseModule
 			throw new HTTPException\ForbiddenException();
 		}
 
-		$app = DI::app();
 		$logger = DI::logger();
 
-		$item_id = (($app->argc > 1) ? intval($app->argv[1]) : 0);
+		$item_id = $parameters['id'] ?? 0;
 
 		$term = XML::unescape(trim($_GET['term'] ?? ''));
 		$cat = XML::unescape(trim($_GET['cat'] ?? ''));

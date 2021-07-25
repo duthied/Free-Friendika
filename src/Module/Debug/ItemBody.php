@@ -23,7 +23,6 @@ namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
 use Friendica\DI;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 
@@ -38,16 +37,13 @@ class ItemBody extends BaseModule
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Access denied.'));
 		}
 
-		$app = DI::app();
-
-		// @TODO: Replace with parameter from router
-		$itemId = (($app->argc > 1) ? intval($app->argv[1]) : 0);
-
-		if (!$itemId) {
+		if (empty($parameters['item'])) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Item not found.'));
 		}
 
-		$item = Post::selectFirst(['body'], ['uid' => local_user(), 'uri-id' => $itemId]);
+		$itemId = intval($parameters['item']);
+
+		$item = Post::selectFirst(['body'], ['uid' => [0, local_user()], 'uri-id' => $itemId]);
 
 		if (!empty($item)) {
 			if (DI::mode()->isAjax()) {

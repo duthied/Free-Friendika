@@ -44,12 +44,11 @@ class SaveTag extends BaseModule
 
 	public static function rawContent(array $parameters = [])
 	{
-		$a = DI::app();
 		$logger = DI::logger();
 
 		$term = XML::unescape(trim($_GET['term'] ?? ''));
-		// @TODO: Replace with parameter from router
-		$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+
+		$item_id = $parameters['id'] ?? 0;
 
 		$logger->info('filer', ['tag' => $term, 'item' => $item_id]);
 

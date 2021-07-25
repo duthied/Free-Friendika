@@ -23,6 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Content;
+use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
@@ -34,9 +35,7 @@ class Smilies extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$app = DI::app();
-
-		if (!empty($app->argv[1]) && ($app->argv[1] === "json")) {
+		if (!empty(DI::args()->getArgv()[1]) && (DI::args()->getArgv()[1] === "json")) {
 			$smilies = Content\Smilies::getList();
 			$results = [];
 			for ($i = 0; $i < count($smilies['texts']); $i++) {

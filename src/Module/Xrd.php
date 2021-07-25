@@ -40,10 +40,8 @@ class Xrd extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$app = DI::app();
-
 		// @TODO: Replace with parameter from router
-		if ($app->argv[0] == 'xrd') {
+		if (DI::args()->getArgv()[0] == 'xrd') {
 			if (empty($_GET['uri'])) {
 				return;
 			}

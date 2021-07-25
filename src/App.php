@@ -58,10 +58,6 @@ class App
 {
 	public $user;
 	public $data = [];
-	/** @deprecated 2019.09 - use App\Arguments->getArgv() or Arguments->get() */
-	public $argv;
-	/** @deprecated 2019.09 - use App\Arguments->getArgc() */
-	public $argc;
 	public $theme_info = [];
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
@@ -253,9 +249,6 @@ class App
 		$this->args     = $args;
 		$this->process  = $process;
 		$this->pConfig  = $pConfig;
-
-		$this->argv         = $args->getArgv();
-		$this->argc         = $args->getArgc();
 
 		$this->load();
 	}

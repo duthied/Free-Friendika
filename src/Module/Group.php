@@ -47,7 +47,7 @@ class Group extends BaseModule
 		}
 
 		// @TODO: Replace with parameter from router
-		if (($a->argc == 2) && ($a->argv[1] === 'new')) {
+		if ((DI::args()->getArgc() == 2) && (DI::args()->getArgv()[1] === 'new')) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/group/new', 'group_edit');
 
 			$name = Strings::escapeTags(trim($_POST['groupname']));
@@ -64,10 +64,10 @@ class Group extends BaseModule
 		}
 
 		// @TODO: Replace with parameter from router
-		if (($a->argc == 2) && intval($a->argv[1])) {
+		if ((DI::args()->getArgc() == 2) && intval(DI::args()->getArgv()[1])) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/group', 'group_edit');
 
-			$group = DBA::selectFirst('group', ['id', 'name'], ['id' => $a->argv[1], 'uid' => local_user()]);
+			$group = DBA::selectFirst('group', ['id', 'name'], ['id' => DI::args()->getArgv()[1], 'uid' => local_user()]);
 			if (!DBA::isResult($group)) {
 				notice(DI::l10n()->t('Group not found.'));
 				DI::baseUrl()->redirect('contact');
@@ -93,8 +93,8 @@ class Group extends BaseModule
 			// POST /group/123/add/123
 			// POST /group/123/remove/123
 			// @TODO: Replace with parameter from router
-			if ($a->argc == 4) {
-				list($group_id, $command, $contact_id) = array_slice($a->argv, 1);
+			if (DI::args()->getArgc() == 4) {
+				list($group_id, $command, $contact_id) = array_slice(DI::args()->getArgv(), 1);
 
 				if (!Model\Group::exists($group_id, local_user())) {
 					throw new \Exception(DI::l10n()->t('Unknown group.'), 404);
@@ -149,11 +149,11 @@ class Group extends BaseModule
 
 		$a = DI::app();
 
-		DI::page()['aside'] = Model\Group::sidebarWidget('contact', 'group', 'extended', (($a->argc > 1) ? $a->argv[1] : 'everyone'));
+		DI::page()['aside'] = Model\Group::sidebarWidget('contact', 'group', 'extended', ((DI::args()->getArgc() > 1) ? DI::args()->getArgv()[1] : 'everyone'));
 
 		// With no group number provided we jump to the unassigned contacts as a starting point
 		// @TODO: Replace with parameter from router
-		if ($a->argc == 1) {
+		if (DI::args()->getArgc() == 1) {
 			DI::baseUrl()->redirect('group/none');
 		}
 
@@ -172,7 +172,7 @@ class Group extends BaseModule
 		];
 
 		// @TODO: Replace with parameter from router
-		if (($a->argc == 2) && ($a->argv[1] === 'new')) {
+		if ((DI::args()->getArgc() == 2) && (DI::args()->getArgv()[1] === 'new')) {
 			return Renderer::replaceMacros($tpl, $context + [
 				'$title' => DI::l10n()->t('Create a group of contacts/friends.'),
 				'$gname' => ['groupname', DI::l10n()->t('Group Name: '), '', ''],
@@ -184,8 +184,8 @@ class Group extends BaseModule
 		$nogroup = false;
 
 		// @TODO: Replace with parameter from router
-		if (($a->argc == 2) && ($a->argv[1] === 'none') ||
-			($a->argc == 1) && ($a->argv[0] === 'nogroup')) {
+		if ((DI::args()->getArgc() == 2) && (DI::args()->getArgv()[1] === 'none') ||
+			(DI::args()->getArgc() == 1) && (DI::args()->getArgv()[0] === 'nogroup')) {
 			$id = -1;
 			$nogroup = true;
 			$group = [
@@ -205,17 +205,17 @@ class Group extends BaseModule
 		}
 
 		// @TODO: Replace with parameter from router
-		if (($a->argc == 3) && ($a->argv[1] === 'drop')) {
+		if ((DI::args()->getArgc() == 3) && (DI::args()->getArgv()[1] === 'drop')) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/group', 'group_drop', 't');
 
 			// @TODO: Replace with parameter from router
-			if (intval($a->argv[2])) {
-				if (!Model\Group::exists($a->argv[2], local_user())) {
+			if (intval(DI::args()->getArgv()[2])) {
+				if (!Model\Group::exists(DI::args()->getArgv()[2], local_user())) {
 					notice(DI::l10n()->t('Group not found.'));
 					DI::baseUrl()->redirect('contact');
 				}
 
-				if (!Model\Group::remove($a->argv[2])) {
+				if (!Model\Group::remove(DI::args()->getArgv()[2])) {
 					notice(DI::l10n()->t('Unable to remove group.'));
 				}
 			}
@@ -223,17 +223,17 @@ class Group extends BaseModule
 		}
 
 		// @TODO: Replace with parameter from router
-		if (($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {
+		if ((DI::args()->getArgc() > 2) && intval(DI::args()->getArgv()[1]) && intval(DI::args()->getArgv()[2])) {
 			BaseModule::checkFormSecurityTokenForbiddenOnError('group_member_change', 't');
 
-			if (DBA::exists('contact', ['id' => $a->argv[2], 'uid' => local_user(), 'self' => false, 'pending' => false, 'blocked' => false])) {
-				$change = intval($a->argv[2]);
+			if (DBA::exists('contact', ['id' => DI::args()->getArgv()[2], 'uid' => local_user(), 'self' => false, 'pending' => false, 'blocked' => false])) {
+				$change = intval(DI::args()->getArgv()[2]);
 			}
 		}
 
 		// @TODO: Replace with parameter from router
-		if (($a->argc > 1) && intval($a->argv[1])) {
-			$group = DBA::selectFirst('group', ['id', 'name'], ['id' => $a->argv[1], 'uid' => local_user(), 'deleted' => false]);
+		if ((DI::args()->getArgc() > 1) && intval(DI::args()->getArgv()[1])) {
+			$group = DBA::selectFirst('group', ['id', 'name'], ['id' => DI::args()->getArgv()[1], 'uid' => local_user(), 'deleted' => false]);
 			if (!DBA::isResult($group)) {
 				notice(DI::l10n()->t('Group not found.'));
 				DI::baseUrl()->redirect('contact');

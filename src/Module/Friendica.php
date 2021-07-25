@@ -120,10 +120,8 @@ class Friendica extends BaseModule
 			}
 		}
 
-		$app = DI::app();
-
 		// @TODO: Replace with parameter from router
-		if ($app->argc <= 1 || ($app->argv[1] !== 'json')) {
+		if (DI::args()->getArgc() <= 1 || (DI::args()->getArgv()[1] !== 'json')) {
 			return;
 		}
 
