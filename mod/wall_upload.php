@@ -43,9 +43,9 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$r_json = (!empty($_GET['response']) && $_GET['response'] == 'json');
 	$album = trim($_GET['album'] ?? '');
 
-	if ($a->argc > 1) {
+	if (DI::args()->getArgc() > 1) {
 		if (empty($_FILES['media'])) {
-			$nick = $a->argv[1];			
+			$nick = DI::args()->getArgv()[1];			
 			$user = DBA::selectFirst('owner-view', ['id', 'uid', 'nickname', 'page-flags'], ['nickname' => $nick, 'blocked' => false]);
 			if (!DBA::isResult($user)) {
 				if ($r_json) {

@@ -76,8 +76,7 @@ class ApiTest extends FixtureTest
 		/** @var App app */
 		$this->app = DI::app();
 
-		$this->app->argc = 1;
-		$this->app->argv = [''];
+		DI::args()->setArgc(1);
 
 		// User data that the test database is populated with
 		$this->selfUser   = [
@@ -925,7 +924,7 @@ class ApiTest extends FixtureTest
 	{
 		global $called_api;
 		$called_api         = ['api_path'];
-		$this->app->argv[1] = $this->otherUser['id'] . '.json';
+		DI::args()->setArgv(['', $this->otherUser['id'] . '.json']);
 		self::assertOtherUser(api_get_user($this->app));
 	}
 
@@ -1198,7 +1197,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesMediap()
 	{
-		$this->app->argc = 2;
+		DI::args()->setArgc(2);
 
 		$_FILES         = [
 			'media' => [
@@ -1370,7 +1369,7 @@ class ApiTest extends FixtureTest
 			]
 		];
 		$app       = DI::app();
-		$app->argc = 2;
+		DI::args()->setArgc(2);
 
 		$result = api_media_upload();
 		self::assertEquals('image/png', $result['media']['image']['image_type']);
@@ -1793,8 +1792,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesShowWithId()
 	{
-		$this->app->argv[3] = 1;
-		$result             = api_statuses_show('json');
+		DI::args()->setArgv(['', '', '', 1]);
+		$result = api_statuses_show('json');
 		self::assertStatus($result['status']);
 	}
 
@@ -1805,7 +1804,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesShowWithConversation()
 	{
-		$this->app->argv[3]       = 1;
+		DI::args()->setArgv(['', '', '', 1]);
 		$_REQUEST['conversation'] = 1;
 		$result                   = api_statuses_show('json');
 		self::assertNotEmpty($result['status']);
@@ -1845,7 +1844,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiConversationShowWithId()
 	{
-		$this->app->argv[3] = 1;
+		DI::args()->setArgv(['', '', '', 1]);
 		$_REQUEST['max_id'] = 10;
 		$_REQUEST['page']   = -2;
 		$result             = api_conversation_show('json');
@@ -1898,13 +1897,13 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesRepeatWithId()
 	{
-		$this->app->argv[3] = 1;
-		$result             = api_statuses_repeat('json');
+		DI::args()->setArgv(['', '', '', 1]);
+		$result = api_statuses_repeat('json');
 		self::assertStatus($result['status']);
 
 		// Also test with a shared status
-		$this->app->argv[3] = 5;
-		$result             = api_statuses_repeat('json');
+		DI::args()->setArgv(['', '', '', 5]);
+		$result = api_statuses_repeat('json');
 		self::assertStatus($result['status']);
 	}
 
@@ -1938,8 +1937,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesDestroyWithId()
 	{
-		$this->app->argv[3] = 1;
-		$result             = api_statuses_destroy('json');
+		DI::args()->setArgv(['', '', '', 1]);
+		$result = api_statuses_destroy('json');
 		self::assertStatus($result['status']);
 	}
 
@@ -2057,8 +2056,7 @@ class ApiTest extends FixtureTest
 	public function testApiFavoritesCreateDestroy()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		$this->app->argv = ['api', '1.1', 'favorites', 'create'];
-		$this->app->argc = count($this->app->argv);
+		DI::args()->setArgv(['api', '1.1', 'favorites', 'create']);
 		api_favorites_create_destroy('json');
 	}
 
@@ -2070,8 +2068,7 @@ class ApiTest extends FixtureTest
 	public function testApiFavoritesCreateDestroyWithInvalidId()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		$this->app->argv = ['api', '1.1', 'favorites', 'create', '12.json'];
-		$this->app->argc = count($this->app->argv);
+		DI::args()->setArgv(['api', '1.1', 'favorites', 'create', '12.json']);
 		api_favorites_create_destroy('json');
 	}
 
@@ -2083,9 +2080,8 @@ class ApiTest extends FixtureTest
 	public function testApiFavoritesCreateDestroyWithInvalidAction()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		$this->app->argv = ['api', '1.1', 'favorites', 'change.json'];
-		$this->app->argc = count($this->app->argv);
-		$_REQUEST['id']  = 1;
+		DI::args()->setArgv(['api', '1.1', 'favorites', 'change.json']);
+		$_REQUEST['id'] = 1;
 		api_favorites_create_destroy('json');
 	}
 
@@ -2096,10 +2092,9 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFavoritesCreateDestroyWithCreateAction()
 	{
-		$this->app->argv = ['api', '1.1', 'favorites', 'create.json'];
-		$this->app->argc = count($this->app->argv);
-		$_REQUEST['id']  = 3;
-		$result          = api_favorites_create_destroy('json');
+		DI::args()->setArgv(['api', '1.1', 'favorites', 'create.json']);
+		$_REQUEST['id'] = 3;
+		$result         = api_favorites_create_destroy('json');
 		self::assertStatus($result['status']);
 	}
 
@@ -2110,10 +2105,9 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFavoritesCreateDestroyWithCreateActionAndRss()
 	{
-		$this->app->argv = ['api', '1.1', 'favorites', 'create.rss'];
-		$this->app->argc = count($this->app->argv);
-		$_REQUEST['id']  = 3;
-		$result          = api_favorites_create_destroy('rss');
+		DI::args()->setArgv(['api', '1.1', 'favorites', 'create.rss']);
+		$_REQUEST['id'] = 3;
+		$result         = api_favorites_create_destroy('rss');
 		self::assertXml($result, 'status');
 	}
 
@@ -2124,10 +2118,9 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFavoritesCreateDestroyWithDestroyAction()
 	{
-		$this->app->argv = ['api', '1.1', 'favorites', 'destroy.json'];
-		$this->app->argc = count($this->app->argv);
-		$_REQUEST['id']  = 3;
-		$result          = api_favorites_create_destroy('json');
+		DI::args()->setArgv(['api', '1.1', 'favorites', 'destroy.json']);
+		$_REQUEST['id'] = 3;
+		$result         = api_favorites_create_destroy('json');
 		self::assertStatus($result['status']);
 	}
 
@@ -2139,8 +2132,7 @@ class ApiTest extends FixtureTest
 	public function testApiFavoritesCreateDestroyWithoutAuthenticatedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$this->app->argv           = ['api', '1.1', 'favorites', 'create.json'];
-		$this->app->argc           = count($this->app->argv);
+		DI::args()->setArgv(['api', '1.1', 'favorites', 'create.json']);
 		$_SESSION['authenticated'] = false;
 		api_favorites_create_destroy('json');
 	}
@@ -3719,8 +3711,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFriendicaNotificationWithEmptyResult()
 	{
-		$this->app->argv = ['api', 'friendica', 'notification'];
-		$this->app->argc = count($this->app->argv);
+		DI::args()->setArgv(['api', 'friendica', 'notification']);
 		$_SESSION['uid'] = 41;
 		$result          = api_friendica_notification('json');
 		self::assertEquals(['note' => false], $result);
@@ -3733,9 +3724,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFriendicaNotificationWithXmlResult()
 	{
-		$this->app->argv = ['api', 'friendica', 'notification'];
-		$this->app->argc = count($this->app->argv);
-		$result          = api_friendica_notification('xml');
+		DI::args()->setArgv(['api', 'friendica', 'notification']);
+		$result  = api_friendica_notification('xml');
 		$dateRel = Temporal::getRelativeDate('2020-01-01 12:12:02');
 		$assertXml=<<<XML
 <?xml version="1.0"?>
@@ -3753,9 +3743,8 @@ XML;
 	 */
 	public function testApiFriendicaNotificationWithJsonResult()
 	{
-		$this->app->argv = ['api', 'friendica', 'notification'];
-		$this->app->argc = count($this->app->argv);
-		$result          = json_encode(api_friendica_notification('json'));
+		DI::args()->setArgv(['api', 'friendica', 'notification']);
+		$result = json_encode(api_friendica_notification('json'));
 		self::assertJson($result);
 	}
 

@@ -87,6 +87,17 @@ class Arguments
 		return $this->argc;
 	}
 
+	public function setArgv(array $argv)
+	{
+		$this->argv = $argv;
+		$this->argc = count($argv);
+	}
+
+	public function setArgc(int $argc)
+	{
+		$this->argc = $argc;
+	}
+
 	/**
 	 * Returns the value of a argv key
 	 * @todo there are a lot of $a->argv usages in combination with ?? which can be replaced with this method
