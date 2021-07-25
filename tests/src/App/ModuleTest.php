@@ -184,6 +184,8 @@ class ModuleTest extends DatabaseTest
 		$cache->shouldReceive('set')->withAnyArgs()->andReturn(false)->atMost()->twice();
 
 		$lock = Mockery::mock(ILock::class);
+		$lock->shouldReceive('acquire')->andReturn(true);
+		$lock->shouldReceive('isLocked')->andReturn(false);
 
 		$router = (new App\Router([], __DIR__ . '/../../../static/routes.config.php', $l10n, $cache, $lock));
 

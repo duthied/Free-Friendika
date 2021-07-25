@@ -57,8 +57,8 @@ class RouterTest extends TestCase
 		$this->cache->shouldReceive('set')->andReturn(false);
 
 		$this->lock = Mockery::mock(ILock::class);
-		$this->cache->shouldReceive('acquire')->andReturn(true);
-		$this->cache->shouldReceive('isLocked')->andReturn(false);
+		$this->lock->shouldReceive('acquire')->andReturn(true);
+		$this->lock->shouldReceive('isLocked')->andReturn(false);
 	}
 
 	public function testGetModuleClass()
