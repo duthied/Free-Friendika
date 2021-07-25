@@ -35,7 +35,7 @@ function poco_init(App $a) {
 		throw new \Friendica\Network\HTTPException\ForbiddenException();
 	}
 
-	if ($a->argc > 1) {
+	if (DI::args()->getArgc() > 1) {
 		// Only the system mode is supported 
 		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}

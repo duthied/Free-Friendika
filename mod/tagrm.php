@@ -88,12 +88,12 @@ function tagrm_content(App $a)
 		// NOTREACHED
 	}
 
-	if ($a->argc == 3) {
-		update_tags($a->argv[1], [Strings::escapeTags(trim(hex2bin($a->argv[2])))]);
+	if (DI::args()->getArgc()== 3) {
+		update_tags(DI::args()->getArgv()[1], [Strings::escapeTags(trim(hex2bin(DI::args()->getArgv()[2])))]);
 		DI::baseUrl()->redirect($photo_return);
 	}
 
-	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+	$item_id = ((DI::args()->getArgc()> 1) ? intval(DI::args()->getArgv()[1]) : 0);
 	if (!$item_id) {
 		DI::baseUrl()->redirect($photo_return);
 		// NOTREACHED

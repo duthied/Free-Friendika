@@ -35,10 +35,9 @@ function redir_init(App $a) {
 	}
 
 	$url = $_GET['url'] ?? '';
-	$quiet = !empty($_GET['quiet']) ? '&quiet=1' : '';
 
-	if ($a->argc > 1 && intval($a->argv[1])) {
-		$cid = intval($a->argv[1]);
+	if (DI::args()->getArgc() > 1 && intval(DI::args()->getArgv()[1])) {
+		$cid = intval(DI::args()->getArgv()[1]);
 	} else {
 		$cid = 0;
 	}

@@ -24,7 +24,7 @@ function fbrowser_content(App $a)
 		exit();
 	}
 
-	if ($a->argc == 1) {
+	if (DI::args()->getArgc() == 1) {
 		exit();
 	}
 
@@ -38,14 +38,14 @@ function fbrowser_content(App $a)
 
 	$o = '';
 
-	switch ($a->argv[1]) {
+	switch (DI::args()->getArgv()[1]) {
 		case "image":
 			$path = ['' => DI::l10n()->t('Photos')];
 			$albums = false;
 			$sql_extra = "";
 			$sql_extra2 = " ORDER BY created DESC LIMIT 0, 10";
 
-			if ($a->argc==2) {
+			if (DI::args()->getArgc()==2) {
 				$photos = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
 					intval(local_user()),
 					DBA::escape(Photo::CONTACT_PHOTOS),
@@ -55,8 +55,8 @@ function fbrowser_content(App $a)
 				$albums = array_column($photos, 'album');
 			}
 
-			if ($a->argc == 3) {
-				$album = $a->argv[2];
+			if (DI::args()->getArgc() == 3) {
+				$album = DI::args()->getArgv()[2];
 				$sql_extra = sprintf("AND `album` = '%s' ", DBA::escape($album));
 				$sql_extra2 = "";
 				$path[$album] = $album;
@@ -109,7 +109,7 @@ function fbrowser_content(App $a)
 
 			break;
 		case "file":
-			if ($a->argc==2) {
+			if (DI::args()->getArgc()==2) {
 				$files = q("SELECT `id`, `filename`, `filetype` FROM `attach` WHERE `uid` = %d ",
 					intval(local_user())
 				);

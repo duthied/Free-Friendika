@@ -42,8 +42,8 @@ function videos_init(App $a)
 
 	Nav::setSelected('home');
 
-	if ($a->argc > 1) {
-		$owner = User::getOwnerDataByNick($a->argv[1]);
+	if (DI::args()->getArgc() > 1) {
+		$owner = User::getOwnerDataByNick(DI::args()->getArgv()[1]);
 		if (empty($owner)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
@@ -64,7 +64,7 @@ function videos_init(App $a)
 
 function videos_post(App $a)
 {
-	$user = User::getByNickname($a->argv[1]);
+	$user = User::getByNickname(DI::args()->getArgv()[1]);
 	if (!DBA::isResult($user)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
@@ -73,7 +73,7 @@ function videos_post(App $a)
 		DI::baseUrl()->redirect('videos/' . $user['nickname']);
 	}
 
-	if (($a->argc == 2) && !empty($_POST['delete']) && !empty($_POST['id'])) {
+	if ((DI::args()->getArgc() == 2) && !empty($_POST['delete']) && !empty($_POST['id'])) {
 		$video_id = $_POST['id'];
 
 		if (Attach::exists(['id' => $video_id, 'uid' => local_user()])) {
@@ -105,7 +105,7 @@ function videos_content(App $a)
 	// videos/name/video/xxxxx
 	// videos/name/video/xxxxx/edit
 
-	$user = User::getByNickname($a->argv[1]);
+	$user = User::getByNickname(DI::args()->getArgv()[1]);
 	if (!DBA::isResult($user)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
@@ -127,9 +127,9 @@ function videos_content(App $a)
 	//
 	// Parse arguments
 	//
-	if ($a->argc > 3) {
-		$datatype = $a->argv[2];
-	} elseif(($a->argc > 2) && ($a->argv[2] === 'upload')) {
+	if (DI::args()->getArgc() > 3) {
+		$datatype = DI::args()->getArgv()[2];
+	} elseif((DI::args()->getArgc() > 2) && (DI::args()->getArgv()[2] === 'upload')) {
 		$datatype = 'upload';
 	} else {
 		$datatype = 'summary';

@@ -38,7 +38,7 @@ function editpost_content(App $a)
 		return;
 	}
 
-	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+	$post_id = ((DI::args()->getArgc() > 1) ? intval(DI::args()->getArgv()[1]) : 0);
 
 	if (!$post_id) {
 		notice(DI::l10n()->t('Item not found'));

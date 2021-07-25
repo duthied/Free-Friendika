@@ -62,8 +62,8 @@ function photos_init(App $a) {
 
 	Nav::setSelected('home');
 
-	if ($a->argc > 1) {
-		$owner = User::getOwnerDataByNick($a->argv[1]);
+	if (DI::args()->getArgc() > 1) {
+		$owner = User::getOwnerDataByNick(DI::args()->getArgv()[1]);
 
 		$is_owner = (local_user() && (local_user() == $owner['uid']));
 
@@ -134,7 +134,7 @@ function photos_init(App $a) {
 
 function photos_post(App $a)
 {
-	$user = User::getByNickname($a->argv[1]);
+	$user = User::getByNickname(DI::args()->getArgv()[1]);
 	if (!DBA::isResult($user)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
@@ -185,11 +185,11 @@ function photos_post(App $a)
 		$str_contact_allow .= $aclFormatter->toString(Contact::getPublicIdByUserId($page_owner_uid));
 	}
 
-	if ($a->argc > 3 && $a->argv[2] === 'album') {
-		if (!Strings::isHex($a->argv[3])) {
+	if (DI::args()->getArgc() > 3 && DI::args()->getArgv()[2] === 'album') {
+		if (!Strings::isHex(DI::args()->getArgv()[3])) {
 			DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album');
 		}
-		$album = hex2bin($a->argv[3]);
+		$album = hex2bin(DI::args()->getArgv()[3]);
 
 		if ($album === DI::l10n()->t('Profile Photos') || $album === Photo::CONTACT_PHOTOS || $album === DI::l10n()->t(Photo::CONTACT_PHOTOS)) {
 			DI::baseUrl()->redirect($_SESSION['photo_return']);
@@ -209,7 +209,7 @@ function photos_post(App $a)
 
 		// Check if the user has responded to a delete confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album/' . $a->argv[3]);
+			DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album/' . DI::args()->getArgv()[3]);
 		}
 
 		// RENAME photo album
@@ -269,19 +269,19 @@ function photos_post(App $a)
 		DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album');
 	}
 
-	if ($a->argc > 3 && $a->argv[2] === 'image') {
+	if (DI::args()->getArgc() > 3 && DI::args()->getArgv()[2] === 'image') {
 		// Check if the user has responded to a delete confirmation query for a single photo
 		if (!empty($_POST['canceled'])) {
-			DI::baseUrl()->redirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);
+			DI::baseUrl()->redirect('photos/' . DI::args()->getArgv()[1] . '/image/' . DI::args()->getArgv()[3]);
 		}
 
 		if (!empty($_POST['delete'])) {
 			// same as above but remove single photo
 			if ($visitor) {
-				$condition = ['contact-id' => $visitor, 'uid' => $page_owner_uid, 'resource-id' => $a->argv[3]];
+				$condition = ['contact-id' => $visitor, 'uid' => $page_owner_uid, 'resource-id' => DI::args()->getArgv()[3]];
 
 			} else {
-				$condition = ['uid' => local_user(), 'resource-id' => $a->argv[3]];
+				$condition = ['uid' => local_user(), 'resource-id' => DI::args()->getArgv()[3]];
 			}
 
 			$photo = DBA::selectFirst('photo', ['resource-id'], $condition);
@@ -295,22 +295,22 @@ function photos_post(App $a)
 				Photo::clearAlbumCache($page_owner_uid);
 			} else {
 				notice(DI::l10n()->t('Failed to delete the photo.'));
-				DI::baseUrl()->redirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);
+				DI::baseUrl()->redirect('photos/' . DI::args()->getArgv()[1] . '/image/' . DI::args()->getArgv()[3]);
 			}
 
-			DI::baseUrl()->redirect('photos/' . $a->argv[1]);
+			DI::baseUrl()->redirect('photos/' . DI::args()->getArgv()[1]);
 			return; // NOTREACHED
 		}
 	}
 
-	if ($a->argc > 2 && (!empty($_POST['desc']) || !empty($_POST['newtag']) || isset($_POST['albname']))) {
+	if (DI::args()->getArgc() > 2 && (!empty($_POST['desc']) || !empty($_POST['newtag']) || isset($_POST['albname']))) {
 		$desc        = !empty($_POST['desc'])      ? Strings::escapeTags(trim($_POST['desc']))      : '';
 		$rawtags     = !empty($_POST['newtag'])    ? Strings::escapeTags(trim($_POST['newtag']))    : '';
 		$item_id     = !empty($_POST['item_id'])   ? intval($_POST['item_id'])                      : 0;
 		$albname     = !empty($_POST['albname'])   ? trim($_POST['albname'])                        : '';
 		$origaname   = !empty($_POST['origaname']) ? Strings::escapeTags(trim($_POST['origaname'])) : '';
 
-		$resource_id = $a->argv[3];
+		$resource_id = DI::args()->getArgv()[3];
 
 		if (!strlen($albname)) {
 			$albname = DateTimeFormat::localNow('Y');
@@ -815,7 +815,7 @@ function photos_content(App $a)
 	// photos/name/image/xxxxx/edit
 	// photos/name/image/xxxxx/drop
 
-	$user = User::getByNickname($a->argv[1]);
+	$user = User::getByNickname(DI::args()->getArgv()[1]);
 	if (!DBA::isResult($user)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
@@ -836,17 +836,17 @@ function photos_content(App $a)
 
 	// Parse arguments
 	$datum = null;
-	if ($a->argc > 3) {
-		$datatype = $a->argv[2];
-		$datum = $a->argv[3];
-	} elseif (($a->argc > 2) && ($a->argv[2] === 'upload')) {
+	if (DI::args()->getArgc() > 3) {
+		$datatype = DI::args()->getArgv()[2];
+		$datum = DI::args()->getArgv()[3];
+	} elseif ((DI::args()->getArgc() > 2) && (DI::args()->getArgv()[2] === 'upload')) {
 		$datatype = 'upload';
 	} else {
 		$datatype = 'summary';
 	}
 
-	if ($a->argc > 4) {
-		$cmd = $a->argv[4];
+	if (DI::args()->getArgc() > 4) {
+		$cmd = DI::args()->getArgv()[4];
 	} else {
 		$cmd = 'view';
 	}

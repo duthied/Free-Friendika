@@ -37,19 +37,18 @@ use Friendica\Module\ActivityPub\Objects;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
-use Friendica\Util\Strings;
 
 function display_init(App $a)
 {
 	if (ActivityPub::isRequest()) {
-		Objects::rawContent(['guid' => $a->argv[1] ?? null]);
+		Objects::rawContent(['guid' => DI::args()->getArgv()[1] ?? null]);
 	}
 
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
-	$nick = (($a->argc > 1) ? $a->argv[1] : '');
+	$nick = ((DI::args()->getArgc() > 1) ? DI::args()->getArgv()[1] : '');
 
 	$item = null;
 	$item_user = local_user();
@@ -57,12 +56,12 @@ function display_init(App $a)
 	$fields = ['uri-id', 'parent-uri-id', 'author-id', 'author-link', 'body', 'uid', 'guid', 'gravity'];
 
 	// If there is only one parameter, then check if this parameter could be a guid
-	if ($a->argc == 2) {
+	if (DI::args()->getArgc() == 2) {
 		$nick = '';
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'uid' => local_user()]);
+			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => DI::args()->getArgv()[1], 'uid' => local_user()]);
 			if (DBA::isResult($item)) {
 				$nick = $a->user['nickname'];
 			}
@@ -70,7 +69,7 @@ function display_init(App $a)
 
 		// Is this item private but could be visible to the remove visitor?
 		if (!DBA::isResult($item) && remote_user()) {
-			$item = Post::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
+			$item = Post::selectFirst($fields, ['guid' => DI::args()->getArgv()[1], 'private' => Item::PRIVATE, 'origin' => true]);
 			if (DBA::isResult($item)) {
 				if (!Contact::isFollower(remote_user(), $item['uid'])) {
 					$item = null;
@@ -82,10 +81,10 @@ function display_init(App $a)
 
 		// Is it an item with uid=0?
 		if (!DBA::isResult($item)) {
-			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
+			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => DI::args()->getArgv()[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 		}
-	} elseif ($a->argc >= 3 && $nick == 'feed-item') {
-		$uri_id = $a->argv[2];
+	} elseif (DI::args()->getArgc() >= 3 && $nick == 'feed-item') {
+		$uri_id = DI::args()->getArgv()[2];
 		if (substr($uri_id, -5) == '.atom') {
 			$uri_id = substr($uri_id, 0, -5);
 		}
@@ -96,8 +95,8 @@ function display_init(App $a)
 		return;
 	}
 
-	if ($a->argc >= 3 && $nick == 'feed-item') {
-		displayShowFeed($item['uri-id'], $item['uid'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
+	if (DI::args()->getArgc() >= 3 && $nick == 'feed-item') {
+		displayShowFeed($item['uri-id'], $item['uid'], DI::args()->getArgc() > 3 && DI::args()->getArgv()[3] == 'conversation.atom');
 	}
 
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
@@ -185,14 +184,14 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			$parent_uri_id = $item['parent-uri-id'];
 		}
 	} else {
-		$uri_id = (($a->argc > 2) ? $a->argv[2] : 0);
+		$uri_id = ((DI::args()->getArgc() > 2) ? DI::args()->getArgv()[2] : 0);
 		$parent_uri_id = $uri_id;
 
-		if ($a->argc == 2) {
+		if (DI::args()->getArgc() == 2) {
 			$fields = ['uri-id', 'parent-uri-id', 'uid'];
 
 			if (local_user()) {
-				$condition = ['guid' => $a->argv[1], 'uid' => local_user()];
+				$condition = ['guid' => DI::args()->getArgv()[1], 'uid' => local_user()];
 				$item = Post::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
 					$uri_id = $item['uri-id'];
@@ -201,7 +200,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			}
 
 			if (($parent_uri_id == 0) && remote_user()) {
-				$item = Post::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
+				$item = Post::selectFirst($fields, ['guid' => DI::args()->getArgv()[1], 'private' => Item::PRIVATE, 'origin' => true]);
 				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
 					$uri_id = $item['uri-id'];
 					$parent_uri_id = $item['parent-uri-id'];
@@ -209,7 +208,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			}
 
 			if ($parent_uri_id == 0) {
-				$condition = ['private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $a->argv[1], 'uid' => 0];
+				$condition = ['private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => DI::args()->getArgv()[1], 'uid' => 0];
 				$item = Post::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
 					$uri_id = $item['uri-id'];

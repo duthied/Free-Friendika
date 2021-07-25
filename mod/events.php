@@ -51,7 +51,7 @@ function events_init(App $a)
 
 	// If it's a json request abort here because we don't
 	// need the widget data
-	if ($a->argc > 1 && $a->argv[1] === 'json') {
+	if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] === 'json') {
 		return;
 	}
 
@@ -237,20 +237,20 @@ function events_content(App $a)
 		return Login::form();
 	}
 
-	if ($a->argc == 1) {
+	if (DI::args()->getArgc() == 1) {
 		$_SESSION['return_path'] = DI::args()->getCommand();
 	}
 
-	if (($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
+	if ((DI::args()->getArgc() > 2) && (DI::args()->getArgv()[1] === 'ignore') && intval(DI::args()->getArgv()[2])) {
 		q("UPDATE `event` SET `ignore` = 1 WHERE `id` = %d AND `uid` = %d",
-			intval($a->argv[2]),
+			intval(DI::args()->getArgv()[2]),
 			intval(local_user())
 		);
 	}
 
-	if (($a->argc > 2) && ($a->argv[1] === 'unignore') && intval($a->argv[2])) {
+	if ((DI::args()->getArgc() > 2) && (DI::args()->getArgv()[1] === 'unignore') && intval(DI::args()->getArgv()[2])) {
 		q("UPDATE `event` SET `ignore` = 0 WHERE `id` = %d AND `uid` = %d",
-			intval($a->argv[2]),
+			intval(DI::args()->getArgv()[2]),
 			intval(local_user())
 		);
 	}
@@ -288,27 +288,27 @@ function events_content(App $a)
 	$m = 0;
 	$ignored = !empty($_REQUEST['ignored']) ? intval($_REQUEST['ignored']) : 0;
 
-	if ($a->argc > 1) {
-		if ($a->argc > 2 && $a->argv[1] == 'event') {
+	if (DI::args()->getArgc() > 1) {
+		if (DI::args()->getArgc() > 2 && DI::args()->getArgv()[1] == 'event') {
 			$mode = 'edit';
-			$event_id = intval($a->argv[2]);
+			$event_id = intval(DI::args()->getArgv()[2]);
 		}
-		if ($a->argc > 2 && $a->argv[1] == 'drop') {
+		if (DI::args()->getArgc() > 2 && DI::args()->getArgv()[1] == 'drop') {
 			$mode = 'drop';
-			$event_id = intval($a->argv[2]);
+			$event_id = intval(DI::args()->getArgv()[2]);
 		}
-		if ($a->argc > 2 && $a->argv[1] == 'copy') {
+		if (DI::args()->getArgc() > 2 && DI::args()->getArgv()[1] == 'copy') {
 			$mode = 'copy';
-			$event_id = intval($a->argv[2]);
+			$event_id = intval(DI::args()->getArgv()[2]);
 		}
-		if ($a->argv[1] === 'new') {
+		if (DI::args()->getArgv()[1] === 'new') {
 			$mode = 'new';
 			$event_id = 0;
 		}
-		if ($a->argc > 2 && intval($a->argv[1]) && intval($a->argv[2])) {
+		if (DI::args()->getArgc() > 2 && intval(DI::args()->getArgv()[1]) && intval(DI::args()->getArgv()[2])) {
 			$mode = 'view';
-			$y = intval($a->argv[1]);
-			$m = intval($a->argv[2]);
+			$y = intval(DI::args()->getArgv()[1]);
+			$m = intval(DI::args()->getArgv()[2]);
 		}
 	}
 
@@ -337,7 +337,7 @@ function events_content(App $a)
 		$start  = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
-		if ($a->argc > 1 && $a->argv[1] === 'json') {
+		if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] === 'json') {
 			if (!empty($_GET['start'])) {
 				$start = $_GET['start'];
 			}
@@ -389,7 +389,7 @@ function events_content(App $a)
 			$events = Event::prepareListForTemplate($r);
 		}
 
-		if ($a->argc > 1 && $a->argv[1] === 'json') {
+		if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] === 'json') {
 			header('Content-Type: application/json');
 			echo json_encode($events);
 			exit();
