@@ -86,7 +86,7 @@ class Notifier
 			foreach ($inboxes as $inbox => $receivers) {
 				$ap_contacts = array_merge($ap_contacts, $receivers);
 				Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'target' => $target_id, 'inbox' => $inbox]);
-				Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true],
+				Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->getQueueValue('created'), 'dont_fork' => true],
 					'APDelivery', $cmd, $target_id, $inbox, $uid, $receivers, $post_uriid);
 			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
@@ -94,7 +94,7 @@ class Notifier
 			$uid = $suggest->uid;
 			$recipients[] = $suggest->cid;
 		} elseif ($cmd == Delivery::REMOVAL) {
-			return self::notifySelfRemoval($target_id, $a->queue['priority'], $a->queue['created']);
+			return self::notifySelfRemoval($target_id, $a->getQueueValue('priority'), $a->getQueueValue('created'));
 		} elseif ($cmd == Delivery::RELOCATION) {
 			$uid = $target_id;
 
@@ -182,7 +182,7 @@ class Notifier
 			Logger::log('GUID: ' . $target_item["guid"] . ': Parent is ' . $parent['network'] . '. Thread parent is ' . $thr_parent['network'], Logger::DEBUG);
 
 			if (!self::isRemovalActivity($cmd, $owner, Protocol::ACTIVITYPUB)) {
-				$apdelivery = self::activityPubDelivery($cmd, $target_item, $parent, $thr_parent, $a->queue['priority'], $a->queue['created'], $owner);
+				$apdelivery = self::activityPubDelivery($cmd, $target_item, $parent, $thr_parent, $a->getQueueValue('priority'), $a->getQueueValue('created'), $owner);
 				$ap_contacts = $apdelivery['contacts'];
 				$delivery_queue_count += $apdelivery['count'];
 			}
@@ -339,7 +339,7 @@ class Notifier
 
 				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)
 					&& ($target_item['verb'] != Activity::ANNOUNCE)) {
-					Worker::add($a->queue['priority'], 'Notifier', Delivery::UPLINK, $post_uriid, $sender_uid);
+					Worker::add($a->getQueueValue('priority'), 'Notifier', Delivery::UPLINK, $post_uriid, $sender_uid);
 				}
 
 				foreach ($items as $item) {
@@ -492,7 +492,7 @@ class Notifier
 		if (!empty($target_item)) {
 			Logger::log('Calling hooks for ' . $cmd . ' ' . $target_id, Logger::DEBUG);
 
-			Hook::fork($a->queue['priority'], 'notifier_normal', $target_item);
+			Hook::fork($a->getQueueValue('priority'), 'notifier_normal', $target_item);
 
 			Hook::callAll('notifier_end', $target_item);
 
@@ -581,10 +581,10 @@ class Notifier
 			// Situation is that sometimes Friendica servers receive Friendica posts over the Diaspora protocol first.
 			// The conversion in Markdown reduces the formatting, so these posts should arrive after the Friendica posts.
 			// This is only important for high and medium priority tasks and not for Low priority jobs like deletions.
-			if (($contact['network'] == Protocol::DIASPORA) && in_array($a->queue['priority'], [PRIORITY_HIGH, PRIORITY_MEDIUM])) {
-				$deliver_options = ['priority' => $a->queue['priority'], 'dont_fork' => true];
+			if (($contact['network'] == Protocol::DIASPORA) && in_array($a->getQueueValue('priority'), [PRIORITY_HIGH, PRIORITY_MEDIUM])) {
+				$deliver_options = ['priority' => $a->getQueueValue('priority'), 'dont_fork' => true];
 			} else {
-				$deliver_options = ['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true];
+				$deliver_options = ['priority' => $a->getQueueValue('priority'), 'created' => $a->getQueueValue('created'), 'dont_fork' => true];
 			}
 
 			if (Worker::add($deliver_options, 'Delivery', $cmd, $post_uriid, (int)$contact['id'], $sender_uid)) {
@@ -631,7 +631,7 @@ class Notifier
 			Logger::info('Activating internal PuSH', ['item' => $target_id]);
 
 			// Handling the pubsubhubbub requests
-			PushSubscriber::publishFeed($owner['uid'], $a->queue['priority']);
+			PushSubscriber::publishFeed($owner['uid'], $a->getQueueValue('priority'));
 		}
 		return $delivery_queue_count;
 	}

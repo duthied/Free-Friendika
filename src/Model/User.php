@@ -1570,6 +1570,38 @@ class User
 	}
 
 	/**
+	 * Check if the given user id has delegations or is delegated
+	 *
+	 * @param int $uid 
+	 * @return bool 
+	 */
+	public static function hasIdentities(int $uid):bool
+	{
+		if (empty($uid)) {
+			return false;
+		}
+
+		$user = DBA::selectFirst('user', ['parent-uid'], ['uid' => $uid, 'account_removed' => false]);
+		if (!DBA::isResult($user)) {
+			return false;
+		}
+
+		if ($user['parent-uid'] != 0) {
+			return true;
+		}
+
+		if (DBA::exists('user', ['parent-uid' => $uid, 'account_removed' => false])) {
+			return true;
+		}
+
+		if (DBA::exists('manage', ['uid' => $uid])) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns statistical information about the current users of this node
 	 *
 	 * @return array

@@ -142,9 +142,9 @@ class Authentication
 
 		if ($this->session->get('authenticated')) {
 			if ($this->session->get('visitor_id') && !$this->session->get('uid')) {
-				$contact = $this->dba->selectFirst('contact', [], ['id' => $this->session->get('visitor_id')]);
+				$contact = $this->dba->selectFirst('contact', ['id'], ['id' => $this->session->get('visitor_id')]);
 				if ($this->dba->isResult($contact)) {
-					$a->contact = $contact;
+					$a->setContactId($contact['id']);
 				}
 			}
 
@@ -307,33 +307,13 @@ class Authentication
 
 		if (strlen($user_record['timezone'])) {
 			date_default_timezone_set($user_record['timezone']);
-			$a->timezone = $user_record['timezone'];
+			$a->setTimeZone($user_record['timezone']);
 		}
 
-		$masterUid = $user_record['uid'];
-
-		if ($this->session->get('submanage')) {
-			$user = $this->dba->selectFirst('user', ['uid'], ['uid' => $this->session->get('submanage')]);
-			if ($this->dba->isResult($user)) {
-				$masterUid = $user['uid'];
-			}
-		}
-
-		$a->identities = User::identities($masterUid);
-
-		if ($login_initial) {
-			$this->logger->info('auth_identities: ' . print_r($a->identities, true));
-		}
-
-		if ($login_refresh) {
-			$this->logger->info('auth_identities refresh: ' . print_r($a->identities, true));
-		}
-
-		$contact = $this->dba->selectFirst('contact', [], ['uid' => $user_record['uid'], 'self' => true]);
+		$contact = $this->dba->selectFirst('contact', ['id'], ['uid' => $user_record['uid'], 'self' => true]);
 		if ($this->dba->isResult($contact)) {
-			$a->contact = $contact;
-			$a->cid     = $contact['id'];
-			$this->session->set('cid', $a->cid);
+			$a->setContactId($contact['id']);
+			$this->session->set('cid', $contact['id']);
 		}
 
 		header('X-Account-Management-Status: active; name="' . $user_record['username'] . '"; id="' . $user_record['nickname'] . '"');
@@ -342,10 +322,8 @@ class Authentication
 			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
 
 			// Set the login date for all identities of the user
-			if (!empty($masterUid)) {
-				$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
-					['parent-uid' => $masterUid, 'account_removed' => false]);
-			}
+			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
+				['parent-uid' => $user_record['uid'], 'account_removed' => false]);
 		}
 
 		if ($login_initial) {

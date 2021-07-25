@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Content\Widget;
 use Friendica\DI;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -30,6 +31,7 @@ use Friendica\Core\Search;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 
 /**
@@ -37,20 +39,22 @@ use Friendica\Network\Probe;
  */
 class RemoteFollow extends BaseModule
 {
+	static $owner;
+
 	public static function init(array $parameters = [])
 	{
-		Profile::load(DI::app(), $parameters['profile']);
+		self::$owner = User::getOwnerDataByNick($parameters['profile']);
+
+		DI::page()['aside'] = Widget\VCard::getHTML(self::$owner);
 	}
 
 	public static function post(array $parameters = [])
 	{
-		$a = DI::app();
-
 		if (!empty($_POST['cancel']) || empty($_POST['dfrn_url'])) {
 			DI::baseUrl()->redirect();
 		}
 	
-		if (empty($a->profile['uid'])) {
+		if (empty(self::$owner)) {
 			notice(DI::l10n()->t('Profile unavailable.'));
 			return;
 		}
@@ -73,15 +77,15 @@ class RemoteFollow extends BaseModule
 			return;
 		}
 
-		Logger::notice('Remote request', ['url' => $url, 'follow' => $a->profile['url'], 'remote' => $data['subscribe']]);
+		Logger::notice('Remote request', ['url' => $url, 'follow' => self::$owner['url'], 'remote' => $data['subscribe']]);
 		
 		// Substitute our user's feed URL into $data['subscribe']
 		// Send the subscriber home to subscribe
 		// Diaspora needs the uri in the format user@domain.tld
 		if ($data['network'] == Protocol::DIASPORA) {
-			$uri = urlencode($a->profile['addr']);
+			$uri = urlencode(self::$owner['addr']);
 		} else {
-			$uri = urlencode($a->profile['url']);
+			$uri = urlencode(self::$owner['url']);
 		}
 	
 		$follow_link = str_replace('{uri}', $uri, $data['subscribe']);
@@ -90,14 +94,12 @@ class RemoteFollow extends BaseModule
 
 	public static function content(array $parameters = [])
 	{
-		$a = DI::app();
-
-		if (empty($a->profile)) {
+		if (empty(self::$owner)) {
 			return '';
 		}
 	
-		$target_addr = $a->profile['addr'];
-		$target_url = $a->profile['url'];
+		$target_addr = self::$owner['addr'];
+		$target_url = self::$owner['url'];
 
 		$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 		$o = Renderer::replaceMacros($tpl, [
@@ -110,7 +112,7 @@ class RemoteFollow extends BaseModule
 			'$cancel'        => DI::l10n()->t('Cancel'),
 
 			'$request'       => 'remote_follow/' . $parameters['profile'],
-			'$name'          => $a->profile['name'],
+			'$name'          => self::$owner['name'],
 			'$myaddr'        => Profile::getMyURL(),
 		]);
 		return $o;

@@ -599,7 +599,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		'$remove' => DI::l10n()->t('remove'),
 		'$mode' => $mode,
 		'$update' => $update,
-		'$user' => $a->user,
 		'$threads' => $threads,
 		'$dropping' => ($page_dropping ? DI::l10n()->t('Delete Selected Items') : False),
 	]);
@@ -1134,7 +1133,6 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$preview'      => DI::l10n()->t('Preview'),
 		'$jotplugins'   => $jotplugins,
 		'$notes_cid'    => $notes_cid,
-		'$sourceapp'    => DI::l10n()->t($a->sourcename),
 		'$cancel'       => DI::l10n()->t('Cancel'),
 		'$rand_num'     => Crypto::randomDigits(12),
 

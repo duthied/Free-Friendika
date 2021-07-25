@@ -47,28 +47,27 @@ class Common extends BaseProfile
 
 		$nickname = $parameters['nickname'];
 
-		Profile::load($a, $nickname);
-
-		if (empty($a->profile)) {
+		$profile = Profile::load($a, $nickname);
+		if (empty($profile)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		if (!empty($a->profile['hide-friends'])) {
+		if (!empty($profile['hide-friends'])) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$displayCommonTab = Session::isAuthenticated() && $a->profile['uid'] != local_user();
+		$displayCommonTab = Session::isAuthenticated() && $profile['uid'] != local_user();
 
 		if (!$displayCommonTab) {
 			$a->redirect('profile/' . $nickname . '/contacts');
 		};
 
-		$o = self::getTabsHTML($a, 'contacts', false, $nickname);
+		$o = self::getTabsHTML($a, 'contacts', false, $profile);
 
 		$tabs = self::getContactFilterTabs('profile/' . $nickname, 'common', $displayCommonTab);
 
 		$sourceId = Contact::getIdForURL(Profile::getMyURL());
-		$targetId = Contact::getPublicIdByUserId($a->profile['uid']);
+		$targetId = Contact::getPublicIdByUserId($profile['uid']);
 
 		$condition = [
 			'blocked' => false,
@@ -87,7 +86,7 @@ class Common extends BaseProfile
 		$title = DI::l10n()->tt('Common contact (%s)', 'Common contacts (%s)', $total);
 		$desc = DI::l10n()->t(
 			'Both <strong>%s</strong> and yourself have publicly interacted with these contacts (follow, comment or likes on public posts).',
-			htmlentities($a->profile['name'], ENT_COMPAT, 'UTF-8')
+			htmlentities($profile['name'], ENT_COMPAT, 'UTF-8')
 		);
 
 		$tpl = Renderer::getMarkupTemplate('profile/contacts.tpl');

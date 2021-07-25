@@ -63,8 +63,6 @@ class Notification extends BaseFactory
 	private $baseUrl;
 	/** @var L10n */
 	private $l10n;
-	/** @var string */
-	private $nurl;
 
 	public function __construct(LoggerInterface $logger, Database $dba, Repository\Notification $notification, BaseURL $baseUrl, L10n $l10n, App $app, IPConfig $pConfig, ISession $session)
 	{
@@ -74,7 +72,6 @@ class Notification extends BaseFactory
 		$this->notification = $notification;
 		$this->baseUrl      = $baseUrl;
 		$this->l10n         = $l10n;
-		$this->nurl         = $app->contact['nurl'] ?? '';
 	}
 
 	/**

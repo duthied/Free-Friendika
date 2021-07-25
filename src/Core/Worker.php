@@ -446,7 +446,7 @@ class Worker
 			$queue['priority'] = PRIORITY_MEDIUM;
 		}
 
-		$a->queue = $queue;
+		$a->setQueue($queue);
 
 		$up_duration = microtime(true) - self::$up_start;
 
@@ -462,7 +462,7 @@ class Worker
 
 		Logger::disableWorker();
 
-		unset($a->queue);
+		$a->setQueue([]);
 
 		$duration = (microtime(true) - $stamp);
 
@@ -831,7 +831,7 @@ class Worker
 		$stamp = (float)microtime(true);
 
 		$queues = DBA::p("SELECT `process`.`pid`, COUNT(`workerqueue`.`pid`) AS `entries` FROM `process`
-			LEFT JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `workerqueue`.`done` 
+			LEFT JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `workerqueue`.`done`
 			GROUP BY `process`.`pid`");
 		while ($queue = DBA::fetch($queues)) {
 			$ids[$queue['pid']] = $queue['entries'];
@@ -1351,11 +1351,11 @@ class Worker
 	 */
 	public static function defer()
 	{
-		if (empty(DI::app()->queue)) {
+		$queue = DI::app()->getQueue();
+
+		if (empty($queue)) {
 			return false;
 		}
-
-		$queue = DI::app()->queue;
 
 		$retrial = $queue['retrial'];
 		$id = $queue['id'];
@@ -1587,7 +1587,7 @@ class Worker
 		} else {
 			Logger::info('We are outside the maintenance window', ['current' => date('H:i:s', $current), 'start' => date('H:i:s', $start), 'end' => date('H:i:s', $end)]);
 		}
-		
+
 		return $execute;
 	}
 }

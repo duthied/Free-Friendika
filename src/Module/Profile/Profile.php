@@ -26,6 +26,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
+use Friendica\Content\Widget;
 use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -76,36 +77,35 @@ class Profile extends BaseProfile
 	{
 		$a = DI::app();
 
-		ProfileModel::load($a, $parameters['nickname']);
-
-		if (!$a->profile) {
+		$profile = ProfileModel::load($a, $parameters['nickname']);
+		if (!$profile) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Profile not found.'));
 		}
 
-		$remote_contact_id = Session::getRemoteContactID($a->profile_uid);
+		$remote_contact_id = Session::getRemoteContactID($profile['uid']);
 
 		if (DI::config()->get('system', 'block_public') && !local_user() && !$remote_contact_id) {
 			return Login::form();
 		}
 
-		$is_owner = local_user() == $a->profile_uid;
+		$is_owner = local_user() == $profile['uid'];
 
-		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact_id) {
+		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact_id) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
 		}
 
-		if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
+		if (!empty($profile['page-flags']) && $profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
 			DI::page()['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
 		}
 
-		DI::page()['htmlhead'] .= self::buildHtmlHead($a->profile, $parameters['nickname'], $remote_contact_id);
+		DI::page()['htmlhead'] .= self::buildHtmlHead($profile, $parameters['nickname'], $remote_contact_id);
 
 		Nav::setSelected('home');
 
-		$is_owner = local_user() == $a->profile['uid'];
-		$o = self::getTabsHTML($a, 'profile', $is_owner, $a->profile['nickname']);
+		$is_owner = local_user() == $profile['uid'];
+		$o = self::getTabsHTML($a, 'profile', $is_owner, $profile);
 
-		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact_id) {
+		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact_id) {
 			notice(DI::l10n()->t('Access to this profile has been restricted.'));
 			return '';
 		}
@@ -141,59 +141,59 @@ class Profile extends BaseProfile
 
 		$basic_fields = [];
 
-		$basic_fields += self::buildField('fullname', DI::l10n()->t('Full Name:'), $a->profile['name']);
+		$basic_fields += self::buildField('fullname', DI::l10n()->t('Full Name:'), $profile['name']);
 
-		if (Feature::isEnabled($a->profile_uid, 'profile_membersince')) {
+		if (Feature::isEnabled($profile['uid'], 'profile_membersince')) {
 			$basic_fields += self::buildField(
 				'membersince',
 				DI::l10n()->t('Member since:'),
-				DateTimeFormat::local($a->profile['register_date'])
+				DateTimeFormat::local($profile['register_date'])
 			);
 		}
 
-		if (!empty($a->profile['dob']) && $a->profile['dob'] > DBA::NULL_DATE) {
+		if (!empty($profile['dob']) && $profile['dob'] > DBA::NULL_DATE) {
 			$year_bd_format = DI::l10n()->t('j F, Y');
 			$short_bd_format = DI::l10n()->t('j F');
 
 			$dob = DI::l10n()->getDay(
-				intval($a->profile['dob']) ?
-					DateTimeFormat::utc($a->profile['dob'] . ' 00:00 +00:00', $year_bd_format)
-					: DateTimeFormat::utc('2001-' . substr($a->profile['dob'], 5) . ' 00:00 +00:00', $short_bd_format)
+				intval($profile['dob']) ?
+					DateTimeFormat::utc($profile['dob'] . ' 00:00 +00:00', $year_bd_format)
+					: DateTimeFormat::utc('2001-' . substr($profile['dob'], 5) . ' 00:00 +00:00', $short_bd_format)
 			);
 
 			$basic_fields += self::buildField('dob', DI::l10n()->t('Birthday:'), $dob);
 
-			if ($age = Temporal::getAgeByTimezone($a->profile['dob'], $a->profile['timezone'])) {
+			if ($age = Temporal::getAgeByTimezone($profile['dob'], $profile['timezone'])) {
 				$basic_fields += self::buildField('age', DI::l10n()->t('Age: '), DI::l10n()->tt('%d year old', '%d years old', $age));
 			}
 		}
 
-		if ($a->profile['about']) {
-			$basic_fields += self::buildField('about', DI::l10n()->t('Description:'), BBCode::convertForUriId($a->profile['uri-id'], $a->profile['about']));
+		if ($profile['about']) {
+			$basic_fields += self::buildField('about', DI::l10n()->t('Description:'), BBCode::convertForUriId($profile['uri-id'], $profile['about']));
 		}
 
-		if ($a->profile['xmpp']) {
-			$basic_fields += self::buildField('xmpp', DI::l10n()->t('XMPP:'), $a->profile['xmpp']);
+		if ($profile['xmpp']) {
+			$basic_fields += self::buildField('xmpp', DI::l10n()->t('XMPP:'), $profile['xmpp']);
 		}
 
-		if ($a->profile['homepage']) {
-			$basic_fields += self::buildField('homepage', DI::l10n()->t('Homepage:'), HTML::toLink($a->profile['homepage']));
+		if ($profile['homepage']) {
+			$basic_fields += self::buildField('homepage', DI::l10n()->t('Homepage:'), HTML::toLink($profile['homepage']));
 		}
 
 		if (
-			$a->profile['address']
-			|| $a->profile['locality']
-			|| $a->profile['postal-code']
-			|| $a->profile['region']
-			|| $a->profile['country-name']
+			$profile['address']
+			|| $profile['locality']
+			|| $profile['postal-code']
+			|| $profile['region']
+			|| $profile['country-name']
 		) {
-			$basic_fields += self::buildField('location', DI::l10n()->t('Location:'), ProfileModel::formatLocation($a->profile));
+			$basic_fields += self::buildField('location', DI::l10n()->t('Location:'), ProfileModel::formatLocation($profile));
 		}
 
-		if ($a->profile['pub_keywords']) {
+		if ($profile['pub_keywords']) {
 			$tags = [];
 			// Separator is defined in Module\Settings\Profile\Index::cleanKeywords
-			foreach (explode(', ', $a->profile['pub_keywords']) as $tag_label) {
+			foreach (explode(', ', $profile['pub_keywords']) as $tag_label) {
 				$tags[] = [
 					'url' => '/search?tag=' . $tag_label,
 					'label' => Tag::TAG_CHARACTER[Tag::HASHTAG] . $tag_label,
@@ -209,26 +209,26 @@ class Profile extends BaseProfile
 		$contact_id = $view_as_contact_id ?: $remote_contact_id ?: 0;
 
 		if ($is_owner && $contact_id === 0) {
-			$profile_fields = DI::profileField()->selectByUserId($a->profile_uid);
+			$profile_fields = DI::profileField()->selectByUserId($profile['uid']);
 		} else {
-			$profile_fields = DI::profileField()->selectByContactId($contact_id, $a->profile_uid);
+			$profile_fields = DI::profileField()->selectByContactId($contact_id, $profile['uid']);
 		}
 
 		foreach ($profile_fields as $profile_field) {
 			$custom_fields += self::buildField(
 				'custom_' . $profile_field->order,
 				$profile_field->label,
-				BBCode::convertForUriId($a->profile['uri-id'], $profile_field->value),
+				BBCode::convertForUriId($profile['uri-id'], $profile_field->value),
 				'aprofile custom'
 			);
 		};
 
 		//show subcribed forum if it is enabled in the usersettings
-		if (Feature::isEnabled($a->profile_uid, 'forumlist_profile')) {
+		if (Feature::isEnabled($profile['uid'], 'forumlist_profile')) {
 			$custom_fields += self::buildField(
 				'forumlist',
 				DI::l10n()->t('Forums:'),
-				ForumManager::profileAdvanced($a->profile_uid)
+				ForumManager::profileAdvanced($profile['uid'])
 			);
 		}
 
@@ -243,11 +243,11 @@ class Profile extends BaseProfile
 			'$submit' => DI::l10n()->t('Submit'),
 			'$basic' => DI::l10n()->t('Basic'),
 			'$advanced' => DI::l10n()->t('Advanced'),
-			'$is_owner' => $a->profile_uid == local_user(),
+			'$is_owner' => $profile['uid'] == local_user(),
 			'$query_string' => DI::args()->getQueryString(),
 			'$basic_fields' => $basic_fields,
 			'$custom_fields' => $custom_fields,
-			'$profile' => $a->profile,
+			'$profile' => $profile,
 			'$edit_link' => [
 				'url' => DI::baseUrl() . '/settings/profile', DI::l10n()->t('Edit profile'),
 				'title' => '',

@@ -124,7 +124,6 @@ function editpost_content(App $a)
 		'$profile_uid' => $_SESSION['uid'],
 		'$preview' => DI::l10n()->t('Preview'),
 		'$jotplugins' => $jotplugins,
-		'$sourceapp' => DI::l10n()->t($a->sourcename),
 		'$cancel' => DI::l10n()->t('Cancel'),
 		'$rand_num' => Crypto::randomDigits(12),
 

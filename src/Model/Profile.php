@@ -205,31 +205,27 @@ class Profile
 	 *      load a lot of theme-specific content
 	 *
 	 * @param App     $a
-	 * @param string  $nickname     string
-	 * @param array   $profiledata  array
-	 * @param boolean $show_connect Show connect link
+	 * @param string  $nickname string
+	 *
+	 * @return array Profile
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function load(App $a, $nickname)
+	public static function load(App $a, string $nickname, bool $show_contacts = true)
 	{
 		$profile = User::getOwnerDataByNick($nickname);
 		if (empty($profile)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
-			return;
+			return [];
 		}
 
-		$a->profile = $profile;
-		$a->profile_uid = $profile['uid'];
+		$a->setProfileOwner($profile['uid']);
 
-		$a->profile['mobile-theme'] = DI::pConfig()->get($a->profile['uid'], 'system', 'mobile_theme');
-		$a->profile['network'] = Protocol::DFRN;
-
-		DI::page()['title'] = $a->profile['name'] . ' @ ' . DI::config()->get('config', 'sitename');
+		DI::page()['title'] = $profile['name'] . ' @ ' . DI::config()->get('config', 'sitename');
 
 		if (!DI::pConfig()->get(local_user(), 'system', 'always_my_theme')) {
-			$a->setCurrentTheme($a->profile['theme']);
-			$a->setCurrentMobileTheme($a->profile['mobile-theme']);
+			$a->setCurrentTheme($profile['theme']);
+			$a->setCurrentMobileTheme(DI::pConfig()->get($a->getProfileOwner(), 'system', 'mobile_theme'));
 		}
 
 		/*
@@ -250,9 +246,9 @@ class Profile
 		 * By now, the contact block isn't shown, when a different profile is given
 		 * But: When this profile was on the same server, then we could display the contacts
 		 */
-		DI::page()['aside'] .= self::sidebar($a, $a->profile, $block);
+		DI::page()['aside'] .= self::sidebar($profile, $block, $show_contacts);
 
-		return;
+		return $profile;
 	}
 
 	/**
@@ -261,9 +257,9 @@ class Profile
 	 * It is very difficult to templatise the HTML completely
 	 * because of all the conditional logic.
 	 *
-	 * @param array   $profile
-	 * @param int     $block
-	 * @param boolean $show_connect Show connect link
+	 * @param array $profile       Profile array
+	 * @param bool  $block         Block personal details
+	 * @param bool  $show_contacts Show contact block
 	 *
 	 * @return string HTML sidebar module
 	 *
@@ -276,15 +272,11 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	private static function sidebar(App $a, array $profile, $block = 0)
+	private static function sidebar(array $profile, bool $block, bool $show_contacts)
 	{
 		$o = '';
 		$location = false;
 
-		// This function can also use contact information in $profile, but the 'cid'
-		// value is going to be coming from 'owner-view', which means it's the wrong
-		// contact ID for the user viewing this page. Use 'nurl' to look up the
-		// correct contact table entry for the logged-in user.
 		$profile_contact = [];
 
 		if (local_user() && ($profile['uid'] ?? 0) != local_user()) {
@@ -403,10 +395,10 @@ class Profile
 			$updated = date('c', strtotime($profile['last-item']));
 		}
 
-		if (!$block) {
-			$contact_block = ContactBlock::getHTML($a->profile);
+		if (!$block && $show_contacts) {
+			$contact_block = ContactBlock::getHTML($profile);
 
-			if (is_array($a->profile) && !$a->profile['hide-friends']) {
+			if (is_array($profile) && !$profile['hide-friends']) {
 				$contact_count = DBA::count('contact', [
 					'uid' => $profile['uid'],
 					'self' => false,
@@ -552,7 +544,7 @@ class Profile
 
 					$rr['link'] = Contact::magicLinkById($rr['cid']);
 					$rr['title'] = $rr['name'];
-					$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $a->timezone, 'UTC', $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
+					$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $a->getTimeZone(), 'UTC', $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
 					$rr['startime'] = null;
 					$rr['today'] = $today;
 				}
@@ -611,8 +603,8 @@ class Profile
 					$total++;
 				}
 
-				$strt = DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC', 'UTC', 'Y-m-d');
-				if ($strt === DateTimeFormat::timezoneNow($a->timezone, 'Y-m-d')) {
+				$strt = DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->getTimeZone() : 'UTC', 'UTC', 'Y-m-d');
+				if ($strt === DateTimeFormat::timezoneNow($a->getTimeZone(), 'Y-m-d')) {
 					$istoday = true;
 				}
 
@@ -627,17 +619,17 @@ class Profile
 					$description = DI::l10n()->t('[No description]');
 				}
 
-				$strt = DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC');
+				$strt = DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->getTimeZone() : 'UTC');
 
-				if (substr($strt, 0, 10) < DateTimeFormat::timezoneNow($a->timezone, 'Y-m-d')) {
+				if (substr($strt, 0, 10) < DateTimeFormat::timezoneNow($a->getTimeZone(), 'Y-m-d')) {
 					continue;
 				}
 
-				$today = ((substr($strt, 0, 10) === DateTimeFormat::timezoneNow($a->timezone, 'Y-m-d')) ? true : false);
+				$today = ((substr($strt, 0, 10) === DateTimeFormat::timezoneNow($a->getTimeZone(), 'Y-m-d')) ? true : false);
 
 				$rr['title'] = $title;
 				$rr['description'] = $description;
-				$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC', 'UTC', $bd_format)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
+				$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->getTimeZone() : 'UTC', 'UTC', $bd_format)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
 				$rr['startime'] = $strt;
 				$rr['today'] = $today;
 
@@ -776,7 +768,7 @@ class Profile
 
 		Session::setVisitorsContacts();
 
-		$a->contact = $visitor;
+		$a->setContactId($visitor['id']);
 
 		Logger::info('Authenticated visitor', ['url' => $visitor['url']]);
 
@@ -837,7 +829,7 @@ class Profile
 		 */
 		Hook::callAll('magic_auth_success', $arr);
 
-		$a->contact = $arr['visitor'];
+		$a->setContactId($arr['visitor']['id']);
 
 		info(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
 
@@ -879,7 +871,7 @@ class Profile
 	 */
 	public static function getThemeUid(App $a)
 	{
-		$uid = !empty($a->profile_uid) ? intval($a->profile_uid) : 0;
+		$uid = !empty($a->getProfileOwner()) ? intval($a->getProfileOwner()) : 0;
 		if (local_user() && (DI::pConfig()->get(local_user(), 'system', 'always_my_theme') || !$uid)) {
 			return local_user();
 		}

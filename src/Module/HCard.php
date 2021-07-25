@@ -48,28 +48,28 @@ class HCard extends BaseModule
 			throw new HTTPException\NotFoundException(DI::l10n()->t('No profile'));
 		}
 
-		Profile::load($a, $nickname);
+		$profile = Profile::load($a, $nickname, false);
 
-		if (empty($a->profile)) {
+		if (empty($profile)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
 		$page = DI::page();
 
-		if (!empty($a->profile['page-flags']) && ($a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
+		if (!empty($profile['page-flags']) && ($profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 			$page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
 		}
-		if (!empty($a->profile['openidserver'])) {
-			$page['htmlhead'] .= '<link rel="openid.server" href="' . $a->profile['openidserver'] . '" />' . "\r\n";
+		if (!empty($profile['openidserver'])) {
+			$page['htmlhead'] .= '<link rel="openid.server" href="' . $profile['openidserver'] . '" />' . "\r\n";
 		}
-		if (!empty($a->profile['openid'])) {
-			$delegate         = ((strstr($a->profile['openid'], '://')) ? $a->profile['openid'] : 'http://' . $a->profile['openid']);
+		if (!empty($profile['openid'])) {
+			$delegate         = ((strstr($profile['openid'], '://')) ? $profile['openid'] : 'http://' . $profile['openid']);
 			$page['htmlhead'] .= '<link rel="openid.delegate" href="' . $delegate . '" />' . "\r\n";
 		}
 
 		// check if blocked
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
-			$keywords = $a->profile['pub_keywords'] ?? '';
+			$keywords = $profile['pub_keywords'] ?? '';
 			$keywords = str_replace([',', ' ', ',,'], [' ', ',', ','], $keywords);
 			if (strlen($keywords)) {
 				$page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\r\n";
@@ -78,9 +78,9 @@ class HCard extends BaseModule
 
 		$baseUrl = DI::baseUrl();
 
-		$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $baseUrl->getHostname() . ($baseUrl->getUrlPath() ? '/' . $baseUrl->getUrlPath() : ''));
+		$uri = urlencode('acct:' . $profile['nickname'] . '@' . $baseUrl->getHostname() . ($baseUrl->getUrlPath() ? '/' . $baseUrl->getUrlPath() : ''));
 
-		$page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\r\n";
+		$page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($profile['net-publish'] ? 'true' : 'false') . '" />' . "\r\n";
 		$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl->get() . '/dfrn_poll/' . $nickname . '" />' . "\r\n";
 		$page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . $baseUrl->get() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
 		header('Link: <' . $baseUrl->get() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);

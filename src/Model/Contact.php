@@ -1736,7 +1736,7 @@ class Contact
 	{
 		$condition = ["`nurl` = ? AND ((`uid` = ? AND `network` IN (?, ?)) OR `uid` = ?)",
 			Strings::normaliseLink($url), $uid, Protocol::FEED, Protocol::MAIL, 0];
-		$contact = self::selectFirst(['id', 'updated'], $condition);
+		$contact = self::selectFirst(['id', 'updated'], $condition, ['order' => ['uid' => true]]);
 		return self::getAvatarUrlForId($contact['id'] ?? 0, $size, $contact['updated'] ?? '');
 	}
 

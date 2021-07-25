@@ -63,19 +63,22 @@
 		{{if $contact.location}}
 		<div class="location detail">
 			<span class="location-label icon"><i class="fa fa-map-marker"></i></span>
-			<span class="adr">
-				<p class="p-location">{{$contact.location}}</p>
-			</span>
+			<span class="adr p-location">{{$contact.location}}</span>
 		</div>
 		{{/if}}
 
 		{{if $contact.xmpp}}
-		<div class="xmpp">
+		<div class="xmpp detail">
 			<span class="xmpp-label icon"><i class="fa fa-comments"></i></span>
 			<span class="xmpp-data"><a href="xmpp:{{$contact.xmpp}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$contact.xmpp}}</a></span>
 		</div>
 		{{/if}}
 
-		{{if $network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$network_link nofilter}}</dd></dl>{{/if}}
+		{{if $network_link}}
+		<div class="network detail">
+			<span class="network-label icon"><i class="fa fa-{{$network_avatar}}"></i></span>
+			<span class="x-network">{{$network_link nofilter}}</span>
+		</div>
+		{{/if}}
 	</div>
 </div>

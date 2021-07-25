@@ -22,17 +22,17 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Content\Text\BBCode;
+use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Attach;
-use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Security\Security;
+use Friendica\Network\HTTPException;
 
 function videos_init(App $a)
 {
@@ -43,38 +43,17 @@ function videos_init(App $a)
 	Nav::setSelected('home');
 
 	if ($a->argc > 1) {
-		$nick = $a->argv[1];
-		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
-			DBA::escape($nick)
-		);
-
-		if (!DBA::isResult($user)) {
-			return;
+		$owner = User::getOwnerDataByNick($a->argv[1]);
+		if (empty($owner)) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
-
-		$a->data['user'] = $user[0];
-		$a->profile_uid = $user[0]['uid'];
-
-		$profile = User::getOwnerDataByNick($nick);
-
-		$account_type = Contact::getAccountType($profile);
-
-		$tpl = Renderer::getMarkupTemplate('widget/vcard.tpl');
-
-		$vcard_widget = Renderer::replaceMacros($tpl, [
-			'$name' => $profile['name'],
-			'$photo' => $profile['photo'],
-			'$addr' => $profile['addr'] ?? '',
-			'$account_type' => $account_type,
-			'$about' => BBCode::convert($profile['about']),
-		]);
 
 		// If not there, create 'aside' empty
 		if (!isset(DI::page()['aside'])) {
 			DI::page()['aside'] = '';
 		}
 
-		DI::page()['aside'] .= $vcard_widget;
+		DI::page()['aside'] .= Widget\VCard::getHTML($owner);
 
 		$tpl = Renderer::getMarkupTemplate("videos_head.tpl");
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl);
@@ -85,10 +64,13 @@ function videos_init(App $a)
 
 function videos_post(App $a)
 {
-	$owner_uid = $a->data['user']['uid'];
+	$user = User::getByNickname($a->argv[1]);
+	if (!DBA::isResult($user)) {
+		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+	}
 
-	if (local_user() != $owner_uid) {
-		DI::baseUrl()->redirect('videos/' . $a->data['user']['nickname']);
+	if (local_user() != $user['uid']) {
+		DI::baseUrl()->redirect('videos/' . $user['nickname']);
 	}
 
 	if (($a->argc == 2) && !empty($_POST['delete']) && !empty($_POST['id'])) {
@@ -105,11 +87,11 @@ function videos_post(App $a)
 			], local_user());
 		}
 
-		DI::baseUrl()->redirect('videos/' . $a->data['user']['nickname']);
+		DI::baseUrl()->redirect('videos/' . $user['nickname']);
 		return; // NOTREACHED
 	}
 
-	DI::baseUrl()->redirect('videos/' . $a->data['user']['nickname']);
+	DI::baseUrl()->redirect('videos/' . $user['nickname']);
 }
 
 function videos_content(App $a)
@@ -123,13 +105,17 @@ function videos_content(App $a)
 	// videos/name/video/xxxxx
 	// videos/name/video/xxxxx/edit
 
+	$user = User::getByNickname($a->argv[1]);
+	if (!DBA::isResult($user)) {
+		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+	}
 
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(DI::l10n()->t('Public access denied.'));
 		return;
 	}
 
-	if (empty($a->data['user'])) {
+	if (empty($user)) {
 		notice(DI::l10n()->t('No videos selected') . EOL );
 		return;
 	}
@@ -154,41 +140,38 @@ function videos_content(App $a)
 	//
 	$can_post       = false;
 	$visitor        = 0;
-	$contact        = null;
 	$remote_contact = false;
 	$contact_id     = 0;
 
-	$owner_uid = $a->data['user']['uid'];
+	$community_page = (($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
-	$community_page = (($a->data['user']['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
-
-	if ((local_user()) && (local_user() == $owner_uid)) {
+	if ((local_user()) && (local_user() == $user['uid'])) {
 		$can_post = true;
-	} elseif ($community_page && !empty(Session::getRemoteContactID($owner_uid))) {
-		$contact_id = Session::getRemoteContactID($owner_uid);
+	} elseif ($community_page && !empty(Session::getRemoteContactID($user['uid']))) {
+		$contact_id = Session::getRemoteContactID($user['uid']);
 		$can_post = true;
 		$remote_contact = true;
 		$visitor = $contact_id;
 	}
 
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
-	if (!empty(Session::getRemoteContactID($owner_uid)) && !$visitor) {
-		$contact_id = Session::getRemoteContactID($owner_uid);
+	if (!empty(Session::getRemoteContactID($user['uid'])) && !$visitor) {
+		$contact_id = Session::getRemoteContactID($user['uid']);
 		$remote_contact = true;
 	}
 
-	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
+	if ($user['hidewall'] && (local_user() != $user['uid']) && !$remote_contact) {
 		notice(DI::l10n()->t('Access to this item is restricted.'));
 		return;
 	}
 
-	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid);
+	$sql_extra = Security::getPermissionsSQLByUserId($user['uid']);
 
 	$o = "";
 
 	// tabs
-	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= BaseProfile::getTabsHTML($a, 'videos', $_is_owner, $a->data['user']['nickname']);
+	$_is_owner = (local_user() && (local_user() == $user['uid']));
+	$o .= BaseProfile::getTabsHTML($a, 'videos', $_is_owner, $user);
 
 	//
 	// dispatch request
@@ -218,7 +201,7 @@ function videos_content(App $a)
 	$total = 0;
 	$r = q("SELECT hash FROM `attach` WHERE `uid` = %d AND filetype LIKE '%%video%%'
 		$sql_extra GROUP BY hash",
-		intval($a->data['user']['uid'])
+		intval($user['uid'])
 	);
 	if (DBA::isResult($r)) {
 		$total = count($r);
@@ -231,7 +214,7 @@ function videos_content(App $a)
 		FROM `attach`
 		WHERE `uid` = %d AND filetype LIKE '%%video%%'
 		$sql_extra GROUP BY hash ORDER BY `created` DESC LIMIT %d , %d",
-		intval($a->data['user']['uid']),
+		intval($user['uid']),
 		$pager->getStart(),
 		$pager->getItemsPerPage()
 	);
@@ -247,13 +230,13 @@ function videos_content(App $a)
 
 			$videos[] = [
 				'id'       => $rr['id'],
-				'link'     => DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/video/' . $rr['hash'],
+				'link'     => DI::baseUrl() . '/videos/' . $user['nickname'] . '/video/' . $rr['hash'],
 				'title'    => DI::l10n()->t('View Video'),
 				'src'      => DI::baseUrl() . '/attach/' . $rr['id'] . '?attachment=0',
 				'alt'      => $alt_e,
 				'mime'     => $rr['filetype'],
 				'album' => [
-					'link'  => DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
+					'link'  => DI::baseUrl() . '/videos/' . $user['nickname'] . '/album/' . bin2hex($rr['album']),
 					'name'  => $name_e,
 					'alt'   => DI::l10n()->t('View Album'),
 				],
@@ -265,9 +248,9 @@ function videos_content(App $a)
 	$o .= Renderer::replaceMacros($tpl, [
 		'$title'      => DI::l10n()->t('Recent Videos'),
 		'$can_post'   => $can_post,
-		'$upload'     => [DI::l10n()->t('Upload New Videos'), DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/upload'],
+		'$upload'     => [DI::l10n()->t('Upload New Videos'), DI::baseUrl() . '/videos/' . $user['nickname'] . '/upload'],
 		'$videos'     => $videos,
-		'$delete_url' => (($can_post) ? DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] : false)
+		'$delete_url' => (($can_post) ? DI::baseUrl() . '/videos/' . $user['nickname'] : false)
 	]);
 
 	$o .= $pager->renderFull($total);

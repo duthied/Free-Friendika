@@ -45,7 +45,7 @@ function notes_content(App $a, $update = false)
 		return;
 	}
 
-	$o = BaseProfile::getTabsHTML($a, 'notes', true);
+	$o = BaseProfile::getTabsHTML($a, 'notes', true, $a->user);
 
 	if (!$update) {
 		$o .= '<h3>' . DI::l10n()->t('Personal Notes') . '</h3>';
@@ -64,11 +64,11 @@ function notes_content(App $a, $update = false)
 			'acl_data' => '',
 		];
 
-		$o .= status_editor($a, $x, $a->contact['id']);
+		$o .= status_editor($a, $x, $a->getContactId());
 	}
 
 	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
-		'contact-id'=> $a->contact['id']];
+		'contact-id'=> $a->getContactId()];
 
 	if (DI::mode()->isMobile()) {
 		$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',

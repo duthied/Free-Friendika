@@ -187,7 +187,7 @@ class Post
 		$edpost = false;
 
 		if (local_user()) {
-			if (Strings::compareLink($a->contact['url'], $item['author-link'])) {
+			if (Strings::compareLink(Session::get('my_url'), $item['author-link'])) {
 				if ($item["event-id"] != 0) {
 					$edpost = ["events/event/" . $item['event-id'], DI::l10n()->t("Edit")];
 				} else {
@@ -936,6 +936,8 @@ class Post
 			$uid = $conv->getProfileOwner();
 			$parent_uid = $this->getDataValue('uid');
 
+			$contact = Contact::getById($a->getContactId());
+
 			$default_text = $this->getDefaultText();
 
 			if (!is_null($parent_uid) && ($uid != $parent_uid)) {
@@ -953,9 +955,9 @@ class Post
 				'$qcomment'    => $qcomment,
 				'$default'     => $default_text,
 				'$profile_uid' => $uid,
-				'$mylink'      => DI::baseUrl()->remove($a->contact['url'] ?? ''),
+				'$mylink'      => DI::baseUrl()->remove($contact['url'] ?? ''),
 				'$mytitle'     => DI::l10n()->t('This is you'),
-				'$myphoto'     => DI::baseUrl()->remove($a->contact['thumb'] ?? ''),
+				'$myphoto'     => DI::baseUrl()->remove($contact['thumb'] ?? ''),
 				'$comment'     => DI::l10n()->t('Comment'),
 				'$submit'      => DI::l10n()->t('Submit'),
 				'$loading'     => DI::l10n()->t('Loading...'),
@@ -970,7 +972,6 @@ class Post
 				'$prompttext'  => DI::l10n()->t('Please enter a image/video/audio/webpage URL:'),
 				'$preview'     => DI::l10n()->t('Preview'),
 				'$indent'      => $indent,
-				'$sourceapp'   => DI::l10n()->t($a->sourcename),
 				'$rand_num'    => Crypto::randomDigits(12)
 			]);
 		}
@@ -1000,15 +1001,7 @@ class Post
 
 		if ($this->isToplevel()) {
 			if ($conv->getMode() !== 'profile') {
-				if ($this->getDataValue('wall') && !$this->getDataValue('self') && !empty($a->page_contact)) {
-					// On the network page, I am the owner. On the display page it will be the profile owner.
-					// This will have been stored in $a->page_contact by our calling page.
-					// Put this person as the wall owner of the wall-to-wall notice.
-
-					$this->owner_url = Contact::magicLinkByContact($a->page_contact);
-					$this->owner_name = $a->page_contact['name'];
-					$this->wall_to_wall = true;
-				} elseif ($this->getDataValue('owner-link')) {
+				if ($this->getDataValue('owner-link')) {
 					$owner_linkmatch = (($this->getDataValue('owner-link')) && Strings::compareLink($this->getDataValue('owner-link'), $this->getDataValue('author-link')));
 					$alias_linkmatch = (($this->getDataValue('alias')) && Strings::compareLink($this->getDataValue('alias'), $this->getDataValue('author-link')));
 					$owner_namematch = (($this->getDataValue('owner-name')) && $this->getDataValue('owner-name') == $this->getDataValue('author-name'));

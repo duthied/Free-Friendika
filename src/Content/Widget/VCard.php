@@ -21,9 +21,12 @@
 
 namespace Friendica\Content\Widget;
 
+use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\Strings;
@@ -43,10 +46,16 @@ class VCard
 	 */
 	public static function getHTML(array $contact)
 	{
-		if (($contact['network'] != '') && ($contact['network'] != Protocol::DFRN)) {
-			$network_link = Strings::formatNetworkName($contact['network'], $contact['url']);
+		if (!isset($contact['network']) || !isset($contact['id'])) {
+			Logger::warning('Incomplete contact', ['contact' => $contact ?? [], 'callstack' => System::callstack(20)]);
+		}
+
+		if ($contact['network'] != '') {
+			$network_link   = Strings::formatNetworkName($contact['network'], $contact['url']);
+			$network_avatar = ContactSelector::networkToIcon($contact['network'], $contact['url']);
 		} else {
-			$network_link = '';
+			$network_link   = '';
+			$network_avatar = '';
 		}
 
 		$follow_link      = '';
@@ -87,6 +96,7 @@ class VCard
 			'$xmpp'             => DI::l10n()->t('XMPP:'),
 			'$location'         => DI::l10n()->t('Location:'),
 			'$network_link'     => $network_link,
+			'$network_avatar'   => $network_avatar,
 			'$network'          => DI::l10n()->t('Network:'),
 			'$account_type'     => Contact::getAccountType($contact),
 			'$follow'           => DI::l10n()->t('Follow'),
