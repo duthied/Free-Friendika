@@ -545,10 +545,10 @@ function api_get_user(App $a, $contact_id = null)
 	}
 
 	// $called_api is the API path exploded on / and is expected to have at least 2 elements
-	if (is_null($user) && (DI::args()->getArgc() > (count($called_api) - 1)) && (count($called_api) > 0)) {
+	if (is_null($user) && ($a->argc > (count($called_api) - 1)) && (count($called_api) > 0)) {
 		$argid = count($called_api);
-		if (!empty(DI::args()->getArgv()[$argid])) {
-			$data = explode(".", DI::args()->getArgv()[$argid]);
+		if (!empty($a->argv[$argid])) {
+			$data = explode(".", $a->argv[$argid]);
 			if (count($data) > 1) {
 				list($user, $null) = $data;
 			}
@@ -1021,7 +1021,7 @@ function api_statuses_mediap($type)
 	}
 	$txt = HTML::toBBCode($txt);
 
-	DI::args()->getArgv()[1] = $user_info['screen_name']; //should be set to username?
+	$a->argv[1] = $user_info['screen_name']; //should be set to username?
 
 	$picture = wall_upload_post($a, false);
 
@@ -1883,7 +1883,7 @@ function api_statuses_show($type)
 	}
 
 	// params
-	$id = intval(DI::args()->getArgv()[3] ?? 0);
+	$id = intval($a->argv[3] ?? 0);
 
 	if ($id == 0) {
 		$id = intval($_REQUEST['id'] ?? 0);
@@ -1891,7 +1891,7 @@ function api_statuses_show($type)
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval(DI::args()->getArgv()[4] ?? 0);
+		$id = intval($a->argv[4] ?? 0);
 	}
 
 	Logger::log('API: api_statuses_show: ' . $id);
@@ -1962,7 +1962,7 @@ function api_conversation_show($type)
 	}
 
 	// params
-	$id       = intval(DI::args()->getArgv()[3]           ?? 0);
+	$id       = intval($a->argv[3]           ?? 0);
 	$since_id = intval($_REQUEST['since_id'] ?? 0);
 	$max_id   = intval($_REQUEST['max_id']   ?? 0);
 	$count    = intval($_REQUEST['count']    ?? 20);
@@ -1976,7 +1976,7 @@ function api_conversation_show($type)
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval(DI::args()->getArgv()[4] ?? 0);
+		$id = intval($a->argv[4] ?? 0);
 	}
 
 	Logger::info(API_LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
@@ -2045,7 +2045,7 @@ function api_statuses_repeat($type)
 	api_get_user($a);
 
 	// params
-	$id = intval(DI::args()->getArgv()[3] ?? 0);
+	$id = intval($a->argv[3] ?? 0);
 
 	if ($id == 0) {
 		$id = intval($_REQUEST['id'] ?? 0);
@@ -2053,7 +2053,7 @@ function api_statuses_repeat($type)
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval(DI::args()->getArgv()[4] ?? 0);
+		$id = intval($a->argv[4] ?? 0);
 	}
 
 	Logger::log('API: api_statuses_repeat: '.$id);
@@ -2128,7 +2128,7 @@ function api_statuses_destroy($type)
 	api_get_user($a);
 
 	// params
-	$id = intval(DI::args()->getArgv()[3] ?? 0);
+	$id = intval($a->argv[3] ?? 0);
 
 	if ($id == 0) {
 		$id = intval($_REQUEST['id'] ?? 0);
@@ -2136,7 +2136,7 @@ function api_statuses_destroy($type)
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval(DI::args()->getArgv()[4] ?? 0);
+		$id = intval($a->argv[4] ?? 0);
 	}
 
 	Logger::log('API: api_statuses_destroy: '.$id);
@@ -2329,16 +2329,16 @@ function api_favorites_create_destroy($type)
 	// for versioned api.
 	/// @TODO We need a better global soluton
 	$action_argv_id = 2;
-	if (count(DI::args()->getArgv()) > 1 && DI::args()->getArgv()[1] == "1.1") {
+	if (count($a->argv) > 1 && $a->argv[1] == "1.1") {
 		$action_argv_id = 3;
 	}
 
-	if (DI::args()->getArgc() <= $action_argv_id) {
+	if ($a->argc <= $action_argv_id) {
 		throw new BadRequestException("Invalid request.");
 	}
-	$action = str_replace("." . $type, "", DI::args()->getArgv()[$action_argv_id]);
-	if (DI::args()->getArgc() == $action_argv_id + 2) {
-		$itemid = intval(DI::args()->getArgv()[$action_argv_id + 1] ?? 0);
+	$action = str_replace("." . $type, "", $a->argv[$action_argv_id]);
+	if ($a->argc == $action_argv_id + 2) {
+		$itemid = intval($a->argv[$action_argv_id + 1] ?? 0);
 	} else {
 		$itemid = intval($_REQUEST['id'] ?? 0);
 	}
@@ -5616,7 +5616,7 @@ function api_friendica_activity($type)
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
-	$verb = strtolower(DI::args()->getArgv()[3]);
+	$verb = strtolower($a->argv[3]);
 	$verb = preg_replace("|\..*$|", "", $verb);
 
 	$id = $_REQUEST['id'] ?? 0;
@@ -5664,7 +5664,7 @@ function api_friendica_notification($type)
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
-	if (DI::args()->getArgc()!==3) {
+	if ($a->argc!==3) {
 		throw new BadRequestException("Invalid argument count");
 	}
 
@@ -5709,7 +5709,7 @@ function api_friendica_notification_seen($type)
 	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-	if (DI::args()->getArgc() !== 4) {
+	if ($a->argc !== 4) {
 		throw new BadRequestException("Invalid argument count");
 	}
 
