@@ -81,7 +81,7 @@ class BaseProfile extends BaseModule
 		];
 
 		// the calendar link for the full featured events calendar
-		if ($is_owner && $a->theme_events_in_profile) {
+		if ($is_owner && $a->theme_info['events_in_profile']) {
 			$tabs[] = [
 				'label' => DI::l10n()->t('Events'),
 				'url'   => DI::baseUrl() . '/events',

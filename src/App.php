@@ -57,13 +57,14 @@ use Psr\Log\LoggerInterface;
 class App
 {
 	public $user;
-	public $theme_info = [];
+
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
-
-	public $videowidth              = 425;
-	public $videoheight             = 350;
-	public $theme_events_in_profile = true;
+	public $theme_info = [
+		'videowidth'        => 425,
+		'videoheight'       => 350,
+		'events_in_profile' => true
+	];
 
 	private $timezone      = '';
 	private $profile_owner = 0;

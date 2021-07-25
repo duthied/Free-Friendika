@@ -255,7 +255,7 @@ function events_content(App $a)
 		);
 	}
 
-	if ($a->theme_events_in_profile) {
+	if ($a->theme_info['events_in_profile']) {
 		Nav::setSelected('home');
 	} else {
 		Nav::setSelected('events');
@@ -279,7 +279,7 @@ function events_content(App $a)
 	$o = '';
 	$tabs = '';
 	// tabs
-	if ($a->theme_events_in_profile) {
+	if ($a->theme_info['events_in_profile']) {
 		$tabs = BaseProfile::getTabsHTML($a, 'events', true, $a->user);
 	}
 

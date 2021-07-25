@@ -21,7 +21,7 @@ use Friendica\Util\Strings;
 
 function vier_init(App $a)
 {
-	$a->theme_events_in_profile = false;
+	$a->theme_info['events_in_profile'] = false;
 
 	Renderer::setActiveTemplateEngine('smarty3');
 

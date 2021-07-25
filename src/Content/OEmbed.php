@@ -73,9 +73,9 @@ class OEmbed
 
 		$a = DI::app();
 
-		$cache_key = 'oembed:' . $a->videowidth . ':' . $embedurl;
+		$cache_key = 'oembed:' . $a->theme_info['videowidth'] . ':' . $embedurl;
 
-		$condition = ['url' => Strings::normaliseLink($embedurl), 'maxwidth' => $a->videowidth];
+		$condition = ['url' => Strings::normaliseLink($embedurl), 'maxwidth' => $a->theme_info['videowidth']];
 		$oembed_record = DBA::selectFirst('oembed', ['content'], $condition);
 		if (DBA::isResult($oembed_record)) {
 			$json_string = $oembed_record['content'];
@@ -111,7 +111,7 @@ class OEmbed
 							// but their OEmbed endpoint is only accessible by HTTPS ¯\_(ツ)_/¯
 							$href = str_replace(['http://www.youtube.com/', 'http://player.vimeo.com/'],
 								['https://www.youtube.com/', 'https://player.vimeo.com/'], $href);
-							$result = DI::httpRequest()->fetchFull($href . '&maxwidth=' . $a->videowidth);
+							$result = DI::httpRequest()->fetchFull($href . '&maxwidth=' . $a->theme_info['videowidth']);
 							if ($result->getReturnCode() === 200) {
 								$json_string = $result->getBody();
 								break;
@@ -132,7 +132,7 @@ class OEmbed
 			if (!empty($oembed->type) && $oembed->type != 'error') {
 				DBA::insert('oembed', [
 					'url' => Strings::normaliseLink($embedurl),
-					'maxwidth' => $a->videowidth,
+					'maxwidth' => $a->theme_info['videowidth'],
 					'content' => $json_string,
 					'created' => DateTimeFormat::utcNow()
 				], Database::INSERT_UPDATE);
