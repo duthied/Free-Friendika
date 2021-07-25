@@ -214,7 +214,7 @@ class Theme
 
 		$theme = $a->getCurrentTheme();
 
-		$parent = Strings::sanitizeFilePathItem($a->theme_info['extends'] ?? $theme);
+		$parent = Strings::sanitizeFilePathItem($a->getThemeInfoValue('extends', $theme));
 
 		$paths = [
 			"view/theme/$theme/$file",
@@ -271,7 +271,7 @@ class Theme
 		$theme = Strings::sanitizeFilePathItem($theme);
 
 		$a = DI::app();
-		$base_theme = $a->theme_info['extends'] ?? '';
+		$base_theme = $a->getThemeInfoValue('extends') ?? '';
 
 		if (file_exists("view/theme/$theme/config.php")) {
 			return "view/theme/$theme/config.php";

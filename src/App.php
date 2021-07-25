@@ -60,7 +60,7 @@ class App
 
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
-	public $theme_info = [
+	private $theme_info = [
 		'videowidth'        => 425,
 		'videoheight'       => 350,
 		'events_in_profile' => true
@@ -189,19 +189,51 @@ class App
 		return $this->timezone;
 	}
 
+	/**
+	 * Set workerqueue information
+	 *
+	 * @param array $queue 
+	 * @return void 
+	 */
 	public function setQueue(array $queue)
 	{
 		$this->queue = $queue;
 	}
 
+	/**
+	 * Fetch workerqueue information
+	 *
+	 * @return array 
+	 */
 	public function getQueue()
 	{
 		return $this->queue ?? [];
 	}
 
+	/**
+	 * Fetch a specific workerqueue field
+	 *
+	 * @param string $index 
+	 * @return mixed 
+	 */
 	public function getQueueValue(string $index)
 	{
 		return $this->queue[$index] ?? null;
+	}
+
+	public function setThemeInfoValue(string $index, $value)
+	{
+		$this->theme_info[$index] = $value;
+	}
+
+	public function getThemeInfo()
+	{
+		return $this->theme_info;
+	}
+
+	public function getThemeInfoValue(string $index, $default = null)
+	{
+		return $this->theme_info[$index] ?? $default;
 	}
 
 	/**

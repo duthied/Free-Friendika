@@ -24,8 +24,8 @@ class SmiliesTest extends MockedTest
 		parent::setUp();
 		$this->setUpVfsDir();
 		$this->mockApp($this->root);
-		$this->app->theme_info['videowidth']  = 425;
-		$this->app->theme_info['videoheight'] = 350;
+		$this->app->setThemeInfoValue('videowidth', 425);
+		$this->app->setThemeInfoValue('videoheight', 350);
 		$this->configMock->shouldReceive('get')
 			->with('system', 'no_smilies')
 			->andReturn(false);

@@ -2802,8 +2802,8 @@ class Item
 		}
 
 		// Replace friendica image url size with theme preference.
-		if (!empty($a->theme_info['item_image_size'])) {
-			$ps = $a->theme_info['item_image_size'];
+		if (!empty($a->getThemeInfoValue('item_image_size'))) {
+			$ps = $a->getThemeInfoValue('item_image_size');
 			$s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|', "$1-" . $ps, $s);
 		}
 
