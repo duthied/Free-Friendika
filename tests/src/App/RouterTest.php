@@ -55,6 +55,8 @@ class RouterTest extends TestCase
 		$this->cache = Mockery::mock(ICache::class);
 		$this->cache->shouldReceive('get')->andReturn(null);
 		$this->cache->shouldReceive('set')->andReturn(false);
+
+		$this->lock = Mockery::mock(ILock::class);
 	}
 
 	public function testGetModuleClass()
