@@ -57,7 +57,6 @@ use Psr\Log\LoggerInterface;
 class App
 {
 	public $user;
-	public $data = [];
 	public $theme_info = [];
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
