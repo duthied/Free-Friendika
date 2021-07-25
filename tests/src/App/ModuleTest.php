@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\Core\Cache\ICache;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
+use Friendica\Core\Lock\ILock;
 use Friendica\LegacyModule;
 use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Module\WellKnown\HostMeta;
@@ -182,7 +183,9 @@ class ModuleTest extends DatabaseTest
 		$cache->shouldReceive('get')->with('lastRoutesFileModifiedTime')->andReturn('')->atMost()->once();
 		$cache->shouldReceive('set')->withAnyArgs()->andReturn(false)->atMost()->twice();
 
-		$router = (new App\Router([], __DIR__ . '/../../../static/routes.config.php', $l10n, $cache));
+		$lock = Mockery::mock(ILock::class);
+
+		$router = (new App\Router([], __DIR__ . '/../../../static/routes.config.php', $l10n, $cache, $lock));
 
 		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config);
 
