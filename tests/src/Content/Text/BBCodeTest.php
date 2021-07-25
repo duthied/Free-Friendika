@@ -40,8 +40,6 @@ class BBCodeTest extends MockedTest
 		parent::setUp();
 		$this->setUpVfsDir();
 		$this->mockApp($this->root);
-		$this->app->setThemeInfoValue('videowidth', 425);
-		$this->app->setThemeInfoValue('videoheight', 350);
 		$this->configMock->shouldReceive('get')
 			->with('system', 'remove_multiplicated_lines')
 			->andReturn(false);

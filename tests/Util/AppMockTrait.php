@@ -115,7 +115,13 @@ trait AppMockTrait
 		$this->app
 			->shouldReceive('getCurrentTheme')
 			->andReturn('Smarty3');
-
+		$this->app->shouldReceive('setThemeInfoValue')
+			->with('videowidth')
+			->andReturn(425);
+		$this->app->shouldReceive('setThemeInfoValue')
+			->with('videoheight')
+			->andReturn(350);
+	
 		DI::init($this->dice);
 
 		if ($raw) {
