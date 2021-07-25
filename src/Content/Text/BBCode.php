@@ -1744,7 +1744,7 @@ class BBCode
 				$text = preg_replace("/\[vimeo\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $text);
 
 				if ($try_oembed) {
-					$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->getThemeInfoValue('videowidth') . '" height="' . $a->videoheight . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $text);
+					$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->getThemeInfoValue('videowidth') . '" height="' . $a->getThemeInfoValue('videoheight') . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $text);
 				} else {
 					$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
 						'<a href="https://vimeo.com/$1" target="_blank" rel="noopener noreferrer">https://vimeo.com/$1</a>', $text);
