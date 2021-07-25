@@ -1624,7 +1624,7 @@ function photos_content(App $a)
 	$o .= Renderer::replaceMacros($tpl, [
 		'$title' => DI::l10n()->t('Recent Photos'),
 		'$can_post' => $can_post,
-		'$upload' => [DI::l10n()->t('Upload New Photos'), 'photos/'.$user['nickname'].'/upload'],
+		'$upload' => [DI::l10n()->t('Upload New Photos'), 'photos/' . $user['nickname'] . '/upload'],
 		'$photos' => $photos,
 		'$paginate' => $pager->renderFull($total),
 	]);

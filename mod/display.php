@@ -122,15 +122,16 @@ function display_fetchauthor($item)
 	// Check for a repeated message
 	$shared = Item::getShareArray($item);
 	if (!empty($shared) && empty($shared['comment'])) {
-		$profiledata = [];
-		$profiledata['uid'] = -1;
-		$profiledata['id'] = -1;
-		$profiledata['nickname'] = '';
-		$profiledata['name'] = '';
-		$profiledata['picdate'] = '';
-		$profiledata['photo'] = '';
-		$profiledata['url'] = '';
-		$profiledata['network'] = '';
+		$profiledata = [
+			'uid' => -1,
+			'id' => -1,
+			'nickname' => '',
+			'name' => '',
+			'picdate' => '',
+			'photo' => '',
+			'url' => '',
+			'network' => '',
+		];
 
 		if (!empty($shared['author'])) {
 			$profiledata['name'] = $shared['author'];

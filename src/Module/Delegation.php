@@ -118,7 +118,7 @@ class Delegation extends BaseModule
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$identities = User::identities(DI::session()->get('submanage') ?: local_user());
+		$identities = User::identities(DI::session()->get('submanage', local_user()));
 
 		//getting additinal information for each identity
 		foreach ($identities as $key => $identity) {
