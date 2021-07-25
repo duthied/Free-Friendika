@@ -445,7 +445,7 @@ class Contact extends BaseModule
 
 		$_SESSION['return_path'] = DI::args()->getQueryString();
 
-		if (!empty($contact) && is_array($contact)) {
+		if (!empty($contact)) {
 			DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_head.tpl'), [
 				'$baseurl' => DI::baseUrl()->get(true),
 			]);
