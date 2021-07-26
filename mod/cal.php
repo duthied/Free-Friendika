@@ -44,7 +44,7 @@ function cal_init(App $a)
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
-	if ($a->argc < 2) {
+	if (DI::args()->getArgc() < 2) {
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
@@ -52,11 +52,11 @@ function cal_init(App $a)
 
 	// if it's a json request abort here becaus we don't
 	// need the widget data
-	if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
+	if (!empty(DI::args()->getArgv()[2]) && (DI::args()->getArgv()[2] === 'json')) {
 		return;
 	}
 
-	$owner = User::getOwnerDataByNick($a->argv[1]);
+	$owner = User::getOwnerDataByNick(DI::args()->getArgv()[1]);
 	if (empty($owner)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
@@ -73,7 +73,7 @@ function cal_init(App $a)
 
 function cal_content(App $a)
 {
-	$owner = User::getOwnerDataByNick($a->argv[1]);
+	$owner = User::getOwnerDataByNick(DI::args()->getArgv()[1]);
 	if (empty($owner)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
@@ -101,9 +101,9 @@ function cal_content(App $a)
 	$ignored = (!empty($_REQUEST['ignored']) ? intval($_REQUEST['ignored']) : 0);
 
 	$format = 'ical';
-	if ($a->argc == 4 && $a->argv[2] == 'export') {
+	if (DI::args()->getArgc() == 4 && DI::args()->getArgv()[2] == 'export') {
 		$mode = 'export';
-		$format = $a->argv[3];
+		$format = DI::args()->getArgv()[3];
 	}
 
 	// Setup permissions structures
@@ -172,7 +172,7 @@ function cal_content(App $a)
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
 
-		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
+		if (!empty(DI::args()->getArgv()[2]) && (DI::args()->getArgv()[2] === 'json')) {
 			if (!empty($_GET['start'])) {
 				$start = $_GET['start'];
 			}
@@ -220,7 +220,7 @@ function cal_content(App $a)
 		// transform the event in a usable array
 		$events = Event::prepareListForTemplate($r);
 
-		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
+		if (!empty(DI::args()->getArgv()[2]) && (DI::args()->getArgv()[2] === 'json')) {
 			echo json_encode($events);
 			exit();
 		}

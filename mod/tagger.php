@@ -49,7 +49,7 @@ function tagger_content(App $a) {
 		return;
 	}
 
-	$item_id = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : 0);
+	$item_id = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(trim(DI::args()->getArgv()[1])) : 0);
 
 	Logger::log('tagger: tag ' . $term . ' item ' . $item_id);
 

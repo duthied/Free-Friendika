@@ -40,15 +40,11 @@ class Fetch extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$app = DI::app();
-
-		// @TODO: Replace with parameter from router
-		if (($app->argc != 3) || (!in_array($app->argv[1], ["post", "status_message", "reshare"]))) {
+		if (empty($parameters['guid'])) {
 			throw new HTTPException\NotFoundException();
 		}
 
-		// @TODO: Replace with parameter from router
-		$guid = $app->argv[2];
+		$guid = $parameters['guid'];
 
 		// Fetch the item
 		$fields = [
@@ -68,7 +64,7 @@ class Fetch extends BaseModule
 				$host = $parts["scheme"] . "://" . $parts["host"];
 
 				if (Strings::normaliseLink($host) != Strings::normaliseLink(DI::baseUrl()->get())) {
-					$location = $host . "/fetch/" . $app->argv[1] . "/" . urlencode($guid);
+					$location = $host . "/fetch/" . DI::args()->getArgv()[1] . "/" . urlencode($guid);
 					System::externalRedirect($location, 301);
 				}
 			}

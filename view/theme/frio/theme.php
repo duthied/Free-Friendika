@@ -33,8 +33,8 @@ function frio_init(App $a)
 	$frio = 'view/theme/frio';
 
 	// disable the events module link in the profile tab
-	$a->theme_events_in_profile = false;
-	$a->videowidth = 622;
+	$a->setThemeInfoValue('events_in_profile', false);
+	$a->setThemeInfoValue('videowidth', 622);
 
 	Renderer::setActiveTemplateEngine('smarty3');
 

@@ -39,7 +39,7 @@ function wallmessage_post(App $a) {
 	$subject   = (!empty($_REQUEST['subject'])   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '');
 	$body      = (!empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '');
 
-	$recipient = (($a->argc > 1) ? Strings::escapeTags($a->argv[1]) : '');
+	$recipient = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(DI::args()->getArgv()[1]) : '');
 	if ((! $recipient) || (! $body)) {
 		return;
 	}
@@ -97,7 +97,7 @@ function wallmessage_content(App $a) {
 		return;
 	}
 
-	$recipient = (($a->argc > 1) ? $a->argv[1] : '');
+	$recipient = ((DI::args()->getArgc() > 1) ? DI::args()->getArgv()[1] : '');
 
 	if (!$recipient) {
 		notice(DI::l10n()->t('No recipient.'));

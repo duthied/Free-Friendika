@@ -27,7 +27,6 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Util\Crypto;
 use Friendica\Util\Strings;
-use phpseclib\File\ASN1;
 
 /**
  * prints the public RSA key of a user
@@ -36,15 +35,11 @@ class PublicRSAKey extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$app = DI::app();
-
-		// @TODO: Replace with parameter from router
-		if ($app->argc !== 2) {
+		if (empty($parameters['nick'])) {
 			throw new BadRequestException();
 		}
 
-		// @TODO: Replace with parameter from router
-		$nick = $app->argv[1];
+		$nick = $parameters['nick'];
 
 		$user = User::getByNickname($nick, ['spubkey']);
 		if (empty($user) || empty($user['spubkey'])) {

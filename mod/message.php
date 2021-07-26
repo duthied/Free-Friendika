@@ -38,14 +38,14 @@ function message_init(App $a)
 {
 	$tabs = '';
 
-	if ($a->argc > 1 && is_numeric($a->argv[1])) {
+	if (DI::args()->getArgc() > 1 && is_numeric(DI::args()->getArgv()[1])) {
 		$tabs = render_messages(get_messages(local_user(), 0, 5), 'mail_list.tpl');
 	}
 
 	$new = [
 		'label' => DI::l10n()->t('New Message'),
 		'url' => 'message/new',
-		'sel' => $a->argc > 1 && $a->argv[1] == 'new',
+		'sel' => DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] == 'new',
 		'accesskey' => 'm',
 	];
 
@@ -96,8 +96,7 @@ function message_post(App $a)
 
 	// fake it to go back to the input form if no recipient listed
 	if ($norecip) {
-		$a->argc = 2;
-		$a->argv[1] = 'new';
+		DI::args()->setArgv(['message', 'new']);
 	} else {
 		DI::baseUrl()->redirect(DI::args()->getCommand() . '/' . $ret);
 	}
@@ -116,7 +115,7 @@ function message_content(App $a)
 	$myprofile = DI::baseUrl() . '/profile/' . $a->user['nickname'];
 
 	$tpl = Renderer::getMarkupTemplate('mail_head.tpl');
-	if ($a->argc > 1 && $a->argv[1] == 'new') {
+	if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] == 'new') {
 		$button = [
 			'label' => DI::l10n()->t('Discard'),
 			'url' => '/message',
@@ -135,20 +134,20 @@ function message_content(App $a)
 		'$button' => $button,
 	]);
 
-	if (($a->argc == 3) && ($a->argv[1] === 'drop' || $a->argv[1] === 'dropconv')) {
-		if (!intval($a->argv[2])) {
+	if ((DI::args()->getArgc() == 3) && (DI::args()->getArgv()[1] === 'drop' || DI::args()->getArgv()[1] === 'dropconv')) {
+		if (!intval(DI::args()->getArgv()[2])) {
 			return;
 		}
 
-		$cmd = $a->argv[1];
+		$cmd = DI::args()->getArgv()[1];
 		if ($cmd === 'drop') {
-			$message = DBA::selectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);
+			$message = DBA::selectFirst('mail', ['convid'], ['id' => DI::args()->getArgv()[2], 'uid' => local_user()]);
 			if(!DBA::isResult($message)){
 				notice(DI::l10n()->t('Conversation not found.'));
 				DI::baseUrl()->redirect('message');
 			}
 
-			if (!DBA::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
+			if (!DBA::delete('mail', ['id' => DI::args()->getArgv()[2], 'uid' => local_user()])) {
 				notice(DI::l10n()->t('Message was not deleted.'));
 			}
 
@@ -160,7 +159,7 @@ function message_content(App $a)
 			DI::baseUrl()->redirect('message/' . $conversation['id'] );
 		} else {
 			$r = q("SELECT `parent-uri`,`convid` FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($a->argv[2]),
+				intval(DI::args()->getArgv()[2]),
 				intval(local_user())
 			);
 			if (DBA::isResult($r)) {
@@ -174,7 +173,7 @@ function message_content(App $a)
 		}
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] === 'new')) {
+	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'new')) {
 		$o .= $header;
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
@@ -184,7 +183,7 @@ function message_content(App $a)
 			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
 
-		$recipientId = $a->argv[2] ?? null;
+		$recipientId = DI::args()->getArgv()[2] ?? null;
 
 		$select = ACL::getMessageContactSelectHTML($recipientId);
 
@@ -210,7 +209,7 @@ function message_content(App $a)
 
 	$_SESSION['return_path'] = DI::args()->getQueryString();
 
-	if ($a->argc == 1) {
+	if (DI::args()->getArgc() == 1) {
 
 		// List messages
 
@@ -241,7 +240,7 @@ function message_content(App $a)
 		return $o;
 	}
 
-	if (($a->argc > 1) && (intval($a->argv[1]))) {
+	if ((DI::args()->getArgc() > 1) && (intval(DI::args()->getArgv()[1]))) {
 
 		$o .= $header;
 
@@ -252,7 +251,7 @@ function message_content(App $a)
 			WHERE `mail`.`uid` = ? AND `mail`.`id` = ?
 			LIMIT 1",
 			local_user(),
-			$a->argv[1]
+			DI::args()->getArgv()[1]
 		);
 		if (DBA::isResult($message)) {
 			$contact_id = $message['contact-id'];
@@ -345,7 +344,7 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('mail_display.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$thread_id' => $a->argv[1],
+			'$thread_id' => DI::args()->getArgv()[1],
 			'$thread_subject' => $message['title'],
 			'$thread_seen' => $seen,
 			'$delete' => DI::l10n()->t('Delete conversation'),

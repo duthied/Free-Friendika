@@ -66,14 +66,14 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] == 'addon')) {
+	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] == 'addon')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/addon', 'settings_addon');
 
 		Hook::callAll('addon_settings_post', $_POST);
 		return;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] == 'connectors')) {
+	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] == 'connectors')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/connectors', 'settings_connectors');
 
 		if (!empty($_POST['general-submit'])) {
@@ -150,7 +150,7 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
+	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'features')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/features', 'settings_features');
 		foreach ($_POST as $k => $v) {
 			if (strpos($k, 'feature_') === 0) {
@@ -418,11 +418,11 @@ function settings_content(App $a)
 		return;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] === 'oauth')) {
-		if (($a->argc > 3) && ($a->argv[2] === 'delete')) {
+	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'oauth')) {
+		if ((DI::args()->getArgc() > 3) && (DI::args()->getArgv()[2] === 'delete')) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth', 't');
 
-			DBA::delete('application-token', ['application-id' => $a->argv[3], 'uid' => local_user()]);
+			DBA::delete('application-token', ['application-id' => DI::args()->getArgv()[3], 'uid' => local_user()]);
 			DI::baseUrl()->redirect('settings/oauth/', true);
 			return;
 		}
@@ -443,7 +443,7 @@ function settings_content(App $a)
 		return $o;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] === 'addon')) {
+	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'addon')) {
 		$addon_settings_forms = [];
 
 		foreach (DI::dba()->selectToArray('hook', ['file', 'function'], ['hook' => 'addon_settings']) as $hook) {
@@ -462,7 +462,7 @@ function settings_content(App $a)
 		return $o;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
+	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'features')) {
 
 		$arr = [];
 		$features = Feature::get();
@@ -484,7 +484,7 @@ function settings_content(App $a)
 		return $o;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] === 'connectors')) {
+	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'connectors')) {
 		$accept_only_sharer        = intval(DI::pConfig()->get(local_user(), 'system', 'accept_only_sharer'));
 		$disable_cw                = intval(DI::pConfig()->get(local_user(), 'system', 'disable_cw'));
 		$no_intelligent_shortening = intval(DI::pConfig()->get(local_user(), 'system', 'no_intelligent_shortening'));

@@ -66,9 +66,9 @@ function pubsubhubbub_init(App $a) {
 
 		Logger::log("$hub_mode request from " . $_SERVER['REMOTE_ADDR']);
 
-		if ($a->argc > 1) {
+		if (DI::args()->getArgc() > 1) {
 			// Normally the url should now contain the nick name as last part of the url
-			$nick = $a->argv[1];
+			$nick = DI::args()->getArgv()[1];
 		} else {
 			// Get the nick name from the topic as a fallback
 			$nick = $hub_topic;

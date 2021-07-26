@@ -57,18 +57,14 @@ use Psr\Log\LoggerInterface;
 class App
 {
 	public $user;
-	public $data = [];
-	/** @deprecated 2019.09 - use App\Arguments->getArgv() or Arguments->get() */
-	public $argv;
-	/** @deprecated 2019.09 - use App\Arguments->getArgc() */
-	public $argc;
-	public $theme_info = [];
+
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
-
-	public $videowidth              = 425;
-	public $videoheight             = 350;
-	public $theme_events_in_profile = true;
+	private $theme_info = [
+		'videowidth'        => 425,
+		'videoheight'       => 350,
+		'events_in_profile' => true
+	];
 
 	private $timezone      = '';
 	private $profile_owner = 0;
@@ -193,19 +189,51 @@ class App
 		return $this->timezone;
 	}
 
+	/**
+	 * Set workerqueue information
+	 *
+	 * @param array $queue 
+	 * @return void 
+	 */
 	public function setQueue(array $queue)
 	{
 		$this->queue = $queue;
 	}
 
+	/**
+	 * Fetch workerqueue information
+	 *
+	 * @return array 
+	 */
 	public function getQueue()
 	{
 		return $this->queue ?? [];
 	}
 
+	/**
+	 * Fetch a specific workerqueue field
+	 *
+	 * @param string $index 
+	 * @return mixed 
+	 */
 	public function getQueueValue(string $index)
 	{
 		return $this->queue[$index] ?? null;
+	}
+
+	public function setThemeInfoValue(string $index, $value)
+	{
+		$this->theme_info[$index] = $value;
+	}
+
+	public function getThemeInfo()
+	{
+		return $this->theme_info;
+	}
+
+	public function getThemeInfoValue(string $index, $default = null)
+	{
+		return $this->theme_info[$index] ?? $default;
 	}
 
 	/**
@@ -253,9 +281,6 @@ class App
 		$this->args     = $args;
 		$this->process  = $process;
 		$this->pConfig  = $pConfig;
-
-		$this->argv         = $args->getArgv();
-		$this->argc         = $args->getArgc();
 
 		$this->load();
 	}

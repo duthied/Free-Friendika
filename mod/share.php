@@ -22,11 +22,12 @@
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 
 function share_init(App $a) {
-	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+	$post_id = ((DI::args()->getArgc() > 1) ? intval(DI::args()->getArgv()[1]) : 0);
 
 	if (!$post_id || !local_user()) {
 		exit();

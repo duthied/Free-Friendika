@@ -343,7 +343,7 @@ class Authentication
 			}
 		}
 
-		$this->redirectForTwoFactorAuthentication($user_record['uid'], $a);
+		$this->redirectForTwoFactorAuthentication($user_record['uid']);
 
 		if ($interactive) {
 			if ($user_record['login_date'] <= DBA::NULL_DATETIME) {
@@ -369,12 +369,11 @@ class Authentication
 	 * All return calls in this method skip two-factor authentication
 	 *
 	 * @param int $uid The User Identified
-	 * @param App $a   The Friendica Application context
 	 *
 	 * @throws HTTPException\ForbiddenException In case the two factor authentication is forbidden (e.g. for AJAX calls)
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function redirectForTwoFactorAuthentication(int $uid, App $a)
+	private function redirectForTwoFactorAuthentication(int $uid)
 	{
 		// Check user setting, if 2FA disabled return
 		if (!$this->pConfig->get($uid, '2fa', 'verified')) {
@@ -382,7 +381,7 @@ class Authentication
 		}
 
 		// Check current path, if public or 2fa module return
-		if ($a->argc > 0 && in_array($a->argv[0], ['2fa', 'view', 'help', 'api', 'proxy', 'logout'])) {
+		if (DI::args()->getArgc() > 0 && in_array(DI::args()->getArgv()[0], ['2fa', 'view', 'help', 'api', 'proxy', 'logout'])) {
 			return;
 		}
 

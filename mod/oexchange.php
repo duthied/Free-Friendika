@@ -23,11 +23,10 @@ use Friendica\App;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\Security\Login;
-use Friendica\Util\Strings;
 
 function oexchange_init(App $a) {
 
-	if (($a->argc > 1) && ($a->argv[1] === 'xrd')) {
+	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'xrd')) {
 		$tpl = Renderer::getMarkupTemplate('oexchange_xrd.tpl');
 
 		$o = Renderer::replaceMacros($tpl, ['$base' => DI::baseUrl()]);
@@ -43,7 +42,7 @@ function oexchange_content(App $a) {
 		return $o;
 	}
 
-	if (($a->argc > 1) && $a->argv[1] === 'done') {
+	if ((DI::args()->getArgc() > 1) && DI::args()->getArgv()[1] === 'done') {
 		return;
 	}
 

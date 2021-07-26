@@ -170,9 +170,8 @@ The content of this file should be something like
     use Friendica\App;
     
     function duepuntozero_lr_init(App $a) {
-        $a-> theme_info = array(
-            'extends' => 'duepuntozero'.
-        );
+        $a->setThemeInfoValue('extends', 'duepuntozero');
+
         $a->set_template_engine('smarty3');
         /* and more stuff e.g. the JavaScript function for the header */
     }
@@ -272,9 +271,7 @@ If you like to use another templating engine, please implement it.
 
 When you want to inherit stuff from another theme you have to *announce* this in the theme_info:
 
-    $a->theme_info = array(
-      'extends' => 'duepuntozero',
-    );
+    $a->setThemeInfoValue('extends', 'duepuntozero');
 
 which declares *duepuntozero* as parent of the theme.
 

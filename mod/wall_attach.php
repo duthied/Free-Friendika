@@ -31,8 +31,8 @@ function wall_attach_post(App $a) {
 
 	$r_json = (!empty($_GET['response']) && $_GET['response']=='json');
 
-	if ($a->argc > 1) {
-		$nick = $a->argv[1];
+	if (DI::args()->getArgc() > 1) {
+		$nick = DI::args()->getArgv()[1];
 		$r = q("SELECT `user`.*, `contact`.`id` FROM `user` LEFT JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
 			DBA::escape($nick)
 		);

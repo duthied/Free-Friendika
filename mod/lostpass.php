@@ -92,8 +92,8 @@ function lostpass_post(App $a)
 
 function lostpass_content(App $a)
 {
-	if ($a->argc > 1) {
-		$pwdreset_token = $a->argv[1];
+	if (DI::args()->getArgc() > 1) {
+		$pwdreset_token = DI::args()->getArgv()[1];
 
 		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'email', 'pwdreset_time', 'language'], ['pwdreset' => hash('sha256', $pwdreset_token)]);
 		if (!DBA::isResult($user)) {

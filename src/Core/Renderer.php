@@ -166,7 +166,7 @@ class Renderer
 			} else {
 				$a = DI::app();
 				$class = self::$template_engines[$template_engine];
-				$obj = new $class($a->getCurrentTheme(), $a->theme_info);
+				$obj = new $class($a->getCurrentTheme(), $a->getThemeInfo());
 				self::$template_engine_instance[$template_engine] = $obj;
 				return $obj;
 			}

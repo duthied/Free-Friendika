@@ -106,13 +106,13 @@ class Contact extends BaseModule
 		}
 
 		// @TODO: Replace with parameter from router
-		if ($a->argv[1] === 'batch') {
+		if (DI::args()->getArgv()[1] === 'batch') {
 			self::batchActions();
 			return;
 		}
 
 		// @TODO: Replace with parameter from router
-		$contact_id = intval($a->argv[1]);
+		$contact_id = intval(DI::args()->getArgv()[1]);
 		if (!$contact_id) {
 			return;
 		}
@@ -271,10 +271,10 @@ class Contact extends BaseModule
 
 		$contact = null;
 		// @TODO: Replace with parameter from router
-		if ($a->argc == 2 && intval($a->argv[1])
-			|| $a->argc == 3 && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])
+		if (DI::args()->getArgc() == 2 && intval(DI::args()->getArgv()[1])
+			|| DI::args()->getArgc() == 3 && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['posts', 'conversations'])
 		) {
-			$contact_id = intval($a->argv[1]);
+			$contact_id = intval(DI::args()->getArgv()[1]);
 
 			// Ensure to use the user contact when the public contact was provided
 			$data = Model\Contact::getPublicAndUserContactID($contact_id, local_user());
@@ -293,7 +293,7 @@ class Contact extends BaseModule
 		if (DBA::isResult($contact)) {
 			if ($contact['self']) {
 				// @TODO: Replace with parameter from router
-				if (($a->argc == 3) && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])) {
+				if ((DI::args()->getArgc() == 3) && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['posts', 'conversations'])) {
 					DI::baseUrl()->redirect('profile/' . $contact['nick']);
 				} else {
 					DI::baseUrl()->redirect('profile/' . $contact['nick'] . '/profile');
@@ -343,14 +343,14 @@ class Contact extends BaseModule
 			return Login::form();
 		}
 
-		if ($a->argc == 3) {
-			$contact_id = intval($a->argv[1]);
+		if (DI::args()->getArgc() == 3) {
+			$contact_id = intval(DI::args()->getArgv()[1]);
 			if (!$contact_id) {
 				throw new BadRequestException();
 			}
 
 			// @TODO: Replace with parameter from router
-			$cmd = $a->argv[2];
+			$cmd = DI::args()->getArgv()[2];
 
 			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
 			if (!DBA::isResult($orig_record)) {
@@ -637,7 +637,7 @@ class Contact extends BaseModule
 		$sql_values = [local_user()];
 
 		// @TODO: Replace with parameter from router
-		$type = $a->argv[1] ?? '';
+		$type = DI::args()->getArgv()[1] ?? '';
 
 		switch ($type) {
 			case 'blocked':

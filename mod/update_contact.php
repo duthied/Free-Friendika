@@ -29,14 +29,14 @@ use Friendica\Module\Contact;
 
 function update_contact_content(App $a)
 {
-	if (!empty($a->argv[1]) && (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update'))) {
+	if (!empty(DI::args()->getArgv()[1]) && (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update'))) {
 		if (!empty($_GET['item'])) {
 			$item = Post::selectFirst(['parent'], ['id' => $_GET['item']]);
 			$parentid = $item['parent'] ?? 0;
 		} else {
 			$parentid = 0;
 		}
-		$text = Contact::getConversationsHMTL($a, $a->argv[1], true, $parentid);
+		$text = Contact::getConversationsHMTL($a, DI::args()->getArgv()[1], true, $parentid);
 	} else {
 		$text = '';
 	}

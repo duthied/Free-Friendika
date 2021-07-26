@@ -42,21 +42,21 @@ class BaseSettings extends BaseModule
 		$tabs[] = [
 			'label' => DI::l10n()->t('Account'),
 			'url' => 'settings',
-			'selected' => (($a->argc == 1) && ($a->argv[0] === 'settings') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() == 1) && (DI::args()->getArgv() === 'settings') ? 'active' : ''),
 			'accesskey' => 'o',
 		];
 
 		$tabs[] = [
 			'label' => DI::l10n()->t('Two-factor authentication'),
 			'url' => 'settings/2fa',
-			'selected' => (($a->argc > 1) && ($a->argv[1] === '2fa') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === '2fa') ? 'active' : ''),
 			'accesskey' => 'o',
 		];
 
 		$tabs[] = [
 			'label' => DI::l10n()->t('Profile'),
 			'url' => 'settings/profile',
-			'selected' => (($a->argc > 1) && ($a->argv[1] === 'profile') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'profile') ? 'active' : ''),
 			'accesskey' => 'p',
 		];
 
@@ -64,7 +64,7 @@ class BaseSettings extends BaseModule
 			$tabs[] = [
 				'label' => DI::l10n()->t('Additional features'),
 				'url' => 'settings/features',
-				'selected' => (($a->argc > 1) && ($a->argv[1] === 'features') ? 'active' : ''),
+				'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'features') ? 'active' : ''),
 				'accesskey' => 't',
 			];
 		}
@@ -72,49 +72,49 @@ class BaseSettings extends BaseModule
 		$tabs[] = [
 			'label' => DI::l10n()->t('Display'),
 			'url' => 'settings/display',
-			'selected' => (($a->argc > 1) && ($a->argv[1] === 'display') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'display') ? 'active' : ''),
 			'accesskey' => 'i',
 		];
 
 		$tabs[] = [
 			'label' => DI::l10n()->t('Social Networks'),
 			'url' => 'settings/connectors',
-			'selected' => (($a->argc > 1) && ($a->argv[1] === 'connectors') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'connectors') ? 'active' : ''),
 			'accesskey' => 'w',
 		];
 
 		$tabs[] = [
 			'label' => DI::l10n()->t('Addons'),
 			'url' => 'settings/addon',
-			'selected' => (($a->argc > 1) && ($a->argv[1] === 'addon') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'addon') ? 'active' : ''),
 			'accesskey' => 'l',
 		];
 
 		$tabs[] = [
 			'label' => DI::l10n()->t('Manage Accounts'),
 			'url' => 'settings/delegation',
-			'selected' => (($a->argc > 1) && ($a->argv[1] === 'delegation') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'delegation') ? 'active' : ''),
 			'accesskey' => 'd',
 		];
 
 		$tabs[] = [
 			'label' => DI::l10n()->t('Connected apps'),
 			'url' => 'settings/oauth',
-			'selected' => (($a->argc > 1) && ($a->argv[1] === 'oauth') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'oauth') ? 'active' : ''),
 			'accesskey' => 'b',
 		];
 
 		$tabs[] = [
 			'label' => DI::l10n()->t('Export personal data'),
 			'url' => 'settings/userexport',
-			'selected' => (($a->argc > 1) && ($a->argv[1] === 'userexport') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'userexport') ? 'active' : ''),
 			'accesskey' => 'e',
 		];
 
 		$tabs[] = [
 			'label' => DI::l10n()->t('Remove account'),
 			'url' => 'removeme',
-			'selected' => (($a->argc == 1) && ($a->argv[0] === 'removeme') ? 'active' : ''),
+			'selected' => ((DI::args()->getArgc() == 1) && (DI::args()->getArgv() === 'removeme') ? 'active' : ''),
 			'accesskey' => 'r',
 		];
 
