@@ -30,6 +30,7 @@ use Friendica\Core\Cache\Duration;
 use Friendica\Core\Cache\ICache;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Lock\ILock;
 use Friendica\Network\HTTPException;
 
 /**
@@ -79,6 +80,9 @@ class Router
 	/** @var ICache */
 	private $cache;
 
+	/** @var ILock */
+	private $lock;
+
 	/** @var string */
 	private $baseRoutesFilepath;
 
@@ -89,11 +93,12 @@ class Router
 	 * @param ICache              $cache
 	 * @param RouteCollector|null $routeCollector
 	 */
-	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICache $cache, RouteCollector $routeCollector = null)
+	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICache $cache, ILock $lock, RouteCollector $routeCollector = null)
 	{
 		$this->baseRoutesFilepath = $baseRoutesFilepath;
 		$this->l10n = $l10n;
 		$this->cache = $cache;
+		$this->lock = $lock;
 
 		$httpMethod = $server['REQUEST_METHOD'] ?? self::GET;
 		$this->httpMethod = in_array($httpMethod, self::ALLOWED_METHODS) ? $httpMethod : self::GET;
@@ -301,11 +306,20 @@ class Router
 			return $routerDispatchData;
 		}
 
+		if (!$this->lock->acquire('getCachedDispatchData', 0)) {
+			// Immediately return uncached data when we can't aquire a lock
+			return $this->getDispatchData();
+		}
+
 		$routerDispatchData = $this->getDispatchData();
 
 		$this->cache->set('routerDispatchData', $routerDispatchData, Duration::DAY);
 		if (!empty($routesFileModifiedTime)) {
-			$this->cache->set('lastRoutesFileMtime', $routesFileModifiedTime, Duration::MONTH);
+			$this->cache->set('lastRoutesFileModifiedTime', $routesFileModifiedTime, Duration::MONTH);
+		}
+
+		if ($this->lock->isLocked('getCachedDispatchData')) {
+			$this->lock->release('getCachedDispatchData');
 		}
 
 		return $routerDispatchData;
