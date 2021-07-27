@@ -468,6 +468,7 @@ class Database
 	public function p($sql)
 	{
 
+		$this->profiler->startRecording('database');
 		$stamp1 = microtime(true);
 
 		$params = DBA::getParam(func_get_args());
@@ -695,7 +696,7 @@ class Database
 			$this->errorno = $errorno;
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database');
+		$this->profiler->stopRecording();
 
 		if ($this->configCache->get('system', 'db_log')) {
 			$stamp2   = microtime(true);
@@ -727,7 +728,7 @@ class Database
 	public function e($sql)
 	{
 
-		$stamp = microtime(true);
+		$this->profiler->startRecording('database_write');
 
 		$params = DBA::getParam(func_get_args());
 
@@ -779,7 +780,7 @@ class Database
 			$this->errorno = $errorno;
 		}
 
-		$this->profiler->saveTimestamp($stamp, "database_write");
+		$this->profiler->stopRecording();
 
 		return $retval;
 	}
@@ -914,7 +915,7 @@ class Database
 	 */
 	public function fetch($stmt)
 	{
-		$stamp1 = microtime(true);
+		$this->profiler->startRecording('database');
 
 		$columns = [];
 
@@ -962,7 +963,7 @@ class Database
 				}
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database');
+		$this->profiler->stopRecording();
 
 		return $columns;
 	}
@@ -1589,7 +1590,7 @@ class Database
 	public function close($stmt)
 	{
 
-		$stamp1 = microtime(true);
+		$this->profiler->startRecording('database');
 
 		if (!is_object($stmt)) {
 			return false;
@@ -1615,7 +1616,7 @@ class Database
 				break;
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database');
+		$this->profiler->stopRecording();
 
 		return $ret;
 	}

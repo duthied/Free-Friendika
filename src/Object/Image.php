@@ -650,9 +650,9 @@ class Image
 
 		$string = $this->asString();
 
-		$stamp1 = microtime(true);
+		DI::profiler()->stopRecording('file');
 		file_put_contents($path, $string);
-		DI::profiler()->saveTimestamp($stamp1, "file");
+		DI::profiler()->stopRecording();
 	}
 
 	/**

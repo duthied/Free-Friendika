@@ -143,6 +143,7 @@ class HTML
 	 */
 	public static function toBBCode($message, $basepath = '')
 	{
+		DI::profiler()->startRecording('rendering');
 		$message = str_replace("\r", "", $message);
 
 		$message = Strings::performWithEscapedBlocks($message, '#<pre><code.*</code></pre>#iUs', function ($message) {
@@ -396,6 +397,7 @@ class HTML
 			$message = self::qualifyURLs($message, $basepath);
 		}
 
+		DI::profiler()->stopRecording();
 		return $message;
 	}
 
@@ -585,6 +587,7 @@ class HTML
 	 */
 	public static function toPlaintext(string $html, $wraplength = 75, $compact = false)
 	{
+		DI::profiler()->startRecording('rendering');
 		$message = str_replace("\r", "", $html);
 
 		$doc = new DOMDocument();
@@ -593,6 +596,7 @@ class HTML
 		$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 
 		if (empty($message)) {
+			DI::profiler()->stopRecording();
 			return '';
 		}
 
@@ -606,6 +610,7 @@ class HTML
 		$urls = self::collectURLs($message);
 
 		if (empty($message)) {
+			DI::profiler()->stopRecording();
 			return '';
 		}
 
@@ -689,6 +694,7 @@ class HTML
 
 		$message = self::quoteLevel(trim($message), $wraplength);
 
+		DI::profiler()->stopRecording();
 		return trim($message);
 	}
 
@@ -701,9 +707,11 @@ class HTML
 	 */
 	public static function toMarkdown($html)
 	{
+		DI::profiler()->startRecording('rendering');
 		$converter = new HtmlConverter(['hard_break' => true]);
 		$markdown = $converter->convert($html);
 
+		DI::profiler()->stopRecording();
 		return $markdown;
 	}
 

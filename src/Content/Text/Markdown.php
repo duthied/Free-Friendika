@@ -21,7 +21,6 @@
 
 namespace Friendica\Content\Text;
 
-use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
 
@@ -40,7 +39,7 @@ class Markdown
 	 * @return string
 	 */
 	public static function convert($text, $hardwrap = true, $baseuri = null) {
-		$stamp1 = microtime(true);
+		DI::profiler()->startRecording('rendering');
 
 		$MarkdownParser = new MarkdownParser();
 		$MarkdownParser->code_class_prefix  = 'language-';
@@ -57,7 +56,7 @@ class Markdown
 
 		$html = $MarkdownParser->transform($text);
 
-		DI::profiler()->saveTimestamp($stamp1, "parser");
+		DI::profiler()->stopRecording();
 
 		return $html;
 	}
@@ -109,6 +108,8 @@ class Markdown
 	 */
 	public static function toBBCode($s)
 	{
+		DI::profiler()->startRecording('rendering');
+
 		// The parser cannot handle paragraphs correctly
 		$s = str_replace(['</p>', '<p>', '<p dir="ltr">'], ['<br>', '<br>', '<br>'], $s);
 
@@ -134,6 +135,7 @@ class Markdown
 		// Don't show link to full picture (until it is fixed)
 		$s = BBCode::scaleExternalImages($s);
 
+		DI::profiler()->stopRecording();
 		return $s;
 	}
 }

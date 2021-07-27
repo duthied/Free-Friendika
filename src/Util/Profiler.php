@@ -54,6 +54,8 @@ class Profiler implements ContainerInterface
 	 */
 	private $rendertime;
 
+	private $timestamps = [];
+
 	/**
 	 * True, if the Profiler should measure the whole rendertime including functions
 	 *
@@ -83,6 +85,48 @@ class Profiler implements ContainerInterface
 		$this->enabled = $configCache->get('system', 'profiler');
 		$this->rendertime = $configCache->get('rendertime', 'callstack');
 		$this->reset();
+	}
+
+	public function startRecording(string $value)
+	{
+		if (!$this->enabled) {
+			return;
+		}
+
+		$this->timestamps[] = ['value' => $value, 'stamp' => microtime(true), 'credit' => 0];
+	}
+
+	public function stopRecording(string $callstack = '')
+	{
+		if (!$this->enabled || empty($this->timestamps)) {
+			return;
+		}
+
+		$timestamp = array_pop($this->timestamps);
+
+		$duration = floatval(microtime(true) - $timestamp['stamp'] - $timestamp['credit']);
+		$value = $timestamp['value'];
+
+		foreach ($this->timestamps as $key => $stamp) {
+			$this->timestamps[$key]['credit'] += $duration;
+		}
+
+		$callstack = $callstack ?: System::callstack(4, $value == 'rendering' ? 0 : 1);
+
+		if (!isset($this->performance[$value])) {
+			// Prevent ugly E_NOTICE
+			$this->performance[$value] = 0;
+		}
+
+		$this->performance[$value] += (float) $duration;
+		$this->performance['marktime'] += (float) $duration;
+
+		if (!isset($this->callstack[$value][$callstack])) {
+			// Prevent ugly E_NOTICE
+			$this->callstack[$value][$callstack] = 0;
+		}
+
+		$this->callstack[$value][$callstack] += (float) $duration;
 	}
 
 	/**
@@ -221,6 +265,15 @@ class Profiler implements ContainerInterface
 		if (isset($this->callstack["network"])) {
 			$output .= "\nNetwork:\n";
 			foreach ($this->callstack["network"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > $limit) {
+					$output .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		if (isset($this->callstack["rendering"])) {
+			$output .= "\nRendering:\n";
+			foreach ($this->callstack["rendering"] as $func => $time) {
 				$time = round($time, 3);
 				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";

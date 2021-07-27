@@ -52,11 +52,11 @@ class ProfilerCache implements ICache, IMemoryCache
 	 */
 	public function getAllKeys($prefix = null)
 	{
-		$time = microtime(true);
+		$this->profiler->startRecording('cache');
 
 		$return = $this->cache->getAllKeys($prefix);
 
-		$this->profiler->saveTimestamp($time, 'cache');
+		$this->profiler->stopRecording();
 
 		return $return;
 	}
@@ -66,11 +66,11 @@ class ProfilerCache implements ICache, IMemoryCache
 	 */
 	public function get($key)
 	{
-		$time = microtime(true);
+		$this->profiler->startRecording('cache');
 
 		$return = $this->cache->get($key);
 
-		$this->profiler->saveTimestamp($time, 'cache');
+		$this->profiler->stopRecording();
 
 		return $return;
 	}
@@ -80,11 +80,11 @@ class ProfilerCache implements ICache, IMemoryCache
 	 */
 	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
-		$time = microtime(true);
+		$this->profiler->startRecording('cache');
 
 		$return = $this->cache->set($key, $value, $ttl);
 
-		$this->profiler->saveTimestamp($time, 'cache');
+		$this->profiler->stopRecording();
 
 		return $return;
 	}
@@ -94,11 +94,11 @@ class ProfilerCache implements ICache, IMemoryCache
 	 */
 	public function delete($key)
 	{
-		$time = microtime(true);
+		$this->profiler->startRecording('cache');
 
 		$return = $this->cache->delete($key);
 
-		$this->profiler->saveTimestamp($time, 'cache');
+		$this->profiler->stopRecording();
 
 		return $return;
 	}
@@ -108,11 +108,11 @@ class ProfilerCache implements ICache, IMemoryCache
 	 */
 	public function clear($outdated = true)
 	{
-		$time = microtime(true);
+		$this->profiler->startRecording('cache');
 
 		$return = $this->cache->clear($outdated);
 
-		$this->profiler->saveTimestamp($time, 'cache');
+		$this->profiler->stopRecording();
 
 		return $return;
 	}
@@ -123,11 +123,11 @@ class ProfilerCache implements ICache, IMemoryCache
 	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		if ($this->cache instanceof IMemoryCache) {
-			$time = microtime(true);
+			$this->profiler->startRecording('cache');
 
 			$return = $this->cache->add($key, $value, $ttl);
 
-			$this->profiler->saveTimestamp($time, 'cache');
+			$this->profiler->stopRecording();
 
 			return $return;
 		} else {
@@ -141,11 +141,11 @@ class ProfilerCache implements ICache, IMemoryCache
 	public function compareSet($key, $oldValue, $newValue, $ttl = Duration::FIVE_MINUTES)
 	{
 		if ($this->cache instanceof IMemoryCache) {
-			$time = microtime(true);
+			$this->profiler->startRecording('cache');
 
 			$return = $this->cache->compareSet($key, $oldValue, $newValue, $ttl);
 
-			$this->profiler->saveTimestamp($time, 'cache');
+			$this->profiler->stopRecording();
 
 			return $return;
 		} else {
@@ -159,11 +159,11 @@ class ProfilerCache implements ICache, IMemoryCache
 	public function compareDelete($key, $value)
 	{
 		if ($this->cache instanceof IMemoryCache) {
-			$time = microtime(true);
+			$this->profiler->startRecording('cache');
 
 			$return = $this->cache->compareDelete($key, $value);
 
-			$this->profiler->saveTimestamp($time, 'cache');
+			$this->profiler->stopRecording();
 
 			return $return;
 		} else {

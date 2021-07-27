@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
-use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -34,7 +33,6 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
-use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\Verb;
 use Friendica\Object\Post as PostObject;
@@ -56,6 +54,7 @@ use Friendica\Util\XML;
  */
 function localize_item(&$item)
 {
+	DI::profiler()->startRecording('rendering');
 	/// @todo The following functionality needs to be cleaned up.
 	if (!empty($item['verb'])) {
 		$activity = DI::activity();
@@ -65,9 +64,11 @@ function localize_item(&$item)
 		if (stristr($item['verb'], Activity::POKE)) {
 			$verb = urldecode(substr($item['verb'], strpos($item['verb'],'#') + 1));
 			if (!$verb) {
+				DI::profiler()->stopRecording();
 				return;
 			}
 			if ($item['object-type'] == "" || $item['object-type'] !== Activity\ObjectType::PERSON) {
+				DI::profiler()->stopRecording();
 				return;
 			}
 
@@ -120,6 +121,7 @@ function localize_item(&$item)
 				'verb', 'object-type', 'resource-id', 'body', 'plink'];
 			$obj = Post::selectFirst($fields, ['uri' => $item['parent-uri']]);
 			if (!DBA::isResult($obj)) {
+				DI::profiler()->stopRecording();
 				return;
 			}
 
@@ -177,6 +179,7 @@ function localize_item(&$item)
 			'network' => $item['author-network'], 'url' => $item['author-link']];
 		$item['plink'] = Contact::magicLinkByContact($author, $item['plink']);
 	}
+	DI::profiler()->stopRecording();
 }
 
 /**
@@ -263,6 +266,7 @@ function conv_get_blocklist()
  */
 function conversation(App $a, array $items, $mode, $update, $preview = false, $order = 'commented', $uid = 0)
 {
+	DI::profiler()->startRecording('rendering');
 	$page = DI::page();
 
 	$page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
@@ -603,6 +607,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		'$dropping' => ($page_dropping ? DI::l10n()->t('Delete Selected Items') : False),
 	]);
 
+	DI::profiler()->stopRecording();
 	return $o;
 }
 
@@ -616,6 +621,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
  * @return array items with parents and comments
  */
 function conversation_fetch_comments($thread_items, bool $pinned, array $activity) {
+	DI::profiler()->startRecording('rendering');
 	$comments = [];
 
 	while ($row = Post::fetch($thread_items)) {
@@ -693,6 +699,7 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 
 	DBA::close($thread_items);
 
+	DI::profiler()->stopRecording();
 	return $comments;
 }
 
@@ -711,6 +718,7 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conversation_add_children(array $parents, $block_authors, $order, $uid) {
+	DI::profiler()->startRecording('rendering');
 	if (count($parents) > 1) {
 		$max_comments = DI::config()->get('system', 'max_comments', 100);
 	} else {
@@ -753,6 +761,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	$items = conv_sort($items, $order);
 
+	DI::profiler()->stopRecording();
 	return $items;
 }
 
@@ -768,6 +777,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
  * @return array
  */
 function conversation_fetch_items(array $parent, array $items, array $condition, bool $block_authors, array $params, array $activity) {
+	DI::profiler()->startRecording('rendering');
 	if ($block_authors) {
 		$condition[0] .= " AND NOT `author-hidden`";
 	}
@@ -779,11 +789,13 @@ function conversation_fetch_items(array $parent, array $items, array $condition,
 	if (count($comments) != 0) {
 		$items = array_merge($items, $comments);
 	}
+	DI::profiler()->stopRecording();
 	return $items;
 }
 
 function item_photo_menu($item)
 {
+	DI::profiler()->startRecording('rendering');
 	$sub_link = '';
 	$poke_link = '';
 	$contact_url = '';
@@ -882,6 +894,7 @@ function item_photo_menu($item)
 			$o .= '<li role="menuitem"><a href="' . $v . '">' . $k . '</a></li>' . PHP_EOL;
 		}
 	}
+	DI::profiler()->stopRecording();
 	return $o;
 }
 
@@ -980,6 +993,7 @@ function builtin_activity_puller(array $activity, array &$conv_responses)
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function format_activity(array $links, $verb, $id) {
+	DI::profiler()->startRecording('rendering');
 	$o = '';
 	$expanded = '';
 	$phrase = '';
@@ -1059,11 +1073,13 @@ function format_activity(array $links, $verb, $id) {
 	]);
 	$o .= $expanded;
 
+	DI::profiler()->stopRecording();
 	return $o;
 }
 
 function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 {
+	DI::profiler()->startRecording('rendering');
 	$o = '';
 
 	$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
@@ -1151,6 +1167,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		$o = '<div id="jot-popup" style="display: none;">' . $o . '</div>';
 	}
 
+	DI::profiler()->stopRecording();
 	return $o;
 }
 
@@ -1164,6 +1181,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
  */
 function get_item_children(array &$item_list, array $parent, $recursive = true)
 {
+	DI::profiler()->startRecording('rendering');
 	$children = [];
 	foreach ($item_list as $i => $item) {
 		if ($item['gravity'] != GRAVITY_PARENT) {
@@ -1185,6 +1203,7 @@ function get_item_children(array &$item_list, array $parent, $recursive = true)
 			}
 		}
 	}
+	DI::profiler()->stopRecording();
 	return $children;
 }
 
@@ -1196,6 +1215,7 @@ function get_item_children(array &$item_list, array $parent, $recursive = true)
  */
 function sort_item_children(array $items)
 {
+	DI::profiler()->startRecording('rendering');
 	$result = $items;
 	usort($result, 'sort_thr_received_rev');
 	foreach ($result as $k => $i) {
@@ -1203,6 +1223,7 @@ function sort_item_children(array $items)
 			$result[$k]['children'] = sort_item_children($result[$k]['children']);
 		}
 	}
+	DI::profiler()->stopRecording();
 	return $result;
 }
 
@@ -1240,7 +1261,9 @@ function add_children_to_list(array $children, array &$item_list)
  */
 function smart_flatten_conversation(array $parent)
 {
+	DI::profiler()->startRecording('rendering');
 	if (!isset($parent['children']) || count($parent['children']) == 0) {
+		DI::profiler()->stopRecording();
 		return $parent;
 	}
 
@@ -1251,6 +1274,7 @@ function smart_flatten_conversation(array $parent)
 		if (isset($child['children']) && count($child['children'])) {
 			// This helps counting only the regular posts
 			$count_post_closure = function($var) {
+				DI::profiler()->stopRecording();
 				return $var['verb'] === Activity::POST;
 			};
 
@@ -1276,6 +1300,7 @@ function smart_flatten_conversation(array $parent)
 		}
 	}
 
+	DI::profiler()->stopRecording();
 	return $parent;
 }
 
@@ -1293,9 +1318,11 @@ function smart_flatten_conversation(array $parent)
  */
 function conv_sort(array $item_list, $order)
 {
+	DI::profiler()->startRecording('rendering');
 	$parents = [];
 
 	if (!(is_array($item_list) && count($item_list))) {
+		DI::profiler()->stopRecording();
 		return $parents;
 	}
 
@@ -1355,6 +1382,7 @@ function conv_sort(array $item_list, $order)
 		}
 	}
 
+	DI::profiler()->stopRecording();
 	return $parents;
 }
 

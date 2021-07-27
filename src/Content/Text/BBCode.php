@@ -152,6 +152,7 @@ class BBCode
 	 */
 	public static function getAttachmentData($body)
 	{
+		DI::profiler()->startRecording('rendering');
 		$data = [
 			'type'          => '',
 			'text'          => '',
@@ -167,6 +168,7 @@ class BBCode
 		];
 
 		if (!preg_match("/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism", $body, $match)) {
+			DI::profiler()->stopRecording();
 			return self::getOldAttachmentData($body);
 		}
 
@@ -211,6 +213,7 @@ class BBCode
 		}
 
 		if (!in_array($data['type'], ['link', 'audio', 'photo', 'video'])) {
+			DI::profiler()->stopRecording();
 			return [];
 		}
 
@@ -232,6 +235,7 @@ class BBCode
 			}
 		}
 
+		DI::profiler()->stopRecording();
 		return $data;
 	}
 
@@ -247,6 +251,7 @@ class BBCode
 		- (thumbnail)
 		*/
 
+		DI::profiler()->startRecording('rendering');
 		$has_title = !empty($item['title']);
 		$plink = $item['plink'] ?? '';
 		$post = self::getAttachmentData($body);
@@ -398,6 +403,7 @@ class BBCode
 			}
 		}
 
+		DI::profiler()->stopRecording();
 		return $post;
 	}
 
@@ -434,6 +440,7 @@ class BBCode
 	 */
 	public static function toPlaintext($text, $keep_urls = true)
 	{
+		DI::profiler()->startRecording('rendering');
 		// Remove pictures in advance to avoid unneeded proxy calls
 		$text = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $2 ', $text);
 		$text = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $text);
@@ -443,6 +450,7 @@ class BBCode
 
 		$naked_text = HTML::toPlaintext(self::convert($text, false, 0, true), 0, !$keep_urls);
 
+		DI::profiler()->stopRecording();
 		return $naked_text;
 	}
 
@@ -468,6 +476,7 @@ class BBCode
 	 */
 	public static function scaleExternalImages(string $srctext)
 	{
+		DI::profiler()->startRecording('rendering');
 		$s = $srctext;
 
 		// Simplify image links
@@ -517,6 +526,7 @@ class BBCode
 			}
 		}
 
+		DI::profiler()->stopRecording();
 		return $s;
 	}
 
@@ -532,6 +542,7 @@ class BBCode
 	 */
 	public static function limitBodySize($body)
 	{
+		DI::profiler()->startRecording('rendering');
 		$maxlen = DI::config()->get('config', 'max_import_size', 0);
 
 		// If the length of the body, including the embedded images, is smaller
@@ -603,8 +614,10 @@ class BBCode
 				$new_body = $new_body . $orig_body;
 			}
 
+			DI::profiler()->stopRecording();
 			return $new_body;
 		} else {
+			DI::profiler()->stopRecording();
 			return $body;
 		}
 	}
@@ -624,12 +637,12 @@ class BBCode
 	 */
 	public static function convertAttachment($text, $simplehtml = self::INTERNAL, $tryoembed = true, array $data = [], $uriid = 0)
 	{
+		DI::profiler()->startRecording('rendering');
 		$data = $data ?: self::getAttachmentData($text);
 		if (empty($data) || empty($data['url'])) {
+			DI::profiler()->stopRecording();
 			return $text;
 		}
-
-		$stamp1 = microtime(true);
 
 		if (isset($data['title'])) {
 			$data['title'] = strip_tags($data['title']);
@@ -688,17 +701,20 @@ class BBCode
 			}
 		}
 
-		DI::profiler()->saveTimestamp($stamp1, 'rendering');
+		DI::profiler()->stopRecording();
 		return trim(($data['text'] ?? '') . ' ' . $return . ' ' . ($data['after'] ?? ''));
 	}
 
 	public static function removeShareInformation($Text, $plaintext = false, $nolink = false)
 	{
+		DI::profiler()->startRecording('rendering');
 		$data = self::getAttachmentData($Text);
 
 		if (!$data) {
+			DI::profiler()->stopRecording();
 			return $Text;
 		} elseif ($nolink) {
+			DI::profiler()->stopRecording();
 			return $data['text'] . ($data['after'] ?? '');
 		}
 
@@ -712,11 +728,13 @@ class BBCode
 		}
 
 		if (empty($data['text']) && !empty($data['title']) && empty($data['url'])) {
+			DI::profiler()->stopRecording();
 			return $data['title'] . $data['after'];
 		}
 
 		// If the link already is included in the post, don't add it again
 		if (!empty($data['url']) && strpos($data['text'], $data['url'])) {
+			DI::profiler()->stopRecording();
 			return $data['text'] . $data['after'];
 		}
 
@@ -728,6 +746,7 @@ class BBCode
 			$text .= "\n[url]" . $data['url'] . '[/url]';
 		}
 
+		DI::profiler()->stopRecording();
 		return $text . "\n" . $data['after'];
 	}
 
@@ -821,6 +840,7 @@ class BBCode
 	 */
 	public static function getTagPosition($text, $name, $occurrences = 0)
 	{
+		DI::profiler()->startRecording('rendering');
 		if ($occurrences < 0) {
 			$occurrences = 0;
 		}
@@ -833,6 +853,7 @@ class BBCode
 		}
 
 		if ($start_open === false) {
+			DI::profiler()->stopRecording();
 			return false;
 		}
 
@@ -840,6 +861,7 @@ class BBCode
 		$start_close = strpos($text, ']', $start_open);
 
 		if ($start_close === false) {
+			DI::profiler()->stopRecording();
 			return false;
 		}
 
@@ -848,6 +870,7 @@ class BBCode
 		$end_open = strpos($text, '[/' . $name . ']', $start_close);
 
 		if ($end_open === false) {
+			DI::profiler()->stopRecording();
 			return false;
 		}
 
@@ -866,6 +889,7 @@ class BBCode
 			$res['start']['equal'] = $start_equal + 1;
 		}
 
+		DI::profiler()->stopRecording();
 		return $res;
 	}
 
@@ -880,6 +904,7 @@ class BBCode
 	 */
 	public static function pregReplaceInTag($pattern, $replace, $name, $text)
 	{
+		DI::profiler()->startRecording('rendering');
 		$occurrences = 0;
 		$pos = self::getTagPosition($text, $name, $occurrences);
 		while ($pos !== false && $occurrences++ < 1000) {
@@ -896,6 +921,7 @@ class BBCode
 			$pos = self::getTagPosition($text, $name, $occurrences);
 		}
 
+		DI::profiler()->stopRecording();
 		return $text;
 	}
 
@@ -964,12 +990,14 @@ class BBCode
 	 */
 	public static function fetchShareAttributes($text)
 	{
+		DI::profiler()->startRecording('rendering');
 		// See Issue https://github.com/friendica/friendica/issues/10454
 		// Hashtags in usernames are expanded to links. This here is a quick fix.
 		$text = preg_replace('/([@!#])\[url\=.*?\](.*?)\[\/url\]/ism', '$1$2', $text);
 
 		$attributes = [];
 		if (!preg_match("/(.*?)\[share(.*?)\](.*)\[\/share\]/ism", $text, $matches)) {
+			DI::profiler()->stopRecording();
 			return $attributes;
 		}
 
@@ -978,6 +1006,7 @@ class BBCode
 			preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
 			$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 		}
+		DI::profiler()->stopRecording();
 		return $attributes;
 	}
 
@@ -1002,6 +1031,7 @@ class BBCode
 	 */
 	public static function convertShare($text, callable $callback, int $uriid = 0)
 	{
+		DI::profiler()->startRecording('rendering');
 		$return = preg_replace_callback(
 			"/(.*?)\[share(.*?)\](.*)\[\/share\]/ism",
 			function ($match) use ($callback, $uriid) {
@@ -1033,6 +1063,7 @@ class BBCode
 			$text
 		);
 
+		DI::profiler()->stopRecording();
 		return $return;
 	}
 
@@ -1052,6 +1083,7 @@ class BBCode
 	 */
 	private static function convertShareCallback(array $attributes, array $author_contact, $content, $is_quote_share, $simplehtml)
 	{
+		DI::profiler()->startRecording('rendering');
 		$mention = Protocol::formatMention($attributes['profile'], $attributes['author']);
 
 		switch ($simplehtml) {
@@ -1247,19 +1279,23 @@ class BBCode
 
 	public static function cleanPictureLinks($text)
 	{
+		DI::profiler()->startRecording('rendering');
 		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img=(.*)\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $text);
 		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $return);
+		DI::profiler()->stopRecording();
 		return $return;
 	}
 
 	public static function removeLinks(string $bbcode)
 	{
+		DI::profiler()->startRecording('rendering');
 		$bbcode = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $1 ', $bbcode);
 		$bbcode = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $bbcode);
 
 		$bbcode = preg_replace('/[@!#]\[url\=.*?\].*?\[\/url\]/ism', '', $bbcode);
 		$bbcode = preg_replace("/\[url=[^\[\]]*\](.*)\[\/url\]/Usi", ' $1 ', $bbcode);
 		$bbcode = preg_replace('/[@!#]?\[url.*?\[\/url\]/ism', '', $bbcode);
+		DI::profiler()->stopRecording();
 		return $bbcode;
 	}
 
@@ -1271,8 +1307,11 @@ class BBCode
 	 */
 	public static function setMentionsToNicknames(string $body):string
 	{
+		DI::profiler()->startRecording('rendering');
 		$regexp = "/([@!])\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-		return preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
+		$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
+		DI::profiler()->stopRecording();
+		return $body;
 	}
 
 	/**
@@ -1359,6 +1398,8 @@ class BBCode
 		if (is_null($text) || $text === '') {
 			return '';
 		}
+
+		DI::profiler()->startRecording('rendering');
 
 		Hook::callAll('bbcode', $text);
 
@@ -1979,6 +2020,7 @@ class BBCode
 		);
 
 		$text = HTML::purify($text, $allowedIframeDomains);
+		DI::profiler()->stopRecording();
 
 		return trim($text);
 	}
@@ -1991,9 +2033,11 @@ class BBCode
 	 */
 	public static function stripAbstract($text)
 	{
+		DI::profiler()->startRecording('rendering');
 		$text = preg_replace("/[\s|\n]*\[abstract\].*?\[\/abstract\][\s|\n]*/ism", '', $text);
 		$text = preg_replace("/[\s|\n]*\[abstract=.*?\].*?\[\/abstract][\s|\n]*/ism", '', $text);
 
+		DI::profiler()->stopRecording();
 		return $text;
 	}
 
@@ -2006,6 +2050,7 @@ class BBCode
 	 */
 	public static function getAbstract($text, $addon = '')
 	{
+		DI::profiler()->startRecording('rendering');
 		$abstract = '';
 		$abstracts = [];
 		$addon = strtolower($addon);
@@ -2024,6 +2069,7 @@ class BBCode
 			$abstract = $result[1];
 		}
 
+		DI::profiler()->stopRecording();
 		return $abstract;
 	}
 
@@ -2062,6 +2108,7 @@ class BBCode
 	 */
 	public static function toMarkdown($text, $for_diaspora = true)
 	{
+		DI::profiler()->startRecording('rendering');
 		$original_text = $text;
 
 		// Since Diaspora is creating a summary for links, this function removes them before posting
@@ -2106,12 +2153,8 @@ class BBCode
 		// Maybe we should make this newline at every time before a quote.
 		$text = str_replace(['</a><blockquote>'], ['</a><br><blockquote>'], $text);
 
-		$stamp1 = microtime(true);
-
 		// Now convert HTML to Markdown
 		$text = HTML::toMarkdown($text);
-
-		DI::profiler()->saveTimestamp($stamp1, "parser");
 
 		// Libertree has a problem with escaped hashtags.
 		$text = str_replace(['\#'], ['#'], $text);
@@ -2131,6 +2174,7 @@ class BBCode
 
 		Hook::callAll('bb2diaspora', $text);
 
+		DI::profiler()->stopRecording();
 		return $text;
 	}
 
@@ -2149,6 +2193,7 @@ class BBCode
 	 */
 	public static function getTags($string)
 	{
+		DI::profiler()->startRecording('rendering');
 		$ret = [];
 
 		self::performWithEscapedTags($string, ['noparse', 'pre', 'code', 'img'], function ($string) use (&$ret) {
@@ -2199,6 +2244,7 @@ class BBCode
 			}
 		});
 
+		DI::profiler()->stopRecording();
 		return array_unique($ret);
 	}
 
@@ -2258,6 +2304,7 @@ class BBCode
 	 */
 	public static function setMentions($body, $profile_uid = 0, $network = '')
 	{
+		DI::profiler()->startRecording('rendering');
 		self::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network) {
 			$tags = self::getTags($body);
 
@@ -2289,6 +2336,7 @@ class BBCode
 			return $body;
 		});
 
+		DI::profiler()->stopRecording();
 		return $body;
 	}
 
@@ -2304,6 +2352,7 @@ class BBCode
 	 */
 	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null)
 	{
+		DI::profiler()->startRecording('rendering');
 		$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author) .
 			"' profile='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $profile) .
 			"' avatar='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $avatar) .
@@ -2316,6 +2365,7 @@ class BBCode
 
 		$header  .= "']";
 
+		DI::profiler()->stopRecording();
 		return $header;
 	}
 
@@ -2337,6 +2387,7 @@ class BBCode
 	 */
 	public static function embedURL(string $url, bool $tryAttachment = true, string $title = null, string $description = null, string $tags = null): string
 	{
+		DI::profiler()->startRecording('rendering');
 		DI::logger()->info($url);
 
 		// If there is already some content information submitted we don't
@@ -2358,6 +2409,7 @@ class BBCode
 
 			DI::logger()->info('(unparsed): returns: ' . $result);
 
+			DI::profiler()->stopRecording();
 			return $result;
 		}
 
@@ -2376,6 +2428,7 @@ class BBCode
 					break;
 			}
 
+			DI::profiler()->stopRecording();
 			return $bbcode;
 		}
 
@@ -2383,10 +2436,13 @@ class BBCode
 
 		// Bypass attachment if parse url for a comment
 		if (!$tryAttachment) {
+			DI::profiler()->stopRecording();
 			return "\n" . '[url=' . $url . ']' . $siteinfo['title'] . '[/url]';
 		}
 
 		// Format it as BBCode attachment
-		return "\n" . PageInfo::getFooterFromData($siteinfo);
+		$bbcode = "\n" . PageInfo::getFooterFromData($siteinfo);
+		DI::profiler()->stopRecording();
+		return $bbcode;
 	}
 }
