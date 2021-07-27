@@ -59,7 +59,7 @@ class ProfilerLoggerTest extends MockedTest
 		$logger = new ProfilerLogger($this->logger, $this->profiler);
 
 		$this->logger->shouldReceive($function)->with($message, $context)->once();
-		$this->profiler->shouldReceive('startRecording')->with(\Mockery::any(), 'file')->once();
+		$this->profiler->shouldReceive('startRecording')->with('file')->once();
 		$this->profiler->shouldReceive('stopRecording');
 		$this->profiler->shouldReceive('saveTimestamp');
 		$logger->$function($message, $context);
@@ -74,7 +74,7 @@ class ProfilerLoggerTest extends MockedTest
 		$logger = new ProfilerLogger($this->logger, $this->profiler);
 
 		$this->logger->shouldReceive('log')->with(LogLevel::WARNING, 'test', ['a' => 'context'])->once();
-		$this->profiler->shouldReceive('startRecording')->with(\Mockery::any(), 'file')->once();
+		$this->profiler->shouldReceive('startRecording')->with('file')->once();
 		$this->profiler->shouldReceive('stopRecording');
 		$this->profiler->shouldReceive('saveTimestamp');
 
