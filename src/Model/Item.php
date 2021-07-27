@@ -2726,22 +2726,6 @@ class Item
 		$item['hashtags'] = $tags['hashtags'];
 		$item['mentions'] = $tags['mentions'];
 
-		// Compile eventual content filter reasons
-		$filter_reasons = [];
-		if (!$is_preview && public_contact() != $item['author-id']) {
-			if (!empty($item['content-warning']) && (!local_user() || !DI::pConfig()->get(local_user(), 'system', 'disable_cw', false))) {
-				$filter_reasons[] = DI::l10n()->t('Content warning: %s', $item['content-warning']);
-			}
-
-			$hook_data = [
-				'item' => $item,
-				'filter_reasons' => $filter_reasons
-			];
-			Hook::callAll('prepare_body_content_filter', $hook_data);
-			$filter_reasons = $hook_data['filter_reasons'];
-			unset($hook_data);
-		}
-
 		$body = $item['body'] ?? '';
 		$shared = BBCode::fetchShareAttributes($body);
 		if (!empty($shared['guid'])) {
@@ -2764,6 +2748,22 @@ class Item
 		self::putInCache($item);
 		$item['body'] = $body;
 		$s = $item["rendered-html"];
+
+		// Compile eventual content filter reasons
+		$filter_reasons = [];
+		if (!$is_preview && public_contact() != $item['author-id']) {
+			if (!empty($item['content-warning']) && (!local_user() || !DI::pConfig()->get(local_user(), 'system', 'disable_cw', false))) {
+				$filter_reasons[] = DI::l10n()->t('Content warning: %s', $item['content-warning']);
+			}
+
+			$hook_data = [
+				'item' => $item,
+				'filter_reasons' => $filter_reasons
+			];
+			Hook::callAll('prepare_body_content_filter', $hook_data);
+			$filter_reasons = $hook_data['filter_reasons'];
+			unset($hook_data);
+		}
 
 		$hook_data = [
 			'item' => $item,
