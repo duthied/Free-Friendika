@@ -1068,6 +1068,43 @@ class BBCode
 	}
 
 	/**
+	 * Convert complex IMG and ZMG elements
+	 *
+	 * @param [type] $text
+	 * @param integer $simplehtml
+	 * @param integer $uriid
+	 * @return string
+	 */
+	private static function convertImages(string $text, int $simplehtml, int $uriid = 0):string
+	{
+		DI::profiler()->startRecording('rendering');
+		$return = preg_replace_callback(
+			"/\[[zi]mg(.*?)\]([^\[\]]*)\[\/[zi]mg\]/ism",
+			function ($match) use ($simplehtml, $uriid) {
+				$attribute_string = $match[1];
+				$attributes = [];
+				foreach (['alt', 'width', 'height'] as $field) {
+					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
+					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
+				}
+
+				$img_str = '<img src="' . 
+				self::proxyUrl($match[2], $simplehtml, $uriid) . '"';
+				foreach ($attributes as $key => $value) {
+					if (!empty($value)) {
+						$img_str .= ' ' . $key . '="' . htmlspecialchars($value, ENT_COMPAT) . '"';
+					}
+				}
+				return $img_str . '>';
+			},
+			$text
+		);
+
+		DI::profiler()->stopRecording();
+		return $return;
+	}
+
+	/**
 	 * Default [share] tag conversion callback
 	 *
 	 * Note: Can produce a [bookmark] tag in the output
@@ -1729,6 +1766,8 @@ class BBCode
 
 				$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . DI::l10n()->t('Image/photo') . '" />', $text);
 				$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . DI::l10n()->t('Image/photo') . '" />', $text);
+	
+				$text = self::convertImages($text, $simple_html, $uriid);
 
 				$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . DI::l10n()->t('Encrypted content') . '" /><br>', $text);
 				$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br>', $text);
