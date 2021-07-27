@@ -126,7 +126,6 @@ class Profiler implements ContainerInterface
 		$callstack = $callstack ?: System::callstack(4, $value == 'rendering' ? 0 : 1);
 
 		if (!isset($this->performance[$value])) {
-			// Prevent ugly E_NOTICE
 			$this->performance[$value] = 0;
 		}
 
@@ -283,6 +282,7 @@ class Profiler implements ContainerInterface
 				}
 			}
 		}
+
 		if (isset($this->callstack["rendering"])) {
 			$output .= "\nRendering:\n";
 			foreach ($this->callstack["rendering"] as $func => $time) {
