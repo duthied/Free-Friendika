@@ -28,6 +28,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
@@ -178,8 +179,12 @@ class APContact
 		}
 
 		if (Network::isLocalLink($url) && ($local_uid = User::getIdForURL($url))) {
-			$data  = Transmitter::getProfile($local_uid);
-			$local_owner = User::getOwnerDataById($local_uid);
+			try {
+				$data = Transmitter::getProfile($local_uid);
+				$local_owner = User::getOwnerDataById($local_uid);
+			} catch(HTTPException\NotFoundException $e) {
+				$data = null;
+			}
 		}
 
 		if (empty($data)) {

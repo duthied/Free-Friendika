@@ -52,12 +52,13 @@ class Profile extends BaseProfile
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $parameters['nickname']]);
 			if (DBA::isResult($user)) {
-				// The function returns an empty array when the account is removed, expired or blocked
-				$data = ActivityPub\Transmitter::getProfile($user['uid']);
-				if (!empty($data)) {
+				try {
+					$data = ActivityPub\Transmitter::getProfile($user['uid']);
 					header('Access-Control-Allow-Origin: *');
 					header('Cache-Control: max-age=23200, stale-while-revalidate=23200');
 					System::jsonExit($data, 'application/activity+json');
+				} catch (HTTPException\NotFoundException $e) {
+					System::jsonError(404, ['error' => 'Record not found']);
 				}
 			}
 
