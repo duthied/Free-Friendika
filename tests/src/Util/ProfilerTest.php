@@ -250,12 +250,11 @@ class ProfilerTest extends MockedTest
 		            ->once();
 
 		$profiler = new Profiler($configCache);
-		$profiler->startRecording('network');
 
 		self::assertFalse($profiler->isRendertime());
 		self::assertEmpty($profiler->getRendertimeString());
 
-		$profiler->stopRecording('test1');
+		$profiler->saveTimestamp(time(), 'network', 'test1');
 
 		$config = \Mockery::mock(IConfig::class);
 		$config->shouldReceive('get')
@@ -283,8 +282,7 @@ class ProfilerTest extends MockedTest
 
 		$profiler->update($config);
 
-		$profiler->startRecording('database');
-		$profiler->stopRecording('test2');
+		$profiler->saveTimestamp(time(), 'database', 'test2');
 
 		self::assertTrue($profiler->isRendertime());
 		$output = $profiler->getRendertimeString();
