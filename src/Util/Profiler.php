@@ -87,6 +87,12 @@ class Profiler implements ContainerInterface
 		$this->reset();
 	}
 
+	/**
+	 * Start a profiler recording
+	 *
+	 * @param string $value
+	 * @return void
+	 */
 	public function startRecording(string $value)
 	{
 		if (!$this->enabled) {
@@ -96,6 +102,12 @@ class Profiler implements ContainerInterface
 		$this->timestamps[] = ['value' => $value, 'stamp' => microtime(true), 'credit' => 0];
 	}
 
+	/**
+	 * Stop a profiler recording
+	 *
+	 * @param string $callstack
+	 * @return void
+	 */
 	public function stopRecording(string $callstack = '')
 	{
 		if (!$this->enabled || empty($this->timestamps)) {

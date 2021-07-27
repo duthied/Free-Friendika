@@ -101,6 +101,8 @@ trait AppMockTrait
 			->andReturn($root->url());
 
 		$this->profilerMock = \Mockery::mock(Profiler::class);
+		$this->profilerMock->shouldReceive('startRecording');
+		$this->profilerMock->shouldReceive('stopRecording');
 		$this->profilerMock->shouldReceive('saveTimestamp');
 		$this->dice->shouldReceive('create')
 		           ->with(Profiler::class)
