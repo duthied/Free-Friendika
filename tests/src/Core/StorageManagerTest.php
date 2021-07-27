@@ -69,6 +69,8 @@ class StorageManagerTest extends DatabaseTest
 		$this->logger = new NullLogger();
 
 		$profiler = \Mockery::mock(Profiler::class);
+		$profiler->shouldReceive('startRecording');
+		$profiler->shouldReceive('stopRecording');
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		// load real config to avoid mocking every config-entry which is related to the Database class

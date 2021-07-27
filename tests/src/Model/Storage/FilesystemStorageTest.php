@@ -52,6 +52,8 @@ class FilesystemStorageTest extends StorageTest
 	{
 		$logger = new NullLogger();
 		$profiler = \Mockery::mock(Profiler::class);
+		$profiler->shouldReceive('startRecording');
+		$profiler->shouldReceive('stopRecording');
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		/** @var MockInterface|L10n $l10n */
