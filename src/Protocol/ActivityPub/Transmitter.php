@@ -1557,7 +1557,7 @@ class Transmitter
 		// The contentMap does contain the unmodified HTML.
 		$language = self::getLanguage($item);
 		if (!empty($language)) {
-			$richbody = BBCode::setMentionsToNicknames($item['body']);
+			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
 			$richbody = BBCode::removeAttachment($richbody);
 
 			$data['contentMap'][$language] = BBCode::convertForUriId($item['uri-id'], $richbody, BBCode::EXTERNAL);

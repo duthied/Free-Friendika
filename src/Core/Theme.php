@@ -88,9 +88,9 @@ class Theme
 			return $info;
 		}
 
-		$stamp1 = microtime(true);
+		DI::profiler()->startRecording('file');
 		$theme_file = file_get_contents("view/theme/$theme/theme.php");
-		DI::profiler()->saveTimestamp($stamp1, "file");
+		DI::profiler()->stopRecording();
 
 		$result = preg_match("|/\*.*\*/|msU", $theme_file, $matches);
 

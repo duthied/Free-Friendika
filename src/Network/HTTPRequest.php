@@ -72,7 +72,7 @@ class HTTPRequest implements IHTTPRequest
 	 */
 	public function get(string $url, array $opts = [], &$redirects = 0)
 	{
-		$stamp1 = microtime(true);
+		$this->profiler->startRecording('network');
 
 		if (Network::isLocalLink($url)) {
 			$this->logger->info('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
@@ -80,7 +80,7 @@ class HTTPRequest implements IHTTPRequest
 
 		if (strlen($url) > 1000) {
 			$this->logger->debug('URL is longer than 1000 characters.', ['url' => $url, 'callstack' => System::callstack(20)]);
-			$this->profiler->saveTimestamp($stamp1, 'network');
+			$this->profiler->stopRecording();
 			return CurlResult::createErrorCurl(substr($url, 0, 200));
 		}
 
@@ -99,14 +99,14 @@ class HTTPRequest implements IHTTPRequest
 
 		if (Network::isUrlBlocked($url)) {
 			$this->logger->info('Domain is blocked.', ['url' => $url]);
-			$this->profiler->saveTimestamp($stamp1, 'network');
+			$this->profiler->stopRecording();
 			return CurlResult::createErrorCurl($url);
 		}
 
 		$ch = @curl_init($url);
 
 		if (($redirects > 8) || (!$ch)) {
-			$this->profiler->saveTimestamp($stamp1, 'network');
+			$this->profiler->stopRecording();
 			return CurlResult::createErrorCurl($url);
 		}
 
@@ -208,13 +208,13 @@ class HTTPRequest implements IHTTPRequest
 			$redirects++;
 			$this->logger->notice('Curl redirect.', ['url' => $url, 'to' => $curlResponse->getRedirectUrl()]);
 			@curl_close($ch);
-			$this->profiler->saveTimestamp($stamp1, 'network');
+			$this->profiler->stopRecording();
 			return $this->get($curlResponse->getRedirectUrl(), $opts, $redirects);
 		}
 
 		@curl_close($ch);
 
-		$this->profiler->saveTimestamp($stamp1, 'network');
+		$this->profiler->stopRecording();
 
 		return $curlResponse;
 	}
@@ -228,7 +228,7 @@ class HTTPRequest implements IHTTPRequest
 	 */
 	public function post(string $url, $params, array $headers = [], int $timeout = 0, &$redirects = 0)
 	{
-		$stamp1 = microtime(true);
+		$this->profiler->startRecording('network');
 
 		if (Network::isLocalLink($url)) {
 			$this->logger->info('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
@@ -236,14 +236,14 @@ class HTTPRequest implements IHTTPRequest
 
 		if (Network::isUrlBlocked($url)) {
 			$this->logger->info('Domain is blocked.' . ['url' => $url]);
-			$this->profiler->saveTimestamp($stamp1, 'network');
+			$this->profiler->stopRecording();
 			return CurlResult::createErrorCurl($url);
 		}
 
 		$ch = curl_init($url);
 
 		if (($redirects > 8) || (!$ch)) {
-			$this->profiler->saveTimestamp($stamp1, 'network');
+			$this->profiler->stopRecording();
 			return CurlResult::createErrorCurl($url);
 		}
 
@@ -303,13 +303,13 @@ class HTTPRequest implements IHTTPRequest
 			$redirects++;
 			$this->logger->info('Post redirect.', ['url' => $url, 'to' => $curlResponse->getRedirectUrl()]);
 			curl_close($ch);
-			$this->profiler->saveTimestamp($stamp1, 'network');
+			$this->profiler->stopRecording();
 			return $this->post($curlResponse->getRedirectUrl(), $params, $headers, $redirects, $timeout);
 		}
 
 		curl_close($ch);
 
-		$this->profiler->saveTimestamp($stamp1, 'network');
+		$this->profiler->stopRecording();
 
 		// Very old versions of Lighttpd don't like the "Expect" header, so we remove it when needed
 		if ($curlResponse->getReturnCode() == 417) {
@@ -358,7 +358,7 @@ class HTTPRequest implements IHTTPRequest
 
 		$url = trim($url, "'");
 
-		$stamp1 = microtime(true);
+		$this->profiler->startRecording('network');
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -374,7 +374,7 @@ class HTTPRequest implements IHTTPRequest
 		$http_code = $curl_info['http_code'];
 		curl_close($ch);
 
-		$this->profiler->saveTimestamp($stamp1, "network");
+		$this->profiler->stopRecording();
 
 		if ($http_code == 0) {
 			return $url;
@@ -403,7 +403,7 @@ class HTTPRequest implements IHTTPRequest
 			return $url;
 		}
 
-		$stamp1 = microtime(true);
+		$this->profiler->startRecording('network');
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -417,7 +417,7 @@ class HTTPRequest implements IHTTPRequest
 		$body = curl_exec($ch);
 		curl_close($ch);
 
-		$this->profiler->saveTimestamp($stamp1, "network");
+		$this->profiler->stopRecording();
 
 		if (trim($body) == "") {
 			return $url;

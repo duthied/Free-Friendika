@@ -2726,22 +2726,6 @@ class Item
 		$item['hashtags'] = $tags['hashtags'];
 		$item['mentions'] = $tags['mentions'];
 
-		// Compile eventual content filter reasons
-		$filter_reasons = [];
-		if (!$is_preview && public_contact() != $item['author-id']) {
-			if (!empty($item['content-warning']) && (!local_user() || !DI::pConfig()->get(local_user(), 'system', 'disable_cw', false))) {
-				$filter_reasons[] = DI::l10n()->t('Content warning: %s', $item['content-warning']);
-			}
-
-			$hook_data = [
-				'item' => $item,
-				'filter_reasons' => $filter_reasons
-			];
-			Hook::callAll('prepare_body_content_filter', $hook_data);
-			$filter_reasons = $hook_data['filter_reasons'];
-			unset($hook_data);
-		}
-
 		$body = $item['body'] ?? '';
 		$shared = BBCode::fetchShareAttributes($body);
 		if (!empty($shared['guid'])) {
@@ -2764,6 +2748,22 @@ class Item
 		self::putInCache($item);
 		$item['body'] = $body;
 		$s = $item["rendered-html"];
+
+		// Compile eventual content filter reasons
+		$filter_reasons = [];
+		if (!$is_preview && public_contact() != $item['author-id']) {
+			if (!empty($item['content-warning']) && (!local_user() || !DI::pConfig()->get(local_user(), 'system', 'disable_cw', false))) {
+				$filter_reasons[] = DI::l10n()->t('Content warning: %s', $item['content-warning']);
+			}
+
+			$hook_data = [
+				'item' => $item,
+				'filter_reasons' => $filter_reasons
+			];
+			Hook::callAll('prepare_body_content_filter', $hook_data);
+			$filter_reasons = $hook_data['filter_reasons'];
+			unset($hook_data);
+		}
 
 		$hook_data = [
 			'item' => $item,
@@ -2858,7 +2858,7 @@ class Item
 	 */
 	private static function replaceVisualAttachments(array $attachments, string $body)
 	{
-		$stamp1 = microtime(true);
+		DI::profiler()->startRecording('rendering');
 
 		foreach ($attachments['visual'] as $attachment) {
 			if (!empty($attachment['preview'])) {
@@ -2867,7 +2867,7 @@ class Item
 				$body = str_replace($attachment['url'], Post\Media::getUrlForId($attachment['id']), $body);
 			}
 		}
-		DI::profiler()->saveTimestamp($stamp1, 'rendering');
+		DI::profiler()->stopRecording();
 		return $body;
 	}
 
@@ -2881,7 +2881,7 @@ class Item
 	 */
 	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared)
 	{
-		$stamp1 = microtime(true);
+		DI::profiler()->startRecording('rendering');
 		$leading = '';
 		$trailing = '';
 
@@ -2957,7 +2957,7 @@ class Item
 			}
 		}
 
-		DI::profiler()->saveTimestamp($stamp1, 'rendering');
+		DI::profiler()->stopRecording();
 		return $content;
 	}
 
@@ -2973,7 +2973,7 @@ class Item
 	 */
 	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links)
 	{
-		$stamp1 = microtime(true);
+		DI::profiler()->startRecording('rendering');
 		// @ToDo Check only for audio and video
 		$preview = empty($attachments['visual']);
 
@@ -3038,7 +3038,7 @@ class Item
 		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
 			$data = BBCode::getAttachmentData($match[1]);
 		}
-		DI::profiler()->saveTimestamp($stamp1, 'rendering');
+		DI::profiler()->stopRecording();
 
 		if (isset($data['url']) && !in_array($data['url'], $ignore_links)) {
 			if (!empty($data['description']) || !empty($data['image']) || !empty($data['preview'])) {
@@ -3086,7 +3086,7 @@ class Item
 	 */
 	private static function addNonVisualAttachments(array $attachments, array $item, string $content)
 	{
-		$stamp1 = microtime(true);
+		DI::profiler()->startRecording('rendering');
 		$trailing = '';
 		foreach ($attachments['additional'] as $attachment) {
 			if (strpos($item['body'], $attachment['url'])) {
@@ -3112,7 +3112,7 @@ class Item
 			$content .= '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>';
 		}
 
-		DI::profiler()->saveTimestamp($stamp1, 'rendering');
+		DI::profiler()->stopRecording();
 		return $content;
 	}
 

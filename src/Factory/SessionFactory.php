@@ -58,7 +58,7 @@ class SessionFactory
 	 */
 	public function createSession(App\Mode $mode, App\BaseURL $baseURL, IConfig $config, Database $dba, ICache $cache, LoggerInterface $logger, Profiler $profiler, array $server = [])
 	{
-		$stamp1  = microtime(true);
+		$profiler->startRecording('session');
 		$session = null;
 
 		try {
@@ -85,7 +85,7 @@ class SessionFactory
 				$session = new Session\Native($baseURL, $handler);
 			}
 		} finally {
-			$profiler->saveTimestamp($stamp1, 'parser');
+			$profiler->stopRecording();
 			return $session;
 		}
 	}

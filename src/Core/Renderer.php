@@ -73,7 +73,7 @@ class Renderer
 	 */
 	public static function replaceMacros(string $template, array $vars = [])
 	{
-		$stamp1 = microtime(true);
+		DI::profiler()->startRecording('rendering');
 
 		// pass $baseurl to all templates if it isn't set
 		$vars = array_merge(['$baseurl' => DI::baseUrl()->get(), '$APP' => DI::app()], $vars);
@@ -90,7 +90,7 @@ class Renderer
 			throw new InternalServerErrorException($message);
 		}
 
-		DI::profiler()->saveTimestamp($stamp1, "rendering");
+		DI::profiler()->stopRecording();
 
 		return $output;
 	}
@@ -106,7 +106,7 @@ class Renderer
 	 */
 	public static function getMarkupTemplate($file, $subDir = '')
 	{
-		$stamp1 = microtime(true);
+		DI::profiler()->startRecording('file');
 		$t = self::getTemplateEngine();
 
 		try {
@@ -119,7 +119,7 @@ class Renderer
 			throw new InternalServerErrorException($message);
 		}
 
-		DI::profiler()->saveTimestamp($stamp1, "file");
+		DI::profiler()->stopRecording();
 
 		return $template;
 	}

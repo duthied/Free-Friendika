@@ -236,9 +236,9 @@ class Addon
 			return $info;
 		}
 
-		$stamp1 = microtime(true);
+		DI::profiler()->startRecording('file');
 		$f = file_get_contents("addon/$addon/$addon.php");
-		DI::profiler()->saveTimestamp($stamp1, "file");
+		DI::profiler()->stopRecording();
 
 		$r = preg_match("|/\*.*\*/|msU", $f, $m);
 
