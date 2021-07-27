@@ -58,7 +58,7 @@ class SessionFactory
 	 */
 	public function createSession(App\Mode $mode, App\BaseURL $baseURL, IConfig $config, Database $dba, ICache $cache, LoggerInterface $logger, Profiler $profiler, array $server = [])
 	{
-		$profiler->startRecording('parser');
+		$profiler->startRecording('session');
 		$session = null;
 
 		try {

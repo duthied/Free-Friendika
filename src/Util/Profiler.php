@@ -198,7 +198,7 @@ class Profiler implements ContainerInterface
 		$this->performance['network'] = 0;
 		$this->performance['file'] = 0;
 		$this->performance['rendering'] = 0;
-		$this->performance['parser'] = 0;
+		$this->performance['session'] = 0;
 		$this->performance['marktime'] = 0;
 		$this->performance['marktime'] = microtime(true);
 		$this->performance['classcreate'] = 0;
@@ -220,7 +220,7 @@ class Profiler implements ContainerInterface
 		$this->callstack['network'] = [];
 		$this->callstack['file'] = [];
 		$this->callstack['rendering'] = [];
-		$this->callstack['parser'] = [];
+		$this->callstack['session'] = [];
 	}
 
 	/**

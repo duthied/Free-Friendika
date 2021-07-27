@@ -99,14 +99,14 @@ class ProfilerTest extends MockedTest
 				'name' => 'rendering',
 				'functions' => ['test', 'it7'],
 			],
-			'parser' => [
+			'session' => [
 				'timestamp' => time(),
-				'name' => 'parser',
+				'name' => 'session',
 				'functions' => ['test', 'it8'],
 			],
 			'marktime' => [
 				'timestamp' => time(),
-				'name' => 'parser',
+				'name' => 'session',
 				'functions' => ['test'],
 			],
 			// This one isn't set during reset
