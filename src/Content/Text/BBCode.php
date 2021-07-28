@@ -51,7 +51,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2021-07-13';
+	const VERSION = '2021-07-28';
 
 	const INTERNAL = 0;
 	const EXTERNAL = 1;
