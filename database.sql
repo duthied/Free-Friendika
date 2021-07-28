@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.09-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1430
+-- DB_UPDATE_VERSION 1431
 -- ------------------------------------------
 
 
@@ -493,15 +493,46 @@ CREATE TABLE IF NOT EXISTS `conversation` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Raw data and structure information for messages';
 
 --
+-- TABLE workerqueue
+--
+CREATE TABLE IF NOT EXISTS `workerqueue` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'Auto incremented worker task id',
+	`command` varchar(100) COMMENT 'Task command',
+	`parameter` mediumtext COMMENT 'Task parameter',
+	`priority` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Task priority',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date',
+	`pid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Process id of the worker',
+	`executed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Execution date',
+	`next_try` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Next retrial date',
+	`retrial` tinyint NOT NULL DEFAULT 0 COMMENT 'Retrial counter',
+	`done` boolean NOT NULL DEFAULT '0' COMMENT 'Marked 1 when the task was done - will be deleted later',
+	 PRIMARY KEY(`id`),
+	 INDEX `command` (`command`),
+	 INDEX `done_command_parameter` (`done`,`command`,`parameter`(64)),
+	 INDEX `done_executed` (`done`,`executed`),
+	 INDEX `done_priority_retrial_created` (`done`,`priority`,`retrial`,`created`),
+	 INDEX `done_priority_next_try` (`done`,`priority`,`next_try`),
+	 INDEX `done_pid_next_try` (`done`,`pid`,`next_try`),
+	 INDEX `done_pid_retrial` (`done`,`pid`,`retrial`),
+	 INDEX `done_pid_priority_created` (`done`,`pid`,`priority`,`created`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
+
+--
 -- TABLE delayed-post
 --
 CREATE TABLE IF NOT EXISTS `delayed-post` (
 	`id` int unsigned NOT NULL auto_increment,
 	`uri` varchar(255) COMMENT 'URI of the post that will be distributed later',
+	`title` varchar(255) COMMENT 'post title',
+	`body` mediumtext COMMENT 'post body content',
+	`private` tinyint unsigned COMMENT '0=public, 1=private, 2=unlisted',
+	`wid` int unsigned COMMENT 'Workerqueue id',
 	`uid` mediumint unsigned COMMENT 'Owner User id',
 	`delayed` datetime COMMENT 'delay time',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uid_uri` (`uid`,`uri`(190)),
+	 INDEX `wid` (`wid`),
+	FOREIGN KEY (`wid`) REFERENCES `workerqueue` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be distributed at a later time';
 
@@ -1473,31 +1504,6 @@ CREATE TABLE IF NOT EXISTS `worker-ipc` (
 	`jobs` boolean COMMENT 'Flag for outstanding jobs',
 	 PRIMARY KEY(`key`)
 ) ENGINE=MEMORY DEFAULT COLLATE utf8mb4_general_ci COMMENT='Inter process communication between the frontend and the worker';
-
---
--- TABLE workerqueue
---
-CREATE TABLE IF NOT EXISTS `workerqueue` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'Auto incremented worker task id',
-	`command` varchar(100) COMMENT 'Task command',
-	`parameter` mediumtext COMMENT 'Task parameter',
-	`priority` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Task priority',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date',
-	`pid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Process id of the worker',
-	`executed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Execution date',
-	`next_try` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Next retrial date',
-	`retrial` tinyint NOT NULL DEFAULT 0 COMMENT 'Retrial counter',
-	`done` boolean NOT NULL DEFAULT '0' COMMENT 'Marked 1 when the task was done - will be deleted later',
-	 PRIMARY KEY(`id`),
-	 INDEX `command` (`command`),
-	 INDEX `done_command_parameter` (`done`,`command`,`parameter`(64)),
-	 INDEX `done_executed` (`done`,`executed`),
-	 INDEX `done_priority_retrial_created` (`done`,`priority`,`retrial`,`created`),
-	 INDEX `done_priority_next_try` (`done`,`priority`,`next_try`),
-	 INDEX `done_pid_next_try` (`done`,`pid`,`next_try`),
-	 INDEX `done_pid_retrial` (`done`,`pid`,`retrial`),
-	 INDEX `done_pid_priority_created` (`done`,`pid`,`priority`,`created`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
 
 --
 -- VIEW application-view

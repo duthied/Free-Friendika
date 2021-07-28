@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1430);
+	define('DB_UPDATE_VERSION', 1431);
 }
 
 return [
@@ -554,17 +554,48 @@ return [
 			"received" => ["received"],
 		]
 	],
+	"workerqueue" => [
+		"comment" => "Background tasks queue entries",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"],
+			"command" => ["type" => "varchar(100)", "comment" => "Task command"],
+			"parameter" => ["type" => "mediumtext", "comment" => "Task parameter"],
+			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Task priority"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date"],
+			"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
+			"executed" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Execution date"],
+			"next_try" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Next retrial date"],
+			"retrial" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Retrial counter"],
+			"done" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marked 1 when the task was done - will be deleted later"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"command" => ["command"],
+			"done_command_parameter" => ["done", "command", "parameter(64)"],
+			"done_executed" => ["done", "executed"],
+			"done_priority_retrial_created" => ["done", "priority", "retrial", "created"],
+			"done_priority_next_try" => ["done", "priority", "next_try"],
+			"done_pid_next_try" => ["done", "pid", "next_try"],
+			"done_pid_retrial" => ["done", "pid", "retrial"],
+			"done_pid_priority_created" => ["done", "pid", "priority", "created"]
+		]
+	],
 	"delayed-post" => [
 		"comment" => "Posts that are about to be distributed at a later time",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
 			"uri" => ["type" => "varchar(255)", "comment" => "URI of the post that will be distributed later"],
+			"title" => ["type" => "varchar(255)", "comment" => "post title"],
+			"body" => ["type" => "mediumtext", "comment" => "post body content"],
+			"private" => ["type" => "tinyint unsigned", "comment" => "0=public, 1=private, 2=unlisted"],
+			"wid" => ["type" => "int unsigned", "foreign" => ["workerqueue" => "id"], "comment" => "Workerqueue id"],
 			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"delayed" => ["type" => "datetime", "comment" => "delay time"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid_uri" => ["UNIQUE", "uid", "uri(190)"],
+			"wid" => ["wid"],
 		]
 	],
 	"diaspora-interaction" => [
@@ -1495,31 +1526,5 @@ return [
 			"PRIMARY" => ["key"],
 		],
 		"engine" => "MEMORY",
-	],
-	"workerqueue" => [
-		"comment" => "Background tasks queue entries",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"],
-			"command" => ["type" => "varchar(100)", "comment" => "Task command"],
-			"parameter" => ["type" => "mediumtext", "comment" => "Task parameter"],
-			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Task priority"],
-			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date"],
-			"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
-			"executed" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Execution date"],
-			"next_try" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Next retrial date"],
-			"retrial" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Retrial counter"],
-			"done" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marked 1 when the task was done - will be deleted later"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"command" => ["command"],
-			"done_command_parameter" => ["done", "command", "parameter(64)"],
-			"done_executed" => ["done", "executed"],
-			"done_priority_retrial_created" => ["done", "priority", "retrial", "created"],
-			"done_priority_next_try" => ["done", "priority", "next_try"],
-			"done_pid_next_try" => ["done", "pid", "next_try"],
-			"done_pid_retrial" => ["done", "pid", "retrial"],
-			"done_pid_priority_created" => ["done", "pid", "priority", "created"]
-		]
 	],
 ];

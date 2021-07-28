@@ -64,13 +64,24 @@ class Delayed
 
 		Logger::notice('Adding post for delayed publishing', ['uid' => $item['uid'], 'delayed' => $delayed, 'uri' => $uri]);
 
-		if (!Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $unprepared, $uri)) {
+		$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $unprepared, $uri);
+		if (!$wid) {
 			return false;
 		}
 
 		DI::pConfig()->set($item['uid'], 'system', 'last_publish', $next_publish);
 
-		return DBA::insert('delayed-post', ['uri' => $uri, 'uid' => $item['uid'], 'delayed' => $delayed], Database::INSERT_IGNORE);
+		$delayed_post = [
+			'uri'     => $uri,
+			'title'   => $item['title'],
+			'body'    => $item['body'],
+			'private' => $item['private'],
+			'wid'     => $item['wid'],
+			'uid'     => $item['uid'],
+			'delayed' => $delayed,
+		];
+
+		return DBA::insert('delayed-post', $delayed_post, Database::INSERT_IGNORE);
 	}
 
 	/**
