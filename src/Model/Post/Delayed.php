@@ -76,7 +76,7 @@ class Delayed
 			'title'   => $item['title'],
 			'body'    => $item['body'],
 			'private' => $item['private'],
-			'wid'     => $item['wid'],
+			'wid'     => $wid,
 			'uid'     => $item['uid'],
 			'delayed' => $delayed,
 		];
