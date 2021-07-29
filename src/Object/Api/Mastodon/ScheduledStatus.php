@@ -62,7 +62,7 @@ class ScheduledStatus extends BaseDataTransferObject
 	{
 		$visibility = ['public', 'private', 'unlisted'];
 
-		$this->id           = (string)$delayed_post['uri-id'];
+		$this->id           = (string)$delayed_post['id'];
 		$this->scheduled_at = DateTimeFormat::utc($delayed_post['scheduled_at'], DateTimeFormat::JSON);
 
 		$this->params = [

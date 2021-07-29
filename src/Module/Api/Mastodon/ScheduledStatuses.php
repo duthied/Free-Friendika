@@ -40,7 +40,7 @@ class ScheduledStatuses extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (isset($parameters['id'])) {
-				System::jsonExit(DI::mstdnScheduledStatus()->createFromId($parameters['id'], $uid));
+				System::jsonExit(DI::mstdnScheduledStatus()->createFromId($parameters['id'], $uid)->toArray());
 		}
 
 		$request = self::getRequest([

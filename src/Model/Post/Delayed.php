@@ -115,7 +115,7 @@ class Delayed
 	 */
 	public static function getParametersForid(int $id)
 	{
-		$delayed = DBA::selectFirst('delayed-post', ['id', 'wid', 'delayed'], ['id' => $id]);
+		$delayed = DBA::selectFirst('delayed-post', ['id', 'uid', 'wid', 'delayed'], ['id' => $id]);
 		if (empty($delayed['wid'])) {
 			return [];
 		}
