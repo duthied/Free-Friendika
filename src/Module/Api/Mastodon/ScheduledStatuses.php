@@ -22,6 +22,7 @@
 namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
@@ -35,6 +36,20 @@ class ScheduledStatuses extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		self::checkAllowedScope(self::SCOPE_READ);
+		$uid = self::getCurrentUserID();
+
+		if (isset($parameters['id'])) {
+				System::jsonExit(DI::mstdnScheduledStatus()->createFromId($parameters['id'], $uid));
+		}
+
+		$request = self::getRequest([
+			'limit'           => 20, // Max number of results to return. Defaults to 20.
+			'max_id'          => 0,  // Return results older than ID
+			'since_id'        => 0,  // Return results newer than ID
+			'min_id'          => 0,  // Return results immediately newer than ID
+		]);
+
 		System::jsonExit([]);
 	}
 }

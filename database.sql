@@ -523,17 +523,14 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 CREATE TABLE IF NOT EXISTS `delayed-post` (
 	`id` int unsigned NOT NULL auto_increment,
 	`uri` varchar(255) COMMENT 'URI of the post that will be distributed later',
-	`title` varchar(255) COMMENT 'post title',
-	`body` mediumtext COMMENT 'post body content',
-	`private` tinyint unsigned COMMENT '0=public, 1=private, 2=unlisted',
-	`wid` int unsigned COMMENT 'Workerqueue id',
 	`uid` mediumint unsigned COMMENT 'Owner User id',
 	`delayed` datetime COMMENT 'delay time',
+	`wid` int unsigned COMMENT 'Workerqueue id',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uid_uri` (`uid`,`uri`(190)),
 	 INDEX `wid` (`wid`),
-	FOREIGN KEY (`wid`) REFERENCES `workerqueue` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`wid`) REFERENCES `workerqueue` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be distributed at a later time';
 
 --

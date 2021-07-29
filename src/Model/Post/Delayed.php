@@ -73,12 +73,9 @@ class Delayed
 
 		$delayed_post = [
 			'uri'     => $uri,
-			'title'   => $item['title'],
-			'body'    => $item['body'],
-			'private' => $item['private'],
-			'wid'     => $wid,
 			'uid'     => $item['uid'],
 			'delayed' => $delayed,
+			'wid'     => $wid,
 		];
 
 		return DBA::insert('delayed-post', $delayed_post, Database::INSERT_IGNORE);
@@ -108,6 +105,40 @@ class Delayed
 	public static function exists(string $uri, int $uid)
 	{
 		return DBA::exists('delayed-post', ['uri' => $uri, 'uid' => $uid]);
+	}
+
+	/**
+	 * Fetch parameters for delayed posts
+	 *
+	 * @param integer $id
+	 * @return array
+	 */
+	public static function getParametersForid(int $id)
+	{
+		$delayed = DBA::selectFirst('delayed-post', ['id', 'wid', 'delayed'], ['id' => $id]);
+		if (empty($delayed['wid'])) {
+			return [];
+		}
+
+		$worker = DBA::selectFirst('workerqueue', ['parameter'], ['id' => $delayed['wid'], 'command' => 'DelayedPublish']);
+		if (empty($worker)) {
+			return [];
+		}
+
+		$parameters = json_decode($worker['parameter']);
+		if (empty($parameters)) {
+			return [];
+		}
+
+		return [
+			'parameters' => $delayed,
+			'item' => $parameters[0],
+			'notify' => $parameters[1],
+			'taglist' => $parameters[2],
+			'attachments' => $parameters[3],
+			'unprepared' => $parameters[4],
+			'uri' => $parameters[5],
+		];
 	}
 
 	/**
