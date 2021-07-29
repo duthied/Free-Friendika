@@ -63,7 +63,7 @@ class ScheduledStatus extends BaseDataTransferObject
 		$visibility = ['public', 'private', 'unlisted'];
 
 		$this->id           = (string)$delayed_post['id'];
-		$this->scheduled_at = DateTimeFormat::utc($delayed_post['scheduled_at'], DateTimeFormat::JSON);
+		$this->scheduled_at = DateTimeFormat::utc($delayed_post['delayed'], DateTimeFormat::JSON);
 
 		$this->params = [
 			'text'           => BBCode::convert(BBCode::setMentionsToNicknames($parameters['item']['body'] ?? ''), false, BBCode::API),
