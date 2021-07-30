@@ -43,13 +43,13 @@ class Delayed
 	 * @param string  $delayed
 	 * @param array   $taglist
 	 * @param array   $attachments
-	 * @return bool insert success
+	 * @return int    ID of the created delayed post entry
 	 */ 
 	public static function add(string $uri, array $item, int $notify = 0, bool $unprepared = false, string $delayed = '', array $taglist = [], array $attachments = [])
 	{
 		if (empty($item['uid']) || self::exists($uri, $item['uid'])) {
 			Logger::notice('No uid or already found');
-			return false;
+			return 0;
 		}
 
 		if (empty($delayed)) {
@@ -66,7 +66,7 @@ class Delayed
 
 		$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $unprepared, $uri);
 		if (!$wid) {
-			return false;
+			return 0;
 		}
 
 		DI::pConfig()->set($item['uid'], 'system', 'last_publish', $next_publish);
@@ -78,7 +78,11 @@ class Delayed
 			'wid'     => $wid,
 		];
 
-		return DBA::insert('delayed-post', $delayed_post, Database::INSERT_IGNORE);
+		if (DBA::insert('delayed-post', $delayed_post, Database::INSERT_IGNORE)) {
+			return DBA::lastInsertId();
+		} else {
+			return 0;
+		}
 	}
 
 	/**
