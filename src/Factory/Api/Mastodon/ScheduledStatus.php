@@ -45,7 +45,7 @@ class ScheduledStatus extends BaseFactory
 	 * @return \Friendica\Object\Api\Mastodon\ScheduledStatus
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function createFromId(int $id, int $uid): \Friendica\Object\Api\Mastodon\ScheduledStatus
+	public function createFromDelayedPostId(int $id, int $uid): \Friendica\Object\Api\Mastodon\ScheduledStatus
 	{
 		$delayed_post = $this->dba->selectFirst('delayed-post', [], ['id' => $id, 'uid' => $uid]);
 		if (empty($delayed_post)) {
@@ -53,6 +53,9 @@ class ScheduledStatus extends BaseFactory
 		}
 
 		$parameters = Post\Delayed::getParametersForid($delayed_post['id']);
+		if (empty($parameters)) {
+			throw new HTTPException\NotFoundException('Scheduled status with ID ' . $id . ' not found for user ' . $uid . '.');
+		}
 
 		return new \Friendica\Object\Api\Mastodon\ScheduledStatus($delayed_post, $parameters);
 	}

@@ -55,7 +55,8 @@ class ScheduledStatus extends BaseDataTransferObject
 	/**
 	 * Creates a status record from a delayed-post record.
 	 *
-	 * @param array   $delayed_post
+	 * @param array $delayed_post Record with the delayed post
+	 * @param array $parameters   Parameters for the workerqueue entry for the delayed post
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function __construct(array $delayed_post, array $parameters)

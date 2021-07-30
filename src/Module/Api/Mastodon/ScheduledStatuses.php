@@ -72,7 +72,7 @@ class ScheduledStatuses extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (isset($parameters['id'])) {
-				System::jsonExit(DI::mstdnScheduledStatus()->createFromId($parameters['id'], $uid)->toArray());
+				System::jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($parameters['id'], $uid)->toArray());
 		}
 
 		$request = self::getRequest([
@@ -104,7 +104,7 @@ class ScheduledStatuses extends BaseApi
 		$statuses = [];
 		while ($post = DBA::fetch($posts)) {
 			self::setBoundaries($post['id']);
-			$statuses[] = DI::mstdnScheduledStatus()->createFromId($post['id'], $uid);
+			$statuses[] = DI::mstdnScheduledStatus()->createFromDelayedPostId($post['id'], $uid);
 		}
 		DBA::close($posts);
 

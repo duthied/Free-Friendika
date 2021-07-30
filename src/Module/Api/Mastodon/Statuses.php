@@ -190,7 +190,7 @@ class Statuses extends BaseApi
 			if (empty($id)) {
 				DI::mstdnError()->InternalError();
 			}
-			System::jsonExit(DI::mstdnScheduledStatus()->createFromId($id, $uid)->toArray());
+			System::jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($id, $uid)->toArray());
 		}
 
 		$id = Item::insert($item, true);
