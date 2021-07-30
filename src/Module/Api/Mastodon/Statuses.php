@@ -104,7 +104,7 @@ class Statuses extends BaseApi
 					$item['deny_gid']  = $owner['deny_gid'];
 				} else {
 					$item['allow_cid'] = '';
-					$item['allow_gid'] = [Group::FOLLOWERS];
+					$item['allow_gid'] = '<' . Group::FOLLOWERS . '>';
 					$item['deny_cid']  = '';
 					$item['deny_gid']  = '';
 				}
@@ -181,6 +181,16 @@ class Statuses extends BaseApi
 				}
 				$item['attachments'][] = $attachment;
 			}
+		}
+
+		if (!empty($request['scheduled_at'])) {
+			$item['guid'] = Item::guid($item, true);
+			$item['uri'] = Item::newURI($item['uid'], $item['guid']);
+			$id = Post\Delayed::add($item['uri'], $item, PRIORITY_HIGH, false, $request['scheduled_at']);
+			if (empty($id)) {
+				DI::mstdnError()->InternalError();
+			}
+			System::jsonExit(DI::mstdnScheduledStatus()->createFromId($id, $uid)->toArray());
 		}
 
 		$id = Item::insert($item, true);
