@@ -411,7 +411,7 @@ function photos_post(App $a)
 		}
 
 		if ($item_id) {
-			$item = Post::selectFirst(['tag', 'inform', 'uri-id'], ['id' => $item_id, 'uid' => $page_owner_uid]);
+			$item = Post::selectFirst(['inform', 'uri-id'], ['id' => $item_id, 'uid' => $page_owner_uid]);
 
 			if (DBA::isResult($item)) {
 				$old_inform = $item['inform'];
