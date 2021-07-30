@@ -63,7 +63,7 @@ class ScheduledStatus extends BaseFactory
 		foreach ($parameters['attachments'] as $attachment) {
 			$media_ids[] = Photo::getIdForName($attachment['url']);
 		}
-		
+
 		if (isset($parameters['item']['thr-parent']) && ($parameters['item']['gravity'] ?? GRAVITY_PARENT != GRAVITY_PARENT)) {
 			$in_reply_to_id = ItemURI::getIdByURI($parameters['item']['thr-parent']);
 		} else {
