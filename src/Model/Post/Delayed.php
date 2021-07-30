@@ -134,6 +134,12 @@ class Delayed
 			return [];
 		}
 
+		// Make sure to only publish the attachments in the dedicated array field
+		if (empty($parameters[3]) && !empty($parameters[0]['attachments'])) {
+			$parameters[3] = $parameters[0]['attachments'];
+			unset($parameters[0]['attachments']);
+		}
+
 		return [
 			'parameters' => $delayed,
 			'item' => $parameters[0],

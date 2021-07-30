@@ -23,6 +23,8 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
 use Friendica\Database\Database;
+use Friendica\Model\ItemURI;
+use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Psr\Log\LoggerInterface;
@@ -57,6 +59,17 @@ class ScheduledStatus extends BaseFactory
 			throw new HTTPException\NotFoundException('Scheduled status with ID ' . $id . ' not found for user ' . $uid . '.');
 		}
 
-		return new \Friendica\Object\Api\Mastodon\ScheduledStatus($delayed_post, $parameters);
+		$media_ids = [];
+		foreach ($parameters['attachments'] as $attachment) {
+			$media_ids[] = Photo::getIdForName($attachment['url']);
+		}
+		
+		if (isset($parameters['item']['thr-parent']) && ($parameters['item']['gravity'] ?? GRAVITY_PARENT != GRAVITY_PARENT)) {
+			$in_reply_to_id = ItemURI::getIdByURI($parameters['item']['thr-parent']);
+		} else {
+			$in_reply_to_id= null;
+		}
+
+		return new \Friendica\Object\Api\Mastodon\ScheduledStatus($delayed_post, $parameters, $media_ids, $in_reply_to_id);
 	}
 }

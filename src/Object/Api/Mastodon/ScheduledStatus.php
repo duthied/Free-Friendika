@@ -59,7 +59,7 @@ class ScheduledStatus extends BaseDataTransferObject
 	 * @param array $parameters   Parameters for the workerqueue entry for the delayed post
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $delayed_post, array $parameters)
+	public function __construct(array $delayed_post, array $parameters, array $media_ids = null, int $in_reply_to_id = null)
 	{
 		$visibility = ['public', 'private', 'unlisted'];
 
@@ -68,14 +68,14 @@ class ScheduledStatus extends BaseDataTransferObject
 
 		$this->params = [
 			'text'           => BBCode::convert(BBCode::setMentionsToNicknames($parameters['item']['body'] ?? ''), false, BBCode::API),
-			'media_ids'      => null,
+			'media_ids'      => $media_ids,
 			'sensitive'      => null,
 			'spoiler_text'   => $parameters['item']['title'] ?? '',
 			'visibility'     => $visibility[$parameters['item']['private']],
 			'scheduled_at'   => $this->scheduled_at,
 			'poll'           => null,
 			'idempotency'    => null,
-			'in_reply_to_id' => null,
+			'in_reply_to_id' => $in_reply_to_id,
 			'application_id' => ''
 		];
 

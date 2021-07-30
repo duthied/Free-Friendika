@@ -842,12 +842,27 @@ class Photo
 	 */
 	public static function isLocal($name)
 	{
+		return (bool)self::getIdForName($name);
+	}
+
+	/**
+	 * Return the id of a local photo
+	 *
+	 * @param string $name Picture link
+	 * @return int
+	 */
+	public static function getIdForName($name)
+	{
 		$data = self::getResourceData($name);
 		if (empty($data)) {
-			return false;
+			return 0;
 		}
 
-		return DBA::exists('photo', ['resource-id' => $data['guid'], 'scale' => $data['scale']]);
+		$photo = DBA::selectFirst('photo', ['id'], ['resource-id' => $data['guid'], 'scale' => $data['scale']]);
+		if (!empty($photo['id'])) {
+			return $photo['id'];
+		}
+		return 0;
 	}
 
 	/**
