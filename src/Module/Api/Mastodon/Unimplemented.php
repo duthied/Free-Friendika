@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\App\Router;
 use Friendica\Module\BaseApi;
 
 /**
@@ -34,7 +35,7 @@ class Unimplemented extends BaseApi
 	 */
 	public static function delete(array $parameters = [])
 	{
-		self::unsupported('delete');
+		self::unsupported(Router::DELETE);
 	}
 
 	/**
@@ -43,7 +44,7 @@ class Unimplemented extends BaseApi
 	 */
 	public static function patch(array $parameters = [])
 	{
-		self::unsupported('patch');
+		self::unsupported(Router::PATCH);
 	}
 
 	/**
@@ -52,7 +53,7 @@ class Unimplemented extends BaseApi
 	 */
 	public static function post(array $parameters = [])
 	{
-		self::unsupported('post');
+		self::unsupported(Router::POST);
 	}
 
 	/**
@@ -61,7 +62,7 @@ class Unimplemented extends BaseApi
 	 */
 	public static function put(array $parameters = [])
 	{
-		self::unsupported('put');
+		self::unsupported(Router::PUT);
 	}
 
 	/**
@@ -70,6 +71,6 @@ class Unimplemented extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::unsupported('get');
+		self::unsupported(Router::GET);
 	}
 }

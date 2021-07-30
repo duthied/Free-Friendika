@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\App\Router;
 use Friendica\Core\System;
 use Friendica\Module\BaseApi;
 
@@ -33,7 +34,7 @@ class Markers extends BaseApi
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		self::unsupported('post');
+		self::unsupported(Router::POST);
 	}
 
 	/**
