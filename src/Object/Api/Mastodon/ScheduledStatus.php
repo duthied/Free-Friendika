@@ -59,7 +59,7 @@ class ScheduledStatus extends BaseDataTransferObject
 	 * @param array $parameters   Parameters for the workerqueue entry for the delayed post
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $delayed_post, array $parameters, array $media_ids = null, int $in_reply_to_id = null)
+	public function __construct(array $delayed_post, array $parameters, array $media_ids = null, array $media_attachments = [], int $in_reply_to_id = null)
 	{
 		$visibility = ['public', 'private', 'unlisted'];
 
@@ -79,6 +79,6 @@ class ScheduledStatus extends BaseDataTransferObject
 			'application_id' => ''
 		];
 
-		$this->media_attachments = [];
+		$this->media_attachments = $media_attachments;
 	}
 }

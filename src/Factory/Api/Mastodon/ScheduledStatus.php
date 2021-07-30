@@ -23,6 +23,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
@@ -60,8 +61,11 @@ class ScheduledStatus extends BaseFactory
 		}
 
 		$media_ids = [];
+		$media_attachments = [];
 		foreach ($parameters['attachments'] as $attachment) {
-			$media_ids[] = Photo::getIdForName($attachment['url']);
+			$id = Photo::getIdForName($attachment['url']);
+			$media_ids[] = (string)$id;
+			$media_attachments[] = DI::mstdnAttachment()->createFromPhoto($id);
 		}
 
 		if (isset($parameters['item']['thr-parent']) && ($parameters['item']['gravity'] ?? GRAVITY_PARENT != GRAVITY_PARENT)) {
@@ -70,6 +74,6 @@ class ScheduledStatus extends BaseFactory
 			$in_reply_to_id = null;
 		}
 
-		return new \Friendica\Object\Api\Mastodon\ScheduledStatus($delayed_post, $parameters, $media_ids, $in_reply_to_id);
+		return new \Friendica\Object\Api\Mastodon\ScheduledStatus($delayed_post, $parameters, $media_ids, $media_attachments, $in_reply_to_id);
 	}
 }
