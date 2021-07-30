@@ -93,6 +93,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`POST /api/v1/notifications/clear`](https://docs.joinmastodon.org/methods/notifications/)
 - [`POST /api/v1/notifications/:id/dismiss`](https://docs.joinmastodon.org/methods/notifications/)
 - [`GET /api/v1/preferences`](https://docs.joinmastodon.org/methods/accounts/preferences/)
+- [`GET /api/v1/scheduled_statuses`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`GET /api/v1/search`](https://docs.joinmastodon.org/methods/search/)
 - [`POST /api/v1/statuses`](https://docs.joinmastodon.org/methods/statuses/)
 - [`GET /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/)
@@ -137,7 +138,6 @@ They refer to features that don't exist in Friendica yet.
 - [`GET /api/v1/endorsements`](https://docs.joinmastodon.org/methods/accounts/endorsements/)
 - [`GET /api/v1/filters`](https://docs.joinmastodon.org/methods/accounts/filters/)
 - [`GET /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
-- [`GET /api/v1/scheduled_statuses`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 
 ## Non supportable endpoints
 

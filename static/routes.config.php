@@ -127,7 +127,7 @@ return [
 			'/preferences'                       => [Module\Api\Mastodon\Preferences::class,              [R::GET         ]],
 			'/push/subscription'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST, R::PUT, R::DELETE]], // not supported
 			'/reports'                           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
-			'/scheduled_statuses'                => [Module\Api\Mastodon\ScheduledStatuses::class,        [R::GET         ]], // Dummy, not supported
+			'/scheduled_statuses'                => [Module\Api\Mastodon\ScheduledStatuses::class,        [R::GET         ]],
 			'/scheduled_statuses/{id:\d+}'       => [Module\Api\Mastodon\ScheduledStatuses::class,        [R::GET, R::PUT, R::DELETE]],
 			'/statuses'                          => [Module\Api\Mastodon\Statuses::class,                 [        R::POST]],
 			'/statuses/{id:\d+}'                 => [Module\Api\Mastodon\Statuses::class,                 [R::GET, R::DELETE]],
