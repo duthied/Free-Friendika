@@ -67,7 +67,7 @@ class ScheduledStatus extends BaseFactory
 		if (isset($parameters['item']['thr-parent']) && ($parameters['item']['gravity'] ?? GRAVITY_PARENT != GRAVITY_PARENT)) {
 			$in_reply_to_id = ItemURI::getIdByURI($parameters['item']['thr-parent']);
 		} else {
-			$in_reply_to_id= null;
+			$in_reply_to_id = null;
 		}
 
 		return new \Friendica\Object\Api\Mastodon\ScheduledStatus($delayed_post, $parameters, $media_ids, $in_reply_to_id);
