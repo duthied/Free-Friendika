@@ -60,11 +60,12 @@ class ScheduledStatus extends BaseFactory
 			throw new HTTPException\NotFoundException('Scheduled status with ID ' . $id . ' not found for user ' . $uid . '.');
 		}
 
-		$media_ids = [];
+		$media_ids         = [];
 		$media_attachments = [];
 		foreach ($parameters['attachments'] as $attachment) {
 			$id = Photo::getIdForName($attachment['url']);
-			$media_ids[] = (string)$id;
+
+			$media_ids[]         = (string)$id;
 			$media_attachments[] = DI::mstdnAttachment()->createFromPhoto($id);
 		}
 
