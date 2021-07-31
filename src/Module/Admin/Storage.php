@@ -80,18 +80,10 @@ class Storage extends BaseAdmin
 	{
 		parent::content($parameters);
 
-		$current_storage_backend    = DI::storage();
-		$available_storage_backends = [];
-		$available_storage_forms    = [];
-
-		// show legacy option only if it is the current backend:
-		// once changed can't be selected anymore
-		if ($current_storage_backend == null) {
-			$available_storage_backends[''] = DI::l10n()->t('Database (legacy)');
-		}
+		$current_storage_backend = DI::storage();
+		$available_storage_forms = [];
 
 		foreach (DI::storageManager()->listBackends() as $name => $class) {
-			$available_storage_backends[$name] = $name;
 
 			// build storage config form,
 			$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $name);
@@ -116,7 +108,7 @@ class Storage extends BaseAdmin
 				'name'   => $name,
 				'prefix' => $storage_form_prefix,
 				'form'   => $storage_form,
-				'active' => $name === $current_storage_backend::getName(),
+				'active' => $current_storage_backend instanceof IStorage && $name === $current_storage_backend::getName(),
 			];
 		}
 
@@ -132,7 +124,7 @@ class Storage extends BaseAdmin
 			'$noconfig'              => DI::l10n()->t('This backend doesn\'t have custom settings'),
 			'$baseurl'               => DI::baseUrl()->get(true),
 			'$form_security_token'   => self::getFormSecurityToken("admin_storage"),
-			'$storagebackend'        => $current_storage_backend,
+			'$storagebackend'        => $current_storage_backend instanceof IStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
 			'$availablestorageforms' => $available_storage_forms,
 		]);
 	}
