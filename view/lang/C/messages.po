@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-27 04:51+0000\n"
+"POT-Creation-Date: 2021-08-01 10:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -873,8 +873,8 @@ msgstr ""
 msgid "User not found."
 msgstr ""
 
-#: mod/cal.php:120 mod/display.php:271 src/Module/Profile/Profile.php:94
-#: src/Module/Profile/Profile.php:109 src/Module/Profile/Status.php:109
+#: mod/cal.php:120 mod/display.php:271 src/Module/Profile/Profile.php:95
+#: src/Module/Profile/Profile.php:110 src/Module/Profile/Status.php:109
 #: src/Module/Update/Profile.php:56
 msgid "Access to this profile has been restricted."
 msgstr ""
@@ -964,7 +964,7 @@ msgid "Edit post"
 msgstr ""
 
 #: mod/editpost.php:88 mod/notes.php:63 src/Content/Text/HTML.php:885
-#: src/Module/Admin/Storage.php:128 src/Module/Filer/SaveTag.php:69
+#: src/Module/Admin/Storage.php:120 src/Module/Filer/SaveTag.php:69
 msgid "Save"
 msgstr ""
 
@@ -1055,7 +1055,7 @@ msgstr ""
 msgid "Adjust for viewer timezone"
 msgstr ""
 
-#: mod/events.php:566 src/Module/Profile/Profile.php:172
+#: mod/events.php:566 src/Module/Profile/Profile.php:173
 #: src/Module/Settings/Profile/Index.php:237
 msgid "Description:"
 msgstr ""
@@ -1064,7 +1064,7 @@ msgstr ""
 #: src/Model/Event.php:113 src/Model/Event.php:459 src/Model/Event.php:945
 #: src/Model/Profile.php:358 src/Module/Contact.php:609
 #: src/Module/Directory.php:150 src/Module/Notifications/Introductions.php:166
-#: src/Module/Profile/Profile.php:190
+#: src/Module/Profile/Profile.php:191
 msgid "Location:"
 msgstr ""
 
@@ -1087,19 +1087,19 @@ msgstr ""
 #: src/Module/Delegation.php:152 src/Module/FriendSuggest.php:129
 #: src/Module/Install.php:245 src/Module/Install.php:287
 #: src/Module/Install.php:324 src/Module/Invite.php:174
-#: src/Module/Item/Compose.php:147 src/Module/Profile/Profile.php:243
+#: src/Module/Item/Compose.php:147 src/Module/Profile/Profile.php:244
 #: src/Module/Settings/Profile/Index.php:221 src/Object/Post.php:962
 #: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
 #: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
 msgstr ""
 
-#: mod/events.php:581 src/Module/Profile/Profile.php:244
+#: mod/events.php:581 src/Module/Profile/Profile.php:245
 msgid "Basic"
 msgstr ""
 
 #: mod/events.php:582 src/Module/Admin/Site.php:506 src/Module/Contact.php:916
-#: src/Module/Profile/Profile.php:245
+#: src/Module/Profile/Profile.php:246
 msgid "Advanced"
 msgstr ""
 
@@ -1158,7 +1158,7 @@ msgstr ""
 
 #: mod/follow.php:143 src/Module/Contact.php:615
 #: src/Module/Notifications/Introductions.php:170
-#: src/Module/Profile/Profile.php:203
+#: src/Module/Profile/Profile.php:204
 msgid "Tags:"
 msgstr ""
 
@@ -2288,7 +2288,7 @@ msgstr ""
 msgid "Basic Settings"
 msgstr ""
 
-#: mod/settings.php:729 src/Module/Profile/Profile.php:144
+#: mod/settings.php:729 src/Module/Profile/Profile.php:145
 msgid "Full Name:"
 msgstr ""
 
@@ -3155,7 +3155,7 @@ msgstr ""
 
 #: src/Content/Nav.php:192 src/Module/BaseProfile.php:50
 #: src/Module/BaseSettings.php:57 src/Module/Contact.php:620
-#: src/Module/Contact.php:899 src/Module/Profile/Profile.php:237
+#: src/Module/Contact.php:899 src/Module/Profile/Profile.php:238
 #: src/Module/Welcome.php:57 view/theme/frio/theme.php:227
 msgid "Profile"
 msgstr ""
@@ -3389,39 +3389,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:979 src/Content/Text/BBCode.php:1730
-#: src/Content/Text/BBCode.php:1731
+#: src/Content/Text/BBCode.php:979 src/Content/Text/BBCode.php:1767
+#: src/Content/Text/BBCode.php:1768
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1115
+#: src/Content/Text/BBCode.php:1152
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1140 src/Model/Item.php:3138
+#: src/Content/Text/BBCode.php:1177 src/Model/Item.php:3138
 #: src/Model/Item.php:3144 src/Model/Item.php:3145
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1648 src/Content/Text/HTML.php:943
+#: src/Content/Text/BBCode.php:1685 src/Content/Text/HTML.php:943
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1679
+#: src/Content/Text/BBCode.php:1716
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1733 src/Content/Text/BBCode.php:1734
+#: src/Content/Text/BBCode.php:1772 src/Content/Text/BBCode.php:1773
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1950
+#: src/Content/Text/BBCode.php:1989
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1965
+#: src/Content/Text/BBCode.php:2004
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -3611,7 +3611,7 @@ msgid "More Trending Tags"
 msgstr ""
 
 #: src/Content/Widget/VCard.php:96 src/Model/Profile.php:363
-#: src/Module/Contact.php:611 src/Module/Profile/Profile.php:176
+#: src/Module/Contact.php:611 src/Module/Profile/Profile.php:177
 msgid "XMPP:"
 msgstr ""
 
@@ -3624,7 +3624,7 @@ msgstr ""
 msgid "Unfollow"
 msgstr ""
 
-#: src/Core/ACL.php:154 src/Module/Profile/Profile.php:238
+#: src/Core/ACL.php:154 src/Module/Profile/Profile.php:239
 msgid "Yourself"
 msgstr ""
 
@@ -4417,7 +4417,7 @@ msgstr ""
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2336 src/Module/Friendica.php:80
+#: src/Model/Contact.php:2336 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr ""
 
@@ -4603,7 +4603,7 @@ msgstr ""
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:2733
+#: src/Model/Item.php:2756
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
@@ -4620,8 +4620,8 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: src/Model/Profile.php:346 src/Module/Profile/Profile.php:252
-#: src/Module/Profile/Profile.php:254
+#: src/Model/Profile.php:346 src/Module/Profile/Profile.php:253
+#: src/Module/Profile/Profile.php:255
 msgid "Edit profile"
 msgstr ""
 
@@ -4630,7 +4630,7 @@ msgid "Change profile photo"
 msgstr ""
 
 #: src/Model/Profile.php:361 src/Module/Directory.php:155
-#: src/Module/Profile/Profile.php:180
+#: src/Module/Profile/Profile.php:181
 msgid "Homepage:"
 msgstr ""
 
@@ -4995,7 +4995,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Server.php:88 src/Module/Admin/Federation.php:159
 #: src/Module/Admin/Item/Delete.php:65 src/Module/Admin/Logs/Settings.php:80
 #: src/Module/Admin/Logs/View.php:64 src/Module/Admin/Queue.php:72
-#: src/Module/Admin/Site.php:498 src/Module/Admin/Storage.php:126
+#: src/Module/Admin/Site.php:498 src/Module/Admin/Storage.php:118
 #: src/Module/Admin/Summary.php:232 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
 #: src/Module/Admin/Users/Active.php:136 src/Module/Admin/Users/Blocked.php:137
@@ -5174,7 +5174,7 @@ msgid "Blocked server domain pattern"
 msgstr ""
 
 #: src/Module/Admin/Blocklist/Server.php:80
-#: src/Module/Admin/Blocklist/Server.php:105 src/Module/Friendica.php:81
+#: src/Module/Admin/Blocklist/Server.php:105 src/Module/Friendica.php:82
 msgid "Reason for the block"
 msgstr ""
 
@@ -6458,28 +6458,28 @@ msgstr ""
 msgid "Invalid storage backend setting value."
 msgstr ""
 
-#: src/Module/Admin/Storage.php:90
-msgid "Database (legacy)"
-msgstr ""
-
-#: src/Module/Admin/Storage.php:127 src/Module/BaseAdmin.php:91
+#: src/Module/Admin/Storage.php:119 src/Module/BaseAdmin.php:91
 msgid "Storage"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:129
+#: src/Module/Admin/Storage.php:121
 msgid "Save & Activate"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:130
+#: src/Module/Admin/Storage.php:122
 msgid "Activate"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:131
+#: src/Module/Admin/Storage.php:123
 msgid "Save & Reload"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:132
+#: src/Module/Admin/Storage.php:124
 msgid "This backend doesn't have custom settings"
+msgstr ""
+
+#: src/Module/Admin/Storage.php:127
+msgid "Database (legacy)"
 msgstr ""
 
 #: src/Module/Admin/Summary.php:53
@@ -8086,45 +8086,45 @@ msgstr ""
 msgid "Suggest a friend for %s"
 msgstr ""
 
-#: src/Module/Friendica.php:61
+#: src/Module/Friendica.php:62
 msgid "Installed addons/apps:"
 msgstr ""
 
-#: src/Module/Friendica.php:66
+#: src/Module/Friendica.php:67
 msgid "No installed addons/apps"
 msgstr ""
 
-#: src/Module/Friendica.php:71
+#: src/Module/Friendica.php:72
 #, php-format
 msgid "Read about the <a href=\"%1$s/tos\">Terms of Service</a> of this node."
 msgstr ""
 
-#: src/Module/Friendica.php:78
+#: src/Module/Friendica.php:79
 msgid "On this server the following remote servers are blocked."
 msgstr ""
 
-#: src/Module/Friendica.php:96
+#: src/Module/Friendica.php:97
 #, php-format
 msgid ""
 "This is Friendica, version %s that is running at the web location %s. The "
 "database version is %s, the post update version is %s."
 msgstr ""
 
-#: src/Module/Friendica.php:101
+#: src/Module/Friendica.php:102
 msgid ""
 "Please visit <a href=\"https://friendi.ca\">Friendi.ca</a> to learn more "
 "about the Friendica project."
 msgstr ""
 
-#: src/Module/Friendica.php:102
+#: src/Module/Friendica.php:103
 msgid "Bug reports and issues: please visit"
 msgstr ""
 
-#: src/Module/Friendica.php:102
+#: src/Module/Friendica.php:103
 msgid "the bugtracker at github"
 msgstr ""
 
-#: src/Module/Friendica.php:103
+#: src/Module/Friendica.php:104
 msgid ""
 "Suggestions, praise, etc. - please email \"info\" at \"friendi - dot - ca"
 msgstr ""
@@ -8697,39 +8697,39 @@ msgstr ""
 msgid "No contacts."
 msgstr ""
 
-#: src/Module/Profile/Profile.php:82
+#: src/Module/Profile/Profile.php:83
 msgid "Profile not found."
 msgstr ""
 
-#: src/Module/Profile/Profile.php:135
+#: src/Module/Profile/Profile.php:136
 #, php-format
 msgid ""
 "You're currently viewing your profile as <b>%s</b> <a href=\"%s\" class="
 "\"btn btn-sm pull-right\">Cancel</a>"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:149
+#: src/Module/Profile/Profile.php:150
 msgid "Member since:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:155
+#: src/Module/Profile/Profile.php:156
 msgid "j F, Y"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:156
+#: src/Module/Profile/Profile.php:157
 msgid "j F"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:164 src/Util/Temporal.php:163
+#: src/Module/Profile/Profile.php:165 src/Util/Temporal.php:163
 msgid "Birthday:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:167 src/Module/Settings/Profile/Index.php:244
+#: src/Module/Profile/Profile.php:168 src/Module/Settings/Profile/Index.php:244
 #: src/Util/Temporal.php:165
 msgid "Age: "
 msgstr ""
 
-#: src/Module/Profile/Profile.php:167 src/Module/Settings/Profile/Index.php:244
+#: src/Module/Profile/Profile.php:168 src/Module/Settings/Profile/Index.php:244
 #: src/Util/Temporal.php:165
 #, php-format
 msgid "%d year old"
@@ -8737,32 +8737,32 @@ msgid_plural "%d years old"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Profile/Profile.php:230
+#: src/Module/Profile/Profile.php:231
 msgid "Forums:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:242
+#: src/Module/Profile/Profile.php:243
 msgid "View profile as:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:259
+#: src/Module/Profile/Profile.php:260
 msgid "View as"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:322 src/Module/Profile/Profile.php:325
+#: src/Module/Profile/Profile.php:323 src/Module/Profile/Profile.php:326
 #: src/Module/Profile/Status.php:65 src/Module/Profile/Status.php:68
 #: src/Protocol/Feed.php:944 src/Protocol/OStatus.php:1256
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:323 src/Module/Profile/Status.php:66
+#: src/Module/Profile/Profile.php:324 src/Module/Profile/Status.php:66
 #: src/Protocol/Feed.php:948 src/Protocol/OStatus.php:1260
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:324 src/Module/Profile/Status.php:67
+#: src/Module/Profile/Profile.php:325 src/Module/Profile/Status.php:67
 #: src/Protocol/Feed.php:951 src/Protocol/OStatus.php:1263
 #, php-format
 msgid "%s's comments"
