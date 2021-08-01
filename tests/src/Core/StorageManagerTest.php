@@ -177,7 +177,11 @@ class StorageManagerTest extends DatabaseTest
 	{
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
 
-		$storage = $storageManager->getByName($name, $userBackend);
+		if ($userBackend) {
+			$storage = $storageManager->getSelectableStorageByName($name);
+		} else {
+			$storage = $storageManager->getByName($name);
+		}
 
 		if (!empty($assert)) {
 			self::assertInstanceOf(Storage\IStorage::class, $storage);
@@ -195,7 +199,7 @@ class StorageManagerTest extends DatabaseTest
 	 */
 	public function testIsValidBackend($name, $assert, $assertName, $userBackend)
 	{
-		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
 		// true in every of the backends
 		self::assertEquals(!empty($assertName), $storageManager->isValidBackend($name));
@@ -209,7 +213,7 @@ class StorageManagerTest extends DatabaseTest
 	 */
 	public function testListBackends()
 	{
-		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
 		self::assertEquals(StorageManager::DEFAULT_BACKENDS, $storageManager->listBackends());
 	}
@@ -221,12 +225,13 @@ class StorageManagerTest extends DatabaseTest
 	 */
 	public function testGetBackend($name, $assert, $assertName, $userBackend)
 	{
-		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
 		self::assertNull($storageManager->getBackend());
 
 		if ($userBackend) {
-			$storageManager->setBackend($name);
+			$selBackend = $storageManager->getSelectableStorageByName($name);
+			$storageManager->setBackend($selBackend);
 
 			self::assertInstanceOf($assert, $storageManager->getBackend());
 		}
@@ -242,7 +247,7 @@ class StorageManagerTest extends DatabaseTest
 	{
 		$this->config->set('storage', 'name', $name);
 
-		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
 		if ($userBackend) {
 			self::assertInstanceOf($assert, $storageManager->getBackend());
@@ -267,7 +272,7 @@ class StorageManagerTest extends DatabaseTest
 			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true, 'call' => null]);
 		DI::init($dice);
 
-		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
 		self::assertTrue($storageManager->register(SampleStorageBackend::class));
 
@@ -282,7 +287,7 @@ class StorageManagerTest extends DatabaseTest
 		SampleStorageBackend::registerHook();
 		Hook::loadHooks();
 
-		self::assertTrue($storageManager->setBackend(SampleStorageBackend::NAME));
+		self::assertTrue($storageManager->setBackend( $storageManager->getSelectableStorageByName(SampleStorageBackend::NAME)));
 		self::assertEquals(SampleStorageBackend::NAME, $this->config->get('storage', 'name'));
 
 		self::assertInstanceOf(SampleStorageBackend::class, $storageManager->getBackend());
@@ -308,7 +313,7 @@ class StorageManagerTest extends DatabaseTest
 
 		$this->loadFixture(__DIR__ . '/../../datasets/storage/database.fixture.php', $this->dba);
 
-		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 		$storage = $storageManager->getSelectableStorageByName($name);
 		$storageManager->move($storage);
 
@@ -328,12 +333,11 @@ class StorageManagerTest extends DatabaseTest
 	/**
 	 * Test moving data to a WRONG storage
 	 */
-	public function testMoveStorageWrong()
+	public function testWrongSelectableStorage()
 	{
-		$this->expectExceptionMessage("Can't move to storage backend 'SystemResource'");
-		$this->expectException(StorageException::class);
+		$this->expectException(\TypeError::class);
 
-		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 		$storage = $storageManager->getSelectableStorageByName(Storage\SystemResource::getName());
 		$storageManager->move($storage);
 	}

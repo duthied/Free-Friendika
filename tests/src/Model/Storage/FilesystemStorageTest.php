@@ -50,7 +50,6 @@ class FilesystemStorageTest extends StorageTest
 
 	protected function getInstance()
 	{
-		$logger = new NullLogger();
 		$profiler = \Mockery::mock(Profiler::class);
 		$profiler->shouldReceive('startRecording');
 		$profiler->shouldReceive('stopRecording');
@@ -63,7 +62,7 @@ class FilesystemStorageTest extends StorageTest
 		             ->with('storage', 'filesystem_path', Filesystem::DEFAULT_BASE_FOLDER)
 		             ->andReturn($this->root->getChild('storage')->url());
 
-		return new Filesystem($this->config, $logger, $l10n);
+		return new Filesystem($this->config, $l10n);
 	}
 
 	protected function assertOption(IStorage $storage)

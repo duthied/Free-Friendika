@@ -22,6 +22,8 @@
 namespace Friendica\Test\src\Model\Storage;
 
 use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\ReferenceStorageException;
+use Friendica\Model\Storage\StorageException;
 use Friendica\Test\MockedTest;
 
 abstract class StorageTest extends MockedTest
@@ -62,7 +64,7 @@ abstract class StorageTest extends MockedTest
 
 		self::assertEquals('data12345', $instance->get($ref));
 
-		self::assertTrue($instance->delete($ref));
+		$instance->delete($ref);
 	}
 
 	/**
@@ -70,10 +72,11 @@ abstract class StorageTest extends MockedTest
 	 */
 	public function testInvalidDelete()
 	{
+		self::expectException(ReferenceStorageException::class);
+
 		$instance = $this->getInstance();
 
-		// Even deleting not existing references should return "true"
-		self::assertTrue($instance->delete(-1234456));
+		$instance->delete(-1234456);
 	}
 
 	/**
@@ -81,10 +84,11 @@ abstract class StorageTest extends MockedTest
 	 */
 	public function testInvalidGet()
 	{
+		self::expectException(ReferenceStorageException::class);
+
 		$instance = $this->getInstance();
 
-		// Invalid references return an empty string
-		self::assertEmpty($instance->get(-123456));
+		$instance->get(-123456);
 	}
 
 	/**

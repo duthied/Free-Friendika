@@ -62,10 +62,7 @@ class DatabaseStorageTest extends StorageTest
 
 		$dba = new StaticDatabase($configCache, $profiler, $logger);
 
-		/** @var MockInterface|L10n $l10n */
-		$l10n = \Mockery::mock(L10n::class)->makePartial();
-
-		return new Database($dba, $logger, $l10n);
+		return new Database($dba);
 	}
 
 	protected function assertOption(IStorage $storage)

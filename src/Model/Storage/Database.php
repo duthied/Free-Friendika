@@ -57,7 +57,11 @@ class Database implements ISelectableStorage
 
 			return $result['data'];
 		} catch (Exception $exception) {
-			throw new StorageException(sprintf('Database storage failed to get %s', $reference), $exception->getCode(), $exception);
+			if ($exception instanceof ReferenceStorageException) {
+				throw $exception;
+			} else {
+				throw new StorageException(sprintf('Database storage failed to get %s', $reference), $exception->getCode(), $exception);
+			}
 		}
 	}
 
@@ -101,7 +105,11 @@ class Database implements ISelectableStorage
 				throw new ReferenceStorageException(sprintf('Database storage failed to delete %s', $reference));
 			}
 		} catch (Exception $exception) {
-			throw new StorageException(sprintf('Database storage failed to delete %s', $reference), $exception->getCode(), $exception);
+			if ($exception instanceof ReferenceStorageException) {
+				throw $exception;
+			} else {
+				throw new StorageException(sprintf('Database storage failed to delete %s', $reference), $exception->getCode(), $exception);
+			}
 		}
 	}
 
