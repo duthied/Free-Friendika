@@ -71,6 +71,7 @@
             <div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
                 {{$acl nofilter}}
                 {{$jotnets nofilter}}
+				{{if $scheduled_at}}{{$scheduled_at nofilter}}{{/if}}
             </div>
         </div>
 

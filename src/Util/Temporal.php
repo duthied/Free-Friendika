@@ -225,7 +225,7 @@ class Temporal
 	public static function getDateTimeField(
 		DateTime $minDate,
 		DateTime $maxDate,
-		DateTime $defaultDate,
+		DateTime $defaultDate = null,
 		$label,
 		$id       = 'datetimepicker',
 		$pickdate = true,

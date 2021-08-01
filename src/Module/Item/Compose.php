@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Item;
 
+use DateTime;
 use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Core\ACL;
@@ -34,6 +35,8 @@ use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\NotImplementedException;
 use Friendica\Util\Crypto;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Temporal;
 
 class Compose extends BaseModule
 {
@@ -162,6 +165,14 @@ class Compose extends BaseModule
 			'$wait'         => DI::l10n()->t('Please wait'),
 			'$placeholdertitle' => DI::l10n()->t('Set title'),
 			'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? DI::l10n()->t('Categories (comma-separated list)') : ''),
+			'$scheduled_at' => Temporal::getDateTimeField(
+				new DateTime(),
+				DateTime::createFromFormat(DateTimeFormat::MYSQL, DateTimeFormat::local('now + 6 months')),
+				null,
+				DI::l10n()->t('Scheduled at'),
+				'scheduled_at',
+			),
+
 
 			'$title'        => $title,
 			'$category'     => $category,

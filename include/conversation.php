@@ -719,8 +719,10 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	$params = ['order' => ['uri-id' => true]];
 
-	$activities = [];
-	$uriids     = [];
+	$activities      = [];
+	$uriids          = [];
+	$commentcounter  = [];
+	$activitycounter = [];
 
 	foreach ($parents AS $parent) {
 		if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == GRAVITY_ACTIVITY)) {
@@ -733,10 +735,13 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 					}
 				}
 			}
-			$uriids[] = $uriid;
 		} else {
-			$uriids[] = $parent['uri-id'];
+			$uriid = $parent['uri-id'];
 		}
+		$uriids[] = $uriid;
+
+		$commentcounter[$uriid]  = 0;
+		$activitycounter[$uriid] = 0;
 	}
 
 	$condition = ['parent-uri-id' => $uriids];
@@ -749,16 +754,14 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	$thread_items = Post::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
-	$items           = [];
-	$limitposts      = [];
-	$limitactivities = [];
+	$items = [];
 
 	while ($row = Post::fetch($thread_items)) {
 		if ($max_comments > 0) {
-			if (($row['gravity'] == GRAVITY_COMMENT) && (++$limitposts[$row['parent-uri-id']] > $max_comments)) {
+			if (($row['gravity'] == GRAVITY_COMMENT) && (++$commentcounter[$row['parent-uri-id']] > $max_comments)) {
 				continue;
 			}
-			if (($row['gravity'] == GRAVITY_ACTIVITY) && (++$limitactivities[$row['parent-uri-id']] > $max_comments)) {
+			if (($row['gravity'] == GRAVITY_ACTIVITY) && (++$activitycounter[$row['parent-uri-id']] > $max_comments)) {
 				continue;
 			}
 		}
@@ -1111,6 +1114,13 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$placeholdertitle' => DI::l10n()->t('Set title'),
 		'$category'     => $x['category'] ?? '',
 		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : '',
+		'$scheduled_at' => Temporal::getDateTimeField(
+			new DateTime(),
+			DateTime::createFromFormat(DateTimeFormat::MYSQL, DateTimeFormat::local('now + 6 months')),
+			null,
+			DI::l10n()->t('Scheduled at'),
+			'scheduled_at',
+		),
 		'$wait'         => DI::l10n()->t('Please wait'),
 		'$permset'      => DI::l10n()->t('Permission settings'),
 		'$shortpermset' => DI::l10n()->t('Permissions'),

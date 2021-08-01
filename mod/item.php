@@ -436,7 +436,7 @@ function item_post(App $a) {
 	$original_contact_id = $contact_id;
 
 	if (!$toplevel_item_id && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
-		// we tagged a forum in a top level post. Now we change the post		
+		// we tagged a forum in a top level post. Now we change the post
 		$private = $private_forum ? Item::PRIVATE : Item::UNLISTED;
 
 		if ($only_to_forum) {
@@ -629,7 +629,6 @@ function item_post(App $a) {
 	$datarray['origin']        = $origin;
 	$datarray['object']        = $object;
 
-	$datarray['uri-id']        = ItemURI::getIdByURI($datarray['uri']);
 	$datarray['attachments']   = $_REQUEST['attachments'] ?? [];
 
 	/*
@@ -682,7 +681,24 @@ function item_post(App $a) {
 		$o = conversation($a, [array_merge($contact_record, $datarray)], 'search', false, true);
 
 		System::jsonExit(['preview' => $o]);
+	} elseif (!empty($_REQUEST['scheduled_at'])) {
+		$scheduled_at = DateTimeFormat::convert($_REQUEST['scheduled_at'], 'UTC', $a->getTimezone());
+		if ($scheduled_at > DateTimeFormat::utcNow()) {
+			unset($datarray['created']);
+			unset($datarray['edited']);
+			unset($datarray['commented']);
+			unset($datarray['received']);
+			unset($datarray['changed']);
+			unset($datarray['edit']);
+			unset($datarray['self']);
+			unset($datarray['api_source']);
+		
+			Post\Delayed::add($datarray['uri'], $datarray, PRIORITY_HIGH, false, $scheduled_at);
+			item_post_return(DI::baseUrl(), $api_source, $return_path);
+		}
 	}
+
+	$datarray['uri-id'] = ItemURI::getIdByURI($datarray['uri']);
 
 	Hook::callAll('post_local',$datarray);
 
