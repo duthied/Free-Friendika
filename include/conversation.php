@@ -612,95 +612,87 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 }
 
 /**
- * Fetch all comments from a query. Additionally set the newest resharer as thread owner.
+ * Adds some information (Causer, post reason, direction) to the fetched post row.
  *
- * @param mixed   $thread_items Database statement with thread posts
- * @param boolean $pinned       Is the item pinned?
- * @param array   $activity     Contact data of the resharer
+ * @param array   $row      Post row
+ * @param array   $activity Contact data of the resharer
  *
  * @return array items with parents and comments
  */
-function conversation_fetch_comments($thread_items, bool $pinned, array $activity) {
+function conversation_add_row_information(array $row, array $activity) {
 	DI::profiler()->startRecording('rendering');
-	$comments = [];
 
-	while ($row = Post::fetch($thread_items)) {
-		if (!empty($activity)) {
-			if (($row['gravity'] == GRAVITY_PARENT)) {
-				$row['post-reason'] = Item::PR_ANNOUNCEMENT;
-				$row = array_merge($row, $activity);
-				$contact = Contact::getById($activity['causer-id'], ['url', 'name', 'thumb']);
-				$row['causer-link'] = $contact['url'];
-				$row['causer-avatar'] = $contact['thumb'];
-				$row['causer-name'] = $contact['name'];
-			} elseif (($row['gravity'] == GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
-				($row['author-id'] == $activity['causer-id'])) {
-				continue;
-			}
-		}
-
-		switch ($row['post-reason']) {
-			case Item::PR_TO:
-				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'to')];
-				break;
-			case Item::PR_CC:
-				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'cc')];
-				break;
-			case Item::PR_BTO:
-				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bto')];
-				break;
-			case Item::PR_BCC:
-				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bcc')];
-				break;
-			case Item::PR_FOLLOWER:
-				$row['direction'] = ['direction' => 6, 'title' => DI::l10n()->t('You are following %s.', $row['author-name'])];
-				break;
-			case Item::PR_TAG:
-				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
-				break;
-			case Item::PR_ANNOUNCEMENT:
-				if (!empty($row['causer-id']) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')) {
-					$row['owner-id'] = $row['causer-id'];
-					$row['owner-link'] = $row['causer-link'];
-					$row['owner-avatar'] = $row['causer-avatar'];
-					$row['owner-name'] = $row['causer-name'];
-				}
-
-				if (($row['gravity'] == GRAVITY_PARENT) && !empty($row['causer-id'])) {
-					$causer = ['uid' => 0, 'id' => $row['causer-id'],
-						'network' => $row['causer-network'], 'url' => $row['causer-link']];
-					$row['reshared'] = DI::l10n()->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($row['causer-name']) . '</a>');
-				}
-				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Reshared') : DI::l10n()->t('Reshared by %s <%s>', $row['causer-name'], $row['causer-link']))];
-				break;
-			case Item::PR_COMMENT:
-				$row['direction'] = ['direction' => 5, 'title' => DI::l10n()->t('%s is participating in this thread.', $row['author-name'])];
-				break;
-			case Item::PR_STORED:
-				$row['direction'] = ['direction' => 8, 'title' => DI::l10n()->t('Stored')];
-				break;
-			case Item::PR_GLOBAL:
-				$row['direction'] = ['direction' => 9, 'title' => DI::l10n()->t('Global')];
-				break;
-			case Item::PR_RELAY:
-				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Relayed') : DI::l10n()->t('Relayed by %s <%s>', $row['causer-name'], $row['causer-link']))];
-				break;
-			case Item::PR_FETCHED:
-				$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Fetched') : DI::l10n()->t('Fetched because of %s <%s>', $row['causer-name'], $row['causer-link']))];
-				break;
-			}
-
-		if ($row['gravity'] == GRAVITY_PARENT) {
-			$row['pinned'] = $pinned;
-		}
-
-		$comments[] = $row;
+	if ($row['uid'] == 0) {
+		$row['writable'] = in_array($row['network'], Protocol::FEDERATED);
 	}
 
-	DBA::close($thread_items);
+	if (!empty($activity)) {
+		if (($row['gravity'] == GRAVITY_PARENT)) {
+			$row['post-reason'] = Item::PR_ANNOUNCEMENT;
+			$row = array_merge($row, $activity);
+			$contact = Contact::getById($activity['causer-id'], ['url', 'name', 'thumb']);
+			$row['causer-link'] = $contact['url'];
+			$row['causer-avatar'] = $contact['thumb'];
+			$row['causer-name'] = $contact['name'];
+		} elseif (($row['gravity'] == GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
+			($row['author-id'] == $activity['causer-id'])) {
+			return $row;
+		}
+	}
+
+	switch ($row['post-reason']) {
+		case Item::PR_TO:
+			$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'to')];
+			break;
+		case Item::PR_CC:
+			$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'cc')];
+			break;
+		case Item::PR_BTO:
+			$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bto')];
+			break;
+		case Item::PR_BCC:
+			$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bcc')];
+			break;
+		case Item::PR_FOLLOWER:
+			$row['direction'] = ['direction' => 6, 'title' => DI::l10n()->t('You are following %s.', $row['author-name'])];
+			break;
+		case Item::PR_TAG:
+			$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
+			break;
+		case Item::PR_ANNOUNCEMENT:
+			if (!empty($row['causer-id']) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')) {
+				$row['owner-id'] = $row['causer-id'];
+				$row['owner-link'] = $row['causer-link'];
+				$row['owner-avatar'] = $row['causer-avatar'];
+				$row['owner-name'] = $row['causer-name'];
+			}
+
+			if (($row['gravity'] == GRAVITY_PARENT) && !empty($row['causer-id'])) {
+				$causer = ['uid' => 0, 'id' => $row['causer-id'],
+					'network' => $row['causer-network'], 'url' => $row['causer-link']];
+				$row['reshared'] = DI::l10n()->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($row['causer-name']) . '</a>');
+			}
+			$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Reshared') : DI::l10n()->t('Reshared by %s <%s>', $row['causer-name'], $row['causer-link']))];
+			break;
+		case Item::PR_COMMENT:
+			$row['direction'] = ['direction' => 5, 'title' => DI::l10n()->t('%s is participating in this thread.', $row['author-name'])];
+			break;
+		case Item::PR_STORED:
+			$row['direction'] = ['direction' => 8, 'title' => DI::l10n()->t('Stored')];
+			break;
+		case Item::PR_GLOBAL:
+			$row['direction'] = ['direction' => 9, 'title' => DI::l10n()->t('Global')];
+			break;
+		case Item::PR_RELAY:
+			$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Relayed') : DI::l10n()->t('Relayed by %s <%s>', $row['causer-name'], $row['causer-link']))];
+			break;
+		case Item::PR_FETCHED:
+			$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Fetched') : DI::l10n()->t('Fetched because of %s <%s>', $row['causer-name'], $row['causer-link']))];
+			break;
+	}
 
 	DI::profiler()->stopRecording();
-	return $comments;
+	return $row;
 }
 
 /**
@@ -725,70 +717,58 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 		$max_comments = DI::config()->get('system', 'max_display_comments', 1000);
 	}
 
-	$params = ['order' => ['gravity', 'uid', 'commented' => true]];
+	$params = ['order' => ['uri-id' => true]];
 
-	if ($max_comments > 0) {
-		$params['limit'] = $max_comments;
-	}
-
-	$items = [];
+	$activities = [];
+	$uriids     = [];
 
 	foreach ($parents AS $parent) {
 		if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == GRAVITY_ACTIVITY)) {
-			$condition = ["`parent-uri-id` = ? AND `uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
-				$parent['thr-parent-id'], $uid, Verb::getID(Activity::FOLLOW)];
+			$uriid = $parent['thr-parent-id'];
 			if (!empty($parent['author-id'])) {
-				$activity = ['causer-id' => $parent['author-id']];
+				$activities[$uriid] = ['causer-id' => $parent['author-id']];
 				foreach (['commented', 'received', 'created'] as $orderfields) {
 					if (!empty($parent[$orderfields])) {
-						$activity[$orderfields] = $parent[$orderfields];
+						$activities[$uriid][$orderfields] = $parent[$orderfields];
 					}
 				}
 			}
+			$uriids[] = $uriid;
 		} else {
-			$condition = ["`parent-uri-id` = ? AND `uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
-				$parent['uri-id'], $uid, Verb::getID(Activity::FOLLOW)];
-			$activity = [];
-		}
-		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params, $activity);
-	}
-
-	foreach ($items as $index => $item) {
-		if ($item['uid'] == 0) {
-			$items[$index]['writable'] = in_array($item['network'], Protocol::FEDERATED);
+			$uriids[] = $parent['uri-id'];
 		}
 	}
 
-	$items = conv_sort($items, $order);
-
-	DI::profiler()->stopRecording();
-	return $items;
-}
-
-/**
- * Fetch conversation items
- *
- * @param array   $parent        Parent Item array
- * @param array   $items         Item array
- * @param array   $condition     SQL condition
- * @param boolean $block_authors Don't show posts from contacts that are hidden (used on the community page)
- * @param array   $params        SQL parameters
- * @param array   $activity      Contact data of the resharer
- * @return array
- */
-function conversation_fetch_items(array $parent, array $items, array $condition, bool $block_authors, array $params, array $activity) {
-	DI::profiler()->startRecording('rendering');
+	$condition = ['parent-uri-id' => $uriids];
 	if ($block_authors) {
-		$condition[0] .= " AND NOT `author-hidden`";
+		$condition['author-hidden'] = false;
 	}
+
+	$condition = DBA::mergeConditions($condition,
+		["`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW)]);
 
 	$thread_items = Post::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
-	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false, $activity);
+	$items           = [];
+	$limitposts      = [];
+	$limitactivities = [];
 
-	if (count($comments) != 0) {
-		$items = array_merge($items, $comments);
+	while ($row = Post::fetch($thread_items)) {
+		if ($max_comments > 0) {
+			if (($row['gravity'] == GRAVITY_COMMENT) && (++$limitposts[$row['parent-uri-id']] > $max_comments)) {
+				continue;
+			}
+			if (($row['gravity'] == GRAVITY_ACTIVITY) && (++$limitactivities[$row['parent-uri-id']] > $max_comments)) {
+				continue;
+			}
+		}
+		$items[] = conversation_add_row_information($row, $activities[$row['uri-id']] ?? []);
 	}
+
+	DBA::close($thread_items);
+
+	$items = conv_sort($items, $order);
+
 	DI::profiler()->stopRecording();
 	return $items;
 }
