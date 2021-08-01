@@ -34,7 +34,7 @@ class MoveStorage
 	public static function execute()
 	{
 		$current = DI::storage();
-		$moved = DI::storageManager()->move($current);
+		$moved   = DI::storageManager()->move($current);
 
 		if ($moved) {
 			Worker::add(PRIORITY_LOW, 'MoveStorage');

@@ -23,7 +23,7 @@ namespace Friendica\Module\Admin;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\ISelectableStorage;
 use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
@@ -37,8 +37,8 @@ class Storage extends BaseAdmin
 
 		$storagebackend = Strings::escapeTags(trim($parameters['name'] ?? ''));
 
-		/** @var IStorage $newstorage */
-		$newstorage = DI::storageManager()->getByName($storagebackend);
+		/** @var ISelectableStorage $newstorage */
+		$newstorage = DI::storageManager()->getSelectableStorageByName($storagebackend);
 
 		// save storage backend form
 		$storage_opts        = $newstorage->getOptions();
@@ -68,7 +68,10 @@ class Storage extends BaseAdmin
 		}
 
 		if (!empty($_POST['submit_save_set'])) {
-			if (empty($storagebackend) || !DI::storageManager()->setBackend($storagebackend)) {
+			/** @var ISelectableStorage $newstorage */
+			$newstorage = DI::storageManager()->getSelectableStorageByName($storagebackend);
+
+			if (!DI::storageManager()->setBackend($newstorage)) {
 				notice(DI::l10n()->t('Invalid storage backend setting value.'));
 			}
 		}
@@ -89,7 +92,7 @@ class Storage extends BaseAdmin
 			$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $name);
 
 			$storage_form = [];
-			foreach (DI::storageManager()->getByName($name)->getOptions() as $option => $info) {
+			foreach (DI::storageManager()->getSelectableStorageByName($name)->getOptions() as $option => $info) {
 				$type = $info[0];
 				// Backward compatibilty with yesno field description
 				if ($type == 'yesno') {
@@ -108,7 +111,7 @@ class Storage extends BaseAdmin
 				'name'   => $name,
 				'prefix' => $storage_form_prefix,
 				'form'   => $storage_form,
-				'active' => $current_storage_backend instanceof IStorage && $name === $current_storage_backend::getName(),
+				'active' => $current_storage_backend instanceof ISelectableStorage && $name === $current_storage_backend::getName(),
 			];
 		}
 
@@ -124,7 +127,7 @@ class Storage extends BaseAdmin
 			'$noconfig'              => DI::l10n()->t('This backend doesn\'t have custom settings'),
 			'$baseurl'               => DI::baseUrl()->get(true),
 			'$form_security_token'   => self::getFormSecurityToken("admin_storage"),
-			'$storagebackend'        => $current_storage_backend instanceof IStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
+			'$storagebackend'        => $current_storage_backend instanceof ISelectableStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
 			'$availablestorageforms' => $available_storage_forms,
 		]);
 	}

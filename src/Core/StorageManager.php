@@ -61,8 +61,6 @@ class StorageManager
 	private $logger;
 	/** @var L10n */
 	private $l10n;
-	/** @var IHTTPRequest */
-	private $httpRequest;
 
 	/** @var Storage\IStorage */
 	private $currentBackend;
@@ -73,25 +71,24 @@ class StorageManager
 	 * @param LoggerInterface $logger
 	 * @param L10n            $l10n
 	 */
-	public function __construct(Database $dba, IConfig $config, LoggerInterface $logger, L10n $l10n, IHTTPRequest $httpRequest)
+	public function __construct(Database $dba, IConfig $config, LoggerInterface $logger, L10n $l10n)
 	{
 		$this->dba         = $dba;
 		$this->config      = $config;
 		$this->logger      = $logger;
 		$this->l10n        = $l10n;
-		$this->httpRequest = $httpRequest;
 		$this->backends = $config->get('storage', 'backends', self::DEFAULT_BACKENDS);
 
 		$currentName = $this->config->get('storage', 'name', '');
 
 		// you can only use user backends as a "default" backend, so the second parameter is true
-		$this->currentBackend = $this->getByName($currentName, true);
+		$this->currentBackend = $this->getSelectableStorageByName($currentName);
 	}
 
 	/**
 	 * Return current storage backend class
 	 *
-	 * @return Storage\IStorage|null
+	 * @return Storage\ISelectableStorage|null
 	 */
 	public function getBackend()
 	{
@@ -99,16 +96,15 @@ class StorageManager
 	}
 
 	/**
-	 * Return storage backend class by registered name
+	 * Returns a selectable storage backend class by registered name
 	 *
 	 * @param string|null $name            Backend name
-	 * @param boolean     $onlyUserBackend True, if just user specific instances should be returrned (e.g. not SystemResource)
 	 *
-	 * @return Storage\IStorage|null null if no backend registered at $name
+	 * @return Storage\ISelectableStorage|null null if no backend registered at $name
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function getByName(string $name = null, $onlyUserBackend = false)
+	public function getSelectableStorageByName(string $name = null)
 	{
 		// @todo 2020.09 Remove this call after 2 releases
 		$name = $this->checkLegacyBackend($name);
@@ -116,22 +112,70 @@ class StorageManager
 		// If there's no cached instance create a new instance
 		if (!isset($this->backendInstances[$name])) {
 			// If the current name isn't a valid backend (or the SystemResource instance) create it
-			if ($this->isValidBackend($name, $onlyUserBackend)) {
+			if ($this->isValidBackend($name, true)) {
 				switch ($name) {
 					// Try the filesystem backend
 					case Storage\Filesystem::getName():
-						$this->backendInstances[$name] = new Storage\Filesystem($this->config, $this->logger, $this->l10n);
+						$this->backendInstances[$name] = new Storage\Filesystem($this->config, $this->l10n);
 						break;
 					// try the database backend
 					case Storage\Database::getName():
-						$this->backendInstances[$name] = new Storage\Database($this->dba, $this->logger, $this->l10n);
+						$this->backendInstances[$name] = new Storage\Database($this->dba);
+						break;
+					default:
+						$data = [
+							'name'    => $name,
+							'storage' => null,
+						];
+						Hook::callAll('storage_instance', $data);
+						if (($data['storage'] ?? null) instanceof Storage\ISelectableStorage) {
+							$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
+						} else {
+							return null;
+						}
+						break;
+				}
+			} else {
+				return null;
+			}
+		}
+
+		return $this->backendInstances[$name];
+	}
+
+	/**
+	 * Return storage backend class by registered name
+	 *
+	 * @param string|null $name            Backend name
+	 *
+	 * @return Storage\IStorage|null null if no backend registered at $name
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function getByName(string $name = null)
+	{
+		// @todo 2020.09 Remove this call after 2 releases
+		$name = $this->checkLegacyBackend($name);
+
+		// If there's no cached instance create a new instance
+		if (!isset($this->backendInstances[$name])) {
+			// If the current name isn't a valid backend (or the SystemResource instance) create it
+			if ($this->isValidBackend($name, false)) {
+				switch ($name) {
+					// Try the filesystem backend
+					case Storage\Filesystem::getName():
+						$this->backendInstances[$name] = new Storage\Filesystem($this->config, $this->l10n);
+						break;
+					// try the database backend
+					case Storage\Database::getName():
+						$this->backendInstances[$name] = new Storage\Database($this->dba);
 						break;
 					// at least, try if there's an addon for the backend
 					case Storage\SystemResource::getName():
 						$this->backendInstances[$name] = new Storage\SystemResource();
 						break;
 					case Storage\ExternalResource::getName():
-						$this->backendInstances[$name] = new Storage\ExternalResource($this->httpRequest);
+						$this->backendInstances[$name] = new Storage\ExternalResource();
 						break;
 					default:
 						$data = [
@@ -190,18 +234,14 @@ class StorageManager
 	/**
 	 * Set current storage backend class
 	 *
-	 * @param string $name Backend class name
+	 * @param Storage\ISelectableStorage $storage The storage class
 	 *
 	 * @return boolean True, if the set was successful
 	 */
-	public function setBackend(string $name = null)
+	public function setBackend(Storage\ISelectableStorage $storage)
 	{
-		if (!$this->isValidBackend($name, false)) {
-			return false;
-		}
-
-		if ($this->config->set('storage', 'name', $name)) {
-			$this->currentBackend = $this->getByName($name, false);
+		if ($this->config->set('storage', 'name', $storage::getName())) {
+			$this->currentBackend = $storage;
 			return true;
 		} else {
 			return false;
@@ -277,7 +317,7 @@ class StorageManager
 	 * Copy existing data to destination storage and delete from source.
 	 * This method cannot move to legacy in-table `data` field.
 	 *
-	 * @param Storage\IStorage $destination Destination storage class name
+	 * @param Storage\ISelectableStorage $destination Destination storage class name
 	 * @param array            $tables      Tables to look in for resources. Optional, defaults to ['photo', 'attach']
 	 * @param int              $limit       Limit of the process batch size, defaults to 5000
 	 *
@@ -285,7 +325,7 @@ class StorageManager
 	 * @throws Storage\StorageException
 	 * @throws Exception
 	 */
-	public function move(Storage\IStorage $destination, array $tables = self::TABLES, int $limit = 5000)
+	public function move(Storage\ISelectableStorage $destination, array $tables = self::TABLES, int $limit = 5000)
 	{
 		if (!$this->isValidBackend($destination, true)) {
 			throw new Storage\StorageException(sprintf("Can't move to storage backend '%s'", $destination::getName()));
@@ -304,7 +344,7 @@ class StorageManager
 			while ($resource = $this->dba->fetch($resources)) {
 				$id        = $resource['id'];
 				$data      = $resource['data'];
-				$source    = $this->getByName($resource['backend-class']);
+				$source    = $this->getSelectableStorageByName($resource['backend-class']);
 				$sourceRef = $resource['backend-ref'];
 
 				if (!empty($source)) {

@@ -52,12 +52,12 @@ class ExternalResource implements IStorage
 		try {
 			$fetchResult = HTTPSignature::fetchRaw($data->url, $data->uid, ['accept_content' => '']);
 		} catch (Exception $exception) {
-			throw new StorageException(sprintf('External resource failed to get %s', $reference), $exception->getCode(), $exception);
+			throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference), $exception->getCode(), $exception);
 		}
 		if ($fetchResult->isSuccess()) {
 			return $fetchResult->getBody();
 		} else {
-			throw new StorageException(sprintf('External resource failed to get %s', $reference), $fetchResult->getReturnCode(), new Exception($fetchResult->getBody()));
+			throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference), $fetchResult->getReturnCode(), new Exception($fetchResult->getBody()));
 		}
 	}
 

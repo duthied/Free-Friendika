@@ -309,7 +309,7 @@ class StorageManagerTest extends DatabaseTest
 		$this->loadFixture(__DIR__ . '/../../datasets/storage/database.fixture.php', $this->dba);
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
-		$storage = $storageManager->getByName($name);
+		$storage = $storageManager->getSelectableStorageByName($name);
 		$storageManager->move($storage);
 
 		$photos = $this->dba->select('photo', ['backend-ref', 'backend-class', 'id', 'data']);
@@ -334,7 +334,7 @@ class StorageManagerTest extends DatabaseTest
 		$this->expectException(StorageException::class);
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
-		$storage = $storageManager->getByName(Storage\SystemResource::getName());
+		$storage = $storageManager->getSelectableStorageByName(Storage\SystemResource::getName());
 		$storageManager->move($storage);
 	}
 }

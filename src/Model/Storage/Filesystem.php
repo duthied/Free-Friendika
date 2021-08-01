@@ -131,6 +131,8 @@ class Filesystem implements ISelectableStorage
 		if ($result === false) {
 			throw new StorageException(sprintf('Filesystem storage failed to get data to "%s". Check your write permissions', $file));
 		}
+
+		return $result;
 	}
 
 	/**

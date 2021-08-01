@@ -131,10 +131,10 @@ HELP;
 			throw new CommandArgsException('Invalid arguments');
 		}
 
-		$name = $this->args[1];
-		$class = $this->storageManager->getByName($name);
+		$name  = $this->args[1];
+		$class = $this->storageManager->getSelectableStorageByName($name);
 
-		if ($class === '') {
+		if (is_null($class)) {
 			$this->out($name . ' is not a registered backend.');
 			return -1;
 		}

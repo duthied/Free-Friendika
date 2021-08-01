@@ -28,6 +28,8 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Storage\ExternalResource;
+use Friendica\Model\Storage\ReferenceStorageException;
+use Friendica\Model\Storage\StorageException;
 use Friendica\Model\Storage\SystemResource;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
@@ -183,9 +185,10 @@ class Photo
 	 *
 	 * @param array $photo Photo data. Needs at least 'id', 'type', 'backend-class', 'backend-ref'
 	 *
-	 * @return \Friendica\Object\Image
+	 * @return \Friendica\Object\Image|string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
+	 * @throws StorageException
 	 */
 	public static function getImageDataForPhoto(array $photo)
 	{
@@ -198,12 +201,17 @@ class Photo
 			// legacy data storage in "data" column
 			$i = self::selectFirst(['data'], ['id' => $photo['id']]);
 			if ($i === false) {
-				return null;
+				return '';
 			}
 			$data = $i['data'];
 		} else {
 			$backendRef = $photo['backend-ref'] ?? '';
-			$data = $backendClass->get($backendRef);
+			try {
+				$data = $backendClass->get($backendRef);
+			} catch (ReferenceStorageException $referenceStorageException) {
+				DI::logger()->debug('No data found for photo', ['photo' => $photo, 'exception' => $referenceStorageException]);
+				return '';
+			}
 		}
 		return $data;
 	}
@@ -339,7 +347,7 @@ class Photo
 
 		if (DBA::isResult($existing_photo)) {
 			$backend_ref = (string)$existing_photo["backend-ref"];
-			$storage = DI::storageManager()->getByName($existing_photo["backend-class"] ?? '');
+			$storage = DI::storageManager()->getSelectableStorageByName($existing_photo["backend-class"] ?? '');
 		} else {
 			$storage = DI::storage();
 		}
@@ -403,11 +411,14 @@ class Photo
 		$photos = DBA::select('photo', ['id', 'backend-class', 'backend-ref'], $conditions);
 
 		while ($photo = DBA::fetch($photos)) {
-			$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+			$backend_class = DI::storageManager()->getSelectableStorageByName($photo['backend-class'] ?? '');
 			if (!empty($backend_class)) {
-				if ($backend_class->delete($photo["backend-ref"] ?? '')) {
+				try {
+					$backend_class->delete($item['backend-ref'] ?? '');
 					// Delete the photos after they had been deleted successfully
 					DBA::delete("photo", ['id' => $photo['id']]);
+				} catch (ReferenceStorageException $referenceStorageException) {
+					DI::logger()->debug('phot doesn\'t exist.', ['conditions' => $conditions, 'exception' => $referenceStorageException]);
 				}
 			}
 		}
@@ -437,7 +448,7 @@ class Photo
 			$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 			foreach($photos as $photo) {
-				$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+				$backend_class = DI::storageManager()->getSelectableStorageByName($photo['backend-class'] ?? '');
 				if (!empty($backend_class)) {
 					$fields["backend-ref"] = $backend_class->put($img->asString(), $photo['backend-ref']);
 				} else {

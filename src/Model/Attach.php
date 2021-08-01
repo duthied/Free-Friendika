@@ -25,6 +25,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\Storage\ReferenceStorageException;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
@@ -173,7 +174,12 @@ class Attach
 			return $i['data'];
 		} else {
 			$backendRef = $item['backend-ref'];
-			return $backendClass->get($backendRef);
+			try {
+				return $backendClass->get($backendRef);
+			} catch (ReferenceStorageException $referenceStorageException) {
+				DI::logger()->debug('No data found for item', ['item' => $item, 'exception' => $referenceStorageException]);
+				return '';
+			}
 		}
 	}
 
@@ -278,7 +284,7 @@ class Attach
 			$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 			foreach($items as $item) {
-				$backend_class = DI::storageManager()->getByName($item['backend-class'] ?? '');
+				$backend_class = DI::storageManager()->getSelectableStorageByName($item['backend-class'] ?? '');
 				if (!empty($backend_class)) {
 					$fields['backend-ref'] = $backend_class->put($img->asString(), $item['backend-ref'] ?? '');
 				} else {
@@ -310,9 +316,13 @@ class Attach
 		$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 		foreach($items as $item) {
-			$backend_class = DI::storageManager()->getByName($item['backend-class'] ?? '');
+			$backend_class = DI::storageManager()->getSelectableStorageByName($item['backend-class'] ?? '');
 			if (!empty($backend_class)) {
-				$backend_class->delete($item['backend-ref'] ?? '');
+				try {
+					$backend_class->delete($item['backend-ref'] ?? '');
+				} catch (ReferenceStorageException $referenceStorageException) {
+					DI::logger()->debug('Item doesn\'t exist.', ['conditions' => $conditions, 'exception' => $referenceStorageException]);
+				}
 			}
 		}
 
