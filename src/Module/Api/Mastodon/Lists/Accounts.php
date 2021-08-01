@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon\Lists;
 
+use Friendica\App\Router;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -35,12 +36,12 @@ class Accounts extends BaseApi
 {
 	public static function delete(array $parameters = [])
 	{
-		self::unsupported('delete');
+		self::unsupported(Router::DELETE);
 	}
 
 	public static function post(array $parameters = [])
 	{
-		self::unsupported('post');
+		self::unsupported(Router::POST);
 	}
 
 	/**
@@ -74,7 +75,7 @@ class Accounts extends BaseApi
 		if ($request['limit'] != 0) {
 			$params['limit'] = min($request['limit'], 40);
 		}
-	
+
 		$condition = ['gid' => $id];
 
 		if (!empty($request['max_id'])) {

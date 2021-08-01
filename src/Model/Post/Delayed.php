@@ -43,13 +43,13 @@ class Delayed
 	 * @param string  $delayed
 	 * @param array   $taglist
 	 * @param array   $attachments
-	 * @return bool insert success
+	 * @return int    ID of the created delayed post entry
 	 */ 
 	public static function add(string $uri, array $item, int $notify = 0, bool $unprepared = false, string $delayed = '', array $taglist = [], array $attachments = [])
 	{
 		if (empty($item['uid']) || self::exists($uri, $item['uid'])) {
 			Logger::notice('No uid or already found');
-			return false;
+			return 0;
 		}
 
 		if (empty($delayed)) {
@@ -64,13 +64,25 @@ class Delayed
 
 		Logger::notice('Adding post for delayed publishing', ['uid' => $item['uid'], 'delayed' => $delayed, 'uri' => $uri]);
 
-		if (!Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $unprepared, $uri)) {
-			return false;
+		$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $unprepared, $uri);
+		if (!$wid) {
+			return 0;
 		}
 
 		DI::pConfig()->set($item['uid'], 'system', 'last_publish', $next_publish);
 
-		return DBA::insert('delayed-post', ['uri' => $uri, 'uid' => $item['uid'], 'delayed' => $delayed], Database::INSERT_IGNORE);
+		$delayed_post = [
+			'uri'     => $uri,
+			'uid'     => $item['uid'],
+			'delayed' => $delayed,
+			'wid'     => $wid,
+		];
+
+		if (DBA::insert('delayed-post', $delayed_post, Database::INSERT_IGNORE)) {
+			return DBA::lastInsertId();
+		} else {
+			return 0;
+		}
 	}
 
 	/**
@@ -97,6 +109,46 @@ class Delayed
 	public static function exists(string $uri, int $uid)
 	{
 		return DBA::exists('delayed-post', ['uri' => $uri, 'uid' => $uid]);
+	}
+
+	/**
+	 * Fetch parameters for delayed posts
+	 *
+	 * @param integer $id
+	 * @return array
+	 */
+	public static function getParametersForid(int $id)
+	{
+		$delayed = DBA::selectFirst('delayed-post', ['id', 'uid', 'wid', 'delayed'], ['id' => $id]);
+		if (empty($delayed['wid'])) {
+			return [];
+		}
+
+		$worker = DBA::selectFirst('workerqueue', ['parameter'], ['id' => $delayed['wid'], 'command' => 'DelayedPublish']);
+		if (empty($worker)) {
+			return [];
+		}
+
+		$parameters = json_decode($worker['parameter'], true);
+		if (empty($parameters)) {
+			return [];
+		}
+
+		// Make sure to only publish the attachments in the dedicated array field
+		if (empty($parameters[3]) && !empty($parameters[0]['attachments'])) {
+			$parameters[3] = $parameters[0]['attachments'];
+			unset($parameters[0]['attachments']);
+		}
+
+		return [
+			'parameters' => $delayed,
+			'item' => $parameters[0],
+			'notify' => $parameters[1],
+			'taglist' => $parameters[2],
+			'attachments' => $parameters[3],
+			'unprepared' => $parameters[4],
+			'uri' => $parameters[5],
+		];
 	}
 
 	/**

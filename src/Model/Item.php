@@ -363,7 +363,7 @@ class Item
 		return true;
 	}
 
-	private static function guid($item, $notify)
+	public static function guid($item, $notify)
 	{
 		if (!empty($item['guid'])) {
 			return Strings::escapeTags(trim($item['guid']));

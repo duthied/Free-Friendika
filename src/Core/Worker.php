@@ -1200,7 +1200,7 @@ class Worker
 	 * or: Worker::add(PRIORITY_HIGH, "Notifier", Delivery::DELETION, $drop_id);
 	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "Delivery", $post_id);
 	 *
-	 * @return boolean "false" if worker queue entry already existed or there had been an error
+	 * @return int "0" if worker queue entry already existed or there had been an error, otherwise the ID of the worker task
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @note $cmd and string args are surrounded with ""
 	 *
@@ -1213,14 +1213,14 @@ class Worker
 		$args = func_get_args();
 
 		if (!count($args)) {
-			return false;
+			return 0;
 		}
 
 		$arr = ['args' => $args, 'run_cmd' => true];
 
 		Hook::callAll("proc_run", $arr);
 		if (!$arr['run_cmd'] || !count($args)) {
-			return true;
+			return 1;
 		}
 
 		$priority = PRIORITY_MEDIUM;
@@ -1255,7 +1255,7 @@ class Worker
 		$command = array_shift($args);
 		$parameters = json_encode($args);
 		$found = DBA::exists('workerqueue', ['command' => $command, 'parameter' => $parameters, 'done' => false]);
-		$added = false;
+		$added = 0;
 
 		if (!in_array($priority, PRIORITIES)) {
 			Logger::warning('Invalid priority', ['priority' => $priority, 'command' => $command, 'callstack' => System::callstack(20)]);
@@ -1264,15 +1264,15 @@ class Worker
 
 		// Quit if there was a database error - a precaution for the update process to 3.5.3
 		if (DBA::errorNo() != 0) {
-			return false;
+			return 0;
 		}
 
 		if (!$found) {
-			$added = DBA::insert('workerqueue', ['command' => $command, 'parameter' => $parameters, 'created' => $created,
-				'priority' => $priority, 'next_try' => $delayed]);
-			if (!$added) {
-				return false;
+			if (!DBA::insert('workerqueue', ['command' => $command, 'parameter' => $parameters, 'created' => $created,
+				'priority' => $priority, 'next_try' => $delayed])) {
+				return 0;
 			}
+			$added = DBA::lastInsertId();
 		} elseif ($force_priority) {
 			DBA::update('workerqueue', ['priority' => $priority], ['command' => $command, 'parameter' => $parameters, 'done' => false, 'pid' => 0]);
 		}

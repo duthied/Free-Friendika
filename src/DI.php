@@ -312,6 +312,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\ScheduledStatus
+	 */
+	public static function mstdnScheduledStatus()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\ScheduledStatus::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\ListEntity
 	 */
 	public static function mstdnList()
