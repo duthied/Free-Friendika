@@ -21,10 +21,10 @@
 
 namespace Friendica\Model\Storage;
 
+use Exception;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 use Friendica\Util\Strings;
-use Psr\Log\LoggerInterface;
 
 /**
  * Filesystem based storage backend
@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
  * Each new resource gets a value as reference and is saved in a
  * folder tree stucture created from that value.
  */
-class Filesystem extends AbstractStorage
+class Filesystem implements ISelectableStorage
 {
 	const NAME = 'Filesystem';
 
@@ -49,18 +49,19 @@ class Filesystem extends AbstractStorage
 	/** @var string */
 	private $basePath;
 
+	/** @var L10n */
+	private $l10n;
+
 	/**
 	 * Filesystem constructor.
 	 *
 	 * @param IConfig         $config
-	 * @param LoggerInterface $logger
 	 * @param L10n            $l10n
 	 */
-	public function __construct(IConfig $config, LoggerInterface $logger, L10n $l10n)
+	public function __construct(IConfig $config, L10n $l10n)
 	{
-		parent::__construct($l10n, $logger);
-
 		$this->config = $config;
+		$this->l10n   = $l10n;
 
 		$path           = $this->config->get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
 		$this->basePath = rtrim($path, '/');
@@ -73,7 +74,7 @@ class Filesystem extends AbstractStorage
 	 *
 	 * @return string
 	 */
-	private function pathForRef(string $reference)
+	private function pathForRef(string $reference): string
 	{
 		$fold1 = substr($reference, 0, 2);
 		$fold2 = substr($reference, 2, 2);
@@ -84,7 +85,7 @@ class Filesystem extends AbstractStorage
 
 
 	/**
-	 * Create dirctory tree to store file, with .htaccess and index.html files
+	 * Create directory tree to store file, with .htaccess and index.html files
 	 *
 	 * @param string $file Path and filename
 	 *
@@ -96,8 +97,7 @@ class Filesystem extends AbstractStorage
 
 		if (!is_dir($path)) {
 			if (!mkdir($path, 0770, true)) {
-				$this->logger->warning('Failed to create dir.', ['path' => $path]);
-				throw new StorageException($this->l10n->t('Filesystem storage failed to create "%s". Check you write permissions.', $path));
+				throw new StorageException(sprintf('Filesystem storage failed to create "%s". Check you write permissions.', $path));
 			}
 		}
 
@@ -118,23 +118,32 @@ class Filesystem extends AbstractStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function get(string $reference)
+	public function get(string $reference): string
 	{
 		$file = $this->pathForRef($reference);
 		if (!is_file($file)) {
-			return '';
+			throw new ReferenceStorageException(sprintf('Filesystem storage failed to get the file %s, The file is invalid', $reference));
 		}
 
-		return file_get_contents($file);
+		$result = file_get_contents($file);
+
+		// just in case the result is REALLY false, not zero or empty or anything else, throw the exception
+		if ($result === false) {
+			throw new StorageException(sprintf('Filesystem storage failed to get data to "%s". Check your write permissions', $file));
+		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function put(string $data, string $reference = '')
+	public function put(string $data, string $reference = ''): string
 	{
 		if ($reference === '') {
-			$reference = Strings::getRandomHex();
+			try {
+				$reference = Strings::getRandomHex();
+			} catch (Exception $exception) {
+				throw new StorageException('Filesystem storage failed to generate a random hex', $exception->getCode(), $exception);
+			}
 		}
 		$file = $this->pathForRef($reference);
 
@@ -144,8 +153,7 @@ class Filesystem extends AbstractStorage
 
 		// just in case the result is REALLY false, not zero or empty or anything else, throw the exception
 		if ($result === false) {
-			$this->logger->warning('Failed to write data.', ['file' => $file]);
-			throw new StorageException($this->l10n->t('Filesystem storage failed to save data to "%s". Check your write permissions', $file));
+			throw new StorageException(sprintf('Filesystem storage failed to save data to "%s". Check your write permissions', $file));
 		}
 
 		chmod($file, 0660);
@@ -158,17 +166,19 @@ class Filesystem extends AbstractStorage
 	public function delete(string $reference)
 	{
 		$file = $this->pathForRef($reference);
-		// return true if file doesn't exists. we want to delete it: success with zero work!
 		if (!is_file($file)) {
-			return true;
+			throw new ReferenceStorageException(sprintf('File with reference "%s" doesn\'t exist', $reference));
 		}
-		return unlink($file);
+
+		if (!unlink($file)) {
+			throw new StorageException(sprintf('Cannot delete with file with reference "%s"', $reference));
+		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getOptions()
+	public function getOptions(): array
 	{
 		return [
 			'storagepath' => [
@@ -183,7 +193,7 @@ class Filesystem extends AbstractStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function saveOptions(array $data)
+	public function saveOptions(array $data): array
 	{
 		$storagePath = $data['storagepath'] ?? '';
 		if ($storagePath === '' || !is_dir($storagePath)) {
@@ -199,8 +209,13 @@ class Filesystem extends AbstractStorage
 	/**
 	 * @inheritDoc
 	 */
-	public static function getName()
+	public static function getName(): string
 	{
 		return self::NAME;
+	}
+
+	public function __toString()
+	{
+		return self::getName();
 	}
 }

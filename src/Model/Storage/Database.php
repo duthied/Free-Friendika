@@ -21,8 +21,7 @@
 
 namespace Friendica\Model\Storage;
 
-use Friendica\Core\L10n;
-use Psr\Log\LoggerInterface;
+use Exception;
 use Friendica\Database\Database as DBA;
 
 /**
@@ -30,7 +29,7 @@ use Friendica\Database\Database as DBA;
  *
  * This class manage data stored in database table.
  */
-class Database extends AbstractStorage
+class Database implements ISelectableStorage
 {
 	const NAME = 'Database';
 
@@ -39,47 +38,53 @@ class Database extends AbstractStorage
 
 	/**
 	 * @param DBA             $dba
-	 * @param LoggerInterface $logger
-	 * @param L10n            $l10n
 	 */
-	public function __construct(DBA $dba, LoggerInterface $logger, L10n $l10n)
+	public function __construct(DBA $dba)
 	{
-		parent::__construct($l10n, $logger);
-
 		$this->dba = $dba;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function get(string $reference)
+	public function get(string $reference): string
 	{
-		$result = $this->dba->selectFirst('storage', ['data'], ['id' => $reference]);
-		if (!$this->dba->isResult($result)) {
-			return '';
-		}
+		try {
+			$result = $this->dba->selectFirst('storage', ['data'], ['id' => $reference]);
+			if (!$this->dba->isResult($result)) {
+				throw new ReferenceStorageException(sprintf('Database storage cannot find data for reference %s', $reference));
+			}
 
-		return $result['data'];
+			return $result['data'];
+		} catch (Exception $exception) {
+			throw new StorageException(sprintf('Database storage failed to get %s', $reference), $exception->getCode(), $exception);
+		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function put(string $data, string $reference = '')
+	public function put(string $data, string $reference = ''): string
 	{
 		if ($reference !== '') {
-			$result = $this->dba->update('storage', ['data' => $data], ['id' => $reference]);
+			try {
+				$result = $this->dba->update('storage', ['data' => $data], ['id' => $reference]);
+			} catch (Exception $exception) {
+				throw new StorageException(sprintf('Database storage failed to update %s', $reference), $exception->getCode(), $exception);
+			}
 			if ($result === false) {
-				$this->logger->warning('Failed to update data.', ['id' => $reference, 'errorCode' => $this->dba->errorNo(), 'errorMessage' => $this->dba->errorMessage()]);
-				throw new StorageException($this->l10n->t('Database storage failed to update %s', $reference));
+				throw new StorageException(sprintf('Database storage failed to update %s', $reference), 500, new Exception($this->dba->errorMessage(), $this->dba->errorNo()));
 			}
 
 			return $reference;
 		} else {
-			$result = $this->dba->insert('storage', ['data' => $data]);
+			try {
+				$result = $this->dba->insert('storage', ['data' => $data]);
+			} catch (Exception $exception) {
+				throw new StorageException(sprintf('Database storage failed to insert %s', $reference), $exception->getCode(), $exception);
+			}
 			if ($result === false) {
-				$this->logger->warning('Failed to insert data.', ['errorCode' => $this->dba->errorNo(), 'errorMessage' => $this->dba->errorMessage()]);
-				throw new StorageException($this->l10n->t('Database storage failed to insert data'));
+				throw new StorageException(sprintf('Database storage failed to update %s', $reference), 500, new Exception($this->dba->errorMessage(), $this->dba->errorNo()));
 			}
 
 			return $this->dba->lastInsertId();
@@ -91,13 +96,19 @@ class Database extends AbstractStorage
 	 */
 	public function delete(string $reference)
 	{
-		return $this->dba->delete('storage', ['id' => $reference]);
+		try {
+			if (!$this->dba->delete('storage', ['id' => $reference])) {
+				throw new ReferenceStorageException(sprintf('Database storage failed to delete %s', $reference));
+			}
+		} catch (Exception $exception) {
+			throw new StorageException(sprintf('Database storage failed to delete %s', $reference), $exception->getCode(), $exception);
+		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getOptions()
+	public function getOptions(): array
 	{
 		return [];
 	}
@@ -105,7 +116,7 @@ class Database extends AbstractStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function saveOptions(array $data)
+	public function saveOptions(array $data): array
 	{
 		return [];
 	}
@@ -113,8 +124,13 @@ class Database extends AbstractStorage
 	/**
 	 * @inheritDoc
 	 */
-	public static function getName()
+	public static function getName(): string
 	{
 		return self::NAME;
+	}
+
+	public function __toString()
+	{
+		return self::getName();
 	}
 }

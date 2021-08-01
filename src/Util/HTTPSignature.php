@@ -28,6 +28,7 @@ use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
+use Friendica\Network\CurlResult;
 
 /**
  * Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -408,7 +409,7 @@ class HTTPSignature
 	 *                         'nobody' => only return the header
 	 *                         'cookiejar' => path to cookie jar file
 	 *
-	 * @return object CurlResult
+	 * @return CurlResult|void CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchRaw($request, $uid = 0, $opts = ['accept_content' => 'application/activity+json, application/ld+json'])
