@@ -70,14 +70,15 @@ class BaseProfile extends BaseModule
 				'id'    => 'photo-tab',
 				'accesskey' => 'h',
 			],
-			[
-				'label' => DI::l10n()->t('Videos'),
-				'url'   => DI::baseUrl() . '/videos/' . $nickname,
-				'sel'   => $current == 'videos' ? 'active' : '',
-				'title' => DI::l10n()->t('Videos'),
-				'id'    => 'video-tab',
-				'accesskey' => 'v',
-			],
+// @todo Currently deactivated since it doesn't really work
+//			[
+//				'label' => DI::l10n()->t('Videos'),
+//				'url'   => DI::baseUrl() . '/videos/' . $nickname,
+//				'sel'   => $current == 'videos' ? 'active' : '',
+//				'title' => DI::l10n()->t('Videos'),
+//				'id'    => 'video-tab',
+//				'accesskey' => 'v',
+//			],
 		];
 
 		// the calendar link for the full featured events calendar
@@ -111,6 +112,14 @@ class BaseProfile extends BaseModule
 				'title' => DI::l10n()->t('Only You Can See This'),
 				'id'    => 'notes-tab',
 				'accesskey' => 't',
+			];
+			$tabs[] = [
+				'label' => DI::l10n()->t('Scheduled Posts'),
+				'url'   => $baseProfileUrl . '/schedule',
+				'sel'   => $current == 'schedule' ? 'active' : '',
+				'title' => DI::l10n()->t('Posts that are scheduled for publishing'),
+				'id'    => 'schedule-tab',
+				'accesskey' => 'o',
 			];
 		}
 

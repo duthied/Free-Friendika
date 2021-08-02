@@ -17,7 +17,7 @@ General
 * p - Profile
 * n - Network
 * c - Community
-* s -	Search
+* s - Search
 * a - Admin
 * f - Notifications
 * u - User menu
@@ -35,6 +35,7 @@ General
 * v - Videos
 * e - Events and Calendar
 * t - Personal Notes
+* o - Scheduled Posts
 * k - View Contacts
 
 ../contacts (contact list)
@@ -66,7 +67,6 @@ General
 * t - Sort by Post Date
 * r - Conversation (Posts that mention or involve you)
 * w - New posts
-* b - Bookmarks
 * m - Favourite Posts
 
 ../notifications
