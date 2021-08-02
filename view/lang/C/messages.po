@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-01 13:13+0000\n"
+"POT-Creation-Date: 2021-08-02 12:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -845,11 +845,11 @@ msgstr ""
 #: src/Module/Invite.php:127 src/Module/Notifications/Notification.php:47
 #: src/Module/Notifications/Notification.php:76
 #: src/Module/Profile/Common.php:56 src/Module/Profile/Contacts.php:57
-#: src/Module/Register.php:62 src/Module/Register.php:75
-#: src/Module/Register.php:193 src/Module/Register.php:232
-#: src/Module/Search/Directory.php:38 src/Module/Settings/Delegation.php:42
-#: src/Module/Settings/Delegation.php:70 src/Module/Settings/Display.php:42
-#: src/Module/Settings/Display.php:118
+#: src/Module/Profile/Schedule.php:33 src/Module/Register.php:62
+#: src/Module/Register.php:75 src/Module/Register.php:193
+#: src/Module/Register.php:232 src/Module/Search/Directory.php:38
+#: src/Module/Settings/Delegation.php:42 src/Module/Settings/Delegation.php:70
+#: src/Module/Settings/Display.php:42 src/Module/Settings/Display.php:118
 #: src/Module/Settings/Profile/Photo/Crop.php:155
 #: src/Module/Settings/Profile/Photo/Index.php:113
 #: src/Module/Settings/UserExport.php:59 src/Module/Settings/UserExport.php:94
@@ -884,8 +884,8 @@ msgid "Access to this profile has been restricted."
 msgstr ""
 
 #: mod/cal.php:251 mod/events.php:422 src/Content/Nav.php:195
-#: src/Content/Nav.php:262 src/Module/BaseProfile.php:86
-#: src/Module/BaseProfile.php:97 view/theme/frio/theme.php:230
+#: src/Content/Nav.php:262 src/Module/BaseProfile.php:87
+#: src/Module/BaseProfile.php:98 view/theme/frio/theme.php:230
 #: view/theme/frio/theme.php:234
 msgid "Events"
 msgstr ""
@@ -1475,7 +1475,7 @@ msgid_plural "%d messages"
 msgstr[0] ""
 msgstr[1] ""
 
-#: mod/notes.php:51 src/Module/BaseProfile.php:108
+#: mod/notes.php:51 src/Module/BaseProfile.php:109
 msgid "Personal Notes"
 msgstr ""
 
@@ -3172,8 +3172,7 @@ msgstr ""
 msgid "Your photos"
 msgstr ""
 
-#: src/Content/Nav.php:194 src/Module/BaseProfile.php:74
-#: src/Module/BaseProfile.php:77 view/theme/frio/theme.php:229
+#: src/Content/Nav.php:194 view/theme/frio/theme.php:229
 msgid "Videos"
 msgstr ""
 
@@ -3245,8 +3244,8 @@ msgid "Tags"
 msgstr ""
 
 #: src/Content/Nav.php:239 src/Content/Nav.php:298
-#: src/Content/Text/HTML.php:902 src/Module/BaseProfile.php:119
-#: src/Module/BaseProfile.php:122 src/Module/Contact.php:818
+#: src/Content/Text/HTML.php:902 src/Module/BaseProfile.php:128
+#: src/Module/BaseProfile.php:131 src/Module/Contact.php:818
 #: src/Module/Contact.php:906 view/theme/frio/theme.php:237
 msgid "Contacts"
 msgstr ""
@@ -3259,8 +3258,8 @@ msgstr ""
 msgid "Conversations on this and other servers"
 msgstr ""
 
-#: src/Content/Nav.php:262 src/Module/BaseProfile.php:89
-#: src/Module/BaseProfile.php:100 view/theme/frio/theme.php:234
+#: src/Content/Nav.php:262 src/Module/BaseProfile.php:90
+#: src/Module/BaseProfile.php:101 view/theme/frio/theme.php:234
 msgid "Events and Calendar"
 msgstr ""
 
@@ -7093,11 +7092,19 @@ msgstr ""
 msgid "Profile Details"
 msgstr ""
 
-#: src/Module/BaseProfile.php:111
+#: src/Module/BaseProfile.php:112
 msgid "Only You Can See This"
 msgstr ""
 
-#: src/Module/BaseProfile.php:130 src/Module/BaseProfile.php:133
+#: src/Module/BaseProfile.php:117
+msgid "Scheduled Posts"
+msgstr ""
+
+#: src/Module/BaseProfile.php:120
+msgid "Posts that are scheduled for publishing"
+msgstr ""
+
+#: src/Module/BaseProfile.php:139 src/Module/BaseProfile.php:142
 msgid "Tips for New Members"
 msgstr ""
 
@@ -8770,6 +8777,12 @@ msgstr ""
 #: src/Protocol/Feed.php:951 src/Protocol/OStatus.php:1263
 #, php-format
 msgid "%s's comments"
+msgstr ""
+
+#: src/Module/Profile/Schedule.php:40
+msgid ""
+"Currently here is no functionality here. Please use an app to have a look at "
+"your scheduled posts."
 msgstr ""
 
 #: src/Module/Register.php:69
