@@ -2220,7 +2220,7 @@ class Probe
 			$data = [
 				'name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
 				'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
-				'photo' => Contact::getAvatarUrlForId($profile['id'], $profile['updated']),
+				'photo' => Contact::getAvatarUrlForId($profile['id'], '', $profile['updated']),
 				'header' => $profile['header'] ? Contact::getHeaderUrlForId($profile['id'], $profile['updated']) : '',
 				'account-type' => $profile['contact-type'], 'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
 				'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'],

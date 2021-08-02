@@ -31,6 +31,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Notification;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException\ForbiddenException;
+use Friendica\Util\Proxy;
 
 /**
  * Switches current user between delegates/parent user
@@ -122,12 +123,12 @@ class Delegation extends BaseModule
 
 		//getting additinal information for each identity
 		foreach ($identities as $key => $identity) {
-			$thumb = Contact::selectFirst(['thumb'], ['uid' => $identity['uid'], 'self' => true]);
-			if (!DBA::isResult($thumb)) {
+			$self = Contact::selectFirst(['id', 'updated'], ['uid' => $identity['uid'], 'self' => true]);
+			if (!DBA::isResult($self)) {
 				continue;
 			}
 
-			$identities[$key]['thumb'] = $thumb['thumb'];
+			$identities[$key]['thumb'] = Contact::getAvatarUrlForId($self['id'], Proxy::SIZE_THUMB, $self['updated']);
 
 			$identities[$key]['selected'] = ($identity['nickname'] === DI::app()->user['nickname']);
 
