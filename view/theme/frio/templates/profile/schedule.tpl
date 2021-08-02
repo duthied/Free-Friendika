@@ -15,7 +15,14 @@
 				<tr>
 					<td>{{$row.scheduled_at}}</td>
 					<td>{{$row.content}}</td>
-					<td><a href="{{$baseurl}}/profile/{{$nickname}}/schedule/delete/{{$row.id}}?t={{$form_security_token}}" class="btn" title="{{$delete}}"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+					<td>
+						<form action="{{$baseurl}}/profile/{{$nickname}}/schedule" method="post">
+							<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
+							<button type="submit" name="delete" value="{{$row.id}}" title="{{$delete}}">
+								<i class="fa fa-trash" aria-hidden="true">
+							</button>
+						</form>
+					</td>
 				</tr>
 				{{/foreach}}
 			</tbody>
