@@ -1,7 +1,7 @@
 <div class="generic-page-wrapper">
 	{{* include the title template for the settings title *}}
 	{{include file="section_title.tpl" title=$title}}
-	<table id='application-block' class='table table-condensed table-striped'>
+	<table id="application-block" class="table table-condensed table-striped">
 		<thead>
 			<tr>
 				<th>{{$scheduled_at}}</th>

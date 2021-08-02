@@ -1,6 +1,6 @@
 <div class="generic-page-wrapper">
 	<h1>{{$title}}</h1>
-	<table id='application-block' class='table table-condensed table-striped'>
+	<table id="application-block" class="table table-condensed table-striped">
 		<thead>
 			<tr>
 				<th>{{$scheduled_at}}</th>
