@@ -1143,6 +1143,9 @@ class Item
 
 		if (!$dontcache) {
 			if ($notify) {
+				if (!\Friendica\Content\Feature::isEnabled($posted_item['uid'], 'explicit_mentions') && ($posted_item['gravity'] == GRAVITY_COMMENT)) {
+					Tag::createImplicitMentions($posted_item['uri-id'], $posted_item['thr-parent-id']);
+				}
 				Hook::callAll('post_local_end', $posted_item);
 			} else {
 				Hook::callAll('post_remote_end', $posted_item);
