@@ -50,12 +50,16 @@ class ScheduledStatuses extends BaseApi
 		}
 
 		$condtion = ['id' => $parameters['id'], 'uid' => $uid];
-		$post = DBA::selectFirst('delayed-post', ['id'], $condtion);
+		$post = DBA::selectFirst('delayed-post', ['id', 'wid'], $condtion);
 		if (empty($post['id'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
 		if (!DBA::delete('delayed-post', $condtion)) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		if (!DBA::delete('workerqueue', ['id' => $post['wid']])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 

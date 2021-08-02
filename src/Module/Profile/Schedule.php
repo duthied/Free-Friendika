@@ -32,14 +32,22 @@ use Friendica\Network\HTTPException;
 
 class Schedule extends BaseProfile
 {
-	public static function content(array $parameters = [])
+	public static function post(array $parameters = [])
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		if (!empty($parameters['id'])) {
-			self::deleteSchedule($parameters['id']);
+		if (empty($_REQUEST['delete'])) {
+			throw new HTTPException\BadRequestException();
+		}
+		self::deleteSchedule($_REQUEST['delete']);		
+	}
+
+	public static function content(array $parameters = [])
+	{
+		if (!local_user()) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		$a = DI::app();
@@ -78,6 +86,13 @@ class Schedule extends BaseProfile
 
 	private static function deleteSchedule($id)
 	{
+		$condtion = ['id' => $id, 'uid' => local_user()];
+		$post = DBA::selectFirst('delayed-post', ['id', 'wid'], $condtion);
+		if (empty($post['id'])) {
+			return;
+		}
+		
 		DBA::delete('delayed-post', ['id' => $id, 'uid' => local_user()]);
+		DBA::delete('workerqueue', ['id' => $post['wid']]);
 	}
 }
