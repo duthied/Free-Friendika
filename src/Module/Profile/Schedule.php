@@ -21,7 +21,12 @@
 
 namespace Friendica\Module\Profile;
 
+use Friendica\BaseModule;
+use Friendica\Content\Text\BBCode;
+use Friendica\Core\Renderer;
+use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Post;
 use Friendica\Module\BaseProfile;
 use Friendica\Network\HTTPException;
 
@@ -33,11 +38,46 @@ class Schedule extends BaseProfile
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
+		if (!empty($parameters['id'])) {
+			self::deleteSchedule($parameters['id']);
+		}
+
 		$a = DI::app();
 
 		$o = self::getTabsHTML($a, 'schedule', true, $a->user);
 
-		$o .= DI::l10n()->t('Currently here is no functionality here. Please use an app to have a look at your scheduled posts.');
+		$schedule = [];
+		$delayed = DBA::select('delayed-post', [], ['uid' => local_user()]);
+		while ($row = DBA::fetch($delayed)) {
+			$parameter = Post\Delayed::getParametersForid($row['id']);
+			if (empty($parameter)) {
+				continue;
+			}
+			$schedule[] = [
+				'id'           => $row['id'],
+				'scheduled_at' => $row['delayed'],
+				'content'      => BBCode::toPlaintext($parameter['item']['body'], false)
+			];
+		}
+		DBA::close($delayed);
+
+		$tpl = Renderer::getMarkupTemplate('profile/schedule.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
+			'$form_security_token' => BaseModule::getFormSecurityToken("profile_schedule"),
+			'$baseurl'             => DI::baseUrl()->get(true),
+			'$title'               => DI::l10n()->t('Scheduled Posts'),
+			'$nickname'            => $parameters['nickname'] ?? '',
+			'$scheduled_at'        => DI::l10n()->t('Scheduled'),
+			'$content'             => DI::l10n()->t('Content'),
+			'$delete'              => DI::l10n()->t('Remove post'),
+			'$schedule'            => $schedule,
+		]);
+
 		return $o;
+	}
+
+	private static function deleteSchedule($id)
+	{
+		DBA::delete('delayed-post', ['id' => $id, 'uid' => local_user()]);
 	}
 }

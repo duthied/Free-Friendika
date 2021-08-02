@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-02 12:15+0000\n"
+"POT-Creation-Date: 2021-08-02 17:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -845,7 +845,7 @@ msgstr ""
 #: src/Module/Invite.php:127 src/Module/Notifications/Notification.php:47
 #: src/Module/Notifications/Notification.php:76
 #: src/Module/Profile/Common.php:56 src/Module/Profile/Contacts.php:57
-#: src/Module/Profile/Schedule.php:33 src/Module/Register.php:62
+#: src/Module/Profile/Schedule.php:38 src/Module/Register.php:62
 #: src/Module/Register.php:75 src/Module/Register.php:193
 #: src/Module/Register.php:232 src/Module/Search/Directory.php:38
 #: src/Module/Settings/Delegation.php:42 src/Module/Settings/Delegation.php:70
@@ -7096,7 +7096,7 @@ msgstr ""
 msgid "Only You Can See This"
 msgstr ""
 
-#: src/Module/BaseProfile.php:117
+#: src/Module/BaseProfile.php:117 src/Module/Profile/Schedule.php:68
 msgid "Scheduled Posts"
 msgstr ""
 
@@ -8779,10 +8779,16 @@ msgstr ""
 msgid "%s's comments"
 msgstr ""
 
-#: src/Module/Profile/Schedule.php:40
-msgid ""
-"Currently here is no functionality here. Please use an app to have a look at "
-"your scheduled posts."
+#: src/Module/Profile/Schedule.php:70
+msgid "Scheduled"
+msgstr ""
+
+#: src/Module/Profile/Schedule.php:71
+msgid "Content"
+msgstr ""
+
+#: src/Module/Profile/Schedule.php:72
+msgid "Remove post"
 msgstr ""
 
 #: src/Module/Register.php:69

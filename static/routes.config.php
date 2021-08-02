@@ -34,6 +34,7 @@ $profileRoutes = [
 	''                                         => [Module\Profile\Index::class,    [R::GET]],
 	'/profile'                                 => [Module\Profile\Profile::class,  [R::GET]],
 	'/schedule'                                => [Module\Profile\Schedule::class, [R::GET]],
+	'/schedule/delete/{id:\d+}'                => [Module\Profile\Schedule::class, [R::GET]],	
 	'/contacts/common'                         => [Module\Profile\Common::class,   [R::GET]],
 	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class, [R::GET]],
 	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,   [R::GET]],
