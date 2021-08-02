@@ -15,9 +15,7 @@
 				<td>
 					<form action="{{$baseurl}}/profile/{{$nickname}}/schedule" method="post">
 						<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
-						<button type="submit" name="delete" value="{{$row.id}}" title="{{$delete}}">
-							<i class="fa fa-trash" aria-hidden="true">
-						</button>
+						<button type="submit" name="delete" value="{{$row.id}}" title="{{$delete}}" class="icon s22 delete"></button>
 					</form>
 				</td>
 			</tr>
