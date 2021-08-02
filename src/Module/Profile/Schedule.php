@@ -41,7 +41,12 @@ class Schedule extends BaseProfile
 		if (empty($_REQUEST['delete'])) {
 			throw new HTTPException\BadRequestException();
 		}
-		self::deleteSchedule($_REQUEST['delete']);		
+
+		if (!DBA::exists('delayed-post', ['id' => $_REQUEST['delete'], 'uid' => local_user()])) {
+			throw new HTTPException\NotFoundException();
+		}
+
+		Post\Delayed::deleteById($_REQUEST['delete']);
 	}
 
 	public static function content(array $parameters = [])
@@ -82,17 +87,5 @@ class Schedule extends BaseProfile
 		]);
 
 		return $o;
-	}
-
-	private static function deleteSchedule($id)
-	{
-		$condtion = ['id' => $id, 'uid' => local_user()];
-		$post = DBA::selectFirst('delayed-post', ['id', 'wid'], $condtion);
-		if (empty($post['id'])) {
-			return;
-		}
-		
-		DBA::delete('delayed-post', ['id' => $id, 'uid' => local_user()]);
-		DBA::delete('workerqueue', ['id' => $post['wid']]);
 	}
 }
