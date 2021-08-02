@@ -25,6 +25,7 @@ use Friendica\App\Router;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 
 /**
@@ -49,15 +50,11 @@ class ScheduledStatuses extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$condtion = ['id' => $parameters['id'], 'uid' => $uid];
-		$post = DBA::selectFirst('delayed-post', ['id'], $condtion);
-		if (empty($post['id'])) {
+		if (!DBA::exists('delayed-post', ['id' => $parameters['id'], 'uid' => $uid])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		if (!DBA::delete('delayed-post', $condtion)) {
-			DI::mstdnError()->RecordNotFound();
-		}
+		Post\Delayed::deleteById($parameters['id']);
 
 		System::jsonExit([]);
 	}

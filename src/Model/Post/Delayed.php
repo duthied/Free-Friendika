@@ -44,7 +44,7 @@ class Delayed
 	 * @param array   $taglist
 	 * @param array   $attachments
 	 * @return int    ID of the created delayed post entry
-	 */ 
+	 */
 	public static function add(string $uri, array $item, int $notify = 0, bool $unprepared = false, string $delayed = '', array $taglist = [], array $attachments = [])
 	{
 		if (empty($item['uid']) || self::exists($uri, $item['uid'])) {
@@ -96,6 +96,23 @@ class Delayed
 	private static function delete(string $uri, int $uid)
 	{
 		return DBA::delete('delayed-post', ['uri' => $uri, 'uid' => $uid]);
+	}
+
+	/**
+	 * Delete scheduled posts and the associated workerqueue entry
+	 *
+	 * @param integer $id
+	 * @return void
+	 */
+	public static function deleteById(int $id)
+	{
+		$post = DBA::selectFirst('delayed-post', ['wid'], ['id' => $id]);
+		if (empty($post['wid'])) {
+			return;
+		}
+
+		DBA::delete('delayed-post', ['id' => $id]);
+		DBA::delete('workerqueue', ['id' => $post['wid']]);
 	}
 
 	/**
@@ -192,7 +209,7 @@ class Delayed
 			if (self::exists($uri, $item['uid'])) {
 				self::delete($uri, $item['uid']);
 			}
-	
+
 			return $id;
 		}
 		$id = Item::insert($item, $notify);
