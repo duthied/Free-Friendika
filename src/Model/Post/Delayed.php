@@ -58,8 +58,7 @@ class Delayed
 			$last_publish = DI::pConfig()->get($item['uid'], 'system', 'last_publish', 0, true);
 			$next_publish = max($last_publish + (60 * $min_posting), time());
 			$delayed = date(DateTimeFormat::MYSQL, $next_publish);
-		} else {
-			$next_publish = strtotime($delayed);
+			DI::pConfig()->set($item['uid'], 'system', 'last_publish', $next_publish);
 		}
 
 		Logger::notice('Adding post for delayed publishing', ['uid' => $item['uid'], 'delayed' => $delayed, 'uri' => $uri]);
@@ -68,8 +67,6 @@ class Delayed
 		if (!$wid) {
 			return 0;
 		}
-
-		DI::pConfig()->set($item['uid'], 'system', 'last_publish', $next_publish);
 
 		$delayed_post = [
 			'uri'     => $uri,
