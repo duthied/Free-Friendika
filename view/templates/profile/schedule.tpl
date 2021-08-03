@@ -8,10 +8,10 @@
 			</tr>
 		</thead>
 		<tbody>
-			{{foreach $schedule as $entry}}
+			{{foreach $schedule as $row}}
 			<tr>
-				<td>{{$entry.scheduled_at}}</td>
-				<td>{{$entry.content}}</td>
+				<td>{{$row.scheduled_at}}</td>
+				<td>{{$row.content}}</td>
 				<td>
 					<form action="{{$baseurl}}/profile/{{$nickname}}/schedule" method="post">
 						<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
