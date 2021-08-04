@@ -29,6 +29,7 @@ use Friendica\DI;
 use Friendica\Model\Post;
 use Friendica\Module\BaseProfile;
 use Friendica\Network\HTTPException;
+use Friendica\Util\DateTimeFormat;
 
 class Schedule extends BaseProfile
 {
@@ -68,7 +69,7 @@ class Schedule extends BaseProfile
 			}
 			$schedule[] = [
 				'id'           => $row['id'],
-				'scheduled_at' => $row['delayed'],
+				'scheduled_at' => DateTimeFormat::local($row['delayed']),
 				'content'      => BBCode::toPlaintext($parameter['item']['body'], false)
 			];
 		}
