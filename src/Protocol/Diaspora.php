@@ -3068,9 +3068,6 @@ class Diaspora
 	{
 		$msg = self::buildPostXml($type, $message);
 
-		Logger::log('message: '.$msg, Logger::DATA);
-		Logger::log('send guid '.$guid, Logger::DEBUG);
-
 		// Fallback if the private key wasn't transmitted in the expected field
 		if (empty($owner['uprvkey'])) {
 			$owner['uprvkey'] = $owner['prvkey'];
@@ -3091,7 +3088,7 @@ class Diaspora
 
 		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, $guid);
 
-		Logger::log("guid: ".$guid." result ".$return_code, Logger::DEBUG);
+		Logger::info('Transmitted message', ['owner' => $owner['uid'], 'target' => $contact['addr'], 'type' => $type, 'guid' => $guid, 'result' => $return_code]);
 
 		return $return_code;
 	}
@@ -3119,7 +3116,19 @@ class Diaspora
 			return;
 		}
 
-		$owner = User::getOwnerDataById($item['uid']);
+		// Fetch some user id to have a valid handle to transmit the participation.
+		// In fact it doesn't matter which user sends this - but it is needed by the protocol.
+		// If the item belongs to a user, we take this user id.
+		if ($item['uid'] == 0) {
+			// @todo Possibly use an administrator account?
+			$condition = ['verified' => true, 'blocked' => false,
+				'account_removed' => false, 'account_expired' => false, 'account-type' => User::ACCOUNT_TYPE_PERSON];
+			$first_user = DBA::selectFirst('user', ['uid'], $condition, ['order' => ['uid']]);
+			$owner = User::getOwnerDataById($first_user['uid']);
+		} else {
+			$owner = User::getOwnerDataById($item['uid']);
+		}
+
 		$author = self::myHandle($owner);
 
 		$message = ["author" => $author,
