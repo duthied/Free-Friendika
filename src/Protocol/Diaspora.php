@@ -4051,13 +4051,18 @@ class Diaspora
 	 */
 	public static function createCommentSignature(array $item)
 	{
-		$contact = Contact::getById($item['author-id'], ['url']);
-		if (empty($contact['url'])) {
-			Logger::warning('Author Contact not found', ['author-id' => $item['author-id']]);
-			return false;
+		if (!empty($item['author-link'])) {
+			$url = $item['author-link'];
+		} else {
+			$contact = Contact::getById($item['author-id'], ['url']);
+			if (empty($contact['url'])) {
+				Logger::warning('Author Contact not found', ['author-id' => $item['author-id']]);
+				return false;
+			}
+			$url = $contact['url'];
 		}
 
-		$uid = User::getIdForURL($contact['url']);
+		$uid = User::getIdForURL($url);
 		if (empty($uid)) {
 			Logger::info('No owner post, so not storing signature', ['url' => $contact['url']]);
 			return false;
