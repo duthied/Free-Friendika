@@ -1220,29 +1220,20 @@ class Receiver
 	}
 
 	/**
-	 * Check if the "as:url" element is an array with multiple links
-	 * This is the case with audio and video posts.
-	 * Then the links are added as attachments
+	 * Extracts a potential alternate URL from a list of additional URL elements
 	 *
-	 * @param array $object      The raw object
-	 * @param array $object_data The parsed object data for later processing
-	 * @return array the object data
+	 * @param array $urls
+	 * @return string
 	 */
-	private static function processAttachmentUrls(array $object, array $object_data) {
-		// Check if this is some url with multiple links
-		if (empty($object['as:url'])) {
-			return $object_data;
-		}
+	private static function extractAlternateUrl(array $urls): string
+	{
+		$alternateUrl = '';
+		foreach ($urls as $key => $url) {
+			// Not a list but a single URL element
+			if (!is_numeric($key)) {
+				continue;
+			}
 
-		$urls = $object['as:url'];
-		$keys = array_keys($urls);
-		if (!is_numeric(array_pop($keys))) {
-			return $object_data;
-		}
-
-		$attachments = [];
-
-		foreach ($urls as $url) {
 			if (empty($url['@type']) || ($url['@type'] != 'as:Link')) {
 				continue;
 			}
@@ -1258,7 +1249,42 @@ class Receiver
 			}
 
 			if ($mediatype == 'text/html') {
-				$object_data['alternate-url'] = $href;
+				$alternateUrl = $href;
+			}
+		}
+
+		return $alternateUrl;
+	}
+
+	/**
+	 * Check if the "as:url" element is an array with multiple links
+	 * This is the case with audio and video posts.
+	 * Then the links are added as attachments
+	 *
+	 * @param array $urls The object URL list
+	 * @return array an array of attachments
+	 */
+	private static function processAttachmentUrls(array $urls): array
+	{
+		$attachments = [];
+		foreach ($urls as $key => $url) {
+			// Not a list but a single URL element
+			if (!is_numeric($key)) {
+				continue;
+			}
+
+			if (empty($url['@type']) || ($url['@type'] != 'as:Link')) {
+				continue;
+			}
+
+			$href = JsonLD::fetchElement($url, 'as:href', '@id');
+			if (empty($href)) {
+				continue;
+			}
+
+			$mediatype = JsonLD::fetchElement($url, 'as:mediaType');
+			if (empty($mediatype)) {
+				continue;
 			}
 
 			$filetype = strtolower(substr($mediatype, 0, strpos($mediatype, '/')));
@@ -1267,7 +1293,17 @@ class Receiver
 				$attachments[$filetype] = ['type' => $mediatype, 'url' => $href, 'height' => null, 'size' => null];
 			} elseif ($filetype == 'video') {
 				$height = (int)JsonLD::fetchElement($url, 'as:height', '@value');
+				// PeerTube audio-only track
+				if ($height === 0) {
+					continue;
+				}
+
 				$size = (int)JsonLD::fetchElement($url, 'pt:size', '@value');
+				// For embedded video we take the smallest available size
+				if (!empty($attachments[$mediatype]['size']) && ($size > $attachments[$mediatype]['size'])) {
+					continue;
+				}
+
 				$attachments[$filetype] = ['type' => $mediatype, 'url' => $href, 'height' => $height, 'size' => $size];
 			} elseif (in_array($mediatype, ['application/x-bittorrent', 'application/x-bittorrent;x-scheme-handler/magnet'])) {
 				$height = (int)JsonLD::fetchElement($url, 'as:height', '@value');
@@ -1278,18 +1314,13 @@ class Receiver
 				}
 
 				$attachments[$mediatype] = ['type' => $mediatype, 'url' => $href, 'height' => $height, 'size' => null];
+			} elseif ($mediatype == 'application/x-mpegURL') {
+				// PeerTube exception, actual video link is in the tags of this URL element
+				$attachments = array_merge($attachments, self::processAttachmentUrls($url['as:tag']));
 			}
 		}
 
-		foreach ($attachments as $type => $attachment) {
-			$object_data['attachments'][] = ['type' => $type,
-				'mediaType' => $attachment['type'],
-				'height' => $attachment['height'],
-				'size' => $attachment['size'],
-				'name' => '',
-				'url' => $attachment['url']];
-		}
-		return $object_data;
+		return $attachments;
 	}
 
 	/**
@@ -1387,7 +1418,19 @@ class Receiver
 		}
 
 		if (in_array($object_data['object_type'], ['as:Audio', 'as:Video'])) {
-			$object_data = self::processAttachmentUrls($object, $object_data);
+			$object_data['alternate-url'] = self::extractAlternateUrl($object['as:url'] ?? []) ?: $object_data['alternate-url'];
+
+			$attachments = self::processAttachmentUrls($object['as:url'] ?? []);
+			foreach ($attachments as $type => $attachment) {
+				$object_data['attachments'][] = [
+					'type' => $type,
+					'mediaType' => $attachment['type'],
+					'height' => $attachment['height'],
+					'size' => $attachment['size'],
+					'name' => '',
+					'url' => $attachment['url']
+				];
+			}
 		}
 
 		$receiverdata = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
