@@ -757,6 +757,10 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 	$items = [];
 
 	while ($row = Post::fetch($thread_items)) {
+		if (!empty($items[$row['uri-id']]) && ($row['uid'] == 0)) {
+			continue;
+		}
+
 		if ($max_comments > 0) {
 			if (($row['gravity'] == GRAVITY_COMMENT) && (++$commentcounter[$row['parent-uri-id']] > $max_comments)) {
 				continue;
@@ -765,7 +769,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 				continue;
 			}
 		}
-		$items[] = conversation_add_row_information($row, $activities[$row['uri-id']] ?? []);
+		$items[$row['uri-id']] = conversation_add_row_information($row, $activities[$row['uri-id']] ?? []);
 	}
 
 	DBA::close($thread_items);
