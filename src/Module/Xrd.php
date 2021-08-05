@@ -130,6 +130,25 @@ class Xrd extends BaseModule
 					'rel'      => 'http://ostatus.org/schema/1.0/subscribe',
 					'template' => DI::baseUrl()->get() . '/follow?url={uri}',
 				],
+				[
+					'rel'  => ActivityNamespace::FEED,
+					'type' => 'application/atom+xml',
+					'href' => $owner['poll'] ?? DI::baseUrl()->get(),
+				],
+				[
+					'rel'  => 'salmon',
+					'href' => DI::baseUrl()->get() . '/salmon/' . $owner['nickname'],
+				],
+				[
+					'rel'  => 'http://microformats.org/profile/hcard',
+					'type' => 'text/html',
+					'href' => DI::baseUrl()->get() . '/hcard/' . $owner['nickname'],
+				],
+				[
+					'rel'  => 'http://joindiaspora.com/seed_location',
+					'type' => 'text/html',
+					'href' => DI::baseUrl()->get(),
+				],
 			]
 		];
 		header('Access-Control-Allow-Origin: *');
