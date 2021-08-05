@@ -717,7 +717,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 		$max_comments = DI::config()->get('system', 'max_display_comments', 1000);
 	}
 
-	$params = ['order' => ['uri-id' => true]];
+	$params = ['order' => ['uri-id' => true, 'uid' => true]];
 
 	$activities      = [];
 	$uriids          = [];
