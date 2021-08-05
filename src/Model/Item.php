@@ -1061,13 +1061,7 @@ class Item
 
 		// Create Diaspora signature
 		if ($item['origin'] && empty($item['diaspora_signed_text']) && ($item['gravity'] != GRAVITY_PARENT)) {
-			if ($uid == 0) {
-				$sender_contact = Contact::getById($item['contact-id'], ['uid']);
-				$sender_uid = $sender_contact['uid'];
-			} else {
-				$sender_uid = $uid;
-			}
-			$signed = Diaspora::createCommentSignature($sender_uid, $item);
+			$signed = Diaspora::createCommentSignature($item);
 			if (!empty($signed)) {
 				$item['diaspora_signed_text'] = json_encode($signed);
 			}
