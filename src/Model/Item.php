@@ -1061,7 +1061,7 @@ class Item
 
 		// Create Diaspora signature
 		if ($item['origin'] && empty($item['diaspora_signed_text']) && ($item['gravity'] != GRAVITY_PARENT)) {
-			$signed = Diaspora::createCommentSignature($uid, $item);
+			$signed = Diaspora::createCommentSignature($item);
 			if (!empty($signed)) {
 				$item['diaspora_signed_text'] = json_encode($signed);
 			}

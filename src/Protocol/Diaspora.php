@@ -4044,14 +4044,30 @@ class Diaspora
 	/**
 	 * Creates the signature for Comments that are created on our system
 	 *
-	 * @param integer $uid  The user of that comment
 	 * @param array   $item Item array
 	 *
 	 * @return array Signed content
 	 * @throws \Exception
 	 */
-	public static function createCommentSignature($uid, array $item)
+	public static function createCommentSignature(array $item)
 	{
+		if (!empty($item['author-link'])) {
+			$url = $item['author-link'];
+		} else {
+			$contact = Contact::getById($item['author-id'], ['url']);
+			if (empty($contact['url'])) {
+				Logger::warning('Author Contact not found', ['author-id' => $item['author-id']]);
+				return false;
+			}
+			$url = $contact['url'];
+		}
+
+		$uid = User::getIdForURL($url);
+		if (empty($uid)) {
+			Logger::info('No owner post, so not storing signature', ['url' => $contact['url']]);
+			return false;
+		}
+
 		$owner = User::getOwnerDataById($uid);
 		if (empty($owner)) {
 			Logger::info('No owner post, so not storing signature');

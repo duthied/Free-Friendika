@@ -157,8 +157,8 @@ class User
 		$system['net-publish'] = false;
 
 		// Ensure that the user contains data
-		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => 0]);
-		if (empty($user['prvkey'])) {
+		$user = DBA::selectFirst('user', ['prvkey', 'guid'], ['uid' => 0]);
+		if (empty($user['prvkey']) || empty($user['guid'])) {
 			$fields = [
 				'username' => $system['name'],
 				'nickname' => $system['nick'],
@@ -167,12 +167,17 @@ class User
 				'prvkey' => $system['prvkey'],
 				'spubkey' => $system['spubkey'],
 				'sprvkey' => $system['sprvkey'],
+				'guid' => System::createUUID(),
 				'verified' => true,
 				'page-flags' => User::PAGE_FLAGS_SOAPBOX,
 				'account-type' => User::ACCOUNT_TYPE_RELAY,
 			];
 
 			DBA::update('user', $fields, ['uid' => 0]);
+
+			$system['guid'] = $fields['guid'];
+		} else {
+			$system['guid'] = $user['guid'];
 		}
 
 		return $system;

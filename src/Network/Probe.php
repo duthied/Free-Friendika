@@ -1412,6 +1412,8 @@ class Probe
 				$data["guid"] = $link["href"];
 			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && (($link["type"] ?? "") == "text/html") && !empty($link["href"])) {
 				$data["url"] = $link["href"];
+			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && empty($link["type"]) && !empty($link["href"])) {
+				$profile_url = $link["href"];
 			} elseif (($link["rel"] == ActivityNamespace::FEED) && !empty($link["href"])) {
 				$data["poll"] = $link["href"];
 			} elseif (($link["rel"] == ActivityNamespace::POCO) && !empty($link["href"])) {
@@ -1426,6 +1428,10 @@ class Probe
 					$data["pubkey"] = Crypto::rsaToPem($data["pubkey"]);
 				}
 			}
+		}
+
+		if (empty($data["url"]) && !empty($profile_url)) {
+			$data["url"] = $profile_url;
 		}
 
 		if (empty($data["url"]) || empty($hcard_url)) {
