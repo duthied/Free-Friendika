@@ -1290,7 +1290,7 @@ class Receiver
 			$filetype = strtolower(substr($mediatype, 0, strpos($mediatype, '/')));
 
 			if ($filetype == 'audio') {
-				$attachments[$filetype] = ['type' => $mediatype, 'url' => $href, 'height' => null, 'size' => null];
+				$attachments[] = ['type' => $filetype, 'mediaType' => $mediatype, 'url' => $href, 'height' => null, 'size' => null, 'name' => ''];
 			} elseif ($filetype == 'video') {
 				$height = (int)JsonLD::fetchElement($url, 'as:height', '@value');
 				// PeerTube audio-only track
@@ -1299,12 +1299,7 @@ class Receiver
 				}
 
 				$size = (int)JsonLD::fetchElement($url, 'pt:size', '@value');
-				// For embedded video we take the smallest available size
-				if (!empty($attachments[$mediatype]['size']) && ($size > $attachments[$mediatype]['size'])) {
-					continue;
-				}
-
-				$attachments[$filetype] = ['type' => $mediatype, 'url' => $href, 'height' => $height, 'size' => $size];
+				$attachments[] = ['type' => $filetype, 'mediaType' => $mediatype, 'url' => $href, 'height' => $height, 'size' => $size, 'name' => ''];
 			} elseif (in_array($mediatype, ['application/x-bittorrent', 'application/x-bittorrent;x-scheme-handler/magnet'])) {
 				$height = (int)JsonLD::fetchElement($url, 'as:height', '@value');
 
@@ -1313,14 +1308,14 @@ class Receiver
 					continue;
 				}
 
-				$attachments[$mediatype] = ['type' => $mediatype, 'url' => $href, 'height' => $height, 'size' => null];
+				$attachments[$mediatype] = ['type' => $mediatype, 'mediaType' => $mediatype, 'url' => $href, 'height' => $height, 'size' => null, 'name' => ''];
 			} elseif ($mediatype == 'application/x-mpegURL') {
 				// PeerTube exception, actual video link is in the tags of this URL element
 				$attachments = array_merge($attachments, self::processAttachmentUrls($url['as:tag']));
 			}
 		}
 
-		return $attachments;
+		return array_values($attachments);
 	}
 
 	/**
@@ -1419,18 +1414,7 @@ class Receiver
 
 		if (in_array($object_data['object_type'], ['as:Audio', 'as:Video'])) {
 			$object_data['alternate-url'] = self::extractAlternateUrl($object['as:url'] ?? []) ?: $object_data['alternate-url'];
-
-			$attachments = self::processAttachmentUrls($object['as:url'] ?? []);
-			foreach ($attachments as $type => $attachment) {
-				$object_data['attachments'][] = [
-					'type' => $type,
-					'mediaType' => $attachment['type'],
-					'height' => $attachment['height'],
-					'size' => $attachment['size'],
-					'name' => '',
-					'url' => $attachment['url']
-				];
-			}
+			$object_data['attachments'] = array_merge($object_data['attachments'], self::processAttachmentUrls($object['as:url'] ?? []));
 		}
 
 		$receiverdata = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
