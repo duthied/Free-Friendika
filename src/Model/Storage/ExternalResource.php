@@ -58,7 +58,7 @@ class ExternalResource implements IStorage
 			return "";
 		}
 
-		$fetchResult = HTTPSignature::fetchRaw($data->url, $data->uid);
+		$fetchResult = HTTPSignature::fetchRaw($data->url, $data->uid, ['accept_content' => '']);
 		if ($fetchResult->isSuccess()) {
 			return $fetchResult->getBody();
 		} else {
