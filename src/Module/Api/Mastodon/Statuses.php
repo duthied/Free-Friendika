@@ -186,7 +186,7 @@ class Statuses extends BaseApi
 		if (!empty($request['scheduled_at'])) {
 			$item['guid'] = Item::guid($item, true);
 			$item['uri'] = Item::newURI($item['uid'], $item['guid']);
-			$id = Post\Delayed::add($item['uri'], $item, PRIORITY_HIGH, false, $request['scheduled_at']);
+			$id = Post\Delayed::add($item['uri'], $item, PRIORITY_HIGH, Post\Delayed::PREPARED, $request['scheduled_at']);
 			if (empty($id)) {
 				DI::mstdnError()->InternalError();
 			}
