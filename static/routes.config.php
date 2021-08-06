@@ -436,7 +436,14 @@ return [
 	'/tos'                           => [Module\Tos::class,                   [R::GET]],
 
 	'/update_community[/{content}]'  => [Module\Update\Community::class,      [R::GET]],
-	'/update_network'                => [Module\Update\Network::class,        [R::GET]],
+
+	'/update_network' => [
+		'[/]'                        => [Module\Update\Network::class, [R::GET]],
+		'/archive/{from:\d\d\d\d-\d\d-\d\d}[/{to:\d\d\d\d-\d\d-\d\d}]' => [Module\Update\Network::class, [R::GET]],
+		'/forum/{contact_id:\d+}'    => [Module\Update\Network::class, [R::GET]],
+		'/group/{group_id:\d+}'      => [Module\Update\Network::class, [R::GET]],
+	],
+
 	'/update_profile'                => [Module\Update\Profile::class,        [R::GET]],
 
 	'/view/theme/{theme}/style.pcss' => [Module\Theme::class,                 [R::GET]],

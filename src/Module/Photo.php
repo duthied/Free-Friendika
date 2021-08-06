@@ -118,8 +118,14 @@ class Photo extends BaseModule
 		$data = microtime(true) - $stamp;
 
 		if (empty($imgdata)) {
-			Logger::warning("Invalid photo with id {$photo["id"]}.");
-			throw new \Friendica\Network\HTTPException\InternalServerErrorException(DI::l10n()->t('Invalid photo with id %s.', $photo["id"]));
+			Logger::warning('Invalid photo', ['id' => $photo['id']]);
+			if (in_array($photo['backend-class'], [ExternalResource::NAME])) {
+				$reference = json_decode($photo['backend-ref'], true);
+				$error = DI::l10n()->t('Invalid external resource with url %s.', $reference['url']);
+			} else {
+				$error = DI::l10n()->t('Invalid photo with id %s.', $photo['id']);
+			}
+			throw new \Friendica\Network\HTTPException\InternalServerErrorException($error);
 		}
 
 		// if customsize is set and image is not a gif, resize it
