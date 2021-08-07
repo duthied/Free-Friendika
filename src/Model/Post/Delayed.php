@@ -33,8 +33,21 @@ use Friendica\Util\DateTimeFormat;
 
 class Delayed
 {
+	/**
+	 * The content of the post is posted as is. Connector settings are using the default settings.
+	 * This is used for automated scheduled posts via feeds or from the API.
+	 */
 	const PREPARED = 0;
+	/**
+	 * The content is posted like a manual post. Means some processing of body will be done.
+	 * Also it is posted with default permissions and default connector settings.
+	 * This is used for mirrored connector posts.
+	 */
 	const UNPREPARED = 1;
+	/**
+	 * Like PREPARED, but additionally the connector settings can differ.
+	 * This is used when manually publishing scheduled posts.
+	 */
 	const PREPARED_NO_HOOK = 2;
 
 	/**
