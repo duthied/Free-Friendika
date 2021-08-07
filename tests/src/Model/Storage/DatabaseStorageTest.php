@@ -21,16 +21,14 @@
 
 namespace Friendica\Test\src\Model\Storage;
 
-use Friendica\Core\L10n;
 use Friendica\Factory\ConfigFactory;
 use Friendica\Model\Storage\Database;
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\ISelectableStorage;
 use Friendica\Test\DatabaseTestTrait;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\Profiler;
-use Mockery\MockInterface;
 use Psr\Log\NullLogger;
 
 class DatabaseStorageTest extends StorageTest
@@ -65,7 +63,7 @@ class DatabaseStorageTest extends StorageTest
 		return new Database($dba);
 	}
 
-	protected function assertOption(IStorage $storage)
+	protected function assertOption(ISelectableStorage $storage)
 	{
 		self::assertEmpty($storage->getOptions());
 	}

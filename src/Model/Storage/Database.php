@@ -101,7 +101,7 @@ class Database implements ISelectableStorage
 	public function delete(string $reference)
 	{
 		try {
-			if (!$this->dba->delete('storage', ['id' => $reference])) {
+			if (!$this->dba->delete('storage', ['id' => $reference]) || $this->dba->affectedRows() === 0) {
 				throw new ReferenceStorageException(sprintf('Database storage failed to delete %s', $reference));
 			}
 		} catch (Exception $exception) {
