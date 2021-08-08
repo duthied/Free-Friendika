@@ -706,7 +706,7 @@ class Item
 		return GRAVITY_UNKNOWN;   // Should not happen
 	}
 
-	public static function insert($item, $notify = false, $dontcache = false)
+	public static function insert(array $item, bool $notify = false, bool $post_local = true)
 	{
 		$orig_item = $item;
 
@@ -931,7 +931,7 @@ class Item
 			$item["private"] = self::PRIVATE;
 		}
 
-		if ($notify) {
+		if ($notify && $post_local) {
 			$item['edit'] = false;
 			$item['parent'] = $parent_id;
 
@@ -953,7 +953,7 @@ class Item
 				unset($_SESSION['authenticated']);
 				unset($_SESSION['uid']);
 			}
-		} else {
+		} elseif (!$notify) {
 			Hook::callAll('post_remote', $item);
 		}
 
@@ -1141,15 +1141,13 @@ class Item
 			return 0;
 		}
 
-		if (!$dontcache) {
-			if ($notify) {
-				if (!\Friendica\Content\Feature::isEnabled($posted_item['uid'], 'explicit_mentions') && ($posted_item['gravity'] == GRAVITY_COMMENT)) {
-					Tag::createImplicitMentions($posted_item['uri-id'], $posted_item['thr-parent-id']);
-				}
-				Hook::callAll('post_local_end', $posted_item);
-			} else {
-				Hook::callAll('post_remote_end', $posted_item);
+		if ($notify) {
+			if (!\Friendica\Content\Feature::isEnabled($posted_item['uid'], 'explicit_mentions') && ($posted_item['gravity'] == GRAVITY_COMMENT)) {
+				Tag::createImplicitMentions($posted_item['uri-id'], $posted_item['thr-parent-id']);
 			}
+			Hook::callAll('post_local_end', $posted_item);
+		} else {
+			Hook::callAll('post_remote_end', $posted_item);
 		}
 
 		if ($posted_item['gravity'] === GRAVITY_PARENT) {
@@ -1465,7 +1463,7 @@ class Item
 			}
 		}
 
-		$distributed = self::insert($item, $notify, true);
+		$distributed = self::insert($item, $notify);
 
 		if (!$distributed) {
 			Logger::info("Distributed item wasn't stored", ['uri-id' => $item['uri-id'], 'user' => $uid]);
@@ -1534,7 +1532,7 @@ class Item
 				$item['contact-id'] = $item['author-id'];
 			}
 
-			$public_shadow = self::insert($item, false, true);
+			$public_shadow = self::insert($item);
 
 			Logger::info('Stored public shadow', ['thread' => $itemid, 'id' => $public_shadow]);
 		}
@@ -1593,7 +1591,7 @@ class Item
 		unset($item['post-reason']);
 		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
-		$public_shadow = self::insert($item, false, true);
+		$public_shadow = self::insert($item);
 
 		Logger::info('Stored public shadow', ['uri-id' => $item['uri-id'], 'id' => $public_shadow]);
 

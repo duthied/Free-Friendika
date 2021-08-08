@@ -681,7 +681,11 @@ function item_post(App $a) {
 		$o = conversation($a, [array_merge($contact_record, $datarray)], 'search', false, true);
 
 		System::jsonExit(['preview' => $o]);
-	} elseif (!empty($_REQUEST['scheduled_at'])) {
+	}
+
+	Hook::callAll('post_local',$datarray);
+
+	if (!empty($_REQUEST['scheduled_at'])) {
 		$scheduled_at = DateTimeFormat::convert($_REQUEST['scheduled_at'], 'UTC', $a->getTimezone());
 		if ($scheduled_at > DateTimeFormat::utcNow()) {
 			unset($datarray['created']);
@@ -692,15 +696,11 @@ function item_post(App $a) {
 			unset($datarray['edit']);
 			unset($datarray['self']);
 			unset($datarray['api_source']);
-		
-			Post\Delayed::add($datarray['uri'], $datarray, PRIORITY_HIGH, false, $scheduled_at);
+
+			Post\Delayed::add($datarray['uri'], $datarray, PRIORITY_HIGH, Post\Delayed::PREPARED_NO_HOOK, $scheduled_at);
 			item_post_return(DI::baseUrl(), $api_source, $return_path);
 		}
 	}
-
-	$datarray['uri-id'] = ItemURI::getIdByURI($datarray['uri']);
-
-	Hook::callAll('post_local',$datarray);
 
 	if (!empty($datarray['cancel'])) {
 		Logger::info('mod_item: post cancelled by addon.');
@@ -715,6 +715,8 @@ function item_post(App $a) {
 
 		System::jsonExit($json);
 	}
+
+	$datarray['uri-id'] = ItemURI::getIdByURI($datarray['uri']);
 
 	if ($orig_post)	{
 		// Fill the cache field
