@@ -353,10 +353,12 @@ class Authentication
 			}
 		}
 
+		$a->setUserId($user_record['uid']);
+		$a->setNickname($user_record['nickname']);
 		$a->user = $user_record;
 
 		if ($login_initial) {
-			Hook::callAll('logged_in', $a->user);
+			Hook::callAll('logged_in', $user_record);
 
 			if (DI::module()->getName() !== 'home' && $this->session->exists('return_path')) {
 				$this->baseUrl->redirect($this->session->get('return_path'));

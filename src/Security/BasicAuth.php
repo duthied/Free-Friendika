@@ -184,7 +184,7 @@ class BasicAuth
 
 		Session::set('allow_api', true);
 
-		Hook::callAll('logged_in', $a->user);
+		Hook::callAll('logged_in', $record);
 
 		if (Session::get('allow_api')) {
 			self::$current_user_id = local_user();

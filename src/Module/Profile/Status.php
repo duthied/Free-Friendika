@@ -110,7 +110,7 @@ class Status extends BaseProfile
 			return '';
 		}
 
-		$o .= self::getTabsHTML($a, 'status', $is_owner, $profile);
+		$o .= self::getTabsHTML($a, 'status', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		$o .= Widget::commonFriendsVisitor($profile['uid'], $profile['nickname']);
 
@@ -125,14 +125,9 @@ class Status extends BaseProfile
 			$x = [
 				'is_owner' => $is_owner,
 				'allow_location' => ($is_owner || $commvisitor) && $profile['allow_location'],
-				'default_location' => $is_owner ? $a->user['default-location'] : '',
+				'default_location' => $is_owner ? $a->getUserValue('default-location') : '',
 				'nickname' => $profile['nickname'],
-				'lockstate' => is_array($a->user)
-				&& (strlen($a->user['allow_cid'])
-					|| strlen($a->user['allow_gid'])
-					|| strlen($a->user['deny_cid'])
-					|| strlen($a->user['deny_gid'])
-				) ? 'lock' : 'unlock',
+				'lockstate' => ACL::getLockstateForUserId($a->getUserId()) ? 'lock' : 'unlock',
 				'acl' => $is_owner ? ACL::getFullSelectorHTML(DI::page(), $a->user, true) : '',
 				'bang' => '',
 				'visitor' => $is_owner || $commvisitor ? 'block' : 'none',

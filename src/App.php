@@ -36,6 +36,7 @@ use Friendica\Core\Theme;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\ConfigFileLoader;
@@ -66,6 +67,8 @@ class App
 		'events_in_profile' => true
 	];
 
+	private $user_id       = 0;
+	private $nickname      = '';
 	private $timezone      = '';
 	private $profile_owner = 0;
 	private $contact_id    = 0;
@@ -125,6 +128,65 @@ class App
 	 * @var IPConfig
 	 */
 	private $pConfig;
+
+	/**
+	 * Set the user ID
+	 *
+	 * @param int $user_id
+	 * @return void
+	 */
+	public function setUserId(int $user_id)
+	{
+		$this->user_id = $user_id;
+	}
+
+	/**
+	 * Set the nickname
+	 *
+	 * @param int $user_id
+	 * @return void
+	 */
+	public function setNickname(string $nickname)
+	{
+		$this->nickname = $nickname;
+	}
+
+	/**
+	 * Fetch the user id
+	 * @return int 
+	 */
+	public function getUserId()
+	{
+		return $this->user_id;
+	}
+
+	/**
+	 * Fetch the user nick name
+	 * @return string
+	 */
+	public function getNickname()
+	{
+		return $this->nickname;
+	}
+
+	/**
+	 * Fetch a specific user field
+	 *
+	 * @param string $index 
+	 * @return mixed 
+	 */
+	public function getUserValue(string $index)
+	{
+		if (empty($this->user_id)) {
+			return null;
+		}
+
+		if (empty($this->user)) {
+			$this->user = User::getById($this->user_id);
+		}
+
+		return $this->user[$index] ?? null;
+	}
 
 	/**
 	 * Set the profile owner ID

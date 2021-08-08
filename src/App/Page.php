@@ -277,8 +277,8 @@ class Page implements ArrayAccess
 		// If you're just visiting, let javascript take you home
 		if (!empty($_SESSION['visitor_home'])) {
 			$homebase = $_SESSION['visitor_home'];
-		} elseif (!empty($app->user['nickname'])) {
-			$homebase = 'profile/' . $app->user['nickname'];
+		} elseif (!empty($app->getNickname())) {
+			$homebase = 'profile/' . $app->getNickname();
 		}
 
 		if (isset($homebase)) {

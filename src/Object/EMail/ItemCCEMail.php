@@ -36,20 +36,20 @@ class ItemCCEMail extends Email
 {
 	public function __construct(App $a, L10n $l10n, BaseURL $baseUrl, array $item, string $toAddress, string $authorThumb)
 	{
-		$disclaimer = '<hr />' . $l10n->t('This message was sent to you by %s, a member of the Friendica social network.', $a->user['username'])
+		$disclaimer = '<hr />' . $l10n->t('This message was sent to you by %s, a member of the Friendica social network.', $a->getUserValue('username'))
 		              . '<br />';
-		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->user['nickname']) . EOL;
+		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->getNickname()) . EOL;
 		$disclaimer .= $l10n->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 		if (!$item['title'] == '') {
 			$subject = EmailProtocol::encodeHeader($item['title'], 'UTF-8');
 		} else {
-			$subject = EmailProtocol::encodeHeader('[Friendica]' . ' ' . $l10n->t('%s posted an update.', $a->user['username']), 'UTF-8');
+			$subject = EmailProtocol::encodeHeader('[Friendica]' . ' ' . $l10n->t('%s posted an update.', $a->getUserValue('username')), 'UTF-8');
 		}
-		$link    = '<a href="' . $baseUrl . '/profile/' . $a->user['nickname'] . '"><img src="' . $authorThumb . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
+		$link    = '<a href="' . $baseUrl . '/profile/' . $a->getNickname() . '"><img src="' . $authorThumb . '" alt="' . $a->getUserValue('username') . '" /></a><br /><br />';
 		$html    = Item::prepareBody($item);
 		$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';;
 
-		parent::__construct($a->user['username'], $a->user['email'], $a->user['email'], $toAddress,
+		parent::__construct($a->getUserValue('username'), $a->getUserValue('email'), $a->getUserValue('email'), $toAddress,
 			$subject, $message, HTML::toPlaintext($html . $disclaimer));
 	}
 }

@@ -45,16 +45,16 @@ function notes_content(App $a, $update = false)
 		return;
 	}
 
-	$o = BaseProfile::getTabsHTML($a, 'notes', true, $a->user);
+	$o = BaseProfile::getTabsHTML($a, 'notes', true, $a->getNickname(), false);
 
 	if (!$update) {
 		$o .= '<h3>' . DI::l10n()->t('Personal Notes') . '</h3>';
 
 		$x = [
 			'is_owner' => true,
-			'allow_location' => (($a->user['allow_location']) ? true : false),
-			'default_location' => $a->user['default-location'],
-			'nickname' => $a->user['nickname'],
+			'allow_location' => (($a->getUserValue('allow_location')) ? true : false),
+			'default_location' => $a->getUserValue('default-location'),
+			'nickname' => $a->getNickname(),
 			'lockstate' => 'lock',
 			'acl' => \Friendica\Core\ACL::getSelfOnlyHTML(local_user(), DI::l10n()->t('Personal notes are visible only by yourself.')),
 			'bang' => '',

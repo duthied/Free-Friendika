@@ -68,7 +68,7 @@ class Introduction extends BaseFactory
 		$this->l10n         = $l10n;
 		$this->pConfig      = $pConfig;
 		$this->session      = $session;
-		$this->nick         = $app->user['nickname'] ?? '';
+		$this->nick         = $app->getNickname() ?? '';
 	}
 
 	/**

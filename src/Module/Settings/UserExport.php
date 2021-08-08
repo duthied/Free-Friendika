@@ -90,7 +90,7 @@ class UserExport extends BaseSettings
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		if (!local_user() || !empty(DI::app()->user['uid']) && DI::app()->user['uid'] != local_user()) {
+		if (!local_user() || empty(DI::app()->getUserId()) || DI::app()->getUserId() != local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 

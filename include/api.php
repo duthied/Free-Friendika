@@ -258,7 +258,7 @@ function api_login(App $a)
 
 	$_SESSION["allow_api"] = true;
 
-	Hook::callAll('logged_in', $a->user);
+	Hook::callAll('logged_in', $record);
 }
 
 /**
@@ -322,7 +322,7 @@ function api_call(App $a, App\Arguments $args = null)
 
 				if (!empty($info['auth']) && api_user() === false) {
 					api_login($a);
-					Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username']]);
+					Logger::info(API_LOG_PREFIX . 'nickname {nickname}', ['module' => 'api', 'action' => 'call', 'nickname' => $a->getNickname()]);
 				}
 
 				Logger::debug(API_LOG_PREFIX . 'parameters', ['module' => 'api', 'action' => 'call', 'parameters' => $_REQUEST]);

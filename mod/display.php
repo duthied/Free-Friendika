@@ -63,7 +63,7 @@ function display_init(App $a)
 		if (local_user()) {
 			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => DI::args()->getArgv()[1], 'uid' => local_user()]);
 			if (DBA::isResult($item)) {
-				$nick = $a->user['nickname'];
+				$nick = $a->getNickname();
 			}
 		}
 
@@ -275,10 +275,10 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	if ($is_owner && !$update) {
 		$x = [
 			'is_owner' => true,
-			'allow_location' => $a->user['allow_location'],
-			'default_location' => $a->user['default-location'],
-			'nickname' => $a->user['nickname'],
-			'lockstate' => (is_array($a->user) && (strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) || strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
+			'allow_location' => $a->getUserValue('allow_location'),
+			'default_location' => $a->getUserValue('default-location'),
+			'nickname' => $a->getNickname(),
+			'lockstate' => ACL::getLockstateForUserId($a->getUserId()) ? 'lock' : 'unlock',
 			'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true),
 			'bang' => '',
 			'visitor' => 'block',

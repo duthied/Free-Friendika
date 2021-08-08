@@ -65,7 +65,7 @@ function editpost_content(App $a)
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$ispublic' => '&nbsp;', // DI::l10n()->t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
-		'$nickname' => $a->user['nickname'],
+		'$nickname' => $a->getNickname(),
 		'$is_mobile' => DI::mode()->isMobile(),
 	]);
 
@@ -107,7 +107,7 @@ function editpost_content(App $a)
 		'$posttype' => $item['post-type'],
 		'$content' => undo_post_tagging($item['body']),
 		'$post_id' => $post_id,
-		'$defloc' => $a->user['default-location'],
+		'$defloc' => $a->getUserValue('default-location'),
 		'$visitor' => 'none',
 		'$pvisit' => 'none',
 		'$emailcc' => DI::l10n()->t('CC: email addresses'),

@@ -59,7 +59,7 @@ class Contacts extends Module\BaseProfile
 
 		Nav::setSelected('home');
 
-		$o = self::getTabsHTML($a, 'contacts', $is_owner, $profile);
+		$o = self::getTabsHTML($a, 'contacts', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, Session::isAuthenticated() && $profile['uid'] != local_user());
 

@@ -60,10 +60,10 @@ class Bookmarklet extends BaseModule
 
 			$x = [
 				'is_owner'         => true,
-				'allow_location'   => $app->user['allow_location'],
-				'default_location' => $app->user['default-location'],
-				'nickname'         => $app->user['nickname'],
-				'lockstate'        => ((is_array($app->user) && ((strlen($app->user['allow_cid'])) || (strlen($app->user['allow_gid'])) || (strlen($app->user['deny_cid'])) || (strlen($app->user['deny_gid'])))) ? 'lock' : 'unlock'),
+				'allow_location'   => $app->getUserValue('allow_location'),
+				'default_location' => $app->getUserValue('default-location'),
+				'nickname'         => $app->getNickname(),
+				'lockstate'        => ACL::getLockstateForUserId($app->getUserId()) ? 'lock' : 'unlock',
 				'default_perms'    => ACL::getDefaultUserPermissions($app->user),
 				'acl'              => ACL::getFullSelectorHTML(DI::page(), $app->user, true),
 				'bang'             => '',

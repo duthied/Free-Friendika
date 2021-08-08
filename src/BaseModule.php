@@ -22,6 +22,7 @@
 namespace Friendica;
 
 use Friendica\Core\Logger;
+use Friendica\Model\User;
 
 /**
  * All modules in Friendica should extend BaseModule, although not all modules
@@ -135,10 +136,9 @@ abstract class BaseModule
 	 */
 	public static function getFormSecurityToken($typename = '')
 	{
-		$a = DI::app();
-
+		$user = User::getById(DI::app()->getUserId(), ['guid', 'prvkey']);
 		$timestamp = time();
-		$sec_hash = hash('whirlpool', ($a->user['guid'] ?? '') . ($a->user['prvkey'] ?? '') . session_id() . $timestamp . $typename);
+		$sec_hash = hash('whirlpool', ($user['guid'] ?? '') . ($user['prvkey'] ?? '') . session_id() . $timestamp . $typename);
 
 		return $timestamp . '.' . $sec_hash;
 	}
@@ -163,14 +163,14 @@ abstract class BaseModule
 
 		$max_livetime = 10800; // 3 hours
 
-		$a = DI::app();
+		$user = User::getById(DI::app()->getUserId(), ['guid', 'prvkey']);
 
 		$x = explode('.', $hash);
 		if (time() > (intval($x[0]) + $max_livetime)) {
 			return false;
 		}
 
-		$sec_hash = hash('whirlpool', ($a->user['guid'] ?? '') . ($a->user['prvkey'] ?? '') . session_id() . $x[0] . $typename);
+		$sec_hash = hash('whirlpool', ($user['guid'] ?? '') . ($user['prvkey'] ?? '') . session_id() . $x[0] . $typename);
 
 		return ($sec_hash == $x[1]);
 	}
@@ -183,8 +183,7 @@ abstract class BaseModule
 	public static function checkFormSecurityTokenRedirectOnError($err_redirect, $typename = '', $formname = 'form_security_token')
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
-			$a = DI::app();
-			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
+			Logger::log('checkFormSecurityToken failed: user ' . DI::app()->getNickname() . ' - form element ' . $typename);
 			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 			notice(self::getFormSecurityStandardErrorMessage());
 			DI::baseUrl()->redirect($err_redirect);
@@ -194,8 +193,7 @@ abstract class BaseModule
 	public static function checkFormSecurityTokenForbiddenOnError($typename = '', $formname = 'form_security_token')
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
-			$a = DI::app();
-			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
+			Logger::log('checkFormSecurityToken failed: user ' . DI::app()->getNickname() . ' - form element ' . $typename);
 			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 
 			throw new \Friendica\Network\HTTPException\ForbiddenException();

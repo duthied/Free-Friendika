@@ -193,7 +193,7 @@ function ping_init(App $a)
 		$intro_count = count($intros1) + count($intros2);
 		$intros = $intros1 + $intros2;
 
-		$myurl = DI::baseUrl() . '/profile/' . $a->user['nickname'];
+		$myurl = DI::baseUrl() . '/profile/' . $a->getNickname();
 		$mails = q(
 			"SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
 			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",

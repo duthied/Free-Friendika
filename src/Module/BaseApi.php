@@ -77,7 +77,7 @@ class BaseApi extends BaseModule
 
 		$a = DI::app();
 
-		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
+		if (empty($a->getUserId()) || $a->getUserId() != self::getCurrentUserID()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
@@ -88,7 +88,7 @@ class BaseApi extends BaseModule
 
 		$a = DI::app();
 
-		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
+		if (empty($a->getUserId()) || $a->getUserId() != self::getCurrentUserID()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
@@ -99,7 +99,7 @@ class BaseApi extends BaseModule
 
 		$a = DI::app();
 
-		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
+		if (empty($a->getUserId()) || $a->getUserId() != self::getCurrentUserID()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
@@ -110,7 +110,7 @@ class BaseApi extends BaseModule
 
 		$a = DI::app();
 
-		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
+		if (empty($a->getUserId()) || $a->getUserId() != self::getCurrentUserID()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}

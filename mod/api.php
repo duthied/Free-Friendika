@@ -31,7 +31,7 @@ function api_post(App $a)
 		return;
 	}
 
-	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
+	if (empty($a->getUserId()) || $a->getUserId() != local_user()) {
 		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}

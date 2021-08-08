@@ -154,7 +154,7 @@ class Nav
 		 * Display the current site location as a navigation aid.
 		 */
 
-		$myident = ((is_array($a->user) && isset($a->user['nickname'])) ? $a->user['nickname'] . '@' : '');
+		$myident = !empty($a->getNickname() ? $a->getNickname() . '@' : '');
 
 		$sitelocation = $myident . substr(DI::baseUrl()->get($ssl_state), strpos(DI::baseUrl()->get($ssl_state), '//') + 2);
 
@@ -188,18 +188,18 @@ class Nav
 		if (local_user()) {
 			if (!empty($a->user)) {
 				// user menu
-				$nav['usermenu'][] = ['profile/' . $a->user['nickname'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
-				$nav['usermenu'][] = ['profile/' . $a->user['nickname'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
-				$nav['usermenu'][] = ['photos/' . $a->user['nickname'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
-				$nav['usermenu'][] = ['videos/' . $a->user['nickname'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
+				$nav['usermenu'][] = ['profile/' . $a->getNickname(), DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
+				$nav['usermenu'][] = ['profile/' . $a->getNickname() . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+				$nav['usermenu'][] = ['photos/' . $a->getNickname(), DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
+				$nav['usermenu'][] = ['videos/' . $a->getNickname(), DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
 				$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
 				$nav['usermenu'][] = ['notes/', DI::l10n()->t('Personal notes'), '', DI::l10n()->t('Your personal notes')];
 
 				// user info
-				$contact = DBA::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
+				$contact = DBA::selectFirst('contact', ['micro'], ['uid' => $a->getUserId(), 'self' => true]);
 				$userinfo = [
 					'icon' => (DBA::isResult($contact) ? DI::baseUrl()->remove($contact['micro']) : Contact::DEFAULT_AVATAR_MICRO),
-					'name' => $a->user['username'],
+					'name' => $a->getUserValue('username'),
 				];
 			} else {
 				DI::logger()->warning('Empty $a->user for local user', ['local_user' => local_user(), '$a' => $a]);
@@ -274,7 +274,7 @@ class Nav
 		if (local_user() && !empty($a->user)) {
 			$nav['network'] = ['network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
 
-			$nav['home'] = ['profile/' . $a->user['nickname'], DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
+			$nav['home'] = ['profile/' . $a->getNickname(), DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
 
 			// Don't show notifications for public communities
 			if (Session::get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {

@@ -130,10 +130,10 @@ class Community extends BaseModule
 			if (Session::isAuthenticated()) {
 				$x = [
 					'is_owner' => true,
-					'allow_location' => DI::app()->user['allow_location'],
-					'default_location' => DI::app()->user['default-location'],
-					'nickname' => DI::app()->user['nickname'],
-					'lockstate' => (is_array(DI::app()->user) && (strlen(DI::app()->user['allow_cid']) || strlen(DI::app()->user['allow_gid']) || strlen(DI::app()->user['deny_cid']) || strlen(DI::app()->user['deny_gid'])) ? 'lock' : 'unlock'),
+					'allow_location' => DI::app()->getUserValue('allow_location'),
+					'default_location' => DI::app()->getUserValue('default-location'),
+					'nickname' => DI::app()->getNickname(),
+					'lockstate' => ACL::getLockstateForUserId(DI::app()->getUserId()) ? 'lock' : 'unlock',
 					'acl' => ACL::getFullSelectorHTML(DI::page(), DI::app()->user, true),
 					'bang' => '',
 					'visitor' => 'block',

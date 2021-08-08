@@ -29,6 +29,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Attach;
 use Friendica\Model\Item;
+use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Security\Security;
@@ -120,6 +121,7 @@ function videos_content(App $a)
 		return;
 	}
 
+	$profile = Profile::getByUID($user['uid']);
 	//$phototypes = Photo::supportedTypes();
 
 	$_SESSION['video_return'] = DI::args()->getCommand();
@@ -171,7 +173,7 @@ function videos_content(App $a)
 
 	// tabs
 	$_is_owner = (local_user() && (local_user() == $user['uid']));
-	$o .= BaseProfile::getTabsHTML($a, 'videos', $_is_owner, $user);
+	$o .= BaseProfile::getTabsHTML($a, 'videos', $_is_owner, $user['nickname'], $profile['hide-friends']);
 
 	//
 	// dispatch request

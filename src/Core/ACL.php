@@ -26,12 +26,24 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\User;
 
 /**
  * Handle ACL management and display
  */
 class ACL
 {
+	/**
+	 * Returns the default lock state for the given user id
+	 * @param int $uid 
+	 * @return bool "true" if the default settings are non public
+	 */
+	public static function getLockstateForUserId(int $uid)
+	{
+		$user = User::getById($uid, ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
+		return !empty($user['allow_cid']) || !empty($user['allow_gid']) || !empty($user['deny_cid']) || !empty($user['deny_gid']);
+	}
+
 	/**
 	 * Returns a select input tag for private message recipient
 	 *

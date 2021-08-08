@@ -104,7 +104,7 @@ class Profile extends BaseProfile
 		Nav::setSelected('home');
 
 		$is_owner = local_user() == $profile['uid'];
-		$o = self::getTabsHTML($a, 'profile', $is_owner, $profile);
+		$o = self::getTabsHTML($a, 'profile', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact_id) {
 			notice(DI::l10n()->t('Access to this profile has been restricted.'));
