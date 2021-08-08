@@ -200,8 +200,8 @@ function frio_remote_nav(App $a, array &$nav_info)
 
 	// since $userinfo isn't available for the hook we write it to the nav array
 	// this isn't optimal because the contact query will be done now twice
-	$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl'];
-	if (local_user() && !empty($a->getUserId())) {
+	$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl', 'updated'];
+	if ($a->isLoggedIn()) {
 		$remoteUser = Contact::selectFirst($fields, ['uid' => $a->getUserId(), 'self' => true]);
 	} elseif (!local_user() && remote_user()) {
 		$remoteUser = Contact::getById(remote_user(), $fields);

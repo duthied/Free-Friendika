@@ -59,16 +59,6 @@ class Bookmarklet extends BaseModule
 			$content = "\n" . PageInfo::getFooterFromUrl($_REQUEST['url']);
 
 			$x = [
-				'is_owner'         => true,
-				'allow_location'   => $app->getUserValue('allow_location'),
-				'default_location' => $app->getUserValue('default-location'),
-				'nickname'         => $app->getNickname(),
-				'lockstate'        => ACL::getLockstateForUserId($app->getUserId()) ? 'lock' : 'unlock',
-				'default_perms'    => ACL::getDefaultUserPermissions($app->user),
-				'acl'              => ACL::getFullSelectorHTML(DI::page(), $app->user, true),
-				'bang'             => '',
-				'visitor'          => 'block',
-				'profile_uid'      => local_user(),
 				'title'            => trim($_REQUEST['title'] ?? '', '*'),
 				'content'          => $content
 			];

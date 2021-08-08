@@ -25,6 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Security\TwoFactor\Model\RecoveryCode;
 
 /**
@@ -59,7 +60,7 @@ class Recovery extends BaseModule
 				Session::set('2fa', true);
 				info(DI::l10n()->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
-				DI::auth()->setForUser($a, $a->user, true, true);
+				DI::auth()->setForUser($a, User::getById($a->getUserId()), true, true);
 			} else {
 				notice(DI::l10n()->t('Invalid code, please retry.'));
 			}

@@ -111,7 +111,7 @@ function ostatus_subscribe_content(App $a)
 
 	$probed = Contact::getByURL($url);
 	if (in_array($probed['network'], Protocol::FEDERATED)) {
-		$result = Contact::createFromProbe($a->user, $probed['url']);
+		$result = Contact::createFromProbe($a->getUserId(), $probed['url']);
 		if ($result['success']) {
 			$o .= ' - ' . DI::l10n()->t('success');
 		} else {

@@ -139,16 +139,9 @@ class Network extends BaseModule
 			}
 
 			$x = [
-				'is_owner' => true,
-				'allow_location' => $a->getUserValue('allow_location'),
-				'default_location' => $a->getUserValue('default-location'),
-				'nickname' => $a->getNickname(),
 				'lockstate' => self::$groupId || self::$forumContactId || self::$network || ACL::getLockstateForUserId($a->getUserId()) ? 'lock' : 'unlock',
-				'default_perms' => ACL::getDefaultUserPermissions($a->user),
-				'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true, $default_permissions),
+				'acl' => ACL::getFullSelectorHTML(DI::page(), $a->getUserId(), true, $default_permissions),
 				'bang' => ((self::$groupId || self::$forumContactId || self::$network) ? '!' : ''),
-				'visitor' => 'block',
-				'profile_uid' => local_user(),
 				'content' => $content,
 			];
 

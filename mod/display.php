@@ -273,18 +273,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	// We need the editor here to be able to reshare an item.
 	if ($is_owner && !$update) {
-		$x = [
-			'is_owner' => true,
-			'allow_location' => $a->getUserValue('allow_location'),
-			'default_location' => $a->getUserValue('default-location'),
-			'nickname' => $a->getNickname(),
-			'lockstate' => ACL::getLockstateForUserId($a->getUserId()) ? 'lock' : 'unlock',
-			'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true),
-			'bang' => '',
-			'visitor' => 'block',
-			'profile_uid' => local_user(),
-		];
-		$o .= status_editor($a, $x, 0, true);
+		$o .= status_editor($a, [], 0, true);
 	}
 	$sql_extra = Item::getPermissionsSQLByUserId($page_uid);
 

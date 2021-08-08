@@ -90,7 +90,7 @@ class UserExport extends BaseSettings
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		if (!local_user() || empty(DI::app()->getUserId()) || DI::app()->getUserId() != local_user()) {
+		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -98,21 +98,20 @@ class UserExport extends BaseSettings
 		if ($args->getArgc() == 3) {
 			// @TODO Replace with router-provided arguments
 			$action = $args->get(2);
-			$user = DI::app()->user;
 			switch ($action) {
 				case "backup":
 					header("Content-type: application/json");
-					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getNickname() . '.' . $action . '"');
 					self::exportAll(local_user());
 					break;
 				case "account":
 					header("Content-type: application/json");
-					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getNickname() . '.' . $action . '"');
 					self::exportAccount(local_user());
 					break;
 				case "contact":
 					header("Content-type: application/csv");
-					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '-contacts.csv' . '"');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getNickname() . '-contacts.csv' . '"');
 					self::exportContactsAsCSV(local_user());
 					break;
 			}

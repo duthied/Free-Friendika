@@ -53,16 +53,12 @@ function settings_init(App $a)
 
 function settings_post(App $a)
 {
-	if (!local_user()) {
+	if (!$a->isLoggedIn()) {
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	if (!empty($_SESSION['submanage'])) {
-		return;
-	}
-
-	if (empty($a->getUserId()) || $a->getUserId() != local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -752,7 +748,7 @@ function settings_content(App $a)
 		'$cntunkmail' 	      => ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail , DI::l10n()->t("\x28to prevent spam abuse\x29")],
 		'$group_select'       => Group::displayGroupSelection(local_user(), $user['def_gid']),
 		'$permissions'        => DI::l10n()->t('Default Post Permissions'),
-		'$aclselect'          => ACL::getFullSelectorHTML(DI::page(), $a->user),
+		'$aclselect'          => ACL::getFullSelectorHTML(DI::page(), $a->getUserId()),
 
 		'$expire' => [
 			'label'        => DI::l10n()->t('Expiration settings'),

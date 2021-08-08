@@ -57,8 +57,6 @@ use Psr\Log\LoggerInterface;
  */
 class App
 {
-	public $user;
-
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
 	private $theme_info = [
@@ -151,6 +149,11 @@ class App
 		$this->nickname = $nickname;
 	}
 
+	public function isLoggedIn()
+	{
+		return local_user() && $this->user_id && ($this->user_id == local_user());
+	}
+
 	/**
 	 * Fetch the user id
 	 * @return int 
@@ -167,25 +170,6 @@ class App
 	public function getNickname()
 	{
 		return $this->nickname;
-	}
-
-	/**
-	 * Fetch a specific user field
-	 *
-	 * @param string $index 
-	 * @return mixed 
-	 */
-	public function getUserValue(string $index)
-	{
-		if (empty($this->user_id)) {
-			return null;
-		}
-
-		if (empty($this->user)) {
-			$this->user = User::getById($this->user_id);
-		}
-
-		return $this->user[$index] ?? null;
 	}
 
 	/**

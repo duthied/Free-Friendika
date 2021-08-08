@@ -25,6 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Email;
 use Friendica\Util\Strings;
@@ -71,6 +72,8 @@ class Invite extends BaseModule
 			}
 		}
 
+		$user = User::getById(local_user());
+
 		foreach ($recipients as $recipient) {
 			$recipient = trim($recipient);
 
@@ -95,7 +98,7 @@ class Invite extends BaseModule
 				$nmessage = $message;
 			}
 
-			$additional_headers = 'From: "' . $app->getUserValue('email') . '" <' . DI::emailer()->getSiteEmailAddress() . ">\n"
+			$additional_headers = 'From: "' . $user['email'] . '" <' . DI::emailer()->getSiteEmailAddress() . ">\n"
 				. 'Content-type: text/plain; charset=UTF-8' . "\n"
 				. 'Content-transfer-encoding: 8bit';
 

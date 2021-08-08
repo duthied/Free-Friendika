@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Util\Crypto;
 
 function editpost_content(App $a)
@@ -54,6 +55,8 @@ function editpost_content(App $a)
 		notice(DI::l10n()->t('Item not found'));
 		return;
 	}
+
+	$user = User::getById(local_user());
 
 	$geotag = '';
 
@@ -107,7 +110,7 @@ function editpost_content(App $a)
 		'$posttype' => $item['post-type'],
 		'$content' => undo_post_tagging($item['body']),
 		'$post_id' => $post_id,
-		'$defloc' => $a->getUserValue('default-location'),
+		'$defloc' => $user['default-location'],
 		'$visitor' => 'none',
 		'$pvisit' => 'none',
 		'$emailcc' => DI::l10n()->t('CC: email addresses'),

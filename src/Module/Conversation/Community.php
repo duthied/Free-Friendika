@@ -128,18 +128,7 @@ class Community extends BaseModule
 
 			// We need the editor here to be able to reshare an item.
 			if (Session::isAuthenticated()) {
-				$x = [
-					'is_owner' => true,
-					'allow_location' => DI::app()->getUserValue('allow_location'),
-					'default_location' => DI::app()->getUserValue('default-location'),
-					'nickname' => DI::app()->getNickname(),
-					'lockstate' => ACL::getLockstateForUserId(DI::app()->getUserId()) ? 'lock' : 'unlock',
-					'acl' => ACL::getFullSelectorHTML(DI::page(), DI::app()->user, true),
-					'bang' => '',
-					'visitor' => 'block',
-					'profile_uid' => local_user(),
-				];
-				$o .= status_editor(DI::app(), $x, 0, true);
+				$o .= status_editor(DI::app(), [], 0, true);
 			}
 		}
 

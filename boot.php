@@ -379,7 +379,7 @@ function is_site_admin()
 
 	$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
-	return local_user() && $admin_email && in_array($a->getUserValue('email') ?? '', $adminlist);
+	return local_user() && $admin_email && DBA::exists('user', ['uid' => $a->getUserId(), 'email' => $adminlist]);
 }
 
 /**

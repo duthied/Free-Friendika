@@ -27,6 +27,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Strings;
 
@@ -76,52 +77,50 @@ class Magic extends BaseModule
 			System::externalRedirect($dest);
 		}
 
-		if (local_user()) {
-			$user = $a->user;
+		// OpenWebAuth
+		if (local_user() && $owa) {
+			$user = User::getById(local_user());
 
-			// OpenWebAuth
-			if ($owa) {
-				// Extract the basepath
-				// NOTE: we need another solution because this does only work
-				// for friendica contacts :-/ . We should have the basepath
-				// of a contact also in the contact table.
-				$exp = explode('/profile/', $contact['url']);
-				$basepath = $exp[0];
+			// Extract the basepath
+			// NOTE: we need another solution because this does only work
+			// for friendica contacts :-/ . We should have the basepath
+			// of a contact also in the contact table.
+			$exp = explode('/profile/', $contact['url']);
+			$basepath = $exp[0];
 
-				$header = [];
-				$header['Accept'] = 'application/x-dfrn+json, application/x-zot+json';
-				$header['X-Open-Web-Auth'] = Strings::getRandomHex();
+			$header = [];
+			$header['Accept'] = 'application/x-dfrn+json, application/x-zot+json';
+			$header['X-Open-Web-Auth'] = Strings::getRandomHex();
 
-				// Create a header that is signed with the local users private key.
-				$header = HTTPSignature::createSig(
-					$header,
-					$user['prvkey'],
-					'acct:' . $user['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : '')
-				);
+			// Create a header that is signed with the local users private key.
+			$header = HTTPSignature::createSig(
+				$header,
+				$user['prvkey'],
+				'acct:' . $user['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : '')
+			);
 
-				// Try to get an authentication token from the other instance.
-				$curlResult = DI::httpRequest()->get($basepath . '/owa', ['header' => $header]);
+			// Try to get an authentication token from the other instance.
+			$curlResult = DI::httpRequest()->get($basepath . '/owa', ['header' => $header]);
 
-				if ($curlResult->isSuccess()) {
-					$j = json_decode($curlResult->getBody(), true);
+			if ($curlResult->isSuccess()) {
+				$j = json_decode($curlResult->getBody(), true);
 
-					if ($j['success']) {
-						$token = '';
-						if ($j['encrypted_token']) {
-							// The token is encrypted. If the local user is really the one the other instance
-							// thinks he/she is, the token can be decrypted with the local users public key.
-							openssl_private_decrypt(Strings::base64UrlDecode($j['encrypted_token']), $token, $user['prvkey']);
-						} else {
-							$token = $j['token'];
-						}
-						$args = (strpbrk($dest, '?&') ? '&' : '?') . 'owt=' . $token;
-
-						Logger::info('Redirecting', ['path' => $dest . $args]);
-						System::externalRedirect($dest . $args);
+				if ($j['success']) {
+					$token = '';
+					if ($j['encrypted_token']) {
+						// The token is encrypted. If the local user is really the one the other instance
+						// thinks he/she is, the token can be decrypted with the local users public key.
+						openssl_private_decrypt(Strings::base64UrlDecode($j['encrypted_token']), $token, $user['prvkey']);
+					} else {
+						$token = $j['token'];
 					}
+					$args = (strpbrk($dest, '?&') ? '&' : '?') . 'owt=' . $token;
+
+					Logger::info('Redirecting', ['path' => $dest . $args]);
+					System::externalRedirect($dest . $args);
 				}
-				System::externalRedirect($dest);
 			}
+			System::externalRedirect($dest);
 		}
 
 		if ($test) {

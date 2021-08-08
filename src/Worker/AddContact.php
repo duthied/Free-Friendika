@@ -41,11 +41,7 @@ class AddContact
 			return;
 		}
 
-		$user = User::getById($uid);
-		if (empty($user)) {
-			return;
-		}
-		$result = Contact::createFromProbe($user, $url, '', false);
+		$result = Contact::createFromProbe($uid, $url);
 		Logger::info('Added contact', ['uid' => $uid, 'url' => $url, 'result' => $result]);
 	}
 }

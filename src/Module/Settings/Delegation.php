@@ -38,7 +38,7 @@ class Delegation extends BaseSettings
 {
 	public static function post(array $parameters = [])
 	{
-		if (!local_user() || empty(DI::app()->getUserId()) || DI::app()->getUserId() != local_user()) {
+		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 

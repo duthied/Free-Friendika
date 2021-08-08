@@ -2311,16 +2311,15 @@ class Contact
 	 *
 	 * Takes a $uid and a url/handle and adds a new contact
 	 *
-	 * @param array  $user        The user the contact should be created for
+	 * @param int    $uid         The user id the contact should be created for
 	 * @param string $url         The profile URL of the contact
-	 * @param bool   $interactive
 	 * @param string $network
 	 * @return array
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function createFromProbe(array $user, $url, $interactive = false, $network = '')
+	public static function createFromProbe(int $uid, $url, $network = '')
 	{
 		$result = ['cid' => -1, 'success' => false, 'message' => ''];
 
@@ -2356,7 +2355,7 @@ class Contact
 			$ret = $arr['contact'];
 		} else {
 			$probed = true;			
-			$ret = Probe::uri($url, $network, $user['uid']);
+			$ret = Probe::uri($url, $network, $uid);
 		}
 
 		if (($network != '') && ($ret['network'] != $network)) {
@@ -2368,10 +2367,10 @@ class Contact
 		// the poll url is more reliable than the profile url, as we may have
 		// indirect links or webfinger links
 
-		$condition = ['uid' => $user['uid'], 'poll' => [$ret['poll'], Strings::normaliseLink($ret['poll'])], 'network' => $ret['network'], 'pending' => false];
+		$condition = ['uid' => $uid, 'poll' => [$ret['poll'], Strings::normaliseLink($ret['poll'])], 'network' => $ret['network'], 'pending' => false];
 		$contact = DBA::selectFirst('contact', ['id', 'rel'], $condition);
 		if (!DBA::isResult($contact)) {
-			$condition = ['uid' => $user['uid'], 'nurl' => Strings::normaliseLink($ret['url']), 'network' => $ret['network'], 'pending' => false];
+			$condition = ['uid' => $uid, 'nurl' => Strings::normaliseLink($ret['url']), 'network' => $ret['network'], 'pending' => false];
 			$contact = DBA::selectFirst('contact', ['id', 'rel'], $condition);
 		}
 
@@ -2436,7 +2435,7 @@ class Contact
 
 			// create contact record
 			self::insert([
-				'uid'     => $user['uid'],
+				'uid'     => $uid,
 				'created' => DateTimeFormat::utcNow(),
 				'url'     => $ret['url'],
 				'nurl'    => Strings::normaliseLink($ret['url']),
@@ -2464,7 +2463,7 @@ class Contact
 			]);
 		}
 
-		$contact = DBA::selectFirst('contact', [], ['url' => $ret['url'], 'network' => $ret['network'], 'uid' => $user['uid']]);
+		$contact = DBA::selectFirst('contact', [], ['url' => $ret['url'], 'network' => $ret['network'], 'uid' => $uid]);
 		if (!DBA::isResult($contact)) {
 			$result['message'] .= DI::l10n()->t('Unable to retrieve contact information.') . EOL;
 			return $result;
@@ -2473,7 +2472,7 @@ class Contact
 		$contact_id = $contact['id'];
 		$result['cid'] = $contact_id;
 
-		Group::addMember(User::getDefaultGroup($user['uid'], $contact["network"]), $contact_id);
+		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact_id);
 
 		// Update the avatar
 		self::updateAvatar($contact_id, $ret['photo']);
@@ -2489,7 +2488,7 @@ class Contact
 			Worker::add(PRIORITY_HIGH, 'UpdateContact', $contact_id);
 		}
 
-		$owner = User::getOwnerDataById($user['uid']);
+		$owner = User::getOwnerDataById($uid);
 
 		if (DBA::isResult($owner)) {
 			if (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
@@ -2518,7 +2517,7 @@ class Contact
 					return false;
 				}
 
-				$ret = ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $user['uid'], $activity_id);
+				$ret = ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $uid, $activity_id);
 				Logger::log('Follow returns: ' . $ret);
 			}
 		}
@@ -2579,14 +2578,9 @@ class Contact
 	 */
 	public static function follow(int $cid, int $uid)
 	{
-		$user = User::getById($uid);
-		if (empty($user)) {
-			return false;
-		}
-
 		$contact = self::getById($cid, ['url']);
 
-		$result = self::createFromProbe($user, $contact['url'], false);
+		$result = self::createFromProbe($uid, $contact['url']);
 
 		return $result['cid'];
 	}
@@ -2744,7 +2738,7 @@ class Contact
 				}
 			} elseif (DBA::isResult($user) && in_array($user['page-flags'], [User::PAGE_FLAGS_SOAPBOX, User::PAGE_FLAGS_FREELOVE, User::PAGE_FLAGS_COMMUNITY])) {
 				if (($user['page-flags'] == User::PAGE_FLAGS_FREELOVE) && ($network != Protocol::DIASPORA)) {
-					self::createFromProbe($importer, $url, false, $network);
+					self::createFromProbe($importer['uid'], $url, $network);
 				}
 
 				$condition = ['uid' => $importer['uid'], 'url' => $url, 'pending' => true];

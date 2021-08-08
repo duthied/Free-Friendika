@@ -222,7 +222,7 @@ class ACL
 	 * Return the full jot ACL selector HTML
 	 *
 	 * @param Page   $page
-	 * @param array  $user                  User array
+	 * @param int    $uid                   User ID
 	 * @param bool   $for_federation
 	 * @param array  $default_permissions   Static defaults permission array:
 	 *                                      [
@@ -238,17 +238,19 @@ class ACL
 	 */
 	public static function getFullSelectorHTML(
 		Page $page,
-		array $user = null,
+		int $uid = null,
 		bool $for_federation = false,
 		array $default_permissions = [],
 		array $condition = [],
 		$form_prefix = ''
 	) {
-		if (empty($user['uid'])) {
+		if (empty($uid)) {
 			return '';
 		}
 
 		static $input_group_id = 0;
+
+		$user = User::getById($uid);
 
 		$input_group_id++;
 
