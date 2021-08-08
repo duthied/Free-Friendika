@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Settings\Profile\Photo;
 
-use Friendica\App\Arguments;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
