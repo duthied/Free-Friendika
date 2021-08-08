@@ -23,7 +23,6 @@ namespace Friendica\Module\Profile;
 
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Content\Widget;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;

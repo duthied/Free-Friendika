@@ -23,7 +23,6 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Model\Contact;
-use Friendica\Model\User;
 
 class AddContact
 {

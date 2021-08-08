@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Settings;
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;

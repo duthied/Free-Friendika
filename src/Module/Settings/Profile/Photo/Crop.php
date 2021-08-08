@@ -23,7 +23,6 @@ namespace Friendica\Module\Settings\Profile\Photo;
 
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;

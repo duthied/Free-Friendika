@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
-use Friendica\Core\ACL;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;

@@ -55,7 +55,6 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
-use Friendica\Protocol\Diaspora;
 use Friendica\Security\Security;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\ParseUrl;

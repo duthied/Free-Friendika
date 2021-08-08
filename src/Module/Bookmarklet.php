@@ -23,7 +23,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Content\PageInfo;
-use Friendica\Core\ACL;
 use Friendica\DI;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;

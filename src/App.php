@@ -36,7 +36,6 @@ use Friendica\Core\Theme;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-use Friendica\Model\User;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\ConfigFileLoader;
