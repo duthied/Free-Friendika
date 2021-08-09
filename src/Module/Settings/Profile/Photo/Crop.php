@@ -56,7 +56,7 @@ class Crop extends BaseSettings
 		$selectionW = intval($_POST['width']  ?? 0);
 		$selectionH = intval($_POST['height'] ?? 0);
 
-		$path = 'profile/' . DI::app()->getUserNickname();
+		$path = 'profile/' . DI::app()->getLoggedInUserNickname();
 
 		$base_image = Photo::selectFirst([], ['resource-id' => $resource_id, 'uid' => local_user(), 'scale' => $scale]);
 		if (DBA::isResult($base_image)) {
@@ -184,7 +184,7 @@ class Crop extends BaseSettings
 
 			info(DI::l10n()->t('Profile picture successfully updated.'));
 
-			DI::baseUrl()->redirect('profile/' . DI::app()->getUserNickname());
+			DI::baseUrl()->redirect('profile/' . DI::app()->getLoggedInUserNickname());
 		}
 
 		$Image = Photo::getImageForPhoto($photos[0]);

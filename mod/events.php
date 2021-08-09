@@ -280,7 +280,7 @@ function events_content(App $a)
 	$tabs = '';
 	// tabs
 	if ($a->getThemeInfoValue('events_in_profile')) {
-		$tabs = BaseProfile::getTabsHTML($a, 'events', true, $a->getUserNickname(), false);
+		$tabs = BaseProfile::getTabsHTML($a, 'events', true, $a->getLoggedInUserNickname(), false);
 	}
 
 	$mode = 'view';

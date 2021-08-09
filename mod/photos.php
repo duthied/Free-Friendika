@@ -224,7 +224,7 @@ function photos_post(App $a)
 			// Update the photo albums cache
 			Photo::clearAlbumCache($page_owner_uid);
 
-			DI::baseUrl()->redirect('photos/' . $a->getUserNickname() . '/album/' . bin2hex($newalbum));
+			DI::baseUrl()->redirect('photos/' . $a->getLoggedInUserNickname() . '/album/' . bin2hex($newalbum));
 			return; // NOTREACHED
 		}
 

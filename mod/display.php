@@ -62,7 +62,7 @@ function display_init(App $a)
 		if (local_user()) {
 			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => DI::args()->getArgv()[1], 'uid' => local_user()]);
 			if (DBA::isResult($item)) {
-				$nick = $a->getUserNickname();
+				$nick = $a->getLoggedInUserNickname();
 			}
 		}
 

@@ -133,7 +133,7 @@ class Index extends BaseSettings
 				DI::l10n()->t('or'),
 				($newuser) ?
 					'<a href="' . DI::baseUrl() . '">' . DI::l10n()->t('skip this step') . '</a>'
-					: '<a href="' . DI::baseUrl() . '/photos/' . DI::app()->getUserNickname() . '">'
+					: '<a href="' . DI::baseUrl() . '/photos/' . DI::app()->getLoggedInUserNickname() . '">'
 						. DI::l10n()->t('select a photo from your photo albums') . '</a>'
 			),
 		]);

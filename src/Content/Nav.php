@@ -154,7 +154,7 @@ class Nav
 		 * Display the current site location as a navigation aid.
 		 */
 
-		$myident = !empty($a->getUserNickname()) ? $a->getUserNickname() . '@' : '';
+		$myident = !empty($a->getLoggedInUserNickname()) ? $a->getLoggedInUserNickname() . '@' : '';
 
 		$sitelocation = $myident . substr(DI::baseUrl()->get($ssl_state), strpos(DI::baseUrl()->get($ssl_state), '//') + 2);
 
@@ -187,10 +187,10 @@ class Nav
 
 		if ($a->isLoggedIn()) {
 			// user menu
-			$nav['usermenu'][] = ['profile/' . $a->getUserNickname(), DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
-			$nav['usermenu'][] = ['profile/' . $a->getUserNickname() . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
-			$nav['usermenu'][] = ['photos/' . $a->getUserNickname(), DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
-			$nav['usermenu'][] = ['videos/' . $a->getUserNickname(), DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
+			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
+			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname() . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+			$nav['usermenu'][] = ['photos/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
+			$nav['usermenu'][] = ['videos/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
 			$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
 			$nav['usermenu'][] = ['notes/', DI::l10n()->t('Personal notes'), '', DI::l10n()->t('Your personal notes')];
 
@@ -267,10 +267,10 @@ class Nav
 		}
 
 		// The following nav links are only show to logged in users
-		if (local_user() && !empty($a->getUserNickname())) {
+		if (local_user() && !empty($a->getLoggedInUserNickname())) {
 			$nav['network'] = ['network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
 
-			$nav['home'] = ['profile/' . $a->getUserNickname(), DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
+			$nav['home'] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
 
 			// Don't show notifications for public communities
 			if (Session::get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {
