@@ -120,7 +120,7 @@ class NoScrape extends BaseModule
 		$json_info['last-activity'] = date('o-W', $last_active);
 
 		//These are optional fields.
-		$profile_fields = ['about', 'locality', 'region', 'postal-code', 'country-name'];
+		$profile_fields = ['about', 'locality', 'region', 'postal-code', 'country-name', 'xmpp', 'matrix'];
 		foreach ($profile_fields as $field) {
 			if (!empty($profile[$field])) {
 				$json_info["$field"] = $profile[$field];

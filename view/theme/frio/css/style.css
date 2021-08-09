@@ -1167,7 +1167,7 @@ aside .vcard .detail {
 	display: table;
 	padding: 2px 0;
 }
-aside .xmpp {
+aside .xmpp, aside .matrix {
 	display: table;
 }
 aside .vcard .icon {

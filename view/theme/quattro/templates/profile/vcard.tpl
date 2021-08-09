@@ -42,6 +42,13 @@
 	</dl>
     {{/if}}
 
+    {{if $profile.matrix}}
+	<dl class="matrix">
+        <dt class="matrix-label">{{$matrix}}</dt>
+        <dd class="matrix-data">{{$profile.matrix}}</dd>
+	</dl>
+    {{/if}}
+
 	{{if $profile.upubkey}}<div class="key" style="display:none;">{{$profile.upubkey}}</div>{{/if}}
 
 	{{if $homepage}}

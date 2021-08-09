@@ -14,6 +14,12 @@
 		<dd class="xmpp-data">{{$contact.xmpp}}</dd>
 		</dl>
 	{{/if}}
+	{{if $contact.matrix}}
+		<dl class="matrix">
+		<dt class="matrix-label">{{$matrix}}</dt>
+		<dd class="matrix-data">{{$contact.matrix}}</dd>
+		</dl>
+	{{/if}}
 	{{if $contact.location}}
 		<dl class="location" dir="auto">
 			<dt class="location-label">{{$location}}</dt>
