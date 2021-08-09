@@ -100,17 +100,17 @@ class UserExport extends BaseSettings
 			switch ($action) {
 				case "backup":
 					header("Content-type: application/json");
-					header('Content-Disposition: attachment; filename="' . DI::app()->getNickname() . '.' . $action . '"');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getUserNickname() . '.' . $action . '"');
 					self::exportAll(local_user());
 					break;
 				case "account":
 					header("Content-type: application/json");
-					header('Content-Disposition: attachment; filename="' . DI::app()->getNickname() . '.' . $action . '"');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getUserNickname() . '.' . $action . '"');
 					self::exportAccount(local_user());
 					break;
 				case "contact":
 					header("Content-type: application/csv");
-					header('Content-Disposition: attachment; filename="' . DI::app()->getNickname() . '-contacts.csv' . '"');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getUserNickname() . '-contacts.csv' . '"');
 					self::exportContactsAsCSV(local_user());
 					break;
 			}

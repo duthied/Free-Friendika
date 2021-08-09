@@ -166,7 +166,7 @@ class App
 	 * Fetch the user nick name
 	 * @return string
 	 */
-	public function getNickname()
+	public function getUserNickname()
 	{
 		return $this->nickname;
 	}

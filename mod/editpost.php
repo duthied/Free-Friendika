@@ -68,7 +68,7 @@ function editpost_content(App $a)
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$ispublic' => '&nbsp;', // DI::l10n()->t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
-		'$nickname' => $a->getNickname(),
+		'$nickname' => $a->getUserNickname(),
 		'$is_mobile' => DI::mode()->isMobile(),
 	]);
 

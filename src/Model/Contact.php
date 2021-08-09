@@ -2319,7 +2319,7 @@ class Contact
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function createFromProbe(int $uid, $url, $network = '')
+	public static function createFromProbeForUser(int $uid, $url, $network = '')
 	{
 		$result = ['cid' => -1, 'success' => false, 'message' => ''];
 
@@ -2580,7 +2580,7 @@ class Contact
 	{
 		$contact = self::getById($cid, ['url']);
 
-		$result = self::createFromProbe($uid, $contact['url']);
+		$result = self::createFromProbeForUser($uid, $contact['url']);
 
 		return $result['cid'];
 	}
@@ -2738,7 +2738,7 @@ class Contact
 				}
 			} elseif (DBA::isResult($user) && in_array($user['page-flags'], [User::PAGE_FLAGS_SOAPBOX, User::PAGE_FLAGS_FREELOVE, User::PAGE_FLAGS_COMMUNITY])) {
 				if (($user['page-flags'] == User::PAGE_FLAGS_FREELOVE) && ($network != Protocol::DIASPORA)) {
-					self::createFromProbe($importer['uid'], $url, $network);
+					self::createFromProbeForUser($importer['uid'], $url, $network);
 				}
 
 				$condition = ['uid' => $importer['uid'], 'url' => $url, 'pending' => true];

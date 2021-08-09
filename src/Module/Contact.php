@@ -168,7 +168,7 @@ class Contact extends BaseModule
 		}
 
 		if ($contact['network'] == Protocol::OSTATUS) {
-			$result = Model\Contact::createFromProbe($contact['uid'], $contact['url'], $contact['network']);
+			$result = Model\Contact::createFromProbeForUser($contact['uid'], $contact['url'], $contact['network']);
 
 			if ($result['success']) {
 				DBA::update('contact', ['subhub' => 1], ['id' => $contact_id]);

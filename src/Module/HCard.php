@@ -40,7 +40,7 @@ class HCard extends BaseModule
 
 		if ((local_user()) && ($parameters['action'] ?? '') === 'view') {
 			// A logged in user views a profile of a user
-			$nickname = $a->getNickname();
+			$nickname = $a->getUserNickname();
 		} elseif (empty($parameters['action'])) {
 			// Show the profile hCard
 			$nickname = $parameters['profile'];

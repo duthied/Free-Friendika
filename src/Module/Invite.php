@@ -171,7 +171,7 @@ class Invite extends BaseModule
 				DI::l10n()->t('You are cordially invited to join me and other close friends on Friendica - and help us to create a better social web.') . "\r\n" . "\r\n"
 				. $linkTxt
 				. "\r\n" . "\r\n" . (($inviteOnly) ? DI::l10n()->t('You will need to supply this invitation code: $invite_code') . "\r\n" . "\r\n" : '') . DI::l10n()->t('Once you have registered, please connect with me via my profile page at:')
-				. "\r\n" . "\r\n" . DI::baseUrl()->get() . '/profile/' . $app->getNickname()
+				. "\r\n" . "\r\n" . DI::baseUrl()->get() . '/profile/' . $app->getUserNickname()
 				. "\r\n" . "\r\n" . DI::l10n()->t('For more information about the Friendica project and why we feel it is important, please visit http://friendi.ca') . "\r\n" . "\r\n",
 			],
 			'$submit'              => DI::l10n()->t('Submit')

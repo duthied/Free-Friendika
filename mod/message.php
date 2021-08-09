@@ -112,7 +112,7 @@ function message_content(App $a)
 		return Login::form();
 	}
 
-	$myprofile = DI::baseUrl() . '/profile/' . $a->getNickname();
+	$myprofile = DI::baseUrl() . '/profile/' . $a->getUserNickname();
 
 	$tpl = Renderer::getMarkupTemplate('mail_head.tpl');
 	if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] == 'new') {
@@ -179,7 +179,7 @@ function message_content(App $a)
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => DI::baseUrl()->get(true),
-			'$nickname' => $a->getNickname(),
+			'$nickname' => $a->getUserNickname(),
 			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
 
@@ -292,7 +292,7 @@ function message_content(App $a)
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => DI::baseUrl()->get(true),
-			'$nickname' => $a->getNickname(),
+			'$nickname' => $a->getUserNickname(),
 			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
 
@@ -431,7 +431,7 @@ function render_messages(array $msg, $t)
 	$tpl = Renderer::getMarkupTemplate($t);
 	$rslt = '';
 
-	$myprofile = DI::baseUrl() . '/profile/' . $a->getNickname();
+	$myprofile = DI::baseUrl() . '/profile/' . $a->getUserNickname();
 
 	foreach ($msg as $rr) {
 		if ($rr['unknown']) {

@@ -175,7 +175,7 @@ function follow_process(App $a, string $url)
 {
 	$return_path = 'follow?url=' . urlencode($url);
 
-	$result = Contact::createFromProbe($a->getUserId(), $url);
+	$result = Contact::createFromProbeForUser($a->getUserId(), $url);
 
 	if ($result['success'] == false) {
 		// Possibly it is a remote item and not an account

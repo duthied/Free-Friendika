@@ -173,7 +173,7 @@ class Mail
 			$recip_host = substr($recip_host, 0, strpos($recip_host, '/'));
 
 			$recip_handle = (($contact['addr']) ? $contact['addr'] : $contact['nick'] . '@' . $recip_host);
-			$sender_handle = $a->getNickname() . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
+			$sender_handle = $a->getUserNickname() . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
 
 			$conv_guid = System::createUUID();
 			$convuri = $recip_handle . ':' . $conv_guid;

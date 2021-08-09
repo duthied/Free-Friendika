@@ -41,14 +41,14 @@ class ItemCCEMail extends Email
 
 		$disclaimer = '<hr />' . $l10n->t('This message was sent to you by %s, a member of the Friendica social network.', $user['username'])
 		              . '<br />';
-		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->getNickname()) . EOL;
+		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->getUserNickname()) . EOL;
 		$disclaimer .= $l10n->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 		if (!$item['title'] == '') {
 			$subject = EmailProtocol::encodeHeader($item['title'], 'UTF-8');
 		} else {
 			$subject = EmailProtocol::encodeHeader('[Friendica]' . ' ' . $l10n->t('%s posted an update.', $user['username']), 'UTF-8');
 		}
-		$link    = '<a href="' . $baseUrl . '/profile/' . $a->getNickname() . '"><img src="' . $authorThumb . '" alt="' . $user['username'] . '" /></a><br /><br />';
+		$link    = '<a href="' . $baseUrl . '/profile/' . $a->getUserNickname() . '"><img src="' . $authorThumb . '" alt="' . $user['username'] . '" /></a><br /><br />';
 		$html    = Item::prepareBody($item);
 		$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';;
 

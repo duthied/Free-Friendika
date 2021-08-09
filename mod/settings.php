@@ -594,7 +594,7 @@ function settings_content(App $a)
 
 	$username   = $user['username'];
 	$email      = $user['email'];
-	$nickname   = $a->getNickname();
+	$nickname   = $a->getUserNickname();
 	$timezone   = $user['timezone'];
 	$language   = $user['language'];
 	$notify     = $user['notify-flags'];

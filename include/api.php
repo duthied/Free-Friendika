@@ -322,7 +322,7 @@ function api_call(App $a, App\Arguments $args = null)
 
 				if (!empty($info['auth']) && api_user() === false) {
 					api_login($a);
-					Logger::info(API_LOG_PREFIX . 'nickname {nickname}', ['module' => 'api', 'action' => 'call', 'nickname' => $a->getNickname()]);
+					Logger::info(API_LOG_PREFIX . 'nickname {nickname}', ['module' => 'api', 'action' => 'call', 'nickname' => $a->getUserNickname()]);
 				}
 
 				Logger::debug(API_LOG_PREFIX . 'parameters', ['module' => 'api', 'action' => 'call', 'parameters' => $_REQUEST]);

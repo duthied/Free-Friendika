@@ -164,7 +164,7 @@ HELP;
 			$network = CliPrompt::prompt();
 		}
 
-		$result = ContactModel::createFromProbe($user['uid'], $url, $network);
+		$result = ContactModel::createFromProbeForUser($user['uid'], $url, $network);
 
 		if ($result['success']) {
 			$this->out('User ' . $user['nickname'] . ' now connected to ' . $url . ', contact ID ' . $result['cid']);

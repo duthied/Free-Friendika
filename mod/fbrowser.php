@@ -88,7 +88,7 @@ function fbrowser_content(App $a)
 				}
 
 				return [
-					DI::baseUrl() . '/photos/' . $a->getNickname() . '/image/' . $rr['resource-id'],
+					DI::baseUrl() . '/photos/' . $a->getUserNickname() . '/image/' . $rr['resource-id'],
 					$filename_e,
 					DI::baseUrl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
 				];
@@ -103,7 +103,7 @@ function fbrowser_content(App $a)
 				'$folders'  => $albums,
 				'$files'    => $files,
 				'$cancel'   => DI::l10n()->t('Cancel'),
-				'$nickname' => $a->getNickname(),
+				'$nickname' => $a->getUserNickname(),
 				'$upload'   => DI::l10n()->t('Upload')
 			]);
 
@@ -132,7 +132,7 @@ function fbrowser_content(App $a)
 					'$folders'  => false,
 					'$files'    => $files,
 					'$cancel'   => DI::l10n()->t('Cancel'),
-					'$nickname' => $a->getNickname(),
+					'$nickname' => $a->getUserNickname(),
 					'$upload'   => DI::l10n()->t('Upload')
 				]);
 			}

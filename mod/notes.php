@@ -45,7 +45,7 @@ function notes_content(App $a, $update = false)
 		return;
 	}
 
-	$o = BaseProfile::getTabsHTML($a, 'notes', true, $a->getNickname(), false);
+	$o = BaseProfile::getTabsHTML($a, 'notes', true, $a->getUserNickname(), false);
 
 	if (!$update) {
 		$o .= '<h3>' . DI::l10n()->t('Personal Notes') . '</h3>';
