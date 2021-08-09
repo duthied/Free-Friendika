@@ -27,7 +27,6 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
-use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -169,8 +168,7 @@ class Contact extends BaseModule
 		}
 
 		if ($contact['network'] == Protocol::OSTATUS) {
-			$user = Model\User::getById($contact['uid']);
-			$result = Model\Contact::createFromProbe($user, $contact['url'], false, $contact['network']);
+			$result = Model\Contact::createFromProbeForUser($contact['uid'], $contact['url'], $contact['network']);
 
 			if ($result['success']) {
 				DBA::update('contact', ['subhub' => 1], ['id' => $contact_id]);
@@ -937,18 +935,7 @@ class Contact extends BaseModule
 		if (!$update) {
 			// We need the editor here to be able to reshare an item.
 			if (local_user()) {
-				$x = [
-					'is_owner' => true,
-					'allow_location' => $a->user['allow_location'],
-					'default_location' => $a->user['default-location'],
-					'nickname' => $a->user['nickname'],
-					'lockstate' => (is_array($a->user) && (strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) || strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
-					'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true),
-					'bang' => '',
-					'visitor' => 'block',
-					'profile_uid' => local_user(),
-				];
-				$o = status_editor($a, $x, 0, true);
+				$o = status_editor($a, [], 0, true);
 			}
 		}
 

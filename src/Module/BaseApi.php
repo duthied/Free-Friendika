@@ -75,9 +75,7 @@ class BaseApi extends BaseModule
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		$a = DI::app();
-
-		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
+		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
@@ -86,9 +84,7 @@ class BaseApi extends BaseModule
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		$a = DI::app();
-
-		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
+		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
@@ -97,9 +93,7 @@ class BaseApi extends BaseModule
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		$a = DI::app();
-
-		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
+		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
@@ -108,9 +102,7 @@ class BaseApi extends BaseModule
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		$a = DI::app();
-
-		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
+		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}

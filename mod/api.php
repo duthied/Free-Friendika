@@ -26,12 +26,7 @@ require_once __DIR__ . '/../include/api.php';
 
 function api_post(App $a)
 {
-	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
-		return;
-	}
-
-	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
+	if (!$a->isLoggedIn()) {
 		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}

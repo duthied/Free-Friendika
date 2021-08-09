@@ -45,7 +45,7 @@ class Delegation extends BaseModule
 		}
 
 		$uid = local_user();
-		$orig_record = DI::app()->user;
+		$orig_record = User::getById(DI::app()->getLoggedInUserId());
 
 		if (Session::get('submanage')) {
 			$user = User::getById(Session::get('submanage'));
@@ -109,7 +109,7 @@ class Delegation extends BaseModule
 		$ret = [];
 		Hook::callAll('home_init', $ret);
 
-		DI::baseUrl()->redirect('profile/' . DI::app()->user['nickname']);
+		DI::baseUrl()->redirect('profile/' . DI::app()->getLoggedInUserNickname());
 		// NOTREACHED
 	}
 
@@ -130,7 +130,7 @@ class Delegation extends BaseModule
 
 			$identities[$key]['thumb'] = Contact::getAvatarUrlForId($self['id'], Proxy::SIZE_THUMB, $self['updated']);
 
-			$identities[$key]['selected'] = ($identity['nickname'] === DI::app()->user['nickname']);
+			$identities[$key]['selected'] = ($identity['nickname'] === DI::app()->getLoggedInUserNickname());
 
 			$condition = ["`uid` = ? AND `msg` != '' AND NOT (`type` IN (?, ?)) AND NOT `seen`", $identity['uid'], Notification\Type::INTRO, Notification\Type::MAIL];
 			$params = ['distinct' => true, 'expression' => 'parent'];

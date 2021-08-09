@@ -25,6 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
+use Friendica\Model\User;
 use PragmaRX\Google2FA\Google2FA;
 use Friendica\Security\TwoFactor;
 
@@ -70,7 +71,7 @@ class Verify extends BaseModule
 				}
 
 				// Resume normal login workflow
-				DI::auth()->setForUser($a, $a->user, true, true);
+				DI::auth()->setForUser($a, User::getById($a->getLoggedInUserId()), true, true);
 			} else {
 				self::$errors[] = DI::l10n()->t('Invalid code, please retry.');
 			}

@@ -55,10 +55,11 @@ class Poke extends BaseModule
 
 		$private = !empty($_POST['private']) ? Model\Item::PRIVATE : Model\Item::PUBLIC;
 
-		$allow_cid     = ($private ? '<' . $contact['id']. '>' : $a->user['allow_cid']);
-		$allow_gid     = ($private ? '' : $a->user['allow_gid']);
-		$deny_cid      = ($private ? '' : $a->user['deny_cid']);
-		$deny_gid      = ($private ? '' : $a->user['deny_gid']);
+		$user = Model\User::getById($a->getLoggedInUserId());
+		$allow_cid     = ($private ? '<' . $contact['id']. '>' : $user['allow_cid']);
+		$allow_gid     = ($private ? '' : $user['allow_gid']);
+		$deny_cid      = ($private ? '' : $user['deny_cid']);
+		$deny_gid      = ($private ? '' : $user['deny_gid']);
 
 		$actor = Contact::getById($a->getContactId());
 

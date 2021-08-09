@@ -154,7 +154,7 @@ class Nav
 		 * Display the current site location as a navigation aid.
 		 */
 
-		$myident = ((is_array($a->user) && isset($a->user['nickname'])) ? $a->user['nickname'] . '@' : '');
+		$myident = !empty($a->getLoggedInUserNickname()) ? $a->getLoggedInUserNickname() . '@' : '';
 
 		$sitelocation = $myident . substr(DI::baseUrl()->get($ssl_state), strpos(DI::baseUrl()->get($ssl_state), '//') + 2);
 
@@ -185,25 +185,21 @@ class Nav
 			$nav['login'] = ['login', DI::l10n()->t('Login'), (DI::module()->getName() == 'login' ? 'selected' : ''), DI::l10n()->t('Sign in')];
 		}
 
-		if (local_user()) {
-			if (!empty($a->user)) {
-				// user menu
-				$nav['usermenu'][] = ['profile/' . $a->user['nickname'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
-				$nav['usermenu'][] = ['profile/' . $a->user['nickname'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
-				$nav['usermenu'][] = ['photos/' . $a->user['nickname'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
-				$nav['usermenu'][] = ['videos/' . $a->user['nickname'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
-				$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
-				$nav['usermenu'][] = ['notes/', DI::l10n()->t('Personal notes'), '', DI::l10n()->t('Your personal notes')];
+		if ($a->isLoggedIn()) {
+			// user menu
+			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
+			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname() . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+			$nav['usermenu'][] = ['photos/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
+			$nav['usermenu'][] = ['videos/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
+			$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
+			$nav['usermenu'][] = ['notes/', DI::l10n()->t('Personal notes'), '', DI::l10n()->t('Your personal notes')];
 
-				// user info
-				$contact = DBA::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
-				$userinfo = [
-					'icon' => (DBA::isResult($contact) ? DI::baseUrl()->remove($contact['micro']) : Contact::DEFAULT_AVATAR_MICRO),
-					'name' => $a->user['username'],
-				];
-			} else {
-				DI::logger()->warning('Empty $a->user for local user', ['local_user' => local_user(), '$a' => $a]);
-			}
+			// user info
+			$contact = DBA::selectFirst('contact', ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl', 'updated'], ['uid' => $a->getLoggedInUserId(), 'self' => true]);
+			$userinfo = [
+				'icon' => Contact::getMicro($contact),
+				'name' => $contact['name'],
+			];
 		}
 
 		// "Home" should also take you home from an authenticated remote profile connection
@@ -271,10 +267,10 @@ class Nav
 		}
 
 		// The following nav links are only show to logged in users
-		if (local_user() && !empty($a->user)) {
+		if (local_user() && !empty($a->getLoggedInUserNickname())) {
 			$nav['network'] = ['network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
 
-			$nav['home'] = ['profile/' . $a->user['nickname'], DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
+			$nav['home'] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
 
 			// Don't show notifications for public communities
 			if (Session::get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {

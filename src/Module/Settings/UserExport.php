@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Settings;
 
-use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
@@ -90,7 +89,7 @@ class UserExport extends BaseSettings
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		if (!local_user() || !empty(DI::app()->user['uid']) && DI::app()->user['uid'] != local_user()) {
+		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -98,21 +97,20 @@ class UserExport extends BaseSettings
 		if ($args->getArgc() == 3) {
 			// @TODO Replace with router-provided arguments
 			$action = $args->get(2);
-			$user = DI::app()->user;
 			switch ($action) {
 				case "backup":
 					header("Content-type: application/json");
-					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '.' . $action . '"');
 					self::exportAll(local_user());
 					break;
 				case "account":
 					header("Content-type: application/json");
-					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '.' . $action . '"');
 					self::exportAccount(local_user());
 					break;
 				case "contact":
 					header("Content-type: application/csv");
-					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '-contacts.csv' . '"');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '-contacts.csv' . '"');
 					self::exportContactsAsCSV(local_user());
 					break;
 			}

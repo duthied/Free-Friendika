@@ -25,12 +25,9 @@ use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\Theme;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\ProfileField;
 use Friendica\Model\User;
@@ -149,7 +146,7 @@ class Index extends BaseSettings
 
 		$o = '';
 
-		$profile = Profile::getByUID(local_user());
+		$profile = User::getOwnerDataById(local_user());
 		if (!DBA::isResult($profile)) {
 			throw new HTTPException\NotFoundException();
 		}
@@ -174,7 +171,7 @@ class Index extends BaseSettings
 					'value' => ['profile_field[' . $profileField->id . '][value]', DI::l10n()->t('Value:'), $profileField->value],
 					'acl' => ACL::getFullSelectorHTML(
 						DI::page(),
-						$a->user,
+						$a->getLoggedInUserId(),
 						false,
 						$defaultPermissions,
 						['network' => Protocol::DFRN],
@@ -194,7 +191,7 @@ class Index extends BaseSettings
 				'value' => ['profile_field[new][value]', DI::l10n()->t('Value:')],
 				'acl' => ACL::getFullSelectorHTML(
 					DI::page(),
-					$a->user,
+					$a->getLoggedInUserId(),
 					false,
 					['allow_cid' => []],
 					['network' => Protocol::DFRN],
@@ -209,7 +206,7 @@ class Index extends BaseSettings
 			'$baseurl' => DI::baseUrl()->get(true),
 		]);
 
-		$personal_account = !in_array($a->user['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]);
+		$personal_account = !in_array($profile['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]);
 
 		$tpl = Renderer::getMarkupTemplate('settings/profile/index.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
@@ -222,7 +219,7 @@ class Index extends BaseSettings
 			'$banner' => DI::l10n()->t('Edit Profile Details'),
 			'$submit' => DI::l10n()->t('Submit'),
 			'$profpic' => DI::l10n()->t('Change Profile Photo'),
-			'$profpiclink' => '/photos/' . $a->user['nickname'],
+			'$profpiclink' => '/photos/' . $profile['nickname'],
 			'$viewprof' => DI::l10n()->t('View Profile'),
 
 			'$lbl_personal_section' => DI::l10n()->t('Personal'),
@@ -234,17 +231,17 @@ class Index extends BaseSettings
 			'$lbl_profile_photo' => DI::l10n()->t('Upload Profile Photo'),
 
 			'$baseurl' => DI::baseUrl()->get(true),
-			'$nickname' => $a->user['nickname'],
+			'$nickname' => $profile['nickname'],
 			'$name' => ['name', DI::l10n()->t('Display name:'), $profile['name']],
 			'$about' => ['about', DI::l10n()->t('Description:'), $profile['about']],
-			'$dob' => Temporal::getDateofBirthField($profile['dob'], $a->user['timezone']),
+			'$dob' => Temporal::getDateofBirthField($profile['dob'], $profile['timezone']),
 			'$address' => ['address', DI::l10n()->t('Street Address:'), $profile['address']],
 			'$locality' => ['locality', DI::l10n()->t('Locality/City:'), $profile['locality']],
 			'$region' => ['region', DI::l10n()->t('Region/State:'), $profile['region']],
 			'$postal_code' => ['postal_code', DI::l10n()->t('Postal/Zip Code:'), $profile['postal-code']],
 			'$country_name' => ['country_name', DI::l10n()->t('Country:'), $profile['country-name']],
-			'$age' => ((intval($profile['dob'])) ? '(' . DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($profile['dob'], $a->user['timezone'])) . ')' : ''),
-			'$xmpp' => ['xmpp', DI::l10n()->t('XMPP (Jabber) address:'), $profile['xmpp'], DI::l10n()->t('The XMPP address will be published so that people can follow you there.')],
+			'$age' => ((intval($profile['dob'])) ? '(' . DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($profile['dob'], $profile['timezone'])) . ')' : ''),
+			'$xmpp' => ['xmpp', DI::l10n()->t('XMPP (Jabber) address:'), $profile['xmpp'], DI::l10n()->t('The XMPP address will be propagated to your contacts so that they can follow you.')],
 			'$matrix' => ['matrix', DI::l10n()->t('Matrix (Element) address:'), $profile['matrix'], DI::l10n()->t('The Matrix address will be published so that people can follow you there.')],
 			'$homepage' => ['homepage', DI::l10n()->t('Homepage URL:'), $profile['homepage']],
 			'$pub_keywords' => ['pub_keywords', DI::l10n()->t('Public Keywords:'), $profile['pub_keywords'], DI::l10n()->t('(Used for suggesting potential friends, can be seen by others)')],
@@ -254,7 +251,7 @@ class Index extends BaseSettings
 				<p>Reorder by dragging the field title.</p>
 				<p>Empty the label field to remove a custom field.</p>
 				<p>Non-public fields can only be seen by the selected Friendica contacts or the Friendica contacts in the selected groups.</p>",
-				'profile/' . $a->user['nickname']
+				'profile/' . $profile['nickname']
 			),
 			'$custom_fields' => $custom_fields,
 		]);

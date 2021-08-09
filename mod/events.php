@@ -280,7 +280,7 @@ function events_content(App $a)
 	$tabs = '';
 	// tabs
 	if ($a->getThemeInfoValue('events_in_profile')) {
-		$tabs = BaseProfile::getTabsHTML($a, 'events', true, $a->user);
+		$tabs = BaseProfile::getTabsHTML($a, 'events', true, $a->getLoggedInUserNickname(), false);
 	}
 
 	$mode = 'view';
@@ -513,7 +513,7 @@ function events_content(App $a)
 		$fminute = !empty($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : '00';
 
 		if (!$cid && in_array($mode, ['new', 'copy'])) {
-			$acl = ACL::getFullSelectorHTML(DI::page(), $a->user, false, ACL::getDefaultUserPermissions($orig_event));
+			$acl = ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), false, ACL::getDefaultUserPermissions($orig_event));
 		} else {
 			$acl = '';
 		}

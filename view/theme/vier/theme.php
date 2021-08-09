@@ -27,7 +27,7 @@ function vier_init(App $a)
 
 	$args = DI::args();
 
-	if ($args->get(0) === 'profile' && $args->get(1) === ($a->user['nickname'] ?? '') || $args->get(0) === 'network' && local_user()
+	if ($args->get(0) === 'profile' && $args->get(1) === ($a->getLoggedInUserNickname() ?? '') || $args->get(0) === 'network' && local_user()
 	) {
 		vier_community_info();
 

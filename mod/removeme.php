@@ -69,8 +69,8 @@ function removeme_post(App $a)
 		DI::emailer()->send($email);
 	}
 
-	if (User::getIdFromPasswordAuthentication($a->user, trim($_POST['qxz_password']))) {
-		User::remove($a->user['uid']);
+	if (User::getIdFromPasswordAuthentication($a->getLoggedInUserId(), trim($_POST['qxz_password']))) {
+		User::remove($a->getLoggedInUserId());
 
 		unset($_SESSION['authenticated']);
 		unset($_SESSION['uid']);

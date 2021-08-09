@@ -39,7 +39,6 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use LightOpenID;
 use Friendica\Core\L10n;
-use Friendica\Core\Logger;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -353,10 +352,11 @@ class Authentication
 			}
 		}
 
-		$a->user = $user_record;
+		$a->setLoggedInUserId($user_record['uid']);
+		$a->setLoggedInUserNickname($user_record['nickname']);
 
 		if ($login_initial) {
-			Hook::callAll('logged_in', $a->user);
+			Hook::callAll('logged_in', $user_record);
 
 			if (DI::module()->getName() !== 'home' && $this->session->exists('return_path')) {
 				$this->baseUrl->redirect($this->session->get('return_path'));

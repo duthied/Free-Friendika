@@ -23,7 +23,6 @@ namespace Friendica\Module\Profile;
 
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Content\Widget;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -59,7 +58,7 @@ class Contacts extends Module\BaseProfile
 
 		Nav::setSelected('home');
 
-		$o = self::getTabsHTML($a, 'contacts', $is_owner, $profile);
+		$o = self::getTabsHTML($a, 'contacts', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, Session::isAuthenticated() && $profile['uid'] != local_user());
 

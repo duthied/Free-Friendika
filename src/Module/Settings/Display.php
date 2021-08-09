@@ -27,6 +27,7 @@ use Friendica\Core\Session;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Module\BaseSettings;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
@@ -38,13 +39,15 @@ class Display extends BaseSettings
 {
 	public static function post(array $parameters = [])
 	{
-		if (!local_user() || !empty(DI::app()->user['uid']) && DI::app()->user['uid'] != local_user()) {
+		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		self::checkFormSecurityTokenRedirectOnError('/settings/display', 'settings_display');
 
-		$theme              = !empty($_POST['theme'])              ? Strings::escapeTags(trim($_POST['theme']))        : DI::app()->user['theme'];
+		$user = User::getById(local_user());
+
+		$theme              = !empty($_POST['theme'])              ? Strings::escapeTags(trim($_POST['theme'])) : $user['theme'];
 		$mobile_theme       = !empty($_POST['mobile_theme'])       ? Strings::escapeTags(trim($_POST['mobile_theme'])) : '';
 		$nosmile            = !empty($_POST['nosmile'])            ? intval($_POST['nosmile'])            : 0;
 		$first_day_of_week  = !empty($_POST['first_day_of_week'])  ? intval($_POST['first_day_of_week'])  : 0;
@@ -92,7 +95,7 @@ class Display extends BaseSettings
 		DI::pConfig()->set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
 
 		if (in_array($theme, Theme::getAllowedList())) {
-			if ($theme == DI::app()->user['theme']) {
+			if ($theme == $user['theme']) {
 				// call theme_post only if theme has not been changed
 				if (($themeconfigfile = Theme::getConfigFile($theme)) !== null) {
 					require_once $themeconfigfile;
@@ -128,6 +131,8 @@ class Display extends BaseSettings
 			$default_mobile_theme = 'none';
 		}
 
+		$user = User::getById(local_user());
+
 		$allowed_themes = Theme::getAllowedList();
 
 		$themes = [];
@@ -152,7 +157,7 @@ class Display extends BaseSettings
 			}
 		}
 
-		$theme_selected        = DI::app()->user['theme'] ?: $default_theme;
+		$theme_selected        = $user['theme'] ?: $default_theme;
 		$mobile_theme_selected = Session::get('mobile-theme', $default_mobile_theme);
 
 		$itemspage_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_network'));

@@ -26,12 +26,24 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\User;
 
 /**
  * Handle ACL management and display
  */
 class ACL
 {
+	/**
+	 * Returns the default lock state for the given user id
+	 * @param int $uid 
+	 * @return bool "true" if the default settings are non public
+	 */
+	public static function getLockstateForUserId(int $uid)
+	{
+		$user = User::getById($uid, ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
+		return !empty($user['allow_cid']) || !empty($user['allow_gid']) || !empty($user['deny_cid']) || !empty($user['deny_gid']);
+	}
+
 	/**
 	 * Returns a select input tag for private message recipient
 	 *
@@ -210,7 +222,7 @@ class ACL
 	 * Return the full jot ACL selector HTML
 	 *
 	 * @param Page   $page
-	 * @param array  $user                  User array
+	 * @param int    $uid                   User ID
 	 * @param bool   $for_federation
 	 * @param array  $default_permissions   Static defaults permission array:
 	 *                                      [
@@ -226,17 +238,19 @@ class ACL
 	 */
 	public static function getFullSelectorHTML(
 		Page $page,
-		array $user = null,
+		int $uid = null,
 		bool $for_federation = false,
 		array $default_permissions = [],
 		array $condition = [],
 		$form_prefix = ''
 	) {
-		if (empty($user['uid'])) {
+		if (empty($uid)) {
 			return '';
 		}
 
 		static $input_group_id = 0;
+
+		$user = User::getById($uid);
 
 		$input_group_id++;
 

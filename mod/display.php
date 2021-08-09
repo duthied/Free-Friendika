@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
-use Friendica\Core\ACL;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -63,7 +62,7 @@ function display_init(App $a)
 		if (local_user()) {
 			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => DI::args()->getArgv()[1], 'uid' => local_user()]);
 			if (DBA::isResult($item)) {
-				$nick = $a->user['nickname'];
+				$nick = $a->getLoggedInUserNickname();
 			}
 		}
 
@@ -273,18 +272,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	// We need the editor here to be able to reshare an item.
 	if ($is_owner && !$update) {
-		$x = [
-			'is_owner' => true,
-			'allow_location' => $a->user['allow_location'],
-			'default_location' => $a->user['default-location'],
-			'nickname' => $a->user['nickname'],
-			'lockstate' => (is_array($a->user) && (strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) || strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
-			'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true),
-			'bang' => '',
-			'visitor' => 'block',
-			'profile_uid' => local_user(),
-		];
-		$o .= status_editor($a, $x, 0, true);
+		$o .= status_editor($a, [], 0, true);
 	}
 	$sql_extra = Item::getPermissionsSQLByUserId($page_uid);
 

@@ -53,16 +53,12 @@ function settings_init(App $a)
 
 function settings_post(App $a)
 {
-	if (!local_user()) {
+	if (!$a->isLoggedIn()) {
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	if (!empty($_SESSION['submanage'])) {
-		return;
-	}
-
-	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -72,6 +68,8 @@ function settings_post(App $a)
 		Hook::callAll('addon_settings_post', $_POST);
 		return;
 	}
+
+	$user = User::getById($a->getLoggedInUserId());
 
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] == 'connectors')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/connectors', 'settings_connectors');
@@ -108,7 +106,7 @@ function settings_post(App $a)
 				}
 				if (strlen($mail_pass)) {
 					$pass = '';
-					openssl_public_encrypt($mail_pass, $pass, $a->user['pubkey']);
+					openssl_public_encrypt($mail_pass, $pass, $user['pubkey']);
 					DBA::update('mailacct', ['pass' => bin2hex($pass)], ['uid' => local_user()]);
 				}
 				$r = q("UPDATE `mailacct` SET `server` = '%s', `port` = %d, `ssltype` = '%s', `user` = '%s',
@@ -134,7 +132,7 @@ function settings_post(App $a)
 
 					if (strlen($eacct['server'])) {
 						$dcrpass = '';
-						openssl_private_decrypt(hex2bin($eacct['pass']), $dcrpass, $a->user['prvkey']);
+						openssl_private_decrypt(hex2bin($eacct['pass']), $dcrpass, $user['prvkey']);
 						$mbox = Email::connect($mb, $mail_user, $dcrpass);
 						unset($dcrpass);
 						if (!$mbox) {
@@ -309,7 +307,7 @@ function settings_post(App $a)
 
 	$err = '';
 
-	if ($username != $a->user['username']) {
+	if ($username != $user['username']) {
 		if (strlen($username) > 40) {
 			$err .= DI::l10n()->t('Please use a shorter name.');
 		}
@@ -318,11 +316,11 @@ function settings_post(App $a)
 		}
 	}
 
-	if ($email != $a->user['email']) {
+	if ($email != $user['email']) {
 		//  check for the correct password
 		if (!User::authenticate(intval(local_user()), $_POST['mpassword'])) {
 			$err .= DI::l10n()->t('Wrong Password.');
-			$email = $a->user['email'];
+			$email = $user['email'];
 		}
 		//  check the email is valid
 		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -333,7 +331,7 @@ function settings_post(App $a)
 			$adminlist = explode(",", str_replace(" ", "", strtolower(DI::config()->get('config', 'admin_email'))));
 			if (in_array(strtolower($email), $adminlist)) {
 				$err .= DI::l10n()->t('Cannot change to that email.');
-				$email = $a->user['email'];
+				$email = $user['email'];
 			}
 		}
 	}
@@ -343,7 +341,7 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (($timezone != $a->user['timezone']) && strlen($timezone)) {
+	if (($timezone != $user['timezone']) && strlen($timezone)) {
 		date_default_timezone_set($timezone);
 	}
 
@@ -592,18 +590,20 @@ function settings_content(App $a)
 		return;
 	}
 
-	$username   = $a->user['username'];
-	$email      = $a->user['email'];
-	$nickname   = $a->user['nickname'];
-	$timezone   = $a->user['timezone'];
-	$language   = $a->user['language'];
-	$notify     = $a->user['notify-flags'];
-	$defloc     = $a->user['default-location'];
-	$openid     = $a->user['openid'];
-	$maxreq     = $a->user['maxreq'];
-	$expire     = ((intval($a->user['expire'])) ? $a->user['expire'] : '');
-	$unkmail    = $a->user['unkmail'];
-	$cntunkmail = $a->user['cntunkmail'];
+	$user = User::getById($a->getLoggedInUserId());
+
+	$username   = $user['username'];
+	$email      = $user['email'];
+	$nickname   = $a->getLoggedInUserNickname();
+	$timezone   = $user['timezone'];
+	$language   = $user['language'];
+	$notify     = $user['notify-flags'];
+	$defloc     = $user['default-location'];
+	$openid     = $user['openid'];
+	$maxreq     = $user['maxreq'];
+	$expire     =  ((intval($user['expire'])) ? $user['expire'] : '');
+	$unkmail    = $user['unkmail'];
+	$cntunkmail = $user['cntunkmail'];
 
 	$expire_items = DI::pConfig()->get(local_user(), 'expire', 'items', true);
 	$expire_notes = DI::pConfig()->get(local_user(), 'expire', 'notes', true);
@@ -611,15 +611,15 @@ function settings_content(App $a)
 	$expire_photos = DI::pConfig()->get(local_user(), 'expire', 'photos', false);
 	$expire_network_only = DI::pConfig()->get(local_user(), 'expire', 'network_only', false);
 
-	if (!strlen($a->user['timezone'])) {
+	if (!strlen($user['timezone'])) {
 		$timezone = date_default_timezone_get();
 	}
 
 	// Set the account type to "Community" when the page is a community page but the account type doesn't fit
 	// This is only happening on the first visit after the update
-	if (in_array($a->user['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]) &&
-		($a->user['account-type'] != User::ACCOUNT_TYPE_COMMUNITY))
-		$a->user['account-type'] = User::ACCOUNT_TYPE_COMMUNITY;
+	if (in_array($user['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]) &&
+		($user['account-type'] != User::ACCOUNT_TYPE_COMMUNITY))
+		$user['account-type'] = User::ACCOUNT_TYPE_COMMUNITY;
 
 	$pageset_tpl = Renderer::getMarkupTemplate('settings/pagetypes.tpl');
 
@@ -627,7 +627,7 @@ function settings_content(App $a)
 		'$account_types'	=> DI::l10n()->t("Account Types"),
 		'$user' 		=> DI::l10n()->t("Personal Page Subtypes"),
 		'$community'		=> DI::l10n()->t("Community Forum Subtypes"),
-		'$account_type'		=> $a->user['account-type'],
+		'$account_type'		=> $user['account-type'],
 		'$type_person'		=> User::ACCOUNT_TYPE_PERSON,
 		'$type_organisation' 	=> User::ACCOUNT_TYPE_ORGANISATION,
 		'$type_news'		=> User::ACCOUNT_TYPE_NEWS,
@@ -635,39 +635,39 @@ function settings_content(App $a)
 
 		'$account_person' 	=> ['account-type', DI::l10n()->t('Personal Page'), User::ACCOUNT_TYPE_PERSON,
 									DI::l10n()->t('Account for a personal profile.'),
-									($a->user['account-type'] == User::ACCOUNT_TYPE_PERSON)],
+									($user['account-type'] == User::ACCOUNT_TYPE_PERSON)],
 
 		'$account_organisation'	=> ['account-type', DI::l10n()->t('Organisation Page'), User::ACCOUNT_TYPE_ORGANISATION,
 									DI::l10n()->t('Account for an organisation that automatically approves contact requests as "Followers".'),
-									($a->user['account-type'] == User::ACCOUNT_TYPE_ORGANISATION)],
+									($user['account-type'] == User::ACCOUNT_TYPE_ORGANISATION)],
 
 		'$account_news'		=> ['account-type', DI::l10n()->t('News Page'), User::ACCOUNT_TYPE_NEWS,
 									DI::l10n()->t('Account for a news reflector that automatically approves contact requests as "Followers".'),
-									($a->user['account-type'] == User::ACCOUNT_TYPE_NEWS)],
+									($user['account-type'] == User::ACCOUNT_TYPE_NEWS)],
 
 		'$account_community' 	=> ['account-type', DI::l10n()->t('Community Forum'), User::ACCOUNT_TYPE_COMMUNITY,
 									DI::l10n()->t('Account for community discussions.'),
-									($a->user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY)],
+									($user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY)],
 
 		'$page_normal'		=> ['page-flags', DI::l10n()->t('Normal Account Page'), User::PAGE_FLAGS_NORMAL,
 									DI::l10n()->t('Account for a regular personal profile that requires manual approval of "Friends" and "Followers".'),
-									($a->user['page-flags'] == User::PAGE_FLAGS_NORMAL)],
+									($user['page-flags'] == User::PAGE_FLAGS_NORMAL)],
 
 		'$page_soapbox' 	=> ['page-flags', DI::l10n()->t('Soapbox Page'), User::PAGE_FLAGS_SOAPBOX,
 									DI::l10n()->t('Account for a public profile that automatically approves contact requests as "Followers".'),
-									($a->user['page-flags'] == User::PAGE_FLAGS_SOAPBOX)],
+									($user['page-flags'] == User::PAGE_FLAGS_SOAPBOX)],
 
 		'$page_community'	=> ['page-flags', DI::l10n()->t('Public Forum'), User::PAGE_FLAGS_COMMUNITY,
 									DI::l10n()->t('Automatically approves all contact requests.'),
-									($a->user['page-flags'] == User::PAGE_FLAGS_COMMUNITY)],
+									($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY)],
 
 		'$page_freelove' 	=> ['page-flags', DI::l10n()->t('Automatic Friend Page'), User::PAGE_FLAGS_FREELOVE,
 									DI::l10n()->t('Account for a popular profile that automatically approves contact requests as "Friends".'),
-									($a->user['page-flags'] == User::PAGE_FLAGS_FREELOVE)],
+									($user['page-flags'] == User::PAGE_FLAGS_FREELOVE)],
 
 		'$page_prvgroup' 	=> ['page-flags', DI::l10n()->t('Private Forum [Experimental]'), User::PAGE_FLAGS_PRVGROUP,
 									DI::l10n()->t('Requires manual approval of contact requests.'),
-									($a->user['page-flags'] == User::PAGE_FLAGS_PRVGROUP)],
+									($user['page-flags'] == User::PAGE_FLAGS_PRVGROUP)],
 
 
 	]);
@@ -731,7 +731,7 @@ function settings_content(App $a)
 		'$timezone' => ['timezone_select' , DI::l10n()->t('Your Timezone:'), Temporal::getTimezoneSelect($timezone), ''],
 		'$language' => ['language', DI::l10n()->t('Your Language:'), $language, DI::l10n()->t('Set the language we use to show you friendica interface and to send you emails'), $lang_choices],
 		'$defloc'	=> ['defloc', DI::l10n()->t('Default Post Location:'), $defloc, ''],
-		'$allowloc' => ['allow_location', DI::l10n()->t('Use Browser Location:'), ($a->user['allow_location'] == 1), ''],
+		'$allowloc' => ['allow_location', DI::l10n()->t('Use Browser Location:'), ($user['allow_location'] == 1), ''],
 
 		'$h_prv' 	          => DI::l10n()->t('Security and Privacy Settings'),
 		'$visibility'         => $profile['net-publish'],
@@ -739,16 +739,16 @@ function settings_content(App $a)
 		'$profile_in_dir'     => $profile_in_dir,
 		'$profile_in_net_dir' => ['profile_in_netdirectory', DI::l10n()->t('Allow your profile to be searchable globally?'), $profile['net-publish'], DI::l10n()->t("Activate this setting if you want others to easily find and follow you. Your profile will be searchable on remote systems. This setting also determines whether Friendica will inform search engines that your profile should be indexed or not.") . $net_pub_desc],
 		'$hide_friends'       => ['hide-friends', DI::l10n()->t('Hide your contact/friend list from viewers of your profile?'), $profile['hide-friends'], DI::l10n()->t('A list of your contacts is displayed on your profile page. Activate this option to disable the display of your contact list.')],
-		'$hide_wall'          => ['hidewall', DI::l10n()->t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], DI::l10n()->t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.')],
+		'$hide_wall'          => ['hidewall', DI::l10n()->t('Hide your profile details from anonymous viewers?'), $user['hidewall'], DI::l10n()->t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.')],
 		'$unlisted'           => ['unlisted', DI::l10n()->t('Make public posts unlisted'), DI::pConfig()->get(local_user(), 'system', 'unlisted'), DI::l10n()->t('Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.')],
 		'$accessiblephotos'   => ['accessible-photos', DI::l10n()->t('Make all posted pictures accessible'), DI::pConfig()->get(local_user(), 'system', 'accessible-photos'), DI::l10n()->t("This option makes every posted picture accessible via the direct link. This is a workaround for the problem that most other networks can't handle permissions on pictures. Non public pictures still won't be visible for the public on your photo albums though.")],
-		'$blockwall'          => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts')], // array('blockwall', DI::l10n()->t('Allow friends to post to your profile page:'), !$blockwall, ''),
-		'$blocktags'          => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.')], // array('blocktags', DI::l10n()->t('Allow friends to tag your posts:'), !$blocktags, ''),
+		'$blockwall'          => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts')], // array('blockwall', DI::l10n()->t('Allow friends to post to your profile page:'), !$blockwall, ''),
+		'$blocktags'          => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.')], // array('blocktags', DI::l10n()->t('Allow friends to tag your posts:'), !$blocktags, ''),
 		'$unkmail'            => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.')],
 		'$cntunkmail' 	      => ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail , DI::l10n()->t("\x28to prevent spam abuse\x29")],
-		'$group_select'       => Group::displayGroupSelection(local_user(), $a->user['def_gid']),
+		'$group_select'       => Group::displayGroupSelection(local_user(), $user['def_gid']),
 		'$permissions'        => DI::l10n()->t('Default Post Permissions'),
-		'$aclselect'          => ACL::getFullSelectorHTML(DI::page(), $a->user),
+		'$aclselect'          => ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId()),
 
 		'$expire' => [
 			'label'        => DI::l10n()->t('Expiration settings'),

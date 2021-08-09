@@ -23,7 +23,6 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Model\Contact;
-use Friendica\Model\User;
 
 class AddContact
 {
@@ -41,11 +40,7 @@ class AddContact
 			return;
 		}
 
-		$user = User::getById($uid);
-		if (empty($user)) {
-			return;
-		}
-		$result = Contact::createFromProbe($user, $url, '', false);
+		$result = Contact::createFromProbeForUser($uid, $url);
 		Logger::info('Added contact', ['uid' => $uid, 'url' => $url, 'result' => $result]);
 	}
 }

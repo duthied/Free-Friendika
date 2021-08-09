@@ -155,6 +155,8 @@ class User
 		$system['region'] = '';
 		$system['country-name'] = '';
 		$system['net-publish'] = false;
+		$system['picdate'] = '';
+		$system['theme'] = '';
 
 		// Ensure that the user contains data
 		$user = DBA::selectFirst('user', ['prvkey', 'guid'], ['uid' => 0]);

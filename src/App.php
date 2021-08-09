@@ -56,8 +56,6 @@ use Psr\Log\LoggerInterface;
  */
 class App
 {
-	public $user;
-
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
 	private $theme_info = [
@@ -66,6 +64,8 @@ class App
 		'events_in_profile' => true
 	];
 
+	private $user_id       = 0;
+	private $nickname      = '';
 	private $timezone      = '';
 	private $profile_owner = 0;
 	private $contact_id    = 0;
@@ -125,6 +125,51 @@ class App
 	 * @var IPConfig
 	 */
 	private $pConfig;
+
+	/**
+	 * Set the user ID
+	 *
+	 * @param int $user_id
+	 * @return void
+	 */
+	public function setLoggedInUserId(int $user_id)
+	{
+		$this->user_id = $user_id;
+	}
+
+	/**
+	 * Set the nickname
+	 *
+	 * @param int $user_id
+	 * @return void
+	 */
+	public function setLoggedInUserNickname(string $nickname)
+	{
+		$this->nickname = $nickname;
+	}
+
+	public function isLoggedIn()
+	{
+		return local_user() && $this->user_id && ($this->user_id == local_user());
+	}
+
+	/**
+	 * Fetch the user id
+	 * @return int 
+	 */
+	public function getLoggedInUserId()
+	{
+		return $this->user_id;
+	}
+
+	/**
+	 * Fetch the user nick name
+	 * @return string
+	 */
+	public function getLoggedInUserNickname()
+	{
+		return $this->nickname;
+	}
 
 	/**
 	 * Set the profile owner ID

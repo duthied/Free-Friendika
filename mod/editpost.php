@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Util\Crypto;
 
 function editpost_content(App $a)
@@ -55,6 +56,8 @@ function editpost_content(App $a)
 		return;
 	}
 
+	$user = User::getById(local_user());
+
 	$geotag = '';
 
 	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate("section_title.tpl"), [
@@ -65,7 +68,7 @@ function editpost_content(App $a)
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$ispublic' => '&nbsp;', // DI::l10n()->t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
-		'$nickname' => $a->user['nickname'],
+		'$nickname' => $a->getLoggedInUserNickname(),
 		'$is_mobile' => DI::mode()->isMobile(),
 	]);
 
@@ -107,7 +110,7 @@ function editpost_content(App $a)
 		'$posttype' => $item['post-type'],
 		'$content' => undo_post_tagging($item['body']),
 		'$post_id' => $post_id,
-		'$defloc' => $a->user['default-location'],
+		'$defloc' => $user['default-location'],
 		'$visitor' => 'none',
 		'$pvisit' => 'none',
 		'$emailcc' => DI::l10n()->t('CC: email addresses'),

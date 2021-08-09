@@ -23,7 +23,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Content\PageInfo;
-use Friendica\Core\ACL;
 use Friendica\DI;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
@@ -59,16 +58,6 @@ class Bookmarklet extends BaseModule
 			$content = "\n" . PageInfo::getFooterFromUrl($_REQUEST['url']);
 
 			$x = [
-				'is_owner'         => true,
-				'allow_location'   => $app->user['allow_location'],
-				'default_location' => $app->user['default-location'],
-				'nickname'         => $app->user['nickname'],
-				'lockstate'        => ((is_array($app->user) && ((strlen($app->user['allow_cid'])) || (strlen($app->user['allow_gid'])) || (strlen($app->user['deny_cid'])) || (strlen($app->user['deny_gid'])))) ? 'lock' : 'unlock'),
-				'default_perms'    => ACL::getDefaultUserPermissions($app->user),
-				'acl'              => ACL::getFullSelectorHTML(DI::page(), $app->user, true),
-				'bang'             => '',
-				'visitor'          => 'block',
-				'profile_uid'      => local_user(),
 				'title'            => trim($_REQUEST['title'] ?? '', '*'),
 				'content'          => $content
 			];

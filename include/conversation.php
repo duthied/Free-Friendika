@@ -22,6 +22,7 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
+use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -34,6 +35,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
+use Friendica\Model\User;
 use Friendica\Model\Verb;
 use Friendica\Object\Post as PostObject;
 use Friendica\Object\Thread;
@@ -1064,10 +1066,23 @@ function format_activity(array $links, $verb, $id) {
 	return $o;
 }
 
-function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
+function status_editor(App $a, array $x = [], $notes_cid = 0, $popup = false)
 {
 	DI::profiler()->startRecording('rendering');
 	$o = '';
+
+	$user = User::getById($a->getLoggedInUserId(), ['uid', 'nickname', 'allow_location', 'default-location']);
+
+	$x['allow_location']   = $x['allow_location']   ?? $user['allow_location'];
+	$x['default_location'] = $x['default_location'] ?? $user['default-location'];
+	$x['nickname']         = $x['nickname']         ?? $user['nickname'];
+	$x['lockstate']        = $x['lockstate']        ?? ACL::getLockstateForUserId($user['uid']) ? 'lock' : 'unlock';
+	$x['acl']              = $x['acl']              ?? ACL::getFullSelectorHTML(DI::page(), $user['uid'], true);
+	$x['bang']             = $x['bang']             ?? '';
+	$x['visitor']          = $x['visitor']          ?? 'block';
+	$x['is_owner']         = $x['is_owner']         ?? true;
+	$x['profile_uid']      = $x['profile_uid']      ?? local_user();
+
 
 	$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
 

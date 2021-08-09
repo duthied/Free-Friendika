@@ -70,7 +70,7 @@ function repair_ostatus_content(App $a) {
 
 	$o .= "<p>".DI::l10n()->t("Keep this window open until done.")."</p>";
 
-	Contact::createFromProbe($a->user, $r[0]["url"], true);
+	Contact::createFromProbeForUser($a->getLoggedInUserId(), $r[0]["url"]);
 
 	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="1; URL=' . DI::baseUrl() . '/repair_ostatus?counter='.$counter.'">';
 

@@ -38,6 +38,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
+use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
@@ -223,7 +224,7 @@ function photos_post(App $a)
 			// Update the photo albums cache
 			Photo::clearAlbumCache($page_owner_uid);
 
-			DI::baseUrl()->redirect('photos/' . $a->user['nickname'] . '/album/' . bin2hex($newalbum));
+			DI::baseUrl()->redirect('photos/' . $a->getLoggedInUserNickname() . '/album/' . bin2hex($newalbum));
 			return; // NOTREACHED
 		}
 
@@ -830,6 +831,8 @@ function photos_content(App $a)
 		return;
 	}
 
+	$profile = Profile::getByUID($user['uid']);
+
 	$phototypes = Images::supportedTypes();
 
 	$_SESSION['photo_return'] = DI::args()->getCommand();
@@ -903,7 +906,7 @@ function photos_content(App $a)
 
 	// tabs
 	$is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= BaseProfile::getTabsHTML($a, 'photos', $is_owner, $user);
+	$o .= BaseProfile::getTabsHTML($a, 'photos', $is_owner, $user['nickname'], $profile['hide-friends']);
 
 	// Display upload form
 	if ($datatype === 'upload') {
@@ -945,7 +948,7 @@ function photos_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 
-		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML(DI::page(), $a->user));
+		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId()));
 
 		$o .= Renderer::replaceMacros($tpl,[
 			'$pagename' => DI::l10n()->t('Upload Photos'),
@@ -958,12 +961,7 @@ function photos_content(App $a)
 			'$albumselect' => $albumselect,
 			'$permissions' => DI::l10n()->t('Permissions'),
 			'$aclselect' => $aclselect_e,
-			'$lockstate' => is_array($a->user)
-					&& (strlen($a->user['allow_cid'])
-						|| strlen($a->user['allow_gid'])
-						|| strlen($a->user['deny_cid'])
-						|| strlen($a->user['deny_gid'])
-					) ? 'lock' : 'unlock',
+			'$lockstate' => ACL::getLockstateForUserId($a->getLoggedInUserId()) ? 'lock' : 'unlock',
 			'$alt_uploader' => $ret['addon_text'],
 			'$default_upload_box' => ($ret['default_upload'] ? $default_upload_box : ''),
 			'$default_upload_submit' => ($ret['default_upload'] ? $default_upload_submit : ''),
@@ -1309,7 +1307,7 @@ function photos_content(App $a)
 
 			$album_e = $ph[0]['album'];
 			$caption_e = $ph[0]['desc'];
-			$aclselect_e = ACL::getFullSelectorHTML(DI::page(), $a->user, false, ACL::getDefaultUserPermissions($ph[0]));
+			$aclselect_e = ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), false, ACL::getDefaultUserPermissions($ph[0]));
 
 			$edit = Renderer::replaceMacros($edit_tpl, [
 				'$id' => $ph[0]['id'],

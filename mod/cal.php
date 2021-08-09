@@ -127,7 +127,7 @@ function cal_content(App $a)
 	$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
 
 	// get the tab navigation bar
-	$tabs = BaseProfile::getTabsHTML($a, 'cal', false, $owner);
+	$tabs = BaseProfile::getTabsHTML($a, 'cal', false, $owner['nickname'], $owner['hide-friends']);
 
 	// The view mode part is similiar to /mod/events.php
 	if ($mode == 'view') {

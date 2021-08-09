@@ -29,7 +29,6 @@ use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Content\Widget\TrendingTags;
-use Friendica\Core\ACL;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
@@ -128,18 +127,7 @@ class Community extends BaseModule
 
 			// We need the editor here to be able to reshare an item.
 			if (Session::isAuthenticated()) {
-				$x = [
-					'is_owner' => true,
-					'allow_location' => DI::app()->user['allow_location'],
-					'default_location' => DI::app()->user['default-location'],
-					'nickname' => DI::app()->user['nickname'],
-					'lockstate' => (is_array(DI::app()->user) && (strlen(DI::app()->user['allow_cid']) || strlen(DI::app()->user['allow_gid']) || strlen(DI::app()->user['deny_cid']) || strlen(DI::app()->user['deny_gid'])) ? 'lock' : 'unlock'),
-					'acl' => ACL::getFullSelectorHTML(DI::page(), DI::app()->user, true),
-					'bang' => '',
-					'visitor' => 'block',
-					'profile_uid' => local_user(),
-				];
-				$o .= status_editor(DI::app(), $x, 0, true);
+				$o .= status_editor(DI::app(), [], 0, true);
 			}
 		}
 

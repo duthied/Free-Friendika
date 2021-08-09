@@ -26,6 +26,7 @@ use Friendica\App\BaseURL;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\L10n;
 use Friendica\Model\Item;
+use Friendica\Model\User;
 use Friendica\Object\Email;
 use Friendica\Protocol\Email as EmailProtocol;
 
@@ -36,20 +37,22 @@ class ItemCCEMail extends Email
 {
 	public function __construct(App $a, L10n $l10n, BaseURL $baseUrl, array $item, string $toAddress, string $authorThumb)
 	{
-		$disclaimer = '<hr />' . $l10n->t('This message was sent to you by %s, a member of the Friendica social network.', $a->user['username'])
+		$user = User::getById($a->getLoggedInUserId());
+
+		$disclaimer = '<hr />' . $l10n->t('This message was sent to you by %s, a member of the Friendica social network.', $user['username'])
 		              . '<br />';
-		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->user['nickname']) . EOL;
+		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->getLoggedInUserNickname()) . EOL;
 		$disclaimer .= $l10n->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 		if (!$item['title'] == '') {
 			$subject = EmailProtocol::encodeHeader($item['title'], 'UTF-8');
 		} else {
-			$subject = EmailProtocol::encodeHeader('[Friendica]' . ' ' . $l10n->t('%s posted an update.', $a->user['username']), 'UTF-8');
+			$subject = EmailProtocol::encodeHeader('[Friendica]' . ' ' . $l10n->t('%s posted an update.', $user['username']), 'UTF-8');
 		}
-		$link    = '<a href="' . $baseUrl . '/profile/' . $a->user['nickname'] . '"><img src="' . $authorThumb . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
+		$link    = '<a href="' . $baseUrl . '/profile/' . $a->getLoggedInUserNickname() . '"><img src="' . $authorThumb . '" alt="' . $user['username'] . '" /></a><br /><br />';
 		$html    = Item::prepareBody($item);
 		$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';;
 
-		parent::__construct($a->user['username'], $a->user['email'], $a->user['email'], $toAddress,
+		parent::__construct($user['username'], $user['email'], $user['email'], $toAddress,
 			$subject, $message, HTML::toPlaintext($html . $disclaimer));
 	}
 }
