@@ -127,7 +127,7 @@ class Status extends BaseProfile
 				'allow_location' => ($is_owner || $commvisitor) && $profile['allow_location'],
 				'default_location' => $is_owner ? $profile['default-location'] : '',
 				'nickname' => $profile['nickname'],
-				'acl' => $is_owner ? ACL::getFullSelectorHTML(DI::page(), $a->getUserId(), true) : '',
+				'acl' => $is_owner ? ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), true) : '',
 				'visitor' => $is_owner || $commvisitor ? 'block' : 'none',
 				'profile_uid' => $profile['uid'],
 			];

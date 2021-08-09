@@ -71,7 +71,7 @@ class Verify extends BaseModule
 				}
 
 				// Resume normal login workflow
-				DI::auth()->setForUser($a, User::getById($a->getUserId()), true, true);
+				DI::auth()->setForUser($a, User::getById($a->getLoggedInUserId()), true, true);
 			} else {
 				self::$errors[] = DI::l10n()->t('Invalid code, please retry.');
 			}

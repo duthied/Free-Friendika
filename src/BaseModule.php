@@ -136,7 +136,7 @@ abstract class BaseModule
 	 */
 	public static function getFormSecurityToken($typename = '')
 	{
-		$user = User::getById(DI::app()->getUserId(), ['guid', 'prvkey']);
+		$user = User::getById(DI::app()->getLoggedInUserId(), ['guid', 'prvkey']);
 		$timestamp = time();
 		$sec_hash = hash('whirlpool', ($user['guid'] ?? '') . ($user['prvkey'] ?? '') . session_id() . $timestamp . $typename);
 
@@ -163,7 +163,7 @@ abstract class BaseModule
 
 		$max_livetime = 10800; // 3 hours
 
-		$user = User::getById(DI::app()->getUserId(), ['guid', 'prvkey']);
+		$user = User::getById(DI::app()->getLoggedInUserId(), ['guid', 'prvkey']);
 
 		$x = explode('.', $hash);
 		if (time() > (intval($x[0]) + $max_livetime)) {

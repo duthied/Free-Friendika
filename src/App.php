@@ -157,7 +157,7 @@ class App
 	 * Fetch the user id
 	 * @return int 
 	 */
-	public function getUserId()
+	public function getLoggedInUserId()
 	{
 		return $this->user_id;
 	}

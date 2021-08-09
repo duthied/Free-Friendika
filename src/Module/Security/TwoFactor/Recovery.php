@@ -60,7 +60,7 @@ class Recovery extends BaseModule
 				Session::set('2fa', true);
 				info(DI::l10n()->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
-				DI::auth()->setForUser($a, User::getById($a->getUserId()), true, true);
+				DI::auth()->setForUser($a, User::getById($a->getLoggedInUserId()), true, true);
 			} else {
 				notice(DI::l10n()->t('Invalid code, please retry.'));
 			}

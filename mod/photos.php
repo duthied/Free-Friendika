@@ -948,7 +948,7 @@ function photos_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 
-		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML(DI::page(), $a->getUserId()));
+		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId()));
 
 		$o .= Renderer::replaceMacros($tpl,[
 			'$pagename' => DI::l10n()->t('Upload Photos'),
@@ -961,7 +961,7 @@ function photos_content(App $a)
 			'$albumselect' => $albumselect,
 			'$permissions' => DI::l10n()->t('Permissions'),
 			'$aclselect' => $aclselect_e,
-			'$lockstate' => ACL::getLockstateForUserId($a->getUserId()) ? 'lock' : 'unlock',
+			'$lockstate' => ACL::getLockstateForUserId($a->getLoggedInUserId()) ? 'lock' : 'unlock',
 			'$alt_uploader' => $ret['addon_text'],
 			'$default_upload_box' => ($ret['default_upload'] ? $default_upload_box : ''),
 			'$default_upload_submit' => ($ret['default_upload'] ? $default_upload_submit : ''),
@@ -1307,7 +1307,7 @@ function photos_content(App $a)
 
 			$album_e = $ph[0]['album'];
 			$caption_e = $ph[0]['desc'];
-			$aclselect_e = ACL::getFullSelectorHTML(DI::page(), $a->getUserId(), false, ACL::getDefaultUserPermissions($ph[0]));
+			$aclselect_e = ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), false, ACL::getDefaultUserPermissions($ph[0]));
 
 			$edit = Renderer::replaceMacros($edit_tpl, [
 				'$id' => $ph[0]['id'],

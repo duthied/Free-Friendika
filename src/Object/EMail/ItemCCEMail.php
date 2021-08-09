@@ -37,7 +37,7 @@ class ItemCCEMail extends Email
 {
 	public function __construct(App $a, L10n $l10n, BaseURL $baseUrl, array $item, string $toAddress, string $authorThumb)
 	{
-		$user = User::getById($a->getUserId());
+		$user = User::getById($a->getLoggedInUserId());
 
 		$disclaimer = '<hr />' . $l10n->t('This message was sent to you by %s, a member of the Friendica social network.', $user['username'])
 		              . '<br />';

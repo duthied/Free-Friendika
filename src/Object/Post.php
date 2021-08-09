@@ -870,7 +870,7 @@ class Post
 			return '';
 		}
 
-		$owner = User::getOwnerDataById($a->getUserId());
+		$owner = User::getOwnerDataById($a->getLoggedInUserId());
 
 		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
 			return '';

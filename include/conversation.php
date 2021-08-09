@@ -1071,7 +1071,7 @@ function status_editor(App $a, array $x = [], $notes_cid = 0, $popup = false)
 	DI::profiler()->startRecording('rendering');
 	$o = '';
 
-	$user = User::getById($a->getUserId(), ['uid', 'nickname', 'allow_location', 'default-location']);
+	$user = User::getById($a->getLoggedInUserId(), ['uid', 'nickname', 'allow_location', 'default-location']);
 
 	$x['allow_location']   = $x['allow_location']   ?? $user['allow_location'];
 	$x['default_location'] = $x['default_location'] ?? $user['default-location'];

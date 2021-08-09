@@ -186,7 +186,7 @@ class Compose extends BaseModule
 
 			'$jotplugins'   => $jotplugins,
 			'$rand_num'     => Crypto::randomDigits(12),
-			'$acl_selector'  => ACL::getFullSelectorHTML(DI::page(), $a->getUserId(), $doesFederate, [
+			'$acl_selector'  => ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), $doesFederate, [
 				'allow_cid' => $contact_allow_list,
 				'allow_gid' => $group_allow_list,
 				'deny_cid'  => $contact_deny_list,

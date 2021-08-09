@@ -171,7 +171,7 @@ class Index extends BaseSettings
 					'value' => ['profile_field[' . $profileField->id . '][value]', DI::l10n()->t('Value:'), $profileField->value],
 					'acl' => ACL::getFullSelectorHTML(
 						DI::page(),
-						$a->getUserId(),
+						$a->getLoggedInUserId(),
 						false,
 						$defaultPermissions,
 						['network' => Protocol::DFRN],
@@ -191,7 +191,7 @@ class Index extends BaseSettings
 				'value' => ['profile_field[new][value]', DI::l10n()->t('Value:')],
 				'acl' => ACL::getFullSelectorHTML(
 					DI::page(),
-					$a->getUserId(),
+					$a->getLoggedInUserId(),
 					false,
 					['allow_cid' => []],
 					['network' => Protocol::DFRN],

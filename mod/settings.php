@@ -69,7 +69,7 @@ function settings_post(App $a)
 		return;
 	}
 
-	$user = User::getById($a->getUserId());
+	$user = User::getById($a->getLoggedInUserId());
 
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] == 'connectors')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/connectors', 'settings_connectors');
@@ -590,7 +590,7 @@ function settings_content(App $a)
 		return;
 	}
 
-	$user = User::getById($a->getUserId());
+	$user = User::getById($a->getLoggedInUserId());
 
 	$username   = $user['username'];
 	$email      = $user['email'];
@@ -748,7 +748,7 @@ function settings_content(App $a)
 		'$cntunkmail' 	      => ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail , DI::l10n()->t("\x28to prevent spam abuse\x29")],
 		'$group_select'       => Group::displayGroupSelection(local_user(), $user['def_gid']),
 		'$permissions'        => DI::l10n()->t('Default Post Permissions'),
-		'$aclselect'          => ACL::getFullSelectorHTML(DI::page(), $a->getUserId()),
+		'$aclselect'          => ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId()),
 
 		'$expire' => [
 			'label'        => DI::l10n()->t('Expiration settings'),

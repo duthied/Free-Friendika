@@ -139,8 +139,8 @@ class Network extends BaseModule
 			}
 
 			$x = [
-				'lockstate' => self::$groupId || self::$forumContactId || self::$network || ACL::getLockstateForUserId($a->getUserId()) ? 'lock' : 'unlock',
-				'acl' => ACL::getFullSelectorHTML(DI::page(), $a->getUserId(), true, $default_permissions),
+				'lockstate' => self::$groupId || self::$forumContactId || self::$network || ACL::getLockstateForUserId($a->getLoggedInUserId()) ? 'lock' : 'unlock',
+				'acl' => ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), true, $default_permissions),
 				'bang' => ((self::$groupId || self::$forumContactId || self::$network) ? '!' : ''),
 				'content' => $content,
 			];
