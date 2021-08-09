@@ -34,18 +34,35 @@ use Friendica\Util\DateTimeFormat;
 class Delayed
 {
 	/**
+	 * The content of the post is posted as is. Connector settings are using the default settings.
+	 * This is used for automated scheduled posts via feeds or from the API.
+	 */
+	const PREPARED = 0;
+	/**
+	 * The content is posted like a manual post. Means some processing of body will be done.
+	 * Also it is posted with default permissions and default connector settings.
+	 * This is used for mirrored connector posts.
+	 */
+	const UNPREPARED = 1;
+	/**
+	 * Like PREPARED, but additionally the connector settings can differ.
+	 * This is used when manually publishing scheduled posts.
+	 */
+	const PREPARED_NO_HOOK = 2;
+
+	/**
 	 * Insert a new delayed post
 	 *
-	 * @param string  $uri
-	 * @param array   $item
-	 * @param integer $notify
-	 * @param bool    $unprepared
-	 * @param string  $delayed
-	 * @param array   $taglist
-	 * @param array   $attachments
-	 * @return int    ID of the created delayed post entry
+	 * @param string $uri
+	 * @param array  $item
+	 * @param int    $notify
+	 * @param int    $preparation_mode
+	 * @param string $delayed
+	 * @param array  $taglist
+	 * @param array  $attachments
+	 * @return int   ID of the created delayed post entry
 	 */
-	public static function add(string $uri, array $item, int $notify = 0, bool $unprepared = false, string $delayed = '', array $taglist = [], array $attachments = [])
+	public static function add(string $uri, array $item, int $notify = 0, int $preparation_mode = self::PREPARED, string $delayed = '', array $taglist = [], array $attachments = [])
 	{
 		if (empty($item['uid']) || self::exists($uri, $item['uid'])) {
 			Logger::notice('No uid or already found');
@@ -63,7 +80,7 @@ class Delayed
 
 		Logger::notice('Adding post for delayed publishing', ['uid' => $item['uid'], 'delayed' => $delayed, 'uri' => $uri]);
 
-		$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $unprepared, $uri);
+		$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $preparation_mode, $uri);
 		if (!$wid) {
 			return 0;
 		}
@@ -168,21 +185,21 @@ class Delayed
 	/**
 	 * Publish a delayed post
 	 *
-	 * @param array $item
-	 * @param integer $notify
-	 * @param array $taglist
-	 * @param array $attachments
-	 * @param bool  $unprepared
+	 * @param array  $item
+	 * @param int    $notify
+	 * @param array  $taglist
+	 * @param array  $attachments
+	 * @param int    $preparation_mode
 	 * @param string $uri
 	 * @return bool
 	 */
-	public static function publish(array $item, int $notify = 0, array $taglist = [], array $attachments = [], bool $unprepared = false, string $uri = '')
+	public static function publish(array $item, int $notify = 0, array $taglist = [], array $attachments = [], int $preparation_mode = self::PREPARED, string $uri = '')
 	{
 		if (!empty($attachments)) {
 			$item['attachments'] = $attachments;
 		}
 
-		if ($unprepared) {
+		if ($preparation_mode == self::UNPREPARED) {
 			$_SESSION['authenticated'] = true;
 			$_SESSION['uid'] = $item['uid'];
 
@@ -209,7 +226,8 @@ class Delayed
 
 			return $id;
 		}
-		$id = Item::insert($item, $notify);
+
+		$id = Item::insert($item, $notify, $preparation_mode == self::PREPARED);
 
 		Logger::notice('Post stored', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id']]);
 

@@ -45,7 +45,8 @@ Fields
 | education    | Deprecated                                    | text               | YES  |     | NULL       |                |
 | contact      | Deprecated                                    | text               | YES  |     | NULL       |                |
 | homepage     |                                               | varchar(255)       | NO   |     |            |                |
-| xmpp         |                                               | varchar(255)       | NO   |     |            |                |
+| xmpp         | XMPP address                                  | varchar(255)       | NO   |     |            |                |
+| matrix       | Matrix address                                | varchar(255)       | NO   |     |            |                |
 | photo        |                                               | varchar(255)       | NO   |     |            |                |
 | thumb        |                                               | varchar(255)       | NO   |     |            |                |
 | publish      | publish default profile in local directory    | boolean            | NO   |     | 0          |                |

@@ -361,6 +361,7 @@ class Profile
 		$homepage = !empty($profile['homepage']) ? DI::l10n()->t('Homepage:') : false;
 		$about    = !empty($profile['about'])    ? DI::l10n()->t('About:')    : false;
 		$xmpp     = !empty($profile['xmpp'])     ? DI::l10n()->t('XMPP:')     : false;
+		$matrix   = !empty($profile['matrix'])   ? DI::l10n()->t('Matrix:')   : false;
 
 		if ((!empty($profile['hidewall']) || $block) && !Session::isAuthenticated()) {
 			$location = $homepage = $about = false;
@@ -439,6 +440,7 @@ class Profile
 		$o .= Renderer::replaceMacros($tpl, [
 			'$profile' => $p,
 			'$xmpp' => $xmpp,
+			'$matrix' => $matrix,
 			'$follow' => DI::l10n()->t('Follow'),
 			'$follow_link' => $follow_link,
 			'$unfollow' => DI::l10n()->t('Unfollow'),

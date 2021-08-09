@@ -77,6 +77,14 @@
 	</dl>
 {{/if}}
 
+{{if $basic_fields.matrix}}
+	<dl id="aprofile-matrix" class="row {{$basic_fields.matrix.class|default:'aprofile'}}">
+		<hr class="profile-separator">
+		<dt class="col-lg-4 col-md-4 col-sm-4 col-xs-12 profile-label-name text-muted">{{$basic_fields.matrix.label}}</dt>
+		<dd class="col-lg-8 col-md-8 col-sm-8 col-xs-12 profile-entry">{{$basic_fields.matrix.value nofilter}}</dd>
+	</dl>
+{{/if}}
+
 {{if $basic_fields.pub_keywords}}
 	<dl id="aprofile-tags" class="row {{$basic_fields.pub_keywords.class|default:'aprofile'}}">
 		<hr class="profile-separator">

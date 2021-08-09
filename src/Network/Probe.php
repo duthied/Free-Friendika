@@ -89,8 +89,8 @@ class Probe
 	private static function rearrangeData($data)
 	{
 		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo", "header",
-				"account-type", "community", "keywords", "location", "about", "hide",
-				"batch", "notify", "poll", "request", "confirm", "subscribe", "poco",
+				"account-type", "community", "keywords", "location", "about", "xmpp", "matrix",
+				"hide", "batch", "notify", "poll", "request", "confirm", "subscribe", "poco",
 				"following", "followers", "inbox", "outbox", "sharedinbox",
 				"priority", "network", "pubkey", "manually-approve", "baseurl", "gsid"];
 
@@ -1065,6 +1065,14 @@ class Probe
 
 		if (!empty($json["about"])) {
 			$data["about"] = $json["about"];
+		}
+
+		if (!empty($json["xmpp"])) {
+			$data["xmpp"] = $json["xmpp"];
+		}
+
+		if (!empty($json["matrix"])) {
+			$data["matrix"] = $json["matrix"];
 		}
 
 		if (!empty($json["key"])) {
@@ -2230,6 +2238,7 @@ class Probe
 				'header' => $profile['header'] ? Contact::getHeaderUrlForId($profile['id'], $profile['updated']) : '',
 				'account-type' => $profile['contact-type'], 'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
 				'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'],
+				'xmpp' => $profile['xmpp'], 'matrix' => $profile['matrix'], 
 				'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
 				'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],
 				'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $profile['poco'],

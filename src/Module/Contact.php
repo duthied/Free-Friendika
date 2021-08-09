@@ -607,6 +607,8 @@ class Contact extends BaseModule
 				'$location_label' => DI::l10n()->t('Location:'),
 				'$xmpp'           => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['xmpp']),
 				'$xmpp_label'     => DI::l10n()->t('XMPP:'),
+				'$matrix'         => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['matrix']),
+				'$matrix_label'   => DI::l10n()->t('Matrix:'),
 				'$about'          => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['about'], BBCode::EXTERNAL),
 				'$about_label'    => DI::l10n()->t('About:'),
 				'$keywords'       => $contact['keywords'],

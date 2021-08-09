@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1431);
+	define('DB_UPDATE_VERSION', 1432);
 }
 
 return [
@@ -184,7 +184,8 @@ return [
 			"about" => ["type" => "text", "comment" => ""],
 			"keywords" => ["type" => "text", "comment" => "public keywords (interests) of the contact"],
 			"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Deprecated"],
-			"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "XMPP address"],
+			"matrix" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Matrix address"],
 			"attag" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"photo" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo of the contact"],
@@ -1384,7 +1385,8 @@ return [
 			"education" => ["type" => "text", "comment" => "Deprecated"],
 			"contact" => ["type" => "text", "comment" => "Deprecated"],
 			"homepage" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "XMPP address"],
+			"matrix" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Matrix address"],
 			"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"thumb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"publish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "publish default profile in local directory"],

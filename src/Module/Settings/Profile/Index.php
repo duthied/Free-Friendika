@@ -92,6 +92,7 @@ class Index extends BaseSettings
 		$pub_keywords = self::cleanKeywords(Strings::escapeTags(trim($_POST['pub_keywords'])));
 		$prv_keywords = self::cleanKeywords(Strings::escapeTags(trim($_POST['prv_keywords'])));
 		$xmpp = Strings::escapeTags(trim($_POST['xmpp']));
+		$matrix = Strings::escapeTags(trim($_POST['matrix']));
 		$homepage = Strings::escapeTags(trim($_POST['homepage']));
 		if ((strpos($homepage, 'http') !== 0) && (strlen($homepage))) {
 			// neither http nor https in URL, add them
@@ -120,6 +121,7 @@ class Index extends BaseSettings
 				'postal-code'  => $postal_code,
 				'country-name' => $country_name,
 				'xmpp'         => $xmpp,
+				'matrix'       => $matrix,
 				'homepage'     => $homepage,
 				'pub_keywords' => $pub_keywords,
 				'prv_keywords' => $prv_keywords,
@@ -240,6 +242,7 @@ class Index extends BaseSettings
 			'$country_name' => ['country_name', DI::l10n()->t('Country:'), $profile['country-name']],
 			'$age' => ((intval($profile['dob'])) ? '(' . DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($profile['dob'], $profile['timezone'])) . ')' : ''),
 			'$xmpp' => ['xmpp', DI::l10n()->t('XMPP (Jabber) address:'), $profile['xmpp'], DI::l10n()->t('The XMPP address will be propagated to your contacts so that they can follow you.')],
+			'$matrix' => ['matrix', DI::l10n()->t('Matrix (Element) address:'), $profile['matrix'], DI::l10n()->t('The Matrix address will be published so that people can follow you there.')],
 			'$homepage' => ['homepage', DI::l10n()->t('Homepage URL:'), $profile['homepage']],
 			'$pub_keywords' => ['pub_keywords', DI::l10n()->t('Public Keywords:'), $profile['pub_keywords'], DI::l10n()->t('(Used for suggesting potential friends, can be seen by others)')],
 			'$prv_keywords' => ['prv_keywords', DI::l10n()->t('Private Keywords:'), $profile['prv_keywords'], DI::l10n()->t('(Used for searching profiles, never shown to others)')],

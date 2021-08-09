@@ -176,6 +176,10 @@ class Profile extends BaseProfile
 			$basic_fields += self::buildField('xmpp', DI::l10n()->t('XMPP:'), $profile['xmpp']);
 		}
 
+		if ($profile['matrix']) {
+			$basic_fields += self::buildField('matrix', DI::l10n()->t('Matrix:'), $profile['matrix']);
+		}
+
 		if ($profile['homepage']) {
 			$basic_fields += self::buildField('homepage', DI::l10n()->t('Homepage:'), HTML::toLink($profile['homepage']));
 		}
