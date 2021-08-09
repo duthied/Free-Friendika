@@ -146,7 +146,7 @@ class Index extends BaseSettings
 
 		$o = '';
 
-		$profile = Profile::getByUID(local_user());
+		$profile = User::getOwnerDataById(local_user());
 		if (!DBA::isResult($profile)) {
 			throw new HTTPException\NotFoundException();
 		}
