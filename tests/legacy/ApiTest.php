@@ -1949,7 +1949,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesMentions()
 	{
-		$this->app->setNickname($this->selfUser['nick']);
+		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
 		$_REQUEST['max_id'] = 10;
 		$result             = api_statuses_mentions('json');
 		self::assertEmpty($result['status']);
@@ -2865,7 +2865,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesNewWithScreenName()
 	{
-		$this->app->setNickname($this->selfUser['nick']);
+		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
 		$_POST['text']        = 'message_text';
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$result               = api_direct_messages_new('json');
@@ -2881,7 +2881,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesNewWithTitle()
 	{
-		$this->app->setNickname($this->selfUser['nick']);
+		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
 		$_POST['text']        = 'message_text';
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$_REQUEST['title']    = 'message_title';
@@ -2899,7 +2899,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesNewWithRss()
 	{
-		$this->app->setNickname($this->selfUser['nick']);
+		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
 		$_POST['text']        = 'message_text';
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$result               = api_direct_messages_new('rss');

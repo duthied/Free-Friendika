@@ -132,7 +132,7 @@ class App
 	 * @param int $user_id
 	 * @return void
 	 */
-	public function setUserId(int $user_id)
+	public function setLoggedInUserId(int $user_id)
 	{
 		$this->user_id = $user_id;
 	}
@@ -143,7 +143,7 @@ class App
 	 * @param int $user_id
 	 * @return void
 	 */
-	public function setNickname(string $nickname)
+	public function setLoggedInUserNickname(string $nickname)
 	{
 		$this->nickname = $nickname;
 	}
