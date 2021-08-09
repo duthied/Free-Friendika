@@ -69,8 +69,15 @@
 
 		{{if $contact.xmpp}}
 		<div class="xmpp detail">
-			<span class="xmpp-label icon"><i class="fa fa-comments"></i></span>
+			<span class="xmpp-label icon"><i class="fa fa-xmpp"></i></span>
 			<span class="xmpp-data"><a href="xmpp:{{$contact.xmpp}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$contact.xmpp}}</a></span>
+		</div>
+		{{/if}}
+
+		{{if $contact.matrix}}
+		<div class="matrix detail">
+			<span class="matrix-label icon"><i class="fa fa-matrix-org"></i></span>
+			<span class="matrix-data"><a href="matrix:{{$contact.matrix}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$contact.matrix}}</a></span>
 		</div>
 		{{/if}}
 

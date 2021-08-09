@@ -129,6 +129,8 @@
 
 						{{include file="field_input.tpl" field=$xmpp}}
 
+						{{include file="field_input.tpl" field=$matrix}}
+
 						{{include file="field_input.tpl" field=$pub_keywords}}
 
 						{{include file="field_input.tpl" field=$prv_keywords}}

@@ -24,7 +24,8 @@ Fields
 | about                     |                                                              | text               | YES  |     | NULL                |                |
 | keywords                  | public keywords (interests) of the contact                   | text               | YES  |     | NULL                |                |
 | gender                    | Deprecated                                                   | varchar(32)        | NO   |     |                     |                |
-| xmpp                      |                                                              | varchar(255)       | NO   |     |                     |                |
+| xmpp                      | XMPP address                                                 | varchar(255)       | NO   |     |                     |                |
+| matrix                    | Matrix address                                               | varchar(255)       | NO   |     |                     |                |
 | attag                     |                                                              | varchar(255)       | NO   |     |                     |                |
 | avatar                    |                                                              | varchar(255)       | NO   |     |                     |                |
 | photo                     | Link to the profile photo of the contact                     | varchar(255)       | YES  |     |                     |                |

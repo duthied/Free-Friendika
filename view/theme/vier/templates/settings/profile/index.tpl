@@ -67,6 +67,13 @@
 				<div id="profile-edit-xmpp-desc">{{$xmpp.3}}</div>
 				<div id="profile-edit-xmpp-end"></div>
 
+				<div id="profile-edit-matrix-wrapper">
+					<label id="profile-edit-matrix-label" for="profile-edit-matrix">{{$matrix.1}} </label>
+					<input type="text" size="32" name="matrix" id="profile-edit-matrix" value="{{$matrix.2}}"/>
+				</div>
+				<div id="profile-edit-matrix-desc">{{$matrix.3}}</div>
+				<div id="profile-edit-matrix-end"></div>
+
 				<div id="profile-edit-homepage-wrapper">
 					<label id="profile-edit-homepage-label" for="profile-edit-homepage">{{$homepage.1}} </label>
 					<input type="text" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage.2}}"/>

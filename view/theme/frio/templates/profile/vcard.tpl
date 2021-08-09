@@ -88,8 +88,15 @@
 
 		{{if $profile.xmpp}}
 		<div class="xmpp">
-			<span class="xmpp-label icon"><i class="fa fa-comments"></i></span>
+			<span class="xmpp-label icon"><i class="fa fa-xmpp"></i></span>
 			<span class="xmpp-data"><a href="xmpp:{{$profile.xmpp}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$profile.xmpp}}</a></span>
+		</div>
+		{{/if}}
+
+		{{if $profile.matrix}}
+		<div class="matrix">
+			<span class="matrix-label icon"><i class="fa fa-matrix-org"></i></span>
+			<span class="matrix-data"><a href="matrix:{{$profile.matrix}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$profile.matrix}}</a></span>
 		</div>
 		{{/if}}
 
@@ -101,7 +108,7 @@
 
 		{{if $homepage}}
 		<div class="homepage detail">
-			<span class="homepage-label icon"><i class="fa fa-external-link-square"></i></span>
+			<span class="homepage-label icon"><i class="fa fa-external-link"></i></span>
 			<span class="homepage-url u-url"><a href="{{$profile.homepage}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$profile.homepage}}</a></span>
 		</div>
 		{{/if}}

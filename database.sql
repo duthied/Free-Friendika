@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.09-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1431
+-- DB_UPDATE_VERSION 1432
 -- ------------------------------------------
 
 
@@ -126,7 +126,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`about` text COMMENT '',
 	`keywords` text COMMENT 'public keywords (interests) of the contact',
 	`gender` varchar(32) NOT NULL DEFAULT '' COMMENT 'Deprecated',
-	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT 'XMPP address',
+	`matrix` varchar(255) NOT NULL DEFAULT '' COMMENT 'Matrix address',
 	`attag` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`photo` varchar(255) DEFAULT '' COMMENT 'Link to the profile photo of the contact',
@@ -1366,7 +1367,8 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`education` text COMMENT 'Deprecated',
 	`contact` text COMMENT 'Deprecated',
 	`homepage` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT 'XMPP address',
+	`matrix` varchar(255) NOT NULL DEFAULT '' COMMENT 'Matrix address',
 	`photo` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`thumb` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`publish` boolean NOT NULL DEFAULT '0' COMMENT 'publish default profile in local directory',
@@ -2199,6 +2201,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`keywords` AS `keywords`,
 	`contact`.`gender` AS `gender`,
 	`contact`.`xmpp` AS `xmpp`,
+	`contact`.`matrix` AS `matrix`,
 	`contact`.`attag` AS `attag`,
 	`contact`.`avatar` AS `avatar`,
 	`contact`.`photo` AS `photo`,
@@ -2325,6 +2328,7 @@ CREATE VIEW `account-view` AS SELECT
 	`contact`.`about` AS `about`,
 	`contact`.`keywords` AS `keywords`,
 	`contact`.`xmpp` AS `xmpp`,
+	`contact`.`matrix` AS `matrix`,
 	`contact`.`avatar` AS `avatar`,
 	`contact`.`photo` AS `photo`,
 	`contact`.`thumb` AS `thumb`,
@@ -2408,6 +2412,7 @@ CREATE VIEW `account-user-view` AS SELECT
 	`contact`.`about` AS `about`,
 	`contact`.`keywords` AS `keywords`,
 	`contact`.`xmpp` AS `xmpp`,
+	`contact`.`matrix` AS `matrix`,
 	`contact`.`avatar` AS `avatar`,
 	`contact`.`photo` AS `photo`,
 	`contact`.`thumb` AS `thumb`,

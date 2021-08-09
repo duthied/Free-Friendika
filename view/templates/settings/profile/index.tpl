@@ -80,6 +80,12 @@
 		</div>
 		<div id="profile-edit-xmpp-desc">{{$xmpp.3}}</div>
 		<div id="profile-edit-xmpp-end"></div>
+		<div id="profile-edit-matrix-wrapper">
+			<label id="profile-edit-matrix-label" for="profile-edit-matrix">{{$matrix.1}} </label>
+			<input type="text" size="32" name="matrix" id="profile-edit-matrix" title="{{$lbl_ex2}}" value="{{$matrix.2}}"/>
+		</div>
+		<div id="profile-edit-matrix-desc">{{$matrix.3}}</div>
+		<div id="profile-edit-matrix-end"></div>
 		<div id="profile-edit-pubkeywords-wrapper">
 			<label id="profile-edit-pubkeywords-label" for="profile-edit-pubkeywords">{{$pub_keywords.1}} </label>
 			<input type="text" size="32" name="pub_keywords" id="profile-edit-pubkeywords" title="{{$lbl_ex2}}" value="{{$pub_keywords.2}}"/>

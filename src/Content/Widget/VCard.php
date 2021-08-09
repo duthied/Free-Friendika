@@ -94,6 +94,7 @@ class VCard
 			'$url'              => Contact::magicLinkByContact($contact, $contact['url']),
 			'$about'            => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['about'] ?? ''),
 			'$xmpp'             => DI::l10n()->t('XMPP:'),
+			'$matrix'           => DI::l10n()->t('Matrix:'),
 			'$location'         => DI::l10n()->t('Location:'),
 			'$network_link'     => $network_link,
 			'$network_avatar'   => $network_avatar,
