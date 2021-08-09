@@ -354,7 +354,7 @@ class Transmitter
 
 		$data['url'] = $owner['url'];
 		$data['manuallyApprovesFollowers'] = in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
-		$data['discoverable'] = $owner['net-publish'];
+		$data['discoverable'] = (bool)$owner['net-publish'];
 		$data['publicKey'] = ['id' => $owner['url'] . '#main-key',
 			'owner' => $owner['url'],
 			'publicKeyPem' => $owner['pubkey']];

@@ -47,7 +47,7 @@ class Xrd extends BaseModule
 			}
 
 			$uri = urldecode(Strings::escapeTags(trim($_GET['uri'])));
-			if (($_SERVER['HTTP_ACCEPT'] ?? '') == 'application/jrd+json') {
+			if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/jrd+json') !== false)  {
 				$mode = 'json';
 			} else {
 				$mode = 'xml';
@@ -58,7 +58,7 @@ class Xrd extends BaseModule
 			}
 
 			$uri = urldecode(Strings::escapeTags(trim($_GET['resource'])));
-			if (($_SERVER['HTTP_ACCEPT'] ?? '') == 'application/xrd+xml') {
+			if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/xrd+xml') !== false)  {
 				$mode = 'xml';
 			} else {
 				$mode = 'json';
@@ -159,9 +159,6 @@ class Xrd extends BaseModule
 	{
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
-		header('Access-Control-Allow-Origin: *');
-		header('Content-type: application/json; charset=utf-8');
-
 		$json = [
 			'subject' => 'acct:' . $owner['addr'],
 			'aliases' => [
@@ -235,8 +232,8 @@ class Xrd extends BaseModule
 			],
 		];
 
-		echo json_encode($json);
-		exit();
+		header('Access-Control-Allow-Origin: *');
+		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
 	private static function printXML($alias, $baseURL, $user, $owner, $avatar)
