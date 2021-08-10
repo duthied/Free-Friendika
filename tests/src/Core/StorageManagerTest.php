@@ -178,7 +178,7 @@ class StorageManagerTest extends DatabaseTest
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
 
 		if ($userBackend) {
-			$storage = $storageManager->getSelectableStorageByName($name);
+			$storage = $storageManager->getWritableStorageByName($name);
 		} else {
 			$storage = $storageManager->getByName($name);
 		}
@@ -230,7 +230,7 @@ class StorageManagerTest extends DatabaseTest
 		self::assertNull($storageManager->getBackend());
 
 		if ($userBackend) {
-			$selBackend = $storageManager->getSelectableStorageByName($name);
+			$selBackend = $storageManager->getWritableStorageByName($name);
 			$storageManager->setBackend($selBackend);
 
 			self::assertInstanceOf($assert, $storageManager->getBackend());
@@ -287,7 +287,7 @@ class StorageManagerTest extends DatabaseTest
 		SampleStorageBackend::registerHook();
 		Hook::loadHooks();
 
-		self::assertTrue($storageManager->setBackend( $storageManager->getSelectableStorageByName(SampleStorageBackend::NAME)));
+		self::assertTrue($storageManager->setBackend( $storageManager->getWritableStorageByName(SampleStorageBackend::NAME)));
 		self::assertEquals(SampleStorageBackend::NAME, $this->config->get('storage', 'name'));
 
 		self::assertInstanceOf(SampleStorageBackend::class, $storageManager->getBackend());
@@ -314,7 +314,7 @@ class StorageManagerTest extends DatabaseTest
 		$this->loadFixture(__DIR__ . '/../../datasets/storage/database.fixture.php', $this->dba);
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
-		$storage = $storageManager->getSelectableStorageByName($name);
+		$storage = $storageManager->getWritableStorageByName($name);
 		$storageManager->move($storage);
 
 		$photos = $this->dba->select('photo', ['backend-ref', 'backend-class', 'id', 'data']);
@@ -333,12 +333,12 @@ class StorageManagerTest extends DatabaseTest
 	/**
 	 * Test moving data to a WRONG storage
 	 */
-	public function testWrongSelectableStorage()
+	public function testWrongWritableStorage()
 	{
 		$this->expectException(\TypeError::class);
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
-		$storage = $storageManager->getSelectableStorageByName(Storage\SystemResource::getName());
+		$storage = $storageManager->getWritableStorageByName(Storage\SystemResource::getName());
 		$storageManager->move($storage);
 	}
 }

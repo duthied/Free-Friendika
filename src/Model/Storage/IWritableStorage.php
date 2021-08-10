@@ -22,12 +22,12 @@
 namespace Friendica\Model\Storage;
 
 /**
- * Interface for selectable storage backends
+ * Interface for writable storage backends
  *
  * Used for storages with CRUD functionality, mainly used for user data (e.g. photos, attachements).
- * There's only one active, selectable storage possible and can be selected by the current administrator
+ * There's only one active, writable storage possible. This type of storages are selectable by the current administrator
  */
-interface ISelectableStorage extends IStorage
+interface IWritableStorage extends IStorage
 {
 	/**
 	 * Put data in backend as $ref. If $ref is not defined a new reference is created.

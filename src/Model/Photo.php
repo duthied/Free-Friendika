@@ -347,7 +347,7 @@ class Photo
 
 		if (DBA::isResult($existing_photo)) {
 			$backend_ref = (string)$existing_photo["backend-ref"];
-			$storage = DI::storageManager()->getSelectableStorageByName($existing_photo["backend-class"] ?? '');
+			$storage = DI::storageManager()->getWritableStorageByName($existing_photo["backend-class"] ?? '');
 		} else {
 			$storage = DI::storage();
 		}
@@ -411,7 +411,7 @@ class Photo
 		$photos = DBA::select('photo', ['id', 'backend-class', 'backend-ref'], $conditions);
 
 		while ($photo = DBA::fetch($photos)) {
-			$backend_class = DI::storageManager()->getSelectableStorageByName($photo['backend-class'] ?? '');
+			$backend_class = DI::storageManager()->getWritableStorageByName($photo['backend-class'] ?? '');
 			if (!empty($backend_class)) {
 				try {
 					$backend_class->delete($item['backend-ref'] ?? '');
@@ -448,7 +448,7 @@ class Photo
 			$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 			foreach($photos as $photo) {
-				$backend_class = DI::storageManager()->getSelectableStorageByName($photo['backend-class'] ?? '');
+				$backend_class = DI::storageManager()->getWritableStorageByName($photo['backend-class'] ?? '');
 				if (!empty($backend_class)) {
 					$fields["backend-ref"] = $backend_class->put($img->asString(), $photo['backend-ref']);
 				} else {

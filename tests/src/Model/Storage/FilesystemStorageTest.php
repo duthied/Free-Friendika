@@ -24,7 +24,7 @@ namespace Friendica\Test\src\Model\Storage;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 use Friendica\Model\Storage\Filesystem;
-use Friendica\Model\Storage\ISelectableStorage;
+use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Model\Storage\StorageException;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\Profiler;
@@ -64,7 +64,7 @@ class FilesystemStorageTest extends StorageTest
 		return new Filesystem($this->config, $l10n);
 	}
 
-	protected function assertOption(ISelectableStorage $storage)
+	protected function assertOption(IWritableStorage $storage)
 	{
 		self::assertEquals([
 			'storagepath' => [

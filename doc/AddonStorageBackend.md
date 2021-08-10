@@ -10,12 +10,12 @@ A storage backend is implemented as a class, and the plugin register the class t
 
 The class must live in `Friendica\Addon\youraddonname` namespace, where `youraddonname` the folder name of your addon.
 
-The class must implement `Friendica\Model\Storage\ISelectableStorage` interface. All method in the interface must be implemented:
+The class must implement `Friendica\Model\Storage\IWritableStorage` interface. All method in the interface must be implemented:
 
-namespace Friendica\Model\ISelectableStorage;
+namespace Friendica\Model\IWritableStorage;
 
 ```php
-interface ISelectableStorage
+interface IWritableStorage
 {
 	public function get(string $reference);
 	public function put(string $data, string $reference = '');
@@ -79,7 +79,7 @@ Each label should be translatable
 	];
 
 
-See doxygen documentation of `ISelectableStorage` interface for details about each method.
+See doxygen documentation of `IWritableStorage` interface for details about each method.
 
 ## Register a storage backend class
 
@@ -105,8 +105,9 @@ Each new Storage class should be added to the test-environment at [Storage Tests
 Add a new test class which's naming convention is `StorageClassTest`, which extend the `StorageTest` in the same directory.
 
 Override the two necessary instances:
+
 ```php
-use Friendica\Model\Storage\ISelectableStorage;
+use Friendica\Model\Storage\IWritableStorage;
 
 abstract class StorageTest 
 {
@@ -114,7 +115,7 @@ abstract class StorageTest
 	abstract protected function getInstance();
 
 	// Assertion for the option array you return for your new StorageClass
-	abstract protected function assertOption(ISelectableStorage $storage);
+	abstract protected function assertOption(IWritableStorage $storage);
 } 
 ```
 
@@ -138,9 +139,9 @@ If there's a predecessor to this exception (e.g. you caught an exception and are
 Example:
 
 ```php
-use Friendica\Model\Storage\ISelectableStorage;
+use Friendica\Model\Storage\IWritableStorage;
 
-class ExampleStorage implements ISelectableStorage 
+class ExampleStorage implements IWritableStorage 
 {
 	public function get(string $reference) : string
 	{
@@ -168,12 +169,12 @@ The file will be `addon/samplestorage/SampleStorageBackend.php`:
 <?php
 namespace Friendica\Addon\samplestorage;
 
-use Friendica\Model\Storage\ISelectableStorage;
+use Friendica\Model\Storage\IWritableStorage;
 
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 
-class SampleStorageBackend implements ISelectableStorage
+class SampleStorageBackend implements IWritableStorage
 {
 	const NAME = 'Sample Storage';
 
@@ -305,7 +306,7 @@ function samplestorage_storage_instance(\Friendica\App $a, array $data)
 **Theoretically - until tests for Addons are enabled too - create a test class with the name `addon/tests/SampleStorageTest.php`:
 
 ```php
-use Friendica\Model\Storage\ISelectableStorage;
+use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Test\src\Model\Storage\StorageTest;
 
 class SampleStorageTest extends StorageTest 
@@ -319,7 +320,7 @@ class SampleStorageTest extends StorageTest
 	}
 
 	// Assertion for the option array you return for your new StorageClass
-	protected function assertOption(ISelectableStorage $storage)
+	protected function assertOption(IWritableStorage $storage)
 	{
 		$this->assertEquals([
 			'filename' => [

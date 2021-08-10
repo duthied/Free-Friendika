@@ -29,7 +29,7 @@ use Friendica\Database\Database as DBA;
  *
  * This class manage data stored in database table.
  */
-class Database implements ISelectableStorage
+class Database implements IWritableStorage
 {
 	const NAME = 'Database';
 

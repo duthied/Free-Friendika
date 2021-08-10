@@ -22,14 +22,14 @@
 namespace Friendica\Test\Util;
 
 use Friendica\Core\Hook;
-use Friendica\Model\Storage\ISelectableStorage;
+use Friendica\Model\Storage\IWritableStorage;
 
 use Friendica\Core\L10n;
 
 /**
  * A backend storage example class
  */
-class SampleStorageBackend implements ISelectableStorage
+class SampleStorageBackend implements IWritableStorage
 {
 	const NAME = 'Sample Storage';
 

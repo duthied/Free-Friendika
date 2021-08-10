@@ -44,7 +44,7 @@ use Friendica\Core\Session\ISession;
 use Friendica\Core\StorageManager;
 use Friendica\Database\Database;
 use Friendica\Factory;
-use Friendica\Model\Storage\ISelectableStorage;
+use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Model\User\Cookie;
 use Friendica\Network;
 use Friendica\Util;
@@ -213,7 +213,7 @@ return [
 			$_SERVER, $_COOKIE
 		],
 	],
-	ISelectableStorage::class => [
+	IWritableStorage::class => [
 		'instanceOf' => StorageManager::class,
 		'call' => [
 			['getBackend', [], Dice::CHAIN_CALL],

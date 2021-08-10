@@ -132,7 +132,7 @@ HELP;
 		}
 
 		$name  = $this->args[1];
-		$class = $this->storageManager->getSelectableStorageByName($name);
+		$class = $this->storageManager->getWritableStorageByName($name);
 
 		if (is_null($class)) {
 			$this->out($name . ' is not a registered backend.');

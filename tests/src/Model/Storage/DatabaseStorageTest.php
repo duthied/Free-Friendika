@@ -23,7 +23,7 @@ namespace Friendica\Test\src\Model\Storage;
 
 use Friendica\Factory\ConfigFactory;
 use Friendica\Model\Storage\Database;
-use Friendica\Model\Storage\ISelectableStorage;
+use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Test\DatabaseTestTrait;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
@@ -63,7 +63,7 @@ class DatabaseStorageTest extends StorageTest
 		return new Database($dba);
 	}
 
-	protected function assertOption(ISelectableStorage $storage)
+	protected function assertOption(IWritableStorage $storage)
 	{
 		self::assertEmpty($storage->getOptions());
 	}

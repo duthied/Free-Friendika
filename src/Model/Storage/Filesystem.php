@@ -36,7 +36,7 @@ use Friendica\Util\Strings;
  * Each new resource gets a value as reference and is saved in a
  * folder tree stucture created from that value.
  */
-class Filesystem implements ISelectableStorage
+class Filesystem implements IWritableStorage
 {
 	const NAME = 'Filesystem';
 

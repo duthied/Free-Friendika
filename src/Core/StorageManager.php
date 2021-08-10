@@ -82,13 +82,13 @@ class StorageManager
 		$currentName = $this->config->get('storage', 'name', '');
 
 		// you can only use user backends as a "default" backend, so the second parameter is true
-		$this->currentBackend = $this->getSelectableStorageByName($currentName);
+		$this->currentBackend = $this->getWritableStorageByName($currentName);
 	}
 
 	/**
 	 * Return current storage backend class
 	 *
-	 * @return Storage\ISelectableStorage|null
+	 * @return Storage\IWritableStorage|null
 	 */
 	public function getBackend()
 	{
@@ -96,16 +96,16 @@ class StorageManager
 	}
 
 	/**
-	 * Returns a selectable storage backend class by registered name
+	 * Returns a writable storage backend class by registered name
 	 *
 	 * @param string $name Backend name
 	 *
-	 * @return Storage\ISelectableStorage
+	 * @return Storage\IWritableStorage
 	 *
 	 * @throws Storage\ReferenceStorageException in case there's no backend class for the name
 	 * @throws Storage\StorageException in case of an unexpected failure during the hook call
 	 */
-	public function getSelectableStorageByName(string $name = null)
+	public function getWritableStorageByName(string $name = null)
 	{
 		// @todo 2020.09 Remove this call after 2 releases
 		$name = $this->checkLegacyBackend($name);
@@ -130,7 +130,7 @@ class StorageManager
 						];
 						try {
 							Hook::callAll('storage_instance', $data);
-							if (($data['storage'] ?? null) instanceof Storage\ISelectableStorage) {
+							if (($data['storage'] ?? null) instanceof Storage\IWritableStorage) {
 								$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
 							} else {
 								throw new Storage\ReferenceStorageException(sprintf('Backend %s was not found', $name));
@@ -244,11 +244,11 @@ class StorageManager
 	/**
 	 * Set current storage backend class
 	 *
-	 * @param Storage\ISelectableStorage $storage The storage class
+	 * @param Storage\IWritableStorage $storage The storage class
 	 *
 	 * @return boolean True, if the set was successful
 	 */
-	public function setBackend(Storage\ISelectableStorage $storage)
+	public function setBackend(Storage\IWritableStorage $storage)
 	{
 		if ($this->config->set('storage', 'name', $storage::getName())) {
 			$this->currentBackend = $storage;
@@ -327,15 +327,15 @@ class StorageManager
 	 * Copy existing data to destination storage and delete from source.
 	 * This method cannot move to legacy in-table `data` field.
 	 *
-	 * @param Storage\ISelectableStorage $destination Destination storage class name
-	 * @param array            $tables      Tables to look in for resources. Optional, defaults to ['photo', 'attach']
-	 * @param int              $limit       Limit of the process batch size, defaults to 5000
+	 * @param Storage\IWritableStorage $destination Destination storage class name
+	 * @param array                    $tables      Tables to look in for resources. Optional, defaults to ['photo', 'attach']
+	 * @param int                      $limit       Limit of the process batch size, defaults to 5000
 	 *
 	 * @return int Number of moved resources
 	 * @throws Storage\StorageException
 	 * @throws Exception
 	 */
-	public function move(Storage\ISelectableStorage $destination, array $tables = self::TABLES, int $limit = 5000)
+	public function move(Storage\IWritableStorage $destination, array $tables = self::TABLES, int $limit = 5000)
 	{
 		if (!$this->isValidBackend($destination, true)) {
 			throw new Storage\StorageException(sprintf("Can't move to storage backend '%s'", $destination::getName()));
@@ -354,7 +354,7 @@ class StorageManager
 			while ($resource = $this->dba->fetch($resources)) {
 				$id        = $resource['id'];
 				$data      = $resource['data'];
-				$source    = $this->getSelectableStorageByName($resource['backend-class']);
+				$source    = $this->getWritableStorageByName($resource['backend-class']);
 				$sourceRef = $resource['backend-ref'];
 
 				if (!empty($source)) {

@@ -21,17 +21,17 @@
 
 namespace Friendica\Test\src\Model\Storage;
 
-use Friendica\Model\Storage\ISelectableStorage;
+use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Model\Storage\IStorage;
 use Friendica\Model\Storage\ReferenceStorageException;
 use Friendica\Test\MockedTest;
 
 abstract class StorageTest extends MockedTest
 {
-	/** @return ISelectableStorage */
+	/** @return IWritableStorage */
 	abstract protected function getInstance();
 
-	abstract protected function assertOption(ISelectableStorage $storage);
+	abstract protected function assertOption(IWritableStorage $storage);
 
 	/**
 	 * Test if the instance is "really" implementing the interface
