@@ -337,12 +337,12 @@ class Event
 	public static function getItemArrayForId(int $event_id, array $item = []):array
 	{
 		if (empty($event_id)) {
-			return [];
+			return $item;
 		}
 
 		$event = DBA::selectFirst('event', [], ['id' => $event_id]);
 		if ($event['type'] != 'event') {
-			return [];
+			return $item;
 		}
 
 		if ($event['cid']) {
@@ -375,7 +375,7 @@ class Event
 		$item['allow_gid']     = $event['allow_gid'];
 		$item['deny_cid']      = $event['deny_cid'];
 		$item['deny_gid']      = $event['deny_gid'];
-		$item['private']       = intval($event['private'] ?? 0);;
+		$item['private']       = intval($event['private'] ?? 0);
 		$item['visible']       = 1;
 		$item['verb']          = Activity::POST;
 		$item['object-type']   = Activity\ObjectType::EVENT;
@@ -383,6 +383,30 @@ class Event
 		$item['origin']        = $event['cid'] === 0 ? 1 : 0;
 		$item['body']          = self::getBBCode($event);
 		$item['event-id']      = $event['id'];
+
+		$item['object']  = '<object><type>' . XML::escape(Activity\ObjectType::EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
+		$item['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
+		$item['object'] .= '</object>' . "\n";
+
+		return $item;
+	}
+
+	public static function getItemArrayForImportedId(int $event_id, array $item = []):array
+	{
+		if (empty($event_id)) {
+			return $item;
+		}
+
+		$event = DBA::selectFirst('event', [], ['id' => $event_id]);
+		if ($event['type'] != 'event') {
+			return $item;
+		}
+
+		$item['post-type']     = Item::PT_EVENT;
+		$item['title']         = '';
+		$item['object-type']   = Activity\ObjectType::EVENT;
+		$item['body']          = self::getBBCode($event);
+		$item['event-id']      = $event_id;
 
 		$item['object']  = '<object><type>' . XML::escape(Activity\ObjectType::EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
 		$item['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';

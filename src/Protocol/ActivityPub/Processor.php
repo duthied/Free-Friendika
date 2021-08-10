@@ -631,7 +631,7 @@ class Processor
 			if (($item['gravity'] != GRAVITY_ACTIVITY) && ($activity['object_type'] == 'as:Event')) {
 				$event_id = self::createEvent($activity, $item);
 
-				$item = Event::getItemArrayForId($event_id, $item);
+				$item = Event::getItemArrayForImportedId($event_id, $item);
 			}
 
 			$item_id = Item::insert($item);
