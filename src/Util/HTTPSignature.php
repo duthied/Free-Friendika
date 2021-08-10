@@ -409,7 +409,7 @@ class HTTPSignature
 	 *                         'nobody' => only return the header
 	 *                         'cookiejar' => path to cookie jar file
 	 *
-	 * @return CurlResult|void CurlResult
+	 * @return CurlResult CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchRaw($request, $uid = 0, $opts = ['accept_content' => 'application/activity+json, application/ld+json'])
