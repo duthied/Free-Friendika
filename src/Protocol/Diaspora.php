@@ -3082,6 +3082,11 @@ class Diaspora
 			if (!empty($fcontact)) {
 				$pubkey = $fcontact['pubkey'];
 			}
+		} else {
+			// The "addr" field should always be filled.
+			// If this isn't the case, it will raise a notice some lines later.
+			// And in the log we will see where it came from and we can handle it there.
+			Logger::notice('Empty addr', ['contact' => $contact ?? [], 'callstack' => System::callstack(20)]);
 		}
 
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $pubkey, $public_batch);
@@ -3988,13 +3993,7 @@ class Diaspora
 		}
 
 		if (!$recips) {
-			$recips = q(
-				"SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'
-				AND `uid` = %d AND `rel` != %d",
-				DBA::escape(Protocol::DIASPORA),
-				intval($uid),
-				intval(Contact::SHARING)
-			);
+			$recips = DBA::selectToArray('contact', [], ['network' => Protocol::DIASPORA, 'uid' => $uid, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
 		}
 
 		if (!$recips) {
