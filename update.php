@@ -981,3 +981,20 @@ function update_1429()
 
 	return Update::SUCCESS;
 }
+
+function update_1433()
+{
+	$name = DI::config()->get('storage', 'name');
+
+	// in case of an empty config, set "Database" as default storage backend
+	if (empty($name)) {
+		DI::config()->set('storage', 'name', Storage\Database::getName());
+	}
+
+	// In case of a Using deprecated storage class value, set the right name for it
+	if (stristr($name, 'Friendica\Model\Storage\\')) {
+		DI::config()->set('storage', 'name', substr($name, 24));
+	}
+
+	return Update::SUCCESS;
+}
