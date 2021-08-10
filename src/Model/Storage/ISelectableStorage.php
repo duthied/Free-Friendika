@@ -23,6 +23,9 @@ namespace Friendica\Model\Storage;
 
 /**
  * Interface for selectable storage backends
+ *
+ * Used for storages with CRUD functionality, mainly used for user data (e.g. photos, attachements).
+ * There's only one active, selectable storage possible and can be selected by the current administrator
  */
 interface ISelectableStorage extends IStorage
 {

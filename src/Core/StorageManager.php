@@ -25,7 +25,7 @@ use Exception;
 use Friendica\Core\Config\IConfig;
 use Friendica\Database\Database;
 use Friendica\Model\Storage;
-use Friendica\Network\IHTTPRequest;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Psr\Log\LoggerInterface;
 
 
@@ -98,11 +98,12 @@ class StorageManager
 	/**
 	 * Returns a selectable storage backend class by registered name
 	 *
-	 * @param string|null $name            Backend name
+	 * @param string $name Backend name
 	 *
-	 * @return Storage\ISelectableStorage|null null if no backend registered at $name
+	 * @return Storage\ISelectableStorage
 	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Storage\ReferenceStorageException in case there's no backend class for the name
+	 * @throws Storage\StorageException in case of an unexpected failure during the hook call
 	 */
 	public function getSelectableStorageByName(string $name = null)
 	{
@@ -127,16 +128,20 @@ class StorageManager
 							'name'    => $name,
 							'storage' => null,
 						];
-						Hook::callAll('storage_instance', $data);
-						if (($data['storage'] ?? null) instanceof Storage\ISelectableStorage) {
-							$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
-						} else {
-							return null;
+						try {
+							Hook::callAll('storage_instance', $data);
+							if (($data['storage'] ?? null) instanceof Storage\ISelectableStorage) {
+								$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
+							} else {
+								throw new Storage\ReferenceStorageException(sprintf('Backend %s was not found', $name));
+							}
+						} catch (InternalServerErrorException $exception) {
+							throw new Storage\StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception);
 						}
 						break;
 				}
 			} else {
-				return null;
+				throw new Storage\ReferenceStorageException(sprintf('Backend %s is not valid', $name));
 			}
 		}
 
@@ -146,13 +151,14 @@ class StorageManager
 	/**
 	 * Return storage backend class by registered name
 	 *
-	 * @param string|null $name            Backend name
+	 * @param string $name Backend name
 	 *
-	 * @return Storage\IStorage|null null if no backend registered at $name
+	 * @return Storage\IStorage
 	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Storage\ReferenceStorageException in case there's no backend class for the name
+	 * @throws Storage\StorageException in case of an unexpected failure during the hook call
 	 */
-	public function getByName(string $name = null)
+	public function getByName(string $name)
 	{
 		// @todo 2020.09 Remove this call after 2 releases
 		$name = $this->checkLegacyBackend($name);
@@ -182,16 +188,20 @@ class StorageManager
 							'name'    => $name,
 							'storage' => null,
 						];
-						Hook::callAll('storage_instance', $data);
-						if (($data['storage'] ?? null) instanceof Storage\IStorage) {
-							$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
-						} else {
-							return null;
+						try {
+							Hook::callAll('storage_instance', $data);
+							if (($data['storage'] ?? null) instanceof Storage\IStorage) {
+								$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
+							} else {
+								throw new Storage\ReferenceStorageException(sprintf('Backend %s was not found', $name));
+							}
+						} catch (InternalServerErrorException $exception) {
+							throw new Storage\StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception);
 						}
 						break;
 				}
 			} else {
-				return null;
+				throw new Storage\ReferenceStorageException(sprintf('Backend %s is not valid', $name));
 			}
 		}
 

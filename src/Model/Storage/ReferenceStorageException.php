@@ -21,11 +21,9 @@
 
 namespace Friendica\Model\Storage;
 
-use Exception;
-
 /**
  * Storage Exception in case of invalid references
  */
-class ReferenceStorageException extends Exception
+class ReferenceStorageException extends StorageException
 {
 }

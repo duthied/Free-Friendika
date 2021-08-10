@@ -122,6 +122,14 @@ abstract class StorageTest
 
 There are two intended types of exceptions for storages
 
+### `ReferenceStorageExecption`
+
+This storage exception should be used in case the caller tries to use an invalid references.
+This could happen in case the caller tries to delete or update an unknown reference.
+The implementation of the storage backend must not ignore invalid references.
+
+Avoid throwing the common `StorageExecption` instead of the `ReferenceStorageException` at this particular situation!
+
 ### `StorageException`
 
 This is the common exception in case unexpected errors happen using the storage backend.
@@ -144,14 +152,6 @@ class ExampleStorage implements ISelectableStorage
 	}
 } 
 ```
-
-### `ReferenceStorageExecption`
-
-This storage exception should be used in case the caller tries to use an invalid references.
-This could happen in case the caller tries to delete or update an unknown reference.
-The implementation of the storage backend must not ignore invalid references.
-
-Avoid throwing the common `StorageExecption` instead of the `ReferenceStorageException` at this particular situation!
 
 ## Example
 
