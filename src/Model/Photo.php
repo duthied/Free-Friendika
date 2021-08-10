@@ -185,7 +185,7 @@ class Photo
 	 *
 	 * @param array $photo Photo data. Needs at least 'id', 'type', 'backend-class', 'backend-ref'
 	 *
-	 * @return \Friendica\Object\Image|string
+	 * @return \Friendica\Object\Image
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @throws StorageException
@@ -201,7 +201,7 @@ class Photo
 			// legacy data storage in "data" column
 			$i = self::selectFirst(['data'], ['id' => $photo['id']]);
 			if ($i === false) {
-				return '';
+				return null;
 			}
 			$data = $i['data'];
 		} else {
@@ -210,7 +210,7 @@ class Photo
 				$data = $backendClass->get($backendRef);
 			} catch (ReferenceStorageException $referenceStorageException) {
 				DI::logger()->debug('No data found for photo', ['photo' => $photo, 'exception' => $referenceStorageException]);
-				return '';
+				return null;
 			}
 		}
 		return $data;
