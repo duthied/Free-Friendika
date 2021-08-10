@@ -23,6 +23,7 @@ namespace Friendica\Module\Admin;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
+use Friendica\Model\Storage\InvalidClassStorageException;
 use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
@@ -37,8 +38,13 @@ class Storage extends BaseAdmin
 
 		$storagebackend = Strings::escapeTags(trim($parameters['name'] ?? ''));
 
-		/** @var IWritableStorage $newstorage */
-		$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
+		try {
+			/** @var IWritableStorage $newstorage */
+			$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
+		} catch (InvalidClassStorageException $storageException) {
+			notice(DI::l10n()->t('Storage backend, %s is invalid.', $storagebackend));
+			DI::baseUrl()->redirect('admin/storage');
+		}
 
 		// save storage backend form
 		$storage_opts        = $newstorage->getOptions();
@@ -62,16 +68,20 @@ class Storage extends BaseAdmin
 		$storage_form_errors = $newstorage->saveOptions($storage_opts_data);
 		if (count($storage_form_errors)) {
 			foreach ($storage_form_errors as $name => $err) {
-				notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
+				notice(DI::l10n()->t('Storage backend %s error: %s', $storage_opts[$name][1], $err));
 			}
 			DI::baseUrl()->redirect('admin/storage');
 		}
 
 		if (!empty($_POST['submit_save_set'])) {
-			/** @var IWritableStorage $newstorage */
-			$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
+			try {
+				/** @var IWritableStorage $newstorage */
+				$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
 
-			if (!DI::storageManager()->setBackend($newstorage)) {
+				if (!DI::storageManager()->setBackend($newstorage)) {
+					notice(DI::l10n()->t('Invalid storage backend setting value.'));
+				}
+			} catch (InvalidClassStorageException $storageException) {
 				notice(DI::l10n()->t('Invalid storage backend setting value.'));
 			}
 		}

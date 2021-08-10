@@ -30,7 +30,11 @@ use Friendica\Model\Photo as MPhoto;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\Storage\ExternalResource;
+use Friendica\Model\Storage\ReferenceStorageException;
+use Friendica\Model\Storage\StorageException;
 use Friendica\Model\Storage\SystemResource;
+use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\Proxy;
 use Friendica\Object\Image;
 use Friendica\Util\Images;
@@ -105,7 +109,11 @@ class Photo extends BaseModule
 		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);
 
 		$stamp = microtime(true);
+
 		$imgdata = MPhoto::getImageDataForPhoto($photo);
+		if (empty($imgdata)) {
+			throw new NotFoundException();
+		}
 
 		// The mimetype for an external or system resource can only be known reliably after it had been fetched
 		if (in_array($photo['backend-class'], [ExternalResource::NAME, SystemResource::NAME])) {

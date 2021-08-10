@@ -28,7 +28,6 @@ use Friendica\Model\Storage;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Psr\Log\LoggerInterface;
 
-
 /**
  * Manage storage backends
  *
@@ -46,7 +45,7 @@ class StorageManager
 		Storage\Database::NAME   => Storage\Database::class,
 	];
 
-	private $backends = [];
+	private $backends;
 
 	/**
 	 * @var Storage\IStorage[] A local cache for storage instances
@@ -62,7 +61,7 @@ class StorageManager
 	/** @var L10n */
 	private $l10n;
 
-	/** @var Storage\IStorage */
+	/** @var Storage\IWritableStorage */
 	private $currentBackend;
 
 	/**
@@ -70,16 +69,19 @@ class StorageManager
 	 * @param IConfig         $config
 	 * @param LoggerInterface $logger
 	 * @param L10n            $l10n
+	 *
+	 * @throws Storage\InvalidClassStorageException in case the active backend class is invalid
+	 * @throws Storage\StorageException in case of unexpected errors during the active backend class loading
 	 */
 	public function __construct(Database $dba, IConfig $config, LoggerInterface $logger, L10n $l10n)
 	{
-		$this->dba         = $dba;
-		$this->config      = $config;
-		$this->logger      = $logger;
-		$this->l10n        = $l10n;
+		$this->dba      = $dba;
+		$this->config   = $config;
+		$this->logger   = $logger;
+		$this->l10n     = $l10n;
 		$this->backends = $config->get('storage', 'backends', self::DEFAULT_BACKENDS);
 
-		$currentName = $this->config->get('storage', 'name', '');
+		$currentName = $this->config->get('storage', 'name');
 
 		// you can only use user backends as a "default" backend, so the second parameter is true
 		$this->currentBackend = $this->getWritableStorageByName($currentName);
@@ -88,7 +90,7 @@ class StorageManager
 	/**
 	 * Return current storage backend class
 	 *
-	 * @return Storage\IWritableStorage|null
+	 * @return Storage\IWritableStorage
 	 */
 	public function getBackend()
 	{
@@ -102,71 +104,36 @@ class StorageManager
 	 *
 	 * @return Storage\IWritableStorage
 	 *
-	 * @throws Storage\ReferenceStorageException in case there's no backend class for the name
+	 * @throws Storage\InvalidClassStorageException in case there's no backend class for the name
 	 * @throws Storage\StorageException in case of an unexpected failure during the hook call
 	 */
-	public function getWritableStorageByName(string $name = null)
+	public function getWritableStorageByName(string $name): Storage\IWritableStorage
 	{
-		// @todo 2020.09 Remove this call after 2 releases
-		$name = $this->checkLegacyBackend($name);
-
-		// If there's no cached instance create a new instance
-		if (!isset($this->backendInstances[$name])) {
-			// If the current name isn't a valid backend (or the SystemResource instance) create it
-			if ($this->isValidBackend($name, true)) {
-				switch ($name) {
-					// Try the filesystem backend
-					case Storage\Filesystem::getName():
-						$this->backendInstances[$name] = new Storage\Filesystem($this->config, $this->l10n);
-						break;
-					// try the database backend
-					case Storage\Database::getName():
-						$this->backendInstances[$name] = new Storage\Database($this->dba);
-						break;
-					default:
-						$data = [
-							'name'    => $name,
-							'storage' => null,
-						];
-						try {
-							Hook::callAll('storage_instance', $data);
-							if (($data['storage'] ?? null) instanceof Storage\IWritableStorage) {
-								$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
-							} else {
-								throw new Storage\ReferenceStorageException(sprintf('Backend %s was not found', $name));
-							}
-						} catch (InternalServerErrorException $exception) {
-							throw new Storage\StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception);
-						}
-						break;
-				}
-			} else {
-				throw new Storage\ReferenceStorageException(sprintf('Backend %s is not valid', $name));
-			}
+		$storage = $this->getByName($name, $this->backends);
+		if ($storage instanceof Storage\IWritableStorage) {
+			return $storage;
+		} else {
+			throw new Storage\InvalidClassStorageException(sprintf('Backend %s is not writable', $name));
 		}
-
-		return $this->backendInstances[$name];
 	}
 
 	/**
 	 * Return storage backend class by registered name
 	 *
-	 * @param string $name Backend name
+	 * @param string     $name Backend name
+	 * @param array|null $validBackends possible, manual override of the valid backends
 	 *
 	 * @return Storage\IStorage
 	 *
-	 * @throws Storage\ReferenceStorageException in case there's no backend class for the name
+	 * @throws Storage\InvalidClassStorageException in case there's no backend class for the name
 	 * @throws Storage\StorageException in case of an unexpected failure during the hook call
 	 */
-	public function getByName(string $name)
+	public function getByName(string $name, array $validBackends = null): Storage\IStorage
 	{
-		// @todo 2020.09 Remove this call after 2 releases
-		$name = $this->checkLegacyBackend($name);
-
 		// If there's no cached instance create a new instance
 		if (!isset($this->backendInstances[$name])) {
 			// If the current name isn't a valid backend (or the SystemResource instance) create it
-			if ($this->isValidBackend($name, false)) {
+			if ($this->isValidBackend($name, $validBackends)) {
 				switch ($name) {
 					// Try the filesystem backend
 					case Storage\Filesystem::getName():
@@ -193,7 +160,7 @@ class StorageManager
 							if (($data['storage'] ?? null) instanceof Storage\IStorage) {
 								$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
 							} else {
-								throw new Storage\ReferenceStorageException(sprintf('Backend %s was not found', $name));
+								throw new Storage\InvalidClassStorageException(sprintf('Backend %s was not found', $name));
 							}
 						} catch (InternalServerErrorException $exception) {
 							throw new Storage\StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception);
@@ -201,7 +168,7 @@ class StorageManager
 						break;
 				}
 			} else {
-				throw new Storage\ReferenceStorageException(sprintf('Backend %s is not valid', $name));
+				throw new Storage\InvalidClassStorageException(sprintf('Backend %s is not valid', $name));
 			}
 		}
 
@@ -211,34 +178,19 @@ class StorageManager
 	/**
 	 * Checks, if the storage is a valid backend
 	 *
-	 * @param string|null $name            The name or class of the backend
-	 * @param boolean     $onlyUserBackend True, if just user backend should get returned (e.g. not SystemResource)
+	 * @param string|null $name          The name or class of the backend
+	 * @param array|null  $validBackends Possible, valid backends to check
 	 *
 	 * @return boolean True, if the backend is a valid backend
 	 */
-	public function isValidBackend(string $name = null, bool $onlyUserBackend = false)
+	public function isValidBackend(string $name = null, array $validBackends = null): bool
 	{
-		return array_key_exists($name, $this->backends) ||
-		       (!$onlyUserBackend && in_array($name, [Storage\SystemResource::getName(), Storage\ExternalResource::getName()]));
-	}
-
-	/**
-	 * Check for legacy backend storage class names (= full model class name)
-	 *
-	 * @todo 2020.09 Remove this function after 2 releases, because there shouldn't be any legacy backend classes left
-	 *
-	 * @param string|null $name a potential, legacy storage name ("Friendica\Model\Storage\...")
-	 *
-	 * @return string|null The current storage name
-	 */
-	private function checkLegacyBackend(string $name = null)
-	{
-		if (stristr($name, 'Friendica\Model\Storage\\')) {
-			$this->logger->notice('Using deprecated storage class value', ['name' => $name]);
-			return substr($name, 24);
-		}
-
-		return $name;
+		$validBackends = $validBackends ?? array_merge($this->backends,
+				[
+					Storage\SystemResource::getName()   => '',
+					Storage\ExternalResource::getName() => ''
+				]);
+		return array_key_exists($name, $validBackends);
 	}
 
 	/**
@@ -248,7 +200,7 @@ class StorageManager
 	 *
 	 * @return boolean True, if the set was successful
 	 */
-	public function setBackend(Storage\IWritableStorage $storage)
+	public function setBackend(Storage\IWritableStorage $storage): bool
 	{
 		if ($this->config->set('storage', 'name', $storage::getName())) {
 			$this->currentBackend = $storage;
@@ -263,7 +215,7 @@ class StorageManager
 	 *
 	 * @return array
 	 */
-	public function listBackends()
+	public function listBackends(): array
 	{
 		return $this->backends;
 	}
@@ -277,7 +229,7 @@ class StorageManager
 	 *
 	 * @return boolean True, if the registration was successful
 	 */
-	public function register(string $class)
+	public function register(string $class): bool
 	{
 		if (is_subclass_of($class, Storage\IStorage::class)) {
 			/** @var Storage\IStorage $class */
@@ -303,7 +255,7 @@ class StorageManager
 	 *
 	 * @return boolean True, if unregistering was successful
 	 */
-	public function unregister(string $class)
+	public function unregister(string $class): bool
 	{
 		if (is_subclass_of($class, Storage\IStorage::class)) {
 			/** @var Storage\IStorage $class */
@@ -335,9 +287,9 @@ class StorageManager
 	 * @throws Storage\StorageException
 	 * @throws Exception
 	 */
-	public function move(Storage\IWritableStorage $destination, array $tables = self::TABLES, int $limit = 5000)
+	public function move(Storage\IWritableStorage $destination, array $tables = self::TABLES, int $limit = 5000): int
 	{
-		if (!$this->isValidBackend($destination, true)) {
+		if (!$this->isValidBackend($destination, $this->backends)) {
 			throw new Storage\StorageException(sprintf("Can't move to storage backend '%s'", $destination::getName()));
 		}
 
@@ -353,13 +305,19 @@ class StorageManager
 
 			while ($resource = $this->dba->fetch($resources)) {
 				$id        = $resource['id'];
-				$data      = $resource['data'];
-				$source    = $this->getWritableStorageByName($resource['backend-class']);
 				$sourceRef = $resource['backend-ref'];
+				$source    = null;
 
-				if (!empty($source)) {
+				try {
+					$source = $this->getWritableStorageByName($resource['backend-class'] ?? '');
 					$this->logger->info('Get data from old backend.', ['oldBackend' => $source, 'oldReference' => $sourceRef]);
 					$data = $source->get($sourceRef);
+				} catch (Storage\InvalidClassStorageException $exception) {
+					$this->logger->info('Get data from DB resource field.', ['oldReference' => $sourceRef]);
+					$data = $resource['data'];
+				} catch (Storage\ReferenceStorageException $exception) {
+					$this->logger->info('Invalid source reference.', ['oldBackend' => $source, 'oldReference' => $sourceRef]);
+					continue;
 				}
 
 				$this->logger->info('Save data to new backend.', ['newBackend' => $destination::getName()]);

@@ -28,6 +28,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Storage\ExternalResource;
+use Friendica\Model\Storage\InvalidClassStorageException;
 use Friendica\Model\Storage\ReferenceStorageException;
 use Friendica\Model\Storage\StorageException;
 use Friendica\Model\Storage\SystemResource;
@@ -186,9 +187,6 @@ class Photo
 	 * @param array $photo Photo data. Needs at least 'id', 'type', 'backend-class', 'backend-ref'
 	 *
 	 * @return \Friendica\Object\Image
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 * @throws StorageException
 	 */
 	public static function getImageDataForPhoto(array $photo)
 	{
@@ -196,24 +194,36 @@ class Photo
 			return $photo['data'];
 		}
 
-		$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
-		if (empty($backendClass)) {
-			// legacy data storage in "data" column
-			$i = self::selectFirst(['data'], ['id' => $photo['id']]);
-			if ($i === false) {
-				return null;
+		try {
+			$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+			$image        = $backendClass->get($photo['backend-ref'] ?? '');
+
+			if ($image instanceof Image) {
+				return $image;
+			} else {
+				DI::logger()->info('Stored data is not an image', ['photo' => $photo]);
 			}
-			$data = $i['data'];
-		} else {
-			$backendRef = $photo['backend-ref'] ?? '';
+		} catch (InvalidClassStorageException $storageException) {
 			try {
-				$data = $backendClass->get($backendRef);
-			} catch (ReferenceStorageException $referenceStorageException) {
-				DI::logger()->debug('No data found for photo', ['photo' => $photo, 'exception' => $referenceStorageException]);
-				return null;
+				// legacy data storage in "data" column
+				$i = self::selectFirst(['data'], ['id' => $photo['id']]);
+				if ($i !== false) {
+					return $i['data'];
+				} else {
+					DI::logger()->info('Stored legacy data is empty', ['photo' => $photo]);
+				}
+			} catch (\Exception $exception) {
+				DI::logger()->info('Unexpected database exception', ['photo' => $photo, 'exception' => $exception]);
 			}
+		} catch (ReferenceStorageException $referenceStorageException) {
+			DI::logger()->debug('Invalid reference for photo', ['photo' => $photo, 'exception' => $referenceStorageException]);
+		} catch (StorageException $storageException) {
+			DI::logger()->info('Unexpected storage exception', ['photo' => $photo, 'exception' => $storageException]);
+		} catch (\ImagickException $imagickException) {
+			DI::logger()->info('Unexpected imagick exception', ['photo' => $photo, 'exception' => $imagickException]);
 		}
-		return $data;
+
+		return null;
 	}
 
 	/**
@@ -225,14 +235,9 @@ class Photo
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getImageForPhoto(array $photo)
+	public static function getImageForPhoto(array $photo): Image
 	{
-		$data = self::getImageDataForPhoto($photo);
-		if (empty($data)) {
-			return null;
-		}
-
-		return new Image($data, $photo['type']);
+		return new Image(self::getImageDataForPhoto($photo), $photo['type']);
 	}
 
 	/**
@@ -342,20 +347,20 @@ class Photo
 		// Get defined storage backend.
 		// if no storage backend, we use old "data" column in photo table.
 		// if is an existing photo, reuse same backend
-		$data = "";
+		$data        = "";
 		$backend_ref = "";
+		$storage     = "";
 
-		if (DBA::isResult($existing_photo)) {
-			$backend_ref = (string)$existing_photo["backend-ref"];
-			$storage = DI::storageManager()->getWritableStorageByName($existing_photo["backend-class"] ?? '');
-		} else {
-			$storage = DI::storage();
-		}
-
-		if (empty($storage)) {
-			$data = $Image->asString();
-		} else {
+		try {
+			if (DBA::isResult($existing_photo)) {
+				$backend_ref = (string)$existing_photo["backend-ref"];
+				$storage     = DI::storageManager()->getWritableStorageByName($existing_photo["backend-class"] ?? '');
+			} else {
+				$storage = DI::storage();
+			}
 			$backend_ref = $storage->put($Image->asString(), $backend_ref);
+		} catch (InvalidClassStorageException $storageException) {
+			$data = $Image->asString();
 		}
 
 		$fields = [
@@ -411,15 +416,15 @@ class Photo
 		$photos = DBA::select('photo', ['id', 'backend-class', 'backend-ref'], $conditions);
 
 		while ($photo = DBA::fetch($photos)) {
-			$backend_class = DI::storageManager()->getWritableStorageByName($photo['backend-class'] ?? '');
-			if (!empty($backend_class)) {
-				try {
-					$backend_class->delete($item['backend-ref'] ?? '');
-					// Delete the photos after they had been deleted successfully
-					DBA::delete("photo", ['id' => $photo['id']]);
-				} catch (ReferenceStorageException $referenceStorageException) {
-					DI::logger()->debug('phot doesn\'t exist.', ['conditions' => $conditions, 'exception' => $referenceStorageException]);
-				}
+			try {
+				$backend_class = DI::storageManager()->getWritableStorageByName($photo['backend-class'] ?? '');
+				$backend_class->delete($item['backend-ref'] ?? '');
+				// Delete the photos after they had been deleted successfully
+				DBA::delete("photo", ['id' => $photo['id']]);
+			} catch (InvalidClassStorageException $storageException) {
+				DI::logger()->debug('Storage class not found.', ['conditions' => $conditions, 'exception' => $storageException]);
+			} catch (ReferenceStorageException $referenceStorageException) {
+				DI::logger()->debug('Photo doesn\'t exist.', ['conditions' => $conditions, 'exception' => $referenceStorageException]);
 			}
 		}
 
@@ -448,10 +453,10 @@ class Photo
 			$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 			foreach($photos as $photo) {
-				$backend_class = DI::storageManager()->getWritableStorageByName($photo['backend-class'] ?? '');
-				if (!empty($backend_class)) {
+				try {
+					$backend_class         = DI::storageManager()->getWritableStorageByName($photo['backend-class'] ?? '');
 					$fields["backend-ref"] = $backend_class->put($img->asString(), $photo['backend-ref']);
-				} else {
+				} catch (InvalidClassStorageException $storageException) {
 					$fields["data"] = $img->asString();
 				}
 			}

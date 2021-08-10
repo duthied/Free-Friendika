@@ -23,6 +23,7 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\Core\StorageManager;
+use Friendica\Model\Storage\ReferenceStorageException;
 use Friendica\Model\Storage\StorageException;
 
 /**
@@ -127,20 +128,20 @@ HELP;
 
 	protected function doSet()
 	{
-		if (count($this->args) !== 2) {
+		if (count($this->args) !== 2 || empty($this->args[1])) {
 			throw new CommandArgsException('Invalid arguments');
 		}
 
-		$name  = $this->args[1];
-		$class = $this->storageManager->getWritableStorageByName($name);
+		$name = $this->args[1];
+		try {
+			$class = $this->storageManager->getWritableStorageByName($name);
 
-		if (is_null($class)) {
+			if (!$this->storageManager->setBackend($class)) {
+				$this->out($class . ' is not a valid backend storage class.');
+				return -1;
+			}
+		} catch (ReferenceStorageException $exception) {
 			$this->out($name . ' is not a registered backend.');
-			return -1;
-		}
-
-		if (!$this->storageManager->setBackend($class)) {
-			$this->out($class . ' is not a valid backend storage class.');
 			return -1;
 		}
 

@@ -34,7 +34,6 @@ use Friendica\Factory\ConfigFactory;
 use Friendica\Model\Config\Config;
 use Friendica\Model\Storage;
 use Friendica\Core\Session;
-use Friendica\Model\Storage\StorageException;
 use Friendica\Network\HTTPRequest;
 use Friendica\Test\DatabaseTest;
 use Friendica\Test\Util\Database\StaticDatabase;
@@ -47,6 +46,7 @@ use Friendica\Test\Util\SampleStorageBackend;
 
 class StorageManagerTest extends DatabaseTest
 {
+	use VFSTrait;
 	/** @var Database */
 	private $dba;
 	/** @var IConfig */
@@ -57,8 +57,6 @@ class StorageManagerTest extends DatabaseTest
 	private $l10n;
 	/** @var HTTPRequest */
 	private $httpRequest;
-
-	use VFSTrait;
 
 	protected function setUp(): void
 	{
@@ -82,6 +80,7 @@ class StorageManagerTest extends DatabaseTest
 
 		$configModel  = new Config($this->dba);
 		$this->config = new PreloadConfig($configCache, $configModel);
+		$this->config->set('storage', 'name', 'Database');
 
 		$this->l10n = \Mockery::mock(L10n::class);
 
@@ -101,67 +100,40 @@ class StorageManagerTest extends DatabaseTest
 	public function dataStorages()
 	{
 		return [
-			'empty'          => [
-				'name'        => '',
-				'assert'      => null,
-				'assertName'  => '',
-				'userBackend' => false,
+			'empty' => [
+				'name'       => '',
+				'valid'      => false,
+				'interface'  => Storage\IStorage::class,
+				'assert'     => null,
+				'assertName' => '',
 			],
-			'database'       => [
-				'name'        => Storage\Database::NAME,
-				'assert'      => Storage\Database::class,
-				'assertName'  => Storage\Database::NAME,
-				'userBackend' => true,
+			'database' => [
+				'name'       => Storage\Database::NAME,
+				'valid'      => true,
+				'interface'  => Storage\IWritableStorage::class,
+				'assert'     => Storage\Database::class,
+				'assertName' => Storage\Database::NAME,
 			],
-			'filesystem'     => [
-				'name'        => Storage\Filesystem::NAME,
-				'assert'      => Storage\Filesystem::class,
-				'assertName'  => Storage\Filesystem::NAME,
-				'userBackend' => true,
+			'filesystem' => [
+				'name'       => Storage\Filesystem::NAME,
+				'valid'      => true,
+				'interface'  => Storage\IWritableStorage::class,
+				'assert'     => Storage\Filesystem::class,
+				'assertName' => Storage\Filesystem::NAME,
 			],
 			'systemresource' => [
-				'name'        => Storage\SystemResource::NAME,
-				'assert'      => Storage\SystemResource::class,
-				'assertName'  => Storage\SystemResource::NAME,
-				// false here, because SystemResource isn't meant to be a user backend,
-				// it's for system resources only
-				'userBackend' => false,
+				'name'       => Storage\SystemResource::NAME,
+				'valid'      => true,
+				'interface'  => Storage\IStorage::class,
+				'assert'     => Storage\SystemResource::class,
+				'assertName' => Storage\SystemResource::NAME,
 			],
-			'invalid'        => [
+			'invalid' => [
 				'name'        => 'invalid',
+				'valid'       => false,
+				'interface'   => null,
 				'assert'      => null,
 				'assertName'  => '',
-				'userBackend' => false,
-			],
-		];
-	}
-
-	/**
-	 * Data array for legacy backends
-	 *
-	 * @todo 2020.09 After 2 releases, remove the legacy functionality and these data array with it
-	 *
-	 * @return array
-	 */
-	public function dataLegacyBackends()
-	{
-		return [
-			'legacyDatabase'          => [
-				'name'        => 'Friendica\Model\Storage\Database',
-				'assert'      => Storage\Database::class,
-				'assertName'  => Storage\Database::NAME,
-				'userBackend' => true,
-			],
-			'legacyFilesystem'       => [
-				'name'        => 'Friendica\Model\Storage\Filesystem',
-				'assert'      => Storage\Filesystem::class,
-				'assertName'  => Storage\Filesystem::NAME,
-				'userBackend' => true,
-			],
-			'legacySystemResource'     => [
-				'name'        => 'Friendica\Model\Storage\SystemResource',
-				'assert'      => Storage\SystemResource::class,
-				'assertName'  => Storage\SystemResource::NAME,
 				'userBackend' => false,
 			],
 		];
@@ -171,24 +143,27 @@ class StorageManagerTest extends DatabaseTest
 	 * Test the getByName() method
 	 *
 	 * @dataProvider dataStorages
-	 * @dataProvider dataLegacyBackends
 	 */
-	public function testGetByName($name, $assert, $assertName, $userBackend)
+	public function testGetByName($name, $valid, $interface, $assert, $assertName)
 	{
-		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n, $this->httpRequest);
+		if (!$valid) {
+			$this->expectException(Storage\InvalidClassStorageException::class);
+		}
 
-		if ($userBackend) {
+		if ($interface === Storage\IWritableStorage::class) {
+			$this->config->set('storage', 'name', $name);
+		}
+
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
+
+		if ($interface === Storage\IWritableStorage::class) {
 			$storage = $storageManager->getWritableStorageByName($name);
 		} else {
 			$storage = $storageManager->getByName($name);
 		}
 
-		if (!empty($assert)) {
-			self::assertInstanceOf(Storage\IStorage::class, $storage);
-			self::assertInstanceOf($assert, $storage);
-		} else {
-			self::assertNull($storage);
-		}
+		self::assertInstanceOf($interface, $storage);
+		self::assertInstanceOf($assert, $storage);
 		self::assertEquals($assertName, $storage);
 	}
 
@@ -197,15 +172,15 @@ class StorageManagerTest extends DatabaseTest
 	 *
 	 * @dataProvider dataStorages
 	 */
-	public function testIsValidBackend($name, $assert, $assertName, $userBackend)
+	public function testIsValidBackend($name, $valid, $interface, $assert, $assertName)
 	{
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
 		// true in every of the backends
 		self::assertEquals(!empty($assertName), $storageManager->isValidBackend($name));
 
-		// if userBackend is set to true, filter out e.g. SystemRessource
-		self::assertEquals($userBackend, $storageManager->isValidBackend($name, true));
+		// if it's a IWritableStorage, the valid backend should return true, otherwise false
+		self::assertEquals($interface === Storage\IWritableStorage::class, $storageManager->isValidBackend($name, StorageManager::DEFAULT_BACKENDS));
 	}
 
 	/**
@@ -223,37 +198,35 @@ class StorageManagerTest extends DatabaseTest
 	 *
 	 * @dataProvider dataStorages
 	 */
-	public function testGetBackend($name, $assert, $assertName, $userBackend)
+	public function testGetBackend($name, $valid, $interface, $assert, $assertName)
 	{
+		if ($interface !== Storage\IWritableStorage::class) {
+			static::markTestSkipped('only works for IWritableStorage');
+		}
+
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
-		self::assertNull($storageManager->getBackend());
+		$selBackend = $storageManager->getWritableStorageByName($name);
+		$storageManager->setBackend($selBackend);
 
-		if ($userBackend) {
-			$selBackend = $storageManager->getWritableStorageByName($name);
-			$storageManager->setBackend($selBackend);
-
-			self::assertInstanceOf($assert, $storageManager->getBackend());
-		}
+		self::assertInstanceOf($assert, $storageManager->getBackend());
 	}
 
 	/**
 	 * Test the method getBackend() with a pre-configured backend
 	 *
 	 * @dataProvider dataStorages
-	 * @dataProvider dataLegacyBackends
 	 */
-	public function testPresetBackend($name, $assert, $assertName, $userBackend)
+	public function testPresetBackend($name, $valid, $interface, $assert, $assertName)
 	{
 		$this->config->set('storage', 'name', $name);
+		if ($interface !== Storage\IWritableStorage::class) {
+			$this->expectException(Storage\InvalidClassStorageException::class);
+		}
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
-		if ($userBackend) {
-			self::assertInstanceOf($assert, $storageManager->getBackend());
-		} else {
-			self::assertNull($storageManager->getBackend());
-		}
+		self::assertInstanceOf($assert, $storageManager->getBackend());
 	}
 
 	/**
@@ -266,7 +239,7 @@ class StorageManagerTest extends DatabaseTest
 	public function testRegisterUnregisterBackends()
 	{
 		/// @todo Remove dice once "Hook" is dynamic and mockable
-		$dice   = (new Dice())
+		$dice = (new Dice())
 			->addRules(include __DIR__ . '/../../../static/dependencies.config.php')
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
 			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true, 'call' => null]);
@@ -287,7 +260,7 @@ class StorageManagerTest extends DatabaseTest
 		SampleStorageBackend::registerHook();
 		Hook::loadHooks();
 
-		self::assertTrue($storageManager->setBackend( $storageManager->getWritableStorageByName(SampleStorageBackend::NAME)));
+		self::assertTrue($storageManager->setBackend($storageManager->getWritableStorageByName(SampleStorageBackend::NAME)));
 		self::assertEquals(SampleStorageBackend::NAME, $this->config->get('storage', 'name'));
 
 		self::assertInstanceOf(SampleStorageBackend::class, $storageManager->getBackend());
@@ -305,26 +278,25 @@ class StorageManagerTest extends DatabaseTest
 	 *
 	 * @dataProvider dataStorages
 	 */
-	public function testMoveStorage($name, $assert, $assertName, $userBackend)
+	public function testMoveStorage($name, $valid, $interface, $assert, $assertName)
 	{
-		if (!$userBackend) {
+		if ($interface !== Storage\IWritableStorage::class) {
 			self::markTestSkipped("No user backend");
 		}
 
 		$this->loadFixture(__DIR__ . '/../../datasets/storage/database.fixture.php', $this->dba);
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
-		$storage = $storageManager->getWritableStorageByName($name);
+		$storage        = $storageManager->getWritableStorageByName($name);
 		$storageManager->move($storage);
 
 		$photos = $this->dba->select('photo', ['backend-ref', 'backend-class', 'id', 'data']);
 
 		while ($photo = $this->dba->fetch($photos)) {
-
 			self::assertEmpty($photo['data']);
 
 			$storage = $storageManager->getByName($photo['backend-class']);
-			$data = $storage->get($photo['backend-ref']);
+			$data    = $storage->get($photo['backend-ref']);
 
 			self::assertNotEmpty($data);
 		}
@@ -335,10 +307,11 @@ class StorageManagerTest extends DatabaseTest
 	 */
 	public function testWrongWritableStorage()
 	{
-		$this->expectException(\TypeError::class);
+		$this->expectException(Storage\InvalidClassStorageException::class);
+		$this->expectExceptionMessage('Backend SystemResource is not valid');
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
-		$storage = $storageManager->getWritableStorageByName(Storage\SystemResource::getName());
+		$storage        = $storageManager->getWritableStorageByName(Storage\SystemResource::getName());
 		$storageManager->move($storage);
 	}
 }
