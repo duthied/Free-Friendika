@@ -1039,7 +1039,7 @@ class Item
 				}
 
 				$event_id = Event::store($ev);
-				$item = Event::getItemArrayForId($event_id, $item);
+				$item = Event::getItemArrayForImportedId($event_id, $item);
 
 				Logger::info('Event was stored', ['id' => $event_id]);
 			}
