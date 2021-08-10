@@ -352,6 +352,17 @@ class Transmitter
 			$data['summary'] = BBCode::convertForUriId($owner['uri-id'] ?? 0, $owner['about'], BBCode::EXTERNAL);
 		}
 
+		if (!empty($owner['xmpp']) || !empty($owner['matrix'])) {
+			$data['vcard:hasInstantMessage'] = [];
+
+			if (!empty($owner['xmpp'])) {
+				$data['vcard:hasInstantMessage'][] = 'xmpp:' . $owner['xmpp'];
+			}
+			if (!empty($owner['matrix'])) {
+				$data['vcard:hasInstantMessage'][] = 'matrix:' . $owner['matrix'];
+			}
+		}
+
 		$data['url'] = $owner['url'];
 		$data['manuallyApprovesFollowers'] = in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
 		$data['discoverable'] = (bool)$owner['net-publish'];
