@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.09-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1432
+-- DB_UPDATE_VERSION 1433
 -- ------------------------------------------
 
 
@@ -332,6 +332,8 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`nick` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`name` varchar(255) COMMENT '',
 	`about` text COMMENT '',
+	`xmpp` varchar(255) COMMENT 'XMPP address',
+	`matrix` varchar(255) COMMENT 'Matrix address',
 	`photo` varchar(255) COMMENT '',
 	`header` varchar(255) COMMENT 'Header picture',
 	`addr` varchar(255) COMMENT '',

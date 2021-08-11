@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1432);
+	define('DB_UPDATE_VERSION', 1433);
 }
 
 return [
@@ -392,6 +392,8 @@ return [
 			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"name" => ["type" => "varchar(255)", "comment" => ""],
 			"about" => ["type" => "text", "comment" => ""],
+			"xmpp" => ["type" => "varchar(255)", "comment" => "XMPP address"],
+			"matrix" => ["type" => "varchar(255)", "comment" => "Matrix address"],
 			"photo" => ["type" => "varchar(255)", "comment" => ""],
 			"header" => ["type" => "varchar(255)", "comment" => "Header picture"],
 			"addr" => ["type" => "varchar(255)", "comment" => ""],

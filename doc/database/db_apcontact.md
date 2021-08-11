@@ -22,6 +22,8 @@ Fields
 | nick             |                                                                     | varchar(255)   | NO   |     |                     |       |
 | name             |                                                                     | varchar(255)   | YES  |     | NULL                |       |
 | about            |                                                                     | text           | YES  |     | NULL                |       |
+| xmpp             | XMPP address                                                        | varchar(255)   | YES  |     | NULL                |       |
+| matrix           | Matrix address                                                      | varchar(255)   | YES  |     | NULL                |       |
 | photo            |                                                                     | varchar(255)   | YES  |     | NULL                |       |
 | header           | Header picture                                                      | varchar(255)   | YES  |     | NULL                |       |
 | addr             |                                                                     | varchar(255)   | YES  |     | NULL                |       |

@@ -157,6 +157,8 @@ class ActivityPub
 		// $profile['keywords']
 		// $profile['location']
 		$profile['about'] = $apcontact['about'];
+		$profile['xmpp'] = $apcontact['xmpp'];
+		$profile['matrix'] = $apcontact['matrix'];
 		$profile['batch'] = $apcontact['sharedinbox'];
 		$profile['notify'] = $apcontact['inbox'];
 		$profile['poll'] = $apcontact['outbox'];

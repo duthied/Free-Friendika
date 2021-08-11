@@ -239,6 +239,18 @@ class APContact
 
 		$apcontact['about'] = HTML::toBBCode(JsonLD::fetchElement($compacted, 'as:summary', '@value'));
 
+		$ims = JsonLD::fetchElementArray($compacted, 'vcard:hasInstantMessage');
+		if (!empty($ims)) {
+			foreach ($ims as $link) {
+				if (substr($link, 0, 5) == 'xmpp:') {
+					$apcontact['xmpp'] = substr($link, 5);
+				}
+				if (substr($link, 0, 7) == 'matrix:') {
+					$apcontact['matrix'] = substr($link, 7);
+				}
+			}
+		}
+
 		$apcontact['photo'] = JsonLD::fetchElement($compacted, 'as:icon', '@id');
 		if (is_array($apcontact['photo']) || !empty($compacted['as:icon']['as:url']['@id'])) {
 			$apcontact['photo'] = JsonLD::fetchElement($compacted['as:icon'], 'as:url', '@id');
