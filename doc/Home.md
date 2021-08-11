@@ -70,7 +70,7 @@ Friendica Documentation and Resources
   * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
   * Community chat rooms (the IRC, Matrix and XMPP rooms are bridget) these public chats are logged [from IRC](https://gnusociarg.nsupdate.info/2021/%23friendica/) and [Matrix](https://view.matrix.org/alias/%23friendi.ca:matrix.org/)
     * XMPP/Jabber MUC: support(at)forum.friendi.ca
-    * IRC: [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
+    * IRC: #friendica at [libera.chat](https://web.libera.chat/?channels=#friendica)
     * Matrix: [#friendi.ca](https://matrix.to/#/#friendi.ca:matrix.org) or [#friendica-en](https://matrix.to/#/#friendica-en:matrix.org) at matrix.org
 
 **About**
