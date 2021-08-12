@@ -22,7 +22,6 @@
 namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
-use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
