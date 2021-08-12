@@ -35,6 +35,7 @@ class Item
 	 * Return array with details for categories and folders for an item
 	 *
 	 * @param array $item
+	 * @param int   $uid
 	 * @return [array, array]
 	 *
 	 * [
@@ -58,13 +59,15 @@ class Item
 	 *       ]
 	 *  ]
 	 */
-	public function determineCategoriesTerms(array $item)
+	public function determineCategoriesTerms(array $item, int $uid = 0)
 	{
 		$categories = [];
 		$folders = [];
 		$first = true;
 
-		foreach (Post\Category::getArrayByURIId($item['uri-id'], $item['uid'], Post\Category::CATEGORY) as $savedFolderName) {
+		$uid = $item['uid'] ?: $uid;
+
+		foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid, Post\Category::CATEGORY) as $savedFolderName) {
 			if (!empty($item['author-link'])) {
 				$url = $item['author-link'] . "?category=" . rawurlencode($savedFolderName);
 			} else {
@@ -73,7 +76,7 @@ class Item
 			$categories[] = [
 				'name' => $savedFolderName,
 				'url' => $url,
-				'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : ""),
+				'removeurl' => local_user() == $uid ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : '',
 				'first' => $first,
 				'last' => false
 			];
@@ -84,12 +87,12 @@ class Item
 			$categories[count($categories) - 1]['last'] = true;
 		}
 
-		if (local_user() == $item['uid']) {
-			foreach (Post\Category::getArrayByURIId($item['uri-id'], $item['uid'], Post\Category::FILE) as $savedFolderName) {
+		if (local_user() == $uid) {
+			foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid, Post\Category::FILE) as $savedFolderName) {
 				$folders[] = [
 					'name' => $savedFolderName,
 					'url' => "#",
-					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : ""),
+					'removeurl' => local_user() == $uid ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : '',
 					'first' => $first,
 					'last' => false
 				];

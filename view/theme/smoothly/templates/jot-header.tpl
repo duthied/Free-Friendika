@@ -240,6 +240,7 @@ function enableOnUser(){
 //					if(timer) clearTimeout(timer);
 //					timer = setTimeout(NavUpdate,3000);
 					liking = 1;
+					force_update = true;
 					$.colorbox.close();
 				} else {
 					$("#id_term").css("border-color","#FF0000");

@@ -236,7 +236,7 @@ class Post
 			];
 		}
 
-		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? DI::l10n()->t('Save to folder') : false);
+		$filer = local_user() ? DI::l10n()->t('Save to folder') : false;
 
 		$profile_name = $item['author-name'];
 		if (!empty($item['author-link']) && empty($item['author-name'])) {
@@ -296,7 +296,7 @@ class Post
 		$tagger = '';
 
 		if ($this->isToplevel()) {
-			if(local_user()) {
+			if (local_user()) {
 				$ignored = PostModel\ThreadUser::getIgnored($item['uri-id'], local_user());
 				if ($item['mention'] || $ignored) {
 					$ignore = [
@@ -308,6 +308,17 @@ class Post
 						'ignored'   => DI::l10n()->t('Ignored'),
 					];
 				}
+
+				$isstarred = (($item['starred']) ? "starred" : "unstarred");
+
+				$star = [
+					'do'        => DI::l10n()->t('Add star'),
+					'undo'      => DI::l10n()->t('Remove star'),
+					'toggle'    => DI::l10n()->t('Toggle star status'),
+					'classdo'   => $item['starred'] ? "hidden" : "",
+					'classundo' => $item['starred'] ? "" : "hidden",
+					'starred'   => DI::l10n()->t('Starred'),
+				];
 
 				if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
 					if ($origin) {
@@ -322,17 +333,6 @@ class Post
 							'pinned'   => DI::l10n()->t('Pinned'),
 						];
 					}
-
-					$isstarred = (($item['starred']) ? "starred" : "unstarred");
-
-					$star = [
-						'do'        => DI::l10n()->t('Add star'),
-						'undo'      => DI::l10n()->t('Remove star'),
-						'toggle'    => DI::l10n()->t('Toggle star status'),
-						'classdo'   => $item['starred'] ? "hidden" : "",
-						'classundo' => $item['starred'] ? "" : "hidden",
-						'starred'   => DI::l10n()->t('Starred'),
-					];
 
 					$tagger = [
 						'add'   => DI::l10n()->t('Add tag'),
@@ -366,7 +366,7 @@ class Post
 
 		$body_html = Item::prepareBody($item, true);
 
-		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
+		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item, local_user());
 
 		if (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
 			$title = ucfirst($item['content-warning']);

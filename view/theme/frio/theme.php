@@ -313,7 +313,7 @@ function frio_display_item(App $a, &$arr)
 	$followThread = [];
 	if (
 		local_user()
-		&& local_user() == $arr['item']['uid']
+		&& in_array($arr['item']['uid'], [0, local_user()])
 		&& $arr['item']['gravity'] == GRAVITY_PARENT
 		&& !$arr['item']['self']
 		&& !$arr['item']['mention']

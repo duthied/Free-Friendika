@@ -74,8 +74,8 @@ class Filed extends BaseSearch
 		if (count($posts) == 0) {
 			return '';
 		}
-		$item_condition = ['uid' => local_user(), 'uri-id' => $posts];
-		$item_params = ['order' => ['uri-id' => true]];
+		$item_condition = ['uid' => [0, local_user()], 'uri-id' => $posts];
+		$item_params = ['order' => ['uri-id' => true, 'uid' => true]];
 
 		$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, $item_condition, $item_params));
 
