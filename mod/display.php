@@ -173,7 +173,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	if ($update) {
 		$uri_id = $_REQUEST['uri_id'];
-		$item = Post::selectFirst(['uid', 'parent-uri-id'], ['uri-id' => $uri_id, 'uid' => $update_uid]);
+		$item = Post::selectFirst(['uid', 'parent-uri-id'], ['uri-id' => $uri_id, 'uid' => [0, $update_uid]]);
 		if (!empty($item)) {
 			if ($item['uid'] != 0) {
 				$a->setProfileOwner($item['uid']);

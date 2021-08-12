@@ -481,7 +481,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 				$body_html = Item::prepareBody($item, true, $preview);
 
-				list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
+				list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item, local_user());
 
 				if (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
 					$title = ucfirst($item['content-warning']);

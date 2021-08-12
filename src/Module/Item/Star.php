@@ -22,8 +22,10 @@
 namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
+use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
@@ -48,11 +50,25 @@ class Star extends BaseModule
 
 		$itemId = intval($parameters['id']);
 
-		$item = Post::selectFirstForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $itemId]);
+
+		$item = Post::selectFirstForUser(local_user(), ['uid', 'uri-id', 'starred'], ['uid' => [0, local_user()], 'id' => $itemId]);
 		if (empty($item)) {
 			throw new HTTPException\NotFoundException();
 		}
 
+		if ($item['uid'] == 0) {
+			$stored = Item::storeForUserByUriId($item['uri-id'], local_user());
+			if (!empty($stored)) {
+				$item = Post::selectFirst(['starred'], ['id' => $stored]);
+				if (!DBA::isResult($item)) {
+					throw new HTTPException\NotFoundException();
+				}
+				$itemId = $stored;
+			} else {
+				throw new HTTPException\NotFoundException();
+			}
+		}
+	
 		$starred = !(bool)$item['starred'];
 
 		Item::update(['starred' => $starred], ['id' => $itemId]);
