@@ -65,7 +65,7 @@ class Item
 		$folders = [];
 		$first = true;
 
-		$uid = ($item['uid'] != 0) ? $item['uid'] : $uid;
+		$uid = $item['uid'] ?: $uid;
 
 		foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid, Post\Category::CATEGORY) as $savedFolderName) {
 			if (!empty($item['author-link'])) {
@@ -76,7 +76,7 @@ class Item
 			$categories[] = [
 				'name' => $savedFolderName,
 				'url' => $url,
-				'removeurl' => ((local_user() == $uid) ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : ""),
+				'removeurl' => local_user() == $uid ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : '',
 				'first' => $first,
 				'last' => false
 			];
@@ -92,7 +92,7 @@ class Item
 				$folders[] = [
 					'name' => $savedFolderName,
 					'url' => "#",
-					'removeurl' => ((local_user() == $uid) ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : ""),
+					'removeurl' => local_user() == $uid ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : '',
 					'first' => $first,
 					'last' => false
 				];
