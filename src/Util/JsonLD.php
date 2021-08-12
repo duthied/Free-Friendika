@@ -193,7 +193,7 @@ class JsonLD
 		}
 
 		// If it isn't an array yet, make it to one
-		if (!is_int(key($array[$element]))) {
+		if (!is_array($array[$element])) {
 			$array[$element] = [$array[$element]];
 		}
 
