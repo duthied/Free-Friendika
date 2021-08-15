@@ -196,13 +196,8 @@ class Photo
 
 		try {
 			$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
-			$image        = $backendClass->get($photo['backend-ref'] ?? '');
-
-			if ($image instanceof Image) {
-				return $image;
-			} else {
-				DI::logger()->info('Stored data is not an image', ['photo' => $photo]);
-			}
+			/// @todo refactoring this returning, because the storage returns a "string" which is casted in different ways - a check "instanceof Image" will fail!
+			return $backendClass->get($photo['backend-ref'] ?? '');
 		} catch (InvalidClassStorageException $storageException) {
 			try {
 				// legacy data storage in "data" column
