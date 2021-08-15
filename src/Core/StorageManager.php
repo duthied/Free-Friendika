@@ -40,12 +40,14 @@ class StorageManager
 	const TABLES = ['photo', 'attach'];
 
 	// Default storage backends
+	/** @var string[]  */
 	const DEFAULT_BACKENDS = [
-		Storage\Filesystem::NAME => Storage\Filesystem::class,
-		Storage\Database::NAME   => Storage\Database::class,
+		Storage\Filesystem::NAME,
+		Storage\Database::NAME,
 	];
 
-	private $backends;
+	/** @var string[] List of valid backend classes */
+	private $validBackends;
 
 	/**
 	 * @var Storage\IStorage[] A local cache for storage instances
@@ -79,7 +81,7 @@ class StorageManager
 		$this->config   = $config;
 		$this->logger   = $logger;
 		$this->l10n     = $l10n;
-		$this->backends = $config->get('storage', 'backends', self::DEFAULT_BACKENDS);
+		$this->validBackends = $config->get('storage', 'backends', self::DEFAULT_BACKENDS);
 
 		$currentName = $this->config->get('storage', 'name');
 
@@ -109,7 +111,7 @@ class StorageManager
 	 */
 	public function getWritableStorageByName(string $name): Storage\IWritableStorage
 	{
-		$storage = $this->getByName($name, $this->backends);
+		$storage = $this->getByName($name, $this->validBackends);
 		if ($storage instanceof Storage\IWritableStorage) {
 			return $storage;
 		} else {
@@ -121,7 +123,7 @@ class StorageManager
 	 * Return storage backend class by registered name
 	 *
 	 * @param string     $name Backend name
-	 * @param array|null $validBackends possible, manual override of the valid backends
+	 * @param string[]|null $validBackends possible, manual override of the valid backends
 	 *
 	 * @return Storage\IStorage
 	 *
@@ -178,19 +180,19 @@ class StorageManager
 	/**
 	 * Checks, if the storage is a valid backend
 	 *
-	 * @param string|null $name          The name or class of the backend
-	 * @param array|null  $validBackends Possible, valid backends to check
+	 * @param string|null   $name          The name or class of the backend
+	 * @param string[]|null $validBackends Possible, valid backends to check
 	 *
 	 * @return boolean True, if the backend is a valid backend
 	 */
 	public function isValidBackend(string $name = null, array $validBackends = null): bool
 	{
-		$validBackends = $validBackends ?? array_merge($this->backends,
+		$validBackends = $validBackends ?? array_merge($this->validBackends,
 				[
-					Storage\SystemResource::getName()   => '',
-					Storage\ExternalResource::getName() => ''
+					Storage\SystemResource::getName(),
+					Storage\ExternalResource::getName(),
 				]);
-		return array_key_exists($name, $validBackends);
+		return in_array($name, $validBackends);
 	}
 
 	/**
@@ -213,11 +215,11 @@ class StorageManager
 	/**
 	 * Get registered backends
 	 *
-	 * @return array
+	 * @return Storage\IWritableStorage[]
 	 */
 	public function listBackends(): array
 	{
-		return $this->backends;
+		return $this->validBackends;
 	}
 
 	/**
@@ -234,11 +236,15 @@ class StorageManager
 		if (is_subclass_of($class, Storage\IStorage::class)) {
 			/** @var Storage\IStorage $class */
 
-			$backends                    = $this->backends;
-			$backends[$class::getName()] = $class;
+			if (array_search($class::getName(), $this->validBackends, true) !== false) {
+				return true;
+			}
+
+			$backends   = $this->validBackends;
+			$backends[] = $class::getName();
 
 			if ($this->config->set('storage', 'backends', $backends)) {
-				$this->backends = $backends;
+				$this->validBackends = $backends;
 				return true;
 			} else {
 				return false;
@@ -254,20 +260,33 @@ class StorageManager
 	 * @param string $class Backend class name
 	 *
 	 * @return boolean True, if unregistering was successful
+	 *
+	 * @throws Storage\StorageException
 	 */
 	public function unregister(string $class): bool
 	{
 		if (is_subclass_of($class, Storage\IStorage::class)) {
 			/** @var Storage\IStorage $class */
 
-			unset($this->backends[$class::getName()]);
-
-			if ($this->currentBackend instanceof $class) {
-				$this->config->set('storage', 'name', null);
-				$this->currentBackend = null;
+			if ($this->currentBackend::getName() == $class::getName()) {
+				throw new Storage\StorageException(sprintf('Cannot unregister %s, because it\'s currently active.', $class::getName()));
 			}
 
-			return $this->config->set('storage', 'backends', $this->backends);
+			$key = array_search($class::getName(), $this->validBackends);
+
+			if ($key !== false) {
+				$backends = $this->validBackends;
+				unset($backends[$key]);
+				$backends = array_values($backends);
+				if ($this->config->set('storage', 'backends', $backends)) {
+					$this->validBackends = $backends;
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return true;
+			}
 		} else {
 			return false;
 		}
@@ -289,7 +308,7 @@ class StorageManager
 	 */
 	public function move(Storage\IWritableStorage $destination, array $tables = self::TABLES, int $limit = 5000): int
 	{
-		if (!$this->isValidBackend($destination, $this->backends)) {
+		if (!$this->isValidBackend($destination, $this->validBackends)) {
 			throw new Storage\StorageException(sprintf("Can't move to storage backend '%s'", $destination::getName()));
 		}
 

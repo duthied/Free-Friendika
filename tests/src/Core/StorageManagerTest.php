@@ -250,10 +250,38 @@ class StorageManagerTest extends DatabaseTest
 		self::assertTrue($storageManager->register(SampleStorageBackend::class));
 
 		self::assertEquals(array_merge(StorageManager::DEFAULT_BACKENDS, [
-			SampleStorageBackend::getName() => SampleStorageBackend::class,
+			SampleStorageBackend::getName(),
 		]), $storageManager->listBackends());
 		self::assertEquals(array_merge(StorageManager::DEFAULT_BACKENDS, [
-			SampleStorageBackend::getName() => SampleStorageBackend::class,
+			SampleStorageBackend::getName()
+		]), $this->config->get('storage', 'backends'));
+
+		self::assertTrue($storageManager->unregister(SampleStorageBackend::class));
+		self::assertEquals(StorageManager::DEFAULT_BACKENDS, $this->config->get('storage', 'backends'));
+		self::assertEquals(StorageManager::DEFAULT_BACKENDS, $storageManager->listBackends());
+	}
+
+	/**
+	 * tests that an active backend cannot get unregistered
+	 */
+	public function testUnregisterActiveBackend()
+	{
+		/// @todo Remove dice once "Hook" is dynamic and mockable
+		$dice = (new Dice())
+			->addRules(include __DIR__ . '/../../../static/dependencies.config.php')
+			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
+			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true, 'call' => null]);
+		DI::init($dice);
+
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
+
+		self::assertTrue($storageManager->register(SampleStorageBackend::class));
+
+		self::assertEquals(array_merge(StorageManager::DEFAULT_BACKENDS, [
+			SampleStorageBackend::getName(),
+		]), $storageManager->listBackends());
+		self::assertEquals(array_merge(StorageManager::DEFAULT_BACKENDS, [
+			SampleStorageBackend::getName()
 		]), $this->config->get('storage', 'backends'));
 
 		// inline call to register own class as hook (testing purpose only)
@@ -265,12 +293,10 @@ class StorageManagerTest extends DatabaseTest
 
 		self::assertInstanceOf(SampleStorageBackend::class, $storageManager->getBackend());
 
-		self::assertTrue($storageManager->unregister(SampleStorageBackend::class));
-		self::assertEquals(StorageManager::DEFAULT_BACKENDS, $this->config->get('storage', 'backends'));
-		self::assertEquals(StorageManager::DEFAULT_BACKENDS, $storageManager->listBackends());
+		self::expectException(Storage\StorageException::class);
+		self::expectExceptionMessage('Cannot unregister Sample Storage, because it\'s currently active.');
 
-		self::assertNull($storageManager->getBackend());
-		self::assertNull($this->config->get('storage', 'name'));
+		$storageManager->unregister(SampleStorageBackend::class);
 	}
 
 	/**
