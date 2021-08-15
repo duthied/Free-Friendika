@@ -31,6 +31,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Crypto;
+use Minishlink\WebPush\VAPID;
 
 class Subscription
 {
@@ -107,8 +108,8 @@ class Subscription
 	private static function getKeyPair(): array
 	{
 		$keypair = DI::config()->get('system', 'ec_keypair');
-		if (empty($keypair)) {
-			$keypair = Crypto::newECKeypair();
+		if (empty($keypair['publicKey']) || empty($keypair['privateKey'])) {
+			$keypair = VAPID::createVapidKeys();			
 			DI::config()->set('system', 'ec_keypair', $keypair);
 		}
 		return $keypair;
@@ -122,7 +123,7 @@ class Subscription
 	public static function getPublicVapidKey(): string
 	{
 		$keypair = self::getKeyPair();
-		return $keypair['vapid-public'];
+		return $keypair['publicKey'];
 	}
 
 	/**
@@ -133,7 +134,7 @@ class Subscription
 	public static function getPrivateVapidKey(): string
 	{
 		$keypair = self::getKeyPair();
-		return $keypair['vapid-private'];
+		return $keypair['privateKey'];
 	}
 
 	/**
