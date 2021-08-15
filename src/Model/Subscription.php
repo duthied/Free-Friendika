@@ -116,8 +116,8 @@ class Subscription
 	/**
 	 * Prepare push notification
 	 *
-	 * @param int $nid 
-	 * @return void 
+	 * @param int $nid
+	 * @return void
 	 */
 	public static function pushByNotificationId(int $nid)
 	{
