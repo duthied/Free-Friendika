@@ -982,7 +982,7 @@ function update_1429()
 	return Update::SUCCESS;
 }
 
-function update_1433()
+function update_1434()
 {
 	$name = DI::config()->get('storage', 'name');
 
