@@ -41,9 +41,9 @@ class Subscription
 
 	/**
 	 * Delete a subscription record
-	 * @param int $applicationid 
-	 * @param int $uid 
-	 * @return bool 
+	 * @param int $applicationid
+	 * @param int $uid
+	 * @return bool
 	 */
 	public static function delete(int $applicationid, int $uid)
 	{
@@ -54,7 +54,7 @@ class Subscription
 	 * Fetch a VAPID key
 	 * @return string
 	 */
-	public static function getVapidKey():string
+	public static function getVapidKey(): string
 	{
 		$keypair = DI::config()->get('system', 'ec_keypair');
 		if (empty($keypair)) {
