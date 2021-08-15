@@ -23,6 +23,7 @@
   * @see https://github.com/web-push-libs/web-push-php
   * Possibly we should simply use this.
   */
+
 namespace Friendica\Model;
 
 use Friendica\Database\DBA;
