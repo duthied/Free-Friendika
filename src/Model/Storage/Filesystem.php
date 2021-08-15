@@ -127,7 +127,6 @@ class Filesystem implements IWritableStorage
 
 		$result = file_get_contents($file);
 
-		// just in case the result is REALLY false, not zero or empty or anything else, throw the exception
 		if ($result === false) {
 			throw new StorageException(sprintf('Filesystem storage failed to get data to "%s". Check your write permissions', $file));
 		}
