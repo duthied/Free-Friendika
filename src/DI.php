@@ -320,6 +320,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Subscription
+	 */
+	public static function mstdnSubscription()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Subscription::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\ListEntity
 	 */
 	public static function mstdnList()

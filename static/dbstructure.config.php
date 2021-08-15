@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1433);
+	define('DB_UPDATE_VERSION', 1434);
 }
 
 return [
@@ -1490,6 +1490,29 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"]
+		]
+	],
+	"subscription" => [
+		"comment" => "Push Subscription for the API",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented image data id"],
+			"application-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["application" => "id"], "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
+			"endpoint" => ["type" => "varchar(511)", "comment" => "Endpoint URL"],
+			"pubkey" => ["type" => "varchar(127)", "comment" => "User agent public key"],
+			"secret" => ["type" => "varchar(32)", "comment" => "Auth secret"],
+			"follow" => ["type" => "boolean", "comment" => ""],
+			"favourite" => ["type" => "boolean", "comment" => ""],
+			"reblog" => ["type" => "boolean", "comment" => ""],
+			"mention" => ["type" => "boolean", "comment" => ""],
+			"poll" => ["type" => "boolean", "comment" => ""],
+			"follow_request" => ["type" => "boolean", "comment" => ""],
+			"status" => ["type" => "boolean", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"application-id_uid" => ["UNIQUE", "application-id", "uid"],
+			"uid_application-id" => ["uid", "application-id"],
 		]
 	],
 	"userd" => [
