@@ -155,7 +155,7 @@ class Crypto
 	/**
 	 * Create a new elliptic curve key pair
 	 *
-	 * @return array with the elements "prvkey", "vapid" and "pubkey"
+	 * @return array with the elements "prvkey", "pubkey", "vapid-public" and "vapid-private"
 	 */
 	public static function newECKeypair()
 	{
@@ -174,7 +174,7 @@ class Crypto
 			throw new Exception('Key creation failed');
 		}
 
-		$response = ['prvkey' => '', 'pubkey' => '', 'vapid' => ''];
+		$response = ['prvkey' => '', 'pubkey' => ''];
 
 		// Get private key
 		openssl_pkey_export($result, $response['prvkey']);
@@ -183,12 +183,15 @@ class Crypto
 		$pkey = openssl_pkey_get_details($result);
 		$response['pubkey'] = $pkey['key'];
 
-		// Create VAPID key
+		// Create VAPID keys
 		// @see https://github.com/web-push-libs/web-push-php/blob/256a18b2a2411469c94943725fb6eccb9681bd75/src/Utils.php#L60-L62
 		$hexString = '04';
 		$hexString .= str_pad(bin2hex($pkey['ec']['x']), 64, '0', STR_PAD_LEFT);
 		$hexString .= str_pad(bin2hex($pkey['ec']['y']), 64, '0', STR_PAD_LEFT);
-		$response['vapid'] = Base64UrlSafe::encode(hex2bin($hexString));
+		$response['vapid-public'] = Base64UrlSafe::encode(hex2bin($hexString));
+
+		// @see https://github.com/web-push-libs/web-push-php/blob/256a18b2a2411469c94943725fb6eccb9681bd75/src/VAPID.php
+		$response['vapid-private'] = Base64UrlSafe::encode(hex2bin(str_pad(bin2hex($pkey['ec']['d']), 64, '0', STR_PAD_LEFT)));
 
 		return $response;
 	}
