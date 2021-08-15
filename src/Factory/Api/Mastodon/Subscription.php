@@ -36,6 +36,6 @@ class Subscription extends BaseFactory
 	public function createForApplicationIdAndUserId(int $applicationid, int $uid): \Friendica\Object\Api\Mastodon\Subscription
 	{
 		$subscription = DBA::selectFirst('subscription', [], ['application-id' => $applicationid, 'uid' => $uid]);
-		return new \Friendica\Object\Api\Mastodon\Subscription($subscription, ModelSubscription::getVapidKey());
+		return new \Friendica\Object\Api\Mastodon\Subscription($subscription, ModelSubscription::getPublicVapidKey());
 	}
 }

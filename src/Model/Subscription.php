@@ -100,18 +100,40 @@ class Subscription
 	}
 
 	/**
-	 * Fetch a VAPID key
+	 * Fetch a VAPID keypair
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public static function getVapidKey(): string
+	private static function getKeyPair(): array
 	{
 		$keypair = DI::config()->get('system', 'ec_keypair');
 		if (empty($keypair)) {
 			$keypair = Crypto::newECKeypair();
 			DI::config()->set('system', 'ec_keypair', $keypair);
 		}
+		return $keypair;
+	}
+
+	/**
+	 * Fetch the public VAPID key
+	 *
+	 * @return string
+	 */
+	public static function getPublicVapidKey(): string
+	{
+		$keypair = self::getKeyPair();
 		return $keypair['vapid-public'];
+	}
+
+	/**
+	 * Fetch the public VAPID key
+	 *
+	 * @return string
+	 */
+	public static function getPrivateVapidKey(): string
+	{
+		$keypair = self::getKeyPair();
+		return $keypair['vapid-private'];
 	}
 
 	/**

@@ -23,6 +23,8 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Subscription as ModelSubscription;
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
 
@@ -41,7 +43,15 @@ class PushSubscription
 			'payload' => null,
 		];
 
-		$webPush = new WebPush();
+		$auth = [
+			'VAPID' => [
+				'subject' => DI::baseUrl()->getHostname(),
+				'publicKey' => ModelSubscription::getPublicVapidKey(),
+				'privateKey' => ModelSubscription::getPrivateVapidKey(),
+			],
+		];
+		
+		$webPush = new WebPush($auth);
 
 		$report = $webPush->sendOneNotification(
 			$notification['subscription'],
