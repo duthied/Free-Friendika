@@ -34,7 +34,7 @@ Class PushSubscription
 
 		$notification = [
 			'subscription' => Subscription::create([
-				'endpoint' => $subscription['endpoint'],
+				'endpoint'  => $subscription['endpoint'],
 				'publicKey' => $subscription['pubkey'],
 				'authToken' => $subscription['secret'],
 			]),
@@ -47,7 +47,7 @@ Class PushSubscription
 			$notification['subscription'],
 			$notification['payload']
 		);
-		
+
 		$endpoint = $report->getRequest()->getUri()->__toString();
 
 		if ($report->isSuccess()) {
