@@ -28,7 +28,48 @@ use Friendica\Util\Crypto;
 class Subscription
 {
 	/**
-	 * Insert an Subscription record
+	 * Select a subscription record exists
+	 *
+	 * @param int   $applicationid
+	 * @param int   $uid
+	 * @param array $fields
+	 *
+	 * @return bool Does it exist?
+	 */
+	public static function select(int $applicationid, int $uid, array $fields = [])
+	{
+		return DBA::selectFirst('subscription', $fields, ['application-id' => $applicationid, 'uid' => $uid]);
+	}
+
+	/**
+	 * Check if a subscription record exists
+	 *
+	 * @param int   $applicationid
+	 * @param int   $uid
+	 *
+	 * @return bool Does it exist?
+	 */
+	public static function exists(int $applicationid, int $uid)
+	{
+		return DBA::exists('subscription', ['application-id' => $applicationid, 'uid' => $uid]);
+	}
+
+	/**
+	 * Update a subscription record
+	 *
+	 * @param int   $applicationid
+	 * @param int   $uid
+	 * @param array $fields subscription fields
+	 *
+	 * @return bool result of update
+	 */
+	public static function update(int $applicationid, int $uid, array $fields)
+	{
+		return DBA::update('subscription', $fields, ['application-id' => $applicationid, 'uid' => $uid]);
+	}
+
+	/**
+	 * Insert or replace a subscription record
 	 *
 	 * @param array $fields subscription fields
 	 *
@@ -41,6 +82,7 @@ class Subscription
 
 	/**
 	 * Delete a subscription record
+	 *
 	 * @param int $applicationid
 	 * @param int $uid
 	 * @return bool
@@ -52,6 +94,7 @@ class Subscription
 
 	/**
 	 * Fetch a VAPID key
+	 *
 	 * @return string
 	 */
 	public static function getVapidKey(): string

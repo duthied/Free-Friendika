@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\App\Router;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
@@ -72,7 +71,31 @@ class PushSubscription extends BaseApi
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
-		self::unsupported(Router::PUT);
+		$request = self::getRequest([
+			'data' => [],
+		]);
+
+		$subscription = Subscription::select($application['id'], $uid, ['id']);
+		if (empty($subscription)) {
+			Logger::info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		$fields = [
+			'follow'         => $request['data']['alerts']['follow'] ?? false,
+			'favourite'      => $request['data']['alerts']['favourite'] ?? false,
+			'reblog'         => $request['data']['alerts']['reblog'] ?? false,
+			'mention'        => $request['data']['alerts']['mention'] ?? false,
+			'poll'           => $request['data']['alerts']['poll'] ?? false,
+			'follow_request' => $request['data']['alerts']['follow_request'] ?? false,
+			'status'         => $request['data']['alerts']['status'] ?? false,
+		];
+
+		$ret = Subscription::update($application['id'], $uid, $fields);
+
+		Logger::info('Subscription updated', ['result' => $ret, 'application-id' => $application['id'], 'uid' => $uid, 'fields' => $fields]);
+
+		return DI::mstdnSubscription()->createForApplicationIdAndUserId($application['id'], $uid)->toArray();
 	}
 
 	public static function delete(array $parameters = [])
@@ -81,7 +104,9 @@ class PushSubscription extends BaseApi
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
-		Subscription::delete($application['id'], $uid);
+		$ret = Subscription::delete($application['id'], $uid);
+
+		Logger::info('Subscription deleted', ['result' => $ret, 'application-id' => $application['id'], 'uid' => $uid]);
 
 		System::jsonExit([]);
 	}
@@ -91,6 +116,13 @@ class PushSubscription extends BaseApi
 		self::checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
+
+		if (!Subscription::exists($application['id'], $uid)) {
+			Logger::info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		Logger::info('Fetch subscription', ['application-id' => $application['id'], 'uid' => $uid]);
 
 		return DI::mstdnSubscription()->createForApplicationIdAndUserId($application['id'], $uid)->toArray();
 	}
