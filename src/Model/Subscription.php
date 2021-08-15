@@ -122,6 +122,7 @@ class Subscription
 	public static function pushByNotificationId(int $nid)
 	{
 		$notification = DBA::selectFirst('notification', [], ['id' => $nid]);
+
 		$type = Notification::getType($notification);
 		if (empty($type)) {
 			return;
