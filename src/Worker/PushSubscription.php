@@ -45,12 +45,12 @@ class PushSubscription
 
 		$auth = [
 			'VAPID' => [
-				'subject' => DI::baseUrl()->getHostname(),
-				'publicKey' => ModelSubscription::getPublicVapidKey(),
+				'subject'    => DI::baseUrl()->getHostname(),
+				'publicKey'  => ModelSubscription::getPublicVapidKey(),
 				'privateKey' => ModelSubscription::getPrivateVapidKey(),
 			],
 		];
-		
+
 		$webPush = new WebPush($auth);
 
 		$report = $webPush->sendOneNotification(
