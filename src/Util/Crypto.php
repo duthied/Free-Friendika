@@ -21,6 +21,7 @@
 
 namespace Friendica\Util;
 
+use Exception;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
@@ -170,8 +171,7 @@ class Crypto
 		$result = openssl_pkey_new($openssl_options);
 
 		if (empty($result)) {
-			Logger::notice('new_keypair: failed');
-			return [];
+			throw new Exception('Key creation failed');
 		}
 
 		$response = ['prvkey' => '', 'pubkey' => '', 'vapid' => ''];
