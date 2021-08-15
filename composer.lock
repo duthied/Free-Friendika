@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9560ab7f3a3b33c673672c11813ae52e",
+    "content-hash": "67d9153800314dadee1f838ad722c148",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -4684,7 +4684,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.0",
+        "php": ">=7.2",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-dom": "*",
