@@ -26,7 +26,7 @@ use Friendica\Database\DBA;
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
 
-Class PushSubscription
+class PushSubscription
 {
 	public static function execute(int $sid)
 	{
