@@ -43,8 +43,6 @@ class Favourited extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		// @todo provide HTTP link header
-
 		$request = self::getRequest([
 			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
 			'min_id'     => 0,     // Return results immediately newer than id

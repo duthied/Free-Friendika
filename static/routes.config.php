@@ -126,7 +126,7 @@ return [
 			'/polls/{id:\d+}'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/polls/{id:\d+}/votes'              => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/preferences'                       => [Module\Api\Mastodon\Preferences::class,              [R::GET         ]],
-			'/push/subscription'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST, R::PUT, R::DELETE]], // not supported
+			'/push/subscription'                 => [Module\Api\Mastodon\PushSubscription::class,         [R::GET, R::POST, R::PUT, R::DELETE]],
 			'/reports'                           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/scheduled_statuses'                => [Module\Api\Mastodon\ScheduledStatuses::class,        [R::GET         ]],
 			'/scheduled_statuses/{id:\d+}'       => [Module\Api\Mastodon\ScheduledStatuses::class,        [R::GET, R::PUT, R::DELETE]],

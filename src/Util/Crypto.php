@@ -21,10 +21,12 @@
 
 namespace Friendica\Util;
 
+use Exception;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 
@@ -146,6 +148,50 @@ class Crypto
 		// Get public key
 		$pkey = openssl_pkey_get_details($result);
 		$response['pubkey'] = $pkey["key"];
+
+		return $response;
+	}
+
+	/**
+	 * Create a new elliptic curve key pair
+	 *
+	 * @return array with the elements "prvkey", "pubkey", "vapid-public" and "vapid-private"
+	 */
+	public static function newECKeypair()
+	{
+		$openssl_options = [
+			'curve_name'       => 'prime256v1',
+			'private_key_type' => OPENSSL_KEYTYPE_EC
+		];
+
+		$conf = DI::config()->get('system', 'openssl_conf_file');
+		if ($conf) {
+			$openssl_options['config'] = $conf;
+		}
+		$result = openssl_pkey_new($openssl_options);
+
+		if (empty($result)) {
+			throw new Exception('Key creation failed');
+		}
+
+		$response = ['prvkey' => '', 'pubkey' => ''];
+
+		// Get private key
+		openssl_pkey_export($result, $response['prvkey']);
+
+		// Get public key
+		$pkey = openssl_pkey_get_details($result);
+		$response['pubkey'] = $pkey['key'];
+
+		// Create VAPID keys
+		// @see https://github.com/web-push-libs/web-push-php/blob/256a18b2a2411469c94943725fb6eccb9681bd75/src/Utils.php#L60-L62
+		$hexString = '04';
+		$hexString .= str_pad(bin2hex($pkey['ec']['x']), 64, '0', STR_PAD_LEFT);
+		$hexString .= str_pad(bin2hex($pkey['ec']['y']), 64, '0', STR_PAD_LEFT);
+		$response['vapid-public'] = Base64UrlSafe::encode(hex2bin($hexString));
+
+		// @see https://github.com/web-push-libs/web-push-php/blob/256a18b2a2411469c94943725fb6eccb9681bd75/src/VAPID.php
+		$response['vapid-private'] = Base64UrlSafe::encode(hex2bin(str_pad(bin2hex($pkey['ec']['d']), 64, '0', STR_PAD_LEFT)));
 
 		return $response;
 	}

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.09-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1433
+-- DB_UPDATE_VERSION 1434
 -- ------------------------------------------
 
 
@@ -1471,6 +1471,30 @@ CREATE TABLE IF NOT EXISTS `storage` (
 	`data` longblob NOT NULL COMMENT 'file data',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Data stored by Database storage backend';
+
+--
+-- TABLE subscription
+--
+CREATE TABLE IF NOT EXISTS `subscription` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'Auto incremented image data id',
+	`application-id` int unsigned NOT NULL COMMENT '',
+	`uid` mediumint unsigned NOT NULL COMMENT 'Owner User id',
+	`endpoint` varchar(511) COMMENT 'Endpoint URL',
+	`pubkey` varchar(127) COMMENT 'User agent public key',
+	`secret` varchar(32) COMMENT 'Auth secret',
+	`follow` boolean COMMENT '',
+	`favourite` boolean COMMENT '',
+	`reblog` boolean COMMENT '',
+	`mention` boolean COMMENT '',
+	`poll` boolean COMMENT '',
+	`follow_request` boolean COMMENT '',
+	`status` boolean COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `application-id_uid` (`application-id`,`uid`),
+	 INDEX `uid_application-id` (`uid`,`application-id`),
+	FOREIGN KEY (`application-id`) REFERENCES `application` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Push Subscription for the API';
 
 --
 -- TABLE userd

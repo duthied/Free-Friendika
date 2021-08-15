@@ -23,10 +23,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
 use Friendica\Database\Database;
-use Friendica\Model\Contact;
-use Friendica\Model\Post;
-use Friendica\Model\Verb;
-use Friendica\Protocol\Activity;
+use Friendica\Model\Notification as ModelNotification;
 use Psr\Log\LoggerInterface;
 
 class Notification extends BaseFactory
@@ -62,22 +59,8 @@ class Notification extends BaseFactory
 		status         = Someone you enabled notifications for has posted a status
 		*/
 
-		if (($notification['vid'] == Verb::getID(Activity::FOLLOW)) && ($notification['type'] == Post\UserNotification::NOTIF_NONE)) {
-			$contact = Contact::getById($notification['actor-id'], ['pending']);
-			$type    = $contact['pending'] ? $type    = 'follow_request' : 'follow';
-		} elseif (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
-			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
-			$type = 'reblog';
-		} elseif (in_array($notification['vid'], [Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE)]) &&
-			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
-			$type = 'favourite';
-		} elseif ($notification['type'] == Post\UserNotification::NOTIF_SHARED) {
-			$type = 'status';
-		} elseif (in_array($notification['type'], [Post\UserNotification::NOTIF_EXPLICIT_TAGGED,
-			Post\UserNotification::NOTIF_IMPLICIT_TAGGED, Post\UserNotification::NOTIF_DIRECT_COMMENT,
-			Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT, Post\UserNotification::NOTIF_THREAD_COMMENT])) {
-			$type = 'mention';
-		} else {
+		$type = ModelNotification::getType($notification);
+		if (empty($type)) {
 			return null;
 		}
 

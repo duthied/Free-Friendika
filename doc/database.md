@@ -65,6 +65,7 @@ Database Tables
 | [search](help/database/db_search) |  |
 | [session](help/database/db_session) | web session storage |
 | [storage](help/database/db_storage) | Data stored by Database storage backend |
+| [subscription](help/database/db_subscription) | Push Subscription for the API |
 | [tag](help/database/db_tag) | tags and mentions |
 | [user](help/database/db_user) | The local users |
 | [user-contact](help/database/db_user-contact) | User specific public contact data |
