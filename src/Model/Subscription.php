@@ -109,7 +109,7 @@ class Subscription
 	{
 		$keypair = DI::config()->get('system', 'ec_keypair');
 		if (empty($keypair['publicKey']) || empty($keypair['privateKey'])) {
-			$keypair = VAPID::createVapidKeys();			
+			$keypair = VAPID::createVapidKeys();
 			DI::config()->set('system', 'ec_keypair', $keypair);
 		}
 		return $keypair;
