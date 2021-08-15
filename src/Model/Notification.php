@@ -25,6 +25,7 @@ use Friendica\BaseModel;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\Database;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Protocol\Activity;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -122,5 +123,35 @@ class Notification extends BaseModel
 		}
 
 		return $message;
+	}
+
+	/**
+	 * Fetch the notification type for the given notification
+	 *
+	 * @param array $notification 
+	 * @return string
+	 */
+	public static function getType(array $notification): string
+	{
+		if (($notification['vid'] == Verb::getID(Activity::FOLLOW)) && ($notification['type'] == Post\UserNotification::NOTIF_NONE)) {
+			$contact = Contact::getById($notification['actor-id'], ['pending']);
+			$contact['pending'] ? $type = 'follow_request' : 'follow';
+		} elseif (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
+			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
+			$type = 'reblog';
+		} elseif (in_array($notification['vid'], [Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE)]) &&
+			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
+			$type = 'favourite';
+		} elseif ($notification['type'] == Post\UserNotification::NOTIF_SHARED) {
+			$type = 'status';
+		} elseif (in_array($notification['type'], [Post\UserNotification::NOTIF_EXPLICIT_TAGGED,
+			Post\UserNotification::NOTIF_IMPLICIT_TAGGED, Post\UserNotification::NOTIF_DIRECT_COMMENT,
+			Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT, Post\UserNotification::NOTIF_THREAD_COMMENT])) {
+			$type = 'mention';
+		} else {
+			return '';
+		}
+
+		return $type;
 	}
 }

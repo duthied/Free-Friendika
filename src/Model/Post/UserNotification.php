@@ -30,6 +30,7 @@ use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
+use Friendica\Model\Subscription;
 use Friendica\Util\Strings;
 use Friendica\Model\Tag;
 use Friendica\Protocol\Activity;
@@ -297,7 +298,14 @@ class UserNotification
 			$fields['target-uri-id'] = $item['uri-id'];
 		}
 
-		return DBA::insert('notification', $fields, Database::INSERT_IGNORE);
+		$ret = DBA::insert('notification', $fields, Database::INSERT_IGNORE);
+		if ($ret) {
+			$id = DBA::lastInsertId();
+			if (!empty($id)) {
+				Subscription::pushByNotificationId($id);
+			}
+		}
+		return $ret;
 	}
 
 	/**
@@ -318,7 +326,14 @@ class UserNotification
 			'created' => DateTimeFormat::utcNow(),
 		];
 
-		return DBA::insert('notification', $fields, Database::INSERT_IGNORE);
+		$ret = DBA::insert('notification', $fields, Database::INSERT_IGNORE);
+		if ($ret) {
+			$id = DBA::lastInsertId();
+			if (!empty($id)) {
+				Subscription::pushByNotificationId($id);
+			}
+		}
+		return $ret;
 	}
 
 	/**

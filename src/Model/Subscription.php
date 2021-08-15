@@ -23,8 +23,10 @@
   * @see https://github.com/web-push-libs/web-push-php
   * Possibly we should simply use this.
   */
+
 namespace Friendica\Model;
 
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Crypto;
@@ -109,5 +111,26 @@ class Subscription
 			DI::config()->set('system', 'ec_keypair', $keypair);
 		}
 		return $keypair['vapid-public'];
+	}
+
+	/**
+	 * Prepare push notification
+	 *
+	 * @param int $nid 
+	 * @return void 
+	 */
+	public static function pushByNotificationId(int $nid)
+	{
+		$notification = DBA::selectFirst('notification', [], ['id' => $nid]);
+		$type = Notification::getType($notification);
+		if (empty($type)) {
+			return;
+		}
+
+		$subscriptions = DBA::select('subscription', [], ['uid' => $notification['uid'], $type => true]);
+		while ($subscription = DBA::fetch($subscriptions)) {
+			Logger::info('Push notification', ['id' => $subscription['id'], 'uid' => $subscription['uid'], 'type' => $type]);
+		}
+		DBA::close($subscriptions);
 	}
 }
