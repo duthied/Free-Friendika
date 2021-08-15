@@ -25,7 +25,7 @@ namespace Friendica\Model\Storage;
  * Interface for writable storage backends
  *
  * Used for storages with CRUD functionality, mainly used for user data (e.g. photos, attachements).
- * There's only one active, writable storage possible. This type of storages are selectable by the current administrator
+ * There's only one active writable storage possible. This type of storage is selectable by the current administrator.
  */
 interface IWritableStorage extends IStorage
 {
