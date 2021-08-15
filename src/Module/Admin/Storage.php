@@ -96,7 +96,7 @@ class Storage extends BaseAdmin
 		$current_storage_backend = DI::storage();
 		$available_storage_forms = [];
 
-		foreach (DI::storageManager()->listBackends() as $name => $class) {
+		foreach (DI::storageManager()->listBackends() as $name) {
 
 			// build storage config form,
 			$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $name);

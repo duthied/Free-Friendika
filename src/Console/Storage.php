@@ -106,7 +106,7 @@ HELP;
 		$this->out(sprintf($rowfmt, 'Sel', 'Name'));
 		$this->out('-----------------------');
 		$isregisterd = false;
-		foreach ($this->storageManager->listBackends() as $name => $class) {
+		foreach ($this->storageManager->listBackends() as $name) {
 			$issel = ' ';
 			if ($current && $current::getName() == $name) {
 				$issel = '*';

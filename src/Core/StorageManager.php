@@ -215,7 +215,7 @@ class StorageManager
 	/**
 	 * Get registered backends
 	 *
-	 * @return Storage\IWritableStorage[]
+	 * @return string[]
 	 */
 	public function listBackends(): array
 	{
