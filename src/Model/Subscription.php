@@ -27,6 +27,7 @@
 namespace Friendica\Model;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Crypto;
@@ -131,6 +132,7 @@ class Subscription
 		$subscriptions = DBA::select('subscription', [], ['uid' => $notification['uid'], $type => true]);
 		while ($subscription = DBA::fetch($subscriptions)) {
 			Logger::info('Push notification', ['id' => $subscription['id'], 'uid' => $subscription['uid'], 'type' => $type]);
+			Worker::add(PRIORITY_HIGH, 'PushSubscription', $subscription['id']);
 		}
 		DBA::close($subscriptions);
 	}
