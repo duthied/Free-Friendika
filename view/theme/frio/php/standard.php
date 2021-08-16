@@ -22,6 +22,8 @@
 
 use Friendica\DI;
 
+$frio = 'view/theme/frio';
+
 ?>
 <!DOCTYPE html >
 <html>
@@ -30,18 +32,16 @@ use Friendica\DI;
 	<meta name="viewport" content="initial-scale=1.0">
 	<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?>">
 	<script type="text/javascript">var baseurl="<?php echo DI::baseUrl() ?>";</script>
-	<script type="text/javascript">var frio="<?php echo "view/theme/frio"; ?>";</script>
-	<?php $baseurl = DI::baseUrl(); ?>
-	<?php $frio = "view/theme/frio"; ?>
+	<script type="text/javascript">var frio="<?php echo $frio; ?>";</script>
 	<?php if(!empty($page['htmlhead'])) echo $page['htmlhead']; ?>
 </head>
 <body id="top">
-<?php if($_SERVER['REQUEST_URI'] == "/"){header('Location: /login');} ?>
+<?php if($_SERVER['REQUEST_URI'] == '/'){header('Location: /login');} ?>
 <a href="#content" class="sr-only sr-only-focusable"><?php echo DI::l10n()->t('Skip to main content'); ?></a>
 <?php
 	if(!empty($page['nav'])) {
-	echo	str_replace("~config.sitename~", DI::config()->get('config','sitename'),
-			str_replace("~system.banner~", DI::config()->get('system','banner'),
+	echo	str_replace('~config.sitename~', DI::config()->get('config','sitename'),
+			str_replace('~system.banner~', DI::config()->get('system','banner'),
 			$page['nav']
 	));};
 ?>
@@ -50,24 +50,24 @@ use Friendica\DI;
 		<div class="container">
 			<div class="row">
 <?php
-					echo"
-					<aside class=\"col-lg-3 col-md-3 hidden-sm hidden-xs\">
-						"; if(!empty($page['aside'])) echo $page['aside']; echo"
-						"; if(!empty($page['right_aside'])) echo $page['right_aside']; echo"
-						"; include('includes/photo_side.php'); echo"
+					echo '
+					<aside class="col-lg-3 col-md-3 hidden-sm hidden-xs">
+						'; if(!empty($page['aside'])) echo $page['aside']; echo'
+						'; if(!empty($page['right_aside'])) echo $page['right_aside']; echo'
+						'; include('includes/photo_side.php'); echo'
 					</aside>
 
-					<div class=\"col-lg-8 col-md-8 col-sm-12 col-xs-12\" id=\"content\">
-						<section class=\"sectiontop\">
-								<div class=\"panel "; echo $a->argv[0]; echo "-content-wrapper\">
-									<div class=\"panel-body\">";
-										if(!empty($page['content'])) echo $page['content']; echo"
-										<div id=\"pause\"></div> <!-- The pause/resume Ajax indicator -->
+					<div class="col-lg-8 col-md-8 col-sm-12 col-xs-12" id="content">
+						<section class="sectiontop">
+								<div class="panel ' . DI::args()->get(0, 'generic') . '-content-wrapper">
+									<div class="panel-body">';
+										if(!empty($page['content'])) echo $page['content']; echo'
+										<div id="pause"></div> <!-- The pause/resume Ajax indicator -->
 									</div>
 								</div>
 						</section>
 					</div>
-						";
+						';
 ?>
 			</div><!--row-->
 		</div><!-- container -->
@@ -76,11 +76,10 @@ use Friendica\DI;
 	</main>
 
 <footer>
-<span id="notifsound"></span>
 <script>
-	$("#menu-toggle").click(function(e) {
+	$('#menu-toggle').click(function(e) {
 		e.preventDefault();
-		$("#wrapper").toggleClass("toggled");
+		$('#wrapper').toggleClass('toggled');
 	});
 </script>
 <script type="text/javascript">
@@ -101,14 +100,13 @@ use Friendica\DI;
 
 <script>
 var pagetitle = null;
-$("nav").bind('nav-update', function(e,data)
+$('nav').bind('nav-update', function(e,data)
 {
 	if (pagetitle==null) pagetitle = document.title;
 	var count = $(data).find('notif').attr('count');
 	if (count>0)
 	{
-		document.title = "("+count+") "+pagetitle;
-		/* document.getElementById('notifsound').innerHTML='<object type="audio/mpeg" width="0" height="0" data="<?=$frio?>/audios/901.mp3"><param name="notif" value="<?=$frio?>/audios/901.mp3" /><param name="autostart" value="true" /><param name="loop" value="false" /></object>'; */
+		document.title = '('+count+') '+pagetitle;
 	}
 	else
 	{

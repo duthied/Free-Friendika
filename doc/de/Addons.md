@@ -61,11 +61,14 @@ Addons können auch als "Module" agieren und alle Seitenanfragen für eine besti
 Um ein Addon als Modul zu nutzen, ist es nötig, die Funktion "addon_name_module()" zu definieren, die keine Argumente benötigt und nichts weiter machen muss.
 
 Wenn diese Funktion existiert, wirst du nun alle Seitenanfragen für "http://example.com/addon_name" erhalten - mit allen URL-Komponenten als zusätzliche Argumente.
-Diese werden in ein Array $a->argv geparst und stimmen mit $a->argc überein, wobei sie die Anzahl der URL-Komponenten abbilden.
-So würde http://example.com/addon/arg1/arg2 nach einem Modul "addon" suchen und seiner Modulfunktion die $a-App-Strukur übergeben (dies ist für viele Komponenten verfügbar). Das umfasst:
-
-    $a->argc = 3
-    $a->argv = array(0 => 'addon', 1 => 'arg1', 2 => 'arg2');
+Diese werden in das App\Arguments Objekt geparst.
+So würde `http://example.com/addon/arg1/arg2` dies ergeben:
+```php
+DI::args()->getArgc(); // = 3
+DI::args()->get(0); // = 'addon'
+DI::args()->get(1); // = 'arg1'
+DI::args()->get(2); // = 'arg2'
+```
 
 Deine Modulfunktionen umfassen oft die Funktion addon_name_content(App $a), welche den Seiteninhalt definiert und zurückgibt.
 Sie können auch addon_name_post(App $a) umfassen, welches vor der content-Funktion aufgerufen wird und normalerweise die Resultate der POST-Formulare handhabt.
