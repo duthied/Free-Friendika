@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-16 06:14+0000\n"
+"POT-Creation-Date: 2021-08-16 23:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,10 +40,10 @@ msgstr ""
 #: include/api.php:4437 mod/photos.php:86 mod/photos.php:195 mod/photos.php:623
 #: mod/photos.php:1031 mod/photos.php:1048 mod/photos.php:1594
 #: src/Model/User.php:1112 src/Model/User.php:1120 src/Model/User.php:1128
-#: src/Module/Settings/Profile/Photo/Crop.php:97
-#: src/Module/Settings/Profile/Photo/Crop.php:113
-#: src/Module/Settings/Profile/Photo/Crop.php:129
-#: src/Module/Settings/Profile/Photo/Crop.php:175
+#: src/Module/Settings/Profile/Photo/Crop.php:101
+#: src/Module/Settings/Profile/Photo/Crop.php:117
+#: src/Module/Settings/Profile/Photo/Crop.php:133
+#: src/Module/Settings/Profile/Photo/Crop.php:179
 #: src/Module/Settings/Profile/Photo/Index.php:95
 #: src/Module/Settings/Profile/Photo/Index.php:101
 msgid "Profile Photos"
@@ -851,7 +851,7 @@ msgstr ""
 #: src/Module/Search/Directory.php:38 src/Module/Settings/Delegation.php:42
 #: src/Module/Settings/Delegation.php:70 src/Module/Settings/Display.php:43
 #: src/Module/Settings/Display.php:121
-#: src/Module/Settings/Profile/Photo/Crop.php:154
+#: src/Module/Settings/Profile/Photo/Crop.php:158
 #: src/Module/Settings/Profile/Photo/Index.php:112
 #: src/Module/Settings/UserExport.php:58 src/Module/Settings/UserExport.php:93
 #: src/Module/Settings/UserExport.php:199
@@ -969,7 +969,7 @@ msgid "Edit post"
 msgstr ""
 
 #: mod/editpost.php:91 mod/notes.php:56 src/Content/Text/HTML.php:885
-#: src/Module/Admin/Storage.php:120 src/Module/Filer/SaveTag.php:69
+#: src/Module/Admin/Storage.php:133 src/Module/Filer/SaveTag.php:69
 msgid "Save"
 msgstr ""
 
@@ -2716,7 +2716,7 @@ msgstr ""
 msgid "File upload failed."
 msgstr ""
 
-#: mod/wall_upload.php:233 src/Model/Photo.php:1002
+#: mod/wall_upload.php:233 src/Model/Photo.php:1013
 msgid "Wall Photos"
 msgstr ""
 
@@ -4689,39 +4689,17 @@ msgstr ""
 msgid "OpenWebAuth: %1$s welcomes %2$s"
 msgstr ""
 
-#: src/Model/Storage/Database.php:74
-#, php-format
-msgid "Database storage failed to update %s"
-msgstr ""
-
-#: src/Model/Storage/Database.php:82
-msgid "Database storage failed to insert data"
-msgstr ""
-
-#: src/Model/Storage/Filesystem.php:100
-#, php-format
-msgid ""
-"Filesystem storage failed to create \"%s\". Check you write permissions."
-msgstr ""
-
-#: src/Model/Storage/Filesystem.php:148
-#, php-format
-msgid ""
-"Filesystem storage failed to save data to \"%s\". Check your write "
-"permissions"
-msgstr ""
-
-#: src/Model/Storage/Filesystem.php:176
+#: src/Model/Storage/Filesystem.php:187
 msgid "Storage base path"
 msgstr ""
 
-#: src/Model/Storage/Filesystem.php:178
+#: src/Model/Storage/Filesystem.php:189
 msgid ""
 "Folder where uploaded files are saved. For maximum security, This should be "
 "a path outside web server folder tree"
 msgstr ""
 
-#: src/Model/Storage/Filesystem.php:191
+#: src/Model/Storage/Filesystem.php:202
 msgid "Enter a valid existing folder"
 msgstr ""
 
@@ -5004,7 +4982,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Server.php:88 src/Module/Admin/Federation.php:159
 #: src/Module/Admin/Item/Delete.php:65 src/Module/Admin/Logs/Settings.php:80
 #: src/Module/Admin/Logs/View.php:64 src/Module/Admin/Queue.php:72
-#: src/Module/Admin/Site.php:498 src/Module/Admin/Storage.php:118
+#: src/Module/Admin/Site.php:498 src/Module/Admin/Storage.php:131
 #: src/Module/Admin/Summary.php:232 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
 #: src/Module/Admin/Users/Active.php:136 src/Module/Admin/Users/Blocked.php:137
@@ -6463,31 +6441,41 @@ msgstr ""
 msgid "Start Relocation"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:72
+#: src/Module/Admin/Storage.php:45
+#, php-format
+msgid "Storage backend, %s is invalid."
+msgstr ""
+
+#: src/Module/Admin/Storage.php:71
+#, php-format
+msgid "Storage backend %s error: %s"
+msgstr ""
+
+#: src/Module/Admin/Storage.php:82 src/Module/Admin/Storage.php:85
 msgid "Invalid storage backend setting value."
 msgstr ""
 
-#: src/Module/Admin/Storage.php:119 src/Module/BaseAdmin.php:91
+#: src/Module/Admin/Storage.php:132 src/Module/BaseAdmin.php:91
 msgid "Storage"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:121
+#: src/Module/Admin/Storage.php:134
 msgid "Save & Activate"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:122
+#: src/Module/Admin/Storage.php:135
 msgid "Activate"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:123
+#: src/Module/Admin/Storage.php:136
 msgid "Save & Reload"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:124
+#: src/Module/Admin/Storage.php:137
 msgid "This backend doesn't have custom settings"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:127
+#: src/Module/Admin/Storage.php:140
 msgid "Database (legacy)"
 msgstr ""
 
@@ -8700,17 +8688,17 @@ msgstr ""
 msgid "Visible to:"
 msgstr ""
 
-#: src/Module/Photo.php:94
+#: src/Module/Photo.php:98
 #, php-format
 msgid "The Photo with id %s is not available."
 msgstr ""
 
-#: src/Module/Photo.php:124
+#: src/Module/Photo.php:132
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr ""
 
-#: src/Module/Photo.php:126
+#: src/Module/Photo.php:134
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr ""
@@ -9465,42 +9453,42 @@ msgid ""
 "contacts or the Friendica contacts in the selected groups.</p>"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:102
-#: src/Module/Settings/Profile/Photo/Crop.php:118
-#: src/Module/Settings/Profile/Photo/Crop.php:134
+#: src/Module/Settings/Profile/Photo/Crop.php:106
+#: src/Module/Settings/Profile/Photo/Crop.php:122
+#: src/Module/Settings/Profile/Photo/Crop.php:138
 #: src/Module/Settings/Profile/Photo/Index.php:102
 #, php-format
 msgid "Image size reduction [%s] failed."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:139
+#: src/Module/Settings/Profile/Photo/Crop.php:143
 msgid ""
 "Shift-reload the page or clear browser cache if the new photo does not "
 "display immediately."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:144
+#: src/Module/Settings/Profile/Photo/Crop.php:148
 msgid "Unable to process image"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:163
+#: src/Module/Settings/Profile/Photo/Crop.php:167
 msgid "Photo not found."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:185
+#: src/Module/Settings/Profile/Photo/Crop.php:189
 msgid "Profile picture successfully updated."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:208
-#: src/Module/Settings/Profile/Photo/Crop.php:212
+#: src/Module/Settings/Profile/Photo/Crop.php:215
+#: src/Module/Settings/Profile/Photo/Crop.php:219
 msgid "Crop Image"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:209
+#: src/Module/Settings/Profile/Photo/Crop.php:216
 msgid "Please adjust the image cropping for optimum viewing."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:211
+#: src/Module/Settings/Profile/Photo/Crop.php:218
 msgid "Use Image As Is"
 msgstr ""
 
