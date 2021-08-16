@@ -587,7 +587,7 @@ class Installer
 	/**
 	 * TLS Check
 	 *
-	 * Tries to determine wheather the connection to the server is secured
+	 * Tries to determine whether the connection to the server is secured
 	 * by TLS or not. If not the user will be warned that it is higly
 	 * encuraged to use TLS.
 	 *
