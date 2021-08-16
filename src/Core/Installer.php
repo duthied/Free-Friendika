@@ -129,6 +129,10 @@ class Installer
 			$returnVal = false;
 		}
 
+		if (!$this->checkTLS()) {
+			$returnVal = false;
+		}
+
 		if (!$this->checkKeys()) {
 			$returnVal = false;
 		}
@@ -578,6 +582,38 @@ class Installer
 		}
 
 		return $status;
+	}
+
+	/**
+	 * TLS Check
+	 *
+	 * Tries to determine wheather the connection to the server is secured
+	 * by TLS or not. If not the user will be warned that it is higly
+	 * encuraged to use TLS.
+	 *
+	 * @return bool (true) as TLS is not mandatory
+	 */
+	public function checkTLS()
+	{
+		$tls = false;
+
+		if (isset($_SERVER['HTTPS'])) {
+			if (($_SERVER['HTTPS'] == 1) || ($_SERVER['HTTPS'] == 'on')) {
+				$tls = true;
+			}
+		}
+		
+		if (!$tls) {
+			$help = DI::l10n()->t('The detection of TLS to secure the communication between the browser and the new Friendica server failed.');
+			$help .= ' ' . DI::l10n()->t('Please ensure that the connection to the server is secure.');
+			$this->addCheck(DI::l10n()->t('No TLS detected'), $tls, false, $help);
+		} else {
+			$this->addCheck(DI::l10n()->t('TLS detected'), $tls, false, '');
+		}
+
+
+		// TLS is not required
+		return true;
 	}
 
 	/**
