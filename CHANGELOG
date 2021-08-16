@@ -3,6 +3,8 @@ Version 2021.09 (unreleased)
     Simplified the proxy mechanism. The proxy cache directory (/proxy) can now be removed [annando]
     DFRN is now always handled with the Diaspora transport layer. The legacy DFRN transport layer is removed [annando]
     Legacy OAuth server is removed [annando]
+    Scheduled posts are now possible [annando]
+    The minimal PHP version in the composer is increased to version 7.2 [annando]
 
 Version 2021.07 (2021-07-04)
   Friendica Core
