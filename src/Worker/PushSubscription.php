@@ -24,23 +24,43 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Subscription as ModelSubscription;
+use Friendica\Util\DateTimeFormat;
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
 
 class PushSubscription
 {
-	public static function execute(int $sid)
+	public static function execute(int $sid, int $nid)
 	{
 		$subscription = DBA::selectFirst('subscription', [], ['id' => $sid]);
+		$notification = DBA::selectFirst('notification', [], ['id' => $nid]);
 
-		$notification = [
+		if (!empty($notification['uri-id'])) {
+			$notify = DBA::selectFirst('notify', ['msg'], ['uri-id' => $notification['target-uri-id']]);
+		}
+
+		if (!empty($notification['actor-id'])) {
+			$actor = Contact::getById($notification['actor-id']);
+		}
+
+		$push = [
 			'subscription' => Subscription::create([
 				'endpoint'  => $subscription['endpoint'],
 				'publicKey' => $subscription['pubkey'],
 				'authToken' => $subscription['secret'],
 			]),
-			'payload' => null,
+			// @todo Check if we are supposed to transmit a payload at all
+			'payload' => json_encode([
+				'title'     => 'Friendica',
+				'body'      => $notify['msg'] ?? '',
+				'icon'      => $actor['thumb'] ?? '',
+				'image'     => '',
+				'badge'     => DI::baseUrl()->get() . '/images/friendica-192.png',
+				'tag'       => $notification['parent-uri-id'] ?? '',
+				'timestamp' => DateTimeFormat::utc($notification['created'], DateTimeFormat::JSON),
+			]),
 		];
 
 		$auth = [
@@ -54,8 +74,8 @@ class PushSubscription
 		$webPush = new WebPush($auth);
 
 		$report = $webPush->sendOneNotification(
-			$notification['subscription'],
-			$notification['payload']
+			$push['subscription'],
+			$push['payload']
 		);
 
 		$endpoint = $report->getRequest()->getUri()->__toString();
