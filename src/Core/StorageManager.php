@@ -77,10 +77,10 @@ class StorageManager
 	 */
 	public function __construct(Database $dba, IConfig $config, LoggerInterface $logger, L10n $l10n)
 	{
-		$this->dba      = $dba;
-		$this->config   = $config;
-		$this->logger   = $logger;
-		$this->l10n     = $l10n;
+		$this->dba           = $dba;
+		$this->config        = $config;
+		$this->logger        = $logger;
+		$this->l10n          = $l10n;
 		$this->validBackends = $config->get('storage', 'backends', self::DEFAULT_BACKENDS);
 
 		$currentName = $this->config->get('storage', 'name');
@@ -112,11 +112,11 @@ class StorageManager
 	public function getWritableStorageByName(string $name): Storage\IWritableStorage
 	{
 		$storage = $this->getByName($name, $this->validBackends);
-		if ($storage instanceof Storage\IWritableStorage) {
-			return $storage;
-		} else {
+		if (!$storage instanceof Storage\IWritableStorage) {
 			throw new Storage\InvalidClassStorageException(sprintf('Backend %s is not writable', $name));
 		}
+
+		return $storage;
 	}
 
 	/**
@@ -135,42 +135,42 @@ class StorageManager
 		// If there's no cached instance create a new instance
 		if (!isset($this->backendInstances[$name])) {
 			// If the current name isn't a valid backend (or the SystemResource instance) create it
-			if ($this->isValidBackend($name, $validBackends)) {
-				switch ($name) {
-					// Try the filesystem backend
-					case Storage\Filesystem::getName():
-						$this->backendInstances[$name] = new Storage\Filesystem($this->config, $this->l10n);
-						break;
-					// try the database backend
-					case Storage\Database::getName():
-						$this->backendInstances[$name] = new Storage\Database($this->dba);
-						break;
-					// at least, try if there's an addon for the backend
-					case Storage\SystemResource::getName():
-						$this->backendInstances[$name] = new Storage\SystemResource();
-						break;
-					case Storage\ExternalResource::getName():
-						$this->backendInstances[$name] = new Storage\ExternalResource();
-						break;
-					default:
-						$data = [
-							'name'    => $name,
-							'storage' => null,
-						];
-						try {
-							Hook::callAll('storage_instance', $data);
-							if (($data['storage'] ?? null) instanceof Storage\IStorage) {
-								$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
-							} else {
-								throw new Storage\InvalidClassStorageException(sprintf('Backend %s was not found', $name));
-							}
-						} catch (InternalServerErrorException $exception) {
-							throw new Storage\StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception);
-						}
-						break;
-				}
-			} else {
+			if (!$this->isValidBackend($name, $validBackends)) {
 				throw new Storage\InvalidClassStorageException(sprintf('Backend %s is not valid', $name));
+			}
+
+			switch ($name) {
+				// Try the filesystem backend
+				case Storage\Filesystem::getName():
+					$this->backendInstances[$name] = new Storage\Filesystem($this->config, $this->l10n);
+					break;
+				// try the database backend
+				case Storage\Database::getName():
+					$this->backendInstances[$name] = new Storage\Database($this->dba);
+					break;
+				// at least, try if there's an addon for the backend
+				case Storage\SystemResource::getName():
+					$this->backendInstances[$name] = new Storage\SystemResource();
+					break;
+				case Storage\ExternalResource::getName():
+					$this->backendInstances[$name] = new Storage\ExternalResource();
+					break;
+				default:
+					$data = [
+						'name'    => $name,
+						'storage' => null,
+					];
+					try {
+						Hook::callAll('storage_instance', $data);
+						if (!($data['storage'] ?? null) instanceof Storage\IStorage) {
+							throw new Storage\InvalidClassStorageException(sprintf('Backend %s was not found', $name));
+						}
+
+						$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
+					} catch (InternalServerErrorException $exception) {
+						throw new Storage\StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception);
+					}
+					break;
 			}
 		}
 
@@ -236,7 +236,7 @@ class StorageManager
 		if (is_subclass_of($class, Storage\IStorage::class)) {
 			/** @var Storage\IStorage $class */
 
-			if (array_search($class::getName(), $this->validBackends, true) !== false) {
+			if ($this->isValidBackend($class::getName(), $this->validBackends)) {
 				return true;
 			}
 
