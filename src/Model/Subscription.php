@@ -19,17 +19,13 @@
  *
  */
 
- /**
-  * @see https://github.com/web-push-libs/web-push-php
-  * Possibly we should simply use this.
-  */
-
 namespace Friendica\Model;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Util\Crypto;
+use Minishlink\WebPush\VAPID;
 
 class Subscription
 {
@@ -99,18 +95,40 @@ class Subscription
 	}
 
 	/**
-	 * Fetch a VAPID key
+	 * Fetch a VAPID keypair
+	 *
+	 * @return array
+	 */
+	private static function getKeyPair(): array
+	{
+		$keypair = DI::config()->get('system', 'ec_keypair');
+		if (empty($keypair['publicKey']) || empty($keypair['privateKey'])) {
+			$keypair = VAPID::createVapidKeys();
+			DI::config()->set('system', 'ec_keypair', $keypair);
+		}
+		return $keypair;
+	}
+
+	/**
+	 * Fetch the public VAPID key
 	 *
 	 * @return string
 	 */
-	public static function getVapidKey(): string
+	public static function getPublicVapidKey(): string
 	{
-		$keypair = DI::config()->get('system', 'ec_keypair');
-		if (empty($keypair)) {
-			$keypair = Crypto::newECKeypair();
-			DI::config()->set('system', 'ec_keypair', $keypair);
-		}
-		return $keypair['vapid-public'];
+		$keypair = self::getKeyPair();
+		return $keypair['publicKey'];
+	}
+
+	/**
+	 * Fetch the public VAPID key
+	 *
+	 * @return string
+	 */
+	public static function getPrivateVapidKey(): string
+	{
+		$keypair = self::getKeyPair();
+		return $keypair['privateKey'];
 	}
 
 	/**
@@ -131,6 +149,7 @@ class Subscription
 		$subscriptions = DBA::select('subscription', [], ['uid' => $notification['uid'], $type => true]);
 		while ($subscription = DBA::fetch($subscriptions)) {
 			Logger::info('Push notification', ['id' => $subscription['id'], 'uid' => $subscription['uid'], 'type' => $type]);
+			Worker::add(PRIORITY_HIGH, 'PushSubscription', $subscription['id'], $nid);
 		}
 		DBA::close($subscriptions);
 	}
