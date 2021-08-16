@@ -241,7 +241,7 @@ class Index extends BaseSettings
 			'$postal_code' => ['postal_code', DI::l10n()->t('Postal/Zip Code:'), $profile['postal-code']],
 			'$country_name' => ['country_name', DI::l10n()->t('Country:'), $profile['country-name']],
 			'$age' => ((intval($profile['dob'])) ? '(' . DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($profile['dob'], $profile['timezone'])) . ')' : ''),
-			'$xmpp' => ['xmpp', DI::l10n()->t('XMPP (Jabber) address:'), $profile['xmpp'], DI::l10n()->t('The XMPP address will be propagated to your contacts so that they can follow you.')],
+			'$xmpp' => ['xmpp', DI::l10n()->t('XMPP (Jabber) address:'), $profile['xmpp'], DI::l10n()->t('The XMPP address will be published so that people can follow you there.')],
 			'$matrix' => ['matrix', DI::l10n()->t('Matrix (Element) address:'), $profile['matrix'], DI::l10n()->t('The Matrix address will be published so that people can follow you there.')],
 			'$homepage' => ['homepage', DI::l10n()->t('Homepage URL:'), $profile['homepage']],
 			'$pub_keywords' => ['pub_keywords', DI::l10n()->t('Public Keywords:'), $profile['pub_keywords'], DI::l10n()->t('(Used for suggesting potential friends, can be seen by others)')],

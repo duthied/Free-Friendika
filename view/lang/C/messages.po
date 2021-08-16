@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-12 06:32+0000\n"
+"POT-Creation-Date: 2021-08-16 06:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -9422,9 +9422,7 @@ msgid "XMPP (Jabber) address:"
 msgstr ""
 
 #: src/Module/Settings/Profile/Index.php:244
-msgid ""
-"The XMPP address will be propagated to your contacts so that they can follow "
-"you."
+msgid "The XMPP address will be published so that people can follow you there."
 msgstr ""
 
 #: src/Module/Settings/Profile/Index.php:245
