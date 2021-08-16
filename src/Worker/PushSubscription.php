@@ -34,8 +34,19 @@ class PushSubscription
 {
 	public static function execute(int $sid, int $nid)
 	{
+		Logger::info('Start', ['subscription' => $sid, 'notification' => $nid]);
+
 		$subscription = DBA::selectFirst('subscription', [], ['id' => $sid]);
+		if (empty($subscription)) {
+			Logger::info('Subscription not found', ['subscription' => $sid]);
+			return;
+		}
+
 		$notification = DBA::selectFirst('notification', [], ['id' => $nid]);
+		if (empty($notification)) {
+			Logger::info('Notification not found', ['notification' => $nid]);
+			return;
+		}
 
 		if (!empty($notification['uri-id'])) {
 			$notify = DBA::selectFirst('notify', ['msg'], ['uri-id' => $notification['target-uri-id']]);
@@ -71,7 +82,7 @@ class PushSubscription
 			],
 		];
 
-		$webPush = new WebPush($auth);
+		$webPush = new WebPush($auth, [], DI::config()->get('system', 'xrd_timeout'));
 
 		$report = $webPush->sendOneNotification(
 			$push['subscription'],
@@ -81,9 +92,9 @@ class PushSubscription
 		$endpoint = $report->getRequest()->getUri()->__toString();
 
 		if ($report->isSuccess()) {
-			Logger::info('Message sent successfully for subscription', ['endpoint' => $endpoint]);
+			Logger::info('Message sent successfully for subscription', ['subscription' => $sid, 'notification' => $nid, 'endpoint' => $endpoint]);
 		} else {
-			Logger::info('Message failed to sent for subscription', ['endpoint' => $endpoint, 'reason' => $report->getReason()]);
+			Logger::info('Message failed to sent for subscription', ['subscription' => $sid, 'notification' => $nid, 'endpoint' => $endpoint, 'reason' => $report->getReason()]);
 		}
 	}
 }

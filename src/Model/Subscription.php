@@ -19,18 +19,12 @@
  *
  */
 
- /**
-  * @see https://github.com/web-push-libs/web-push-php
-  * Possibly we should simply use this.
-  */
-
 namespace Friendica\Model;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Util\Crypto;
 use Minishlink\WebPush\VAPID;
 
 class Subscription

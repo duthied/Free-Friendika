@@ -568,7 +568,7 @@ return [
 		'worker_defer_limit' => 15,
 
 		// xrd_timeout (Integer)
-		// Timeout in seconds for fetching the XRD links.
+		// Timeout in seconds for fetching the XRD links and other requests with an expected shorter timeout
 		'xrd_timeout' => 20,
 	],
 	'experimental' => [
