@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-16 19:13+0200\n"
+"POT-Creation-Date: 2021-08-17 08:15+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3953,8 +3953,8 @@ msgstr ""
 
 #: src/Core/Installer.php:608
 msgid ""
-"It is highly encuraged to use Friendica only over a secured connection as "
-"sensible information like passwords will be transmitted."
+"It is highly encouraged to use Friendica only over a secure connection as "
+"sensitive information like passwords will be transmitted."
 msgstr ""
 
 #: src/Core/Installer.php:609
@@ -3969,23 +3969,23 @@ msgstr ""
 msgid "TLS detected"
 msgstr ""
 
-#: src/Core/Installer.php:640
+#: src/Core/Installer.php:639
 msgid "ImageMagick PHP extension is not installed"
 msgstr ""
 
-#: src/Core/Installer.php:642
+#: src/Core/Installer.php:641
 msgid "ImageMagick PHP extension is installed"
 msgstr ""
 
-#: src/Core/Installer.php:644
+#: src/Core/Installer.php:643
 msgid "ImageMagick supports GIF"
 msgstr ""
 
-#: src/Core/Installer.php:666
+#: src/Core/Installer.php:665
 msgid "Database already in use."
 msgstr ""
 
-#: src/Core/Installer.php:671
+#: src/Core/Installer.php:670
 msgid "Could not connect to database."
 msgstr ""
 

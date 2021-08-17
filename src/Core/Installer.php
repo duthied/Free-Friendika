@@ -605,13 +605,12 @@ class Installer
 		
 		if (!$tls) {
 			$help = DI::l10n()->t('The detection of TLS to secure the communication between the browser and the new Friendica server failed.');
-			$help .= ' ' . DI::l10n()->t('It is highly encuraged to use Friendica only over a secured connection as sensible information like passwords will be transmitted.');
+			$help .= ' ' . DI::l10n()->t('It is highly encouraged to use Friendica only over a secure connection as sensitive information like passwords will be transmitted.');
 			$help .= ' ' . DI::l10n()->t('Please ensure that the connection to the server is secure.');
 			$this->addCheck(DI::l10n()->t('No TLS detected'), $tls, false, $help);
 		} else {
 			$this->addCheck(DI::l10n()->t('TLS detected'), $tls, false, '');
 		}
-
 
 		// TLS is not required
 		return true;
