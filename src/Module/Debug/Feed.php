@@ -46,7 +46,7 @@ class Feed extends BaseModule
 		if (!empty($_REQUEST['url'])) {
 			$url = $_REQUEST['url'];
 
-			$contact = Model\Contact::getByURLForUser($url, local_user(), false);
+			$contact = Model\Contact::getByURLForUser($url, local_user(), null);
 
 			$xml = DI::httpRequest()->fetch($contact['poll']);
 
