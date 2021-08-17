@@ -534,7 +534,7 @@ class Media
 	 *
 	 * @param int    $uri_id
 	 * @param string $guid
-	 * @param array  $links ist of links that shouldn't be added
+	 * @param array  $links list of links that shouldn't be added
 	 * @return array attachments
 	 */
 	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [])

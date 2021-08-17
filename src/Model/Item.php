@@ -2757,6 +2757,8 @@ class Item
 				$filter_reasons[] = DI::l10n()->t('Content warning: %s', $item['content-warning']);
 			}
 
+			$item['attachments'] = $attachments;
+
 			$hook_data = [
 				'item' => $item,
 				'filter_reasons' => $filter_reasons
