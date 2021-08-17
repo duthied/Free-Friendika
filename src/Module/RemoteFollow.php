@@ -32,6 +32,7 @@ use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 
 /**
@@ -44,6 +45,9 @@ class RemoteFollow extends BaseModule
 	public static function init(array $parameters = [])
 	{
 		self::$owner = User::getOwnerDataByNick($parameters['profile']);
+		if (!self::$owner) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		}
 
 		DI::page()['aside'] = Widget\VCard::getHTML(self::$owner);
 	}
