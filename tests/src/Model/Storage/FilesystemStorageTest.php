@@ -24,13 +24,12 @@ namespace Friendica\Test\src\Model\Storage;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 use Friendica\Model\Storage\Filesystem;
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Model\Storage\StorageException;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\Profiler;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
-use Psr\Log\NullLogger;
 
 class FilesystemStorageTest extends StorageTest
 {
@@ -50,7 +49,6 @@ class FilesystemStorageTest extends StorageTest
 
 	protected function getInstance()
 	{
-		$logger = new NullLogger();
 		$profiler = \Mockery::mock(Profiler::class);
 		$profiler->shouldReceive('startRecording');
 		$profiler->shouldReceive('stopRecording');
@@ -63,10 +61,10 @@ class FilesystemStorageTest extends StorageTest
 		             ->with('storage', 'filesystem_path', Filesystem::DEFAULT_BASE_FOLDER)
 		             ->andReturn($this->root->getChild('storage')->url());
 
-		return new Filesystem($this->config, $logger, $l10n);
+		return new Filesystem($this->config, $l10n);
 	}
 
-	protected function assertOption(IStorage $storage)
+	protected function assertOption(IWritableStorage $storage)
 	{
 		self::assertEquals([
 			'storagepath' => [

@@ -25,6 +25,8 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\Storage\InvalidClassStorageException;
+use Friendica\Model\Storage\ReferenceStorageException;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
@@ -163,17 +165,20 @@ class Attach
 			return $item['data'];
 		}
 
-		$backendClass = DI::storageManager()->getByName($item['backend-class'] ?? '');
-		if (empty($backendClass)) {
+		try {
+			$backendClass = DI::storageManager()->getByName($item['backend-class'] ?? '');
+			$backendRef   = $item['backend-ref'];
+			return $backendClass->get($backendRef);
+		} catch (InvalidClassStorageException $storageException) {
 			// legacy data storage in 'data' column
 			$i = self::selectFirst(['data'], ['id' => $item['id']]);
 			if ($i === false) {
 				return null;
 			}
 			return $i['data'];
-		} else {
-			$backendRef = $item['backend-ref'];
-			return $backendClass->get($backendRef);
+		} catch (ReferenceStorageException $referenceStorageException) {
+			DI::logger()->debug('No data found for item', ['item' => $item, 'exception' => $referenceStorageException]);
+			return '';
 		}
 	}
 
@@ -278,11 +283,13 @@ class Attach
 			$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 			foreach($items as $item) {
-				$backend_class = DI::storageManager()->getByName($item['backend-class'] ?? '');
-				if (!empty($backend_class)) {
+				try {
+					$backend_class         = DI::storageManager()->getWritableStorageByName($item['backend-class'] ?? '');
 					$fields['backend-ref'] = $backend_class->put($img->asString(), $item['backend-ref'] ?? '');
-				} else {
-					$fields['data'] = $img->asString();
+				} catch (InvalidClassStorageException $storageException) {
+					DI::logger()->debug('Storage class not found.', ['conditions' => $conditions, 'exception' => $storageException]);
+				} catch (ReferenceStorageException $referenceStorageException) {
+					DI::logger()->debug('Item doesn\'t exist.', ['conditions' => $conditions, 'exception' => $referenceStorageException]);
 				}
 			}
 		}
@@ -310,9 +317,13 @@ class Attach
 		$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 		foreach($items as $item) {
-			$backend_class = DI::storageManager()->getByName($item['backend-class'] ?? '');
-			if (!empty($backend_class)) {
+			try {
+				$backend_class = DI::storageManager()->getWritableStorageByName($item['backend-class'] ?? '');
 				$backend_class->delete($item['backend-ref'] ?? '');
+			} catch (InvalidClassStorageException $storageException) {
+				DI::logger()->debug('Storage class not found.', ['conditions' => $conditions, 'exception' => $storageException]);
+			} catch (ReferenceStorageException $referenceStorageException) {
+				DI::logger()->debug('Item doesn\'t exist.', ['conditions' => $conditions, 'exception' => $referenceStorageException]);
 			}
 		}
 

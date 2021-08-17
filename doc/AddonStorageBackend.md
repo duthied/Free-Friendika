@@ -10,12 +10,12 @@ A storage backend is implemented as a class, and the plugin register the class t
 
 The class must live in `Friendica\Addon\youraddonname` namespace, where `youraddonname` the folder name of your addon.
 
-The class must implement `Friendica\Model\Storage\IStorage` interface. All method in the interface must be implemented:
+The class must implement `Friendica\Model\Storage\IWritableStorage` interface. All method in the interface must be implemented:
 
-namespace Friendica\Model\Storage;
+namespace Friendica\Model\IWritableStorage;
 
 ```php
-interface IStorage
+interface IWritableStorage
 {
 	public function get(string $reference);
 	public function put(string $data, string $reference = '');
@@ -79,7 +79,7 @@ Each label should be translatable
 	];
 
 
-See doxygen documentation of `IStorage` interface for details about each method.
+See doxygen documentation of `IWritableStorage` interface for details about each method.
 
 ## Register a storage backend class
 
@@ -105,8 +105,9 @@ Each new Storage class should be added to the test-environment at [Storage Tests
 Add a new test class which's naming convention is `StorageClassTest`, which extend the `StorageTest` in the same directory.
 
 Override the two necessary instances:
+
 ```php
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\IWritableStorage;
 
 abstract class StorageTest 
 {
@@ -114,13 +115,48 @@ abstract class StorageTest
 	abstract protected function getInstance();
 
 	// Assertion for the option array you return for your new StorageClass
-	abstract protected function assertOption(IStorage $storage);
+	abstract protected function assertOption(IWritableStorage $storage);
+} 
+```
+
+## Exception handling
+
+There are two intended types of exceptions for storages
+
+### `ReferenceStorageExecption`
+
+This storage exception should be used in case the caller tries to use an invalid references.
+This could happen in case the caller tries to delete or update an unknown reference.
+The implementation of the storage backend must not ignore invalid references.
+
+Avoid throwing the common `StorageExecption` instead of the `ReferenceStorageException` at this particular situation!
+
+### `StorageException`
+
+This is the common exception in case unexpected errors happen using the storage backend.
+If there's a predecessor to this exception (e.g. you caught an exception and are throwing this execption), you should add the predecessor for transparency reasons.
+
+Example:
+
+```php
+use Friendica\Model\Storage\IWritableStorage;
+
+class ExampleStorage implements IWritableStorage 
+{
+	public function get(string $reference) : string
+	{
+		try {
+			throw new Exception('a real bad exception');
+		} catch (Exception $exception) {
+			throw new \Friendica\Model\Storage\StorageException(sprintf('The Example Storage throws an exception for reference %s', $reference), 500, $exception);
+		}
+	}
 } 
 ```
 
 ## Example
 
-Here an hypotetical addon which register an unusefull storage backend.
+Here an hypotetical addon which register a useless storage backend.
 Let's call it `samplestorage`.
 
 This backend will discard all data we try to save and will return always the same image when we ask for some data.
@@ -133,12 +169,12 @@ The file will be `addon/samplestorage/SampleStorageBackend.php`:
 <?php
 namespace Friendica\Addon\samplestorage;
 
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\IWritableStorage;
 
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 
-class SampleStorageBackend implements IStorage
+class SampleStorageBackend implements IWritableStorage
 {
 	const NAME = 'Sample Storage';
 
@@ -270,7 +306,7 @@ function samplestorage_storage_instance(\Friendica\App $a, array $data)
 **Theoretically - until tests for Addons are enabled too - create a test class with the name `addon/tests/SampleStorageTest.php`:
 
 ```php
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Test\src\Model\Storage\StorageTest;
 
 class SampleStorageTest extends StorageTest 
@@ -284,7 +320,7 @@ class SampleStorageTest extends StorageTest
 	}
 
 	// Assertion for the option array you return for your new StorageClass
-	protected function assertOption(IStorage $storage)
+	protected function assertOption(IWritableStorage $storage)
 	{
 		$this->assertEquals([
 			'filename' => [

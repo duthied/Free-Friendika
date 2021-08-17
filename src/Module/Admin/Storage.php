@@ -23,7 +23,8 @@ namespace Friendica\Module\Admin;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\InvalidClassStorageException;
+use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
@@ -37,8 +38,13 @@ class Storage extends BaseAdmin
 
 		$storagebackend = Strings::escapeTags(trim($parameters['name'] ?? ''));
 
-		/** @var IStorage $newstorage */
-		$newstorage = DI::storageManager()->getByName($storagebackend);
+		try {
+			/** @var IWritableStorage $newstorage */
+			$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
+		} catch (InvalidClassStorageException $storageException) {
+			notice(DI::l10n()->t('Storage backend, %s is invalid.', $storagebackend));
+			DI::baseUrl()->redirect('admin/storage');
+		}
 
 		// save storage backend form
 		$storage_opts        = $newstorage->getOptions();
@@ -62,13 +68,20 @@ class Storage extends BaseAdmin
 		$storage_form_errors = $newstorage->saveOptions($storage_opts_data);
 		if (count($storage_form_errors)) {
 			foreach ($storage_form_errors as $name => $err) {
-				notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
+				notice(DI::l10n()->t('Storage backend %s error: %s', $storage_opts[$name][1], $err));
 			}
 			DI::baseUrl()->redirect('admin/storage');
 		}
 
 		if (!empty($_POST['submit_save_set'])) {
-			if (empty($storagebackend) || !DI::storageManager()->setBackend($storagebackend)) {
+			try {
+				/** @var IWritableStorage $newstorage */
+				$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
+
+				if (!DI::storageManager()->setBackend($newstorage)) {
+					notice(DI::l10n()->t('Invalid storage backend setting value.'));
+				}
+			} catch (InvalidClassStorageException $storageException) {
 				notice(DI::l10n()->t('Invalid storage backend setting value.'));
 			}
 		}
@@ -83,13 +96,13 @@ class Storage extends BaseAdmin
 		$current_storage_backend = DI::storage();
 		$available_storage_forms = [];
 
-		foreach (DI::storageManager()->listBackends() as $name => $class) {
+		foreach (DI::storageManager()->listBackends() as $name) {
 
 			// build storage config form,
 			$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $name);
 
 			$storage_form = [];
-			foreach (DI::storageManager()->getByName($name)->getOptions() as $option => $info) {
+			foreach (DI::storageManager()->getWritableStorageByName($name)->getOptions() as $option => $info) {
 				$type = $info[0];
 				// Backward compatibilty with yesno field description
 				if ($type == 'yesno') {
@@ -108,7 +121,7 @@ class Storage extends BaseAdmin
 				'name'   => $name,
 				'prefix' => $storage_form_prefix,
 				'form'   => $storage_form,
-				'active' => $current_storage_backend instanceof IStorage && $name === $current_storage_backend::getName(),
+				'active' => $current_storage_backend instanceof IWritableStorage && $name === $current_storage_backend::getName(),
 			];
 		}
 
@@ -124,7 +137,7 @@ class Storage extends BaseAdmin
 			'$noconfig'              => DI::l10n()->t('This backend doesn\'t have custom settings'),
 			'$baseurl'               => DI::baseUrl()->get(true),
 			'$form_security_token'   => self::getFormSecurityToken("admin_storage"),
-			'$storagebackend'        => $current_storage_backend instanceof IStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
+			'$storagebackend'        => $current_storage_backend instanceof IWritableStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
 			'$availablestorageforms' => $available_storage_forms,
 		]);
 	}

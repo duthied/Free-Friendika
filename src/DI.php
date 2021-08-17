@@ -387,11 +387,11 @@ abstract class DI
 	}
 
 	/**
-	 * @return Model\Storage\IStorage
+	 * @return Model\Storage\IWritableStorage
 	 */
 	public static function storage()
 	{
-		return self::$dice->create(Model\Storage\IStorage::class);
+		return self::$dice->create(Model\Storage\IWritableStorage::class);
 	}
 
 	//

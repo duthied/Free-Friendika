@@ -22,14 +22,14 @@
 namespace Friendica\Test\Util;
 
 use Friendica\Core\Hook;
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\IWritableStorage;
 
 use Friendica\Core\L10n;
 
 /**
  * A backend storage example class
  */
-class SampleStorageBackend implements IStorage
+class SampleStorageBackend implements IWritableStorage
 {
 	const NAME = 'Sample Storage';
 
@@ -62,14 +62,14 @@ class SampleStorageBackend implements IStorage
 		$this->l10n = $l10n;
 	}
 
-	public function get(string $reference)
+	public function get(string $reference): string
 	{
 		// we return always the same image data. Which file we load is defined by
 		// a config key
-		return $this->data[$reference] ?? null;
+		return $this->data[$reference] ?? '';
 	}
 
-	public function put(string $data, string $reference = '')
+	public function put(string $data, string $reference = ''): string
 	{
 		if ($reference === '') {
 			$reference = 'sample';
@@ -89,12 +89,12 @@ class SampleStorageBackend implements IStorage
 		return true;
 	}
 
-	public function getOptions()
+	public function getOptions(): array
 	{
 		return $this->options;
 	}
 
-	public function saveOptions(array $data)
+	public function saveOptions(array $data): array
 	{
 		$this->options = $data;
 
@@ -107,7 +107,7 @@ class SampleStorageBackend implements IStorage
 		return self::NAME;
 	}
 
-	public static function getName()
+	public static function getName(): string
 	{
 		return self::NAME;
 	}
@@ -120,4 +120,3 @@ class SampleStorageBackend implements IStorage
 		Hook::register('storage_instance', __DIR__ . '/SampleStorageBackendInstance.php', 'create_instance');
 	}
 }
-
