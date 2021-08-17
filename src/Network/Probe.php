@@ -2167,7 +2167,7 @@ class Probe
 	{
 		// Search for the newest entry in the feed
 		$curlResult = DI::httpRequest()->get($data['poll']);
-		if (!$curlResult->isSuccess()) {
+		if (!$curlResult->isSuccess() || !$curlResult->getBody()) {
 			return '';
 		}
 

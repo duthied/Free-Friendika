@@ -65,6 +65,9 @@ function photos_init(App $a) {
 
 	if (DI::args()->getArgc() > 1) {
 		$owner = User::getOwnerDataByNick(DI::args()->getArgv()[1]);
+		if (!$owner) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		}
 
 		$is_owner = (local_user() && (local_user() == $owner['uid']));
 
