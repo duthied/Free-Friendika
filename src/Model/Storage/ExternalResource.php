@@ -21,9 +21,8 @@
 
 namespace Friendica\Model\Storage;
 
-use BadMethodCallException;
+use Exception;
 use Friendica\Util\HTTPSignature;
-use Friendica\Network\IHTTPRequest;
 
 /**
  * External resource storage class
@@ -35,64 +34,31 @@ class ExternalResource implements IStorage
 {
 	const NAME = 'ExternalResource';
 
-	/** @var IHTTPRequest */
-	private $httpRequest;
-
-	public function __construct(IHTTPRequest $httpRequest)
-	{
-		$this->httpRequest = $httpRequest;
-	}
-
 	/**
 	 * @inheritDoc
 	 */
-	public function get(string $reference)
+	public function get(string $reference): string
 	{
 		$data = json_decode($reference);
 		if (empty($data->url)) {
-			return "";
+			throw new ReferenceStorageException(sprintf('Invalid reference %s, cannot retrieve URL', $reference));
 		}
 
 		$parts = parse_url($data->url);
 		if (empty($parts['scheme']) || empty($parts['host'])) {
-			return "";
+			throw new ReferenceStorageException(sprintf('Invalid reference %s, cannot extract scheme and host', $reference));
 		}
 
-		$fetchResult = HTTPSignature::fetchRaw($data->url, $data->uid, ['accept_content' => '']);
+		try {
+			$fetchResult = HTTPSignature::fetchRaw($data->url, $data->uid, ['accept_content' => '']);
+		} catch (Exception $exception) {
+			throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference), $exception->getCode(), $exception);
+		}
 		if ($fetchResult->isSuccess()) {
 			return $fetchResult->getBody();
 		} else {
-			return "";
+			throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference), $fetchResult->getReturnCode(), new Exception($fetchResult->getBody()));
 		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function put(string $data, string $reference = '')
-	{
-		throw new BadMethodCallException();
-	}
-
-	public function delete(string $reference)
-	{
-		throw new BadMethodCallException();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getOptions()
-	{
-		return [];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function saveOptions(array $data)
-	{
-		return [];
 	}
 
 	/**
@@ -106,7 +72,7 @@ class ExternalResource implements IStorage
 	/**
 	 * @inheritDoc
 	 */
-	public static function getName()
+	public static function getName(): string
 	{
 		return self::NAME;
 	}

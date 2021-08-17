@@ -203,4 +203,11 @@ return [
 	// Used in the admin settings to lock certain features
 	'featurelock' => [
 	],
+
+	// Storage backend configuration
+	'storage' => [
+		// name (String)
+		// The name of the current used backend (default is Database)
+		'name' => 'Database',
+	],
 ];

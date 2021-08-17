@@ -21,8 +21,6 @@
 
 namespace Friendica\Model\Storage;
 
-use \BadMethodCallException;
-
 /**
  * System resource storage class
  *
@@ -39,45 +37,22 @@ class SystemResource implements IStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function get(string $filename)
+	public function get(string $reference): string
 	{
-		$folder = dirname($filename);
+		$folder = dirname($reference);
 		if (!in_array($folder, self::VALID_FOLDERS)) {
-			return "";
+			throw new ReferenceStorageException(sprintf('System Resource is invalid for reference %s, no valid folder found', $reference));
 		}
-		if (!file_exists($filename)) {
-			return "";
+		if (!file_exists($reference)) {
+			throw new StorageException(sprintf('System Resource is invalid for reference %s, the file doesn\'t exist', $reference));
 		}
-		return file_get_contents($filename);
-	}
+		$content = file_get_contents($reference);
 
-	/**
-	 * @inheritDoc
-	 */
-	public function put(string $data, string $filename = '')
-	{
-		throw new BadMethodCallException();
-	}
+		if ($content === false) {
+			throw new StorageException(sprintf('Cannot get content for reference %s', $reference));
+		}
 
-	public function delete(string $filename)
-	{
-		throw new BadMethodCallException();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getOptions()
-	{
-		return [];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function saveOptions(array $data)
-	{
-		return [];
+		return $content;
 	}
 
 	/**
@@ -91,7 +66,7 @@ class SystemResource implements IStorage
 	/**
 	 * @inheritDoc
 	 */
-	public static function getName()
+	public static function getName(): string
 	{
 		return self::NAME;
 	}
