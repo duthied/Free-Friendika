@@ -21,12 +21,16 @@
 
 namespace Friendica\Worker;
 
+use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Notification;
+use Friendica\Model\Post;
 use Friendica\Model\Subscription as ModelSubscription;
-use Friendica\Util\DateTimeFormat;
+use Friendica\Model\User;
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
 
@@ -48,31 +52,59 @@ class PushSubscription
 			return;
 		}
 
-		if (!empty($notification['uri-id'])) {
-			$notify = DBA::selectFirst('notify', ['msg'], ['uri-id' => $notification['target-uri-id']]);
+		$application_token = DBA::selectFirst('application-token', [], ['application-id' => $subscription['application-id'], 'uid' => $subscription['uid']]);
+		if (empty($application_token)) {
+			Logger::info('Application token not found', ['application' => $subscription['application-id']]);
+			return;
 		}
+
+		$user = User::getById($notification['uid']);
+		if (empty($user)) {
+			Logger::info('User not found', ['application' => $subscription['uid']]);
+			return;
+		}
+
+		$l10n = DI::l10n()->withLang($user['language']);
+
+		$type = Notification::getType($notification);
 
 		if (!empty($notification['actor-id'])) {
 			$actor = Contact::getById($notification['actor-id']);
 		}
 
-		$push = [
-			'subscription' => Subscription::create([
-				'endpoint'  => $subscription['endpoint'],
-				'publicKey' => $subscription['pubkey'],
-				'authToken' => $subscription['secret'],
-			]),
-			// @todo Check if we are supposed to transmit a payload at all
-			'payload' => json_encode([
-				'title'     => 'Friendica',
-				'body'      => $notify['msg'] ?? '',
-				'icon'      => $actor['thumb'] ?? '',
-				'image'     => '',
-				'badge'     => DI::baseUrl()->get() . '/images/friendica-192.png',
-				'tag'       => $notification['parent-uri-id'] ?? '',
-				'timestamp' => DateTimeFormat::utc($notification['created'], DateTimeFormat::JSON),
-			]),
+		$body = '';
+
+		if (!empty($notification['target-uri-id'])) {
+			$post = Post::selectFirst([], ['uri-id' => $notification['target-uri-id'], 'uid' => [0, $notification['uid']]]);
+			if (!empty($post['body'])) {
+				$body = BBCode::toPlaintext($post['body'], false);
+				$body = Plaintext::shorten($body, 160, $notification['uid']);
+			}
+		}
+
+		// @todo Add a meaningful title here, see the functionality in enotify.php
+		$title = '';
+
+		$push = Subscription::create([
+			'contentEncoding' => 'aesgcm',
+			'endpoint'        => $subscription['endpoint'],
+			'keys'            => [
+				'p256dh' => $subscription['pubkey'],
+				'auth'   => $subscription['secret']
+			],
+		]);
+
+		$payload = [
+			'access_token'      => $application_token['access_token'],
+			'preferred_locale'  => $user['language'],
+			'notification_id'   => $nid,
+			'notification_type' => $type,
+			'icon'              => $actor['thumb'] ?? '',
+			'title'             => $title ?: $l10n->t('Notification from Friendica'),
+			'body'              => $body ?: $l10n->t('Empty Post'),
 		];
+
+		Logger::info('Payload', ['payload' => $payload]);
 
 		$auth = [
 			'VAPID' => [
@@ -84,10 +116,7 @@ class PushSubscription
 
 		$webPush = new WebPush($auth, [], DI::config()->get('system', 'xrd_timeout'));
 
-		$report = $webPush->sendOneNotification(
-			$push['subscription'],
-			$push['payload']
-		);
+		$report = $webPush->sendOneNotification($push, json_encode($payload), ['urgency' => 'normal']);
 
 		$endpoint = $report->getRequest()->getUri()->__toString();
 

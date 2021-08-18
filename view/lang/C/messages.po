@@ -10553,6 +10553,14 @@ msgstr ""
 msgid "(no subject)"
 msgstr ""
 
+#: src/Worker/PushSubscription.php:100
+msgid "Notification from Friendica"
+msgstr ""
+
+#: src/Worker/PushSubscription.php:101
+msgid "Empty Post"
+msgstr ""
+
 #: view/theme/duepuntozero/config.php:52
 msgid "default"
 msgstr ""
