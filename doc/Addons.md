@@ -158,13 +158,13 @@ Addons may also act as "modules" and intercept all page requests for a given URL
 In order for a addon to act as a module it needs to declare an empty function `<addon>_module()`.
 
 If this function exists, you will now receive all page requests for `https://my.web.site/<addon>` - with any number of URL components as additional arguments.
-These are parsed into an array $a->argv, with a corresponding $a->argc indicating the number of URL components.
-So `https://my.web.site/addon/arg1/arg2` would look for a module named "addon" and pass its module functions the $a App structure (which is available to many components).
-This will include:
-
+These are parsed into the `App\Arguments` object.
+So `https://my.web.site/addon/arg1/arg2` would give this:
 ```php
-$a->argc = 3
-$a->argv = array(0 => 'addon', 1 => 'arg1', 2 => 'arg2');
+DI::args()->getArgc(); // = 3
+DI::args()->get(0); // = 'addon'
+DI::args()->get(1); // = 'arg1'
+DI::args()->get(2); // = 'arg2'
 ```
 
 To display a module page, you need to declare the function `<addon>_content(App $a)`, which defines and returns the page body content.
