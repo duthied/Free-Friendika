@@ -52,18 +52,14 @@ use Friendica\Util\Strings;
 class Processor
 {
 	/**
-	 * Converts mentions from Pleroma into the Friendica format
+	 * Extracts the tag character (#, @, !) from mention links
 	 *
 	 * @param string $body
-	 *
-	 * @return string converted body
+	 * @return string
 	 */
-	private static function convertMentions($body)
+	protected static function normalizeMentionLinks(string $body): string
 	{
-		$URLSearchString = "^\[\]";
-		$body = preg_replace("/\[url\=([$URLSearchString]*)\]([#@!])(.*?)\[\/url\]/ism", '$2[url=$1]$3[/url]', $body);
-
-		return $body;
+		return preg_replace('%\[url=([^\[\]]*)]([#@!])(.*?)\[/url]%ism', '$2[url=$1]$3[/url]', $body);
 	}
 
 	/**
@@ -463,7 +459,7 @@ class Processor
 			$content = self::replaceEmojis($content, $activity['emojis']);
 		}
 
-		$content = self::convertMentions($content);
+		$content = self::addMentionLinks($content, $activity['tags']);
 
 		if (!empty($activity['source'])) {
 			$item['body'] = $activity['source'];
@@ -1197,5 +1193,35 @@ class Processor
 		$kept_mentions[] = $body;
 
 		return implode('', $kept_mentions);
+	}
+
+	/**
+	 * Adds links to string mentions
+	 *
+	 * @param string $body
+	 * @param array  $tags
+	 * @return string
+	 */
+	protected static function addMentionLinks(string $body, array $tags): string
+	{
+		// This prevents links to be added again to Pleroma-style mention links
+		$body = self::normalizeMentionLinks($body);
+
+		foreach ($tags as $tag) {
+			if (empty($tag['name']) || empty($tag['type']) || empty($tag['href']) || !in_array($tag['type'], ['Mention', 'Hashtag'])) {
+				continue;
+			}
+
+			$hash = substr($tag['name'], 0, 1);
+			$name = substr($tag['name'], 1);
+			if (!in_array($hash, Tag::TAG_CHARACTER)) {
+				$hash = '';
+				$name = $tag['name'];
+			}
+
+			$body = str_replace($tag['name'], $hash . '[url=' . $tag['href'] . ']' . $name . '[/url]', $body);
+		}
+
+		return $body;
 	}
 }
