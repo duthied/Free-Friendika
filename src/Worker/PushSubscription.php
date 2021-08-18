@@ -82,7 +82,7 @@ class PushSubscription
 			}
 		}
 
-		// @todo Add a good title here, see the functionality in enotify.php
+		// @todo Add a meaningful title here, see the functionality in enotify.php
 		$title = '';
 
 		$push = Subscription::create([
