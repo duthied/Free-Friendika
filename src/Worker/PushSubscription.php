@@ -82,6 +82,9 @@ class PushSubscription
 			}
 		}
 
+		// @todo Add a good title here, see the functionality in enotify.php
+		$title = '';
+
 		$push = Subscription::create([
 			'contentEncoding' => 'aesgcm',
 			'endpoint'        => $subscription['endpoint'],
@@ -97,7 +100,7 @@ class PushSubscription
 			'notification_id'   => $nid,
 			'notification_type' => $type,
 			'icon'              => $actor['thumb'] ?? '',
-			'title'             => $l10n->t('Notification from Friendica'), // @todo Replace it with a speaking title
+			'title'             => $title ?: $l10n->t('Notification from Friendica'),
 			'body'              => $body ?: $l10n->t('Empty Post'),
 		];
 
