@@ -71,7 +71,11 @@ class View extends BaseAdmin
 			$error = DI::l10n()->t('Error trying to open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s exist and is readable.', $f);
 		} else {
 			try {
-				$data = new ParsedLogIterator($f, self::LIMIT, $filters, $search);
+				$data = DI::parsedLogIterator()
+						->open($f)
+						->withLimit(self::LIMIT)
+						->withFilters($filters)
+						->withSearch($search);
 			} catch (Exception $e) {
 				$error = DI::l10n()->t('Couldn\'t open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s is readable.', $f);
 			}

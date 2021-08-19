@@ -46,6 +46,7 @@ use Friendica\Database\Database;
 use Friendica\Factory;
 use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Model\User\Cookie;
+use Friendica\Model\Log\ParsedLogIterator;
 use Friendica\Network;
 use Friendica\Util;
 use Psr\Log\LoggerInterface;
@@ -227,4 +228,9 @@ return [
 			$_SERVER
 		],
 	],
+	ParsedLogIterator::class => [
+		'constructParams' => [
+			[Dice::INSTANCE => Util\ReversedFileReader::class],
+		]
+	]
 ];

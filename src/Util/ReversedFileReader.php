@@ -31,25 +31,34 @@ class ReversedFileReader implements \Iterator
 	const BUFFER_SIZE = 4096;
 	const SEPARATOR   = "\n";
 
-	/** @var int */
-	private $filesize;
+	/** @var resource */
+	private $fh = null;
 
 	/** @var int */
-	private $pos;
+	private $filesize = -1;
+
+	/** @var int */
+	private $pos = -1;
 
 	/** @var array */
-	private $buffer;
+	private $buffer = null;
 
 	/** @var int */
-	private $key;
+	private $key = -1;
 
 	/** @var string */
-	private $value;
+	private $value = null;
 
-	public function __construct($filename)
+	/**
+	 * Open $filename for read and reset iterator
+	 * 
+	 * @param string $filename	File to open
+	 * @return $this
+	 */
+	public function open(string $filename)
 	{
-		$this->_fh = fopen($filename, 'r');
-		if (!$this->_fh) {
+		$this->fh = fopen($filename, 'r');
+		if (!$this->fh) {
 			// this should use a custom exception.
 			throw \Exception("Unable to open $filename");
 		}
@@ -58,16 +67,17 @@ class ReversedFileReader implements \Iterator
 		$this->buffer   = null;
 		$this->key      = -1;
 		$this->value    = null;
+		return $this;
 	}
 
-	public function _read($size)
+	private function _read($size)
 	{
 		$this->pos -= $size;
-		fseek($this->_fh, $this->pos);
-		return fread($this->_fh, $size);
+		fseek($this->fh, $this->pos);
+		return fread($this->fh, $size);
 	}
 
-	public function _readline()
+	private function _readline()
 	{
 		$buffer = & $this->buffer;
 		while (true) {

@@ -394,6 +394,14 @@ abstract class DI
 		return self::$dice->create(Model\Storage\IWritableStorage::class);
 	}
 
+	/**
+	 * @return Model\Log\ParsedLogIterator
+	 */
+	public static function parsedLogIterator()
+	{
+		return self::$dice->create(Model\Log\ParsedLogIterator::class);
+	}
+
 	//
 	// "Network" namespace
 	//
