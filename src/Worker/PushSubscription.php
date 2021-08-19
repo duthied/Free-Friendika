@@ -82,8 +82,8 @@ class PushSubscription
 			}
 		}
 
-		// @todo Add a meaningful title here, see the functionality in enotify.php
-		$title = '';
+		$message = Notification::getMessage($notification);
+		$title = $message['plain'] ?: '';
 
 		$push = Subscription::create([
 			'contentEncoding' => 'aesgcm',
