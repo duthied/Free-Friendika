@@ -40,7 +40,7 @@ class ParsedLogIteratorTest extends TestCase
 		}
 	}
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$logfile = dirname(__DIR__) . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
