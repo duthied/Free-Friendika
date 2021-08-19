@@ -175,7 +175,7 @@ class Plaintext
 			}
 		}
 
-		$html = BBCode::convert($post['text'] . ($post['after'] ?? ''), false, $htmlmode);
+		$html = BBCode::convertForUriId($item['uri-id'], $post['text'] . ($post['after'] ?? ''), $htmlmode);
 		$msg = HTML::toPlaintext($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 

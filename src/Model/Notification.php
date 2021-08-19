@@ -23,7 +23,10 @@ namespace Friendica\Model;
 
 use Friendica\BaseModel;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\Plaintext;
+use Friendica\Core\Logger;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Psr\Log\LoggerInterface;
@@ -128,14 +131,14 @@ class Notification extends BaseModel
 	/**
 	 * Fetch the notification type for the given notification
 	 *
-	 * @param array $notification 
+	 * @param array $notification
 	 * @return string
 	 */
 	public static function getType(array $notification): string
 	{
 		if (($notification['vid'] == Verb::getID(Activity::FOLLOW)) && ($notification['type'] == Post\UserNotification::NOTIF_NONE)) {
 			$contact = Contact::getById($notification['actor-id'], ['pending']);
-			$contact['pending'] ? $type = 'follow_request' : 'follow';
+			$type = $contact['pending'] ? 'follow_request' : 'follow';
 		} elseif (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
 			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
 			$type = 'reblog';
@@ -153,5 +156,155 @@ class Notification extends BaseModel
 		}
 
 		return $type;
+	}
+
+	/**
+	 * Create a notification message for the given notification
+	 *
+	 * @param array $notification
+	 * @return array with the elements "plain" for plaintext and "rich" for richtext
+	 */
+	public static function getMessage(array $notification)
+	{
+		$message = [];
+
+		if ($notification['type'] == Post\UserNotification::NOTIF_NONE) {
+			return $message;
+		}
+
+		if (empty($notification['target-uri-id'])) {
+			return $message;
+		}
+
+		$user = User::getById($notification['uid']);
+		if (empty($user)) {
+			Logger::info('User not found', ['application' => $notification['uid']]);
+			return $message;
+		}
+
+		$contact = Contact::getById($notification['actor-id']);
+		if (empty($contact)) {
+			Logger::info('Contact not found', ['contact' => $notification['actor-id']]);
+			return $message;
+		}
+
+		$like     = Verb::getID(Activity::LIKE);
+		$dislike  = Verb::getID(Activity::DISLIKE);
+		$announce = Verb::getID(Activity::ANNOUNCE);
+		$post     = Verb::getID(Activity::POST);
+
+		if (in_array($notification['type'], [Post\UserNotification::NOTIF_THREAD_COMMENT, Post\UserNotification::NOTIF_COMMENT_PARTICIPATION])) {
+			$item = Post::selectFirst([], ['uri-id' => $notification['parent-uri-id'], 'uid' => [0, $notification['uid']]]);
+			if (empty($item)) {
+				Logger::info('Parent post not found', ['uri-id' => $notification['parent-uri-id']]);
+				return $message;
+			}
+		} else {
+			$item = Post::selectFirst([], ['uri-id' => $notification['target-uri-id'], 'uid' => [0, $notification['uid']]]);
+			if (empty($item)) {
+				Logger::info('Post not found', ['uri-id' => $notification['target-uri-id']]);
+				return $message;
+			}
+
+			if ($notification['vid'] == $post) {
+				$item = Post::selectFirst([], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $notification['uid']]]);
+				if (empty($item)) {
+					Logger::info('Thread parent post not found', ['uri-id' => $item['thr-parent-id']]);
+					return $message;
+				}
+			}
+		}
+
+		$link = DI::baseUrl() . '/display/' . urlencode($item['guid']);
+
+		$content = Plaintext::getPost($item, 70);
+		if (!empty($content['text'])) {
+			$title = '"' . trim(str_replace("\n", " ", $content['text'])) . '"';
+		} else {
+			$title = '';
+		}
+
+		$l10n = DI::l10n()->withLang($user['language']);
+
+		switch ($notification['vid']) {
+			case $like:
+				switch ($notification['type']) {
+					case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+						$msg = $l10n->t('%1$s liked your comment %2$s');
+						break;
+					case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+						$msg = $l10n->t('%1$s liked your post %2$s');
+						break;
+					}
+				break;
+			case $dislike:
+				switch ($notification['type']) {
+					case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+						$msg = $l10n->t('%1$s disliked your comment %2$s');
+						break;
+					case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+						$msg = $l10n->t('%1$s disliked your post %2$s');
+						break;
+				}
+				break;
+			case $announce:
+				switch ($notification['type']) {
+					case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+						$msg = $l10n->t('%1$s shared your comment %2$s');
+						break;
+					case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+						$msg = $l10n->t('%1$s shared your post %2$s');
+						break;
+					}
+				break;
+			case $post:
+				switch ($notification['type']) {
+					case Post\UserNotification::NOTIF_EXPLICIT_TAGGED:
+						$msg = $l10n->t('%1$s tagged you on %2$s');
+						break;
+
+					case Post\UserNotification::NOTIF_IMPLICIT_TAGGED:
+						$msg = $l10n->t('%1$s replied to you on %2$s');
+						break;
+
+					case Post\UserNotification::NOTIF_THREAD_COMMENT:
+						$msg = $l10n->t('%1$s commented in your thread %2$s');
+						break;
+
+					case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+						$msg = $l10n->t('%1$s commented on your comment %2$s');
+						break;
+
+					case Post\UserNotification::NOTIF_COMMENT_PARTICIPATION:
+						$msg = $l10n->t('%1$s commented in the thread %2$s');
+						break;
+
+					case Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION:
+						// Unhandled
+						break;
+
+					case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+						$msg = $l10n->t('%1$s commented on your thread %2$s');
+						break;
+
+					case Post\UserNotification::NOTIF_SHARED:
+						if ($title != '') {
+							$msg = $l10n->t('%1$s shared the post %2$s');
+						} else {
+							$msg = $l10n->t('%1$s shared a post');
+						}
+						break;
+				}
+				break;
+		}
+
+		if (!empty($msg)) {
+			$message['plain'] = sprintf($msg, $contact['name'], $title);
+			$message['rich']  = sprintf($msg,
+				'[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]',
+				'[url=' . $link . ']' . $title . '[/url]');
+		}
+
+		return $message;
 	}
 }

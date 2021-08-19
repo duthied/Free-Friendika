@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 08:39+0200\n"
+"POT-Creation-Date: 2021-08-19 13:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,8 +37,8 @@ msgstr[1] ""
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
 
-#: include/api.php:4437 mod/photos.php:86 mod/photos.php:195 mod/photos.php:623
-#: mod/photos.php:1031 mod/photos.php:1048 mod/photos.php:1594
+#: include/api.php:4437 mod/photos.php:89 mod/photos.php:198 mod/photos.php:626
+#: mod/photos.php:1034 mod/photos.php:1051 mod/photos.php:1597
 #: src/Model/User.php:1112 src/Model/User.php:1120 src/Model/User.php:1128
 #: src/Module/Settings/Profile/Photo/Crop.php:101
 #: src/Module/Settings/Profile/Photo/Crop.php:117
@@ -71,11 +71,11 @@ msgstr ""
 msgid "%1$s tagged %2$s's %3$s with %4$s"
 msgstr ""
 
-#: include/conversation.php:467 mod/photos.php:1456 src/Object/Post.php:226
+#: include/conversation.php:467 mod/photos.php:1459 src/Object/Post.php:226
 msgid "Select"
 msgstr ""
 
-#: include/conversation.php:468 mod/photos.php:1457 mod/settings.php:574
+#: include/conversation.php:468 mod/photos.php:1460 mod/settings.php:574
 #: src/Module/Admin/Users/Active.php:139 src/Module/Admin/Users/Blocked.php:140
 #: src/Module/Admin/Users/Index.php:153 src/Module/Contact.php:849
 #: src/Module/Contact.php:1140
@@ -106,7 +106,7 @@ msgstr ""
 
 #: include/conversation.php:541 include/conversation.php:1143
 #: mod/editpost.php:107 mod/message.php:203 mod/message.php:368
-#: mod/photos.php:1521 mod/wallmessage.php:155 src/Module/Item/Compose.php:165
+#: mod/photos.php:1524 mod/wallmessage.php:155 src/Module/Item/Compose.php:165
 #: src/Object/Post.php:501
 msgid "Please wait"
 msgstr ""
@@ -364,7 +364,7 @@ msgstr ""
 msgid "Share"
 msgstr ""
 
-#: include/conversation.php:1114 mod/editpost.php:92 mod/photos.php:1370
+#: include/conversation.php:1114 mod/editpost.php:92 mod/photos.php:1373
 #: src/Module/Contact/Poke.php:157 src/Object/Post.php:963
 msgid "Loading..."
 msgstr ""
@@ -466,7 +466,7 @@ msgid "Permission settings"
 msgstr ""
 
 #: include/conversation.php:1145 mod/editpost.php:136 mod/events.php:583
-#: mod/photos.php:962 mod/photos.php:1323
+#: mod/photos.php:965 mod/photos.php:1326
 msgid "Permissions"
 msgstr ""
 
@@ -475,15 +475,15 @@ msgid "Public post"
 msgstr ""
 
 #: include/conversation.php:1158 mod/editpost.php:128 mod/events.php:578
-#: mod/photos.php:1369 mod/photos.php:1425 mod/photos.php:1499
+#: mod/photos.php:1372 mod/photos.php:1428 mod/photos.php:1502
 #: src/Module/Item/Compose.php:160 src/Object/Post.php:973
 msgid "Preview"
 msgstr ""
 
 #: include/conversation.php:1161 mod/editpost.php:130 mod/fbrowser.php:105
-#: mod/fbrowser.php:134 mod/follow.php:145 mod/photos.php:1025
-#: mod/photos.php:1131 mod/tagrm.php:37 mod/tagrm.php:129 mod/unfollow.php:97
-#: src/Module/Contact.php:422 src/Module/RemoteFollow.php:112
+#: mod/fbrowser.php:134 mod/follow.php:145 mod/photos.php:1028
+#: mod/photos.php:1134 mod/tagrm.php:37 mod/tagrm.php:129 mod/unfollow.php:97
+#: src/Module/Contact.php:422 src/Module/RemoteFollow.php:116
 msgid "Cancel"
 msgstr ""
 
@@ -829,7 +829,7 @@ msgstr ""
 #: mod/api.php:30 mod/editpost.php:38 mod/events.php:236 mod/follow.php:56
 #: mod/follow.php:131 mod/item.php:184 mod/item.php:189 mod/item.php:934
 #: mod/message.php:69 mod/message.php:111 mod/notes.php:44
-#: mod/ostatus_subscribe.php:32 mod/photos.php:160 mod/photos.php:914
+#: mod/ostatus_subscribe.php:32 mod/photos.php:163 mod/photos.php:917
 #: mod/repair_ostatus.php:31 mod/settings.php:47 mod/settings.php:57
 #: mod/settings.php:415 mod/suggest.php:34 mod/uimport.php:32
 #: mod/unfollow.php:35 mod/unfollow.php:50 mod/unfollow.php:82
@@ -869,12 +869,12 @@ msgstr ""
 msgid "Access denied."
 msgstr ""
 
-#: mod/cal.php:61 mod/cal.php:78 mod/photos.php:140 mod/photos.php:821
-#: mod/videos.php:49 mod/videos.php:70 mod/videos.php:111
+#: mod/cal.php:61 mod/cal.php:78 mod/photos.php:69 mod/photos.php:143
+#: mod/photos.php:824 mod/videos.php:49 mod/videos.php:70 mod/videos.php:111
 #: src/Module/HCard.php:54 src/Module/Profile/Common.php:41
 #: src/Module/Profile/Common.php:52 src/Module/Profile/Contacts.php:40
 #: src/Module/Profile/Contacts.php:50 src/Module/Profile/Status.php:58
-#: src/Module/Register.php:254
+#: src/Module/Register.php:254 src/Module/RemoteFollow.php:49
 msgid "User not found."
 msgstr ""
 
@@ -945,7 +945,7 @@ msgstr ""
 msgid "calendar"
 msgstr ""
 
-#: mod/display.php:165 mod/photos.php:825 mod/videos.php:115
+#: mod/display.php:165 mod/photos.php:828 mod/videos.php:115
 #: src/Module/Conversation/Community.php:176 src/Module/Debug/Probe.php:39
 #: src/Module/Debug/WebFinger.php:38 src/Module/Directory.php:49
 #: src/Module/Search/Index.php:50 src/Module/Search/Index.php:55
@@ -1082,8 +1082,8 @@ msgid "Share this event"
 msgstr ""
 
 #: mod/events.php:580 mod/message.php:204 mod/message.php:367
-#: mod/photos.php:944 mod/photos.php:1042 mod/photos.php:1327
-#: mod/photos.php:1368 mod/photos.php:1424 mod/photos.php:1498
+#: mod/photos.php:947 mod/photos.php:1045 mod/photos.php:1330
+#: mod/photos.php:1371 mod/photos.php:1427 mod/photos.php:1501
 #: src/Module/Admin/Item/Source.php:65 src/Module/Contact.php:565
 #: src/Module/Contact/Advanced.php:133 src/Module/Contact/Poke.php:158
 #: src/Module/Debug/ActivityPubConversion.php:141
@@ -1126,7 +1126,7 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-#: mod/follow.php:75 mod/unfollow.php:96 src/Module/RemoteFollow.php:111
+#: mod/follow.php:75 mod/unfollow.php:96 src/Module/RemoteFollow.php:115
 msgid "Submit Request"
 msgstr ""
 
@@ -1146,7 +1146,7 @@ msgstr ""
 msgid "OStatus support is disabled. Contact can't be added."
 msgstr ""
 
-#: mod/follow.php:140 src/Module/RemoteFollow.php:110
+#: mod/follow.php:140 src/Module/RemoteFollow.php:114
 msgid "Please answer the following:"
 msgstr ""
 
@@ -1532,245 +1532,245 @@ msgstr ""
 msgid "Keep this window open until done."
 msgstr ""
 
-#: mod/photos.php:108 src/Module/BaseProfile.php:67
+#: mod/photos.php:111 src/Module/BaseProfile.php:67
 msgid "Photo Albums"
 msgstr ""
 
-#: mod/photos.php:109 mod/photos.php:1623
+#: mod/photos.php:112 mod/photos.php:1626
 msgid "Recent Photos"
 msgstr ""
 
-#: mod/photos.php:111 mod/photos.php:1093 mod/photos.php:1625
+#: mod/photos.php:114 mod/photos.php:1096 mod/photos.php:1628
 msgid "Upload New Photos"
 msgstr ""
 
-#: mod/photos.php:129 src/Module/BaseSettings.php:37
+#: mod/photos.php:132 src/Module/BaseSettings.php:37
 msgid "everybody"
 msgstr ""
 
-#: mod/photos.php:167
+#: mod/photos.php:170
 msgid "Contact information unavailable"
 msgstr ""
 
-#: mod/photos.php:206
+#: mod/photos.php:209
 msgid "Album not found."
 msgstr ""
 
-#: mod/photos.php:264
+#: mod/photos.php:267
 msgid "Album successfully deleted"
 msgstr ""
 
-#: mod/photos.php:266
+#: mod/photos.php:269
 msgid "Album was empty."
 msgstr ""
 
-#: mod/photos.php:298
+#: mod/photos.php:301
 msgid "Failed to delete the photo."
 msgstr ""
 
-#: mod/photos.php:573
+#: mod/photos.php:576
 msgid "a photo"
 msgstr ""
 
-#: mod/photos.php:573
+#: mod/photos.php:576
 #, php-format
 msgid "%1$s was tagged in %2$s by %3$s"
 msgstr ""
 
-#: mod/photos.php:656 mod/photos.php:659 mod/photos.php:686
+#: mod/photos.php:659 mod/photos.php:662 mod/photos.php:689
 #: mod/wall_upload.php:216 src/Module/Settings/Profile/Photo/Index.php:60
 #, php-format
 msgid "Image exceeds size limit of %s"
 msgstr ""
 
-#: mod/photos.php:662
+#: mod/photos.php:665
 msgid "Image upload didn't complete, please try again"
 msgstr ""
 
-#: mod/photos.php:665
+#: mod/photos.php:668
 msgid "Image file is missing"
 msgstr ""
 
-#: mod/photos.php:670
+#: mod/photos.php:673
 msgid ""
 "Server can't accept new file upload at this time, please contact your "
 "administrator"
 msgstr ""
 
-#: mod/photos.php:694
+#: mod/photos.php:697
 msgid "Image file is empty."
 msgstr ""
 
-#: mod/photos.php:709 mod/wall_upload.php:175
+#: mod/photos.php:712 mod/wall_upload.php:175
 #: src/Module/Settings/Profile/Photo/Index.php:69
 msgid "Unable to process image."
 msgstr ""
 
-#: mod/photos.php:738 mod/wall_upload.php:241
+#: mod/photos.php:741 mod/wall_upload.php:241
 #: src/Module/Settings/Profile/Photo/Index.php:96
 msgid "Image upload failed."
 msgstr ""
 
-#: mod/photos.php:830
+#: mod/photos.php:833
 msgid "No photos selected"
 msgstr ""
 
-#: mod/photos.php:899 mod/videos.php:166
+#: mod/photos.php:902 mod/videos.php:166
 msgid "Access to this item is restricted."
 msgstr ""
 
-#: mod/photos.php:954
+#: mod/photos.php:957
 msgid "Upload Photos"
 msgstr ""
 
-#: mod/photos.php:958 mod/photos.php:1038
+#: mod/photos.php:961 mod/photos.php:1041
 msgid "New album name: "
 msgstr ""
 
-#: mod/photos.php:959
+#: mod/photos.php:962
 msgid "or select existing album:"
 msgstr ""
 
-#: mod/photos.php:960
+#: mod/photos.php:963
 msgid "Do not show a status post for this upload"
 msgstr ""
 
-#: mod/photos.php:1021
+#: mod/photos.php:1024
 msgid "Do you really want to delete this photo album and all its photos?"
 msgstr ""
 
-#: mod/photos.php:1022 mod/photos.php:1043
+#: mod/photos.php:1025 mod/photos.php:1046
 msgid "Delete Album"
 msgstr ""
 
-#: mod/photos.php:1049
+#: mod/photos.php:1052
 msgid "Edit Album"
 msgstr ""
 
-#: mod/photos.php:1050
+#: mod/photos.php:1053
 msgid "Drop Album"
 msgstr ""
 
-#: mod/photos.php:1055
+#: mod/photos.php:1058
 msgid "Show Newest First"
 msgstr ""
 
-#: mod/photos.php:1057
+#: mod/photos.php:1060
 msgid "Show Oldest First"
 msgstr ""
 
-#: mod/photos.php:1078 mod/photos.php:1608
+#: mod/photos.php:1081 mod/photos.php:1611
 msgid "View Photo"
 msgstr ""
 
-#: mod/photos.php:1115
+#: mod/photos.php:1118
 msgid "Permission denied. Access to this item may be restricted."
 msgstr ""
 
-#: mod/photos.php:1117
+#: mod/photos.php:1120
 msgid "Photo not available"
 msgstr ""
 
-#: mod/photos.php:1127
+#: mod/photos.php:1130
 msgid "Do you really want to delete this photo?"
 msgstr ""
 
-#: mod/photos.php:1128 mod/photos.php:1328
+#: mod/photos.php:1131 mod/photos.php:1331
 msgid "Delete Photo"
 msgstr ""
 
-#: mod/photos.php:1219
+#: mod/photos.php:1222
 msgid "View photo"
 msgstr ""
 
-#: mod/photos.php:1221
+#: mod/photos.php:1224
 msgid "Edit photo"
 msgstr ""
 
-#: mod/photos.php:1222
+#: mod/photos.php:1225
 msgid "Delete photo"
 msgstr ""
 
-#: mod/photos.php:1223
+#: mod/photos.php:1226
 msgid "Use as profile photo"
 msgstr ""
 
-#: mod/photos.php:1230
+#: mod/photos.php:1233
 msgid "Private Photo"
 msgstr ""
 
-#: mod/photos.php:1236
+#: mod/photos.php:1239
 msgid "View Full Size"
 msgstr ""
 
-#: mod/photos.php:1296
+#: mod/photos.php:1299
 msgid "Tags: "
 msgstr ""
 
-#: mod/photos.php:1299
+#: mod/photos.php:1302
 msgid "[Select tags to remove]"
 msgstr ""
 
-#: mod/photos.php:1314
+#: mod/photos.php:1317
 msgid "New album name"
 msgstr ""
 
-#: mod/photos.php:1315
+#: mod/photos.php:1318
 msgid "Caption"
 msgstr ""
 
-#: mod/photos.php:1316
+#: mod/photos.php:1319
 msgid "Add a Tag"
 msgstr ""
 
-#: mod/photos.php:1316
+#: mod/photos.php:1319
 msgid "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr ""
 
-#: mod/photos.php:1317
+#: mod/photos.php:1320
 msgid "Do not rotate"
 msgstr ""
 
-#: mod/photos.php:1318
+#: mod/photos.php:1321
 msgid "Rotate CW (right)"
 msgstr ""
 
-#: mod/photos.php:1319
+#: mod/photos.php:1322
 msgid "Rotate CCW (left)"
 msgstr ""
 
-#: mod/photos.php:1365 mod/photos.php:1421 mod/photos.php:1495
+#: mod/photos.php:1368 mod/photos.php:1424 mod/photos.php:1498
 #: src/Module/Contact.php:1046 src/Module/Item/Compose.php:148
 #: src/Object/Post.php:959
 msgid "This is you"
 msgstr ""
 
-#: mod/photos.php:1367 mod/photos.php:1423 mod/photos.php:1497
+#: mod/photos.php:1370 mod/photos.php:1426 mod/photos.php:1500
 #: src/Object/Post.php:495 src/Object/Post.php:961
 msgid "Comment"
 msgstr ""
 
-#: mod/photos.php:1518 src/Object/Post.php:348
+#: mod/photos.php:1521 src/Object/Post.php:348
 msgid "Like"
 msgstr ""
 
-#: mod/photos.php:1519 src/Object/Post.php:348
+#: mod/photos.php:1522 src/Object/Post.php:348
 msgid "I like this (toggle)"
 msgstr ""
 
-#: mod/photos.php:1520 src/Object/Post.php:349
+#: mod/photos.php:1523 src/Object/Post.php:349
 msgid "Dislike"
 msgstr ""
 
-#: mod/photos.php:1522 src/Object/Post.php:349
+#: mod/photos.php:1525 src/Object/Post.php:349
 msgid "I don't like this (toggle)"
 msgstr ""
 
-#: mod/photos.php:1544
+#: mod/photos.php:1547
 msgid "Map"
 msgstr ""
 
-#: mod/photos.php:1614 mod/videos.php:243
+#: mod/photos.php:1617 mod/videos.php:243
 msgid "View Album"
 msgstr ""
 
@@ -3404,8 +3404,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1177 src/Model/Item.php:3139
-#: src/Model/Item.php:3145 src/Model/Item.php:3146
+#: src/Content/Text/BBCode.php:1177 src/Model/Item.php:3141
+#: src/Model/Item.php:3147 src/Model/Item.php:3148
 msgid "Link to source"
 msgstr ""
 
@@ -4641,16 +4641,86 @@ msgstr ""
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3104
+#: src/Model/Item.php:3106
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3133 src/Model/Item.php:3134
+#: src/Model/Item.php:3135 src/Model/Item.php:3136
 msgid "View on separate page"
 msgstr ""
 
 #: src/Model/Mail.php:136 src/Model/Mail.php:268
 msgid "[no subject]"
+msgstr ""
+
+#: src/Model/Notification.php:233
+#, php-format
+msgid "%1$s liked your comment %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:236
+#, php-format
+msgid "%1$s liked your post %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:243
+#, php-format
+msgid "%1$s disliked your comment %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:246
+#, php-format
+msgid "%1$s disliked your post %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:253
+#, php-format
+msgid "%1$s shared your comment %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:256
+#, php-format
+msgid "%1$s shared your post %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:263
+#, php-format
+msgid "%1$s tagged you on %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:267
+#, php-format
+msgid "%1$s replied to you on %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:271
+#, php-format
+msgid "%1$s commented in your thread %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:275
+#, php-format
+msgid "%1$s commented on your comment %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:279
+#, php-format
+msgid "%1$s commented in the thread %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:287
+#, php-format
+msgid "%1$s commented on your thread %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:292
+#, php-format
+msgid "%1$s shared the post %2$s"
+msgstr ""
+
+#: src/Model/Notification.php:294
+#, php-format
+msgid "%1$s shared a post"
 msgstr ""
 
 #: src/Model/Profile.php:346 src/Module/Profile/Profile.php:256
@@ -8948,29 +9018,29 @@ msgstr ""
 msgid "Your registration is pending approval by the site owner."
 msgstr ""
 
-#: src/Module/RemoteFollow.php:58
+#: src/Module/RemoteFollow.php:62
 msgid "Profile unavailable."
 msgstr ""
 
-#: src/Module/RemoteFollow.php:64
+#: src/Module/RemoteFollow.php:68
 msgid "Invalid locator"
 msgstr ""
 
-#: src/Module/RemoteFollow.php:71
+#: src/Module/RemoteFollow.php:75
 msgid "The provided profile link doesn't seem to be valid"
 msgstr ""
 
-#: src/Module/RemoteFollow.php:76
+#: src/Module/RemoteFollow.php:80
 msgid ""
 "Remote subscription can't be done for your network. Please subscribe "
 "directly on your system."
 msgstr ""
 
-#: src/Module/RemoteFollow.php:106
+#: src/Module/RemoteFollow.php:110
 msgid "Friend/Connection Request"
 msgstr ""
 
-#: src/Module/RemoteFollow.php:107
+#: src/Module/RemoteFollow.php:111
 #, php-format
 msgid ""
 "Enter your Webfinger address (user@domain.tld) or profile URL here. If this "
@@ -8978,14 +9048,14 @@ msgid ""
 "or <strong>%s</strong> directly on your system."
 msgstr ""
 
-#: src/Module/RemoteFollow.php:108
+#: src/Module/RemoteFollow.php:112
 #, php-format
 msgid ""
 "If you are not yet a member of the free social web, <a href=\"%s\">follow "
 "this link to find a public Friendica node and join us today</a>."
 msgstr ""
 
-#: src/Module/RemoteFollow.php:109
+#: src/Module/RemoteFollow.php:113
 msgid "Your Webfinger address or profile URL:"
 msgstr ""
 
@@ -10553,11 +10623,11 @@ msgstr ""
 msgid "(no subject)"
 msgstr ""
 
-#: src/Worker/PushSubscription.php:100
+#: src/Worker/PushSubscription.php:103
 msgid "Notification from Friendica"
 msgstr ""
 
-#: src/Worker/PushSubscription.php:101
+#: src/Worker/PushSubscription.php:104
 msgid "Empty Post"
 msgstr ""
 
