@@ -50,7 +50,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-17 08:39+0200\n"
-"PO-Revision-Date: 2021-08-18 05:47+0000\n"
+"PO-Revision-Date: 2021-08-19 05:03+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -10597,6 +10597,14 @@ msgstr "%1$d %2$s her"
 #: src/Worker/Delivery.php:521
 msgid "(no subject)"
 msgstr "(kein Betreff)"
+
+#: src/Worker/PushSubscription.php:100
+msgid "Notification from Friendica"
+msgstr "Benachrichtigung von Friendica"
+
+#: src/Worker/PushSubscription.php:101
+msgid "Empty Post"
+msgstr "Leerer Beitrag"
 
 #: view/theme/duepuntozero/config.php:52
 msgid "default"
