@@ -43,11 +43,11 @@ class ParsedLogTest extends TestCase
 	public function testGenericLogLine()
 	{
 		self::do_log_line(
-			'2021-05-24T15:40:01Z worker [NOTICE]: Spool file does does not start with "item-" {"file":".","worker_id":"560c8b6","worker_cmd":"SpoolPost"} - {"file":"SpoolPost.php","line":40,"function":"execute","uid":"fd8c37","process_id":20846}',
+			'2021-05-24T15:40:01Z worker [WARNING]: Spool file does does not start with "item-" {"file":".","worker_id":"560c8b6","worker_cmd":"SpoolPost"} - {"file":"SpoolPost.php","line":40,"function":"execute","uid":"fd8c37","process_id":20846}',
 			[
 				'date'    => '2021-05-24T15:40:01Z',
 				'context' => 'worker',
-				'level'   => 'NOTICE',
+				'level'   => 'WARNING',
 				'message' => 'Spool file does does not start with "item-"',
 				'data'    => '{"file":".","worker_id":"560c8b6","worker_cmd":"SpoolPost"}',
 				'source'  => '{"file":"SpoolPost.php","line":40,"function":"execute","uid":"fd8c37","process_id":20846}',
