@@ -162,7 +162,7 @@ class Notification extends BaseModel
 	 * Create a notification message for the given notification
 	 *
 	 * @param array $notification
-	 * @return array with the elements "plain" for plaintext and "rich" for richtext
+	 * @return array with the elements "causer", "notification", "plain" and "rich"
 	 */
 	public static function getMessage(array $notification)
 	{
@@ -299,8 +299,14 @@ class Notification extends BaseModel
 		}
 
 		if (!empty($msg)) {
-			$message['plain'] = sprintf($msg, $contact['name'], $title);
-			$message['rich']  = sprintf($msg,
+			// Name of the notification's causer
+			$message['causer'] = $contact['name'];
+			// Format for the "ping" mechanism
+			$message['notification'] = sprintf($msg, '{0}', $title);
+			// Plain text for the web push api
+			$message['plain']        = sprintf($msg, $contact['name'], $title);
+			// Rich text for other purposes 
+			$message['rich']         = sprintf($msg,
 				'[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]',
 				'[url=' . $link . ']' . $title . '[/url]');
 		}
