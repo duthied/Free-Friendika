@@ -26,7 +26,6 @@ use Friendica\Model\Log\ParsedLogIterator;
 
 use PHPUnit\Framework\TestCase;
 
-
 /**
  * Parsed log iterator testing class
  */
@@ -50,7 +49,7 @@ class ParsedLogIteratorTest extends TestCase
 			'log' . DIRECTORY_SEPARATOR .
 			'friendica.log.txt';
 
-		$reader = new ReversedFileReader();
+		$reader    = new ReversedFileReader();
 		$this->pli = new ParsedLogIterator($reader);
 		$this->pli->open($logfile);
 	}

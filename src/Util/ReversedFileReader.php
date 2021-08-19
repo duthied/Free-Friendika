@@ -51,7 +51,7 @@ class ReversedFileReader implements \Iterator
 
 	/**
 	 * Open $filename for read and reset iterator
-	 * 
+	 *
 	 * @param string $filename	File to open
 	 * @return $this
 	 */
