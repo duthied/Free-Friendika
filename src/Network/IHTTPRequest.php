@@ -52,7 +52,7 @@ interface IHTTPRequest
 	 * @param string $accept_content  supply Accept: header with 'accept_content' as the value
 	 * @param string $cookiejar       Path to cookie jar file
 	 *
-	 * @return CurlResult With all relevant information, 'body' contains the actual fetched content.
+	 * @return IHTTPResult With all relevant information, 'body' contains the actual fetched content.
 	 */
 	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '');
 
@@ -80,7 +80,7 @@ interface IHTTPRequest
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
 	 *
-	 * @return CurlResult
+	 * @return IHTTPResult
 	 */
 	public function get(string $url, array $opts = []);
 
@@ -92,7 +92,7 @@ interface IHTTPRequest
 	 * @param array  $headers HTTP headers
 	 * @param int    $timeout The timeout in seconds, default system config value or 60 seconds
 	 *
-	 * @return CurlResult The content
+	 * @return IHTTPResult The content
 	 */
 	public function post(string $url, $params, array $headers = [], int $timeout = 0);
 

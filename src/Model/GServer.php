@@ -32,7 +32,7 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\Register;
-use Friendica\Network\CurlResult;
+use Friendica\Network\IHTTPResult;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -171,7 +171,7 @@ class GServer
 		if (($now - $contact_time) < (60 * 60 * 24)) {
 			return DateTimeFormat::utc('now +1 day');
 		}
-		
+
 		// If the last contact was less than a week before then try again in a week
 		if (($now - $contact_time) < (60 * 60 * 24 * 7)) {
 			return DateTimeFormat::utc('now +1 week');
@@ -671,18 +671,19 @@ class GServer
 	/**
 	 * Detect server type by using the nodeinfo data
 	 *
-	 * @param string     $url        address of the server
-	 * @param CurlResult $curlResult
+	 * @param string      $url        address of the server
+	 * @param IHTTPResult $httpResult
+	 *
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function fetchNodeinfo(string $url, CurlResult $curlResult)
+	private static function fetchNodeinfo(string $url, IHTTPResult $httpResult)
 	{
-		if (!$curlResult->isSuccess()) {
+		if (!$httpResult->isSuccess()) {
 			return [];
 		}
 
-		$nodeinfo = json_decode($curlResult->getBody(), true);
+		$nodeinfo = json_decode($httpResult->getBody(), true);
 
 		if (!is_array($nodeinfo) || empty($nodeinfo['links'])) {
 			return [];
@@ -1748,8 +1749,8 @@ class GServer
 	 *
 	 * @param int $gsid     Server id
 	 * @param int $protocol Protocol id
-	 * @return void 
-	 * @throws Exception 
+	 * @return void
+	 * @throws Exception
 	 */
 	public static function setProtocol(int $gsid, int $protocol)
 	{
@@ -1808,8 +1809,8 @@ class GServer
 	 * Fetch the protocol of the given server
 	 *
 	 * @param int $gsid Server id
-	 * @return int 
-	 * @throws Exception 
+	 * @return int
+	 * @throws Exception
 	 */
 	public static function getProtocol(int $gsid)
 	{
