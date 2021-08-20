@@ -19,7 +19,7 @@ interface IHTTPResult
 	/**
 	 * Returns the Content Type
 	 *
-	 * @return string the Content Type
+	 * @return string[] the Content Types
 	 */
 	public function getContentType();
 
@@ -29,7 +29,7 @@ interface IHTTPResult
 	 *
 	 * @param string $header optional header field. Return all fields if empty
 	 *
-	 * @return string the headers or the specified content of the header variable
+	 * @return string[] the headers or the specified content of the header variable
 	 */
 	public function getHeader($header);
 

@@ -1095,13 +1095,13 @@ class User
 			$curlResult = DI::httpRequest()->get($photo);
 			if ($curlResult->isSuccess()) {
 				$img_str = $curlResult->getBody();
-				$type = $curlResult->getContentType();
+				$contType = $curlResult->getContentType();
 			} else {
 				$img_str = '';
-				$type = '';
+				$contType = [];
 			}
 
-			$type = Images::getMimeTypeByData($img_str, $photo, $type);
+			$type = Images::getMimeTypeByData($img_str, $photo, $contType);
 
 			$Image = new Image($img_str, $type);
 			if ($Image->isValid()) {
