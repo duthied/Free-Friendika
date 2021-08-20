@@ -85,6 +85,27 @@ blockquote {
 }
 
 /**
+ * details tag
+ */
+details {
+	padding: .5em .5em 0;
+}
+details details {
+	padding-left: .5em;
+}
+details summary {
+	font-weight: bold;
+	display: list-item;
+}
+
+/**
+ * clickable table rows
+ */
+.table > tbody > td[role="button"] {
+	cursor: pointer;
+}
+
+/**
  * mobile aside
  */
 @media screen and (max-width: 990px) {
