@@ -320,12 +320,6 @@ class CurlResult implements IHTTPResult
 	}
 
 	/** {@inheritDoc} */
-	public function getInfo()
-	{
-		return $this->info;
-	}
-
-	/** {@inheritDoc} */
 	public function isRedirectUrl()
 	{
 		return $this->isRedirectUrl;

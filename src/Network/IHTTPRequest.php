@@ -79,6 +79,7 @@ interface IHTTPRequest
 	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
+	 *                           'content_length' => int maximum File content length
 	 *
 	 * @return IHTTPResult
 	 */

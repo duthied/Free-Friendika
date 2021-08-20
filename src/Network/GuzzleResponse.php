@@ -121,11 +121,6 @@ class GuzzleResponse extends Response implements IHTTPResult, ResponseInterface
 		return $this->url;
 	}
 
-	public function getInfo()
-	{
-		// TODO: Implement getInfo() method.
-	}
-
 	/** {@inheritDoc} */
 	public function isRedirectUrl()
 	{
