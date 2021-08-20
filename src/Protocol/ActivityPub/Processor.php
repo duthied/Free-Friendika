@@ -1207,20 +1207,24 @@ class Processor
 		// This prevents links to be added again to Pleroma-style mention links
 		$body = self::normalizeMentionLinks($body);
 
-		foreach ($tags as $tag) {
-			if (empty($tag['name']) || empty($tag['type']) || empty($tag['href']) || !in_array($tag['type'], ['Mention', 'Hashtag'])) {
-				continue;
+		$body = BBCode::performWithEscapedTags($body, ['url'], function ($body) use ($tags) {
+			foreach ($tags as $tag) {
+				if (empty($tag['name']) || empty($tag['type']) || empty($tag['href']) || !in_array($tag['type'], ['Mention', 'Hashtag'])) {
+					continue;
+				}
+
+				$hash = substr($tag['name'], 0, 1);
+				$name = substr($tag['name'], 1);
+				if (!in_array($hash, Tag::TAG_CHARACTER)) {
+					$hash = '';
+					$name = $tag['name'];
+				}
+
+				$body = str_replace($tag['name'], $hash . '[url=' . $tag['href'] . ']' . $name . '[/url]', $body);
 			}
 
-			$hash = substr($tag['name'], 0, 1);
-			$name = substr($tag['name'], 1);
-			if (!in_array($hash, Tag::TAG_CHARACTER)) {
-				$hash = '';
-				$name = $tag['name'];
-			}
-
-			$body = str_replace($tag['name'], $hash . '[url=' . $tag['href'] . ']' . $name . '[/url]', $body);
-		}
+			return $body;
+		});
 
 		return $body;
 	}
