@@ -272,10 +272,8 @@ class ParseUrl
 		$charset = '';
 		// Look for a charset, first in headers
 		// Expected form: Content-Type: text/html; charset=ISO-8859-4
-		foreach ($curlResult->getContentType() as $type) {
-			if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $type, $matches)) {
-				$charset = trim(trim(trim(array_pop($matches)), ';,'));
-			}
+		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $curlResult->getContentType(), $matches)) {
+			$charset = trim(trim(trim(array_pop($matches)), ';,'));
 		}
 
 		// Then in body that gets precedence

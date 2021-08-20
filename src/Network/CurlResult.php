@@ -37,7 +37,7 @@ class CurlResult implements IHTTPResult
 	private $returnCode;
 
 	/**
-	 * @var string[] the content type of the Curl call
+	 * @var string the content type of the Curl call
 	 */
 	private $contentType;
 
@@ -223,9 +223,9 @@ class CurlResult implements IHTTPResult
 	private function checkInfo()
 	{
 		if (isset($this->info['content_type'])) {
-			$this->contentType = [$this->info['content_type']];
+			$this->contentType = $this->info['content_type'];
 		} else {
-			$this->contentType = [];
+			$this->contentType = '';
 		}
 	}
 
