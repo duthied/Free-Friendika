@@ -42,12 +42,7 @@ class ParsedLogIteratorTest extends TestCase
 
 	protected function setUp(): void
 	{
-		$logfile = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'log' . DIRECTORY_SEPARATOR .
-			'friendica.log.txt';
+		$logfile = dirname(__DIR__) . '/../../datasets/log/friendica.log.txt';
 
 		$reader    = new ReversedFileReader();
 		$this->pli = new ParsedLogIterator($reader);

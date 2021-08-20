@@ -21,6 +21,12 @@ $(function(){
 	$(".log-event").on("click", function(ev) {
 		show_details_for_element(ev.currentTarget);
 	});
+	$(".log-event").on("keydown", function(ev) {
+		if (ev.keyCode == 13 || ev.keyCode == 32) {
+			show_details_for_element(ev.currentTarget);
+		}
+	});
+
 
 	$("[data-previous").on("click", function(ev){ 
 		var currentid = document.getElementById("logdetail").dataset.rowId;
@@ -37,9 +43,15 @@ $(function(){
 	});
 
 
-	function show_details_for_element(element) {
-		var $modal = $("#logdetail");
+	const $modal = $("#logdetail");
 
+	$modal.on("hidden.bs.modal", function(ev){
+		document
+			.querySelectorAll('[aria-expanded="true"]')
+			.forEach(elm => elm.setAttribute("aria-expanded", false))
+	});
+
+	function show_details_for_element(element) {
 		$modal[0].dataset.rowId = element.id;
 
 		var tr = $modal.find(".main-data tbody tr")[0];
@@ -64,6 +76,7 @@ $(function(){
 		$("[data-next").prop("disabled", $(element).next().length == 0);
 		
 		$modal.modal({})
+		element.setAttribute("aria-expanded", true);
 	}
 
 	function recursive_details(s, data, lev=0) {

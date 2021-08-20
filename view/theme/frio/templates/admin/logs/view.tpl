@@ -1,7 +1,7 @@
 <div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 
-	<h3>{{$logname}}</h3>
+	<h2>{{$logname}}</h2>
 	{{if $error }}
 		<div id="admin-error-message-wrapper" class="alert alert-warning">
 			<p>{{$error nofilter}}</p>
@@ -59,7 +59,9 @@
 			</thead>
 			<tbody>
 				{{foreach $data as $row}}
-				<tr id="ev-{{$row->id}}" class="log-event"
+				<tr id="ev-{{$row->id}}" class="log-event" 
+					role="button" tabIndex="0"
+					aria-label="View details" aria-haspopup="true" aria-expanded="false"
 					data-data="{{$row->data}}" data-source="{{$row->source}}">
 					<td>{{$row->date}}</td>
 					<td class="

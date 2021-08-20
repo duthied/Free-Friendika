@@ -24,7 +24,7 @@ namespace Friendica\Object\Log;
 /**
  * Parse a log line and offer some utility methods
  */
-class ParsedLog
+class ParsedLogLine
 {
 	const REGEXP = '/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[^ ]*) (\w+) \[(\w*)\]: (.*)/';
 
@@ -64,16 +64,23 @@ class ParsedLog
 
 	private function parse($logline)
 	{
+		$this->logline = $logline;
+
 		// if data is empty is serialized as '[]'. To ease the parsing
 		// let's replace it with '{""}'. It will be replaced by null later
 		$logline = str_replace(' [] - {', ' {""} - {', $logline);
 
-		// here we hope that there will not be the string ' - {' inside the $jsonsource value
-		list($logline, $jsonsource) = explode(' - {', $logline);
-		$jsonsource                 = '{' . $jsonsource;
+
+		if (strstr($logline, ' - {') === false) {
+			// the log line is not well formed
+			$jsonsource = null;
+		} else {
+			// here we hope that there will not be the string ' - {' inside the $jsonsource value
+			list($logline, $jsonsource) = explode(' - {', $logline);
+			$jsonsource                 = '{' . $jsonsource;
+		}
 
 		$jsondata = null;
-
 		if (strpos($logline, '{"') > 0) {
 			list($logline, $jsondata) = explode('{"', $logline, 2);
 
@@ -82,15 +89,20 @@ class ParsedLog
 
 		preg_match(self::REGEXP, $logline, $matches);
 
-		$this->date    = $matches[1];
-		$this->context = $matches[2];
-		$this->level   = $matches[3];
-		$this->message = trim($matches[4]);
-		$this->data    = $jsondata == '{""}' ? null : $jsondata;
-		$this->source  = $jsonsource;
-		$this->try_fix_json();
+		if (count($matches) == 0) {
+			// regexp not matching
+			$this->message = $this->logline;
+		} else {
+			$this->date    = $matches[1];
+			$this->context = $matches[2];
+			$this->level   = $matches[3];
+			$this->message = $matches[4];
+			$this->data    = $jsondata == '{""}' ? null : $jsondata;
+			$this->source  = $jsonsource;
+			$this->tryfixjson();
+		}
 
-		$this->logline = $logline;
+		$this->message = trim($this->message);
 	}
 
 	/**
@@ -101,7 +113,7 @@ class ParsedLog
 	 * This method try to parse the found json and if it fails, search for next '{'
 	 * in json data and retry
 	 */
-	private function try_fix_json()
+	private function tryfixjson()
 	{
 		if (is_null($this->data) || $this->data == '') {
 			return;
@@ -112,10 +124,15 @@ class ParsedLog
 			// try to find next { in $str and move string before to 'message'
 
 			$pos = strpos($this->data, '{', 1);
+			if ($pos === false) {
+				$this->message .= $this->data;
+				$this->data = null;
+				return;
+			}
 
 			$this->message .= substr($this->data, 0, $pos);
 			$this->data = substr($this->data, $pos);
-			$this->try_fix_json();
+			$this->tryfixjson();
 		}
 	}
 
@@ -124,7 +141,7 @@ class ParsedLog
 	 *
 	 * @return array
 	 */
-	public function get_data()
+	public function getData()
 	{
 		$data = json_decode($this->data, true);
 		if ($data) {
@@ -140,7 +157,7 @@ class ParsedLog
 	 *
 	 * @return array
 	 */
-	public function get_source()
+	public function getSource()
 	{
 		return json_decode($this->source, true);
 	}

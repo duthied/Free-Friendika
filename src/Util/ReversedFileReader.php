@@ -70,6 +70,11 @@ class ReversedFileReader implements \Iterator
 		return $this;
 	}
 
+	/**
+	 * Read $size bytes behind last position
+	 * 
+	 * @return string
+	 */
 	private function _read($size)
 	{
 		$this->pos -= $size;
@@ -77,6 +82,12 @@ class ReversedFileReader implements \Iterator
 		return fread($this->fh, $size);
 	}
 
+	/**
+	 * Read next line from end of file
+	 * Return null if no lines are left to read
+	 * 
+	 * @return ?string
+	 */
 	private function _readline()
 	{
 		$buffer = & $this->buffer;
@@ -91,12 +102,24 @@ class ReversedFileReader implements \Iterator
 		}
 	}
 
+	/**
+	 * Fetch next line from end and set it as current iterator value.
+	 * 
+	 * @see Iterator::next()
+	 * @return void
+	 */
 	public function next()
 	{
 		++$this->key;
 		$this->value = $this->_readline();
 	}
 
+	/**
+	 * Rewind iterator to the first line at the end of file
+	 * 
+	 * @see Iterator::rewind()
+	 * @return void 
+	 */
 	public function rewind()
 	{
 		if ($this->filesize > 0) {
@@ -108,16 +131,34 @@ class ReversedFileReader implements \Iterator
 		}
 	}
 
+	/**
+	 * Return current line number, starting from zero at the end of file
+	 * 
+	 * @see Iterator::key()
+	 * @return int
+	 */
 	public function key()
 	{
 		return $this->key;
 	}
 
+	/**
+	 * Return current line
+	 * 
+	 * @see Iterator::current()
+	 * @return string
+	 */
 	public function current()
 	{
 		return $this->value;
 	}
 
+	/**
+	 * Checks if current iterator value is valid, that is, we readed all lines in files
+	 * 
+	 * @see Iterator::valid()
+	 * @return bool
+	 */
 	public function valid()
 	{
 		return ! is_null($this->value);

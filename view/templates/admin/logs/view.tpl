@@ -1,7 +1,7 @@
 <div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 
-	<h3>{{$logname}}</h3>
+	<h2>{{$logname}}</h2>
 	{{if $error }}
 		<div id="admin-error-message-wrapper" class="alert alert-warning">
 			<p>{{$error nofilter}}</p>
@@ -44,14 +44,18 @@
 				</thead>
 				<tbody>
 					{{foreach $data as $row}}
-						<tr id="ev-{{$row->id}}" onClick="log_show_details('ev-{{$row->id}}')">
+						<tr id="ev-{{$row->id}}" class="log-event"
+						 role="button" tabIndex="0"
+						 aria-label="View details" aria-haspopup="true" aria-expanded="false"
+						 style="cursor:pointer;"
+						 title="Click to view details">
 							<td>{{$row->date}}</td>
 							<td>{{$row->level}}</td>
 							<td>{{$row->context}}</td>
 							<td>{{$row->message}}</td>
 						</tr>
 						<tr class="hidden" data-id="ev-{{$row->id}}"><th colspan="4">Data</th></tr>
-						{{foreach $row->get_data() as $k=>$v}}
+						{{foreach $row->getData() as $k=>$v}}
 							<tr class="hidden" data-id="ev-{{$row->id}}">
 								<th>{{$k}}</th>
 								<td colspan="3">
@@ -60,7 +64,7 @@
 							</tr>
 						{{/foreach}}
 						<tr class="hidden" data-id="ev-{{$row->id}}"><th colspan="4">Source</th></tr>
-						{{foreach $row->get_source() as $k=>$v}}
+						{{foreach $row->getSource() as $k=>$v}}
 							<tr class="hidden" data-id="ev-{{$row->id}}">
 								<th>{{$k}}</th>
 								<td colspan="3">{{$v}}</td>

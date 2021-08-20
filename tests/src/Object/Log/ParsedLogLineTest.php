@@ -21,17 +21,17 @@
 
 namespace Friendica\Test\src\Object\Log;
 
-use Friendica\Object\Log\ParsedLog;
+use Friendica\Object\Log\ParsedLogLine;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Log parser testing class
  */
-class ParsedLogTest extends TestCase
+class ParsedLogLineTest extends TestCase
 {
 	public static function do_log_line($logline, $expected_data)
 	{
-		$parsed = new ParsedLog(0, $logline);
+		$parsed = new ParsedLogLine(0, $logline);
 		foreach ($expected_data as $k => $v) {
 			self::assertSame($parsed->$k, $v, '"'.$k.'" does not match expectation');
 		}
@@ -87,6 +87,96 @@ class ParsedLogTest extends TestCase
 				'message' => 'Load: 0.01/20 - processes: 0/1/6 (0:0, 30:1) - maximum: 10/10',
 				'data'    => '{"worker_id":"ece8fc8","worker_cmd":"Cron"}',
 				'source'  => '{"file":"Worker.php","line":786,"function":"tooMuchWorkers","uid":"364d3c","process_id":20754}',
+			]
+		);
+	}
+
+	/**
+	 * test non conforming log line
+	 */
+	public function testNonConformingLogLine()
+	{
+		self::do_log_line(
+			'this log line is not formatted as expected',
+			[
+				'date'    => null,
+				'context' => null,
+				'level'   => null,
+				'message' => 'this log line is not formatted as expected',
+				'data'    => null,
+				'source'  => null,
+			]
+		);
+	}
+
+	/**
+	 * test missing source
+	 */
+	public function testMissingSource()
+	{
+		self::do_log_line(
+			'2021-05-24T15:30:01Z worker [NOTICE]: Load: 0.01/20 - processes: 0/1/6 (0:0, 30:1) - maximum: 10/10 {"worker_id":"ece8fc8","worker_cmd":"Cron"}',
+			[
+				'date'    => '2021-05-24T15:30:01Z',
+				'context' => 'worker',
+				'level'   => 'NOTICE',
+				'message' => 'Load: 0.01/20 - processes: 0/1/6 (0:0, 30:1) - maximum: 10/10',
+				'data'    => '{"worker_id":"ece8fc8","worker_cmd":"Cron"}',
+				'source'  => null,
+			]
+		);
+	}
+
+	/**
+	 * test missing data
+	 */
+	public function testMissingData()
+	{
+		self::do_log_line(
+			'2021-05-24T15:30:01Z worker [NOTICE]: Load: 0.01/20 - processes: 0/1/6 (0:0, 30:1) - maximum: 10/10 - {"file":"Worker.php","line":786,"function":"tooMuchWorkers","uid":"364d3c","process_id":20754}',
+			[
+				'date'    => '2021-05-24T15:30:01Z',
+				'context' => 'worker',
+				'level'   => 'NOTICE',
+				'message' => 'Load: 0.01/20 - processes: 0/1/6 (0:0, 30:1) - maximum: 10/10',
+				'data'    => null,
+				'source'  => '{"file":"Worker.php","line":786,"function":"tooMuchWorkers","uid":"364d3c","process_id":20754}',
+			]
+		);
+	}
+
+	/**
+	 * test missing data and source
+	 */
+	public function testMissingDataAndSource()
+	{
+		self::do_log_line(
+			'2021-05-24T15:30:01Z worker [NOTICE]: Load: 0.01/20 - processes: 0/1/6 (0:0, 30:1) - maximum: 10/10',
+			[
+				'date'    => '2021-05-24T15:30:01Z',
+				'context' => 'worker',
+				'level'   => 'NOTICE',
+				'message' => 'Load: 0.01/20 - processes: 0/1/6 (0:0, 30:1) - maximum: 10/10',
+				'data'    => null,
+				'source'  => null,
+			]
+		);
+	}
+
+	/**
+	 * test missing source and invalid data
+	 */
+	public function testMissingSourceAndInvalidData()
+	{
+		self::do_log_line(
+			'2021-05-24T15:30:01Z worker [NOTICE]: Load: 0.01/20 - processes: 0/1/6 (0:0, 30:1) - maximum: 10/10 {"invalidjson {really',
+			[
+				'date'    => '2021-05-24T15:30:01Z',
+				'context' => 'worker',
+				'level'   => 'NOTICE',
+				'message' => 'Load: 0.01/20 - processes: 0/1/6 (0:0, 30:1) - maximum: 10/10 {"invalidjson {really',
+				'data'    => null,
+				'source'  => null,
 			]
 		);
 	}
