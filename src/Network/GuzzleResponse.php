@@ -145,4 +145,10 @@ class GuzzleResponse extends Response implements IHTTPResult, ResponseInterface
 	{
 		return $this->isTimeout;
 	}
+
+	/// @todo - fix mismatching use of "getBody()" as string here and parent "getBody()" as streaminterface
+	public function getBody()
+	{
+		return parent::getBody()->getContents();
+	}
 }

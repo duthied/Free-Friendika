@@ -72,7 +72,7 @@ class HTTPRequest implements IHTTPRequest
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get(string $url, bool $binary = false, array $opts = [])
+	public function get(string $url, array $opts = [])
 	{
 		$this->profiler->startRecording('network');
 
@@ -193,10 +193,6 @@ class HTTPRequest implements IHTTPRequest
 			$curlOptions[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
 		}
 
-		if ($binary) {
-			$curlOptions[CURLOPT_BINARYTRANSFER] = 1;
-		}
-
 		$logger = $this->logger;
 
 		$onRedirect = function(
@@ -223,7 +219,6 @@ class HTTPRequest implements IHTTPRequest
 				'referer' => true,
 			],
 			'on_headers' => $onHeaders,
-			'sink' => tempnam(get_temppath(), 'guzzle'),
 			'curl' => $curlOptions
 		]);
 

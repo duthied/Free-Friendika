@@ -170,10 +170,10 @@ class Media
 			$curlResult = DI::httpRequest()->head($media['url'], ['timeout' => $timeout]);
 			if ($curlResult->isSuccess()) {
 				if (empty($media['mimetype'])) {
-					$media['mimetype'] = $curlResult->getHeader('Content-Type');
+					$media['mimetype'] = $curlResult->getHeader('Content-Type')[0] ?? '';
 				}
 				if (empty($media['size'])) {
-					$media['size'] = (int)$curlResult->getHeader('Content-Length');
+					$media['size'] = (int)$curlResult->getHeader('Content-Length')[0] ?? 0;
 				}
 			} else {
 				Logger::notice('Could not fetch head', ['media' => $media]);
