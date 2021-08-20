@@ -2,6 +2,8 @@
 
 namespace Friendica\Network;
 
+use Psr\Http\Message\MessageInterface;
+
 /**
  * Temporary class to map Friendica used variables based on PSR-7 HTTPResponse
  */
@@ -23,15 +25,25 @@ interface IHTTPResult
 
 	/**
 	 * Returns the headers
+	 * @see MessageInterface::getHeader()
 	 *
-	 * @param string $field optional header field. Return all fields if empty
+	 * @param string $header optional header field. Return all fields if empty
 	 *
 	 * @return string the headers or the specified content of the header variable
 	 */
-	public function getHeader(string $field = '');
+	public function getHeader($header);
+
+	/**
+	 * Returns all headers
+	 * @see MessageInterface::getHeaders()
+	 *
+	 * @return string[][]
+	 */
+	public function getHeaders();
 
 	/**
 	 * Check if a specified header exists
+	 * @see MessageInterface::hasHeader()
 	 *
 	 * @param string $field header field
 	 *
@@ -41,8 +53,10 @@ interface IHTTPResult
 
 	/**
 	 * Returns the headers as an associated array
+	 * @see MessageInterface::getHeaders()
+	 * @deprecated
 	 *
-	 * @return array associated header array
+	 * @return string[][] associated header array
 	 */
 	public function getHeaderArray();
 
@@ -62,6 +76,8 @@ interface IHTTPResult
 	public function getRedirectUrl();
 
 	/**
+	 * @see MessageInterface::getBody()
+	 *
 	 * @return string
 	 */
 	public function getBody();
