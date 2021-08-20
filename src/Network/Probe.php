@@ -429,6 +429,11 @@ class Probe
 			return false;
 		}
 
+		// If the file is too large then exit
+		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
+			return false;
+		}
+
 		// If it isn't a HTML file then exit
 		if (($curlResult->getContentType() != '') && !strstr(strtolower($curlResult->getContentType()), 'html')) {
 			return false;
