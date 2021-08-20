@@ -68,7 +68,7 @@ class CurlResultTest extends TestCase
 		self::assertFalse($curlResult->isRedirectUrl());
 		self::assertSame($headerArray, $curlResult->getHeaders());
 		self::assertSame($body, $curlResult->getBody());
-		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
+		self::assertSame(['text/html; charset=utf-8'], $curlResult->getContentType());
 		self::assertSame('https://test.local', $curlResult->getUrl());
 		self::assertSame('https://test.local', $curlResult->getRedirectUrl());
 	}
@@ -97,7 +97,7 @@ class CurlResultTest extends TestCase
 		self::assertTrue($curlResult->isRedirectUrl());
 		self::assertSame($headerArray, $curlResult->getHeaders());
 		self::assertSame($body, $curlResult->getBody());
-		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
+		self::assertSame(['text/html; charset=utf-8'], $curlResult->getContentType());
 		self::assertSame('https://test.local/test/it', $curlResult->getUrl());
 		self::assertSame('https://test.other/test/it', $curlResult->getRedirectUrl());
 	}
@@ -124,7 +124,7 @@ class CurlResultTest extends TestCase
 		self::assertFalse($curlResult->isRedirectUrl());
 		self::assertSame($headerArray, $curlResult->getHeaders());
 		self::assertSame($body, $curlResult->getBody());
-		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
+		self::assertSame(['text/html; charset=utf-8'], $curlResult->getContentType());
 		self::assertSame('https://test.local/test/it', $curlResult->getRedirectUrl());
 		self::assertSame('Tested error', $curlResult->getError());
 	}
@@ -152,7 +152,7 @@ class CurlResultTest extends TestCase
 		self::assertTrue($curlResult->isRedirectUrl());
 		self::assertSame($headerArray, $curlResult->getHeaders());
 		self::assertSame($body, $curlResult->getBody());
-		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
+		self::assertSame(['text/html; charset=utf-8'], $curlResult->getContentType());
 		self::assertSame('https://test.local/test/it?key=value', $curlResult->getUrl());
 		self::assertSame('https://test.other/some/?key=value', $curlResult->getRedirectUrl());
 	}
