@@ -68,7 +68,7 @@ class GuzzleResponse extends Response implements IHTTPResult, ResponseInterface
 		}
 
 		if (!$this->isSuccess) {
-			Logger::notice('http error', ['url' => $this->url, 'code' => $this->getReturnCode(), 'error'  => $this->error, 'callstack' => System::callstack(20)]);
+			Logger::notice('http error', ['url' => $this->url, 'code' => $this->getReturnCode(), 'error' => $this->error, 'callstack' => System::callstack(20)]);
 			Logger::debug('debug', ['info' => $this->getHeaders()]);
 		}
 
