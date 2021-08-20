@@ -70,6 +70,17 @@ class ProcessorTest extends TestCase
 					]
 				],
 			],
+			'issue-10617' => [
+				'expected' => '@[url=https://mastodon.technology/@sergey_m]sergey_m[/url]',
+				'body'     => '@[url=https://mastodon.technology/@sergey_m]sergey_m[/url]',
+				'tags'     => [
+					[
+						'type' => 'Mention',
+						'href' => 'https://mastodon.technology/@sergey_m',
+						'name' => '@sergey_m'
+					],
+				],
+			],
 		];
 	}
 
