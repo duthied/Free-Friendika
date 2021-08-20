@@ -72,7 +72,7 @@ class ReversedFileReader implements \Iterator
 
 	/**
 	 * Read $size bytes behind last position
-	 * 
+	 *
 	 * @return string
 	 */
 	private function _read($size)
@@ -85,7 +85,7 @@ class ReversedFileReader implements \Iterator
 	/**
 	 * Read next line from end of file
 	 * Return null if no lines are left to read
-	 * 
+	 *
 	 * @return ?string
 	 */
 	private function _readline()
@@ -104,7 +104,7 @@ class ReversedFileReader implements \Iterator
 
 	/**
 	 * Fetch next line from end and set it as current iterator value.
-	 * 
+	 *
 	 * @see Iterator::next()
 	 * @return void
 	 */
@@ -116,9 +116,9 @@ class ReversedFileReader implements \Iterator
 
 	/**
 	 * Rewind iterator to the first line at the end of file
-	 * 
+	 *
 	 * @see Iterator::rewind()
-	 * @return void 
+	 * @return void
 	 */
 	public function rewind()
 	{
@@ -133,7 +133,7 @@ class ReversedFileReader implements \Iterator
 
 	/**
 	 * Return current line number, starting from zero at the end of file
-	 * 
+	 *
 	 * @see Iterator::key()
 	 * @return int
 	 */
@@ -144,7 +144,7 @@ class ReversedFileReader implements \Iterator
 
 	/**
 	 * Return current line
-	 * 
+	 *
 	 * @see Iterator::current()
 	 * @return string
 	 */
@@ -155,7 +155,7 @@ class ReversedFileReader implements \Iterator
 
 	/**
 	 * Checks if current iterator value is valid, that is, we readed all lines in files
-	 * 
+	 *
 	 * @see Iterator::valid()
 	 * @return bool
 	 */

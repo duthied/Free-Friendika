@@ -156,7 +156,7 @@ class ParsedLogIterator implements \Iterator
 	/**
 	 * Fetch next parsed log line which match with filters or search and
 	 * set it as current iterator value.
-	 * 
+	 *
 	 * @see Iterator::next()
 	 * @return void
 	 */
@@ -173,7 +173,7 @@ class ParsedLogIterator implements \Iterator
 
 	/**
 	 * Rewind the iterator to the first matching log line
-	 * 
+	 *
 	 * @see Iterator::rewind()
 	 * @return void
 	 */
@@ -186,7 +186,7 @@ class ParsedLogIterator implements \Iterator
 
 	/**
 	 * Return current parsed log line number
-	 * 
+	 *
 	 * @see Iterator::key()
 	 * @see ReversedFileReader::key()
 	 * @return int
@@ -198,7 +198,7 @@ class ParsedLogIterator implements \Iterator
 
 	/**
 	 * Return current iterator value
-	 * 
+	 *
 	 * @see Iterator::current()
 	 * @return ?ParsedLogLing
 	 */
@@ -209,7 +209,7 @@ class ParsedLogIterator implements \Iterator
 
 	/**
 	 * Checks if current iterator value is valid, that is, not null
-	 * 
+	 *
 	 * @see Iterator::valid()
 	 * @return bool
 	 */
