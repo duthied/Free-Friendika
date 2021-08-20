@@ -472,12 +472,8 @@ class HTTPRequest implements IHTTPRequest
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @param int $redirects The recursion counter for internal use - default 0
-	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '', &$redirects = 0)
+	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '')
 	{
 		$ret = $this->fetchFull($url, $timeout, $accept_content, $cookiejar, $redirects);
 
@@ -486,12 +482,8 @@ class HTTPRequest implements IHTTPRequest
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @param int $redirects The recursion counter for internal use - default 0
-	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '', &$redirects = 0)
+	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '')
 	{
 		return $this->get(
 			$url,
