@@ -32,6 +32,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Notification;
 use Friendica\Model\Post;
 use Friendica\Model\User;
+use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
 
 /**
@@ -69,8 +70,6 @@ function notification($params)
 		return false;
 	}
 
-	$nickname = $user['nickname'];
-
 	$params['notify_flags'] = $user['notify-flags'];
 	$params['language']     = $user['language'];
 	$params['to_name']      = $user['username'];
@@ -100,26 +99,14 @@ function notification($params)
 	$siteurl = DI::baseUrl()->get(true);
 	$sitename = DI::config()->get('config', 'sitename');
 
-	$hostname = DI::baseUrl()->getHostname();
-	if (strpos($hostname, ':')) {
-		$hostname = substr($hostname, 0, strpos($hostname, ':'));
-	}
-
-	// Creates a new email builder for the notification email
-	$emailBuilder = DI::emailer()->newNotifyMail();
-
 	// with $params['show_in_notification_page'] == false, the notification isn't inserted into
 	// the database, and an email is sent if applicable.
 	// default, if not specified: true
 	$show_in_notification_page = isset($params['show_in_notification_page']) ? $params['show_in_notification_page'] : true;
 
-	$emailBuilder->setHeader('X-Friendica-Account', '<' . $nickname . '@' . $hostname . '>');
-
 	$title = $params['item']['title'] ?? '';
 	$body = $params['item']['body'] ?? '';
 
-	$item_id = $params['item']['id'] ?? 0;
-	$uri_id = $params['item']['uri-id'] ?? 0;
 	$parent_id = $params['item']['parent'] ?? 0;
 	$parent_uri_id = $params['item']['parent-uri-id'] ?? 0;
 
@@ -147,18 +134,19 @@ function notification($params)
 		$show_in_notification_page = false;
 	}
 
-	if ($params['type'] == Notification\Type::COMMENT || $params['type'] == Notification\Type::TAG_SELF) {
-		if (Post\ThreadUser::getIgnored($parent_uri_id, $params['uid'])) {
-			Logger::info('Thread is ignored', ['parent' => $parent_id, 'parent-uri-id' => $parent_uri_id]);
-			return false;
-		}
-
-		// Check to see if there was already a tag notify or comment notify for this post.
-		// If so don't create a second notification
-		/// @todo In the future we should store the notification with the highest "value" and replace notifications
+	// Check to see if there was already a tag notify or comment notify for this post.
+	// If so don't create a second notification
+	if (in_array($params['type'], [Notification\Type::TAG_SELF, Notification\Type::COMMENT, Notification\Type::SHARE])) {
 		$condition = ['type' => [Notification\Type::TAG_SELF, Notification\Type::COMMENT, Notification\Type::SHARE],
 			'link' => $params['link'], 'uid' => $params['uid']];
 		if (DBA::exists('notify', $condition)) {
+			return false;
+		}
+	}
+
+	if ($params['type'] == Notification\Type::COMMENT || $params['type'] == Notification\Type::TAG_SELF) {
+		if (Post\ThreadUser::getIgnored($parent_uri_id, $params['uid'])) {
+			Logger::info('Thread is ignored', ['parent' => $parent_id, 'parent-uri-id' => $parent_uri_id]);
 			return false;
 		}
 
@@ -442,6 +430,34 @@ function notification($params)
 		}
 	}
 
+	return notification_store_and_send($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $body, $itemlink, $show_in_notification_page);
+}
+
+function notification_store_and_send($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $body, $itemlink, $show_in_notification_page)
+{
+	$item_id = $params['item']['id'] ?? 0;
+	$uri_id = $params['item']['uri-id'] ?? 0;
+	$parent_id = $params['item']['parent'] ?? 0;
+	$parent_uri_id = $params['item']['parent-uri-id'] ?? 0;
+
+	// Ensure that the important fields are set at any time
+	$fields = ['nickname'];
+	$user = User::getById($params['uid'], $fields);
+
+	$sitename = DI::config()->get('config', 'sitename');
+
+	$nickname = $user['nickname'];
+
+	$hostname = DI::baseUrl()->getHostname();
+	if (strpos($hostname, ':')) {
+		$hostname = substr($hostname, 0, strpos($hostname, ':'));
+	}
+
+	// Creates a new email builder for the notification email
+	$emailBuilder = DI::emailer()->newNotifyMail();
+
+	$emailBuilder->setHeader('X-Friendica-Account', '<' . $nickname . '@' . $hostname . '>');
+
 	$subject .= " (".$nickname."@".$hostname.")";
 
 	$h = [
@@ -529,8 +545,8 @@ function notification($params)
 				DBA::insert('notify-threads', $fields);
 
 				$emailBuilder->setHeader('Message-ID', $message_id);
-				$log_msg                = "include/enotify: No previous notification found for this parent:\n" .
-				                          "  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
+				$log_msg = "include/enotify: No previous notification found for this parent:\n" .
+					"  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
 				Logger::log($log_msg, Logger::DEBUG);
 			} else {
 				// If not, just "follow" the thread.
@@ -585,6 +601,102 @@ function notification($params)
 	}
 
 	return false;
+}
+
+function notification_from_array(array $notification)
+{
+	if ($notification['type'] == Post\UserNotification::NOTIF_NONE) {
+		return false;
+	}
+
+	$params = [];
+	$params['verb'] = Verb::getByID($notification['vid']);
+
+	$params['uid']   = $notification['uid'];
+	$params['otype'] = Notification\ObjectType::ITEM;
+
+	$user = User::getById($notification['uid']);
+
+	$params['notify_flags'] = $user['notify-flags'];
+	$params['language']     = $user['language'];
+	$params['to_name']      = $user['username'];
+	$params['to_email']     = $user['email'];
+
+	// from here on everything is in the recipients language
+	$l10n = DI::l10n()->withLang($user['language']);
+
+	$contact = Contact::getById($notification['actor-id'], ['url', 'name', 'photo']);
+	if (DBA::isResult($contact)) {
+		$params['source_link']  = $params['origin_link']  = $contact['url'];
+		$params['source_name']  = $params['origin_name']  = $contact['name'];
+		$params['source_photo'] = $params['origin_photo'] = $contact['photo'];
+	}
+
+	$item = Post::selectFirstForUser($notification['uid'], Item::ITEM_FIELDLIST,
+		['uid' => [0, $notification['uid']], 'uri-id' => $notification['target-uri-id'], 'deleted' => false],
+		['order' => ['uid' => true]]);
+	if (empty($item)) {
+		return false;
+	}
+
+	$params['item']   = $item;
+	$params['parent'] = $item['parent'];
+	$params['link']   = DI::baseUrl() . '/display/' . urlencode($item['guid']);
+
+	$subjectPrefix = $l10n->t('[Friendica:Notify]');
+
+	if (Post\ThreadUser::getIgnored($notification['parent-uri-id'], $notification['uid'])) {
+		Logger::info('Thread is ignored', ['parent-uri-id' => $notification['parent-uri-id']]);
+		return false;
+	}
+
+	// Check to see if there was already a tag notify or comment notify for this post.
+	// If so don't create a second notification
+	$condition = ['type' => [Notification\Type::TAG_SELF, Notification\Type::COMMENT, Notification\Type::SHARE],
+		'link' => $params['link'], 'uid' => $notification['uid']];
+	if (DBA::exists('notify', $condition)) {
+		return false;
+	}
+
+	$content = Plaintext::getPost($item, 70);
+	if (!empty($content['text'])) {
+		$title = '"' . trim(str_replace("\n", " ", $content['text'])) . '"';
+	} else {
+		$title = $item['title'];
+	}
+
+	// Some mail software relies on subject field for threading.
+	// So, we cannot have different subjects for notifications of the same thread.
+	// Before this we have the name of the replier on the subject rendering
+	// different subjects for messages on the same thread.
+	if ($notification['type'] == Post\UserNotification::NOTIF_EXPLICIT_TAGGED) {
+		$params['type'] = Notification\Type::TAG_SELF;
+		$subject        = $l10n->t('%s %s tagged you', $subjectPrefix, $contact['name']);
+	} elseif ($notification['type'] == Post\UserNotification::NOTIF_SHARED) {
+		$params['type'] = Notification\Type::SHARE;
+		$subject        = $l10n->t('%s %s shared a new post', $subjectPrefix, $contact['name']);
+	} else {
+		$params['type'] = Notification\Type::COMMENT;
+		$subject        = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
+	}
+
+	$msg = Notification::getMessage($notification);
+	if (empty($msg)) {
+		return false;
+	}
+
+	$preamble  = $msg['plain'];
+	$epreamble = $msg['rich'];
+
+	$sitename = DI::config()->get('config', 'sitename');
+	$siteurl  = DI::baseUrl()->get(true);
+
+	$sitelink  = $l10n->t('Please visit %s to view and/or reply to the conversation.');
+	$tsitelink = sprintf($sitelink, $siteurl);
+	$hsitelink = sprintf($sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
+	$itemlink  = $params['link'];
+
+	return notification_store_and_send($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $item['body'], $itemlink, true);
 }
 
 /**
