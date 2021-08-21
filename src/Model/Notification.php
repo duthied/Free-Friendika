@@ -194,20 +194,20 @@ class Notification extends BaseModel
 		$post     = Verb::getID(Activity::POST);
 
 		if (in_array($notification['type'], [Post\UserNotification::NOTIF_THREAD_COMMENT, Post\UserNotification::NOTIF_COMMENT_PARTICIPATION, Post\UserNotification::NOTIF_EXPLICIT_TAGGED])) {
-			$item = Post::selectFirst([], ['uri-id' => $notification['parent-uri-id'], 'uid' => [0, $notification['uid']]]);
+			$item = Post::selectFirst([], ['uri-id' => $notification['parent-uri-id'], 'uid' => [0, $notification['uid']]], ['order' => ['uid' => true]]);
 			if (empty($item)) {
 				Logger::info('Parent post not found', ['uri-id' => $notification['parent-uri-id']]);
 				return $message;
 			}
 		} else {
-			$item = Post::selectFirst([], ['uri-id' => $notification['target-uri-id'], 'uid' => [0, $notification['uid']]]);
+			$item = Post::selectFirst([], ['uri-id' => $notification['target-uri-id'], 'uid' => [0, $notification['uid']]], ['order' => ['uid' => true]]);
 			if (empty($item)) {
 				Logger::info('Post not found', ['uri-id' => $notification['target-uri-id']]);
 				return $message;
 			}
 
 			if ($notification['vid'] == $post) {
-				$item = Post::selectFirst([], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $notification['uid']]]);
+				$item = Post::selectFirst([], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $notification['uid']]], ['order' => ['uid' => true]]);
 				if (empty($item)) {
 					Logger::info('Thread parent post not found', ['uri-id' => $item['thr-parent-id']]);
 					return $message;
