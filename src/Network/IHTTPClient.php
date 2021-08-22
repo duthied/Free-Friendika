@@ -24,7 +24,7 @@ namespace Friendica\Network;
 /**
  * Interface for calling HTTP requests and returning their responses
  */
-interface IHTTPRequest
+interface IHTTPClient
 {
 	/**
 	 * Fetches the content of an URL
@@ -114,11 +114,4 @@ interface IHTTPRequest
 	 * @todo  Remove the $fetchbody parameter that generates an extraneous HEAD request
 	 */
 	public function finalUrl(string $url, int $depth = 1, bool $fetchbody = false);
-
-	/**
-	 * Returns the current UserAgent as a String
-	 *
-	 * @return string the UserAgent as a String
-	 */
-	public function getUserAgent();
 }

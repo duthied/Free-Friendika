@@ -23,23 +23,22 @@ namespace Friendica\Network;
 
 use DOMDocument;
 use DomXPath;
-use Friendica\App;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\System;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\FileCookieJar;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
-use Psr\Http\Message\RequestInterface;
+use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 
 /**
  * Performs HTTP requests to a given URL
  */
-class HTTPRequest implements IHTTPRequest
+class HTTPClient implements IHTTPClient
 {
 	/** @var LoggerInterface */
 	private $logger;
@@ -48,31 +47,20 @@ class HTTPRequest implements IHTTPRequest
 	/** @var IConfig */
 	private $config;
 	/** @var string */
-	private $baseUrl;
+	private $userAgent;
+	/** @var Client */
+	private $client;
 
-	public function __construct(LoggerInterface $logger, Profiler $profiler, IConfig $config, App\BaseURL $baseUrl)
+	public function __construct(LoggerInterface $logger, Profiler $profiler, IConfig $config, string $userAgent, Client $client)
 	{
-		$this->logger   = $logger;
-		$this->profiler = $profiler;
-		$this->config   = $config;
-		$this->baseUrl  = $baseUrl->get();
+		$this->logger    = $logger;
+		$this->profiler  = $profiler;
+		$this->config    = $config;
+		$this->userAgent = $userAgent;
+		$this->client    = $client;
 	}
 
-	/** {@inheritDoc}
-	 *
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	public function head(string $url, array $opts = [])
-	{
-		$opts['nobody'] = true;
-
-		return $this->get($url, $opts);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function get(string $url, array $opts = [])
+	protected function request(string $method, string $url, array $opts = [])
 	{
 		$this->profiler->startRecording('network');
 
@@ -105,18 +93,12 @@ class HTTPRequest implements IHTTPRequest
 			return CurlResult::createErrorCurl($url);
 		}
 
-		$curlOptions = [];
+		$conf = [];
 
 		if (!empty($opts['cookiejar'])) {
-			$curlOptions[CURLOPT_COOKIEJAR]  = $opts["cookiejar"];
-			$curlOptions[CURLOPT_COOKIEFILE] = $opts["cookiejar"];
+			$jar = new FileCookieJar($opts['cookiejar']);
+			$conf[RequestOptions::COOKIES] = $jar;
 		}
-
-		// These settings aren't needed. We're following the location already.
-		//	$curlOptions[CURLOPT_FOLLOWLOCATION] =true;
-		//	$curlOptions[CURLOPT_MAXREDIRS] = 5;
-
-		$curlOptions[CURLOPT_HTTPHEADER] = [];
 
 		if (!empty($opts['accept_content'])) {
 			array_push($curlOptions[CURLOPT_HTTPHEADER], 'Accept: ' . $opts['accept_content']);
@@ -126,73 +108,16 @@ class HTTPRequest implements IHTTPRequest
 			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['header'], $curlOptions[CURLOPT_HTTPHEADER]);
 		}
 
-		$curlOptions[CURLOPT_RETURNTRANSFER] = true;
-		$curlOptions[CURLOPT_USERAGENT]      = $this->getUserAgent();
-
-		$range = intval($this->config->get('system', 'curl_range_bytes', 0));
-
-		if ($range > 0) {
-			$curlOptions[CURLOPT_RANGE] = '0-' . $range;
-		}
-
-		// Without this setting it seems as if some webservers send compressed content
-		// This seems to confuse curl so that it shows this uncompressed.
-		/// @todo  We could possibly set this value to "gzip" or something similar
-		$curlOptions[CURLOPT_ENCODING] = '';
+		$curlOptions[CURLOPT_USERAGENT] = $this->userAgent;
 
 		if (!empty($opts['headers'])) {
 			$this->logger->notice('Wrong option \'headers\' used.');
 			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['headers'], $curlOptions[CURLOPT_HTTPHEADER]);
 		}
 
-		if (!empty($opts['nobody'])) {
-			$curlOptions[CURLOPT_NOBODY] = $opts['nobody'];
-		}
-
-		$curlOptions[CURLOPT_CONNECTTIMEOUT] = 10;
-
 		if (!empty($opts['timeout'])) {
 			$curlOptions[CURLOPT_TIMEOUT] = $opts['timeout'];
-		} else {
-			$curl_time = $this->config->get('system', 'curl_timeout', 60);
-			$curlOptions[CURLOPT_TIMEOUT] = intval($curl_time);
 		}
-
-		// by default we will allow self-signed certs
-		// but you can override this
-
-		$check_cert = $this->config->get('system', 'verifyssl');
-		$curlOptions[CURLOPT_SSL_VERIFYPEER] = ($check_cert) ? true : false;
-
-		if ($check_cert) {
-			$curlOptions[CURLOPT_SSL_VERIFYHOST] = 2;
-		}
-
-		$proxy = $this->config->get('system', 'proxy');
-
-		if (!empty($proxy)) {
-			$curlOptions[CURLOPT_HTTPPROXYTUNNEL] = 1;
-			$curlOptions[CURLOPT_PROXY] = $proxy;
-			$proxyuser = $this->config->get('system', 'proxyuser');
-
-			if (!empty($proxyuser)) {
-				$curlOptions[CURLOPT_PROXYUSERPWD] = $proxyuser;
-			}
-		}
-
-		if ($this->config->get('system', 'ipv4_resolve', false)) {
-			$curlOptions[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
-		}
-
-		$logger = $this->logger;
-
-		$onRedirect = function(
-			RequestInterface $request,
-			ResponseInterface $response,
-			UriInterface $uri
-		) use ($logger) {
-			$logger->notice('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri]);
-		};
 
 		$onHeaders = function (ResponseInterface $response) use ($opts) {
 			if (!empty($opts['content_length']) &&
@@ -201,20 +126,11 @@ class HTTPRequest implements IHTTPRequest
 			}
 		};
 
-		$client = new Client([
-			'allow_redirect' => [
-				'max' => 8,
-				'on_redirect' => $onRedirect,
-				'track_redirect' => true,
-				'strict' => true,
-				'referer' => true,
-			],
-			'on_headers' => $onHeaders,
-			'curl' => $curlOptions
-		]);
-
 		try {
-			$response = $client->get($url);
+			$response = $this->client->$method($url, [
+				'on_headers' => $onHeaders,
+				'curl'       => $curlOptions,
+			]);
 			return new GuzzleResponse($response, $url);
 		} catch (TransferException $exception) {
 			if ($exception instanceof RequestException &&
@@ -226,6 +142,23 @@ class HTTPRequest implements IHTTPRequest
 		} finally {
 			$this->profiler->stopRecording();
 		}
+	}
+
+	/** {@inheritDoc}
+	 *
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public function head(string $url, array $opts = [])
+	{
+		return $this->request('head', $url, $opts);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get(string $url, array $opts = [])
+	{
+		return $this->request('get', $url, $opts);
 	}
 
 	/**
@@ -262,7 +195,7 @@ class HTTPRequest implements IHTTPRequest
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-		curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
+		curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
 
 		if ($this->config->get('system', 'ipv4_resolve', false)) {
 			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -376,7 +309,7 @@ class HTTPRequest implements IHTTPRequest
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
+		curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
 
 		curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
@@ -421,7 +354,7 @@ class HTTPRequest implements IHTTPRequest
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
+		curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
 
 		$body = curl_exec($ch);
 		curl_close($ch);
@@ -484,18 +417,5 @@ class HTTPRequest implements IHTTPRequest
 				'cookiejar'      => $cookiejar
 			]
 		);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getUserAgent()
-	{
-		return
-			FRIENDICA_PLATFORM . " '" .
-			FRIENDICA_CODENAME . "' " .
-			FRIENDICA_VERSION . '-' .
-			DB_UPDATE_VERSION . '; ' .
-			$this->baseUrl;
 	}
 }
