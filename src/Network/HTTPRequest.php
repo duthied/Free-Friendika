@@ -107,8 +107,6 @@ class HTTPRequest implements IHTTPRequest
 
 		$curlOptions = [];
 
-		$curlOptions[CURLOPT_HEADER] = true;
-
 		if (!empty($opts['cookiejar'])) {
 			$curlOptions[CURLOPT_COOKIEJAR] = $opts["cookiejar"];
 			$curlOptions[CURLOPT_COOKIEFILE] = $opts["cookiejar"];
@@ -475,7 +473,7 @@ class HTTPRequest implements IHTTPRequest
 	 */
 	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '')
 	{
-		$ret = $this->fetchFull($url, $timeout, $accept_content, $cookiejar, $redirects);
+		$ret = $this->fetchFull($url, $timeout, $accept_content, $cookiejar);
 
 		return $ret->getBody();
 	}
