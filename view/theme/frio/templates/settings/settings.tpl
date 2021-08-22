@@ -147,6 +147,13 @@
 							{{include file="field_intcheckbox.tpl" field=$notify8}}
 						</div>
 
+						<div id="settings-notify-desc">{{$lbl_notify}}</div>
+
+						<div class="group">
+							{{include file="field_checkbox.tpl" field=$notify_like}}
+							{{include file="field_checkbox.tpl" field=$notify_announce}}
+						</div>
+
 						{{include file="field_checkbox.tpl" field=$email_textonly}}
 						{{include file="field_checkbox.tpl" field=$detailed_notif}}
 

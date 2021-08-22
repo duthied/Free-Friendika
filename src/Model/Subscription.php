@@ -142,6 +142,21 @@ class Subscription
 		$notification = DBA::selectFirst('notification', [], ['id' => $nid]);
 
 		$type = Notification::getType($notification);
+
+		$desktop_notification = !in_array($type, ['reblog', 'favourite']);
+
+		if (DI::pConfig()->get($notification['uid'], 'system', 'notify_like') && ($type == 'favourite')) {
+			$desktop_notification = true;
+		}
+
+		if (DI::pConfig()->get($notification['uid'], 'system', 'notify_announce') && ($type == 'reblog')) {
+			$desktop_notification = true;
+		}
+
+		if ($desktop_notification) {
+			notification_from_array($notification);
+		}
+
 		if (empty($type)) {
 			return;
 		}

@@ -168,147 +168,177 @@ class Notification extends BaseModel
 	{
 		$message = [];
 
-		if ($notification['type'] == Post\UserNotification::NOTIF_NONE) {
-			return $message;
-		}
-
-		if (empty($notification['target-uri-id'])) {
-			return $message;
-		}
-
 		$user = User::getById($notification['uid']);
 		if (empty($user)) {
 			Logger::info('User not found', ['application' => $notification['uid']]);
 			return $message;
 		}
 
-		$contact = Contact::getById($notification['actor-id']);
+		$l10n = DI::l10n()->withLang($user['language']);
+
+		$causer = $contact = Contact::getById($notification['actor-id'], ['id', 'name', 'url', 'pending']);
 		if (empty($contact)) {
 			Logger::info('Contact not found', ['contact' => $notification['actor-id']]);
 			return $message;
 		}
 
-		$like     = Verb::getID(Activity::LIKE);
-		$dislike  = Verb::getID(Activity::DISLIKE);
-		$announce = Verb::getID(Activity::ANNOUNCE);
-		$post     = Verb::getID(Activity::POST);
-
-		if (in_array($notification['type'], [Post\UserNotification::NOTIF_THREAD_COMMENT, Post\UserNotification::NOTIF_COMMENT_PARTICIPATION])) {
-			$item = Post::selectFirst([], ['uri-id' => $notification['parent-uri-id'], 'uid' => [0, $notification['uid']]]);
-			if (empty($item)) {
-				Logger::info('Parent post not found', ['uri-id' => $notification['parent-uri-id']]);
-				return $message;
+		if ($notification['type'] == Post\UserNotification::NOTIF_NONE) {
+			if ($contact['pending']) {
+				$msg = $l10n->t('%1$s wants to follow you');
+			} else {
+				$msg = $l10n->t('%1$s had started following you');
 			}
+			$title = $contact['name'];
+			$link = DI::baseUrl() . '/contact/' . $contact['id'];
 		} else {
-			$item = Post::selectFirst([], ['uri-id' => $notification['target-uri-id'], 'uid' => [0, $notification['uid']]]);
-			if (empty($item)) {
-				Logger::info('Post not found', ['uri-id' => $notification['target-uri-id']]);
+			if (empty($notification['target-uri-id'])) {
 				return $message;
 			}
 
-			if ($notification['vid'] == $post) {
-				$item = Post::selectFirst([], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $notification['uid']]]);
+			$like     = Verb::getID(Activity::LIKE);
+			$dislike  = Verb::getID(Activity::DISLIKE);
+			$announce = Verb::getID(Activity::ANNOUNCE);
+			$post     = Verb::getID(Activity::POST);
+
+			if (in_array($notification['type'], [Post\UserNotification::NOTIF_THREAD_COMMENT, Post\UserNotification::NOTIF_COMMENT_PARTICIPATION, Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION, Post\UserNotification::NOTIF_EXPLICIT_TAGGED])) {
+				$item = Post::selectFirst([], ['uri-id' => $notification['parent-uri-id'], 'uid' => [0, $notification['uid']]], ['order' => ['uid' => true]]);
 				if (empty($item)) {
-					Logger::info('Thread parent post not found', ['uri-id' => $item['thr-parent-id']]);
+					Logger::info('Parent post not found', ['uri-id' => $notification['parent-uri-id']]);
+					return $message;
+				}
+			} else {
+				$item = Post::selectFirst([], ['uri-id' => $notification['target-uri-id'], 'uid' => [0, $notification['uid']]], ['order' => ['uid' => true]]);
+				if (empty($item)) {
+					Logger::info('Post not found', ['uri-id' => $notification['target-uri-id']]);
+					return $message;
+				}
+
+				if ($notification['vid'] == $post) {
+					$item = Post::selectFirst([], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $notification['uid']]], ['order' => ['uid' => true]]);
+					if (empty($item)) {
+						Logger::info('Thread parent post not found', ['uri-id' => $item['thr-parent-id']]);
+						return $message;
+					}
+				}
+			}
+
+			if (($notification['type'] == Post\UserNotification::NOTIF_SHARED) && !empty($item['causer-id'])) {
+				$causer = Contact::getById($item['causer-id'], ['id', 'name', 'url']);
+				if (empty($contact)) {
+					Logger::info('Causer not found', ['causer' => $item['causer-id']]);
+					return $message;
+				}
+			} elseif (in_array($notification['type'], [Post\UserNotification::NOTIF_COMMENT_PARTICIPATION, Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION])) {
+				$contact = Contact::getById($item['author-id'], ['id', 'name', 'url']);
+				if (empty($contact)) {
+					Logger::info('Author not found', ['author' => $item['author-id']]);
 					return $message;
 				}
 			}
-		}
 
-		$link = DI::baseUrl() . '/display/' . urlencode($item['guid']);
+			$link = DI::baseUrl() . '/display/' . urlencode($item['guid']);
 
-		$content = Plaintext::getPost($item, 70);
-		if (!empty($content['text'])) {
-			$title = '"' . trim(str_replace("\n", " ", $content['text'])) . '"';
-		} else {
-			$title = '';
-		}
+			$content = Plaintext::getPost($item, 70);
+			if (!empty($content['text'])) {
+				$title = '"' . trim(str_replace("\n", " ", $content['text'])) . '"';
+			} else {
+				$title = '';
+			}
 
-		$l10n = DI::l10n()->withLang($user['language']);
-
-		switch ($notification['vid']) {
-			case $like:
-				switch ($notification['type']) {
-					case Post\UserNotification::NOTIF_DIRECT_COMMENT:
-						$msg = $l10n->t('%1$s liked your comment %2$s');
-						break;
-					case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
-						$msg = $l10n->t('%1$s liked your post %2$s');
-						break;
-					}
-				break;
-			case $dislike:
-				switch ($notification['type']) {
-					case Post\UserNotification::NOTIF_DIRECT_COMMENT:
-						$msg = $l10n->t('%1$s disliked your comment %2$s');
-						break;
-					case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
-						$msg = $l10n->t('%1$s disliked your post %2$s');
-						break;
-				}
-				break;
-			case $announce:
-				switch ($notification['type']) {
-					case Post\UserNotification::NOTIF_DIRECT_COMMENT:
-						$msg = $l10n->t('%1$s shared your comment %2$s');
-						break;
-					case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
-						$msg = $l10n->t('%1$s shared your post %2$s');
-						break;
-					}
-				break;
-			case $post:
-				switch ($notification['type']) {
-					case Post\UserNotification::NOTIF_EXPLICIT_TAGGED:
-						$msg = $l10n->t('%1$s tagged you on %2$s');
-						break;
-
-					case Post\UserNotification::NOTIF_IMPLICIT_TAGGED:
-						$msg = $l10n->t('%1$s replied to you on %2$s');
-						break;
-
-					case Post\UserNotification::NOTIF_THREAD_COMMENT:
-						$msg = $l10n->t('%1$s commented in your thread %2$s');
-						break;
-
-					case Post\UserNotification::NOTIF_DIRECT_COMMENT:
-						$msg = $l10n->t('%1$s commented on your comment %2$s');
-						break;
-
-					case Post\UserNotification::NOTIF_COMMENT_PARTICIPATION:
-						$msg = $l10n->t('%1$s commented in the thread %2$s');
-						break;
-
-					case Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION:
-						// Unhandled
-						break;
-
-					case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
-						$msg = $l10n->t('%1$s commented on your thread %2$s');
-						break;
-
-					case Post\UserNotification::NOTIF_SHARED:
-						if ($title != '') {
-							$msg = $l10n->t('%1$s shared the post %2$s');
-						} else {
-							$msg = $l10n->t('%1$s shared a post');
+			switch ($notification['vid']) {
+				case $like:
+					switch ($notification['type']) {
+						case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+							$msg = $l10n->t('%1$s liked your comment %2$s');
+							break;
+						case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+							$msg = $l10n->t('%1$s liked your post %2$s');
+							break;
 						}
-						break;
-				}
-				break;
+					break;
+				case $dislike:
+					switch ($notification['type']) {
+						case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+							$msg = $l10n->t('%1$s disliked your comment %2$s');
+							break;
+						case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+							$msg = $l10n->t('%1$s disliked your post %2$s');
+							break;
+					}
+					break;
+				case $announce:
+					switch ($notification['type']) {
+						case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+							$msg = $l10n->t('%1$s shared your comment %2$s');
+							break;
+						case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+							$msg = $l10n->t('%1$s shared your post %2$s');
+							break;
+						}
+					break;
+				case $post:
+					switch ($notification['type']) {
+						case Post\UserNotification::NOTIF_EXPLICIT_TAGGED:
+							$msg = $l10n->t('%1$s tagged you on %2$s');
+							break;
+
+						case Post\UserNotification::NOTIF_IMPLICIT_TAGGED:
+							$msg = $l10n->t('%1$s replied to you on %2$s');
+							break;
+
+						case Post\UserNotification::NOTIF_THREAD_COMMENT:
+							$msg = $l10n->t('%1$s commented in your thread %2$s');
+							break;
+
+						case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+							$msg = $l10n->t('%1$s commented on your comment %2$s');
+							break;
+
+						case Post\UserNotification::NOTIF_COMMENT_PARTICIPATION:
+						case Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION:
+							if (($causer['id'] == $contact['id']) && ($title != '')) {
+								$msg = $l10n->t('%1$s commented in their thread %2$s');
+							} elseif ($causer['id'] == $contact['id']) {
+								$msg = $l10n->t('%1$s commented in their thread');
+							} elseif ($title != '') {
+								$msg = $l10n->t('%1$s commented in the thread %2$s from %3$s');
+							} else {
+								$msg = $l10n->t('%1$s commented in the thread from %3$s');
+							}
+							break;
+
+						case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+							$msg = $l10n->t('%1$s commented on your thread %2$s');
+							break;
+
+						case Post\UserNotification::NOTIF_SHARED:
+							if (($causer['id'] != $contact['id']) && ($title != '')) {
+								$msg = $l10n->t('%1$s shared the post %2$s from %3$s');
+							} elseif ($causer['id'] != $contact['id']) {
+								$msg = $l10n->t('%1$s shared a post from %3$s');
+							} elseif ($title != '') {
+								$msg = $l10n->t('%1$s shared the post %2$s');
+							} else {
+								$msg = $l10n->t('%1$s shared a post');
+							}
+							break;
+					}
+					break;
+			}
 		}
 
 		if (!empty($msg)) {
 			// Name of the notification's causer
-			$message['causer'] = $contact['name'];
+			$message['causer'] = $causer['name'];
 			// Format for the "ping" mechanism
-			$message['notification'] = sprintf($msg, '{0}', $title);
+			$message['notification'] = sprintf($msg, '{0}', $title, $contact['name']);
 			// Plain text for the web push api
-			$message['plain']        = sprintf($msg, $contact['name'], $title);
-			// Rich text for other purposes 
+			$message['plain']        = sprintf($msg, $causer['name'], $title, $contact['name']);
+			// Rich text for other purposes
 			$message['rich']         = sprintf($msg,
-				'[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]',
-				'[url=' . $link . ']' . $title . '[/url]');
+				'[url=' . $causer['url'] . ']' . $causer['name'] . '[/url]',
+				'[url=' . $link . ']' . $title . '[/url]',
+				'[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]');
 		}
 
 		return $message;

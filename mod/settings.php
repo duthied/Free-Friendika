@@ -262,6 +262,9 @@ function settings_post(App $a)
 	$unlisted         = (($_POST['unlisted'] == 1) ? 1: 0);
 	$accessiblephotos = (($_POST['accessible-photos'] == 1) ? 1: 0);
 
+	$notify_like      = (($_POST['notify_like'] == 1) ? 1 : 0);
+	$notify_announce  = (($_POST['notify_announce'] == 1) ? 1 : 0);
+
 	$email_textonly   = (($_POST['email_textonly'] == 1) ? 1 : 0);
 	$detailed_notif   = (($_POST['detailed_notif'] == 1) ? 1 : 0);
 
@@ -357,6 +360,9 @@ function settings_post(App $a)
 	DI::pConfig()->set(local_user(), 'expire', 'starred', $expire_starred);
 	DI::pConfig()->set(local_user(), 'expire', 'photos', $expire_photos);
 	DI::pConfig()->set(local_user(), 'expire', 'network_only', $expire_network_only);
+
+	DI::pConfig()->set(local_user(), 'system', 'notify_like', $notify_like);
+	DI::pConfig()->set(local_user(), 'system', 'notify_announce', $notify_announce);
 
 	DI::pConfig()->set(local_user(), 'system', 'email_textonly', $email_textonly);
 	DI::pConfig()->set(local_user(), 'system', 'detailed_notif', $detailed_notif);
@@ -770,6 +776,10 @@ function settings_content(App $a)
 		'$notify6'  => ['notify6', DI::l10n()->t('You receive a friend suggestion'), ($notify & Notification\Type::SUGGEST), Notification\Type::SUGGEST, ''],
 		'$notify7'  => ['notify7', DI::l10n()->t('You are tagged in a post'), ($notify & Notification\Type::TAG_SELF), Notification\Type::TAG_SELF, ''],
 		'$notify8'  => ['notify8', DI::l10n()->t('You are poked/prodded/etc. in a post'), ($notify & Notification\Type::POKE), Notification\Type::POKE, ''],
+
+		'$lbl_notify'      => DI::l10n()->t('Create a desktop notification when:'),
+		'$notify_like'     => ['notify_like', DI::l10n()->t('Someone liked your content'), DI::pConfig()->get(local_user(), 'system', 'notify_like'), ''],
+		'$notify_announce' => ['notify_announce', DI::l10n()->t('Someone shared your content'), DI::pConfig()->get(local_user(), 'system', 'notify_announce'), ''],
 
 		'$desktop_notifications' => ['desktop_notifications', DI::l10n()->t('Activate desktop notifications') , false, DI::l10n()->t('Show desktop popup on new notifications')],
 
