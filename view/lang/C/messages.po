@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-21 20:27+0000\n"
+"POT-Creation-Date: 2021-08-22 03:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1774,15 +1774,15 @@ msgstr ""
 msgid "View Album"
 msgstr ""
 
-#: mod/ping.php:286
+#: mod/ping.php:287
 msgid "{0} wants to be your friend"
 msgstr ""
 
-#: mod/ping.php:303
+#: mod/ping.php:304
 msgid "{0} requested registration"
 msgstr ""
 
-#: mod/ping.php:316
+#: mod/ping.php:317
 #, php-format
 msgid "{0} and %d others requested registration"
 msgstr ""
@@ -4665,82 +4665,97 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: src/Model/Notification.php:241
+#: src/Model/Notification.php:247
 #, php-format
 msgid "%1$s liked your comment %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:244
+#: src/Model/Notification.php:250
 #, php-format
 msgid "%1$s liked your post %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:251
+#: src/Model/Notification.php:257
 #, php-format
 msgid "%1$s disliked your comment %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:254
+#: src/Model/Notification.php:260
 #, php-format
 msgid "%1$s disliked your post %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:261
+#: src/Model/Notification.php:267
 #, php-format
 msgid "%1$s shared your comment %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:264
+#: src/Model/Notification.php:270
 #, php-format
 msgid "%1$s shared your post %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:271
+#: src/Model/Notification.php:277
 #, php-format
 msgid "%1$s tagged you on %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:275
+#: src/Model/Notification.php:281
 #, php-format
 msgid "%1$s replied to you on %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:279
+#: src/Model/Notification.php:285
 #, php-format
 msgid "%1$s commented in your thread %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:283
+#: src/Model/Notification.php:289
 #, php-format
 msgid "%1$s commented on your comment %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:287
+#: src/Model/Notification.php:295
 #, php-format
-msgid "%1$s commented in the thread %2$s"
+msgid "%1$s commented in their thread %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:295
+#: src/Model/Notification.php:297
+#, php-format
+msgid "%1$s commented in their thread"
+msgstr ""
+
+#: src/Model/Notification.php:299
+#, php-format
+msgid "%1$s commented in the thread %2$s from %3$s"
+msgstr ""
+
+#: src/Model/Notification.php:301
+#, php-format
+msgid "%1$s commented in the thread from %3$s"
+msgstr ""
+
+#: src/Model/Notification.php:306
 #, php-format
 msgid "%1$s commented on your thread %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:300
+#: src/Model/Notification.php:311
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
 msgstr ""
 
-#: src/Model/Notification.php:302
+#: src/Model/Notification.php:313
 #, php-format
 msgid "%1$s shared a post from %3$s"
 msgstr ""
 
-#: src/Model/Notification.php:304
+#: src/Model/Notification.php:315
 #, php-format
 msgid "%1$s shared the post %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:306
+#: src/Model/Notification.php:317
 #, php-format
 msgid "%1$s shared a post"
 msgstr ""

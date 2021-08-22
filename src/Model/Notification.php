@@ -193,7 +193,7 @@ class Notification extends BaseModel
 		$announce = Verb::getID(Activity::ANNOUNCE);
 		$post     = Verb::getID(Activity::POST);
 
-		if (in_array($notification['type'], [Post\UserNotification::NOTIF_THREAD_COMMENT, Post\UserNotification::NOTIF_COMMENT_PARTICIPATION, Post\UserNotification::NOTIF_EXPLICIT_TAGGED])) {
+		if (in_array($notification['type'], [Post\UserNotification::NOTIF_THREAD_COMMENT, Post\UserNotification::NOTIF_COMMENT_PARTICIPATION, Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION, Post\UserNotification::NOTIF_EXPLICIT_TAGGED])) {
 			$item = Post::selectFirst([], ['uri-id' => $notification['parent-uri-id'], 'uid' => [0, $notification['uid']]], ['order' => ['uid' => true]]);
 			if (empty($item)) {
 				Logger::info('Parent post not found', ['uri-id' => $notification['parent-uri-id']]);
@@ -219,6 +219,12 @@ class Notification extends BaseModel
 			$causer = Contact::getById($item['causer-id'], ['id', 'name', 'url']);
 			if (empty($contact)) {
 				Logger::info('Causer not found', ['causer' => $item['causer-id']]);
+				return $message;
+			}
+		} elseif (in_array($notification['type'], [Post\UserNotification::NOTIF_COMMENT_PARTICIPATION, Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION])) {
+			$contact = Contact::getById($item['author-id'], ['id', 'name', 'url']);
+			if (empty($contact)) {
+				Logger::info('Author not found', ['author' => $item['author-id']]);
 				return $message;
 			}
 		}
@@ -284,11 +290,16 @@ class Notification extends BaseModel
 						break;
 
 					case Post\UserNotification::NOTIF_COMMENT_PARTICIPATION:
-						$msg = $l10n->t('%1$s commented in the thread %2$s');
-						break;
-
 					case Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION:
-						// Unhandled
+						if (($causer['id'] == $contact['id']) && ($title != '')) {
+							$msg = $l10n->t('%1$s commented in their thread %2$s');
+						} elseif ($causer['id'] == $contact['id']) {
+							$msg = $l10n->t('%1$s commented in their thread');
+						} elseif ($title != '') {
+							$msg = $l10n->t('%1$s commented in the thread %2$s from %3$s');
+						} else {
+							$msg = $l10n->t('%1$s commented in the thread from %3$s');
+						}
 						break;
 
 					case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
