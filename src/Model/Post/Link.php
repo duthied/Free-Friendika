@@ -90,7 +90,7 @@ class Link
 		$curlResult = DI::httpRequest()->head($url, ['timeout' => $timeout]);
 		if ($curlResult->isSuccess()) {
 			if (empty($media['mimetype'])) {
-				return $curlResult->getHeader('Content-Type');
+				return $curlResult->getHeader('Content-Type')[0] ?? '';
 			}
 		}
 		return '';

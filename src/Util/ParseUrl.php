@@ -63,7 +63,7 @@ class ParseUrl
 			return [];
 		}
 
-		$contenttype =  $curlResult->getHeader('Content-Type');
+		$contenttype =  $curlResult->getHeader('Content-Type')[0] ?? '';
 		if (empty($contenttype)) {
 			return [];
 		}
@@ -213,26 +213,20 @@ class ParseUrl
 			return $siteinfo;
 		}
 
-		$curlResult = DI::httpRequest()->get($url);
+		$curlResult = DI::httpRequest()->get($url, ['content_length' => 1000000]);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return $siteinfo;
 		}
 
 		$siteinfo['expires'] = DateTimeFormat::utc(self::DEFAULT_EXPIRATION_SUCCESS);
 
-		// If the file is too large then exit
-		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
-			return $siteinfo;
-		}
-
-		if ($cacheControlHeader = $curlResult->getHeader('Cache-Control')) {
+		if ($cacheControlHeader = $curlResult->getHeader('Cache-Control')[0] ?? '') {
 			if (preg_match('/max-age=([0-9]+)/i', $cacheControlHeader, $matches)) {
 				$maxAge = max(86400, (int)array_pop($matches));
 				$siteinfo['expires'] = DateTimeFormat::utc("now + $maxAge seconds");
 			}
 		}
 
-		$header = $curlResult->getHeader();
 		$body = $curlResult->getBody();
 
 		if ($do_oembed) {
@@ -273,7 +267,7 @@ class ParseUrl
 		$charset = '';
 		// Look for a charset, first in headers
 		// Expected form: Content-Type: text/html; charset=ISO-8859-4
-		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $header, $matches)) {
+		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $curlResult->getContentType(), $matches)) {
 			$charset = trim(trim(trim(array_pop($matches)), ';,'));
 		}
 

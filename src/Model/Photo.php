@@ -495,6 +495,7 @@ class Photo
 			$type = $ret->getContentType();
 		} else {
 			$img_str = '';
+			$type = '';
 		}
 
 		if ($quit_on_error && ($img_str == "")) {
