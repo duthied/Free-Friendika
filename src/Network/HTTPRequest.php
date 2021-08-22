@@ -108,7 +108,7 @@ class HTTPRequest implements IHTTPRequest
 		$curlOptions = [];
 
 		if (!empty($opts['cookiejar'])) {
-			$curlOptions[CURLOPT_COOKIEJAR] = $opts["cookiejar"];
+			$curlOptions[CURLOPT_COOKIEJAR]  = $opts["cookiejar"];
 			$curlOptions[CURLOPT_COOKIEFILE] = $opts["cookiejar"];
 		}
 
@@ -116,22 +116,18 @@ class HTTPRequest implements IHTTPRequest
 		//	$curlOptions[CURLOPT_FOLLOWLOCATION] =true;
 		//	$curlOptions[CURLOPT_MAXREDIRS] = 5;
 
+		$curlOptions[CURLOPT_HTTPHEADER] = [];
+
 		if (!empty($opts['accept_content'])) {
-			if (empty($curlOptions[CURLOPT_HTTPHEADER])) {
-				$curlOptions[CURLOPT_HTTPHEADER] = [];
-			}
 			array_push($curlOptions[CURLOPT_HTTPHEADER], 'Accept: ' . $opts['accept_content']);
 		}
 
 		if (!empty($opts['header'])) {
-			if (empty($curlOptions[CURLOPT_HTTPHEADER])) {
-				$curlOptions[CURLOPT_HTTPHEADER] = [];
-			}
 			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['header'], $curlOptions[CURLOPT_HTTPHEADER]);
 		}
 
 		$curlOptions[CURLOPT_RETURNTRANSFER] = true;
-		$curlOptions[CURLOPT_USERAGENT] = $this->getUserAgent();
+		$curlOptions[CURLOPT_USERAGENT]      = $this->getUserAgent();
 
 		$range = intval($this->config->get('system', 'curl_range_bytes', 0));
 
@@ -146,9 +142,6 @@ class HTTPRequest implements IHTTPRequest
 
 		if (!empty($opts['headers'])) {
 			$this->logger->notice('Wrong option \'headers\' used.');
-			if (empty($curlOptions[CURLOPT_HTTPHEADER])) {
-				$curlOptions[CURLOPT_HTTPHEADER] = [];
-			}
 			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['headers'], $curlOptions[CURLOPT_HTTPHEADER]);
 		}
 
