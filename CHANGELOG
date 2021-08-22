@@ -1,10 +1,49 @@
 Version 2021.09 (unreleased)
   Friendica Core
-    Simplified the proxy mechanism. The proxy cache directory (/proxy) can now be removed [annando]
-    DFRN is now always handled with the Diaspora transport layer. The legacy DFRN transport layer is removed [annando]
-    Legacy OAuth server is removed [annando]
-    Scheduled posts are now possible [annando]
-    The minimal PHP version in the composer is increased to version 7.2 [annando]
+    Updates to the translation DE, HU [translation teams]
+    Updates to the documentation [foss-, nupplaphil]
+    General code cleanup [annando, MrPetovan, nupplaphil]
+    Enhanced the proxy mechanism [annando]
+    Enhanced the desktop notifications [annando]
+    Enhanced the Mastodon compatible API [annando]
+    Enhanced the UI to follow new contacts [MrPetovan]
+    Enhanced remote AP follow of new contacts [annando]
+    Enhanced the installer [tobiasd]
+    Enhanced the handling of attachments by the addon hooks [MrPetovan]
+    Enhanced the federation with PeerTube [MrPetovan]
+    Enhanced the federation with Diaspora* [annando]
+    Enhanced the federation with Mastodon [MrPetovan, realkinetix]
+    Enhanced the interaction with items in various places [annando]
+    Enhanced the storage back-end handling [nupplaphil]
+    Enhanced the handling of zmg BBCode elements [annando]
+    Enhanced the display of logs in the admin panel [fabrixxm]
+    Removed the legacy DFRN transport layer, DFRN is now always using the Diaspora* transport layer [annando]
+    Removed the legacy OAuth server [annando]
+    Bumped the minimal PHP version to 7.2 [annando]
+    Added user option to control how postings are shortened [annando]
+    Added Persian to the possible detected languages of a postings [MrPetovan]
+    Added Matrix account profile field [annando]
+    Added scheduled postings [annando]
+    Added transmission of push subscriptions [annando]
+
+  Friendica Addons
+    Updates to the translation JA, ZH CN [translation teams]
+    advancedcontentfilter
+      allow filtering by attachments [MrPetovan]
+    blockbot
+      some good guys and bad guys added [annando]
+    irc
+      switch from freenode to libera.chat [tobiasd]
+    langfilter
+      improved performance [annando]
+    nitter
+      handle mobile links as well [tobiasd]
+      improve settings [tobiasd]
+    rendertime
+      rename "Parser" to "session" [annando]
+
+  Closed Issues
+    9378, 10262, 10491, 10514, 10558, 10568, 10587, 10603, 10617
 
 Version 2021.07 (2021-07-04)
   Friendica Core
