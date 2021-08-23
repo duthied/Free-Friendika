@@ -605,7 +605,10 @@ function notification_store_and_send($params, $sitelink, $tsitelink, $hsitelink,
 
 function notification_from_array(array $notification)
 {
+	Logger::info('Start', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
+
 	if ($notification['type'] == Post\UserNotification::NOTIF_NONE) {
+		Logger::info('Not an item based notification, quitting', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
 		return false;
 	}
 
@@ -636,6 +639,7 @@ function notification_from_array(array $notification)
 		['uid' => [0, $notification['uid']], 'uri-id' => $notification['target-uri-id'], 'deleted' => false],
 		['order' => ['uid' => true]]);
 	if (empty($item)) {
+		Logger::info('Item not found', ['uri-id' => $notification['target-uri-id'], 'type' => $notification['type']]);
 		return false;
 	}
 
@@ -646,15 +650,16 @@ function notification_from_array(array $notification)
 	$subjectPrefix = $l10n->t('[Friendica:Notify]');
 
 	if (Post\ThreadUser::getIgnored($notification['parent-uri-id'], $notification['uid'])) {
-		Logger::info('Thread is ignored', ['parent-uri-id' => $notification['parent-uri-id']]);
+		Logger::info('Thread is ignored', ['parent-uri-id' => $notification['parent-uri-id'], 'type' => $notification['type']]);
 		return false;
 	}
 
 	// Check to see if there was already a tag notify or comment notify for this post.
 	// If so don't create a second notification
 	$condition = ['type' => [Notification\Type::TAG_SELF, Notification\Type::COMMENT, Notification\Type::SHARE],
-		'link' => $params['link'], 'uid' => $notification['uid']];
+		'link' => $params['link'], 'verb' => Activity::POST, 'uid' => $notification['uid']];
 	if (DBA::exists('notify', $condition)) {
+		Logger::info('Duplicate found, quitting', $condition);
 		return false;
 	}
 
@@ -682,6 +687,7 @@ function notification_from_array(array $notification)
 
 	$msg = Notification::getMessage($notification);
 	if (empty($msg)) {
+		Logger::info('No notification message, quitting', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
 		return false;
 	}
 
@@ -695,6 +701,8 @@ function notification_from_array(array $notification)
 	$tsitelink = sprintf($sitelink, $siteurl);
 	$hsitelink = sprintf($sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
 	$itemlink  = $params['link'];
+
+	Logger::info('Perform notification', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
 
 	return notification_store_and_send($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $item['body'], $itemlink, true);
 }
