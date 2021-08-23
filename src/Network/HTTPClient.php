@@ -21,9 +21,6 @@
 
 namespace Friendica\Network;
 
-use DOMDocument;
-use DomXPath;
-use Friendica\Core\Config\IConfig;
 use Friendica\Core\System;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
@@ -32,6 +29,7 @@ use GuzzleHttp\Cookie\FileCookieJar;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
+use mattwright\URLResolver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
@@ -44,20 +42,17 @@ class HTTPClient implements IHTTPClient
 	private $logger;
 	/** @var Profiler */
 	private $profiler;
-	/** @var IConfig */
-	private $config;
-	/** @var string */
-	private $userAgent;
 	/** @var Client */
 	private $client;
+	/** @var URLResolver */
+	private $resolver;
 
-	public function __construct(LoggerInterface $logger, Profiler $profiler, IConfig $config, string $userAgent, Client $client)
+	public function __construct(LoggerInterface $logger, Profiler $profiler, Client $client, URLResolver $resolver)
 	{
-		$this->logger    = $logger;
-		$this->profiler  = $profiler;
-		$this->config    = $config;
-		$this->userAgent = $userAgent;
-		$this->client    = $client;
+		$this->logger   = $logger;
+		$this->profiler = $profiler;
+		$this->client   = $client;
+		$this->resolver = $resolver;
 	}
 
 	/**
@@ -94,6 +89,11 @@ class HTTPClient implements IHTTPClient
 		if (Network::isUrlBlocked($url)) {
 			$this->logger->info('Domain is blocked.', ['url' => $url]);
 			$this->profiler->stopRecording();
+			return CurlResult::createErrorCurl($url);
+		}
+
+		if (Network::isRedirectBlocked($url)) {
+			$this->logger->info('Domain should not be redirected.', ['url' => $url]);
 			return CurlResult::createErrorCurl($url);
 		}
 
@@ -197,10 +197,12 @@ class HTTPClient implements IHTTPClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function finalUrl(string $url, int $depth = 1, bool $fetchbody = false)
+	public function finalUrl(string $url)
 	{
+		$this->profiler->startRecording('network');
+
 		if (Network::isLocalLink($url)) {
-			$this->logger->info('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
+			$this->logger->debug('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
 		}
 
 		if (Network::isUrlBlocked($url)) {
@@ -215,104 +217,19 @@ class HTTPClient implements IHTTPClient
 
 		$url = Network::stripTrackingQueryParams($url);
 
-		if ($depth > 10) {
-			return $url;
-		}
-
 		$url = trim($url, "'");
 
-		$this->profiler->startRecording('network');
+		// Designate a temporary file that will store cookies during the session.
+		// Some websites test the browser for cookie support, so this enhances results.
+		$this->resolver->setCookieJar(tempnam(get_temppath() , 'url_resolver-'));
 
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, 1);
-		curl_setopt($ch, CURLOPT_NOBODY, 1);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
+		$urlResult = $this->resolver->resolveURL($url);
 
-		curl_exec($ch);
-		$curl_info = @curl_getinfo($ch);
-		$http_code = $curl_info['http_code'];
-		curl_close($ch);
-
-		$this->profiler->stopRecording();
-
-		if ($http_code == 0) {
-			return $url;
+		if ($urlResult->didErrorOccur()) {
+			throw new TransferException($urlResult->getErrorMessageString());
 		}
 
-		if (in_array($http_code, ['301', '302'])) {
-			if (!empty($curl_info['redirect_url'])) {
-				return $this->finalUrl($curl_info['redirect_url'], ++$depth, $fetchbody);
-			} elseif (!empty($curl_info['location'])) {
-				return $this->finalUrl($curl_info['location'], ++$depth, $fetchbody);
-			}
-		}
-
-		// Check for redirects in the meta elements of the body if there are no redirects in the header.
-		if (!$fetchbody) {
-			return $this->finalUrl($url, ++$depth, true);
-		}
-
-		// if the file is too large then exit
-		if ($curl_info["download_content_length"] > 1000000) {
-			return $url;
-		}
-
-		// if it isn't a HTML file then exit
-		if (!empty($curl_info["content_type"]) && !strstr(strtolower($curl_info["content_type"]), "html")) {
-			return $url;
-		}
-
-		$this->profiler->startRecording('network');
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_NOBODY, 0);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
-
-		$body = curl_exec($ch);
-		curl_close($ch);
-
-		$this->profiler->stopRecording();
-
-		if (trim($body) == "") {
-			return $url;
-		}
-
-		// Check for redirect in meta elements
-		$doc = new DOMDocument();
-		@$doc->loadHTML($body);
-
-		$xpath = new DomXPath($doc);
-
-		$list = $xpath->query("//meta[@content]");
-		foreach ($list as $node) {
-			$attr = [];
-			if ($node->attributes->length) {
-				foreach ($node->attributes as $attribute) {
-					$attr[$attribute->name] = $attribute->value;
-				}
-			}
-
-			if (@$attr["http-equiv"] == 'refresh') {
-				$path = $attr["content"];
-				$pathinfo = explode(";", $path);
-				foreach ($pathinfo as $value) {
-					if (substr(strtolower($value), 0, 4) == "url=") {
-						return $this->finalUrl(substr($value, 4), ++$depth);
-					}
-				}
-			}
-		}
-
-		return $url;
+		return $urlResult->getURL();
 	}
 
 	/**

@@ -10,6 +10,7 @@ use Friendica\Network\IHTTPClient;
 use Friendica\Util\Profiler;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use mattwright\URLResolver;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -85,6 +86,13 @@ class HTTPClientFactory extends BaseFactory
 			],
 		]);
 
-		return new HTTPClient($logger, $this->profiler, $this->config, $userAgent, $guzzle);
+		$resolver = new URLResolver();
+		$resolver->setUserAgent($userAgent);
+		$resolver->setMaxRedirects(10);
+		$resolver->setRequestTimeout(10);
+		// if the file is too large then exit
+		$resolver->setMaxResponseDataSize(1000000);
+
+		return new HTTPClient($logger, $this->profiler, $guzzle, $resolver);
 	}
 }

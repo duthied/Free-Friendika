@@ -104,14 +104,10 @@ interface IHTTPClient
 	 * through HTTP code or meta refresh tags. Stops after 10 redirections.
 	 *
 	 * @param string $url       A user-submitted URL
-	 * @param int    $depth     The current redirection recursion level (internal)
-	 * @param bool   $fetchbody Wether to fetch the body or not after the HEAD requests
 	 *
 	 * @return string A canonical URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   ParseUrl::getSiteinfo
-	 *
-	 * @todo  Remove the $fetchbody parameter that generates an extraneous HEAD request
 	 */
-	public function finalUrl(string $url, int $depth = 1, bool $fetchbody = false);
+	public function finalUrl(string $url);
 }
