@@ -222,10 +222,17 @@ class Notification extends BaseModel
 				}
 			}
 
-			if (($notification['type'] == Post\UserNotification::NOTIF_SHARED) && !empty($item['causer-id'])) {
-				$causer = Contact::getById($item['causer-id'], ['id', 'name', 'url']);
+			if ($item['owner-id'] != $item['author-id']) {
+				$cid = $item['owner-id'];
+			}
+			if (!empty($item['causer-id']) && ($item['causer-id'] != $item['author-id'])) {
+				$cid = $item['causer-id'];
+			}
+
+			if (($notification['type'] == Post\UserNotification::NOTIF_SHARED) && !empty($cid)) {
+				$causer = Contact::getById($cid, ['id', 'name', 'url']);
 				if (empty($contact)) {
-					Logger::info('Causer not found', ['causer' => $item['causer-id']]);
+					Logger::info('Causer not found', ['causer' => $cid]);
 					return $message;
 				}
 			} elseif (in_array($notification['type'], [Post\UserNotification::NOTIF_COMMENT_PARTICIPATION, Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION])) {
