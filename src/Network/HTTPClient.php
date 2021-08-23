@@ -66,6 +66,7 @@ class HTTPClient implements IHTTPClient
 	protected function request(string $method, string $url, array $opts = []): IHTTPResult
 	{
 		$this->profiler->startRecording('network');
+		$this->logger->debug('Request start.', ['url' => $url, 'method' => $method]);
 
 		if (Network::isLocalLink($url)) {
 			$this->logger->info('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
@@ -132,7 +133,16 @@ class HTTPClient implements IHTTPClient
 		};
 
 		try {
-			$response = $this->client->$method($url, $conf);
+			switch ($method) {
+				case 'get':
+					$response = $this->client->get($url, $conf);
+					break;
+				case 'head':
+					$response = $this->client->head($url, $conf);
+					break;
+				default:
+					throw new TransferException('Invalid method');
+			}
 			return new GuzzleResponse($response, $url);
 		} catch (TransferException $exception) {
 			if ($exception instanceof RequestException &&
@@ -142,6 +152,7 @@ class HTTPClient implements IHTTPClient
 				return new CurlResult($url, '', ['http_code' => $exception->getCode()], $exception->getCode(), '');
 			}
 		} finally {
+			$this->logger->debug('Request stop.', ['url' => $url, 'method' => $method]);
 			$this->profiler->stopRecording();
 		}
 	}
@@ -165,114 +176,22 @@ class HTTPClient implements IHTTPClient
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @param int $redirects The recursion counter for internal use - default 0
-	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function post(string $url, $params, array $headers = [], int $timeout = 0, &$redirects = 0)
+	public function post(string $url, $params, array $headers = [], int $timeout = 0): IHTTPResult
 	{
-		$this->profiler->startRecording('network');
+		$opts = [];
 
-		if (Network::isLocalLink($url)) {
-			$this->logger->info('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
-		}
-
-		if (Network::isUrlBlocked($url)) {
-			$this->logger->info('Domain is blocked.' . ['url' => $url]);
-			$this->profiler->stopRecording();
-			return CurlResult::createErrorCurl($url);
-		}
-
-		$ch = curl_init($url);
-
-		if (($redirects > 8) || (!$ch)) {
-			$this->profiler->stopRecording();
-			return CurlResult::createErrorCurl($url);
-		}
-
-		$this->logger->debug('Post_url: start.', ['url' => $url]);
-
-		curl_setopt($ch, CURLOPT_HEADER, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-		curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
-
-		if ($this->config->get('system', 'ipv4_resolve', false)) {
-			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-		}
-
-		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-
-		if (intval($timeout)) {
-			curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-		} else {
-			$curl_time = $this->config->get('system', 'curl_timeout', 60);
-			curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
-		}
+		$opts[RequestOptions::JSON] = $params;
 
 		if (!empty($headers)) {
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			$opts['headers'] = $headers;
 		}
 
-		$check_cert = $this->config->get('system', 'verifyssl');
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
-
-		if ($check_cert) {
-			@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+		if (!empty($timeout)) {
+			$opts[RequestOptions::TIMEOUT] = $timeout;
 		}
 
-		$proxy = $this->config->get('system', 'proxy');
-
-		if (!empty($proxy)) {
-			curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
-			curl_setopt($ch, CURLOPT_PROXY, $proxy);
-			$proxyuser = $this->config->get('system', 'proxyuser');
-			if (!empty($proxyuser)) {
-				curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyuser);
-			}
-		}
-
-		// don't let curl abort the entire application
-		// if it throws any errors.
-
-		$s = @curl_exec($ch);
-
-		$curl_info = curl_getinfo($ch);
-
-		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
-
-		if (!Network::isRedirectBlocked($url) && $curlResponse->isRedirectUrl()) {
-			$redirects++;
-			$this->logger->info('Post redirect.', ['url' => $url, 'to' => $curlResponse->getRedirectUrl()]);
-			curl_close($ch);
-			$this->profiler->stopRecording();
-			return $this->post($curlResponse->getRedirectUrl(), $params, $headers, $redirects, $timeout);
-		}
-
-		curl_close($ch);
-
-		$this->profiler->stopRecording();
-
-		// Very old versions of Lighttpd don't like the "Expect" header, so we remove it when needed
-		if ($curlResponse->getReturnCode() == 417) {
-			$redirects++;
-
-			if (empty($headers)) {
-				$headers = ['Expect:'];
-			} else {
-				if (!in_array('Expect:', $headers)) {
-					array_push($headers, 'Expect:');
-				}
-			}
-			$this->logger->info('Server responds with 417, applying workaround', ['url' => $url]);
-			return $this->post($url, $params, $headers, $redirects, $timeout);
-		}
-
-		$this->logger->debug('Post_url: End.', ['url' => $url]);
-
-		return $curlResponse;
+		return $this->request('post', $url, $opts);
 	}
 
 	/**
