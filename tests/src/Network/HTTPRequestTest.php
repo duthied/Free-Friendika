@@ -3,58 +3,87 @@
 namespace Friendica\Test\src\Network;
 
 use Dice\Dice;
-use Friendica\App\BaseURL;
-use Friendica\Core\Config\IConfig;
 use Friendica\DI;
-use Friendica\Network\HTTPRequest;
-use Friendica\Network\IHTTPRequest;
+use Friendica\Network\HTTPClient;
+use Friendica\Network\IHTTPClient;
 use Friendica\Test\MockedTest;
 use Friendica\Util\Images;
 use Friendica\Util\Profiler;
+use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use mattwright\URLResolver;
 use Psr\Log\NullLogger;
 
 require_once __DIR__ . '/../../../static/dbstructure.config.php';
 
 class HTTPRequestTest extends MockedTest
 {
-	public function testImageFetch()
+	/** @var HandlerStack */
+	protected $handler;
+
+	protected function setUp(): void
 	{
-		$mock = new MockHandler([
-			new Response(200, [
-				'Server' => 'tsa_b',
-				'Content-Type' => 'image/png',
-				'Cache-Control' => 'max-age=604800, must-revalidate',
-				'Content-Length' => 24875,
-			], file_get_contents(__DIR__ . '/../../datasets/curl/image.content'))
-		]);
+		parent::setUp();
 
-		$config = \Mockery::mock(IConfig::class);
-		$config->shouldReceive('get')->with('system', 'curl_range_bytes', 0)->once()->andReturn(null);
-		$config->shouldReceive('get')->with('system', 'verifyssl')->once();
-		$config->shouldReceive('get')->with('system', 'proxy')->once();
-		$config->shouldReceive('get')->with('system', 'ipv4_resolve', false)->once()->andReturnFalse();
-		$config->shouldReceive('get')->with('system', 'blocklist', [])->once()->andReturn([]);
+		$this->handler = HandlerStack::create();
 
-		$baseUrl = \Mockery::mock(BaseURL::class);
-		$baseUrl->shouldReceive('get')->andReturn('http://friendica.local');
+		$client = new Client(['handler' => $this->handler]);
+
+		$resolver = \Mockery::mock(URLResolver::class);
 
 		$profiler = \Mockery::mock(Profiler::class);
 		$profiler->shouldReceive('startRecording')->andReturnTrue();
 		$profiler->shouldReceive('stopRecording')->andReturnTrue();
 
-		$httpRequest = new HTTPRequest(new NullLogger(), $profiler, $config, $baseUrl);
+		$httpClient = new HTTPClient(new NullLogger(), $profiler, $client, $resolver);
 
-		self::assertInstanceOf(IHTTPRequest::class, $httpRequest);
+		$dice    = DI::getDice();
+		$newDice = \Mockery::mock($dice)->makePartial();
+		$newDice->shouldReceive('create')->with(IHTTPClient::class)->andReturn($httpClient);
+		DI::init($newDice);
+	}
 
-		$dice = \Mockery::mock(Dice::class);
-		$dice->shouldReceive('create')->with(IHTTPRequest::class)->andReturn($httpRequest)->once();
-		$dice->shouldReceive('create')->with(BaseURL::class)->andReturn($baseUrl);
-		$dice->shouldReceive('create')->with(IConfig::class)->andReturn($config)->once();
+	public function dataImages()
+	{
+		return [
+			'image1' => [
+				'url'     => 'https://pbs.twimg.com/profile_images/2365515285/9re7kx4xmc0eu9ppmado.png',
+				'headers' => [
+					'Server'                        => 'tsa_b',
+					'Content-Type'                  => 'image/png',
+					'Cache-Control'                 => 'max-age=604800,must-revalidate',
+					'Last-Modified'                 => 'Thu,04Nov201001:42:54GMT',
+					'Content-Length'                => '24875',
+					'Access-Control-Allow-Origin'   => '*',
+					'Access-Control-Expose-Headers' => 'Content-Length',
+					'Date'                          => 'Mon,23Aug202112:39:00GMT',
+					'Connection'                    => 'keep-alive',
+				],
+				'data'      => file_get_contents(__DIR__ . '/../../datasets/curl/image.content'),
+				'assertion' => [
+					'0'    => '400',
+					'1'    => '400',
+					'2'    => '3',
+					'3'    => 'width="400" height="400"',
+					'bits' => '8',
+					'mime' => 'image/png',
+					'size' => '24875',
+				]
+			]
+		];
+	}
 
-		DI::init($dice);
+	/**
+	 * @dataProvider dataImages
+	 */
+	public function testGetInfoFromURL(string $url, array $headers, string $data, array $assertion)
+	{
+		$this->handler->setHandler(new MockHandler([
+			new Response(200, $headers, $data),
+		]));
 
-		print_r(Images::getInfoFromURL('https://pbs.twimg.com/profile_images/2365515285/9re7kx4xmc0eu9ppmado.png'));
+		self::assertArraySubset($assertion, Images::getInfoFromURL($url));
 	}
 }

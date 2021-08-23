@@ -39,6 +39,17 @@ abstract class DI
 		self::$dice = $dice;
 	}
 
+	/**
+	 * Returns a clone of the current dice instance
+	 * This usefull for overloading the current instance with mocked methods during tests
+	 *
+	 * @return Dice
+	 */
+	public static function getDice()
+	{
+		return clone self::$dice;
+	}
+
 	//
 	// common instances
 	//

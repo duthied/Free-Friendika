@@ -107,7 +107,6 @@ interface IHTTPClient
 	 *
 	 * @return string A canonical URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @see   ParseUrl::getSiteinfo
 	 */
 	public function finalUrl(string $url);
 }

@@ -92,11 +92,6 @@ class HTTPClient implements IHTTPClient
 			return CurlResult::createErrorCurl($url);
 		}
 
-		if (Network::isRedirectBlocked($url)) {
-			$this->logger->info('Domain should not be redirected.', ['url' => $url]);
-			return CurlResult::createErrorCurl($url);
-		}
-
 		$conf = [];
 
 		if (!empty($opts['cookiejar'])) {
