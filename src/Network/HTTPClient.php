@@ -31,6 +31,7 @@ use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
 use mattwright\URLResolver;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -146,6 +147,9 @@ class HTTPClient implements IHTTPClient
 			} else {
 				return new CurlResult($url, '', ['http_code' => $exception->getCode()], $exception->getCode(), '');
 			}
+		} catch (InvalidArgumentException $argumentException) {
+			$this->logger->info('Invalid Argument for HTTP call.', ['url' => $url, 'method' => $method, 'exception' => $argumentException]);
+			return new CurlResult($url, '', ['http_code' => $argumentException->getCode()], $argumentException->getCode(), $argumentException->getMessage());
 		} finally {
 			$this->logger->debug('Request stop.', ['url' => $url, 'method' => $method]);
 			$this->profiler->stopRecording();
