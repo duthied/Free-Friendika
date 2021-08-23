@@ -54,6 +54,12 @@ class HTTPClientFactory extends BaseFactory
 			$logger->notice('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri]);
 		};
 
+		$userAgent = FRIENDICA_PLATFORM . " '" .
+					 FRIENDICA_CODENAME . "' " .
+					 FRIENDICA_VERSION . '-' .
+					 DB_UPDATE_VERSION . '; ' .
+					 $this->baseUrl->get();
+
 		$guzzle = new Client([
 			RequestOptions::ALLOW_REDIRECTS => [
 				'max'            => 8,
@@ -72,15 +78,12 @@ class HTTPClientFactory extends BaseFactory
 			RequestOptions::TIMEOUT          => $this->config->get('system', 'curl_timeout', 60),
 			// by default we will allow self-signed certs
 			// but you can override this
-			RequestOptions::VERIFY => (bool)$this->config->get('system', 'verifyssl'),
-			RequestOptions::PROXY  => $proxy,
+			RequestOptions::VERIFY  => (bool)$this->config->get('system', 'verifyssl'),
+			RequestOptions::PROXY   => $proxy,
+			RequestOptions::HEADERS => [
+				'User-Agent' => $userAgent,
+			],
 		]);
-
-		$userAgent = FRIENDICA_PLATFORM . " '" .
-			FRIENDICA_CODENAME . "' " .
-			FRIENDICA_VERSION . '-' .
-			DB_UPDATE_VERSION . '; ' .
-			$this->baseUrl->get();
 
 		return new HTTPClient($logger, $this->profiler, $this->config, $userAgent, $guzzle);
 	}

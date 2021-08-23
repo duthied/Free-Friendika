@@ -60,7 +60,10 @@ class HTTPClient implements IHTTPClient
 		$this->client    = $client;
 	}
 
-	protected function request(string $method, string $url, array $opts = [])
+	/**
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	protected function request(string $method, string $url, array $opts = []): IHTTPResult
 	{
 		$this->profiler->startRecording('network');
 
@@ -96,30 +99,32 @@ class HTTPClient implements IHTTPClient
 		$conf = [];
 
 		if (!empty($opts['cookiejar'])) {
-			$jar = new FileCookieJar($opts['cookiejar']);
+			$jar                           = new FileCookieJar($opts['cookiejar']);
 			$conf[RequestOptions::COOKIES] = $jar;
 		}
 
+		$header = [];
+
 		if (!empty($opts['accept_content'])) {
-			array_push($curlOptions[CURLOPT_HTTPHEADER], 'Accept: ' . $opts['accept_content']);
+			array_push($header, 'Accept: ' . $opts['accept_content']);
 		}
 
 		if (!empty($opts['header'])) {
-			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['header'], $curlOptions[CURLOPT_HTTPHEADER]);
+			$header = array_merge($opts['header'], $header);
 		}
-
-		$curlOptions[CURLOPT_USERAGENT] = $this->userAgent;
 
 		if (!empty($opts['headers'])) {
 			$this->logger->notice('Wrong option \'headers\' used.');
-			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['headers'], $curlOptions[CURLOPT_HTTPHEADER]);
+			$header = array_merge($opts['headers'], $header);
 		}
+
+		$conf[RequestOptions::HEADERS] = array_merge($this->client->getConfig(RequestOptions::HEADERS), $header);
 
 		if (!empty($opts['timeout'])) {
-			$curlOptions[CURLOPT_TIMEOUT] = $opts['timeout'];
+			$conf[RequestOptions::TIMEOUT] = $opts['timeout'];
 		}
 
-		$onHeaders = function (ResponseInterface $response) use ($opts) {
+		$conf[RequestOptions::ON_HEADERS] = function (ResponseInterface $response) use ($opts) {
 			if (!empty($opts['content_length']) &&
 				$response->getHeaderLine('Content-Length') > $opts['content_length']) {
 				throw new TransferException('The file is too big!');
@@ -127,10 +132,7 @@ class HTTPClient implements IHTTPClient
 		};
 
 		try {
-			$response = $this->client->$method($url, [
-				'on_headers' => $onHeaders,
-				'curl'       => $curlOptions,
-			]);
+			$response = $this->client->$method($url, $conf);
 			return new GuzzleResponse($response, $url);
 		} catch (TransferException $exception) {
 			if ($exception instanceof RequestException &&
@@ -148,7 +150,7 @@ class HTTPClient implements IHTTPClient
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function head(string $url, array $opts = [])
+	public function head(string $url, array $opts = []): IHTTPResult
 	{
 		return $this->request('head', $url, $opts);
 	}
@@ -156,7 +158,7 @@ class HTTPClient implements IHTTPClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get(string $url, array $opts = [])
+	public function get(string $url, array $opts = []): IHTTPResult
 	{
 		return $this->request('get', $url, $opts);
 	}
