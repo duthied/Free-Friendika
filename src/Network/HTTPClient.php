@@ -131,10 +131,9 @@ class HTTPClient implements IHTTPClient
 		try {
 			switch ($method) {
 				case 'get':
-					$response = $this->client->get($url, $conf);
-					break;
 				case 'head':
-					$response = $this->client->head($url, $conf);
+				case 'post':
+					$response = $this->client->$method($url, $conf);
 					break;
 				default:
 					throw new TransferException('Invalid method');
