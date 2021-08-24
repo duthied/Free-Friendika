@@ -255,7 +255,7 @@ class Profile
 		 * By now, the contact block isn't shown, when a different profile is given
 		 * But: When this profile was on the same server, then we could display the contacts
 		 */
-		DI::page()['aside'] .= self::sidebar($profile, $block, $show_contacts);
+		DI::page()['aside'] .= self::getVCardHtml($profile, $block, $show_contacts);
 
 		return $profile;
 	}
@@ -281,7 +281,7 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	private static function sidebar(array $profile, bool $block, bool $show_contacts)
+	public static function getVCardHtml(array $profile, bool $block, bool $show_contacts)
 	{
 		$o = '';
 		$location = false;
