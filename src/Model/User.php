@@ -149,14 +149,20 @@ class User
 		$system['page-flags'] = User::PAGE_FLAGS_SOAPBOX;
 		$system['account-type'] = $system['contact-type'];
 		$system['guid'] = '';
-		$system['nickname'] = $system['nick'];
-		$system['pubkey'] = $system['pubkey'];
-		$system['locality'] = '';
-		$system['region'] = '';
-		$system['country-name'] = '';
-		$system['net-publish'] = false;
 		$system['picdate'] = '';
 		$system['theme'] = '';
+		$system['publish'] = false;
+		$system['net-publish'] = false;
+		$system['hide-friends'] = true;
+		$system['prv_keywords'] = '';
+		$system['pub_keywords'] = '';
+		$system['address'] = '';
+		$system['locality'] = '';
+		$system['region'] = '';
+		$system['postal-code'] = '';
+		$system['country-name'] = '';
+		$system['homepage'] = DI::baseUrl()->get();
+		$system['dob'] = '0000-00-00';
 
 		// Ensure that the user contains data
 		$user = DBA::selectFirst('user', ['prvkey', 'guid'], ['uid' => 0]);

@@ -35,6 +35,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
@@ -204,11 +205,13 @@ class Profile
 	 *      the theme is chosen before the _init() function of a theme is run, which will usually
 	 *      load a lot of theme-specific content
 	 *
-	 * @param App     $a
-	 * @param string  $nickname string
-	 *
+	 * @param App    $a
+	 * @param string $nickname string
+	 * @param bool   $show_contacts
 	 * @return array Profile
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws HTTPException\NotFoundException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function load(App $a, string $nickname, bool $show_contacts = true)
@@ -217,6 +220,12 @@ class Profile
 		if (empty($profile)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
 			return [];
+		}
+
+		// System user, aborting
+		if ($profile['uid'] === 0) {
+			DI::logger()->warning('System user found in Profile::load', ['nickname' => $nickname, 'callstack' => System::callstack(20)]);
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
 		$a->setProfileOwner($profile['uid']);
@@ -246,7 +255,7 @@ class Profile
 		 * By now, the contact block isn't shown, when a different profile is given
 		 * But: When this profile was on the same server, then we could display the contacts
 		 */
-		DI::page()['aside'] .= self::sidebar($profile, $block, $show_contacts);
+		DI::page()['aside'] .= self::getVCardHtml($profile, $block, $show_contacts);
 
 		return $profile;
 	}
@@ -272,7 +281,7 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	private static function sidebar(array $profile, bool $block, bool $show_contacts)
+	public static function getVCardHtml(array $profile, bool $block, bool $show_contacts)
 	{
 		$o = '';
 		$location = false;

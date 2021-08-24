@@ -52,7 +52,7 @@ class Contacts extends Module\BaseProfile
 
 		$is_owner = $profile['uid'] == local_user();
 
-		if (!empty($profile['hide-friends']) && !$is_owner) {
+		if ($profile['hide-friends'] && !$is_owner) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 

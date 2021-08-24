@@ -34,13 +34,11 @@ use Friendica\Network\HTTPException;
  */
 class HCard extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function content(array $parameters = [])
 	{
-		$a = DI::app();
-
 		if ((local_user()) && ($parameters['action'] ?? '') === 'view') {
 			// A logged in user views a profile of a user
-			$nickname = $a->getLoggedInUserNickname();
+			$nickname = DI::app()->getLoggedInUserNickname();
 		} elseif (empty($parameters['action'])) {
 			// Show the profile hCard
 			$nickname = $parameters['profile'];
@@ -48,7 +46,7 @@ class HCard extends BaseModule
 			throw new HTTPException\NotFoundException(DI::l10n()->t('No profile'));
 		}
 
-		$profile = Profile::load($a, $nickname, false);
+		$profile = User::getOwnerDataByNick($nickname);
 
 		if (empty($profile)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
@@ -67,15 +65,6 @@ class HCard extends BaseModule
 			$page['htmlhead'] .= '<link rel="openid.delegate" href="' . $delegate . '" />' . "\r\n";
 		}
 
-		// check if blocked
-		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
-			$keywords = $profile['pub_keywords'] ?? '';
-			$keywords = str_replace([',', ' ', ',,'], [' ', ',', ','], $keywords);
-			if (strlen($keywords)) {
-				$page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\r\n";
-			}
-		}
-
 		$baseUrl = DI::baseUrl();
 
 		$uri = urlencode('acct:' . $profile['nickname'] . '@' . $baseUrl->getHostname() . ($baseUrl->getUrlPath() ? '/' . $baseUrl->getUrlPath() : ''));
@@ -88,5 +77,20 @@ class HCard extends BaseModule
 		foreach (['request', 'confirm', 'notify', 'poll'] as $dfrn) {
 			$page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"" . $baseUrl->get() . "/dfrn_{$dfrn}/{$nickname}\" />\r\n";
 		}
+
+		$block = (DI::config()->get('system', 'block_public') && !Session::isAuthenticated());
+
+		// check if blocked
+		if ($block) {
+			$keywords = $profile['pub_keywords'] ?? '';
+			$keywords = str_replace([',', ' ', ',,'], [' ', ',', ','], $keywords);
+			if (strlen($keywords)) {
+				$page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\r\n";
+			}
+		}
+
+		$page['aside'] = Profile::getVCardHtml($profile, $block, false);
+
+		return '';
 	}
 }
