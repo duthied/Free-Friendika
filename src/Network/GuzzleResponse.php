@@ -147,8 +147,8 @@ class GuzzleResponse extends Response implements IHTTPResult, ResponseInterface
 	}
 
 	/// @todo - fix mismatching use of "getBody()" as string here and parent "getBody()" as streaminterface
-	public function getBody()
+	public function getBody(): string
 	{
-		return parent::getBody()->getContents();
+		return (string) parent::getBody();
 	}
 }
