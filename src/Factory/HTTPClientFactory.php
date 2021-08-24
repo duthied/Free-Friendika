@@ -9,6 +9,7 @@ use Friendica\Network\HTTPClient;
 use Friendica\Network\IHTTPClient;
 use Friendica\Util\Profiler;
 use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\RequestOptions;
 use mattwright\URLResolver;
 use Psr\Http\Message\RequestInterface;
@@ -33,7 +34,14 @@ class HTTPClientFactory extends BaseFactory
 		$this->baseUrl  = $baseUrl;
 	}
 
-	public function createClient(): IHTTPClient
+	/**
+	 * Creates a IHTTPClient for communications with HTTP endpoints
+	 *
+	 * @param HandlerStack|null $handlerStack (optional) A handler replacement (just usefull at test environments)
+	 *
+	 * @return IHTTPClient
+	 */
+	public function createClient(HandlerStack $handlerStack = null): IHTTPClient
 	{
 		$proxy = $this->config->get('system', 'proxy');
 
@@ -84,6 +92,7 @@ class HTTPClientFactory extends BaseFactory
 			RequestOptions::HEADERS => [
 				'User-Agent' => $userAgent,
 			],
+			'handler' => $handlerStack ?? HandlerStack::create(),
 		]);
 
 		$resolver = new URLResolver();

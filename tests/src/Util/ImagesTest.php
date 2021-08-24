@@ -2,7 +2,7 @@
 
 namespace Friendica\Test\src\Util;
 
-use Friendica\Test\DiceTestTrait;
+use Friendica\Test\DiceHttpMockHandlerTrait;
 use Friendica\Test\MockedTest;
 use Friendica\Util\Images;
 use GuzzleHttp\Handler\MockHandler;
@@ -10,13 +10,13 @@ use GuzzleHttp\Psr7\Response;
 
 class ImagesTest extends MockedTest
 {
-	use DiceTestTrait;
+	use DiceHttpMockHandlerTrait;
 
-	public static function setUpBeforeClass(): void
+	protected function setUp(): void
 	{
-		parent::setUpBeforeClass();
+		parent::setUp();
 
-		self::setUpDice();
+		$this->setupHttpMockHandler();
 	}
 
 	public function dataImages()
@@ -56,13 +56,13 @@ class ImagesTest extends MockedTest
 	}
 
 	/**
-	 * Test the Images::getInfoFromURL() method
+	 * Test the Images::getInfoFromURL() method (only remote images, not local/relative!)
 	 *
 	 * @dataProvider dataImages
 	 */
-	public function testGetInfoFromURL(string $url, array $headers, string $data, array $assertion)
+	public function testGetInfoFromRemotURL(string $url, array $headers, string $data, array $assertion)
 	{
-		self::$httpRequestHandler->setHandler(new MockHandler([
+		$this->httpRequestHandler->setHandler(new MockHandler([
 			new Response(200, $headers, $data),
 		]));
 

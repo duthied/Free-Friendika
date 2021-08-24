@@ -21,47 +21,45 @@
 
 namespace Friendica\Test;
 
+use Dice\Dice;
 use Friendica\DI;
-use Friendica\Network\HTTPClient;
+use Friendica\Factory\HTTPClientFactory;
 use Friendica\Network\IHTTPClient;
-use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
-use mattwright\URLResolver;
 
 /**
- * This class mocks some DICE dependencies because they're not direct usable for test environments
- * (Like fetching data from external endpoints)
+ * This class injects a mockable handler into the IHTTPClient dependency per Dice
  */
-trait DiceTestTrait
+trait DiceHttpMockHandlerTrait
 {
 	/**
 	 * Handler for mocking requests anywhere for testing purpose
 	 *
 	 * @var HandlerStack
 	 */
-	protected static $httpRequestHandler;
+	protected $httpRequestHandler;
 
-	protected static function setUpDice(): void
+	protected function setupHttpMockHandler(): void
 	{
-		if (!empty(self::$httpRequestHandler) && self::$httpRequestHandler instanceof HandlerStack) {
+		if (!empty($this->httpRequestHandler) && $this->httpRequestHandler instanceof HandlerStack) {
 			return;
 		}
 
-		self::$httpRequestHandler = HandlerStack::create();
+		$this->httpRequestHandler = HandlerStack::create();
 
-		$client = new Client(['handler' => self::$httpRequestHandler]);
+		$dice = DI::getDice();
+		// addRule() clones the current instance and returns a new one, so no concurrency problems :-)
+		$newDice = $dice->addRule(IHTTPClient::class, [
+			'instanceOf' => HTTPClientFactory::class,
+			'call'       => [
+				['createClient', [$this->httpRequestHandler], Dice::CHAIN_CALL],
+			],
+		]);
 
-		$resolver = \Mockery::mock(URLResolver::class);
-
-		$httpClient = new HTTPClient(DI::logger(), DI::profiler(), $client, $resolver);
-
-		$dice    = DI::getDice();
-		$newDice = \Mockery::mock($dice)->makePartial();
-		$newDice->shouldReceive('create')->with(IHTTPClient::class)->andReturn($httpClient);
 		DI::init($newDice);
 	}
 
-	protected function tearDown() : void
+	protected function tearDown(): void
 	{
 		\Mockery::close();
 
