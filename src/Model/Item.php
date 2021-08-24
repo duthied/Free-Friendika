@@ -1160,8 +1160,6 @@ class Item
 
 		Post\UserNotification::setNotification($posted_item['uri-id'], $posted_item['uid']);
 
-		check_user_notification($posted_item['uri-id'], $posted_item['uid']);
-
 		// Distribute items to users who subscribed to their tags
 		self::distributeByTags($posted_item);
 
