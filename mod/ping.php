@@ -459,7 +459,7 @@ function ping_get_notifications($uid)
 
 			if ($notification["visible"]
 				&& !$notification["deleted"]
-				&& empty($result[$notification['parent']])
+				&& empty($result['p:' . $notification['parent']])
 			) {
 				// Should we condense the notifications or show them all?
 				if (($notification['verb'] != Activity::POST) || DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
