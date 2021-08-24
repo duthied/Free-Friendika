@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-22 08:26+0000\n"
+"POT-Creation-Date: 2021-08-24 08:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgstr ""
 msgid "%1$s poked %2$s"
 msgstr ""
 
-#: include/conversation.php:142 src/Model/Item.php:2611
+#: include/conversation.php:142 src/Model/Item.php:2609
 msgid "event"
 msgstr ""
 
@@ -62,7 +62,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: include/conversation.php:150 mod/tagger.php:90 src/Model/Item.php:2613
+#: include/conversation.php:150 mod/tagger.php:90 src/Model/Item.php:2611
 msgid "photo"
 msgstr ""
 
@@ -501,280 +501,195 @@ msgstr ""
 msgid "Open Compose page"
 msgstr ""
 
-#: include/enotify.php:52 include/enotify.php:646
+#: include/enotify.php:52 include/enotify.php:559
 msgid "[Friendica:Notify]"
 msgstr ""
 
-#: include/enotify.php:124
+#: include/enotify.php:116
 #, php-format
 msgid "%s New mail received at %s"
 msgstr ""
 
-#: include/enotify.php:126
+#: include/enotify.php:118
 #, php-format
 msgid "%1$s sent you a new private message at %2$s."
 msgstr ""
 
-#: include/enotify.php:127
+#: include/enotify.php:119
 msgid "a private message"
 msgstr ""
 
-#: include/enotify.php:127
+#: include/enotify.php:119
 #, php-format
 msgid "%1$s sent you %2$s."
 msgstr ""
 
-#: include/enotify.php:129
+#: include/enotify.php:121
 #, php-format
 msgid "Please visit %s to view and/or reply to your private messages."
 msgstr ""
 
-#: include/enotify.php:176
-#, php-format
-msgid "%1$s replied to you on %2$s's %3$s %4$s"
-msgstr ""
-
-#: include/enotify.php:178
-#, php-format
-msgid "%1$s tagged you on %2$s's %3$s %4$s"
-msgstr ""
-
-#: include/enotify.php:180
+#: include/enotify.php:152
 #, php-format
 msgid "%1$s commented on %2$s's %3$s %4$s"
 msgstr ""
 
-#: include/enotify.php:190
-#, php-format
-msgid "%1$s replied to you on your %2$s %3$s"
-msgstr ""
-
-#: include/enotify.php:192
-#, php-format
-msgid "%1$s tagged you on your %2$s %3$s"
-msgstr ""
-
-#: include/enotify.php:194
+#: include/enotify.php:157
 #, php-format
 msgid "%1$s commented on your %2$s %3$s"
 msgstr ""
 
-#: include/enotify.php:201
-#, php-format
-msgid "%1$s replied to you on their %2$s %3$s"
-msgstr ""
-
-#: include/enotify.php:203
-#, php-format
-msgid "%1$s tagged you on their %2$s %3$s"
-msgstr ""
-
-#: include/enotify.php:205
+#: include/enotify.php:161
 #, php-format
 msgid "%1$s commented on their %2$s %3$s"
 msgstr ""
 
-#: include/enotify.php:216 include/enotify.php:674
-#, php-format
-msgid "%s %s tagged you"
-msgstr ""
-
-#: include/enotify.php:218
-#, php-format
-msgid "%1$s tagged you at %2$s"
-msgstr ""
-
-#: include/enotify.php:220 include/enotify.php:680
+#: include/enotify.php:165 include/enotify.php:594
 #, php-format
 msgid "%1$s Comment to conversation #%2$d by %3$s"
 msgstr ""
 
-#: include/enotify.php:222
+#: include/enotify.php:167
 #, php-format
 msgid "%s commented on an item/conversation you have been following."
 msgstr ""
 
-#: include/enotify.php:227 include/enotify.php:242 include/enotify.php:267
-#: include/enotify.php:286 include/enotify.php:302 include/enotify.php:694
+#: include/enotify.php:171 include/enotify.php:186 include/enotify.php:205
+#: include/enotify.php:609
 #, php-format
 msgid "Please visit %s to view and/or reply to the conversation."
 msgstr ""
 
-#: include/enotify.php:234
+#: include/enotify.php:178
 #, php-format
 msgid "%s %s posted to your profile wall"
 msgstr ""
 
-#: include/enotify.php:236
+#: include/enotify.php:180
 #, php-format
 msgid "%1$s posted to your profile wall at %2$s"
 msgstr ""
 
-#: include/enotify.php:237
+#: include/enotify.php:181
 #, php-format
 msgid "%1$s posted to [url=%2$s]your wall[/url]"
 msgstr ""
 
-#: include/enotify.php:250 include/enotify.php:677
-#, php-format
-msgid "%s %s shared a new post"
-msgstr ""
-
-#: include/enotify.php:252
-#, php-format
-msgid "%1$s shared a new post at %2$s"
-msgstr ""
-
-#: include/enotify.php:253
-#, php-format
-msgid "%1$s [url=%2$s]shared a post[/url]."
-msgstr ""
-
-#: include/enotify.php:258
-#, php-format
-msgid "%s %s shared a post from %s"
-msgstr ""
-
-#: include/enotify.php:260
-#, php-format
-msgid "%1$s shared a post from %2$s at %3$s"
-msgstr ""
-
-#: include/enotify.php:261
-#, php-format
-msgid "%1$s [url=%2$s]shared a post[/url] from %3$s."
-msgstr ""
-
-#: include/enotify.php:274
+#: include/enotify.php:193
 #, php-format
 msgid "%1$s %2$s poked you"
 msgstr ""
 
-#: include/enotify.php:276
+#: include/enotify.php:195
 #, php-format
 msgid "%1$s poked you at %2$s"
 msgstr ""
 
-#: include/enotify.php:277
+#: include/enotify.php:196
 #, php-format
 msgid "%1$s [url=%2$s]poked you[/url]."
 msgstr ""
 
-#: include/enotify.php:294
-#, php-format
-msgid "%s %s tagged your post"
-msgstr ""
-
-#: include/enotify.php:296
-#, php-format
-msgid "%1$s tagged your post at %2$s"
-msgstr ""
-
-#: include/enotify.php:297
-#, php-format
-msgid "%1$s tagged [url=%2$s]your post[/url]"
-msgstr ""
-
-#: include/enotify.php:309
+#: include/enotify.php:213
 #, php-format
 msgid "%s Introduction received"
 msgstr ""
 
-#: include/enotify.php:311
+#: include/enotify.php:215
 #, php-format
 msgid "You've received an introduction from '%1$s' at %2$s"
 msgstr ""
 
-#: include/enotify.php:312
+#: include/enotify.php:216
 #, php-format
 msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
 msgstr ""
 
-#: include/enotify.php:317 include/enotify.php:363
+#: include/enotify.php:221 include/enotify.php:267
 #, php-format
 msgid "You may visit their profile at %s"
 msgstr ""
 
-#: include/enotify.php:319
+#: include/enotify.php:223
 #, php-format
 msgid "Please visit %s to approve or reject the introduction."
 msgstr ""
 
-#: include/enotify.php:326
+#: include/enotify.php:230
 #, php-format
 msgid "%s A new person is sharing with you"
 msgstr ""
 
-#: include/enotify.php:328 include/enotify.php:329
+#: include/enotify.php:232 include/enotify.php:233
 #, php-format
 msgid "%1$s is sharing with you at %2$s"
 msgstr ""
 
-#: include/enotify.php:336
+#: include/enotify.php:240
 #, php-format
 msgid "%s You have a new follower"
 msgstr ""
 
-#: include/enotify.php:338 include/enotify.php:339
+#: include/enotify.php:242 include/enotify.php:243
 #, php-format
 msgid "You have a new follower at %2$s : %1$s"
 msgstr ""
 
-#: include/enotify.php:352
+#: include/enotify.php:256
 #, php-format
 msgid "%s Friend suggestion received"
 msgstr ""
 
-#: include/enotify.php:354
+#: include/enotify.php:258
 #, php-format
 msgid "You've received a friend suggestion from '%1$s' at %2$s"
 msgstr ""
 
-#: include/enotify.php:355
+#: include/enotify.php:259
 #, php-format
 msgid "You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
 msgstr ""
 
-#: include/enotify.php:361
+#: include/enotify.php:265
 msgid "Name:"
 msgstr ""
 
-#: include/enotify.php:362
+#: include/enotify.php:266
 msgid "Photo:"
 msgstr ""
 
-#: include/enotify.php:365
+#: include/enotify.php:269
 #, php-format
 msgid "Please visit %s to approve or reject the suggestion."
 msgstr ""
 
-#: include/enotify.php:373 include/enotify.php:388
+#: include/enotify.php:277 include/enotify.php:292
 #, php-format
 msgid "%s Connection accepted"
 msgstr ""
 
-#: include/enotify.php:375 include/enotify.php:390
+#: include/enotify.php:279 include/enotify.php:294
 #, php-format
 msgid "'%1$s' has accepted your connection request at %2$s"
 msgstr ""
 
-#: include/enotify.php:376 include/enotify.php:391
+#: include/enotify.php:280 include/enotify.php:295
 #, php-format
 msgid "%2$s has accepted your [url=%1$s]connection request[/url]."
 msgstr ""
 
-#: include/enotify.php:381
+#: include/enotify.php:285
 msgid ""
 "You are now mutual friends and may exchange status updates, photos, and "
 "email without restriction."
 msgstr ""
 
-#: include/enotify.php:383
+#: include/enotify.php:287
 #, php-format
 msgid "Please visit %s if you wish to make any changes to this relationship."
 msgstr ""
 
-#: include/enotify.php:396
+#: include/enotify.php:300
 #, php-format
 msgid ""
 "'%1$s' has chosen to accept you a fan, which restricts some forms of "
@@ -783,37 +698,37 @@ msgid ""
 "automatically."
 msgstr ""
 
-#: include/enotify.php:398
+#: include/enotify.php:302
 #, php-format
 msgid ""
 "'%1$s' may choose to extend this into a two-way or more permissive "
 "relationship in the future."
 msgstr ""
 
-#: include/enotify.php:400
+#: include/enotify.php:304
 #, php-format
 msgid "Please visit %s  if you wish to make any changes to this relationship."
 msgstr ""
 
-#: include/enotify.php:410 mod/removeme.php:63
+#: include/enotify.php:314 mod/removeme.php:63
 msgid "[Friendica System Notify]"
 msgstr ""
 
-#: include/enotify.php:410
+#: include/enotify.php:314
 msgid "registration request"
 msgstr ""
 
-#: include/enotify.php:412
+#: include/enotify.php:316
 #, php-format
 msgid "You've received a registration request from '%1$s' at %2$s"
 msgstr ""
 
-#: include/enotify.php:413
+#: include/enotify.php:317
 #, php-format
 msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
 msgstr ""
 
-#: include/enotify.php:418
+#: include/enotify.php:322
 #, php-format
 msgid ""
 "Full Name:\t%s\n"
@@ -821,9 +736,19 @@ msgid ""
 "Login Name:\t%s (%s)"
 msgstr ""
 
-#: include/enotify.php:424
+#: include/enotify.php:328
 #, php-format
 msgid "Please visit %s to approve or reject the request."
+msgstr ""
+
+#: include/enotify.php:588
+#, php-format
+msgid "%s %s tagged you"
+msgstr ""
+
+#: include/enotify.php:591
+#, php-format
+msgid "%s %s shared a new post"
 msgstr ""
 
 #: mod/api.php:30 mod/editpost.php:38 mod/events.php:236 mod/follow.php:56
@@ -1774,15 +1699,15 @@ msgstr ""
 msgid "View Album"
 msgstr ""
 
-#: mod/ping.php:287
+#: mod/ping.php:286
 msgid "{0} wants to be your friend"
 msgstr ""
 
-#: mod/ping.php:304
+#: mod/ping.php:303
 msgid "{0} requested registration"
 msgstr ""
 
-#: mod/ping.php:317
+#: mod/ping.php:316
 #, php-format
 msgid "{0} and %d others requested registration"
 msgstr ""
@@ -3416,8 +3341,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1177 src/Model/Item.php:3141
-#: src/Model/Item.php:3147 src/Model/Item.php:3148
+#: src/Content/Text/BBCode.php:1177 src/Model/Item.php:3139
+#: src/Model/Item.php:3145 src/Model/Item.php:3146
 msgid "Link to source"
 msgstr ""
 
@@ -4631,33 +4556,33 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1665
+#: src/Model/Item.php:1663
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2615
+#: src/Model/Item.php:2613
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2617
+#: src/Model/Item.php:2615
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2620
+#: src/Model/Item.php:2618
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:2757
+#: src/Model/Item.php:2755
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3106
+#: src/Model/Item.php:3104
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3135 src/Model/Item.php:3136
+#: src/Model/Item.php:3133 src/Model/Item.php:3134
 msgid "View on separate page"
 msgstr ""
 
@@ -4675,97 +4600,97 @@ msgstr ""
 msgid "%1$s had started following you"
 msgstr ""
 
-#: src/Model/Notification.php:252
+#: src/Model/Notification.php:259
 #, php-format
 msgid "%1$s liked your comment %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:255
+#: src/Model/Notification.php:262
 #, php-format
 msgid "%1$s liked your post %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:262
+#: src/Model/Notification.php:269
 #, php-format
 msgid "%1$s disliked your comment %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:265
+#: src/Model/Notification.php:272
 #, php-format
 msgid "%1$s disliked your post %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:272
+#: src/Model/Notification.php:279
 #, php-format
 msgid "%1$s shared your comment %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:275
+#: src/Model/Notification.php:282
 #, php-format
 msgid "%1$s shared your post %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:282
+#: src/Model/Notification.php:289
 #, php-format
 msgid "%1$s tagged you on %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:286
+#: src/Model/Notification.php:293
 #, php-format
 msgid "%1$s replied to you on %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:290
+#: src/Model/Notification.php:297
 #, php-format
 msgid "%1$s commented in your thread %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:294
+#: src/Model/Notification.php:301
 #, php-format
 msgid "%1$s commented on your comment %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:300
+#: src/Model/Notification.php:307
 #, php-format
 msgid "%1$s commented in their thread %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:302
+#: src/Model/Notification.php:309
 #, php-format
 msgid "%1$s commented in their thread"
 msgstr ""
 
-#: src/Model/Notification.php:304
+#: src/Model/Notification.php:311
 #, php-format
 msgid "%1$s commented in the thread %2$s from %3$s"
 msgstr ""
 
-#: src/Model/Notification.php:306
+#: src/Model/Notification.php:313
 #, php-format
 msgid "%1$s commented in the thread from %3$s"
 msgstr ""
 
-#: src/Model/Notification.php:311
+#: src/Model/Notification.php:318
 #, php-format
 msgid "%1$s commented on your thread %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:316
+#: src/Model/Notification.php:323
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
 msgstr ""
 
-#: src/Model/Notification.php:318
+#: src/Model/Notification.php:325
 #, php-format
 msgid "%1$s shared a post from %3$s"
 msgstr ""
 
-#: src/Model/Notification.php:320
+#: src/Model/Notification.php:327
 #, php-format
 msgid "%1$s shared the post %2$s"
 msgstr ""
 
-#: src/Model/Notification.php:322
+#: src/Model/Notification.php:329
 #, php-format
 msgid "%1$s shared a post"
 msgstr ""
