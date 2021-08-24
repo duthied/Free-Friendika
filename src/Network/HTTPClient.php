@@ -103,7 +103,7 @@ class HTTPClient implements IHTTPClient
 		$header = [];
 
 		if (!empty($opts['accept_content'])) {
-			array_push($header, 'Accept: ' . $opts['accept_content']);
+			$header['Accept'] = $opts['accept_content'];
 		}
 
 		if (!empty($opts['header'])) {

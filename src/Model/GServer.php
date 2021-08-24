@@ -1728,8 +1728,7 @@ class GServer
 
 		if (!empty($accesstoken)) {
 			$api = 'https://instances.social/api/1.0/instances/list?count=0';
-			$header = ['Authorization: Bearer '.$accesstoken];
-			$curlResult = DI::httpRequest()->get($api, ['header' => $header]);
+			$curlResult = DI::httpRequest()->get($api, ['header' => ['Authorization' => ['Bearer ' . $accesstoken]]]);
 
 			if ($curlResult->isSuccess()) {
 				$servers = json_decode($curlResult->getBody(), true);
