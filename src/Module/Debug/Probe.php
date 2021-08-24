@@ -44,6 +44,7 @@ class Probe extends BaseModule
 		$res  = '';
 
 		if (!empty($addr)) {
+			$addr = NetworkProbe::cleanURI($addr);
 			$res = NetworkProbe::uri($addr, '', 0);
 			$res = print_r($res, true);
 		}
