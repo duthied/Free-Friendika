@@ -25,6 +25,7 @@ use Console_Table;
 use Friendica\App;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Model\User as UserModel;
+use Friendica\Network\Probe;
 use Friendica\Util\Temporal;
 use RuntimeException;
 use Seld\CliPrompt\CliPrompt;
@@ -152,6 +153,8 @@ HELP;
 				throw new RuntimeException('A contact URL must be specified.');
 			}
 		}
+
+		$url = Probe::cleanURI($url);
 
 		$contact = ContactModel::getByURLForUser($url, $user['uid']);
 		if (!empty($contact)) {
