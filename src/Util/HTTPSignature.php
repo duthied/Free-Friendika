@@ -29,7 +29,7 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Network\CurlResult;
-use Friendica\Network\HTTPRequestOptions;
+use Friendica\Network\HTTPClientOptions;
 use Friendica\Network\IHTTPResult;
 
 /**
@@ -449,8 +449,8 @@ class HTTPSignature
 			$header['Signature'] = 'keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
 		}
 
-		$curl_opts = $opts;
-		$curl_opts[HTTPRequestOptions::HEADERS] = $header;
+		$curl_opts                             = $opts;
+		$curl_opts[HTTPClientOptions::HEADERS] = $header;
 
 		if (!empty($opts['nobody'])) {
 			$curlResult = DI::httpRequest()->head($request, $curl_opts);

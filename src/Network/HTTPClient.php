@@ -95,39 +95,39 @@ class HTTPClient implements IHTTPClient
 
 		$conf = [];
 
-		if (!empty($opts[HTTPRequestOptions::COOKIEJAR])) {
-			$jar                           = new FileCookieJar($opts[HTTPRequestOptions::COOKIEJAR]);
+		if (!empty($opts[HTTPClientOptions::COOKIEJAR])) {
+			$jar                           = new FileCookieJar($opts[HTTPClientOptions::COOKIEJAR]);
 			$conf[RequestOptions::COOKIES] = $jar;
 		}
 
 		$headers = [];
 
-		if (!empty($opts[HTTPRequestOptions::ACCEPT_CONTENT])) {
-			$headers['Accept'] = $opts[HTTPRequestOptions::ACCEPT_CONTENT];
+		if (!empty($opts[HTTPClientOptions::ACCEPT_CONTENT])) {
+			$headers['Accept'] = $opts[HTTPClientOptions::ACCEPT_CONTENT];
 		}
 
-		if (!empty($opts[HTTPRequestOptions::LEGACY_HEADER])) {
+		if (!empty($opts[HTTPClientOptions::LEGACY_HEADER])) {
 			$this->logger->notice('Wrong option \'headers\' used.');
-			$headers = array_merge($opts[HTTPRequestOptions::LEGACY_HEADER], $headers);
+			$headers = array_merge($opts[HTTPClientOptions::LEGACY_HEADER], $headers);
 		}
 
-		if (!empty($opts[HTTPRequestOptions::HEADERS])) {
-			$headers = array_merge($opts[HTTPRequestOptions::HEADERS], $headers);
+		if (!empty($opts[HTTPClientOptions::HEADERS])) {
+			$headers = array_merge($opts[HTTPClientOptions::HEADERS], $headers);
 		}
 
 		$conf[RequestOptions::HEADERS] = array_merge($this->client->getConfig(RequestOptions::HEADERS), $headers);
 
-		if (!empty($opts[HTTPRequestOptions::TIMEOUT])) {
-			$conf[RequestOptions::TIMEOUT] = $opts[HTTPRequestOptions::TIMEOUT];
+		if (!empty($opts[HTTPClientOptions::TIMEOUT])) {
+			$conf[RequestOptions::TIMEOUT] = $opts[HTTPClientOptions::TIMEOUT];
 		}
 
-		if (!empty($opts[HTTPRequestOptions::BODY])) {
-			$conf[RequestOptions::BODY] = $opts[HTTPRequestOptions::BODY];
+		if (!empty($opts[HTTPClientOptions::BODY])) {
+			$conf[RequestOptions::BODY] = $opts[HTTPClientOptions::BODY];
 		}
 
 		$conf[RequestOptions::ON_HEADERS] = function (ResponseInterface $response) use ($opts) {
-			if (!empty($opts[HTTPRequestOptions::CONTENT_LENGTH]) &&
-				(int)$response->getHeaderLine('Content-Length') > $opts[HTTPRequestOptions::CONTENT_LENGTH]) {
+			if (!empty($opts[HTTPClientOptions::CONTENT_LENGTH]) &&
+				(int)$response->getHeaderLine('Content-Length') > $opts[HTTPClientOptions::CONTENT_LENGTH]) {
 				throw new TransferException('The file is too big!');
 			}
 		};
@@ -185,14 +185,14 @@ class HTTPClient implements IHTTPClient
 	{
 		$opts = [];
 
-		$opts[HTTPRequestOptions::BODY] = $params;
+		$opts[HTTPClientOptions::BODY] = $params;
 
 		if (!empty($headers)) {
-			$opts[HTTPRequestOptions::HEADERS] = $headers;
+			$opts[HTTPClientOptions::HEADERS] = $headers;
 		}
 
 		if (!empty($timeout)) {
-			$opts[HTTPRequestOptions::TIMEOUT] = $timeout;
+			$opts[HTTPClientOptions::TIMEOUT] = $timeout;
 		}
 
 		return $this->request('post', $url, $opts);

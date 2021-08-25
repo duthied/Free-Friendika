@@ -7,7 +7,7 @@ use GuzzleHttp\RequestOptions;
 /**
  * This class contains a list of possible HTTPClient request options.
  */
-class HTTPRequestOptions
+class HTTPClientOptions
 {
 	/**
 	 * accept_content: (array) supply Accept: header with 'accept_content' as the value

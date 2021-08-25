@@ -32,7 +32,7 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\Register;
-use Friendica\Network\HTTPRequestOptions;
+use Friendica\Network\HTTPClientOptions;
 use Friendica\Network\IHTTPResult;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
@@ -315,7 +315,7 @@ class GServer
 
 		// When a nodeinfo is present, we don't need to dig further
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = DI::httpRequest()->get($url . '/.well-known/nodeinfo', [HTTPRequestOptions::TIMEOUT => $xrd_timeout]);
+		$curlResult = DI::httpRequest()->get($url . '/.well-known/nodeinfo', [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
 		if ($curlResult->isTimeout()) {
 			self::setFailure($url);
 			return false;
@@ -323,7 +323,7 @@ class GServer
 
 		// On a redirect follow the new host but mark the old one as failure
 		if ($curlResult->isSuccess() && (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
-			$curlResult = DI::httpRequest()->get($url, [HTTPRequestOptions::TIMEOUT => $xrd_timeout]);
+			$curlResult = DI::httpRequest()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
 			if (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST)) {
 				Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $curlResult->getRedirectUrl()]);
 				self::setFailure($url);
@@ -359,7 +359,7 @@ class GServer
 					$basedata = ['detection-method' => self::DETECT_MANUAL];
 				}
 
-				$curlResult = DI::httpRequest()->get($baseurl, [HTTPRequestOptions::TIMEOUT => $xrd_timeout]);
+				$curlResult = DI::httpRequest()->get($baseurl, [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
 				if ($curlResult->isSuccess()) {
 					if ((parse_url($baseurl, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
 						Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $curlResult->getRedirectUrl()]);
@@ -383,7 +383,7 @@ class GServer
 					// When the base path doesn't seem to contain a social network we try the complete path.
 					// Most detectable system have to be installed in the root directory.
 					// We checked the base to avoid false positives.
-					$curlResult = DI::httpRequest()->get($url, [HTTPRequestOptions::TIMEOUT => $xrd_timeout]);
+					$curlResult = DI::httpRequest()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
 					if ($curlResult->isSuccess()) {
 						$urldata = self::analyseRootHeader($curlResult, $serverdata);
 						$urldata = self::analyseRootBody($curlResult, $urldata, $url);
@@ -959,7 +959,7 @@ class GServer
 	private static function validHostMeta(string $url)
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = DI::httpRequest()->get($url . '/.well-known/host-meta', [HTTPRequestOptions::TIMEOUT => $xrd_timeout]);
+		$curlResult = DI::httpRequest()->get($url . '/.well-known/host-meta', [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
@@ -1729,7 +1729,7 @@ class GServer
 
 		if (!empty($accesstoken)) {
 			$api = 'https://instances.social/api/1.0/instances/list?count=0';
-			$curlResult = DI::httpRequest()->get($api, [HTTPRequestOptions::HEADERS => ['Authorization' => ['Bearer ' . $accesstoken]]]);
+			$curlResult = DI::httpRequest()->get($api, [HTTPClientOptions::HEADERS => ['Authorization' => ['Bearer ' . $accesstoken]]]);
 
 			if ($curlResult->isSuccess()) {
 				$servers = json_decode($curlResult->getBody(), true);
