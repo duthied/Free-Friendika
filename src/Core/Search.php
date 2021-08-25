@@ -122,7 +122,7 @@ class Search
 			$searchUrl .= '&page=' . $page;
 		}
 
-		$resultJson = DI::httpRequest()->fetch($searchUrl, 0, 'application/json');
+		$resultJson = DI::httpClient()->fetch($searchUrl, 0, 'application/json');
 
 		$results = json_decode($resultJson, true);
 
@@ -228,7 +228,7 @@ class Search
 			$return = Contact::searchByName($search, $mode);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
-			$curlResult = DI::httpRequest()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), [HTTPClientOptions::ACCEPT_CONTENT => ['application/json']]);
+			$curlResult = DI::httpClient()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), [HTTPClientOptions::ACCEPT_CONTENT => ['application/json']]);
 			if ($curlResult->isSuccess()) {
 				$searchResult = json_decode($curlResult->getBody(), true);
 				if (!empty($searchResult['profiles'])) {

@@ -170,7 +170,7 @@ class Probe
 		Logger::info('Probing', ['host' => $host, 'ssl_url' => $ssl_url, 'url' => $url, 'callstack' => System::callstack(20)]);
 		$xrd = null;
 
-		$curlResult = DI::httpRequest()->get($ssl_url, [HTTPClientOptions::TIMEOUT => $xrd_timeout, HTTPClientOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
+		$curlResult = DI::httpClient()->get($ssl_url, [HTTPClientOptions::TIMEOUT => $xrd_timeout, HTTPClientOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
 		$ssl_connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
@@ -187,7 +187,7 @@ class Probe
 		}
 
 		if (!is_object($xrd) && !empty($url)) {
-			$curlResult = DI::httpRequest()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout, HTTPClientOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
+			$curlResult = DI::httpClient()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout, HTTPClientOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
 			$connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 			if ($curlResult->isTimeout()) {
 				Logger::info('Probing timeout', ['url' => $url]);
@@ -424,7 +424,7 @@ class Probe
 	 */
 	private static function getHideStatus($url)
 	{
-		$curlResult = DI::httpRequest()->get($url, [HTTPClientOptions::CONTENT_LENGTH => 1000000]);
+		$curlResult = DI::httpClient()->get($url, [HTTPClientOptions::CONTENT_LENGTH => 1000000]);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
@@ -843,7 +843,7 @@ class Probe
 
 	public static function pollZot($url, $data)
 	{
-		$curlResult = DI::httpRequest()->get($url);
+		$curlResult = DI::httpClient()->get($url);
 		if ($curlResult->isTimeout()) {
 			return $data;
 		}
@@ -940,7 +940,7 @@ class Probe
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
-		$curlResult = DI::httpRequest()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout, HTTPClientOptions::ACCEPT_CONTENT => [$type]]);
+		$curlResult = DI::httpClient()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout, HTTPClientOptions::ACCEPT_CONTENT => [$type]]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];
@@ -1009,7 +1009,7 @@ class Probe
 	 */
 	private static function pollNoscrape($noscrape_url, $data)
 	{
-		$curlResult = DI::httpRequest()->get($noscrape_url);
+		$curlResult = DI::httpClient()->get($noscrape_url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return $data;
@@ -1275,7 +1275,7 @@ class Probe
 	 */
 	private static function pollHcard($hcard_url, $data, $dfrn = false)
 	{
-		$curlResult = DI::httpRequest()->get($hcard_url);
+		$curlResult = DI::httpClient()->get($hcard_url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];
@@ -1536,7 +1536,7 @@ class Probe
 							$pubkey = substr($pubkey, 5);
 						}
 					} elseif (Strings::normaliseLink($pubkey) == 'http://') {
-						$curlResult = DI::httpRequest()->get($pubkey);
+						$curlResult = DI::httpClient()->get($pubkey);
 						if ($curlResult->isTimeout()) {
 							self::$istimeout = true;
 							return $short ? false : [];
@@ -1570,7 +1570,7 @@ class Probe
 		}
 
 		// Fetch all additional data from the feed
-		$curlResult = DI::httpRequest()->get($data["poll"]);
+		$curlResult = DI::httpClient()->get($data["poll"]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];
@@ -1622,7 +1622,7 @@ class Probe
 	 */
 	private static function pumpioProfileData($profile_link)
 	{
-		$curlResult = DI::httpRequest()->get($profile_link);
+		$curlResult = DI::httpClient()->get($profile_link);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return [];
 		}
@@ -1862,7 +1862,7 @@ class Probe
 	 */
 	private static function feed($url, $probe = true)
 	{
-		$curlResult = DI::httpRequest()->get($url);
+		$curlResult = DI::httpClient()->get($url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];
@@ -2086,7 +2086,7 @@ class Probe
 			return '';
 		}
 
-		$curlResult = DI::httpRequest()->get($gserver['noscrape'] . '/' . $data['nick']);
+		$curlResult = DI::httpClient()->get($gserver['noscrape'] . '/' . $data['nick']);
 
 		if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
 			$noscrape = json_decode($curlResult->getBody(), true);
@@ -2161,7 +2161,7 @@ class Probe
 	private static function updateFromFeed(array $data)
 	{
 		// Search for the newest entry in the feed
-		$curlResult = DI::httpRequest()->get($data['poll']);
+		$curlResult = DI::httpClient()->get($data['poll']);
 		if (!$curlResult->isSuccess() || !$curlResult->getBody()) {
 			return '';
 		}

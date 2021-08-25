@@ -494,7 +494,7 @@ class BBCode
 					continue;
 				}
 
-				$curlResult = DI::httpRequest()->get($mtch[1]);
+				$curlResult = DI::httpClient()->get($mtch[1]);
 				if (!$curlResult->isSuccess()) {
 					continue;
 				}
@@ -1194,7 +1194,7 @@ class BBCode
 		$text = DI::cache()->get($cache_key);
 
 		if (is_null($text)) {
-			$curlResult = DI::httpRequest()->head($match[1], [HTTPClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
+			$curlResult = DI::httpClient()->head($match[1], [HTTPClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
 			if ($curlResult->isSuccess()) {
 				$mimetype = $curlResult->getHeader('Content-Type')[0] ?? '';
 			} else {
@@ -1207,7 +1207,7 @@ class BBCode
 				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
 
 				// if its not a picture then look if its a page that contains a picture link
-				$body = DI::httpRequest()->fetch($match[1]);
+				$body = DI::httpClient()->fetch($match[1]);
 				if (empty($body)) {
 					DI::cache()->set($cache_key, $text);
 					return $text;
@@ -1265,7 +1265,7 @@ class BBCode
 			return $text;
 		}
 
-		$curlResult = DI::httpRequest()->head($match[1], [HTTPClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
+		$curlResult = DI::httpClient()->head($match[1], [HTTPClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
 		if ($curlResult->isSuccess()) {
 			$mimetype = $curlResult->getHeader('Content-Type')[0] ?? '';
 		} else {
@@ -1283,7 +1283,7 @@ class BBCode
 			}
 
 			// if its not a picture then look if its a page that contains a picture link
-			$body = DI::httpRequest()->fetch($match[1]);
+			$body = DI::httpClient()->fetch($match[1]);
 			if (empty($body)) {
 				DI::cache()->set($cache_key, $text);
 				return $text;

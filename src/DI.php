@@ -420,7 +420,7 @@ abstract class DI
 	/**
 	 * @return Network\IHTTPClient
 	 */
-	public static function httpRequest()
+	public static function httpClient()
 	{
 		return self::$dice->create(Network\IHTTPClient::class);
 	}

@@ -68,7 +68,7 @@ class PubSubPublish
 
 		Logger::log('POST ' . print_r($headers, true) . "\n" . $params, Logger::DATA);
 
-		$postResult = DI::httpRequest()->post($subscriber['callback_url'], $params, $headers);
+		$postResult = DI::httpClient()->post($subscriber['callback_url'], $params, $headers);
 		$ret = $postResult->getReturnCode();
 
 		if ($ret >= 200 && $ret <= 299) {

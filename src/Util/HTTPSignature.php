@@ -305,7 +305,7 @@ class HTTPSignature
 
 		$headers['Content-Type'] = 'application/activity+json';
 
-		$postResult = DI::httpRequest()->post($target, $content, $headers);
+		$postResult = DI::httpClient()->post($target, $content, $headers);
 		$return_code = $postResult->getReturnCode();
 
 		Logger::log('Transmit to ' . $target . ' returned ' . $return_code, Logger::DEBUG);
@@ -453,9 +453,9 @@ class HTTPSignature
 		$curl_opts[HTTPClientOptions::HEADERS] = $header;
 
 		if (!empty($opts['nobody'])) {
-			$curlResult = DI::httpRequest()->head($request, $curl_opts);
+			$curlResult = DI::httpClient()->head($request, $curl_opts);
 		} else {
-			$curlResult = DI::httpRequest()->get($request, $curl_opts);
+			$curlResult = DI::httpClient()->get($request, $curl_opts);
 		}
 		$return_code = $curlResult->getReturnCode();
 

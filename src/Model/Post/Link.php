@@ -88,7 +88,7 @@ class Link
 	{
 		$timeout = DI::config()->get('system', 'xrd_timeout');
 
-		$curlResult = DI::httpRequest()->head($url, [HTTPClientOptions::TIMEOUT => $timeout]);
+		$curlResult = DI::httpClient()->head($url, [HTTPClientOptions::TIMEOUT => $timeout]);
 		if ($curlResult->isSuccess()) {
 			if (empty($media['mimetype'])) {
 				return $curlResult->getHeader('Content-Type')[0] ?? '';

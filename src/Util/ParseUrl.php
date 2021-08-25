@@ -59,7 +59,7 @@ class ParseUrl
 	 */
 	public static function getContentType(string $url)
 	{
-		$curlResult = DI::httpRequest()->head($url);
+		$curlResult = DI::httpClient()->head($url);
 		if (!$curlResult->isSuccess()) {
 			return [];
 		}
@@ -214,7 +214,7 @@ class ParseUrl
 			return $siteinfo;
 		}
 
-		$curlResult = DI::httpRequest()->get($url, [HTTPClientOptions::CONTENT_LENGTH => 1000000]);
+		$curlResult = DI::httpClient()->get($url, [HTTPClientOptions::CONTENT_LENGTH => 1000000]);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return $siteinfo;
 		}

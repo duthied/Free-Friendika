@@ -153,7 +153,7 @@ class OnePoll
 		}
 
 		$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-		$curlResult = DI::httpRequest()->get($contact['poll'], [HTTPClientOptions::COOKIEJAR => $cookiejar]);
+		$curlResult = DI::httpClient()->get($contact['poll'], [HTTPClientOptions::COOKIEJAR => $cookiejar]);
 		unlink($cookiejar);
 
 		if ($curlResult->isTimeout()) {
@@ -459,7 +459,7 @@ class OnePoll
 			DBA::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
 		}
 
-		$postResult = DI::httpRequest()->post($url, $params);
+		$postResult = DI::httpClient()->post($url, $params);
 
 		Logger::info('Hub subscription done', ['result' => $postResult->getReturnCode()]);
 

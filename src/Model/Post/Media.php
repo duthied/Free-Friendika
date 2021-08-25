@@ -168,7 +168,7 @@ class Media
 		// Fetch the mimetype or size if missing.
 		if (empty($media['mimetype']) || empty($media['size'])) {
 			$timeout = DI::config()->get('system', 'xrd_timeout');
-			$curlResult = DI::httpRequest()->head($media['url'], [HTTPClientOptions::TIMEOUT => $timeout]);
+			$curlResult = DI::httpClient()->head($media['url'], [HTTPClientOptions::TIMEOUT => $timeout]);
 			if ($curlResult->isSuccess()) {
 				if (empty($media['mimetype'])) {
 					$media['mimetype'] = $curlResult->getHeader('Content-Type')[0] ?? '';
