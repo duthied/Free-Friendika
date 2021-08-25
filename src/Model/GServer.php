@@ -1619,11 +1619,11 @@ class GServer
 		} elseif ($curlResult->inHeader('x-diaspora-version')) {
 			$serverdata['platform'] = 'diaspora';
 			$serverdata['network'] = Protocol::DIASPORA;
-			$serverdata['version'] = $curlResult->getHeader('x-diaspora-version');
+			$serverdata['version'] = $curlResult->getHeader('x-diaspora-version')[0] ?? '';
 		} elseif ($curlResult->inHeader('x-friendica-version')) {
 			$serverdata['platform'] = 'friendica';
 			$serverdata['network'] = Protocol::DFRN;
-			$serverdata['version'] = $curlResult->getHeader('x-friendica-version');
+			$serverdata['version'] = $curlResult->getHeader('x-friendica-version')[0] ?? '';
 		} else {
 			return $serverdata;
 		}
@@ -1728,8 +1728,7 @@ class GServer
 
 		if (!empty($accesstoken)) {
 			$api = 'https://instances.social/api/1.0/instances/list?count=0';
-			$header = ['Authorization: Bearer '.$accesstoken];
-			$curlResult = DI::httpRequest()->get($api, ['header' => $header]);
+			$curlResult = DI::httpRequest()->get($api, ['header' => ['Authorization' => ['Bearer ' . $accesstoken]]]);
 
 			if ($curlResult->isSuccess()) {
 				$servers = json_decode($curlResult->getBody(), true);

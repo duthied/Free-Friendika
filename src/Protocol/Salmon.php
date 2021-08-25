@@ -156,8 +156,8 @@ class Salmon
 
 		// slap them
 		$postResult = DI::httpRequest()->post($url, $salmon, [
-			'Content-type: application/magic-envelope+xml',
-			'Content-length: ' . strlen($salmon)
+			'Content-type' => 'application/magic-envelope+xml',
+			'Content-length' => strlen($salmon),
 		]);
 
 		$return_code = $postResult->getReturnCode();
@@ -181,8 +181,8 @@ class Salmon
 
 			// slap them
 			$postResult = DI::httpRequest()->post($url, $salmon, [
-				'Content-type: application/magic-envelope+xml',
-				'Content-length: ' . strlen($salmon)
+				'Content-type' => 'application/magic-envelope+xml',
+				'Content-length' => strlen($salmon),
 			]);
 			$return_code = $postResult->getReturnCode();
 		}
@@ -204,8 +204,8 @@ class Salmon
 
 			// slap them
 			$postResult = DI::httpRequest()->post($url, $salmon, [
-				'Content-type: application/magic-envelope+xml',
-				'Content-length: ' . strlen($salmon)]);
+				'Content-type' => 'application/magic-envelope+xml',
+				'Content-length' => strlen($salmon)]);
 			$return_code = $postResult->getReturnCode();
 		}
 

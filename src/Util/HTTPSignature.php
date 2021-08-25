@@ -29,6 +29,7 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Network\CurlResult;
+use Friendica\Network\IHTTPResult;
 
 /**
  * Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -139,6 +140,9 @@ class HTTPSignature
 	public static function createSig($head, $prvkey, $keyid = 'Key')
 	{
 		$return_headers = [];
+		if (!empty($head)) {
+			$return_headers = $head;
+		}
 
 		$alg = 'sha512';
 		$algorithm = 'rsa-sha512';
@@ -148,15 +152,7 @@ class HTTPSignature
 		$headerval = 'keyId="' . $keyid . '",algorithm="' . $algorithm
 			. '",headers="' . $x['headers'] . '",signature="' . $x['signature'] . '"';
 
-		$sighead = 'Authorization: Signature ' . $headerval;
-
-		if ($head) {
-			foreach ($head as $k => $v) {
-				$return_headers[] = $k . ': ' . $v;
-			}
-		}
-
-		$return_headers[] = $sighead;
+		$return_headers['Authorization'] = ['Signature ' . $headerval];
 
 		return $return_headers;
 	}
@@ -175,6 +171,9 @@ class HTTPSignature
 		$fields  = '';
 
 		foreach ($head as $k => $v) {
+			if (is_array($v)) {
+				$v = implode(', ', $v);
+			}
 			$headers .= strtolower($k) . ': ' . trim($v) . "\n";
 			if ($fields) {
 				$fields .= ' ';
@@ -290,15 +289,20 @@ class HTTPSignature
 		$content_length = strlen($content);
 		$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
 
-		$headers = ['Date: ' . $date, 'Content-Length: ' . $content_length, 'Digest: ' . $digest, 'Host: ' . $host];
+		$headers = [
+			'Date' => $date,
+			'Content-Length' => $content_length,
+			'Digest' => $digest,
+			'Host' => $host
+		];
 
 		$signed_data = "(request-target): post " . $path . "\ndate: ". $date . "\ncontent-length: " . $content_length . "\ndigest: " . $digest . "\nhost: " . $host;
 
 		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date content-length digest host",signature="' . $signature . '"';
+		$headers['Signature'] = 'keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date content-length digest host",signature="' . $signature . '"';
 
-		$headers[] = 'Content-Type: application/activity+json';
+		$headers['Content-Type'] = 'application/activity+json';
 
 		$postResult = DI::httpRequest()->post($target, $content, $headers);
 		$return_code = $postResult->getReturnCode();
@@ -409,10 +413,10 @@ class HTTPSignature
 	 *                         'nobody' => only return the header
 	 *                         'cookiejar' => path to cookie jar file
 	 *
-	 * @return CurlResult CurlResult
+	 * @return IHTTPResult CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchRaw($request, $uid = 0, $opts = ['accept_content' => 'application/activity+json, application/ld+json'])
+	public static function fetchRaw($request, $uid = 0, $opts = ['accept_content' => ['application/activity+json', 'application/ld+json']])
 	{
 		$header = [];
 
@@ -434,17 +438,14 @@ class HTTPSignature
 			$path = parse_url($request, PHP_URL_PATH);
 			$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
 
-			$header = ['Date: ' . $date, 'Host: ' . $host];
+			$header['Date'] = $date;
+			$header['Host'] = $host;
 
 			$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
 
 			$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-			$header[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
-		}
-
-		if (!empty($opts['accept_content'])) {
-			$header[] = 'Accept: ' . $opts['accept_content'];
+			$header['Signature'] = 'keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
 		}
 
 		$curl_opts = $opts;
