@@ -221,10 +221,6 @@ class HTTPClient implements IHTTPClient
 
 		$url = trim($url, "'");
 
-		// Designate a temporary file that will store cookies during the session.
-		// Some websites test the browser for cookie support, so this enhances results.
-		$this->resolver->setCookieJar(tempnam(get_temppath() , 'url_resolver-'));
-
 		$urlResult = $this->resolver->resolveURL($url);
 
 		if ($urlResult->didErrorOccur()) {

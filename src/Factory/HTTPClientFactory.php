@@ -101,6 +101,9 @@ class HTTPClientFactory extends BaseFactory
 		$resolver->setRequestTimeout(10);
 		// if the file is too large then exit
 		$resolver->setMaxResponseDataSize(1000000);
+		// Designate a temporary file that will store cookies during the session.
+		// Some websites test the browser for cookie support, so this enhances results.
+		$resolver->setCookieJar(get_temppath() . '/url_resolver.cookie', true);
 
 		return new HTTPClient($logger, $this->profiler, $guzzle, $resolver);
 	}
