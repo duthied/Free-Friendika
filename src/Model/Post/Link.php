@@ -26,6 +26,7 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPRequestOptions;
 use Friendica\Util\Proxy;
 
 /**
@@ -87,7 +88,7 @@ class Link
 	{
 		$timeout = DI::config()->get('system', 'xrd_timeout');
 
-		$curlResult = DI::httpRequest()->head($url, ['timeout' => $timeout]);
+		$curlResult = DI::httpRequest()->head($url, [HTTPRequestOptions::TIMEOUT => $timeout]);
 		if ($curlResult->isSuccess()) {
 			if (empty($media['mimetype'])) {
 				return $curlResult->getHeader('Content-Type')[0] ?? '';

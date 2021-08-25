@@ -29,6 +29,7 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Network\CurlResult;
+use Friendica\Network\HTTPRequestOptions;
 use Friendica\Network\IHTTPResult;
 
 /**
@@ -449,7 +450,7 @@ class HTTPSignature
 		}
 
 		$curl_opts = $opts;
-		$curl_opts['header'] = $header;
+		$curl_opts[HTTPRequestOptions::HEADERS] = $header;
 
 		if (!empty($opts['nobody'])) {
 			$curlResult = DI::httpRequest()->head($request, $curl_opts);
