@@ -140,6 +140,9 @@ class HTTPSignature
 	public static function createSig($head, $prvkey, $keyid = 'Key')
 	{
 		$return_headers = [];
+		if (!empty($head)) {
+			$return_headers = $head;
+		}
 
 		$alg = 'sha512';
 		$algorithm = 'rsa-sha512';
@@ -149,15 +152,7 @@ class HTTPSignature
 		$headerval = 'keyId="' . $keyid . '",algorithm="' . $algorithm
 			. '",headers="' . $x['headers'] . '",signature="' . $x['signature'] . '"';
 
-		$sighead = 'Authorization: Signature ' . $headerval;
-
-		if ($head) {
-			foreach ($head as $k => $v) {
-				$return_headers[] = $k . ': ' . $v;
-			}
-		}
-
-		$return_headers[] = $sighead;
+		$return_headers['Authorization'] = ['Signature ' . $headerval];
 
 		return $return_headers;
 	}
@@ -176,6 +171,9 @@ class HTTPSignature
 		$fields  = '';
 
 		foreach ($head as $k => $v) {
+			if (is_array($v)) {
+				$v = implode(', ', $v);
+			}
 			$headers .= strtolower($k) . ': ' . trim($v) . "\n";
 			if ($fields) {
 				$fields .= ' ';
