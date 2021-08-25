@@ -170,7 +170,7 @@ class Probe
 		Logger::info('Probing', ['host' => $host, 'ssl_url' => $ssl_url, 'url' => $url, 'callstack' => System::callstack(20)]);
 		$xrd = null;
 
-		$curlResult = DI::httpRequest()->get($ssl_url, ['timeout' => $xrd_timeout, 'accept_content' => ['application/xrd+xml']]);
+		$curlResult = DI::httpRequest()->get($ssl_url, [HTTPRequestOptions::TIMEOUT => $xrd_timeout, HTTPRequestOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
 		$ssl_connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
@@ -187,7 +187,7 @@ class Probe
 		}
 
 		if (!is_object($xrd) && !empty($url)) {
-			$curlResult = DI::httpRequest()->get($url, ['timeout' => $xrd_timeout, 'accept_content' => ['application/xrd+xml']]);
+			$curlResult = DI::httpRequest()->get($url, [HTTPRequestOptions::TIMEOUT => $xrd_timeout, HTTPRequestOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
 			$connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 			if ($curlResult->isTimeout()) {
 				Logger::info('Probing timeout', ['url' => $url]);
@@ -424,7 +424,7 @@ class Probe
 	 */
 	private static function getHideStatus($url)
 	{
-		$curlResult = DI::httpRequest()->get($url, ['content_length' => 1000000]);
+		$curlResult = DI::httpRequest()->get($url, [HTTPRequestOptions::CONTENT_LENGTH => 1000000]);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
@@ -940,7 +940,7 @@ class Probe
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
-		$curlResult = DI::httpRequest()->get($url, ['timeout' => $xrd_timeout, 'accept_content' => [$type]]);
+		$curlResult = DI::httpRequest()->get($url, [HTTPRequestOptions::TIMEOUT => $xrd_timeout, HTTPRequestOptions::ACCEPT_CONTENT => [$type]]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];

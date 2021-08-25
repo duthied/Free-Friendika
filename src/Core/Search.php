@@ -24,6 +24,7 @@ namespace Friendica\Core;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPRequestOptions;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
 use Friendica\Util\Network;
@@ -227,7 +228,7 @@ class Search
 			$return = Contact::searchByName($search, $mode);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
-			$curlResult = DI::httpRequest()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), ['accept_content' => ['application/json']]);
+			$curlResult = DI::httpRequest()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), [HTTPRequestOptions::ACCEPT_CONTENT => ['application/json']]);
 			if ($curlResult->isSuccess()) {
 				$searchResult = json_decode($curlResult->getBody(), true);
 				if (!empty($searchResult['profiles'])) {

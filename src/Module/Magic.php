@@ -28,6 +28,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
+use Friendica\Network\HTTPRequestOptions;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Strings;
 
@@ -101,7 +102,7 @@ class Magic extends BaseModule
 			);
 
 			// Try to get an authentication token from the other instance.
-			$curlResult = DI::httpRequest()->get($basepath . '/owa', ['header' => $header]);
+			$curlResult = DI::httpRequest()->get($basepath . '/owa', [HTTPRequestOptions::HEADERS => $header]);
 
 			if ($curlResult->isSuccess()) {
 				$j = json_decode($curlResult->getBody(), true);

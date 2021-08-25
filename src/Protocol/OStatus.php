@@ -38,6 +38,7 @@ use Friendica\Model\ItemURI;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Network\HTTPRequestOptions;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
@@ -727,7 +728,7 @@ class OStatus
 
 		self::$conv_list[$conversation] = true;
 
-		$curlResult = DI::httpRequest()->get($conversation, ['accept_content' => ['application/atom+xml', 'text/html']]);
+		$curlResult = DI::httpRequest()->get($conversation, [HTTPRequestOptions::ACCEPT_CONTENT => ['application/atom+xml', 'text/html']]);
 
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return;
@@ -921,7 +922,7 @@ class OStatus
 		}
 
 		$stored = false;
-		$curlResult = DI::httpRequest()->get($related, ['accept_content' => ['application/atom+xml', 'text/html']]);
+		$curlResult = DI::httpRequest()->get($related, [HTTPRequestOptions::ACCEPT_CONTENT => ['application/atom+xml', 'text/html']]);
 
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return;
