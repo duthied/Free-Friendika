@@ -5,9 +5,12 @@ namespace Friendica\Factory;
 use Friendica\App;
 use Friendica\BaseFactory;
 use Friendica\Core\Config\IConfig;
+use Friendica\Core\System;
 use Friendica\Network\HTTPClient;
 use Friendica\Network\IHTTPClient;
+use Friendica\Util\Crypto;
 use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\RequestOptions;
@@ -103,7 +106,7 @@ class HTTPClientFactory extends BaseFactory
 		$resolver->setMaxResponseDataSize(1000000);
 		// Designate a temporary file that will store cookies during the session.
 		// Some websites test the browser for cookie support, so this enhances results.
-		$resolver->setCookieJar(tempnam(get_temppath(), 'resolver-cookie-'));
+		$resolver->setCookieJar(get_temppath() .'/resolver-cookie-' . Strings::getRandomName(10));
 
 		return new HTTPClient($logger, $this->profiler, $guzzle, $resolver);
 	}
