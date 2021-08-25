@@ -29,6 +29,7 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Network\CurlResult;
+use Friendica\Network\HTTPClientOptions;
 use Friendica\Network\IHTTPResult;
 
 /**
@@ -304,7 +305,7 @@ class HTTPSignature
 
 		$headers['Content-Type'] = 'application/activity+json';
 
-		$postResult = DI::httpRequest()->post($target, $content, $headers);
+		$postResult = DI::httpClient()->post($target, $content, $headers);
 		$return_code = $postResult->getReturnCode();
 
 		Logger::log('Transmit to ' . $target . ' returned ' . $return_code, Logger::DEBUG);
@@ -448,13 +449,13 @@ class HTTPSignature
 			$header['Signature'] = 'keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
 		}
 
-		$curl_opts = $opts;
-		$curl_opts['header'] = $header;
+		$curl_opts                             = $opts;
+		$curl_opts[HTTPClientOptions::HEADERS] = $header;
 
 		if (!empty($opts['nobody'])) {
-			$curlResult = DI::httpRequest()->head($request, $curl_opts);
+			$curlResult = DI::httpClient()->head($request, $curl_opts);
 		} else {
-			$curlResult = DI::httpRequest()->get($request, $curl_opts);
+			$curlResult = DI::httpClient()->get($request, $curl_opts);
 		}
 		$return_code = $curlResult->getReturnCode();
 

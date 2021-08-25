@@ -57,9 +57,9 @@ class HTTPClient implements IHTTPClient
 	}
 
 	/**
-	 * @throws HTTPException\InternalServerErrorException
+	 * {@inheritDoc}
 	 */
-	protected function request(string $method, string $url, array $opts = []): IHTTPResult
+	public function request(string $method, string $url, array $opts = []): IHTTPResult
 	{
 		$this->profiler->startRecording('network');
 		$this->logger->debug('Request start.', ['url' => $url, 'method' => $method]);
@@ -95,35 +95,39 @@ class HTTPClient implements IHTTPClient
 
 		$conf = [];
 
-		if (!empty($opts['cookiejar'])) {
-			$jar                           = new FileCookieJar($opts['cookiejar']);
+		if (!empty($opts[HTTPClientOptions::COOKIEJAR])) {
+			$jar                           = new FileCookieJar($opts[HTTPClientOptions::COOKIEJAR]);
 			$conf[RequestOptions::COOKIES] = $jar;
 		}
 
-		$header = [];
+		$headers = [];
 
-		if (!empty($opts['accept_content'])) {
-			$header['Accept'] = $opts['accept_content'];
+		if (!empty($opts[HTTPClientOptions::ACCEPT_CONTENT])) {
+			$headers['Accept'] = $opts[HTTPClientOptions::ACCEPT_CONTENT];
 		}
 
-		if (!empty($opts['header'])) {
-			$header = array_merge($opts['header'], $header);
-		}
-
-		if (!empty($opts['headers'])) {
+		if (!empty($opts[HTTPClientOptions::LEGACY_HEADER])) {
 			$this->logger->notice('Wrong option \'headers\' used.');
-			$header = array_merge($opts['headers'], $header);
+			$headers = array_merge($opts[HTTPClientOptions::LEGACY_HEADER], $headers);
 		}
 
-		$conf[RequestOptions::HEADERS] = array_merge($this->client->getConfig(RequestOptions::HEADERS), $header);
+		if (!empty($opts[HTTPClientOptions::HEADERS])) {
+			$headers = array_merge($opts[HTTPClientOptions::HEADERS], $headers);
+		}
 
-		if (!empty($opts['timeout'])) {
-			$conf[RequestOptions::TIMEOUT] = $opts['timeout'];
+		$conf[RequestOptions::HEADERS] = array_merge($this->client->getConfig(RequestOptions::HEADERS), $headers);
+
+		if (!empty($opts[HTTPClientOptions::TIMEOUT])) {
+			$conf[RequestOptions::TIMEOUT] = $opts[HTTPClientOptions::TIMEOUT];
+		}
+
+		if (!empty($opts[HTTPClientOptions::BODY])) {
+			$conf[RequestOptions::BODY] = $opts[HTTPClientOptions::BODY];
 		}
 
 		$conf[RequestOptions::ON_HEADERS] = function (ResponseInterface $response) use ($opts) {
-			if (!empty($opts['content_length']) &&
-				$response->getHeaderLine('Content-Length') > $opts['content_length']) {
+			if (!empty($opts[HTTPClientOptions::CONTENT_LENGTH]) &&
+				(int)$response->getHeaderLine('Content-Length') > $opts[HTTPClientOptions::CONTENT_LENGTH]) {
 				throw new TransferException('The file is too big!');
 			}
 		};
@@ -160,8 +164,6 @@ class HTTPClient implements IHTTPClient
 	}
 
 	/** {@inheritDoc}
-	 *
-	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public function head(string $url, array $opts = []): IHTTPResult
 	{
@@ -183,14 +185,14 @@ class HTTPClient implements IHTTPClient
 	{
 		$opts = [];
 
-		$opts[RequestOptions::JSON] = $params;
+		$opts[HTTPClientOptions::BODY] = $params;
 
 		if (!empty($headers)) {
-			$opts['headers'] = $headers;
+			$opts[HTTPClientOptions::HEADERS] = $headers;
 		}
 
 		if (!empty($timeout)) {
-			$opts[RequestOptions::TIMEOUT] = $timeout;
+			$opts[HTTPClientOptions::TIMEOUT] = $timeout;
 		}
 
 		return $this->request('post', $url, $opts);
