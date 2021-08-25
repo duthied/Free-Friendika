@@ -135,6 +135,8 @@ class HTTPClient implements IHTTPClient
 				case 'get':
 				case 'head':
 				case 'post':
+				case 'put':
+				case 'delete':
 					$response = $this->client->$method($url, $conf);
 					break;
 				default:

@@ -86,7 +86,7 @@ class HTTPClientFactory extends BaseFactory
 			RequestOptions::CONNECT_TIMEOUT  => 10,
 			RequestOptions::TIMEOUT          => $this->config->get('system', 'curl_timeout', 60),
 			// by default we will allow self-signed certs
-			// but you can override this
+			// but it can be overridden
 			RequestOptions::VERIFY  => (bool)$this->config->get('system', 'verifyssl'),
 			RequestOptions::PROXY   => $proxy,
 			RequestOptions::HEADERS => [
