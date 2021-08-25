@@ -129,6 +129,8 @@ class HTTPClient implements IHTTPClient
 		};
 
 		try {
+			$this->logger->debug('http request config.', ['url' => $url, 'method' => $method, 'options' => $conf]);
+
 			switch ($method) {
 				case 'get':
 				case 'head':
