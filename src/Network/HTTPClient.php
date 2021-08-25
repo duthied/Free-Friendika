@@ -185,14 +185,14 @@ class HTTPClient implements IHTTPClient
 	{
 		$opts = [];
 
-		$opts[RequestOptions::BODY] = $params;
+		$opts[HTTPRequestOptions::BODY] = $params;
 
 		if (!empty($headers)) {
-			$opts[RequestOptions::HEADERS] = $headers;
+			$opts[HTTPRequestOptions::HEADERS] = $headers;
 		}
 
 		if (!empty($timeout)) {
-			$opts[RequestOptions::TIMEOUT] = $timeout;
+			$opts[HTTPRequestOptions::TIMEOUT] = $timeout;
 		}
 
 		return $this->request('post', $url, $opts);
