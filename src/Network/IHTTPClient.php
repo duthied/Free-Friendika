@@ -86,6 +86,17 @@ interface IHTTPClient
 	public function get(string $url, array $opts = []);
 
 	/**
+	 * Sends a HTTP request to a given url
+	 *
+	 * @param string $method A HTTP request ()
+	 * @param string $url    Url to send to
+	 * @param array  $opts   parameters
+	 *
+	 * @return IHTTPResult
+	 */
+	public function request(string $method, string $url, array $opts = []);
+
+	/**
 	 * Send POST request to an URL
 	 *
 	 * @param string $url     URL to post

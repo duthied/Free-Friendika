@@ -59,7 +59,7 @@ class HTTPClient implements IHTTPClient
 	/**
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	protected function request(string $method, string $url, array $opts = []): IHTTPResult
+	public function request(string $method, string $url, array $opts = []): IHTTPResult
 	{
 		$this->profiler->startRecording('network');
 		$this->logger->debug('Request start.', ['url' => $url, 'method' => $method]);
