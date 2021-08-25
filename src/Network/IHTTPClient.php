@@ -88,9 +88,15 @@ interface IHTTPClient
 	/**
 	 * Sends a HTTP request to a given url
 	 *
-	 * @param string $method A HTTP request ()
+	 * @param string $method A HTTP request
 	 * @param string $url    Url to send to
-	 * @param array  $opts   parameters
+	 * @param array  $opts   (optional parameters) associative array with:
+	 *                       	 'body' => (mixed) setting the body for sending data
+	 *                           'accept_content' => (string array) supply Accept: header with 'accept_content' as the value
+	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
+	 *                           'cookiejar' => path to cookie jar file
+	 *                           'header' => header array
+	 *                           'content_length' => int maximum File content length
 	 *
 	 * @return IHTTPResult
 	 */

@@ -57,7 +57,7 @@ class HTTPClient implements IHTTPClient
 	}
 
 	/**
-	 * @throws HTTPException\InternalServerErrorException
+	 * {@inheritDoc}
 	 */
 	public function request(string $method, string $url, array $opts = []): IHTTPResult
 	{
@@ -95,35 +95,39 @@ class HTTPClient implements IHTTPClient
 
 		$conf = [];
 
-		if (!empty($opts['cookiejar'])) {
-			$jar                           = new FileCookieJar($opts['cookiejar']);
+		if (!empty($opts[HTTPRequestOptions::COOKIEJAR])) {
+			$jar                           = new FileCookieJar($opts[HTTPRequestOptions::COOKIEJAR]);
 			$conf[RequestOptions::COOKIES] = $jar;
 		}
 
-		$header = [];
+		$headers = [];
 
-		if (!empty($opts['accept_content'])) {
-			$header['Accept'] = $opts['accept_content'];
+		if (!empty($opts[HTTPRequestOptions::ACCEPT_CONTENT])) {
+			$headers['Accept'] = $opts[HTTPRequestOptions::ACCEPT_CONTENT];
 		}
 
-		if (!empty($opts['header'])) {
-			$header = array_merge($opts['header'], $header);
-		}
-
-		if (!empty($opts['headers'])) {
+		if (!empty($opts[HTTPRequestOptions::LEGACY_HEADER])) {
 			$this->logger->notice('Wrong option \'headers\' used.');
-			$header = array_merge($opts['headers'], $header);
+			$headers = array_merge($opts[HTTPRequestOptions::LEGACY_HEADER], $headers);
 		}
 
-		$conf[RequestOptions::HEADERS] = array_merge($this->client->getConfig(RequestOptions::HEADERS), $header);
+		if (!empty($opts[HTTPRequestOptions::HEADERS])) {
+			$headers = array_merge($opts[HTTPRequestOptions::HEADERS], $headers);
+		}
 
-		if (!empty($opts['timeout'])) {
-			$conf[RequestOptions::TIMEOUT] = $opts['timeout'];
+		$conf[RequestOptions::HEADERS] = array_merge($this->client->getConfig(RequestOptions::HEADERS), $headers);
+
+		if (!empty($opts[HTTPRequestOptions::TIMEOUT])) {
+			$conf[RequestOptions::TIMEOUT] = $opts[HTTPRequestOptions::TIMEOUT];
+		}
+
+		if (!empty($opts[HTTPRequestOptions::BODY])) {
+			$conf[RequestOptions::BODY] = $opts[HTTPRequestOptions::BODY];
 		}
 
 		$conf[RequestOptions::ON_HEADERS] = function (ResponseInterface $response) use ($opts) {
-			if (!empty($opts['content_length']) &&
-				$response->getHeaderLine('Content-Length') > $opts['content_length']) {
+			if (!empty($opts[HTTPRequestOptions::CONTENT_LENGTH]) &&
+				(int)$response->getHeaderLine('Content-Length') > $opts[HTTPRequestOptions::CONTENT_LENGTH]) {
 				throw new TransferException('The file is too big!');
 			}
 		};
@@ -160,8 +164,6 @@ class HTTPClient implements IHTTPClient
 	}
 
 	/** {@inheritDoc}
-	 *
-	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public function head(string $url, array $opts = []): IHTTPResult
 	{
@@ -183,10 +185,10 @@ class HTTPClient implements IHTTPClient
 	{
 		$opts = [];
 
-		$opts[RequestOptions::JSON] = $params;
+		$opts[RequestOptions::BODY] = $params;
 
 		if (!empty($headers)) {
-			$opts['headers'] = $headers;
+			$opts[RequestOptions::HEADERS] = $headers;
 		}
 
 		if (!empty($timeout)) {
