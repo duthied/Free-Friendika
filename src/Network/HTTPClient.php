@@ -125,6 +125,10 @@ class HTTPClient implements IHTTPClient
 			$conf[RequestOptions::BODY] = $opts[HTTPClientOptions::BODY];
 		}
 
+		if (!empty($opts[HTTPClientOptions::AUTH])) {
+			$conf[RequestOptions::AUTH] = $opts[HTTPClientOptions::AUTH];
+		}
+
 		$conf[RequestOptions::ON_HEADERS] = function (ResponseInterface $response) use ($opts) {
 			if (!empty($opts[HTTPClientOptions::CONTENT_LENGTH]) &&
 				(int)$response->getHeaderLine('Content-Length') > $opts[HTTPClientOptions::CONTENT_LENGTH]) {
@@ -135,17 +139,7 @@ class HTTPClient implements IHTTPClient
 		try {
 			$this->logger->debug('http request config.', ['url' => $url, 'method' => $method, 'options' => $conf]);
 
-			switch ($method) {
-				case 'get':
-				case 'head':
-				case 'post':
-				case 'put':
-				case 'delete':
-					$response = $this->client->$method($url, $conf);
-					break;
-				default:
-					throw new TransferException('Invalid method');
-			}
+			$response = $this->client->request($method, $url, $conf);
 			return new GuzzleResponse($response, $url);
 		} catch (TransferException $exception) {
 			if ($exception instanceof RequestException &&

@@ -97,6 +97,7 @@ interface IHTTPClient
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
 	 *                           'content_length' => int maximum File content length
+	 *                           'auth' => array authentication settings
 	 *
 	 * @return IHTTPResult
 	 */
