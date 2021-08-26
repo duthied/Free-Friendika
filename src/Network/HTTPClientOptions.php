@@ -37,4 +37,8 @@ class HTTPClientOptions
 	 * body: (mixed) Setting the body for sending data
 	 */
 	const BODY = RequestOptions::BODY;
+	/**
+	 * auth: (array) Authentication settings for specific requests
+	 */
+	const AUTH = RequestOptions::AUTH;
 }
