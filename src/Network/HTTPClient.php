@@ -220,7 +220,7 @@ class HTTPClient implements IHTTPClient
 		$urlResult = $this->resolver->resolveURL($url);
 
 		if ($urlResult->didErrorOccur()) {
-			throw new TransferException($urlResult->getErrorMessageString());
+			throw new TransferException($urlResult->getErrorMessageString(), $urlResult->getHTTPStatusCode());
 		}
 
 		return $urlResult->getURL();
