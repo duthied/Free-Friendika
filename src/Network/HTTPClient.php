@@ -148,7 +148,7 @@ class HTTPClient implements IHTTPClient
 			} else {
 				return new CurlResult($url, '', ['http_code' => $exception->getCode()], $exception->getCode(), '');
 			}
-		} catch (InvalidArgumentException $argumentException) {
+		} catch (InvalidArgumentException | \InvalidArgumentException $argumentException) {
 			$this->logger->info('Invalid Argument for HTTP call.', ['url' => $url, 'method' => $method, 'exception' => $argumentException]);
 			return new CurlResult($url, '', ['http_code' => $argumentException->getCode()], $argumentException->getCode(), $argumentException->getMessage());
 		} finally {
