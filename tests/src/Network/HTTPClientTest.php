@@ -28,9 +28,6 @@ class HTTPClientTest extends MockedTest
 			new Response(301, ['Location' => 'https:///']),
 		]));
 
-		$httpClient = DI::httpClient();
-		$httpClient->get('https:///');
-
-		self::assertEquals(1,1);
+		self::assertFalse(DI::httpClient()->get('https://friendica.local')->isSuccess());
 	}
 }
