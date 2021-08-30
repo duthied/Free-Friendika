@@ -615,7 +615,7 @@ class Notifier
 		$url_recipients = array_filter($url_recipients);
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.
-		if (!DI::config()->get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && !empty($target_item)) {
+		if (count($url_recipients) && ($public_message || $push_notify) && !empty($target_item)) {
 			$slap = OStatus::salmon($target_item, $owner);
 			foreach ($url_recipients as $url) {
 				Logger::info('Salmon delivery', ['item' => $target_id, 'to' => $url]);

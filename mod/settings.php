@@ -92,11 +92,7 @@ function settings_post(App $a)
 			$mail_replyto      =                 $_POST['mail_replyto']      ?? '';
 			$mail_pubmail      =                 $_POST['mail_pubmail']      ?? '';
 
-			if (
-				!DI::config()->get('system', 'dfrn_only')
-				&& function_exists('imap_open')
-				&& !DI::config()->get('system', 'imap_disabled')
-			) {
+			if (function_exists('imap_open') && !DI::config()->get('system', 'imap_disabled')) {
 				$failed = false;
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
@@ -513,9 +509,6 @@ function settings_content(App $a)
 		}
 
 		$mail_disabled = ((function_exists('imap_open') && (!DI::config()->get('system', 'imap_disabled'))) ? 0 : 1);
-		if (DI::config()->get('system', 'dfrn_only')) {
-			$mail_disabled = 1;
-		}
 		if (!$mail_disabled) {
 			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 				local_user()

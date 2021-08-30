@@ -394,7 +394,7 @@ class Delivery
 
 		Logger::notice('Deliver via Diaspora', ['target' => $target_item['id'], 'guid' => $target_item['guid'], 'to' => $loc]);
 
-		if (DI::config()->get('system', 'dfrn_only') || !DI::config()->get('system', 'diaspora_enabled')) {
+		if (!DI::config()->get('system', 'diaspora_enabled')) {
 			return;
 		}
 
@@ -477,7 +477,7 @@ class Delivery
 	 */
 	private static function deliverMail($cmd, $contact, $owner, $target_item, $thr_parent)
 	{
-		if (DI::config()->get('system','dfrn_only')) {
+		if (DI::config()->get('system','imap_disabled')) {
 			return;
 		}
 

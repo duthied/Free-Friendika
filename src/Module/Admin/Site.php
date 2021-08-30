@@ -183,8 +183,8 @@ class Site extends BaseAdmin
 		$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : false);
 		$poco_local_search      = !empty($_POST['poco_local_search']);
 		$nodeinfo               = !empty($_POST['nodeinfo']);
-		$dfrn_only              = !empty($_POST['dfrn_only']);
-		$ostatus_disabled       = !empty($_POST['ostatus_disabled']);
+		$mail_enabled           = !empty($_POST['mail_enabled']);
+		$ostatus_enabled        = !empty($_POST['ostatus_enabled']);
 		$diaspora_enabled       = !empty($_POST['diaspora_enabled']);
 		$ssl_policy             = (!empty($_POST['ssl_policy'])             ? intval($_POST['ssl_policy'])                    : 0);
 		$force_ssl              = !empty($_POST['force_ssl']);
@@ -340,8 +340,8 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'proxyuser'              , $proxyuser);
 		DI::config()->set('system', 'proxy'                  , $proxy);
 		DI::config()->set('system', 'curl_timeout'           , $timeout);
-		DI::config()->set('system', 'dfrn_only'              , $dfrn_only);
-		DI::config()->set('system', 'ostatus_disabled'       , $ostatus_disabled);
+		DI::config()->set('system', 'imap_disabled'          , !$mail_enabled && function_exists('imap_open'));
+		DI::config()->set('system', 'ostatus_disabled'       , !$ostatus_enabled);
 		DI::config()->set('system', 'diaspora_enabled'       , $diaspora_enabled);
 
 		DI::config()->set('config', 'private_addons'         , $private_addons);
@@ -560,12 +560,13 @@ class Site extends BaseAdmin
 			'$no_regfullname'         => ['no_regfullname', DI::l10n()->t('No Fullname check'), DI::config()->get('system', 'no_regfullname'), DI::l10n()->t('Allow users to register without a space between the first name and the last name in their full name.')],
 			'$community_page_style'   => ['community_page_style', DI::l10n()->t('Community pages for visitors'), DI::config()->get('system', 'community_page_style'), DI::l10n()->t('Which community pages should be available for visitors. Local users always see both pages.'), $community_page_style_choices],
 			'$max_author_posts_community_page' => ['max_author_posts_community_page', DI::l10n()->t('Posts per user on community page'), DI::config()->get('system', 'max_author_posts_community_page'), DI::l10n()->t('The maximum number of posts per user on the community page. (Not valid for "Global Community")')],
-			'$ostatus_disabled'       => ['ostatus_disabled', DI::l10n()->t('Disable OStatus support'), DI::config()->get('system', 'ostatus_disabled'), DI::l10n()->t('Disable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.')],
-			'$ostatus_not_able'       => DI::l10n()->t('OStatus support can only be enabled if threading is enabled.'),
+			'$mail_able'              => function_exists('imap_open'),
+			'$mail_enabled'           => ['mail_enabled', DI::l10n()->t('Enable Mail support'), !DI::config()->get('system', 'imap_disabled', !function_exists('imap_open')), DI::l10n()->t('Enable built-in mail support to poll IMAP folders and to reply via mail.')],
+			'$mail_not_able'          => DI::l10n()->t('Mail support can\'t be enabled because the PHP IMAP module is not installed.'),
+			'$ostatus_enabled'        => ['ostatus_enabled', DI::l10n()->t('Enable OStatus support'), !DI::config()->get('system', 'ostatus_disabled'), DI::l10n()->t('Enable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All communications in OStatus are public.')],
 			'$diaspora_able'          => $diaspora_able,
 			'$diaspora_not_able'      => DI::l10n()->t('Diaspora support can\'t be enabled because Friendica was installed into a sub directory.'),
-			'$diaspora_enabled'       => ['diaspora_enabled', DI::l10n()->t('Enable Diaspora support'), DI::config()->get('system', 'diaspora_enabled', $diaspora_able), DI::l10n()->t('Provide built-in Diaspora network compatibility.')],
-			'$dfrn_only'              => ['dfrn_only', DI::l10n()->t('Only allow Friendica contacts'), DI::config()->get('system', 'dfrn_only'), DI::l10n()->t('All contacts must use Friendica protocols. All other built-in communication protocols disabled.')],
+			'$diaspora_enabled'       => ['diaspora_enabled', DI::l10n()->t('Enable Diaspora support'), DI::config()->get('system', 'diaspora_enabled', $diaspora_able), DI::l10n()->t('Enable built-in Diaspora network compatibility for communicating with diaspora servers.')],
 			'$verifyssl'              => ['verifyssl', DI::l10n()->t('Verify SSL'), DI::config()->get('system', 'verifyssl'), DI::l10n()->t('If you wish, you can turn on strict certificate checking. This will mean you cannot connect (at all) to self-signed SSL sites.')],
 			'$proxyuser'              => ['proxyuser', DI::l10n()->t('Proxy user'), DI::config()->get('system', 'proxyuser'), ''],
 			'$proxy'                  => ['proxy', DI::l10n()->t('Proxy URL'), DI::config()->get('system', 'proxy'), ''],
