@@ -2102,7 +2102,7 @@ class Contact
 		$updated = DateTimeFormat::utcNow();
 
 		if (Strings::normaliseLink($contact['url']) != Strings::normaliseLink($ret['url'])) {
-			Logger::notice('New URL differs from old URL', ['id' => $id, 'uid' => $contact['uid'], 'old' => $contact['url'], 'new' => $ret['url']]);
+			Logger::notice('New URL differs from old URL', ['id' => $id, 'uid' => $uid, 'old' => $contact['url'], 'new' => $ret['url']]);
 			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
 			return false;
 		}
