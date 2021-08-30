@@ -56,7 +56,8 @@
 		{{include file="field_select.tpl" field=$community_page_style}}
 		{{include file="field_input.tpl" field=$max_author_posts_community_page}}
 
-		{{include file="field_checkbox.tpl" field=$ostatus_disabled}}
+		{{include file="field_checkbox.tpl" field=$mail_enabled}}
+		{{include file="field_checkbox.tpl" field=$ostatus_enabled}}
 
 		{{if $diaspora_able}}
 			{{include file="field_checkbox.tpl" field=$diaspora_enabled}}
@@ -66,7 +67,6 @@
 				<span id='id_{{$diaspora_enabled.0}}'>{{$diaspora_not_able}}</span>
 			</div>
 		{{/if}}
-		{{include file="field_checkbox.tpl" field=$dfrn_only}}
 		{{include file="field_input.tpl" field=$global_directory}}
 		<div class="submit"><input type="submit" name="republish_directory" value="{{$republish}}"/></div>
 		{{include file="field_checkbox.tpl" field=$newuser_private}}
