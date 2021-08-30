@@ -56,7 +56,15 @@
 		{{include file="field_select.tpl" field=$community_page_style}}
 		{{include file="field_input.tpl" field=$max_author_posts_community_page}}
 
-		{{include file="field_checkbox.tpl" field=$mail_enabled}}
+		{{if $mail_able}}
+			{{include file="field_checkbox.tpl" field=$mail_enabled}}
+		{{else}}
+			<div class='field checkbox' id='div_id_{{$mail_enabled.0}}'>
+				<label for='id_{{$mail_enabled.0}}'>{{$mail_enabled.1}}</label>
+				<span class="field_help" role="tooltip" id="id_{{$mail_enabled.0}}">{{$mail_not_able}}</span>
+			</div>
+		{{/if}}
+
 		{{include file="field_checkbox.tpl" field=$ostatus_enabled}}
 
 		{{if $diaspora_able}}
@@ -64,7 +72,7 @@
 		{{else}}
 			<div class='field checkbox' id='div_id_{{$diaspora_enabled.0}}'>
 				<label for='id_{{$diaspora_enabled.0}}'>{{$diaspora_enabled.1}}</label>
-				<span id='id_{{$diaspora_enabled.0}}'>{{$diaspora_not_able}}</span>
+				<span class="field_help" role="tooltip" id="id_{{diaspora_enabled.0}}">{{$diaspora_not_able}}</span>
 			</div>
 		{{/if}}
 		{{include file="field_input.tpl" field=$global_directory}}
