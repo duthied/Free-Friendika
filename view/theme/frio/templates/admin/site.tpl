@@ -48,7 +48,7 @@
 						{{include file="field_select.tpl" field=$theme_mobile}}
 						{{include file="field_select.tpl" field=$ssl_policy}}
 						{{if $ssl_policy.2 == 1}}{{include file="field_checkbox.tpl" field=$force_ssl}}{{/if}}
-						{{include file="field_checkbox.tpl" field=$hide_help}}
+						{{include file="field_checkbox.tpl" field=$show_help}}
 						{{include file="field_select.tpl" field=$singleuser}}
 					</div>
 					<div class="panel-footer">
@@ -74,9 +74,9 @@
 						{{include file="field_input.tpl" field=$register_text}}
 						{{include file="field_select.tpl" field=$register_policy}}
 						{{include file="field_input.tpl" field=$daily_registrations}}
-						{{include file="field_checkbox.tpl" field=$no_multi_reg}}
-						{{include file="field_checkbox.tpl" field=$no_openid}}
-						{{include file="field_checkbox.tpl" field=$no_regfullname}}
+						{{include file="field_checkbox.tpl" field=$enable_multi_reg}}
+						{{include file="field_checkbox.tpl" field=$enable_openid}}
+						{{include file="field_checkbox.tpl" field=$enable_regfullname}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
