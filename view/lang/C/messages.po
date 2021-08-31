@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-30 21:15+0000\n"
+"POT-Creation-Date: 2021-08-31 19:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5848,13 +5848,13 @@ msgid ""
 msgstr ""
 
 #: src/Module/Admin/Site.php:533
-msgid "Hide help entry from navigation menu"
+msgid "Show help entry from navigation menu"
 msgstr ""
 
 #: src/Module/Admin/Site.php:533
 msgid ""
-"Hides the menu entry for the Help pages from the navigation menu. You can "
-"still access it calling /help directly."
+"Displays the menu entry for the Help pages from the navigation menu. It is "
+"always accessible by calling /help directly."
 msgstr ""
 
 #: src/Module/Admin/Site.php:534
@@ -6081,29 +6081,29 @@ msgid ""
 msgstr ""
 
 #: src/Module/Admin/Site.php:558
-msgid "Block multiple registrations"
+msgid "Enable multiple registrations"
 msgstr ""
 
 #: src/Module/Admin/Site.php:558
-msgid "Disallow users to register additional accounts for use as pages."
+msgid "Enable users to register additional accounts for use as pages."
 msgstr ""
 
 #: src/Module/Admin/Site.php:559
-msgid "Disable OpenID"
+msgid "Enable OpenID"
 msgstr ""
 
 #: src/Module/Admin/Site.php:559
-msgid "Disable OpenID support for registration and logins."
+msgid "Enable OpenID support for registration and logins."
 msgstr ""
 
 #: src/Module/Admin/Site.php:560
-msgid "No Fullname check"
+msgid "Enable Fullname check"
 msgstr ""
 
 #: src/Module/Admin/Site.php:560
 msgid ""
-"Allow users to register without a space between the first name and the last "
-"name in their full name."
+"Enable check to only allow users to register with a space between the first "
+"name and the last name in their full name."
 msgstr ""
 
 #: src/Module/Admin/Site.php:561

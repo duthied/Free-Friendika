@@ -163,9 +163,9 @@ class Site extends BaseAdmin
 		$allow_users_remote_self = !empty($_POST['allow_users_remote_self']);
 		$explicit_content       = !empty($_POST['explicit_content']);
 
-		$no_multi_reg           = !empty($_POST['no_multi_reg']);
-		$no_openid              = !empty($_POST['no_openid']);
-		$no_regfullname         = !empty($_POST['no_regfullname']);
+		$enable_multi_reg       = !empty($_POST['enable_multi_reg']);
+		$enable_openid          = !empty($_POST['enable_openid']);
+		$enable_regfullname     = !empty($_POST['enable_regfullname']);
 		$community_page_style   = (!empty($_POST['community_page_style']) ? intval(trim($_POST['community_page_style'])) : 0);
 		$max_author_posts_community_page = (!empty($_POST['max_author_posts_community_page']) ? intval(trim($_POST['max_author_posts_community_page'])) : 0);
 
@@ -188,7 +188,7 @@ class Site extends BaseAdmin
 		$diaspora_enabled       = !empty($_POST['diaspora_enabled']);
 		$ssl_policy             = (!empty($_POST['ssl_policy'])             ? intval($_POST['ssl_policy'])                    : 0);
 		$force_ssl              = !empty($_POST['force_ssl']);
-		$hide_help              = !empty($_POST['hide_help']);
+		$show_help              = !empty($_POST['show_help']);
 		$dbclean                = !empty($_POST['dbclean']);
 		$dbclean_expire_days    = (!empty($_POST['dbclean_expire_days'])    ? intval($_POST['dbclean_expire_days'])           : 0);
 		$dbclean_unclaimed      = (!empty($_POST['dbclean_unclaimed'])      ? intval($_POST['dbclean_unclaimed'])             : 0);
@@ -331,9 +331,9 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'explicit_content'       , $explicit_content);
 		DI::config()->set('system', 'check_new_version_url'  , $check_new_version_url);
 
-		DI::config()->set('system', 'block_extended_register', $no_multi_reg);
-		DI::config()->set('system', 'no_openid'              , $no_openid);
-		DI::config()->set('system', 'no_regfullname'         , $no_regfullname);
+		DI::config()->set('system', 'block_extended_register', !$enable_multi_reg);
+		DI::config()->set('system', 'no_openid'              , !$enable_openid);
+		DI::config()->set('system', 'no_regfullname'         , !$enable_regfullname);
 		DI::config()->set('system', 'community_page_style'   , $community_page_style);
 		DI::config()->set('system', 'max_author_posts_community_page', $max_author_posts_community_page);
 		DI::config()->set('system', 'verifyssl'              , $verifyssl);
@@ -347,7 +347,7 @@ class Site extends BaseAdmin
 		DI::config()->set('config', 'private_addons'         , $private_addons);
 
 		DI::config()->set('system', 'force_ssl'              , $force_ssl);
-		DI::config()->set('system', 'hide_help'              , $hide_help);
+		DI::config()->set('system', 'hide_help'              , !$show_help);
 
 		DI::config()->set('system', 'dbclean'                , $dbclean);
 		DI::config()->set('system', 'dbclean-expire-days'    , $dbclean_expire_days);
@@ -530,7 +530,7 @@ class Site extends BaseAdmin
 			'$theme_mobile'     => ['theme_mobile', DI::l10n()->t('Mobile system theme'), DI::config()->get('system', 'mobile-theme', '---'), DI::l10n()->t('Theme for mobile devices'), $theme_choices_mobile],
 			'$ssl_policy'       => ['ssl_policy', DI::l10n()->t('SSL link policy'), DI::config()->get('system', 'ssl_policy'), DI::l10n()->t('Determines whether generated links should be forced to use SSL'), $ssl_choices],
 			'$force_ssl'        => ['force_ssl', DI::l10n()->t('Force SSL'), DI::config()->get('system', 'force_ssl'), DI::l10n()->t('Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.')],
-			'$hide_help'        => ['hide_help', DI::l10n()->t('Hide help entry from navigation menu'), DI::config()->get('system', 'hide_help'), DI::l10n()->t('Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.')],
+			'$show_help'        => ['show_help', DI::l10n()->t('Show help entry from navigation menu'), !DI::config()->get('system', 'hide_help'), DI::l10n()->t('Displays the menu entry for the Help pages from the navigation menu. It is always accessible by calling /help directly.')],
 			'$singleuser'       => ['singleuser', DI::l10n()->t('Single user instance'), DI::config()->get('system', 'singleuser', '---'), DI::l10n()->t('Make this instance multi-user or single-user for the named user'), $user_names],
 
 			'$maximagesize'     => ['maximagesize', DI::l10n()->t('Maximum image size'), DI::config()->get('system', 'maximagesize'), DI::l10n()->t('Maximum size in bytes of uploaded images. Default is 0, which means no limits.')],
@@ -555,9 +555,9 @@ class Site extends BaseAdmin
 			'$disable_embedded'       => ['disable_embedded', DI::l10n()->t('Don\'t embed private images in posts'), DI::config()->get('system', 'disable_embedded'), DI::l10n()->t('Don\'t replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.')],
 			'$explicit_content'       => ['explicit_content', DI::l10n()->t('Explicit Content'), DI::config()->get('system', 'explicit_content'), DI::l10n()->t('Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.')],
 			'$allow_users_remote_self'=> ['allow_users_remote_self', DI::l10n()->t('Allow Users to set remote_self'), DI::config()->get('system', 'allow_users_remote_self'), DI::l10n()->t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
-			'$no_multi_reg'           => ['no_multi_reg', DI::l10n()->t('Block multiple registrations'), DI::config()->get('system', 'block_extended_register'), DI::l10n()->t('Disallow users to register additional accounts for use as pages.')],
-			'$no_openid'              => ['no_openid', DI::l10n()->t('Disable OpenID'), DI::config()->get('system', 'no_openid'), DI::l10n()->t('Disable OpenID support for registration and logins.')],
-			'$no_regfullname'         => ['no_regfullname', DI::l10n()->t('No Fullname check'), DI::config()->get('system', 'no_regfullname'), DI::l10n()->t('Allow users to register without a space between the first name and the last name in their full name.')],
+			'$enable_multi_reg'       => ['enable_multi_reg', DI::l10n()->t('Enable multiple registrations'), !DI::config()->get('system', 'block_extended_register'), DI::l10n()->t('Enable users to register additional accounts for use as pages.')],
+			'$enable_openid'          => ['enable_openid', DI::l10n()->t('Enable OpenID'), !DI::config()->get('system', 'no_openid'), DI::l10n()->t('Enable OpenID support for registration and logins.')],
+			'$enable_regfullname'     => ['enable_regfullname', DI::l10n()->t('Enable Fullname check'), !DI::config()->get('system', 'no_regfullname'), DI::l10n()->t('Enable check to only allow users to register with a space between the first name and the last name in their full name.')],
 			'$community_page_style'   => ['community_page_style', DI::l10n()->t('Community pages for visitors'), DI::config()->get('system', 'community_page_style'), DI::l10n()->t('Which community pages should be available for visitors. Local users always see both pages.'), $community_page_style_choices],
 			'$max_author_posts_community_page' => ['max_author_posts_community_page', DI::l10n()->t('Posts per user on community page'), DI::config()->get('system', 'max_author_posts_community_page'), DI::l10n()->t('The maximum number of posts per user on the community page. (Not valid for "Global Community")')],
 			'$mail_able'              => function_exists('imap_open'),
