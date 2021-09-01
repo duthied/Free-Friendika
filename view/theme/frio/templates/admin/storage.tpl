@@ -4,10 +4,10 @@
 	<h1>{{$title}} - {{$page}}</h1>
 
 	<div class="well well-lg">
-			Current Storage Backend: <b>{{$storagebackend}}</b>
+        	{{$label_current}}: <b>{{$storagebackend}}</b>
 	</div>
 
-		<h2>Storage Configuration</h2>
+		<h2>{{$label_config}}</h2>
 
 		{{foreach from=$availablestorageforms item=$storage}}
 	<form action="{{$baseurl}}/admin/storage/{{$storage.prefix}}" method="post">

@@ -1,9 +1,9 @@
 <div id='adminpage'>
 	<h1>{{$title}} - {{$page}}</h1>
 
-		<h2>Current Storage Backend: <b>{{$storagebackend}}</b></h2>
+		<h2>{{$label_current}}: <b>{{$storagebackend}}</b></h2>
 
-		<h2>Storage Configuration</h2>
+		<h2>{{$label_config}}</h2>
 
 		{{foreach from=$availablestorageforms item=$storage}}
 	<form action="{{$baseurl}}/admin/storage/{{$storage.prefix}}" method="post">
