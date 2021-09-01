@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-01 14:01+0200\n"
+"POT-Creation-Date: 2021-09-01 18:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -9339,13 +9339,11 @@ msgid ""
 msgstr ""
 
 #: src/Module/Settings/Display.php:213
-msgid "Don't show emoticons"
+msgid "Display emoticons"
 msgstr ""
 
 #: src/Module/Settings/Display.php:213
-msgid ""
-"Normally emoticons are replaced with matching symbols. This setting disables "
-"this behaviour."
+msgid "When enabled, emoticons are replaced with matching symbols."
 msgstr ""
 
 #: src/Module/Settings/Display.php:214
@@ -9357,19 +9355,19 @@ msgid "Automatic fetch new items when reaching the page end."
 msgstr ""
 
 #: src/Module/Settings/Display.php:215
-msgid "Disable Smart Threading"
+msgid "Enable Smart Threading"
 msgstr ""
 
 #: src/Module/Settings/Display.php:215
-msgid "Disable the automatic suppression of extraneous thread indentation."
+msgid "Enable the automatic suppression of extraneous thread indentation."
 msgstr ""
 
 #: src/Module/Settings/Display.php:216
-msgid "Hide the Dislike feature"
+msgid "Display the Dislike feature"
 msgstr ""
 
 #: src/Module/Settings/Display.php:216
-msgid "Hides the Dislike button and dislike reactions on posts and comments."
+msgid "Display the Dislike button and dislike reactions on posts and comments."
 msgstr ""
 
 #: src/Module/Settings/Display.php:217
