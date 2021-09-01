@@ -1,14 +1,14 @@
-# FRIENDICA Distributed Social Network
-# Copyright (C) 2010-2021, the Friendica project
-# This file is distributed under the same license as the Friendica package.
-# Mike Macgirvin, 2010
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 2021.09-rc\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-01 18:23+0000\n"
+"POT-Creation-Date: 2021-09-01 18:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #: include/api.php:1114 src/Module/BaseApi.php:294
 #, php-format
@@ -180,7 +180,7 @@ msgstr ""
 msgid "Fetched because of %s <%s>"
 msgstr ""
 
-#: include/conversation.php:844 view/theme/frio/theme.php:323
+#: include/conversation.php:844
 msgid "Follow Thread"
 msgstr ""
 
@@ -238,7 +238,6 @@ msgstr ""
 
 #: include/conversation.php:865 mod/follow.php:138 src/Content/Widget.php:76
 #: src/Model/Contact.php:1042 src/Model/Contact.php:1055
-#: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr ""
 
@@ -812,8 +811,7 @@ msgstr ""
 
 #: mod/cal.php:251 mod/events.php:422 src/Content/Nav.php:194
 #: src/Content/Nav.php:258 src/Module/BaseProfile.php:85
-#: src/Module/BaseProfile.php:96 view/theme/frio/theme.php:230
-#: view/theme/frio/theme.php:234
+#: src/Module/BaseProfile.php:96
 msgid "Events"
 msgstr ""
 
@@ -895,7 +893,7 @@ msgid "Edit post"
 msgstr ""
 
 #: mod/editpost.php:91 mod/notes.php:56 src/Content/Text/HTML.php:885
-#: src/Module/Admin/Storage.php:133 src/Module/Filer/SaveTag.php:69
+#: src/Module/Admin/Storage.php:135 src/Module/Filer/SaveTag.php:69
 msgid "Save"
 msgstr ""
 
@@ -1020,8 +1018,6 @@ msgstr ""
 #: src/Module/Install.php:324 src/Module/Invite.php:177
 #: src/Module/Item/Compose.php:150 src/Module/Profile/Profile.php:247
 #: src/Module/Settings/Profile/Index.php:220 src/Object/Post.php:962
-#: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
-#: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
 msgstr ""
 
@@ -1039,7 +1035,6 @@ msgid "Failed to remove event"
 msgstr ""
 
 #: mod/fbrowser.php:43 src/Content/Nav.php:192 src/Module/BaseProfile.php:64
-#: view/theme/frio/theme.php:228
 msgid "Photos"
 msgstr ""
 
@@ -1313,7 +1308,7 @@ msgstr ""
 msgid "Discard"
 msgstr ""
 
-#: mod/message.php:133 src/Content/Nav.php:283 view/theme/frio/theme.php:235
+#: mod/message.php:133 src/Content/Nav.php:283
 msgid "Messages"
 msgstr ""
 
@@ -2541,7 +2536,7 @@ msgid ""
 "hours."
 msgstr ""
 
-#: mod/suggest.php:55 src/Content/Widget.php:79 view/theme/vier/theme.php:175
+#: mod/suggest.php:55 src/Content/Widget.php:79
 msgid "Friend Suggestions"
 msgstr ""
 
@@ -3087,39 +3082,38 @@ msgstr ""
 
 #: src/Content/Nav.php:190 src/Module/BaseProfile.php:56
 #: src/Module/Contact.php:618 src/Module/Contact.php:883
-#: src/Module/Settings/TwoFactor/Index.php:112 view/theme/frio/theme.php:226
+#: src/Module/Settings/TwoFactor/Index.php:112
 msgid "Status"
 msgstr ""
 
 #: src/Content/Nav.php:190 src/Content/Nav.php:273
-#: view/theme/frio/theme.php:226
 msgid "Your posts and conversations"
 msgstr ""
 
 #: src/Content/Nav.php:191 src/Module/BaseProfile.php:48
 #: src/Module/BaseSettings.php:57 src/Module/Contact.php:620
 #: src/Module/Contact.php:899 src/Module/Profile/Profile.php:241
-#: src/Module/Welcome.php:57 view/theme/frio/theme.php:227
+#: src/Module/Welcome.php:57
 msgid "Profile"
 msgstr ""
 
-#: src/Content/Nav.php:191 view/theme/frio/theme.php:227
+#: src/Content/Nav.php:191
 msgid "Your profile page"
 msgstr ""
 
-#: src/Content/Nav.php:192 view/theme/frio/theme.php:228
+#: src/Content/Nav.php:192
 msgid "Your photos"
 msgstr ""
 
-#: src/Content/Nav.php:193 view/theme/frio/theme.php:229
+#: src/Content/Nav.php:193
 msgid "Videos"
 msgstr ""
 
-#: src/Content/Nav.php:193 view/theme/frio/theme.php:229
+#: src/Content/Nav.php:193
 msgid "Your videos"
 msgstr ""
 
-#: src/Content/Nav.php:194 view/theme/frio/theme.php:230
+#: src/Content/Nav.php:194
 msgid "Your events"
 msgstr ""
 
@@ -3148,7 +3142,7 @@ msgstr ""
 #: src/Module/Settings/TwoFactor/AppSpecific.php:115
 #: src/Module/Settings/TwoFactor/Index.php:111
 #: src/Module/Settings/TwoFactor/Recovery.php:93
-#: src/Module/Settings/TwoFactor/Verify.php:132 view/theme/vier/theme.php:217
+#: src/Module/Settings/TwoFactor/Verify.php:132
 msgid "Help"
 msgstr ""
 
@@ -3185,7 +3179,7 @@ msgstr ""
 #: src/Content/Nav.php:235 src/Content/Nav.php:294
 #: src/Content/Text/HTML.php:902 src/Module/BaseProfile.php:126
 #: src/Module/BaseProfile.php:129 src/Module/Contact.php:818
-#: src/Module/Contact.php:906 view/theme/frio/theme.php:237
+#: src/Module/Contact.php:906
 msgid "Contacts"
 msgstr ""
 
@@ -3198,7 +3192,7 @@ msgid "Conversations on this and other servers"
 msgstr ""
 
 #: src/Content/Nav.php:258 src/Module/BaseProfile.php:88
-#: src/Module/BaseProfile.php:99 view/theme/frio/theme.php:234
+#: src/Module/BaseProfile.php:99
 msgid "Events and Calendar"
 msgstr ""
 
@@ -3228,11 +3222,11 @@ msgstr ""
 msgid "Terms of Service of this Friendica instance"
 msgstr ""
 
-#: src/Content/Nav.php:271 view/theme/frio/theme.php:233
+#: src/Content/Nav.php:271
 msgid "Network"
 msgstr ""
 
-#: src/Content/Nav.php:271 view/theme/frio/theme.php:233
+#: src/Content/Nav.php:271
 msgid "Conversations from your friends"
 msgstr ""
 
@@ -3257,7 +3251,7 @@ msgstr ""
 msgid "Mark all system notifications seen"
 msgstr ""
 
-#: src/Content/Nav.php:283 view/theme/frio/theme.php:235
+#: src/Content/Nav.php:283
 msgid "Private mail"
 msgstr ""
 
@@ -3279,15 +3273,15 @@ msgstr ""
 
 #: src/Content/Nav.php:292 src/Module/Admin/Addons/Details.php:114
 #: src/Module/Admin/Themes/Details.php:93 src/Module/BaseSettings.php:124
-#: src/Module/Welcome.php:52 view/theme/frio/theme.php:236
+#: src/Module/Welcome.php:52
 msgid "Settings"
 msgstr ""
 
-#: src/Content/Nav.php:292 view/theme/frio/theme.php:236
+#: src/Content/Nav.php:292
 msgid "Account settings"
 msgstr ""
 
-#: src/Content/Nav.php:294 view/theme/frio/theme.php:237
+#: src/Content/Nav.php:294
 msgid "Manage/edit friends and contacts"
 msgstr ""
 
@@ -3403,41 +3397,40 @@ msgid_plural "%d invitations available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Content/Widget.php:74 view/theme/vier/theme.php:170
+#: src/Content/Widget.php:74
 msgid "Find People"
 msgstr ""
 
-#: src/Content/Widget.php:75 view/theme/vier/theme.php:171
+#: src/Content/Widget.php:75
 msgid "Enter name or interest"
 msgstr ""
 
-#: src/Content/Widget.php:77 view/theme/vier/theme.php:173
+#: src/Content/Widget.php:77
 msgid "Examples: Robert Morgenstein, Fishing"
 msgstr ""
 
 #: src/Content/Widget.php:78 src/Module/Contact.php:839
-#: src/Module/Directory.php:99 view/theme/vier/theme.php:174
+#: src/Module/Directory.php:99
 msgid "Find"
 msgstr ""
 
-#: src/Content/Widget.php:80 view/theme/vier/theme.php:176
+#: src/Content/Widget.php:80
 msgid "Similar Interests"
 msgstr ""
 
-#: src/Content/Widget.php:81 view/theme/vier/theme.php:177
+#: src/Content/Widget.php:81
 msgid "Random Profile"
 msgstr ""
 
-#: src/Content/Widget.php:82 view/theme/vier/theme.php:178
+#: src/Content/Widget.php:82
 msgid "Invite Friends"
 msgstr ""
 
 #: src/Content/Widget.php:83 src/Module/Directory.php:91
-#: view/theme/vier/theme.php:179
 msgid "Global Directory"
 msgstr ""
 
-#: src/Content/Widget.php:85 view/theme/vier/theme.php:181
+#: src/Content/Widget.php:85
 msgid "Local Directory"
 msgstr ""
 
@@ -6523,27 +6516,35 @@ msgstr ""
 msgid "Invalid storage backend setting value."
 msgstr ""
 
-#: src/Module/Admin/Storage.php:132 src/Module/BaseAdmin.php:91
+#: src/Module/Admin/Storage.php:132
+msgid "Current Storage Backend"
+msgstr ""
+
+#: src/Module/Admin/Storage.php:133
+msgid "Storage Configuration"
+msgstr ""
+
+#: src/Module/Admin/Storage.php:134 src/Module/BaseAdmin.php:91
 msgid "Storage"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:134
+#: src/Module/Admin/Storage.php:136
 msgid "Save & Activate"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:135
+#: src/Module/Admin/Storage.php:137
 msgid "Activate"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:136
+#: src/Module/Admin/Storage.php:138
 msgid "Save & Reload"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:137
+#: src/Module/Admin/Storage.php:139
 msgid "This backend doesn't have custom settings"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:140
+#: src/Module/Admin/Storage.php:142
 msgid "Database (legacy)"
 msgstr ""
 
@@ -9270,1597 +9271,4 @@ msgid "Display Settings"
 msgstr ""
 
 #: src/Module/Settings/Display.php:195
-msgid "General Theme Settings"
-msgstr ""
-
-#: src/Module/Settings/Display.php:196
-msgid "Custom Theme Settings"
-msgstr ""
-
-#: src/Module/Settings/Display.php:197
-msgid "Content Settings"
-msgstr ""
-
-#: src/Module/Settings/Display.php:198 view/theme/duepuntozero/config.php:70
-#: view/theme/frio/config.php:161 view/theme/quattro/config.php:72
-#: view/theme/vier/config.php:120
-msgid "Theme settings"
-msgstr ""
-
-#: src/Module/Settings/Display.php:199
-msgid "Calendar"
-msgstr ""
-
-#: src/Module/Settings/Display.php:205
-msgid "Display Theme:"
-msgstr ""
-
-#: src/Module/Settings/Display.php:206
-msgid "Mobile Theme:"
-msgstr ""
-
-#: src/Module/Settings/Display.php:209
-msgid "Number of items to display per page:"
-msgstr ""
-
-#: src/Module/Settings/Display.php:209 src/Module/Settings/Display.php:210
-msgid "Maximum of 100 items"
-msgstr ""
-
-#: src/Module/Settings/Display.php:210
-msgid "Number of items to display per page when viewed from mobile device:"
-msgstr ""
-
-#: src/Module/Settings/Display.php:211
-msgid "Update browser every xx seconds"
-msgstr ""
-
-#: src/Module/Settings/Display.php:211
-msgid "Minimum of 10 seconds. Enter -1 to disable it."
-msgstr ""
-
-#: src/Module/Settings/Display.php:212
-msgid "Automatic updates only at the top of the post stream pages"
-msgstr ""
-
-#: src/Module/Settings/Display.php:212
-msgid ""
-"Auto update may add new posts at the top of the post stream pages, which can "
-"affect the scroll position and perturb normal reading if it happens anywhere "
-"else the top of the page."
-msgstr ""
-
-#: src/Module/Settings/Display.php:213
-msgid "Display emoticons"
-msgstr ""
-
-#: src/Module/Settings/Display.php:213
-msgid "When enabled, emoticons are replaced with matching symbols."
-msgstr ""
-
-#: src/Module/Settings/Display.php:214
-msgid "Infinite scroll"
-msgstr ""
-
-#: src/Module/Settings/Display.php:214
-msgid "Automatic fetch new items when reaching the page end."
-msgstr ""
-
-#: src/Module/Settings/Display.php:215
-msgid "Enable Smart Threading"
-msgstr ""
-
-#: src/Module/Settings/Display.php:215
-msgid "Enable the automatic suppression of extraneous thread indentation."
-msgstr ""
-
-#: src/Module/Settings/Display.php:216
-msgid "Display the Dislike feature"
-msgstr ""
-
-#: src/Module/Settings/Display.php:216
-msgid "Display the Dislike button and dislike reactions on posts and comments."
-msgstr ""
-
-#: src/Module/Settings/Display.php:217
-msgid "Display the resharer"
-msgstr ""
-
-#: src/Module/Settings/Display.php:217
-msgid "Display the first resharer as icon and text on a reshared item."
-msgstr ""
-
-#: src/Module/Settings/Display.php:218
-msgid "Stay local"
-msgstr ""
-
-#: src/Module/Settings/Display.php:218
-msgid "Don't go to a remote system when following a contact link."
-msgstr ""
-
-#: src/Module/Settings/Display.php:220
-msgid "Beginning of week:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:82
-msgid "Profile Name is required."
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:133
-msgid "Profile couldn't be updated."
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:170
-#: src/Module/Settings/Profile/Index.php:190
-msgid "Label:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:171
-#: src/Module/Settings/Profile/Index.php:191
-msgid "Value:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:181
-#: src/Module/Settings/Profile/Index.php:201
-msgid "Field Permissions"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:182
-#: src/Module/Settings/Profile/Index.php:202
-msgid "(click to open/close)"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:188
-msgid "Add a new profile field"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:218
-msgid "Profile Actions"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:219
-msgid "Edit Profile Details"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:221
-msgid "Change Profile Photo"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:226
-msgid "Profile picture"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:227
-msgid "Location"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:228 src/Util/Temporal.php:93
-#: src/Util/Temporal.php:95
-msgid "Miscellaneous"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:229
-msgid "Custom Profile Fields"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:231 src/Module/Welcome.php:58
-msgid "Upload Profile Photo"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:235
-msgid "Display name:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:238
-msgid "Street Address:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:239
-msgid "Locality/City:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:240
-msgid "Region/State:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:241
-msgid "Postal/Zip Code:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:242
-msgid "Country:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:244
-msgid "XMPP (Jabber) address:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:244
-msgid "The XMPP address will be published so that people can follow you there."
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:245
-msgid "Matrix (Element) address:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:245
-msgid ""
-"The Matrix address will be published so that people can follow you there."
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:246
-msgid "Homepage URL:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:247
-msgid "Public Keywords:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:247
-msgid "(Used for suggesting potential friends, can be seen by others)"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:248
-msgid "Private Keywords:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:248
-msgid "(Used for searching profiles, never shown to others)"
-msgstr ""
-
-#: src/Module/Settings/Profile/Index.php:249
-#, php-format
-msgid ""
-"<p>Custom fields appear on <a href=\"%s\">your profile page</a>.</p>\n"
-"\t\t\t\t<p>You can use BBCodes in the field values.</p>\n"
-"\t\t\t\t<p>Reorder by dragging the field title.</p>\n"
-"\t\t\t\t<p>Empty the label field to remove a custom field.</p>\n"
-"\t\t\t\t<p>Non-public fields can only be seen by the selected Friendica "
-"contacts or the Friendica contacts in the selected groups.</p>"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Crop.php:106
-#: src/Module/Settings/Profile/Photo/Crop.php:122
-#: src/Module/Settings/Profile/Photo/Crop.php:138
-#: src/Module/Settings/Profile/Photo/Index.php:102
-#, php-format
-msgid "Image size reduction [%s] failed."
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Crop.php:143
-msgid ""
-"Shift-reload the page or clear browser cache if the new photo does not "
-"display immediately."
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Crop.php:148
-msgid "Unable to process image"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Crop.php:167
-msgid "Photo not found."
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Crop.php:189
-msgid "Profile picture successfully updated."
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Crop.php:215
-#: src/Module/Settings/Profile/Photo/Crop.php:219
-msgid "Crop Image"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Crop.php:216
-msgid "Please adjust the image cropping for optimum viewing."
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Crop.php:218
-msgid "Use Image As Is"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Index.php:46
-msgid "Missing uploaded image."
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Index.php:125
-msgid "Profile Picture Settings"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Index.php:126
-msgid "Current Profile Picture"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Index.php:127
-msgid "Upload Profile Picture"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Index.php:128
-msgid "Upload Picture:"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Index.php:133
-msgid "or"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Index.php:135
-msgid "skip this step"
-msgstr ""
-
-#: src/Module/Settings/Profile/Photo/Index.php:137
-msgid "select a photo from your photo albums"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:52
-#: src/Module/Settings/TwoFactor/Recovery.php:50
-#: src/Module/Settings/TwoFactor/Trusted.php:30
-#: src/Module/Settings/TwoFactor/Verify.php:56
-msgid "Please enter your password to access this page."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:70
-msgid "App-specific password generation failed: The description is empty."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:73
-msgid ""
-"App-specific password generation failed: This description already exists."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:77
-msgid "New app-specific password generated."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:83
-msgid "App-specific passwords successfully revoked."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:93
-msgid "App-specific password successfully revoked."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:114
-msgid "Two-factor app-specific passwords"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:116
-msgid ""
-"<p>App-specific passwords are randomly generated passwords used instead your "
-"regular password to authenticate your account on third-party applications "
-"that don't support two-factor authentication.</p>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:117
-msgid ""
-"Make sure to copy your new app-specific password now. You won’t be able to "
-"see it again!"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:120
-msgid "Description"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:121
-msgid "Last Used"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:122
-msgid "Revoke"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:123
-msgid "Revoke All"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:126
-msgid ""
-"When you generate a new app-specific password, you must use it right away, "
-"it will be shown to you once after you generate it."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:127
-msgid "Generate new app-specific password"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:128
-msgid "Friendiqa on my Fairphone 2..."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:129
-msgid "Generate"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:67
-msgid "Two-factor authentication successfully disabled."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:93
-msgid "Wrong Password"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:113
-msgid ""
-"<p>Use an application on a mobile device to get two-factor authentication "
-"codes when prompted on login.</p>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:117
-msgid "Authenticator app"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:118
-msgid "Configured"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:118
-msgid "Not Configured"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:119
-msgid "<p>You haven't finished configuring your authenticator app.</p>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:120
-msgid "<p>Your authenticator app is correctly configured.</p>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:122
-msgid "Recovery codes"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:123
-msgid "Remaining valid codes"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:125
-msgid ""
-"<p>These one-use codes can replace an authenticator app code in case you "
-"have lost access to it.</p>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:127
-msgid "App-specific passwords"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:128
-msgid "Generated app-specific passwords"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:130
-msgid ""
-"<p>These randomly generated passwords allow you to authenticate on apps not "
-"supporting two-factor authentication.</p>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:133
-msgid "Current password:"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:133
-msgid ""
-"You need to provide your current password to change two-factor "
-"authentication settings."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:134
-msgid "Enable two-factor authentication"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:135
-msgid "Disable two-factor authentication"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:136
-msgid "Show recovery codes"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:137
-msgid "Manage app-specific passwords"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:138
-msgid "Manage trusted browsers"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Index.php:139
-msgid "Finish app configuration"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Recovery.php:66
-msgid "New recovery codes successfully generated."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Recovery.php:92
-msgid "Two-factor recovery codes"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Recovery.php:94
-msgid ""
-"<p>Recovery codes can be used to access your account in the event you lose "
-"access to your device and cannot receive two-factor authentication codes.</"
-"p><p><strong>Put these in a safe spot!</strong> If you lose your device and "
-"don’t have the recovery codes you will lose access to your account.</p>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Recovery.php:96
-msgid ""
-"When you generate new recovery codes, you must copy the new codes. Your old "
-"codes won’t work anymore."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Recovery.php:97
-msgid "Generate new recovery codes"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Recovery.php:99
-msgid "Next: Verification"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Trusted.php:49
-msgid "Trusted browsers successfully removed."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Trusted.php:59
-msgid "Trusted browser successfully removed."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Trusted.php:97
-msgid "Two-factor Trusted Browsers"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Trusted.php:98
-msgid ""
-"Trusted browsers are individual browsers you chose to skip two-factor "
-"authentication to access Friendica. Please use this feature sparingly, as it "
-"can negate the benefit of two-factor authentication."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Trusted.php:99
-msgid "Device"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Trusted.php:100
-msgid "OS"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Trusted.php:102
-msgid "Trusted"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Trusted.php:103
-msgid "Last Use"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Trusted.php:105
-msgid "Remove All"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Verify.php:78
-msgid "Two-factor authentication successfully activated."
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Verify.php:111
-#, php-format
-msgid ""
-"<p>Or you can submit the authentication settings manually:</p>\n"
-"<dl>\n"
-"\t<dt>Issuer</dt>\n"
-"\t<dd>%s</dd>\n"
-"\t<dt>Account Name</dt>\n"
-"\t<dd>%s</dd>\n"
-"\t<dt>Secret Key</dt>\n"
-"\t<dd>%s</dd>\n"
-"\t<dt>Type</dt>\n"
-"\t<dd>Time-based</dd>\n"
-"\t<dt>Number of digits</dt>\n"
-"\t<dd>6</dd>\n"
-"\t<dt>Hashing algorithm</dt>\n"
-"\t<dd>SHA-1</dd>\n"
-"</dl>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Verify.php:131
-msgid "Two-factor code verification"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Verify.php:133
-msgid ""
-"<p>Please scan this QR Code with your authenticator app and submit the "
-"provided code.</p>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Verify.php:135
-#, php-format
-msgid ""
-"<p>Or you can open the following URL in your mobile device:</p><p><a href="
-"\"%s\">%s</a></p>"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/Verify.php:142
-msgid "Verify code and enable two-factor authentication"
-msgstr ""
-
-#: src/Module/Settings/UserExport.php:68
-msgid "Export account"
-msgstr ""
-
-#: src/Module/Settings/UserExport.php:68
-msgid ""
-"Export your account info and contacts. Use this to make a backup of your "
-"account and/or to move it to another server."
-msgstr ""
-
-#: src/Module/Settings/UserExport.php:69
-msgid "Export all"
-msgstr ""
-
-#: src/Module/Settings/UserExport.php:69
-msgid ""
-"Export your account info, contacts and all your items as json. Could be a "
-"very big file, and could take a lot of time. Use this to make a full backup "
-"of your account (photos are not exported)"
-msgstr ""
-
-#: src/Module/Settings/UserExport.php:70
-msgid "Export Contacts to CSV"
-msgstr ""
-
-#: src/Module/Settings/UserExport.php:70
-msgid ""
-"Export the list of the accounts you are following as CSV file. Compatible to "
-"e.g. Mastodon."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:49
-msgid "Bad Request"
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:51
-msgid "Forbidden"
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:52
-msgid "Not Found"
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:54
-msgid "Service Unavailable"
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:61
-msgid ""
-"The server cannot or will not process the request due to an apparent client "
-"error."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:62
-msgid "Authentication is required and has failed or has not yet been provided."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:63
-msgid ""
-"The request was valid, but the server is refusing action. The user might not "
-"have the necessary permissions for a resource, or may need an account."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:64
-msgid ""
-"The requested resource could not be found but may be available in the future."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:65
-msgid ""
-"An unexpected condition was encountered and no more specific message is "
-"suitable."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:66
-msgid ""
-"The server is currently unavailable (because it is overloaded or down for "
-"maintenance). Please try again later."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:76
-msgid "Stack trace:"
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:80
-#, php-format
-msgid "Exception thrown in %s:%d"
-msgstr ""
-
-#: src/Module/Tos.php:46 src/Module/Tos.php:88
-msgid ""
-"At the time of registration, and for providing communications between the "
-"user account and their contacts, the user has to provide a display name (pen "
-"name), an username (nickname) and a working email address. The names will be "
-"accessible on the profile page of the account by any visitor of the page, "
-"even if other profile details are not displayed. The email address will only "
-"be used to send the user notifications about interactions, but wont be "
-"visibly displayed. The listing of an account in the node's user directory or "
-"the global user directory is optional and can be controlled in the user "
-"settings, it is not necessary for communication."
-msgstr ""
-
-#: src/Module/Tos.php:47 src/Module/Tos.php:89
-msgid ""
-"This data is required for communication and is passed on to the nodes of the "
-"communication partners and is stored there. Users can enter additional "
-"private data that may be transmitted to the communication partners accounts."
-msgstr ""
-
-#: src/Module/Tos.php:48 src/Module/Tos.php:90
-#, php-format
-msgid ""
-"At any point in time a logged in user can export their account data from the "
-"<a href=\"%1$s/settings/userexport\">account settings</a>. If the user wants "
-"to delete their account they can do so at <a href=\"%1$s/removeme\">%1$s/"
-"removeme</a>. The deletion of the account will be permanent. Deletion of the "
-"data will also be requested from the nodes of the communication partners."
-msgstr ""
-
-#: src/Module/Tos.php:51 src/Module/Tos.php:87
-msgid "Privacy Statement"
-msgstr ""
-
-#: src/Module/Welcome.php:44
-msgid "Welcome to Friendica"
-msgstr ""
-
-#: src/Module/Welcome.php:45
-msgid "New Member Checklist"
-msgstr ""
-
-#: src/Module/Welcome.php:46
-msgid ""
-"We would like to offer some tips and links to help make your experience "
-"enjoyable. Click any item to visit the relevant page. A link to this page "
-"will be visible from your home page for two weeks after your initial "
-"registration and then will quietly disappear."
-msgstr ""
-
-#: src/Module/Welcome.php:48
-msgid "Getting Started"
-msgstr ""
-
-#: src/Module/Welcome.php:49
-msgid "Friendica Walk-Through"
-msgstr ""
-
-#: src/Module/Welcome.php:50
-msgid ""
-"On your <em>Quick Start</em> page - find a brief introduction to your "
-"profile and network tabs, make some new connections, and find some groups to "
-"join."
-msgstr ""
-
-#: src/Module/Welcome.php:53
-msgid "Go to Your Settings"
-msgstr ""
-
-#: src/Module/Welcome.php:54
-msgid ""
-"On your <em>Settings</em> page -  change your initial password. Also make a "
-"note of your Identity Address. This looks just like an email address - and "
-"will be useful in making friends on the free social web."
-msgstr ""
-
-#: src/Module/Welcome.php:55
-msgid ""
-"Review the other settings, particularly the privacy settings. An unpublished "
-"directory listing is like having an unlisted phone number. In general, you "
-"should probably publish your listing - unless all of your friends and "
-"potential friends know exactly how to find you."
-msgstr ""
-
-#: src/Module/Welcome.php:59
-msgid ""
-"Upload a profile photo if you have not done so already. Studies have shown "
-"that people with real photos of themselves are ten times more likely to make "
-"friends than people who do not."
-msgstr ""
-
-#: src/Module/Welcome.php:60
-msgid "Edit Your Profile"
-msgstr ""
-
-#: src/Module/Welcome.php:61
-msgid ""
-"Edit your <strong>default</strong> profile to your liking. Review the "
-"settings for hiding your list of friends and hiding the profile from unknown "
-"visitors."
-msgstr ""
-
-#: src/Module/Welcome.php:62
-msgid "Profile Keywords"
-msgstr ""
-
-#: src/Module/Welcome.php:63
-msgid ""
-"Set some public keywords for your profile which describe your interests. We "
-"may be able to find other people with similar interests and suggest "
-"friendships."
-msgstr ""
-
-#: src/Module/Welcome.php:65
-msgid "Connecting"
-msgstr ""
-
-#: src/Module/Welcome.php:67
-msgid "Importing Emails"
-msgstr ""
-
-#: src/Module/Welcome.php:68
-msgid ""
-"Enter your email access information on your Connector Settings page if you "
-"wish to import and interact with friends or mailing lists from your email "
-"INBOX"
-msgstr ""
-
-#: src/Module/Welcome.php:69
-msgid "Go to Your Contacts Page"
-msgstr ""
-
-#: src/Module/Welcome.php:70
-msgid ""
-"Your Contacts page is your gateway to managing friendships and connecting "
-"with friends on other networks. Typically you enter their address or site "
-"URL in the <em>Add New Contact</em> dialog."
-msgstr ""
-
-#: src/Module/Welcome.php:71
-msgid "Go to Your Site's Directory"
-msgstr ""
-
-#: src/Module/Welcome.php:72
-msgid ""
-"The Directory page lets you find other people in this network or other "
-"federated sites. Look for a <em>Connect</em> or <em>Follow</em> link on "
-"their profile page. Provide your own Identity Address if requested."
-msgstr ""
-
-#: src/Module/Welcome.php:73
-msgid "Finding New People"
-msgstr ""
-
-#: src/Module/Welcome.php:74
-msgid ""
-"On the side panel of the Contacts page are several tools to find new "
-"friends. We can match people by interest, look up people by name or "
-"interest, and provide suggestions based on network relationships. On a brand "
-"new site, friend suggestions will usually begin to be populated within 24 "
-"hours."
-msgstr ""
-
-#: src/Module/Welcome.php:77
-msgid "Group Your Contacts"
-msgstr ""
-
-#: src/Module/Welcome.php:78
-msgid ""
-"Once you have made some friends, organize them into private conversation "
-"groups from the sidebar of your Contacts page and then you can interact with "
-"each group privately on your Network page."
-msgstr ""
-
-#: src/Module/Welcome.php:80
-msgid "Why Aren't My Posts Public?"
-msgstr ""
-
-#: src/Module/Welcome.php:81
-msgid ""
-"Friendica respects your privacy. By default, your posts will only show up to "
-"people you've added as friends. For more information, see the help section "
-"from the link above."
-msgstr ""
-
-#: src/Module/Welcome.php:83
-msgid "Getting Help"
-msgstr ""
-
-#: src/Module/Welcome.php:84
-msgid "Go to the Help Section"
-msgstr ""
-
-#: src/Module/Welcome.php:85
-msgid ""
-"Our <strong>help</strong> pages may be consulted for detail on other program "
-"features and resources."
-msgstr ""
-
-#: src/Object/EMail/ItemCCEMail.php:42
-#, php-format
-msgid ""
-"This message was sent to you by %s, a member of the Friendica social network."
-msgstr ""
-
-#: src/Object/EMail/ItemCCEMail.php:44
-#, php-format
-msgid "You may visit them online at %s"
-msgstr ""
-
-#: src/Object/EMail/ItemCCEMail.php:45
-msgid ""
-"Please contact the sender by replying to this post if you do not wish to "
-"receive these messages."
-msgstr ""
-
-#: src/Object/EMail/ItemCCEMail.php:49
-#, php-format
-msgid "%s posted an update."
-msgstr ""
-
-#: src/Object/Post.php:148
-msgid "This entry was edited"
-msgstr ""
-
-#: src/Object/Post.php:176
-msgid "Private Message"
-msgstr ""
-
-#: src/Object/Post.php:192 src/Object/Post.php:194
-msgid "Edit"
-msgstr ""
-
-#: src/Object/Post.php:214
-msgid "Pinned item"
-msgstr ""
-
-#: src/Object/Post.php:218
-msgid "Delete globally"
-msgstr ""
-
-#: src/Object/Post.php:218
-msgid "Remove locally"
-msgstr ""
-
-#: src/Object/Post.php:234
-#, php-format
-msgid "Block %s"
-msgstr ""
-
-#: src/Object/Post.php:239
-msgid "Save to folder"
-msgstr ""
-
-#: src/Object/Post.php:273
-msgid "I will attend"
-msgstr ""
-
-#: src/Object/Post.php:273
-msgid "I will not attend"
-msgstr ""
-
-#: src/Object/Post.php:273
-msgid "I might attend"
-msgstr ""
-
-#: src/Object/Post.php:303
-msgid "Ignore thread"
-msgstr ""
-
-#: src/Object/Post.php:304
-msgid "Unignore thread"
-msgstr ""
-
-#: src/Object/Post.php:305
-msgid "Toggle ignore status"
-msgstr ""
-
-#: src/Object/Post.php:315
-msgid "Add star"
-msgstr ""
-
-#: src/Object/Post.php:316
-msgid "Remove star"
-msgstr ""
-
-#: src/Object/Post.php:317
-msgid "Toggle star status"
-msgstr ""
-
-#: src/Object/Post.php:328
-msgid "Pin"
-msgstr ""
-
-#: src/Object/Post.php:329
-msgid "Unpin"
-msgstr ""
-
-#: src/Object/Post.php:330
-msgid "Toggle pin status"
-msgstr ""
-
-#: src/Object/Post.php:333
-msgid "Pinned"
-msgstr ""
-
-#: src/Object/Post.php:338
-msgid "Add tag"
-msgstr ""
-
-#: src/Object/Post.php:351
-msgid "Quote share this"
-msgstr ""
-
-#: src/Object/Post.php:351
-msgid "Quote Share"
-msgstr ""
-
-#: src/Object/Post.php:354
-msgid "Reshare this"
-msgstr ""
-
-#: src/Object/Post.php:354
-msgid "Reshare"
-msgstr ""
-
-#: src/Object/Post.php:355
-msgid "Cancel your Reshare"
-msgstr ""
-
-#: src/Object/Post.php:355
-msgid "Unshare"
-msgstr ""
-
-#: src/Object/Post.php:400
-#, php-format
-msgid "%s (Received %s)"
-msgstr ""
-
-#: src/Object/Post.php:405
-msgid "Comment this item on your system"
-msgstr ""
-
-#: src/Object/Post.php:405
-msgid "Remote comment"
-msgstr ""
-
-#: src/Object/Post.php:421
-msgid "Pushed"
-msgstr ""
-
-#: src/Object/Post.php:421
-msgid "Pulled"
-msgstr ""
-
-#: src/Object/Post.php:455
-msgid "to"
-msgstr ""
-
-#: src/Object/Post.php:456
-msgid "via"
-msgstr ""
-
-#: src/Object/Post.php:457
-msgid "Wall-to-Wall"
-msgstr ""
-
-#: src/Object/Post.php:458
-msgid "via Wall-To-Wall:"
-msgstr ""
-
-#: src/Object/Post.php:496
-#, php-format
-msgid "Reply to %s"
-msgstr ""
-
-#: src/Object/Post.php:499
-msgid "More"
-msgstr ""
-
-#: src/Object/Post.php:517
-msgid "Notifier task is pending"
-msgstr ""
-
-#: src/Object/Post.php:518
-msgid "Delivery to remote servers is pending"
-msgstr ""
-
-#: src/Object/Post.php:519
-msgid "Delivery to remote servers is underway"
-msgstr ""
-
-#: src/Object/Post.php:520
-msgid "Delivery to remote servers is mostly done"
-msgstr ""
-
-#: src/Object/Post.php:521
-msgid "Delivery to remote servers is done"
-msgstr ""
-
-#: src/Object/Post.php:541
-#, php-format
-msgid "%d comment"
-msgid_plural "%d comments"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Object/Post.php:542
-msgid "Show more"
-msgstr ""
-
-#: src/Object/Post.php:543
-msgid "Show fewer"
-msgstr ""
-
-#: src/Protocol/Diaspora.php:3448
-msgid "Attachments:"
-msgstr ""
-
-#: src/Protocol/OStatus.php:1761
-#, php-format
-msgid "%s is now following %s."
-msgstr ""
-
-#: src/Protocol/OStatus.php:1762
-msgid "following"
-msgstr ""
-
-#: src/Protocol/OStatus.php:1765
-#, php-format
-msgid "%s stopped following %s."
-msgstr ""
-
-#: src/Protocol/OStatus.php:1766
-msgid "stopped following"
-msgstr ""
-
-#: src/Render/FriendicaSmartyEngine.php:52
-msgid "The folder view/smarty3/ must be writable by webserver."
-msgstr ""
-
-#: src/Repository/ProfileField.php:275
-msgid "Hometown:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:276
-msgid "Marital Status:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:277
-msgid "With:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:278
-msgid "Since:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:279
-msgid "Sexual Preference:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:280
-msgid "Political Views:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:281
-msgid "Religious Views:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:282
-msgid "Likes:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:283
-msgid "Dislikes:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:284
-msgid "Title/Description:"
-msgstr ""
-
-#: src/Repository/ProfileField.php:286
-msgid "Musical interests"
-msgstr ""
-
-#: src/Repository/ProfileField.php:287
-msgid "Books, literature"
-msgstr ""
-
-#: src/Repository/ProfileField.php:288
-msgid "Television"
-msgstr ""
-
-#: src/Repository/ProfileField.php:289
-msgid "Film/dance/culture/entertainment"
-msgstr ""
-
-#: src/Repository/ProfileField.php:290
-msgid "Hobbies/Interests"
-msgstr ""
-
-#: src/Repository/ProfileField.php:291
-msgid "Love/romance"
-msgstr ""
-
-#: src/Repository/ProfileField.php:292
-msgid "Work/employment"
-msgstr ""
-
-#: src/Repository/ProfileField.php:293
-msgid "School/education"
-msgstr ""
-
-#: src/Repository/ProfileField.php:294
-msgid "Contact information and Social Networks"
-msgstr ""
-
-#: src/Security/Authentication.php:209
-msgid "Login failed."
-msgstr ""
-
-#: src/Security/Authentication.php:250
-msgid "Login failed. Please check your credentials."
-msgstr ""
-
-#: src/Security/Authentication.php:349
-#, php-format
-msgid "Welcome %s"
-msgstr ""
-
-#: src/Security/Authentication.php:350
-msgid "Please upload a profile photo."
-msgstr ""
-
-#: src/Util/EMailer/MailBuilder.php:259
-msgid "Friendica Notification"
-msgstr ""
-
-#: src/Util/EMailer/NotifyMailBuilder.php:78
-#: src/Util/EMailer/SystemMailBuilder.php:54
-#, php-format
-msgid "%1$s, %2$s Administrator"
-msgstr ""
-
-#: src/Util/EMailer/NotifyMailBuilder.php:80
-#: src/Util/EMailer/SystemMailBuilder.php:56
-#, php-format
-msgid "%s Administrator"
-msgstr ""
-
-#: src/Util/EMailer/NotifyMailBuilder.php:193
-#: src/Util/EMailer/NotifyMailBuilder.php:217
-#: src/Util/EMailer/SystemMailBuilder.php:101
-#: src/Util/EMailer/SystemMailBuilder.php:118
-msgid "thanks"
-msgstr ""
-
-#: src/Util/Temporal.php:167
-msgid "YYYY-MM-DD or MM-DD"
-msgstr ""
-
-#: src/Util/Temporal.php:314
-msgid "never"
-msgstr ""
-
-#: src/Util/Temporal.php:321
-msgid "less than a second ago"
-msgstr ""
-
-#: src/Util/Temporal.php:329
-msgid "year"
-msgstr ""
-
-#: src/Util/Temporal.php:329
-msgid "years"
-msgstr ""
-
-#: src/Util/Temporal.php:330
-msgid "months"
-msgstr ""
-
-#: src/Util/Temporal.php:331
-msgid "weeks"
-msgstr ""
-
-#: src/Util/Temporal.php:332
-msgid "days"
-msgstr ""
-
-#: src/Util/Temporal.php:333
-msgid "hour"
-msgstr ""
-
-#: src/Util/Temporal.php:333
-msgid "hours"
-msgstr ""
-
-#: src/Util/Temporal.php:334
-msgid "minute"
-msgstr ""
-
-#: src/Util/Temporal.php:334
-msgid "minutes"
-msgstr ""
-
-#: src/Util/Temporal.php:335
-msgid "second"
-msgstr ""
-
-#: src/Util/Temporal.php:335
-msgid "seconds"
-msgstr ""
-
-#: src/Util/Temporal.php:345
-#, php-format
-msgid "in %1$d %2$s"
-msgstr ""
-
-#: src/Util/Temporal.php:348
-#, php-format
-msgid "%1$d %2$s ago"
-msgstr ""
-
-#: src/Worker/Delivery.php:521
-msgid "(no subject)"
-msgstr ""
-
-#: src/Worker/PushSubscription.php:103
-msgid "Notification from Friendica"
-msgstr ""
-
-#: src/Worker/PushSubscription.php:104
-msgid "Empty Post"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:52
-msgid "default"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:53
-msgid "greenzero"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:54
-msgid "purplezero"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:55
-msgid "easterbunny"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:56
-msgid "darkzero"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:57
-msgid "comix"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:58
-msgid "slackr"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:71
-msgid "Variations"
-msgstr ""
-
-#: view/theme/frio/config.php:142
-msgid "Light (Accented)"
-msgstr ""
-
-#: view/theme/frio/config.php:143
-msgid "Dark (Accented)"
-msgstr ""
-
-#: view/theme/frio/config.php:144
-msgid "Black (Accented)"
-msgstr ""
-
-#: view/theme/frio/config.php:156
-msgid "Note"
-msgstr ""
-
-#: view/theme/frio/config.php:156
-msgid "Check image permissions if all users are allowed to see the image"
-msgstr ""
-
-#: view/theme/frio/config.php:162
-msgid "Custom"
-msgstr ""
-
-#: view/theme/frio/config.php:163
-msgid "Legacy"
-msgstr ""
-
-#: view/theme/frio/config.php:164
-msgid "Accented"
-msgstr ""
-
-#: view/theme/frio/config.php:165
-msgid "Select color scheme"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Select scheme accent"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Blue"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Red"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Purple"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Green"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Pink"
-msgstr ""
-
-#: view/theme/frio/config.php:167
-msgid "Copy or paste schemestring"
-msgstr ""
-
-#: view/theme/frio/config.php:167
-msgid ""
-"You can copy this string to share your theme with others. Pasting here "
-"applies the schemestring"
-msgstr ""
-
-#: view/theme/frio/config.php:168
-msgid "Navigation bar background color"
-msgstr ""
-
-#: view/theme/frio/config.php:169
-msgid "Navigation bar icon color "
-msgstr ""
-
-#: view/theme/frio/config.php:170
-msgid "Link color"
-msgstr ""
-
-#: view/theme/frio/config.php:171
-msgid "Set the background color"
-msgstr ""
-
-#: view/theme/frio/config.php:172
-msgid "Content background opacity"
-msgstr ""
-
-#: view/theme/frio/config.php:173
-msgid "Set the background image"
-msgstr ""
-
-#: view/theme/frio/config.php:174
-msgid "Background image style"
-msgstr ""
-
-#: view/theme/frio/config.php:179
-msgid "Login page background image"
-msgstr ""
-
-#: view/theme/frio/config.php:183
-msgid "Login page background color"
-msgstr ""
-
-#: view/theme/frio/config.php:183
-msgid "Leave background image and color empty for theme defaults"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:40
-msgid "Top Banner"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:40
-msgid ""
-"Resize image to the width of the screen and show background color below on "
-"long pages."
-msgstr ""
-
-#: view/theme/frio/php/Image.php:41
-msgid "Full screen"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:41
-msgid ""
-"Resize image to fill entire screen, clipping either the right or the bottom."
-msgstr ""
-
-#: view/theme/frio/php/Image.php:42
-msgid "Single row mosaic"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:42
-msgid ""
-"Resize image to repeat it on a single row, either vertical or horizontal."
-msgstr ""
-
-#: view/theme/frio/php/Image.php:43
-msgid "Mosaic"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:43
-msgid "Repeat image to fill the screen."
-msgstr ""
-
-#: view/theme/frio/php/default.php:81 view/theme/frio/php/standard.php:40
-msgid "Skip to main content"
-msgstr ""
-
-#: view/theme/frio/php/default.php:152 view/theme/frio/php/standard.php:75
-msgid "Back to top"
-msgstr ""
-
-#: view/theme/frio/theme.php:208
-msgid "Guest"
-msgstr ""
-
-#: view/theme/frio/theme.php:211
-msgid "Visitor"
-msgstr ""
-
-#: view/theme/quattro/config.php:73
-msgid "Alignment"
-msgstr ""
-
-#: view/theme/quattro/config.php:73
-msgid "Left"
-msgstr ""
-
-#: view/theme/quattro/config.php:73
-msgid "Center"
-msgstr ""
-
-#: view/theme/quattro/config.php:74
-msgid "Color scheme"
-msgstr ""
-
-#: view/theme/quattro/config.php:75
-msgid "Posts font size"
-msgstr ""
-
-#: view/theme/quattro/config.php:76
-msgid "Textareas font size"
-msgstr ""
-
-#: view/theme/vier/config.php:75
-msgid "Comma separated list of helper forums"
-msgstr ""
-
-#: view/theme/vier/config.php:115
-msgid "don't show"
-msgstr ""
-
-#: view/theme/vier/config.php:115
-msgid "show"
-msgstr ""
-
-#: view/theme/vier/config.php:121
-msgid "Set style"
-msgstr ""
-
-#: view/theme/vier/config.php:122
-msgid "Community Pages"
-msgstr ""
-
-#: view/theme/vier/config.php:123 view/theme/vier/theme.php:125
-msgid "Community Profiles"
-msgstr ""
-
-#: view/theme/vier/config.php:124
-msgid "Help or @NewHere ?"
-msgstr ""
-
-#: view/theme/vier/config.php:125 view/theme/vier/theme.php:296
-msgid "Connect Services"
-msgstr ""
-
-#: view/theme/vier/config.php:126
-msgid "Find Friends"
-msgstr ""
-
-#: view/theme/vier/config.php:127 view/theme/vier/theme.php:152
-msgid "Last users"
-msgstr ""
-
-#: view/theme/vier/theme.php:211
-msgid "Quick Start"
-msgstr ""
+msgid 
