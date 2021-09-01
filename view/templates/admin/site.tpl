@@ -72,7 +72,7 @@
 		{{else}}
 			<div class='field checkbox' id='div_id_{{$diaspora_enabled.0}}'>
 				<label for='id_{{$diaspora_enabled.0}}'>{{$diaspora_enabled.1}}</label>
-				<span class="field_help" role="tooltip" id="id_{{diaspora_enabled.0}}">{{$diaspora_not_able}}</span>
+				<span class="field_help" role="tooltip" id="id_{{$diaspora_enabled.0}}">{{$diaspora_not_able}}</span>
 			</div>
 		{{/if}}
 		{{include file="field_input.tpl" field=$global_directory}}
