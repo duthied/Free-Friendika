@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-31 19:52+0000\n"
+"POT-Creation-Date: 2021-09-01 14:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -895,7 +895,7 @@ msgid "Edit post"
 msgstr ""
 
 #: mod/editpost.php:91 mod/notes.php:56 src/Content/Text/HTML.php:885
-#: src/Module/Admin/Storage.php:133 src/Module/Filer/SaveTag.php:69
+#: src/Module/Admin/Storage.php:135 src/Module/Filer/SaveTag.php:69
 msgid "Save"
 msgstr ""
 
@@ -6523,27 +6523,35 @@ msgstr ""
 msgid "Invalid storage backend setting value."
 msgstr ""
 
-#: src/Module/Admin/Storage.php:132 src/Module/BaseAdmin.php:91
+#: src/Module/Admin/Storage.php:132
+msgid "Current Storage Backend"
+msgstr ""
+
+#: src/Module/Admin/Storage.php:133
+msgid "Storage Configuration"
+msgstr ""
+
+#: src/Module/Admin/Storage.php:134 src/Module/BaseAdmin.php:91
 msgid "Storage"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:134
+#: src/Module/Admin/Storage.php:136
 msgid "Save & Activate"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:135
+#: src/Module/Admin/Storage.php:137
 msgid "Activate"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:136
+#: src/Module/Admin/Storage.php:138
 msgid "Save & Reload"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:137
+#: src/Module/Admin/Storage.php:139
 msgid "This backend doesn't have custom settings"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:140
+#: src/Module/Admin/Storage.php:142
 msgid "Database (legacy)"
 msgstr ""
 
