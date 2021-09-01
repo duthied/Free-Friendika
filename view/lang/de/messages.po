@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-30 21:15+0000\n"
-"PO-Revision-Date: 2021-08-31 05:35+0000\n"
+"POT-Creation-Date: 2021-08-31 19:52+0000\n"
+"PO-Revision-Date: 2021-09-01 06:09+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -5883,14 +5883,14 @@ msgid ""
 msgstr "Erzwinge SSL für alle Nicht-SSL-Anfragen - Achtung: auf manchen Systemen verursacht dies eine Endlosschleife."
 
 #: src/Module/Admin/Site.php:533
-msgid "Hide help entry from navigation menu"
-msgstr "Verberge den Hilfe-Eintrag im Navigationsmenü"
+msgid "Show help entry from navigation menu"
+msgstr "Zeige den Hilfe-Eintrag im Navigationsmenü an"
 
 #: src/Module/Admin/Site.php:533
 msgid ""
-"Hides the menu entry for the Help pages from the navigation menu. You can "
-"still access it calling /help directly."
-msgstr "Verbirgt den Menüeintrag für die Hilfe-Seiten im Navigationsmenü. Die Seiten können weiterhin über /help aufgerufen werden."
+"Displays the menu entry for the Help pages from the navigation menu. It is "
+"always accessible by calling /help directly."
+msgstr "Zeigt im Navigationsmenü den Eintrag für die Hilfe-Seiten an. Es ist immer möglich diese Seiten direkt über /help in der Adresseingabe des Browsers aufzurufen."
 
 #: src/Module/Admin/Site.php:534
 msgid "Single user instance"
@@ -6117,30 +6117,30 @@ msgid ""
 msgstr "Ist dies ausgewählt, kann jeder Nutzer jeden seiner Kontakte als remote_self (entferntes Konto) im \"Erweitert\"-Reiter der Kontaktansicht markieren. Nach dem Setzen dieses Flags werden alle Top-Level-Beiträge dieser Kontakte automatisch in den Stream dieses Nutzers gepostet (gespiegelt)."
 
 #: src/Module/Admin/Site.php:558
-msgid "Block multiple registrations"
-msgstr "Unterbinde Mehrfachregistrierung"
+msgid "Enable multiple registrations"
+msgstr "Erlaube Mehrfachregistrierung"
 
 #: src/Module/Admin/Site.php:558
-msgid "Disallow users to register additional accounts for use as pages."
-msgstr "Benutzern nicht erlauben, weitere Konten für Organisationsseiten o. ä. mit der gleichen E-Mail-Adresse anzulegen."
+msgid "Enable users to register additional accounts for use as pages."
+msgstr "Erlaube es Benutzern weitere Konten für Organisationen o.ä. mit der gleichen E-Mail Adresse anzulegen."
 
 #: src/Module/Admin/Site.php:559
-msgid "Disable OpenID"
-msgstr "OpenID deaktivieren"
+msgid "Enable OpenID"
+msgstr "OpenID aktivieren"
 
 #: src/Module/Admin/Site.php:559
-msgid "Disable OpenID support for registration and logins."
-msgstr "OpenID-Unterstützung für Registrierung und Login."
+msgid "Enable OpenID support for registration and logins."
+msgstr "OpenID Unterstützung bei der Registrierung und dem Login aktivieren."
 
 #: src/Module/Admin/Site.php:560
-msgid "No Fullname check"
-msgstr "Namen nicht auf Vollständigkeit überprüfen"
+msgid "Enable Fullname check"
+msgstr "Namen auf Vollständigkeit überprüfen"
 
 #: src/Module/Admin/Site.php:560
 msgid ""
-"Allow users to register without a space between the first name and the last "
-"name in their full name."
-msgstr "Erlaubt Nutzern, Konten zu registrieren, bei denen im Namensfeld kein Leerzeichen zur Trennung von Vor- und Nachnamen verwendet wird."
+"Enable check to only allow users to register with a space between the first "
+"name and the last name in their full name."
+msgstr "Erlaubt Nutzern Konten nur dann zu registrieren, bei denen im Namensfeld ein Leerzeichen zur Trennung von Vor- und Nachnamen verwendet wird."
 
 #: src/Module/Admin/Site.php:561
 msgid "Community pages for visitors"
