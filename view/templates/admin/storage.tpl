@@ -22,10 +22,10 @@
 		{{if $storage.active}}
 		<input type="submit" name="submit_save_set" value="{{$save_reload}}"/>
 		{{else}}
-		<input type="submit" name="submit_save_set" value="{{$save_activate}}"/>
+		<input type="submit" name="submit_save_set" value="{{$save_use}}"/>
 		{{/if}}
 		{{else}}
-		<br /><input type="submit" name="submit_save_set" {{if $storage.active}}disabled="disabled"{{/if}} value="{{$activate}}"/>
+		<br /><input type="submit" name="submit_save_set" {{if $storage.active}}disabled="disabled"{{/if}} value="{{$use}}"/>
 		{{/if}}
 	</form>
 		{{/foreach}}
