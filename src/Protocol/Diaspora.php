@@ -3614,7 +3614,7 @@ class Diaspora
 	 * @return array|false The data for a comment
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function constructComment(array $item, array $owner)
+	public static function constructComment(array $item, array $owner)
 	{
 		$cachekey = "diaspora:constructComment:".$item['guid'];
 
