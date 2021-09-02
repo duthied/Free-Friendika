@@ -36,10 +36,10 @@
 						{{if $storage.active}}
 					<input type="submit" name="submit_save_set" class="btn btn-primary" value="{{$save_reload}}"/>
 						{{else}}
-					<input type="submit" name="submit_save_set" class="btn btn-primary" value="{{$save_activate}}"/>
+					<input type="submit" name="submit_save_set" class="btn btn-primary" value="{{$save_use}}"/>
 						{{/if}}
 					{{else}}
-					<input type="submit" name="submit_save_set" class="btn btn-primary" {{if $storage.active}}disabled="disabled"{{/if}} value="{{$activate}}"/>
+					<input type="submit" name="submit_save_set" class="btn btn-primary" {{if $storage.active}}disabled="disabled"{{/if}} value="{{$use}}"/>
 					{{/if}}
 				</div>
 			</div>
