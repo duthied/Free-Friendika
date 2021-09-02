@@ -3,6 +3,7 @@ Version 2021.09 (unreleased)
     Updates to the translation DE, HU [translation teams]
     Updates to the documentation [foss-, nupplaphil]
     General code cleanup [annando, MrPetovan, nupplaphil]
+    Unification of setting label wordings towards activating something [heluecht]
     Enhanced the proxy mechanism [annando]
     Enhanced the desktop notifications [annando]
     Enhanced the Mastodon compatible API [annando]
