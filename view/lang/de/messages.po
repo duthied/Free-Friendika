@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-01 14:01+0200\n"
-"PO-Revision-Date: 2021-09-01 17:42+0000\n"
+"POT-Creation-Date: 2021-09-01 18:36+0000\n"
+"PO-Revision-Date: 2021-09-02 06:49+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -9379,14 +9379,12 @@ msgid ""
 msgstr "Das automatische Aktualisieren des Streams kann neue Beiträge am Anfang des Stream einfügen. Dies kann die angezeigte Position im Stream beeinflussen, wenn du gerade nicht den Anfang des Streams betrachtest."
 
 #: src/Module/Settings/Display.php:213
-msgid "Don't show emoticons"
-msgstr "Keine Smileys anzeigen"
+msgid "Display emoticons"
+msgstr "Zeige Emoticons"
 
 #: src/Module/Settings/Display.php:213
-msgid ""
-"Normally emoticons are replaced with matching symbols. This setting disables"
-" this behaviour."
-msgstr "Normalerweise werden Smileys / Emoticons durch die passenden Symbolen ersetzt. Mit dieser Einstellung wird dieses Verhalten verhindert."
+msgid "When enabled, emoticons are replaced with matching symbols."
+msgstr "Wenn dies aktiviert ist, werden Text-Emoticons in Beiträgen durch Symbole ersetzt."
 
 #: src/Module/Settings/Display.php:214
 msgid "Infinite scroll"
@@ -9397,20 +9395,21 @@ msgid "Automatic fetch new items when reaching the page end."
 msgstr "Automatisch neue Beiträge laden, wenn das Ende der Seite erreicht ist."
 
 #: src/Module/Settings/Display.php:215
-msgid "Disable Smart Threading"
-msgstr "Intelligentes Threading deaktivieren"
+msgid "Enable Smart Threading"
+msgstr "Intelligentes Threading aktivieren"
 
 #: src/Module/Settings/Display.php:215
-msgid "Disable the automatic suppression of extraneous thread indentation."
-msgstr "Schaltet das automatische Unterdrücken von überflüssigen Thread-Einrückungen aus."
+msgid "Enable the automatic suppression of extraneous thread indentation."
+msgstr "Schaltet das automatische Unterdrücken von überflüssigen Thread-Einrückungen ein."
 
 #: src/Module/Settings/Display.php:216
-msgid "Hide the Dislike feature"
-msgstr "Das \"Nicht mögen\" Feature verbergen"
+msgid "Display the Dislike feature"
+msgstr "Das \"Nicht-mögen\" Feature anzeigen"
 
 #: src/Module/Settings/Display.php:216
-msgid "Hides the Dislike button and dislike reactions on posts and comments."
-msgstr "Verbirgt den \"Ich mag das nicht\" Button und die dislike Reaktionen auf Beiträge und Kommentare."
+msgid ""
+"Display the Dislike button and dislike reactions on posts and comments."
+msgstr "Einen \"Ich mag das nicht\" Button  und die dislike Reaktion auf Beiträge und Kommentare anzeigen."
 
 #: src/Module/Settings/Display.php:217
 msgid "Display the resharer"
