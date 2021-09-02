@@ -51,7 +51,8 @@ class Fetch extends BaseModule
 			'uid', 'title', 'body', 'guid', 'contact-id', 'private', 'created', 'received', 'app', 'location', 'coord', 'network',
 			'event-id', 'resource-id', 'author-link', 'author-avatar', 'author-name', 'plink', 'owner-link', 'uri-id'
 		];
-		$condition = ['wall' => true, 'private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
+		$condition = ['origin' => true, 'private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $guid,
+			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
 		$item = Post::selectFirst($fields, $condition);
 		if (empty($item)) {
 			$condition = ['guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
@@ -78,7 +79,12 @@ class Fetch extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		$status = Diaspora::buildStatus($item, $user);
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			$status = Diaspora::buildStatus($item, $user);
+		} else {
+			$status = Diaspora::constructComment($item, $user);
+		}
+
 		$xml = Diaspora::buildPostXml($status["type"], $status["message"]);
 
 		// Send the envelope
