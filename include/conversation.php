@@ -1068,10 +1068,13 @@ function format_activity(array $links, $verb, $id) {
 
 function status_editor(App $a, array $x = [], $notes_cid = 0, $popup = false)
 {
+	$user = User::getById($a->getLoggedInUserId(), ['uid', 'nickname', 'allow_location', 'default-location']);
+	if (empty($user['uid'])) {
+		return '';
+	}
+
 	DI::profiler()->startRecording('rendering');
 	$o = '';
-
-	$user = User::getById($a->getLoggedInUserId(), ['uid', 'nickname', 'allow_location', 'default-location']);
 
 	$x['allow_location']   = $x['allow_location']   ?? $user['allow_location'];
 	$x['default_location'] = $x['default_location'] ?? $user['default-location'];
