@@ -78,7 +78,7 @@ class Fetch extends BaseModule
 		if ($item['gravity'] == GRAVITY_PARENT) {
 			$status = Diaspora::buildStatus($item, $user);
 		} else {
-			$status = Diaspora::constructComment($item, $user);
+			$status = ['type' => 'comment', 'message' => Diaspora::createCommentSignature($item)];
 		}
 
 		$xml = Diaspora::buildPostXml($status["type"], $status["message"]);
