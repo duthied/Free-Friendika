@@ -47,13 +47,9 @@ class Fetch extends BaseModule
 		$guid = $parameters['guid'];
 
 		// Fetch the item
-		$fields = [
-			'uid', 'title', 'body', 'guid', 'contact-id', 'private', 'created', 'received', 'app', 'location', 'coord', 'network',
-			'event-id', 'resource-id', 'author-link', 'author-avatar', 'author-name', 'plink', 'owner-link', 'uri-id'
-		];
 		$condition = ['origin' => true, 'private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $guid,
 			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
-		$item = Post::selectFirst($fields, $condition);
+		$item = Post::selectFirst([], $condition);
 		if (empty($item)) {
 			$condition = ['guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
 			$item = Post::selectFirst(['author-link'], $condition);
@@ -82,7 +78,7 @@ class Fetch extends BaseModule
 		if ($item['gravity'] == GRAVITY_PARENT) {
 			$status = Diaspora::buildStatus($item, $user);
 		} else {
-			$status = Diaspora::constructComment($item, $user);
+			$status = ['type' => 'comment', 'message' => Diaspora::createCommentSignature($item)];
 		}
 
 		$xml = Diaspora::buildPostXml($status["type"], $status["message"]);
