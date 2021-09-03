@@ -343,12 +343,6 @@ node:
   node: releaser # This prevents executing this pipeline at other servers than drone.friendi.ca
 
 steps:
-  - name: Clone addon
-    image: alpine/git
-    commands:
-      - git clone https://github.com/friendica/friendica-addons ./addon
-      - cd ./addon
-      - git checkout $DRONE_REPO_BRANCH
   - name: Restore cache
     image: meltwater/drone-cache:dev
     settings:
@@ -440,12 +434,6 @@ node:
   node: releaser # This prevents executing this pipeline at other servers than drone.friendi.ca
 
 steps:
-  - name: Clone addon
-    image: alpine/git
-    commands:
-      - git clone https://github.com/friendica/friendica-addons ./addon
-      - cd ./addon
-      - git checkout $DRONE_REPO_BRANCH
   - name: Restore cache
     image: meltwater/drone-cache:dev
     settings:
