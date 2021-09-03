@@ -49,7 +49,7 @@ class Fetch extends BaseModule
 		// Fetch the item
 		$fields = [
 			'uid', 'title', 'body', 'guid', 'contact-id', 'private', 'created', 'received', 'app', 'location', 'coord', 'network',
-			'event-id', 'resource-id', 'author-link', 'author-avatar', 'author-name', 'plink', 'owner-link', 'uri-id'
+			'gravity', 'event-id', 'resource-id', 'author-link', 'author-avatar', 'author-name', 'plink', 'owner-link', 'uri-id'
 		];
 		$condition = ['origin' => true, 'private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $guid,
 			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
