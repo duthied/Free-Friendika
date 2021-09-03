@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-01 18:36+0000\n"
-"PO-Revision-Date: 2021-09-02 06:49+0000\n"
+"POT-Creation-Date: 2021-09-02 23:29+0200\n"
+"PO-Revision-Date: 2021-09-03 06:27+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -6572,12 +6572,12 @@ msgid "Storage"
 msgstr "Speicher"
 
 #: src/Module/Admin/Storage.php:136
-msgid "Save & Activate"
-msgstr "Speichern & Aktivieren"
+msgid "Save & Use storage backend"
+msgstr "Speichern & Dieses Speicher-Backend verwenden"
 
 #: src/Module/Admin/Storage.php:137
-msgid "Activate"
-msgstr "Aktivieren"
+msgid "Use storage backend"
+msgstr "Dieses Speicher-Backend verwenden"
 
 #: src/Module/Admin/Storage.php:138
 msgid "Save & Reload"
