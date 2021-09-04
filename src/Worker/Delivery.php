@@ -32,7 +32,6 @@ use Friendica\Protocol\Email;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Network;
 use Friendica\Core\Worker;
-use Friendica\Model\Conversation;
 use Friendica\Model\FContact;
 use Friendica\Model\Item;
 use Friendica\Protocol\Relay;
@@ -210,7 +209,8 @@ class Delivery
 		// Also transmit via Diaspora if this is a direct answer to a Diaspora comment.
 		// This is done since the uri wouldn't match (Diaspora doesn't transmit it)
 		// Also transmit relayed posts from Diaspora contacts via Diaspora.
-		if (!empty($parent) && !empty($thr_parent) && in_array(Protocol::DIASPORA, [$parent['network'], $thr_parent['network'], $target_item['network']])) {
+		if (($contact['network'] != Protocol::DIASPORA) && in_array(Protocol::DIASPORA, [$parent['network'] ?? '', $thr_parent['network'] ?? '', $target_item['network']])) {
+			Logger::info('Enforcing the Diaspora protocol', ['id' => $contact['id'], 'network' => $contact['network'], 'parent' => $parent['network'], 'thread-parent' => $thr_parent['network'], 'post' => $target_item['network']]);
 			$contact['network'] = Protocol::DIASPORA;
 		}
 
