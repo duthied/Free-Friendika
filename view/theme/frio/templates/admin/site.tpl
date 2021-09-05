@@ -185,7 +185,6 @@
 				</div>
 				<div id="admin-settings-advanced-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-advanced">
 					<div class="panel-body">
-						{{include file="field_select.tpl" field=$rino}}
 						{{include file="field_checkbox.tpl" field=$verifyssl}}
 						{{include file="field_input.tpl" field=$proxy}}
 						{{include file="field_input.tpl" field=$proxyuser}}

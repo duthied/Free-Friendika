@@ -86,7 +86,6 @@
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$advanced}}</h2>
-		{{include file="field_select.tpl" field=$rino}}
 		{{include file="field_checkbox.tpl" field=$verifyssl}}
 		{{include file="field_input.tpl" field=$proxy}}
 		{{include file="field_input.tpl" field=$proxyuser}}

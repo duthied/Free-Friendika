@@ -199,7 +199,6 @@ class Site extends BaseAdmin
 		$temppath               = (!empty($_POST['temppath'])               ? Strings::escapeTags(trim($_POST['temppath']))   : '');
 		$singleuser             = (!empty($_POST['singleuser'])             ? Strings::escapeTags(trim($_POST['singleuser'])) : '');
 		$only_tag_search        = !empty($_POST['only_tag_search']);
-		$rino                   = (!empty($_POST['rino'])                   ? intval($_POST['rino'])                          : 0);
 		$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? Strings::escapeTags(trim($_POST['check_new_version_url'])) : 'none');
 
 		$worker_queues    = (!empty($_POST['worker_queues'])                ? intval($_POST['worker_queues'])                 : 10);
@@ -378,8 +377,6 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'relay_server_tags', $relay_server_tags);
 		DI::config()->set('system', 'relay_deny_tags'  , $relay_deny_tags);
 		DI::config()->set('system', 'relay_user_tags'  , $relay_user_tags);
-
-		DI::config()->set('system', 'rino_encrypt'     , $rino);
 
 		DI::baseUrl()->redirect('admin/site' . $active_panel);
 	}
@@ -601,8 +598,6 @@ class Site extends BaseAdmin
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
 
 			'$relocate_url'           => ['relocate_url', DI::l10n()->t('New base url'), DI::baseUrl()->get(), DI::l10n()->t('Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.')],
-
-			'$rino'                   => ['rino', DI::l10n()->t('RINO Encryption'), intval(DI::config()->get('system', 'rino_encrypt')), DI::l10n()->t('Encryption layer between nodes.'), [0 => DI::l10n()->t('Disabled'), 1 => DI::l10n()->t('Enabled')]],
 
 			'$worker_queues'          => ['worker_queues', DI::l10n()->t('Maximum number of parallel workers'), DI::config()->get('system', 'worker_queues'), DI::l10n()->t('On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.', 5, 20, 10)],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
