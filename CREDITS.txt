@@ -8,7 +8,6 @@ Adam Magness
 Aditoo
 AgnesElisa
 Albert
-Alberto Díaz Tormo
 Aleksandr "M.O.Z.G" Dikov
 Alex
 Alexander An
@@ -31,7 +30,6 @@ Anthronaut
 Antron Samurai
 Arian - Cazare Muncitori
 Asher Pen
-Athalbert
 aweiher
 axelt
 balderino
@@ -98,6 +96,7 @@ Fabio Comuni
 felixgilles
 Filip Bugaj
 Filip H.F. "FiXato" Slagter
+Finn Dean
 FlxAlbroscheit
 foss
 Francesco Apruzzese
@@ -217,6 +216,7 @@ Ralf Thees
 Ralph
 Ratten
 rcmaniac
+RealKinetix
 rebeka-catalina
 René Wagner
 repat
@@ -239,10 +239,12 @@ Senex Petrovic
 Seth
 Silke Meyer
 Simon L'nu
+Simon Rupf
 Simó Albert i Beltran
 softmetz
 soko1
 Spencer Dub
+SpencerDub
 St John Karp
 Stanislav N.
 Steffen K9
@@ -256,6 +258,7 @@ szymon.filip
 Sérgio Lima
 Taekus
 Tazman DeVille
+Tealk
 teho
 Thecross
 Thomas
