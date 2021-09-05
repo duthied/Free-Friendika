@@ -15,6 +15,7 @@
 {{$tabs nofilter}}
 
 <form action="{{$baseurl}}/contact/batch/" method="POST">
+	<input type="hidden" name="redirect_url" value="{{$cmd}}"/>
 {{foreach $contacts as $contact}}
 	{{include file="contact_template.tpl"}}
 {{/foreach}}

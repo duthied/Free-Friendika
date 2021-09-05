@@ -88,7 +88,7 @@ class Contact extends BaseModule
 			info(DI::l10n()->tt('%d contact edited.', '%d contacts edited.', $count_actions));
 		}
 
-		DI::baseUrl()->redirect('contact');
+		DI::baseUrl()->redirect($_POST['redirect_url'] ?? 'contact');
 	}
 
 	public static function post(array $parameters = [])
