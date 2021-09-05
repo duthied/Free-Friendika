@@ -79,11 +79,6 @@ class Contact extends BaseModule
 				self::ignoreContact($contact_id);
 				$count_actions++;
 			}
-			if (!empty($_POST['contacts_batch_archive'])
-				&& self::archiveContact($contact_id, $orig_record)
-			) {
-				$count_actions++;
-			}
 			if (!empty($_POST['contacts_batch_drop'])) {
 				self::dropContact($orig_record);
 				$count_actions++;
@@ -98,8 +93,6 @@ class Contact extends BaseModule
 
 	public static function post(array $parameters = [])
 	{
-		$a = DI::app();
-
 		if (!local_user()) {
 			return;
 		}
@@ -214,23 +207,6 @@ class Contact extends BaseModule
 	{
 		$ignored = !Model\Contact\User::isIgnored($contact_id, local_user());
 		Model\Contact\User::setIgnored($contact_id, local_user(), $ignored);
-	}
-
-	/**
-	 * Toggles the archived status of a contact identified by id.
-	 * If the current status isn't provided, this will always archive the contact.
-	 *
-	 * @param $contact_id
-	 * @param $orig_record
-	 * @return bool
-	 * @throws \Exception
-	 */
-	private static function archiveContact($contact_id, $orig_record)
-	{
-		$archived = empty($orig_record['archive']);
-		$r = DBA::update('contact', ['archive' => $archived], ['id' => $contact_id, 'uid' => local_user()]);
-
-		return DBA::isResult($r);
 	}
 
 	private static function dropContact($orig_record)
@@ -390,17 +366,6 @@ class Contact extends BaseModule
 
 				$ignored = Model\Contact\User::isIgnored($contact_id, local_user());
 				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')));
-
-				DI::baseUrl()->redirect('contact/' . $contact_id);
-				// NOTREACHED
-			}
-
-			if ($cmd === 'archive' && ($orig_record['uid'] != 0)) {
-				$r = self::archiveContact($contact_id, $orig_record);
-				if ($r) {
-					$archived = (($orig_record['archive']) ? 0 : 1);
-					info((($archived) ? DI::l10n()->t('Contact has been archived') : DI::l10n()->t('Contact has been unarchived')));
-				}
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
@@ -845,7 +810,6 @@ class Contact extends BaseModule
 				'contacts_batch_update'  => DI::l10n()->t('Update'),
 				'contacts_batch_block'   => DI::l10n()->t('Block') . '/' . DI::l10n()->t('Unblock'),
 				'contacts_batch_ignore'  => DI::l10n()->t('Ignore') . '/' . DI::l10n()->t('Unignore'),
-				'contacts_batch_archive' => DI::l10n()->t('Archive') . '/' . DI::l10n()->t('Unarchive'),
 				'contacts_batch_drop'    => DI::l10n()->t('Delete'),
 			],
 			'$h_batch_actions' => DI::l10n()->t('Batch Actions'),
@@ -1128,14 +1092,6 @@ class Contact extends BaseModule
 		];
 
 		if ($contact['uid'] != 0) {
-			$contact_actions['archive'] = [
-				'label' => (intval($contact['archive']) ? DI::l10n()->t('Unarchive') : DI::l10n()->t('Archive')),
-				'url'   => 'contact/' . $contact['id'] . '/archive',
-				'title' => DI::l10n()->t('Toggle Archive status'),
-				'sel'   => (intval($contact['archive']) ? 'active' : ''),
-				'id'    => 'toggle-archive',
-			];
-
 			$contact_actions['delete'] = [
 				'label' => DI::l10n()->t('Delete'),
 				'url'   => 'contact/' . $contact['id'] . '/drop',
