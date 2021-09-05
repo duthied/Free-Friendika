@@ -1,6 +1,6 @@
 Version 2021.09 (unreleased)
   Friendica Core
-    Updates to the translation DE, HU [translation teams]
+    Updates to the translation DE, HU, RU [translation teams]
     Updates to the documentation [foss-, nupplaphil]
     General code cleanup [annando, MrPetovan, nupplaphil]
     Unification of setting label wordings towards activating something [heluecht]
@@ -18,6 +18,7 @@ Version 2021.09 (unreleased)
     Enhanced the storage back-end handling [nupplaphil]
     Enhanced the handling of zmg BBCode elements [annando]
     Enhanced the display of logs in the admin panel [fabrixxm]
+    Fixed a bug in the L10n functions not showing plural forms [annando]
     Removed the legacy DFRN transport layer, DFRN is now always using the Diaspora* transport layer [annando]
     Removed the legacy OAuth server [annando]
     Bumped the minimal PHP version to 7.2 [annando]
