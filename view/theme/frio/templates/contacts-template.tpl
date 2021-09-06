@@ -29,6 +29,7 @@
 
 	{{* we need the form container to make batch actions work *}}
 	<form name="batch_actions_submit" action="{{$baseurl}}/contact/batch/" method="POST">
+		<input type="hidden" name="redirect_url" value="{{$cmd}}"/>
 
 		{{* we put here a hidden input element. This is needed to transmit the batch actions with javascript*}}
 		<input type="hidden" class="batch-action no-input fakelist" name="batch_submit" value="{{$l}}">
