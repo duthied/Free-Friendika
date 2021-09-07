@@ -96,6 +96,9 @@ kind: pipeline
 type: docker
 name: php7.3-mariadb
 
+depends_on:
+  - php7.3-lint
+
 steps:
   - name: Restore cache
     image: meltwater/drone-cache:dev
@@ -169,6 +172,9 @@ volumes:
 kind: pipeline
 type: docker
 name: php7.4-mariadb
+
+depends_on:
+  - php7.4-lint
 
 steps:
   - name: Restore cache
@@ -256,6 +262,9 @@ kind: pipeline
 type: docker
 name: php8.0-mariadb
 
+depends_on:
+  - php8.0-lint
+
 steps:
   - name: Restore cache
     image: meltwater/drone-cache:dev
@@ -329,6 +338,11 @@ volumes:
 kind: pipeline
 type: docker
 name: continuous-deployment
+
+depends_on:
+  - php7.3-mariadb
+  - php7.4-mariadb
+  - php8.0-mariadb
 
 trigger:
   repo:
@@ -421,6 +435,11 @@ volumes:
 kind: pipeline
 type: docker
 name: release-deployment
+
+depends_on:
+  - php7.3-mariadb
+  - php7.4-mariadb
+  - php8.0-mariadb
 
 trigger:
   repo:
