@@ -59,6 +59,10 @@ class Contact extends BaseModule
 			return;
 		}
 
+		$redirectUrl = $_POST['redirect_url'] ?? 'contact';
+
+		self::checkFormSecurityTokenRedirectOnError($redirectUrl, 'contact_batch_actions');
+
 		$orig_records = Model\Contact::selectToArray(['id', 'uid'], ['id' => $_POST['contact_batch'], 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
 
 		$count_actions = 0;
@@ -93,7 +97,7 @@ class Contact extends BaseModule
 			info(DI::l10n()->tt('%d contact edited.', '%d contacts edited.', $count_actions));
 		}
 
-		DI::baseUrl()->redirect($_POST['redirect_url'] ?? 'contact');
+		DI::baseUrl()->redirect($redirectUrl);
 	}
 
 	public static function post(array $parameters = [])
@@ -360,6 +364,8 @@ class Contact extends BaseModule
 			if (!DBA::isResult($orig_record)) {
 				throw new NotFoundException(DI::l10n()->t('Contact not found'));
 			}
+
+			self::checkFormSecurityTokenRedirectOnError('contact/' . $contact_id, 'contact_action', 't');
 
 			$cdata = Model\Contact::getPublicAndUserContactID($orig_record['id'], local_user());
 			if (empty($cdata)) {
@@ -840,6 +846,7 @@ class Contact extends BaseModule
 			'$submit'     => DI::l10n()->t('Find'),
 			'$cmd'        => DI::args()->getCommand(),
 			'$contacts'   => $contacts,
+			'$form_security_token'  => BaseModule::getFormSecurityToken('contact_batch_actions'),
 			'$contact_drop_confirm' => DI::l10n()->t('Do you really want to delete this contact?'),
 			'multiselect' => 1,
 			'$batch_actions' => [
@@ -1080,6 +1087,8 @@ class Contact extends BaseModule
 		$poll_enabled = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
 		$contact_actions = [];
 
+		$formSecurityToken = self::getFormSecurityToken('contact_action');
+
 		// Provide friend suggestion only for Friendica contacts
 		if ($contact['network'] === Protocol::DFRN) {
 			$contact_actions['suggest'] = [
@@ -1094,7 +1103,7 @@ class Contact extends BaseModule
 		if ($poll_enabled) {
 			$contact_actions['update'] = [
 				'label' => DI::l10n()->t('Update now'),
-				'url'   => 'contact/' . $contact['id'] . '/update',
+				'url'   => 'contact/' . $contact['id'] . '/update?t=' . $formSecurityToken,
 				'title' => '',
 				'sel'   => '',
 				'id'    => 'update',
@@ -1104,7 +1113,7 @@ class Contact extends BaseModule
 		if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 			$contact_actions['updateprofile'] = [
 				'label' => DI::l10n()->t('Refetch contact data'),
-				'url'   => 'contact/' . $contact['id'] . '/updateprofile',
+				'url'   => 'contact/' . $contact['id'] . '/updateprofile?t=' . $formSecurityToken,
 				'title' => '',
 				'sel'   => '',
 				'id'    => 'updateprofile',
@@ -1113,7 +1122,7 @@ class Contact extends BaseModule
 
 		$contact_actions['block'] = [
 			'label' => (intval($contact['blocked']) ? DI::l10n()->t('Unblock') : DI::l10n()->t('Block')),
-			'url'   => 'contact/' . $contact['id'] . '/block',
+			'url'   => 'contact/' . $contact['id'] . '/block?t=' . $formSecurityToken,
 			'title' => DI::l10n()->t('Toggle Blocked status'),
 			'sel'   => (intval($contact['blocked']) ? 'active' : ''),
 			'id'    => 'toggle-block',
@@ -1121,7 +1130,7 @@ class Contact extends BaseModule
 
 		$contact_actions['ignore'] = [
 			'label' => (intval($contact['readonly']) ? DI::l10n()->t('Unignore') : DI::l10n()->t('Ignore')),
-			'url'   => 'contact/' . $contact['id'] . '/ignore',
+			'url'   => 'contact/' . $contact['id'] . '/ignore?t=' . $formSecurityToken,
 			'title' => DI::l10n()->t('Toggle Ignored status'),
 			'sel'   => (intval($contact['readonly']) ? 'active' : ''),
 			'id'    => 'toggle-ignore',
@@ -1130,7 +1139,7 @@ class Contact extends BaseModule
 		if ($contact['uid'] != 0) {
 			$contact_actions['delete'] = [
 				'label' => DI::l10n()->t('Delete'),
-				'url'   => 'contact/' . $contact['id'] . '/drop',
+				'url'   => 'contact/' . $contact['id'] . '/drop?t=' . $formSecurityToken,
 				'title' => DI::l10n()->t('Delete contact'),
 				'sel'   => '',
 				'id'    => 'delete',
