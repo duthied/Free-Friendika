@@ -223,7 +223,7 @@ class Contact
 		$ret = DBA::update('contact', $fields, $condition, $old_fields);
 
 		// Apply changes to the "user-contact" table on dedicated fields
-		Contact\User::UpdateByContactUpdate($fields, $condition);
+		Contact\User::updateByContactUpdate($fields, $condition);
 
 		return $ret;
 	}

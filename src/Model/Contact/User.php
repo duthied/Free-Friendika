@@ -87,7 +87,7 @@ class User
 	 * @throws PDOException 
 	 * @throws Exception 
 	 */
-	public static function UpdateByContactUpdate(array $fields, array $condition)
+	public static function updateByContactUpdate(array $fields, array $condition)
 	{
 		DBA::transaction();
 
