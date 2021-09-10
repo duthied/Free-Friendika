@@ -1534,7 +1534,12 @@ return [
 			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the contact url"],
 			"blocked" => ["type" => "boolean", "comment" => "Contact is completely blocked for this user"],
 			"ignored" => ["type" => "boolean", "comment" => "Posts from this contact are ignored"],
-			"collapsed" => ["type" => "boolean", "comment" => "Posts from this contact are collapsed"]
+			"collapsed" => ["type" => "boolean", "comment" => "Posts from this contact are collapsed"],
+			"rel" => ["type" => "tinyint unsigned", "comment" => "The kind of the relation between the user and the contact"],
+			"info" => ["type" => "mediumtext", "comment" => ""],
+			"notify_new_posts" => ["type" => "boolean", "comment" => ""],
+			"fetch_further_information" => ["type" => "tinyint unsigned", "comment" => ""],
+			"ffi_keyword_denylist" => ["type" => "text", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "cid"],

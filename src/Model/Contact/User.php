@@ -22,6 +22,7 @@
 namespace Friendica\Model\Contact;
 
 use Exception;
+use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\Database;
@@ -59,13 +60,16 @@ class User
 			return false;
 		}
 
-		$fields = [
-			'cid'     => $pcontact['id'],
-			'uid'     => $contact['uid'],
-			'uri-id'  => $contact['uri-id'],
-			'blocked' => $contact['blocked'] ?? false,
-			'ignored' => $contact['readonly'] ?? false,
-		];
+		$fields = $contact;
+
+		if (isset($fields['readonly'])) {
+			$fields['ignored'] = $fields['readonly'];
+		}
+
+		$fields = DBStructure::getFieldsForTable('user-contact', $fields);
+		$fields['cid'] = $pcontact['id'];
+		$fields['uid'] = $contact['uid'];
+		$fields['uri-id'] = $contact['uri-id'];
 
 		$ret = DBA::insert('user-contact', $fields, Database::INSERT_IGNORE);
 
