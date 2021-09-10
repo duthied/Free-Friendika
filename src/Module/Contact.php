@@ -365,6 +365,14 @@ class Contact extends BaseModule
 				throw new NotFoundException(DI::l10n()->t('Contact not found'));
 			}
 
+			if ($cmd === 'posts') {
+				return self::getPostsHTML($a, $contact_id);
+			}
+
+			if ($cmd === 'conversations') {
+				return self::getConversationsHMTL($a, $contact_id, $update);
+			}
+
 			self::checkFormSecurityTokenRedirectOnError('contact/' . $contact_id, 'contact_action', 't');
 
 			$cdata = Model\Contact::getPublicAndUserContactID($orig_record['id'], local_user());
@@ -439,12 +447,6 @@ class Contact extends BaseModule
 
 				DI::baseUrl()->redirect('contact');
 				// NOTREACHED
-			}
-			if ($cmd === 'posts') {
-				return self::getPostsHTML($a, $contact_id);
-			}
-			if ($cmd === 'conversations') {
-				return self::getConversationsHMTL($a, $contact_id, $update);
 			}
 		}
 
