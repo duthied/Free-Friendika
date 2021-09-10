@@ -234,7 +234,7 @@ class User
 		$system['closeness'] = 0;
 		$system['baseurl'] = DI::baseUrl();
 		$system['gsid'] = GServer::getID($system['baseurl']);
-		DBA::insert('contact', $system);
+		Contact::insert($system);
 	}
 
 	/**
@@ -1585,8 +1585,8 @@ class User
 	/**
 	 * Check if the given user id has delegations or is delegated
 	 *
-	 * @param int $uid 
-	 * @return bool 
+	 * @param int $uid
+	 * @return bool
 	 */
 	public static function hasIdentities(int $uid):bool
 	{

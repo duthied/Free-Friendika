@@ -175,7 +175,7 @@ class Contact
 	 * @param array $fields         field array
 	 * @param int   $duplicate_mode Do an update on a duplicate entry
 	 *
-	 * @return boolean was the insert successful?
+	 * @return int  id of the created contact
 	 * @throws \Exception
 	 */
 	public static function insert(array $fields, int $duplicate_mode = Database::INSERT_DEFAULT)
@@ -190,17 +190,22 @@ class Contact
 			$fields['created'] = DateTimeFormat::utcNow();
 		}
 
-		$ret = DBA::insert('contact', $fields, $duplicate_mode);
-		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => DBA::lastInsertId()]);
+		DBA::insert('contact', $fields, $duplicate_mode);
+		$contact = DBA::selectFirst('contact', [], ['id' => DBA::lastInsertId()]);
 		if (!DBA::isResult($contact)) {
 			// Shouldn't happen
-			return $ret;
+			Logger::warning('Created contact could not be found', ['fields' => $fields]);
+			return 0;
 		}
 
-		// Search for duplicated contacts and get rid of them
-		self::removeDuplicates($contact['nurl'], $contact['uid']);
+		Contact\User::insertForContactArray($contact);
 
-		return $ret;
+		// Search for duplicated contacts and get rid of them
+		if (!$contact['self']) {
+			self::removeDuplicates($contact['nurl'], $contact['uid']);
+		}
+
+		return $contact['id'];
 	}
 
 	/**
@@ -650,7 +655,7 @@ class Contact
 
 		// Only create the entry if it doesn't exist yet
 		if (!DBA::exists('contact', ['uid' => $uid, 'self' => true])) {
-			$return = DBA::insert('contact', $contact);
+			$return = (bool)self::insert($contact);
 		}
 
 		// Create the public contact
@@ -659,7 +664,7 @@ class Contact
 			$contact['uid']    = 0;
 			$contact['prvkey'] = null;
 
-			DBA::insert('contact', $contact, Database::INSERT_IGNORE);
+			self::insert($contact, Database::INSERT_IGNORE);
 		}
 
 		return $return;
@@ -1209,8 +1214,7 @@ class Contact
 					$contact_id = $contact['id'];
 					Logger::notice('Contact had been created (shortly) before', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
 				} else {
-					DBA::insert('contact', $fields);
-					$contact_id = DBA::lastInsertId();
+					$contact_id = self::insert($fields);
 					if ($contact_id) {
 						Logger::info('Contact inserted', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
 					}
@@ -1991,7 +1995,7 @@ class Contact
 	 */
 	public static function removeDuplicates(string $nurl, int $uid)
 	{
-		$condition = ['nurl' => $nurl, 'uid' => $uid, 'deleted' => false, 'network' => Protocol::FEDERATED];
+		$condition = ['nurl' => $nurl, 'uid' => $uid, 'self' => false, 'deleted' => false, 'network' => Protocol::FEDERATED];
 		$count = DBA::count('contact', $condition);
 		if ($count <= 1) {
 			return false;
@@ -2355,7 +2359,7 @@ class Contact
 			$probed = false;
 			$ret = $arr['contact'];
 		} else {
-			$probed = true;			
+			$probed = true;
 			$ret = Probe::uri($url, $network, $uid);
 		}
 
@@ -2684,7 +2688,7 @@ class Contact
 			}
 
 			// create contact record
-			DBA::insert('contact', [
+			$contact_id = self::insert([
 				'uid'      => $importer['uid'],
 				'created'  => DateTimeFormat::utcNow(),
 				'url'      => $url,
@@ -2698,8 +2702,6 @@ class Contact
 				'pending'  => 1,
 				'writable' => 1,
 			]);
-
-			$contact_id = DBA::lastInsertId();
 
 			// Ensure to always have the correct network type, independent from the connection request method
 			self::updateFromProbe($contact_id);

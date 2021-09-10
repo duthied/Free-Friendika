@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2021.09-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1434
+-- Friendica 2021.09-rc (Siberian Iris)
+-- DB_UPDATE_VERSION 1435
 -- ------------------------------------------
 
 
@@ -1512,13 +1512,16 @@ CREATE TABLE IF NOT EXISTS `userd` (
 CREATE TABLE IF NOT EXISTS `user-contact` (
 	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Contact id of the linked public contact',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the contact url',
 	`blocked` boolean COMMENT 'Contact is completely blocked for this user',
 	`ignored` boolean COMMENT 'Posts from this contact are ignored',
 	`collapsed` boolean COMMENT 'Posts from this contact are collapsed',
 	 PRIMARY KEY(`uid`,`cid`),
 	 INDEX `cid` (`cid`),
+	 UNIQUE INDEX `uri-id_uid` (`uri-id`,`uid`),
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific public contact data';
 
 --

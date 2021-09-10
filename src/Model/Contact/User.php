@@ -21,14 +21,56 @@
 
 namespace Friendica\Model\Contact;
 
+use Friendica\Core\Logger;
+use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\ItemURI;
 
 /**
  * This class provides information about user related contacts based on the "user-contact" table.
  */
 class User
 {
+	/**
+	 * Insert a user-contact for a given contact array
+	 *
+	 * @param array $contact
+	 * @return void
+	 */
+	public static function insertForContactArray(array $contact)
+	{
+		if (!isset($contact['uid']) || (empty($contact['uri-id']) && empty($contact['url']))) {
+			Logger::info('Missing contact details', ['contact' => $contact, 'callstack' => System::callstack(20)]);
+			return false;
+		}
+
+		if (empty($contact['uri-id'])) {
+			$contact['uri-id'] = ItemURI::getIdByURI($contact['url']);
+		}
+
+		$pcontact = Contact::selectFirst(['id'], ['uri-id' => $contact['uri-id'], 'uid' => 0]);
+		if (!DBA::isResult($pcontact)) {
+			Logger::info('Public contact for user not found', ['uri-id' => $contact['uri-id'], 'uid' => $contact['uid'], 'cid' => $pcontact['id']]);
+			return false;
+		}
+
+		$fields = [
+			'cid'     => $pcontact['id'],
+			'uid'     => $contact['uid'],
+			'uri-id'  => $contact['uri-id'],
+			'blocked' => $contact['blocked'] ?? false,
+			'ignored' => $contact['readonly'] ?? false,
+		];
+
+		$ret = DBA::insert('user-contact', $fields, Database::INSERT_IGNORE);
+
+		Logger::info('Inserted user contact', ['uid' => $contact['uid'], 'cid' => $pcontact['id'], 'uri-id' => $contact['uri-id'], 'ret' => $ret]);
+
+		return $ret;
+	}
+
 	/**
 	 * Block contact id for user id
 	 *

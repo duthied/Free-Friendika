@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1434);
+	define('DB_UPDATE_VERSION', 1435);
 }
 
 return [
@@ -1531,6 +1531,7 @@ return [
 		"fields" => [
 			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["contact" => "id"], "comment" => "Contact id of the linked public contact"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the contact url"],
 			"blocked" => ["type" => "boolean", "comment" => "Contact is completely blocked for this user"],
 			"ignored" => ["type" => "boolean", "comment" => "Posts from this contact are ignored"],
 			"collapsed" => ["type" => "boolean", "comment" => "Posts from this contact are collapsed"]
@@ -1538,6 +1539,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["uid", "cid"],
 			"cid" => ["cid"],
+			"uri-id_uid" => ["UNIQUE", "uri-id", "uid"],
 		]
 	],
 	"worker-ipc" => [
