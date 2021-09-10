@@ -221,7 +221,10 @@ class Contact
 	public static function update(array $fields, array $condition, $old_fields = [])
 	{
 		$ret = DBA::update('contact', $fields, $condition, $old_fields);
-		// @todo Apply changes to the "user-contact" table on dedicated fields
+
+		// Apply changes to the "user-contact" table on dedicated fields
+		Contact\User::UpdateByContactUpdate($fields, $condition);
+
 		return $ret;
 	}
 

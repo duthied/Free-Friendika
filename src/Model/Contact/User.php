@@ -21,12 +21,15 @@
 
 namespace Friendica\Model\Contact;
 
+use Exception;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\ItemURI;
+use PDOException;
 
 /**
  * This class provides information about user related contacts based on the "user-contact" table.
@@ -69,6 +72,43 @@ class User
 		Logger::info('Inserted user contact', ['uid' => $contact['uid'], 'cid' => $pcontact['id'], 'uri-id' => $contact['uri-id'], 'ret' => $ret]);
 
 		return $ret;
+	}
+
+	/**
+	 * Apply changes from contact update data to user-contact table
+	 *
+	 * @param array $fields 
+	 * @param array $condition 
+	 * @return void 
+	 * @throws PDOException 
+	 * @throws Exception 
+	 */
+	public static function UpdateByContactUpdate(array $fields, array $condition)
+	{
+		DBA::transaction();
+
+		unset($fields['uid']);
+		unset($fields['cid']);
+		unset($fields['uri-id']);
+
+		if (isset($fields['readonly'])) {
+			$fields['ignored'] = $fields['readonly'];
+		}
+
+		$update_fields = DBStructure::getFieldsForTable('user-contact', $fields);
+		if (!empty($update_fields)) {
+			$contacts = DBA::select('contact', ['uri-id', 'uid'], $condition);
+			while ($row = DBA::fetch($contacts)) {
+				if (empty($row['uri-id'])) {
+					continue;
+				}
+				$ret = DBA::update('user-contact', $update_fields, ['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
+				Logger::info('Updated user contact', ['uid' => $row['uid'], 'uri-id' => $row['uri-id'], 'ret' => $ret]);
+			}
+
+			DBA::close($contacts);
+		}
+		DBA::commit();	
 	}
 
 	/**
