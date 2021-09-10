@@ -164,6 +164,7 @@
 						{{include file="field_checkbox.tpl" field=$disable_embedded}}
 						{{include file="field_checkbox.tpl" field=$allow_users_remote_self}}
 						{{include file="field_checkbox.tpl" field=$explicit_content}}
+						{{include file="field_checkbox.tpl" field=$proxify_content}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
