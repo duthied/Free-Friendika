@@ -1367,7 +1367,7 @@ class Diaspora
 				'notify' => $data['notify'], 'poll' => $data['poll'],
 				'network' => $data['network']];
 
-		DBA::update('contact', $fields, ['addr' => $old_handle]);
+		Contact::update($fields, ['addr' => $old_handle]);
 
 		Logger::log('Contacts are updated.');
 
@@ -2129,7 +2129,7 @@ class Diaspora
 			$fields['bd'] = $birthday;
 		}
 
-		DBA::update('contact', $fields, ['id' => $contact['id']]);
+		Contact::update($fields, ['id' => $contact['id']]);
 
 		Logger::log("Profile of contact ".$contact["id"]." stored for user ".$importer["uid"], Logger::DEBUG);
 

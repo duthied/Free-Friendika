@@ -44,7 +44,7 @@ class RemoveUnusedAvatars
 		$count = 0;
 		$contacts = DBA::select('contact', ['id'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			DBA::update('contact', ['photo' => '', 'thumb' => '', 'micro' => ''], ['id' => $contact['id']]);
+			Contact::update(['photo' => '', 'thumb' => '', 'micro' => ''], ['id' => $contact['id']]);
 			Photo::delete(['contact-id' => $contact['id'], 'album' => Photo::CONTACT_PHOTOS]);
 			if ((++$count % 1000) == 0) {
 				if (!Worker::isInMaintenanceWindow()) {

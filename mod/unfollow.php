@@ -149,7 +149,7 @@ function unfollow_process(string $url)
 		Contact::remove($contact['id']);
 		$return_path = $base_return_path;
 	} else {
-		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
+		Contact::update(['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
 		$return_path = $base_return_path . '/' . $contact['id'];
 	}
 

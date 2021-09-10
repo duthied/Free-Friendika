@@ -3848,7 +3848,7 @@ function api_friendships_destroy($type)
 	if ($dissolve) {
 		Contact::remove($contact['id']);
 	} else {
-		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
+		Contact::update(['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
 	}
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -4504,14 +4504,14 @@ function api_account_update_profile($type)
 	if (!empty($_POST['name'])) {
 		DBA::update('profile', ['name' => $_POST['name']], ['uid' => $local_user]);
 		DBA::update('user', ['username' => $_POST['name']], ['uid' => $local_user]);
-		DBA::update('contact', ['name' => $_POST['name']], ['uid' => $local_user, 'self' => 1]);
-		DBA::update('contact', ['name' => $_POST['name']], ['id' => $api_user['id']]);
+		Contact::update(['name' => $_POST['name']], ['uid' => $local_user, 'self' => 1]);
+		Contact::update(['name' => $_POST['name']], ['id' => $api_user['id']]);
 	}
 
 	if (isset($_POST['description'])) {
 		DBA::update('profile', ['about' => $_POST['description']], ['uid' => $local_user]);
-		DBA::update('contact', ['about' => $_POST['description']], ['uid' => $local_user, 'self' => 1]);
-		DBA::update('contact', ['about' => $_POST['description']], ['id' => $api_user['id']]);
+		Contact::update(['about' => $_POST['description']], ['uid' => $local_user, 'self' => 1]);
+		Contact::update(['about' => $_POST['description']], ['id' => $api_user['id']]);
 	}
 
 	Profile::publishUpdate($local_user);

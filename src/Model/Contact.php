@@ -209,6 +209,23 @@ class Contact
 	}
 
 	/**
+	 * Updates rows in the contact table
+	 *
+	 * @param array         $fields     contains the fields that are updated
+	 * @param array         $condition  condition array with the key values
+	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate, false = don't update identical fields)
+	 *
+	 * @return boolean was the update successfull?
+	 * @throws \Exception
+	 */
+	public static function update(array $fields, array $condition, $old_fields = [])
+	{
+		$ret = DBA::update('contact', $fields, $condition, $old_fields);
+		// @todo Apply changes to the "user-contact" table on dedicated fields
+		return $ret;
+	}
+
+	/**
 	 * @param integer $id     Contact ID
 	 * @param array   $fields Array of selected fields, empty for all
 	 * @return array|boolean Contact record if it exists, false otherwise
@@ -765,12 +782,12 @@ class Contact
 				$fields['name-date'] = DateTimeFormat::utcNow();
 			}
 			$fields['updated'] = DateTimeFormat::utcNow();
-			DBA::update('contact', $fields, ['id' => $self['id']]);
+			self::update($fields, ['id' => $self['id']]);
 
 			// Update the public contact as well
 			$fields['prvkey'] = null;
 			$fields['self']   = false;
-			DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
+			self::update($fields, ['uid' => 0, 'nurl' => $self['nurl']]);
 
 			// Update the profile
 			$fields = ['photo' => DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix,
@@ -797,7 +814,7 @@ class Contact
 		}
 
 		// Archive the contact
-		DBA::update('contact', ['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
+		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
 
 		// Delete it in the background
 		Worker::add(PRIORITY_MEDIUM, 'RemoveContact', $id);
@@ -883,8 +900,8 @@ class Contact
 		}
 
 		if ($contact['term-date'] <= DBA::NULL_DATETIME) {
-			DBA::update('contact', ['term-date' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
-			DBA::update('contact', ['term-date' => DateTimeFormat::utcNow()], ['`nurl` = ? AND `term-date` <= ? AND NOT `self`', Strings::normaliseLink($contact['url']), DBA::NULL_DATETIME]);
+			self::update(['term-date' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+			self::update(['term-date' => DateTimeFormat::utcNow()], ['`nurl` = ? AND `term-date` <= ? AND NOT `self`', Strings::normaliseLink($contact['url']), DBA::NULL_DATETIME]);
 		} else {
 			/* @todo
 			 * We really should send a notification to the owner after 2-3 weeks
@@ -901,8 +918,8 @@ class Contact
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
 				 */
-				DBA::update('contact', ['archive' => true], ['id' => $contact['id']]);
-				DBA::update('contact', ['archive' => true], ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
+				self::update(['archive' => true], ['id' => $contact['id']]);
+				self::update(['archive' => true], ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
 			}
 		}
 	}
@@ -923,7 +940,7 @@ class Contact
 			$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false];
 			$condition = ['uid' => 0, 'network' => Protocol::FEDERATED, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
 			if (!DBA::exists('contact', array_merge($condition, $fields))) {
-				DBA::update('contact', $fields, $condition);
+				self::update($fields, $condition);
 			}
 		}
 
@@ -947,8 +964,8 @@ class Contact
 
 		// It's a miracle. Our dead contact has inexplicably come back to life.
 		$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false];
-		DBA::update('contact', $fields, ['id' => $contact['id']]);
-		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
+		self::update($fields, ['id' => $contact['id']]);
+		self::update($fields, ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
 	}
 
 	/**
@@ -1496,7 +1513,7 @@ class Contact
 	 */
 	public static function block($cid, $reason = null)
 	{
-		$return = DBA::update('contact', ['blocked' => true, 'block_reason' => $reason], ['id' => $cid]);
+		$return = self::update(['blocked' => true, 'block_reason' => $reason], ['id' => $cid]);
 
 		return $return;
 	}
@@ -1510,7 +1527,7 @@ class Contact
 	 */
 	public static function unblock($cid)
 	{
-		$return = DBA::update('contact', ['blocked' => false, 'block_reason' => null], ['id' => $cid]);
+		$return = self::update(['blocked' => false, 'block_reason' => null], ['id' => $cid]);
 
 		return $return;
 	}
@@ -1809,7 +1826,7 @@ class Contact
 		// Only update the cached photo links of public contacts when they already are cached
 		if (($uid == 0) && !$force && empty($contact['thumb']) && empty($contact['micro']) && !$create_cache) {
 			if ($contact['avatar'] != $avatar) {
-				DBA::update('contact', ['avatar' => $avatar], ['id' => $cid]);
+				self::update(['avatar' => $avatar], ['id' => $cid]);
 				Logger::info('Only update the avatar', ['id' => $cid, 'avatar' => $avatar, 'contact' => $contact]);
 			}
 			return;
@@ -1906,7 +1923,7 @@ class Contact
 		$cids[] = $cid;
 		$uids[] = $uid;
 		Logger::info('Updating cached contact avatars', ['cid' => $cids, 'uid' => $uids, 'fields' => $fields]);
-		DBA::update('contact', $fields, ['id' => $cids]);
+		self::update($fields, ['id' => $cids]);
 	}
 
 	public static function deleteContactByUrl(string $url)
@@ -1933,7 +1950,7 @@ class Contact
 	 */
 	private static function updateContact(int $id, int $uid, string $old_url, string $new_url, array $fields)
 	{
-		if (!DBA::update('contact', $fields, ['id' => $id])) {
+		if (!self::update($fields, ['id' => $id])) {
 			Logger::info('Couldn\'t update contact.', ['id' => $id, 'fields' => $fields]);
 			return;
 		}
@@ -1966,7 +1983,7 @@ class Contact
 		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($old_url)];
 
 		$condition['network'] = [Protocol::DFRN, Protocol::DIASPORA, Protocol::ACTIVITYPUB];
-		DBA::update('contact', $fields, $condition);
+		self::update($fields, $condition);
 
 		// We mustn't set the update fields for OStatus contacts since they are updated in OnePoll
 		$condition['network'] = Protocol::OSTATUS;
@@ -1982,7 +1999,7 @@ class Contact
 			return;
 		}
 
-		DBA::update('contact', $fields, $condition);
+		self::update($fields, $condition);
 	}
 
 	/**
@@ -2256,7 +2273,7 @@ class Contact
 			}
 		}
 		if (!empty($fields)) {
-			DBA::update('contact', $fields, ['id' => $id, 'self' => false]);
+			self::update($fields, ['id' => $id, 'self' => false]);
 			Logger::info('Updating local contact', ['id' => $id]);
 		}
 	}
@@ -2434,7 +2451,7 @@ class Contact
 			$new_relation = (($contact['rel'] == self::FOLLOWER) ? self::FRIEND : self::SHARING);
 
 			$fields = ['rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false];
-			DBA::update('contact', $fields, ['id' => $contact['id']]);
+			self::update($fields, ['id' => $contact['id']]);
 		} else {
 			$new_relation = (in_array($protocol, [Protocol::MAIL]) ? self::FRIEND : self::SHARING);
 
@@ -2567,7 +2584,7 @@ class Contact
 			$fields = ['url' => $contact['url'], 'request' => $contact['request'],
 					'notify' => $contact['notify'], 'poll' => $contact['poll'],
 					'confirm' => $contact['confirm'], 'poco' => $contact['poco']];
-			DBA::update('contact', $fields, ['id' => $contact['id']]);
+			self::update($fields, ['id' => $contact['id']]);
 		}
 
 		return $contact;
@@ -2670,7 +2687,7 @@ class Contact
 
 			if (($contact['rel'] == self::SHARING)
 				|| ($sharing && $contact['rel'] == self::FOLLOWER)) {
-				DBA::update('contact', ['rel' => self::FRIEND, 'writable' => true, 'pending' => false],
+				self::update(['rel' => self::FRIEND, 'writable' => true, 'pending' => false],
 						['id' => $contact['id'], 'uid' => $importer['uid']]);
 			}
 
@@ -2750,7 +2767,7 @@ class Contact
 					$fields['rel'] = self::FRIEND;
 				}
 
-				DBA::update('contact', $fields, $condition);
+				self::update($fields, $condition);
 
 				return true;
 			}
@@ -2762,7 +2779,7 @@ class Contact
 	public static function removeFollower($importer, $contact)
 	{
 		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::SHARING)) {
-			DBA::update('contact', ['rel' => self::SHARING], ['id' => $contact['id']]);
+			self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
 		} else {
 			self::remove($contact['id']);
 		}
@@ -2771,7 +2788,7 @@ class Contact
 	public static function removeSharer($importer, $contact)
 	{
 		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::FOLLOWER)) {
-			DBA::update('contact', ['rel' => self::FOLLOWER], ['id' => $contact['id']]);
+			self::update(['rel' => self::FOLLOWER], ['id' => $contact['id']]);
 		} else {
 			self::remove($contact['id']);
 		}

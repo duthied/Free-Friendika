@@ -1215,12 +1215,12 @@ class DFRN
 				'xmpp' => $contact['xmpp'], 'name-date' => DateTimeFormat::utc($contact['name-date']),
 				'unsearchable' => $contact['hidden'], 'uri-date' => DateTimeFormat::utc($contact['uri-date'])];
 
-			DBA::update('contact', $fields, ['id' => $contact['id'], 'network' => $contact['network']], $contact_old);
+			Contact::update($fields, ['id' => $contact['id'], 'network' => $contact['network']], $contact_old);
 
 			// Update the public contact. Don't set the "hidden" value, this is used differently for public contacts
 			unset($fields['hidden']);
 			$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($contact_old['url'])];
-			DBA::update('contact', $fields, $condition, true);
+			Contact::update($fields, $condition, true);
 
 			Contact::updateAvatar($contact['id'], $author['avatar']);
 
@@ -1400,7 +1400,7 @@ class DFRN
 			'poll' => $relocate["poll"], 'site-pubkey' => $relocate["sitepubkey"]];
 		$condition = ["(`id` = ?) OR (`nurl` = ?)", $importer["id"], Strings::normaliseLink($old["url"])];
 
-		DBA::update('contact', $fields, $condition);
+		Contact::update($fields, $condition);
 
 		Contact::updateAvatar($importer["id"], $relocate["avatar"], true);
 
@@ -2200,36 +2200,36 @@ class DFRN
 			$accounttype = intval(XML::getFirstNodeValue($xpath, "/atom:feed/dfrn:account_type/text()"));
 
 			if ($accounttype != $importer["contact-type"]) {
-				DBA::update('contact', ['contact-type' => $accounttype], ['id' => $importer['id']]);
+				Contact::update(['contact-type' => $accounttype], ['id' => $importer['id']]);
 
 				// Updating the public contact as well
-				DBA::update('contact', ['contact-type' => $accounttype], ['uid' => 0, 'nurl' => $importer['nurl']]);
+				Contact::update(['contact-type' => $accounttype], ['uid' => 0, 'nurl' => $importer['nurl']]);
 			}
 			// A forum contact can either have set "forum" or "prv" - but not both
 			if ($accounttype == User::ACCOUNT_TYPE_COMMUNITY) {
 				// It's a forum, so either set the public or private forum flag
 				$condition = ['(`forum` != ? OR `prv` != ?) AND `id` = ?', $forum, !$forum, $importer['id']];
-				DBA::update('contact', ['forum' => $forum, 'prv' => !$forum], $condition);
+				Contact::update(['forum' => $forum, 'prv' => !$forum], $condition);
 
 				// Updating the public contact as well
 				$condition = ['(`forum` != ? OR `prv` != ?) AND `uid` = 0 AND `nurl` = ?', $forum, !$forum, $importer['nurl']];
-				DBA::update('contact', ['forum' => $forum, 'prv' => !$forum], $condition);
+				Contact::update(['forum' => $forum, 'prv' => !$forum], $condition);
 			} else {
 				// It's not a forum, so remove the flags
 				$condition = ['(`forum` OR `prv`) AND `id` = ?', $importer['id']];
-				DBA::update('contact', ['forum' => false, 'prv' => false], $condition);
+				Contact::update(['forum' => false, 'prv' => false], $condition);
 
 				// Updating the public contact as well
 				$condition = ['(`forum` OR `prv`) AND `uid` = 0 AND `nurl` = ?', $importer['nurl']];
-				DBA::update('contact', ['forum' => false, 'prv' => false], $condition);
+				Contact::update(['forum' => false, 'prv' => false], $condition);
 			}
 		} elseif ($forum != $importer["forum"]) { // Deprecated since 3.5.1
 			$condition = ['`forum` != ? AND `id` = ?', $forum, $importer["id"]];
-			DBA::update('contact', ['forum' => $forum], $condition);
+			Contact::update(['forum' => $forum], $condition);
 
 			// Updating the public contact as well
 			$condition = ['`forum` != ? AND `uid` = 0 AND `nurl` = ?', $forum, $importer['nurl']];
-			DBA::update('contact', ['forum' => $forum], $condition);
+			Contact::update(['forum' => $forum], $condition);
 		}
 
 

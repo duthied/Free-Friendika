@@ -114,7 +114,7 @@ class Relation
 		}
 
 		if (empty($followers) && empty($followings)) {
-			DBA::update('contact', ['last-discovery' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+			Contact::update(['last-discovery' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 			Logger::info('The contact does not offer discoverable data', ['id' => $contact['id'], 'url' => $url, 'network' => $contact['network']]);
 			return;
 		}
@@ -162,7 +162,7 @@ class Relation
 			DBA::delete('contact-relation', ['cid' => $target, 'follows' => false, 'last-interaction' => DBA::NULL_DATETIME]);
 		}
 
-		DBA::update('contact', ['last-discovery' => DateTimeFormat::utcNow()], ['id' => $target]);
+		Contact::update(['last-discovery' => DateTimeFormat::utcNow()], ['id' => $target]);
 		Logger::info('Contacts discovery finished', ['id' => $target, 'url' => $url, 'follower' => $follower_counter, 'following' => $following_counter]);
 		return;
 	}

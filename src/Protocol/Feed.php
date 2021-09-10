@@ -732,7 +732,7 @@ class Feed
 
 		if ($contact['rating'] != $priority) {
 			Logger::notice('Adjusting priority', ['old' => $contact['rating'], 'new' => $priority, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
-			DBA::update('contact', ['rating' => $priority], ['id' => $contact['id']]);
+			Contact::update(['rating' => $priority], ['id' => $contact['id']]);
 		}
 	}
 

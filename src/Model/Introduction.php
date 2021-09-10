@@ -110,7 +110,7 @@ class Introduction extends BaseModel
 			'hidden'    => $hidden ?? $contact['hidden'],
 			'rel'       => $newRelation,
 		];
-		$this->dba->update('contact', $fields, ['id' => $contact['id']]);
+		Contact::update($fields, ['id' => $contact['id']]);
 
 		array_merge($contact, $fields);
 
@@ -159,7 +159,7 @@ class Introduction extends BaseModel
 			if ($this->dba->exists('contact', $condition)) {
 				Contact::remove($this->{'contact-id'});
 			} else {
-				$this->dba->update('contact', ['pending' => false], ['id' => $this->{'contact-id'}]);
+				Contact::update(['pending' => false], ['id' => $this->{'contact-id'}]);
 			}
 		}
 

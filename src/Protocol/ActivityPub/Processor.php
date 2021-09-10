@@ -912,7 +912,7 @@ class Processor
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (!empty($cid)) {
 			self::switchContact($cid);
-			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
+			Contact::update(['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
 
 		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
@@ -932,7 +932,7 @@ class Processor
 		}
 
 		if (empty($contact)) {
-			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
+			Contact::update(['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
 
 		Logger::notice('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
@@ -1011,7 +1011,7 @@ class Processor
 		}
 
 		$condition = ['id' => $cid];
-		DBA::update('contact', $fields, $condition);
+		Contact::update($fields, $condition);
 		Logger::info('Accept contact request', ['contact' => $cid, 'user' => $uid]);
 	}
 

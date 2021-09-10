@@ -166,7 +166,7 @@ class Relay
 			$fields['updated'] = DateTimeFormat::utcNow();
 
 			Logger::info('Update relay contact', ['server' => $gserver['url'], 'id' => $old['id'], 'fields' => $fields]);
-			DBA::update('contact', $fields, ['id' => $old['id']], $old);
+			Contact::update($fields, ['id' => $old['id']], $old);
 		} else {
 			$default = ['created' => DateTimeFormat::utcNow(),
 				'name' => 'relay', 'nick' => 'relay', 'url' => $gserver['url'],

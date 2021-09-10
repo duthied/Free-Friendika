@@ -115,7 +115,7 @@ class Transmitter
 		$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact['id']);
 		$success = ActivityPub\Transmitter::sendActivity('Follow', $url, 0, $activity_id);
 		if ($success) {
-			DBA::update('contact', ['rel' => Contact::FRIEND], ['id' => $contact['id']]);
+			Contact::update(['rel' => Contact::FRIEND], ['id' => $contact['id']]);
 		}
 
 		return $success;
@@ -137,7 +137,7 @@ class Transmitter
 
 		$success = self::sendContactUndo($url, $contact['id'], 0);
 		if ($success || $force) {
-			DBA::update('contact', ['rel' => Contact::NOTHING], ['id' => $contact['id']]);
+			Contact::update(['rel' => Contact::NOTHING], ['id' => $contact['id']]);
 		}
 
 		return $success;
