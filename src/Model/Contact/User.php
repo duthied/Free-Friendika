@@ -22,7 +22,6 @@
 namespace Friendica\Model\Contact;
 
 use Exception;
-use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\Database;
