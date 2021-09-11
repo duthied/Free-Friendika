@@ -62,7 +62,7 @@ class User
 		$pcontact = Contact::selectFirst(['id'], ['uri-id' => $contact['uri-id'], 'uid' => 0]);
 		if (!empty($contact['uri-id']) && DBA::isResult($pcontact)) {
 			$pcid = $pcontact['id'];
-		} elseif (empty($contact['url']) || !($pcid = Contact::getIdForURL($contact['url']))) {
+		} elseif (empty($contact['url']) || !($pcid = Contact::getIdForURL($contact['url'], 0, false))) {
 			Logger::info('Public contact for user not found', ['uri-id' => $contact['uri-id'], 'uid' => $contact['uid']]);
 			return false;
 		}
