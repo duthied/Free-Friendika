@@ -390,7 +390,7 @@ steps:
         --transform "s,^,$RELEASE/,"
         -X mods/release-list-exclude.txt
         -T mods/release-list-include.txt
-        -cvjf ./build/$ARTIFACT
+        -cvzf ./build/$ARTIFACT
       - # calculate SHA256 checksum
       - cd ./build
       - sha256sum "$ARTIFACT" > "$ARTIFACT.sum256"
@@ -498,7 +498,7 @@ steps:
         --transform "s,^,$RELEASE/,"
         -X mods/release-list-exclude.txt
         -T mods/release-list-include.txt
-        -cvjf ./build/$ARTIFACT
+        -cvzf ./build/$ARTIFACT
       - # calculate SHA256 checksum
       - cd ./build
       - sha256sum "$ARTIFACT" > "$ARTIFACT.sum256"
