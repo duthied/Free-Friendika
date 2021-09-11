@@ -45,7 +45,12 @@ class User
 	 */
 	public static function insertForContactArray(array $contact)
 	{
-		if (!isset($contact['uid']) || (empty($contact['uri-id']) && empty($contact['url']))) {
+		if (empty($contact['uid'])) {
+			// We don't create entries for the public user - by now
+			return false;
+		}
+
+		if (empty($contact['uri-id']) && empty($contact['url'])) {
 			Logger::info('Missing contact details', ['contact' => $contact, 'callstack' => System::callstack(20)]);
 			return false;
 		}
@@ -55,7 +60,9 @@ class User
 		}
 
 		$pcontact = Contact::selectFirst(['id'], ['uri-id' => $contact['uri-id'], 'uid' => 0]);
-		if (!DBA::isResult($pcontact)) {
+		if (!empty($contact['uri-id']) && DBA::isResult($pcontact)) {
+			$pcid = $pcontact['id'];
+		} elseif (empty($contact['url']) || !($pcid = Contact::getIdForURL($contact['url']))) {
 			Logger::info('Public contact for user not found', ['uri-id' => $contact['uri-id'], 'uid' => $contact['uid']]);
 			return false;
 		}
@@ -67,13 +74,13 @@ class User
 		}
 
 		$fields = DBStructure::getFieldsForTable('user-contact', $fields);
-		$fields['cid'] = $pcontact['id'];
+		$fields['cid'] = $pcid;
 		$fields['uid'] = $contact['uid'];
 		$fields['uri-id'] = $contact['uri-id'];
 
-		$ret = DBA::insert('user-contact', $fields, Database::INSERT_IGNORE);
+		$ret = DBA::insert('user-contact', $fields, Database::INSERT_UPDATE);
 
-		Logger::info('Inserted user contact', ['uid' => $contact['uid'], 'cid' => $pcontact['id'], 'uri-id' => $contact['uri-id'], 'ret' => $ret]);
+		Logger::info('Inserted user contact', ['uid' => $contact['uid'], 'cid' => $pcid, 'uri-id' => $contact['uri-id'], 'ret' => $ret]);
 
 		return $ret;
 	}
@@ -103,7 +110,7 @@ class User
 		if (!empty($update_fields)) {
 			$contacts = DBA::select('contact', ['uri-id', 'uid'], $condition);
 			while ($row = DBA::fetch($contacts)) {
-				if (empty($row['uri-id'])) {
+				if (empty($row['uri-id']) || empty($contact['uid'])) {
 					continue;
 				}
 				$ret = DBA::update('user-contact', $update_fields, ['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
