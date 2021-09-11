@@ -36,6 +36,13 @@ use Friendica\Core\Config\Cache;
 class ConfigFileLoader
 {
 	/**
+	 * The key of the $_SERVER variable to override the config directory
+	 *
+	 * @var string
+	 */
+	const CONFIG_DIR_ENV = 'FRIENDICA_CONFIG_DIR';
+
+	/**
 	 * The Sub directory of the config-files
 	 *
 	 * @var string
@@ -83,10 +90,14 @@ class ConfigFileLoader
 	 */
 	private $staticDir;
 
-	public function __construct(string $basePath)
+	public function __construct(string $basePath, array $server)
 	{
-		$this->baseDir   = $basePath;
-		$this->configDir = $this->baseDir . DIRECTORY_SEPARATOR . self::CONFIG_DIR;
+		$this->baseDir = $basePath;
+		if (!empty($server[self::CONFIG_DIR_ENV]) && is_dir($server[self::CONFIG_DIR_ENV])) {
+			$this->configDir = $server[self::CONFIG_DIR_ENV];
+		} else {
+			$this->configDir = $this->baseDir . DIRECTORY_SEPARATOR . self::CONFIG_DIR;
+		}
 		$this->staticDir = $this->baseDir . DIRECTORY_SEPARATOR . self::STATIC_DIR;
 	}
 

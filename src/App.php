@@ -352,7 +352,7 @@ class App
 			$this->profiler->update($this->config);
 
 			Core\Hook::loadHooks();
-			$loader = new ConfigFileLoader($this->getBasePath());
+			$loader = new ConfigFileLoader($this->getBasePath(), $_SERVER);
 			Core\Hook::callAll('load_config', $loader);
 		}
 

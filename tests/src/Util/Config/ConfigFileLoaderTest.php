@@ -45,7 +45,7 @@ class ConfigFileLoaderTest extends MockedTest
 	{
 		$this->delConfigFile('local.config.php');
 
-		$configFileLoader = new ConfigFileLoader($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), []);
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
@@ -67,7 +67,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->at($this->root->getChild('config'))
 			->setContent('<?php return true;');
 
-		$configFileLoader = new ConfigFileLoader($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), []);
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
@@ -91,7 +91,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->at($this->root->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configFileLoader = new ConfigFileLoader($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), []);
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
@@ -123,7 +123,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->at($this->root->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configFileLoader = new ConfigFileLoader($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), []);
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
@@ -154,7 +154,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->at($this->root)
 			->setContent(file_get_contents($file));
 
-		$configFileLoader = new ConfigFileLoader($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), []);
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
@@ -203,7 +203,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->at($this->root->getChild('addon')->getChild('test')->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configFileLoader = new ConfigFileLoader($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), []);
 
 		$conf = $configFileLoader->loadAddonConfig('test');
 
@@ -235,7 +235,7 @@ class ConfigFileLoaderTest extends MockedTest
 				->at($this->root->getChild('config'))
 		         ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
-		$configFileLoader = new ConfigFileLoader($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), []);
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
@@ -264,7 +264,7 @@ class ConfigFileLoaderTest extends MockedTest
 		         ->at($this->root->getChild('config'))
 		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
-		$configFileLoader = new ConfigFileLoader($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), []);
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
@@ -293,12 +293,52 @@ class ConfigFileLoaderTest extends MockedTest
 		         ->at($this->root->getChild('config'))
 		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
-		$configFileLoader = new ConfigFileLoader($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), []);
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
 		self::assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
 		self::assertEmpty($configCache->get('system', 'NewKey'));
+	}
+
+	/**
+	 * Test that using a wrong configuration directory leads to the "normal" config path
+	 */
+	public function testWrongEnvDir()
+	{
+		$this->delConfigFile('local.config.php');
+
+		$configFileLoader = new ConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => '/a/wrong/dir/']);
+		$configCache = new Cache();
+
+		$configFileLoader->setupCache($configCache);
+
+		self::assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
+	}
+
+	/**
+	 * Test that a different location of the configuration directory produces the expected output
+	 */
+	public function testRightEnvDir()
+	{
+		$this->delConfigFile('local.config.php');
+
+		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
+
+		vfsStream::newFile('B.config.php')
+				 ->at($this->root->getChild('config2'))
+				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
+
+		$configFileLoader = new ConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url()]);
+		$configCache = new Cache();
+
+		$configFileLoader->setupCache($configCache);
+
+		self::assertEquals('newValue', $configCache->get('system', 'newKey'));
 	}
 }

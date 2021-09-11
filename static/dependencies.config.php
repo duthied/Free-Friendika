@@ -77,6 +77,7 @@ return [
 		'shared'          => true,
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
+			$_SERVER,
 		],
 	],
 	Config\Cache::class          => [
