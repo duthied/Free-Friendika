@@ -36,27 +36,6 @@ use Friendica\Core\Config\Cache;
 class ConfigFileLoader
 {
 	/**
-	 * The key of the $_SERVER variable to override the config directory
-	 *
-	 * @var string
-	 */
-	const CONFIG_DIR_ENV = 'FRIENDICA_CONFIG_DIR';
-
-	/**
-	 * The Sub directory of the config-files
-	 *
-	 * @var string
-	 */
-	const CONFIG_DIR = 'config';
-
-	/**
-	 * The Sub directory of the static config-files
-	 *
-	 * @var string
-	 */
-	const STATIC_DIR = 'static';
-
-	/**
 	 * The default name of the user defined ini file
 	 *
 	 * @var string
@@ -90,15 +69,16 @@ class ConfigFileLoader
 	 */
 	private $staticDir;
 
-	public function __construct(string $basePath, array $server)
+	/**
+	 * @param string $baseDir   The base
+	 * @param string $configDir
+	 * @param string $staticDir
+	 */
+	public function __construct(string $baseDir, string $configDir, string $staticDir)
 	{
-		$this->baseDir = $basePath;
-		if (!empty($server[self::CONFIG_DIR_ENV]) && is_dir($server[self::CONFIG_DIR_ENV])) {
-			$this->configDir = $server[self::CONFIG_DIR_ENV];
-		} else {
-			$this->configDir = $this->baseDir . DIRECTORY_SEPARATOR . self::CONFIG_DIR;
-		}
-		$this->staticDir = $this->baseDir . DIRECTORY_SEPARATOR . self::STATIC_DIR;
+		$this->baseDir   = $baseDir;
+		$this->configDir = $configDir;
+		$this->staticDir = $staticDir;
 	}
 
 	/**
@@ -113,7 +93,7 @@ class ConfigFileLoader
 	 *
 	 * @throws Exception
 	 */
-	public function setupCache(Cache $config, array $server = [], $raw = false)
+	public function setupCache(Cache $config, array $server = [], bool $raw = false)
 	{
 		// Load static config files first, the order is important
 		$config->load($this->loadStaticConfig('defaults'), Cache::SOURCE_FILE);
@@ -196,7 +176,7 @@ class ConfigFileLoader
 		$filepath = $this->baseDir . DIRECTORY_SEPARATOR .   // /var/www/html/
 		            Addon::DIRECTORY . DIRECTORY_SEPARATOR . // addon/
 		            $name . DIRECTORY_SEPARATOR .            // openstreetmap/
-		            self::CONFIG_DIR . DIRECTORY_SEPARATOR . // config/
+		            'config'. DIRECTORY_SEPARATOR . 		 // config/
 		            $name . ".config.php";                   // openstreetmap.config.php
 
 		if (file_exists($filepath)) {
@@ -217,9 +197,8 @@ class ConfigFileLoader
 	 */
 	public function loadEnvConfig(array $server)
 	{
-		$filepath = $this->baseDir . DIRECTORY_SEPARATOR .   // /var/www/html/
-					self::STATIC_DIR . DIRECTORY_SEPARATOR . // static/
-					"env.config.php";                        // env.config.php
+		$filepath = $this->staticDir . DIRECTORY_SEPARATOR .   // /var/www/html/static/
+					"env.config.php";                          // env.config.php
 
 		if (!file_exists($filepath)) {
 			return [];
