@@ -327,8 +327,13 @@ class BBCode
 						}
 					}
 				} elseif (count($pictures) > 0) {
-					$post['type'] = 'link';
-					$post['url'] = $plink;
+					if (count($pictures) > 4) {
+						$post['type'] = 'link';
+						$post['url'] = $plink;
+					} else {
+						$post['type'] = 'photo';
+					}
+
 					$post['image'] = $pictures[0][2];
 					$post['text'] = $body;
 
