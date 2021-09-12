@@ -164,6 +164,10 @@ return [
 		// Comma separated list of tags that are rejected.
 		'relay_deny_tags' => '',
 
+		// proxify_content (Boolean)
+		// Use the proxy functionality for fetching external content
+		'proxify_content' => true,
+
 		// relay_directly (Boolean)
 		// Directly transmit content to relay subscribers without using a relay server
 		'relay_directly' => false,

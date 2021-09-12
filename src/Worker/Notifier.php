@@ -744,7 +744,7 @@ class Notifier
 
 		// Also don't deliver when the direct thread parent was delivered via Diaspora
 		if ($thr_parent['network'] == Protocol::DIASPORA) {
-			Logger::info('Threat parent network is Diaspora, so no AP delivery');
+			Logger::info('Thread parent network is Diaspora, so no AP delivery');
 			return ['count' => 0, 'contacts' => []];
 		}
 
