@@ -2289,14 +2289,14 @@ class BBCode
 	}
 
 	/**
-	 * Expand tags to URLs
+	 * Expand tags to URLs, checks the tag is at the start of a line or preceded by a non-word character
 	 *
 	 * @param string $body
 	 * @return string body with expanded tags
 	 */
 	public static function expandTags(string $body)
 	{
-		return preg_replace_callback("/([!#@])([^\^ \x0D\x0A,;:?\']*[^\^ \x0D\x0A,;:?!\'.])/",
+		return preg_replace_callback("/(?<=\W|^)([!#@])([^\^ \x0D\x0A,;:?'\"]*[^\^ \x0D\x0A,;:?!'\".])/",
 			function ($match) {
 				switch ($match[1]) {
 					case '!':
@@ -2309,6 +2309,7 @@ class BBCode
 						}
 						break;
 					case '#':
+					default:
 						return $match[1] . '[url=' . 'https://' . DI::baseUrl() . '/search?tag=' . $match[2] . ']' . $match[2] . '[/url]';
 				}
 			}, $body);
