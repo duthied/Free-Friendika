@@ -133,6 +133,7 @@ class Contact
 	const FOLLOWER = 1;
 	const SHARING  = 2;
 	const FRIEND   = 3;
+	const SELF     = 4;
 	/**
 	 * @}
 	 */

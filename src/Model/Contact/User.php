@@ -72,6 +72,10 @@ class User
 			$fields['ignored'] = $fields['readonly'];
 		}
 
+		if (!empty($fields['self'])) {
+			$fields['rel'] = Contact::SELF;
+		}
+
 		$fields = DBStructure::getFieldsForTable('user-contact', $fields);
 		$fields['cid'] = $pcid;
 		$fields['uid'] = $contact['uid'];
@@ -103,6 +107,10 @@ class User
 
 		if (isset($fields['readonly'])) {
 			$fields['ignored'] = $fields['readonly'];
+		}
+
+		if (!empty($fields['self'])) {
+			$fields['rel'] = Contact::SELF;
 		}
 
 		$update_fields = DBStructure::getFieldsForTable('user-contact', $fields);
