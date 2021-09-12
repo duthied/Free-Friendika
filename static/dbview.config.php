@@ -733,7 +733,6 @@
 			"poll" => ["contact", "poll"],
 			"confirm" => ["contact", "confirm"],
 			"poco" => ["contact", "poco"],
-			"usehub" => ["contact", "usehub"],
 			"subhub" => ["contact", "subhub"],
 			"hub-verify" => ["contact", "hub-verify"],
 			"last-update" => ["contact", "last-update"],

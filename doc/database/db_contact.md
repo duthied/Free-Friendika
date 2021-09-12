@@ -51,7 +51,7 @@ Fields
 | poco                      |                                                              | varchar(255)       | YES  |     | NULL                |                |
 | aes_allow                 | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
 | ret-aes                   | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
-| usehub                    |                                                              | boolean            | NO   |     | 0                   |                |
+| usehub                    | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
 | subhub                    |                                                              | boolean            | NO   |     | 0                   |                |
 | hub-verify                |                                                              | varchar(255)       | NO   |     |                     |                |
 | last-update               | Date of the last try to update the contact info              | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
@@ -83,7 +83,7 @@ Fields
 | baseurl                   | baseurl of the contact                                       | varchar(255)       | YES  |     |                     |                |
 | gsid                      | Global Server ID                                             | int unsigned       | YES  |     | NULL                |                |
 | reason                    |                                                              | text               | YES  |     | NULL                |                |
-| closeness                 |                                                              | tinyint unsigned   | NO   |     | 99                  |                |
+| closeness                 | Deprecated                                                   | tinyint unsigned   | NO   |     | 99                  |                |
 | info                      |                                                              | mediumtext         | YES  |     | NULL                |                |
 | profile-id                | Deprecated                                                   | int unsigned       | YES  |     | NULL                |                |
 | bdyear                    |                                                              | varchar(4)         | NO   |     |                     |                |

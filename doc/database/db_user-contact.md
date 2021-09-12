@@ -14,11 +14,16 @@ Fields
 | blocked                   | Contact is completely blocked for this user                  | boolean            | YES  |     | NULL    |       |
 | ignored                   | Posts from this contact are ignored                          | boolean            | YES  |     | NULL    |       |
 | collapsed                 | Posts from this contact are collapsed                        | boolean            | YES  |     | NULL    |       |
+| pending                   |                                                              | boolean            | YES  |     | NULL    |       |
 | rel                       | The kind of the relation between the user and the contact    | tinyint unsigned   | YES  |     | NULL    |       |
 | info                      |                                                              | mediumtext         | YES  |     | NULL    |       |
 | notify_new_posts          |                                                              | boolean            | YES  |     | NULL    |       |
+| remote_self               |                                                              | boolean            | YES  |     | NULL    |       |
 | fetch_further_information |                                                              | tinyint unsigned   | YES  |     | NULL    |       |
 | ffi_keyword_denylist      |                                                              | text               | YES  |     | NULL    |       |
+| subhub                    |                                                              | boolean            | YES  |     | NULL    |       |
+| hub-verify                |                                                              | varchar(255)       | YES  |     | NULL    |       |
+| protocol                  | Protocol of the contact                                      | char(4)            | YES  |     | NULL    |       |
 
 Indexes
 ------------
