@@ -1584,7 +1584,7 @@ class DFRN
 			}
 			if ($activity->match($item["verb"], Activity::UNFOLLOW)) {
 				Logger::log("Lost follower");
-				Contact::removeFollower($importer, $contact, $item);
+				Contact::removeFollower($contact);
 				return false;
 			}
 			if ($activity->match($item["verb"], Activity::REQ_FRIEND)) {

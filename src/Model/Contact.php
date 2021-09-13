@@ -2757,12 +2757,14 @@ class Contact
 		return null;
 	}
 
-	public static function removeFollower($importer, $contact)
+	public static function removeFollower(array $contact)
 	{
-		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::SHARING)) {
+		if (!empty($contact['rel']) && (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::SHARING))) {
 			DBA::update('contact', ['rel' => self::SHARING], ['id' => $contact['id']]);
-		} else {
+		} elseif (!empty($contact['id'])) {
 			self::remove($contact['id']);
+		} else {
+			DI::logger()->info('Couldn\'t remove follower because of invalid contact array', ['contact' => $contact]);
 		}
 	}
 

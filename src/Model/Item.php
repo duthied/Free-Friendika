@@ -2292,9 +2292,9 @@ class Item
 				continue;
 			} elseif (!$expire_starred && intval($item['starred'])) {
 				continue;
-			} elseif (!$expire_notes && ($item['post-type'] == self::PT_PERSONAL_NOTE)) {
+			} elseif (!$expire_notes && (($item['post-type'] ?? null) == self::PT_PERSONAL_NOTE)) {
 				continue;
-			} elseif (!$expire_items && ($item['post-type'] != self::PT_PERSONAL_NOTE)) {
+			} elseif (!$expire_items && (($item['post-type'] ?? null) != self::PT_PERSONAL_NOTE)) {
 				continue;
 			}
 
