@@ -1526,6 +1526,8 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`subhub` boolean COMMENT '',
 	`hub-verify` varchar(255) COMMENT '',
 	`protocol` char(4) COMMENT 'Protocol of the contact',
+	`rating` tinyint COMMENT 'Automatically detected feed poll frequency',
+	`priority` tinyint unsigned COMMENT 'Feed poll priority',
 	 PRIMARY KEY(`uid`,`cid`),
 	 INDEX `cid` (`cid`),
 	 UNIQUE INDEX `uri-id_uid` (`uri-id`,`uid`),

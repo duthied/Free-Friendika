@@ -1548,6 +1548,8 @@ return [
 			"subhub" => ["type" => "boolean", "comment" => ""],
 			"hub-verify" => ["type" => "varchar(255)", "comment" => ""],
 			"protocol" => ["type" => "char(4)", "comment" => "Protocol of the contact"],
+			"rating" => ["type" => "tinyint", "comment" => "Automatically detected feed poll frequency"],
+			"priority" => ["type" => "tinyint unsigned", "comment" => "Feed poll priority"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "cid"],

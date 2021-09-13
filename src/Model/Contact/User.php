@@ -66,17 +66,7 @@ class User
 			return false;
 		}
 
-		$fields = $contact;
-
-		if (isset($fields['readonly'])) {
-			$fields['ignored'] = $fields['readonly'];
-		}
-
-		if (!empty($fields['self'])) {
-			$fields['rel'] = Contact::SELF;
-		}
-
-		$fields = DBStructure::getFieldsForTable('user-contact', $fields);
+		$fields = self::preparedFields($contact);
 		$fields['cid'] = $pcid;
 		$fields['uid'] = $contact['uid'];
 		$fields['uri-id'] = $contact['uri-id'];
@@ -101,19 +91,7 @@ class User
 	{
 		DBA::transaction();
 
-		unset($fields['uid']);
-		unset($fields['cid']);
-		unset($fields['uri-id']);
-
-		if (isset($fields['readonly'])) {
-			$fields['ignored'] = $fields['readonly'];
-		}
-
-		if (!empty($fields['self'])) {
-			$fields['rel'] = Contact::SELF;
-		}
-
-		$update_fields = DBStructure::getFieldsForTable('user-contact', $fields);
+		$update_fields = self::preparedFields($fields);
 		if (!empty($update_fields)) {
 			$contacts = DBA::select('contact', ['uri-id', 'uid'], $condition);
 			while ($row = DBA::fetch($contacts)) {
@@ -127,6 +105,29 @@ class User
 			DBA::close($contacts);
 		}
 		DBA::commit();	
+	}
+
+	/**
+	 * Prepare field data for update/insert
+	 *
+	 * @param array $fields
+	 * @return array prepared fields
+	 */
+	private static function preparedFields(array $fields): array
+	{
+		unset($fields['uid']);
+		unset($fields['cid']);
+		unset($fields['uri-id']);
+
+		if (isset($fields['readonly'])) {
+			$fields['ignored'] = $fields['readonly'];
+		}
+
+		if (!empty($fields['self'])) {
+			$fields['rel'] = Contact::SELF;
+		}
+
+		return DBStructure::getFieldsForTable('user-contact', $fields);
 	}
 
 	/**
