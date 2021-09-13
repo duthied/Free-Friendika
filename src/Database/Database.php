@@ -1461,8 +1461,13 @@ class Database
 
 		$row = $this->fetchFirst($sql, $condition);
 
-		// Ensure to always return either a "null" or a numeric value
-		return is_numeric($row['count']) ? (int)$row['count'] : $row['count'];
+		if (empty($row['count'])) {
+			$this->logger->notice('Invalid count.', ['table' => $table, 'expression' => $expression, 'condition' => $condition_string]);
+			return 0;
+		} else {
+			// Ensure to always return either a "null" or a numeric value
+			return is_numeric($row['count']) ? (int)$row['count'] : $row['count'];
+		}
 	}
 
 	/**
