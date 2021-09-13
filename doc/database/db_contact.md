@@ -6,91 +6,91 @@ contact table
 Fields
 ------
 
-| Field                     | Description                                                  | Type               | Null | Key | Default             | Extra          |
-| ------------------------- | ------------------------------------------------------------ | ------------------ | ---- | --- | ------------------- | -------------- |
-| id                        | sequential ID                                                | int unsigned       | NO   | PRI | NULL                | auto_increment |
-| uid                       | Owner User id                                                | mediumint unsigned | NO   |     | 0                   |                |
-| created                   |                                                              | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| updated                   | Date of last contact update                                  | datetime           | YES  |     | 0001-01-01 00:00:00 |                |
-| self                      | 1 if the contact is the user him/her self                    | boolean            | NO   |     | 0                   |                |
-| remote_self               |                                                              | boolean            | NO   |     | 0                   |                |
-| rel                       | The kind of the relation between the user and the contact    | tinyint unsigned   | NO   |     | 0                   |                |
-| duplex                    | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
-| network                   | Network of the contact                                       | char(4)            | NO   |     |                     |                |
-| protocol                  | Protocol of the contact                                      | char(4)            | NO   |     |                     |                |
-| name                      | Name that this contact is known by                           | varchar(255)       | NO   |     |                     |                |
-| nick                      | Nick- and user name of the contact                           | varchar(255)       | NO   |     |                     |                |
-| location                  |                                                              | varchar(255)       | YES  |     |                     |                |
-| about                     |                                                              | text               | YES  |     | NULL                |                |
-| keywords                  | public keywords (interests) of the contact                   | text               | YES  |     | NULL                |                |
-| gender                    | Deprecated                                                   | varchar(32)        | NO   |     |                     |                |
-| xmpp                      | XMPP address                                                 | varchar(255)       | NO   |     |                     |                |
-| matrix                    | Matrix address                                               | varchar(255)       | NO   |     |                     |                |
-| attag                     |                                                              | varchar(255)       | NO   |     |                     |                |
-| avatar                    |                                                              | varchar(255)       | NO   |     |                     |                |
-| photo                     | Link to the profile photo of the contact                     | varchar(255)       | YES  |     |                     |                |
-| thumb                     | Link to the profile photo (thumb size)                       | varchar(255)       | YES  |     |                     |                |
-| micro                     | Link to the profile photo (micro size)                       | varchar(255)       | YES  |     |                     |                |
-| header                    | Header picture                                               | varchar(255)       | YES  |     | NULL                |                |
-| site-pubkey               | Deprecated                                                   | text               | YES  |     | NULL                |                |
-| issued-id                 | Deprecated                                                   | varchar(255)       | NO   |     |                     |                |
-| dfrn-id                   | Deprecated                                                   | varchar(255)       | NO   |     |                     |                |
-| url                       |                                                              | varchar(255)       | NO   |     |                     |                |
-| nurl                      |                                                              | varchar(255)       | NO   |     |                     |                |
-| uri-id                    | Id of the item-uri table entry that contains the contact url | int unsigned       | YES  |     | NULL                |                |
-| addr                      |                                                              | varchar(255)       | NO   |     |                     |                |
-| alias                     |                                                              | varchar(255)       | NO   |     |                     |                |
-| pubkey                    | RSA public key 4096 bit                                      | text               | YES  |     | NULL                |                |
-| prvkey                    | RSA private key 4096 bit                                     | text               | YES  |     | NULL                |                |
-| batch                     |                                                              | varchar(255)       | NO   |     |                     |                |
-| request                   |                                                              | varchar(255)       | YES  |     | NULL                |                |
-| notify                    |                                                              | varchar(255)       | YES  |     | NULL                |                |
-| poll                      |                                                              | varchar(255)       | YES  |     | NULL                |                |
-| confirm                   |                                                              | varchar(255)       | YES  |     | NULL                |                |
-| subscribe                 |                                                              | varchar(255)       | YES  |     | NULL                |                |
-| poco                      |                                                              | varchar(255)       | YES  |     | NULL                |                |
-| aes_allow                 | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
-| ret-aes                   | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
-| usehub                    | Deprecated                                                   | boolean            | NO   |     | 0                   |                |
-| subhub                    |                                                              | boolean            | NO   |     | 0                   |                |
-| hub-verify                |                                                              | varchar(255)       | NO   |     |                     |                |
-| last-update               | Date of the last try to update the contact info              | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| success_update            | Date of the last successful contact update                   | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| failure_update            | Date of the last failed update                               | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| failed                    | Connection failed                                            | boolean            | YES  |     | NULL                |                |
-| name-date                 |                                                              | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| uri-date                  |                                                              | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| avatar-date               |                                                              | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| term-date                 |                                                              | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| last-item                 | date of the last post                                        | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| last-discovery            | date of the last follower discovery                          | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| priority                  |                                                              | tinyint unsigned   | NO   |     | 0                   |                |
-| blocked                   | Node-wide block status                                       | boolean            | NO   |     | 1                   |                |
-| block_reason              | Node-wide block reason                                       | text               | YES  |     | NULL                |                |
-| readonly                  | posts of the contact are readonly                            | boolean            | NO   |     | 0                   |                |
-| writable                  |                                                              | boolean            | NO   |     | 0                   |                |
-| forum                     | contact is a forum                                           | boolean            | NO   |     | 0                   |                |
-| prv                       | contact is a private group                                   | boolean            | NO   |     | 0                   |                |
-| contact-type              |                                                              | tinyint            | NO   |     | 0                   |                |
-| manually-approve          |                                                              | boolean            | YES  |     | NULL                |                |
-| hidden                    |                                                              | boolean            | NO   |     | 0                   |                |
-| archive                   |                                                              | boolean            | NO   |     | 0                   |                |
-| pending                   |                                                              | boolean            | NO   |     | 1                   |                |
-| deleted                   | Contact has been deleted                                     | boolean            | NO   |     | 0                   |                |
-| rating                    |                                                              | tinyint            | NO   |     | 0                   |                |
-| unsearchable              | Contact prefers to not be searchable                         | boolean            | NO   |     | 0                   |                |
-| sensitive                 | Contact posts sensitive content                              | boolean            | NO   |     | 0                   |                |
-| baseurl                   | baseurl of the contact                                       | varchar(255)       | YES  |     |                     |                |
-| gsid                      | Global Server ID                                             | int unsigned       | YES  |     | NULL                |                |
-| reason                    |                                                              | text               | YES  |     | NULL                |                |
-| closeness                 | Deprecated                                                   | tinyint unsigned   | NO   |     | 99                  |                |
-| info                      |                                                              | mediumtext         | YES  |     | NULL                |                |
-| profile-id                | Deprecated                                                   | int unsigned       | YES  |     | NULL                |                |
-| bdyear                    |                                                              | varchar(4)         | NO   |     |                     |                |
-| bd                        |                                                              | date               | NO   |     | 0001-01-01          |                |
-| notify_new_posts          |                                                              | boolean            | NO   |     | 0                   |                |
-| fetch_further_information |                                                              | tinyint unsigned   | NO   |     | 0                   |                |
-| ffi_keyword_denylist      |                                                              | text               | YES  |     | NULL                |                |
+| Field                     | Description                                                                                                    | Type               | Null | Key | Default             | Extra          |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
+| id                        | sequential ID                                                                                                  | int unsigned       | NO   | PRI | NULL                | auto_increment |
+| uid                       | Owner User id                                                                                                  | mediumint unsigned | NO   |     | 0                   |                |
+| created                   |                                                                                                                | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| updated                   | Date of last contact update                                                                                    | datetime           | YES  |     | 0001-01-01 00:00:00 |                |
+| network                   | Network of the contact                                                                                         | char(4)            | NO   |     |                     |                |
+| name                      | Name that this contact is known by                                                                             | varchar(255)       | NO   |     |                     |                |
+| nick                      | Nick- and user name of the contact                                                                             | varchar(255)       | NO   |     |                     |                |
+| location                  |                                                                                                                | varchar(255)       | YES  |     |                     |                |
+| about                     |                                                                                                                | text               | YES  |     | NULL                |                |
+| keywords                  | public keywords (interests) of the contact                                                                     | text               | YES  |     | NULL                |                |
+| xmpp                      | XMPP address                                                                                                   | varchar(255)       | NO   |     |                     |                |
+| matrix                    | Matrix address                                                                                                 | varchar(255)       | NO   |     |                     |                |
+| avatar                    |                                                                                                                | varchar(255)       | NO   |     |                     |                |
+| header                    | Header picture                                                                                                 | varchar(255)       | YES  |     | NULL                |                |
+| url                       |                                                                                                                | varchar(255)       | NO   |     |                     |                |
+| nurl                      |                                                                                                                | varchar(255)       | NO   |     |                     |                |
+| uri-id                    | Id of the item-uri table entry that contains the contact url                                                   | int unsigned       | YES  |     | NULL                |                |
+| addr                      |                                                                                                                | varchar(255)       | NO   |     |                     |                |
+| alias                     |                                                                                                                | varchar(255)       | NO   |     |                     |                |
+| pubkey                    | RSA public key 4096 bit                                                                                        | text               | YES  |     | NULL                |                |
+| prvkey                    | RSA private key 4096 bit                                                                                       | text               | YES  |     | NULL                |                |
+| batch                     |                                                                                                                | varchar(255)       | NO   |     |                     |                |
+| notify                    |                                                                                                                | varchar(255)       | YES  |     | NULL                |                |
+| poll                      |                                                                                                                | varchar(255)       | YES  |     | NULL                |                |
+| subscribe                 |                                                                                                                | varchar(255)       | YES  |     | NULL                |                |
+| last-update               | Date of the last try to update the contact info                                                                | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| success_update            | Date of the last successful contact update                                                                     | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| failure_update            | Date of the last failed update                                                                                 | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| failed                    | Connection failed                                                                                              | boolean            | YES  |     | NULL                |                |
+| term-date                 |                                                                                                                | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| last-item                 | date of the last post                                                                                          | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| last-discovery            | date of the last follower discovery                                                                            | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| blocked                   | Node-wide block status                                                                                         | boolean            | NO   |     | 1                   |                |
+| block_reason              | Node-wide block reason                                                                                         | text               | YES  |     | NULL                |                |
+| readonly                  | posts of the contact are readonly                                                                              | boolean            | NO   |     | 0                   |                |
+| contact-type              | Person, organisation, news, community, relay                                                                   | tinyint            | NO   |     | 0                   |                |
+| manually-approve          | Contact requests have to be approved manually                                                                  | boolean            | YES  |     | NULL                |                |
+| archive                   |                                                                                                                | boolean            | NO   |     | 0                   |                |
+| unsearchable              | Contact prefers to not be searchable                                                                           | boolean            | NO   |     | 0                   |                |
+| sensitive                 | Contact posts sensitive content                                                                                | boolean            | NO   |     | 0                   |                |
+| baseurl                   | baseurl of the contact                                                                                         | varchar(255)       | YES  |     |                     |                |
+| gsid                      | Global Server ID                                                                                               | int unsigned       | YES  |     | NULL                |                |
+| bd                        |                                                                                                                | date               | NO   |     | 0001-01-01          |                |
+| reason                    |                                                                                                                | text               | YES  |     | NULL                |                |
+| self                      | 1 if the contact is the user him/her self                                                                      | boolean            | NO   |     | 0                   |                |
+| remote_self               |                                                                                                                | boolean            | NO   |     | 0                   |                |
+| rel                       | The kind of the relation between the user and the contact                                                      | tinyint unsigned   | NO   |     | 0                   |                |
+| protocol                  | Protocol of the contact                                                                                        | char(4)            | NO   |     |                     |                |
+| subhub                    |                                                                                                                | boolean            | NO   |     | 0                   |                |
+| hub-verify                |                                                                                                                | varchar(255)       | NO   |     |                     |                |
+| rating                    | Automatically detected feed poll frequency                                                                     | tinyint            | NO   |     | 0                   |                |
+| priority                  | Feed poll priority                                                                                             | tinyint unsigned   | NO   |     | 0                   |                |
+| attag                     |                                                                                                                | varchar(255)       | NO   |     |                     |                |
+| hidden                    |                                                                                                                | boolean            | NO   |     | 0                   |                |
+| pending                   | Contact request is pending                                                                                     | boolean            | NO   |     | 1                   |                |
+| deleted                   | Contact has been deleted                                                                                       | boolean            | NO   |     | 0                   |                |
+| info                      |                                                                                                                | mediumtext         | YES  |     | NULL                |                |
+| notify_new_posts          |                                                                                                                | boolean            | NO   |     | 0                   |                |
+| fetch_further_information |                                                                                                                | tinyint unsigned   | NO   |     | 0                   |                |
+| ffi_keyword_denylist      |                                                                                                                | text               | YES  |     | NULL                |                |
+| photo                     | Link to the profile photo of the contact                                                                       | varchar(255)       | YES  |     |                     |                |
+| thumb                     | Link to the profile photo (thumb size)                                                                         | varchar(255)       | YES  |     |                     |                |
+| micro                     | Link to the profile photo (micro size)                                                                         | varchar(255)       | YES  |     |                     |                |
+| name-date                 |                                                                                                                | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| uri-date                  |                                                                                                                | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| avatar-date               |                                                                                                                | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| request                   |                                                                                                                | varchar(255)       | YES  |     | NULL                |                |
+| confirm                   |                                                                                                                | varchar(255)       | YES  |     | NULL                |                |
+| poco                      |                                                                                                                | varchar(255)       | YES  |     | NULL                |                |
+| writable                  |                                                                                                                | boolean            | NO   |     | 0                   |                |
+| forum                     | contact is a forum. Deprecated, use 'contact-type' = 'community' and 'manually-approve' = false instead        | boolean            | NO   |     | 0                   |                |
+| prv                       | contact is a private group. Deprecated, use 'contact-type' = 'community' and 'manually-approve' = true instead | boolean            | NO   |     | 0                   |                |
+| bdyear                    |                                                                                                                | varchar(4)         | NO   |     |                     |                |
+| site-pubkey               | Deprecated                                                                                                     | text               | YES  |     | NULL                |                |
+| gender                    | Deprecated                                                                                                     | varchar(32)        | NO   |     |                     |                |
+| duplex                    | Deprecated                                                                                                     | boolean            | NO   |     | 0                   |                |
+| issued-id                 | Deprecated                                                                                                     | varchar(255)       | NO   |     |                     |                |
+| dfrn-id                   | Deprecated                                                                                                     | varchar(255)       | NO   |     |                     |                |
+| aes_allow                 | Deprecated                                                                                                     | boolean            | NO   |     | 0                   |                |
+| ret-aes                   | Deprecated                                                                                                     | boolean            | NO   |     | 0                   |                |
+| usehub                    | Deprecated                                                                                                     | boolean            | NO   |     | 0                   |                |
+| closeness                 | Deprecated                                                                                                     | tinyint unsigned   | NO   |     | 99                  |                |
+| profile-id                | Deprecated                                                                                                     | int unsigned       | YES  |     | NULL                |                |
 
 Indexes
 ------------
