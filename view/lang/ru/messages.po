@@ -24,8 +24,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 23:29+0200\n"
-"PO-Revision-Date: 2021-09-04 11:45+0000\n"
+"POT-Creation-Date: 2021-09-10 00:27+0000\n"
+"PO-Revision-Date: 2021-09-11 07:34+0000\n"
 "Last-Translator: Alexander An <ravnina@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/friendica/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -99,7 +99,7 @@ msgstr "Выберите"
 #: include/conversation.php:468 mod/photos.php:1460 mod/settings.php:573
 #: src/Module/Admin/Users/Active.php:139
 #: src/Module/Admin/Users/Blocked.php:140 src/Module/Admin/Users/Index.php:153
-#: src/Module/Contact.php:849 src/Module/Contact.php:1140
+#: src/Module/Contact.php:849 src/Module/Contact.php:1132
 msgid "Delete"
 msgstr "Удалить"
 
@@ -126,7 +126,7 @@ msgstr "%s из %s"
 msgid "View in context"
 msgstr "Смотреть в контексте"
 
-#: include/conversation.php:541 include/conversation.php:1143
+#: include/conversation.php:541 include/conversation.php:1146
 #: mod/editpost.php:107 mod/message.php:203 mod/message.php:368
 #: mod/photos.php:1524 mod/wallmessage.php:155 src/Module/Item/Compose.php:165
 #: src/Object/Post.php:501
@@ -206,44 +206,44 @@ msgstr ""
 msgid "Follow Thread"
 msgstr "Подписаться на тему"
 
-#: include/conversation.php:845 src/Model/Contact.php:1047
+#: include/conversation.php:845 src/Model/Contact.php:1050
 msgid "View Status"
 msgstr "Просмотреть статус"
 
 #: include/conversation.php:846 include/conversation.php:868
-#: src/Model/Contact.php:973 src/Model/Contact.php:1039
-#: src/Model/Contact.php:1048 src/Module/Directory.php:160
+#: src/Model/Contact.php:976 src/Model/Contact.php:1042
+#: src/Model/Contact.php:1051 src/Module/Directory.php:160
 #: src/Module/Settings/Profile/Index.php:223
 msgid "View Profile"
 msgstr "Просмотреть профиль"
 
-#: include/conversation.php:847 src/Model/Contact.php:1049
+#: include/conversation.php:847 src/Model/Contact.php:1052
 msgid "View Photos"
 msgstr "Просмотреть фото"
 
-#: include/conversation.php:848 src/Model/Contact.php:1040
-#: src/Model/Contact.php:1050
+#: include/conversation.php:848 src/Model/Contact.php:1043
+#: src/Model/Contact.php:1053
 msgid "Network Posts"
 msgstr "Записи сети"
 
-#: include/conversation.php:849 src/Model/Contact.php:1041
-#: src/Model/Contact.php:1051
+#: include/conversation.php:849 src/Model/Contact.php:1044
+#: src/Model/Contact.php:1054
 msgid "View Contact"
 msgstr "Просмотреть контакт"
 
-#: include/conversation.php:850 src/Model/Contact.php:1053
+#: include/conversation.php:850 src/Model/Contact.php:1056
 msgid "Send PM"
 msgstr "Отправить ЛС"
 
 #: include/conversation.php:851 src/Module/Admin/Blocklist/Contact.php:84
 #: src/Module/Admin/Users/Active.php:140 src/Module/Admin/Users/Index.php:154
-#: src/Module/Contact.php:586 src/Module/Contact.php:846
+#: src/Module/Contact.php:587 src/Module/Contact.php:847
 #: src/Module/Contact.php:1115
 msgid "Block"
 msgstr "Заблокировать"
 
-#: include/conversation.php:852 src/Module/Contact.php:587
-#: src/Module/Contact.php:847 src/Module/Contact.php:1123
+#: include/conversation.php:852 src/Module/Contact.php:588
+#: src/Module/Contact.php:848 src/Module/Contact.php:1123
 #: src/Module/Notifications/Introductions.php:113
 #: src/Module/Notifications/Introductions.php:185
 #: src/Module/Notifications/Notification.php:59
@@ -254,12 +254,12 @@ msgstr "Игнорировать"
 msgid "Languages"
 msgstr "Языки"
 
-#: include/conversation.php:860 src/Model/Contact.php:1054
+#: include/conversation.php:860 src/Model/Contact.php:1057
 msgid "Poke"
 msgstr "потыкать"
 
 #: include/conversation.php:865 mod/follow.php:138 src/Content/Widget.php:76
-#: src/Model/Contact.php:1042 src/Model/Contact.php:1055
+#: src/Model/Contact.php:1045 src/Model/Contact.php:1058
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "Подключиться/Подписаться"
@@ -353,173 +353,173 @@ msgstr "%s может быть посетит."
 msgid "<span  %1$s>%2$d people</span> reshared this"
 msgstr "<span  %1$s>%2$d людей</span> поделились этим"
 
-#: include/conversation.php:1095
+#: include/conversation.php:1098
 msgid "Visible to <strong>everybody</strong>"
 msgstr "Видимое <strong>всем</strong>"
 
-#: include/conversation.php:1096 src/Module/Item/Compose.php:159
+#: include/conversation.php:1099 src/Module/Item/Compose.php:159
 #: src/Object/Post.php:972
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr "Пожалуйста, введите адрес картинки/видео/аудио/странички:"
 
-#: include/conversation.php:1097
+#: include/conversation.php:1100
 msgid "Tag term:"
 msgstr "Тег:"
 
-#: include/conversation.php:1098 src/Module/Filer/SaveTag.php:68
+#: include/conversation.php:1101 src/Module/Filer/SaveTag.php:68
 msgid "Save to Folder:"
 msgstr "Сохранить в папку:"
 
-#: include/conversation.php:1099
+#: include/conversation.php:1102
 msgid "Where are you right now?"
 msgstr "И где вы сейчас?"
 
-#: include/conversation.php:1100
+#: include/conversation.php:1103
 msgid "Delete item(s)?"
 msgstr "Удалить елемент(ты)?"
 
-#: include/conversation.php:1110
+#: include/conversation.php:1113
 msgid "New Post"
 msgstr "Новая запись"
 
-#: include/conversation.php:1113
+#: include/conversation.php:1116
 msgid "Share"
 msgstr "Поделиться"
 
-#: include/conversation.php:1114 mod/editpost.php:92 mod/photos.php:1373
+#: include/conversation.php:1117 mod/editpost.php:92 mod/photos.php:1373
 #: src/Module/Contact/Poke.php:157 src/Object/Post.php:963
 msgid "Loading..."
 msgstr "Загрузка..."
 
-#: include/conversation.php:1115 mod/editpost.php:93 mod/message.php:201
+#: include/conversation.php:1118 mod/editpost.php:93 mod/message.php:201
 #: mod/message.php:365 mod/wallmessage.php:153
 msgid "Upload photo"
 msgstr "Загрузить фото"
 
-#: include/conversation.php:1116 mod/editpost.php:94
+#: include/conversation.php:1119 mod/editpost.php:94
 msgid "upload photo"
 msgstr "загрузить фото"
 
-#: include/conversation.php:1117 mod/editpost.php:95
+#: include/conversation.php:1120 mod/editpost.php:95
 msgid "Attach file"
 msgstr "Прикрепить файл"
 
-#: include/conversation.php:1118 mod/editpost.php:96
+#: include/conversation.php:1121 mod/editpost.php:96
 msgid "attach file"
 msgstr "приложить файл"
 
-#: include/conversation.php:1119 src/Module/Item/Compose.php:151
+#: include/conversation.php:1122 src/Module/Item/Compose.php:151
 #: src/Object/Post.php:964
 msgid "Bold"
 msgstr "Жирный"
 
-#: include/conversation.php:1120 src/Module/Item/Compose.php:152
+#: include/conversation.php:1123 src/Module/Item/Compose.php:152
 #: src/Object/Post.php:965
 msgid "Italic"
 msgstr "Kурсивный"
 
-#: include/conversation.php:1121 src/Module/Item/Compose.php:153
+#: include/conversation.php:1124 src/Module/Item/Compose.php:153
 #: src/Object/Post.php:966
 msgid "Underline"
 msgstr "Подчеркнутый"
 
-#: include/conversation.php:1122 src/Module/Item/Compose.php:154
+#: include/conversation.php:1125 src/Module/Item/Compose.php:154
 #: src/Object/Post.php:967
 msgid "Quote"
 msgstr "Цитата"
 
-#: include/conversation.php:1123 src/Module/Item/Compose.php:155
+#: include/conversation.php:1126 src/Module/Item/Compose.php:155
 #: src/Object/Post.php:968
 msgid "Code"
 msgstr "Код"
 
-#: include/conversation.php:1124 src/Module/Item/Compose.php:156
+#: include/conversation.php:1127 src/Module/Item/Compose.php:156
 #: src/Object/Post.php:969
 msgid "Image"
 msgstr "Изображение / Фото"
 
-#: include/conversation.php:1125 src/Module/Item/Compose.php:157
+#: include/conversation.php:1128 src/Module/Item/Compose.php:157
 #: src/Object/Post.php:970
 msgid "Link"
 msgstr "Ссылка"
 
-#: include/conversation.php:1126 src/Module/Item/Compose.php:158
+#: include/conversation.php:1129 src/Module/Item/Compose.php:158
 #: src/Object/Post.php:971
 msgid "Link or Media"
 msgstr "Ссылка или медиа"
 
-#: include/conversation.php:1127
+#: include/conversation.php:1130
 msgid "Video"
 msgstr ""
 
-#: include/conversation.php:1128 mod/editpost.php:103
+#: include/conversation.php:1131 mod/editpost.php:103
 #: src/Module/Item/Compose.php:161
 msgid "Set your location"
 msgstr "Задать ваше местоположение"
 
-#: include/conversation.php:1129 mod/editpost.php:104
+#: include/conversation.php:1132 mod/editpost.php:104
 msgid "set location"
 msgstr "установить местонахождение"
 
-#: include/conversation.php:1130 mod/editpost.php:105
+#: include/conversation.php:1133 mod/editpost.php:105
 msgid "Clear browser location"
 msgstr "Очистить местонахождение браузера"
 
-#: include/conversation.php:1131 mod/editpost.php:106
+#: include/conversation.php:1134 mod/editpost.php:106
 msgid "clear location"
 msgstr "убрать местонахождение"
 
-#: include/conversation.php:1133 mod/editpost.php:120
+#: include/conversation.php:1136 mod/editpost.php:120
 #: src/Module/Item/Compose.php:166
 msgid "Set title"
 msgstr "Установить заголовок"
 
-#: include/conversation.php:1135 mod/editpost.php:122
+#: include/conversation.php:1138 mod/editpost.php:122
 #: src/Module/Item/Compose.php:167
 msgid "Categories (comma-separated list)"
 msgstr "Категории (список через запятую)"
 
-#: include/conversation.php:1140 src/Module/Item/Compose.php:172
+#: include/conversation.php:1143 src/Module/Item/Compose.php:172
 msgid "Scheduled at"
 msgstr ""
 
-#: include/conversation.php:1144 mod/editpost.php:108
+#: include/conversation.php:1147 mod/editpost.php:108
 msgid "Permission settings"
 msgstr "Настройки разрешений"
 
-#: include/conversation.php:1145 mod/editpost.php:136 mod/events.php:583
+#: include/conversation.php:1148 mod/editpost.php:136 mod/events.php:583
 #: mod/photos.php:965 mod/photos.php:1326
 msgid "Permissions"
 msgstr "Разрешения"
 
-#: include/conversation.php:1154 mod/editpost.php:117
+#: include/conversation.php:1157 mod/editpost.php:117
 msgid "Public post"
 msgstr "Публичное сообщение"
 
-#: include/conversation.php:1158 mod/editpost.php:128 mod/events.php:578
+#: include/conversation.php:1161 mod/editpost.php:128 mod/events.php:578
 #: mod/photos.php:1372 mod/photos.php:1428 mod/photos.php:1502
 #: src/Module/Item/Compose.php:160 src/Object/Post.php:973
 msgid "Preview"
 msgstr "Просмотр"
 
-#: include/conversation.php:1161 mod/editpost.php:130 mod/fbrowser.php:105
+#: include/conversation.php:1164 mod/editpost.php:130 mod/fbrowser.php:105
 #: mod/fbrowser.php:134 mod/follow.php:144 mod/photos.php:1028
 #: mod/photos.php:1134 mod/tagrm.php:37 mod/tagrm.php:129 mod/unfollow.php:97
 #: src/Module/Contact.php:422 src/Module/RemoteFollow.php:116
 msgid "Cancel"
 msgstr "Отмена"
 
-#: include/conversation.php:1168 mod/editpost.php:134
+#: include/conversation.php:1171 mod/editpost.php:134
 #: src/Content/Widget/VCard.php:107 src/Model/Profile.php:459
 msgid "Message"
 msgstr "Сообщение"
 
-#: include/conversation.php:1169 mod/editpost.php:135
+#: include/conversation.php:1172 mod/editpost.php:135
 #: src/Module/Settings/TwoFactor/Trusted.php:101
 msgid "Browser"
 msgstr "Браузер"
 
-#: include/conversation.php:1171 mod/editpost.php:138
+#: include/conversation.php:1174 mod/editpost.php:138
 msgid "Open Compose page"
 msgstr "Развернуть редактор"
 
@@ -786,7 +786,7 @@ msgstr "%s %s поделился(-ась) новым сообщением"
 #: mod/wallmessage.php:96 mod/wallmessage.php:120 src/Module/Attach.php:55
 #: src/Module/BaseApi.php:79 src/Module/BaseApi.php:88
 #: src/Module/BaseApi.php:97 src/Module/BaseApi.php:106
-#: src/Module/BaseNotifications.php:88 src/Module/Contact.php:340
+#: src/Module/BaseNotifications.php:88 src/Module/Contact.php:346
 #: src/Module/Contact/Advanced.php:44 src/Module/Delegation.php:119
 #: src/Module/FollowConfirm.php:16 src/Module/FriendSuggest.php:44
 #: src/Module/Group.php:45 src/Module/Group.php:90 src/Module/Invite.php:41
@@ -1016,7 +1016,7 @@ msgstr "Описание:"
 
 #: mod/events.php:568 src/Content/Widget/VCard.php:98 src/Model/Event.php:86
 #: src/Model/Event.php:113 src/Model/Event.php:483 src/Model/Event.php:969
-#: src/Model/Profile.php:367 src/Module/Contact.php:607
+#: src/Model/Profile.php:367 src/Module/Contact.php:608
 #: src/Module/Directory.php:150 src/Module/Notifications/Introductions.php:166
 #: src/Module/Profile/Profile.php:194
 msgid "Location:"
@@ -1033,7 +1033,7 @@ msgstr "Поделиться этим мероприятием"
 #: mod/events.php:580 mod/message.php:204 mod/message.php:367
 #: mod/photos.php:947 mod/photos.php:1045 mod/photos.php:1330
 #: mod/photos.php:1371 mod/photos.php:1427 mod/photos.php:1501
-#: src/Module/Admin/Item/Source.php:65 src/Module/Contact.php:565
+#: src/Module/Admin/Item/Source.php:65 src/Module/Contact.php:566
 #: src/Module/Contact/Advanced.php:133 src/Module/Contact/Poke.php:158
 #: src/Module/Debug/ActivityPubConversion.php:141
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
@@ -1052,7 +1052,7 @@ msgstr "Отправить"
 msgid "Basic"
 msgstr "Базовый"
 
-#: mod/events.php:582 src/Module/Admin/Site.php:506 src/Module/Contact.php:916
+#: mod/events.php:582 src/Module/Admin/Site.php:505 src/Module/Contact.php:916
 #: src/Module/Profile/Profile.php:249
 msgid "Advanced"
 msgstr "Расширенный"
@@ -1104,13 +1104,13 @@ msgid "Your Identity Address:"
 msgstr "Ваш адрес:"
 
 #: mod/follow.php:141 mod/unfollow.php:100
-#: src/Module/Admin/Blocklist/Contact.php:100 src/Module/Contact.php:603
+#: src/Module/Admin/Blocklist/Contact.php:100 src/Module/Contact.php:604
 #: src/Module/Notifications/Introductions.php:108
 #: src/Module/Notifications/Introductions.php:177
 msgid "Profile URL"
 msgstr "URL профиля"
 
-#: mod/follow.php:142 src/Module/Contact.php:615
+#: mod/follow.php:142 src/Module/Contact.php:616
 #: src/Module/Notifications/Introductions.php:170
 #: src/Module/Profile/Profile.php:207
 msgid "Tags:"
@@ -1668,7 +1668,7 @@ msgstr "Подпись"
 
 #: mod/photos.php:1319
 msgid "Add a Tag"
-msgstr "Добавить ключевое слово (тег)"
+msgstr "Добавить тег"
 
 #: mod/photos.php:1319
 msgid ""
@@ -1891,7 +1891,7 @@ msgstr "Дополнительные возможности"
 
 #: mod/settings.php:482 mod/settings.php:575 mod/settings.php:712
 #: src/Module/Admin/Addons/Index.php:69 src/Module/Admin/Features.php:87
-#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:501
+#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:500
 #: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:66
 #: src/Module/Settings/Delegation.php:170 src/Module/Settings/Display.php:194
 msgid "Save Settings"
@@ -1948,27 +1948,27 @@ msgid ""
 msgstr "Система автоматически загружает диалоги, когда получает комментарии. Это может приводить к тому, что вы можете видеть записи от людей, на которых вы не подписаны, потому что их прокомментировал кто-то из ваших контактов. Эта настройка отключает такое поведение и вы будете видеть только записи тех людей, на которых подписаны."
 
 #: mod/settings.php:551
-msgid "Disable Content Warning"
-msgstr "Отключить предупреждение о содержании"
+msgid "Enable Content Warning"
+msgstr ""
 
 #: mod/settings.php:551
 msgid ""
 "Users on networks like Mastodon or Pleroma are able to set a content warning"
-" field which collapse their post by default. This disables the automatic "
-"collapsing and sets the content warning as the post title. Doesn't affect "
-"any other content filtering you eventually set up."
-msgstr "Пользователи некоторых сетей, таких как Mastodon или Pleroma, могут использовать \"предупреждение о содержании\", сворачивающее их записи. Эта настройка отключает это свёртывание и помещает \"предупреждение о содержимом\" в заголовок записи. Это не влияет на другие фильтры, которые вы можете настроить."
+" field which collapse their post by default. This enables the automatic "
+"collapsing instead of setting the content warning as the post title. Doesn't"
+" affect any other content filtering you eventually set up."
+msgstr ""
 
 #: mod/settings.php:552
-msgid "Disable intelligent shortening"
-msgstr "Отключить умное сокращение"
+msgid "Enable intelligent shortening"
+msgstr ""
 
 #: mod/settings.php:552
 msgid ""
 "Normally the system tries to find the best link to add to shortened posts. "
-"If this option is enabled then every shortened post will always point to the"
-" original friendica post."
-msgstr "Обычно система пытается найти лучшую ссылку для добавления к сокращенной записи. Если эта настройка включена, то каждая сокращенная запись будет указывать на оригинальную запись в Friendica."
+"If disabled, every shortened post will always point to the original "
+"friendica post."
+msgstr ""
 
 #: mod/settings.php:553
 msgid "Enable simple text shortening"
@@ -2359,7 +2359,7 @@ msgstr "Разрешить друзьям отмечать ваши сообще
 
 #: mod/settings.php:745
 msgid "Your contacts can add additional tags to your posts."
-msgstr "Ваши контакты могут добавлять дополнительные тэги к вашим записям."
+msgstr "Ваши контакты могут добавлять дополнительные теги к вашим записям."
 
 #: mod/settings.php:746
 msgid "Permit unknown people to send you private mail?"
@@ -2516,14 +2516,14 @@ msgstr "По-умолчанию уведомления группируются 
 
 #: mod/settings.php:787
 msgid "Show notifications of ignored contacts"
-msgstr ""
+msgstr "Показывать уведомления игнорируемых контактов"
 
 #: mod/settings.php:789
 msgid ""
 "You don't see posts from ignored contacts. But you still see their comments."
 " This setting controls if you want to still receive regular notifications "
 "that are caused by ignored contacts or not."
-msgstr ""
+msgstr "Вы не видите записи от игнорируемых контактов, но вы видите их комментарии. Эта настройка определяет, хотите ли вы получать уведомления от действий игнорируемых контактов или нет."
 
 #: mod/settings.php:791
 msgid "Advanced Account/Page Type Settings"
@@ -2720,7 +2720,7 @@ msgstr "Удалить этот элемент?"
 msgid ""
 "Block this author? They won't be able to follow you nor see your public "
 "posts, and you won't be able to see their posts and their notifications."
-msgstr ""
+msgstr "Заблокировать этого автора? Они не смогут подписаться на вас или видеть ваши записи, вы не будете видеть их записи и получать от них уведомления."
 
 #: src/App/Page.php:299
 msgid "toggle mobile"
@@ -2746,18 +2746,18 @@ msgid "All contacts"
 msgstr "Все контакты"
 
 #: src/BaseModule.php:212 src/Content/Widget.php:238 src/Core/ACL.php:195
-#: src/Module/Contact.php:815 src/Module/PermissionTooltip.php:77
+#: src/Module/Contact.php:816 src/Module/PermissionTooltip.php:77
 #: src/Module/PermissionTooltip.php:99
 msgid "Followers"
 msgstr "Подписаны на вас"
 
 #: src/BaseModule.php:217 src/Content/Widget.php:239
-#: src/Module/Contact.php:816
+#: src/Module/Contact.php:817
 msgid "Following"
 msgstr "Ваши подписки"
 
 #: src/BaseModule.php:222 src/Content/Widget.php:240
-#: src/Module/Contact.php:817
+#: src/Module/Contact.php:818
 msgid "Mutual friends"
 msgstr "Взаимные друзья"
 
@@ -3114,7 +3114,7 @@ msgid "Sign in"
 msgstr "Вход"
 
 #: src/Content/Nav.php:190 src/Module/BaseProfile.php:56
-#: src/Module/Contact.php:618 src/Module/Contact.php:883
+#: src/Module/Contact.php:619 src/Module/Contact.php:883
 #: src/Module/Settings/TwoFactor/Index.php:112 view/theme/frio/theme.php:226
 msgid "Status"
 msgstr "Записи"
@@ -3125,7 +3125,7 @@ msgid "Your posts and conversations"
 msgstr "Ваши записи и диалоги"
 
 #: src/Content/Nav.php:191 src/Module/BaseProfile.php:48
-#: src/Module/BaseSettings.php:57 src/Module/Contact.php:620
+#: src/Module/BaseSettings.php:57 src/Module/Contact.php:621
 #: src/Module/Contact.php:899 src/Module/Profile/Profile.php:241
 #: src/Module/Welcome.php:57 view/theme/frio/theme.php:227
 msgid "Profile"
@@ -3212,7 +3212,7 @@ msgstr "Тэги"
 
 #: src/Content/Nav.php:235 src/Content/Nav.php:294
 #: src/Content/Text/HTML.php:902 src/Module/BaseProfile.php:126
-#: src/Module/BaseProfile.php:129 src/Module/Contact.php:818
+#: src/Module/BaseProfile.php:129 src/Module/Contact.php:819
 #: src/Module/Contact.php:906 view/theme/frio/theme.php:237
 msgid "Contacts"
 msgstr "Контакты"
@@ -3444,7 +3444,7 @@ msgstr "Введите имя или интерес"
 msgid "Examples: Robert Morgenstein, Fishing"
 msgstr "Примеры: Роберт Morgenstein, Рыбалка"
 
-#: src/Content/Widget.php:78 src/Module/Contact.php:839
+#: src/Content/Widget.php:78 src/Module/Contact.php:840
 #: src/Module/Directory.php:99 view/theme/vier/theme.php:174
 msgid "Find"
 msgstr "Найти"
@@ -3471,7 +3471,7 @@ msgid "Local Directory"
 msgstr "Локальный каталог"
 
 #: src/Content/Widget.php:214 src/Model/Group.php:535
-#: src/Module/Contact.php:802 src/Module/Welcome.php:76
+#: src/Module/Contact.php:803 src/Module/Welcome.php:76
 msgid "Groups"
 msgstr "Группы"
 
@@ -3483,7 +3483,7 @@ msgstr "Все"
 msgid "Relationships"
 msgstr "Отношения"
 
-#: src/Content/Widget.php:247 src/Module/Contact.php:754
+#: src/Content/Widget.php:247 src/Module/Contact.php:755
 #: src/Module/Group.php:292
 msgid "All Contacts"
 msgstr "Все контакты"
@@ -3529,7 +3529,7 @@ msgstr "Люди"
 msgid "Organisations"
 msgstr "Организации"
 
-#: src/Content/Widget.php:529 src/Model/Contact.php:1471
+#: src/Content/Widget.php:529 src/Model/Contact.php:1474
 msgid "News"
 msgstr "Новости"
 
@@ -3588,12 +3588,12 @@ msgid "More Trending Tags"
 msgstr "Больше популярных тэгов"
 
 #: src/Content/Widget/VCard.php:96 src/Model/Profile.php:372
-#: src/Module/Contact.php:609 src/Module/Profile/Profile.php:176
+#: src/Module/Contact.php:610 src/Module/Profile/Profile.php:176
 msgid "XMPP:"
 msgstr "XMPP:"
 
 #: src/Content/Widget/VCard.php:97 src/Model/Profile.php:373
-#: src/Module/Contact.php:611 src/Module/Profile/Profile.php:180
+#: src/Module/Contact.php:612 src/Module/Profile/Profile.php:180
 msgid "Matrix:"
 msgstr ""
 
@@ -4399,85 +4399,85 @@ msgstr "%s теперь друзья с %s"
 msgid "Legacy module file not found: %s"
 msgstr "Legacy-модуль не найден: %s"
 
-#: src/Model/Contact.php:1043 src/Model/Contact.php:1056
+#: src/Model/Contact.php:1046 src/Model/Contact.php:1059
 msgid "UnFollow"
 msgstr "Отписаться"
 
-#: src/Model/Contact.php:1052
+#: src/Model/Contact.php:1055
 msgid "Drop Contact"
 msgstr "Удалить контакт"
 
-#: src/Model/Contact.php:1062 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1065 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:111
 #: src/Module/Notifications/Introductions.php:183
 msgid "Approve"
 msgstr "Одобрить"
 
-#: src/Model/Contact.php:1467
+#: src/Model/Contact.php:1470
 msgid "Organisation"
 msgstr "Организация"
 
-#: src/Model/Contact.php:1475
+#: src/Model/Contact.php:1478
 msgid "Forum"
 msgstr "Форум"
 
-#: src/Model/Contact.php:2331
+#: src/Model/Contact.php:2334
 msgid "Disallowed profile URL."
 msgstr "Запрещенный URL профиля."
 
-#: src/Model/Contact.php:2336 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2339 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Заблокированный домен"
 
-#: src/Model/Contact.php:2341
+#: src/Model/Contact.php:2344
 msgid "Connect URL missing."
 msgstr "Connect-URL отсутствует."
 
-#: src/Model/Contact.php:2350
+#: src/Model/Contact.php:2353
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "Контакт не может быть добавлен. Пожалуйста проверьте учётные данные на странице Настройки -> Социальные сети."
 
-#: src/Model/Contact.php:2387
+#: src/Model/Contact.php:2390
 msgid "The profile address specified does not provide adequate information."
 msgstr "Указанный адрес профиля не дает адекватной информации."
 
-#: src/Model/Contact.php:2389
+#: src/Model/Contact.php:2392
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Обнаружены несовместимые протоколы связи или каналы."
 
-#: src/Model/Contact.php:2392
+#: src/Model/Contact.php:2395
 msgid "An author or name was not found."
 msgstr "Автор или имя не найдены."
 
-#: src/Model/Contact.php:2395
+#: src/Model/Contact.php:2398
 msgid "No browser URL could be matched to this address."
 msgstr "Нет URL браузера, который соответствует этому адресу."
 
-#: src/Model/Contact.php:2398
+#: src/Model/Contact.php:2401
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Не получается совместить этот адрес с известным протоколом или контактом электронной почты."
 
-#: src/Model/Contact.php:2399
+#: src/Model/Contact.php:2402
 msgid "Use mailto: in front of address to force email check."
 msgstr "Bcgjkmpeqnt mailto: перед адресом для быстрого доступа к email."
 
-#: src/Model/Contact.php:2405
+#: src/Model/Contact.php:2408
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "Указанный адрес профиля принадлежит сети, недоступной на этом сайта."
 
-#: src/Model/Contact.php:2410
+#: src/Model/Contact.php:2413
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Ограниченный профиль. Этот человек не сможет получить прямые / личные уведомления от вас."
 
-#: src/Model/Contact.php:2469
+#: src/Model/Contact.php:2472
 msgid "Unable to retrieve contact information."
 msgstr "Невозможно получить контактную информацию."
 
@@ -4747,7 +4747,7 @@ msgstr "Изменить фото профиля"
 msgid "Homepage:"
 msgstr "Домашняя страничка:"
 
-#: src/Model/Profile.php:371 src/Module/Contact.php:613
+#: src/Model/Profile.php:371 src/Module/Contact.php:614
 #: src/Module/Notifications/Introductions.php:168
 msgid "About:"
 msgstr "О себе:"
@@ -5078,7 +5078,7 @@ msgstr "Включить"
 #: src/Module/Admin/Blocklist/Server.php:88
 #: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:65
 #: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:84
-#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:498
+#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:497
 #: src/Module/Admin/Storage.php:131 src/Module/Admin/Summary.php:232
 #: src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
@@ -5143,8 +5143,8 @@ msgstr ""
 msgid "List of active accounts"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:66 src/Module/Contact.php:762
-#: src/Module/Contact.php:822
+#: src/Module/Admin/BaseUsers.php:66 src/Module/Contact.php:763
+#: src/Module/Contact.php:823
 msgid "Pending"
 msgstr "В ожидании"
 
@@ -5152,14 +5152,14 @@ msgstr "В ожидании"
 msgid "List of pending registrations"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:74 src/Module/Contact.php:770
-#: src/Module/Contact.php:823
+#: src/Module/Admin/BaseUsers.php:74 src/Module/Contact.php:771
+#: src/Module/Contact.php:824
 msgid "Blocked"
 msgstr "Заблокированы"
 
 #: src/Module/Admin/BaseUsers.php:77
 msgid "List of blocked users"
-msgstr ""
+msgstr "Заблокированные пользователи"
 
 #: src/Module/Admin/BaseUsers.php:82
 msgid "Deleted"
@@ -5213,7 +5213,7 @@ msgstr "сбросить выбор"
 
 #: src/Module/Admin/Blocklist/Contact.php:85
 #: src/Module/Admin/Users/Blocked.php:142 src/Module/Admin/Users/Index.php:156
-#: src/Module/Contact.php:586 src/Module/Contact.php:846
+#: src/Module/Contact.php:587 src/Module/Contact.php:847
 #: src/Module/Contact.php:1115
 msgid "Unblock"
 msgstr "Разблокировать"
@@ -5639,453 +5639,453 @@ msgstr "Невозможно определить базовый URL. Он до�
 msgid "Relocation started. Could take a while to complete."
 msgstr "Перемещение начато. Это может занять много времени."
 
-#: src/Module/Admin/Site.php:403 src/Module/Settings/Display.php:139
+#: src/Module/Admin/Site.php:402 src/Module/Settings/Display.php:139
 msgid "No special theme for mobile devices"
 msgstr "Нет специальной темы для мобильных устройств"
 
-#: src/Module/Admin/Site.php:420 src/Module/Settings/Display.php:149
+#: src/Module/Admin/Site.php:419 src/Module/Settings/Display.php:149
 #, php-format
 msgid "%s - (Experimental)"
 msgstr "%s - (экспериментально)"
 
-#: src/Module/Admin/Site.php:432
+#: src/Module/Admin/Site.php:431
 msgid "No community page for local users"
 msgstr "Нет общей ленты записей локальных пользователей"
 
-#: src/Module/Admin/Site.php:433
+#: src/Module/Admin/Site.php:432
 msgid "No community page"
 msgstr "Нет общей ленты записей"
 
-#: src/Module/Admin/Site.php:434
+#: src/Module/Admin/Site.php:433
 msgid "Public postings from users of this site"
 msgstr "Публичные записи от пользователей этого узла"
 
-#: src/Module/Admin/Site.php:435
+#: src/Module/Admin/Site.php:434
 msgid "Public postings from the federated network"
 msgstr "Публичные записи федеративной сети"
 
-#: src/Module/Admin/Site.php:436
+#: src/Module/Admin/Site.php:435
 msgid "Public postings from local users and the federated network"
 msgstr "Публичные записи от местных пользователей и федеративной сети."
 
-#: src/Module/Admin/Site.php:442
+#: src/Module/Admin/Site.php:441
 msgid "Multi user instance"
 msgstr "Многопользовательский вид"
 
-#: src/Module/Admin/Site.php:469
+#: src/Module/Admin/Site.php:468
 msgid "Closed"
 msgstr "Закрыто"
 
-#: src/Module/Admin/Site.php:470
+#: src/Module/Admin/Site.php:469
 msgid "Requires approval"
 msgstr "Требуется подтверждение"
 
-#: src/Module/Admin/Site.php:471
+#: src/Module/Admin/Site.php:470
 msgid "Open"
 msgstr "Открыто"
 
-#: src/Module/Admin/Site.php:475 src/Module/Install.php:215
+#: src/Module/Admin/Site.php:474 src/Module/Install.php:215
 msgid "No SSL policy, links will track page SSL state"
 msgstr "Нет режима SSL, состояние SSL не будет отслеживаться"
 
-#: src/Module/Admin/Site.php:476 src/Module/Install.php:216
+#: src/Module/Admin/Site.php:475 src/Module/Install.php:216
 msgid "Force all links to use SSL"
 msgstr "Заставить все ссылки использовать SSL"
 
-#: src/Module/Admin/Site.php:477 src/Module/Install.php:217
+#: src/Module/Admin/Site.php:476 src/Module/Install.php:217
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr "Само-подписанный сертификат, использовать SSL только локально (не рекомендуется)"
 
-#: src/Module/Admin/Site.php:481
+#: src/Module/Admin/Site.php:480
 msgid "Don't check"
 msgstr "Не проверять"
 
-#: src/Module/Admin/Site.php:482
+#: src/Module/Admin/Site.php:481
 msgid "check the stable version"
 msgstr "проверить стабильную версию"
 
-#: src/Module/Admin/Site.php:483
+#: src/Module/Admin/Site.php:482
 msgid "check the development version"
 msgstr "проверить development-версию"
 
-#: src/Module/Admin/Site.php:487
+#: src/Module/Admin/Site.php:486
 msgid "none"
 msgstr "нет"
 
-#: src/Module/Admin/Site.php:488
+#: src/Module/Admin/Site.php:487
 msgid "Local contacts"
 msgstr "Местные контакты"
 
-#: src/Module/Admin/Site.php:489
+#: src/Module/Admin/Site.php:488
 msgid "Interactors"
 msgstr ""
 
-#: src/Module/Admin/Site.php:499 src/Module/BaseAdmin.php:90
+#: src/Module/Admin/Site.php:498 src/Module/BaseAdmin.php:90
 msgid "Site"
 msgstr "Сайт"
 
-#: src/Module/Admin/Site.php:500
+#: src/Module/Admin/Site.php:499
 msgid "General Information"
 msgstr ""
 
-#: src/Module/Admin/Site.php:502
+#: src/Module/Admin/Site.php:501
 msgid "Republish users to directory"
 msgstr "Переопубликовать пользователей в каталог"
 
-#: src/Module/Admin/Site.php:503 src/Module/Register.php:139
+#: src/Module/Admin/Site.php:502 src/Module/Register.php:139
 msgid "Registration"
 msgstr "Регистрация"
 
-#: src/Module/Admin/Site.php:504
+#: src/Module/Admin/Site.php:503
 msgid "File upload"
 msgstr "Загрузка файлов"
 
-#: src/Module/Admin/Site.php:505
+#: src/Module/Admin/Site.php:504
 msgid "Policies"
 msgstr "Политики"
 
-#: src/Module/Admin/Site.php:507
+#: src/Module/Admin/Site.php:506
 msgid "Auto Discovered Contact Directory"
 msgstr "Каталог автообнаружения контактов"
 
-#: src/Module/Admin/Site.php:508
+#: src/Module/Admin/Site.php:507
 msgid "Performance"
 msgstr "Производительность"
 
-#: src/Module/Admin/Site.php:509
+#: src/Module/Admin/Site.php:508
 msgid "Worker"
 msgstr "Обработчик"
 
-#: src/Module/Admin/Site.php:510
+#: src/Module/Admin/Site.php:509
 msgid "Message Relay"
 msgstr "Ретранслятор записей"
 
-#: src/Module/Admin/Site.php:511
+#: src/Module/Admin/Site.php:510
 msgid ""
 "Use the command \"console relay\" in the command line to add or remove "
 "relays."
 msgstr ""
 
-#: src/Module/Admin/Site.php:512
+#: src/Module/Admin/Site.php:511
 msgid "The system is not subscribed to any relays at the moment."
 msgstr ""
 
-#: src/Module/Admin/Site.php:513
+#: src/Module/Admin/Site.php:512
 msgid "The system is currently subscribed to the following relays:"
 msgstr ""
 
-#: src/Module/Admin/Site.php:515
+#: src/Module/Admin/Site.php:514
 msgid "Relocate Instance"
 msgstr "Переместить узел"
 
-#: src/Module/Admin/Site.php:516
+#: src/Module/Admin/Site.php:515
 msgid ""
 "<strong>Warning!</strong> Advanced function. Could make this server "
 "unreachable."
 msgstr "<strong>Внимание!</strong> Опасная функция. Может сделать этот сервер недоступным."
 
-#: src/Module/Admin/Site.php:520
+#: src/Module/Admin/Site.php:519
 msgid "Site name"
 msgstr "Название сайта"
 
-#: src/Module/Admin/Site.php:521
+#: src/Module/Admin/Site.php:520
 msgid "Sender Email"
 msgstr "Системный Email"
 
-#: src/Module/Admin/Site.php:521
+#: src/Module/Admin/Site.php:520
 msgid ""
 "The email address your server shall use to send notification emails from."
 msgstr "Адрес с которого будут приходить письма пользователям."
 
-#: src/Module/Admin/Site.php:522
+#: src/Module/Admin/Site.php:521
 msgid "Name of the system actor"
 msgstr ""
 
-#: src/Module/Admin/Site.php:522
+#: src/Module/Admin/Site.php:521
 msgid ""
 "Name of the internal system account that is used to perform ActivityPub "
 "requests. This must be an unused username. If set, this can't be changed "
 "again."
 msgstr ""
 
-#: src/Module/Admin/Site.php:523
+#: src/Module/Admin/Site.php:522
 msgid "Banner/Logo"
 msgstr "Баннер/Логотип"
 
-#: src/Module/Admin/Site.php:524
+#: src/Module/Admin/Site.php:523
 msgid "Email Banner/Logo"
 msgstr "Лого для писем"
 
-#: src/Module/Admin/Site.php:525
+#: src/Module/Admin/Site.php:524
 msgid "Shortcut icon"
 msgstr "Иконка сайта"
 
-#: src/Module/Admin/Site.php:525
+#: src/Module/Admin/Site.php:524
 msgid "Link to an icon that will be used for browsers."
 msgstr "Ссылка на иконку, которая будет использоваться браузерами."
 
-#: src/Module/Admin/Site.php:526
+#: src/Module/Admin/Site.php:525
 msgid "Touch icon"
 msgstr "Иконка веб-приложения"
 
-#: src/Module/Admin/Site.php:526
+#: src/Module/Admin/Site.php:525
 msgid "Link to an icon that will be used for tablets and mobiles."
 msgstr "Ссылка на иконку, которая будет использоваться для создания ярлыка на смартфонах и планшетах."
 
-#: src/Module/Admin/Site.php:527
+#: src/Module/Admin/Site.php:526
 msgid "Additional Info"
 msgstr "Дополнительная информация"
 
-#: src/Module/Admin/Site.php:527
+#: src/Module/Admin/Site.php:526
 #, php-format
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at %s/servers."
 msgstr "Для публичных серверов: здесь вы можете разместить дополнительную информацию и она будет доступна по %s/servers."
 
-#: src/Module/Admin/Site.php:528
+#: src/Module/Admin/Site.php:527
 msgid "System language"
 msgstr "Системный язык"
 
-#: src/Module/Admin/Site.php:529
+#: src/Module/Admin/Site.php:528
 msgid "System theme"
 msgstr "Системная тема"
 
-#: src/Module/Admin/Site.php:529
+#: src/Module/Admin/Site.php:528
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a "
 "href=\"/admin/themes\" id=\"cnftheme\">Change default theme settings</a>"
 msgstr "Тема по-умолчанию - пользователи могут менять её в настройках своего профиля - <a href=\"/admin/themes\" id=\"cnftheme\">Изменить тему по-умолчанию</a>"
 
-#: src/Module/Admin/Site.php:530
+#: src/Module/Admin/Site.php:529
 msgid "Mobile system theme"
 msgstr "Мобильная тема системы"
 
-#: src/Module/Admin/Site.php:530
+#: src/Module/Admin/Site.php:529
 msgid "Theme for mobile devices"
 msgstr "Тема для мобильных устройств"
 
-#: src/Module/Admin/Site.php:531 src/Module/Install.php:225
+#: src/Module/Admin/Site.php:530 src/Module/Install.php:225
 msgid "SSL link policy"
 msgstr "Политика SSL"
 
-#: src/Module/Admin/Site.php:531 src/Module/Install.php:227
+#: src/Module/Admin/Site.php:530 src/Module/Install.php:227
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr "Ссылки должны быть вынуждены использовать SSL"
 
-#: src/Module/Admin/Site.php:532
+#: src/Module/Admin/Site.php:531
 msgid "Force SSL"
 msgstr "SSL принудительно"
 
-#: src/Module/Admin/Site.php:532
+#: src/Module/Admin/Site.php:531
 msgid ""
 "Force all Non-SSL requests to SSL - Attention: on some systems it could lead"
 " to endless loops."
 msgstr "Форсировать не-SSL запросы как SSL. Внимание: на некоторых системах это может привести к бесконечным циклам."
 
-#: src/Module/Admin/Site.php:533
+#: src/Module/Admin/Site.php:532
 msgid "Show help entry from navigation menu"
 msgstr ""
 
-#: src/Module/Admin/Site.php:533
+#: src/Module/Admin/Site.php:532
 msgid ""
 "Displays the menu entry for the Help pages from the navigation menu. It is "
 "always accessible by calling /help directly."
 msgstr ""
 
-#: src/Module/Admin/Site.php:534
+#: src/Module/Admin/Site.php:533
 msgid "Single user instance"
 msgstr "Однопользовательский режим"
 
-#: src/Module/Admin/Site.php:534
+#: src/Module/Admin/Site.php:533
 msgid "Make this instance multi-user or single-user for the named user"
 msgstr "Сделать этот экземпляр многопользовательским, или однопользовательским для названного пользователя"
 
-#: src/Module/Admin/Site.php:536
+#: src/Module/Admin/Site.php:535
 msgid "Maximum image size"
 msgstr "Максимальный размер изображения"
 
-#: src/Module/Admin/Site.php:536
+#: src/Module/Admin/Site.php:535
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
 "limits."
 msgstr "Максимальный размер в байтах для загружаемых изображений. По умолчанию 0, что означает отсутствие ограничений."
 
-#: src/Module/Admin/Site.php:537
+#: src/Module/Admin/Site.php:536
 msgid "Maximum image length"
 msgstr "Максимальная длина картинки"
 
-#: src/Module/Admin/Site.php:537
+#: src/Module/Admin/Site.php:536
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
 msgstr "Максимальная длина в пикселях для длинной стороны загруженных изображений. По умолчанию равно -1, что означает отсутствие ограничений."
 
-#: src/Module/Admin/Site.php:538
+#: src/Module/Admin/Site.php:537
 msgid "JPEG image quality"
 msgstr "Качество JPEG изображения"
 
-#: src/Module/Admin/Site.php:538
+#: src/Module/Admin/Site.php:537
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
 msgstr "Загруженные изображения JPEG будут сохранены в этом качестве [0-100]. По умолчанию 100, что означает полное качество."
 
-#: src/Module/Admin/Site.php:540
+#: src/Module/Admin/Site.php:539
 msgid "Register policy"
 msgstr "Политика регистрация"
 
-#: src/Module/Admin/Site.php:541
+#: src/Module/Admin/Site.php:540
 msgid "Maximum Daily Registrations"
 msgstr "Максимальное число регистраций в день"
 
-#: src/Module/Admin/Site.php:541
+#: src/Module/Admin/Site.php:540
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
 msgstr "Если регистрация разрешена, этот параметр устанавливает максимальное количество новых регистраций пользователей в день. Если регистрация закрыта, эта опция не имеет никакого эффекта."
 
-#: src/Module/Admin/Site.php:542
+#: src/Module/Admin/Site.php:541
 msgid "Register text"
 msgstr "Текст регистрации"
 
-#: src/Module/Admin/Site.php:542
+#: src/Module/Admin/Site.php:541
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
 msgstr "Будет отображаться на видном месте на странице регистрации. Вы можете использовать BBCode для оформления."
 
-#: src/Module/Admin/Site.php:543
+#: src/Module/Admin/Site.php:542
 msgid "Forbidden Nicknames"
 msgstr "Запрещённые ники"
 
-#: src/Module/Admin/Site.php:543
+#: src/Module/Admin/Site.php:542
 msgid ""
 "Comma separated list of nicknames that are forbidden from registration. "
 "Preset is a list of role names according RFC 2142."
 msgstr "Имена, перечисленные через запятую, которые запрещены для регистрации на этом узле. Предустановленный список соответствует RFC 2142."
 
-#: src/Module/Admin/Site.php:544
+#: src/Module/Admin/Site.php:543
 msgid "Accounts abandoned after x days"
 msgstr "Аккаунт считается после x дней не воспользованным"
 
-#: src/Module/Admin/Site.php:544
+#: src/Module/Admin/Site.php:543
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr "Не будет тратить ресурсы для опроса сайтов для бесхозных контактов. Введите 0 для отключения лимита времени."
 
-#: src/Module/Admin/Site.php:545
+#: src/Module/Admin/Site.php:544
 msgid "Allowed friend domains"
 msgstr "Разрешенные домены друзей"
 
-#: src/Module/Admin/Site.php:545
+#: src/Module/Admin/Site.php:544
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr "Разделенный запятыми список доменов, которые разрешены для установления связей. Групповые символы принимаются. Оставьте пустым для разрешения связи со всеми доменами."
 
-#: src/Module/Admin/Site.php:546
+#: src/Module/Admin/Site.php:545
 msgid "Allowed email domains"
 msgstr "Разрешенные почтовые домены"
 
-#: src/Module/Admin/Site.php:546
+#: src/Module/Admin/Site.php:545
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr "Разделенный запятыми список доменов, которые разрешены для установления связей. Групповые символы принимаются. Оставьте пустым для разрешения связи со всеми доменами."
 
-#: src/Module/Admin/Site.php:547
+#: src/Module/Admin/Site.php:546
 msgid "No OEmbed rich content"
 msgstr "Не показывать контент OEmbed"
 
-#: src/Module/Admin/Site.php:547
+#: src/Module/Admin/Site.php:546
 msgid ""
 "Don't show the rich content (e.g. embedded PDF), except from the domains "
 "listed below."
 msgstr "Не показывать внедрённое содержимое (например, PDF), если источником не являются домены из списка ниже."
 
-#: src/Module/Admin/Site.php:548
+#: src/Module/Admin/Site.php:547
 msgid "Trusted third-party domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:548
+#: src/Module/Admin/Site.php:547
 msgid ""
 "Comma separated list of domains from which content is allowed to be embedded"
 " in posts like with OEmbed. All sub-domains of the listed domains are "
 "allowed as well."
 msgstr ""
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:548
 msgid "Block public"
 msgstr "Блокировать общественный доступ"
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:548
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr "Отметьте, чтобы заблокировать публичный доступ ко всем иным публичным личным страницам на этом сайте, если вы не вошли на сайт."
 
-#: src/Module/Admin/Site.php:550
+#: src/Module/Admin/Site.php:549
 msgid "Force publish"
 msgstr "Принудительная публикация"
 
-#: src/Module/Admin/Site.php:550
+#: src/Module/Admin/Site.php:549
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr "Отметьте, чтобы принудительно заставить все профили на этом сайте, быть перечислеными в каталоге сайта."
 
-#: src/Module/Admin/Site.php:550
+#: src/Module/Admin/Site.php:549
 msgid "Enabling this may violate privacy laws like the GDPR"
 msgstr "Включение этого может нарушить законы о личных данных, например, GDPR."
 
-#: src/Module/Admin/Site.php:551
+#: src/Module/Admin/Site.php:550
 msgid "Global directory URL"
 msgstr "URL глобального каталога"
 
-#: src/Module/Admin/Site.php:551
+#: src/Module/Admin/Site.php:550
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
 msgstr "Ссылка глобального каталога. Если не указано, то глобальный каталог будет полностью недоступен."
 
-#: src/Module/Admin/Site.php:552
+#: src/Module/Admin/Site.php:551
 msgid "Private posts by default for new users"
 msgstr "Частные сообщения по умолчанию для новых пользователей"
 
-#: src/Module/Admin/Site.php:552
+#: src/Module/Admin/Site.php:551
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
 msgstr "Установить права на создание записей по умолчанию для всех участников в дефолтной приватной группе, а не для публичных участников."
 
-#: src/Module/Admin/Site.php:553
+#: src/Module/Admin/Site.php:552
 msgid "Don't include post content in email notifications"
 msgstr "Не включать текст сообщения в email-оповещение."
 
-#: src/Module/Admin/Site.php:553
+#: src/Module/Admin/Site.php:552
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
 msgstr "Не включать содержание сообщения/комментария/личного сообщения  и т.д.. в уведомления электронной почты, отправленных с сайта, в качестве меры конфиденциальности."
 
-#: src/Module/Admin/Site.php:554
+#: src/Module/Admin/Site.php:553
 msgid "Disallow public access to addons listed in the apps menu."
 msgstr "Запретить публичный доступ к аддонам, перечисленным в меню приложений."
 
-#: src/Module/Admin/Site.php:554
+#: src/Module/Admin/Site.php:553
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
 msgstr "При установке этого флажка, будут ограничены аддоны, перечисленные в меню приложений, только для участников."
 
-#: src/Module/Admin/Site.php:555
+#: src/Module/Admin/Site.php:554
 msgid "Don't embed private images in posts"
 msgstr "Не вставлять личные картинки в записи"
 
-#: src/Module/Admin/Site.php:555
+#: src/Module/Admin/Site.php:554
 msgid ""
 "Don't replace locally-hosted private photos in posts with an embedded copy "
 "of the image. This means that contacts who receive posts containing private "
@@ -6093,11 +6093,11 @@ msgid ""
 "while."
 msgstr "Не заменяйте локально расположенные фотографии в записях на внедрённые копии изображений. Это означает, что контакты, которые получают сообщения, содержащие личные фотографии, будут вынуждены идентефицироваться и грузить каждое изображение, что может занять некоторое время."
 
-#: src/Module/Admin/Site.php:556
+#: src/Module/Admin/Site.php:555
 msgid "Explicit Content"
 msgstr "Контент для взрослых"
 
-#: src/Module/Admin/Site.php:556
+#: src/Module/Admin/Site.php:555
 msgid ""
 "Set this to announce that your node is used mostly for explicit content that"
 " might not be suited for minors. This information will be published in the "
@@ -6105,6 +6105,16 @@ msgid ""
 "your node from listings of nodes to join. Additionally a note about this "
 "will be shown at the user registration page."
 msgstr "Включите, если ваш узел будет содержать преимущественно откровенный/чувствительный контент, который не должен быть показан несовершеннолетним. Эта информация появится в информации об узле и может быть использована, например, в глобальном каталоге для скрытия вашего узла при подборе узлов для регистрации. Так же пометка об этом появится на странице регистрации."
+
+#: src/Module/Admin/Site.php:556
+msgid "Proxify external content"
+msgstr ""
+
+#: src/Module/Admin/Site.php:556
+msgid ""
+"Route external content via the proxy functionality. This is used for example"
+" for some OEmbed accesses and in some other rare cases."
+msgstr ""
 
 #: src/Module/Admin/Site.php:557
 msgid "Allow Users to set remote_self"
@@ -6451,98 +6461,86 @@ msgid ""
 msgstr "Изменить основной URL для этого сервера. Будет отправлено сообщение о перемещении сервера всем контактам из Friendica и Diaspora для всех пользователей."
 
 #: src/Module/Admin/Site.php:605
-msgid "RINO Encryption"
-msgstr "RINO шифрование"
-
-#: src/Module/Admin/Site.php:605
-msgid "Encryption layer between nodes."
-msgstr "Слой шифрования между узлами."
-
-#: src/Module/Admin/Site.php:605 src/Module/Admin/Site.php:611
-#: src/Module/Contact.php:515 src/Module/Settings/TwoFactor/Index.php:118
-msgid "Disabled"
-msgstr "Отключенный"
-
-#: src/Module/Admin/Site.php:605
-msgid "Enabled"
-msgstr "Включено"
-
-#: src/Module/Admin/Site.php:607
 msgid "Maximum number of parallel workers"
 msgstr "Максимальное число параллельно работающих worker'ов"
 
-#: src/Module/Admin/Site.php:607
+#: src/Module/Admin/Site.php:605
 #, php-format
 msgid ""
 "On shared hosters set this to %d. On larger systems, values of %d are great."
 " Default value is %d."
 msgstr ""
 
-#: src/Module/Admin/Site.php:608
+#: src/Module/Admin/Site.php:606
 msgid "Enable fastlane"
 msgstr "Включить fastlane"
 
-#: src/Module/Admin/Site.php:608
+#: src/Module/Admin/Site.php:606
 msgid ""
 "When enabed, the fastlane mechanism starts an additional worker if processes"
 " with higher priority are blocked by processes of lower priority."
 msgstr ""
 
-#: src/Module/Admin/Site.php:610
+#: src/Module/Admin/Site.php:608
 msgid "Direct relay transfer"
 msgstr "Прямая ретрансляция"
 
-#: src/Module/Admin/Site.php:610
+#: src/Module/Admin/Site.php:608
 msgid ""
 "Enables the direct transfer to other servers without using the relay servers"
 msgstr "Разрешает прямую отправку на другие серверы без использования ретрансляторов"
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:609
 msgid "Relay scope"
 msgstr "Область ретрансляции"
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:609
 msgid ""
 "Can be \"all\" or \"tags\". \"all\" means that every public post should be "
 "received. \"tags\" means that only posts with selected tags should be "
 "received."
 msgstr "Допустимые значения \"all\" или \"tags\". \"all\" означает, что любые публичные записи будут получены. \"tags\" включает приём публичных записей с выбранными тэгами."
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:609 src/Module/Contact.php:516
+#: src/Module/Settings/TwoFactor/Index.php:118
+msgid "Disabled"
+msgstr "Отключенный"
+
+#: src/Module/Admin/Site.php:609
 msgid "all"
 msgstr "all"
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:609
 msgid "tags"
 msgstr "tags"
 
-#: src/Module/Admin/Site.php:612
+#: src/Module/Admin/Site.php:610
 msgid "Server tags"
 msgstr "Тэги сервера"
 
-#: src/Module/Admin/Site.php:612
+#: src/Module/Admin/Site.php:610
 msgid "Comma separated list of tags for the \"tags\" subscription."
 msgstr "Список тэгов, разделённых запятыми, используемый для подписки в режиме \"tags\""
 
-#: src/Module/Admin/Site.php:613
+#: src/Module/Admin/Site.php:611
 msgid "Deny Server tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:613
+#: src/Module/Admin/Site.php:611
 msgid "Comma separated list of tags that are rejected."
 msgstr ""
 
-#: src/Module/Admin/Site.php:614
+#: src/Module/Admin/Site.php:612
 msgid "Allow user tags"
 msgstr "Разрешить пользовательские тэги"
 
-#: src/Module/Admin/Site.php:614
+#: src/Module/Admin/Site.php:612
 msgid ""
 "If enabled, the tags from the saved searches will used for the \"tags\" "
 "subscription in addition to the \"relay_server_tags\"."
-msgstr "Если включено, то тэги. на которые подписались пользователи, будут добавлены в подписку в дополнение к тэгам сервера."
+msgstr "Если включено, то теги. на которые подписались пользователи, будут добавлены в подписку в дополнение к тегам сервера."
 
-#: src/Module/Admin/Site.php:617
+#: src/Module/Admin/Site.php:615
 msgid "Start Relocation"
 msgstr "Начать перемещение"
 
@@ -6964,7 +6962,7 @@ msgstr "Пользователь \"%s\" разблокирован"
 
 #: src/Module/Admin/Users/Blocked.php:138
 msgid "Blocked Users"
-msgstr ""
+msgstr "Заблокированные"
 
 #: src/Module/Admin/Users/Create.php:62
 msgid "New User"
@@ -7088,7 +7086,8 @@ msgstr ""
 msgid "Posts from %s can't be unshared"
 msgstr ""
 
-#: src/Module/Api/Twitter/ContactEndpoint.php:63 src/Module/Contact.php:355
+#: src/Module/Api/Twitter/ContactEndpoint.php:63 src/Module/Contact.php:361
+#: src/Module/Contact.php:366
 msgid "Contact not found"
 msgstr "Контакт не найден"
 
@@ -7285,51 +7284,43 @@ msgstr[1] ""
 msgstr[2] ""
 msgstr[3] ""
 
-#: src/Module/Contact.php:120
+#: src/Module/Contact.php:118
 msgid "Could not access contact record."
 msgstr "Не удалось получить доступ к записи контакта."
 
-#: src/Module/Contact.php:156
+#: src/Module/Contact.php:154
 msgid "Failed to update contact record."
 msgstr "Не удалось обновить запись контакта."
 
-#: src/Module/Contact.php:372
+#: src/Module/Contact.php:383
 msgid "You can't block yourself"
-msgstr ""
+msgstr "Вы не можете заблокировать сами себя"
 
-#: src/Module/Contact.php:378
+#: src/Module/Contact.php:389
 msgid "Contact has been blocked"
 msgstr "Контакт заблокирован"
 
-#: src/Module/Contact.php:378
+#: src/Module/Contact.php:389
 msgid "Contact has been unblocked"
 msgstr "Контакт разблокирован"
 
-#: src/Module/Contact.php:386
+#: src/Module/Contact.php:397
 msgid "You can't ignore yourself"
-msgstr ""
+msgstr "Вы не можете игнорировать сами себя"
 
-#: src/Module/Contact.php:392
+#: src/Module/Contact.php:403
 msgid "Contact has been ignored"
 msgstr "Контакт проигнорирован"
 
-#: src/Module/Contact.php:392
+#: src/Module/Contact.php:403
 msgid "Contact has been unignored"
 msgstr "У контакта отменено игнорирование"
-
-#: src/Module/Contact.php:402
-msgid "Contact has been archived"
-msgstr "Контакт заархивирован"
-
-#: src/Module/Contact.php:402
-msgid "Contact has been unarchived"
-msgstr "Контакт разархивирован"
 
 #: src/Module/Contact.php:415
 msgid "Drop contact"
 msgstr "Удалить контакт"
 
-#: src/Module/Contact.php:418 src/Module/Contact.php:842
+#: src/Module/Contact.php:418 src/Module/Contact.php:843
 msgid "Do you really want to delete this contact?"
 msgstr "Вы действительно хотите удалить этот контакт?"
 
@@ -7342,263 +7333,255 @@ msgstr "Да"
 msgid "Contact has been removed."
 msgstr "Контакт удален."
 
-#: src/Module/Contact.php:457
+#: src/Module/Contact.php:458
 #, php-format
 msgid "You are mutual friends with %s"
 msgstr "У Вас взаимная дружба с %s"
 
-#: src/Module/Contact.php:461
+#: src/Module/Contact.php:462
 #, php-format
 msgid "You are sharing with %s"
 msgstr "Вы делитесь с %s"
 
-#: src/Module/Contact.php:465
+#: src/Module/Contact.php:466
 #, php-format
 msgid "%s is sharing with you"
 msgstr "%s делится с Вами"
 
-#: src/Module/Contact.php:489
+#: src/Module/Contact.php:490
 msgid "Private communications are not available for this contact."
 msgstr "Приватные коммуникации недоступны для этого контакта."
 
-#: src/Module/Contact.php:491
+#: src/Module/Contact.php:492
 msgid "Never"
 msgstr "Никогда"
 
-#: src/Module/Contact.php:494
+#: src/Module/Contact.php:495
 msgid "(Update was not successful)"
 msgstr "(Обновление не удалось)"
 
-#: src/Module/Contact.php:494
+#: src/Module/Contact.php:495
 msgid "(Update was successful)"
 msgstr "(Обновление было успешно)"
 
-#: src/Module/Contact.php:496 src/Module/Contact.php:1086
+#: src/Module/Contact.php:497 src/Module/Contact.php:1086
 msgid "Suggest friends"
 msgstr "Предложить друзей"
 
-#: src/Module/Contact.php:500
+#: src/Module/Contact.php:501
 #, php-format
 msgid "Network type: %s"
 msgstr "Сеть: %s"
 
-#: src/Module/Contact.php:505
+#: src/Module/Contact.php:506
 msgid "Communications lost with this contact!"
 msgstr "Связь с контактом утеряна!"
 
-#: src/Module/Contact.php:511
+#: src/Module/Contact.php:512
 msgid "Fetch further information for feeds"
 msgstr "Получить подробную информацию о фидах"
 
-#: src/Module/Contact.php:513
+#: src/Module/Contact.php:514
 msgid ""
 "Fetch information like preview pictures, title and teaser from the feed "
 "item. You can activate this if the feed doesn't contain much text. Keywords "
 "are taken from the meta header in the feed item and are posted as hash tags."
 msgstr "Извлекать картинки предпросмотра, заголовок и вступление из записи ленты. Вы можете включить эту опцию, если лента не содержит много текста. Ключевые слова берутся из метаданных записи и публикуются как теги."
 
-#: src/Module/Contact.php:516
+#: src/Module/Contact.php:517
 msgid "Fetch information"
 msgstr "Получить информацию"
 
-#: src/Module/Contact.php:517
+#: src/Module/Contact.php:518
 msgid "Fetch keywords"
 msgstr "Получить ключевые слова"
 
-#: src/Module/Contact.php:518
+#: src/Module/Contact.php:519
 msgid "Fetch information and keywords"
 msgstr "Получить информацию и ключевые слова"
 
-#: src/Module/Contact.php:530 src/Module/Contact.php:534
-#: src/Module/Contact.php:537 src/Module/Contact.php:541
+#: src/Module/Contact.php:531 src/Module/Contact.php:535
+#: src/Module/Contact.php:538 src/Module/Contact.php:542
 msgid "No mirroring"
 msgstr "Не зеркалировать"
 
-#: src/Module/Contact.php:531
+#: src/Module/Contact.php:532
 msgid "Mirror as forwarded posting"
 msgstr "Зеркалировать как переадресованные сообщения"
 
-#: src/Module/Contact.php:532 src/Module/Contact.php:538
-#: src/Module/Contact.php:542
+#: src/Module/Contact.php:533 src/Module/Contact.php:539
+#: src/Module/Contact.php:543
 msgid "Mirror as my own posting"
 msgstr "Зеркалировать как мои сообщения"
 
-#: src/Module/Contact.php:535 src/Module/Contact.php:539
+#: src/Module/Contact.php:536 src/Module/Contact.php:540
 msgid "Native reshare"
 msgstr ""
 
-#: src/Module/Contact.php:554
+#: src/Module/Contact.php:555
 msgid "Contact Information / Notes"
 msgstr "Информация о контакте / Заметки"
 
-#: src/Module/Contact.php:555
+#: src/Module/Contact.php:556
 msgid "Contact Settings"
 msgstr "Настройки контакта"
 
-#: src/Module/Contact.php:563
+#: src/Module/Contact.php:564
 msgid "Contact"
 msgstr "Контакт"
 
-#: src/Module/Contact.php:567
+#: src/Module/Contact.php:568
 msgid "Their personal note"
 msgstr "Персональная заметка"
 
-#: src/Module/Contact.php:569
+#: src/Module/Contact.php:570
 msgid "Edit contact notes"
 msgstr "Редактировать заметки контакта"
 
-#: src/Module/Contact.php:572 src/Module/Contact.php:1054
+#: src/Module/Contact.php:573 src/Module/Contact.php:1054
 #, php-format
 msgid "Visit %s's profile [%s]"
 msgstr "Посетить профиль %s [%s]"
 
-#: src/Module/Contact.php:573
+#: src/Module/Contact.php:574
 msgid "Block/Unblock contact"
 msgstr "Блокировать / Разблокировать контакт"
 
-#: src/Module/Contact.php:574
+#: src/Module/Contact.php:575
 msgid "Ignore contact"
 msgstr "Игнорировать контакт"
 
-#: src/Module/Contact.php:575
+#: src/Module/Contact.php:576
 msgid "View conversations"
 msgstr "Просмотр бесед"
 
-#: src/Module/Contact.php:580
+#: src/Module/Contact.php:581
 msgid "Last update:"
 msgstr "Последнее обновление: "
 
-#: src/Module/Contact.php:582
+#: src/Module/Contact.php:583
 msgid "Update public posts"
 msgstr "Обновить публичные сообщения"
 
-#: src/Module/Contact.php:584 src/Module/Contact.php:1096
+#: src/Module/Contact.php:585 src/Module/Contact.php:1096
 msgid "Update now"
 msgstr "Обновить сейчас"
 
-#: src/Module/Contact.php:587 src/Module/Contact.php:847
+#: src/Module/Contact.php:588 src/Module/Contact.php:848
 #: src/Module/Contact.php:1123
 msgid "Unignore"
 msgstr "Не игнорировать"
 
-#: src/Module/Contact.php:591
+#: src/Module/Contact.php:592
 msgid "Currently blocked"
 msgstr "В настоящее время заблокирован"
 
-#: src/Module/Contact.php:592
+#: src/Module/Contact.php:593
 msgid "Currently ignored"
 msgstr "В настоящее время игнорируется"
 
-#: src/Module/Contact.php:593
+#: src/Module/Contact.php:594
 msgid "Currently archived"
 msgstr "В данный момент архивирован"
 
-#: src/Module/Contact.php:594
+#: src/Module/Contact.php:595
 msgid "Awaiting connection acknowledge"
 msgstr "Ожидаем подтверждения соединения"
 
-#: src/Module/Contact.php:595 src/Module/Notifications/Introductions.php:171
+#: src/Module/Contact.php:596 src/Module/Notifications/Introductions.php:171
 msgid "Hide this contact from others"
 msgstr "Скрыть этот контакт от других"
 
-#: src/Module/Contact.php:595
+#: src/Module/Contact.php:596
 msgid ""
 "Replies/likes to your public posts <strong>may</strong> still be visible"
 msgstr "Ответы/лайки ваших публичных сообщений <strong>будут</strong> видимы."
 
-#: src/Module/Contact.php:596
+#: src/Module/Contact.php:597
 msgid "Notification for new posts"
 msgstr "Уведомление о новых записях"
 
-#: src/Module/Contact.php:596
+#: src/Module/Contact.php:597
 msgid "Send a notification of every new post of this contact"
 msgstr "Отправлять уведомление о каждом новой записи контакта"
 
-#: src/Module/Contact.php:598
+#: src/Module/Contact.php:599
 msgid "Keyword Deny List"
 msgstr "Запретный список слов"
 
-#: src/Module/Contact.php:598
+#: src/Module/Contact.php:599
 msgid ""
 "Comma separated list of keywords that should not be converted to hashtags, "
 "when \"Fetch information and keywords\" is selected"
 msgstr "Список слов через запятую, которые не должны конвертироваться в хэштеги, когда включено \"Получать информацию и хэштеги\""
 
-#: src/Module/Contact.php:616 src/Module/Settings/TwoFactor/Index.php:132
+#: src/Module/Contact.php:617 src/Module/Settings/TwoFactor/Index.php:132
 msgid "Actions"
 msgstr "Действия"
 
-#: src/Module/Contact.php:623
+#: src/Module/Contact.php:624
 msgid "Mirror postings from this contact"
 msgstr "Зекралировать сообщения от этого контакта"
 
-#: src/Module/Contact.php:625
+#: src/Module/Contact.php:626
 msgid ""
 "Mark this contact as remote_self, this will cause friendica to repost new "
 "entries from this contact."
 msgstr "Пометить этот контакт как remote_self, что заставит Friendica отправлять сообщения от этого контакта."
 
-#: src/Module/Contact.php:757
+#: src/Module/Contact.php:758
 msgid "Show all contacts"
 msgstr "Показать все контакты"
 
-#: src/Module/Contact.php:765
+#: src/Module/Contact.php:766
 msgid "Only show pending contacts"
 msgstr "Показать только контакты \"в ожидании\""
 
-#: src/Module/Contact.php:773
+#: src/Module/Contact.php:774
 msgid "Only show blocked contacts"
 msgstr "Показать только блокированные контакты"
 
-#: src/Module/Contact.php:778 src/Module/Contact.php:825
+#: src/Module/Contact.php:779 src/Module/Contact.php:826
 #: src/Object/Post.php:308
 msgid "Ignored"
 msgstr "Игнорируются"
 
-#: src/Module/Contact.php:781
+#: src/Module/Contact.php:782
 msgid "Only show ignored contacts"
 msgstr "Показать только игнорируемые контакты"
 
-#: src/Module/Contact.php:786 src/Module/Contact.php:826
+#: src/Module/Contact.php:787 src/Module/Contact.php:827
 msgid "Archived"
 msgstr "Архивированные"
 
-#: src/Module/Contact.php:789
+#: src/Module/Contact.php:790
 msgid "Only show archived contacts"
 msgstr "Показывать только архивные контакты"
 
-#: src/Module/Contact.php:794 src/Module/Contact.php:824
+#: src/Module/Contact.php:795 src/Module/Contact.php:825
 msgid "Hidden"
 msgstr "Скрытые"
 
-#: src/Module/Contact.php:797
+#: src/Module/Contact.php:798
 msgid "Only show hidden contacts"
 msgstr "Показывать только скрытые контакты"
 
-#: src/Module/Contact.php:805
+#: src/Module/Contact.php:806
 msgid "Organize your contact groups"
 msgstr "Настроить группы контактов"
 
-#: src/Module/Contact.php:837
+#: src/Module/Contact.php:838
 msgid "Search your contacts"
 msgstr "Поиск ваших контактов"
 
-#: src/Module/Contact.php:838 src/Module/Search/Index.php:194
+#: src/Module/Contact.php:839 src/Module/Search/Index.php:194
 #, php-format
 msgid "Results for: %s"
 msgstr "Результаты для: %s"
 
-#: src/Module/Contact.php:845
+#: src/Module/Contact.php:846
 msgid "Update"
 msgstr "Обновление"
-
-#: src/Module/Contact.php:848 src/Module/Contact.php:1132
-msgid "Archive"
-msgstr "Архивировать"
-
-#: src/Module/Contact.php:848 src/Module/Contact.php:1132
-msgid "Unarchive"
-msgstr "Разархивировать"
 
 #: src/Module/Contact.php:851
 msgid "Batch Actions"
@@ -7653,10 +7636,6 @@ msgid "Toggle Ignored status"
 msgstr "Изменить статус игнорирования"
 
 #: src/Module/Contact.php:1134
-msgid "Toggle Archive status"
-msgstr "Сменить статус архивации (архивирова/не архивировать)"
-
-#: src/Module/Contact.php:1142
 msgid "Delete contact"
 msgstr "Удалить контакт"
 
@@ -10297,11 +10276,11 @@ msgstr "Убрать для себя"
 #: src/Object/Post.php:234
 #, php-format
 msgid "Block %s"
-msgstr ""
+msgstr "Заблокировать %s"
 
 #: src/Object/Post.php:239
 msgid "Save to folder"
-msgstr ""
+msgstr "Сохранить в папку"
 
 #: src/Object/Post.php:273
 msgid "I will attend"
@@ -10317,15 +10296,15 @@ msgstr "Возможно"
 
 #: src/Object/Post.php:303
 msgid "Ignore thread"
-msgstr ""
+msgstr "Игнорировать тему"
 
 #: src/Object/Post.php:304
 msgid "Unignore thread"
-msgstr ""
+msgstr "Не игнорировать тему"
 
 #: src/Object/Post.php:305
 msgid "Toggle ignore status"
-msgstr ""
+msgstr "Переключить игнорирование"
 
 #: src/Object/Post.php:315
 msgid "Add star"
@@ -10357,7 +10336,7 @@ msgstr ""
 
 #: src/Object/Post.php:338
 msgid "Add tag"
-msgstr ""
+msgstr "Добавить тег"
 
 #: src/Object/Post.php:351
 msgid "Quote share this"
