@@ -1,6 +1,6 @@
 Version 2021.09 (unreleased)
   Friendica Core
-    Updates to the translation DE, HU, RU [translation teams]
+    Updates to the translation DE, FR, HU, RU [translation teams]
     Updates to the documentation [foss-, nupplaphil]
     General code cleanup [annando, MrPetovan, nupplaphil]
     Unification of setting label wordings towards activating something [heluecht]
@@ -27,6 +27,7 @@ Version 2021.09 (unreleased)
     Added Matrix account profile field [annando]
     Added scheduled postings [annando]
     Added transmission of push subscriptions [annando]
+    Added the possibility to put the config files in a different directory [nupplaphil]
 
   Friendica Addons
     Updates to the translation JA, ZH CN [translation teams]
