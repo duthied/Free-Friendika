@@ -394,7 +394,7 @@ class Transmitter
 
 		$custom_fields = [];
 
-		foreach (DI::profileField()->selectByContactId(0, 1) as $profile_field) {
+		foreach (DI::profileField()->selectByContactId(0, $uid) as $profile_field) {
 			$custom_fields[] = [
 				'type' => 'PropertyValue',
 				'name' => $profile_field->label,
