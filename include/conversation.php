@@ -419,7 +419,14 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 			$tpl = 'search_item.tpl';
 
+			$uriids = [];
+
 			foreach ($items as $item) {
+				if (in_array($item['uri-id'], $uriids)) {
+					continue;
+				}
+
+				$uriids[] = $item['uri-id'];
 
 				if (!visible_activity($item)) {
 					continue;
