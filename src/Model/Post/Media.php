@@ -548,6 +548,7 @@ class Media
 		}
 
 		$height = 0;
+		$heights = [];
 		$selected = '';
 		$previews = [];
 
@@ -591,14 +592,11 @@ class Media
 				in_array($filetype, ['audio', 'image'])) {
 				$attachments['visual'][] = $medium;
 			} elseif (($medium['type'] == self::VIDEO) || ($filetype == 'video')) {
-				if (strpos($medium['url'], $guid) !== false) {
+				if (!empty($medium['height'])) {
 					// Peertube videos are delivered in many different resolutions. We pick a moderate one.
-					// By checking against the GUID we also ensure to only work this way on Peertube posts.
-					// This wouldn't be executed when someone for example on Mastodon was sharing multiple videos in a single post.
-					if (empty($height) || ($height > $medium['height']) && ($medium['height'] >= 480)) {
-						$height = $medium['height'];
-						$selected = $medium['url'];
-					}
+					// Since only Peertube provides a "height" parameter, this wouldn't be executed
+					// when someone for example on Mastodon was sharing multiple videos in a single post.
+					$heights[$medium['height']] = $medium['url'];
 					$video[$medium['url']] = $medium;
 				} else {
 					$attachments['visual'][] = $medium;
@@ -607,13 +605,24 @@ class Media
 				$attachments['additional'][] = $medium;
 			}
 		}
-		if (!empty($selected)) {
-			$attachments['visual'][] = $video[$selected];
-			unset($video[$selected]);
-			foreach ($video as $element) {
-				$attachments['additional'][] = $element;
+
+		if (!empty($heights)) {
+			ksort($heights);
+			foreach ($heights as $height => $url) {
+				if (empty($selected) || $height <= 480) {
+					$selected = $url;
+				}
+			}
+
+			if (!empty($selected)) {
+				$attachments['visual'][] = $video[$selected];
+				unset($video[$selected]);
+				foreach ($video as $element) {
+					$attachments['additional'][] = $element;
+				}
 			}
 		}
+
 		return $attachments;
 	}
 
