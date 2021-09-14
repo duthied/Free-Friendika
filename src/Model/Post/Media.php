@@ -547,7 +547,6 @@ class Media
 			return $attachments;
 		}
 
-		$height = 0;
 		$heights = [];
 		$selected = '';
 		$previews = [];
