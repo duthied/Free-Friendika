@@ -167,12 +167,11 @@ class Compose extends BaseModule
 			'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? DI::l10n()->t('Categories (comma-separated list)') : ''),
 			'$scheduled_at' => Temporal::getDateTimeField(
 				new DateTime(),
-				DateTime::createFromFormat(DateTimeFormat::MYSQL, DateTimeFormat::local('now + 6 months')),
+				new DateTime('now + 6 months'),
 				null,
 				DI::l10n()->t('Scheduled at'),
-				'scheduled_at',
+				'scheduled_at'
 			),
-
 
 			'$title'        => $title,
 			'$category'     => $category,
