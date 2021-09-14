@@ -2259,7 +2259,7 @@ class Item
 		$condition[0] .= " AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY";
 		$condition[] = $days;
 
-		$items = Post::select(['resource-id', 'starred', 'id', 'post-type', 'uid', 'uri-id'], $condition);
+		$items = Post::select(['resource-id', 'starred', 'id', 'post-type', 'uid', 'uri-id', 'post-type'], $condition);
 
 		if (!DBA::isResult($items)) {
 			return;
@@ -2292,9 +2292,9 @@ class Item
 				continue;
 			} elseif (!$expire_starred && intval($item['starred'])) {
 				continue;
-			} elseif (!$expire_notes && (($item['post-type'] ?? null) == self::PT_PERSONAL_NOTE)) {
+			} elseif (!$expire_notes && ($item['post-type'] == self::PT_PERSONAL_NOTE)) {
 				continue;
-			} elseif (!$expire_items && (($item['post-type'] ?? null) != self::PT_PERSONAL_NOTE)) {
+			} elseif (!$expire_items && ($item['post-type'] != self::PT_PERSONAL_NOTE)) {
 				continue;
 			}
 
