@@ -432,7 +432,8 @@ class Contact extends BaseModule
 						'$message' => DI::l10n()->t('Do you really want to delete this contact?'),
 						'$confirm' => DI::l10n()->t('Yes'),
 						'$confirm_url' => DI::args()->getCommand(),
-						'$confirm_name' => 'confirmed',
+						'$confirm_name' => 't',
+						'$confirm_value' => BaseModule::getFormSecurityToken('contact_action'),
 						'$cancel' => DI::l10n()->t('Cancel'),
 					]);
 				}
