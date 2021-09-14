@@ -70,7 +70,8 @@ class ActivityPub
 		'directMessage' => 'litepub:directMessage',
 		'discoverable' => 'toot:discoverable',
 		'PropertyValue' => 'schema:PropertyValue',
-		'value' => 'schema:value']];
+		'value' => 'schema:value',
+	]];
 	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application', 'Tombstone'];
 	/**
 	 * Checks if the web request is done for the AP protocol
