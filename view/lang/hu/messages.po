@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-06 12:45-0400\n"
-"PO-Revision-Date: 2021-09-09 22:32+0000\n"
+"POT-Creation-Date: 2021-09-10 00:27+0000\n"
+"PO-Revision-Date: 2021-09-14 08:36+0000\n"
 "Last-Translator: Balázs Úr\n"
 "Language-Team: Hungarian (http://www.transifex.com/Friendica/friendica/language/hu/)\n"
 "MIME-Version: 1.0\n"
@@ -190,32 +190,32 @@ msgstr "Lekérve %s <%s> miatt"
 msgid "Follow Thread"
 msgstr "Szál követése"
 
-#: include/conversation.php:845 src/Model/Contact.php:1047
+#: include/conversation.php:845 src/Model/Contact.php:1050
 msgid "View Status"
 msgstr "Állapot megtekintése"
 
 #: include/conversation.php:846 include/conversation.php:868
-#: src/Model/Contact.php:973 src/Model/Contact.php:1039
-#: src/Model/Contact.php:1048 src/Module/Directory.php:160
+#: src/Model/Contact.php:976 src/Model/Contact.php:1042
+#: src/Model/Contact.php:1051 src/Module/Directory.php:160
 #: src/Module/Settings/Profile/Index.php:223
 msgid "View Profile"
 msgstr "Profil megtekintése"
 
-#: include/conversation.php:847 src/Model/Contact.php:1049
+#: include/conversation.php:847 src/Model/Contact.php:1052
 msgid "View Photos"
 msgstr "Fényképek megtekintése"
 
-#: include/conversation.php:848 src/Model/Contact.php:1040
-#: src/Model/Contact.php:1050
+#: include/conversation.php:848 src/Model/Contact.php:1043
+#: src/Model/Contact.php:1053
 msgid "Network Posts"
 msgstr "Hálózati bejegyzések"
 
-#: include/conversation.php:849 src/Model/Contact.php:1041
-#: src/Model/Contact.php:1051
+#: include/conversation.php:849 src/Model/Contact.php:1044
+#: src/Model/Contact.php:1054
 msgid "View Contact"
 msgstr "Partner megtekintése"
 
-#: include/conversation.php:850 src/Model/Contact.php:1053
+#: include/conversation.php:850 src/Model/Contact.php:1056
 msgid "Send PM"
 msgstr "Személyes üzenet küldése"
 
@@ -238,12 +238,12 @@ msgstr "Mellőzés"
 msgid "Languages"
 msgstr "Nyelvek"
 
-#: include/conversation.php:860 src/Model/Contact.php:1054
+#: include/conversation.php:860 src/Model/Contact.php:1057
 msgid "Poke"
 msgstr "Megbökés"
 
 #: include/conversation.php:865 mod/follow.php:138 src/Content/Widget.php:76
-#: src/Model/Contact.php:1042 src/Model/Contact.php:1055
+#: src/Model/Contact.php:1045 src/Model/Contact.php:1058
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "Kapcsolódás vagy követés"
@@ -1036,7 +1036,7 @@ msgstr "Elküldés"
 msgid "Basic"
 msgstr "Alap"
 
-#: mod/events.php:582 src/Module/Admin/Site.php:503 src/Module/Contact.php:916
+#: mod/events.php:582 src/Module/Admin/Site.php:505 src/Module/Contact.php:916
 #: src/Module/Profile/Profile.php:249
 msgid "Advanced"
 msgstr "Speciális"
@@ -1871,7 +1871,7 @@ msgstr "További funkciók"
 
 #: mod/settings.php:482 mod/settings.php:575 mod/settings.php:712
 #: src/Module/Admin/Addons/Index.php:69 src/Module/Admin/Features.php:87
-#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:498
+#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:500
 #: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:66
 #: src/Module/Settings/Delegation.php:170 src/Module/Settings/Display.php:194
 msgid "Save Settings"
@@ -3505,7 +3505,7 @@ msgstr "Személyek"
 msgid "Organisations"
 msgstr "Szervezetek"
 
-#: src/Content/Widget.php:529 src/Model/Contact.php:1471
+#: src/Content/Widget.php:529 src/Model/Contact.php:1474
 msgid "News"
 msgstr "Hírek"
 
@@ -4369,85 +4369,85 @@ msgstr "%s és %s mostantól ismerősök"
 msgid "Legacy module file not found: %s"
 msgstr "Az örökölt modulfájl nem található: %s"
 
-#: src/Model/Contact.php:1043 src/Model/Contact.php:1056
+#: src/Model/Contact.php:1046 src/Model/Contact.php:1059
 msgid "UnFollow"
 msgstr "Követés megszüntetése"
 
-#: src/Model/Contact.php:1052
+#: src/Model/Contact.php:1055
 msgid "Drop Contact"
 msgstr "Partner eldobása"
 
-#: src/Model/Contact.php:1062 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1065 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:111
 #: src/Module/Notifications/Introductions.php:183
 msgid "Approve"
 msgstr "Jóváhagyás"
 
-#: src/Model/Contact.php:1467
+#: src/Model/Contact.php:1470
 msgid "Organisation"
 msgstr "Szervezet"
 
-#: src/Model/Contact.php:1475
+#: src/Model/Contact.php:1478
 msgid "Forum"
 msgstr "Fórum"
 
-#: src/Model/Contact.php:2331
+#: src/Model/Contact.php:2334
 msgid "Disallowed profile URL."
 msgstr "Nem engedélyezett profil URL."
 
-#: src/Model/Contact.php:2336 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2339 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Tiltott tartomány"
 
-#: src/Model/Contact.php:2341
+#: src/Model/Contact.php:2344
 msgid "Connect URL missing."
 msgstr "A kapcsolódási URL hiányzik."
 
-#: src/Model/Contact.php:2350
+#: src/Model/Contact.php:2353
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "A partnert nem sikerült hozzáadni. Ellenőrizze a hozzá tartozó hálózat hitelesítési adatait a Beállítások → Közösségi hálózatok oldalon."
 
-#: src/Model/Contact.php:2387
+#: src/Model/Contact.php:2390
 msgid "The profile address specified does not provide adequate information."
 msgstr "A megadott profilcím nem biztosít elegendő információt."
 
-#: src/Model/Contact.php:2389
+#: src/Model/Contact.php:2392
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Nem lettek megfelelő kommunikációs protokollok vagy hírforrások felfedezve."
 
-#: src/Model/Contact.php:2392
+#: src/Model/Contact.php:2395
 msgid "An author or name was not found."
 msgstr "Egy szerző vagy név nem található."
 
-#: src/Model/Contact.php:2395
+#: src/Model/Contact.php:2398
 msgid "No browser URL could be matched to this address."
 msgstr "Egyetlen böngésző URL-t sem sikerült illeszteni ehhez a címhez."
 
-#: src/Model/Contact.php:2398
+#: src/Model/Contact.php:2401
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Nem lehet illeszteni @-stílusú személyazonosság-címet egy ismert protokollal vagy e-mailes partnerrel."
 
-#: src/Model/Contact.php:2399
+#: src/Model/Contact.php:2402
 msgid "Use mailto: in front of address to force email check."
 msgstr "Használja a mailto: előtagot a cím előtt az e-mail-ellenőrzés kényszerítéséhez."
 
-#: src/Model/Contact.php:2405
+#: src/Model/Contact.php:2408
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "A megadott profilcím egy olyan hálózathoz tartozik, amely le lett tiltva ezen az oldalon."
 
-#: src/Model/Contact.php:2410
+#: src/Model/Contact.php:2413
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Korlátozott profil. Ez a személy nem lesz képes közvetlen vagy személyes értesítéseket fogadni Öntől."
 
-#: src/Model/Contact.php:2469
+#: src/Model/Contact.php:2472
 msgid "Unable to retrieve contact information."
 msgstr "Nem lehet lekérni a partner információit."
 
@@ -5044,7 +5044,7 @@ msgstr "Engedélyezés"
 #: src/Module/Admin/Blocklist/Server.php:88
 #: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:65
 #: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:84
-#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:495
+#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:497
 #: src/Module/Admin/Storage.php:131 src/Module/Admin/Summary.php:232
 #: src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
@@ -5601,453 +5601,453 @@ msgstr "Nem lehet feldolgozni az alap URL-t. Legalább <séma>://<tartomány> é
 msgid "Relocation started. Could take a while to complete."
 msgstr "Az áthelyezés elkezdődött. Eltarthat egy ideig, mire befejeződik."
 
-#: src/Module/Admin/Site.php:400 src/Module/Settings/Display.php:139
+#: src/Module/Admin/Site.php:402 src/Module/Settings/Display.php:139
 msgid "No special theme for mobile devices"
 msgstr "Nincs különleges téma a mobil eszközökhöz"
 
-#: src/Module/Admin/Site.php:417 src/Module/Settings/Display.php:149
+#: src/Module/Admin/Site.php:419 src/Module/Settings/Display.php:149
 #, php-format
 msgid "%s - (Experimental)"
 msgstr "%s – (kísérleti)"
 
-#: src/Module/Admin/Site.php:429
+#: src/Module/Admin/Site.php:431
 msgid "No community page for local users"
 msgstr "Nincs közösségi oldal a helyi felhasználókhoz"
 
-#: src/Module/Admin/Site.php:430
+#: src/Module/Admin/Site.php:432
 msgid "No community page"
 msgstr "Nincs közösségi oldal"
 
-#: src/Module/Admin/Site.php:431
+#: src/Module/Admin/Site.php:433
 msgid "Public postings from users of this site"
 msgstr "Nyilvános beküldések ezen oldal felhasználóitól"
 
-#: src/Module/Admin/Site.php:432
+#: src/Module/Admin/Site.php:434
 msgid "Public postings from the federated network"
 msgstr "Nyilvános beküldések a föderált hálózatból"
 
-#: src/Module/Admin/Site.php:433
+#: src/Module/Admin/Site.php:435
 msgid "Public postings from local users and the federated network"
 msgstr "Nyilvános beküldések a helyi felhasználóktól és a föderált hálózatból"
 
-#: src/Module/Admin/Site.php:439
+#: src/Module/Admin/Site.php:441
 msgid "Multi user instance"
 msgstr "Többfelhasználós példány"
 
-#: src/Module/Admin/Site.php:466
+#: src/Module/Admin/Site.php:468
 msgid "Closed"
 msgstr "Lezárva"
 
-#: src/Module/Admin/Site.php:467
+#: src/Module/Admin/Site.php:469
 msgid "Requires approval"
 msgstr "Jóváhagyást igényel"
 
-#: src/Module/Admin/Site.php:468
+#: src/Module/Admin/Site.php:470
 msgid "Open"
 msgstr "Nyitott"
 
-#: src/Module/Admin/Site.php:472 src/Module/Install.php:215
+#: src/Module/Admin/Site.php:474 src/Module/Install.php:215
 msgid "No SSL policy, links will track page SSL state"
 msgstr "Nincs SSL irányelv, a hivatkozások követik az oldal SSL állapotát"
 
-#: src/Module/Admin/Site.php:473 src/Module/Install.php:216
+#: src/Module/Admin/Site.php:475 src/Module/Install.php:216
 msgid "Force all links to use SSL"
 msgstr "Az összes hivatkozás kényszerítése SSL használatára"
 
-#: src/Module/Admin/Site.php:474 src/Module/Install.php:217
+#: src/Module/Admin/Site.php:476 src/Module/Install.php:217
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr "Önaláírt tanúsítvány, SSL használata csak helyi hivatkozásoknál (nem ajánlott)"
 
-#: src/Module/Admin/Site.php:478
+#: src/Module/Admin/Site.php:480
 msgid "Don't check"
 msgstr "Ne ellenőrizze"
 
-#: src/Module/Admin/Site.php:479
+#: src/Module/Admin/Site.php:481
 msgid "check the stable version"
 msgstr "a stabil verzió ellenőrzése"
 
-#: src/Module/Admin/Site.php:480
+#: src/Module/Admin/Site.php:482
 msgid "check the development version"
 msgstr "a fejlesztői verzió ellenőrzése"
 
-#: src/Module/Admin/Site.php:484
+#: src/Module/Admin/Site.php:486
 msgid "none"
 msgstr "nincs"
 
-#: src/Module/Admin/Site.php:485
+#: src/Module/Admin/Site.php:487
 msgid "Local contacts"
 msgstr "Helyi partnerek"
 
-#: src/Module/Admin/Site.php:486
+#: src/Module/Admin/Site.php:488
 msgid "Interactors"
 msgstr "Interaktorok"
 
-#: src/Module/Admin/Site.php:496 src/Module/BaseAdmin.php:90
+#: src/Module/Admin/Site.php:498 src/Module/BaseAdmin.php:90
 msgid "Site"
 msgstr "Oldal"
 
-#: src/Module/Admin/Site.php:497
+#: src/Module/Admin/Site.php:499
 msgid "General Information"
 msgstr "Általános információk"
 
-#: src/Module/Admin/Site.php:499
+#: src/Module/Admin/Site.php:501
 msgid "Republish users to directory"
 msgstr "Felhasználók újra közzé tétele a könyvtárba"
 
-#: src/Module/Admin/Site.php:500 src/Module/Register.php:139
+#: src/Module/Admin/Site.php:502 src/Module/Register.php:139
 msgid "Registration"
 msgstr "Regisztráció"
 
-#: src/Module/Admin/Site.php:501
+#: src/Module/Admin/Site.php:503
 msgid "File upload"
 msgstr "Fájlfeltöltés"
 
-#: src/Module/Admin/Site.php:502
+#: src/Module/Admin/Site.php:504
 msgid "Policies"
 msgstr "Irányelvek"
 
-#: src/Module/Admin/Site.php:504
+#: src/Module/Admin/Site.php:506
 msgid "Auto Discovered Contact Directory"
 msgstr "Automatikusan felfedezett partnerkönyvtár"
 
-#: src/Module/Admin/Site.php:505
+#: src/Module/Admin/Site.php:507
 msgid "Performance"
 msgstr "Teljesítmény"
 
-#: src/Module/Admin/Site.php:506
+#: src/Module/Admin/Site.php:508
 msgid "Worker"
 msgstr "Feldolgozó"
 
-#: src/Module/Admin/Site.php:507
+#: src/Module/Admin/Site.php:509
 msgid "Message Relay"
 msgstr "Üzenettovábbítás"
 
-#: src/Module/Admin/Site.php:508
+#: src/Module/Admin/Site.php:510
 msgid ""
 "Use the command \"console relay\" in the command line to add or remove "
 "relays."
 msgstr "Használja a „console relay” parancsot a parancssorban a továbbítók hozzáadásához vagy eltávolításához."
 
-#: src/Module/Admin/Site.php:509
+#: src/Module/Admin/Site.php:511
 msgid "The system is not subscribed to any relays at the moment."
 msgstr "A rendszer jelenleg nincs feliratkozva semmilyen továbbítóra sem."
 
-#: src/Module/Admin/Site.php:510
+#: src/Module/Admin/Site.php:512
 msgid "The system is currently subscribed to the following relays:"
 msgstr "A rendszer jelenleg a következő továbbítókra van feliratkozva:"
 
-#: src/Module/Admin/Site.php:512
+#: src/Module/Admin/Site.php:514
 msgid "Relocate Instance"
 msgstr "Példány áthelyezése"
 
-#: src/Module/Admin/Site.php:513
+#: src/Module/Admin/Site.php:515
 msgid ""
 "<strong>Warning!</strong> Advanced function. Could make this server "
 "unreachable."
 msgstr "<strong>Figyelmeztetés!</strong> Speciális funkció. Elérhetetlenné teheti a kiszolgálót."
 
-#: src/Module/Admin/Site.php:517
+#: src/Module/Admin/Site.php:519
 msgid "Site name"
 msgstr "Oldal neve"
 
-#: src/Module/Admin/Site.php:518
+#: src/Module/Admin/Site.php:520
 msgid "Sender Email"
 msgstr "Küldő e-mail-címe"
 
-#: src/Module/Admin/Site.php:518
+#: src/Module/Admin/Site.php:520
 msgid ""
 "The email address your server shall use to send notification emails from."
 msgstr "Az az e-mail-cím, amelyet a kiszolgáló használhat az értesítési e-mailek kiküldéséhez."
 
-#: src/Module/Admin/Site.php:519
+#: src/Module/Admin/Site.php:521
 msgid "Name of the system actor"
 msgstr "A rendszer szereplőjének neve"
 
-#: src/Module/Admin/Site.php:519
+#: src/Module/Admin/Site.php:521
 msgid ""
 "Name of the internal system account that is used to perform ActivityPub "
 "requests. This must be an unused username. If set, this can't be changed "
 "again."
 msgstr "A belső rendszerfiók neve, amely az ActivityPub kérések végrehajtásához lesz használva. Ennek egy nem használt felhasználónévnek kell lennie. Ha be van állítva, akkor ez nem változtatható meg újra."
 
-#: src/Module/Admin/Site.php:520
+#: src/Module/Admin/Site.php:522
 msgid "Banner/Logo"
 msgstr "Reklámcsík vagy logó"
 
-#: src/Module/Admin/Site.php:521
+#: src/Module/Admin/Site.php:523
 msgid "Email Banner/Logo"
 msgstr "E-mail reklámcsík vagy logó"
 
-#: src/Module/Admin/Site.php:522
+#: src/Module/Admin/Site.php:524
 msgid "Shortcut icon"
 msgstr "Böngészőikon"
 
-#: src/Module/Admin/Site.php:522
+#: src/Module/Admin/Site.php:524
 msgid "Link to an icon that will be used for browsers."
 msgstr "Hivatkozás egy ikonra, amely a böngészőknél lesz használva."
 
-#: src/Module/Admin/Site.php:523
+#: src/Module/Admin/Site.php:525
 msgid "Touch icon"
 msgstr "Érintő ikon"
 
-#: src/Module/Admin/Site.php:523
+#: src/Module/Admin/Site.php:525
 msgid "Link to an icon that will be used for tablets and mobiles."
 msgstr "Hivatkozás egy ikonra, amely táblagépeknél és mobiltelefonoknál lesz használva."
 
-#: src/Module/Admin/Site.php:524
+#: src/Module/Admin/Site.php:526
 msgid "Additional Info"
 msgstr "További információk"
 
-#: src/Module/Admin/Site.php:524
+#: src/Module/Admin/Site.php:526
 #, php-format
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at %s/servers."
 msgstr "Nyilvános kiszolgálóknál: itt adhat meg további információkat, amelyek a %s/servers oldalon lesznek felsorolva."
 
-#: src/Module/Admin/Site.php:525
+#: src/Module/Admin/Site.php:527
 msgid "System language"
 msgstr "Rendszer nyelve"
 
-#: src/Module/Admin/Site.php:526
+#: src/Module/Admin/Site.php:528
 msgid "System theme"
 msgstr "Rendszer témája"
 
-#: src/Module/Admin/Site.php:526
+#: src/Module/Admin/Site.php:528
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a "
 "href=\"/admin/themes\" id=\"cnftheme\">Change default theme settings</a>"
 msgstr "Alapértelmezett rendszertéma – a felhasználói profilok felülbírálhatják – <a href=\"/admin/themes\" id=\"cnftheme\">alapértelmezett témabeállítások megváltoztatása</a>."
 
-#: src/Module/Admin/Site.php:527
+#: src/Module/Admin/Site.php:529
 msgid "Mobile system theme"
 msgstr "Mobilrendszer témája"
 
-#: src/Module/Admin/Site.php:527
+#: src/Module/Admin/Site.php:529
 msgid "Theme for mobile devices"
 msgstr "Téma a mobil eszközökhöz."
 
-#: src/Module/Admin/Site.php:528 src/Module/Install.php:225
+#: src/Module/Admin/Site.php:530 src/Module/Install.php:225
 msgid "SSL link policy"
 msgstr "SSL-hivatkozás irányelve"
 
-#: src/Module/Admin/Site.php:528 src/Module/Install.php:227
+#: src/Module/Admin/Site.php:530 src/Module/Install.php:227
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr "Meghatározza, hogy az előállított hivatkozásokat kényszeríteni kell-e SSL használatára."
 
-#: src/Module/Admin/Site.php:529
+#: src/Module/Admin/Site.php:531
 msgid "Force SSL"
 msgstr "SSL kényszerítése"
 
-#: src/Module/Admin/Site.php:529
+#: src/Module/Admin/Site.php:531
 msgid ""
 "Force all Non-SSL requests to SSL - Attention: on some systems it could lead"
 " to endless loops."
 msgstr "Az összes nem SSL kérés SSL-re kényszerítése – Figyelem: néhány rendszeren végtelen hurkokat eredményezhet."
 
-#: src/Module/Admin/Site.php:530
+#: src/Module/Admin/Site.php:532
 msgid "Show help entry from navigation menu"
 msgstr "Súgó bejegyzés megjelenítése a navigációs menüből"
 
-#: src/Module/Admin/Site.php:530
+#: src/Module/Admin/Site.php:532
 msgid ""
 "Displays the menu entry for the Help pages from the navigation menu. It is "
 "always accessible by calling /help directly."
 msgstr "Megjeleníti a súgóoldalak menübejegyzését a navigációs menüből. Ez mindig elérhető a „/help” közvetlen meghívásával."
 
-#: src/Module/Admin/Site.php:531
+#: src/Module/Admin/Site.php:533
 msgid "Single user instance"
 msgstr "Egyfelhasználós példány"
 
-#: src/Module/Admin/Site.php:531
+#: src/Module/Admin/Site.php:533
 msgid "Make this instance multi-user or single-user for the named user"
 msgstr "Többfelhasználóssá vagy a megnevezett felhasználó számára egyfelhasználóssá teszi ezt a rendszert."
 
-#: src/Module/Admin/Site.php:533
+#: src/Module/Admin/Site.php:535
 msgid "Maximum image size"
 msgstr "Legnagyobb képméret"
 
-#: src/Module/Admin/Site.php:533
+#: src/Module/Admin/Site.php:535
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
 "limits."
 msgstr "A feltöltött képek legnagyobb mérete bájtban. Alapértelmezetten 0, ami azt jelenti, hogy nincs korlát."
 
-#: src/Module/Admin/Site.php:534
+#: src/Module/Admin/Site.php:536
 msgid "Maximum image length"
 msgstr "Legnagyobb képhossz"
 
-#: src/Module/Admin/Site.php:534
+#: src/Module/Admin/Site.php:536
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
 msgstr "A feltöltött képek leghosszabb oldalának legnagyobb hossza képpontban. Alapértelmezetten -1, ami azt jelenti, hogy nincs korlát."
 
-#: src/Module/Admin/Site.php:535
+#: src/Module/Admin/Site.php:537
 msgid "JPEG image quality"
 msgstr "JPEG-képek minősége"
 
-#: src/Module/Admin/Site.php:535
+#: src/Module/Admin/Site.php:537
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
 msgstr "A feltöltött JPEG-képek ezzel a minőségbeállítással lesznek elmentve [0-100]. Alapértelmezetten 100, ami teljes minőséget jelent."
 
-#: src/Module/Admin/Site.php:537
+#: src/Module/Admin/Site.php:539
 msgid "Register policy"
 msgstr "Regisztrációs irányelv"
 
-#: src/Module/Admin/Site.php:538
+#: src/Module/Admin/Site.php:540
 msgid "Maximum Daily Registrations"
 msgstr "Legtöbb napi regisztráció"
 
-#: src/Module/Admin/Site.php:538
+#: src/Module/Admin/Site.php:540
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
 msgstr "Ha a regisztrációk megengedettek fent, akkor ez állítja be a naponta elfogadandó új felhasználói regisztrációk legnagyobb számát. Ha a regisztráció lezártra van állítva, akkor ennek a beállításnak nincs hatása."
 
-#: src/Module/Admin/Site.php:539
+#: src/Module/Admin/Site.php:541
 msgid "Register text"
 msgstr "Regisztrációs szöveg"
 
-#: src/Module/Admin/Site.php:539
+#: src/Module/Admin/Site.php:541
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
 msgstr "Szembetűnően lesz megjelenítve a regisztrációs oldalon. BBCode formázást is használhat itt."
 
-#: src/Module/Admin/Site.php:540
+#: src/Module/Admin/Site.php:542
 msgid "Forbidden Nicknames"
 msgstr "Tiltott becenevek"
 
-#: src/Module/Admin/Site.php:540
+#: src/Module/Admin/Site.php:542
 msgid ""
 "Comma separated list of nicknames that are forbidden from registration. "
 "Preset is a list of role names according RFC 2142."
 msgstr "A becenevek vesszővel elválasztott listája, amelyek tiltottak a regisztrációnál. Az előbeállítás az RFC 2142 szerinti szerepnevek listája."
 
-#: src/Module/Admin/Site.php:541
+#: src/Module/Admin/Site.php:543
 msgid "Accounts abandoned after x days"
 msgstr "Fiókok elhagyottak X nap után"
 
-#: src/Module/Admin/Site.php:541
+#: src/Module/Admin/Site.php:543
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr "Nem fogja pazarolni a rendszer erőforrásait a külső oldalak lekérdezésével az elhagyott fiókoknál. Adjon meg 0 értéket, hogy ne legyen időkorlát."
 
-#: src/Module/Admin/Site.php:542
+#: src/Module/Admin/Site.php:544
 msgid "Allowed friend domains"
 msgstr "Engedélyezett ismerőstartományok"
 
-#: src/Module/Admin/Site.php:542
+#: src/Module/Admin/Site.php:544
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr "Azon tartományok vesszővel elválasztott listája, amelyeknek engedélyezett ismeretséget létesíteni ezzel az oldallal. A helyettesítő karakterek is elfogadottak. Ha üresen marad, akkor bármely tartomány megengedett."
 
-#: src/Module/Admin/Site.php:543
+#: src/Module/Admin/Site.php:545
 msgid "Allowed email domains"
 msgstr "Engedélyezett e-mail-tartományok"
 
-#: src/Module/Admin/Site.php:543
+#: src/Module/Admin/Site.php:545
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr "Azon tartományok vesszővel elválasztott listája, amelyek engedélyezettek az e-mail-címekben az oldalra történő regisztrációkhoz. A helyettesítő karakterek is elfogadottak. Ha üresen marad, akkor bármely tartomány megengedett."
 
-#: src/Module/Admin/Site.php:544
+#: src/Module/Admin/Site.php:546
 msgid "No OEmbed rich content"
 msgstr "Nincs OEmbed gazdag tartalom"
 
-#: src/Module/Admin/Site.php:544
+#: src/Module/Admin/Site.php:546
 msgid ""
 "Don't show the rich content (e.g. embedded PDF), except from the domains "
 "listed below."
 msgstr "Ne jelenítse meg a gazdag tartalmat (például beágyazott PDF), kivéve az alább felsorolt tartományokról."
 
-#: src/Module/Admin/Site.php:545
+#: src/Module/Admin/Site.php:547
 msgid "Trusted third-party domains"
 msgstr "Megbízható harmadik fél tartományok"
 
-#: src/Module/Admin/Site.php:545
+#: src/Module/Admin/Site.php:547
 msgid ""
 "Comma separated list of domains from which content is allowed to be embedded"
 " in posts like with OEmbed. All sub-domains of the listed domains are "
 "allowed as well."
 msgstr "Tartományok vesszővel elválasztott listája, amelyekről engedélyezett a tartalom bejegyzésekben való beágyazása, mint például az OEmbed használatával. A felsorolt tartományok összes altartománya is engedélyezve van."
 
-#: src/Module/Admin/Site.php:546
+#: src/Module/Admin/Site.php:548
 msgid "Block public"
 msgstr "Nyilvános tiltása"
 
-#: src/Module/Admin/Site.php:546
+#: src/Module/Admin/Site.php:548
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr "Jelölje be az ezen az oldalon lévő összes, egyébként nyilvános személyes oldal nyilvános hozzáférésének tiltásához, hacsak jelenleg nincs bejelentkezve."
 
-#: src/Module/Admin/Site.php:547
+#: src/Module/Admin/Site.php:549
 msgid "Force publish"
 msgstr "Közzététel kényszerítése"
 
-#: src/Module/Admin/Site.php:547
+#: src/Module/Admin/Site.php:549
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr "Jelölje be, hogy ezen az oldalon az összes profil kényszerítetten fel legyen sorolva az oldal könyvtárában."
 
-#: src/Module/Admin/Site.php:547
+#: src/Module/Admin/Site.php:549
 msgid "Enabling this may violate privacy laws like the GDPR"
 msgstr "Ennek engedélyezése megsértheti az adatvédelmi rendeleteket, mint például a GDPR-t."
 
-#: src/Module/Admin/Site.php:548
+#: src/Module/Admin/Site.php:550
 msgid "Global directory URL"
 msgstr "Globális könyvtár URL"
 
-#: src/Module/Admin/Site.php:548
+#: src/Module/Admin/Site.php:550
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
 msgstr "Az URL a globális könyvtárhoz. Ha ez nincs beállítva, akkor a globális könyvtár teljesen elérhetetlen lesz az alkalmazásoknak."
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:551
 msgid "Private posts by default for new users"
 msgstr "Alapértelmezetten személyes bejegyzések az új felhasználóknál"
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:551
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
 msgstr "Az összes új tag alapértelmezett bejegyzés-jogosultságainak beállítása az alapértelmezett adatvédelmi csoportra a nyilvános helyett."
 
-#: src/Module/Admin/Site.php:550
+#: src/Module/Admin/Site.php:552
 msgid "Don't include post content in email notifications"
 msgstr "Ne ágyazza be a bejegyzés tartalmát az e-mailes értesítésekbe"
 
-#: src/Module/Admin/Site.php:550
+#: src/Module/Admin/Site.php:552
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
 msgstr "Adatvédelmi intézkedésként ne ágyazza be egy bejegyzés, hozzászólás, személyes üzenet stb. tartalmát azokba az e-mailes értesítésekbe, amelyek erről az oldalról kerülnek kiküldésre."
 
-#: src/Module/Admin/Site.php:551
+#: src/Module/Admin/Site.php:553
 msgid "Disallow public access to addons listed in the apps menu."
 msgstr "Nyilvános hozzáférés letiltása az alkalmazások menüben felsorolt bővítményekhez"
 
-#: src/Module/Admin/Site.php:551
+#: src/Module/Admin/Site.php:553
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
 msgstr "A jelölőnégyzet bejelölésével csak a tagok számára fogja korlátozni az alkalmazások menüben felsorolt bővítményeket."
 
-#: src/Module/Admin/Site.php:552
+#: src/Module/Admin/Site.php:554
 msgid "Don't embed private images in posts"
 msgstr "Ne ágyazzon be személyes képeket a bejegyzésekbe"
 
-#: src/Module/Admin/Site.php:552
+#: src/Module/Admin/Site.php:554
 msgid ""
 "Don't replace locally-hosted private photos in posts with an embedded copy "
 "of the image. This means that contacts who receive posts containing private "
@@ -6055,11 +6055,11 @@ msgid ""
 "while."
 msgstr "Ne cserélje ki a bejegyzésekben lévő helyileg kiszolgált személyes fényképeket a kép beágyazott másolatával. Ez azt jelenti, hogy a személyes fényképeket tartalmazó bejegyzéseket fogadó partnereknek hitelesíteniük kell magukat és be kell tölteniük minden egyes képet, ami eltarthat egy ideig."
 
-#: src/Module/Admin/Site.php:553
+#: src/Module/Admin/Site.php:555
 msgid "Explicit Content"
 msgstr "Felnőtteknek szánt tartalom"
 
-#: src/Module/Admin/Site.php:553
+#: src/Module/Admin/Site.php:555
 msgid ""
 "Set this to announce that your node is used mostly for explicit content that"
 " might not be suited for minors. This information will be published in the "
@@ -6068,235 +6068,245 @@ msgid ""
 "will be shown at the user registration page."
 msgstr "Állítsa be ezt annak közléséhez, hogy a csomópontját főként felnőtteknek szóló tartalomhoz használják, ami lehet, hogy nem alkalmas kiskorúak számára. Ez az információ közzé lesz téve a csomópont információiban, és használhatja például a globális könyvtár is, hogy kiszűrje a csomópontját a csatlakozáshoz felajánlott csomópontok listájából. Ezenkívül egy megjegyzés is meg lesz jelenítve ezzel kapcsolatban a felhasználó regisztrációs oldalán."
 
-#: src/Module/Admin/Site.php:554
+#: src/Module/Admin/Site.php:556
+msgid "Proxify external content"
+msgstr "Külső tartalom proxyzása"
+
+#: src/Module/Admin/Site.php:556
+msgid ""
+"Route external content via the proxy functionality. This is used for example"
+" for some OEmbed accesses and in some other rare cases."
+msgstr "Külső tartalom átirányítása a proxy funkción keresztül. Ezt például néhány OEmbed-hozzáférésnél és egyéb ritka esetekben használják."
+
+#: src/Module/Admin/Site.php:557
 msgid "Allow Users to set remote_self"
 msgstr "Távoli önmaguk beállításának engedélyezése a felhasználóknak"
 
-#: src/Module/Admin/Site.php:554
+#: src/Module/Admin/Site.php:557
 msgid ""
 "With checking this, every user is allowed to mark every contact as a "
 "remote_self in the repair contact dialog. Setting this flag on a contact "
 "causes mirroring every posting of that contact in the users stream."
 msgstr "Ennek bejelölésével minden egyes felhasználó számára engedélyezett, hogy az egyes partnereket távoli önmagukként jelöljék meg a partner javítása párbeszédablakban. Ezen jelző beállítása egy partnernél a tartalom minden egyes beküldésének tükrözését okozza a felhasználók adatfolyamában."
 
-#: src/Module/Admin/Site.php:555
+#: src/Module/Admin/Site.php:558
 msgid "Enable multiple registrations"
 msgstr "Többszörös regisztrációk engedélyezése"
 
-#: src/Module/Admin/Site.php:555
+#: src/Module/Admin/Site.php:558
 msgid "Enable users to register additional accounts for use as pages."
 msgstr "Lehetővé teszi a felhasználóknak, hogy további fiókokat regisztráljanak oldalakként történő használathoz."
 
-#: src/Module/Admin/Site.php:556
+#: src/Module/Admin/Site.php:559
 msgid "Enable OpenID"
 msgstr "OpenID engedélyezése"
 
-#: src/Module/Admin/Site.php:556
+#: src/Module/Admin/Site.php:559
 msgid "Enable OpenID support for registration and logins."
 msgstr "Az OpenID támogatás engedélyezése a regisztrációnál és a bejelentkezéseknél."
 
-#: src/Module/Admin/Site.php:557
+#: src/Module/Admin/Site.php:560
 msgid "Enable Fullname check"
 msgstr "Teljes név ellenőrzésének engedélyezése"
 
-#: src/Module/Admin/Site.php:557
+#: src/Module/Admin/Site.php:560
 msgid ""
 "Enable check to only allow users to register with a space between the first "
 "name and the last name in their full name."
 msgstr "Lehetővé teszi annak ellenőrzését, hogy a felhasználóknak csak a teljes nevükben lévő vezetéknév és a keresztnév közti szóközzel legyen lehetőségük regisztrálniuk."
 
-#: src/Module/Admin/Site.php:558
+#: src/Module/Admin/Site.php:561
 msgid "Community pages for visitors"
 msgstr "Közösségi oldalak a látogatók számára"
 
-#: src/Module/Admin/Site.php:558
+#: src/Module/Admin/Site.php:561
 msgid ""
 "Which community pages should be available for visitors. Local users always "
 "see both pages."
 msgstr "Mely közösségi oldalaknak kell elérhetőnek lenniük a látogatók számára. A helyi felhasználók mindig mindkét oldalt látják."
 
-#: src/Module/Admin/Site.php:559
+#: src/Module/Admin/Site.php:562
 msgid "Posts per user on community page"
 msgstr "Felhasználónkénti bejegyzések a közösségi oldalon"
 
-#: src/Module/Admin/Site.php:559
+#: src/Module/Admin/Site.php:562
 msgid ""
 "The maximum number of posts per user on the community page. (Not valid for "
 "\"Global Community\")"
 msgstr "A felhasználónkénti bejegyzések legnagyobb száma a közösségi oldalon (nem érvényes a „globális közösségnél”)."
 
-#: src/Module/Admin/Site.php:561
+#: src/Module/Admin/Site.php:564
 msgid "Enable Mail support"
 msgstr "Levelezési támogatás engedélyezése"
 
-#: src/Module/Admin/Site.php:561
+#: src/Module/Admin/Site.php:564
 msgid ""
 "Enable built-in mail support to poll IMAP folders and to reply via mail."
 msgstr "A beépített levelezési támogatás engedélyezése az IMAP-mappák lekérdezéséhez és az e-mailben történő válaszhoz."
 
-#: src/Module/Admin/Site.php:562
+#: src/Module/Admin/Site.php:565
 msgid ""
 "Mail support can't be enabled because the PHP IMAP module is not installed."
 msgstr "A levelezési támogatást nem lehet engedélyezni, mert a PHP IMAP-modulja nincs telepítve."
 
-#: src/Module/Admin/Site.php:563
+#: src/Module/Admin/Site.php:566
 msgid "Enable OStatus support"
 msgstr "OStatus támogatás engedélyezése"
 
-#: src/Module/Admin/Site.php:563
+#: src/Module/Admin/Site.php:566
 msgid ""
 "Enable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All "
 "communications in OStatus are public."
 msgstr "A beépített OStatus (StatusNet, GNU Social stb.) kompatibilitás engedélyezése. Az OStatus hálózaton lévő összes kommunikáció nyilvános."
 
-#: src/Module/Admin/Site.php:565
+#: src/Module/Admin/Site.php:568
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
 msgstr "A Diaspora támogatást nem lehet engedélyezni, mert a Friendica egy alkönyvtárba lett telepítve."
 
-#: src/Module/Admin/Site.php:566
+#: src/Module/Admin/Site.php:569
 msgid "Enable Diaspora support"
 msgstr "Diaspora támogatás engedélyezése"
 
-#: src/Module/Admin/Site.php:566
+#: src/Module/Admin/Site.php:569
 msgid ""
 "Enable built-in Diaspora network compatibility for communicating with "
 "diaspora servers."
 msgstr "A beépített Diaspora hálózati kompatibilitás engedélyezése a Diaspora kiszolgálókkal való kommunikációhoz."
 
-#: src/Module/Admin/Site.php:567
+#: src/Module/Admin/Site.php:570
 msgid "Verify SSL"
 msgstr "SSL ellenőrzése"
 
-#: src/Module/Admin/Site.php:567
+#: src/Module/Admin/Site.php:570
 msgid ""
 "If you wish, you can turn on strict certificate checking. This will mean you"
 " cannot connect (at all) to self-signed SSL sites."
 msgstr "Ha szeretné, bekapcsolhatja a szigorú tanúsítvány-ellenőrzést. Ezt azt jelenti, hogy nem tud kapcsolódni (egyáltalán) az önaláírt SSL-t használó oldalakhoz."
 
-#: src/Module/Admin/Site.php:568
+#: src/Module/Admin/Site.php:571
 msgid "Proxy user"
 msgstr "Proxy felhasználó"
 
-#: src/Module/Admin/Site.php:569
+#: src/Module/Admin/Site.php:572
 msgid "Proxy URL"
 msgstr "Proxy URL"
 
-#: src/Module/Admin/Site.php:570
+#: src/Module/Admin/Site.php:573
 msgid "Network timeout"
 msgstr "Hálózati időkorlát"
 
-#: src/Module/Admin/Site.php:570
+#: src/Module/Admin/Site.php:573
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
 msgstr "Az érték másodpercben van. Állítsa 0-ra a korlátlan időhöz (nem ajánlott)."
 
-#: src/Module/Admin/Site.php:571
+#: src/Module/Admin/Site.php:574
 msgid "Maximum Load Average"
 msgstr "Legnagyobb terhelésátlag"
 
-#: src/Module/Admin/Site.php:571
+#: src/Module/Admin/Site.php:574
 #, php-format
 msgid ""
 "Maximum system load before delivery and poll processes are deferred - "
 "default %d."
 msgstr "A legnagyobb rendszerterhelés, mielőtt a kézbesítési és lekérdezési folyamatok elhalasztásra kerülnek. Alapértelmezetten %d."
 
-#: src/Module/Admin/Site.php:572
+#: src/Module/Admin/Site.php:575
 msgid "Maximum Load Average (Frontend)"
 msgstr "Legnagyobb terhelésátlag (előtétprogram)"
 
-#: src/Module/Admin/Site.php:572
+#: src/Module/Admin/Site.php:575
 msgid "Maximum system load before the frontend quits service - default 50."
 msgstr "A legnagyobb rendszerterhelés, mielőtt az előtétprogram kilép a szolgáltatásból. Alapértelmezetten 50."
 
-#: src/Module/Admin/Site.php:573
+#: src/Module/Admin/Site.php:576
 msgid "Minimal Memory"
 msgstr "Legkevesebb memória"
 
-#: src/Module/Admin/Site.php:573
+#: src/Module/Admin/Site.php:576
 msgid ""
 "Minimal free memory in MB for the worker. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
 msgstr "A legkevesebb szabad memória MB-ban a feldolgozónál. Hozzáférést igényel a /proc/meminfo fájlhoz. Alapértelmezetten 0 (kikapcsolva)."
 
-#: src/Module/Admin/Site.php:574
+#: src/Module/Admin/Site.php:577
 msgid "Periodically optimize tables"
 msgstr "Táblák időszakos optimalizálása"
 
-#: src/Module/Admin/Site.php:574
+#: src/Module/Admin/Site.php:577
 msgid "Periodically optimize tables like the cache and the workerqueue"
 msgstr "A táblák időszakos optimalizálása, mint például a gyorsítótár és a feldolgozó várakozási sorának táblái."
 
-#: src/Module/Admin/Site.php:576
+#: src/Module/Admin/Site.php:579
 msgid "Discover followers/followings from contacts"
 msgstr "Követők vagy követések felfedezése a partnerekből"
 
-#: src/Module/Admin/Site.php:576
+#: src/Module/Admin/Site.php:579
 msgid ""
 "If enabled, contacts are checked for their followers and following contacts."
 msgstr "Ha engedélyezve van, akkor a partnerek ellenőrizve lesznek a követő és követett partnereik számára."
 
-#: src/Module/Admin/Site.php:577
+#: src/Module/Admin/Site.php:580
 msgid "None - deactivated"
 msgstr "Nincs: ki van kapcsolva."
 
-#: src/Module/Admin/Site.php:578
+#: src/Module/Admin/Site.php:581
 msgid ""
 "Local contacts - contacts of our local contacts are discovered for their "
 "followers/followings."
 msgstr "Helyi partnerek: a helyi partnereink partnerei lesznek felfedezve a követőik vagy követésiek számára."
 
-#: src/Module/Admin/Site.php:579
+#: src/Module/Admin/Site.php:582
 msgid ""
 "Interactors - contacts of our local contacts and contacts who interacted on "
 "locally visible postings are discovered for their followers/followings."
 msgstr "Interaktorok: a helyi partnereink partnerei és a helyileg látható beküldésekkel kapcsolatba került partnerek lesznek felfedezve a követőik vagy követésiek számára."
 
-#: src/Module/Admin/Site.php:581
+#: src/Module/Admin/Site.php:584
 msgid "Synchronize the contacts with the directory server"
 msgstr "A partnerek szinkronizálása a könyvtárkiszolgálóval"
 
-#: src/Module/Admin/Site.php:581
+#: src/Module/Admin/Site.php:584
 msgid ""
 "if enabled, the system will check periodically for new contacts on the "
 "defined directory server."
 msgstr "Ha engedélyezve van, akkor a rendszer időszakosan ellenőrizni fogja az új partnereket a meghatározott könyvtárkiszolgálón."
 
-#: src/Module/Admin/Site.php:583
+#: src/Module/Admin/Site.php:586
 msgid "Days between requery"
 msgstr "Ismételt lekérdezések közti napok"
 
-#: src/Module/Admin/Site.php:583
+#: src/Module/Admin/Site.php:586
 msgid "Number of days after which a server is requeried for his contacts."
 msgstr "A napok száma, amely után egy kiszolgáló ismét lekérdezésre kerül a partnereiért."
 
-#: src/Module/Admin/Site.php:584
+#: src/Module/Admin/Site.php:587
 msgid "Discover contacts from other servers"
 msgstr "Partnerek felfedezése más kiszolgálókról"
 
-#: src/Module/Admin/Site.php:584
+#: src/Module/Admin/Site.php:587
 msgid ""
 "Periodically query other servers for contacts. The system queries Friendica,"
 " Mastodon and Hubzilla servers."
 msgstr "Más kiszolgálók időszakos lekérdezése partnerek után. A rendszer Friendica, Mastodon és Hubzilla kiszolgálókat kérdez le."
 
-#: src/Module/Admin/Site.php:585
+#: src/Module/Admin/Site.php:588
 msgid "Search the local directory"
 msgstr "A helyi könyvtár keresése"
 
-#: src/Module/Admin/Site.php:585
+#: src/Module/Admin/Site.php:588
 msgid ""
 "Search the local directory instead of the global directory. When searching "
 "locally, every search will be executed on the global directory in the "
 "background. This improves the search results when the search is repeated."
 msgstr "A helyi könyvtár keresése a globális könyvtár helyett. Helyi kereséskor minden egyes keresés a globális könyvtárban lesz végrehajtva a háttérben. Ez javítja a keresési eredményeket, ha a keresést megismétlik."
 
-#: src/Module/Admin/Site.php:587
+#: src/Module/Admin/Site.php:590
 msgid "Publish server information"
 msgstr "Kiszolgálóinformációk közzététele"
 
-#: src/Module/Admin/Site.php:587
+#: src/Module/Admin/Site.php:590
 msgid ""
 "If enabled, general server and usage data will be published. The data "
 "contains the name and version of the server, number of users with public "
@@ -6304,50 +6314,50 @@ msgid ""
 " href=\"http://the-federation.info/\">the-federation.info</a> for details."
 msgstr "Ha engedélyezve van, akkor az általános kiszolgáló és használati adatok közzé lesznek téve. Az adatok tartalmazzák a kiszolgáló nevét és verzióját, a nyilvános profillal rendelkező felhasználók számát, a bejegyzések számát, valamint a engedélyezett protokollokat és összekötőket. A részletekért nézze meg a <a href=\"https://the-federation.info/\">the-federation.info</a> weboldalt."
 
-#: src/Module/Admin/Site.php:589
+#: src/Module/Admin/Site.php:592
 msgid "Check upstream version"
 msgstr "Távoli verzió ellenőrzése"
 
-#: src/Module/Admin/Site.php:589
+#: src/Module/Admin/Site.php:592
 msgid ""
 "Enables checking for new Friendica versions at github. If there is a new "
 "version, you will be informed in the admin panel overview."
 msgstr "Engedélyezi az új Friendica verziójának keresését a GitHubon. Ha új verzió érhető el, akkor tájékoztatva lesz az adminisztrátori panel áttekintőjében."
 
-#: src/Module/Admin/Site.php:590
+#: src/Module/Admin/Site.php:593
 msgid "Suppress Tags"
 msgstr "Címkék letiltása"
 
-#: src/Module/Admin/Site.php:590
+#: src/Module/Admin/Site.php:593
 msgid "Suppress showing a list of hashtags at the end of the posting."
 msgstr "A kettős keresztes címkék listája megjelenítésének letiltása a beküldések végénél."
 
-#: src/Module/Admin/Site.php:591
+#: src/Module/Admin/Site.php:594
 msgid "Clean database"
 msgstr "Adatbázis tisztítása"
 
-#: src/Module/Admin/Site.php:591
+#: src/Module/Admin/Site.php:594
 msgid ""
 "Remove old remote items, orphaned database records and old content from some"
 " other helper tables."
 msgstr "Régi távoli elemek, árva adatbázisrekordok és néhány egyéb segédtáblából származó régi tartalom eltávolítása."
 
-#: src/Module/Admin/Site.php:592
+#: src/Module/Admin/Site.php:595
 msgid "Lifespan of remote items"
 msgstr "Távoli elemek élettartama"
 
-#: src/Module/Admin/Site.php:592
+#: src/Module/Admin/Site.php:595
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "remote items will be deleted. Own items, and marked or filed items are "
 "always kept. 0 disables this behaviour."
 msgstr "Ha az adatbázis-tisztítás engedélyezve van, akkor ez határozza meg azon napok számát, amely után a távoli elemek törölve lesznek. A saját elemek, valamint a megjelölt és iktatott elemek mindig meg lesznek tartva. A 0 érték letiltja ezt a viselkedést."
 
-#: src/Module/Admin/Site.php:593
+#: src/Module/Admin/Site.php:596
 msgid "Lifespan of unclaimed items"
 msgstr "Nem igényelt elemek élettartama"
 
-#: src/Module/Admin/Site.php:593
+#: src/Module/Admin/Site.php:596
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "unclaimed remote items (mostly content from the relay) will be deleted. "
@@ -6355,144 +6365,144 @@ msgid ""
 "items if set to 0."
 msgstr "Ha az adatbázis-tisztítás engedélyezve van, akkor ez határozza meg azon napok számát, amely után a nem igényelt távoli elemek (főleg a továbbításból származó tartalmak) törölve lesznek. Az alapértelmezett érték 90 nap. A távoli elemek általános élettartamértékének alapértelmezettje lesz, ha 0 értékre van állítva."
 
-#: src/Module/Admin/Site.php:594
+#: src/Module/Admin/Site.php:597
 msgid "Lifespan of raw conversation data"
 msgstr "Nyers beszélgetési adatok élettartama"
 
-#: src/Module/Admin/Site.php:594
+#: src/Module/Admin/Site.php:597
 msgid ""
 "The conversation data is used for ActivityPub and OStatus, as well as for "
 "debug purposes. It should be safe to remove it after 14 days, default is 90 "
 "days."
 msgstr "A beszélgetési adatok az ActivityPub és az OStatus hálózatoknál, valamint hibakeresési célokhoz vannak használva. Biztonságosan el lehet távolítani azokat 14 nap után. Alapértelmezetten 90 nap."
 
-#: src/Module/Admin/Site.php:595
+#: src/Module/Admin/Site.php:598
 msgid "Maximum numbers of comments per post"
 msgstr "Bejegyzésenkénti hozzászólások legnagyobb száma"
 
-#: src/Module/Admin/Site.php:595
+#: src/Module/Admin/Site.php:598
 msgid "How much comments should be shown for each post? Default value is 100."
 msgstr "Mennyi hozzászólást kell megjeleníteni az egyes bejegyzéseknél? Az alapértelmezett érték 100."
 
-#: src/Module/Admin/Site.php:596
+#: src/Module/Admin/Site.php:599
 msgid "Maximum numbers of comments per post on the display page"
 msgstr "Bejegyzésenkénti hozzászólások legnagyobb száma a megjelenítési oldalon"
 
-#: src/Module/Admin/Site.php:596
+#: src/Module/Admin/Site.php:599
 msgid ""
 "How many comments should be shown on the single view for each post? Default "
 "value is 1000."
 msgstr "Mennyi hozzászólást kell megjeleníteni egy önálló nézeten az egyes bejegyzéseknél? Az alapértelmezett érték 1000."
 
-#: src/Module/Admin/Site.php:597
+#: src/Module/Admin/Site.php:600
 msgid "Temp path"
 msgstr "Ideiglenes mappa útvonala"
 
-#: src/Module/Admin/Site.php:597
+#: src/Module/Admin/Site.php:600
 msgid ""
 "If you have a restricted system where the webserver can't access the system "
 "temp path, enter another path here."
 msgstr "Ha korlátozott rendszere van, ahol a webkiszolgáló nem tudja elérni a rendszer ideiglenes mappájának útvonalát, akkor adjon meg egy másik útvonalat itt."
 
-#: src/Module/Admin/Site.php:598
+#: src/Module/Admin/Site.php:601
 msgid "Only search in tags"
 msgstr "Keresés csak címkékben"
 
-#: src/Module/Admin/Site.php:598
+#: src/Module/Admin/Site.php:601
 msgid "On large systems the text search can slow down the system extremely."
 msgstr "Nagy rendszereknél a szöveges keresés rendkívüli módon lelassíthatja a rendszert."
 
-#: src/Module/Admin/Site.php:600
+#: src/Module/Admin/Site.php:603
 msgid "New base url"
 msgstr "Új alap URL"
 
-#: src/Module/Admin/Site.php:600
+#: src/Module/Admin/Site.php:603
 msgid ""
 "Change base url for this server. Sends relocate message to all Friendica and"
 " Diaspora* contacts of all users."
 msgstr "A kiszolgáló alap URL-ének megváltoztatása. Áthelyezési üzenetet küld az összes felhasználó minden Friendica és Diaspora* partnerének."
 
-#: src/Module/Admin/Site.php:602
+#: src/Module/Admin/Site.php:605
 msgid "Maximum number of parallel workers"
 msgstr "Párhuzamos feldolgozók legnagyobb száma"
 
-#: src/Module/Admin/Site.php:602
+#: src/Module/Admin/Site.php:605
 #, php-format
 msgid ""
 "On shared hosters set this to %d. On larger systems, values of %d are great."
 " Default value is %d."
 msgstr "Osztott tárhelyszolgáltatóknál állítsa ezt %d értékre. Nagyobb rendszereknél érdemes a számot %d értékre állítani. Az alapértelmezett érték %d."
 
-#: src/Module/Admin/Site.php:603
+#: src/Module/Admin/Site.php:606
 msgid "Enable fastlane"
 msgstr "Prioritásos sor engedélyezése"
 
-#: src/Module/Admin/Site.php:603
+#: src/Module/Admin/Site.php:606
 msgid ""
 "When enabed, the fastlane mechanism starts an additional worker if processes"
 " with higher priority are blocked by processes of lower priority."
 msgstr "Ha engedélyezve van, akkor a prioritásos sor mechanizmus további feldolgozót indít, ha a magasabb prioritással rendelkező folyamatokat blokkolják az alacsonyabb prioritású folyamatok."
 
-#: src/Module/Admin/Site.php:605
+#: src/Module/Admin/Site.php:608
 msgid "Direct relay transfer"
 msgstr "Közvetlen továbbító-átvitel"
 
-#: src/Module/Admin/Site.php:605
+#: src/Module/Admin/Site.php:608
 msgid ""
 "Enables the direct transfer to other servers without using the relay servers"
 msgstr "Engedélyezi a más kiszolgálókra való közvetlen átvitelt a továbbító kiszolgálók használata nélkül."
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:609
 msgid "Relay scope"
 msgstr "Továbbítás hatóköre"
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:609
 msgid ""
 "Can be \"all\" or \"tags\". \"all\" means that every public post should be "
 "received. \"tags\" means that only posts with selected tags should be "
 "received."
 msgstr "Lehet „összes” vagy „címkék”. Az „összes” azt jelenti, hogy minden nyilvános bejegyzést meg kell kapni. A „címkék” jelentése, hogy csak a kijelölt címkékkel rendelkező bejegyzéseket kell megkapni."
 
-#: src/Module/Admin/Site.php:606 src/Module/Contact.php:516
+#: src/Module/Admin/Site.php:609 src/Module/Contact.php:516
 #: src/Module/Settings/TwoFactor/Index.php:118
 msgid "Disabled"
 msgstr "Letiltva"
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:609
 msgid "all"
 msgstr "összes"
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:609
 msgid "tags"
 msgstr "címkék"
 
-#: src/Module/Admin/Site.php:607
+#: src/Module/Admin/Site.php:610
 msgid "Server tags"
 msgstr "Kiszolgálócímkék"
 
-#: src/Module/Admin/Site.php:607
+#: src/Module/Admin/Site.php:610
 msgid "Comma separated list of tags for the \"tags\" subscription."
 msgstr "Címkék vesszővel elválasztott listája a „címkék” feliratkozáshoz."
 
-#: src/Module/Admin/Site.php:608
+#: src/Module/Admin/Site.php:611
 msgid "Deny Server tags"
 msgstr "Kiszolgálócímkék megtagadása"
 
-#: src/Module/Admin/Site.php:608
+#: src/Module/Admin/Site.php:611
 msgid "Comma separated list of tags that are rejected."
 msgstr "Címkék vesszővel elválasztott listája, amelyek vissza lesznek utasítva."
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid "Allow user tags"
 msgstr "Felhasználói címkék engedélyezése"
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid ""
 "If enabled, the tags from the saved searches will used for the \"tags\" "
 "subscription in addition to the \"relay_server_tags\"."
 msgstr "Ha engedélyezve van, akkor a mentett keresésekből származó címkék lesznek használva a „címkék” feliratkozásnál a „relay_server_tags” címkéken kívül."
 
-#: src/Module/Admin/Site.php:612
+#: src/Module/Admin/Site.php:615
 msgid "Start Relocation"
 msgstr "Áthelyezés indítása"
 
