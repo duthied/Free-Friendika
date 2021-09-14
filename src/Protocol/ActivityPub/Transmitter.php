@@ -392,6 +392,20 @@ class Transmitter
 			}
 		}
 
+		$custom_fields = [];
+
+		foreach (DI::profileField()->selectByContactId(0, $uid) as $profile_field) {
+			$custom_fields[] = [
+				'type' => 'PropertyValue',
+				'name' => $profile_field->label,
+				'value' => BBCode::convertForUriId($owner['uri-id'], $profile_field->value)
+			];
+		};
+
+		if (!empty($custom_fields)) {
+			$data['attachment'] = $custom_fields;
+		}
+
 		$data['generator'] = self::getService();
 
 		// tags: https://kitty.town/@inmysocks/100656097926961126.json
