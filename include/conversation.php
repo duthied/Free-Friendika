@@ -1147,10 +1147,10 @@ function status_editor(App $a, array $x = [], $notes_cid = 0, $popup = false)
 		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : '',
 		'$scheduled_at' => Temporal::getDateTimeField(
 			new DateTime(),
-			DateTime::createFromFormat(DateTimeFormat::MYSQL, DateTimeFormat::local('now + 6 months')),
+			new DateTime('now + 6 months'),
 			null,
 			DI::l10n()->t('Scheduled at'),
-			'scheduled_at',
+			'scheduled_at'
 		),
 		'$wait'         => DI::l10n()->t('Please wait'),
 		'$permset'      => DI::l10n()->t('Permission settings'),
