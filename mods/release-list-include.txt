@@ -5,6 +5,7 @@ bin/console.bat
 bin/console.php
 bin/daemon.php
 bin/testargs.php
+bin/wait-for-connection
 bin/worker.php
 config/
 doc/
