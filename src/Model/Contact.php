@@ -2764,7 +2764,7 @@ class Contact
 		} elseif (!empty($contact['id'])) {
 			self::remove($contact['id']);
 		} else {
-			DI::logger()->info('Couldn\'t remove follower because of invalid contact array', ['contact' => $contact]);
+			DI::logger()->info('Couldn\'t remove follower because of invalid contact array', ['contact' => $contact, 'callstack' => System::callstack()]);
 		}
 	}
 
