@@ -1465,8 +1465,7 @@ class Database
 			$this->logger->notice('Invalid count.', ['table' => $table, 'expression' => $expression, 'condition' => $condition_string, 'callstack' => System::callstack()]);
 			return 0;
 		} else {
-			// Ensure to always return either a "null" or a numeric value
-			return is_numeric($row['count']) ? (int)$row['count'] : $row['count'];
+			return (int)$row['count'];
 		}
 	}
 

@@ -2259,7 +2259,7 @@ class Item
 		$condition[0] .= " AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY";
 		$condition[] = $days;
 
-		$items = Post::select(['resource-id', 'starred', 'id', 'post-type', 'uid', 'uri-id', 'post-type'], $condition);
+		$items = Post::select(['resource-id', 'starred', 'id', 'post-type', 'uid', 'uri-id'], $condition);
 
 		if (!DBA::isResult($items)) {
 			return;
