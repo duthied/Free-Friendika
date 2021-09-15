@@ -76,7 +76,7 @@
 						<div id="contact-edit-profile-collapse" class="panel-body panel-collapse collapse in" role="tabpanel" aria-labelledby="contact-edit-profile">
 							<div class="section-content-tools-wrapper">
 								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{{$profileurllabel}}</div><a target="blank" href="{{$url}}">{{$profileurl}}</a>
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{{$profileurllabel}}</div><a target="blank" href="{{$profileurl}}">{{$profileurl}}</a>
 								</div>
 
 								{{if $location}}

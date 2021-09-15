@@ -48,7 +48,7 @@
 				</div> {{* End of contact-edit-status-wrapper *}}
 
 				{{* Some information about the contact from the profile *}}
-				<dl><dt>{{$profileurllabel}}</dt><dd><a target="blank" href="{{$url}}">{{$profileurl}}</a></dd></dl>
+				<dl><dt>{{$profileurllabel}}</dt><dd><a target="blank" href="{{$profileurl}}">{{$profileurl}}</a></dd></dl>
 				{{if $location}}<dl><dt>{{$location_label}}</dt><dd>{{$location nofilter}}</dd></dl>{{/if}}
 				{{if $xmpp}}<dl><dt>{{$xmpp_label}}</dt><dd>{{$xmpp}}</dd></dl>{{/if}}
 				{{if $matrix}}<dl><dt>{{$matrix_label}}</dt><dd>{{$matrix}}</dd></dl>{{/if}}
