@@ -156,8 +156,8 @@ function follow_content(App $a)
 
 	DI::page()['aside'] = '';
 
-	if ($protocol != Protocol::PHANTOM) {
-		DI::page()['aside'] = Widget\VCard::getHTML(Contact::getByURL($contact['url'], false));
+	if (!in_array($protocol, [Protocol::PHANTOM, Protocol::MAIL])) {
+		DI::page()['aside'] = Widget\VCard::getHTML($contact);
 
 		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'),
 			['$title' => DI::l10n()->t('Status Messages and Posts')]
