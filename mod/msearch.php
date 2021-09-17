@@ -22,6 +22,8 @@
 use Friendica\App;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\User;
+use Friendica\Util\Proxy;
 
 function msearch_post(App $a)
 {
@@ -72,7 +74,7 @@ function msearch_post(App $a)
 		$results[] = [
 			'name'  => $search_result['name'],
 			'url'   => DI::baseUrl() . '/profile/' . $search_result['nickname'],
-			'photo' => DI::baseUrl() . '/photo/avatar/' . $search_result['uid'] . '.jpg',
+			'photo' => User::getAvatarUrlForId($search_result['uid'], Proxy::SIZE_THUMB),
 			'tags'  => str_replace([',', '  '], [' ', ' '], $search_result['pub_keywords'])
 		];
 	}
