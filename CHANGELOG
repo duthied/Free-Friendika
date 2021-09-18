@@ -19,6 +19,7 @@ Version 2021.09 (unreleased)
     Enhanced the handling of zmg BBCode elements [annando]
     Enhanced the display of logs in the admin panel [fabrixxm]
     Fixed a bug in the L10n functions not showing plural forms [annando]
+    Fixed a bug in following IMAP accounts [annando]
     Removed the legacy DFRN transport layer, DFRN is now always using the Diaspora* transport layer [annando]
     Removed the legacy OAuth server [annando]
     Bumped the minimal PHP version to 7.2 [annando]
@@ -47,7 +48,7 @@ Version 2021.09 (unreleased)
 
   Closed Issues
     6101, 9378, 9723, 10262, 10491, 10502, 10514, 10558, 10568, 10587,
-    10603, 10617, 10640, 10651, 10672, 10699
+    10603, 10617, 10640, 10651, 10672, 10692, 10698, 10699, 10705
 
 Version 2021.07 (2021-07-04)
   Friendica Core
