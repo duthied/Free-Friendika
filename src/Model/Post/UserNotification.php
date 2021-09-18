@@ -21,9 +21,10 @@
 
 namespace Friendica\Model\Post;
 
-use \BadMethodCallException;
-use Friendica\Core\Logger;
+use BadMethodCallException;
+use Exception;
 use Friendica\Core\Hook;
+use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
@@ -31,10 +32,11 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Subscription;
-use Friendica\Util\Strings;
 use Friendica\Model\Tag;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 class UserNotification
 {
@@ -54,11 +56,11 @@ class UserNotification
 	 *
 	 * @param integer $uri_id
 	 * @param integer $uid
-	 * @param array   $fields
+	 * @param array   $data
 	 * @return bool   success
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public static function insert(int $uri_id, int $uid, array $data = [])
+	public static function insert(int $uri_id, int $uid, array $data = []): bool
 	{
 		if (empty($uri_id)) {
 			throw new BadMethodCallException('Empty URI_id');
@@ -66,9 +68,8 @@ class UserNotification
 
 		$fields = DBStructure::getFieldsForTable('post-user-notification', $data);
 
-		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
-		$fields['uid'] = $uid;
+		$fields['uid']    = $uid;
 
 		return DBA::insert('post-user-notification', $fields, Database::INSERT_IGNORE);
 	}
@@ -81,9 +82,9 @@ class UserNotification
 	 * @param array   $data
 	 * @param bool    $insert_if_missing
 	 * @return bool
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public static function update(int $uri_id, int $uid, array $data = [], bool $insert_if_missing = false)
+	public static function update(int $uri_id, int $uid, array $data = [], bool $insert_if_missing = false): bool
 	{
 		if (empty($uri_id)) {
 			throw new BadMethodCallException('Empty URI_id');
@@ -105,32 +106,33 @@ class UserNotification
 	/**
 	 * Delete a row from the post-user-notification table
 	 *
-	 * @param array        $conditions Field condition(s)
-	 * @param array        $options
-	 *                           - cascade: If true we delete records in other tables that depend on the one we're deleting through
+	 * @param array $conditions  Field condition(s)
+	 * @param array $options     - cascade: If true we delete records in other tables that depend on the one we're deleting through
 	 *                           relations (default: true)
 	 *
-	 * @return boolean was the delete successful?
-	 * @throws \Exception
+	 * @return boolean was the deletion successful?
+	 * @throws Exception
 	 */
-	public static function delete(array $conditions, array $options = [])
+	public static function delete(array $conditions, array $options = []): bool
 	{
 		return DBA::delete('post-user-notification', $conditions, $options);
 	}
 
 	/**
 	 * Checks an item for notifications and sets the "notification-type" field
+	 *
 	 * @ToDo:
 	 * - Check for mentions in posts with "uid=0" where the user hadn't interacted before
 	 *
 	 * @param int $uri_id URI ID
 	 * @param int $uid    user ID
+	 * @throws Exception
 	 */
 	public static function setNotification(int $uri_id, int $uid)
 	{
 		$fields = ['id', 'uri-id', 'parent-uri-id', 'uid', 'body', 'parent', 'gravity', 'vid', 'gravity',
-			'private', 'contact-id', 'thr-parent', 'thr-parent-id', 'parent-uri-id', 'parent-uri', 'author-id', 'verb'];
-		$item = Post::selectFirst($fields, ['uri-id' => $uri_id, 'uid' => $uid, 'origin' => false]);
+		           'private', 'contact-id', 'thr-parent', 'thr-parent-id', 'parent-uri-id', 'parent-uri', 'author-id', 'verb'];
+		$item   = Post::selectFirst($fields, ['uri-id' => $uri_id, 'uid' => $uid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
 		}
@@ -166,6 +168,7 @@ class UserNotification
 	 *
 	 * @param array $item Item array
 	 * @param int   $uid  User ID
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function setNotificationForUser(array $item, int $uid)
 	{
@@ -177,7 +180,7 @@ class UserNotification
 
 		if (self::checkShared($item, $uid)) {
 			$notification_type = $notification_type | self::TYPE_SHARED;
-			self::insertNoticationByItem(self::TYPE_SHARED, $uid, $item);
+			self::insertNotificationByItem(self::TYPE_SHARED, $uid, $item);
 			$notified = true;
 		} else {
 			$notified = false;
@@ -187,6 +190,7 @@ class UserNotification
 
 		// Fetch all contacts for the given profiles
 		$contacts = [];
+
 		$ret = DBA::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
 		while ($contact = DBA::fetch($ret)) {
 			$contacts[] = $contact['id'];
@@ -201,7 +205,7 @@ class UserNotification
 		if (self::checkExplicitMention($item, $profiles)) {
 			$notification_type = $notification_type | self::TYPE_EXPLICIT_TAGGED;
 			if (!$notified) {
-				self::insertNoticationByItem( self::TYPE_EXPLICIT_TAGGED, $uid, $item);
+				self::insertNotificationByItem(self::TYPE_EXPLICIT_TAGGED, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -209,7 +213,7 @@ class UserNotification
 		if (self::checkImplicitMention($item, $profiles)) {
 			$notification_type = $notification_type | self::TYPE_IMPLICIT_TAGGED;
 			if (!$notified) {
-				self::insertNoticationByItem(self::TYPE_IMPLICIT_TAGGED, $uid, $item);
+				self::insertNotificationByItem(self::TYPE_IMPLICIT_TAGGED, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -217,7 +221,7 @@ class UserNotification
 		if (self::checkDirectComment($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_DIRECT_COMMENT;
 			if (!$notified) {
-				self::insertNoticationByItem(self::TYPE_DIRECT_COMMENT, $uid, $item);
+				self::insertNotificationByItem(self::TYPE_DIRECT_COMMENT, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -225,7 +229,7 @@ class UserNotification
 		if (self::checkDirectCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_DIRECT_THREAD_COMMENT;
 			if (!$notified) {
-				self::insertNoticationByItem(self::TYPE_DIRECT_THREAD_COMMENT, $uid, $item);
+				self::insertNotificationByItem(self::TYPE_DIRECT_THREAD_COMMENT, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -233,7 +237,7 @@ class UserNotification
 		if (self::checkCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_THREAD_COMMENT;
 			if (!$notified) {
-				self::insertNoticationByItem(self::TYPE_THREAD_COMMENT, $uid, $item);
+				self::insertNotificationByItem(self::TYPE_THREAD_COMMENT, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -241,7 +245,7 @@ class UserNotification
 		if (self::checkCommentedParticipation($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_COMMENT_PARTICIPATION;
 			if (!$notified) {
-				self::insertNoticationByItem(self::TYPE_COMMENT_PARTICIPATION, $uid, $item);
+				self::insertNotificationByItem(self::TYPE_COMMENT_PARTICIPATION, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -249,8 +253,7 @@ class UserNotification
 		if (self::checkActivityParticipation($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_ACTIVITY_PARTICIPATION;
 			if (!$notified) {
-				self::insertNoticationByItem(self::TYPE_ACTIVITY_PARTICIPATION, $uid, $item);
-				$notified = true;
+				self::insertNotificationByItem(self::TYPE_ACTIVITY_PARTICIPATION, $uid, $item);
 			}
 		}
 
@@ -269,12 +272,13 @@ class UserNotification
 	/**
 	 * Add a notification entry for a given item array
 	 *
-	 * @param int $type   User notification type
-	 * @param int $uid    User ID
+	 * @param int   $type User notification type
+	 * @param int   $uid  User ID
 	 * @param array $item Item array
-	 * @return boolean
+	 * @return void
+	 * @throws Exception
 	 */
-	private static function insertNoticationByItem(int $type, int $uid, array $item)
+	private static function insertNotificationByItem(int $type, int $uid, array $item): void
 	{
 		if (($item['gravity'] == GRAVITY_ACTIVITY) &&
 			!in_array($type, [self::TYPE_DIRECT_COMMENT, self::TYPE_DIRECT_THREAD_COMMENT])) {
@@ -297,14 +301,12 @@ class UserNotification
 			$fields['target-uri-id'] = $item['uri-id'];
 		}
 
-		$ret = DBA::insert('notification', $fields, Database::INSERT_IGNORE);
-		if ($ret) {
+		if (DBA::insert('notification', $fields, Database::INSERT_IGNORE)) {
 			$id = DBA::lastInsertId();
 			if (!empty($id)) {
 				Subscription::pushByNotificationId($id);
 			}
 		}
-		return $ret;
 	}
 
 	/**
@@ -314,8 +316,9 @@ class UserNotification
 	 * @param int $vid   Verb ID
 	 * @param int $uid   User ID
 	 * @return boolean
+	 * @throws Exception
 	 */
-	public static function insertNotication(int $actor, int $vid, int $uid)
+	public static function insertNotification(int $actor, int $vid, int $uid): bool
 	{
 		$fields = [
 			'uid' => $uid,
@@ -337,11 +340,13 @@ class UserNotification
 
 	/**
 	 * Fetch all profiles (contact URL) of a given user
+	 *
 	 * @param int $uid User ID
 	 *
 	 * @return array Profile links
+	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function getProfileForUser(int $uid)
+	private static function getProfileForUser(int $uid): array
 	{
 		$notification_data = ['uid' => $uid, 'profiles' => []];
 		Hook::callAll('check_item_notification', $notification_data);
@@ -364,11 +369,11 @@ class UserNotification
 		// Now the alias
 		$profiles[] = $owner['alias'];
 
-		// Notifications from Diaspora are often with an URL in the Diaspora format
+		// Notifications from Diaspora often have a URL in the Diaspora format
 		$profiles[] = DI::baseUrl() . '/u/' . $user['nickname'];
 
 		// Validate and add profile links
-		foreach ($profiles AS $key => $profile) {
+		foreach ($profiles as $key => $profile) {
 			// Check for invalid profile urls (without scheme, host or path) and remove them
 			if (empty(parse_url($profile, PHP_URL_SCHEME)) || empty(parse_url($profile, PHP_URL_HOST)) || empty(parse_url($profile, PHP_URL_PATH))) {
 				unset($profiles[$key]);
@@ -376,11 +381,11 @@ class UserNotification
 			}
 
 			// Add the normalized form
-			$profile = Strings::normaliseLink($profile);
+			$profile    = Strings::normaliseLink($profile);
 			$profiles[] = $profile;
 
 			// Add the SSL form
-			$profile = str_replace('http://', 'https://', $profile);
+			$profile    = str_replace('http://', 'https://', $profile);
 			$profiles[] = $profile;
 		}
 
@@ -389,11 +394,13 @@ class UserNotification
 
 	/**
 	 * Check for a "shared" notification for every new post of contacts from the given user
+	 *
 	 * @param array $item
-	 * @param int   $uid  User ID
+	 * @param int   $uid User ID
 	 * @return bool A contact had shared something
+	 * @throws Exception
 	 */
-	private static function checkShared(array $item, int $uid)
+	private static function checkShared(array $item, int $uid): bool
 	{
 		// Only check on original posts and reshare ("announce") activities, otherwise return
 		if (($item['gravity'] != GRAVITY_PARENT) && ($item['verb'] != Activity::ANNOUNCE)) {
@@ -424,12 +431,14 @@ class UserNotification
 	}
 
 	/**
-	 * Check for an implicit mention (only tag, no body) of the given user
+	 * Check for an implicit mention (only in tags, not in body) of the given user
+	 *
 	 * @param array $item
 	 * @param array $profiles Profile links
 	 * @return bool The user is mentioned
+	 * @throws Exception
 	 */
-	private static function checkImplicitMention(array $item, array $profiles)
+	private static function checkImplicitMention(array $item, array $profiles): bool
 	{
 		$mentions = Tag::getByURIId($item['uri-id'], [Tag::IMPLICIT_MENTION]);
 		foreach ($mentions as $mention) {
@@ -445,11 +454,13 @@ class UserNotification
 
 	/**
 	 * Check for an explicit mention (tag and body) of the given user
+	 *
 	 * @param array $item
 	 * @param array $profiles Profile links
 	 * @return bool The user is mentioned
+	 * @throws Exception
 	 */
-	private static function checkExplicitMention(array $item, array $profiles)
+	private static function checkExplicitMention(array $item, array $profiles): bool
 	{
 		$mentions = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($mentions as $mention) {
@@ -465,11 +476,13 @@ class UserNotification
 
 	/**
 	 * Check if the given user had created this thread
+	 *
 	 * @param array $item
 	 * @param array $contacts Array of contact IDs
 	 * @return bool The user had created this thread
+	 * @throws Exception
 	 */
-	private static function checkCommentedThread(array $item, array $contacts)
+	private static function checkCommentedThread(array $item, array $contacts): bool
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_PARENT];
 		return Post::exists($condition);
@@ -477,11 +490,13 @@ class UserNotification
 
 	/**
 	 * Check for a direct comment to a post of the given user
+	 *
 	 * @param array $item
 	 * @param array $contacts Array of contact IDs
 	 * @return bool The item is a direct comment to a user comment
+	 * @throws Exception
 	 */
-	private static function checkDirectComment(array $item, array $contacts)
+	private static function checkDirectComment(array $item, array $contacts): bool
 	{
 		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
 		return Post::exists($condition);
@@ -489,11 +504,13 @@ class UserNotification
 
 	/**
 	 * Check for a direct comment to the starting post of the given user
+	 *
 	 * @param array $item
 	 * @param array $contacts Array of contact IDs
 	 * @return bool The user had created this thread
+	 * @throws Exception
 	 */
-	private static function checkDirectCommentedThread(array $item, array $contacts)
+	private static function checkDirectCommentedThread(array $item, array $contacts): bool
 	{
 		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_PARENT];
 		return Post::exists($condition);
@@ -501,11 +518,13 @@ class UserNotification
 
 	/**
 	 *  Check if the user had commented in this thread
+	 *
 	 * @param array $item
 	 * @param array $contacts Array of contact IDs
 	 * @return bool The user had commented in the thread
+	 * @throws Exception
 	 */
-	private static function checkCommentedParticipation(array $item, array $contacts)
+	private static function checkCommentedParticipation(array $item, array $contacts): bool
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
 		return Post::exists($condition);
@@ -513,11 +532,13 @@ class UserNotification
 
 	/**
 	 * Check if the user had interacted in this thread (Like, Dislike, ...)
+	 *
 	 * @param array $item
 	 * @param array $contacts Array of contact IDs
 	 * @return bool The user had interacted in the thread
+	 * @throws Exception
 	 */
-	private static function checkActivityParticipation(array $item, array $contacts)
+	private static function checkActivityParticipation(array $item, array $contacts): bool
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY];
 		return Post::exists($condition);
