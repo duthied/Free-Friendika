@@ -449,7 +449,7 @@ class DFRN
 
 		$attributes = ["rel" => "photo", "type" => "image/jpeg",
 					"media:width" => Proxy::PIXEL_SMALL, "media:height" => Proxy::PIXEL_SMALL,
-					"href" => Contact::getAvatarUrlForId($owner['id'], Proxy::SIZE_SMALL, $owner['updated'])];
+					"href" => User::getAvatarUrlForId($owner['uid'], Proxy::SIZE_SMALL)];
 
 		if (!$public || !$hide) {
 			$attributes["dfrn:updated"] = $picdate;
@@ -1584,7 +1584,7 @@ class DFRN
 			}
 			if ($activity->match($item["verb"], Activity::UNFOLLOW)) {
 				Logger::log("Lost follower");
-				Contact::removeFollower($importer, $contact, $item);
+				Contact::removeFollower($contact);
 				return false;
 			}
 			if ($activity->match($item["verb"], Activity::REQ_FRIEND)) {

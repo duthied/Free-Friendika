@@ -370,7 +370,7 @@ class Transmitter
 			'owner' => $owner['url'],
 			'publicKeyPem' => $owner['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => DI::baseUrl() . '/inbox'];
-		$data['icon'] = ['type' => 'Image', 'url' => Contact::getAvatarUrlForId($owner['id'], '', $owner['updated'])];
+		$data['icon'] = ['type' => 'Image', 'url' => User::getAvatarUrlForId($uid)];
 
 		$resourceid = Photo::ridFromURI($owner['photo']);
 		if (!empty($resourceid)) {
@@ -390,6 +390,20 @@ class Transmitter
 					$data['image']['mediaType'] = $photo['type'];
 				}
 			}
+		}
+
+		$custom_fields = [];
+
+		foreach (DI::profileField()->selectByContactId(0, $uid) as $profile_field) {
+			$custom_fields[] = [
+				'type' => 'PropertyValue',
+				'name' => $profile_field->label,
+				'value' => BBCode::convertForUriId($owner['uri-id'], $profile_field->value)
+			];
+		};
+
+		if (!empty($custom_fields)) {
+			$data['attachment'] = $custom_fields;
 		}
 
 		$data['generator'] = self::getService();

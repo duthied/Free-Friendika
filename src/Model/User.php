@@ -841,6 +841,57 @@ class User
 	}
 
 	/**
+	 * Get avatar link for given user id
+	 *
+	 * @param integer $uid     user id
+	 * @param string  $size    One of the ProxyUtils::SIZE_* constants
+	 * @return string avatar link
+	 */
+	public static function getAvatarUrlForId(int $uid, string $size = ''):string
+	{
+		$url = DI::baseUrl() . '/photo/';
+
+		switch ($size) {
+			case Proxy::SIZE_MICRO:
+				$url .= 'micro/';
+				$scale = 6;
+				break;
+			case Proxy::SIZE_THUMB:
+				$url .= 'avatar/';
+				$scale = 5;
+				break;
+			default:
+				$url .= 'profile/';
+				$scale = 4;
+				break;
+		}
+
+		$updated =  '';
+		$imagetype = IMAGETYPE_JPEG;
+
+		$photo = Photo::selectFirst(['type', 'created', 'edited', 'updated'], ["scale" => $scale, 'uid' => $uid, 'profile' => true]);
+		if (!empty($photo)) {
+			$updated = max($photo['created'], $photo['edited'], $photo['updated']);
+
+			switch ($photo['type']) {
+				case 'image/png':
+					$imagetype = IMAGETYPE_PNG;
+					break;
+
+				case 'image/gif':
+					$imagetype = IMAGETYPE_PNG;
+					break;
+
+				default:
+					$imagetype = IMAGETYPE_JPEG;
+					break;
+			}
+		}
+
+		return $url . $uid . image_type_to_extension($imagetype) . ($updated ? '?ts=' . strtotime($updated) : '');
+	}
+
+	/**
 	 * Catch-all user creation function
 	 *
 	 * Creates a user from the provided data array, either form fields or OpenID.
@@ -1054,8 +1105,8 @@ class User
 		$insert_result = DBA::insert('profile', [
 			'uid' => $uid,
 			'name' => $username,
-			'photo' => DI::baseUrl() . "/photo/profile/{$uid}.jpg",
-			'thumb' => DI::baseUrl() . "/photo/avatar/{$uid}.jpg",
+			'photo' => self::getAvatarUrlForId($uid),
+			'thumb' => self::getAvatarUrlForId($uid, Proxy::SIZE_THUMB),
 			'publish' => $publish,
 			'net-publish' => $netpublish,
 		]);

@@ -653,9 +653,9 @@ class Contact
 			'nick'        => $user['nickname'],
 			'pubkey'      => $user['pubkey'],
 			'prvkey'      => $user['prvkey'],
-			'photo'       => DI::baseUrl() . '/photo/profile/' . $user['uid'] . '.jpg',
-			'thumb'       => DI::baseUrl() . '/photo/avatar/'  . $user['uid'] . '.jpg',
-			'micro'       => DI::baseUrl() . '/photo/micro/'   . $user['uid'] . '.jpg',
+			'photo'       => User::getAvatarUrlForId($user['uid']),
+			'thumb'       => User::getAvatarUrlForId($user['uid'], Proxy::SIZE_THUMB),
+			'micro'       => User::getAvatarUrlForId($user['uid'], Proxy::SIZE_MICRO),
 			'blocked'     => 0,
 			'pending'     => 0,
 			'url'         => DI::baseUrl() . '/profile/' . $user['nickname'],
@@ -768,7 +768,7 @@ class Contact
 			$fields['micro'] = self::getDefaultAvatar($fields, Proxy::SIZE_MICRO);
 		}
 
-		$fields['avatar'] = DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
+		$fields['avatar'] = User::getAvatarUrlForId($uid);
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = !$profile['net-publish'];
@@ -794,8 +794,11 @@ class Contact
 			self::update($fields, ['uid' => 0, 'nurl' => $self['nurl']]);
 
 			// Update the profile
-			$fields = ['photo' => DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix,
-				'thumb' => DI::baseUrl() . '/photo/avatar/' . $uid .'.' . $file_suffix];
+			$fields = [
+				'photo' => User::getAvatarUrlForId($uid),
+				'thumb' => User::getAvatarUrlForId($uid, Proxy::SIZE_THUMB)
+			];
+
 			DBA::update('profile', $fields, ['uid' => $uid]);
 		}
 
@@ -2780,12 +2783,14 @@ class Contact
 		return null;
 	}
 
-	public static function removeFollower($importer, $contact)
+	public static function removeFollower(array $contact)
 	{
-		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::SHARING)) {
-			self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
-		} else {
+		if (in_array($contact['rel'] ?? [], [self::FRIEND, self::SHARING])) {
+			DBA::update('contact', ['rel' => self::SHARING], ['id' => $contact['id']]);
+		} elseif (!empty($contact['id'])) {
 			self::remove($contact['id']);
+		} else {
+			DI::logger()->info('Couldn\'t remove follower because of invalid contact array', ['contact' => $contact, 'callstack' => System::callstack()]);
 		}
 	}
 

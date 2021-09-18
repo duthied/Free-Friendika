@@ -101,7 +101,7 @@ class Probe
 			if (isset($data[$field])) {
 				if (in_array($field, $numeric_fields)) {
 					$newdata[$field] = (int)$data[$field];
-				} else {	
+				} else {
 					$newdata[$field] = $data[$field];
 				}
 			} elseif (!in_array($field, $numeric_fields)) {
@@ -2229,11 +2229,11 @@ class Probe
 			$data = [
 				'name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
 				'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
-				'photo' => Contact::getAvatarUrlForId($profile['id'], '', $profile['updated']),
+				'photo' => User::getAvatarUrlForId($uid),
 				'header' => $profile['header'] ? Contact::getHeaderUrlForId($profile['id'], $profile['updated']) : '',
 				'account-type' => $profile['contact-type'], 'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
 				'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'],
-				'xmpp' => $profile['xmpp'], 'matrix' => $profile['matrix'], 
+				'xmpp' => $profile['xmpp'], 'matrix' => $profile['matrix'],
 				'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
 				'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],
 				'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $profile['poco'],

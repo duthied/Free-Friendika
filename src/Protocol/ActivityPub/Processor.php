@@ -1102,7 +1102,7 @@ class Processor
 			return;
 		}
 
-		Contact::removeFollower($owner, $contact);
+		Contact::removeFollower($contact);
 		Logger::info('Undo following request', ['contact' => $cid, 'user' => $uid]);
 	}
 

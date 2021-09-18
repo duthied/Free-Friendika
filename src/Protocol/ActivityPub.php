@@ -64,10 +64,14 @@ class ActivityPub
 		'diaspora' => 'https://diasporafoundation.org/ns/',
 		'litepub' => 'http://litepub.social/ns#',
 		'toot' => 'http://joinmastodon.org/ns#',
+		'schema' => 'http://schema.org#',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
 		'directMessage' => 'litepub:directMessage',
-		'discoverable' => 'toot:discoverable']];
+		'discoverable' => 'toot:discoverable',
+		'PropertyValue' => 'schema:PropertyValue',
+		'value' => 'schema:value',
+	]];
 	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application', 'Tombstone'];
 	/**
 	 * Checks if the web request is done for the AP protocol

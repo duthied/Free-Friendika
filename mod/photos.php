@@ -1025,6 +1025,7 @@ function photos_content(App $a)
 				'$confirm' => DI::l10n()->t('Delete Album'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'dropalbum',
+				'$confirm_value' => 'dropalbum',
 				'$cancel' => DI::l10n()->t('Cancel'),
 			]);
 		}
@@ -1131,6 +1132,7 @@ function photos_content(App $a)
 				'$confirm' => DI::l10n()->t('Delete Photo'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'delete',
+				'$confirm_value' => 'delete',
 				'$cancel' => DI::l10n()->t('Cancel'),
 			]);
 		}

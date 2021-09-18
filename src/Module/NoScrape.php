@@ -26,7 +26,6 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\User;
 
 /**
@@ -81,7 +80,7 @@ class NoScrape extends BaseModule
 		$keywords = explode(',', $keywords);
 
 		$json_info['fn']       = $profile['name'];
-		$json_info['photo']    = Contact::getAvatarUrlForUrl($profile['url'], $profile['uid']);
+		$json_info['photo']    = User::getAvatarUrlForId($profile['uid']);
 		$json_info['tags']     = $keywords;
 		$json_info['language'] = $profile['language'];
 
