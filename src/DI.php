@@ -370,12 +370,9 @@ abstract class DI
 		return self::$dice->create(Factory\Api\Twitter\User::class);
 	}
 
-	/**
-	 * @return Factory\Notification\Introduction
-	 */
-	public static function notificationIntro()
+	public static function notificationIntro(): Navigation\Notifications\Factory\Introduction
 	{
-		return self::$dice->create(Factory\Notification\Introduction::class);
+		return self::$dice->create(Navigation\Notifications\Factory\Introduction::class);
 	}
 
 	//

@@ -26,11 +26,10 @@ use Friendica\Content\Nav;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\BaseNotifications;
-use Friendica\Object\Notification\Introduction;
+use Friendica\Navigation\Notifications\ValueObject\Introduction;
 
 /**
  * Prints notifications about introduction
@@ -82,34 +81,34 @@ class Introductions extends BaseNotifications
 	
 		// Loop through all introduction notifications.This creates an array with the output html for each
 		// introduction
-		/** @var Introduction $notification */
-		foreach ($notifications['notifications'] as $notification) {
+		/** @var Introduction $Introduction */
+		foreach ($notifications['notifications'] as $Introduction) {
 
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 			// We have to distinguish between these two because they use different data.
-			switch ($notification->getLabel()) {
+			switch ($Introduction->getLabel()) {
 				case 'friend_suggestion':
 					$notificationContent[] = Renderer::replaceMacros($notificationSuggestions, [
-						'$type'                  => $notification->getLabel(),
+						'$type'                  => $Introduction->getLabel(),
 						'$str_notification_type' => DI::l10n()->t('Notification type:'),
-						'$str_type'              => $notification->getType(),
-						'$intro_id'              => $notification->getIntroId(),
+						'$str_type'              => $Introduction->getType(),
+						'$intro_id'              => $Introduction->getIntroId(),
 						'$lbl_madeby'            => DI::l10n()->t('Suggested by:'),
-						'$madeby'                => $notification->getMadeBy(),
-						'$madeby_url'            => $notification->getMadeByUrl(),
-						'$madeby_zrl'            => $notification->getMadeByZrl(),
-						'$madeby_addr'           => $notification->getMadeByAddr(),
-						'$contact_id'            => $notification->getContactId(),
-						'$photo'                 => $notification->getPhoto(),
-						'$fullname'              => $notification->getName(),
+						'$madeby'                => $Introduction->getMadeBy(),
+						'$madeby_url'            => $Introduction->getMadeByUrl(),
+						'$madeby_zrl'            => $Introduction->getMadeByZrl(),
+						'$madeby_addr'           => $Introduction->getMadeByAddr(),
+						'$contact_id'            => $Introduction->getContactId(),
+						'$photo'                 => $Introduction->getPhoto(),
+						'$fullname'              => $Introduction->getName(),
 						'$dfrn_url'              => $owner['url'],
-						'$url'                   => $notification->getUrl(),
-						'$zrl'                   => $notification->getZrl(),
+						'$url'                   => $Introduction->getUrl(),
+						'$zrl'                   => $Introduction->getZrl(),
 						'$lbl_url'               => DI::l10n()->t('Profile URL'),
-						'$addr'                  => $notification->getAddr(),
+						'$addr'                  => $Introduction->getAddr(),
 						'$action'                => 'follow',
 						'$approve'               => DI::l10n()->t('Approve'),
-						'$note'                  => $notification->getNote(),
+						'$note'                  => $Introduction->getNote(),
 						'$ignore'                => DI::l10n()->t('Ignore'),
 						'$discard'               => DI::l10n()->t('Discard'),
 						'$is_mobile'             => DI::mode()->isMobile(),
@@ -118,15 +117,15 @@ class Introductions extends BaseNotifications
 
 				// Normal connection requests
 				default:
-					if ($notification->getNetwork() === Protocol::DFRN) {
+					if ($Introduction->getNetwork() === Protocol::DFRN) {
 						$lbl_knowyou = DI::l10n()->t('Claims to be known to you: ');
-						$knowyou     = ($notification->getKnowYou() ? DI::l10n()->t('Yes') : DI::l10n()->t('No'));
+						$knowyou     = ($Introduction->getKnowYou() ? DI::l10n()->t('Yes') : DI::l10n()->t('No'));
 					} else {
 						$lbl_knowyou = '';
 						$knowyou = '';
 					}
 
-					$convertedName = BBCode::convert($notification->getName());
+					$convertedName = BBCode::convert($Introduction->getName());
 
 					$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
 					$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $convertedName, $convertedName);
@@ -137,51 +136,51 @@ class Introductions extends BaseNotifications
 
 					$action = 'follow_confirm';
 
-					$header = $notification->getName();
+					$header = $Introduction->getName();
 
-					if ($notification->getAddr() != '') {
-						$header .= ' <' . $notification->getAddr() . '>';
+					if ($Introduction->getAddr() != '') {
+						$header .= ' <' . $Introduction->getAddr() . '>';
 					}
 
-					$header .= ' (' . ContactSelector::networkToName($notification->getNetwork(), $notification->getUrl()) . ')';
+					$header .= ' (' . ContactSelector::networkToName($Introduction->getNetwork(), $Introduction->getUrl()) . ')';
 
-					if ($notification->getNetwork() != Protocol::DIASPORA) {
+					if ($Introduction->getNetwork() != Protocol::DIASPORA) {
 						$discard = DI::l10n()->t('Discard');
 					} else {
 						$discard = '';
 					}
 
 					$notificationContent[] = Renderer::replaceMacros($notificationTemplate, [
-						'$type'                  => $notification->getLabel(),
+						'$type'                  => $Introduction->getLabel(),
 						'$header'                => $header,
 						'$str_notification_type' => DI::l10n()->t('Notification type:'),
-						'$str_type'              => $notification->getType(),
-						'$dfrn_id'               => $notification->getDfrnId(),
-						'$uid'                   => $notification->getUid(),
-						'$intro_id'              => $notification->getIntroId(),
-						'$contact_id'            => $notification->getContactId(),
-						'$photo'                 => $notification->getPhoto(),
-						'$fullname'              => $notification->getName(),
-						'$location'              => $notification->getLocation(),
+						'$str_type'              => $Introduction->getType(),
+						'$dfrn_id'               => $Introduction->getDfrnId(),
+						'$uid'                   => $Introduction->getUid(),
+						'$intro_id'              => $Introduction->getIntroId(),
+						'$contact_id'            => $Introduction->getContactId(),
+						'$photo'                 => $Introduction->getPhoto(),
+						'$fullname'              => $Introduction->getName(),
+						'$location'              => $Introduction->getLocation(),
 						'$lbl_location'          => DI::l10n()->t('Location:'),
-						'$about'                 => $notification->getAbout(),
+						'$about'                 => $Introduction->getAbout(),
 						'$lbl_about'             => DI::l10n()->t('About:'),
-						'$keywords'              => $notification->getKeywords(),
+						'$keywords'              => $Introduction->getKeywords(),
 						'$lbl_keywords'          => DI::l10n()->t('Tags:'),
-						'$hidden'                => ['hidden', DI::l10n()->t('Hide this contact from others'), $notification->isHidden(), ''],
+						'$hidden'                => ['hidden', DI::l10n()->t('Hide this contact from others'), $Introduction->isHidden(), ''],
 						'$lbl_connection_type'   => $helptext,
 						'$friend'                => $friend,
 						'$follower'              => $follower,
-						'$url'                   => $notification->getUrl(),
-						'$zrl'                   => $notification->getZrl(),
+						'$url'                   => $Introduction->getUrl(),
+						'$zrl'                   => $Introduction->getZrl(),
 						'$lbl_url'               => DI::l10n()->t('Profile URL'),
-						'$addr'                  => $notification->getAddr(),
+						'$addr'                  => $Introduction->getAddr(),
 						'$lbl_knowyou'           => $lbl_knowyou,
 						'$lbl_network'           => DI::l10n()->t('Network:'),
-						'$network'               => ContactSelector::networkToName($notification->getNetwork(), $notification->getUrl()),
+						'$network'               => ContactSelector::networkToName($Introduction->getNetwork(), $Introduction->getUrl()),
 						'$knowyou'               => $knowyou,
 						'$approve'               => DI::l10n()->t('Approve'),
-						'$note'                  => $notification->getNote(),
+						'$note'                  => $Introduction->getNote(),
 						'$ignore'                => DI::l10n()->t('Ignore'),
 						'$discard'               => $discard,
 						'$action'                => $action,
