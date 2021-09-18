@@ -22,7 +22,7 @@ Version 2021.09 (unreleased)
     Fixed a bug in following IMAP accounts [annando]
     Removed the legacy DFRN transport layer, DFRN is now always using the Diaspora* transport layer [annando]
     Removed the legacy OAuth server [annando]
-    Bumped the minimal PHP version to 7.2 [annando]
+    Bumped the minimal PHP version to 7.3
     Added user option to control how postings are shortened [annando]
     Added Persian to the possible detected languages of a postings [MrPetovan]
     Added Matrix account profile field [annando]
