@@ -26,7 +26,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityNamespace;
@@ -197,7 +196,7 @@ class Xrd extends BaseModule
 				[
 					'rel'  => 'http://webfinger.net/rel/avatar',
 					'type' => $avatar['type'],
-					'href' => Contact::getAvatarUrlForUrl($owner['url'], $owner['uid']),
+					'href' => User::getAvatarUrlForId($owner['uid']),
 				],
 				[
 					'rel'  => 'http://joindiaspora.com/seed_location',
@@ -253,7 +252,7 @@ class Xrd extends BaseModule
 			'$hcard_url'   => $baseURL . '/hcard/' . $owner['nickname'],
 			'$atom'        => $owner['poll'],
 			'$poco_url'    => $owner['poco'],
-			'$photo'       => Contact::getAvatarUrlForUrl($owner['url'], $owner['uid']),
+			'$photo'       => User::getAvatarUrlForId($owner['uid']),
 			'$type'        => $avatar['type'],
 			'$salmon'      => $baseURL . '/salmon/' . $owner['nickname'],
 			'$salmen'      => $baseURL . '/salmon/' . $owner['nickname'] . '/mention',

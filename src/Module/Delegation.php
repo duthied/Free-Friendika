@@ -27,7 +27,6 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Notification;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException\ForbiddenException;
@@ -123,12 +122,7 @@ class Delegation extends BaseModule
 
 		//getting additinal information for each identity
 		foreach ($identities as $key => $identity) {
-			$self = Contact::selectFirst(['id', 'updated'], ['uid' => $identity['uid'], 'self' => true]);
-			if (!DBA::isResult($self)) {
-				continue;
-			}
-
-			$identities[$key]['thumb'] = Contact::getAvatarUrlForId($self['id'], Proxy::SIZE_THUMB, $self['updated']);
+			$identities[$key]['thumb'] = User::getAvatarUrlForId($identity['uid'], Proxy::SIZE_THUMB);
 
 			$identities[$key]['selected'] = ($identity['nickname'] === DI::app()->getLoggedInUserNickname());
 

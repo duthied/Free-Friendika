@@ -31,6 +31,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\User;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 /**
@@ -372,7 +374,7 @@ class Register extends BaseModule
 					'source_mail'  => $user['email'],
 					'source_nick'  => $user['nickname'],
 					'source_link'  => $base_url . '/admin/users/',
-					'source_photo' => $base_url . '/photo/avatar/' . $user['uid'] . '.jpg',
+					'source_photo' => User::getAvatarUrlForId($user['uid'], Proxy::SIZE_THUMB),
 					'show_in_notification_page' => false
 				]);
 			}

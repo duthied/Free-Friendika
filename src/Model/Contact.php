@@ -627,9 +627,9 @@ class Contact
 			'nick'        => $user['nickname'],
 			'pubkey'      => $user['pubkey'],
 			'prvkey'      => $user['prvkey'],
-			'photo'       => DI::baseUrl() . '/photo/profile/' . $user['uid'] . '.jpg',
-			'thumb'       => DI::baseUrl() . '/photo/avatar/'  . $user['uid'] . '.jpg',
-			'micro'       => DI::baseUrl() . '/photo/micro/'   . $user['uid'] . '.jpg',
+			'photo'       => User::getAvatarUrlForId($user['uid']),
+			'thumb'       => User::getAvatarUrlForId($user['uid'], Proxy::SIZE_THUMB),
+			'micro'       => User::getAvatarUrlForId($user['uid'], Proxy::SIZE_MICRO),
 			'blocked'     => 0,
 			'pending'     => 0,
 			'url'         => DI::baseUrl() . '/profile/' . $user['nickname'],
@@ -742,7 +742,7 @@ class Contact
 			$fields['micro'] = self::getDefaultAvatar($fields, Proxy::SIZE_MICRO);
 		}
 
-		$fields['avatar'] = DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
+		$fields['avatar'] = User::getAvatarUrlForId($uid);
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = !$profile['net-publish'];
@@ -768,8 +768,11 @@ class Contact
 			DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
 
 			// Update the profile
-			$fields = ['photo' => DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix,
-				'thumb' => DI::baseUrl() . '/photo/avatar/' . $uid .'.' . $file_suffix];
+			$fields = [
+				'photo' => User::getAvatarUrlForId($uid),
+				'thumb' => User::getAvatarUrlForId($uid, Proxy::SIZE_THUMB)
+			];
+
 			DBA::update('profile', $fields, ['uid' => $uid]);
 		}
 
@@ -2355,7 +2358,7 @@ class Contact
 			$probed = false;
 			$ret = $arr['contact'];
 		} else {
-			$probed = true;			
+			$probed = true;
 			$ret = Probe::uri($url, $network, $uid);
 		}
 
