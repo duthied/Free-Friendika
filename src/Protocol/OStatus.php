@@ -471,7 +471,7 @@ class OStatus
 
 			if ($item["verb"] == Activity::O_UNFOLLOW) {
 				$dummy = null;
-				Contact::removeFollower($importer, $contact, $item, $dummy);
+				Contact::removeFollower($contact);
 				continue;
 			}
 

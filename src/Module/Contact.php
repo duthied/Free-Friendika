@@ -290,11 +290,17 @@ class Contact extends BaseModule
 				$contact_id = $data['user'];
 			}
 
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'deleted' => false]);
+			if (!empty($data)) {
+				$contact = DBA::selectFirst('contact', [], [
+					'id'      => $contact_id,
+					'uid'     => [0, local_user()],
+					'deleted' => false
+				]);
 
-			// Don't display contacts that are about to be deleted
-			if ($contact['network'] == Protocol::PHANTOM) {
-				$contact = false;
+				// Don't display contacts that are about to be deleted
+				if (DBA::isResult($contact) && !empty($contact['network']) && $contact['network'] == Protocol::PHANTOM) {
+					$contact = false;
+				}
 			}
 		}
 
