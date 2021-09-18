@@ -2193,11 +2193,14 @@ function api_statuses_mentions($type)
 		(SELECT `uri-id` FROM `post-user-notification` WHERE `uid` = ? AND `notification-type` & ? != 0 ORDER BY `uri-id`)
 		AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `id` > ?";
 
-	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
-		Post\UserNotification::NOTIF_EXPLICIT_TAGGED | Post\UserNotification::NOTIF_IMPLICIT_TAGGED |
-		Post\UserNotification::NOTIF_THREAD_COMMENT | Post\UserNotification::NOTIF_DIRECT_COMMENT |
-		Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT,
-		api_user(), $since_id];
+	$condition = [
+		GRAVITY_PARENT, GRAVITY_COMMENT,
+		api_user(),
+		Post\UserNotification::TYPE_EXPLICIT_TAGGED | Post\UserNotification::TYPE_IMPLICIT_TAGGED |
+		Post\UserNotification::TYPE_THREAD_COMMENT | Post\UserNotification::TYPE_DIRECT_COMMENT |
+		Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
+		api_user(), $since_id,
+	];
 
 	if ($max_id > 0) {
 		$query .= " AND `id` <= ?";

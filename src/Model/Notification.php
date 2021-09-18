@@ -44,20 +44,24 @@ class Notification extends BaseModel
 	 */
 	public static function getType(array $notification): string
 	{
-		if (($notification['vid'] == Verb::getID(Activity::FOLLOW)) && ($notification['type'] == Post\UserNotification::NOTIF_NONE)) {
+		if (($notification['vid'] == Verb::getID(Activity::FOLLOW)) && ($notification['type'] == Post\UserNotification::TYPE_NONE)) {
 			$contact = Contact::getById($notification['actor-id'], ['pending']);
 			$type = $contact['pending'] ? 'follow_request' : 'follow';
 		} elseif (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
-			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
+			in_array($notification['type'], [Post\UserNotification::TYPE_DIRECT_COMMENT, Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT])) {
 			$type = 'reblog';
 		} elseif (in_array($notification['vid'], [Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE)]) &&
-			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
+			in_array($notification['type'], [Post\UserNotification::TYPE_DIRECT_COMMENT, Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT])) {
 			$type = 'favourite';
-		} elseif ($notification['type'] == Post\UserNotification::NOTIF_SHARED) {
+		} elseif ($notification['type'] == Post\UserNotification::TYPE_SHARED) {
 			$type = 'status';
-		} elseif (in_array($notification['type'], [Post\UserNotification::NOTIF_EXPLICIT_TAGGED,
-			Post\UserNotification::NOTIF_IMPLICIT_TAGGED, Post\UserNotification::NOTIF_DIRECT_COMMENT,
-			Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT, Post\UserNotification::NOTIF_THREAD_COMMENT])) {
+		} elseif (in_array($notification['type'], [
+			Post\UserNotification::TYPE_EXPLICIT_TAGGED,
+            Post\UserNotification::TYPE_IMPLICIT_TAGGED,
+			Post\UserNotification::TYPE_DIRECT_COMMENT,
+			Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
+			Post\UserNotification::TYPE_THREAD_COMMENT
+		])) {
 			$type = 'mention';
 		} else {
 			return '';
@@ -90,7 +94,7 @@ class Notification extends BaseModel
 			return $message;
 		}
 
-		if ($notification['type'] == Post\UserNotification::NOTIF_NONE) {
+		if ($notification['type'] == Post\UserNotification::TYPE_NONE) {
 			if ($contact['pending']) {
 				$msg = $l10n->t('%1$s wants to follow you');
 			} else {
@@ -108,7 +112,7 @@ class Notification extends BaseModel
 			$announce = Verb::getID(Activity::ANNOUNCE);
 			$post     = Verb::getID(Activity::POST);
 
-			if (in_array($notification['type'], [Post\UserNotification::NOTIF_THREAD_COMMENT, Post\UserNotification::NOTIF_COMMENT_PARTICIPATION, Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION, Post\UserNotification::NOTIF_EXPLICIT_TAGGED])) {
+			if (in_array($notification['type'], [Post\UserNotification::TYPE_THREAD_COMMENT, Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_EXPLICIT_TAGGED])) {
 				$item = Post::selectFirst([], ['uri-id' => $notification['parent-uri-id'], 'uid' => [0, $notification['uid']]], ['order' => ['uid' => true]]);
 				if (empty($item)) {
 					Logger::info('Parent post not found', ['uri-id' => $notification['parent-uri-id']]);
@@ -137,13 +141,13 @@ class Notification extends BaseModel
 				$cid = $item['causer-id'];
 			}
 
-			if (($notification['type'] == Post\UserNotification::NOTIF_SHARED) && !empty($cid)) {
+			if (($notification['type'] == Post\UserNotification::TYPE_SHARED) && !empty($cid)) {
 				$causer = Contact::getById($cid, ['id', 'name', 'url']);
 				if (empty($contact)) {
 					Logger::info('Causer not found', ['causer' => $cid]);
 					return $message;
 				}
-			} elseif (in_array($notification['type'], [Post\UserNotification::NOTIF_COMMENT_PARTICIPATION, Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION])) {
+			} elseif (in_array($notification['type'], [Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION])) {
 				$contact = Contact::getById($item['author-id'], ['id', 'name', 'url']);
 				if (empty($contact)) {
 					Logger::info('Author not found', ['author' => $item['author-id']]);
@@ -163,54 +167,54 @@ class Notification extends BaseModel
 			switch ($notification['vid']) {
 				case $like:
 					switch ($notification['type']) {
-						case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+						case Post\UserNotification::TYPE_DIRECT_COMMENT:
 							$msg = $l10n->t('%1$s liked your comment %2$s');
 							break;
-						case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
 							$msg = $l10n->t('%1$s liked your post %2$s');
 							break;
 						}
 					break;
 				case $dislike:
 					switch ($notification['type']) {
-						case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+						case Post\UserNotification::TYPE_DIRECT_COMMENT:
 							$msg = $l10n->t('%1$s disliked your comment %2$s');
 							break;
-						case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
 							$msg = $l10n->t('%1$s disliked your post %2$s');
 							break;
 					}
 					break;
 				case $announce:
 					switch ($notification['type']) {
-						case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+						case Post\UserNotification::TYPE_DIRECT_COMMENT:
 							$msg = $l10n->t('%1$s shared your comment %2$s');
 							break;
-						case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
 							$msg = $l10n->t('%1$s shared your post %2$s');
 							break;
 						}
 					break;
 				case $post:
 					switch ($notification['type']) {
-						case Post\UserNotification::NOTIF_EXPLICIT_TAGGED:
+						case Post\UserNotification::TYPE_EXPLICIT_TAGGED:
 							$msg = $l10n->t('%1$s tagged you on %2$s');
 							break;
 
-						case Post\UserNotification::NOTIF_IMPLICIT_TAGGED:
+						case Post\UserNotification::TYPE_IMPLICIT_TAGGED:
 							$msg = $l10n->t('%1$s replied to you on %2$s');
 							break;
 
-						case Post\UserNotification::NOTIF_THREAD_COMMENT:
+						case Post\UserNotification::TYPE_THREAD_COMMENT:
 							$msg = $l10n->t('%1$s commented in your thread %2$s');
 							break;
 
-						case Post\UserNotification::NOTIF_DIRECT_COMMENT:
+						case Post\UserNotification::TYPE_DIRECT_COMMENT:
 							$msg = $l10n->t('%1$s commented on your comment %2$s');
 							break;
 
-						case Post\UserNotification::NOTIF_COMMENT_PARTICIPATION:
-						case Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION:
+						case Post\UserNotification::TYPE_COMMENT_PARTICIPATION:
+						case Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION:
 							if (($causer['id'] == $contact['id']) && ($title != '')) {
 								$msg = $l10n->t('%1$s commented in their thread %2$s');
 							} elseif ($causer['id'] == $contact['id']) {
@@ -222,11 +226,11 @@ class Notification extends BaseModel
 							}
 							break;
 
-						case Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT:
+						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
 							$msg = $l10n->t('%1$s commented on your thread %2$s');
 							break;
 
-						case Post\UserNotification::NOTIF_SHARED:
+						case Post\UserNotification::TYPE_SHARED:
 							if (($causer['id'] != $contact['id']) && ($title != '')) {
 								$msg = $l10n->t('%1$s shared the post %2$s from %3$s');
 							} elseif ($causer['id'] != $contact['id']) {

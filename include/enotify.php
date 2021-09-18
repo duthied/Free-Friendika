@@ -495,7 +495,7 @@ function notification_from_array(array $notification)
 {
 	Logger::info('Start', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
 
-	if ($notification['type'] == Post\UserNotification::NOTIF_NONE) {
+	if ($notification['type'] == Post\UserNotification::TYPE_NONE) {
 		Logger::info('Not an item based notification, quitting', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
 		return false;
 	}
@@ -562,10 +562,10 @@ function notification_from_array(array $notification)
 	// So, we cannot have different subjects for notifications of the same thread.
 	// Before this we have the name of the replier on the subject rendering
 	// different subjects for messages on the same thread.
-	if ($notification['type'] == Post\UserNotification::NOTIF_EXPLICIT_TAGGED) {
+	if ($notification['type'] == Post\UserNotification::TYPE_EXPLICIT_TAGGED) {
 		$params['type'] = Notification\Type::TAG_SELF;
 		$subject        = $l10n->t('%s %s tagged you', $subjectPrefix, $contact['name']);
-	} elseif ($notification['type'] == Post\UserNotification::NOTIF_SHARED) {
+	} elseif ($notification['type'] == Post\UserNotification::TYPE_SHARED) {
 		$params['type'] = Notification\Type::SHARE;
 		$subject        = $l10n->t('%s %s shared a new post', $subjectPrefix, $contact['name']);
 	} else {

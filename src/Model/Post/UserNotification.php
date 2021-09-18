@@ -39,16 +39,15 @@ use Friendica\Util\DateTimeFormat;
 class UserNotification
 {
 	// Notification types
-	const NOTIF_NONE = 0;
-	const NOTIF_EXPLICIT_TAGGED = 1;
-	const NOTIF_IMPLICIT_TAGGED = 2;
-	const NOTIF_THREAD_COMMENT = 4;
-	const NOTIF_DIRECT_COMMENT = 8;
-	const NOTIF_COMMENT_PARTICIPATION = 16;
-	const NOTIF_ACTIVITY_PARTICIPATION = 32;
-	const NOTIF_DIRECT_THREAD_COMMENT = 64;
-	const NOTIF_SHARED = 128;
-
+	const TYPE_NONE                   = 0;
+	const TYPE_EXPLICIT_TAGGED        = 1;
+	const TYPE_IMPLICIT_TAGGED        = 2;
+	const TYPE_THREAD_COMMENT         = 4;
+	const TYPE_DIRECT_COMMENT         = 8;
+	const TYPE_COMMENT_PARTICIPATION  = 16;
+	const TYPE_ACTIVITY_PARTICIPATION = 32;
+	const TYPE_DIRECT_THREAD_COMMENT  = 64;
+	const TYPE_SHARED                 = 128;
 
 	/**
 	 * Insert a new user notification entry
@@ -174,11 +173,11 @@ class UserNotification
 			return;
 		}
 
-		$notification_type = self::NOTIF_NONE;
+		$notification_type = self::TYPE_NONE;
 
 		if (self::checkShared($item, $uid)) {
-			$notification_type = $notification_type | self::NOTIF_SHARED;
-			self::insertNoticationByItem(self::NOTIF_SHARED, $uid, $item);
+			$notification_type = $notification_type | self::TYPE_SHARED;
+			self::insertNoticationByItem(self::TYPE_SHARED, $uid, $item);
 			$notified = true;
 		} else {
 			$notified = false;
@@ -200,57 +199,57 @@ class UserNotification
 		}
 
 		if (self::checkExplicitMention($item, $profiles)) {
-			$notification_type = $notification_type | self::NOTIF_EXPLICIT_TAGGED;
+			$notification_type = $notification_type | self::TYPE_EXPLICIT_TAGGED;
 			if (!$notified) {
-				self::insertNoticationByItem( self::NOTIF_EXPLICIT_TAGGED, $uid, $item);
+				self::insertNoticationByItem( self::TYPE_EXPLICIT_TAGGED, $uid, $item);
 				$notified = true;
 			}
 		}
 
 		if (self::checkImplicitMention($item, $profiles)) {
-			$notification_type = $notification_type | self::NOTIF_IMPLICIT_TAGGED;
+			$notification_type = $notification_type | self::TYPE_IMPLICIT_TAGGED;
 			if (!$notified) {
-				self::insertNoticationByItem(self::NOTIF_IMPLICIT_TAGGED, $uid, $item);
+				self::insertNoticationByItem(self::TYPE_IMPLICIT_TAGGED, $uid, $item);
 				$notified = true;
 			}
 		}
 
 		if (self::checkDirectComment($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_DIRECT_COMMENT;
+			$notification_type = $notification_type | self::TYPE_DIRECT_COMMENT;
 			if (!$notified) {
-				self::insertNoticationByItem(self::NOTIF_DIRECT_COMMENT, $uid, $item);
+				self::insertNoticationByItem(self::TYPE_DIRECT_COMMENT, $uid, $item);
 				$notified = true;
 			}
 		}
 
 		if (self::checkDirectCommentedThread($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_DIRECT_THREAD_COMMENT;
+			$notification_type = $notification_type | self::TYPE_DIRECT_THREAD_COMMENT;
 			if (!$notified) {
-				self::insertNoticationByItem(self::NOTIF_DIRECT_THREAD_COMMENT, $uid, $item);
+				self::insertNoticationByItem(self::TYPE_DIRECT_THREAD_COMMENT, $uid, $item);
 				$notified = true;
 			}
 		}
 
 		if (self::checkCommentedThread($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_THREAD_COMMENT;
+			$notification_type = $notification_type | self::TYPE_THREAD_COMMENT;
 			if (!$notified) {
-				self::insertNoticationByItem(self::NOTIF_THREAD_COMMENT, $uid, $item);
+				self::insertNoticationByItem(self::TYPE_THREAD_COMMENT, $uid, $item);
 				$notified = true;
 			}
 		}
 
 		if (self::checkCommentedParticipation($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_COMMENT_PARTICIPATION;
+			$notification_type = $notification_type | self::TYPE_COMMENT_PARTICIPATION;
 			if (!$notified) {
-				self::insertNoticationByItem(self::NOTIF_COMMENT_PARTICIPATION, $uid, $item);
+				self::insertNoticationByItem(self::TYPE_COMMENT_PARTICIPATION, $uid, $item);
 				$notified = true;
 			}
 		}
 
 		if (self::checkActivityParticipation($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_ACTIVITY_PARTICIPATION;
+			$notification_type = $notification_type | self::TYPE_ACTIVITY_PARTICIPATION;
 			if (!$notified) {
-				self::insertNoticationByItem(self::NOTIF_ACTIVITY_PARTICIPATION, $uid, $item);
+				self::insertNoticationByItem(self::TYPE_ACTIVITY_PARTICIPATION, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -278,7 +277,7 @@ class UserNotification
 	private static function insertNoticationByItem(int $type, int $uid, array $item)
 	{
 		if (($item['gravity'] == GRAVITY_ACTIVITY) &&
-			!in_array($type, [self::NOTIF_DIRECT_COMMENT, self::NOTIF_DIRECT_THREAD_COMMENT])) {
+			!in_array($type, [self::TYPE_DIRECT_COMMENT, self::TYPE_DIRECT_THREAD_COMMENT])) {
 			// Activities are only stored when performed on the user's post or comment
 			return;
 		}
@@ -321,7 +320,7 @@ class UserNotification
 		$fields = [
 			'uid' => $uid,
 			'vid' => $vid,
-			'type' => self::NOTIF_NONE,
+			'type' => self::TYPE_NONE,
 			'actor-id' => $actor,
 			'created' => DateTimeFormat::utcNow(),
 		];
