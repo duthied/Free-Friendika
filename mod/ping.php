@@ -445,7 +445,7 @@ function ping_get_notifications($uid)
 				$notification["message"] = $notification["msg_cache"];
 			} else {
 				$notification["name"] = strip_tags(BBCode::convert($notification["name"]));
-				$notification["message"] = Notification::formatMessage($notification["name"], strip_tags(BBCode::convert($notification["msg"])));
+				$notification["message"] = \Friendica\Navigation\Notifications\Entity\Notify::formatMessage($notification["name"], BBCode::toPlaintext($notification["msg"]));
 
 				q(
 					"UPDATE `notify` SET `name_cache` = '%s', `msg_cache` = '%s' WHERE `id` = %d",

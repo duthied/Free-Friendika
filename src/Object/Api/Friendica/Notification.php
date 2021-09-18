@@ -2,7 +2,7 @@
 /**
  * @copyright Copyright (C) 2010-2021, the Friendica project
  *
- * @license GNU AGPL version 3 or any later version
+ * @license   GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,7 +24,7 @@ namespace Friendica\Object\Api\Friendica;
 use Friendica\BaseDataTransferObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Model\Notification as NotificationModel;
+use Friendica\Navigation\Notifications\Entity\Notify;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
@@ -37,8 +37,6 @@ class Notification extends BaseDataTransferObject
 {
 	/** @var integer */
 	protected $id;
-	/** @var string */
-	protected $hash;
 	/** @var integer */
 	protected $type;
 	/** @var string Full name of the contact subject */
@@ -78,21 +76,37 @@ class Notification extends BaseDataTransferObject
 	/** @var string Message (Plaintext) */
 	protected $msg_plain;
 
-	public function __construct(NotificationModel $notify)
+	public function __construct(Notify $Notify)
 	{
-		// map each notify attribute to the entity
-		foreach ($notify->toArray() as $key => $value) {
-			$this->{$key} = $value;
+		$this->id         = $Notify->id;
+		$this->type       = $Notify->type;
+		$this->name       = $Notify->name;
+		$this->url        = $Notify->url->__toString();
+		$this->photo      = $Notify->photo->__toString();
+		$this->date       = DateTimeFormat::local($Notify->date->format(DateTimeFormat::MYSQL));
+		$this->msg        = $Notify->msg;
+		$this->uid        = $Notify->uid;
+		$this->link       = $Notify->link->__toString();
+		$this->iid        = $Notify->itemId;
+		$this->parent     = $Notify->parent;
+		$this->seen       = $Notify->seen;
+		$this->verb       = $Notify->verb;
+		$this->otype      = $Notify->otype;
+		$this->name_cache = $Notify->name_cache;
+		$this->msg_cache  = $Notify->msg_cache;
+		$this->timestamp  = $Notify->date->format('U');
+		$this->date_rel   = Temporal::getRelativeDate($this->date);
+
+		try {
+			$this->msg_html  = BBCode::convert($this->msg, false);
+		} catch (\Exception $e) {
+			$this->msg_html  = '';
 		}
 
-		// add additional attributes for the API
 		try {
-			$this->timestamp = strtotime(DateTimeFormat::local($this->date));
-			$this->msg_html  = BBCode::convert($this->msg, false);
 			$this->msg_plain = explode("\n", trim(HTML::toPlaintext($this->msg_html, 0)))[0];
 		} catch (\Exception $e) {
+			$this->msg_plain  = '';
 		}
-
-		$this->date_rel = Temporal::getRelativeDate($this->date);
 	}
 }

@@ -223,7 +223,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	if (!DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 		DBA::update('notification', ['seen' => true], ['parent-uri-id' => $item['parent-uri-id'], 'uid' => local_user()]);
-		DBA::update('notify', ['seen' => true], ['parent-uri-id' => $item['parent-uri-id'], 'uid' => local_user()]);
+		DI::notify()->setAllSeenForUser(local_user(), ['parent-uri-id' => $item['parent-uri-id']]);
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864

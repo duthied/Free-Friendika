@@ -78,7 +78,8 @@ class Notification extends BaseModule
 
 		if (DI::args()->get(1) === 'mark' && DI::args()->get(2) === 'all') {
 			try {
-				$success = DI::notify()->setSeen();
+				DI::dba()->update('notification', ['seen' => true], ['uid' => local_user()]);
+				$success = DI::notify()->setAllSeenForUser(local_user());
 			} catch (\Exception $e) {
 				DI::logger()->warning('set all seen failed.', ['exception' => $e]);
 				$success = false;
@@ -97,7 +98,7 @@ class Notification extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \Exception
 	 */
-	public static function content(array $parameters = [])
+	public static function content(array $parameters = []): string
 	{
 		if (!local_user()) {
 			notice(DI::l10n()->t('You must be logged in to show this page.'));
@@ -107,17 +108,24 @@ class Notification extends BaseModule
 		$request_id = $parameters['id'] ?? false;
 
 		if ($request_id) {
-			$notify = DI::notify()->getByID($request_id, local_user());
-
-			if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
-				$notify->seen = true;
-				DI::notify()->update($notify);
-			} else {
-				DI::notify()->setSeen(true, $notify);
+			$Notify = DI::notify()->selectOneById($request_id);
+			if ($Notify->uid !== local_user()) {
+				throw new HTTPException\ForbiddenException();
 			}
 
-			if (!empty($notify->link)) {
-				System::externalRedirect($notify->link);
+			if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
+				$Notify->setSeen();
+				DI::notify()->save($Notify);
+			} else {
+				if ($Notify->uriId) {
+					DI::dba()->update('notification', ['seen' => true], ['uid' => $Notify->uid, 'target-uri-id' => $Notify->uriId]);
+				}
+
+				DI::notify()->setAllSeenForRelatedNotify($Notify);
+			}
+
+			if ($Notify->link) {
+				System::externalRedirect($Notify->link);
 			}
 
 			DI::baseUrl()->redirect();
@@ -125,6 +133,6 @@ class Notification extends BaseModule
 
 		DI::baseUrl()->redirect('notifications/system');
 
-		throw new HTTPException\InternalServerErrorException('Invalid situation.');
+		return '';
 	}
 }

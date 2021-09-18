@@ -19,11 +19,9 @@
  *
  */
 
-use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -33,6 +31,7 @@ use Friendica\Model\Notification;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
+use Friendica\Navigation\Notifications;
 use Friendica\Protocol\Activity;
 
 /**
@@ -397,42 +396,22 @@ function notification_store_and_send($params, $sitelink, $tsitelink, $hsitelink,
 	$notify_id = 0;
 
 	if ($show_in_notification_page) {
-		$fields = [
-			'name'          => $params['source_name'] ?? '',
-			'name_cache'    => substr(strip_tags(BBCode::convertForUriId($uri_id, $params['source_name'])), 0, 255),
-			'url'           => $params['source_link'] ?? '',
-			'photo'         => $params['source_photo'] ?? '',
-			'link'          => $itemlink ?? '',
-			'uid'           => $params['uid'] ?? 0,
-			'type'          => $params['type'] ?? '',
-			'verb'          => $params['verb'] ?? '',
-			'otype'         => $params['otype'] ?? '',
-		];
-		if (!empty($item_id)) {
-			$fields['iid'] = $item_id;
-		}
-		if (!empty($uri_id)) {
-			$fields['uri-id'] = $uri_id;
-		}
-		if (!empty($parent_id)) {
-			$fields['parent'] = $parent_id;
-		}
-		if (!empty($parent_uri_id)) {
-			$fields['parent-uri-id'] = $parent_uri_id;
-		}
-		$notification = DI::notify()->insert($fields);
+		/** @var $factory Notifications\Factory\Notify */
+		$factory = DI::getDice()->create(Notifications\Factory\Notify::class);
 
-		// Notification insertion can be intercepted by an addon registering the 'enotify_store' hook
-		if (!$notification) {
+		$Notify = $factory->createFromParams($params, $itemlink, $item_id, $uri_id, $parent_id, $parent_uri_id);
+		try {
+			$Notify = DI::notify()->save($Notify);
+		} catch (Notifications\Exception\NotificationCreationInterceptedException $e) {
+			// Notification insertion can be intercepted by an addon registering the 'enotify_store' hook
 			return false;
 		}
 
-		$notification->msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $notification->link]);
+		$Notify->updateMsgFromPreamble($epreamble);
+		$Notify = DI::notify()->save($Notify);
 
-		DI::notify()->update($notification);
-
-		$itemlink  = DI::baseUrl() . '/notification/' . $notification->id;
-		$notify_id = $notification->id;
+		$itemlink  = DI::baseUrl() . '/notification/' . $Notify->id;
+		$notify_id = $Notify->id;
 	}
 
 	// send email notification if notification preferences permit
@@ -566,9 +545,9 @@ function notification_from_array(array $notification)
 	// Check to see if there was already a tag notify or comment notify for this post.
 	// If so don't create a second notification
 	$condition = ['type' => [Notification\Type::TAG_SELF, Notification\Type::COMMENT, Notification\Type::SHARE],
-		'link' => $params['link'], 'verb' => Activity::POST, 'uid' => $notification['uid']];
-	if (DBA::exists('notify', $condition)) {
-		Logger::info('Duplicate found, quitting', $condition);
+		'link' => $params['link'], 'verb' => Activity::POST];
+	if (DI::notify()->existsForUser($notification['uid'], $condition)) {
+		Logger::info('Duplicate found, quitting', $condition + ['uid' => $notification['uid']]);
 		return false;
 	}
 

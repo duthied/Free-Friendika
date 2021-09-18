@@ -126,9 +126,9 @@ class Delegation extends BaseModule
 
 			$identities[$key]['selected'] = ($identity['nickname'] === DI::app()->getLoggedInUserNickname());
 
-			$condition = ["`uid` = ? AND `msg` != '' AND NOT (`type` IN (?, ?)) AND NOT `seen`", $identity['uid'], Notification\Type::INTRO, Notification\Type::MAIL];
+			$condition = ["`msg` != '' AND NOT (`type` IN (?, ?)) AND NOT `seen`", Notification\Type::INTRO, Notification\Type::MAIL];
 			$params = ['distinct' => true, 'expression' => 'parent'];
-			$notifications = DBA::count('notify', $condition, $params);
+			$notifications = DI::notify()->countForUser($identity['uid'], $condition, $params);
 
 			$params = ['distinct' => true, 'expression' => 'convid'];
 			$notifications += DBA::count('mail', ['uid' => $identity['uid'], 'seen' => false], $params);

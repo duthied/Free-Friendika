@@ -371,14 +371,6 @@ abstract class DI
 	}
 
 	/**
-	 * @return Factory\Notification\Notification
-	 */
-	public static function notification()
-	{
-		return self::$dice->create(Factory\Notification\Notification::class);
-	}
-
-	/**
 	 * @return Factory\Notification\Introduction
 	 */
 	public static function notificationIntro()
@@ -469,12 +461,9 @@ abstract class DI
 		return self::$dice->create(Repository\ProfileField::class);
 	}
 
-	/**
-	 * @return Repository\Notification
-	 */
-	public static function notify()
+	public static function notify(): Navigation\Notifications\Depository\Notify
 	{
-		return self::$dice->create(Repository\Notification::class);
+		return self::$dice->create(Navigation\Notifications\Depository\Notify::class);
 	}
 
 	//

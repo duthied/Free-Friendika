@@ -27,8 +27,8 @@ use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Navigation\Notifications\ValueObject\FormattedNotification;
 use Friendica\Network\HTTPException\ForbiddenException;
-use Friendica\Object\Notification\Notification;
 
 /**
  * Base Module for each tab of the notification display
@@ -39,29 +39,29 @@ abstract class BaseNotifications extends BaseModule
 {
 	/** @var array Array of URL parameters */
 	const URL_TYPES = [
-		Notification::NETWORK  => 'network',
-		Notification::SYSTEM   => 'system',
-		Notification::HOME     => 'home',
-		Notification::PERSONAL => 'personal',
-		Notification::INTRO    => 'intros',
+		FormattedNotification::NETWORK  => 'network',
+		FormattedNotification::SYSTEM   => 'system',
+		FormattedNotification::HOME     => 'home',
+		FormattedNotification::PERSONAL => 'personal',
+		FormattedNotification::INTRO    => 'intros',
 	];
 
 	/** @var array Array of the allowed notifications and their printable name */
 	const PRINT_TYPES = [
-		Notification::NETWORK  => 'Network',
-		Notification::SYSTEM   => 'System',
-		Notification::HOME     => 'Home',
-		Notification::PERSONAL => 'Personal',
-		Notification::INTRO    => 'Introductions',
+		FormattedNotification::NETWORK  => 'Network',
+		FormattedNotification::SYSTEM   => 'System',
+		FormattedNotification::HOME     => 'Home',
+		FormattedNotification::PERSONAL => 'Personal',
+		FormattedNotification::INTRO    => 'Introductions',
 	];
 
 	/** @var array The array of access keys for notification pages */
 	const ACCESS_KEYS = [
-		Notification::NETWORK  => 'w',
-		Notification::SYSTEM   => 'y',
-		Notification::HOME     => 'h',
-		Notification::PERSONAL => 'r',
-		Notification::INTRO    => 'i',
+		FormattedNotification::NETWORK  => 'w',
+		FormattedNotification::SYSTEM   => 'y',
+		FormattedNotification::HOME     => 'h',
+		FormattedNotification::PERSONAL => 'r',
+		FormattedNotification::INTRO    => 'i',
 	];
 
 	/** @var int The default count of items per page */
