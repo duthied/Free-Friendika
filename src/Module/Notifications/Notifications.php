@@ -95,25 +95,24 @@ class Notifications extends BaseNotifications
 		$notificationHeader = $notificationResult['header'] ?? '';
 
 		if (!empty($notifications['notifications'])) {
+			$notificationTemplates = [
+				'like'         => 'notifications/likes_item.tpl',
+				'dislike'      => 'notifications/dislikes_item.tpl',
+				'attend'       => 'notifications/attend_item.tpl',
+				'attendno'     => 'notifications/attend_item.tpl',
+				'attendmaybe'  => 'notifications/attend_item.tpl',
+				'friend'       => 'notifications/friends_item.tpl',
+				'comment'      => 'notifications/comments_item.tpl',
+				'post'         => 'notifications/posts_item.tpl',
+				'notification' => 'notifications/notification.tpl',
+			];
 			// Loop trough ever notification This creates an array with the output html for each
 			// notification and apply the correct template according to the notificationtype (label).
-			/** @var FormattedNotification $notification */
-			foreach ($notifications['notifications'] as $notification) {
-				$notification_templates = [
-					'like'         => 'notifications/likes_item.tpl',
-					'dislike'      => 'notifications/dislikes_item.tpl',
-					'attend'       => 'notifications/attend_item.tpl',
-					'attendno'     => 'notifications/attend_item.tpl',
-					'attendmaybe'  => 'notifications/attend_item.tpl',
-					'friend'       => 'notifications/friends_item.tpl',
-					'comment'      => 'notifications/comments_item.tpl',
-					'post'         => 'notifications/posts_item.tpl',
-					'notification' => 'notifications/notification.tpl',
-				];
+			/** @var FormattedNotification $Notification */
+			foreach ($notifications['notifications'] as $Notification) {
+				$notificationArray = $Notification->toArray();
 
-				$notificationArray = $notification->toArray();
-
-				$notificationTemplate = Renderer::getMarkupTemplate($notification_templates[$notificationArray['label']]);
+				$notificationTemplate = Renderer::getMarkupTemplate($notificationTemplates[$notificationArray['label']]);
 
 				$notificationContent[] = Renderer::replaceMacros($notificationTemplate, [
 					'$notification' => $notificationArray

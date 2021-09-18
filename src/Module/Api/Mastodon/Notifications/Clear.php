@@ -22,7 +22,7 @@
 namespace Friendica\Module\Api\Mastodon\Notifications;
 
 use Friendica\Core\System;
-use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
@@ -35,7 +35,7 @@ class Clear extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		DBA::update('notification', ['seen' => true], ['uid' => $uid]);
+		DI::notification()->setAllSeenForUser($uid);
 
 		System::jsonExit([]);
 	}

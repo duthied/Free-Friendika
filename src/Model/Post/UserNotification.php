@@ -33,9 +33,9 @@ use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Subscription;
 use Friendica\Model\Tag;
+use Friendica\Navigation\Notifications;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
 class UserNotification
@@ -286,56 +286,46 @@ class UserNotification
 			return;
 		}
 
-		$fields = [
-			'uid' => $uid,
-			'vid' => $item['vid'],
-			'type' => $type,
-			'actor-id' => $item['author-id'],
-			'parent-uri-id' => $item['parent-uri-id'],
-			'created' => DateTimeFormat::utcNow(),
-		];
+		$notification = (new Notifications\Factory\Notification(DI::logger()))->createForUser(
+			$uid,
+			$item['vid'],
+			$type,
+			$item['author-id'],
+			$item['gravity'] == GRAVITY_ACTIVITY ? $item['thr-parent-id'] : $item['uri-id'],
+			$item['parent-uri-id']
+		);
 
-		if ($item['gravity'] == GRAVITY_ACTIVITY) {
-			$fields['target-uri-id'] = $item['thr-parent-id'];
-		} else {
-			$fields['target-uri-id'] = $item['uri-id'];
-		}
+		try {
+			$notification = DI::notification()->save($notification);
+			Subscription::pushByNotification($notification);
+		} catch (Exception $e) {
 
-		if (DBA::insert('notification', $fields, Database::INSERT_IGNORE)) {
-			$id = DBA::lastInsertId();
-			if (!empty($id)) {
-				Subscription::pushByNotificationId($id);
-			}
 		}
 	}
 
 	/**
 	 * Add a notification entry
 	 *
-	 * @param int $actor Contact ID of the actor
-	 * @param int $vid   Verb ID
-	 * @param int $uid   User ID
+	 * @param int    $actor Contact ID of the actor
+	 * @param string $verb  One of the Activity verb constant values
+	 * @param int    $uid   User ID
 	 * @return boolean
 	 * @throws Exception
 	 */
-	public static function insertNotification(int $actor, int $vid, int $uid): bool
+	public static function insertNotification(int $actor, string $verb, int $uid): bool
 	{
-		$fields = [
-			'uid' => $uid,
-			'vid' => $vid,
-			'type' => self::TYPE_NONE,
-			'actor-id' => $actor,
-			'created' => DateTimeFormat::utcNow(),
-		];
-
-		$ret = DBA::insert('notification', $fields, Database::INSERT_IGNORE);
-		if ($ret) {
-			$id = DBA::lastInsertId();
-			if (!empty($id)) {
-				Subscription::pushByNotificationId($id);
-			}
+		$notification = (new Notifications\Factory\Notification(DI::logger()))->createForRelationship(
+			$uid,
+			$actor,
+			$verb
+		);
+		try {
+			$notification = DI::notification()->save($notification);
+			Subscription::pushByNotification($notification);
+			return true;
+		} catch (Exception $e) {
+			return false;
 		}
-		return $ret;
 	}
 
 	/**

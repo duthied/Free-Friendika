@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Navigation\Notifications\Entity;
 use Friendica\Object\Api\Mastodon\Notification;
 use Minishlink\WebPush\VAPID;
 
@@ -138,34 +139,32 @@ class Subscription
 	 * @param int $nid
 	 * @return void
 	 */
-	public static function pushByNotificationId(int $nid)
+	public static function pushByNotification(Entity\Notification $Notification)
 	{
-		$notification = DBA::selectFirst('notification', [], ['id' => $nid]);
+		$type = \Friendica\Factory\Api\Mastodon\Notification::getType($Notification);
 
-		$type = Notification::getType($notification);
 		$desktop_notification = !in_array($type, [Notification::TYPE_RESHARE, Notification::TYPE_LIKE]);
 
-
-		if (DI::pConfig()->get($notification['uid'], 'system', 'notify_like') && ($type == 'favourite')) {
+		if (DI::pConfig()->get($Notification->uid, 'system', 'notify_like') && ($type == Notification::TYPE_LIKE)) {
 			$desktop_notification = true;
 		}
 
-		if (DI::pConfig()->get($notification['uid'], 'system', 'notify_announce') && ($type == 'reblog')) {
+		if (DI::pConfig()->get($Notification->uid, 'system', 'notify_announce') && ($type == Notification::TYPE_RESHARE)) {
 			$desktop_notification = true;
 		}
 
 		if ($desktop_notification) {
-			notification_from_array($notification);
+			notification_from_array($Notification);
 		}
 
 		if (empty($type)) {
 			return;
 		}
 
-		$subscriptions = DBA::select('subscription', [], ['uid' => $notification['uid'], $type => true]);
+		$subscriptions = DBA::select('subscription', [], ['uid' => $Notification->uid, $type => true]);
 		while ($subscription = DBA::fetch($subscriptions)) {
 			Logger::info('Push notification', ['id' => $subscription['id'], 'uid' => $subscription['uid'], 'type' => $type]);
-			Worker::add(PRIORITY_HIGH, 'PushSubscription', $subscription['id'], $nid);
+			Worker::add(PRIORITY_HIGH, 'PushSubscription', $subscription['id'], $Notification->id);
 		}
 		DBA::close($subscriptions);
 	}

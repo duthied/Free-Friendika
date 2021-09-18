@@ -458,6 +458,11 @@ abstract class DI
 		return self::$dice->create(Repository\ProfileField::class);
 	}
 
+	public static function notification(): Navigation\Notifications\Depository\Notification
+	{
+		return self::$dice->create(Navigation\Notifications\Depository\Notification::class);
+	}
+
 	public static function notify(): Navigation\Notifications\Depository\Notify
 	{
 		return self::$dice->create(Navigation\Notifications\Depository\Notify::class);

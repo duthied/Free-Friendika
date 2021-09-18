@@ -78,7 +78,7 @@ class Notification extends BaseModule
 
 		if (DI::args()->get(1) === 'mark' && DI::args()->get(2) === 'all') {
 			try {
-				DI::dba()->update('notification', ['seen' => true], ['uid' => local_user()]);
+				DI::notification()->setAllSeenForUser(local_user());
 				$success = DI::notify()->setAllSeenForUser(local_user());
 			} catch (\Exception $e) {
 				DI::logger()->warning('set all seen failed.', ['exception' => $e]);
@@ -118,7 +118,7 @@ class Notification extends BaseModule
 				DI::notify()->save($Notify);
 			} else {
 				if ($Notify->uriId) {
-					DI::dba()->update('notification', ['seen' => true], ['uid' => $Notify->uid, 'target-uri-id' => $Notify->uriId]);
+					DI::notification()->setAllSeenForUser($Notify->uid, ['target-uri-id' => $Notify->uriId]);
 				}
 
 				DI::notify()->setAllSeenForRelatedNotify($Notify);

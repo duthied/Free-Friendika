@@ -491,22 +491,21 @@ function notification_store_and_send($params, $sitelink, $tsitelink, $hsitelink,
 	return false;
 }
 
-function notification_from_array(array $notification)
+function notification_from_array(Notifications\Entity\Notification $Notification)
 {
-	Logger::info('Start', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
+	Logger::info('Start', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
 
-	if ($notification['type'] == Post\UserNotification::TYPE_NONE) {
-		Logger::info('Not an item based notification, quitting', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
+	if ($Notification->type === Post\UserNotification::TYPE_NONE) {
+		Logger::info('Not an item based notification, quitting', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
 		return false;
 	}
 
 	$params = [];
-	$params['verb'] = Verb::getByID($notification['vid']);
-
-	$params['uid']   = $notification['uid'];
+	$params['verb']  = $Notification->verb;
+	$params['uid']   = $Notification->uid;
 	$params['otype'] = Notification\ObjectType::ITEM;
 
-	$user = User::getById($notification['uid']);
+	$user = User::getById($Notification->uid);
 
 	$params['notify_flags'] = $user['notify-flags'];
 	$params['language']     = $user['language'];
@@ -516,18 +515,18 @@ function notification_from_array(array $notification)
 	// from here on everything is in the recipients language
 	$l10n = DI::l10n()->withLang($user['language']);
 
-	$contact = Contact::getById($notification['actor-id'], ['url', 'name', 'photo']);
+	$contact = Contact::getById($Notification->actorId, ['url', 'name', 'photo']);
 	if (DBA::isResult($contact)) {
 		$params['source_link']  = $contact['url'];
 		$params['source_name']  = $contact['name'];
 		$params['source_photo'] = $contact['photo'];
 	}
 
-	$item = Post::selectFirstForUser($notification['uid'], Item::ITEM_FIELDLIST,
-		['uid' => [0, $notification['uid']], 'uri-id' => $notification['target-uri-id'], 'deleted' => false],
+	$item = Post::selectFirstForUser($Notification->uid, Item::ITEM_FIELDLIST,
+		['uid' => [0, $Notification->uid], 'uri-id' => $Notification->targetUriId, 'deleted' => false],
 		['order' => ['uid' => true]]);
 	if (empty($item)) {
-		Logger::info('Item not found', ['uri-id' => $notification['target-uri-id'], 'type' => $notification['type']]);
+		Logger::info('Item not found', ['uri-id' => $Notification->targetUriId, 'type' => $Notification->type]);
 		return false;
 	}
 
@@ -537,8 +536,8 @@ function notification_from_array(array $notification)
 
 	$subjectPrefix = $l10n->t('[Friendica:Notify]');
 
-	if (Post\ThreadUser::getIgnored($notification['parent-uri-id'], $notification['uid'])) {
-		Logger::info('Thread is ignored', ['parent-uri-id' => $notification['parent-uri-id'], 'type' => $notification['type']]);
+	if (Post\ThreadUser::getIgnored($Notification->parentUriId, $Notification->uid)) {
+		Logger::info('Thread is ignored', ['parent-uri-id' => $Notification->parentUriId, 'type' => $Notification->type]);
 		return false;
 	}
 
@@ -546,8 +545,8 @@ function notification_from_array(array $notification)
 	// If so don't create a second notification
 	$condition = ['type' => [Notification\Type::TAG_SELF, Notification\Type::COMMENT, Notification\Type::SHARE],
 		'link' => $params['link'], 'verb' => Activity::POST];
-	if (DI::notify()->existsForUser($notification['uid'], $condition)) {
-		Logger::info('Duplicate found, quitting', $condition + ['uid' => $notification['uid']]);
+	if (DI::notify()->existsForUser($Notification->uid, $condition)) {
+		Logger::info('Duplicate found, quitting', $condition + ['uid' => $Notification->uid]);
 		return false;
 	}
 
@@ -562,10 +561,10 @@ function notification_from_array(array $notification)
 	// So, we cannot have different subjects for notifications of the same thread.
 	// Before this we have the name of the replier on the subject rendering
 	// different subjects for messages on the same thread.
-	if ($notification['type'] == Post\UserNotification::TYPE_EXPLICIT_TAGGED) {
+	if ($Notification->type === Post\UserNotification::TYPE_EXPLICIT_TAGGED) {
 		$params['type'] = Notification\Type::TAG_SELF;
 		$subject        = $l10n->t('%s %s tagged you', $subjectPrefix, $contact['name']);
-	} elseif ($notification['type'] == Post\UserNotification::TYPE_SHARED) {
+	} elseif ($Notification->type === Post\UserNotification::TYPE_SHARED) {
 		$params['type'] = Notification\Type::SHARE;
 		$subject        = $l10n->t('%s %s shared a new post', $subjectPrefix, $contact['name']);
 	} else {
@@ -573,9 +572,9 @@ function notification_from_array(array $notification)
 		$subject        = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
 	}
 
-	$msg = Notification::getMessage($notification);
+	$msg = (new Notifications\Factory\Notification(DI::logger()))->getMessageFromNotification($Notification, DI::baseUrl(), $l10n);
 	if (empty($msg)) {
-		Logger::info('No notification message, quitting', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
+		Logger::info('No notification message, quitting', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
 		return false;
 	}
 
@@ -590,7 +589,7 @@ function notification_from_array(array $notification)
 	$hsitelink = sprintf($sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
 	$itemlink  = $params['link'];
 
-	Logger::info('Perform notification', ['uid' => $notification['uid'], 'id' => $notification['id'], 'type' => $notification['type']]);
+	Logger::info('Perform notification', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
 
 	return notification_store_and_send($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $item['body'], $itemlink, true);
 }

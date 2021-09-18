@@ -28,6 +28,8 @@ use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Module\BaseApi;
+use Friendica\Navigation\Notifications\Entity;
+use Friendica\Object\Api\Mastodon\Notification;
 use Friendica\Protocol\Activity;
 
 /**
@@ -46,10 +48,12 @@ class Notifications extends BaseApi
 
 		if (!empty($parameters['id'])) {
 			$id = $parameters['id'];
-			if (!DBA::exists('notification', ['id' => $id, 'uid' => $uid])) {
+			try {
+				$notification = DI::notification()->selectOneForUser($uid, ['id' => $id]);
+				System::jsonExit(DI::mstdnNotification()->createFromNotification($notification));
+			} catch (\Exception $e) {
 				DI::mstdnError()->RecordNotFound();
 			}
-			System::jsonExit(DI::mstdnNotification()->createFromNotificationId($id));
 		}
 
 		$request = self::getRequest([
@@ -63,7 +67,7 @@ class Notifications extends BaseApi
 			'count'         => 0,     // Unknown parameter
 		]);
 
-		$params = ['order' => ['id' => true], 'limit' => $request['limit']];
+		$params = ['order' => ['id' => true]];
 
 		$condition = ['uid' => $uid, 'seen' => false];
 
@@ -115,36 +119,26 @@ class Notifications extends BaseApi
 				Verb::getID(Activity::POST), Post\UserNotification::TYPE_SHARED]);
 		}
 
-		if (!empty($request['max_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`id` < ?", $request['max_id']]);
-		}
+		$mstdnNotifications = [];
 
-		if (!empty($request['since_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`id` > ?", $request['since_id']]);
-		}
+		$Notifications = DI::notification()->selectByBoundaries(
+			$condition,
+			$params,
+			$request['min_id'] ?? null,
+			$request['min_id'] ?? $request['since_id'] ?? null,
+			$request['limit']
+		);
 
-		if (!empty($request['min_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`id` > ?", $request['min_id']]);
-
-			$params['order'] = ['id'];
-		}
-
-		$notifications = [];
-
-		$notify = DBA::select('notification', ['id'], $condition, $params);
-		while ($notification = DBA::fetch($notify)) {
-			self::setBoundaries($notification['id']);
-			$entry = DI::mstdnNotification()->createFromNotificationId($notification['id']);
-			if (!empty($entry)) {
-				$notifications[] = $entry;
+		foreach($Notifications as $Notification) {
+			try {
+				$mstdnNotifications[] = DI::mstdnNotification()->createFromNotification($Notification);
+				self::setBoundaries($Notification->id);
+			} catch (\Exception $e) {
+				// Skip this notification
 			}
 		}
 
-		if (!empty($request['min_id'])) {
-			array_reverse($notifications);
-		}
-
 		self::setLinkHeader();
-		System::jsonExit($notifications);
+		System::jsonExit($mstdnNotifications);
 	}
 }

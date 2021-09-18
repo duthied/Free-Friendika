@@ -5647,7 +5647,7 @@ function api_friendica_notification_seen($type)
 		}
 
 		if ($Notify->uriId) {
-			DI::dba()->update('notification', ['seen' => true], ['uid' => $Notify->uid, 'target-uri-id' => $Notify->uriId]);
+			DI::notification()->setAllSeenForUser($Notify->uid, ['target-uri-id' => $Notify->uriId]);
 		}
 
 		$Notify->setSeen();

@@ -27,10 +27,11 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Notification;
 use Friendica\Model\Post;
 use Friendica\Model\Subscription as ModelSubscription;
 use Friendica\Model\User;
+use Friendica\Navigation\Notifications;
+use Friendica\Network\HTTPException\NotFoundException;
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
 
@@ -46,8 +47,9 @@ class PushSubscription
 			return;
 		}
 
-		$notification = DBA::selectFirst('notification', [], ['id' => $nid]);
-		if (empty($notification)) {
+		try {
+			$Notification = DI::notification()->selectOneById($nid);
+		} catch (NotFoundException $e) {
 			Logger::info('Notification not found', ['notification' => $nid]);
 			return;
 		}
@@ -58,7 +60,7 @@ class PushSubscription
 			return;
 		}
 
-		$user = User::getById($notification['uid']);
+		$user = User::getById($Notification->uid);
 		if (empty($user)) {
 			Logger::info('User not found', ['application' => $subscription['uid']]);
 			return;
@@ -66,23 +68,21 @@ class PushSubscription
 
 		$l10n = DI::l10n()->withLang($user['language']);
 
-		$type = Notification::getType($notification);
-
-		if (!empty($notification['actor-id'])) {
-			$actor = Contact::getById($notification['actor-id']);
+		if ($Notification->actorId) {
+			$actor = Contact::getById($Notification->actorId);
 		}
 
 		$body = '';
 
-		if (!empty($notification['target-uri-id'])) {
-			$post = Post::selectFirst([], ['uri-id' => $notification['target-uri-id'], 'uid' => [0, $notification['uid']]]);
+		if ($Notification->targetUriId) {
+			$post = Post::selectFirst([], ['uri-id' => $Notification->targetUriId, 'uid' => [0, $Notification->uid]]);
 			if (!empty($post['body'])) {
 				$body = BBCode::toPlaintext($post['body'], false);
-				$body = Plaintext::shorten($body, 160, $notification['uid']);
+				$body = Plaintext::shorten($body, 160, $Notification->uid);
 			}
 		}
 
-		$message = Notification::getMessage($notification);
+		$message = (new Notifications\Factory\Notification(DI::logger()))->getMessageFromNotification($Notification, DI::baseUrl(), $l10n);
 		$title = $message['plain'] ?: '';
 
 		$push = Subscription::create([
@@ -98,7 +98,7 @@ class PushSubscription
 			'access_token'      => $application_token['access_token'],
 			'preferred_locale'  => $user['language'],
 			'notification_id'   => $nid,
-			'notification_type' => $type,
+			'notification_type' => \Friendica\Factory\Api\Mastodon\Notification::getType($Notification),
 			'icon'              => $actor['thumb'] ?? '',
 			'title'             => $title ?: $l10n->t('Notification from Friendica'),
 			'body'              => $body ?: $l10n->t('Empty Post'),
