@@ -28,6 +28,7 @@ use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Object\Api\Mastodon\Notification as MstdnNotification;
 use Friendica\Protocol\Activity;
 use Psr\Log\LoggerInterface;
 
@@ -46,15 +47,15 @@ class Notification extends BaseModel
 	{
 		if (($notification['vid'] == Verb::getID(Activity::FOLLOW)) && ($notification['type'] == Post\UserNotification::TYPE_NONE)) {
 			$contact = Contact::getById($notification['actor-id'], ['pending']);
-			$type = $contact['pending'] ? 'follow_request' : 'follow';
+			$type = $contact['pending'] ? MstdnNotification::TYPE_INTRODUCTION : MstdnNotification::TYPE_FOLLOW;
 		} elseif (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
 			in_array($notification['type'], [Post\UserNotification::TYPE_DIRECT_COMMENT, Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT])) {
-			$type = 'reblog';
+			$type = MstdnNotification::TYPE_RESHARE;
 		} elseif (in_array($notification['vid'], [Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE)]) &&
 			in_array($notification['type'], [Post\UserNotification::TYPE_DIRECT_COMMENT, Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT])) {
-			$type = 'favourite';
+			$type = MstdnNotification::TYPE_LIKE;
 		} elseif ($notification['type'] == Post\UserNotification::TYPE_SHARED) {
-			$type = 'status';
+			$type = MstdnNotification::TYPE_POST;
 		} elseif (in_array($notification['type'], [
 			Post\UserNotification::TYPE_EXPLICIT_TAGGED,
             Post\UserNotification::TYPE_IMPLICIT_TAGGED,
@@ -62,7 +63,7 @@ class Notification extends BaseModel
 			Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
 			Post\UserNotification::TYPE_THREAD_COMMENT
 		])) {
-			$type = 'mention';
+			$type = MstdnNotification::TYPE_MENTION;
 		} else {
 			return '';
 		}

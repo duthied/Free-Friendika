@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Object\Api\Mastodon\Notification;
 use Minishlink\WebPush\VAPID;
 
 class Subscription
@@ -142,8 +143,8 @@ class Subscription
 		$notification = DBA::selectFirst('notification', [], ['id' => $nid]);
 
 		$type = Notification::getType($notification);
+		$desktop_notification = !in_array($type, [Notification::TYPE_RESHARE, Notification::TYPE_LIKE]);
 
-		$desktop_notification = !in_array($type, ['reblog', 'favourite']);
 
 		if (DI::pConfig()->get($notification['uid'], 'system', 'notify_like') && ($type == 'favourite')) {
 			$desktop_notification = true;

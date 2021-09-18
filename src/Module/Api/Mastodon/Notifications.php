@@ -74,19 +74,19 @@ class Notifications extends BaseApi
 			}
 		}
 
-		if (in_array('follow_request', $request['exclude_types'])) {
+		if (in_array(Notification::TYPE_INTRODUCTION, $request['exclude_types'])) {
 			$condition = DBA::mergeConditions($condition,
 				["(`vid` != ? OR `type` != ? OR NOT EXISTS (SELECT `id` FROM `contact` WHERE `id` = `actor-id` AND `pending`))",
 				Verb::getID(Activity::FOLLOW), Post\UserNotification::TYPE_NONE]);
 		}
 
-		if (in_array('follow', $request['exclude_types'])) {
+		if (in_array(Notification::TYPE_FOLLOW, $request['exclude_types'])) {
 			$condition = DBA::mergeConditions($condition,
 				["(`vid` != ? OR `type` != ? OR NOT EXISTS (SELECT `id` FROM `contact` WHERE `id` = `actor-id` AND NOT `pending`))",
 				Verb::getID(Activity::FOLLOW), Post\UserNotification::TYPE_NONE]);
 		}
 
-		if (in_array('favourite', $request['exclude_types'])) {
+		if (in_array(Notification::TYPE_LIKE, $request['exclude_types'])) {
 			$condition = DBA::mergeConditions($condition, [
 				"(NOT `vid` IN (?, ?) OR NOT `type` IN (?, ?))",
 				Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE),
@@ -94,7 +94,7 @@ class Notifications extends BaseApi
 			]);
 		}
 
-		if (in_array('reblog', $request['exclude_types'])) {
+		if (in_array(Notification::TYPE_RESHARE, $request['exclude_types'])) {
 			$condition = DBA::mergeConditions($condition, [
 				"(NOT `vid` IN (?) OR NOT `type` IN (?, ?))",
 				Verb::getID(Activity::ANNOUNCE),
@@ -102,7 +102,7 @@ class Notifications extends BaseApi
 			]);
 		}
 
-		if (in_array('mention', $request['exclude_types'])) {
+		if (in_array(Notification::TYPE_MENTION, $request['exclude_types'])) {
 			$condition = DBA::mergeConditions($condition, [
 				"(NOT `vid` IN (?) OR NOT `type` IN (?, ?, ?, ?, ?))",
 				Verb::getID(Activity::POST), Post\UserNotification::TYPE_EXPLICIT_TAGGED,
@@ -110,7 +110,7 @@ class Notifications extends BaseApi
 				Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT, Post\UserNotification::TYPE_THREAD_COMMENT]);
 		}
 
-		if (in_array('status', $request['exclude_types'])) {
+		if (in_array(Notification::TYPE_POST, $request['exclude_types'])) {
 			$condition = DBA::mergeConditions($condition, ["(NOT `vid` IN (?) OR NOT `type` IN (?))",
 				Verb::getID(Activity::POST), Post\UserNotification::TYPE_SHARED]);
 		}

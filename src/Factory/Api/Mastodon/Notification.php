@@ -49,15 +49,6 @@ class Notification extends BaseFactory
 		if (!$this->dba->isResult($notification)) {
 			return null;
 		}
-		/*
-		follow         = Someone followed you
-		follow_request = Someone requested to follow you
-		mention        = Someone mentioned you in their status
-		reblog         = Someone boosted one of your statuses
-		favourite      = Someone favourited one of your statuses
-		poll           = A poll you have voted in or created has ended
-		status         = Someone you enabled notifications for has posted a status
-		*/
 
 		$type = ModelNotification::getType($notification);
 		if (empty($type)) {

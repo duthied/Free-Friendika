@@ -42,20 +42,19 @@ class Subscription extends BaseDataTransferObject
 	/**
 	 * Creates a subscription record from an item record.
 	 *
-	 * @param array   $subscription
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param array  $subscription
+	 * @param string $vapid
 	 */
 	public function __construct(array $subscription, string $vapid)
 	{
 		$this->id       = (string)$subscription['id'];
 		$this->endpoint = $subscription['endpoint'];
 		$this->alerts   = [
-			'follow'    => $subscription['follow'],
-			'favourite' => $subscription['favourite'],
-			'reblog'    => $subscription['reblog'],
-			'mention'   => $subscription['mention'],
-			'mention'   => $subscription['mention'],
-			'poll'      => $subscription['poll'],
+			Notification::TYPE_FOLLOW  => $subscription[Notification::TYPE_FOLLOW],
+			Notification::TYPE_LIKE    => $subscription[Notification::TYPE_LIKE],
+			Notification::TYPE_RESHARE => $subscription[Notification::TYPE_RESHARE],
+			Notification::TYPE_MENTION => $subscription[Notification::TYPE_MENTION],
+			Notification::TYPE_POLL    => $subscription[Notification::TYPE_POLL],
 		];
 
 		$this->server_key = $vapid;
