@@ -1462,7 +1462,7 @@ class Database
 		$row = $this->fetchFirst($sql, $condition);
 
 		if (!isset($row['count'])) {
-			$this->logger->notice('Invalid count.', ['table' => $table, 'expression' => $expression, 'condition' => $condition_string, 'callstack' => System::callstack()]);
+			$this->logger->notice('Invalid count.', ['table' => $table, 'row' => $row, 'expression' => $expression, 'condition' => $condition_string, 'callstack' => System::callstack()]);
 			return 0;
 		} else {
 			return (int)$row['count'];

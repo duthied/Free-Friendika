@@ -290,7 +290,7 @@ class Contact extends BaseModule
 				$contact_id = $data['user'];
 			}
 
-			if (empty($data)) {
+			if (!empty($data)) {
 				$contact = DBA::selectFirst('contact', [], [
 					'id'      => $contact_id,
 					'uid'     => [0, local_user()],
