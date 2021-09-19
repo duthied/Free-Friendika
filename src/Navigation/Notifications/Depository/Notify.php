@@ -73,9 +73,16 @@ class Notify extends BaseDepository
 		return $this->select($condition, $params);
 	}
 
-	public function selectAllForUser(int $uid, array $params = []): Collection\Notifies
+	/**
+	 * Returns notifications for the user, unread first, ordered in descending chronological order.
+	 *
+	 * @param int $uid
+	 * @param int $limit
+	 * @return Collection\Notifies
+	 */
+	public function selectAllForUser(int $uid, int $limit): Collection\Notifies
 	{
-		return $this->selectForUser($uid, [], $params);
+		return $this->selectForUser($uid, [], ['order' => ['seen' => 'ASC', 'date' => 'DESC'], 'limit' => $limit]);
 	}
 
 	public function setAllSeenForUser(int $uid, array $condition = []): bool

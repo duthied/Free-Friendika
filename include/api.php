@@ -5590,7 +5590,7 @@ function api_friendica_notification($type)
 		throw new BadRequestException('Invalid argument count');
 	}
 
-	$Notifies = DI::notify()->selectAllForUser(local_user(), ['order' => ['seen' => 'ASC', 'date' => 'DESC'], 'limit' => 50]);
+	$Notifies = DI::notify()->selectAllForUser(local_user(), 50);
 
 	$notifications = new ApiNotifications();
 	foreach ($Notifies as $Notify) {
