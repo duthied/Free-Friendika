@@ -80,7 +80,7 @@ class Thread
 				break;
 			case 'profile':
 				$this->profile_owner = $a->getProfileOwner();
-				$this->writable = Security::canWriteToUserWall($this->profile_owner);
+				$this->writable = Security::canWriteToUserWall($this->profile_owner) || $writable;
 				break;
 			case 'display':
 				$this->profile_owner = $a->getProfileOwner();
