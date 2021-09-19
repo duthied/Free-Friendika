@@ -44,9 +44,15 @@ class ContactBlock
 	 * @hook contact_block_end (contacts=>array, output=>string)
 	 * @return string
 	 */
-	public static function getHTML(array $profile)
+	public static function getHTML(array $profile, int $visitor_uid = null)
 	{
 		$o = '';
+
+		if (is_null($visitor_uid) || ($visitor_uid == $profile['uid'])) {
+			$contact_uid = $profile['uid'];
+		} else {
+			$contact_uid = 0;
+		}
 
 		$shown = DI::pConfig()->get($profile['uid'], 'system', 'display_friend_count', 24);
 		if ($shown == 0) {
@@ -82,7 +88,7 @@ class ContactBlock
 				$rel = [Contact::FOLLOWER, Contact::FRIEND];
 			}
 
-			$contact_ids_stmt = DBA::select('contact', ['id'], [
+			$personal_contacts = DBA::selectToArray('contact', ['uri-id'], [
 				'uid' => $profile['uid'],
 				'self' => false,
 				'blocked' => false,
@@ -93,13 +99,10 @@ class ContactBlock
 				'network' => Protocol::FEDERATED,
 			], ['limit' => $shown]);
 
-			if (DBA::isResult($contact_ids_stmt)) {
-				$contact_ids = [];
-				while($contact = DBA::fetch($contact_ids_stmt)) {
-					$contact_ids[] = $contact["id"];
-				}
+			$contact_ids = array_column($personal_contacts, 'uri-id');
 
-				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'name', 'thumb', 'avatar', 'network'], ['id' => $contact_ids]);
+			if (!empty($contact_ids)) {
+				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'name', 'thumb', 'avatar', 'network'], ['uri-id' => $contact_ids, 'uid' => $contact_uid]);
 
 				if (DBA::isResult($contacts_stmt)) {
 					$contacts_title = DI::l10n()->tt('%d Contact', '%d Contacts', $total);
@@ -113,8 +116,6 @@ class ContactBlock
 
 				DBA::close($contacts_stmt);
 			}
-
-			DBA::close($contact_ids_stmt);
 		}
 
 		$tpl = Renderer::getMarkupTemplate('widget/contacts.tpl');
