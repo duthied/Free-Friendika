@@ -30,7 +30,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Notification;
 use Friendica\Model\Post;
 use Friendica\Model\User;
-use Friendica\Model\Verb;
 use Friendica\Navigation\Notifications;
 use Friendica\Protocol\Activity;
 
@@ -396,10 +395,7 @@ function notification_store_and_send($params, $sitelink, $tsitelink, $hsitelink,
 	$notify_id = 0;
 
 	if ($show_in_notification_page) {
-		/** @var $factory Notifications\Factory\Notify */
-		$factory = DI::getDice()->create(Notifications\Factory\Notify::class);
-
-		$Notify = $factory->createFromParams($params, $itemlink, $item_id, $uri_id, $parent_id, $parent_uri_id);
+		$Notify = DI::notifyFactory()->createFromParams($params, $itemlink, $item_id, $uri_id, $parent_id, $parent_uri_id);
 		try {
 			$Notify = DI::notify()->save($Notify);
 		} catch (Notifications\Exception\NotificationCreationInterceptedException $e) {
@@ -572,7 +568,7 @@ function notification_from_array(Notifications\Entity\Notification $Notification
 		$subject        = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
 	}
 
-	$msg = (new Notifications\Factory\Notification(DI::logger()))->getMessageFromNotification($Notification, DI::baseUrl(), $l10n);
+	$msg = DI::notificationFactory()->getMessageFromNotification($Notification, DI::baseUrl(), $l10n);
 	if (empty($msg)) {
 		Logger::info('No notification message, quitting', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
 		return false;

@@ -46,8 +46,7 @@ class Notifications extends BaseNotifications
 		$notificationHeader = '';
 		$notifications = [];
 
-		/** @var \Friendica\Navigation\Notifications\Factory\FormattedNotification $factory */
-		$factory = DI::getDice()->create(\Friendica\Navigation\Notifications\Factory\FormattedNotification::class);
+		$factory = DI::formattedNotificationFactory();
 
 		if ((DI::args()->get(1) == 'network')) {
 			$notificationHeader = DI::l10n()->t('Network Notifications');

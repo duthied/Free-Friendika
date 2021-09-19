@@ -463,9 +463,24 @@ abstract class DI
 		return self::$dice->create(Navigation\Notifications\Depository\Notification::class);
 	}
 
+	public static function notificationFactory(): Navigation\Notifications\Factory\Notification
+	{
+		return self::$dice->create(Navigation\Notifications\Factory\Notification::class);
+	}
+
 	public static function notify(): Navigation\Notifications\Depository\Notify
 	{
 		return self::$dice->create(Navigation\Notifications\Depository\Notify::class);
+	}
+
+	public static function notifyFactory(): Navigation\Notifications\Factory\Notify
+	{
+		return self::$dice->create(Navigation\Notifications\Factory\Notify::class);
+	}
+
+	public static function formattedNotificationFactory(): Navigation\Notifications\Factory\FormattedNotification
+	{
+		return self::$dice->create(Navigation\Notifications\Factory\FormattedNotification::class);
 	}
 
 	//
