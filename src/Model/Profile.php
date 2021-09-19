@@ -406,7 +406,7 @@ class Profile
 		}
 
 		if (!$block && $show_contacts) {
-			$contact_block = ContactBlock::getHTML($profile);
+			$contact_block = ContactBlock::getHTML($profile, local_user());
 
 			if (is_array($profile) && !$profile['hide-friends']) {
 				$contact_count = DBA::count('contact', [
