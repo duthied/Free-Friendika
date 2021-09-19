@@ -24,7 +24,7 @@ Version 2021.09 (unreleased)
     Fixed a bug preventing the display of the accounts avatar [annando]
     Removed the legacy DFRN transport layer, DFRN is now always using the Diaspora* transport layer [annando]
     Removed the legacy OAuth server [annando]
-    Bumped the minimal PHP version to 7.3
+    Bumped the minimal PHP version to 7.2
     Added user option to control how postings are shortened [annando]
     Added Persian to the possible detected languages of a postings [MrPetovan]
     Added Matrix account profile field [annando]
@@ -63,7 +63,7 @@ Version 2021.07 (2021-07-04)
     Enhanced the possibilities to download the calendar [annando]
     Enhanced the Vagrant development box setup [fabrixxm]
     Enhanced the console commands [fabrixxm, mexon]
-    Enhances the support of PHP8 [nupplaphil, MrPetovan]
+    Enhanced the support of PHP8 [nupplaphil, MrPetovan]
     Enhanced the link detection [annando]
     Enhanced the worker task display in the admin panel [tobiasd]
     Enhanced the installation wizard [tobiasd]
