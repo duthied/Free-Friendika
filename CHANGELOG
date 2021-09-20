@@ -22,6 +22,7 @@ Version 2021.09 (unreleased)
     Fixed a bug in following IMAP accounts [annando]
     Fixed a bug preventing photos to be deleted [annando]
     Fixed a bug preventing the display of the accounts avatar [annando]
+    Fixed a bug preventing following accounts from profiles visited [annando]
     Removed the legacy DFRN transport layer, DFRN is now always using the Diaspora* transport layer [annando]
     Removed the legacy OAuth server [annando]
     Bumped the minimal PHP version to 7.2
