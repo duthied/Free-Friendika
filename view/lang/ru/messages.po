@@ -25,7 +25,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-09-10 00:27+0000\n"
-"PO-Revision-Date: 2021-09-11 07:34+0000\n"
+"PO-Revision-Date: 2021-09-22 05:47+0000\n"
 "Last-Translator: Alexander An <ravnina@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/friendica/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -174,7 +174,7 @@ msgstr ""
 #: include/conversation.php:680
 #, php-format
 msgid "%s is participating in this thread."
-msgstr "%s участвует в этой ветке."
+msgstr "%s участвует в этом обсуждении"
 
 #: include/conversation.php:683
 msgid "Stored"
@@ -204,7 +204,7 @@ msgstr ""
 
 #: include/conversation.php:844 view/theme/frio/theme.php:323
 msgid "Follow Thread"
-msgstr "Подписаться на тему"
+msgstr "Подписаться на обсуждение"
 
 #: include/conversation.php:845 src/Model/Contact.php:1050
 msgid "View Status"
@@ -481,7 +481,7 @@ msgstr "Категории (список через запятую)"
 
 #: include/conversation.php:1143 src/Module/Item/Compose.php:172
 msgid "Scheduled at"
-msgstr ""
+msgstr "Запланировано на"
 
 #: include/conversation.php:1147 mod/editpost.php:108
 msgid "Permission settings"
@@ -4636,7 +4636,7 @@ msgstr ""
 #: src/Model/Notification.php:189
 #, php-format
 msgid "%1$s had started following you"
-msgstr ""
+msgstr "%1$s подписались на вас"
 
 #: src/Model/Notification.php:259
 #, php-format
@@ -4681,7 +4681,7 @@ msgstr ""
 #: src/Model/Notification.php:297
 #, php-format
 msgid "%1$s commented in your thread %2$s"
-msgstr ""
+msgstr "%1$s ответил в вашем обсуждении %2$s"
 
 #: src/Model/Notification.php:301
 #, php-format
@@ -4691,27 +4691,27 @@ msgstr ""
 #: src/Model/Notification.php:307
 #, php-format
 msgid "%1$s commented in their thread %2$s"
-msgstr ""
+msgstr "%1$s ответил в своём обсуждении %2$s"
 
 #: src/Model/Notification.php:309
 #, php-format
 msgid "%1$s commented in their thread"
-msgstr ""
+msgstr "%1$s ответил в своём обсуждении"
 
 #: src/Model/Notification.php:311
 #, php-format
 msgid "%1$s commented in the thread %2$s from %3$s"
-msgstr ""
+msgstr "%1$s ответил в обсуждении %2$s от %3$s"
 
 #: src/Model/Notification.php:313
 #, php-format
 msgid "%1$s commented in the thread from %3$s"
-msgstr ""
+msgstr "%1$s ответил в обсуждении от %3$s"
 
 #: src/Model/Notification.php:318
 #, php-format
 msgid "%1$s commented on your thread %2$s"
-msgstr ""
+msgstr "%1$s ответил в вашем обсуждении %2$s"
 
 #: src/Model/Notification.php:323
 #, php-format
@@ -7057,16 +7057,16 @@ msgstr ""
 
 #: src/Module/Api/Mastodon/Statuses/Bookmark.php:51
 msgid "Only starting posts can be bookmarked"
-msgstr ""
+msgstr "Только заглавные записи могут быть добавлены в закладки"
 
 #: src/Module/Api/Mastodon/Statuses/Mute.php:50
 msgid "Only starting posts can be muted"
-msgstr ""
+msgstr "Только заглавные записи можно заглушить"
 
 #: src/Module/Api/Mastodon/Statuses/Pin.php:50
 #: src/Module/Api/Mastodon/Statuses/Unpin.php:50
 msgid "Only starting posts can be pinned"
-msgstr ""
+msgstr "Только заглавные записи можно закрепить"
 
 #: src/Module/Api/Mastodon/Statuses/Reblog.php:53
 #, php-format
@@ -7218,11 +7218,11 @@ msgstr "Только вы можете это видеть"
 
 #: src/Module/BaseProfile.php:115 src/Module/Profile/Schedule.php:82
 msgid "Scheduled Posts"
-msgstr ""
+msgstr "Запланированные записи"
 
 #: src/Module/BaseProfile.php:118
 msgid "Posts that are scheduled for publishing"
-msgstr ""
+msgstr "Записи, публикация которых запланирована"
 
 #: src/Module/BaseProfile.php:137 src/Module/BaseProfile.php:140
 msgid "Tips for New Members"
@@ -7589,7 +7589,7 @@ msgstr "Пакетные действия"
 
 #: src/Module/Contact.php:886
 msgid "Conversations started by this contact"
-msgstr ""
+msgstr "Диалоги этого контакта"
 
 #: src/Module/Contact.php:891
 msgid "Posts and Comments"
@@ -8902,7 +8902,7 @@ msgstr "Комментарии %s"
 
 #: src/Module/Profile/Schedule.php:84
 msgid "Scheduled"
-msgstr ""
+msgstr "Запланировано"
 
 #: src/Module/Profile/Schedule.php:85
 msgid "Content"
@@ -9402,11 +9402,11 @@ msgstr "Автоматически подгружать новые записи,
 
 #: src/Module/Settings/Display.php:215
 msgid "Enable Smart Threading"
-msgstr ""
+msgstr "Включить умное ветвление обсуждений"
 
 #: src/Module/Settings/Display.php:215
 msgid "Enable the automatic suppression of extraneous thread indentation."
-msgstr ""
+msgstr "Включить автоматическое удаление излишних отступов в ветках обсуждений."
 
 #: src/Module/Settings/Display.php:216
 msgid "Display the Dislike feature"
@@ -10263,7 +10263,7 @@ msgstr "Редактировать"
 
 #: src/Object/Post.php:214
 msgid "Pinned item"
-msgstr ""
+msgstr "Закреплённая запись"
 
 #: src/Object/Post.php:218
 msgid "Delete globally"
@@ -10296,11 +10296,11 @@ msgstr "Возможно"
 
 #: src/Object/Post.php:303
 msgid "Ignore thread"
-msgstr "Игнорировать тему"
+msgstr "Игнорировать обсуждение"
 
 #: src/Object/Post.php:304
 msgid "Unignore thread"
-msgstr "Не игнорировать тему"
+msgstr "Не игнорировать обсуждение"
 
 #: src/Object/Post.php:305
 msgid "Toggle ignore status"
@@ -10308,31 +10308,31 @@ msgstr "Переключить игнорирование"
 
 #: src/Object/Post.php:315
 msgid "Add star"
-msgstr ""
+msgstr "Добавить в Избранное"
 
 #: src/Object/Post.php:316
 msgid "Remove star"
-msgstr ""
+msgstr "Убрать из Избранного"
 
 #: src/Object/Post.php:317
 msgid "Toggle star status"
-msgstr ""
+msgstr "Добавить/убрать из Избранного"
 
 #: src/Object/Post.php:328
 msgid "Pin"
-msgstr ""
+msgstr "Закрепить"
 
 #: src/Object/Post.php:329
 msgid "Unpin"
-msgstr ""
+msgstr "Открепить"
 
 #: src/Object/Post.php:330
 msgid "Toggle pin status"
-msgstr ""
+msgstr "Закрепить/открепить"
 
 #: src/Object/Post.php:333
 msgid "Pinned"
-msgstr ""
+msgstr "Закреплено"
 
 #: src/Object/Post.php:338
 msgid "Add tag"
@@ -10755,7 +10755,7 @@ msgstr ""
 
 #: view/theme/frio/config.php:166
 msgid "Pink"
-msgstr ""
+msgstr "Розовый"
 
 #: view/theme/frio/config.php:167
 msgid "Copy or paste schemestring"
