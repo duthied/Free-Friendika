@@ -57,7 +57,7 @@ function notes_content(App $a, $update = false)
 			'acl_data' => '',
 		];
 
-		$o .= status_editor($a, $x, $a->getContactId());
+		$o .= DI::conversation()->statusEditor($x, $a->getContactId());
 	}
 
 	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
@@ -84,7 +84,7 @@ function notes_content(App $a, $update = false)
 
 		$count = count($notes);
 
-		$o .= conversation($a, $notes, 'notes', $update);
+		$o .= DI::conversation()->create($notes, 'notes', $update);
 	}
 
 	$o .= $pager->renderMinimal($count);

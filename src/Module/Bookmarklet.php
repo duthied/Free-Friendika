@@ -38,7 +38,6 @@ class Bookmarklet extends BaseModule
 	{
 		$_GET['mode'] = 'minimal';
 
-		$app = DI::app();
 		$config = DI::config();
 
 		if (!local_user()) {
@@ -61,7 +60,7 @@ class Bookmarklet extends BaseModule
 				'title'            => trim($_REQUEST['title'] ?? '', '*'),
 				'content'          => $content
 			];
-			$output = status_editor($app, $x, 0, false);
+			$output = DI::conversation()->statusEditor($x, 0, false);
 			$output .= "<script>window.resizeTo(800,550);</script>";
 		} else {
 			$output = '<h2>' . DI::l10n()->t('The post was created') . '</h2>';

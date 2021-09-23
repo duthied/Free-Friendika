@@ -220,7 +220,7 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('enotify_mail', $datarray);
     Hook::callAll('check_item_notification', $notification_data);
 
-### include/conversation.php
+### src/Content/Conversation.php
 
     Hook::callAll('conversation_start', $cb);
     Hook::callAll('render_location', $locate);

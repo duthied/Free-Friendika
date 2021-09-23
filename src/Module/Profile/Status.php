@@ -132,7 +132,7 @@ class Status extends BaseProfile
 				'profile_uid' => $profile['uid'],
 			];
 
-			$o .= status_editor($a, $x);
+			$o .= DI::conversation()->statusEditor($x);
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
@@ -224,7 +224,7 @@ class Status extends BaseProfile
 			$items = array_merge($items, $pinned);
 		}
 
-		$o .= conversation($a, $items, 'profile', false, false, 'pinned_received', $profile['uid']);
+		$o .= DI::conversation()->create($items, 'profile', false, false, 'pinned_received', $profile['uid']);
 
 		$o .= $pager->renderMinimal(count($items));
 

@@ -135,6 +135,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Content\Conversation
+	 */
+	public static function conversation()
+	{
+		return self::$dice->create(Content\Conversation::class);
+	}
+
+	/**
 	 * @return Content\Text\BBCode\Video
 	 */
 	public static function bbCodeVideo()
