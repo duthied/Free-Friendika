@@ -98,27 +98,300 @@ class Conversation
 		$this->app      = $app;
 	}
 
-	private function getBlocklist()
+	/**
+	 * Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
+	 *
+	 * Increments the count of each matching activity and adds a link to the author as needed.
+	 *
+	 * @param array  $activity
+	 * @param array &$conv_responses (already created with builtin activity structure)
+	 * @return void
+	 * @throws ImagickException
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function builtinActivityPuller(array $activity, array &$conv_responses)
 	{
-		if (!local_user()) {
-			return [];
-		}
+		foreach ($conv_responses as $mode => $v) {
+			$sparkle = '';
 
-		$str_blocked = str_replace(["\n", "\r"], ",", $this->pConfig->get(local_user(), 'system', 'blocked'));
-		if (empty($str_blocked)) {
-			return [];
-		}
+			switch ($mode) {
+				case 'like':
+					$verb = Activity::LIKE;
+					break;
+				case 'dislike':
+					$verb = Activity::DISLIKE;
+					break;
+				case 'attendyes':
+					$verb = Activity::ATTEND;
+					break;
+				case 'attendno':
+					$verb = Activity::ATTENDNO;
+					break;
+				case 'attendmaybe':
+					$verb = Activity::ATTENDMAYBE;
+					break;
+				case 'announce':
+					$verb = Activity::ANNOUNCE;
+					break;
+				default:
+					return;
+			}
 
-		$blocklist = [];
+			if (!empty($activity['verb']) && $this->activity->match($activity['verb'], $verb) && ($activity['gravity'] != GRAVITY_PARENT)) {
+				$author = [
+					'uid' => 0,
+					'id' => $activity['author-id'],
+					'network' => $activity['author-network'],
+					'url' => $activity['author-link']
+				];
+				$url = Contact::magicLinkByContact($author);
+				if (strpos($url, 'redir/') === 0) {
+					$sparkle = ' class="sparkle" ';
+				}
 
-		foreach (explode(',', $str_blocked) as $entry) {
-			$cid = Contact::getIdForURL(trim($entry), 0, false);
-			if (!empty($cid)) {
-				$blocklist[] = $cid;
+				$link = '<a href="' . $url . '"' . $sparkle . '>' . htmlentities($activity['author-name']) . '</a>';
+
+				if (empty($activity['thr-parent-id'])) {
+					$activity['thr-parent-id'] = $activity['parent-uri-id'];
+				}
+
+				// Skip when the causer of the parent is the same than the author of the announce
+				if (($verb == Activity::ANNOUNCE) && Post::exists(['uri-id' => $activity['thr-parent-id'],
+					'uid' => $activity['uid'], 'causer-id' => $activity['author-id'], 'gravity' => GRAVITY_PARENT])) {
+					continue;
+				}
+
+				if (!isset($conv_responses[$mode][$activity['thr-parent-id']])) {
+					$conv_responses[$mode][$activity['thr-parent-id']] = [
+						'links' => [],
+						'self' => 0,
+					];
+				} elseif (in_array($link, $conv_responses[$mode][$activity['thr-parent-id']]['links'])) {
+					// only list each unique author once
+					continue;
+				}
+
+				if (public_contact() == $activity['author-id']) {
+					$conv_responses[$mode][$activity['thr-parent-id']]['self'] = 1;
+				}
+
+				$conv_responses[$mode][$activity['thr-parent-id']]['links'][] = $link;
+
+				// there can only be one activity verb per item so if we found anything, we can stop looking
+				return;
 			}
 		}
+	}
 
-		return $blocklist;
+	/**
+	 * Format the activity text for an item/photo/video
+	 *
+	 * @param array  $links = array of pre-linked names of actors
+	 * @param string $verb  = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
+	 * @param int    $id    = item id
+	 * @return string formatted text
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function formatActivity(array $links, $verb, $id) {
+		$this->profiler->startRecording('rendering');
+		$o = '';
+		$expanded = '';
+		$phrase = '';
+
+		$total = count($links);
+		if ($total == 1) {
+			$likers = $links[0];
+
+			// Phrase if there is only one liker. In other cases it will be uses for the expanded
+			// list which show all likers
+			switch ($verb) {
+				case 'like' :
+					$phrase = $this->l10n->t('%s likes this.', $likers);
+					break;
+				case 'dislike' :
+					$phrase = $this->l10n->t('%s doesn\'t like this.', $likers);
+					break;
+				case 'attendyes' :
+					$phrase = $this->l10n->t('%s attends.', $likers);
+					break;
+				case 'attendno' :
+					$phrase = $this->l10n->t('%s doesn\'t attend.', $likers);
+					break;
+				case 'attendmaybe' :
+					$phrase = $this->l10n->t('%s attends maybe.', $likers);
+					break;
+				case 'announce' :
+					$phrase = $this->l10n->t('%s reshared this.', $likers);
+					break;
+			}
+		} elseif ($total > 1) {
+			if ($total < MAX_LIKERS) {
+				$likers = implode(', ', array_slice($links, 0, -1));
+				$likers .= ' ' . $this->l10n->t('and') . ' ' . $links[count($links)-1];
+			} else  {
+				$likers = implode(', ', array_slice($links, 0, MAX_LIKERS - 1));
+				$likers .= ' ' . $this->l10n->t('and %d other people', $total - MAX_LIKERS);
+			}
+
+			$spanatts = "class=\"fakelink\" onclick=\"openClose('{$verb}list-$id');\"";
+
+			$explikers = '';
+			switch ($verb) {
+				case 'like':
+					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> like this', $spanatts, $total);
+					$explikers = $this->l10n->t('%s like this.', $likers);
+					break;
+				case 'dislike':
+					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $total);
+					$explikers = $this->l10n->t('%s don\'t like this.', $likers);
+					break;
+				case 'attendyes':
+					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> attend', $spanatts, $total);
+					$explikers = $this->l10n->t('%s attend.', $likers);
+					break;
+				case 'attendno':
+					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $total);
+					$explikers = $this->l10n->t('%s don\'t attend.', $likers);
+					break;
+				case 'attendmaybe':
+					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $total);
+					$explikers = $this->l10n->t('%s attend maybe.', $likers);
+					break;
+				case 'announce':
+					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $total);
+					$explikers = $this->l10n->t('%s reshared this.', $likers);
+					break;
+			}
+
+			$expanded .= "\t" . '<p class="wall-item-' . $verb . '-expanded" id="' . $verb . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</p>';
+		}
+
+		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
+			'$phrase' => $phrase,
+			'$type' => $verb,
+			'$id' => $id
+		]);
+		$o .= $expanded;
+
+		$this->profiler->stopRecording();
+		return $o;
+	}
+
+	public function statusEditor(array $x = [], $notes_cid = 0, $popup = false)
+	{
+		$user = User::getById($this->app->getLoggedInUserId(), ['uid', 'nickname', 'allow_location', 'default-location']);
+		if (empty($user['uid'])) {
+			return '';
+		}
+
+		$this->profiler->startRecording('rendering');
+		$o = '';
+
+		$x['allow_location']   = $x['allow_location']   ?? $user['allow_location'];
+		$x['default_location'] = $x['default_location'] ?? $user['default-location'];
+		$x['nickname']         = $x['nickname']         ?? $user['nickname'];
+		$x['lockstate']        = $x['lockstate']        ?? ACL::getLockstateForUserId($user['uid']) ? 'lock' : 'unlock';
+		$x['acl']              = $x['acl']              ?? ACL::getFullSelectorHTML($this->page, $user['uid'], true);
+		$x['bang']             = $x['bang']             ?? '';
+		$x['visitor']          = $x['visitor']          ?? 'block';
+		$x['is_owner']         = $x['is_owner']         ?? true;
+		$x['profile_uid']      = $x['profile_uid']      ?? local_user();
+
+
+		$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
+
+		$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
+		$this->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
+			'$newpost'   => 'true',
+			'$baseurl'   => $this->baseURL->get(true),
+			'$geotag'    => $geotag,
+			'$nickname'  => $x['nickname'],
+			'$ispublic'  => $this->l10n->t('Visible to <strong>everybody</strong>'),
+			'$linkurl'   => $this->l10n->t('Please enter a image/video/audio/webpage URL:'),
+			'$term'      => $this->l10n->t('Tag term:'),
+			'$fileas'    => $this->l10n->t('Save to Folder:'),
+			'$whereareu' => $this->l10n->t('Where are you right now?'),
+			'$delitems'  => $this->l10n->t("Delete item\x28s\x29?"),
+			'$is_mobile' => $this->mode->isMobile(),
+		]);
+
+		$jotplugins = '';
+		Hook::callAll('jot_tool', $jotplugins);
+
+		$tpl = Renderer::getMarkupTemplate("jot.tpl");
+
+		$o .= Renderer::replaceMacros($tpl, [
+			'$new_post' => $this->l10n->t('New Post'),
+			'$return_path'  => $this->args->getQueryString(),
+			'$action'       => 'item',
+			'$share'        => ($x['button'] ?? '') ?: $this->l10n->t('Share'),
+			'$loading'      => $this->l10n->t('Loading...'),
+			'$upload'       => $this->l10n->t('Upload photo'),
+			'$shortupload'  => $this->l10n->t('upload photo'),
+			'$attach'       => $this->l10n->t('Attach file'),
+			'$shortattach'  => $this->l10n->t('attach file'),
+			'$edbold'       => $this->l10n->t('Bold'),
+			'$editalic'     => $this->l10n->t('Italic'),
+			'$eduline'      => $this->l10n->t('Underline'),
+			'$edquote'      => $this->l10n->t('Quote'),
+			'$edcode'       => $this->l10n->t('Code'),
+			'$edimg'        => $this->l10n->t('Image'),
+			'$edurl'        => $this->l10n->t('Link'),
+			'$edattach'     => $this->l10n->t('Link or Media'),
+			'$edvideo'      => $this->l10n->t('Video'),
+			'$setloc'       => $this->l10n->t('Set your location'),
+			'$shortsetloc'  => $this->l10n->t('set location'),
+			'$noloc'        => $this->l10n->t('Clear browser location'),
+			'$shortnoloc'   => $this->l10n->t('clear location'),
+			'$title'        => $x['title'] ?? '',
+			'$placeholdertitle' => $this->l10n->t('Set title'),
+			'$category'     => $x['category'] ?? '',
+			'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? $this->l10n->t("Categories \x28comma-separated list\x29") : '',
+			'$scheduled_at' => Temporal::getDateTimeField(
+				new \DateTime(),
+				new \DateTime('now + 6 months'),
+				null,
+				$this->l10n->t('Scheduled at'),
+				'scheduled_at'
+			),
+			'$wait'         => $this->l10n->t('Please wait'),
+			'$permset'      => $this->l10n->t('Permission settings'),
+			'$shortpermset' => $this->l10n->t('Permissions'),
+			'$wall'         => $notes_cid ? 0 : 1,
+			'$posttype'     => $notes_cid ? ItemModel::PT_PERSONAL_NOTE : ItemModel::PT_ARTICLE,
+			'$content'      => $x['content'] ?? '',
+			'$post_id'      => $x['post_id'] ?? '',
+			'$baseurl'      => $this->baseURL->get(true),
+			'$defloc'       => $x['default_location'],
+			'$visitor'      => $x['visitor'],
+			'$pvisit'       => $notes_cid ? 'none' : $x['visitor'],
+			'$public'       => $this->l10n->t('Public post'),
+			'$lockstate'    => $x['lockstate'],
+			'$bang'         => $x['bang'],
+			'$profile_uid'  => $x['profile_uid'],
+			'$preview'      => $this->l10n->t('Preview'),
+			'$jotplugins'   => $jotplugins,
+			'$notes_cid'    => $notes_cid,
+			'$cancel'       => $this->l10n->t('Cancel'),
+			'$rand_num'     => Crypto::randomDigits(12),
+
+			// ACL permissions box
+			'$acl'           => $x['acl'],
+
+			//jot nav tab (used in some themes)
+			'$message' => $this->l10n->t('Message'),
+			'$browser' => $this->l10n->t('Browser'),
+
+			'$compose_link_title' => $this->l10n->t('Open Compose page'),
+		]);
+
+
+		if ($popup == true) {
+			$o = '<div id="jot-popup" style="display: none;">' . $o . '</div>';
+		}
+
+		$this->profiler->stopRecording();
+		return $o;
 	}
 
 	/**
@@ -491,6 +764,29 @@ class Conversation
 		return $o;
 	}
 
+	private function getBlocklist()
+	{
+		if (!local_user()) {
+			return [];
+		}
+
+		$str_blocked = str_replace(["\n", "\r"], ",", $this->pConfig->get(local_user(), 'system', 'blocked'));
+		if (empty($str_blocked)) {
+			return [];
+		}
+
+		$blocklist = [];
+
+		foreach (explode(',', $str_blocked) as $entry) {
+			$cid = Contact::getIdForURL(trim($entry), 0, false);
+			if (!empty($cid)) {
+				$blocklist[] = $cid;
+			}
+		}
+
+		return $blocklist;
+	}
+
 	/**
 	 * Adds some information (Causer, post reason, direction) to the fetched post row.
 	 *
@@ -658,302 +954,6 @@ class Conversation
 
 		$this->profiler->stopRecording();
 		return $items;
-	}
-
-	/**
-	 * Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
-	 *
-	 * Increments the count of each matching activity and adds a link to the author as needed.
-	 *
-	 * @param array  $activity
-	 * @param array &$conv_responses (already created with builtin activity structure)
-	 * @return void
-	 * @throws ImagickException
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public function builtinActivityPuller(array $activity, array &$conv_responses)
-	{
-		foreach ($conv_responses as $mode => $v) {
-			$sparkle = '';
-
-			switch ($mode) {
-				case 'like':
-					$verb = Activity::LIKE;
-					break;
-				case 'dislike':
-					$verb = Activity::DISLIKE;
-					break;
-				case 'attendyes':
-					$verb = Activity::ATTEND;
-					break;
-				case 'attendno':
-					$verb = Activity::ATTENDNO;
-					break;
-				case 'attendmaybe':
-					$verb = Activity::ATTENDMAYBE;
-					break;
-				case 'announce':
-					$verb = Activity::ANNOUNCE;
-					break;
-				default:
-					return;
-			}
-
-			if (!empty($activity['verb']) && $this->activity->match($activity['verb'], $verb) && ($activity['gravity'] != GRAVITY_PARENT)) {
-				$author = [
-					'uid' => 0,
-					'id' => $activity['author-id'],
-					'network' => $activity['author-network'],
-					'url' => $activity['author-link']
-				];
-				$url = Contact::magicLinkByContact($author);
-				if (strpos($url, 'redir/') === 0) {
-					$sparkle = ' class="sparkle" ';
-				}
-
-				$link = '<a href="' . $url . '"' . $sparkle . '>' . htmlentities($activity['author-name']) . '</a>';
-
-				if (empty($activity['thr-parent-id'])) {
-					$activity['thr-parent-id'] = $activity['parent-uri-id'];
-				}
-
-				// Skip when the causer of the parent is the same than the author of the announce
-				if (($verb == Activity::ANNOUNCE) && Post::exists(['uri-id' => $activity['thr-parent-id'],
-					'uid' => $activity['uid'], 'causer-id' => $activity['author-id'], 'gravity' => GRAVITY_PARENT])) {
-					continue;
-				}
-
-				if (!isset($conv_responses[$mode][$activity['thr-parent-id']])) {
-					$conv_responses[$mode][$activity['thr-parent-id']] = [
-						'links' => [],
-						'self' => 0,
-					];
-				} elseif (in_array($link, $conv_responses[$mode][$activity['thr-parent-id']]['links'])) {
-					// only list each unique author once
-					continue;
-				}
-
-				if (public_contact() == $activity['author-id']) {
-					$conv_responses[$mode][$activity['thr-parent-id']]['self'] = 1;
-				}
-
-				$conv_responses[$mode][$activity['thr-parent-id']]['links'][] = $link;
-
-				// there can only be one activity verb per item so if we found anything, we can stop looking
-				return;
-			}
-		}
-	}
-
-	/**
-	 * Format the activity text for an item/photo/video
-	 *
-	 * @param array  $links = array of pre-linked names of actors
-	 * @param string $verb  = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
-	 * @param int    $id    = item id
-	 * @return string formatted text
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public function formatActivity(array $links, $verb, $id) {
-		$this->profiler->startRecording('rendering');
-		$o = '';
-		$expanded = '';
-		$phrase = '';
-
-		$total = count($links);
-		if ($total == 1) {
-			$likers = $links[0];
-
-			// Phrase if there is only one liker. In other cases it will be uses for the expanded
-			// list which show all likers
-			switch ($verb) {
-				case 'like' :
-					$phrase = $this->l10n->t('%s likes this.', $likers);
-					break;
-				case 'dislike' :
-					$phrase = $this->l10n->t('%s doesn\'t like this.', $likers);
-					break;
-				case 'attendyes' :
-					$phrase = $this->l10n->t('%s attends.', $likers);
-					break;
-				case 'attendno' :
-					$phrase = $this->l10n->t('%s doesn\'t attend.', $likers);
-					break;
-				case 'attendmaybe' :
-					$phrase = $this->l10n->t('%s attends maybe.', $likers);
-					break;
-				case 'announce' :
-					$phrase = $this->l10n->t('%s reshared this.', $likers);
-					break;
-			}
-		} elseif ($total > 1) {
-			if ($total < MAX_LIKERS) {
-				$likers = implode(', ', array_slice($links, 0, -1));
-				$likers .= ' ' . $this->l10n->t('and') . ' ' . $links[count($links)-1];
-			} else  {
-				$likers = implode(', ', array_slice($links, 0, MAX_LIKERS - 1));
-				$likers .= ' ' . $this->l10n->t('and %d other people', $total - MAX_LIKERS);
-			}
-
-			$spanatts = "class=\"fakelink\" onclick=\"openClose('{$verb}list-$id');\"";
-
-			$explikers = '';
-			switch ($verb) {
-				case 'like':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> like this', $spanatts, $total);
-					$explikers = $this->l10n->t('%s like this.', $likers);
-					break;
-				case 'dislike':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $total);
-					$explikers = $this->l10n->t('%s don\'t like this.', $likers);
-					break;
-				case 'attendyes':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> attend', $spanatts, $total);
-					$explikers = $this->l10n->t('%s attend.', $likers);
-					break;
-				case 'attendno':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $total);
-					$explikers = $this->l10n->t('%s don\'t attend.', $likers);
-					break;
-				case 'attendmaybe':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $total);
-					$explikers = $this->l10n->t('%s attend maybe.', $likers);
-					break;
-				case 'announce':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $total);
-					$explikers = $this->l10n->t('%s reshared this.', $likers);
-					break;
-			}
-
-			$expanded .= "\t" . '<p class="wall-item-' . $verb . '-expanded" id="' . $verb . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</p>';
-		}
-
-		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
-			'$phrase' => $phrase,
-			'$type' => $verb,
-			'$id' => $id
-		]);
-		$o .= $expanded;
-
-		$this->profiler->stopRecording();
-		return $o;
-	}
-
-	public function statusEditor(array $x = [], $notes_cid = 0, $popup = false)
-	{
-		$user = User::getById($this->app->getLoggedInUserId(), ['uid', 'nickname', 'allow_location', 'default-location']);
-		if (empty($user['uid'])) {
-			return '';
-		}
-
-		$this->profiler->startRecording('rendering');
-		$o = '';
-
-		$x['allow_location']   = $x['allow_location']   ?? $user['allow_location'];
-		$x['default_location'] = $x['default_location'] ?? $user['default-location'];
-		$x['nickname']         = $x['nickname']         ?? $user['nickname'];
-		$x['lockstate']        = $x['lockstate']        ?? ACL::getLockstateForUserId($user['uid']) ? 'lock' : 'unlock';
-		$x['acl']              = $x['acl']              ?? ACL::getFullSelectorHTML($this->page, $user['uid'], true);
-		$x['bang']             = $x['bang']             ?? '';
-		$x['visitor']          = $x['visitor']          ?? 'block';
-		$x['is_owner']         = $x['is_owner']         ?? true;
-		$x['profile_uid']      = $x['profile_uid']      ?? local_user();
-
-
-		$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
-
-		$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
-		$this->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$newpost'   => 'true',
-			'$baseurl'   => $this->baseURL->get(true),
-			'$geotag'    => $geotag,
-			'$nickname'  => $x['nickname'],
-			'$ispublic'  => $this->l10n->t('Visible to <strong>everybody</strong>'),
-			'$linkurl'   => $this->l10n->t('Please enter a image/video/audio/webpage URL:'),
-			'$term'      => $this->l10n->t('Tag term:'),
-			'$fileas'    => $this->l10n->t('Save to Folder:'),
-			'$whereareu' => $this->l10n->t('Where are you right now?'),
-			'$delitems'  => $this->l10n->t("Delete item\x28s\x29?"),
-			'$is_mobile' => $this->mode->isMobile(),
-		]);
-
-		$jotplugins = '';
-		Hook::callAll('jot_tool', $jotplugins);
-
-		$tpl = Renderer::getMarkupTemplate("jot.tpl");
-
-		$o .= Renderer::replaceMacros($tpl, [
-			'$new_post' => $this->l10n->t('New Post'),
-			'$return_path'  => $this->args->getQueryString(),
-			'$action'       => 'item',
-			'$share'        => ($x['button'] ?? '') ?: $this->l10n->t('Share'),
-			'$loading'      => $this->l10n->t('Loading...'),
-			'$upload'       => $this->l10n->t('Upload photo'),
-			'$shortupload'  => $this->l10n->t('upload photo'),
-			'$attach'       => $this->l10n->t('Attach file'),
-			'$shortattach'  => $this->l10n->t('attach file'),
-			'$edbold'       => $this->l10n->t('Bold'),
-			'$editalic'     => $this->l10n->t('Italic'),
-			'$eduline'      => $this->l10n->t('Underline'),
-			'$edquote'      => $this->l10n->t('Quote'),
-			'$edcode'       => $this->l10n->t('Code'),
-			'$edimg'        => $this->l10n->t('Image'),
-			'$edurl'        => $this->l10n->t('Link'),
-			'$edattach'     => $this->l10n->t('Link or Media'),
-			'$edvideo'      => $this->l10n->t('Video'),
-			'$setloc'       => $this->l10n->t('Set your location'),
-			'$shortsetloc'  => $this->l10n->t('set location'),
-			'$noloc'        => $this->l10n->t('Clear browser location'),
-			'$shortnoloc'   => $this->l10n->t('clear location'),
-			'$title'        => $x['title'] ?? '',
-			'$placeholdertitle' => $this->l10n->t('Set title'),
-			'$category'     => $x['category'] ?? '',
-			'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? $this->l10n->t("Categories \x28comma-separated list\x29") : '',
-			'$scheduled_at' => Temporal::getDateTimeField(
-				new \DateTime(),
-				new \DateTime('now + 6 months'),
-				null,
-				$this->l10n->t('Scheduled at'),
-				'scheduled_at'
-			),
-			'$wait'         => $this->l10n->t('Please wait'),
-			'$permset'      => $this->l10n->t('Permission settings'),
-			'$shortpermset' => $this->l10n->t('Permissions'),
-			'$wall'         => $notes_cid ? 0 : 1,
-			'$posttype'     => $notes_cid ? ItemModel::PT_PERSONAL_NOTE : ItemModel::PT_ARTICLE,
-			'$content'      => $x['content'] ?? '',
-			'$post_id'      => $x['post_id'] ?? '',
-			'$baseurl'      => $this->baseURL->get(true),
-			'$defloc'       => $x['default_location'],
-			'$visitor'      => $x['visitor'],
-			'$pvisit'       => $notes_cid ? 'none' : $x['visitor'],
-			'$public'       => $this->l10n->t('Public post'),
-			'$lockstate'    => $x['lockstate'],
-			'$bang'         => $x['bang'],
-			'$profile_uid'  => $x['profile_uid'],
-			'$preview'      => $this->l10n->t('Preview'),
-			'$jotplugins'   => $jotplugins,
-			'$notes_cid'    => $notes_cid,
-			'$cancel'       => $this->l10n->t('Cancel'),
-			'$rand_num'     => Crypto::randomDigits(12),
-
-			// ACL permissions box
-			'$acl'           => $x['acl'],
-
-			//jot nav tab (used in some themes)
-			'$message' => $this->l10n->t('Message'),
-			'$browser' => $this->l10n->t('Browser'),
-
-			'$compose_link_title' => $this->l10n->t('Open Compose page'),
-		]);
-
-
-		if ($popup == true) {
-			$o = '<div id="jot-popup" style="display: none;">' . $o . '</div>';
-		}
-
-		$this->profiler->stopRecording();
-		return $o;
 	}
 
 	/**
