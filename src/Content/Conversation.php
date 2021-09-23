@@ -139,10 +139,10 @@ class Conversation
 
 			if (!empty($activity['verb']) && $this->activity->match($activity['verb'], $verb) && ($activity['gravity'] != GRAVITY_PARENT)) {
 				$author = [
-					'uid' => 0,
-					'id' => $activity['author-id'],
+					'uid'     => 0,
+					'id'      => $activity['author-id'],
 					'network' => $activity['author-network'],
-					'url' => $activity['author-link']
+					'url'     => $activity['author-link']
 				];
 				$url = Contact::magicLinkByContact($author);
 				if (strpos($url, 'redir/') === 0) {
@@ -164,7 +164,7 @@ class Conversation
 				if (!isset($conv_responses[$mode][$activity['thr-parent-id']])) {
 					$conv_responses[$mode][$activity['thr-parent-id']] = [
 						'links' => [],
-						'self' => 0,
+						'self'  => 0,
 					];
 				} elseif (in_array($link, $conv_responses[$mode][$activity['thr-parent-id']]['links'])) {
 					// only list each unique author once
@@ -238,11 +238,11 @@ class Conversation
 			$explikers = '';
 			switch ($verb) {
 				case 'like':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> like this', $spanatts, $total);
+					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> like this', $spanatts, $total);
 					$explikers = $this->l10n->t('%s like this.', $likers);
 					break;
 				case 'dislike':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $total);
+					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $total);
 					$explikers = $this->l10n->t('%s don\'t like this.', $likers);
 					break;
 				case 'attendyes':
@@ -250,15 +250,15 @@ class Conversation
 					$explikers = $this->l10n->t('%s attend.', $likers);
 					break;
 				case 'attendno':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $total);
+					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $total);
 					$explikers = $this->l10n->t('%s don\'t attend.', $likers);
 					break;
 				case 'attendmaybe':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $total);
+					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $total);
 					$explikers = $this->l10n->t('%s attend maybe.', $likers);
 					break;
 				case 'announce':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $total);
+					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $total);
 					$explikers = $this->l10n->t('%s reshared this.', $likers);
 					break;
 			}
@@ -321,33 +321,33 @@ class Conversation
 		$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
 		$o .= Renderer::replaceMacros($tpl, [
-			'$new_post' => $this->l10n->t('New Post'),
-			'$return_path'  => $this->args->getQueryString(),
-			'$action'       => 'item',
-			'$share'        => ($x['button'] ?? '') ?: $this->l10n->t('Share'),
-			'$loading'      => $this->l10n->t('Loading...'),
-			'$upload'       => $this->l10n->t('Upload photo'),
-			'$shortupload'  => $this->l10n->t('upload photo'),
-			'$attach'       => $this->l10n->t('Attach file'),
-			'$shortattach'  => $this->l10n->t('attach file'),
-			'$edbold'       => $this->l10n->t('Bold'),
-			'$editalic'     => $this->l10n->t('Italic'),
-			'$eduline'      => $this->l10n->t('Underline'),
-			'$edquote'      => $this->l10n->t('Quote'),
-			'$edcode'       => $this->l10n->t('Code'),
-			'$edimg'        => $this->l10n->t('Image'),
-			'$edurl'        => $this->l10n->t('Link'),
-			'$edattach'     => $this->l10n->t('Link or Media'),
-			'$edvideo'      => $this->l10n->t('Video'),
-			'$setloc'       => $this->l10n->t('Set your location'),
-			'$shortsetloc'  => $this->l10n->t('set location'),
-			'$noloc'        => $this->l10n->t('Clear browser location'),
-			'$shortnoloc'   => $this->l10n->t('clear location'),
-			'$title'        => $x['title'] ?? '',
-			'$placeholdertitle' => $this->l10n->t('Set title'),
-			'$category'     => $x['category'] ?? '',
+			'$new_post'            => $this->l10n->t('New Post'),
+			'$return_path'         => $this->args->getQueryString(),
+			'$action'              => 'item',
+			'$share'               => ($x['button'] ?? '') ?: $this->l10n->t('Share'),
+			'$loading'             => $this->l10n->t('Loading...'),
+			'$upload'              => $this->l10n->t('Upload photo'),
+			'$shortupload'         => $this->l10n->t('upload photo'),
+			'$attach'              => $this->l10n->t('Attach file'),
+			'$shortattach'         => $this->l10n->t('attach file'),
+			'$edbold'              => $this->l10n->t('Bold'),
+			'$editalic'            => $this->l10n->t('Italic'),
+			'$eduline'             => $this->l10n->t('Underline'),
+			'$edquote'             => $this->l10n->t('Quote'),
+			'$edcode'              => $this->l10n->t('Code'),
+			'$edimg'               => $this->l10n->t('Image'),
+			'$edurl'               => $this->l10n->t('Link'),
+			'$edattach'            => $this->l10n->t('Link or Media'),
+			'$edvideo'             => $this->l10n->t('Video'),
+			'$setloc'              => $this->l10n->t('Set your location'),
+			'$shortsetloc'         => $this->l10n->t('set location'),
+			'$noloc'               => $this->l10n->t('Clear browser location'),
+			'$shortnoloc'          => $this->l10n->t('clear location'),
+			'$title'               => $x['title'] ?? '',
+			'$placeholdertitle'    => $this->l10n->t('Set title'),
+			'$category'            => $x['category'] ?? '',
 			'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? $this->l10n->t("Categories \x28comma-separated list\x29") : '',
-			'$scheduled_at' => Temporal::getDateTimeField(
+			'$scheduled_at'        => Temporal::getDateTimeField(
 				new \DateTime(),
 				new \DateTime('now + 6 months'),
 				null,
@@ -641,56 +641,56 @@ class Conversation
 					}
 
 					$tmp_item = [
-						'template' => $tpl,
-						'id' => ($preview ? 'P0' : $item['id']),
-						'guid' => ($preview ? 'Q0' : $item['guid']),
-						'commented' => $item['commented'],
-						'received' => $item['received'],
-						'created_date' => $item['created'],
-						'uriid' => $item['uri-id'],
-						'network' => $item['network'],
-						'network_name' => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']),
-						'network_icon' => ContactSelector::networkToIcon($item['network'], $item['author-link']),
-						'linktitle' => $this->l10n->t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
-						'profile_url' => $profile_link,
+						'template'             => $tpl,
+						'id'                   => ($preview ? 'P0' : $item['id']),
+						'guid'                 => ($preview ? 'Q0' : $item['guid']),
+						'commented'            => $item['commented'],
+						'received'             => $item['received'],
+						'created_date'         => $item['created'],
+						'uriid'                => $item['uri-id'],
+						'network'              => $item['network'],
+						'network_name'         => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']),
+						'network_icon'         => ContactSelector::networkToIcon($item['network'], $item['author-link']),
+						'linktitle'            => $this->l10n->t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
+						'profile_url'          => $profile_link,
 						'item_photo_menu_html' => $this->item->photoMenu($item, $formSecurityToken),
-						'name' => $profile_name,
-						'sparkle' => $sparkle,
-						'lock' => false,
-						'thumb' => $this->baseURL->remove(Contact::getAvatarUrlForUrl($item['author-link'], $item['uid'], Proxy::SIZE_THUMB)),
-						'title' => $title,
-						'body_html' => $body_html,
-						'tags' => $tags['tags'],
-						'hashtags' => $tags['hashtags'],
-						'mentions' => $tags['mentions'],
-						'implicit_mentions' => $tags['implicit_mentions'],
-						'txt_cats' => $this->l10n->t('Categories:'),
-						'txt_folders' => $this->l10n->t('Filed under:'),
-						'has_cats' => ((count($categories)) ? 'true' : ''),
-						'has_folders' => ((count($folders)) ? 'true' : ''),
-						'categories' => $categories,
-						'folders' => $folders,
-						'text' => strip_tags($body_html),
-						'localtime' => DateTimeFormat::local($item['created'], 'r'),
-						'ago' => (($item['app']) ? $this->l10n->t('%s from %s', Temporal::getRelativeDate($item['created']), $item['app']) : Temporal::getRelativeDate($item['created'])),
-						'location_html' => $location_html,
-						'indent' => '',
-						'owner_name' => '',
-						'owner_url' => '',
-						'owner_photo' => $this->baseURL->remove(Contact::getAvatarUrlForUrl($item['owner-link'], $item['uid'], Proxy::SIZE_THUMB)),
-						'plink' => ItemModel::getPlink($item),
-						'edpost' => false,
-						'isstarred' => 'unstarred',
-						'star' => false,
-						'drop' => $drop,
-						'vote' => $likebuttons,
-						'like_html' => '',
-						'dislike_html' => '',
-						'comment_html' => '',
-						'conv' => (($preview) ? '' : ['href'=> 'display/'.$item['guid'], 'title'=> $this->l10n->t('View in context')]),
-						'previewing' => $previewing,
-						'wait' => $this->l10n->t('Please wait'),
-						'thread_level' => 1,
+						'name'                 => $profile_name,
+						'sparkle'              => $sparkle,
+						'lock'                 => false,
+						'thumb'                => $this->baseURL->remove(Contact::getAvatarUrlForUrl($item['author-link'], $item['uid'], Proxy::SIZE_THUMB)),
+						'title'                => $title,
+						'body_html'            => $body_html,
+						'tags'                 => $tags['tags'],
+						'hashtags'             => $tags['hashtags'],
+						'mentions'             => $tags['mentions'],
+						'implicit_mentions'    => $tags['implicit_mentions'],
+						'txt_cats'             => $this->l10n->t('Categories:'),
+						'txt_folders'          => $this->l10n->t('Filed under:'),
+						'has_cats'             => ((count($categories)) ? 'true' : ''),
+						'has_folders'          => ((count($folders)) ? 'true' : ''),
+						'categories'           => $categories,
+						'folders'              => $folders,
+						'text'                 => strip_tags($body_html),
+						'localtime'            => DateTimeFormat::local($item['created'], 'r'),
+						'ago'                  => (($item['app']) ? $this->l10n->t('%s from %s', Temporal::getRelativeDate($item['created']), $item['app']) : Temporal::getRelativeDate($item['created'])),
+						'location_html'        => $location_html,
+						'indent'               => '',
+						'owner_name'           => '',
+						'owner_url'            => '',
+						'owner_photo'          => $this->baseURL->remove(Contact::getAvatarUrlForUrl($item['owner-link'], $item['uid'], Proxy::SIZE_THUMB)),
+						'plink'                => ItemModel::getPlink($item),
+						'edpost'               => false,
+						'isstarred'            => 'unstarred',
+						'star'                 => false,
+						'drop'                 => $drop,
+						'vote'                 => $likebuttons,
+						'like_html'            => '',
+						'dislike_html '        => '',
+						'comment_html'         => '',
+						'conv'                 => (($preview) ? '' : ['href'=> 'display/'.$item['guid'], 'title'=> $this->l10n->t('View in context')]),
+						'previewing'           => $previewing,
+						'wait'                 => $this->l10n->t('Please wait'),
+						'thread_level'         => 1,
 					];
 
 					$arr = ['item' => $item, 'output' => $tmp_item];
@@ -805,11 +805,13 @@ class Conversation
 		if (!empty($activity)) {
 			if (($row['gravity'] == GRAVITY_PARENT)) {
 				$row['post-reason'] = ItemModel::PR_ANNOUNCEMENT;
-				$row = array_merge($row, $activity);
+
+				$row     = array_merge($row, $activity);
 				$contact = Contact::getById($activity['causer-id'], ['url', 'name', 'thumb']);
-				$row['causer-link'] = $contact['url'];
+
+				$row['causer-link']   = $contact['url'];
 				$row['causer-avatar'] = $contact['thumb'];
-				$row['causer-name'] = $contact['name'];
+				$row['causer-name']   = $contact['name'];
 			} elseif (($row['gravity'] == GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
 				($row['author-id'] == $activity['causer-id'])) {
 				return $row;
@@ -837,10 +839,10 @@ class Conversation
 				break;
 			case ItemModel::PR_ANNOUNCEMENT:
 				if (!empty($row['causer-id']) && $this->pConfig->get(local_user(), 'system', 'display_resharer')) {
-					$row['owner-id'] = $row['causer-id'];
-					$row['owner-link'] = $row['causer-link'];
+					$row['owner-id']     = $row['causer-id'];
+					$row['owner-link']   = $row['causer-link'];
 					$row['owner-avatar'] = $row['causer-avatar'];
-					$row['owner-name'] = $row['causer-name'];
+					$row['owner-name']   = $row['causer-name'];
 				}
 
 				if (($row['gravity'] == GRAVITY_PARENT) && !empty($row['causer-id'])) {
