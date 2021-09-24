@@ -192,11 +192,12 @@ class Conversation
 	 * @return string formatted text
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function formatActivity(array $links, $verb, $id) {
+	public function formatActivity(array $links, $verb, $id)
+	{
 		$this->profiler->startRecording('rendering');
-		$o = '';
+		$o        = '';
 		$expanded = '';
-		$phrase = '';
+		$phrase   = '';
 
 		$total = count($links);
 		if ($total == 1) {
@@ -205,30 +206,30 @@ class Conversation
 			// Phrase if there is only one liker. In other cases it will be uses for the expanded
 			// list which show all likers
 			switch ($verb) {
-				case 'like' :
+				case 'like':
 					$phrase = $this->l10n->t('%s likes this.', $likers);
 					break;
-				case 'dislike' :
+				case 'dislike':
 					$phrase = $this->l10n->t('%s doesn\'t like this.', $likers);
 					break;
-				case 'attendyes' :
+				case 'attendyes':
 					$phrase = $this->l10n->t('%s attends.', $likers);
 					break;
-				case 'attendno' :
+				case 'attendno':
 					$phrase = $this->l10n->t('%s doesn\'t attend.', $likers);
 					break;
-				case 'attendmaybe' :
+				case 'attendmaybe':
 					$phrase = $this->l10n->t('%s attends maybe.', $likers);
 					break;
-				case 'announce' :
+				case 'announce':
 					$phrase = $this->l10n->t('%s reshared this.', $likers);
 					break;
 			}
 		} elseif ($total > 1) {
 			if ($total < MAX_LIKERS) {
 				$likers = implode(', ', array_slice($links, 0, -1));
-				$likers .= ' ' . $this->l10n->t('and') . ' ' . $links[count($links)-1];
-			} else  {
+				$likers .= ' ' . $this->l10n->t('and') . ' ' . $links[count($links) - 1];
+			} else {
 				$likers = implode(', ', array_slice($links, 0, MAX_LIKERS - 1));
 				$likers .= ' ' . $this->l10n->t('and %d other people', $total - MAX_LIKERS);
 			}
@@ -246,7 +247,7 @@ class Conversation
 					$explikers = $this->l10n->t('%s don\'t like this.', $likers);
 					break;
 				case 'attendyes':
-					$phrase = $this->l10n->t('<span  %1$s>%2$d people</span> attend', $spanatts, $total);
+					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> attend', $spanatts, $total);
 					$explikers = $this->l10n->t('%s attend.', $likers);
 					break;
 				case 'attendno':
@@ -268,8 +269,8 @@ class Conversation
 
 		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
 			'$phrase' => $phrase,
-			'$type' => $verb,
-			'$id' => $id
+			'$type'   => $verb,
+			'$id'     => $id
 		]);
 		$o .= $expanded;
 
@@ -592,7 +593,7 @@ class Conversation
 
 					$tags = Tag::populateFromItem($item);
 
-					$author = ['uid' => 0, 'id' => $item['author-id'], 'network' => $item['author-network'], 'url' => $item['author-link']];
+					$author       = ['uid' => 0, 'id' => $item['author-id'], 'network' => $item['author-network'], 'url' => $item['author-link']];
 					$profile_link = Contact::magicLinkByContact($author);
 
 					$sparkle = '';
@@ -686,7 +687,7 @@ class Conversation
 						'like_html'            => '',
 						'dislike_html '        => '',
 						'comment_html'         => '',
-						'conv'                 => (($preview) ? '' : ['href'=> 'display/'.$item['guid'], 'title'=> $this->l10n->t('View in context')]),
+						'conv'                 => ($preview ? '' : ['href' => 'display/' . $item['guid'], 'title'=> $this->l10n->t('View in context')]),
 						'previewing'           => $previewing,
 						'wait'                 => $this->l10n->t('Please wait'),
 						'thread_level'         => 1,
@@ -695,9 +696,9 @@ class Conversation
 					$arr = ['item' => $item, 'output' => $tmp_item];
 					Hook::callAll('display_item', $arr);
 
-					$threads[$threadsid]['id'] = $item['id'];
+					$threads[$threadsid]['id']      = $item['id'];
 					$threads[$threadsid]['network'] = $item['network'];
-					$threads[$threadsid]['items'] = [$arr['output']];
+					$threads[$threadsid]['items']   = [$arr['output']];
 
 				}
 			} else {
@@ -756,7 +757,7 @@ class Conversation
 			'$mode'        => $mode,
 			'$update'      => $update,
 			'$threads'     => $threads,
-			'$dropping'    => ($page_dropping ? $this->l10n->t('Delete Selected Items') : False),
+			'$dropping'    => ($page_dropping ? $this->l10n->t('Delete Selected Items') : false),
 		]);
 
 		$this->profiler->stopRecording();
@@ -794,7 +795,8 @@ class Conversation
 	 *
 	 * @return array items with parents and comments
 	 */
-	private function addRowInformation(array $row, array $activity) {
+	private function addRowInformation(array $row, array $activity)
+	{
 		$this->profiler->startRecording('rendering');
 
 		if ($row['uid'] == 0) {
@@ -886,7 +888,8 @@ class Conversation
 	 * @return array items with parents and comments
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function addChildren(array $parents, $block_authors, $order, $uid) {
+	private function addChildren(array $parents, $block_authors, $order, $uid)
+	{
 		$this->profiler->startRecording('rendering');
 		if (count($parents) > 1) {
 			$max_comments = $this->config->get('system', 'max_comments', 100);
@@ -980,6 +983,7 @@ class Conversation
 
 					if ($thr_parent == $parent['uri-id']) {
 						$item['children'] = $this->getItemChildren($item_list, $item);
+
 						$children[] = $item;
 						unset($item_list[$i]);
 					}
@@ -1059,7 +1063,7 @@ class Conversation
 
 			if (isset($child['children']) && count($child['children'])) {
 				// This helps counting only the regular posts
-				$count_post_closure = function($var) {
+				$count_post_closure = function ($var) {
 					$this->profiler->stopRecording();
 					return $var['verb'] === Activity::POST;
 				};
@@ -1073,7 +1077,7 @@ class Conversation
 
 					// Searches the post item in the children
 					$j = 0;
-					while($child['children'][$j]['verb'] !== Activity::POST && $j < count($child['children'])) {
+					while ($child['children'][$j]['verb'] !== Activity::POST && $j < count($child['children'])) {
 						$j ++;
 					}
 
@@ -1144,9 +1148,8 @@ class Conversation
 		* items and add them as children of their top-level post.
 		*/
 		foreach ($parents as $i => $parent) {
-			$parents[$i]['children'] =
-				array_merge($this->getItemChildren($item_array, $parent, true),
-					$this->getItemChildren($item_array, $parent, false));
+			$parents[$i]['children'] = array_merge($this->getItemChildren($item_array, $parent, true),
+				$this->getItemChildren($item_array, $parent, false));
 		}
 
 		foreach ($parents as $i => $parent) {
