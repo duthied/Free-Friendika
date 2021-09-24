@@ -138,7 +138,6 @@ class Community extends BaseModule
 			return $o;
 		}
 
-//		$o .= conversation(DI::app(), $items, 'community', false, false, 'commented', local_user());
 		$o .= DI::conversation()->create($items, 'community', false, false, 'commented', local_user());
 
 		$pager = new BoundariesPager(

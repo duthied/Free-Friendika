@@ -287,15 +287,15 @@ class Conversation
 		$this->profiler->startRecording('rendering');
 		$o = '';
 
-		$x['allow_location']   = $x['allow_location']   ?? $user['allow_location'];
+		$x['allow_location']   = $x['allow_location'] ?? $user['allow_location'];
 		$x['default_location'] = $x['default_location'] ?? $user['default-location'];
-		$x['nickname']         = $x['nickname']         ?? $user['nickname'];
-		$x['lockstate']        = $x['lockstate']        ?? ACL::getLockstateForUserId($user['uid']) ? 'lock' : 'unlock';
-		$x['acl']              = $x['acl']              ?? ACL::getFullSelectorHTML($this->page, $user['uid'], true);
-		$x['bang']             = $x['bang']             ?? '';
-		$x['visitor']          = $x['visitor']          ?? 'block';
-		$x['is_owner']         = $x['is_owner']         ?? true;
-		$x['profile_uid']      = $x['profile_uid']      ?? local_user();
+		$x['nickname']         = $x['nickname'] ?? $user['nickname'];
+		$x['lockstate']        = $x['lockstate'] ?? ACL::getLockstateForUserId($user['uid']) ? 'lock' : 'unlock';
+		$x['acl']              = $x['acl'] ?? ACL::getFullSelectorHTML($this->page, $user['uid'], true);
+		$x['bang']             = $x['bang'] ?? '';
+		$x['visitor']          = $x['visitor'] ?? 'block';
+		$x['is_owner']         = $x['is_owner'] ?? true;
+		$x['profile_uid']      = $x['profile_uid'] ?? local_user();
 
 
 		$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
@@ -376,7 +376,7 @@ class Conversation
 			'$rand_num'     => Crypto::randomDigits(12),
 
 			// ACL permissions box
-			'$acl'           => $x['acl'],
+			'$acl' => $x['acl'],
 
 			//jot nav tab (used in some themes)
 			'$message' => $this->l10n->t('Message'),
@@ -442,16 +442,16 @@ class Conversation
 					. "; var netargs = '" . substr($this->args->getCommand(), 8)
 					. '?f='
 					. (!empty($_GET['contactid']) ? '&contactid=' . rawurlencode($_GET['contactid']) : '')
-					. (!empty($_GET['search'])    ? '&search='    . rawurlencode($_GET['search'])    : '')
-					. (!empty($_GET['star'])      ? '&star='      . rawurlencode($_GET['star'])      : '')
-					. (!empty($_GET['order'])     ? '&order='     . rawurlencode($_GET['order'])     : '')
-					. (!empty($_GET['bmark'])     ? '&bmark='     . rawurlencode($_GET['bmark'])     : '')
-					. (!empty($_GET['liked'])     ? '&liked='     . rawurlencode($_GET['liked'])     : '')
-					. (!empty($_GET['conv'])      ? '&conv='      . rawurlencode($_GET['conv'])      : '')
-					. (!empty($_GET['nets'])      ? '&nets='      . rawurlencode($_GET['nets'])      : '')
-					. (!empty($_GET['cmin'])      ? '&cmin='      . rawurlencode($_GET['cmin'])      : '')
-					. (!empty($_GET['cmax'])      ? '&cmax='      . rawurlencode($_GET['cmax'])      : '')
-					. (!empty($_GET['file'])      ? '&file='      . rawurlencode($_GET['file'])      : '')
+					. (!empty($_GET['search']) ? '&search=' . rawurlencode($_GET['search']) : '')
+					. (!empty($_GET['star']) ? '&star=' . rawurlencode($_GET['star']) : '')
+					. (!empty($_GET['order']) ? '&order=' . rawurlencode($_GET['order']) : '')
+					. (!empty($_GET['bmark']) ? '&bmark=' . rawurlencode($_GET['bmark']) : '')
+					. (!empty($_GET['liked']) ? '&liked=' . rawurlencode($_GET['liked']) : '')
+					. (!empty($_GET['conv']) ? '&conv=' . rawurlencode($_GET['conv']) : '')
+					. (!empty($_GET['nets']) ? '&nets=' . rawurlencode($_GET['nets']) : '')
+					. (!empty($_GET['cmin']) ? '&cmin=' . rawurlencode($_GET['cmin']) : '')
+					. (!empty($_GET['cmax']) ? '&cmax=' . rawurlencode($_GET['cmax']) : '')
+					. (!empty($_GET['file']) ? '&file=' . rawurlencode($_GET['file']) : '')
 
 					. "'; </script>\r\n";
 			}
@@ -535,10 +535,10 @@ class Conversation
 		}
 
 		// array with html for each thread (parent+comments)
-		$threads = [];
+		$threads   = [];
 		$threadsid = -1;
 
-		$page_template = Renderer::getMarkupTemplate("conversation.tpl");
+		$page_template     = Renderer::getMarkupTemplate("conversation.tpl");
 		$formSecurityToken = BaseModule::getFormSecurityToken('contact_action');
 
 		if (!empty($items)) {
@@ -592,8 +592,7 @@ class Conversation
 
 					$tags = Tag::populateFromItem($item);
 
-					$author = ['uid' => 0, 'id' => $item['author-id'],
-						'network' => $item['author-network'], 'url' => $item['author-link']];
+					$author = ['uid' => 0, 'id' => $item['author-id'], 'network' => $item['author-network'], 'url' => $item['author-link']];
 					$profile_link = Contact::magicLinkByContact($author);
 
 					$sparkle = '';
@@ -615,8 +614,8 @@ class Conversation
 					$drop = [
 						'dropping' => $dropping,
 						'pagedrop' => $page_dropping,
-						'select' => $this->l10n->t('Select'),
-						'delete' => $this->l10n->t('Delete'),
+						'select'   => $this->l10n->t('Select'),
+						'delete'   => $this->l10n->t('Delete'),
 					];
 
 					$likebuttons = [
@@ -750,14 +749,14 @@ class Conversation
 		}
 
 		$o = Renderer::replaceMacros($page_template, [
-			'$baseurl' => $this->baseURL->get($ssl_state),
+			'$baseurl'     => $this->baseURL->get($ssl_state),
 			'$return_path' => $this->args->getQueryString(),
 			'$live_update' => $live_update_div,
-			'$remove' => $this->l10n->t('remove'),
-			'$mode' => $mode,
-			'$update' => $update,
-			'$threads' => $threads,
-			'$dropping' => ($page_dropping ? $this->l10n->t('Delete Selected Items') : False),
+			'$remove'      => $this->l10n->t('remove'),
+			'$mode'        => $mode,
+			'$update'      => $update,
+			'$threads'     => $threads,
+			'$dropping'    => ($page_dropping ? $this->l10n->t('Delete Selected Items') : False),
 		]);
 
 		$this->profiler->stopRecording();
@@ -902,7 +901,7 @@ class Conversation
 		$commentcounter  = [];
 		$activitycounter = [];
 
-		foreach ($parents AS $parent) {
+		foreach ($parents as $parent) {
 			if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == GRAVITY_ACTIVITY)) {
 				$uriid = $parent['thr-parent-id'];
 				if (!empty($parent['author-id'])) {
