@@ -696,7 +696,6 @@ class Conversation
 					$threads[$threadsid]['id']      = $item['id'];
 					$threads[$threadsid]['network'] = $item['network'];
 					$threads[$threadsid]['items']   = [$arr['output']];
-
 				}
 			} else {
 				// Normal View
