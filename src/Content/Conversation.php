@@ -25,9 +25,6 @@ use Friendica\App;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\BaseModule;
-use Friendica\Content\ContactSelector;
-use Friendica\Content\Feature;
-use Friendica\Content\Item;
 use Friendica\Core\ACL;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\Hook;
@@ -687,7 +684,7 @@ class Conversation
 						'like_html'            => '',
 						'dislike_html '        => '',
 						'comment_html'         => '',
-						'conv'                 => ($preview ? '' : ['href' => 'display/' . $item['guid'], 'title'=> $this->l10n->t('View in context')]),
+						'conv'                 => ($preview ? '' : ['href' => 'display/' . $item['guid'], 'title' => $this->l10n->t('View in context')]),
 						'previewing'           => $previewing,
 						'wait'                 => $this->l10n->t('Please wait'),
 						'thread_level'         => 1,
@@ -847,8 +844,8 @@ class Conversation
 				}
 
 				if (($row['gravity'] == GRAVITY_PARENT) && !empty($row['causer-id'])) {
-					$causer = ['uid' => 0, 'id' => $row['causer-id'],
-						'network' => $row['causer-network'], 'url' => $row['causer-link']];
+					$causer = ['uid' => 0, 'id' => $row['causer-id'], 'network' => $row['causer-network'], 'url' => $row['causer-link']];
+
 					$row['reshared'] = $this->l10n->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($row['causer-name']) . '</a>');
 				}
 				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Reshared') : $this->l10n->t('Reshared by %s <%s>', $row['causer-name'], $row['causer-link']))];
