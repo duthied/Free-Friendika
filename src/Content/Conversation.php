@@ -285,15 +285,15 @@ class Conversation
 		$this->profiler->startRecording('rendering');
 		$o = '';
 
-		$x['allow_location']   = $x['allow_location'] ?? $user['allow_location'];
+		$x['allow_location']   = $x['allow_location']   ?? $user['allow_location'];
 		$x['default_location'] = $x['default_location'] ?? $user['default-location'];
-		$x['nickname']         = $x['nickname'] ?? $user['nickname'];
-		$x['lockstate']        = $x['lockstate'] ?? ACL::getLockstateForUserId($user['uid']) ? 'lock' : 'unlock';
-		$x['acl']              = $x['acl'] ?? ACL::getFullSelectorHTML($this->page, $user['uid'], true);
-		$x['bang']             = $x['bang'] ?? '';
-		$x['visitor']          = $x['visitor'] ?? 'block';
-		$x['is_owner']         = $x['is_owner'] ?? true;
-		$x['profile_uid']      = $x['profile_uid'] ?? local_user();
+		$x['nickname']         = $x['nickname']         ?? $user['nickname'];
+		$x['lockstate']        = $x['lockstate']        ?? ACL::getLockstateForUserId($user['uid']) ? 'lock' : 'unlock';
+		$x['acl']              = $x['acl']              ?? ACL::getFullSelectorHTML($this->page, $user['uid'], true);
+		$x['bang']             = $x['bang']             ?? '';
+		$x['visitor']          = $x['visitor']          ?? 'block';
+		$x['is_owner']         = $x['is_owner']         ?? true;
+		$x['profile_uid']      = $x['profile_uid']      ?? local_user();
 
 
 		$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
@@ -440,16 +440,16 @@ class Conversation
 					. "; var netargs = '" . substr($this->args->getCommand(), 8)
 					. '?f='
 					. (!empty($_GET['contactid']) ? '&contactid=' . rawurlencode($_GET['contactid']) : '')
-					. (!empty($_GET['search']) ? '&search=' . rawurlencode($_GET['search']) : '')
-					. (!empty($_GET['star']) ? '&star=' . rawurlencode($_GET['star']) : '')
-					. (!empty($_GET['order']) ? '&order=' . rawurlencode($_GET['order']) : '')
-					. (!empty($_GET['bmark']) ? '&bmark=' . rawurlencode($_GET['bmark']) : '')
-					. (!empty($_GET['liked']) ? '&liked=' . rawurlencode($_GET['liked']) : '')
-					. (!empty($_GET['conv']) ? '&conv=' . rawurlencode($_GET['conv']) : '')
-					. (!empty($_GET['nets']) ? '&nets=' . rawurlencode($_GET['nets']) : '')
-					. (!empty($_GET['cmin']) ? '&cmin=' . rawurlencode($_GET['cmin']) : '')
-					. (!empty($_GET['cmax']) ? '&cmax=' . rawurlencode($_GET['cmax']) : '')
-					. (!empty($_GET['file']) ? '&file=' . rawurlencode($_GET['file']) : '')
+					. (!empty($_GET['search'])    ? '&search='    . rawurlencode($_GET['search'])    : '')
+					. (!empty($_GET['star'])      ? '&star='      . rawurlencode($_GET['star'])      : '')
+					. (!empty($_GET['order'])     ? '&order='     . rawurlencode($_GET['order'])     : '')
+					. (!empty($_GET['bmark'])     ? '&bmark='     . rawurlencode($_GET['bmark'])     : '')
+					. (!empty($_GET['liked'])     ? '&liked='     . rawurlencode($_GET['liked'])     : '')
+					. (!empty($_GET['conv'])      ? '&conv='      . rawurlencode($_GET['conv'])      : '')
+					. (!empty($_GET['nets'])      ? '&nets='      . rawurlencode($_GET['nets'])      : '')
+					. (!empty($_GET['cmin'])      ? '&cmin='      . rawurlencode($_GET['cmin'])      : '')
+					. (!empty($_GET['cmax'])      ? '&cmax='      . rawurlencode($_GET['cmax'])      : '')
+					. (!empty($_GET['file'])      ? '&file='      . rawurlencode($_GET['file'])      : '')
 
 					. "'; </script>\r\n";
 			}
