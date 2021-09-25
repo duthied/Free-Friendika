@@ -165,7 +165,7 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			Logger::error('compacting error', ['line' => $e->getLine(), 'message' => $e->getMessage()]);
+			Logger::notice('compacting error', ['line' => $e->getLine(), 'exception' => $e]);
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
