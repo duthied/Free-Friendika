@@ -1116,7 +1116,11 @@ class ParseUrl
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'image', 'url', '@type', 'ImageObject');
-		if (!empty($content)) {
+		if (!empty($content) && !is_string($content)) {
+			Logger::notice('Unexpected return value for the author image', ['content' => $content]);
+		}
+
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['author_img'] = trim($content);
 		}
 

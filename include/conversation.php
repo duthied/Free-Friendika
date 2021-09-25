@@ -312,7 +312,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				. "'; </script>\r\n";
 		}
 	} elseif ($mode === 'profile') {
-		$items = conversation_add_children($items, false, $order, $uid);
+		$items = conversation_add_children($items, false, $order, local_user());
 
 		if (!$update) {
 			$tab = 'posts';
@@ -400,7 +400,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 	$formSecurityToken = BaseModule::getFormSecurityToken('contact_action');
 
 	if (!empty($items)) {
-		if (in_array($mode, ['community', 'contacts'])) {
+		if (in_array($mode, ['community', 'contacts', 'profile'])) {
 			$writable = true;
 		} else {
 			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);

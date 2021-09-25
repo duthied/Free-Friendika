@@ -15,6 +15,22 @@ steps:
 ---
 kind: pipeline
 type: docker
+name: Integrity checks
+
+steps:
+  - name: Check database version
+    image: alpine
+    commands:
+      - export DBSTRUCTURE_VERSION="$(sed -rn "s/.*'DB_UPDATE_VERSION', ([0-9]+).*/\1/p" static/dbstructure.config.php)"
+      - export DATABASE_VERSION="$(sed -rn 's/.*DB_UPDATE_VERSION ([0-9]+).*/\1/p' database.sql)"
+      - echo "Database $DATABASE_VERSION - DB-Structure $DBSTRUCTURE_VERSION"
+      - if [[ "$DBSTRUCTURE_VERSION" != "$DATABASE_VERSION" ]]; then
+          echo "Database version mismatch.";
+          exit 1;
+        fi
+---
+kind: pipeline
+type: docker
 name: php7.3-lint
 
 steps:
