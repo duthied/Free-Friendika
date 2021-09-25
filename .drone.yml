@@ -410,6 +410,7 @@ steps:
       - # calculate SHA256 checksum
       - cd ./build
       - sha256sum "$ARTIFACT" > "$ARTIFACT.sum256"
+      - chmod 664 ./*
       - ls -lh
       - # output the sha256 sum for checking
       - cat "$ARTIFACT.sum256"
@@ -518,6 +519,7 @@ steps:
       - # calculate SHA256 checksum
       - cd ./build
       - sha256sum "$ARTIFACT" > "$ARTIFACT.sum256"
+      - chmod 664 ./*
       - ls -lh
       - # output the sha256 sum for checking
       - cat "$ARTIFACT.sum256"
