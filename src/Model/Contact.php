@@ -809,7 +809,6 @@ class Contact
 	 * Marks a contact for removal
 	 *
 	 * @param int $id contact id
-	 * @return null
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function remove($id)
@@ -828,56 +827,26 @@ class Contact
 	}
 
 	/**
-	 * Sends an unfriend message. Does not remove the contact
+	 * Sends an unfriend message. Removes the contact for two-way unfriending or sharing only protocols (feed an mail)
 	 *
-	 * @param array   $user     User unfriending
-	 * @param array   $contact  Contact unfriended
-	 * @param boolean $dissolve Remove the contact on the remote side
-	 * @return void
+	 * @param array   $user    User unfriending
+	 * @param array   $contact Contact unfriended
+	 * @param boolean $two_way Revoke eventual inbound follow as well
+	 * @return bool|null true if successful, false if not, null if no action was performed
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function terminateFriendship(array $user, array $contact, $dissolve = false)
+	public static function terminateFriendship(array $user, array $contact, bool $two_way = false): bool
 	{
-		if (empty($contact['network'])) {
-			return;
-		}
+		$result = Protocol::terminateFriendship($user, $contact, $two_way);
 
-		$protocol = $contact['network'];
-		if (($protocol == Protocol::DFRN) && !empty($contact['protocol'])) {
-			$protocol = $contact['protocol'];
-		}
-
-		if (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
-			// create an unfollow slap
-			$item = [];
-			$item['verb'] = Activity::O_UNFOLLOW;
-			$item['gravity'] = GRAVITY_ACTIVITY;
-			$item['follow'] = $contact["url"];
-			$item['body'] = '';
-			$item['title'] = '';
-			$item['guid'] = '';
-			$item['uri-id'] = 0;
-			$slap = OStatus::salmon($item, $user);
-
-			if (!empty($contact['notify'])) {
-				Salmon::slapper($user, $contact['notify'], $slap);
-			}
-		} elseif ($protocol == Protocol::DIASPORA) {
-			Diaspora::sendUnshare($user, $contact);
-		} elseif ($protocol == Protocol::ACTIVITYPUB) {
-			ActivityPub\Transmitter::sendContactUndo($contact['url'], $contact['id'], $user['uid']);
-
-			if ($dissolve) {
-				ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $user['uid']);
-			}
+		if ($two_way || in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
+			self::remove($contact['id']);
 		} else {
-			$hook_data = [
-				'contact' => $contact,
-				'dissolve' => $dissolve,
-			];
-			Hook::callAll('unfollow', $hook_data);
+			self::update(['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
 		}
+
+		return $result;
 	}
 
 	/**
