@@ -33,7 +33,6 @@ return $config
 			'operators' => [
 				'=>' => 'align_single_space_minimal',
 				'='  => 'align_single_space_minimal',
-				':'  => 'align_single_space_minimal',
 			],
 		],
 		'blank_line_after_namespace'   => true,
