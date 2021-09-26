@@ -285,7 +285,7 @@ class Conversation
 		$this->profiler->startRecording('rendering');
 		$o = '';
 
-		$x['allow_location']   = $x['allow_location']  ?? $user['allow_location'];
+		$x['allow_location']   = $x['allow_location'] ?? $user['allow_location'];
 		$x['default_location'] = $x['default_location'] ?? $user['default-location'];
 		$x['nickname']         = $x['nickname'] ?? $user['nickname'];
 		$x['lockstate']        = $x['lockstate'] ?? ACL::getLockstateForUserId($user['uid']) ? 'lock' : 'unlock';
