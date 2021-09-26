@@ -673,6 +673,11 @@ class DBStructure
 						$current_field_definition = DBA::cleanQuery(implode(",", $field_definition));
 						$new_field_definition = DBA::cleanQuery(implode(",", $parameters));
 						if ($current_field_definition != $new_field_definition) {
+							// When the field structure changes then we will not perform the special index handling for MySQL.
+							// See issue #10768
+							$is_unique = false;
+							$temp_name = $name;
+			
 							$sql2 = self::modifyTableField($fieldname, $parameters);
 							if ($sql3 == "") {
 								$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
