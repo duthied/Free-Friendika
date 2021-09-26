@@ -200,7 +200,7 @@ class Index extends BaseSearch
 
 		Logger::info('Start Conversation.', ['q' => $search]);
 
-		$o .= conversation(DI::app(), $items, 'search', false, false, 'commented', local_user());
+		$o .= DI::conversation()->create($items, 'search', false, false, 'commented', local_user());
 
 		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();

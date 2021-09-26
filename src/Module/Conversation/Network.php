@@ -145,7 +145,7 @@ class Network extends BaseModule
 				'content' => $content,
 			];
 
-			$o .= status_editor($a, $x);
+			$o .= DI::conversation()->statusEditor($x);
 		}
 
 		if (self::$groupId) {
@@ -178,7 +178,7 @@ class Network extends BaseModule
 			$ordering = '`commented`';
 		}
 
-		$o .= conversation(DI::app(), $items, 'network', false, false, $ordering, local_user());
+		$o .= DI::conversation()->create($items, 'network', false, false, $ordering, local_user());
 
 		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();

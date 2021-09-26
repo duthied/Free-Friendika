@@ -526,7 +526,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('enotify_mail', $datarray);
     Hook::callAll('check_item_notification', $notification_data);
 
-### include/conversation.php
+### src/Content/Conversation.php
 
     Hook::callAll('conversation_start', $cb);
     Hook::callAll('render_location', $locate);

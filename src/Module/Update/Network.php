@@ -53,7 +53,7 @@ class Network extends NetworkModule
 				$ordering = '`commented`';
 			}
 
-			$o = conversation(DI::app(), $items, 'network', $profile_uid, false, $ordering, local_user());
+			$o = DI::conversation()->create($items, 'network', $profile_uid, false, $ordering, local_user());
 		}
 
 		System::htmlUpdateExit($o);

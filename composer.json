@@ -84,7 +84,6 @@
 			"Friendica\\Addon\\": "addon/"
 		},
 		"files": [
-			"include/conversation.php",
 			"include/dba.php",
 			"include/enotify.php",
 			"boot.php"

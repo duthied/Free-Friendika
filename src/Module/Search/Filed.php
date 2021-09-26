@@ -79,7 +79,7 @@ class Filed extends BaseSearch
 
 		$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, $item_condition, $item_params));
 
-		$o .= conversation(DI::app(), $items, 'filed', false, false, '', local_user());
+		$o .= DI::conversation()->create($items, 'filed', false, false, '', local_user());
 
 		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();

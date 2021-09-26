@@ -2997,7 +2997,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
 	}
 
-	localize_item($item);
+	DI::contentItem()->localize($item);
 
 	$in_reply_to = api_in_reply_to($item);
 

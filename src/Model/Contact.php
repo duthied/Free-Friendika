@@ -1420,11 +1420,11 @@ class Contact
 		if ($thread_mode) {
 			$items = Post::toArray(Post::selectForUser(local_user(), ['uri-id', 'gravity', 'parent-uri-id', 'thr-parent-id', 'author-id'], $condition, $params));
 
-			$o .= conversation($a, $items, 'contacts', $update, false, 'commented', local_user());
+			$o .= DI::conversation()->create($items, 'contacts', $update, false, 'commented', local_user());
 		} else {
 			$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
 
-			$o .= conversation($a, $items, 'contact-posts', $update);
+			$o .= DI::conversation()->create($items, 'contact-posts', $update);
 		}
 
 		if (!$update) {

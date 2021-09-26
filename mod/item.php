@@ -677,7 +677,7 @@ function item_post(App $a) {
 		$datarray["uri-id"] = -1;
 		$datarray["author-network"] = Protocol::DFRN;
 
-		$o = conversation($a, [array_merge($contact_record, $datarray)], 'search', false, true);
+		$o = DI::conversation()->create([array_merge($contact_record, $datarray)], 'search', false, true);
 
 		System::jsonExit(['preview' => $o]);
 	}
