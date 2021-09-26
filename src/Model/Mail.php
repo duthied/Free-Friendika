@@ -74,9 +74,7 @@ class Mail
 			return false;
 		}
 
-		if ($msg['reply']) {
-			$reply = DBA::selectFirst('mail', ['uri', 'uri-id'], ['parent-uri' => $msg['parent-uri'], 'reply' => false]);
-
+		if ($msg['reply'] && DBA::isResult($reply = DBA::selectFirst('mail', ['uri', 'uri-id'], ['parent-uri' => $msg['parent-uri'], 'reply' => false]))) {
 			$msg['thr-parent']    = $reply['uri'];
 			$msg['thr-parent-id'] = $reply['uri-id'];
 		} else {
