@@ -1931,27 +1931,31 @@ class OStatus
 		if ($item['gravity'] != GRAVITY_PARENT) {
 			$parent = Post::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item['parent']]);
 
-			$thrparent = Post::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner["uid"], 'uri' => $item['thr-parent']]);
+			$thrparent = Post::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner['uid'], 'uri' => $item['thr-parent']]);
 
 			if (DBA::isResult($thrparent)) {
-				$mentioned[$thrparent["author-link"]] = $thrparent["author-link"];
-				$mentioned[$thrparent["owner-link"]] = $thrparent["owner-link"];
-				$parent_plink = $thrparent["plink"];
+				$mentioned[$thrparent['author-link']] = $thrparent['author-link'];
+				$mentioned[$thrparent['owner-link']]  = $thrparent['owner-link'];
+				$parent_plink                         = $thrparent['plink'];
+			} elseif (DBA::isResult($parent)) {
+				$mentioned[$parent['author-link']] = $parent['author-link'];
+				$mentioned[$parent['owner-link']]  = $parent['owner-link'];
+				$parent_plink                      = DI::baseUrl() . '/display/' . $parent['guid'];
 			} else {
-				$mentioned[$parent["author-link"]] = $parent["author-link"];
-				$mentioned[$parent["owner-link"]] = $parent["owner-link"];
-				$parent_plink = DI::baseUrl()."/display/".$parent["guid"];
+				DI::logger()->notice('Missing parent and thr-parent for child item', ['item' => $item]);
 			}
 
-			$attributes = [
-					"ref" => $item['thr-parent'],
-					"href" => $parent_plink];
-			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
+			if (isset($parent_plink)) {
+				$attributes = [
+					'ref'  => $item['thr-parent'],
+					'href' => $parent_plink];
+				XML::addElement($doc, $entry, 'thr:in-reply-to', '', $attributes);
 
-			$attributes = [
-					"rel" => "related",
-					"href" => $parent_plink];
-			XML::addElement($doc, $entry, "link", "", $attributes);
+				$attributes = [
+					'rel'  => 'related',
+					'href' => $parent_plink];
+				XML::addElement($doc, $entry, 'link', '', $attributes);
+			}
 		}
 
 		if (intval($item['parent']) > 0) {
