@@ -372,7 +372,7 @@ class Item
 
 		// add sparkle links to appropriate permalinks
 		// Only create a redirection to a magic link when logged in
-		if (!empty($item['plink']) && Session::isAuthenticated()) {
+		if (!empty($item['plink']) && Session::isAuthenticated() && $item['private'] == ModelItem::PRIVATE) {
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$item['plink'] = Contact::magicLinkByContact($author, $item['plink']);
