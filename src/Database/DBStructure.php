@@ -593,10 +593,7 @@ class DBStructure
 		// Compare it
 		foreach ($definition AS $name => $structure) {
 			$is_new_table = false;
-			$group_by = "";
 			$sql3 = "";
-			$is_unique = false;
-			$temp_name = $name;
 			if (!isset($database[$name])) {
 				$r = self::createTable($name, $structure, $verbose, $action);
 				if (!DBA::isResult($r)) {
@@ -604,23 +601,6 @@ class DBStructure
 				}
 				$is_new_table = true;
 			} else {
-				foreach ($structure["indexes"] AS $indexname => $fieldnames) {
-					if (isset($database[$name]["indexes"][$indexname])) {
-						$current_index_definition = implode(",", $database[$name]["indexes"][$indexname]);
-					} else {
-						$current_index_definition = "__NOT_SET__";
-					}
-					$new_index_definition = implode(",", $fieldnames);
-					if ($current_index_definition != $new_index_definition) {
-						if ($fieldnames[0] == "UNIQUE") {
-							$is_unique = true;
-							if ($ignore == "") {
-								$temp_name = "temp-" . $name;
-							}
-						}
-					}
-				}
-
 				/*
 				 * Drop the index if it isn't present in the definition
 				 * or the definition differ from current status
@@ -636,7 +616,7 @@ class DBStructure
 					if ($current_index_definition != $new_index_definition && substr($indexname, 0, 6) != 'local_') {
 						$sql2 = self::dropIndex($indexname);
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
 							$sql3 .= ", " . $sql2;
 						}
@@ -647,7 +627,7 @@ class DBStructure
 					if (!isset($database[$name]["fields"][$fieldname])) {
 						$sql2 = self::addTableField($fieldname, $parameters);
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
 							$sql3 .= ", " . $sql2;
 						}
@@ -673,14 +653,9 @@ class DBStructure
 						$current_field_definition = DBA::cleanQuery(implode(",", $field_definition));
 						$new_field_definition = DBA::cleanQuery(implode(",", $parameters));
 						if ($current_field_definition != $new_field_definition) {
-							// When the field structure changes then we will not perform the special index handling for MySQL.
-							// See issue #10768
-							$is_unique = false;
-							$temp_name = $name;
-			
 							$sql2 = self::modifyTableField($fieldname, $parameters);
 							if ($sql3 == "") {
-								$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+								$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 							} else {
 								$sql3 .= ", " . $sql2;
 							}
@@ -705,11 +680,9 @@ class DBStructure
 					if ($current_index_definition != $new_index_definition) {
 						$sql2 = self::createIndex($indexname, $fieldnames);
 
-						// Fetch the "group by" fields for unique indexes
-						$group_by = self::groupBy($fieldnames);
 						if ($sql2 != "") {
 							if ($sql3 == "") {
-								$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+								$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 							} else {
 								$sql3 .= ", " . $sql2;
 							}
@@ -734,7 +707,7 @@ class DBStructure
 						$sql2 = self::addForeignKey($name, $fieldname, $parameters);
 
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
 							$sql3 .= ", " . $sql2;
 						}
@@ -745,7 +718,7 @@ class DBStructure
 					$sql2 = self::dropForeignKey($param['CONSTRAINT_NAME']);
 
 					if ($sql3 == "") {
-						$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+						$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 					} else {
 						$sql3 .= ", " . $sql2;
 					}
@@ -757,7 +730,7 @@ class DBStructure
 						$sql2 = "COMMENT = '" . DBA::escape($structurecomment) . "'";
 
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
 							$sql3 .= ", " . $sql2;
 						}
@@ -769,7 +742,7 @@ class DBStructure
 						$sql2 = "ENGINE = '" . DBA::escape($structure['engine']) . "'";
 
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
 							$sql3 .= ", " . $sql2;
 						}
@@ -781,7 +754,7 @@ class DBStructure
 						$sql2 = "DEFAULT COLLATE utf8mb4_general_ci";
 
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
 							$sql3 .= ", " . $sql2;
 						}
@@ -808,7 +781,7 @@ class DBStructure
 					if ($field_definition['Collation'] != $parameters['Collation']) {
 						$sql2 = self::modifyTableField($fieldname, $parameters);
 						if (($sql3 == "") || (substr($sql3, -2, 2) == "; ")) {
-							$sql3 .= "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+							$sql3 .= "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
 							$sql3 .= ", " . $sql2;
 						}
@@ -821,36 +794,8 @@ class DBStructure
 					$sql3 .= ";";
 				}
 
-				$field_list = '';
-				if ($is_unique && $ignore == '') {
-					foreach ($database[$name]["fields"] AS $fieldname => $parameters) {
-						$field_list .= 'ANY_VALUE(`' . $fieldname . '`),';
-					}
-					$field_list = rtrim($field_list, ',');
-				}
-
 				if ($verbose) {
-					// Ensure index conversion to unique removes duplicates
-					if ($is_unique && ($temp_name != $name)) {
-						if ($ignore != "") {
-							echo "SET session old_alter_table=1;\n";
-						} else {
-							echo "DROP TABLE IF EXISTS `" . $temp_name . "`;\n";
-							echo "CREATE TABLE `" . $temp_name . "` LIKE `" . $name . "`;\n";
-						}
-					}
-
 					echo $sql3 . "\n";
-
-					if ($is_unique && ($temp_name != $name)) {
-						if ($ignore != "") {
-							echo "SET session old_alter_table=0;\n";
-						} else {
-							echo "INSERT INTO `" . $temp_name . "` SELECT " . DBA::anyValueFallback($field_list) . " FROM `" . $name . "`" . $group_by . ";\n";
-							echo "DROP TABLE `" . $name . "`;\n";
-							echo "RENAME TABLE `" . $temp_name . "` TO `" . $name . "`;\n";
-						}
-					}
 				}
 
 				if ($action) {
@@ -858,49 +803,9 @@ class DBStructure
 						DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
 					}
 
-					// Ensure index conversion to unique removes duplicates
-					if ($is_unique && ($temp_name != $name)) {
-						if ($ignore != "") {
-							DBA::e("SET session old_alter_table=1;");
-						} else {
-							$r = DBA::e("DROP TABLE IF EXISTS `" . $temp_name . "`;");
-							if (!DBA::isResult($r)) {
-								$errors .= self::printUpdateError($sql3);
-								return $errors;
-							}
-
-							$r = DBA::e("CREATE TABLE `" . $temp_name . "` LIKE `" . $name . "`;");
-							if (!DBA::isResult($r)) {
-								$errors .= self::printUpdateError($sql3);
-								return $errors;
-							}
-						}
-					}
-
 					$r = DBA::e($sql3);
 					if (!DBA::isResult($r)) {
 						$errors .= self::printUpdateError($sql3);
-					}
-					if ($is_unique && ($temp_name != $name)) {
-						if ($ignore != "") {
-							DBA::e("SET session old_alter_table=0;");
-						} else {
-							$r = DBA::e("INSERT INTO `" . $temp_name . "` SELECT " . $field_list . " FROM `" . $name . "`" . $group_by . ";");
-							if (!DBA::isResult($r)) {
-								$errors .= self::printUpdateError($sql3);
-								return $errors;
-							}
-							$r = DBA::e("DROP TABLE `" . $name . "`;");
-							if (!DBA::isResult($r)) {
-								$errors .= self::printUpdateError($sql3);
-								return $errors;
-							}
-							$r = DBA::e("RENAME TABLE `" . $temp_name . "` TO `" . $name . "`;");
-							if (!DBA::isResult($r)) {
-								$errors .= self::printUpdateError($sql3);
-								return $errors;
-							}
-						}
 					}
 				}
 			}
@@ -1063,37 +968,6 @@ class DBStructure
 	private static function dropForeignKey(string $constraint)
 	{
 		return sprintf("DROP FOREIGN KEY `%s`", $constraint);
-	}
-
-	/**
-	 * Constructs a GROUP BY clause from a UNIQUE index definition.
-	 *
-	 * @param array $fieldnames
-	 * @return string
-	 */
-	private static function groupBy(array $fieldnames)
-	{
-		if ($fieldnames[0] != "UNIQUE") {
-			return "";
-		}
-
-		array_shift($fieldnames);
-
-		$names = "";
-		foreach ($fieldnames AS $fieldname) {
-			if ($names != "") {
-				$names .= ",";
-			}
-
-			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
-				$names .= "`" . DBA::escape($matches[1]) . "`";
-			} else {
-				$names .= "`" . DBA::escape($fieldname) . "`";
-			}
-		}
-
-		$sql = sprintf(" GROUP BY %s", $names);
-		return $sql;
 	}
 
 	/**
