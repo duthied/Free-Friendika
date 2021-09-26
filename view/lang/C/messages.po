@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 18:44+0000\n"
+"POT-Creation-Date: 2021-09-26 03:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -717,7 +717,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr ""
 
 #: mod/follow.php:138 src/Content/Item.php:463 src/Content/Widget.php:76
-#: src/Model/Contact.php:1045 src/Model/Contact.php:1058
+#: src/Model/Contact.php:1051 src/Model/Contact.php:1064
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr ""
@@ -3001,31 +3001,31 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:443 src/Model/Contact.php:1050
+#: src/Content/Item.php:443 src/Model/Contact.php:1056
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:976
-#: src/Model/Contact.php:1042 src/Model/Contact.php:1051
+#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:982
+#: src/Model/Contact.php:1048 src/Model/Contact.php:1057
 #: src/Module/Directory.php:160 src/Module/Settings/Profile/Index.php:223
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:445 src/Model/Contact.php:1052
+#: src/Content/Item.php:445 src/Model/Contact.php:1058
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:446 src/Model/Contact.php:1043
-#: src/Model/Contact.php:1053
+#: src/Content/Item.php:446 src/Model/Contact.php:1049
+#: src/Model/Contact.php:1059
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1044
-#: src/Model/Contact.php:1054
+#: src/Content/Item.php:447 src/Model/Contact.php:1050
+#: src/Model/Contact.php:1060
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:448 src/Model/Contact.php:1056
+#: src/Content/Item.php:448 src/Model/Contact.php:1062
 msgid "Send PM"
 msgstr ""
 
@@ -3048,7 +3048,7 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-#: src/Content/Item.php:458 src/Model/Contact.php:1057
+#: src/Content/Item.php:458 src/Model/Contact.php:1063
 msgid "Poke"
 msgstr ""
 
@@ -3498,7 +3498,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:529 src/Model/Contact.php:1474
+#: src/Content/Widget.php:529 src/Model/Contact.php:1480
 msgid "News"
 msgstr ""
 
@@ -4362,85 +4362,85 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1046 src/Model/Contact.php:1059
+#: src/Model/Contact.php:1052 src/Model/Contact.php:1065
 msgid "UnFollow"
 msgstr ""
 
-#: src/Model/Contact.php:1055
+#: src/Model/Contact.php:1061
 msgid "Drop Contact"
 msgstr ""
 
-#: src/Model/Contact.php:1065 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1071 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:111
 #: src/Module/Notifications/Introductions.php:183
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1470
+#: src/Model/Contact.php:1476
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1478
+#: src/Model/Contact.php:1484
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2334
+#: src/Model/Contact.php:2340
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2339 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2345 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2344
+#: src/Model/Contact.php:2350
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2353
+#: src/Model/Contact.php:2359
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2390
+#: src/Model/Contact.php:2396
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2392
+#: src/Model/Contact.php:2398
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2395
+#: src/Model/Contact.php:2401
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2398
+#: src/Model/Contact.php:2404
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2401
+#: src/Model/Contact.php:2407
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2402
+#: src/Model/Contact.php:2408
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2408
+#: src/Model/Contact.php:2414
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2413
+#: src/Model/Contact.php:2419
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2472
+#: src/Model/Contact.php:2478
 msgid "Unable to retrieve contact information."
 msgstr ""
 
