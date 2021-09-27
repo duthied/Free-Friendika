@@ -150,8 +150,8 @@ class ParsedLogIteratorTest extends TestCase
 	{
 		$logfile = dirname(__DIR__) . '/../../datasets/log/empty.friendica.log.txt';
 
-		$reader    = new ReversedFileReader();
-		$pli = new ParsedLogIterator($reader);
+		$reader = new ReversedFileReader();
+		$pli    = new ParsedLogIterator($reader);
 		$pli->open($logfile);
 
 		$pls = iterator_to_array($pli, false);
