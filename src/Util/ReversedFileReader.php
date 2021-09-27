@@ -95,6 +95,9 @@ class ReversedFileReader implements \Iterator
 			if ($this->pos == 0) {
 				return array_pop($buffer);
 			}
+			if (is_null($buffer)) {
+				return null;
+			}
 			if (count($buffer) > 1) {
 				return array_pop($buffer);
 			}
