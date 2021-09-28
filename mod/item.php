@@ -177,10 +177,11 @@ function item_post(App $a) {
 	}
 
 	// Allow commenting if it is an answer to a public post
-	$allow_comment = local_user() && ($profile_uid == 0) && $toplevel_item_id && in_array($toplevel_item['network'], Protocol::FEDERATED);
+	$allow_comment = local_user() && $toplevel_item_id && in_array($toplevel_item['private'], [Item::PUBLIC, Item::UNLISTED]) && in_array($toplevel_item['network'], Protocol::FEDERATED);
 
 	// Now check that valid personal details have been provided
 	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
+		Logger::notice('Permission denied.', ['local' => local_user(), 'profile_uid' => $profile_uid, 'toplevel_item_id' => $toplevel_item_id, 'network' => $toplevel_item['network']]);
 		notice(DI::l10n()->t('Permission denied.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
@@ -931,6 +932,7 @@ function drop_item(int $id, string $return = '')
 
 		item_redirect_after_action($item, $return);
 	} else {
+		Logger::notice('Permission denied.', ['local' => local_user(), 'uid' => $item['uid'], 'cid' => $contact_id]);
 		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('display/' . $item['guid']);
 		//NOTREACHED
