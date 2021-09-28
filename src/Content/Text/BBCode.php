@@ -424,10 +424,12 @@ class BBCode
 	public static function removeAttachment($body, $no_link_desc = false)
 	{
 		return preg_replace_callback("/\s*\[attachment (.*?)\](.*?)\[\/attachment\]\s*/ism",
-			function ($match) use ($no_link_desc) {
+			function ($match) use ($body, $no_link_desc) {
 				$attach_data = self::getAttachmentData($match[0]);
 				if (empty($attach_data['url'])) {
 					return $match[0];
+				} elseif (strpos(str_replace($match[0], '', $body), $attach_data['url']) !== false) {
+					return '';
 				} elseif (empty($attach_data['title']) || $no_link_desc) {
 					return " \n[url]" . $attach_data['url'] . "[/url]\n";
 				} else {

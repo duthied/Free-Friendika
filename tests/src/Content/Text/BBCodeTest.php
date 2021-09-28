@@ -228,14 +228,14 @@ class BBCodeTest extends MockedTest
 				'text' => '[size=xx-large]Test text[/size]',
 				'try_oembed' => false,
 				// Triggers the diaspora compatible output
-				'simpleHtml' => 3,
+				'simpleHtml' => BBCode::DIASPORA,
 			],
 			'bug-2199-diaspora-no-numeric-size' => [
 				'expectedHtml' => 'Test text',
 				'text' => '[size=24]Test text[/size]',
 				'try_oembed' => false,
 				// Triggers the diaspora compatible output
-				'simpleHtml' => 3,
+				'simpleHtml' => BBCode::DIASPORA,
 			],
 			'bug-7665-audio-tag' => [
 				'expectedHtml' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
@@ -281,6 +281,16 @@ class BBCodeTest extends MockedTest
 			'bug-9639-span-classes' => [
 				'expectedHTML' => '<span class="arbitrary classes">Test</span>',
 				'text' => '[class=arbitrary classes]Test[/class]',
+			],
+			'bug-10772-duplicated-links' => [
+				'expectedHTML' => 'Jetzt wird mir klar, warum Kapitalisten jedes Mal durchdrehen wenn Marx und das Kapital ins Gespräch kommt. Soziopathen.<br>Karl Marx - Die ursprüngliche Akkumulation<br><a href="https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation" target="_blank" rel="noopener noreferrer">https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation</a><br>#Podcast #Kapitalismus',
+				'text' => "Jetzt wird mir klar, warum Kapitalisten jedes Mal durchdrehen wenn Marx und das Kapital ins Gespräch kommt. Soziopathen.
+Karl Marx - Die ursprüngliche Akkumulation
+[url=https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation]https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation[/url]
+#[url=https://horche.demkontinuum.de/search?tag=Podcast]Podcast[/url] #[url=https://horche.demkontinuum.de/search?tag=Kapitalismus]Kapitalismus[/url]
+[attachment type='link' url='https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation' title='Ep. 107: Karl Marx #8 - Die urspr&uuml;ngliche Akkumulation' publisher_name='Wohlstand f&uuml;r Alle' preview='https://images.podigee-cdn.net/0x,s6LXshYO7uhG23H431B30t4hxj1bQuzlTsUlze0F_-H8=/https://cdn.podigee.com/uploads/u8126/bd5fe4f4-38b7-4f3f-b269-6a0080144635.jpg']Wie der Kapitalismus funktioniert und inwieweit Menschen darin ausgebeutet werden, haben wir bereits besprochen. Immer wieder verweisen wir auch darauf, dass der Kapitalismus nicht immer schon existierte, sondern historisiert werden muss.[/attachment]",
+				'try_oembed' => false,
+				'simpleHtml' => BBCode::TWITTER,
 			],
 		];
 	}
