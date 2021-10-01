@@ -339,7 +339,7 @@
 			<div id="admin-settings-relocate-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-relocate">
 				<div class="panel-body">
 					<div class="alert alert-danger alert-dismissible">
-						{{$relocate_warning}}
+						{{$relocate_warning nofilter}}
 					</div>
 					{{include file="field_input.tpl" field=$relocate_url}}
 				</div>
