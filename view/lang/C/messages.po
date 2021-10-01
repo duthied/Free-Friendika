@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-01 13:53+0200\n"
+"POT-Creation-Date: 2021-10-01 16:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -559,6 +559,7 @@ msgstr ""
 
 #: mod/editpost.php:134 src/Content/Conversation.php:380
 #: src/Content/Widget/VCard.php:107 src/Model/Profile.php:459
+#: src/Module/Admin/Logs/View.php:93
 msgid "Message"
 msgstr ""
 
@@ -588,7 +589,7 @@ msgstr ""
 msgid "Create New Event"
 msgstr ""
 
-#: mod/events.php:536
+#: mod/events.php:536 src/Module/Admin/Logs/View.php:97
 msgid "Event details"
 msgstr ""
 
@@ -3165,7 +3166,7 @@ msgid "Addon applications, utilities, games"
 msgstr ""
 
 #: src/Content/Nav.php:230 src/Content/Text/HTML.php:891
-#: src/Module/Search/Index.php:99
+#: src/Module/Admin/Logs/View.php:87 src/Module/Search/Index.php:99
 msgid "Search"
 msgstr ""
 
@@ -5483,7 +5484,7 @@ msgstr ""
 msgid "Implicit Mention"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:73
+#: src/Module/Admin/Item/Source.php:73 src/Module/Admin/Logs/View.php:99
 #: src/Module/Debug/ActivityPubConversion.php:62
 msgid "Source"
 msgstr ""
@@ -5557,6 +5558,67 @@ msgstr ""
 
 #: src/Module/Admin/Logs/View.php:85 src/Module/BaseAdmin.php:110
 msgid "View Logs"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:88
+msgid "Search in logs"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:89
+#: src/Module/Notifications/Notifications.php:138
+msgid "Show all"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:90
+msgid "Date"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:91
+msgid "Level"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:92
+msgid "Context"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:94
+msgid "ALL"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:95
+msgid "View details"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:96
+msgid "Click to view details"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:98
+msgid "Data"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:100
+msgid "File"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:101
+msgid "Line"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:102
+msgid "Function"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:103
+msgid "UID"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:104
+msgid "Process ID"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:105
+msgid "Close"
 msgstr ""
 
 #: src/Module/Admin/Queue.php:50
@@ -8691,10 +8753,6 @@ msgstr ""
 
 #: src/Module/Notifications/Notifications.php:138
 msgid "Show unread"
-msgstr ""
-
-#: src/Module/Notifications/Notifications.php:138
-msgid "Show all"
 msgstr ""
 
 #: src/Module/OAuth/Acknowledge.php:44
