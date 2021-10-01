@@ -10,27 +10,27 @@ Getting started
 No need to setup up a webserver, database etc. before actually starting.
 Vagrant creates a virtual machine for you that you can just run inside VirtualBox and start to work directly on Friendica.
 
-It brings an Ubuntu Xenial (16.04) with PHP 7.0 and MySQL 5.7.16
+It brings an Debian Bullseye with PHP 7.4 and MariaDB 10.5.11.
 
 What you need to do:
 
 1. Install VirtualBox and vagrant.
 Please use an up-to-date vagrant version from https://www.vagrantup.com/downloads.html.
 2. Git clone your Friendica repository.
-Inside, you'll find a "Vagrantfile" and some scripts in the utils folder.
-3. Run "vagrant up" from inside the friendica clone:
-        $> vagrant up
-Be patient: When it runs for the first time, it downloads an Ubuntu Server image.
-4. Run "vagrant ssh" to log into the virtual machine to log in to the VM:
-        $> vagrant ssh
+Inside, you'll find a `Vagrantfile` and some scripts in the `bin/dev` folder.
+Pull the PHP requirements with `bin/composer install`.
+3. Run `vagrant up` from inside the friendica clone.
+This will start the virtual machine.
+Be patient: When it runs for the first time, it downloads a Debian Server image and installs Friendica.
+4. Run `vagrant ssh` to log into the virtual machine to log in to the VM in case you need to debug something on the server.
 5. Open you test installation in a browser.
-Go to 192.168.22.10.
+Go to friendica.local (or 192.168.22.10).
+friendica.local is using a self-signed TLS certificate, so you will need to add an exception to trust the certificate the first time you are visiting the page.
 The mysql database is called "friendica", the mysql user and password both are "friendica".
 6. Work on Friendica's code in your git clone on your machine (not in the VM).
 Your local working directory is set up as a shared directory with the VM (/vagrant).
 7. Check the changes in your browser in the VM.
-Debug via the "vagrant ssh" login.
-Find the Friendica log file /vagrant/logfile.out.
+Find the Friendica log file `/vagrant/logfile.out` on the VM or in the `logfile.out` in you local Friendica directory.
 8. Commit and push your changes directly back to Github.
 
 If you want to stop vagrant after finishing your work, run the following command
@@ -46,13 +46,24 @@ This will not delete the virtual machine.
 
 to make sure that you can start from scratch with another "vagrant up".
 
-The vagrant Friendica instance contains a test database.
-You will then have the following accounts to login:
+Default User Accounts
+---------------------
+
+By default the provision script will setup two user accounts.
 
   * admin, password admin
-  * friendica1, password friendica1
-  * friendica2, password friendica2 and so on until friendica5
-  * friendica1 is connected to all others. friendica1 has two groups: group1 with friendica2 and friendica4, group2 with friendica3 and friendica5.
-  * friendica2 and friendica3 are connected. friendica4 and friendica5 are connected.
+  * friendica, password friendica
+
+Trouble Shooting
+----------------
+
+If you see a version mis-match for the _VirtualBox Guest Additions_ between host and guest during the initial setup of the Vagrant VM, you will need to install an addon to Vagrant (ref. [Stack Overflow](https://stackoverflow.com/a/38010683)).
+Stop the Vagrant VM and run the following command:
+
+	$> vagrant plugin install vagrant-vbguest 
+
+On the next Vagrant up, the version problem should be fixed.
+
+If `friendica.local` is not resolved, you may need to add an entry to the `/etc/hosts` file (or similar configuration depending on the OS you are using).
 
 For further documentation of vagrant, please see [the vagrant*docs*](https://docs.vagrantup.com/v2/).
