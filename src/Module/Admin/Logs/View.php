@@ -25,7 +25,6 @@ use Friendica\DI;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Module\BaseAdmin;
-use Friendica\Model\Log\ParsedLogIterator;
 use Psr\Log\LogLevel;
 
 class View extends BaseAdmin
@@ -81,8 +80,29 @@ class View extends BaseAdmin
 			}
 		}
 		return Renderer::replaceMacros($t, [
-			'$title'         => DI::l10n()->t('Administration'),
-			'$page'          => DI::l10n()->t('View Logs'),
+			'$title' => DI::l10n()->t('Administration'),
+			'$page'  => DI::l10n()->t('View Logs'),
+			'$l10n'  => [
+				'Search'                => DI::l10n()->t('Search'),
+				'Search_in_logs'        => DI::l10n()->t('Search in logs'),
+				'Show_all'              => DI::l10n()->t('Show all'),
+				'Date'                  => DI::l10n()->t('Date'),
+				'Level'                 => DI::l10n()->t('Level'),
+				'Context'               => DI::l10n()->t('Context'),
+				'Message'               => DI::l10n()->t('Message'),
+				'ALL'                   => DI::l10n()->t('ALL'),
+				'View_details'          => DI::l10n()->t('View details'),
+				'Click_to_view_details' => DI::l10n()->t('Click to view details'),
+				'Event_details'         => DI::l10n()->t('Event details'),
+				'Data'                  => DI::l10n()->t('Data'),
+				'Source'                => DI::l10n()->t('Source'),
+				'File'                  => DI::l10n()->t('File'),
+				'Line'                  => DI::l10n()->t('Line'),
+				'Function'              => DI::l10n()->t('Function'),
+				'UID'                   => DI::l10n()->t('UID'),
+				'Process_ID'            => DI::l10n()->t('Process ID'),
+				'Close'                 => DI::l10n()->t('Close'),
+			],
 			'$data'          => $data,
 			'$q'             => $search,
 			'$filters'       => $filters,
