@@ -246,7 +246,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$page_uid = 0;
 
 	$parent = null;
-	if (!empty($parent_uri_id)) {
+	if (!local_user() && !empty($parent_uri_id)) {
 		$parent = Post::selectFirst(['uid'], ['uri-id' => $parent_uri_id, 'wall' => true]);
 	}
 
