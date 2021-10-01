@@ -116,10 +116,6 @@ bin/console user password "$ADMIN_NICK" "$ADMIN_PASSW"
 bin/console user add "$USER_NICK" "$USER_NICK" "$USER_NICK@friendica.local" en
 bin/console user password "$USER_NICK" "$USER_PASSW"
 
-# set the admin
-bin/console config config admin_email ""$ADMIN_NICK@friendica.local""
-
-
 # create cronjob - activate if you have enough memory in you dev VM
 # cronjob runs as www-data user
 echo ">>> Installing cronjob"
