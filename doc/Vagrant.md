@@ -18,6 +18,7 @@ What you need to do:
 Please use an up-to-date vagrant version from https://www.vagrantup.com/downloads.html.
 2. Git clone your Friendica repository.
 Inside, you'll find a `Vagrantfile` and some scripts in the `bin/dev` folder.
+Pull the PHP requirements with `bin/composer install`.
 3. Run `vagrant up` from inside the friendica clone.
 This will start the virtual machine.
 Be patient: When it runs for the first time, it downloads a Debian Server image and installs Friendica.
