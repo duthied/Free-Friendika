@@ -20,7 +20,7 @@ Please use an up-to-date vagrant version from https://www.vagrantup.com/download
 Inside, you'll find a `Vagrantfile` and some scripts in the `bin/dev` folder.
 3. Run `vagrant up` from inside the friendica clone.
 This will start the virtual machine.
-Be patient: When it runs for the first time, it downloads an Debian Server image and installs Friendica.
+Be patient: When it runs for the first time, it downloads a Debian Server image and installs Friendica.
 4. Run `vagrant ssh` to log into the virtual machine to log in to the VM in case you need to debug something on the server.
 5. Open you test installation in a browser.
 Go to friendica.local (or 192.168.22.10).
@@ -62,5 +62,7 @@ Stop the Vagrant VM and run the following command:
 	$> vagrant plugin install vagrant-vbguest 
 
 On the next Vagrant up, the version problem should be fixed.
+
+If `friendica.local` is not resolved, you may need to add an entry to the `/etc/hosts` file (or similar configuration depending on the OS you are using).
 
 For further documentation of vagrant, please see [the vagrant*docs*](https://docs.vagrantup.com/v2/).
