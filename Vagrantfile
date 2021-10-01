@@ -24,7 +24,7 @@ Vagrant.configure(2) do |config|
 
   # Share a folder between host and guest
   # config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", owner: "www-data", group: "vagrant"
-  config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", owner: "www-data", group: "www-data"
+  config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", owner: "www-data", group: "www-data", type: "virtualbox"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
