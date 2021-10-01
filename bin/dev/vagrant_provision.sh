@@ -82,7 +82,7 @@ echo ">>> Installing 'Local Only' postfix"
 debconf-set-selections <<< "postfix postfix/mailname string friendica.local"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local Only'"
 apt-get install -qq postfix mailutils libmailutils-dev
-echo -e "friendica1:	vagrant\nfriendica2:	vagrant\nfriendica3:	vagrant\nfriendica4:	vagrant\nfriendica5:	vagrant" >> /etc/aliases && newaliases
+echo -e "$ADMIN_NICK:	vagrant\n$USER_NICK:	vagrant" >> /etc/aliases && newaliases
 
 # Friendica needs git for fetching some dependencies
 echo ">>> Installing git"
