@@ -93,9 +93,8 @@ echo ">>> Symlink /var/www to /vagrant"
 rm -rf /var/www/
 ln -fs /vagrant /var/www
 
-# install deps with composer
+# Setup Friendica
 cd /var/www
-
 echo ">>> Setup Friendica"
 
 # copy the .htaccess-dist file to .htaccess so that rewrite rules work
