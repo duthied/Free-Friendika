@@ -108,7 +108,6 @@ class View extends BaseAdmin
 			'$filters'       => $filters,
 			'$filtersvalues' => $filters_valid_values,
 			'$error'         => $error,
-			'$baseurl'       => DI::baseUrl()->get(true),
 			'$logname'       => DI::config()->get('system', 'logfile'),
 		]);
 	}
