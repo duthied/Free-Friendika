@@ -250,7 +250,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$parent = Post::selectFirst(['uid'], ['uri-id' => $parent_uri_id, 'wall' => true]);
 	}
 
-	if (!local_user() && DBA::isResult($parent)) {
+	if (DBA::isResult($parent)) {
 		$page_uid = $page_uid ?? 0 ?: $parent['uid'];
 		$is_remote_contact = Session::getRemoteContactID($page_uid);
 		if ($is_remote_contact) {
