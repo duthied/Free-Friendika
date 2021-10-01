@@ -94,11 +94,7 @@ rm -rf /var/www/
 ln -fs /vagrant /var/www
 
 # install deps with composer
-echo ">>> Installing php requirements"
-apt install unzip
 cd /var/www
-php bin/composer.phar install
-
 
 echo ">>> Setup Friendica"
 
