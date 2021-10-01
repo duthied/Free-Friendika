@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-26 03:57+0000\n"
+"POT-Creation-Date: 2021-10-01 13:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -300,7 +300,7 @@ msgid "%s %s shared a new post"
 msgstr ""
 
 #: mod/api.php:30 mod/editpost.php:38 mod/events.php:236 mod/follow.php:56
-#: mod/follow.php:130 mod/item.php:184 mod/item.php:189 mod/item.php:934
+#: mod/follow.php:130 mod/item.php:185 mod/item.php:190 mod/item.php:936
 #: mod/message.php:69 mod/message.php:111 mod/notes.php:44
 #: mod/ostatus_subscribe.php:32 mod/photos.php:163 mod/photos.php:917
 #: mod/repair_ostatus.php:31 mod/settings.php:47 mod/settings.php:57
@@ -765,23 +765,23 @@ msgstr ""
 msgid "Unable to locate original post."
 msgstr ""
 
-#: mod/item.php:340 mod/item.php:345
+#: mod/item.php:341 mod/item.php:346
 msgid "Empty post discarded."
 msgstr ""
 
-#: mod/item.php:741
+#: mod/item.php:742
 msgid "Post updated."
 msgstr ""
 
-#: mod/item.php:751 mod/item.php:756
+#: mod/item.php:752 mod/item.php:757
 msgid "Item wasn't stored."
 msgstr ""
 
-#: mod/item.php:767
+#: mod/item.php:768
 msgid "Item couldn't be fetched."
 msgstr ""
 
-#: mod/item.php:913 src/Module/Admin/Themes/Details.php:39
+#: mod/item.php:914 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:41
 #: src/Module/Debug/ItemBody.php:56
 msgid "Item not found."
@@ -3331,39 +3331,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:985 src/Content/Text/BBCode.php:1773
-#: src/Content/Text/BBCode.php:1774
+#: src/Content/Text/BBCode.php:987 src/Content/Text/BBCode.php:1775
+#: src/Content/Text/BBCode.php:1776
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1158
+#: src/Content/Text/BBCode.php:1160
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1183 src/Model/Item.php:3152
+#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3152
 #: src/Model/Item.php:3158 src/Model/Item.php:3159
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1691 src/Content/Text/HTML.php:943
+#: src/Content/Text/BBCode.php:1693 src/Content/Text/HTML.php:943
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1722
+#: src/Content/Text/BBCode.php:1724
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1778 src/Content/Text/BBCode.php:1779
+#: src/Content/Text/BBCode.php:1780 src/Content/Text/BBCode.php:1781
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1995
+#: src/Content/Text/BBCode.php:1997
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2010
+#: src/Content/Text/BBCode.php:2012
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -4276,7 +4276,7 @@ msgstr ""
 msgid "%s: Database update"
 msgstr ""
 
-#: src/Database/DBStructure.php:853
+#: src/Database/DBStructure.php:803
 #, php-format
 msgid "%s: updating %s table."
 msgstr ""
@@ -4587,7 +4587,7 @@ msgstr ""
 msgid "View on separate page"
 msgstr ""
 
-#: src/Model/Mail.php:136 src/Model/Mail.php:268
+#: src/Model/Mail.php:134 src/Model/Mail.php:266
 msgid "[no subject]"
 msgstr ""
 
@@ -5544,15 +5544,15 @@ msgstr ""
 #: src/Module/Admin/Logs/View.php:71
 #, php-format
 msgid ""
-"Error trying to open <strong>%1$s</strong> log file.\\r\\n<br/>Check to see "
-"if file %1$s exist and is readable."
+"Error trying to open <strong>%1$s</strong> log file.<br/>Check to see if "
+"file %1$s exist and is readable."
 msgstr ""
 
 #: src/Module/Admin/Logs/View.php:80
 #, php-format
 msgid ""
-"Couldn't open <strong>%1$s</strong> log file.\\r\\n<br/>Check to see if file "
-"%1$s is readable."
+"Couldn't open <strong>%1$s</strong> log file.<br/>Check to see if file %1$s "
+"is readable."
 msgstr ""
 
 #: src/Module/Admin/Logs/View.php:85 src/Module/BaseAdmin.php:110

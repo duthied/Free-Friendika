@@ -68,7 +68,7 @@ class View extends BaseAdmin
 		}
 
 		if (!file_exists($f)) {
-			$error = DI::l10n()->t('Error trying to open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s exist and is readable.', $f);
+			$error = DI::l10n()->t('Error trying to open <strong>%1$s</strong> log file.<br/>Check to see if file %1$s exist and is readable.', $f);
 		} else {
 			try {
 				$data = DI::parsedLogIterator()
@@ -77,7 +77,7 @@ class View extends BaseAdmin
 						->withFilters($filters)
 						->withSearch($search);
 			} catch (Exception $e) {
-				$error = DI::l10n()->t('Couldn\'t open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s is readable.', $f);
+				$error = DI::l10n()->t('Couldn\'t open <strong>%1$s</strong> log file.<br/>Check to see if file %1$s is readable.', $f);
 			}
 		}
 		return Renderer::replaceMacros($t, [
