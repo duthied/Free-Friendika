@@ -246,11 +246,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$page_uid = 0;
 
 	$parent = null;
-	if (!empty($parent_uri_id)) {
+	if (!local_user() && !empty($parent_uri_id)) {
 		$parent = Post::selectFirst(['uid'], ['uri-id' => $parent_uri_id, 'wall' => true]);
 	}
 
-	if (DBA::isResult($parent)) {
+	if (!local_user() && DBA::isResult($parent)) {
 		$page_uid = $page_uid ?? 0 ?: $parent['uid'];
 		$is_remote_contact = Session::getRemoteContactID($page_uid);
 		if ($is_remote_contact) {
