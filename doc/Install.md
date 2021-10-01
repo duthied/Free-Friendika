@@ -32,7 +32,7 @@ Due to the large variety of operating systems and PHP platforms in existence we 
   * PHP *command line* access with register_argc_argv set to true in the php.ini file
   * Curl, GD, PDO, mbstrings, MySQLi, hash, xml, zip and OpenSSL extensions
   * The POSIX module of PHP needs to be activated (e.g. [RHEL, CentOS](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) have disabled it)
-  * some form of email server or email gateway such that PHP mail() works.
+  * Some form of email server or email gateway such that PHP mail() works.
     If you cannot set up your own email server, you can use the [phpmailer](https://github.com/friendica/friendica-addons/tree/develop/phpmailer) addon and use a remote SMTP server.
 * MySQL 5.6+ or an equivalent alternative for MySQL (MariaDB, Percona Server etc.)
 * ability to schedule jobs with cron (Linux/Mac) or Scheduled Tasks (Windows)
