@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Test\src\Object\Log;
+namespace Friendica\Test\src\Model\Log;
 
 use Friendica\Util\ReversedFileReader;
 use Friendica\Model\Log\ParsedLogIterator;
