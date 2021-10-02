@@ -1370,12 +1370,13 @@ class Contact
 	 * @param bool   $thread_mode
 	 * @param int    $update      Update mode
 	 * @param int    $parent      Item parent ID for the update mode
+	 * @param bool   $only_media  Only display media content
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0, $parent = 0)
+	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0, $parent = 0, bool $only_media = false)
 	{
-		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update, $parent);
+		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update, $parent, $only_media);
 	}
 
 	/**
@@ -1384,14 +1385,13 @@ class Contact
 	 * @param int  $cid         Contact ID
 	 * @param bool $thread_mode
 	 * @param int  $update      Update mode
-	 * @param int  $parent     Item parent ID for the update mode
+	 * @param int  $parent      Item parent ID for the update mode
+	 * @param bool $only_media  Only display media content
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromId($cid, $thread_mode = false, $update = 0, $parent = 0)
+	public static function getPostsFromId($cid, $thread_mode = false, $update = 0, $parent = 0, bool $only_media = false)
 	{
-		$a = DI::app();
-
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
 			return '';
@@ -1420,6 +1420,11 @@ class Contact
 			if (!empty($last_received)) {
 				$condition = DBA::mergeConditions($condition, ["`received` < ?", $last_received]);
 			}
+		}
+
+		if ($only_media) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
 		}
 
 		if (DI::mode()->isMobile()) {

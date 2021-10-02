@@ -68,15 +68,14 @@ class BaseProfile extends BaseModule
 				'id'    => 'photo-tab',
 				'accesskey' => 'h',
 			],
-// @todo Currently deactivated since it doesn't really work
-//			[
-//				'label' => DI::l10n()->t('Videos'),
-//				'url'   => DI::baseUrl() . '/videos/' . $nickname,
-//				'sel'   => $current == 'videos' ? 'active' : '',
-//				'title' => DI::l10n()->t('Videos'),
-//				'id'    => 'video-tab',
-//				'accesskey' => 'v',
-//			],
+			[
+				'label' => DI::l10n()->t('Media'),
+				'url'   => $baseProfileUrl . '/media',
+				'sel'   => $current == 'media' ? 'active' : '',
+				'title' => DI::l10n()->t('Media'),
+				'id'    => 'media-tab',
+				'accesskey' => 'd',
+			],
 		];
 
 		// the calendar link for the full featured events calendar

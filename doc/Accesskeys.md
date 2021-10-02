@@ -32,7 +32,7 @@ General
 * m - Status Messages and Posts
 * r - Profile Details
 * h - Photo Albums
-* v - Videos
+* d - Media
 * e - Events and Calendar
 * t - Personal Notes
 * o - Scheduled Posts
@@ -49,12 +49,13 @@ General
 * h - Only show hidden contacts
 * e - Edit contact groups
 
-../contacts (single contact view)
+../contact (single contact view)
 -------------------------------
 * m - Status messages
+* p - Posts and Comments
+* d - Media
 * o - Profile
 * t - Contacts
-* d - Common friends
 * r - Advanced
 
 ../message

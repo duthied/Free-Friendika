@@ -52,6 +52,7 @@ class Contact extends BaseModule
 	const TAB_PROFILE = 3;
 	const TAB_CONTACTS = 4;
 	const TAB_ADVANCED = 5;
+	const TAB_MEDIA = 6;
 
 	private static function batchActions()
 	{
@@ -372,7 +373,7 @@ class Contact extends BaseModule
 			}
 
 			if ($cmd === 'posts') {
-				return self::getPostsHTML($a, $contact_id);
+				return self::getPostsHTML($contact_id);
 			}
 
 			if ($cmd === 'conversations') {
@@ -914,6 +915,14 @@ class Contact extends BaseModule
 				'accesskey' => 'p',
 			],
 			[
+				'label' => DI::l10n()->t('Media'),
+				'url'   => 'contact/' . $pcid . '/media',
+				'sel'   => (($active_tab == self::TAB_MEDIA) ? 'active' : ''),
+				'title' => DI::l10n()->t('Posts containing media objects'),
+				'id'    => 'media-tab',
+				'accesskey' => 'd',
+			],
+			[
 				'label' => DI::l10n()->t('Profile'),
 				'url'   => 'contact/' . $cid,
 				'sel'   => (($active_tab == self::TAB_PROFILE) ? 'active' : ''),
@@ -981,7 +990,7 @@ class Contact extends BaseModule
 		return $o;
 	}
 
-	private static function getPostsHTML($a, $contact_id)
+	private static function getPostsHTML(int $contact_id)
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
