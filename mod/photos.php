@@ -1020,13 +1020,15 @@ function photos_content(App $a)
 			$drop_url = DI::args()->getQueryString();
 
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'post',
-				'$message' => DI::l10n()->t('Do you really want to delete this photo album and all its photos?'),
-				'$confirm' => DI::l10n()->t('Delete Album'),
-				'$confirm_url' => $drop_url,
-				'$confirm_name' => 'dropalbum',
+				'$l10n'           => [
+					'message' => DI::l10n()->t('Do you really want to delete this photo album and all its photos?'),
+					'confirm' => DI::l10n()->t('Delete Album'),
+					'cancel'  => DI::l10n()->t('Cancel'),
+				],
+				'$method'        => 'post',
+				'$confirm_url'   => $drop_url,
+				'$confirm_name'  => 'dropalbum',
 				'$confirm_value' => 'dropalbum',
-				'$cancel' => DI::l10n()->t('Cancel'),
 			]);
 		}
 
@@ -1127,13 +1129,15 @@ function photos_content(App $a)
 			$drop_url = DI::args()->getQueryString();
 
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'post',
-				'$message' => DI::l10n()->t('Do you really want to delete this photo?'),
-				'$confirm' => DI::l10n()->t('Delete Photo'),
-				'$confirm_url' => $drop_url,
-				'$confirm_name' => 'delete',
+				'$l10n'           => [
+					'message' => DI::l10n()->t('Do you really want to delete this photo?'),
+					'confirm' => DI::l10n()->t('Delete Photo'),
+					'cancel'  => DI::l10n()->t('Cancel'),
+				],
+				'$method'        => 'post',
+				'$confirm_url'   => $drop_url,
+				'$confirm_name'  => 'delete',
 				'$confirm_value' => 'delete',
-				'$cancel' => DI::l10n()->t('Cancel'),
 			]);
 		}
 

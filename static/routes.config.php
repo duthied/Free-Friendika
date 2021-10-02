@@ -239,6 +239,7 @@ return [
 		'/{id:\d+}/ignore'            => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/poke'              => [Module\Contact\Poke::class,      [R::GET, R::POST]],
 		'/{id:\d+}/posts'             => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/revoke'            => [Module\Contact\Revoke::class,    [R::GET, R::POST]],
 		'/{id:\d+}/update'            => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/updateprofile'     => [Module\Contact::class,           [R::GET]],
 		'/archived'                   => [Module\Contact::class,           [R::GET]],
