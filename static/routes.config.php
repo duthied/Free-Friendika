@@ -37,6 +37,7 @@ $profileRoutes = [
 	'/contacts/common'                         => [Module\Profile\Common::class,   [R::GET]],
 	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class, [R::GET]],
 	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,   [R::GET]],
+	'/media'                                   => [Module\Profile\Media::class,    [R::GET]],
 ];
 
 return [
@@ -237,6 +238,7 @@ return [
 		'/{id:\d+}/contacts[/{type}]' => [Module\Contact\Contacts::class,  [R::GET]],
 		'/{id:\d+}/drop'              => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/ignore'            => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/media'             => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/poke'              => [Module\Contact\Poke::class,      [R::GET, R::POST]],
 		'/{id:\d+}/posts'             => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/update'            => [Module\Contact::class,           [R::GET]],

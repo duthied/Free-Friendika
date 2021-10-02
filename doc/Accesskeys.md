@@ -49,12 +49,13 @@ General
 * h - Only show hidden contacts
 * e - Edit contact groups
 
-../contacts (single contact view)
+../contact (single contact view)
 -------------------------------
 * m - Status messages
+* p - Posts and Comments
+* d - Media
 * o - Profile
 * t - Contacts
-* d - Common friends
 * r - Advanced
 
 ../message

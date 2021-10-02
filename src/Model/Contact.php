@@ -1346,12 +1346,13 @@ class Contact
 	 * @param bool   $thread_mode
 	 * @param int    $update      Update mode
 	 * @param int    $parent      Item parent ID for the update mode
+	 * @param bool   $only_media  Only display media content
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0, $parent = 0)
+	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0, $parent = 0, bool $only_media = false)
 	{
-		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update, $parent);
+		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update, $parent, $only_media);
 	}
 
 	/**
@@ -1360,14 +1361,14 @@ class Contact
 	 * @param int  $cid         Contact ID
 	 * @param bool $thread_mode
 	 * @param int  $update      Update mode
-	 * @param int  $parent     Item parent ID for the update mode
+	 * @param int  $parent      Item parent ID for the update mode
+	 * @param bool $only_media  Only display media content
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromId($cid, $thread_mode = false, $update = 0, $parent = 0)
+	public static function getPostsFromId($cid, $thread_mode = false, $update = 0, $parent = 0, bool $only_media = false)
 	{
-		$a = DI::app();
-
+		Logger::info('Blubb-1', ['cid' => $cid]);
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
 			return '';
@@ -1398,6 +1399,11 @@ class Contact
 			}
 		}
 
+		If ($only_media) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
+		}
+
 		if (DI::mode()->isMobile()) {
 			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
@@ -1423,6 +1429,7 @@ class Contact
 			$o .= DI::conversation()->create($items, 'contacts', $update, false, 'commented', local_user());
 		} else {
 			$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
+			Logger::info('Blubb-2a', ['cid' => $cid, 'condition' => $condition]);
 
 			$o .= DI::conversation()->create($items, 'contact-posts', $update);
 		}
