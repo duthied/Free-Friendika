@@ -22,6 +22,12 @@
 namespace Friendica\Core;
 
 use Friendica\DI;
+use Friendica\Network\HTTPException;
+use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\OStatus;
+use Friendica\Protocol\Salmon;
 
 /**
  * Manage compatibility with federated networks
@@ -156,5 +162,64 @@ class Protocol
 	public static function formatMention($profile_url, $display_name)
 	{
 		return $display_name . ' (' . self::getAddrFromProfileUrl($profile_url) . ')';
+	}
+
+	/**
+	 * Sends an unfriend message. Does not remove the contact
+	 *
+	 * @param array   $user    User unfriending
+	 * @param array   $contact Contact unfriended
+	 * @param boolean $two_way Revoke eventual inbound follow as well
+	 * @return bool|null true if successful, false if not, null if no action was performed
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function terminateFriendship(array $user, array $contact, bool $two_way = false): bool
+	{
+		if (empty($contact['network'])) {
+			throw new \InvalidArgumentException('Missing network key in contact array');
+		}
+
+		$protocol = $contact['network'];
+		if (($protocol == Protocol::DFRN) && !empty($contact['protocol'])) {
+			$protocol = $contact['protocol'];
+		}
+
+		if (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
+			// create an unfollow slap
+			$item = [];
+			$item['verb'] = Activity::O_UNFOLLOW;
+			$item['gravity'] = GRAVITY_ACTIVITY;
+			$item['follow'] = $contact['url'];
+			$item['body'] = '';
+			$item['title'] = '';
+			$item['guid'] = '';
+			$item['uri-id'] = 0;
+			$slap = OStatus::salmon($item, $user);
+
+			if (empty($contact['notify'])) {
+				throw new \InvalidArgumentException('Missing expected "notify" key in OStatus/DFRN contact');
+			}
+
+			return Salmon::slapper($user, $contact['notify'], $slap) === 0;
+		} elseif ($protocol == Protocol::DIASPORA) {
+			return Diaspora::sendUnshare($user, $contact) > 0;
+		} elseif ($protocol == Protocol::ACTIVITYPUB) {
+			if ($two_way) {
+				ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $user['uid']);
+			}
+
+			return ActivityPub\Transmitter::sendContactUndo($contact['url'], $contact['id'], $user['uid']);
+		}
+
+		// Catch-all addon hook
+		$hook_data = [
+			'contact' => $contact,
+			'two_way' => $two_way,
+			'result' => null
+		];
+		Hook::callAll('unfollow', $hook_data);
+
+		return $hook_data['result'];
 	}
 }

@@ -23,6 +23,7 @@ namespace Friendica\Console;
 
 use Console_Table;
 use Friendica\App;
+use Friendica\DI;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Model\User as UserModel;
 use Friendica\Network\Probe;
@@ -177,11 +178,12 @@ HELP;
 	}
 
 	/**
-	 * Sends an unfriend message.  Does not remove the contact
+	 * Sends an unfriend message.
 	 *
 	 * @return bool True, if the command was successful
+	 * @throws \Exception
 	 */
-	private function terminateContact()
+	private function terminateContact(): bool
 	{
 		$cid = $this->getArgument(1);
 		if (empty($cid)) {
@@ -199,7 +201,23 @@ HELP;
 
 		$user = UserModel::getById($contact['uid']);
 
-		$result = ContactModel::terminateFriendship($user, $contact);
+		try {
+			$result = ContactModel::terminateFriendship($user, $contact);
+			if ($result === null) {
+				throw new RuntimeException('Unfollowing is currently not supported by this contact\'s network.');
+			}
+
+			if ($result === false) {
+				throw new RuntimeException('Unable to unfollow this contact, please retry in a few minutes or check the logs.');
+			}
+
+			$this->out('Contact was successfully unfollowed');
+
+			return true;
+		} catch (\Exception $e) {
+			DI::logger()->error($e->getMessage(), ['owner' => $user, 'contact' => $contact]);
+			throw new RuntimeException('Unable to unfollow this contact, please check the log');
+		}
 	}
 
 	/**

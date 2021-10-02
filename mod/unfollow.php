@@ -120,6 +120,12 @@ function unfollow_process(string $url)
 
 	$uid = local_user();
 
+	$owner = User::getOwnerDataById($uid);
+	if (!$owner) {
+		\Friendica\Module\Security\Logout::init();
+		// NOTREACHED
+	}
+
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 		$uid, Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
 		Strings::normaliseLink($url), $url];
@@ -131,27 +137,30 @@ function unfollow_process(string $url)
 		// NOTREACHED
 	}
 
-	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-		notice(DI::l10n()->t('Unfollowing is currently not supported by your network.'));
-		DI::baseUrl()->redirect($base_return_path . '/' . $contact['id']);
-		// NOTREACHED
-	}
-
 	$dissolve = ($contact['rel'] == Contact::SHARING);
 
-	$owner = User::getOwnerDataById($uid);
-	if ($owner) {
-		Contact::terminateFriendship($owner, $contact, $dissolve);
+	$notice_message = '';
+	$return_path = $base_return_path . '/' . $contact['id'];
+
+	try {
+		$result = Contact::terminateFriendship($owner, $contact, $dissolve);
+
+		if ($result === null) {
+			$notice_message = DI::l10n()->t('Unfollowing is currently not supported by this contact\'s network.');
+		}
+
+		if ($result === false) {
+			$notice_message = DI::l10n()->t('Unable to unfollow this contact, please retry in a few minutes or contact your administrator.');
+		}
+
+		if ($result === true) {
+			$notice_message = DI::l10n()->t('Contact was successfully unfollowed');
+		}
+	} catch (Exception $e) {
+		DI::logger()->error($e->getMessage(), ['owner' => $owner, 'contact' => $contact, 'dissolve' => $dissolve]);
+		$notice_message = DI::l10n()->t('Unable to unfollow this contact, please contact your administrator');
 	}
 
-	// Sharing-only contacts get deleted as there no relationship anymore
-	if ($dissolve) {
-		Contact::remove($contact['id']);
-		$return_path = $base_return_path;
-	} else {
-		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
-		$return_path = $base_return_path . '/' . $contact['id'];
-	}
-
+	notice($notice_message);
 	DI::baseUrl()->redirect($return_path);
 }

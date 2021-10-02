@@ -82,7 +82,7 @@ class OnePoll
 				Logger::warning('No self contact for user', ['uid' => $importer_uid]);
 
 				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
+				Contact::update(['last-update' => $updated], ['id' => $contact['id']]);
 				return;
 			}
 
@@ -122,16 +122,16 @@ class OnePoll
 	{
 		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL, Protocol::OSTATUS])) {
 			// Update the user's contact
-			DBA::update('contact', $fields, ['id' => $contact['id']]);
+			Contact::update($fields, ['id' => $contact['id']]);
 
 			// Update the public contact
-			DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $contact['nurl']]);
+			Contact::update($fields, ['uid' => 0, 'nurl' => $contact['nurl']]);
 
 			// Update the rest of the contacts that aren't polled
-			DBA::update('contact', $fields, ['rel' => Contact::FOLLOWER, 'nurl' => $contact['nurl']]);
+			Contact::update($fields, ['rel' => Contact::FOLLOWER, 'nurl' => $contact['nurl']]);
 		} else {
 			// Update all contacts
-			DBA::update('contact', $fields, ['nurl' => $contact['nurl']]);
+			Contact::update($fields, ['nurl' => $contact['nurl']]);
 		}
 	}
 
@@ -456,7 +456,7 @@ class OnePoll
 		Logger::info('Hub subscription start', ['mode' => $hubmode, 'name' => $contact['name'], 'hub' => $url, 'endpoint' => $push_url, 'verifier' => $verify_token]);
 
 		if (!strlen($contact['hub-verify']) || ($contact['hub-verify'] != $verify_token)) {
-			DBA::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
+			Contact::update(['hub-verify' => $verify_token], ['id' => $contact['id']]);
 		}
 
 		$postResult = DI::httpClient()->post($url, $params);

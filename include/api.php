@@ -3778,11 +3778,11 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws NotFoundException
+ * @throws HTTPException\BadRequestException
+ * @throws HTTPException\ExpectationFailedException
+ * @throws HTTPException\ForbiddenException
+ * @throws HTTPException\InternalServerErrorException
+ * @throws HTTPException\NotFoundException
  * @see   https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy.html
  */
 function api_friendships_destroy($type)
@@ -3790,25 +3790,31 @@ function api_friendships_destroy($type)
 	$uid = api_user();
 
 	if ($uid === false) {
-		throw new ForbiddenException();
+		throw new HTTPException\ForbiddenException();
+	}
+
+	$owner = User::getOwnerDataById($uid);
+	if (!$owner) {
+		Logger::notice(API_LOG_PREFIX . 'No owner {uid} found', ['module' => 'api', 'action' => 'friendships_destroy', 'uid' => $uid]);
+		throw new HTTPException\NotFoundException('Error Processing Request');
 	}
 
 	$contact_id = $_REQUEST['user_id'] ?? 0;
 
 	if (empty($contact_id)) {
 		Logger::notice(API_LOG_PREFIX . 'No user_id specified', ['module' => 'api', 'action' => 'friendships_destroy']);
-		throw new BadRequestException("no user_id specified");
+		throw new HTTPException\BadRequestException('no user_id specified');
 	}
 
 	// Get Contact by given id
 	$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => 0, 'self' => false]);
 
 	if(!DBA::isResult($contact)) {
-		Logger::notice(API_LOG_PREFIX . 'No contact found for ID {contact}', ['module' => 'api', 'action' => 'friendships_destroy', 'contact' => $contact_id]);
-		throw new NotFoundException("no contact found to given ID");
+		Logger::notice(API_LOG_PREFIX . 'No public contact found for ID {contact}', ['module' => 'api', 'action' => 'friendships_destroy', 'contact' => $contact_id]);
+		throw new HTTPException\NotFoundException('no contact found to given ID');
 	}
 
-	$url = $contact["url"];
+	$url = $contact['url'];
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 			$uid, Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
@@ -3817,40 +3823,35 @@ function api_friendships_destroy($type)
 
 	if (!DBA::isResult($contact)) {
 		Logger::notice(API_LOG_PREFIX . 'Not following contact', ['module' => 'api', 'action' => 'friendships_destroy']);
-		throw new NotFoundException("Not following Contact");
-	}
-
-	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-		Logger::notice(API_LOG_PREFIX . 'Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
-		throw new ExpectationFailedException("Not supported");
+		throw new HTTPException\NotFoundException('Not following Contact');
 	}
 
 	$dissolve = ($contact['rel'] == Contact::SHARING);
 
-	$owner = User::getOwnerDataById($uid);
-	if ($owner) {
-		Contact::terminateFriendship($owner, $contact, $dissolve);
-	}
-	else {
-		Logger::notice(API_LOG_PREFIX . 'No owner {uid} found', ['module' => 'api', 'action' => 'friendships_destroy', 'uid' => $uid]);
-		throw new NotFoundException("Error Processing Request");
-	}
+	try {
+		$result = Contact::terminateFriendship($owner, $contact, $dissolve);
 
-	// Sharing-only contacts get deleted as there no relationship any more
-	if ($dissolve) {
-		Contact::remove($contact['id']);
-	} else {
-		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
+		if ($result === null) {
+			Logger::notice(API_LOG_PREFIX . 'Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
+			throw new HTTPException\ExpectationFailedException('Unfollowing is currently not supported by this contact\'s network.');
+		}
+
+		if ($result === false) {
+			throw new HTTPException\ServiceUnavailableException('Unable to unfollow this contact, please retry in a few minutes or contact your administrator.');
+		}
+	} catch (Exception $e) {
+		Logger::error(API_LOG_PREFIX . $e->getMessage(), ['owner' => $owner, 'contact' => $contact, 'dissolve' => $dissolve]);
+		throw new HTTPException\InternalServerErrorException('Unable to unfollow this contact, please contact your administrator');
 	}
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
-	unset($contact["uid"]);
-	unset($contact["self"]);
+	unset($contact['uid']);
+	unset($contact['self']);
 
 	// Set screen_name since Twidere requests it
-	$contact["screen_name"] = $contact["nick"];
+	$contact['screen_name'] = $contact['nick'];
 
-	return api_format_data("friendships-destroy", $type, ['user' => $contact]);
+	return api_format_data('friendships-destroy', $type, ['user' => $contact]);
 }
 api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, API_METHOD_POST);
 
@@ -4496,14 +4497,14 @@ function api_account_update_profile($type)
 	if (!empty($_POST['name'])) {
 		DBA::update('profile', ['name' => $_POST['name']], ['uid' => $local_user]);
 		DBA::update('user', ['username' => $_POST['name']], ['uid' => $local_user]);
-		DBA::update('contact', ['name' => $_POST['name']], ['uid' => $local_user, 'self' => 1]);
-		DBA::update('contact', ['name' => $_POST['name']], ['id' => $api_user['id']]);
+		Contact::update(['name' => $_POST['name']], ['uid' => $local_user, 'self' => 1]);
+		Contact::update(['name' => $_POST['name']], ['id' => $api_user['id']]);
 	}
 
 	if (isset($_POST['description'])) {
 		DBA::update('profile', ['about' => $_POST['description']], ['uid' => $local_user]);
-		DBA::update('contact', ['about' => $_POST['description']], ['uid' => $local_user, 'self' => 1]);
-		DBA::update('contact', ['about' => $_POST['description']], ['id' => $api_user['id']]);
+		Contact::update(['about' => $_POST['description']], ['uid' => $local_user, 'self' => 1]);
+		Contact::update(['about' => $_POST['description']], ['id' => $api_user['id']]);
 	}
 
 	Profile::publishUpdate($local_user);

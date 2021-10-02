@@ -234,7 +234,7 @@ class User
 		$system['closeness'] = 0;
 		$system['baseurl'] = DI::baseUrl();
 		$system['gsid'] = GServer::getID($system['baseurl']);
-		DBA::insert('contact', $system);
+		Contact::insert($system);
 	}
 
 	/**

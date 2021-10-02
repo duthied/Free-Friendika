@@ -494,7 +494,8 @@ Called when unfollowing a remote contact on a non-native network (like Twitter)
 
 Hook data:
 - **contact** (input): the remote contact (uid = local unfollowing user id) array.
-- **dissolve** (input): whether to stop sharing with the remote contact as well.
+- **two_way** (input): wether to stop sharing with the remote contact as well.
+- **result** (output): wether the unfollowing is successful or not.
 
 ## Complete list of hook callbacks
 
