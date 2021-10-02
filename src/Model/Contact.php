@@ -872,7 +872,11 @@ class Contact
 		// A null value here means the remote network doesn't support explicit follow revocation, we can still
 		// break the locally recorded relationship
 		if ($result !== false) {
-			DBA::update('contact', ['rel' => $contact['rel'] == self::FRIEND ? self::SHARING : self::NOTHING], ['id' => $contact['id']]);
+			if ($contact['rel'] == self::FRIEND) {
+				self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
+			} else {
+				self::remove($contact['id']);
+			}
 		}
 
 		return $result;
