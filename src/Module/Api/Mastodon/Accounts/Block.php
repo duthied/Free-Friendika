@@ -24,6 +24,7 @@ namespace Friendica\Module\Api\Mastodon\Accounts;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 
 /**
@@ -40,7 +41,26 @@ class Block extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		Contact\User::setBlocked($parameters['id'], $uid, true);
+		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			DI::mstdnError()->Forbidden();
+		}
+
+		$cdata = Contact::getPublicAndUserContactID($parameters['id'], $uid);
+		if (empty($cdata['user'])) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		$contact = Contact::getById($cdata['user']);
+		if (empty($contact)) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		Contact\User::setBlocked($cdata['user'], $uid, true);
+
+		// Mastodon-expected behavior: relationship is severed on block
+		Contact::terminateFriendship($owner, $contact);
+		Contact::revokeFollow($contact);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($parameters['id'], $uid)->toArray());
 	}
