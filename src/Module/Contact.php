@@ -281,7 +281,7 @@ class Contact extends BaseModule
 		$contact = null;
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgc() == 2 && intval(DI::args()->getArgv()[1])
-			|| DI::args()->getArgc() == 3 && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['posts', 'conversations', 'media'])
+			|| DI::args()->getArgc() == 3 && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['posts', 'conversations'])
 		) {
 			$contact_id = intval(DI::args()->getArgv()[1]);
 
@@ -308,7 +308,7 @@ class Contact extends BaseModule
 		if (DBA::isResult($contact)) {
 			if ($contact['self']) {
 				// @TODO: Replace with parameter from router
-				if ((DI::args()->getArgc() == 3) && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['posts', 'conversations', 'media'])) {
+				if ((DI::args()->getArgc() == 3) && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['posts', 'conversations'])) {
 					DI::baseUrl()->redirect('profile/' . $contact['nick']);
 				} else {
 					DI::baseUrl()->redirect('profile/' . $contact['nick'] . '/profile');
@@ -374,10 +374,6 @@ class Contact extends BaseModule
 
 			if ($cmd === 'posts') {
 				return self::getPostsHTML($contact_id, false);
-			}
-
-			if ($cmd === 'media') {
-				return self::getPostsHTML($contact_id, true);
 			}
 
 			if ($cmd === 'conversations') {
