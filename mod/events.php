@@ -242,17 +242,11 @@ function events_content(App $a)
 	}
 
 	if ((DI::args()->getArgc() > 2) && (DI::args()->getArgv()[1] === 'ignore') && intval(DI::args()->getArgv()[2])) {
-		q("UPDATE `event` SET `ignore` = 1 WHERE `id` = %d AND `uid` = %d",
-			intval(DI::args()->getArgv()[2]),
-			intval(local_user())
-		);
+		DBA::update('event', ['ignore' => true], ['id' => DI::args()->getArgv()[2], 'uid' => local_user()]);
 	}
 
 	if ((DI::args()->getArgc() > 2) && (DI::args()->getArgv()[1] === 'unignore') && intval(DI::args()->getArgv()[2])) {
-		q("UPDATE `event` SET `ignore` = 0 WHERE `id` = %d AND `uid` = %d",
-			intval(DI::args()->getArgv()[2]),
-			intval(local_user())
-		);
+		DBA::update('event', ['ignore' => false], ['id' => DI::args()->getArgv()[2], 'uid' => local_user()]);
 	}
 
 	if ($a->getThemeInfoValue('events_in_profile')) {
@@ -444,13 +438,7 @@ function events_content(App $a)
 	}
 
 	if (($mode === 'edit' || $mode === 'copy') && $event_id) {
-		$r = q("SELECT * FROM `event` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($event_id),
-			intval(local_user())
-		);
-		if (DBA::isResult($r)) {
-			$orig_event = $r[0];
-		}
+		$orig_event = DBA::selectFirst('event', [], ['id' => $event_id, 'uid' => local_user()]);
 	}
 
 	// Passed parameters overrides anything found in the DB

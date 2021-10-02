@@ -1037,9 +1037,12 @@ class Processor
 
 		self::switchContact($cid);
 
-		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING])) {
+		$contact = Contact::getById($cid, ['rel']);
+		if ($contact['rel'] == Contact::SHARING) {
 			Contact::remove($cid);
 			Logger::info('Rejected contact request - contact removed', ['contact' => $cid, 'user' => $uid]);
+		} elseif ($contact['rel'] == Contact::FRIEND) {
+			Contact::update(['rel' => Contact::FOLLOWER], ['id' => $cid]);
 		} else {
 			Logger::info('Rejected contact request', ['contact' => $cid, 'user' => $uid]);
 		}

@@ -2047,15 +2047,16 @@ class Transmitter
 	 * @param string  $target Target profile
 	 * @param         $id
 	 * @param integer $uid    User ID
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @return bool Operation success
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendContactReject($target, $id, $uid)
+	public static function sendContactReject($target, $id, $uid): bool
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
 			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
-			return;
+			return false;
 		}
 
 		$owner = User::getOwnerDataById($uid);
@@ -2075,7 +2076,7 @@ class Transmitter
 		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
 		$signed = LDSignature::sign($data, $owner);
-		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	/**

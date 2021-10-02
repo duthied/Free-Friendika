@@ -850,6 +850,36 @@ class Contact
 	}
 
 	/**
+	 * Revoke follow privileges of the remote user contact
+	 *
+	 * @param array   $contact  Contact unfriended
+	 * @return bool|null Whether the remote operation is successful or null if no remote operation was performed
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function revokeFollow(array $contact): bool
+	{
+		if (empty($contact['network'])) {
+			throw new \InvalidArgumentException('Empty network in contact array');
+		}
+
+		if (empty($contact['uid'])) {
+			throw new \InvalidArgumentException('Unexpected public contact record');
+		}
+
+		$result = Protocol::revokeFollow($contact);
+
+		// A null value here means the remote network doesn't support explicit follow revocation, we can still
+		// break the locally recorded relationship
+		if ($result !== false) {
+			DBA::update('contact', ['rel' => $contact['rel'] == self::FRIEND ? self::SHARING : self::NOTHING], ['id' => $contact['id']]);
+		}
+
+		return $result;
+	}
+
+
+	/**
 	 * Marks a contact for archival after a communication issue delay
 	 *
 	 * Contact has refused to recognise us as a friend. We will start a countdown.
@@ -964,7 +994,6 @@ class Contact
 		$pm_url = '';
 		$status_link = '';
 		$photos_link = '';
-		$contact_drop_link = '';
 		$poke_link = '';
 
 		if ($uid == 0) {
@@ -1016,22 +1045,14 @@ class Contact
 
 		$posts_link = DI::baseUrl() . '/contact/' . $contact['id'] . '/conversations';
 
-		if (!$contact['self']) {
-			$contact_drop_link = DI::baseUrl() . '/contact/' . $contact['id'] . '/drop?confirm=1';
-		}
-
 		$follow_link = '';
 		$unfollow_link = '';
-		if (!$contact['self'] && in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+		if (!$contact['self'] && Protocol::supportsFollow($contact['network'])) {
 			if ($contact['uid'] && in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
 				$unfollow_link = 'unfollow?url=' . urlencode($contact['url']) . '&auto=1';
 			} elseif(!$contact['pending']) {
 				$follow_link = 'follow?url=' . urlencode($contact['url']) . '&auto=1';
 			}
-		}
-
-		if (!empty($follow_link) || !empty($unfollow_link)) {
-			$contact_drop_link = '';
 		}
 
 		/**
@@ -1053,7 +1074,6 @@ class Contact
 				'photos'  => [DI::l10n()->t('View Photos')   , $photos_link      , true],
 				'network' => [DI::l10n()->t('Network Posts') , $posts_link       , false],
 				'edit'    => [DI::l10n()->t('View Contact')  , $contact_url      , false],
-				'drop'    => [DI::l10n()->t('Drop Contact')  , $contact_drop_link, false],
 				'pm'      => [DI::l10n()->t('Send PM')       , $pm_url           , false],
 				'poke'    => [DI::l10n()->t('Poke')          , $poke_link        , false],
 				'follow'  => [DI::l10n()->t('Connect/Follow'), $follow_link      , true],
@@ -1340,12 +1360,13 @@ class Contact
 	 * @param bool   $thread_mode
 	 * @param int    $update      Update mode
 	 * @param int    $parent      Item parent ID for the update mode
+	 * @param bool   $only_media  Only display media content
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0, $parent = 0)
+	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0, $parent = 0, bool $only_media = false)
 	{
-		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update, $parent);
+		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update, $parent, $only_media);
 	}
 
 	/**
@@ -1354,14 +1375,13 @@ class Contact
 	 * @param int  $cid         Contact ID
 	 * @param bool $thread_mode
 	 * @param int  $update      Update mode
-	 * @param int  $parent     Item parent ID for the update mode
+	 * @param int  $parent      Item parent ID for the update mode
+	 * @param bool $only_media  Only display media content
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromId($cid, $thread_mode = false, $update = 0, $parent = 0)
+	public static function getPostsFromId($cid, $thread_mode = false, $update = 0, $parent = 0, bool $only_media = false)
 	{
-		$a = DI::app();
-
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
 			return '';
@@ -1390,6 +1410,11 @@ class Contact
 			if (!empty($last_received)) {
 				$condition = DBA::mergeConditions($condition, ["`received` < ?", $last_received]);
 			}
+		}
+
+		if ($only_media) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
 		}
 
 		if (DI::mode()->isMobile()) {
