@@ -666,7 +666,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
     Hook::callAll('contact_photo_menu', $args);
     Hook::callAll('follow', $arr);
-    Hook::callAll('unfollow', $hook_data);
 
 ### src/Model/Profile.php
 
@@ -750,6 +749,9 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
     Hook::callAll('logged_in', $a->user);
 
+### src/Core/Protocol.php
+
+    Hook::callAll('unfollow', $hook_data);
 ### src/Core/StorageManager
 
     Hook::callAll('storage_instance', $data);
