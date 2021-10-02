@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Test\src\Object\Log;
+namespace Friendica\Test\src\Model\Log;
 
 use Friendica\Util\ReversedFileReader;
 use Friendica\Model\Log\ParsedLogIterator;
@@ -143,6 +143,18 @@ class ParsedLogIteratorTest extends TestCase
 			->withFilters(['context' => 'worker'])
 			->withSearch("header");
 		$pls = iterator_to_array($this->pli, false);
+		self::assertCount(0, $pls);
+	}
+
+	public function testEmptyLogFile()
+	{
+		$logfile = dirname(__DIR__) . '/../../datasets/log/empty.friendica.log.txt';
+
+		$reader = new ReversedFileReader();
+		$pli    = new ParsedLogIterator($reader);
+		$pli->open($logfile);
+
+		$pls = iterator_to_array($pli, false);
 		self::assertCount(0, $pls);
 	}
 }

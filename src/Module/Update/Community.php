@@ -39,7 +39,7 @@ class Community extends CommunityModule
 
 		$o = '';
 		if (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update')) {
-			$o = conversation(DI::app(), self::getItems(), 'community', true, false, 'commented', local_user());
+			$o = DI::conversation()->create(self::getItems(), 'community', true, false, 'commented', local_user());
 		}
 
 		System::htmlUpdateExit($o);

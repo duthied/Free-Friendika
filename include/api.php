@@ -1188,7 +1188,7 @@ function api_statuses_update($type)
 
 		// We have to avoid that the post is rejected because of an empty body
 		if (empty($_REQUEST['body'])) {
-			$_REQUEST['body'] = '[hr]'; 
+			$_REQUEST['body'] = '[hr]';
 		}
 	}
 
@@ -2997,7 +2997,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
 	}
 
-	localize_item($item);
+	DI::contentItem()->localize($item);
 
 	$in_reply_to = api_in_reply_to($item);
 
@@ -3052,15 +3052,6 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 
 	$retweeted_item = [];
 	$quoted_item = [];
-
-	if ($item['gravity'] == GRAVITY_PARENT) {
-		$body = $item['body'];
-		$retweeted_item = api_share_as_retweet($item);
-		if ($body != $item['body']) {
-			$quoted_item = $retweeted_item;
-			$retweeted_item = [];
-		}
-	}
 
 	if (empty($retweeted_item) && ($item['owner-id'] == $item['author-id'])) {
 		$announce = api_get_announce($item);
@@ -3119,6 +3110,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 
 		$retweeted_status['text'] = $rt_converted["text"];
 		$retweeted_status['statusnet_html'] = $rt_converted["html"];
+		$retweeted_status['friendica_html'] = $rt_converted["html"];
 		$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
 
 		if (!empty($quoted_status)) {
@@ -4918,76 +4910,6 @@ function api_get_announce($item)
 	}
 
 	return array_merge($item, $announce);
-}
-
-/**
- * Return the item shared, if the item contains only the [share] tag
- *
- * @param array $item Sharer item
- * @return array|false Shared item or false if not a reshare
- * @throws ImagickException
- * @throws InternalServerErrorException
- */
-function api_share_as_retweet(&$item)
-{
-	$body = trim($item["body"]);
-
-	if (Diaspora::isReshare($body, false) === false) {
-		if ($item['author-id'] == $item['owner-id']) {
-			return false;
-		} else {
-			// Reshares from OStatus, ActivityPub and Twitter
-			$reshared_item = $item;
-			$reshared_item['owner-id'] = $reshared_item['author-id'];
-			$reshared_item['owner-link'] = $reshared_item['author-link'];
-			$reshared_item['owner-name'] = $reshared_item['author-name'];
-			$reshared_item['owner-avatar'] = $reshared_item['author-avatar'];
-			return $reshared_item;
-		}
-	}
-
-	$reshared = Item::getShareArray($item);
-	if (empty($reshared)) {
-		return false;
-	}
-
-	$reshared_item = $item;
-
-	if (empty($reshared['shared']) || empty($reshared['profile']) || empty($reshared['author']) || empty($reshared['avatar']) || empty($reshared['posted'])) {
-		return false;
-	}
-
-	if (!empty($reshared['comment'])) {
-		$item['body'] = $reshared['comment'];
-	}
-
-	$reshared_item["share-pre-body"] = $reshared['comment'];
-	$reshared_item["body"] = $reshared['shared'];
-	$reshared_item["author-id"] = Contact::getIdForURL($reshared['profile'], 0, false);
-	$reshared_item["author-name"] = $reshared['author'];
-	$reshared_item["author-link"] = $reshared['profile'];
-	$reshared_item["author-avatar"] = $reshared['avatar'];
-	$reshared_item["plink"] = $reshared['link'] ?? '';
-	$reshared_item["created"] = $reshared['posted'];
-	$reshared_item["edited"] = $reshared['posted'];
-
-	// Try to fetch the original item
-	if (!empty($reshared['guid'])) {
-		$condition = ['guid' => $reshared['guid'], 'uid' => [0, $item['uid']]];
-	} elseif (!empty($reshared_item['plink']) && ($original_id = Item::searchByLink($reshared_item['plink']))) {
-		$condition = ['id' => $original_id];
-	} else {
-		$condition = [];
-	}
-
-	if (!empty($condition)) {
-		$original_item = Post::selectFirst([], $condition);
-		if (DBA::isResult($original_item)) {
-			$reshared_item = array_merge($reshared_item, $original_item);
-		}
-	}
-
-	return $reshared_item;
 }
 
 /**

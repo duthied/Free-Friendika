@@ -33,6 +33,7 @@ return $config
 			'operators' => [
 				'=>' => 'align_single_space_minimal',
 				'='  => 'align_single_space_minimal',
+				'??' => 'align_single_space_minimal',
 			],
 		],
 		'blank_line_after_namespace'   => true,
@@ -65,6 +66,7 @@ return $config
 		'single_import_per_statement'        => true,
 		'single_line_after_imports'          => true,
 		'switch_case_space'                  => true,
+		'ternary_operator_spaces'            => false,
 		'visibility_required'                => [
 			'elements' => ['property', 'method']
 		],

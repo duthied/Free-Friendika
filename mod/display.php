@@ -246,7 +246,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$page_uid = 0;
 
 	$parent = null;
-	if (!empty($parent_uri_id)) {
+	if (!local_user() && !empty($parent_uri_id)) {
 		$parent = Post::selectFirst(['uid'], ['uri-id' => $parent_uri_id, 'wall' => true]);
 	}
 
@@ -272,7 +272,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	// We need the editor here to be able to reshare an item.
 	if ($is_owner && !$update) {
-		$o .= status_editor($a, [], 0, true);
+		$o .= DI::conversation()->statusEditor([], 0, true);
 	}
 	$sql_extra = Item::getPermissionsSQLByUserId($page_uid);
 
@@ -306,7 +306,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$o .= "<script> var netargs = '?uri_id=" . $item['uri-id'] . "'; </script>";
 	}
 
-	$o .= conversation($a, [$item], 'display', $update_uid, false, 'commented', $item_uid);
+	$o .= DI::conversation()->create([$item], 'display', $update_uid, false, 'commented', $item_uid);
 
 	// Preparing the meta header
 	$description = trim(BBCode::toPlaintext($item['body']));

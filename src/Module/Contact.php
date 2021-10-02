@@ -951,7 +951,7 @@ class Contact extends BaseModule
 		if (!$update) {
 			// We need the editor here to be able to reshare an item.
 			if (local_user()) {
-				$o = status_editor($a, [], 0, true);
+				$o = DI::conversation()->statusEditor([], 0, true);
 			}
 		}
 

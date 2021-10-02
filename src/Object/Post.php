@@ -105,7 +105,7 @@ class Post
 				// Only add will be displayed
 				if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
 					continue;
-				} elseif (!visible_activity($item)) {
+				} elseif (!DI::contentItem()->visibleActivity($item)) {
 					continue;
 				}
 
@@ -279,7 +279,7 @@ class Post
 		foreach ($response_verbs as $value => $verb) {
 			$responses[$verb] = [
 				'self'   => $conv_responses[$verb][$item['uri-id']]['self'] ?? 0,
-				'output' => !empty($conv_responses[$verb][$item['uri-id']]) ? format_activity($conv_responses[$verb][$item['uri-id']]['links'], $verb, $item['uri-id']) : '',
+				'output' => !empty($conv_responses[$verb][$item['uri-id']]) ? DI::conversation()->formatActivity($conv_responses[$verb][$item['uri-id']]['links'], $verb, $item['uri-id']) : '',
 			];
 		}
 
@@ -363,7 +363,7 @@ class Post
 			$shiny = 'shiny';
 		}
 
-		localize_item($item);
+		DI::contentItem()->localize($item);
 
 		$body_html = Item::prepareBody($item, true);
 
@@ -459,7 +459,7 @@ class Post
 			'vwall'           => DI::l10n()->t('via Wall-To-Wall:'),
 			'profile_url'     => $profile_link,
 			'name'            => $profile_name,
-			'item_photo_menu_html' => item_photo_menu($item, $formSecurityToken),
+			'item_photo_menu_html' => DI::contentItem()->photoMenu($item, $formSecurityToken),
 			'thumb'           => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['author-link'], $item['uid'], Proxy::SIZE_THUMB)),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,

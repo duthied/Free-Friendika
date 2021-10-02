@@ -82,7 +82,7 @@ echo ">>> Installing 'Local Only' postfix"
 debconf-set-selections <<< "postfix postfix/mailname string friendica.local"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local Only'"
 apt-get install -qq postfix mailutils libmailutils-dev
-echo -e "friendica1:	vagrant\nfriendica2:	vagrant\nfriendica3:	vagrant\nfriendica4:	vagrant\nfriendica5:	vagrant" >> /etc/aliases && newaliases
+echo -e "$ADMIN_NICK:	vagrant\n$USER_NICK:	vagrant" >> /etc/aliases && newaliases
 
 # Friendica needs git for fetching some dependencies
 echo ">>> Installing git"
@@ -93,13 +93,8 @@ echo ">>> Symlink /var/www to /vagrant"
 rm -rf /var/www/
 ln -fs /vagrant /var/www
 
-# install deps with composer
-echo ">>> Installing php requirements"
-apt install unzip
+# Setup Friendica
 cd /var/www
-php bin/composer.phar install
-
-
 echo ">>> Setup Friendica"
 
 # copy the .htaccess-dist file to .htaccess so that rewrite rules work
@@ -119,10 +114,6 @@ bin/console user add "$ADMIN_NICK" "$ADMIN_NICK" "$ADMIN_NICK@friendica.local" e
 bin/console user password "$ADMIN_NICK" "$ADMIN_PASSW"
 bin/console user add "$USER_NICK" "$USER_NICK" "$USER_NICK@friendica.local" en
 bin/console user password "$USER_NICK" "$USER_PASSW"
-
-# set the admin
-bin/console config config admin_email ""$ADMIN_NICK@friendica.local""
-
 
 # create cronjob - activate if you have enough memory in you dev VM
 # cronjob runs as www-data user

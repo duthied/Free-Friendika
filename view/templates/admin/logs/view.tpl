@@ -9,16 +9,16 @@
 	{{else}}
 		<form>
 			<p>
-				<input type="search" name="q" value="{{$q}}" placeholder="search"></input>
-				<input type="Submit" value="search">
-				<a href="/admin/logs/view">clear</a>
+				<input type="search" name="q" value="{{$q}}" placeholder="{{$l10n.Search}}"></input>
+				<input type="submit" value="{{$l10n.Search}}">
+				<a href="/admin/logs/view">{{$l10n.Show_all}}</a>
 			</p>
 
 
 			<table>
 				<thead>
 					<tr>
-						<th>Date</th>
+						<th>{{$l10n.Date}}</th>
 						<th>
 							<select name="level" onchange="this.form.submit()">
 								{{foreach $filtersvalues.level as $v }}
@@ -39,22 +39,22 @@
 								{{/foreach}}
 							</select>
 						</th>
-						<th>Message</th>
+						<th>{{$l10n.Message}}</th>
 					</tr>
 				</thead>
 				<tbody>
 					{{foreach $data as $row}}
 						<tr id="ev-{{$row->id}}" class="log-event"
 						 role="button" tabIndex="0"
-						 aria-label="View details" aria-haspopup="true" aria-expanded="false"
+						 aria-label="{{$l10n.View_details}}" aria-haspopup="true" aria-expanded="false"
 						 style="cursor:pointer;"
-						 title="Click to view details">
+						 title="{{$l10n.Click_to_view_details}}">
 							<td>{{$row->date}}</td>
 							<td>{{$row->level}}</td>
 							<td>{{$row->context}}</td>
 							<td>{{$row->message}}</td>
 						</tr>
-						<tr class="hidden" data-id="ev-{{$row->id}}"><th colspan="4">Data</th></tr>
+						<tr class="hidden" data-id="ev-{{$row->id}}"><th colspan="4">{{$l10n.Event_details}}</th></tr>
 						{{foreach $row->getData() as $k=>$v}}
 							<tr class="hidden" data-id="ev-{{$row->id}}">
 								<th>{{$k}}</th>
@@ -63,7 +63,7 @@
 								</td>
 							</tr>
 						{{/foreach}}
-						<tr class="hidden" data-id="ev-{{$row->id}}"><th colspan="4">Source</th></tr>
+						<tr class="hidden" data-id="ev-{{$row->id}}"><th colspan="4">{{$l10n.Source}}</th></tr>
 						{{foreach $row->getSource() as $k=>$v}}
 							<tr class="hidden" data-id="ev-{{$row->id}}">
 								<th>{{$k}}</th>

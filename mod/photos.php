@@ -1394,15 +1394,15 @@ function photos_content(App $a)
 			// display comments
 			if (DBA::isResult($items)) {
 				foreach ($items as $item) {
-					builtin_activity_puller($item, $conv_responses);
+					DI::conversation()->builtinActivityPuller($item, $conv_responses);
 				}
 
 				if (!empty($conv_responses['like'][$link_item['uri']])) {
-					$like = format_activity($conv_responses['like'][$link_item['uri']]['links'], 'like', $link_item['id']);
+					$like = DI::conversation()->formatActivity($conv_responses['like'][$link_item['uri']]['links'], 'like', $link_item['id']);
 				}
 
 				if (!empty($conv_responses['dislike'][$link_item['uri']])) {
-					$dislike = format_activity($conv_responses['dislike'][$link_item['uri']]['links'], 'dislike', $link_item['id']);
+					$dislike = DI::conversation()->formatActivity($conv_responses['dislike'][$link_item['uri']]['links'], 'dislike', $link_item['id']);
 				}
 
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {

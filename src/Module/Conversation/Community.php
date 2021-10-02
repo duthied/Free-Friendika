@@ -127,7 +127,7 @@ class Community extends BaseModule
 
 			// We need the editor here to be able to reshare an item.
 			if (Session::isAuthenticated()) {
-				$o .= status_editor(DI::app(), [], 0, true);
+				$o .= DI::conversation()->statusEditor([], 0, true);
 			}
 		}
 
@@ -138,7 +138,7 @@ class Community extends BaseModule
 			return $o;
 		}
 
-		$o .= conversation(DI::app(), $items, 'community', false, false, 'commented', local_user());
+		$o .= DI::conversation()->create($items, 'community', false, false, 'commented', local_user());
 
 		$pager = new BoundariesPager(
 			DI::l10n(),

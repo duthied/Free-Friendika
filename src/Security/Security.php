@@ -49,7 +49,7 @@ class Security
 			return true;
 		}
 
-		if (!empty(Session::getRemoteContactID($owner))) {
+		if (!empty($cid = Session::getRemoteContactID($owner))) {
 			// use remembered decision and avoid a DB lookup for each and every display item
 			// DO NOT use this function if there are going to be multiple owners
 			// We have a contact-id for an authenticated remote user, this block determines if the contact
@@ -60,22 +60,19 @@ class Security
 			} elseif ($verified === 1) {
 				return false;
 			} else {
-				$cid = Session::getRemoteContactID($owner);
-				if (!$cid) {
+				$user = User::getById($owner);
+				if (!$user || $user['blockwall']) {
+					$verified = 1;
 					return false;
 				}
 
-				$r = q("SELECT `contact`.*, `user`.`page-flags` FROM `contact` INNER JOIN `user` on `user`.`uid` = `contact`.`uid`
-					WHERE `contact`.`uid` = %d AND `contact`.`id` = %d AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-					AND `user`.`blockwall` = 0 AND `readonly` = 0  AND (`contact`.`rel` IN (%d , %d) OR `user`.`page-flags` = %d) LIMIT 1",
-					intval($owner),
-					intval($cid),
-					intval(Contact::SHARING),
-					intval(Contact::FRIEND),
-					intval(User::PAGE_FLAGS_COMMUNITY)
-				);
-
-				if (DBA::isResult($r)) {
+				$contact = Contact::getById($cid);
+				if ($contact || $contact['blocked'] || $contact['readonly'] || $contact['pending']) {
+					$verified = 1;
+					return false;
+				}
+				
+				if (in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND]) || ($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 					$verified = 2;
 					return true;
 				} else {
