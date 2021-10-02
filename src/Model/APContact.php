@@ -119,7 +119,8 @@ class APContact
 	 */
 	public static function getByURL($url, $update = null)
 	{
-		if (empty($url)) {
+		if (empty($url) || Network::isUrlBlocked($url)) {
+			Logger::info('Domain is blocked', ['url' => $url]);
 			return [];
 		}
 

@@ -231,6 +231,11 @@ class Probe
 			}
 		}
 
+		if (Network::isUrlBlocked($host_url)) {
+			Logger::info('Domain is blocked', ['url' => $host]);
+			return [];
+		}
+
 		self::$baseurl = $host_url;
 
 		Logger::info('Probing successful', ['host' => $host]);
@@ -625,6 +630,11 @@ class Probe
 	 */
 	private static function getWebfinger(string $template, string $type, string $uri, string $addr)
 	{
+		if (Network::isUrlBlocked($template)) {
+			Logger::info('Domain is blocked', ['url' => $template]);
+			return [];
+		}
+
 		// First try the address because this is the primary purpose of webfinger
 		if (!empty($addr)) {
 			$detected = $addr;
