@@ -491,6 +491,10 @@ $a->strings["To export your account, go to \"Settings->Export your personal data
 $a->strings["You aren't following this contact."] = "Du folgst diesem Kontakt.";
 $a->strings["Unfollowing is currently not supported by your network."] = "Bei diesem Netzwerk wird das Entfolgen derzeit nicht unterstützt.";
 $a->strings["Disconnect/Unfollow"] = "Verbindung lösen/Nicht mehr folgen";
+$a->strings["Unfollowing is currently not supported by this contact's network."] = "Bei dem Netzwerk dieses Kontakts wird das Entfolgen derzeit nicht unterstützt.";
+$a->strings["Unable to unfollow this contact, please retry in a few minutes or contact your administrator."] = "Konnte dem Kontakt nicht entfolgen. Bitte warte ein paar Minuten und versuche es dann noch einmal, oder kontaktiere deinen Administrator.";
+$a->strings["Contact was successfully unfollowed"] = "Kontakt wurde erfolgreich entfolgt.";
+$a->strings["Unable to unfollow this contact, please contact your administrator"] = "Konnte dem Kontakt nicht entfolgen. Bitte kontaktiere deinen Administrator.";
 $a->strings["No videos selected"] = "Keine Videos  ausgewählt";
 $a->strings["View Video"] = "Video ansehen";
 $a->strings["Recent Videos"] = "Neueste Videos";

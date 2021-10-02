@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-01 16:40+0200\n"
-"PO-Revision-Date: 2021-10-01 15:32+0000\n"
+"POT-Creation-Date: 2021-10-02 08:34-0400\n"
+"PO-Revision-Date: 2021-10-02 19:18+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -79,7 +79,7 @@ msgstr[1] "Das wöchentliche Limit von %d Beiträgen wurde erreicht. Der Beitrag
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr "Das monatliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde verworfen."
 
-#: include/api.php:4437 mod/photos.php:89 mod/photos.php:198
+#: include/api.php:4430 mod/photos.php:89 mod/photos.php:198
 #: mod/photos.php:626 mod/photos.php:1035 mod/photos.php:1052
 #: mod/photos.php:1599 src/Model/User.php:1169 src/Model/User.php:1177
 #: src/Model/User.php:1185 src/Module/Settings/Profile/Photo/Crop.php:101
@@ -602,7 +602,7 @@ msgstr "Abbrechen"
 
 #: mod/editpost.php:134 src/Content/Conversation.php:380
 #: src/Content/Widget/VCard.php:107 src/Model/Profile.php:459
-#: src/Module/Admin/Logs/View.php:93
+#: src/Module/Admin/Logs/View.php:92
 msgid "Message"
 msgstr "Nachricht"
 
@@ -632,7 +632,7 @@ msgstr "Der Veranstaltungstitel und die Anfangszeit müssen angegeben werden."
 msgid "Create New Event"
 msgstr "Neue Veranstaltung erstellen"
 
-#: mod/events.php:536 src/Module/Admin/Logs/View.php:97
+#: mod/events.php:536 src/Module/Admin/Logs/View.php:96
 msgid "Event details"
 msgstr "Veranstaltungsdetails"
 
@@ -761,7 +761,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr "OStatus-Unterstützung ist nicht aktiviert. Der Kontakt kann nicht zugefügt werden."
 
 #: mod/follow.php:138 src/Content/Item.php:463 src/Content/Widget.php:76
-#: src/Model/Contact.php:1051 src/Model/Contact.php:1064
+#: src/Model/Contact.php:1046 src/Model/Contact.php:1059
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "Verbinden/Folgen"
@@ -2321,17 +2321,35 @@ msgid ""
 "select \"Export account\""
 msgstr "Um Deinen Account zu exportieren, rufe \"Einstellungen -> Persönliche Daten exportieren\" auf und wähle \"Account exportieren\""
 
-#: mod/unfollow.php:65 mod/unfollow.php:129
+#: mod/unfollow.php:65 mod/unfollow.php:135
 msgid "You aren't following this contact."
 msgstr "Du folgst diesem Kontakt."
 
-#: mod/unfollow.php:71 mod/unfollow.php:135
+#: mod/unfollow.php:71
 msgid "Unfollowing is currently not supported by your network."
 msgstr "Bei diesem Netzwerk wird das Entfolgen derzeit nicht unterstützt."
 
 #: mod/unfollow.php:92
 msgid "Disconnect/Unfollow"
 msgstr "Verbindung lösen/Nicht mehr folgen"
+
+#: mod/unfollow.php:149
+msgid "Unfollowing is currently not supported by this contact's network."
+msgstr "Bei dem Netzwerk dieses Kontakts wird das Entfolgen derzeit nicht unterstützt."
+
+#: mod/unfollow.php:153
+msgid ""
+"Unable to unfollow this contact, please retry in a few minutes or contact "
+"your administrator."
+msgstr "Konnte dem Kontakt nicht entfolgen. Bitte warte ein paar Minuten und versuche es dann noch einmal, oder kontaktiere deinen Administrator."
+
+#: mod/unfollow.php:157
+msgid "Contact was successfully unfollowed"
+msgstr "Kontakt wurde erfolgreich entfolgt."
+
+#: mod/unfollow.php:161
+msgid "Unable to unfollow this contact, please contact your administrator"
+msgstr "Konnte dem Kontakt nicht entfolgen. Bitte kontaktiere deinen Administrator."
 
 #: mod/videos.php:120
 msgid "No videos selected"
@@ -2469,12 +2487,12 @@ msgstr "Addon bereits aktiviert"
 msgid "Addon already disabled"
 msgstr "Addon bereits deaktiviert"
 
-#: src/Console/ArchiveContact.php:105
+#: src/Console/ArchiveContact.php:106
 #, php-format
 msgid "Could not find any unarchived contact entry for this URL (%s)"
 msgstr "Für die URL (%s) konnte kein nicht-archivierter Kontakt gefunden werden"
 
-#: src/Console/ArchiveContact.php:108
+#: src/Console/ArchiveContact.php:109
 msgid "The contact entries have been archived"
 msgstr "Die Kontakteinträge wurden archiviert."
 
@@ -3047,31 +3065,31 @@ msgstr "Veranstaltung"
 msgid "Follow Thread"
 msgstr "Folge der Unterhaltung"
 
-#: src/Content/Item.php:443 src/Model/Contact.php:1056
+#: src/Content/Item.php:443 src/Model/Contact.php:1051
 msgid "View Status"
 msgstr "Status anschauen"
 
-#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:982
-#: src/Model/Contact.php:1048 src/Model/Contact.php:1057
+#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:977
+#: src/Model/Contact.php:1043 src/Model/Contact.php:1052
 #: src/Module/Directory.php:160 src/Module/Settings/Profile/Index.php:223
 msgid "View Profile"
 msgstr "Profil anschauen"
 
-#: src/Content/Item.php:445 src/Model/Contact.php:1058
+#: src/Content/Item.php:445 src/Model/Contact.php:1053
 msgid "View Photos"
 msgstr "Bilder anschauen"
 
-#: src/Content/Item.php:446 src/Model/Contact.php:1049
-#: src/Model/Contact.php:1059
+#: src/Content/Item.php:446 src/Model/Contact.php:1044
+#: src/Model/Contact.php:1054
 msgid "Network Posts"
 msgstr "Netzwerkbeiträge"
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1050
-#: src/Model/Contact.php:1060
+#: src/Content/Item.php:447 src/Model/Contact.php:1045
+#: src/Model/Contact.php:1055
 msgid "View Contact"
 msgstr "Kontakt anzeigen"
 
-#: src/Content/Item.php:448 src/Model/Contact.php:1062
+#: src/Content/Item.php:448 src/Model/Contact.php:1057
 msgid "Send PM"
 msgstr "Private Nachricht senden"
 
@@ -3094,7 +3112,7 @@ msgstr "Ignorieren"
 msgid "Languages"
 msgstr "Sprachen"
 
-#: src/Content/Item.php:458 src/Model/Contact.php:1063
+#: src/Content/Item.php:458 src/Model/Contact.php:1058
 msgid "Poke"
 msgstr "Anstupsen"
 
@@ -3211,7 +3229,7 @@ msgid "Addon applications, utilities, games"
 msgstr "Zusätzliche Anwendungen, Dienstprogramme, Spiele"
 
 #: src/Content/Nav.php:230 src/Content/Text/HTML.php:891
-#: src/Module/Admin/Logs/View.php:87 src/Module/Search/Index.php:99
+#: src/Module/Admin/Logs/View.php:86 src/Module/Search/Index.php:99
 msgid "Search"
 msgstr "Suche"
 
@@ -3543,7 +3561,7 @@ msgstr "Personen"
 msgid "Organisations"
 msgstr "Organisationen"
 
-#: src/Content/Widget.php:529 src/Model/Contact.php:1480
+#: src/Content/Widget.php:529 src/Model/Contact.php:1474
 msgid "News"
 msgstr "Nachrichten"
 
@@ -4407,85 +4425,85 @@ msgstr "%s ist jetzt mit %s befreundet"
 msgid "Legacy module file not found: %s"
 msgstr "Legacy-Moduldatei nicht gefunden: %s"
 
-#: src/Model/Contact.php:1052 src/Model/Contact.php:1065
+#: src/Model/Contact.php:1047 src/Model/Contact.php:1060
 msgid "UnFollow"
 msgstr "Entfolgen"
 
-#: src/Model/Contact.php:1061
+#: src/Model/Contact.php:1056
 msgid "Drop Contact"
 msgstr "Kontakt löschen"
 
-#: src/Model/Contact.php:1071 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1066 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:111
 #: src/Module/Notifications/Introductions.php:183
 msgid "Approve"
 msgstr "Genehmigen"
 
-#: src/Model/Contact.php:1476
+#: src/Model/Contact.php:1470
 msgid "Organisation"
 msgstr "Organisation"
 
-#: src/Model/Contact.php:1484
+#: src/Model/Contact.php:1478
 msgid "Forum"
 msgstr "Forum"
 
-#: src/Model/Contact.php:2340
+#: src/Model/Contact.php:2334
 msgid "Disallowed profile URL."
 msgstr "Nicht erlaubte Profil-URL."
 
-#: src/Model/Contact.php:2345 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2339 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Blockierte Domain"
 
-#: src/Model/Contact.php:2350
+#: src/Model/Contact.php:2344
 msgid "Connect URL missing."
 msgstr "Connect-URL fehlt"
 
-#: src/Model/Contact.php:2359
+#: src/Model/Contact.php:2353
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "Der Kontakt konnte nicht hinzugefügt werden. Bitte überprüfe die Einstellungen unter Einstellungen -> Soziale Netzwerke"
 
-#: src/Model/Contact.php:2396
+#: src/Model/Contact.php:2390
 msgid "The profile address specified does not provide adequate information."
 msgstr "Die angegebene Profiladresse liefert unzureichende Informationen."
 
-#: src/Model/Contact.php:2398
+#: src/Model/Contact.php:2392
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Es wurden keine kompatiblen Kommunikationsprotokolle oder Feeds gefunden."
 
-#: src/Model/Contact.php:2401
+#: src/Model/Contact.php:2395
 msgid "An author or name was not found."
 msgstr "Es wurde kein Autor oder Name gefunden."
 
-#: src/Model/Contact.php:2404
+#: src/Model/Contact.php:2398
 msgid "No browser URL could be matched to this address."
 msgstr "Zu dieser Adresse konnte keine passende Browser-URL gefunden werden."
 
-#: src/Model/Contact.php:2407
+#: src/Model/Contact.php:2401
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Konnte die @-Adresse mit keinem der bekannten Protokolle oder Email-Kontakte abgleichen."
 
-#: src/Model/Contact.php:2408
+#: src/Model/Contact.php:2402
 msgid "Use mailto: in front of address to force email check."
 msgstr "Verwende mailto: vor der E-Mail-Adresse, um eine Überprüfung der E-Mail-Adresse zu erzwingen."
 
-#: src/Model/Contact.php:2414
+#: src/Model/Contact.php:2408
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "Die Adresse dieses Profils gehört zu einem Netzwerk, mit dem die Kommunikation auf dieser Seite ausgeschaltet wurde."
 
-#: src/Model/Contact.php:2419
+#: src/Model/Contact.php:2413
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Eingeschränktes Profil. Diese Person wird keine direkten/privaten Nachrichten von dir erhalten können."
 
-#: src/Model/Contact.php:2478
+#: src/Model/Contact.php:2472
 msgid "Unable to retrieve contact information."
 msgstr "Konnte die Kontaktinformationen nicht empfangen."
 
@@ -5081,7 +5099,7 @@ msgstr "Einschalten"
 #: src/Module/Admin/Blocklist/Contact.php:78
 #: src/Module/Admin/Blocklist/Server.php:88
 #: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:65
-#: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:84
+#: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:83
 #: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:497
 #: src/Module/Admin/Storage.php:131 src/Module/Admin/Summary.php:233
 #: src/Module/Admin/Themes/Details.php:90
@@ -5519,7 +5537,7 @@ msgstr "Mention"
 msgid "Implicit Mention"
 msgstr "Implicit Mention"
 
-#: src/Module/Admin/Item/Source.php:73 src/Module/Admin/Logs/View.php:99
+#: src/Module/Admin/Item/Source.php:73 src/Module/Admin/Logs/View.php:98
 #: src/Module/Debug/ActivityPubConversion.php:62
 msgid "Source"
 msgstr "Quelle"
@@ -5577,82 +5595,82 @@ msgid ""
 "'display_errors' is to enable these options, set to '0' to disable them."
 msgstr "Um die Protokollierung von PHP-Fehlern und Warnungen vorübergehend zu aktivieren, kannst du der Datei index.php deiner Installation Folgendes voranstellen. Der in der Datei 'error_log' angegebene Dateiname ist relativ zum obersten Verzeichnis von Friendica und muss vom Webserver beschreibbar sein. Die Option '1' für 'log_errors' und 'display_errors' aktiviert diese Optionen, ersetze die '1' durch eine '0', um sie zu deaktivieren."
 
-#: src/Module/Admin/Logs/View.php:71
+#: src/Module/Admin/Logs/View.php:70
 #, php-format
 msgid ""
 "Error trying to open <strong>%1$s</strong> log file.<br/>Check to see if "
 "file %1$s exist and is readable."
 msgstr "Fehler beim Öffnen der Logdatei <strong>%1$s</strong>.<br/>Bitte überprüfe ob die Datei %1$s existiert und gelesen werden kann."
 
-#: src/Module/Admin/Logs/View.php:80
+#: src/Module/Admin/Logs/View.php:79
 #, php-format
 msgid ""
 "Couldn't open <strong>%1$s</strong> log file.<br/>Check to see if file %1$s "
 "is readable."
 msgstr "Konnte die Logdatei <strong>%1$s</strong> nicht öffnen.<br/>Bitte stelle sicher, dass die Datei %1$s lesbar ist."
 
-#: src/Module/Admin/Logs/View.php:85 src/Module/BaseAdmin.php:110
+#: src/Module/Admin/Logs/View.php:84 src/Module/BaseAdmin.php:110
 msgid "View Logs"
 msgstr "Protokolle anzeigen"
 
-#: src/Module/Admin/Logs/View.php:88
+#: src/Module/Admin/Logs/View.php:87
 msgid "Search in logs"
 msgstr "Logs durchsuchen"
 
-#: src/Module/Admin/Logs/View.php:89
+#: src/Module/Admin/Logs/View.php:88
 #: src/Module/Notifications/Notifications.php:138
 msgid "Show all"
 msgstr "Alle anzeigen"
 
-#: src/Module/Admin/Logs/View.php:90
+#: src/Module/Admin/Logs/View.php:89
 msgid "Date"
 msgstr "Datum"
 
-#: src/Module/Admin/Logs/View.php:91
+#: src/Module/Admin/Logs/View.php:90
 msgid "Level"
 msgstr "Level"
 
-#: src/Module/Admin/Logs/View.php:92
+#: src/Module/Admin/Logs/View.php:91
 msgid "Context"
 msgstr "Zusammenhang"
 
-#: src/Module/Admin/Logs/View.php:94
+#: src/Module/Admin/Logs/View.php:93
 msgid "ALL"
 msgstr "ALLE"
 
-#: src/Module/Admin/Logs/View.php:95
+#: src/Module/Admin/Logs/View.php:94
 msgid "View details"
 msgstr "Details anzeigen"
 
-#: src/Module/Admin/Logs/View.php:96
+#: src/Module/Admin/Logs/View.php:95
 msgid "Click to view details"
 msgstr "Anklicken zum Anzeigen der Details"
 
-#: src/Module/Admin/Logs/View.php:98
+#: src/Module/Admin/Logs/View.php:97
 msgid "Data"
 msgstr "Daten"
 
-#: src/Module/Admin/Logs/View.php:100
+#: src/Module/Admin/Logs/View.php:99
 msgid "File"
 msgstr "Datei"
 
-#: src/Module/Admin/Logs/View.php:101
+#: src/Module/Admin/Logs/View.php:100
 msgid "Line"
 msgstr "Zeile"
 
-#: src/Module/Admin/Logs/View.php:102
+#: src/Module/Admin/Logs/View.php:101
 msgid "Function"
 msgstr "Funktion"
 
-#: src/Module/Admin/Logs/View.php:103
+#: src/Module/Admin/Logs/View.php:102
 msgid "UID"
 msgstr "UID"
 
-#: src/Module/Admin/Logs/View.php:104
+#: src/Module/Admin/Logs/View.php:103
 msgid "Process ID"
 msgstr "Prozess ID"
 
-#: src/Module/Admin/Logs/View.php:105
+#: src/Module/Admin/Logs/View.php:104
 msgid "Close"
 msgstr "Schließen"
 
