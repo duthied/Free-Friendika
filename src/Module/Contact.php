@@ -69,7 +69,8 @@ class Contact extends BaseModule
 		$count_actions = 0;
 		foreach ($orig_records as $orig_record) {
 			$cdata = Model\Contact::getPublicAndUserContactID($orig_record['id'], local_user());
-			if (empty($cdata)) {
+			if (empty($cdata) || public_contact() === $cdata['public']) {
+				// No action available on your own contact
 				continue;
 			}
 
@@ -79,7 +80,7 @@ class Contact extends BaseModule
 			}
 
 			if (!empty($_POST['contacts_batch_block'])) {
-				self::toggleBlockContact($cdata['public']);
+				self::toggleBlockContact($cdata['public'], local_user());
 				$count_actions++;
 			}
 
@@ -204,12 +205,13 @@ class Contact extends BaseModule
 	 * Toggles the blocked status of a contact identified by id.
 	 *
 	 * @param int $contact_id Id of the contact with uid = 0
+	 * @param int $owner_id   Id of the user we want to block the contact for
 	 * @throws \Exception
 	 */
-	private static function toggleBlockContact(int $contact_id)
+	private static function toggleBlockContact(int $contact_id, int $owner_id)
 	{
-		$blocked = !Model\Contact\User::isBlocked($contact_id, local_user());
-		Model\Contact\User::setBlocked($contact_id, local_user(), $blocked);
+		$blocked = !Model\Contact\User::isBlocked($contact_id, $owner_id);
+		Model\Contact\User::setBlocked($contact_id, $owner_id, $blocked);
 	}
 
 	/**
@@ -373,7 +375,7 @@ class Contact extends BaseModule
 					throw new BadRequestException(DI::l10n()->t('You can\'t block yourself'));
 				}
 
-				self::toggleBlockContact($cdata['public']);
+				self::toggleBlockContact($cdata['public'], local_user());
 
 				$blocked = Model\Contact\User::isBlocked($contact_id, local_user());
 				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')));

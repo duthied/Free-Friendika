@@ -3826,10 +3826,8 @@ function api_friendships_destroy($type)
 		throw new HTTPException\NotFoundException('Not following Contact');
 	}
 
-	$dissolve = ($contact['rel'] == Contact::SHARING);
-
 	try {
-		$result = Contact::terminateFriendship($owner, $contact, $dissolve);
+		$result = Contact::terminateFriendship($owner, $contact);
 
 		if ($result === null) {
 			Logger::notice(API_LOG_PREFIX . 'Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
@@ -3840,7 +3838,7 @@ function api_friendships_destroy($type)
 			throw new HTTPException\ServiceUnavailableException('Unable to unfollow this contact, please retry in a few minutes or contact your administrator.');
 		}
 	} catch (Exception $e) {
-		Logger::error(API_LOG_PREFIX . $e->getMessage(), ['owner' => $owner, 'contact' => $contact, 'dissolve' => $dissolve]);
+		Logger::error(API_LOG_PREFIX . $e->getMessage(), ['owner' => $owner, 'contact' => $contact]);
 		throw new HTTPException\InternalServerErrorException('Unable to unfollow this contact, please contact your administrator');
 	}
 
