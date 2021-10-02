@@ -418,7 +418,9 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('support_follow', $hook_data);
     Hook::callAll('support_revoke_follow', $hook_data);
     Hook::callAll('unfollow', $hook_data);
-    Kook::callAll('revoke_follow', $hook_data);
+    Hook::callAll('revoke_follow', $hook_data);
+    Hook::callAll('block', $hook_data);
+    Hook::callAll('unblock', $hook_data);
 
 ### src/Core/StorageManager
 

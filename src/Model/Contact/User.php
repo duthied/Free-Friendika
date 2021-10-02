@@ -23,6 +23,7 @@ namespace Friendica\Model\Contact;
 
 use Exception;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
@@ -143,6 +144,13 @@ class User
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return;
+		}
+
+		$contact = Contact::getById($cdata['public']);
+		if ($blocked) {
+			Protocol::block($contact);
+		} else {
+			Protocol::unblock($contact);
 		}
 
 		if ($cdata['user'] != 0) {

@@ -287,4 +287,46 @@ class Protocol
 
 		return $hook_data['result'];
 	}
+
+	/**
+	 * Send a block message to a remote server. Only useful for connector addons.
+	 *
+	 * @param array $contact Public contact record to block
+	 * @param int   $uid     User issuing the block
+	 * @return bool|null true if successful, false if not, null if no action was performed
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function block(array $contact, int $uid): ?bool
+	{
+		// Catch-all hook for connector addons
+		$hook_data = [
+			'contact' => $contact,
+			'uid' => $uid,
+			'result' => null,
+		];
+		Hook::callAll('block', $hook_data);
+
+		return $hook_data['result'];
+	}
+
+	/**
+	 * Send an unblock message to a remote server. Only useful for connector addons.
+	 *
+	 * @param array $contact Public contact record to unblock
+	 * @param int   $uid     User revoking the block
+	 * @return bool|null true if successful, false if not, null if no action was performed
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function unblock(array $contact, int $uid): ?bool
+	{
+		// Catch-all hook for connector addons
+		$hook_data = [
+			'contact' => $contact,
+			'uid' => $uid,
+			'result' => null,
+		];
+		Hook::callAll('unblock', $hook_data);
+
+		return $hook_data['result'];
+	}
 }
