@@ -414,7 +414,12 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('logged_in', $a->user);
 
 ### src/Core/Protocol.php
+
+    Hook::callAll('support_follow', $hook_data);
+    Hook::callAll('support_revoke_follow', $hook_data);
     Hook::callAll('unfollow', $hook_data);
+    Kook::callAll('revoke_follow', $hook_data);
+
 ### src/Core/StorageManager
 
     Hook::callAll('storage_instance', $data);

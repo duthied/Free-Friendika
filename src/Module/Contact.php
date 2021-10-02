@@ -1148,6 +1148,16 @@ class Contact extends BaseModule
 		];
 
 		if ($contact['uid'] != 0) {
+			if (Protocol::supportsRevokeFollow($contact['network']) && in_array($contact['rel'], [Model\Contact::FOLLOWER, Model\Contact::FRIEND])) {
+				$contact_actions['revoke_follow'] = [
+					'label' => DI::l10n()->t('Revoke Follow'),
+					'url'   => 'contact/' . $contact['id'] . '/revoke',
+					'title' => DI::l10n()->t('Revoke the follow from this contact'),
+					'sel'   => '',
+					'id'    => 'revoke_follow',
+				];
+			}
+
 			$contact_actions['delete'] = [
 				'label' => DI::l10n()->t('Delete'),
 				'url'   => 'contact/' . $contact['id'] . '/drop?t=' . $formSecurityToken,
