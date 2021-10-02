@@ -30,15 +30,13 @@ use Friendica\Model\Photo as MPhoto;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\Storage\ExternalResource;
-use Friendica\Model\Storage\ReferenceStorageException;
-use Friendica\Model\Storage\StorageException;
 use Friendica\Model\Storage\SystemResource;
-use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Network\HTTPException\NotFoundException;
-use Friendica\Util\Proxy;
+use Friendica\Model\User;
+use Friendica\Network\HTTPException;
 use Friendica\Object\Image;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy;
 
 /**
  * Photo Module
@@ -75,19 +73,18 @@ class Photo extends BaseModule
 
 		$customsize = 0;
 		$square_resize = true;
-		$photo = false;
 		$scale = null;
 		$stamp = microtime(true);
 		if (!empty($parameters['customsize'])) {
 			$customsize = intval($parameters['customsize']);
-			$uid = MPhoto::stripExtension($parameters['name']);
+			$uid = pathinfo($parameters['name'], PATHINFO_FILENAME);
 			$photo = self::getAvatar($uid, $parameters['type'], $customsize);
 			$square_resize = !in_array($parameters['type'], ['media', 'preview']);
 		} elseif (!empty($parameters['type'])) {
-			$uid = MPhoto::stripExtension($parameters['name']);
+			$uid = pathinfo($parameters['name'], PATHINFO_FILENAME);
 			$photo = self::getAvatar($uid, $parameters['type'], Proxy::PIXEL_SMALL);
 		} elseif (!empty($parameters['name'])) {
-			$photoid = MPhoto::stripExtension($parameters['name']);
+			$photoid = pathinfo($parameters['name'], PATHINFO_FILENAME);
 			$scale = 0;
 			if (substr($photoid, -2, 1) == "-") {
 				$scale = intval(substr($photoid, -1, 1));
@@ -95,15 +92,14 @@ class Photo extends BaseModule
 			}
 			$photo = MPhoto::getPhoto($photoid, $scale);
 			if ($photo === false) {
-				throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));
+				throw new HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));
 			}
-		} else {
-			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
+
 		$fetch = microtime(true) - $stamp;
 
 		if ($photo === false) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
+			throw new HTTPException\NotFoundException();
 		}
 
 		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);
@@ -112,7 +108,7 @@ class Photo extends BaseModule
 
 		$imgdata = MPhoto::getImageDataForPhoto($photo);
 		if (empty($imgdata)) {
-			throw new NotFoundException();
+			throw new HTTPException\NotFoundException();
 		}
 
 		// The mimetype for an external or system resource can only be known reliably after it had been fetched
@@ -133,7 +129,7 @@ class Photo extends BaseModule
 			} else {
 				$error = DI::l10n()->t('Invalid photo with id %s.', $photo['id']);
 			}
-			throw new \Friendica\Network\HTTPException\InternalServerErrorException($error);
+			throw new HTTPException\InternalServerErrorException($error);
 		}
 
 		// if customsize is set and image is not a gif, resize it
@@ -186,7 +182,7 @@ class Photo extends BaseModule
 		exit();
 	}
 
-	private static function getAvatar($uid, $type="avatar", $customsize)
+	private static function getAvatar(int $uid, $type, $customsize)
 	{
 		switch($type) {
 			case "preview":

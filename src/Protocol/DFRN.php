@@ -449,7 +449,7 @@ class DFRN
 
 		$attributes = ["rel" => "photo", "type" => "image/jpeg",
 					"media:width" => Proxy::PIXEL_SMALL, "media:height" => Proxy::PIXEL_SMALL,
-					"href" => User::getAvatarUrlForId($owner['uid'], Proxy::SIZE_SMALL)];
+					"href" => User::getAvatarUrl($owner, Proxy::SIZE_SMALL)];
 
 		if (!$public || !$hide) {
 			$attributes["dfrn:updated"] = $picdate;

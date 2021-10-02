@@ -841,13 +841,14 @@ class User
 	}
 
 	/**
-	 * Get avatar link for given user id
+	 * Get avatar link for given user
 	 *
-	 * @param integer $uid     user id
-	 * @param string  $size    One of the ProxyUtils::SIZE_* constants
+	 * @param array  $user
+	 * @param string $size One of the ProxyUtils::SIZE_* constants
 	 * @return string avatar link
+	 * @throws Exception
 	 */
-	public static function getAvatarUrlForId(int $uid, string $size = ''):string
+	public static function getAvatarUrl(array $user, string $size = ''):string
 	{
 		$url = DI::baseUrl() . '/photo/';
 
@@ -869,26 +870,16 @@ class User
 		$updated =  '';
 		$imagetype = IMAGETYPE_JPEG;
 
-		$photo = Photo::selectFirst(['type', 'created', 'edited', 'updated'], ["scale" => $scale, 'uid' => $uid, 'profile' => true]);
+		$photo = Photo::selectFirst(['type', 'created', 'edited', 'updated'], ["scale" => $scale, 'uid' => $user['uid'], 'profile' => true]);
 		if (!empty($photo)) {
 			$updated = max($photo['created'], $photo['edited'], $photo['updated']);
 
-			switch ($photo['type']) {
-				case 'image/png':
-					$imagetype = IMAGETYPE_PNG;
-					break;
-
-				case 'image/gif':
-					$imagetype = IMAGETYPE_PNG;
-					break;
-
-				default:
-					$imagetype = IMAGETYPE_JPEG;
-					break;
+			if (in_array($photo['type'], ['image/png', 'image/gif'])) {
+				$imagetype = IMAGETYPE_PNG;
 			}
 		}
 
-		return $url . $uid . image_type_to_extension($imagetype) . ($updated ? '?ts=' . strtotime($updated) : '');
+		return $url . $user['uid'] . image_type_to_extension($imagetype) . ($updated ? '?ts=' . strtotime($updated) : '');
 	}
 
 	/**
@@ -1105,8 +1096,8 @@ class User
 		$insert_result = DBA::insert('profile', [
 			'uid' => $uid,
 			'name' => $username,
-			'photo' => self::getAvatarUrlForId($uid),
-			'thumb' => self::getAvatarUrlForId($uid, Proxy::SIZE_THUMB),
+			'photo' => self::getAvatarUrl($user),
+			'thumb' => self::getAvatarUrl($user, Proxy::SIZE_THUMB),
 			'publish' => $publish,
 			'net-publish' => $netpublish,
 		]);

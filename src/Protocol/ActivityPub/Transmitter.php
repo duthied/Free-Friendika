@@ -370,7 +370,7 @@ class Transmitter
 			'owner' => $owner['url'],
 			'publicKeyPem' => $owner['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => DI::baseUrl() . '/inbox'];
-		$data['icon'] = ['type' => 'Image', 'url' => User::getAvatarUrlForId($uid)];
+		$data['icon'] = ['type' => 'Image', 'url' => User::getAvatarUrl($owner)];
 
 		$resourceid = Photo::ridFromURI($owner['photo']);
 		if (!empty($resourceid)) {

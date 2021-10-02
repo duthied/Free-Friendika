@@ -74,7 +74,7 @@ function msearch_post(App $a)
 		$results[] = [
 			'name'  => $search_result['name'],
 			'url'   => DI::baseUrl() . '/profile/' . $search_result['nickname'],
-			'photo' => User::getAvatarUrlForId($search_result['uid'], Proxy::SIZE_THUMB),
+			'photo' => User::getAvatarUrl($search_result, Proxy::SIZE_THUMB),
 			'tags'  => str_replace([',', '  '], [' ', ' '], $search_result['pub_keywords'])
 		];
 	}

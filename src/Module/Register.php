@@ -374,7 +374,7 @@ class Register extends BaseModule
 					'source_mail'  => $user['email'],
 					'source_nick'  => $user['nickname'],
 					'source_link'  => $base_url . '/admin/users/',
-					'source_photo' => User::getAvatarUrlForId($user['uid'], Proxy::SIZE_THUMB),
+					'source_photo' => User::getAvatarUrl($user, Proxy::SIZE_THUMB),
 					'show_in_notification_page' => false
 				]);
 			}
