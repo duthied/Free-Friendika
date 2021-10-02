@@ -207,12 +207,11 @@ class Protocol
 	 *
 	 * @param array   $user    User unfriending
 	 * @param array   $contact Contact unfriended
-	 * @param boolean $two_way Revoke eventual inbound follow as well
 	 * @return bool|null true if successful, false if not, null if no action was performed
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function terminateFriendship(array $user, array $contact, bool $two_way = false): bool
+	public static function terminateFriendship(array $user, array $contact): bool
 	{
 		if (empty($contact['network'])) {
 			throw new \InvalidArgumentException('Missing network key in contact array');
@@ -243,17 +242,12 @@ class Protocol
 		} elseif ($protocol == Protocol::DIASPORA) {
 			return Diaspora::sendUnshare($user, $contact) > 0;
 		} elseif ($protocol == Protocol::ACTIVITYPUB) {
-			if ($two_way) {
-				ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $user['uid']);
-			}
-
 			return ActivityPub\Transmitter::sendContactUndo($contact['url'], $contact['id'], $user['uid']);
 		}
 
 		// Catch-all hook for connector addons
 		$hook_data = [
 			'contact' => $contact,
-			'two_way' => $two_way,
 			'result' => null
 		];
 		Hook::callAll('unfollow', $hook_data);
@@ -265,6 +259,7 @@ class Protocol
 	 * Revoke an incoming follow from the provided contact
 	 *
 	 * @param array $contact Private contact (uid != 0) array
+	 * @return bool|null true if successful, false if not, null if no action was performed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -289,6 +284,48 @@ class Protocol
 			'result' => null,
 		];
 		Hook::callAll('revoke_follow', $hook_data);
+
+		return $hook_data['result'];
+	}
+
+	/**
+	 * Send a block message to a remote server. Only useful for connector addons.
+	 *
+	 * @param array $contact Public contact record to block
+	 * @param int   $uid     User issuing the block
+	 * @return bool|null true if successful, false if not, null if no action was performed
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function block(array $contact, int $uid): ?bool
+	{
+		// Catch-all hook for connector addons
+		$hook_data = [
+			'contact' => $contact,
+			'uid' => $uid,
+			'result' => null,
+		];
+		Hook::callAll('block', $hook_data);
+
+		return $hook_data['result'];
+	}
+
+	/**
+	 * Send an unblock message to a remote server. Only useful for connector addons.
+	 *
+	 * @param array $contact Public contact record to unblock
+	 * @param int   $uid     User revoking the block
+	 * @return bool|null true if successful, false if not, null if no action was performed
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function unblock(array $contact, int $uid): ?bool
+	{
+		// Catch-all hook for connector addons
+		$hook_data = [
+			'contact' => $contact,
+			'uid' => $uid,
+			'result' => null,
+		];
+		Hook::callAll('unblock', $hook_data);
 
 		return $hook_data['result'];
 	}

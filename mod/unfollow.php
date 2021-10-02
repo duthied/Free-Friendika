@@ -137,13 +137,11 @@ function unfollow_process(string $url)
 		// NOTREACHED
 	}
 
-	$dissolve = ($contact['rel'] == Contact::SHARING);
-
 	$notice_message = '';
 	$return_path = $base_return_path . '/' . $contact['id'];
 
 	try {
-		$result = Contact::terminateFriendship($owner, $contact, $dissolve);
+		$result = Contact::terminateFriendship($owner, $contact);
 
 		if ($result === null) {
 			$notice_message = DI::l10n()->t('Unfollowing is currently not supported by this contact\'s network.');
@@ -157,7 +155,7 @@ function unfollow_process(string $url)
 			$notice_message = DI::l10n()->t('Contact was successfully unfollowed');
 		}
 	} catch (Exception $e) {
-		DI::logger()->error($e->getMessage(), ['owner' => $owner, 'contact' => $contact, 'dissolve' => $dissolve]);
+		DI::logger()->error($e->getMessage(), ['owner' => $owner, 'contact' => $contact]);
 		$notice_message = DI::l10n()->t('Unable to unfollow this contact, please contact your administrator');
 	}
 

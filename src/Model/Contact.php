@@ -830,17 +830,17 @@ class Contact
 	 * Sends an unfriend message. Removes the contact for two-way unfriending or sharing only protocols (feed an mail)
 	 *
 	 * @param array   $user    User unfriending
-	 * @param array   $contact Contact unfriended
+	 * @param array   $contact Contact (uid != 0) unfriended
 	 * @param boolean $two_way Revoke eventual inbound follow as well
 	 * @return bool|null true if successful, false if not, null if no action was performed
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function terminateFriendship(array $user, array $contact, bool $two_way = false): bool
+	public static function terminateFriendship(array $user, array $contact): bool
 	{
-		$result = Protocol::terminateFriendship($user, $contact, $two_way);
+		$result = Protocol::terminateFriendship($user, $contact);
 
-		if ($two_way || in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
+		if ($contact['rel'] == Contact::SHARING || in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
 			self::remove($contact['id']);
 		} else {
 			self::update(['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
@@ -872,7 +872,11 @@ class Contact
 		// A null value here means the remote network doesn't support explicit follow revocation, we can still
 		// break the locally recorded relationship
 		if ($result !== false) {
-			DBA::update('contact', ['rel' => $contact['rel'] == self::FRIEND ? self::SHARING : self::NOTHING], ['id' => $contact['id']]);
+			if ($contact['rel'] == self::FRIEND) {
+				self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
+			} else {
+				self::remove($contact['id']);
+			}
 		}
 
 		return $result;

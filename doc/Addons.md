@@ -510,7 +510,6 @@ Called when unfollowing a remote contact on a non-native network (like Twitter)
 
 Hook data:
 - **contact** (input): the remote contact (uid = local unfollowing user id) array.
-- **two_way** (input): wether to stop sharing with the remote contact as well.
 - **result** (output): wether the unfollowing is successful or not.
 
 ### revoke_follow
@@ -519,6 +518,24 @@ Called when making a remote contact on a non-native network (like Twitter) unfol
 
 Hook data:
 - **contact** (input): the remote contact (uid = local revoking user id) array.
+- **result** (output): a boolean value indicating wether the operation was successful or not.
+
+### block
+
+Called when blocking a remote contact on a non-native network (like Twitter).
+
+Hook data:
+- **contact** (input): the remote contact (uid = 0) array.
+- **uid** (input): the user id to issue the block for.
+- **result** (output): a boolean value indicating wether the operation was successful or not.
+
+### unblock
+
+Called when unblocking a remote contact on a non-native network (like Twitter).
+
+Hook data:
+- **contact** (input): the remote contact (uid = 0) array.
+- **uid** (input): the user id to revoke the block for.
 - **result** (output): a boolean value indicating wether the operation was successful or not.
 
 ## Complete list of hook callbacks
@@ -778,7 +795,9 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('support_follow', $hook_data);
     Hook::callAll('support_revoke_follow', $hook_data);
     Hook::callAll('unfollow', $hook_data);
-    Kook::callAll('revoke_follow', $hook_data);
+    Hook::callAll('revoke_follow', $hook_data);
+    Hook::callAll('block', $hook_data);
+    Hook::callAll('unblock', $hook_data);
 
 ### src/Core/StorageManager
 
