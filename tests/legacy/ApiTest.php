@@ -3511,18 +3511,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_share_as_retweet() function.
-	 *
-	 * @return void
-	 */
-	public function testApiShareAsRetweet()
-	{
-		$item   = ['body' => '', 'author-id' => 1, 'owner-id' => 1];
-		$result = api_share_as_retweet($item);
-		self::assertFalse($result);
-	}
-
-	/**
 	 * Test the api_share_as_retweet() function with a valid item.
 	 *
 	 * @return void
