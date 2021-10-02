@@ -75,16 +75,31 @@ class Photo extends BaseModule
 		$square_resize = true;
 		$scale = null;
 		$stamp = microtime(true);
-		if (!empty($parameters['customsize'])) {
-			$customsize = intval($parameters['customsize']);
-			$uid = pathinfo($parameters['name'], PATHINFO_FILENAME);
-			$photo = self::getAvatar($uid, $parameters['type'], $customsize);
-			$square_resize = !in_array($parameters['type'], ['media', 'preview']);
-		} elseif (!empty($parameters['type'])) {
-			$uid = pathinfo($parameters['name'], PATHINFO_FILENAME);
-			$photo = self::getAvatar($uid, $parameters['type'], Proxy::PIXEL_SMALL);
-		} elseif (!empty($parameters['name'])) {
-			$photoid = pathinfo($parameters['name'], PATHINFO_FILENAME);
+		// User avatar
+		if (!empty($parameters['type'])) {
+			if (!empty($parameters['customsize'])) {
+				$customsize = intval($parameters['customsize']);
+				$square_resize = !in_array($parameters['type'], ['media', 'preview']);
+			}
+
+			if (!empty($parameters['nickname_ext'])) {
+				$nickname = pathinfo($parameters['nickname_ext'], PATHINFO_FILENAME);
+				$user = User::getByNickname($nickname, ['uid']);
+				if (empty($user)) {
+					throw new HTTPException\NotFoundException();
+				}
+
+				$uid = $user['uid'];
+			}
+
+			// User Id Fallback, to remove after version 2021.12
+			if (!empty($parameters['uid_ext'])) {
+				$uid = intval(pathinfo($parameters['uid_ext'], PATHINFO_FILENAME));
+			}
+
+			$photo = self::getAvatar($uid, $parameters['type'], $customsize ?: Proxy::PIXEL_SMALL);
+		} else {
+			$photoid = MPhoto::stripExtension($parameters['name']);
 			$scale = 0;
 			if (substr($photoid, -2, 1) == "-") {
 				$scale = intval(substr($photoid, -1, 1));

@@ -879,7 +879,7 @@ class User
 			}
 		}
 
-		return $url . $user['uid'] . image_type_to_extension($imagetype) . ($updated ? '?ts=' . strtotime($updated) : '');
+		return $url . $user['nickname'] . image_type_to_extension($imagetype) . ($updated ? '?ts=' . strtotime($updated) : '');
 	}
 
 	/**
