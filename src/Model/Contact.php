@@ -1362,7 +1362,6 @@ class Contact
 	 */
 	public static function getPostsFromId($cid, $thread_mode = false, $update = 0, $parent = 0, bool $only_media = false)
 	{
-		Logger::info('Blubb-1', ['cid' => $cid]);
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
 			return '';
@@ -1423,7 +1422,6 @@ class Contact
 			$o .= DI::conversation()->create($items, 'contacts', $update, false, 'commented', local_user());
 		} else {
 			$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
-			Logger::info('Blubb-2a', ['cid' => $cid, 'condition' => $condition]);
 
 			$o .= DI::conversation()->create($items, 'contact-posts', $update);
 		}
