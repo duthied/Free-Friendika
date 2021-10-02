@@ -167,7 +167,6 @@ class CurlResult implements IHTTPResult
 		}
 
 		if (!$this->isSuccess) {
-			Logger::notice('http error', ['url' => $this->url, 'code' => $this->returnCode, 'error'  => $this->error, 'callstack' => System::callstack(20)]);
 			Logger::debug('debug', ['info' => $this->info]);
 		}
 
