@@ -98,7 +98,7 @@ HELP;
 
 		$contact_id = Contact::getIdForURL($this->getArgument(0));
 		if ($contact_id) {
-			$this->dba->update('contact', ['hidden' => true], ['id' => $contact_id]);
+			Contact::update(['hidden' => true], ['id' => $contact_id]);
 			$this->out('The account has been successfully silenced from the global community page.');
 		} else {
 			throw new RuntimeException('Could not find any public contact entry for this URL (' . $this->getArgument(0) . ')');

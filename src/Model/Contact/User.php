@@ -21,14 +21,115 @@
 
 namespace Friendica\Model\Contact;
 
+use Exception;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
+use Friendica\Model\ItemURI;
+use PDOException;
 
 /**
  * This class provides information about user related contacts based on the "user-contact" table.
  */
 class User
 {
+	/**
+	 * Insert a user-contact for a given contact array
+	 *
+	 * @param array $contact
+	 * @return void
+	 */
+	public static function insertForContactArray(array $contact)
+	{
+		if (empty($contact['uid'])) {
+			// We don't create entries for the public user - by now
+			return false;
+		}
+
+		if (empty($contact['uri-id']) && empty($contact['url'])) {
+			Logger::info('Missing contact details', ['contact' => $contact, 'callstack' => System::callstack(20)]);
+			return false;
+		}
+
+		if (empty($contact['uri-id'])) {
+			$contact['uri-id'] = ItemURI::getIdByURI($contact['url']);
+		}
+
+		$pcontact = Contact::selectFirst(['id'], ['uri-id' => $contact['uri-id'], 'uid' => 0]);
+		if (!empty($contact['uri-id']) && DBA::isResult($pcontact)) {
+			$pcid = $pcontact['id'];
+		} elseif (empty($contact['url']) || !($pcid = Contact::getIdForURL($contact['url'], 0, false))) {
+			Logger::info('Public contact for user not found', ['uri-id' => $contact['uri-id'], 'uid' => $contact['uid']]);
+			return false;
+		}
+
+		$fields = self::preparedFields($contact);
+		$fields['cid'] = $pcid;
+		$fields['uid'] = $contact['uid'];
+		$fields['uri-id'] = $contact['uri-id'];
+
+		$ret = DBA::insert('user-contact', $fields, Database::INSERT_UPDATE);
+
+		Logger::info('Inserted user contact', ['uid' => $contact['uid'], 'cid' => $pcid, 'uri-id' => $contact['uri-id'], 'ret' => $ret]);
+
+		return $ret;
+	}
+
+	/**
+	 * Apply changes from contact update data to user-contact table
+	 *
+	 * @param array $fields 
+	 * @param array $condition 
+	 * @return void 
+	 * @throws PDOException 
+	 * @throws Exception 
+	 */
+	public static function updateByContactUpdate(array $fields, array $condition)
+	{
+		DBA::transaction();
+
+		$update_fields = self::preparedFields($fields);
+		if (!empty($update_fields)) {
+			$contacts = DBA::select('contact', ['uri-id', 'uid'], $condition);
+			while ($row = DBA::fetch($contacts)) {
+				if (empty($row['uri-id']) || empty($contact['uid'])) {
+					continue;
+				}
+				$ret = DBA::update('user-contact', $update_fields, ['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
+				Logger::info('Updated user contact', ['uid' => $row['uid'], 'uri-id' => $row['uri-id'], 'ret' => $ret]);
+			}
+
+			DBA::close($contacts);
+		}
+		DBA::commit();	
+	}
+
+	/**
+	 * Prepare field data for update/insert
+	 *
+	 * @param array $fields
+	 * @return array prepared fields
+	 */
+	private static function preparedFields(array $fields): array
+	{
+		unset($fields['uid']);
+		unset($fields['cid']);
+		unset($fields['uri-id']);
+
+		if (isset($fields['readonly'])) {
+			$fields['ignored'] = $fields['readonly'];
+		}
+
+		if (!empty($fields['self'])) {
+			$fields['rel'] = Contact::SELF;
+		}
+
+		return DBStructure::getFieldsForTable('user-contact', $fields);
+	}
+
 	/**
 	 * Block contact id for user id
 	 *

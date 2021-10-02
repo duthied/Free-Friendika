@@ -50,7 +50,7 @@ class Note extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		DBA::update('contact', ['info' => $request['comment']], ['id' => $cdata['user']]);
+		Contact::update(['info' => $request['comment']], ['id' => $cdata['user']]);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($parameters['id'], $uid)->toArray());
 	}

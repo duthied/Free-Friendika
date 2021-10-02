@@ -143,7 +143,7 @@ class Contact extends BaseModule
 
 		$info = Strings::escapeHtml(trim($_POST['info'] ?? ''));
 
-		$r = DBA::update('contact', [
+		$r = Model\Contact::update([
 			'priority'   => $priority,
 			'info'       => $info,
 			'hidden'     => $hidden,
@@ -179,7 +179,7 @@ class Contact extends BaseModule
 			$result = Model\Contact::createFromProbeForUser($contact['uid'], $contact['url'], $contact['network']);
 
 			if ($result['success']) {
-				DBA::update('contact', ['subhub' => 1], ['id' => $contact_id]);
+				Model\Contact::update(['subhub' => 1], ['id' => $contact_id]);
 			}
 
 			// pull feed and consume it, which should subscribe to the hub.

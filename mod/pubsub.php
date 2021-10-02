@@ -96,7 +96,7 @@ function pubsub_init(App $a)
 		}
 
 		if (!empty($hub_mode)) {
-			DBA::update('contact', ['subhub' => $subscribe], ['id' => $contact['id']]);
+			Contact::update(['subhub' => $subscribe], ['id' => $contact['id']]);
 			Logger::log($hub_mode . ' success for contact ' . $contact_id . '.');
 		}
  		hub_return(true, $hub_challenge);

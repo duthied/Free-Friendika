@@ -6,21 +6,35 @@ User specific public contact data
 Fields
 ------
 
-| Field     | Description                                 | Type               | Null | Key | Default | Extra |
-| --------- | ------------------------------------------- | ------------------ | ---- | --- | ------- | ----- |
-| cid       | Contact id of the linked public contact     | int unsigned       | NO   | PRI | 0       |       |
-| uid       | User id                                     | mediumint unsigned | NO   | PRI | 0       |       |
-| blocked   | Contact is completely blocked for this user | boolean            | YES  |     | NULL    |       |
-| ignored   | Posts from this contact are ignored         | boolean            | YES  |     | NULL    |       |
-| collapsed | Posts from this contact are collapsed       | boolean            | YES  |     | NULL    |       |
+| Field                     | Description                                                  | Type               | Null | Key | Default | Extra |
+| ------------------------- | ------------------------------------------------------------ | ------------------ | ---- | --- | ------- | ----- |
+| cid                       | Contact id of the linked public contact                      | int unsigned       | NO   | PRI | 0       |       |
+| uid                       | User id                                                      | mediumint unsigned | NO   | PRI | 0       |       |
+| uri-id                    | Id of the item-uri table entry that contains the contact url | int unsigned       | YES  |     | NULL    |       |
+| blocked                   | Contact is completely blocked for this user                  | boolean            | YES  |     | NULL    |       |
+| ignored                   | Posts from this contact are ignored                          | boolean            | YES  |     | NULL    |       |
+| collapsed                 | Posts from this contact are collapsed                        | boolean            | YES  |     | NULL    |       |
+| pending                   |                                                              | boolean            | YES  |     | NULL    |       |
+| rel                       | The kind of the relation between the user and the contact    | tinyint unsigned   | YES  |     | NULL    |       |
+| info                      |                                                              | mediumtext         | YES  |     | NULL    |       |
+| notify_new_posts          |                                                              | boolean            | YES  |     | NULL    |       |
+| remote_self               |                                                              | boolean            | YES  |     | NULL    |       |
+| fetch_further_information |                                                              | tinyint unsigned   | YES  |     | NULL    |       |
+| ffi_keyword_denylist      |                                                              | text               | YES  |     | NULL    |       |
+| subhub                    |                                                              | boolean            | YES  |     | NULL    |       |
+| hub-verify                |                                                              | varchar(255)       | YES  |     | NULL    |       |
+| protocol                  | Protocol of the contact                                      | char(4)            | YES  |     | NULL    |       |
+| rating                    | Automatically detected feed poll frequency                   | tinyint            | YES  |     | NULL    |       |
+| priority                  | Feed poll priority                                           | tinyint unsigned   | YES  |     | NULL    |       |
 
 Indexes
 ------------
 
-| Name    | Fields   |
-| ------- | -------- |
-| PRIMARY | uid, cid |
-| cid     | cid      |
+| Name       | Fields              |
+| ---------- | ------------------- |
+| PRIMARY    | uid, cid            |
+| cid        | cid                 |
+| uri-id_uid | UNIQUE, uri-id, uid |
 
 Foreign Keys
 ------------
@@ -29,5 +43,6 @@ Foreign Keys
 |-------|--------------|--------------|
 | cid | [contact](help/database/db_contact) | id |
 | uid | [user](help/database/db_user) | uid |
+| uri-id | [item-uri](help/database/db_item-uri) | id |
 
 Return to [database documentation](help/database)

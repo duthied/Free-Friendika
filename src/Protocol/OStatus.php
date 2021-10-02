@@ -209,7 +209,7 @@ class OStatus
 
 			$contact['name-date'] = DateTimeFormat::utcNow();
 
-			DBA::update('contact', $contact, ['id' => $contact["id"]], $current);
+			Contact::update($contact, ['id' => $contact["id"]], $current);
 
 			if (!empty($author["author-avatar"]) && ($author["author-avatar"] != $current['avatar'])) {
 				Logger::log("Update profile picture for contact ".$contact["id"], Logger::DEBUG);
@@ -230,7 +230,7 @@ class OStatus
 						'about' => $contact["about"], 'location' => $contact["location"],
 						'success_update' => DateTimeFormat::utcNow(), 'last-update' => DateTimeFormat::utcNow()];
 
-				DBA::update('contact', $fields, ['id' => $cid], $old_contact);
+				Contact::update($fields, ['id' => $cid], $old_contact);
 
 				// Update the avatar
 				if (!empty($author["author-avatar"])) {

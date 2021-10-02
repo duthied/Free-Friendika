@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-01 16:40+0200\n"
+"POT-Creation-Date: 2021-10-02 11:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgstr[1] ""
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
 
-#: include/api.php:4437 mod/photos.php:89 mod/photos.php:198 mod/photos.php:626
+#: include/api.php:4429 mod/photos.php:89 mod/photos.php:198 mod/photos.php:626
 #: mod/photos.php:1035 mod/photos.php:1052 mod/photos.php:1599
 #: src/Model/User.php:1169 src/Model/User.php:1177 src/Model/User.php:1185
 #: src/Module/Settings/Profile/Photo/Crop.php:101
@@ -559,7 +559,7 @@ msgstr ""
 
 #: mod/editpost.php:134 src/Content/Conversation.php:380
 #: src/Content/Widget/VCard.php:107 src/Model/Profile.php:459
-#: src/Module/Admin/Logs/View.php:93
+#: src/Module/Admin/Logs/View.php:92
 msgid "Message"
 msgstr ""
 
@@ -589,7 +589,7 @@ msgstr ""
 msgid "Create New Event"
 msgstr ""
 
-#: mod/events.php:536 src/Module/Admin/Logs/View.php:97
+#: mod/events.php:536 src/Module/Admin/Logs/View.php:96
 msgid "Event details"
 msgstr ""
 
@@ -718,7 +718,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr ""
 
 #: mod/follow.php:138 src/Content/Item.php:463 src/Content/Widget.php:76
-#: src/Model/Contact.php:1051 src/Model/Contact.php:1064
+#: src/Model/Contact.php:1077 src/Model/Contact.php:1090
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr ""
@@ -2424,12 +2424,12 @@ msgstr ""
 msgid "Addon already disabled"
 msgstr ""
 
-#: src/Console/ArchiveContact.php:105
+#: src/Console/ArchiveContact.php:106
 #, php-format
 msgid "Could not find any unarchived contact entry for this URL (%s)"
 msgstr ""
 
-#: src/Console/ArchiveContact.php:108
+#: src/Console/ArchiveContact.php:109
 msgid "The contact entries have been archived"
 msgstr ""
 
@@ -3002,31 +3002,31 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:443 src/Model/Contact.php:1056
+#: src/Content/Item.php:443 src/Model/Contact.php:1082
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:982
-#: src/Model/Contact.php:1048 src/Model/Contact.php:1057
+#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:1008
+#: src/Model/Contact.php:1074 src/Model/Contact.php:1083
 #: src/Module/Directory.php:160 src/Module/Settings/Profile/Index.php:223
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:445 src/Model/Contact.php:1058
+#: src/Content/Item.php:445 src/Model/Contact.php:1084
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:446 src/Model/Contact.php:1049
-#: src/Model/Contact.php:1059
+#: src/Content/Item.php:446 src/Model/Contact.php:1075
+#: src/Model/Contact.php:1085
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1050
-#: src/Model/Contact.php:1060
+#: src/Content/Item.php:447 src/Model/Contact.php:1076
+#: src/Model/Contact.php:1086
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:448 src/Model/Contact.php:1062
+#: src/Content/Item.php:448 src/Model/Contact.php:1088
 msgid "Send PM"
 msgstr ""
 
@@ -3049,7 +3049,7 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-#: src/Content/Item.php:458 src/Model/Contact.php:1063
+#: src/Content/Item.php:458 src/Model/Contact.php:1089
 msgid "Poke"
 msgstr ""
 
@@ -3166,7 +3166,7 @@ msgid "Addon applications, utilities, games"
 msgstr ""
 
 #: src/Content/Nav.php:230 src/Content/Text/HTML.php:891
-#: src/Module/Admin/Logs/View.php:87 src/Module/Search/Index.php:99
+#: src/Module/Admin/Logs/View.php:86 src/Module/Search/Index.php:99
 msgid "Search"
 msgstr ""
 
@@ -3499,7 +3499,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:529 src/Model/Contact.php:1480
+#: src/Content/Widget.php:529 src/Model/Contact.php:1505
 msgid "News"
 msgstr ""
 
@@ -4363,85 +4363,85 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1052 src/Model/Contact.php:1065
+#: src/Model/Contact.php:1078 src/Model/Contact.php:1091
 msgid "UnFollow"
 msgstr ""
 
-#: src/Model/Contact.php:1061
+#: src/Model/Contact.php:1087
 msgid "Drop Contact"
 msgstr ""
 
-#: src/Model/Contact.php:1071 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1097 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:111
 #: src/Module/Notifications/Introductions.php:183
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1476
+#: src/Model/Contact.php:1501
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1484
+#: src/Model/Contact.php:1509
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2340
+#: src/Model/Contact.php:2365
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2345 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2370 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2350
+#: src/Model/Contact.php:2375
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2359
+#: src/Model/Contact.php:2384
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2396
+#: src/Model/Contact.php:2421
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2398
+#: src/Model/Contact.php:2423
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2401
+#: src/Model/Contact.php:2426
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2404
+#: src/Model/Contact.php:2429
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2407
+#: src/Model/Contact.php:2432
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2408
+#: src/Model/Contact.php:2433
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2414
+#: src/Model/Contact.php:2439
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2419
+#: src/Model/Contact.php:2444
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2478
+#: src/Model/Contact.php:2503
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -5049,7 +5049,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Contact.php:78
 #: src/Module/Admin/Blocklist/Server.php:88 src/Module/Admin/Federation.php:159
 #: src/Module/Admin/Item/Delete.php:65 src/Module/Admin/Logs/Settings.php:80
-#: src/Module/Admin/Logs/View.php:84 src/Module/Admin/Queue.php:72
+#: src/Module/Admin/Logs/View.php:83 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:497 src/Module/Admin/Storage.php:131
 #: src/Module/Admin/Summary.php:233 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
@@ -5484,7 +5484,7 @@ msgstr ""
 msgid "Implicit Mention"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:73 src/Module/Admin/Logs/View.php:99
+#: src/Module/Admin/Item/Source.php:73 src/Module/Admin/Logs/View.php:98
 #: src/Module/Debug/ActivityPubConversion.php:62
 msgid "Source"
 msgstr ""
@@ -5542,82 +5542,82 @@ msgid ""
 "'display_errors' is to enable these options, set to '0' to disable them."
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:71
+#: src/Module/Admin/Logs/View.php:70
 #, php-format
 msgid ""
 "Error trying to open <strong>%1$s</strong> log file.<br/>Check to see if "
 "file %1$s exist and is readable."
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:80
+#: src/Module/Admin/Logs/View.php:79
 #, php-format
 msgid ""
 "Couldn't open <strong>%1$s</strong> log file.<br/>Check to see if file %1$s "
 "is readable."
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:85 src/Module/BaseAdmin.php:110
+#: src/Module/Admin/Logs/View.php:84 src/Module/BaseAdmin.php:110
 msgid "View Logs"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:88
+#: src/Module/Admin/Logs/View.php:87
 msgid "Search in logs"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:89
+#: src/Module/Admin/Logs/View.php:88
 #: src/Module/Notifications/Notifications.php:138
 msgid "Show all"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:90
+#: src/Module/Admin/Logs/View.php:89
 msgid "Date"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:91
+#: src/Module/Admin/Logs/View.php:90
 msgid "Level"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:92
+#: src/Module/Admin/Logs/View.php:91
 msgid "Context"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:94
+#: src/Module/Admin/Logs/View.php:93
 msgid "ALL"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:95
+#: src/Module/Admin/Logs/View.php:94
 msgid "View details"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:96
+#: src/Module/Admin/Logs/View.php:95
 msgid "Click to view details"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:98
+#: src/Module/Admin/Logs/View.php:97
 msgid "Data"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:100
+#: src/Module/Admin/Logs/View.php:99
 msgid "File"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:101
+#: src/Module/Admin/Logs/View.php:100
 msgid "Line"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:102
+#: src/Module/Admin/Logs/View.php:101
 msgid "Function"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:103
+#: src/Module/Admin/Logs/View.php:102
 msgid "UID"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:104
+#: src/Module/Admin/Logs/View.php:103
 msgid "Process ID"
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:105
+#: src/Module/Admin/Logs/View.php:104
 msgid "Close"
 msgstr ""
 

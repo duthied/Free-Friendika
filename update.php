@@ -998,3 +998,11 @@ function update_1434()
 
 	return Update::SUCCESS;
 }
+
+function update_1435()
+{
+	$contacts = DBA::select('contact', [], ["`uid` != ?", 0]);
+	while ($contact = DBA::fetch($contacts)) {
+		Contact\User::insertForContactArray($contact);
+	}
+}
