@@ -382,7 +382,7 @@ class Network extends BaseModule
 			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", self::$groupId]);
 		} elseif (self::$forumContactId) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings, 
-				["((`contact-id` = ?) OR EXISTS(SELECT `uri-id` FROM `post-user-view` WHERE `post-user-view`.`parent-uri-id` = `network-thread-view`.`uri-id` AND (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
+				["((`contact-id` = ?) OR EXISTS(SELECT `uri-id` FROM `post-user-view` WHERE `post-user-view`.`parent-uri-id` = " . DBA::quoteIdentifier($table) . ".`uri-id` AND (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
 				self::$forumContactId, self::$forumContactId, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), local_user()]);
 		}
 
