@@ -72,6 +72,44 @@ class Protocol
 	const PHANTOM   = 'unkn';    // Place holder
 
 	/**
+	 * Returns whether the provided protocol supports following
+	 *
+	 * @param $protocol
+	 * @return bool
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function supportsFollow($protocol): bool
+	{
+		if (in_array($protocol, self::NATIVE_SUPPORT)) {
+			return true;
+		}
+
+		$result = null;
+		Hook::callAll('support_follow', $result);
+
+		return $result === true;
+	}
+
+	/**
+	 * Returns whether the provided protocol supports revoking inbound follows
+	 *
+	 * @param $protocol
+	 * @return bool
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function supportsRevokeFollow($protocol): bool
+	{
+		if (in_array($protocol, self::NATIVE_SUPPORT)) {
+			return true;
+		}
+
+		$result = null;
+		Hook::callAll('support_revoke_follow', $result);
+
+		return $result === true;
+	}
+
+	/**
 	 * Returns the address string for the provided profile URL
 	 *
 	 * @param string $profile_url
@@ -212,13 +250,45 @@ class Protocol
 			return ActivityPub\Transmitter::sendContactUndo($contact['url'], $contact['id'], $user['uid']);
 		}
 
-		// Catch-all addon hook
+		// Catch-all hook for connector addons
 		$hook_data = [
 			'contact' => $contact,
 			'two_way' => $two_way,
 			'result' => null
 		];
 		Hook::callAll('unfollow', $hook_data);
+
+		return $hook_data['result'];
+	}
+
+	/**
+	 * Revoke an incoming follow from the provided contact
+	 *
+	 * @param array $contact Private contact (uid != 0) array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function revokeFollow(array $contact)
+	{
+		if (empty($contact['network'])) {
+			throw new \InvalidArgumentException('Missing network key in contact array');
+		}
+
+		$protocol = $contact['network'];
+		if ($protocol == Protocol::DFRN && !empty($contact['protocol'])) {
+			$protocol = $contact['protocol'];
+		}
+
+		if ($protocol == Protocol::ACTIVITYPUB) {
+			return ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $contact['uid']);
+		}
+
+		// Catch-all hook for connector addons
+		$hook_data = [
+			'contact' => $contact,
+			'result' => null,
+		];
+		Hook::callAll('revoke_follow', $hook_data);
 
 		return $hook_data['result'];
 	}

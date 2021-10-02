@@ -850,6 +850,36 @@ class Contact
 	}
 
 	/**
+	 * Revoke follow privileges of the remote user contact
+	 *
+	 * @param array   $contact  Contact unfriended
+	 * @return bool|null Whether the remote operation is successful or null if no remote operation was performed
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function revokeFollow(array $contact): bool
+	{
+		if (empty($contact['network'])) {
+			throw new \InvalidArgumentException('Empty network in contact array');
+		}
+
+		if (empty($contact['uid'])) {
+			throw new \InvalidArgumentException('Unexpected public contact record');
+		}
+
+		$result = Protocol::revokeFollow($contact);
+
+		// A null value here means the remote network doesn't support explicit follow revocation, we can still
+		// break the locally recorded relationship
+		if ($result !== false) {
+			DBA::update('contact', ['rel' => $contact['rel'] == self::FRIEND ? self::SHARING : self::NOTHING], ['id' => $contact['id']]);
+		}
+
+		return $result;
+	}
+
+
+	/**
 	 * Marks a contact for archival after a communication issue delay
 	 *
 	 * Contact has refused to recognise us as a friend. We will start a countdown.
@@ -1022,7 +1052,7 @@ class Contact
 
 		$follow_link = '';
 		$unfollow_link = '';
-		if (!$contact['self'] && in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+		if (!$contact['self'] && Protocol::supportsFollow($contact['network'])) {
 			if ($contact['uid'] && in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
 				$unfollow_link = 'unfollow?url=' . urlencode($contact['url']) . '&auto=1';
 			} elseif(!$contact['pending']) {
