@@ -33,11 +33,8 @@ function wall_attach_post(App $a) {
 
 	if (DI::args()->getArgc() > 1) {
 		$nick = DI::args()->getArgv()[1];
-		$r = q("SELECT `user`.*, `contact`.`id` FROM `user` LEFT JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
-			DBA::escape($nick)
-		);
-
-		if (! DBA::isResult($r)) {
+		$owner = User::getOwnerDataByNick($nick);
+		if (!DBA::isResult($owner)) {
 			if ($r_json) {
 				echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
 				exit();
@@ -55,22 +52,15 @@ function wall_attach_post(App $a) {
 
 	$can_post  = false;
 
-	$page_owner_uid   = $r[0]['uid'];
-	$page_owner_cid   = $r[0]['id'];
-	$community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
+	$page_owner_uid = $owner['uid'];
+	$page_owner_cid = $owner['id'];
+	$community_page = $owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 
 	if (local_user() && (local_user() == $page_owner_uid)) {
 		$can_post = true;
 	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
 		$contact_id = Session::getRemoteContactID($page_owner_uid);
-		$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-			intval($contact_id),
-			intval($page_owner_uid)
-		);
-
-		if (DBA::isResult($r)) {
-			$can_post = true;
-		}
+		$can_post = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
 	}
 
 	if (!$can_post) {

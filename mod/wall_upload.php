@@ -81,17 +81,8 @@ function wall_upload_post(App $a, $desktopmode = true)
 		$can_post = true;
 	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
 		$contact_id = Session::getRemoteContactID($page_owner_uid);
-
-		$r = q("SELECT `uid` FROM `contact`
-			WHERE `blocked` = 0 AND `pending` = 0
-			AND `id` = %d AND `uid` = %d LIMIT 1",
-			intval($contact_id),
-			intval($page_owner_uid)
-		);
-		if (DBA::isResult($r)) {
-			$can_post = true;
-			$visitor = $contact_id;
-		}
+		$can_post = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
+		$visitor = $contact_id;
 	}
 
 	if (!$can_post) {

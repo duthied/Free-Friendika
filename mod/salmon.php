@@ -40,7 +40,7 @@ function salmon_post(App $a, $xml = '') {
 		$xml = Network::postdata();
 	}
 
-	Logger::log('new salmon ' . $xml, Logger::DATA);
+	Logger::debug('new salmon ' . $xml);
 
 	$nick       = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(trim(DI::args()->getArgv()[1])) : '');
 
@@ -64,7 +64,7 @@ function salmon_post(App $a, $xml = '') {
 		$base = $dom;
 
 	if (empty($base)) {
-		Logger::log('unable to locate salmon data in xml ');
+		Logger::notice('unable to locate salmon data in xml');
 		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
@@ -102,18 +102,18 @@ function salmon_post(App $a, $xml = '') {
 	$author_link = $author["author-link"];
 
 	if(! $author_link) {
-		Logger::log('Could not retrieve author URI.');
+		Logger::notice('Could not retrieve author URI.');
 		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
 	// Once we have the author URI, go to the web and try to find their public key
 
-	Logger::log('Fetching key for ' . $author_link);
+	Logger::notice('Fetching key for ' . $author_link);
 
 	$key = Salmon::getKey($author_link, $keyhash);
 
 	if(! $key) {
-		Logger::log('Could not retrieve author key.');
+		Logger::notice('Could not retrieve author key.');
 		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
@@ -133,23 +133,23 @@ function salmon_post(App $a, $xml = '') {
 	$mode = 1;
 
 	if (! $verify) {
-		Logger::log('message did not verify using protocol. Trying compliant format.');
+		Logger::notice('message did not verify using protocol. Trying compliant format.');
 		$verify = Crypto::rsaVerify($compliant_format, $signature, $pubkey);
 		$mode = 2;
 	}
 
 	if (! $verify) {
-		Logger::log('message did not verify using padding. Trying old statusnet format.');
+		Logger::notice('message did not verify using padding. Trying old statusnet format.');
 		$verify = Crypto::rsaVerify($stnet_signed_data, $signature, $pubkey);
 		$mode = 3;
 	}
 
 	if (! $verify) {
-		Logger::log('Message did not verify. Discarding.');
+		Logger::notice('Message did not verify. Discarding.');
 		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
-	Logger::log('Message verified with mode '.$mode);
+	Logger::notice('Message verified with mode '.$mode);
 
 
 	/*
@@ -158,35 +158,25 @@ function salmon_post(App $a, $xml = '') {
 	*
 	*/
 
-	$r = q("SELECT * FROM `contact` WHERE `network` IN ('%s', '%s')
-						AND (`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s')
-						AND `uid` = %d LIMIT 1",
-		DBA::escape(Protocol::OSTATUS),
-		DBA::escape(Protocol::DFRN),
-		DBA::escape(Strings::normaliseLink($author_link)),
-		DBA::escape($author_link),
-		DBA::escape(Strings::normaliseLink($author_link)),
-		intval($importer['uid'])
-	);
+	$contact = DBA::selectFirst('contact', ["`network` IN (?, ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `uid` = ?",
+		Protocol::OSTATUS, Protocol::DFRN, Strings::normaliseLink($author_link), $author_link, Strings::normaliseLink($author_link), $importer['uid']]);
 
-	if (!empty($r[0]['gsid'])) {
-		GServer::setProtocol($r[0]['gsid'], Post\DeliveryData::OSTATUS);
+	if (!empty($contact['gsid'])) {
+		GServer::setProtocol($contact['gsid'], Post\DeliveryData::OSTATUS);
 	}
 
 	// Have we ignored the person?
 	// If so we can not accept this post.
 
-	if (DBA::isResult($r) && $r[0]['blocked']) {
-		Logger::log('Ignoring this author.');
+	if (!empty($contact['blocked'])) {
+		Logger::notice('Ignoring this author.');
 		throw new \Friendica\Network\HTTPException\AcceptedException();
 	}
 
 	// Placeholder for hub discovery.
 	$hub = '';
 
-	$contact_rec = ((DBA::isResult($r)) ? $r[0] : []);
-
-	OStatus::import($data, $importer, $contact_rec, $hub);
+	OStatus::import($data, $importer, $contact ?: [], $hub);
 
 	throw new \Friendica\Network\HTTPException\OKException();
 }

@@ -27,6 +27,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
@@ -51,37 +52,25 @@ function tagger_content(App $a) {
 
 	$item_id = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(trim(DI::args()->getArgv()[1])) : 0);
 
-	Logger::log('tagger: tag ' . $term . ' item ' . $item_id);
+	Logger::notice('tagger: tag ' . $term . ' item ' . $item_id);
 
 
 	$item = Post::selectFirst([], ['id' => $item_id]);
 
 	if (!$item_id || !DBA::isResult($item)) {
-		Logger::log('tagger: no item ' . $item_id);
+		Logger::notice('tagger: no item ' . $item_id);
 		return;
 	}
 
 	$owner_uid = $item['uid'];
-	$blocktags = 0;
-
-	$r = q("select `blocktags` from user where uid = %d limit 1",
-		intval($owner_uid)
-	);
-	if (DBA::isResult($r)) {
-		$blocktags = $r[0]['blocktags'];
-	}
 
 	if (local_user() != $owner_uid) {
 		return;
 	}
 
-	$r = q("select * from contact where self = 1 and uid = %d limit 1",
-		intval(local_user())
-	);
-	if (DBA::isResult($r)) {
-			$contact = $r[0];
-	} else {
-		Logger::log('tagger: no contact_id');
+	$contact = Contact::selectFirst([], ['self' => true, 'uid' => local_user()]);
+	if (!DBA::isResult($contact)) {
+		Logger::notice('tagger: no contact_id');
 		return;
 	}
 
