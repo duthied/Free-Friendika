@@ -373,7 +373,7 @@ class Contact extends BaseModule
 			}
 
 			if ($cmd === 'posts') {
-				return self::getPostsHTML($contact_id, false);
+				return self::getPostsHTML($contact_id);
 			}
 
 			if ($cmd === 'conversations') {
@@ -990,7 +990,7 @@ class Contact extends BaseModule
 		return $o;
 	}
 
-	private static function getPostsHTML(int $contact_id, bool $only_media)
+	private static function getPostsHTML(int $contact_id)
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
@@ -1006,9 +1006,9 @@ class Contact extends BaseModule
 			DI::page()['aside'] = Widget\VCard::getHTML($profiledata);
 
 			if ($contact['uid'] == 0) {
-				$o .= Model\Contact::getPostsFromId($contact['id'], false, 0, 0, $only_media);
+				$o .= Model\Contact::getPostsFromId($contact['id']);
 			} else {
-				$o .= Model\Contact::getPostsFromUrl($contact['url'], false, 0, 0, $only_media);
+				$o .= Model\Contact::getPostsFromUrl($contact['url']);
 			}
 		}
 
