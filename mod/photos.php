@@ -200,12 +200,7 @@ function photos_post(App $a)
 			return; // NOTREACHED
 		}
 
-		$r = q("SELECT `album` FROM `photo` WHERE `album` = '%s' AND `uid` = %d",
-			DBA::escape($album),
-			intval($page_owner_uid)
-		);
-
-		if (!DBA::isResult($r)) {
+		if (!DBA::exists('photo', ['album' => $album, 'uid' => $page_owner_uid])) {
 			notice(DI::l10n()->t('Album not found.'));
 			DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album');
 			return; // NOTREACHED
@@ -321,7 +316,7 @@ function photos_post(App $a)
 		}
 
 		if (!empty($_POST['rotate']) && (intval($_POST['rotate']) == 1 || intval($_POST['rotate']) == 2)) {
-			Logger::log('rotate');
+			Logger::notice('rotate');
 
 			$photo = Photo::getPhotoForUser($page_owner_uid, $resource_id);
 
@@ -681,7 +676,7 @@ function photos_post(App $a)
 
 	$type = Images::getMimeTypeBySource($src, $filename, $type);
 
-	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', Logger::DEBUG);
+	Logger::info('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes');
 
 	$maximagesize = DI::config()->get('system', 'maximagesize');
 
@@ -701,14 +696,14 @@ function photos_post(App $a)
 		return;
 	}
 
-	Logger::log('mod/photos.php: photos_post(): loading the contents of ' . $src , Logger::DEBUG);
+	Logger::info('loading the contents of ' . $src);
 
 	$imagedata = @file_get_contents($src);
 
 	$image = new Image($imagedata, $type);
 
 	if (!$image->isValid()) {
-		Logger::log('mod/photos.php: photos_post(): unable to process image' , Logger::DEBUG);
+		Logger::info('unable to process image');
 		notice(DI::l10n()->t('Unable to process image.'));
 		@unlink($src);
 		$foo = 0;
@@ -737,7 +732,7 @@ function photos_post(App $a)
 	$r = Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (!$r) {
-		Logger::log('mod/photos.php: photos_post(): image store failed', Logger::DEBUG);
+		Logger::info('image store failed');
 		notice(DI::l10n()->t('Image upload failed.'));
 		return;
 	}
