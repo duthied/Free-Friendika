@@ -87,12 +87,6 @@ class Contact extends BaseModule
 				self::toggleIgnoreContact($cdata['public']);
 				$count_actions++;
 			}
-
-			if (!empty($_POST['contacts_batch_drop']) && $cdata['user']
-				&& self::dropContact($cdata['user'], local_user())
-			) {
-				$count_actions++;
-			}
 		}
 		if ($count_actions > 0) {
 			info(DI::l10n()->tt('%d contact edited.', '%d contacts edited.', $count_actions));
@@ -228,31 +222,6 @@ class Contact extends BaseModule
 	{
 		$ignored = !Model\Contact\User::isIgnored($contact_id, local_user());
 		Model\Contact\User::setIgnored($contact_id, local_user(), $ignored);
-	}
-
-	/**
-	 * @param int $contact_id Id for contact with uid != 0
-	 * @param int $uid        Id for user we want to drop the contact for
-	 * @return bool
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function dropContact(int $contact_id, int $uid): bool
-	{
-		$contact = Model\Contact::getContactForUser($contact_id, $uid);
-		if (!DBA::isResult($contact)) {
-			return false;
-		}
-
-		$owner = Model\User::getOwnerDataById($uid);
-		if (!DBA::isResult($owner)) {
-			return false;
-		}
-
-		Model\Contact::terminateFriendship($owner, $contact, true);
-		Model\Contact::remove($contact['id']);
-
-		return true;
 	}
 
 	public static function content(array $parameters = [], $update = 0)
@@ -424,38 +393,6 @@ class Contact extends BaseModule
 				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')));
 
 				DI::baseUrl()->redirect('contact/' . $cdata['public']);
-				// NOTREACHED
-			}
-
-			if ($cmd === 'drop' && $cdata['user']) {
-				// Check if we should do HTML-based delete confirmation
-				if (!empty($_REQUEST['confirm'])) {
-					DI::page()['aside'] = '';
-
-					return Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_drop_confirm.tpl'), [
-						'$l10n' => [
-							'header' => DI::l10n()->t('Drop contact'),
-							'message' => DI::l10n()->t('Do you really want to delete this contact?'),
-							'confirm' => DI::l10n()->t('Yes'),
-							'cancel' => DI::l10n()->t('Cancel'),
-						],
-						'$contact' => self::getContactTemplateVars($orig_record),
-						'$method' => 'get',
-						'$confirm_url' => DI::args()->getCommand(),
-						'$confirm_name' => 't',
-						'$confirm_value' => BaseModule::getFormSecurityToken('contact_action'),
-					]);
-				}
-				// Now check how the user responded to the confirmation query
-				if (!empty($_REQUEST['canceled'])) {
-					DI::baseUrl()->redirect('contact');
-				}
-
-				if (self::dropContact($cdata['user'], local_user())) {
-					info(DI::l10n()->t('Contact has been removed.'));
-				}
-
-				DI::baseUrl()->redirect('contact');
 				// NOTREACHED
 			}
 		}
@@ -859,13 +796,11 @@ class Contact extends BaseModule
 			'$cmd'        => DI::args()->getCommand(),
 			'$contacts'   => $contacts,
 			'$form_security_token'  => BaseModule::getFormSecurityToken('contact_batch_actions'),
-			'$contact_drop_confirm' => DI::l10n()->t('Do you really want to delete this contact?'),
 			'multiselect' => 1,
 			'$batch_actions' => [
 				'contacts_batch_update'  => DI::l10n()->t('Update'),
 				'contacts_batch_block'   => DI::l10n()->t('Block') . '/' . DI::l10n()->t('Unblock'),
 				'contacts_batch_ignore'  => DI::l10n()->t('Ignore') . '/' . DI::l10n()->t('Unignore'),
-				'contacts_batch_drop'    => DI::l10n()->t('Delete'),
 			],
 			'$h_batch_actions' => DI::l10n()->t('Batch Actions'),
 			'$paginate'   => $pager->renderFull($total),
@@ -1156,23 +1091,13 @@ class Contact extends BaseModule
 			'id'    => 'toggle-ignore',
 		];
 
-		if ($contact['uid'] != 0) {
-			if (Protocol::supportsRevokeFollow($contact['network']) && in_array($contact['rel'], [Model\Contact::FOLLOWER, Model\Contact::FRIEND])) {
-				$contact_actions['revoke_follow'] = [
-					'label' => DI::l10n()->t('Revoke Follow'),
-					'url'   => 'contact/' . $contact['id'] . '/revoke',
-					'title' => DI::l10n()->t('Revoke the follow from this contact'),
-					'sel'   => '',
-					'id'    => 'revoke_follow',
-				];
-			}
-
-			$contact_actions['delete'] = [
-				'label' => DI::l10n()->t('Delete'),
-				'url'   => 'contact/' . $contact['id'] . '/drop?t=' . $formSecurityToken,
-				'title' => DI::l10n()->t('Delete contact'),
+		if ($contact['uid'] != 0 && Protocol::supportsRevokeFollow($contact['network']) && in_array($contact['rel'], [Model\Contact::FOLLOWER, Model\Contact::FRIEND])) {
+			$contact_actions['revoke_follow'] = [
+				'label' => DI::l10n()->t('Revoke Follow'),
+				'url'   => 'contact/' . $contact['id'] . '/revoke',
+				'title' => DI::l10n()->t('Revoke the follow from this contact'),
 				'sel'   => '',
-				'id'    => 'delete',
+				'id'    => 'revoke_follow',
 			];
 		}
 
