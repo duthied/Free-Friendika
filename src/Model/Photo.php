@@ -800,22 +800,6 @@ class Photo
 	}
 
 	/**
-	 * Strips known picture extensions from picture links
-	 *
-	 * @param string $name Picture link
-	 * @return string stripped picture link
-	 * @throws \Exception
-	 */
-	public static function stripExtension($name)
-	{
-		$name = str_replace([".jpg", ".png", ".gif"], ["", "", ""], $name);
-		foreach (Images::supportedTypes() as $m => $e) {
-			$name = str_replace("." . $e, "", $name);
-		}
-		return $name;
-	}
-
-	/**
 	 * Fetch the guid and scale from picture links
 	 *
 	 * @param string $name Picture link
@@ -831,7 +815,7 @@ class Photo
 			return [];
 		}
 
-		$guid = self::stripExtension($guid);
+		$guid = pathinfo($guid, PATHINFO_FILENAME);
 		if (substr($guid, -2, 1) != "-") {
 			return [];
 		}

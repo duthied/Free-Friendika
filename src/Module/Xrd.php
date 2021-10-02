@@ -196,7 +196,7 @@ class Xrd extends BaseModule
 				[
 					'rel'  => 'http://webfinger.net/rel/avatar',
 					'type' => $avatar['type'],
-					'href' => User::getAvatarUrlForId($owner['uid']),
+					'href' => User::getAvatarUrl($owner),
 				],
 				[
 					'rel'  => 'http://joindiaspora.com/seed_location',
@@ -252,7 +252,7 @@ class Xrd extends BaseModule
 			'$hcard_url'   => $baseURL . '/hcard/' . $owner['nickname'],
 			'$atom'        => $owner['poll'],
 			'$poco_url'    => $owner['poco'],
-			'$photo'       => User::getAvatarUrlForId($owner['uid']),
+			'$photo'       => User::getAvatarUrl($owner),
 			'$type'        => $avatar['type'],
 			'$salmon'      => $baseURL . '/salmon/' . $owner['nickname'],
 			'$salmen'      => $baseURL . '/salmon/' . $owner['nickname'] . '/mention',

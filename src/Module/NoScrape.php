@@ -49,20 +49,20 @@ class NoScrape extends BaseModule
 			System::jsonError(403, 'Authentication required');
 		}
 
-		$profile = User::getOwnerDataByNick($which);
+		$owner = User::getOwnerDataByNick($which);
 
-		if (empty($profile['uid'])) {
+		if (empty($owner['uid'])) {
 			System::jsonError(404, 'Profile not found');
 		}
 
 		$json_info = [
-			'addr'         => $profile['addr'],
+			'addr'         => $owner['addr'],
 			'nick'         => $which,
-			'guid'         => $profile['guid'],
-			'key'          => $profile['upubkey'],
-			'homepage'     => DI::baseUrl() . "/profile/{$which}",
-			'comm'         => ($profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY),
-			'account-type' => $profile['account-type'],
+			'guid'         => $owner['guid'],
+			'key'          => $owner['upubkey'],
+			'homepage'     => DI::baseUrl() . '/profile/' . $which,
+			'comm'         => ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY),
+			'account-type' => $owner['account-type'],
 		];
 
 		$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
@@ -70,28 +70,28 @@ class NoScrape extends BaseModule
 			$json_info["dfrn-{$dfrn}"] = DI::baseUrl() . "/dfrn_{$dfrn}/{$which}";
 		}
 
-		if (!$profile['net-publish']) {
+		if (!$owner['net-publish']) {
 			$json_info['hide'] = true;
 			System::jsonExit($json_info);
 		}
 
-		$keywords = $profile['pub_keywords'] ?? '';
+		$keywords = $owner['pub_keywords'] ?? '';
 		$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], $keywords);
 		$keywords = explode(',', $keywords);
 
-		$json_info['fn']       = $profile['name'];
-		$json_info['photo']    = User::getAvatarUrlForId($profile['uid']);
+		$json_info['fn']       = $owner['name'];
+		$json_info['photo']    = User::getAvatarUrl($owner);
 		$json_info['tags']     = $keywords;
-		$json_info['language'] = $profile['language'];
+		$json_info['language'] = $owner['language'];
 
-		if (!empty($profile['last-item'])) {
-			$json_info['updated'] = date("c", strtotime($profile['last-item']));
+		if (!empty($owner['last-item'])) {
+			$json_info['updated'] = date("c", strtotime($owner['last-item']));
 		}
 
-		if (!($profile['hide-friends'] ?? false)) {
+		if (!($owner['hide-friends'] ?? false)) {
 			$json_info['contacts'] = DBA::count('contact',
 				[
-					'uid'     => $profile['uid'],
+					'uid'     => $owner['uid'],
 					'self'    => 0,
 					'blocked' => 0,
 					'pending' => 0,
@@ -103,13 +103,13 @@ class NoScrape extends BaseModule
 
 		// We display the last activity (post or login), reduced to year and week number
 		$last_active = 0;
-		$condition   = ['uid' => $profile['uid'], 'self' => true];
+		$condition   = ['uid' => $owner['uid'], 'self' => true];
 		$contact     = DBA::selectFirst('contact', ['last-item'], $condition);
 		if (DBA::isResult($contact)) {
 			$last_active = strtotime($contact['last-item']);
 		}
 
-		$condition = ['uid' => $profile['uid']];
+		$condition = ['uid' => $owner['uid']];
 		$user      = DBA::selectFirst('user', ['login_date'], $condition);
 		if (DBA::isResult($user)) {
 			if ($last_active < strtotime($user['login_date'])) {
@@ -121,8 +121,8 @@ class NoScrape extends BaseModule
 		//These are optional fields.
 		$profile_fields = ['about', 'locality', 'region', 'postal-code', 'country-name', 'xmpp', 'matrix'];
 		foreach ($profile_fields as $field) {
-			if (!empty($profile[$field])) {
-				$json_info["$field"] = $profile[$field];
+			if (!empty($owner[$field])) {
+				$json_info["$field"] = $owner[$field];
 			}
 		}
 

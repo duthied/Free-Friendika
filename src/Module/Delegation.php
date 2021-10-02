@@ -122,7 +122,7 @@ class Delegation extends BaseModule
 
 		//getting additinal information for each identity
 		foreach ($identities as $key => $identity) {
-			$identities[$key]['thumb'] = User::getAvatarUrlForId($identity['uid'], Proxy::SIZE_THUMB);
+			$identities[$key]['thumb'] = User::getAvatarUrl($identity, Proxy::SIZE_THUMB);
 
 			$identities[$key]['selected'] = ($identity['nickname'] === DI::app()->getLoggedInUserNickname());
 

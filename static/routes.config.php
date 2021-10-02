@@ -371,9 +371,13 @@ return [
 	'/permission/tooltip/{type}/{id:\d+}' => [Module\PermissionTooltip::class, [R::GET]],
 
 	'/photo' => [
-		'/{name}'                     => [Module\Photo::class, [R::GET]],
-		'/{type}/{name}'              => [Module\Photo::class, [R::GET]],
-		'/{type}/{customsize}/{name}' => [Module\Photo::class, [R::GET]],
+		'/{name}'                             => [Module\Photo::class, [R::GET]],
+		// User Id Fallback, to remove after version 2021.12
+		'/{type}/{uid_ext:\d+}'               => [Module\Photo::class, [R::GET]],
+		'/{type}/{nickname_ext}'              => [Module\Photo::class, [R::GET]],
+		// User Id Fallback, to remove after version 2021.12
+		'/{type}/{customsize}/{uid_ext:\d+}'  => [Module\Photo::class, [R::GET]],
+		'/{type}/{customsize}/{nickname_ext}' => [Module\Photo::class, [R::GET]],
 	],
 
 	'/pretheme'          => [Module\ThemeDetails::class, [R::GET]],

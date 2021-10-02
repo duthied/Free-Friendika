@@ -653,9 +653,9 @@ class Contact
 			'nick'        => $user['nickname'],
 			'pubkey'      => $user['pubkey'],
 			'prvkey'      => $user['prvkey'],
-			'photo'       => User::getAvatarUrlForId($user['uid']),
-			'thumb'       => User::getAvatarUrlForId($user['uid'], Proxy::SIZE_THUMB),
-			'micro'       => User::getAvatarUrlForId($user['uid'], Proxy::SIZE_MICRO),
+			'photo'       => User::getAvatarUrl($user),
+			'thumb'       => User::getAvatarUrl($user, Proxy::SIZE_THUMB),
+			'micro'       => User::getAvatarUrl($user, Proxy::SIZE_MICRO),
 			'blocked'     => 0,
 			'pending'     => 0,
 			'url'         => DI::baseUrl() . '/profile/' . $user['nickname'],
@@ -709,7 +709,7 @@ class Contact
 			return false;
 		}
 
-		$fields = ['nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
+		$fields = ['uid', 'nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
 			return false;
@@ -768,7 +768,7 @@ class Contact
 			$fields['micro'] = self::getDefaultAvatar($fields, Proxy::SIZE_MICRO);
 		}
 
-		$fields['avatar'] = User::getAvatarUrlForId($uid);
+		$fields['avatar'] = User::getAvatarUrl($user);
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = !$profile['net-publish'];
@@ -795,8 +795,8 @@ class Contact
 
 			// Update the profile
 			$fields = [
-				'photo' => User::getAvatarUrlForId($uid),
-				'thumb' => User::getAvatarUrlForId($uid, Proxy::SIZE_THUMB)
+				'photo' => User::getAvatarUrl($user),
+				'thumb' => User::getAvatarUrl($user, Proxy::SIZE_THUMB)
 			];
 
 			DBA::update('profile', $fields, ['uid' => $uid]);

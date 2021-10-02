@@ -1275,7 +1275,7 @@ class OStatus
 		XML::addElement($doc, $root, "id", DI::baseUrl() . "/profile/" . $owner["nick"]);
 		XML::addElement($doc, $root, "title", $title);
 		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], DI::config()->get('config', 'sitename')));
-		XML::addElement($doc, $root, "logo", User::getAvatarUrlForId($owner['uid'], ProxyUtils::SIZE_SMALL));
+		XML::addElement($doc, $root, "logo", User::getAvatarUrl($owner, ProxyUtils::SIZE_SMALL));
 		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
 		$author = self::addAuthor($doc, $owner, true);
@@ -1432,7 +1432,7 @@ class OStatus
 				"type" => "image/jpeg", // To-Do?
 				"media:width" => ProxyUtils::PIXEL_SMALL,
 				"media:height" => ProxyUtils::PIXEL_SMALL,
-				"href" => User::getAvatarUrlForId($owner['uid'], ProxyUtils::SIZE_SMALL)];
+				"href" => User::getAvatarUrl($owner, ProxyUtils::SIZE_SMALL)];
 		XML::addElement($doc, $author, "link", "", $attributes);
 
 		if (isset($owner["thumb"])) {
@@ -1441,7 +1441,7 @@ class OStatus
 					"type" => "image/jpeg", // To-Do?
 					"media:width" => ProxyUtils::PIXEL_THUMB,
 					"media:height" => ProxyUtils::PIXEL_THUMB,
-					"href" => User::getAvatarUrlForId($owner['uid'], ProxyUtils::SIZE_THUMB)];
+					"href" => User::getAvatarUrl($owner, ProxyUtils::SIZE_THUMB)];
 			XML::addElement($doc, $author, "link", "", $attributes);
 		}
 

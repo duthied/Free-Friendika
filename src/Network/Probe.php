@@ -2229,29 +2229,29 @@ class Probe
 				throw new HTTPException\NotFoundException('User not found.');
 			}
 
-			$profile   = User::getOwnerDataById($uid);
+			$owner     = User::getOwnerDataById($uid);
 			$approfile = ActivityPub\Transmitter::getProfile($uid);
 
-			if (empty($profile['gsid'])) {
-				$profile['gsid'] = GServer::getID($approfile['generator']['url']);
+			if (empty($owner['gsid'])) {
+				$owner['gsid'] = GServer::getID($approfile['generator']['url']);
 			}
 
 			$data = [
-				'name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
-				'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
-				'photo' => User::getAvatarUrlForId($uid),
-				'header' => $profile['header'] ? Contact::getHeaderUrlForId($profile['id'], $profile['updated']) : '',
-				'account-type' => $profile['contact-type'], 'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
-				'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'],
-				'xmpp' => $profile['xmpp'], 'matrix' => $profile['matrix'],
-				'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
-				'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],
-				'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $profile['poco'],
+				'name' => $owner['name'], 'nick' => $owner['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
+				'url' => $owner['url'], 'addr' => $owner['addr'], 'alias' => $owner['alias'],
+				'photo' => User::getAvatarUrl($owner),
+				'header' => $owner['header'] ? Contact::getHeaderUrlForId($owner['id'], $owner['updated']) : '',
+				'account-type' => $owner['contact-type'], 'community' => ($owner['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
+				'keywords' => $owner['keywords'], 'location' => $owner['location'], 'about' => $owner['about'],
+				'xmpp' => $owner['xmpp'], 'matrix' => $owner['matrix'],
+				'hide' => !$owner['net-publish'], 'batch' => '', 'notify' => $owner['notify'],
+				'poll' => $owner['poll'], 'request' => $owner['request'], 'confirm' => $owner['confirm'],
+				'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $owner['poco'],
 				'following' => $approfile['following'], 'followers' => $approfile['followers'],
 				'inbox' => $approfile['inbox'], 'outbox' => $approfile['outbox'],
 				'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN,
-				'pubkey' => $profile['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $profile['gsid'],
-				'manually-approve' => in_array($profile['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])
+				'pubkey' => $owner['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $owner['gsid'],
+				'manually-approve' => in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])
 			];
 		} catch (Exception $e) {
 			// Default values for non existing targets
