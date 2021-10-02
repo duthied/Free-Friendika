@@ -432,15 +432,17 @@ class Contact extends BaseModule
 					DI::page()['aside'] = '';
 
 					return Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_drop_confirm.tpl'), [
-						'$header' => DI::l10n()->t('Drop contact'),
+						'$l10n' => [
+							'header' => DI::l10n()->t('Drop contact'),
+							'message' => DI::l10n()->t('Do you really want to delete this contact?'),
+							'confirm' => DI::l10n()->t('Yes'),
+							'cancel' => DI::l10n()->t('Cancel'),
+						],
 						'$contact' => self::getContactTemplateVars($orig_record),
 						'$method' => 'get',
-						'$message' => DI::l10n()->t('Do you really want to delete this contact?'),
-						'$confirm' => DI::l10n()->t('Yes'),
 						'$confirm_url' => DI::args()->getCommand(),
 						'$confirm_name' => 't',
 						'$confirm_value' => BaseModule::getFormSecurityToken('contact_action'),
-						'$cancel' => DI::l10n()->t('Cancel'),
 					]);
 				}
 				// Now check how the user responded to the confirmation query

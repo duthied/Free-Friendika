@@ -1,5 +1,5 @@
 <div id="contact-drop-confirm">
-	<h2 class="heading">{{$header}}</h2>
+	<h2 class="heading">{{$l10n.header}}</h2>
 
 	{{include file="contact_template.tpl" no_contacts_checkbox=True}}
 
