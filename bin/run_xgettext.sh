@@ -36,7 +36,6 @@ then
 	MODE='single'
 fi
 
-
 case "$MODE" in
 	'addon')
 		cd "$FULLPATH/../addon/$ADDONNAME"
@@ -72,24 +71,25 @@ KEYWORDS="-k -kt -ktt:1,2"
 echo "Extract strings to $OUTFILE.."
 rm "$OUTFILE"; touch "$OUTFILE"
 
-# shellcheck disable=SC2086  # FINDOPTS is meant to be splitted
+# shellcheck disable=SC2086  # $FINDOPTS is meant to be split
 find_result=$(find "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f | LC_ALL=C sort --stable)
 
 total_files=$(wc -l <<< "${find_result}")
 
+count=1
 for file in $find_result
 do
-	((count++))
 	echo -ne "                                            \r"
 	echo -ne "Reading file $count/$total_files..."
 
 	# On Windows, find still outputs the name of pruned folders
 	if [ ! -d "$file" ]
 	then
-		# shellcheck disable=SC2086  # KEYWORDS is meant to be splitted
+		# shellcheck disable=SC2086  # $KEYWORDS is meant to be split
 		xgettext $KEYWORDS -j -o "$OUTFILE" --from-code=UTF-8 "$file" || exit 1
 		sed -i.bkp "s/CHARSET/UTF-8/g" "$OUTFILE"
 	fi
+	(( count++ ))
 done
 echo -ne "\n"
 
@@ -120,5 +120,7 @@ then
 	echo "Merging new strings to $UPDATEFILE.."
 	msgmerge -U "$OUTFILE" "$UPDATEFILE"
 fi
+
+[ -f "$OUTFILE.bkp" ] && rm "$OUTFILE.bkp" 
 
 echo "Done."
