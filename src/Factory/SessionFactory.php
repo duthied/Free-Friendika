@@ -77,7 +77,7 @@ class SessionFactory
 						if ($config->get('system', 'cache_driver') === Type::DATABASE) {
 							$handler = new Session\Handler\Database($dba, $logger, $server);
 						} else {
-							$handler = new Session\Handler\Cache($cache, $logger, $server);
+							$handler = new Session\Handler\Cache($cache);
 						}
 						break;
 				}

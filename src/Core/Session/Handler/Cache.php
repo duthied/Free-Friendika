@@ -23,7 +23,6 @@ namespace Friendica\Core\Session\Handler;
 
 use Friendica\Core\Cache\ICache;
 use Friendica\Core\Session;
-use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
 
 /**
@@ -33,16 +32,10 @@ class Cache implements SessionHandlerInterface
 {
 	/** @var ICache */
 	private $cache;
-	/** @var LoggerInterface */
-	private $logger;
-	/** @var array The $_SERVER array */
-	private $server;
 
-	public function __construct(ICache $cache, LoggerInterface $logger, array $server)
+	public function __construct(ICache $cache)
 	{
-		$this->cache  = $cache;
-		$this->logger = $logger;
-		$this->server = $server;
+		$this->cache = $cache;
 	}
 
 	public function open($save_path, $session_name)
@@ -61,8 +54,6 @@ class Cache implements SessionHandlerInterface
 			Session::$exists = true;
 			return $data;
 		}
-
-		$this->logger->notice('no data for session', ['session_id' => $session_id, 'uri' => $this->server['REQUEST_URI'] ?? '']);
 
 		return '';
 	}
