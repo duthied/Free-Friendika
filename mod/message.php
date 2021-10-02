@@ -158,12 +158,9 @@ function message_content(App $a)
 
 			DI::baseUrl()->redirect('message/' . $conversation['id'] );
 		} else {
-			$r = q("SELECT `parent-uri`,`convid` FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval(DI::args()->getArgv()[2]),
-				intval(local_user())
-			);
-			if (DBA::isResult($r)) {
-				$parent = $r[0]['parent-uri'];
+			$parentmail = DBA::selectFirst('mail', ['parent-uri'], ['id' => DI::args()->getArgv()[2], 'uid' => local_user()]);
+			if (DBA::isResult($parentmail)) {
+				$parent = $parentmail['parent-uri'];
 
 				if (!DBA::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
 					notice(DI::l10n()->t('Conversation was not removed.'));
