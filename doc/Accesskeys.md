@@ -32,7 +32,7 @@ General
 * m - Status Messages and Posts
 * r - Profile Details
 * h - Photo Albums
-* v - Videos
+* d - Media
 * e - Events and Calendar
 * t - Personal Notes
 * o - Scheduled Posts
