@@ -36,6 +36,18 @@ use Friendica\Util\Proxy;
  */
 class Link
 {
+	/**
+	 * Check if the link is stored
+	 *
+	 * @param int $uri_id
+	 * @param string $url
+	 * @return bool
+	 */
+	public static function exists(int $uri_id, string $url)
+	{
+		return DBA::exists('post-link', ['uri-id' => $uri_id, 'url' => $url]);
+	}
+
 	public static function getByLink(int $uri_id, string $url, $size = '')
 	{
 		if (empty($uri_id) || empty($url) || Proxy::isLocalImage($url)) {

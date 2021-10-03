@@ -90,7 +90,7 @@ class Processor
 	 *
 	 * @return string with replaced emojis
 	 */
-	private static function replaceEmojis($body, array $emojis)
+	private static function replaceEmojis(int $uri_id, $body, array $emojis)
 	{
 		$body = strtr($body,
 			array_combine(
@@ -101,6 +101,10 @@ class Processor
 			)
 		);
 
+		// We store the emoji here to be able to avoid storing it in the media
+		foreach ($emojis as $emoji) {
+			Post\Link::getByLink($uri_id, $emoji['href']);
+		}
 		return $body;
 	}
 
@@ -392,7 +396,7 @@ class Processor
 	 *
 	 * @param array $activity Activity array
 	 * @param array $item
-	 * 
+	 *
 	 * @return int event id
 	 * @throws \Exception
 	 */
@@ -456,7 +460,7 @@ class Processor
 		}
 
 		if (!empty($activity['emojis'])) {
-			$content = self::replaceEmojis($content, $activity['emojis']);
+			$content = self::replaceEmojis($item['uri-id'], $content, $activity['emojis']);
 		}
 
 		$content = self::addMentionLinks($content, $activity['tags']);
