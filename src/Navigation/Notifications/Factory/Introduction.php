@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Factory\Notification;
+namespace Friendica\Navigation\Notifications\Factory;
 
 use Exception;
 use Friendica\App;
@@ -33,8 +33,7 @@ use Friendica\Core\Session\ISession;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseNotifications;
-use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Object\Notification;
+use Friendica\Navigation\Notifications\ValueObject;
 use Friendica\Util\Proxy;
 use Psr\Log\LoggerInterface;
 
@@ -80,11 +79,11 @@ class Introduction extends BaseFactory
 	 * @param int  $limit   Maximum number of query results
 	 * @param int  $id      When set, only the introduction with this id is displayed
 	 *
-	 * @return Notification\Introduction[]
+	 * @return ValueObject\Introduction[]
 	 */
-	public function getList(bool $all = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT, int $id = 0)
+	public function getList(bool $all = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT, int $id = 0): array
 	{
-		$sql_extra     = "";
+		$sql_extra = "";
 
 		if (empty($id)) {
 			if (!$all) {
@@ -93,10 +92,10 @@ class Introduction extends BaseFactory
 
 			$sql_extra .= " AND NOT `intro`.`blocked` ";
 		} else {
-			$sql_extra = sprintf(" AND `intro`.`id` = %d ", intval($id));
+			$sql_extra = sprintf(" AND `intro`.`id` = %d ", $id);
 		}
 
-		$formattedNotifications = [];
+		$formattedIntroductions = [];
 
 		try {
 			/// @todo Fetch contact details by "Contact::getByUrl" instead of queries to contact and fcontact
@@ -114,68 +113,68 @@ class Introduction extends BaseFactory
 				$limit
 			);
 
-			while ($notification = $this->dba->fetch($stmtNotifications)) {
-				if (empty($notification['url'])) {
+			while ($intro = $this->dba->fetch($stmtNotifications)) {
+				if (empty($intro['url'])) {
 					continue;
 				}
 
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 				// We have to distinguish between these two because they use different data.
 				// Contact suggestions
-				if ($notification['fid'] ?? '') {
-					if (empty($notification['furl'])) {
+				if ($intro['fid'] ?? '') {
+					if (empty($intro['furl'])) {
 						continue;
 					}
 					$return_addr = bin2hex($this->nick . '@' .
-					                       $this->baseUrl->getHostName() .
-					                       (($this->baseUrl->getURLPath()) ? '/' . $this->baseUrl->getURLPath() : ''));
+					                       $this->baseUrl->getHostname() .
+					                       (($this->baseUrl->getUrlPath()) ? '/' . $this->baseUrl->getUrlPath() : ''));
 
-					$formattedNotifications[] = new Notification\Introduction([
+					$formattedIntroductions[] = new ValueObject\Introduction([
 						'label'          => 'friend_suggestion',
 						'str_type'       => $this->l10n->t('Friend Suggestion'),
-						'intro_id'       => $notification['intro_id'],
-						'madeby'         => $notification['name'],
-						'madeby_url'     => $notification['url'],
-						'madeby_zrl'     => Contact::magicLink($notification['url']),
-						'madeby_addr'    => $notification['addr'],
-						'contact_id'     => $notification['contact-id'],
-						'photo'          => Contact::getAvatarUrlForUrl($notification['furl'], 0, Proxy::SIZE_SMALL),
-						'name'           => $notification['fname'],
-						'url'            => $notification['furl'],
-						'zrl'            => Contact::magicLink($notification['furl']),
-						'hidden'         => $notification['hidden'] == 1,
+						'intro_id'       => $intro['intro_id'],
+						'madeby'         => $intro['name'],
+						'madeby_url'     => $intro['url'],
+						'madeby_zrl'     => Contact::magicLink($intro['url']),
+						'madeby_addr'    => $intro['addr'],
+						'contact_id'     => $intro['contact-id'],
+						'photo'          => Contact::getAvatarUrlForUrl($intro['furl'], 0, Proxy::SIZE_SMALL),
+						'name'           => $intro['fname'],
+						'url'            => $intro['furl'],
+						'zrl'            => Contact::magicLink($intro['furl']),
+						'hidden'         => $intro['hidden'] == 1,
 						'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
-						'note'           => $notification['note'],
-						'request'        => $notification['frequest'] . '?addr=' . $return_addr]);
+						'note'           => $intro['note'],
+						'request'        => $intro['frequest'] . '?addr=' . $return_addr]);
 
 					// Normal connection requests
 				} else {
 					// Don't show these data until you are connected. Diaspora is doing the same.
-					if ($notification['network'] === Protocol::DIASPORA) {
-						$notification['location'] = "";
-						$notification['about']    = "";
+					if ($intro['network'] === Protocol::DIASPORA) {
+						$intro['location'] = "";
+						$intro['about']    = "";
 					}
 
-					$formattedNotifications[] = new Notification\Introduction([
-						'label'          => (($notification['network'] !== Protocol::OSTATUS) ? 'friend_request' : 'follower'),
-						'str_type'       => (($notification['network'] !== Protocol::OSTATUS) ? $this->l10n->t('Friend/Connect Request') : $this->l10n->t('New Follower')),
-						'dfrn_id'        => $notification['issued-id'],
+					$formattedIntroductions[] = new ValueObject\Introduction([
+						'label'          => (($intro['network'] !== Protocol::OSTATUS) ? 'friend_request' : 'follower'),
+						'str_type'       => (($intro['network'] !== Protocol::OSTATUS) ? $this->l10n->t('Friend/Connect Request') : $this->l10n->t('New Follower')),
+						'dfrn_id'        => $intro['issued-id'],
 						'uid'            => $this->session->get('uid'),
-						'intro_id'       => $notification['intro_id'],
-						'contact_id'     => $notification['contact-id'],
-						'photo'          => Contact::getPhoto($notification),
-						'name'           => $notification['name'],
-						'location'       => BBCode::convert($notification['location'], false),
-						'about'          => BBCode::convert($notification['about'], false),
-						'keywords'       => $notification['keywords'],
-						'hidden'         => $notification['hidden'] == 1,
+						'intro_id'       => $intro['intro_id'],
+						'contact_id'     => $intro['contact-id'],
+						'photo'          => Contact::getPhoto($intro),
+						'name'           => $intro['name'],
+						'location'       => BBCode::convert($intro['location'], false),
+						'about'          => BBCode::convert($intro['about'], false),
+						'keywords'       => $intro['keywords'],
+						'hidden'         => $intro['hidden'] == 1,
 						'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
-						'url'            => $notification['url'],
-						'zrl'            => Contact::magicLink($notification['url']),
-						'addr'           => $notification['addr'],
-						'network'        => $notification['network'],
-						'knowyou'        => $notification['knowyou'],
-						'note'           => $notification['note'],
+						'url'            => $intro['url'],
+						'zrl'            => Contact::magicLink($intro['url']),
+						'addr'           => $intro['addr'],
+						'network'        => $intro['network'],
+						'knowyou'        => $intro['knowyou'],
+						'note'           => $intro['note'],
 					]);
 				}
 			}
@@ -183,6 +182,6 @@ class Introduction extends BaseFactory
 			$this->logger->warning('Select failed.', ['uid' => $_SESSION['uid'], 'exception' => $e]);
 		}
 
-		return $formattedNotifications;
+		return $formattedIntroductions;
 	}
 }

@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Object\Notification;
+namespace Friendica\Navigation\Notifications\ValueObject;
 
 /**
  * A view-only object for printing introduction notifications to the frontend
@@ -27,242 +27,170 @@ namespace Friendica\Object\Notification;
 class Introduction implements \JsonSerializable
 {
 	/** @var string */
-	private $label = '';
+	private $label;
 	/** @var string */
-	private $type = '';
-	/** @var integer */
-	private $intro_id = -1;
-	/** @var string */
-	private $madeBy = '';
-	/** @var string */
-	private $madeByUrl = '';
-	/** @var string */
-	private $madeByZrl = '';
-	/** @var string */
-	private $madeByAddr = '';
-	/** @var integer */
-	private $contactId = -1;
-	/** @var string */
-	private $photo = '';
-	/** @var string */
-	private $name = '';
-	/** @var string */
-	private $url = '';
-	/** @var string */
-	private $zrl = '';
-	/** @var boolean */
-	private $hidden = false;
-	/** @var integer */
-	private $postNewFriend = -1;
-	/** @var boolean */
-	private $knowYou = false;
-	/** @var string */
-	private $note = '';
-	/** @var string */
-	private $request = '';
+	private $type;
 	/** @var int */
-	private $dfrnId = -1;
+	private $intro_id;
 	/** @var string */
-	private $addr = '';
+	private $madeBy;
 	/** @var string */
-	private $network = '';
+	private $madeByUrl;
+	/** @var string */
+	private $madeByZrl;
+	/** @var string */
+	private $madeByAddr;
 	/** @var int */
-	private $uid = -1;
+	private $contactId;
 	/** @var string */
-	private $keywords = '';
+	private $photo;
 	/** @var string */
-	private $location = '';
+	private $name;
 	/** @var string */
-	private $about = '';
+	private $url;
+	/** @var string */
+	private $zrl;
+	/** @var boolean */
+	private $hidden;
+	/** @var int */
+	private $postNewFriend;
+	/** @var boolean */
+	private $knowYou;
+	/** @var string */
+	private $note;
+	/** @var string */
+	private $request;
+	/** @var int */
+	private $dfrnId;
+	/** @var string */
+	private $addr;
+	/** @var string */
+	private $network;
+	/** @var int */
+	private $uid;
+	/** @var string */
+	private $keywords;
+	/** @var string */
+	private $location;
+	/** @var string */
+	private $about;
 
-	/**
-	 * @return string
-	 */
-	public function getLabel()
+	public function getLabel(): string
 	{
 		return $this->label;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getType()
+	public function getType(): string
 	{
 		return $this->type;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getIntroId()
+	public function getIntroId(): int
 	{
 		return $this->intro_id;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getMadeBy()
+	public function getMadeBy(): string
 	{
 		return $this->madeBy;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getMadeByUrl()
+	public function getMadeByUrl(): string
 	{
 		return $this->madeByUrl;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getMadeByZrl()
+	public function getMadeByZrl(): string
 	{
 		return $this->madeByZrl;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getMadeByAddr()
+	public function getMadeByAddr(): string
 	{
 		return $this->madeByAddr;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getContactId()
+	public function getContactId(): int
 	{
 		return $this->contactId;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPhoto()
+	public function getPhoto(): string
 	{
 		return $this->photo;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getName()
+	public function getName(): string
 	{
 		return $this->name;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getUrl()
+	public function getUrl(): string
 	{
 		return $this->url;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getZrl()
+	public function getZrl(): string
 	{
 		return $this->zrl;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isHidden()
+	public function isHidden(): bool
 	{
 		return $this->hidden;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getPostNewFriend()
+	public function getPostNewFriend(): int
 	{
 		return $this->postNewFriend;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getKnowYou()
+	public function getKnowYou(): string
 	{
 		return $this->knowYou;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getNote()
+	public function getNote(): string
 	{
 		return $this->note;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getRequest()
+	public function getRequest(): string
 	{
 		return $this->request;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getDfrnId()
+	public function getDfrnId(): int
 	{
 		return $this->dfrnId;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getAddr()
+	public function getAddr(): string
 	{
 		return $this->addr;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getNetwork()
+	public function getNetwork(): string
 	{
 		return $this->network;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getUid()
+	public function getUid(): int
 	{
 		return $this->uid;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getKeywords()
+	public function getKeywords(): string
 	{
 		return $this->keywords;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getLocation()
+	public function getLocation(): string
 	{
 		return $this->location;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getAbout()
+	public function getAbout(): string
 	{
 		return $this->about;
 	}
@@ -276,7 +204,7 @@ class Introduction implements \JsonSerializable
 		$this->madeByUrl     = $data['madeByUrl'] ?? '';
 		$this->madeByZrl     = $data['madeByZrl'] ?? '';
 		$this->madeByAddr    = $data['madeByAddr'] ?? '';
-		$this->contactId     = $data['contactId'] ?? '';
+		$this->contactId     = $data['contactId'] ?? -1;
 		$this->photo         = $data['photo'] ?? '';
 		$this->name          = $data['name'] ?? '';
 		$this->url           = $data['url'] ?? '';
@@ -306,7 +234,7 @@ class Introduction implements \JsonSerializable
 	/**
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		return get_object_vars($this);
 	}

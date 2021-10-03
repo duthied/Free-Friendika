@@ -19,24 +19,18 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Notifications;
+namespace Friendica\Navigation\Notifications\Collection;
 
-use Friendica\Core\System;
-use Friendica\DI;
-use Friendica\Module\BaseApi;
+use Friendica\BaseCollection;
+use Friendica\Navigation\Notifications\ValueObject;
 
-/**
- * @see https://docs.joinmastodon.org/methods/notifications/
- */
-class Clear extends BaseApi
+class FormattedNotifications extends BaseCollection
 {
-	public static function post(array $parameters = [])
+	/**
+	 * @return ValueObject\FormattedNotification
+	 */
+	public function current(): ValueObject\FormattedNotification
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-		$uid = self::getCurrentUserID();
-
-		DI::notification()->setAllSeenForUser($uid);
-
-		System::jsonExit([]);
+		return parent::current();
 	}
 }

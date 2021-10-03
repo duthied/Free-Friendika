@@ -370,20 +370,9 @@ abstract class DI
 		return self::$dice->create(Factory\Api\Twitter\User::class);
 	}
 
-	/**
-	 * @return Factory\Notification\Notification
-	 */
-	public static function notification()
+	public static function notificationIntro(): Navigation\Notifications\Factory\Introduction
 	{
-		return self::$dice->create(Factory\Notification\Notification::class);
-	}
-
-	/**
-	 * @return Factory\Notification\Introduction
-	 */
-	public static function notificationIntro()
-	{
-		return self::$dice->create(Factory\Notification\Introduction::class);
+		return self::$dice->create(Navigation\Notifications\Factory\Introduction::class);
 	}
 
 	//
@@ -469,12 +458,29 @@ abstract class DI
 		return self::$dice->create(Repository\ProfileField::class);
 	}
 
-	/**
-	 * @return Repository\Notification
-	 */
-	public static function notify()
+	public static function notification(): Navigation\Notifications\Depository\Notification
 	{
-		return self::$dice->create(Repository\Notification::class);
+		return self::$dice->create(Navigation\Notifications\Depository\Notification::class);
+	}
+
+	public static function notificationFactory(): Navigation\Notifications\Factory\Notification
+	{
+		return self::$dice->create(Navigation\Notifications\Factory\Notification::class);
+	}
+
+	public static function notify(): Navigation\Notifications\Depository\Notify
+	{
+		return self::$dice->create(Navigation\Notifications\Depository\Notify::class);
+	}
+
+	public static function notifyFactory(): Navigation\Notifications\Factory\Notify
+	{
+		return self::$dice->create(Navigation\Notifications\Factory\Notify::class);
+	}
+
+	public static function formattedNotificationFactory(): Navigation\Notifications\Factory\FormattedNotification
+	{
+		return self::$dice->create(Navigation\Notifications\Factory\FormattedNotification::class);
 	}
 
 	//

@@ -24,15 +24,14 @@
  */
 
 use Friendica\App;
+use Friendica\Collection\Api\Notifications as ApiNotifications;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -54,6 +53,7 @@ use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Network\HTTPException\UnauthorizedException;
+use Friendica\Object\Api\Friendica\Notification as ApiNotification;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
@@ -2193,11 +2193,14 @@ function api_statuses_mentions($type)
 		(SELECT `uri-id` FROM `post-user-notification` WHERE `uid` = ? AND `notification-type` & ? != 0 ORDER BY `uri-id`)
 		AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `id` > ?";
 
-	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
-		Post\UserNotification::NOTIF_EXPLICIT_TAGGED | Post\UserNotification::NOTIF_IMPLICIT_TAGGED |
-		Post\UserNotification::NOTIF_THREAD_COMMENT | Post\UserNotification::NOTIF_DIRECT_COMMENT |
-		Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT,
-		api_user(), $since_id];
+	$condition = [
+		GRAVITY_PARENT, GRAVITY_COMMENT,
+		api_user(),
+		Post\UserNotification::TYPE_EXPLICIT_TAGGED | Post\UserNotification::TYPE_IMPLICIT_TAGGED |
+		Post\UserNotification::TYPE_THREAD_COMMENT | Post\UserNotification::TYPE_DIRECT_COMMENT |
+		Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
+		api_user(), $since_id,
+	];
 
 	if ($max_id > 0) {
 		$query .= " AND `id` <= ?";
@@ -5580,23 +5583,24 @@ api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activit
  */
 function api_friendica_notification($type)
 {
-	$a = DI::app();
-
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
 	if (DI::args()->getArgc()!==3) {
-		throw new BadRequestException("Invalid argument count");
+		throw new BadRequestException('Invalid argument count');
 	}
 
-	$notifications = DI::notification()->getApiList(local_user());
+	$Notifies = DI::notify()->selectAllForUser(local_user(), 50);
 
-	if ($type == "xml") {
-		$xmlnotes = false;
-		if (!empty($notifications)) {
-			foreach ($notifications as $notification) {
-				$xmlnotes[] = ["@attributes" => $notification->toArray()];
-			}
+	$notifications = new ApiNotifications();
+	foreach ($Notifies as $Notify) {
+		$notifications[] = new ApiNotification($Notify);
+	}
+
+	if ($type == 'xml') {
+		$xmlnotes = [];
+		foreach ($notifications as $notification) {
+			$xmlnotes[] = ['@attributes' => $notification->toArray()];
 		}
 
 		$result = $xmlnotes;
@@ -5606,7 +5610,7 @@ function api_friendica_notification($type)
 		$result = false;
 	}
 
-	return api_format_data("notes", $type, ['note' => $result]);
+	return api_format_data('notes', $type, ['note' => $result]);
 }
 
 /**
@@ -5631,26 +5635,36 @@ function api_friendica_notification_seen($type)
 		throw new ForbiddenException();
 	}
 	if (DI::args()->getArgc() !== 4) {
-		throw new BadRequestException("Invalid argument count");
+		throw new BadRequestException('Invalid argument count');
 	}
 
-	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
+	$id = intval($_REQUEST['id'] ?? 0);
 
 	try {
-		$notify = DI::notify()->getByID($id, api_user());
-		DI::notify()->setSeen(true, $notify);
+		$Notify = DI::notify()->selectOneById($id);
+		if ($Notify->uid !== api_user()) {
+			throw new NotFoundException();
+		}
 
-		if ($notify->otype === Notification\ObjectType::ITEM) {
-			$item = Post::selectFirstForUser(api_user(), [], ['id' => $notify->iid, 'uid' => api_user()]);
+		if ($Notify->uriId) {
+			DI::notification()->setAllSeenForUser($Notify->uid, ['target-uri-id' => $Notify->uriId]);
+		}
+
+		$Notify->setSeen();
+		DI::notify()->save($Notify);
+
+		if ($Notify->otype === Notification\ObjectType::ITEM) {
+			$item = Post::selectFirstForUser(api_user(), [], ['id' => $Notify->iid, 'uid' => api_user()]);
 			if (DBA::isResult($item)) {
 				// we found the item, return it to the user
 				$ret  = api_format_items([$item], $user_info, false, $type);
 				$data = ['status' => $ret];
-				return api_format_data("status", $type, $data);
+				return api_format_data('status', $type, $data);
 			}
 			// the item can't be found, but we set the notification as seen, so we count this as a success
 		}
-		return api_format_data('result', $type, ['result' => "success"]);
+
+		return api_format_data('result', $type, ['result' => 'success']);
 	} catch (NotFoundException $e) {
 		throw new BadRequestException('Invalid argument', $e);
 	} catch (Exception $e) {
