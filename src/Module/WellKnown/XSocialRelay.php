@@ -45,7 +45,7 @@ class XSocialRelay extends BaseModule
 			$tagitems = explode(',', $server_tags);
 
 			/// @todo Check if it was better to use "strtolower" on the tags
-			foreach ($tagitems AS $tag) {
+			foreach ($tagitems as $tag) {
 				$systemTags[] = trim($tag, '# ');
 			}
 

@@ -111,7 +111,7 @@ class Feed
 		if ($xpath->query('/atom:feed')->length > 0) {
 			$alternate = XML::getFirstAttributes($xpath, "atom:link[@rel='alternate']");
 			if (is_object($alternate)) {
-				foreach ($alternate AS $attribute) {
+				foreach ($alternate as $attribute) {
 					if ($attribute->name == "href") {
 						$author["author-link"] = $attribute->textContent;
 					}
@@ -121,7 +121,7 @@ class Feed
 			if (empty($author["author-link"])) {
 				$self = XML::getFirstAttributes($xpath, "atom:link[@rel='self']");
 				if (is_object($self)) {
-					foreach ($self AS $attribute) {
+					foreach ($self as $attribute) {
 						if ($attribute->name == "href") {
 							$author["author-link"] = $attribute->textContent;
 						}
@@ -175,7 +175,7 @@ class Feed
 
 				$avatar = XML::getFirstAttributes($xpath, "atom:author/atom:link[@rel='avatar']");
 				if (is_object($avatar)) {
-					foreach ($avatar AS $attribute) {
+					foreach ($avatar as $attribute) {
 						if ($attribute->name == "href") {
 							$author["author-avatar"] = $attribute->textContent;
 						}
@@ -267,7 +267,7 @@ class Feed
 				$alternate = XML::getFirstAttributes($xpath, "atom:link", $entry);
 			}
 			if (is_object($alternate)) {
-				foreach ($alternate AS $attribute) {
+				foreach ($alternate as $attribute) {
 					if ($attribute->name == "href") {
 						$item["plink"] = $attribute->textContent;
 					}
@@ -383,12 +383,12 @@ class Feed
 			$attachments = [];
 
 			$enclosures = $xpath->query("enclosure|atom:link[@rel='enclosure']", $entry);
-			foreach ($enclosures AS $enclosure) {
+			foreach ($enclosures as $enclosure) {
 				$href = "";
 				$length = null;
 				$type = null;
 
-				foreach ($enclosure->attributes AS $attribute) {
+				foreach ($enclosure->attributes as $attribute) {
 					if (in_array($attribute->name, ["url", "href"])) {
 						$href = $attribute->textContent;
 					} elseif ($attribute->name == "length") {
@@ -405,7 +405,7 @@ class Feed
 
 			$taglist = [];
 			$categories = $xpath->query("category", $entry);
-			foreach ($categories AS $category) {
+			foreach ($categories as $category) {
 				$taglist[] = $category->nodeValue;
 			}
 
@@ -459,7 +459,7 @@ class Feed
 			$preview = '';
 			if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] < 3)) {
 				// Handle enclosures and treat them as preview picture
-				foreach ($attachments AS $attachment) {
+				foreach ($attachments as $attachment) {
 					if ($attachment["mimetype"] == "image/jpeg") {
 						$preview = $attachment["url"];
 					}
