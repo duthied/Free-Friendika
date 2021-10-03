@@ -24,6 +24,11 @@ function initEditor(callback) {
 		$("a#jot-perms-icon").colorbox(colorbox_options);
 		$(".jothidden").show();
 
+		$("#profile-jot-text").keyup(function(){
+			var textlen = $(this).val().length;
+			$('#character-counter').text(textlen);
+		});
+
 		editor = true;
 	}
 	if (typeof callback != "undefined") {

@@ -1,7 +1,6 @@
 <div id="profile-jot-wrapper">
 	<div id="profile-jot-banner-wrapper">
 		<div id="profile-jot-desc">&nbsp;</div>
-		<div id="character-counter" class="grey"></div>
 	</div>
 	<div id="profile-jot-banner-end"></div>
 
@@ -51,6 +50,10 @@
 	</div>
 	<div id="profile-nolocation-wrapper" style="display: none;">
 		<a id="profile-nolocation" class="icon noglobe" title="{{$noloc}}" onclick="jotClearLocation();return false;"></a>
+	</div>
+
+	<div id="post-length">
+		<span id="character-counter" class="grey"></span>
 	</div>
 
 	<div id="profile-jot-perms" class="profile-jot-perms" style="display: {{$pvisit}};">

@@ -1778,8 +1778,14 @@ section.minimal {
 	padding: 0.3em;
 	margin-bottom: 10px;
 }
-
-#profile-jot-form #jot-title, #profile-jot-form #jot-category {
+#post-length {
+	width: 20px;
+	float: left;
+	margin-left: 15px;
+	margin-top: 3px;
+	color: #9c9c9c;
+}
+profile-jot-form #jot-title, #profile-jot-form #jot-category {
 	border-radius: 5px 5px 5px 5px;
 	font-weight: bold;
 	height: 20px;
