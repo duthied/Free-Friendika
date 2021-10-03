@@ -333,7 +333,7 @@ function settings_post(App $a)
 	}
 
 	if (($timezone != $user['timezone']) && strlen($timezone)) {
-		date_default_timezone_set($timezone);
+		$a->setTimeZone($timezone);
 	}
 
 	$aclFormatter = DI::aclFormatter();
@@ -601,7 +601,7 @@ function settings_content(App $a)
 	$expire_network_only = DI::pConfig()->get(local_user(), 'expire', 'network_only', false);
 
 	if (!strlen($user['timezone'])) {
-		$timezone = date_default_timezone_get();
+		$timezone = $a->getTimeZone();
 	}
 
 	// Set the account type to "Community" when the page is a community page but the account type doesn't fit

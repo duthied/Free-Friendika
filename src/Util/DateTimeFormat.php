@@ -36,6 +36,13 @@ class DateTimeFormat
 	const HTTP  = 'D, d M Y H:i:s \G\M\T';
 	const JSON  = 'Y-m-d\TH:i:s.v\Z';
 
+	static $localTimezone = 'UTC';
+
+	public static function setLocalTimeZone(string $timezone)
+	{
+		self::$localTimezone = $timezone;
+	}
+
 	/**
 	 * convert() shorthand for UTC.
 	 *
@@ -59,7 +66,7 @@ class DateTimeFormat
 	 */
 	public static function local($time, $format = self::MYSQL)
 	{
-		return self::convert($time, date_default_timezone_get(), 'UTC', $format);
+		return self::convert($time, self::$localTimezone, 'UTC', $format);
 	}
 
 	/**
@@ -160,7 +167,7 @@ class DateTimeFormat
 			$to_obj = new DateTimeZone('UTC');
 		}
 
-		$d->setTimeZone($to_obj);
+		$d->setTimezone($to_obj);
 
 		return $d->format($format);
 	}

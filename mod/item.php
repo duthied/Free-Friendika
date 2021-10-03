@@ -686,7 +686,7 @@ function item_post(App $a) {
 	Hook::callAll('post_local',$datarray);
 
 	if (!empty($_REQUEST['scheduled_at'])) {
-		$scheduled_at = DateTimeFormat::convert($_REQUEST['scheduled_at'], 'UTC', $a->getTimezone());
+		$scheduled_at = DateTimeFormat::convert($_REQUEST['scheduled_at'], 'UTC', $a->getTimeZone());
 		if ($scheduled_at > DateTimeFormat::utcNow()) {
 			unset($datarray['created']);
 			unset($datarray['edited']);

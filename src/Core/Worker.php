@@ -61,9 +61,6 @@ class Worker
 	 */
 	public static function processQueue($run_cron = true)
 	{
-		// Ensure that all "strtotime" operations do run timezone independent
-		date_default_timezone_set('UTC');
-
 		self::$up_start = microtime(true);
 
 		// At first check the maximum load. We shouldn't continue with a high load

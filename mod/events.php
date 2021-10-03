@@ -100,9 +100,9 @@ function events_post(App $a)
 	}
 
 	if ($adjust) {
-		$start = DateTimeFormat::convert($start, 'UTC', date_default_timezone_get());
+		$start = DateTimeFormat::convert($start, 'UTC', $a->getTimeZone());
 		if (!$nofinish) {
-			$finish = DateTimeFormat::convert($finish, 'UTC', date_default_timezone_get());
+			$finish = DateTimeFormat::convert($finish, 'UTC', $a->getTimeZone());
 		}
 	} else {
 		$start = DateTimeFormat::utc($start);
@@ -481,9 +481,9 @@ function events_content(App $a)
 		$sdt = $orig_event['start'] ?? 'now';
 		$fdt = $orig_event['finish'] ?? 'now';
 
-		$tz = date_default_timezone_get();
+		$tz = $a->getTimeZone();
 		if (isset($orig_event['adjust'])) {
-			$tz = ($orig_event['adjust'] ? date_default_timezone_get() : 'UTC');
+			$tz = ($orig_event['adjust'] ? $a->getTimeZone() : 'UTC');
 		}
 
 		$syear  = DateTimeFormat::convert($sdt, $tz, 'UTC', 'Y');
