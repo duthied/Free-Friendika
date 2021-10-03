@@ -25,6 +25,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException\ForbiddenException;
 
 /**
  * @see https://docs.joinmastodon.org/methods/notifications/
@@ -40,7 +41,9 @@ class Dismiss extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DBA::update('notification', ['seen' => true], ['uid' => $uid, 'id' => $parameters['id']]);
+		$Notification = DI::notification()->selectOneForUser($uid, $parameters['id']);
+		$Notification->setSeen();
+		DI::notification()->save($Notification);
 
 		System::jsonExit([]);
 	}

@@ -732,7 +732,7 @@ return [
 			'link' => 'http://localhost/notification/1',
 			'iid' => 4,
 			'seen' => 0,
-			'verb' => '',
+			'verb' => \Friendica\Protocol\Activity::POST,
 			'otype' => Notification\ObjectType::ITEM,
 			'name_cache' => 'Reply to',
 			'msg_cache' => 'A test reply from an item',

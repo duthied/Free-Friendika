@@ -22,12 +22,11 @@
 namespace Friendica;
 
 /**
- * The Collection classes inheriting from this abstract class are meant to represent a list of database record.
- * The associated model class has to be provided in the child classes.
+ * The Collection classes inheriting from this class are meant to represent a list of structured objects of a single type.
  *
  * Collections can be used with foreach(), accessed like an array and counted.
  */
-abstract class BaseCollection extends \ArrayIterator
+class BaseCollection extends \ArrayIterator
 {
 	/**
 	 * This property is used with paginated results to hold the total number of items satisfying the paginated request.
@@ -114,5 +113,15 @@ abstract class BaseCollection extends \ArrayIterator
 	public function filter(callable $callback = null, int $flag = 0)
 	{
 		return new static(array_filter($this->getArrayCopy(), $callback, $flag));
+	}
+
+	/**
+	 * Reverse the orders of the elements in the collection
+	 *
+	 * @return $this
+	 */
+	public function reverse(): BaseCollection
+	{
+		return new static(array_reverse($this->getArrayCopy()), $this->getTotalCount());
 	}
 }

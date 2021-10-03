@@ -33,9 +33,26 @@ use Friendica\Util\DateTimeFormat;
  */
 class Notification extends BaseDataTransferObject
 {
+	/* From the Mastodon documentation:
+	 * - follow         = Someone followed you
+	 * - follow_request = Someone requested to follow you
+	 * - mention        = Someone mentioned you in their status
+	 * - reblog         = Someone boosted one of your statuses
+	 * - favourite      = Someone favourited one of your statuses
+	 * - poll           = A poll you have voted in or created has ended
+	 * - status         = Someone you enabled notifications for has posted a status
+	 */
+	public const TYPE_FOLLOW       = 'follow';
+	public const TYPE_INTRODUCTION = 'follow_request';
+	public const TYPE_MENTION      = 'mention';
+	public const TYPE_RESHARE      = 'reblog';
+	public const TYPE_LIKE         = 'favourite';
+	public const TYPE_POLL         = 'poll';
+	public const TYPE_POST         = 'status';
+
 	/** @var string */
 	protected $id;
-	/** @var string (Enumerable oneOf) */
+	/** @var string One of the TYPE_* constant values */
 	protected $type;
 	/** @var string (Datetime) */
 	protected $created_at;
@@ -49,11 +66,11 @@ class Notification extends BaseDataTransferObject
 	 *
 	 * @throws HttpException\InternalServerErrorException|Exception
 	 */
-	public function __construct(int $id, string $type, string $created_at, Account $account = null, Status $status = null)
+	public function __construct(int $id, string $type, \DateTime $created_at, Account $account = null, Status $status = null)
 	{
 		$this->id         = (string)$id;
 		$this->type       = $type;
-		$this->created_at = DateTimeFormat::utc($created_at, DateTimeFormat::JSON);
+		$this->created_at = $created_at->format(DateTimeFormat::JSON);
 		$this->account    = $account->toArray();
 
 		if (!empty($status)) {

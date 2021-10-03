@@ -22,53 +22,41 @@
 namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
-use Friendica\Database\Database;
-use Friendica\Model\Notification as ModelNotification;
+use Friendica\Model\Contact;
+use Friendica\Navigation\Notifications;
+use Friendica\Navigation\Notifications\Exception\UnexpectedNotificationTypeException;
+use Friendica\Object\Api\Mastodon\Notification as MstdnNotification;
+use Friendica\Protocol\Activity;
 use Psr\Log\LoggerInterface;
+use Friendica\Navigation\Notifications\Entity;
+use Friendica\Model\Post;
 
 class Notification extends BaseFactory
 {
-	/** @var Database */
-	private $dba;
 	/** @var Account */
 	private $mstdnAccountFactory;
 	/** @var Status */
 	private $mstdnStatusFactory;
 
-	public function __construct(LoggerInterface $logger, Database $dba, Account $mstdnAccountFactory, Status $mstdnStatusFactoryFactory)
+	public function __construct(LoggerInterface $logger, Account $mstdnAccountFactory, Status $mstdnStatusFactoryFactory)
 	{
 		parent::__construct($logger);
-		$this->dba                 = $dba;
 		$this->mstdnAccountFactory = $mstdnAccountFactory;
 		$this->mstdnStatusFactory  = $mstdnStatusFactoryFactory;
 	}
 
-	public function createFromNotificationId(int $id)
+	public function createFromNotification(Notifications\Entity\Notification $Notification): MstdnNotification
 	{
-		$notification = $this->dba->selectFirst('notification', [], ['id' => $id]);
-		if (!$this->dba->isResult($notification)) {
-			return null;
-		}
-		/*
-		follow         = Someone followed you
-		follow_request = Someone requested to follow you
-		mention        = Someone mentioned you in their status
-		reblog         = Someone boosted one of your statuses
-		favourite      = Someone favourited one of your statuses
-		poll           = A poll you have voted in or created has ended
-		status         = Someone you enabled notifications for has posted a status
-		*/
-
-		$type = ModelNotification::getType($notification);
+		$type = self::getType($Notification);
 		if (empty($type)) {
-			return null;
+			throw new UnexpectedNotificationTypeException();
 		}
 
-		$account = $this->mstdnAccountFactory->createFromContactId($notification['actor-id'], $notification['uid']);
+		$account = $this->mstdnAccountFactory->createFromContactId($Notification->actorId, $Notification->uid);
 
-		if (!empty($notification['target-uri-id'])) {
+		if ($Notification->targetUriId) {
 			try {
-				$status = $this->mstdnStatusFactory->createFromUriId($notification['target-uri-id'], $notification['uid']);
+				$status = $this->mstdnStatusFactory->createFromUriId($Notification->targetUriId, $Notification->uid);
 			} catch (\Throwable $th) {
 				$status = null;
 			}
@@ -76,6 +64,41 @@ class Notification extends BaseFactory
 			$status = null;
 		}
 
-		return new \Friendica\Object\Api\Mastodon\Notification($id, $type, $notification['created'], $account, $status);
+		return new MstdnNotification($Notification->id, $type, $Notification->created, $account, $status);
+	}
+
+	/**
+	 * Computes the Mastodon notification type from the given local notification
+	 *
+	 * @param Entity\Notification $Notification
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function getType(Entity\Notification $Notification): string
+	{
+		if (($Notification->verb == Activity::FOLLOW) && ($Notification->type === Post\UserNotification::TYPE_NONE)) {
+			$contact = Contact::getById($Notification->actorId, ['pending']);
+			$type = $contact['pending'] ? MstdnNotification::TYPE_INTRODUCTION : MstdnNotification::TYPE_FOLLOW;
+		} elseif (($Notification->verb == Activity::ANNOUNCE) &&
+			in_array($Notification->type, [Post\UserNotification::TYPE_DIRECT_COMMENT, Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT])) {
+			$type = MstdnNotification::TYPE_RESHARE;
+		} elseif (in_array($Notification->verb, [Activity::LIKE, Activity::DISLIKE]) &&
+			in_array($Notification->type, [Post\UserNotification::TYPE_DIRECT_COMMENT, Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT])) {
+			$type = MstdnNotification::TYPE_LIKE;
+		} elseif ($Notification->type === Post\UserNotification::TYPE_SHARED) {
+			$type = MstdnNotification::TYPE_POST;
+		} elseif (in_array($Notification->type, [
+			Post\UserNotification::TYPE_EXPLICIT_TAGGED,
+			Post\UserNotification::TYPE_IMPLICIT_TAGGED,
+			Post\UserNotification::TYPE_DIRECT_COMMENT,
+			Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
+			Post\UserNotification::TYPE_THREAD_COMMENT
+		])) {
+			$type = MstdnNotification::TYPE_MENTION;
+		} else {
+			return '';
+		}
+
+		return $type;
 	}
 }

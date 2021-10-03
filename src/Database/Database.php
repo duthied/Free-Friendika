@@ -909,7 +909,7 @@ class Database
 	/**
 	 * Fetch a single row
 	 *
-	 * @param PDOStatement|mysqli_stmt $stmt statement object
+	 * @param bool|PDOStatement|mysqli_stmt $stmt statement object
 	 *
 	 * @return array|false current row
 	 */
