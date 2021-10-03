@@ -51,16 +51,10 @@ class Event
 
 		$bd_format = DI::l10n()->t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8 AM.
 
-		$event_start = DI::l10n()->getDay(
-			!empty($event['adjust']) ?
-			DateTimeFormat::local($event['start'], $bd_format) : DateTimeFormat::utc($event['start'], $bd_format)
-		);
+		$event_start = DI::l10n()->getDay(DateTimeFormat::local($event['start'], $bd_format));
 
 		if (!empty($event['finish'])) {
-			$event_end = DI::l10n()->getDay(
-				!empty($event['adjust']) ?
-				DateTimeFormat::local($event['finish'], $bd_format) : DateTimeFormat::utc($event['finish'], $bd_format)
-			);
+			$event_end = DI::l10n()->getDay(DateTimeFormat::local($event['finish'], $bd_format));
 		} else {
 			$event_end = '';
 		}
@@ -94,13 +88,13 @@ class Event
 		$o .= '<div class="summary event-summary">' . BBCode::convertForUriId($uriid, Strings::escapeHtml($event['summary']), $simple) . '</div>' . "\r\n";
 
 		$o .= '<div class="event-start"><span class="event-label">' . DI::l10n()->t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
-			. DateTimeFormat::utc($event['start'], (!empty($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
+			. DateTimeFormat::local($event['start'], DateTimeFormat::ATOM)
 			. '" >' . $event_start
 			. '</span></div>' . "\r\n";
 
 		if (!$event['nofinish']) {
 			$o .= '<div class="event-end" ><span class="event-label">' . DI::l10n()->t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
-				. DateTimeFormat::utc($event['finish'], (!empty($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
+				. DateTimeFormat::local($event['finish'], DateTimeFormat::ATOM)
 				. '" >' . $event_end
 				. '</span></div>' . "\r\n";
 		}
@@ -157,10 +151,6 @@ class Event
 			$o .= '[event-location]' . $event['location'] . '[/event-location]';
 		}
 
-		if ($event['adjust']) {
-			$o .= '[event-adjust]' . $event['adjust'] . '[/event-adjust]';
-		}
-
 		return $o;
 	}
 
@@ -200,11 +190,6 @@ class Event
 			$ev['location'] = $match[1];
 		}
 
-		$match = [];
-		if (preg_match("/\[event\-adjust\](.*?)\[\/event\-adjust\]/is", $text, $match)) {
-			$ev['adjust'] = $match[1];
-		}
-
 		$ev['nofinish'] = !empty($ev['start']) && empty($ev['finish']) ? 1 : 0;
 
 		return $ev;
@@ -218,8 +203,8 @@ class Event
 
 	private static function compareDatesCallback($event_a, $event_b)
 	{
-		$date_a = (($event_a['adjust']) ? DateTimeFormat::local($event_a['start']) : $event_a['start']);
-		$date_b = (($event_b['adjust']) ? DateTimeFormat::local($event_b['start']) : $event_b['start']);
+		$date_a = DateTimeFormat::local($event_a['start']);
+		$date_b = DateTimeFormat::local($event_b['start']);
 
 		if ($date_a === $date_b) {
 			return strcasecmp($event_a['desc'], $event_b['desc']);
@@ -274,7 +259,6 @@ class Event
 		$event['allow_gid'] =        $arr['allow_gid'] ?? '';
 		$event['deny_cid']  =        $arr['deny_cid']  ?? '';
 		$event['deny_gid']  =        $arr['deny_gid']  ?? '';
-		$event['adjust']    = intval($arr['adjust']    ?? 0);
 		$event['nofinish']  = intval($arr['nofinish'] ?? (!empty($event['start']) && empty($event['finish'])));
 
 		$event['created']   = DateTimeFormat::utc(($arr['created'] ?? '') ?: 'now');
@@ -305,7 +289,6 @@ class Event
 				'desc'     => $event['desc'],
 				'location' => $event['location'],
 				'type'     => $event['type'],
-				'adjust'   => $event['adjust'],
 				'nofinish' => $event['nofinish'],
 			];
 
@@ -547,8 +530,6 @@ class Event
 	 *                             int 'ignore' =>
 	 *                             string 'start' => Start time of the timeframe.
 	 *                             string 'finish' => Finish time of the timeframe.
-	 *                             string 'adjust_start' =>
-	 *                             string 'adjust_finish' =>
 	 *
 	 * @param string $sql_extra    Additional sql conditions (e.g. permission request).
 	 *
@@ -568,11 +549,11 @@ class Event
 		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user`.`id` AS `itemid` FROM `event`
 				LEFT JOIN `post-user` ON `post-user`.`event-id` = `event`.`id` AND `post-user`.`uid` = `event`.`uid`
 				WHERE `event`.`uid` = ? AND `event`.`ignore` = ?
-				AND ((NOT `adjust` AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?)
-				OR  (`adjust` AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?))" . $sql_extra,
-				$owner_uid, $event_params["ignore"],
-				$event_params["start"], $event_params["start"], $event_params["finish"],
-				$event_params["adjust_start"], $event_params["adjust_start"], $event_params["adjust_finish"]));
+				AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?
+				" . $sql_extra,
+				$owner_uid, $event_params['ignore'],
+				$event_params['start'], $event_params['start'], $event_params['finish']
+		));
 
 		if (DBA::isResult($events)) {
 			$return = self::removeDuplicates($events);
@@ -604,15 +585,15 @@ class Event
 
 			$event = array_merge($event, $item);
 
-			$start = $event['adjust'] ? DateTimeFormat::local($event['start'], 'c')  : DateTimeFormat::utc($event['start'], 'c');
-			$j     = $event['adjust'] ? DateTimeFormat::local($event['start'], 'j')  : DateTimeFormat::utc($event['start'], 'j');
-			$day   = $event['adjust'] ? DateTimeFormat::local($event['start'], $fmt) : DateTimeFormat::utc($event['start'], $fmt);
+			$start = DateTimeFormat::local($event['start'], 'c');
+			$j     = DateTimeFormat::local($event['start'], 'j');
+			$day   = DateTimeFormat::local($event['start'], $fmt);
 			$day   = DI::l10n()->getDay($day);
 
 			if ($event['nofinish']) {
 				$end = null;
 			} else {
-				$end = $event['adjust'] ? DateTimeFormat::local($event['finish'], 'c') : DateTimeFormat::utc($event['finish'], 'c');
+				$end = DateTimeFormat::local($event['finish'], 'c');
 			}
 
 			$is_first = ($day !== $last_date);
@@ -720,23 +701,14 @@ class Event
 				//       but test your solution against http://icalvalid.cloudapp.net/
 				//       also long lines SHOULD be split at 75 characters length
 				foreach ($events as $event) {
-					if ($event['adjust'] == 1) {
-						$UTC = 'Z';
-					} else {
-						$UTC = '';
-					}
 					$o .= 'BEGIN:VEVENT' . PHP_EOL;
 
 					if ($event['start']) {
-						$tmp = strtotime($event['start']);
-						$dtformat = "%Y%m%dT%H%M%S" . $UTC;
-						$o .= 'DTSTART:' . strftime($dtformat, $tmp) . PHP_EOL;
+						$o .= 'DTSTART:' . DateTimeFormat::utc($event['start'], 'Ymd\THis\Z') . PHP_EOL;
 					}
 
 					if (!$event['nofinish']) {
-						$tmp = strtotime($event['finish']);
-						$dtformat = "%Y%m%dT%H%M%S" . $UTC;
-						$o .= 'DTEND:' . strftime($dtformat, $tmp) . PHP_EOL;
+						$o .= 'DTEND:' . DateTimeFormat::utc($event['finish'], 'Ymd\THis\Z') . PHP_EOL;
 					}
 
 					if ($event['summary']) {
@@ -793,7 +765,7 @@ class Event
 			return $return;
 		}
 
-		$fields = ['start', 'finish', 'adjust', 'summary', 'desc', 'location', 'nofinish'];
+		$fields = ['start', 'finish', 'summary', 'desc', 'location', 'nofinish'];
 
 		$conditions = ['uid' => $uid, 'cid' => 0];
 
@@ -883,48 +855,22 @@ class Event
 		$tformat       = DI::l10n()->t('g:i A'); // 8:01 AM.
 
 		// Convert the time to different formats.
-		$dtstart_dt = DI::l10n()->getDay(
-			$item['event-adjust'] ?
-				DateTimeFormat::local($item['event-start'], $dformat)
-				: DateTimeFormat::utc($item['event-start'], $dformat)
-		);
-		$dtstart_title = DateTimeFormat::utc($item['event-start'], $item['event-adjust'] ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s');
+		$dtstart_dt = DI::l10n()->getDay(DateTimeFormat::local($item['event-start'], $dformat));
+		$dtstart_title = DateTimeFormat::utc($item['event-start'], DateTimeFormat::ATOM);
 		// Format: Jan till Dec.
-		$month_short = DI::l10n()->getDayShort(
-			$item['event-adjust'] ?
-				DateTimeFormat::local($item['event-start'], 'M')
-				: DateTimeFormat::utc($item['event-start'], 'M')
-		);
+		$month_short = DI::l10n()->getDayShort(DateTimeFormat::local($item['event-start'], 'M'));
 		// Format: 1 till 31.
-		$date_short = $item['event-adjust'] ?
-			DateTimeFormat::local($item['event-start'], 'j')
-			: DateTimeFormat::utc($item['event-start'], 'j');
-		$start_time = $item['event-adjust'] ?
-			DateTimeFormat::local($item['event-start'], $tformat)
-			: DateTimeFormat::utc($item['event-start'], $tformat);
-		$start_short = DI::l10n()->getDayShort(
-			$item['event-adjust'] ?
-				DateTimeFormat::local($item['event-start'], $dformat_short)
-				: DateTimeFormat::utc($item['event-start'], $dformat_short)
-		);
+		$date_short = DateTimeFormat::local($item['event-start'], 'j');
+		$start_time = DateTimeFormat::local($item['event-start'], $tformat);
+		$start_short = DI::l10n()->getDayShort(DateTimeFormat::local($item['event-start'], $dformat_short));
 
 		// If the option 'nofinisch' isn't set, we need to format the finish date/time.
 		if (!$item['event-nofinish']) {
 			$finish = true;
-			$dtend_dt  = DI::l10n()->getDay(
-				$item['event-adjust'] ?
-					DateTimeFormat::local($item['event-finish'], $dformat)
-					: DateTimeFormat::utc($item['event-finish'], $dformat)
-			);
-			$dtend_title = DateTimeFormat::utc($item['event-finish'], $item['event-adjust'] ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s');
-			$end_short = DI::l10n()->getDayShort(
-				$item['event-adjust'] ?
-					DateTimeFormat::local($item['event-finish'], $dformat_short)
-					: DateTimeFormat::utc($item['event-finish'], $dformat_short)
-			);
-			$end_time = $item['event-adjust'] ?
-				DateTimeFormat::local($item['event-finish'], $tformat)
-				: DateTimeFormat::utc($item['event-finish'], $tformat);
+			$dtend_dt  = DI::l10n()->getDay(DateTimeFormat::local($item['event-finish'], $dformat));
+			$dtend_title = DateTimeFormat::utc($item['event-finish'], DateTimeFormat::ATOM);
+			$end_short = DI::l10n()->getDayShort(DateTimeFormat::utc($item['event-finish'], $dformat_short));
+			$end_time = DateTimeFormat::local($item['event-finish'], $tformat);
 			// Check if start and finish time is at the same day.
 			if (substr($dtstart_title, 0, 10) === substr($dtend_title, 0, 10)) {
 				$same_date = true;
@@ -1063,7 +1009,6 @@ class Event
 			'summary' => DI::l10n()->t('%s\'s birthday', $contact['name']),
 			'desc'    => DI::l10n()->t('Happy Birthday %s', ' [url=' . $contact['url'] . ']' . $contact['name'] . '[/url]'),
 			'type'    => 'birthday',
-			'adjust'  => 0
 		];
 
 		self::store($values);

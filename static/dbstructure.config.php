@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1435);
+	define('DB_UPDATE_VERSION', 1436);
 }
 
 return [
@@ -629,7 +629,6 @@ return [
 			"location" => ["type" => "text", "comment" => "event location"],
 			"type" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => "event or birthday"],
 			"nofinish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if event does have no end this is 1"],
-			"adjust" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "adjust to timezone of the recipient (0 or 1)"],
 			"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "0 or 1"],
 			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
 			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],

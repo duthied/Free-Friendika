@@ -15,8 +15,6 @@
 	{{$f_dsel nofilter}}
 
 	{{include file="field_checkbox.tpl" field=$nofinish}}
-
-	{{include file="field_checkbox.tpl" field=$adjust}}
 	<hr>
 	{{include file="field_input.tpl" field=$summary}}
 	{{include file="field_textarea.tpl" field=array('desc', $d_text, $d_orig, "")}}

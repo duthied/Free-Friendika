@@ -3314,15 +3314,12 @@ class Diaspora
 		$eventdata["all_day"] = "false";
 
 		$eventdata['timezone'] = 'UTC';
-		if (!$event['adjust'] && $owner['timezone']) {
-			$eventdata['timezone'] = $owner['timezone'];
-		}
 
 		if ($event['start']) {
-			$eventdata['start'] = DateTimeFormat::convert($event['start'], "UTC", $eventdata['timezone'], $mask);
+			$eventdata['start'] = DateTimeFormat::utc($event['start'], $mask);
 		}
 		if ($event['finish'] && !$event['nofinish']) {
-			$eventdata['end'] = DateTimeFormat::convert($event['finish'], "UTC", $eventdata['timezone'], $mask);
+			$eventdata['end'] = DateTimeFormat::utc($event['finish'], $mask);
 		}
 		if ($event['summary']) {
 			$eventdata['summary'] = html_entity_decode(BBCode::toMarkdown($event['summary']));

@@ -49,9 +49,6 @@
 
 				{{* checkbox if the the event doesn't have a finish time *}}
 				{{include file="field_checkbox.tpl" field=$nofinish}}
-
-				{{* checkbox for adjusting the event time to the timezone of the user *}}
-				{{include file="field_checkbox.tpl" field=$adjust}}
 			</div>
 
 			{{* checkbox to enable event sharing and the permissions tab *}}
