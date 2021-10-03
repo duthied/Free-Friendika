@@ -69,6 +69,8 @@ class Feed
 			Logger::info("Import Atom/RSS feed '" . $contact["name"] . "' (Contact " . $contact["id"] . ") for user " . $importer["uid"]);
 		}
 
+		$xml = trim($xml);
+
 		if (empty($xml)) {
 			Logger::info('XML is empty.');
 			return [];
@@ -83,7 +85,7 @@ class Feed
 		}
 
 		$doc = new DOMDocument();
-		@$doc->loadXML(trim($xml));
+		@$doc->loadXML($xml);
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
 		$xpath->registerNamespace('dc', "http://purl.org/dc/elements/1.1/");
