@@ -99,7 +99,7 @@ class Photo extends BaseModule
 
 			$photo = self::getAvatar($uid, $parameters['type'], $customsize ?: Proxy::PIXEL_SMALL);
 		} else {
-			$photoid = MPhoto::stripExtension($parameters['name']);
+			$photoid = pathinfo($parameters['name'], PATHINFO_FILENAME);
 			$scale = 0;
 			if (substr($photoid, -2, 1) == "-") {
 				$scale = intval(substr($photoid, -1, 1));
