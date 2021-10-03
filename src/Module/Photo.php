@@ -97,6 +97,11 @@ class Photo extends BaseModule
 				$uid = intval(pathinfo($parameters['uid_ext'], PATHINFO_FILENAME));
 			}
 
+			// Please refactor this for the love of everything that's good
+			if (!empty($parameters['contact_id'])) {
+				$uid = $parameters['contact_id'];
+			}
+
 			$photo = self::getAvatar($uid, $parameters['type'], $customsize ?: Proxy::PIXEL_SMALL);
 		} else {
 			$photoid = pathinfo($parameters['name'], PATHINFO_FILENAME);
