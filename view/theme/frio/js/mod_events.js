@@ -42,7 +42,6 @@ $(document).ready(function () {
 		defaultView: "month",
 		aspectRatio: 1,
 		eventRender: function (event, element, view) {
-			//console.log(view.name);
 			switch (view.name) {
 				case "month":
 					element
@@ -52,8 +51,8 @@ $(document).ready(function () {
 								event.item["author-avatar"],
 								event.item["author-name"],
 								event.title,
-								event.item.desc,
-								event.item.location,
+								event.desc,
+								event.location,
 							),
 						);
 					break;
@@ -65,8 +64,8 @@ $(document).ready(function () {
 							"<img src='{0}' style='height:12px; width:12px'>{1}<p>{2}</p><p>{3}</p>".format(
 								event.item["author-avatar"],
 								event.item["author-name"],
-								event.item.desc,
-								htmlToText(event.item.location),
+								event.desc,
+								htmlToText(event.location),
 							),
 						);
 					break;
@@ -78,8 +77,8 @@ $(document).ready(function () {
 							"<img src='{0}' style='height:24px;width:24px'>{1}<p>{2}</p><p>{3}</p>".format(
 								event.item["author-avatar"],
 								event.item["author-name"],
-								event.item.desc,
-								htmlToText(event.item.location),
+								event.desc,
+								htmlToText(event.location),
 							),
 						);
 					break;
@@ -252,27 +251,24 @@ function eventHoverHtmlContent(event) {
 	moment.locale(locale);
 
 	// format dates to different styles
-	var startDate = moment(event.item.start).format("dd HH:mm");
-	var endDate = moment(event.item.finsih).format("dd HH:mm");
-	var monthShort = moment(event.item.start).format("MMM");
-	var dayNumberStart = moment(event.item.start).format("DD");
-	var dayNumberEnd = moment(event.item.finish).format("DD");
-	var startTime = moment(event.item.start).format("HH:mm");
-	var endTime = moment(event.item.finish).format("HH:mm");
-	var monthNumber;
+	var startDate = event.start.format('dd HH:mm');
+	var monthShort = event.start.format('MMM');
+	var dayNumberStart = event.start.format('DD');
 
 	var formattedDate = startDate;
 
 	// We only need the to format the end date if the event does have
 	// a finish date.
-	if (event.item.nofinish == 0) {
+	if (event.nofinish === 0 && event.end !== null) {
+		var dayNumberEnd = event.end.format('DD');
+		var endTime = event.end.format('HH:mm');
+
 		formattedDate = startDate + " - " + endTime;
 
 		// use a different Format (15. Feb - 18. Feb) if the events end date
 		// is not the start date
-		if (dayNumberStart != dayNumberEnd) {
-			formattedDate =
-				moment(event.item.start).format("Do MMM") + " - " + moment(event.item.finish).format("Do MMM");
+		if (dayNumberStart !== dayNumberEnd) {
+			formattedDate = event.start.format('Do MMM') + ' - ' + event.end.format('Do MMM');
 		}
 	}
 
@@ -280,8 +276,8 @@ function eventHoverHtmlContent(event) {
 	data = eventHoverBodyTemplate();
 
 	// Get only template data if there exists location data
-	if (event.item.location) {
-		var eventLocationText = htmlToText(event.item.location);
+	if (event.location) {
+		var eventLocationText = htmlToText(event.location);
 		// Get the the html template for formatting the location
 		var eventLocationTemplate = eventHoverLocationTemplate();
 		// Format the event location data according to the the event location

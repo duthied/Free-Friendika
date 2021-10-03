@@ -40,6 +40,7 @@ use Friendica\Model\Profile;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\ConfigFileLoader;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
@@ -217,12 +218,13 @@ class App
 	/**
 	 * Set the timezone
 	 *
-	 * @param int $timezone
+	 * @param string $timezone A valid time zone identifier, see https://www.php.net/manual/en/timezones.php
 	 * @return void
 	 */
 	public function setTimeZone(string $timezone)
 	{
-		$this->timezone = $timezone;
+		$this->timezone = (new \DateTimeZone($timezone))->getName();
+		DateTimeFormat::setLocalTimeZone($this->timezone);
 	}
 
 	/**
@@ -338,6 +340,9 @@ class App
 	{
 		set_time_limit(0);
 
+		// Ensure that all "strtotime" operations do run timezone independent
+		date_default_timezone_set('UTC');
+
 		// This has to be quite large to deal with embedded private photos
 		ini_set('pcre.backtrack_limit', 500000);
 
@@ -372,15 +377,13 @@ class App
 	private function loadDefaultTimezone()
 	{
 		if ($this->config->get('system', 'default_timezone')) {
-			$this->timezone = $this->config->get('system', 'default_timezone');
+			$timezone = $this->config->get('system', 'default_timezone', 'UTC');
 		} else {
 			global $default_timezone;
-			$this->timezone = !empty($default_timezone) ? $default_timezone : 'UTC';
+			$timezone = $default_timezone ?? '' ?: 'UTC';
 		}
 
-		if ($this->timezone) {
-			date_default_timezone_set($this->timezone);
-		}
+		$this->setTimeZone($timezone);
 	}
 
 	/**

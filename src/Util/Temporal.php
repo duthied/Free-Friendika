@@ -271,7 +271,11 @@ class Temporal
 				$id,
 				$label,
 				$input_text,
-				'',
+				DI::l10n()->t(
+					'Time zone: <strong>%s</strong> <a href="%s">Change in Settings</a>',
+					str_replace('_', ' ', DI::app()->getTimeZone()) . ' (GMT ' . DateTimeFormat::localNow('P') . ')',
+					DI::baseUrl() . '/settings'
+				),
 				$required ? '*' : '',
 				'placeholder="' . $readable_format . '"'
 			],
@@ -284,7 +288,7 @@ class Temporal
 				'lang' => $lang,
 				'minfrom' => $minfrom,
 				'maxfrom' => $maxfrom,
-			]
+			],
 		]);
 
 		return $o;
@@ -360,23 +364,19 @@ class Temporal
 	 * Returns the age in years, given a date of birth and the timezone of the person
 	 * whose date of birth is provided.
 	 *
-	 * @param string $dob       Date of Birth
-	 * @param string $owner_tz  (optional) Timezone of the person of interest
+	 * @param string $dob      Date of Birth
+	 * @param string $timezone Timezone of the person of interest
 	 *
 	 * @return int Age in years
 	 * @throws \Exception
 	 */
-	public static function getAgeByTimezone($dob, $owner_tz = ''): int
+	public static function getAgeByTimezone(string $dob, string $timezone): int
 	{
 		if (!intval($dob)) {
 			return 0;
 		}
 
-		if (!$owner_tz) {
-			$owner_tz = date_default_timezone_get();
-		}
-
-		$birthdate = new DateTime($dob . ' 00:00:00', new DateTimeZone($owner_tz));
+		$birthdate = new DateTime($dob . ' 00:00:00', new DateTimeZone($timezone));
 		$currentDate = new DateTime('now', new DateTimeZone('UTC'));
 
 		$interval = $birthdate->diff($currentDate);

@@ -1857,7 +1857,6 @@ class BBCode
 					$text = preg_replace("/\[event\-start\](.*?)\[\/event\-start\]/ism", $sub, $text);
 					$text = preg_replace("/\[event\-finish\](.*?)\[\/event\-finish\]/ism", '', $text);
 					$text = preg_replace("/\[event\-location\](.*?)\[\/event\-location\]/ism", '', $text);
-					$text = preg_replace("/\[event\-adjust\](.*?)\[\/event\-adjust\]/ism", '', $text);
 					$text = preg_replace("/\[event\-id\](.*?)\[\/event\-id\]/ism", '', $text);
 				}
 

@@ -214,7 +214,7 @@ function ping_init(App $a)
 		$ev = DI::cache()->get($cachekey);
 		if (is_null($ev)) {
 			$ev = q(
-				"SELECT type, start, adjust FROM `event`
+				"SELECT type, start FROM `event`
 				WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
 				ORDER BY `start` ASC ",
 				intval(local_user()),
@@ -230,7 +230,7 @@ function ping_init(App $a)
 			$all_events = count($ev);
 
 			if ($all_events) {
-				$str_now = DateTimeFormat::timezoneNow($a->getTimeZone(), 'Y-m-d');
+				$str_now = DateTimeFormat::localNow('Y-m-d');
 				foreach ($ev as $x) {
 					$bd = false;
 					if ($x['type'] === 'birthday') {
@@ -239,7 +239,7 @@ function ping_init(App $a)
 					} else {
 						$events ++;
 					}
-					if (DateTimeFormat::convert($x['start'], ((intval($x['adjust'])) ? $a->getTimeZone() : 'UTC'), 'UTC', 'Y-m-d') === $str_now) {
+					if (DateTimeFormat::local($x['start'], 'Y-m-d') === $str_now) {
 						$all_events_today ++;
 						if ($bd) {
 							$birthdays_today ++;

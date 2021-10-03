@@ -23,7 +23,6 @@ Fields
 | location  | event location                                             | text               | YES  |     | NULL                |                |
 | type      | event or birthday                                          | varchar(20)        | NO   |     |                     |                |
 | nofinish  | if event does have no end this is 1                        | boolean            | NO   |     | 0                   |                |
-| adjust    | adjust to timezone of the recipient (0 or 1)               | boolean            | NO   |     | 1                   |                |
 | ignore    | 0 or 1                                                     | boolean            | NO   |     | 0                   |                |
 | allow_cid | Access Control - list of allowed contact.id '<19><78>'     | mediumtext         | YES  |     | NULL                |                |
 | allow_gid | Access Control - list of allowed groups                    | mediumtext         | YES  |     | NULL                |                |

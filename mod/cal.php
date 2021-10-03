@@ -185,16 +185,11 @@ function cal_content(App $a)
 		$start = DateTimeFormat::utc($start);
 		$finish = DateTimeFormat::utc($finish);
 
-		$adjust_start = DateTimeFormat::local($start);
-		$adjust_finish = DateTimeFormat::local($finish);
-
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
 			'event_id'      => intval($_GET['id'] ?? 0),
 			'start'         => $start,
 			'finish'        => $finish,
-			'adjust_start'  => $adjust_start,
-			'adjust_finish' => $adjust_finish,
 			'ignore'        => $ignored,
 		];
 
@@ -210,7 +205,7 @@ function cal_content(App $a)
 		if (DBA::isResult($r)) {
 			$r = Event::sortByDate($r);
 			foreach ($r as $rr) {
-				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
+				$j = DateTimeFormat::local($rr['start'], 'j');
 				if (empty($links[$j])) {
 					$links[$j] = DI::baseUrl() . '/' . DI::args()->getCommand() . '#link-' . $j;
 				}
@@ -229,11 +224,7 @@ function cal_content(App $a)
 		if (!empty($_GET['id'])) {
 			$tpl = Renderer::getMarkupTemplate("event.tpl");
 		} else {
-//			if (DI::config()->get('experimentals','new_calendar')==1){
 			$tpl = Renderer::getMarkupTemplate("events_js.tpl");
-//			} else {
-//				$tpl = Renderer::getMarkupTemplate("events.tpl");
-//			}
 		}
 
 		// Get rid of dashes in key names, Smarty3 can't handle them

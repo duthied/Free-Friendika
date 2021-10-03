@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1435
+-- DB_UPDATE_VERSION 1436
 -- ------------------------------------------
 
 
@@ -565,7 +565,6 @@ CREATE TABLE IF NOT EXISTS `event` (
 	`location` text COMMENT 'event location',
 	`type` varchar(20) NOT NULL DEFAULT '' COMMENT 'event or birthday',
 	`nofinish` boolean NOT NULL DEFAULT '0' COMMENT 'if event does have no end this is 1',
-	`adjust` boolean NOT NULL DEFAULT '1' COMMENT 'adjust to timezone of the recipient (0 or 1)',
 	`ignore` boolean NOT NULL DEFAULT '0' COMMENT '0 or 1',
 	`allow_cid` mediumtext COMMENT 'Access Control - list of allowed contact.id \'<19><78>\'',
 	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed groups',
@@ -1699,7 +1698,6 @@ CREATE VIEW `post-user-view` AS SELECT
 	`event`.`location` AS `event-location`,
 	`event`.`type` AS `event-type`,
 	`event`.`nofinish` AS `event-nofinish`,
-	`event`.`adjust` AS `event-adjust`,
 	`event`.`ignore` AS `event-ignore`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
@@ -1860,7 +1858,6 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`event`.`location` AS `event-location`,
 	`event`.`type` AS `event-type`,
 	`event`.`nofinish` AS `event-nofinish`,
-	`event`.`adjust` AS `event-adjust`,
 	`event`.`ignore` AS `event-ignore`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,

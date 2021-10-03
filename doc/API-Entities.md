@@ -440,12 +440,6 @@ Ex: Wed May 23 06:01:13 +0000 2007
 </tr>
 
 <tr>
-<td><code>adjust</code></td>
-<td>Boolean</td>
-<td>???</td>
-</tr>
-
-<tr>
 <td><code>ignore</code></td>
 <td>Boolean</td>
 <td>???</td>

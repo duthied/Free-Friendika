@@ -1476,10 +1476,10 @@ class Transmitter
 		$event = [];
 		$event['name'] = $item['event-summary'];
 		$event['content'] = BBCode::convertForUriId($item['uri-id'], $item['event-desc'], BBCode::ACTIVITYPUB);
-		$event['startTime'] = DateTimeFormat::utc($item['event-start'] . '+00:00', DateTimeFormat::ATOM);
+		$event['startTime'] = DateTimeFormat::utc($item['event-start'], 'c');
 
 		if (!$item['event-nofinish']) {
-			$event['endTime'] = DateTimeFormat::utc($item['event-finish'] . '+00:00', DateTimeFormat::ATOM);
+			$event['endTime'] = DateTimeFormat::utc($item['event-finish'], 'c');
 		}
 
 		if (!empty($item['event-location'])) {
@@ -1487,7 +1487,8 @@ class Transmitter
 			$event['location'] = self::createLocation($item);
 		}
 
-		$event['dfrn:adjust'] = (bool)$item['event-adjust'];
+		// 2021.12: Backward compatibility value, all the events now "adjust" to the viewer timezone
+		$event['dfrn:adjust'] = true;
 
 		return $event;
 	}
