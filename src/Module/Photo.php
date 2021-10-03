@@ -98,8 +98,8 @@ class Photo extends BaseModule
 			}
 
 			// Please refactor this for the love of everything that's good
-			if (!empty($parameters['contact_id'])) {
-				$uid = $parameters['contact_id'];
+			if (!empty($parameters['id'])) {
+				$uid = $parameters['id'];
 			}
 
 			$photo = self::getAvatar($uid, $parameters['type'], $customsize ?: Proxy::PIXEL_SMALL);
