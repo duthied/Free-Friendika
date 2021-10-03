@@ -1,7 +1,6 @@
 <div id="profile-jot-wrapper">
 	<div id="profile-jot-banner-wrapper">
 		<div id="profile-jot-desc">&nbsp;</div>
-		<div id="character-counter" class="grey"></div>
 	</div>
 	<div id="profile-jot-banner-end"></div>
 
@@ -18,7 +17,9 @@
 		{{if $notes_cid}}
 		<input type="hidden" name="contact_allow[]" value="<{{$notes_cid}}>" />
 		{{/if}}
-		<div id="jot-title-wrap"><input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" value="{{$title}}" class="jothidden" style="display:none" dir="auto"></div>
+		<div id="jot-title-wrap">
+			<input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" value="{{$title}}" class="jothidden" style="display:none" dir="auto">
+		</div>
 		{{if $placeholdercategory}}
 		<div id="jot-category-wrap"><input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" dir="auto"></div>
 		{{/if}}
@@ -29,7 +30,7 @@
 
 <div id="profile-jot-submit-wrapper" class="jothidden">
 	<input type="submit" id="profile-jot-submit" name="submit" value="{{$share}}" />
-
+		
 	<div id="profile-upload-wrapper" style="display: {{$visitor}};">
 		<div id="wall-image-upload-div"><a href="#" onclick="return false;" id="wall-image-upload" class="icon camera" title="{{$upload}}"></a></div>
 	</div>
@@ -51,6 +52,10 @@
 	</div>
 	<div id="profile-nolocation-wrapper" style="display: none;">
 		<a id="profile-nolocation" class="icon noglobe" title="{{$noloc}}" onclick="jotClearLocation();return false;"></a>
+	</div>
+
+	<div id="post-length">
+		<span id="character-counter" class="grey"></span>
 	</div>
 
 	<div id="profile-jot-perms" class="profile-jot-perms" style="display: {{$pvisit}};">
