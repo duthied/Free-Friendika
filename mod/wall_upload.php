@@ -255,12 +255,8 @@ function wall_upload_post(App $a, $desktopmode = true)
 	}
 
 	if (!$desktopmode) {
-		$r = q("SELECT `id`, `datasize`, `width`, `height`, `type` FROM `photo`
-			WHERE `resource-id` = '%s'
-			ORDER BY `width` DESC LIMIT 1",
-			$resource_id
-		);
-		if (!$r) {
+		$photo = Photo::selectFirst(['id', 'datasize', 'width', 'height', 'type'], ['resource-id' => $resource_id], ['order' => ['width']]);
+		if (!$photo) {
 			if ($r_json) {
 				echo json_encode(['error' => '']);
 				exit();
@@ -269,11 +265,11 @@ function wall_upload_post(App $a, $desktopmode = true)
 		}
 		$picture = [];
 
-		$picture["id"]        = $r[0]["id"];
-		$picture["size"]      = $r[0]["datasize"];
-		$picture["width"]     = $r[0]["width"];
-		$picture["height"]    = $r[0]["height"];
-		$picture["type"]      = $r[0]["type"];
+		$picture["id"]        = $photo["id"];
+		$picture["size"]      = $photo["datasize"];
+		$picture["width"]     = $photo["width"];
+		$picture["height"]    = $photo["height"];
+		$picture["type"]      = $photo["type"];
 		$picture["albumpage"] = DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id;
 		$picture["picture"]   = DI::baseUrl() . "/photo/{$resource_id}-0." . $Image->getExt();
 		$picture["preview"]   = DI::baseUrl() . "/photo/{$resource_id}-{$smallest}." . $Image->getExt();

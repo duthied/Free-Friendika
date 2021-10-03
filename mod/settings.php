@@ -93,11 +93,7 @@ function settings_post(App $a)
 			$mail_pubmail      =                 $_POST['mail_pubmail']      ?? '';
 
 			if (function_exists('imap_open') && !DI::config()->get('system', 'imap_disabled')) {
-				$failed = false;
-				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
-					intval(local_user())
-				);
-				if (!DBA::isResult($r)) {
+				if (!DBA::exists('mailacct', ['uid' => local_user()])) {
 					DBA::insert('mailacct', ['uid' => local_user()]);
 				}
 				if (strlen($mail_pass)) {
@@ -105,34 +101,30 @@ function settings_post(App $a)
 					openssl_public_encrypt($mail_pass, $pass, $user['pubkey']);
 					DBA::update('mailacct', ['pass' => bin2hex($pass)], ['uid' => local_user()]);
 				}
-				$r = q("UPDATE `mailacct` SET `server` = '%s', `port` = %d, `ssltype` = '%s', `user` = '%s',
-					`action` = %d, `movetofolder` = '%s',
-					`mailbox` = 'INBOX', `reply_to` = '%s', `pubmail` = %d WHERE `uid` = %d",
-					DBA::escape($mail_server),
-					intval($mail_port),
-					DBA::escape($mail_ssl),
-					DBA::escape($mail_user),
-					intval($mail_action),
-					DBA::escape($mail_movetofolder),
-					DBA::escape($mail_replyto),
-					intval($mail_pubmail),
-					intval(local_user())
-				);
-				Logger::notice('updating mailaccount', ['response' => $r]);
-				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
-					intval(local_user())
-				);
-				if (DBA::isResult($r)) {
-					$eacct = $r[0];
-					$mb = Email::constructMailboxName($eacct);
 
-					if (strlen($eacct['server'])) {
+				$r = DBA::update('mailacct', [
+					'server'       => $mail_server,
+					'port'         => $mail_port,
+					'ssltype'      => $mail_ssl,
+					'user'         => $mail_user,
+					`action`       => $mail_action,
+					'movetofolder' => $mail_movetofolder,
+					'mailbox'      => 'INBOX',
+					'reply_to'     => $mail_replyto,
+					'pubmail'      => $mail_pubmail
+				], ['uid' => local_user()]);
+
+				Logger::notice('updating mailaccount', ['response' => $r]);
+				$mailacct = DBA::selectFirst('mailacct', [], ['uid' => local_user()]);
+				if (DBA::isResult($mailacct)) {
+					$mb = Email::constructMailboxName($mailacct);
+
+					if (strlen($mailacct['server'])) {
 						$dcrpass = '';
-						openssl_private_decrypt(hex2bin($eacct['pass']), $dcrpass, $user['prvkey']);
+						openssl_private_decrypt(hex2bin($mailacct['pass']), $dcrpass, $user['prvkey']);
 						$mbox = Email::connect($mb, $mail_user, $dcrpass);
 						unset($dcrpass);
 						if (!$mbox) {
-							$failed = true;
 							notice(DI::l10n()->t('Failed to connect with email account using the settings provided.'));
 						}
 					}
@@ -510,22 +502,20 @@ function settings_content(App $a)
 
 		$mail_disabled = ((function_exists('imap_open') && (!DI::config()->get('system', 'imap_disabled'))) ? 0 : 1);
 		if (!$mail_disabled) {
-			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
-				local_user()
-			);
+			$mailacct = DBA::selectFirst('mailacct', [], ['uid' => local_user()]);
 		} else {
-			$r = null;
+			$mailacct = null;
 		}
 
-		$mail_server       = ((DBA::isResult($r)) ? $r[0]['server'] : '');
-		$mail_port         = ((DBA::isResult($r) && intval($r[0]['port'])) ? intval($r[0]['port']) : '');
-		$mail_ssl          = ((DBA::isResult($r)) ? $r[0]['ssltype'] : '');
-		$mail_user         = ((DBA::isResult($r)) ? $r[0]['user'] : '');
-		$mail_replyto      = ((DBA::isResult($r)) ? $r[0]['reply_to'] : '');
-		$mail_pubmail      = ((DBA::isResult($r)) ? $r[0]['pubmail'] : 0);
-		$mail_action       = ((DBA::isResult($r)) ? $r[0]['action'] : 0);
-		$mail_movetofolder = ((DBA::isResult($r)) ? $r[0]['movetofolder'] : '');
-		$mail_chk          = ((DBA::isResult($r)) ? $r[0]['last_check'] : DBA::NULL_DATETIME);
+		$mail_server       = $mailacct['server'] ?? '';
+		$mail_port         = (!empty($mailacct['port']) && is_numeric($mailacct['port'])) ? (int)$mailacct['port'] : '';
+		$mail_ssl          = $mailacct['ssltype'] ?? '';
+		$mail_user         = $mailacct['user'] ?? '';
+		$mail_replyto      = $mailacct['reply_to'] ?? '';
+		$mail_pubmail      = $mailacct['pubmail'] ?? 0;
+		$mail_action       = $mailacct['action'] ?? 0;
+		$mail_movetofolder = $mailacct['movetofolder'] ?? '';
+		$mail_chk          = $mailacct['last_check'] ?? DBA::NULL_DATETIME;
 
 
 		$tpl = Renderer::getMarkupTemplate('settings/connectors.tpl');

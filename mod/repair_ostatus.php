@@ -27,52 +27,38 @@ use Friendica\Model\Contact;
 
 function repair_ostatus_content(App $a) {
 
-	if (! local_user()) {
+	if (!local_user()) {
 		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('ostatus_repair');
 		// NOTREACHED
 	}
 
-	$o = "<h2>".DI::l10n()->t("Resubscribing to OStatus contacts")."</h2>";
+	$o = "<h2>" . DI::l10n()->t("Resubscribing to OStatus contacts") . "</h2>";
 
 	$uid = local_user();
 
-	$counter = intval($_REQUEST['counter']);
+	$counter = intval($_REQUEST['counter'] ?? 0);
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE
-	`uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)",
-		intval($uid),
-		DBA::escape(Protocol::OSTATUS),
-		intval(Contact::FRIEND),
-		intval(Contact::SHARING));
+	$condition = ['uid' => $uid, 'network' => Protocol::OSTATUS, 'rel' => [Contact::FRIEND, Contact::SHARING]];
+	$total = DBA::count('contact', $condition);
 
-	if (!DBA::isResult($r)) {
+	if (!$total) {
 		return ($o . DI::l10n()->t("Error"));
 	}
 
-	$total = $r[0]["total"];
-
-	$r = q("SELECT `url` FROM `contact` WHERE
-		`uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)
-		ORDER BY `url`
-		LIMIT %d, 1",
-		intval($uid),
-		DBA::escape(Protocol::OSTATUS),
-		intval(Contact::FRIEND),
-		intval(Contact::SHARING), $counter++);
-
-	if (!DBA::isResult($r)) {
+	$contact = Contact::selectToArray(['url'], $condition, ['order' => ['url'], 'limit' => [$counter++, 1]]);
+	if (!DBA::isResult($contact)) {
 		$o .= DI::l10n()->t("Done");
 		return $o;
 	}
 
-	$o .= "<p>".$counter."/".$total.": ".$r[0]["url"]."</p>";
+	$o .= "<p>" . $counter . "/" . $total . ": " . $contact[0]["url"] . "</p>";
 
-	$o .= "<p>".DI::l10n()->t("Keep this window open until done.")."</p>";
+	$o .= "<p>" . DI::l10n()->t("Keep this window open until done.") . "</p>";
 
-	Contact::createFromProbeForUser($a->getLoggedInUserId(), $r[0]["url"]);
+	Contact::createFromProbeForUser($a->getLoggedInUserId(), $contact[0]["url"]);
 
-	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="1; URL=' . DI::baseUrl() . '/repair_ostatus?counter='.$counter.'">';
+	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="1; URL=' . DI::baseUrl() . '/repair_ostatus?counter=' . $counter . '">';
 
 	return $o;
 }

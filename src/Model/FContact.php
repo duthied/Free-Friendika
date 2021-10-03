@@ -121,14 +121,9 @@ class FContact
 	{
 		Logger::info('fcontact', ['guid' => $fcontact_guid]);
 
-		$r = q(
-			"SELECT `url` FROM `fcontact` WHERE `url` != '' AND `network` = '%s' AND `guid` = '%s'",
-			DBA::escape(Protocol::DIASPORA),
-			DBA::escape($fcontact_guid)
-		);
-
-		if (DBA::isResult($r)) {
-			return $r[0]['url'];
+		$fcontact = DBA::selectFirst('fcontact', ['url'], ["`url` != ? AND `network` = ? AND `guid` = ?", '', Protocol::DIASPORA, $fcontact_guid]);
+		if (DBA::isResult($fcontact)) {
+			return $fcontact['url'];
 		}
 
 		return null;
@@ -176,7 +171,7 @@ class FContact
 		$suggest['body'] = $note;
 
 		$hash = Strings::getRandomHex();
-		$fields = ['uid' => $suggest['uid'], 'fid' => $fid, 'contact-id' => $suggest['cid'], 
+		$fields = ['uid' => $suggest['uid'], 'fid' => $fid, 'contact-id' => $suggest['cid'],
 			'note' => $suggest['body'], 'hash' => $hash, 'datetime' => DateTimeFormat::utcNow(), 'blocked' => false];
 		DBA::insert('intro', $fields);
 

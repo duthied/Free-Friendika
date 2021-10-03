@@ -26,6 +26,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Util\Strings;
 
 function wallmessage_post(App $a) {
@@ -44,27 +45,19 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	$r = q("select * from user where nickname = '%s' limit 1",
-		DBA::escape($recipient)
-	);
-
-	if (! DBA::isResult($r)) {
-		Logger::log('wallmessage: no recipient');
+	$user = User::getByNickname($recipient);
+	if (empty($r)) {
+		Logger::notice('wallmessage: no recipient');
 		return;
 	}
 
-	$user = $r[0];
-
-	if (! intval($user['unkmail'])) {
+	if (!$user['unkmail']) {
 		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
-	$r = q("select count(*) as total from mail where uid = %d and created > UTC_TIMESTAMP() - INTERVAL 1 day and unknown = 1",
-			intval($user['uid'])
-	);
-
-	if ($r[0]['total'] > $user['cntunkmail']) {
+	$total = DBA::count('mail', ["`uid` = ? AND `created` > UTC_TIMESTAMP() - INTERVAL 1 DAY AND `unknown`", $user['uid']]);
+	if ($total > $user['cntunkmail']) {
 		notice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;
 	}
@@ -104,28 +97,21 @@ function wallmessage_content(App $a) {
 		return;
 	}
 
-	$r = q("select * from user where nickname = '%s' limit 1",
-		DBA::escape($recipient)
-	);
+	$user = User::getByNickname($recipient);
 
-	if (! DBA::isResult($r)) {
+	if (empty($user)) {
 		notice(DI::l10n()->t('No recipient.'));
-		Logger::log('wallmessage: no recipient');
+		Logger::notice('wallmessage: no recipient');
 		return;
 	}
 
-	$user = $r[0];
-
-	if (!intval($user['unkmail'])) {
+	if (!$user['unkmail']) {
 		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
-	$r = q("select count(*) as total from mail where uid = %d and created > UTC_TIMESTAMP() - INTERVAL 1 day and unknown = 1",
-			intval($user['uid'])
-	);
-
-	if ($r[0]['total'] > $user['cntunkmail']) {
+	$total = DBA::count('mail', ["`uid` = ? AND `created` > UTC_TIMESTAMP() - INTERVAL 1 DAY AND `unknown`", $user['uid']]);
+	if ($total > $user['cntunkmail']) {
 		notice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;
 	}

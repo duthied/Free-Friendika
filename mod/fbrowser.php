@@ -79,13 +79,8 @@ function fbrowser_content(App $a)
 				$filename_e = $rr['filename'];
 
 				// Take the largest picture that is smaller or equal 640 pixels
-				$p = q("SELECT `scale` FROM `photo` WHERE `resource-id` = '%s' AND `height` <= 640 AND `width` <= 640 ORDER BY `resource-id`, `scale` LIMIT 1",
-					DBA::escape($rr['resource-id']));
-				if ($p) {
-					$scale = $p[0]["scale"];
-				} else {
-					$scale = $rr['loq'];
-				}
+				$photo = Photo::selectFirst(['scale'], ["`resource-id` = ? AND `height` <= ? AND `width` <= ?", $rr['resource-id'], 640, 640, ['order' => ['scale']]]);
+				$scale = $photo['scale'] ?? $rr['loq'];
 
 				return [
 					DI::baseUrl() . '/photos/' . $a->getLoggedInUserNickname() . '/image/' . $rr['resource-id'],
@@ -110,9 +105,7 @@ function fbrowser_content(App $a)
 			break;
 		case "file":
 			if (DI::args()->getArgc()==2) {
-				$files = q("SELECT `id`, `filename`, `filetype` FROM `attach` WHERE `uid` = %d ",
-					intval(local_user())
-				);
+				$files = DBA::selectToArray('attach', ['id', 'filename', 'filetype'], ['uid' => local_user()]);
 
 				function _map_files2($rr)
 				{
