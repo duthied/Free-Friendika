@@ -388,6 +388,10 @@ class Media
 		}
 
 		foreach ($attachments as $attachment) {
+			if (Post\Link::exists($uriid, $attachment['preview'] ?? $attachment['url'])) {
+				continue;
+			}
+
 			// Only store attachments that are part of the unshared body
 			if (Item::containsLink($unshared_body, $attachment['preview'] ?? $attachment['url'], $attachment['type'])) {
 				self::insert($attachment);
