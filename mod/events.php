@@ -49,12 +49,6 @@ function events_init(App $a)
 		return;
 	}
 
-	// If it's a json request abort here because we don't
-	// need the widget data
-	if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] === 'json') {
-		return;
-	}
-
 	if (empty(DI::page()['aside'])) {
 		DI::page()['aside'] = '';
 	}
@@ -80,7 +74,6 @@ function events_post(App $a)
 	$start_text  = Strings::escapeHtml($_REQUEST['start_text'] ?? '');
 	$finish_text = Strings::escapeHtml($_REQUEST['finish_text'] ?? '');
 
-	$adjust   = intval($_POST['adjust'] ?? 0);
 	$nofinish = intval($_POST['nofinish'] ?? 0);
 
 	$share = intval($_POST['share'] ?? 0);
@@ -99,16 +92,9 @@ function events_post(App $a)
 		$finish = $finish_text;
 	}
 
-	if ($adjust) {
-		$start = DateTimeFormat::convert($start, 'UTC', date_default_timezone_get());
-		if (!$nofinish) {
-			$finish = DateTimeFormat::convert($finish, 'UTC', date_default_timezone_get());
-		}
-	} else {
-		$start = DateTimeFormat::utc($start);
-		if (!$nofinish) {
-			$finish = DateTimeFormat::utc($finish);
-		}
+	$start = DateTimeFormat::convert($start, 'UTC', $a->getTimeZone());
+	if (!$nofinish) {
+		$finish = DateTimeFormat::convert($finish, 'UTC', $a->getTimeZone());
 	}
 
 	// Don't allow the event to finish before it begins.
@@ -127,7 +113,6 @@ function events_post(App $a)
 		'location'    => $location,
 		'start'       => $start_text,
 		'finish'      => $finish_text,
-		'adjust'      => $adjust,
 		'nofinish'    => $nofinish,
 	];
 
@@ -196,7 +181,6 @@ function events_post(App $a)
 	$datarray['desc']      = $desc;
 	$datarray['location']  = $location;
 	$datarray['type']      = $type;
-	$datarray['adjust']    = $adjust;
 	$datarray['nofinish']  = $nofinish;
 	$datarray['uid']       = $uid;
 	$datarray['cid']       = $cid;
@@ -331,28 +315,11 @@ function events_content(App $a)
 		$start  = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
-		if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] === 'json') {
-			if (!empty($_GET['start'])) {
-				$start = $_GET['start'];
-			}
-			if (!empty($_GET['end'])) {
-				$finish = $_GET['end'];
-			}
-		}
-
-		$start  = DateTimeFormat::utc($start);
-		$finish = DateTimeFormat::utc($finish);
-
-		$adjust_start  = DateTimeFormat::local($start);
-		$adjust_finish = DateTimeFormat::local($finish);
-
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
 			'event_id'      => intval($_GET['id'] ?? 0),
 			'start'         => $start,
 			'finish'        => $finish,
-			'adjust_start'  => $adjust_start,
-			'adjust_finish' => $adjust_finish,
 			'ignore'        => $ignored,
 		];
 
@@ -368,7 +335,7 @@ function events_content(App $a)
 		if (DBA::isResult($r)) {
 			$r = Event::sortByDate($r);
 			foreach ($r as $rr) {
-				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
+				$j = DateTimeFormat::local($rr['start'], 'j');
 				if (empty($links[$j])) {
 					$links[$j] = DI::baseUrl() . '/' . DI::args()->getCommand() . '#link-' . $j;
 				}
@@ -381,12 +348,6 @@ function events_content(App $a)
 		if (DBA::isResult($r)) {
 			$r = Event::sortByDate($r);
 			$events = Event::prepareListForTemplate($r);
-		}
-
-		if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] === 'json') {
-			header('Content-Type: application/json');
-			echo json_encode($events);
-			exit();
 		}
 
 		if (!empty($_GET['id'])) {
@@ -457,7 +418,6 @@ function events_content(App $a)
 
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
 		if (!empty($_REQUEST['nofinish']))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
-		if (!empty($_REQUEST['adjust']))      {$orig_event['adjust']      = $_REQUEST['adjust'];}
 		if (!empty($_REQUEST['summary']))     {$orig_event['summary']     = $_REQUEST['summary'];}
 		if (!empty($_REQUEST['desc']))        {$orig_event['desc']        = $_REQUEST['desc'];}
 		if (!empty($_REQUEST['location']))    {$orig_event['location']    = $_REQUEST['location'];}
@@ -465,7 +425,6 @@ function events_content(App $a)
 		if (!empty($_REQUEST['finish']))      {$orig_event['finish']      = $_REQUEST['finish'];}
 
 		$n_checked = (!empty($orig_event['nofinish']) ? ' checked="checked" ' : '');
-		$a_checked = (!empty($orig_event['adjust'])   ? ' checked="checked" ' : '');
 
 		$t_orig = $orig_event['summary']  ?? '';
 		$d_orig = $orig_event['desc']     ?? '';
@@ -481,24 +440,19 @@ function events_content(App $a)
 		$sdt = $orig_event['start'] ?? 'now';
 		$fdt = $orig_event['finish'] ?? 'now';
 
-		$tz = date_default_timezone_get();
-		if (isset($orig_event['adjust'])) {
-			$tz = ($orig_event['adjust'] ? date_default_timezone_get() : 'UTC');
-		}
+		$syear  = DateTimeFormat::local($sdt, 'Y');
+		$smonth = DateTimeFormat::local($sdt, 'm');
+		$sday   = DateTimeFormat::local($sdt, 'd');
 
-		$syear  = DateTimeFormat::convert($sdt, $tz, 'UTC', 'Y');
-		$smonth = DateTimeFormat::convert($sdt, $tz, 'UTC', 'm');
-		$sday   = DateTimeFormat::convert($sdt, $tz, 'UTC', 'd');
+		$shour   = !empty($orig_event) ? DateTimeFormat::local($sdt, 'H') : '00';
+		$sminute = !empty($orig_event) ? DateTimeFormat::local($sdt, 'i') : '00';
 
-		$shour   = !empty($orig_event) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'H') : '00';
-		$sminute = !empty($orig_event) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'i') : '00';
+		$fyear  = DateTimeFormat::local($fdt, 'Y');
+		$fmonth = DateTimeFormat::local($fdt, 'm');
+		$fday   = DateTimeFormat::local($fdt, 'd');
 
-		$fyear  = DateTimeFormat::convert($fdt, $tz, 'UTC', 'Y');
-		$fmonth = DateTimeFormat::convert($fdt, $tz, 'UTC', 'm');
-		$fday   = DateTimeFormat::convert($fdt, $tz, 'UTC', 'd');
-
-		$fhour   = !empty($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'H') : '00';
-		$fminute = !empty($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : '00';
+		$fhour   = !empty($orig_event) ? DateTimeFormat::local($fdt, 'H') : '00';
+		$fminute = !empty($orig_event) ? DateTimeFormat::local($fdt, 'i') : '00';
 
 		if (!$cid && in_array($mode, ['new', 'copy'])) {
 			$acl = ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), false, ACL::getDefaultUserPermissions($orig_event));
@@ -549,8 +503,6 @@ function events_content(App $a)
 				true,
 				'start_text'
 			),
-			'$a_text' => DI::l10n()->t('Adjust for viewer timezone'),
-			'$a_checked' => $a_checked,
 			'$d_text' => DI::l10n()->t('Description:'),
 			'$d_orig' => $d_orig,
 			'$l_text' => DI::l10n()->t('Location:'),
@@ -562,7 +514,6 @@ function events_content(App $a)
 			'$share' => ['share', DI::l10n()->t('Share this event'), $share_checked, '', $share_disabled],
 			'$sh_checked' => $share_checked,
 			'$nofinish' => ['nofinish', DI::l10n()->t('Finish date/time is not known or not relevant'), $n_checked],
-			'$adjust' => ['adjust', DI::l10n()->t('Adjust for viewer timezone'), $a_checked],
 			'$preview' => DI::l10n()->t('Preview'),
 			'$acl' => $acl,
 			'$submit' => DI::l10n()->t('Submit'),

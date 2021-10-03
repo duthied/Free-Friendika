@@ -36,11 +36,6 @@ The finishing date/time has to be after the beginning date/time of the event.
 But you don't have to specify it.
 If the event is open-ended or the finishing date/time does not matter, just select the box below the two first fields.
 
-* **Adjust for viewer timezone**: If you check this box, the beginning and finishing times will automatically converted to the local time according to the timezone setting
-
-This might prevent early birthday wishes, or the panic that you have forgotten the birthday from your buddy at the other side of the world.
-And similar events.
-
 * **Title**: a title for the event
 * **Description**: a longer description for the event
 * **Location**: the location the event will took place

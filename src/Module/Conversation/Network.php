@@ -372,10 +372,10 @@ class Network extends BaseModule
 		}
 
 		if (self::$dateFrom) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` <= ? ", DateTimeFormat::convert(self::$dateFrom, 'UTC', date_default_timezone_get())]);
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` <= ? ", DateTimeFormat::convert(self::$dateFrom, 'UTC', DI::app()->getTimeZone())]);
 		}
 		if (self::$dateTo) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` >= ? ", DateTimeFormat::convert(self::$dateTo, 'UTC', date_default_timezone_get())]);
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` >= ? ", DateTimeFormat::convert(self::$dateTo, 'UTC', DI::app()->getTimeZone())]);
 		}
 
 		if (self::$groupId) {

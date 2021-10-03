@@ -488,10 +488,7 @@ class DFRN
 			XML::addElement($doc, $author, "poco:note", $profile["about"]);
 			XML::addElement($doc, $author, "poco:preferredUsername", $profile["nickname"]);
 
-			$savetz = date_default_timezone_get();
-			date_default_timezone_set($profile["timezone"]);
-			XML::addElement($doc, $author, "poco:utcOffset", date("P"));
-			date_default_timezone_set($savetz);
+			XML::addElement($doc, $author, "poco:utcOffset", DateTimeFormat::timezoneNow($profile["timezone"], "P"));
 
 			if (trim($profile["homepage"]) != "") {
 				$urls = $doc->createElement("poco:urls");

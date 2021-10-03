@@ -219,7 +219,7 @@ function ping_init(App $a)
 			$all_events = count($ev);
 
 			if ($all_events) {
-				$str_now = DateTimeFormat::timezoneNow($a->getTimeZone(), 'Y-m-d');
+				$str_now = DateTimeFormat::localNow('Y-m-d');
 				foreach ($ev as $x) {
 					$bd = false;
 					if ($x['type'] === 'birthday') {
@@ -228,7 +228,7 @@ function ping_init(App $a)
 					} else {
 						$events ++;
 					}
-					if (DateTimeFormat::convert($x['start'], ((intval($x['adjust'])) ? $a->getTimeZone() : 'UTC'), 'UTC', 'Y-m-d') === $str_now) {
+					if (DateTimeFormat::local($x['start'], 'Y-m-d') === $str_now) {
 						$all_events_today ++;
 						if ($bd) {
 							$birthdays_today ++;

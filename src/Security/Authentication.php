@@ -305,7 +305,6 @@ class Authentication
 		$this->session->set('new_member', time() < ($member_since + (60 * 60 * 24 * 14)));
 
 		if (strlen($user_record['timezone'])) {
-			date_default_timezone_set($user_record['timezone']);
 			$a->setTimeZone($user_record['timezone']);
 		}
 

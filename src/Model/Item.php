@@ -88,7 +88,7 @@ class Item
 		'writable', 'self', 'cid', 'alias',
 		'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
-		'event-nofinish', 'event-adjust', 'event-ignore', 'event-id',
+		'event-nofinish', 'event-ignore', 'event-id',
 		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed'
 	];
 
@@ -103,7 +103,7 @@ class Item
 			'thr-parent-id', 'parent-uri-id', 'postopts', 'pubmail',
 			'event-created', 'event-edited', 'event-start', 'event-finish',
 			'event-summary', 'event-desc', 'event-location', 'event-type',
-			'event-nofinish', 'event-adjust', 'event-ignore', 'event-id'];
+			'event-nofinish', 'event-ignore', 'event-id'];
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',

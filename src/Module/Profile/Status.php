@@ -151,10 +151,10 @@ class Status extends BaseProfile
 		}
 
 		if (!empty($datequery)) {
-			$condition = DBA::mergeConditions($condition, ["`received` <= ?", DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get())]);
+			$condition = DBA::mergeConditions($condition, ["`received` <= ?", DateTimeFormat::convert($datequery, 'UTC', $a->getTimeZone())]);
 		}
 		if (!empty($datequery2)) {
-			$condition = DBA::mergeConditions($condition, ["`received` >= ?", DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get())]);
+			$condition = DBA::mergeConditions($condition, ["`received` >= ?", DateTimeFormat::convert($datequery2, 'UTC', $a->getTimeZone())]);
 		}
 
 		// Does the profile page belong to a forum?

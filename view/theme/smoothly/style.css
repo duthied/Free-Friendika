@@ -3682,8 +3682,6 @@ margin-left: 0px;
 
 #event-nofinish-checkbox,
 #event-nofinish-text,
-#event-adjust-checkbox,
-#event-adjust-text,
 #event-share-checkbox {
 	float: left;
 }
@@ -3693,7 +3691,6 @@ margin-left: 0px;
 }
 
 #event-nofinish-break,
-#event-adjust-break,
 #event-share-break {
 	clear: both;
 }

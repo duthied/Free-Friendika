@@ -61,7 +61,7 @@ class Index extends BaseApi
 				'type'      => $event['type'],
 				'nofinish'  => $event['nofinish'],
 				'place'     => $event['location'],
-				'adjust'    => $event['adjust'],
+				'adjust'    => 1,
 				'ignore'    => $event['ignore'],
 				'allow_cid' => $event['allow_cid'],
 				'allow_gid' => $event['allow_gid'],
