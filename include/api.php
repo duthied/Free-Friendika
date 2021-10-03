@@ -1001,7 +1001,7 @@ function api_statuses_mediap($type)
 	$a = DI::app();
 
 	if (api_user() === false) {
-		Logger::log('api_statuses_update: no user');
+		logger::notice('api_statuses_update: no user');
 		throw new ForbiddenException();
 	}
 	$user_info = api_get_user($a);
@@ -1055,7 +1055,7 @@ function api_statuses_update($type)
 	$a = DI::app();
 
 	if (api_user() === false) {
-		Logger::log('api_statuses_update: no user');
+		logger::notice('api_statuses_update: no user');
 		throw new ForbiddenException();
 	}
 
@@ -1109,7 +1109,7 @@ function api_statuses_update($type)
 			$posts_day = Post::count($condition);
 
 			if ($posts_day > $throttle_day) {
-				Logger::log('Daily posting limit reached for user '.api_user(), Logger::DEBUG);
+				logger::info('Daily posting limit reached for user '.api_user());
 				// die(api_error($type, DI::l10n()->t("Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
 				throw new TooManyRequestsException(DI::l10n()->tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
 			}
@@ -1123,7 +1123,7 @@ function api_statuses_update($type)
 			$posts_week = Post::count($condition);
 
 			if ($posts_week > $throttle_week) {
-				Logger::log('Weekly posting limit reached for user '.api_user(), Logger::DEBUG);
+				logger::info('Weekly posting limit reached for user '.api_user());
 				// die(api_error($type, DI::l10n()->t("Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week)));
 				throw new TooManyRequestsException(DI::l10n()->tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week));
 			}
@@ -1137,7 +1137,7 @@ function api_statuses_update($type)
 			$posts_month = Post::count($condition);
 
 			if ($posts_month > $throttle_month) {
-				Logger::log('Monthly posting limit reached for user '.api_user(), Logger::DEBUG);
+				logger::info('Monthly posting limit reached for user '.api_user());
 				// die(api_error($type, DI::l10n()->t("Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
 				throw new TooManyRequestsException(DI::l10n()->t("Monthly posting limit of %d post reached. The post was rejected.", "Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
 			}
@@ -1238,7 +1238,7 @@ function api_media_upload()
 	$a = DI::app();
 
 	if (api_user() === false) {
-		Logger::log('no user');
+		logger::notice('no user');
 		throw new ForbiddenException();
 	}
 
@@ -1894,7 +1894,7 @@ function api_statuses_show($type)
 		$id = intval(DI::args()->getArgv()[4] ?? 0);
 	}
 
-	Logger::log('API: api_statuses_show: ' . $id);
+	logger::notice('API: api_statuses_show: ' . $id);
 
 	$conversation = !empty($_REQUEST['conversation']);
 
@@ -2056,7 +2056,7 @@ function api_statuses_repeat($type)
 		$id = intval(DI::args()->getArgv()[4] ?? 0);
 	}
 
-	Logger::log('API: api_statuses_repeat: '.$id);
+	logger::notice('API: api_statuses_repeat: '.$id);
 
 	$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 	$item = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
@@ -2139,7 +2139,7 @@ function api_statuses_destroy($type)
 		$id = intval(DI::args()->getArgv()[4] ?? 0);
 	}
 
-	Logger::log('API: api_statuses_destroy: '.$id);
+	logger::notice('API: api_statuses_destroy: '.$id);
 
 	$ret = api_statuses_show($type);
 
@@ -4589,11 +4589,9 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 	$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
 
-	Logger::log(
+	logger::info(
 		"File upload src: " . $src . " - filename: " . $filename .
-		" - size: " . $filesize . " - type: " . $filetype,
-		Logger::DEBUG
-	);
+		" - size: " . $filesize . " - type: " . $filetype);
 
 	// check if there was a php upload error
 	if ($filesize == 0 && $media['error'] == 1) {
@@ -4624,7 +4622,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	}
 	if ($max_length > 0) {
 		$Image->scaleDown($max_length);
-		Logger::log("File upload: Scaling picture to new size " . $max_length, Logger::DEBUG);
+		logger::info("File upload: Scaling picture to new size " . $max_length);
 	}
 	$width = $Image->getWidth();
 	$height = $Image->getHeight();
@@ -4634,17 +4632,17 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 	if ($mediatype == "photo") {
 		// upload normal image (scales 0, 1, 2)
-		Logger::log("photo upload: starting new photo upload", Logger::DEBUG);
+		logger::info("photo upload: starting new photo upload");
 
 		$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 0, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 		if (!$r) {
-			Logger::log("photo upload: image upload with scale 0 (original size) failed");
+			logger::notice("photo upload: image upload with scale 0 (original size) failed");
 		}
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
 			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 1, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
-				Logger::log("photo upload: image upload with scale 1 (640x640) failed");
+				logger::notice("photo upload: image upload with scale 1 (640x640) failed");
 			}
 		}
 
@@ -4652,19 +4650,19 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 			$Image->scaleDown(320);
 			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 2, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
-				Logger::log("photo upload: image upload with scale 2 (320x320) failed");
+				logger::notice("photo upload: image upload with scale 2 (320x320) failed");
 			}
 		}
-		Logger::log("photo upload: new photo upload ended", Logger::DEBUG);
+		logger::info("photo upload: new photo upload ended");
 	} elseif ($mediatype == "profileimage") {
 		// upload profile image (scales 4, 5, 6)
-		Logger::log("photo upload: starting new profile image upload", Logger::DEBUG);
+		logger::info("photo upload: starting new profile image upload");
 
 		if ($width > 300 || $height > 300) {
 			$Image->scaleDown(300);
 			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 4, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
-				Logger::log("photo upload: profile image upload with scale 4 (300x300) failed");
+				logger::notice("photo upload: profile image upload with scale 4 (300x300) failed");
 			}
 		}
 
@@ -4672,7 +4670,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 			$Image->scaleDown(80);
 			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 5, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
-				Logger::log("photo upload: profile image upload with scale 5 (80x80) failed");
+				logger::notice("photo upload: profile image upload with scale 5 (80x80) failed");
 			}
 		}
 
@@ -4680,11 +4678,11 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 			$Image->scaleDown(48);
 			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 6, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
-				Logger::log("photo upload: profile image upload with scale 6 (48x48) failed");
+				logger::notice("photo upload: profile image upload with scale 6 (48x48) failed");
 			}
 		}
 		$Image->__destruct();
-		Logger::log("photo upload: new profile image upload ended", Logger::DEBUG);
+		logger::info("photo upload: new profile image upload ended");
 	}
 
 	if (!empty($r)) {

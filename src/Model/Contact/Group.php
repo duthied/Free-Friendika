@@ -22,6 +22,7 @@
 namespace Friendica\Model\Contact;
 
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 
 /**
  * This class provides information about contact groups based on the "group_member" table.
@@ -75,20 +76,9 @@ class Group
 	 */
 	public static function listUngrouped(int $uid)
 	{
-		return q("SELECT *
-			   FROM `contact`
-			   WHERE `uid` = %d
-			   AND NOT `self`
-			   AND NOT `deleted`
-			   AND NOT `blocked`
-			   AND NOT `pending`
-			   AND NOT `failed`
-			   AND `id` NOT IN (
-			   	SELECT DISTINCT(`contact-id`)
-			   	FROM `group_member`
-			   	INNER JOIN `group` ON `group`.`id` = `group_member`.`gid`
-			   	WHERE `group`.`uid` = %d
-			   )", intval($uid), intval($uid));
+		return Contact::selectToArray([], ["`uid` = ? AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `failed`
+			AND `id` NOT IN (SELECT DISTINCT(`contact-id`) FROM `group_member` INNER JOIN `group` ON `group`.`id` = `group_member`.`gid`
+			   	WHERE `group`.`uid` = ?)", $uid, $uid]);
 	}
 
 	/**

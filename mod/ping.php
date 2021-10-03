@@ -194,13 +194,7 @@ function ping_init(App $a)
 		$intros = $intros1 + $intros2;
 
 		$myurl = DI::baseUrl() . '/profile/' . $a->getLoggedInUserNickname();
-		$mails = q(
-			"SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
-			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",
-			intval(local_user()),
-			DBA::escape($myurl)
-		);
-		$mail_count = count($mails);
+		$mail_count = DBA::count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", local_user(), $myurl]);
 
 		if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::APPROVE && is_site_admin()) {
 			$regs = Friendica\Model\Register::getPending();
@@ -213,14 +207,9 @@ function ping_init(App $a)
 		$cachekey = "ping_init:".local_user();
 		$ev = DI::cache()->get($cachekey);
 		if (is_null($ev)) {
-			$ev = q(
-				"SELECT type, start, adjust FROM `event`
-				WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
-				ORDER BY `start` ASC ",
-				intval(local_user()),
-				DBA::escape(DateTimeFormat::utc('now + 7 days')),
-				DBA::escape(DateTimeFormat::utcNow())
-			);
+			$ev = DBA::selectToArray('event', ['type', 'start', 'adjust'],
+				["`uid` = ? AND `start` < ? AND `finish` > ? AND NOT `ignore`",
+				local_user(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utcNow()]);
 			if (DBA::isResult($ev)) {
 				DI::cache()->set($cachekey, $ev, Duration::HOUR);
 			}
@@ -447,12 +436,8 @@ function ping_get_notifications($uid)
 				$notification["name"] = strip_tags(BBCode::convert($notification["name"]));
 				$notification["message"] = \Friendica\Navigation\Notifications\Entity\Notify::formatMessage($notification["name"], BBCode::toPlaintext($notification["msg"]));
 
-				q(
-					"UPDATE `notify` SET `name_cache` = '%s', `msg_cache` = '%s' WHERE `id` = %d",
-					DBA::escape($notification["name"]),
-					DBA::escape($notification["message"]),
-					intval($notification["id"])
-				);
+				// @todo Replace this with a call of the Notify model class
+				DBA::update('notify', ['name_cache' => $notification["name"], 'msg_cache' => $notification["message"]], ['id' => $notification["id"]]);
 			}
 
 			$notification["href"] = DI::baseUrl() . "/notification/" . $notification["id"];
