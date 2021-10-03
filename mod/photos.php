@@ -214,11 +214,7 @@ function photos_post(App $a)
 		// RENAME photo album
 		$newalbum = Strings::escapeTags(trim($_POST['albumname']));
 		if ($newalbum != $album) {
-			q("UPDATE `photo` SET `album` = '%s' WHERE `album` = '%s' AND `uid` = %d",
-				DBA::escape($newalbum),
-				DBA::escape($album),
-				intval($page_owner_uid)
-			);
+			Photo::update(['album' => $newalbum], ['album' => $album, 'uid' => $page_owner_uid]);
 			// Update the photo albums cache
 			Photo::clearAlbumCache($page_owner_uid);
 

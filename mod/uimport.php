@@ -24,6 +24,7 @@ use Friendica\App;
 use Friendica\Core\Logger;
 use Friendica\Core\UserImport;
 use Friendica\Core\Renderer;
+use Friendica\Database\DBA;
 use Friendica\DI;
 
 function uimport_post(App $a)
@@ -48,9 +49,9 @@ function uimport_content(App $a)
 
 	$max_dailies = intval(DI::config()->get('system', 'max_daily_registrations'));
 	if ($max_dailies) {
-		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
-		if ($r && $r[0]['total'] >= $max_dailies) {
-			Logger::log('max daily registrations exceeded.');
+		$total = DBA::count('user', ["`register_date` > UTC_TIMESTAMP - INTERVAL 1 DAY"]);
+		if ($total >= $max_dailies) {
+			Logger::notice('max daily registrations exceeded.');
 			notice(DI::l10n()->t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'));
 			return;
 		}

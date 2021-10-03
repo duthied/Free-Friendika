@@ -37,6 +37,7 @@ use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
 use Friendica\Model\Notification;
+use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
@@ -299,15 +300,12 @@ class DFRN
 			DI::config()->set('system', 'site_pubkey', $res['pubkey']);
 		}
 
-		$rp = q(
-			"SELECT `resource-id` , `scale`, type FROM `photo`
-				WHERE `profile` = 1 AND `uid` = %d ORDER BY scale;",
-			$uid
-		);
+		$profilephotos = Photo::selectToArray(['resource-id' , 'scale'], ['profile' => true, 'uid' => $uid], ['order' => ['scale']]);
+
 		$photos = [];
 		$ext = Images::supportedTypes();
 
-		foreach ($rp as $p) {
+		foreach ($profilephotos as $p) {
 			$photos[$p['scale']] = DI::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
 		}
 
@@ -1379,18 +1377,12 @@ class DFRN
 		}
 
 		// update contact
-		$r = q(
-			"SELECT `photo`, `url` FROM `contact` WHERE `id` = %d AND `uid` = %d",
-			intval($importer["id"]),
-			intval($importer["importer_uid"])
-		);
+		$old = Contact::selectFirst(['photo', 'url'], ['id' => $importer["id"], 'uid' => $importer["importer_uid"]]);
 
-		if (!DBA::isResult($r)) {
-			Logger::log("Query failed to execute, no result returned in " . __FUNCTION__);
+		if (!DBA::isResult($old)) {
+			Logger::notice("Query failed to execute, no result returned in " . __FUNCTION__);
 			return false;
 		}
-
-		$old = $r[0];
 
 		// Update the contact table. We try to find every entry.
 		$fields = ['name' => $relocate["name"], 'avatar' => $relocate["avatar"],

@@ -3627,17 +3627,12 @@ function api_direct_messages_new($type)
 
 	$recipient = null;
 	if (!empty($_POST['screen_name'])) {
-		$r = q(
-			"SELECT `id`, `nurl`, `network` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
-			intval(api_user()),
-			DBA::escape($_POST['screen_name'])
-		);
-
-		if (DBA::isResult($r)) {
+		$contacts = Contact::selectFirst(['id', 'nurl', 'network'], ['uid' => api_user(), 'nick' => $_POST['screen_name']]);
+		if (DBA::isResult($contacts)) {
 			// Selecting the id by priority, friendica first
-			api_best_nickname($r);
+			api_best_nickname($contacts);
 
-			$recipient = api_get_user($a, $r[0]['nurl']);
+			$recipient = api_get_user($a, $contacts[0]['nurl']);
 		}
 	} else {
 		$recipient = api_get_user($a, $_POST['user_id']);
@@ -3649,13 +3644,9 @@ function api_direct_messages_new($type)
 
 	$replyto = '';
 	if (!empty($_REQUEST['replyto'])) {
-		$r = q(
-			'SELECT `parent-uri`, `title` FROM `mail` WHERE `uid`=%d AND `id`=%d',
-			intval(api_user()),
-			intval($_REQUEST['replyto'])
-		);
-		$replyto = $r[0]['parent-uri'];
-		$sub     = $r[0]['title'];
+		$mail = DBA::selectFirst('mail', ['parent-uri', 'title'], ['uid' => api_user(), 'id' => $_REQUEST['replyto']]);
+		$replyto = $mail['parent-uri'];
+		$sub     = $mail['title'];
 	} else {
 		if (!empty($_REQUEST['title'])) {
 			$sub = $_REQUEST['title'];
@@ -3667,10 +3658,10 @@ function api_direct_messages_new($type)
 	$id = Mail::send($recipient['cid'], $_POST['text'], $sub, $replyto);
 
 	if ($id > -1) {
-		$r = q("SELECT * FROM `mail` WHERE id=%d", intval($id));
-		$ret = api_format_messages($r[0], $recipient, $sender);
+		$mail = DBA::selectFirst('mail', [], ['id' => $id]);
+		$ret = api_format_messages($mail, $recipient, $sender);
 	} else {
-		$ret = ["error"=>$id];
+		$ret = ["error" => $id];
 	}
 
 	$data = ['direct_message'=>$ret];
@@ -5084,25 +5075,19 @@ function api_friendica_group_show($type)
 
 	// get data of the specified group id or all groups if not specified
 	if ($gid != 0) {
-		$r = q(
-			"SELECT * FROM `group` WHERE `deleted` = 0 AND `uid` = %d AND `id` = %d",
-			intval($uid),
-			intval($gid)
-		);
+		$groups = DBA::selectToArray('group', [], ['deleted' => false, 'uid' => $uid, 'id' => $gid]);
+
 		// error message if specified gid is not in database
-		if (!DBA::isResult($r)) {
+		if (!DBA::isResult($groups)) {
 			throw new BadRequestException("gid not available");
 		}
 	} else {
-		$r = q(
-			"SELECT * FROM `group` WHERE `deleted` = 0 AND `uid` = %d",
-			intval($uid)
-		);
+		$groups = DBA::selectToArray('group', [], ['deleted' => false, 'uid' => $uid]);
 	}
 
 	// loop through all groups and retrieve all members for adding data in the user array
 	$grps = [];
-	foreach ($r as $rr) {
+	foreach ($groups as $rr) {
 		$members = Contact\Group::getById($rr['id']);
 		$users = [];
 
@@ -5158,26 +5143,13 @@ function api_friendica_group_delete($type)
 		throw new BadRequestException('gid or name not specified');
 	}
 
-	// get data of the specified group id
-	$r = q(
-		"SELECT * FROM `group` WHERE `uid` = %d AND `id` = %d",
-		intval($uid),
-		intval($gid)
-	);
 	// error message if specified gid is not in database
-	if (!DBA::isResult($r)) {
+	if (!DBA::exists('group', ['uid' => $uid, 'id' => $gid])) {
 		throw new BadRequestException('gid not available');
 	}
 
-	// get data of the specified group id and group name
-	$rname = q(
-		"SELECT * FROM `group` WHERE `uid` = %d AND `id` = %d AND `name` = '%s'",
-		intval($uid),
-		intval($gid),
-		DBA::escape($name)
-	);
 	// error message if specified gid is not in database
-	if (!DBA::isResult($rname)) {
+	if (!DBA::exists('group', ['uid' => $uid, 'id' => $gid, 'name' => $name])) {
 		throw new BadRequestException('wrong group name');
 	}
 
@@ -5261,25 +5233,13 @@ function group_create($name, $uid, $users = [])
 		throw new BadRequestException('group name not specified');
 	}
 
-	// get data of the specified group name
-	$rname = q(
-		"SELECT * FROM `group` WHERE `uid` = %d AND `name` = '%s' AND `deleted` = 0",
-		intval($uid),
-		DBA::escape($name)
-	);
-	// error message if specified group name already exists
-	if (DBA::isResult($rname)) {
+	// error message if specified group name already exists	
+	if (DBA::exists('group', ['uid' => $uid, 'name' => $name, 'deleted' => false])) {
 		throw new BadRequestException('group name already exists');
 	}
 
-	// check if specified group name is a deleted group
-	$rname = q(
-		"SELECT * FROM `group` WHERE `uid` = %d AND `name` = '%s' AND `deleted` = 1",
-		intval($uid),
-		DBA::escape($name)
-	);
-	// error message if specified group name already exists
-	if (DBA::isResult($rname)) {
+	// Check if the group needs to be reactivated
+	if (DBA::exists('group', ['uid' => $uid, 'name' => $name, 'deleted' => true])) {
 		$reactivate_group = true;
 	}
 
@@ -5296,13 +5256,7 @@ function group_create($name, $uid, $users = [])
 	$errorusers = [];
 	foreach ($users as $user) {
 		$cid = $user['cid'];
-		// check if user really exists as contact
-		$contact = q(
-			"SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d",
-			intval($cid),
-			intval($uid)
-		);
-		if (count($contact)) {
+		if (DBA::exists('contact', ['id' => $cid, 'uid' => $uid])) {
 			Group::addMember($gid, $cid);
 		} else {
 			$erroraddinguser = true;
@@ -5444,14 +5398,8 @@ function api_friendica_group_update($type)
 	$errorusers = [];
 	foreach ($users as $user) {
 		$cid = $user['cid'];
-		// check if user really exists as contact
-		$contact = q(
-			"SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d",
-			intval($cid),
-			intval($uid)
-		);
 
-		if (count($contact)) {
+		if (DBA::exists('contact', ['id' => $cid, 'uid' => $uid])) {
 			Group::addMember($gid, $cid);
 		} else {
 			$erroraddinguser = true;
