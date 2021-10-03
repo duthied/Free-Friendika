@@ -2056,7 +2056,7 @@ function api_statuses_repeat($type)
 		$id = intval(DI::args()->getArgv()[4] ?? 0);
 	}
 
-	logger::notice('API: api_statuses_repeat: '.$id);
+	logger::notice('API: api_statuses_repeat: ' . $id);
 
 	$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 	$item = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
@@ -2139,7 +2139,7 @@ function api_statuses_destroy($type)
 		$id = intval(DI::args()->getArgv()[4] ?? 0);
 	}
 
-	logger::notice('API: api_statuses_destroy: '.$id);
+	logger::notice('API: api_statuses_destroy: ' . $id);
 
 	$ret = api_statuses_show($type);
 
