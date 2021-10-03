@@ -3630,7 +3630,7 @@ function api_direct_messages_new($type)
 
 	$recipient = null;
 	if (!empty($_POST['screen_name'])) {
-		$contacts = Contact::selectFirst(['id', 'nurl', 'network'], ['uid' => api_user(), 'nick' => $_POST['screen_name']]);
+		$contacts = Contact::selectToArray(['id', 'nurl', 'network'], ['uid' => api_user(), 'nick' => $_POST['screen_name']]);
 		if (DBA::isResult($contacts)) {
 			// Selecting the id by priority, friendica first
 			api_best_nickname($contacts);
