@@ -259,6 +259,8 @@ return [
 	'/dirfind'                  => [Module\Search\Directory::class, [R::GET]],
 	'/directory'                => [Module\Directory::class,        [R::GET]],
 
+	'/events/json'                => [Module\Events\Json::class,        [R::GET]],
+
 	'/feed'     => [
 		'/{nickname}'          => [Module\Feed::class, [R::GET]],
 		'/{nickname}/posts'    => [Module\Feed::class, [R::GET]],

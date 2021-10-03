@@ -49,12 +49,6 @@ function events_init(App $a)
 		return;
 	}
 
-	// If it's a json request abort here because we don't
-	// need the widget data
-	if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] === 'json') {
-		return;
-	}
-
 	if (empty(DI::page()['aside'])) {
 		DI::page()['aside'] = '';
 	}
@@ -321,19 +315,6 @@ function events_content(App $a)
 		$start  = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
-		if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] === 'json') {
-			if (!empty($_GET['start'])) {
-				$start = $_GET['start'];
-			}
-			if (!empty($_GET['end'])) {
-				$finish = $_GET['end'];
-			}
-		}
-
-		$start  = DateTimeFormat::utc($start);
-		$finish = DateTimeFormat::utc($finish);
-
-
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
 			'event_id'      => intval($_GET['id'] ?? 0),
@@ -367,12 +348,6 @@ function events_content(App $a)
 		if (DBA::isResult($r)) {
 			$r = Event::sortByDate($r);
 			$events = Event::prepareListForTemplate($r);
-		}
-
-		if (DI::args()->getArgc() > 1 && DI::args()->getArgv()[1] === 'json') {
-			header('Content-Type: application/json');
-			echo json_encode($events);
-			exit();
 		}
 
 		if (!empty($_GET['id'])) {
