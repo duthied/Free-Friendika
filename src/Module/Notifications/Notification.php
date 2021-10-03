@@ -124,7 +124,7 @@ class Notification extends BaseModule
 				DI::notify()->setAllSeenForRelatedNotify($Notify);
 			}
 
-			if ($Notify->link) {
+			if ((string)$Notify->link) {
 				System::externalRedirect($Notify->link);
 			}
 
