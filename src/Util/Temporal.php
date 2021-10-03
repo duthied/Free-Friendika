@@ -271,7 +271,11 @@ class Temporal
 				$id,
 				$label,
 				$input_text,
-				'',
+				DI::l10n()->t(
+					'Time zone: <strong>%s</strong> <a href="%s">Change in Settings</a>',
+					str_replace('_', ' ', DI::app()->getTimeZone()) . ' (GMT ' . DateTimeFormat::localNow('P') . ')',
+					DI::baseUrl() . '/settings'
+				),
 				$required ? '*' : '',
 				'placeholder="' . $readable_format . '"'
 			],
@@ -284,7 +288,7 @@ class Temporal
 				'lang' => $lang,
 				'minfrom' => $minfrom,
 				'maxfrom' => $maxfrom,
-			]
+			],
 		]);
 
 		return $o;
