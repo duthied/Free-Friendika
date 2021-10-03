@@ -2719,7 +2719,7 @@ class Diaspora
 
 		/// @todo enable support for polls
 		//if ($data->poll) {
-		//	foreach ($data->poll AS $poll)
+		//	foreach ($data->poll as $poll)
 		//		print_r($poll);
 		//	die("poll!\n");
 		//}

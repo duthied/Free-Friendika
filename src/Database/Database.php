@@ -434,7 +434,7 @@ class Database
 	private function replaceParameters($sql, $args)
 	{
 		$offset = 0;
-		foreach ($args AS $param => $value) {
+		foreach ($args as $param => $value) {
 			if (is_int($args[$param]) || is_float($args[$param]) || is_bool($args[$param])) {
 				$replace = intval($args[$param]);
 			} elseif (is_null($args[$param])) {
@@ -476,7 +476,7 @@ class Database
 		// Renumber the array keys to be sure that they fit
 		$i    = 0;
 		$args = [];
-		foreach ($params AS $param) {
+		foreach ($params as $param) {
 			// Avoid problems with some MySQL servers and boolean values. See issue #3645
 			if (is_bool($param)) {
 				$param = (int)$param;
@@ -549,7 +549,7 @@ class Database
 					break;
 				}
 
-				foreach ($args AS $param => $value) {
+				foreach ($args as $param => $value) {
 					if (is_int($args[$param])) {
 						$data_type = PDO::PARAM_INT;
 					} else {
@@ -605,7 +605,7 @@ class Database
 
 				$param_types = '';
 				$values      = [];
-				foreach ($args AS $param => $value) {
+				foreach ($args as $param => $value) {
 					if (is_int($args[$param])) {
 						$param_types .= 'i';
 					} elseif (is_float($args[$param])) {
@@ -958,7 +958,7 @@ class Database
 				$result = $stmt->result_metadata();
 				$fields = $result->fetch_fields();
 
-				foreach ($cols_num AS $param => $col) {
+				foreach ($cols_num as $param => $col) {
 					$columns[$fields[$param]->name] = $col;
 				}
 		}
@@ -1293,7 +1293,7 @@ class Database
 			}
 		}
 
-		foreach ($old_fields AS $fieldname => $content) {
+		foreach ($old_fields as $fieldname => $content) {
 			if (isset($fields[$fieldname]) && !is_null($content) && ($fields[$fieldname] == $content)) {
 				unset($fields[$fieldname]);
 			}

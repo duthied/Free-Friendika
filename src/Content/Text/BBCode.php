@@ -2103,7 +2103,7 @@ class BBCode
 		$addon = strtolower($addon);
 
 		if (preg_match_all("/\[abstract=(.*?)\](.*?)\[\/abstract\]/ism", $text, $results, PREG_SET_ORDER)) {
-			foreach ($results AS $result) {
+			foreach ($results as $result) {
 				$abstracts[strtolower($result[1])] = $result[2];
 			}
 		}

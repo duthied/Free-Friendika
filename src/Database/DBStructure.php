@@ -135,7 +135,7 @@ class DBStructure
 			return;
 		}
 
-		foreach ($tables AS $table) {
+		foreach ($tables as $table) {
 			$sql = "ALTER TABLE " . DBA::quoteIdentifier($table['table_name']) . " ENGINE=InnoDB ROW_FORMAT=DYNAMIC;";
 			echo $sql . "\n";
 
@@ -271,7 +271,7 @@ class DBStructure
 		echo "-- " . FRIENDICA_PLATFORM . " " . FRIENDICA_VERSION . " (" . FRIENDICA_CODENAME, ")\n";
 		echo "-- DB_UPDATE_VERSION " . DB_UPDATE_VERSION . "\n";
 		echo "-- ------------------------------------------\n\n\n";
-		foreach ($database AS $name => $structure) {
+		foreach ($database as $name => $structure) {
 			echo "--\n";
 			echo "-- TABLE $name\n";
 			echo "--\n";
@@ -368,7 +368,7 @@ class DBStructure
 		$primary_keys = [];
 		$foreign_keys = [];
 
-		foreach ($structure["fields"] AS $fieldname => $field) {
+		foreach ($structure["fields"] as $fieldname => $field) {
 			$sql_rows[] = "`" . DBA::escape($fieldname) . "` " . self::FieldCommand($field);
 			if (!empty($field['primary'])) {
 				$primary_keys[] = $fieldname;
@@ -379,7 +379,7 @@ class DBStructure
 		}
 
 		if (!empty($structure["indexes"])) {
-			foreach ($structure["indexes"] AS $indexname => $fieldnames) {
+			foreach ($structure["indexes"] as $indexname => $fieldnames) {
 				$sql_index = self::createIndex($indexname, $fieldnames, "");
 				if (!is_null($sql_index)) {
 					$sql_rows[] = $sql_index;
@@ -387,7 +387,7 @@ class DBStructure
 			}
 		}
 
-		foreach ($foreign_keys AS $fieldname => $parameters) {
+		foreach ($foreign_keys as $fieldname => $parameters) {
 			$sql_rows[] = self::foreignCommand($name, $fieldname, $parameters);
 		}
 
@@ -460,7 +460,7 @@ class DBStructure
 		}
 
 		$names = "";
-		foreach ($fieldnames AS $fieldname) {
+		foreach ($fieldnames as $fieldname) {
 			if ($names != "") {
 				$names .= ",";
 			}
@@ -569,7 +569,7 @@ class DBStructure
 		}
 
 		if (DBA::isResult($tables)) {
-			foreach ($tables AS $table) {
+			foreach ($tables as $table) {
 				$table = current($table);
 
 				Logger::info('updating structure', ['table' => $table]);
@@ -591,7 +591,7 @@ class DBStructure
 		}
 
 		// Compare it
-		foreach ($definition AS $name => $structure) {
+		foreach ($definition as $name => $structure) {
 			$is_new_table = false;
 			$sql3 = "";
 			if (!isset($database[$name])) {
@@ -623,7 +623,7 @@ class DBStructure
 					}
 				}
 				// Compare the field structure field by field
-				foreach ($structure["fields"] AS $fieldname => $parameters) {
+				foreach ($structure["fields"] as $fieldname => $parameters) {
 					if (!isset($database[$name]["fields"][$fieldname])) {
 						$sql2 = self::addTableField($fieldname, $parameters);
 						if ($sql3 == "") {
@@ -670,7 +670,7 @@ class DBStructure
 			 * Don't create keys if table is new
 			 */
 			if (!$is_new_table) {
-				foreach ($structure["indexes"] AS $indexname => $fieldnames) {
+				foreach ($structure["indexes"] as $indexname => $fieldnames) {
 					if (isset($database[$name]["indexes"][$indexname])) {
 						$current_index_definition = implode(",", $database[$name]["indexes"][$indexname]);
 					} else {
@@ -694,7 +694,7 @@ class DBStructure
 
 				// Foreign keys
 				// Compare the field structure field by field
-				foreach ($structure["fields"] AS $fieldname => $parameters) {
+				foreach ($structure["fields"] as $fieldname => $parameters) {
 					if (empty($parameters['foreign'])) {
 						continue;
 					}
@@ -767,7 +767,7 @@ class DBStructure
 
 				// Now have a look at the field collations
 				// Compare the field structure field by field
-				foreach ($structure["fields"] AS $fieldname => $parameters) {
+				foreach ($structure["fields"] as $fieldname => $parameters) {
 					// Compare the field definition
 					$field_definition = ($database[$name]["fields"][$fieldname] ?? '') ?: ['Collation' => ''];
 
@@ -860,7 +860,7 @@ class DBStructure
 		}
 
 		if (DBA::isResult($indexes)) {
-			foreach ($indexes AS $index) {
+			foreach ($indexes as $index) {
 				if ($index["Key_name"] != "PRIMARY" && $index["Non_unique"] == "0" && !isset($indexdata[$index["Key_name"]])) {
 					$indexdata[$index["Key_name"]] = ["UNIQUE"];
 				}
@@ -881,7 +881,7 @@ class DBStructure
 
 		$fielddata = [];
 		if (DBA::isResult($fields)) {
-			foreach ($fields AS $field) {
+			foreach ($fields as $field) {
 				$search = ['tinyint(1)', 'tinyint(3) unsigned', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(8) unsigned', 'mediumint(9)', 'bigint(20)', 'int(10) unsigned', 'int(11)'];
 				$replace = ['boolean', 'tinyint unsigned', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint unsigned', 'mediumint', 'bigint', 'int unsigned', 'int'];
 				$field['COLUMN_TYPE'] = str_replace($search, $replace, $field['COLUMN_TYPE']);
@@ -1055,7 +1055,7 @@ class DBStructure
 
 		$table = DBA::escape($table);
 
-		foreach ($columns AS $column) {
+		foreach ($columns as $column) {
 			$sql = "SHOW COLUMNS FROM `" . $table . "` LIKE '" . $column . "';";
 
 			$stmt = DBA::p($sql);

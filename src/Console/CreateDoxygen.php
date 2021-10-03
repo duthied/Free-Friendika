@@ -73,7 +73,7 @@ HELP;
 
 		$previous = "";
 
-		foreach ($lines AS $line) {
+		foreach ($lines as $line) {
 			$line = rtrim(trim($line, "\r"));
 
 			if (strstr(strtolower($line), "function")) {
@@ -147,7 +147,7 @@ HELP;
 
 		if ($line != "") {
 			$parameters = explode(",", $line);
-			foreach ($parameters AS $parameter) {
+			foreach ($parameters as $parameter) {
 				$parameter = trim($parameter);
 				$splitted = explode("=", $parameter);
 

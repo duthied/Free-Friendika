@@ -77,7 +77,7 @@ class Relay
 		if ($scope == SR_SCOPE_TAGS) {
 			$server_tags = $config->get('system', 'relay_server_tags');
 			$tagitems = explode(',', mb_strtolower($server_tags));
-			foreach ($tagitems AS $tag) {
+			foreach ($tagitems as $tag) {
 				$systemTags[] = trim($tag, '# ');
 			}
 
@@ -90,7 +90,7 @@ class Relay
 
 		$deny_tags = $config->get('system', 'relay_deny_tags');
 		$tagitems = explode(',', mb_strtolower($deny_tags));
-		foreach ($tagitems AS $tag) {
+		foreach ($tagitems as $tag) {
 			$tag = trim($tag, '# ');
 			$denyTags[] = $tag;
 		}

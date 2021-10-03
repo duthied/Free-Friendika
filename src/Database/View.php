@@ -102,7 +102,7 @@ class View
 	{
 		$database = self::definition($basePath, false);
 
-		foreach ($database AS $name => $structure) {
+		foreach ($database as $name => $structure) {
 			echo "--\n";
 			echo "-- VIEW $name\n";
 			echo "--\n";
@@ -117,7 +117,7 @@ class View
 		$r = true;
 
 		$sql_rows = [];
-		foreach ($structure["fields"] AS $fieldname => $origin) {
+		foreach ($structure["fields"] as $fieldname => $origin) {
 			if (is_string($origin)) {
 				$sql_rows[] = $origin . " AS `" . DBA::escape($fieldname) . "`";
 			} elseif (is_array($origin) && (sizeof($origin) == 2)) {
