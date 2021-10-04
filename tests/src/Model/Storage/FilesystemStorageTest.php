@@ -21,22 +21,14 @@
 
 namespace Friendica\Test\src\Model\Storage;
 
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\L10n;
 use Friendica\Model\Storage\Filesystem;
-use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Model\Storage\StorageException;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\Profiler;
-use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
 
 class FilesystemStorageTest extends StorageTest
 {
 	use VFSTrait;
-
-	/** @var MockInterface|IConfig */
-	protected $config;
 
 	protected function setUp(): void
 	{
@@ -49,30 +41,7 @@ class FilesystemStorageTest extends StorageTest
 
 	protected function getInstance()
 	{
-		$profiler = \Mockery::mock(Profiler::class);
-		$profiler->shouldReceive('startRecording');
-		$profiler->shouldReceive('stopRecording');
-		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
-
-		/** @var MockInterface|L10n $l10n */
-		$l10n = \Mockery::mock(L10n::class)->makePartial();
-		$this->config = \Mockery::mock(IConfig::class);
-		$this->config->shouldReceive('get')
-		             ->with('storage', 'filesystem_path', Filesystem::DEFAULT_BASE_FOLDER)
-		             ->andReturn($this->root->getChild('storage')->url());
-
-		return new Filesystem($this->config, $l10n);
-	}
-
-	protected function assertOption(IWritableStorage $storage)
-	{
-		self::assertEquals([
-			'storagepath' => [
-				'input', 'Storage base path',
-				$this->root->getChild('storage')->url(),
-				'Folder where uploaded files are saved. For maximum security, This should be a path outside web server folder tree'
-			]
-		], $storage->getOptions());
+		return new Filesystem($this->root->getChild('storage')->url());
 	}
 
 	/**
@@ -116,7 +85,7 @@ class FilesystemStorageTest extends StorageTest
 
 		$instance->put('test', 'f0c0d0i0');
 
-		$dir = $this->root->getChild('storage/f0/c0')->url();
+		$dir  = $this->root->getChild('storage/f0/c0')->url();
 		$file = $this->root->getChild('storage/f0/c0/d0i0')->url();
 
 		self::assertDirectoryExists($dir);

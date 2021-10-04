@@ -22,8 +22,6 @@
 namespace Friendica\Model\Storage;
 
 use Exception;
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\L10n;
 use Friendica\Util\Strings;
 
 /**
@@ -40,30 +38,17 @@ class Filesystem implements IWritableStorage
 {
 	const NAME = 'Filesystem';
 
-	// Default base folder
-	const DEFAULT_BASE_FOLDER = 'storage';
-
-	/** @var IConfig */
-	private $config;
-
 	/** @var string */
 	private $basePath;
-
-	/** @var L10n */
-	private $l10n;
 
 	/**
 	 * Filesystem constructor.
 	 *
-	 * @param IConfig         $config
-	 * @param L10n            $l10n
+	 * @param string $filesystemPath
 	 */
-	public function __construct(IConfig $config, L10n $l10n)
+	public function __construct(string $filesystemPath = FilesystemConfig::DEFAULT_BASE_FOLDER)
 	{
-		$this->config = $config;
-		$this->l10n   = $l10n;
-
-		$path           = $this->config->get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
+		$path           = $filesystemPath;
 		$this->basePath = rtrim($path, '/');
 	}
 
@@ -174,37 +159,6 @@ class Filesystem implements IWritableStorage
 		if (!unlink($file)) {
 			throw new StorageException(sprintf('Cannot delete with file with reference "%s"', $reference));
 		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getOptions(): array
-	{
-		return [
-			'storagepath' => [
-				'input',
-				$this->l10n->t('Storage base path'),
-				$this->basePath,
-				$this->l10n->t('Folder where uploaded files are saved. For maximum security, This should be a path outside web server folder tree')
-			]
-		];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function saveOptions(array $data): array
-	{
-		$storagePath = $data['storagepath'] ?? '';
-		if ($storagePath === '' || !is_dir($storagePath)) {
-			return [
-				'storagepath' => $this->l10n->t('Enter a valid existing folder')
-			];
-		};
-		$this->config->set('storage', 'filesystem_path', $storagePath);
-		$this->basePath = $storagePath;
-		return [];
 	}
 
 	/**

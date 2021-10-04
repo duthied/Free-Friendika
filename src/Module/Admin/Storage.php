@@ -24,6 +24,7 @@ namespace Friendica\Module\Admin;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Storage\InvalidClassStorageException;
+use Friendica\Model\Storage\IStorageConfiguration;
 use Friendica\Model\Storage\IWritableStorage;
 use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
@@ -39,38 +40,40 @@ class Storage extends BaseAdmin
 		$storagebackend = Strings::escapeTags(trim($parameters['name'] ?? ''));
 
 		try {
-			/** @var IWritableStorage $newstorage */
-			$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
+			/** @var IStorageConfiguration|false $newStorageConfig */
+			$newStorageConfig = DI::storageManager()->getConfigurationByName($storagebackend);
 		} catch (InvalidClassStorageException $storageException) {
 			notice(DI::l10n()->t('Storage backend, %s is invalid.', $storagebackend));
 			DI::baseUrl()->redirect('admin/storage');
 		}
 
-		// save storage backend form
-		$storage_opts        = $newstorage->getOptions();
-		$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $storagebackend);
-		$storage_opts_data   = [];
-		foreach ($storage_opts as $name => $info) {
-			$fieldname = $storage_form_prefix . '_' . $name;
-			switch ($info[0]) { // type
-				case 'checkbox':
-				case 'yesno':
-					$value = !empty($_POST[$fieldname]);
-					break;
-				default:
-					$value = $_POST[$fieldname] ?? '';
+		if ($newStorageConfig !== false) {
+			// save storage backend form
+			$storage_opts        = $newStorageConfig->getOptions();
+			$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $storagebackend);
+			$storage_opts_data   = [];
+			foreach ($storage_opts as $name => $info) {
+				$fieldname = $storage_form_prefix . '_' . $name;
+				switch ($info[0]) { // type
+					case 'checkbox':
+					case 'yesno':
+						$value = !empty($_POST[$fieldname]);
+						break;
+					default:
+						$value = $_POST[$fieldname] ?? '';
+				}
+				$storage_opts_data[$name] = $value;
 			}
-			$storage_opts_data[$name] = $value;
-		}
-		unset($name);
-		unset($info);
+			unset($name);
+			unset($info);
 
-		$storage_form_errors = $newstorage->saveOptions($storage_opts_data);
-		if (count($storage_form_errors)) {
-			foreach ($storage_form_errors as $name => $err) {
-				notice(DI::l10n()->t('Storage backend %s error: %s', $storage_opts[$name][1], $err));
+			$storage_form_errors = $newStorageConfig->saveOptions($storage_opts_data);
+			if (count($storage_form_errors)) {
+				foreach ($storage_form_errors as $name => $err) {
+					notice(DI::l10n()->t('Storage backend %s error: %s', $storage_opts[$name][1], $err));
+				}
+				DI::baseUrl()->redirect('admin/storage');
 			}
-			DI::baseUrl()->redirect('admin/storage');
 		}
 
 		if (!empty($_POST['submit_save_set'])) {
@@ -101,20 +104,25 @@ class Storage extends BaseAdmin
 			// build storage config form,
 			$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $name);
 
-			$storage_form = [];
-			foreach (DI::storageManager()->getWritableStorageByName($name)->getOptions() as $option => $info) {
-				$type = $info[0];
-				// Backward compatibilty with yesno field description
-				if ($type == 'yesno') {
-					$type = 'checkbox';
-					// Remove translated labels Yes No from field info
-					unset($info[4]);
-				}
+			$storage_form  = [];
+			$storageConfig = DI::storageManager()->getConfigurationByName($name);
 
-				$info[0]               = $storage_form_prefix . '_' . $option;
-				$info['type']          = $type;
-				$info['field']         = 'field_' . $type . '.tpl';
-				$storage_form[$option] = $info;
+			if ($storageConfig !== false) {
+				foreach ($storageConfig->getOptions() as $option => $info) {
+
+					$type = $info[0];
+					// Backward compatibilty with yesno field description
+					if ($type == 'yesno') {
+						$type = 'checkbox';
+						// Remove translated labels Yes No from field info
+						unset($info[4]);
+					}
+
+					$info[0]               = $storage_form_prefix . '_' . $option;
+					$info['type']          = $type;
+					$info['field']         = 'field_' . $type . '.tpl';
+					$storage_form[$option] = $info;
+				}
 			}
 
 			$available_storage_forms[] = [

@@ -21,50 +21,47 @@
 
 namespace Friendica\Test\src\Model\Storage;
 
-use Friendica\Factory\ConfigFactory;
-use Friendica\Model\Storage\Database;
-use Friendica\Test\DatabaseTestTrait;
-use Friendica\Test\Util\Database\StaticDatabase;
+use Friendica\Core\Config\IConfig;
+use Friendica\Core\L10n;
+use Friendica\Model\Storage\FilesystemConfig;
+use Friendica\Model\Storage\IStorageConfiguration;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\Profiler;
-use Psr\Log\NullLogger;
+use Mockery\MockInterface;
+use org\bovigo\vfs\vfsStream;
 
-class DatabaseStorageTest extends StorageTest
+class FilesystemStorageConfigTest extends StorageConfigTest
 {
-	use DatabaseTestTrait;
 	use VFSTrait;
 
 	protected function setUp(): void
 	{
 		$this->setUpVfsDir();
 
-		$this->setUpDb();
+		vfsStream::create(['storage' => []], $this->root);
 
 		parent::setUp();
 	}
 
 	protected function getInstance()
 	{
-		$logger   = new NullLogger();
-		$profiler = \Mockery::mock(Profiler::class);
-		$profiler->shouldReceive('startRecording');
-		$profiler->shouldReceive('stopRecording');
-		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
+		/** @var MockInterface|L10n $l10n */
+		$l10n   = \Mockery::mock(L10n::class)->makePartial();
+		$config = \Mockery::mock(IConfig::class);
+		$config->shouldReceive('get')
+					 ->with('storage', 'filesystem_path', FilesystemConfig::DEFAULT_BASE_FOLDER)
+					 ->andReturn($this->root->getChild('storage')->url());
 
-		// load real config to avoid mocking every config-entry which is related to the Database class
-		$configFactory = new ConfigFactory();
-		$loader        = (new ConfigFactory())->createConfigFileLoader($this->root->url(), []);
-		$configCache   = $configFactory->createCache($loader);
-
-		$dba = new StaticDatabase($configCache, $profiler, $logger);
-
-		return new Database($dba);
+		return new FilesystemConfig($config, $l10n);
 	}
 
-	protected function tearDown(): void
+	protected function assertOption(IStorageConfiguration $storage)
 	{
-		$this->tearDownDb();
-
-		parent::tearDown();
+		self::assertEquals([
+			'storagepath' => [
+				'input', 'Storage base path',
+				$this->root->getChild('storage')->url(),
+				'Folder where uploaded files are saved. For maximum security, This should be a path outside web server folder tree'
+			]
+		], $storage->getOptions());
 	}
 }
