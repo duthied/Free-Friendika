@@ -98,7 +98,7 @@ class Photo extends BaseModule
 			}
 
 			// Please refactor this for the love of everything that's good
-			if (!empty($parameters['id'])) {
+			if (isset($parameters['id'])) {
 				$uid = $parameters['id'];
 			}
 
