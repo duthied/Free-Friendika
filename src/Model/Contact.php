@@ -1726,14 +1726,17 @@ class Contact
 	 * @param string  $updated Contact update date
 	 * @return string avatar link
 	 */
-	public static function getAvatarUrlForId(int $cid, string $size = '', string $updated = ''):string
+	public static function getAvatarUrlForId(int $cid, string $size = '', string $updated = '', string $guid = ''):string
 	{
 		// We have to fetch the "updated" variable when it wasn't provided
 		// The parameter can be provided to improve performance
-		if (empty($updated)) {
-			$contact = self::getById($cid, ['updated']);
-			$updated = $contact['updated'] ?? '';
+		if (empty($updated) || empty($guid)) {
+			$account = DBA::selectFirst('account-user-view', ['updated', 'guid'], ['id' => $cid]);
+			$updated = $account['updated'] ?? '';
+			$guid = $account['guid'] ?? '';
 		}
+
+		$guid = urlencode($guid);
 
 		$url = DI::baseUrl() . '/photo/contact/';
 		switch ($size) {
@@ -1753,7 +1756,7 @@ class Contact
 				$url .= Proxy::PIXEL_LARGE . '/';
 				break;
 		}
-		return $url . $cid . ($updated ? '?ts=' . strtotime($updated) : '');
+		return $url . ($guid ?: $cid) . ($updated ? '?ts=' . strtotime($updated) : '');
 	}
 
 	/**
@@ -1780,14 +1783,17 @@ class Contact
 	 * @param string  $updated Contact update date
 	 * @return string header link
 	 */
-	public static function getHeaderUrlForId(int $cid, string $size = '', string $updated = ''):string
+	public static function getHeaderUrlForId(int $cid, string $size = '', string $updated = '', string $guid = ''):string
 	{
 		// We have to fetch the "updated" variable when it wasn't provided
 		// The parameter can be provided to improve performance
-		if (empty($updated)) {
-			$contact = self::getById($cid, ['updated']);
-			$updated = $contact['updated'] ?? '';
+		if (empty($updated) || empty($guid)) {
+			$account = DBA::selectFirst('account-user-view', ['updated', 'guid'], ['id' => $cid]);
+			$updated = $account['updated'] ?? '';
+			$guid = $account['guid'] ?? '';
 		}
+
+		$guid = urlencode($guid);
 
 		$url = DI::baseUrl() . '/photo/header/';
 		switch ($size) {
@@ -1808,7 +1814,7 @@ class Contact
 				break;
 		}
 
-		return $url . $cid . ($updated ? '?ts=' . strtotime($updated) : '');
+		return $url . ($guid ?: $cid) . ($updated ? '?ts=' . strtotime($updated) : '');
 	}
 
 	/**
@@ -2184,7 +2190,7 @@ class Contact
 		}
 
 		$update = false;
-		$guid = $ret['guid'] ?? '';
+		$guid = ($ret['guid'] ?? '') ?: Item::guidFromUri($ret['url'], parse_url($ret['url'], PHP_URL_HOST));
 
 		// make sure to not overwrite existing values with blank entries except some technical fields
 		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];
@@ -2212,6 +2218,8 @@ class Contact
 			self::updateAvatar($id, $ret['photo'], $update);
 		}
 
+		$uriid = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
+
 		if (!$update) {
 			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
 
@@ -2230,12 +2238,7 @@ class Contact
 			return true;
 		}
 
-		if (empty($guid)) {
-			$ret['uri-id'] = ItemURI::getIdByURI($ret['url']);
-		} else {
-			$ret['uri-id'] = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
-		}
-
+		$ret['uri-id']  = $uriid;
 		$ret['nurl']    = Strings::normaliseLink($ret['url']);
 		$ret['updated'] = $updated;
 		$ret['failed']  = false;

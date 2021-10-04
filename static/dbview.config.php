@@ -825,6 +825,7 @@
 			"url" => ["contact", "url"],
 			"nurl" => ["contact", "nurl"],
 			"uri-id" => ["contact", "uri-id"],
+			"guid" => ["item-uri", "guid"],
 			"addr" => ["contact", "addr"],
 			"alias" => ["contact", "alias"],
 			"name" => ["contact", "name"],
@@ -895,6 +896,7 @@
 			"ap-statuses_count" => ["apcontact", "statuses_count"],
 		],
 		"query" => "FROM `contact`
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `contact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `contact`.`uri-id`
 			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = contact.`uri-id`
 			WHERE `contact`.`uid` = 0"			
@@ -907,6 +909,7 @@
 			"url" => ["contact", "url"],
 			"nurl" => ["contact", "nurl"],
 			"uri-id" => ["contact", "uri-id"],
+			"guid" => ["item-uri", "guid"],
 			"addr" => ["contact", "addr"],
 			"alias" => ["contact", "alias"],
 			"name" => ["contact", "name"],
@@ -991,6 +994,7 @@
 		],
 		"query" => "FROM `contact` AS `ucontact`
 			INNER JOIN `contact` ON `contact`.`uri-id` = `ucontact`.`uri-id` AND `contact`.`uid` = 0
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `ucontact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `ucontact`.`uri-id`
 			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = `ucontact`.`uri-id` AND `fcontact`.`network` = 'dspr'"
 	],

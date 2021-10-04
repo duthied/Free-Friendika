@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1436
+-- DB_UPDATE_VERSION 1437
 -- ------------------------------------------
 
 
@@ -2355,6 +2355,7 @@ CREATE VIEW `account-view` AS SELECT
 	`contact`.`url` AS `url`,
 	`contact`.`nurl` AS `nurl`,
 	`contact`.`uri-id` AS `uri-id`,
+	`item-uri`.`guid` AS `guid`,
 	`contact`.`addr` AS `addr`,
 	`contact`.`alias` AS `alias`,
 	`contact`.`name` AS `name`,
@@ -2424,6 +2425,7 @@ CREATE VIEW `account-view` AS SELECT
 	`apcontact`.`followers_count` AS `ap-followers_count`,
 	`apcontact`.`statuses_count` AS `ap-statuses_count`
 	FROM `contact`
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `contact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `contact`.`uri-id`
 			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = contact.`uri-id`
 			WHERE `contact`.`uid` = 0;
@@ -2439,6 +2441,7 @@ CREATE VIEW `account-user-view` AS SELECT
 	`contact`.`url` AS `url`,
 	`contact`.`nurl` AS `nurl`,
 	`contact`.`uri-id` AS `uri-id`,
+	`item-uri`.`guid` AS `guid`,
 	`contact`.`addr` AS `addr`,
 	`contact`.`alias` AS `alias`,
 	`contact`.`name` AS `name`,
@@ -2522,6 +2525,7 @@ CREATE VIEW `account-user-view` AS SELECT
 	`apcontact`.`statuses_count` AS `ap-statuses_count`
 	FROM `contact` AS `ucontact`
 			INNER JOIN `contact` ON `contact`.`uri-id` = `ucontact`.`uri-id` AND `contact`.`uid` = 0
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `ucontact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `ucontact`.`uri-id`
 			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = `ucontact`.`uri-id` AND `fcontact`.`network` = 'dspr';
 

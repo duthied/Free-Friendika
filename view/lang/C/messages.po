@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-03 13:45-0400\n"
+"POT-Creation-Date: 2021-10-04 06:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,7 +39,7 @@ msgstr ""
 
 #: include/api.php:4422 mod/photos.php:89 mod/photos.php:198 mod/photos.php:617
 #: mod/photos.php:1028 mod/photos.php:1045 mod/photos.php:1594
-#: src/Model/User.php:1160 src/Model/User.php:1168 src/Model/User.php:1176
+#: src/Model/User.php:1164 src/Model/User.php:1172 src/Model/User.php:1180
 #: src/Module/Settings/Profile/Photo/Crop.php:101
 #: src/Module/Settings/Profile/Photo/Crop.php:117
 #: src/Module/Settings/Profile/Photo/Crop.php:133
@@ -1356,15 +1356,15 @@ msgstr ""
 msgid "View Album"
 msgstr ""
 
-#: mod/ping.php:286
+#: mod/ping.php:275
 msgid "{0} wants to be your friend"
 msgstr ""
 
-#: mod/ping.php:303
+#: mod/ping.php:292
 msgid "{0} requested registration"
 msgstr ""
 
-#: mod/ping.php:316
+#: mod/ping.php:305
 #, php-format
 msgid "{0} and %d others requested registration"
 msgstr ""
@@ -4324,63 +4324,63 @@ msgstr ""
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2363
+#: src/Model/Contact.php:2370
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2368 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2375 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2373
+#: src/Model/Contact.php:2380
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2382
+#: src/Model/Contact.php:2389
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2419
+#: src/Model/Contact.php:2426
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2421
+#: src/Model/Contact.php:2428
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2424
+#: src/Model/Contact.php:2431
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2427
+#: src/Model/Contact.php:2434
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2430
+#: src/Model/Contact.php:2437
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2431
+#: src/Model/Contact.php:2438
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2437
+#: src/Model/Contact.php:2444
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2442
+#: src/Model/Contact.php:2449
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2501
+#: src/Model/Contact.php:2508
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -4605,7 +4605,7 @@ msgstr ""
 msgid "Enter a valid existing folder"
 msgstr ""
 
-#: src/Model/User.php:208 src/Model/User.php:1046
+#: src/Model/User.php:208 src/Model/User.php:1050
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr ""
 
@@ -4636,107 +4636,107 @@ msgid ""
 "The password can't contain accentuated letters, white spaces or colons (:)"
 msgstr ""
 
-#: src/Model/User.php:926
+#: src/Model/User.php:930
 msgid "Passwords do not match. Password unchanged."
 msgstr ""
 
-#: src/Model/User.php:933
+#: src/Model/User.php:937
 msgid "An invitation is required."
 msgstr ""
 
-#: src/Model/User.php:937
+#: src/Model/User.php:941
 msgid "Invitation could not be verified."
 msgstr ""
 
-#: src/Model/User.php:945
+#: src/Model/User.php:949
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:958 src/Security/Authentication.php:223
+#: src/Model/User.php:962 src/Security/Authentication.php:223
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:958 src/Security/Authentication.php:223
+#: src/Model/User.php:962 src/Security/Authentication.php:223
 msgid "The error message was:"
 msgstr ""
 
-#: src/Model/User.php:964
+#: src/Model/User.php:968
 msgid "Please enter the required information."
 msgstr ""
 
-#: src/Model/User.php:978
+#: src/Model/User.php:982
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr ""
 
-#: src/Model/User.php:985
+#: src/Model/User.php:989
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:989
+#: src/Model/User.php:993
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:997
+#: src/Model/User.php:1001
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr ""
 
-#: src/Model/User.php:1002
+#: src/Model/User.php:1006
 msgid "Your email domain is not among those allowed on this site."
 msgstr ""
 
-#: src/Model/User.php:1006
+#: src/Model/User.php:1010
 msgid "Not a valid email address."
 msgstr ""
 
-#: src/Model/User.php:1009
+#: src/Model/User.php:1013
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr ""
 
-#: src/Model/User.php:1013 src/Model/User.php:1021
+#: src/Model/User.php:1017 src/Model/User.php:1025
 msgid "Cannot use that email."
 msgstr ""
 
-#: src/Model/User.php:1028
+#: src/Model/User.php:1032
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr ""
 
-#: src/Model/User.php:1036 src/Model/User.php:1093
+#: src/Model/User.php:1040 src/Model/User.php:1097
 msgid "Nickname is already registered. Please choose another."
 msgstr ""
 
-#: src/Model/User.php:1080 src/Model/User.php:1084
+#: src/Model/User.php:1084 src/Model/User.php:1088
 msgid "An error occurred during registration. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1107
+#: src/Model/User.php:1111
 msgid "An error occurred creating your default profile. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1114
+#: src/Model/User.php:1118
 msgid "An error occurred creating your self contact. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1119
+#: src/Model/User.php:1123
 msgid "Friends"
 msgstr ""
 
-#: src/Model/User.php:1123
+#: src/Model/User.php:1127
 msgid ""
 "An error occurred creating your default contact group. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1352
+#: src/Model/User.php:1356
 #, php-format
 msgid ""
 "\n"
@@ -4744,7 +4744,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1355
+#: src/Model/User.php:1359
 #, php-format
 msgid ""
 "\n"
@@ -4781,12 +4781,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1388 src/Model/User.php:1495
+#: src/Model/User.php:1392 src/Model/User.php:1499
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1408
+#: src/Model/User.php:1412
 #, php-format
 msgid ""
 "\n"
@@ -4802,12 +4802,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1427
+#: src/Model/User.php:1431
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1451
+#: src/Model/User.php:1455
 #, php-format
 msgid ""
 "\n"
@@ -4816,7 +4816,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1459
+#: src/Model/User.php:1463
 #, php-format
 msgid ""
 "\n"
@@ -8666,17 +8666,21 @@ msgstr ""
 msgid "Visible to:"
 msgstr ""
 
-#: src/Module/Photo.php:115
+#: src/Module/Photo.php:117
+msgid "The Photo is not available."
+msgstr ""
+
+#: src/Module/Photo.php:130
 #, php-format
 msgid "The Photo with id %s is not available."
 msgstr ""
 
-#: src/Module/Photo.php:148
+#: src/Module/Photo.php:163
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr ""
 
-#: src/Module/Photo.php:150
+#: src/Module/Photo.php:165
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr ""
@@ -8739,19 +8743,19 @@ msgstr ""
 
 #: src/Module/Profile/Profile.php:326 src/Module/Profile/Profile.php:329
 #: src/Module/Profile/Status.php:65 src/Module/Profile/Status.php:68
-#: src/Protocol/Feed.php:951 src/Protocol/OStatus.php:1259
+#: src/Protocol/Feed.php:953 src/Protocol/OStatus.php:1259
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:327 src/Module/Profile/Status.php:66
-#: src/Protocol/Feed.php:955 src/Protocol/OStatus.php:1263
+#: src/Protocol/Feed.php:957 src/Protocol/OStatus.php:1263
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:328 src/Module/Profile/Status.php:67
-#: src/Protocol/Feed.php:958 src/Protocol/OStatus.php:1266
+#: src/Protocol/Feed.php:960 src/Protocol/OStatus.php:1266
 #, php-format
 msgid "%s's comments"
 msgstr ""
