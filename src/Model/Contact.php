@@ -2190,7 +2190,7 @@ class Contact
 		}
 
 		$update = false;
-		$guid = $ret['guid'] ?: Item::guidFromUri($ret['url'], parse_url($ret['url'], PHP_URL_HOST));
+		$guid = ($ret['guid'] ?? '') ?: Item::guidFromUri($ret['url'], parse_url($ret['url'], PHP_URL_HOST));
 
 		// make sure to not overwrite existing values with blank entries except some technical fields
 		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];
