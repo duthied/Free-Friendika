@@ -549,12 +549,14 @@ class Database
 					break;
 				}
 
-				foreach ($args as $param => $value) {
+				foreach (array_keys($args) as $param) {
+					$data_type = PDO::PARAM_STR;
 					if (is_int($args[$param])) {
 						$data_type = PDO::PARAM_INT;
-					} else {
-						$data_type = PDO::PARAM_STR;
+					} elseif ($args[$param] !== null) {
+						$args[$param] = (string)$args[$param];
 					}
+
 					$stmt->bindParam($param, $args[$param], $data_type);
 				}
 
@@ -605,13 +607,16 @@ class Database
 
 				$param_types = '';
 				$values      = [];
-				foreach ($args as $param => $value) {
+				foreach (array_keys($args) as $param) {
 					if (is_int($args[$param])) {
 						$param_types .= 'i';
 					} elseif (is_float($args[$param])) {
 						$param_types .= 'd';
 					} elseif (is_string($args[$param])) {
 						$param_types .= 's';
+					} elseif (is_object($args[$param]) && method_exists($args[$param], '__toString')) {
+						$param_types .= 's';
+						$args[$param] = (string)$args[$param];
 					} else {
 						$param_types .= 'b';
 					}
@@ -969,7 +974,7 @@ class Database
 	}
 
 	/**
-	 * Insert a row into a table
+	 * Insert a row into a table. Field value objects will be cast as string.
 	 *
 	 * @param string|array $table          Table name or array [schema => table]
 	 * @param array        $param          parameter array
@@ -1244,9 +1249,9 @@ class Database
 	}
 
 	/**
-	 * Updates rows
+	 * Updates rows in the database. Field value objects will be cast as string.
 	 *
-	 * Updates rows in the database. When $old_fields is set to an array,
+	 * When $old_fields is set to an array,
 	 * the system will only do an update if the fields in that array changed.
 	 *
 	 * Attention:
@@ -1561,9 +1566,9 @@ class Database
 			}
 		}
 
-		return $fields;	
+		return $fields;
 	}
-	
+
 	/**
 	 * Returns the error number of the last query
 	 *
