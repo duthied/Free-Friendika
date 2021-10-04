@@ -93,7 +93,7 @@ class Photo extends BaseModule
 			}
 
 			// Contact Id Fallback, to remove after version 2021.12
-			if (!empty($parameters['contact_id'])) {
+			if (isset($parameters['contact_id'])) {
 				$id = intval($parameters['contact_id']);
 			}
 
