@@ -207,7 +207,7 @@ function ping_init(App $a)
 		$cachekey = "ping_init:".local_user();
 		$ev = DI::cache()->get($cachekey);
 		if (is_null($ev)) {
-			$ev = DBA::selectToArray('event', ['type', 'start', 'adjust'],
+			$ev = DBA::selectToArray('event', ['type', 'start'],
 				["`uid` = ? AND `start` < ? AND `finish` > ? AND NOT `ignore`",
 				local_user(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utcNow()]);
 			if (DBA::isResult($ev)) {
