@@ -83,7 +83,7 @@ class Photo extends BaseModule
 			}
 
 			if (!empty($parameters['guid'])) {
-				$guid = pathinfo($parameters['guid'], PATHINFO_FILENAME);
+				$guid = $parameters['guid'];
 				$account = DBA::selectFirst('account-user-view', ['id'], ['guid' => $guid], ['order' => ['uid' => true]]);
 				if (empty($account)) {
 					throw new HTTPException\NotFoundException();
@@ -92,8 +92,9 @@ class Photo extends BaseModule
 				$id = $account['id'];
 			}
 
+			// Contact Id Fallback, to remove after version 2021.12
 			if (!empty($parameters['contact_id'])) {
-				$id = intval(pathinfo($parameters['contact_id'], PATHINFO_FILENAME));
+				$id = intval($parameters['contact_id']);
 			}
 
 			if (!empty($parameters['nickname_ext'])) {
