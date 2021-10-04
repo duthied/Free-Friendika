@@ -113,7 +113,7 @@ class Photo extends BaseModule
 			}
 
 			if (empty($id)) {
-				Logger::notice('No picture id was detected', ['parameters' => $parameters]);
+				Logger::notice('No picture id was detected', ['parameters' => $parameters, 'query' => DI::args()->getQueryString()]);
 				throw new HTTPException\NotFoundException(DI::l10n()->t('The Photo is not available.'));
 			}
 

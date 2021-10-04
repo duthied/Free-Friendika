@@ -2218,11 +2218,7 @@ class Contact
 			self::updateAvatar($id, $ret['photo'], $update);
 		}
 
-		if (empty($guid)) {
-			$uriid = ItemURI::getIdByURI($ret['url']);
-		} else {
-			$uriid = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
-		}
+		$uriid = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
 
 		if (!$update) {
 			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
