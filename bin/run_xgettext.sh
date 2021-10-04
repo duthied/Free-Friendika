@@ -69,7 +69,7 @@ esac
 KEYWORDS="-k -kt -ktt:1,2"
 
 echo "Extract strings to $OUTFILE.."
-rm "$OUTFILE"; touch "$OUTFILE"
+[ -f "$OUTFILE" ] && rm "$OUTFILE"; touch "$OUTFILE"
 
 # shellcheck disable=SC2086  # $FINDOPTS is meant to be split
 find_result=$(find "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f | LC_ALL=C sort --stable)
