@@ -82,24 +82,28 @@ class Photo extends BaseModule
 				$square_resize = !in_array($parameters['type'], ['media', 'preview']);
 			}
 
-			if (!empty($parameters['nickname_ext'])) {
-				if (in_array($parameters['type'], ['contact', 'header'])) {
-					$guid = pathinfo($parameters['nickname_ext'], PATHINFO_FILENAME);
-					$account = DBA::selectFirst('account-user-view', ['id'], ['guid' => $guid], ['order' => ['uid' => true]]);
-					if (empty($account)) {
-						throw new HTTPException\NotFoundException();
-					}
-
-					$id = $account['id'];
-				} else {
-					$nickname = pathinfo($parameters['nickname_ext'], PATHINFO_FILENAME);
-					$user = User::getByNickname($nickname, ['uid']);
-					if (empty($user)) {
-						throw new HTTPException\NotFoundException();
-					}
-
-					$id = $user['uid'];
+			if (!empty($parameters['guid'])) {
+				$guid = pathinfo($parameters['guid'], PATHINFO_FILENAME);
+				$account = DBA::selectFirst('account-user-view', ['id'], ['guid' => $guid], ['order' => ['uid' => true]]);
+				if (empty($account)) {
+					throw new HTTPException\NotFoundException();
 				}
+
+				$id = $account['id'];
+			}
+
+			if (!empty($parameters['contact_id'])) {
+				$id = intval(pathinfo($parameters['contact_id'], PATHINFO_FILENAME));
+			}
+
+			if (!empty($parameters['nickname_ext'])) {
+				$nickname = pathinfo($parameters['nickname_ext'], PATHINFO_FILENAME);
+				$user = User::getByNickname($nickname, ['uid']);
+				if (empty($user)) {
+					throw new HTTPException\NotFoundException();
+				}
+
+				$id = $user['uid'];
 			}
 
 			// User Id Fallback, to remove after version 2021.12
