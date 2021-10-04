@@ -802,6 +802,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 ### src/Core/StorageManager
 
     Hook::callAll('storage_instance', $data);
+	Hook::callAll('storage_config', $data);
 
 ### src/Worker/Directory.php
 
