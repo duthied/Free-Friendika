@@ -79,7 +79,7 @@ function fbrowser_content(App $a)
 				$filename_e = $rr['filename'];
 
 				// Take the largest picture that is smaller or equal 640 pixels
-				$photo = Photo::selectFirst(['scale'], ["`resource-id` = ? AND `height` <= ? AND `width` <= ?", $rr['resource-id'], 640, 640, ['order' => ['scale']]]);
+				$photo = Photo::selectFirst(['scale'], ["`resource-id` = ? AND `height` <= ? AND `width` <= ?", $rr['resource-id'], 640, 640], ['order' => ['scale']]);
 				$scale = $photo['scale'] ?? $rr['loq'];
 
 				return [
