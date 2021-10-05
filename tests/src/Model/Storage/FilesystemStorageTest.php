@@ -22,6 +22,7 @@
 namespace Friendica\Test\src\Model\Storage;
 
 use Friendica\Model\Storage\Filesystem;
+use Friendica\Model\Storage\FilesystemConfig;
 use Friendica\Model\Storage\StorageException;
 use Friendica\Test\Util\VFSTrait;
 use org\bovigo\vfs\vfsStream;
@@ -41,20 +42,34 @@ class FilesystemStorageTest extends StorageTest
 
 	protected function getInstance()
 	{
-		return new Filesystem($this->root->getChild('storage')->url());
+		return new Filesystem($this->root->getChild(FilesystemConfig::DEFAULT_BASE_FOLDER)->url());
 	}
 
 	/**
-	 * Test the exception in case of missing directorsy permissions
+	 * Test the exception in case of missing directory permissions during put new files
+	 */
+	public function testMissingDirPermissionsDuringPut()
+	{
+		$this->expectException(StorageException::class);
+		$this->expectExceptionMessageMatches("/Filesystem storage failed to create \".*\". Check you write permissions./");
+		$this->root->getChild(FilesystemConfig::DEFAULT_BASE_FOLDER)->chmod(0777);
+
+		$instance = $this->getInstance();
+
+		$this->root->getChild(FilesystemConfig::DEFAULT_BASE_FOLDER)->chmod(0000);
+		$instance->put('test');
+	}
+
+	/**
+	 * Test the exception in case the directory isn't writeable
 	 */
 	public function testMissingDirPermissions()
 	{
 		$this->expectException(StorageException::class);
-		$this->expectExceptionMessageMatches("/Filesystem storage failed to create \".*\". Check you write permissions./");
-		$this->root->getChild('storage')->chmod(000);
+		$this->expectExceptionMessageMatches("/Path \".*\" does not exist or is not writeable./");
+		$this->root->getChild(FilesystemConfig::DEFAULT_BASE_FOLDER)->chmod(0000);
 
-		$instance = $this->getInstance();
-		$instance->put('test');
+		$this->getInstance();
 	}
 
 	/**

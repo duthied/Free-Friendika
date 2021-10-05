@@ -54,7 +54,7 @@ class Filesystem implements IWritableStorage
 		$this->basePath = rtrim($path, '/');
 
 		if (!is_dir($this->basePath) || !is_writable($this->basePath)) {
-			throw new StorageException(sprintf('Path %s does not exist or is not writeable', $this->basePath));
+			throw new StorageException(sprintf('Path "%s" does not exist or is not writeable.', $this->basePath));
 		}
 	}
 

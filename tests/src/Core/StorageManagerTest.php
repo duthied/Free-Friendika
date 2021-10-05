@@ -40,6 +40,7 @@ use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\Profiler;
+use org\bovigo\vfs\vfsStream;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Friendica\Test\Util\SampleStorageBackend;
@@ -64,6 +65,8 @@ class StorageManagerTest extends DatabaseTest
 
 		$this->setUpVfsDir();
 
+		vfsStream::newDirectory(Storage\FilesystemConfig::DEFAULT_BASE_FOLDER, 0777)->at($this->root);
+
 		$this->logger = new NullLogger();
 
 		$profiler = \Mockery::mock(Profiler::class);
@@ -81,10 +84,18 @@ class StorageManagerTest extends DatabaseTest
 		$configModel  = new Config($this->dba);
 		$this->config = new PreloadConfig($configCache, $configModel);
 		$this->config->set('storage', 'name', 'Database');
+		$this->config->set('storage', 'filesystem_path', $this->root->getChild(Storage\FilesystemConfig::DEFAULT_BASE_FOLDER)->url());
 
 		$this->l10n = \Mockery::mock(L10n::class);
 
 		$this->httpRequest = \Mockery::mock(HTTPClient::class);
+	}
+
+	protected function tearDown(): void
+	{
+		$this->root->removeChild(Storage\FilesystemConfig::DEFAULT_BASE_FOLDER);
+
+		parent::tearDown();
 	}
 
 	/**
