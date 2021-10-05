@@ -120,6 +120,43 @@ class StorageManager
 	}
 
 	/**
+	 * Return storage backend configuration by registered name
+	 *
+	 * @param string     $name Backend name
+	 *
+	 * @return Storage\IStorageConfiguration|false
+	 *
+	 * @throws Storage\InvalidClassStorageException in case there's no backend class for the name
+	 * @throws Storage\StorageException in case of an unexpected failure during the hook call
+	 */
+	public function getConfigurationByName(string $name)
+	{
+		switch ($name) {
+			// Try the filesystem backend
+			case Storage\Filesystem::getName():
+				return new Storage\FilesystemConfig($this->config, $this->l10n);
+			// try the database backend
+			case Storage\Database::getName():
+				return false;
+			default:
+				$data = [
+					'name'           => $name,
+					'storage_config' => null,
+				];
+				try {
+					Hook::callAll('storage_config', $data);
+					if (!($data['storage_config'] ?? null) instanceof Storage\IStorageConfiguration) {
+						throw new Storage\InvalidClassStorageException(sprintf('Configuration for backend %s was not found', $name));
+					}
+
+					return $data['storage_config'];
+				} catch (InternalServerErrorException $exception) {
+					throw new Storage\StorageException(sprintf('Failed calling hook::storage_config for backend %s', $name), $exception);
+				}
+		}
+	}
+
+	/**
 	 * Return storage backend class by registered name
 	 *
 	 * @param string     $name Backend name
@@ -142,7 +179,8 @@ class StorageManager
 			switch ($name) {
 				// Try the filesystem backend
 				case Storage\Filesystem::getName():
-					$this->backendInstances[$name] = new Storage\Filesystem($this->config, $this->l10n);
+					$storageConfig                 = new Storage\FilesystemConfig($this->config, $this->l10n);
+					$this->backendInstances[$name] = new Storage\Filesystem($storageConfig->getStoragePath());
 					break;
 				// try the database backend
 				case Storage\Database::getName():

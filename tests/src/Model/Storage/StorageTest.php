@@ -31,8 +31,6 @@ abstract class StorageTest extends MockedTest
 	/** @return IWritableStorage */
 	abstract protected function getInstance();
 
-	abstract protected function assertOption(IWritableStorage $storage);
-
 	/**
 	 * Test if the instance is "really" implementing the interface
 	 */
@@ -40,16 +38,6 @@ abstract class StorageTest extends MockedTest
 	{
 		$instance = $this->getInstance();
 		self::assertInstanceOf(IStorage::class, $instance);
-	}
-
-	/**
-	 * Test if the "getOption" is asserted
-	 */
-	public function testGetOptions()
-	{
-		$instance = $this->getInstance();
-
-		$this->assertOption($instance);
 	}
 
 	/**

@@ -10,18 +10,20 @@ A storage backend is implemented as a class, and the plugin register the class t
 
 The class must live in `Friendica\Addon\youraddonname` namespace, where `youraddonname` the folder name of your addon.
 
+There are two different interfaces you need to implement.
+
+### `IWritableStorage`
+
 The class must implement `Friendica\Model\Storage\IWritableStorage` interface. All method in the interface must be implemented:
 
-namespace Friendica\Model\IWritableStorage;
-
 ```php
+namespace Friendica\Model\Storage\IWritableStorage;
+
 interface IWritableStorage
 {
 	public function get(string $reference);
 	public function put(string $data, string $reference = '');
 	public function delete(string $reference);
-	public function getOptions();
-	public function saveOptions(array $data);
 	public function __toString();
 	public static function getName();
 }
@@ -31,7 +33,22 @@ interface IWritableStorage
 - `put(string $data, string $reference)` saves data in `$data` to position `$reference`, or a new position if `$reference` is empty.
 - `delete(string $reference)` delete data pointed by `$reference`
 
+### `IStorageConfiguration`
+
 Each storage backend can have options the admin can set in admin page.
+To make the options possible, you need to implement the `Friendica\Model\Storage\IStorageConfiguration` interface.
+
+All methods in the interface must be implemented:
+
+```php
+namespace Friendica\Model\Storage\IStorageConfiguration;
+
+interface IStorageConfiguration
+{
+	public function getOptions();
+	public function saveOptions(array $data);
+}
+```
 
 - `getOptions()` returns an array with details about each option to build the interface.
 - `saveOptions(array $data)` get `$data` from admin page, validate it and save it.
@@ -156,7 +173,7 @@ class ExampleStorage implements IWritableStorage
 
 ## Example
 
-Here an hypotetical addon which register a useless storage backend.
+Here is a hypothetical addon which register a useless storage backend.
 Let's call it `samplestorage`.
 
 This backend will discard all data we try to save and will return always the same image when we ask for some data.
@@ -178,30 +195,25 @@ class SampleStorageBackend implements IWritableStorage
 {
 	const NAME = 'Sample Storage';
 
-	/** @var IConfig */
-	private $config;
-	/** @var L10n */
-	private $l10n;
+	/** @var string */
+	private $filename;
 
 	/**
 	  * SampleStorageBackend constructor.
-	  * @param IConfig $config The configuration of Friendica
-	  *									  
+ 	  * 
 	  * You can add here every dynamic class as dependency you like and add them to a private field
 	  * Friendica automatically creates these classes and passes them as argument to the constructor									   
 	  */
-	public function __construct(IConfig $config, L10n $l10n) 
+	public function __construct(string $filename) 
 	{
-		$this->config = $config;
-		$this->l10n   = $l10n;
+		$this->filename = $filename;
 	}
 
 	public function get(string $reference)
 	{
 		// we return always the same image data. Which file we load is defined by
 		// a config key
-		$filename = $this->config->get('storage', 'samplestorage', 'sample.jpg');
-		return file_get_contents($filename);
+		return file_get_contents($this->filename);
 	}
 	
 	public function put(string $data, string $reference = '')
@@ -219,6 +231,51 @@ class SampleStorageBackend implements IWritableStorage
 		return true;
 	}
 	
+	public function __toString()
+	{
+		return self::NAME;
+	}
+
+	public static function getName()
+	{
+		return self::NAME;
+	}
+}
+```
+
+```php
+<?php
+namespace Friendica\Addon\samplestorage;
+
+use Friendica\Model\Storage\IStorageConfiguration;
+
+use Friendica\Core\Config\IConfig;
+use Friendica\Core\L10n;
+
+class SampleStorageBackendConfig implements IStorageConfiguration
+{
+	/** @var IConfig */
+	private $config;
+	/** @var L10n */
+	private $l10n;
+
+	/**
+	  * SampleStorageBackendConfig constructor.
+ 	  * 
+	  * You can add here every dynamic class as dependency you like and add them to a private field
+	  * Friendica automatically creates these classes and passes them as argument to the constructor									   
+	  */
+	public function __construct(IConfig $config, L10n $l10n) 
+	{
+		$this->config = $config;
+		$this->l10n   = $l10n;
+	}
+
+	public function getFileName(): string
+	{
+		return $this->config->get('storage', 'samplestorage', 'sample.jpg');
+	}
+
 	public function getOptions()
 	{
 		$filename = $this->config->get('storage', 'samplestorage', 'sample.jpg');
@@ -252,15 +309,6 @@ class SampleStorageBackend implements IWritableStorage
 		return [];
 	}
 
-	public function __toString()
-	{
-		return self::NAME;
-	}
-
-	public static function getName()
-	{
-		return self::NAME;
-	}
 }
 ```
 
@@ -278,29 +326,32 @@ The file is `addon/samplestorage/samplestorage.php`
  */
 
 use Friendica\Addon\samplestorage\SampleStorageBackend;
+use Friendica\Addon\samplestorage\SampleStorageBackendConfig;
 use Friendica\DI;
 
 function samplestorage_install()
 {
-	// on addon install, we register our class with name "Sample Storage".
-	// note: we use `::class` property, which returns full class name as string
-	// this save us the problem of correctly escape backslashes in class name
+	Hook::register('storage_instance' , __FILE__, 'samplestorage_storage_instance');
+	Hook::register('storage_config' , __FILE__, 'samplestorage_storage_config');
 	DI::storageManager()->register(SampleStorageBackend::class);
 }
 
-function samplestorage_unistall()
+function samplestorage_storage_uninstall()
 {
-	// when the plugin is uninstalled, we unregister the backend.
 	DI::storageManager()->unregister(SampleStorageBackend::class);
 }
 
-function samplestorage_storage_instance(\Friendica\App $a, array $data)
+function samplestorage_storage_instance(App $a, array &$data)
 {
-    if ($data['name'] === SampleStorageBackend::getName()) {
-    // instance a new sample storage instance and pass it back to the core for usage
-        $data['storage'] = new SampleStorageBackend(DI::config(), DI::l10n(), DI::cache());
-    }
+	$config          = new SampleStorageBackendConfig(DI::l10n(), DI::config());
+	$data['storage'] = new SampleStorageBackendConfig($config->getFileName());
 }
+
+function samplestorage_storage_config(App $a, array &$data)
+{
+	$data['storage_config'] = new SampleStorageBackendConfig(DI::l10n(), DI::config());
+}
+
 ```
 
 **Theoretically - until tests for Addons are enabled too - create a test class with the name `addon/tests/SampleStorageTest.php`:

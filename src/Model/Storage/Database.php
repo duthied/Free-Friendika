@@ -116,22 +116,6 @@ class Database implements IWritableStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function getOptions(): array
-	{
-		return [];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function saveOptions(array $data): array
-	{
-		return [];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public static function getName(): string
 	{
 		return self::NAME;
