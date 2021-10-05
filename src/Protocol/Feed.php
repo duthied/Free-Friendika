@@ -913,7 +913,7 @@ class Feed
 		$root = self::addHeader($doc, $owner, $filter);
 
 		foreach ($items as $item) {
-			$entry = self::entry($doc, $item, $owner);
+			$entry = self::noteEntry($doc, $item, $owner);
 			$root->appendChild($entry);
 
 			if ($last_update < $item['created']) {
@@ -1001,69 +1001,6 @@ class Feed
 		XML::addElement($doc, $author, "email", $owner["addr"]);
 
 		return $author;
-	}
-
-	/**
-	 * Adds an entry element to the XML document
-	 *
-	 * @param DOMDocument $doc       XML document
-	 * @param array       $item      Data of the item that is to be posted
-	 * @param array       $owner     Contact data of the poster
-	 * @param bool        $toplevel  optional default false
-	 *
-	 * @return \DOMElement Entry element
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function entry(DOMDocument $doc, array $item, array $owner)
-	{
-		$xml = null;
-
-		$repeated_guid = OStatus::getResharedGuid($item);
-		if ($repeated_guid != "") {
-			$xml = self::reshareEntry($doc, $item, $owner, $repeated_guid);
-		}
-
-		if ($xml) {
-			return $xml;
-		}
-
-		return self::noteEntry($doc, $item, $owner);
-	}
-
-		/**
-	 * Adds an entry element with reshared content
-	 *
-	 * @param DOMDocument $doc           XML document
-	 * @param array       $item          Data of the item that is to be posted
-	 * @param array       $owner         Contact data of the poster
-	 * @param string      $repeated_guid guid
-	 * @param bool        $toplevel      Is it for en entry element (false) or a feed entry (true)?
-	 *
-	 * @return bool Entry element
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function reshareEntry(DOMDocument $doc, array $item, array $owner, $repeated_guid)
-	{
-		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
-			Logger::info('Feed entry author does not match feed owner', ['owner' => $owner["url"], 'author' => $item["author-link"]]);
-		}
-
-		$entry = OStatus::entryHeader($doc, $owner, $item, false);
-
-		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => [Item::PUBLIC, Item::UNLISTED],
-			'network' => Protocol::FEDERATED];
-		$repeated_item = Post::selectFirst(Item::DELIVER_FIELDLIST, $condition);
-		if (!DBA::isResult($repeated_item)) {
-			return false;
-		}
-
-		self::entryContent($doc, $entry, $item, self::getTitle($repeated_item), Activity::SHARE, false);
-
-		self::entryFooter($doc, $entry, $item, $owner);
-
-		return $entry;
 	}
 
 	/**
