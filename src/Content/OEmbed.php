@@ -35,7 +35,7 @@ use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
-use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 /**
@@ -236,14 +236,14 @@ class OEmbed
 				break;
 
 			case "photo":
-				$ret .= '<img width="' . $oembed->width . '" src="' . ProxyUtils::proxifyUrl($oembed->url) . '">';
+				$ret .= '<img width="' . $oembed->width . '" src="' . Proxy::proxifyUrl($oembed->url) . '">';
 				break;
 
 			case "link":
 				break;
 
 			case "rich":
-				$ret .= ProxyUtils::proxifyHtml($oembed->html);
+				$ret .= Proxy::proxifyHtml($oembed->html);
 				break;
 		}
 

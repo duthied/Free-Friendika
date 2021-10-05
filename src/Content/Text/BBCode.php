@@ -45,7 +45,7 @@ use Friendica\Protocol\Activity;
 use Friendica\Util\Images;
 use Friendica\Util\Map;
 use Friendica\Util\ParseUrl;
-use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -470,7 +470,7 @@ class BBCode
 		} elseif ($uriid > 0) {
 			return Post\Link::getByLink($uriid, $image, $size);
 		} else {
-			return ProxyUtils::proxifyUrl($image, $size);
+			return Proxy::proxifyUrl($image, $size);
 		}
 	}
 
@@ -1059,9 +1059,9 @@ class BBCode
 				$attributes['profile']  = ($author_contact['url']   ?? '') ?: $attributes['profile'];
 
 				if (!empty($author_contact['id'])) {
-					$attributes['avatar'] = Contact::getAvatarUrlForId($author_contact['id'], ProxyUtils::SIZE_THUMB);
+					$attributes['avatar'] = Contact::getAvatarUrlForId($author_contact['id'], Proxy::SIZE_THUMB);
 				} elseif ($attributes['avatar']) {
-					$attributes['avatar'] = self::proxyUrl($attributes['avatar'], self::INTERNAL, $uriid, ProxyUtils::SIZE_THUMB);
+					$attributes['avatar'] = self::proxyUrl($attributes['avatar'], self::INTERNAL, $uriid, Proxy::SIZE_THUMB);
 				}
 
 				$content = preg_replace(Strings::autoLinkRegEx(), '<a href="$1">$1</a>', $match[3]);
