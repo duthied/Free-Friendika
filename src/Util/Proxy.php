@@ -75,7 +75,7 @@ class Proxy
 	 * provided URL isn't local
 	 *
 	 * @param string $url       The URL to proxyfy
-	 * @param string $size      One of the ProxyUtils::SIZE_* constants
+	 * @param string $size      One of the Proxy::SIZE_* constants
 	 *
 	 * @return string The proxyfied URL or relative path
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

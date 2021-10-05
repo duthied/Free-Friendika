@@ -23,8 +23,6 @@ namespace Friendica\Worker;
 
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Photo;
-use Friendica\Util\Proxy as ProxyUtils;
 
 /**
  * Clear cache entries

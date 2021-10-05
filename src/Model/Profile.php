@@ -41,7 +41,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
-use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 class Profile
@@ -441,7 +441,7 @@ class Profile
 			$p['address'] = BBCode::convertForUriId($profile['uri-id'] ?? 0, $p['address']);
 		}
 
-		$p['photo'] = Contact::getAvatarUrlForId($cid, ProxyUtils::SIZE_SMALL);
+		$p['photo'] = Contact::getAvatarUrlForId($cid, Proxy::SIZE_SMALL);
 
 		$p['url'] = Contact::magicLinkById($cid, $profile['url']);
 

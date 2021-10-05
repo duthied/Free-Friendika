@@ -1722,7 +1722,7 @@ class Contact
 	 * Get avatar link for given contact id
 	 *
 	 * @param integer $cid     contact id
-	 * @param string  $size    One of the ProxyUtils::SIZE_* constants
+	 * @param string  $size    One of the Proxy::SIZE_* constants
 	 * @param string  $updated Contact update date
 	 * @return string avatar link
 	 */
@@ -1764,7 +1764,7 @@ class Contact
 	 *
 	 * @param string  $url  contact url
 	 * @param integer $uid  user id
-	 * @param string  $size One of the ProxyUtils::SIZE_* constants
+	 * @param string  $size One of the Proxy::SIZE_* constants
 	 * @return string avatar link
 	 */
 	public static function getAvatarUrlForUrl(string $url, int $uid, string $size = ''):string
@@ -1779,7 +1779,7 @@ class Contact
 	 * Get header link for given contact id
 	 *
 	 * @param integer $cid     contact id
-	 * @param string  $size    One of the ProxyUtils::SIZE_* constants
+	 * @param string  $size    One of the Proxy::SIZE_* constants
 	 * @param string  $updated Contact update date
 	 * @return string header link
 	 */

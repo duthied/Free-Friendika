@@ -42,7 +42,7 @@ use Friendica\Network\HTTPClientOptions;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
-use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -1193,7 +1193,7 @@ class OStatus
 			}
 
 			// Is it a remote picture? Then make a smaller preview here
-			$preview = Post\Link::getByLink($uriid, $preview, ProxyUtils::SIZE_SMALL);
+			$preview = Post\Link::getByLink($uriid, $preview, Proxy::SIZE_SMALL);
 
 			// Is it a local picture? Then make it smaller here
 			$preview = str_replace(["-0.jpg", "-0.png"], ["-2.jpg", "-2.png"], $preview);
@@ -1258,7 +1258,7 @@ class OStatus
 		XML::addElement($doc, $root, "id", DI::baseUrl() . "/profile/" . $owner["nick"]);
 		XML::addElement($doc, $root, "title", $title);
 		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], DI::config()->get('config', 'sitename')));
-		XML::addElement($doc, $root, "logo", User::getAvatarUrl($owner, ProxyUtils::SIZE_SMALL));
+		XML::addElement($doc, $root, "logo", User::getAvatarUrl($owner, Proxy::SIZE_SMALL));
 		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
 		$author = self::addAuthor($doc, $owner, true);
@@ -1413,18 +1413,18 @@ class OStatus
 		$attributes = [
 				"rel" => "avatar",
 				"type" => "image/jpeg", // To-Do?
-				"media:width" => ProxyUtils::PIXEL_SMALL,
-				"media:height" => ProxyUtils::PIXEL_SMALL,
-				"href" => User::getAvatarUrl($owner, ProxyUtils::SIZE_SMALL)];
+				"media:width" => Proxy::PIXEL_SMALL,
+				"media:height" => Proxy::PIXEL_SMALL,
+				"href" => User::getAvatarUrl($owner, Proxy::SIZE_SMALL)];
 		XML::addElement($doc, $author, "link", "", $attributes);
 
 		if (isset($owner["thumb"])) {
 			$attributes = [
 					"rel" => "avatar",
 					"type" => "image/jpeg", // To-Do?
-					"media:width" => ProxyUtils::PIXEL_THUMB,
-					"media:height" => ProxyUtils::PIXEL_THUMB,
-					"href" => User::getAvatarUrl($owner, ProxyUtils::SIZE_THUMB)];
+					"media:width" => Proxy::PIXEL_THUMB,
+					"media:height" => Proxy::PIXEL_THUMB,
+					"href" => User::getAvatarUrl($owner, Proxy::SIZE_THUMB)];
 			XML::addElement($doc, $author, "link", "", $attributes);
 		}
 

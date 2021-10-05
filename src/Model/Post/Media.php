@@ -686,7 +686,7 @@ class Media
 	 * Get preview link for given media id
 	 *
 	 * @param integer $id   media id
-	 * @param string  $size One of the ProxyUtils::SIZE_* constants
+	 * @param string  $size One of the Proxy::SIZE_* constants
 	 * @return string preview link
 	 */
 	public static function getPreviewUrlForId(int $id, string $size = ''):string
@@ -716,7 +716,7 @@ class Media
 	 * Get media link for given media id
 	 *
 	 * @param integer $id   media id
-	 * @param string  $size One of the ProxyUtils::SIZE_* constants
+	 * @param string  $size One of the Proxy::SIZE_* constants
 	 * @return string media link
 	 */
 	public static function getUrlForId(int $id, string $size = ''):string

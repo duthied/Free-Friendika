@@ -844,7 +844,7 @@ class User
 	 * Get avatar link for given user
 	 *
 	 * @param array  $user
-	 * @param string $size One of the ProxyUtils::SIZE_* constants
+	 * @param string $size One of the Proxy::SIZE_* constants
 	 * @return string avatar link
 	 * @throws Exception
 	 */
