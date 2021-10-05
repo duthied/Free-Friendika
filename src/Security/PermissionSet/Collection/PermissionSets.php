@@ -6,5 +6,4 @@ use Friendica\BaseCollection;
 
 class PermissionSets extends BaseCollection
 {
-
 }
