@@ -28,6 +28,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\ProfileField;
 use Friendica\Model\User;
@@ -161,7 +162,9 @@ class Index extends BaseSettings
 		$profileFields = DI::profileField()->selectByUserId(local_user());
 		foreach ($profileFields as $profileField) {
 			/** @var ProfileField $profileField */
-			$defaultPermissions = ACL::getDefaultUserPermissions($profileField->permissionset->toArray());
+			$defaultPermissions = $profileField->permissionset->withAllowedContacts(
+				Contact::pruneUnavailable($profileField->permissionset->allow_cid)
+			);
 
 			$custom_fields[] = [
 				'id' => $profileField->id,
@@ -173,7 +176,7 @@ class Index extends BaseSettings
 						DI::page(),
 						$a->getLoggedInUserId(),
 						false,
-						$defaultPermissions,
+						$defaultPermissions->toArray(),
 						['network' => Protocol::DFRN],
 						'profile_field[' . $profileField->id . ']'
 					),

@@ -39,7 +39,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 		}
 
 		if (isset($model['psid'])) {
-			$permissionSet = DI::permissionSet()->selectFirst(['id' => $model['psid']]);
+			$permissionSet = DI::permissionSet()->selectOneById($model['psid']);
 			$model['allow_cid'] = $permissionSet->allow_cid;
 			$model['allow_gid'] = $permissionSet->allow_gid;
 			$model['deny_cid']  = $permissionSet->deny_cid;
@@ -61,12 +61,10 @@ class PermissionTooltip extends \Friendica\BaseModule
 			exit;
 		}
 
-		$aclFormatter = DI::aclFormatter();
-
-		$allowed_users  = $aclFormatter->expand($model['allow_cid']);
-		$allowed_groups = $aclFormatter->expand($model['allow_gid']);
-		$deny_users     = $aclFormatter->expand($model['deny_cid']);
-		$deny_groups    = $aclFormatter->expand($model['deny_gid']);
+		$allowed_users  = $model['allow_cid'];
+		$allowed_groups = $model['allow_gid'];
+		$deny_users     = $model['deny_cid'];
+		$deny_groups    = $model['deny_gid'];
 
 		$o = DI::l10n()->t('Visible to:') . '<br />';
 		$l = [];

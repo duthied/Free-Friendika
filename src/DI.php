@@ -22,6 +22,7 @@
 namespace Friendica;
 
 use Dice\Dice;
+use Friendica\Security\PermissionSet\Depository\PermissionSet;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -443,11 +444,19 @@ abstract class DI
 	}
 
 	/**
-	 * @return Repository\PermissionSet
+	 * @return PermissionSet
 	 */
 	public static function permissionSet()
 	{
-		return self::$dice->create(Repository\PermissionSet::class);
+		return self::$dice->create(PermissionSet::class);
+	}
+
+	/**
+	 * @return \Friendica\Security\PermissionSet\Factory\PermissionSet
+	 */
+	public static function permissionSetFactory()
+	{
+		return self::$dice->create(\Friendica\Security\PermissionSet\Factory\PermissionSet::class);
 	}
 
 	/**

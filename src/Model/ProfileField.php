@@ -23,7 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\BaseModel;
 use Friendica\Database\Database;
-use Friendica\Network\HTTPException;
+use Friendica\Security\PermissionSet\Entity\PermissionSet;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -46,14 +46,14 @@ class ProfileField extends BaseModel
 	/** @var PermissionSet */
 	private $permissionset;
 
-	/** @var \Friendica\Repository\PermissionSet */
-	private $permissionSetRepository;
+	/** @var \Friendica\Security\PermissionSet\Depository\PermissionSet */
+	private $permissionSetDepository;
 
-	public function __construct(Database $dba, LoggerInterface $logger, \Friendica\Repository\PermissionSet $permissionSetRepository, array $data = [])
+	public function __construct(Database $dba, LoggerInterface $logger,\Friendica\Security\PermissionSet\Depository\PermissionSet $permissionSetDepository, array $data = [])
 	{
 		parent::__construct($dba, $logger, $data);
 
-		$this->permissionSetRepository = $permissionSetRepository;
+		$this->permissionSetDepository = $permissionSetDepository;
 	}
 
 	public function __get($name)
@@ -62,9 +62,7 @@ class ProfileField extends BaseModel
 
 		switch ($name) {
 			case 'permissionset':
-				$this->permissionset =
-					$this->permissionset ??
-						$this->permissionSetRepository->selectFirst(['id' => $this->psid, 'uid' => $this->uid]);
+				$this->permissionset = $this->permissionset ?? $this->permissionSetDepository->selectOneById($this->psid);
 
 				$return = $this->permissionset;
 				break;

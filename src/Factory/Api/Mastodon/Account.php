@@ -27,8 +27,8 @@ use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
-use Friendica\Repository\PermissionSet;
 use Friendica\Repository\ProfileField;
+use Friendica\Security\PermissionSet\Depository\PermissionSet;
 use ImagickException;
 use Psr\Log\LoggerInterface;
 

@@ -28,7 +28,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
-use Friendica\Repository\PermissionSet;
+use Friendica\Security\PermissionSet\Depository\PermissionSet;
 
 /**
  * API endpoint: /api/friendica/profile/show

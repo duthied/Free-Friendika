@@ -980,13 +980,14 @@ class Item
 		}
 
 		// Creates or assigns the permission set
-		$item['psid'] = PermissionSet::getIdFromACL(
-			$item['uid'],
-			$item['allow_cid'],
-			$item['allow_gid'],
-			$item['deny_cid'],
-			$item['deny_gid']
-		);
+		$item['psid'] = DI::permissionSet()->selectOrCreate(
+			DI::permissionSetFactory()->createFromString(
+				$item['uid'],
+				$item['allow_cid'],
+				$item['allow_gid'],
+				$item['deny_cid'],
+				$item['deny_gid']
+		))->id;
 
 		if (!empty($item['extid'])) {
 			$item['external-id'] = ItemURI::getIdByURI($item['extid']);
@@ -1952,18 +1953,19 @@ class Item
 			$private = self::PUBLIC;
 		}
 
-		$psid = PermissionSet::getIdFromACL(
-			$user['uid'],
-			$user['allow_cid'],
-			$user['allow_gid'],
-			$user['deny_cid'],
-			$user['deny_gid']
-		);
+		$permissionSet = DI::permissionSet()->selectOrCreate(
+			DI::permissionSetFactory()->createFromString(
+				$user['uid'],
+				$user['allow_cid'],
+				$user['allow_gid'],
+				$user['deny_cid'],
+				$user['deny_gid']
+			));
 
 		$forum_mode = ($prvgroup ? 2 : 1);
 
 		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $self['id'],
-			'owner-id' => $owner_id, 'private' => $private, 'psid' => $psid];
+			'owner-id' => $owner_id, 'private' => $private, 'psid' => $permissionSet->id];
 		self::update($fields, ['id' => $item['id']]);
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, (int)$item['uri-id'], (int)$item['uid']);
@@ -2549,12 +2551,12 @@ class Item
 			$condition = [];
 		} elseif ($remote_user) {
 			 // Authenticated visitor - fetch the matching permissionsets
-			$set = PermissionSet::get($owner_id, $remote_user);
+			$permissionSets = DI::permissionSet()->selectByContactId($remote_user, $owner_id);
 			if (!empty($set)) {
 				$condition = ["(`private` != ? OR (`private` = ? AND `wall`
 					AND `psid` IN (" . implode(', ', array_fill(0, count($set), '?')) . ")))",
 					self::PRIVATE, self::PRIVATE];
-				$condition = array_merge($condition, $set);
+				$condition = array_merge($condition, $permissionSets->column('id'));
 			}
 		}
 
@@ -2595,10 +2597,10 @@ class Item
 			 * If pre-verified, the caller is expected to have already
 			 * done this and passed the groups into this function.
 			 */
-			$set = PermissionSet::get($owner_id, $remote_user);
+			$permissionSets = DI::permissionSet()->selectByContactId($remote_user, $owner_id);
 
 			if (!empty($set)) {
-				$sql_set = sprintf(" OR (" . $table . "`private` = %d AND " . $table . "`wall` AND " . $table . "`psid` IN (", self::PRIVATE) . implode(',', $set) . "))";
+				$sql_set = sprintf(" OR (" . $table . "`private` = %d AND " . $table . "`wall` AND " . $table . "`psid` IN (", self::PRIVATE) . implode(',', $permissionSets->column('id')) . "))";
 			} else {
 				$sql_set = '';
 			}

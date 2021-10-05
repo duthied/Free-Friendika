@@ -21,14 +21,12 @@
 
 namespace Friendica\Core;
 
-use Friendica\App;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
-use Friendica\Repository\PermissionSet;
+use Friendica\Security\PermissionSet\Depository\PermissionSet;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
@@ -283,16 +281,13 @@ class UserImport
 			DI::profileField()->migrateFromLegacyProfile($profile);
 		}
 
-		///@TODO Replace with permissionset import
-		$self_contact = Contact::selectFirst(['id'], ['uid' => $newuid, 'self' => true]);
-		$allow_cid = DI::aclFormatter()->toString($self_contact['id']);
-		$self_psid = DI::permissionSet()->getIdFromACL($newuid, $allow_cid);
+		$permissionSet = DI::permissionSet()->selectDefaultForUser($newuid);
 
 		foreach ($account['profile_fields'] ?? [] as $profile_field) {
 			$profile_field['uid'] = $newuid;
 
 			///@TODO Replace with permissionset import
-			$profile_field['psid'] = $profile_field['psid'] ? $self_psid : PermissionSet::PUBLIC;
+			$profile_field['psid'] = $profile_field['psid'] ? $permissionSet->uid : PermissionSet::PUBLIC;
 
 			if (self::dbImportAssoc('profile_field', $profile_field) === false) {
 				Logger::info("uimport:insert profile field " . $profile_field['id'] . " : ERROR : " . DBA::errorMessage());
