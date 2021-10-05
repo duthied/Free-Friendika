@@ -45,11 +45,17 @@ class Filesystem implements IWritableStorage
 	 * Filesystem constructor.
 	 *
 	 * @param string $filesystemPath
+	 *
+	 * @throws StorageException in case the path doesn't exist or isn't writeable
 	 */
 	public function __construct(string $filesystemPath = FilesystemConfig::DEFAULT_BASE_FOLDER)
 	{
 		$path           = $filesystemPath;
 		$this->basePath = rtrim($path, '/');
+
+		if (!is_dir($this->basePath) || !is_writable($this->basePath)) {
+			throw new StorageException(sprintf('Path %s does not exist or is not writeable', $this->basePath));
+		}
 	}
 
 	/**

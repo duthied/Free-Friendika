@@ -336,20 +336,20 @@ function samplestorage_install()
 	DI::storageManager()->register(SampleStorageBackend::class);
 }
 
-function webdav_storage_uninstall()
+function samplestorage_storage_uninstall()
 {
 	DI::storageManager()->unregister(SampleStorageBackend::class);
 }
 
-function webdav_storage_instance(App $a, array &$data)
+function samplestorage_storage_instance(App $a, array &$data)
 {
 	$config          = new SampleStorageBackendConfig(DI::l10n(), DI::config());
 	$data['storage'] = new SampleStorageBackendConfig($config->getFileName());
 }
 
-function webdav_storage_config(App $a, array &$data)
+function samplestorage_storage_config(App $a, array &$data)
 {
-	$data['storage_config'] = new WebDavConfig(DI::l10n(), DI::config());
+	$data['storage_config'] = new SampleStorageBackendConfig(DI::l10n(), DI::config());
 }
 
 ```

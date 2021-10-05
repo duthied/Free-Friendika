@@ -538,6 +538,22 @@ Hook data:
 - **uid** (input): the user id to revoke the block for.
 - **result** (output): a boolean value indicating wether the operation was successful or not.
 
+### storage_instance
+
+Called when a custom storage is used (e.g. webdav_storage)
+
+Hook data:
+- **name** (input): the name of the used storage backend
+- **data['storage']** (output): the storage instance to use (**must** implement `\Friendica\Model\Storage\IWritableStorage`) 
+
+### storage_config
+
+Called when the admin of the node wants to configure a custom storage (e.g. webdav_storage)
+
+Hook data:
+- **name** (input): the name of the used storage backend
+- **data['storage_config']** (output): the storage configuration instance to use (**must** implement `\Friendica\Model\Storage\IStorageConfiguration`)
+
 ## Complete list of hook callbacks
 
 Here is a complete list of all hook callbacks with file locations (as of 24-Sep-2018). Please see the source for details of any hooks not documented above.
