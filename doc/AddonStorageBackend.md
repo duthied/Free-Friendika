@@ -38,7 +38,7 @@ interface IWritableStorage
 Each storage backend can have options the admin can set in admin page.
 To make the options possible, you need to implement the `Friendica\Model\Storage\IStorageConfiguration` interface.
 
-All methods in the interface mus be implemented:
+All methods in the interface must be implemented:
 
 ```php
 namespace Friendica\Model\Storage\IStorageConfiguration;
