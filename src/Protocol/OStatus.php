@@ -1174,23 +1174,6 @@ class OStatus
 	}
 
 	/**
-	 * Checks if the current post is a reshare
-	 *
-	 * @param array $item The item array of thw post
-	 *
-	 * @return string The guid if the post is a reshare
-	 */
-	public static function getResharedGuid(array $item)
-	{
-		$reshared = Item::getShareArray($item);
-		if (empty($reshared['guid']) || !empty($reshared['comment'])) {
-			return '';
-		}
-
-		return $reshared['guid'];
-	}
-
-	/**
 	 * Cleans the body of a post if it contains picture links
 	 *
 	 * @param string $body The body
@@ -1529,17 +1512,6 @@ class OStatus
 	 */
 	private static function entry(DOMDocument $doc, array $item, array $owner, $toplevel = false)
 	{
-		$xml = null;
-
-		$repeated_guid = self::getResharedGuid($item);
-		if ($repeated_guid != "") {
-			$xml = self::reshareEntry($doc, $item, $owner, $repeated_guid, $toplevel);
-		}
-
-		if ($xml) {
-			return $xml;
-		}
-
 		if ($item["verb"] == Activity::LIKE) {
 			return self::likeEntry($doc, $item, $owner, $toplevel);
 		} elseif (in_array($item["verb"], [Activity::FOLLOW, Activity::O_UNFOLLOW])) {
@@ -1547,94 +1519,6 @@ class OStatus
 		} else {
 			return self::noteEntry($doc, $item, $owner, $toplevel);
 		}
-	}
-
-	/**
-	 * Adds a source entry to the XML document
-	 *
-	 * @param DOMDocument $doc     XML document
-	 * @param array       $contact Array of the contact that is added
-	 *
-	 * @return \DOMElement Source element
-	 * @throws \Exception
-	 */
-	private static function sourceEntry(DOMDocument $doc, array $contact)
-	{
-		$source = $doc->createElement("source");
-		XML::addElement($doc, $source, "id", $contact["poll"]);
-		XML::addElement($doc, $source, "title", $contact["name"]);
-		XML::addElement($doc, $source, "link", "", ["rel" => "alternate", "type" => "text/html", "href" => $contact["alias"]]);
-		XML::addElement($doc, $source, "link", "", ["rel" => "self", "type" => "application/atom+xml", "href" => $contact["poll"]]);
-		XML::addElement($doc, $source, "icon", $contact["photo"]);
-		XML::addElement($doc, $source, "updated", DateTimeFormat::utc($contact["success_update"]."+00:00", DateTimeFormat::ATOM));
-
-		return $source;
-	}
-
-	/**
-	 * Adds an entry element with reshared content
-	 *
-	 * @param DOMDocument $doc           XML document
-	 * @param array       $item          Data of the item that is to be posted
-	 * @param array       $owner         Contact data of the poster
-	 * @param string      $repeated_guid guid
-	 * @param bool        $toplevel      Is it for en entry element (false) or a feed entry (true)?
-	 *
-	 * @return bool Entry element
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function reshareEntry(DOMDocument $doc, array $item, array $owner, $repeated_guid, $toplevel)
-	{
-		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
-			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
-		}
-
-		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
-
-		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => [Item::PUBLIC, Item::UNLISTED],
-			'network' => [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]];
-		$repeated_item = Post::selectFirst([], $condition);
-		if (!DBA::isResult($repeated_item)) {
-			return false;
-		}
-
-		$contact = Contact::getByURL($repeated_item['author-link']) ?: $owner;
-
-		$title = $owner["nick"]." repeated a notice by ".$contact["nick"];
-
-		self::entryContent($doc, $entry, $item, $owner, $title, Activity::SHARE, false);
-
-		$as_object = $doc->createElement("activity:object");
-
-		XML::addElement($doc, $as_object, "activity:object-type", ActivityNamespace::ACTIVITY_SCHEMA . "activity");
-
-		self::entryContent($doc, $as_object, $repeated_item, $owner, "", "", false);
-
-		$author = self::addAuthor($doc, $contact, false);
-		$as_object->appendChild($author);
-
-		$as_object2 = $doc->createElement("activity:object");
-
-		XML::addElement($doc, $as_object2, "activity:object-type", self::constructObjecttype($repeated_item));
-
-		$title = sprintf("New comment by %s", $contact["nick"]);
-
-		self::entryContent($doc, $as_object2, $repeated_item, $owner, $title);
-
-		$as_object->appendChild($as_object2);
-
-		self::entryFooter($doc, $as_object, $item, $owner, false);
-
-		$source = self::sourceEntry($doc, $contact);
-
-		$as_object->appendChild($source);
-
-		$entry->appendChild($as_object);
-
-		self::entryFooter($doc, $entry, $item, $owner, true);
-
-		return $entry;
 	}
 
 	/**
