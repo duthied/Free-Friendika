@@ -360,13 +360,13 @@ class Contact extends BaseModule
 
 			if ($cmd === 'update' && $cdata['user']) {
 				self::updateContactFromPoll($cdata['user']);
-				DI::baseUrl()->redirect('contact/' . $cdata['public']);
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
 			if ($cmd === 'updateprofile' && $cdata['user']) {
 				self::updateContactFromProbe($cdata['user']);
-				DI::baseUrl()->redirect('contact/' . $cdata['public']);
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
@@ -380,7 +380,7 @@ class Contact extends BaseModule
 				$blocked = Model\Contact\User::isBlocked($contact_id, local_user());
 				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')));
 
-				DI::baseUrl()->redirect('contact/' . $cdata['public']);
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
@@ -394,7 +394,7 @@ class Contact extends BaseModule
 				$ignored = Model\Contact\User::isIgnored($cdata['public'], local_user());
 				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')));
 
-				DI::baseUrl()->redirect('contact/' . $cdata['public']);
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 		}
