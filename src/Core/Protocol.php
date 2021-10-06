@@ -84,10 +84,13 @@ class Protocol
 			return true;
 		}
 
-		$result = null;
-		Hook::callAll('support_follow', $result);
+		$hook_data = [
+			'protocol' => $protocol,
+			'result' => null
+		];
+		Hook::callAll('support_follow', $hook_data);
 
-		return $result === true;
+		return $hook_data['result'] === true;
 	}
 
 	/**
@@ -103,10 +106,13 @@ class Protocol
 			return true;
 		}
 
-		$result = null;
-		Hook::callAll('support_revoke_follow', $result);
+		$hook_data = [
+			'protocol' => $protocol,
+			'result' => null
+		];
+		Hook::callAll('support_revoke_follow', $hook_data);
 
-		return $result === true;
+		return $hook_data['result'] === true;
 	}
 
 	/**
