@@ -173,7 +173,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	if ($update) {
 		$uri_id = $_REQUEST['uri_id'];
-		$item = Post::selectFirst(['uid', 'parent-uri-id'], ['uri-id' => $uri_id, 'uid' => [0, $update_uid]]);
+		$item = Post::selectFirst(['uid', 'parent-uri-id'], ['uri-id' => $uri_id, 'uid' => [0, $update_uid]], ['order' => ['uid' => true]]);
 		if (!empty($item)) {
 			if ($item['uid'] != 0) {
 				$a->setProfileOwner($item['uid']);
@@ -190,8 +190,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			$fields = ['uri-id', 'parent-uri-id', 'uid'];
 
 			if (local_user()) {
-				$condition = ['guid' => DI::args()->getArgv()[1], 'uid' => local_user()];
-				$item = Post::selectFirstForUser(local_user(), $fields, $condition);
+				$condition = ['guid' => DI::args()->getArgv()[1], 'uid' => [0, local_user()]];
+				$item = Post::selectFirstForUser(local_user(), $fields, $condition, ['order' => ['uid' => true]]);
 				if (DBA::isResult($item)) {
 					$uri_id = $item['uri-id'];
 					$parent_uri_id = $item['parent-uri-id'];
