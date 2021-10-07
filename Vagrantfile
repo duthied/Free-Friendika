@@ -24,6 +24,7 @@ Vagrant.configure(2) do |config|
 
   # Share a folder between host and guest
   # config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", owner: "www-data", group: "vagrant"
+  # config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", type: "nfs"
   config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", owner: "www-data", group: "www-data", type: "virtualbox"
 
   # Provider-specific configuration so you can fine-tune various
@@ -38,6 +39,10 @@ Vagrant.configure(2) do |config|
     unless Vagrant.has_plugin?("vagrant-vbguest")
       raise 'vagrant-vbguest plugin is not installed! Install with "vagrant plugin install vagrant-vbguest"'
     end
+  end
+
+  config.vm.provider :libvirt do |libvirt|
+  	libvirt.memory = server_memory
   end
 
   # Enable provisioning with a shell script.
