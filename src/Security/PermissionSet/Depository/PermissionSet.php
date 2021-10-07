@@ -178,23 +178,6 @@ class PermissionSet extends BaseDepository
 	}
 
 	/**
-	 * Fetch one PermissionSet with check for ownership
-	 *
-	 * @param int $uid The user id
-	 * @param int $id  The unique id of the PermissionSet
-	 *
-	 * @return Entity\PermissionSet
-	 * @throws NotFoundException in case either the id is invalid or the PermissionSet does not relay to the given user
-	 */
-	public function selectOneForUser(int $uid, int $id): Entity\PermissionSet
-	{
-		return $this->selectOne([
-			'id'  => $id,
-			'uid' => $uid,
-		]);
-	}
-
-	/**
 	 * Selects or creates a PermissionSet based on it's fields
 	 *
 	 * @param Entity\PermissionSet $permissionSet

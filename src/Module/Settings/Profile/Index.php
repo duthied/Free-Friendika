@@ -162,8 +162,8 @@ class Index extends BaseSettings
 		$profileFields = DI::profileField()->selectByUserId(local_user());
 		foreach ($profileFields as $profileField) {
 			/** @var ProfileField $profileField */
-			$defaultPermissions = $profileField->permissionset->withAllowedContacts(
-				Contact::pruneUnavailable($profileField->permissionset->allow_cid)
+			$defaultPermissions = $profileField->permissionSet->withAllowedContacts(
+				Contact::pruneUnavailable($profileField->permissionSet->allow_cid)
 			);
 
 			$custom_fields[] = [

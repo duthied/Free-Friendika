@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\BaseModel;
 use Friendica\Database\Database;
+use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
 use Psr\Log\LoggerInterface;
@@ -40,12 +41,12 @@ use Psr\Log\LoggerInterface;
  * @property string value
  * @property string created
  * @property string edited
- * @property PermissionSet permissionset
+ * @property PermissionSet permissionSet
  */
 class ProfileField extends BaseModel
 {
 	/** @var PermissionSet */
-	private $permissionset;
+	private $permissionSet;
 
 	/** @var PermissionSetDepository */
 	private $permissionSetDepository;
@@ -62,10 +63,17 @@ class ProfileField extends BaseModel
 		$this->checkValid();
 
 		switch ($name) {
-			case 'permissionset':
-				$this->permissionset = $this->permissionset ?? $this->permissionSetDepository->selectOneForUser($this->uid, $this->psid);
+			case 'permissionSet':
+				if (empty($this->permissionSet)) {
+					$permissionSet = $this->permissionSetDepository->selectOneById($this->psid);
+					if ($permissionSet->uid !== $this->uid) {
+						throw new NotFoundException(sprintf('PermissionSet %d for ProfileSet %d is invalid.', $permissionSet->uid, $this->uid));
+					}
 
-				$return = $this->permissionset;
+					$this->permissionSet = $permissionSet;
+				}
+
+				$return = $this->permissionSet;
 				break;
 			default:
 				$return = parent::__get($name);
