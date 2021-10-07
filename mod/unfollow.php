@@ -137,21 +137,14 @@ function unfollow_process(string $url)
 		// NOTREACHED
 	}
 
-	$notice_message = '';
 	$return_path = $base_return_path . '/' . $contact['id'];
 
 	try {
 		$result = Contact::terminateFriendship($owner, $contact);
 
-		if ($result === null) {
-			$notice_message = DI::l10n()->t('Unfollowing is currently not supported by this contact\'s network.');
-		}
-
 		if ($result === false) {
 			$notice_message = DI::l10n()->t('Unable to unfollow this contact, please retry in a few minutes or contact your administrator.');
-		}
-
-		if ($result === true) {
+		} else {
 			$notice_message = DI::l10n()->t('Contact was successfully unfollowed');
 		}
 	} catch (Exception $e) {
