@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\BaseModel;
 use Friendica\Database\Database;
+use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
 use Psr\Log\LoggerInterface;
 
@@ -46,10 +47,10 @@ class ProfileField extends BaseModel
 	/** @var PermissionSet */
 	private $permissionset;
 
-	/** @var \Friendica\Security\PermissionSet\Depository\PermissionSet */
+	/** @var PermissionSetDepository */
 	private $permissionSetDepository;
 
-	public function __construct(Database $dba, LoggerInterface $logger,\Friendica\Security\PermissionSet\Depository\PermissionSet $permissionSetDepository, array $data = [])
+	public function __construct(Database $dba, LoggerInterface $logger, PermissionSetDepository $permissionSetDepository, array $data = [])
 	{
 		parent::__construct($dba, $logger, $data);
 
@@ -62,7 +63,7 @@ class ProfileField extends BaseModel
 
 		switch ($name) {
 			case 'permissionset':
-				$this->permissionset = $this->permissionset ?? $this->permissionSetDepository->selectOneById($this->psid);
+				$this->permissionset = $this->permissionset ?? $this->permissionSetDepository->selectOneForUser($this->uid, $this->psid);
 
 				$return = $this->permissionset;
 				break;

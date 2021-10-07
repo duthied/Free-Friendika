@@ -71,6 +71,24 @@ class PermissionSet extends BaseDepository
 	}
 
 	/**
+	 * Converts a given PermissionSet into a DB compatible row array
+	 *
+	 * @param Entity\PermissionSet $permissionSet
+	 *
+	 * @return array
+	 */
+	protected function convertToTableRow(Entity\PermissionSet $permissionSet): array
+	{
+		return [
+			'uid'       => $permissionSet->uid,
+			'allow_cid' => $this->aclFormatter->toString($permissionSet->allow_cid),
+			'allow_gid' => $this->aclFormatter->toString($permissionSet->allow_gid),
+			'deny_cid'  => $this->aclFormatter->toString($permissionSet->deny_cid),
+			'deny_gid'  => $this->aclFormatter->toString($permissionSet->deny_gid),
+		];
+	}
+
+	/**
 	 * @param int $id
 	 *
 	 * @return Entity\PermissionSet
@@ -160,6 +178,23 @@ class PermissionSet extends BaseDepository
 	}
 
 	/**
+	 * Fetch one PermissionSet with check for ownership
+	 *
+	 * @param int $uid The user id
+	 * @param int $id  The unique id of the PermissionSet
+	 *
+	 * @return Entity\PermissionSet
+	 * @throws NotFoundException in case either the id is invalid or the PermissionSet does not relay to the given user
+	 */
+	public function selectOneForUser(int $uid, int $id): Entity\PermissionSet
+	{
+		return $this->selectOne([
+			'id'  => $id,
+			'uid' => $uid,
+		]);
+	}
+
+	/**
 	 * Selects or creates a PermissionSet based on it's fields
 	 *
 	 * @param Entity\PermissionSet $permissionSet
@@ -172,16 +207,8 @@ class PermissionSet extends BaseDepository
 			return $permissionSet;
 		}
 
-		$fields = [
-			'uid'       => $permissionSet->uid,
-			'allow_cid' => $this->aclFormatter->toString($permissionSet->allow_cid),
-			'allow_gid' => $this->aclFormatter->toString($permissionSet->allow_gid),
-			'deny_cid'  => $this->aclFormatter->toString($permissionSet->deny_cid),
-			'deny_gid'  => $this->aclFormatter->toString($permissionSet->deny_gid),
-		];
-
 		try {
-			return $this->selectOne($fields);
+			return $this->selectOne($this->convertToTableRow($permissionSet));
 		} catch (NotFoundException $exception) {
 			return $this->save($permissionSet);
 		}
@@ -189,13 +216,7 @@ class PermissionSet extends BaseDepository
 
 	public function save(Entity\PermissionSet $permissionSet): Entity\PermissionSet
 	{
-		$fields = [
-			'uid'       => $permissionSet->uid,
-			'allow_cid' => $this->aclFormatter->toString($permissionSet->allow_cid),
-			'allow_gid' => $this->aclFormatter->toString($permissionSet->allow_gid),
-			'deny_cid'  => $this->aclFormatter->toString($permissionSet->deny_cid),
-			'deny_gid'  => $this->aclFormatter->toString($permissionSet->deny_gid),
-		];
+		$fields = $this->convertToTableRow($permissionSet);
 
 		if ($permissionSet->id) {
 			$this->db->update(self::$table_name, $fields, ['id' => $permissionSet->id]);

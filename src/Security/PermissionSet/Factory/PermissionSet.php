@@ -20,39 +20,45 @@ class PermissionSet extends BaseFactory implements ICanCreateFromTableRow
 		$this->formatter = $formatter;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function createFromTableRow(array $row): Entity\PermissionSet
 	{
 		return new Entity\PermissionSet(
 			$row['uid'],
-			$this->formatter->expand($row['allow_cid'] ?? []),
-			$this->formatter->expand($row['allow_gid'] ?? []),
-			$this->formatter->expand($row['deny_cid'] ?? []),
-			$this->formatter->expand($row['deny_gid'] ?? []),
+			$this->formatter->expand($row['allow_cid'] ?? ''),
+			$this->formatter->expand($row['allow_gid'] ?? ''),
+			$this->formatter->expand($row['deny_cid'] ?? ''),
+			$this->formatter->expand($row['deny_gid'] ?? ''),
 			$row['id'] ?? null
 		);
 	}
 
+	/**
+	 * Creates a new PermissionSet based on it's fields
+	 *
+	 * @param int    $uid
+	 * @param string $allow_cid
+	 * @param string $allow_gid
+	 * @param string $deny_cid
+	 * @param string $deny_gid
+	 *
+	 * @return Entity\PermissionSet
+	 */
 	public function createFromString(
 		int $uid,
 		string $allow_cid = '',
 		string $allow_gid = '',
 		string $deny_cid = '',
-		string $deny_gid = '')
+		string $deny_gid = ''): Entity\PermissionSet
 	{
-		return new Entity\PermissionSet(
-			$uid,
-			$this->formatter->expand($allow_cid),
-			$this->formatter->expand($allow_gid),
-			$this->formatter->expand($deny_cid),
-			$this->formatter->expand($deny_gid)
-		);
-	}
-
-	public function createPrototypeForUser(int $uid, string $allowCid): Entity\PermissionSet
-	{
-		return new Entity\PermissionSet(
-			$uid,
-			$this->formatter->expand($allowCid)
-		);
+		return $this->createFromTableRow([
+			'uid'       => $uid,
+			'allow_cid' => $allow_cid,
+			'allow_gid' => $allow_gid,
+			'deny_cid'  => $deny_cid,
+			'deny_gid'  => $deny_gid,
+		]);
 	}
 }
