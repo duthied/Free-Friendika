@@ -213,11 +213,11 @@ class Protocol
 	 *
 	 * @param array   $user    User unfriending
 	 * @param array   $contact Contact unfriended
-	 * @return bool|null true if successful, false if not, null if no action was performed
+	 * @return bool|null true if successful, false if not, null if no remote action was performed
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function terminateFriendship(array $user, array $contact): bool
+	public static function terminateFriendship(array $user, array $contact): ?bool
 	{
 		if (empty($contact['network'])) {
 			throw new \InvalidArgumentException('Missing network key in contact array');
