@@ -832,11 +832,11 @@ class Contact
 	 * @param array   $user    User unfriending
 	 * @param array   $contact Contact (uid != 0) unfriended
 	 * @param boolean $two_way Revoke eventual inbound follow as well
-	 * @return bool|null true if successful, false if not, null if no action was performed
+	 * @return bool|null true if successful, false if not, null if no remote action was performed
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function terminateFriendship(array $user, array $contact): bool
+	public static function terminateFriendship(array $user, array $contact): ?bool
 	{
 		$result = Protocol::terminateFriendship($user, $contact);
 
