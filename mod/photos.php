@@ -1245,14 +1245,7 @@ function photos_content(App $a)
 		// The difference is that we won't be displaying the conversation head item
 		// as a "post" but displaying instead the photo it is linked to
 
-		/// @todo Rewrite this query. To do so, $sql_extra must be changed
-		$linked_items = q("SELECT `id` FROM `post-user-view` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
-			DBA::escape($datum)
-		);
-		if (DBA::isResult($linked_items)) {
-			// This is a workaround to not being forced to rewrite the while $sql_extra handling
-			$link_item = Post::selectFirst([], ['id' => $linked_items[0]['id']]);
-		}
+		$link_item = Post::selectFirst([], ["`resource-id` = ?" . $sql_extra, $datum]);
 
 		if (!empty($link_item['parent']) && !empty($link_item['uid'])) {
 			$condition = ["`parent` = ? AND `gravity` = ?",  $link_item['parent'], GRAVITY_COMMENT];
