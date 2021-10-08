@@ -213,7 +213,7 @@ class Status extends BaseProfile
 				$permissionSets = DI::permissionSet()->selectByContactId($remote_user, $profile['uid']);
 				if (!empty($permissionSets)) {
 					$condition = ['psid' => array_merge($permissionSets->column('id'),
-							[DI::permissionSet()->getIdFromACL($profile['uid'], '', '', '', '')])];
+							[DI::permissionSet()->selectEmptyForUser($profile['uid'])])];
 				}
 			} elseif ($profile['uid'] == local_user()) {
 				$condition = [];

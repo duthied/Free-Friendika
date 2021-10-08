@@ -7,7 +7,7 @@ use Friendica\BaseEntity;
 interface ICanCreateFromTableRow
 {
 	/**
-	 * Returns the correcponding Entity given a table row record
+	 * Returns the corresponding Entity given a table row record
 	 *
 	 * @param array $row
 	 * @return BaseEntity

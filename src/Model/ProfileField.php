@@ -23,7 +23,9 @@ namespace Friendica\Model;
 
 use Friendica\BaseModel;
 use Friendica\Database\Database;
-use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
+use Friendica\Security\PermissionSet\Entity\PermissionSet;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -39,21 +41,21 @@ use Psr\Log\LoggerInterface;
  * @property string value
  * @property string created
  * @property string edited
- * @property PermissionSet permissionset
+ * @property PermissionSet permissionSet
  */
 class ProfileField extends BaseModel
 {
 	/** @var PermissionSet */
-	private $permissionset;
+	private $permissionSet;
 
-	/** @var \Friendica\Repository\PermissionSet */
-	private $permissionSetRepository;
+	/** @var PermissionSetDepository */
+	private $permissionSetDepository;
 
-	public function __construct(Database $dba, LoggerInterface $logger, \Friendica\Repository\PermissionSet $permissionSetRepository, array $data = [])
+	public function __construct(Database $dba, LoggerInterface $logger, PermissionSetDepository $permissionSetDepository, array $data = [])
 	{
 		parent::__construct($dba, $logger, $data);
 
-		$this->permissionSetRepository = $permissionSetRepository;
+		$this->permissionSetDepository = $permissionSetDepository;
 	}
 
 	public function __get($name)
@@ -61,12 +63,17 @@ class ProfileField extends BaseModel
 		$this->checkValid();
 
 		switch ($name) {
-			case 'permissionset':
-				$this->permissionset =
-					$this->permissionset ??
-						$this->permissionSetRepository->selectFirst(['id' => $this->psid, 'uid' => $this->uid]);
+			case 'permissionSet':
+				if (empty($this->permissionSet)) {
+					$permissionSet = $this->permissionSetDepository->selectOneById($this->psid);
+					if ($permissionSet->uid !== $this->uid) {
+						throw new NotFoundException(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $permissionSet->id, $permissionSet->uid, $this->id, $this->uid));
+					}
 
-				$return = $this->permissionset;
+					$this->permissionSet = $permissionSet;
+				}
+
+				$return = $this->permissionSet;
 				break;
 			default:
 				$return = parent::__get($name);

@@ -86,7 +86,7 @@ class Objects extends BaseModule
 					$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $item['uid']);
 					if (!empty($permissionSets)) {
 						$psid = array_merge($permissionSets->column('id'),
-							[DI::permissionSet()->getIdFromACL($item['uid'], '', '', '', '')]);
+							[DI::permissionSet()->selectEmptyForUser($item['uid'])]);
 						$validated = in_array($item['psid'], $psid);
 					}
 				}

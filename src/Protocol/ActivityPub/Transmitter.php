@@ -242,7 +242,7 @@ class Transmitter
 				$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $owner['uid']);
 				if (!empty($permissionSets)) {
 					$condition = ['psid' => array_merge($permissionSets->column('id'),
-							[DI::permissionSet()->getIdFromACL($owner['uid'], '', '', '', '')])];
+							[DI::permissionSet()->selectEmptyForUser($owner['uid'])])];
 				}
 			}
 		}

@@ -442,12 +442,14 @@ abstract class DI
 		return self::$dice->create(Repository\Introduction::class);
 	}
 
-	/**
-	 * @return Repository\PermissionSet
-	 */
-	public static function permissionSet()
+	public static function permissionSet(): Security\PermissionSet\Depository\PermissionSet
 	{
-		return self::$dice->create(Repository\PermissionSet::class);
+		return self::$dice->create(Security\PermissionSet\Depository\PermissionSet::class);
+	}
+
+	public static function permissionSetFactory(): Security\PermissionSet\Factory\PermissionSet
+	{
+		return self::$dice->create(Security\PermissionSet\Factory\PermissionSet::class);
 	}
 
 	/**

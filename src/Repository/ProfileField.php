@@ -28,7 +28,7 @@ use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model;
-use Friendica\Util\ACLFormatter;
+use Friendica\Security\PermissionSet\Depository\PermissionSet;
 use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
@@ -42,18 +42,18 @@ class ProfileField extends BaseRepository
 
 	/** @var PermissionSet */
 	private $permissionSet;
-	/** @var ACLFormatter */
-	private $aclFormatter;
+	/** @var \Friendica\Security\PermissionSet\Factory\PermissionSet */
+	private $permissionSetFactory;
 	/** @var L10n */
 	private $l10n;
 
-	public function __construct(Database $dba, LoggerInterface $logger, PermissionSet $permissionSet, ACLFormatter $aclFormatter, L10n $l10n)
+	public function __construct(Database $dba, LoggerInterface $logger, PermissionSet $permissionSet, \Friendica\Security\PermissionSet\Factory\PermissionSet $permissionSetFactory, L10n $l10n)
 	{
 		parent::__construct($dba, $logger);
 
-		$this->permissionSet = $permissionSet;
-		$this->aclFormatter = $aclFormatter;
-		$this->l10n = $l10n;
+		$this->permissionSet        = $permissionSet;
+		$this->permissionSetFactory = $permissionSetFactory;
+		$this->l10n                 = $l10n;
 	}
 
 	/**
@@ -160,7 +160,7 @@ class ProfileField extends BaseRepository
 
 		return parent::update($model);
 	}
-	
+
 	/**
 	 * @param int                      $uid                User Id
 	 * @param Collection\ProfileFields $profileFields      Collection of existing profile fields
@@ -176,24 +176,24 @@ class ProfileField extends BaseRepository
 
 		// Creation of the new field
 		if (!empty($profileFieldInputs['new']['label'])) {
-			$psid = $this->permissionSet->getIdFromACL(
+			$psid = $this->permissionSet->selectOrCreate($this->permissionSetFactory->createFromString(
 				$uid,
-				$this->aclFormatter->toString($profileFieldInputs['new']['contact_allow'] ?? ''),
-				$this->aclFormatter->toString($profileFieldInputs['new']['group_allow'] ?? ''),
-				$this->aclFormatter->toString($profileFieldInputs['new']['contact_deny'] ?? ''),
-				$this->aclFormatter->toString($profileFieldInputs['new']['group_deny'] ?? '')
-			);
+				$profileFieldInputs['new']['contact_allow'] ?? '',
+				$profileFieldInputs['new']['group_allow'] ?? '',
+				$profileFieldInputs['new']['contact_deny'] ?? '',
+				$profileFieldInputs['new']['group_deny'] ?? ''
+			))->id;
 
 			$newProfileField = $this->insert([
-				'uid' => $uid,
+				'uid'   => $uid,
 				'label' => $profileFieldInputs['new']['label'],
 				'value' => $profileFieldInputs['new']['value'],
-				'psid' => $psid,
+				'psid'  => $psid,
 				'order' => $profileFieldOrder['new'],
 			]);
 
 			$profileFieldInputs[$newProfileField->id] = $profileFieldInputs['new'];
-			$profileFieldOrder[$newProfileField->id] = $profileFieldOrder['new'];
+			$profileFieldOrder[$newProfileField->id]  = $profileFieldOrder['new'];
 
 			$profileFields[] = $newProfileField;
 		}
@@ -220,15 +220,15 @@ class ProfileField extends BaseRepository
 		// Update existing profile fields from form values
 		$profileFields = $profileFields->map(function (Model\ProfileField $profileField) use ($uid, &$profileFieldInputs, &$profileFieldOrder) {
 			if (isset($profileFieldInputs[$profileField->id]) && isset($profileFieldOrder[$profileField->id])) {
-				$psid = $this->permissionSet->getIdFromACL(
+				$psid = $this->permissionSet->selectOrCreate($this->permissionSetFactory->createFromString(
 					$uid,
-					$this->aclFormatter->toString($profileFieldInputs[$profileField->id]['contact_allow'] ?? ''),
-					$this->aclFormatter->toString($profileFieldInputs[$profileField->id]['group_allow'] ?? ''),
-					$this->aclFormatter->toString($profileFieldInputs[$profileField->id]['contact_deny'] ?? ''),
-					$this->aclFormatter->toString($profileFieldInputs[$profileField->id]['group_deny'] ?? '')
-				);
+					$profileFieldInputs[$profileField->id]['contact_allow'] ?? '',
+					$profileFieldInputs[$profileField->id]['group_allow'] ?? '',
+					$profileFieldInputs[$profileField->id]['contact_deny'] ?? '',
+					$profileFieldInputs[$profileField->id]['group_deny'] ?? ''
+				))->id;
 
-				$profileField->psid  = $psid;
+				$profileField->psid = $psid;
 				$profileField->label = $profileFieldInputs[$profileField->id]['label'];
 				$profileField->value = $profileFieldInputs[$profileField->id]['value'];
 				$profileField->order = $profileFieldOrder[$profileField->id];
@@ -257,17 +257,22 @@ class ProfileField extends BaseRepository
 			return;
 		}
 
+		$contacts = [];
+
 		if (!$profile['is-default']) {
 			$contacts = Model\Contact::selectToArray(['id'], ['uid' => $profile['uid'], 'profile-id' => $profile['id']]);
 			if (!count($contacts)) {
 				// No contact visibility selected defaults to user-only permission
 				$contacts = Model\Contact::selectToArray(['id'], ['uid' => $profile['uid'], 'self' => true]);
 			}
-
-			$allow_cid = $this->aclFormatter->toString(array_column($contacts, 'id'));
 		}
 
-		$psid = $this->permissionSet->getIdFromACL($profile['uid'], $allow_cid ?? '');
+		$psid = $this->permissionSet->selectOrCreate(
+			new \Friendica\Security\PermissionSet\Entity\PermissionSet(
+				$profile['uid'],
+				array_column($contacts, 'id') ?? []
+			)
+		)->id;
 
 		$order = 1;
 
@@ -297,8 +302,8 @@ class ProfileField extends BaseRepository
 		foreach ($custom_fields as $field => $label) {
 			if (!empty($profile[$field]) && $profile[$field] > DBA::NULL_DATE && $profile[$field] > DBA::NULL_DATETIME) {
 				$this->insert([
-					'uid' => $profile['uid'],
-					'psid' => $psid,
+					'uid'   => $profile['uid'],
+					'psid'  => $psid,
 					'order' => $order++,
 					'label' => trim($label, ':'),
 					'value' => $profile[$field],
@@ -310,7 +315,7 @@ class ProfileField extends BaseRepository
 
 		if ($profile['is-default']) {
 			$profile['profile-name'] = null;
-			$profile['is-default'] = null;
+			$profile['is-default']   = null;
 			$this->dba->update('profile', $profile, ['id' => $profile['id']]);
 		} elseif (!empty($profile['id'])) {
 			$this->dba->delete('profile', ['id' => $profile['id']]);
