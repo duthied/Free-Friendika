@@ -36,7 +36,7 @@ class ProfileField extends BaseRepository
 {
 	protected static $table_name = 'profile_field';
 
-	protected static $model_class = Model\ProfileField::class;
+	protected static $model_class = \Friendica\Profile\ProfileField\Entity\ProfileField::class;
 
 	protected static $collection_class = Collection\ProfileFields::class;
 
@@ -58,7 +58,8 @@ class ProfileField extends BaseRepository
 
 	/**
 	 * @param array $data
-	 * @return Model\ProfileField
+	 *
+	 * @return \Friendica\Profile\ProfileField\Entity\ProfileField
 	 */
 	protected function create(array $data)
 	{
@@ -67,7 +68,8 @@ class ProfileField extends BaseRepository
 
 	/**
 	 * @param array $condition
-	 * @return Model\ProfileField
+	 *
+	 * @return \Friendica\Profile\ProfileField\Entity\ProfileField
 	 * @throws \Friendica\Network\HTTPException\NotFoundException
 	 */
 	public function selectFirst(array $condition)
@@ -138,7 +140,8 @@ class ProfileField extends BaseRepository
 
 	/**
 	 * @param array $fields
-	 * @return Model\ProfileField|bool
+	 *
+	 * @return \Friendica\Profile\ProfileField\Entity\ProfileField|bool
 	 * @throws \Exception
 	 */
 	public function insert(array $fields)
@@ -150,7 +153,8 @@ class ProfileField extends BaseRepository
 	}
 
 	/**
-	 * @param Model\ProfileField $model
+	 * @param \Friendica\Profile\ProfileField\Entity\ProfileField $model
+	 *
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -202,7 +206,7 @@ class ProfileField extends BaseRepository
 		unset($profileFieldOrder['new']);
 
 		// Prunes profile field whose label has been emptied
-		$profileFields = $profileFields->filter(function (Model\ProfileField $profileField) use (&$profileFieldInputs, &$profileFieldOrder) {
+		$profileFields = $profileFields->filter(function (\Friendica\Profile\ProfileField\Entity\ProfileField $profileField) use (&$profileFieldInputs, &$profileFieldOrder) {
 			$keepModel = !isset($profileFieldInputs[$profileField->id]) || !empty($profileFieldInputs[$profileField->id]['label']);
 
 			if (!$keepModel) {
@@ -218,7 +222,7 @@ class ProfileField extends BaseRepository
 		$profileFieldOrder = array_flip(array_keys($profileFieldOrder));
 
 		// Update existing profile fields from form values
-		$profileFields = $profileFields->map(function (Model\ProfileField $profileField) use ($uid, &$profileFieldInputs, &$profileFieldOrder) {
+		$profileFields = $profileFields->map(function (\Friendica\Profile\ProfileField\Entity\ProfileField $profileField) use ($uid, &$profileFieldInputs, &$profileFieldOrder) {
 			if (isset($profileFieldInputs[$profileField->id]) && isset($profileFieldOrder[$profileField->id])) {
 				$psid = $this->permissionSet->selectOrCreate($this->permissionSetFactory->createFromString(
 					$uid,

@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Model;
+namespace Friendica\Profile\ProfileField\Entity;
 
 use Friendica\BaseModel;
 use Friendica\Database\Database;

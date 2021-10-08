@@ -25,13 +25,14 @@ use Friendica\BaseFactory;
 use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Collection\ProfileFields;
 use Friendica\Content\Text\BBCode;
-use Friendica\Model\ProfileField;
+use Friendica\Profile\ProfileField\Entity\ProfileField;
 use Friendica\Network\HTTPException;
 
 class Field extends BaseFactory
 {
 	/**
-	 * @param ProfileField $profileField
+	 * @param \Friendica\Profile\ProfileField\Entity\ProfileField $profileField
+	 *
 	 * @return \Friendica\Object\Api\Mastodon\Field
 	 * @throws HTTPException\InternalServerErrorException
 	 */
