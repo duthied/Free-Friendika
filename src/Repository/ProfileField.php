@@ -103,43 +103,7 @@ class ProfileField extends BaseRepository
 		return parent::selectByBoundaries($condition, $params, $min_id, $max_id, $limit);
 	}
 
-	/**
-	 * @param int $uid Field owner user Id
-	 *
-	 * @return \Friendica\Profile\ProfileField\Collection\ProfileFields
-	 * @throws \Exception
-	 */
-	public function selectByUserId(int $uid)
-	{
-		return $this->select(
-			['uid' => $uid],
-			['order' => ['order']]
-		);
-	}
 
-	/**
-	 * Retrieve all custom profile field a given contact is able to access to, including public profile fields.
-	 *
-	 * @param int $cid Private contact id, must be owned by $uid
-	 * @param int $uid Field owner user id
-	 *
-	 * @return \Friendica\Profile\ProfileField\Collection\ProfileFields
-	 * @throws \Exception
-	 */
-	public function selectByContactId(int $cid, int $uid)
-	{
-		$permissionSets = $this->permissionSet->selectByContactId($cid, $uid);
-
-		$psids = $permissionSets->column('id');
-
-		// Includes public custom fields
-		$psids[] = 0;
-
-		return $this->select(
-			['uid' => $uid, 'psid' => $psids],
-			['order' => ['order']]
-		);
-	}
 
 	/**
 	 * @param array $fields

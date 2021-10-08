@@ -100,7 +100,7 @@ class Index extends BaseSettings
 			$homepage = 'http://' . $homepage;
 		}
 
-		$profileFields = DI::profileField()->selectByUserId(local_user());
+		$profileFields = DI::profileFieldNew()->selectByUserId(local_user());
 
 		$profileFields = DI::profileField()->updateCollectionFromForm(
 			local_user(),
@@ -159,7 +159,7 @@ class Index extends BaseSettings
 
 		$custom_fields = [];
 
-		$profileFields = DI::profileField()->selectByUserId(local_user());
+		$profileFields = DI::profileFieldNew()->selectByUserId(local_user());
 		foreach ($profileFields as $profileField) {
 			/** @var ProfileField $profileField */
 			$defaultPermissions = $profileField->permissionSet->withAllowedContacts(
