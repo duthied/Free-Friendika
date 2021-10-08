@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Collection;
+namespace Friendica\Profile\ProfileField\Collection;
 
 use Friendica\BaseCollection;
 

@@ -23,7 +23,6 @@ namespace Friendica\Repository;
 
 use Friendica\BaseModel;
 use Friendica\BaseRepository;
-use Friendica\Collection;
 use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
@@ -38,7 +37,7 @@ class ProfileField extends BaseRepository
 
 	protected static $model_class = \Friendica\Profile\ProfileField\Entity\ProfileField::class;
 
-	protected static $collection_class = Collection\ProfileFields::class;
+	protected static $collection_class = \Friendica\Profile\ProfileField\Collection\ProfileFields::class;
 
 	/** @var PermissionSet */
 	private $permissionSet;
@@ -80,7 +79,8 @@ class ProfileField extends BaseRepository
 	/**
 	 * @param array $condition
 	 * @param array $params
-	 * @return Collection\ProfileFields
+	 *
+	 * @return \Friendica\Profile\ProfileField\Collection\ProfileFields
 	 * @throws \Exception
 	 */
 	public function select(array $condition = [], array $params = [])
@@ -94,7 +94,8 @@ class ProfileField extends BaseRepository
 	 * @param int|null $min_id
 	 * @param int|null $max_id
 	 * @param int      $limit
-	 * @return Collection\ProfileFields
+	 *
+	 * @return \Friendica\Profile\ProfileField\Collection\ProfileFields
 	 * @throws \Exception
 	 */
 	public function selectByBoundaries(array $condition = [], array $params = [], int $min_id = null, int $max_id = null, int $limit = self::LIMIT)
@@ -104,7 +105,8 @@ class ProfileField extends BaseRepository
 
 	/**
 	 * @param int $uid Field owner user Id
-	 * @return Collection\ProfileFields
+	 *
+	 * @return \Friendica\Profile\ProfileField\Collection\ProfileFields
 	 * @throws \Exception
 	 */
 	public function selectByUserId(int $uid)
@@ -120,7 +122,8 @@ class ProfileField extends BaseRepository
 	 *
 	 * @param int $cid Private contact id, must be owned by $uid
 	 * @param int $uid Field owner user id
-	 * @return Collection\ProfileFields
+	 *
+	 * @return \Friendica\Profile\ProfileField\Collection\ProfileFields
 	 * @throws \Exception
 	 */
 	public function selectByContactId(int $cid, int $uid)
@@ -166,14 +169,15 @@ class ProfileField extends BaseRepository
 	}
 
 	/**
-	 * @param int                      $uid                User Id
-	 * @param Collection\ProfileFields $profileFields      Collection of existing profile fields
-	 * @param array                    $profileFieldInputs Array of profile field form inputs indexed by profile field id
-	 * @param array                    $profileFieldOrder  List of profile field id in order
-	 * @return Collection\ProfileFields
+	 * @param int                                                      $uid                User Id
+	 * @param \Friendica\Profile\ProfileField\Collection\ProfileFields $profileFields      Collection of existing profile fields
+	 * @param array                                                    $profileFieldInputs Array of profile field form inputs indexed by profile field id
+	 * @param array                                                    $profileFieldOrder  List of profile field id in order
+	 *
+	 * @return \Friendica\Profile\ProfileField\Collection\ProfileFields
 	 * @throws \Exception
 	 */
-	public function updateCollectionFromForm(int $uid, Collection\ProfileFields $profileFields, array $profileFieldInputs, array $profileFieldOrder)
+	public function updateCollectionFromForm(int $uid, \Friendica\Profile\ProfileField\Collection\ProfileFields $profileFields, array $profileFieldInputs, array $profileFieldOrder)
 	{
 		// Returns an associative array of id => order values
 		$profileFieldOrder = array_flip($profileFieldOrder);
@@ -232,8 +236,8 @@ class ProfileField extends BaseRepository
 					$profileFieldInputs[$profileField->id]['group_deny'] ?? ''
 				))->id;
 
-				$profileField->psid = $psid;
-				$profileField->label = $profileFieldInputs[$profileField->id]['label'];
+				$profileField->permissionSetId = $psid;
+				$profileField->label           = $profileFieldInputs[$profileField->id]['label'];
 				$profileField->value = $profileFieldInputs[$profileField->id]['value'];
 				$profileField->order = $profileFieldOrder[$profileField->id];
 

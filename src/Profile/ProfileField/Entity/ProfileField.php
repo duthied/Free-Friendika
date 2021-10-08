@@ -21,12 +21,10 @@
 
 namespace Friendica\Profile\ProfileField\Entity;
 
-use Friendica\BaseModel;
-use Friendica\Database\Database;
-use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\BaseEntity;
+use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
 use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
-use Psr\Log\LoggerInterface;
 
 /**
  * Custom profile field model class.
@@ -34,40 +32,61 @@ use Psr\Log\LoggerInterface;
  * Custom profile fields are user-created arbitrary profile fields that can be assigned a permission set to restrict its
  * display to specific Friendica contacts as it requires magic authentication to work.
  *
- * @property int    uid
- * @property int    order
- * @property int    psid
- * @property string label
- * @property string value
- * @property string created
- * @property string edited
- * @property PermissionSet permissionSet
+ * @property-read int|null  $id
+ * @property-read int       $uid
+ * @property-read int       $order
+ * @property-read int       $permissionSetId
+ * @property-read string    $label
+ * @property-read string    $value
+ * @property-read \DateTime $created
+ * @property-read \DateTime $edited
+ * @property PermissionSet  $permissionSet
  */
-class ProfileField extends BaseModel
+class ProfileField extends BaseEntity
 {
+	/** @var int|null */
+	protected $id;
 	/** @var PermissionSet */
-	private $permissionSet;
-
+	protected $permissionSet;
 	/** @var PermissionSetDepository */
-	private $permissionSetDepository;
+	protected $permissionSetDepository;
+	/** @var int */
+	protected $uid;
+	/** @var int */
+	protected $order;
+	/** @var int */
+	protected $psid;
+	/** @var string */
+	protected $label;
+	/** @var string */
+	protected $value;
+	/** @var \DateTime */
+	protected $created;
+	/** @var \DateTime */
+	protected $edited;
 
-	public function __construct(Database $dba, LoggerInterface $logger, PermissionSetDepository $permissionSetDepository, array $data = [])
+	public function __construct(PermissionSetDepository $permissionSetDepository, int $uid, int $order, int $permissionSetId, string $label, string $value, \DateTime $created, \DateTime $edited, int $id = null)
 	{
-		parent::__construct($dba, $logger, $data);
-
 		$this->permissionSetDepository = $permissionSetDepository;
+
+		$this->uid     = $uid;
+		$this->order   = $order;
+		$this->psid    = $permissionSetId;
+		$this->label   = $label;
+		$this->value   = $value;
+		$this->created = $created;
+		$this->edited  = $edited;
+		$this->id      = $id;
 	}
 
 	public function __get($name)
 	{
-		$this->checkValid();
-
 		switch ($name) {
 			case 'permissionSet':
 				if (empty($this->permissionSet)) {
 					$permissionSet = $this->permissionSetDepository->selectOneById($this->psid, $this->uid);
 					if ($permissionSet->uid !== $this->uid) {
-						throw new NotFoundException(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $permissionSet->id, $permissionSet->uid, $this->id, $this->uid));
+						throw new UnexpectedPermissionSetException(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $permissionSet->id, $permissionSet->uid, $this->id, $this->uid));
 					}
 
 					$this->permissionSet = $permissionSet;

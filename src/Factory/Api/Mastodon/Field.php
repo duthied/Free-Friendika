@@ -23,7 +23,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
 use Friendica\Collection\Api\Mastodon\Fields;
-use Friendica\Collection\ProfileFields;
+use Friendica\Profile\ProfileField\Collection\ProfileFields;
 use Friendica\Content\Text\BBCode;
 use Friendica\Profile\ProfileField\Entity\ProfileField;
 use Friendica\Network\HTTPException;
