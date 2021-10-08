@@ -175,20 +175,20 @@ function ping_init(App $a)
 			}
 		}
 
-		$intros1 = q(
+		$intros1 = DBA::toArray(DBA::p(
 			"SELECT  `intro`.`id`, `intro`.`datetime`,
 			`fcontact`.`name`, `fcontact`.`url`, `fcontact`.`photo`
 			FROM `intro` INNER JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
-			WHERE `intro`.`uid` = %d AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`fid` != 0",
-			intval(local_user())
-		);
-		$intros2 = q(
+			WHERE `intro`.`uid` = ? AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`fid` != 0",
+			local_user()
+		));
+		$intros2 = DBA::toArray(DBA::p(
 			"SELECT `intro`.`id`, `intro`.`datetime`,
 			`contact`.`name`, `contact`.`url`, `contact`.`photo`
 			FROM `intro` INNER JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
-			WHERE `intro`.`uid` = %d AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`contact-id` != 0 AND (`intro`.`fid` = 0 OR `intro`.`fid` IS NULL)",
-			intval(local_user())
-		);
+			WHERE `intro`.`uid` = ? AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`contact-id` != 0 AND (`intro`.`fid` = 0 OR `intro`.`fid` IS NULL)",
+			local_user()
+		));
 
 		$intro_count = count($intros1) + count($intros2);
 		$intros = $intros1 + $intros2;
@@ -397,17 +397,17 @@ function ping_get_notifications($uid)
 	$quit    = false;
 
 	do {
-		$r = q(
+		$r = DBA::toArray(DBA::p(
 			"SELECT `notify`.*, `post`.`visible`, `post`.`deleted`
 			FROM `notify` LEFT JOIN `post` ON `post`.`uri-id` = `notify`.`uri-id`
-			WHERE `notify`.`uid` = %d AND `notify`.`msg` != ''
-			AND NOT (`notify`.`type` IN (%d, %d))
-			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` $order LIMIT %d, 50",
-			intval($uid),
-			intval(Notification\Type::INTRO),
-			intval(Notification\Type::MAIL),
-			intval($offset)
-		);
+			WHERE `notify`.`uid` = ? AND `notify`.`msg` != ''
+			AND NOT (`notify`.`type` IN (?, ?))
+			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` $order LIMIT ?, 50",
+			$uid,
+			Notification\Type::INTRO,
+			Notification\Type::MAIL,
+			$offset
+		));
 
 		if (!$r && !$seen) {
 			$seen = true;

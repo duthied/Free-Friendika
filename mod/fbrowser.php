@@ -45,12 +45,12 @@ function fbrowser_content(App $a)
 			$sql_extra = "";
 			$sql_extra2 = " ORDER BY created DESC LIMIT 0, 10";
 
-			if (DI::args()->getArgc()==2) {
-				$photos = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
-					intval(local_user()),
-					DBA::escape(Photo::CONTACT_PHOTOS),
-					DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS))
-				);
+			if (DI::args()->getArgc() == 2) {
+				$photos = DBA::toArray(DBA::p("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = ? AND NOT `album` IN (?, ?)",
+					local_user(),
+					Photo::CONTACT_PHOTOS,
+					DI::l10n()->t(Photo::CONTACT_PHOTOS)
+				));
 
 				$albums = array_column($photos, 'album');
 			}
@@ -62,14 +62,14 @@ function fbrowser_content(App $a)
 				$path[$album] = $album;
 			}
 
-			$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
+			$r = DBA::toArray(DBA::p("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
 					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, ANY_VALUE(`desc`) AS `desc`, ANY_VALUE(`created`) AS `created`
-					FROM `photo` WHERE `uid` = %d $sql_extra AND `album` != '%s' AND `album` != '%s'
+					FROM `photo` WHERE `uid` = ? $sql_extra AND NOT `album` IN (?, ?)
 					GROUP BY `resource-id` $sql_extra2",
-				intval(local_user()),
-				DBA::escape(Photo::CONTACT_PHOTOS),
-				DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS))
-			);
+				local_user(),
+				Photo::CONTACT_PHOTOS,
+				DI::l10n()->t(Photo::CONTACT_PHOTOS)
+			));
 
 			function _map_files1($rr)
 			{

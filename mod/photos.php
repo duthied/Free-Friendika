@@ -230,16 +230,16 @@ function photos_post(App $a)
 
 			// get the list of photos we are about to delete
 			if ($visitor) {
-				$r = q("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d AND `album` = '%s'",
-					intval($visitor),
-					intval($page_owner_uid),
-					DBA::escape($album)
-				);
+				$r = DBA::toArray(DBA::p("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `contact-id` = ? AND `uid` = ? AND `album` = ?",
+					$visitor,
+					$page_owner_uid,
+					$album
+				));
 			} else {
-				$r = q("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
-					intval(local_user()),
-					DBA::escape($album)
-				);
+				$r = DBA::toArray(DBA::p("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `uid` = ? AND `album` = ?",
+					local_user(),
+					$album
+				));
 			}
 
 			if (DBA::isResult($r)) {
@@ -977,11 +977,11 @@ function photos_content(App $a)
 		$album = hex2bin($datum);
 
 		$total = 0;
-		$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` = '%s'
+		$r = DBA::toArray(DBA::p("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND `album` = ?
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id`",
-			intval($owner_uid),
-			DBA::escape($album)
-		);
+			$owner_uid,
+			$album
+		));
 		if (DBA::isResult($r)) {
 			$total = count($r);
 		}
@@ -996,16 +996,16 @@ function photos_content(App $a)
 			$order = 'DESC';
 		}
 
-		$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
+		$r = DBA::toArray(DBA::p("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
 			ANY_VALUE(`type`) AS `type`, max(`scale`) AS `scale`, ANY_VALUE(`desc`) as `desc`,
 			ANY_VALUE(`created`) as `created`
-			FROM `photo` WHERE `uid` = %d AND `album` = '%s'
-			AND `scale` <= 4 $sql_extra GROUP BY `resource-id` ORDER BY `created` $order LIMIT %d , %d",
+			FROM `photo` WHERE `uid` = ? AND `album` = ?
+			AND `scale` <= 4 $sql_extra GROUP BY `resource-id` ORDER BY `created` $order LIMIT ? , ?",
 			intval($owner_uid),
 			DBA::escape($album),
 			$pager->getStart(),
 			$pager->getItemsPerPage()
-		);
+		));
 
 		if ($cmd === 'drop') {
 			$drop_url = DI::args()->getQueryString();
@@ -1561,29 +1561,29 @@ function photos_content(App $a)
 	// Default - show recent photos with upload link (if applicable)
 	//$o = '';
 	$total = 0;
-	$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
+	$r = DBA::toArray(DBA::p("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND NOT `album` IN (?, ?)
 		$sql_extra GROUP BY `resource-id`",
-		intval($user['uid']),
-		DBA::escape(Photo::CONTACT_PHOTOS),
-		DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS))
-	);
+		$user['uid'],
+		Photo::CONTACT_PHOTOS,
+		DI::l10n()->t(Photo::CONTACT_PHOTOS)
+	));
 	if (DBA::isResult($r)) {
 		$total = count($r);
 	}
 
 	$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 20);
 
-	$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
+	$r = DBA::toArray(DBA::p("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
 		ANY_VALUE(`type`) AS `type`, ANY_VALUE(`album`) AS `album`, max(`scale`) AS `scale`,
 		ANY_VALUE(`created`) AS `created` FROM `photo`
-		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
-		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
-		intval($user['uid']),
-		DBA::escape(Photo::CONTACT_PHOTOS),
-		DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS)),
+		WHERE `uid` = ? AND NOT `album` IN (?, ?)
+		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT ? , ?",
+		$user['uid'],
+		Photo::CONTACT_PHOTOS,
+		DI::l10n()->t(Photo::CONTACT_PHOTOS),
 		$pager->getStart(),
 		$pager->getItemsPerPage()
-	);
+	));
 
 	$photos = [];
 	if (DBA::isResult($r)) {

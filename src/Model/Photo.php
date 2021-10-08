@@ -651,23 +651,23 @@ class Photo
 			if (!DI::config()->get("system", "no_count", false)) {
 				/// @todo This query needs to be renewed. It is really slow
 				// At this time we just store the data in the cache
-				$albums = q("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
+				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
 					FROM `photo`
-					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
+					WHERE `uid` = ? AND `album` != ? AND `album` != ? $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
-					intval($uid),
-					DBA::escape(self::CONTACT_PHOTOS),
-					DBA::escape(DI::l10n()->t(self::CONTACT_PHOTOS))
-				);
+					$uid,
+					self::CONTACT_PHOTOS,
+					DI::l10n()->t(self::CONTACT_PHOTOS)
+				));
 			} else {
 				// This query doesn't do the count and is much faster
-				$albums = q("SELECT DISTINCT(`album`), '' AS `total`
+				$albums = DBA::toArray(DBA::p("SELECT DISTINCT(`album`), '' AS `total`
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
-					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra",
-					intval($uid),
-					DBA::escape(self::CONTACT_PHOTOS),
-					DBA::escape(DI::l10n()->t(self::CONTACT_PHOTOS))
-				);
+					WHERE `uid` = ? AND `album` != ? AND `album` != ? $sql_extra",
+					$uid,
+					self::CONTACT_PHOTOS,
+					DI::l10n()->t(self::CONTACT_PHOTOS)
+				));
 			}
 			DI::cache()->set($key, $albums, Duration::DAY);
 		}

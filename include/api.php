@@ -3915,13 +3915,13 @@ function api_direct_messages_box($type, $box, $verbose)
 		$sql_extra .= " AND `contact`.`nick` = '" . DBA::escape($screen_name). "'";
 	}
 
-	$r = q(
-		"SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND $sql_extra AND `mail`.`id` > %d ORDER BY `mail`.`id` DESC LIMIT %d,%d",
-		intval(api_user()),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+	$r = DBA::toArray(DBA::p(
+		"SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid` = ? AND $sql_extra AND `mail`.`id` > ? ORDER BY `mail`.`id` DESC LIMIT ?,?",
+		api_user(),
+		$since_id,
+		$start,
+		$count
+	));
 	if ($verbose == "true" && !DBA::isResult($r)) {
 		$answer = ['result' => 'error', 'message' => 'no mails available'];
 		return api_format_data("direct_messages_all", $type, ['$result' => $answer]);
@@ -4123,12 +4123,12 @@ function api_fr_photos_list($type)
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
-	$r = q(
+	$r = DBA::toArray(DBA::p(
 		"SELECT `resource-id`, MAX(scale) AS `scale`, `album`, `filename`, `type`, MAX(`created`) AS `created`,
 		MAX(`edited`) AS `edited`, MAX(`desc`) AS `desc` FROM `photo`
-		WHERE `uid` = %d AND `album` != 'Contact Photos' GROUP BY `resource-id`, `album`, `filename`, `type`",
-		intval(local_user())
-	);
+		WHERE `uid` = ? AND NOT `album` IN (?, ?) GROUP BY `resource-id`, `album`, `filename`, `type`",
+		local_user(), Photo::CONTACT_PHOTOS, DI::l10n()->t(Photo::CONTACT_PHOTOS)
+	));
 	$typetoext = [
 		'image/jpeg' => 'jpg',
 		'image/png' => 'png',
