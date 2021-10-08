@@ -67,7 +67,7 @@ class ProfileField extends BaseModel
 				if (empty($this->permissionSet)) {
 					$permissionSet = $this->permissionSetDepository->selectOneById($this->psid);
 					if ($permissionSet->uid !== $this->uid) {
-						throw new NotFoundException(sprintf('PermissionSet %d for ProfileField %d is invalid.', $permissionSet->uid, $this->uid));
+						throw new NotFoundException(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $permissionSet->id, $permissionSet->uid, $this->id, $this->uid));
 					}
 
 					$this->permissionSet = $permissionSet;
