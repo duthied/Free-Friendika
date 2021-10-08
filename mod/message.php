@@ -212,14 +212,7 @@ function message_content(App $a)
 
 		$o .= $header;
 
-		$total = 0;
-		$r = DBA::fetchFirst("SELECT count(*) AS `total`, ANY_VALUE(`created`) AS `created` FROM `mail`
-			WHERE `mail`.`uid` = ? GROUP BY `parent-uri` ORDER BY `created` DESC",
-			local_user()
-		);
-		if (DBA::isResult($r)) {
-			$total = $r['total'];
-		}
+		$total = DBA::count('mail', ['uid' => local_user()], ['distinct' => true, 'expression' => 'parent-uri']);
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
