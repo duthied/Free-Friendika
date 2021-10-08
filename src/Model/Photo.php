@@ -653,7 +653,7 @@ class Photo
 				// At this time we just store the data in the cache
 				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
 					FROM `photo`
-					WHERE `uid` = ? AND `album` != ? AND `album` != ? $sql_extra
+					WHERE `uid` = ? AND NOT `album` IN (?, ?) $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
 					$uid,
 					self::CONTACT_PHOTOS,
@@ -663,7 +663,7 @@ class Photo
 				// This query doesn't do the count and is much faster
 				$albums = DBA::toArray(DBA::p("SELECT DISTINCT(`album`), '' AS `total`
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
-					WHERE `uid` = ? AND `album` != ? AND `album` != ? $sql_extra",
+					WHERE `uid` = ? AND NOT `album` IN (?, ?) $sql_extra",
 					$uid,
 					self::CONTACT_PHOTOS,
 					DI::l10n()->t(self::CONTACT_PHOTOS)
