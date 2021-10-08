@@ -3727,15 +3727,8 @@ function api_direct_messages_destroy($type)
 	// add parent-uri to sql command if specified by calling app
 	$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . DBA::escape($parenturi) . "'" : "");
 
-	// get data of the specified message id
-	$r = q(
-		"SELECT `id` FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
-		intval($uid),
-		intval($id)
-	);
-
 	// error message if specified id is not in database
-	if (!DBA::isResult($r)) {
+	if (!DBA::exists('mail', ["`uid` = ? AND `id` = ? " . $sql_extra, $uid, $id])) {
 		if ($verbose == "true") {
 			$answer = ['result' => 'error', 'message' => 'message id not in database'];
 			return api_format_data("direct_messages_delete", $type, ['$result' => $answer]);
@@ -3745,11 +3738,7 @@ function api_direct_messages_destroy($type)
 	}
 
 	// delete message
-	$result = q(
-		"DELETE FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
-		intval($uid),
-		intval($id)
-	);
+	$result = DBA::delete('mail', ["`uid` = ? AND `id` = ? " . $sql_extra, $uid, $id]);
 
 	if ($verbose == "true") {
 		if ($result) {

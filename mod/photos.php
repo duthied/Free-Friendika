@@ -1101,11 +1101,7 @@ function photos_content(App $a)
 	// Display one photo
 	if ($datatype === 'image') {
 		// fetch image, item containing image, then comments
-		$ph = q("SELECT * FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'
-			$sql_extra ORDER BY `scale` ASC ",
-			intval($owner_uid),
-			DBA::escape($datum)
-		);
+		$ph = Photo::selectToArray([], ["`uid` = ? AND `resource-id` = ? " . $sql_extra, $owner_uid, $datum], ['order' => ['scale' => true]]);
 
 		if (!DBA::isResult($ph)) {
 			if (DBA::exists('photo', ['resource-id' => $datum, 'uid' => $owner_uid])) {
@@ -1149,11 +1145,7 @@ function photos_content(App $a)
 				$order = 'DESC';
 			}
 
-			$prvnxt = q("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
-				$sql_extra ORDER BY `created` $order ",
-				DBA::escape($ph[0]['album']),
-				intval($owner_uid)
-			);
+			$prvnxt = Photo::selectToArray(['resource-id'], ["`album` = ? AND `uid` = ? AND `scale` = ?" . $sql_extra, $ph[0]['album'], $owner_uid, 0]);
 
 			if (DBA::isResult($prvnxt)) {
 				$prv = null;
