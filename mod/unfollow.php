@@ -67,7 +67,7 @@ function unfollow_content(App $a)
 		// NOTREACHED
 	}
 
-	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+	if (!Protocol::supportsFollow($contact['network'])) {
 		notice(DI::l10n()->t('Unfollowing is currently not supported by your network.'));
 		DI::baseUrl()->redirect($base_return_path . '/' . $contact['id']);
 		// NOTREACHED
