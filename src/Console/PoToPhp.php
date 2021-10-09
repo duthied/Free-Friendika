@@ -21,6 +21,9 @@
 
 namespace Friendica\Console;
 
+use Geekwright\Po\PoFile;
+use Geekwright\Po\PoTokens;
+
 /**
  * Read a messages.po file and create strings.php in the same directory
  */
@@ -84,121 +87,8 @@ HELP;
 
 		$this->out('Out to ' . $outfile);
 
-		$out = "<?php\n\n";
+		$out = $this->poFile2Php($lang, $pofile);
 
-		$infile = file($pofile);
-		$k = '';
-		$v = '';
-		$arr = false;
-		$ink = false;
-		$inv = false;
-		$escape_s_exp = '|[^\\\\]\$[a-z]|';
-
-		foreach ($infile as $l) {
-			$l = str_replace('\"', self::DQ_ESCAPE, $l);
-			$len = strlen($l);
-			if ($l[0] == "#") {
-				$l = "";
-			}
-
-			if (substr($l, 0, 15) == '"Plural-Forms: ') {
-				$match = [];
-				preg_match("|nplurals=([0-9]*); *plural=(.*?)[;\\\\]|", $l, $match);
-				$return = $this->convertCPluralConditionToPhpReturnStatement($match[2]);
-				// define plural select function if not already defined
-				$fnname = 'string_plural_select_' . $lang;
-				$out .= 'if(! function_exists("' . $fnname . '")) {' . "\n";
-				$out .= 'function ' . $fnname . '($n){' . "\n";
-				$out .= '	$n = intval($n);' . "\n";
-				$out .= '	' . $return . "\n";
-				$out .= '}}' . "\n";
-			}
-
-			if ($k != '' && substr($l, 0, 7) == 'msgstr ') {
-				$v = substr($l, 8, $len - 10);
-				$v = preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $v);
-
-				if ($v != '') {
-					$out .= '$a->strings["' . $k . '"] = "' . $v . '"';
-				} else {
-					$k = '';
-					$ink = false;
-				}
-			}
-
-			if ($k != "" && substr($l, 0, 7) == 'msgstr[') {
-				if ($ink) {
-					$ink = false;
-					$out .= '$a->strings["' . $k . '"] = ';
-				}
-				if ($inv) {
-					$inv = false;
-					$out .= '"' . $v . '"';
-				}
-
-				if (!$arr) {
-					$arr = true;
-					$out .= "[\n";
-				}
-
-				$match = [];
-				preg_match("|\[([0-9]*)\] (.*)|", $l, $match);
-				if ($match[2] !== '""') {
-					$out .= "\t"
-						. preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $match[1])
-						. ' => '
-						. preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $match[2])
-						. ",\n";
-				}
-			}
-
-			if (substr($l, 0, 6) == 'msgid_') {
-				$ink = false;
-				$out .= '$a->strings["' . $k . '"] = ';
-			}
-
-			if ($ink) {
-				$k .= trim($l, "\"\r\n");
-				$k = preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $k);
-			}
-
-			if (substr($l, 0, 6) == 'msgid ') {
-				if ($inv) {
-					$inv = false;
-					$out .= '"' . $v . '"';
-				}
-
-				if ($k != "") {
-					$out .= ($arr) ? "];\n" : ";\n";
-				}
-
-				$arr = false;
-				$k = str_replace("msgid ", "", $l);
-				if ($k != '""') {
-					$k = trim($k, "\"\r\n");
-				} else {
-					$k = '';
-				}
-
-				$k = preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $k);
-				$ink = true;
-			}
-
-			if ($inv && substr($l, 0, 6) != "msgstr") {
-				$v .= trim($l, "\"\r\n");
-				$v = preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $v);
-			}
-		}
-
-		if ($inv) {
-			$out .= '"' . $v . '"';
-		}
-
-		if ($k != '') {
-			$out .= ($arr ? "];\n" : ";\n");
-		}
-
-		$out = str_replace(self::DQ_ESCAPE, '\"', $out);
 		if (!file_put_contents($outfile, $out)) {
 			throw new \RuntimeException('Unable to write to ' . $outfile);
 		}
@@ -206,9 +96,70 @@ HELP;
 		return 0;
 	}
 
-	private function escapeDollar($match)
+	private function poFile2Php($lang, $infile): string
 	{
-		return str_replace('$', '\$', $match[0]);
+		$poFile = new PoFile();
+		$poFile->readPoFile($infile);
+
+		$out = "<?php\n\n";
+
+		$pluralForms = $poFile->getHeaderEntry()->getHeader('plural-forms');
+
+		if (!$pluralForms) {
+			throw new \RuntimeException('No Plural-Forms header detected');
+		}
+
+		$regex = 'nplurals=([0-9]*); *plural=(.*?)[\\\\;]';
+
+		if (!preg_match('|' . $regex . '|', $pluralForms, $match)) {
+			throw new \RuntimeException('Unexpected Plural-Forms header value, expected "' . $regex . '", found ' . $pluralForms);
+		}
+
+		$out .= $this->createPluralSelectFunctionString($match[2], $lang);
+
+		foreach ($poFile->getEntries() as $entry) {
+			if (!implode('', $entry->getAsStringArray(PoTokens::TRANSLATED))) {
+				// Skip completely untranslated entries
+				continue;
+			}
+
+			$out .= '$a->strings[' . self::escapePhpString($entry->getAsString(PoTokens::MESSAGE)) . '] = ';
+
+			$msgid_plural = $entry->get(PoTokens::PLURAL);
+			if (empty($msgid_plural)) {
+				$out .= self::escapePhpString($entry->getAsString(PoTokens::TRANSLATED)) . ';' . "\n";
+			} else {
+				$out .= '[' . "\n";
+				foreach($entry->getAsStringArray(PoTokens::TRANSLATED) as $key => $msgstr) {
+					$out .= "\t" . $key . ' => ' . self::escapePhpString($msgstr) . ',' . "\n";
+				};
+
+				$out .= '];' . "\n";
+			}
+		}
+
+		return $out;
+	}
+
+	private function createPluralSelectFunctionString(string $pluralForms, string $lang): string
+	{
+		$return = $this->convertCPluralConditionToPhpReturnStatement(
+			$pluralForms
+		);
+
+		$fnname = 'string_plural_select_' . $lang;
+		$out = 'if(! function_exists("' . $fnname . '")) {' . "\n";
+		$out .= 'function ' . $fnname . '($n){' . "\n";
+		$out .= '	$n = intval($n);' . "\n";
+		$out .= '	' . $return . "\n";
+		$out .= '}}' . "\n";
+
+		return $out;
+	}
+
+	private static function escapePhpString($string): string
+	{
+		return "'" . strtr($string, ['\'' => '\\\'']) . "'";
 	}
 
 	/**
@@ -224,68 +175,68 @@ HELP;
 	{
 		$cond = str_replace('n', '$n', $cond);
 
-		/**
-		 * Parses the condition into an array if there's at least a ternary operator, to a string otherwise
-		 *
-		 * Warning: Black recursive magic
-		 *
-		 * @param string $string
-		 * @param array|string $node
-		 */
-		function parse(string $string, &$node = [])
-		{
-			// Removes extra outward parentheses
-			if (strpos($string, '(') === 0 && strrpos($string, ')') === strlen($string) - 1) {
-				$string = substr($string, 1, -1);
-			}
-
-			$q = strpos($string, '?');
-			$s = strpos($string, ':');
-
-			if ($q === false && $s === false) {
-				$node = $string;
-				return;
-			}
-
-			if ($q === false || $s < $q) {
-				list($then, $else) = explode(':', $string, 2);
-				$node['then'] = $then;
-				$parsedElse = [];
-				parse($else, $parsedElse);
-				$node['else'] = $parsedElse;
-			} else {
-				list($if, $thenelse) = explode('?', $string, 2);
-				$node['if'] = $if;
-				parse($thenelse, $node);
-			}
-		}
-
-		/**
-		 * Renders the parsed condition tree into a return statement
-		 *
-		 * Warning: Black recursive magic
-		 *
-		 * @param $tree
-		 * @return string
-		 */
-		function render($tree)
-		{
-			if (is_array($tree)) {
-				$if = trim($tree['if']);
-				$then = trim($tree['then']);
-				$else = render($tree['else']);
-
-				return "if ({$if}) { return {$then}; } else {$else}";
-			}
-
-			$tree = trim($tree);
-
-			return " { return {$tree}; }";
-		}
-
 		$tree = [];
-		parse($cond, $tree);
+		self::parse($cond, $tree);
 
-		return is_string($tree) ? "return intval({$tree});" : render($tree);
+		return is_string($tree) ? "return intval({$tree});" : self::render($tree);
+	}
+
+	/**
+	 * Parses the condition into an array if there's at least a ternary operator, to a string otherwise
+	 *
+	 * Warning: Black recursive magic
+	 *
+	 * @param string $string
+	 * @param array|string $node
+	 */
+	private static function parse(string $string, &$node = [])
+	{
+		// Removes extra outward parentheses
+		if (strpos($string, '(') === 0 && strrpos($string, ')') === strlen($string) - 1) {
+			$string = substr($string, 1, -1);
+		}
+
+		$q = strpos($string, '?');
+		$s = strpos($string, ':');
+
+		if ($q === false && $s === false) {
+			$node = $string;
+			return;
+		}
+
+		if ($q === false || $s < $q) {
+			list($then, $else) = explode(':', $string, 2);
+			$node['then'] = $then;
+			$parsedElse = [];
+			self::parse($else, $parsedElse);
+			$node['else'] = $parsedElse;
+		} else {
+			list($if, $thenelse) = explode('?', $string, 2);
+			$node['if'] = $if;
+			self::parse($thenelse, $node);
+		}
+	}
+
+	/**
+	 * Renders the parsed condition tree into a return statement
+	 *
+	 * Warning: Black recursive magic
+	 *
+	 * @param $tree
+	 * @return string
+	 */
+	private static function render($tree): string
+	{
+		if (is_array($tree)) {
+			$if = trim($tree['if']);
+			$then = trim($tree['then']);
+			$else = self::render($tree['else']);
+
+			return "if ({$if}) { return {$then}; } else {$else}";
+		}
+
+		$tree = trim($tree);
+
+		return " { return {$tree}; }";
 	}
 }
