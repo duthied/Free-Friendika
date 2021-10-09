@@ -176,7 +176,9 @@ function salmon_post(App $a, $xml = '') {
 	// Placeholder for hub discovery.
 	$hub = '';
 
-	OStatus::import($data, $importer, $contact ?: [], $hub);
+	$contact = $contact ?: [];
+
+	OStatus::import($data, $importer, $contact, $hub);
 
 	throw new \Friendica\Network\HTTPException\OKException();
 }
