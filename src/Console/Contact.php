@@ -203,10 +203,6 @@ HELP;
 
 		try {
 			$result = ContactModel::terminateFriendship($user, $contact);
-			if ($result === null) {
-				throw new RuntimeException('Unfollowing is currently not supported by this contact\'s network.');
-			}
-
 			if ($result === false) {
 				throw new RuntimeException('Unable to unfollow this contact, please retry in a few minutes or check the logs.');
 			}
@@ -222,8 +218,6 @@ HELP;
 
 	/**
 	 * Marks a contact for removal
-	 *
-	 * @return bool True, if the command was successful
 	 */
 	private function removeContact()
 	{
@@ -236,7 +230,7 @@ HELP;
 			}
 		}
 
-		$result = ContactModel::remove($cid);
+		ContactModel::remove($cid);
 	}
 
 	/**

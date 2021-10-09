@@ -148,9 +148,9 @@ class User
 
 		$contact = Contact::getById($cdata['public']);
 		if ($blocked) {
-			Protocol::block($contact);
+			Protocol::block($contact, $uid);
 		} else {
-			Protocol::unblock($contact);
+			Protocol::unblock($contact, $uid);
 		}
 
 		if ($cdata['user'] != 0) {
