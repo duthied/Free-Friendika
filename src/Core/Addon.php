@@ -153,14 +153,16 @@ class Addon
 	{
 		$addon = Strings::sanitizeFilePathItem($addon);
 
+		$addon_file_path = 'addon/' . $addon . '/' . $addon . '.php';
+
 		// silently fail if addon was removed of if $addon is funky
-		if (!file_exists('addon/' . $addon . '/' . $addon . '.php')) {
+		if (!file_exists($addon_file_path)) {
 			return false;
 		}
 
 		Logger::notice("Addon {addon}: {action}", ['action' => 'install', 'addon' => $addon]);
-		$t = @filemtime('addon/' . $addon . '/' . $addon . '.php');
-		@include_once('addon/' . $addon . '/' . $addon . '.php');
+		$t = @filemtime($addon_file_path);
+		@include_once($addon_file_path);
 		if (function_exists($addon . '_install')) {
 			$func = $addon . '_install';
 			$func(DI::app());
@@ -190,16 +192,16 @@ class Addon
 
 		foreach ($addons as $addon) {
 			$addonname = Strings::sanitizeFilePathItem(trim($addon['name']));
-			$fname = 'addon/' . $addonname . '/' . $addonname . '.php';
-			$t = @filemtime($fname);
-			if (!file_exists($fname) || ($addon['timestamp'] == $t)) {
+			$addon_file_path = 'addon/' . $addonname . '/' . $addonname . '.php';
+			if (file_exists($addon_file_path) && $addon['timestamp'] == filemtime($addon_file_path)) {
+				// Addon unmodified, skipping
 				continue;
 			}
 
 			Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $addon['name']]);
 
-			self::uninstall($fname);
-			self::install($fname);
+			self::uninstall($addon['name']);
+			self::install($addon['name']);
 		}
 	}
 
