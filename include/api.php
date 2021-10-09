@@ -4769,13 +4769,12 @@ function prepare_photo_data($type, $scale, $photo_id)
 	// added allow_cid, allow_gid, deny_cid, deny_gid to output as string like stored in database
 	// clients needs to convert this in their way for further processing
 	$r = DBA::toArray(DBA::p(
-		"SELECT %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
+		"SELECT $data_sql `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 					`type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`,
 					MIN(`scale`) AS `minscale`, MAX(`scale`) AS `maxscale`
 			FROM `photo` WHERE `uid` = ? AND `resource-id` = ? $scale_sql GROUP BY
 			       `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 			       `type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`",
-		$data_sql,
 		local_user(),
 		$photo_id
 	));
