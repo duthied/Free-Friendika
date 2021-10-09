@@ -857,7 +857,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function revokeFollow(array $contact): bool
+	public static function revokeFollow(array $contact): ?bool
 	{
 		if (empty($contact['network'])) {
 			throw new \InvalidArgumentException('Empty network in contact array');
