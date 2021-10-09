@@ -91,9 +91,9 @@ class Widget
 	}
 
 	/**
-	 * Return unavailable networks
+	 * Return unavailable networks as array
 	 */
-	public static function unavailableNetworks()
+	public static function unavailableNetworksAsArray()
 	{
 		// Always hide content from these networks
 		$networks = [Protocol::PHANTOM, Protocol::FACEBOOK, Protocol::APPNET];
@@ -125,6 +125,15 @@ class Widget
 		if (!Addon::isEnabled("pnut")) {
 			$networks[] = Protocol::PNUT;
 		}
+		return $networks;
+	}
+
+	/**
+	 * Return unavailable networks
+	 */
+	public static function unavailableNetworks()
+	{
+		$networks = self::unavailableNetworksAsArray();
 
 		if (!sizeof($networks)) {
 			return "";

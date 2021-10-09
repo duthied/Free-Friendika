@@ -492,9 +492,9 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact URL
 	if (!is_null($contact_id) && (intval($contact_id) == 0)) {
-		$user = DBA::escape(Strings::normaliseLink($contact_id));
+		$user = Strings::normaliseLink($contact_id);
 		$url = $user;
-		$extra_query = "AND `contact`.`nurl` = '%s' ";
+		$extra_query = "AND `contact`.`nurl` = ? ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
 		}
@@ -502,43 +502,43 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact id with uid = 0
 	if (!is_null($contact_id) && (intval($contact_id) != 0)) {
-		$user = DBA::escape(api_unique_id_to_nurl(intval($contact_id)));
+		$user = api_unique_id_to_nurl(intval($contact_id));
 
 		if ($user == "") {
 			throw new BadRequestException("User ID ".$contact_id." not found.");
 		}
 
 		$url = $user;
-		$extra_query = "AND `contact`.`nurl` = '%s' ";
+		$extra_query = "AND `contact`.`nurl` = ? ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
 		}
 	}
 
 	if (is_null($user) && !empty($_GET['user_id'])) {
-		$user = DBA::escape(api_unique_id_to_nurl($_GET['user_id']));
+		$user = api_unique_id_to_nurl($_GET['user_id']);
 
 		if ($user == "") {
 			throw new BadRequestException("User ID ".$_GET['user_id']." not found.");
 		}
 
 		$url = $user;
-		$extra_query = "AND `contact`.`nurl` = '%s' ";
+		$extra_query = "AND `contact`.`nurl` = ? ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
 		}
 	}
 	if (is_null($user) && !empty($_GET['screen_name'])) {
-		$user = DBA::escape($_GET['screen_name']);
-		$extra_query = "AND `contact`.`nick` = '%s' ";
+		$user = $_GET['screen_name'];
+		$extra_query = "AND `contact`.`nick` = ? ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=".intval(api_user());
 		}
 	}
 
 	if (is_null($user) && !empty($_GET['profileurl'])) {
-		$user = DBA::escape(Strings::normaliseLink($_GET['profileurl']));
-		$extra_query = "AND `contact`.`nurl` = '%s' ";
+		$user = Strings::normaliseLink($_GET['profileurl']);
+		$extra_query = "AND `contact`.`nurl` = ? ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=".intval(api_user());
 		}
@@ -554,18 +554,17 @@ function api_get_user(App $a, $contact_id = null)
 			}
 		}
 		if (is_numeric($user)) {
-			$user = DBA::escape(api_unique_id_to_nurl(intval($user)));
+			$user = api_unique_id_to_nurl(intval($user));
 
 			if ($user != "") {
 				$url = $user;
-				$extra_query = "AND `contact`.`nurl` = '%s' ";
+				$extra_query = "AND `contact`.`nurl` = ? ";
 				if (api_user() !== false) {
 					$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
 				}
 			}
 		} else {
-			$user = DBA::escape($user);
-			$extra_query = "AND `contact`.`nick` = '%s' ";
+			$extra_query = "AND `contact`.`nick` = ? ";
 			if (api_user() !== false) {
 				$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
 			}
@@ -580,19 +579,19 @@ function api_get_user(App $a, $contact_id = null)
 			return false;
 		} else {
 			$user = api_user();
-			$extra_query = "AND `contact`.`uid` = %d AND `contact`.`self` ";
+			$extra_query = "AND `contact`.`uid` = ? AND `contact`.`self` ";
 		}
 	}
 
 	Logger::info(API_LOG_PREFIX . 'found user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user, 'extra_query' => $extra_query]);
 
 	// user info
-	$uinfo = q(
+	$uinfo = DBA::toArray(DBA::p(
 		"SELECT *, `contact`.`id` AS `cid` FROM `contact`
 			WHERE 1
 		$extra_query",
 		$user
-	);
+	));
 
 	// Selecting the id by priority, friendica first
 	if (is_array($uinfo)) {
@@ -3416,19 +3415,20 @@ function api_statuses_f($qtype)
 		$sql_filter = 'AND (NOT `blocked` OR `pending`)';
 	}
 
-	$r = q(
+	// @todo This query most likely can be replaced with a Contact::select...
+	$r = DBA::toArray(DBA::p(
 		"SELECT `nurl`
 		FROM `contact`
-		WHERE `uid` = %d
+		WHERE `uid` = ?
 		AND NOT `self`
 		$sql_filter
 		$sql_extra
 		ORDER BY `nick`
-		LIMIT %d, %d",
-		intval(api_user()),
-		intval($start),
-		intval($count)
-	);
+		LIMIT ?, ?",
+		api_user(),
+		$start,
+		$count
+	));
 
 	$ret = [];
 	foreach ($r as $cid) {
@@ -4768,18 +4768,17 @@ function prepare_photo_data($type, $scale, $photo_id)
 
 	// added allow_cid, allow_gid, deny_cid, deny_gid to output as string like stored in database
 	// clients needs to convert this in their way for further processing
-	$r = q(
+	$r = DBA::toArray(DBA::p(
 		"SELECT %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 					`type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`,
 					MIN(`scale`) AS `minscale`, MAX(`scale`) AS `maxscale`
-			FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' %s GROUP BY
+			FROM `photo` WHERE `uid` = ? AND `resource-id` = ? $scale_sql GROUP BY
 			       `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 			       `type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`",
 		$data_sql,
-		intval(local_user()),
-		DBA::escape($photo_id),
-		$scale_sql
-	);
+		local_user(),
+		$photo_id
+	));
 
 	$typetoext = [
 		'image/jpeg' => 'jpg',
@@ -5223,7 +5222,7 @@ function group_create($name, $uid, $users = [])
 		throw new BadRequestException('group name not specified');
 	}
 
-	// error message if specified group name already exists	
+	// error message if specified group name already exists
 	if (DBA::exists('group', ['uid' => $uid, 'name' => $name, 'deleted' => false])) {
 		throw new BadRequestException('group name already exists');
 	}
@@ -5696,11 +5695,11 @@ function api_friendica_direct_messages_search($type, $box = "")
 	}
 
 	// get data for the specified searchstring
-	$r = q(
-		"SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND `body` LIKE '%s' ORDER BY `mail`.`id` DESC",
-		intval($uid),
-		DBA::escape('%'.$searchstring.'%')
-	);
+	$r = DBA::toArray(DBA::p(
+		"SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid` = ? AND `body` LIKE ? ORDER BY `mail`.`id` DESC",
+		$uid,
+		'%'.$searchstring.'%'
+	));
 
 	$profile_url = $user_info["url"];
 

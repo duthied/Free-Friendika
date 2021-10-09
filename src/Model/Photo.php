@@ -39,8 +39,6 @@ use Friendica\Security\Security;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
-require_once "include/dba.php";
-
 /**
  * Class to handle photo dabatase table
  */

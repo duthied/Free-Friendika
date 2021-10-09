@@ -41,11 +41,11 @@ use Friendica\Util\Strings;
  */
 class Acl extends BaseModule
 {
-	const TYPE_GLOBAL_CONTACT        = 'x';
-	const TYPE_MENTION_CONTACT       = 'c';
+	const TYPE_GLOBAL_CONTACT        = 'x'; //
+	const TYPE_MENTION_CONTACT       = 'c'; //
 	const TYPE_MENTION_GROUP         = 'g';
 	const TYPE_MENTION_CONTACT_GROUP = '';
-	const TYPE_MENTION_FORUM         = 'f';
+	const TYPE_MENTION_FORUM         = 'f'; //
 	const TYPE_PRIVATE_MESSAGE       = 'm';
 	const TYPE_ANY_CONTACT           = 'a';
 
@@ -114,75 +114,50 @@ class Acl extends BaseModule
 		Logger::info('ACL {action} - {subaction}', ['module' => 'acl', 'action' => 'content', 'subaction' => 'search', 'search' => $search, 'type' => $type, 'conversation' => $conv_id]);
 
 		$sql_extra = '';
-		$sql_extra2 = '';
+		$condition       = ["`uid` = ? AND NOT `deleted` AND NOT `pending` AND NOT `archive`", local_user()];
+		$condition_group = ["`uid` = ? AND NOT `deleted`", local_user()];
 
 		if ($search != '') {
 			$sql_extra = "AND `name` LIKE '%%" . DBA::escape($search) . "%%'";
-			$sql_extra2 = "AND (`attag` LIKE '%%" . DBA::escape($search) . "%%' OR `name` LIKE '%%" . DBA::escape($search) . "%%' OR `nick` LIKE '%%" . DBA::escape($search) . "%%')";
+			$condition       = DBA::mergeConditions($condition, ["(`attag` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)",
+				'%' . $search . '%', '%' . $search . '%', '%' . $search . '%']);
+			$condition_group = DBA::mergeConditions($condition_group, ["`name` LIKE ?", '%' . $search . '%']);
 		}
 
 		// count groups and contacts
 		$group_count = 0;
 		if ($type == self::TYPE_MENTION_CONTACT_GROUP || $type == self::TYPE_MENTION_GROUP) {
-			$r = q("SELECT COUNT(*) AS g FROM `group` WHERE NOT `deleted` AND `uid` = %d $sql_extra",
-				intval(local_user())
-			);
-			$group_count = (int) $r[0]['g'];
+			$group_count = DBA::count('group', $condition_group);
 		}
 
-		$sql_extra2 .= ' ' . Widget::unavailableNetworks();
+		$networks = Widget::unavailableNetworksAsArray();
+		if (!empty($networks)) {
+			$condition = DBA::mergeConditions($condition, array_merge(["NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")"], $networks));
+		}
 
-		$contact_count = 0;
 		switch ($type) {
 			case self::TYPE_MENTION_CONTACT_GROUP:
+				$condition = DBA::mergeConditions($condition,
+					["NOT `self` AND NOT `blocked` AND `notify` != ? AND NOT `network` IN (?, ?)", '', Protocol::OSTATUS, Protocol::STATUSNET
+				]);
 			case self::TYPE_MENTION_CONTACT:
-				// autocomplete for editor mentions
-				$r = q("SELECT COUNT(*) AS c FROM `contact`
-					WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
-					AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-					AND `notify` != '' $sql_extra2",
-					intval(local_user())
-				);
-				$contact_count = (int) $r[0]['c'];
-				break;
-
+				$condition = DBA::mergeConditions($condition,
+					["NOT `self` AND NOT `blocked` AND `notify` != ? AND `network` != ?", '', Protocol::STATUSNET
+				]);
 			case self::TYPE_MENTION_FORUM:
-				// autocomplete for editor mentions of forums
-				$r = q("SELECT COUNT(*) AS c FROM `contact`
-					WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
-					AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-					AND (`forum` OR `prv`)
-					AND `notify` != '' $sql_extra2",
-					intval(local_user())
-				);
-				$contact_count = (int) $r[0]['c'];
+				$condition = DBA::mergeConditions($condition,
+					["NOT `self` AND NOT `blocked` AND `notify` != ? AND `contact-type` = ?", '', Contact::TYPE_COMMUNITY
+				]);
 				break;
 
 			case self::TYPE_PRIVATE_MESSAGE:
-				// autocomplete for Private Messages
-				$r = q("SELECT COUNT(*) AS c FROM `contact`
-					WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
-					AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-					AND `network` IN ('%s', '%s', '%s') $sql_extra2",
-					intval(local_user()),
-					DBA::escape(Protocol::ACTIVITYPUB),
-					DBA::escape(Protocol::DFRN),
-					DBA::escape(Protocol::DIASPORA)
-				);
-				$contact_count = (int) $r[0]['c'];
-				break;
-
-			case self::TYPE_ANY_CONTACT:
-			default:
-				// autocomplete for Contacts
-				$r = q("SELECT COUNT(*) AS c FROM `contact`
-					WHERE `uid` = %d AND NOT `self`
-					AND NOT `pending` AND NOT `deleted` $sql_extra2",
-					intval(local_user())
-				);
-				$contact_count = (int) $r[0]['c'];
+				$condition = DBA::mergeConditions($condition,
+					["NOT `self` AND NOT `blocked` AND `notify` != ? AND `network` IN (?, ?, ?)", '', Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA
+				]);
 				break;
 		}
+
+		$contact_count = DBA::count('contact', $condition);
 
 		$tot = $group_count + $contact_count;
 
@@ -192,18 +167,18 @@ class Acl extends BaseModule
 		if ($type == self::TYPE_MENTION_CONTACT_GROUP || $type == self::TYPE_MENTION_GROUP) {
 			/// @todo We should cache this query.
 			// This can be done when we can delete cache entries via wildcard
-			$r = q("SELECT `group`.`id`, `group`.`name`, GROUP_CONCAT(DISTINCT `group_member`.`contact-id` SEPARATOR ',') AS uids
+			$r = DBA::toArray(DBA::p("SELECT `group`.`id`, `group`.`name`, GROUP_CONCAT(DISTINCT `group_member`.`contact-id` SEPARATOR ',') AS uids
 				FROM `group`
 				INNER JOIN `group_member` ON `group_member`.`gid`=`group`.`id`
-				WHERE NOT `group`.`deleted` AND `group`.`uid` = %d
+				WHERE NOT `group`.`deleted` AND `group`.`uid` = ?
 					$sql_extra
 				GROUP BY `group`.`name`, `group`.`id`
 				ORDER BY `group`.`name`
-				LIMIT %d, %d",
-				intval(local_user()),
-				intval($start),
-				intval($count)
-			);
+				LIMIT ?, ?",
+				local_user(),
+				$start,
+				$count
+			));
 
 			foreach ($r as $g) {
 				$groups[] = [
@@ -222,64 +197,8 @@ class Acl extends BaseModule
 		}
 
 		$r = [];
-		switch ($type) {
-			case self::TYPE_MENTION_CONTACT_GROUP:
-				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, (`prv` OR `forum`) AS `frm` FROM `contact`
-					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
-					AND NOT (`network` IN ('%s', '%s'))
-					$sql_extra2
-					ORDER BY `name`",
-					intval(local_user()),
-					DBA::escape(Protocol::OSTATUS),
-					DBA::escape(Protocol::STATUSNET)
-				);
-				break;
-
-			case self::TYPE_MENTION_CONTACT:
-				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
-					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
-					AND NOT (`network` IN ('%s'))
-					$sql_extra2
-					ORDER BY `name`",
-					intval(local_user()),
-					DBA::escape(Protocol::STATUSNET)
-				);
-				break;
-
-			case self::TYPE_MENTION_FORUM:
-				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
-					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
-					AND NOT (`network` IN ('%s'))
-					AND (`forum` OR `prv`)
-					$sql_extra2
-					ORDER BY `name`",
-					intval(local_user()),
-					DBA::escape(Protocol::STATUSNET)
-				);
-				break;
-
-			case self::TYPE_PRIVATE_MESSAGE:
-				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
-					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-					AND `network` IN ('%s', '%s', '%s')
-					$sql_extra2
-					ORDER BY `name`",
-					intval(local_user()),
-					DBA::escape(Protocol::ACTIVITYPUB),
-					DBA::escape(Protocol::DFRN),
-					DBA::escape(Protocol::DIASPORA)
-				);
-				break;
-
-			case self::TYPE_ANY_CONTACT:
-			default:
-				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, `avatar` FROM `contact`
-					WHERE `uid` = %d AND NOT `deleted` AND NOT `pending` AND NOT `archive`
-					$sql_extra2
-					ORDER BY `name`",
-					intval(local_user())
-				);
-				break;
+		if ($type != self::TYPE_MENTION_GROUP) {
+			$r = Contact::selectToArray([], $condition, ['order' => ['name']]);
 		}
 
 		if (DBA::isResult($r)) {
@@ -294,7 +213,7 @@ class Acl extends BaseModule
 					'link'    => $g['url'],
 					'nick'    => htmlentities(($g['attag'] ?? '') ?: $g['nick']),
 					'addr'    => htmlentities(($g['addr'] ?? '') ?: $g['url']),
-					'forum'   => !empty($g['forum']) || !empty($g['prv']) ? 1 : 0,
+					'forum'   => $g['contact-type'] == Contact::TYPE_COMMUNITY,
 				];
 				if ($entry['forum']) {
 					$forums[] = $entry;
