@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-03 13:45-0400\n"
-"PO-Revision-Date: 2021-10-04 06:20+0000\n"
+"POT-Creation-Date: 2021-10-07 11:32-0400\n"
+"PO-Revision-Date: 2021-10-10 12:31+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -81,8 +81,8 @@ msgstr "Das monatliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde
 
 #: include/api.php:4422 mod/photos.php:89 mod/photos.php:198
 #: mod/photos.php:617 mod/photos.php:1028 mod/photos.php:1045
-#: mod/photos.php:1594 src/Model/User.php:1160 src/Model/User.php:1168
-#: src/Model/User.php:1176 src/Module/Settings/Profile/Photo/Crop.php:101
+#: mod/photos.php:1594 src/Model/User.php:1164 src/Model/User.php:1172
+#: src/Model/User.php:1180 src/Module/Settings/Profile/Photo/Crop.php:101
 #: src/Module/Settings/Profile/Photo/Crop.php:117
 #: src/Module/Settings/Profile/Photo/Crop.php:133
 #: src/Module/Settings/Profile/Photo/Crop.php:179
@@ -485,7 +485,7 @@ msgid "Edit post"
 msgstr "Beitrag bearbeiten"
 
 #: mod/editpost.php:91 mod/notes.php:56 src/Content/Text/HTML.php:885
-#: src/Module/Admin/Storage.php:135 src/Module/Filer/SaveTag.php:69
+#: src/Module/Admin/Storage.php:143 src/Module/Filer/SaveTag.php:69
 msgid "Save"
 msgstr "Speichern"
 
@@ -1397,15 +1397,15 @@ msgstr "Karte"
 msgid "View Album"
 msgstr "Album betrachten"
 
-#: mod/ping.php:286
+#: mod/ping.php:275
 msgid "{0} wants to be your friend"
 msgstr "{0} möchte mit dir in Kontakt treten"
 
-#: mod/ping.php:303
+#: mod/ping.php:292
 msgid "{0} requested registration"
 msgstr "{0} möchte sich registrieren"
 
-#: mod/ping.php:316
+#: mod/ping.php:305
 #, php-format
 msgid "{0} and %d others requested registration"
 msgstr "{0} und %d weitere möchten sich registrieren"
@@ -2327,21 +2327,17 @@ msgstr "Bei diesem Netzwerk wird das Entfolgen derzeit nicht unterstützt."
 msgid "Disconnect/Unfollow"
 msgstr "Verbindung lösen/Nicht mehr folgen"
 
-#: mod/unfollow.php:147
-msgid "Unfollowing is currently not supported by this contact's network."
-msgstr "Bei dem Netzwerk dieses Kontakts wird das Entfolgen derzeit nicht unterstützt."
-
-#: mod/unfollow.php:151
+#: mod/unfollow.php:146
 msgid ""
 "Unable to unfollow this contact, please retry in a few minutes or contact "
 "your administrator."
 msgstr "Konnte dem Kontakt nicht entfolgen. Bitte warte ein paar Minuten und versuche es dann noch einmal, oder kontaktiere deinen Administrator."
 
-#: mod/unfollow.php:155
+#: mod/unfollow.php:148
 msgid "Contact was successfully unfollowed"
 msgstr "Kontakt wurde erfolgreich entfolgt."
 
-#: mod/unfollow.php:159
+#: mod/unfollow.php:152
 msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr "Konnte dem Kontakt nicht entfolgen. Bitte kontaktiere deinen Administrator."
 
@@ -4369,63 +4365,63 @@ msgstr "Organisation"
 msgid "Forum"
 msgstr "Forum"
 
-#: src/Model/Contact.php:2363
+#: src/Model/Contact.php:2366
 msgid "Disallowed profile URL."
 msgstr "Nicht erlaubte Profil-URL."
 
-#: src/Model/Contact.php:2368 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2371 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Blockierte Domain"
 
-#: src/Model/Contact.php:2373
+#: src/Model/Contact.php:2376
 msgid "Connect URL missing."
 msgstr "Connect-URL fehlt"
 
-#: src/Model/Contact.php:2382
+#: src/Model/Contact.php:2385
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "Der Kontakt konnte nicht hinzugefügt werden. Bitte überprüfe die Einstellungen unter Einstellungen -> Soziale Netzwerke"
 
-#: src/Model/Contact.php:2419
+#: src/Model/Contact.php:2422
 msgid "The profile address specified does not provide adequate information."
 msgstr "Die angegebene Profiladresse liefert unzureichende Informationen."
 
-#: src/Model/Contact.php:2421
+#: src/Model/Contact.php:2424
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Es wurden keine kompatiblen Kommunikationsprotokolle oder Feeds gefunden."
 
-#: src/Model/Contact.php:2424
+#: src/Model/Contact.php:2427
 msgid "An author or name was not found."
 msgstr "Es wurde kein Autor oder Name gefunden."
 
-#: src/Model/Contact.php:2427
+#: src/Model/Contact.php:2430
 msgid "No browser URL could be matched to this address."
 msgstr "Zu dieser Adresse konnte keine passende Browser-URL gefunden werden."
 
-#: src/Model/Contact.php:2430
+#: src/Model/Contact.php:2433
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Konnte die @-Adresse mit keinem der bekannten Protokolle oder Email-Kontakte abgleichen."
 
-#: src/Model/Contact.php:2431
+#: src/Model/Contact.php:2434
 msgid "Use mailto: in front of address to force email check."
 msgstr "Verwende mailto: vor der E-Mail-Adresse, um eine Überprüfung der E-Mail-Adresse zu erzwingen."
 
-#: src/Model/Contact.php:2437
+#: src/Model/Contact.php:2440
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "Die Adresse dieses Profils gehört zu einem Netzwerk, mit dem die Kommunikation auf dieser Seite ausgeschaltet wurde."
 
-#: src/Model/Contact.php:2442
+#: src/Model/Contact.php:2445
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Eingeschränktes Profil. Diese Person wird keine direkten/privaten Nachrichten von dir erhalten können."
 
-#: src/Model/Contact.php:2501
+#: src/Model/Contact.php:2504
 msgid "Unable to retrieve contact information."
 msgstr "Konnte die Kontaktinformationen nicht empfangen."
 
@@ -4636,21 +4632,21 @@ msgstr "Veranstaltungen der nächsten 7 Tage:"
 msgid "OpenWebAuth: %1$s welcomes %2$s"
 msgstr "OpenWebAuth: %1$s heißt %2$s herzlich willkommen"
 
-#: src/Model/Storage/Filesystem.php:187
+#: src/Model/Storage/FilesystemConfig.php:77
 msgid "Storage base path"
 msgstr "Dateipfad zum Speicher"
 
-#: src/Model/Storage/Filesystem.php:189
+#: src/Model/Storage/FilesystemConfig.php:79
 msgid ""
 "Folder where uploaded files are saved. For maximum security, This should be "
 "a path outside web server folder tree"
 msgstr "Verzeichnis, in das Dateien hochgeladen werden. Für maximale Sicherheit sollte dies ein Pfad außerhalb der Webserver-Verzeichnisstruktur sein"
 
-#: src/Model/Storage/Filesystem.php:202
+#: src/Model/Storage/FilesystemConfig.php:92
 msgid "Enter a valid existing folder"
 msgstr "Gib einen gültigen, existierenden Ordner ein"
 
-#: src/Model/User.php:208 src/Model/User.php:1046
+#: src/Model/User.php:208 src/Model/User.php:1050
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr "FATALER FEHLER: Sicherheitsschlüssel konnten nicht erzeugt werden."
 
@@ -4681,107 +4677,107 @@ msgid ""
 "The password can't contain accentuated letters, white spaces or colons (:)"
 msgstr "Das Passwort darf keine akzentuierten Buchstaben, Leerzeichen oder Doppelpunkte (:) beinhalten"
 
-#: src/Model/User.php:926
+#: src/Model/User.php:930
 msgid "Passwords do not match. Password unchanged."
 msgstr "Die Passwörter stimmen nicht überein. Das Passwort bleibt unverändert."
 
-#: src/Model/User.php:933
+#: src/Model/User.php:937
 msgid "An invitation is required."
 msgstr "Du benötigst eine Einladung."
 
-#: src/Model/User.php:937
+#: src/Model/User.php:941
 msgid "Invitation could not be verified."
 msgstr "Die Einladung konnte nicht überprüft werden."
 
-#: src/Model/User.php:945
+#: src/Model/User.php:949
 msgid "Invalid OpenID url"
 msgstr "Ungültige OpenID URL"
 
-#: src/Model/User.php:958 src/Security/Authentication.php:223
+#: src/Model/User.php:962 src/Security/Authentication.php:223
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr "Beim Versuch, dich mit der von dir angegebenen OpenID anzumelden, trat ein Problem auf. Bitte überprüfe, dass du die OpenID richtig geschrieben hast."
 
-#: src/Model/User.php:958 src/Security/Authentication.php:223
+#: src/Model/User.php:962 src/Security/Authentication.php:223
 msgid "The error message was:"
 msgstr "Die Fehlermeldung lautete:"
 
-#: src/Model/User.php:964
+#: src/Model/User.php:968
 msgid "Please enter the required information."
 msgstr "Bitte trage die erforderlichen Informationen ein."
 
-#: src/Model/User.php:978
+#: src/Model/User.php:982
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr "system.username_min_length (%s) and system.username_max_length (%s) schließen sich gegenseitig aus, tausche Werte aus."
 
-#: src/Model/User.php:985
+#: src/Model/User.php:989
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] "Der Benutzername sollte aus mindestens %s Zeichen bestehen."
 msgstr[1] "Der Benutzername sollte aus mindestens %s Zeichen bestehen."
 
-#: src/Model/User.php:989
+#: src/Model/User.php:993
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] "Der Benutzername sollte aus maximal %s Zeichen bestehen."
 msgstr[1] "Der Benutzername sollte aus maximal %s Zeichen bestehen."
 
-#: src/Model/User.php:997
+#: src/Model/User.php:1001
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr "Das scheint nicht dein kompletter Name (Vor- und Nachname) zu sein."
 
-#: src/Model/User.php:1002
+#: src/Model/User.php:1006
 msgid "Your email domain is not among those allowed on this site."
 msgstr "Die Domain Deiner E-Mail-Adresse ist auf dieser Seite nicht erlaubt."
 
-#: src/Model/User.php:1006
+#: src/Model/User.php:1010
 msgid "Not a valid email address."
 msgstr "Keine gültige E-Mail-Adresse."
 
-#: src/Model/User.php:1009
+#: src/Model/User.php:1013
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr "Der Admin des Knotens hat den Spitznamen für die Registrierung gesperrt."
 
-#: src/Model/User.php:1013 src/Model/User.php:1021
+#: src/Model/User.php:1017 src/Model/User.php:1025
 msgid "Cannot use that email."
 msgstr "Konnte diese E-Mail-Adresse nicht verwenden."
 
-#: src/Model/User.php:1028
+#: src/Model/User.php:1032
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr "Dein Spitzname darf nur aus Buchstaben und Zahlen (\"a-z\",\"0-9\" und \"_\") bestehen."
 
-#: src/Model/User.php:1036 src/Model/User.php:1093
+#: src/Model/User.php:1040 src/Model/User.php:1097
 msgid "Nickname is already registered. Please choose another."
 msgstr "Dieser Spitzname ist bereits vergeben. Bitte wähle einen anderen."
 
-#: src/Model/User.php:1080 src/Model/User.php:1084
+#: src/Model/User.php:1084 src/Model/User.php:1088
 msgid "An error occurred during registration. Please try again."
 msgstr "Während der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es noch einmal."
 
-#: src/Model/User.php:1107
+#: src/Model/User.php:1111
 msgid "An error occurred creating your default profile. Please try again."
 msgstr "Bei der Erstellung des Standardprofils ist ein Fehler aufgetreten. Bitte versuche es noch einmal."
 
-#: src/Model/User.php:1114
+#: src/Model/User.php:1118
 msgid "An error occurred creating your self contact. Please try again."
 msgstr "Bei der Erstellung deines self-Kontakts ist ein Fehler aufgetreten. Bitte versuche es erneut."
 
-#: src/Model/User.php:1119
+#: src/Model/User.php:1123
 msgid "Friends"
 msgstr "Kontakte"
 
-#: src/Model/User.php:1123
+#: src/Model/User.php:1127
 msgid ""
 "An error occurred creating your default contact group. Please try again."
 msgstr "Bei der Erstellung deiner Standardgruppe für Kontakte ist ein Fehler aufgetreten. Bitte versuche es erneut."
 
-#: src/Model/User.php:1352
+#: src/Model/User.php:1356
 #, php-format
 msgid ""
 "\n"
@@ -4789,7 +4785,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr "\nHallo %1$s\nein Admin von %2$s hat dir ein Nutzerkonto angelegt."
 
-#: src/Model/User.php:1355
+#: src/Model/User.php:1359
 #, php-format
 msgid ""
 "\n"
@@ -4821,12 +4817,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr "\nNachfolgend die Anmeldedetails:\n\nAdresse der Seite: %1$s\nBenutzername: %2$s\nPasswort: %3$s\n\nDu kannst dein Passwort unter \"Einstellungen\" ändern, sobald du dich angemeldet hast.Bitte nimm dir ein paar Minuten, um die anderen Einstellungen auf dieser Seite zu kontrollieren.Eventuell magst du ja auch einige Informationen über dich in deinem Profil veröffentlichen, damit andere Leute dich einfacher finden können.Bearbeite hierfür einfach dein Standard-Profil (über die Profil-Seite).Wir empfehlen dir, deinen kompletten Namen anzugeben und ein zu dir passendes Profilbild zu wählen, damit dich alte Bekannte wiederfinden.Außerdem ist es nützlich, wenn du auf deinem Profil Schlüsselwörter angibst. Das erleichtert es, Leute zu finden, die deine Interessen teilen.Wir respektieren deine Privatsphäre - keine dieser Angaben ist nötig.Wenn du neu im Netzwerk bist und noch niemanden kennst, dann können sie allerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nDu kannst dein Nutzerkonto  jederzeit unter %1$s/removeme wieder löschen.\n\nDanke und willkommen auf %4$s."
 
-#: src/Model/User.php:1388 src/Model/User.php:1495
+#: src/Model/User.php:1392 src/Model/User.php:1499
 #, php-format
 msgid "Registration details for %s"
 msgstr "Details der Registration von %s"
 
-#: src/Model/User.php:1408
+#: src/Model/User.php:1412
 #, php-format
 msgid ""
 "\n"
@@ -4841,12 +4837,12 @@ msgid ""
 "\t\t"
 msgstr "\n\t\t\tHallo %1$s,\n\t\t\t\tdanke für deine Registrierung auf %2$s. Dein Account muss noch vom Admin des Knotens freigeschaltet werden.\n\n\t\t\tDeine Zugangsdaten lauten wie folgt:\n\n\t\t\tSeitenadresse:\t%3$s\n\t\t\tAnmeldename:\t\t%4$s\n\t\t\tPasswort:\t\t%5$s\n\t\t"
 
-#: src/Model/User.php:1427
+#: src/Model/User.php:1431
 #, php-format
 msgid "Registration at %s"
 msgstr "Registrierung als %s"
 
-#: src/Model/User.php:1451
+#: src/Model/User.php:1455
 #, php-format
 msgid ""
 "\n"
@@ -4855,7 +4851,7 @@ msgid ""
 "\t\t\t"
 msgstr "\n\t\t\t\tHallo %1$s,\n\t\t\t\tDanke für die Registrierung auf %2$s. Dein Account wurde angelegt.\n\t\t\t"
 
-#: src/Model/User.php:1459
+#: src/Model/User.php:1463
 #, php-format
 msgid ""
 "\n"
@@ -4918,7 +4914,7 @@ msgstr "Einschalten"
 #: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:65
 #: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:83
 #: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:497
-#: src/Module/Admin/Storage.php:131 src/Module/Admin/Summary.php:233
+#: src/Module/Admin/Storage.php:139 src/Module/Admin/Summary.php:233
 #: src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
 #: src/Module/Admin/Users/Active.php:136
@@ -6440,49 +6436,49 @@ msgstr "Ist dies aktiviert, werden die Schlagwörter der gespeicherten Suchen zu
 msgid "Start Relocation"
 msgstr "Umsiedlung starten"
 
-#: src/Module/Admin/Storage.php:45
+#: src/Module/Admin/Storage.php:46
 #, php-format
 msgid "Storage backend, %s is invalid."
 msgstr "Speicher-Backend, %s ist ungültig."
 
-#: src/Module/Admin/Storage.php:71
+#: src/Module/Admin/Storage.php:73
 #, php-format
 msgid "Storage backend %s error: %s"
 msgstr "Speicher-Backend %s Fehler %s"
 
-#: src/Module/Admin/Storage.php:82 src/Module/Admin/Storage.php:85
+#: src/Module/Admin/Storage.php:85 src/Module/Admin/Storage.php:88
 msgid "Invalid storage backend setting value."
 msgstr "Ungültige Einstellung für das Datenspeicher-Backend"
 
-#: src/Module/Admin/Storage.php:132
+#: src/Module/Admin/Storage.php:140
 msgid "Current Storage Backend"
 msgstr "Aktuelles Speicher-Backend"
 
-#: src/Module/Admin/Storage.php:133
+#: src/Module/Admin/Storage.php:141
 msgid "Storage Configuration"
 msgstr "Speicher Konfiguration"
 
-#: src/Module/Admin/Storage.php:134 src/Module/BaseAdmin.php:91
+#: src/Module/Admin/Storage.php:142 src/Module/BaseAdmin.php:91
 msgid "Storage"
 msgstr "Speicher"
 
-#: src/Module/Admin/Storage.php:136
+#: src/Module/Admin/Storage.php:144
 msgid "Save & Use storage backend"
 msgstr "Speichern & Dieses Speicher-Backend verwenden"
 
-#: src/Module/Admin/Storage.php:137
+#: src/Module/Admin/Storage.php:145
 msgid "Use storage backend"
 msgstr "Dieses Speicher-Backend verwenden"
 
-#: src/Module/Admin/Storage.php:138
+#: src/Module/Admin/Storage.php:146
 msgid "Save & Reload"
 msgstr "Speichern & Neu Laden"
 
-#: src/Module/Admin/Storage.php:139
+#: src/Module/Admin/Storage.php:147
 msgid "This backend doesn't have custom settings"
 msgstr "Dieses Backend hat keine zusätzlichen Einstellungen"
 
-#: src/Module/Admin/Storage.php:142
+#: src/Module/Admin/Storage.php:150
 msgid "Database (legacy)"
 msgstr "Datenbank (legacy)"
 
@@ -8708,17 +8704,21 @@ msgstr "Entfernte Privatsphäreneinstellungen nicht verfügbar."
 msgid "Visible to:"
 msgstr "Sichtbar für:"
 
-#: src/Module/Photo.php:115
+#: src/Module/Photo.php:122
+msgid "The Photo is not available."
+msgstr "Das Foto ist nicht verfügbar."
+
+#: src/Module/Photo.php:135
 #, php-format
 msgid "The Photo with id %s is not available."
 msgstr "Das Bild mit ID %s ist nicht verfügbar."
 
-#: src/Module/Photo.php:148
+#: src/Module/Photo.php:168
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr "Ungültige externe Ressource mit der URL %s"
 
-#: src/Module/Photo.php:150
+#: src/Module/Photo.php:170
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr "Fehlerhaftes Foto mit der ID %s."
@@ -8781,19 +8781,19 @@ msgstr "Betrachten als"
 
 #: src/Module/Profile/Profile.php:326 src/Module/Profile/Profile.php:329
 #: src/Module/Profile/Status.php:65 src/Module/Profile/Status.php:68
-#: src/Protocol/Feed.php:951 src/Protocol/OStatus.php:1259
+#: src/Protocol/Feed.php:953 src/Protocol/OStatus.php:1242
 #, php-format
 msgid "%s's timeline"
 msgstr "Timeline von %s"
 
 #: src/Module/Profile/Profile.php:327 src/Module/Profile/Status.php:66
-#: src/Protocol/Feed.php:955 src/Protocol/OStatus.php:1263
+#: src/Protocol/Feed.php:957 src/Protocol/OStatus.php:1246
 #, php-format
 msgid "%s's posts"
 msgstr "Beiträge von %s"
 
 #: src/Module/Profile/Profile.php:328 src/Module/Profile/Status.php:67
-#: src/Protocol/Feed.php:958 src/Protocol/OStatus.php:1266
+#: src/Protocol/Feed.php:960 src/Protocol/OStatus.php:1249
 #, php-format
 msgid "%s's comments"
 msgstr "Kommentare von %s"
@@ -10503,21 +10503,21 @@ msgstr "Zeige weniger"
 msgid "Attachments:"
 msgstr "Anhänge:"
 
-#: src/Protocol/OStatus.php:1761
+#: src/Protocol/OStatus.php:1645
 #, php-format
 msgid "%s is now following %s."
 msgstr "%s folgt nun %s"
 
-#: src/Protocol/OStatus.php:1762
+#: src/Protocol/OStatus.php:1646
 msgid "following"
 msgstr "folgen"
 
-#: src/Protocol/OStatus.php:1765
+#: src/Protocol/OStatus.php:1649
 #, php-format
 msgid "%s stopped following %s."
 msgstr "%s hat aufgehört %s, zu folgen"
 
-#: src/Protocol/OStatus.php:1766
+#: src/Protocol/OStatus.php:1650
 msgid "stopped following"
 msgstr "wird nicht mehr gefolgt"
 
