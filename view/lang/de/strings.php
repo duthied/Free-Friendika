@@ -559,7 +559,6 @@ $a->strings['To export your account, go to "Settings->Export your personal data"
 $a->strings['You aren\'t following this contact.'] = 'Du folgst diesem Kontakt.';
 $a->strings['Unfollowing is currently not supported by your network.'] = 'Bei diesem Netzwerk wird das Entfolgen derzeit nicht unterstützt.';
 $a->strings['Disconnect/Unfollow'] = 'Verbindung lösen/Nicht mehr folgen';
-$a->strings['Unfollowing is currently not supported by this contact\'s network.'] = 'Bei dem Netzwerk dieses Kontakts wird das Entfolgen derzeit nicht unterstützt.';
 $a->strings['Unable to unfollow this contact, please retry in a few minutes or contact your administrator.'] = 'Konnte dem Kontakt nicht entfolgen. Bitte warte ein paar Minuten und versuche es dann noch einmal, oder kontaktiere deinen Administrator.';
 $a->strings['Contact was successfully unfollowed'] = 'Kontakt wurde erfolgreich entfolgt.';
 $a->strings['Unable to unfollow this contact, please contact your administrator'] = 'Konnte dem Kontakt nicht entfolgen. Bitte kontaktiere deinen Administrator.';
@@ -2144,6 +2143,7 @@ $a->strings['Wrong type "%s", expected one of: %s'] = 'Falscher Typ "%s", hatte 
 $a->strings['Model not found'] = 'Model nicht gefunden';
 $a->strings['Remote privacy information not available.'] = 'Entfernte Privatsphäreneinstellungen nicht verfügbar.';
 $a->strings['Visible to:'] = 'Sichtbar für:';
+$a->strings['The Photo is not available.'] = 'Das Foto ist nicht verfügbar.';
 $a->strings['The Photo with id %s is not available.'] = 'Das Bild mit ID %s ist nicht verfügbar.';
 $a->strings['Invalid external resource with url %s.'] = 'Ungültige externe Ressource mit der URL %s';
 $a->strings['Invalid photo with id %s.'] = 'Fehlerhaftes Foto mit der ID %s.';
