@@ -30,7 +30,7 @@ use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDe
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
 
 /**
- * Custom profile field model class.
+ * Custom profile field entity class.
  *
  * Custom profile fields are user-created arbitrary profile fields that can be assigned a permission set to restrict its
  * display to specific Friendica contacts as it requires magic authentication to work.
@@ -68,26 +68,19 @@ class ProfileField extends BaseEntity
 	/** @var \DateTime */
 	protected $edited;
 
-	/**
-	 * @throws UnexpectedPermissionSetException In case no Permission Set can be retrieved
-	 */
 	public function __construct(PermissionSetDepository $permissionSetDepository, int $uid, int $order, int $permissionSetId, string $label, string $value, \DateTime $created, \DateTime $edited, int $id = null, PermissionSet $permissionSet = null)
 	{
 		$this->permissionSetDepository = $permissionSetDepository;
 		$this->permissionSet           = $permissionSet;
 
-		$this->uid     = $uid;
-		$this->order   = $order;
-		$this->permissionSetId    = $permissionSetId ?? ($permissionSet ? $permissionSet->id : null);
-		$this->label   = $label;
-		$this->value   = $value;
-		$this->created = $created;
-		$this->edited  = $edited;
-		$this->id      = $id;
-
-		if (is_null($this->permissionSetId)) {
-			throw new UnexpectedPermissionSetException('Either set the permission set ID or the permission set itself');
-		}
+		$this->uid             = $uid;
+		$this->order           = $order;
+		$this->permissionSetId = $permissionSetId;
+		$this->label           = $label;
+		$this->value           = $value;
+		$this->created         = $created;
+		$this->edited          = $edited;
+		$this->id              = $id;
 	}
 
 	/**
@@ -134,11 +127,11 @@ class ProfileField extends BaseEntity
 	 */
 	public function update(string $value, int $order, PermissionSet $permissionSet)
 	{
-		$this->value         = $value;
-		$this->order         = $order;
-		$this->permissionSet = $permissionSet;
-		$this->permissionSetId          = $permissionSet->id;
-		$this->edited        = new \DateTime('now', new \DateTimeZone('UTC'));
+		$this->value           = $value;
+		$this->order           = $order;
+		$this->permissionSet   = $permissionSet;
+		$this->permissionSetId = $permissionSet->id;
+		$this->edited          = new \DateTime('now', new \DateTimeZone('UTC'));
 	}
 
 	/**

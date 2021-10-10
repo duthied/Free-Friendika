@@ -22,6 +22,7 @@
 namespace Friendica\Profile\ProfileField\Factory;
 
 use Friendica\BaseFactory;
+use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
 use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
 use Friendica\Profile\ProfileField\Entity;
 use Friendica\Capabilities\ICanCreateFromTableRow;
@@ -45,16 +46,20 @@ class ProfileField extends BaseFactory implements ICanCreateFromTableRow
 	 */
 	public function createFromTableRow(array $row, PermissionSet $permissionSet = null): Entity\ProfileField
 	{
+		if (empty($permissionSet) && empty($row['psid'])) {
+			throw new UnexpectedPermissionSetException('Either set the permission set ID or the permission set itself');
+		}
+
 		return new Entity\ProfileField(
 			$this->permissionSetDepository,
 			$row['uid'],
 			$row['order'],
-			$row['psid'],
+			$row['psid'] ?? $permissionSet->id,
 			$row['label'],
 			$row['value'],
 			new \DateTime($row['created'] ?? 'now', new \DateTimeZone('UTC')),
 			new \DateTime($row['edited'] ?? 'now', new \DateTimeZone('UTC')),
-			$row['id'],
+			$row['id'] ?? null,
 			$permissionSet
 		);
 	}
