@@ -25,6 +25,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Photo;
+use Friendica\Model\Profile;
 use Friendica\Object\Image;
 use Friendica\Security\PermissionSet\Depository\PermissionSet;
 use Friendica\Util\Strings;
@@ -278,7 +279,7 @@ class UserImport
 				$profile['id'] = DBA::lastInsertId();
 			}
 
-			DI::profileField()->migrateFromLegacyProfile($profile);
+			Profile::migrateFromLegacyProfile($profile);
 		}
 
 		$permissionSet = DI::permissionSet()->selectDefaultForUser($newuid);

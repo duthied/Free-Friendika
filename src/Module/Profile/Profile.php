@@ -213,9 +213,9 @@ class Profile extends BaseProfile
 		$contact_id = $view_as_contact_id ?: $remote_contact_id ?: 0;
 
 		if ($is_owner && $contact_id === 0) {
-			$profile_fields = DI::profileFieldNew()->selectByUserId($profile['uid']);
+			$profile_fields = DI::profileField()->selectByUserId($profile['uid']);
 		} else {
-			$profile_fields = DI::profileFieldNew()->selectByContactId($contact_id, $profile['uid']);
+			$profile_fields = DI::profileField()->selectByContactId($contact_id, $profile['uid']);
 		}
 
 		foreach ($profile_fields as $profile_field) {

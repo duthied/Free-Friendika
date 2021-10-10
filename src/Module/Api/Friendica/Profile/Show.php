@@ -45,7 +45,7 @@ class Show extends BaseApi
 
 		$profile = Profile::getByUID($uid);
 		
-		$profileFields = DI::profileFieldNew()->selectPublicFieldsByUserId($uid);
+		$profileFields = DI::profileField()->selectPublicFieldsByUserId($uid);
 
 		$profile = self::formatProfile($profile, $profileFields);
 

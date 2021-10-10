@@ -206,7 +206,7 @@ function update_1332()
 	$profiles = DBA::select('profile', [], $condition);
 
 	while ($profile = DBA::fetch($profiles)) {
-		DI::profileField()->migrateFromLegacyProfile($profile);
+		Profile::migrateFromLegacyProfile($profile);
 	}
 	DBA::close($profiles);
 

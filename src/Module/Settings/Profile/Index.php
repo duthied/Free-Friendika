@@ -107,7 +107,7 @@ class Index extends BaseSettings
 			$_REQUEST['profile_field_order']
 		);
 
-		DI::profileFieldNew()->saveCollectionForUser(local_user(), $profileFieldsNew);
+		DI::profileField()->saveCollectionForUser(local_user(), $profileFieldsNew);
 
 		$result = Profile::update(
 			[
@@ -157,7 +157,7 @@ class Index extends BaseSettings
 
 		$custom_fields = [];
 
-		$profileFields = DI::profileFieldNew()->selectByUserId(local_user());
+		$profileFields = DI::profileField()->selectByUserId(local_user());
 		foreach ($profileFields as $profileField) {
 			/** @var ProfileField $profileField */
 			$defaultPermissions = $profileField->permissionSet->withAllowedContacts(
