@@ -58,7 +58,7 @@ class ProfileField extends BaseEntity
 	/** @var int */
 	protected $order;
 	/** @var int */
-	protected $psid;
+	protected $permissionSetId;
 	/** @var string */
 	protected $label;
 	/** @var string */
@@ -68,6 +68,9 @@ class ProfileField extends BaseEntity
 	/** @var \DateTime */
 	protected $edited;
 
+	/**
+	 * @throws UnexpectedPermissionSetException In case no Permission Set can be retrieved
+	 */
 	public function __construct(PermissionSetDepository $permissionSetDepository, int $uid, int $order, int $permissionSetId, string $label, string $value, \DateTime $created, \DateTime $edited, int $id = null, PermissionSet $permissionSet = null)
 	{
 		$this->permissionSetDepository = $permissionSetDepository;
@@ -75,12 +78,16 @@ class ProfileField extends BaseEntity
 
 		$this->uid     = $uid;
 		$this->order   = $order;
-		$this->psid    = $permissionSetId;
+		$this->permissionSetId    = $permissionSetId ?? ($permissionSet ? $permissionSet->id : null);
 		$this->label   = $label;
 		$this->value   = $value;
 		$this->created = $created;
 		$this->edited  = $edited;
 		$this->id      = $id;
+
+		if (is_null($this->permissionSetId)) {
+			throw new UnexpectedPermissionSetException('Either set the permission set ID or the permission set itself');
+		}
 	}
 
 	/**
@@ -93,7 +100,7 @@ class ProfileField extends BaseEntity
 			case 'permissionSet':
 				if (empty($this->permissionSet)) {
 					try {
-						$permissionSet = $this->permissionSetDepository->selectOneById($this->psid, $this->uid);
+						$permissionSet = $this->permissionSetDepository->selectOneById($this->permissionSetId, $this->uid);
 						if ($permissionSet->uid !== $this->uid) {
 							throw new UnexpectedPermissionSetException(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $permissionSet->id, $permissionSet->uid, $this->id, $this->uid));
 						}
@@ -130,7 +137,7 @@ class ProfileField extends BaseEntity
 		$this->value         = $value;
 		$this->order         = $order;
 		$this->permissionSet = $permissionSet;
-		$this->psid          = $permissionSet->id;
+		$this->permissionSetId          = $permissionSet->id;
 		$this->edited        = new \DateTime('now', new \DateTimeZone('UTC'));
 	}
 

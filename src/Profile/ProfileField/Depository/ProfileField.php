@@ -30,6 +30,7 @@ use Friendica\Profile\ProfileField\Factory;
 use Friendica\Profile\ProfileField\Entity;
 use Friendica\Profile\ProfileField\Collection;
 use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
+use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
 class ProfileField extends BaseDepository
@@ -46,7 +47,7 @@ class ProfileField extends BaseDepository
 	{
 		parent::__construct($database, $logger, $factory);
 
-		$this->permissionSetDepository = permissionSetDepository;
+		$this->permissionSetDepository = $permissionSetDepository;
 	}
 
 	/**
@@ -91,11 +92,13 @@ class ProfileField extends BaseDepository
 	protected function convertToTableRow(Entity\ProfileField $profileField): array
 	{
 		return [
+			'uid'     => $profileField->uid,
 			'label'   => $profileField->label,
 			'value'   => $profileField->value,
 			'order'   => $profileField->order,
-			'created' => $profileField->created,
-			'edited'  => $profileField->edited,
+			'created' => $profileField->created->format(DateTimeFormat::MYSQL),
+			'edited'  => $profileField->edited->format(DateTimeFormat::MYSQL),
+			'psid'    => $profileField->permissionSetId
 		];
 	}
 
@@ -205,7 +208,7 @@ class ProfileField extends BaseDepository
 
 		try {
 			if ($profileField->id) {
-				$this->db->update(self::$table_name, $fields, ['id' => $profileField]);
+				$this->db->update(self::$table_name, $fields, ['id' => $profileField->id]);
 			} else {
 				$this->db->insert(self::$table_name, $fields);
 
@@ -233,7 +236,7 @@ class ProfileField extends BaseDepository
 
 		// Update the order based on the new Profile Field Collection
 		$order                 = 0;
-		$labelProfileFieldsOld = $profileFieldsOld->column('id', 'label');
+		$labelProfileFieldsOld = array_flip($profileFieldsOld->column('label'));
 
 		foreach ($profileFields as $profileField) {
 			// Update existing field (preserve

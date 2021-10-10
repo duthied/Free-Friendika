@@ -87,7 +87,7 @@ class BaseCollection extends \ArrayIterator
 	 */
 	public function column($column, $index_key = null)
 	{
-		return array_column($this->getArrayCopy(), $column, $index_key);
+		return array_column($this->getArrayCopy(true), $column, $index_key);
 	}
 
 	/**
@@ -123,5 +123,22 @@ class BaseCollection extends \ArrayIterator
 	public function reverse(): BaseCollection
 	{
 		return new static(array_reverse($this->getArrayCopy()), $this->getTotalCount());
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * includes recursion for entity::toArray() function
+	 * @see BaseEntity::toArray()
+	 */
+	public function getArrayCopy(bool $recursive = false): array
+	{
+		if (!$recursive) {
+			return parent::getArrayCopy();
+		}
+
+		return array_map(function ($item) {
+			return is_object($item) ? $item->toArray() : $item;
+		}, parent::getArrayCopy());
 	}
 }
