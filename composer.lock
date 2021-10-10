@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9e0a9eacc23d884012042eeab01cc8b",
+    "content-hash": "c43b7d45ba7fe0a870b75b2e4334f9da",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -738,6 +738,54 @@
                 "package"
             ],
             "time": "2019-08-08T18:36:07+00:00"
+        },
+        {
+            "name": "geekwright/po",
+            "version": "v2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/geekwright/Po.git",
+                "reference": "f9222a901d38f2101d22f767099926d945c78db5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/geekwright/Po/zipball/f9222a901d38f2101d22f767099926d945c78db5",
+                "reference": "f9222a901d38f2101d22f767099926d945c78db5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">7.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7.0|^8.0",
+                "smarty/smarty": "^3.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Geekwright\\Po\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Richard Griffith",
+                    "email": "richard@geekwright.com"
+                }
+            ],
+            "description": "Objects to assist in reading, manipulating and creating GNU gettext style PO files",
+            "homepage": "https://github.com/geekwright/Po",
+            "keywords": [
+                "gettext",
+                "i18n",
+                "l10n",
+                "po",
+                "pot"
+            ],
+            "time": "2020-12-30T23:34:48+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
