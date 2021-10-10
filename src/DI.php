@@ -465,6 +465,11 @@ abstract class DI
 		return self::$dice->create(Profile\ProfileField\Depository\ProfileField::class);
 	}
 
+	public static function profileFieldFactory(): Profile\ProfileField\Factory\ProfileField
+	{
+		return self::$dice->create(Profile\ProfileField\Factory\ProfileField::class);
+	}
+
 	public static function notification(): Navigation\Notifications\Depository\Notification
 	{
 		return self::$dice->create(Navigation\Notifications\Depository\Notification::class);

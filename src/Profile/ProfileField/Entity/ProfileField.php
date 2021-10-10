@@ -22,6 +22,9 @@
 namespace Friendica\Profile\ProfileField\Entity;
 
 use Friendica\BaseEntity;
+use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Profile\ProfileField\Exception\ProfileFieldNotFoundException;
 use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
 use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
@@ -65,9 +68,10 @@ class ProfileField extends BaseEntity
 	/** @var \DateTime */
 	protected $edited;
 
-	public function __construct(PermissionSetDepository $permissionSetDepository, int $uid, int $order, int $permissionSetId, string $label, string $value, \DateTime $created, \DateTime $edited, int $id = null)
+	public function __construct(PermissionSetDepository $permissionSetDepository, int $uid, int $order, int $permissionSetId, string $label, string $value, \DateTime $created, \DateTime $edited, int $id = null, PermissionSet $permissionSet = null)
 	{
 		$this->permissionSetDepository = $permissionSetDepository;
+		$this->permissionSet           = $permissionSet;
 
 		$this->uid     = $uid;
 		$this->order   = $order;
@@ -79,26 +83,65 @@ class ProfileField extends BaseEntity
 		$this->id      = $id;
 	}
 
+	/**
+	 * @throws ProfileFieldNotFoundException
+	 * @throws UnexpectedPermissionSetException
+	 */
 	public function __get($name)
 	{
 		switch ($name) {
 			case 'permissionSet':
 				if (empty($this->permissionSet)) {
-					$permissionSet = $this->permissionSetDepository->selectOneById($this->psid, $this->uid);
-					if ($permissionSet->uid !== $this->uid) {
-						throw new UnexpectedPermissionSetException(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $permissionSet->id, $permissionSet->uid, $this->id, $this->uid));
-					}
+					try {
+						$permissionSet = $this->permissionSetDepository->selectOneById($this->psid, $this->uid);
+						if ($permissionSet->uid !== $this->uid) {
+							throw new UnexpectedPermissionSetException(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $permissionSet->id, $permissionSet->uid, $this->id, $this->uid));
+						}
 
-					$this->permissionSet = $permissionSet;
+						$this->permissionSet = $permissionSet;
+					} catch (NotFoundException $exception) {
+						throw new UnexpectedPermissionSetException(sprintf('No PermissionSet found for ProfileField %d (user-id: %d).', $this->id, $this->uid));
+					}
 				}
 
 				$return = $this->permissionSet;
 				break;
 			default:
-				$return = parent::__get($name);
+				try {
+					$return = parent::__get($name);
+				} catch (InternalServerErrorException $exception) {
+					throw new ProfileFieldNotFoundException($exception->getMessage());
+				}
 				break;
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Updates a ProfileField
+	 *
+	 * @param string        $value         The current or changed value
+	 * @param int           $order         The current or changed order
+	 * @param PermissionSet $permissionSet The current or changed PermissionSet
+	 */
+	public function update(string $value, int $order, PermissionSet $permissionSet)
+	{
+		$this->value         = $value;
+		$this->order         = $order;
+		$this->permissionSet = $permissionSet;
+		$this->psid          = $permissionSet->id;
+		$this->edited        = new \DateTime('now', new \DateTimeZone('UTC'));
+	}
+
+	/**
+	 * Sets the order of the ProfileField
+	 *
+	 * @param int $order
+	 */
+	public function setOrder(int $order)
+	{
+		$this->order  = $order;
+		$this->edited = new \DateTime('now', new \DateTimeZone('UTC'));
 	}
 }

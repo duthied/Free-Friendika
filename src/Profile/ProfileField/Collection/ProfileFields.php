@@ -22,14 +22,20 @@
 namespace Friendica\Profile\ProfileField\Collection;
 
 use Friendica\BaseCollection;
+use Friendica\Profile\ProfileField\Entity;
 
 class ProfileFields extends BaseCollection
 {
+	public function current(): Entity\ProfileField
+	{
+		return parent::current();
+	}
+
 	/**
 	 * @param callable $callback
 	 * @return ProfileFields
 	 */
-	public function map(callable $callback)
+	public function map(callable $callback): self
 	{
 		return parent::map($callback);
 	}
@@ -39,7 +45,7 @@ class ProfileFields extends BaseCollection
 	 * @param int           $flag
 	 * @return ProfileFields
 	 */
-	public function filter(callable $callback = null, int $flag = 0)
+	public function filter(callable $callback = null, int $flag = 0): self
 	{
 		return parent::filter($callback, $flag);
 	}
