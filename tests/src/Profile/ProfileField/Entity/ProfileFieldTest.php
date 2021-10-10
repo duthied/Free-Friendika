@@ -45,7 +45,7 @@ class ProfileFieldTest extends MockedTest
 				'created' => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
 				'edited'  => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
 			],
-			'withId'  => [
+			'withId' => [
 				'uid'     => 23,
 				'order'   => 1,
 				'psid'    => 2,
@@ -93,8 +93,11 @@ class ProfileFieldTest extends MockedTest
 			'id'      => $id,
 		], $permissionSet);
 
-		$permissionSetNew = $this->permissionSetFactory->createFromTableRow(['uid' => 2, 'allow_cid' => '<1>',
-																			 'id'  => 23]);
+		$permissionSetNew = $this->permissionSetFactory->createFromTableRow([
+			'uid'       => 2,
+			'allow_cid' => '<1>',
+			'id'        => 23
+		]);
 
 		$entity->update('updatedValue', 2345, $permissionSetNew);
 
