@@ -138,10 +138,14 @@ class Acl extends BaseModule
 				$condition = DBA::mergeConditions($condition,
 					["NOT `self` AND NOT `blocked` AND `notify` != ? AND NOT `network` IN (?, ?)", '', Protocol::OSTATUS, Protocol::STATUSNET
 				]);
+				break;
+
 			case self::TYPE_MENTION_CONTACT:
 				$condition = DBA::mergeConditions($condition,
 					["NOT `self` AND NOT `blocked` AND `notify` != ? AND `network` != ?", '', Protocol::STATUSNET
 				]);
+				break;
+
 			case self::TYPE_MENTION_FORUM:
 				$condition = DBA::mergeConditions($condition,
 					["NOT `self` AND NOT `blocked` AND `notify` != ? AND `contact-type` = ?", '', Contact::TYPE_COMMUNITY
