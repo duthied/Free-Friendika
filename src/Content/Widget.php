@@ -259,12 +259,10 @@ class Widget
 		}
 
 		$networks = self::unavailableNetworks();
-		$extra_sql = " AND NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")";
-		$sql_values = array_merge([local_user()], $networks);
+		$query = "`uid` = ? AND NOT `deleted` AND `network` != '' AND NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")";
+		$condition = array_merge([$query], array_merge([local_user()], $networks));
 
-		$r = DBA::p("SELECT `network` FROM `contact` WHERE `uid` = ? AND NOT `deleted` AND `network` != '' $extra_sql GROUP BY `network` ORDER BY `network`",
-			$sql_values
-		);
+		$r = DBA::select('contact', ['network'], $condition, ['group_by' => ['network'], 'order' => ['network']]);
 
 		$nets = array();
 		while ($rr = DBA::fetch($r)) {
