@@ -1023,7 +1023,7 @@ return [
 			"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"desc" => ["type" => "text", "comment" => ""],
 			"album" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "The name of the album to which the photo belongs"],
-			"photo-type" => ["type" => "tinyint unsigned", "comment" => "User avatar, contact avatar or default"],
+			"photo-type" => ["type" => "tinyint unsigned", "comment" => "User avatar, user banner, contact avatar, contact banner or default"],
 			"filename" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"type" => ["type" => "varchar(30)", "not null" => "1", "default" => "image/jpeg"],
 			"height" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],

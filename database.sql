@@ -970,7 +970,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`desc` text COMMENT '',
 	`album` varchar(255) NOT NULL DEFAULT '' COMMENT 'The name of the album to which the photo belongs',
-	`photo-type` tinyint unsigned COMMENT 'User avatar, contact avatar or default',
+	`photo-type` tinyint unsigned COMMENT 'User avatar, user banner, contact avatar, contact banner or default',
 	`filename` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`type` varchar(30) NOT NULL DEFAULT 'image/jpeg',
 	`height` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
