@@ -249,6 +249,8 @@ function frio_remote_nav(App $a, array &$nav_info)
  * We use this to give the data to textcomplete and have a filter function at the
  * contact page.
  *
+ * @todo Is this function still in use?
+ * 
  * @param App $a The app data @TODO Unused
  * @param array $results The array with the originals from acl_lookup()
  */
@@ -273,17 +275,17 @@ function frio_acl_lookup(App $a, &$results)
 	}
 
 	$total = 0;
-	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-		WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra ", intval($_SESSION['uid']));
+	$r = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `contact`
+		WHERE `uid` = ? AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra ", $_SESSION['uid']);
 	if (DBA::isResult($r)) {
-		$total = $r[0]['total'];
+		$total = $r['total'];
 	}
 
 	$sql_extra3 = Widget::unavailableNetworks();
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT %d, %d ",
-		intval($_SESSION['uid']), intval($results['start']), intval($results['count'])
-	);
+	$r = DBA::toArray(DBA::p("SELECT * FROM `contact` WHERE `uid` = ? AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT ?, ? ",
+		$_SESSION['uid'], $results['start'], $results['count']
+	));
 
 	$contacts = [];
 
