@@ -92,11 +92,13 @@ class Widget
 
 	/**
 	 * Return unavailable networks as array
+	 *
+	 * @return array Unsupported networks
 	 */
-	public static function unavailableNetworksAsArray()
+	public static function unavailableNetworks()
 	{
 		// Always hide content from these networks
-		$networks = [Protocol::PHANTOM, Protocol::FACEBOOK, Protocol::APPNET];
+		$networks = [Protocol::PHANTOM, Protocol::FACEBOOK, Protocol::APPNET, Protocol::ZOT];
 
 		if (!Addon::isEnabled("discourse")) {
 			$networks[] = Protocol::DISCOURSE;
@@ -126,24 +128,6 @@ class Widget
 			$networks[] = Protocol::PNUT;
 		}
 		return $networks;
-	}
-
-	/**
-	 * Return unavailable networks
-	 */
-	public static function unavailableNetworks()
-	{
-		$networks = self::unavailableNetworksAsArray();
-
-		if (!sizeof($networks)) {
-			return "";
-		}
-
-		$network_filter = implode("','", $networks);
-
-		$network_filter = "AND `network` NOT IN ('$network_filter')";
-
-		return $network_filter;
 	}
 
 	/**
@@ -274,11 +258,11 @@ class Widget
 			return '';
 		}
 
-		$extra_sql = self::unavailableNetworks();
+		$networks = self::unavailableNetworks();
+		$query = "`uid` = ? AND NOT `deleted` AND `network` != '' AND NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")";
+		$condition = array_merge([$query], array_merge([local_user()], $networks));
 
-		$r = DBA::p("SELECT `network` FROM `contact` WHERE `uid` = ? AND NOT `deleted` AND `network` != '' $extra_sql GROUP BY `network` ORDER BY `network`",
-			local_user()
-		);
+		$r = DBA::select('contact', ['network'], $condition, ['group_by' => ['network'], 'order' => ['network']]);
 
 		$nets = array();
 		while ($rr = DBA::fetch($r)) {
@@ -525,7 +509,7 @@ class Widget
 	/**
 	 * Display the account types sidebar
 	 * The account type value is added as a parameter to the url
-	 * 
+	 *
 	 * @param string $base        Basepath
 	 * @param int    $accounttype Acount type
 	 * @return string

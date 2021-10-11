@@ -55,7 +55,6 @@ function frio_install()
 	Hook::register('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
 	Hook::register('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
 	Hook::register('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Hook::register('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
 	Hook::register('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
 	Logger::log('installed theme frio');
@@ -239,76 +238,6 @@ function frio_remote_nav(App $a, array &$nav_info)
 	}
 }
 
-/**
- * Search for contacts
- *
- * This function search for a users contacts. The code is copied from contact search
- * in /src/Module/Contact.php. With this function the contacts will permitted to acl_lookup()
- * and can grabbed as json. For this we use the type="r". This is usful to to let js
- * grab the contact data.
- * We use this to give the data to textcomplete and have a filter function at the
- * contact page.
- *
- * @todo Is this function still in use?
- * 
- * @param App $a The app data @TODO Unused
- * @param array $results The array with the originals from acl_lookup()
- */
-function frio_acl_lookup(App $a, &$results)
-{
-	$nets = !empty($_GET['nets']) ? Strings::escapeTags(trim($_GET['nets'])) : '';
-
-	// we introduce a new search type, r should do the same query like it's
-	// done in /src/Module/Contact.php for connections
-	if ($results['type'] !== 'r') {
-		return;
-	}
-
-	$sql_extra = '';
-	if ($results['search']) {
-		$search_txt = DBA::escape(Strings::protectSprintf(preg_quote($results['search'])));
-		$sql_extra .= " AND (`attag` LIKE '%%" . $search_txt . "%%' OR `name` LIKE '%%" . $search_txt . "%%' OR `nick` LIKE '%%" . $search_txt . "%%') ";
-	}
-
-	if ($nets) {
-		$sql_extra .= sprintf(" AND network = '%s' ", DBA::escape($nets));
-	}
-
-	$total = 0;
-	$r = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `contact`
-		WHERE `uid` = ? AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra ", $_SESSION['uid']);
-	if (DBA::isResult($r)) {
-		$total = $r['total'];
-	}
-
-	$sql_extra3 = Widget::unavailableNetworks();
-
-	$r = DBA::toArray(DBA::p("SELECT * FROM `contact` WHERE `uid` = ? AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT ?, ? ",
-		$_SESSION['uid'], $results['start'], $results['count']
-	));
-
-	$contacts = [];
-
-	if (DBA::isResult($r)) {
-		foreach ($r as $rr) {
-			$contacts[] = Module\Contact::getContactTemplateVars($rr);
-		}
-	}
-
-	$results['items'] = $contacts;
-	$results['tot'] = $total;
-}
-
-/**
- * Manipulate the data of the item
- *
- * At the moment we use this function to add some own stuff to the item menu
- *
- * @param App $a App $a The app data
- * @param array $arr Array with the item and the item actions<br>
- *     'item' => Array with item data<br>
- *     'output' => Array with item actions<br>
- */
 function frio_display_item(App $a, &$arr)
 {
 	// Add follow to the item menu

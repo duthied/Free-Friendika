@@ -130,20 +130,22 @@ class Acl extends BaseModule
 			$group_count = DBA::count('group', $condition_group);
 		}
 
-		$networks = Widget::unavailableNetworksAsArray();
-		if (!empty($networks)) {
-			$condition = DBA::mergeConditions($condition, array_merge(["NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")"], $networks));
-		}
+		$networks = Widget::unavailableNetworks();
+		$condition = DBA::mergeConditions($condition, array_merge(["NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")"], $networks));
 
 		switch ($type) {
 			case self::TYPE_MENTION_CONTACT_GROUP:
 				$condition = DBA::mergeConditions($condition,
 					["NOT `self` AND NOT `blocked` AND `notify` != ? AND NOT `network` IN (?, ?)", '', Protocol::OSTATUS, Protocol::STATUSNET
 				]);
+				break;
+
 			case self::TYPE_MENTION_CONTACT:
 				$condition = DBA::mergeConditions($condition,
 					["NOT `self` AND NOT `blocked` AND `notify` != ? AND `network` != ?", '', Protocol::STATUSNET
 				]);
+				break;
+
 			case self::TYPE_MENTION_FORUM:
 				$condition = DBA::mergeConditions($condition,
 					["NOT `self` AND NOT `blocked` AND `notify` != ? AND `contact-type` = ?", '', Contact::TYPE_COMMUNITY
