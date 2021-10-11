@@ -100,7 +100,7 @@ class Crop extends BaseSettings
 					$base_image['filename'],
 					DI::l10n()->t('Profile Photos'),
 					4,
-					1
+					Photo::USER_AVATAR
 				);
 				if ($r === false) {
 					notice(DI::l10n()->t('Image size reduction [%s] failed.', '300'));
@@ -116,7 +116,7 @@ class Crop extends BaseSettings
 					$base_image['filename'],
 					DI::l10n()->t('Profile Photos'),
 					5,
-					1
+					Photo::USER_AVATAR
 				);
 				if ($r === false) {
 					notice(DI::l10n()->t('Image size reduction [%s] failed.', '80'));
@@ -132,7 +132,7 @@ class Crop extends BaseSettings
 					$base_image['filename'],
 					DI::l10n()->t('Profile Photos'),
 					6,
-					1
+					Photo::USER_AVATAR
 				);
 				if ($r === false) {
 					notice(DI::l10n()->t('Image size reduction [%s] failed.', '48'));

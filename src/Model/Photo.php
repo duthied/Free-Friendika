@@ -46,6 +46,12 @@ class Photo
 {
 	const CONTACT_PHOTOS = 'Contact Photos';
 
+	const DEFAULT        = 0;
+	const USER_AVATAR    = 10;
+	const USER_BANNER    = 11;
+	const CONTACT_AVATAR = 20;
+	const CONTACT_BANNER = 21;
+
 	/**
 	 * Select rows from the photo table and returns them as array
 	 *
@@ -322,7 +328,7 @@ class Photo
 	 * @return boolean True on success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function store(Image $Image, $uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = "", $allow_gid = "", $deny_cid = "", $deny_gid = "", $desc = "")
+	public static function store(Image $Image, $uid, $cid, $rid, $filename, $album, $scale, $type = self::DEFAULT, $allow_cid = "", $allow_gid = "", $deny_cid = "", $deny_gid = "", $desc = "")
 	{
 		$photo = self::selectFirst(["guid"], ["`resource-id` = ? AND `guid` != ?", $rid, ""]);
 		if (DBA::isResult($photo)) {
@@ -372,7 +378,8 @@ class Photo
 			"datasize" => strlen($Image->asString()),
 			"data" => $data,
 			"scale" => $scale,
-			"profile" => $profile,
+			"photo-type" => $type,
+			"profile" => $type == self::USER_AVATAR,
 			"allow_cid" => $allow_cid,
 			"allow_gid" => $allow_gid,
 			"deny_cid" => $deny_cid,
@@ -476,7 +483,7 @@ class Photo
 		$micro = "";
 
 		$photo = DBA::selectFirst(
-			"photo", ["resource-id"], ["uid" => $uid, "contact-id" => $cid, "scale" => 4, "album" => self::CONTACT_PHOTOS]
+			"photo", ["resource-id"], ["uid" => $uid, "contact-id" => $cid, "scale" => 4, "photo-type" => self::CONTACT_AVATAR]
 		);
 		if (!empty($photo['resource-id'])) {
 			$resource_id = $photo["resource-id"];
@@ -529,7 +536,7 @@ class Photo
 				Logger::info('Avatar is resized', ['uid' => $uid, 'cid' => $cid, 'size' => $filesize, 'type' => $Image->getType()]);
 			}
 
-			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 4);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 4, self::CONTACT_AVATAR);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -537,7 +544,7 @@ class Photo
 
 			$Image->scaleDown(80);
 
-			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 5);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 5, self::CONTACT_AVATAR);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -545,7 +552,7 @@ class Photo
 
 			$Image->scaleDown(48);
 
-			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 6);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 6, self::CONTACT_AVATAR);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -651,20 +658,20 @@ class Photo
 				// At this time we just store the data in the cache
 				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
 					FROM `photo`
-					WHERE `uid` = ? AND NOT `album` IN (?, ?) $sql_extra
+					WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
 					$uid,
-					self::CONTACT_PHOTOS,
-					DI::l10n()->t(self::CONTACT_PHOTOS)
+					self::CONTACT_AVATAR,
+					self::CONTACT_BANNER
 				));
 			} else {
 				// This query doesn't do the count and is much faster
 				$albums = DBA::toArray(DBA::p("SELECT DISTINCT(`album`), '' AS `total`
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
-					WHERE `uid` = ? AND NOT `album` IN (?, ?) $sql_extra",
+					WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sql_extra",
 					$uid,
-					self::CONTACT_PHOTOS,
-					DI::l10n()->t(self::CONTACT_PHOTOS)
+					self::CONTACT_AVATAR,
+					self::CONTACT_BANNER
 				));
 			}
 			DI::cache()->set($key, $albums, Duration::DAY);
@@ -998,7 +1005,7 @@ class Photo
 
 		$smallest = 0;
 
-		$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 0, 0, $defperm);
+		$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 0, self::DEFAULT, $defperm);
 		if (!$r) {
 			Logger::notice('Photo could not be stored');
 			return [];
@@ -1006,7 +1013,7 @@ class Photo
 
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
-			$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 1, 0, $defperm);
+			$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 1, self::DEFAULT, $defperm);
 			if ($r) {
 				$smallest = 1;
 			}
@@ -1014,7 +1021,7 @@ class Photo
 
 		if ($width > 320 || $height > 320) {
 			$Image->scaleDown(320);
-			$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 2, 0, $defperm);
+			$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 2, self::DEFAULT, $defperm);
 			if ($r && ($smallest == 0)) {
 				$smallest = 2;
 			}

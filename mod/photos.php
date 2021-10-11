@@ -725,7 +725,7 @@ function photos_post(App $a)
 
 	$resource_id = Photo::newResource();
 
-	$r = Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+	$r = Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0 , Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (!$r) {
 		Logger::info('image store failed');
@@ -735,13 +735,13 @@ function photos_post(App $a)
 
 	if ($width > 640 || $height > 640) {
 		$image->scaleDown(640);
-		Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 1, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+		Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 1, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		$smallest = 1;
 	}
 
 	if ($width > 320 || $height > 320) {
 		$image->scaleDown(320);
-		Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 2, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+		Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 2, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		$smallest = 2;
 	}
 
@@ -1546,11 +1546,11 @@ function photos_content(App $a)
 	// Default - show recent photos with upload link (if applicable)
 	//$o = '';
 	$total = 0;
-	$r = DBA::toArray(DBA::p("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND NOT `album` IN (?, ?)
+	$r = DBA::toArray(DBA::p("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?)
 		$sql_extra GROUP BY `resource-id`",
 		$user['uid'],
-		Photo::CONTACT_PHOTOS,
-		DI::l10n()->t(Photo::CONTACT_PHOTOS)
+		Photo::CONTACT_AVATAR,
+		Photo::CONTACT_BANNER
 	));
 	if (DBA::isResult($r)) {
 		$total = count($r);
@@ -1561,11 +1561,11 @@ function photos_content(App $a)
 	$r = DBA::toArray(DBA::p("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
 		ANY_VALUE(`type`) AS `type`, ANY_VALUE(`album`) AS `album`, max(`scale`) AS `scale`,
 		ANY_VALUE(`created`) AS `created` FROM `photo`
-		WHERE `uid` = ? AND NOT `album` IN (?, ?)
+		WHERE `uid` = ? AND NOT `photo-type` IN (?, ?)
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT ? , ?",
 		$user['uid'],
-		Photo::CONTACT_PHOTOS,
-		DI::l10n()->t(Photo::CONTACT_PHOTOS),
+		Photo::CONTACT_AVATAR,
+		Photo::CONTACT_BANNER,
 		$pager->getStart(),
 		$pager->getItemsPerPage()
 	));

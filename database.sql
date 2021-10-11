@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1437
+-- DB_UPDATE_VERSION 1438
 -- ------------------------------------------
 
 
@@ -970,6 +970,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`desc` text COMMENT '',
 	`album` varchar(255) NOT NULL DEFAULT '' COMMENT 'The name of the album to which the photo belongs',
+	`photo-type` tinyint unsigned COMMENT 'User avatar, user banner, contact avatar, contact banner or default',
 	`filename` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`type` varchar(30) NOT NULL DEFAULT 'image/jpeg',
 	`height` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
@@ -993,6 +994,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	 INDEX `uid_album_scale_created` (`uid`,`album`(32),`scale`,`created`),
 	 INDEX `uid_album_resource-id_created` (`uid`,`album`(32),`resource-id`,`created`),
 	 INDEX `resource-id` (`resource-id`),
+	 INDEX `uid_photo-type` (`uid`,`photo-type`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='photo storage';
