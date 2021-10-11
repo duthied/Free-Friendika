@@ -226,7 +226,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	$defperm = '<' . $default_cid . '>';
 
-	$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0, 0, $defperm);
+	$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0, Photo::DEFAULT, $defperm);
 
 	if (!$r) {
 		$msg = DI::l10n()->t('Image upload failed.');
@@ -240,7 +240,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($width > 640 || $height > 640) {
 		$Image->scaleDown(640);
-		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 1, 0, $defperm);
+		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 1, Photo::DEFAULT, $defperm);
 		if ($r) {
 			$smallest = 1;
 		}
@@ -248,7 +248,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($width > 320 || $height > 320) {
 		$Image->scaleDown(320);
-		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 2, 0, $defperm);
+		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 2, Photo::DEFAULT, $defperm);
 		if ($r && ($smallest == 0)) {
 			$smallest = 2;
 		}

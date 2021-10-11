@@ -19,6 +19,7 @@ Fields
 | title         |                                                        | varchar(255)       | NO   |     |                     |                |
 | desc          |                                                        | text               | YES  |     | NULL                |                |
 | album         | The name of the album to which the photo belongs       | varchar(255)       | NO   |     |                     |                |
+| photo-type    | User avatar, contact avatar or default                 | tinyint unsigned   | YES  |     | NULL                |                |
 | filename      |                                                        | varchar(255)       | NO   |     |                     |                |
 | type          |                                                        | varchar(30)        | NO   |     | image/jpeg          |                |
 | height        |                                                        | smallint unsigned  | NO   |     | 0                   |                |
@@ -48,6 +49,7 @@ Indexes
 | uid_album_scale_created       | uid, album(32), scale, created       |
 | uid_album_resource-id_created | uid, album(32), resource-id, created |
 | resource-id                   | resource-id                          |
+| uid_photo-type                | uid, photo-type                      |
 
 Foreign Keys
 ------------

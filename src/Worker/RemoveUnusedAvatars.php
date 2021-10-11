@@ -45,7 +45,7 @@ class RemoveUnusedAvatars
 		$contacts = DBA::select('contact', ['id'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
 			Contact::update(['photo' => '', 'thumb' => '', 'micro' => ''], ['id' => $contact['id']]);
-			Photo::delete(['contact-id' => $contact['id'], 'album' => Photo::CONTACT_PHOTOS]);
+			Photo::delete(['contact-id' => $contact['id'], 'photo-type' => [Photo::CONTACT_AVATAR, Photo::CONTACT_BANNER]]);
 			if ((++$count % 1000) == 0) {
 				if (!Worker::isInMaintenanceWindow()) {
 					Logger::notice('We are outside of the maintenance window, quitting');

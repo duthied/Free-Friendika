@@ -4115,8 +4115,8 @@ function api_fr_photos_list($type)
 	$r = DBA::toArray(DBA::p(
 		"SELECT `resource-id`, MAX(scale) AS `scale`, `album`, `filename`, `type`, MAX(`created`) AS `created`,
 		MAX(`edited`) AS `edited`, MAX(`desc`) AS `desc` FROM `photo`
-		WHERE `uid` = ? AND NOT `album` IN (?, ?) GROUP BY `resource-id`, `album`, `filename`, `type`",
-		local_user(), Photo::CONTACT_PHOTOS, DI::l10n()->t(Photo::CONTACT_PHOTOS)
+		WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) GROUP BY `resource-id`, `album`, `filename`, `type`",
+		local_user(), Photo::CONTACT_AVATAR, Photo::CONTACT_BANNER
 	));
 	$typetoext = [
 		'image/jpeg' => 'jpg',
@@ -4212,7 +4212,7 @@ function api_fr_photo_create_update($type)
 	// now let's upload the new media in create-mode
 	if ($mode == "create") {
 		$media = $_FILES['media'];
-		$data = save_media_to_database("photo", $media, $type, $album, trim($allow_cid), trim($deny_cid), trim($allow_gid), trim($deny_gid), $desc, $visibility);
+		$data = save_media_to_database("photo", $media, $type, $album, trim($allow_cid), trim($deny_cid), trim($allow_gid), trim($deny_gid), $desc, Photo::DEFAULT, $visibility);
 
 		// return success of updating or error message
 		if (!is_null($data)) {
@@ -4265,7 +4265,7 @@ function api_fr_photo_create_update($type)
 		if (!empty($_FILES['media'])) {
 			$nothingtodo = false;
 			$media = $_FILES['media'];
-			$data = save_media_to_database("photo", $media, $type, $album, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $desc, 0, $visibility, $photo_id);
+			$data = save_media_to_database("photo", $media, $type, $album, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $desc, Photo::DEFAULT, $visibility, $photo_id);
 			if (!is_null($data)) {
 				return api_format_data("photo_update", $type, $data);
 			}
@@ -4408,7 +4408,7 @@ function api_account_update_profile_image($type)
 		$media = $_FILES['media'];
 	}
 	// save new profile image
-	$data = save_media_to_database("profileimage", $media, $type, DI::l10n()->t('Profile Photos'), "", "", "", "", "", $is_default_profile);
+	$data = save_media_to_database("profileimage", $media, $type, DI::l10n()->t('Profile Photos'), "", "", "", "", "", Photo::USER_AVATAR);
 
 	// get filetype
 	if (is_array($media['type'])) {
@@ -4427,7 +4427,7 @@ function api_account_update_profile_image($type)
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
 		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
-		Photo::update(['profile' => false], $condition);
+		Photo::update(['profile' => false, 'photo-type' => Photo::DEFAULT], $condition);
 	} else {
 		$fields = ['photo' => DI::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $fileext,
 			'thumb' => DI::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $fileext];
@@ -4534,7 +4534,7 @@ function check_acl_input($acl_string)
  * @param string  $allow_gid
  * @param string  $deny_gid
  * @param string  $desc
- * @param integer $profile
+ * @param integer $phototype
  * @param boolean $visibility
  * @param string  $photo_id
  * @return array
@@ -4545,7 +4545,7 @@ function check_acl_input($acl_string)
  * @throws NotFoundException
  * @throws UnauthorizedException
  */
-function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $desc, $profile = 0, $visibility = false, $photo_id = null)
+function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $desc, $phototype = 0, $visibility = false, $photo_id = null)
 {
 	$visitor   = 0;
 	$src = "";
@@ -4623,13 +4623,13 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		// upload normal image (scales 0, 1, 2)
 		logger::info("photo upload: starting new photo upload");
 
-		$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 0, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+		$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 0, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 		if (!$r) {
 			logger::notice("photo upload: image upload with scale 0 (original size) failed");
 		}
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 1, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 1, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: image upload with scale 1 (640x640) failed");
 			}
@@ -4637,7 +4637,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 320 || $height > 320) {
 			$Image->scaleDown(320);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 2, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 2, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: image upload with scale 2 (320x320) failed");
 			}
@@ -4649,7 +4649,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 300 || $height > 300) {
 			$Image->scaleDown(300);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 4, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 4, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: profile image upload with scale 4 (300x300) failed");
 			}
@@ -4657,7 +4657,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 80 || $height > 80) {
 			$Image->scaleDown(80);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 5, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 5, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: profile image upload with scale 5 (80x80) failed");
 			}
@@ -4665,7 +4665,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 48 || $height > 48) {
 			$Image->scaleDown(48);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 6, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 6, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: profile image upload with scale 6 (48x48) failed");
 			}

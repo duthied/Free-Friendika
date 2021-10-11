@@ -192,8 +192,8 @@ function update_1330()
 	}
 
 	// Update attachments and photos
-	if (!DBA::p("UPDATE `photo` SET `photo`.`backend-class` = SUBSTR(`photo`.`backend-class`, 25) WHERE `photo`.`backend-class` LIKE 'Friendica\\\Model\\\Storage\\\%' ESCAPE '|'") ||
-	    !DBA::p("UPDATE `attach` SET `attach`.`backend-class` = SUBSTR(`attach`.`backend-class`, 25) WHERE `attach`.`backend-class` LIKE 'Friendica\\\Model\\\Storage\\\%' ESCAPE '|'")) {
+	if (!DBA::e("UPDATE `photo` SET `photo`.`backend-class` = SUBSTR(`photo`.`backend-class`, 25) WHERE `photo`.`backend-class` LIKE 'Friendica\\\Model\\\Storage\\\%' ESCAPE '|'") ||
+	    !DBA::e("UPDATE `attach` SET `attach`.`backend-class` = SUBSTR(`attach`.`backend-class`, 25) WHERE `attach`.`backend-class` LIKE 'Friendica\\\Model\\\Storage\\\%' ESCAPE '|'")) {
 		return Update::FAILED;
 	};
 
@@ -1005,4 +1005,11 @@ function update_1435()
 	while ($contact = DBA::fetch($contacts)) {
 		Contact\User::insertForContactArray($contact);
 	}
+}
+
+function update_1438()
+{
+	DBA::update('photo', ['photo-type' => Photo::USER_AVATAR], ['profile' => true]);
+	DBA::update('photo', ['photo-type' => Photo::CONTACT_AVATAR], ["NOT `profile` AND NOT `contact-id` IS NULL AND `contact-id` != ?", 0]);
+	DBA::update('photo', ['photo-type' => Photo::DEFAULT], ["NOT `profile` AND (`contact-id` IS NULL OR `contact-id` = ?) AND `photo-type` IS NULL AND `album` != ?", 0, Photo::CONTACT_PHOTOS]);
 }

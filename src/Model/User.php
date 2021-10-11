@@ -1184,7 +1184,7 @@ class User
 				}
 
 				if (!$photo_failure) {
-					Photo::update(['profile' => 1], ['resource-id' => $resource_id]);
+					Photo::update(['profile' => true, 'photo-type' => Photo::USER_AVATAR], ['resource-id' => $resource_id]);
 				}
 			}
 

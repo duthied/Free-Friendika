@@ -1933,7 +1933,7 @@ class Contact
 
 			if (!empty($cids)) {
 				// Delete possibly existing cached user contact avatars
-				Photo::delete(['uid' => $uids, 'contact-id' => $cids, 'album' => Photo::CONTACT_PHOTOS]);
+				Photo::delete(['uid' => $uids, 'contact-id' => $cids, 'photo-type' => Photo::CONTACT_AVATAR]);
 			}
 		}
 

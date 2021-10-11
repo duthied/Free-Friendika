@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1437);
+	define('DB_UPDATE_VERSION', 1438);
 }
 
 return [
@@ -1023,6 +1023,7 @@ return [
 			"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"desc" => ["type" => "text", "comment" => ""],
 			"album" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "The name of the album to which the photo belongs"],
+			"photo-type" => ["type" => "tinyint unsigned", "comment" => "User avatar, contact avatar or default"],
 			"filename" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"type" => ["type" => "varchar(30)", "not null" => "1", "default" => "image/jpeg"],
 			"height" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1048,6 +1049,7 @@ return [
 			"uid_album_scale_created" => ["uid", "album(32)", "scale", "created"],
 			"uid_album_resource-id_created" => ["uid", "album(32)", "resource-id", "created"],
 			"resource-id" => ["resource-id"],
+			"uid_photo-type" => ["uid", "photo-type"],
 		]
 	],
 	"post" => [

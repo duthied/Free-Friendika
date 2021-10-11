@@ -59,7 +59,7 @@ class Expire
 
 		Logger::notice('start expiry');
 
-		$r = DBA::p("SELECT `uid`, `username` FROM `user` WHERE `expire` != 0");
+		$r = DBA::select('user', ['uid', 'username'], ["`expire` != ?", 0]);
 		while ($row = DBA::fetch($r)) {
 			Logger::info('Calling expiry', ['user' => $row['uid'], 'username' => $row['username']]);
 			Worker::add(['priority' => $a->getQueueValue('priority'), 'created' => $a->getQueueValue('created'), 'dont_fork' => true],
