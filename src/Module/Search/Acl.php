@@ -130,10 +130,8 @@ class Acl extends BaseModule
 			$group_count = DBA::count('group', $condition_group);
 		}
 
-		$networks = Widget::unavailableNetworksAsArray();
-		if (!empty($networks)) {
-			$condition = DBA::mergeConditions($condition, array_merge(["NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")"], $networks));
-		}
+		$networks = Widget::unavailableNetworks();
+		$condition = DBA::mergeConditions($condition, array_merge(["NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")"], $networks));
 
 		switch ($type) {
 			case self::TYPE_MENTION_CONTACT_GROUP:

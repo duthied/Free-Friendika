@@ -664,42 +664,25 @@ class Contact extends BaseModule
 		}
 
 		if ($group) {
-			$sql_extra = " AND EXISTS(SELECT `id` FROM `group_member` WHERE `gid` = ? AND `contact`.`id` = `contact-id`)";
+			$sql_extra .= " AND EXISTS(SELECT `id` FROM `group_member` WHERE `gid` = ? AND `contact`.`id` = `contact-id`)";
 			$sql_values[] = $group;
 		}
 
-		$total = 0;
-		$stmt = DBA::p("SELECT COUNT(*) AS `total`
-			FROM `contact`
-			WHERE `uid` = ?
-			AND `self` = 0
-			AND NOT `deleted`
-			$sql_extra
-			" . Widget::unavailableNetworks(),
-			$sql_values
-		);
-		if (DBA::isResult($stmt)) {
-			$total = DBA::fetch($stmt)['total'];
-		}
-		DBA::close($stmt);
+		$networks = Widget::unavailableNetworks();
+		$sql_extra .= " AND NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")";
+		$sql_values = array_merge($sql_values, $networks);
+
+		$condition = ["`uid` = ? AND NOT `self` AND NOT `deleted`" . $sql_extra];
+		$condition = array_merge($condition, $sql_values);
+
+		$total = DBA::count('contact', $condition);
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
-		$sql_values[] = $pager->getStart();
-		$sql_values[] = $pager->getItemsPerPage();
-
 		$contacts = [];
 
-		$stmt = DBA::p("SELECT *
-			FROM `contact`
-			WHERE `uid` = ?
-			AND `self` = 0
-			AND NOT `deleted`
-			$sql_extra
-			ORDER BY `name` ASC
-			LIMIT ?, ?",
-			$sql_values
-		);
+		$stmt = DBA::select('contact', [], $condition, ['order' => ['name'], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]]);
+
 		while ($contact = DBA::fetch($stmt)) {
 			$contact['blocked'] = Model\Contact\User::isBlocked($contact['id'], local_user());
 			$contact['readonly'] = Model\Contact\User::isIgnored($contact['id'], local_user());
