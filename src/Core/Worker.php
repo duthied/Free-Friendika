@@ -712,13 +712,10 @@ class Worker
 					}
 
 					$stamp = (float)microtime(true);
-					$jobs = DBA::p("SELECT COUNT(*) AS `jobs` FROM `workerqueue` WHERE `done` AND `executed` > UTC_TIMESTAMP() - INTERVAL ? MINUTE", $interval);
+					$jobs = DBA::count('workerqueue', ["`done` AND `executed` > UTC_TIMESTAMP() - INTERVAL ? MINUTE", $interval]);
 					self::$db_duration += (microtime(true) - $stamp);
 					self::$db_duration_stat += (microtime(true) - $stamp);
-					if ($job = DBA::fetch($jobs)) {
-						$jobs_per_minute[$interval] = number_format($job['jobs'] / $interval, 0);
-					}
-					DBA::close($jobs);
+					$jobs_per_minute[$interval] = number_format($jobs / $interval, 0);
 				}
 				$processlist = ' - jpm: '.implode('/', $jobs_per_minute);
 			}
@@ -739,15 +736,12 @@ class Worker
 				self::$db_duration_stat += (microtime(true) - $stamp);
 				while ($entry = DBA::fetch($jobs)) {
 					$stamp = (float)microtime(true);
-					$processes = DBA::p("SELECT COUNT(*) AS `running` FROM `workerqueue-view` WHERE `priority` = ?", $entry["priority"]);
+					$running = DBA::count('workerqueue-view', ['priority' => $entry["priority"]]);
 					self::$db_duration += (microtime(true) - $stamp);
 					self::$db_duration_stat += (microtime(true) - $stamp);
-					if ($process = DBA::fetch($processes)) {
-						$idle_workers -= $process["running"];
-						$waiting_processes += $entry["entries"];
-						$listitem[$entry["priority"]] = $entry["priority"].":".$process["running"]."/".$entry["entries"];
-					}
-					DBA::close($processes);
+					$idle_workers -= $running;
+					$waiting_processes += $entry["entries"];
+					$listitem[$entry["priority"]] = $entry["priority"] . ":" . $running . "/" . $entry["entries"];
 				}
 				DBA::close($jobs);
 			} else {

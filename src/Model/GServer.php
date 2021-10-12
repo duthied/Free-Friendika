@@ -1667,14 +1667,10 @@ class GServer
 
 		$last_update = date('c', time() - (60 * 60 * 24 * $requery_days));
 
-		$gservers = DBA::p("SELECT `id`, `url`, `nurl`, `network`, `poco`, `directory-type`
-			FROM `gserver`
-			WHERE NOT `failed`
-			AND `directory-type` != ?
-			AND `last_poco_query` < ?
-			ORDER BY RAND()", self::DT_NONE, $last_update
-		);
-
+		$gservers = DBA::select('gserver', ['id', 'url', 'nurl', 'network', 'poco', 'directory-type'],
+			["NOT `failed` AND `directory-type` != ? AND `last_poco_query` < ?", GServer::DT_NONE, $last_update],
+			['order' => ['RAND()']]);
+	
 		while ($gserver = DBA::fetch($gservers)) {
 			Logger::info('Update peer list', ['server' => $gserver['url'], 'id' => $gserver['id']]);
 			Worker::add(PRIORITY_LOW, 'UpdateServerPeers', $gserver['url']);

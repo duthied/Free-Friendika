@@ -36,7 +36,6 @@ class ExpireConversations
 			return;
 		}
 
-		DBA::e("DELETE FROM `conversation` WHERE `received` < UTC_TIMESTAMP() - INTERVAL ? DAY", $days);
-
+		DBA::delete('conversation', ["`received` < UTC_TIMESTAMP() - INTERVAL ? DAY", $days]);
 	}
 }

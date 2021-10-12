@@ -106,7 +106,7 @@ HELP;
 		$this->errored = 0;
 
 		do {
-			$result = $this->dba->p('SELECT `id`, `parameter` FROM `workerqueue` WHERE `command` = "APDelivery" AND `parameter` LIKE "[\"%\",\"\",%" LIMIT ' . $this->examined . ', 100');
+			$result = $this->dba->select('workerqueue', ['id', 'parameter'], ["`command` = ? AND `parameter` LIKE ?", "APDelivery", "[\"%\",\"\",%"], ['limit' => [$this->examined, 100]]);
 			while ($row = $this->dba->fetch($result)) {
 				$this->examined++;
 				$this->processRow($row);

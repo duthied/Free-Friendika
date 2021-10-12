@@ -68,7 +68,7 @@ trait DatabaseTestTrait
 			}
 
 			if (!is_array($rows)) {
-				$dba->p('TRUNCATE TABLE `' . $tableName . '``');
+				$dba->e('TRUNCATE TABLE `' . $tableName . '``');
 				continue;
 			}
 
