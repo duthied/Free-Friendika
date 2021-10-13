@@ -3024,6 +3024,10 @@ class Contact
 
 		$condition = ['network' => $networks, 'failed' => false, 'deleted' => false, 'uid' => $uid];
 
+		if ($uid == 0) {
+			$condition['blocked'] = false;
+		}
+
 		// check if we search only communities or every contact
 		if ($mode === 'community') {
 			$condition['contact-type'] = self::TYPE_COMMUNITY;
