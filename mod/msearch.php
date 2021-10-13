@@ -45,20 +45,6 @@ function msearch_post(App $a)
 
 	$condition = ["`net-publish` AND MATCH(`pub_keywords`) AGAINST (?)", $search];
 	$total = DBA::count('owner-view', $condition);
-	$count_stmt = DBA::p(
-		"SELECT COUNT(*) AS `total`
-			FROM `profile`
-		  	JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			WHERE `profile`.`net-publish`
-		  	AND MATCH(`pub_keywords`) AGAINST (?)",
-		$search
-	);
-	if (DBA::isResult($count_stmt)) {
-		$row = DBA::fetch($count_stmt);
-		$total = $row['total'];
-	}
-
-	DBA::close($count_stmt);
 
 	$search_stmt = DBA::select('owner-view', ['pub_keywords', 'name', 'nickname', 'uid'], $condition, ['limit' => [$startrec, $perpage]]);
 	while ($search_result = DBA::fetch($search_stmt)) {

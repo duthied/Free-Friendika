@@ -3022,7 +3022,7 @@ class Contact
 			$networks[] = Protocol::OSTATUS;
 		}
 
-		$condition = ['network' => $networks, 'failed' => false, 'uid' => $uid];
+		$condition = ['network' => $networks, 'failed' => false, 'deleted' => false, 'uid' => $uid];
 
 		// check if we search only communities or every contact
 		if ($mode === 'community') {
@@ -3032,7 +3032,7 @@ class Contact
 		$search .= '%';
 
 		$condition = DBA::mergeConditions($condition,
-			["(NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` where `publish` OR `net-publish`))
+			["(NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` WHERE `publish` OR `net-publish`))
 			AND (`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)", $search, $search, $search]);
 
 		$contacts = self::selectToArray([], $condition);
