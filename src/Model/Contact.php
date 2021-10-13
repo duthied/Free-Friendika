@@ -823,7 +823,7 @@ class Contact
 		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
 
 		// Delete it in the background
-		Worker::add(PRIORITY_MEDIUM, 'RemoveContact', $id);
+		Worker::add(PRIORITY_MEDIUM, 'Contact\Remove', $id);
 	}
 
 	/**
