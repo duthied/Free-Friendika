@@ -42,7 +42,7 @@ abstract class BaseUsers extends BaseAdmin
 	{
 		$active = DBA::count('user', ['blocked' => false, 'verified' => true, 'account_removed' => false]);
 		$pending = Register::getPendingCount();
-		$blocked = DBA::count('user', ['blocked' => true, 'verified' => true]);
+		$blocked = DBA::count('user', ['blocked' => true, 'verified' => true, 'account_removed' => false]);
 		$deleted = DBA::count('user', ['account_removed' => true]);
 
 		$tabs = [
