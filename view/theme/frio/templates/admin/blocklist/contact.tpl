@@ -22,6 +22,7 @@
 					<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 					{{include file="field_input.tpl" field=$contacturl}}
+					{{include file="field_checkbox.tpl" field=$contact_block_purge}}
 					{{include file="field_textarea.tpl" field=$contact_block_reason}}
 
 					<div class="admin-settings-submit-wrapper form-group pull-right">

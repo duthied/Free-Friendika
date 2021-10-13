@@ -23,10 +23,12 @@ namespace Friendica\Module\Admin\Blocklist;
 
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Module\BaseAdmin;
 use Friendica\Model;
+use Friendica\Module\BaseAdmin;
+use Friendica\Util\Network;
 
 class Contact extends BaseAdmin
 {
@@ -38,16 +40,30 @@ class Contact extends BaseAdmin
 
 		$contact_url  = $_POST['contact_url'] ?? '';
 		$block_reason = $_POST['contact_block_reason'] ?? '';
+		$block_purge  = $_POST['contact_block_purge'] ?? false;
 		$contacts     = $_POST['contacts'] ?? [];
 
 		if (!empty($_POST['page_contactblock_block'])) {
-			$contact_id = Model\Contact::getIdForURL($contact_url);
-			if ($contact_id) {
-				Model\Contact::block($contact_id, $block_reason);
-				info(DI::l10n()->t('The contact has been blocked from the node'));
-			} else {
+			$contact = Model\Contact::getByURL($contact_url, null, ['id', 'nurl']);
+			if (empty($contact)) {
 				notice(DI::l10n()->t('Could not find any contact entry for this URL (%s)', $contact_url));
+				DI::baseUrl()->redirect('admin/blocklist/contact');
 			}
+
+			if (Network::isLocalLink($contact['nurl'])) {
+				notice(DI::l10n()->t('You can\'t block a local contact, please block the user instead'));
+				DI::baseUrl()->redirect('admin/blocklist/contact');
+			}
+
+			Model\Contact::block($contact['id'], $block_reason);
+
+			if ($block_purge) {
+				foreach (Model\Contact::selectToArray(['id'], ['nurl' => $contact['nurl']]) as $contact) {
+					Worker::add(PRIORITY_LOW, 'Contact\RemoveContent', $contact['id']);
+				}
+			}
+
+			info(DI::l10n()->t('The contact has been blocked from the node'));
 		}
 
 		if (!empty($_POST['page_contactblock_unblock'])) {
@@ -98,6 +114,7 @@ class Contact extends BaseAdmin
 			'$total_contacts' => DI::l10n()->tt('%s total blocked contact', '%s total blocked contacts', $total),
 			'$paginate'   => $pager->renderFull($total),
 			'$contacturl' => ['contact_url', DI::l10n()->t('Profile URL'), '', DI::l10n()->t('URL of the remote contact to block.')],
+			'$contact_block_purge'  => ['contact_block_purge', DI::l10n()->t('Also purge contact'), false, DI::l10n()->t('Removes all content related to this contact from the node. Keeps the contact record. This action canoot be undone.')],
 			'$contact_block_reason' => ['contact_block_reason', DI::l10n()->t('Block Reason')],
 		]);
 		return $o;

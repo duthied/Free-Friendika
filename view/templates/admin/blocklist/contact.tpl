@@ -56,6 +56,7 @@
 			<tbody>
 				<tr>
 					<td>{{include file="field_input.tpl" field=$contacturl}}</td>
+					<td>{{include file="field_checkbox.tpl" field=$contact_block_purge}}</td>
 					<td>{{include file="field_textarea.tpl" field=$contact_block_reason}}</td>
 				</tr>
 			</tbody>
@@ -63,3 +64,4 @@
 		<div class="submit"><input type="submit" name="page_contactblock_block" value="{{$submit}}" /></div>
 	</form>
 </div>
+
