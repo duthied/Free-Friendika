@@ -3013,37 +3013,33 @@ class Contact
 		}
 
 		// check supported networks
+		$networks = [Protocol::DFRN, Protocol::ACTIVITYPUB];
 		if (DI::config()->get('system', 'diaspora_enabled')) {
-			$diaspora = Protocol::DIASPORA;
-		} else {
-			$diaspora = Protocol::DFRN;
+			$networks[] = Protocol::DIASPORA;
 		}
 
 		if (!DI::config()->get('system', 'ostatus_disabled')) {
-			$ostatus = Protocol::OSTATUS;
-		} else {
-			$ostatus = Protocol::DFRN;
+			$networks[] = Protocol::OSTATUS;
+		}
+
+		$condition = ['network' => $networks, 'failed' => false, 'deleted' => false, 'uid' => $uid];
+
+		if ($uid == 0) {
+			$condition['blocked'] = false;
 		}
 
 		// check if we search only communities or every contact
 		if ($mode === 'community') {
-			$extra_sql = sprintf(' AND `contact-type` = %d', self::TYPE_COMMUNITY);
-		} else {
-			$extra_sql = '';
+			$condition['contact-type'] = self::TYPE_COMMUNITY;
 		}
 
 		$search .= '%';
 
-		$results = DBA::p("SELECT * FROM `contact`
-			WHERE (NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` where `publish` OR `net-publish`))
-				AND `network` IN (?, ?, ?, ?) AND
-				NOT `failed` AND `uid` = ? AND
-				(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?) $extra_sql
-				ORDER BY `nurl` DESC LIMIT 1000",
-			Protocol::DFRN, Protocol::ACTIVITYPUB, $ostatus, $diaspora, $uid, $search, $search, $search
-		);
+		$condition = DBA::mergeConditions($condition,
+			["(NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` WHERE `publish` OR `net-publish`))
+			AND (`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)", $search, $search, $search]);
 
-		$contacts = DBA::toArray($results);
+		$contacts = self::selectToArray([], $condition);
 		return $contacts;
 	}
 

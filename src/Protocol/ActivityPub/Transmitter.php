@@ -166,21 +166,17 @@ class Transmitter
 			'pending' => false,
 			'blocked' => false,
 		];
-		$condition = DBA::buildCondition($parameters);
 
-		$sql = "SELECT COUNT(*) as `count`
-			FROM `contact`
-			JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
-			" . $condition;
+		$condition = DBA::mergeConditions($parameters, ["`url` IN (SELECT `url` FROM `apcontact`)"]);
 
-		$contacts = DBA::fetchFirst($sql, ...$parameters);
+		$total = DBA::count('contact', $condition);
 
 		$modulePath = '/' . $module . '/';
 
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data['id'] = DI::baseUrl() . $modulePath . $owner['nickname'];
 		$data['type'] = 'OrderedCollection';
-		$data['totalItems'] = $contacts['count'];
+		$data['totalItems'] = $total;
 
 		// When we hide our friends we will only show the pure number but don't allow more.
 		$profile = Profile::getByUID($owner['uid']);
@@ -194,16 +190,7 @@ class Transmitter
 			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
 
-			$sql = "SELECT `contact`.`url`
-				FROM `contact`
-				JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
-				" . $condition . "
-				LIMIT ?, ?";
-
-			$parameters[] = ($page - 1) * 100;
-			$parameters[] = 100;
-
-			$contacts = DBA::p($sql, ...$parameters);
+			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
 			while ($contact = DBA::fetch($contacts)) {
 				$list[] = $contact['url'];
 			}
