@@ -87,7 +87,7 @@ abstract class BaseDepository
 			}
 		}
 
-		if (isset($max_id)) {
+		if (isset($max_id) && $max_id > 0) {
 			$boundCondition = DBA::mergeConditions($boundCondition, ['`id` < ?', $max_id]);
 			if (!isset($min_id) && (!isset($params['order']['id']) || $params['order']['id'] === false || $params['order']['id'] === 'ASC')) {
 				$reverseOrder = true;
