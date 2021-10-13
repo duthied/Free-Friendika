@@ -124,8 +124,8 @@ class Notifications extends BaseApi
 		$Notifications = DI::notification()->selectByBoundaries(
 			$condition,
 			$params,
-			$request['min_id'] ?? null,
-			$request['min_id'] ?? $request['since_id'] ?? null,
+			$request['min_id'] ?: $request['since_id'],
+			$request['max_id'],
 			$request['limit']
 		);
 
