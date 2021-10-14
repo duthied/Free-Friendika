@@ -98,7 +98,7 @@ class Crop extends BaseSettings
 					0,
 					$resource_id,
 					$base_image['filename'],
-					DI::l10n()->t('Profile Photos'),
+					DI::l10n()->t(Photo::PROFILE_PHOTOS),
 					4,
 					Photo::USER_AVATAR
 				);
@@ -114,7 +114,7 @@ class Crop extends BaseSettings
 					0,
 					$resource_id,
 					$base_image['filename'],
-					DI::l10n()->t('Profile Photos'),
+					DI::l10n()->t(Photo::PROFILE_PHOTOS),
 					5,
 					Photo::USER_AVATAR
 				);
@@ -130,7 +130,7 @@ class Crop extends BaseSettings
 					0,
 					$resource_id,
 					$base_image['filename'],
-					DI::l10n()->t('Profile Photos'),
+					DI::l10n()->t(Photo::PROFILE_PHOTOS),
 					6,
 					Photo::USER_AVATAR
 				);
@@ -176,7 +176,7 @@ class Crop extends BaseSettings
 
 		// set an already uloaded photo as profile photo
 		// if photo is in 'Profile Photos', change it in db
-		if ($photos[0]['album'] == DI::l10n()->t('Profile Photos') && $havescale) {
+		if ($photos[0]['album'] == DI::l10n()->t(Photo::PROFILE_PHOTOS) && $havescale) {
 			Photo::update(['profile' => false], ['uid' => local_user()]);
 
 			Photo::update(['profile' => true], ['resource-id' => $resource_id, 'uid' => local_user()]);

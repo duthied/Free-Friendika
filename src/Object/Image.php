@@ -638,24 +638,6 @@ class Image
 	}
 
 	/**
-	 * @param string $path file path
-	 * @return mixed
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public function saveToFilePath($path)
-	{
-		if (!$this->isValid()) {
-			return false;
-		}
-
-		$string = $this->asString();
-
-		DI::profiler()->stopRecording('file');
-		file_put_contents($path, $string);
-		DI::profiler()->stopRecording();
-	}
-
-	/**
 	 * Magic method allowing string casting of an Image object
 	 *
 	 * Ex: $data = $Image->asString();

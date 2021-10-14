@@ -86,7 +86,7 @@ function photos_init(App $a) {
 			$ret['albums'] = [];
 			foreach ($albums as $k => $album) {
 				//hide profile photos to others
-				if (!$is_owner && !Session::getRemoteContactID($owner['uid']) && ($album['album'] == DI::l10n()->t('Profile Photos')))
+				if (!$is_owner && !Session::getRemoteContactID($owner['uid']) && ($album['album'] == DI::l10n()->t(Photo::PROFILE_PHOTOS)))
 					continue;
 				$entry = [
 					'text'      => $album['album'],
@@ -195,7 +195,7 @@ function photos_post(App $a)
 		}
 		$album = hex2bin(DI::args()->getArgv()[3]);
 
-		if ($album === DI::l10n()->t('Profile Photos') || $album === Photo::CONTACT_PHOTOS || $album === DI::l10n()->t(Photo::CONTACT_PHOTOS)) {
+		if ($album === DI::l10n()->t(Photo::PROFILE_PHOTOS) || $album === Photo::CONTACT_PHOTOS || $album === DI::l10n()->t(Photo::CONTACT_PHOTOS)) {
 			DI::baseUrl()->redirect($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
@@ -614,7 +614,7 @@ function photos_post(App $a)
 
 	$r = Photo::selectToArray([], ['`album` = ? AND `uid` = ? AND `created` > UTC_TIMESTAMP() - INTERVAL 3 HOUR', $album, $page_owner_uid]);
 
-	if (!DBA::isResult($r) || ($album == DI::l10n()->t('Profile Photos'))) {
+	if (!DBA::isResult($r) || ($album == DI::l10n()->t(Photo::PROFILE_PHOTOS))) {
 		$visible = 1;
 	} else {
 		$visible = 0;
@@ -1025,7 +1025,7 @@ function photos_content(App $a)
 
 		// edit album name
 		if ($cmd === 'edit') {
-			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS))) {
+			if (($album !== DI::l10n()->t(Photo::PROFILE_PHOTOS)) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS))) {
 				if ($can_post) {
 					$edit_tpl = Renderer::getMarkupTemplate('album_edit.tpl');
 
@@ -1042,7 +1042,7 @@ function photos_content(App $a)
 				}
 			}
 		} else {
-			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS)) && $can_post) {
+			if (($album !== DI::l10n()->t(Photo::PROFILE_PHOTOS)) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS)) && $can_post) {
 				$edit = [DI::l10n()->t('Edit Album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/edit'];
 				$drop = [DI::l10n()->t('Drop Album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/drop'];
 			}
@@ -1576,7 +1576,7 @@ function photos_content(App $a)
 		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
-			if (!$is_owner && !Session::getRemoteContactID($owner_uid) && ($rr['album'] == DI::l10n()->t('Profile Photos'))) {
+			if (!$is_owner && !Session::getRemoteContactID($owner_uid) && ($rr['album'] == DI::l10n()->t(Photo::PROFILE_PHOTOS))) {
 				continue;
 			}
 
