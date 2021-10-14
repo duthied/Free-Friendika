@@ -1161,7 +1161,10 @@ class User
 
 				$resource_id = Photo::newResource();
 
-				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 4);
+				// Not using Photo::PROFILE_PHOTOS here, so that it is discovered as translateble string
+				$profile_album = DI::l10n()->t('Profile Photos');
+
+				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $profile_album, 4);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -1169,7 +1172,7 @@ class User
 
 				$Image->scaleDown(80);
 
-				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 5);
+				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $profile_album, 5);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -1177,7 +1180,7 @@ class User
 
 				$Image->scaleDown(48);
 
-				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 6);
+				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $profile_album, 6);
 
 				if ($r === false) {
 					$photo_failure = true;
