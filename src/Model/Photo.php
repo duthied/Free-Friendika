@@ -45,6 +45,7 @@ use Friendica\Util\Strings;
 class Photo
 {
 	const CONTACT_PHOTOS = 'Contact Photos';
+	const PROFILE_PHOTOS = 'Profile Photos';
 
 	const DEFAULT        = 0;
 	const USER_AVATAR    = 10;
@@ -563,25 +564,6 @@ class Photo
 			$image_url = DI::baseUrl() . "/photo/" . $resource_id . "-4." . $Image->getExt() . $suffix;
 			$thumb = DI::baseUrl() . "/photo/" . $resource_id . "-5." . $Image->getExt() . $suffix;
 			$micro = DI::baseUrl() . "/photo/" . $resource_id . "-6." . $Image->getExt() . $suffix;
-
-			// Remove the cached photo
-			$a = DI::app();
-			$basepath = $a->getBasePath();
-
-			if (is_dir($basepath . "/photo")) {
-				$filename = $basepath . "/photo/" . $resource_id . "-4." . $Image->getExt();
-				if (file_exists($filename)) {
-					unlink($filename);
-				}
-				$filename = $basepath . "/photo/" . $resource_id . "-5." . $Image->getExt();
-				if (file_exists($filename)) {
-					unlink($filename);
-				}
-				$filename = $basepath . "/photo/" . $resource_id . "-6." . $Image->getExt();
-				if (file_exists($filename)) {
-					unlink($filename);
-				}
-			}
 		} else {
 			$photo_failure = true;
 		}

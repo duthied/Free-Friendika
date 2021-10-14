@@ -4408,7 +4408,7 @@ function api_account_update_profile_image($type)
 		$media = $_FILES['media'];
 	}
 	// save new profile image
-	$data = save_media_to_database("profileimage", $media, $type, DI::l10n()->t('Profile Photos'), "", "", "", "", "", Photo::USER_AVATAR);
+	$data = save_media_to_database("profileimage", $media, $type, DI::l10n()->t(Photo::PROFILE_PHOTOS), "", "", "", "", "", Photo::USER_AVATAR);
 
 	// get filetype
 	if (is_array($media['type'])) {
