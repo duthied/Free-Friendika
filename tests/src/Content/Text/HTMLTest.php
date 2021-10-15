@@ -84,6 +84,16 @@ class HTMLTest extends MockedTest
 				'expectedBBCode' => "<big rant here> I don't understand tests",
 				'html' => "&lt;big rant here&gt; I don't understand tests",
 			],
+			'bug-10877-code-entities' => [
+				'expectedBBCode' => "Now playing
+[code]
+echo \"main(i){for(i=0;;i++)putchar(((i*(i>>8|i>>9)&46&i>>8))^(i&i>>13|i>>6));}\" | gcc -o a.out -x c - 2> /dev/null
+./a.out | aplay -q 2> /dev/null
+[/code]
+its surprisingly good",
+				'html' => "<p>Now playing</p><pre><code>echo &quot;main(i){for(i=0;;i++)putchar(((i*(i&gt;&gt;8|i&gt;&gt;9)&amp;46&amp;i&gt;&gt;8))^(i&amp;i&gt;&gt;13|i&gt;&gt;6));}&quot; | gcc -o a.out -x c - 2&gt; /dev/null
+./a.out | aplay -q 2&gt; /dev/null</code></pre><p>its surprisingly good</p>",
+			],
 		];
 	}
 

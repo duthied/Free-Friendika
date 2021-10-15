@@ -386,7 +386,7 @@ class HTML
 					$prefix = '[code=' . $matches[1] . ']';
 				}
 
-				return $prefix . PHP_EOL . trim($matches[2]) . PHP_EOL . '[/code]';
+				return $prefix . "\n" . html_entity_decode($matches[2]) . "\n" . '[/code]';
 			},
 			$message
 		);
