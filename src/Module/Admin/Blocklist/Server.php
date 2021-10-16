@@ -40,20 +40,23 @@ class Server extends BaseAdmin
 
 		if (!empty($_POST['page_blocklist_save'])) {
 			//  Add new item to blocklist
+			$domain = trim($_POST['newentry_domain']);
+
 			$blocklist = DI::config()->get('system', 'blocklist');
 			$blocklist[] = [
-				'domain' => Strings::escapeTags(trim($_POST['newentry_domain'])),
-				'reason' => Strings::escapeTags(trim($_POST['newentry_reason']))
+				'domain' => $domain,
+				'reason' => trim($_POST['newentry_reason']),
 			];
 			DI::config()->set('system', 'blocklist', $blocklist);
+
 			info(DI::l10n()->t('Server domain pattern added to blocklist.'));
 		} else {
 			// Edit the entries from blocklist
 			$blocklist = [];
 			foreach ($_POST['domain'] as $id => $domain) {
 				// Trimming whitespaces as well as any lingering slashes
-				$domain = Strings::escapeTags(trim($domain, "\x00..\x1F/"));
-				$reason = Strings::escapeTags(trim($_POST['reason'][$id]));
+				$domain = trim($domain);
+				$reason = trim($_POST['reason'][$id]);
 				if (empty($_POST['delete'][$id])) {
 					$blocklist[] = [
 						'domain' => $domain,
@@ -97,7 +100,7 @@ class Server extends BaseAdmin
 </ul>'),
 			'$addtitle' => DI::l10n()->t('Add new entry to block list'),
 			'$newdomain' => ['newentry_domain', DI::l10n()->t('Server Domain Pattern'), '', DI::l10n()->t('The domain pattern of the new server to add to the block list. Do not include the protocol.'), DI::l10n()->t('Required'), '', ''],
-			'$newreason' => ['newentry_reason', DI::l10n()->t('Block reason'), '', DI::l10n()->t('The reason why you blocked this server domain pattern.'), DI::l10n()->t('Required'), '', ''],
+			'$newreason' => ['newentry_reason', DI::l10n()->t('Block reason'), '', DI::l10n()->t('The reason why you blocked this server domain pattern. This reason will be shown publicly in the server information page.'), DI::l10n()->t('Required'), '', ''],
 			'$submit' => DI::l10n()->t('Add Entry'),
 			'$savechanges' => DI::l10n()->t('Save changes to the blocklist'),
 			'$currenttitle' => DI::l10n()->t('Current Entries in the Blocklist'),
