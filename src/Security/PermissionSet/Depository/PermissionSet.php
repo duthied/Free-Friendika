@@ -89,13 +89,21 @@ class PermissionSet extends BaseDepository
 	}
 
 	/**
-	 * @param int $id
-	 *
+	 * @param int      $id A permissionset table row id or self::PUBLIC
+	 * @param int|null $uid Should be provided when id can be self::PUBLIC
 	 * @return Entity\PermissionSet
 	 * @throws NotFoundException
 	 */
-	public function selectOneById(int $id): Entity\PermissionSet
+	public function selectOneById(int $id, int $uid = null): Entity\PermissionSet
 	{
+		if ($id === self::PUBLIC) {
+			if (empty($uid)) {
+				throw new \InvalidArgumentException('Missing uid for Public permission set instantiation');
+			}
+
+			return $this->factory->createFromString($uid);
+		}
+
 		return $this->selectOne(['id' => $id]);
 	}
 

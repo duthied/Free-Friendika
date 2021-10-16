@@ -39,7 +39,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 		}
 
 		if (isset($model['psid'])) {
-			$permissionSet = DI::permissionSet()->selectOneById($model['psid']);
+			$permissionSet = DI::permissionSet()->selectOneById($model['psid'], $model['uid']);
 			$model['allow_cid'] = $permissionSet->allow_cid;
 			$model['allow_gid'] = $permissionSet->allow_gid;
 			$model['deny_cid']  = $permissionSet->deny_cid;

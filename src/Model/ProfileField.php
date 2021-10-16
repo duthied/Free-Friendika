@@ -65,7 +65,7 @@ class ProfileField extends BaseModel
 		switch ($name) {
 			case 'permissionSet':
 				if (empty($this->permissionSet)) {
-					$permissionSet = $this->permissionSetDepository->selectOneById($this->psid);
+					$permissionSet = $this->permissionSetDepository->selectOneById($this->psid, $this->uid);
 					if ($permissionSet->uid !== $this->uid) {
 						throw new NotFoundException(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $permissionSet->id, $permissionSet->uid, $this->id, $this->uid));
 					}
