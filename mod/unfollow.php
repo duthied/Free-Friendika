@@ -122,8 +122,7 @@ function unfollow_process(string $url)
 
 	$owner = User::getOwnerDataById($uid);
 	if (!$owner) {
-		(new \Friendica\Module\Security\Logout())->init();
-		// NOTREACHED
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
@@ -140,15 +139,10 @@ function unfollow_process(string $url)
 	$return_path = $base_return_path . '/' . $contact['id'];
 
 	try {
-		$result = Contact::terminateFriendship($owner, $contact);
-
-		if ($result === false) {
-			$notice_message = DI::l10n()->t('Unable to unfollow this contact, please retry in a few minutes or contact your administrator.');
-		} else {
-			$notice_message = DI::l10n()->t('Contact was successfully unfollowed');
-		}
+		Contact::unfollow($contact);
+		$notice_message = DI::l10n()->t('Contact was successfully unfollowed');
 	} catch (Exception $e) {
-		DI::logger()->error($e->getMessage(), ['owner' => $owner, 'contact' => $contact]);
+		DI::logger()->error($e->getMessage(), ['contact' => $contact]);
 		$notice_message = DI::l10n()->t('Unable to unfollow this contact, please contact your administrator');
 	}
 

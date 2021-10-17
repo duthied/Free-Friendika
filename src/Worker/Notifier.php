@@ -673,7 +673,7 @@ class Notifier
 		}
 
 		while($contact = DBA::fetch($contacts_stmt)) {
-			Protocol::terminateFriendship($owner, $contact, true);
+			Contact::terminateFriendship($contact);
 		}
 		DBA::close($contacts_stmt);
 

@@ -1668,7 +1668,7 @@ class DFRN
 			}
 			if ($activity->match($item["verb"], Activity::UNFRIEND)) {
 				Logger::notice("Lost sharer");
-				Contact::removeSharer($importer, $contact, $item);
+				Contact::removeSharer($contact);
 				return false;
 			}
 		} else {

@@ -171,15 +171,15 @@ class Protocol
 	}
 
 	/**
-	 * Sends an unfriend message. Does not remove the contact
+	 * Sends an unfollow message. Does not remove the contact
 	 *
-	 * @param array   $user    User unfriending
-	 * @param array   $contact Contact unfriended
+	 * @param array $contact Target public contact (uid = 0) array
+	 * @param array $user    Source local user array
 	 * @return bool|null true if successful, false if not, null if no remote action was performed
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function terminateFriendship(array $user, array $contact): ?bool
+	public static function unfollow(array $contact, array $user): ?bool
 	{
 		if (empty($contact['network'])) {
 			throw new \InvalidArgumentException('Missing network key in contact array');
@@ -216,7 +216,8 @@ class Protocol
 		// Catch-all hook for connector addons
 		$hook_data = [
 			'contact' => $contact,
-			'result' => null
+			'uid'     => $user['uid'],
+			'result'  => null,
 		];
 		Hook::callAll('unfollow', $hook_data);
 

@@ -59,8 +59,7 @@ class Block extends BaseApi
 		Contact\User::setBlocked($cdata['user'], $uid, true);
 
 		// Mastodon-expected behavior: relationship is severed on block
-		Contact::terminateFriendship($owner, $contact);
-		Contact::revokeFollow($contact);
+		Contact::terminateFriendship($contact);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
