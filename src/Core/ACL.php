@@ -62,8 +62,6 @@ class ACL
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
-		// When used for private messages, we limit correspondence to mutual DFRN/Friendica friends and the selector
-		// to one recipient. By default our selector allows multiple selects amongst all contacts.
 		$condition = [
 			'uid' => local_user(),
 			'self' => false,
@@ -72,7 +70,7 @@ class ACL
 			'archive' => false,
 			'deleted' => false,
 			'rel' => [Contact::FOLLOWER, Contact::SHARING, Contact::FRIEND],
-			'network' => Protocol::FEDERATED,
+			'network' => Protocol::SUPPORT_PRIVATE,
 		];
 
 		$contacts = Contact::selectToArray(
