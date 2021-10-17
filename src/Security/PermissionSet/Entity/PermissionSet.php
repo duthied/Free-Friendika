@@ -3,6 +3,7 @@
 namespace Friendica\Security\PermissionSet\Entity;
 
 use Friendica\BaseEntity;
+use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
 
 /**
  * @property-read int|null $id
@@ -45,6 +46,21 @@ class PermissionSet extends BaseEntity
 		$this->allow_gid = $allow_gid;
 		$this->deny_cid  = $deny_cid;
 		$this->deny_gid  = $deny_gid;
+	}
+
+	/**
+	 * Checks, if the current PermissionSet is a/the public PermissionSet
+	 *
+	 * @return bool
+	 */
+	public function isPublic(): bool
+	{
+		return (($this->id === PermissionSetDepository::PUBLIC) ||
+				(is_null($this->id) &&
+				 empty($this->allow_cid) &&
+				 empty($this->allow_gid) &&
+				 empty($this->deny_cid) &&
+				 empty($this->deny_gid)));
 	}
 
 	/**

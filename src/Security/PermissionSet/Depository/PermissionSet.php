@@ -86,16 +86,6 @@ class PermissionSet extends BaseDepository
 		return new Collection\PermissionSets(parent::_select($condition, $params)->getArrayCopy());
 	}
 
-	private function checkPublic(Entity\PermissionSet $permissionSet): bool
-	{
-		return (($permissionSet->id === self::PUBLIC) ||
-				(is_null($permissionSet->id) &&
-				 empty($permissionSet->allow_cid) &&
-				 empty($permissionSet->allow_gid) &&
-				 empty($permissionSet->deny_cid) &&
-				 empty($permissionSet->deny_gid)));
-	}
-
 	/**
 	 * Converts a given PermissionSet into a DB compatible row array
 	 *
@@ -221,7 +211,7 @@ class PermissionSet extends BaseDepository
 		}
 
 		// Don't select/update Public permission sets
-		if ($this->checkPublic($permissionSet)) {
+		if ($permissionSet->isPublic()) {
 			return $this->selectPublicForUser($permissionSet->uid);
 		}
 
@@ -241,7 +231,7 @@ class PermissionSet extends BaseDepository
 	public function save(Entity\PermissionSet $permissionSet): Entity\PermissionSet
 	{
 		// Don't save/update the common public PermissionSet
-		if ($this->checkPublic($permissionSet)) {
+		if ($permissionSet->isPublic()) {
 			return $this->selectPublicForUser($permissionSet->uid);
 		}
 
