@@ -4,7 +4,6 @@ namespace Friendica\Test\src\Security\PermissionSet\Depository;
 
 use Dice\Dice;
 use Friendica\Database\Database;
-use Friendica\DI;
 use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
 use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
 use Friendica\Test\DatabaseTest;
@@ -16,6 +15,8 @@ class PermissionSetTest extends DatabaseTest
 	private $depository;
 	/** @var PermissionSetFactory */
 	private $factory;
+	/** @var Database */
+	private $dba;
 
 	public function setUp(): void
 	{
@@ -27,6 +28,7 @@ class PermissionSetTest extends DatabaseTest
 
 		$this->depository = $dice->create(PermissionSetDepository::class);
 		$this->factory    = $dice->create(PermissionSetFactory::class);
+		$this->dba        = $dice->create(Database::class);
 	}
 
 	public function testSelectOneByIdPublic()
@@ -47,7 +49,7 @@ class PermissionSetTest extends DatabaseTest
 	 */
 	public function testSaving()
 	{
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', DI::dba());
+		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
 
 		$permissionSet = $this->factory->createFromString(42, '', '<~>');
 

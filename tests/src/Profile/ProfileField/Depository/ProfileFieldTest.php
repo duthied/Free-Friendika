@@ -4,7 +4,6 @@ namespace Friendica\Test\src\Profile\ProfileField\Depository;
 
 use Dice\Dice;
 use Friendica\Database\Database;
-use Friendica\DI;
 use Friendica\Profile\ProfileField\Depository\ProfileField as ProfileFieldDepository;
 use Friendica\Profile\ProfileField\Entity\ProfileField;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldPersistenceException;
@@ -51,7 +50,7 @@ class ProfileFieldTest extends DatabaseTest
 		self::expectExceptionMessage('PermissionSet needs to be saved first.');
 		self::expectException(ProfileFieldPersistenceException::class);
 
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', DI::dba());
+		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
 
 		$profileField = $this->factory->createFromValues(42, 0, 'public', 'value', $this->permissionSetFactory->createFromString(42, '', '<~>'));
 
@@ -65,7 +64,7 @@ class ProfileFieldTest extends DatabaseTest
 	 */
 	public function testSaveNew()
 	{
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', DI::dba());
+		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
 
 		$profileField = $this->factory->createFromValues(42, 0, 'public', 'value', $this->permissionSetDepository->save($this->permissionSetFactory->createFromString(42, '', '<~>')));
 
@@ -87,7 +86,7 @@ class ProfileFieldTest extends DatabaseTest
 	 */
 	public function testUpdateOrder()
 	{
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', DI::dba());
+		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
 
 		$profileField = $this->factory->createFromValues(42, 0, 'public', 'value', $this->permissionSetDepository->save($this->permissionSetFactory->createFromString(42, '', '<~>')));
 
@@ -120,7 +119,7 @@ class ProfileFieldTest extends DatabaseTest
 	 */
 	public function testUpdate()
 	{
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', DI::dba());
+		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
 
 		$profileField = $this->factory->createFromValues(42, 0, 'public', 'value', $this->permissionSetDepository->save($this->permissionSetFactory->createFromString(42, '', '<~>')));
 
