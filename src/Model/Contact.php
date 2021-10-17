@@ -840,12 +840,13 @@ class Contact
 	/**
 	 * Revoke follow privileges of the remote user contact
 	 *
-	 * @param array   $contact  Contact unfriended
-	 * @return bool|null Whether the remote operation is successful or null if no remote operation was performed
+	 * The local relationship is updated immediately, the eventual remote server is messaged in the background.
+	 *
+	 * @param array $contact User-specific contact array (uid != 0) to revoke the follow from
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function revokeFollow(array $contact): ?bool
+	public static function revokeFollow(array $contact): void
 	{
 		if (empty($contact['network'])) {
 			throw new \InvalidArgumentException('Empty network in contact array');
@@ -855,19 +856,12 @@ class Contact
 			throw new \InvalidArgumentException('Unexpected public contact record');
 		}
 
-		$result = Protocol::revokeFollow($contact);
-
-		// A null value here means the remote network doesn't support explicit follow revocation, we can still
-		// break the locally recorded relationship
-		if ($result !== false) {
-			if ($contact['rel'] == self::FRIEND) {
-				self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
-			} else {
-				self::remove($contact['id']);
-			}
+		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
+			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+			Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
 		}
 
-		return $result;
+		self::removeFollower($contact);
 	}
 
 	/**
@@ -2754,6 +2748,13 @@ class Contact
 		return null;
 	}
 
+	/**
+	 * Update the local relationship when a local user loses a follower
+	 *
+	 * @param array $contact User-specific contact (uid != 0) array
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
 	public static function removeFollower(array $contact)
 	{
 		if (in_array($contact['rel'] ?? [], [self::FRIEND, self::SHARING])) {
