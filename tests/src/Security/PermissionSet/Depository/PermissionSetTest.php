@@ -70,5 +70,7 @@ class PermissionSetTest extends DatabaseTest
 		$permissionSetSavedSelected = $this->depository->selectOneById($savedPermissionSet->id, 42);
 
 		self::assertEquals($savedPermissionSet, $permissionSetSavedSelected);
+
+		$this->dba->delete('permissionset', ['1=1']);
 	}
 }

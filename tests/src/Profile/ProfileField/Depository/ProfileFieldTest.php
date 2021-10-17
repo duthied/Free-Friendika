@@ -4,6 +4,7 @@ namespace Friendica\Test\src\Profile\ProfileField\Depository;
 
 use Dice\Dice;
 use Friendica\Database\Database;
+use Friendica\Profile\ProfileField\Collection\ProfileFields;
 use Friendica\Profile\ProfileField\Depository\ProfileField as ProfileFieldDepository;
 use Friendica\Profile\ProfileField\Entity\ProfileField;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldPersistenceException;
@@ -79,6 +80,9 @@ class ProfileFieldTest extends DatabaseTest
 		$selectedProfileField = $this->depository->selectOneById($savedProfileField->id);
 
 		self::assertEquals($savedProfileField, $selectedProfileField);
+
+		$profileFields = new ProfileFields([$selectedProfileField]);
+		$this->depository->deleteCollection($profileFields);
 	}
 
 	/**
@@ -112,6 +116,9 @@ class ProfileFieldTest extends DatabaseTest
 		// Even using the ID of the old, saved ProfileField returns the right instance
 		$updatedFromOldProfileField = $this->depository->selectOneById($savedProfileField->id);
 		self::assertEquals(66, $updatedFromOldProfileField->order);
+
+		$profileFields = new ProfileFields([$updatedFromOldProfileField]);
+		$this->depository->deleteCollection($profileFields);
 	}
 
 	/**
@@ -143,5 +150,8 @@ class ProfileFieldTest extends DatabaseTest
 		self::assertEquals($this->permissionSetDepository->selectPublicForUser(42), $publicProfileField->permissionSet);
 		self::assertEquals('another', $publicProfileField->value);
 		self::assertEquals(5, $publicProfileField->order);
+
+		$profileFields = new ProfileFields([$publicProfileField]);
+		$this->depository->deleteCollection($profileFields);
 	}
 }
