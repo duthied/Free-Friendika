@@ -274,13 +274,13 @@ class Index extends BaseSettings
 		if (!empty($profileFieldInputs['new']['label'])) {
 			$permissionSet = DI::permissionSet()->selectOrCreate(DI::permissionSetFactory()->createFromString(
 				$uid,
-				$profileFieldInputs['new']['contact_allow'] ?? '',
-				$profileFieldInputs['new']['group_allow'] ?? '',
-				$profileFieldInputs['new']['contact_deny'] ?? '',
-				$profileFieldInputs['new']['group_deny'] ?? ''
+				DI::aclFormatter()->toString($profileFieldInputs['new']['contact_allow'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInputs['new']['group_allow'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInputs['new']['contact_deny'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInputs['new']['group_deny'] ?? '')
 			));
 
-			$profileFields->append(DI::profileFieldFactory()->createFromString(
+			$profileFields->append(DI::profileFieldFactory()->createFromValues(
 				$uid,
 				$profileFieldOrder['new'],
 				$profileFieldInputs['new']['label'],
@@ -295,13 +295,13 @@ class Index extends BaseSettings
 		foreach ($profileFieldInputs as $id => $profileFieldInput) {
 			$permissionSet = DI::permissionSet()->selectOrCreate(DI::permissionSetFactory()->createFromString(
 				$uid,
-				$profileFieldInput['contact_allow'] ?? '',
-				$profileFieldInput['group_allow'] ?? '',
-				$profileFieldInput['contact_deny'] ?? '',
-				$profileFieldInput['group_deny'] ?? ''
+				DI::aclFormatter()->toString($profileFieldInput['contact_allow'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInput['group_allow'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInput['contact_deny'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInput['group_deny'] ?? '')
 			));
 
-			$profileFields->append(DI::profileFieldFactory()->createFromString(
+			$profileFields->append(DI::profileFieldFactory()->createFromValues(
 				$uid,
 				$profileFieldOrder[$id],
 				$profileFieldInput['label'],

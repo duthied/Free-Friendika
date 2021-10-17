@@ -23,7 +23,7 @@ namespace Friendica\Profile\ProfileField\Factory;
 
 use Friendica\BaseFactory;
 use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
-use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
+use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
 use Friendica\Profile\ProfileField\Entity;
 use Friendica\Capabilities\ICanCreateFromTableRow;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
@@ -31,45 +31,68 @@ use Psr\Log\LoggerInterface;
 
 class ProfileField extends BaseFactory implements ICanCreateFromTableRow
 {
-	/** @var PermissionSetDepository */
-	private $permissionSetDepository;
+	/** @var PermissionSetFactory */
+	private $permissionSetFactory;
 
-	public function __construct(LoggerInterface $logger, PermissionSetDepository $permissionSetDepository)
+	public function __construct(LoggerInterface $logger, PermissionSetFactory $permissionSetFactory)
 	{
 		parent::__construct($logger);
 
-		$this->permissionSetDepository = $permissionSetDepository;
+		$this->permissionSetFactory = $permissionSetFactory;
 	}
 
 	/**
 	 * @inheritDoc
+	 *
+	 * @throws UnexpectedPermissionSetException
 	 */
 	public function createFromTableRow(array $row, PermissionSet $permissionSet = null): Entity\ProfileField
 	{
-		if (empty($permissionSet) && empty($row['psid'])) {
-			throw new UnexpectedPermissionSetException('Either set the permission set ID or the permission set itself');
+		if (empty($permissionSet) &&
+			(empty($row['psid']) || !array_key_exists('allow_cid', $row) || !array_key_exists('allow_gid', $row) || !array_key_exists('deny_cid', $row) || !array_key_exists('deny_gid', $row))
+		) {
+			throw new UnexpectedPermissionSetException('Either set the PermissionSet fields (join) or the PermissionSet itself');
 		}
 
 		return new Entity\ProfileField(
-			$this->permissionSetDepository,
 			$row['uid'],
 			$row['order'],
-			$row['psid'] ?? $permissionSet->id,
 			$row['label'],
 			$row['value'],
 			new \DateTime($row['created'] ?? 'now', new \DateTimeZone('UTC')),
 			new \DateTime($row['edited'] ?? 'now', new \DateTimeZone('UTC')),
-			$row['id'] ?? null,
-			$permissionSet
+			$permissionSet ?? $this->permissionSetFactory->createFromString(
+				$row['uid'],
+				$row['allow_cid'],
+				$row['allow_gid'],
+				$row['deny_cid'],
+				$row['deny_gid'],
+				$row['psid']
+			),
+			$row['id'] ?? null
 		);
 	}
 
-	public function createFromString(
+	/**
+	 * Creates a ProfileField instance based on it's values
+	 *
+	 * @param int           $uid
+	 * @param int           $order
+	 * @param string        $label
+	 * @param string        $value
+	 * @param PermissionSet $permissionSet
+	 * @param int|null      $id
+	 *
+	 * @return Entity\ProfileField
+	 * @throws UnexpectedPermissionSetException
+	 */
+	public function createFromValues(
 		int $uid,
 		int $order,
 		string $label,
 		string $value,
-		PermissionSet $permissionSet
+		PermissionSet $permissionSet,
+		int $id = null
 	): Entity\ProfileField {
 		return $this->createFromTableRow([
 			'uid'   => $uid,
@@ -77,6 +100,7 @@ class ProfileField extends BaseFactory implements ICanCreateFromTableRow
 			'psid'  => $permissionSet->id,
 			'label' => $label,
 			'value' => $value,
+			'id'    => $id,
 		], $permissionSet);
 	}
 }

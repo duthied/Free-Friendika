@@ -23,10 +23,7 @@ namespace Friendica\Profile\ProfileField\Entity;
 
 use Friendica\BaseEntity;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldNotFoundException;
-use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
-use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
 
 /**
@@ -38,7 +35,6 @@ use Friendica\Security\PermissionSet\Entity\PermissionSet;
  * @property-read int|null  $id
  * @property-read int       $uid
  * @property-read int       $order
- * @property-read int       $permissionSetId
  * @property-read string    $label
  * @property-read string    $value
  * @property-read \DateTime $created
@@ -51,14 +47,10 @@ class ProfileField extends BaseEntity
 	protected $id;
 	/** @var PermissionSet */
 	protected $permissionSet;
-	/** @var PermissionSetDepository */
-	protected $permissionSetDepository;
 	/** @var int */
 	protected $uid;
 	/** @var int */
 	protected $order;
-	/** @var int */
-	protected $permissionSetId;
 	/** @var string */
 	protected $label;
 	/** @var string */
@@ -68,54 +60,28 @@ class ProfileField extends BaseEntity
 	/** @var \DateTime */
 	protected $edited;
 
-	public function __construct(PermissionSetDepository $permissionSetDepository, int $uid, int $order, int $permissionSetId, string $label, string $value, \DateTime $created, \DateTime $edited, int $id = null, PermissionSet $permissionSet = null)
+	public function __construct(int $uid, int $order, string $label, string $value, \DateTime $created, \DateTime $edited, PermissionSet $permissionSet, int $id = null)
 	{
-		$this->permissionSetDepository = $permissionSetDepository;
-		$this->permissionSet           = $permissionSet;
-
-		$this->uid             = $uid;
-		$this->order           = $order;
-		$this->permissionSetId = $permissionSetId;
-		$this->label           = $label;
-		$this->value           = $value;
-		$this->created         = $created;
-		$this->edited          = $edited;
-		$this->id              = $id;
+		$this->permissionSet = $permissionSet;
+		$this->uid           = $uid;
+		$this->order         = $order;
+		$this->label         = $label;
+		$this->value         = $value;
+		$this->created       = $created;
+		$this->edited        = $edited;
+		$this->id            = $id;
 	}
 
 	/**
 	 * @throws ProfileFieldNotFoundException
-	 * @throws UnexpectedPermissionSetException
 	 */
 	public function __get($name)
 	{
-		switch ($name) {
-			case 'permissionSet':
-				if (empty($this->permissionSet)) {
-					try {
-						$permissionSet = $this->permissionSetDepository->selectOneById($this->permissionSetId, $this->uid);
-						if ($permissionSet->uid !== $this->uid) {
-							throw new UnexpectedPermissionSetException(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $permissionSet->id, $permissionSet->uid, $this->id, $this->uid));
-						}
-
-						$this->permissionSet = $permissionSet;
-					} catch (NotFoundException $exception) {
-						throw new UnexpectedPermissionSetException(sprintf('No PermissionSet found for ProfileField %d (user-id: %d).', $this->id, $this->uid));
-					}
-				}
-
-				$return = $this->permissionSet;
-				break;
-			default:
-				try {
-					$return = parent::__get($name);
-				} catch (InternalServerErrorException $exception) {
-					throw new ProfileFieldNotFoundException($exception->getMessage());
-				}
-				break;
+		try {
+			return parent::__get($name);
+		} catch (InternalServerErrorException $exception) {
+			throw new ProfileFieldNotFoundException($exception->getMessage());
 		}
-
-		return $return;
 	}
 
 	/**
@@ -127,11 +93,10 @@ class ProfileField extends BaseEntity
 	 */
 	public function update(string $value, int $order, PermissionSet $permissionSet)
 	{
-		$this->value           = $value;
-		$this->order           = $order;
-		$this->permissionSet   = $permissionSet;
-		$this->permissionSetId = $permissionSet->id;
-		$this->edited          = new \DateTime('now', new \DateTimeZone('UTC'));
+		$this->value         = $value;
+		$this->order         = $order;
+		$this->permissionSet = $permissionSet;
+		$this->edited        = new \DateTime('now', new \DateTimeZone('UTC'));
 	}
 
 	/**

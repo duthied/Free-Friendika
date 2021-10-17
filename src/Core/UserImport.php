@@ -279,7 +279,7 @@ class UserImport
 				$profile['id'] = DBA::lastInsertId();
 			}
 
-			Profile::migrateFromLegacyProfile($profile);
+			Profile::migrate($profile);
 		}
 
 		$permissionSet = DI::permissionSet()->selectDefaultForUser($newuid);

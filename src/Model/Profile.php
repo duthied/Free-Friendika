@@ -945,7 +945,7 @@ class Profile
 	 * @param array $profile One profile array
 	 * @throws \Exception
 	 */
-	public static function migrateFromLegacyProfile(array $profile)
+	public static function migrate(array $profile)
 	{
 		// Already processed, aborting
 		if ($profile['is-default'] === null) {
@@ -999,7 +999,7 @@ class Profile
 
 		foreach ($custom_fields as $field => $label) {
 			if (!empty($profile[$field]) && $profile[$field] > DBA::NULL_DATE && $profile[$field] > DBA::NULL_DATETIME) {
-				DI::profileField()->save(DI::profileFieldFactory()->createFromString(
+				DI::profileField()->save(DI::profileFieldFactory()->createFromValues(
 					$profile['uid'],
 					$order,
 					trim($label, ':'),

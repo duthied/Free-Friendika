@@ -23,9 +23,10 @@ namespace Friendica\Profile\ProfileField\Depository;
 
 use Friendica\BaseDepository;
 use Friendica\Database\Database;
-use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Database\DBA;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldNotFoundException;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldPersistenceException;
+use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
 use Friendica\Profile\ProfileField\Factory;
 use Friendica\Profile\ProfileField\Entity;
 use Friendica\Profile\ProfileField\Collection;
@@ -40,6 +41,8 @@ class ProfileField extends BaseDepository
 
 	protected static $table_name = 'profile_field';
 
+	protected static $view_name = 'profile_field-view';
+
 	/** @var PermissionSetDepository */
 	protected $permissionSetDepository;
 
@@ -53,16 +56,20 @@ class ProfileField extends BaseDepository
 	/**
 	 * @param array $condition
 	 * @param array $params
+	 *
 	 * @return Entity\ProfileField
+	 *
 	 * @throws ProfileFieldNotFoundException
+	 * @throws UnexpectedPermissionSetException
 	 */
 	private function selectOne(array $condition, array $params = []): Entity\ProfileField
 	{
-		try {
-			return parent::_selectOne($condition, $params);
-		} catch (NotFoundException $exception) {
-			throw new ProfileFieldNotFoundException($exception->getMessage());
+		$fields = $this->db->selectFirst(static::$view_name, [], $condition, $params);
+		if (!$this->db->isResult($fields)) {
+			throw new ProfileFieldNotFoundException();
 		}
+
+		return $this->factory->createFromTableRow($fields);
 	}
 
 	/**
@@ -72,14 +79,19 @@ class ProfileField extends BaseDepository
 	 * @return Collection\ProfileFields
 	 *
 	 * @throws ProfileFieldPersistenceException In case of underlying persistence exceptions
+	 * @throws UnexpectedPermissionSetException
 	 */
 	private function select(array $condition, array $params = []): Collection\ProfileFields
 	{
-		try {
-			return new Collection\ProfileFields(parent::_select($condition, $params)->getArrayCopy());
-		} catch (\Exception $exception) {
-			throw new ProfileFieldPersistenceException('Cannot select ProfileFields', $exception);
+		$rows = $this->db->selectToArray(static::$view_name, [], $condition, $params);
+
+		$Entities = new Collection\ProfileFields();
+		foreach ($rows as $fields) {
+			$this->logger->warning('row', ['row' => $fields]);
+			$Entities[] = $this->factory->createFromTableRow($fields);
 		}
+
+		return $Entities;
 	}
 
 	/**
@@ -98,7 +110,7 @@ class ProfileField extends BaseDepository
 			'order'   => $profileField->order,
 			'created' => $profileField->created->format(DateTimeFormat::MYSQL),
 			'edited'  => $profileField->edited->format(DateTimeFormat::MYSQL),
-			'psid'    => $profileField->permissionSetId
+			'psid'    => $profileField->permissionSet->id
 		];
 	}
 
@@ -170,7 +182,7 @@ class ProfileField extends BaseDepository
 	 *
 	 * @ProfileFieldNotFoundException In case there is no ProfileField found
 	 */
-	public function selectOnyById(int $id): Entity\ProfileField
+	public function selectOneById(int $id): Entity\ProfileField
 	{
 		try {
 			return $this->selectOne(['id' => $id]);
@@ -212,7 +224,7 @@ class ProfileField extends BaseDepository
 			} else {
 				$this->db->insert(self::$table_name, $fields);
 
-				$profileField = $this->selectOnyById($this->db->lastInsertId());
+				$profileField = $this->selectOneById($this->db->lastInsertId());
 			}
 		} catch (\Exception $exception) {
 			throw new ProfileFieldPersistenceException(sprintf('Cannot save ProfileField with id "%d" and label "%s"', $profileField->id, $profileField->label), $exception);

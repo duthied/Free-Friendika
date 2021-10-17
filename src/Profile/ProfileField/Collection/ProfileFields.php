@@ -35,7 +35,7 @@ class ProfileFields extends BaseCollection
 	 * @param callable $callback
 	 * @return ProfileFields
 	 */
-	public function map(callable $callback): self
+	public function map(callable $callback): ProfileFields
 	{
 		return parent::map($callback);
 	}
@@ -45,7 +45,7 @@ class ProfileFields extends BaseCollection
 	 * @param int           $flag
 	 * @return ProfileFields
 	 */
-	public function filter(callable $callback = null, int $flag = 0): self
+	public function filter(callable $callback = null, int $flag = 0): ProfileFields
 	{
 		return parent::filter($callback, $flag);
 	}
