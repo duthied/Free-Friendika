@@ -31,7 +31,7 @@ class PermissionSetTest extends DatabaseTest
 
 	public function testSelectOneByIdPublic()
 	{
-		$permissionSet = $this->depository->selectPublic(1);
+		$permissionSet = $this->depository->selectPublicForUser(1);
 
 		$this->assertInstanceOf(\Friendica\Security\PermissionSet\Entity\PermissionSet::class, $permissionSet);
 		self::assertEmpty($permissionSet->allow_cid);

@@ -86,7 +86,7 @@ class Objects extends BaseModule
 					$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $item['uid']);
 					if (!empty($permissionSets)) {
 						$psid = array_merge($permissionSets->column('id'),
-							[DI::permissionSet()->selectPublic($item['uid'])]);
+							[DI::permissionSet()->selectPublicForUser($item['uid'])]);
 						$validated = in_array($item['psid'], $psid);
 					}
 				}

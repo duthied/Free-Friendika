@@ -136,12 +136,12 @@ class ProfileFieldTest extends DatabaseTest
 
 		self::assertEquals($savedProfileField, $selectedProfileField);
 
-		$savedProfileField->update('another', 5, $this->permissionSetDepository->selectPublic(42));
+		$savedProfileField->update('another', 5, $this->permissionSetDepository->selectPublicForUser(42));
 		self::assertEquals(PermissionSet::PUBLIC, $savedProfileField->permissionSet->id);
 
 		$publicProfileField = $this->depository->save($savedProfileField);
 
-		self::assertEquals($this->permissionSetDepository->selectPublic(42), $publicProfileField->permissionSet);
+		self::assertEquals($this->permissionSetDepository->selectPublicForUser(42), $publicProfileField->permissionSet);
 		self::assertEquals('another', $publicProfileField->value);
 		self::assertEquals(5, $publicProfileField->order);
 	}

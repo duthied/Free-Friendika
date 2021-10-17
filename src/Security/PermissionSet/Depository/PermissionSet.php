@@ -202,7 +202,7 @@ class PermissionSet extends BaseDepository
 	 *
 	 * @return Entity\PermissionSet
 	 */
-	public function selectPublic(int $uid): Entity\PermissionSet
+	public function selectPublicForUser(int $uid): Entity\PermissionSet
 	{
 		return $this->factory->createFromString($uid, '', '', '', '', self::PUBLIC);
 	}
@@ -222,7 +222,7 @@ class PermissionSet extends BaseDepository
 
 		// Don't select/update Public permission sets
 		if ($this->checkPublic($permissionSet)) {
-			return $this->selectPublic($permissionSet->uid);
+			return $this->selectPublicForUser($permissionSet->uid);
 		}
 
 		try {
@@ -242,7 +242,7 @@ class PermissionSet extends BaseDepository
 	{
 		// Don't save/update the common public PermissionSet
 		if ($this->checkPublic($permissionSet)) {
-			return $this->selectPublic($permissionSet->uid);
+			return $this->selectPublicForUser($permissionSet->uid);
 		}
 
 		$fields = $this->convertToTableRow($permissionSet);

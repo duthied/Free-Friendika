@@ -125,7 +125,7 @@ class ProfileField extends BaseDepository
 	public function selectPublicFieldsByUserId(int $uid): Collection\ProfileFields
 	{
 		try {
-			$publicPermissionSet = $this->permissionSetDepository->selectPublic($uid);
+			$publicPermissionSet = $this->permissionSetDepository->selectPublicForUser($uid);
 
 			return $this->select([
 				'uid'  => $uid,
@@ -168,7 +168,7 @@ class ProfileField extends BaseDepository
 		$permissionSetIds = $permissionSets->column('id');
 
 		// Includes public custom fields
-		$permissionSetIds[] = $this->permissionSetDepository->selectPublic($uid)->id;
+		$permissionSetIds[] = $this->permissionSetDepository->selectPublicForUser($uid)->id;
 
 		return $this->select(
 			['uid' => $uid, 'psid' => $permissionSetIds],
