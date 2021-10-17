@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-14 06:20+0000\n"
+"POT-Creation-Date: 2021-10-16 19:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -715,7 +715,7 @@ msgid "Your Identity Address:"
 msgstr ""
 
 #: mod/follow.php:141 mod/unfollow.php:100
-#: src/Module/Admin/Blocklist/Contact.php:100 src/Module/Contact.php:561
+#: src/Module/Admin/Blocklist/Contact.php:116 src/Module/Contact.php:561
 #: src/Module/Notifications/Introductions.php:107
 #: src/Module/Notifications/Introductions.php:176
 msgid "Profile URL"
@@ -1476,7 +1476,7 @@ msgstr ""
 msgid "Connected Apps"
 msgstr ""
 
-#: mod/settings.php:429 src/Module/Admin/Blocklist/Contact.php:90
+#: mod/settings.php:429 src/Module/Admin/Blocklist/Contact.php:106
 #: src/Module/Admin/Users/Active.php:129 src/Module/Admin/Users/Blocked.php:130
 #: src/Module/Admin/Users/Create.php:71 src/Module/Admin/Users/Deleted.php:88
 #: src/Module/Admin/Users/Index.php:142 src/Module/Admin/Users/Index.php:162
@@ -2420,7 +2420,7 @@ msgid "Could not find any contact entry for this URL (%s)"
 msgstr ""
 
 #: src/Console/GlobalCommunityBlock.php:101
-#: src/Module/Admin/Blocklist/Contact.php:47
+#: src/Module/Admin/Blocklist/Contact.php:66
 msgid "The contact has been blocked from the node"
 msgstr ""
 
@@ -3010,7 +3010,7 @@ msgstr ""
 msgid "Send PM"
 msgstr ""
 
-#: src/Content/Item.php:449 src/Module/Admin/Blocklist/Contact.php:84
+#: src/Content/Item.php:449 src/Module/Admin/Blocklist/Contact.php:100
 #: src/Module/Admin/Users/Active.php:140 src/Module/Admin/Users/Index.php:154
 #: src/Module/Contact.php:544 src/Module/Contact.php:787
 #: src/Module/Contact.php:1064
@@ -4868,7 +4868,7 @@ msgid "Enable"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:111 src/Module/Admin/Addons/Index.php:67
-#: src/Module/Admin/Blocklist/Contact.php:78
+#: src/Module/Admin/Blocklist/Contact.php:94
 #: src/Module/Admin/Blocklist/Server.php:88 src/Module/Admin/Federation.php:159
 #: src/Module/Admin/Item/Delete.php:65 src/Module/Admin/Logs/Settings.php:80
 #: src/Module/Admin/Logs/View.php:83 src/Module/Admin/Queue.php:72
@@ -4968,76 +4968,90 @@ msgstr ""
 msgid "Relay"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:57
+#: src/Module/Admin/Blocklist/Contact.php:54
+msgid "You can't block a local contact, please block the user instead"
+msgstr ""
+
+#: src/Module/Admin/Blocklist/Contact.php:73
 #, php-format
 msgid "%s contact unblocked"
 msgid_plural "%s contacts unblocked"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Blocklist/Contact.php:79
+#: src/Module/Admin/Blocklist/Contact.php:95
 msgid "Remote Contact Blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:80
+#: src/Module/Admin/Blocklist/Contact.php:96
 msgid ""
 "This page allows you to prevent any message from a remote contact to reach "
 "your node."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:81
+#: src/Module/Admin/Blocklist/Contact.php:97
 msgid "Block Remote Contact"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:82
+#: src/Module/Admin/Blocklist/Contact.php:98
 #: src/Module/Admin/Users/Active.php:138 src/Module/Admin/Users/Blocked.php:139
 #: src/Module/Admin/Users/Index.php:151 src/Module/Admin/Users/Pending.php:103
 msgid "select all"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:83
+#: src/Module/Admin/Blocklist/Contact.php:99
 msgid "select none"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:85
+#: src/Module/Admin/Blocklist/Contact.php:101
 #: src/Module/Admin/Users/Blocked.php:142 src/Module/Admin/Users/Index.php:156
 #: src/Module/Contact.php:544 src/Module/Contact.php:787
 #: src/Module/Contact.php:1064
 msgid "Unblock"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:86
+#: src/Module/Admin/Blocklist/Contact.php:102
 msgid "No remote contact is blocked from this node."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:88
+#: src/Module/Admin/Blocklist/Contact.php:104
 msgid "Blocked Remote Contacts"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:89
+#: src/Module/Admin/Blocklist/Contact.php:105
 msgid "Block New Remote Contact"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:90
+#: src/Module/Admin/Blocklist/Contact.php:106
 msgid "Photo"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:90
+#: src/Module/Admin/Blocklist/Contact.php:106
 msgid "Reason"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:98
+#: src/Module/Admin/Blocklist/Contact.php:114
 #, php-format
 msgid "%s total blocked contact"
 msgid_plural "%s total blocked contacts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Blocklist/Contact.php:100
+#: src/Module/Admin/Blocklist/Contact.php:116
 msgid "URL of the remote contact to block."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Contact.php:101
+#: src/Module/Admin/Blocklist/Contact.php:117
+msgid "Also purge contact"
+msgstr ""
+
+#: src/Module/Admin/Blocklist/Contact.php:117
+msgid ""
+"Removes all content related to this contact from the node. Keeps the contact "
+"record. This action canoot be undone."
+msgstr ""
+
+#: src/Module/Admin/Blocklist/Contact.php:118
 msgid "Block Reason"
 msgstr ""
 

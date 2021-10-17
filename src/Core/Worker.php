@@ -1199,10 +1199,8 @@ class Worker
 	 *    array $arr
 	 *
 	 */
-	public static function add($cmd)
+	public static function add(...$args)
 	{
-		$args = func_get_args();
-
 		if (!count($args)) {
 			return 0;
 		}
@@ -1241,6 +1239,8 @@ class Worker
 			if (isset($run_parameter['force_priority'])) {
 				$force_priority = $run_parameter['force_priority'];
 			}
+		} else {
+			throw new \InvalidArgumentException('Priority number or task parameter array expected as first argument');
 		}
 
 		$command = array_shift($args);

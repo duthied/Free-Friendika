@@ -823,7 +823,7 @@ class Contact
 		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
 
 		// Delete it in the background
-		Worker::add(PRIORITY_MEDIUM, 'RemoveContact', $id);
+		Worker::add(PRIORITY_MEDIUM, 'Contact\Remove', $id);
 	}
 
 	/**
@@ -2560,48 +2560,6 @@ class Contact
 
 		$result['success'] = true;
 		return $result;
-	}
-
-	/**
-	 * Updated contact's SSL policy
-	 *
-	 * @param array  $contact    Contact array
-	 * @param string $new_policy New policy, valid: self,full
-	 *
-	 * @return array Contact array with updated values
-	 * @throws \Exception
-	 */
-	public static function updateSslPolicy(array $contact, $new_policy)
-	{
-		$ssl_changed = false;
-		if ((intval($new_policy) == BaseURL::SSL_POLICY_SELFSIGN || $new_policy === 'self') && strstr($contact['url'], 'https:')) {
-			$ssl_changed = true;
-			$contact['url']     = 	str_replace('https:', 'http:', $contact['url']);
-			$contact['request'] = 	str_replace('https:', 'http:', $contact['request']);
-			$contact['notify']  = 	str_replace('https:', 'http:', $contact['notify']);
-			$contact['poll']    = 	str_replace('https:', 'http:', $contact['poll']);
-			$contact['confirm'] = 	str_replace('https:', 'http:', $contact['confirm']);
-			$contact['poco']    = 	str_replace('https:', 'http:', $contact['poco']);
-		}
-
-		if ((intval($new_policy) == BaseURL::SSL_POLICY_FULL || $new_policy === 'full') && strstr($contact['url'], 'http:')) {
-			$ssl_changed = true;
-			$contact['url']     = 	str_replace('http:', 'https:', $contact['url']);
-			$contact['request'] = 	str_replace('http:', 'https:', $contact['request']);
-			$contact['notify']  = 	str_replace('http:', 'https:', $contact['notify']);
-			$contact['poll']    = 	str_replace('http:', 'https:', $contact['poll']);
-			$contact['confirm'] = 	str_replace('http:', 'https:', $contact['confirm']);
-			$contact['poco']    = 	str_replace('http:', 'https:', $contact['poco']);
-		}
-
-		if ($ssl_changed) {
-			$fields = ['url' => $contact['url'], 'request' => $contact['request'],
-					'notify' => $contact['notify'], 'poll' => $contact['poll'],
-					'confirm' => $contact['confirm'], 'poco' => $contact['poco']];
-			self::update($fields, ['id' => $contact['id']]);
-		}
-
-		return $contact;
 	}
 
 	/**

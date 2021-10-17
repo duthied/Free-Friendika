@@ -19,23 +19,29 @@
  *
  */
 
-namespace Friendica\Worker;
+namespace Friendica\Worker\Contact;
 
-use Friendica\Core\Worker;
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 
 /**
- * Checks for contacts that are about to be deleted and ensures that they are removed.
- * This should be done automatically in the "remove" function. This here is a cleanup job.
+ * Removes a contact and all its related content
  */
-class CheckDeletedContacts
+class Remove extends RemoveContent
 {
-	public static function execute()
+	public static function execute(int $id): array
 	{
-		$contacts = DBA::select('contact', ['id'], ['deleted' => true]);
-		while ($contact = DBA::fetch($contacts)) {
-			Worker::add(PRIORITY_MEDIUM, 'Contact\Remove', $contact['id']);
+		$contact = parent::execute($id);
+
+		if (!empty($contact)) {
+			return [];
 		}
-		DBA::close($contacts);
+
+		$ret = DBA::delete('contact', ['id' => $id]);
+		Logger::info('Deleted contact', ['id' => $id, 'result' => $ret]);
+
+		$contact['id'] = null;
+
+		return $contact;
 	}
 }
