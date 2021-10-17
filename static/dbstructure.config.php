@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1438);
+	define('DB_UPDATE_VERSION', 1439);
 }
 
 return [
@@ -774,8 +774,9 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
-			"fid" => ["type" => "int unsigned", "relation" => ["fcontact" => "id"], "comment" => ""],
+			"fid" => ["type" => "int unsigned", "relation" => ["fcontact" => "id"], "comment" => "deprecated"],
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => ""],
+			"suggest-cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Suggested contact"],
 			"knowyou" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"note" => ["type" => "text", "comment" => ""],

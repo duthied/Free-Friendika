@@ -1013,3 +1013,18 @@ function update_1438()
 	DBA::update('photo', ['photo-type' => Photo::CONTACT_AVATAR], ["NOT `profile` AND NOT `contact-id` IS NULL AND `contact-id` != ?", 0]);
 	DBA::update('photo', ['photo-type' => Photo::DEFAULT], ["NOT `profile` AND (`contact-id` IS NULL OR `contact-id` = ?) AND `photo-type` IS NULL AND `album` != ?", 0, Photo::CONTACT_PHOTOS]);
 }
+
+function update_1439()
+{
+	$intros = DBA::select('intro', ['id', 'fid'], ["NOT `fid` IS NULL AND `fid` != ?", 0]);
+	while ($intro = DBA::fetch($intros)) {
+		$fcontact = DBA::selectFirst('fcontact', ['url'], ['id' => $intro['fid']]);
+		if (!empty($fcontact['url'])) {
+			$id = Contact::getIdForURL($fcontact['url']);
+			if (!empty($id)) {
+				DBA::update('intro',['suggest-cid' => $id], ['id' => $intro['id']]);
+			}
+		}
+	}
+	DBA::close($intros);
+}

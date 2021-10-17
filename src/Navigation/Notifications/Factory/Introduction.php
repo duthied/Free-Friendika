@@ -98,14 +98,13 @@ class Introduction extends BaseFactory
 		$formattedIntroductions = [];
 
 		try {
-			/// @todo Fetch contact details by "Contact::getByUrl" instead of queries to contact and fcontact
 			$stmtNotifications = $this->dba->p(
 				"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
-				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`, `fcontact`.`addr` AS `faddr`,
-				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`
+				`sugggest-contact`.`name` AS `fname`, `sugggest-contact`.`url` AS `furl`, `sugggest-contact`.`addr` AS `faddr`,
+				`sugggest-contact`.`photo` AS `fphoto`, `sugggest-contact`.`request` AS `frequest`
 			FROM `intro`
 				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
-				LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
+				LEFT JOIN `contact` AS `sugggest-contact` ON `intro`.`suggest-cid` = `sugggest-contact`.`id`
 			WHERE `intro`.`uid` = ? $sql_extra
 			LIMIT ?, ?",
 				$_SESSION['uid'],
@@ -121,7 +120,7 @@ class Introduction extends BaseFactory
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 				// We have to distinguish between these two because they use different data.
 				// Contact suggestions
-				if ($intro['fid'] ?? '') {
+				if ($intro['suggest-cid'] ?? '') {
 					if (empty($intro['furl'])) {
 						continue;
 					}

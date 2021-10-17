@@ -24,9 +24,7 @@ namespace Friendica\Model;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Network\Probe;
-use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
@@ -127,64 +125,5 @@ class FContact
 		}
 
 		return null;
-	}
-
-	/**
-	 * Suggest a given contact to a given user from a given contact
-	 *
-	 * @param integer $uid
-	 * @param integer $cid
-	 * @param integer $from_cid
-	 * @return bool   Was the adding successful?
-	 */
-	public static function addSuggestion(int $uid, int $cid, int $from_cid, string $note = '')
-	{
-		$owner = User::getOwnerDataById($uid);
-		$contact = Contact::getById($cid);
-		$from_contact = Contact::getById($from_cid);
-
-		if (DBA::exists('contact', ['nurl' => Strings::normaliseLink($contact['url']), 'uid' => $uid])) {
-			return false;
-		}
-
-		$fcontact = self::getByURL($contact['url'], null, $contact['network']);
-		if (empty($fcontact)) {
-			Logger::warning('FContact had not been found', ['fcontact' => $contact['url']]);
-			return false;
-		}
-
-		$fid = $fcontact['id'];
-
-		// Quit if we already have an introduction for this person
-		if (DBA::exists('intro', ['uid' => $uid, 'fid' => $fid])) {
-			return false;
-		}
-
-		$suggest = [];
-		$suggest['uid'] = $uid;
-		$suggest['cid'] = $from_cid;
-		$suggest['url'] = $contact['url'];
-		$suggest['name'] = $contact['name'];
-		$suggest['photo'] = $contact['photo'];
-		$suggest['request'] = $contact['request'];
-		$suggest['title'] = '';
-		$suggest['body'] = $note;
-
-		$hash = Strings::getRandomHex();
-		$fields = ['uid' => $suggest['uid'], 'fid' => $fid, 'contact-id' => $suggest['cid'],
-			'note' => $suggest['body'], 'hash' => $hash, 'datetime' => DateTimeFormat::utcNow(), 'blocked' => false];
-		DBA::insert('intro', $fields);
-
-		notification([
-			'type'  => Notification\Type::SUGGEST,
-			'otype' => Notification\ObjectType::INTRO,
-			'verb'  => Activity::REQ_FRIEND,
-			'uid'   => $owner['uid'],
-			'cid'   => $from_contact['uid'],
-			'item'  => $suggest,
-			'link'  => DI::baseUrl().'/notifications/intros',
-		]);
-
-		return true;
 	}
 }
