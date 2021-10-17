@@ -2587,3 +2587,23 @@ CREATE VIEW `workerqueue-view` AS SELECT
 	FROM `process`
 			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
 			WHERE NOT `workerqueue`.`done`;
+
+--
+-- VIEW profile_field-view
+--
+DROP VIEW IF EXISTS `profile_field-view`;
+CREATE VIEW `profile_field-view` AS SELECT
+	  `profile_field`.`id` AS `id`,
+	  `profile_field`.`uid` AS `uid`,
+	  `profile_field`.`label` AS `label`,
+	  `profile_field`.`value` AS `value`,
+	  `profile_field`.`order` AS `order`,
+	  `profile_field`.`psid` AS `psid`,
+	  `permissionset`.`allow_cid` AS `allow_cid`,
+	  `permissionset`.`allow_gid` AS `allow_gid`,
+	  `permissionset`.`deny_cid` AS `deny_cid`,
+	  `permissionset`.`deny_gid` AS `deny_gid`,
+	  `profile_field`.`created` AS `created`,
+	  `profile_field`.`edited` AS `edited`
+  FROM `profile_field`
+		   INNER JOIN `permissionset` ON `permissionset`.`id` = `profile_field`.`psid`;

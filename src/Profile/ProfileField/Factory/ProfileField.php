@@ -49,7 +49,7 @@ class ProfileField extends BaseFactory implements ICanCreateFromTableRow
 	public function createFromTableRow(array $row, PermissionSet $permissionSet = null): Entity\ProfileField
 	{
 		if (empty($permissionSet) &&
-			(empty($row['psid']) || !array_key_exists('allow_cid', $row) || !array_key_exists('allow_gid', $row) || !array_key_exists('deny_cid', $row) || !array_key_exists('deny_gid', $row))
+			(!array_key_exists('psid', $row) || !array_key_exists('allow_cid', $row) || !array_key_exists('allow_gid', $row) || !array_key_exists('deny_cid', $row) || !array_key_exists('deny_gid', $row))
 		) {
 			throw new UnexpectedPermissionSetException('Either set the PermissionSet fields (join) or the PermissionSet itself');
 		}

@@ -125,9 +125,11 @@ class ProfileField extends BaseDepository
 	public function selectPublicFieldsByUserId(int $uid): Collection\ProfileFields
 	{
 		try {
+			$publicPermissionSet = $this->permissionSetDepository->selectPublic($uid);
+
 			return $this->select([
 				'uid'  => $uid,
-				'psid' => PermissionSetDepository::PUBLIC,
+				'psid' => $publicPermissionSet->id
 			]);
 		} catch (\Exception $exception) {
 			throw new ProfileFieldPersistenceException(sprintf('Cannot select public ProfileField for user "%d"', $uid), $exception);
@@ -166,7 +168,7 @@ class ProfileField extends BaseDepository
 		$permissionSetIds = $permissionSets->column('id');
 
 		// Includes public custom fields
-		$permissionSetIds[] = PermissionSetDepository::PUBLIC;
+		$permissionSetIds[] = $this->permissionSetDepository->selectPublic($uid)->id;
 
 		return $this->select(
 			['uid' => $uid, 'psid' => $permissionSetIds],
@@ -215,6 +217,10 @@ class ProfileField extends BaseDepository
 	 */
 	public function save(Entity\ProfileField $profileField): Entity\ProfileField
 	{
+		if ($profileField->permissionSet->id === null) {
+			throw new ProfileFieldPersistenceException('PermissionSet needs to be saved first.');
+		}
+
 		$fields = $this->convertToTableRow($profileField);
 
 		try {

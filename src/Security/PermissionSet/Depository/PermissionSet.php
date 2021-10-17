@@ -54,6 +54,22 @@ class PermissionSet extends BaseDepository
 	}
 
 	/**
+	 * replaces the PUBLIC id for the public permissionSet
+	 * (no need to create the default permission set over and over again)
+	 *
+	 * @param $condition
+	 */
+	private function checkPublicSelect(&$condition)
+	{
+		if (empty($condition['allow_cid']) &&
+			empty($condition['allow_gid']) &&
+			empty($condition['deny_cid']) &&
+			empty($condition['deny_gid'])) {
+			$condition['uid'] = self::PUBLIC;
+		}
+	}
+
+	/**
 	 * @param array $condition
 	 * @param array $params
 	 *
@@ -68,6 +84,16 @@ class PermissionSet extends BaseDepository
 	private function select(array $condition, array $params = []): Collection\PermissionSets
 	{
 		return new Collection\PermissionSets(parent::_select($condition, $params)->getArrayCopy());
+	}
+
+	private function checkPublic(Entity\PermissionSet $permissionSet): bool
+	{
+		return (($permissionSet->id === self::PUBLIC) ||
+				(is_null($permissionSet->id) &&
+				 empty($permissionSet->allow_cid) &&
+				 empty($permissionSet->allow_gid) &&
+				 empty($permissionSet->deny_cid) &&
+				 empty($permissionSet->deny_gid)));
 	}
 
 	/**
@@ -89,22 +115,18 @@ class PermissionSet extends BaseDepository
 	}
 
 	/**
-	 * @param int      $id A permissionset table row id or self::PUBLIC
-	 * @param int|null $uid Should be provided when id can be self::PUBLIC
+	 * @param int $id  A PermissionSet table row id or self::PUBLIC
+	 * @param int $uid The owner of the PermissionSet
 	 * @return Entity\PermissionSet
 	 * @throws NotFoundException
 	 */
-	public function selectOneById(int $id, int $uid = null): Entity\PermissionSet
+	public function selectOneById(int $id, int $uid): Entity\PermissionSet
 	{
 		if ($id === self::PUBLIC) {
-			if (empty($uid)) {
-				throw new \InvalidArgumentException('Missing uid for Public permission set instantiation');
-			}
-
 			return $this->factory->createFromString($uid);
 		}
 
-		return $this->selectOne(['id' => $id]);
+		return $this->selectOne(['id' => $id, 'uid' => $uid]);
 	}
 
 	/**
@@ -174,15 +196,15 @@ class PermissionSet extends BaseDepository
 	}
 
 	/**
-	 * Fetch the empty PermissionSet for a given user, create it if it doesn't exist
+	 * Fetch the public PermissionSet
 	 *
 	 * @param int $uid
 	 *
 	 * @return Entity\PermissionSet
 	 */
-	public function selectEmptyForUser(int $uid): Entity\PermissionSet
+	public function selectPublic(int $uid): Entity\PermissionSet
 	{
-		return $this->selectOrCreate($this->factory->createFromString($uid));
+		return $this->factory->createFromString($uid, '', '', '', '', self::PUBLIC);
 	}
 
 	/**
@@ -198,6 +220,11 @@ class PermissionSet extends BaseDepository
 			return $permissionSet;
 		}
 
+		// Don't select/update Public permission sets
+		if ($this->checkPublic($permissionSet)) {
+			return $this->selectPublic($permissionSet->uid);
+		}
+
 		try {
 			return $this->selectOne($this->convertToTableRow($permissionSet));
 		} catch (NotFoundException $exception) {
@@ -205,8 +232,19 @@ class PermissionSet extends BaseDepository
 		}
 	}
 
+	/**
+	 * @param Entity\PermissionSet $permissionSet
+	 *
+	 * @return Entity\PermissionSet
+	 * @throws NotFoundException
+	 */
 	public function save(Entity\PermissionSet $permissionSet): Entity\PermissionSet
 	{
+		// Don't save/update the common public PermissionSet
+		if ($this->checkPublic($permissionSet)) {
+			return $this->selectPublic($permissionSet->uid);
+		}
+
 		$fields = $this->convertToTableRow($permissionSet);
 
 		if ($permissionSet->id) {
@@ -214,7 +252,7 @@ class PermissionSet extends BaseDepository
 		} else {
 			$this->db->insert(self::$table_name, $fields);
 
-			$permissionSet = $this->selectOneById($this->db->lastInsertId());
+			$permissionSet = $this->selectOneById($this->db->lastInsertId(), $permissionSet->uid);
 		}
 
 		return $permissionSet;

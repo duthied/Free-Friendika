@@ -287,10 +287,10 @@ class Index extends BaseSettings
 				$profileFieldInputs['new']['value'],
 				$permissionSet
 			));
-
-			unset($profileFieldInputs['new']);
-			unset($profileFieldOrder['new']);
 		}
+
+		unset($profileFieldInputs['new']);
+		unset($profileFieldOrder['new']);
 
 		foreach ($profileFieldInputs as $id => $profileFieldInput) {
 			$permissionSet = DI::permissionSet()->selectOrCreate(DI::permissionSetFactory()->createFromString(

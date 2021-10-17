@@ -1058,7 +1058,9 @@
 			"allow_cid" => ["permissionset", "allow_cid"],
 			"allow_gid" => ["permissionset", "allow_gid"],
 			"deny_cid" => ["permissionset", "deny_cid"],
-			"deny_gid" => ["permissionset", "deny_gid"]
+			"deny_gid" => ["permissionset", "deny_gid"],
+			"created" => ["profile_field", "created"],
+			"updated" => ["profile_field", "updated"],
 		],
 		"query" => "FROM `profile_field`
 			INNER JOIN `permissionset` ON `permissionset`.`id` = `profile_field`.`psid`"

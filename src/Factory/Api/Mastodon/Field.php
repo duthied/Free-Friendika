@@ -31,7 +31,7 @@ use Friendica\Network\HTTPException;
 class Field extends BaseFactory
 {
 	/**
-	 * @param \Friendica\Profile\ProfileField\Entity\ProfileField $profileField
+	 * @param ProfileField $profileField
 	 *
 	 * @return \Friendica\Object\Api\Mastodon\Field
 	 * @throws HTTPException\InternalServerErrorException
