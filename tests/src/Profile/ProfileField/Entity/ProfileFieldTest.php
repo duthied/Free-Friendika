@@ -164,7 +164,7 @@ class ProfileFieldTest extends MockedTest
 		$entity        = new ProfileField($this->permissionSetDepository, $uid, $order, $psid, $label, $value, $created, $edited, $id);
 		$permissionSet = $this->permissionSetFactory->createFromTableRow(['uid' => $uid, 'id' => $psid]);
 
-		$this->permissionSetDepository->shouldReceive('selectOneById')->with($psid)->andReturns($permissionSet);
+		$this->permissionSetDepository->shouldReceive('selectOneById')->with($psid, $uid)->andReturns($permissionSet);
 
 		self::assertEquals($psid, $entity->permissionSet->id);
 	}
@@ -179,7 +179,7 @@ class ProfileFieldTest extends MockedTest
 		$entity        = new ProfileField($this->permissionSetDepository, $uid, $order, $psid, $label, $value, $created, $edited, $id);
 		$permissionSet = $this->permissionSetFactory->createFromTableRow(['uid' => 12345, 'id' => $psid]);
 
-		$this->permissionSetDepository->shouldReceive('selectOneById')->with($psid)->andReturns($permissionSet);
+		$this->permissionSetDepository->shouldReceive('selectOneById')->with($psid, $uid)->andReturns($permissionSet);
 
 		self::expectException(UnexpectedPermissionSetException::class);
 		self::expectExceptionMessage(sprintf('PermissionSet %d (user-id: %d) for ProfileField %d (user-id: %d) is invalid.', $psid, 12345, $id, $uid));
@@ -195,7 +195,7 @@ class ProfileFieldTest extends MockedTest
 	{
 		$entity = new ProfileField($this->permissionSetDepository, $uid, $order, $psid, $label, $value, $created, $edited, $id);
 
-		$this->permissionSetDepository->shouldReceive('selectOneById')->with($psid)
+		$this->permissionSetDepository->shouldReceive('selectOneById')->with($psid, $uid)
 									  ->andThrow(new NotFoundException('test'));
 
 		self::expectException(UnexpectedPermissionSetException::class);
