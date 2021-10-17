@@ -177,8 +177,8 @@ function ping_init(App $a)
 
 		$intros1 = DBA::toArray(DBA::p(
 			"SELECT  `intro`.`id`, `intro`.`datetime`,
-			`fcontact`.`name`, `fcontact`.`url`, `fcontact`.`photo`
-			FROM `intro` INNER JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
+			`contact`.`name`, `contact`.`url`, `contact`.`photo`
+			FROM `intro` INNER JOIN `contact` ON `intro`.`suggest-cid` = `contact`.`id`
 			WHERE `intro`.`uid` = ? AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`fid` != 0",
 			local_user()
 		));

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1438
+-- DB_UPDATE_VERSION 1439
 -- ------------------------------------------
 
 
@@ -711,8 +711,9 @@ CREATE TABLE IF NOT EXISTS `inbox-status` (
 CREATE TABLE IF NOT EXISTS `intro` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`fid` int unsigned COMMENT '',
+	`fid` int unsigned COMMENT 'deprecated',
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`suggest-cid` int unsigned COMMENT 'Suggested contact',
 	`knowyou` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`duplex` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`note` text COMMENT '',
@@ -724,7 +725,8 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	 INDEX `contact-id` (`contact-id`),
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`suggest-cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
