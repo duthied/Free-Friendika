@@ -36,13 +36,13 @@ class ProfileFieldTest extends MockedTest
 	{
 		return [
 			'default' => [
-				'uid'     => 23,
-				'order'   => 1,
-				'psid'    => 2,
-				'label'   => 'test',
-				'value'   => 'more',
-				'created' => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
-				'edited'  => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
+				'uid'           => 23,
+				'order'         => 1,
+				'psid'          => 2,
+				'label'         => 'test',
+				'value'         => 'more',
+				'created'       => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
+				'edited'        => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
 				'permissionSet' => [
 					'uid'       => 23,
 					'allow_cid' => "<1>",
@@ -53,13 +53,13 @@ class ProfileFieldTest extends MockedTest
 				]
 			],
 			'withId' => [
-				'uid'     => 23,
-				'order'   => 1,
-				'psid'    => 2,
-				'label'   => 'test',
-				'value'   => 'more',
-				'created' => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
-				'edited'  => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
+				'uid'           => 23,
+				'order'         => 1,
+				'psid'          => 2,
+				'label'         => 'test',
+				'value'         => 'more',
+				'created'       => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
+				'edited'        => new \DateTime('2021-10-10T21:12:00.000000+0000', new \DateTimeZone('UTC')),
 				'permissionSet' => [
 					'uid'       => 23,
 					'allow_cid' => "<1>",
@@ -68,7 +68,7 @@ class ProfileFieldTest extends MockedTest
 					'deny_gid'  => '<3>',
 					'id'        => 2,
 				],
-				'id'      => 54,
+				'id' => 54,
 			],
 		];
 	}

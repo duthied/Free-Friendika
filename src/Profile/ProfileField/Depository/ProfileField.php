@@ -23,7 +23,6 @@ namespace Friendica\Profile\ProfileField\Depository;
 
 use Friendica\BaseDepository;
 use Friendica\Database\Database;
-use Friendica\Database\DBA;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldNotFoundException;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldPersistenceException;
 use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
