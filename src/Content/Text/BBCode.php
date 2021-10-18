@@ -1648,7 +1648,11 @@ class BBCode
 				// Check for style sheet commands
 				$text = preg_replace("(\[style=(.*?)\](.*?)\[\/style\])ism", '<span style="$1">$2</span>', $text);
 
+				// Mastodon Emoji (internal tag, do not document for users)
+				$text = preg_replace("(\[emoji=(.*?)](.*?)\[/emoji])ism", '<span class="mastodon emoji"><img src="$1" alt="$2" title="$2"/></span>', $text);
+
 				// Check for CSS classes
+				// @deprecated since 2021.12, left for backward-compatibility reasons
 				$text = preg_replace("(\[class=(.*?)\](.*?)\[\/class\])ism", '<span class="$1">$2</span>', $text);
 
 				// handle nested lists

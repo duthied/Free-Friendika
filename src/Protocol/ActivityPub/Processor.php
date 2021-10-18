@@ -96,7 +96,7 @@ class Processor
 			array_combine(
 				array_column($emojis, 'name'),
 				array_map(function ($emoji) {
-					return '[class=emoji mastodon][img=' . $emoji['href'] . ']' . $emoji['name'] . '[/img][/class]';
+					return '[emoji=' . $emoji['href'] . ']' . $emoji['name'] . '[/emoji]';
 				}, $emojis)
 			)
 		);
