@@ -442,6 +442,14 @@ abstract class DI
 		return self::$dice->create(Contact\Introduction\Depository\Introduction::class);
 	}
 
+	/**
+	 * @return Contact\Introduction\Factory\Introduction
+	 */
+	public static function introFactory()
+	{
+		return self::$dice->create(Contact\Introduction\Factory\Introduction::class);
+	}
+
 	public static function permissionSet(): Security\PermissionSet\Depository\PermissionSet
 	{
 		return self::$dice->create(Security\PermissionSet\Depository\PermissionSet::class);

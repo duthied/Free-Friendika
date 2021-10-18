@@ -76,7 +76,8 @@ class Introduction extends BaseDepository
 			'note'        => $introduction->note,
 			'hash'        => $introduction->hash,
 			'blocked'     => $introduction->blocked ? 1 : 0,
-			'ignore'      => $introduction->ignore ? 1 : 0
+			'ignore'      => $introduction->ignore ? 1 : 0,
+			'datetime'    => $introduction->datetime->format(DateTimeFormat::MYSQL),
 		];
 	}
 
@@ -122,6 +123,42 @@ class Introduction extends BaseDepository
 	}
 
 	/**
+	 * Selects the introduction for a given contact
+	 *
+	 * @param int $cid
+	 *
+	 * @return Entity\Introduction
+	 *
+	 * @throws IntroductionNotFoundException in case there is not Introduction for this contact
+	 */
+	public function selectForContact(int $cid): Entity\Introduction
+	{
+		try {
+			return $this->selectOne(['contact-id' => $cid]);
+		} catch (NotFoundException $exception) {
+			throw new IntroductionNotFoundException(sprintf('There is no Introduction for the contact %d', $cid), $exception);
+		}
+	}
+
+	public function countActiveForUser($uid, array $params = []): int
+	{
+		try {
+			return $this->count(['blocked' => false, 'ignore' => false, 'uid' => $uid], $params);
+		} catch (\Exception $e) {
+			throw new IntroductionPersistenceException(sprintf('Cannot count Introductions for used %d', $uid), $e);
+		}
+	}
+
+	public function existsForContact(int $cid, int $uid): bool
+	{
+		try {
+			return $this->exists(['uid' => $uid, 'suggest-cid' => $cid]);
+		} catch (\Exception $e) {
+			throw new IntroductionPersistenceException(sprintf('Cannot check Introductions for contact %d and user %d', $cid, $uid), $e);
+		}
+	}
+
+	/**
 	 * @param Entity\Introduction $introduction
 	 *
 	 * @return bool
@@ -151,8 +188,7 @@ class Introduction extends BaseDepository
 	public function save(Entity\Introduction $introduction): Entity\Introduction
 	{
 		try {
-			$fields             = $this->convertToTableRow($introduction);
-			$fields['datetime'] = DateTimeFormat::utcNow();
+			$fields = $this->convertToTableRow($introduction);
 
 			if ($introduction->id) {
 				$this->db->update(self::$table_name, $fields, ['id' => $introduction->id]);

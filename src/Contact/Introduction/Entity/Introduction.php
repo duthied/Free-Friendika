@@ -25,9 +25,9 @@ use Friendica\BaseEntity;
 
 /**
  * @property-read int $uid
- * @property-read int $fid
- * @property-read int $cid
  * @property-read int $sid
+ * @property-read int|null $fid
+ * @property-read int|null $cid
  * @property-read bool $knowyou
  * @property-read bool $duplex
  * @property-read string $note
@@ -42,11 +42,11 @@ class Introduction extends BaseEntity
 	/** @var int */
 	protected $uid;
 	/** @var int */
-	protected $fid;
-	/** @var int */
-	protected $cid;
-	/** @var int */
 	protected $sid;
+	/** @var int|null */
+	protected $fid;
+	/** @var int|null */
+	protected $cid;
 	/** @var bool */
 	protected $knowyou;
 	/** @var bool */
@@ -65,23 +65,25 @@ class Introduction extends BaseEntity
 	protected $id;
 
 	/**
-	 * @param int      $uid
-	 * @param int      $fid
-	 * @param int      $cid
-	 * @param bool     $knowyou
-	 * @param bool     $duplex
-	 * @param string   $note
-	 * @param string   $hash
-	 * @param bool     $blocked
-	 * @param bool     $ignore
-	 * @param int|null $id
+	 * @param int       $uid
+	 * @param int       $sid
+	 * @param int|null  $fid
+	 * @param int|null  $cid
+	 * @param bool      $knowyou
+	 * @param bool      $duplex
+	 * @param string    $note
+	 * @param string    $hash
+	 * @param \DateTime $datetime
+	 * @param bool      $blocked
+	 * @param bool      $ignore
+	 * @param int|null  $id
 	 */
-	public function __construct(int $uid, int $fid, int $cid, int $sid, bool $knowyou, bool $duplex, string $note, string $hash, \DateTime $datetime, bool $blocked, bool $ignore, ?int $id)
+	public function __construct(int $uid, int $sid, ?int $fid, ?int $cid, bool $knowyou, bool $duplex, string $note, string $hash, \DateTime $datetime, bool $blocked, bool $ignore, ?int $id)
 	{
 		$this->uid     = $uid;
+		$this->sid     = $sid;
 		$this->fid     = $fid;
 		$this->cid     = $cid;
-		$this->sid     = $sid;
 		$this->knowyou = $knowyou;
 		$this->duplex  = $duplex;
 		$this->note    = $note;

@@ -133,7 +133,7 @@ class Delegation extends BaseModule
 			$params = ['distinct' => true, 'expression' => 'convid'];
 			$notifications += DBA::count('mail', ['uid' => $identity['uid'], 'seen' => false], $params);
 
-			$notifications += DBA::count('intro', ['blocked' => false, 'ignore' => false, 'uid' => $identity['uid']]);
+			$notifications += DI::intro()->countActiveForUser($identity['uid']);
 
 			$identities[$key]['notifications'] = $notifications;
 		}

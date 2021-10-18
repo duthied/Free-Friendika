@@ -24,6 +24,8 @@ namespace Friendica\Contact\Introduction\Factory;
 use Friendica\BaseFactory;
 use Friendica\Contact\Introduction\Entity;
 use Friendica\Capabilities\ICanCreateFromTableRow;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 class Introduction extends BaseFactory implements ICanCreateFromTableRow
 {
@@ -33,18 +35,47 @@ class Introduction extends BaseFactory implements ICanCreateFromTableRow
 	public function createFromTableRow(array $row): Entity\Introduction
 	{
 		return new Entity\Introduction(
-			$row['uid'],
-			$row['fid'],
-			$row['contact-id'],
-			$row['suggested-cid'],
+			$row['uid'] ?? 0,
+			$row['suggest-cid'] ?? 0,
+			$row['fid'] ?? null,
+			$row['contact-id'] ?? null,
 			!empty($row['knowyou']),
-			!empty($row['dupley']),
-			$row['note'],
-			$row['hash'],
-			new \DateTime($row['datetime'], new \DateTimeZone('UTC')),
+			!empty($row['duplex']),
+			$row['note'] ?? '',
+			$row['hash'] ?? '',
+			new \DateTime($row['datetime'] ?? 'now', new \DateTimeZone('UTC')),
 			!empty($row['blocked']),
 			!empty($row['ignore']),
 			$row['id'] ?? null
 		);
+	}
+
+	public function createNew(
+		int $uid,
+		int $cid,
+		string $note,
+		int $fid = null,
+		int $sid = null,
+		bool $knowyou = false,
+		bool $duplex = false
+	): Entity\Introduction {
+		return $this->createFromTableRow([
+			'uid'         => $uid,
+			'fid'         => $fid,
+			'contact-id'  => $cid,
+			'suggest-cid' => $sid,
+			'knowyou'     => $knowyou,
+			'duplex'      => $duplex,
+			'note'        => $note,
+			'hash'        => Strings::getRandomHex(),
+			'datetime'    => DateTimeFormat::utcNow(),
+			'blocked'     => false,
+			'ignore'      => false,
+		]);
+	}
+
+	public function createDummy(int $id): Entity\Introduction
+	{
+		return $this->createFromTableRow(['id' => $id]);
 	}
 }

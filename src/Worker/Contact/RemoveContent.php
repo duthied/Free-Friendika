@@ -24,6 +24,7 @@ namespace Friendica\Worker\Contact;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 
@@ -84,7 +85,7 @@ class RemoveContent
 		DBA::delete('user-contact', ['cid' => $id]);
 
 		DBA::delete('group_member', ['contact-id' => $id]);
-		DBA::delete('intro', ['contact-id' => $id]);
+		DI::intro()->delete(DI::introFactory()->createDummy($id));
 
 		return $contact;
 	}
