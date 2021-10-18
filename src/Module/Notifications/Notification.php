@@ -24,6 +24,7 @@ namespace Friendica\Module\Notifications;
 use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 
@@ -50,14 +51,16 @@ class Notification extends BaseModule
 		$request_id = $parameters['id'] ?? false;
 
 		if ($request_id) {
-			$intro = DI::intro()->selectFirst(['id' => $request_id, 'uid' => local_user()]);
+			$intro = DI::intro()->selectOneById($request_id, local_user());
 
 			switch ($_POST['submit']) {
 				case DI::l10n()->t('Discard'):
-					$intro->discard();
+					Contact\Introduction::discard($intro);
+					DI::intro()->delete($intro);
 					break;
 				case DI::l10n()->t('Ignore'):
-					$intro->ignore();
+					$intro->setIgnore();
+					DI::intro()->save($intro);
 					break;
 			}
 

@@ -19,11 +19,32 @@
  *
  */
 
-namespace Friendica\Collection;
+namespace Friendica\Contact\Introduction\Factory;
 
-use Friendica\BaseCollection;
+use Friendica\BaseFactory;
+use Friendica\Contact\Introduction\Entity;
+use Friendica\Capabilities\ICanCreateFromTableRow;
 
-class Introductions extends BaseCollection
+class Introduction extends BaseFactory implements ICanCreateFromTableRow
 {
-
+	/**
+	 * @inheritDoc
+	 */
+	public function createFromTableRow(array $row): Entity\Introduction
+	{
+		return new Entity\Introduction(
+			$row['uid'],
+			$row['fid'],
+			$row['contact-id'],
+			$row['suggested-cid'],
+			!empty($row['knowyou']),
+			!empty($row['dupley']),
+			$row['note'],
+			$row['hash'],
+			new \DateTime($row['datetime'], new \DateTimeZone('UTC')),
+			!empty($row['blocked']),
+			!empty($row['ignore']),
+			$row['id'] ?? null
+		);
+	}
 }
