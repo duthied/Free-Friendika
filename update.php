@@ -55,6 +55,7 @@ use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\Storage;
+use Friendica\Security\PermissionSet\Depository\PermissionSet;
 use Friendica\Worker\Delivery;
 
 // Post-update script of PR 5751
@@ -1027,4 +1028,13 @@ function update_1439()
 		}
 	}
 	DBA::close($intros);
+}
+
+function update_1440()
+{
+	// Fix wrong public permissionset
+	DBA::p("UPDATE `profile_field` SET `psid` = ? WHERE psid IN (SELECT `id` FROM `permissionset` WHERE `id` != ? AND `allow_cid` = '' AND `allow_gid` = '' AND `deny_cid` = '' AND `deny_gid` = '')", PermissionSet::PUBLIC, PermissionSet::PUBLIC);
+	DBA::delete('permissionset', ["`id` != ? AND `allow_cid` = '' AND `allow_gid` = '' AND `deny_cid` = '' AND `deny_gid` = ''", PermissionSet::PUBLIC]);
+
+	return Update::SUCCESS;
 }
