@@ -27,7 +27,6 @@ use Friendica\App\Module;
 use Friendica\Core\Config\Cache;
 use Friendica\Database\Database;
 use Friendica\Test\MockedTest;
-use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\BasePath;
 use Mockery;
@@ -36,7 +35,6 @@ use Mockery\MockInterface;
 class ModeTest extends MockedTest
 {
 	use VFSTrait;
-	use DBAMockTrait;
 
 	/**
 	 * @var BasePath|MockInterface
@@ -53,14 +51,14 @@ class ModeTest extends MockedTest
 	 */
 	private $configCacheMock;
 
-	protected function setUp() : void
+	protected function setUp(): void
 	{
 		parent::setUp();
 
 		$this->setUpVfsDir();
 
-		$this->basePathMock = Mockery::mock(BasePath::class);
-		$this->databaseMock = Mockery::mock(Database::class);
+		$this->basePathMock    = Mockery::mock(BasePath::class);
+		$this->databaseMock    = Mockery::mock(Database::class);
 		$this->configCacheMock = Mockery::mock(Cache::class);
 	}
 
@@ -110,7 +108,7 @@ class ModeTest extends MockedTest
 
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
 		$this->databaseMock->shouldReceive('fetchFirst')
-		                   ->with('SHOW TABLES LIKE \'config\'')->andReturn(false)->once();
+						   ->with('SHOW TABLES LIKE \'config\'')->andReturn(false)->once();
 
 		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
 
@@ -126,9 +124,9 @@ class ModeTest extends MockedTest
 
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
 		$this->databaseMock->shouldReceive('fetchFirst')
-		                   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
+						   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
 		$this->configCacheMock->shouldReceive('get')->with('system', 'maintenance')
-		                      ->andReturn(true)->once();
+							  ->andReturn(true)->once();
 
 		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
 
@@ -145,12 +143,12 @@ class ModeTest extends MockedTest
 
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
 		$this->databaseMock->shouldReceive('fetchFirst')
-		                   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
+						   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
 		$this->configCacheMock->shouldReceive('get')->with('system', 'maintenance')
-		                      ->andReturn(false)->once();
+							  ->andReturn(false)->once();
 		$this->databaseMock->shouldReceive('selectFirst')
-		                   ->with('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])
-		                   ->andReturn(['v' => null])->once();
+						   ->with('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])
+						   ->andReturn(['v' => null])->once();
 
 		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
 
@@ -170,12 +168,12 @@ class ModeTest extends MockedTest
 
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
 		$this->databaseMock->shouldReceive('fetchFirst')
-		                   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
+						   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
 		$this->configCacheMock->shouldReceive('get')->with('system', 'maintenance')
-		                      ->andReturn(false)->once();
+							  ->andReturn(false)->once();
 		$this->databaseMock->shouldReceive('selectFirst')
-		                   ->with('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])
-		                   ->andReturn(['v' => '0'])->once();
+						   ->with('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])
+						   ->andReturn(['v' => '0'])->once();
 
 		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
 
@@ -205,8 +203,8 @@ class ModeTest extends MockedTest
 	 */
 	public function testIsBackendNotIsBackend()
 	{
-		$server = [];
-		$module = new Module();
+		$server       = [];
+		$module       = new Module();
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
@@ -219,8 +217,8 @@ class ModeTest extends MockedTest
 	 */
 	public function testIsBackendButIndex()
 	{
-		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], true);
+		$server       = [];
+		$module       = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], true);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
@@ -233,8 +231,8 @@ class ModeTest extends MockedTest
 	 */
 	public function testIsNotBackend()
 	{
-		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
+		$server       = [];
+		$module       = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
@@ -252,7 +250,7 @@ class ModeTest extends MockedTest
 			'HTTP_X_REQUESTED_WITH' => 'xmlhttprequest',
 		];
 
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
+		$module       = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
@@ -265,8 +263,8 @@ class ModeTest extends MockedTest
 	 */
 	public function testIsNotAjax()
 	{
-		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
+		$server       = [];
+		$module       = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
@@ -279,8 +277,8 @@ class ModeTest extends MockedTest
 	 */
 	public function testIsMobileIsTablet()
 	{
-		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
+		$server       = [];
+		$module       = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(true);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(true);
@@ -297,8 +295,8 @@ class ModeTest extends MockedTest
 	 */
 	public function testIsNotMobileIsNotTablet()
 	{
-		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
+		$server       = [];
+		$module       = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(false);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(false);

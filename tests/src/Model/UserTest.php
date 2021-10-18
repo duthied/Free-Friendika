@@ -21,54 +21,58 @@
 
 namespace Friendica\Test\src\Model;
 
+use Dice\Dice;
+use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Test\MockedTest;
-use Friendica\Test\Util\DBAMockTrait;
+use Mockery\MockInterface;
 
-/**
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
- */
 class UserTest extends MockedTest
 {
-	use DBAMockTrait;
-
 	private $parent;
 	private $child;
 	private $manage;
+
+	/** @var Database|MockInterface */
+	private $dbMock;
 
 	protected function setUp(): void
 	{
 		parent::setUp();
 
+		$this->dbMock = \Mockery::mock(Database::class);
+
+		$diceMock = \Mockery::mock(Dice::class)->makePartial();
+		/** @var Dice|MockInterface $diceMock */
+		$diceMock = $diceMock->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
+		$diceMock->shouldReceive('create')->withArgs([Database::class])->andReturn($this->dbMock);
+		DI::init($diceMock);
+
 		$this->parent = [
-			'uid'        => 1,
-			'username'   => 'maxmuster',
-			'nickname'   => 'Max Muster'
+			'uid'      => 1,
+			'username' => 'maxmuster',
+			'nickname' => 'Max Muster'
 		];
 
 		$this->child = [
-			'uid'        => 2,
-			'username'   => 'johndoe',
-			'nickname'   => 'John Doe'
+			'uid'      => 2,
+			'username' => 'johndoe',
+			'nickname' => 'John Doe'
 		];
 
 		$this->manage = [
-			'uid'        => 3,
-			'username'   => 'janesmith',
-			'nickname'   => 'Jane Smith'
+			'uid'      => 3,
+			'username' => 'janesmith',
+			'nickname' => 'Jane Smith'
 		];
 	}
 
 	public function testIdentitiesEmpty()
 	{
-		$this->mockSelectFirst('user',
-			['uid', 'nickname', 'username', 'parent-uid'],
-			['uid' => $this->parent['uid']],
-			$this->parent,
-			1
-		);
-		$this->mockIsResult($this->parent, false, 1);
+		$this->dbMock->shouldReceive('selectFirst')->with('user',
+			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid']], [])->andReturn($this->parent)->once();
+		$this->dbMock->shouldReceive('isResult')->with($this->parent)->andReturn(false)->once();
 
 		$record = User::identities($this->parent['uid']);
 
@@ -77,35 +81,28 @@ class UserTest extends MockedTest
 
 	public function testIdentitiesAsParent()
 	{
-		$parentSelect = $this->parent;
+		$parentSelect               = $this->parent;
 		$parentSelect['parent-uid'] = 0;
 
 		// Select the user itself (=parent)
-		$this->mockSelectFirst('user',
-			['uid', 'nickname', 'username', 'parent-uid'],
-			['uid' => $this->parent['uid']],
-			$parentSelect,
-			1
-		);
-		$this->mockIsResult($parentSelect, true, 1);
+		$this->dbMock->shouldReceive('selectFirst')->with('user',
+			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid']], [])->andReturn($parentSelect)->once();
+		$this->dbMock->shouldReceive('isResult')->with($parentSelect)->andReturn(true)->once();
 
 		// Select one child
-		$this->mockSelect('user',
+		$this->dbMock->shouldReceive('select')->with('user',
 			['uid', 'username', 'nickname'],
 			[
-				'parent-uid' => $this->parent['uid'],
+				'parent-uid'      => $this->parent['uid'],
 				'account_removed' => false
-			],
-			'objectReturn',
-			1
-		);
-		$this->mockIsResult('objectReturn', true, 1);
-		$this->mockToArray('objectReturn', [ $this->child ], 1);
+			], [])->andReturn('objectReturn')->once();
+		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
+		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->child])->once();
 
 		// Select the manage
-		$this->mockP(null, 'objectTwo', 1);
-		$this->mockIsResult('objectTwo', true, 1);
-		$this->mockToArray('objectTwo', [ $this->manage ], 1);
+		$this->dbMock->shouldReceive('p')->withAnyArgs()->andReturn('objectTwo')->once();
+		$this->dbMock->shouldReceive('isResult')->with('objectTwo')->andReturn(true)->once();
+		$this->dbMock->shouldReceive('toArray')->with('objectTwo', true, 0)->andReturn([$this->manage])->once();
 
 		$record = User::identities($this->parent['uid']);
 
@@ -118,47 +115,37 @@ class UserTest extends MockedTest
 
 	public function testIdentitiesAsChild()
 	{
-		$childSelect = $this->child;
+		$childSelect               = $this->child;
 		$childSelect['parent-uid'] = $this->parent['uid'];
 
 		// Select the user itself (=child)
-		$this->mockSelectFirst('user',
-			['uid', 'nickname', 'username', 'parent-uid'],
-			['uid' => $this->child['uid']],
-			$childSelect,
-			1
-		);
-		$this->mockIsResult($childSelect, true, 1);
+		$this->dbMock->shouldReceive('selectFirst')->with('user',
+			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->child['uid']], [])->andReturn($childSelect)->once();
+		$this->dbMock->shouldReceive('isResult')->with($childSelect)->andReturn(true)->once();
 
 		// Select the parent
-		$this->mockSelect('user',
+		$this->dbMock->shouldReceive('select')->with('user',
 			['uid', 'username', 'nickname'],
 			[
-				'uid' => $this->parent['uid'],
+				'uid'      => $this->parent['uid'],
 				'account_removed' => false
-			],
-			'objectReturn',
-			1
-		);
-		$this->mockIsResult('objectReturn', true, 1);
-		$this->mockToArray('objectReturn', [ $this->parent ], 1);
+			], [])->andReturn('objectReturn')->once();
+		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
+		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->parent])->once();
 
 		// Select the childs (user & manage)
-		$this->mockSelect('user',
+		$this->dbMock->shouldReceive('select')->with('user',
 			['uid', 'username', 'nickname'],
 			[
-				'parent-uid' => $this->parent['uid'],
+				'parent-uid'      => $this->parent['uid'],
 				'account_removed' => false
-			],
-			'objectReturn',
-			1
-		);
-		$this->mockIsResult('objectReturn', true, 1);
-		$this->mockToArray('objectReturn', [ $this->child, $this->manage ], 1);
+			], [])->andReturn('objectReturn')->once();
+		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
+		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->child, $this->manage])->once();
 
 		// Select the manage
-		$this->mockP(null, 'objectTwo', 1);
-		$this->mockIsResult('objectTwo', false, 1);
+		$this->dbMock->shouldReceive('p')->withAnyArgs()->andReturn('objectTwo')->once();
+		$this->dbMock->shouldReceive('isResult')->with('objectTwo')->andReturn(false)->once();
 
 		$record = User::identities($this->child['uid']);
 
