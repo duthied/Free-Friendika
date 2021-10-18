@@ -30,8 +30,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\DI;
-use Friendica\Test\Util\DBAMockTrait;
-use Friendica\Test\Util\DBStructureMockTrait;
 use Friendica\Test\Util\RendererMockTrait;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\Logger\VoidLogger;
@@ -43,8 +41,6 @@ use org\bovigo\vfs\vfsStreamFile;
 class AutomaticInstallationConsoleTest extends ConsoleTest
 {
 	use VFSTrait;
-	use DBAMockTrait;
-	use DBStructureMockTrait;
 	use RendererMockTrait;
 
 	/**
