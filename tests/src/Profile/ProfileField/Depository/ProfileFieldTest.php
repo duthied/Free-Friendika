@@ -2,20 +2,17 @@
 
 namespace Friendica\Test\src\Profile\ProfileField\Depository;
 
-use Dice\Dice;
-use Friendica\Database\Database;
 use Friendica\Profile\ProfileField\Collection\ProfileFields;
 use Friendica\Profile\ProfileField\Depository\ProfileField as ProfileFieldDepository;
-use Friendica\Profile\ProfileField\Entity\ProfileField;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldPersistenceException;
 use Friendica\Profile\ProfileField\Factory\ProfileField as ProfileFieldFactory;
 use Friendica\Security\PermissionSet\Depository\PermissionSet;
 use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
 use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
-use Friendica\Test\DatabaseTest;
-use Friendica\Test\Util\Database\StaticDatabase;
+use Friendica\Test\FixtureTest;
+use Friendica\DI;
 
-class ProfileFieldTest extends DatabaseTest
+class ProfileFieldTest extends FixtureTest
 {
 	/** @var ProfileFieldDepository */
 	private $depository;
@@ -25,22 +22,15 @@ class ProfileFieldTest extends DatabaseTest
 	private $permissionSetFactory;
 	/** @var PermissionSetDepository */
 	private $permissionSetDepository;
-	/** @var Database */
-	private $dba;
 
 	public function setUp(): void
 	{
 		parent::setUp();
 
-		$dice = (new Dice())
-			->addRules(include __DIR__ . '/../../../../../static/dependencies.config.php')
-			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
-
-		$this->depository              = $dice->create(ProfileFieldDepository::class);
-		$this->factory                 = $dice->create(ProfileFieldFactory::class);
-		$this->permissionSetFactory    = $dice->create(PermissionSetFactory::class);
-		$this->permissionSetDepository = $dice->create(PermissionSetDepository::class);
-		$this->dba                     = $dice->create(Database::class);
+		$this->depository              = DI::profileField();
+		$this->factory                 = DI::profileFieldFactory();
+		$this->permissionSetFactory    = DI::permissionSetFactory();
+		$this->permissionSetDepository = DI::permissionSet();
 	}
 
 	/**
@@ -50,8 +40,6 @@ class ProfileFieldTest extends DatabaseTest
 	{
 		self::expectExceptionMessage('PermissionSet needs to be saved first.');
 		self::expectException(ProfileFieldPersistenceException::class);
-
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
 
 		$profileField = $this->factory->createFromValues(42, 0, 'public', 'value', $this->permissionSetFactory->createFromString(42, '', '<~>'));
 
@@ -65,8 +53,6 @@ class ProfileFieldTest extends DatabaseTest
 	 */
 	public function testSaveNew()
 	{
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
-
 		$profileField = $this->factory->createFromValues(42, 0, 'public', 'value', $this->permissionSetDepository->save($this->permissionSetFactory->createFromString(42, '', '<~>')));
 
 		self::assertEquals($profileField->uid, $profileField->permissionSet->uid);
@@ -76,7 +62,6 @@ class ProfileFieldTest extends DatabaseTest
 		self::assertNotNull($savedProfileField->id);
 		self::assertNull($profileField->id);
 
-		/** @var ProfileField $selectedProfileField */
 		$selectedProfileField = $this->depository->selectOneById($savedProfileField->id);
 
 		self::assertEquals($savedProfileField, $selectedProfileField);
@@ -90,8 +75,6 @@ class ProfileFieldTest extends DatabaseTest
 	 */
 	public function testUpdateOrder()
 	{
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
-
 		$profileField = $this->factory->createFromValues(42, 0, 'public', 'value', $this->permissionSetDepository->save($this->permissionSetFactory->createFromString(42, '', '<~>')));
 
 		self::assertEquals($profileField->uid, $profileField->permissionSet->uid);
@@ -101,7 +84,6 @@ class ProfileFieldTest extends DatabaseTest
 		self::assertNotNull($savedProfileField->id);
 		self::assertNull($profileField->id);
 
-		/** @var ProfileField $selectedProfileField */
 		$selectedProfileField = $this->depository->selectOneById($savedProfileField->id);
 
 		self::assertEquals($savedProfileField, $selectedProfileField);
@@ -126,8 +108,6 @@ class ProfileFieldTest extends DatabaseTest
 	 */
 	public function testUpdate()
 	{
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
-
 		$profileField = $this->factory->createFromValues(42, 0, 'public', 'value', $this->permissionSetDepository->save($this->permissionSetFactory->createFromString(42, '', '<~>')));
 
 		self::assertEquals($profileField->uid, $profileField->permissionSet->uid);
@@ -137,7 +117,6 @@ class ProfileFieldTest extends DatabaseTest
 		self::assertNotNull($savedProfileField->id);
 		self::assertNull($profileField->id);
 
-		/** @var ProfileField $selectedProfileField */
 		$selectedProfileField = $this->depository->selectOneById($savedProfileField->id);
 
 		self::assertEquals($savedProfileField, $selectedProfileField);

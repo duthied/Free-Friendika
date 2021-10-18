@@ -2,40 +2,32 @@
 
 namespace Friendica\Test\src\Security\PermissionSet\Depository;
 
-use Dice\Dice;
-use Friendica\Database\Database;
 use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
+use Friendica\Security\PermissionSet\Entity\PermissionSet;
 use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
-use Friendica\Test\DatabaseTest;
-use Friendica\Test\Util\Database\StaticDatabase;
+use Friendica\Test\FixtureTest;
+use Friendica\DI;
 
-class PermissionSetTest extends DatabaseTest
+class PermissionSetTest extends FixtureTest
 {
 	/** @var PermissionSetDepository */
 	private $depository;
 	/** @var PermissionSetFactory */
 	private $factory;
-	/** @var Database */
-	private $dba;
 
 	public function setUp(): void
 	{
 		parent::setUp();
 
-		$dice = (new Dice())
-			->addRules(include __DIR__ . '/../../../../../static/dependencies.config.php')
-			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
-
-		$this->depository = $dice->create(PermissionSetDepository::class);
-		$this->factory    = $dice->create(PermissionSetFactory::class);
-		$this->dba        = $dice->create(Database::class);
+		$this->depository = DI::permissionSet();
+		$this->factory    = DI::permissionSetFactory();
 	}
 
 	public function testSelectOneByIdPublic()
 	{
 		$permissionSet = $this->depository->selectPublicForUser(1);
 
-		$this->assertInstanceOf(\Friendica\Security\PermissionSet\Entity\PermissionSet::class, $permissionSet);
+		$this->assertInstanceOf(PermissionSet::class, $permissionSet);
 		self::assertEmpty($permissionSet->allow_cid);
 		self::assertEmpty($permissionSet->allow_gid);
 		self::assertEmpty($permissionSet->deny_cid);
@@ -49,8 +41,6 @@ class PermissionSetTest extends DatabaseTest
 	 */
 	public function testSaving()
 	{
-		$this->loadFixture(__DIR__ . '/../../../../datasets/api.fixture.php', $this->dba);
-
 		$permissionSet = $this->factory->createFromString(42, '', '<~>');
 
 		$permissionSet = $this->depository->selectOrCreate($permissionSet);
@@ -70,7 +60,5 @@ class PermissionSetTest extends DatabaseTest
 		$permissionSetSavedSelected = $this->depository->selectOneById($savedPermissionSet->id, 42);
 
 		self::assertEquals($savedPermissionSet, $permissionSetSavedSelected);
-
-		$this->dba->delete('permissionset', ['1=1']);
 	}
 }
