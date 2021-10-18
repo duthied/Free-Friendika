@@ -687,7 +687,7 @@ class BBCode
 					} elseif (!empty($data['preview'])) {
 						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br>', $data['url'], self::proxyUrl($data['preview'], $simplehtml, $uriid), $data['title']);
 					}
-					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
+					$return .= sprintf('<h4><a href="%s" target="_blank" rel="noopener noreferrer">%s</a></h4>', $data['url'], $data['title']);
 				}
 			}
 
