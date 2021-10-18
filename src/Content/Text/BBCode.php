@@ -698,9 +698,9 @@ class BBCode
 
 			if (!empty($data['provider_url']) && !empty($data['provider_name'])) {
 				if (!empty($data['author_name'])) {
-					$return .= sprintf('<sup><a href="%s">%s (%s)</a></sup>', $data['provider_url'], $data['author_name'], $data['provider_name']);
+					$return .= sprintf('<sup><a href="%s" target="_blank" rel="noopener noreferrer">%s (%s)</a></sup>', $data['provider_url'], $data['author_name'], $data['provider_name']);
 				} else {
-					$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['provider_url'], $data['provider_name']);
+					$return .= sprintf('<sup><a href="%s" target="_blank" rel="noopener noreferrer">%s</a></sup>', $data['provider_url'], $data['provider_name']);
 				}
 			}
 
