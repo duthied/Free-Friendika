@@ -604,10 +604,16 @@ Dieses Feld wird von Mastodon f&uuml;r die Inhaltswarnung (content warning) verw
   <td>;-) :-O</td>
 </tr>
 <tr>
+  <td>Benutzerdefinierte Block-Styles<br>
+<br>
+[style=text-shadow: 0 0 4px #CC0000;]Du kannst alle CSS-Eigenschaften eines Blocks &auml;ndern-[/style]</td>
+  <td><div style="text-shadow: 0 0 4px #cc0000;;">Du kannst alle CSS-Eigenschaften eines Blocks &auml;ndern.</div></td>
+</tr>
+<tr>
   <td>Benutzerdefinierte Inline-Styles<br>
 <br>
 [style=text-shadow: 0 0 4px #CC0000;]Du kannst alle CSS-Eigenschaften eines Blocks &auml;ndern-[/style]</td>
-  <td><span style="text-shadow: 0 0 4px #cc0000;;">Du kannst alle CSS-Eigenschaften eines Blocks &auml;ndern-</span></td>
+  <td>Du kannst alle <span style="text-shadow: 0 0 4px #cc0000;;">CSS-Eigenschaften dieses Inline-Textes &auml;ndern-</span></td>
 </tr>
 <tr>
   <td>Benutzerdefinierte CSS Klassen<br>

@@ -1560,9 +1560,6 @@ class BBCode
 					$text = self::convertAttachment($text, $simple_html, $try_oembed, [], $uriid);
 				}
 
-				// Add HTML new lines
-				$text = str_replace("\n", '<br>', $text);
-
 				$nosmile = strpos($text, '[nosmile]') !== false;
 				$text = str_replace('[nosmile]', '', $text);
 
@@ -1645,11 +1642,16 @@ class BBCode
 				// Check for list text
 				$text = str_replace("[*]", "<li>", $text);
 
-				// Check for style sheet commands
+				// Check for block-level custom CSS
+				$text = preg_replace('#(?<=^|\n)\[style=(.*?)](.*?)\[/style](?:\n|$)#ism', '<div style="$1">$2</div>', $text);
+
+				// Check for inline custom CSS
 				$text = preg_replace("(\[style=(.*?)\](.*?)\[\/style\])ism", '<span style="$1">$2</span>', $text);
 
 				// Check for CSS classes
 				$text = preg_replace("(\[class=(.*?)\](.*?)\[\/class\])ism", '<span class="$1">$2</span>', $text);
+				// Add HTML new lines
+				$text = str_replace("\n", '<br>', $text);
 
 				// handle nested lists
 				$endlessloop = 0;
