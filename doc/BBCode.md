@@ -650,10 +650,4 @@ On Mastodon this field is used for the content warning.
 [style=text-shadow: 0 0 4px #CC0000;]You can change all the CSS properties of this block.[/style]</td>
   <td><span style="text-shadow: 0 0 4px #cc0000;;">You can change all the CSS properties of this block.</span></td>
 </tr>
-<tr>
-  <td>Custom class block<br>
-<br>
-[class=custom]If the class exists, this block will have the custom class style applied.[/class]</td>
-  <td><pre>&lt;span class="custom"&gt;If the class exists,<br> this block will have the custom class<br> style applied.&lt;/span&gt;</pre></td>
-</tr>
 </table>

@@ -609,13 +609,5 @@ Dieses Feld wird von Mastodon f&uuml;r die Inhaltswarnung (content warning) verw
 [style=text-shadow: 0 0 4px #CC0000;]Du kannst alle CSS-Eigenschaften eines Blocks &auml;ndern-[/style]</td>
   <td><span style="text-shadow: 0 0 4px #cc0000;;">Du kannst alle CSS-Eigenschaften eines Blocks &auml;ndern-</span></td>
 </tr>
-<tr>
-  <td>Benutzerdefinierte CSS Klassen<br>
-<br>
-[class=custom]Wenn die vergebene Klasse in den CSS Anweisungen existiert, wird sie angewandt.[/class]</td>
-  <td><pre>&lt;span class="custom"&gt;Wenn die<br>
-vergebene Klasse in den CSS Anweisungen<br>
-existiert,wird sie angewandt.&lt;/span&gt;</pre></td>
-</tr>
 </table>
 
