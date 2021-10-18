@@ -292,6 +292,10 @@ Karl Marx - Die ursprüngliche Akkumulation
 				'try_oembed' => false,
 				'simpleHtml' => BBCode::TWITTER,
 			],
+			'task-10886-deprecate-class' => [
+				'expectedHTML' => '<span class="mastodon emoji"><img src="https://fedi.underscore.world/emoji/custom/custom/heart_nb.png" alt=":heart_nb:" title=":heart_nb:"></span>',
+				'text' => '[emoji=https://fedi.underscore.world/emoji/custom/custom/heart_nb.png]:heart_nb:[/emoji]',
+			]
 		];
 	}
 
