@@ -645,9 +645,15 @@ On Mastodon this field is used for the content warning.
   <td>;-) :-O</td>
 </tr>
 <tr>
+  <td>Custom block styles<br>
+<br>
+[style=text-shadow: 0 0 4px #CC0000;]You can change all the CSS properties of this block.[/style]</td>
+  <td><div style="text-shadow: 0 0 4px #cc0000;;">You can change all the CSS properties of this block.</div></td>
+</tr>
+<tr>
   <td>Custom inline styles<br>
 <br>
 [style=text-shadow: 0 0 4px #CC0000;]You can change all the CSS properties of this block.[/style]</td>
-  <td><span style="text-shadow: 0 0 4px #cc0000;;">You can change all the CSS properties of this block.</span></td>
+  <td>You can change all <span style="text-shadow: 0 0 4px #cc0000;;">the CSS properties of this inline text.</span></td>
 </tr>
 </table>
