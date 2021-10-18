@@ -30,7 +30,8 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-use Friendica\Model\ProfileField;
+use Friendica\Profile\ProfileField\Collection\ProfileFields;
+use Friendica\Profile\ProfileField\Entity\ProfileField;
 use Friendica\Model\User;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
@@ -100,16 +101,13 @@ class Index extends BaseSettings
 			$homepage = 'http://' . $homepage;
 		}
 
-		$profileFields = DI::profileField()->selectByUserId(local_user());
-
-		$profileFields = DI::profileField()->updateCollectionFromForm(
+		$profileFieldsNew = self::getProfileFieldsFromInput(
 			local_user(),
-			$profileFields,
 			$_REQUEST['profile_field'],
 			$_REQUEST['profile_field_order']
 		);
 
-		DI::profileField()->saveCollection($profileFields);
+		DI::profileField()->saveCollectionForUser(local_user(), $profileFieldsNew);
 
 		$result = Profile::update(
 			[
@@ -263,6 +261,56 @@ class Index extends BaseSettings
 		Hook::callAll('profile_edit', $arr);
 
 		return $o;
+	}
+
+	private static function getProfileFieldsFromInput(int $uid, array $profileFieldInputs, array $profileFieldOrder): ProfileFields
+	{
+		$profileFields = new ProfileFields();
+
+		// Returns an associative array of id => order values
+		$profileFieldOrder = array_flip($profileFieldOrder);
+
+		// Creation of the new field
+		if (!empty($profileFieldInputs['new']['label'])) {
+			$permissionSet = DI::permissionSet()->selectOrCreate(DI::permissionSetFactory()->createFromString(
+				$uid,
+				DI::aclFormatter()->toString($profileFieldInputs['new']['contact_allow'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInputs['new']['group_allow'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInputs['new']['contact_deny'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInputs['new']['group_deny'] ?? '')
+			));
+
+			$profileFields->append(DI::profileFieldFactory()->createFromValues(
+				$uid,
+				$profileFieldOrder['new'],
+				$profileFieldInputs['new']['label'],
+				$profileFieldInputs['new']['value'],
+				$permissionSet
+			));
+		}
+
+		unset($profileFieldInputs['new']);
+		unset($profileFieldOrder['new']);
+
+		foreach ($profileFieldInputs as $id => $profileFieldInput) {
+			$permissionSet = DI::permissionSet()->selectOrCreate(DI::permissionSetFactory()->createFromString(
+				$uid,
+				DI::aclFormatter()->toString($profileFieldInput['contact_allow'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInput['group_allow'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInput['contact_deny'] ?? ''),
+				DI::aclFormatter()->toString($profileFieldInput['group_deny'] ?? '')
+			));
+
+			$profileFields->append(DI::profileFieldFactory()->createFromValues(
+				$uid,
+				$profileFieldOrder[$id],
+				$profileFieldInput['label'],
+				$profileFieldInput['value'],
+				$permissionSet
+			));
+		}
+
+		return $profileFields;
 	}
 
 	private static function cleanKeywords($keywords)

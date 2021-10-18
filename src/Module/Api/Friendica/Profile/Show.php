@@ -21,7 +21,7 @@
 
 namespace Friendica\Module\Api\Friendica\Profile;
 
-use Friendica\Collection\ProfileFields;
+use Friendica\Profile\ProfileField\Collection\ProfileFields;
 use Friendica\Content\Text\BBCode;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -45,7 +45,7 @@ class Show extends BaseApi
 
 		$profile = Profile::getByUID($uid);
 		
-		$profileFields = DI::profileField()->select(['uid' => $uid, 'psid' => PermissionSet::PUBLIC]);
+		$profileFields = DI::profileField()->selectPublicFieldsByUserId($uid);
 
 		$profile = self::formatProfile($profile, $profileFields);
 

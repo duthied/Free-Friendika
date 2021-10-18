@@ -26,6 +26,8 @@ use Friendica\Model\Notification;
 
 return [
 	// Empty these tables
+	'profile_field',
+	'permissionset',
 	'cache',
 	'conversation',
 	'pconfig',

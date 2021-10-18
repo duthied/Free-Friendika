@@ -27,8 +27,7 @@ use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
-use Friendica\Repository\ProfileField;
-use Friendica\Security\PermissionSet\Depository\PermissionSet;
+use Friendica\Profile\ProfileField\Depository\ProfileField as ProfileFieldDepository;
 use ImagickException;
 use Psr\Log\LoggerInterface;
 
@@ -36,17 +35,17 @@ class Account extends BaseFactory
 {
 	/** @var BaseURL */
 	private $baseUrl;
-	/** @var ProfileField */
-	private $profileFieldRepo;
+	/** @var ProfileFieldDepository */
+	private $profileFieldDepo;
 	/** @var Field */
 	private $mstdnFieldFactory;
 
-	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileField $profileFieldRepo, Field $mstdnFieldFactory)
+	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileFieldDepository $profileFieldDepo, Field $mstdnFieldFactory)
 	{
 		parent::__construct($logger);
 
 		$this->baseUrl           = $baseURL;
-		$this->profileFieldRepo  = $profileFieldRepo;
+		$this->profileFieldDepo  = $profileFieldDepo;
 		$this->mstdnFieldFactory = $mstdnFieldFactory;
 	}
 
@@ -77,7 +76,7 @@ class Account extends BaseFactory
 
 		$self_contact = Contact::selectFirst(['uid'], ['nurl' => $publicContact['nurl'], 'self' => true]);
 		if (!empty($self_contact['uid'])) {
-			$profileFields = $this->profileFieldRepo->select(['uid' => $self_contact['uid'], 'psid' => PermissionSet::PUBLIC]);
+			$profileFields = $this->profileFieldDepo->selectPublicFieldsByUserId($self_contact['uid']);
 			$fields        = $this->mstdnFieldFactory->createFromProfileFields($profileFields);
 		} else {
 			$fields = new Fields();
@@ -95,7 +94,7 @@ class Account extends BaseFactory
 	{
 		$publicContact = Contact::selectFirst([], ['uid' => $userId, 'self' => true]);
 
-		$profileFields = $this->profileFieldRepo->select(['uid' => $userId, 'psid' => PermissionSet::PUBLIC]);
+		$profileFields = $this->profileFieldDepo->selectPublicFieldsByUserId($userId);
 		$fields        = $this->mstdnFieldFactory->createFromProfileFields($profileFields);
 
 		$apContact = APContact::getByURL($publicContact['url'], false);

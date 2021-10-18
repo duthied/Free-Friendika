@@ -452,12 +452,14 @@ abstract class DI
 		return self::$dice->create(Security\PermissionSet\Factory\PermissionSet::class);
 	}
 
-	/**
-	 * @return Repository\ProfileField
-	 */
-	public static function profileField()
+	public static function profileField(): Profile\ProfileField\Depository\ProfileField
 	{
-		return self::$dice->create(Repository\ProfileField::class);
+		return self::$dice->create(Profile\ProfileField\Depository\ProfileField::class);
+	}
+
+	public static function profileFieldFactory(): Profile\ProfileField\Factory\ProfileField
+	{
+		return self::$dice->create(Profile\ProfileField\Factory\ProfileField::class);
 	}
 
 	public static function notification(): Navigation\Notifications\Depository\Notification

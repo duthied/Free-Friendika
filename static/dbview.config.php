@@ -1047,5 +1047,23 @@
 			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
 			WHERE NOT `workerqueue`.`done`"
 	],
+	"profile_field-view" => [
+		"fields" => [
+			"id" => ["profile_field", "id"],
+			"uid" => ["profile_field", "uid"],
+			"label" => ["profile_field", "label"],
+			"value" => ["profile_field", "value"],
+			"order" => ["profile_field", "order"],
+			"psid"=> ["profile_field", "psid"],
+			"allow_cid" => ["permissionset", "allow_cid"],
+			"allow_gid" => ["permissionset", "allow_gid"],
+			"deny_cid" => ["permissionset", "deny_cid"],
+			"deny_gid" => ["permissionset", "deny_gid"],
+			"created" => ["profile_field", "created"],
+			"edited" => ["profile_field", "edited"],
+		],
+		"query" => "FROM `profile_field`
+			INNER JOIN `permissionset` ON `permissionset`.`id` = `profile_field`.`psid`"
+	],
 ];
 

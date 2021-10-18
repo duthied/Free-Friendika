@@ -2,39 +2,63 @@
 
 namespace Friendica\Test\src\Security\PermissionSet\Depository;
 
-use Dice\Dice;
-use Friendica\Database\Database;
+use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
+use Friendica\Security\PermissionSet\Entity\PermissionSet;
+use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
+use Friendica\Test\FixtureTest;
 use Friendica\DI;
-use Friendica\Security\PermissionSet\Depository\PermissionSet;
-use Friendica\Test\MockedTest;
-use Friendica\Test\Util\Database\StaticDatabase;
 
-class PermissionSetTest extends MockedTest
+class PermissionSetTest extends FixtureTest
 {
-	/** @var PermissionSet */
+	/** @var PermissionSetDepository */
 	private $depository;
+	/** @var PermissionSetFactory */
+	private $factory;
 
 	public function setUp(): void
 	{
-		$dice = (new Dice())
-			->addRules(include __DIR__ . '/../../../../../static/dependencies.config.php')
-			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
-		DI::init($dice);
+		parent::setUp();
 
 		$this->depository = DI::permissionSet();
-	}
-
-	public function testSelectOneByIdPublicMissingUid()
-	{
-		$this->expectException(\InvalidArgumentException::class);
-
-		$this->depository->selectOneById(PermissionSet::PUBLIC);
+		$this->factory    = DI::permissionSetFactory();
 	}
 
 	public function testSelectOneByIdPublic()
 	{
-		$permissionSet = $this->depository->selectOneById(PermissionSet::PUBLIC, 1);
+		$permissionSet = $this->depository->selectPublicForUser(1);
 
-		$this->assertInstanceOf(\Friendica\Security\PermissionSet\Entity\PermissionSet::class, $permissionSet);
+		$this->assertInstanceOf(PermissionSet::class, $permissionSet);
+		self::assertEmpty($permissionSet->allow_cid);
+		self::assertEmpty($permissionSet->allow_gid);
+		self::assertEmpty($permissionSet->deny_cid);
+		self::assertEmpty($permissionSet->deny_gid);
+		self::assertEmpty(PermissionSetDepository::PUBLIC, $permissionSet->id);
+		self::assertEquals(1, $permissionSet->uid);
+	}
+
+	/**
+	 * Test create/update PermissionSets
+	 */
+	public function testSaving()
+	{
+		$permissionSet = $this->factory->createFromString(42, '', '<~>');
+
+		$permissionSet = $this->depository->selectOrCreate($permissionSet);
+
+		self::assertNotNull($permissionSet->id);
+
+		$permissionSetSelected = $this->depository->selectOneById($permissionSet->id, 42);
+
+		self::assertEquals($permissionSet, $permissionSetSelected);
+
+		$newPermissionSet   = $permissionSet->withAllowedContacts(['1', '2']);
+		$savedPermissionSet = $this->depository->save($newPermissionSet);
+
+		self::assertNotNull($savedPermissionSet->id);
+		self::assertNull($newPermissionSet->id);
+
+		$permissionSetSavedSelected = $this->depository->selectOneById($savedPermissionSet->id, 42);
+
+		self::assertEquals($savedPermissionSet, $permissionSetSavedSelected);
 	}
 }

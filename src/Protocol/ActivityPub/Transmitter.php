@@ -229,7 +229,7 @@ class Transmitter
 				$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $owner['uid']);
 				if (!empty($permissionSets)) {
 					$condition = ['psid' => array_merge($permissionSets->column('id'),
-							[DI::permissionSet()->selectEmptyForUser($owner['uid'])])];
+							[DI::permissionSet()->selectPublicForUser($owner['uid'])])];
 				}
 			}
 		}
