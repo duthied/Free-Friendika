@@ -687,7 +687,7 @@ class BBCode
 					} elseif (!empty($data['preview'])) {
 						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br>', $data['url'], self::proxyUrl($data['preview'], $simplehtml, $uriid), $data['title']);
 					}
-					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
+					$return .= sprintf('<h4><a href="%s" target="_blank" rel="noopener noreferrer">%s</a></h4>', $data['url'], $data['title']);
 				}
 			}
 
@@ -698,9 +698,9 @@ class BBCode
 
 			if (!empty($data['provider_url']) && !empty($data['provider_name'])) {
 				if (!empty($data['author_name'])) {
-					$return .= sprintf('<sup><a href="%s">%s (%s)</a></sup>', $data['provider_url'], $data['author_name'], $data['provider_name']);
+					$return .= sprintf('<sup><a href="%s" target="_blank" rel="noopener noreferrer">%s (%s)</a></sup>', $data['provider_url'], $data['author_name'], $data['provider_name']);
 				} else {
-					$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['provider_url'], $data['provider_name']);
+					$return .= sprintf('<sup><a href="%s" target="_blank" rel="noopener noreferrer">%s</a></sup>', $data['provider_url'], $data['provider_name']);
 				}
 			}
 
