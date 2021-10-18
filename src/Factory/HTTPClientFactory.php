@@ -5,10 +5,8 @@ namespace Friendica\Factory;
 use Friendica\App;
 use Friendica\BaseFactory;
 use Friendica\Core\Config\IConfig;
-use Friendica\Core\System;
 use Friendica\Network\HTTPClient;
 use Friendica\Network\IHTTPClient;
-use Friendica\Util\Crypto;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 use GuzzleHttp\Client;
@@ -19,6 +17,8 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
+
+require_once __DIR__ . '/../../static/dbstructure.config.php';
 
 class HTTPClientFactory extends BaseFactory
 {
