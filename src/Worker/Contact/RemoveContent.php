@@ -76,7 +76,8 @@ class RemoveContent
 
 		Photo::delete(['contact-id' => $id]);
 
-		DBA::delete('contact-relation', ['`contact-id` = ? OR `cid` = ?', $id, $id]);
+		DBA::delete('contact-relation', ['contact-id' => $id]);
+		DBA::delete('contact-relation', ['cid' => $id]);
 		DBA::delete('event', ['cid' => $id]);
 		DBA::delete('fsuggest', ['cid' => $id]);
 		DBA::delete('post-tag', ['cid' => $id]);
