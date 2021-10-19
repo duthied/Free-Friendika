@@ -37,7 +37,6 @@ class Introduction extends BaseFactory implements ICanCreateFromTableRow
 		return new Entity\Introduction(
 			$row['uid'] ?? 0,
 			$row['suggest-cid'] ?? 0,
-			$row['fid'] ?? null,
 			$row['contact-id'] ?? null,
 			!empty($row['knowyou']),
 			!empty($row['duplex']),
@@ -51,18 +50,16 @@ class Introduction extends BaseFactory implements ICanCreateFromTableRow
 
 	public function createNew(
 		int $uid,
-		int $cid,
+		int $sid,
 		string $note,
-		int $fid = null,
-		int $sid = null,
+		int $cid = null,
 		bool $knowyou = false,
 		bool $duplex = false
 	): Entity\Introduction {
 		return $this->createFromTableRow([
 			'uid'         => $uid,
-			'fid'         => $fid,
-			'contact-id'  => $cid,
 			'suggest-cid' => $sid,
+			'contact-id'  => $cid,
 			'knowyou'     => $knowyou,
 			'duplex'      => $duplex,
 			'note'        => $note,
@@ -72,7 +69,7 @@ class Introduction extends BaseFactory implements ICanCreateFromTableRow
 		]);
 	}
 
-	public function createDummy(int $id): Entity\Introduction
+	public function createDummy(?int $id): Entity\Introduction
 	{
 		return $this->createFromTableRow(['id' => $id]);
 	}

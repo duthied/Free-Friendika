@@ -68,7 +68,6 @@ class Introduction extends BaseDepository
 	{
 		return [
 			'uid'         => $introduction->uid,
-			'fid'         => $introduction->fid,
 			'contact-id'  => $introduction->cid,
 			'suggest-cid' => $introduction->sid,
 			'knowyou'     => $introduction->knowyou ? 1 : 0,
