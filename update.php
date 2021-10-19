@@ -1039,7 +1039,7 @@ function update_1440()
 	return Update::SUCCESS;
 }
 
-function update__1441()
+function update_1441()
 {
 	$languages = DI::l10n()->getAvailableLanguages();
 
@@ -1050,6 +1050,14 @@ function update__1441()
 	$albums = array_unique($albums);
 
 	Photo::update(['photo-type' => Photo::USER_AVATAR], ['album' => $albums]);
+
+	return Update::SUCCESS;
+}
+
+function update_1442()
+{
+	// transform blocked intros into ignored intros
+	DBA::update('intro', ['ignore' => 1, 'blocked' => 0], ['blocked' => 1]);
 
 	return Update::SUCCESS;
 }

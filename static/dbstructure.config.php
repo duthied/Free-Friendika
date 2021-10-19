@@ -782,7 +782,7 @@ return [
 			"note" => ["type" => "text", "comment" => ""],
 			"hash" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"datetime" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "deprecated"],
 			"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 		],
 		"indexes" => [

@@ -719,7 +719,7 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	`note` text COMMENT '',
 	`hash` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`datetime` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`blocked` boolean NOT NULL DEFAULT '1' COMMENT '',
+	`blocked` boolean NOT NULL DEFAULT '0' COMMENT 'deprecated',
 	`ignore` boolean NOT NULL DEFAULT '0' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `contact-id` (`contact-id`),

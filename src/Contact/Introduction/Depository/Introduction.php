@@ -75,7 +75,6 @@ class Introduction extends BaseDepository
 			'duplex'      => $introduction->duplex ? 1 : 0,
 			'note'        => $introduction->note,
 			'hash'        => $introduction->hash,
-			'blocked'     => $introduction->blocked ? 1 : 0,
 			'ignore'      => $introduction->ignore ? 1 : 0,
 			'datetime'    => $introduction->datetime->format(DateTimeFormat::MYSQL),
 		];
@@ -143,7 +142,7 @@ class Introduction extends BaseDepository
 	public function countActiveForUser($uid, array $params = []): int
 	{
 		try {
-			return $this->count(['blocked' => false, 'ignore' => false, 'uid' => $uid], $params);
+			return $this->count(['ignore' => false, 'uid' => $uid], $params);
 		} catch (\Exception $e) {
 			throw new IntroductionPersistenceException(sprintf('Cannot count Introductions for used %d', $uid), $e);
 		}

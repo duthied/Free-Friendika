@@ -18,7 +18,7 @@ Fields
 | note        |                   | text               | YES  |     | NULL                |                |
 | hash        |                   | varchar(255)       | NO   |     |                     |                |
 | datetime    |                   | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
-| blocked     |                   | boolean            | NO   |     | 1                   |                |
+| blocked     | deprecated        | boolean            | NO   |     | 0                   |                |
 | ignore      |                   | boolean            | NO   |     | 0                   |                |
 
 Indexes

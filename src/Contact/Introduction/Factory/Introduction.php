@@ -44,7 +44,6 @@ class Introduction extends BaseFactory implements ICanCreateFromTableRow
 			$row['note'] ?? '',
 			$row['hash'] ?? '',
 			new \DateTime($row['datetime'] ?? 'now', new \DateTimeZone('UTC')),
-			!empty($row['blocked']),
 			!empty($row['ignore']),
 			$row['id'] ?? null
 		);
@@ -69,7 +68,6 @@ class Introduction extends BaseFactory implements ICanCreateFromTableRow
 			'note'        => $note,
 			'hash'        => Strings::getRandomHex(),
 			'datetime'    => DateTimeFormat::utcNow(),
-			'blocked'     => false,
 			'ignore'      => false,
 		]);
 	}
