@@ -2719,7 +2719,7 @@ class Contact
 				if (($user['notify-flags'] & Notification\Type::INTRO) &&
 					in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL])) {
 
-					notification([
+					DI::notify()->createFromArray([
 						'type'  => Notification\Type::INTRO,
 						'otype' => Notification\ObjectType::INTRO,
 						'verb'  => ($sharing ? Activity::FRIEND : Activity::FOLLOW),

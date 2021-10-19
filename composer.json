@@ -85,7 +85,6 @@
 			"Friendica\\Addon\\": "addon/"
 		},
 		"files": [
-			"include/enotify.php",
 			"boot.php"
 		]
 	},
