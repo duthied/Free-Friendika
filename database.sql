@@ -723,6 +723,7 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	`ignore` boolean NOT NULL DEFAULT '0' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `contact-id` (`contact-id`),
+	 INDEX `suggest-cid` (`suggest-cid`),
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -2592,18 +2593,18 @@ CREATE VIEW `workerqueue-view` AS SELECT
 -- VIEW profile_field-view
 --
 DROP VIEW IF EXISTS `profile_field-view`;
-CREATE VIEW `profile_field-view` AS SELECT
-	  `profile_field`.`id` AS `id`,
-	  `profile_field`.`uid` AS `uid`,
-	  `profile_field`.`label` AS `label`,
-	  `profile_field`.`value` AS `value`,
-	  `profile_field`.`order` AS `order`,
-	  `profile_field`.`psid` AS `psid`,
-	  `permissionset`.`allow_cid` AS `allow_cid`,
-	  `permissionset`.`allow_gid` AS `allow_gid`,
-	  `permissionset`.`deny_cid` AS `deny_cid`,
-	  `permissionset`.`deny_gid` AS `deny_gid`,
-	  `profile_field`.`created` AS `created`,
-	  `profile_field`.`edited` AS `edited`
-  FROM `profile_field`
-		   INNER JOIN `permissionset` ON `permissionset`.`id` = `profile_field`.`psid`;
+CREATE VIEW `profile_field-view` AS SELECT 
+	`profile_field`.`id` AS `id`,
+	`profile_field`.`uid` AS `uid`,
+	`profile_field`.`label` AS `label`,
+	`profile_field`.`value` AS `value`,
+	`profile_field`.`order` AS `order`,
+	`profile_field`.`psid` AS `psid`,
+	`permissionset`.`allow_cid` AS `allow_cid`,
+	`permissionset`.`allow_gid` AS `allow_gid`,
+	`permissionset`.`deny_cid` AS `deny_cid`,
+	`permissionset`.`deny_gid` AS `deny_gid`,
+	`profile_field`.`created` AS `created`,
+	`profile_field`.`edited` AS `edited`
+	FROM `profile_field`
+			INNER JOIN `permissionset` ON `permissionset`.`id` = `profile_field`.`psid`;

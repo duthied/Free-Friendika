@@ -24,11 +24,12 @@ Fields
 Indexes
 ------------
 
-| Name       | Fields     |
-| ---------- | ---------- |
-| PRIMARY    | id         |
-| contact-id | contact-id |
-| uid        | uid        |
+| Name        | Fields      |
+| ----------- | ----------- |
+| PRIMARY     | id          |
+| contact-id  | contact-id  |
+| suggest-cid | suggest-cid |
+| uid         | uid         |
 
 Foreign Keys
 ------------

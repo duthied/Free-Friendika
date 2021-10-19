@@ -788,6 +788,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"contact-id" => ["contact-id"],
+			"suggest-cid" => ["suggest-cid"],
 			"uid" => ["uid"],
 		]
 	],
