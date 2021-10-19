@@ -104,6 +104,8 @@ class Crop extends BaseSettings
 				);
 				if ($r === false) {
 					notice(DI::l10n()->t('Image size reduction [%s] failed.', '300'));
+				} else {
+					Photo::update(['profile' => true], ['id' => $r['id']]);
 				}
 
 				$Image->scaleDown(80);
@@ -120,6 +122,8 @@ class Crop extends BaseSettings
 				);
 				if ($r === false) {
 					notice(DI::l10n()->t('Image size reduction [%s] failed.', '80'));
+				} else {
+					Photo::update(['profile' => true], ['id' => $r['id']]);
 				}
 
 				$Image->scaleDown(48);
@@ -136,6 +140,8 @@ class Crop extends BaseSettings
 				);
 				if ($r === false) {
 					notice(DI::l10n()->t('Image size reduction [%s] failed.', '48'));
+				} else {
+					Photo::update(['profile' => true], ['id' => $r['id']]);
 				}
 
 				Contact::updateSelfFromUserID(local_user(), true);
@@ -176,7 +182,7 @@ class Crop extends BaseSettings
 
 		// set an already uloaded photo as profile photo
 		// if photo is in 'Profile Photos', change it in db
-		if ($photos[0]['album'] == DI::l10n()->t(Photo::PROFILE_PHOTOS) && $havescale) {
+		if ($photos[0]['photo-type'] == Photo::USER_AVATAR && $havescale) {
 			Photo::update(['profile' => false], ['uid' => local_user()]);
 
 			Photo::update(['profile' => true], ['resource-id' => $resource_id, 'uid' => local_user()]);

@@ -92,13 +92,13 @@ class Index extends BaseSettings
 
 		$filename = '';
 
-		if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 0)) {
+		if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 0, Photo::USER_AVATAR)) {
 			notice(DI::l10n()->t('Image upload failed.'));
 		}
 
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
-			if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 1)) {
+			if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 1, Photo::USER_AVATAR)) {
 				notice(DI::l10n()->t('Image size reduction [%s] failed.', '640'));
 			}
 		}

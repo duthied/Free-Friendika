@@ -179,14 +179,14 @@ function ping_init(App $a)
 			"SELECT  `intro`.`id`, `intro`.`datetime`,
 			`contact`.`name`, `contact`.`url`, `contact`.`photo`
 			FROM `intro` INNER JOIN `contact` ON `intro`.`suggest-cid` = `contact`.`id`
-			WHERE `intro`.`uid` = ? AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`fid` != 0",
+			WHERE `intro`.`uid` = ? AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`suggest-cid` != 0",
 			local_user()
 		));
 		$intros2 = DBA::toArray(DBA::p(
 			"SELECT `intro`.`id`, `intro`.`datetime`,
 			`contact`.`name`, `contact`.`url`, `contact`.`photo`
 			FROM `intro` INNER JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
-			WHERE `intro`.`uid` = ? AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`contact-id` != 0 AND (`intro`.`fid` = 0 OR `intro`.`fid` IS NULL)",
+			WHERE `intro`.`uid` = ? AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`contact-id` != 0 AND (`intro`.`suggest-cid` = 0 OR `intro`.`suggest-cid` IS NULL)",
 			local_user()
 		));
 
