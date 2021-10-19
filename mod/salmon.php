@@ -158,7 +158,7 @@ function salmon_post(App $a, $xml = '') {
 	*
 	*/
 
-	$contact = DBA::selectFirst('contact', ["`network` IN (?, ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `uid` = ?",
+	$contact = DBA::selectFirst('contact', [], ["`network` IN (?, ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `uid` = ?",
 		Protocol::OSTATUS, Protocol::DFRN, Strings::normaliseLink($author_link), $author_link, Strings::normaliseLink($author_link), $importer['uid']]);
 
 	if (!empty($contact['gsid'])) {
