@@ -2462,7 +2462,7 @@ class Contact
 
 		if (DBA::isResult($contact)) {
 			// update contact
-			$new_relation = (($contact['rel'] == self::FOLLOWER) ? self::FRIEND : self::SHARING);
+			$new_relation = (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND]) ? self::FRIEND : self::SHARING);
 
 			$fields = ['rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false];
 			self::update($fields, ['id' => $contact['id']]);
