@@ -42,8 +42,8 @@ class IntroductionTest extends TestCase
 				],
 				'assertion' => [
 					'uid'         => 0,
-					'suggest-cid' => 0,
-					'contact-id'  => null,
+					'contact-id'  => 0,
+					'suggest-cid' => null,
 					'knowyou'     => false,
 					'duplex'      => false,
 					'note'        => '',
@@ -58,8 +58,8 @@ class IntroductionTest extends TestCase
 	{
 		self::assertEquals($intro->id, $assertion['id'] ?? null);
 		self::assertEquals($intro->uid, $assertion['uid'] ?? 0);
-		self::assertEquals($intro->sid, $assertion['suggest-cid'] ?? 0);
-		self::assertEquals($intro->cid, $assertion['contact-id'] ?? null);
+		self::assertEquals($intro->cid, $assertion['contact-id'] ?? 0);
+		self::assertEquals($intro->sid, $assertion['suggest-cid'] ?? null);
 		self::assertEquals($intro->knowyou, $assertion['knowyou'] ?? false);
 		self::assertEquals($intro->duplex, $assertion['duplex'] ?? false);
 		self::assertEquals($intro->note, $assertion['note'] ?? '');
@@ -94,12 +94,12 @@ class IntroductionTest extends TestCase
 	{
 		$factory = new Introduction(new NullLogger());
 
-		$intro = $factory->createNew($input['uid'] ?? 0, $input['sid'] ?? 0, $input['note'] ?? '');
+		$intro = $factory->createNew($input['uid'] ?? 0, $input['cid'] ?? 0, $input['note'] ?? '');
 
 		$this->assertIntro($intro, [
-			'uid'  => $input['uid'] ?? 0,
-			'sid'  => $input['sid'] ?? 0,
-			'note' => $input['note'] ?? '',
+			'uid'        => $input['uid'] ?? 0,
+			'contact-id' => $input['cid'] ?? 0,
+			'note'       => $input['note'] ?? '',
 		]);
 	}
 

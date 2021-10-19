@@ -1352,7 +1352,7 @@ class DFRN
 		}
 
 		// Quit if we already have an introduction for this person
-		if (DI::intro()->existsForContact($cid, $uid)) {
+		if (DI::intro()->suggestionExistsForUser($cid, $uid)) {
 			return false;
 		}
 

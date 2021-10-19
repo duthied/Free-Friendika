@@ -25,8 +25,8 @@ use Friendica\BaseEntity;
 
 /**
  * @property-read int $uid
- * @property-read int $sid
- * @property-read int|null $cid
+ * @property-read int $cid
+ * @property-read int|null $sid
  * @property-read bool $knowyou
  * @property-read bool $duplex
  * @property-read string $note
@@ -40,9 +40,9 @@ class Introduction extends BaseEntity
 	/** @var int */
 	protected $uid;
 	/** @var int */
-	protected $sid;
-	/** @var int|null */
 	protected $cid;
+	/** @var int|null */
+	protected $sid;
 	/** @var bool */
 	protected $knowyou;
 	/** @var bool */
@@ -60,8 +60,8 @@ class Introduction extends BaseEntity
 
 	/**
 	 * @param int       $uid
-	 * @param int       $sid
-	 * @param int|null  $cid
+	 * @param int       $cid
+	 * @param int|null  $sid
 	 * @param bool      $knowyou
 	 * @param bool      $duplex
 	 * @param string    $note
@@ -70,11 +70,11 @@ class Introduction extends BaseEntity
 	 * @param bool      $ignore
 	 * @param int|null  $id
 	 */
-	public function __construct(int $uid, int $sid, ?int $cid, bool $knowyou, bool $duplex, string $note, string $hash, \DateTime $datetime, bool $ignore, ?int $id)
+	public function __construct(int $uid, int $cid, ?int $sid, bool $knowyou, bool $duplex, string $note, string $hash, \DateTime $datetime, bool $ignore, ?int $id)
 	{
 		$this->uid      = $uid;
-		$this->sid      = $sid;
 		$this->cid      = $cid;
+		$this->sid      = $sid;
 		$this->knowyou  = $knowyou;
 		$this->duplex   = $duplex;
 		$this->note     = $note;

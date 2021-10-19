@@ -147,12 +147,20 @@ class Introduction extends BaseDepository
 		}
 	}
 
-	public function existsForContact(int $cid, int $uid): bool
+	/**
+	 * Checks, if the suggested contact already exists for the user
+	 *
+	 * @param int $sid
+	 * @param int $uid
+	 *
+	 * @return bool
+	 */
+	public function suggestionExistsForUser(int $sid, int $uid): bool
 	{
 		try {
-			return $this->exists(['uid' => $uid, 'suggest-cid' => $cid]);
+			return $this->exists(['uid' => $uid, 'suggest-cid' => $sid]);
 		} catch (\Exception $e) {
-			throw new IntroductionPersistenceException(sprintf('Cannot check Introductions for contact %d and user %d', $cid, $uid), $e);
+			throw new IntroductionPersistenceException(sprintf('Cannot check suggested Introduction for contact %d and user %d', $sid, $uid), $e);
 		}
 	}
 
