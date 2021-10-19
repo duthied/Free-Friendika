@@ -380,7 +380,7 @@ class Photo
 			"data" => $data,
 			"scale" => $scale,
 			"photo-type" => $type,
-			"profile" => $type == self::USER_AVATAR,
+			"profile" => false,
 			"allow_cid" => $allow_cid,
 			"allow_gid" => $allow_gid,
 			"deny_cid" => $deny_cid,
@@ -632,6 +632,8 @@ class Photo
 	{
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
+		$avatar_type = (local_user() && (local_user() == $uid)) ? Photo::USER_AVATAR : Photo::DEFAULT;
+
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 		$albums = DI::cache()->get($key);
 		if (is_null($albums) || $update) {
@@ -640,20 +642,20 @@ class Photo
 				// At this time we just store the data in the cache
 				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
 					FROM `photo`
-					WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sql_extra
+					WHERE `uid` = ? AND `photo-type` IN (?, ?) $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
 					$uid,
-					self::CONTACT_AVATAR,
-					self::CONTACT_BANNER
+					self::DEFAULT,
+					$avatar_type
 				));
 			} else {
 				// This query doesn't do the count and is much faster
 				$albums = DBA::toArray(DBA::p("SELECT DISTINCT(`album`), '' AS `total`
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
-					WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sql_extra",
+					WHERE `uid` = ? AND `photo-type` IN (?, ?) $sql_extra",
 					$uid,
-					self::CONTACT_AVATAR,
-					self::CONTACT_BANNER
+					self::DEFAULT,
+					$avatar_type
 				));
 			}
 			DI::cache()->set($key, $albums, Duration::DAY);

@@ -1038,3 +1038,18 @@ function update_1440()
 
 	return Update::SUCCESS;
 }
+
+function update__1441()
+{
+	$languages = DI::l10n()->getAvailableLanguages();
+
+	$albums = [Photo::PROFILE_PHOTOS];
+	foreach ($languages as $language) {
+		$albums[] = DI::l10n()->withLang($language)->t(Photo::PROFILE_PHOTOS);
+	}
+	$albums = array_unique($albums);
+
+	Photo::update(['photo-type' => Photo::USER_AVATAR], ['album' => $albums]);
+
+	return Update::SUCCESS;
+}

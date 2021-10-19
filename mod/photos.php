@@ -85,9 +85,6 @@ function photos_init(App $a) {
 
 			$ret['albums'] = [];
 			foreach ($albums as $k => $album) {
-				//hide profile photos to others
-				if (!$is_owner && !Session::getRemoteContactID($owner['uid']) && ($album['album'] == DI::l10n()->t(Photo::PROFILE_PHOTOS)))
-					continue;
 				$entry = [
 					'text'      => $album['album'],
 					'total'     => $album['total'],
@@ -195,12 +192,7 @@ function photos_post(App $a)
 		}
 		$album = hex2bin(DI::args()->getArgv()[3]);
 
-		if ($album === DI::l10n()->t(Photo::PROFILE_PHOTOS) || $album === Photo::CONTACT_PHOTOS || $album === DI::l10n()->t(Photo::CONTACT_PHOTOS)) {
-			DI::baseUrl()->redirect($_SESSION['photo_return']);
-			return; // NOTREACHED
-		}
-
-		if (!DBA::exists('photo', ['album' => $album, 'uid' => $page_owner_uid])) {
+		if (!DBA::exists('photo', ['album' => $album, 'uid' => $page_owner_uid, 'photo-type' => Photo::DEFAULT])) {
 			notice(DI::l10n()->t('Album not found.'));
 			DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album');
 			return; // NOTREACHED
@@ -917,7 +909,7 @@ function photos_content(App $a)
 		$albums = Photo::getAlbums($owner_uid);
 		if (!empty($albums)) {
 			foreach ($albums as $album) {
-				if (($album['album'] === '') || ($album['album'] === Photo::CONTACT_PHOTOS) || ($album['album'] === DI::l10n()->t(Photo::CONTACT_PHOTOS))) {
+				if ($album['album'] === '') {
 					continue;
 				}
 				$selected = (($selname === $album['album']) ? ' selected="selected" ' : '');
@@ -976,6 +968,10 @@ function photos_content(App $a)
 		}
 		$album = hex2bin($datum);
 
+		if ($can_post && !Photo::exists(['uid' => $owner_uid, 'album' => $album, 'photo-type' => Photo::DEFAULT])) {
+			$can_post = false;
+		}
+
 		$total = 0;
 		$r = DBA::toArray(DBA::p("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND `album` = ?
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id`",
@@ -1025,27 +1021,23 @@ function photos_content(App $a)
 
 		// edit album name
 		if ($cmd === 'edit') {
-			if (($album !== DI::l10n()->t(Photo::PROFILE_PHOTOS)) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS))) {
-				if ($can_post) {
-					$edit_tpl = Renderer::getMarkupTemplate('album_edit.tpl');
+			if ($can_post) {
+				$edit_tpl = Renderer::getMarkupTemplate('album_edit.tpl');
 
-					$album_e = $album;
+				$album_e = $album;
 
-					$o .= Renderer::replaceMacros($edit_tpl,[
-						'$nametext' => DI::l10n()->t('New album name: '),
-						'$nickname' => $user['nickname'],
-						'$album' => $album_e,
-						'$hexalbum' => bin2hex($album),
-						'$submit' => DI::l10n()->t('Submit'),
-						'$dropsubmit' => DI::l10n()->t('Delete Album')
-					]);
-				}
+				$o .= Renderer::replaceMacros($edit_tpl,[
+					'$nametext' => DI::l10n()->t('New album name: '),
+					'$nickname' => $user['nickname'],
+					'$album' => $album_e,
+					'$hexalbum' => bin2hex($album),
+					'$submit' => DI::l10n()->t('Submit'),
+					'$dropsubmit' => DI::l10n()->t('Delete Album')
+				]);
 			}
-		} else {
-			if (($album !== DI::l10n()->t(Photo::PROFILE_PHOTOS)) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS)) && $can_post) {
-				$edit = [DI::l10n()->t('Edit Album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/edit'];
-				$drop = [DI::l10n()->t('Drop Album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/drop'];
-			}
+		} elseif ($can_post) {
+			$edit = [DI::l10n()->t('Edit Album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/edit'];
+			$drop = [DI::l10n()->t('Drop Album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/drop'];
 		}
 
 		if ($order_field === 'posted') {
@@ -1546,11 +1538,10 @@ function photos_content(App $a)
 	// Default - show recent photos with upload link (if applicable)
 	//$o = '';
 	$total = 0;
-	$r = DBA::toArray(DBA::p("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?)
+	$r = DBA::toArray(DBA::p("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND `photo-type` = ?
 		$sql_extra GROUP BY `resource-id`",
 		$user['uid'],
-		Photo::CONTACT_AVATAR,
-		Photo::CONTACT_BANNER
+		Photo::DEFAULT,
 	));
 	if (DBA::isResult($r)) {
 		$total = count($r);
@@ -1561,11 +1552,10 @@ function photos_content(App $a)
 	$r = DBA::toArray(DBA::p("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
 		ANY_VALUE(`type`) AS `type`, ANY_VALUE(`album`) AS `album`, max(`scale`) AS `scale`,
 		ANY_VALUE(`created`) AS `created` FROM `photo`
-		WHERE `uid` = ? AND NOT `photo-type` IN (?, ?)
+		WHERE `uid` = ? AND `photo-type` = ?
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT ? , ?",
 		$user['uid'],
-		Photo::CONTACT_AVATAR,
-		Photo::CONTACT_BANNER,
+		Photo::DEFAULT,
 		$pager->getStart(),
 		$pager->getItemsPerPage()
 	));
@@ -1575,11 +1565,6 @@ function photos_content(App $a)
 		// "Twist" is only used for the duepunto theme with style "slackr"
 		$twist = false;
 		foreach ($r as $rr) {
-			//hide profile photos to others
-			if (!$is_owner && !Session::getRemoteContactID($owner_uid) && ($rr['album'] == DI::l10n()->t(Photo::PROFILE_PHOTOS))) {
-				continue;
-			}
-
 			$twist = !$twist;
 			$ext = $phototypes[$rr['type']];
 
