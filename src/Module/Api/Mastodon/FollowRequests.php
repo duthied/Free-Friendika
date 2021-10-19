@@ -60,7 +60,7 @@ class FollowRequests extends BaseApi
 				DI::intro()->delete($introduction);
 				break;
 			case 'ignore':
-				$introduction->setIgnore();
+				$introduction->ignore();
 				$relationship = DI::mstdnRelationship()->createFromContactId($contactId, $uid);
 
 				DI::intro()->save($introduction);

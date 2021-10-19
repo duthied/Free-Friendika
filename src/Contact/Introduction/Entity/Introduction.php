@@ -93,7 +93,10 @@ class Introduction extends BaseEntity
 		$this->id      = $id;
 	}
 
-	public function setIgnore()
+	/**
+	 * Ignore the current Introduction
+	 */
+	public function ignore()
 	{
 		$this->ignore = true;
 	}

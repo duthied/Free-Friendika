@@ -59,7 +59,7 @@ class Notification extends BaseModule
 					DI::intro()->delete($intro);
 					break;
 				case DI::l10n()->t('Ignore'):
-					$intro->setIgnore();
+					$intro->ignore();
 					DI::intro()->save($intro);
 					break;
 			}
