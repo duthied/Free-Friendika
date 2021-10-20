@@ -104,7 +104,7 @@ class Mail
 				'link'  => DI::baseUrl() . '/message/' . $msg['id'],
 			];
 
-			notification($notif_params);
+			DI::notify()->createFromArray($notif_params);
 
 			Logger::info('Mail is processed, notification was sent.', ['id' => $msg['id'], 'uri' => $msg['uri']]);
 		}

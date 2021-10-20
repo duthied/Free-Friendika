@@ -777,7 +777,7 @@ function item_post(App $a) {
 	// These notifications are sent if someone else is commenting other your wall
 	if ($contact_record != $author) {
 		if ($toplevel_item_id) {
-			notification([
+			DI::notify()->createFromArray([
 				'type'  => Notification\Type::COMMENT,
 				'otype' => Notification\ObjectType::ITEM,
 				'verb'  => Activity::POST,
@@ -787,7 +787,7 @@ function item_post(App $a) {
 				'link'  => DI::baseUrl() . '/display/' . urlencode($datarray['guid']),
 			]);
 		} elseif (empty($forum_contact)) {
-			notification([
+			DI::notify()->createFromArray([
 				'type'  => Notification\Type::WALL,
 				'otype' => Notification\ObjectType::ITEM,
 				'verb'  => Activity::POST,

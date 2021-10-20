@@ -154,7 +154,7 @@ class Subscription
 		}
 
 		if ($desktop_notification) {
-			notification_from_array($Notification);
+			DI::notify()->createFromNotification($Notification);
 		}
 
 		if (empty($type)) {

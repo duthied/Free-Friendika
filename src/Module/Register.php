@@ -365,7 +365,7 @@ class Register extends BaseModule
 
 			// send notification to admins
 			while ($admin = DBA::fetch($admins_stmt)) {
-				\notification([
+				DI::notify()->createFromArray([
 					'type'         => Model\Notification\Type::SYSTEM,
 					'event'        => 'SYSTEM_REGISTER_REQUEST',
 					'uid'          => $admin['uid'],

@@ -1371,7 +1371,7 @@ class DFRN
 			'note' => $suggest['body'], 'hash' => $hash, 'datetime' => DateTimeFormat::utcNow(), 'blocked' => false];
 		DBA::insert('intro', $fields);
 
-		notification([
+		DI::notify()->createFromArray([
 			'type'  => Notification\Type::SUGGEST,
 			'otype' => Notification\ObjectType::INTRO,
 			'verb'  => Activity::REQ_FRIEND,
@@ -1576,7 +1576,7 @@ class DFRN
 				$item['parent'] = $parent['id'];
 
 				// send a notification
-				notification(
+				DI::notify()->createFromArray(
 					[
 					"type"     => Notification\Type::POKE,
 					"otype"    => Notification\ObjectType::PERSON,
