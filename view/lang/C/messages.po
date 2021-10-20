@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-19 20:03+0000\n"
+"POT-Creation-Date: 2021-10-20 15:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,7 +40,7 @@ msgstr ""
 #: mod/api.php:30 mod/editpost.php:38 mod/events.php:220 mod/follow.php:56
 #: mod/follow.php:130 mod/item.php:185 mod/item.php:190 mod/item.php:936
 #: mod/message.php:69 mod/message.php:111 mod/notes.php:44
-#: mod/ostatus_subscribe.php:32 mod/photos.php:163 mod/photos.php:908
+#: mod/ostatus_subscribe.php:32 mod/photos.php:160 mod/photos.php:900
 #: mod/repair_ostatus.php:31 mod/settings.php:47 mod/settings.php:57
 #: mod/settings.php:409 mod/suggest.php:34 mod/uimport.php:33
 #: mod/unfollow.php:35 mod/unfollow.php:50 mod/unfollow.php:82
@@ -62,7 +62,7 @@ msgstr ""
 #: src/Module/Search/Directory.php:38 src/Module/Settings/Delegation.php:42
 #: src/Module/Settings/Delegation.php:70 src/Module/Settings/Display.php:43
 #: src/Module/Settings/Display.php:121
-#: src/Module/Settings/Profile/Photo/Crop.php:158
+#: src/Module/Settings/Profile/Photo/Crop.php:164
 #: src/Module/Settings/Profile/Photo/Index.php:112
 #: src/Module/Settings/UserExport.php:58 src/Module/Settings/UserExport.php:93
 #: src/Module/Settings/UserExport.php:198
@@ -80,8 +80,8 @@ msgstr ""
 msgid "Access denied."
 msgstr ""
 
-#: mod/cal.php:61 mod/cal.php:78 mod/photos.php:69 mod/photos.php:143
-#: mod/photos.php:815 src/Model/Profile.php:229 src/Module/HCard.php:52
+#: mod/cal.php:61 mod/cal.php:78 mod/photos.php:69 mod/photos.php:140
+#: mod/photos.php:807 src/Model/Profile.php:229 src/Module/HCard.php:52
 #: src/Module/Profile/Common.php:41 src/Module/Profile/Common.php:52
 #: src/Module/Profile/Contacts.php:40 src/Module/Profile/Contacts.php:50
 #: src/Module/Profile/Media.php:38 src/Module/Profile/Status.php:58
@@ -156,7 +156,7 @@ msgstr ""
 msgid "calendar"
 msgstr ""
 
-#: mod/display.php:165 mod/photos.php:819
+#: mod/display.php:165 mod/photos.php:811
 #: src/Module/Conversation/Community.php:176 src/Module/Debug/Probe.php:39
 #: src/Module/Debug/WebFinger.php:38 src/Module/Directory.php:49
 #: src/Module/Search/Index.php:50 src/Module/Search/Index.php:55
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: mod/editpost.php:92 mod/photos.php:1355 src/Content/Conversation.php:326
+#: mod/editpost.php:92 mod/photos.php:1347 src/Content/Conversation.php:326
 #: src/Module/Contact/Poke.php:157 src/Object/Post.php:964
 msgid "Loading..."
 msgstr ""
@@ -249,7 +249,7 @@ msgid "clear location"
 msgstr ""
 
 #: mod/editpost.php:107 mod/message.php:200 mod/message.php:358
-#: mod/photos.php:1506 mod/wallmessage.php:141 src/Content/Conversation.php:355
+#: mod/photos.php:1498 mod/wallmessage.php:141 src/Content/Conversation.php:355
 #: src/Content/Conversation.php:689 src/Module/Item/Compose.php:165
 #: src/Object/Post.php:502
 msgid "Please wait"
@@ -281,14 +281,14 @@ msgstr ""
 msgid "Example: bob@example.com, mary@example.com"
 msgstr ""
 
-#: mod/editpost.php:128 mod/events.php:517 mod/photos.php:1354
-#: mod/photos.php:1410 mod/photos.php:1484 src/Content/Conversation.php:370
+#: mod/editpost.php:128 mod/events.php:517 mod/photos.php:1346
+#: mod/photos.php:1402 mod/photos.php:1476 src/Content/Conversation.php:370
 #: src/Module/Item/Compose.php:160 src/Object/Post.php:974
 msgid "Preview"
 msgstr ""
 
 #: mod/editpost.php:130 mod/fbrowser.php:100 mod/fbrowser.php:127
-#: mod/follow.php:144 mod/photos.php:1017 mod/photos.php:1122 mod/tagrm.php:37
+#: mod/follow.php:144 mod/photos.php:1013 mod/photos.php:1114 mod/tagrm.php:37
 #: mod/tagrm.php:129 mod/unfollow.php:97 src/Content/Conversation.php:373
 #: src/Module/Contact/Revoke.php:99 src/Module/RemoteFollow.php:116
 msgid "Cancel"
@@ -305,8 +305,8 @@ msgstr ""
 msgid "Browser"
 msgstr ""
 
-#: mod/editpost.php:136 mod/events.php:522 mod/photos.php:956
-#: mod/photos.php:1308 src/Content/Conversation.php:357
+#: mod/editpost.php:136 mod/events.php:522 mod/photos.php:948
+#: mod/photos.php:1300 src/Content/Conversation.php:357
 msgid "Permissions"
 msgstr ""
 
@@ -386,8 +386,8 @@ msgid "Share this event"
 msgstr ""
 
 #: mod/events.php:519 mod/message.php:201 mod/message.php:357
-#: mod/photos.php:938 mod/photos.php:1039 mod/photos.php:1312
-#: mod/photos.php:1353 mod/photos.php:1409 mod/photos.php:1483
+#: mod/photos.php:930 mod/photos.php:1034 mod/photos.php:1304
+#: mod/photos.php:1345 mod/photos.php:1401 mod/photos.php:1475
 #: src/Module/Admin/Item/Source.php:65 src/Module/Contact.php:523
 #: src/Module/Contact/Advanced.php:133 src/Module/Contact/Poke.php:158
 #: src/Module/Debug/ActivityPubConversion.php:141
@@ -842,255 +842,255 @@ msgstr ""
 msgid "Keep this window open until done."
 msgstr ""
 
-#: mod/photos.php:111 src/Module/BaseProfile.php:67
+#: mod/photos.php:108 src/Module/BaseProfile.php:67
 msgid "Photo Albums"
 msgstr ""
 
-#: mod/photos.php:112 mod/photos.php:1608
+#: mod/photos.php:109 mod/photos.php:1593
 msgid "Recent Photos"
 msgstr ""
 
-#: mod/photos.php:114 mod/photos.php:1090 mod/photos.php:1610
+#: mod/photos.php:111 mod/photos.php:1082 mod/photos.php:1595
 msgid "Upload New Photos"
 msgstr ""
 
-#: mod/photos.php:132 src/Module/BaseSettings.php:37
+#: mod/photos.php:129 src/Module/BaseSettings.php:37
 msgid "everybody"
 msgstr ""
 
-#: mod/photos.php:170
+#: mod/photos.php:167
 msgid "Contact information unavailable"
 msgstr ""
 
-#: mod/photos.php:204
+#: mod/photos.php:196
 msgid "Album not found."
 msgstr ""
 
-#: mod/photos.php:258
+#: mod/photos.php:250
 msgid "Album successfully deleted"
 msgstr ""
 
-#: mod/photos.php:260
+#: mod/photos.php:252
 msgid "Album was empty."
 msgstr ""
 
-#: mod/photos.php:292
+#: mod/photos.php:284
 msgid "Failed to delete the photo."
 msgstr ""
 
-#: mod/photos.php:567
+#: mod/photos.php:559
 msgid "a photo"
 msgstr ""
 
-#: mod/photos.php:567
+#: mod/photos.php:559
 #, php-format
 msgid "%1$s was tagged in %2$s by %3$s"
 msgstr ""
 
-#: mod/photos.php:650 mod/photos.php:653 mod/photos.php:680
+#: mod/photos.php:642 mod/photos.php:645 mod/photos.php:672
 #: mod/wall_upload.php:207 src/Module/Settings/Profile/Photo/Index.php:60
 #, php-format
 msgid "Image exceeds size limit of %s"
 msgstr ""
 
-#: mod/photos.php:656
+#: mod/photos.php:648
 msgid "Image upload didn't complete, please try again"
 msgstr ""
 
-#: mod/photos.php:659
+#: mod/photos.php:651
 msgid "Image file is missing"
 msgstr ""
 
-#: mod/photos.php:664
+#: mod/photos.php:656
 msgid ""
 "Server can't accept new file upload at this time, please contact your "
 "administrator"
 msgstr ""
 
-#: mod/photos.php:688
+#: mod/photos.php:680
 msgid "Image file is empty."
 msgstr ""
 
-#: mod/photos.php:703 mod/wall_upload.php:166
+#: mod/photos.php:695 mod/wall_upload.php:166
 #: src/Module/Settings/Profile/Photo/Index.php:69
 msgid "Unable to process image."
 msgstr ""
 
-#: mod/photos.php:732 mod/wall_upload.php:232
+#: mod/photos.php:724 mod/wall_upload.php:232
 #: src/Module/Settings/Profile/Photo/Index.php:96
 msgid "Image upload failed."
 msgstr ""
 
-#: mod/photos.php:824
+#: mod/photos.php:816
 msgid "No photos selected"
 msgstr ""
 
-#: mod/photos.php:893
+#: mod/photos.php:885
 msgid "Access to this item is restricted."
 msgstr ""
 
-#: mod/photos.php:948
+#: mod/photos.php:940
 msgid "Upload Photos"
 msgstr ""
 
-#: mod/photos.php:952 mod/photos.php:1035
+#: mod/photos.php:944 mod/photos.php:1030
 msgid "New album name: "
 msgstr ""
 
-#: mod/photos.php:953
+#: mod/photos.php:945
 msgid "or select existing album:"
 msgstr ""
 
-#: mod/photos.php:954
+#: mod/photos.php:946
 msgid "Do not show a status post for this upload"
 msgstr ""
 
-#: mod/photos.php:1015
+#: mod/photos.php:1011
 msgid "Do you really want to delete this photo album and all its photos?"
 msgstr ""
 
-#: mod/photos.php:1016 mod/photos.php:1040
+#: mod/photos.php:1012 mod/photos.php:1035
 msgid "Delete Album"
 msgstr ""
 
-#: mod/photos.php:1046
+#: mod/photos.php:1039
 msgid "Edit Album"
 msgstr ""
 
-#: mod/photos.php:1047
+#: mod/photos.php:1040
 msgid "Drop Album"
 msgstr ""
 
-#: mod/photos.php:1052
+#: mod/photos.php:1044
 msgid "Show Newest First"
 msgstr ""
 
-#: mod/photos.php:1054
+#: mod/photos.php:1046
 msgid "Show Oldest First"
 msgstr ""
 
-#: mod/photos.php:1075 mod/photos.php:1593
+#: mod/photos.php:1067 mod/photos.php:1578
 msgid "View Photo"
 msgstr ""
 
-#: mod/photos.php:1108
+#: mod/photos.php:1100
 msgid "Permission denied. Access to this item may be restricted."
 msgstr ""
 
-#: mod/photos.php:1110
+#: mod/photos.php:1102
 msgid "Photo not available"
 msgstr ""
 
-#: mod/photos.php:1120
+#: mod/photos.php:1112
 msgid "Do you really want to delete this photo?"
 msgstr ""
 
-#: mod/photos.php:1121 mod/photos.php:1313
+#: mod/photos.php:1113 mod/photos.php:1305
 msgid "Delete Photo"
 msgstr ""
 
-#: mod/photos.php:1211
+#: mod/photos.php:1203
 msgid "View photo"
 msgstr ""
 
-#: mod/photos.php:1213
+#: mod/photos.php:1205
 msgid "Edit photo"
 msgstr ""
 
-#: mod/photos.php:1214
+#: mod/photos.php:1206
 msgid "Delete photo"
 msgstr ""
 
-#: mod/photos.php:1215
+#: mod/photos.php:1207
 msgid "Use as profile photo"
 msgstr ""
 
-#: mod/photos.php:1222
+#: mod/photos.php:1214
 msgid "Private Photo"
 msgstr ""
 
-#: mod/photos.php:1228
+#: mod/photos.php:1220
 msgid "View Full Size"
 msgstr ""
 
-#: mod/photos.php:1281
+#: mod/photos.php:1273
 msgid "Tags: "
 msgstr ""
 
-#: mod/photos.php:1284
+#: mod/photos.php:1276
 msgid "[Select tags to remove]"
 msgstr ""
 
-#: mod/photos.php:1299
+#: mod/photos.php:1291
 msgid "New album name"
 msgstr ""
 
-#: mod/photos.php:1300
+#: mod/photos.php:1292
 msgid "Caption"
 msgstr ""
 
-#: mod/photos.php:1301
+#: mod/photos.php:1293
 msgid "Add a Tag"
 msgstr ""
 
-#: mod/photos.php:1301
+#: mod/photos.php:1293
 msgid "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr ""
 
-#: mod/photos.php:1302
+#: mod/photos.php:1294
 msgid "Do not rotate"
 msgstr ""
 
-#: mod/photos.php:1303
+#: mod/photos.php:1295
 msgid "Rotate CW (right)"
 msgstr ""
 
-#: mod/photos.php:1304
+#: mod/photos.php:1296
 msgid "Rotate CCW (left)"
 msgstr ""
 
-#: mod/photos.php:1350 mod/photos.php:1406 mod/photos.php:1480
+#: mod/photos.php:1342 mod/photos.php:1398 mod/photos.php:1472
 #: src/Module/Contact.php:993 src/Module/Item/Compose.php:148
 #: src/Object/Post.php:960
 msgid "This is you"
 msgstr ""
 
-#: mod/photos.php:1352 mod/photos.php:1408 mod/photos.php:1482
+#: mod/photos.php:1344 mod/photos.php:1400 mod/photos.php:1474
 #: src/Object/Post.php:496 src/Object/Post.php:962
 msgid "Comment"
 msgstr ""
 
-#: mod/photos.php:1441 src/Content/Conversation.php:615 src/Object/Post.php:227
+#: mod/photos.php:1433 src/Content/Conversation.php:615 src/Object/Post.php:227
 msgid "Select"
 msgstr ""
 
-#: mod/photos.php:1442 mod/settings.php:563 src/Content/Conversation.php:616
+#: mod/photos.php:1434 mod/settings.php:563 src/Content/Conversation.php:616
 #: src/Module/Admin/Users/Active.php:139 src/Module/Admin/Users/Blocked.php:140
 #: src/Module/Admin/Users/Index.php:153
 msgid "Delete"
 msgstr ""
 
-#: mod/photos.php:1503 src/Object/Post.php:349
+#: mod/photos.php:1495 src/Object/Post.php:349
 msgid "Like"
 msgstr ""
 
-#: mod/photos.php:1504 src/Object/Post.php:349
+#: mod/photos.php:1496 src/Object/Post.php:349
 msgid "I like this (toggle)"
 msgstr ""
 
-#: mod/photos.php:1505 src/Object/Post.php:350
+#: mod/photos.php:1497 src/Object/Post.php:350
 msgid "Dislike"
 msgstr ""
 
-#: mod/photos.php:1507 src/Object/Post.php:350
+#: mod/photos.php:1499 src/Object/Post.php:350
 msgid "I don't like this (toggle)"
 msgstr ""
 
-#: mod/photos.php:1529
+#: mod/photos.php:1521
 msgid "Map"
 msgstr ""
 
-#: mod/photos.php:1599
+#: mod/photos.php:1584
 msgid "View Album"
 msgstr ""
 
@@ -2063,7 +2063,7 @@ msgstr ""
 msgid "File upload failed."
 msgstr ""
 
-#: mod/wall_upload.php:224 src/Model/Photo.php:985
+#: mod/wall_upload.php:224 src/Model/Photo.php:987
 msgid "Wall Photos"
 msgstr ""
 
@@ -2846,12 +2846,14 @@ msgstr ""
 msgid "Your photos"
 msgstr ""
 
-#: src/Content/Nav.php:193 view/theme/frio/theme.php:228
-msgid "Videos"
+#: src/Content/Nav.php:193 src/Module/BaseProfile.php:72
+#: src/Module/BaseProfile.php:75 src/Module/Contact.php:838
+#: view/theme/frio/theme.php:228
+msgid "Media"
 msgstr ""
 
 #: src/Content/Nav.php:193 view/theme/frio/theme.php:228
-msgid "Your videos"
+msgid "Your postings with media"
 msgstr ""
 
 #: src/Content/Nav.php:194 view/theme/frio/theme.php:229
@@ -6889,11 +6891,6 @@ msgstr ""
 msgid "Profile Details"
 msgstr ""
 
-#: src/Module/BaseProfile.php:72 src/Module/BaseProfile.php:75
-#: src/Module/Contact.php:838
-msgid "Media"
-msgstr ""
-
 #: src/Module/BaseProfile.php:109
 msgid "Only You Can See This"
 msgstr ""
@@ -9266,41 +9263,41 @@ msgid ""
 msgstr ""
 
 #: src/Module/Settings/Profile/Photo/Crop.php:106
-#: src/Module/Settings/Profile/Photo/Crop.php:122
-#: src/Module/Settings/Profile/Photo/Crop.php:138
+#: src/Module/Settings/Profile/Photo/Crop.php:124
+#: src/Module/Settings/Profile/Photo/Crop.php:142
 #: src/Module/Settings/Profile/Photo/Index.php:102
 #, php-format
 msgid "Image size reduction [%s] failed."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:143
+#: src/Module/Settings/Profile/Photo/Crop.php:149
 msgid ""
 "Shift-reload the page or clear browser cache if the new photo does not "
 "display immediately."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:148
+#: src/Module/Settings/Profile/Photo/Crop.php:154
 msgid "Unable to process image"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:167
+#: src/Module/Settings/Profile/Photo/Crop.php:173
 msgid "Photo not found."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:189
+#: src/Module/Settings/Profile/Photo/Crop.php:195
 msgid "Profile picture successfully updated."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:215
-#: src/Module/Settings/Profile/Photo/Crop.php:219
+#: src/Module/Settings/Profile/Photo/Crop.php:221
+#: src/Module/Settings/Profile/Photo/Crop.php:225
 msgid "Crop Image"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:216
+#: src/Module/Settings/Profile/Photo/Crop.php:222
 msgid "Please adjust the image cropping for optimum viewing."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:218
+#: src/Module/Settings/Profile/Photo/Crop.php:224
 msgid "Use Image As Is"
 msgstr ""
 
