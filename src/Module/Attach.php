@@ -57,7 +57,7 @@ class Attach extends BaseModule
 
 		$data = MAttach::getData($item);
 		if (is_null($data)) {
-			Logger::log('NULL data for attachment with id ' . $item['id']);
+			Logger::notice('NULL data for attachment with id ' . $item['id']);
 			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('Item was not found.'));
 		}
 

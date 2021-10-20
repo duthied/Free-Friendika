@@ -284,7 +284,7 @@ class Strings
 	public static function base64UrlDecode($s)
 	{
 		if (is_array($s)) {
-			Logger::log('base64url_decode: illegal input: ' . print_r(debug_backtrace(), true));
+			Logger::notice('base64url_decode: illegal input: ', ['backtrace' => debug_backtrace()]);
 			return $s;
 		}
 

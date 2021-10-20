@@ -48,7 +48,7 @@ class PubSubPublish
 		/// @todo Check server status with GServer::check()
 		// Before this can be done we need a way to safely detect the server url.
 
-		Logger::log("Generate feed of user " . $subscriber['nickname']. " to " . $subscriber['callback_url']. " - last updated " . $subscriber['last_update'], Logger::DEBUG);
+		Logger::info("Generate feed of user " . $subscriber['nickname']. " to " . $subscriber['callback_url']. " - last updated " . $subscriber['last_update']);
 
 		$last_update = $subscriber['last_update'];
 		$params = OStatus::feed($subscriber['nickname'], $last_update);
@@ -66,17 +66,17 @@ class PubSubPublish
 					$subscriber['topic']),
 			'X-Hub-Signature' => 'sha1=' . $hmac_sig];
 
-		Logger::log('POST ' . print_r($headers, true) . "\n" . $params, Logger::DATA);
+		Logger::debug('POST ' . ['headers' => $headers, 'params' => $params]);
 
 		$postResult = DI::httpClient()->post($subscriber['callback_url'], $params, $headers);
 		$ret = $postResult->getReturnCode();
 
 		if ($ret >= 200 && $ret <= 299) {
-			Logger::log('Successfully pushed to ' . $subscriber['callback_url']);
+			Logger::notice('Successfully pushed to ' . $subscriber['callback_url']);
 
 			PushSubscriber::reset($subscriber['id'], $last_update);
 		} else {
-			Logger::log('Delivery error when pushing to ' . $subscriber['callback_url'] . ' HTTP: ' . $ret);
+			Logger::notice('Delivery error when pushing to ' . $subscriber['callback_url'] . ' HTTP: ' . $ret);
 
 			PushSubscriber::delay($subscriber['id']);
 		}

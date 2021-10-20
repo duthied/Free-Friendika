@@ -49,7 +49,7 @@ foreach (['style', $style] as $file) {
 		}
 	} else {
 		//TODO: use Logger::ERROR?
-		Logger::log('Error: missing file: "' . $stylecssfile .'" (userid: '. $uid .')');
+		Logger::notice('Error: missing file: "' . $stylecssfile .'" (userid: '. $uid .')');
 	}
 }
 $modified = gmdate('r', $modified);

@@ -80,7 +80,7 @@ class HTTPSignature
 		$sig_block = self::parseSigheader($headers['authorization']);
 
 		if (!$sig_block) {
-			Logger::log('no signature provided.');
+			Logger::notice('no signature provided.');
 			return $result;
 		}
 
@@ -110,7 +110,7 @@ class HTTPSignature
 			$key = $key($sig_block['keyId']);
 		}
 
-		Logger::log('Got keyID ' . $sig_block['keyId'], Logger::DEBUG);
+		Logger::info('Got keyID ' . $sig_block['keyId']);
 
 		if (!$key) {
 			return $result;
@@ -118,7 +118,7 @@ class HTTPSignature
 
 		$x = Crypto::rsaVerify($signed_data, $sig_block['signature'], $key, $algorithm);
 
-		Logger::log('verified: ' . $x, Logger::DEBUG);
+		Logger::info('verified: ' . $x);
 
 		if (!$x) {
 			return $result;
@@ -308,7 +308,7 @@ class HTTPSignature
 		$postResult = DI::httpClient()->post($target, $content, $headers);
 		$return_code = $postResult->getReturnCode();
 
-		Logger::log('Transmit to ' . $target . ' returned ' . $return_code, Logger::DEBUG);
+		Logger::info('Transmit to ' . $target . ' returned ' . $return_code);
 
 		$success = ($return_code >= 200) && ($return_code <= 299);
 
@@ -459,7 +459,7 @@ class HTTPSignature
 		}
 		$return_code = $curlResult->getReturnCode();
 
-		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
+		Logger::info('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code);
 
 		return $curlResult;
 	}
@@ -604,7 +604,7 @@ class HTTPSignature
 		if (in_array('date', $sig_block['headers'])) {
 			$diff = abs(strtotime($headers['date']) - time());
 			if ($diff > 300) {
-				Logger::log("Header date '" . $headers['date'] . "' is with " . $diff . " seconds out of the 300 second frame. The signature is invalid.");
+				Logger::notice("Header date '" . $headers['date'] . "' is with " . $diff . " seconds out of the 300 second frame. The signature is invalid.");
 				return false;
 			}
 			$hasGoodSignedContent = true;

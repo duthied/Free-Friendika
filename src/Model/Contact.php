@@ -2395,7 +2395,7 @@ class Contact
 		}
 
 		if (($network != '') && ($ret['network'] != $network)) {
-			Logger::log('Expected network ' . $network . ' does not match actual network ' . $ret['network']);
+			Logger::notice('Expected network ' . $network . ' does not match actual network ' . $ret['network']);
 			return $result;
 		}
 
@@ -2545,7 +2545,7 @@ class Contact
 				}
 			} elseif ($protocol == Protocol::DIASPORA) {
 				$ret = Diaspora::sendShare($owner, $contact);
-				Logger::log('share returns: ' . $ret);
+				Logger::notice('share returns: ' . $ret);
 			} elseif ($protocol == Protocol::ACTIVITYPUB) {
 				$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact_id);
 				if (empty($activity_id)) {
@@ -2554,7 +2554,7 @@ class Contact
 				}
 
 				$ret = ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $uid, $activity_id);
-				Logger::log('Follow returns: ' . $ret);
+				Logger::notice('Follow returns: ' . $ret);
 			}
 		}
 
@@ -2672,7 +2672,7 @@ class Contact
 		} else {
 			// send email notification to owner?
 			if (DBA::exists('contact', ['nurl' => Strings::normaliseLink($url), 'uid' => $importer['uid'], 'pending' => true])) {
-				Logger::log('ignoring duplicated connection request from pending contact ' . $url);
+				Logger::notice('ignoring duplicated connection request from pending contact ' . $url);
 				return null;
 			}
 
@@ -2791,7 +2791,7 @@ class Contact
 		$contacts = DBA::select('contact', ['id', 'uid', 'name', 'url', 'bd'], $condition);
 
 		while ($contact = DBA::fetch($contacts)) {
-			Logger::log('update_contact_birthday: ' . $contact['bd']);
+			Logger::notice('update_contact_birthday: ' . $contact['bd']);
 
 			$nextbd = DateTimeFormat::utcNow('Y') . substr($contact['bd'], 4);
 

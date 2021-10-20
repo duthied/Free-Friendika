@@ -46,7 +46,7 @@ class Salmon
 	{
 		$ret = [];
 
-		Logger::log('Fetching salmon key for '.$uri);
+		Logger::notice('Fetching salmon key for '.$uri);
 
 		$arr = Probe::lrdd($uri);
 
@@ -116,12 +116,12 @@ class Salmon
 		}
 
 		if (!$owner['sprvkey']) {
-			Logger::log(sprintf("user '%s' (%d) does not have a salmon private key. Send failed.",
+			Logger::notice(sprintf("user '%s' (%d) does not have a salmon private key. Send failed.",
 			$owner['name'], $owner['uid']));
 			return;
 		}
 
-		Logger::log('slapper called for '.$url.'. Data: ' . $slap);
+		Logger::notice('slapper called for '.$url.'. Data: ' . $slap);
 
 		// create a magic envelope
 
@@ -165,7 +165,7 @@ class Salmon
 		// check for success, e.g. 2xx
 
 		if ($return_code > 299) {
-			Logger::log('GNU Social salmon failed. Falling back to compliant mode');
+			Logger::notice('GNU Social salmon failed. Falling back to compliant mode');
 
 			// Now try the compliant mode that normally isn't used for GNU Social
 			$xmldata = ["me:env" => ["me:data" => $data,
@@ -188,7 +188,7 @@ class Salmon
 		}
 
 		if ($return_code > 299) {
-			Logger::log('compliant salmon failed. Falling back to old status.net');
+			Logger::notice('compliant salmon failed. Falling back to old status.net');
 
 			// Last try. This will most likely fail as well.
 			$xmldata = ["me:env" => ["me:data" => $data,
@@ -209,7 +209,7 @@ class Salmon
 			$return_code = $postResult->getReturnCode();
 		}
 
-		Logger::log('slapper for '.$url.' returned ' . $return_code);
+		Logger::notice('slapper for '.$url.' returned ' . $return_code);
 
 		if (! $return_code) {
 			return -1;

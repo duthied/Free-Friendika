@@ -230,7 +230,7 @@ class Event
 		}
 
 		DBA::delete('event', ['id' => $event_id]);
-		Logger::log("Deleted event ".$event_id, Logger::DEBUG);
+		Logger::info("Deleted event", ['id' => $event_id]);
 	}
 
 	/**

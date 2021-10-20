@@ -971,7 +971,7 @@ class Item
 		}
 
 		if (!empty($item['cancel'])) {
-			Logger::log('post cancelled by addon.');
+			Logger::notice('post cancelled by addon.');
 			return 0;
 		}
 
@@ -1885,7 +1885,7 @@ class Item
 			foreach ($matches as $mtch) {
 				if (Strings::compareLink($link, $mtch[1]) || Strings::compareLink($dlink, $mtch[1])) {
 					$mention = true;
-					Logger::log('mention found: ' . $mtch[2]);
+					Logger::notice('mention found', ['mention' => $mtch[2]]);
 				}
 			}
 		}
@@ -2305,7 +2305,7 @@ class Item
 			++$expired;
 		}
 		DBA::close($items);
-		Logger::log('User ' . $uid . ": expired $expired items; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
+		Logger::notice('User ' . $uid . ": expired $expired items; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
 	}
 
 	public static function firstPostDate($uid, $wall = false)
@@ -2354,7 +2354,7 @@ class Item
 
 		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
-			Logger::log('like: unknown item ' . $item_id);
+			Logger::notice('like: unknown item', ['id' => $item_id]);
 			return false;
 		}
 

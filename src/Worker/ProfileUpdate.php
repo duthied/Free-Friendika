@@ -41,7 +41,7 @@ class ProfileUpdate {
 		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser($uid);
 
 		foreach ($inboxes as $inbox => $receivers) {
-			Logger::log('Profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
+			Logger::info('Profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub');
 			Worker::add(['priority' => $a->getQueueValue('priority'), 'created' => $a->getQueueValue('created'), 'dont_fork' => true],
 				'APDelivery', Delivery::PROFILEUPDATE, 0, $inbox, $uid, $receivers);
 		}

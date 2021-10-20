@@ -60,11 +60,11 @@ function pubsubhubbub_init(App $a) {
 		} elseif ($hub_mode === 'unsubscribe') {
 			$subscribe = 0;
 		} else {
-			Logger::log("Invalid hub_mode=$hub_mode, ignoring.");
+			Logger::notice("Invalid hub_mode=$hub_mode, ignoring.");
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		Logger::log("$hub_mode request from " . $_SERVER['REMOTE_ADDR']);
+		Logger::notice("$hub_mode request from " . $_SERVER['REMOTE_ADDR']);
 
 		if (DI::args()->getArgc() > 1) {
 			// Normally the url should now contain the nick name as last part of the url
@@ -77,7 +77,7 @@ function pubsubhubbub_init(App $a) {
 		$nick = basename($nick, '.atom');
 
 		if (!$nick) {
-			Logger::log('Bad hub_topic=$hub_topic, ignoring.');
+			Logger::notice('Bad hub_topic=$hub_topic, ignoring.');
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
@@ -85,7 +85,7 @@ function pubsubhubbub_init(App $a) {
 		$condition = ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false];
 		$owner = DBA::selectFirst('user', ['uid', 'nickname'], $condition);
 		if (!DBA::isResult($owner)) {
-			Logger::log('Local account not found: ' . $nick . ' - topic: ' . $hub_topic . ' - callback: ' . $hub_callback);
+			Logger::notice('Local account not found: ' . $nick . ' - topic: ' . $hub_topic . ' - callback: ' . $hub_callback);
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
@@ -94,7 +94,7 @@ function pubsubhubbub_init(App $a) {
 			'pending' => false, 'self' => true];
 		$contact = DBA::selectFirst('contact', ['poll'], $condition);
 		if (!DBA::isResult($contact)) {
-			Logger::log('Self contact for user ' . $owner['uid'] . ' not found.');
+			Logger::notice('Self contact for user ' . $owner['uid'] . ' not found.');
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
@@ -103,7 +103,7 @@ function pubsubhubbub_init(App $a) {
 		$self = DI::baseUrl() . '/api/statuses/user_timeline/' . $owner['nickname'] . '.atom';
 
 		if (!Strings::compareLink($hub_topic, $contact['poll']) && !Strings::compareLink($hub_topic2, $contact['poll']) && !Strings::compareLink($hub_topic, $self)) {
-			Logger::log('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
+			Logger::notice('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
@@ -131,14 +131,14 @@ function pubsubhubbub_init(App $a) {
 
 		// give up if the HTTP return code wasn't a success (2xx)
 		if ($ret < 200 || $ret > 299) {
-			Logger::log("Subscriber verification for $hub_topic at $hub_callback returned $ret, ignoring.");
+			Logger::notice("Subscriber verification for $hub_topic at $hub_callback returned $ret, ignoring.");
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		// check that the correct hub_challenge code was echoed back
 		if (trim($body) !== $hub_challenge) {
-			Logger::log("Subscriber did not echo back hub.challenge, ignoring.");
-			Logger::log("\"$hub_challenge\" != \"".trim($body)."\"");
+			Logger::notice("Subscriber did not echo back hub.challenge, ignoring.");
+			Logger::notice("\"$hub_challenge\" != \"".trim($body)."\"");
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
