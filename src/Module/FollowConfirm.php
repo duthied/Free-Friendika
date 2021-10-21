@@ -25,6 +25,7 @@ class FollowConfirm extends BaseModule
 		$intro = DI::intro()->selectOneById($intro_id, local_user());
 
 		Contact\Introduction::confirm($intro, $duplex, $hidden);
+		DI::intro()->delete($intro);
 
 		DI::baseUrl()->redirect('contact/' .  $intro->cid);
 	}
