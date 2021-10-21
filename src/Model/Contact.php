@@ -1088,7 +1088,7 @@ class Contact
 			if (!empty($contact['pending'])) {
 				try {
 					$intro = DI::intro()->selectForContact($contact['id']);
-					$menu['follow'] = [DI::l10n()->t('Approve'), 'notifications/intros/' . $intro['id'], true];
+					$menu['follow'] = [DI::l10n()->t('Approve'), 'notifications/intros/' . $intro->id, true];
 				} catch (IntroductionNotFoundException $exception) {
 					DI::logger()->error('Pending contact doesn\'t have an introduction.', ['exception' => $exception]);
 				}
