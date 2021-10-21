@@ -37,14 +37,14 @@ class Introduction
 	 * Confirms a follow request and sends a notice to the remote contact.
 	 *
 	 * @param Entity\Introduction $introduction
-	 * @param bool                $duplex
-	 * @param bool                $hidden
+	 * @param bool                $duplex       Is it a follow back?
+	 * @param bool|null           $hidden       Should this contact be hidden? null = no change
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function confirm(Entity\Introduction $introduction, bool $duplex = false, bool $hidden = false): void
+	public static function confirm(Entity\Introduction $introduction, bool $duplex = false, ?bool $hidden = null): void
 	{
 		DI::logger()->info('Confirming follower', ['cid' => $introduction->cid]);
 
