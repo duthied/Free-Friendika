@@ -485,9 +485,9 @@ class Notify extends BaseDepository
 	private function storeAndSend($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $body, $itemlink, $show_in_notification_page)
 	{
 		$item_id = $params['item']['id'] ?? 0;
-		$uri_id = $params['item']['uri-id'] ?? 0;
+		$uri_id = $params['item']['uri-id'] ?? null;
 		$parent_id = $params['item']['parent'] ?? 0;
-		$parent_uri_id = $params['item']['parent-uri-id'] ?? 0;
+		$parent_uri_id = $params['item']['parent-uri-id'] ?? null;
 
 		// Ensure that the important fields are set at any time
 		$fields = ['nickname'];
