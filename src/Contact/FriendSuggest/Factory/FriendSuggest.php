@@ -34,8 +34,7 @@ class FriendSuggest extends BaseFactory implements ICanCreateFromTableRow
 		string $request = '',
 		string $photo = '',
 		string $note = ''
-	): Entity\FriendSuggest
-	{
+	): Entity\FriendSuggest {
 		return $this->createFromTableRow([
 			'uid'     => $uid,
 			'cid'     => $cid,
@@ -45,5 +44,10 @@ class FriendSuggest extends BaseFactory implements ICanCreateFromTableRow
 			'photo'   => $photo,
 			'note'    => $note,
 		]);
+	}
+
+	public function createEmpty(int $id): Entity\FriendSuggest
+	{
+		return $this->createFromTableRow(['id' => $id]);
 	}
 }

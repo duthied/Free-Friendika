@@ -21,6 +21,8 @@
 
 namespace Friendica\Worker;
 
+use Friendica\Contact\FriendSuggest\Collection\FriendSuggests;
+use Friendica\Contact\FriendSuggest\Exception\FriendSuggestNotFoundException;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -64,11 +66,13 @@ class Delivery
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
-			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $post_uriid]);
-			if (!DBA::isResult($target_item)) {
+			try {
+				$target_item = DI::fsuggest()->selectOneById($post_uriid);
+			} catch (FriendSuggestNotFoundException $e) {
+				DI::logger()->info('Cannot find FriendSuggestion', ['id' => $post_uriid]);
 				return;
 			}
-			$uid = $target_item['uid'];
+			$uid = $target_item->uid;
 		} elseif ($cmd == self::RELOCATION) {
 			$uid = $post_uriid;
 			$target_item = [];
@@ -284,7 +288,7 @@ class Delivery
 		} elseif ($cmd == self::SUGGESTION) {
 			$item = $target_item;
 			$atom = DFRN::fsuggest($item, $owner);
-			DBA::delete('fsuggest', ['id' => $item['id']]);
+			DI::fsuggest()->delete(new FriendSuggests([DI::fsuggest()->selectOneById($item['id'])]));
 		} elseif ($cmd == self::RELOCATION) {
 			$atom = DFRN::relocate($owner, $owner['uid']);
 		} elseif ($followup) {
