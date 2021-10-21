@@ -427,11 +427,19 @@ abstract class DI
 	//
 
 	/**
-	 * @return Repository\FSuggest;
+	 * @return Contact\FriendSuggest\Depository\FriendSuggest;
 	 */
 	public static function fsuggest()
 	{
-		return self::$dice->create(Repository\FSuggest::class);
+		return self::$dice->create(Contact\FriendSuggest\Depository\FriendSuggest::class);
+	}
+
+	/**
+	 * @return Contact\FriendSuggest\Factory\FriendSuggest;
+	 */
+	public static function fsuggestFactory()
+	{
+		return self::$dice->create(Contact\FriendSuggest\Factory\FriendSuggest::class);
 	}
 
 	/**

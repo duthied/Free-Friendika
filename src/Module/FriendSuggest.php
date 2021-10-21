@@ -68,16 +68,15 @@ class FriendSuggest extends BaseModule
 
 		$note = Strings::escapeHtml(trim($_POST['note'] ?? ''));
 
-		$suggest = DI::fsuggest()->insert([
-			'uid'     => local_user(),
-			'cid'     => $cid,
-			'name'    => $contact['name'],
-			'url'     => $contact['url'],
-			'request' => $contact['request'],
-			'photo'   => $contact['avatar'],
-			'note'    => $note,
-			'created' => DateTimeFormat::utcNow()
-		]);
+		$suggest = DI::fsuggest()->save(DI::fsuggestFactory()->createNew(
+			local_user(),
+			$cid,
+			$contact['name'],
+			$contact['url'],
+			$contact['request'],
+			$contact['avatar'],
+			$note
+		));
 
 		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::SUGGESTION, $suggest->id);
 
