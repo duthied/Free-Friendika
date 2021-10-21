@@ -19,9 +19,9 @@
  *
  */
 
-namespace Friendica\Profile\ProfileField\Depository;
+namespace Friendica\Profile\ProfileField\Repository;
 
-use Friendica\BaseDepository;
+use Friendica\BaseRepository;
 use Friendica\Database\Database;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldNotFoundException;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldPersistenceException;
@@ -29,11 +29,11 @@ use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
 use Friendica\Profile\ProfileField\Factory;
 use Friendica\Profile\ProfileField\Entity;
 use Friendica\Profile\ProfileField\Collection;
-use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
+use Friendica\Security\PermissionSet\Repository\PermissionSet as PermissionSetRepository;
 use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
-class ProfileField extends BaseDepository
+class ProfileField extends BaseRepository
 {
 	/** @var  Factory\ProfileField */
 	protected $factory;
@@ -42,14 +42,14 @@ class ProfileField extends BaseDepository
 
 	protected static $view_name = 'profile_field-view';
 
-	/** @var PermissionSetDepository */
-	protected $permissionSetDepository;
+	/** @var PermissionSetRepository */
+	protected $permissionSetRepository;
 
-	public function __construct(Database $database, LoggerInterface $logger, Factory\ProfileField $factory, PermissionSetDepository $permissionSetDepository)
+	public function __construct(Database $database, LoggerInterface $logger, Factory\ProfileField $factory, PermissionSetRepository $permissionSetRepository)
 	{
 		parent::__construct($database, $logger, $factory);
 
-		$this->permissionSetDepository = $permissionSetDepository;
+		$this->permissionSetRepository = $permissionSetRepository;
 	}
 
 	/**
@@ -124,7 +124,7 @@ class ProfileField extends BaseDepository
 	public function selectPublicFieldsByUserId(int $uid): Collection\ProfileFields
 	{
 		try {
-			$publicPermissionSet = $this->permissionSetDepository->selectPublicForUser($uid);
+			$publicPermissionSet = $this->permissionSetRepository->selectPublicForUser($uid);
 
 			return $this->select([
 				'uid'  => $uid,
@@ -162,12 +162,12 @@ class ProfileField extends BaseDepository
 	 */
 	public function selectByContactId(int $cid, int $uid): Collection\ProfileFields
 	{
-		$permissionSets = $this->permissionSetDepository->selectByContactId($cid, $uid);
+		$permissionSets = $this->permissionSetRepository->selectByContactId($cid, $uid);
 
 		$permissionSetIds = $permissionSets->column('id');
 
 		// Includes public custom fields
-		$permissionSetIds[] = $this->permissionSetDepository->selectPublicForUser($uid)->id;
+		$permissionSetIds[] = $this->permissionSetRepository->selectPublicForUser($uid)->id;
 
 		return $this->select(
 			['uid' => $uid, 'psid' => $permissionSetIds],

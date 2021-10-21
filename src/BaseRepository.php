@@ -10,7 +10,7 @@ use Friendica\Network\HTTPException\NotFoundException;
 use Psr\Log\LoggerInterface;
 
 /**
- * Depositories are meant to store and retrieve Entities from the database.
+ * Repositories are meant to store and retrieve Entities from the database.
  *
  * The reason why there are methods prefixed with an underscore is because PHP doesn't support generic polymorphism
  * which means we can't directly overload base methods and make parameters more strict (from a parent class to a child
@@ -19,7 +19,7 @@ use Psr\Log\LoggerInterface;
  * Similarly, we can't make an overloaded method return type more strict until we only support PHP version 7.4 but this
  * is less pressing.
  */
-abstract class BaseDepository
+abstract class BaseRepository
 {
 	const LIMIT = 30;
 

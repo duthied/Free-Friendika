@@ -27,7 +27,7 @@ use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
-use Friendica\Profile\ProfileField\Depository\ProfileField as ProfileFieldDepository;
+use Friendica\Profile\ProfileField\Repository\ProfileField as ProfileFieldRepository;
 use ImagickException;
 use Psr\Log\LoggerInterface;
 
@@ -35,17 +35,17 @@ class Account extends BaseFactory
 {
 	/** @var BaseURL */
 	private $baseUrl;
-	/** @var ProfileFieldDepository */
-	private $profileFieldDepo;
+	/** @var ProfileFieldRepository */
+	private $profileFieldRepo;
 	/** @var Field */
 	private $mstdnFieldFactory;
 
-	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileFieldDepository $profileFieldDepo, Field $mstdnFieldFactory)
+	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileFieldRepository $profileFieldRepo, Field $mstdnFieldFactory)
 	{
 		parent::__construct($logger);
 
 		$this->baseUrl           = $baseURL;
-		$this->profileFieldDepo  = $profileFieldDepo;
+		$this->profileFieldRepo  = $profileFieldRepo;
 		$this->mstdnFieldFactory = $mstdnFieldFactory;
 	}
 
@@ -76,7 +76,7 @@ class Account extends BaseFactory
 
 		$self_contact = Contact::selectFirst(['uid'], ['nurl' => $publicContact['nurl'], 'self' => true]);
 		if (!empty($self_contact['uid'])) {
-			$profileFields = $this->profileFieldDepo->selectPublicFieldsByUserId($self_contact['uid']);
+			$profileFields = $this->profileFieldRepo->selectPublicFieldsByUserId($self_contact['uid']);
 			$fields        = $this->mstdnFieldFactory->createFromProfileFields($profileFields);
 		} else {
 			$fields = new Fields();
@@ -94,7 +94,7 @@ class Account extends BaseFactory
 	{
 		$publicContact = Contact::selectFirst([], ['uid' => $userId, 'self' => true]);
 
-		$profileFields = $this->profileFieldDepo->selectPublicFieldsByUserId($userId);
+		$profileFields = $this->profileFieldRepo->selectPublicFieldsByUserId($userId);
 		$fields        = $this->mstdnFieldFactory->createFromProfileFields($profileFields);
 
 		$apContact = APContact::getByURL($publicContact['url'], false);

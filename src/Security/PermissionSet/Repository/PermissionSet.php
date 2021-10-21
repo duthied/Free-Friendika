@@ -19,10 +19,10 @@
  *
  */
 
-namespace Friendica\Security\PermissionSet\Depository;
+namespace Friendica\Security\PermissionSet\Repository;
 
 use Exception;
-use Friendica\BaseDepository;
+use Friendica\BaseRepository;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -33,7 +33,7 @@ use Friendica\Security\PermissionSet\Entity;
 use Friendica\Util\ACLFormatter;
 use Psr\Log\LoggerInterface;
 
-class PermissionSet extends BaseDepository
+class PermissionSet extends BaseRepository
 {
 	/** @var int Virtual permission set id for public permission */
 	const PUBLIC = 0;

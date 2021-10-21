@@ -1,9 +1,8 @@
 <?php
 
-namespace Friendica\Contact\FriendSuggest\Depository;
+namespace Friendica\Contact\FriendSuggest\Repository;
 
-use Friendica\BaseCollection;
-use Friendica\BaseDepository;
+use Friendica\BaseRepository;
 use Friendica\Contact\FriendSuggest\Collection;
 use Friendica\Contact\FriendSuggest\Entity;
 use Friendica\Contact\FriendSuggest\Exception\FriendSuggestNotFoundException;
@@ -13,7 +12,7 @@ use Friendica\Database\Database;
 use Friendica\Network\HTTPException\NotFoundException;
 use Psr\Log\LoggerInterface;
 
-class FriendSuggest extends BaseDepository
+class FriendSuggest extends BaseRepository
 {
 	/** @var Factory\FriendSuggest */
 	protected $factory;

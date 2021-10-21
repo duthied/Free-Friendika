@@ -1,9 +1,9 @@
 <?php
 
-namespace Friendica\Navigation\Notifications\Depository;
+namespace Friendica\Navigation\Notifications\Repository;
 
 use Friendica\App\BaseURL;
-use Friendica\BaseDepository;
+use Friendica\BaseRepository;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\Hook;
@@ -22,7 +22,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Psr\Log\LoggerInterface;
 
-class Notify extends BaseDepository
+class Notify extends BaseRepository
 {
 	/** @var Factory\Notify  */
 	protected $factory;
