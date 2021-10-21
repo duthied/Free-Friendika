@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-18 00:07+0200\n"
-"PO-Revision-Date: 2021-10-19 17:26+0000\n"
+"POT-Creation-Date: 2021-10-20 15:10+0200\n"
+"PO-Revision-Date: 2021-10-21 05:35+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -79,261 +79,10 @@ msgstr[1] "Das wöchentliche Limit von %d Beiträgen wurde erreicht. Der Beitrag
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr "Das monatliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde verworfen."
 
-#: include/enotify.php:50 include/enotify.php:533
-msgid "[Friendica:Notify]"
-msgstr "[Friendica Meldung]"
-
-#: include/enotify.php:114
-#, php-format
-msgid "%s New mail received at %s"
-msgstr "%sNeue Nachricht auf %s empfangen"
-
-#: include/enotify.php:116
-#, php-format
-msgid "%1$s sent you a new private message at %2$s."
-msgstr "%1$s hat dir eine neue, private Nachricht auf %2$s geschickt."
-
-#: include/enotify.php:117
-msgid "a private message"
-msgstr "eine private Nachricht"
-
-#: include/enotify.php:117
-#, php-format
-msgid "%1$s sent you %2$s."
-msgstr "%1$s schickte dir %2$s."
-
-#: include/enotify.php:119
-#, php-format
-msgid "Please visit %s to view and/or reply to your private messages."
-msgstr "Bitte besuche %s, um Deine privaten Nachrichten anzusehen und/oder zu beantworten."
-
-#: include/enotify.php:150
-#, php-format
-msgid "%1$s commented on %2$s's %3$s %4$s"
-msgstr "%1$s kommentierte %2$s's %3$s%4$s"
-
-#: include/enotify.php:155
-#, php-format
-msgid "%1$s commented on your %2$s %3$s"
-msgstr "%1$s kommentierte auf  (%2$s) %3$s"
-
-#: include/enotify.php:159
-#, php-format
-msgid "%1$s commented on their %2$s %3$s"
-msgstr "%1$s hat den eigenen %2$s %3$s kommentiert"
-
-#: include/enotify.php:163 include/enotify.php:568
-#, php-format
-msgid "%1$s Comment to conversation #%2$d by %3$s"
-msgstr "%1$sKommentar von %3$s auf Unterhaltung %2$d"
-
-#: include/enotify.php:165
-#, php-format
-msgid "%s commented on an item/conversation you have been following."
-msgstr "%s hat einen Beitrag kommentiert, dem du folgst."
-
-#: include/enotify.php:169 include/enotify.php:184 include/enotify.php:203
-#: include/enotify.php:583
-#, php-format
-msgid "Please visit %s to view and/or reply to the conversation."
-msgstr "Bitte besuche %s, um die Konversation anzusehen und/oder zu kommentieren."
-
-#: include/enotify.php:176
-#, php-format
-msgid "%s %s posted to your profile wall"
-msgstr "%s%s hat auf deine Pinnwand gepostet"
-
-#: include/enotify.php:178
-#, php-format
-msgid "%1$s posted to your profile wall at %2$s"
-msgstr "%1$s schrieb um %2$s auf Deine Pinnwand"
-
-#: include/enotify.php:179
-#, php-format
-msgid "%1$s posted to [url=%2$s]your wall[/url]"
-msgstr "%1$s hat etwas auf [url=%2$s]Deiner Pinnwand[/url] gepostet"
-
-#: include/enotify.php:191
-#, php-format
-msgid "%1$s %2$s poked you"
-msgstr "%1$s%2$shat dich angestubst"
-
-#: include/enotify.php:193
-#, php-format
-msgid "%1$s poked you at %2$s"
-msgstr "%1$s hat dich auf %2$s angestupst"
-
-#: include/enotify.php:194
-#, php-format
-msgid "%1$s [url=%2$s]poked you[/url]."
-msgstr "%1$s [url=%2$s]hat dich angestupst[/url]."
-
-#: include/enotify.php:211
-#, php-format
-msgid "%s Introduction received"
-msgstr "%sVorstellung erhalten"
-
-#: include/enotify.php:213
-#, php-format
-msgid "You've received an introduction from '%1$s' at %2$s"
-msgstr "Du hast eine Kontaktanfrage von '%1$s' auf %2$s erhalten"
-
-#: include/enotify.php:214
-#, php-format
-msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
-msgstr "Du hast eine [url=%1$s]Kontaktanfrage[/url] von %2$s erhalten."
-
-#: include/enotify.php:219 include/enotify.php:265
-#, php-format
-msgid "You may visit their profile at %s"
-msgstr "Hier kannst du das Profil betrachten: %s"
-
-#: include/enotify.php:221
-#, php-format
-msgid "Please visit %s to approve or reject the introduction."
-msgstr "Bitte besuche %s, um die Kontaktanfrage anzunehmen oder abzulehnen."
-
-#: include/enotify.php:228
-#, php-format
-msgid "%s A new person is sharing with you"
-msgstr "%sEine neue Person teilt nun mit dir"
-
-#: include/enotify.php:230 include/enotify.php:231
-#, php-format
-msgid "%1$s is sharing with you at %2$s"
-msgstr "%1$s teilt mit dir auf %2$s"
-
-#: include/enotify.php:238
-#, php-format
-msgid "%s You have a new follower"
-msgstr "%sDu hast einen neuen Kontakt"
-
-#: include/enotify.php:240 include/enotify.php:241
-#, php-format
-msgid "You have a new follower at %2$s : %1$s"
-msgstr "Du hast einen neuen Kontakt auf %2$s: %1$s"
-
-#: include/enotify.php:254
-#, php-format
-msgid "%s Friend suggestion received"
-msgstr "%sKontaktvorschlag erhalten"
-
-#: include/enotify.php:256
-#, php-format
-msgid "You've received a friend suggestion from '%1$s' at %2$s"
-msgstr "Du hast einen Kontakt-Vorschlag von '%1$s' auf %2$s erhalten"
-
-#: include/enotify.php:257
-#, php-format
-msgid ""
-"You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
-msgstr "Du hast einen [url=%1$s]Kontakt-Vorschlag[/url] %2$s von %3$s erhalten."
-
-#: include/enotify.php:263
-msgid "Name:"
-msgstr "Name:"
-
-#: include/enotify.php:264
-msgid "Photo:"
-msgstr "Foto:"
-
-#: include/enotify.php:267
-#, php-format
-msgid "Please visit %s to approve or reject the suggestion."
-msgstr "Bitte besuche %s, um den Vorschlag zu akzeptieren oder abzulehnen."
-
-#: include/enotify.php:275 include/enotify.php:290
-#, php-format
-msgid "%s Connection accepted"
-msgstr "%sKontaktanfrage bestätigt"
-
-#: include/enotify.php:277 include/enotify.php:292
-#, php-format
-msgid "'%1$s' has accepted your connection request at %2$s"
-msgstr "'%1$s' hat Deine Kontaktanfrage auf  %2$s bestätigt"
-
-#: include/enotify.php:278 include/enotify.php:293
-#, php-format
-msgid "%2$s has accepted your [url=%1$s]connection request[/url]."
-msgstr "%2$s hat Deine [url=%1$s]Kontaktanfrage[/url] akzeptiert."
-
-#: include/enotify.php:283
-msgid ""
-"You are now mutual friends and may exchange status updates, photos, and "
-"email without restriction."
-msgstr "Ihr seid nun beidseitige Kontakte und könnt Statusmitteilungen, Bilder und E-Mails ohne Einschränkungen austauschen."
-
-#: include/enotify.php:285
-#, php-format
-msgid "Please visit %s if you wish to make any changes to this relationship."
-msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
-
-#: include/enotify.php:298
-#, php-format
-msgid ""
-"'%1$s' has chosen to accept you a fan, which restricts some forms of "
-"communication - such as private messaging and some profile interactions. If "
-"this is a celebrity or community page, these settings were applied "
-"automatically."
-msgstr "'%1$s' hat sich entschieden dich als Fan zu akzeptieren, dies schränkt einige Kommunikationswege - wie private Nachrichten und einige Interaktionsmöglichkeiten auf der Profilseite - ein. Wenn dies eine Berühmtheiten- oder Gemeinschaftsseite ist, werden diese Einstellungen automatisch vorgenommen."
-
-#: include/enotify.php:300
-#, php-format
-msgid ""
-"'%1$s' may choose to extend this into a two-way or more permissive "
-"relationship in the future."
-msgstr "'%1$s' kann den Kontaktstatus zu einem späteren Zeitpunkt erweitern und diese Einschränkungen aufheben. "
-
-#: include/enotify.php:302
-#, php-format
-msgid "Please visit %s  if you wish to make any changes to this relationship."
-msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
-
-#: include/enotify.php:312 mod/removeme.php:63
-msgid "[Friendica System Notify]"
-msgstr "[Friendica-Systembenachrichtigung]"
-
-#: include/enotify.php:312
-msgid "registration request"
-msgstr "Registrierungsanfrage"
-
-#: include/enotify.php:314
-#, php-format
-msgid "You've received a registration request from '%1$s' at %2$s"
-msgstr "Du hast eine Registrierungsanfrage von %2$s auf '%1$s' erhalten"
-
-#: include/enotify.php:315
-#, php-format
-msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
-msgstr "Du hast eine [url=%1$s]Registrierungsanfrage[/url] von %2$s erhalten."
-
-#: include/enotify.php:320
-#, php-format
-msgid ""
-"Full Name:\t%s\n"
-"Site Location:\t%s\n"
-"Login Name:\t%s (%s)"
-msgstr "Kompletter Name: %s\nURL der Seite: %s\nLogin Name: %s(%s)"
-
-#: include/enotify.php:326
-#, php-format
-msgid "Please visit %s to approve or reject the request."
-msgstr "Bitte besuche %s, um die Anfrage zu bearbeiten."
-
-#: include/enotify.php:562
-#, php-format
-msgid "%s %s tagged you"
-msgstr "%s %s hat dich erwähnt"
-
-#: include/enotify.php:565
-#, php-format
-msgid "%s %s shared a new post"
-msgstr "%s%shat einen Beitrag geteilt"
-
 #: mod/api.php:30 mod/editpost.php:38 mod/events.php:220 mod/follow.php:56
 #: mod/follow.php:130 mod/item.php:185 mod/item.php:190 mod/item.php:936
 #: mod/message.php:69 mod/message.php:111 mod/notes.php:44
-#: mod/ostatus_subscribe.php:32 mod/photos.php:163 mod/photos.php:908
+#: mod/ostatus_subscribe.php:32 mod/photos.php:160 mod/photos.php:900
 #: mod/repair_ostatus.php:31 mod/settings.php:47 mod/settings.php:57
 #: mod/settings.php:409 mod/suggest.php:34 mod/uimport.php:33
 #: mod/unfollow.php:35 mod/unfollow.php:50 mod/unfollow.php:82
@@ -355,7 +104,7 @@ msgstr "%s%shat einen Beitrag geteilt"
 #: src/Module/Search/Directory.php:38 src/Module/Settings/Delegation.php:42
 #: src/Module/Settings/Delegation.php:70 src/Module/Settings/Display.php:43
 #: src/Module/Settings/Display.php:121
-#: src/Module/Settings/Profile/Photo/Crop.php:158
+#: src/Module/Settings/Profile/Photo/Crop.php:164
 #: src/Module/Settings/Profile/Photo/Index.php:112
 #: src/Module/Settings/UserExport.php:58 src/Module/Settings/UserExport.php:93
 #: src/Module/Settings/UserExport.php:198
@@ -373,8 +122,8 @@ msgstr "Zugriff verweigert."
 msgid "Access denied."
 msgstr "Zugriff verweigert."
 
-#: mod/cal.php:61 mod/cal.php:78 mod/photos.php:69 mod/photos.php:143
-#: mod/photos.php:815 src/Model/Profile.php:229 src/Module/HCard.php:52
+#: mod/cal.php:61 mod/cal.php:78 mod/photos.php:69 mod/photos.php:140
+#: mod/photos.php:807 src/Model/Profile.php:229 src/Module/HCard.php:52
 #: src/Module/Profile/Common.php:41 src/Module/Profile/Common.php:52
 #: src/Module/Profile/Contacts.php:40 src/Module/Profile/Contacts.php:50
 #: src/Module/Profile/Media.php:38 src/Module/Profile/Status.php:58
@@ -449,7 +198,7 @@ msgstr "Keine exportierbaren Daten gefunden"
 msgid "calendar"
 msgstr "Kalender"
 
-#: mod/display.php:165 mod/photos.php:819
+#: mod/display.php:165 mod/photos.php:811
 #: src/Module/Conversation/Community.php:176 src/Module/Debug/Probe.php:39
 #: src/Module/Debug/WebFinger.php:38 src/Module/Directory.php:49
 #: src/Module/Search/Index.php:50 src/Module/Search/Index.php:55
@@ -477,7 +226,7 @@ msgstr "Beitrag bearbeiten"
 msgid "Save"
 msgstr "Speichern"
 
-#: mod/editpost.php:92 mod/photos.php:1355 src/Content/Conversation.php:326
+#: mod/editpost.php:92 mod/photos.php:1347 src/Content/Conversation.php:326
 #: src/Module/Contact/Poke.php:157 src/Object/Post.php:964
 msgid "Loading..."
 msgstr "lädt..."
@@ -542,7 +291,7 @@ msgid "clear location"
 msgstr "Ort löschen"
 
 #: mod/editpost.php:107 mod/message.php:200 mod/message.php:358
-#: mod/photos.php:1506 mod/wallmessage.php:141
+#: mod/photos.php:1498 mod/wallmessage.php:141
 #: src/Content/Conversation.php:355 src/Content/Conversation.php:689
 #: src/Module/Item/Compose.php:165 src/Object/Post.php:502
 msgid "Please wait"
@@ -574,14 +323,14 @@ msgstr "Kategorien (kommasepariert)"
 msgid "Example: bob@example.com, mary@example.com"
 msgstr "Z.B.: bob@example.com, mary@example.com"
 
-#: mod/editpost.php:128 mod/events.php:517 mod/photos.php:1354
-#: mod/photos.php:1410 mod/photos.php:1484 src/Content/Conversation.php:370
+#: mod/editpost.php:128 mod/events.php:517 mod/photos.php:1346
+#: mod/photos.php:1402 mod/photos.php:1476 src/Content/Conversation.php:370
 #: src/Module/Item/Compose.php:160 src/Object/Post.php:974
 msgid "Preview"
 msgstr "Vorschau"
 
 #: mod/editpost.php:130 mod/fbrowser.php:100 mod/fbrowser.php:127
-#: mod/follow.php:144 mod/photos.php:1017 mod/photos.php:1122 mod/tagrm.php:37
+#: mod/follow.php:144 mod/photos.php:1013 mod/photos.php:1114 mod/tagrm.php:37
 #: mod/tagrm.php:129 mod/unfollow.php:97 src/Content/Conversation.php:373
 #: src/Module/Contact/Revoke.php:99 src/Module/RemoteFollow.php:116
 msgid "Cancel"
@@ -598,8 +347,8 @@ msgstr "Nachricht"
 msgid "Browser"
 msgstr "Browser"
 
-#: mod/editpost.php:136 mod/events.php:522 mod/photos.php:956
-#: mod/photos.php:1308 src/Content/Conversation.php:357
+#: mod/editpost.php:136 mod/events.php:522 mod/photos.php:948
+#: mod/photos.php:1300 src/Content/Conversation.php:357
 msgid "Permissions"
 msgstr "Berechtigungen"
 
@@ -679,8 +428,8 @@ msgid "Share this event"
 msgstr "Veranstaltung teilen"
 
 #: mod/events.php:519 mod/message.php:201 mod/message.php:357
-#: mod/photos.php:938 mod/photos.php:1039 mod/photos.php:1312
-#: mod/photos.php:1353 mod/photos.php:1409 mod/photos.php:1483
+#: mod/photos.php:930 mod/photos.php:1034 mod/photos.php:1304
+#: mod/photos.php:1345 mod/photos.php:1401 mod/photos.php:1475
 #: src/Module/Admin/Item/Source.php:65 src/Module/Contact.php:523
 #: src/Module/Contact/Advanced.php:133 src/Module/Contact/Poke.php:158
 #: src/Module/Debug/ActivityPubConversion.php:141
@@ -1131,257 +880,257 @@ msgstr "Ignoriert"
 msgid "Keep this window open until done."
 msgstr "Lasse dieses Fenster offen, bis der Vorgang abgeschlossen ist."
 
-#: mod/photos.php:111 src/Module/BaseProfile.php:67
+#: mod/photos.php:108 src/Module/BaseProfile.php:67
 msgid "Photo Albums"
 msgstr "Fotoalben"
 
-#: mod/photos.php:112 mod/photos.php:1608
+#: mod/photos.php:109 mod/photos.php:1593
 msgid "Recent Photos"
 msgstr "Neueste Fotos"
 
-#: mod/photos.php:114 mod/photos.php:1090 mod/photos.php:1610
+#: mod/photos.php:111 mod/photos.php:1082 mod/photos.php:1595
 msgid "Upload New Photos"
 msgstr "Neue Fotos hochladen"
 
-#: mod/photos.php:132 src/Module/BaseSettings.php:37
+#: mod/photos.php:129 src/Module/BaseSettings.php:37
 msgid "everybody"
 msgstr "jeder"
 
-#: mod/photos.php:170
+#: mod/photos.php:167
 msgid "Contact information unavailable"
 msgstr "Kontaktinformationen nicht verfügbar"
 
-#: mod/photos.php:204
+#: mod/photos.php:196
 msgid "Album not found."
 msgstr "Album nicht gefunden."
 
-#: mod/photos.php:258
+#: mod/photos.php:250
 msgid "Album successfully deleted"
 msgstr "Album wurde erfolgreich gelöscht."
 
-#: mod/photos.php:260
+#: mod/photos.php:252
 msgid "Album was empty."
 msgstr "Album ist leer."
 
-#: mod/photos.php:292
+#: mod/photos.php:284
 msgid "Failed to delete the photo."
 msgstr "Das Foto konnte nicht gelöscht werden."
 
-#: mod/photos.php:567
+#: mod/photos.php:559
 msgid "a photo"
 msgstr "einem Foto"
 
-#: mod/photos.php:567
+#: mod/photos.php:559
 #, php-format
 msgid "%1$s was tagged in %2$s by %3$s"
 msgstr "%1$s wurde von %3$s in %2$s getaggt"
 
-#: mod/photos.php:650 mod/photos.php:653 mod/photos.php:680
+#: mod/photos.php:642 mod/photos.php:645 mod/photos.php:672
 #: mod/wall_upload.php:207 src/Module/Settings/Profile/Photo/Index.php:60
 #, php-format
 msgid "Image exceeds size limit of %s"
 msgstr "Bildgröße überschreitet das Limit von %s"
 
-#: mod/photos.php:656
+#: mod/photos.php:648
 msgid "Image upload didn't complete, please try again"
 msgstr "Der Upload des Bildes war nicht vollständig. Bitte versuche es erneut."
 
-#: mod/photos.php:659
+#: mod/photos.php:651
 msgid "Image file is missing"
 msgstr "Bilddatei konnte nicht gefunden werden."
 
-#: mod/photos.php:664
+#: mod/photos.php:656
 msgid ""
 "Server can't accept new file upload at this time, please contact your "
 "administrator"
 msgstr "Der Server kann derzeit keine neuen Datei-Uploads akzeptieren. Bitte kontaktiere deinen Administrator."
 
-#: mod/photos.php:688
+#: mod/photos.php:680
 msgid "Image file is empty."
 msgstr "Bilddatei ist leer."
 
-#: mod/photos.php:703 mod/wall_upload.php:166
+#: mod/photos.php:695 mod/wall_upload.php:166
 #: src/Module/Settings/Profile/Photo/Index.php:69
 msgid "Unable to process image."
 msgstr "Konnte das Bild nicht bearbeiten."
 
-#: mod/photos.php:732 mod/wall_upload.php:232
+#: mod/photos.php:724 mod/wall_upload.php:232
 #: src/Module/Settings/Profile/Photo/Index.php:96
 msgid "Image upload failed."
 msgstr "Hochladen des Bildes gescheitert."
 
-#: mod/photos.php:824
+#: mod/photos.php:816
 msgid "No photos selected"
 msgstr "Keine Bilder ausgewählt"
 
-#: mod/photos.php:893
+#: mod/photos.php:885
 msgid "Access to this item is restricted."
 msgstr "Zugriff zu diesem Eintrag wurde eingeschränkt."
 
-#: mod/photos.php:948
+#: mod/photos.php:940
 msgid "Upload Photos"
 msgstr "Bilder hochladen"
 
-#: mod/photos.php:952 mod/photos.php:1035
+#: mod/photos.php:944 mod/photos.php:1030
 msgid "New album name: "
 msgstr "Name des neuen Albums: "
 
-#: mod/photos.php:953
+#: mod/photos.php:945
 msgid "or select existing album:"
 msgstr "oder wähle ein bestehendes Album:"
 
-#: mod/photos.php:954
+#: mod/photos.php:946
 msgid "Do not show a status post for this upload"
 msgstr "Keine Status-Mitteilung für diesen Beitrag anzeigen"
 
-#: mod/photos.php:1015
+#: mod/photos.php:1011
 msgid "Do you really want to delete this photo album and all its photos?"
 msgstr "Möchtest du wirklich dieses Foto-Album und all seine Foto löschen?"
 
-#: mod/photos.php:1016 mod/photos.php:1040
+#: mod/photos.php:1012 mod/photos.php:1035
 msgid "Delete Album"
 msgstr "Album löschen"
 
-#: mod/photos.php:1046
+#: mod/photos.php:1039
 msgid "Edit Album"
 msgstr "Album bearbeiten"
 
-#: mod/photos.php:1047
+#: mod/photos.php:1040
 msgid "Drop Album"
 msgstr "Album löschen"
 
-#: mod/photos.php:1052
+#: mod/photos.php:1044
 msgid "Show Newest First"
 msgstr "Zeige neueste zuerst"
 
-#: mod/photos.php:1054
+#: mod/photos.php:1046
 msgid "Show Oldest First"
 msgstr "Zeige älteste zuerst"
 
-#: mod/photos.php:1075 mod/photos.php:1593
+#: mod/photos.php:1067 mod/photos.php:1578
 msgid "View Photo"
 msgstr "Foto betrachten"
 
-#: mod/photos.php:1108
+#: mod/photos.php:1100
 msgid "Permission denied. Access to this item may be restricted."
 msgstr "Zugriff verweigert. Zugriff zu diesem Eintrag könnte eingeschränkt sein."
 
-#: mod/photos.php:1110
+#: mod/photos.php:1102
 msgid "Photo not available"
 msgstr "Foto nicht verfügbar"
 
-#: mod/photos.php:1120
+#: mod/photos.php:1112
 msgid "Do you really want to delete this photo?"
 msgstr "Möchtest du wirklich dieses Foto löschen?"
 
-#: mod/photos.php:1121 mod/photos.php:1313
+#: mod/photos.php:1113 mod/photos.php:1305
 msgid "Delete Photo"
 msgstr "Foto löschen"
 
-#: mod/photos.php:1211
+#: mod/photos.php:1203
 msgid "View photo"
 msgstr "Fotos ansehen"
 
-#: mod/photos.php:1213
+#: mod/photos.php:1205
 msgid "Edit photo"
 msgstr "Foto bearbeiten"
 
-#: mod/photos.php:1214
+#: mod/photos.php:1206
 msgid "Delete photo"
 msgstr "Foto löschen"
 
-#: mod/photos.php:1215
+#: mod/photos.php:1207
 msgid "Use as profile photo"
 msgstr "Als Profilbild verwenden"
 
-#: mod/photos.php:1222
+#: mod/photos.php:1214
 msgid "Private Photo"
 msgstr "Privates Foto"
 
-#: mod/photos.php:1228
+#: mod/photos.php:1220
 msgid "View Full Size"
 msgstr "Betrachte Originalgröße"
 
-#: mod/photos.php:1281
+#: mod/photos.php:1273
 msgid "Tags: "
 msgstr "Tags: "
 
-#: mod/photos.php:1284
+#: mod/photos.php:1276
 msgid "[Select tags to remove]"
 msgstr "[Zu entfernende Tags auswählen]"
 
-#: mod/photos.php:1299
+#: mod/photos.php:1291
 msgid "New album name"
 msgstr "Name des neuen Albums"
 
-#: mod/photos.php:1300
+#: mod/photos.php:1292
 msgid "Caption"
 msgstr "Bildunterschrift"
 
-#: mod/photos.php:1301
+#: mod/photos.php:1293
 msgid "Add a Tag"
 msgstr "Tag hinzufügen"
 
-#: mod/photos.php:1301
+#: mod/photos.php:1293
 msgid ""
 "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr "Beispiel: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 
-#: mod/photos.php:1302
+#: mod/photos.php:1294
 msgid "Do not rotate"
 msgstr "Nicht rotieren"
 
-#: mod/photos.php:1303
+#: mod/photos.php:1295
 msgid "Rotate CW (right)"
 msgstr "Drehen US (rechts)"
 
-#: mod/photos.php:1304
+#: mod/photos.php:1296
 msgid "Rotate CCW (left)"
 msgstr "Drehen EUS (links)"
 
-#: mod/photos.php:1350 mod/photos.php:1406 mod/photos.php:1480
+#: mod/photos.php:1342 mod/photos.php:1398 mod/photos.php:1472
 #: src/Module/Contact.php:993 src/Module/Item/Compose.php:148
 #: src/Object/Post.php:960
 msgid "This is you"
 msgstr "Das bist du"
 
-#: mod/photos.php:1352 mod/photos.php:1408 mod/photos.php:1482
+#: mod/photos.php:1344 mod/photos.php:1400 mod/photos.php:1474
 #: src/Object/Post.php:496 src/Object/Post.php:962
 msgid "Comment"
 msgstr "Kommentar"
 
-#: mod/photos.php:1441 src/Content/Conversation.php:615
+#: mod/photos.php:1433 src/Content/Conversation.php:615
 #: src/Object/Post.php:227
 msgid "Select"
 msgstr "Auswählen"
 
-#: mod/photos.php:1442 mod/settings.php:563 src/Content/Conversation.php:616
+#: mod/photos.php:1434 mod/settings.php:563 src/Content/Conversation.php:616
 #: src/Module/Admin/Users/Active.php:139
 #: src/Module/Admin/Users/Blocked.php:140 src/Module/Admin/Users/Index.php:153
 msgid "Delete"
 msgstr "Löschen"
 
-#: mod/photos.php:1503 src/Object/Post.php:349
+#: mod/photos.php:1495 src/Object/Post.php:349
 msgid "Like"
 msgstr "Mag ich"
 
-#: mod/photos.php:1504 src/Object/Post.php:349
+#: mod/photos.php:1496 src/Object/Post.php:349
 msgid "I like this (toggle)"
 msgstr "Ich mag das (toggle)"
 
-#: mod/photos.php:1505 src/Object/Post.php:350
+#: mod/photos.php:1497 src/Object/Post.php:350
 msgid "Dislike"
 msgstr "Mag ich nicht"
 
-#: mod/photos.php:1507 src/Object/Post.php:350
+#: mod/photos.php:1499 src/Object/Post.php:350
 msgid "I don't like this (toggle)"
 msgstr "Ich mag das nicht (toggle)"
 
-#: mod/photos.php:1529
+#: mod/photos.php:1521
 msgid "Map"
 msgstr "Karte"
 
-#: mod/photos.php:1599
+#: mod/photos.php:1584
 msgid "View Album"
 msgstr "Album betrachten"
 
@@ -1408,6 +1157,10 @@ msgstr "Ungültige Anfrage."
 #: src/Module/FriendSuggest.php:93 src/Module/Group.php:105
 msgid "Contact not found."
 msgstr "Kontakt nicht gefunden."
+
+#: mod/removeme.php:63 src/Navigation/Notifications/Depository/Notify.php:454
+msgid "[Friendica System Notify]"
+msgstr "[Friendica-Systembenachrichtigung]"
 
 #: mod/removeme.php:63
 msgid "User deleted their account"
@@ -2352,7 +2105,7 @@ msgstr "Die Datei ist größer als das erlaubte Limit von %s"
 msgid "File upload failed."
 msgstr "Hochladen der Datei fehlgeschlagen."
 
-#: mod/wall_upload.php:224 src/Model/Photo.php:985
+#: mod/wall_upload.php:224 src/Model/Photo.php:987
 msgid "Wall Photos"
 msgstr "Pinnwand-Bilder"
 
@@ -3138,13 +2891,15 @@ msgstr "Deine Profilseite"
 msgid "Your photos"
 msgstr "Deine Fotos"
 
-#: src/Content/Nav.php:193 view/theme/frio/theme.php:228
-msgid "Videos"
-msgstr "Videos"
+#: src/Content/Nav.php:193 src/Module/BaseProfile.php:72
+#: src/Module/BaseProfile.php:75 src/Module/Contact.php:838
+#: view/theme/frio/theme.php:228
+msgid "Media"
+msgstr "Medien"
 
 #: src/Content/Nav.php:193 view/theme/frio/theme.php:228
-msgid "Your videos"
-msgstr "Deine Videos"
+msgid "Your postings with media"
+msgstr "Deine Beiträge die Medien beinhalten"
 
 #: src/Content/Nav.php:194 view/theme/frio/theme.php:229
 msgid "Your events"
@@ -3358,8 +3113,8 @@ msgstr "nächste"
 msgid "last"
 msgstr "letzte"
 
-#: src/Content/Text/BBCode.php:987 src/Content/Text/BBCode.php:1775
-#: src/Content/Text/BBCode.php:1776
+#: src/Content/Text/BBCode.php:987 src/Content/Text/BBCode.php:1781
+#: src/Content/Text/BBCode.php:1782
 msgid "Image/photo"
 msgstr "Bild/Foto"
 
@@ -3373,23 +3128,23 @@ msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a>%
 msgid "Link to source"
 msgstr "Link zum Originalbeitrag"
 
-#: src/Content/Text/BBCode.php:1693 src/Content/Text/HTML.php:943
+#: src/Content/Text/BBCode.php:1699 src/Content/Text/HTML.php:943
 msgid "Click to open/close"
 msgstr "Zum Öffnen/Schließen klicken"
 
-#: src/Content/Text/BBCode.php:1724
+#: src/Content/Text/BBCode.php:1730
 msgid "$1 wrote:"
 msgstr "$1 hat geschrieben:"
 
-#: src/Content/Text/BBCode.php:1780 src/Content/Text/BBCode.php:1781
+#: src/Content/Text/BBCode.php:1786 src/Content/Text/BBCode.php:1787
 msgid "Encrypted content"
 msgstr "Verschlüsselter Inhalt"
 
-#: src/Content/Text/BBCode.php:1996
+#: src/Content/Text/BBCode.php:2002
 msgid "Invalid source protocol"
 msgstr "Ungültiges Quell-Protokoll"
 
-#: src/Content/Text/BBCode.php:2011
+#: src/Content/Text/BBCode.php:2017
 msgid "Invalid link protocol"
 msgstr "Ungültiges Link-Protokoll"
 
@@ -7176,11 +6931,6 @@ msgstr "Zu viele Abfragen"
 msgid "Profile Details"
 msgstr "Profildetails"
 
-#: src/Module/BaseProfile.php:72 src/Module/BaseProfile.php:75
-#: src/Module/Contact.php:838
-msgid "Media"
-msgstr "Medien"
-
 #: src/Module/BaseProfile.php:109
 msgid "Only You Can See This"
 msgstr "Nur du kannst das sehen"
@@ -9555,41 +9305,41 @@ msgid ""
 msgstr "<p>Die benutzerdefinierten Felder erscheinen auf <a href=\"%s\">deiner Profil-Seite</a></p>.\n\n<p>BBCode kann verwendet werden</p>\n<p>Die Reihenfolge der Felder kann durch Ziehen des Feld-Titels mit der Maus angepasst werden.</p>\n<p>Wird die Bezeichnung des Felds geleert, wird das Feld beim Speichern aus dem Profil entfernt.</p>\n<p>Nicht öffentliche Felder können nur von den ausgewählten Friendica Kontakte  gesehen werden.</p>"
 
 #: src/Module/Settings/Profile/Photo/Crop.php:106
-#: src/Module/Settings/Profile/Photo/Crop.php:122
-#: src/Module/Settings/Profile/Photo/Crop.php:138
+#: src/Module/Settings/Profile/Photo/Crop.php:124
+#: src/Module/Settings/Profile/Photo/Crop.php:142
 #: src/Module/Settings/Profile/Photo/Index.php:102
 #, php-format
 msgid "Image size reduction [%s] failed."
 msgstr "Verkleinern der Bildgröße von [%s] scheiterte."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:143
+#: src/Module/Settings/Profile/Photo/Crop.php:149
 msgid ""
 "Shift-reload the page or clear browser cache if the new photo does not "
 "display immediately."
 msgstr "Drücke Umschalt+Neu Laden oder leere den Browser-Cache, falls das neue Foto nicht gleich angezeigt wird."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:148
+#: src/Module/Settings/Profile/Photo/Crop.php:154
 msgid "Unable to process image"
 msgstr "Bild konnte nicht verarbeitet werden"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:167
+#: src/Module/Settings/Profile/Photo/Crop.php:173
 msgid "Photo not found."
 msgstr "Foto nicht gefunden"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:189
+#: src/Module/Settings/Profile/Photo/Crop.php:195
 msgid "Profile picture successfully updated."
 msgstr "Profilbild erfolgreich aktualisiert."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:215
-#: src/Module/Settings/Profile/Photo/Crop.php:219
+#: src/Module/Settings/Profile/Photo/Crop.php:221
+#: src/Module/Settings/Profile/Photo/Crop.php:225
 msgid "Crop Image"
 msgstr "Bild zurechtschneiden"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:216
+#: src/Module/Settings/Profile/Photo/Crop.php:222
 msgid "Please adjust the image cropping for optimum viewing."
 msgstr "Passe bitte den Bildausschnitt an, damit das Bild optimal dargestellt werden kann."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:218
+#: src/Module/Settings/Profile/Photo/Crop.php:224
 msgid "Use Image As Is"
 msgstr "Bild wie es ist verwenden"
 
@@ -10205,6 +9955,263 @@ msgid ""
 "Our <strong>help</strong> pages may be consulted for detail on other program"
 " features and resources."
 msgstr "Unsere <strong>Hilfe</strong>-Seiten können herangezogen werden, um weitere Einzelheiten zu anderen Programm-Features zu erhalten."
+
+#: src/Navigation/Notifications/Depository/Notify.php:192
+#: src/Navigation/Notifications/Depository/Notify.php:675
+msgid "[Friendica:Notify]"
+msgstr "[Friendica Meldung]"
+
+#: src/Navigation/Notifications/Depository/Notify.php:256
+#, php-format
+msgid "%s New mail received at %s"
+msgstr "%sNeue Nachricht auf %s empfangen"
+
+#: src/Navigation/Notifications/Depository/Notify.php:258
+#, php-format
+msgid "%1$s sent you a new private message at %2$s."
+msgstr "%1$s hat dir eine neue, private Nachricht auf %2$s geschickt."
+
+#: src/Navigation/Notifications/Depository/Notify.php:259
+msgid "a private message"
+msgstr "eine private Nachricht"
+
+#: src/Navigation/Notifications/Depository/Notify.php:259
+#, php-format
+msgid "%1$s sent you %2$s."
+msgstr "%1$s schickte dir %2$s."
+
+#: src/Navigation/Notifications/Depository/Notify.php:261
+#, php-format
+msgid "Please visit %s to view and/or reply to your private messages."
+msgstr "Bitte besuche %s, um Deine privaten Nachrichten anzusehen und/oder zu beantworten."
+
+#: src/Navigation/Notifications/Depository/Notify.php:292
+#, php-format
+msgid "%1$s commented on %2$s's %3$s %4$s"
+msgstr "%1$s kommentierte %2$s's %3$s%4$s"
+
+#: src/Navigation/Notifications/Depository/Notify.php:297
+#, php-format
+msgid "%1$s commented on your %2$s %3$s"
+msgstr "%1$s kommentierte auf  (%2$s) %3$s"
+
+#: src/Navigation/Notifications/Depository/Notify.php:301
+#, php-format
+msgid "%1$s commented on their %2$s %3$s"
+msgstr "%1$s hat den eigenen %2$s %3$s kommentiert"
+
+#: src/Navigation/Notifications/Depository/Notify.php:305
+#: src/Navigation/Notifications/Depository/Notify.php:710
+#, php-format
+msgid "%1$s Comment to conversation #%2$d by %3$s"
+msgstr "%1$sKommentar von %3$s auf Unterhaltung %2$d"
+
+#: src/Navigation/Notifications/Depository/Notify.php:307
+#, php-format
+msgid "%s commented on an item/conversation you have been following."
+msgstr "%s hat einen Beitrag kommentiert, dem du folgst."
+
+#: src/Navigation/Notifications/Depository/Notify.php:311
+#: src/Navigation/Notifications/Depository/Notify.php:326
+#: src/Navigation/Notifications/Depository/Notify.php:345
+#: src/Navigation/Notifications/Depository/Notify.php:725
+#, php-format
+msgid "Please visit %s to view and/or reply to the conversation."
+msgstr "Bitte besuche %s, um die Konversation anzusehen und/oder zu kommentieren."
+
+#: src/Navigation/Notifications/Depository/Notify.php:318
+#, php-format
+msgid "%s %s posted to your profile wall"
+msgstr "%s%s hat auf deine Pinnwand gepostet"
+
+#: src/Navigation/Notifications/Depository/Notify.php:320
+#, php-format
+msgid "%1$s posted to your profile wall at %2$s"
+msgstr "%1$s schrieb um %2$s auf Deine Pinnwand"
+
+#: src/Navigation/Notifications/Depository/Notify.php:321
+#, php-format
+msgid "%1$s posted to [url=%2$s]your wall[/url]"
+msgstr "%1$s hat etwas auf [url=%2$s]Deiner Pinnwand[/url] gepostet"
+
+#: src/Navigation/Notifications/Depository/Notify.php:333
+#, php-format
+msgid "%1$s %2$s poked you"
+msgstr "%1$s%2$shat dich angestubst"
+
+#: src/Navigation/Notifications/Depository/Notify.php:335
+#, php-format
+msgid "%1$s poked you at %2$s"
+msgstr "%1$s hat dich auf %2$s angestupst"
+
+#: src/Navigation/Notifications/Depository/Notify.php:336
+#, php-format
+msgid "%1$s [url=%2$s]poked you[/url]."
+msgstr "%1$s [url=%2$s]hat dich angestupst[/url]."
+
+#: src/Navigation/Notifications/Depository/Notify.php:353
+#, php-format
+msgid "%s Introduction received"
+msgstr "%sVorstellung erhalten"
+
+#: src/Navigation/Notifications/Depository/Notify.php:355
+#, php-format
+msgid "You've received an introduction from '%1$s' at %2$s"
+msgstr "Du hast eine Kontaktanfrage von '%1$s' auf %2$s erhalten"
+
+#: src/Navigation/Notifications/Depository/Notify.php:356
+#, php-format
+msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
+msgstr "Du hast eine [url=%1$s]Kontaktanfrage[/url] von %2$s erhalten."
+
+#: src/Navigation/Notifications/Depository/Notify.php:361
+#: src/Navigation/Notifications/Depository/Notify.php:407
+#, php-format
+msgid "You may visit their profile at %s"
+msgstr "Hier kannst du das Profil betrachten: %s"
+
+#: src/Navigation/Notifications/Depository/Notify.php:363
+#, php-format
+msgid "Please visit %s to approve or reject the introduction."
+msgstr "Bitte besuche %s, um die Kontaktanfrage anzunehmen oder abzulehnen."
+
+#: src/Navigation/Notifications/Depository/Notify.php:370
+#, php-format
+msgid "%s A new person is sharing with you"
+msgstr "%sEine neue Person teilt nun mit dir"
+
+#: src/Navigation/Notifications/Depository/Notify.php:372
+#: src/Navigation/Notifications/Depository/Notify.php:373
+#, php-format
+msgid "%1$s is sharing with you at %2$s"
+msgstr "%1$s teilt mit dir auf %2$s"
+
+#: src/Navigation/Notifications/Depository/Notify.php:380
+#, php-format
+msgid "%s You have a new follower"
+msgstr "%sDu hast einen neuen Kontakt"
+
+#: src/Navigation/Notifications/Depository/Notify.php:382
+#: src/Navigation/Notifications/Depository/Notify.php:383
+#, php-format
+msgid "You have a new follower at %2$s : %1$s"
+msgstr "Du hast einen neuen Kontakt auf %2$s: %1$s"
+
+#: src/Navigation/Notifications/Depository/Notify.php:396
+#, php-format
+msgid "%s Friend suggestion received"
+msgstr "%sKontaktvorschlag erhalten"
+
+#: src/Navigation/Notifications/Depository/Notify.php:398
+#, php-format
+msgid "You've received a friend suggestion from '%1$s' at %2$s"
+msgstr "Du hast einen Kontakt-Vorschlag von '%1$s' auf %2$s erhalten"
+
+#: src/Navigation/Notifications/Depository/Notify.php:399
+#, php-format
+msgid ""
+"You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
+msgstr "Du hast einen [url=%1$s]Kontakt-Vorschlag[/url] %2$s von %3$s erhalten."
+
+#: src/Navigation/Notifications/Depository/Notify.php:405
+msgid "Name:"
+msgstr "Name:"
+
+#: src/Navigation/Notifications/Depository/Notify.php:406
+msgid "Photo:"
+msgstr "Foto:"
+
+#: src/Navigation/Notifications/Depository/Notify.php:409
+#, php-format
+msgid "Please visit %s to approve or reject the suggestion."
+msgstr "Bitte besuche %s, um den Vorschlag zu akzeptieren oder abzulehnen."
+
+#: src/Navigation/Notifications/Depository/Notify.php:417
+#: src/Navigation/Notifications/Depository/Notify.php:432
+#, php-format
+msgid "%s Connection accepted"
+msgstr "%sKontaktanfrage bestätigt"
+
+#: src/Navigation/Notifications/Depository/Notify.php:419
+#: src/Navigation/Notifications/Depository/Notify.php:434
+#, php-format
+msgid "'%1$s' has accepted your connection request at %2$s"
+msgstr "'%1$s' hat Deine Kontaktanfrage auf  %2$s bestätigt"
+
+#: src/Navigation/Notifications/Depository/Notify.php:420
+#: src/Navigation/Notifications/Depository/Notify.php:435
+#, php-format
+msgid "%2$s has accepted your [url=%1$s]connection request[/url]."
+msgstr "%2$s hat Deine [url=%1$s]Kontaktanfrage[/url] akzeptiert."
+
+#: src/Navigation/Notifications/Depository/Notify.php:425
+msgid ""
+"You are now mutual friends and may exchange status updates, photos, and "
+"email without restriction."
+msgstr "Ihr seid nun beidseitige Kontakte und könnt Statusmitteilungen, Bilder und E-Mails ohne Einschränkungen austauschen."
+
+#: src/Navigation/Notifications/Depository/Notify.php:427
+#, php-format
+msgid "Please visit %s if you wish to make any changes to this relationship."
+msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
+
+#: src/Navigation/Notifications/Depository/Notify.php:440
+#, php-format
+msgid ""
+"'%1$s' has chosen to accept you a fan, which restricts some forms of "
+"communication - such as private messaging and some profile interactions. If "
+"this is a celebrity or community page, these settings were applied "
+"automatically."
+msgstr "'%1$s' hat sich entschieden dich als Fan zu akzeptieren, dies schränkt einige Kommunikationswege - wie private Nachrichten und einige Interaktionsmöglichkeiten auf der Profilseite - ein. Wenn dies eine Berühmtheiten- oder Gemeinschaftsseite ist, werden diese Einstellungen automatisch vorgenommen."
+
+#: src/Navigation/Notifications/Depository/Notify.php:442
+#, php-format
+msgid ""
+"'%1$s' may choose to extend this into a two-way or more permissive "
+"relationship in the future."
+msgstr "'%1$s' kann den Kontaktstatus zu einem späteren Zeitpunkt erweitern und diese Einschränkungen aufheben. "
+
+#: src/Navigation/Notifications/Depository/Notify.php:444
+#, php-format
+msgid "Please visit %s  if you wish to make any changes to this relationship."
+msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
+
+#: src/Navigation/Notifications/Depository/Notify.php:454
+msgid "registration request"
+msgstr "Registrierungsanfrage"
+
+#: src/Navigation/Notifications/Depository/Notify.php:456
+#, php-format
+msgid "You've received a registration request from '%1$s' at %2$s"
+msgstr "Du hast eine Registrierungsanfrage von %2$s auf '%1$s' erhalten"
+
+#: src/Navigation/Notifications/Depository/Notify.php:457
+#, php-format
+msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
+msgstr "Du hast eine [url=%1$s]Registrierungsanfrage[/url] von %2$s erhalten."
+
+#: src/Navigation/Notifications/Depository/Notify.php:462
+#, php-format
+msgid ""
+"Full Name:\t%s\n"
+"Site Location:\t%s\n"
+"Login Name:\t%s (%s)"
+msgstr "Kompletter Name: %s\nURL der Seite: %s\nLogin Name: %s(%s)"
+
+#: src/Navigation/Notifications/Depository/Notify.php:468
+#, php-format
+msgid "Please visit %s to approve or reject the request."
+msgstr "Bitte besuche %s, um die Anfrage zu bearbeiten."
+
+#: src/Navigation/Notifications/Depository/Notify.php:704
+#, php-format
+msgid "%s %s tagged you"
+msgstr "%s %s hat dich erwähnt"
+
+#: src/Navigation/Notifications/Depository/Notify.php:707
+#, php-format
+msgid "%s %s shared a new post"
+msgstr "%s%shat einen Beitrag geteilt"
 
 #: src/Navigation/Notifications/Factory/FormattedNotification.php:89
 #, php-format
