@@ -37,12 +37,14 @@ class Introduction
 	 * Confirms a follow request and sends a notice to the remote contact.
 	 *
 	 * @param Entity\Introduction $introduction
+	 * @param bool                $duplex
+	 * @param bool                $hidden
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function confirm(Entity\Introduction $introduction): void
+	public static function confirm(Entity\Introduction $introduction, bool $duplex = false, bool $hidden = false): void
 	{
 		DI::logger()->info('Confirming follower', ['cid' => $introduction->cid]);
 
@@ -66,7 +68,7 @@ class Introduction
 		}
 
 		if (in_array($protocol, [Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
-			if ($introduction->duplex) {
+			if ($duplex) {
 				$newRelation = Contact::FRIEND;
 			} else {
 				$newRelation = Contact::FOLLOWER;

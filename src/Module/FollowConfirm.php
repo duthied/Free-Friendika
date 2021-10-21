@@ -3,6 +3,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\DI;
+use Friendica\Model\Contact;
 
 /**
  * Process follow request confirmations
@@ -23,7 +24,7 @@ class FollowConfirm extends BaseModule
 
 		$intro = DI::intro()->selectOneById($intro_id, local_user());
 
-		$intro->confirm($duplex, $hidden);
+		Contact\Introduction::confirm($intro, $duplex, $hidden);
 
 		DI::baseUrl()->redirect('contact/' .  $intro->cid);
 	}
