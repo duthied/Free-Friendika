@@ -71,7 +71,6 @@ class Introduction extends BaseDepository
 			'contact-id'  => $introduction->cid,
 			'suggest-cid' => $introduction->sid,
 			'knowyou'     => $introduction->knowyou ? 1 : 0,
-			'duplex'      => $introduction->duplex ? 1 : 0,
 			'note'        => $introduction->note,
 			'hash'        => $introduction->hash,
 			'ignore'      => $introduction->ignore ? 1 : 0,

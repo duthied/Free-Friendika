@@ -778,7 +778,7 @@ return [
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => ""],
 			"suggest-cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Suggested contact"],
 			"knowyou" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "deprecated"],
 			"note" => ["type" => "text", "comment" => ""],
 			"hash" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"datetime" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],

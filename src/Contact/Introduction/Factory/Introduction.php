@@ -39,7 +39,6 @@ class Introduction extends BaseFactory implements ICanCreateFromTableRow
 			$row['contact-id'] ?? 0,
 			$row['suggest-cid'] ?? null,
 			!empty($row['knowyou']),
-			!empty($row['duplex']),
 			$row['note'] ?? '',
 			$row['hash'] ?? '',
 			new \DateTime($row['datetime'] ?? 'now', new \DateTimeZone('UTC')),
@@ -53,15 +52,13 @@ class Introduction extends BaseFactory implements ICanCreateFromTableRow
 		int $cid,
 		string $note,
 		int $sid = null,
-		bool $knowyou = false,
-		bool $duplex = false
+		bool $knowyou = false
 	): Entity\Introduction {
 		return $this->createFromTableRow([
 			'uid'         => $uid,
 			'suggest-cid' => $sid,
 			'contact-id'  => $cid,
 			'knowyou'     => $knowyou,
-			'duplex'      => $duplex,
 			'note'        => $note,
 			'hash'        => Strings::getRandomHex(),
 			'datetime'    => DateTimeFormat::utcNow(),

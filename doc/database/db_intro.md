@@ -14,7 +14,7 @@ Fields
 | contact-id  |                   | int unsigned       | NO   |     | 0                   |                |
 | suggest-cid | Suggested contact | int unsigned       | YES  |     | NULL                |                |
 | knowyou     |                   | boolean            | NO   |     | 0                   |                |
-| duplex      |                   | boolean            | NO   |     | 0                   |                |
+| duplex      | deprecated        | boolean            | NO   |     | 0                   |                |
 | note        |                   | text               | YES  |     | NULL                |                |
 | hash        |                   | varchar(255)       | NO   |     |                     |                |
 | datetime    |                   | datetime           | NO   |     | 0001-01-01 00:00:00 |                |

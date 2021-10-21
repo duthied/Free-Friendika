@@ -28,7 +28,6 @@ use Friendica\BaseEntity;
  * @property-read int $cid
  * @property-read int|null $sid
  * @property-read bool $knowyou
- * @property-read bool $duplex
  * @property-read string $note
  * @property-read string $hash
  * @property-read \DateTime $datetime
@@ -45,8 +44,6 @@ class Introduction extends BaseEntity
 	protected $sid;
 	/** @var bool */
 	protected $knowyou;
-	/** @var bool */
-	protected $duplex;
 	/** @var string */
 	protected $note;
 	/** @var string */
@@ -63,20 +60,18 @@ class Introduction extends BaseEntity
 	 * @param int       $cid
 	 * @param int|null  $sid
 	 * @param bool      $knowyou
-	 * @param bool      $duplex
 	 * @param string    $note
 	 * @param string    $hash
 	 * @param \DateTime $datetime
 	 * @param bool      $ignore
 	 * @param int|null  $id
 	 */
-	public function __construct(int $uid, int $cid, ?int $sid, bool $knowyou, bool $duplex, string $note, string $hash, \DateTime $datetime, bool $ignore, ?int $id)
+	public function __construct(int $uid, int $cid, ?int $sid, bool $knowyou, string $note, string $hash, \DateTime $datetime, bool $ignore, ?int $id)
 	{
 		$this->uid      = $uid;
 		$this->cid      = $cid;
 		$this->sid      = $sid;
 		$this->knowyou  = $knowyou;
-		$this->duplex   = $duplex;
 		$this->note     = $note;
 		$this->hash     = $hash;
 		$this->datetime = $datetime;

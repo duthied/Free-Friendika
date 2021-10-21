@@ -17,7 +17,6 @@ class IntroductionTest extends TestCase
 					'suggest-cid' => 13,
 					'contact-id'  => 24,
 					'knowyou'     => 1,
-					'duplex'      => 1,
 					'note'        => 'a note',
 					'hash'        => '12345',
 					'datetime'    => '1970-01-01 00:00:00',
@@ -29,7 +28,6 @@ class IntroductionTest extends TestCase
 					'suggest-cid' => 13,
 					'contact-id'  => 24,
 					'knowyou'     => true,
-					'duplex'      => true,
 					'note'        => 'a note',
 					'hash'        => '12345',
 					'datetime'    => new \DateTime('1970-01-01 00:00:00', new \DateTimeZone('UTC')),
@@ -45,7 +43,6 @@ class IntroductionTest extends TestCase
 					'contact-id'  => 0,
 					'suggest-cid' => null,
 					'knowyou'     => false,
-					'duplex'      => false,
 					'note'        => '',
 					'ignore'      => false,
 					'id'          => null,
@@ -61,7 +58,6 @@ class IntroductionTest extends TestCase
 		self::assertEquals($intro->cid, $assertion['contact-id'] ?? 0);
 		self::assertEquals($intro->sid, $assertion['suggest-cid'] ?? null);
 		self::assertEquals($intro->knowyou, $assertion['knowyou'] ?? false);
-		self::assertEquals($intro->duplex, $assertion['duplex'] ?? false);
 		self::assertEquals($intro->note, $assertion['note'] ?? '');
 		if (isset($assertion['hash'])) {
 			self::assertEquals($intro->hash, $assertion['hash']);

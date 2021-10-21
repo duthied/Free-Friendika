@@ -715,7 +715,7 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`suggest-cid` int unsigned COMMENT 'Suggested contact',
 	`knowyou` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`duplex` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`duplex` boolean NOT NULL DEFAULT '0' COMMENT 'deprecated',
 	`note` text COMMENT '',
 	`hash` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`datetime` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
