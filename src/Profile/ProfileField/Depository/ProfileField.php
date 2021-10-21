@@ -86,7 +86,6 @@ class ProfileField extends BaseDepository
 
 		$Entities = new Collection\ProfileFields();
 		foreach ($rows as $fields) {
-			$this->logger->warning('row', ['row' => $fields]);
 			$Entities[] = $this->factory->createFromTableRow($fields);
 		}
 

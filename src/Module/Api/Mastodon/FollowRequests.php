@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 
@@ -34,7 +35,6 @@ class FollowRequests extends BaseApi
 	/**
 	 * @param array $parameters
 	 * @throws HTTPException\BadRequestException
-	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
 	 * @throws HTTPException\UnauthorizedException
@@ -48,25 +48,28 @@ class FollowRequests extends BaseApi
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
-		$introduction = DI::intro()->selectFirst(['id' => $parameters['id'], 'uid' => $uid]);
+		$introduction = DI::intro()->selectOneById($parameters['id'], $uid);
 
-		$contactId = $introduction->{'contact-id'};
+		$contactId = $introduction->cid;
 
 		switch ($parameters['action']) {
 			case 'authorize':
-				$introduction->confirm();
-
+				Contact\Introduction::confirm($introduction);
 				$relationship = DI::mstdnRelationship()->createFromContactId($contactId, $uid);
+
+				DI::intro()->delete($introduction);
 				break;
 			case 'ignore':
 				$introduction->ignore();
-
 				$relationship = DI::mstdnRelationship()->createFromContactId($contactId, $uid);
+
+				DI::intro()->save($introduction);
 				break;
 			case 'reject':
-				$introduction->discard();
-
+				Contact\Introduction::discard($introduction);
 				$relationship = DI::mstdnRelationship()->createFromContactId($contactId, $uid);
+
+				DI::intro()->delete($introduction);
 				break;
 			default:
 				throw new HTTPException\BadRequestException('Unexpected action parameter, expecting "authorize", "ignore" or "reject"');
@@ -92,13 +95,7 @@ class FollowRequests extends BaseApi
 			'limit'  => 40, // Maximum number of results to return. Defaults to 40. Paginate using the HTTP Link header.
 		]);
 
-		$introductions = DI::intro()->selectByBoundaries(
-			['`uid` = ? AND NOT `ignore`', $uid],
-			['order' => ['id' => 'DESC']],
-			$request['min_id'],
-			$request['max_id'],
-			$request['limit']
-		);
+		$introductions = DI::intro()->selectForUser($uid, $request['min_id'], $request['max_id'], $request['limit']);
 
 		$return = [];
 
