@@ -92,6 +92,8 @@ class Crop extends BaseSettings
 					$Image->scaleDown(300);
 				}
 
+				$condition = ['resource-id' => $resource_id, 'uid' => local_user(), 'contact-id' => 0];
+
 				$r = Photo::store(
 					$Image,
 					local_user(),
@@ -105,7 +107,7 @@ class Crop extends BaseSettings
 				if ($r === false) {
 					notice(DI::l10n()->t('Image size reduction [%s] failed.', '300'));
 				} else {
-					Photo::update(['profile' => true], ['id' => $r['id']]);
+					Photo::update(['profile' => true], array_merge($condition, ['scale' => 4]));
 				}
 
 				$Image->scaleDown(80);
@@ -123,7 +125,7 @@ class Crop extends BaseSettings
 				if ($r === false) {
 					notice(DI::l10n()->t('Image size reduction [%s] failed.', '80'));
 				} else {
-					Photo::update(['profile' => true], ['id' => $r['id']]);
+					Photo::update(['profile' => true], array_merge($condition, ['scale' => 5]));
 				}
 
 				$Image->scaleDown(48);
@@ -141,7 +143,7 @@ class Crop extends BaseSettings
 				if ($r === false) {
 					notice(DI::l10n()->t('Image size reduction [%s] failed.', '48'));
 				} else {
-					Photo::update(['profile' => true], ['id' => $r['id']]);
+					Photo::update(['profile' => true], array_merge($condition, ['scale' => 6]));
 				}
 
 				Contact::updateSelfFromUserID(local_user(), true);
