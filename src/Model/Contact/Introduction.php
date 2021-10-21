@@ -111,23 +111,6 @@ class Introduction
 	 */
 	public static function discard(Entity\Introduction $introduction): void
 	{
-		// If it is a friend suggestion, the contact is not a new friend but an existing friend
-		// that should not be deleted.
-		if (!$introduction->fid) {
-			// When the contact entry had been created just for that intro, we want to get rid of it now
-			$condition = [
-				'id'      => $introduction->cid,
-				'uid'     => $introduction->uid,
-				'self'    => false,
-				'pending' => true,
-				'rel'     => [0, Contact::FOLLOWER]];
-			if (DI::dba()->exists('contact', $condition)) {
-				Contact::remove($introduction->cid);
-			} else {
-				Contact::update(['pending' => false], ['id' => $introduction->cid]);
-			}
-		}
-
 		$contact = Contact::selectFirst([], ['id' => $introduction->cid, 'uid' => $introduction->uid]);
 		if (!empty($contact)) {
 			if (!empty($contact['protocol'])) {
