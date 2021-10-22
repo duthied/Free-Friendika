@@ -23,25 +23,32 @@ class FriendSuggestTest extends MockedTest
 					'note'    => 'a common note',
 					'created' => '2021-10-12 12:23:00'
 				],
-				'assertion' => [
-					'uid'     => 12,
-					'cid'     => 13,
-					'name'    => 'test',
-					'url'     => 'https://friendica.local/profile/test',
-					'request' => 'https://friendica.local/dfrn_request/test',
-					'photo'   => 'https://friendica.local/photo/profile/test',
-					'note'    => 'a common note',
-					'created' => new \DateTime('2021-10-12 12:23:00', new \DateTimeZone('UTC')),
-					'id'      => null,
-				],
+				'assertion' => new Entity\FriendSuggest(
+					12,
+					13,
+					'test',
+					'https://friendica.local/profile/test',
+					'https://friendica.local/dfrn_request/test',
+					'https://friendica.local/photo/profile/test',
+					'a common note',
+					new \DateTime('2021-10-12 12:23:00', new \DateTimeZone('UTC'))
+				),
 			],
 			'minimum' => [
 				'input' => [
 					'id' => 20,
 				],
-				'assertion' => [
-					'id' => 20,
-				]
+				'assertion' => new Entity\FriendSuggest(
+					0,
+					0,
+					'',
+					'',
+					'',
+					'',
+					'',
+					new \DateTime('now', new \DateTimeZone('URC')),
+					28
+				),
 			],
 			'full' => [
 				'input' => [
@@ -55,49 +62,49 @@ class FriendSuggestTest extends MockedTest
 					'created' => '2021-10-12 12:23:00',
 					'id'      => 666,
 				],
-				'assertion' => [
-					'uid'     => 12,
-					'cid'     => 13,
-					'name'    => 'test',
-					'url'     => 'https://friendica.local/profile/test',
-					'request' => 'https://friendica.local/dfrn_request/test',
-					'photo'   => 'https://friendica.local/photo/profile/test',
-					'note'    => 'a common note',
-					'created' => new \DateTime('2021-10-12 12:23:00', new \DateTimeZone('UTC')),
-					'id'      => 666,
-				],
+				'assertion' => new Entity\FriendSuggest(
+					12,
+					13,
+					'test',
+					'https://friendica.local/profile/test',
+					'https://friendica.local/dfrn_request/test',
+					'https://friendica.local/photo/profile/test',
+					'a common note',
+					new \DateTime('2021-10-12 12:23:00', new \DateTimeZone('UTC')),
+					666
+				),
 			],
 		];
 	}
 
-	public function assertFriendSuggest(Entity\FriendSuggest $friendSuggest, array $assertion)
+	public function assertFriendSuggest(Entity\FriendSuggest $assertion, Entity\FriendSuggest $friendSuggest)
 	{
-		self::assertEquals($assertion['id'] ?? null, $friendSuggest->id);
-		self::assertEquals($assertion['uid'] ?? 0, $friendSuggest->uid);
-		self::assertEquals($assertion['cid'] ?? 0, $friendSuggest->cid);
-		self::assertEquals($assertion['name'] ?? '', $friendSuggest->name);
-		self::assertEquals($assertion['url'] ?? '', $friendSuggest->url);
-		self::assertEquals($assertion['request'] ?? '', $friendSuggest->request);
-		self::assertEquals($assertion['photo'] ?? '', $friendSuggest->photo);
-		self::assertEquals($assertion['note'] ?? '', $friendSuggest->note);
-		if (empty($assertion['created'])) {
-			self::assertInstanceOf(\DateTime::class, $friendSuggest->created);
-		} else {
-			self::assertEquals($assertion['created'], $friendSuggest->created);
-		}
+		self::assertEquals($assertion->id, $friendSuggest->id);
+		self::assertEquals($assertion->uid, $friendSuggest->uid);
+		self::assertEquals($assertion->cid, $friendSuggest->cid);
+		self::assertEquals($assertion->name, $friendSuggest->name);
+		self::assertEquals($assertion->url, $friendSuggest->url);
+		self::assertEquals($assertion->request, $friendSuggest->request);
+		self::assertEquals($assertion->photo, $friendSuggest->photo);
+		self::assertEquals($assertion->note, $friendSuggest->note);
 	}
 
 	public function testCreateNew()
 	{
 		$factory = new FriendSuggest(new VoidLogger());
 
-		$this->assertFriendSuggest($factory->createNew(12, 13), ['uid' => 12, 'cid' => 13]);
+		$this->assertFriendSuggest(
+			$factory->createNew(12, 13),
+			new Entity\FriendSuggest(12, 13, '', '', '', '', '',
+				new \DateTime('now', new \DateTimeZone('UTC')), null
+			)
+		);
 	}
 
 	/**
 	 * @dataProvider dataCreate
 	 */
-	public function testCreateFromTableRow(array $input, array $assertion)
+	public function testCreateFromTableRow(array $input, Entity\FriendSuggest $assertion)
 	{
 		$factory = new FriendSuggest(new VoidLogger());
 
@@ -108,6 +115,8 @@ class FriendSuggestTest extends MockedTest
 	{
 		$factory = new FriendSuggest(new VoidLogger());
 
-		$this->assertFriendSuggest($factory->createEmpty(66), ['id' => 66]);
+		$this->assertFriendSuggest($factory->createEmpty(66), new Entity\FriendSuggest(0, 0, '', '', '', '', '',
+			new \DateTime('now', new \DateTimeZone('UTC')), 66
+		));
 	}
 }
