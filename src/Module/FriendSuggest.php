@@ -93,7 +93,7 @@ class FriendSuggest extends BaseModule
 			DI::baseUrl()->redirect();
 		}
 
-		$contacts = ContactModel::selectToArray(['id', 'name'], [
+		$suggestableContacts = ContactModel::selectToArray(['id', 'name'], [
 			'`uid` = ? 
 			AND `id` != ? 
 			AND `network` = ? 
@@ -110,8 +110,8 @@ class FriendSuggest extends BaseModule
 
 		$formattedContacts = [];
 
-		foreach ($contacts as $contact) {
-			$formattedContacts[$contact['id']] = $contact['name'];
+		foreach ($suggestableContacts as $suggestableContact) {
+			$formattedContacts[$suggestableContact['id']] = $suggestableContact['name'];
 		}
 
 		$tpl = Renderer::getMarkupTemplate('fsuggest.tpl');
