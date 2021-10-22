@@ -36,17 +36,18 @@ doSomething($intros);
 ```
 
 After:
+
 ```php
-function doSomething(\Friendica\Collection\Introductions $intros)
+function doSomething(\Friendica\Contact\Introductions\Collection\Introductions $intros)
 {
     foreach ($intros as $intro) {
-        /** @var $intro \Friendica\Model\Introduction */
+        /** @var $intro \Friendica\Contact\Introductions\Entity\Introduction */
         $introId = $intro->id;
     }
 }
 
-/** @var $intros \Friendica\Collection\Introductions */
-$intros = \Friendica\DI::intro()->select(['uid' => local_user()]);
+/** @var $intros \Friendica\Contact\Introductions\Collection\Introductions */
+$intros = \Friendica\DI::intro()->selecForUser(local_user());
 
 doSomething($intros);
 ```

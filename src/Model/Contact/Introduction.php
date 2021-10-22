@@ -19,64 +19,43 @@
  *
  */
 
-namespace Friendica\Model;
+namespace Friendica\Model\Contact;
 
-use Friendica\BaseModel;
+use Friendica\Contact\Introduction\Entity;
 use Friendica\Core\Protocol;
-use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Network\HTTPException;
+use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
-use Friendica\Repository;
 use Friendica\Util\DateTimeFormat;
-use Psr\Log\LoggerInterface;
 
-/**
- * @property int    uid
- * @property int    fid
- * @property int    contact-id
- * @property bool   knowyou
- * @property bool   duplex
- * @property string note
- * @property string hash
- * @property string datetime
- * @property bool   blocked
- * @property bool   ignore
- */
-class Introduction extends BaseModel
+class Introduction
 {
-	/** @var Repository\Introduction */
-	protected $intro;
-
-	public function __construct(Database $dba, LoggerInterface $logger, Repository\Introduction $intro, array $data = [])
-	{
-		parent::__construct($dba, $logger, $data);
-
-		$this->intro = $intro;
-	}
-
 	/**
 	 * Confirms a follow request and sends a notice to the remote contact.
 	 *
-	 * @param bool               $duplex       Is it a follow back?
-	 * @param bool|null          $hidden       Should this contact be hidden? null = no change
-	 * @return bool
+	 * @param Entity\Introduction $introduction
+	 * @param bool                $duplex       Is it a follow back?
+	 * @param bool|null           $hidden       Should this contact be hidden? null = no change
+	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public function confirm(bool $duplex = false, bool $hidden = null)
+	public static function confirm(Entity\Introduction $introduction, bool $duplex = false, ?bool $hidden = null): void
 	{
-		$this->logger->info('Confirming follower', ['cid' => $this->{'contact-id'}]);
+		DI::logger()->info('Confirming follower', ['cid' => $introduction->cid]);
 
-		$contact = Contact::selectFirst([], ['id' => $this->{'contact-id'}, 'uid' => $this->uid]);
+		$contact = Contact::selectFirst([], ['id' => $introduction->cid, 'uid' => $introduction->uid]);
 
 		if (!$contact) {
 			throw new HTTPException\NotFoundException('Contact record not found.');
 		}
 
 		$newRelation = $contact['rel'];
-		$writable = $contact['writable'];
+		$writable    = $contact['writable'];
 
 		if (!empty($contact['protocol'])) {
 			$protocol = $contact['protocol'];
@@ -117,53 +96,24 @@ class Introduction extends BaseModel
 		if ($newRelation == Contact::FRIEND) {
 			if ($protocol == Protocol::DIASPORA) {
 				$ret = Diaspora::sendShare(User::getById($contact['uid']), $contact);
-				$this->logger->info('share returns', ['return' => $ret]);
+				DI::logger()->info('share returns', ['return' => $ret]);
 			} elseif ($protocol == Protocol::ACTIVITYPUB) {
 				ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $contact['uid']);
 			}
 		}
-
-		return $this->intro->delete($this);
-	}
-
-	/**
-	 * Silently ignores the introduction, hides it from notifications and prevents the remote contact from submitting
-	 * additional follow requests.
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function ignore()
-	{
-		$this->ignore = true;
-
-		return $this->intro->update($this);
 	}
 
 	/**
 	 * Discards the introduction and sends a rejection message to AP contacts.
 	 *
-	 * @return bool
+	 * @param Entity\Introduction $introduction
+	 *
 	 * @throws HTTPException\InternalServerErrorException
-	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public function discard()
+	public static function discard(Entity\Introduction $introduction): void
 	{
-		// If it is a friend suggestion, the contact is not a new friend but an existing friend
-		// that should not be deleted.
-		if (!$this->fid) {
-			// When the contact entry had been created just for that intro, we want to get rid of it now
-			$condition = ['id' => $this->{'contact-id'}, 'uid' => $this->uid,
-				'self' => false, 'pending' => true, 'rel' => [0, Contact::FOLLOWER]];
-			if ($this->dba->exists('contact', $condition)) {
-				Contact::remove($this->{'contact-id'});
-			} else {
-				Contact::update(['pending' => false], ['id' => $this->{'contact-id'}]);
-			}
-		}
-
-		$contact = Contact::selectFirst([], ['id' => $this->{'contact-id'}, 'uid' => $this->uid]);
+		$contact = Contact::selectFirst([], ['id' => $introduction->cid, 'uid' => $introduction->uid]);
 		if (!empty($contact)) {
 			if (!empty($contact['protocol'])) {
 				$protocol = $contact['protocol'];
@@ -175,7 +125,5 @@ class Introduction extends BaseModel
 				ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $contact['uid']);
 			}
 		}
-
-		return $this->intro->delete($this);
 	}
 }

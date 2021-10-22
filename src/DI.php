@@ -435,11 +435,19 @@ abstract class DI
 	}
 
 	/**
-	 * @return Repository\Introduction
+	 * @return Contact\Introduction\Depository\Introduction
 	 */
 	public static function intro()
 	{
-		return self::$dice->create(Repository\Introduction::class);
+		return self::$dice->create(Contact\Introduction\Depository\Introduction::class);
+	}
+
+	/**
+	 * @return Contact\Introduction\Factory\Introduction
+	 */
+	public static function introFactory()
+	{
+		return self::$dice->create(Contact\Introduction\Factory\Introduction::class);
 	}
 
 	public static function permissionSet(): Security\PermissionSet\Depository\PermissionSet

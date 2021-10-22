@@ -5,8 +5,8 @@ namespace Friendica\Module;
 use Friendica\Core\Hook;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Item;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 
@@ -32,6 +32,10 @@ class PermissionTooltip extends \Friendica\BaseModule
 		} else {
 			$fields = ['uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
 			$model = DBA::selectFirst($type, $fields, $condition);
+			$model['allow_cid'] = DI::aclFormatter()->expand($model['allow_cid']);
+			$model['allow_gid'] = DI::aclFormatter()->expand($model['allow_gid']);
+			$model['deny_cid']  = DI::aclFormatter()->expand($model['deny_cid']);
+			$model['deny_gid']  = DI::aclFormatter()->expand($model['deny_gid']);
 		}
 
 		if (!DBA::isResult($model)) {

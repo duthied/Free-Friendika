@@ -225,7 +225,7 @@ function frio_remote_nav(App $a, array &$nav_info)
 		$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
 		$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
 		$nav_info['nav']['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
-		$nav_info['nav']['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
+		$nav_info['nav']['usermenu'][] = [$server_url . '/media/' . $remoteUser['nick'], DI::l10n()->t('Media'), '', DI::l10n()->t('Your postings with media')];
 		$nav_info['nav']['usermenu'][] = [$server_url . '/events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
 
 		// navbar links

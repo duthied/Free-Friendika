@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\App\BaseURL;
+use Friendica\Contact\Introduction\Exception\IntroductionNotFoundException;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -1085,9 +1086,11 @@ class Contact
 			];
 
 			if (!empty($contact['pending'])) {
-				$intro = DBA::selectFirst('intro', ['id'], ['contact-id' => $contact['id']]);
-				if (DBA::isResult($intro)) {
-					$menu['follow'] = [DI::l10n()->t('Approve'), 'notifications/intros/' . $intro['id'], true];
+				try {
+					$intro = DI::intro()->selectForContact($contact['id']);
+					$menu['follow'] = [DI::l10n()->t('Approve'), 'notifications/intros/' . $intro->id, true];
+				} catch (IntroductionNotFoundException $exception) {
+					DI::logger()->error('Pending contact doesn\'t have an introduction.', ['exception' => $exception]);
 				}
 			}
 		}
@@ -2706,12 +2709,13 @@ class Contact
 			$user = DBA::selectFirst('user', $fields, ['uid' => $importer['uid']]);
 			if (DBA::isResult($user) && !in_array($user['page-flags'], [User::PAGE_FLAGS_SOAPBOX, User::PAGE_FLAGS_FREELOVE, User::PAGE_FLAGS_COMMUNITY])) {
 				// create notification
-				$hash = Strings::getRandomHex();
-
 				if (is_array($contact_record)) {
-					DBA::insert('intro', ['uid' => $importer['uid'], 'contact-id' => $contact_record['id'],
-								'blocked' => false, 'knowyou' => false, 'note' => $note,
-								'hash' => $hash, 'datetime' => DateTimeFormat::utcNow()]);
+					$intro = DI::introFactory()->createNew(
+						$importer['uid'],
+						$contact_record['id'],
+						$note
+					);
+					DI::intro()->save($intro);
 				}
 
 				Group::addMember(User::getDefaultGroup($importer['uid'], $contact_record["network"]), $contact_record['id']);

@@ -23,9 +23,9 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
+use Friendica\Contact\Introduction\Entity\Introduction;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
-use Friendica\Model\Introduction;
 use Friendica\Network\HTTPException;
 use ImagickException;
 use Psr\Log\LoggerInterface;
@@ -49,7 +49,7 @@ class FollowRequest extends BaseFactory
 	 */
 	public function createFromIntroduction(Introduction $introduction): \Friendica\Object\Api\Mastodon\FollowRequest
 	{
-		$cdata = Contact::getPublicAndUserContactID($introduction->{'contact-id'}, $introduction->uid);
+		$cdata = Contact::getPublicAndUserContactID($introduction->cid, $introduction->uid);
 
 		if (empty($cdata)) {
 			$this->logger->warning('Wrong introduction data', ['Introduction' => $introduction]);

@@ -485,9 +485,9 @@ class Notify extends BaseDepository
 	private function storeAndSend($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $body, $itemlink, $show_in_notification_page)
 	{
 		$item_id = $params['item']['id'] ?? 0;
-		$uri_id = $params['item']['uri-id'] ?? 0;
+		$uri_id = $params['item']['uri-id'] ?? null;
 		$parent_id = $params['item']['parent'] ?? 0;
-		$parent_uri_id = $params['item']['parent-uri-id'] ?? 0;
+		$parent_uri_id = $params['item']['parent-uri-id'] ?? null;
 
 		// Ensure that the important fields are set at any time
 		$fields = ['nickname'];
@@ -564,7 +564,7 @@ class Notify extends BaseDepository
 
 				// Is this the first email notification for this parent item and user?
 				if (!DBA::exists('notify-threads', ['master-parent-uri-id' => $parent_uri_id, 'receiver-uid' => $params['uid']])) {
-					$this->logger->log("notify_id:" . intval($notify_id) . ", parent: " . intval($params['parent']) . "uid: " . intval($params['uid']), $this->logger->DEBUG);
+					$this->logger->info("notify_id:" . intval($notify_id) . ", parent: " . intval($params['parent']) . "uid: " . intval($params['uid']));
 
 					$fields = ['notify-id' => $notify_id, 'master-parent-uri-id' => $parent_uri_id,
 						'receiver-uid' => $params['uid'], 'parent-item' => 0];
@@ -573,12 +573,12 @@ class Notify extends BaseDepository
 					$emailBuilder->setHeader('Message-ID', $message_id);
 					$log_msg = "include/enotify: No previous notification found for this parent:\n" .
 						"  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
-					$this->logger->log($log_msg, $this->logger->DEBUG);
+					$this->logger->info($log_msg);
 				} else {
 					// If not, just "follow" the thread.
 					$emailBuilder->setHeader('References', $message_id);
 					$emailBuilder->setHeader('In-Reply-To', $message_id);
-					$this->logger->log("There's already a notification for this parent.", $this->logger->DEBUG);
+					$this->logger->info("There's already a notification for this parent.");
 				}
 			}
 

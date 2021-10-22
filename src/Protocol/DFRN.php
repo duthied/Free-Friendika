@@ -1352,7 +1352,7 @@ class DFRN
 		}
 
 		// Quit if we already have an introduction for this person
-		if (DBA::exists('intro', ['uid' => $uid, 'suggest-cid' => $cid])) {
+		if (DI::intro()->suggestionExistsForUser($cid, $uid)) {
 			return false;
 		}
 
@@ -1366,10 +1366,13 @@ class DFRN
 		$suggest['title'] = '';
 		$suggest['body'] = $note;
 
-		$hash = Strings::getRandomHex();
-		$fields = ['uid' => $suggest['uid'], 'suggest-cid' => $cid, 'contact-id' => $suggest['cid'],
-			'note' => $suggest['body'], 'hash' => $hash, 'datetime' => DateTimeFormat::utcNow(), 'blocked' => false];
-		DBA::insert('intro', $fields);
+		DI::intro()->save(DI::introFactory()->createNew(
+			$suggest['uid'],
+			$suggest['cid'],
+			$suggest['body'],
+			null,
+			$cid
+		));
 
 		DI::notify()->createFromArray([
 			'type'  => Notification\Type::SUGGEST,
