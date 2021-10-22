@@ -29,6 +29,7 @@ use Friendica\Contact\FriendSuggest\Exception\FriendSuggestPersistenceException;
 use Friendica\Contact\FriendSuggest\Factory;
 use Friendica\Database\Database;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
 class FriendSuggest extends BaseRepository
@@ -53,6 +54,7 @@ class FriendSuggest extends BaseRepository
 			'request' => $fsuggest->request,
 			'photo'   => $fsuggest->photo,
 			'note'    => $fsuggest->note,
+			'created' => $fsuggest->created->format(DateTimeFormat::MYSQL),
 		];
 	}
 
