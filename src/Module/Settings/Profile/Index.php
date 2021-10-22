@@ -132,6 +132,8 @@ class Index extends BaseSettings
 			notice(DI::l10n()->t('Profile couldn\'t be updated.'));
 			return;
 		}
+
+		DI::baseUrl()->redirect('settings/profile');
 	}
 
 	public static function content(array $parameters = [])
