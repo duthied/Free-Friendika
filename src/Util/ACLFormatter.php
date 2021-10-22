@@ -38,7 +38,7 @@ final class ACLFormatter
 	public function expand(string $acl_string = null)
 	{
 		// In case there is no ID list, return empty array (=> no ACL set)
-		if (!isset($acl_string)) {
+		if (empty($acl_string)) {
 			return [];
 		}
 
