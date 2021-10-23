@@ -60,6 +60,7 @@ $dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config
 $dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['daemon']]);
 
 DI::init($dice);
+\Friendica\Core\Logger\Handler\ErrorHandler::register($dice->create(\Psr\Log\LoggerInterface::class));
 $a = DI::app();
 
 if (DI::mode()->isInstall()) {
