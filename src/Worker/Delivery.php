@@ -213,7 +213,7 @@ class Delivery
 		// Also transmit via Diaspora if this is a direct answer to a Diaspora comment.
 		// This is done since the uri wouldn't match (Diaspora doesn't transmit it)
 		// Also transmit relayed posts from Diaspora contacts via Diaspora.
-		if (($contact['network'] != Protocol::DIASPORA) && in_array(Protocol::DIASPORA, [$parent['network'] ?? '', $thr_parent['network'] ?? '', $target_item['network']])) {
+		if (($contact['network'] != Protocol::DIASPORA) && in_array(Protocol::DIASPORA, [$parent['network'] ?? '', $thr_parent['network'] ?? '', $target_item['network']] ?? '')) {
 			Logger::info('Enforcing the Diaspora protocol', ['id' => $contact['id'], 'network' => $contact['network'], 'parent' => $parent['network'], 'thread-parent' => $thr_parent['network'], 'post' => $target_item['network']]);
 			$contact['network'] = Protocol::DIASPORA;
 		}
@@ -273,7 +273,7 @@ class Delivery
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup, $server_protocol)
 	{
 		// Transmit Diaspora reshares via Diaspora if the Friendica contact support Diaspora
-		if (Diaspora::isReshare($target_item['body']) && !empty(FContact::getByURL($contact['addr'], false))) {
+		if (Diaspora::isReshare($target_item['body'] ?? '') && !empty(FContact::getByURL($contact['addr'], false))) {
 			Logger::info('Reshare will be transmitted via Diaspora', ['url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
 			self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 			return;
