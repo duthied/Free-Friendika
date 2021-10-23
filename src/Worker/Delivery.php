@@ -67,12 +67,12 @@ class Delivery
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
 			try {
-				$target_item = DI::fsuggest()->selectOneById($post_uriid);
+				$target_item = DI::fsuggest()->selectOneById($post_uriid)->toArray();
 			} catch (FriendSuggestNotFoundException $e) {
 				DI::logger()->info('Cannot find FriendSuggestion', ['id' => $post_uriid]);
 				return;
 			}
-			$uid = $target_item->uid;
+			$uid = $target_item['uid'];
 		} elseif ($cmd == self::RELOCATION) {
 			$uid = $post_uriid;
 			$target_item = [];
