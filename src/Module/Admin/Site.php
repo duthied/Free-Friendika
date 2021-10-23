@@ -331,7 +331,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'allow_users_remote_self', $allow_users_remote_self);
 		DI::config()->set('system', 'explicit_content'       , $explicit_content);
 		DI::config()->set('system', 'proxify_content'        , $proxify_content);
-		DI::config()->set('system', 'cache_contact_avatar'        , $cache_contact_avatar);
+		DI::config()->set('system', 'cache_contact_avatar'   , $cache_contact_avatar);
 		DI::config()->set('system', 'check_new_version_url'  , $check_new_version_url);
 
 		DI::config()->set('system', 'block_extended_register', !$enable_multi_reg);
