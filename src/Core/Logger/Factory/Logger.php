@@ -32,11 +32,11 @@ use Friendica\Core\Logger\Type\Monolog\IntrospectionProcessor;
 use Friendica\Core\Logger\Type\ProfilerLogger;
 use Friendica\Core\Logger\Type\StreamLogger;
 use Friendica\Core\Logger\Type\SyslogLogger;
-use Friendica\Core\Logger\Type\VoidLogger;
 use Friendica\Util\Profiler;
 use Monolog;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Psr\Log\NullLogger;
 
 /**
  * A logger factory
@@ -78,7 +78,7 @@ class Logger
 	public function create(Database $database, IManageConfigValues $config, Profiler $profiler, FileSystem $fileSystem): LoggerInterface
 	{
 		if (empty($config->get('system', 'debugging', false))) {
-			$logger = new VoidLogger();
+			$logger = new NullLogger();
 			$database->setLogger($logger);
 			return $logger;
 		}
@@ -107,7 +107,7 @@ class Logger
 					} catch (\Throwable $e) {
 						// No Logger ..
 						/// @todo isn't it possible to give the admin any hint about this wrong configuration?
-						$logger = new VoidLogger();
+						$logger = new NullLogger();
 					}
 				}
 				break;
@@ -118,7 +118,7 @@ class Logger
 				} catch (\Throwable $e) {
 					// No logger ...
 					/// @todo isn't it possible to give the admin any hint about this wrong configuration?
-					$logger = new VoidLogger();
+					$logger = new NullLogger();
 				}
 				break;
 
@@ -132,11 +132,11 @@ class Logger
 					} catch (\Throwable $t) {
 						// No logger ...
 						/// @todo isn't it possible to give the admin any hint about this wrong configuration?
-						$logger = new VoidLogger();
+						$logger = new NullLogger();
 					}
 				} else {
 					/// @todo isn't it possible to give the admin any hint about this wrong configuration?
-					$logger = new VoidLogger();
+					$logger = new NullLogger();
 				}
 				break;
 		}
@@ -175,7 +175,7 @@ class Logger
 
 		if ((!isset($developerIp) || !$debugging) &&
 			(!is_file($stream) || is_writable($stream))) {
-			return new VoidLogger();
+			return new NullLogger();
 		}
 
 		$loggerTimeZone = new \DateTimeZone('UTC');
