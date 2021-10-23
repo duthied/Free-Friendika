@@ -1,13 +1,13 @@
 <?php
 
-namespace Friendica\Network;
+namespace Friendica\Network\HTTPClient\Capability;
 
 use Psr\Http\Message\MessageInterface;
 
 /**
  * Temporary class to map Friendica used variables based on PSR-7 HTTPResponse
  */
-interface IHTTPResult
+interface ICanHandleHttpResponses
 {
 	/**
 	 * Gets the Return Code
@@ -25,13 +25,14 @@ interface IHTTPResult
 
 	/**
 	 * Returns the headers
-	 * @see MessageInterface::getHeader()
 	 *
 	 * @param string $header optional header field. Return all fields if empty
 	 *
 	 * @return string[] the headers or the specified content of the header variable
+	 *@see MessageInterface::getHeader()
+	 *
 	 */
-	public function getHeader($header);
+	public function getHeader(string $header);
 
 	/**
 	 * Returns all headers

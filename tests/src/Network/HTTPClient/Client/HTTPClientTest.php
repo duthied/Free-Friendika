@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\src\Network;
+namespace Friendica\Test\src\Network\HTTPClient\Client;
 
 use Friendica\DI;
 use Friendica\Test\DiceHttpMockHandlerTrait;

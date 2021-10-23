@@ -25,8 +25,8 @@ namespace Friendica\Core;
 use Dice\Dice;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\DI;
-use Friendica\Network\IHTTPResult;
-use Friendica\Network\IHTTPClient;
+use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
+use Friendica\Network\HTTPClient\Capability\ICanRequestPerHttp;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
 use Mockery;
@@ -319,7 +319,7 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the CURL Response
-		$IHTTPResult = Mockery::mock(IHTTPResult::class);
+		$IHTTPResult = Mockery::mock(ICanHandleHttpResponses::class);
 		$IHTTPResult
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
@@ -331,7 +331,7 @@ class InstallerTest extends MockedTest
 			->andReturn('test Error');
 
 		// Mocking the CURL Request
-		$networkMock = Mockery::mock(IHTTPClient::class);
+		$networkMock = Mockery::mock(ICanRequestPerHttp::class);
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
@@ -342,7 +342,7 @@ class InstallerTest extends MockedTest
 			->andReturn($IHTTPResult);
 
 		$this->dice->shouldReceive('create')
-		     ->with(IHTTPClient::class)
+		     ->with(ICanRequestPerHttp::class)
 		     ->andReturn($networkMock);
 
 		DI::init($this->dice);
@@ -366,19 +366,19 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the failed CURL Response
-		$IHTTPResultF = Mockery::mock(IHTTPResult::class);
+		$IHTTPResultF = Mockery::mock(ICanHandleHttpResponses::class);
 		$IHTTPResultF
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
 
 		// Mocking the working CURL Response
-		$IHTTPResultW = Mockery::mock(IHTTPResult::class);
+		$IHTTPResultW = Mockery::mock(ICanHandleHttpResponses::class);
 		$IHTTPResultW
 			->shouldReceive('getReturnCode')
 			->andReturn('204');
 
 		// Mocking the CURL Request
-		$networkMock = Mockery::mock(IHTTPClient::class);
+		$networkMock = Mockery::mock(ICanRequestPerHttp::class);
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
@@ -389,7 +389,7 @@ class InstallerTest extends MockedTest
 			->andReturn($IHTTPResultW);
 
 		$this->dice->shouldReceive('create')
-		           ->with(IHTTPClient::class)
+		           ->with(ICanRequestPerHttp::class)
 		           ->andReturn($networkMock);
 
 		DI::init($this->dice);

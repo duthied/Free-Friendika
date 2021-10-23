@@ -19,17 +19,17 @@
  *
  */
 
-namespace Friendica\Network;
+namespace Friendica\Network\HTTPClient\Response;
 
 use Friendica\Core\Logger;
-use Friendica\Core\System;
+use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Network;
 
 /**
  * A content class for Curl call results
  */
-class CurlResult implements IHTTPResult
+class CurlResult implements ICanHandleHttpResponses
 {
 	/**
 	 * @var int HTTP return code or 0 if timeout or failure
@@ -101,35 +101,36 @@ class CurlResult implements IHTTPResult
 	 *
 	 * @param string $url optional URL
 	 *
-	 * @return IHTTPResult a CURL with error response
+	 * @return ICanHandleHttpResponses a CURL with error response
 	 * @throws InternalServerErrorException
 	 */
-	public static function createErrorCurl($url = '')
+	public static function createErrorCurl(string $url = '')
 	{
 		return new CurlResult($url, '', ['http_code' => 0]);
 	}
 
 	/**
 	 * Curl constructor.
-	 * @param string $url the URL which was called
-	 * @param string $result the result of the curl execution
-	 * @param array $info an additional info array
-	 * @param int $errorNumber the error number or 0 (zero) if no error
-	 * @param string $error the error message or '' (the empty string) if no
+	 *
+	 * @param string $url         the URL which was called
+	 * @param string $result      the result of the curl execution
+	 * @param array  $info        an additional info array
+	 * @param int    $errorNumber the error number or 0 (zero) if no error
+	 * @param string $error       the error message or '' (the empty string) if no
 	 *
 	 * @throws InternalServerErrorException when HTTP code of the CURL response is missing
 	 */
-	public function __construct($url, $result, $info, $errorNumber = 0, $error = '')
+	public function __construct(string $url, string $result, array $info, int $errorNumber = 0, string $error = '')
 	{
 		if (!array_key_exists('http_code', $info)) {
 			throw new InternalServerErrorException('CURL response doesn\'t contains a response HTTP code');
 		}
 
-		$this->returnCode = $info['http_code'];
-		$this->url = $url;
-		$this->info = $info;
+		$this->returnCode  = $info['http_code'];
+		$this->url         = $url;
+		$this->info        = $info;
 		$this->errorNumber = $errorNumber;
-		$this->error = $error;
+		$this->error       = $error;
 
 		Logger::debug('construct', ['url' => $url, 'returncode' => $this->returnCode, 'result' => $result]);
 
@@ -145,15 +146,15 @@ class CurlResult implements IHTTPResult
 		// allow for HTTP/2.x without fixing code
 
 		$header = '';
-		$base = $result;
+		$base   = $result;
 		while (preg_match('/^HTTP\/.+? \d+/', $base)) {
 			$chunk = substr($base, 0, strpos($base, "\r\n\r\n") + 4);
 			$header .= $chunk;
 			$base = substr($base, strlen($chunk));
 		}
 
-		$this->body = substr($result, strlen($header));
-		$this->header = $header;
+		$this->body          = substr($result, strlen($header));
+		$this->header        = $header;
 		$this->header_fields = []; // Is filled on demand
 	}
 
@@ -185,7 +186,7 @@ class CurlResult implements IHTTPResult
 			$this->redirectUrl = $this->info['url'];
 		}
 
-		if ($this->returnCode == 301 || $this->returnCode == 302 || $this->returnCode == 303 || $this->returnCode== 307) {
+		if ($this->returnCode == 301 || $this->returnCode == 302 || $this->returnCode == 303 || $this->returnCode == 307) {
 			$redirect_parts = parse_url($this->info['redirect_url'] ?? '');
 			if (empty($redirect_parts)) {
 				$redirect_parts = [];
@@ -229,19 +230,19 @@ class CurlResult implements IHTTPResult
 	}
 
 	/** {@inheritDoc} */
-	public function getReturnCode()
+	public function getReturnCode(): string
 	{
 		return $this->returnCode;
 	}
 
 	/** {@inheritDoc} */
-	public function getContentType()
+	public function getContentType(): string
 	{
 		return $this->contentType;
 	}
 
 	/** {@inheritDoc} */
-	public function getHeader($header)
+	public function getHeader(string $header): array
 	{
 		if (empty($header)) {
 			return [];
@@ -259,13 +260,13 @@ class CurlResult implements IHTTPResult
 	}
 
 	/** {@inheritDoc} */
-	public function getHeaders()
+	public function getHeaders(): array
 	{
 		return $this->getHeaderArray();
 	}
 
 	/** {@inheritDoc} */
-	public function inHeader(string $field)
+	public function inHeader(string $field): bool
 	{
 		$field = strtolower(trim($field));
 
@@ -275,7 +276,7 @@ class CurlResult implements IHTTPResult
 	}
 
 	/** {@inheritDoc} */
-	public function getHeaderArray()
+	public function getHeaderArray(): array
 	{
 		if (!empty($this->header_fields)) {
 			return $this->header_fields;
@@ -285,9 +286,9 @@ class CurlResult implements IHTTPResult
 
 		$lines = explode("\n", trim($this->header));
 		foreach ($lines as $line) {
-			$parts = explode(':', $line);
+			$parts       = explode(':', $line);
 			$headerfield = strtolower(trim(array_shift($parts)));
-			$headerdata = trim(implode(':', $parts));
+			$headerdata  = trim(implode(':', $parts));
 			if (empty($this->header_fields[$headerfield])) {
 				$this->header_fields[$headerfield] = [$headerdata];
 			} elseif (!in_array($headerdata, $this->header_fields[$headerfield])) {
@@ -299,49 +300,49 @@ class CurlResult implements IHTTPResult
 	}
 
 	/** {@inheritDoc} */
-	public function isSuccess()
+	public function isSuccess(): bool
 	{
 		return $this->isSuccess;
 	}
 
 	/** {@inheritDoc} */
-	public function getUrl()
+	public function getUrl(): string
 	{
 		return $this->url;
 	}
 
 	/** {@inheritDoc} */
-	public function getRedirectUrl()
+	public function getRedirectUrl(): string
 	{
 		return $this->redirectUrl;
 	}
 
 	/** {@inheritDoc} */
-	public function getBody()
+	public function getBody(): string
 	{
 		return $this->body;
 	}
 
 	/** {@inheritDoc} */
-	public function isRedirectUrl()
+	public function isRedirectUrl(): bool
 	{
 		return $this->isRedirectUrl;
 	}
 
 	/** {@inheritDoc} */
-	public function getErrorNumber()
+	public function getErrorNumber(): int
 	{
 		return $this->errorNumber;
 	}
 
 	/** {@inheritDoc} */
-	public function getError()
+	public function getError(): string
 	{
 		return $this->error;
 	}
 
 	/** {@inheritDoc} */
-	public function isTimeout()
+	public function isTimeout(): bool
 	{
 		return $this->isTimeout;
 	}

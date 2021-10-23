@@ -19,9 +19,14 @@
  *
  */
 
-namespace Friendica\Network;
+namespace Friendica\Network\HTTPClient\Client;
 
 use Friendica\Core\System;
+use Friendica\Network\HTTPClient\Response\CurlResult;
+use Friendica\Network\HTTPClient\Response\GuzzleResponse;
+use Friendica\Network\HTTPClient\Capability\ICanRequestPerHttp;
+use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use GuzzleHttp\Client;
@@ -37,7 +42,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Performs HTTP requests to a given URL
  */
-class HTTPClient implements IHTTPClient
+class HttpClientCan implements ICanRequestPerHttp
 {
 	/** @var LoggerInterface */
 	private $logger;
@@ -59,7 +64,7 @@ class HTTPClient implements IHTTPClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function request(string $method, string $url, array $opts = []): IHTTPResult
+	public function request(string $method, string $url, array $opts = []): ICanHandleHttpResponses
 	{
 		$this->profiler->startRecording('network');
 		$this->logger->debug('Request start.', ['url' => $url, 'method' => $method]);
@@ -95,43 +100,43 @@ class HTTPClient implements IHTTPClient
 
 		$conf = [];
 
-		if (!empty($opts[HTTPClientOptions::COOKIEJAR])) {
-			$jar                           = new FileCookieJar($opts[HTTPClientOptions::COOKIEJAR]);
+		if (!empty($opts[HttpClientOptions::COOKIEJAR])) {
+			$jar                           = new FileCookieJar($opts[HttpClientOptions::COOKIEJAR]);
 			$conf[RequestOptions::COOKIES] = $jar;
 		}
 
 		$headers = [];
 
-		if (!empty($opts[HTTPClientOptions::ACCEPT_CONTENT])) {
-			$headers['Accept'] = $opts[HTTPClientOptions::ACCEPT_CONTENT];
+		if (!empty($opts[HttpClientOptions::ACCEPT_CONTENT])) {
+			$headers['Accept'] = $opts[HttpClientOptions::ACCEPT_CONTENT];
 		}
 
-		if (!empty($opts[HTTPClientOptions::LEGACY_HEADER])) {
+		if (!empty($opts[HttpClientOptions::LEGACY_HEADER])) {
 			$this->logger->notice('Wrong option \'headers\' used.');
-			$headers = array_merge($opts[HTTPClientOptions::LEGACY_HEADER], $headers);
+			$headers = array_merge($opts[HttpClientOptions::LEGACY_HEADER], $headers);
 		}
 
-		if (!empty($opts[HTTPClientOptions::HEADERS])) {
-			$headers = array_merge($opts[HTTPClientOptions::HEADERS], $headers);
+		if (!empty($opts[HttpClientOptions::HEADERS])) {
+			$headers = array_merge($opts[HttpClientOptions::HEADERS], $headers);
 		}
 
 		$conf[RequestOptions::HEADERS] = array_merge($this->client->getConfig(RequestOptions::HEADERS), $headers);
 
-		if (!empty($opts[HTTPClientOptions::TIMEOUT])) {
-			$conf[RequestOptions::TIMEOUT] = $opts[HTTPClientOptions::TIMEOUT];
+		if (!empty($opts[HttpClientOptions::TIMEOUT])) {
+			$conf[RequestOptions::TIMEOUT] = $opts[HttpClientOptions::TIMEOUT];
 		}
 
-		if (!empty($opts[HTTPClientOptions::BODY])) {
-			$conf[RequestOptions::BODY] = $opts[HTTPClientOptions::BODY];
+		if (!empty($opts[HttpClientOptions::BODY])) {
+			$conf[RequestOptions::BODY] = $opts[HttpClientOptions::BODY];
 		}
 
-		if (!empty($opts[HTTPClientOptions::AUTH])) {
-			$conf[RequestOptions::AUTH] = $opts[HTTPClientOptions::AUTH];
+		if (!empty($opts[HttpClientOptions::AUTH])) {
+			$conf[RequestOptions::AUTH] = $opts[HttpClientOptions::AUTH];
 		}
 
 		$conf[RequestOptions::ON_HEADERS] = function (ResponseInterface $response) use ($opts) {
-			if (!empty($opts[HTTPClientOptions::CONTENT_LENGTH]) &&
-				(int)$response->getHeaderLine('Content-Length') > $opts[HTTPClientOptions::CONTENT_LENGTH]) {
+			if (!empty($opts[HttpClientOptions::CONTENT_LENGTH]) &&
+				(int)$response->getHeaderLine('Content-Length') > $opts[HttpClientOptions::CONTENT_LENGTH]) {
 				throw new TransferException('The file is too big!');
 			}
 		};
@@ -159,7 +164,7 @@ class HTTPClient implements IHTTPClient
 
 	/** {@inheritDoc}
 	 */
-	public function head(string $url, array $opts = []): IHTTPResult
+	public function head(string $url, array $opts = []): ICanHandleHttpResponses
 	{
 		return $this->request('head', $url, $opts);
 	}
@@ -167,7 +172,7 @@ class HTTPClient implements IHTTPClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get(string $url, array $opts = []): IHTTPResult
+	public function get(string $url, array $opts = []): ICanHandleHttpResponses
 	{
 		return $this->request('get', $url, $opts);
 	}
@@ -175,18 +180,18 @@ class HTTPClient implements IHTTPClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function post(string $url, $params, array $headers = [], int $timeout = 0): IHTTPResult
+	public function post(string $url, $params, array $headers = [], int $timeout = 0): ICanHandleHttpResponses
 	{
 		$opts = [];
 
-		$opts[HTTPClientOptions::BODY] = $params;
+		$opts[HttpClientOptions::BODY] = $params;
 
 		if (!empty($headers)) {
-			$opts[HTTPClientOptions::HEADERS] = $headers;
+			$opts[HttpClientOptions::HEADERS] = $headers;
 		}
 
 		if (!empty($timeout)) {
-			$opts[HTTPClientOptions::TIMEOUT] = $timeout;
+			$opts[HttpClientOptions::TIMEOUT] = $timeout;
 		}
 
 		return $this->request('post', $url, $opts);
@@ -195,7 +200,7 @@ class HTTPClient implements IHTTPClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function finalUrl(string $url)
+	public function finalUrl(string $url): string
 	{
 		$this->profiler->startRecording('network');
 
@@ -229,7 +234,7 @@ class HTTPClient implements IHTTPClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '')
+	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): string
 	{
 		$ret = $this->fetchFull($url, $timeout, $accept_content, $cookiejar);
 
@@ -239,7 +244,7 @@ class HTTPClient implements IHTTPClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '')
+	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): ICanHandleHttpResponses
 	{
 		return $this->get(
 			$url,

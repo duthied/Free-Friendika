@@ -40,7 +40,7 @@ use Friendica\DI;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Config\Repository;
 use Friendica\Core\Storage\Type;
-use Friendica\Network\HTTPClient;
+use Friendica\Network\HTTPClient\Client\HttpClientCan;
 use Friendica\Test\DatabaseTest;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
@@ -61,7 +61,7 @@ class StorageManagerTest extends DatabaseTest
 	private $logger;
 	/** @var L10n */
 	private $l10n;
-	/** @var HTTPClient */
+	/** @var HttpClientCan */
 	private $httpRequest;
 
 	protected function setUp(): void
@@ -93,7 +93,7 @@ class StorageManagerTest extends DatabaseTest
 
 		$this->l10n = \Mockery::mock(L10n::class);
 
-		$this->httpRequest = \Mockery::mock(HTTPClient::class);
+		$this->httpRequest = \Mockery::mock(HttpClientCan::class);
 	}
 
 	protected function tearDown(): void

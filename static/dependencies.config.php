@@ -224,8 +224,8 @@ return [
 			['getBackend', [], Dice::CHAIN_CALL],
 		],
 	],
-	Network\IHTTPClient::class => [
-		'instanceOf' => Factory\HTTPClientFactory::class,
+	Network\HTTPClient\Capability\ICanRequestPerHttp::class => [
+		'instanceOf' => Network\HTTPClient\Factory\HttpClient::class,
 		'call'       => [
 			['createClient', [], Dice::CHAIN_CALL],
 		],

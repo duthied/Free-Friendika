@@ -19,14 +19,14 @@
  *
  */
 
-namespace Friendica\Network;
+namespace Friendica\Network\HTTPClient\Capability;
 
 use GuzzleHttp\Exception\TransferException;
 
 /**
  * Interface for calling HTTP requests and returning their responses
  */
-interface IHTTPClient
+interface ICanRequestPerHttp
 {
 	/**
 	 * Fetches the content of an URL
@@ -41,7 +41,7 @@ interface IHTTPClient
 	 *
 	 * @return string The fetched content
 	 */
-	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '');
+	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): string;
 
 	/**
 	 * Fetches the whole response of an URL.
@@ -54,12 +54,12 @@ interface IHTTPClient
 	 * @param string $accept_content  supply Accept: header with 'accept_content' as the value
 	 * @param string $cookiejar       Path to cookie jar file
 	 *
-	 * @return IHTTPResult With all relevant information, 'body' contains the actual fetched content.
+	 * @return ICanHandleHttpResponses With all relevant information, 'body' contains the actual fetched content.
 	 */
-	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '');
+	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): ICanHandleHttpResponses;
 
 	/**
-	 * Send a HEAD to an URL.
+	 * Send a HEAD to a URL.
 	 *
 	 * @param string $url        URL to fetch
 	 * @param array  $opts       (optional parameters) associative array with:
@@ -68,9 +68,9 @@ interface IHTTPClient
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
 	 *
-	 * @return CurlResult
+	 * @return ICanHandleHttpResponses
 	 */
-	public function head(string $url, array $opts = []);
+	public function head(string $url, array $opts = []): ICanHandleHttpResponses;
 
 	/**
 	 * Send a GET to an URL.
@@ -83,9 +83,9 @@ interface IHTTPClient
 	 *                           'header' => header array
 	 *                           'content_length' => int maximum File content length
 	 *
-	 * @return IHTTPResult
+	 * @return ICanHandleHttpResponses
 	 */
-	public function get(string $url, array $opts = []);
+	public function get(string $url, array $opts = []): ICanHandleHttpResponses;
 
 	/**
 	 * Sends a HTTP request to a given url
@@ -101,9 +101,9 @@ interface IHTTPClient
 	 *                           'content_length' => int maximum File content length
 	 *                           'auth' => array authentication settings
 	 *
-	 * @return IHTTPResult
+	 * @return ICanHandleHttpResponses
 	 */
-	public function request(string $method, string $url, array $opts = []);
+	public function request(string $method, string $url, array $opts = []): ICanHandleHttpResponses;
 
 	/**
 	 * Send POST request to an URL
@@ -113,9 +113,9 @@ interface IHTTPClient
 	 * @param array  $headers HTTP headers
 	 * @param int    $timeout The timeout in seconds, default system config value or 60 seconds
 	 *
-	 * @return IHTTPResult The content
+	 * @return ICanHandleHttpResponses The content
 	 */
-	public function post(string $url, $params, array $headers = [], int $timeout = 0);
+	public function post(string $url, $params, array $headers = [], int $timeout = 0): ICanHandleHttpResponses;
 
 	/**
 	 * Returns the original URL of the provided URL
@@ -129,5 +129,5 @@ interface IHTTPClient
 	 *
 	 * @throws TransferException In case there's an error during the resolving
 	 */
-	public function finalUrl(string $url);
+	public function finalUrl(string $url): string;
 }

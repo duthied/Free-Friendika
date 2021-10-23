@@ -1,13 +1,13 @@
 <?php
 
-namespace Friendica\Network;
+namespace Friendica\Network\HTTPClient\Client;
 
 use GuzzleHttp\RequestOptions;
 
 /**
  * This class contains a list of possible HTTPClient request options.
  */
-class HTTPClientOptions
+class HttpClientOptions
 {
 	/**
 	 * accept_content: (array) supply Accept: header with 'accept_content' as the value

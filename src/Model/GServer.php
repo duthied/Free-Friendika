@@ -32,8 +32,8 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\Register;
-use Friendica\Network\HTTPClientOptions;
-use Friendica\Network\IHTTPResult;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
+use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -315,7 +315,7 @@ class GServer
 
 		// When a nodeinfo is present, we don't need to dig further
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = DI::httpClient()->get($url . '/.well-known/nodeinfo', [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
+		$curlResult = DI::httpClient()->get($url . '/.well-known/nodeinfo', [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 		if ($curlResult->isTimeout()) {
 			self::setFailure($url);
 			return false;
@@ -323,7 +323,7 @@ class GServer
 
 		// On a redirect follow the new host but mark the old one as failure
 		if ($curlResult->isSuccess() && (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
-			$curlResult = DI::httpClient()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
+			$curlResult = DI::httpClient()->get($url, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 			if (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST)) {
 				Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $curlResult->getRedirectUrl()]);
 				self::setFailure($url);
@@ -359,7 +359,7 @@ class GServer
 					$basedata = ['detection-method' => self::DETECT_MANUAL];
 				}
 
-				$curlResult = DI::httpClient()->get($baseurl, [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
+				$curlResult = DI::httpClient()->get($baseurl, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 				if ($curlResult->isSuccess()) {
 					if ((parse_url($baseurl, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
 						Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $curlResult->getRedirectUrl()]);
@@ -383,7 +383,7 @@ class GServer
 					// When the base path doesn't seem to contain a social network we try the complete path.
 					// Most detectable system have to be installed in the root directory.
 					// We checked the base to avoid false positives.
-					$curlResult = DI::httpClient()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
+					$curlResult = DI::httpClient()->get($url, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 					if ($curlResult->isSuccess()) {
 						$urldata = self::analyseRootHeader($curlResult, $serverdata);
 						$urldata = self::analyseRootBody($curlResult, $urldata, $url);
@@ -672,13 +672,13 @@ class GServer
 	/**
 	 * Detect server type by using the nodeinfo data
 	 *
-	 * @param string      $url        address of the server
-	 * @param IHTTPResult $httpResult
+	 * @param string                  $url        address of the server
+	 * @param ICanHandleHttpResponses $httpResult
 	 *
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function fetchNodeinfo(string $url, IHTTPResult $httpResult)
+	private static function fetchNodeinfo(string $url, ICanHandleHttpResponses $httpResult)
 	{
 		if (!$httpResult->isSuccess()) {
 			return [];
@@ -959,7 +959,7 @@ class GServer
 	private static function validHostMeta(string $url)
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta', [HTTPClientOptions::TIMEOUT => $xrd_timeout]);
+		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta', [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
@@ -1725,7 +1725,7 @@ class GServer
 
 		if (!empty($accesstoken)) {
 			$api = 'https://instances.social/api/1.0/instances/list?count=0';
-			$curlResult = DI::httpClient()->get($api, [HTTPClientOptions::HEADERS => ['Authorization' => ['Bearer ' . $accesstoken]]]);
+			$curlResult = DI::httpClient()->get($api, [HttpClientOptions::HEADERS => ['Authorization' => ['Bearer ' . $accesstoken]]]);
 
 			if ($curlResult->isSuccess()) {
 				$servers = json_decode($curlResult->getBody(), true);

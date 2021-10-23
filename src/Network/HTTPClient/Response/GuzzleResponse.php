@@ -19,10 +19,10 @@
  *
  */
 
-namespace Friendica\Network;
+namespace Friendica\Network\HTTPClient\Response;
 
 use Friendica\Core\Logger;
-use Friendica\Core\System;
+use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
 use Friendica\Network\HTTPException\NotImplementedException;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
@@ -30,7 +30,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * A content wrapper class for Guzzle call results
  */
-class GuzzleResponse extends Response implements IHTTPResult, ResponseInterface
+class GuzzleResponse extends Response implements ICanHandleHttpResponses, ResponseInterface
 {
 	/** @var string The URL */
 	private $url;
@@ -79,68 +79,72 @@ class GuzzleResponse extends Response implements IHTTPResult, ResponseInterface
 	}
 
 	/** {@inheritDoc} */
-	public function getReturnCode()
+	public function getReturnCode(): string
 	{
 		return $this->getStatusCode();
 	}
 
 	/** {@inheritDoc} */
-	public function getContentType()
+	public function getContentType(): string
 	{
 		$contentTypes = $this->getHeader('Content-Type') ?? [];
+
 		return array_pop($contentTypes) ?? '';
 	}
 
 	/** {@inheritDoc} */
-	public function inHeader(string $field)
+	public function inHeader(string $field): bool
 	{
 		return $this->hasHeader($field);
 	}
 
 	/** {@inheritDoc} */
-	public function getHeaderArray()
+	public function getHeaderArray(): array
 	{
 		return $this->getHeaders();
 	}
 
 	/** {@inheritDoc} */
-	public function isSuccess()
+	public function isSuccess(): bool
 	{
 		return $this->isSuccess;
 	}
 
 	/** {@inheritDoc} */
-	public function getUrl()
+	public function getUrl(): string
 	{
 		return $this->url;
 	}
 
 	/** {@inheritDoc} */
-	public function getRedirectUrl()
+	public function getRedirectUrl(): string
 	{
 		return $this->url;
 	}
 
-	/** {@inheritDoc} */
-	public function isRedirectUrl()
+	/** {@inheritDoc}
+	 *
+	 * @throws NotImplementedException
+	 */
+	public function isRedirectUrl(): bool
 	{
 		throw new NotImplementedException();
 	}
 
 	/** {@inheritDoc} */
-	public function getErrorNumber()
+	public function getErrorNumber(): int
 	{
 		return $this->errorNumber;
 	}
 
 	/** {@inheritDoc} */
-	public function getError()
+	public function getError(): string
 	{
 		return $this->error;
 	}
 
 	/** {@inheritDoc} */
-	public function isTimeout()
+	public function isTimeout(): bool
 	{
 		return $this->isTimeout;
 	}

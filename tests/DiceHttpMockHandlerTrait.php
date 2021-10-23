@@ -23,8 +23,8 @@ namespace Friendica\Test;
 
 use Dice\Dice;
 use Friendica\DI;
-use Friendica\Factory\HTTPClientFactory;
-use Friendica\Network\IHTTPClient;
+use Friendica\Network\HTTPClient\Factory\HttpClient;
+use Friendica\Network\HTTPClient\Capability\ICanRequestPerHttp;
 use GuzzleHttp\HandlerStack;
 
 /**
@@ -49,8 +49,8 @@ trait DiceHttpMockHandlerTrait
 
 		$dice = DI::getDice();
 		// addRule() clones the current instance and returns a new one, so no concurrency problems :-)
-		$newDice = $dice->addRule(IHTTPClient::class, [
-			'instanceOf' => HTTPClientFactory::class,
+		$newDice = $dice->addRule(ICanRequestPerHttp::class, [
+			'instanceOf' => HttpClient::class,
 			'call'       => [
 				['createClient', [$this->httpRequestHandler], Dice::CHAIN_CALL],
 			],

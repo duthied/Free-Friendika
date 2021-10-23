@@ -1,15 +1,15 @@
 <?php
 
-namespace Friendica\Factory;
+namespace Friendica\Network\HTTPClient\Factory;
 
 use Friendica\App;
 use Friendica\BaseFactory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Network\HTTPClient;
-use Friendica\Network\IHTTPClient;
+use Friendica\Network\HTTPClient\Client;
+use Friendica\Network\HTTPClient\Capability\ICanRequestPerHttp;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
-use GuzzleHttp\Client;
+use GuzzleHttp;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\RequestOptions;
 use mattwright\URLResolver;
@@ -18,9 +18,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 
-require_once __DIR__ . '/../../static/dbstructure.config.php';
+require_once __DIR__ . '/../../../../static/dbstructure.config.php';
 
-class HTTPClientFactory extends BaseFactory
+class HttpClient extends BaseFactory
 {
 	/** @var IManageConfigValues */
 	private $config;
@@ -42,17 +42,17 @@ class HTTPClientFactory extends BaseFactory
 	 *
 	 * @param HandlerStack|null $handlerStack (optional) A handler replacement (just usefull at test environments)
 	 *
-	 * @return IHTTPClient
+	 * @return ICanRequestPerHttp
 	 */
-	public function createClient(HandlerStack $handlerStack = null): IHTTPClient
+	public function createClient(HandlerStack $handlerStack = null): ICanRequestPerHttp
 	{
 		$proxy = $this->config->get('system', 'proxy');
 
 		if (!empty($proxy)) {
-			$proxyuser = $this->config->get('system', 'proxyuser');
+			$proxyUser = $this->config->get('system', 'proxyuser');
 
-			if (!empty($proxyuser)) {
-				$proxy = $proxyuser . '@' . $proxy;
+			if (!empty($proxyUser)) {
+				$proxy = $proxyUser . '@' . $proxy;
 			}
 		}
 
@@ -72,7 +72,7 @@ class HTTPClientFactory extends BaseFactory
 					 DB_UPDATE_VERSION . '; ' .
 					 $this->baseUrl->get();
 
-		$guzzle = new Client([
+		$guzzle = new GuzzleHttp\Client([
 			RequestOptions::ALLOW_REDIRECTS => [
 				'max'            => 8,
 				'on_redirect'    => $onRedirect,
@@ -88,7 +88,7 @@ class HTTPClientFactory extends BaseFactory
 			RequestOptions::FORCE_IP_RESOLVE => ($this->config->get('system', 'ipv4_resolve') ? 'v4' : null),
 			RequestOptions::CONNECT_TIMEOUT  => 10,
 			RequestOptions::TIMEOUT          => $this->config->get('system', 'curl_timeout', 60),
-			// by default we will allow self-signed certs
+			// by default, we will allow self-signed certs,
 			// but it can be overridden
 			RequestOptions::VERIFY  => (bool)$this->config->get('system', 'verifyssl'),
 			RequestOptions::PROXY   => $proxy,
@@ -108,6 +108,6 @@ class HTTPClientFactory extends BaseFactory
 		// Some websites test the browser for cookie support, so this enhances results.
 		$resolver->setCookieJar(get_temppath() .'/resolver-cookie-' . Strings::getRandomName(10));
 
-		return new HTTPClient($logger, $this->profiler, $guzzle, $resolver);
+		return new Client\HttpClientCan($logger, $this->profiler, $guzzle, $resolver);
 	}
 }
