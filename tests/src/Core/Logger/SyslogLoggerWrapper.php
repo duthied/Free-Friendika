@@ -19,10 +19,10 @@
  *
  */
 
-namespace Friendica\Test\src\Util\Logger;
+namespace Friendica\Test\src\Core\Logger;
 
+use Friendica\Core\Logger\Type\SyslogLogger;
 use Friendica\Util\Introspection;
-use Friendica\Util\Logger\SyslogLogger;
 use Psr\Log\LogLevel;
 
 /**
@@ -53,7 +53,7 @@ class SyslogLoggerWrapper extends SyslogLogger
 	 * {@inheritdoc}
 	 * @noinspection PhpMissingParentCallCommonInspection
 	 */
-	protected function syslogWrapper($level, $entry)
+	protected function syslogWrapper(int $level, string $entry)
 	{
 		$this->content .= $entry . PHP_EOL;
 	}

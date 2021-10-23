@@ -19,13 +19,14 @@
  *
  */
 
-namespace Friendica\Util\Logger;
+namespace Friendica\Core\Logger\Type;
 
+use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
- * A Logger for specific worker tasks, which adds an additional woker-id to it.
+ * A Logger for specific worker tasks, which adds a worker id to it.
  * Uses the decorator pattern (https://en.wikipedia.org/wiki/Decorator_pattern)
  */
 class WorkerLogger implements LoggerInterface
@@ -46,15 +47,21 @@ class WorkerLogger implements LoggerInterface
 	private $functionName;
 
 	/**
-	 * @param LoggerInterface $logger The logger for worker entries
-	 * @param string $functionName The current function name of the worker
-	 * @param int $idLength The length of the generated worker ID
+	 * @param LoggerInterface $logger       The logger for worker entries
+	 * @param string          $functionName The current function name of the worker
+	 * @param int             $idLength     The length of the generated worker ID
+	 *
+	 * @throws LoggerException
 	 */
-	public function __construct(LoggerInterface $logger, $functionName = '', $idLength = 7)
+	public function __construct(LoggerInterface $logger, string $functionName = '', int $idLength = 7)
 	{
-		$this->logger = $logger;
+		$this->logger       = $logger;
 		$this->functionName = $functionName;
-		$this->workerId = Strings::getRandomHex($idLength);
+		try {
+			$this->workerId = Strings::getRandomHex($idLength);
+		} catch (\Exception $exception) {
+			throw new LoggerException('Cannot generate random Hex.', $exception);
+		}
 	}
 
 	/**
@@ -74,7 +81,7 @@ class WorkerLogger implements LoggerInterface
 	 */
 	private function addContext(array &$context)
 	{
-		$context['worker_id'] = $this->workerId;
+		$context['worker_id']  = $this->workerId;
 		$context['worker_cmd'] = $this->functionName;
 	}
 
@@ -83,7 +90,7 @@ class WorkerLogger implements LoggerInterface
 	 *
 	 * @return string
 	 */
-	public function getWorkerId()
+	public function getWorkerId(): string
 	{
 		return $this->workerId;
 	}

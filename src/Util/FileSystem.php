@@ -73,7 +73,9 @@ class FileSystem
 	 *
 	 * @param string $url The file/url
 	 *
-	 * @return false|resource the open stream ressource
+	 * @return resource the open stream rssource
+	 *
+	 * @throws \UnexpectedValueException
 	 */
 	public function createStream(string $url)
 	{

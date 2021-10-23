@@ -19,8 +19,9 @@
  *
  */
 
-namespace Friendica\Util\Logger;
+namespace Friendica\Core\Logger\Type;
 
+use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Util\Introspection;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
@@ -58,29 +59,35 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * Adds a new entry to the log
 	 *
-	 * @param int    $level
+	 * @param mixed  $level
 	 * @param string $message
 	 * @param array  $context
 	 *
 	 * @return void
 	 */
-	abstract protected function addEntry($level, $message, $context = []);
+	abstract protected function addEntry($level, string $message, array $context = []);
 
 	/**
 	 * @param string        $channel       The output channel
 	 * @param Introspection $introspection The introspection of the current call
 	 *
-	 * @throws \Exception
+	 * @throws LoggerException
 	 */
-	public function __construct($channel, Introspection $introspection)
+	public function __construct(string $channel, Introspection $introspection)
 	{
 		$this->channel       = $channel;
 		$this->introspection = $introspection;
-		$this->logUid        = Strings::getRandomHex(6);
+
+		try {
+			$this->logUid = Strings::getRandomHex(6);
+		} catch (\Exception $exception) {
+			throw new LoggerException('Cannot generate log Id', $exception);
+		}
 	}
 
 	/**
 	 * Simple interpolation of PSR-3 compliant replacements ( variables between '{' and '}' )
+	 *
 	 * @see https://www.php-fig.org/psr/psr-3/#12-message
 	 *
 	 * @param string $message
@@ -88,7 +95,7 @@ abstract class AbstractLogger implements LoggerInterface
 	 *
 	 * @return string the interpolated message
 	 */
-	protected function psrInterpolate($message, array $context = array())
+	protected function psrInterpolate(string $message, array $context = []): string
 	{
 		$replace = [];
 		foreach ($context as $key => $value) {
@@ -104,7 +111,7 @@ abstract class AbstractLogger implements LoggerInterface
 	}
 
 	/**
-	 * JSON Encodes an complete array including objects with "__toString()" methods
+	 * JSON Encodes a complete array including objects with "__toString()" methods
 	 *
 	 * @param array $input an Input Array to encode
 	 *
@@ -128,7 +135,7 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function emergency($message, array $context = array())
+	public function emergency($message, array $context = [])
 	{
 		$this->addEntry(LogLevel::EMERGENCY, (string) $message, $context);
 	}
@@ -136,7 +143,7 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function alert($message, array $context = array())
+	public function alert($message, array $context = [])
 	{
 		$this->addEntry(LogLevel::ALERT, (string) $message, $context);
 	}
@@ -144,7 +151,7 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function critical($message, array $context = array())
+	public function critical($message, array $context = [])
 	{
 		$this->addEntry(LogLevel::CRITICAL, (string) $message, $context);
 	}
@@ -152,7 +159,7 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function error($message, array $context = array())
+	public function error($message, array $context = [])
 	{
 		$this->addEntry(LogLevel::ERROR, (string) $message, $context);
 	}
@@ -160,7 +167,7 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function warning($message, array $context = array())
+	public function warning($message, array $context = [])
 	{
 		$this->addEntry(LogLevel::WARNING, (string) $message, $context);
 	}
@@ -168,7 +175,7 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function notice($message, array $context = array())
+	public function notice($message, array $context = [])
 	{
 		$this->addEntry(LogLevel::NOTICE, (string) $message, $context);
 	}
@@ -176,7 +183,7 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function info($message, array $context = array())
+	public function info($message, array $context = [])
 	{
 		$this->addEntry(LogLevel::INFO, (string) $message, $context);
 	}
@@ -184,7 +191,7 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function debug($message, array $context = array())
+	public function debug($message, array $context = [])
 	{
 		$this->addEntry(LogLevel::DEBUG, (string) $message, $context);
 	}
@@ -192,7 +199,7 @@ abstract class AbstractLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function log($level, $message, array $context = array())
+	public function log($level, $message, array $context = [])
 	{
 		$this->addEntry($level, (string) $message, $context);
 	}

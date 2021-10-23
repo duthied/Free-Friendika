@@ -19,9 +19,11 @@
  *
  */
 
-namespace Friendica\Test\src\Util\Logger;
+namespace Friendica\Test\src\Core\Logger;
 
-use Friendica\Util\Logger\SyslogLogger;
+use Friendica\Core\Logger\Exception\LoggerArgumentException;
+use Friendica\Core\Logger\Exception\LoggerException;
+use Friendica\Core\Logger\Type\SyslogLogger;
 use Psr\Log\LogLevel;
 
 class SyslogLoggerTest extends AbstractLoggerTest
@@ -62,7 +64,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongMinimumLevel()
 	{
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(LoggerArgumentException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 		
 		$logger = new SyslogLoggerWrapper('test', $this->introspection, 'NOPE');
@@ -73,29 +75,12 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongLogLevel()
 	{
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(LoggerArgumentException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
 		$logger = new SyslogLoggerWrapper('test', $this->introspection);
 
 		$logger->log('NOPE', 'a test');
-	}
-
-	/**
-	 * Test when the logfacility is wrong (string)
-	 */
-	public function testServerException()
-	{
-		if (PHP_MAJOR_VERSION < 8) {
-			$this->expectException(\UnexpectedValueException::class);
-			$this->expectExceptionMessageMatches("/Can\'t open syslog for ident \".*\" and facility \".*\": .* /");
-		} else {
-			$this->expectException(\TypeError::class);
-			$this->expectExceptionMessage("openlog(): Argument #3 (\$facility) must be of type int, string given");
-		}
-
-		$logger = new SyslogLoggerWrapper('test', $this->introspection, LogLevel::DEBUG, null, 'a string');
-		$logger->emergency('not working');
 	}
 
 	/**

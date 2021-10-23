@@ -19,9 +19,8 @@
  *
  */
 
-namespace Friendica\Util\Logger;
+namespace Friendica\Core\Logger\Type;
 
-use Friendica\Core\System;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -50,14 +49,14 @@ class ProfilerLogger implements LoggerInterface
 	 */
 	public function __construct(LoggerInterface $logger, Profiler $profiler)
 	{
-		$this->logger = $logger;
+		$this->logger   = $logger;
 		$this->profiler = $profiler;
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function emergency($message, array $context = array())
+	public function emergency($message, array $context = [])
 	{
 		$this->profiler->startRecording('file');
 		$this->logger->emergency($message, $context);
@@ -67,7 +66,7 @@ class ProfilerLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function alert($message, array $context = array())
+	public function alert($message, array $context = [])
 	{
 		$this->profiler->startRecording('file');
 		$this->logger->alert($message, $context);
@@ -77,7 +76,7 @@ class ProfilerLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function critical($message, array $context = array())
+	public function critical($message, array $context = [])
 	{
 		$this->profiler->startRecording('file');
 		$this->logger->critical($message, $context);
@@ -87,7 +86,7 @@ class ProfilerLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function error($message, array $context = array())
+	public function error($message, array $context = [])
 	{
 		$this->profiler->startRecording('file');
 		$this->logger->error($message, $context);
@@ -97,7 +96,7 @@ class ProfilerLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function warning($message, array $context = array())
+	public function warning($message, array $context = [])
 	{
 		$this->profiler->startRecording('file');
 		$this->logger->warning($message, $context);
@@ -107,7 +106,7 @@ class ProfilerLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function notice($message, array $context = array())
+	public function notice($message, array $context = [])
 	{
 		$this->profiler->startRecording('file');
 		$this->logger->notice($message, $context);
@@ -117,7 +116,7 @@ class ProfilerLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function info($message, array $context = array())
+	public function info($message, array $context = [])
 	{
 		$this->profiler->startRecording('file');
 		$this->logger->info($message, $context);
@@ -127,7 +126,7 @@ class ProfilerLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function debug($message, array $context = array())
+	public function debug($message, array $context = [])
 	{
 		$this->profiler->startRecording('file');
 		$this->logger->debug($message, $context);
@@ -137,7 +136,7 @@ class ProfilerLogger implements LoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function log($level, $message, array $context = array())
+	public function log($level, $message, array $context = [])
 	{
 		$this->profiler->startRecording('file');
 		$this->logger->log($level, $message, $context);

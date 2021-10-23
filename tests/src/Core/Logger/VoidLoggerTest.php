@@ -19,10 +19,10 @@
  *
  */
 
-namespace Friendica\Test\src\Util\Logger;
+namespace Friendica\Test\src\Core\Logger;
 
 use Friendica\Test\MockedTest;
-use Friendica\Util\Logger\VoidLogger;
+use Friendica\Core\Logger\Type\VoidLogger;
 use Psr\Log\LogLevel;
 
 class VoidLoggerTest extends MockedTest

@@ -19,11 +19,13 @@
  *
  */
 
-namespace Friendica\Test\src\Util\Logger;
+namespace Friendica\Test\src\Core\Logger;
 
+use Friendica\Core\Logger\Exception\LoggerArgumentException;
+use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Util\FileSystem;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\Logger\StreamLogger;
+use Friendica\Core\Logger\Type\StreamLogger;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 use Psr\Log\LogLevel;
@@ -82,7 +84,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 		$filehandler = fopen($logfile->url(), 'ab');
 
-		$logger = new StreamLogger('test', $filehandler, $this->introspection, $this->fileSystem);
+		$logger = new \Friendica\Core\Logger\Type\StreamLogger('test', $filehandler, $this->introspection, $this->fileSystem);
 		$logger->emergency('working');
 
 		$text = $logfile->getContent();
@@ -114,7 +116,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testNoUrl()
 	{
-		$this->expectException(\LogicException::class);
+		$this->expectException(LoggerArgumentException::class);
 		$this->expectExceptionMessage("Missing stream URL.");
 
 		$logger = new StreamLogger('test', '', $this->introspection, $this->fileSystem);
@@ -127,8 +129,8 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongUrl()
 	{
-		$this->expectException(\UnexpectedValueException::class);
-		$this->expectExceptionMessageMatches("/The stream or file .* could not be opened: .* /");
+		$this->expectException(LoggerException::class);
+		$this->expectExceptionMessage("Cannot create stream.");
 
 		$logfile = vfsStream::newFile('friendica.log')
 			->at($this->root)->chmod(0);
@@ -158,7 +160,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongMinimumLevel()
 	{
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(LoggerArgumentException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
 		$logger = new StreamLogger('test', 'file.text', $this->introspection, $this->fileSystem, 'NOPE');
@@ -169,7 +171,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongLogLevel()
 	{
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(LoggerArgumentException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
 		$logfile = vfsStream::newFile('friendica.log')
@@ -185,7 +187,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongFile()
 	{
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(LoggerArgumentException::class);
 		$this->expectExceptionMessage("A stream must either be a resource or a string.");
 
 		$logger = new StreamLogger('test', null, $this->introspection, $this->fileSystem);

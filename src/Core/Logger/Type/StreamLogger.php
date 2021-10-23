@@ -19,8 +19,10 @@
  *
  */
 
-namespace Friendica\Util\Logger;
+namespace Friendica\Core\Logger\Type;
 
+use Friendica\Core\Logger\Exception\LoggerArgumentException;
+use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\FileSystem;
 use Friendica\Util\Introspection;
@@ -80,9 +82,9 @@ class StreamLogger extends AbstractLogger
 	 * @param string|resource $stream The stream to write with this logger (either a file or a stream, i.e. stdout)
 	 * @param string          $level  The minimum loglevel at which this logger will be triggered
 	 *
-	 * @throws \Exception
+	 * @throws LoggerArgumentException
 	 */
-	public function __construct($channel, $stream, Introspection $introspection, FileSystem $fileSystem, $level = LogLevel::DEBUG)
+	public function __construct($channel, $stream, Introspection $introspection, FileSystem $fileSystem, string $level = LogLevel::DEBUG)
 	{
 		$this->fileSystem = $fileSystem;
 
@@ -93,14 +95,14 @@ class StreamLogger extends AbstractLogger
 		} elseif (is_string($stream)) {
 			$this->url = $stream;
 		} else {
-			throw new \InvalidArgumentException('A stream must either be a resource or a string.');
+			throw new LoggerArgumentException('A stream must either be a resource or a string.');
 		}
 
 		$this->pid = getmypid();
 		if (array_key_exists($level, $this->levelToInt)) {
 			$this->logLevel = $this->levelToInt[$level];
 		} else {
-			throw new \InvalidArgumentException(sprintf('The level "%s" is not valid.', $level));
+			throw new LoggerArgumentException(sprintf('The level "%s" is not valid.', $level));
 		}
 
 		$this->checkStream();
@@ -118,16 +120,19 @@ class StreamLogger extends AbstractLogger
 	/**
 	 * Adds a new entry to the log
 	 *
-	 * @param int $level
+	 * @param mixed  $level
 	 * @param string $message
-	 * @param array $context
+	 * @param array  $context
 	 *
 	 * @return void
+	 *
+	 * @throws LoggerException
+	 * @throws LoggerArgumentException
 	 */
-	protected function addEntry($level, $message, $context = [])
+	protected function addEntry($level, string $message, array $context = [])
 	{
 		if (!array_key_exists($level, $this->levelToInt)) {
-			throw new \InvalidArgumentException(sprintf('The level "%s" is not valid.', $level));
+			throw new LoggerArgumentException(sprintf('The level "%s" is not valid.', $level));
 		}
 
 		$logLevel = $this->levelToInt[$level];
@@ -145,19 +150,24 @@ class StreamLogger extends AbstractLogger
 	/**
 	 * Formats a log record for the syslog output
 	 *
-	 * @param int    $level   The loglevel/priority
+	 * @param mixed  $level   The loglevel/priority
 	 * @param string $message The message
 	 * @param array  $context The context of this call
 	 *
 	 * @return string the formatted syslog output
+	 *
+	 * @throws LoggerException
 	 */
-	private function formatLog($level, $message, $context = [])
+	private function formatLog($level, string $message, array $context = []): string
 	{
 		$record = $this->introspection->getRecord();
 		$record = array_merge($record, ['uid' => $this->logUid, 'process_id' => $this->pid]);
-		$logMessage = '';
 
-		$logMessage .= DateTimeFormat::utcNow(DateTimeFormat::ATOM) . ' ';
+		try {
+			$logMessage = DateTimeFormat::utcNow(DateTimeFormat::ATOM) . ' ';
+		} catch (\Exception $exception) {
+			throw new LoggerException('Cannot get current datetime.', $exception);
+		}
 		$logMessage .= $this->channel . ' ';
 		$logMessage .= '[' . strtoupper($level) . ']: ';
 		$logMessage .= $this->psrInterpolate($message, $context) . ' ';
@@ -168,6 +178,12 @@ class StreamLogger extends AbstractLogger
 		return $logMessage;
 	}
 
+	/**
+	 * Checks the current stream
+	 *
+	 * @throws LoggerException
+	 * @throws LoggerArgumentException
+	 */
 	private function checkStream()
 	{
 		if (is_resource($this->stream)) {
@@ -175,9 +191,13 @@ class StreamLogger extends AbstractLogger
 		}
 
 		if (empty($this->url)) {
-			throw new \LogicException('Missing stream URL.');
+			throw new LoggerArgumentException('Missing stream URL.');
 		}
 
-		$this->stream = $this->fileSystem->createStream($this->url);
+		try {
+			$this->stream = $this->fileSystem->createStream($this->url);
+		} catch (\UnexpectedValueException $exception) {
+			throw new LoggerException('Cannot create stream.', $exception);
+		}
 	}
 }

@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Util\Logger\Monolog;
+namespace Friendica\Core\Logger\Type\Monolog;
 
 use Friendica\Util\Introspection;
 use Monolog\Logger;
@@ -41,11 +41,11 @@ class IntrospectionProcessor implements ProcessorInterface
 	public function __construct(Introspection $introspection, $level = Logger::DEBUG)
 	{
 		$this->level = Logger::toMonologLevel($level);
-		$introspection->addClasses(array('Monolog\\'));
+		$introspection->addClasses(['Monolog\\']);
 		$this->introspection = $introspection;
 	}
 
-	public function __invoke(array $record)
+	public function __invoke(array $record): array
 	{
 		// return if the level is not high enough
 		if ($record['level'] < $this->level) {
