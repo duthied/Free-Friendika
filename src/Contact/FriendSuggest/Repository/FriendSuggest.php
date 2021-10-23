@@ -81,7 +81,7 @@ class FriendSuggest extends BaseRepository
 	 */
 	private function select(array $condition, array $params = []): Collection\FriendSuggests
 	{
-		return parent::_select($condition, $params);
+		return new Collection\FriendSuggests(parent::_select($condition, $params)->getArrayCopy());
 	}
 
 	/**
