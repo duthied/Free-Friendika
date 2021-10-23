@@ -19,12 +19,12 @@
  *
  */
 
-namespace Friendica\Test\src\Model\Storage;
+namespace Friendica\Test\src\Core\Storage;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
-use Friendica\Model\Storage\FilesystemConfig;
-use Friendica\Model\Storage\IStorageConfiguration;
+use Friendica\Core\Storage\Capability\ICanConfigureStorage;
+use Friendica\Core\Storage\Type\FilesystemConfig;
 use Friendica\Test\Util\VFSTrait;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
@@ -54,7 +54,7 @@ class FilesystemStorageConfigTest extends StorageConfigTest
 		return new FilesystemConfig($config, $l10n);
 	}
 
-	protected function assertOption(IStorageConfiguration $storage)
+	protected function assertOption(ICanConfigureStorage $storage)
 	{
 		self::assertEquals([
 			'storagepath' => [

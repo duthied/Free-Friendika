@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Model\Storage;
+namespace Friendica\Core\Storage\Exception;
 
 use Exception;
 

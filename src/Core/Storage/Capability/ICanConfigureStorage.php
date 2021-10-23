@@ -19,12 +19,12 @@
  *
  */
 
-namespace Friendica\Model\Storage;
+namespace Friendica\Core\Storage\Capability;
 
 /**
  * The interface to use for configurable storage backends
  */
-interface IStorageConfiguration
+interface ICanConfigureStorage
 {
 	/**
 	 * Get info about storage options

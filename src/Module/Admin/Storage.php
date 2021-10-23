@@ -23,9 +23,9 @@ namespace Friendica\Module\Admin;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Model\Storage\InvalidClassStorageException;
-use Friendica\Model\Storage\IStorageConfiguration;
-use Friendica\Model\Storage\IWritableStorage;
+use Friendica\Core\Storage\Exception\InvalidClassStorageException;
+use Friendica\Core\Storage\Capability\ICanConfigureStorage;
+use Friendica\Core\Storage\Capability\ICanWriteToStorage;
 use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
@@ -40,7 +40,7 @@ class Storage extends BaseAdmin
 		$storagebackend = Strings::escapeTags(trim($parameters['name'] ?? ''));
 
 		try {
-			/** @var IStorageConfiguration|false $newStorageConfig */
+			/** @var \Friendica\Core\Storage\Capability\ICanConfigureStorage|false $newStorageConfig */
 			$newStorageConfig = DI::storageManager()->getConfigurationByName($storagebackend);
 		} catch (InvalidClassStorageException $storageException) {
 			notice(DI::l10n()->t('Storage backend, %s is invalid.', $storagebackend));
@@ -78,7 +78,7 @@ class Storage extends BaseAdmin
 
 		if (!empty($_POST['submit_save_set'])) {
 			try {
-				/** @var IWritableStorage $newstorage */
+				/** @var \Friendica\Core\Storage\Capability\ICanWriteToStorage $newstorage */
 				$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
 
 				if (!DI::storageManager()->setBackend($newstorage)) {
@@ -129,7 +129,7 @@ class Storage extends BaseAdmin
 				'name'   => $name,
 				'prefix' => $storage_form_prefix,
 				'form'   => $storage_form,
-				'active' => $current_storage_backend instanceof IWritableStorage && $name === $current_storage_backend::getName(),
+				'active' => $current_storage_backend instanceof ICanWriteToStorage && $name === $current_storage_backend::getName(),
 			];
 		}
 
@@ -147,7 +147,7 @@ class Storage extends BaseAdmin
 			'$noconfig'              => DI::l10n()->t('This backend doesn\'t have custom settings'),
 			'$baseurl'               => DI::baseUrl()->get(true),
 			'$form_security_token'   => self::getFormSecurityToken("admin_storage"),
-			'$storagebackend'        => $current_storage_backend instanceof IWritableStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
+			'$storagebackend'        => $current_storage_backend instanceof ICanWriteToStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
 			'$availablestorageforms' => $available_storage_forms,
 		]);
 	}

@@ -19,9 +19,11 @@
  *
  */
 
-namespace Friendica\Model\Storage;
+namespace Friendica\Core\Storage\Type;
 
 use Exception;
+use Friendica\Core\Storage\Exception\ReferenceStorageException;
+use Friendica\Core\Storage\Capability\ICanReadFromStorage;
 use Friendica\Util\HTTPSignature;
 
 /**
@@ -30,7 +32,7 @@ use Friendica\Util\HTTPSignature;
  * This class is used to load external resources, like images.
  * Is not intended to be selectable by admins as default storage class.
  */
-class ExternalResource implements IStorage
+class ExternalResource implements ICanReadFromStorage
 {
 	const NAME = 'ExternalResource';
 
@@ -64,7 +66,7 @@ class ExternalResource implements IStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		return self::NAME;
 	}

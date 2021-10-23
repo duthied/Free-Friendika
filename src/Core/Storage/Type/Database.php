@@ -19,9 +19,12 @@
  *
  */
 
-namespace Friendica\Model\Storage;
+namespace Friendica\Core\Storage\Type;
 
 use Exception;
+use Friendica\Core\Storage\Exception\ReferenceStorageException;
+use Friendica\Core\Storage\Exception\StorageException;
+use Friendica\Core\Storage\Capability\ICanWriteToStorage;
 use Friendica\Database\Database as DBA;
 
 /**
@@ -29,7 +32,7 @@ use Friendica\Database\Database as DBA;
  *
  * This class manage data stored in database table.
  */
-class Database implements IWritableStorage
+class Database implements ICanWriteToStorage
 {
 	const NAME = 'Database';
 
@@ -121,7 +124,7 @@ class Database implements IWritableStorage
 		return self::NAME;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return self::getName();
 	}

@@ -42,10 +42,10 @@ use Friendica\Core\L10n;
 use Friendica\Core\Lock;
 use Friendica\Core\Process;
 use Friendica\Core\Session\Capability\IHandleSessions;
-use Friendica\Core\StorageManager;
+use Friendica\Core\Storage\Repository\StorageManager;
 use Friendica\Database\Database;
 use Friendica\Factory;
-use Friendica\Model\Storage\IWritableStorage;
+use Friendica\Core\Storage\Capability\ICanWriteToStorage;
 use Friendica\Model\User\Cookie;
 use Friendica\Model\Log\ParsedLogIterator;
 use Friendica\Network;
@@ -218,7 +218,7 @@ return [
 			$_SERVER, $_COOKIE
 		],
 	],
-	IWritableStorage::class => [
+	ICanWriteToStorage::class => [
 		'instanceOf' => StorageManager::class,
 		'call' => [
 			['getBackend', [], Dice::CHAIN_CALL],
