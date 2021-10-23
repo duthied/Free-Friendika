@@ -130,7 +130,7 @@ class FriendSuggest extends BaseRepository
 
 			if ($fsuggest->id) {
 				$this->db->update(self::$table_name, $fields, ['id' => $fsuggest->id]);
-				return $this->factory->createFromTableRow($fields);
+				return $this->selectOneById($fsuggest->id);
 			} else {
 				$this->db->insert(self::$table_name, $fields);
 				return $this->selectOneById($this->db->lastInsertId());
@@ -141,7 +141,7 @@ class FriendSuggest extends BaseRepository
 	}
 
 	/**
-	 * @param Collection\FriendSuggest $fsuggests
+	 * @param Collection\FriendSuggests $fsuggests
 	 *
 	 * @return bool
 	 *
