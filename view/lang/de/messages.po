@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-20 15:10+0200\n"
-"PO-Revision-Date: 2021-10-21 05:35+0000\n"
+"POT-Creation-Date: 2021-10-23 21:51-0400\n"
+"PO-Revision-Date: 2021-10-24 13:04+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -93,10 +93,10 @@ msgstr "Das monatliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde
 #: src/Module/BaseApi.php:97 src/Module/BaseApi.php:106
 #: src/Module/BaseNotifications.php:88 src/Module/Contact.php:328
 #: src/Module/Contact/Advanced.php:44 src/Module/Delegation.php:118
-#: src/Module/FollowConfirm.php:16 src/Module/FriendSuggest.php:44
+#: src/Module/FollowConfirm.php:17 src/Module/FriendSuggest.php:44
 #: src/Module/Group.php:45 src/Module/Group.php:90 src/Module/Invite.php:41
-#: src/Module/Invite.php:130 src/Module/Notifications/Notification.php:47
-#: src/Module/Notifications/Notification.php:76
+#: src/Module/Invite.php:130 src/Module/Notifications/Notification.php:48
+#: src/Module/Notifications/Notification.php:79
 #: src/Module/Profile/Common.php:56 src/Module/Profile/Contacts.php:56
 #: src/Module/Profile/Schedule.php:39 src/Module/Profile/Schedule.php:56
 #: src/Module/Register.php:64 src/Module/Register.php:77
@@ -104,7 +104,7 @@ msgstr "Das monatliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde
 #: src/Module/Search/Directory.php:38 src/Module/Settings/Delegation.php:42
 #: src/Module/Settings/Delegation.php:70 src/Module/Settings/Display.php:43
 #: src/Module/Settings/Display.php:121
-#: src/Module/Settings/Profile/Photo/Crop.php:164
+#: src/Module/Settings/Profile/Photo/Crop.php:166
 #: src/Module/Settings/Profile/Photo/Index.php:112
 #: src/Module/Settings/UserExport.php:58 src/Module/Settings/UserExport.php:93
 #: src/Module/Settings/UserExport.php:198
@@ -407,7 +407,7 @@ msgid "Event Finishes:"
 msgstr "Veranstaltungsende:"
 
 #: mod/events.php:506 src/Module/Profile/Profile.php:172
-#: src/Module/Settings/Profile/Index.php:237
+#: src/Module/Settings/Profile/Index.php:239
 msgid "Description:"
 msgstr "Beschreibung"
 
@@ -435,11 +435,11 @@ msgstr "Veranstaltung teilen"
 #: src/Module/Debug/ActivityPubConversion.php:141
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
 #: src/Module/Debug/Probe.php:56 src/Module/Debug/WebFinger.php:53
-#: src/Module/Delegation.php:147 src/Module/FriendSuggest.php:129
+#: src/Module/Delegation.php:147 src/Module/FriendSuggest.php:128
 #: src/Module/Install.php:245 src/Module/Install.php:287
 #: src/Module/Install.php:324 src/Module/Invite.php:177
 #: src/Module/Item/Compose.php:150 src/Module/Profile/Profile.php:247
-#: src/Module/Settings/Profile/Index.php:221 src/Object/Post.php:963
+#: src/Module/Settings/Profile/Index.php:223 src/Object/Post.php:963
 #: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
 #: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
@@ -449,7 +449,7 @@ msgstr "Senden"
 msgid "Basic"
 msgstr "Allgemein"
 
-#: mod/events.php:521 src/Module/Admin/Site.php:505 src/Module/Contact.php:863
+#: mod/events.php:521 src/Module/Admin/Site.php:507 src/Module/Contact.php:863
 #: src/Module/Profile/Profile.php:249
 msgid "Advanced"
 msgstr "Erweitert"
@@ -493,7 +493,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr "OStatus-Unterstützung ist nicht aktiviert. Der Kontakt kann nicht zugefügt werden."
 
 #: mod/follow.php:138 src/Content/Item.php:463 src/Content/Widget.php:76
-#: src/Model/Contact.php:1071 src/Model/Contact.php:1083
+#: src/Model/Contact.php:1072 src/Model/Contact.php:1084
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "Verbinden/Folgen"
@@ -731,7 +731,7 @@ msgstr "Konnte Nachrichten nicht abrufen."
 
 #: mod/message.php:120 src/Module/Notifications/Introductions.php:113
 #: src/Module/Notifications/Introductions.php:148
-#: src/Module/Notifications/Notification.php:56
+#: src/Module/Notifications/Notification.php:57
 msgid "Discard"
 msgstr "Verwerfen"
 
@@ -1154,11 +1154,11 @@ msgstr "Ungültige Anfrage."
 #: mod/redir.php:55 mod/redir.php:129 src/Module/Contact/Advanced.php:54
 #: src/Module/Contact/Advanced.php:105 src/Module/Contact/Contacts.php:36
 #: src/Module/Contact/Media.php:43 src/Module/FriendSuggest.php:54
-#: src/Module/FriendSuggest.php:93 src/Module/Group.php:105
+#: src/Module/FriendSuggest.php:92 src/Module/Group.php:105
 msgid "Contact not found."
 msgstr "Kontakt nicht gefunden."
 
-#: mod/removeme.php:63 src/Navigation/Notifications/Depository/Notify.php:454
+#: mod/removeme.php:63 src/Navigation/Notifications/Repository/Notify.php:454
 msgid "[Friendica System Notify]"
 msgstr "[Friendica-Systembenachrichtigung]"
 
@@ -1305,7 +1305,7 @@ msgstr "Zusätzliche Features"
 
 #: mod/settings.php:474 mod/settings.php:565 mod/settings.php:702
 #: src/Module/Admin/Addons/Index.php:69 src/Module/Admin/Features.php:87
-#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:500
+#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:502
 #: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:66
 #: src/Module/Settings/Delegation.php:170 src/Module/Settings/Display.php:194
 msgid "Save Settings"
@@ -2171,8 +2171,8 @@ msgid "All contacts"
 msgstr "Alle Kontakte"
 
 #: src/BaseModule.php:212 src/Content/Widget.php:231 src/Core/ACL.php:193
-#: src/Module/Contact.php:756 src/Module/PermissionTooltip.php:75
-#: src/Module/PermissionTooltip.php:97
+#: src/Module/Contact.php:756 src/Module/PermissionTooltip.php:79
+#: src/Module/PermissionTooltip.php:101
 msgid "Followers"
 msgstr "Folgende"
 
@@ -2780,32 +2780,32 @@ msgstr "Veranstaltung"
 msgid "Follow Thread"
 msgstr "Folge der Unterhaltung"
 
-#: src/Content/Item.php:443 src/Model/Contact.php:1076
+#: src/Content/Item.php:443 src/Model/Contact.php:1077
 msgid "View Status"
 msgstr "Status anschauen"
 
 #: src/Content/Item.php:444 src/Content/Item.php:466
-#: src/Model/Contact.php:1010 src/Model/Contact.php:1068
-#: src/Model/Contact.php:1077 src/Module/Directory.php:160
-#: src/Module/Settings/Profile/Index.php:224
+#: src/Model/Contact.php:1011 src/Model/Contact.php:1069
+#: src/Model/Contact.php:1078 src/Module/Directory.php:160
+#: src/Module/Settings/Profile/Index.php:226
 msgid "View Profile"
 msgstr "Profil anschauen"
 
-#: src/Content/Item.php:445 src/Model/Contact.php:1078
+#: src/Content/Item.php:445 src/Model/Contact.php:1079
 msgid "View Photos"
 msgstr "Bilder anschauen"
 
-#: src/Content/Item.php:446 src/Model/Contact.php:1069
-#: src/Model/Contact.php:1079
+#: src/Content/Item.php:446 src/Model/Contact.php:1070
+#: src/Model/Contact.php:1080
 msgid "Network Posts"
 msgstr "Netzwerkbeiträge"
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1070
-#: src/Model/Contact.php:1080
+#: src/Content/Item.php:447 src/Model/Contact.php:1071
+#: src/Model/Contact.php:1081
 msgid "View Contact"
 msgstr "Kontakt anzeigen"
 
-#: src/Content/Item.php:448 src/Model/Contact.php:1081
+#: src/Content/Item.php:448 src/Model/Contact.php:1082
 msgid "Send PM"
 msgstr "Private Nachricht senden"
 
@@ -2820,7 +2820,7 @@ msgstr "Sperren"
 #: src/Module/Contact.php:788 src/Module/Contact.php:1072
 #: src/Module/Notifications/Introductions.php:112
 #: src/Module/Notifications/Introductions.php:184
-#: src/Module/Notifications/Notification.php:59
+#: src/Module/Notifications/Notification.php:61
 msgid "Ignore"
 msgstr "Ignorieren"
 
@@ -2828,7 +2828,7 @@ msgstr "Ignorieren"
 msgid "Languages"
 msgstr "Sprachen"
 
-#: src/Content/Item.php:458 src/Model/Contact.php:1082
+#: src/Content/Item.php:458 src/Model/Contact.php:1083
 msgid "Poke"
 msgstr "Anstupsen"
 
@@ -3279,7 +3279,7 @@ msgstr "Personen"
 msgid "Organisations"
 msgstr "Organisationen"
 
-#: src/Content/Widget.php:522 src/Model/Contact.php:1503
+#: src/Content/Widget.php:522 src/Model/Contact.php:1506
 msgid "News"
 msgstr "Nachrichten"
 
@@ -3356,8 +3356,8 @@ msgstr "Entfolgen"
 msgid "Yourself"
 msgstr "Du selbst"
 
-#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:81
-#: src/Module/PermissionTooltip.php:103
+#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:85
+#: src/Module/PermissionTooltip.php:107
 msgid "Mutuals"
 msgstr "Beidseitige Freundschaft"
 
@@ -4090,81 +4090,81 @@ msgstr "Interner Serverfehler"
 msgid "Legacy module file not found: %s"
 msgstr "Legacy-Moduldatei nicht gefunden: %s"
 
-#: src/Model/Contact.php:1072 src/Model/Contact.php:1084
+#: src/Model/Contact.php:1073 src/Model/Contact.php:1085
 msgid "UnFollow"
 msgstr "Entfolgen"
 
-#: src/Model/Contact.php:1090 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1091 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:110
 #: src/Module/Notifications/Introductions.php:182
 msgid "Approve"
 msgstr "Genehmigen"
 
-#: src/Model/Contact.php:1499
+#: src/Model/Contact.php:1502
 msgid "Organisation"
 msgstr "Organisation"
 
-#: src/Model/Contact.php:1507
+#: src/Model/Contact.php:1510
 msgid "Forum"
 msgstr "Forum"
 
-#: src/Model/Contact.php:2366
+#: src/Model/Contact.php:2380
 msgid "Disallowed profile URL."
 msgstr "Nicht erlaubte Profil-URL."
 
-#: src/Model/Contact.php:2371 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2385 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Blockierte Domain"
 
-#: src/Model/Contact.php:2376
+#: src/Model/Contact.php:2390
 msgid "Connect URL missing."
 msgstr "Connect-URL fehlt"
 
-#: src/Model/Contact.php:2385
+#: src/Model/Contact.php:2399
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "Der Kontakt konnte nicht hinzugefügt werden. Bitte überprüfe die Einstellungen unter Einstellungen -> Soziale Netzwerke"
 
-#: src/Model/Contact.php:2422
+#: src/Model/Contact.php:2436
 msgid "The profile address specified does not provide adequate information."
 msgstr "Die angegebene Profiladresse liefert unzureichende Informationen."
 
-#: src/Model/Contact.php:2424
+#: src/Model/Contact.php:2438
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Es wurden keine kompatiblen Kommunikationsprotokolle oder Feeds gefunden."
 
-#: src/Model/Contact.php:2427
+#: src/Model/Contact.php:2441
 msgid "An author or name was not found."
 msgstr "Es wurde kein Autor oder Name gefunden."
 
-#: src/Model/Contact.php:2430
+#: src/Model/Contact.php:2444
 msgid "No browser URL could be matched to this address."
 msgstr "Zu dieser Adresse konnte keine passende Browser-URL gefunden werden."
 
-#: src/Model/Contact.php:2433
+#: src/Model/Contact.php:2447
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Konnte die @-Adresse mit keinem der bekannten Protokolle oder Email-Kontakte abgleichen."
 
-#: src/Model/Contact.php:2434
+#: src/Model/Contact.php:2448
 msgid "Use mailto: in front of address to force email check."
 msgstr "Verwende mailto: vor der E-Mail-Adresse, um eine Überprüfung der E-Mail-Adresse zu erzwingen."
 
-#: src/Model/Contact.php:2440
+#: src/Model/Contact.php:2454
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "Die Adresse dieses Profils gehört zu einem Netzwerk, mit dem die Kommunikation auf dieser Seite ausgeschaltet wurde."
 
-#: src/Model/Contact.php:2445
+#: src/Model/Contact.php:2459
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Eingeschränktes Profil. Diese Person wird keine direkten/privaten Nachrichten von dir erhalten können."
 
-#: src/Model/Contact.php:2504
+#: src/Model/Contact.php:2518
 msgid "Unable to retrieve contact information."
 msgstr "Konnte die Kontaktinformationen nicht empfangen."
 
@@ -4740,7 +4740,7 @@ msgstr "Einschalten"
 #: src/Module/Admin/Blocklist/Server.php:88
 #: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:65
 #: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:83
-#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:497
+#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:499
 #: src/Module/Admin/Storage.php:139 src/Module/Admin/Summary.php:233
 #: src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
@@ -5372,453 +5372,453 @@ msgstr "Die Basis-URL konnte nicht analysiert werden. Sie muss mindestens aus <p
 msgid "Relocation started. Could take a while to complete."
 msgstr "Verschieben der Daten gestartet. Das kann eine Weile dauern."
 
-#: src/Module/Admin/Site.php:402 src/Module/Settings/Display.php:139
+#: src/Module/Admin/Site.php:404 src/Module/Settings/Display.php:139
 msgid "No special theme for mobile devices"
 msgstr "Kein spezielles Theme für mobile Geräte verwenden."
 
-#: src/Module/Admin/Site.php:419 src/Module/Settings/Display.php:149
+#: src/Module/Admin/Site.php:421 src/Module/Settings/Display.php:149
 #, php-format
 msgid "%s - (Experimental)"
 msgstr "%s - (Experimentell)"
 
-#: src/Module/Admin/Site.php:431
+#: src/Module/Admin/Site.php:433
 msgid "No community page for local users"
 msgstr "Keine Gemeinschaftsseite für lokale Nutzer"
 
-#: src/Module/Admin/Site.php:432
+#: src/Module/Admin/Site.php:434
 msgid "No community page"
 msgstr "Keine Gemeinschaftsseite"
 
-#: src/Module/Admin/Site.php:433
+#: src/Module/Admin/Site.php:435
 msgid "Public postings from users of this site"
 msgstr "Öffentliche Beiträge von NutzerInnen dieser Seite"
 
-#: src/Module/Admin/Site.php:434
+#: src/Module/Admin/Site.php:436
 msgid "Public postings from the federated network"
 msgstr "Öffentliche Beiträge aus dem föderalen Netzwerk"
 
-#: src/Module/Admin/Site.php:435
+#: src/Module/Admin/Site.php:437
 msgid "Public postings from local users and the federated network"
 msgstr "Öffentliche Beiträge von lokalen Nutzern und aus dem föderalen Netzwerk"
 
-#: src/Module/Admin/Site.php:441
+#: src/Module/Admin/Site.php:443
 msgid "Multi user instance"
 msgstr "Mehrbenutzer-Instanz"
 
-#: src/Module/Admin/Site.php:468
+#: src/Module/Admin/Site.php:470
 msgid "Closed"
 msgstr "Geschlossen"
 
-#: src/Module/Admin/Site.php:469
+#: src/Module/Admin/Site.php:471
 msgid "Requires approval"
 msgstr "Bedarf der Zustimmung"
 
-#: src/Module/Admin/Site.php:470
+#: src/Module/Admin/Site.php:472
 msgid "Open"
 msgstr "Offen"
 
-#: src/Module/Admin/Site.php:474 src/Module/Install.php:215
+#: src/Module/Admin/Site.php:476 src/Module/Install.php:215
 msgid "No SSL policy, links will track page SSL state"
 msgstr "Keine SSL-Richtlinie, Links werden das verwendete Protokoll beibehalten"
 
-#: src/Module/Admin/Site.php:475 src/Module/Install.php:216
+#: src/Module/Admin/Site.php:477 src/Module/Install.php:216
 msgid "Force all links to use SSL"
 msgstr "SSL für alle Links erzwingen"
 
-#: src/Module/Admin/Site.php:476 src/Module/Install.php:217
+#: src/Module/Admin/Site.php:478 src/Module/Install.php:217
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr "Selbst-unterzeichnetes Zertifikat, SSL nur für lokale Links verwenden (nicht empfohlen)"
 
-#: src/Module/Admin/Site.php:480
+#: src/Module/Admin/Site.php:482
 msgid "Don't check"
 msgstr "Nicht überprüfen"
 
-#: src/Module/Admin/Site.php:481
+#: src/Module/Admin/Site.php:483
 msgid "check the stable version"
 msgstr "überprüfe die stabile Version"
 
-#: src/Module/Admin/Site.php:482
+#: src/Module/Admin/Site.php:484
 msgid "check the development version"
 msgstr "überprüfe die Entwicklungsversion"
 
-#: src/Module/Admin/Site.php:486
+#: src/Module/Admin/Site.php:488
 msgid "none"
 msgstr "keine"
 
-#: src/Module/Admin/Site.php:487
+#: src/Module/Admin/Site.php:489
 msgid "Local contacts"
 msgstr "Lokale Kontakte"
 
-#: src/Module/Admin/Site.php:488
+#: src/Module/Admin/Site.php:490
 msgid "Interactors"
 msgstr "Interaktionen"
 
-#: src/Module/Admin/Site.php:498 src/Module/BaseAdmin.php:90
+#: src/Module/Admin/Site.php:500 src/Module/BaseAdmin.php:90
 msgid "Site"
 msgstr "Seite"
 
-#: src/Module/Admin/Site.php:499
+#: src/Module/Admin/Site.php:501
 msgid "General Information"
 msgstr "Allgemeine Informationen"
 
-#: src/Module/Admin/Site.php:501
+#: src/Module/Admin/Site.php:503
 msgid "Republish users to directory"
 msgstr "Nutzer erneut im globalen Verzeichnis veröffentlichen."
 
-#: src/Module/Admin/Site.php:502 src/Module/Register.php:141
+#: src/Module/Admin/Site.php:504 src/Module/Register.php:141
 msgid "Registration"
 msgstr "Registrierung"
 
-#: src/Module/Admin/Site.php:503
+#: src/Module/Admin/Site.php:505
 msgid "File upload"
 msgstr "Datei hochladen"
 
-#: src/Module/Admin/Site.php:504
+#: src/Module/Admin/Site.php:506
 msgid "Policies"
 msgstr "Regeln"
 
-#: src/Module/Admin/Site.php:506
+#: src/Module/Admin/Site.php:508
 msgid "Auto Discovered Contact Directory"
 msgstr "Automatisch ein Kontaktverzeichnis erstellen"
 
-#: src/Module/Admin/Site.php:507
+#: src/Module/Admin/Site.php:509
 msgid "Performance"
 msgstr "Performance"
 
-#: src/Module/Admin/Site.php:508
+#: src/Module/Admin/Site.php:510
 msgid "Worker"
 msgstr "Worker"
 
-#: src/Module/Admin/Site.php:509
+#: src/Module/Admin/Site.php:511
 msgid "Message Relay"
 msgstr "Nachrichten-Relais"
 
-#: src/Module/Admin/Site.php:510
+#: src/Module/Admin/Site.php:512
 msgid ""
 "Use the command \"console relay\" in the command line to add or remove "
 "relays."
 msgstr "Verwende den Befehl \"console relay\" auf der Kommandozeile um weitere Relays hinzu zu fügen oder zu entfernen."
 
-#: src/Module/Admin/Site.php:511
+#: src/Module/Admin/Site.php:513
 msgid "The system is not subscribed to any relays at the moment."
 msgstr "Das System hat derzeit keinerlei Relays abonniert."
 
-#: src/Module/Admin/Site.php:512
+#: src/Module/Admin/Site.php:514
 msgid "The system is currently subscribed to the following relays:"
 msgstr "Das System hat derzeit Abonnements bei folgenden Releays:"
 
-#: src/Module/Admin/Site.php:514
+#: src/Module/Admin/Site.php:516
 msgid "Relocate Instance"
 msgstr "Instanz Umziehen"
 
-#: src/Module/Admin/Site.php:515
+#: src/Module/Admin/Site.php:517
 msgid ""
 "<strong>Warning!</strong> Advanced function. Could make this server "
 "unreachable."
 msgstr "<strong>Achtung</strong> Funktionen für Fortgeschrittene. Könnte diesen Server unerreichbar machen."
 
-#: src/Module/Admin/Site.php:519
+#: src/Module/Admin/Site.php:521
 msgid "Site name"
 msgstr "Seitenname"
 
-#: src/Module/Admin/Site.php:520
+#: src/Module/Admin/Site.php:522
 msgid "Sender Email"
 msgstr "Absender für Emails"
 
-#: src/Module/Admin/Site.php:520
+#: src/Module/Admin/Site.php:522
 msgid ""
 "The email address your server shall use to send notification emails from."
 msgstr "Die E-Mail Adresse, die dein Server zum Versenden von Benachrichtigungen verwenden soll."
 
-#: src/Module/Admin/Site.php:521
+#: src/Module/Admin/Site.php:523
 msgid "Name of the system actor"
 msgstr "Name des System-Actors"
 
-#: src/Module/Admin/Site.php:521
+#: src/Module/Admin/Site.php:523
 msgid ""
 "Name of the internal system account that is used to perform ActivityPub "
 "requests. This must be an unused username. If set, this can't be changed "
 "again."
 msgstr "Name des internen System-Accounts der für ActivityPub Anfragen verwendet wird. Der Nutzername darf bisher nicht verwendet werden. Ist der Name einmal gesetzt kann er nicht mehr geändert werden."
 
-#: src/Module/Admin/Site.php:522
+#: src/Module/Admin/Site.php:524
 msgid "Banner/Logo"
 msgstr "Banner/Logo"
 
-#: src/Module/Admin/Site.php:523
+#: src/Module/Admin/Site.php:525
 msgid "Email Banner/Logo"
 msgstr "E-Mail Banner / Logo"
 
-#: src/Module/Admin/Site.php:524
+#: src/Module/Admin/Site.php:526
 msgid "Shortcut icon"
 msgstr "Shortcut Icon"
 
-#: src/Module/Admin/Site.php:524
+#: src/Module/Admin/Site.php:526
 msgid "Link to an icon that will be used for browsers."
 msgstr "Link zu einem Icon, das Browser verwenden werden."
 
-#: src/Module/Admin/Site.php:525
+#: src/Module/Admin/Site.php:527
 msgid "Touch icon"
 msgstr "Touch Icon"
 
-#: src/Module/Admin/Site.php:525
+#: src/Module/Admin/Site.php:527
 msgid "Link to an icon that will be used for tablets and mobiles."
 msgstr "Link zu einem Icon, das Tablets und Mobiltelefone verwenden sollen."
 
-#: src/Module/Admin/Site.php:526
+#: src/Module/Admin/Site.php:528
 msgid "Additional Info"
 msgstr "Zusätzliche Informationen"
 
-#: src/Module/Admin/Site.php:526
+#: src/Module/Admin/Site.php:528
 #, php-format
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at %s/servers."
 msgstr "Für öffentliche Server kannst du hier zusätzliche Informationen angeben, die dann auf %s/servers angezeigt werden."
 
-#: src/Module/Admin/Site.php:527
+#: src/Module/Admin/Site.php:529
 msgid "System language"
 msgstr "Systemsprache"
 
-#: src/Module/Admin/Site.php:528
+#: src/Module/Admin/Site.php:530
 msgid "System theme"
 msgstr "Systemweites Theme"
 
-#: src/Module/Admin/Site.php:528
+#: src/Module/Admin/Site.php:530
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a "
 "href=\"/admin/themes\" id=\"cnftheme\">Change default theme settings</a>"
 msgstr "Standard-Theme des Systems - kann von Benutzerprofilen überschrieben werden - <a href=\"/admin/themes\" id=\"cnftheme\">Ändere Einstellung des Standard-Themes</a>"
 
-#: src/Module/Admin/Site.php:529
+#: src/Module/Admin/Site.php:531
 msgid "Mobile system theme"
 msgstr "Systemweites mobiles Theme"
 
-#: src/Module/Admin/Site.php:529
+#: src/Module/Admin/Site.php:531
 msgid "Theme for mobile devices"
 msgstr "Theme für mobile Geräte"
 
-#: src/Module/Admin/Site.php:530 src/Module/Install.php:225
+#: src/Module/Admin/Site.php:532 src/Module/Install.php:225
 msgid "SSL link policy"
 msgstr "Regeln für SSL Links"
 
-#: src/Module/Admin/Site.php:530 src/Module/Install.php:227
+#: src/Module/Admin/Site.php:532 src/Module/Install.php:227
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr "Bestimmt, ob generierte Links SSL verwenden müssen"
 
-#: src/Module/Admin/Site.php:531
+#: src/Module/Admin/Site.php:533
 msgid "Force SSL"
 msgstr "Erzwinge SSL"
 
-#: src/Module/Admin/Site.php:531
+#: src/Module/Admin/Site.php:533
 msgid ""
 "Force all Non-SSL requests to SSL - Attention: on some systems it could lead"
 " to endless loops."
 msgstr "Erzwinge SSL für alle Nicht-SSL-Anfragen - Achtung: auf manchen Systemen verursacht dies eine Endlosschleife."
 
-#: src/Module/Admin/Site.php:532
+#: src/Module/Admin/Site.php:534
 msgid "Show help entry from navigation menu"
 msgstr "Zeige den Hilfe-Eintrag im Navigationsmenü an"
 
-#: src/Module/Admin/Site.php:532
+#: src/Module/Admin/Site.php:534
 msgid ""
 "Displays the menu entry for the Help pages from the navigation menu. It is "
 "always accessible by calling /help directly."
 msgstr "Zeigt im Navigationsmenü den Eintrag für die Hilfe-Seiten an. Es ist immer möglich diese Seiten direkt über /help in der Adresseingabe des Browsers aufzurufen."
 
-#: src/Module/Admin/Site.php:533
+#: src/Module/Admin/Site.php:535
 msgid "Single user instance"
 msgstr "Ein-Nutzer Instanz"
 
-#: src/Module/Admin/Site.php:533
+#: src/Module/Admin/Site.php:535
 msgid "Make this instance multi-user or single-user for the named user"
 msgstr "Bestimmt, ob es sich bei dieser Instanz um eine Installation mit nur einen Nutzer oder mit mehreren Nutzern handelt."
 
-#: src/Module/Admin/Site.php:535
+#: src/Module/Admin/Site.php:537
 msgid "Maximum image size"
 msgstr "Maximale Bildgröße"
 
-#: src/Module/Admin/Site.php:535
+#: src/Module/Admin/Site.php:537
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
 "limits."
 msgstr "Maximale Uploadgröße von Bildern in Bytes. Standard ist 0, d.h. ohne Limit."
 
-#: src/Module/Admin/Site.php:536
+#: src/Module/Admin/Site.php:538
 msgid "Maximum image length"
 msgstr "Maximale Bildlänge"
 
-#: src/Module/Admin/Site.php:536
+#: src/Module/Admin/Site.php:538
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
 msgstr "Maximale Länge in Pixeln der längsten Seite eines hochgeladenen Bildes. Grundeinstellung ist -1, was keine Einschränkung bedeutet."
 
-#: src/Module/Admin/Site.php:537
+#: src/Module/Admin/Site.php:539
 msgid "JPEG image quality"
 msgstr "Qualität des JPEG Bildes"
 
-#: src/Module/Admin/Site.php:537
+#: src/Module/Admin/Site.php:539
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
 msgstr "Hochgeladene JPEG-Bilder werden mit dieser Qualität [0-100] gespeichert. Grundeinstellung ist 100, kein Qualitätsverlust."
 
-#: src/Module/Admin/Site.php:539
+#: src/Module/Admin/Site.php:541
 msgid "Register policy"
 msgstr "Registrierungsmethode"
 
-#: src/Module/Admin/Site.php:540
+#: src/Module/Admin/Site.php:542
 msgid "Maximum Daily Registrations"
 msgstr "Maximum täglicher Registrierungen"
 
-#: src/Module/Admin/Site.php:540
+#: src/Module/Admin/Site.php:542
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
 msgstr "Wenn die Registrierung weiter oben erlaubt ist, regelt dies die maximale Anzahl von Neuanmeldungen pro Tag. Wenn die Registrierung geschlossen ist, hat diese Einstellung keinen Effekt."
 
-#: src/Module/Admin/Site.php:541
+#: src/Module/Admin/Site.php:543
 msgid "Register text"
 msgstr "Registrierungstext"
 
-#: src/Module/Admin/Site.php:541
+#: src/Module/Admin/Site.php:543
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
 msgstr "Wird gut sichtbar auf der Registrierungsseite angezeigt. BBCode kann verwendet werden."
 
-#: src/Module/Admin/Site.php:542
+#: src/Module/Admin/Site.php:544
 msgid "Forbidden Nicknames"
 msgstr "Verbotene Spitznamen"
 
-#: src/Module/Admin/Site.php:542
+#: src/Module/Admin/Site.php:544
 msgid ""
 "Comma separated list of nicknames that are forbidden from registration. "
 "Preset is a list of role names according RFC 2142."
 msgstr "Durch Kommas getrennte Liste von Spitznamen, die von der Registrierung ausgeschlossen sind. Die Vorgabe ist eine Liste von Rollennamen nach RFC 2142."
 
-#: src/Module/Admin/Site.php:543
+#: src/Module/Admin/Site.php:545
 msgid "Accounts abandoned after x days"
 msgstr "Nutzerkonten gelten nach x Tagen als unbenutzt"
 
-#: src/Module/Admin/Site.php:543
+#: src/Module/Admin/Site.php:545
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr "Verschwende keine System-Ressourcen auf das Pollen externer Seiten, wenn Konten nicht mehr benutzt werden. 0 eingeben für kein Limit."
 
-#: src/Module/Admin/Site.php:544
+#: src/Module/Admin/Site.php:546
 msgid "Allowed friend domains"
 msgstr "Erlaubte Domains für Kontakte"
 
-#: src/Module/Admin/Site.php:544
+#: src/Module/Admin/Site.php:546
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr "Liste der Domains, die für Kontakte erlaubt sind, durch Kommas getrennt. Platzhalter werden akzeptiert. Leer lassen, um alle Domains zu erlauben."
 
-#: src/Module/Admin/Site.php:545
+#: src/Module/Admin/Site.php:547
 msgid "Allowed email domains"
 msgstr "Erlaubte Domains für E-Mails"
 
-#: src/Module/Admin/Site.php:545
+#: src/Module/Admin/Site.php:547
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr "Liste der Domains, die für E-Mail-Adressen bei der Registrierung erlaubt sind, durch Kommas getrennt. Platzhalter werden akzeptiert. Leer lassen, um alle Domains zu erlauben."
 
-#: src/Module/Admin/Site.php:546
+#: src/Module/Admin/Site.php:548
 msgid "No OEmbed rich content"
 msgstr "OEmbed nicht verwenden"
 
-#: src/Module/Admin/Site.php:546
+#: src/Module/Admin/Site.php:548
 msgid ""
 "Don't show the rich content (e.g. embedded PDF), except from the domains "
 "listed below."
 msgstr "Verhindert das Einbetten von reichhaltigen Inhalten (z.B. eingebettete PDF Dateien). Ausgenommen von dieser Regel werden Domänen, die unten aufgeführt werden."
 
-#: src/Module/Admin/Site.php:547
+#: src/Module/Admin/Site.php:549
 msgid "Trusted third-party domains"
 msgstr "Vertrauenswürdige Drittanbieter-Domains"
 
-#: src/Module/Admin/Site.php:547
+#: src/Module/Admin/Site.php:549
 msgid ""
 "Comma separated list of domains from which content is allowed to be embedded"
 " in posts like with OEmbed. All sub-domains of the listed domains are "
 "allowed as well."
 msgstr "Komma separierte Liste von Domains von denen Inhalte in Beiträgen eingebettet werden dürfen. Alle Subdomains werden ebenfalls akzeptiert."
 
-#: src/Module/Admin/Site.php:548
+#: src/Module/Admin/Site.php:550
 msgid "Block public"
 msgstr "Öffentlichen Zugriff blockieren"
 
-#: src/Module/Admin/Site.php:548
+#: src/Module/Admin/Site.php:550
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr "Klicken, um öffentlichen Zugriff auf sonst öffentliche Profile zu blockieren, wenn man nicht eingeloggt ist."
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:551
 msgid "Force publish"
 msgstr "Erzwinge Veröffentlichung"
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:551
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr "Klicken, um Anzeige aller Profile dieses Servers im Verzeichnis zu erzwingen."
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:551
 msgid "Enabling this may violate privacy laws like the GDPR"
 msgstr "Wenn du diese Option aktivierst, verstößt das unter Umständen gegen Gesetze wie die EU-DSGVO."
 
-#: src/Module/Admin/Site.php:550
+#: src/Module/Admin/Site.php:552
 msgid "Global directory URL"
 msgstr "URL des weltweiten Verzeichnisses"
 
-#: src/Module/Admin/Site.php:550
+#: src/Module/Admin/Site.php:552
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
 msgstr "URL des weltweiten Verzeichnisses. Wenn diese nicht gesetzt ist, ist das Verzeichnis für die Applikation nicht erreichbar."
 
-#: src/Module/Admin/Site.php:551
+#: src/Module/Admin/Site.php:553
 msgid "Private posts by default for new users"
 msgstr "Private Beiträge als Standard für neue Nutzer"
 
-#: src/Module/Admin/Site.php:551
+#: src/Module/Admin/Site.php:553
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
 msgstr "Die Standard-Zugriffsrechte für neue Nutzer werden so gesetzt, dass als Voreinstellung in die private Gruppe gepostet wird anstelle von öffentlichen Beiträgen."
 
-#: src/Module/Admin/Site.php:552
+#: src/Module/Admin/Site.php:554
 msgid "Don't include post content in email notifications"
 msgstr "Inhalte von Beiträgen nicht in E-Mail-Benachrichtigungen versenden"
 
-#: src/Module/Admin/Site.php:552
+#: src/Module/Admin/Site.php:554
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
 msgstr "Inhalte von Beiträgen/Kommentaren/privaten Nachrichten/usw. zum Datenschutz nicht in E-Mail-Benachrichtigungen einbinden."
 
-#: src/Module/Admin/Site.php:553
+#: src/Module/Admin/Site.php:555
 msgid "Disallow public access to addons listed in the apps menu."
 msgstr "Öffentlichen Zugriff auf Addons im Apps Menü verbieten."
 
-#: src/Module/Admin/Site.php:553
+#: src/Module/Admin/Site.php:555
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
 msgstr "Wenn ausgewählt, werden die im Apps Menü aufgeführten Addons nur angemeldeten Nutzern der Seite zur Verfügung gestellt."
 
-#: src/Module/Admin/Site.php:554
+#: src/Module/Admin/Site.php:556
 msgid "Don't embed private images in posts"
 msgstr "Private Bilder nicht in Beiträgen einbetten."
 
-#: src/Module/Admin/Site.php:554
+#: src/Module/Admin/Site.php:556
 msgid ""
 "Don't replace locally-hosted private photos in posts with an embedded copy "
 "of the image. This means that contacts who receive posts containing private "
@@ -5826,11 +5826,11 @@ msgid ""
 "while."
 msgstr "Ersetze lokal gehostete, private Fotos in Beiträgen nicht mit einer eingebetteten Kopie des Bildes. Dies bedeutet, dass Kontakte, die Beiträge mit privaten Fotos erhalten, sich zunächst auf den jeweiligen Servern authentifizieren müssen, bevor die Bilder geladen und angezeigt werden, was eine gewisse Zeit dauert."
 
-#: src/Module/Admin/Site.php:555
+#: src/Module/Admin/Site.php:557
 msgid "Explicit Content"
 msgstr "Sensibler Inhalt"
 
-#: src/Module/Admin/Site.php:555
+#: src/Module/Admin/Site.php:557
 msgid ""
 "Set this to announce that your node is used mostly for explicit content that"
 " might not be suited for minors. This information will be published in the "
@@ -5839,245 +5839,255 @@ msgid ""
 "will be shown at the user registration page."
 msgstr "Wähle dies, um anzuzeigen, dass dein Knoten hauptsächlich für explizite Inhalte verwendet wird, die möglicherweise nicht für Minderjährige geeignet sind. Diese Info wird in der Knoteninformation veröffentlicht und kann durch das Globale Verzeichnis genutzt werden, um deinen Knoten von den Auflistungen auszuschließen. Zusätzlich wird auf der Registrierungsseite ein Hinweis darüber angezeigt."
 
-#: src/Module/Admin/Site.php:556
+#: src/Module/Admin/Site.php:558
 msgid "Proxify external content"
 msgstr "Proxy für externe Inhalte"
 
-#: src/Module/Admin/Site.php:556
+#: src/Module/Admin/Site.php:558
 msgid ""
 "Route external content via the proxy functionality. This is used for example"
 " for some OEmbed accesses and in some other rare cases."
 msgstr "Externe Inhalte werden durch einen Proxy geleitet. Die wird z.B. für das aufrufen von OEmbed Inhalten verwendet und einigen anderen seltenen Fällen."
 
-#: src/Module/Admin/Site.php:557
+#: src/Module/Admin/Site.php:559
+msgid "Cache contact avatars"
+msgstr "Kontaktprofilbilder zwischenspeichern"
+
+#: src/Module/Admin/Site.php:559
+msgid ""
+"Locally store the avatar pictures of the contacts. This uses a lot of "
+"storage space but it increases the performance."
+msgstr "Die Profilbilder der Kontakte zwischenspeichern. Der Zwischenspeicher verbraucht viel Platz im Speicherplatz, verbessert aber die Performance."
+
+#: src/Module/Admin/Site.php:560
 msgid "Allow Users to set remote_self"
 msgstr "Nutzern erlauben, das remote_self Flag zu setzen"
 
-#: src/Module/Admin/Site.php:557
+#: src/Module/Admin/Site.php:560
 msgid ""
 "With checking this, every user is allowed to mark every contact as a "
 "remote_self in the repair contact dialog. Setting this flag on a contact "
 "causes mirroring every posting of that contact in the users stream."
 msgstr "Ist dies ausgewählt, kann jeder Nutzer jeden seiner Kontakte als remote_self (entferntes Konto) im \"Erweitert\"-Reiter der Kontaktansicht markieren. Nach dem Setzen dieses Flags werden alle Top-Level-Beiträge dieser Kontakte automatisch in den Stream dieses Nutzers gepostet (gespiegelt)."
 
-#: src/Module/Admin/Site.php:558
+#: src/Module/Admin/Site.php:561
 msgid "Enable multiple registrations"
 msgstr "Erlaube Mehrfachregistrierung"
 
-#: src/Module/Admin/Site.php:558
+#: src/Module/Admin/Site.php:561
 msgid "Enable users to register additional accounts for use as pages."
 msgstr "Erlaube es Benutzern weitere Konten für Organisationen o.ä. mit der gleichen E-Mail Adresse anzulegen."
 
-#: src/Module/Admin/Site.php:559
+#: src/Module/Admin/Site.php:562
 msgid "Enable OpenID"
 msgstr "OpenID aktivieren"
 
-#: src/Module/Admin/Site.php:559
+#: src/Module/Admin/Site.php:562
 msgid "Enable OpenID support for registration and logins."
 msgstr "OpenID Unterstützung bei der Registrierung und dem Login aktivieren."
 
-#: src/Module/Admin/Site.php:560
+#: src/Module/Admin/Site.php:563
 msgid "Enable Fullname check"
 msgstr "Namen auf Vollständigkeit überprüfen"
 
-#: src/Module/Admin/Site.php:560
+#: src/Module/Admin/Site.php:563
 msgid ""
 "Enable check to only allow users to register with a space between the first "
 "name and the last name in their full name."
 msgstr "Erlaubt Nutzern Konten nur dann zu registrieren, bei denen im Namensfeld ein Leerzeichen zur Trennung von Vor- und Nachnamen verwendet wird."
 
-#: src/Module/Admin/Site.php:561
+#: src/Module/Admin/Site.php:564
 msgid "Community pages for visitors"
 msgstr "Für Besucher verfügbare Gemeinschaftsseite"
 
-#: src/Module/Admin/Site.php:561
+#: src/Module/Admin/Site.php:564
 msgid ""
 "Which community pages should be available for visitors. Local users always "
 "see both pages."
 msgstr "Welche Gemeinschaftsseiten sollen für Besucher dieses Knotens verfügbar sein? Lokale Nutzer können grundsätzlich beide Seiten verwenden."
 
-#: src/Module/Admin/Site.php:562
+#: src/Module/Admin/Site.php:565
 msgid "Posts per user on community page"
 msgstr "Anzahl der Beiträge pro Benutzer auf der Gemeinschaftsseite"
 
-#: src/Module/Admin/Site.php:562
+#: src/Module/Admin/Site.php:565
 msgid ""
 "The maximum number of posts per user on the community page. (Not valid for "
 "\"Global Community\")"
 msgstr "Maximale Anzahl der Beiträge, die von jedem Nutzer auf der Gemeinschaftsseite angezeigt werden. (Gilt nicht für die 'Globale Gemeinschaftsseite')"
 
-#: src/Module/Admin/Site.php:564
+#: src/Module/Admin/Site.php:567
 msgid "Enable Mail support"
 msgstr "E-Mail Unterstützung aktivieren"
 
-#: src/Module/Admin/Site.php:564
+#: src/Module/Admin/Site.php:567
 msgid ""
 "Enable built-in mail support to poll IMAP folders and to reply via mail."
 msgstr "Aktiviert die Unterstützung IMAP Ordner abzurufen und ermöglicht es auch auf E-Mails zu antworten."
 
-#: src/Module/Admin/Site.php:565
+#: src/Module/Admin/Site.php:568
 msgid ""
 "Mail support can't be enabled because the PHP IMAP module is not installed."
 msgstr "E-Mail Unterstützung kann nicht aktiviert werden, da das PHP IMAP Modul nicht installiert ist."
 
-#: src/Module/Admin/Site.php:566
+#: src/Module/Admin/Site.php:569
 msgid "Enable OStatus support"
 msgstr "OStatus Unterstützung aktivieren"
 
-#: src/Module/Admin/Site.php:566
+#: src/Module/Admin/Site.php:569
 msgid ""
 "Enable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All "
 "communications in OStatus are public."
 msgstr "Aktiviere die OStatus (StatusNet, GNU Social usw.) Unterstützung. Die Kommunikation über das OStatus Protokoll ist grundsätzlich öffentlich."
 
-#: src/Module/Admin/Site.php:568
+#: src/Module/Admin/Site.php:571
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
 msgstr "Diaspora Unterstützung kann nicht aktiviert werden, da Friendica in ein Unterverzeichnis installiert ist."
 
-#: src/Module/Admin/Site.php:569
+#: src/Module/Admin/Site.php:572
 msgid "Enable Diaspora support"
 msgstr "Diaspora-Unterstützung aktivieren"
 
-#: src/Module/Admin/Site.php:569
+#: src/Module/Admin/Site.php:572
 msgid ""
 "Enable built-in Diaspora network compatibility for communicating with "
 "diaspora servers."
 msgstr "Aktiviere die Unterstützung des Diaspora Protokolls zur Kommunikation mit Diaspora Servern."
 
-#: src/Module/Admin/Site.php:570
+#: src/Module/Admin/Site.php:573
 msgid "Verify SSL"
 msgstr "SSL Überprüfen"
 
-#: src/Module/Admin/Site.php:570
+#: src/Module/Admin/Site.php:573
 msgid ""
 "If you wish, you can turn on strict certificate checking. This will mean you"
 " cannot connect (at all) to self-signed SSL sites."
 msgstr "Wenn gewollt, kann man hier eine strenge Zertifikatskontrolle einstellen. Das bedeutet, dass man zu keinen Seiten mit selbst unterzeichnetem SSL-Zertifikat eine Verbindung herstellen kann."
 
-#: src/Module/Admin/Site.php:571
+#: src/Module/Admin/Site.php:574
 msgid "Proxy user"
 msgstr "Proxy-Nutzer"
 
-#: src/Module/Admin/Site.php:572
+#: src/Module/Admin/Site.php:575
 msgid "Proxy URL"
 msgstr "Proxy-URL"
 
-#: src/Module/Admin/Site.php:573
+#: src/Module/Admin/Site.php:576
 msgid "Network timeout"
 msgstr "Netzwerk-Wartezeit"
 
-#: src/Module/Admin/Site.php:573
+#: src/Module/Admin/Site.php:576
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
 msgstr "Der Wert ist in Sekunden. Setze 0 für unbegrenzt (nicht empfohlen)."
 
-#: src/Module/Admin/Site.php:574
+#: src/Module/Admin/Site.php:577
 msgid "Maximum Load Average"
 msgstr "Maximum Load Average"
 
-#: src/Module/Admin/Site.php:574
+#: src/Module/Admin/Site.php:577
 #, php-format
 msgid ""
 "Maximum system load before delivery and poll processes are deferred - "
 "default %d."
 msgstr "Maximale System-LOAD bevor Verteil- und Empfangsprozesse verschoben werden - Standard %d"
 
-#: src/Module/Admin/Site.php:575
+#: src/Module/Admin/Site.php:578
 msgid "Maximum Load Average (Frontend)"
 msgstr "Maximum Load Average (Frontend)"
 
-#: src/Module/Admin/Site.php:575
+#: src/Module/Admin/Site.php:578
 msgid "Maximum system load before the frontend quits service - default 50."
 msgstr "Maximale Systemlast, bevor Vordergrundprozesse pausiert werden - Standard 50."
 
-#: src/Module/Admin/Site.php:576
+#: src/Module/Admin/Site.php:579
 msgid "Minimal Memory"
 msgstr "Minimaler Speicher"
 
-#: src/Module/Admin/Site.php:576
+#: src/Module/Admin/Site.php:579
 msgid ""
 "Minimal free memory in MB for the worker. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
 msgstr "Minimal freier Speicher in MB für den Worker Prozess. Benötigt Zugriff auf /proc/meminfo - Standardwert ist 0 (deaktiviert)"
 
-#: src/Module/Admin/Site.php:577
+#: src/Module/Admin/Site.php:580
 msgid "Periodically optimize tables"
 msgstr "Optimiere die Tabellen regelmäßig"
 
-#: src/Module/Admin/Site.php:577
+#: src/Module/Admin/Site.php:580
 msgid "Periodically optimize tables like the cache and the workerqueue"
 msgstr "Optimiert Tabellen wie den Cache oder die Worker-Warteschlage regelmäßig."
 
-#: src/Module/Admin/Site.php:579
+#: src/Module/Admin/Site.php:582
 msgid "Discover followers/followings from contacts"
 msgstr "Endecke folgende und gefolgte Kontakte von Kontakten"
 
-#: src/Module/Admin/Site.php:579
+#: src/Module/Admin/Site.php:582
 msgid ""
 "If enabled, contacts are checked for their followers and following contacts."
 msgstr "Ist dies aktiv, werden die Kontakte auf deren folgenden und gefolgten Kontakte überprüft."
 
-#: src/Module/Admin/Site.php:580
+#: src/Module/Admin/Site.php:583
 msgid "None - deactivated"
 msgstr "Keine - deaktiviert"
 
-#: src/Module/Admin/Site.php:581
+#: src/Module/Admin/Site.php:584
 msgid ""
 "Local contacts - contacts of our local contacts are discovered for their "
 "followers/followings."
 msgstr "Lokale Kontakte - Die Beziehungen der lokalen Kontakte werden analysiert."
 
-#: src/Module/Admin/Site.php:582
+#: src/Module/Admin/Site.php:585
 msgid ""
 "Interactors - contacts of our local contacts and contacts who interacted on "
 "locally visible postings are discovered for their followers/followings."
 msgstr "Interaktionen - Kontakte der lokalen Kontakte sowie die Profile die mit öffentlichen lokalen Beiträgen interagiert haben, werden bzgl. ihrer Beziehungen analysiert."
 
-#: src/Module/Admin/Site.php:584
+#: src/Module/Admin/Site.php:587
 msgid "Synchronize the contacts with the directory server"
 msgstr "Gleiche die Kontakte mit dem Directory-Server ab"
 
-#: src/Module/Admin/Site.php:584
+#: src/Module/Admin/Site.php:587
 msgid ""
 "if enabled, the system will check periodically for new contacts on the "
 "defined directory server."
 msgstr "Ist dies aktiv, wird das System regelmäßig auf dem Verzeichnis-Server nach neuen potentiellen Kontakten nachsehen."
 
-#: src/Module/Admin/Site.php:586
+#: src/Module/Admin/Site.php:589
 msgid "Days between requery"
 msgstr "Tage zwischen erneuten Abfragen"
 
-#: src/Module/Admin/Site.php:586
+#: src/Module/Admin/Site.php:589
 msgid "Number of days after which a server is requeried for his contacts."
 msgstr "Legt das Abfrageintervall fest, nach dem ein Server erneut nach Kontakten abgefragt werden soll."
 
-#: src/Module/Admin/Site.php:587
+#: src/Module/Admin/Site.php:590
 msgid "Discover contacts from other servers"
 msgstr "Neue Kontakte auf anderen Servern entdecken"
 
-#: src/Module/Admin/Site.php:587
+#: src/Module/Admin/Site.php:590
 msgid ""
 "Periodically query other servers for contacts. The system queries Friendica,"
 " Mastodon and Hubzilla servers."
 msgstr "Frage regelmäßig bei anderen Servern nach neuen potentiellen Kontakten an. Diese Anfragen werden an Friendica, Mastodon und Hubzilla Server gesandt."
 
-#: src/Module/Admin/Site.php:588
+#: src/Module/Admin/Site.php:591
 msgid "Search the local directory"
 msgstr "Lokales Verzeichnis durchsuchen"
 
-#: src/Module/Admin/Site.php:588
+#: src/Module/Admin/Site.php:591
 msgid ""
 "Search the local directory instead of the global directory. When searching "
 "locally, every search will be executed on the global directory in the "
 "background. This improves the search results when the search is repeated."
 msgstr "Suche im lokalen Verzeichnis anstelle des globalen Verzeichnisses durchführen. Jede Suche wird im Hintergrund auch im globalen Verzeichnis durchgeführt, um die Suchresultate zu verbessern, wenn die Suche wiederholt wird."
 
-#: src/Module/Admin/Site.php:590
+#: src/Module/Admin/Site.php:593
 msgid "Publish server information"
 msgstr "Server-Informationen veröffentlichen"
 
-#: src/Module/Admin/Site.php:590
+#: src/Module/Admin/Site.php:593
 msgid ""
 "If enabled, general server and usage data will be published. The data "
 "contains the name and version of the server, number of users with public "
@@ -6085,50 +6095,50 @@ msgid ""
 " href=\"http://the-federation.info/\">the-federation.info</a> for details."
 msgstr "Wenn aktiviert, werden allgemeine Informationen über den Server und Nutzungsdaten veröffentlicht. Die Daten beinhalten den Namen sowie die Version des Servers, die Anzahl der Personen mit öffentlichen Profilen, die Anzahl der Beiträge sowie aktivierte Protokolle und Konnektoren. Für Details bitte <a href=\"http://the-federation.info/\">the-federation.info</a> aufrufen."
 
-#: src/Module/Admin/Site.php:592
+#: src/Module/Admin/Site.php:595
 msgid "Check upstream version"
 msgstr "Suche nach Updates"
 
-#: src/Module/Admin/Site.php:592
+#: src/Module/Admin/Site.php:595
 msgid ""
 "Enables checking for new Friendica versions at github. If there is a new "
 "version, you will be informed in the admin panel overview."
 msgstr "Wenn diese Option aktiviert ist, wird regelmäßig nach neuen Friendica-Versionen auf github gesucht. Wenn es eine neue Version gibt, wird dies auf der Übersichtsseite im Admin-Panel angezeigt."
 
-#: src/Module/Admin/Site.php:593
+#: src/Module/Admin/Site.php:596
 msgid "Suppress Tags"
 msgstr "Tags unterdrücken"
 
-#: src/Module/Admin/Site.php:593
+#: src/Module/Admin/Site.php:596
 msgid "Suppress showing a list of hashtags at the end of the posting."
 msgstr "Unterdrückt die Anzeige von Tags am Ende eines Beitrags."
 
-#: src/Module/Admin/Site.php:594
+#: src/Module/Admin/Site.php:597
 msgid "Clean database"
 msgstr "Datenbank aufräumen"
 
-#: src/Module/Admin/Site.php:594
+#: src/Module/Admin/Site.php:597
 msgid ""
 "Remove old remote items, orphaned database records and old content from some"
 " other helper tables."
 msgstr "Entferne alte Beiträge von anderen Knoten, verwaiste Einträge und alten Inhalt einiger Hilfstabellen."
 
-#: src/Module/Admin/Site.php:595
+#: src/Module/Admin/Site.php:598
 msgid "Lifespan of remote items"
 msgstr "Lebensdauer von Beiträgen anderer Knoten"
 
-#: src/Module/Admin/Site.php:595
+#: src/Module/Admin/Site.php:598
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "remote items will be deleted. Own items, and marked or filed items are "
 "always kept. 0 disables this behaviour."
 msgstr "Wenn das Aufräumen der Datenbank aktiviert ist, definiert dies die Anzahl in Tagen, nach der Beiträge, die auf anderen Knoten des Netzwerks verfasst wurden, gelöscht werden sollen. Eigene Beiträge sowie markierte oder abgespeicherte Beiträge werden nicht gelöscht. Ein Wert von 0 deaktiviert das automatische Löschen von Beiträgen."
 
-#: src/Module/Admin/Site.php:596
+#: src/Module/Admin/Site.php:599
 msgid "Lifespan of unclaimed items"
 msgstr "Lebensdauer nicht angeforderter Beiträge"
 
-#: src/Module/Admin/Site.php:596
+#: src/Module/Admin/Site.php:599
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "unclaimed remote items (mostly content from the relay) will be deleted. "
@@ -6136,144 +6146,144 @@ msgid ""
 "items if set to 0."
 msgstr "Wenn das Aufräumen der Datenbank aktiviert ist, definiert dies die Anzahl von Tagen, nach denen nicht angeforderte Beiträge (hauptsächlich solche, die über das Relais eintreffen) gelöscht werden. Der Standardwert beträgt 90 Tage. Wird dieser Wert auf 0 gesetzt, wird die Lebensdauer von Beiträgen anderer Knoten verwendet."
 
-#: src/Module/Admin/Site.php:597
+#: src/Module/Admin/Site.php:600
 msgid "Lifespan of raw conversation data"
 msgstr "Lebensdauer der Beiträge"
 
-#: src/Module/Admin/Site.php:597
+#: src/Module/Admin/Site.php:600
 msgid ""
 "The conversation data is used for ActivityPub and OStatus, as well as for "
 "debug purposes. It should be safe to remove it after 14 days, default is 90 "
 "days."
 msgstr "Die Konversationsdaten werden für ActivityPub und OStatus sowie für Debug-Zwecke verwendet. Sie sollten gefahrlos nach 14 Tagen entfernt werden können, der Standardwert beträgt 90 Tage."
 
-#: src/Module/Admin/Site.php:598
+#: src/Module/Admin/Site.php:601
 msgid "Maximum numbers of comments per post"
 msgstr "Maximale Anzahl von Kommentaren pro Beitrag"
 
-#: src/Module/Admin/Site.php:598
+#: src/Module/Admin/Site.php:601
 msgid "How much comments should be shown for each post? Default value is 100."
 msgstr "Wie viele Kommentare sollen pro Beitrag angezeigt werden? Standardwert sind 100."
 
-#: src/Module/Admin/Site.php:599
+#: src/Module/Admin/Site.php:602
 msgid "Maximum numbers of comments per post on the display page"
 msgstr "Maximale Anzahl von Kommentaren in der Einzelansicht"
 
-#: src/Module/Admin/Site.php:599
+#: src/Module/Admin/Site.php:602
 msgid ""
 "How many comments should be shown on the single view for each post? Default "
 "value is 1000."
 msgstr "Wie viele Kommentare sollen auf der Einzelansicht eines Beitrags angezeigt werden? Grundeinstellung sind 1000."
 
-#: src/Module/Admin/Site.php:600
+#: src/Module/Admin/Site.php:603
 msgid "Temp path"
 msgstr "Temp-Pfad"
 
-#: src/Module/Admin/Site.php:600
+#: src/Module/Admin/Site.php:603
 msgid ""
 "If you have a restricted system where the webserver can't access the system "
 "temp path, enter another path here."
 msgstr "Solltest du ein eingeschränktes System haben, auf dem der Webserver nicht auf das temp-Verzeichnis des Systems zugreifen kann, setze hier einen anderen Pfad."
 
-#: src/Module/Admin/Site.php:601
+#: src/Module/Admin/Site.php:604
 msgid "Only search in tags"
 msgstr "Nur in Tags suchen"
 
-#: src/Module/Admin/Site.php:601
+#: src/Module/Admin/Site.php:604
 msgid "On large systems the text search can slow down the system extremely."
 msgstr "Auf großen Knoten kann die Volltext-Suche das System ausbremsen."
 
-#: src/Module/Admin/Site.php:603
+#: src/Module/Admin/Site.php:606
 msgid "New base url"
 msgstr "Neue Basis-URL"
 
-#: src/Module/Admin/Site.php:603
+#: src/Module/Admin/Site.php:606
 msgid ""
 "Change base url for this server. Sends relocate message to all Friendica and"
 " Diaspora* contacts of all users."
 msgstr "Ändert die Basis-URL dieses Servers und sendet eine Umzugsmitteilung an alle Friendica- und Diaspora*-Kontakte deiner NutzerInnen."
 
-#: src/Module/Admin/Site.php:605
+#: src/Module/Admin/Site.php:608
 msgid "Maximum number of parallel workers"
 msgstr "Maximale Anzahl parallel laufender Worker"
 
-#: src/Module/Admin/Site.php:605
+#: src/Module/Admin/Site.php:608
 #, php-format
 msgid ""
 "On shared hosters set this to %d. On larger systems, values of %d are great."
 " Default value is %d."
 msgstr "Wenn dein Knoten bei einem Shared Hoster ist, setze diesen Wert auf %d. Auf größeren Systemen funktioniert ein Wert von %d recht gut. Standardeinstellung sind %d."
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:609
 msgid "Enable fastlane"
 msgstr "Aktiviere Fastlane"
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:609
 msgid ""
 "When enabed, the fastlane mechanism starts an additional worker if processes"
 " with higher priority are blocked by processes of lower priority."
 msgstr "Wenn aktiviert, wird der Fastlane-Mechanismus einen weiteren Worker-Prozeß starten, wenn Prozesse mit höherer Priorität von Prozessen mit niedrigerer Priorität blockiert werden."
 
-#: src/Module/Admin/Site.php:608
+#: src/Module/Admin/Site.php:611
 msgid "Direct relay transfer"
 msgstr "Direkte Relais-Übertragung"
 
-#: src/Module/Admin/Site.php:608
+#: src/Module/Admin/Site.php:611
 msgid ""
 "Enables the direct transfer to other servers without using the relay servers"
 msgstr "Aktiviert das direkte Verteilen an andere Server, ohne dass ein Relais-Server verwendet wird."
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid "Relay scope"
 msgstr "Geltungsbereich des Relais"
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid ""
 "Can be \"all\" or \"tags\". \"all\" means that every public post should be "
 "received. \"tags\" means that only posts with selected tags should be "
 "received."
 msgstr "Der Wert kann entweder 'Alle' oder 'Schlagwörter' sein. 'Alle' bedeutet, dass alle öffentliche Beiträge empfangen werden sollen. 'Schlagwörter' schränkt dem Empfang auf Beiträge ein, die bestimmte Schlagwörter beinhalten."
 
-#: src/Module/Admin/Site.php:609 src/Module/Contact.php:473
+#: src/Module/Admin/Site.php:612 src/Module/Contact.php:473
 #: src/Module/Settings/TwoFactor/Index.php:118
 msgid "Disabled"
 msgstr "Deaktiviert"
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid "all"
 msgstr "Alle"
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid "tags"
 msgstr "Schlagwörter"
 
-#: src/Module/Admin/Site.php:610
+#: src/Module/Admin/Site.php:613
 msgid "Server tags"
 msgstr "Server-Schlagworte"
 
-#: src/Module/Admin/Site.php:610
+#: src/Module/Admin/Site.php:613
 msgid "Comma separated list of tags for the \"tags\" subscription."
 msgstr "Liste von Schlagworten, die abonniert werden sollen, mit Komma getrennt."
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:614
 msgid "Deny Server tags"
 msgstr "Server Tags ablehnen"
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:614
 msgid "Comma separated list of tags that are rejected."
 msgstr "Durch Kommas getrennte Liste der Tags, die abgelehnt werden"
 
-#: src/Module/Admin/Site.php:612
+#: src/Module/Admin/Site.php:615
 msgid "Allow user tags"
 msgstr "Verwende Schlagworte der Nutzer"
 
-#: src/Module/Admin/Site.php:612
+#: src/Module/Admin/Site.php:615
 msgid ""
 "If enabled, the tags from the saved searches will used for the \"tags\" "
 "subscription in addition to the \"relay_server_tags\"."
 msgstr "Ist dies aktiviert, werden die Schlagwörter der gespeicherten Suchen zusätzlich zu den oben definierten Server-Schlagworten abonniert."
 
-#: src/Module/Admin/Site.php:615
+#: src/Module/Admin/Site.php:618
 msgid "Start Relocation"
 msgstr "Umsiedlung starten"
 
@@ -7599,7 +7609,7 @@ msgid "Sort by post received date"
 msgstr "Nach Empfangsdatum der Beiträge sortiert"
 
 #: src/Module/Conversation/Network.php:250
-#: src/Module/Settings/Profile/Index.php:226
+#: src/Module/Settings/Profile/Index.php:228
 msgid "Personal"
 msgstr "Persönlich"
 
@@ -7823,7 +7833,7 @@ msgid "Twitter Source / Tweet URL (requires API key)"
 msgstr "Twitter Quelle / Tweet URL (benötigt API Schlüssel)"
 
 #: src/Module/Debug/Feed.php:38 src/Module/Filer/SaveTag.php:40
-#: src/Module/Settings/Profile/Index.php:140
+#: src/Module/Settings/Profile/Index.php:142
 msgid "You must be logged in to use this module"
 msgstr "Du musst eingeloggt sein, um dieses Modul benutzen zu können."
 
@@ -7934,15 +7944,15 @@ msgstr "- auswählen -"
 msgid "Suggested contact not found."
 msgstr "Vorgeschlagener Kontakt wurde nicht gefunden."
 
-#: src/Module/FriendSuggest.php:84
+#: src/Module/FriendSuggest.php:83
 msgid "Friend suggestion sent."
 msgstr "Kontaktvorschlag gesendet."
 
-#: src/Module/FriendSuggest.php:121
+#: src/Module/FriendSuggest.php:120
 msgid "Suggest Friends"
 msgstr "Kontakte vorschlagen"
 
-#: src/Module/FriendSuggest.php:124
+#: src/Module/FriendSuggest.php:123
 #, php-format
 msgid "Suggest a friend for %s"
 msgstr "Schlage %s einen Kontakt vor"
@@ -8466,7 +8476,7 @@ msgstr "Keine Kontaktanfragen."
 msgid "No more %s notifications."
 msgstr "Keine weiteren %s-Benachrichtigungen"
 
-#: src/Module/Notifications/Notification.php:104
+#: src/Module/Notifications/Notification.php:107
 msgid "You must be logged in to show this page."
 msgstr "Du musst eingeloggt sein damit diese Seite angezeigt werden kann."
 
@@ -8524,15 +8534,15 @@ msgstr "Der Grant-Typ fehlt oder wird nicht unterstützt"
 msgid "Wrong type \"%s\", expected one of: %s"
 msgstr "Falscher Typ \"%s\", hatte einen der Folgenden erwartet: %s"
 
-#: src/Module/PermissionTooltip.php:38
+#: src/Module/PermissionTooltip.php:42
 msgid "Model not found"
 msgstr "Model nicht gefunden"
 
-#: src/Module/PermissionTooltip.php:60
+#: src/Module/PermissionTooltip.php:64
 msgid "Remote privacy information not available."
 msgstr "Entfernte Privatsphäreneinstellungen nicht verfügbar."
 
-#: src/Module/PermissionTooltip.php:69
+#: src/Module/PermissionTooltip.php:73
 msgid "Visible to:"
 msgstr "Sichtbar für:"
 
@@ -8587,12 +8597,12 @@ msgid "Birthday:"
 msgstr "Geburtstag:"
 
 #: src/Module/Profile/Profile.php:167
-#: src/Module/Settings/Profile/Index.php:244 src/Util/Temporal.php:165
+#: src/Module/Settings/Profile/Index.php:246 src/Util/Temporal.php:165
 msgid "Age: "
 msgstr "Alter: "
 
 #: src/Module/Profile/Profile.php:167
-#: src/Module/Settings/Profile/Index.php:244 src/Util/Temporal.php:165
+#: src/Module/Settings/Profile/Index.php:246 src/Util/Temporal.php:165
 #, php-format
 msgid "%d year old"
 msgid_plural "%d years old"
@@ -9175,126 +9185,126 @@ msgstr "Profilname ist erforderlich."
 msgid "Profile couldn't be updated."
 msgstr "Das Profil konnte nicht aktualisiert werden."
 
-#: src/Module/Settings/Profile/Index.php:171
-#: src/Module/Settings/Profile/Index.php:191
+#: src/Module/Settings/Profile/Index.php:173
+#: src/Module/Settings/Profile/Index.php:193
 msgid "Label:"
 msgstr "Bezeichnung:"
 
-#: src/Module/Settings/Profile/Index.php:172
-#: src/Module/Settings/Profile/Index.php:192
+#: src/Module/Settings/Profile/Index.php:174
+#: src/Module/Settings/Profile/Index.php:194
 msgid "Value:"
 msgstr "Wert:"
 
-#: src/Module/Settings/Profile/Index.php:182
-#: src/Module/Settings/Profile/Index.php:202
+#: src/Module/Settings/Profile/Index.php:184
+#: src/Module/Settings/Profile/Index.php:204
 msgid "Field Permissions"
 msgstr "Berechtigungen des Felds"
 
-#: src/Module/Settings/Profile/Index.php:183
-#: src/Module/Settings/Profile/Index.php:203
+#: src/Module/Settings/Profile/Index.php:185
+#: src/Module/Settings/Profile/Index.php:205
 msgid "(click to open/close)"
 msgstr "(klicke zum Öffnen/Schließen)"
 
-#: src/Module/Settings/Profile/Index.php:189
+#: src/Module/Settings/Profile/Index.php:191
 msgid "Add a new profile field"
 msgstr "Neues Profilfeld hinzufügen"
 
-#: src/Module/Settings/Profile/Index.php:219
+#: src/Module/Settings/Profile/Index.php:221
 msgid "Profile Actions"
 msgstr "Profilaktionen"
 
-#: src/Module/Settings/Profile/Index.php:220
+#: src/Module/Settings/Profile/Index.php:222
 msgid "Edit Profile Details"
 msgstr "Profil bearbeiten"
 
-#: src/Module/Settings/Profile/Index.php:222
+#: src/Module/Settings/Profile/Index.php:224
 msgid "Change Profile Photo"
 msgstr "Profilbild ändern"
 
-#: src/Module/Settings/Profile/Index.php:227
+#: src/Module/Settings/Profile/Index.php:229
 msgid "Profile picture"
 msgstr "Profilbild"
 
-#: src/Module/Settings/Profile/Index.php:228
+#: src/Module/Settings/Profile/Index.php:230
 msgid "Location"
 msgstr "Wohnort"
 
-#: src/Module/Settings/Profile/Index.php:229 src/Util/Temporal.php:93
+#: src/Module/Settings/Profile/Index.php:231 src/Util/Temporal.php:93
 #: src/Util/Temporal.php:95
 msgid "Miscellaneous"
 msgstr "Verschiedenes"
 
-#: src/Module/Settings/Profile/Index.php:230
+#: src/Module/Settings/Profile/Index.php:232
 msgid "Custom Profile Fields"
 msgstr "Benutzerdefinierte Profilfelder"
 
-#: src/Module/Settings/Profile/Index.php:232 src/Module/Welcome.php:58
+#: src/Module/Settings/Profile/Index.php:234 src/Module/Welcome.php:58
 msgid "Upload Profile Photo"
 msgstr "Profilbild hochladen"
 
-#: src/Module/Settings/Profile/Index.php:236
+#: src/Module/Settings/Profile/Index.php:238
 msgid "Display name:"
 msgstr "Anzeigename:"
 
-#: src/Module/Settings/Profile/Index.php:239
+#: src/Module/Settings/Profile/Index.php:241
 msgid "Street Address:"
 msgstr "Adresse:"
 
-#: src/Module/Settings/Profile/Index.php:240
+#: src/Module/Settings/Profile/Index.php:242
 msgid "Locality/City:"
 msgstr "Wohnort:"
 
-#: src/Module/Settings/Profile/Index.php:241
+#: src/Module/Settings/Profile/Index.php:243
 msgid "Region/State:"
 msgstr "Region/Bundesstaat:"
 
-#: src/Module/Settings/Profile/Index.php:242
+#: src/Module/Settings/Profile/Index.php:244
 msgid "Postal/Zip Code:"
 msgstr "Postleitzahl:"
 
-#: src/Module/Settings/Profile/Index.php:243
+#: src/Module/Settings/Profile/Index.php:245
 msgid "Country:"
 msgstr "Land:"
 
-#: src/Module/Settings/Profile/Index.php:245
+#: src/Module/Settings/Profile/Index.php:247
 msgid "XMPP (Jabber) address:"
 msgstr "XMPP (Jabber) Adresse"
 
-#: src/Module/Settings/Profile/Index.php:245
+#: src/Module/Settings/Profile/Index.php:247
 msgid ""
 "The XMPP address will be published so that people can follow you there."
 msgstr "Die XMPP Adresse wird veröffentlicht, damit man dort mit dir kommunizieren kann."
 
-#: src/Module/Settings/Profile/Index.php:246
+#: src/Module/Settings/Profile/Index.php:248
 msgid "Matrix (Element) address:"
 msgstr "Matrix (Element) Adresse:"
 
-#: src/Module/Settings/Profile/Index.php:246
+#: src/Module/Settings/Profile/Index.php:248
 msgid ""
 "The Matrix address will be published so that people can follow you there."
 msgstr "Die Matrix Adresse wird veröffentlicht, damit man dort mit dir kommunizieren kann."
 
-#: src/Module/Settings/Profile/Index.php:247
+#: src/Module/Settings/Profile/Index.php:249
 msgid "Homepage URL:"
 msgstr "Adresse der Homepage:"
 
-#: src/Module/Settings/Profile/Index.php:248
+#: src/Module/Settings/Profile/Index.php:250
 msgid "Public Keywords:"
 msgstr "Öffentliche Schlüsselwörter:"
 
-#: src/Module/Settings/Profile/Index.php:248
+#: src/Module/Settings/Profile/Index.php:250
 msgid "(Used for suggesting potential friends, can be seen by others)"
 msgstr "(Wird verwendet, um potentielle Kontakte zu finden, kann von Kontakten eingesehen werden)"
 
-#: src/Module/Settings/Profile/Index.php:249
+#: src/Module/Settings/Profile/Index.php:251
 msgid "Private Keywords:"
 msgstr "Private Schlüsselwörter:"
 
-#: src/Module/Settings/Profile/Index.php:249
+#: src/Module/Settings/Profile/Index.php:251
 msgid "(Used for searching profiles, never shown to others)"
 msgstr "(Wird für die Suche nach Profilen verwendet und niemals veröffentlicht)"
 
-#: src/Module/Settings/Profile/Index.php:250
+#: src/Module/Settings/Profile/Index.php:252
 #, php-format
 msgid ""
 "<p>Custom fields appear on <a href=\"%s\">your profile page</a>.</p>\n"
@@ -9304,42 +9314,42 @@ msgid ""
 "\t\t\t\t<p>Non-public fields can only be seen by the selected Friendica contacts or the Friendica contacts in the selected groups.</p>"
 msgstr "<p>Die benutzerdefinierten Felder erscheinen auf <a href=\"%s\">deiner Profil-Seite</a></p>.\n\n<p>BBCode kann verwendet werden</p>\n<p>Die Reihenfolge der Felder kann durch Ziehen des Feld-Titels mit der Maus angepasst werden.</p>\n<p>Wird die Bezeichnung des Felds geleert, wird das Feld beim Speichern aus dem Profil entfernt.</p>\n<p>Nicht öffentliche Felder können nur von den ausgewählten Friendica Kontakte  gesehen werden.</p>"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:106
-#: src/Module/Settings/Profile/Photo/Crop.php:124
-#: src/Module/Settings/Profile/Photo/Crop.php:142
+#: src/Module/Settings/Profile/Photo/Crop.php:108
+#: src/Module/Settings/Profile/Photo/Crop.php:126
+#: src/Module/Settings/Profile/Photo/Crop.php:144
 #: src/Module/Settings/Profile/Photo/Index.php:102
 #, php-format
 msgid "Image size reduction [%s] failed."
 msgstr "Verkleinern der Bildgröße von [%s] scheiterte."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:149
+#: src/Module/Settings/Profile/Photo/Crop.php:151
 msgid ""
 "Shift-reload the page or clear browser cache if the new photo does not "
 "display immediately."
 msgstr "Drücke Umschalt+Neu Laden oder leere den Browser-Cache, falls das neue Foto nicht gleich angezeigt wird."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:154
+#: src/Module/Settings/Profile/Photo/Crop.php:156
 msgid "Unable to process image"
 msgstr "Bild konnte nicht verarbeitet werden"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:173
+#: src/Module/Settings/Profile/Photo/Crop.php:175
 msgid "Photo not found."
 msgstr "Foto nicht gefunden"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:195
+#: src/Module/Settings/Profile/Photo/Crop.php:197
 msgid "Profile picture successfully updated."
 msgstr "Profilbild erfolgreich aktualisiert."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:221
-#: src/Module/Settings/Profile/Photo/Crop.php:225
+#: src/Module/Settings/Profile/Photo/Crop.php:223
+#: src/Module/Settings/Profile/Photo/Crop.php:227
 msgid "Crop Image"
 msgstr "Bild zurechtschneiden"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:222
+#: src/Module/Settings/Profile/Photo/Crop.php:224
 msgid "Please adjust the image cropping for optimum viewing."
 msgstr "Passe bitte den Bildausschnitt an, damit das Bild optimal dargestellt werden kann."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:224
+#: src/Module/Settings/Profile/Photo/Crop.php:226
 msgid "Use Image As Is"
 msgstr "Bild wie es ist verwenden"
 
@@ -9956,263 +9966,6 @@ msgid ""
 " features and resources."
 msgstr "Unsere <strong>Hilfe</strong>-Seiten können herangezogen werden, um weitere Einzelheiten zu anderen Programm-Features zu erhalten."
 
-#: src/Navigation/Notifications/Depository/Notify.php:192
-#: src/Navigation/Notifications/Depository/Notify.php:675
-msgid "[Friendica:Notify]"
-msgstr "[Friendica Meldung]"
-
-#: src/Navigation/Notifications/Depository/Notify.php:256
-#, php-format
-msgid "%s New mail received at %s"
-msgstr "%sNeue Nachricht auf %s empfangen"
-
-#: src/Navigation/Notifications/Depository/Notify.php:258
-#, php-format
-msgid "%1$s sent you a new private message at %2$s."
-msgstr "%1$s hat dir eine neue, private Nachricht auf %2$s geschickt."
-
-#: src/Navigation/Notifications/Depository/Notify.php:259
-msgid "a private message"
-msgstr "eine private Nachricht"
-
-#: src/Navigation/Notifications/Depository/Notify.php:259
-#, php-format
-msgid "%1$s sent you %2$s."
-msgstr "%1$s schickte dir %2$s."
-
-#: src/Navigation/Notifications/Depository/Notify.php:261
-#, php-format
-msgid "Please visit %s to view and/or reply to your private messages."
-msgstr "Bitte besuche %s, um Deine privaten Nachrichten anzusehen und/oder zu beantworten."
-
-#: src/Navigation/Notifications/Depository/Notify.php:292
-#, php-format
-msgid "%1$s commented on %2$s's %3$s %4$s"
-msgstr "%1$s kommentierte %2$s's %3$s%4$s"
-
-#: src/Navigation/Notifications/Depository/Notify.php:297
-#, php-format
-msgid "%1$s commented on your %2$s %3$s"
-msgstr "%1$s kommentierte auf  (%2$s) %3$s"
-
-#: src/Navigation/Notifications/Depository/Notify.php:301
-#, php-format
-msgid "%1$s commented on their %2$s %3$s"
-msgstr "%1$s hat den eigenen %2$s %3$s kommentiert"
-
-#: src/Navigation/Notifications/Depository/Notify.php:305
-#: src/Navigation/Notifications/Depository/Notify.php:710
-#, php-format
-msgid "%1$s Comment to conversation #%2$d by %3$s"
-msgstr "%1$sKommentar von %3$s auf Unterhaltung %2$d"
-
-#: src/Navigation/Notifications/Depository/Notify.php:307
-#, php-format
-msgid "%s commented on an item/conversation you have been following."
-msgstr "%s hat einen Beitrag kommentiert, dem du folgst."
-
-#: src/Navigation/Notifications/Depository/Notify.php:311
-#: src/Navigation/Notifications/Depository/Notify.php:326
-#: src/Navigation/Notifications/Depository/Notify.php:345
-#: src/Navigation/Notifications/Depository/Notify.php:725
-#, php-format
-msgid "Please visit %s to view and/or reply to the conversation."
-msgstr "Bitte besuche %s, um die Konversation anzusehen und/oder zu kommentieren."
-
-#: src/Navigation/Notifications/Depository/Notify.php:318
-#, php-format
-msgid "%s %s posted to your profile wall"
-msgstr "%s%s hat auf deine Pinnwand gepostet"
-
-#: src/Navigation/Notifications/Depository/Notify.php:320
-#, php-format
-msgid "%1$s posted to your profile wall at %2$s"
-msgstr "%1$s schrieb um %2$s auf Deine Pinnwand"
-
-#: src/Navigation/Notifications/Depository/Notify.php:321
-#, php-format
-msgid "%1$s posted to [url=%2$s]your wall[/url]"
-msgstr "%1$s hat etwas auf [url=%2$s]Deiner Pinnwand[/url] gepostet"
-
-#: src/Navigation/Notifications/Depository/Notify.php:333
-#, php-format
-msgid "%1$s %2$s poked you"
-msgstr "%1$s%2$shat dich angestubst"
-
-#: src/Navigation/Notifications/Depository/Notify.php:335
-#, php-format
-msgid "%1$s poked you at %2$s"
-msgstr "%1$s hat dich auf %2$s angestupst"
-
-#: src/Navigation/Notifications/Depository/Notify.php:336
-#, php-format
-msgid "%1$s [url=%2$s]poked you[/url]."
-msgstr "%1$s [url=%2$s]hat dich angestupst[/url]."
-
-#: src/Navigation/Notifications/Depository/Notify.php:353
-#, php-format
-msgid "%s Introduction received"
-msgstr "%sVorstellung erhalten"
-
-#: src/Navigation/Notifications/Depository/Notify.php:355
-#, php-format
-msgid "You've received an introduction from '%1$s' at %2$s"
-msgstr "Du hast eine Kontaktanfrage von '%1$s' auf %2$s erhalten"
-
-#: src/Navigation/Notifications/Depository/Notify.php:356
-#, php-format
-msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
-msgstr "Du hast eine [url=%1$s]Kontaktanfrage[/url] von %2$s erhalten."
-
-#: src/Navigation/Notifications/Depository/Notify.php:361
-#: src/Navigation/Notifications/Depository/Notify.php:407
-#, php-format
-msgid "You may visit their profile at %s"
-msgstr "Hier kannst du das Profil betrachten: %s"
-
-#: src/Navigation/Notifications/Depository/Notify.php:363
-#, php-format
-msgid "Please visit %s to approve or reject the introduction."
-msgstr "Bitte besuche %s, um die Kontaktanfrage anzunehmen oder abzulehnen."
-
-#: src/Navigation/Notifications/Depository/Notify.php:370
-#, php-format
-msgid "%s A new person is sharing with you"
-msgstr "%sEine neue Person teilt nun mit dir"
-
-#: src/Navigation/Notifications/Depository/Notify.php:372
-#: src/Navigation/Notifications/Depository/Notify.php:373
-#, php-format
-msgid "%1$s is sharing with you at %2$s"
-msgstr "%1$s teilt mit dir auf %2$s"
-
-#: src/Navigation/Notifications/Depository/Notify.php:380
-#, php-format
-msgid "%s You have a new follower"
-msgstr "%sDu hast einen neuen Kontakt"
-
-#: src/Navigation/Notifications/Depository/Notify.php:382
-#: src/Navigation/Notifications/Depository/Notify.php:383
-#, php-format
-msgid "You have a new follower at %2$s : %1$s"
-msgstr "Du hast einen neuen Kontakt auf %2$s: %1$s"
-
-#: src/Navigation/Notifications/Depository/Notify.php:396
-#, php-format
-msgid "%s Friend suggestion received"
-msgstr "%sKontaktvorschlag erhalten"
-
-#: src/Navigation/Notifications/Depository/Notify.php:398
-#, php-format
-msgid "You've received a friend suggestion from '%1$s' at %2$s"
-msgstr "Du hast einen Kontakt-Vorschlag von '%1$s' auf %2$s erhalten"
-
-#: src/Navigation/Notifications/Depository/Notify.php:399
-#, php-format
-msgid ""
-"You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
-msgstr "Du hast einen [url=%1$s]Kontakt-Vorschlag[/url] %2$s von %3$s erhalten."
-
-#: src/Navigation/Notifications/Depository/Notify.php:405
-msgid "Name:"
-msgstr "Name:"
-
-#: src/Navigation/Notifications/Depository/Notify.php:406
-msgid "Photo:"
-msgstr "Foto:"
-
-#: src/Navigation/Notifications/Depository/Notify.php:409
-#, php-format
-msgid "Please visit %s to approve or reject the suggestion."
-msgstr "Bitte besuche %s, um den Vorschlag zu akzeptieren oder abzulehnen."
-
-#: src/Navigation/Notifications/Depository/Notify.php:417
-#: src/Navigation/Notifications/Depository/Notify.php:432
-#, php-format
-msgid "%s Connection accepted"
-msgstr "%sKontaktanfrage bestätigt"
-
-#: src/Navigation/Notifications/Depository/Notify.php:419
-#: src/Navigation/Notifications/Depository/Notify.php:434
-#, php-format
-msgid "'%1$s' has accepted your connection request at %2$s"
-msgstr "'%1$s' hat Deine Kontaktanfrage auf  %2$s bestätigt"
-
-#: src/Navigation/Notifications/Depository/Notify.php:420
-#: src/Navigation/Notifications/Depository/Notify.php:435
-#, php-format
-msgid "%2$s has accepted your [url=%1$s]connection request[/url]."
-msgstr "%2$s hat Deine [url=%1$s]Kontaktanfrage[/url] akzeptiert."
-
-#: src/Navigation/Notifications/Depository/Notify.php:425
-msgid ""
-"You are now mutual friends and may exchange status updates, photos, and "
-"email without restriction."
-msgstr "Ihr seid nun beidseitige Kontakte und könnt Statusmitteilungen, Bilder und E-Mails ohne Einschränkungen austauschen."
-
-#: src/Navigation/Notifications/Depository/Notify.php:427
-#, php-format
-msgid "Please visit %s if you wish to make any changes to this relationship."
-msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
-
-#: src/Navigation/Notifications/Depository/Notify.php:440
-#, php-format
-msgid ""
-"'%1$s' has chosen to accept you a fan, which restricts some forms of "
-"communication - such as private messaging and some profile interactions. If "
-"this is a celebrity or community page, these settings were applied "
-"automatically."
-msgstr "'%1$s' hat sich entschieden dich als Fan zu akzeptieren, dies schränkt einige Kommunikationswege - wie private Nachrichten und einige Interaktionsmöglichkeiten auf der Profilseite - ein. Wenn dies eine Berühmtheiten- oder Gemeinschaftsseite ist, werden diese Einstellungen automatisch vorgenommen."
-
-#: src/Navigation/Notifications/Depository/Notify.php:442
-#, php-format
-msgid ""
-"'%1$s' may choose to extend this into a two-way or more permissive "
-"relationship in the future."
-msgstr "'%1$s' kann den Kontaktstatus zu einem späteren Zeitpunkt erweitern und diese Einschränkungen aufheben. "
-
-#: src/Navigation/Notifications/Depository/Notify.php:444
-#, php-format
-msgid "Please visit %s  if you wish to make any changes to this relationship."
-msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
-
-#: src/Navigation/Notifications/Depository/Notify.php:454
-msgid "registration request"
-msgstr "Registrierungsanfrage"
-
-#: src/Navigation/Notifications/Depository/Notify.php:456
-#, php-format
-msgid "You've received a registration request from '%1$s' at %2$s"
-msgstr "Du hast eine Registrierungsanfrage von %2$s auf '%1$s' erhalten"
-
-#: src/Navigation/Notifications/Depository/Notify.php:457
-#, php-format
-msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
-msgstr "Du hast eine [url=%1$s]Registrierungsanfrage[/url] von %2$s erhalten."
-
-#: src/Navigation/Notifications/Depository/Notify.php:462
-#, php-format
-msgid ""
-"Full Name:\t%s\n"
-"Site Location:\t%s\n"
-"Login Name:\t%s (%s)"
-msgstr "Kompletter Name: %s\nURL der Seite: %s\nLogin Name: %s(%s)"
-
-#: src/Navigation/Notifications/Depository/Notify.php:468
-#, php-format
-msgid "Please visit %s to approve or reject the request."
-msgstr "Bitte besuche %s, um die Anfrage zu bearbeiten."
-
-#: src/Navigation/Notifications/Depository/Notify.php:704
-#, php-format
-msgid "%s %s tagged you"
-msgstr "%s %s hat dich erwähnt"
-
-#: src/Navigation/Notifications/Depository/Notify.php:707
-#, php-format
-msgid "%s %s shared a new post"
-msgstr "%s%shat einen Beitrag geteilt"
-
 #: src/Navigation/Notifications/Factory/FormattedNotification.php:89
 #, php-format
 msgid "%s liked %s's post"
@@ -10370,6 +10123,263 @@ msgstr "%1$s hat den Beitrag %2$s geteilt"
 #, php-format
 msgid "%1$s shared a post"
 msgstr "%1$s hat einen Beitrag geteilt"
+
+#: src/Navigation/Notifications/Repository/Notify.php:192
+#: src/Navigation/Notifications/Repository/Notify.php:675
+msgid "[Friendica:Notify]"
+msgstr "[Friendica Meldung]"
+
+#: src/Navigation/Notifications/Repository/Notify.php:256
+#, php-format
+msgid "%s New mail received at %s"
+msgstr "%sNeue Nachricht auf %s empfangen"
+
+#: src/Navigation/Notifications/Repository/Notify.php:258
+#, php-format
+msgid "%1$s sent you a new private message at %2$s."
+msgstr "%1$s hat dir eine neue, private Nachricht auf %2$s geschickt."
+
+#: src/Navigation/Notifications/Repository/Notify.php:259
+msgid "a private message"
+msgstr "eine private Nachricht"
+
+#: src/Navigation/Notifications/Repository/Notify.php:259
+#, php-format
+msgid "%1$s sent you %2$s."
+msgstr "%1$s schickte dir %2$s."
+
+#: src/Navigation/Notifications/Repository/Notify.php:261
+#, php-format
+msgid "Please visit %s to view and/or reply to your private messages."
+msgstr "Bitte besuche %s, um Deine privaten Nachrichten anzusehen und/oder zu beantworten."
+
+#: src/Navigation/Notifications/Repository/Notify.php:292
+#, php-format
+msgid "%1$s commented on %2$s's %3$s %4$s"
+msgstr "%1$s kommentierte %2$s's %3$s%4$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:297
+#, php-format
+msgid "%1$s commented on your %2$s %3$s"
+msgstr "%1$s kommentierte auf  (%2$s) %3$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:301
+#, php-format
+msgid "%1$s commented on their %2$s %3$s"
+msgstr "%1$s hat den eigenen %2$s %3$s kommentiert"
+
+#: src/Navigation/Notifications/Repository/Notify.php:305
+#: src/Navigation/Notifications/Repository/Notify.php:710
+#, php-format
+msgid "%1$s Comment to conversation #%2$d by %3$s"
+msgstr "%1$sKommentar von %3$s auf Unterhaltung %2$d"
+
+#: src/Navigation/Notifications/Repository/Notify.php:307
+#, php-format
+msgid "%s commented on an item/conversation you have been following."
+msgstr "%s hat einen Beitrag kommentiert, dem du folgst."
+
+#: src/Navigation/Notifications/Repository/Notify.php:311
+#: src/Navigation/Notifications/Repository/Notify.php:326
+#: src/Navigation/Notifications/Repository/Notify.php:345
+#: src/Navigation/Notifications/Repository/Notify.php:725
+#, php-format
+msgid "Please visit %s to view and/or reply to the conversation."
+msgstr "Bitte besuche %s, um die Konversation anzusehen und/oder zu kommentieren."
+
+#: src/Navigation/Notifications/Repository/Notify.php:318
+#, php-format
+msgid "%s %s posted to your profile wall"
+msgstr "%s%s hat auf deine Pinnwand gepostet"
+
+#: src/Navigation/Notifications/Repository/Notify.php:320
+#, php-format
+msgid "%1$s posted to your profile wall at %2$s"
+msgstr "%1$s schrieb um %2$s auf Deine Pinnwand"
+
+#: src/Navigation/Notifications/Repository/Notify.php:321
+#, php-format
+msgid "%1$s posted to [url=%2$s]your wall[/url]"
+msgstr "%1$s hat etwas auf [url=%2$s]Deiner Pinnwand[/url] gepostet"
+
+#: src/Navigation/Notifications/Repository/Notify.php:333
+#, php-format
+msgid "%1$s %2$s poked you"
+msgstr "%1$s%2$shat dich angestubst"
+
+#: src/Navigation/Notifications/Repository/Notify.php:335
+#, php-format
+msgid "%1$s poked you at %2$s"
+msgstr "%1$s hat dich auf %2$s angestupst"
+
+#: src/Navigation/Notifications/Repository/Notify.php:336
+#, php-format
+msgid "%1$s [url=%2$s]poked you[/url]."
+msgstr "%1$s [url=%2$s]hat dich angestupst[/url]."
+
+#: src/Navigation/Notifications/Repository/Notify.php:353
+#, php-format
+msgid "%s Introduction received"
+msgstr "%sVorstellung erhalten"
+
+#: src/Navigation/Notifications/Repository/Notify.php:355
+#, php-format
+msgid "You've received an introduction from '%1$s' at %2$s"
+msgstr "Du hast eine Kontaktanfrage von '%1$s' auf %2$s erhalten"
+
+#: src/Navigation/Notifications/Repository/Notify.php:356
+#, php-format
+msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
+msgstr "Du hast eine [url=%1$s]Kontaktanfrage[/url] von %2$s erhalten."
+
+#: src/Navigation/Notifications/Repository/Notify.php:361
+#: src/Navigation/Notifications/Repository/Notify.php:407
+#, php-format
+msgid "You may visit their profile at %s"
+msgstr "Hier kannst du das Profil betrachten: %s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:363
+#, php-format
+msgid "Please visit %s to approve or reject the introduction."
+msgstr "Bitte besuche %s, um die Kontaktanfrage anzunehmen oder abzulehnen."
+
+#: src/Navigation/Notifications/Repository/Notify.php:370
+#, php-format
+msgid "%s A new person is sharing with you"
+msgstr "%sEine neue Person teilt nun mit dir"
+
+#: src/Navigation/Notifications/Repository/Notify.php:372
+#: src/Navigation/Notifications/Repository/Notify.php:373
+#, php-format
+msgid "%1$s is sharing with you at %2$s"
+msgstr "%1$s teilt mit dir auf %2$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:380
+#, php-format
+msgid "%s You have a new follower"
+msgstr "%sDu hast einen neuen Kontakt"
+
+#: src/Navigation/Notifications/Repository/Notify.php:382
+#: src/Navigation/Notifications/Repository/Notify.php:383
+#, php-format
+msgid "You have a new follower at %2$s : %1$s"
+msgstr "Du hast einen neuen Kontakt auf %2$s: %1$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:396
+#, php-format
+msgid "%s Friend suggestion received"
+msgstr "%sKontaktvorschlag erhalten"
+
+#: src/Navigation/Notifications/Repository/Notify.php:398
+#, php-format
+msgid "You've received a friend suggestion from '%1$s' at %2$s"
+msgstr "Du hast einen Kontakt-Vorschlag von '%1$s' auf %2$s erhalten"
+
+#: src/Navigation/Notifications/Repository/Notify.php:399
+#, php-format
+msgid ""
+"You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
+msgstr "Du hast einen [url=%1$s]Kontakt-Vorschlag[/url] %2$s von %3$s erhalten."
+
+#: src/Navigation/Notifications/Repository/Notify.php:405
+msgid "Name:"
+msgstr "Name:"
+
+#: src/Navigation/Notifications/Repository/Notify.php:406
+msgid "Photo:"
+msgstr "Foto:"
+
+#: src/Navigation/Notifications/Repository/Notify.php:409
+#, php-format
+msgid "Please visit %s to approve or reject the suggestion."
+msgstr "Bitte besuche %s, um den Vorschlag zu akzeptieren oder abzulehnen."
+
+#: src/Navigation/Notifications/Repository/Notify.php:417
+#: src/Navigation/Notifications/Repository/Notify.php:432
+#, php-format
+msgid "%s Connection accepted"
+msgstr "%sKontaktanfrage bestätigt"
+
+#: src/Navigation/Notifications/Repository/Notify.php:419
+#: src/Navigation/Notifications/Repository/Notify.php:434
+#, php-format
+msgid "'%1$s' has accepted your connection request at %2$s"
+msgstr "'%1$s' hat Deine Kontaktanfrage auf  %2$s bestätigt"
+
+#: src/Navigation/Notifications/Repository/Notify.php:420
+#: src/Navigation/Notifications/Repository/Notify.php:435
+#, php-format
+msgid "%2$s has accepted your [url=%1$s]connection request[/url]."
+msgstr "%2$s hat Deine [url=%1$s]Kontaktanfrage[/url] akzeptiert."
+
+#: src/Navigation/Notifications/Repository/Notify.php:425
+msgid ""
+"You are now mutual friends and may exchange status updates, photos, and "
+"email without restriction."
+msgstr "Ihr seid nun beidseitige Kontakte und könnt Statusmitteilungen, Bilder und E-Mails ohne Einschränkungen austauschen."
+
+#: src/Navigation/Notifications/Repository/Notify.php:427
+#, php-format
+msgid "Please visit %s if you wish to make any changes to this relationship."
+msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
+
+#: src/Navigation/Notifications/Repository/Notify.php:440
+#, php-format
+msgid ""
+"'%1$s' has chosen to accept you a fan, which restricts some forms of "
+"communication - such as private messaging and some profile interactions. If "
+"this is a celebrity or community page, these settings were applied "
+"automatically."
+msgstr "'%1$s' hat sich entschieden dich als Fan zu akzeptieren, dies schränkt einige Kommunikationswege - wie private Nachrichten und einige Interaktionsmöglichkeiten auf der Profilseite - ein. Wenn dies eine Berühmtheiten- oder Gemeinschaftsseite ist, werden diese Einstellungen automatisch vorgenommen."
+
+#: src/Navigation/Notifications/Repository/Notify.php:442
+#, php-format
+msgid ""
+"'%1$s' may choose to extend this into a two-way or more permissive "
+"relationship in the future."
+msgstr "'%1$s' kann den Kontaktstatus zu einem späteren Zeitpunkt erweitern und diese Einschränkungen aufheben. "
+
+#: src/Navigation/Notifications/Repository/Notify.php:444
+#, php-format
+msgid "Please visit %s  if you wish to make any changes to this relationship."
+msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
+
+#: src/Navigation/Notifications/Repository/Notify.php:454
+msgid "registration request"
+msgstr "Registrierungsanfrage"
+
+#: src/Navigation/Notifications/Repository/Notify.php:456
+#, php-format
+msgid "You've received a registration request from '%1$s' at %2$s"
+msgstr "Du hast eine Registrierungsanfrage von %2$s auf '%1$s' erhalten"
+
+#: src/Navigation/Notifications/Repository/Notify.php:457
+#, php-format
+msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
+msgstr "Du hast eine [url=%1$s]Registrierungsanfrage[/url] von %2$s erhalten."
+
+#: src/Navigation/Notifications/Repository/Notify.php:462
+#, php-format
+msgid ""
+"Full Name:\t%s\n"
+"Site Location:\t%s\n"
+"Login Name:\t%s (%s)"
+msgstr "Kompletter Name: %s\nURL der Seite: %s\nLogin Name: %s(%s)"
+
+#: src/Navigation/Notifications/Repository/Notify.php:468
+#, php-format
+msgid "Please visit %s to approve or reject the request."
+msgstr "Bitte besuche %s, um die Anfrage zu bearbeiten."
+
+#: src/Navigation/Notifications/Repository/Notify.php:704
+#, php-format
+msgid "%s %s tagged you"
+msgstr "%s %s hat dich erwähnt"
+
+#: src/Navigation/Notifications/Repository/Notify.php:707
+#, php-format
+msgid "%s %s shared a new post"
+msgstr "%s%shat einen Beitrag geteilt"
 
 #: src/Object/EMail/ItemCCEMail.php:42
 #, php-format
@@ -10725,7 +10735,7 @@ msgstr "in %1$d %2$s"
 msgid "%1$d %2$s ago"
 msgstr "%1$d %2$s her"
 
-#: src/Worker/Delivery.php:521
+#: src/Worker/Delivery.php:525
 msgid "(no subject)"
 msgstr "(kein Betreff)"
 
