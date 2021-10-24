@@ -188,10 +188,9 @@ return [
 			['determineModule', [], Dice::CHAIN_CALL],
 		],
 	],
-	Process::class => [
+	\Friendica\Core\System::class => [
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
-			getmypid(),
 		],
 	],
 	App\Router::class => [

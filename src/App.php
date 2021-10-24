@@ -118,9 +118,9 @@ class App
 	private $args;
 
 	/**
-	 * @var Core\Process The process methods
+	 * @var Core\System The system methods
 	 */
-	private $process;
+	private $system;
 
 	/**
 	 * @var IManagePersonalConfigValues
@@ -327,10 +327,10 @@ class App
 	 * @param Profiler                    $profiler The profiler of this application
 	 * @param L10n                        $l10n     The translator instance
 	 * @param App\Arguments               $args     The Friendica Arguments of the call
-	 * @param Core\Process                $process  The process methods
+	 * @param Core\System     $system   The system methods
 	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
 	 */
-	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\Process $process, IManagePersonalConfigValues $pConfig)
+	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\System $system, IManagePersonalConfigValues $pConfig)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -340,7 +340,7 @@ class App
 		$this->logger   = $logger;
 		$this->l10n     = $l10n;
 		$this->args     = $args;
-		$this->process  = $process;
+		$this->system   = $system;
 		$this->pConfig  = $pConfig;
 
 		$this->load();
@@ -589,7 +589,7 @@ class App
 			}
 
 			// Max Load Average reached: ERROR
-			if ($this->process->isMaxProcessesReached() || $this->process->isMaxLoadReached()) {
+			if ($this->system->isMaxProcessesReached() || $this->system->isMaxLoadReached()) {
 				header('Retry-After: 120');
 				header('Refresh: 120; url=' . $this->baseURL->get() . "/" . $this->args->getQueryString());
 

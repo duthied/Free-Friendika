@@ -81,8 +81,10 @@ if ($spawn) {
 
 $run_cron = !array_key_exists('n', $options) && !array_key_exists('no_cron', $options);
 
-Worker::processQueue($run_cron);
+$process = DI::process()->create(getmypid());
 
-Worker::unclaimProcess();
+Worker::processQueue($run_cron, $process);
 
-DI::process()->end();
+Worker::unclaimProcess($process);
+
+DI::process()->delete($process);
