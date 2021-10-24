@@ -25,6 +25,7 @@ namespace Friendica\Core\Logger\Handler;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Throwable;
 
 /**
  * A facility to enable logging of runtime errors, exceptions and fatal errors.
@@ -73,6 +74,7 @@ class ErrorHandler
 	 * @param  array<int, LogLevel::*>|false          $errorLevelMap     an array of E_* constant to LogLevel::* constant mapping, or false to disable error handling
 	 * @param  array<class-string, LogLevel::*>|false $exceptionLevelMap an array of class name to LogLevel::* constant mapping, or false to disable exception handling
 	 * @param  LogLevel::*|null|false                 $fatalLevel        a LogLevel::* constant, null to use the default LogLevel::ALERT or false to disable fatal error handling
+	 *
 	 * @return ErrorHandler
 	 */
 	public static function register(LoggerInterface $logger, $errorLevelMap = [], $exceptionLevelMap = [], $fatalLevel = null): self
@@ -92,6 +94,13 @@ class ErrorHandler
 		return $handler;
 	}
 
+	/**
+	 * Stringify the class of the given object for logging purpose
+	 *
+	 * @param object $object An object to retrieve the class
+	 *
+	 * @return string the classname of the object
+	 */
 	public static function getClass(object $object): string
 	{
 		$class = \get_class($object);
@@ -108,12 +117,14 @@ class ErrorHandler
 	}
 
 	/**
-	 * @param  array<class-string, LogLevel::*> $levelMap an array of class name to LogLevel::* constant mapping
+	 * @param array<class-string, LogLevel::*> $levelMap an array of class name to LogLevel::* constant mapping
+	 * @param bool                             $callPrevious Set to true, if a previously defined exception handler should be called after handling this exception
+	 *
 	 * @return $this
 	 */
 	public function registerExceptionHandler(array $levelMap = [], bool $callPrevious = true): self
 	{
-		$prev = set_exception_handler(function (\Throwable $e): void {
+		$prev = set_exception_handler(function (Throwable $e): void {
 			$this->handleException($e);
 		});
 		$this->uncaughtExceptionLevelMap = $levelMap;
@@ -130,7 +141,11 @@ class ErrorHandler
 	}
 
 	/**
-	 * @param  array<int, LogLevel::*> $levelMap an array of E_* constant to LogLevel::* constant mapping
+	 * @param array<int, LogLevel::*> $levelMap an array of E_* constant to LogLevel::* constant mapping
+	 * @param bool                    $callPrevious Set to true, if a previously defined exception handler should be called after handling this exception
+	 * @param int                     $errorTypes a Mask for masking the errortypes, which should be handled by this error handler
+	 * @param bool                    $handleOnlyReportedErrors Set to true, only errors set per error_reporting() will be logged
+	 *
 	 * @return $this
 	 */
 	public function registerErrorHandler(array $levelMap = [], bool $callPrevious = true, int $errorTypes = -1, bool $handleOnlyReportedErrors = true): self
@@ -151,6 +166,8 @@ class ErrorHandler
 	/**
 	 * @param LogLevel::*|null $level              a LogLevel::* constant, null to use the default LogLevel::ALERT
 	 * @param int              $reservedMemorySize Amount of KBs to reserve in memory so that it can be freed when handling fatal errors giving Monolog some room in memory to get its job done
+	 *
+	 * @return $this
 	 */
 	public function registerFatalHandler($level = null, int $reservedMemorySize = 20): self
 	{
@@ -198,7 +215,12 @@ class ErrorHandler
 		];
 	}
 
-	private function handleException(\Throwable $e): void
+	/**
+	 * The Exception handler
+	 *
+	 * @param Throwable $e The Exception to handle
+	 */
+	private function handleException(Throwable $e): void
 	{
 		$level = LogLevel::ERROR;
 		foreach ($this->uncaughtExceptionLevelMap as $class => $candidate) {
@@ -226,11 +248,19 @@ class ErrorHandler
 	}
 
 	/**
+	 * The Error handler
+	 *
 	 * @private
 	 *
-	 * @param mixed[] $context
+	 * @param int        $code    The PHP error code
+	 * @param string     $message The error message
+	 * @param string     $file    If possible, set the file at which the failure occurred
+	 * @param int        $line
+	 * @param array|null $context If possible, add a context to the error for better analysis
+	 *
+	 * @return bool
 	 */
-	public function handleError(int $code, string $message, string $file = '', int $line = 0, array $context = []): bool
+	public function handleError(int $code, string $message, string $file = '', int $line = 0, ?array $context = []): bool
 	{
 		if ($this->handleOnlyReportedErrors && !(error_reporting() & $code)) {
 			return false;
@@ -273,7 +303,9 @@ class ErrorHandler
 	}
 
 	/**
-	 * @param int $code
+	 * @param mixed $code
+	 *
+	 * @return string
 	 */
 	private static function codeToString($code): string
 	{
