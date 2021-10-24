@@ -15,9 +15,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-18 00:07+0200\n"
-"PO-Revision-Date: 2021-10-18 20:45+0000\n"
-"Last-Translator: abidin toumi <abidin24@tutanota.com>\n"
+"POT-Creation-Date: 2021-10-23 21:51-0400\n"
+"PO-Revision-Date: 2021-10-24 03:24+0000\n"
+"Last-Translator: Transifex Bot <>\n"
 "Language-Team: Arabic (http://www.transifex.com/Friendica/friendica/language/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -53,261 +53,10 @@ msgstr[5] "رُفضت المشاركة. تجاوزت الحد الأسبوعي �
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr "رُفضت المشاركة. تجاوزت الحد الشهري وهو %d مشاركة."
 
-#: include/enotify.php:50 include/enotify.php:533
-msgid "[Friendica:Notify]"
-msgstr "[Friendica:Notify]"
-
-#: include/enotify.php:114
-#, php-format
-msgid "%s New mail received at %s"
-msgstr "أُستلم بريد جديد %s على %s"
-
-#: include/enotify.php:116
-#, php-format
-msgid "%1$s sent you a new private message at %2$s."
-msgstr "أرسل %1$s لك رسالة خاصة على %2$s."
-
-#: include/enotify.php:117
-msgid "a private message"
-msgstr "رسالة خاصة"
-
-#: include/enotify.php:117
-#, php-format
-msgid "%1$s sent you %2$s."
-msgstr "أرسل %1$s لك %2$s."
-
-#: include/enotify.php:119
-#, php-format
-msgid "Please visit %s to view and/or reply to your private messages."
-msgstr "من فضلك.زر %s لعرض و/أو الرد على الرسائل الخاصة."
-
-#: include/enotify.php:150
-#, php-format
-msgid "%1$s commented on %2$s's %3$s %4$s"
-msgstr "علق %1$s على %3$s %2$s %4$s"
-
-#: include/enotify.php:155
-#, php-format
-msgid "%1$s commented on your %2$s %3$s"
-msgstr "علق %1$s على %2$s تخصك %3$s"
-
-#: include/enotify.php:159
-#, php-format
-msgid "%1$s commented on their %2$s %3$s"
-msgstr "علق %1$s على %2$s له %3$s"
-
-#: include/enotify.php:163 include/enotify.php:568
-#, php-format
-msgid "%1$s Comment to conversation #%2$d by %3$s"
-msgstr "علق %1$s على محادثة %3$s #%2$d"
-
-#: include/enotify.php:165
-#, php-format
-msgid "%s commented on an item/conversation you have been following."
-msgstr "علق %s على محادثة/عنصر تتابعه."
-
-#: include/enotify.php:169 include/enotify.php:184 include/enotify.php:203
-#: include/enotify.php:583
-#, php-format
-msgid "Please visit %s to view and/or reply to the conversation."
-msgstr "من فضلك.زر %s لعرض و/أو الرد على المحادثة."
-
-#: include/enotify.php:176
-#, php-format
-msgid "%s %s posted to your profile wall"
-msgstr "نشر %s%s على حائط ملفك الشخصي"
-
-#: include/enotify.php:178
-#, php-format
-msgid "%1$s posted to your profile wall at %2$s"
-msgstr "نشر %1$s على حائط ملفك الشخصي على %2$s"
-
-#: include/enotify.php:179
-#, php-format
-msgid "%1$s posted to [url=%2$s]your wall[/url]"
-msgstr "\"نشر %1$s على [%2$s=url]حائطك[/url]"
-
-#: include/enotify.php:191
-#, php-format
-msgid "%1$s %2$s poked you"
-msgstr "لكزك %1$s %2$s"
-
-#: include/enotify.php:193
-#, php-format
-msgid "%1$s poked you at %2$s"
-msgstr "لكزك %1$s على %2$s"
-
-#: include/enotify.php:194
-#, php-format
-msgid "%1$s [url=%2$s]poked you[/url]."
-msgstr "[url=%2$s]لكزك[/url] %1$s."
-
-#: include/enotify.php:211
-#, php-format
-msgid "%s Introduction received"
-msgstr "تلقيت تقديما من %s"
-
-#: include/enotify.php:213
-#, php-format
-msgid "You've received an introduction from '%1$s' at %2$s"
-msgstr "تلقيت تقديما من '%1$s' على %2$s"
-
-#: include/enotify.php:214
-#, php-format
-msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
-msgstr "تلقيت [url=%1$s]تقديما[/url] من %2$s."
-
-#: include/enotify.php:219 include/enotify.php:265
-#, php-format
-msgid "You may visit their profile at %s"
-msgstr "يمكنك زيارة ملفهم الخصي على %s"
-
-#: include/enotify.php:221
-#, php-format
-msgid "Please visit %s to approve or reject the introduction."
-msgstr "من فضلك زر %s لقبول أو رفض التقديم."
-
-#: include/enotify.php:228
-#, php-format
-msgid "%s A new person is sharing with you"
-msgstr "%s شخص جديد يشارك معك"
-
-#: include/enotify.php:230 include/enotify.php:231
-#, php-format
-msgid "%1$s is sharing with you at %2$s"
-msgstr "يشارك %1$s معك على %2$s"
-
-#: include/enotify.php:238
-#, php-format
-msgid "%s You have a new follower"
-msgstr "لديك متابِع جديد %s"
-
-#: include/enotify.php:240 include/enotify.php:241
-#, php-format
-msgid "You have a new follower at %2$s : %1$s"
-msgstr "لديك متابِع جديد على %2$s : %1$s"
-
-#: include/enotify.php:254
-#, php-format
-msgid "%s Friend suggestion received"
-msgstr "تلقيت إقتراح صديق %s"
-
-#: include/enotify.php:256
-#, php-format
-msgid "You've received a friend suggestion from '%1$s' at %2$s"
-msgstr "تلقيت اقتراح صديق من '%1$s' على %2$s"
-
-#: include/enotify.php:257
-#, php-format
-msgid ""
-"You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
-msgstr " تلقيت [url=%1$s]اقتراح %2$s كصديق[/url] من %3$s."
-
-#: include/enotify.php:263
-msgid "Name:"
-msgstr "الاسم:"
-
-#: include/enotify.php:264
-msgid "Photo:"
-msgstr "الصورة:"
-
-#: include/enotify.php:267
-#, php-format
-msgid "Please visit %s to approve or reject the suggestion."
-msgstr "من فضلك زر %s لقبول  أو رفض الاقتراح."
-
-#: include/enotify.php:275 include/enotify.php:290
-#, php-format
-msgid "%s Connection accepted"
-msgstr "قُبِل الاقتران %s"
-
-#: include/enotify.php:277 include/enotify.php:292
-#, php-format
-msgid "'%1$s' has accepted your connection request at %2$s"
-msgstr "قبِل '%1$s' طلب الاقتران على %2$s"
-
-#: include/enotify.php:278 include/enotify.php:293
-#, php-format
-msgid "%2$s has accepted your [url=%1$s]connection request[/url]."
-msgstr "قبِل %2$s [url=%1$s]طلب الاقتران[/url]"
-
-#: include/enotify.php:283
-msgid ""
-"You are now mutual friends and may exchange status updates, photos, and "
-"email without restriction."
-msgstr "أصبحتما صديقين من كلا الطرفين ويمكنكما تبادل تحديثات الحالة، والصور، والبريد دون قيود."
-
-#: include/enotify.php:285
-#, php-format
-msgid "Please visit %s if you wish to make any changes to this relationship."
-msgstr "من فضلك زر %s إن أردت تغيير هذه العلاقة."
-
-#: include/enotify.php:298
-#, php-format
-msgid ""
-"'%1$s' has chosen to accept you a fan, which restricts some forms of "
-"communication - such as private messaging and some profile interactions. If "
-"this is a celebrity or community page, these settings were applied "
-"automatically."
-msgstr "قبِلك '%1$s' كمعجب، هذا يحدُّ من أشكال التواصل بينكما مثل الزسائل الخاصة وبعض التفاعلات. يتم هذا تلقائيا اذا كانت صفحة مشهور أو مجتمع."
-
-#: include/enotify.php:300
-#, php-format
-msgid ""
-"'%1$s' may choose to extend this into a two-way or more permissive "
-"relationship in the future."
-msgstr "قد يختار '%1$s' توسيعها إلى علاقة ذات اتجاهين أو أكثر في المستقبل."
-
-#: include/enotify.php:302
-#, php-format
-msgid "Please visit %s  if you wish to make any changes to this relationship."
-msgstr "من فضلك زر %s إن أردت تغيير هذه العلاقة."
-
-#: include/enotify.php:312 mod/removeme.php:63
-msgid "[Friendica System Notify]"
-msgstr "[Friendica System Notify]"
-
-#: include/enotify.php:312
-msgid "registration request"
-msgstr "طلب تسجيل"
-
-#: include/enotify.php:314
-#, php-format
-msgid "You've received a registration request from '%1$s' at %2$s"
-msgstr "تلقيت طلب تسجيل من '%1$s' على %2$s"
-
-#: include/enotify.php:315
-#, php-format
-msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
-msgstr "تلقيت [url=%1$s]طلب تسجيل[/url] من %2$s"
-
-#: include/enotify.php:320
-#, php-format
-msgid ""
-"Full Name:\t%s\n"
-"Site Location:\t%s\n"
-"Login Name:\t%s (%s)"
-msgstr "الاسم الكامل:\t%s\nالموقع:\t%s\nاسم الولوج:\t%s (%s)"
-
-#: include/enotify.php:326
-#, php-format
-msgid "Please visit %s to approve or reject the request."
-msgstr "من فضلك زر %s لقبول  أو رفض الطلب."
-
-#: include/enotify.php:562
-#, php-format
-msgid "%s %s tagged you"
-msgstr "ذكرك %s%s"
-
-#: include/enotify.php:565
-#, php-format
-msgid "%s %s shared a new post"
-msgstr "شارك %s%s مشاركة جديدة"
-
 #: mod/api.php:30 mod/editpost.php:38 mod/events.php:220 mod/follow.php:56
 #: mod/follow.php:130 mod/item.php:185 mod/item.php:190 mod/item.php:936
 #: mod/message.php:69 mod/message.php:111 mod/notes.php:44
-#: mod/ostatus_subscribe.php:32 mod/photos.php:163 mod/photos.php:908
+#: mod/ostatus_subscribe.php:32 mod/photos.php:160 mod/photos.php:900
 #: mod/repair_ostatus.php:31 mod/settings.php:47 mod/settings.php:57
 #: mod/settings.php:409 mod/suggest.php:34 mod/uimport.php:33
 #: mod/unfollow.php:35 mod/unfollow.php:50 mod/unfollow.php:82
@@ -318,10 +67,10 @@ msgstr "شارك %s%s مشاركة جديدة"
 #: src/Module/BaseApi.php:97 src/Module/BaseApi.php:106
 #: src/Module/BaseNotifications.php:88 src/Module/Contact.php:328
 #: src/Module/Contact/Advanced.php:44 src/Module/Delegation.php:118
-#: src/Module/FollowConfirm.php:16 src/Module/FriendSuggest.php:44
+#: src/Module/FollowConfirm.php:17 src/Module/FriendSuggest.php:44
 #: src/Module/Group.php:45 src/Module/Group.php:90 src/Module/Invite.php:41
-#: src/Module/Invite.php:130 src/Module/Notifications/Notification.php:47
-#: src/Module/Notifications/Notification.php:76
+#: src/Module/Invite.php:130 src/Module/Notifications/Notification.php:48
+#: src/Module/Notifications/Notification.php:79
 #: src/Module/Profile/Common.php:56 src/Module/Profile/Contacts.php:56
 #: src/Module/Profile/Schedule.php:39 src/Module/Profile/Schedule.php:56
 #: src/Module/Register.php:64 src/Module/Register.php:77
@@ -329,7 +78,7 @@ msgstr "شارك %s%s مشاركة جديدة"
 #: src/Module/Search/Directory.php:38 src/Module/Settings/Delegation.php:42
 #: src/Module/Settings/Delegation.php:70 src/Module/Settings/Display.php:43
 #: src/Module/Settings/Display.php:121
-#: src/Module/Settings/Profile/Photo/Crop.php:158
+#: src/Module/Settings/Profile/Photo/Crop.php:166
 #: src/Module/Settings/Profile/Photo/Index.php:112
 #: src/Module/Settings/UserExport.php:58 src/Module/Settings/UserExport.php:93
 #: src/Module/Settings/UserExport.php:198
@@ -345,10 +94,10 @@ msgstr "رُفض الإذن."
 #: src/Module/Item/Pin.php:42 src/Module/Item/Pin.php:57
 #: src/Module/Item/Star.php:43
 msgid "Access denied."
-msgstr "رُفض الإذن."
+msgstr "رُفض الوصول."
 
-#: mod/cal.php:61 mod/cal.php:78 mod/photos.php:69 mod/photos.php:143
-#: mod/photos.php:815 src/Model/Profile.php:229 src/Module/HCard.php:52
+#: mod/cal.php:61 mod/cal.php:78 mod/photos.php:69 mod/photos.php:140
+#: mod/photos.php:807 src/Model/Profile.php:229 src/Module/HCard.php:52
 #: src/Module/Profile/Common.php:41 src/Module/Profile/Common.php:52
 #: src/Module/Profile/Contacts.php:40 src/Module/Profile/Contacts.php:50
 #: src/Module/Profile/Media.php:38 src/Module/Profile/Status.php:58
@@ -360,7 +109,7 @@ msgstr "لم يُعثر على المستخدم."
 #: src/Module/Profile/Profile.php:109 src/Module/Profile/Status.php:109
 #: src/Module/Update/Profile.php:56
 msgid "Access to this profile has been restricted."
-msgstr "قُيد الوصول لهذا الملف الشخصي."
+msgstr "قُيِّد الوصول لهذا الملف الشخصي."
 
 #: mod/cal.php:242 mod/events.php:377 src/Content/Nav.php:194
 #: src/Content/Nav.php:258 src/Module/BaseProfile.php:84
@@ -423,12 +172,12 @@ msgstr "لم يُعثر على بيانات قابلة للتصدير"
 msgid "calendar"
 msgstr "تقويم"
 
-#: mod/display.php:165 mod/photos.php:819
+#: mod/display.php:165 mod/photos.php:811
 #: src/Module/Conversation/Community.php:176 src/Module/Debug/Probe.php:39
 #: src/Module/Debug/WebFinger.php:38 src/Module/Directory.php:49
 #: src/Module/Search/Index.php:50 src/Module/Search/Index.php:55
 msgid "Public access denied."
-msgstr "رُفض الوصول العمومي."
+msgstr "رُفض الوصول العلني."
 
 #: mod/display.php:221 mod/display.php:295
 msgid "The requested item doesn't exist or has been deleted."
@@ -436,7 +185,7 @@ msgstr "العنصر غير موجود أو حُذف."
 
 #: mod/display.php:375
 msgid "The feed for this item is unavailable."
-msgstr "خلاصة هذا العنصر غير متوفرة."
+msgstr "تغذية هذا العنصر غير متوفرة."
 
 #: mod/editpost.php:45 mod/editpost.php:55
 msgid "Item not found"
@@ -444,14 +193,14 @@ msgstr "لم يُعثر على العنصر"
 
 #: mod/editpost.php:64
 msgid "Edit post"
-msgstr "حرر المشاركة"
+msgstr "عدّل المشاركة"
 
 #: mod/editpost.php:91 mod/notes.php:56 src/Content/Text/HTML.php:885
 #: src/Module/Admin/Storage.php:143 src/Module/Filer/SaveTag.php:69
 msgid "Save"
 msgstr "احفظ"
 
-#: mod/editpost.php:92 mod/photos.php:1355 src/Content/Conversation.php:326
+#: mod/editpost.php:92 mod/photos.php:1347 src/Content/Conversation.php:326
 #: src/Module/Contact/Poke.php:157 src/Object/Post.php:964
 msgid "Loading..."
 msgstr "يحمل..."
@@ -467,11 +216,11 @@ msgstr "ارفع صورة"
 
 #: mod/editpost.php:95 src/Content/Conversation.php:329
 msgid "Attach file"
-msgstr "أرفق ملفا"
+msgstr "أرفق ملفًا"
 
 #: mod/editpost.php:96 src/Content/Conversation.php:330
 msgid "attach file"
-msgstr "أرفق ملفا"
+msgstr "أرفق ملفًا"
 
 #: mod/editpost.php:97 mod/message.php:199 mod/message.php:356
 #: mod/wallmessage.php:140
@@ -501,11 +250,11 @@ msgstr "رابط ملف صوتي"
 #: mod/editpost.php:103 src/Content/Conversation.php:340
 #: src/Module/Item/Compose.php:161
 msgid "Set your location"
-msgstr "موقعك"
+msgstr "عيّن موقعك"
 
 #: mod/editpost.php:104 src/Content/Conversation.php:341
 msgid "set location"
-msgstr "عين موقعك"
+msgstr "عين الموقع"
 
 #: mod/editpost.php:105 src/Content/Conversation.php:342
 msgid "Clear browser location"
@@ -516,7 +265,7 @@ msgid "clear location"
 msgstr "امسح الموقع"
 
 #: mod/editpost.php:107 mod/message.php:200 mod/message.php:358
-#: mod/photos.php:1506 mod/wallmessage.php:141
+#: mod/photos.php:1498 mod/wallmessage.php:141
 #: src/Content/Conversation.php:355 src/Content/Conversation.php:689
 #: src/Module/Item/Compose.php:165 src/Object/Post.php:502
 msgid "Please wait"
@@ -524,7 +273,7 @@ msgstr "يرجى الانتظار"
 
 #: mod/editpost.php:108 src/Content/Conversation.php:356
 msgid "Permission settings"
-msgstr "إعدادات الأذون"
+msgstr "إعدادات الأذونات"
 
 #: mod/editpost.php:116 src/Core/ACL.php:325
 msgid "CC: email addresses"
@@ -542,20 +291,20 @@ msgstr "عين العنوان"
 #: mod/editpost.php:122 src/Content/Conversation.php:347
 #: src/Module/Item/Compose.php:167
 msgid "Categories (comma-separated list)"
-msgstr "فئات (قائمة مقسمة بفاصلة)"
+msgstr "الفئات (قائمة مفصولة بفاصلة)"
 
 #: mod/editpost.php:123 src/Core/ACL.php:326
 msgid "Example: bob@example.com, mary@example.com"
 msgstr "مثل: bob@example.com, mary@example.com"
 
-#: mod/editpost.php:128 mod/events.php:517 mod/photos.php:1354
-#: mod/photos.php:1410 mod/photos.php:1484 src/Content/Conversation.php:370
+#: mod/editpost.php:128 mod/events.php:517 mod/photos.php:1346
+#: mod/photos.php:1402 mod/photos.php:1476 src/Content/Conversation.php:370
 #: src/Module/Item/Compose.php:160 src/Object/Post.php:974
 msgid "Preview"
 msgstr "معاينة"
 
 #: mod/editpost.php:130 mod/fbrowser.php:100 mod/fbrowser.php:127
-#: mod/follow.php:144 mod/photos.php:1017 mod/photos.php:1122 mod/tagrm.php:37
+#: mod/follow.php:144 mod/photos.php:1013 mod/photos.php:1114 mod/tagrm.php:37
 #: mod/tagrm.php:129 mod/unfollow.php:97 src/Content/Conversation.php:373
 #: src/Module/Contact/Revoke.php:99 src/Module/RemoteFollow.php:116
 msgid "Cancel"
@@ -565,21 +314,21 @@ msgstr "ألغ"
 #: src/Content/Widget/VCard.php:107 src/Model/Profile.php:460
 #: src/Module/Admin/Logs/View.php:92
 msgid "Message"
-msgstr "رسالة"
+msgstr "الرسالة"
 
 #: mod/editpost.php:135 src/Content/Conversation.php:381
 #: src/Module/Settings/TwoFactor/Trusted.php:101
 msgid "Browser"
-msgstr "متصفح"
+msgstr "المتصفح"
 
-#: mod/editpost.php:136 mod/events.php:522 mod/photos.php:956
-#: mod/photos.php:1308 src/Content/Conversation.php:357
+#: mod/editpost.php:136 mod/events.php:522 mod/photos.php:948
+#: mod/photos.php:1300 src/Content/Conversation.php:357
 msgid "Permissions"
-msgstr "أُذون"
+msgstr "الأُذونات"
 
 #: mod/editpost.php:138 src/Content/Conversation.php:383
 msgid "Open Compose page"
-msgstr "افتح صفحة التأليف"
+msgstr "افتح صفحة الإنشاء"
 
 #: mod/events.php:123 mod/events.php:125
 msgid "Event can not end before it has started."
@@ -591,7 +340,7 @@ msgstr "عنوان الحدث و وقت بدئه إلزاميان."
 
 #: mod/events.php:379
 msgid "Create New Event"
-msgstr "أنشئ حدثاً جديد"
+msgstr "أنشئ حدثاً جديدًا"
 
 #: mod/events.php:478 src/Module/Admin/Logs/View.php:96
 msgid "Event details"
@@ -632,7 +381,7 @@ msgid "Event Finishes:"
 msgstr "ينتهي الحدث في:"
 
 #: mod/events.php:506 src/Module/Profile/Profile.php:172
-#: src/Module/Settings/Profile/Index.php:237
+#: src/Module/Settings/Profile/Index.php:239
 msgid "Description:"
 msgstr "الوصف:"
 
@@ -653,18 +402,18 @@ msgid "Share this event"
 msgstr "شارك هذا الحدث"
 
 #: mod/events.php:519 mod/message.php:201 mod/message.php:357
-#: mod/photos.php:938 mod/photos.php:1039 mod/photos.php:1312
-#: mod/photos.php:1353 mod/photos.php:1409 mod/photos.php:1483
+#: mod/photos.php:930 mod/photos.php:1034 mod/photos.php:1304
+#: mod/photos.php:1345 mod/photos.php:1401 mod/photos.php:1475
 #: src/Module/Admin/Item/Source.php:65 src/Module/Contact.php:523
 #: src/Module/Contact/Advanced.php:133 src/Module/Contact/Poke.php:158
 #: src/Module/Debug/ActivityPubConversion.php:141
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
 #: src/Module/Debug/Probe.php:56 src/Module/Debug/WebFinger.php:53
-#: src/Module/Delegation.php:147 src/Module/FriendSuggest.php:129
+#: src/Module/Delegation.php:147 src/Module/FriendSuggest.php:128
 #: src/Module/Install.php:245 src/Module/Install.php:287
 #: src/Module/Install.php:324 src/Module/Invite.php:177
 #: src/Module/Item/Compose.php:150 src/Module/Profile/Profile.php:247
-#: src/Module/Settings/Profile/Index.php:221 src/Object/Post.php:963
+#: src/Module/Settings/Profile/Index.php:223 src/Object/Post.php:963
 #: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
 #: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
@@ -674,14 +423,14 @@ msgstr "أرسل"
 msgid "Basic"
 msgstr "أساسي"
 
-#: mod/events.php:521 src/Module/Admin/Site.php:505 src/Module/Contact.php:863
+#: mod/events.php:521 src/Module/Admin/Site.php:507 src/Module/Contact.php:863
 #: src/Module/Profile/Profile.php:249
 msgid "Advanced"
 msgstr "متقدم"
 
 #: mod/events.php:538
 msgid "Failed to remove event"
-msgstr "فشلت إزالت الحدث"
+msgstr "فشلت إزالة الحدث"
 
 #: mod/fbrowser.php:43 src/Content/Nav.php:192 src/Module/BaseProfile.php:64
 #: view/theme/frio/theme.php:227
@@ -703,7 +452,7 @@ msgstr "أرسل الطلب"
 
 #: mod/follow.php:84
 msgid "You already added this contact."
-msgstr "لقد أضفت هذا المتراسل بالفعل."
+msgstr "أضفت هذا المتراسل سلفًا."
 
 #: mod/follow.php:100
 msgid "The network type couldn't be detected. Contact can't be added."
@@ -718,7 +467,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr "دعم OStatus غير مفعل. لا يمكن إضافة المتراسل."
 
 #: mod/follow.php:138 src/Content/Item.php:463 src/Content/Widget.php:76
-#: src/Model/Contact.php:1071 src/Model/Contact.php:1083
+#: src/Model/Contact.php:1072 src/Model/Contact.php:1084
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "اقترن\\تابع"
@@ -736,7 +485,7 @@ msgstr "عنوان معرّفك:"
 #: src/Module/Notifications/Introductions.php:107
 #: src/Module/Notifications/Introductions.php:176
 msgid "Profile URL"
-msgstr "رابط الصفحة الشخصية"
+msgstr "رابط الملف الشخصي"
 
 #: mod/follow.php:142 src/Module/Contact.php:573
 #: src/Module/Notifications/Introductions.php:169
@@ -756,11 +505,11 @@ msgstr "أضف ملاحظة شخصية:"
 #: mod/follow.php:163 mod/unfollow.php:109 src/Module/BaseProfile.php:59
 #: src/Module/Contact.php:833
 msgid "Status Messages and Posts"
-msgstr "رسائل ومشاركات الحالة"
+msgstr "مشاركات ورسائل الحالة"
 
 #: mod/follow.php:191
 msgid "The contact could not be added."
-msgstr "لا يمكن إضافة المتراسل."
+msgstr "تعذر إضافة المتراسل."
 
 #: mod/item.php:135 mod/item.php:139
 msgid "Unable to locate original post."
@@ -768,7 +517,7 @@ msgstr "تعذر إيجاد المشاركة الأصلية."
 
 #: mod/item.php:341 mod/item.php:346
 msgid "Empty post discarded."
-msgstr "تُجوهلت المشاركة الفارغة."
+msgstr "رُفضت المشاركة الفارغة."
 
 #: mod/item.php:742
 msgid "Post updated."
@@ -842,7 +591,7 @@ msgstr "تعذر التحقق من الطلب (ربما تكون قد أرسلت
 
 #: mod/lostpass.php:113
 msgid "Request has expired, please make a new one."
-msgstr "انتهت صلاحيته، يرجى طلب واحد جديد."
+msgstr "انتهت صلاحيته، أرسل طلب واحد جديد."
 
 #: mod/lostpass.php:128
 msgid "Forgot your Password?"
@@ -868,7 +617,7 @@ msgstr "إعادة تعيين كلمة المرور"
 
 #: mod/lostpass.php:147
 msgid "Your password has been reset as requested."
-msgstr "أُعيذ تعيين كلمة المرور كما طلبت."
+msgstr "أُعيد تعيين كلمة المرور بناء على طلبك."
 
 #: mod/lostpass.php:148
 msgid "Your new password is"
@@ -924,7 +673,7 @@ msgstr "غُيرت كلمة المرور على %s"
 
 #: mod/match.php:62
 msgid "No keywords to match. Please add keywords to your profile."
-msgstr "لا توجد كلمات مفتاحية لمطابقتها. من فضلك أضاف كلمات مفتاحية إلى ملفك الشخصي."
+msgstr "لا توجد كلمات مفتاحية لمطابقتها. من فضلك أضف كلمات مفتاحية إلى ملفك الشخصي."
 
 #: mod/match.php:93 src/Module/BaseSearch.php:117
 msgid "No matches"
@@ -948,7 +697,7 @@ msgstr "تعذر العثور على معلومات المتراسل."
 
 #: mod/message.php:90 mod/wallmessage.php:75
 msgid "Message could not be sent."
-msgstr "تعذر ارسال الرسالة."
+msgstr "تعذر إرسال الرسالة."
 
 #: mod/message.php:93 mod/wallmessage.php:78
 msgid "Message collection failure."
@@ -956,13 +705,13 @@ msgstr "فشل جمع الرسائل."
 
 #: mod/message.php:120 src/Module/Notifications/Introductions.php:113
 #: src/Module/Notifications/Introductions.php:148
-#: src/Module/Notifications/Notification.php:56
+#: src/Module/Notifications/Notification.php:57
 msgid "Discard"
-msgstr "تجاهل"
+msgstr "ارفض"
 
 #: mod/message.php:133 src/Content/Nav.php:283 view/theme/frio/theme.php:234
 msgid "Messages"
-msgstr "رسائل"
+msgstr "الرسائل"
 
 #: mod/message.php:146
 msgid "Conversation not found."
@@ -974,11 +723,11 @@ msgstr "لم تحذف الرسالة."
 
 #: mod/message.php:166
 msgid "Conversation was not removed."
-msgstr "لم تزل المحادثة."
+msgstr "لم تُزل المحادثة."
 
 #: mod/message.php:180 mod/message.php:286 mod/wallmessage.php:123
 msgid "Please enter a link URL:"
-msgstr "يرجى ادخال عنوان الرابط:"
+msgstr "يرجى إدخال الرابط:"
 
 #: mod/message.php:189 mod/wallmessage.php:128
 msgid "Send Private Message"
@@ -986,7 +735,7 @@ msgstr "أرسل رسالة خاصة"
 
 #: mod/message.php:190 mod/message.php:347 mod/wallmessage.php:130
 msgid "To:"
-msgstr "الى:"
+msgstr "إلى:"
 
 #: mod/message.php:191 mod/message.php:348 mod/wallmessage.php:131
 msgid "Subject:"
@@ -1063,7 +812,7 @@ msgstr "الملاحظات الشخصية مرئية لك فقط."
 
 #: mod/ostatus_subscribe.php:37
 msgid "Subscribing to contacts"
-msgstr "يشتراك في متراسلين"
+msgstr "يشترك في متراسلين"
 
 #: mod/ostatus_subscribe.php:47
 msgid "No contact provided."
@@ -1071,7 +820,7 @@ msgstr "لم يُقدم متراسلين."
 
 #: mod/ostatus_subscribe.php:53
 msgid "Couldn't fetch information for contact."
-msgstr "تعذر جلب معلومات التمراسل."
+msgstr "تعذر جلب معلومات المتراسل."
 
 #: mod/ostatus_subscribe.php:64
 msgid "Couldn't fetch friends for contact."
@@ -1103,263 +852,263 @@ msgstr "فشل"
 
 #: mod/ostatus_subscribe.php:121
 msgid "ignored"
-msgstr "تجاهل"
+msgstr "متجاهل"
 
 #: mod/ostatus_subscribe.php:126 mod/repair_ostatus.php:57
 msgid "Keep this window open until done."
 msgstr "أبق هذه النافذة مفتوحة حتى ينتهي."
 
-#: mod/photos.php:111 src/Module/BaseProfile.php:67
+#: mod/photos.php:108 src/Module/BaseProfile.php:67
 msgid "Photo Albums"
 msgstr "ألبومات الصور"
 
-#: mod/photos.php:112 mod/photos.php:1608
+#: mod/photos.php:109 mod/photos.php:1593
 msgid "Recent Photos"
 msgstr "الصور الأخيرة"
 
-#: mod/photos.php:114 mod/photos.php:1090 mod/photos.php:1610
+#: mod/photos.php:111 mod/photos.php:1082 mod/photos.php:1595
 msgid "Upload New Photos"
 msgstr "ارفع صور جديدة"
 
-#: mod/photos.php:132 src/Module/BaseSettings.php:37
+#: mod/photos.php:129 src/Module/BaseSettings.php:37
 msgid "everybody"
 msgstr "الجميع"
 
-#: mod/photos.php:170
+#: mod/photos.php:167
 msgid "Contact information unavailable"
 msgstr "معلومات المتراسل غير متوفرة"
 
-#: mod/photos.php:204
+#: mod/photos.php:196
 msgid "Album not found."
 msgstr "لم يُعثر على الألبوم."
 
-#: mod/photos.php:258
+#: mod/photos.php:250
 msgid "Album successfully deleted"
 msgstr "حُذف الألبوم بنجاح"
 
-#: mod/photos.php:260
+#: mod/photos.php:252
 msgid "Album was empty."
 msgstr "ألبوم فارغ."
 
-#: mod/photos.php:292
+#: mod/photos.php:284
 msgid "Failed to delete the photo."
 msgstr "فشل حذف الصفحة."
 
-#: mod/photos.php:567
+#: mod/photos.php:559
 msgid "a photo"
 msgstr "صورة"
 
-#: mod/photos.php:567
+#: mod/photos.php:559
 #, php-format
 msgid "%1$s was tagged in %2$s by %3$s"
 msgstr "ذكر %3$s %1$s في %2$s"
 
-#: mod/photos.php:650 mod/photos.php:653 mod/photos.php:680
+#: mod/photos.php:642 mod/photos.php:645 mod/photos.php:672
 #: mod/wall_upload.php:207 src/Module/Settings/Profile/Photo/Index.php:60
 #, php-format
 msgid "Image exceeds size limit of %s"
 msgstr "تجاوزت الصورة الحد الأقصى للحجم وهو %s"
 
-#: mod/photos.php:656
+#: mod/photos.php:648
 msgid "Image upload didn't complete, please try again"
 msgstr "لم يكتمل رفع الصورة، من فضلك أعد المحاولة"
 
-#: mod/photos.php:659
+#: mod/photos.php:651
 msgid "Image file is missing"
 msgstr "ملف الصورة مفقود"
 
-#: mod/photos.php:664
+#: mod/photos.php:656
 msgid ""
 "Server can't accept new file upload at this time, please contact your "
 "administrator"
 msgstr "الخادم لا يقبل رفع ملفات جديدة، يرجى التواصل مع مدير الموقع"
 
-#: mod/photos.php:688
+#: mod/photos.php:680
 msgid "Image file is empty."
 msgstr "ملف الصورة فارغ."
 
-#: mod/photos.php:703 mod/wall_upload.php:166
+#: mod/photos.php:695 mod/wall_upload.php:166
 #: src/Module/Settings/Profile/Photo/Index.php:69
 msgid "Unable to process image."
 msgstr "تعذرت معالجة الصورة."
 
-#: mod/photos.php:732 mod/wall_upload.php:232
+#: mod/photos.php:724 mod/wall_upload.php:232
 #: src/Module/Settings/Profile/Photo/Index.php:96
 msgid "Image upload failed."
 msgstr "فشل رفع الصورة."
 
-#: mod/photos.php:824
+#: mod/photos.php:816
 msgid "No photos selected"
 msgstr "لم تختر صورًا"
 
-#: mod/photos.php:893
+#: mod/photos.php:885
 msgid "Access to this item is restricted."
 msgstr "الوصول إلى هذا العنصر مقيد."
 
-#: mod/photos.php:948
+#: mod/photos.php:940
 msgid "Upload Photos"
 msgstr "ارفع صورًا"
 
-#: mod/photos.php:952 mod/photos.php:1035
+#: mod/photos.php:944 mod/photos.php:1030
 msgid "New album name: "
 msgstr "اسم الألبوم الجديد: "
 
-#: mod/photos.php:953
+#: mod/photos.php:945
 msgid "or select existing album:"
 msgstr "أو اختر ألبومًا موجودًا:"
 
-#: mod/photos.php:954
+#: mod/photos.php:946
 msgid "Do not show a status post for this upload"
 msgstr "لا تظهر مشاركة حالة لهذا الملف المرفوع"
 
-#: mod/photos.php:1015
+#: mod/photos.php:1011
 msgid "Do you really want to delete this photo album and all its photos?"
 msgstr "أتريد حذف هذا الألبوم وكافة محتوياته؟"
 
-#: mod/photos.php:1016 mod/photos.php:1040
+#: mod/photos.php:1012 mod/photos.php:1035
 msgid "Delete Album"
 msgstr "احذف الألبوم"
 
-#: mod/photos.php:1046
+#: mod/photos.php:1039
 msgid "Edit Album"
 msgstr "حرر الألبوم"
 
-#: mod/photos.php:1047
+#: mod/photos.php:1040
 msgid "Drop Album"
 msgstr "احذف الألبوم"
 
-#: mod/photos.php:1052
+#: mod/photos.php:1044
 msgid "Show Newest First"
 msgstr "اعرض الأحدث أولًا"
 
-#: mod/photos.php:1054
+#: mod/photos.php:1046
 msgid "Show Oldest First"
 msgstr "اعرض الأقدم أولًا"
 
-#: mod/photos.php:1075 mod/photos.php:1593
+#: mod/photos.php:1067 mod/photos.php:1578
 msgid "View Photo"
 msgstr "اعرض الصور"
 
-#: mod/photos.php:1108
+#: mod/photos.php:1100
 msgid "Permission denied. Access to this item may be restricted."
 msgstr "رُفض الإذن. قد يكون الوصول إلى هذا العنصر مقيدا."
 
-#: mod/photos.php:1110
+#: mod/photos.php:1102
 msgid "Photo not available"
 msgstr "الصورة غير متوفرة"
 
-#: mod/photos.php:1120
+#: mod/photos.php:1112
 msgid "Do you really want to delete this photo?"
 msgstr "أتريد حذف هذه الصورة؟"
 
-#: mod/photos.php:1121 mod/photos.php:1313
+#: mod/photos.php:1113 mod/photos.php:1305
 msgid "Delete Photo"
 msgstr "احذف الصورة"
 
-#: mod/photos.php:1211
+#: mod/photos.php:1203
 msgid "View photo"
 msgstr "اعرض الصورة"
 
-#: mod/photos.php:1213
+#: mod/photos.php:1205
 msgid "Edit photo"
 msgstr "حرر الصورة"
 
-#: mod/photos.php:1214
+#: mod/photos.php:1206
 msgid "Delete photo"
 msgstr "احذف الصورة"
 
-#: mod/photos.php:1215
+#: mod/photos.php:1207
 msgid "Use as profile photo"
 msgstr "استخدامها كصورة الملف الشخصي"
 
-#: mod/photos.php:1222
+#: mod/photos.php:1214
 msgid "Private Photo"
 msgstr "صور خاصة"
 
-#: mod/photos.php:1228
+#: mod/photos.php:1220
 msgid "View Full Size"
 msgstr "اعرض الحجم الكامل"
 
-#: mod/photos.php:1281
+#: mod/photos.php:1273
 msgid "Tags: "
 msgstr "الوسوم: "
 
-#: mod/photos.php:1284
+#: mod/photos.php:1276
 msgid "[Select tags to remove]"
 msgstr "[اختر وسومًا لإزالتها]"
 
-#: mod/photos.php:1299
+#: mod/photos.php:1291
 msgid "New album name"
 msgstr "اسم الألبوم الجديد"
 
-#: mod/photos.php:1300
+#: mod/photos.php:1292
 msgid "Caption"
 msgstr "وصف الصورة"
 
-#: mod/photos.php:1301
+#: mod/photos.php:1293
 msgid "Add a Tag"
 msgstr "أضف وسمًا"
 
-#: mod/photos.php:1301
+#: mod/photos.php:1293
 msgid ""
 "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr "مثال: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 
-#: mod/photos.php:1302
+#: mod/photos.php:1294
 msgid "Do not rotate"
 msgstr "لا تدورها"
 
-#: mod/photos.php:1303
+#: mod/photos.php:1295
 msgid "Rotate CW (right)"
 msgstr "أدر باتجاه عقارب الساعة"
 
-#: mod/photos.php:1304
+#: mod/photos.php:1296
 msgid "Rotate CCW (left)"
 msgstr "أدر عكس اتجاه عقارب الساعة"
 
-#: mod/photos.php:1350 mod/photos.php:1406 mod/photos.php:1480
+#: mod/photos.php:1342 mod/photos.php:1398 mod/photos.php:1472
 #: src/Module/Contact.php:993 src/Module/Item/Compose.php:148
 #: src/Object/Post.php:960
 msgid "This is you"
 msgstr "هذا أنت"
 
-#: mod/photos.php:1352 mod/photos.php:1408 mod/photos.php:1482
+#: mod/photos.php:1344 mod/photos.php:1400 mod/photos.php:1474
 #: src/Object/Post.php:496 src/Object/Post.php:962
 msgid "Comment"
 msgstr "علِّق"
 
-#: mod/photos.php:1441 src/Content/Conversation.php:615
+#: mod/photos.php:1433 src/Content/Conversation.php:615
 #: src/Object/Post.php:227
 msgid "Select"
 msgstr "اختر"
 
-#: mod/photos.php:1442 mod/settings.php:563 src/Content/Conversation.php:616
+#: mod/photos.php:1434 mod/settings.php:563 src/Content/Conversation.php:616
 #: src/Module/Admin/Users/Active.php:139
 #: src/Module/Admin/Users/Blocked.php:140 src/Module/Admin/Users/Index.php:153
 msgid "Delete"
 msgstr "احذف"
 
-#: mod/photos.php:1503 src/Object/Post.php:349
+#: mod/photos.php:1495 src/Object/Post.php:349
 msgid "Like"
 msgstr "أعجبني"
 
-#: mod/photos.php:1504 src/Object/Post.php:349
+#: mod/photos.php:1496 src/Object/Post.php:349
 msgid "I like this (toggle)"
 msgstr "أعجبت به (بدِّل)"
 
-#: mod/photos.php:1505 src/Object/Post.php:350
+#: mod/photos.php:1497 src/Object/Post.php:350
 msgid "Dislike"
 msgstr "لم يعجبني"
 
-#: mod/photos.php:1507 src/Object/Post.php:350
+#: mod/photos.php:1499 src/Object/Post.php:350
 msgid "I don't like this (toggle)"
 msgstr "لم أعجب به (بدِّل)"
 
-#: mod/photos.php:1529
+#: mod/photos.php:1521
 msgid "Map"
 msgstr "خريطة"
 
-#: mod/photos.php:1599
+#: mod/photos.php:1584
 msgid "View Album"
 msgstr "اعرض الألبوم"
 
@@ -1378,14 +1127,18 @@ msgstr "{0} و %d يطلبون التسجيل"
 
 #: mod/redir.php:49 mod/redir.php:102
 msgid "Bad Request."
-msgstr "طلب خاطئ"
+msgstr "طلب خاطئ."
 
 #: mod/redir.php:55 mod/redir.php:129 src/Module/Contact/Advanced.php:54
 #: src/Module/Contact/Advanced.php:105 src/Module/Contact/Contacts.php:36
 #: src/Module/Contact/Media.php:43 src/Module/FriendSuggest.php:54
-#: src/Module/FriendSuggest.php:93 src/Module/Group.php:105
+#: src/Module/FriendSuggest.php:92 src/Module/Group.php:105
 msgid "Contact not found."
 msgstr "لم يُعثر على المتراسل."
+
+#: mod/removeme.php:63 src/Navigation/Notifications/Repository/Notify.php:454
+msgid "[Friendica System Notify]"
+msgstr "[Friendica System Notify]"
 
 #: mod/removeme.php:63
 msgid "User deleted their account"
@@ -1414,7 +1167,7 @@ msgstr "سيزيل حسابك كليا. لا مجال لتراجع عند انت
 
 #: mod/removeme.php:101
 msgid "Please enter your password for verification:"
-msgstr "يرجى ادخال كلمة المرور لتأكيد:"
+msgstr "يرجى إدخال كلمة المرور لتأكيد:"
 
 #: mod/repair_ostatus.php:36
 msgid "Resubscribing to OStatus contacts"
@@ -1465,7 +1218,7 @@ msgstr "لم تُغير كلمة المرور."
 
 #: mod/settings.php:303
 msgid "Please use a shorter name."
-msgstr "يرجى إستخدام اسم أقصر."
+msgstr "يرجى استخدام اسم أقصر."
 
 #: mod/settings.php:306
 msgid "Name too short."
@@ -1477,7 +1230,7 @@ msgstr "كلمة مرور خاطئة."
 
 #: mod/settings.php:318
 msgid "Invalid email."
-msgstr "البريد الالكتروني غير صالح."
+msgstr "البريد الإلكتروني غير صالح."
 
 #: mod/settings.php:324
 msgid "Cannot change to that email."
@@ -1485,11 +1238,11 @@ msgstr "لا يمكن التغيير إلى هذا البريد الإلكترو
 
 #: mod/settings.php:365
 msgid "Private forum has no privacy permissions. Using default privacy group."
-msgstr "المنتدى الخاص ليس لديه أذون الخصوصية. يستخدم مجموعة الخصوصية الافتراضية."
+msgstr "المنتدى الخاص ليس لديه أذونات خصوصية. يستخدم مجموعة الخصوصية الافتراضية."
 
 #: mod/settings.php:368
 msgid "Private forum has no privacy permissions and no default privacy group."
-msgstr "المنتدى الخاص ليس لديه أذون الخصوصية ولا مجموعة خصوصية افتراضية."
+msgstr "المنتدى الخاص ليس لديه أذونات خصوصية ولا مجموعة خصوصية افتراضية."
 
 #: mod/settings.php:387
 msgid "Settings were not updated."
@@ -1534,7 +1287,7 @@ msgstr "ميزات إضافية"
 
 #: mod/settings.php:474 mod/settings.php:565 mod/settings.php:702
 #: src/Module/Admin/Addons/Index.php:69 src/Module/Admin/Features.php:87
-#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:500
+#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:502
 #: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:66
 #: src/Module/Settings/Delegation.php:170 src/Module/Settings/Display.php:194
 msgid "Save Settings"
@@ -1567,7 +1320,7 @@ msgstr "الوصول إلى البريد الإلكتروني معطل في هذ
 
 #: mod/settings.php:528 mod/settings.php:563
 msgid "None"
-msgstr "لا شيﺀ"
+msgstr "لا شيء"
 
 #: mod/settings.php:534 src/Module/BaseSettings.php:80
 msgid "Social Networks"
@@ -1652,7 +1405,7 @@ msgstr "أصلح اشتراكات OStatus"
 
 #: mod/settings.php:552
 msgid "Email/Mailbox Setup"
-msgstr "تثبيت بريد الكتروني/صندوق بريد"
+msgstr "إعداد بريد الكتروني/صندوق بريد"
 
 #: mod/settings.php:553
 msgid ""
@@ -1678,7 +1431,7 @@ msgstr "الحماية:"
 
 #: mod/settings.php:559
 msgid "Email login name:"
-msgstr "اسم الولوج للبريد الالكتروني:"
+msgstr "اسم الولوج للبريد الإلكتروني:"
 
 #: mod/settings.php:560
 msgid "Email password:"
@@ -1750,7 +1503,7 @@ msgstr "صفحة إخبارية"
 msgid ""
 "Account for a news reflector that automatically approves contact requests as"
 " \"Followers\"."
-msgstr ""
+msgstr "حساب إخباري يوافق تلقائياً على طلبات المراسلة \"كمتابعين\"."
 
 #: mod/settings.php:637 src/Module/Admin/BaseUsers.php:109
 msgid "Community Forum"
@@ -1778,7 +1531,7 @@ msgstr "صفحة سياسي"
 msgid ""
 "Account for a public profile that automatically approves contact requests as"
 " \"Followers\"."
-msgstr "حساب ملف شخصي عمومي يوافق تلقائياً على طلبات المراسلة \"كمتابعين\"."
+msgstr "حساب شخصي علني يوافق تلقائياً على طلبات المراسلة \"كمتابعين\"."
 
 #: mod/settings.php:649 src/Module/Admin/BaseUsers.php:101
 msgid "Public Forum"
@@ -1824,14 +1577,14 @@ msgid ""
 "Your profile will be published in this node's <a href=\"%s\">local "
 "directory</a>. Your profile details may be publicly visible depending on the"
 " system settings."
-msgstr "سيتشر ملفك الشخصي في <a href=\"%s\"> الدليل المحلي</a> لهذه العقدة. تعتمد خصوصية معلوماتك على إعدادات النظام."
+msgstr "سينشر ملفك الشخصي في <a href=\"%s\"> الدليل المحلي</a> لهذه العقدة. تعتمد خصوصية معلوماتك على إعدادات النظام."
 
 #: mod/settings.php:683
 #, php-format
 msgid ""
 "Your profile will also be published in the global friendica directories "
 "(e.g. <a href=\"%s\">%s</a>)."
-msgstr "سينشر ملفك الشخصي كذلك في الأدلة العالمية لفرَندِكا (مثال <a href=\"%s\">%s</a>)."
+msgstr "سينشر ملفك الشخصي كذلك في الأدلة العالمية لفرَندِيكا (مثال <a href=\"%s\">%s</a>)."
 
 #: mod/settings.php:689
 #, php-format
@@ -1854,7 +1607,7 @@ msgstr "كلمة المرور الجديدة:"
 msgid ""
 "Allowed characters are a-z, A-Z, 0-9 and special characters except white "
 "spaces, accentuated letters and colon (:)."
-msgstr "المحارف المسموح بها هي a-z، A-Z، 0-9 والأحرف الخاصة باستثناء المساحات، الأحرف المنبورة والكولون (:)."
+msgstr "المحارف المسموح بها هي a-z، A-Z، 0-9 والأحرف الخاصة باستثناء المساحات، الأحرف المنبورة ونقطتي التفسير (:)."
 
 #: mod/settings.php:710 src/Module/Register.php:152
 msgid "Confirm:"
@@ -1894,7 +1647,7 @@ msgstr "الاسم الكامل:"
 
 #: mod/settings.php:719
 msgid "Email Address:"
-msgstr "البريد الالكتروني:"
+msgstr "البريد الإلكتروني:"
 
 #: mod/settings.php:720
 msgid "Your Timezone:"
@@ -1972,7 +1725,7 @@ msgid ""
 "Your public posts will not appear on the community pages or in search "
 "results, nor be sent to relay servers. However they can still appear on "
 "public feeds on remote servers."
-msgstr "لن تظهر مشاركتك العامومية على صفحات المجتمع أو في نتائج البحث، ولن يتم إرسالها إلى خوادم الترحيل. بيد أنها لا تزال تظهر في التغذية العامومية للخوادم البعيدة."
+msgstr "لن تظهر مشاركتك العلنية على صفحات المجتمع أو في نتائج البحث، ولن يتم إرسالها إلى خوادم الترحيل. بيد أنها لا تزال تظهر في التغذية العمومية للخوادم البعيدة."
 
 #: mod/settings.php:733
 msgid "Make all posted pictures accessible"
@@ -1984,7 +1737,7 @@ msgid ""
 "is a workaround for the problem that most other networks can't handle "
 "permissions on pictures. Non public pictures still won't be visible for the "
 "public on your photo albums though."
-msgstr "يسمح هذا الخيار بالوصول للصورة المنشورة عبر رابط مباشر. هذا حل لمعظم الشبكات التي لا يمكنها التعامل مع الأذون. صورك غير العلنية ستبقى مخفية."
+msgstr "يسمح هذا الخيار بالوصول للصورة المنشورة عبر رابط مباشر. هذا حل لمعظم الشبكات التي لا يمكنها التعامل مع الأذونات. صورك غير العلنية ستبقى مخفية."
 
 #: mod/settings.php:734
 msgid "Allow friends to post to your profile page?"
@@ -1994,7 +1747,7 @@ msgstr "أتسمح لأصدقائك بالنشر في صفحة ملفك الشخ
 msgid ""
 "Your contacts may write posts on your profile wall. These posts will be "
 "distributed to your contacts"
-msgstr ""
+msgstr "يمكن لمتراسليك كتابة مشاركات على حائط ملفك الشخصي. ستكون هذه المشركات مرئية لمتراسليك"
 
 #: mod/settings.php:735
 msgid "Allow friends to tag your posts?"
@@ -2020,7 +1773,7 @@ msgstr "حد الرسائل اليومي المستلمة من مجهولين:"
 
 #: mod/settings.php:739
 msgid "Default Post Permissions"
-msgstr "أذون النشر الافتراضية"
+msgstr "أذونات النشر الافتراضية"
 
 #: mod/settings.php:743
 msgid "Expiration settings"
@@ -2085,7 +1838,7 @@ msgstr "إعدادات التنبيهات"
 
 #: mod/settings.php:753
 msgid "Send a notification email when:"
-msgstr "أرسل تنبيها لبريدي الإلكتروتي عند:"
+msgstr "أرسل تنبيها للبريدي الإلكتروني عند:"
 
 #: mod/settings.php:754
 msgid "You receive an introduction"
@@ -2105,7 +1858,7 @@ msgstr "يكتب شخص ما تعليق متابعة"
 
 #: mod/settings.php:758
 msgid "You receive a private message"
-msgstr "تلقيت رسالت خاصة"
+msgstr "تلقيت رسالة خاصة"
 
 #: mod/settings.php:759
 msgid "You receive a friend suggestion"
@@ -2145,7 +1898,7 @@ msgstr "رسائل تنبيهية كنص فقط"
 
 #: mod/settings.php:771
 msgid "Send text only notification emails, without the html part"
-msgstr "أرسال بريد التنبيه كنص فقط، بدون وسوم html"
+msgstr "أرسل بريد التنبيه كنص فقط، بدون وسوم html"
 
 #: mod/settings.php:773
 msgid "Show detailled notifications"
@@ -2166,7 +1919,7 @@ msgid ""
 "You don't see posts from ignored contacts. But you still see their comments."
 " This setting controls if you want to still receive regular notifications "
 "that are caused by ignored contacts or not."
-msgstr "أنت لا ترى مشاركات المنراسلين المتجاهلين. لكن لا يزال بإمكانك رؤية تعليقاتهم. هذا الإعداد يتحكم إذا كنت ترغب في الاستمرار في تلقي تنبيهات سببها المتراسلون المتجاهلون."
+msgstr "أنت لا ترى مشاركات المتراسلين المتجاهلين. لكن لا يزال بإمكانك رؤية تعليقاتهم. هذا الإعداد يتحكم إذا كنت ترغب في الاستمرار في تلقي تنبيهات سببها المتراسلون المتجاهلون."
 
 #: mod/settings.php:781
 msgid "Advanced Account/Page Type Settings"
@@ -2273,7 +2026,7 @@ msgstr "تحتاج إلى تصدير حسابك من الخادم القديم �
 msgid ""
 "This feature is experimental. We can't import contacts from the OStatus "
 "network (GNU Social/Statusnet) or from Diaspora"
-msgstr ""
+msgstr "هذه الميزة تجريبية. لا يمكن استيراد متراسلين من شبكة OStatus (GNU Social/Statusnet) أو من شبكة Diaspora"
 
 #: mod/uimport.php:68
 msgid "Account file"
@@ -2334,7 +2087,7 @@ msgstr "تجاوز الملف الحد الأقصى للحجم وهو %s"
 msgid "File upload failed."
 msgstr "فشل رفع الملف."
 
-#: mod/wall_upload.php:224 src/Model/Photo.php:985
+#: mod/wall_upload.php:224 src/Model/Photo.php:987
 msgid "Wall Photos"
 msgstr "صور الحائط"
 
@@ -2387,7 +2140,7 @@ msgstr "هذه الطريقة غير مسموح بها لهذه الوحدة. ا
 
 #: src/App/Router.php:243 src/Module/HTTPException/PageNotFound.php:32
 msgid "Page not found."
-msgstr "لم يتم العثور على الصفحة."
+msgstr "لم يُعثر على الصفحة."
 
 #: src/BaseModule.php:180
 msgid ""
@@ -2400,8 +2153,8 @@ msgid "All contacts"
 msgstr "كل المتراسلين"
 
 #: src/BaseModule.php:212 src/Content/Widget.php:231 src/Core/ACL.php:193
-#: src/Module/Contact.php:756 src/Module/PermissionTooltip.php:75
-#: src/Module/PermissionTooltip.php:97
+#: src/Module/Contact.php:756 src/Module/PermissionTooltip.php:79
+#: src/Module/PermissionTooltip.php:101
 msgid "Followers"
 msgstr "متابِعون"
 
@@ -2913,7 +2666,7 @@ msgstr "الوسوم الشائعة"
 msgid ""
 "Show a community page widget with a list of the most popular tags in recent "
 "public posts."
-msgstr ""
+msgstr "أظهر ودجة صفحة المجتمع تحوي قائمة الوسوم المتداولة في المشاركات العلنية الأخيرة."
 
 #: src/Content/Feature.php:104
 msgid "Post Composition Features"
@@ -3009,32 +2762,32 @@ msgstr "حدث"
 msgid "Follow Thread"
 msgstr "تابع المناقشة"
 
-#: src/Content/Item.php:443 src/Model/Contact.php:1076
+#: src/Content/Item.php:443 src/Model/Contact.php:1077
 msgid "View Status"
 msgstr "اعرض الحالة"
 
 #: src/Content/Item.php:444 src/Content/Item.php:466
-#: src/Model/Contact.php:1010 src/Model/Contact.php:1068
-#: src/Model/Contact.php:1077 src/Module/Directory.php:160
-#: src/Module/Settings/Profile/Index.php:224
+#: src/Model/Contact.php:1011 src/Model/Contact.php:1069
+#: src/Model/Contact.php:1078 src/Module/Directory.php:160
+#: src/Module/Settings/Profile/Index.php:226
 msgid "View Profile"
 msgstr "اعرض الملف الشخصي"
 
-#: src/Content/Item.php:445 src/Model/Contact.php:1078
+#: src/Content/Item.php:445 src/Model/Contact.php:1079
 msgid "View Photos"
 msgstr "اعرض الصور"
 
-#: src/Content/Item.php:446 src/Model/Contact.php:1069
-#: src/Model/Contact.php:1079
+#: src/Content/Item.php:446 src/Model/Contact.php:1070
+#: src/Model/Contact.php:1080
 msgid "Network Posts"
 msgstr "مشاركات الشبكة"
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1070
-#: src/Model/Contact.php:1080
+#: src/Content/Item.php:447 src/Model/Contact.php:1071
+#: src/Model/Contact.php:1081
 msgid "View Contact"
 msgstr "اعرض المتراسل"
 
-#: src/Content/Item.php:448 src/Model/Contact.php:1081
+#: src/Content/Item.php:448 src/Model/Contact.php:1082
 msgid "Send PM"
 msgstr "أرسل رسالة خاصة"
 
@@ -3049,7 +2802,7 @@ msgstr "احجب"
 #: src/Module/Contact.php:788 src/Module/Contact.php:1072
 #: src/Module/Notifications/Introductions.php:112
 #: src/Module/Notifications/Introductions.php:184
-#: src/Module/Notifications/Notification.php:59
+#: src/Module/Notifications/Notification.php:61
 msgid "Ignore"
 msgstr "تجاهل"
 
@@ -3057,7 +2810,7 @@ msgstr "تجاهل"
 msgid "Languages"
 msgstr "اللغات"
 
-#: src/Content/Item.php:458 src/Model/Contact.php:1082
+#: src/Content/Item.php:458 src/Model/Contact.php:1083
 msgid "Poke"
 msgstr "ألكز"
 
@@ -3120,13 +2873,15 @@ msgstr "صفحة ملفك الشخصي"
 msgid "Your photos"
 msgstr "صورك"
 
-#: src/Content/Nav.php:193 view/theme/frio/theme.php:228
-msgid "Videos"
-msgstr "الفيديوهات"
+#: src/Content/Nav.php:193 src/Module/BaseProfile.php:72
+#: src/Module/BaseProfile.php:75 src/Module/Contact.php:838
+#: view/theme/frio/theme.php:228
+msgid "Media"
+msgstr "الوسائط"
 
 #: src/Content/Nav.php:193 view/theme/frio/theme.php:228
-msgid "Your videos"
-msgstr "فيديوهاتك"
+msgid "Your postings with media"
+msgstr "مشاركاتك التي تحوي وسائط"
 
 #: src/Content/Nav.php:194 view/theme/frio/theme.php:229
 msgid "Your events"
@@ -3340,8 +3095,8 @@ msgstr "التالي"
 msgid "last"
 msgstr "الأخير"
 
-#: src/Content/Text/BBCode.php:987 src/Content/Text/BBCode.php:1775
-#: src/Content/Text/BBCode.php:1776
+#: src/Content/Text/BBCode.php:987 src/Content/Text/BBCode.php:1781
+#: src/Content/Text/BBCode.php:1782
 msgid "Image/photo"
 msgstr "صورة"
 
@@ -3355,23 +3110,23 @@ msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> 
 msgid "Link to source"
 msgstr "رابط المصدر"
 
-#: src/Content/Text/BBCode.php:1693 src/Content/Text/HTML.php:943
+#: src/Content/Text/BBCode.php:1699 src/Content/Text/HTML.php:943
 msgid "Click to open/close"
 msgstr "أنقر للفتح/للإغلاق"
 
-#: src/Content/Text/BBCode.php:1724
+#: src/Content/Text/BBCode.php:1730
 msgid "$1 wrote:"
 msgstr "كتب $1:"
 
-#: src/Content/Text/BBCode.php:1780 src/Content/Text/BBCode.php:1781
+#: src/Content/Text/BBCode.php:1786 src/Content/Text/BBCode.php:1787
 msgid "Encrypted content"
 msgstr "محتوى مشفر"
 
-#: src/Content/Text/BBCode.php:1996
+#: src/Content/Text/BBCode.php:2002
 msgid "Invalid source protocol"
 msgstr "ميفاق المصدر غير صالح"
 
-#: src/Content/Text/BBCode.php:2011
+#: src/Content/Text/BBCode.php:2017
 msgid "Invalid link protocol"
 msgstr "ميفاق الرابط غير صالح"
 
@@ -3514,7 +3269,7 @@ msgstr "الأشخاص"
 msgid "Organisations"
 msgstr "المنظّمات"
 
-#: src/Content/Widget.php:522 src/Model/Contact.php:1503
+#: src/Content/Widget.php:522 src/Model/Contact.php:1506
 msgid "News"
 msgstr "الأخبار"
 
@@ -3542,9 +3297,9 @@ msgstr "لا متراسلين"
 #, php-format
 msgid "%d Contact"
 msgid_plural "%d Contacts"
-msgstr[0] "لا متراسلين"
-msgstr[1] "متراسل واحد"
-msgstr[2] "متراسلان"
+msgstr[0] "لا متراسلين %d"
+msgstr[1] "متراسل %d"
+msgstr[2] "متراسلان %d"
 msgstr[3] "%d متراسلين"
 msgstr[4] "%d متراسلا"
 msgstr[5] "%d متراسل"
@@ -3565,9 +3320,9 @@ msgstr "عمليات البحث المحفوظة"
 #, php-format
 msgid "Trending Tags (last %d hour)"
 msgid_plural "Trending Tags (last %d hours)"
-msgstr[0] "الوسوم الشائعة (أقل من ساعة)"
-msgstr[1] "الوسوم الشائعة (آخر ساعة)"
-msgstr[2] "الوسوم الشائعة (آخر ساعتين)"
+msgstr[0] "الوسوم الشائعة (أقل من ساعة %d)"
+msgstr[1] "الوسوم الشائعة (آخر ساعة %d)"
+msgstr[2] "الوسوم الشائعة (آخر ساعتين %d)"
 msgstr[3] "الوسوم الشائعة (آخر %d ساعات)"
 msgstr[4] "الوسوم الشائعة (آخر %d ساعة)"
 msgstr[5] "الوسوم الشائعة (آخر %d ساعة)"
@@ -3599,10 +3354,10 @@ msgstr "ألغِ المتابعة"
 msgid "Yourself"
 msgstr "أنت"
 
-#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:81
-#: src/Module/PermissionTooltip.php:103
+#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:85
+#: src/Module/PermissionTooltip.php:107
 msgid "Mutuals"
-msgstr ""
+msgstr "المشتركة"
 
 #: src/Core/ACL.php:292
 msgid "Post to Email"
@@ -3687,7 +3442,7 @@ msgstr "سطر أوامر PHP"
 
 #: src/Core/Installer.php:284
 msgid "PHP executable is not the php cli binary (could be cgi-fgci version)"
-msgstr ""
+msgstr "ملف PHP التنفيذي ليس ملفًا ثنائيًا (قد يكون إصدار cgi-fcgi)"
 
 #: src/Core/Installer.php:285
 msgid "Found PHP version: "
@@ -3695,13 +3450,13 @@ msgstr "اصدار PHP: "
 
 #: src/Core/Installer.php:287
 msgid "PHP cli binary"
-msgstr ""
+msgstr "الملف الثنائي لـ PHP"
 
 #: src/Core/Installer.php:300
 msgid ""
 "The command line version of PHP on your system does not have "
 "\"register_argc_argv\" enabled."
-msgstr ""
+msgstr "إصدار سطر أوامر PHP المثبت على النظام ليس مفعلًا فيه \"register_argc_argv\"."
 
 #: src/Core/Installer.php:301
 msgid "This is required for message delivery to work."
@@ -3730,11 +3485,11 @@ msgstr "ولّد مفاتيح التشفير"
 #: src/Core/Installer.php:394
 msgid ""
 "Error: Apache webserver mod-rewrite module is required but not installed."
-msgstr ""
+msgstr "خطأ: وحدة mod-rewrite لخادم أباتشي مطلوبة لكنها لم تثبت."
 
 #: src/Core/Installer.php:399
 msgid "Apache mod_rewrite module"
-msgstr ""
+msgstr "وحدة Apache mod_rewrite"
 
 #: src/Core/Installer.php:405
 msgid "Error: PDO or MySQLi PHP module required but not installed."
@@ -3807,7 +3562,7 @@ msgstr ""
 
 #: src/Core/Installer.php:471
 msgid "Program execution functions"
-msgstr ""
+msgstr "مهام تنفيذ البرنامج"
 
 #: src/Core/Installer.php:472
 msgid ""
@@ -3835,7 +3590,7 @@ msgid ""
 "The web installer needs to be able to create a file called "
 "\"local.config.php\" in the \"config\" folder of your web server and it is "
 "unable to do so."
-msgstr ""
+msgstr "مثبِت الويب غير قادر على إنشاء ملف \"local.config.php\" في مجلد \"config\" التابع للخادم."
 
 #: src/Core/Installer.php:510
 msgid ""
@@ -3922,7 +3677,7 @@ msgstr ""
 
 #: src/Core/Installer.php:609
 msgid "Please ensure that the connection to the server is secure."
-msgstr ""
+msgstr "يرجى التأكد من أن الاتصال بالخادم آمن."
 
 #: src/Core/Installer.php:610
 msgid "No TLS detected"
@@ -3942,7 +3697,7 @@ msgstr ""
 
 #: src/Core/Installer.php:643
 msgid "ImageMagick supports GIF"
-msgstr ""
+msgstr "ImageMagick يدعم GIF"
 
 #: src/Core/Installer.php:665
 msgid "Database already in use."
@@ -4156,7 +3911,7 @@ msgstr ""
 msgid ""
 "Friendica can't display this page at the moment, please contact the "
 "administrator."
-msgstr "لا يمكن لفرَندِكا عرض هذه الصفحة حاليا، رجاء اتصل بالمدير."
+msgstr "لا يمكن لفرَندِيكا عرض هذه الصفحة حاليا، رجاء اتصل بالمدير."
 
 #: src/Core/Renderer.php:141
 msgid "template engine cannot be registered without a name."
@@ -4171,24 +3926,24 @@ msgstr "لم يسجل محرك القوالب!"
 msgid ""
 "Updates from version %s are not supported. Please update at least to version"
 " 2021.01 and wait until the postupdate finished version 1383."
-msgstr ""
+msgstr "التحديثات التلقائية غير مدعومة من الإصدار %s. يرجى التحديث يدويًا إلى الإصدار 2021.01 وانتظر تحديث البيانات للوصول إلى الإصدار 1383."
 
 #: src/Core/Update.php:78
 #, php-format
 msgid ""
 "Updates from postupdate version %s are not supported. Please update at least"
 " to version 2021.01 and wait until the postupdate finished version 1383."
-msgstr ""
+msgstr "التحديث التلقائي للبيانات من الإصدار %s غير مدعوم. يرجى التحديث يدويًا إلى الإصدار 2021.01 وانتظر تحديث البيانات للوصول إلى الإصدار 1383."
 
 #: src/Core/Update.php:152
 #, php-format
 msgid "%s: executing pre update %d"
-msgstr ""
+msgstr "%s: ينفذ التحديث الاستباقي %d"
 
 #: src/Core/Update.php:190
 #, php-format
 msgid "%s: executing post update %d"
-msgstr ""
+msgstr "%s: ينفذ تحديث البيانات %d"
 
 #: src/Core/Update.php:261
 #, php-format
@@ -4219,7 +3974,7 @@ msgstr "[تنبيهات فرنديكا] تحديث قاعدة البيانات"
 msgid ""
 "\n"
 "\t\t\t\t\tThe friendica database was successfully updated from %s to %s."
-msgstr "\n\t\t\t\t\tحُدثت قاعدة البيانات بنجاح من الاصدار %s الى %s."
+msgstr "\n\t\t\t\t\tحُدثت قاعدة البيانات بنجاح من الإصدار %s إلى %s."
 
 #: src/Core/UserImport.php:125
 msgid "Error decoding account file"
@@ -4227,7 +3982,7 @@ msgstr "خطأ أثناء فك ترميز ملف الحساب"
 
 #: src/Core/UserImport.php:131
 msgid "Error! No version data in file! This is not a Friendica account file?"
-msgstr ""
+msgstr "خطأ! لا توجد بيانات إصدار في الملف! هذا ليس ملف شخصي؟"
 
 #: src/Core/UserImport.php:139
 #, php-format
@@ -4242,7 +3997,7 @@ msgstr "خطأ في إنشاء المستخدم"
 #, php-format
 msgid "%d contact not imported"
 msgid_plural "%d contacts not imported"
-msgstr[0] "عدد المتراسيلن غير المستوردين هو %d"
+msgstr[0] "عدد المتراسلين غير المستوردين هو %d"
 msgstr[1] "لم يستورد متراسل واحد %d"
 msgstr[2] "لم يستورد متراسلان %d"
 msgstr[3] "لم يستورد %d متراسلين"
@@ -4260,28 +4015,28 @@ msgstr "تم. يمكنك الآن الولوج باستخدام اسم المس�
 #: src/Database/DBStructure.php:65
 #, php-format
 msgid "The database version had been set to %s."
-msgstr "عُين إصدار قاعدة البيانات الى %s."
+msgstr "عُين إصدار قاعدة البيانات إلى %s."
 
 #: src/Database/DBStructure.php:78
 #, php-format
 msgid ""
 "The post update is at version %d, it has to be at %d to safely drop the "
 "tables."
-msgstr ""
+msgstr "تحديث البيانات هو إصدار %d، لكن يجب أن يكون إصدار %d لتتمكن من حذف الجداول بأمان."
 
 #: src/Database/DBStructure.php:91
 msgid "No unused tables found."
-msgstr ""
+msgstr "لم يُعثر على جداول غير مستعملة."
 
 #: src/Database/DBStructure.php:96
 msgid ""
 "These tables are not used for friendica and will be deleted when you execute"
 " \"dbstructure drop -e\":"
-msgstr ""
+msgstr "فرنديكا لا تستخدم هذه الجداول يمكنك حذفها بتنفيذ \"dbstructure drop -e\":"
 
 #: src/Database/DBStructure.php:134
 msgid "There are no tables on MyISAM or InnoDB with the Antelope file format."
-msgstr ""
+msgstr "لا توجد جداول MyISAM أو InnoDB بتنسيق ملف Antelope."
 
 #: src/Database/DBStructure.php:158
 #, php-format
@@ -4289,15 +4044,15 @@ msgid ""
 "\n"
 "Error %d occurred during database update:\n"
 "%s\n"
-msgstr ""
+msgstr "\nحدث خطأ %d أثناء تحديث قاعدة البيانات:\n%s\n"
 
 #: src/Database/DBStructure.php:161
 msgid "Errors encountered performing database changes: "
-msgstr ""
+msgstr "حدثت أخطاء أثناء تحديث قاعدة البيانات: "
 
 #: src/Database/DBStructure.php:549
 msgid "Another database update is currently running."
-msgstr ""
+msgstr "تحديث آخر لقاعدة البيانات قيد التشغيل."
 
 #: src/Database/DBStructure.php:553
 #, php-format
@@ -4311,11 +4066,11 @@ msgstr "%s يحدث %s جدول."
 
 #: src/Factory/Api/Mastodon/Error.php:55
 msgid "Record not found"
-msgstr ""
+msgstr "لم يُعثر على التسجيل"
 
 #: src/Factory/Api/Mastodon/Error.php:65
 msgid "Unprocessable Entity"
-msgstr ""
+msgstr "كيان غير قابل للمعالجة"
 
 #: src/Factory/Api/Mastodon/Error.php:75
 #: src/Module/Special/HTTPException.php:50
@@ -4335,83 +4090,83 @@ msgstr "خطأ داخلي في الخادم"
 #: src/LegacyModule.php:49
 #, php-format
 msgid "Legacy module file not found: %s"
-msgstr ""
+msgstr "لم يُعثر على ملف الوحدة القديم: %s"
 
-#: src/Model/Contact.php:1072 src/Model/Contact.php:1084
+#: src/Model/Contact.php:1073 src/Model/Contact.php:1085
 msgid "UnFollow"
 msgstr "ألغِ المتابعة"
 
-#: src/Model/Contact.php:1090 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1091 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:110
 #: src/Module/Notifications/Introductions.php:182
 msgid "Approve"
-msgstr "إقرار"
+msgstr "موافق"
 
-#: src/Model/Contact.php:1499
+#: src/Model/Contact.php:1502
 msgid "Organisation"
 msgstr "المنظّمة"
 
-#: src/Model/Contact.php:1507
+#: src/Model/Contact.php:1510
 msgid "Forum"
 msgstr "المنتدى"
 
-#: src/Model/Contact.php:2366
+#: src/Model/Contact.php:2380
 msgid "Disallowed profile URL."
 msgstr "رابط الملف الشخصي غير مسموح."
 
-#: src/Model/Contact.php:2371 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2385 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "نطاق المحجوب"
 
-#: src/Model/Contact.php:2376
+#: src/Model/Contact.php:2390
 msgid "Connect URL missing."
 msgstr "رابط الاتصال مفقود."
 
-#: src/Model/Contact.php:2385
+#: src/Model/Contact.php:2399
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
-msgstr ""
+msgstr "تعذر إضافة المتراسل. تحقق من بيانات اعتماد الشبكة المستهدفة في الإعدادات -> صفحة الشبكات الاجتماعية."
 
-#: src/Model/Contact.php:2422
+#: src/Model/Contact.php:2436
 msgid "The profile address specified does not provide adequate information."
-msgstr ""
+msgstr "عنوان الملف الشخصي لا يوفر معلومات كافية."
 
-#: src/Model/Contact.php:2424
+#: src/Model/Contact.php:2438
 msgid "No compatible communication protocols or feeds were discovered."
-msgstr ""
+msgstr "لم تكتشف أي موافيق اتصال أو تغذيات متوافقة."
 
-#: src/Model/Contact.php:2427
+#: src/Model/Contact.php:2441
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2430
+#: src/Model/Contact.php:2444
 msgid "No browser URL could be matched to this address."
-msgstr ""
+msgstr "لا يوجد رابط تصفح يطابق هذا العنوان."
 
-#: src/Model/Contact.php:2433
+#: src/Model/Contact.php:2447
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
-msgstr ""
+msgstr "غير قادر على مطابقة عنوان المعرف \"@\" بميفاق معروف أو متراسل بريد إلكتروني."
 
-#: src/Model/Contact.php:2434
+#: src/Model/Contact.php:2448
 msgid "Use mailto: in front of address to force email check."
-msgstr ""
+msgstr "استخدم mailto: أمام العنوان للتعرّف عليه كبريد إلكتروني."
 
-#: src/Model/Contact.php:2440
+#: src/Model/Contact.php:2454
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
-msgstr ""
+msgstr "عنوان الملف الشخصي تابع لشبكة محجوبة في هذا الموقع."
 
-#: src/Model/Contact.php:2445
+#: src/Model/Contact.php:2459
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2504
+#: src/Model/Contact.php:2518
 msgid "Unable to retrieve contact information."
 msgstr "تعذر جلب معلومات المتراسل."
 
@@ -4428,19 +4183,19 @@ msgstr "يبدأ:"
 #: src/Model/Event.php:76 src/Model/Event.php:96 src/Model/Event.php:465
 #: src/Model/Event.php:901
 msgid "Finishes:"
-msgstr ""
+msgstr "ينهي:"
 
 #: src/Model/Event.php:414
 msgid "all-day"
-msgstr ""
+msgstr "كل اليوم"
 
 #: src/Model/Event.php:440
 msgid "Sept"
-msgstr ""
+msgstr "سبتمبر"
 
 #: src/Model/Event.php:462
 msgid "No events to display"
-msgstr ""
+msgstr "لا توجد أحداث لعرضها"
 
 #: src/Model/Event.php:578
 msgid "l, F j"
@@ -4452,7 +4207,7 @@ msgstr "حرّر الحدث"
 
 #: src/Model/Event.php:610
 msgid "Duplicate event"
-msgstr ""
+msgstr "ضاعف الحدث"
 
 #: src/Model/Event.php:611
 msgid "Delete event"
@@ -4472,7 +4227,7 @@ msgstr "أظهر الخريطة"
 
 #: src/Model/Event.php:917
 msgid "Hide map"
-msgstr "إخف الخريطة"
+msgstr "اخف الخريطة"
 
 #: src/Model/Event.php:1009
 #, php-format
@@ -4489,11 +4244,11 @@ msgid ""
 "A deleted group with this name was revived. Existing item permissions "
 "<strong>may</strong> apply to this group and any future members. If this is "
 "not what you intended, please create another group with a different name."
-msgstr ""
+msgstr "تم إحياء مجموعة محذوفة بهذا الاسم. أذونات العنصر الموجودة سبقًا <strong>قد</strong> تنطبق على هذه المجموعة وأي أعضاء في المستقبل. إذا حصل هذا، يرجى إنشاء مجموعة أخرى باسم مختلف."
 
 #: src/Model/Group.php:451
 msgid "Default privacy group for new contacts"
-msgstr ""
+msgstr "المجموعة الافتراضية للمتراسلين الجدد"
 
 #: src/Model/Group.php:483
 msgid "Everybody"
@@ -4531,7 +4286,7 @@ msgstr "حرّر المجموعات"
 #: src/Model/Item.php:1677
 #, php-format
 msgid "Detected languages in this post:\\n%s"
-msgstr "اللغات المكتشفي في هذه المشاركة:\\n%s"
+msgstr "اللغات المكتشفة في هذه المشاركة:\\n%s"
 
 #: src/Model/Item.php:2628
 msgid "activity"
@@ -4539,7 +4294,7 @@ msgstr "النشاط"
 
 #: src/Model/Item.php:2630
 msgid "comment"
-msgstr ""
+msgstr "تعليق"
 
 #: src/Model/Item.php:2633
 msgid "post"
@@ -4599,7 +4354,7 @@ msgstr "[today]"
 
 #: src/Model/Profile.php:569
 msgid "Birthday Reminders"
-msgstr "تذكيرات أعياد الميلاد"
+msgstr "التذكير أبعياد الميلاد"
 
 #: src/Model/Profile.php:570
 msgid "Birthdays this week:"
@@ -4620,7 +4375,7 @@ msgstr "أحداث لهذا الأسبوع:"
 #: src/Model/Profile.php:846
 #, php-format
 msgid "OpenWebAuth: %1$s welcomes %2$s"
-msgstr ""
+msgstr "OpenWebAuth: %1$s يرحب بـ %2$s"
 
 #: src/Model/Profile.php:978
 msgid "Hometown:"
@@ -4640,7 +4395,7 @@ msgstr "منذ:"
 
 #: src/Model/Profile.php:982
 msgid "Sexual Preference:"
-msgstr ""
+msgstr "التفضيل الجنسي:"
 
 #: src/Model/Profile.php:983
 msgid "Political Views:"
@@ -4704,70 +4459,70 @@ msgstr "معلومات الاتصال وحسابات الشبكات الاجتم
 
 #: src/Model/Storage/FilesystemConfig.php:77
 msgid "Storage base path"
-msgstr ""
+msgstr "المسار الأساسي للتخزين"
 
 #: src/Model/Storage/FilesystemConfig.php:79
 msgid ""
 "Folder where uploaded files are saved. For maximum security, This should be "
 "a path outside web server folder tree"
-msgstr ""
+msgstr "المجلد حيث تحفظ الملفات المرفوعة. لأقصى قدر من الأمان، يجب أن يكون هذا المسار خارج شجرة مجلد الخادم"
 
 #: src/Model/Storage/FilesystemConfig.php:92
 msgid "Enter a valid existing folder"
-msgstr ""
+msgstr "أدخل مجلد موجود وصالح"
 
 #: src/Model/User.php:208 src/Model/User.php:1050
 msgid "SERIOUS ERROR: Generation of security keys failed."
-msgstr ""
+msgstr "خطأ فاضح: فشل توليد مفاتيح الأمان."
 
 #: src/Model/User.php:589 src/Model/User.php:622
 msgid "Login failed"
-msgstr ""
+msgstr "فشل الولوج"
 
 #: src/Model/User.php:654
 msgid "Not enough information to authenticate"
-msgstr ""
+msgstr "لا توجد معلومات كافية للمصادقة"
 
 #: src/Model/User.php:749
 msgid "Password can't be empty"
-msgstr ""
+msgstr "لا يمكن أن تكون كلمة المرور فارغة"
 
 #: src/Model/User.php:768
 msgid "Empty passwords are not allowed."
-msgstr ""
+msgstr "لا يسمح بكلمات مرور فارغة."
 
 #: src/Model/User.php:772
 msgid ""
 "The new password has been exposed in a public data dump, please choose "
 "another."
-msgstr ""
+msgstr "كلمة المرور الجديدة جزء من تسريب كلمات مرور عام ، يرجى اختيار كلمة مرور مختلفة."
 
 #: src/Model/User.php:778
 msgid ""
 "The password can't contain accentuated letters, white spaces or colons (:)"
-msgstr ""
+msgstr "لا يمكن أن تحتوي كلمة المرور على أحرف منبورة أو مسافات أو نقطتي تفسير (:)"
 
 #: src/Model/User.php:930
 msgid "Passwords do not match. Password unchanged."
-msgstr ""
+msgstr "كلمتا المرور غير متطابقتين. ولم تغير كلمة المرور."
 
 #: src/Model/User.php:937
 msgid "An invitation is required."
-msgstr ""
+msgstr "الدعوة اجبارية."
 
 #: src/Model/User.php:941
 msgid "Invitation could not be verified."
-msgstr ""
+msgstr "تعذر التحقق من الدعوة."
 
 #: src/Model/User.php:949
 msgid "Invalid OpenID url"
-msgstr ""
+msgstr "رابط OpenID عير صالح"
 
 #: src/Model/User.php:962 src/Security/Authentication.php:223
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
-msgstr ""
+msgstr "واجهنا مشكلة أثناء الولوج باستخدام OpenID. يرجى التحقق من صحة المعرف."
 
 #: src/Model/User.php:962 src/Security/Authentication.php:223
 msgid "The error message was:"
@@ -4775,7 +4530,7 @@ msgstr "رسالة الخطأ:"
 
 #: src/Model/User.php:968
 msgid "Please enter the required information."
-msgstr ""
+msgstr "يرجى إدخال المعلومات المطلوبة."
 
 #: src/Model/User.php:982
 #, php-format
@@ -4788,23 +4543,23 @@ msgstr ""
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
+msgstr[0] "يجب أن لا يقل اسم المستخدم عن %s محرف."
+msgstr[1] "يجب أن لا يقل اسم المستخدم عن محرف %s."
+msgstr[2] "يجب أن لا يقل اسم المستخدم عن محرفين %s."
+msgstr[3] "يجب أن لا يقل اسم المستخدم عن %s محارف."
+msgstr[4] "يجب أن لا يقل اسم المستخدم عن %s محرف."
+msgstr[5] "يجب أن لا يقل اسم المستخدم عن %s محرف."
 
 #: src/Model/User.php:993
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
+msgstr[0] "يجب أن لا يزيد اسم المستخدم عن %s محرف."
+msgstr[1] "يجب أن لا يزيد اسم المستخدم عن محرف %s."
+msgstr[2] "يجب أن لا يزيد اسم المستخدم عن محرفين %s."
+msgstr[3] "يجب أن لا يزيد اسم المستخدم عن %s محارف."
+msgstr[4] "يجب أن لا يزيد اسم المستخدم عن %s محرف."
+msgstr[5] "يجب أن لا يزيد اسم المستخدم عن %s محرف."
 
 #: src/Model/User.php:1001
 msgid "That doesn't appear to be your full (First Last) name."
@@ -4812,11 +4567,11 @@ msgstr "لا يبدو أن هذا اسمك الكامل."
 
 #: src/Model/User.php:1006
 msgid "Your email domain is not among those allowed on this site."
-msgstr "مجال بريدك الألكتروني غير مسموح به على هذا الموقع."
+msgstr "مجال بريدك الإلكتروني غير مسموح به على هذا الموقع."
 
 #: src/Model/User.php:1010
 msgid "Not a valid email address."
-msgstr "عناوين بريد الكتروني غير صالحة."
+msgstr "عناوين بريد الإكتروني غير صالحة."
 
 #: src/Model/User.php:1013
 msgid "The nickname was blocked from registration by the nodes admin."
@@ -4824,11 +4579,11 @@ msgstr "هذا اللقب محظور من قبل مدير العقدة."
 
 #: src/Model/User.php:1017 src/Model/User.php:1025
 msgid "Cannot use that email."
-msgstr ""
+msgstr "لا يمكن استخدام هذا البريد الإلكتروني."
 
 #: src/Model/User.php:1032
 msgid "Your nickname can only contain a-z, 0-9 and _."
-msgstr ""
+msgstr "يجب أن يتكون اللقب من المحارف a-z، 0-9، _."
 
 #: src/Model/User.php:1040 src/Model/User.php:1097
 msgid "Nickname is already registered. Please choose another."
@@ -4840,7 +4595,7 @@ msgstr "حدث خطأ أثناء التسجيل، رجاء حاول مرة أخ�
 
 #: src/Model/User.php:1111
 msgid "An error occurred creating your default profile. Please try again."
-msgstr ""
+msgstr "حدث خطأ أثناء إنشاء الملف الشخصي الافتراضي، رجاء حاول مرة أخرى."
 
 #: src/Model/User.php:1118
 msgid "An error occurred creating your self contact. Please try again."
@@ -4853,7 +4608,7 @@ msgstr "الأصدقاء"
 #: src/Model/User.php:1127
 msgid ""
 "An error occurred creating your default contact group. Please try again."
-msgstr ""
+msgstr "حدث خطأ أثناء إنشاء مجموعة المتراسلين الافتراضية، رجاء حاول مرة أخرى."
 
 #: src/Model/User.php:1165
 msgid "Profile Photos"
@@ -4865,7 +4620,7 @@ msgid ""
 "\n"
 "\t\tDear %1$s,\n"
 "\t\t\tthe administrator of %2$s has set up an account for you."
-msgstr ""
+msgstr "\n\t\tعزيزي %1$s،\n\t\t\tأنشأ مدير %2$s حساب لك."
 
 #: src/Model/User.php:1362
 #, php-format
@@ -4897,12 +4652,12 @@ msgid ""
 "\t\tIf you ever want to delete your account, you can do so at %1$s/removeme\n"
 "\n"
 "\t\tThank you and welcome to %4$s."
-msgstr ""
+msgstr "\n\t\tتفاصيل تسجيل الولوج هي كالتالي:\n\n\t\tالموقع:\t%1$s\n\t\tاسم المستخدم:\t\t%2$s\n\t\tكلمة المرور:\t%3$s\n\n\t\tيمكنك تغيير كلمة المرور من صفحة إعدادات الحساب.\n\n\t\tيرجى أخذ بضع لحظات لمراجعة الإعدادات الأخرى في تلك الصفحة.\n\n\t\tقد ترغب أيضًا في إضافة بعض المعلومات الأساسية إلى صفحة ملفك الشخصية الافتراضي\n\t\t(من صفحة \"الملفات الشخصية\") حتى يتمكن الآخرون من العثور عليك بسهولة.\n\n\t\tنحن نوصي بوضع اسمك الكامل، إضافة لصورة،\n\t\tوإضافة بعض الكلمات المفتاحية (مفيدة جدا في تكوين صداقات) - و\n\t\tربما البلد الذي تعيش فيه.\n\n\t\tنحن نحترم حقك في الخصوصية احتراما كاملا، ولا ضرورة لأي مما سبق.\n\t\tإذا كنت جديداً ولا تعرف أي شخص هنا، فقد تساعدك هذه المعلومات على تكوين صداقات مثيرة للاهتمام.\n\n\t\tإذا كنت ترغب في حذف حسابك، يمكنك فعل ذلك في %1$s/removeme\n\n\t\tشكرا لك ومرحبًا بك في %4$s."
 
 #: src/Model/User.php:1395 src/Model/User.php:1502
 #, php-format
 msgid "Registration details for %s"
-msgstr ""
+msgstr "تفاصيل التسجيل لـ %s"
 
 #: src/Model/User.php:1415
 #, php-format
@@ -4917,12 +4672,12 @@ msgid ""
 "\t\t\tLogin Name:\t\t%4$s\n"
 "\t\t\tPassword:\t\t%5$s\n"
 "\t\t"
-msgstr ""
+msgstr "\n\t\t\tعزيزي %1$s،\n\t\t\t\tشكرا لك على التسجيل في %2$s. حسابك معلق حتى يوافق عليه المدير.\n\n\t\t\tتفاصيل الولوج هي كالتالي:\n\n\t\t\tالموقع:\t%3$s\n\t\t\tاسم المستخدم:\t\t%4$s\n\t\t\tكلمة المرور:\t\t%5$s\n\t\t\t\t"
 
 #: src/Model/User.php:1434
 #, php-format
 msgid "Registration at %s"
-msgstr ""
+msgstr "التسجيل في %s"
 
 #: src/Model/User.php:1458
 #, php-format
@@ -4931,7 +4686,7 @@ msgid ""
 "\t\t\t\tDear %1$s,\n"
 "\t\t\t\tThank you for registering at %2$s. Your account has been created.\n"
 "\t\t\t"
-msgstr ""
+msgstr "\n\t\t\t\t عزيزي %1$s،\n\t\t\t\tشكرا لك على التسجيل في %2$s. نجح إنشاء حسابك.\n\t\t\t\t"
 
 #: src/Model/User.php:1466
 #, php-format
@@ -4963,21 +4718,21 @@ msgid ""
 "\t\t\tIf you ever want to delete your account, you can do so at %3$s/removeme\n"
 "\n"
 "\t\t\tThank you and welcome to %2$s."
-msgstr ""
+msgstr "\n\t\tتفاصيل تسجيل الولوج هي كالتالي:\n\n\t\tالموقع:\t%3$s\n\t\tاسم المستخدم:\t\t%1$s\n\t\tكلمة المرور:\t%5$s\n\n\t\tيمكنك تغيير كلمة المرور من صفحة إعدادات الحساب.\n\n\t\tيرجى أخذ بضع لحظات لمراجعة الإعدادات الأخرى في تلك الصفحة.\n\n\t\tقد ترغب أيضًا في إضافة بعض المعلومات الأساسية إلى صفحة ملفك الشخصية الافتراضي\n\t\t(من صفحة \"الملفات الشخصية\") حتى يتمكن الآخرون من العثور عليك بسهولة.\n\n\t\tنحن نوصي بوضع اسمك الكامل، إضافة لصورة،\n\t\tوإضافة بعض الكلمات المفتاحية (مفيدة جدا في تكوين صداقات) - و\n\t\tربما البلد الذي تعيش فيه.\n\n\t\tنحن نحترم حقك في الخصوصية احتراما كاملا، ولا ضرورة لأي مما سبق.\n\t\tإذا كنت جديداً ولا تعرف أي شخص هنا، فقد تساعدك هذه المعلومات على تكوين صداقات مثيرة للاهتمام.\n\n\t\tإذا كنت ترغب في حذف حسابك، يمكنك فعل ذلك في %3$s/removeme\n\n\t\tشكرا لك ومرحبًا بك في %2$s."
 
 #: src/Module/Admin/Addons/Details.php:65
 msgid "Addon not found."
-msgstr ""
+msgstr "لم يُعثر على الإضافة."
 
 #: src/Module/Admin/Addons/Details.php:76 src/Module/Admin/Addons/Index.php:49
 #, php-format
 msgid "Addon %s disabled."
-msgstr ""
+msgstr "الإضافة %s معطلة."
 
 #: src/Module/Admin/Addons/Details.php:79 src/Module/Admin/Addons/Index.php:51
 #, php-format
 msgid "Addon %s enabled."
-msgstr ""
+msgstr "الإضافة %s مفعلة."
 
 #: src/Module/Admin/Addons/Details.php:88
 #: src/Module/Admin/Themes/Details.php:46
@@ -4995,7 +4750,7 @@ msgstr "فعّل"
 #: src/Module/Admin/Blocklist/Server.php:88
 #: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:65
 #: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:83
-#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:497
+#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:499
 #: src/Module/Admin/Storage.php:139 src/Module/Admin/Summary.php:233
 #: src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
@@ -5029,16 +4784,16 @@ msgstr "المصين: "
 
 #: src/Module/Admin/Addons/Index.php:42
 msgid "Addons reloaded"
-msgstr ""
+msgstr "أُعيد تحميل الإضافة"
 
 #: src/Module/Admin/Addons/Index.php:53
 #, php-format
 msgid "Addon %s failed to install."
-msgstr ""
+msgstr "فشل تثبيت إضافة %s."
 
 #: src/Module/Admin/Addons/Index.php:70
 msgid "Reload active addons"
-msgstr ""
+msgstr "أعد تحميل الإضافات النشطة"
 
 #: src/Module/Admin/Addons/Index.php:75
 #, php-format
@@ -5046,15 +4801,15 @@ msgid ""
 "There are currently no addons available on your node. You can find the "
 "official addon repository at %1$s and might find other interesting addons in"
 " the open addon registry at %2$s"
-msgstr ""
+msgstr "لا توجد حاليا أي إضافات متاحة في عقدتك. يمكنك العثور على مستودع الإضافات الرسمي في %1$s وقد تجد إضافات أخرى مثيرة للاهتمام في سجل الإضافات المفتوحة في %2$s"
 
 #: src/Module/Admin/BaseUsers.php:53
 msgid "List of all users"
-msgstr ""
+msgstr "قائمة المستخدمين"
 
 #: src/Module/Admin/BaseUsers.php:58
 msgid "Active"
-msgstr ""
+msgstr "نشط"
 
 #: src/Module/Admin/BaseUsers.php:61
 msgid "List of active accounts"
@@ -5092,7 +4847,7 @@ msgstr "منتدى خاص"
 
 #: src/Module/Admin/BaseUsers.php:110
 msgid "Relay"
-msgstr ""
+msgstr "مُرحِل"
 
 #: src/Module/Admin/Blocklist/Contact.php:54
 msgid "You can't block a local contact, please block the user instead"
@@ -5165,12 +4920,12 @@ msgstr "السبب"
 #, php-format
 msgid "%s total blocked contact"
 msgid_plural "%s total blocked contacts"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
+msgstr[0] "لم يحجب أي متراسل %s"
+msgstr[1] "متراسل%s محجوب"
+msgstr[2] "متراسلان %s محجوبان"
+msgstr[3] "%s متراسلين محجوبين"
+msgstr[4] "%s متراسلًا محجوبًا"
+msgstr[5] "%s متراسل محجوب"
 
 #: src/Module/Admin/Blocklist/Contact.php:116
 msgid "URL of the remote contact to block."
@@ -5178,13 +4933,13 @@ msgstr "رابط المتراسل البعيد المراد حجبه."
 
 #: src/Module/Admin/Blocklist/Contact.php:117
 msgid "Also purge contact"
-msgstr ""
+msgstr "امسح المتراسل أيضًا"
 
 #: src/Module/Admin/Blocklist/Contact.php:117
 msgid ""
 "Removes all content related to this contact from the node. Keeps the contact"
 " record. This action canoot be undone."
-msgstr ""
+msgstr "يزيل جميع المحتويات المتعلقة بهذا المتراسل من العقدة. ويحتفظ بسجل للمتراسل. لا يمكن التراجع عن هذا الإجراء."
 
 #: src/Module/Admin/Blocklist/Contact.php:118
 msgid "Block Reason"
@@ -5585,7 +5340,7 @@ msgstr ""
 
 #: src/Module/Admin/Logs/View.php:103
 msgid "Process ID"
-msgstr ""
+msgstr "مُعرّف العملية"
 
 #: src/Module/Admin/Logs/View.php:104
 msgid "Close"
@@ -5593,23 +5348,23 @@ msgstr "أغلق"
 
 #: src/Module/Admin/Queue.php:50
 msgid "Inspect Deferred Worker Queue"
-msgstr ""
+msgstr "فحص طابور المهام المؤجلة"
 
 #: src/Module/Admin/Queue.php:51
 msgid ""
 "This page lists the deferred worker jobs. This are jobs that couldn't be "
 "executed at the first time."
-msgstr ""
+msgstr "تسرد هذه الصفحة العمليات المؤجلة. هذه العمليات لا يمكن تنفيذها لأول مرة."
 
 #: src/Module/Admin/Queue.php:54
 msgid "Inspect Worker Queue"
-msgstr ""
+msgstr "فحص طابور المهام"
 
 #: src/Module/Admin/Queue.php:55
 msgid ""
 "This page lists the currently queued worker jobs. These jobs are handled by "
 "the worker cronjob you've set up during install."
-msgstr ""
+msgstr "تسرد هذه الصفحة العمليات المتواجدة في الطابور حاليا. هذه العمليات تديرها المهام التي أعددتها أثناء التثبيت."
 
 #: src/Module/Admin/Queue.php:75
 msgid "ID"
@@ -5617,7 +5372,7 @@ msgstr "المعرف"
 
 #: src/Module/Admin/Queue.php:76
 msgid "Command"
-msgstr ""
+msgstr "أمر"
 
 #: src/Module/Admin/Queue.php:77
 msgid "Job Parameters"
@@ -5635,453 +5390,453 @@ msgstr ""
 msgid "Relocation started. Could take a while to complete."
 msgstr "بدأ النقل. قد يستغرق بعض الوقت."
 
-#: src/Module/Admin/Site.php:402 src/Module/Settings/Display.php:139
+#: src/Module/Admin/Site.php:404 src/Module/Settings/Display.php:139
 msgid "No special theme for mobile devices"
-msgstr ""
+msgstr "لا توجد سمة مخصصة للهتف"
 
-#: src/Module/Admin/Site.php:419 src/Module/Settings/Display.php:149
+#: src/Module/Admin/Site.php:421 src/Module/Settings/Display.php:149
 #, php-format
 msgid "%s - (Experimental)"
-msgstr ""
+msgstr "%s - (اختباري)"
 
-#: src/Module/Admin/Site.php:431
+#: src/Module/Admin/Site.php:433
 msgid "No community page for local users"
 msgstr "لا توجد صفحة مجتمع للمستخدمين المحليين"
 
-#: src/Module/Admin/Site.php:432
+#: src/Module/Admin/Site.php:434
 msgid "No community page"
 msgstr "لا توجد صفحة مجتمع"
 
-#: src/Module/Admin/Site.php:433
-msgid "Public postings from users of this site"
-msgstr "المشركات العامومية لمستخدمي هذا الموقع"
-
-#: src/Module/Admin/Site.php:434
-msgid "Public postings from the federated network"
-msgstr "المشركات العمومية من الشبكة الموحدة"
-
 #: src/Module/Admin/Site.php:435
+msgid "Public postings from users of this site"
+msgstr "المشاركات العلنية لمستخدمي هذا الموقع"
+
+#: src/Module/Admin/Site.php:436
+msgid "Public postings from the federated network"
+msgstr "المشاركات العلنية من الشبكة الموحدة"
+
+#: src/Module/Admin/Site.php:437
 msgid "Public postings from local users and the federated network"
-msgstr "المشركات العامومية من الشبكة الموحدة والشبكة المحلية"
+msgstr "المشركات العلنية من الشبكة الموحدة والشبكة المحلية"
 
-#: src/Module/Admin/Site.php:441
+#: src/Module/Admin/Site.php:443
 msgid "Multi user instance"
-msgstr ""
+msgstr "مثيل متعدد المستخدمين"
 
-#: src/Module/Admin/Site.php:468
+#: src/Module/Admin/Site.php:470
 msgid "Closed"
 msgstr "مغلق"
 
-#: src/Module/Admin/Site.php:469
+#: src/Module/Admin/Site.php:471
 msgid "Requires approval"
 msgstr "تتطلب الحصول على موافقة"
 
-#: src/Module/Admin/Site.php:470
+#: src/Module/Admin/Site.php:472
 msgid "Open"
 msgstr "افتح"
 
-#: src/Module/Admin/Site.php:474 src/Module/Install.php:215
+#: src/Module/Admin/Site.php:476 src/Module/Install.php:215
 msgid "No SSL policy, links will track page SSL state"
 msgstr ""
 
-#: src/Module/Admin/Site.php:475 src/Module/Install.php:216
+#: src/Module/Admin/Site.php:477 src/Module/Install.php:216
 msgid "Force all links to use SSL"
 msgstr "فرض استخدام الروابط ل SSL"
 
-#: src/Module/Admin/Site.php:476 src/Module/Install.php:217
+#: src/Module/Admin/Site.php:478 src/Module/Install.php:217
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr ""
 
-#: src/Module/Admin/Site.php:480
+#: src/Module/Admin/Site.php:482
 msgid "Don't check"
 msgstr "لا تتحقق"
 
-#: src/Module/Admin/Site.php:481
+#: src/Module/Admin/Site.php:483
 msgid "check the stable version"
 msgstr "تحقق من الاصدار المستقر"
 
-#: src/Module/Admin/Site.php:482
+#: src/Module/Admin/Site.php:484
 msgid "check the development version"
 msgstr "تحقق من الاصدار التطويري"
 
-#: src/Module/Admin/Site.php:486
+#: src/Module/Admin/Site.php:488
 msgid "none"
 msgstr "لا شيﺀ"
 
-#: src/Module/Admin/Site.php:487
+#: src/Module/Admin/Site.php:489
 msgid "Local contacts"
 msgstr "المُتراسِلون المحليون"
 
-#: src/Module/Admin/Site.php:488
+#: src/Module/Admin/Site.php:490
 msgid "Interactors"
-msgstr ""
+msgstr "المتفاعلون"
 
-#: src/Module/Admin/Site.php:498 src/Module/BaseAdmin.php:90
+#: src/Module/Admin/Site.php:500 src/Module/BaseAdmin.php:90
 msgid "Site"
 msgstr "موقع"
 
-#: src/Module/Admin/Site.php:499
-msgid "General Information"
-msgstr ""
-
 #: src/Module/Admin/Site.php:501
-msgid "Republish users to directory"
-msgstr ""
+msgid "General Information"
+msgstr "معلومات عامة"
 
-#: src/Module/Admin/Site.php:502 src/Module/Register.php:141
+#: src/Module/Admin/Site.php:503
+msgid "Republish users to directory"
+msgstr "أعد نشر المستخدمين في الدليل"
+
+#: src/Module/Admin/Site.php:504 src/Module/Register.php:141
 msgid "Registration"
 msgstr "التسجيل"
 
-#: src/Module/Admin/Site.php:503
+#: src/Module/Admin/Site.php:505
 msgid "File upload"
 msgstr "رفع الملف"
 
-#: src/Module/Admin/Site.php:504
+#: src/Module/Admin/Site.php:506
 msgid "Policies"
 msgstr "السياسات"
 
-#: src/Module/Admin/Site.php:506
+#: src/Module/Admin/Site.php:508
 msgid "Auto Discovered Contact Directory"
 msgstr ""
 
-#: src/Module/Admin/Site.php:507
+#: src/Module/Admin/Site.php:509
 msgid "Performance"
 msgstr "الأداء"
 
-#: src/Module/Admin/Site.php:508
-msgid "Worker"
-msgstr ""
-
-#: src/Module/Admin/Site.php:509
-msgid "Message Relay"
-msgstr ""
-
 #: src/Module/Admin/Site.php:510
+msgid "Worker"
+msgstr "مهمة"
+
+#: src/Module/Admin/Site.php:511
+msgid "Message Relay"
+msgstr "ترحيل الرسالة"
+
+#: src/Module/Admin/Site.php:512
 msgid ""
 "Use the command \"console relay\" in the command line to add or remove "
 "relays."
 msgstr ""
 
-#: src/Module/Admin/Site.php:511
+#: src/Module/Admin/Site.php:513
 msgid "The system is not subscribed to any relays at the moment."
-msgstr ""
-
-#: src/Module/Admin/Site.php:512
-msgid "The system is currently subscribed to the following relays:"
-msgstr ""
+msgstr "هذا الخادم ليس مشترك في أي مرحلات حاليًا."
 
 #: src/Module/Admin/Site.php:514
+msgid "The system is currently subscribed to the following relays:"
+msgstr "هذا الخادم مشترك حاليًا في المرحلات التالية:"
+
+#: src/Module/Admin/Site.php:516
 msgid "Relocate Instance"
 msgstr "انقل المثيل"
 
-#: src/Module/Admin/Site.php:515
+#: src/Module/Admin/Site.php:517
 msgid ""
 "<strong>Warning!</strong> Advanced function. Could make this server "
 "unreachable."
 msgstr "<strong>تحذير!</strong> وظيفة متقدمة. يمكن أن تجعل هذا الخادم غير قابل للوصول."
 
-#: src/Module/Admin/Site.php:519
+#: src/Module/Admin/Site.php:521
 msgid "Site name"
 msgstr "اسم الموقع"
 
-#: src/Module/Admin/Site.php:520
+#: src/Module/Admin/Site.php:522
 msgid "Sender Email"
 msgstr "بريد المرسل"
 
-#: src/Module/Admin/Site.php:520
+#: src/Module/Admin/Site.php:522
 msgid ""
 "The email address your server shall use to send notification emails from."
 msgstr "عنوان البريد الإلكتروني الذي سيستخدمه الخادم لإرسال رسائل التنبيه."
 
-#: src/Module/Admin/Site.php:521
+#: src/Module/Admin/Site.php:523
 msgid "Name of the system actor"
 msgstr "اسم حساب النظام"
 
-#: src/Module/Admin/Site.php:521
+#: src/Module/Admin/Site.php:523
 msgid ""
 "Name of the internal system account that is used to perform ActivityPub "
 "requests. This must be an unused username. If set, this can't be changed "
 "again."
 msgstr "اسم حساب النظام الداخلي المستخدم لتنفيذ طلبات ActivityPub. يجب أن لا يكون هذا الاسم محجوز. إذا عُين لا يمكن تغييره."
 
-#: src/Module/Admin/Site.php:522
+#: src/Module/Admin/Site.php:524
 msgid "Banner/Logo"
 msgstr "اللافتة/الشعار"
 
-#: src/Module/Admin/Site.php:523
+#: src/Module/Admin/Site.php:525
 msgid "Email Banner/Logo"
 msgstr "شعار\\لافتة البريد الإلكتروني"
 
-#: src/Module/Admin/Site.php:524
+#: src/Module/Admin/Site.php:526
 msgid "Shortcut icon"
 msgstr "أيقونة الاختصار"
 
-#: src/Module/Admin/Site.php:524
+#: src/Module/Admin/Site.php:526
 msgid "Link to an icon that will be used for browsers."
-msgstr ""
+msgstr "رابط إلى أيقونة سيتم استخدامها للمتصفحات."
 
-#: src/Module/Admin/Site.php:525
+#: src/Module/Admin/Site.php:527
 msgid "Touch icon"
 msgstr "أيقونة الأجهزة اللمسية"
 
-#: src/Module/Admin/Site.php:525
+#: src/Module/Admin/Site.php:527
 msgid "Link to an icon that will be used for tablets and mobiles."
 msgstr "رابط إلى أيقونة سيتم استخدامها للأجهزة اللوحية والهواتف."
 
-#: src/Module/Admin/Site.php:526
+#: src/Module/Admin/Site.php:528
 msgid "Additional Info"
 msgstr "معلومات إضافية"
 
-#: src/Module/Admin/Site.php:526
+#: src/Module/Admin/Site.php:528
 #, php-format
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at %s/servers."
-msgstr ""
+msgstr "للخوادم العامة: يمكنك إضافة معلومات إضافية لتدرج في %s/servers."
 
-#: src/Module/Admin/Site.php:527
+#: src/Module/Admin/Site.php:529
 msgid "System language"
 msgstr "لغة النظام"
 
-#: src/Module/Admin/Site.php:528
+#: src/Module/Admin/Site.php:530
 msgid "System theme"
 msgstr "سمة النظام"
 
-#: src/Module/Admin/Site.php:528
+#: src/Module/Admin/Site.php:530
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a "
 "href=\"/admin/themes\" id=\"cnftheme\">Change default theme settings</a>"
 msgstr ""
 
-#: src/Module/Admin/Site.php:529
+#: src/Module/Admin/Site.php:531
 msgid "Mobile system theme"
 msgstr "سمة الهاتف"
 
-#: src/Module/Admin/Site.php:529
+#: src/Module/Admin/Site.php:531
 msgid "Theme for mobile devices"
 msgstr "سمة للأجهزة المحمولة"
 
-#: src/Module/Admin/Site.php:530 src/Module/Install.php:225
+#: src/Module/Admin/Site.php:532 src/Module/Install.php:225
 msgid "SSL link policy"
 msgstr "سياسة روابط SSL"
 
-#: src/Module/Admin/Site.php:530 src/Module/Install.php:227
+#: src/Module/Admin/Site.php:532 src/Module/Install.php:227
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr "يحدد ما إذا كان ينبغي إجبار الروابط المولدة على استخدام SSL"
 
-#: src/Module/Admin/Site.php:531
+#: src/Module/Admin/Site.php:533
 msgid "Force SSL"
 msgstr "فرض SSL"
 
-#: src/Module/Admin/Site.php:531
+#: src/Module/Admin/Site.php:533
 msgid ""
 "Force all Non-SSL requests to SSL - Attention: on some systems it could lead"
 " to endless loops."
 msgstr ""
 
-#: src/Module/Admin/Site.php:532
+#: src/Module/Admin/Site.php:534
 msgid "Show help entry from navigation menu"
 msgstr ""
 
-#: src/Module/Admin/Site.php:532
+#: src/Module/Admin/Site.php:534
 msgid ""
 "Displays the menu entry for the Help pages from the navigation menu. It is "
 "always accessible by calling /help directly."
 msgstr ""
 
-#: src/Module/Admin/Site.php:533
+#: src/Module/Admin/Site.php:535
 msgid "Single user instance"
 msgstr "مثيل لمستخدم وحيد"
 
-#: src/Module/Admin/Site.php:533
+#: src/Module/Admin/Site.php:535
 msgid "Make this instance multi-user or single-user for the named user"
 msgstr "اجعل هذا المثيل إما لمستخدم واحد أوعدة مستخدمين"
 
-#: src/Module/Admin/Site.php:535
+#: src/Module/Admin/Site.php:537
 msgid "Maximum image size"
 msgstr "الحجم الأقصى للصورة"
 
-#: src/Module/Admin/Site.php:535
+#: src/Module/Admin/Site.php:537
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
 "limits."
 msgstr "حد حجم الصورة المرفوعة بالبايت. الافتراضي هو 0 والذي يعني حجمًا غير محدود."
 
-#: src/Module/Admin/Site.php:536
+#: src/Module/Admin/Site.php:538
 msgid "Maximum image length"
 msgstr "الطول الأقصى للصورة"
 
-#: src/Module/Admin/Site.php:536
+#: src/Module/Admin/Site.php:538
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
 msgstr ""
 
-#: src/Module/Admin/Site.php:537
+#: src/Module/Admin/Site.php:539
 msgid "JPEG image quality"
 msgstr ""
 
-#: src/Module/Admin/Site.php:537
+#: src/Module/Admin/Site.php:539
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
 msgstr ""
 
-#: src/Module/Admin/Site.php:539
+#: src/Module/Admin/Site.php:541
 msgid "Register policy"
 msgstr ""
 
-#: src/Module/Admin/Site.php:540
+#: src/Module/Admin/Site.php:542
 msgid "Maximum Daily Registrations"
 msgstr ""
 
-#: src/Module/Admin/Site.php:540
+#: src/Module/Admin/Site.php:542
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
 msgstr ""
 
-#: src/Module/Admin/Site.php:541
+#: src/Module/Admin/Site.php:543
 msgid "Register text"
 msgstr ""
 
-#: src/Module/Admin/Site.php:541
+#: src/Module/Admin/Site.php:543
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
 msgstr ""
 
-#: src/Module/Admin/Site.php:542
+#: src/Module/Admin/Site.php:544
 msgid "Forbidden Nicknames"
 msgstr ""
 
-#: src/Module/Admin/Site.php:542
+#: src/Module/Admin/Site.php:544
 msgid ""
 "Comma separated list of nicknames that are forbidden from registration. "
 "Preset is a list of role names according RFC 2142."
 msgstr ""
 
-#: src/Module/Admin/Site.php:543
+#: src/Module/Admin/Site.php:545
 msgid "Accounts abandoned after x days"
 msgstr ""
 
-#: src/Module/Admin/Site.php:543
+#: src/Module/Admin/Site.php:545
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr ""
 
-#: src/Module/Admin/Site.php:544
+#: src/Module/Admin/Site.php:546
 msgid "Allowed friend domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:544
+#: src/Module/Admin/Site.php:546
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:545
+#: src/Module/Admin/Site.php:547
 msgid "Allowed email domains"
 msgstr "نطاقات البريد الإلكتروني المسموحة"
 
-#: src/Module/Admin/Site.php:545
+#: src/Module/Admin/Site.php:547
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:546
+#: src/Module/Admin/Site.php:548
 msgid "No OEmbed rich content"
 msgstr ""
 
-#: src/Module/Admin/Site.php:546
+#: src/Module/Admin/Site.php:548
 msgid ""
 "Don't show the rich content (e.g. embedded PDF), except from the domains "
 "listed below."
 msgstr ""
 
-#: src/Module/Admin/Site.php:547
+#: src/Module/Admin/Site.php:549
 msgid "Trusted third-party domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:547
+#: src/Module/Admin/Site.php:549
 msgid ""
 "Comma separated list of domains from which content is allowed to be embedded"
 " in posts like with OEmbed. All sub-domains of the listed domains are "
 "allowed as well."
 msgstr ""
 
-#: src/Module/Admin/Site.php:548
+#: src/Module/Admin/Site.php:550
 msgid "Block public"
 msgstr ""
 
-#: src/Module/Admin/Site.php:548
+#: src/Module/Admin/Site.php:550
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr ""
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:551
 msgid "Force publish"
 msgstr ""
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:551
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr ""
 
-#: src/Module/Admin/Site.php:549
+#: src/Module/Admin/Site.php:551
 msgid "Enabling this may violate privacy laws like the GDPR"
 msgstr ""
 
-#: src/Module/Admin/Site.php:550
+#: src/Module/Admin/Site.php:552
 msgid "Global directory URL"
 msgstr ""
 
-#: src/Module/Admin/Site.php:550
+#: src/Module/Admin/Site.php:552
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
 msgstr ""
 
-#: src/Module/Admin/Site.php:551
+#: src/Module/Admin/Site.php:553
 msgid "Private posts by default for new users"
 msgstr ""
 
-#: src/Module/Admin/Site.php:551
+#: src/Module/Admin/Site.php:553
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
 msgstr ""
 
-#: src/Module/Admin/Site.php:552
+#: src/Module/Admin/Site.php:554
 msgid "Don't include post content in email notifications"
 msgstr ""
 
-#: src/Module/Admin/Site.php:552
+#: src/Module/Admin/Site.php:554
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
 msgstr ""
 
-#: src/Module/Admin/Site.php:553
+#: src/Module/Admin/Site.php:555
 msgid "Disallow public access to addons listed in the apps menu."
 msgstr ""
 
-#: src/Module/Admin/Site.php:553
+#: src/Module/Admin/Site.php:555
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
 msgstr ""
 
-#: src/Module/Admin/Site.php:554
+#: src/Module/Admin/Site.php:556
 msgid "Don't embed private images in posts"
 msgstr ""
 
-#: src/Module/Admin/Site.php:554
+#: src/Module/Admin/Site.php:556
 msgid ""
 "Don't replace locally-hosted private photos in posts with an embedded copy "
 "of the image. This means that contacts who receive posts containing private "
@@ -6089,258 +5844,268 @@ msgid ""
 "while."
 msgstr ""
 
-#: src/Module/Admin/Site.php:555
+#: src/Module/Admin/Site.php:557
 msgid "Explicit Content"
 msgstr ""
 
-#: src/Module/Admin/Site.php:555
+#: src/Module/Admin/Site.php:557
 msgid ""
 "Set this to announce that your node is used mostly for explicit content that"
 " might not be suited for minors. This information will be published in the "
 "node information and might be used, e.g. by the global directory, to filter "
 "your node from listings of nodes to join. Additionally a note about this "
 "will be shown at the user registration page."
-msgstr ""
+msgstr "عيّن هذا الخيار للإعلان عن أن عقدتك تحتوي محتوى حساس قد لا يكون مناسباً للقصر. وسوف تنشر هذه المعلومات في معلومات العقدة وصفحة التسجيل، ويستخدم هذا الخيار في الدليل العالمي، فأثناء استعراض هذه العقدة في الدليل ستظهر لهم هذه المعلومة."
 
-#: src/Module/Admin/Site.php:556
+#: src/Module/Admin/Site.php:558
 msgid "Proxify external content"
-msgstr ""
+msgstr "توجيه المحتوى الخارجي عبر الوكيل"
 
-#: src/Module/Admin/Site.php:556
+#: src/Module/Admin/Site.php:558
 msgid ""
 "Route external content via the proxy functionality. This is used for example"
 " for some OEmbed accesses and in some other rare cases."
+msgstr "توجيه المحتوى الخارجي عن طريق وميل. يستخدم هذا على سبيل المثال وصول OEmbed وفي بعض الحالات النادرة الأخرى."
+
+#: src/Module/Admin/Site.php:559
+msgid "Cache contact avatars"
 msgstr ""
 
-#: src/Module/Admin/Site.php:557
+#: src/Module/Admin/Site.php:559
+msgid ""
+"Locally store the avatar pictures of the contacts. This uses a lot of "
+"storage space but it increases the performance."
+msgstr ""
+
+#: src/Module/Admin/Site.php:560
 msgid "Allow Users to set remote_self"
-msgstr ""
+msgstr "اسمح للمستخدمين بتعيين remote_self"
 
-#: src/Module/Admin/Site.php:557
+#: src/Module/Admin/Site.php:560
 msgid ""
 "With checking this, every user is allowed to mark every contact as a "
 "remote_self in the repair contact dialog. Setting this flag on a contact "
 "causes mirroring every posting of that contact in the users stream."
-msgstr ""
+msgstr "يتيح تأشير هذا المربع للميتخدمين تعريف مل المتراسلين علئ أنهم remote_self في مربع حوار اصلاح المتراسلين. سيؤدي تنشيط هذه الميزة على متراسل إلى نسخ جميع منشوراته في دفق المستخدم."
 
-#: src/Module/Admin/Site.php:558
+#: src/Module/Admin/Site.php:561
 msgid "Enable multiple registrations"
-msgstr ""
+msgstr "فعّل تعدد التسجيل"
 
-#: src/Module/Admin/Site.php:558
+#: src/Module/Admin/Site.php:561
 msgid "Enable users to register additional accounts for use as pages."
-msgstr ""
+msgstr "يمكن المستخدمين من تسجيل حسابات إضافية لتستخدم كصفحات."
 
-#: src/Module/Admin/Site.php:559
+#: src/Module/Admin/Site.php:562
 msgid "Enable OpenID"
-msgstr ""
+msgstr "فعّل OpenID"
 
-#: src/Module/Admin/Site.php:559
+#: src/Module/Admin/Site.php:562
 msgid "Enable OpenID support for registration and logins."
-msgstr ""
+msgstr "فعّل دعم OpenID للتسجيل والولوج."
 
-#: src/Module/Admin/Site.php:560
+#: src/Module/Admin/Site.php:563
 msgid "Enable Fullname check"
-msgstr ""
+msgstr "افرض استخدام الأسماء الكاملة"
 
-#: src/Module/Admin/Site.php:560
+#: src/Module/Admin/Site.php:563
 msgid ""
 "Enable check to only allow users to register with a space between the first "
 "name and the last name in their full name."
-msgstr ""
+msgstr "يفرض على المستخدمين تضمين مسافة واحدة في اسم المستخدم الخاص بهم بين الاسم الأول والاسم الأخير."
 
-#: src/Module/Admin/Site.php:561
+#: src/Module/Admin/Site.php:564
 msgid "Community pages for visitors"
-msgstr ""
+msgstr "عرض صفحة المجتمع للزوار"
 
-#: src/Module/Admin/Site.php:561
+#: src/Module/Admin/Site.php:564
 msgid ""
 "Which community pages should be available for visitors. Local users always "
 "see both pages."
-msgstr ""
+msgstr "صفحات المجتمع المتاحة للزوار. المستخدمون المحليون يمكنهم مشاهدة كلا النوعين."
 
-#: src/Module/Admin/Site.php:562
+#: src/Module/Admin/Site.php:565
 msgid "Posts per user on community page"
-msgstr ""
+msgstr "حد المشاركات لكل مستخدم في صفحة المجتمع"
 
-#: src/Module/Admin/Site.php:562
+#: src/Module/Admin/Site.php:565
 msgid ""
 "The maximum number of posts per user on the community page. (Not valid for "
 "\"Global Community\")"
 msgstr ""
 
-#: src/Module/Admin/Site.php:564
+#: src/Module/Admin/Site.php:567
 msgid "Enable Mail support"
 msgstr ""
 
-#: src/Module/Admin/Site.php:564
+#: src/Module/Admin/Site.php:567
 msgid ""
 "Enable built-in mail support to poll IMAP folders and to reply via mail."
 msgstr ""
 
-#: src/Module/Admin/Site.php:565
+#: src/Module/Admin/Site.php:568
 msgid ""
 "Mail support can't be enabled because the PHP IMAP module is not installed."
 msgstr ""
 
-#: src/Module/Admin/Site.php:566
+#: src/Module/Admin/Site.php:569
 msgid "Enable OStatus support"
 msgstr ""
 
-#: src/Module/Admin/Site.php:566
+#: src/Module/Admin/Site.php:569
 msgid ""
 "Enable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All "
 "communications in OStatus are public."
 msgstr ""
 
-#: src/Module/Admin/Site.php:568
+#: src/Module/Admin/Site.php:571
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
 msgstr ""
 
-#: src/Module/Admin/Site.php:569
+#: src/Module/Admin/Site.php:572
 msgid "Enable Diaspora support"
 msgstr ""
 
-#: src/Module/Admin/Site.php:569
+#: src/Module/Admin/Site.php:572
 msgid ""
 "Enable built-in Diaspora network compatibility for communicating with "
 "diaspora servers."
 msgstr ""
 
-#: src/Module/Admin/Site.php:570
+#: src/Module/Admin/Site.php:573
 msgid "Verify SSL"
 msgstr ""
 
-#: src/Module/Admin/Site.php:570
+#: src/Module/Admin/Site.php:573
 msgid ""
 "If you wish, you can turn on strict certificate checking. This will mean you"
 " cannot connect (at all) to self-signed SSL sites."
 msgstr ""
 
-#: src/Module/Admin/Site.php:571
+#: src/Module/Admin/Site.php:574
 msgid "Proxy user"
-msgstr ""
+msgstr "مستخدم الوكيل"
 
-#: src/Module/Admin/Site.php:572
+#: src/Module/Admin/Site.php:575
 msgid "Proxy URL"
-msgstr ""
+msgstr "رابط الوكيل"
 
-#: src/Module/Admin/Site.php:573
+#: src/Module/Admin/Site.php:576
 msgid "Network timeout"
 msgstr "انتهت مهلة الاتصال بالشبكة"
 
-#: src/Module/Admin/Site.php:573
+#: src/Module/Admin/Site.php:576
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
 msgstr "القيمة بالثواني. تعيينها لـ 0 يعني مهلة غير محدودة (غير مستحسن)."
 
-#: src/Module/Admin/Site.php:574
+#: src/Module/Admin/Site.php:577
 msgid "Maximum Load Average"
 msgstr ""
 
-#: src/Module/Admin/Site.php:574
+#: src/Module/Admin/Site.php:577
 #, php-format
 msgid ""
 "Maximum system load before delivery and poll processes are deferred - "
 "default %d."
 msgstr ""
 
-#: src/Module/Admin/Site.php:575
+#: src/Module/Admin/Site.php:578
 msgid "Maximum Load Average (Frontend)"
 msgstr ""
 
-#: src/Module/Admin/Site.php:575
+#: src/Module/Admin/Site.php:578
 msgid "Maximum system load before the frontend quits service - default 50."
 msgstr ""
 
-#: src/Module/Admin/Site.php:576
+#: src/Module/Admin/Site.php:579
 msgid "Minimal Memory"
 msgstr ""
 
-#: src/Module/Admin/Site.php:576
+#: src/Module/Admin/Site.php:579
 msgid ""
 "Minimal free memory in MB for the worker. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
-msgstr ""
+msgstr "الحد الأدنى لذاكرة الحرة للمهمة بالميغابايت. تحتاج إذن الوصول إلى /proc/meminfo - الافتراضي 0 (معطل)."
 
-#: src/Module/Admin/Site.php:577
+#: src/Module/Admin/Site.php:580
 msgid "Periodically optimize tables"
 msgstr ""
 
-#: src/Module/Admin/Site.php:577
+#: src/Module/Admin/Site.php:580
 msgid "Periodically optimize tables like the cache and the workerqueue"
 msgstr ""
 
-#: src/Module/Admin/Site.php:579
+#: src/Module/Admin/Site.php:582
 msgid "Discover followers/followings from contacts"
 msgstr ""
 
-#: src/Module/Admin/Site.php:579
+#: src/Module/Admin/Site.php:582
 msgid ""
 "If enabled, contacts are checked for their followers and following contacts."
 msgstr ""
 
-#: src/Module/Admin/Site.php:580
+#: src/Module/Admin/Site.php:583
 msgid "None - deactivated"
 msgstr ""
 
-#: src/Module/Admin/Site.php:581
+#: src/Module/Admin/Site.php:584
 msgid ""
 "Local contacts - contacts of our local contacts are discovered for their "
 "followers/followings."
 msgstr ""
 
-#: src/Module/Admin/Site.php:582
+#: src/Module/Admin/Site.php:585
 msgid ""
 "Interactors - contacts of our local contacts and contacts who interacted on "
 "locally visible postings are discovered for their followers/followings."
 msgstr ""
 
-#: src/Module/Admin/Site.php:584
+#: src/Module/Admin/Site.php:587
 msgid "Synchronize the contacts with the directory server"
 msgstr ""
 
-#: src/Module/Admin/Site.php:584
+#: src/Module/Admin/Site.php:587
 msgid ""
 "if enabled, the system will check periodically for new contacts on the "
 "defined directory server."
 msgstr ""
 
-#: src/Module/Admin/Site.php:586
+#: src/Module/Admin/Site.php:589
 msgid "Days between requery"
 msgstr ""
 
-#: src/Module/Admin/Site.php:586
+#: src/Module/Admin/Site.php:589
 msgid "Number of days after which a server is requeried for his contacts."
 msgstr ""
 
-#: src/Module/Admin/Site.php:587
+#: src/Module/Admin/Site.php:590
 msgid "Discover contacts from other servers"
 msgstr ""
 
-#: src/Module/Admin/Site.php:587
+#: src/Module/Admin/Site.php:590
 msgid ""
 "Periodically query other servers for contacts. The system queries Friendica,"
 " Mastodon and Hubzilla servers."
 msgstr ""
 
-#: src/Module/Admin/Site.php:588
+#: src/Module/Admin/Site.php:591
 msgid "Search the local directory"
-msgstr ""
+msgstr "ابحث في الدليل المحلي"
 
-#: src/Module/Admin/Site.php:588
+#: src/Module/Admin/Site.php:591
 msgid ""
 "Search the local directory instead of the global directory. When searching "
 "locally, every search will be executed on the global directory in the "
 "background. This improves the search results when the search is repeated."
 msgstr ""
 
-#: src/Module/Admin/Site.php:590
+#: src/Module/Admin/Site.php:593
 msgid "Publish server information"
 msgstr ""
 
-#: src/Module/Admin/Site.php:590
+#: src/Module/Admin/Site.php:593
 msgid ""
 "If enabled, general server and usage data will be published. The data "
 "contains the name and version of the server, number of users with public "
@@ -6348,50 +6113,50 @@ msgid ""
 " href=\"http://the-federation.info/\">the-federation.info</a> for details."
 msgstr ""
 
-#: src/Module/Admin/Site.php:592
+#: src/Module/Admin/Site.php:595
 msgid "Check upstream version"
 msgstr ""
 
-#: src/Module/Admin/Site.php:592
+#: src/Module/Admin/Site.php:595
 msgid ""
 "Enables checking for new Friendica versions at github. If there is a new "
 "version, you will be informed in the admin panel overview."
 msgstr ""
 
-#: src/Module/Admin/Site.php:593
+#: src/Module/Admin/Site.php:596
 msgid "Suppress Tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:593
+#: src/Module/Admin/Site.php:596
 msgid "Suppress showing a list of hashtags at the end of the posting."
 msgstr ""
 
-#: src/Module/Admin/Site.php:594
+#: src/Module/Admin/Site.php:597
 msgid "Clean database"
-msgstr ""
+msgstr "امسح قاعدة البيانات"
 
-#: src/Module/Admin/Site.php:594
+#: src/Module/Admin/Site.php:597
 msgid ""
 "Remove old remote items, orphaned database records and old content from some"
 " other helper tables."
 msgstr ""
 
-#: src/Module/Admin/Site.php:595
+#: src/Module/Admin/Site.php:598
 msgid "Lifespan of remote items"
 msgstr ""
 
-#: src/Module/Admin/Site.php:595
+#: src/Module/Admin/Site.php:598
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "remote items will be deleted. Own items, and marked or filed items are "
 "always kept. 0 disables this behaviour."
 msgstr ""
 
-#: src/Module/Admin/Site.php:596
+#: src/Module/Admin/Site.php:599
 msgid "Lifespan of unclaimed items"
 msgstr ""
 
-#: src/Module/Admin/Site.php:596
+#: src/Module/Admin/Site.php:599
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "unclaimed remote items (mostly content from the relay) will be deleted. "
@@ -6399,144 +6164,144 @@ msgid ""
 "items if set to 0."
 msgstr ""
 
-#: src/Module/Admin/Site.php:597
+#: src/Module/Admin/Site.php:600
 msgid "Lifespan of raw conversation data"
 msgstr ""
 
-#: src/Module/Admin/Site.php:597
+#: src/Module/Admin/Site.php:600
 msgid ""
 "The conversation data is used for ActivityPub and OStatus, as well as for "
 "debug purposes. It should be safe to remove it after 14 days, default is 90 "
 "days."
 msgstr ""
 
-#: src/Module/Admin/Site.php:598
+#: src/Module/Admin/Site.php:601
 msgid "Maximum numbers of comments per post"
 msgstr ""
 
-#: src/Module/Admin/Site.php:598
+#: src/Module/Admin/Site.php:601
 msgid "How much comments should be shown for each post? Default value is 100."
 msgstr ""
 
-#: src/Module/Admin/Site.php:599
+#: src/Module/Admin/Site.php:602
 msgid "Maximum numbers of comments per post on the display page"
 msgstr ""
 
-#: src/Module/Admin/Site.php:599
+#: src/Module/Admin/Site.php:602
 msgid ""
 "How many comments should be shown on the single view for each post? Default "
 "value is 1000."
 msgstr ""
 
-#: src/Module/Admin/Site.php:600
+#: src/Module/Admin/Site.php:603
 msgid "Temp path"
 msgstr "مسار التخزين المؤقت"
 
-#: src/Module/Admin/Site.php:600
+#: src/Module/Admin/Site.php:603
 msgid ""
 "If you have a restricted system where the webserver can't access the system "
 "temp path, enter another path here."
 msgstr ""
 
-#: src/Module/Admin/Site.php:601
+#: src/Module/Admin/Site.php:604
 msgid "Only search in tags"
 msgstr "ابحث في الوسوم فقط"
 
-#: src/Module/Admin/Site.php:601
+#: src/Module/Admin/Site.php:604
 msgid "On large systems the text search can slow down the system extremely."
 msgstr "في النظم الكبيرة، يمكن أن يؤدي البحث عن النصوص إلى إبطاء النظام."
 
-#: src/Module/Admin/Site.php:603
+#: src/Module/Admin/Site.php:606
 msgid "New base url"
-msgstr ""
+msgstr "رابط أساسي جديد"
 
-#: src/Module/Admin/Site.php:603
+#: src/Module/Admin/Site.php:606
 msgid ""
 "Change base url for this server. Sends relocate message to all Friendica and"
 " Diaspora* contacts of all users."
 msgstr ""
 
-#: src/Module/Admin/Site.php:605
+#: src/Module/Admin/Site.php:608
 msgid "Maximum number of parallel workers"
-msgstr ""
+msgstr "الحد الأقصى لعدد المهام"
 
-#: src/Module/Admin/Site.php:605
+#: src/Module/Admin/Site.php:608
 #, php-format
 msgid ""
 "On shared hosters set this to %d. On larger systems, values of %d are great."
 " Default value is %d."
 msgstr ""
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:609
 msgid "Enable fastlane"
 msgstr ""
 
-#: src/Module/Admin/Site.php:606
+#: src/Module/Admin/Site.php:609
 msgid ""
 "When enabed, the fastlane mechanism starts an additional worker if processes"
 " with higher priority are blocked by processes of lower priority."
 msgstr ""
 
-#: src/Module/Admin/Site.php:608
+#: src/Module/Admin/Site.php:611
 msgid "Direct relay transfer"
 msgstr ""
 
-#: src/Module/Admin/Site.php:608
+#: src/Module/Admin/Site.php:611
 msgid ""
 "Enables the direct transfer to other servers without using the relay servers"
 msgstr ""
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid "Relay scope"
 msgstr ""
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid ""
 "Can be \"all\" or \"tags\". \"all\" means that every public post should be "
 "received. \"tags\" means that only posts with selected tags should be "
 "received."
 msgstr ""
 
-#: src/Module/Admin/Site.php:609 src/Module/Contact.php:473
+#: src/Module/Admin/Site.php:612 src/Module/Contact.php:473
 #: src/Module/Settings/TwoFactor/Index.php:118
 msgid "Disabled"
 msgstr "معطل"
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid "all"
 msgstr "الكل"
 
-#: src/Module/Admin/Site.php:609
+#: src/Module/Admin/Site.php:612
 msgid "tags"
 msgstr "الوسوم"
 
-#: src/Module/Admin/Site.php:610
+#: src/Module/Admin/Site.php:613
 msgid "Server tags"
 msgstr "وسوم الخادم"
 
-#: src/Module/Admin/Site.php:610
+#: src/Module/Admin/Site.php:613
 msgid "Comma separated list of tags for the \"tags\" subscription."
 msgstr ""
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:614
 msgid "Deny Server tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:611
+#: src/Module/Admin/Site.php:614
 msgid "Comma separated list of tags that are rejected."
 msgstr ""
 
-#: src/Module/Admin/Site.php:612
+#: src/Module/Admin/Site.php:615
 msgid "Allow user tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:612
+#: src/Module/Admin/Site.php:615
 msgid ""
 "If enabled, the tags from the saved searches will used for the \"tags\" "
 "subscription in addition to the \"relay_server_tags\"."
 msgstr ""
 
-#: src/Module/Admin/Site.php:615
+#: src/Module/Admin/Site.php:618
 msgid "Start Relocation"
 msgstr "ابدأ النقل"
 
@@ -6644,7 +6409,7 @@ msgstr ""
 
 #: src/Module/Admin/Summary.php:101
 msgid "The worker was never executed. Please check your database structure!"
-msgstr ""
+msgstr "لم يتم تنفيذ المهمة أبداً. يرجى التحقق من بنية قاعدة البيانات!"
 
 #: src/Module/Admin/Summary.php:103
 #, php-format
@@ -7027,7 +6792,7 @@ msgstr[5] ""
 
 #: src/Module/Admin/Users/Pending.php:81
 msgid "Account approved."
-msgstr ""
+msgstr "قُبل الحساب."
 
 #: src/Module/Admin/Users/Pending.php:87
 msgid "Registration revoked"
@@ -7035,7 +6800,7 @@ msgstr ""
 
 #: src/Module/Admin/Users/Pending.php:102
 msgid "User registrations awaiting review"
-msgstr ""
+msgstr "تسجيلات تنتظر المعاينة"
 
 #: src/Module/Admin/Users/Pending.php:104
 msgid "Request date"
@@ -7043,7 +6808,7 @@ msgstr "تاريخ الطلب"
 
 #: src/Module/Admin/Users/Pending.php:105
 msgid "No registrations."
-msgstr ""
+msgstr "لا توجد تسجيلات."
 
 #: src/Module/Admin/Users/Pending.php:106
 msgid "Note from the user"
@@ -7073,7 +6838,7 @@ msgstr ""
 #: src/Module/Api/Mastodon/Statuses/Reblog.php:53
 #, php-format
 msgid "Posts from %s can't be shared"
-msgstr ""
+msgstr "لا تمكن مشاركة مشاركات %s"
 
 #: src/Module/Api/Mastodon/Statuses/Unbookmark.php:51
 msgid "Only starting posts can be unbookmarked"
@@ -7086,7 +6851,7 @@ msgstr ""
 #: src/Module/Api/Mastodon/Statuses/Unreblog.php:53
 #, php-format
 msgid "Posts from %s can't be unshared"
-msgstr ""
+msgstr "لا يمكن إلغاء مشاركة مشاركات %s"
 
 #: src/Module/Api/Twitter/ContactEndpoint.php:63 src/Module/Contact.php:343
 #: src/Module/Contact.php:358
@@ -7107,7 +6872,7 @@ msgstr "التطبيقات"
 
 #: src/Module/Attach.php:49 src/Module/Attach.php:61
 msgid "Item was not found."
-msgstr ""
+msgstr "لم يُعثر على العنصر."
 
 #: src/Module/BaseAdmin.php:54 src/Module/BaseAdmin.php:58
 msgid "Please login to continue."
@@ -7129,7 +6894,7 @@ msgstr "نظرة عامّة"
 
 #: src/Module/BaseAdmin.php:89
 msgid "Configuration"
-msgstr "تضبيط"
+msgstr "الضبط"
 
 #: src/Module/BaseAdmin.php:95 src/Module/BaseSettings.php:65
 msgid "Additional features"
@@ -7145,11 +6910,11 @@ msgstr "تحديثات قاعدة البيانات"
 
 #: src/Module/BaseAdmin.php:100
 msgid "Inspect Deferred Workers"
-msgstr ""
+msgstr "فحص المهام المؤجلة"
 
 #: src/Module/BaseAdmin.php:101
 msgid "Inspect worker Queue"
-msgstr ""
+msgstr "فحص طابور المهام"
 
 #: src/Module/BaseAdmin.php:103
 msgid "Tools"
@@ -7185,7 +6950,7 @@ msgstr ""
 
 #: src/Module/BaseAdmin.php:118 src/Module/Debug/ActivityPubConversion.php:138
 msgid "ActivityPub Conversion"
-msgstr ""
+msgstr "محادثة عبر ActivityPub"
 
 #: src/Module/BaseAdmin.php:127
 msgid "Addon Features"
@@ -7208,16 +6973,11 @@ msgstr ""
 #: src/Module/BaseApi.php:293 src/Module/BaseApi.php:309
 #: src/Module/BaseApi.php:325
 msgid "Too Many Requests"
-msgstr ""
+msgstr "طلبات كثيرة"
 
 #: src/Module/BaseProfile.php:51 src/Module/Contact.php:849
 msgid "Profile Details"
 msgstr "تفاصيل الملف الشخصي"
-
-#: src/Module/BaseProfile.php:72 src/Module/BaseProfile.php:75
-#: src/Module/Contact.php:838
-msgid "Media"
-msgstr ""
 
 #: src/Module/BaseProfile.php:109
 msgid "Only You Can See This"
@@ -7225,11 +6985,11 @@ msgstr "فقط أنت من يمكنه رؤية هذا"
 
 #: src/Module/BaseProfile.php:114 src/Module/Profile/Schedule.php:82
 msgid "Scheduled Posts"
-msgstr ""
+msgstr "المشاركات المبرمجة"
 
 #: src/Module/BaseProfile.php:117
 msgid "Posts that are scheduled for publishing"
-msgstr ""
+msgstr "المشاركات المقرر نشرها"
 
 #: src/Module/BaseProfile.php:136 src/Module/BaseProfile.php:139
 msgid "Tips for New Members"
@@ -7238,12 +6998,12 @@ msgstr "تلميحات للأعضاء الجدد"
 #: src/Module/BaseSearch.php:69
 #, php-format
 msgid "People Search - %s"
-msgstr ""
+msgstr "البحث عن أشخاص - %s"
 
 #: src/Module/BaseSearch.php:79
 #, php-format
 msgid "Forum Search - %s"
-msgstr ""
+msgstr "البحث عن منتديات - %s"
 
 #: src/Module/BaseSettings.php:43
 msgid "Account"
@@ -7303,7 +7063,7 @@ msgstr "فشل تحديث سجل التراسل."
 
 #: src/Module/Contact.php:375
 msgid "You can't block yourself"
-msgstr ""
+msgstr "لا يمكنك حجب نفسك"
 
 #: src/Module/Contact.php:381
 msgid "Contact has been blocked"
@@ -7315,7 +7075,7 @@ msgstr "أُلغي حجب المتراسل"
 
 #: src/Module/Contact.php:389
 msgid "You can't ignore yourself"
-msgstr ""
+msgstr "لا يمكنك تجاهل نفسك"
 
 #: src/Module/Contact.php:395
 msgid "Contact has been ignored"
@@ -7342,11 +7102,11 @@ msgstr "%s يشارك معك"
 
 #: src/Module/Contact.php:447
 msgid "Private communications are not available for this contact."
-msgstr ""
+msgstr "المراسلات الخاصة غير متوفرة لهذا المتراسل."
 
 #: src/Module/Contact.php:449
 msgid "Never"
-msgstr "ابدا"
+msgstr "أبدا"
 
 #: src/Module/Contact.php:452
 msgid "(Update was not successful)"
@@ -7474,11 +7234,11 @@ msgstr "متجاهَل حاليا"
 
 #: src/Module/Contact.php:551
 msgid "Currently archived"
-msgstr "مُأرشف حاليا"
+msgstr "مُؤرشف حاليا"
 
 #: src/Module/Contact.php:552
 msgid "Awaiting connection acknowledge"
-msgstr ""
+msgstr "ينتظر قبول الاتصال"
 
 #: src/Module/Contact.php:553 src/Module/Notifications/Introductions.php:170
 msgid "Hide this contact from others"
@@ -7491,21 +7251,21 @@ msgstr "<strong>قد</strong> تبقى الإعجابات/الردود على م
 
 #: src/Module/Contact.php:554
 msgid "Notification for new posts"
-msgstr "تنبيهات على المشاركات الجديدة"
+msgstr "تنبيه للمشاركات الجديدة"
 
 #: src/Module/Contact.php:554
 msgid "Send a notification of every new post of this contact"
-msgstr "أرسل تنبيها لكل مشاركات الجديدة هذا المتراسل"
+msgstr "أرسل تنبيها عند نشر هذا المتراسل لمشاركات الجديدة"
 
 #: src/Module/Contact.php:556
 msgid "Keyword Deny List"
-msgstr ""
+msgstr "قائمة الكلمات المفتاحية المرفوضة"
 
 #: src/Module/Contact.php:556
 msgid ""
 "Comma separated list of keywords that should not be converted to hashtags, "
 "when \"Fetch information and keywords\" is selected"
-msgstr ""
+msgstr "قائمة بالكلمات المفتاحية مفصولة بفواصل والتي لا تخول الى وسوم عند اختيار \"اجلب المعلومات والكلمات المفتاحية\""
 
 #: src/Module/Contact.php:574 src/Module/Settings/TwoFactor/Index.php:132
 msgid "Actions"
@@ -7519,7 +7279,7 @@ msgstr ""
 msgid ""
 "Mark this contact as remote_self, this will cause friendica to repost new "
 "entries from this contact."
-msgstr ""
+msgstr "علّم هذا المتراسل على أنه remote_self ، سيقوم فرنديكا بإعادة نشر المدخلات الجديدة لهذا المتراسل."
 
 #: src/Module/Contact.php:698
 msgid "Show all contacts"
@@ -7548,7 +7308,7 @@ msgstr "مؤرشف"
 
 #: src/Module/Contact.php:730
 msgid "Only show archived contacts"
-msgstr "أظهِر المتراسلين المأرشفين فقط"
+msgstr "أظهِر المتراسلين المؤرشفين فقط"
 
 #: src/Module/Contact.php:735 src/Module/Contact.php:765
 msgid "Hidden"
@@ -7577,7 +7337,7 @@ msgstr "حدّث"
 
 #: src/Module/Contact.php:790
 msgid "Batch Actions"
-msgstr ""
+msgstr "إجراءات متعددة"
 
 #: src/Module/Contact.php:825
 msgid "Conversations started by this contact"
@@ -7589,7 +7349,7 @@ msgstr "التعليقات والمشاركات"
 
 #: src/Module/Contact.php:841
 msgid "Posts containing media objects"
-msgstr ""
+msgstr "مشاركات تحوي وسائط"
 
 #: src/Module/Contact.php:856
 msgid "View all known contacts"
@@ -7601,7 +7361,7 @@ msgstr "إعدادات المتراسلين المُتقدّمة"
 
 #: src/Module/Contact.php:960
 msgid "Mutual Friendship"
-msgstr "الصداقة المشتركة"
+msgstr "صداقة متبادلة"
 
 #: src/Module/Contact.php:964
 msgid "is a fan of yours"
@@ -7609,15 +7369,15 @@ msgstr "أحد معجبيك"
 
 #: src/Module/Contact.php:968
 msgid "you are a fan of"
-msgstr "أنت أحد معجبي"
+msgstr "أنت معجب"
 
 #: src/Module/Contact.php:986
 msgid "Pending outgoing contact request"
-msgstr "الطلبات الصادرة و المعلقة للتراسل"
+msgstr "طلب تراسل صادر معلق"
 
 #: src/Module/Contact.php:988
 msgid "Pending incoming contact request"
-msgstr "الطلبات الواردة و المعلقة للتراسل"
+msgstr "طلب تراسل وارد معلق"
 
 #: src/Module/Contact.php:1055
 msgid "Refetch contact data"
@@ -7625,19 +7385,19 @@ msgstr "أعد جلب بيانات المتراسل"
 
 #: src/Module/Contact.php:1066
 msgid "Toggle Blocked status"
-msgstr ""
+msgstr "بدّل حالة الحجب"
 
 #: src/Module/Contact.php:1074
 msgid "Toggle Ignored status"
-msgstr ""
+msgstr "بدّل حالة التجاهل"
 
 #: src/Module/Contact.php:1081 src/Module/Contact/Revoke.php:96
 msgid "Revoke Follow"
-msgstr ""
+msgstr "أبطل المتابعة"
 
 #: src/Module/Contact.php:1083
 msgid "Revoke the follow from this contact"
-msgstr ""
+msgstr "أبطل المتابعة من هذا المتراسل"
 
 #: src/Module/Contact/Advanced.php:93
 msgid "Contact update failed."
@@ -7673,7 +7433,7 @@ msgstr "رابط الحساب"
 
 #: src/Module/Contact/Advanced.php:139
 msgid "Account URL Alias"
-msgstr ""
+msgstr "الرابط البديل للحساب"
 
 #: src/Module/Contact/Advanced.php:140
 msgid "Friend Request URL"
@@ -7701,7 +7461,7 @@ msgstr "متراسل غير صالح."
 
 #: src/Module/Contact/Contacts.php:54
 msgid "No known contacts."
-msgstr ""
+msgstr "لا يوجد متراسل معروف."
 
 #: src/Module/Contact/Contacts.php:68 src/Module/Profile/Common.php:98
 msgid "No common contacts."
@@ -7743,7 +7503,7 @@ msgstr[5] "%s صديق مشترك"
 #: src/Module/Contact/Contacts.php:90 src/Module/Profile/Contacts.php:104
 #, php-format
 msgid "These contacts both follow and are followed by <strong>%s</strong>."
-msgstr ""
+msgstr "هؤلاء المتراسلون يتابعون <strong>%s</strong> وهو يتابعهم."
 
 #: src/Module/Contact/Contacts.php:96 src/Module/Profile/Common.php:86
 #, php-format
@@ -7761,7 +7521,7 @@ msgstr[5] "%s متراسل مشترك"
 msgid ""
 "Both <strong>%s</strong> and yourself have publicly interacted with these "
 "contacts (follow, comment or likes on public posts)."
-msgstr ""
+msgstr "أنت و <strong>%s</strong> تفاعلتم مع نفس المتراسلين (متابعة، تعليق، إعجاب بمشاركة)."
 
 #: src/Module/Contact/Contacts.php:104 src/Module/Profile/Contacts.php:110
 #, php-format
@@ -7780,7 +7540,7 @@ msgstr ""
 
 #: src/Module/Contact/Poke.php:129 src/Module/Search/Acl.php:55
 msgid "You must be logged in to use this module."
-msgstr ""
+msgstr "يجب عليك الولوج لاستخدام هذه الوحدة."
 
 #: src/Module/Contact/Poke.php:152
 msgid "Poke/Prod"
@@ -7792,15 +7552,15 @@ msgstr ""
 
 #: src/Module/Contact/Poke.php:155
 msgid "Choose what you wish to do to recipient"
-msgstr ""
+msgstr "اختر ما تريد فعله للمتلقي"
 
 #: src/Module/Contact/Poke.php:156
 msgid "Make this post private"
-msgstr ""
+msgstr "اجعل هذه المشاركة خاصة"
 
 #: src/Module/Contact/Revoke.php:48
 msgid "Unknown contact."
-msgstr ""
+msgstr "متراسل مجهول."
 
 #: src/Module/Contact/Revoke.php:58 src/Module/Group.php:109
 msgid "Contact is deleted."
@@ -7808,23 +7568,23 @@ msgstr "حُذف المتراسل."
 
 #: src/Module/Contact/Revoke.php:62
 msgid "Contact is being deleted."
-msgstr ""
+msgstr "المتراسل يحذف."
 
 #: src/Module/Contact/Revoke.php:76
 msgid "Follow was successfully revoked."
-msgstr ""
+msgstr "نجح إبطال المتابعة."
 
 #: src/Module/Contact/Revoke.php:78
 msgid ""
 "Follow was successfully revoked, however the remote contact won't be aware "
 "of this revokation."
-msgstr ""
+msgstr "نجح إبطال المتابعة ولن يعلم بها المتراسل البعيد."
 
 #: src/Module/Contact/Revoke.php:80
 msgid ""
 "Unable to revoke follow, please try again later or contact the "
 "administrator."
-msgstr ""
+msgstr "يتعذر إبطال متابعة هذا المتراسل، يرجى إعادة المحاولة بعد بضع دقائق أو الاتصال بمدير الموقع."
 
 #: src/Module/Contact/Revoke.php:97
 msgid ""
@@ -7852,11 +7612,11 @@ msgstr "مجتمع عالمي"
 
 #: src/Module/Conversation/Community.php:82
 msgid "Posts from users of the whole federated network"
-msgstr "المشركات العامومية من الشبكة الموحدة"
+msgstr "مشركات من الشبكة الموحدة"
 
 #: src/Module/Conversation/Community.php:115
 msgid "Own Contacts"
-msgstr ""
+msgstr "مشاركات متراسليك"
 
 #: src/Module/Conversation/Community.php:119
 msgid "Include"
@@ -7911,13 +7671,13 @@ msgid "Sort by post received date"
 msgstr "رتب حسب تاريخ استلام المشاركة"
 
 #: src/Module/Conversation/Network.php:250
-#: src/Module/Settings/Profile/Index.php:226
+#: src/Module/Settings/Profile/Index.php:228
 msgid "Personal"
 msgstr "شخصي"
 
 #: src/Module/Conversation/Network.php:253
 msgid "Posts that mention or involve you"
-msgstr ""
+msgstr "المشاركات التي تذكرك أو تتعلق بك"
 
 #: src/Module/Conversation/Network.php:258 src/Object/Post.php:321
 msgid "Starred"
@@ -7952,11 +7712,11 @@ msgstr "بيانات الكائن"
 
 #: src/Module/Debug/ActivityPubConversion.php:125
 msgid "Result Item"
-msgstr ""
+msgstr "النتيجة"
 
 #: src/Module/Debug/ActivityPubConversion.php:139
 msgid "Source activity"
-msgstr ""
+msgstr "نشاط المصدر"
 
 #: src/Module/Debug/Babel.php:51
 msgid "Source input"
@@ -8135,7 +7895,7 @@ msgid "Twitter Source / Tweet URL (requires API key)"
 msgstr ""
 
 #: src/Module/Debug/Feed.php:38 src/Module/Filer/SaveTag.php:40
-#: src/Module/Settings/Profile/Index.php:140
+#: src/Module/Settings/Profile/Index.php:142
 msgid "You must be logged in to use this module"
 msgstr "يجب عليك الولوج لاستخدام هذه الوحدة"
 
@@ -8220,15 +7980,15 @@ msgstr "لا توجد مدخلات (قد تكون بعض المدخلات مخف
 
 #: src/Module/Directory.php:93
 msgid "Find on this site"
-msgstr "تجد في هذا الموقع"
+msgstr "ابحث في هذا الموقع"
 
 #: src/Module/Directory.php:95
 msgid "Results for:"
-msgstr "النتائج عن:"
+msgstr "نتائج:"
 
 #: src/Module/Directory.php:97
 msgid "Site Directory"
-msgstr ""
+msgstr "دليل الموقع"
 
 #: src/Module/Filer/RemoveTag.php:68
 msgid "Item was not removed"
@@ -8246,35 +8006,35 @@ msgstr "- اختر -"
 msgid "Suggested contact not found."
 msgstr "المتراسل المقترح غير موجود."
 
-#: src/Module/FriendSuggest.php:84
+#: src/Module/FriendSuggest.php:83
 msgid "Friend suggestion sent."
-msgstr "أُرسل إقتراح لصديق."
+msgstr "أُرسل إقتراح الصداقة."
 
-#: src/Module/FriendSuggest.php:121
+#: src/Module/FriendSuggest.php:120
 msgid "Suggest Friends"
 msgstr "اقترح أصدقاء"
 
-#: src/Module/FriendSuggest.php:124
+#: src/Module/FriendSuggest.php:123
 #, php-format
 msgid "Suggest a friend for %s"
 msgstr "أقترح أصدقاء لـ %s"
 
 #: src/Module/Friendica.php:62
 msgid "Installed addons/apps:"
-msgstr ""
+msgstr "التطبيقات/الإضافات المثبتة:"
 
 #: src/Module/Friendica.php:67
 msgid "No installed addons/apps"
-msgstr ""
+msgstr "لم تُثبت أي تطبيقات/إضافات"
 
 #: src/Module/Friendica.php:72
 #, php-format
 msgid "Read about the <a href=\"%1$s/tos\">Terms of Service</a> of this node."
-msgstr ""
+msgstr "اقرأ عن <a href=\"%1$s/tos\">شروط الخدمة</a> لهذه العقدة."
 
 #: src/Module/Friendica.php:79
 msgid "On this server the following remote servers are blocked."
-msgstr ""
+msgstr "الخوادم البعيدة المحجوبة عن هذا الموقع."
 
 #: src/Module/Friendica.php:97
 #, php-format
@@ -8291,11 +8051,11 @@ msgstr "رجاء زر <a href=\"https://friendi.ca\">Friendi.ca</a> لمعرفة
 
 #: src/Module/Friendica.php:103
 msgid "Bug reports and issues: please visit"
-msgstr ""
+msgstr "لبلاغات العلل والمشاكل: زر"
 
 #: src/Module/Friendica.php:103
 msgid "the bugtracker at github"
-msgstr ""
+msgstr "متعقب العلل على غيت-هب"
 
 #: src/Module/Friendica.php:104
 msgid "Suggestions, praise, etc. - please email \"info\" at \"friendi - dot - ca"
@@ -8387,7 +8147,7 @@ msgstr "أضف المتراسل لمجموعة"
 
 #: src/Module/HCard.php:46
 msgid "No profile"
-msgstr ""
+msgstr "لا ملفًا شخصيًا"
 
 #: src/Module/HTTPException/MethodNotAllowed.php:32
 msgid "Method Not Allowed."
@@ -8404,7 +8164,7 @@ msgstr "مرحبًا بك في %s"
 
 #: src/Module/Install.php:188
 msgid "Friendica Communications Server - Setup"
-msgstr ""
+msgstr "خادم شبكة فرنديكا - تثبيت"
 
 #: src/Module/Install.php:199
 msgid "System check"
@@ -8413,15 +8173,15 @@ msgstr "التحقق من النظام"
 #: src/Module/Install.php:201 src/Module/Install.php:258
 #: src/Module/Install.php:341
 msgid "Requirement not satisfied"
-msgstr ""
+msgstr "لم يستوف المتطلبات"
 
 #: src/Module/Install.php:202
 msgid "Optional requirement not satisfied"
-msgstr ""
+msgstr "لم يستوف المتطلبات الاختيارية"
 
 #: src/Module/Install.php:203
 msgid "OK"
-msgstr "OK\nموافقة"
+msgstr "موافق"
 
 #: src/Module/Install.php:208
 msgid "Check again"
@@ -8454,7 +8214,7 @@ msgstr ""
 
 #: src/Module/Install.php:240
 msgid "Sub path of the URL"
-msgstr ""
+msgstr "المسار الفرعي للرابط"
 
 #: src/Module/Install.php:242
 msgid ""
@@ -8477,13 +8237,13 @@ msgstr ""
 msgid ""
 "Please contact your hosting provider or site administrator if you have "
 "questions about these settings."
-msgstr ""
+msgstr "يرجى الاتصال بموفر الاستضافة أو مدير الموقع إذا كان لديك أسئلة حول هذه الإعدادات."
 
 #: src/Module/Install.php:256
 msgid ""
 "The database you specify below should already exist. If it does not, please "
 "create it before continuing."
-msgstr ""
+msgstr "قاعدة البيانات التي ستحددها أدناه يجب أن تكون موجودة سلفًا. إذا لم تكن موجودة، أنشئها قبل المتابعة."
 
 #: src/Module/Install.php:265
 msgid "Database Server Name"
@@ -8521,7 +8281,7 @@ msgstr "البريد الالكتروني للمدير الموقع"
 msgid ""
 "Your account email address must match this in order to use the web admin "
 "panel."
-msgstr ""
+msgstr "يجب أن يتطابق عنوان بريدك الإلكتروني مع هذا من أجل استخدام لوحة الإدارة."
 
 #: src/Module/Install.php:319
 msgid "System Language:"
@@ -8539,7 +8299,7 @@ msgstr "ثُبتت قاعدة بيانات فرنديكا."
 
 #: src/Module/Install.php:343
 msgid "Installation finished"
-msgstr ""
+msgstr "انتهى التثبيت"
 
 #: src/Module/Install.php:363
 msgid "<h1>What next</h1>"
@@ -8557,7 +8317,7 @@ msgid ""
 "Go to your new Friendica node <a href=\"%s/register\">registration page</a> "
 "and register as new user. Remember to use the same email you have entered as"
 " administrator email. This will allow you to enter the site admin panel."
-msgstr ""
+msgstr "انتقل إلى <a href=\"%s/register\">صفحة التسجيل</a> وسجل كمستخدم جديد. تذكر أن تستخدم نفس البريد الإلكتروني الذي أدخلته للمدير. هذا سيسمح لك بالدخول إلى لوحة الإدارة."
 
 #: src/Module/Invite.php:56
 msgid "Total invitation limit exceeded."
@@ -8677,7 +8437,7 @@ msgstr ""
 
 #: src/Module/Item/Compose.php:90
 msgid "Compose new personal note"
-msgstr ""
+msgstr "أكتب ملاحظة شخصية جديدة"
 
 #: src/Module/Item/Compose.php:99
 msgid "Compose new post"
@@ -8685,15 +8445,15 @@ msgstr "أكتب مشاركة جديدة"
 
 #: src/Module/Item/Compose.php:141
 msgid "Visibility"
-msgstr ""
+msgstr "الظّهور"
 
 #: src/Module/Item/Compose.php:162
 msgid "Clear the location"
-msgstr ""
+msgstr "امسح الموقع الجغرافي"
 
 #: src/Module/Item/Compose.php:163
 msgid "Location services are unavailable on your device"
-msgstr ""
+msgstr "خدمات الموقع الجغرافي غير متاحة على جهازك"
 
 #: src/Module/Item/Compose.php:164
 msgid ""
@@ -8703,7 +8463,7 @@ msgstr ""
 
 #: src/Module/Item/Follow.php:52
 msgid "Unable to follow this item."
-msgstr ""
+msgstr "تتعذر متابعة هذا العنصر."
 
 #: src/Module/Maintenance.php:48 src/Module/Maintenance.php:53
 msgid "System down for maintenance"
@@ -8782,7 +8542,7 @@ msgstr "لا توجد تقديمات."
 msgid "No more %s notifications."
 msgstr "لا مزيد من تنبيهات %s."
 
-#: src/Module/Notifications/Notification.php:104
+#: src/Module/Notifications/Notification.php:107
 msgid "You must be logged in to show this page."
 msgstr "يجب أن تلج لتصل لهذه الصفحة."
 
@@ -8840,15 +8600,15 @@ msgstr ""
 msgid "Wrong type \"%s\", expected one of: %s"
 msgstr "نوع خاطئ \"%s\" ، يُتوقع أن يكون: %s"
 
-#: src/Module/PermissionTooltip.php:38
+#: src/Module/PermissionTooltip.php:42
 msgid "Model not found"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:60
+#: src/Module/PermissionTooltip.php:64
 msgid "Remote privacy information not available."
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:69
+#: src/Module/PermissionTooltip.php:73
 msgid "Visible to:"
 msgstr "مرئي لـ:"
 
@@ -8903,12 +8663,12 @@ msgid "Birthday:"
 msgstr "تاريخ الميلاد:"
 
 #: src/Module/Profile/Profile.php:167
-#: src/Module/Settings/Profile/Index.php:244 src/Util/Temporal.php:165
+#: src/Module/Settings/Profile/Index.php:246 src/Util/Temporal.php:165
 msgid "Age: "
 msgstr "العمر: "
 
 #: src/Module/Profile/Profile.php:167
-#: src/Module/Settings/Profile/Index.php:244 src/Util/Temporal.php:165
+#: src/Module/Settings/Profile/Index.php:246 src/Util/Temporal.php:165
 #, php-format
 msgid "%d year old"
 msgid_plural "%d years old"
@@ -9148,19 +8908,19 @@ msgstr ""
 #: src/Module/Search/Index.php:192
 #, php-format
 msgid "Items tagged with: %s"
-msgstr ""
+msgstr "عناصر موسمة بـ: %s"
 
 #: src/Module/Search/Saved.php:45
 msgid "Search term was not saved."
-msgstr ""
+msgstr "لم يُحفظ مصطلح البحث."
 
 #: src/Module/Search/Saved.php:48
 msgid "Search term already saved."
-msgstr ""
+msgstr "حُفظ مصطلح البحث سلفًا."
 
 #: src/Module/Search/Saved.php:54
 msgid "Search term was not removed."
-msgstr ""
+msgstr "لم يُزل مصطلح البحث."
 
 #: src/Module/Security/Login.php:105
 msgid "Create a New Account"
@@ -9276,7 +9036,7 @@ msgstr "يرجى إدخال رمز من تطبيق الاستيثاق"
 
 #: src/Module/Security/TwoFactor/Verify.php:101
 msgid "This is my two-factor authenticator app device"
-msgstr ""
+msgstr "هذا هو جهاز الذي استخدمه للاستيثاق بعاملين"
 
 #: src/Module/Security/TwoFactor/Verify.php:102
 msgid "Verify code and complete login"
@@ -9284,7 +9044,7 @@ msgstr "تحقق من الرمز وأكمل الولوج"
 
 #: src/Module/Settings/Delegation.php:53
 msgid "Delegation successfully granted."
-msgstr ""
+msgstr "منح التفويض بنجاح."
 
 #: src/Module/Settings/Delegation.php:55
 msgid "Parent user not found, unavailable or password doesn't match."
@@ -9292,7 +9052,7 @@ msgstr ""
 
 #: src/Module/Settings/Delegation.php:59
 msgid "Delegation successfully revoked."
-msgstr ""
+msgstr "نجح إبطال التفويض."
 
 #: src/Module/Settings/Delegation.php:81
 #: src/Module/Settings/Delegation.php:103
@@ -9302,26 +9062,26 @@ msgstr ""
 
 #: src/Module/Settings/Delegation.php:95
 msgid "Delegate user not found."
-msgstr ""
+msgstr "لم يُعثر على المندوب."
 
 #: src/Module/Settings/Delegation.php:143
 msgid "No parent user"
-msgstr ""
+msgstr "لا يوجد وليٌ"
 
 #: src/Module/Settings/Delegation.php:154
 #: src/Module/Settings/Delegation.php:165
 msgid "Parent User"
-msgstr ""
+msgstr "وليٌ"
 
 #: src/Module/Settings/Delegation.php:162
 msgid "Additional Accounts"
-msgstr ""
+msgstr "الحسابات الإضافية"
 
 #: src/Module/Settings/Delegation.php:163
 msgid ""
 "Register additional accounts that are automatically connected to your "
 "existing account so you can manage them from this account."
-msgstr ""
+msgstr "سجل حسابات إضافية مرتبطة تلقائيا بحسابك الحالي ويمكنك إدارتها عبر هذا الحساب."
 
 #: src/Module/Settings/Delegation.php:164
 msgid "Register an additional account"
@@ -9469,11 +9229,11 @@ msgstr "يعرض زر لم يعجبني والتفاعلات السلبية في
 
 #: src/Module/Settings/Display.php:217
 msgid "Display the resharer"
-msgstr ""
+msgstr "اعرض صاحب إعادة النشر"
 
 #: src/Module/Settings/Display.php:217
 msgid "Display the first resharer as icon and text on a reshared item."
-msgstr ""
+msgstr "اعرض صورة صاحب المشاركة الأصلية كأيقونة بالإضافة إلى نص على المشاركة."
 
 #: src/Module/Settings/Display.php:218
 msgid "Stay local"
@@ -9495,126 +9255,126 @@ msgstr "اسم الملف الشخصي مطلوب."
 msgid "Profile couldn't be updated."
 msgstr "تعذر تحديث الملف الشخصي."
 
-#: src/Module/Settings/Profile/Index.php:171
-#: src/Module/Settings/Profile/Index.php:191
+#: src/Module/Settings/Profile/Index.php:173
+#: src/Module/Settings/Profile/Index.php:193
 msgid "Label:"
 msgstr "التسمية:"
 
-#: src/Module/Settings/Profile/Index.php:172
-#: src/Module/Settings/Profile/Index.php:192
+#: src/Module/Settings/Profile/Index.php:174
+#: src/Module/Settings/Profile/Index.php:194
 msgid "Value:"
 msgstr "القيمة:"
 
-#: src/Module/Settings/Profile/Index.php:182
-#: src/Module/Settings/Profile/Index.php:202
+#: src/Module/Settings/Profile/Index.php:184
+#: src/Module/Settings/Profile/Index.php:204
 msgid "Field Permissions"
-msgstr "صلاحيات الحقل"
+msgstr "أذونات الحقل"
 
-#: src/Module/Settings/Profile/Index.php:183
-#: src/Module/Settings/Profile/Index.php:203
+#: src/Module/Settings/Profile/Index.php:185
+#: src/Module/Settings/Profile/Index.php:205
 msgid "(click to open/close)"
 msgstr "(أنقر للفتح/للإغلاق)"
 
-#: src/Module/Settings/Profile/Index.php:189
+#: src/Module/Settings/Profile/Index.php:191
 msgid "Add a new profile field"
 msgstr "أضف حقلًا جديدًا للملف الشخصي"
 
-#: src/Module/Settings/Profile/Index.php:219
+#: src/Module/Settings/Profile/Index.php:221
 msgid "Profile Actions"
 msgstr "إجراءات الملف الشخصي"
 
-#: src/Module/Settings/Profile/Index.php:220
+#: src/Module/Settings/Profile/Index.php:222
 msgid "Edit Profile Details"
 msgstr "حرّر تفاصيل الملف الشخصي"
 
-#: src/Module/Settings/Profile/Index.php:222
+#: src/Module/Settings/Profile/Index.php:224
 msgid "Change Profile Photo"
 msgstr "غيّر صورة الملف الشخصي"
 
-#: src/Module/Settings/Profile/Index.php:227
+#: src/Module/Settings/Profile/Index.php:229
 msgid "Profile picture"
 msgstr "صورة الملف الشخصي"
 
-#: src/Module/Settings/Profile/Index.php:228
+#: src/Module/Settings/Profile/Index.php:230
 msgid "Location"
 msgstr "الموقع"
 
-#: src/Module/Settings/Profile/Index.php:229 src/Util/Temporal.php:93
+#: src/Module/Settings/Profile/Index.php:231 src/Util/Temporal.php:93
 #: src/Util/Temporal.php:95
 msgid "Miscellaneous"
 msgstr "متنوّع"
 
-#: src/Module/Settings/Profile/Index.php:230
+#: src/Module/Settings/Profile/Index.php:232
 msgid "Custom Profile Fields"
 msgstr "حقول مخصصة للملف الشخصي"
 
-#: src/Module/Settings/Profile/Index.php:232 src/Module/Welcome.php:58
+#: src/Module/Settings/Profile/Index.php:234 src/Module/Welcome.php:58
 msgid "Upload Profile Photo"
 msgstr "ارفع صورة الملف الشخصي"
 
-#: src/Module/Settings/Profile/Index.php:236
+#: src/Module/Settings/Profile/Index.php:238
 msgid "Display name:"
 msgstr "الاسم العلني:"
 
-#: src/Module/Settings/Profile/Index.php:239
+#: src/Module/Settings/Profile/Index.php:241
 msgid "Street Address:"
 msgstr "عنوان الشارع:"
 
-#: src/Module/Settings/Profile/Index.php:240
+#: src/Module/Settings/Profile/Index.php:242
 msgid "Locality/City:"
 msgstr "المدينة:"
 
-#: src/Module/Settings/Profile/Index.php:241
+#: src/Module/Settings/Profile/Index.php:243
 msgid "Region/State:"
 msgstr "الولاية:"
 
-#: src/Module/Settings/Profile/Index.php:242
+#: src/Module/Settings/Profile/Index.php:244
 msgid "Postal/Zip Code:"
 msgstr "الرمز البريدي:"
 
-#: src/Module/Settings/Profile/Index.php:243
+#: src/Module/Settings/Profile/Index.php:245
 msgid "Country:"
 msgstr "الدّولة:"
 
-#: src/Module/Settings/Profile/Index.php:245
+#: src/Module/Settings/Profile/Index.php:247
 msgid "XMPP (Jabber) address:"
 msgstr "عنوان XMPP (Jabber):"
 
-#: src/Module/Settings/Profile/Index.php:245
+#: src/Module/Settings/Profile/Index.php:247
 msgid ""
 "The XMPP address will be published so that people can follow you there."
 msgstr "سيتم نشر عنوان XMPP حتى يتمكن الناس من متابعتك هناك."
 
-#: src/Module/Settings/Profile/Index.php:246
+#: src/Module/Settings/Profile/Index.php:248
 msgid "Matrix (Element) address:"
 msgstr "عنوان مايتركس:"
 
-#: src/Module/Settings/Profile/Index.php:246
+#: src/Module/Settings/Profile/Index.php:248
 msgid ""
 "The Matrix address will be published so that people can follow you there."
 msgstr "سيتم نشر عنوان مايتركس حتى يتمكن الناس من متابعتك هناك."
 
-#: src/Module/Settings/Profile/Index.php:247
+#: src/Module/Settings/Profile/Index.php:249
 msgid "Homepage URL:"
 msgstr "رابط الصفحة الرئيسية:"
 
-#: src/Module/Settings/Profile/Index.php:248
+#: src/Module/Settings/Profile/Index.php:250
 msgid "Public Keywords:"
-msgstr "الكلمات المفتاحية العمومية:"
+msgstr "الكلمات المفتاحية العلنية:"
 
-#: src/Module/Settings/Profile/Index.php:248
+#: src/Module/Settings/Profile/Index.php:250
 msgid "(Used for suggesting potential friends, can be seen by others)"
 msgstr "(يستخدم لاقتراح أصدقاء، يمكن للآخرين رؤيتهم)"
 
-#: src/Module/Settings/Profile/Index.php:249
+#: src/Module/Settings/Profile/Index.php:251
 msgid "Private Keywords:"
 msgstr "الكلمات المفتاحية الخاصة:"
 
-#: src/Module/Settings/Profile/Index.php:249
+#: src/Module/Settings/Profile/Index.php:251
 msgid "(Used for searching profiles, never shown to others)"
 msgstr "(يستخدم للبحث عن ملفات الشخصية، لا يظهر للآخرين)"
 
-#: src/Module/Settings/Profile/Index.php:250
+#: src/Module/Settings/Profile/Index.php:252
 #, php-format
 msgid ""
 "<p>Custom fields appear on <a href=\"%s\">your profile page</a>.</p>\n"
@@ -9622,44 +9382,44 @@ msgid ""
 "\t\t\t\t<p>Reorder by dragging the field title.</p>\n"
 "\t\t\t\t<p>Empty the label field to remove a custom field.</p>\n"
 "\t\t\t\t<p>Non-public fields can only be seen by the selected Friendica contacts or the Friendica contacts in the selected groups.</p>"
-msgstr "<p>الحقول المخصصة تظهر في <a href=\"%s\">صفحة ملفك الشخصي</a>.</p>\n\t\t\t\t<p>يمكنك استخدام رموز BBCCode في حقول القيم.</p>\n\t\t\t\t<p>أعد الترتيب بسحب عنوان الحقل.</p>\n\t\t\t\t<p>أفرغ حقل التسمية لإزالة الحقل مخصص.</p>\n\t\t\t\t<p>لن يتمكن إلاّ المتراسلين المختارين والمجموعات المختارة من رؤية الحقول غير العامة.</p>"
+msgstr "<p>الحقول المخصصة تظهر في <a href=\"%s\">صفحة ملفك الشخصي</a>.</p>\n\t\t\t\t<p>يمكنك استخدام رموز BBCCode في حقول القيم.</p>\n\t\t\t\t<p>أعد الترتيب بسحب عنوان الحقل.</p>\n\t\t\t\t<p>أفرغ حقل التسمية لإزالة الحقل مخصص.</p>\n\t\t\t\t<p>لن يتمكن إلاّ المتراسلين المختارين والمجموعات المختارة من رؤية الحقول غير العلنية.</p>"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:106
-#: src/Module/Settings/Profile/Photo/Crop.php:122
-#: src/Module/Settings/Profile/Photo/Crop.php:138
+#: src/Module/Settings/Profile/Photo/Crop.php:108
+#: src/Module/Settings/Profile/Photo/Crop.php:126
+#: src/Module/Settings/Profile/Photo/Crop.php:144
 #: src/Module/Settings/Profile/Photo/Index.php:102
 #, php-format
 msgid "Image size reduction [%s] failed."
 msgstr "فشل تقليص حجم الصورة [%s]."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:143
+#: src/Module/Settings/Profile/Photo/Crop.php:151
 msgid ""
 "Shift-reload the page or clear browser cache if the new photo does not "
 "display immediately."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:148
+#: src/Module/Settings/Profile/Photo/Crop.php:156
 msgid "Unable to process image"
 msgstr "تعذرت معالجة الصورة"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:167
+#: src/Module/Settings/Profile/Photo/Crop.php:175
 msgid "Photo not found."
 msgstr "لم يُعثر على الصورة."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:189
+#: src/Module/Settings/Profile/Photo/Crop.php:197
 msgid "Profile picture successfully updated."
 msgstr "نجح تحديث صورة الملف الشخصي."
 
-#: src/Module/Settings/Profile/Photo/Crop.php:215
-#: src/Module/Settings/Profile/Photo/Crop.php:219
+#: src/Module/Settings/Profile/Photo/Crop.php:223
+#: src/Module/Settings/Profile/Photo/Crop.php:227
 msgid "Crop Image"
 msgstr "قص الصورة"
 
-#: src/Module/Settings/Profile/Photo/Crop.php:216
+#: src/Module/Settings/Profile/Photo/Crop.php:224
 msgid "Please adjust the image cropping for optimum viewing."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Crop.php:218
+#: src/Module/Settings/Profile/Photo/Crop.php:226
 msgid "Use Image As Is"
 msgstr "استخدم الصورة كما هي"
 
@@ -10434,6 +10194,263 @@ msgstr "شارك %1$s المشاركة %2$s"
 msgid "%1$s shared a post"
 msgstr "شارك %1$s مشاركة"
 
+#: src/Navigation/Notifications/Repository/Notify.php:192
+#: src/Navigation/Notifications/Repository/Notify.php:675
+msgid "[Friendica:Notify]"
+msgstr "[Friendica:Notify]"
+
+#: src/Navigation/Notifications/Repository/Notify.php:256
+#, php-format
+msgid "%s New mail received at %s"
+msgstr "أُستلم %s بريد جديد على %s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:258
+#, php-format
+msgid "%1$s sent you a new private message at %2$s."
+msgstr "أرسل %1$s لك رسالة خاصة على %2$s."
+
+#: src/Navigation/Notifications/Repository/Notify.php:259
+msgid "a private message"
+msgstr "رسالة خاصة"
+
+#: src/Navigation/Notifications/Repository/Notify.php:259
+#, php-format
+msgid "%1$s sent you %2$s."
+msgstr "أرسل %1$s لك %2$s."
+
+#: src/Navigation/Notifications/Repository/Notify.php:261
+#, php-format
+msgid "Please visit %s to view and/or reply to your private messages."
+msgstr "من فضلك زر %s لعرض و/أو الرد على الرسائل الخاصة."
+
+#: src/Navigation/Notifications/Repository/Notify.php:292
+#, php-format
+msgid "%1$s commented on %2$s's %3$s %4$s"
+msgstr "علق %1$s على %3$s %2$s %4$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:297
+#, php-format
+msgid "%1$s commented on your %2$s %3$s"
+msgstr "علق %1$s على %2$s تخصك %3$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:301
+#, php-format
+msgid "%1$s commented on their %2$s %3$s"
+msgstr "علق %1$s على %2$s له %3$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:305
+#: src/Navigation/Notifications/Repository/Notify.php:710
+#, php-format
+msgid "%1$s Comment to conversation #%2$d by %3$s"
+msgstr "علق %1$s على محادثة %3$s #%2$d"
+
+#: src/Navigation/Notifications/Repository/Notify.php:307
+#, php-format
+msgid "%s commented on an item/conversation you have been following."
+msgstr "علق %s على محادثة/عنصر تتابعه."
+
+#: src/Navigation/Notifications/Repository/Notify.php:311
+#: src/Navigation/Notifications/Repository/Notify.php:326
+#: src/Navigation/Notifications/Repository/Notify.php:345
+#: src/Navigation/Notifications/Repository/Notify.php:725
+#, php-format
+msgid "Please visit %s to view and/or reply to the conversation."
+msgstr "من فضلك زر %s لعرض و/أو الرد على المحادثة."
+
+#: src/Navigation/Notifications/Repository/Notify.php:318
+#, php-format
+msgid "%s %s posted to your profile wall"
+msgstr "نشر %s%s على حائط ملفك الشخصي"
+
+#: src/Navigation/Notifications/Repository/Notify.php:320
+#, php-format
+msgid "%1$s posted to your profile wall at %2$s"
+msgstr "نشر %1$s على حائط ملفك الشخصي على %2$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:321
+#, php-format
+msgid "%1$s posted to [url=%2$s]your wall[/url]"
+msgstr "نشر %1$s على [url=%2$s]حائطك[/url]"
+
+#: src/Navigation/Notifications/Repository/Notify.php:333
+#, php-format
+msgid "%1$s %2$s poked you"
+msgstr "لكزك %1$s %2$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:335
+#, php-format
+msgid "%1$s poked you at %2$s"
+msgstr "لكزك %1$s على %2$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:336
+#, php-format
+msgid "%1$s [url=%2$s]poked you[/url]."
+msgstr "[url=%2$s]لكزك[/url] %1$s."
+
+#: src/Navigation/Notifications/Repository/Notify.php:353
+#, php-format
+msgid "%s Introduction received"
+msgstr "تلقيت تقديما من %s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:355
+#, php-format
+msgid "You've received an introduction from '%1$s' at %2$s"
+msgstr "تلقيت تقديما من '%1$s' على %2$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:356
+#, php-format
+msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
+msgstr "تلقيت [url=%1$s]تقديما[/url] من %2$s."
+
+#: src/Navigation/Notifications/Repository/Notify.php:361
+#: src/Navigation/Notifications/Repository/Notify.php:407
+#, php-format
+msgid "You may visit their profile at %s"
+msgstr "يمكنك زيارة ملفهم الشخصي على %s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:363
+#, php-format
+msgid "Please visit %s to approve or reject the introduction."
+msgstr "من فضلك زر %s لقبول أو رفض التقديم."
+
+#: src/Navigation/Notifications/Repository/Notify.php:370
+#, php-format
+msgid "%s A new person is sharing with you"
+msgstr "%s شخص جديد يشارك معك"
+
+#: src/Navigation/Notifications/Repository/Notify.php:372
+#: src/Navigation/Notifications/Repository/Notify.php:373
+#, php-format
+msgid "%1$s is sharing with you at %2$s"
+msgstr "يشارك %1$s معك على %2$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:380
+#, php-format
+msgid "%s You have a new follower"
+msgstr "لديك متابِع جديد %s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:382
+#: src/Navigation/Notifications/Repository/Notify.php:383
+#, php-format
+msgid "You have a new follower at %2$s : %1$s"
+msgstr "لديك متابِع جديد على %2$s : %1$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:396
+#, php-format
+msgid "%s Friend suggestion received"
+msgstr "تلقيت إقتراح صديق %s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:398
+#, php-format
+msgid "You've received a friend suggestion from '%1$s' at %2$s"
+msgstr "تلقيت اقتراح صديق من '%1$s' على %2$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:399
+#, php-format
+msgid ""
+"You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
+msgstr " تلقيت [url=%1$s]اقتراح %2$s كصديق[/url] من %3$s."
+
+#: src/Navigation/Notifications/Repository/Notify.php:405
+msgid "Name:"
+msgstr "الاسم:"
+
+#: src/Navigation/Notifications/Repository/Notify.php:406
+msgid "Photo:"
+msgstr "الصورة:"
+
+#: src/Navigation/Notifications/Repository/Notify.php:409
+#, php-format
+msgid "Please visit %s to approve or reject the suggestion."
+msgstr "من فضلك زر %s لقبول  أو رفض الاقتراح."
+
+#: src/Navigation/Notifications/Repository/Notify.php:417
+#: src/Navigation/Notifications/Repository/Notify.php:432
+#, php-format
+msgid "%s Connection accepted"
+msgstr "قُبِل الاقتران %s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:419
+#: src/Navigation/Notifications/Repository/Notify.php:434
+#, php-format
+msgid "'%1$s' has accepted your connection request at %2$s"
+msgstr "قبِل '%1$s' طلب الاقتران على %2$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:420
+#: src/Navigation/Notifications/Repository/Notify.php:435
+#, php-format
+msgid "%2$s has accepted your [url=%1$s]connection request[/url]."
+msgstr "قبِل %2$s [url=%1$s]طلب الاقتران[/url]"
+
+#: src/Navigation/Notifications/Repository/Notify.php:425
+msgid ""
+"You are now mutual friends and may exchange status updates, photos, and "
+"email without restriction."
+msgstr "أصبحتما صديقين من كلا الطرفين ويمكنكما تبادل تحديثات الحالة، والصور، والبريد دون قيود."
+
+#: src/Navigation/Notifications/Repository/Notify.php:427
+#, php-format
+msgid "Please visit %s if you wish to make any changes to this relationship."
+msgstr "من فضلك زر %s إن أردت تغيير هذه العلاقة."
+
+#: src/Navigation/Notifications/Repository/Notify.php:440
+#, php-format
+msgid ""
+"'%1$s' has chosen to accept you a fan, which restricts some forms of "
+"communication - such as private messaging and some profile interactions. If "
+"this is a celebrity or community page, these settings were applied "
+"automatically."
+msgstr "قبِلك '%1$s' كمعجب، هذا يحدُّ من أشكال التواصل بينكما مثل الرسائل الخاصة وبعض التفاعلات. يتم هذا تلقائيا اذا كانت صفحة مشهور أو مجتمع."
+
+#: src/Navigation/Notifications/Repository/Notify.php:442
+#, php-format
+msgid ""
+"'%1$s' may choose to extend this into a two-way or more permissive "
+"relationship in the future."
+msgstr "قد يختار '%1$s' توسيعها إلى علاقة ذات اتجاهين أو أكثر في المستقبل."
+
+#: src/Navigation/Notifications/Repository/Notify.php:444
+#, php-format
+msgid "Please visit %s  if you wish to make any changes to this relationship."
+msgstr "من فضلك زر %s إن أردت تغيير هذه العلاقة."
+
+#: src/Navigation/Notifications/Repository/Notify.php:454
+msgid "registration request"
+msgstr "طلب تسجيل"
+
+#: src/Navigation/Notifications/Repository/Notify.php:456
+#, php-format
+msgid "You've received a registration request from '%1$s' at %2$s"
+msgstr "تلقيت طلب تسجيل من '%1$s' على %2$s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:457
+#, php-format
+msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
+msgstr "تلقيت [url=%1$s]طلب تسجيل[/url] من %2$s."
+
+#: src/Navigation/Notifications/Repository/Notify.php:462
+#, php-format
+msgid ""
+"Full Name:\t%s\n"
+"Site Location:\t%s\n"
+"Login Name:\t%s (%s)"
+msgstr "الاسم الكامل:\t%s\nالموقع:\t%s\nاسم الولوج:\t%s (%s)"
+
+#: src/Navigation/Notifications/Repository/Notify.php:468
+#, php-format
+msgid "Please visit %s to approve or reject the request."
+msgstr "من فضلك زر %s لقبول أو رفض الطلب."
+
+#: src/Navigation/Notifications/Repository/Notify.php:704
+#, php-format
+msgid "%s %s tagged you"
+msgstr "ذكرك %s%s"
+
+#: src/Navigation/Notifications/Repository/Notify.php:707
+#, php-format
+msgid "%s %s shared a new post"
+msgstr "شارك %s%s مشاركة جديدة"
+
 #: src/Object/EMail/ItemCCEMail.php:42
 #, php-format
 msgid ""
@@ -10548,15 +10565,15 @@ msgstr "أضف وسما"
 
 #: src/Object/Post.php:352
 msgid "Quote share this"
-msgstr ""
+msgstr "اقتبس وشارك"
 
 #: src/Object/Post.php:352
 msgid "Quote Share"
-msgstr "مشاركة الاقتباس"
+msgstr "اقتبس وشارك"
 
 #: src/Object/Post.php:355
 msgid "Reshare this"
-msgstr "شارك هذا"
+msgstr "أعاد نشر هذا"
 
 #: src/Object/Post.php:355
 msgid "Reshare"
@@ -10792,7 +10809,7 @@ msgstr "في %1$d %2$s"
 msgid "%1$d %2$s ago"
 msgstr "منذ %1$d %2$s"
 
-#: src/Worker/Delivery.php:521
+#: src/Worker/Delivery.php:525
 msgid "(no subject)"
 msgstr "(بدون موضوع)"
 
@@ -10854,7 +10871,7 @@ msgstr "ملاحظة"
 
 #: view/theme/frio/config.php:156
 msgid "Check image permissions if all users are allowed to see the image"
-msgstr "تحقق من أذون الصورة إذا كان مسموح للجميع مشاهدتها"
+msgstr "تحقق من أذونات الصورة إذا كان مسموح للجميع مشاهدتها"
 
 #: view/theme/frio/config.php:162
 msgid "Custom"
