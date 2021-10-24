@@ -1,8 +1,8 @@
 <?php
 
-namespace Friendica\Test\src\Security\PermissionSet\Depository;
+namespace Friendica\Test\src\Security\PermissionSet\Repository;
 
-use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
+use Friendica\Security\PermissionSet\Repository\PermissionSet as PermissionSetRepository;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
 use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
 use Friendica\Test\FixtureTest;
@@ -10,8 +10,8 @@ use Friendica\DI;
 
 class PermissionSetTest extends FixtureTest
 {
-	/** @var PermissionSetDepository */
-	private $depository;
+	/** @var PermissionSetRepository */
+	private $repository;
 	/** @var PermissionSetFactory */
 	private $factory;
 
@@ -19,20 +19,20 @@ class PermissionSetTest extends FixtureTest
 	{
 		parent::setUp();
 
-		$this->depository = DI::permissionSet();
+		$this->repository = DI::permissionSet();
 		$this->factory    = DI::permissionSetFactory();
 	}
 
 	public function testSelectOneByIdPublic()
 	{
-		$permissionSet = $this->depository->selectPublicForUser(1);
+		$permissionSet = $this->repository->selectPublicForUser(1);
 
 		$this->assertInstanceOf(PermissionSet::class, $permissionSet);
 		self::assertEmpty($permissionSet->allow_cid);
 		self::assertEmpty($permissionSet->allow_gid);
 		self::assertEmpty($permissionSet->deny_cid);
 		self::assertEmpty($permissionSet->deny_gid);
-		self::assertEmpty(PermissionSetDepository::PUBLIC, $permissionSet->id);
+		self::assertEmpty(PermissionSetRepository::PUBLIC, $permissionSet->id);
 		self::assertEquals(1, $permissionSet->uid);
 	}
 
@@ -43,21 +43,21 @@ class PermissionSetTest extends FixtureTest
 	{
 		$permissionSet = $this->factory->createFromString(42, '', '<~>');
 
-		$permissionSet = $this->depository->selectOrCreate($permissionSet);
+		$permissionSet = $this->repository->selectOrCreate($permissionSet);
 
 		self::assertNotNull($permissionSet->id);
 
-		$permissionSetSelected = $this->depository->selectOneById($permissionSet->id, 42);
+		$permissionSetSelected = $this->repository->selectOneById($permissionSet->id, 42);
 
 		self::assertEquals($permissionSet, $permissionSetSelected);
 
 		$newPermissionSet   = $permissionSet->withAllowedContacts(['1', '2']);
-		$savedPermissionSet = $this->depository->save($newPermissionSet);
+		$savedPermissionSet = $this->repository->save($newPermissionSet);
 
 		self::assertNotNull($savedPermissionSet->id);
 		self::assertNull($newPermissionSet->id);
 
-		$permissionSetSavedSelected = $this->depository->selectOneById($savedPermissionSet->id, 42);
+		$permissionSetSavedSelected = $this->repository->selectOneById($savedPermissionSet->id, 42);
 
 		self::assertEquals($savedPermissionSet, $permissionSetSavedSelected);
 	}

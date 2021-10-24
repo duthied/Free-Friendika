@@ -1,9 +1,28 @@
 <?php
+/**
+ * @copyright Copyright (C) 2010-2021, the Friendica project
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Security\PermissionSet\Entity;
 
 use Friendica\BaseEntity;
-use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
+use Friendica\Security\PermissionSet\Repository\PermissionSet as PermissionSetRepository;
 
 /**
  * @property-read int|null $id
@@ -55,7 +74,7 @@ class PermissionSet extends BaseEntity
 	 */
 	public function isPublic(): bool
 	{
-		return (($this->id === PermissionSetDepository::PUBLIC) ||
+		return (($this->id === PermissionSetRepository::PUBLIC) ||
 				(is_null($this->id) &&
 				 empty($this->allow_cid) &&
 				 empty($this->allow_gid) &&

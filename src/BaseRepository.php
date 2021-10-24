@@ -21,231 +21,162 @@
 
 namespace Friendica;
 
+use Exception;
+use Friendica\Capabilities\ICanCreateFromTableRow;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\NotFoundException;
 use Psr\Log\LoggerInterface;
 
 /**
- * Repositories are Factories linked to one or more database tables.
+ * Repositories are meant to store and retrieve Entities from the database.
  *
- * @see BaseModel
- * @see BaseCollection
+ * The reason why there are methods prefixed with an underscore is because PHP doesn't support generic polymorphism
+ * which means we can't directly overload base methods and make parameters more strict (from a parent class to a child
+ * class for example)
+ *
+ * Similarly, we can't make an overloaded method return type more strict until we only support PHP version 7.4 but this
+ * is less pressing.
  */
-abstract class BaseRepository extends BaseFactory
+abstract class BaseRepository
 {
 	const LIMIT = 30;
 
-	/** @var Database */
-	protected $dba;
-
-	/** @var string */
+	/**
+	 * @var string This should be set to the main database table name the depository is using
+	 */
 	protected static $table_name;
 
-	/** @var BaseModel */
-	protected static $model_class;
+	/** @var Database */
+	protected $db;
 
-	/** @var BaseCollection */
-	protected static $collection_class;
+	/** @var LoggerInterface */
+	protected $logger;
 
-	public function __construct(Database $dba, LoggerInterface $logger)
+	/** @var ICanCreateFromTableRow */
+	protected $factory;
+
+	public function __construct(Database $database, LoggerInterface $logger, ICanCreateFromTableRow $factory)
 	{
-		parent::__construct($logger);
-
-		$this->dba = $dba;
-		$this->logger = $logger;
+		$this->db      = $database;
+		$this->logger  = $logger;
+		$this->factory = $factory;
 	}
 
 	/**
-	 * Fetches a single model record. The condition array is expected to contain a unique index (primary or otherwise).
+	 * Populates the collection according to the condition. Retrieves a limited subset of entities depending on the
+	 * boundaries and the limit. The total count of rows matching the condition is stored in the collection.
 	 *
-	 * Chainable.
-	 *
-	 * @param array $condition
-	 * @return BaseModel
-	 * @throws HTTPException\NotFoundException
-	 */
-	public function selectFirst(array $condition)
-	{
-		$data = $this->dba->selectFirst(static::$table_name, [], $condition);
-
-		if (!$data) {
-			throw new HTTPException\NotFoundException(static::class . ' record not found.');
-		}
-
-		return $this->create($data);
-	}
-
-	/**
-	 * Populates a Collection according to the condition.
-	 *
-	 * Chainable.
-	 *
-	 * @param array $condition
-	 * @param array $params
-	 * @return BaseCollection
-	 * @throws \Exception
-	 */
-	public function select(array $condition = [], array $params = [])
-	{
-		$models = $this->selectModels($condition, $params);
-
-		return new static::$collection_class($models);
-	}
-
-	/**
-	 * Populates the collection according to the condition. Retrieves a limited subset of models depending on the boundaries
-	 * and the limit. The total count of rows matching the condition is stored in the collection.
+	 * Depends on the corresponding table featuring a numerical auto incremented column called `id`.
 	 *
 	 * max_id and min_id are susceptible to the query order:
 	 * - min_id alone only reliably works with ASC order
 	 * - max_id alone only reliably works with DESC order
-	 * If the wrong order is detected in either case, we inverse the query order and we reverse the model array after the query
+	 * If the wrong order is detected in either case, we reverse the query order and the entity list order after the query
 	 *
 	 * Chainable.
 	 *
-	 * @param array $condition
-	 * @param array $params
-	 * @param int?  $min_id Retrieve models with an id no fewer than this, as close to it as possible
-	 * @param int?  $max_id Retrieve models with an id no greater than this, as close to it as possible
-	 * @param int   $limit
+	 * @param array    $condition
+	 * @param array    $params
+	 * @param int|null $min_id Retrieve models with an id no fewer than this, as close to it as possible
+	 * @param int|null $max_id Retrieve models with an id no greater than this, as close to it as possible
+	 * @param int      $limit
 	 * @return BaseCollection
 	 * @throws \Exception
 	 */
-	public function selectByBoundaries(array $condition = [], array $params = [], int $min_id = null, int $max_id = null, int $limit = self::LIMIT)
-	{
-		$totalCount = DBA::count(static::$table_name, $condition);
+	protected function _selectByBoundaries(
+		array $condition = [],
+		array $params = [],
+		int $min_id = null,
+		int $max_id = null,
+		int $limit = self::LIMIT
+	): BaseCollection {
+		$totalCount = $this->count($condition);
 
 		$boundCondition = $condition;
 
-		$reverseModels = false;
+		$reverseOrder = false;
 
 		if (isset($min_id)) {
 			$boundCondition = DBA::mergeConditions($boundCondition, ['`id` > ?', $min_id]);
 			if (!isset($max_id) && isset($params['order']['id']) && ($params['order']['id'] === true || $params['order']['id'] === 'DESC')) {
-				$reverseModels = true;
+				$reverseOrder = true;
+
 				$params['order']['id'] = 'ASC';
 			}
 		}
 
-		if (isset($max_id)) {
+		if (isset($max_id) && $max_id > 0) {
 			$boundCondition = DBA::mergeConditions($boundCondition, ['`id` < ?', $max_id]);
 			if (!isset($min_id) && (!isset($params['order']['id']) || $params['order']['id'] === false || $params['order']['id'] === 'ASC')) {
-				$reverseModels = true;
+				$reverseOrder = true;
+
 				$params['order']['id'] = 'DESC';
 			}
 		}
 
 		$params['limit'] = $limit;
 
-		$models = $this->selectModels($boundCondition, $params);
-
-		if ($reverseModels) {
-			$models = array_reverse($models);
+		$Entities = $this->_select($boundCondition, $params);
+		if ($reverseOrder) {
+			$Entities->reverse();
 		}
 
-		return new static::$collection_class($models, $totalCount);
+		return new BaseCollection($Entities->getArrayCopy(), $totalCount);
 	}
 
 	/**
-	 * This method updates the database row from the model.
-	 *
-	 * @param BaseModel $model
+	 * @param array $condition
+	 * @param array $params
+	 * @return BaseCollection
+	 * @throws Exception
+	 */
+	protected function _select(array $condition, array $params = []): BaseCollection
+	{
+		$rows = $this->db->selectToArray(static::$table_name, [], $condition, $params);
+
+		$Entities = new BaseCollection();
+		foreach ($rows as $fields) {
+			$Entities[] = $this->factory->createFromTableRow($fields);
+		}
+
+		return $Entities;
+	}
+
+	/**
+	 * @param array $condition
+	 * @param array $params
+	 * @return BaseEntity
+	 * @throws NotFoundException
+	 */
+	protected function _selectOne(array $condition, array $params = []): BaseEntity
+	{
+		$fields = $this->db->selectFirst(static::$table_name, [], $condition, $params);
+		if (!$this->db->isResult($fields)) {
+			throw new NotFoundException();
+		}
+
+		return $this->factory->createFromTableRow($fields);
+	}
+
+	/**
+	 * @param array $condition
+	 * @param array $params
+	 * @return int
+	 * @throws Exception
+	 */
+	public function count(array $condition, array $params = []): int
+	{
+		return $this->db->count(static::$table_name, $condition, $params);
+	}
+
+	/**
+	 * @param array $condition
 	 * @return bool
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function update(BaseModel $model)
+	public function exists(array $condition): bool
 	{
-		if ($this->dba->update(static::$table_name, $model->toArray(), ['id' => $model->id], $model->getOriginalData())) {
-			$model->resetOriginalData();
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * This method creates a new database row and returns a model if it was successful.
-	 *
-	 * @param array $fields
-	 * @return BaseModel|bool
-	 * @throws \Exception
-	 */
-	public function insert(array $fields)
-	{
-		$return = $this->dba->insert(static::$table_name, $fields);
-
-		if (!$return) {
-			throw new HTTPException\InternalServerErrorException('Unable to insert new row in table "' . static::$table_name . '"');
-		}
-
-		$fields['id'] = $this->dba->lastInsertId();
-		$return = $this->create($fields);
-
-		return $return;
-	}
-
-	/**
-	 * Deletes the model record from the database.
-	 *
-	 * @param BaseModel $model
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function delete(BaseModel &$model)
-	{
-		if ($success = $this->dba->delete(static::$table_name, ['id' => $model->id])) {
-			$model = null;
-		}
-
-		return $success;
-	}
-
-	/**
-	 * Base instantiation method, can be overriden to add specific dependencies
-	 *
-	 * @param array $data
-	 * @return BaseModel
-	 */
-	protected function create(array $data)
-	{
-		return new static::$model_class($this->dba, $this->logger, $data);
-	}
-
-	/**
-	 * @param array $condition Query condition
-	 * @param array $params    Additional query parameters
-	 * @return BaseModel[]
-	 * @throws \Exception
-	 */
-	protected function selectModels(array $condition, array $params = [])
-	{
-		$result = $this->dba->select(static::$table_name, [], $condition, $params);
-
-		/** @var BaseModel $prototype */
-		$prototype = null;
-
-		$models = [];
-
-		while ($record = $this->dba->fetch($result)) {
-			if ($prototype === null) {
-				$prototype = $this->create($record);
-				$models[] = $prototype;
-			} else {
-				$models[] = static::$model_class::createFromPrototype($prototype, $record);
-			}
-		}
-
-		$this->dba->close($result);
-
-		return $models;
-	}
-
-	/**
-	 * @param BaseCollection $collection
-	 */
-	public function saveCollection(BaseCollection $collection)
-	{
-		$collection->map([$this, 'update']);
+		return $this->db->exists(static::$table_name, $condition);
 	}
 }

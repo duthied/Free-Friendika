@@ -427,19 +427,27 @@ abstract class DI
 	//
 
 	/**
-	 * @return Repository\FSuggest;
+	 * @return Contact\FriendSuggest\Repository\FriendSuggest;
 	 */
 	public static function fsuggest()
 	{
-		return self::$dice->create(Repository\FSuggest::class);
+		return self::$dice->create(Contact\FriendSuggest\Repository\FriendSuggest::class);
 	}
 
 	/**
-	 * @return Contact\Introduction\Depository\Introduction
+	 * @return Contact\FriendSuggest\Factory\FriendSuggest;
+	 */
+	public static function fsuggestFactory()
+	{
+		return self::$dice->create(Contact\FriendSuggest\Factory\FriendSuggest::class);
+	}
+
+	/**
+	 * @return Contact\Introduction\Repository\Introduction
 	 */
 	public static function intro()
 	{
-		return self::$dice->create(Contact\Introduction\Depository\Introduction::class);
+		return self::$dice->create(Contact\Introduction\Repository\Introduction::class);
 	}
 
 	/**
@@ -450,9 +458,9 @@ abstract class DI
 		return self::$dice->create(Contact\Introduction\Factory\Introduction::class);
 	}
 
-	public static function permissionSet(): Security\PermissionSet\Depository\PermissionSet
+	public static function permissionSet(): Security\PermissionSet\Repository\PermissionSet
 	{
-		return self::$dice->create(Security\PermissionSet\Depository\PermissionSet::class);
+		return self::$dice->create(Security\PermissionSet\Repository\PermissionSet::class);
 	}
 
 	public static function permissionSetFactory(): Security\PermissionSet\Factory\PermissionSet
@@ -460,9 +468,9 @@ abstract class DI
 		return self::$dice->create(Security\PermissionSet\Factory\PermissionSet::class);
 	}
 
-	public static function profileField(): Profile\ProfileField\Depository\ProfileField
+	public static function profileField(): Profile\ProfileField\Repository\ProfileField
 	{
-		return self::$dice->create(Profile\ProfileField\Depository\ProfileField::class);
+		return self::$dice->create(Profile\ProfileField\Repository\ProfileField::class);
 	}
 
 	public static function profileFieldFactory(): Profile\ProfileField\Factory\ProfileField
@@ -470,9 +478,9 @@ abstract class DI
 		return self::$dice->create(Profile\ProfileField\Factory\ProfileField::class);
 	}
 
-	public static function notification(): Navigation\Notifications\Depository\Notification
+	public static function notification(): Navigation\Notifications\Repository\Notification
 	{
-		return self::$dice->create(Navigation\Notifications\Depository\Notification::class);
+		return self::$dice->create(Navigation\Notifications\Repository\Notification::class);
 	}
 
 	public static function notificationFactory(): Navigation\Notifications\Factory\Notification
@@ -480,9 +488,9 @@ abstract class DI
 		return self::$dice->create(Navigation\Notifications\Factory\Notification::class);
 	}
 
-	public static function notify(): Navigation\Notifications\Depository\Notify
+	public static function notify(): Navigation\Notifications\Repository\Notify
 	{
-		return self::$dice->create(Navigation\Notifications\Depository\Notify::class);
+		return self::$dice->create(Navigation\Notifications\Repository\Notify::class);
 	}
 
 	public static function notifyFactory(): Navigation\Notifications\Factory\Notify

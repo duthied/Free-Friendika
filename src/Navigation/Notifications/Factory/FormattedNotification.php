@@ -32,7 +32,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Module\BaseNotifications;
 use Friendica\Navigation\Notifications\Collection\FormattedNotifications;
-use Friendica\Navigation\Notifications\Depository;
+use Friendica\Navigation\Notifications\Repository;
 use Friendica\Navigation\Notifications\ValueObject;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
@@ -54,14 +54,14 @@ class FormattedNotification extends BaseFactory
 {
 	/** @var Database */
 	private $dba;
-	/** @var Depository\Notify */
+	/** @var Repository\Notify */
 	private $notify;
 	/** @var BaseURL */
 	private $baseUrl;
 	/** @var L10n */
 	private $l10n;
 
-	public function __construct(LoggerInterface $logger, Database $dba, Depository\Notify $notify, BaseURL $baseUrl, L10n $l10n)
+	public function __construct(LoggerInterface $logger, Database $dba, Repository\Notify $notify, BaseURL $baseUrl, L10n $l10n)
 	{
 		parent::__construct($logger);
 

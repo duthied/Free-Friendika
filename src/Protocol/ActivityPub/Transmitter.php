@@ -1782,7 +1782,7 @@ class Transmitter
 	{
 		$owner = User::getOwnerDataById($uid);
 
-		$suggestion = DI::fsuggest()->getById($suggestion_id);
+		$suggestion = DI::fsuggest()->selectOneById($suggestion_id);
 
 		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),

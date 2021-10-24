@@ -80,7 +80,7 @@ class RemoveContent
 		DBA::delete('contact-relation', ['relation-cid' => $id]);
 		DBA::delete('contact-relation', ['cid' => $id]);
 		DBA::delete('event', ['cid' => $id]);
-		DBA::delete('fsuggest', ['cid' => $id]);
+		DI::fsuggest()->delete(DI::fsuggest()->selectForContact($id));
 		DBA::delete('post-tag', ['cid' => $id]);
 		DBA::delete('user-contact', ['cid' => $id]);
 
