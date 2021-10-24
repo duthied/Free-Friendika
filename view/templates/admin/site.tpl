@@ -116,6 +116,7 @@
 		{{include file="field_input.tpl" field=$dbclean_unclaimed}}
 		{{include file="field_input.tpl" field=$dbclean_expire_conv}}
 		{{include file="field_checkbox.tpl" field=$optimize_tables}}
+		{{include file="field_checkbox.tpl" field=$cache_contact_avatar}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$worker_title}}</h2>
