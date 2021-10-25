@@ -31,6 +31,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Security\PermissionSet\Repository\PermissionSet;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -84,11 +85,8 @@ class Objects extends BaseModule
 				$requester_id = Contact::getIdForURL($requester, $item['uid']);
 				if (!empty($requester_id)) {
 					$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $item['uid']);
-					if (!empty($permissionSets)) {
-						$psid = array_merge($permissionSets->column('id'),
-							[DI::permissionSet()->selectPublicForUser($item['uid'])]);
-						$validated = in_array($item['psid'], $psid);
-					}
+					$psids = array_merge($permissionSets->column('id'), [PermissionSet::PUBLIC]);
+					$validated = in_array($item['psid'], $psids);
 				}
 			}
 		}
