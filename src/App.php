@@ -631,7 +631,9 @@ class App
 				Model\Profile::openWebAuthInit($token);
 			}
 
-			$auth->withSession($this);
+			if (!$this->mode->isBackend()) {
+				$auth->withSession($this);
+			}
 
 			if (empty($_SESSION['authenticated'])) {
 				header('X-Account-Management-Status: none');

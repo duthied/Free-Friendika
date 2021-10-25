@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-23 21:51-0400\n"
+"POT-Creation-Date: 2021-10-24 23:21-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4124,9 +4124,8 @@ msgstr ""
 msgid "Unable to retrieve contact information."
 msgstr ""
 
-#: src/Model/Event.php:52 src/Model/Event.php:853
-#: src/Module/Debug/Localtime.php:38
-msgid "l F d, Y \\@ g:i A"
+#: src/Model/Event.php:52
+msgid "l F d, Y \\@ g:i A \\G\\M\\TP (e)"
 msgstr ""
 
 #: src/Model/Event.php:73 src/Model/Event.php:90 src/Model/Event.php:464
@@ -4165,6 +4164,10 @@ msgstr ""
 
 #: src/Model/Event.php:611
 msgid "Delete event"
+msgstr ""
+
+#: src/Model/Event.php:853 src/Module/Debug/Localtime.php:38
+msgid "l F d, Y \\@ g:i A"
 msgstr ""
 
 #: src/Model/Event.php:854
@@ -8505,21 +8508,21 @@ msgstr ""
 msgid "Visible to:"
 msgstr ""
 
-#: src/Module/Photo.php:122
+#: src/Module/Photo.php:123
 msgid "The Photo is not available."
 msgstr ""
 
-#: src/Module/Photo.php:135
+#: src/Module/Photo.php:136
 #, php-format
 msgid "The Photo with id %s is not available."
 msgstr ""
 
-#: src/Module/Photo.php:168
+#: src/Module/Photo.php:169
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr ""
 
-#: src/Module/Photo.php:170
+#: src/Module/Photo.php:171
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr ""
