@@ -57,7 +57,7 @@ function frio_install()
 	Hook::register('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
 	Hook::register('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
-	Logger::log('installed theme frio');
+	Logger::info('installed theme frio');
 }
 
 /**

@@ -51,7 +51,7 @@ class Directory
 
 		Hook::callAll('globaldir_update', $arr);
 
-		Logger::log('Updating directory: ' . $arr['url'], Logger::DEBUG);
+		Logger::info('Updating directory: ' . $arr['url']);
 		if (strlen($arr['url'])) {
 			DI::httpClient()->fetch($dir . '?url=' . bin2hex($arr['url']));
 		}

@@ -82,7 +82,7 @@ class Register extends BaseModule
 		if ($max_dailies) {
 			$count = DBA::count('user', ['`register_date` > UTC_TIMESTAMP - INTERVAL 1 day']);
 			if ($count >= $max_dailies) {
-				Logger::log('max daily registrations exceeded.');
+				Logger::notice('max daily registrations exceeded.');
 				notice(DI::l10n()->t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'));
 				return '';
 			}

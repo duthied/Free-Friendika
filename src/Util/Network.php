@@ -268,7 +268,7 @@ class Network
 			$avatar['url'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
 		}
 
-		Logger::log('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], Logger::DEBUG);
+		Logger::info('Avatar: ' . $avatar['email'] . ' ' . $avatar['url']);
 		return $avatar['url'];
 	}
 

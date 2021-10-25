@@ -76,7 +76,7 @@ function redir_init(App $a) {
 			// Local user is already authenticated.
 			redir_check_url($contact_url, $url);
 			$target_url = $url ?: $contact_url;
-			Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
+			Logger::info($contact['name'] . " is already authenticated. Redirecting to " . $target_url);
 			$a->redirect($target_url);
 		}
 	}
@@ -93,7 +93,7 @@ function redir_init(App $a) {
 			// Remote user is already authenticated.
 			redir_check_url($contact_url, $url);
 			$target_url = $url ?: $contact_url;
-			Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
+			Logger::info($contact['name'] . " is already authenticated. Redirecting to " . $target_url);
 			$a->redirect($target_url);
 		}
 	}
@@ -112,7 +112,7 @@ function redir_init(App $a) {
 		$url .= $separator . 'zrl=' . urlencode($my_profile);
 	}
 
-	Logger::log('redirecting to ' . $url, Logger::DEBUG);
+	Logger::info('redirecting to ' . $url);
 	$a->redirect($url);
 }
 

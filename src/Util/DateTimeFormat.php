@@ -157,7 +157,7 @@ class DateTimeFormat
 		try {
 			$d = new DateTime($s, $from_obj);
 		} catch (Exception $e) {
-			Logger::log('DateTimeFormat::convert: exception: ' . $e->getMessage());
+			Logger::notice('DateTimeFormat::convert: exception: ' . $e->getMessage());
 			$d = new DateTime('now', $from_obj);
 		}
 

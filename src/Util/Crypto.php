@@ -136,7 +136,7 @@ class Crypto
 		$result = openssl_pkey_new($openssl_options);
 
 		if (empty($result)) {
-			Logger::log('new_keypair: failed');
+			Logger::notice('new_keypair: failed');
 			return false;
 		}
 
@@ -261,7 +261,7 @@ class Crypto
 	private static function encapsulateOther($data, $pubkey, $alg)
 	{
 		if (!$pubkey) {
-			Logger::log('no key. data: '.$data);
+			Logger::notice('no key. data: '.$data);
 		}
 		$fn = 'encrypt' . strtoupper($alg);
 		if (method_exists(__CLASS__, $fn)) {
@@ -303,7 +303,7 @@ class Crypto
 	private static function encapsulateAes($data, $pubkey)
 	{
 		if (!$pubkey) {
-			Logger::log('aes_encapsulate: no key. data: ' . $data);
+			Logger::notice('aes_encapsulate: no key. data: ' . $data);
 		}
 
 		$key = random_bytes(32);
@@ -314,7 +314,7 @@ class Crypto
 		// log the offending call so we can track it down
 		if (!openssl_public_encrypt($key, $k, $pubkey)) {
 			$x = debug_backtrace();
-			Logger::log('aes_encapsulate: RSA failed. ' . print_r($x[0], true));
+			Logger::notice('aes_encapsulate: RSA failed.', ['data' => $x[0]]);
 		}
 
 		$result['alg'] = 'aes256cbc';

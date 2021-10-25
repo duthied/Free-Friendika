@@ -59,14 +59,14 @@ function pubsub_init(App $a)
 		$hub_challenge = Strings::escapeTags(trim($_GET['hub_challenge'] ?? ''));
 		$hub_verify    = Strings::escapeTags(trim($_GET['hub_verify_token'] ?? ''));
 
-		Logger::log('Subscription from ' . $_SERVER['REMOTE_ADDR'] . ' Mode: ' . $hub_mode . ' Nick: ' . $nick);
-		Logger::log('Data: ' . print_r($_GET,true), Logger::DATA);
+		Logger::notice('Subscription from ' . $_SERVER['REMOTE_ADDR'] . ' Mode: ' . $hub_mode . ' Nick: ' . $nick);
+		Logger::debug('Data: ', ['get' => $_GET]);
 
 		$subscribe = (($hub_mode === 'subscribe') ? 1 : 0);
 
 		$owner = DBA::selectFirst('user', ['uid'], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
 		if (!DBA::isResult($owner)) {
-			Logger::log('Local account not found: ' . $nick);
+			Logger::notice('Local account not found: ' . $nick);
 			hub_return(false, '');
 		}
 
@@ -78,12 +78,12 @@ function pubsub_init(App $a)
 
 		$contact = DBA::selectFirst('contact', ['id', 'poll'], $condition);
 		if (!DBA::isResult($contact)) {
-			Logger::log('Contact ' . $contact_id . ' not found.');
+			Logger::notice('Contact ' . $contact_id . ' not found.');
 			hub_return(false, '');
 		}
 
 		if (!empty($hub_topic) && !Strings::compareLink($hub_topic, $contact['poll'])) {
-			Logger::log('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
+			Logger::notice('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
 			hub_return(false, '');
 		}
 
@@ -91,13 +91,13 @@ function pubsub_init(App $a)
 		// Don't allow outsiders to unsubscribe us.
 
 		if (($hub_mode === 'unsubscribe') && empty($hub_verify)) {
-			Logger::log('Bogus unsubscribe');
+			Logger::notice('Bogus unsubscribe');
 			hub_return(false, '');
 		}
 
 		if (!empty($hub_mode)) {
 			Contact::update(['subhub' => $subscribe], ['id' => $contact['id']]);
-			Logger::log($hub_mode . ' success for contact ' . $contact_id . '.');
+			Logger::notice($hub_mode . ' success for contact ' . $contact_id . '.');
 		}
  		hub_return(true, $hub_challenge);
 	}
@@ -107,8 +107,8 @@ function pubsub_post(App $a)
 {
 	$xml = Network::postdata();
 
-	Logger::log('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  DI::args()->getCommand() . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
-	Logger::log('Data: ' . $xml, Logger::DATA);
+	Logger::info('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  DI::args()->getCommand() . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
+	Logger::debug('Data: ' . $xml);
 
 	$nick       = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(trim(DI::args()->getArgv()[1])) : '');
 	$contact_id = ((DI::args()->getArgc() > 2) ? intval(DI::args()->getArgv()[2])       : 0 );
@@ -126,10 +126,10 @@ function pubsub_post(App $a)
 		if (!empty($author['contact-id'])) {
 			$condition = ['id' => $author['contact-id'], 'uid' => $importer['uid'], 'subhub' => true, 'blocked' => false];
 			$contact = DBA::selectFirst('contact', [], $condition);
-			Logger::log('No record for ' . $nick .' with contact id ' . $contact_id . ' - using '.$author['contact-id'].' instead.');
+			Logger::notice('No record for ' . $nick .' with contact id ' . $contact_id . ' - using '.$author['contact-id'].' instead.');
 		}
 		if (!DBA::isResult($contact)) {
-			Logger::log('Contact ' . $author["author-link"] . ' (' . $contact_id . ') for user ' . $nick . " wasn't found - ignored. XML: " . $xml);
+			Logger::notice('Contact ' . $author["author-link"] . ' (' . $contact_id . ') for user ' . $nick . " wasn't found - ignored. XML: " . $xml);
 			hub_post_return();
 		}
 	}
@@ -139,7 +139,7 @@ function pubsub_post(App $a)
 	}
 
 	if (!in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND]) && ($contact['network'] != Protocol::FEED)) {
-		Logger::log('Contact ' . $contact['id'] . ' is not expected to share with us - ignored.');
+		Logger::notice('Contact ' . $contact['id'] . ' is not expected to share with us - ignored.');
 		hub_post_return();
 	}
 
@@ -149,7 +149,7 @@ function pubsub_post(App $a)
 		hub_post_return();
 	}
 
-	Logger::log('Import item for ' . $nick . ' from ' . $contact['nick'] . ' (' . $contact['id'] . ')');
+	Logger::info('Import item for ' . $nick . ' from ' . $contact['nick'] . ' (' . $contact['id'] . ')');
 	$feedhub = '';
 	OStatus::import($xml, $importer, $contact, $feedhub);
 

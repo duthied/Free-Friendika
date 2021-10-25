@@ -1517,7 +1517,7 @@ class User
 			return false;
 		}
 
-		Logger::log('Removing user: ' . $uid);
+		Logger::notice('Removing user', ['user' => $uid]);
 
 		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
 

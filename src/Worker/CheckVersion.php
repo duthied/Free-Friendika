@@ -35,7 +35,7 @@ class CheckVersion
 {
 	public static function execute()
 	{
-		Logger::log('checkversion: start');
+		Logger::notice('checkversion: start');
 
 		$checkurl = DI::config()->get('system', 'check_new_version_url', 'none');
 
@@ -51,15 +51,15 @@ class CheckVersion
 				// don't check
 				return;
 		}
-		Logger::log("Checking VERSION from: ".$checked_url, Logger::DEBUG);
+		Logger::info("Checking VERSION from: ".$checked_url);
 
 		// fetch the VERSION file
 		$gitversion = DBA::escape(trim(DI::httpClient()->fetch($checked_url)));
-		Logger::log("Upstream VERSION is: ".$gitversion, Logger::DEBUG);
+		Logger::notice("Upstream VERSION is: ".$gitversion);
 
 		DI::config()->set('system', 'git_friendica_version', $gitversion);
 
-		Logger::log('checkversion: end');
+		Logger::notice('checkversion: end');
 
 		return;
 	}

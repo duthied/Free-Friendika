@@ -268,7 +268,7 @@ class XML
 		}
 
 		if (!function_exists('xml_parser_create')) {
-			Logger::log('Xml::toArray: parser function missing');
+			Logger::notice('Xml::toArray: parser function missing');
 			return [];
 		}
 
@@ -283,7 +283,7 @@ class XML
 		}
 
 		if (! $parser) {
-			Logger::log('Xml::toArray: xml_parser_create: no resource');
+			Logger::notice('Xml::toArray: xml_parser_create: no resource');
 			return [];
 		}
 
@@ -295,9 +295,9 @@ class XML
 		@xml_parser_free($parser);
 
 		if (! $xml_values) {
-			Logger::log('Xml::toArray: libxml: parse error: ' . $contents, Logger::DATA);
+			Logger::debug('Xml::toArray: libxml: parse error: ' . $contents);
 			foreach (libxml_get_errors() as $err) {
-				Logger::log('libxml: parse: ' . $err->code . " at " . $err->line . ":" . $err->column . " : " . $err->message, Logger::DATA);
+				Logger::debug('libxml: parse: ' . $err->code . " at " . $err->line . ":" . $err->column . " : " . $err->message);
 			}
 			libxml_clear_errors();
 			return;
