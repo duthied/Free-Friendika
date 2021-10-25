@@ -36,6 +36,7 @@ use Friendica\Network\HTTPException;
 use Friendica\Object\Image;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
+use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy;
 
 /**
@@ -284,14 +285,26 @@ class Photo extends BaseModule
 					$url = $contact['avatar'];
 				} elseif (!empty($contact['avatar'])) {
 					$url = $contact['avatar'];
-				} elseif ($customsize <= Proxy::PIXEL_MICRO) {
-					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
-				} elseif ($customsize <= Proxy::PIXEL_THUMB) {
-					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
-				} else {
-					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
 				}
-				return MPhoto::createPhotoForExternalResource($url);
+				$mimetext = '';
+				if (!empty($url)) {
+					$mime = ParseUrl::getContentType($url);
+					if (empty($mime) || ($mime[0] != 'image')) {
+						$url = '';
+					} else {
+						$mimetext = $mime[0] . '/' . $mime[1];
+					}
+				}
+				if (empty($url)) {
+					if ($customsize <= Proxy::PIXEL_MICRO) {
+						$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
+					} elseif ($customsize <= Proxy::PIXEL_THUMB) {
+						$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
+					} else {
+						$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
+					}
+				}
+				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext);
 			case "header":
 				$contact = Contact::getById($id, ['uid', 'url', 'header']);
 				if (empty($contact)) {
