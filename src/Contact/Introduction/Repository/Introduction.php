@@ -19,9 +19,9 @@
  *
  */
 
-namespace Friendica\Contact\Introduction\Depository;
+namespace Friendica\Contact\Introduction\Repository;
 
-use Friendica\BaseDepository;
+use Friendica\BaseRepository;
 use Friendica\Contact\Introduction\Exception\IntroductionNotFoundException;
 use Friendica\Contact\Introduction\Exception\IntroductionPersistenceException;
 use Friendica\Contact\Introduction\Collection;
@@ -32,7 +32,7 @@ use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
-class Introduction extends BaseDepository
+class Introduction extends BaseRepository
 {
 	/** @var Factory\Introduction */
 	protected $factory;

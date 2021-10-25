@@ -1553,18 +1553,22 @@ class Contact
 	 */
 	public static function checkAvatarCache(int $cid)
 	{
-		$contact = DBA::selectFirst('contact', ['url', 'avatar', 'photo', 'thumb', 'micro'], ['id' => $cid, 'uid' => 0, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['url', 'network', 'avatar', 'photo', 'thumb', 'micro'], ['id' => $cid, 'uid' => 0, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
 
-		if (empty($contact['avatar']) || (!empty($contact['photo']) && !empty($contact['thumb']) && !empty($contact['micro']))) {
+		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) || DI::config()->get('system', 'cache_contact_avatar')) {
+			if (!empty($contact['avatar']) && (empty($contact['photo']) || empty($contact['thumb']) || empty($contact['micro']))) {
+				Logger::info('Adding avatar cache', ['id' => $cid, 'contact' => $contact]);
+				self::updateAvatar($cid, $contact['avatar'], true);
+				return;
+			}
+		} elseif (!empty($contact['photo']) || !empty($contact['thumb']) || !empty($contact['micro'])) {
+			Logger::info('Removing avatar cache', ['id' => $cid, 'contact' => $contact]);
+			self::updateAvatar($cid, $contact['avatar'], true);
 			return;
 		}
-
-		Logger::info('Adding avatar cache', ['id' => $cid, 'contact' => $contact]);
-
-		self::updateAvatar($cid, $contact['avatar'], true);
 	}
 
 	/**
@@ -1868,54 +1872,61 @@ class Contact
 			$avatar = self::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
 		}
 
-		if ($default_avatar && Proxy::isLocalImage($avatar)) {
-			$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
-				'photo' => $avatar,
-				'thumb' => self::getDefaultAvatar($contact, Proxy::SIZE_THUMB),
-				'micro' => self::getDefaultAvatar($contact, Proxy::SIZE_MICRO)];
-			Logger::debug('Use default avatar', ['id' => $cid, 'uid' => $uid]);
-		}
-
-		// Use the data from the self account
-		if (empty($fields)) {
-			$local_uid = User::getIdForURL($contact['url']);
-			if (!empty($local_uid)) {
-				$fields = self::selectFirst(['avatar', 'avatar-date', 'photo', 'thumb', 'micro'], ['self' => true, 'uid' => $local_uid]);
-				Logger::debug('Use owner data', ['id' => $cid, 'uid' => $uid, 'owner-uid' => $local_uid]);
+		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) || DI::config()->get('system', 'cache_contact_avatar')) {
+			if ($default_avatar && Proxy::isLocalImage($avatar)) {
+				$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
+					'photo' => $avatar,
+					'thumb' => self::getDefaultAvatar($contact, Proxy::SIZE_THUMB),
+					'micro' => self::getDefaultAvatar($contact, Proxy::SIZE_MICRO)];
+				Logger::debug('Use default avatar', ['id' => $cid, 'uid' => $uid]);
 			}
-		}
 
-		if (empty($fields)) {
-			$update = ($contact['avatar'] != $avatar) || $force;
+			// Use the data from the self account
+			if (empty($fields)) {
+				$local_uid = User::getIdForURL($contact['url']);
+				if (!empty($local_uid)) {
+					$fields = self::selectFirst(['avatar', 'avatar-date', 'photo', 'thumb', 'micro'], ['self' => true, 'uid' => $local_uid]);
+					Logger::debug('Use owner data', ['id' => $cid, 'uid' => $uid, 'owner-uid' => $local_uid]);
+				}
+			}
 
-			if (!$update) {
-				$data = [
-					$contact['photo'] ?? '',
-					$contact['thumb'] ?? '',
-					$contact['micro'] ?? '',
-				];
+			if (empty($fields)) {
+				$update = ($contact['avatar'] != $avatar) || $force;
 
-				foreach ($data as $image_uri) {
-					$image_rid = Photo::ridFromURI($image_uri);
-					if ($image_rid && !Photo::exists(['resource-id' => $image_rid, 'uid' => $uid])) {
-						Logger::debug('Regenerating avatar', ['contact uid' => $uid, 'cid' => $cid, 'missing photo' => $image_rid, 'avatar' => $contact['avatar']]);
-						$update = true;
+				if (!$update) {
+					$data = [
+						$contact['photo'] ?? '',
+						$contact['thumb'] ?? '',
+						$contact['micro'] ?? '',
+					];
+
+					foreach ($data as $image_uri) {
+						$image_rid = Photo::ridFromURI($image_uri);
+						if ($image_rid && !Photo::exists(['resource-id' => $image_rid, 'uid' => $uid])) {
+							Logger::debug('Regenerating avatar', ['contact uid' => $uid, 'cid' => $cid, 'missing photo' => $image_rid, 'avatar' => $contact['avatar']]);
+							$update = true;
+						}
 					}
 				}
-			}
 
-			if ($update) {
-				$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
-				if ($photos) {
-					$fields = ['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => DateTimeFormat::utcNow()];
-					$update = !empty($fields);
-					Logger::debug('Created new cached avatars', ['id' => $cid, 'uid' => $uid, 'owner-uid' => $local_uid]);
-				} else {
-					$update = false;
+				if ($update) {
+					$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
+					if ($photos) {
+						$fields = ['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => DateTimeFormat::utcNow()];
+						$update = !empty($fields);
+						Logger::debug('Created new cached avatars', ['id' => $cid, 'uid' => $uid, 'owner-uid' => $local_uid]);
+					} else {
+						$update = false;
+					}
 				}
+			} else {
+				$update = ($fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
 			}
 		} else {
-			$update = ($fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
+			Photo::delete(['uid' => $uid, 'contact-id' => $cid, 'photo-type' => Photo::CONTACT_AVATAR]);
+			$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
+				'photo' => '', 'thumb' => '', 'micro' => ''];
+			$update = ($avatar != $contact['avatar'] . $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
 		}
 
 		if (!$update) {

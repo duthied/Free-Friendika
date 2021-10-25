@@ -1,10 +1,10 @@
 <?php
 
-namespace Friendica\Navigation\Notifications\Depository;
+namespace Friendica\Navigation\Notifications\Repository;
 
 use Exception;
 use Friendica\BaseCollection;
-use Friendica\BaseDepository;
+use Friendica\BaseRepository;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Verb;
@@ -15,7 +15,7 @@ use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
-class Notification extends BaseDepository
+class Notification extends BaseRepository
 {
 	/** @var Factory\Notification  */
 	protected $factory;

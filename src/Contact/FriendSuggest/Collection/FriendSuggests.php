@@ -19,18 +19,10 @@
  *
  */
 
-namespace Friendica\Collection;
+namespace Friendica\Contact\FriendSuggest\Collection;
 
 use Friendica\BaseCollection;
-use Friendica\Model;
 
-class Notifications extends BaseCollection
+class FriendSuggests extends BaseCollection
 {
-	/**
-	 * @return Model\Notification
-	 */
-	public function current()
-	{
-		return parent::current();
-	}
 }

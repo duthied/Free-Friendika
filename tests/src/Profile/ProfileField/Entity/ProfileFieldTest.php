@@ -6,7 +6,7 @@ use Friendica\Profile\ProfileField\Entity\ProfileField;
 use Friendica\Profile\ProfileField\Exception\ProfileFieldNotFoundException;
 use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
 use Friendica\Profile\ProfileField\Factory\ProfileField as ProfileFieldFactory;
-use Friendica\Security\PermissionSet\Depository\PermissionSet as PermissionSetDepository;
+use Friendica\Security\PermissionSet\Repository\PermissionSet as PermissionSetRepository;
 use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
 use Friendica\Test\MockedTest;
 use Friendica\Util\ACLFormatter;
@@ -16,8 +16,8 @@ use Mockery\MockInterface;
 
 class ProfileFieldTest extends MockedTest
 {
-	/** @var MockInterface|PermissionSetDepository */
-	protected $permissionSetDepository;
+	/** @var MockInterface|PermissionSetRepository */
+	protected $permissionSetRepository;
 	/** @var ProfileFieldFactory */
 	protected $profileFieldFactory;
 	/** @var MockInterface|PermissionSetFactory */
@@ -27,7 +27,7 @@ class ProfileFieldTest extends MockedTest
 	{
 		parent::setUp();
 
-		$this->permissionSetDepository = \Mockery::mock(PermissionSetDepository::class);
+		$this->permissionSetRepository = \Mockery::mock(PermissionSetRepository::class);
 		$this->permissionSetFactory    = new PermissionSetFactory(new VoidLogger(), new ACLFormatter());
 		$this->profileFieldFactory     = new ProfileFieldFactory(new VoidLogger(), $this->permissionSetFactory);
 	}
@@ -180,7 +180,7 @@ class ProfileFieldTest extends MockedTest
 
 		$permissionSet = $this->permissionSetFactory->createFromTableRow(['uid' => $uid, 'id' => $psid]);
 
-		$this->permissionSetDepository->shouldReceive('selectOneById')->with($psid, $uid)->andReturns($permissionSet);
+		$this->permissionSetRepository->shouldReceive('selectOneById')->with($psid, $uid)->andReturns($permissionSet);
 
 		self::assertEquals($psid, $entity->permissionSet->id);
 	}

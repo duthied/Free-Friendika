@@ -19,23 +19,12 @@
  *
  */
 
-namespace Friendica\Model;
+namespace Friendica\Contact\FriendSuggest\Exception;
 
-use Friendica\BaseModel;
-
-/**
- * Model for interacting with a friend suggestion
- *
- * @property int uid
- * @property int cid
- * @property string name
- * @property string url
- * @property string request
- * @property string photo
- * @property string note
- * @property string created
- */
-class FSuggest extends BaseModel
+class FriendSuggestPersistenceException extends \RuntimeException
 {
-
+	public function __construct($message = '', \Throwable $previous = null)
+	{
+		parent::__construct($message, 500, $previous);
+	}
 }

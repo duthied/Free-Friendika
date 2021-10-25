@@ -22,63 +22,10 @@ $a->strings['Weekly posting limit of %d post reached. The post was rejected.'] =
 	5 => 'رُفضت المشاركة. تجاوزت الحد الأسبوعي وهو %d مشاركة.',
 ];
 $a->strings['Monthly posting limit of %d post reached. The post was rejected.'] = 'رُفضت المشاركة. تجاوزت الحد الشهري وهو %d مشاركة.';
-$a->strings['[Friendica:Notify]'] = '[Friendica:Notify]';
-$a->strings['%s New mail received at %s'] = 'أُستلم بريد جديد %s على %s';
-$a->strings['%1$s sent you a new private message at %2$s.'] = 'أرسل %1$s لك رسالة خاصة على %2$s.';
-$a->strings['a private message'] = 'رسالة خاصة';
-$a->strings['%1$s sent you %2$s.'] = 'أرسل %1$s لك %2$s.';
-$a->strings['Please visit %s to view and/or reply to your private messages.'] = 'من فضلك.زر %s لعرض و/أو الرد على الرسائل الخاصة.';
-$a->strings['%1$s commented on %2$s\'s %3$s %4$s'] = 'علق %1$s على %3$s %2$s %4$s';
-$a->strings['%1$s commented on your %2$s %3$s'] = 'علق %1$s على %2$s تخصك %3$s';
-$a->strings['%1$s commented on their %2$s %3$s'] = 'علق %1$s على %2$s له %3$s';
-$a->strings['%1$s Comment to conversation #%2$d by %3$s'] = 'علق %1$s على محادثة %3$s #%2$d';
-$a->strings['%s commented on an item/conversation you have been following.'] = 'علق %s على محادثة/عنصر تتابعه.';
-$a->strings['Please visit %s to view and/or reply to the conversation.'] = 'من فضلك.زر %s لعرض و/أو الرد على المحادثة.';
-$a->strings['%s %s posted to your profile wall'] = 'نشر %s%s على حائط ملفك الشخصي';
-$a->strings['%1$s posted to your profile wall at %2$s'] = 'نشر %1$s على حائط ملفك الشخصي على %2$s';
-$a->strings['%1$s posted to [url=%2$s]your wall[/url]'] = '"نشر %1$s على [%2$s=url]حائطك[/url]';
-$a->strings['%1$s %2$s poked you'] = 'لكزك %1$s %2$s';
-$a->strings['%1$s poked you at %2$s'] = 'لكزك %1$s على %2$s';
-$a->strings['%1$s [url=%2$s]poked you[/url].'] = '[url=%2$s]لكزك[/url] %1$s.';
-$a->strings['%s Introduction received'] = 'تلقيت تقديما من %s';
-$a->strings['You\'ve received an introduction from \'%1$s\' at %2$s'] = 'تلقيت تقديما من \'%1$s\' على %2$s';
-$a->strings['You\'ve received [url=%1$s]an introduction[/url] from %2$s.'] = 'تلقيت [url=%1$s]تقديما[/url] من %2$s.';
-$a->strings['You may visit their profile at %s'] = 'يمكنك زيارة ملفهم الخصي على %s';
-$a->strings['Please visit %s to approve or reject the introduction.'] = 'من فضلك زر %s لقبول أو رفض التقديم.';
-$a->strings['%s A new person is sharing with you'] = '%s شخص جديد يشارك معك';
-$a->strings['%1$s is sharing with you at %2$s'] = 'يشارك %1$s معك على %2$s';
-$a->strings['%s You have a new follower'] = 'لديك متابِع جديد %s';
-$a->strings['You have a new follower at %2$s : %1$s'] = 'لديك متابِع جديد على %2$s : %1$s';
-$a->strings['%s Friend suggestion received'] = 'تلقيت إقتراح صديق %s';
-$a->strings['You\'ve received a friend suggestion from \'%1$s\' at %2$s'] = 'تلقيت اقتراح صديق من \'%1$s\' على %2$s';
-$a->strings['You\'ve received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s.'] = ' تلقيت [url=%1$s]اقتراح %2$s كصديق[/url] من %3$s.';
-$a->strings['Name:'] = 'الاسم:';
-$a->strings['Photo:'] = 'الصورة:';
-$a->strings['Please visit %s to approve or reject the suggestion.'] = 'من فضلك زر %s لقبول  أو رفض الاقتراح.';
-$a->strings['%s Connection accepted'] = 'قُبِل الاقتران %s';
-$a->strings['\'%1$s\' has accepted your connection request at %2$s'] = 'قبِل \'%1$s\' طلب الاقتران على %2$s';
-$a->strings['%2$s has accepted your [url=%1$s]connection request[/url].'] = 'قبِل %2$s [url=%1$s]طلب الاقتران[/url]';
-$a->strings['You are now mutual friends and may exchange status updates, photos, and email without restriction.'] = 'أصبحتما صديقين من كلا الطرفين ويمكنكما تبادل تحديثات الحالة، والصور، والبريد دون قيود.';
-$a->strings['Please visit %s if you wish to make any changes to this relationship.'] = 'من فضلك زر %s إن أردت تغيير هذه العلاقة.';
-$a->strings['\'%1$s\' has chosen to accept you a fan, which restricts some forms of communication - such as private messaging and some profile interactions. If this is a celebrity or community page, these settings were applied automatically.'] = 'قبِلك \'%1$s\' كمعجب، هذا يحدُّ من أشكال التواصل بينكما مثل الزسائل الخاصة وبعض التفاعلات. يتم هذا تلقائيا اذا كانت صفحة مشهور أو مجتمع.';
-$a->strings['\'%1$s\' may choose to extend this into a two-way or more permissive relationship in the future.'] = 'قد يختار \'%1$s\' توسيعها إلى علاقة ذات اتجاهين أو أكثر في المستقبل.';
-$a->strings['Please visit %s  if you wish to make any changes to this relationship.'] = 'من فضلك زر %s إن أردت تغيير هذه العلاقة.';
-$a->strings['[Friendica System Notify]'] = '[Friendica System Notify]';
-$a->strings['registration request'] = 'طلب تسجيل';
-$a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = 'تلقيت طلب تسجيل من \'%1$s\' على %2$s';
-$a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = 'تلقيت [url=%1$s]طلب تسجيل[/url] من %2$s';
-$a->strings['Full Name:	%s
-Site Location:	%s
-Login Name:	%s (%s)'] = 'الاسم الكامل:	%s
-الموقع:	%s
-اسم الولوج:	%s (%s)';
-$a->strings['Please visit %s to approve or reject the request.'] = 'من فضلك زر %s لقبول  أو رفض الطلب.';
-$a->strings['%s %s tagged you'] = 'ذكرك %s%s';
-$a->strings['%s %s shared a new post'] = 'شارك %s%s مشاركة جديدة';
 $a->strings['Permission denied.'] = 'رُفض الإذن.';
-$a->strings['Access denied.'] = 'رُفض الإذن.';
+$a->strings['Access denied.'] = 'رُفض الوصول.';
 $a->strings['User not found.'] = 'لم يُعثر على المستخدم.';
-$a->strings['Access to this profile has been restricted.'] = 'قُيد الوصول لهذا الملف الشخصي.';
+$a->strings['Access to this profile has been restricted.'] = 'قُيِّد الوصول لهذا الملف الشخصي.';
 $a->strings['Events'] = 'الأحداث';
 $a->strings['View'] = 'اعرض';
 $a->strings['Previous'] = 'السابق';
@@ -92,43 +39,43 @@ $a->strings['User not found'] = 'لم يُعثر على المستخدم';
 $a->strings['This calendar format is not supported'] = 'تنسيق هذا التقويم غير مدعوم';
 $a->strings['No exportable data found'] = 'لم يُعثر على بيانات قابلة للتصدير';
 $a->strings['calendar'] = 'تقويم';
-$a->strings['Public access denied.'] = 'رُفض الوصول العمومي.';
+$a->strings['Public access denied.'] = 'رُفض الوصول العلني.';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = 'العنصر غير موجود أو حُذف.';
-$a->strings['The feed for this item is unavailable.'] = 'خلاصة هذا العنصر غير متوفرة.';
+$a->strings['The feed for this item is unavailable.'] = 'تغذية هذا العنصر غير متوفرة.';
 $a->strings['Item not found'] = 'لم يُعثر على العنصر';
-$a->strings['Edit post'] = 'حرر المشاركة';
+$a->strings['Edit post'] = 'عدّل المشاركة';
 $a->strings['Save'] = 'احفظ';
 $a->strings['Loading...'] = 'يحمل...';
 $a->strings['Upload photo'] = 'ارفع صورة';
 $a->strings['upload photo'] = 'ارفع صورة';
-$a->strings['Attach file'] = 'أرفق ملفا';
-$a->strings['attach file'] = 'أرفق ملفا';
+$a->strings['Attach file'] = 'أرفق ملفًا';
+$a->strings['attach file'] = 'أرفق ملفًا';
 $a->strings['Insert web link'] = 'أدرج رابط ويب';
 $a->strings['web link'] = 'رابط ويب';
 $a->strings['Insert video link'] = 'أدرج رابط فيديو';
 $a->strings['video link'] = 'رابط فيديو';
 $a->strings['Insert audio link'] = 'إدراج رابط ملف صوتي';
 $a->strings['audio link'] = 'رابط ملف صوتي';
-$a->strings['Set your location'] = 'موقعك';
-$a->strings['set location'] = 'عين موقعك';
+$a->strings['Set your location'] = 'عيّن موقعك';
+$a->strings['set location'] = 'عين الموقع';
 $a->strings['Clear browser location'] = 'امسح موقع المتصفح';
 $a->strings['clear location'] = 'امسح الموقع';
 $a->strings['Please wait'] = 'يرجى الانتظار';
-$a->strings['Permission settings'] = 'إعدادات الأذون';
+$a->strings['Permission settings'] = 'إعدادات الأذونات';
 $a->strings['CC: email addresses'] = 'أرسله إلى عناوين البريد الإلكتروني';
 $a->strings['Public post'] = 'مشاركة علنية';
 $a->strings['Set title'] = 'عين العنوان';
-$a->strings['Categories (comma-separated list)'] = 'فئات (قائمة مقسمة بفاصلة)';
+$a->strings['Categories (comma-separated list)'] = 'الفئات (قائمة مفصولة بفاصلة)';
 $a->strings['Example: bob@example.com, mary@example.com'] = 'مثل: bob@example.com, mary@example.com';
 $a->strings['Preview'] = 'معاينة';
 $a->strings['Cancel'] = 'ألغ';
-$a->strings['Message'] = 'رسالة';
-$a->strings['Browser'] = 'متصفح';
-$a->strings['Permissions'] = 'أُذون';
-$a->strings['Open Compose page'] = 'افتح صفحة التأليف';
+$a->strings['Message'] = 'الرسالة';
+$a->strings['Browser'] = 'المتصفح';
+$a->strings['Permissions'] = 'الأُذونات';
+$a->strings['Open Compose page'] = 'افتح صفحة الإنشاء';
 $a->strings['Event can not end before it has started.'] = 'لا يمكن أن ينتهي الحدث قبل أن يبدأ.';
 $a->strings['Event title and start time are required.'] = 'عنوان الحدث و وقت بدئه إلزاميان.';
-$a->strings['Create New Event'] = 'أنشئ حدثاً جديد';
+$a->strings['Create New Event'] = 'أنشئ حدثاً جديدًا';
 $a->strings['Event details'] = 'تفاصيل الحدث';
 $a->strings['Starting date and Title are required.'] = 'تاريخ البدء والعنوان إلزاميان.';
 $a->strings['Event Starts:'] = 'يبدأ الحدث في:';
@@ -142,26 +89,26 @@ $a->strings['Share this event'] = 'شارك هذا الحدث';
 $a->strings['Submit'] = 'أرسل';
 $a->strings['Basic'] = 'أساسي';
 $a->strings['Advanced'] = 'متقدم';
-$a->strings['Failed to remove event'] = 'فشلت إزالت الحدث';
+$a->strings['Failed to remove event'] = 'فشلت إزالة الحدث';
 $a->strings['Photos'] = 'الصور';
 $a->strings['Upload'] = 'ارفع';
 $a->strings['Files'] = 'الملفات';
 $a->strings['Submit Request'] = 'أرسل الطلب';
-$a->strings['You already added this contact.'] = 'لقد أضفت هذا المتراسل بالفعل.';
+$a->strings['You already added this contact.'] = 'أضفت هذا المتراسل سلفًا.';
 $a->strings['The network type couldn\'t be detected. Contact can\'t be added.'] = 'تعذر اكتشاف نوع الشبكة. لا يمكن إضافة المتراسل.';
 $a->strings['Diaspora support isn\'t enabled. Contact can\'t be added.'] = 'دعم دياسبورا غير مفعل. لا يمكن إضافة المتراسل.';
 $a->strings['OStatus support is disabled. Contact can\'t be added.'] = 'دعم OStatus غير مفعل. لا يمكن إضافة المتراسل.';
 $a->strings['Connect/Follow'] = 'اقترن\تابع';
 $a->strings['Please answer the following:'] = 'من فضلك أجب على ما يلي:';
 $a->strings['Your Identity Address:'] = 'عنوان معرّفك:';
-$a->strings['Profile URL'] = 'رابط الصفحة الشخصية';
+$a->strings['Profile URL'] = 'رابط الملف الشخصي';
 $a->strings['Tags:'] = 'الوسوم:';
 $a->strings['%s knows you'] = '%s يعرفك';
 $a->strings['Add a personal note:'] = 'أضف ملاحظة شخصية:';
-$a->strings['Status Messages and Posts'] = 'رسائل ومشاركات الحالة';
-$a->strings['The contact could not be added.'] = 'لا يمكن إضافة المتراسل.';
+$a->strings['Status Messages and Posts'] = 'مشاركات ورسائل الحالة';
+$a->strings['The contact could not be added.'] = 'تعذر إضافة المتراسل.';
 $a->strings['Unable to locate original post.'] = 'تعذر إيجاد المشاركة الأصلية.';
-$a->strings['Empty post discarded.'] = 'تُجوهلت المشاركة الفارغة.';
+$a->strings['Empty post discarded.'] = 'رُفضت المشاركة الفارغة.';
 $a->strings['Post updated.'] = 'حُدثت المشاركة.';
 $a->strings['Item wasn\'t stored.'] = 'لم يخزن العنصر.';
 $a->strings['Item couldn\'t be fetched.'] = 'تعذر جلب العنصر.';
@@ -214,13 +161,13 @@ $a->strings['
 		اسم الولوج:	%3$s';
 $a->strings['Password reset requested at %s'] = 'طُلب إعادة تعيين كلمة المرور على %s';
 $a->strings['Request could not be verified. (You may have previously submitted it.) Password reset failed.'] = 'تعذر التحقق من الطلب (ربما تكون قد أرسلته مسبقاً). فشلت إعادة تعيين كلمة المرور.';
-$a->strings['Request has expired, please make a new one.'] = 'انتهت صلاحيته، يرجى طلب واحد جديد.';
+$a->strings['Request has expired, please make a new one.'] = 'انتهت صلاحيته، أرسل طلب واحد جديد.';
 $a->strings['Forgot your Password?'] = 'نسيت كلمة المرور؟';
 $a->strings['Enter your email address and submit to have your password reset. Then check your email for further instructions.'] = 'أدخل عنوان بريدك الإلكتروني وأرسله من أجل إعادة تعيين كلمة المرور. بعد ذلك تحقق من بريدك الإلكتروني لمزيد من التعليمات.';
 $a->strings['Nickname or Email: '] = 'اللقب أو البريد الإلكتروني: ';
 $a->strings['Reset'] = 'أعد التعيين';
 $a->strings['Password Reset'] = 'إعادة تعيين كلمة المرور';
-$a->strings['Your password has been reset as requested.'] = 'أُعيذ تعيين كلمة المرور كما طلبت.';
+$a->strings['Your password has been reset as requested.'] = 'أُعيد تعيين كلمة المرور بناء على طلبك.';
 $a->strings['Your new password is'] = 'كلمة مرورك الجديدة هي';
 $a->strings['Save or copy your new password - and then'] = 'احفظ أو انسخ كلمة المرور الجديدة - ثم';
 $a->strings['click here to login'] = 'أنقر هنا للولوج';
@@ -254,22 +201,22 @@ $a->strings['
 			يمكنك تغيير كلمة المرور من صفحة إعدادات الحساب.
 			';
 $a->strings['Your password has been changed at %s'] = 'غُيرت كلمة المرور على %s';
-$a->strings['No keywords to match. Please add keywords to your profile.'] = 'لا توجد كلمات مفتاحية لمطابقتها. من فضلك أضاف كلمات مفتاحية إلى ملفك الشخصي.';
+$a->strings['No keywords to match. Please add keywords to your profile.'] = 'لا توجد كلمات مفتاحية لمطابقتها. من فضلك أضف كلمات مفتاحية إلى ملفك الشخصي.';
 $a->strings['No matches'] = 'لا تطابق';
 $a->strings['Profile Match'] = 'الملفات الشخصية المطابقة';
 $a->strings['New Message'] = 'رسالة جديدة';
 $a->strings['No recipient selected.'] = 'لم تختر متلقيا.';
 $a->strings['Unable to locate contact information.'] = 'تعذر العثور على معلومات المتراسل.';
-$a->strings['Message could not be sent.'] = 'تعذر ارسال الرسالة.';
+$a->strings['Message could not be sent.'] = 'تعذر إرسال الرسالة.';
 $a->strings['Message collection failure.'] = 'فشل جمع الرسائل.';
-$a->strings['Discard'] = 'تجاهل';
-$a->strings['Messages'] = 'رسائل';
+$a->strings['Discard'] = 'ارفض';
+$a->strings['Messages'] = 'الرسائل';
 $a->strings['Conversation not found.'] = 'لم يُعثر على المُحادثة.';
 $a->strings['Message was not deleted.'] = 'لم تحذف الرسالة.';
-$a->strings['Conversation was not removed.'] = 'لم تزل المحادثة.';
-$a->strings['Please enter a link URL:'] = 'يرجى ادخال عنوان الرابط:';
+$a->strings['Conversation was not removed.'] = 'لم تُزل المحادثة.';
+$a->strings['Please enter a link URL:'] = 'يرجى إدخال الرابط:';
 $a->strings['Send Private Message'] = 'أرسل رسالة خاصة';
-$a->strings['To:'] = 'الى:';
+$a->strings['To:'] = 'إلى:';
 $a->strings['Subject:'] = 'الموضوع:';
 $a->strings['Your message:'] = 'رسالتك:';
 $a->strings['No messages.'] = 'لا رسائل.';
@@ -292,9 +239,9 @@ $a->strings['%d message'] = [
 ];
 $a->strings['Personal Notes'] = 'ملاحظات شخصية';
 $a->strings['Personal notes are visible only by yourself.'] = 'الملاحظات الشخصية مرئية لك فقط.';
-$a->strings['Subscribing to contacts'] = 'يشتراك في متراسلين';
+$a->strings['Subscribing to contacts'] = 'يشترك في متراسلين';
 $a->strings['No contact provided.'] = 'لم يُقدم متراسلين.';
-$a->strings['Couldn\'t fetch information for contact.'] = 'تعذر جلب معلومات التمراسل.';
+$a->strings['Couldn\'t fetch information for contact.'] = 'تعذر جلب معلومات المتراسل.';
 $a->strings['Couldn\'t fetch friends for contact.'] = 'تعذر جلب أصدقاء المتراسل.';
 $a->strings['Couldn\'t fetch following contacts.'] = 'تعذر جلب متابِعي المتراسل.';
 $a->strings['Couldn\'t fetch remote profile.'] = 'تعذر جلب الملف الشخصي البعيد.';
@@ -302,7 +249,7 @@ $a->strings['Unsupported network'] = 'شبكة غير مدعومة';
 $a->strings['Done'] = 'تم';
 $a->strings['success'] = 'نجح';
 $a->strings['failed'] = 'فشل';
-$a->strings['ignored'] = 'تجاهل';
+$a->strings['ignored'] = 'متجاهل';
 $a->strings['Keep this window open until done.'] = 'أبق هذه النافذة مفتوحة حتى ينتهي.';
 $a->strings['Photo Albums'] = 'ألبومات الصور';
 $a->strings['Recent Photos'] = 'الصور الأخيرة';
@@ -367,14 +314,15 @@ $a->strings['View Album'] = 'اعرض الألبوم';
 $a->strings['{0} wants to be your friend'] = '{0} يريد أن يكون صديقك';
 $a->strings['{0} requested registration'] = '{0} طلب التسجيل';
 $a->strings['{0} and %d others requested registration'] = '{0} و %d يطلبون التسجيل';
-$a->strings['Bad Request.'] = 'طلب خاطئ';
+$a->strings['Bad Request.'] = 'طلب خاطئ.';
 $a->strings['Contact not found.'] = 'لم يُعثر على المتراسل.';
+$a->strings['[Friendica System Notify]'] = '[Friendica System Notify]';
 $a->strings['User deleted their account'] = 'حذف المستخدم حسابه';
 $a->strings['On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'] = 'حذف مستخدم حسابه على عقدة فرَندِكا خاصتك. من فضلك تأكد أن بياناتهم أُزيلت من النسخ الاحتياطية.';
 $a->strings['The user id is %d'] = 'معرف المستخدم هو %d';
 $a->strings['Remove My Account'] = 'أزل حسابي';
 $a->strings['This will completely remove your account. Once this has been done it is not recoverable.'] = 'سيزيل حسابك كليا. لا مجال لتراجع عند انتهائه.';
-$a->strings['Please enter your password for verification:'] = 'يرجى ادخال كلمة المرور لتأكيد:';
+$a->strings['Please enter your password for verification:'] = 'يرجى إدخال كلمة المرور لتأكيد:';
 $a->strings['Resubscribing to OStatus contacts'] = 'يعيد الاشتراك في متراسلي OStatus';
 $a->strings['Error'] = [
 	0 => 'لا أخطاء',
@@ -392,13 +340,13 @@ $a->strings['Passwords do not match.'] = 'كلمتا المرور غير متط�
 $a->strings['Password update failed. Please try again.'] = 'فشل تحديث كلمة المرور. من فضلك أعد المحاولة.';
 $a->strings['Password changed.'] = 'غُيّرت كلمة المرور.';
 $a->strings['Password unchanged.'] = 'لم تُغير كلمة المرور.';
-$a->strings['Please use a shorter name.'] = 'يرجى إستخدام اسم أقصر.';
+$a->strings['Please use a shorter name.'] = 'يرجى استخدام اسم أقصر.';
 $a->strings['Name too short.'] = 'الاسم قصير جداً.';
 $a->strings['Wrong Password.'] = 'كلمة مرور خاطئة.';
-$a->strings['Invalid email.'] = 'البريد الالكتروني غير صالح.';
+$a->strings['Invalid email.'] = 'البريد الإلكتروني غير صالح.';
 $a->strings['Cannot change to that email.'] = 'لا يمكن التغيير إلى هذا البريد الإلكتروني.';
-$a->strings['Private forum has no privacy permissions. Using default privacy group.'] = 'المنتدى الخاص ليس لديه أذون الخصوصية. يستخدم مجموعة الخصوصية الافتراضية.';
-$a->strings['Private forum has no privacy permissions and no default privacy group.'] = 'المنتدى الخاص ليس لديه أذون الخصوصية ولا مجموعة خصوصية افتراضية.';
+$a->strings['Private forum has no privacy permissions. Using default privacy group.'] = 'المنتدى الخاص ليس لديه أذونات خصوصية. يستخدم مجموعة الخصوصية الافتراضية.';
+$a->strings['Private forum has no privacy permissions and no default privacy group.'] = 'المنتدى الخاص ليس لديه أذونات خصوصية ولا مجموعة خصوصية افتراضية.';
 $a->strings['Settings were not updated.'] = 'لم تُحدث الإعدادات.';
 $a->strings['Connected Apps'] = 'التطبيقات المتصلة';
 $a->strings['Name'] = 'الاسم';
@@ -415,7 +363,7 @@ $a->strings['disabled'] = 'معطل';
 $a->strings['Built-in support for %s connectivity is %s'] = 'دعم مدمج لـ %s باتصال %s';
 $a->strings['OStatus (GNU Social)'] = 'OStatus (GNU Social)';
 $a->strings['Email access is disabled on this site.'] = 'الوصول إلى البريد الإلكتروني معطل في هذا الموقع.';
-$a->strings['None'] = 'لا شيﺀ';
+$a->strings['None'] = 'لا شيء';
 $a->strings['Social Networks'] = 'الشبكات الاجتماعية';
 $a->strings['General Social Media Settings'] = 'إعدادات وسائل التواصل الاجتماعي العامة';
 $a->strings['Accept only top level posts by contacts you follow'] = 'قبول المشاركات الأصلية للمتراسلين الذين تتابعهم';
@@ -430,13 +378,13 @@ $a->strings['When activated, the title of the attached link will be added as a t
 $a->strings['Your legacy ActivityPub/GNU Social account'] = 'حساب GNU Social\ActivityPub القديم خاصتك';
 $a->strings['If you enter your old account name from an ActivityPub based system or your GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.'] = 'إذا قمت بإدخال اسم حساب ActivityPub/GNU Social/Statusnet القديم هنا (بنسق user@domain.tld)، سيضاف متراسلوك في هذا الحساب تلقائيا. سيصفر الحقل عند الانتهاء.';
 $a->strings['Repair OStatus subscriptions'] = 'أصلح اشتراكات OStatus';
-$a->strings['Email/Mailbox Setup'] = 'تثبيت بريد الكتروني/صندوق بريد';
+$a->strings['Email/Mailbox Setup'] = 'إعداد بريد الكتروني/صندوق بريد';
 $a->strings['If you wish to communicate with email contacts using this service (optional), please specify how to connect to your mailbox.'] = 'إذا كنت ترغب في التواصل مع متراسلي البريد الإلكتروني باستخدام هذه الخدمة (اختيارية)، من فضلك حدد كيفية الاتصال بصندوق بريدك.';
 $a->strings['Last successful email check:'] = 'آخر تحقق ناجح للبريد الإلكتروني:';
 $a->strings['IMAP server name:'] = 'اسم خادم IMAP:';
 $a->strings['IMAP port:'] = 'منفذ IMAP:';
 $a->strings['Security:'] = 'الحماية:';
-$a->strings['Email login name:'] = 'اسم الولوج للبريد الالكتروني:';
+$a->strings['Email login name:'] = 'اسم الولوج للبريد الإلكتروني:';
 $a->strings['Email password:'] = 'كلمة مرور البريد الإلكتروني:';
 $a->strings['Reply-to address:'] = 'الرد على عنوان:';
 $a->strings['Send public posts to all email contacts:'] = 'أرسل المشاركات العلنية لجميع متراسلي البريد الإلكتروني:';
@@ -453,12 +401,13 @@ $a->strings['Account for a personal profile.'] = 'حساب ملف شخصي خا�
 $a->strings['Organisation Page'] = 'صفحة منظمة';
 $a->strings['Account for an organisation that automatically approves contact requests as "Followers".'] = 'حساب المنظمة يوافق تلقائياً على طلبات المراسلة "كمتابعين".';
 $a->strings['News Page'] = 'صفحة إخبارية';
+$a->strings['Account for a news reflector that automatically approves contact requests as "Followers".'] = 'حساب إخباري يوافق تلقائياً على طلبات المراسلة "كمتابعين".';
 $a->strings['Community Forum'] = 'منتدى مجتمعي';
 $a->strings['Account for community discussions.'] = 'حساب مناقشات مجتمعية.';
 $a->strings['Normal Account Page'] = 'صفحة حساب عادي';
 $a->strings['Account for a regular personal profile that requires manual approval of "Friends" and "Followers".'] = 'حساب ملف شخصي عادي يتطلب الموافقة اليدوية على "الأصدقاء" و "المتابعين".';
 $a->strings['Soapbox Page'] = 'صفحة سياسي';
-$a->strings['Account for a public profile that automatically approves contact requests as "Followers".'] = 'حساب ملف شخصي عمومي يوافق تلقائياً على طلبات المراسلة "كمتابعين".';
+$a->strings['Account for a public profile that automatically approves contact requests as "Followers".'] = 'حساب شخصي علني يوافق تلقائياً على طلبات المراسلة "كمتابعين".';
 $a->strings['Public Forum'] = 'منتدى عمومي';
 $a->strings['Automatically approves all contact requests.'] = 'الموافقة تلقائياً على جميع طلبات المراسلة.';
 $a->strings['Automatic Friend Page'] = 'صفحة تصادق تلقائي';
@@ -468,13 +417,13 @@ $a->strings['Requires manual approval of contact requests.'] = 'يتطلب ال�
 $a->strings['OpenID:'] = 'OpenID:';
 $a->strings['(Optional) Allow this OpenID to login to this account.'] = '(اختياري) اسمح لمعرف OpenID بالولوج إلى هذا الحساب.';
 $a->strings['Publish your profile in your local site directory?'] = 'أتريد نشر ملفك الشخصي في الدليل المحلي للموقع؟';
-$a->strings['Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.'] = 'سيتشر ملفك الشخصي في <a href="%s"> الدليل المحلي</a> لهذه العقدة. تعتمد خصوصية معلوماتك على إعدادات النظام.';
-$a->strings['Your profile will also be published in the global friendica directories (e.g. <a href="%s">%s</a>).'] = 'سينشر ملفك الشخصي كذلك في الأدلة العالمية لفرَندِكا (مثال <a href="%s">%s</a>).';
+$a->strings['Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.'] = 'سينشر ملفك الشخصي في <a href="%s"> الدليل المحلي</a> لهذه العقدة. تعتمد خصوصية معلوماتك على إعدادات النظام.';
+$a->strings['Your profile will also be published in the global friendica directories (e.g. <a href="%s">%s</a>).'] = 'سينشر ملفك الشخصي كذلك في الأدلة العالمية لفرَندِيكا (مثال <a href="%s">%s</a>).';
 $a->strings['Your Identity Address is <strong>\'%s\'</strong> or \'%s\'.'] = 'عنوان معرفك هو <strong>\'%s\'</strong> أو \'%s\'.';
 $a->strings['Account Settings'] = 'إعدادات الحساب';
 $a->strings['Password Settings'] = 'إعدادات كلمة المرور';
 $a->strings['New Password:'] = 'كلمة المرور الجديدة:';
-$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'المحارف المسموح بها هي a-z، A-Z، 0-9 والأحرف الخاصة باستثناء المساحات، الأحرف المنبورة والكولون (:).';
+$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'المحارف المسموح بها هي a-z، A-Z، 0-9 والأحرف الخاصة باستثناء المساحات، الأحرف المنبورة ونقطتي التفسير (:).';
 $a->strings['Confirm:'] = 'التأكيد:';
 $a->strings['Leave password fields blank unless changing'] = 'اترك حقول كلمة المرور فارغة ما لم ترد تغييرها';
 $a->strings['Current Password:'] = 'كلمة المرور الحالية:';
@@ -484,7 +433,7 @@ $a->strings['Your current password to confirm the changes of the email address']
 $a->strings['Delete OpenID URL'] = 'احذف رابط OpenID';
 $a->strings['Basic Settings'] = 'الإعدادات الأساسيّة';
 $a->strings['Full Name:'] = 'الاسم الكامل:';
-$a->strings['Email Address:'] = 'البريد الالكتروني:';
+$a->strings['Email Address:'] = 'البريد الإلكتروني:';
 $a->strings['Your Timezone:'] = 'المنطقة الزمنية:';
 $a->strings['Your Language:'] = 'لغتك:';
 $a->strings['Set the language we use to show you friendica interface and to send you emails'] = 'عيّن اللغة واجهة فرَندِكا ورسائل البريد الإلكتروني';
@@ -500,16 +449,17 @@ $a->strings['A list of your contacts is displayed on your profile page. Activate
 $a->strings['Hide your profile details from anonymous viewers?'] = 'اخف معلومات ملفك الشخص عن المتصفحين المجهولين؟';
 $a->strings['Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.'] = 'سيرى الزوار المجهولون صورة ملفك الشخصي واسمك العلني ولقبك. وستظل مشاركتك العامة وردودك متاحة عبر وسائل أخرى.';
 $a->strings['Make public posts unlisted'] = 'لا تدرج المشاركات العلنية';
-$a->strings['Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.'] = 'لن تظهر مشاركتك العامومية على صفحات المجتمع أو في نتائج البحث، ولن يتم إرسالها إلى خوادم الترحيل. بيد أنها لا تزال تظهر في التغذية العامومية للخوادم البعيدة.';
+$a->strings['Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.'] = 'لن تظهر مشاركتك العلنية على صفحات المجتمع أو في نتائج البحث، ولن يتم إرسالها إلى خوادم الترحيل. بيد أنها لا تزال تظهر في التغذية العمومية للخوادم البعيدة.';
 $a->strings['Make all posted pictures accessible'] = 'أتح كل الصور المنشورة';
-$a->strings['This option makes every posted picture accessible via the direct link. This is a workaround for the problem that most other networks can\'t handle permissions on pictures. Non public pictures still won\'t be visible for the public on your photo albums though.'] = 'يسمح هذا الخيار بالوصول للصورة المنشورة عبر رابط مباشر. هذا حل لمعظم الشبكات التي لا يمكنها التعامل مع الأذون. صورك غير العلنية ستبقى مخفية.';
+$a->strings['This option makes every posted picture accessible via the direct link. This is a workaround for the problem that most other networks can\'t handle permissions on pictures. Non public pictures still won\'t be visible for the public on your photo albums though.'] = 'يسمح هذا الخيار بالوصول للصورة المنشورة عبر رابط مباشر. هذا حل لمعظم الشبكات التي لا يمكنها التعامل مع الأذونات. صورك غير العلنية ستبقى مخفية.';
 $a->strings['Allow friends to post to your profile page?'] = 'أتسمح لأصدقائك بالنشر في صفحة ملفك الشخصي؟';
+$a->strings['Your contacts may write posts on your profile wall. These posts will be distributed to your contacts'] = 'يمكن لمتراسليك كتابة مشاركات على حائط ملفك الشخصي. ستكون هذه المشركات مرئية لمتراسليك';
 $a->strings['Allow friends to tag your posts?'] = 'أتسمح لأصدقائك بوسم مشاركاتك؟';
 $a->strings['Your contacts can add additional tags to your posts.'] = 'يمكن لأصدقائك إضافة وسوم لمشاركاتك.';
 $a->strings['Permit unknown people to send you private mail?'] = 'أتسمح لأشخاص مجهولين بإرسال بريد خاص لك؟';
 $a->strings['Friendica network users may send you private messages even if they are not in your contact list.'] = 'يمكن لمستخدمي شبكة فرَندِكا إرسال رسائل خاصة لك حتى إن لم يكونوا في قائمة متراسليك.';
 $a->strings['Maximum private messages per day from unknown people:'] = 'حد الرسائل اليومي المستلمة من مجهولين:';
-$a->strings['Default Post Permissions'] = 'أذون النشر الافتراضية';
+$a->strings['Default Post Permissions'] = 'أذونات النشر الافتراضية';
 $a->strings['Expiration settings'] = 'إعدادات انتهاء الصلاحية';
 $a->strings['Automatically expire posts after this many days:'] = 'أنهي صلاحية المشاركات تلقائياً بعد هذا العدد من الأيام:';
 $a->strings['If empty, posts will not expire. Expired posts will be deleted'] = 'إذا كان فارغاً، لن تنتهي صلاحية المشاركات. وإلا بعد المهلة ستحذف المشاركات المنتهية صلاحيتها';
@@ -524,12 +474,12 @@ $a->strings['When activated, photos will be expired.'] = 'عند تفعيله، 
 $a->strings['Only expire posts by others'] = 'أنهي صلاحية مشاركات الآخرين فقط';
 $a->strings['When activated, your own posts never expire. Then the settings above are only valid for posts you received.'] = 'عند تفعيله، لا نهاية لصلاحية مشاركاتك. ثم تكون الإعدادات أعلاه صالحة فقط للمشاركات التي استلمتها.';
 $a->strings['Notification Settings'] = 'إعدادات التنبيهات';
-$a->strings['Send a notification email when:'] = 'أرسل تنبيها لبريدي الإلكتروتي عند:';
+$a->strings['Send a notification email when:'] = 'أرسل تنبيها للبريدي الإلكتروني عند:';
 $a->strings['You receive an introduction'] = 'تلقيت تقديما';
 $a->strings['Your introductions are confirmed'] = 'أُكدت تقديماتك';
 $a->strings['Someone writes on your profile wall'] = 'يكتب شخص ما على جدار ملفك الشخصي';
 $a->strings['Someone writes a followup comment'] = 'يكتب شخص ما تعليق متابعة';
-$a->strings['You receive a private message'] = 'تلقيت رسالت خاصة';
+$a->strings['You receive a private message'] = 'تلقيت رسالة خاصة';
 $a->strings['You receive a friend suggestion'] = 'تلقيت اقتراح صديق';
 $a->strings['You are tagged in a post'] = 'ذُكرتَ في مشاركة';
 $a->strings['Create a desktop notification when:'] = 'أنشئ تنبيه سطح المكتب عند:';
@@ -538,11 +488,11 @@ $a->strings['Someone shared your content'] = 'شارك شخص محتواك';
 $a->strings['Activate desktop notifications'] = 'مكن تنبيهات سطح المكتب';
 $a->strings['Show desktop popup on new notifications'] = 'أظهر منبثقات للتنبيهات الجديدة';
 $a->strings['Text-only notification emails'] = 'رسائل تنبيهية كنص فقط';
-$a->strings['Send text only notification emails, without the html part'] = 'أرسال بريد التنبيه كنص فقط، بدون وسوم html';
+$a->strings['Send text only notification emails, without the html part'] = 'أرسل بريد التنبيه كنص فقط، بدون وسوم html';
 $a->strings['Show detailled notifications'] = 'اعرض تنبيهات مفصلة';
 $a->strings['Per default, notifications are condensed to a single notification per item. When enabled every notification is displayed.'] = 'افتراضيًا، تُجمع التنبيهات في تنبيه واحد لكل عنصر. عند تمكينه ستُعرض كل التنبيهات.';
 $a->strings['Show notifications of ignored contacts'] = 'أظهر تنبيهات للمتراسلين المتجاهلين';
-$a->strings['You don\'t see posts from ignored contacts. But you still see their comments. This setting controls if you want to still receive regular notifications that are caused by ignored contacts or not.'] = 'أنت لا ترى مشاركات المنراسلين المتجاهلين. لكن لا يزال بإمكانك رؤية تعليقاتهم. هذا الإعداد يتحكم إذا كنت ترغب في الاستمرار في تلقي تنبيهات سببها المتراسلون المتجاهلون.';
+$a->strings['You don\'t see posts from ignored contacts. But you still see their comments. This setting controls if you want to still receive regular notifications that are caused by ignored contacts or not.'] = 'أنت لا ترى مشاركات المتراسلين المتجاهلين. لكن لا يزال بإمكانك رؤية تعليقاتهم. هذا الإعداد يتحكم إذا كنت ترغب في الاستمرار في تلقي تنبيهات سببها المتراسلون المتجاهلون.';
 $a->strings['Advanced Account/Page Type Settings'] = 'إعدادات الحساب المتقدمة/نوع الصفحة';
 $a->strings['Change the behaviour of this account for special situations'] = 'غيّر سلوك هذا الحساب للحالات الخاصة';
 $a->strings['Import Contacts'] = 'استيراد متراسلين';
@@ -565,6 +515,7 @@ $a->strings['Import'] = 'استورد';
 $a->strings['Move account'] = 'أنقل الحساب';
 $a->strings['You can import an account from another Friendica server.'] = 'يمكنك استيراد حساب من خادم فرَندِكا آخر.';
 $a->strings['You need to export your account from the old server and upload it here. We will recreate your old account here with all your contacts. We will try also to inform your friends that you moved here.'] = 'تحتاج إلى تصدير حسابك من الخادم القديم ورفعه هنا. سوف نقوم بإعادة إنشاء حسابك القديم هنا مع إضافة كل متراسليك. سوف نحاول أيضًا إبلاغهم أنك انتقلت إلى هنا.';
+$a->strings['This feature is experimental. We can\'t import contacts from the OStatus network (GNU Social/Statusnet) or from Diaspora'] = 'هذه الميزة تجريبية. لا يمكن استيراد متراسلين من شبكة OStatus (GNU Social/Statusnet) أو من شبكة Diaspora';
 $a->strings['Account file'] = 'ملف الحساب';
 $a->strings['To export your account, go to "Settings->Export your personal data" and select "Export account"'] = 'لتصدير حسابك، انتقل إلى "إعدادات-> صدر بياناتك الشخصية" واختر "صدر الحساب"';
 $a->strings['You aren\'t following this contact.'] = 'لا تتابع هذا المتراسل.';
@@ -589,7 +540,7 @@ $a->strings['Delete this item?'] = 'أتريد حذف العنصر؟';
 $a->strings['Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'] = 'أتريد حظر هذا المتراسل؟ لن يتمكن من متابعتك أو رؤية مشاركاتك العمومية، ولن تكون قادراً على رؤية مشاركاتهم واستلام تنبيهات عنهم.';
 $a->strings['toggle mobile'] = 'بدّل واجهة الهاتف';
 $a->strings['Method not allowed for this module. Allowed method(s): %s'] = 'هذه الطريقة غير مسموح بها لهذه الوحدة. الطرق المسموح بها: %s';
-$a->strings['Page not found.'] = 'لم يتم العثور على الصفحة.';
+$a->strings['Page not found.'] = 'لم يُعثر على الصفحة.';
 $a->strings['The form security token was not correct. This probably happened because the form has been opened for too long (>3 hours) before submitting it.'] = 'رمز الأمان للنموذج غير صحيح. ربما لأن النموذج فُتح لفترة طويلة (أكثر من 3 ساعات) قبل تقديمه.';
 $a->strings['All contacts'] = 'كل المتراسلين';
 $a->strings['Followers'] = 'متابِعون';
@@ -705,6 +656,7 @@ $a->strings['General Features'] = 'الميّزات العامة';
 $a->strings['Photo Location'] = 'موقع الصورة';
 $a->strings['Photo metadata is normally stripped. This extracts the location (if present) prior to stripping metadata and links it to a map.'] = 'عادة ما تتم إزالة البيانات الوصفية للصور. هذا يجعل من الممكن حفظ الموقع (قبل إزالة البيانات) ووضع الصورة على الخريطة.';
 $a->strings['Trending Tags'] = 'الوسوم الشائعة';
+$a->strings['Show a community page widget with a list of the most popular tags in recent public posts.'] = 'أظهر ودجة صفحة المجتمع تحوي قائمة الوسوم المتداولة في المشاركات العلنية الأخيرة.';
 $a->strings['Post Composition Features'] = 'مميزات إنشاء المشاركة';
 $a->strings['Auto-mention Forums'] = 'ذكر المنتديات تلقائيا';
 $a->strings['Explicit Mentions'] = 'ذِكر صريح';
@@ -749,8 +701,8 @@ $a->strings['Your posts and conversations'] = 'مشاركاتك ومحادثات
 $a->strings['Profile'] = 'الملف شخصي';
 $a->strings['Your profile page'] = 'صفحة ملفك الشخصي';
 $a->strings['Your photos'] = 'صورك';
-$a->strings['Videos'] = 'الفيديوهات';
-$a->strings['Your videos'] = 'فيديوهاتك';
+$a->strings['Media'] = 'الوسائط';
+$a->strings['Your postings with media'] = 'مشاركاتك التي تحوي وسائط';
 $a->strings['Your events'] = 'أحداثك';
 $a->strings['Personal notes'] = 'الملاحظات الشخصية';
 $a->strings['Your personal notes'] = 'ملاحظاتك الشخصية';
@@ -858,9 +810,9 @@ $a->strings['Export calendar as ical'] = 'صدّر الرزنامة كملف ica
 $a->strings['Export calendar as csv'] = 'صدّر الرزنامة كملف csv';
 $a->strings['No contacts'] = 'لا متراسلين';
 $a->strings['%d Contact'] = [
-	0 => 'لا متراسلين',
-	1 => 'متراسل واحد',
-	2 => 'متراسلان',
+	0 => 'لا متراسلين %d',
+	1 => 'متراسل %d',
+	2 => 'متراسلان %d',
 	3 => '%d متراسلين',
 	4 => '%d متراسلا',
 	5 => '%d متراسل',
@@ -869,9 +821,9 @@ $a->strings['View Contacts'] = 'اعرض المتراسلين';
 $a->strings['Remove term'] = 'أزل العنصر';
 $a->strings['Saved Searches'] = 'عمليات البحث المحفوظة';
 $a->strings['Trending Tags (last %d hour)'] = [
-	0 => 'الوسوم الشائعة (أقل من ساعة)',
-	1 => 'الوسوم الشائعة (آخر ساعة)',
-	2 => 'الوسوم الشائعة (آخر ساعتين)',
+	0 => 'الوسوم الشائعة (أقل من ساعة %d)',
+	1 => 'الوسوم الشائعة (آخر ساعة %d)',
+	2 => 'الوسوم الشائعة (آخر ساعتين %d)',
 	3 => 'الوسوم الشائعة (آخر %d ساعات)',
 	4 => 'الوسوم الشائعة (آخر %d ساعة)',
 	5 => 'الوسوم الشائعة (آخر %d ساعة)',
@@ -882,6 +834,7 @@ $a->strings['Matrix:'] = 'مايتركس:';
 $a->strings['Network:'] = 'الشبكة:';
 $a->strings['Unfollow'] = 'ألغِ المتابعة';
 $a->strings['Yourself'] = 'أنت';
+$a->strings['Mutuals'] = 'المشتركة';
 $a->strings['Post to Email'] = 'أنشر عبر البريد الإلكتروني';
 $a->strings['Public'] = 'علني';
 $a->strings['This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'] = 'سيتم عرض هذا المحتوى لكل متابِعيك ويمكن مشاهدته في صفحات المجتمع ومن قبل أي شخص عبر الرابط.';
@@ -896,9 +849,18 @@ $a->strings['Please see the file "doc/INSTALL.md".'] = 'يرجى مراجعة م
 $a->strings['PHP executable path'] = 'مسار الملف التنفيذي لـ PHP';
 $a->strings['Enter full path to php executable. You can leave this blank to continue the installation.'] = 'أدخل المسار الكامل للملف التتفيذي لـ php. يمكنك تركه فارغًا لمتابعة التثبيت.';
 $a->strings['Command line PHP'] = 'سطر أوامر PHP';
+$a->strings['PHP executable is not the php cli binary (could be cgi-fgci version)'] = 'ملف PHP التنفيذي ليس ملفًا ثنائيًا (قد يكون إصدار cgi-fcgi)';
 $a->strings['Found PHP version: '] = 'اصدار PHP: ';
+$a->strings['PHP cli binary'] = 'الملف الثنائي لـ PHP';
+$a->strings['The command line version of PHP on your system does not have "register_argc_argv" enabled.'] = 'إصدار سطر أوامر PHP المثبت على النظام ليس مفعلًا فيه "register_argc_argv".';
 $a->strings['If running under Windows, please see "http://www.php.net/manual/en/openssl.installation.php".'] = 'إذا كنت تستعمل ويندوز راجع "http://www.php.net/manual/en/openssl.installation.php".';
 $a->strings['Generate encryption keys'] = 'ولّد مفاتيح التشفير';
+$a->strings['Error: Apache webserver mod-rewrite module is required but not installed.'] = 'خطأ: وحدة mod-rewrite لخادم أباتشي مطلوبة لكنها لم تثبت.';
+$a->strings['Apache mod_rewrite module'] = 'وحدة Apache mod_rewrite';
+$a->strings['Program execution functions'] = 'مهام تنفيذ البرنامج';
+$a->strings['The web installer needs to be able to create a file called "local.config.php" in the "config" folder of your web server and it is unable to do so.'] = 'مثبِت الويب غير قادر على إنشاء ملف "local.config.php" في مجلد "config" التابع للخادم.';
+$a->strings['Please ensure that the connection to the server is secure.'] = 'يرجى التأكد من أن الاتصال بالخادم آمن.';
+$a->strings['ImageMagick supports GIF'] = 'ImageMagick يدعم GIF';
 $a->strings['Database already in use.'] = 'قاعدة البيانات قيد الاستخدام.';
 $a->strings['Could not connect to database.'] = 'يتعذر الاتصال بقاعدة البيانات.';
 $a->strings['Monday'] = 'الإثنين';
@@ -942,9 +904,13 @@ $a->strings['poke'] = 'ألكز';
 $a->strings['poked'] = 'لُكز';
 $a->strings['slap'] = 'اصفع';
 $a->strings['slapped'] = 'صُفع';
-$a->strings['Friendica can\'t display this page at the moment, please contact the administrator.'] = 'لا يمكن لفرَندِكا عرض هذه الصفحة حاليا، رجاء اتصل بالمدير.';
+$a->strings['Friendica can\'t display this page at the moment, please contact the administrator.'] = 'لا يمكن لفرَندِيكا عرض هذه الصفحة حاليا، رجاء اتصل بالمدير.';
 $a->strings['template engine cannot be registered without a name.'] = 'لا يمكن تسجيل محرك القوالب بدون اسم.';
 $a->strings['template engine is not registered!'] = 'لم يسجل محرك القوالب!';
+$a->strings['Updates from version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.'] = 'التحديثات التلقائية غير مدعومة من الإصدار %s. يرجى التحديث يدويًا إلى الإصدار 2021.01 وانتظر تحديث البيانات للوصول إلى الإصدار 1383.';
+$a->strings['Updates from postupdate version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.'] = 'التحديث التلقائي للبيانات من الإصدار %s غير مدعوم. يرجى التحديث يدويًا إلى الإصدار 2021.01 وانتظر تحديث البيانات للوصول إلى الإصدار 1383.';
+$a->strings['%s: executing pre update %d'] = '%s: ينفذ التحديث الاستباقي %d';
+$a->strings['%s: executing post update %d'] = '%s: ينفذ تحديث البيانات %d';
 $a->strings['Update %s failed. See error logs.'] = 'فشل تحديث %s. راجع سجل الأخطاء.';
 $a->strings['
 				The friendica developers released update %s recently,
@@ -959,12 +925,13 @@ $a->strings['The error message is\n[pre]%s[/pre]'] = 'رسالة الخطأ\n[pr
 $a->strings['[Friendica Notify] Database update'] = '[تنبيهات فرنديكا] تحديث قاعدة البيانات';
 $a->strings['
 					The friendica database was successfully updated from %s to %s.'] = '
-					حُدثت قاعدة البيانات بنجاح من الاصدار %s الى %s.';
+					حُدثت قاعدة البيانات بنجاح من الإصدار %s إلى %s.';
 $a->strings['Error decoding account file'] = 'خطأ أثناء فك ترميز ملف الحساب';
+$a->strings['Error! No version data in file! This is not a Friendica account file?'] = 'خطأ! لا توجد بيانات إصدار في الملف! هذا ليس ملف شخصي؟';
 $a->strings['User \'%s\' already exists on this server!'] = 'المستخدم \'%s\' موجود مسبقًا على هذا الخادم!';
 $a->strings['User creation error'] = 'خطأ في إنشاء المستخدم';
 $a->strings['%d contact not imported'] = [
-	0 => 'عدد المتراسيلن غير المستوردين هو %d',
+	0 => 'عدد المتراسلين غير المستوردين هو %d',
 	1 => 'لم يستورد متراسل واحد %d',
 	2 => 'لم يستورد متراسلان %d',
 	3 => 'لم يستورد %d متراسلين',
@@ -973,37 +940,68 @@ $a->strings['%d contact not imported'] = [
 ];
 $a->strings['User profile creation error'] = 'خطأ في إنشاء الملف الشخصي للمستخدم';
 $a->strings['Done. You can now login with your username and password'] = 'تم. يمكنك الآن الولوج باستخدام اسم المستخدم وكلمة المرور';
-$a->strings['The database version had been set to %s.'] = 'عُين إصدار قاعدة البيانات الى %s.';
+$a->strings['The database version had been set to %s.'] = 'عُين إصدار قاعدة البيانات إلى %s.';
+$a->strings['The post update is at version %d, it has to be at %d to safely drop the tables.'] = 'تحديث البيانات هو إصدار %d، لكن يجب أن يكون إصدار %d لتتمكن من حذف الجداول بأمان.';
+$a->strings['No unused tables found.'] = 'لم يُعثر على جداول غير مستعملة.';
+$a->strings['These tables are not used for friendica and will be deleted when you execute "dbstructure drop -e":'] = 'فرنديكا لا تستخدم هذه الجداول يمكنك حذفها بتنفيذ "dbstructure drop -e":';
+$a->strings['There are no tables on MyISAM or InnoDB with the Antelope file format.'] = 'لا توجد جداول MyISAM أو InnoDB بتنسيق ملف Antelope.';
+$a->strings['
+Error %d occurred during database update:
+%s
+'] = '
+حدث خطأ %d أثناء تحديث قاعدة البيانات:
+%s
+';
+$a->strings['Errors encountered performing database changes: '] = 'حدثت أخطاء أثناء تحديث قاعدة البيانات: ';
+$a->strings['Another database update is currently running.'] = 'تحديث آخر لقاعدة البيانات قيد التشغيل.';
 $a->strings['%s: Database update'] = '%s: تحديث قاعدة البيانات';
 $a->strings['%s: updating %s table.'] = '%s يحدث %s جدول.';
+$a->strings['Record not found'] = 'لم يُعثر على التسجيل';
+$a->strings['Unprocessable Entity'] = 'كيان غير قابل للمعالجة';
 $a->strings['Unauthorized'] = 'لم يخوّل';
 $a->strings['Internal Server Error'] = 'خطأ داخلي في الخادم';
+$a->strings['Legacy module file not found: %s'] = 'لم يُعثر على ملف الوحدة القديم: %s';
 $a->strings['UnFollow'] = 'ألغِ المتابعة';
-$a->strings['Approve'] = 'إقرار';
+$a->strings['Approve'] = 'موافق';
 $a->strings['Organisation'] = 'المنظّمة';
 $a->strings['Forum'] = 'المنتدى';
 $a->strings['Disallowed profile URL.'] = 'رابط الملف الشخصي غير مسموح.';
 $a->strings['Blocked domain'] = 'نطاق المحجوب';
 $a->strings['Connect URL missing.'] = 'رابط الاتصال مفقود.';
+$a->strings['The contact could not be added. Please check the relevant network credentials in your Settings -> Social Networks page.'] = 'تعذر إضافة المتراسل. تحقق من بيانات اعتماد الشبكة المستهدفة في الإعدادات -> صفحة الشبكات الاجتماعية.';
+$a->strings['The profile address specified does not provide adequate information.'] = 'عنوان الملف الشخصي لا يوفر معلومات كافية.';
+$a->strings['No compatible communication protocols or feeds were discovered.'] = 'لم تكتشف أي موافيق اتصال أو تغذيات متوافقة.';
+$a->strings['No browser URL could be matched to this address.'] = 'لا يوجد رابط تصفح يطابق هذا العنوان.';
+$a->strings['Unable to match @-style Identity Address with a known protocol or email contact.'] = 'غير قادر على مطابقة عنوان المعرف "@" بميفاق معروف أو متراسل بريد إلكتروني.';
+$a->strings['Use mailto: in front of address to force email check.'] = 'استخدم mailto: أمام العنوان للتعرّف عليه كبريد إلكتروني.';
+$a->strings['The profile address specified belongs to a network which has been disabled on this site.'] = 'عنوان الملف الشخصي تابع لشبكة محجوبة في هذا الموقع.';
 $a->strings['Unable to retrieve contact information.'] = 'تعذر جلب معلومات المتراسل.';
 $a->strings['l F d, Y \@ g:i A'] = 'l F d, Y \@ g:i A';
 $a->strings['Starts:'] = 'يبدأ:';
+$a->strings['Finishes:'] = 'ينتهي:';
+$a->strings['all-day'] = 'كل اليوم';
+$a->strings['Sept'] = 'سبتمبر';
+$a->strings['No events to display'] = 'لا توجد أحداث لعرضها';
 $a->strings['Edit event'] = 'حرّر الحدث';
+$a->strings['Duplicate event'] = 'ضاعف الحدث';
 $a->strings['Delete event'] = 'احذف الحدث';
 $a->strings['Show map'] = 'أظهر الخريطة';
-$a->strings['Hide map'] = 'إخف الخريطة';
+$a->strings['Hide map'] = 'اخف الخريطة';
 $a->strings['%s\'s birthday'] = 'عيد ميلاد %s';
 $a->strings['Happy Birthday %s'] = '%s عيد ميلاد سعيد';
+$a->strings['A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.'] = 'تم إحياء مجموعة محذوفة بهذا الاسم. أذونات العنصر الموجودة سبقًا <strong>قد</strong> تنطبق على هذه المجموعة وأي أعضاء في المستقبل. إذا حصل هذا، يرجى إنشاء مجموعة أخرى باسم مختلف.';
+$a->strings['Default privacy group for new contacts'] = 'المجموعة الافتراضية للمتراسلين الجدد';
 $a->strings['Everybody'] = 'الجميع';
 $a->strings['edit'] = 'حرّر';
 $a->strings['add'] = 'أضف';
 $a->strings['Edit group'] = 'حرّر المجموعة';
-$a->strings['Contacts not in any group'] = 'المتراسل لا ينتمي لأي مجموعة';
+$a->strings['Contacts not in any group'] = 'متراسلون لا ينتمون لأي مجموعة';
 $a->strings['Create a new group'] = 'أنشئ مجموعة جديدة';
 $a->strings['Group Name: '] = 'اسم المجموعة: ';
 $a->strings['Edit groups'] = 'حرّر المجموعات';
-$a->strings['Detected languages in this post:\n%s'] = 'اللغات المكتشفي في هذه المشاركة:\n%s';
+$a->strings['Detected languages in this post:\n%s'] = 'اللغات المكتشفة في هذه المشاركة:\n%s';
 $a->strings['activity'] = 'النشاط';
+$a->strings['comment'] = 'تعليق';
 $a->strings['post'] = 'مشاركة';
 $a->strings['Content warning: %s'] = 'تحذير من المحتوى: %s';
 $a->strings['bytes'] = 'بايت';
@@ -1017,15 +1015,17 @@ $a->strings['Atom feed'] = 'تغذية Atom';
 $a->strings['g A l F d'] = 'g A l F d';
 $a->strings['F d'] = 'F d';
 $a->strings['[today]'] = '[today]';
-$a->strings['Birthday Reminders'] = 'تذكيرات أعياد الميلاد';
+$a->strings['Birthday Reminders'] = 'التذكير أبعياد الميلاد';
 $a->strings['Birthdays this week:'] = 'أعياد ميلاد لهذا الأسبوع:';
 $a->strings['[No description]'] = '[No description]';
 $a->strings['Event Reminders'] = 'تذكيرات الأحداث';
 $a->strings['Upcoming events the next 7 days:'] = 'أحداث لهذا الأسبوع:';
+$a->strings['OpenWebAuth: %1$s welcomes %2$s'] = 'OpenWebAuth: %1$s يرحب بـ %2$s';
 $a->strings['Hometown:'] = 'المدينة:';
 $a->strings['Marital Status:'] = 'الحالة الاجتماعية:';
 $a->strings['With:'] = 'مع:';
 $a->strings['Since:'] = 'منذ:';
+$a->strings['Sexual Preference:'] = 'التفضيل الجنسي:';
 $a->strings['Political Views:'] = 'الآراء السياسية:';
 $a->strings['Religious Views:'] = 'الآراء الدينية:';
 $a->strings['Likes:'] = 'تحب:';
@@ -1041,15 +1041,187 @@ $a->strings['Love/romance'] = 'الحب/الرومانسية';
 $a->strings['Work/employment'] = 'العمل/التوظيف';
 $a->strings['School/education'] = 'المدرسة/التعليم';
 $a->strings['Contact information and Social Networks'] = 'معلومات الاتصال وحسابات الشبكات الاجتماعية';
+$a->strings['Storage base path'] = 'المسار الأساسي للتخزين';
+$a->strings['Folder where uploaded files are saved. For maximum security, This should be a path outside web server folder tree'] = 'المجلد حيث تحفظ الملفات المرفوعة. لأقصى قدر من الأمان، يجب أن يكون هذا المسار خارج شجرة مجلد الخادم';
+$a->strings['Enter a valid existing folder'] = 'أدخل مجلد موجود وصالح';
+$a->strings['SERIOUS ERROR: Generation of security keys failed.'] = 'خطأ فاضح: فشل توليد مفاتيح الأمان.';
+$a->strings['Login failed'] = 'فشل الولوج';
+$a->strings['Not enough information to authenticate'] = 'لا توجد معلومات كافية للمصادقة';
+$a->strings['Password can\'t be empty'] = 'لا يمكن أن تكون كلمة المرور فارغة';
+$a->strings['Empty passwords are not allowed.'] = 'لا يسمح بكلمات مرور فارغة.';
+$a->strings['The new password has been exposed in a public data dump, please choose another.'] = 'كلمة المرور الجديدة جزء من تسريب كلمات مرور عام ، يرجى اختيار كلمة مرور مختلفة.';
+$a->strings['The password can\'t contain accentuated letters, white spaces or colons (:)'] = 'لا يمكن أن تحتوي كلمة المرور على أحرف منبورة أو مسافات أو نقطتي تفسير (:)';
+$a->strings['Passwords do not match. Password unchanged.'] = 'كلمتا المرور غير متطابقتين. ولم تغير كلمة المرور.';
+$a->strings['An invitation is required.'] = 'الدعوة اجبارية.';
+$a->strings['Invitation could not be verified.'] = 'تعذر التحقق من الدعوة.';
+$a->strings['Invalid OpenID url'] = 'رابط OpenID عير صالح';
+$a->strings['We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.'] = 'واجهنا مشكلة أثناء الولوج باستخدام OpenID. يرجى التحقق من صحة المعرف.';
 $a->strings['The error message was:'] = 'رسالة الخطأ:';
+$a->strings['Please enter the required information.'] = 'يرجى إدخال المعلومات المطلوبة.';
+$a->strings['Username should be at least %s character.'] = [
+	0 => 'يجب أن لا يقل اسم المستخدم عن %s محرف.',
+	1 => 'يجب أن لا يقل اسم المستخدم عن محرف %s.',
+	2 => 'يجب أن لا يقل اسم المستخدم عن محرفين %s.',
+	3 => 'يجب أن لا يقل اسم المستخدم عن %s محارف.',
+	4 => 'يجب أن لا يقل اسم المستخدم عن %s محرف.',
+	5 => 'يجب أن لا يقل اسم المستخدم عن %s محرف.',
+];
+$a->strings['Username should be at most %s character.'] = [
+	0 => 'يجب أن لا يزيد اسم المستخدم عن %s محرف.',
+	1 => 'يجب أن لا يزيد اسم المستخدم عن محرف %s.',
+	2 => 'يجب أن لا يزيد اسم المستخدم عن محرفين %s.',
+	3 => 'يجب أن لا يزيد اسم المستخدم عن %s محارف.',
+	4 => 'يجب أن لا يزيد اسم المستخدم عن %s محرف.',
+	5 => 'يجب أن لا يزيد اسم المستخدم عن %s محرف.',
+];
 $a->strings['That doesn\'t appear to be your full (First Last) name.'] = 'لا يبدو أن هذا اسمك الكامل.';
-$a->strings['Your email domain is not among those allowed on this site.'] = 'مجال بريدك الألكتروني غير مسموح به على هذا الموقع.';
-$a->strings['Not a valid email address.'] = 'عناوين بريد الكتروني غير صالحة.';
+$a->strings['Your email domain is not among those allowed on this site.'] = 'مجال بريدك الإلكتروني غير مسموح به على هذا الموقع.';
+$a->strings['Not a valid email address.'] = 'عناوين بريد الإكتروني غير صالحة.';
 $a->strings['The nickname was blocked from registration by the nodes admin.'] = 'هذا اللقب محظور من قبل مدير العقدة.';
+$a->strings['Cannot use that email.'] = 'لا يمكن استخدام هذا البريد الإلكتروني.';
+$a->strings['Your nickname can only contain a-z, 0-9 and _.'] = 'يجب أن يتكون اللقب من المحارف a-z، 0-9، _.';
 $a->strings['Nickname is already registered. Please choose another.'] = 'هذا اللقب محجوز. اختر لقبًا آخر.';
 $a->strings['An error occurred during registration. Please try again.'] = 'حدث خطأ أثناء التسجيل، رجاء حاول مرة أخرى.';
+$a->strings['An error occurred creating your default profile. Please try again.'] = 'حدث خطأ أثناء إنشاء الملف الشخصي الافتراضي، رجاء حاول مرة أخرى.';
 $a->strings['Friends'] = 'الأصدقاء';
+$a->strings['An error occurred creating your default contact group. Please try again.'] = 'حدث خطأ أثناء إنشاء مجموعة المتراسلين الافتراضية، رجاء حاول مرة أخرى.';
 $a->strings['Profile Photos'] = 'صور الملف الشخصي';
+$a->strings['
+		Dear %1$s,
+			the administrator of %2$s has set up an account for you.'] = '
+		عزيزي %1$s،
+			أنشأ مدير %2$s حساب لك.';
+$a->strings['
+		The login details are as follows:
+
+		Site Location:	%1$s
+		Login Name:		%2$s
+		Password:		%3$s
+
+		You may change your password from your account "Settings" page after logging
+		in.
+
+		Please take a few moments to review the other account settings on that page.
+
+		You may also wish to add some basic information to your default profile
+		(on the "Profiles" page) so that other people can easily find you.
+
+		We recommend setting your full name, adding a profile photo,
+		adding some profile "keywords" (very useful in making new friends) - and
+		perhaps what country you live in; if you do not wish to be more specific
+		than that.
+
+		We fully respect your right to privacy, and none of these items are necessary.
+		If you are new and do not know anybody here, they may help
+		you to make some new and interesting friends.
+
+		If you ever want to delete your account, you can do so at %1$s/removeme
+
+		Thank you and welcome to %4$s.'] = '
+		تفاصيل تسجيل الولوج هي كالتالي:
+
+		الموقع:	%1$s
+		اسم المستخدم:		%2$s
+		كلمة المرور:	%3$s
+
+		يمكنك تغيير كلمة المرور من صفحة إعدادات الحساب.
+
+		يرجى أخذ بضع لحظات لمراجعة الإعدادات الأخرى في تلك الصفحة.
+
+		قد ترغب أيضًا في إضافة بعض المعلومات الأساسية إلى صفحة ملفك الشخصية الافتراضي
+		(من صفحة "الملفات الشخصية") حتى يتمكن الآخرون من العثور عليك بسهولة.
+
+		نحن نوصي بوضع اسمك الكامل، إضافة لصورة،
+		وإضافة بعض الكلمات المفتاحية (مفيدة جدا في تكوين صداقات) - و
+		ربما البلد الذي تعيش فيه.
+
+		نحن نحترم حقك في الخصوصية احتراما كاملا، ولا ضرورة لأي مما سبق.
+		إذا كنت جديداً ولا تعرف أي شخص هنا، فقد تساعدك هذه المعلومات على تكوين صداقات مثيرة للاهتمام.
+
+		إذا كنت ترغب في حذف حسابك، يمكنك فعل ذلك في %1$s/removeme
+
+		شكرا لك ومرحبًا بك في %4$s.';
+$a->strings['Registration details for %s'] = 'تفاصيل التسجيل لـ %s';
+$a->strings['
+			Dear %1$s,
+				Thank you for registering at %2$s. Your account is pending for approval by the administrator.
+
+			Your login details are as follows:
+
+			Site Location:	%3$s
+			Login Name:		%4$s
+			Password:		%5$s
+		'] = '
+			عزيزي %1$s،
+				شكرا لك على التسجيل في %2$s. حسابك معلق حتى يوافق عليه المدير.
+
+			تفاصيل الولوج هي كالتالي:
+
+			الموقع:	%3$s
+			اسم المستخدم:		%4$s
+			كلمة المرور:		%5$s
+				';
+$a->strings['Registration at %s'] = 'التسجيل في %s';
+$a->strings['
+				Dear %1$s,
+				Thank you for registering at %2$s. Your account has been created.
+			'] = '
+				 عزيزي %1$s،
+				شكرا لك على التسجيل في %2$s. نجح إنشاء حسابك.
+				';
+$a->strings['
+			The login details are as follows:
+
+			Site Location:	%3$s
+			Login Name:		%1$s
+			Password:		%5$s
+
+			You may change your password from your account "Settings" page after logging
+			in.
+
+			Please take a few moments to review the other account settings on that page.
+
+			You may also wish to add some basic information to your default profile
+			(on the "Profiles" page) so that other people can easily find you.
+
+			We recommend setting your full name, adding a profile photo,
+			adding some profile "keywords" (very useful in making new friends) - and
+			perhaps what country you live in; if you do not wish to be more specific
+			than that.
+
+			We fully respect your right to privacy, and none of these items are necessary.
+			If you are new and do not know anybody here, they may help
+			you to make some new and interesting friends.
+
+			If you ever want to delete your account, you can do so at %3$s/removeme
+
+			Thank you and welcome to %2$s.'] = '
+		تفاصيل تسجيل الولوج هي كالتالي:
+
+		الموقع:	%3$s
+		اسم المستخدم:		%1$s
+		كلمة المرور:	%5$s
+
+		يمكنك تغيير كلمة المرور من صفحة إعدادات الحساب.
+
+		يرجى أخذ بضع لحظات لمراجعة الإعدادات الأخرى في تلك الصفحة.
+
+		قد ترغب أيضًا في إضافة بعض المعلومات الأساسية إلى صفحة ملفك الشخصية الافتراضي
+		(من صفحة "الملفات الشخصية") حتى يتمكن الآخرون من العثور عليك بسهولة.
+
+		نحن نوصي بوضع اسمك الكامل، إضافة لصورة،
+		وإضافة بعض الكلمات المفتاحية (مفيدة جدا في تكوين صداقات) - و
+		ربما البلد الذي تعيش فيه.
+
+		نحن نحترم حقك في الخصوصية احتراما كاملا، ولا ضرورة لأي مما سبق.
+		إذا كنت جديداً ولا تعرف أي شخص هنا، فقد تساعدك هذه المعلومات على تكوين صداقات مثيرة للاهتمام.
+
+		إذا كنت ترغب في حذف حسابك، يمكنك فعل ذلك في %3$s/removeme
+
+		شكرا لك ومرحبًا بك في %2$s.';
+$a->strings['Addon not found.'] = 'لم يُعثر على الإضافة.';
+$a->strings['Addon %s disabled.'] = 'الإضافة %s معطلة.';
+$a->strings['Addon %s enabled.'] = 'الإضافة %s مفعلة.';
 $a->strings['Disable'] = 'عطّل';
 $a->strings['Enable'] = 'فعّل';
 $a->strings['Administration'] = 'إدارة';
@@ -1057,6 +1229,12 @@ $a->strings['Addons'] = 'الإضافات';
 $a->strings['Toggle'] = 'بدّل';
 $a->strings['Author: '] = 'المؤلف: ';
 $a->strings['Maintainer: '] = 'المصين: ';
+$a->strings['Addons reloaded'] = 'أُعيد تحميل الإضافة';
+$a->strings['Addon %s failed to install.'] = 'فشل تثبيت إضافة %s.';
+$a->strings['Reload active addons'] = 'أعد تحميل الإضافات النشطة';
+$a->strings['There are currently no addons available on your node. You can find the official addon repository at %1$s and might find other interesting addons in the open addon registry at %2$s'] = 'لا توجد حاليا أي إضافات متاحة في عقدتك. يمكنك العثور على مستودع الإضافات الرسمي في %1$s وقد تجد إضافات أخرى مثيرة للاهتمام في سجل الإضافات المفتوحة في %2$s';
+$a->strings['List of all users'] = 'قائمة المستخدمين';
+$a->strings['Active'] = 'نشط';
 $a->strings['List of active accounts'] = 'قائمة الحسابات النشطة';
 $a->strings['Pending'] = 'معلق';
 $a->strings['List of pending registrations'] = 'قائمة التسجيلات المعلقة';
@@ -1065,6 +1243,7 @@ $a->strings['List of blocked users'] = 'قائمة المستخدمين المح
 $a->strings['Deleted'] = 'حُذف';
 $a->strings['List of pending user deletions'] = 'قائمة الحذف المعلق للمستخدمين';
 $a->strings['Private Forum'] = 'منتدى خاص';
+$a->strings['Relay'] = 'مُرحِل';
 $a->strings['%s contact unblocked'] = [
 	0 => 'لم يُفك حجب مستخدم %s',
 	1 => 'فُك حجب مستخدم %s',
@@ -1084,7 +1263,17 @@ $a->strings['Blocked Remote Contacts'] = 'المستخدمون البعداء ا
 $a->strings['Block New Remote Contact'] = 'احجب مستخدمًا بعيدًا';
 $a->strings['Photo'] = 'صورة';
 $a->strings['Reason'] = 'السبب';
+$a->strings['%s total blocked contact'] = [
+	0 => 'لم يحجب أي متراسل %s',
+	1 => 'متراسل%s محجوب',
+	2 => 'متراسلان %s محجوبان',
+	3 => '%s متراسلين محجوبين',
+	4 => '%s متراسلًا محجوبًا',
+	5 => '%s متراسل محجوب',
+];
 $a->strings['URL of the remote contact to block.'] = 'رابط المتراسل البعيد المراد حجبه.';
+$a->strings['Also purge contact'] = 'امسح المتراسل أيضًا';
+$a->strings['Removes all content related to this contact from the node. Keeps the contact record. This action canoot be undone.'] = 'يزيل جميع المحتويات المتعلقة بهذا المتراسل من العقدة. ويحتفظ بسجل للمتراسل. لا يمكن التراجع عن هذا الإجراء.';
 $a->strings['Block Reason'] = 'سبب الحجب';
 $a->strings['Server domain pattern added to blocklist.'] = 'أُضيف مرشح النطاق لقائمة الحجب.';
 $a->strings['Blocked server domain pattern'] = 'مرشح النطاق المحجوب';
@@ -1144,15 +1333,24 @@ $a->strings['Data'] = 'البيانات';
 $a->strings['File'] = 'الملف';
 $a->strings['Line'] = 'السطر';
 $a->strings['Function'] = 'الدالة';
+$a->strings['Process ID'] = 'مُعرّف العملية';
 $a->strings['Close'] = 'أغلق';
+$a->strings['Inspect Deferred Worker Queue'] = 'فحص طابور المهام المؤجلة';
+$a->strings['This page lists the deferred worker jobs. This are jobs that couldn\'t be executed at the first time.'] = 'تسرد هذه الصفحة العمليات المؤجلة. هذه العمليات لا يمكن تنفيذها لأول مرة.';
+$a->strings['Inspect Worker Queue'] = 'فحص طابور المهام';
+$a->strings['This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.'] = 'تسرد هذه الصفحة العمليات المتواجدة في الطابور حاليا. هذه العمليات تديرها المهام التي أعددتها أثناء التثبيت.';
 $a->strings['ID'] = 'المعرف';
+$a->strings['Command'] = 'أمر';
 $a->strings['Priority'] = 'الأولوية';
 $a->strings['Relocation started. Could take a while to complete.'] = 'بدأ النقل. قد يستغرق بعض الوقت.';
+$a->strings['No special theme for mobile devices'] = 'لا توجد سمة مخصصة للهتف';
+$a->strings['%s - (Experimental)'] = '%s - (اختباري)';
 $a->strings['No community page for local users'] = 'لا توجد صفحة مجتمع للمستخدمين المحليين';
 $a->strings['No community page'] = 'لا توجد صفحة مجتمع';
-$a->strings['Public postings from users of this site'] = 'المشركات العامومية لمستخدمي هذا الموقع';
-$a->strings['Public postings from the federated network'] = 'المشركات العمومية من الشبكة الموحدة';
-$a->strings['Public postings from local users and the federated network'] = 'المشركات العامومية من الشبكة الموحدة والشبكة المحلية';
+$a->strings['Public postings from users of this site'] = 'المشاركات العلنية لمستخدمي هذا الموقع';
+$a->strings['Public postings from the federated network'] = 'المشاركات العلنية من الشبكة الموحدة';
+$a->strings['Public postings from local users and the federated network'] = 'المشركات العلنية من الشبكة الموحدة والشبكة المحلية';
+$a->strings['Multi user instance'] = 'مثيل متعدد المستخدمين';
 $a->strings['Closed'] = 'مغلق';
 $a->strings['Requires approval'] = 'تتطلب الحصول على موافقة';
 $a->strings['Open'] = 'افتح';
@@ -1162,11 +1360,18 @@ $a->strings['check the stable version'] = 'تحقق من الاصدار المس
 $a->strings['check the development version'] = 'تحقق من الاصدار التطويري';
 $a->strings['none'] = 'لا شيﺀ';
 $a->strings['Local contacts'] = 'المُتراسِلون المحليون';
+$a->strings['Interactors'] = 'المتفاعلون';
 $a->strings['Site'] = 'موقع';
+$a->strings['General Information'] = 'معلومات عامة';
+$a->strings['Republish users to directory'] = 'أعد نشر المستخدمين في الدليل';
 $a->strings['Registration'] = 'التسجيل';
 $a->strings['File upload'] = 'رفع الملف';
 $a->strings['Policies'] = 'السياسات';
 $a->strings['Performance'] = 'الأداء';
+$a->strings['Worker'] = 'مهمة';
+$a->strings['Message Relay'] = 'ترحيل الرسالة';
+$a->strings['The system is not subscribed to any relays at the moment.'] = 'هذا الخادم ليس مشترك في أي مرحلات حاليًا.';
+$a->strings['The system is currently subscribed to the following relays:'] = 'هذا الخادم مشترك حاليًا في المرحلات التالية:';
 $a->strings['Relocate Instance'] = 'انقل المثيل';
 $a->strings['<strong>Warning!</strong> Advanced function. Could make this server unreachable.'] = '<strong>تحذير!</strong> وظيفة متقدمة. يمكن أن تجعل هذا الخادم غير قابل للوصول.';
 $a->strings['Site name'] = 'اسم الموقع';
@@ -1177,9 +1382,11 @@ $a->strings['Name of the internal system account that is used to perform Activit
 $a->strings['Banner/Logo'] = 'اللافتة/الشعار';
 $a->strings['Email Banner/Logo'] = 'شعار\لافتة البريد الإلكتروني';
 $a->strings['Shortcut icon'] = 'أيقونة الاختصار';
+$a->strings['Link to an icon that will be used for browsers.'] = 'رابط إلى أيقونة سيتم استخدامها للمتصفحات.';
 $a->strings['Touch icon'] = 'أيقونة الأجهزة اللمسية';
 $a->strings['Link to an icon that will be used for tablets and mobiles.'] = 'رابط إلى أيقونة سيتم استخدامها للأجهزة اللوحية والهواتف.';
 $a->strings['Additional Info'] = 'معلومات إضافية';
+$a->strings['For public servers: you can add additional information here that will be listed at %s/servers.'] = 'للخوادم العامة: يمكنك إضافة معلومات إضافية لتدرج في %s/servers.';
 $a->strings['System language'] = 'لغة النظام';
 $a->strings['System theme'] = 'سمة النظام';
 $a->strings['Mobile system theme'] = 'سمة الهاتف';
@@ -1193,16 +1400,54 @@ $a->strings['Maximum image size'] = 'الحجم الأقصى للصورة';
 $a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits.'] = 'حد حجم الصورة المرفوعة بالبايت. الافتراضي هو 0 والذي يعني حجمًا غير محدود.';
 $a->strings['Maximum image length'] = 'الطول الأقصى للصورة';
 $a->strings['Allowed email domains'] = 'نطاقات البريد الإلكتروني المسموحة';
+$a->strings['Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.'] = 'عيّن هذا الخيار للإعلان عن أن عقدتك تحتوي محتوى حساس قد لا يكون مناسباً للقصر. وسوف تنشر هذه المعلومات في معلومات العقدة وصفحة التسجيل، ويستخدم هذا الخيار في الدليل العالمي، فأثناء استعراض هذه العقدة في الدليل ستظهر لهم هذه المعلومة.';
+$a->strings['Proxify external content'] = 'توجيه المحتوى الخارجي عبر الوكيل';
+$a->strings['Route external content via the proxy functionality. This is used for example for some OEmbed accesses and in some other rare cases.'] = 'توجيه المحتوى الخارجي عن طريق وميل. يستخدم هذا على سبيل المثال وصول OEmbed وفي بعض الحالات النادرة الأخرى.';
+$a->strings['Allow Users to set remote_self'] = 'اسمح للمستخدمين بتعيين remote_self';
+$a->strings['With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.'] = 'يتيح تأشير هذا المربع للميتخدمين تعريف مل المتراسلين علئ أنهم remote_self في مربع حوار اصلاح المتراسلين. سيؤدي تنشيط هذه الميزة على متراسل إلى نسخ جميع منشوراته في دفق المستخدم.';
+$a->strings['Enable multiple registrations'] = 'فعّل تعدد التسجيل';
+$a->strings['Enable users to register additional accounts for use as pages.'] = 'يمكن المستخدمين من تسجيل حسابات إضافية لتستخدم كصفحات.';
+$a->strings['Enable OpenID'] = 'فعّل OpenID';
+$a->strings['Enable OpenID support for registration and logins.'] = 'فعّل دعم OpenID للتسجيل والولوج.';
+$a->strings['Enable Fullname check'] = 'افرض استخدام الأسماء الكاملة';
+$a->strings['Enable check to only allow users to register with a space between the first name and the last name in their full name.'] = 'يفرض على المستخدمين تضمين مسافة واحدة في اسم المستخدم الخاص بهم بين الاسم الأول والاسم الأخير.';
+$a->strings['Community pages for visitors'] = 'عرض صفحة المجتمع للزوار';
+$a->strings['Which community pages should be available for visitors. Local users always see both pages.'] = 'صفحات المجتمع المتاحة للزوار. المستخدمون المحليون يمكنهم مشاهدة كلا النوعين.';
+$a->strings['Posts per user on community page'] = 'حد المشاركات لكل مستخدم في صفحة المجتمع';
+$a->strings['Proxy user'] = 'مستخدم الوكيل';
+$a->strings['Proxy URL'] = 'رابط الوكيل';
 $a->strings['Network timeout'] = 'انتهت مهلة الاتصال بالشبكة';
 $a->strings['Value is in seconds. Set to 0 for unlimited (not recommended).'] = 'القيمة بالثواني. تعيينها لـ 0 يعني مهلة غير محدودة (غير مستحسن).';
+$a->strings['Minimal Memory'] = 'الحد الأدنى للذاكرة';
+$a->strings['Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).'] = 'الحد الأدنى لذاكرة الحرة للمهمة بالميغابايت. تحتاج إذن الوصول إلى /proc/meminfo - الافتراضي 0 (معطل).';
+$a->strings['Periodically optimize tables'] = 'تحسين الجداول بصفة دورية';
+$a->strings['Periodically optimize tables like the cache and the workerqueue'] = 'حسن بانتظام بعض جداول قاعدة البيانات المستخدمة على نطاق واسع مثل ذاكرة التخزين المؤقت أو الأقفال أو الجلسة أو طابور المهام';
+$a->strings['Discover followers/followings from contacts'] = 'اكتشف قائمة متابِعي/متابَعي متراسليك';
+$a->strings['If enabled, contacts are checked for their followers and following contacts.'] = 'اذا فُعل سيقوم هذا الخادم بتجميع قائمة متابِعي ومتابَعي متراسليك.';
+$a->strings['None - deactivated'] = 'لا شيء - معطل';
+$a->strings['Synchronize the contacts with the directory server'] = 'زامن المتراسلين مع خادم الدليل';
+$a->strings['if enabled, the system will check periodically for new contacts on the defined directory server.'] = 'إذا فُعل سيقوم النظام بالتحقق دوريا للبحث عن متراسلين جدد على خادم الدليل المحدد.';
+$a->strings['Discover contacts from other servers'] = 'اكتشف متراسلين من خوادم أخرى';
+$a->strings['Periodically query other servers for contacts. The system queries Friendica, Mastodon and Hubzilla servers.'] = 'يجلب دوريا متراسلين من خوادم أخرى. يطبق على خوادم فرنديكا وماستدون وهوبزيلا.';
+$a->strings['Search the local directory'] = 'ابحث في الدليل المحلي';
+$a->strings['Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.'] = 'يبحث في الدليل المحلي بدلاً من الدليل العالمي. عند إجراء بحث محلي ، يجرى نفس البحث في الدليل العالمي في الخلفية. هذا يحسن نتائج البحث إذا تكررت.';
+$a->strings['Publish server information'] = 'انشر معلومات الخادم';
+$a->strings['If enabled, general server and usage data will be published. The data contains the name and version of the server, number of users with public profiles, number of posts and the activated protocols and connectors. See <a href="http://the-federation.info/">the-federation.info</a> for details.'] = 'إذا فعل ستنشر البيانات العامة للخادم وبيانات استخدامه. تحتوي هذه البيانات على اسم وإصدار الخادم ، وعدد المستخدمين الذين لهم ملف شخصي علني، وعدد المنشورات وقائمة الموصّلات والموافيق النشطة. راجع <a href="http://the-federation.info/">federation.info</a> للحصول على التفاصيل.';
+$a->strings['Check upstream version'] = 'تحقق من الاصدار المنبعي';
+$a->strings['Suppress Tags'] = 'اخف الوسوم';
+$a->strings['Suppress showing a list of hashtags at the end of the posting.'] = 'اخف قائمة الوسوم من أسفل المشاركة.';
+$a->strings['Clean database'] = 'امسح قاعدة البيانات';
 $a->strings['Temp path'] = 'مسار التخزين المؤقت';
 $a->strings['Only search in tags'] = 'ابحث في الوسوم فقط';
 $a->strings['On large systems the text search can slow down the system extremely.'] = 'في النظم الكبيرة، يمكن أن يؤدي البحث عن النصوص إلى إبطاء النظام.';
+$a->strings['New base url'] = 'رابط أساسي جديد';
+$a->strings['Maximum number of parallel workers'] = 'الحد الأقصى لعدد المهام';
 $a->strings['Disabled'] = 'معطل';
 $a->strings['all'] = 'الكل';
 $a->strings['tags'] = 'الوسوم';
 $a->strings['Server tags'] = 'وسوم الخادم';
 $a->strings['Start Relocation'] = 'ابدأ النقل';
+$a->strings['The worker was never executed. Please check your database structure!'] = 'لم يتم تنفيذ المهمة أبداً. يرجى التحقق من بنية قاعدة البيانات!';
 $a->strings['Normal Account'] = 'حساب عادي';
 $a->strings['Public Forum Account'] = 'حساب منتدى عمومي';
 $a->strings['Blog Account'] = 'حساب مدونة';
@@ -1276,31 +1521,45 @@ $a->strings['Users awaiting permanent deletion'] = 'مستخدمون في انت
 $a->strings['Permanent deletion'] = 'حذف نهائي';
 $a->strings['Users'] = 'المستخدمون';
 $a->strings['User waiting for permanent deletion'] = 'مستخدم ينتظر الحذف الكلي لحسابه';
+$a->strings['Account approved.'] = 'قُبل الحساب.';
+$a->strings['User registrations awaiting review'] = 'تسجيلات تنتظر المعاينة';
 $a->strings['Request date'] = 'تاريخ الطلب';
+$a->strings['No registrations.'] = 'لا توجد تسجيلات.';
 $a->strings['Note from the user'] = 'ملاحظة من المستخدم';
 $a->strings['Deny'] = 'رفض';
+$a->strings['Posts from %s can\'t be shared'] = 'لا تمكن مشاركة مشاركات %s';
+$a->strings['Posts from %s can\'t be unshared'] = 'لا يمكن إلغاء مشاركة مشاركات %s';
 $a->strings['Contact not found'] = 'لم يُعثر على المتراسل';
 $a->strings['Profile not found'] = 'لم يُعثر على الملف الشخصي';
 $a->strings['No installed applications.'] = 'تطبيقات غير مثبتة.';
 $a->strings['Applications'] = 'التطبيقات';
+$a->strings['Item was not found.'] = 'لم يُعثر على العنصر.';
 $a->strings['Please login to continue.'] = 'يرجى الولوج للمتابعة.';
 $a->strings['You don\'t have access to administration pages.'] = 'ليس لديك حق النفاذ لصفحات الإدارة.';
 $a->strings['Overview'] = 'نظرة عامّة';
-$a->strings['Configuration'] = 'تضبيط';
+$a->strings['Configuration'] = 'الضبط';
 $a->strings['Additional features'] = 'ميزات إضافية';
 $a->strings['Database'] = 'قاعدة بيانات';
 $a->strings['DB updates'] = 'تحديثات قاعدة البيانات';
+$a->strings['Inspect Deferred Workers'] = 'فحص المهام المؤجلة';
+$a->strings['Inspect worker Queue'] = 'فحص طابور المهام';
 $a->strings['Tools'] = 'أدوات';
 $a->strings['Contact Blocklist'] = 'قائمة المتراسلين المحظورين';
 $a->strings['Server Blocklist'] = 'قائمة الخوادم المحظورة';
 $a->strings['Diagnostics'] = 'التشخيصات';
 $a->strings['PHP Info'] = 'معلومات الـPHP';
 $a->strings['check webfinger'] = 'تحقق من بصمة الويب';
+$a->strings['ActivityPub Conversion'] = 'محادثة عبر ActivityPub';
 $a->strings['Addon Features'] = 'ميزات الإضافة';
 $a->strings['User registrations waiting for confirmation'] = 'مستخدم ينتظر الموافقة على طلب تسجيله';
+$a->strings['Too Many Requests'] = 'طلبات كثيرة';
 $a->strings['Profile Details'] = 'تفاصيل الملف الشخصي';
 $a->strings['Only You Can See This'] = 'فقط أنت من يمكنه رؤية هذا';
+$a->strings['Scheduled Posts'] = 'المشاركات المبرمجة';
+$a->strings['Posts that are scheduled for publishing'] = 'المشاركات المقرر نشرها';
 $a->strings['Tips for New Members'] = 'تلميحات للأعضاء الجدد';
+$a->strings['People Search - %s'] = 'البحث عن أشخاص - %s';
+$a->strings['Forum Search - %s'] = 'البحث عن منتديات - %s';
 $a->strings['Account'] = 'الحساب';
 $a->strings['Two-factor authentication'] = 'الاستيثاق بعاملَيْن';
 $a->strings['Display'] = 'العرض';
@@ -1319,14 +1578,17 @@ $a->strings['%d contact edited.'] = [
 ];
 $a->strings['Could not access contact record.'] = 'يتعذر الوصل الى سجل التراسل.';
 $a->strings['Failed to update contact record.'] = 'فشل تحديث سجل التراسل.';
+$a->strings['You can\'t block yourself'] = 'لا يمكنك حجب نفسك';
 $a->strings['Contact has been blocked'] = 'حُجب المتراسل';
 $a->strings['Contact has been unblocked'] = 'أُلغي حجب المتراسل';
+$a->strings['You can\'t ignore yourself'] = 'لا يمكنك تجاهل نفسك';
 $a->strings['Contact has been ignored'] = 'تُجوهل المتراسل';
 $a->strings['Contact has been unignored'] = 'ألغي تجاهل المتراسل';
 $a->strings['You are mutual friends with %s'] = 'أنتما صديقان مشتركان لـ %s';
 $a->strings['You are sharing with %s'] = 'أنت تشارك مع %s';
 $a->strings['%s is sharing with you'] = '%s يشارك معك';
-$a->strings['Never'] = 'ابدا';
+$a->strings['Private communications are not available for this contact.'] = 'المراسلات الخاصة غير متوفرة لهذا المتراسل.';
+$a->strings['Never'] = 'أبدا';
 $a->strings['(Update was not successful)'] = '(لم ينجح التحديث)';
 $a->strings['(Update was successful)'] = '(حُدث بنجاح)';
 $a->strings['Suggest friends'] = 'اقترح أصدقاء';
@@ -1350,45 +1612,57 @@ $a->strings['Update now'] = 'حدّث الآن';
 $a->strings['Unignore'] = 'ألغي التجاهل';
 $a->strings['Currently blocked'] = 'محجوب حاليا';
 $a->strings['Currently ignored'] = 'متجاهَل حاليا';
-$a->strings['Currently archived'] = 'مُأرشف حاليا';
+$a->strings['Currently archived'] = 'مُؤرشف حاليا';
+$a->strings['Awaiting connection acknowledge'] = 'ينتظر قبول الاتصال';
 $a->strings['Hide this contact from others'] = 'اخف هذا المتراسل عن الآخرين';
 $a->strings['Replies/likes to your public posts <strong>may</strong> still be visible'] = '<strong>قد</strong> تبقى الإعجابات/الردود على مشاركاتك مرئية';
-$a->strings['Notification for new posts'] = 'تنبيهات على المشاركات الجديدة';
-$a->strings['Send a notification of every new post of this contact'] = 'أرسل تنبيها لكل مشاركات الجديدة هذا المتراسل';
+$a->strings['Notification for new posts'] = 'تنبيه للمشاركات الجديدة';
+$a->strings['Send a notification of every new post of this contact'] = 'أرسل تنبيها عند نشر هذا المتراسل لمشاركات الجديدة';
+$a->strings['Keyword Deny List'] = 'قائمة الكلمات المفتاحية المرفوضة';
+$a->strings['Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected'] = 'قائمة بالكلمات المفتاحية مفصولة بفواصل والتي لا تخول الى وسوم عند اختيار "اجلب المعلومات والكلمات المفتاحية"';
 $a->strings['Actions'] = 'الإجراءات';
+$a->strings['Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'] = 'علّم هذا المتراسل على أنه remote_self ، سيقوم فرنديكا بإعادة نشر المدخلات الجديدة لهذا المتراسل.';
 $a->strings['Show all contacts'] = 'أظهِر كل المتراسلين';
 $a->strings['Only show pending contacts'] = 'أظهِر المتراسلين المعلقين';
 $a->strings['Only show blocked contacts'] = 'أظهِر المتراسلين المحجوبين فقط';
 $a->strings['Ignored'] = 'مُتجاهَل';
 $a->strings['Only show ignored contacts'] = 'أظهِر المتراسلين المتجاهلين فقط';
 $a->strings['Archived'] = 'مؤرشف';
-$a->strings['Only show archived contacts'] = 'أظهِر المتراسلين المأرشفين فقط';
+$a->strings['Only show archived contacts'] = 'أظهِر المتراسلين المؤرشفين فقط';
 $a->strings['Hidden'] = '‮مخفي';
 $a->strings['Only show hidden contacts'] = 'أظهِر المتراسلين المخفيين فقط';
 $a->strings['Organize your contact groups'] = 'نظّم مجموعات متراسليك';
 $a->strings['Search your contacts'] = 'ابحث في متراسليك';
 $a->strings['Results for: %s'] = 'نتائج: %s';
 $a->strings['Update'] = 'حدّث';
+$a->strings['Batch Actions'] = 'إجراءات متعددة';
 $a->strings['Conversations started by this contact'] = 'بدأ هذا المتراسل للمحادثة';
 $a->strings['Posts and Comments'] = 'التعليقات والمشاركات';
+$a->strings['Posts containing media objects'] = 'مشاركات تحوي وسائط';
 $a->strings['View all known contacts'] = 'أظهِر كل المتراسلين المعروفين';
 $a->strings['Advanced Contact Settings'] = 'إعدادات المتراسلين المُتقدّمة';
-$a->strings['Mutual Friendship'] = 'الصداقة المشتركة';
+$a->strings['Mutual Friendship'] = 'صداقة متبادلة';
 $a->strings['is a fan of yours'] = 'أحد معجبيك';
-$a->strings['you are a fan of'] = 'أنت أحد معجبي';
-$a->strings['Pending outgoing contact request'] = 'الطلبات الصادرة و المعلقة للتراسل';
-$a->strings['Pending incoming contact request'] = 'الطلبات الواردة و المعلقة للتراسل';
+$a->strings['you are a fan of'] = 'أنت معجب';
+$a->strings['Pending outgoing contact request'] = 'طلب تراسل صادر معلق';
+$a->strings['Pending incoming contact request'] = 'طلب تراسل وارد معلق';
 $a->strings['Refetch contact data'] = 'أعد جلب بيانات المتراسل';
+$a->strings['Toggle Blocked status'] = 'بدّل حالة الحجب';
+$a->strings['Toggle Ignored status'] = 'بدّل حالة التجاهل';
+$a->strings['Revoke Follow'] = 'أبطل المتابعة';
+$a->strings['Revoke the follow from this contact'] = 'أبطل المتابعة من هذا المتراسل';
 $a->strings['Contact update failed.'] = 'فشل تحديث المتراسل.';
 $a->strings['<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.'] = '<strong>تحذير: هذا الخيار متقدم</strong> وإن أخطأت إدخال المعلومات لن تتمكن من التواصل مع هذا المتراسل.';
 $a->strings['Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.'] = 'رجاء استخدم زر \'رجوع\' من المتصفح <strong>الآن</strong> إذا كنت لا تعلم مهية الصفحة.';
 $a->strings['Account Nickname'] = 'لقب الحساب';
 $a->strings['Account URL'] = 'رابط الحساب';
+$a->strings['Account URL Alias'] = 'الرابط البديل للحساب';
 $a->strings['Friend Request URL'] = 'رابط دعوة صديق';
 $a->strings['Friend Confirm URL'] = 'رابط تأكيد صديق';
 $a->strings['Poll/Feed URL'] = 'رابط استطلاع/تغذية';
 $a->strings['New photo from this URL'] = 'صورة من هذا الرابط';
 $a->strings['Invalid contact.'] = 'متراسل غير صالح.';
+$a->strings['No known contacts.'] = 'لا يوجد متراسل معروف.';
 $a->strings['No common contacts.'] = 'لا متراسلين مشترَكين.';
 $a->strings['Follower (%s)'] = [
 	0 => 'لا متابِعين (%s)',
@@ -1414,6 +1688,7 @@ $a->strings['Mutual friend (%s)'] = [
 	4 => '%s صديقا مشتركا',
 	5 => '%s صديق مشترك',
 ];
+$a->strings['These contacts both follow and are followed by <strong>%s</strong>.'] = 'هؤلاء المتراسلون يتابعون <strong>%s</strong> وهو يتابعهم.';
 $a->strings['Common contact (%s)'] = [
 	0 => 'لا متراسلين مشتركين (%s)',
 	1 => 'متراسل مشترك واحد (%s)',
@@ -1422,6 +1697,7 @@ $a->strings['Common contact (%s)'] = [
 	4 => '%s متراسلا مشتركا',
 	5 => '%s متراسل مشترك',
 ];
+$a->strings['Both <strong>%s</strong> and yourself have publicly interacted with these contacts (follow, comment or likes on public posts).'] = 'أنت و <strong>%s</strong> تفاعلتم مع نفس المتراسلين (متابعة، تعليق، إعجاب بمشاركة).';
 $a->strings['Contact (%s)'] = [
 	0 => 'لا متراسلين (%s)',
 	1 => 'متراسل واحد (%s)',
@@ -1430,12 +1706,21 @@ $a->strings['Contact (%s)'] = [
 	4 => '%s متراسلا',
 	5 => '%s متراسل',
 ];
+$a->strings['You must be logged in to use this module.'] = 'يجب عليك الولوج لاستخدام هذه الوحدة.';
+$a->strings['Choose what you wish to do to recipient'] = 'اختر ما تريد فعله للمتلقي';
+$a->strings['Make this post private'] = 'اجعل هذه المشاركة خاصة';
+$a->strings['Unknown contact.'] = 'متراسل مجهول.';
 $a->strings['Contact is deleted.'] = 'حُذف المتراسل.';
+$a->strings['Contact is being deleted.'] = 'المتراسل يحذف.';
+$a->strings['Follow was successfully revoked.'] = 'نجح إبطال المتابعة.';
+$a->strings['Follow was successfully revoked, however the remote contact won\'t be aware of this revokation.'] = 'نجح إبطال المتابعة ولن يعلم بها المتراسل البعيد.';
+$a->strings['Unable to revoke follow, please try again later or contact the administrator.'] = 'يتعذر إبطال متابعة هذا المتراسل، يرجى إعادة المحاولة بعد بضع دقائق أو الاتصال بمدير الموقع.';
 $a->strings['Yes'] = 'نعم';
 $a->strings['Local Community'] = 'مجتمع محلي';
 $a->strings['Posts from local users on this server'] = 'مشاركات مستخدمي هذا الخادم';
 $a->strings['Global Community'] = 'مجتمع عالمي';
-$a->strings['Posts from users of the whole federated network'] = 'المشركات العامومية من الشبكة الموحدة';
+$a->strings['Posts from users of the whole federated network'] = 'مشركات من الشبكة الموحدة';
+$a->strings['Own Contacts'] = 'مشاركات متراسليك';
 $a->strings['Include'] = 'تضمين';
 $a->strings['Hide'] = 'اخف';
 $a->strings['No results.'] = 'لا نتائج.';
@@ -1447,6 +1732,7 @@ $a->strings['Sort by latest activity'] = 'رتب حسب آخر نشاط';
 $a->strings['Latest Posts'] = 'آخر المشاركات';
 $a->strings['Sort by post received date'] = 'رتب حسب تاريخ استلام المشاركة';
 $a->strings['Personal'] = 'شخصي';
+$a->strings['Posts that mention or involve you'] = 'المشاركات التي تذكرك أو تتعلق بك';
 $a->strings['Starred'] = 'المفضلة';
 $a->strings['Favourite Posts'] = 'المشاركات المفضلة';
 $a->strings['Credits'] = 'إشادات';
@@ -1454,6 +1740,8 @@ $a->strings['Friendica is a community project, that would not be possible withou
 $a->strings['Formatted'] = 'مهيأ';
 $a->strings['Activity'] = 'النشاط';
 $a->strings['Object data'] = 'بيانات الكائن';
+$a->strings['Result Item'] = 'النتيجة';
+$a->strings['Source activity'] = 'نشاط المصدر';
 $a->strings['Source input'] = 'الدخل المصدري';
 $a->strings['BBCode::toPlaintext'] = 'BBCode::toPlaintext';
 $a->strings['BBCode::convert (raw HTML)'] = 'BBCode::convert (raw HTML)';
@@ -1497,17 +1785,24 @@ $a->strings['Current timezone: %s'] = 'المنطقة الزمنية الحال�
 $a->strings['Converted localtime: %s'] = 'الوقت المحلي المحوّل: %s';
 $a->strings['Please select your timezone:'] = 'رجاء اختر منطقتك الزمنية:';
 $a->strings['No entries (some entries may be hidden).'] = 'لا توجد مدخلات (قد تكون بعض المدخلات مخفية).';
-$a->strings['Find on this site'] = 'تجد في هذا الموقع';
-$a->strings['Results for:'] = 'النتائج عن:';
+$a->strings['Find on this site'] = 'ابحث في هذا الموقع';
+$a->strings['Results for:'] = 'نتائج:';
+$a->strings['Site Directory'] = 'دليل الموقع';
 $a->strings['Item was not removed'] = 'لم يُزل العنصر';
 $a->strings['Item was not deleted'] = 'لم يُحذف العنصر';
 $a->strings['- select -'] = '- اختر -';
 $a->strings['Suggested contact not found.'] = 'المتراسل المقترح غير موجود.';
-$a->strings['Friend suggestion sent.'] = 'أُرسل إقتراح لصديق.';
+$a->strings['Friend suggestion sent.'] = 'أُرسل إقتراح الصداقة.';
 $a->strings['Suggest Friends'] = 'اقترح أصدقاء';
 $a->strings['Suggest a friend for %s'] = 'أقترح أصدقاء لـ %s';
+$a->strings['Installed addons/apps:'] = 'التطبيقات/الإضافات المثبتة:';
+$a->strings['No installed addons/apps'] = 'لم تُثبت أي تطبيقات/إضافات';
+$a->strings['Read about the <a href="%1$s/tos">Terms of Service</a> of this node.'] = 'اقرأ عن <a href="%1$s/tos">شروط الخدمة</a> لهذه العقدة.';
+$a->strings['On this server the following remote servers are blocked.'] = 'الخوادم البعيدة المحجوبة عن هذا الموقع.';
 $a->strings['This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.'] = 'هذا فرانديكا اصدار %s يعمل على موقع %s. اصدار قاعدة البيانات هو %s، واصدار تحديث المشاركة هو %s.';
 $a->strings['Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'] = 'رجاء زر <a href="https://friendi.ca">Friendi.ca</a> لمعرفة المزيد عن مشروع فرَندِكا.';
+$a->strings['Bug reports and issues: please visit'] = 'لبلاغات العلل والمشاكل: زر';
+$a->strings['the bugtracker at github'] = 'متعقب العلل على غيت-هب';
 $a->strings['Could not create group.'] = 'تعذّر إنشاء المجموعة.';
 $a->strings['Group not found.'] = 'لم يُعثر على المجموعة.';
 $a->strings['Group name was not changed.'] = 'لم يُغير اسم المجموعة.';
@@ -1528,18 +1823,24 @@ $a->strings['Group is empty'] = 'المجموعة فارغة';
 $a->strings['Remove contact from group'] = 'احذف المتراسل من المجموعة';
 $a->strings['Click on a contact to add or remove.'] = 'أنقر على المتراسل لإضافته أو حذفه.';
 $a->strings['Add contact to group'] = 'أضف المتراسل لمجموعة';
+$a->strings['No profile'] = 'لا ملفًا شخصيًا';
 $a->strings['Method Not Allowed.'] = 'الطريقة غير مسموح بها.';
 $a->strings['Help:'] = 'مساعدة:';
 $a->strings['Welcome to %s'] = 'مرحبًا بك في %s';
+$a->strings['Friendica Communications Server - Setup'] = 'خادم شبكة فرنديكا - تثبيت';
 $a->strings['System check'] = 'التحقق من النظام';
-$a->strings['OK'] = 'OK
-موافقة';
+$a->strings['Requirement not satisfied'] = 'لم يستوف المتطلبات';
+$a->strings['Optional requirement not satisfied'] = 'لم يستوف المتطلبات الاختيارية';
+$a->strings['OK'] = 'موافق';
 $a->strings['Check again'] = 'تحقق مجددا';
 $a->strings['Base settings'] = 'الإعدادات الأساسية';
 $a->strings['Host name'] = 'أسم المضيف';
 $a->strings['Overwrite this field in case the determinated hostname isn\'t right, otherweise leave it as is.'] = 'استبدل هذا الحقل في حالة عدم صحة اسم المضيف المحدد، وإلا تركه كما هو.';
 $a->strings['Base path to installation'] = 'المسار الأساسي للتثبيت';
+$a->strings['Sub path of the URL'] = 'المسار الفرعي للرابط';
 $a->strings['Database connection'] = 'اتصال قاعدة البيانات';
+$a->strings['Please contact your hosting provider or site administrator if you have questions about these settings.'] = 'يرجى الاتصال بموفر الاستضافة أو مدير الموقع إذا كان لديك أسئلة حول هذه الإعدادات.';
+$a->strings['The database you specify below should already exist. If it does not, please create it before continuing.'] = 'قاعدة البيانات التي ستحددها أدناه يجب أن تكون موجودة سلفًا. إذا لم تكن موجودة، أنشئها قبل المتابعة.';
 $a->strings['Database Server Name'] = 'اسم خادم قاعدة البيانات';
 $a->strings['Database Login Name'] = 'اسم الولوج لقاعد البيانات';
 $a->strings['Database Login Password'] = 'كلمة سرّ قاعدة البيانات';
@@ -1548,10 +1849,13 @@ $a->strings['Database Name'] = 'اسم قاعدة البيانات';
 $a->strings['Please select a default timezone for your website'] = 'رجاء حدد اللغة الافتراضية لموقعك';
 $a->strings['Site settings'] = 'إعدادت الموقع';
 $a->strings['Site administrator email address'] = 'البريد الالكتروني للمدير الموقع';
+$a->strings['Your account email address must match this in order to use the web admin panel.'] = 'يجب أن يتطابق عنوان بريدك الإلكتروني مع هذا من أجل استخدام لوحة الإدارة.';
 $a->strings['System Language:'] = 'لغة النظام:';
 $a->strings['Set the default language for your Friendica installation interface and to send emails.'] = 'عيّن اللغة الافتراضية لواجهة تثبيت فرَندِكا ورسائل البريد الإلكتروني.';
 $a->strings['Your Friendica site database has been installed.'] = 'ثُبتت قاعدة بيانات فرنديكا.';
+$a->strings['Installation finished'] = 'انتهى التثبيت';
 $a->strings['<h1>What next</h1>'] = '<h1>ما التالي</h1>';
+$a->strings['Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.'] = 'انتقل إلى <a href="%s/register">صفحة التسجيل</a> وسجل كمستخدم جديد. تذكر أن تستخدم نفس البريد الإلكتروني الذي أدخلته للمدير. هذا سيسمح لك بالدخول إلى لوحة الإدارة.';
 $a->strings['Total invitation limit exceeded.'] = 'تجاوزت حد عدد الدعوات.';
 $a->strings['%s : Not a valid email address.'] = '%s : عناوين بريد الكتروني غير صالحة.';
 $a->strings['Please join us on Friendica'] = 'انضم إلينا في فرَندِكا';
@@ -1573,7 +1877,12 @@ $a->strings['To accept this invitation, please visit and register at %s.'] = 'ل
 $a->strings['Send invitations'] = 'أرسل دعوات';
 $a->strings['Enter email addresses, one per line:'] = 'أدخل عناوين البريد الإلكتروني ،واحد في كل سطر:';
 $a->strings['For more information about the Friendica project and why we feel it is important, please visit http://friendi.ca'] = 'للحصول على مزيد من المعلومات عن مشروع فرَندِكا ولماذا نرى أنه مهم، من فضلك زر http://friendi.ca';
+$a->strings['Compose new personal note'] = 'أكتب ملاحظة شخصية جديدة';
 $a->strings['Compose new post'] = 'أكتب مشاركة جديدة';
+$a->strings['Visibility'] = 'الظّهور';
+$a->strings['Clear the location'] = 'امسح الموقع الجغرافي';
+$a->strings['Location services are unavailable on your device'] = 'خدمات الموقع الجغرافي غير متاحة على جهازك';
+$a->strings['Unable to follow this item.'] = 'تتعذر متابعة هذا العنصر.';
 $a->strings['System down for maintenance'] = 'النظام مغلق للصيانة';
 $a->strings['A Decentralized Social Network'] = 'شبكة اجتماعية لامركزية';
 $a->strings['Show Ignored Requests'] = 'اظهر الطلبات المتجاهلة';
@@ -1649,6 +1958,10 @@ $a->strings['Profile unavailable.'] = 'الملف الشخصي غير متوفر
 $a->strings['The provided profile link doesn\'t seem to be valid'] = 'يبدو أنّ رابط الملف الشخصي غير صالح';
 $a->strings['Friend/Connection Request'] = 'طلب صداقة/اقتران';
 $a->strings['If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.'] = 'إن لم تكن عضواً في شبكة اجتماعية حرة، <a href="%s">اتبع هذا الرابط للعثور على عقدة عمومية لفرَندِكا وانضم إلينا اليوم</a>.';
+$a->strings['Items tagged with: %s'] = 'عناصر موسمة بـ: %s';
+$a->strings['Search term was not saved.'] = 'لم يُحفظ مصطلح البحث.';
+$a->strings['Search term already saved.'] = 'حُفظ مصطلح البحث سلفًا.';
+$a->strings['Search term was not removed.'] = 'لم يُزل مصطلح البحث.';
 $a->strings['Create a New Account'] = 'أنشئ حسابًا جديدًا';
 $a->strings['Your OpenID: '] = 'معرف OpenID: ';
 $a->strings['Please enter your username and password to add the OpenID to your existing account.'] = 'رجاء أدخل كلمة المرور واسم المستخدم لإضافة معرف OpenID لحسابك.';
@@ -1672,7 +1985,15 @@ $a->strings['Please enter a recovery code'] = 'رجاء أدخل رمز الاس
 $a->strings['Submit recovery code and complete login'] = 'أرسل رمز الاستعادة لتكمل الولوج';
 $a->strings['<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'] = '<p>افتح تطبيق الاستيثاق بعاملين على جهازك للحصول على رمز الاستيثاق والتحقق من هويتك.</p>';
 $a->strings['Please enter a code from your authentication app'] = 'يرجى إدخال رمز من تطبيق الاستيثاق';
+$a->strings['This is my two-factor authenticator app device'] = 'هذا هو جهاز الذي استخدمه للاستيثاق بعاملين';
 $a->strings['Verify code and complete login'] = 'تحقق من الرمز وأكمل الولوج';
+$a->strings['Delegation successfully granted.'] = 'منح التفويض بنجاح.';
+$a->strings['Delegation successfully revoked.'] = 'نجح إبطال التفويض.';
+$a->strings['Delegate user not found.'] = 'لم يُعثر على المندوب.';
+$a->strings['No parent user'] = 'لا يوجد وليٌ';
+$a->strings['Parent User'] = 'وليٌ';
+$a->strings['Additional Accounts'] = 'الحسابات الإضافية';
+$a->strings['Register additional accounts that are automatically connected to your existing account so you can manage them from this account.'] = 'سجل حسابات إضافية مرتبطة تلقائيا بحسابك الحالي ويمكنك إدارتها عبر هذا الحساب.';
 $a->strings['Register an additional account'] = 'سجل حساب إضافي';
 $a->strings['Parent users have total control about this account, including the account settings. Please double check whom you give this access.'] = 'المستخدمون الأولياء لديهم سيطرة كاملة على هذا الحساب، بما في ذلك إعدادات الحساب. الرجاء الحذر عند إعطاء صلاحية الوصول إليه.';
 $a->strings['Delegates'] = 'المندوبون';
@@ -1701,6 +2022,8 @@ $a->strings['Infinite scroll'] = 'التمرير اللانهائي';
 $a->strings['Automatic fetch new items when reaching the page end.'] = 'يجلب عناصر جديدة تلقائياً عند الوصول إلى نهاية الصفحة.';
 $a->strings['Display the Dislike feature'] = 'اعرض ميزة "لم يعجبني"';
 $a->strings['Display the Dislike button and dislike reactions on posts and comments.'] = 'يعرض زر لم يعجبني والتفاعلات السلبية في المشاركات والتعليقات.';
+$a->strings['Display the resharer'] = 'اعرض صاحب إعادة النشر';
+$a->strings['Display the first resharer as icon and text on a reshared item.'] = 'اعرض صورة صاحب المشاركة الأصلية كأيقونة بالإضافة إلى نص على المشاركة.';
 $a->strings['Stay local'] = 'ابقى في الخادم المحلي';
 $a->strings['Don\'t go to a remote system when following a contact link.'] = 'لا يذهب إلى نظام بعيد عند اتباع رابط متراسل.';
 $a->strings['Beginning of week:'] = 'بداية الأسبوع:';
@@ -1708,7 +2031,7 @@ $a->strings['Profile Name is required.'] = 'اسم الملف الشخصي مط�
 $a->strings['Profile couldn\'t be updated.'] = 'تعذر تحديث الملف الشخصي.';
 $a->strings['Label:'] = 'التسمية:';
 $a->strings['Value:'] = 'القيمة:';
-$a->strings['Field Permissions'] = 'صلاحيات الحقل';
+$a->strings['Field Permissions'] = 'أذونات الحقل';
 $a->strings['(click to open/close)'] = '(أنقر للفتح/للإغلاق)';
 $a->strings['Add a new profile field'] = 'أضف حقلًا جديدًا للملف الشخصي';
 $a->strings['Profile Actions'] = 'إجراءات الملف الشخصي';
@@ -1730,7 +2053,7 @@ $a->strings['The XMPP address will be published so that people can follow you th
 $a->strings['Matrix (Element) address:'] = 'عنوان مايتركس:';
 $a->strings['The Matrix address will be published so that people can follow you there.'] = 'سيتم نشر عنوان مايتركس حتى يتمكن الناس من متابعتك هناك.';
 $a->strings['Homepage URL:'] = 'رابط الصفحة الرئيسية:';
-$a->strings['Public Keywords:'] = 'الكلمات المفتاحية العمومية:';
+$a->strings['Public Keywords:'] = 'الكلمات المفتاحية العلنية:';
 $a->strings['(Used for suggesting potential friends, can be seen by others)'] = '(يستخدم لاقتراح أصدقاء، يمكن للآخرين رؤيتهم)';
 $a->strings['Private Keywords:'] = 'الكلمات المفتاحية الخاصة:';
 $a->strings['(Used for searching profiles, never shown to others)'] = '(يستخدم للبحث عن ملفات الشخصية، لا يظهر للآخرين)';
@@ -1742,7 +2065,7 @@ $a->strings['<p>Custom fields appear on <a href="%s">your profile page</a>.</p>
 				<p>يمكنك استخدام رموز BBCCode في حقول القيم.</p>
 				<p>أعد الترتيب بسحب عنوان الحقل.</p>
 				<p>أفرغ حقل التسمية لإزالة الحقل مخصص.</p>
-				<p>لن يتمكن إلاّ المتراسلين المختارين والمجموعات المختارة من رؤية الحقول غير العامة.</p>';
+				<p>لن يتمكن إلاّ المتراسلين المختارين والمجموعات المختارة من رؤية الحقول غير العلنية.</p>';
 $a->strings['Image size reduction [%s] failed.'] = 'فشل تقليص حجم الصورة [%s].';
 $a->strings['Unable to process image'] = 'تعذرت معالجة الصورة';
 $a->strings['Photo not found.'] = 'لم يُعثر على الصورة.';
@@ -1850,11 +2173,65 @@ $a->strings['%1$s commented in your thread %2$s'] = 'علق %1$s على نقاش
 $a->strings['%1$s commented on your comment %2$s'] = 'علق %1$s على تعليقك %2$s';
 $a->strings['%1$s commented in their thread %2$s'] = 'علق %1$s على نقاشهم %2$s';
 $a->strings['%1$s commented in their thread'] = 'علق %1$s على نقاشهم';
+$a->strings['%1$s commented in the thread %2$s from %3$s'] = 'علق %1$s على المحدثة %2$s من %3$s';
 $a->strings['%1$s commented in the thread from %3$s'] = 'علق %1$s على نقاش %3$s';
 $a->strings['%1$s commented on your thread %2$s'] = 'علق %1$s على نقاشك %2$s';
+$a->strings['%1$s shared the post %2$s from %3$s'] = 'شارك %1$s المشاركة %2$s من %3$s';
 $a->strings['%1$s shared a post from %3$s'] = 'شارك %1$s مشاركة %3$s';
 $a->strings['%1$s shared the post %2$s'] = 'شارك %1$s المشاركة %2$s';
 $a->strings['%1$s shared a post'] = 'شارك %1$s مشاركة';
+$a->strings['[Friendica:Notify]'] = '[Friendica:Notify]';
+$a->strings['%s New mail received at %s'] = 'أُستلم %s بريد جديد على %s';
+$a->strings['%1$s sent you a new private message at %2$s.'] = 'أرسل %1$s لك رسالة خاصة على %2$s.';
+$a->strings['a private message'] = 'رسالة خاصة';
+$a->strings['%1$s sent you %2$s.'] = 'أرسل %1$s لك %2$s.';
+$a->strings['Please visit %s to view and/or reply to your private messages.'] = 'من فضلك زر %s لعرض و/أو الرد على الرسائل الخاصة.';
+$a->strings['%1$s commented on %2$s\'s %3$s %4$s'] = 'علق %1$s على %3$s %2$s %4$s';
+$a->strings['%1$s commented on your %2$s %3$s'] = 'علق %1$s على %2$s تخصك %3$s';
+$a->strings['%1$s commented on their %2$s %3$s'] = 'علق %1$s على %2$s له %3$s';
+$a->strings['%1$s Comment to conversation #%2$d by %3$s'] = 'علق %1$s على محادثة %3$s #%2$d';
+$a->strings['%s commented on an item/conversation you have been following.'] = 'علق %s على محادثة/عنصر تتابعه.';
+$a->strings['Please visit %s to view and/or reply to the conversation.'] = 'من فضلك زر %s لعرض و/أو الرد على المحادثة.';
+$a->strings['%s %s posted to your profile wall'] = 'نشر %s%s على حائط ملفك الشخصي';
+$a->strings['%1$s posted to your profile wall at %2$s'] = 'نشر %1$s على حائط ملفك الشخصي على %2$s';
+$a->strings['%1$s posted to [url=%2$s]your wall[/url]'] = 'نشر %1$s على [url=%2$s]حائطك[/url]';
+$a->strings['%1$s %2$s poked you'] = 'لكزك %1$s %2$s';
+$a->strings['%1$s poked you at %2$s'] = 'لكزك %1$s على %2$s';
+$a->strings['%1$s [url=%2$s]poked you[/url].'] = '[url=%2$s]لكزك[/url] %1$s.';
+$a->strings['%s Introduction received'] = 'تلقيت تقديما من %s';
+$a->strings['You\'ve received an introduction from \'%1$s\' at %2$s'] = 'تلقيت تقديما من \'%1$s\' على %2$s';
+$a->strings['You\'ve received [url=%1$s]an introduction[/url] from %2$s.'] = 'تلقيت [url=%1$s]تقديما[/url] من %2$s.';
+$a->strings['You may visit their profile at %s'] = 'يمكنك زيارة ملفهم الشخصي على %s';
+$a->strings['Please visit %s to approve or reject the introduction.'] = 'من فضلك زر %s لقبول أو رفض التقديم.';
+$a->strings['%s A new person is sharing with you'] = '%s شخص جديد يشارك معك';
+$a->strings['%1$s is sharing with you at %2$s'] = 'يشارك %1$s معك على %2$s';
+$a->strings['%s You have a new follower'] = 'لديك متابِع جديد %s';
+$a->strings['You have a new follower at %2$s : %1$s'] = 'لديك متابِع جديد على %2$s : %1$s';
+$a->strings['%s Friend suggestion received'] = 'تلقيت إقتراح صديق %s';
+$a->strings['You\'ve received a friend suggestion from \'%1$s\' at %2$s'] = 'تلقيت اقتراح صديق من \'%1$s\' على %2$s';
+$a->strings['You\'ve received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s.'] = ' تلقيت [url=%1$s]اقتراح %2$s كصديق[/url] من %3$s.';
+$a->strings['Name:'] = 'الاسم:';
+$a->strings['Photo:'] = 'الصورة:';
+$a->strings['Please visit %s to approve or reject the suggestion.'] = 'من فضلك زر %s لقبول  أو رفض الاقتراح.';
+$a->strings['%s Connection accepted'] = 'قُبِل الاقتران %s';
+$a->strings['\'%1$s\' has accepted your connection request at %2$s'] = 'قبِل \'%1$s\' طلب الاقتران على %2$s';
+$a->strings['%2$s has accepted your [url=%1$s]connection request[/url].'] = 'قبِل %2$s [url=%1$s]طلب الاقتران[/url]';
+$a->strings['You are now mutual friends and may exchange status updates, photos, and email without restriction.'] = 'أصبحتما صديقين من كلا الطرفين ويمكنكما تبادل تحديثات الحالة، والصور، والبريد دون قيود.';
+$a->strings['Please visit %s if you wish to make any changes to this relationship.'] = 'من فضلك زر %s إن أردت تغيير هذه العلاقة.';
+$a->strings['\'%1$s\' has chosen to accept you a fan, which restricts some forms of communication - such as private messaging and some profile interactions. If this is a celebrity or community page, these settings were applied automatically.'] = 'قبِلك \'%1$s\' كمعجب، هذا يحدُّ من أشكال التواصل بينكما مثل الرسائل الخاصة وبعض التفاعلات. يتم هذا تلقائيا اذا كانت صفحة مشهور أو مجتمع.';
+$a->strings['\'%1$s\' may choose to extend this into a two-way or more permissive relationship in the future.'] = 'قد يختار \'%1$s\' توسيعها إلى علاقة ذات اتجاهين أو أكثر في المستقبل.';
+$a->strings['Please visit %s  if you wish to make any changes to this relationship.'] = 'من فضلك زر %s إن أردت تغيير هذه العلاقة.';
+$a->strings['registration request'] = 'طلب تسجيل';
+$a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = 'تلقيت طلب تسجيل من \'%1$s\' على %2$s';
+$a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = 'تلقيت [url=%1$s]طلب تسجيل[/url] من %2$s.';
+$a->strings['Full Name:	%s
+Site Location:	%s
+Login Name:	%s (%s)'] = 'الاسم الكامل:	%s
+الموقع:	%s
+اسم الولوج:	%s (%s)';
+$a->strings['Please visit %s to approve or reject the request.'] = 'من فضلك زر %s لقبول أو رفض الطلب.';
+$a->strings['%s %s tagged you'] = 'ذكرك %s%s';
+$a->strings['%s %s shared a new post'] = 'شارك %s%s مشاركة جديدة';
 $a->strings['This message was sent to you by %s, a member of the Friendica social network.'] = 'أرسل %s لك هذه الرسالة، وهو عضو في شبكة فرنديكا.';
 $a->strings['You may visit them online at %s'] = 'يمكنك زيارتهم عبر %s';
 $a->strings['Please contact the sender by replying to this post if you do not wish to receive these messages.'] = 'رجاء اتصل بالمرسل بالرد على هذا المشاركة إذا كنت لا ترغب في تلقي هذه الرسائل.';
@@ -1881,8 +2258,9 @@ $a->strings['Unpin'] = 'ألغ التثبيت';
 $a->strings['Toggle pin status'] = 'بدِّل حالة التثبيت';
 $a->strings['Pinned'] = 'مُثَبَت';
 $a->strings['Add tag'] = 'أضف وسما';
-$a->strings['Quote Share'] = 'مشاركة الاقتباس';
-$a->strings['Reshare this'] = 'شارك هذا';
+$a->strings['Quote share this'] = 'اقتبس وشارك';
+$a->strings['Quote Share'] = 'اقتبس وشارك';
+$a->strings['Reshare this'] = 'أعاد نشر هذا';
 $a->strings['Reshare'] = 'أُعد نشره';
 $a->strings['Cancel your Reshare'] = 'ألغ إعادة النشر';
 $a->strings['Unshare'] = 'ألغ النشر';
@@ -1897,6 +2275,7 @@ $a->strings['Wall-to-Wall'] = 'حائط لحائط';
 $a->strings['via Wall-To-Wall:'] = 'عير حائط لحائط';
 $a->strings['Reply to %s'] = 'رد على %s';
 $a->strings['More'] = 'المزيد';
+$a->strings['Notifier task is pending'] = 'مهمة التنبيه معلقة';
 $a->strings['Delivery to remote servers is pending'] = 'التسليم للخوادم البعيدة معلق';
 $a->strings['Delivery to remote servers is underway'] = 'التسليم إلى الخوادم البعيدة جار';
 $a->strings['Delivery to remote servers is mostly done'] = 'التسليم إلى الخوادم البعيدة يكاد يكتمل';
@@ -1957,7 +2336,7 @@ $a->strings['Light (Accented)'] = 'فاتح (ذو طابع لوني)';
 $a->strings['Dark (Accented)'] = 'داكن (ذو طابع لوني)';
 $a->strings['Black (Accented)'] = 'أسود (ذو طابع لوني)';
 $a->strings['Note'] = 'ملاحظة';
-$a->strings['Check image permissions if all users are allowed to see the image'] = 'تحقق من أذون الصورة إذا كان مسموح للجميع مشاهدتها';
+$a->strings['Check image permissions if all users are allowed to see the image'] = 'تحقق من أذونات الصورة إذا كان مسموح للجميع مشاهدتها';
 $a->strings['Custom'] = 'مخصص';
 $a->strings['Legacy'] = 'أثري';
 $a->strings['Accented'] = 'ذو طابع لوني';

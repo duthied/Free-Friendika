@@ -64,6 +64,10 @@ return [
 		// Themes users can change to in their settings.
 		'allowed_themes' => 'frio,quattro,vier,duepuntozero,smoothly',
 
+		// cache_contact_avatar (Boolean)
+		// Cache versions of the contact avatars. Uses a lot of storage space
+		'cache_contact_avatar' => true,
+
 		// curl_timeout (Integer)
 		// Value is in seconds. Set to 0 for unlimited (not recommended).
 		'curl_timeout' =>  60,

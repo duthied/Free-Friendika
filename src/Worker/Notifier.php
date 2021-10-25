@@ -90,7 +90,7 @@ class Notifier
 					'APDelivery', $cmd, $target_id, $inbox, $uid, $receivers, $post_uriid);
 			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
-			$suggest = DI::fsuggest()->getById($target_id);
+			$suggest = DI::fsuggest()->selectOneById($target_id);
 			$uid = $suggest->uid;
 			$recipients[] = $suggest->cid;
 		} elseif ($cmd == Delivery::REMOVAL) {

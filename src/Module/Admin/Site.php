@@ -163,6 +163,7 @@ class Site extends BaseAdmin
 		$allow_users_remote_self = !empty($_POST['allow_users_remote_self']);
 		$explicit_content       = !empty($_POST['explicit_content']);
 		$proxify_content        = !empty($_POST['proxify_content']);
+		$cache_contact_avatar   = !empty($_POST['cache_contact_avatar']);
 
 		$enable_multi_reg       = !empty($_POST['enable_multi_reg']);
 		$enable_openid          = !empty($_POST['enable_openid']);
@@ -330,6 +331,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'allow_users_remote_self', $allow_users_remote_self);
 		DI::config()->set('system', 'explicit_content'       , $explicit_content);
 		DI::config()->set('system', 'proxify_content'        , $proxify_content);
+		DI::config()->set('system', 'cache_contact_avatar'   , $cache_contact_avatar);
 		DI::config()->set('system', 'check_new_version_url'  , $check_new_version_url);
 
 		DI::config()->set('system', 'block_extended_register', !$enable_multi_reg);
@@ -554,6 +556,7 @@ class Site extends BaseAdmin
 			'$disable_embedded'       => ['disable_embedded', DI::l10n()->t('Don\'t embed private images in posts'), DI::config()->get('system', 'disable_embedded'), DI::l10n()->t('Don\'t replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.')],
 			'$explicit_content'       => ['explicit_content', DI::l10n()->t('Explicit Content'), DI::config()->get('system', 'explicit_content'), DI::l10n()->t('Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.')],
 			'$proxify_content'        => ['proxify_content', DI::l10n()->t('Proxify external content'), DI::config()->get('system', 'proxify_content'), DI::l10n()->t('Route external content via the proxy functionality. This is used for example for some OEmbed accesses and in some other rare cases.')],
+			'$cache_contact_avatar'   => ['cache_contact_avatar', DI::l10n()->t('Cache contact avatars'), DI::config()->get('system', 'cache_contact_avatar'), DI::l10n()->t('Locally store the avatar pictures of the contacts. This uses a lot of storage space but it increases the performance.')],
 			'$allow_users_remote_self'=> ['allow_users_remote_self', DI::l10n()->t('Allow Users to set remote_self'), DI::config()->get('system', 'allow_users_remote_self'), DI::l10n()->t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
 			'$enable_multi_reg'       => ['enable_multi_reg', DI::l10n()->t('Enable multiple registrations'), !DI::config()->get('system', 'block_extended_register'), DI::l10n()->t('Enable users to register additional accounts for use as pages.')],
 			'$enable_openid'          => ['enable_openid', DI::l10n()->t('Enable OpenID'), !DI::config()->get('system', 'no_openid'), DI::l10n()->t('Enable OpenID support for registration and logins.')],

@@ -81,7 +81,7 @@ $dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config
 $dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['auth_ejabberd']]);
 
 \Friendica\DI::init($dice);
-
+\Friendica\Core\Logger\Handler\ErrorHandler::register($dice->create(\Psr\Log\LoggerInterface::class));
 $appMode = $dice->create(Mode::class);
 
 if ($appMode->isNormal()) {

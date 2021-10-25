@@ -49,7 +49,7 @@ class Event
 
 		$uriid = $event['uri-id'] ?? $uriid;
 
-		$bd_format = DI::l10n()->t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8 AM.
+		$bd_format = DI::l10n()->t('l F d, Y \@ g:i A \G\M\TP (e)'); // Friday October 29, 2021 @ 9:15 AM GMT-04:00 (America/New_York)
 
 		$event_start = DI::l10n()->getDay(DateTimeFormat::local($event['start'], $bd_format));
 
