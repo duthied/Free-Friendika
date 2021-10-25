@@ -107,7 +107,7 @@ function pubsub_post(App $a)
 {
 	$xml = Network::postdata();
 
-	Logger::notice('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  DI::args()->getCommand() . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
+	Logger::info('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  DI::args()->getCommand() . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
 	Logger::debug('Data: ' . $xml);
 
 	$nick       = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(trim(DI::args()->getArgv()[1])) : '');
@@ -149,7 +149,7 @@ function pubsub_post(App $a)
 		hub_post_return();
 	}
 
-	Logger::notice('Import item for ' . $nick . ' from ' . $contact['nick'] . ' (' . $contact['id'] . ')');
+	Logger::info('Import item for ' . $nick . ' from ' . $contact['nick'] . ' (' . $contact['id'] . ')');
 	$feedhub = '';
 	OStatus::import($xml, $importer, $contact, $feedhub);
 

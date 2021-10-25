@@ -64,7 +64,7 @@ function pubsubhubbub_init(App $a) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		Logger::notice("$hub_mode request from " . $_SERVER['REMOTE_ADDR']);
+		Logger::info("$hub_mode request from " . $_SERVER['REMOTE_ADDR']);
 
 		if (DI::args()->getArgc() > 1) {
 			// Normally the url should now contain the nick name as last part of the url

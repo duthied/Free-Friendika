@@ -46,7 +46,7 @@ class Salmon
 	{
 		$ret = [];
 
-		Logger::notice('Fetching salmon key for '.$uri);
+		Logger::info('Fetching salmon key for '.$uri);
 
 		$arr = Probe::lrdd($uri);
 
@@ -121,7 +121,7 @@ class Salmon
 			return;
 		}
 
-		Logger::notice('slapper called for '.$url.'. Data: ' . $slap);
+		Logger::info('slapper called for '.$url.'. Data: ' . $slap);
 
 		// create a magic envelope
 
@@ -209,7 +209,7 @@ class Salmon
 			$return_code = $postResult->getReturnCode();
 		}
 
-		Logger::notice('slapper for '.$url.' returned ' . $return_code);
+		Logger::info('slapper for '.$url.' returned ' . $return_code);
 
 		if (! $return_code) {
 			return -1;

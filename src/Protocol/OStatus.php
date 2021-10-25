@@ -535,12 +535,12 @@ class OStatus
 					foreach (self::$itemlist as $item) {
 						$found = Post::exists(['uid' => $importer["uid"], 'uri' => $item["uri"]]);
 						if ($found) {
-							Logger::info("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already exists.");
+							Logger::notice("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already exists.");
 						} elseif ($item['contact-id'] < 0) {
-							Logger::info("Item with uri ".$item["uri"]." is from a blocked contact.");
+							Logger::notice("Item with uri ".$item["uri"]." is from a blocked contact.");
 						} else {
 							$ret = Item::insert($item);
-							Logger::notice("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
+							Logger::info("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
 						}
 					}
 				}

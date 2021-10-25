@@ -72,7 +72,7 @@ class PubSubPublish
 		$ret = $postResult->getReturnCode();
 
 		if ($ret >= 200 && $ret <= 299) {
-			Logger::notice('Successfully pushed to ' . $subscriber['callback_url']);
+			Logger::info('Successfully pushed to ' . $subscriber['callback_url']);
 
 			PushSubscriber::reset($subscriber['id'], $last_update);
 		} else {
