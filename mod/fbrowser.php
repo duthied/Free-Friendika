@@ -121,7 +121,7 @@ function fbrowser_content(App $a)
 				$tpl = Renderer::getMarkupTemplate($template_file);
 				$o = Renderer::replaceMacros($tpl, [
 					'$type'     => 'file',
-					'$path'     => [ [ "", DI::l10n()->t("Files")] ],
+					'$path'     => ['' => DI::l10n()->t('Files')],
 					'$folders'  => false,
 					'$files'    => $files,
 					'$cancel'   => DI::l10n()->t('Cancel'),
