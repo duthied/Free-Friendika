@@ -190,11 +190,11 @@ class Page implements ArrayAccess
 	 * - Infinite scroll data
 	 * - head.tpl template
 	 *
-	 * @param App                                                            $app     The Friendica App instance
-	 * @param Module                                                         $module  The loaded Friendica module
-	 * @param L10n                                                           $l10n    The l10n language instance
-	 * @param \Friendica\Core\Config\Capability\IManageConfigValues          $config  The Friendica configuration
-	 * @param \Friendica\Core\PConfig\Capability\IManagePersonalConfigValues $pConfig The Friendica personal configuration (for user)
+	 * @param App                         $app     The Friendica App instance
+	 * @param Module                      $module  The loaded Friendica module
+	 * @param L10n                        $l10n    The l10n language instance
+	 * @param IManageConfigValues         $config  The Friendica configuration
+	 * @param IManagePersonalConfigValues $pConfig The Friendica personal configuration (for user)
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */

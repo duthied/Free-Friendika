@@ -41,7 +41,7 @@ class RouterTest extends TestCase
 	 */
 	private $cache;
 	/**
-	 * @var \Friendica\Core\Lock\Capability\ICanLock
+	 * @var ICanLock
 	 */
 	private $lock;
 

@@ -54,7 +54,7 @@ class ExAuth
 	 */
 	private $appMode;
 	/**
-	 * @var \Friendica\Core\Config\Capability\IManageConfigValues
+	 * @var IManageConfigValues
 	 */
 	private $config;
 	/**
@@ -71,11 +71,11 @@ class ExAuth
 	private $baseURL;
 
 	/**
-	 * @param App\Mode                                                       $appMode
-	 * @param IManageConfigValues                                            $config
-	 * @param \Friendica\Core\PConfig\Capability\IManagePersonalConfigValues $pConfig
-	 * @param Database                                                       $dba
-	 * @param App\BaseURL                                                    $baseURL
+	 * @param App\Mode                    $appMode
+	 * @param IManageConfigValues         $config
+	 * @param IManagePersonalConfigValues $pConfig
+	 * @param Database                    $dba
+	 * @param App\BaseURL                 $baseURL
 	 *
 	 * @throws Exception
 	 */

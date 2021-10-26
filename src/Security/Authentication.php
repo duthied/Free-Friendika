@@ -27,6 +27,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\Session;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
@@ -60,7 +61,7 @@ class Authentication
 	private $logger;
 	/** @var User\Cookie */
 	private $cookie;
-	/** @var \Friendica\Core\Session\Capability\IHandleSessions */
+	/** @var IHandleSessions */
 	private $session;
 	/** @var IManagePersonalConfigValues */
 	private $pConfig;
@@ -75,10 +76,10 @@ class Authentication
 	 * @param Database                                           $dba
 	 * @param LoggerInterface                                    $logger
 	 * @param User\Cookie                                        $cookie
-	 * @param \Friendica\Core\Session\Capability\IHandleSessions $session
+	 * @param IHandleSessions $session
 	 * @param IManagePersonalConfigValues                        $pConfig
 	 */
-	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\Capability\IHandleSessions $session, IManagePersonalConfigValues $pConfig)
+	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, IHandleSessions $session, IManagePersonalConfigValues $pConfig)
 	{
 		$this->config  = $config;
 		$this->mode    = $mode;

@@ -68,10 +68,10 @@ class LoggerFactory
 	/**
 	 * Creates a new PSR-3 compliant logger instances
 	 *
-	 * @param Database                                              $database   The Friendica Database instance
-	 * @param \Friendica\Core\Config\Capability\IManageConfigValues $config     The config
-	 * @param Profiler                                              $profiler   The profiler of the app
-	 * @param FileSystem                                            $fileSystem FileSystem utils
+	 * @param Database            $database   The Friendica Database instance
+	 * @param IManageConfigValues $config     The config
+	 * @param Profiler            $profiler   The profiler of the app
+	 * @param FileSystem          $fileSystem FileSystem utils
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 */
@@ -156,9 +156,9 @@ class LoggerFactory
 	 *
 	 * It should never get filled during normal usage of Friendica
 	 *
-	 * @param \Friendica\Core\Config\Capability\IManageConfigValues $config     The config
-	 * @param Profiler                                              $profiler   The profiler of the app
-	 * @param FileSystem                                            $fileSystem FileSystem utils
+	 * @param IManageConfigValues $config     The config
+	 * @param Profiler            $profiler   The profiler of the app
+	 * @param FileSystem          $fileSystem FileSystem utils
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 *

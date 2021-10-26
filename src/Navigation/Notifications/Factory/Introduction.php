@@ -51,9 +51,9 @@ class Introduction extends BaseFactory
 	private $baseUrl;
 	/** @var L10n */
 	private $l10n;
-	/** @var \Friendica\Core\PConfig\Capability\IManagePersonalConfigValues */
+	/** @var IManagePersonalConfigValues */
 	private $pConfig;
-	/** @var \Friendica\Core\Session\Capability\IHandleSessions */
+	/** @var IHandleSessions */
 	private $session;
 	/** @var string */
 	private $nick;

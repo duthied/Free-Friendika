@@ -59,7 +59,7 @@ class ApiTest extends FixtureTest
 
 		parent::setUp();
 
-		/** @var \Friendica\Core\Config\Capability\IManageConfigValues $config */
+		/** @var IManageConfigValues $config */
 		$this->config = $this->dice->create(IManageConfigValues::class);
 
 		$this->config->set('system', 'url', 'http://localhost');

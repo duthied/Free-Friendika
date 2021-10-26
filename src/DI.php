@@ -155,7 +155,7 @@ abstract class DI
 	//
 
 	/**
-	 * @return \Friendica\Core\Cache\Capability\ICanCache
+	 * @return Core\Cache\Capability\ICanCache
 	 */
 	public static function cache()
 	{
@@ -163,7 +163,7 @@ abstract class DI
 	}
 
 	/**
-	 * @return \Friendica\Core\Config\Capability\IManageConfigValues
+	 * @return Core\Config\Capability\IManageConfigValues
 	 */
 	public static function config()
 	{
@@ -171,7 +171,7 @@ abstract class DI
 	}
 
 	/**
-	 * @return \Friendica\Core\PConfig\Capability\IManagePersonalConfigValues
+	 * @return Core\PConfig\Capability\IManagePersonalConfigValues
 	 */
 	public static function pConfig()
 	{
@@ -179,7 +179,7 @@ abstract class DI
 	}
 
 	/**
-	 * @return \Friendica\Core\Lock\Capability\ICanLock
+	 * @return Core\Lock\Capability\ICanLock
 	 */
 	public static function lock()
 	{
@@ -203,7 +203,7 @@ abstract class DI
 	}
 
 	/**
-	 * @return \Friendica\Core\Session\Capability\IHandleSessions
+	 * @return Core\Session\Capability\IHandleSessions
 	 */
 	public static function session()
 	{

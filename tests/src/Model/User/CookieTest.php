@@ -30,7 +30,7 @@ use Mockery\MockInterface;
 
 class CookieTest extends MockedTest
 {
-	/** @var MockInterface|\Friendica\Core\Config\Capability\IManageConfigValues */
+	/** @var MockInterface|IManageConfigValues */
 	private $config;
 	/** @var MockInterface|BaseURL */
 	private $baseUrl;

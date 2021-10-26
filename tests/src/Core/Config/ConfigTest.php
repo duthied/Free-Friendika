@@ -36,7 +36,7 @@ abstract class ConfigTest extends MockedTest
 	/** @var \Friendica\Core\Config\ValueObject\Cache */
 	protected $configCache;
 
-	/** @var \Friendica\Core\Config\Capability\IManageConfigValues */
+	/** @var IManageConfigValues */
 	protected $testedConfig;
 
 	/**
@@ -65,7 +65,7 @@ abstract class ConfigTest extends MockedTest
 	}
 
 	/**
-	 * @return \Friendica\Core\Config\Capability\IManageConfigValues
+	 * @return IManageConfigValues
 	 */
 	abstract public function getInstance();
 

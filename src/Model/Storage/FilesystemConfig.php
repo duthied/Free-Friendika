@@ -54,8 +54,8 @@ class FilesystemConfig implements IStorageConfiguration
 	/**
 	 * Filesystem constructor.
 	 *
-	 * @param \Friendica\Core\Config\Capability\IManageConfigValues $config
-	 * @param L10n                                                  $l10n
+	 * @param IManageConfigValues $config
+	 * @param L10n                $l10n
 	 */
 	public function __construct(IManageConfigValues $config, L10n $l10n)
 	{

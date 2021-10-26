@@ -33,7 +33,7 @@ class Notify extends BaseRepository
 	/** @var BaseURL  */
 	protected $baseUrl;
 
-	/** @var \Friendica\Core\Config\Capability\IManageConfigValues */
+	/** @var IManageConfigValues */
 	protected $config;
 
 	/** @var Emailer */

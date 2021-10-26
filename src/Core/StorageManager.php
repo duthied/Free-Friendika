@@ -56,7 +56,7 @@ class StorageManager
 
 	/** @var Database */
 	private $dba;
-	/** @var \Friendica\Core\Config\Capability\IManageConfigValues */
+	/** @var IManageConfigValues */
 	private $config;
 	/** @var LoggerInterface */
 	private $logger;

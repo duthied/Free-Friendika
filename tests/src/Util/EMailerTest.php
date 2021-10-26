@@ -26,9 +26,9 @@ class EMailerTest extends MockedTest
 	use VFSTrait;
 	use HookMockTrait;
 
-	/** @var \Friendica\Core\Config\Capability\IManageConfigValues|MockInterface */
+	/** @var IManageConfigValues|MockInterface */
 	private $config;
-	/** @var \Friendica\Core\PConfig\Capability\IManagePersonalConfigValues|MockInterface */
+	/** @var IManagePersonalConfigValues|MockInterface */
 	private $pConfig;
 	/** @var L10n|MockInterface */
 	private $l10n;

@@ -272,8 +272,8 @@ class BaseURL
 	}
 
 	/**
-	 * @param \Friendica\Core\Config\Capability\IManageConfigValues $config The Friendica IConfiguration
-	 * @param array                                                 $server The $_SERVER array
+	 * @param IManageConfigValues $config The Friendica IConfiguration
+	 * @param array               $server The $_SERVER array
 	 */
 	public function __construct(IManageConfigValues $config, array $server)
 	{

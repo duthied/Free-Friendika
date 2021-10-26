@@ -42,7 +42,7 @@ class Lock extends \Asika\SimpleConsole\Console
 	private $appMode;
 
 	/**
-	 * @var \Friendica\Core\Lock\Capability\ICanLock
+	 * @var ICanLock
 	 */
 	private $lock;
 

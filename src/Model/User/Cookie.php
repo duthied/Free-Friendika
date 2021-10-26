@@ -52,10 +52,10 @@ class Cookie
 	private $data;
 
 	/**
-	 * @param \Friendica\Core\Config\Capability\IManageConfigValues $config
-	 * @param App\BaseURL                                           $baseURL
-	 * @param array                                                 $SERVER The $_SERVER array
-	 * @param array                                                 $COOKIE The $_COOKIE array
+	 * @param IManageConfigValues $config
+	 * @param App\BaseURL         $baseURL
+	 * @param array               $SERVER The $_SERVER array
+	 * @param array               $COOKIE The $_COOKIE array
 	 */
 	public function __construct(IManageConfigValues $config, App\BaseURL $baseURL, array $SERVER = [], array $COOKIE = [])
 	{

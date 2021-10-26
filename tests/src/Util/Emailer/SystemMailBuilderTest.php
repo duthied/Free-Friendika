@@ -34,7 +34,7 @@ class SystemMailBuilderTest extends MockedTest
 {
 	use VFSTrait;
 
-	/** @var \Friendica\Core\Config\Capability\IManageConfigValues */
+	/** @var IManageConfigValues */
 	private $config;
 	/** @var L10n */
 	private $l10n;

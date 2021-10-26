@@ -38,9 +38,9 @@ use Psr\Log\LoggerInterface;
  */
 class Emailer
 {
-	/** @var \Friendica\Core\Config\Capability\IManageConfigValues */
+	/** @var IManageConfigValues */
 	private $config;
-	/** @var \Friendica\Core\PConfig\Capability\IManagePersonalConfigValues */
+	/** @var IManagePersonalConfigValues */
 	private $pConfig;
 	/** @var LoggerInterface */
 	private $logger;

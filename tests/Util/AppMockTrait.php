@@ -42,7 +42,7 @@ trait AppMockTrait
 	protected $app;
 
 	/**
-	 * @var MockInterface|\Friendica\Core\Config\Capability\IManageConfigValues The mocked Config Cache
+	 * @var MockInterface|Config\Capability\IManageConfigValues The mocked Config Cache
 	 */
 	protected $configMock;
 

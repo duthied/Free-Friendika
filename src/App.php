@@ -305,16 +305,16 @@ class App
 	}
 
 	/**
-	 * @param Database                                                       $database The Friendica Database
-	 * @param IManageConfigValues                                            $config   The Configuration
-	 * @param App\Mode                                                       $mode     The mode of this Friendica app
-	 * @param BaseURL                                                        $baseURL  The full base URL of this Friendica app
-	 * @param LoggerInterface                                                $logger   The current app logger
-	 * @param Profiler                                                       $profiler The profiler of this application
-	 * @param L10n                                                           $l10n     The translator instance
-	 * @param App\Arguments                                                  $args     The Friendica Arguments of the call
-	 * @param Core\Process                                                   $process  The process methods
-	 * @param \Friendica\Core\PConfig\Capability\IManagePersonalConfigValues $pConfig  Personal configuration
+	 * @param Database                    $database The Friendica Database
+	 * @param IManageConfigValues         $config   The Configuration
+	 * @param App\Mode                    $mode     The mode of this Friendica app
+	 * @param BaseURL                     $baseURL  The full base URL of this Friendica app
+	 * @param LoggerInterface             $logger   The current app logger
+	 * @param Profiler                    $profiler The profiler of this application
+	 * @param L10n                        $l10n     The translator instance
+	 * @param App\Arguments               $args     The Friendica Arguments of the call
+	 * @param Core\Process                $process  The process methods
+	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
 	 */
 	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\Process $process, IManagePersonalConfigValues $pConfig)
 	{

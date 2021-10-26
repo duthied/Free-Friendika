@@ -38,7 +38,7 @@ class PostUpdate extends \Asika\SimpleConsole\Console
 	 */
 	private $appMode;
 	/**
-	 * @var \Friendica\Core\Config\Capability\IManageConfigValues
+	 * @var IManageConfigValues
 	 */
 	private $config;
 	/**
