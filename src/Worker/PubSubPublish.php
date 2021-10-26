@@ -66,7 +66,7 @@ class PubSubPublish
 					$subscriber['topic']),
 			'X-Hub-Signature' => 'sha1=' . $hmac_sig];
 
-		Logger::debug('POST ' . ['headers' => $headers, 'params' => $params]);
+		Logger::debug('POST', ['headers' => $headers, 'params' => $params]);
 
 		$postResult = DI::httpClient()->post($subscriber['callback_url'], $params, $headers);
 		$ret = $postResult->getReturnCode();

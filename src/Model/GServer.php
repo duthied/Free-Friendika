@@ -113,7 +113,7 @@ class GServer
 		if ($no_check || !self::check($url)) {
 			return null;
 		}
-	
+
 		return self::getID($url, true);
 	}
 
@@ -1365,7 +1365,7 @@ class GServer
 			if (in_array($serverdata['detection-method'], [self::DETECT_HEADER, self::DETECT_BODY, self::DETECT_MANUAL])) {
 				$serverdata['detection-method'] = self::DETECT_GNUSOCIAL;
 			}
-	
+
 			return $serverdata;
 		}
 
@@ -1425,7 +1425,7 @@ class GServer
 			return $serverdata;
 		}
 
-		if (in_array($serverdata['detection-method'], [self::DETECT_HEADER, self::DETECT_BODY, self::DETECT_MANUAL])) {			
+		if (in_array($serverdata['detection-method'], [self::DETECT_HEADER, self::DETECT_BODY, self::DETECT_MANUAL])) {
 			$serverdata['detection-method'] = $friendika ? self::DETECT_FRIENDIKA : self::DETECT_FRIENDICA;
 		}
 
@@ -1670,7 +1670,7 @@ class GServer
 		$gservers = DBA::select('gserver', ['id', 'url', 'nurl', 'network', 'poco', 'directory-type'],
 			["NOT `failed` AND `directory-type` != ? AND `last_poco_query` < ?", GServer::DT_NONE, $last_update],
 			['order' => ['RAND()']]);
-	
+
 		while ($gserver = DBA::fetch($gservers)) {
 			Logger::info('Update peer list', ['server' => $gserver['url'], 'id' => $gserver['id']]);
 			Worker::add(PRIORITY_LOW, 'UpdateServerPeers', $gserver['url']);
@@ -1680,7 +1680,7 @@ class GServer
 
 			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
 			DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
-	
+
 			if (--$no_of_queries == 0) {
 				break;
 			}
