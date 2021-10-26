@@ -34,15 +34,20 @@ class RemoveUnusedAvatars
 {
 	public static function execute()
 	{
-		$condition = ["`uid` = ? AND NOT `self` AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
-			AND `id` IN (SELECT `contact-id` FROM `photo`) AND NOT `id` IN (SELECT `author-id` FROM `post-user`)
-			AND NOT `id` IN (SELECT `owner-id` FROM `post-user`) AND NOT `id` IN (SELECT `causer-id` FROM `post-user`)
-			AND NOT `id` IN (SELECT `cid` FROM `post-tag`) AND NOT `id` IN (SELECT `contact-id` FROM `post-user`)", 0, 0];
+		$sql = "FROM `contact` INNER JOIN `photo` ON `contact`.`id` = `contact-id`
+			WHERE `contact`.`uid` = ? AND NOT `self` AND (`photo` != ? OR `thumb` != ? OR `micro` != ?)
+				AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
+				AND NOT `contact`.`id` IN (SELECT `author-id` FROM `post-user`)
+				AND NOT `contact`.`id` IN (SELECT `owner-id` FROM `post-user`)
+				AND NOT `contact`.`id` IN (SELECT `causer-id` FROM `post-user`)
+				AND NOT `contact`.`id` IN (SELECT `cid` FROM `post-tag`)
+				AND NOT `contact`.`id` IN (SELECT `contact-id` FROM `post-user`);";
 
-		$total = DBA::count('contact', $condition);
+		$ret = DBA::fetchFirst("SELECT COUNT(*) AS `total` " . $sql, 0, '', '', '', 0);
+		$total = $ret['total'] ?? 0;
 		Logger::notice('Starting removal', ['total' => $total]);
 		$count = 0;
-		$contacts = DBA::select('contact', ['id'], $condition);
+		$contacts = DBA::p("SELECT `contact`.`id` " . $sql, 0, '', '', '', 0);
 		while ($contact = DBA::fetch($contacts)) {
 			Contact::update(['photo' => '', 'thumb' => '', 'micro' => ''], ['id' => $contact['id']]);
 			Photo::delete(['contact-id' => $contact['id'], 'photo-type' => [Photo::CONTACT_AVATAR, Photo::CONTACT_BANNER]]);
