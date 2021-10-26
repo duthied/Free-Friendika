@@ -409,8 +409,8 @@ return [
 	],
 
 	'/receive' => [
-		'/public'       => [Module\Diaspora\Receive::class, [R::POST]],
-		'/users/{guid}' => [Module\Diaspora\Receive::class, [R::POST]],
+		'/{type:public}'       => [Module\Diaspora\Receive::class, [        R::POST]],
+		'/{type:users}/{guid}' => [Module\Diaspora\Receive::class, [        R::POST]],
 	],
 
 	'/settings' => [

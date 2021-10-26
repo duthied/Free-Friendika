@@ -77,6 +77,8 @@ HELP;
 
 	protected $subConsoles = [
 		'addon'                  => Friendica\Console\Addon::class,
+		'archivecontact'         => Friendica\Console\ArchiveContact::class,
+		'autoinstall'            => Friendica\Console\AutomaticInstallation::class,
 		'cache'                  => Friendica\Console\Cache::class,
 		'config'                 => Friendica\Console\Config::class,
 		'contact'                => Friendica\Console\Contact::class,
@@ -84,21 +86,20 @@ HELP;
 		'docbloxerrorchecker'    => Friendica\Console\DocBloxErrorChecker::class,
 		'dbstructure'            => Friendica\Console\DatabaseStructure::class,
 		'extract'                => Friendica\Console\Extract::class,
+		'fixapdeliveryworkertaskparameters' => Friendica\Console\FixAPDeliveryWorkerTaskParameters::class,
 		'globalcommunityblock'   => Friendica\Console\GlobalCommunityBlock::class,
 		'globalcommunitysilence' => Friendica\Console\GlobalCommunitySilence::class,
-		'archivecontact'         => Friendica\Console\ArchiveContact::class,
-		'autoinstall'            => Friendica\Console\AutomaticInstallation::class,
 		'lock'                   => Friendica\Console\Lock::class,
 		'maintenance'            => Friendica\Console\Maintenance::class,
-		'user'                   => Friendica\Console\User::class,
 		'php2po'                 => Friendica\Console\PhpToPo::class,
-		'po2php'                 => Friendica\Console\PoToPhp::class,
-		'typo'                   => Friendica\Console\Typo::class,
 		'postupdate'             => Friendica\Console\PostUpdate::class,
+		'po2php'                 => Friendica\Console\PoToPhp::class,
+		'relay'                  => Friendica\Console\Relay::class,
 		'serverblock'            => Friendica\Console\ServerBlock::class,
 		'storage'                => Friendica\Console\Storage::class,
-		'relay'                  => Friendica\Console\Relay::class,
-		'fixapdeliveryworkertaskparameters' => Friendica\Console\FixAPDeliveryWorkerTaskParameters::class,
+		'test'                   => Friendica\Console\Test::class,
+		'typo'                   => Friendica\Console\Typo::class,
+		'user'                   => Friendica\Console\User::class,
 	];
 
 	/**
