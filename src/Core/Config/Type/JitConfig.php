@@ -21,8 +21,8 @@
 
 namespace Friendica\Core\Config\Type;
 
-use Friendica\Core\Config\Cache\Cache;
-use Friendica\Core\Config\Model\Config;
+use Friendica\Core\Config\ValueObject\Cache;
+use Friendica\Core\Config\Repository\Config;
 
 /**
  * This class implements the Just-In-Time configuration, which will cache
@@ -31,7 +31,7 @@ use Friendica\Core\Config\Model\Config;
  * Default Configuration type.
  * Provides the best performance for pages loading few configuration variables.
  */
-class JitConfig extends BaseConfig
+class JitConfig extends AbstractConfig
 {
 	/**
 	 * @var array Array of already loaded db values (even if there was no value)
@@ -39,12 +39,12 @@ class JitConfig extends BaseConfig
 	private $db_loaded;
 
 	/**
-	 * @param Cache                               $configCache The configuration cache (based on the config-files)
-	 * @param Config $configModel The configuration model
+	 * @param Cache  $configCache The configuration cache (based on the config-files)
+	 * @param Config $configRepo  The configuration model
 	 */
-	public function __construct(Cache $configCache, Config $configModel)
+	public function __construct(Cache $configCache, Config $configRepo)
 	{
-		parent::__construct($configCache, $configModel);
+		parent::__construct($configCache, $configRepo);
 		$this->db_loaded = [];
 
 		$this->load();
@@ -52,16 +52,15 @@ class JitConfig extends BaseConfig
 
 	/**
 	 * {@inheritDoc}
-	 *
 	 */
 	public function load(string $cat = 'config')
 	{
 		// If not connected, do nothing
-		if (!$this->configModel->isConnected()) {
+		if (!$this->configRepo->isConnected()) {
 			return;
 		}
 
-		$config = $this->configModel->load($cat);
+		$config = $this->configRepo->load($cat);
 
 		if (!empty($config[$cat])) {
 			foreach ($config[$cat] as $key => $value) {
@@ -79,15 +78,14 @@ class JitConfig extends BaseConfig
 	public function get(string $cat, string $key, $default_value = null, bool $refresh = false)
 	{
 		// if the value isn't loaded or refresh is needed, load it to the cache
-		if ($this->configModel->isConnected() &&
-		    (empty($this->db_loaded[$cat][$key]) ||
-		     $refresh)) {
+		if ($this->configRepo->isConnected() &&
+			(empty($this->db_loaded[$cat][$key]) ||
+			 $refresh)) {
+			$dbValue = $this->configRepo->get($cat, $key);
 
-			$dbvalue = $this->configModel->get($cat, $key);
-
-			if (isset($dbvalue)) {
-				$this->configCache->set($cat, $key, $dbvalue, Cache::SOURCE_DB);
-				unset($dbvalue);
+			if (isset($dbValue)) {
+				$this->configCache->set($cat, $key, $dbValue, Cache::SOURCE_DB);
+				unset($dbValue);
 			}
 
 			$this->db_loaded[$cat][$key] = true;
@@ -102,17 +100,17 @@ class JitConfig extends BaseConfig
 	/**
 	 * {@inheritDoc}
 	 */
-	public function set(string $cat, string $key, $value)
+	public function set(string $cat, string $key, $value): bool
 	{
 		// set the cache first
 		$cached = $this->configCache->set($cat, $key, $value, Cache::SOURCE_DB);
 
 		// If there is no connected adapter, we're finished
-		if (!$this->configModel->isConnected()) {
+		if (!$this->configRepo->isConnected()) {
 			return $cached;
 		}
 
-		$stored = $this->configModel->set($cat, $key, $value);
+		$stored = $this->configRepo->set($cat, $key, $value);
 
 		$this->db_loaded[$cat][$key] = $stored;
 
@@ -122,7 +120,7 @@ class JitConfig extends BaseConfig
 	/**
 	 * {@inheritDoc}
 	 */
-	public function delete(string $cat, string $key)
+	public function delete(string $cat, string $key): bool
 	{
 		$cacheRemoved = $this->configCache->delete($cat, $key);
 
@@ -130,11 +128,11 @@ class JitConfig extends BaseConfig
 			unset($this->db_loaded[$cat][$key]);
 		}
 
-		if (!$this->configModel->isConnected()) {
+		if (!$this->configRepo->isConnected()) {
 			return $cacheRemoved;
 		}
 
-		$storeRemoved = $this->configModel->delete($cat, $key);
+		$storeRemoved = $this->configRepo->delete($cat, $key);
 
 		return $cacheRemoved || $storeRemoved;
 	}

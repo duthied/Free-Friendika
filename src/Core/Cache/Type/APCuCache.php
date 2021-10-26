@@ -21,28 +21,28 @@
 
 namespace Friendica\Core\Cache\Type;
 
-use Exception;
 use Friendica\Core\Cache\Enum\Duration;
-use Friendica\Core\Cache\IMemoryCache;
-use Friendica\Core\Cache\Type\TraitCompareDelete;
-use Friendica\Core\Cache\Type\TraitCompareSet;
+use Friendica\Core\Cache\Capability\ICanCacheInMemory;
 use Friendica\Core\Cache\Enum\Type;
+use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
 
 /**
  * APCu Cache.
  */
-class APCuCache extends BaseCache implements IMemoryCache
+class APCuCache extends AbstractCache implements ICanCacheInMemory
 {
-	use TraitCompareSet;
-	use TraitCompareDelete;
+	use CompareSetTrait;
+	use CompareDeleteTrait;
 
 	/**
-	 * @throws Exception
+	 * @param string $hostname
+	 *
+	 * @throws InvalidCacheDriverException
 	 */
 	public function __construct(string $hostname)
 	{
 		if (!self::isAvailable()) {
-			throw new Exception('APCu is not available.');
+			throw new InvalidCacheDriverException('APCu is not available.');
 		}
 
 		parent::__construct($hostname);
@@ -51,9 +51,9 @@ class APCuCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function getAllKeys($prefix = null)
+	public function getAllKeys(?string $prefix = null): array
 	{
-		$ns = $this->getCacheKey($prefix);
+		$ns = $this->getCacheKey($prefix ?? '');
 		$ns = preg_quote($ns, '/');
 
 		if (class_exists('\APCIterator')) {
@@ -73,12 +73,11 @@ class APCuCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function get($key)
+	public function get(string $key)
 	{
-		$return = null;
-		$cachekey = $this->getCacheKey($key);
+		$cacheKey = $this->getCacheKey($key);
 
-		$cached = apcu_fetch($cachekey, $success);
+		$cached = apcu_fetch($cacheKey, $success);
 		if (!$success) {
 			return null;
 		}
@@ -89,30 +88,30 @@ class APCuCache extends BaseCache implements IMemoryCache
 		// We also check if the db entry is a serialized
 		// boolean 'false' value (which we want to return).
 		if ($cached === serialize(false) || $value !== false) {
-			$return = $value;
+			return $value;
 		}
 
-		return $return;
+		return null;
 	}
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
+	public function set(string $key, $value, int $ttl = Duration::FIVE_MINUTES): bool
 	{
-		$cachekey = $this->getCacheKey($key);
+		$cacheKey = $this->getCacheKey($key);
 
 		$cached = serialize($value);
 
 		if ($ttl > 0) {
 			return apcu_store(
-				$cachekey,
+				$cacheKey,
 				$cached,
 				$ttl
 			);
 		} else {
 			return apcu_store(
-				$cachekey,
+				$cacheKey,
 				$cached
 			);
 		}
@@ -121,16 +120,16 @@ class APCuCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function delete($key)
+	public function delete(string $key): bool
 	{
-		$cachekey = $this->getCacheKey($key);
-		return apcu_delete($cachekey);
+		$cacheKey = $this->getCacheKey($key);
+		return apcu_delete($cacheKey);
 	}
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function clear($outdated = true)
+	public function clear(bool $outdated = true): bool
 	{
 		if ($outdated) {
 			return true;
@@ -151,15 +150,15 @@ class APCuCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
+	public function add(string $key, $value, int $ttl = Duration::FIVE_MINUTES): bool
 	{
-		$cachekey = $this->getCacheKey($key);
-		$cached = serialize($value);
+		$cacheKey = $this->getCacheKey($key);
+		$cached   = serialize($value);
 
-		return apcu_add($cachekey, $cached);
+		return apcu_add($cacheKey, $cached);
 	}
 
-	public static function isAvailable()
+	public static function isAvailable(): bool
 	{
 		if (!extension_loaded('apcu')) {
 			return false;
@@ -178,7 +177,7 @@ class APCuCache extends BaseCache implements IMemoryCache
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getName()
+	public function getName(): string
 	{
 		return Type::APCU;
 	}

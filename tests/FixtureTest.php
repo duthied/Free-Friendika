@@ -6,10 +6,10 @@
 namespace Friendica\Test;
 
 use Dice\Dice;
-use Friendica\Core\Config\Cache\Cache;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\ValueObject\Cache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Session;
-use Friendica\Core\Session\ISession;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -33,10 +33,10 @@ abstract class FixtureTest extends DatabaseTest
 		$this->dice = (new Dice())
 			->addRules(include __DIR__ . '/../static/dependencies.config.php')
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
-			->addRule(ISession::class, ['instanceOf' => Session\Type\Memory::class, 'shared' => true, 'call' => null]);
+			->addRule(IHandleSessions::class, ['instanceOf' => Session\Type\Memory::class, 'shared' => true, 'call' => null]);
 		DI::init($this->dice);
 
-		/** @var IConfig $config */
+		/** @var IManageConfigValues $config */
 		$configCache = $this->dice->create(Cache::class);
 		$configCache->set('database', 'disable_pdo', true);
 

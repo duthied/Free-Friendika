@@ -22,10 +22,10 @@
 namespace Friendica\Test\src\App;
 
 use Friendica\App;
-use Friendica\Core\Cache\ICache;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Cache\Capability\ICanCache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
-use Friendica\Core\Lock\ILock;
+use Friendica\Core\Lock\Capability\ICanLock;
 use Friendica\LegacyModule;
 use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Module\WellKnown\HostMeta;
@@ -172,18 +172,18 @@ class ModuleTest extends DatabaseTest
 	 */
 	public function testModuleClass($assert, string $name, string $command, bool $privAdd)
 	{
-		$config = Mockery::mock(IConfig::class);
+		$config = Mockery::mock(IManageConfigValues::class);
 		$config->shouldReceive('get')->with('config', 'private_addons', false)->andReturn($privAdd)->atMost()->once();
 
 		$l10n = Mockery::mock(L10n::class);
 		$l10n->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
-		$cache = Mockery::mock(ICache::class);
+		$cache = Mockery::mock(ICanCache::class);
 		$cache->shouldReceive('get')->with('routerDispatchData')->andReturn('')->atMost()->once();
 		$cache->shouldReceive('get')->with('lastRoutesFileModifiedTime')->andReturn('')->atMost()->once();
 		$cache->shouldReceive('set')->withAnyArgs()->andReturn(false)->atMost()->twice();
 
-		$lock = Mockery::mock(ILock::class);
+		$lock = Mockery::mock(ICanLock::class);
 		$lock->shouldReceive('acquire')->andReturn(true);
 		$lock->shouldReceive('isLocked')->andReturn(false);
 

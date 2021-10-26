@@ -21,8 +21,8 @@
 
 namespace Friendica\Core\PConfig\Type;
 
-use Friendica\Core\PConfig\Cache\Cache;
-use Friendica\Model;
+use Friendica\Core\PConfig\Repository;
+use Friendica\Core\PConfig\ValueObject;
 
 /**
  * This class implements the preload configuration, which will cache
@@ -30,18 +30,18 @@ use Friendica\Model;
  *
  * Minimizes the number of database queries to retrieve configuration values at the cost of memory.
  */
-class PreloadPConfig extends BasePConfig
+class PreloadPConfig extends AbstractPConfigValues
 {
 	/** @var array */
 	private $config_loaded;
 
 	/**
-	 * @param \Friendica\Core\PConfig\Cache\Cache   $configCache The configuration cache
-	 * @param \Friendica\Core\PConfig\Model\PConfig $configModel The configuration model
+	 * @param ValueObject\Cache  $configCache The configuration cache
+	 * @param Repository\PConfig $configRepo  The configuration model
 	 */
-	public function __construct(Cache $configCache, \Friendica\Core\PConfig\Model\PConfig $configModel)
+	public function __construct(ValueObject\Cache $configCache, Repository\PConfig $configRepo)
 	{
-		parent::__construct($configCache, $configModel);
+		parent::__construct($configCache, $configRepo);
 		$this->config_loaded = [];
 	}
 
@@ -51,16 +51,16 @@ class PreloadPConfig extends BasePConfig
 	 * This loads all config values everytime load is called
 	 *
 	 */
-	public function load(int $uid, string $cat = 'config')
+	public function load(int $uid, string $cat = 'config'): array
 	{
 		// Don't load the whole configuration twice or with invalid uid
 		if (!$uid || !empty($this->config_loaded[$uid])) {
-			return;
+			return [];
 		}
 
 		// If not connected, do nothing
 		if (!$this->configModel->isConnected()) {
-			return;
+			return [];
 		}
 
 		$config                    = $this->configModel->load($uid);
@@ -101,7 +101,7 @@ class PreloadPConfig extends BasePConfig
 	/**
 	 * {@inheritDoc}
 	 */
-	public function set(int $uid, string $cat, string $key, $value)
+	public function set(int $uid, string $cat, string $key, $value): bool
 	{
 		if (!$uid) {
 			return false;
@@ -127,7 +127,7 @@ class PreloadPConfig extends BasePConfig
 	/**
 	 * {@inheritDoc}
 	 */
-	public function delete(int $uid, string $cat, string $key)
+	public function delete(int $uid, string $cat, string $key): bool
 	{
 		if (!$uid) {
 			return false;

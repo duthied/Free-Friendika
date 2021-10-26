@@ -3,9 +3,9 @@
 namespace Friendica\Test\src\Util;
 
 use Friendica\App\BaseURL;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Object\EMail\IEmail;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\EmailerSpy;
@@ -26,9 +26,9 @@ class EMailerTest extends MockedTest
 	use VFSTrait;
 	use HookMockTrait;
 
-	/** @var IConfig|MockInterface */
+	/** @var \Friendica\Core\Config\Capability\IManageConfigValues|MockInterface */
 	private $config;
-	/** @var IPConfig|MockInterface */
+	/** @var \Friendica\Core\PConfig\Capability\IManagePersonalConfigValues|MockInterface */
 	private $pConfig;
 	/** @var L10n|MockInterface */
 	private $l10n;
@@ -41,12 +41,12 @@ class EMailerTest extends MockedTest
 
 		$this->setUpVfsDir();
 
-		$this->config  = \Mockery::mock(IConfig::class);
+		$this->config  = \Mockery::mock(IManageConfigValues::class);
 		$this->config->shouldReceive('get')->withArgs(['config', 'sender_email'])->andReturn('test@friendica.local')->once();
 		$this->config->shouldReceive('get')->withArgs(['config', 'sitename', 'Friendica Social Network'])->andReturn('Friendica Social Network')->once();
 		$this->config->shouldReceive('get')->withArgs(['system', 'sendmail_params', true])->andReturn(true);
 
-		$this->pConfig = \Mockery::mock(IPConfig::class);
+		$this->pConfig = \Mockery::mock(IManagePersonalConfigValues::class);
 		$this->l10n    = \Mockery::mock(L10n::class);
 		$this->baseUrl = \Mockery::mock(BaseURL::class);
 		$this->baseUrl->shouldReceive('getHostname')->andReturn('friendica.local');

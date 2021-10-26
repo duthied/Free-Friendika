@@ -21,15 +21,17 @@
 
 namespace Friendica\Core\Session\Type;
 
+use Friendica\Core\Session\Capability\IHandleSessions;
+
 /**
  * Contains the base methods for $_SESSION interaction
  */
-class AbstractSession
+class AbstractSession implements IHandleSessions
 {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function start()
+	public function start(): IHandleSessions
 	{
 		return $this;
 	}
@@ -37,7 +39,7 @@ class AbstractSession
 	/**
 	 * {@inheritDoc}}
 	 */
-	public function exists(string $name)
+	public function exists(string $name): bool
 	{
 		return isset($_SESSION[$name]);
 	}

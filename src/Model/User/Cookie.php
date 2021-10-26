@@ -22,7 +22,7 @@
 namespace Friendica\Model\User;
 
 use Friendica\App;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 
 /**
  * Interacting with the Friendica Cookie of a user
@@ -52,12 +52,12 @@ class Cookie
 	private $data;
 
 	/**
-	 * @param IConfig     $config
-	 * @param App\BaseURL $baseURL
-	 * @param array       $SERVER The $_SERVER array
-	 * @param array       $COOKIE The $_COOKIE array
+	 * @param \Friendica\Core\Config\Capability\IManageConfigValues $config
+	 * @param App\BaseURL                                           $baseURL
+	 * @param array                                                 $SERVER The $_SERVER array
+	 * @param array                                                 $COOKIE The $_COOKIE array
 	 */
-	public function __construct(IConfig $config, App\BaseURL $baseURL, array $SERVER = [], array $COOKIE = [])
+	public function __construct(IManageConfigValues $config, App\BaseURL $baseURL, array $SERVER = [], array $COOKIE = [])
 	{
 		$this->sslEnabled     = $baseURL->getSSLPolicy() === App\BaseURL::SSL_POLICY_FULL;
 		$this->sitePrivateKey = $config->get('system', 'site_prvkey');

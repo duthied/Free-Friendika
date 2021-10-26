@@ -25,12 +25,12 @@ use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\App\Module;
-use Friendica\Core\Config\Factory\ConfigFactory;
+use Friendica\Core\Config\Factory\Config;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
-use Friendica\Core\Config\Cache\Cache;
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\Config\ValueObject\Cache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
@@ -88,7 +88,7 @@ class App
 	private $currentMobileTheme;
 
 	/**
-	 * @var IConfig The config
+	 * @var IManageConfigValues The config
 	 */
 	private $config;
 
@@ -123,7 +123,7 @@ class App
 	private $process;
 
 	/**
-	 * @var IPConfig
+	 * @var IManagePersonalConfigValues
 	 */
 	private $pConfig;
 
@@ -305,18 +305,18 @@ class App
 	}
 
 	/**
-	 * @param Database        $database The Friendica Database
-	 * @param IConfig         $config   The Configuration
-	 * @param App\Mode        $mode     The mode of this Friendica app
-	 * @param BaseURL         $baseURL  The full base URL of this Friendica app
-	 * @param LoggerInterface $logger   The current app logger
-	 * @param Profiler        $profiler The profiler of this application
-	 * @param L10n            $l10n     The translator instance
-	 * @param App\Arguments   $args     The Friendica Arguments of the call
-	 * @param Core\Process    $process  The process methods
-	 * @param IPConfig        $pConfig  Personal configuration
+	 * @param Database                                                       $database The Friendica Database
+	 * @param IManageConfigValues                                            $config   The Configuration
+	 * @param App\Mode                                                       $mode     The mode of this Friendica app
+	 * @param BaseURL                                                        $baseURL  The full base URL of this Friendica app
+	 * @param LoggerInterface                                                $logger   The current app logger
+	 * @param Profiler                                                       $profiler The profiler of this application
+	 * @param L10n                                                           $l10n     The translator instance
+	 * @param App\Arguments                                                  $args     The Friendica Arguments of the call
+	 * @param Core\Process                                                   $process  The process methods
+	 * @param \Friendica\Core\PConfig\Capability\IManagePersonalConfigValues $pConfig  Personal configuration
 	 */
-	public function __construct(Database $database, IConfig $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\Process $process, IPConfig $pConfig)
+	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\Process $process, IManagePersonalConfigValues $pConfig)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -357,7 +357,7 @@ class App
 			$this->profiler->update($this->config);
 
 			Core\Hook::loadHooks();
-			$loader = (new ConfigFactory())->createConfigFileLoader($this->getBasePath(), $_SERVER);
+			$loader = (new Config())->createConfigFileLoader($this->getBasePath(), $_SERVER);
 			Core\Hook::callAll('load_config', $loader);
 		}
 
@@ -552,16 +552,16 @@ class App
 	 *
 	 * This probably should change to limit the size of this monster method.
 	 *
-	 * @param App\Module     $module The determined module
-	 * @param App\Router     $router
-	 * @param IPConfig       $pconfig
-	 * @param Authentication $auth The Authentication backend of the node
-	 * @param App\Page       $page The Friendica page printing container
+	 * @param App\Module                  $module The determined module
+	 * @param App\Router                  $router
+	 * @param IManagePersonalConfigValues $pconfig
+	 * @param Authentication              $auth The Authentication backend of the node
+	 * @param App\Page                    $page The Friendica page printing container
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Module $module, App\Router $router, IPConfig $pconfig, Authentication $auth, App\Page $page, float $start_time)
+	public function runFrontend(App\Module $module, App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, float $start_time)
 	{
 		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');

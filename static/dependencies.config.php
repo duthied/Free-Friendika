@@ -41,7 +41,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock;
 use Friendica\Core\Process;
-use Friendica\Core\Session\ISession;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\StorageManager;
 use Friendica\Database\Database;
 use Friendica\Factory;
@@ -74,8 +74,8 @@ return [
 			$_SERVER
 		]
 	],
-	Config\Cache\ConfigFileLoader::class => [
-		'instanceOf' => Config\Factory\ConfigFactory::class,
+	Config\Util\ConfigFileLoader::class => [
+		'instanceOf' => Config\Factory\Config::class,
 		'call'       => [
 			['createConfigFileLoader', [
 				[Dice::INSTANCE => '$basepath'],
@@ -83,8 +83,8 @@ return [
 			], Dice::CHAIN_CALL],
 		],
 	],
-	Config\Cache\Cache::class => [
-		'instanceOf' => Config\Factory\ConfigFactory::class,
+	Config\ValueObject\Cache::class => [
+		'instanceOf' => Config\Factory\Config::class,
 		'call'       => [
 			['createCache', [$_SERVER], Dice::CHAIN_CALL],
 		],
@@ -95,14 +95,14 @@ return [
 			['determine', [], Dice::CHAIN_CALL],
 		],
 	],
-	Config\IConfig::class                   => [
-		'instanceOf' => Config\Factory\ConfigFactory::class,
+	Config\Capability\IManageConfigValues::class => [
+		'instanceOf' => Config\Factory\Config::class,
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
-	PConfig\IPConfig::class => [
-		'instanceOf' => PConfig\Factory\PConfigFactory::class,
+	PConfig\Capability\IManagePersonalConfigValues::class => [
+		'instanceOf' => PConfig\Factory\PConfig::class,
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		]
@@ -158,20 +158,20 @@ return [
 			['createDev', [], Dice::CHAIN_CALL],
 		]
 	],
-	Cache\ICache::class             => [
-		'instanceOf' => Cache\Factory\CacheFactory::class,
+	Cache\Capability\ICanCache::class => [
+		'instanceOf' => Cache\Factory\Cache::class,
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
-	Cache\IMemoryCache::class       => [
-		'instanceOf' => Cache\Factory\CacheFactory::class,
+	Cache\Capability\ICanCacheInMemory::class => [
+		'instanceOf' => Cache\Factory\Cache::class,
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
-	Lock\ILock::class                    => [
-		'instanceOf' => Lock\Factory\LockFactory::class,
+	Lock\Capability\ICanLock::class => [
+		'instanceOf' => Lock\Factory\Lock::class,
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
@@ -206,8 +206,8 @@ return [
 			$_SERVER, $_GET
 		],
 	],
-	ISession::class => [
-		'instanceOf' => \Friendica\Core\Session\Factory\SessionFactory::class,
+	IHandleSessions::class => [
+		'instanceOf' => \Friendica\Core\Session\Factory\Session::class,
 		'call' => [
 			['createSession', [$_SERVER], Dice::CHAIN_CALL],
 			['start', [], Dice::CHAIN_CALL],

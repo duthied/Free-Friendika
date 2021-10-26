@@ -168,15 +168,15 @@ class Module
 	/**
 	 * Determine the class of the current module
 	 *
-	 * @param Arguments           $args   The Friendica execution arguments
-	 * @param Router              $router The Friendica routing instance
-	 * @param Core\Config\IConfig $config The Friendica Configuration
+	 * @param Arguments                                             $args   The Friendica execution arguments
+	 * @param Router                                                $router The Friendica routing instance
+	 * @param \Friendica\Core\Config\Capability\IManageConfigValues $config The Friendica Configuration
 	 *
 	 * @return Module The determined module of this call
 	 *
 	 * @throws \Exception
 	 */
-	public function determineClass(Arguments $args, Router $router, Core\Config\IConfig $config)
+	public function determineClass(Arguments $args, Router $router, Core\Config\Capability\IManageConfigValues $config)
 	{
 		$printNotAllowedAddon = false;
 

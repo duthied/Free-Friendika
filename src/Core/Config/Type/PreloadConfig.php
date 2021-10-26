@@ -21,8 +21,8 @@
 
 namespace Friendica\Core\Config\Type;
 
-use Friendica\Core\Config\Cache\Cache;
-use Friendica\Core\Config\Model\Config;
+use Friendica\Core\Config\ValueObject\Cache;
+use Friendica\Core\Config\Repository\Config;
 
 /**
  * This class implements the preload configuration, which will cache
@@ -30,18 +30,18 @@ use Friendica\Core\Config\Model\Config;
  *
  * Minimizes the number of database queries to retrieve configuration values at the cost of memory.
  */
-class PreloadConfig extends BaseConfig
+class PreloadConfig extends AbstractConfig
 {
 	/** @var bool */
 	private $config_loaded;
 
 	/**
-	 * @param Cache                               $configCache The configuration cache (based on the config-files)
-	 * @param Config $configModel The configuration model
+	 * @param Cache  $configCache The configuration cache (based on the config-files)
+	 * @param Config $configRepo  The configuration model
 	 */
-	public function __construct(Cache $configCache, Config $configModel)
+	public function __construct(Cache $configCache, Config $configRepo)
 	{
-		parent::__construct($configCache, $configModel);
+		parent::__construct($configCache, $configRepo);
 		$this->config_loaded = false;
 
 		$this->load();
@@ -51,7 +51,6 @@ class PreloadConfig extends BaseConfig
 	 * {@inheritDoc}
 	 *
 	 * This loads all config values everytime load is called
-	 *
 	 */
 	public function load(string $cat = 'config')
 	{
@@ -61,11 +60,11 @@ class PreloadConfig extends BaseConfig
 		}
 
 		// If not connected, do nothing
-		if (!$this->configModel->isConnected()) {
+		if (!$this->configRepo->isConnected()) {
 			return;
 		}
 
-		$config              = $this->configModel->load();
+		$config              = $this->configRepo->load();
 		$this->config_loaded = true;
 
 		// load the whole category out of the DB into the cache
@@ -78,8 +77,8 @@ class PreloadConfig extends BaseConfig
 	public function get(string $cat, string $key, $default_value = null, bool $refresh = false)
 	{
 		if ($refresh) {
-			if ($this->configModel->isConnected()) {
-				$config = $this->configModel->get($cat, $key);
+			if ($this->configRepo->isConnected()) {
+				$config = $this->configRepo->get($cat, $key);
 				if (isset($config)) {
 					$this->configCache->set($cat, $key, $config, Cache::SOURCE_DB);
 				}
@@ -95,7 +94,7 @@ class PreloadConfig extends BaseConfig
 	/**
 	 * {@inheritDoc}
 	 */
-	public function set(string $cat, string $key, $value)
+	public function set(string $cat, string $key, $value): bool
 	{
 		if (!$this->config_loaded) {
 			$this->load();
@@ -105,11 +104,11 @@ class PreloadConfig extends BaseConfig
 		$cached = $this->configCache->set($cat, $key, $value, Cache::SOURCE_DB);
 
 		// If there is no connected adapter, we're finished
-		if (!$this->configModel->isConnected()) {
+		if (!$this->configRepo->isConnected()) {
 			return $cached;
 		}
 
-		$stored = $this->configModel->set($cat, $key, $value);
+		$stored = $this->configRepo->set($cat, $key, $value);
 
 		return $cached && $stored;
 	}
@@ -117,7 +116,7 @@ class PreloadConfig extends BaseConfig
 	/**
 	 * {@inheritDoc}
 	 */
-	public function delete(string $cat, string $key)
+	public function delete(string $cat, string $key): bool
 	{
 		if ($this->config_loaded) {
 			$this->load();
@@ -125,26 +124,12 @@ class PreloadConfig extends BaseConfig
 
 		$cacheRemoved = $this->configCache->delete($cat, $key);
 
-		if (!$this->configModel->isConnected()) {
+		if (!$this->configRepo->isConnected()) {
 			return $cacheRemoved;
 		}
 
-		$storeRemoved = $this->configModel->delete($cat, $key);
+		$storeRemoved = $this->configRepo->delete($cat, $key);
 
 		return $cacheRemoved || $storeRemoved;
-	}
-
-	public function testSetDouble()
-	{
-		$this->configModel->shouldReceive('isConnected')
-						  ->andReturn(true);
-
-		// constructor loading
-		$this->configModel->shouldReceive('load')
-						  ->with('config')
-						  ->andReturn(['config' => ['test' => 'it']])
-						  ->once();
-
-		parent::testSetDouble();
 	}
 }

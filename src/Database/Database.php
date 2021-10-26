@@ -21,7 +21,7 @@
 
 namespace Friendica\Database;
 
-use Friendica\Core\Config\Cache\Cache;
+use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\System;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\DateTimeFormat;
@@ -49,7 +49,7 @@ class Database
 	protected $connected = false;
 
 	/**
-	 * @var Cache
+	 * @var \Friendica\Core\Config\ValueObject\Cache
 	 */
 	protected $configCache;
 	/**

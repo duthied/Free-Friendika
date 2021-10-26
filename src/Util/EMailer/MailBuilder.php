@@ -23,7 +23,7 @@ namespace Friendica\Util\EMailer;
 
 use Exception;
 use Friendica\App\BaseURL;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Model\User;
@@ -42,7 +42,7 @@ abstract class MailBuilder
 
 	/** @var L10n */
 	protected $l10n;
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	protected $config;
 	/** @var BaseURL */
 	protected $baseUrl;
@@ -64,7 +64,7 @@ abstract class MailBuilder
 	/** @var int */
 	protected $recipientUid = null;
 
-	public function __construct(L10n $l10n, BaseURL $baseUrl, IConfig $config, LoggerInterface $logger)
+	public function __construct(L10n $l10n, BaseURL $baseUrl, IManageConfigValues $config, LoggerInterface $logger)
 	{
 		$this->l10n    = $l10n;
 		$this->baseUrl = $baseUrl;

@@ -21,8 +21,8 @@
 
 namespace Friendica\Core\PConfig\Type;
 
-use Friendica\Core\PConfig\Cache\Cache;
-use Friendica\Model;
+use Friendica\Core\PConfig\Repository;
+use Friendica\Core\PConfig\ValueObject;
 
 /**
  * This class implements the Just-In-Time configuration, which will cache
@@ -31,7 +31,7 @@ use Friendica\Model;
  * Default Configuration type.
  * Provides the best performance for pages loading few configuration variables.
  */
-class JitPConfig extends BasePConfig
+class JitPConfig extends AbstractPConfigValues
 {
 	/**
 	 * @var array Array of already loaded db values (even if there was no value)
@@ -39,12 +39,12 @@ class JitPConfig extends BasePConfig
 	private $db_loaded;
 
 	/**
-	 * @param Cache                                 $configCache The configuration cache
-	 * @param \Friendica\Core\PConfig\Model\PConfig $configModel The configuration model
+	 * @param ValueObject\Cache  $configCache The configuration cache
+	 * @param Repository\PConfig $configRepo  The configuration model
 	 */
-	public function __construct(Cache $configCache, \Friendica\Core\PConfig\Model\PConfig $configModel)
+	public function __construct(ValueObject\Cache $configCache, Repository\PConfig $configRepo)
 	{
-		parent::__construct($configCache, $configModel);
+		parent::__construct($configCache, $configRepo);
 		$this->db_loaded = [];
 	}
 
@@ -52,11 +52,11 @@ class JitPConfig extends BasePConfig
 	 * {@inheritDoc}
 	 *
 	 */
-	public function load(int $uid, string $cat = 'config')
+	public function load(int $uid, string $cat = 'config'): array
 	{
 		// If not connected or no uid, do nothing
 		if (!$uid || !$this->configModel->isConnected()) {
-			return;
+			return [];
 		}
 
 		$config = $this->configModel->load($uid, $cat);
@@ -84,14 +84,12 @@ class JitPConfig extends BasePConfig
 
 		// if the value isn't loaded or refresh is needed, load it to the cache
 		if ($this->configModel->isConnected() &&
-		    (empty($this->db_loaded[$uid][$cat][$key]) ||
-		     $refresh)) {
+			(empty($this->db_loaded[$uid][$cat][$key]) || $refresh)) {
+			$dbValue = $this->configModel->get($uid, $cat, $key);
 
-			$dbvalue = $this->configModel->get($uid, $cat, $key);
-
-			if (isset($dbvalue)) {
-				$this->configCache->set($uid, $cat, $key, $dbvalue);
-				unset($dbvalue);
+			if (isset($dbValue)) {
+				$this->configCache->set($uid, $cat, $key, $dbValue);
+				unset($dbValue);
 			}
 
 			$this->db_loaded[$uid][$cat][$key] = true;
@@ -106,7 +104,7 @@ class JitPConfig extends BasePConfig
 	/**
 	 * {@inheritDoc}
 	 */
-	public function set(int $uid, string $cat, string $key, $value)
+	public function set(int $uid, string $cat, string $key, $value): bool
 	{
 		if (!$uid) {
 			return false;
@@ -130,7 +128,7 @@ class JitPConfig extends BasePConfig
 	/**
 	 * {@inheritDoc}
 	 */
-	public function delete(int $uid, string $cat, string $key)
+	public function delete(int $uid, string $cat, string $key): bool
 	{
 		if (!$uid) {
 			return false;

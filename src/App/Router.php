@@ -27,10 +27,10 @@ use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use Friendica\Core\Cache\Enum\Duration;
-use Friendica\Core\Cache\ICache;
+use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\Lock\ILock;
+use Friendica\Core\Lock\Capability\ICanLock;
 use Friendica\Network\HTTPException;
 
 /**
@@ -77,10 +77,10 @@ class Router
 	/** @var L10n */
 	private $l10n;
 
-	/** @var ICache */
+	/** @var ICanCache */
 	private $cache;
 
-	/** @var ILock */
+	/** @var ICanLock */
 	private $lock;
 
 	/** @var string */
@@ -90,10 +90,10 @@ class Router
 	 * @param array               $server             The $_SERVER variable
 	 * @param string              $baseRoutesFilepath The path to a base routes file to leverage cache, can be empty
 	 * @param L10n                $l10n
-	 * @param ICache              $cache
+	 * @param ICanCache           $cache
 	 * @param RouteCollector|null $routeCollector
 	 */
-	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICache $cache, ILock $lock, RouteCollector $routeCollector = null)
+	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, RouteCollector $routeCollector = null)
 	{
 		$this->baseRoutesFilepath = $baseRoutesFilepath;
 		$this->l10n = $l10n;

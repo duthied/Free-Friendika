@@ -4,7 +4,7 @@ namespace Friendica\Factory;
 
 use Friendica\App;
 use Friendica\BaseFactory;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Network\HTTPClient;
 use Friendica\Network\IHTTPClient;
 use Friendica\Util\Profiler;
@@ -22,14 +22,14 @@ require_once __DIR__ . '/../../static/dbstructure.config.php';
 
 class HTTPClientFactory extends BaseFactory
 {
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	private $config;
 	/** @var Profiler */
 	private $profiler;
 	/** @var App\BaseURL */
 	private $baseUrl;
 
-	public function __construct(LoggerInterface $logger, IConfig $config, Profiler $profiler, App\BaseURL $baseUrl)
+	public function __construct(LoggerInterface $logger, IManageConfigValues $config, Profiler $profiler, App\BaseURL $baseUrl)
 	{
 		parent::__construct($logger);
 		$this->config   = $config;

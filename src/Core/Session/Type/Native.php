@@ -22,14 +22,14 @@
 namespace Friendica\Core\Session\Type;
 
 use Friendica\App;
-use Friendica\Core\Session\ISession;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Model\User\Cookie;
 use SessionHandlerInterface;
 
 /**
  * The native Session class which uses the PHP internal Session functions
  */
-class Native extends AbstractSession implements ISession
+class Native extends AbstractSession implements IHandleSessions
 {
 	public function __construct(App\BaseURL $baseURL, SessionHandlerInterface $handler = null)
 	{
@@ -49,7 +49,7 @@ class Native extends AbstractSession implements ISession
 	/**
 	 * {@inheritDoc}
 	 */
-	public function start()
+	public function start(): IHandleSessions
 	{
 		session_start();
 		return $this;

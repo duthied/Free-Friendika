@@ -21,14 +21,14 @@
 
 namespace Friendica\Core\Session\Type;
 
-use Friendica\Core\Session\ISession;
+use Friendica\Core\Session\Capability\IHandleSessions;
 
 /**
  * Usable for backend processes (daemon/worker) and testing
  *
  * @todo after replacing the last direct $_SESSION call, use a internal array instead of the global variable
  */
-class Memory extends AbstractSession implements ISession
+class Memory extends AbstractSession implements IHandleSessions
 {
 	public function __construct()
 	{

@@ -52,24 +52,29 @@ class Database implements SessionHandlerInterface
 		$this->server = $server;
 	}
 
-	public function open($save_path, $session_name)
+	public function open($path, $name): bool
 	{
 		return true;
 	}
 
-	public function read($session_id)
+	public function read($id)
 	{
-		if (empty($session_id)) {
+		if (empty($id)) {
 			return '';
 		}
 
-		$session = $this->dba->selectFirst('session', ['data'], ['sid' => $session_id]);
-		if ($this->dba->isResult($session)) {
-			Session::$exists = true;
-			return $session['data'];
+		try {
+			$session = $this->dba->selectFirst('session', ['data'], ['sid' => $id]);
+			if ($this->dba->isResult($session)) {
+				Session::$exists = true;
+				return $session['data'];
+			}
+		} catch (\Exception $exception) {
+			$this->logger->warning('Cannot read session.'. ['id' => $id, 'exception' => $exception]);
+			return '';
 		}
 
-		$this->logger->notice('no data for session', ['session_id' => $session_id, 'uri' => $this->server['REQUEST_URI'] ?? '']);
+		$this->logger->notice('no data for session', ['session_id' => $id, 'uri' => $this->server['REQUEST_URI'] ?? '']);
 
 		return '';
 	}
@@ -81,49 +86,63 @@ class Database implements SessionHandlerInterface
 	 * on the case. Uses the Session::expire global for existing session, 5 minutes
 	 * for newly created session.
 	 *
-	 * @param string $session_id   Session ID with format: [a-z0-9]{26}
-	 * @param string $session_data Serialized session data
+	 * @param string $id   Session ID with format: [a-z0-9]{26}
+	 * @param string $data Serialized session data
 	 *
-	 * @return boolean Returns false if parameters are missing, true otherwise
-	 * @throws \Exception
+	 * @return bool Returns false if parameters are missing, true otherwise
 	 */
-	public function write($session_id, $session_data)
+	public function write($id, $data): bool
 	{
-		if (!$session_id) {
+		if (!$id) {
 			return false;
 		}
 
-		if (!$session_data) {
-			return $this->destroy($session_id);
+		if (!$data) {
+			return $this->destroy($id);
 		}
 
 		$expire         = time() + Session::$expire;
 		$default_expire = time() + 300;
 
-		if (Session::$exists) {
-			$fields    = ['data' => $session_data, 'expire' => $expire];
-			$condition = ["`sid` = ? AND (`data` != ? OR `expire` != ?)", $session_id, $session_data, $expire];
-			$this->dba->update('session', $fields, $condition);
-		} else {
-			$fields = ['sid' => $session_id, 'expire' => $default_expire, 'data' => $session_data];
-			$this->dba->insert('session', $fields);
+		try {
+			if (Session::$exists) {
+				$fields    = ['data' => $data, 'expire' => $expire];
+				$condition = ["`sid` = ? AND (`data` != ? OR `expire` != ?)", $id, $data, $expire];
+				$this->dba->update('session', $fields, $condition);
+			} else {
+				$fields = ['sid' => $id, 'expire' => $default_expire, 'data' => $data];
+				$this->dba->insert('session', $fields);
+			}
+		} catch (\Exception $exception) {
+			$this->logger->warning('Cannot write session.'. ['id' => $id, 'exception' => $exception]);
+			return false;
 		}
 
 		return true;
 	}
 
-	public function close()
+	public function close(): bool
 	{
 		return true;
 	}
 
-	public function destroy($id)
+	public function destroy($id): bool
 	{
-		return $this->dba->delete('session', ['sid' => $id]);
+		try {
+			return $this->dba->delete('session', ['sid' => $id]);
+		} catch (\Exception $exception) {
+			$this->logger->warning('Cannot destroy session.'. ['id' => $id, 'exception' => $exception]);
+			return false;
+		}
 	}
 
-	public function gc($maxlifetime)
+	public function gc($max_lifetime): bool
 	{
-		return $this->dba->delete('session', ["`expire` < ?", time()]);
+		try {
+			return $this->dba->delete('session', ["`expire` < ?", time()]);
+		} catch (\Exception $exception) {
+			$this->logger->warning('Cannot use garbage collector.'. ['exception' => $exception]);
+			return false;
+		}
 	}
 }

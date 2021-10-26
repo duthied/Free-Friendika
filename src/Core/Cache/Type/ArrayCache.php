@@ -21,25 +21,23 @@
 
 namespace Friendica\Core\Cache\Type;
 
-use Friendica\Core\Cache\Enum\Duration;
-use Friendica\Core\Cache\IMemoryCache;
-use Friendica\Core\Cache\Type\TraitCompareDelete;
-use Friendica\Core\Cache\Enum\Type;
+use Friendica\Core\Cache\Capability\ICanCacheInMemory;
+use Friendica\Core\Cache\Enum;
 
 /**
  * Implementation of the IMemoryCache mainly for testing purpose
  */
-class ArrayCache extends BaseCache implements IMemoryCache
+class ArrayCache extends AbstractCache implements ICanCacheInMemory
 {
-	use TraitCompareDelete;
+	use CompareDeleteTrait;
 
 	/** @var array Array with the cached data */
-	protected $cachedData = array();
+	protected $cachedData = [];
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function getAllKeys($prefix = null)
+	public function getAllKeys(?string $prefix = null): array
 	{
 		return $this->filterArrayKeysByPrefix(array_keys($this->cachedData), $prefix);
 	}
@@ -47,7 +45,7 @@ class ArrayCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function get($key)
+	public function get(string $key)
 	{
 		if (isset($this->cachedData[$key])) {
 			return $this->cachedData[$key];
@@ -58,7 +56,7 @@ class ArrayCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
+	public function set(string $key, $value, int $ttl = Enum\Duration::FIVE_MINUTES): bool
 	{
 		$this->cachedData[$key] = $value;
 		return true;
@@ -67,7 +65,7 @@ class ArrayCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function delete($key)
+	public function delete(string $key): bool
 	{
 		unset($this->cachedData[$key]);
 		return true;
@@ -76,7 +74,7 @@ class ArrayCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function clear($outdated = true)
+	public function clear(bool $outdated = true): bool
 	{
 		// Array doesn't support TTL so just don't delete something
 		if ($outdated) {
@@ -90,7 +88,7 @@ class ArrayCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
+	public function add(string $key, $value, int $ttl = Enum\Duration::FIVE_MINUTES): bool
 	{
 		if (isset($this->cachedData[$key])) {
 			return false;
@@ -102,7 +100,7 @@ class ArrayCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function compareSet($key, $oldValue, $newValue, $ttl = Duration::FIVE_MINUTES)
+	public function compareSet(string $key, $oldValue, $newValue, int $ttl = Enum\Duration::FIVE_MINUTES): bool
 	{
 		if ($this->get($key) === $oldValue) {
 			return $this->set($key, $newValue);
@@ -114,8 +112,8 @@ class ArrayCache extends BaseCache implements IMemoryCache
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getName()
+	public function getName(): string
 	{
-		return Type::ARRAY;
+		return Enum\Type::ARRAY;
 	}
 }

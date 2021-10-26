@@ -23,7 +23,7 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
-use Friendica\Core\Config\Cache\Cache;
+use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -678,8 +678,8 @@ class Installer
 	/**
 	 * Setup the default cache for a new installation
 	 *
-	 * @param \Friendica\Core\Config\Cache\Cache $configCache The configuration cache
-	 * @param string                             $basePath    The determined basepath
+	 * @param \Friendica\Core\Config\ValueObject\Cache $configCache The configuration cache
+	 * @param string                                   $basePath    The determined basepath
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */

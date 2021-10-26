@@ -22,7 +22,7 @@
 namespace Friendica\Test\src\Util\Emailer;
 
 use Friendica\App\BaseURL;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
@@ -34,7 +34,7 @@ class SystemMailBuilderTest extends MockedTest
 {
 	use VFSTrait;
 
-	/** @var IConfig */
+	/** @var \Friendica\Core\Config\Capability\IManageConfigValues */
 	private $config;
 	/** @var L10n */
 	private $l10n;
@@ -47,7 +47,7 @@ class SystemMailBuilderTest extends MockedTest
 
 		$this->setUpVfsDir();
 
-		$this->config  = \Mockery::mock(IConfig::class);
+		$this->config  = \Mockery::mock(IManageConfigValues::class);
 		$this->config->shouldReceive('get')->with('config', 'admin_name')->andReturn('Admin');
 		$this->l10n    = \Mockery::mock(L10n::class);
 		$this->l10n->shouldReceive('t')->andReturnUsing(function ($msg) {

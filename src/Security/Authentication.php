@@ -23,8 +23,8 @@ namespace Friendica\Security;
 
 use Exception;
 use Friendica\App;
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\Session;
 use Friendica\Core\System;
@@ -46,7 +46,7 @@ use Psr\Log\LoggerInterface;
  */
 class Authentication
 {
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	private $config;
 	/** @var App\Mode */
 	private $mode;
@@ -60,25 +60,25 @@ class Authentication
 	private $logger;
 	/** @var User\Cookie */
 	private $cookie;
-	/** @var Session\ISession */
+	/** @var \Friendica\Core\Session\Capability\IHandleSessions */
 	private $session;
-	/** @var IPConfig */
+	/** @var IManagePersonalConfigValues */
 	private $pConfig;
 
 	/**
 	 * Authentication constructor.
 	 *
-	 * @param IConfig          $config
-	 * @param App\Mode         $mode
-	 * @param App\BaseURL      $baseUrl
-	 * @param L10n             $l10n
-	 * @param Database         $dba
-	 * @param LoggerInterface  $logger
-	 * @param User\Cookie      $cookie
-	 * @param Session\ISession $session
-	 * @param IPConfig         $pConfig
+	 * @param IManageConfigValues                                $config
+	 * @param App\Mode                                           $mode
+	 * @param App\BaseURL                                        $baseUrl
+	 * @param L10n                                               $l10n
+	 * @param Database                                           $dba
+	 * @param LoggerInterface                                    $logger
+	 * @param User\Cookie                                        $cookie
+	 * @param \Friendica\Core\Session\Capability\IHandleSessions $session
+	 * @param IManagePersonalConfigValues                        $pConfig
 	 */
-	public function __construct(IConfig $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\ISession $session, IPConfig $pConfig)
+	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\Capability\IHandleSessions $session, IManagePersonalConfigValues $pConfig)
 	{
 		$this->config  = $config;
 		$this->mode    = $mode;

@@ -23,16 +23,17 @@ namespace Friendica\Core\Lock\Type;
 
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Lock\Enum\Type;
+use Friendica\Core\Lock\Exception\InvalidLockDriverException;
 use function get_temppath;
 
-class SemaphoreLock extends BaseLock
+class SemaphoreLock extends AbstractLock
 {
 	private static $semaphore = [];
 
 	public function __construct()
 	{
 		if (!function_exists('sem_get')) {
-			throw new \Exception('Semaphore lock not supported');
+			throw new InvalidLockDriverException('Semaphore lock not supported');
 		}
 	}
 
@@ -57,11 +58,11 @@ class SemaphoreLock extends BaseLock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120, $ttl = Duration::FIVE_MINUTES)
+	public function acquire(string $key, int $timeout = 120, int $ttl = Duration::FIVE_MINUTES): bool
 	{
 		self::$semaphore[$key] = sem_get(self::semaphoreKey($key));
 		if (!empty(self::$semaphore[$key])) {
-			if ((bool)sem_acquire(self::$semaphore[$key], ($timeout === 0))) {
+			if (sem_acquire(self::$semaphore[$key], ($timeout === 0))) {
 				$this->markAcquire($key);
 				return true;
 			}
@@ -76,7 +77,7 @@ class SemaphoreLock extends BaseLock
 	 * @param bool $override not necessary parameter for semaphore locks since the lock lives as long as the execution
 	 *                       of the using function
 	 */
-	public function release($key, $override = false)
+	public function release(string $key, bool $override = false): bool
 	{
 		$success = false;
 
@@ -96,7 +97,7 @@ class SemaphoreLock extends BaseLock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function isLocked($key)
+	public function isLocked(string $key): bool
 	{
 		return isset(self::$semaphore[$key]);
 	}
@@ -104,7 +105,7 @@ class SemaphoreLock extends BaseLock
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getName()
+	public function getName(): string
 	{
 		return Type::SEMAPHORE;
 	}
@@ -112,7 +113,7 @@ class SemaphoreLock extends BaseLock
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getLocks(string $prefix = '')
+	public function getLocks(string $prefix = ''): array
 	{
 		// We can just return our own semaphore keys, since we don't know
 		// the state of other semaphores, even if the .sem files exists
@@ -136,7 +137,7 @@ class SemaphoreLock extends BaseLock
 	/**
 	 * {@inheritDoc}
 	 */
-	public function releaseAll($override = false)
+	public function releaseAll(bool $override = false): bool
 	{
 		// Semaphores are just alive during a run, so there is no need to release
 		// You can just release your own locks

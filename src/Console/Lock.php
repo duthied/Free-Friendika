@@ -23,7 +23,7 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\App;
-use Friendica\Core\Lock\ILock;
+use Friendica\Core\Lock\Capability\ICanLock;
 use RuntimeException;
 
 /**
@@ -42,7 +42,7 @@ class Lock extends \Asika\SimpleConsole\Console
 	private $appMode;
 
 	/**
-	 * @var ILock
+	 * @var \Friendica\Core\Lock\Capability\ICanLock
 	 */
 	private $lock;
 
@@ -76,7 +76,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, ILock $lock, array $argv = null)
+	public function __construct(App\Mode $appMode, ICanLock $lock, array $argv = null)
 	{
 		parent::__construct($argv);
 

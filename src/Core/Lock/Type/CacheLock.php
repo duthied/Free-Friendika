@@ -21,10 +21,13 @@
 
 namespace Friendica\Core\Lock\Type;
 
+use Friendica\Core\Cache\Capability\ICanCache;
+use Friendica\Core\Cache\Capability\ICanCacheInMemory;
 use Friendica\Core\Cache\Enum\Duration;
-use Friendica\Core\Cache\IMemoryCache;
+use Friendica\Core\Cache\Exception\CachePersistenceException;
+use Friendica\Core\Lock\Exception\LockPersistenceException;
 
-class CacheLock extends BaseLock
+class CacheLock extends AbstractLock
 {
 	/**
 	 * @var string The static prefix of all locks inside the cache
@@ -32,16 +35,16 @@ class CacheLock extends BaseLock
 	const CACHE_PREFIX = 'lock:';
 
 	/**
-	 * @var \Friendica\Core\Cache\ICache;
+	 * @var ICanCache;
 	 */
 	private $cache;
 
 	/**
 	 * CacheLock constructor.
 	 *
-	 * @param IMemoryCache $cache The CacheDriver for this type of lock
+	 * @param ICanCacheInMemory $cache The CacheDriver for this type of lock
 	 */
-	public function __construct(IMemoryCache $cache)
+	public function __construct(ICanCacheInMemory $cache)
 	{
 		$this->cache = $cache;
 	}
@@ -49,35 +52,39 @@ class CacheLock extends BaseLock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120, $ttl = Duration::FIVE_MINUTES)
+	public function acquire(string $key, int $timeout = 120, int $ttl = Duration::FIVE_MINUTES): bool
 	{
 		$got_lock = false;
 		$start    = time();
 
-		$cachekey = self::getLockKey($key);
+		$lockKey = self::getLockKey($key);
 
-		do {
-			$lock = $this->cache->get($cachekey);
-			// When we do want to lock something that was already locked by us.
-			if ((int)$lock == getmypid()) {
-				$got_lock = true;
-			}
-
-			// When we do want to lock something new
-			if (is_null($lock)) {
-				// At first initialize it with "0"
-				$this->cache->add($cachekey, 0);
-				// Now the value has to be "0" because otherwise the key was used by another process meanwhile
-				if ($this->cache->compareSet($cachekey, 0, getmypid(), $ttl)) {
+		try {
+			do {
+				$lock = $this->cache->get($lockKey);
+				// When we do want to lock something that was already locked by us.
+				if ((int)$lock == getmypid()) {
 					$got_lock = true;
-					$this->markAcquire($key);
 				}
-			}
 
-			if (!$got_lock && ($timeout > 0)) {
-				usleep(rand(10000, 200000));
-			}
-		} while (!$got_lock && ((time() - $start) < $timeout));
+				// When we do want to lock something new
+				if (is_null($lock)) {
+					// At first initialize it with "0"
+					$this->cache->add($lockKey, 0);
+					// Now the value has to be "0" because otherwise the key was used by another process meanwhile
+					if ($this->cache->compareSet($lockKey, 0, getmypid(), $ttl)) {
+						$got_lock = true;
+						$this->markAcquire($key);
+					}
+				}
+
+				if (!$got_lock && ($timeout > 0)) {
+					usleep(rand(10000, 200000));
+				}
+			} while (!$got_lock && ((time() - $start) < $timeout));
+		} catch (CachePersistenceException $exception) {
+			throw new LockPersistenceException(sprintf('Cannot acquire lock for key %s', $key), $exception);
+		}
 
 		return $got_lock;
 	}
@@ -85,14 +92,18 @@ class CacheLock extends BaseLock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function release($key, $override = false)
+	public function release(string $key, bool $override = false): bool
 	{
-		$cachekey = self::getLockKey($key);
+		$lockKey = self::getLockKey($key);
 
-		if ($override) {
-			$return = $this->cache->delete($cachekey);
-		} else {
-			$return = $this->cache->compareDelete($cachekey, getmypid());
+		try {
+			if ($override) {
+				$return = $this->cache->delete($lockKey);
+			} else {
+				$return = $this->cache->compareDelete($lockKey, getmypid());
+			}
+		} catch (CachePersistenceException $exception) {
+			throw new LockPersistenceException(sprintf('Cannot release lock for key %s (override %b)', $key, $override), $exception);
 		}
 		$this->markRelease($key);
 
@@ -102,17 +113,21 @@ class CacheLock extends BaseLock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function isLocked($key)
+	public function isLocked(string $key): bool
 	{
-		$cachekey = self::getLockKey($key);
-		$lock     = $this->cache->get($cachekey);
+		$lockKey = self::getLockKey($key);
+		try {
+			$lock = $this->cache->get($lockKey);
+		} catch (CachePersistenceException $exception) {
+			throw new LockPersistenceException(sprintf('Cannot check lock state for key %s', $key), $exception);
+		}
 		return isset($lock) && ($lock !== false);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getName()
+	public function getName(): string
 	{
 		return $this->cache->getName();
 	}
@@ -120,11 +135,15 @@ class CacheLock extends BaseLock
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getLocks(string $prefix = '')
+	public function getLocks(string $prefix = ''): array
 	{
-		$locks = $this->cache->getAllKeys(self::CACHE_PREFIX . $prefix);
+		try {
+			$locks = $this->cache->getAllKeys(self::CACHE_PREFIX . $prefix);
+		} catch (CachePersistenceException $exception) {
+			throw new LockPersistenceException(sprintf('Cannot get locks with prefix %s', $prefix), $exception);
+		}
 
-		array_walk($locks, function (&$lock, $key) {
+		array_walk($locks, function (&$lock) {
 			$lock = substr($lock, strlen(self::CACHE_PREFIX));
 		});
 
@@ -134,7 +153,7 @@ class CacheLock extends BaseLock
 	/**
 	 * {@inheritDoc}
 	 */
-	public function releaseAll($override = false)
+	public function releaseAll(bool $override = false): bool
 	{
 		$success = parent::releaseAll($override);
 
@@ -154,7 +173,7 @@ class CacheLock extends BaseLock
 	 *
 	 * @return string        The cache key used for the cache
 	 */
-	private static function getLockKey($key)
+	private static function getLockKey(string $key): string
 	{
 		return self::CACHE_PREFIX . $key;
 	}

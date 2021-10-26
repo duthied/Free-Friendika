@@ -21,16 +21,16 @@
 
 namespace Friendica\Core\Cache\Type;
 
-use Friendica\Core\Cache\Enum\Duration;
-use Friendica\Core\Cache\ICache;
-use Friendica\Core\Cache\Enum\Type;
+use Friendica\Core\Cache\Capability\ICanCache;
+use Friendica\Core\Cache\Enum;
+use Friendica\Core\Cache\Exception\CachePersistenceException;
 use Friendica\Database\Database;
 use Friendica\Util\DateTimeFormat;
 
 /**
  * Database Cache
  */
-class DatabaseCache extends BaseCache implements ICache
+class DatabaseCache extends AbstractCache implements ICanCache
 {
 	/**
 	 * @var Database
@@ -46,22 +46,29 @@ class DatabaseCache extends BaseCache implements ICache
 
 	/**
 	 * (@inheritdoc)
+	 *
+	 * @throws CachePersistenceException
 	 */
-	public function getAllKeys($prefix = null)
+	public function getAllKeys(?string $prefix = null): array
 	{
-		if (empty($prefix)) {
-			$where = ['`expires` >= ?', DateTimeFormat::utcNow()];
-		} else {
-			$where = ['`expires` >= ? AND `k` LIKE CONCAT(?, \'%\')', DateTimeFormat::utcNow(), $prefix];
-		}
+		try {
+			if (empty($prefix)) {
+				$where = ['`expires` >= ?', DateTimeFormat::utcNow()];
+			} else {
+				$where = ['`expires` >= ? AND `k` LIKE CONCAT(?, \'%\')', DateTimeFormat::utcNow(), $prefix];
+			}
 
-		$stmt = $this->dba->select('cache', ['k'], $where);
+			$stmt = $this->dba->select('cache', ['k'], $where);
 
-		$keys = [];
-		while ($key = $this->dba->fetch($stmt)) {
-			array_push($keys, $key['k']);
+			$keys = [];
+			while ($key = $this->dba->fetch($stmt)) {
+				array_push($keys, $key['k']);
+			}
+		} catch (\Exception $exception) {
+			throw new CachePersistenceException(sprintf('Cannot fetch all keys with prefix %s', $prefix), $exception);
+		} finally {
+			$this->dba->close($stmt);
 		}
-		$this->dba->close($stmt);
 
 		return $keys;
 	}
@@ -69,20 +76,26 @@ class DatabaseCache extends BaseCache implements ICache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function get($key)
+	public function get(string $key)
 	{
-		$cache = $this->dba->selectFirst('cache', ['v'], ['`k` = ? AND (`expires` >= ? OR `expires` = -1)', $key, DateTimeFormat::utcNow()]);
+		try {
+			$cache = $this->dba->selectFirst('cache', ['v'], [
+				'`k` = ? AND (`expires` >= ? OR `expires` = -1)', $key, DateTimeFormat::utcNow()
+			]);
 
-		if ($this->dba->isResult($cache)) {
-			$cached = $cache['v'];
-			$value = @unserialize($cached);
+			if ($this->dba->isResult($cache)) {
+				$cached = $cache['v'];
+				$value  = @unserialize($cached);
 
-			// Only return a value if the serialized value is valid.
-			// We also check if the db entry is a serialized
-			// boolean 'false' value (which we want to return).
-			if ($cached === serialize(false) || $value !== false) {
-				return $value;
+				// Only return a value if the serialized value is valid.
+				// We also check if the db entry is a serialized
+				// boolean 'false' value (which we want to return).
+				if ($cached === serialize(false) || $value !== false) {
+					return $value;
+				}
 			}
+		} catch (\Exception $exception) {
+			throw new CachePersistenceException(sprintf('Cannot get cache entry with key %s', $key), $exception);
 		}
 
 		return null;
@@ -91,50 +104,62 @@ class DatabaseCache extends BaseCache implements ICache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
+	public function set(string $key, $value, int $ttl = Enum\Duration::FIVE_MINUTES): bool
 	{
-		if ($ttl > 0) {
-			$fields = [
-				'v' => serialize($value),
-				'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds'),
-				'updated' => DateTimeFormat::utcNow()
-			];
-		} else {
-			$fields = [
-				'v' => serialize($value),
-				'expires' => -1,
-				'updated' => DateTimeFormat::utcNow()
-			];
+		try {
+			if ($ttl > 0) {
+				$fields = [
+					'v'       => serialize($value),
+					'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds'),
+					'updated' => DateTimeFormat::utcNow()
+				];
+			} else {
+				$fields = [
+					'v'       => serialize($value),
+					'expires' => -1,
+					'updated' => DateTimeFormat::utcNow()
+				];
+			}
+
+			return $this->dba->update('cache', $fields, ['k' => $key], true);
+		} catch (\Exception $exception) {
+			throw new CachePersistenceException(sprintf('Cannot set cache entry with key %s', $key), $exception);
 		}
-
-		return $this->dba->update('cache', $fields, ['k' => $key], true);
 	}
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function delete($key)
+	public function delete(string $key): bool
 	{
-		return $this->dba->delete('cache', ['k' => $key]);
+		try {
+			return $this->dba->delete('cache', ['k' => $key]);
+		} catch (\Exception $exception) {
+			throw new CachePersistenceException(sprintf('Cannot delete cache entry with key %s', $key), $exception);
+		}
 	}
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function clear($outdated = true)
+	public function clear(bool $outdated = true): bool
 	{
-		if ($outdated) {
-			return $this->dba->delete('cache', ['`expires` < NOW()']);
-		} else {
-			return $this->dba->delete('cache', ['`k` IS NOT NULL ']);
+		try {
+			if ($outdated) {
+				return $this->dba->delete('cache', ['`expires` < NOW()']);
+			} else {
+				return $this->dba->delete('cache', ['`k` IS NOT NULL ']);
+			}
+		} catch (\Exception $exception) {
+			throw new CachePersistenceException('Cannot clear cache', $exception);
 		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getName()
+	public function getName(): string
 	{
-		return Type::DATABASE;
+		return Enum\Type::DATABASE;
 	}
 }

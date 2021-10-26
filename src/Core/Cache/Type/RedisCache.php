@@ -23,15 +23,17 @@ namespace Friendica\Core\Cache\Type;
 
 use Exception;
 use Friendica\Core\Cache\Enum\Duration;
-use Friendica\Core\Cache\IMemoryCache;
+use Friendica\Core\Cache\Capability\ICanCacheInMemory;
 use Friendica\Core\Cache\Enum\Type;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Cache\Exception\CachePersistenceException;
+use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Redis;
 
 /**
  * Redis Cache. This driver is based on Memcache driver
  */
-class RedisCache extends BaseCache implements IMemoryCache
+class RedisCache extends AbstractCache implements ICanCacheInMemory
 {
 	/**
 	 * @var Redis
@@ -39,12 +41,13 @@ class RedisCache extends BaseCache implements IMemoryCache
 	private $redis;
 
 	/**
-	 * @throws Exception
+	 * @throws InvalidCacheDriverException
+	 * @throws CachePersistenceException
 	 */
-	public function __construct(string $hostname, IConfig $config)
+	public function __construct(string $hostname, IManageConfigValues $config)
 	{
 		if (!class_exists('Redis', false)) {
-			throw new Exception('Redis class isn\'t available');
+			throw new InvalidCacheDriverException('Redis class isn\'t available');
 		}
 
 		parent::__construct($hostname);
@@ -57,24 +60,24 @@ class RedisCache extends BaseCache implements IMemoryCache
 		$redis_db   = $config->get('system', 'redis_db', 0);
 
 		if (isset($redis_port) && !@$this->redis->connect($redis_host, $redis_port)) {
-			throw new Exception('Expected Redis server at ' . $redis_host . ':' . $redis_port . ' isn\'t available');
+			throw new CachePersistenceException('Expected Redis server at ' . $redis_host . ':' . $redis_port . ' isn\'t available');
 		} elseif (!@$this->redis->connect($redis_host)) {
-			throw new Exception('Expected Redis server at ' . $redis_host . ' isn\'t available');
+			throw new CachePersistenceException('Expected Redis server at ' . $redis_host . ' isn\'t available');
 		}
 
 		if (isset($redis_pw) && !$this->redis->auth($redis_pw)) {
-			throw new Exception('Cannot authenticate redis server at ' . $redis_host . ':' . $redis_port);
+			throw new CachePersistenceException('Cannot authenticate redis server at ' . $redis_host . ':' . $redis_port);
 		}
 
 		if ($redis_db !== 0 && !$this->redis->select($redis_db)) {
-			throw new Exception('Cannot switch to redis db ' . $redis_db . ' at ' . $redis_host . ':' . $redis_port);
+			throw new CachePersistenceException('Cannot switch to redis db ' . $redis_db . ' at ' . $redis_host . ':' . $redis_port);
 		}
 	}
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function getAllKeys($prefix = null)
+	public function getAllKeys(?string $prefix = null): array
 	{
 		if (empty($prefix)) {
 			$search = '*';
@@ -90,13 +93,13 @@ class RedisCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function get($key)
+	public function get(string $key)
 	{
-		$return = null;
-		$cachekey = $this->getCacheKey($key);
+		$return   = null;
+		$cacheKey = $this->getCacheKey($key);
 
-		$cached = $this->redis->get($cachekey);
-		if ($cached === false && !$this->redis->exists($cachekey)) {
+		$cached = $this->redis->get($cacheKey);
+		if ($cached === false && !$this->redis->exists($cacheKey)) {
 			return null;
 		}
 
@@ -115,21 +118,21 @@ class RedisCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
+	public function set(string $key, $value, int $ttl = Duration::FIVE_MINUTES): bool
 	{
-		$cachekey = $this->getCacheKey($key);
+		$cacheKey = $this->getCacheKey($key);
 
 		$cached = serialize($value);
 
 		if ($ttl > 0) {
 			return $this->redis->setex(
-				$cachekey,
+				$cacheKey,
 				$ttl,
 				$cached
 			);
 		} else {
 			return $this->redis->set(
-				$cachekey,
+				$cacheKey,
 				$cached
 			);
 		}
@@ -138,10 +141,10 @@ class RedisCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function delete($key)
+	public function delete(string $key): bool
 	{
-		$cachekey = $this->getCacheKey($key);
-		$this->redis->del($cachekey);
+		$cacheKey = $this->getCacheKey($key);
+		$this->redis->del($cacheKey);
 		// Redis doesn't have an error state for del()
 		return true;
 	}
@@ -149,7 +152,7 @@ class RedisCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function clear($outdated = true)
+	public function clear(bool $outdated = true): bool
 	{
 		if ($outdated) {
 			return true;
@@ -161,34 +164,30 @@ class RedisCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
+	public function add(string $key, $value, int $ttl = Duration::FIVE_MINUTES): bool
 	{
-		$cachekey = $this->getCacheKey($key);
-		$cached = serialize($value);
+		$cacheKey = $this->getCacheKey($key);
+		$cached   = serialize($value);
 
-		return $this->redis->setnx($cachekey, $cached);
+		return $this->redis->setnx($cacheKey, $cached);
 	}
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function compareSet($key, $oldValue, $newValue, $ttl = Duration::FIVE_MINUTES)
+	public function compareSet(string $key, $oldValue, $newValue, int $ttl = Duration::FIVE_MINUTES): bool
 	{
-		$cachekey = $this->getCacheKey($key);
+		$cacheKey = $this->getCacheKey($key);
 
 		$newCached = serialize($newValue);
 
-		$this->redis->watch($cachekey);
+		$this->redis->watch($cacheKey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
 		if ($this->get($key) === $oldValue) {
 			if ($ttl > 0) {
-				$result = $this->redis->multi()
-					->setex($cachekey, $ttl, $newCached)
-					->exec();
+				$result = $this->redis->multi()->setex($cacheKey, $ttl, $newCached)->exec();
 			} else {
-				$result = $this->redis->multi()
-					->set($cachekey, $newCached)
-					->exec();
+				$result = $this->redis->multi()->set($cacheKey, $newCached)->exec();
 			}
 			return $result !== false;
 		}
@@ -199,17 +198,15 @@ class RedisCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function compareDelete($key, $value)
+	public function compareDelete(string $key, $value): bool
 	{
-		$cachekey = $this->getCacheKey($key);
+		$cacheKey = $this->getCacheKey($key);
 
-		$this->redis->watch($cachekey);
+		$this->redis->watch($cacheKey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
 		if ($this->get($key) === $value) {
-			$result = $this->redis->multi()
-				->del($cachekey)
-				->exec();
-			return $result !== false;
+			$this->redis->multi()->del($cacheKey)->exec();
+			return true;
 		}
 		$this->redis->unwatch();
 		return false;
@@ -218,7 +215,7 @@ class RedisCache extends BaseCache implements IMemoryCache
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getName()
+	public function getName(): string
 	{
 		return Type::REDIS;
 	}

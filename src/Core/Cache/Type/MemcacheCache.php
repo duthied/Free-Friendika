@@ -21,24 +21,22 @@
 
 namespace Friendica\Core\Cache\Type;
 
-use Exception;
 use Friendica\Core\Cache\Enum\Duration;
-use Friendica\Core\Cache\IMemoryCache;
-use Friendica\Core\Cache\Type\TraitCompareDelete;
-use Friendica\Core\Cache\Type\TraitCompareSet;
-use Friendica\Core\Cache\Type\TraitMemcacheCommand;
+use Friendica\Core\Cache\Capability\ICanCacheInMemory;
 use Friendica\Core\Cache\Enum\Type;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Cache\Exception\CachePersistenceException;
+use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Memcache;
 
 /**
  * Memcache Cache
  */
-class MemcacheCache extends BaseCache implements IMemoryCache
+class MemcacheCache extends AbstractCache implements ICanCacheInMemory
 {
-	use TraitCompareSet;
-	use TraitCompareDelete;
-	use TraitMemcacheCommand;
+	use CompareSetTrait;
+	use CompareDeleteTrait;
+	use MemcacheCommandTrait;
 
 	/**
 	 * @var Memcache
@@ -46,30 +44,34 @@ class MemcacheCache extends BaseCache implements IMemoryCache
 	private $memcache;
 
 	/**
-	 * @throws Exception
+	 * @param string              $hostname
+	 * @param IManageConfigValues $config
+	 *
+	 * @throws InvalidCacheDriverException
+	 * @throws CachePersistenceException
 	 */
-	public function __construct(string $hostname, IConfig $config)
+	public function __construct(string $hostname, IManageConfigValues $config)
 	{
 		if (!class_exists('Memcache', false)) {
-			throw new Exception('Memcache class isn\'t available');
+			throw new InvalidCacheDriverException('Memcache class isn\'t available');
 		}
 
 		parent::__construct($hostname);
 
 		$this->memcache = new Memcache();
 
-		$this->server = $config->get('system', 'memcache_host');;
-		$this->port = $config->get('system', 'memcache_port');
+		$this->server = $config->get('system', 'memcache_host');
+		$this->port   = $config->get('system', 'memcache_port');
 
 		if (!@$this->memcache->connect($this->server, $this->port)) {
-			throw new Exception('Expected Memcache server at ' . $this->server . ':' . $this->port . ' isn\'t available');
+			throw new CachePersistenceException('Expected Memcache server at ' . $this->server . ':' . $this->port . ' isn\'t available');
 		}
 	}
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function getAllKeys($prefix = null)
+	public function getAllKeys(?string $prefix = null): array
 	{
 		$keys = $this->getOriginalKeys($this->getMemcacheKeys());
 
@@ -79,17 +81,16 @@ class MemcacheCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function get($key)
+	public function get(string $key)
 	{
-		$return   = null;
-		$cachekey = $this->getCacheKey($key);
+		$cacheKey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications
-		$cached = $this->memcache->get($cachekey);
+		$cached = $this->memcache->get($cacheKey);
 
 		// @see http://php.net/manual/en/memcache.get.php#84275
 		if (is_bool($cached) || is_double($cached) || is_long($cached)) {
-			return $return;
+			return null;
 		}
 
 		$value = @unserialize($cached);
@@ -98,30 +99,30 @@ class MemcacheCache extends BaseCache implements IMemoryCache
 		// We also check if the db entry is a serialized
 		// boolean 'false' value (which we want to return).
 		if ($cached === serialize(false) || $value !== false) {
-			$return = $value;
+			return $value;
 		}
 
-		return $return;
+		return null;
 	}
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
+	public function set(string $key, $value, int $ttl = Duration::FIVE_MINUTES): bool
 	{
-		$cachekey = $this->getCacheKey($key);
+		$cacheKey = $this->getCacheKey($key);
 
 		// We store with the hostname as key to avoid problems with other applications
 		if ($ttl > 0) {
 			return $this->memcache->set(
-				$cachekey,
+				$cacheKey,
 				serialize($value),
 				MEMCACHE_COMPRESSED,
 				time() + $ttl
 			);
 		} else {
 			return $this->memcache->set(
-				$cachekey,
+				$cacheKey,
 				serialize($value),
 				MEMCACHE_COMPRESSED
 			);
@@ -131,16 +132,16 @@ class MemcacheCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function delete($key)
+	public function delete(string $key): bool
 	{
-		$cachekey = $this->getCacheKey($key);
-		return $this->memcache->delete($cachekey);
+		$cacheKey = $this->getCacheKey($key);
+		return $this->memcache->delete($cacheKey);
 	}
 
 	/**
 	 * (@inheritdoc)
 	 */
-	public function clear($outdated = true)
+	public function clear(bool $outdated = true): bool
 	{
 		if ($outdated) {
 			return true;
@@ -152,16 +153,16 @@ class MemcacheCache extends BaseCache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
+	public function add(string $key, $value, int $ttl = Duration::FIVE_MINUTES): bool
 	{
-		$cachekey = $this->getCacheKey($key);
-		return $this->memcache->add($cachekey, serialize($value), MEMCACHE_COMPRESSED, $ttl);
+		$cacheKey = $this->getCacheKey($key);
+		return $this->memcache->add($cacheKey, serialize($value), MEMCACHE_COMPRESSED, $ttl);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getName()
+	public function getName(): string
 	{
 		return Type::MEMCACHE;
 	}

@@ -21,8 +21,8 @@
 
 namespace Friendica\Core;
 
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\Session\ISession;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Database\Database;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
@@ -62,7 +62,7 @@ class L10n
 	 */
 	private $logger;
 
-	public function __construct(IConfig $config, Database $dba, LoggerInterface $logger, ISession $session, array $server, array $get)
+	public function __construct(IManageConfigValues $config, Database $dba, LoggerInterface $logger, IHandleSessions $session, array $server, array $get)
 	{
 		$this->dba    = $dba;
 		$this->logger = $logger;
@@ -85,7 +85,7 @@ class L10n
 	/**
 	 * Sets the language session variable
 	 */
-	private function setSessionVariable(ISession $session)
+	private function setSessionVariable(IHandleSessions $session)
 	{
 		if ($session->get('authenticated') && !$session->get('language')) {
 			$session->set('language', $this->lang);
@@ -103,7 +103,7 @@ class L10n
 		}
 	}
 
-	private function setLangFromSession(ISession $session)
+	private function setLangFromSession(IHandleSessions $session)
 	{
 		if ($session->get('language') !== $this->lang) {
 			$this->loadTranslationTable($session->get('language'));

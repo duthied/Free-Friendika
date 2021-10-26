@@ -22,9 +22,9 @@
 namespace Friendica\Test\src\App;
 
 use Friendica\App\Router;
-use Friendica\Core\Cache\ICache;
+use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\L10n;
-use Friendica\Core\Lock\ILock;
+use Friendica\Core\Lock\Capability\ICanLock;
 use Friendica\Module;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
@@ -37,11 +37,11 @@ class RouterTest extends TestCase
 	/** @var L10n|MockInterface */
 	private $l10n;
 	/**
-	 * @var ICache
+	 * @var ICanCache
 	 */
 	private $cache;
 	/**
-	 * @var ILock
+	 * @var \Friendica\Core\Lock\Capability\ICanLock
 	 */
 	private $lock;
 
@@ -52,11 +52,11 @@ class RouterTest extends TestCase
 		$this->l10n = Mockery::mock(L10n::class);
 		$this->l10n->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
-		$this->cache = Mockery::mock(ICache::class);
+		$this->cache = Mockery::mock(ICanCache::class);
 		$this->cache->shouldReceive('get')->andReturn(null);
 		$this->cache->shouldReceive('set')->andReturn(false);
 
-		$this->lock = Mockery::mock(ILock::class);
+		$this->lock = Mockery::mock(ICanLock::class);
 		$this->lock->shouldReceive('acquire')->andReturn(true);
 		$this->lock->shouldReceive('isLocked')->andReturn(false);
 	}

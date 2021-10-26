@@ -42,7 +42,7 @@ trait AppMockTrait
 	protected $app;
 
 	/**
-	 * @var MockInterface|Config\IConfig The mocked Config Cache
+	 * @var MockInterface|\Friendica\Core\Config\Capability\IManageConfigValues The mocked Config Cache
 	 */
 	protected $configMock;
 
@@ -74,21 +74,21 @@ trait AppMockTrait
 		$this->dice = \Mockery::mock(Dice::class)->makePartial();
 		$this->dice = $this->dice->addRules(include __DIR__ . '/../../static/dependencies.config.php');
 
-		$this->configMock = \Mockery::mock(Config\Cache\Cache::class);
+		$this->configMock = \Mockery::mock(Config\ValueObject\Cache::class);
 		$this->dice->shouldReceive('create')
-		           ->with(Config\Cache\Cache::class)
+		           ->with(Config\ValueObject\Cache::class)
 		           ->andReturn($this->configMock);
 		$this->mode = \Mockery::mock(App\Mode::class);
 		$this->dice->shouldReceive('create')
 		           ->with(App\Mode::class)
 		           ->andReturn($this->mode);
-		$configModel= \Mockery::mock(Config\Model\Config::class);
+		$configModel= \Mockery::mock(Config\Repository\Config::class);
 		// Disable the adapter
 		$configModel->shouldReceive('isConnected')->andReturn(false);
 
 		$config = new Config\Type\JitConfig($this->configMock, $configModel);
 		$this->dice->shouldReceive('create')
-		           ->with(Config\IConfig::class)
+		           ->with(Config\Capability\IManageConfigValues::class)
 		           ->andReturn($config);
 
 		// Mocking App and most used functions

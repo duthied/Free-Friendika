@@ -22,7 +22,7 @@
 namespace Friendica\Test\src\Model\User;
 
 use Friendica\App\BaseURL;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Model\User\Cookie;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\StaticCookie;
@@ -30,7 +30,7 @@ use Mockery\MockInterface;
 
 class CookieTest extends MockedTest
 {
-	/** @var MockInterface|IConfig */
+	/** @var MockInterface|\Friendica\Core\Config\Capability\IManageConfigValues */
 	private $config;
 	/** @var MockInterface|BaseURL */
 	private $baseUrl;
@@ -41,7 +41,7 @@ class CookieTest extends MockedTest
 
 		parent::setUp();
 
-		$this->config = \Mockery::mock(IConfig::class);
+		$this->config = \Mockery::mock(IManageConfigValues::class);
 		$this->baseUrl = \Mockery::mock(BaseURL::class);
 	}
 

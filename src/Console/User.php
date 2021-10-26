@@ -25,7 +25,7 @@ use Console_Table;
 use Friendica\App;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Model\Register;
 use Friendica\Model\User as UserModel;
 use Friendica\Util\Temporal;
@@ -48,7 +48,7 @@ class User extends \Asika\SimpleConsole\Console
 	 */
 	private $l10n;
 	/**
-	 * @var IPConfig
+	 * @var IManagePersonalConfigValues
 	 */
 	private $pConfig;
 
@@ -88,7 +88,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, L10n $l10n, IPConfig $pConfig, array $argv = null)
+	public function __construct(App\Mode $appMode, L10n $l10n, IManagePersonalConfigValues $pConfig, array $argv = null)
 	{
 		parent::__construct($argv);
 
