@@ -51,21 +51,10 @@ class Receive extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 		}
 
-		$args = DI::args();
-
-		$type = $args->get(1);
-
-		switch ($type) {
-			case 'public':
-				self::receivePublic();
-				break;
-			case 'users':
-				self::receiveUser($args->get(2));
-				break;
-			default:
-				self::$logger->info('Wrong call.');
-				throw new HTTPException\BadRequestException('wrong call.');
-				break;
+		if ($parameters['type'] === 'public') {
+			self::receivePublic();
+		} else if ($parameters['type'] === 'users') {
+			self::receiveUser($parameters['guid']);
 		}
 	}
 
