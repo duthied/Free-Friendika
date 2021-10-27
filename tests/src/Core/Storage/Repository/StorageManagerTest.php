@@ -31,6 +31,7 @@ use Friendica\Core\Session\Type\Memory;
 use Friendica\Core\Storage\Exception\InvalidClassStorageException;
 use Friendica\Core\Storage\Capability\ICanReadFromStorage;
 use Friendica\Core\Storage\Capability\ICanWriteToStorage;
+use Friendica\Core\Storage\Exception\StorageException;
 use Friendica\Core\Storage\Repository\StorageManager;
 use Friendica\Core\Storage\Type\Filesystem;
 use Friendica\Core\Storage\Type\SystemResource;
@@ -257,7 +258,7 @@ class StorageManagerTest extends DatabaseTest
 		$dice = (new Dice())
 			->addRules(include __DIR__ . '/../../../../../static/dependencies.config.php')
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
-			->addRule(IHandleSessions::class, ['instanceOf' => Session\Type\Memory::class, 'shared' => true, 'call' => null]);
+			->addRule(IHandleSessions::class, ['instanceOf' => Memory::class, 'shared' => true, 'call' => null]);
 		DI::init($dice);
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
@@ -308,7 +309,7 @@ class StorageManagerTest extends DatabaseTest
 
 		self::assertInstanceOf(SampleStorageBackend::class, $storageManager->getBackend());
 
-		self::expectException(\Friendica\Core\Storage\Exception\StorageException::class);
+		self::expectException(StorageException::class);
 		self::expectExceptionMessage('Cannot unregister Sample Storage, because it\'s currently active.');
 
 		$storageManager->unregister(SampleStorageBackend::class);

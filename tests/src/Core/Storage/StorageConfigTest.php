@@ -26,10 +26,10 @@ use Friendica\Test\MockedTest;
 
 abstract class StorageConfigTest extends MockedTest
 {
-	/** @return \Friendica\Core\Storage\Capability\ICanConfigureStorage */
+	/** @return ICanConfigureStorage */
 	abstract protected function getInstance();
 
-	abstract protected function assertOption(\Friendica\Core\Storage\Capability\ICanConfigureStorage $storage);
+	abstract protected function assertOption(ICanConfigureStorage $storage);
 
 	/**
 	 * Test if the "getOption" is asserted

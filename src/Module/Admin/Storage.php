@@ -40,7 +40,7 @@ class Storage extends BaseAdmin
 		$storagebackend = Strings::escapeTags(trim($parameters['name'] ?? ''));
 
 		try {
-			/** @var \Friendica\Core\Storage\Capability\ICanConfigureStorage|false $newStorageConfig */
+			/** @var ICanConfigureStorage|false $newStorageConfig */
 			$newStorageConfig = DI::storageManager()->getConfigurationByName($storagebackend);
 		} catch (InvalidClassStorageException $storageException) {
 			notice(DI::l10n()->t('Storage backend, %s is invalid.', $storagebackend));
@@ -78,7 +78,6 @@ class Storage extends BaseAdmin
 
 		if (!empty($_POST['submit_save_set'])) {
 			try {
-				/** @var \Friendica\Core\Storage\Capability\ICanWriteToStorage $newstorage */
 				$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
 
 				if (!DI::storageManager()->setBackend($newstorage)) {
