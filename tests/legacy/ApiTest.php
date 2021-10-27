@@ -6,8 +6,8 @@
 namespace Friendica\Test\legacy;
 
 use Friendica\App;
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
@@ -45,7 +45,7 @@ class ApiTest extends FixtureTest
 	/** @var App */
 	protected $app;
 
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	protected $config;
 
 	/**
@@ -59,8 +59,8 @@ class ApiTest extends FixtureTest
 
 		parent::setUp();
 
-		/** @var IConfig $config */
-		$this->config = $this->dice->create(IConfig::class);
+		/** @var IManageConfigValues $config */
+		$this->config = $this->dice->create(IManageConfigValues::class);
 
 		$this->config->set('system', 'url', 'http://localhost');
 		$this->config->set('system', 'hostname', 'localhost');
@@ -813,7 +813,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithFrioSchema()
 	{
-		$pConfig = $this->dice->create(IPConfig::class);
+		$pConfig = $this->dice->create(IManagePersonalConfigValues::class);
 		$pConfig->set($this->selfUser['id'], 'frio', 'schema', 'red');
 		$user = api_get_user($this->app);
 		self::assertSelfUser($user);
@@ -829,7 +829,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithEmptyFrioSchema()
 	{
-		$pConfig = $this->dice->create(IPConfig::class);
+		$pConfig = $this->dice->create(IManagePersonalConfigValues::class);
 		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
 		$user = api_get_user($this->app);
 		self::assertSelfUser($user);
@@ -845,7 +845,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithCustomFrioSchema()
 	{
-		$pConfig = $this->dice->create(IPConfig::class);
+		$pConfig = $this->dice->create(IManagePersonalConfigValues::class);
 		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
 		$pConfig->set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
 		$pConfig->set($this->selfUser['id'], 'frio', 'link_color', '#123456');

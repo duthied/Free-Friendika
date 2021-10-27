@@ -21,8 +21,8 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\ICache;
-use Friendica\Core\Cache\IMemoryCache;
+use Friendica\Core\Cache\Capability\ICanCache;
+use Friendica\Core\Cache\Capability\ICanCacheInMemory;
 use Friendica\Test\MockedTest;
 use Friendica\Util\PidFile;
 
@@ -34,12 +34,12 @@ abstract class CacheTest extends MockedTest
 	protected $startTime = 1417011228;
 
 	/**
-	 * @var ICache
+	 * @var ICanCache
 	 */
 	protected $instance;
 
 	/**
-	 * @var IMemoryCache
+	 * @var \Friendica\Core\Cache\Capability\ICanCacheInMemory
 	 */
 	protected $cache;
 

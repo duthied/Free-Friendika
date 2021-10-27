@@ -23,8 +23,8 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\App;
-use Friendica\Core\Cache\Duration;
-use Friendica\Core\Cache\ICache;
+use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Core\Cache\Capability\ICanCache;
 use RuntimeException;
 
 /**
@@ -44,7 +44,7 @@ class Cache extends \Asika\SimpleConsole\Console
 	private $appMode;
 
 	/**
-	 * @var ICache
+	 * @var ICanCache
 	 */
 	private $cache;
 
@@ -82,7 +82,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, ICache $cache, array $argv = null)
+	public function __construct(App\Mode $appMode, ICanCache $cache, array $argv = null)
 	{
 		parent::__construct($argv);
 

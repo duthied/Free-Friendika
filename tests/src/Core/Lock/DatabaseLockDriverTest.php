@@ -21,12 +21,11 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use Friendica\Core\Lock\DatabaseLock;
-use Friendica\Factory\ConfigFactory;
+use Friendica\Core\Lock\Type\DatabaseLock;
+use Friendica\Core\Config\Factory\Config;
 use Friendica\Test\DatabaseTestTrait;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\Profiler;
 use Mockery;
 use Psr\Log\NullLogger;
@@ -56,8 +55,8 @@ class DatabaseLockDriverTest extends LockTest
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		// load real config to avoid mocking every config-entry which is related to the Database class
-		$configFactory = new ConfigFactory();
-		$loader        = (new ConfigFactory())->createConfigFileLoader($this->root->url(), []);
+		$configFactory = new Config();
+		$loader        = (new Config())->createConfigFileLoader($this->root->url(), []);
 		$configCache   = $configFactory->createCache($loader);
 
 		$dba = new StaticDatabase($configCache, $profiler, $logger);

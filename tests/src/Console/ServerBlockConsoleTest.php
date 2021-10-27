@@ -22,7 +22,7 @@
 namespace Friendica\Test\src\Console;
 
 use Friendica\Console\ServerBlock;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Mockery;
 
 class ServerBlockConsoleTest extends ConsoleTest
@@ -38,7 +38,7 @@ class ServerBlockConsoleTest extends ConsoleTest
 		]
 	];
 	/**
-	 * @var IConfig|Mockery\LegacyMockInterface|Mockery\MockInterface
+	 * @var IManageConfigValues|Mockery\LegacyMockInterface|Mockery\MockInterface
 	 */
 	private $configMock;
 
@@ -46,7 +46,7 @@ class ServerBlockConsoleTest extends ConsoleTest
 	{
 		parent::setUp();
 
-		$this->configMock = Mockery::mock(IConfig::class);
+		$this->configMock = Mockery::mock(IManageConfigValues::class);
 	}
 
 	/**

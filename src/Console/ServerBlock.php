@@ -24,7 +24,7 @@ namespace Friendica\Console;
 use Asika\SimpleConsole\CommandArgsException;
 use Asika\SimpleConsole\Console;
 use Console_Table;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 
 /**
  * Manage blocked servers
@@ -39,7 +39,7 @@ class ServerBlock extends Console
 	protected $helpOptions = ['h', 'help', '?'];
 
 	/**
-	 * @var IConfig
+	 * @var IManageConfigValues
 	 */
 	private $config;
 
@@ -72,7 +72,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(IConfig $config, $argv = null)
+	public function __construct(IManageConfigValues $config, $argv = null)
 	{
 		parent::__construct($argv);
 
@@ -105,9 +105,9 @@ HELP;
 	 * Exports the list of blocked domains including the reason for the
 	 * block to a CSV file.
 	 *
-	 * @param IConfig $config
+	 * @param IManageConfigValues $config
 	 */
-	private function exportBlockedServers(IConfig $config)
+	private function exportBlockedServers(IManageConfigValues $config)
 	{
 		$filename = $this->getArgument(1);
 		$blocklist = $config->get('system', 'blocklist', []);
@@ -123,9 +123,9 @@ HELP;
 	 * Imports a list of domains and a reason for the block from a CSV
 	 * file, e.g. created with the export function.
 	 *
-	 * @param IConfig $config
+	 * @param IManageConfigValues $config
 	 */
-	private function importBlockedServers(IConfig $config)
+	private function importBlockedServers(IManageConfigValues $config)
 	{
 		$filename = $this->getArgument(1);
 		$currBlockList = $config->get('system', 'blocklist', []);
@@ -167,9 +167,9 @@ HELP;
 	/**
 	 * Prints the whole list of blocked domains including the reason
 	 *
-	 * @param IConfig $config
+	 * @param IManageConfigValues $config
 	 */
-	private function printBlockedServers(IConfig $config)
+	private function printBlockedServers(IManageConfigValues $config)
 	{
 		$table = new Console_Table();
 		$table->setHeaders(['Domain', 'Reason']);
@@ -183,11 +183,11 @@ HELP;
 	/**
 	 * Adds a server to the blocked list
 	 *
-	 * @param IConfig $config
+	 * @param IManageConfigValues $config
 	 *
 	 * @return int The return code (0 = success, 1 = failed)
 	 */
-	private function addBlockedServer(IConfig $config)
+	private function addBlockedServer(IManageConfigValues $config)
 	{
 		if (count($this->args) < 2 || count($this->args) > 3) {
 			throw new CommandArgsException('Add needs a domain and optional a reason.');
@@ -235,11 +235,11 @@ HELP;
 	/**
 	 * Removes a server from the blocked list
 	 *
-	 * @param IConfig $config
+	 * @param IManageConfigValues $config
 	 *
 	 * @return int The return code (0 = success, 1 = failed)
 	 */
-	private function removeBlockedServer(IConfig $config)
+	private function removeBlockedServer(IManageConfigValues $config)
 	{
 		if (count($this->args) !== 2) {
 			throw new CommandArgsException('Remove needs a second parameter.');

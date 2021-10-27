@@ -21,7 +21,7 @@
 
 namespace Friendica\Model\Storage;
 
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 
 /**
@@ -32,7 +32,7 @@ class FilesystemConfig implements IStorageConfiguration
 	// Default base folder
 	const DEFAULT_BASE_FOLDER = 'storage';
 
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	private $config;
 
 	/** @var string */
@@ -54,10 +54,10 @@ class FilesystemConfig implements IStorageConfiguration
 	/**
 	 * Filesystem constructor.
 	 *
-	 * @param IConfig         $config
-	 * @param L10n            $l10n
+	 * @param IManageConfigValues $config
+	 * @param L10n                $l10n
 	 */
-	public function __construct(IConfig $config, L10n $l10n)
+	public function __construct(IManageConfigValues $config, L10n $l10n)
 	{
 		$this->config = $config;
 		$this->l10n   = $l10n;

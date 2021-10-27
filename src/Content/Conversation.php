@@ -26,10 +26,10 @@ use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\BaseModule;
 use Friendica\Core\ACL;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -66,11 +66,11 @@ class Conversation
 	private $item;
 	/** @var App\Arguments */
 	private $args;
-	/** @var IPConfig */
+	/** @var IManagePersonalConfigValues */
 	private $pConfig;
 	/** @var BaseURL */
 	private $baseURL;
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	private $config;
 	/** @var App */
 	private $app;
@@ -79,7 +79,7 @@ class Conversation
 	/** @var App\Mode */
 	private $mode;
 
-	public function __construct(LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IConfig $config, IPConfig $pConfig, App\Page $page, App\Mode $mode, App $app)
+	public function __construct(LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, App\Mode $mode, App $app)
 	{
 		$this->activity = $activity;
 		$this->item     = $item;
@@ -629,7 +629,7 @@ class Conversation
 
 					$body_html = ItemModel::prepareBody($item, true, $preview);
 
-					list($categories, $folders) = $this->item->determineCategoriesTerms($item, local_user());
+					[$categories, $folders] = $this->item->determineCategoriesTerms($item, local_user());
 
 					if (!empty($item['content-warning']) && $this->pConfig->get(local_user(), 'system', 'disable_cw', false)) {
 						$title = ucfirst($item['content-warning']);

@@ -27,9 +27,9 @@ use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session\ISession;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseNotifications;
@@ -51,14 +51,14 @@ class Introduction extends BaseFactory
 	private $baseUrl;
 	/** @var L10n */
 	private $l10n;
-	/** @var IPConfig */
+	/** @var IManagePersonalConfigValues */
 	private $pConfig;
-	/** @var ISession */
+	/** @var IHandleSessions */
 	private $session;
 	/** @var string */
 	private $nick;
 
-	public function __construct(LoggerInterface $logger, Database $dba, BaseURL $baseUrl, L10n $l10n, App $app, IPConfig $pConfig, ISession $session)
+	public function __construct(LoggerInterface $logger, Database $dba, BaseURL $baseUrl, L10n $l10n, App $app, IManagePersonalConfigValues $pConfig, IHandleSessions $session)
 	{
 		parent::__construct($logger);
 

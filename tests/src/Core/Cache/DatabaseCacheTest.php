@@ -22,11 +22,10 @@
 namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache;
-use Friendica\Factory\ConfigFactory;
+use Friendica\Core\Config\Factory\Config;
 use Friendica\Test\DatabaseTestTrait;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\Profiler;
 use Mockery;
 use Psr\Log\NullLogger;
@@ -54,13 +53,13 @@ class DatabaseCacheTest extends CacheTest
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		// load real config to avoid mocking every config-entry which is related to the Database class
-		$configFactory = new ConfigFactory();
-		$loader = (new ConfigFactory())->createConfigFileLoader($this->root->url(), []);
+		$configFactory = new Config();
+		$loader = (new Config())->createConfigFileLoader($this->root->url(), []);
 		$configCache = $configFactory->createCache($loader);
 
 		$dba = new StaticDatabase($configCache, $profiler, $logger);
 
-		$this->cache = new Cache\DatabaseCache('database', $dba);
+		$this->cache = new Cache\Type\DatabaseCache('database', $dba);
 		return $this->cache;
 	}
 

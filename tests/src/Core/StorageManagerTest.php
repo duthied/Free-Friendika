@@ -22,23 +22,22 @@
 namespace Friendica\Test\src\Core;
 
 use Dice\Dice;
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\Config\PreloadConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\Config\Type\PreloadConfig;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\Session\ISession;
+use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Type\Memory;
 use Friendica\Core\StorageManager;
 use Friendica\Database\Database;
 use Friendica\DI;
-use Friendica\Factory\ConfigFactory;
-use Friendica\Model\Config\Config;
+use Friendica\Core\Config\Factory\Config;
+use Friendica\Core\Config\Repository;
 use Friendica\Model\Storage;
-use Friendica\Core\Session;
 use Friendica\Network\HTTPClient;
 use Friendica\Test\DatabaseTest;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\Profiler;
 use org\bovigo\vfs\vfsStream;
 use Psr\Log\LoggerInterface;
@@ -50,7 +49,7 @@ class StorageManagerTest extends DatabaseTest
 	use VFSTrait;
 	/** @var Database */
 	private $dba;
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	private $config;
 	/** @var LoggerInterface */
 	private $logger;
@@ -75,13 +74,13 @@ class StorageManagerTest extends DatabaseTest
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		// load real config to avoid mocking every config-entry which is related to the Database class
-		$configFactory = new ConfigFactory();
+		$configFactory = new Config();
 		$loader        = $configFactory->createConfigFileLoader($this->root->url(), []);
 		$configCache   = $configFactory->createCache($loader);
 
 		$this->dba = new StaticDatabase($configCache, $profiler, $this->logger);
 
-		$configModel  = new Config($this->dba);
+		$configModel  = new Repository\Config($this->dba);
 		$this->config = new PreloadConfig($configCache, $configModel);
 		$this->config->set('storage', 'name', 'Database');
 		$this->config->set('storage', 'filesystem_path', $this->root->getChild(Storage\FilesystemConfig::DEFAULT_BASE_FOLDER)->url());
@@ -253,7 +252,7 @@ class StorageManagerTest extends DatabaseTest
 		$dice = (new Dice())
 			->addRules(include __DIR__ . '/../../../static/dependencies.config.php')
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
-			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true, 'call' => null]);
+			->addRule(IHandleSessions::class, ['instanceOf' => Session\Type\Memory::class, 'shared' => true, 'call' => null]);
 		DI::init($dice);
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
@@ -281,7 +280,7 @@ class StorageManagerTest extends DatabaseTest
 		$dice = (new Dice())
 			->addRules(include __DIR__ . '/../../../static/dependencies.config.php')
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
-			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true, 'call' => null]);
+			->addRule(IHandleSessions::class, ['instanceOf' => Memory::class, 'shared' => true, 'call' => null]);
 		DI::init($dice);
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);

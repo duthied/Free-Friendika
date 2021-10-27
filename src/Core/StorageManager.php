@@ -22,7 +22,7 @@
 namespace Friendica\Core;
 
 use Exception;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\Database;
 use Friendica\Model\Storage;
 use Friendica\Network\HTTPException\InternalServerErrorException;
@@ -56,7 +56,7 @@ class StorageManager
 
 	/** @var Database */
 	private $dba;
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	private $config;
 	/** @var LoggerInterface */
 	private $logger;
@@ -67,15 +67,15 @@ class StorageManager
 	private $currentBackend;
 
 	/**
-	 * @param Database        $dba
-	 * @param IConfig         $config
-	 * @param LoggerInterface $logger
-	 * @param L10n            $l10n
+	 * @param Database            $dba
+	 * @param IManageConfigValues $config
+	 * @param LoggerInterface     $logger
+	 * @param L10n                $l10n
 	 *
 	 * @throws Storage\InvalidClassStorageException in case the active backend class is invalid
 	 * @throws Storage\StorageException in case of unexpected errors during the active backend class loading
 	 */
-	public function __construct(Database $dba, IConfig $config, LoggerInterface $logger, L10n $l10n)
+	public function __construct(Database $dba, IManageConfigValues $config, LoggerInterface $logger, L10n $l10n)
 	{
 		$this->dba           = $dba;
 		$this->config        = $config;

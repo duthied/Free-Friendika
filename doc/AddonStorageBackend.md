@@ -188,7 +188,7 @@ namespace Friendica\Addon\samplestorage;
 
 use Friendica\Model\Storage\IWritableStorage;
 
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 
 class SampleStorageBackend implements IWritableStorage
@@ -249,12 +249,12 @@ namespace Friendica\Addon\samplestorage;
 
 use Friendica\Model\Storage\IStorageConfiguration;
 
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 
 class SampleStorageBackendConfig implements IStorageConfiguration
 {
-	/** @var IConfig */
+	/** @var \Friendica\Core\Config\Capability\IManageConfigValues */
 	private $config;
 	/** @var L10n */
 	private $l10n;
@@ -265,7 +265,7 @@ class SampleStorageBackendConfig implements IStorageConfiguration
 	  * You can add here every dynamic class as dependency you like and add them to a private field
 	  * Friendica automatically creates these classes and passes them as argument to the constructor									   
 	  */
-	public function __construct(IConfig $config, L10n $l10n) 
+	public function __construct(IManageConfigValues $config, L10n $l10n) 
 	{
 		$this->config = $config;
 		$this->l10n   = $l10n;

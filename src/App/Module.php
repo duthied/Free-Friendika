@@ -24,6 +24,7 @@ namespace Friendica\App;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\LegacyModule;
 use Friendica\Module\Home;
 use Friendica\Module\HTTPException\MethodNotAllowed;
@@ -168,15 +169,15 @@ class Module
 	/**
 	 * Determine the class of the current module
 	 *
-	 * @param Arguments           $args   The Friendica execution arguments
-	 * @param Router              $router The Friendica routing instance
-	 * @param Core\Config\IConfig $config The Friendica Configuration
+	 * @param Arguments                                             $args   The Friendica execution arguments
+	 * @param Router                                                $router The Friendica routing instance
+	 * @param IManageConfigValues $config The Friendica Configuration
 	 *
 	 * @return Module The determined module of this call
 	 *
 	 * @throws \Exception
 	 */
-	public function determineClass(Arguments $args, Router $router, Core\Config\IConfig $config)
+	public function determineClass(Arguments $args, Router $router, IManageConfigValues $config)
 	{
 		$printNotAllowedAddon = false;
 
