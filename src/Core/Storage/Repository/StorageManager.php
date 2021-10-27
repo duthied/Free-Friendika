@@ -195,11 +195,11 @@ class StorageManager
 					$this->backendInstances[$name] = new Type\Database($this->dba);
 					break;
 				// at least, try if there's an addon for the backend
-				case \Friendica\Core\Storage\Type\SystemResource::getName():
-					$this->backendInstances[$name] = new \Friendica\Core\Storage\Type\SystemResource();
+				case Type\SystemResource::getName():
+					$this->backendInstances[$name] = new Type\SystemResource();
 					break;
-				case \Friendica\Core\Storage\Type\ExternalResource::getName():
-					$this->backendInstances[$name] = new \Friendica\Core\Storage\Type\ExternalResource();
+				case Type\ExternalResource::getName():
+					$this->backendInstances[$name] = new Type\ExternalResource();
 					break;
 				default:
 					$data = [

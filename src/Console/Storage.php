@@ -33,7 +33,7 @@ class Storage extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
 
-	/** @var \Friendica\Core\Storage\Repository\StorageManager */
+	/** @var StorageManager */
 	private $storageManager;
 
 	/**
