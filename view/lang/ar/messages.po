@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-23 21:51-0400\n"
-"PO-Revision-Date: 2021-10-24 17:56+0000\n"
+"POT-Creation-Date: 2021-10-24 23:21-0400\n"
+"PO-Revision-Date: 2021-10-26 18:49+0000\n"
 "Last-Translator: abidin toumi <abidin24@tutanota.com>\n"
 "Language-Team: Arabic (http://www.transifex.com/Friendica/friendica/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -2998,7 +2998,7 @@ msgstr "الشبكة"
 
 #: src/Content/Nav.php:271 view/theme/frio/theme.php:232
 msgid "Conversations from your friends"
-msgstr "محادثات مع أصدقائك"
+msgstr "محادثات أصدقائك"
 
 #: src/Content/Nav.php:277
 msgid "Introductions"
@@ -4170,10 +4170,9 @@ msgstr ""
 msgid "Unable to retrieve contact information."
 msgstr "تعذر جلب معلومات المتراسل."
 
-#: src/Model/Event.php:52 src/Model/Event.php:853
-#: src/Module/Debug/Localtime.php:38
-msgid "l F d, Y \\@ g:i A"
-msgstr "l F d, Y \\@ g:i A"
+#: src/Model/Event.php:52
+msgid "l F d, Y \\@ g:i A \\G\\M\\TP (e)"
+msgstr ""
 
 #: src/Model/Event.php:73 src/Model/Event.php:90 src/Model/Event.php:464
 #: src/Model/Event.php:897
@@ -4212,6 +4211,10 @@ msgstr "ضاعف الحدث"
 #: src/Model/Event.php:611
 msgid "Delete event"
 msgstr "احذف الحدث"
+
+#: src/Model/Event.php:853 src/Module/Debug/Localtime.php:38
+msgid "l F d, Y \\@ g:i A"
+msgstr "l F d, Y \\@ g:i A"
 
 #: src/Model/Event.php:854
 msgid "D g:i A"
@@ -5606,7 +5609,7 @@ msgstr "سمة النظام"
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a "
 "href=\"/admin/themes\" id=\"cnftheme\">Change default theme settings</a>"
-msgstr ""
+msgstr "مظهر الموقع الافتراضي يختلف بناءً على الملف الشخصي الذي تمت زيارته - <a href=\"/admin/themes\" id=\"cnftheme\"> غيّر إعدادات السمة الافتراضية</a>"
 
 #: src/Module/Admin/Site.php:531
 msgid "Mobile system theme"
@@ -5632,7 +5635,7 @@ msgstr "فرض SSL"
 msgid ""
 "Force all Non-SSL requests to SSL - Attention: on some systems it could lead"
 " to endless loops."
-msgstr ""
+msgstr "أعد توجيه جميع الطلبات غير المشفرة إلى طلبات SSL. تحذير: في بعض الأنظمة يمكن أن يؤدي هذا إلى حلقات إعادة توجيه لا نهائية."
 
 #: src/Module/Admin/Site.php:534
 msgid "Show help entry from navigation menu"
@@ -5670,46 +5673,46 @@ msgstr "الطول الأقصى للصورة"
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
-msgstr ""
+msgstr "حد حجم الصورة المرفوعة بالبيكسل. الافتراضي هو 1- والذي يعني حجمًا غير محدود."
 
 #: src/Module/Admin/Site.php:539
 msgid "JPEG image quality"
-msgstr ""
+msgstr "جودة صور JPEG"
 
 #: src/Module/Admin/Site.php:539
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
-msgstr ""
+msgstr "سيتم حفظ ملفات JPEG المرفوعة بنسبة جودة [0-100]. القيمة الافتراضية هي 100 وهي أقصى جودة."
 
 #: src/Module/Admin/Site.php:541
 msgid "Register policy"
-msgstr ""
+msgstr "سياسات التسجيل"
 
 #: src/Module/Admin/Site.php:542
 msgid "Maximum Daily Registrations"
-msgstr ""
+msgstr "الحد اليومي للتسجيل"
 
 #: src/Module/Admin/Site.php:542
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
-msgstr ""
+msgstr "إذا كان التسجيل مسموحا، فإن ذلك يحدد الحد الأقصى لعدد التسجيلات الجديدة  لليوم الواحد. إذا أُغلق التسجيل هذا الإعداد ليس له أي تأثير."
 
 #: src/Module/Admin/Site.php:543
 msgid "Register text"
-msgstr ""
+msgstr "نص صفحة التسجيل"
 
 #: src/Module/Admin/Site.php:543
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
-msgstr ""
+msgstr "ستعرض في صفحة التسجيل. يمكنك استخدام BBCode."
 
 #: src/Module/Admin/Site.php:544
 msgid "Forbidden Nicknames"
-msgstr ""
+msgstr "الألقاب المحظورة"
 
 #: src/Module/Admin/Site.php:544
 msgid ""
@@ -5719,23 +5722,23 @@ msgstr ""
 
 #: src/Module/Admin/Site.php:545
 msgid "Accounts abandoned after x days"
-msgstr ""
+msgstr "الحسابات المهجورة بعد x يوم"
 
 #: src/Module/Admin/Site.php:545
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
-msgstr ""
+msgstr "من أجل صونِ موارد النظام سنوقف الاستطلاع عن الحسابات المهجورة من المواقع البعيدة. ضع 0 لإيقاف هذه الوظيفة."
 
 #: src/Module/Admin/Site.php:546
 msgid "Allowed friend domains"
-msgstr ""
+msgstr "النطاقات المسموحة"
 
 #: src/Module/Admin/Site.php:546
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
-msgstr ""
+msgstr "قائمة مفصولة بفواصل للنطاقات المصرح لها بالتفاعل مع مستخدمي هذا الموقع. علامة \"*\" مقبولة. اتركه فارغا للسماح لجميع النطاقات"
 
 #: src/Module/Admin/Site.php:547
 msgid "Allowed email domains"
@@ -5746,7 +5749,7 @@ msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
-msgstr ""
+msgstr "قائمة مفصولة بفواصل للنطاقات البريد الإلكتروني المسموح بالتسجيل بها في هذا الموقع. علامة \"*\" مقبولة. اتركه فارغا للسماح لجميع النطاقات"
 
 #: src/Module/Admin/Site.php:548
 msgid "No OEmbed rich content"
@@ -5760,47 +5763,47 @@ msgstr ""
 
 #: src/Module/Admin/Site.php:549
 msgid "Trusted third-party domains"
-msgstr ""
+msgstr "نطاقات الخارجية الموثوق بها"
 
 #: src/Module/Admin/Site.php:549
 msgid ""
 "Comma separated list of domains from which content is allowed to be embedded"
 " in posts like with OEmbed. All sub-domains of the listed domains are "
 "allowed as well."
-msgstr ""
+msgstr "قائمة مفصولة بفواصل من النطاقات التي يُسمح بتضمين محتواها في المشاركات مثل OEmbed. يُسمح أيضًا بجميع النطاقات الفرعية التابعة لها."
 
 #: src/Module/Admin/Site.php:550
 msgid "Block public"
-msgstr ""
+msgstr "احجب المشاركات العلنية"
 
 #: src/Module/Admin/Site.php:550
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
-msgstr ""
+msgstr "أشر لمنع الزوار من الوصول إلى كل الصفحات باستثناء الصفحات الشخصية العلنية."
 
 #: src/Module/Admin/Site.php:551
 msgid "Force publish"
-msgstr ""
+msgstr "افرض النشر"
 
 #: src/Module/Admin/Site.php:551
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
-msgstr ""
+msgstr "أشر لفرض إدراج جميع الملفات الشخصية في دليل الموقع."
 
 #: src/Module/Admin/Site.php:551
 msgid "Enabling this may violate privacy laws like the GDPR"
-msgstr ""
+msgstr "تفعيله قد ينتهك قوانين حماية الخصوصية مثل GDPR"
 
 #: src/Module/Admin/Site.php:552
 msgid "Global directory URL"
-msgstr ""
+msgstr "رابط الدليل العالمي"
 
 #: src/Module/Admin/Site.php:552
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
-msgstr ""
+msgstr "رابط الدليل العالمي. إذا لم يتم تعريف هذا الحقل ، فلن يكون الدليل العام متاحًا."
 
 #: src/Module/Admin/Site.php:553
 msgid "Private posts by default for new users"
@@ -5810,17 +5813,17 @@ msgstr ""
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
-msgstr ""
+msgstr "تعيين أذونات النشر الافتراضية لجميع الأعضاء الجدد إلى خاصة بدل العلنية."
 
 #: src/Module/Admin/Site.php:554
 msgid "Don't include post content in email notifications"
-msgstr ""
+msgstr "لا تضمن محتويات المشاركات في تنبيهات البريد الإلكتروني"
 
 #: src/Module/Admin/Site.php:554
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
-msgstr ""
+msgstr "لا تضمن محتوى المشركات/التعليقات/الرسائل الخاصة/إلخ في تنبيهات البريد الإلكتروني المرسلة من هذا الموقع، كتدبير لحماية الخصوصية."
 
 #: src/Module/Admin/Site.php:555
 msgid "Disallow public access to addons listed in the apps menu."
@@ -5834,7 +5837,7 @@ msgstr ""
 
 #: src/Module/Admin/Site.php:556
 msgid "Don't embed private images in posts"
-msgstr ""
+msgstr "لا تضمن الصور الخاصة في المشاركات"
 
 #: src/Module/Admin/Site.php:556
 msgid ""
@@ -6285,11 +6288,11 @@ msgstr ""
 
 #: src/Module/Admin/Site.php:614
 msgid "Deny Server tags"
-msgstr ""
+msgstr "الوسوم المرفوضة"
 
 #: src/Module/Admin/Site.php:614
 msgid "Comma separated list of tags that are rejected."
-msgstr ""
+msgstr "قائمة بالوسوم المرفوضة مفصول بفاصلة."
 
 #: src/Module/Admin/Site.php:615
 msgid "Allow user tags"
@@ -6325,11 +6328,11 @@ msgstr ""
 
 #: src/Module/Admin/Storage.php:141
 msgid "Storage Configuration"
-msgstr ""
+msgstr "إعدادات التخزين"
 
 #: src/Module/Admin/Storage.php:142 src/Module/BaseAdmin.php:91
 msgid "Storage"
-msgstr ""
+msgstr "مساحة التخزين"
 
 #: src/Module/Admin/Storage.php:144
 msgid "Save & Use storage backend"
@@ -7673,7 +7676,7 @@ msgstr "رتب حسب تاريخ استلام المشاركة"
 #: src/Module/Conversation/Network.php:250
 #: src/Module/Settings/Profile/Index.php:228
 msgid "Personal"
-msgstr "شخصي"
+msgstr "نشاطي"
 
 #: src/Module/Conversation/Network.php:253
 msgid "Posts that mention or involve you"
@@ -8612,21 +8615,21 @@ msgstr ""
 msgid "Visible to:"
 msgstr "مرئي لـ:"
 
-#: src/Module/Photo.php:122
+#: src/Module/Photo.php:123
 msgid "The Photo is not available."
 msgstr "الصورة غير متوفرة."
 
-#: src/Module/Photo.php:135
+#: src/Module/Photo.php:136
 #, php-format
 msgid "The Photo with id %s is not available."
 msgstr "الصورة ذات المعرف %s غير متوفّرة."
 
-#: src/Module/Photo.php:168
+#: src/Module/Photo.php:169
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr ""
 
-#: src/Module/Photo.php:170
+#: src/Module/Photo.php:171
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr "الصورة ذات المعرف %s غير صالحة."
@@ -8899,11 +8902,11 @@ msgstr ""
 
 #: src/Module/Search/Index.php:54
 msgid "Only logged in users are permitted to perform a search."
-msgstr ""
+msgstr "يمكن فقط للمستخدمين المسجلين البحث في الموقع."
 
 #: src/Module/Search/Index.php:76
 msgid "Only one search per minute is permitted for not logged in users."
-msgstr ""
+msgstr "يسمح ببحث واحد فقط في كل دقيقة للزوار."
 
 #: src/Module/Search/Index.php:192
 #, php-format
@@ -9473,7 +9476,7 @@ msgstr ""
 
 #: src/Module/Settings/TwoFactor/AppSpecific.php:77
 msgid "New app-specific password generated."
-msgstr ""
+msgstr "أُنشئت كلمة مرور جديدة خاصة بالتطبيق بنجاح."
 
 #: src/Module/Settings/TwoFactor/AppSpecific.php:83
 msgid "App-specific passwords successfully revoked."
@@ -10152,12 +10155,12 @@ msgstr "علق %1$s على تعليقك %2$s"
 #: src/Navigation/Notifications/Factory/Notification.php:189
 #, php-format
 msgid "%1$s commented in their thread %2$s"
-msgstr "علق %1$s على نقاشهم %2$s"
+msgstr "علق %1$s على نقاشه %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:191
 #, php-format
 msgid "%1$s commented in their thread"
-msgstr "علق %1$s على نقاشهم"
+msgstr "علق %1$s على نقاشه"
 
 #: src/Navigation/Notifications/Factory/Notification.php:193
 #, php-format

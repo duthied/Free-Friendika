@@ -727,7 +727,7 @@ $a->strings['Information about this friendica instance'] = 'معلومات حو�
 $a->strings['Terms of Service'] = 'شروط الخدمة';
 $a->strings['Terms of Service of this Friendica instance'] = 'شروط الخدمة لهذا المثيل';
 $a->strings['Network'] = 'الشبكة';
-$a->strings['Conversations from your friends'] = 'محادثات مع أصدقائك';
+$a->strings['Conversations from your friends'] = 'محادثات أصدقائك';
 $a->strings['Introductions'] = 'المقدمات';
 $a->strings['Friend Requests'] = 'طلبات الصداقة';
 $a->strings['Notifications'] = 'التنبيهات';
@@ -976,7 +976,6 @@ $a->strings['Unable to match @-style Identity Address with a known protocol or e
 $a->strings['Use mailto: in front of address to force email check.'] = 'استخدم mailto: أمام العنوان للتعرّف عليه كبريد إلكتروني.';
 $a->strings['The profile address specified belongs to a network which has been disabled on this site.'] = 'عنوان الملف الشخصي تابع لشبكة محجوبة في هذا الموقع.';
 $a->strings['Unable to retrieve contact information.'] = 'تعذر جلب معلومات المتراسل.';
-$a->strings['l F d, Y \@ g:i A'] = 'l F d, Y \@ g:i A';
 $a->strings['Starts:'] = 'يبدأ:';
 $a->strings['Finishes:'] = 'ينتهي:';
 $a->strings['all-day'] = 'كل اليوم';
@@ -985,6 +984,7 @@ $a->strings['No events to display'] = 'لا توجد أحداث لعرضها';
 $a->strings['Edit event'] = 'حرّر الحدث';
 $a->strings['Duplicate event'] = 'ضاعف الحدث';
 $a->strings['Delete event'] = 'احذف الحدث';
+$a->strings['l F d, Y \@ g:i A'] = 'l F d, Y \@ g:i A';
 $a->strings['Show map'] = 'أظهر الخريطة';
 $a->strings['Hide map'] = 'اخف الخريطة';
 $a->strings['%s\'s birthday'] = 'عيد ميلاد %s';
@@ -1389,17 +1389,46 @@ $a->strings['Additional Info'] = 'معلومات إضافية';
 $a->strings['For public servers: you can add additional information here that will be listed at %s/servers.'] = 'للخوادم العامة: يمكنك إضافة معلومات إضافية لتدرج في %s/servers.';
 $a->strings['System language'] = 'لغة النظام';
 $a->strings['System theme'] = 'سمة النظام';
+$a->strings['Default system theme - may be over-ridden by user profiles - <a href="/admin/themes" id="cnftheme">Change default theme settings</a>'] = 'مظهر الموقع الافتراضي يختلف بناءً على الملف الشخصي الذي تمت زيارته - <a href="/admin/themes" id="cnftheme"> غيّر إعدادات السمة الافتراضية</a>';
 $a->strings['Mobile system theme'] = 'سمة الهاتف';
 $a->strings['Theme for mobile devices'] = 'سمة للأجهزة المحمولة';
 $a->strings['SSL link policy'] = 'سياسة روابط SSL';
 $a->strings['Determines whether generated links should be forced to use SSL'] = 'يحدد ما إذا كان ينبغي إجبار الروابط المولدة على استخدام SSL';
 $a->strings['Force SSL'] = 'فرض SSL';
+$a->strings['Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.'] = 'أعد توجيه جميع الطلبات غير المشفرة إلى طلبات SSL. تحذير: في بعض الأنظمة يمكن أن يؤدي هذا إلى حلقات إعادة توجيه لا نهائية.';
 $a->strings['Single user instance'] = 'مثيل لمستخدم وحيد';
 $a->strings['Make this instance multi-user or single-user for the named user'] = 'اجعل هذا المثيل إما لمستخدم واحد أوعدة مستخدمين';
 $a->strings['Maximum image size'] = 'الحجم الأقصى للصورة';
 $a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits.'] = 'حد حجم الصورة المرفوعة بالبايت. الافتراضي هو 0 والذي يعني حجمًا غير محدود.';
 $a->strings['Maximum image length'] = 'الطول الأقصى للصورة';
+$a->strings['Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.'] = 'حد حجم الصورة المرفوعة بالبيكسل. الافتراضي هو 1- والذي يعني حجمًا غير محدود.';
+$a->strings['JPEG image quality'] = 'جودة صور JPEG';
+$a->strings['Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.'] = 'سيتم حفظ ملفات JPEG المرفوعة بنسبة جودة [0-100]. القيمة الافتراضية هي 100 وهي أقصى جودة.';
+$a->strings['Register policy'] = 'سياسات التسجيل';
+$a->strings['Maximum Daily Registrations'] = 'الحد اليومي للتسجيل';
+$a->strings['If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.'] = 'إذا كان التسجيل مسموحا، فإن ذلك يحدد الحد الأقصى لعدد التسجيلات الجديدة  لليوم الواحد. إذا أُغلق التسجيل هذا الإعداد ليس له أي تأثير.';
+$a->strings['Register text'] = 'نص صفحة التسجيل';
+$a->strings['Will be displayed prominently on the registration page. You can use BBCode here.'] = 'ستعرض في صفحة التسجيل. يمكنك استخدام BBCode.';
+$a->strings['Forbidden Nicknames'] = 'الألقاب المحظورة';
+$a->strings['Accounts abandoned after x days'] = 'الحسابات المهجورة بعد x يوم';
+$a->strings['Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.'] = 'من أجل صونِ موارد النظام سنوقف الاستطلاع عن الحسابات المهجورة من المواقع البعيدة. ضع 0 لإيقاف هذه الوظيفة.';
+$a->strings['Allowed friend domains'] = 'النطاقات المسموحة';
+$a->strings['Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains'] = 'قائمة مفصولة بفواصل للنطاقات المصرح لها بالتفاعل مع مستخدمي هذا الموقع. علامة "*" مقبولة. اتركه فارغا للسماح لجميع النطاقات';
 $a->strings['Allowed email domains'] = 'نطاقات البريد الإلكتروني المسموحة';
+$a->strings['Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains'] = 'قائمة مفصولة بفواصل للنطاقات البريد الإلكتروني المسموح بالتسجيل بها في هذا الموقع. علامة "*" مقبولة. اتركه فارغا للسماح لجميع النطاقات';
+$a->strings['Trusted third-party domains'] = 'نطاقات الخارجية الموثوق بها';
+$a->strings['Comma separated list of domains from which content is allowed to be embedded in posts like with OEmbed. All sub-domains of the listed domains are allowed as well.'] = 'قائمة مفصولة بفواصل من النطاقات التي يُسمح بتضمين محتواها في المشاركات مثل OEmbed. يُسمح أيضًا بجميع النطاقات الفرعية التابعة لها.';
+$a->strings['Block public'] = 'احجب المشاركات العلنية';
+$a->strings['Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.'] = 'أشر لمنع الزوار من الوصول إلى كل الصفحات باستثناء الصفحات الشخصية العلنية.';
+$a->strings['Force publish'] = 'افرض النشر';
+$a->strings['Check to force all profiles on this site to be listed in the site directory.'] = 'أشر لفرض إدراج جميع الملفات الشخصية في دليل الموقع.';
+$a->strings['Enabling this may violate privacy laws like the GDPR'] = 'تفعيله قد ينتهك قوانين حماية الخصوصية مثل GDPR';
+$a->strings['Global directory URL'] = 'رابط الدليل العالمي';
+$a->strings['URL to the global directory. If this is not set, the global directory is completely unavailable to the application.'] = 'رابط الدليل العالمي. إذا لم يتم تعريف هذا الحقل ، فلن يكون الدليل العام متاحًا.';
+$a->strings['Set default post permissions for all new members to the default privacy group rather than public.'] = 'تعيين أذونات النشر الافتراضية لجميع الأعضاء الجدد إلى خاصة بدل العلنية.';
+$a->strings['Don\'t include post content in email notifications'] = 'لا تضمن محتويات المشاركات في تنبيهات البريد الإلكتروني';
+$a->strings['Don\'t include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.'] = 'لا تضمن محتوى المشركات/التعليقات/الرسائل الخاصة/إلخ في تنبيهات البريد الإلكتروني المرسلة من هذا الموقع، كتدبير لحماية الخصوصية.';
+$a->strings['Don\'t embed private images in posts'] = 'لا تضمن الصور الخاصة في المشاركات';
 $a->strings['Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.'] = 'عيّن هذا الخيار للإعلان عن أن عقدتك تحتوي محتوى حساس قد لا يكون مناسباً للقصر. وسوف تنشر هذه المعلومات في معلومات العقدة وصفحة التسجيل، ويستخدم هذا الخيار في الدليل العالمي، فأثناء استعراض هذه العقدة في الدليل ستظهر لهم هذه المعلومة.';
 $a->strings['Proxify external content'] = 'توجيه المحتوى الخارجي عبر الوكيل';
 $a->strings['Route external content via the proxy functionality. This is used for example for some OEmbed accesses and in some other rare cases.'] = 'توجيه المحتوى الخارجي عن طريق وميل. يستخدم هذا على سبيل المثال وصول OEmbed وفي بعض الحالات النادرة الأخرى.';
@@ -1446,7 +1475,11 @@ $a->strings['Disabled'] = 'معطل';
 $a->strings['all'] = 'الكل';
 $a->strings['tags'] = 'الوسوم';
 $a->strings['Server tags'] = 'وسوم الخادم';
+$a->strings['Deny Server tags'] = 'الوسوم المرفوضة';
+$a->strings['Comma separated list of tags that are rejected.'] = 'قائمة بالوسوم المرفوضة مفصول بفاصلة.';
 $a->strings['Start Relocation'] = 'ابدأ النقل';
+$a->strings['Storage Configuration'] = 'إعدادات التخزين';
+$a->strings['Storage'] = 'مساحة التخزين';
 $a->strings['The worker was never executed. Please check your database structure!'] = 'لم يتم تنفيذ المهمة أبداً. يرجى التحقق من بنية قاعدة البيانات!';
 $a->strings['Normal Account'] = 'حساب عادي';
 $a->strings['Public Forum Account'] = 'حساب منتدى عمومي';
@@ -1731,7 +1764,7 @@ $a->strings['Latest Activity'] = 'آخر نشاط';
 $a->strings['Sort by latest activity'] = 'رتب حسب آخر نشاط';
 $a->strings['Latest Posts'] = 'آخر المشاركات';
 $a->strings['Sort by post received date'] = 'رتب حسب تاريخ استلام المشاركة';
-$a->strings['Personal'] = 'شخصي';
+$a->strings['Personal'] = 'نشاطي';
 $a->strings['Posts that mention or involve you'] = 'المشاركات التي تذكرك أو تتعلق بك';
 $a->strings['Starred'] = 'المفضلة';
 $a->strings['Favourite Posts'] = 'المشاركات المفضلة';
@@ -1958,6 +1991,8 @@ $a->strings['Profile unavailable.'] = 'الملف الشخصي غير متوفر
 $a->strings['The provided profile link doesn\'t seem to be valid'] = 'يبدو أنّ رابط الملف الشخصي غير صالح';
 $a->strings['Friend/Connection Request'] = 'طلب صداقة/اقتران';
 $a->strings['If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.'] = 'إن لم تكن عضواً في شبكة اجتماعية حرة، <a href="%s">اتبع هذا الرابط للعثور على عقدة عمومية لفرَندِكا وانضم إلينا اليوم</a>.';
+$a->strings['Only logged in users are permitted to perform a search.'] = 'يمكن فقط للمستخدمين المسجلين البحث في الموقع.';
+$a->strings['Only one search per minute is permitted for not logged in users.'] = 'يسمح ببحث واحد فقط في كل دقيقة للزوار.';
 $a->strings['Items tagged with: %s'] = 'عناصر موسمة بـ: %s';
 $a->strings['Search term was not saved.'] = 'لم يُحفظ مصطلح البحث.';
 $a->strings['Search term already saved.'] = 'حُفظ مصطلح البحث سلفًا.';
@@ -2081,6 +2116,7 @@ $a->strings['or'] = 'أو';
 $a->strings['skip this step'] = 'تخطى هذه الخطوة';
 $a->strings['select a photo from your photo albums'] = 'اختر صورة من ألبومك';
 $a->strings['Please enter your password to access this page.'] = 'يرجى إدخال كلمة المرور للوصول إلى هذه الصفحة.';
+$a->strings['New app-specific password generated.'] = 'أُنشئت كلمة مرور جديدة خاصة بالتطبيق بنجاح.';
 $a->strings['Description'] = 'الوصف';
 $a->strings['Last Used'] = 'آخر استخدام';
 $a->strings['Revoke'] = 'أبطل';
@@ -2171,8 +2207,8 @@ $a->strings['%1$s tagged you on %2$s'] = 'ذكرك %1$s في %2$s';
 $a->strings['%1$s replied to you on %2$s'] = 'رد %1$s عليك في %2$s';
 $a->strings['%1$s commented in your thread %2$s'] = 'علق %1$s على نقاشك %2$s';
 $a->strings['%1$s commented on your comment %2$s'] = 'علق %1$s على تعليقك %2$s';
-$a->strings['%1$s commented in their thread %2$s'] = 'علق %1$s على نقاشهم %2$s';
-$a->strings['%1$s commented in their thread'] = 'علق %1$s على نقاشهم';
+$a->strings['%1$s commented in their thread %2$s'] = 'علق %1$s على نقاشه %2$s';
+$a->strings['%1$s commented in their thread'] = 'علق %1$s على نقاشه';
 $a->strings['%1$s commented in the thread %2$s from %3$s'] = 'علق %1$s على المحدثة %2$s من %3$s';
 $a->strings['%1$s commented in the thread from %3$s'] = 'علق %1$s على نقاش %3$s';
 $a->strings['%1$s commented on your thread %2$s'] = 'علق %1$s على نقاشك %2$s';
