@@ -19,15 +19,16 @@
  *
  */
 
-namespace Friendica\Model\Storage;
+namespace Friendica\Core\Storage\Type;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
+use Friendica\Core\Storage\Capability\ICanConfigureStorage;
 
 /**
  * Filesystem based storage backend configuration
  */
-class FilesystemConfig implements IStorageConfiguration
+class FilesystemConfig implements ICanConfigureStorage
 {
 	// Default base folder
 	const DEFAULT_BASE_FOLDER = 'storage';

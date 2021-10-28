@@ -19,9 +19,12 @@
  *
  */
 
-namespace Friendica\Model\Storage;
+namespace Friendica\Core\Storage\Type;
 
 use Exception;
+use Friendica\Core\Storage\Exception\ReferenceStorageException;
+use Friendica\Core\Storage\Exception\StorageException;
+use Friendica\Core\Storage\Capability\ICanWriteToStorage;
 use Friendica\Util\Strings;
 
 /**
@@ -34,7 +37,7 @@ use Friendica\Util\Strings;
  * Each new resource gets a value as reference and is saved in a
  * folder tree stucture created from that value.
  */
-class Filesystem implements IWritableStorage
+class Filesystem implements ICanWriteToStorage
 {
 	const NAME = 'Filesystem';
 
@@ -175,7 +178,7 @@ class Filesystem implements IWritableStorage
 		return self::NAME;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return self::getName();
 	}

@@ -19,12 +19,20 @@
  *
  */
 
-namespace Friendica\Core;
+namespace Friendica\Core\Storage\Repository;
 
 use Exception;
 use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\Hook;
+use Friendica\Core\L10n;
+use Friendica\Core\Storage\Exception\InvalidClassStorageException;
+use Friendica\Core\Storage\Exception\ReferenceStorageException;
+use Friendica\Core\Storage\Exception\StorageException;
+use Friendica\Core\Storage\Capability\ICanReadFromStorage;
+use Friendica\Core\Storage\Capability\ICanConfigureStorage;
+use Friendica\Core\Storage\Capability\ICanWriteToStorage;
 use Friendica\Database\Database;
-use Friendica\Model\Storage;
+use Friendica\Core\Storage\Type;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Psr\Log\LoggerInterface;
 
@@ -42,15 +50,15 @@ class StorageManager
 	// Default storage backends
 	/** @var string[]  */
 	const DEFAULT_BACKENDS = [
-		Storage\Filesystem::NAME,
-		Storage\Database::NAME,
+		Type\Filesystem::NAME,
+		Type\Database::NAME,
 	];
 
 	/** @var string[] List of valid backend classes */
 	private $validBackends;
 
 	/**
-	 * @var Storage\IStorage[] A local cache for storage instances
+	 * @var ICanReadFromStorage[] A local cache for storage instances
 	 */
 	private $backendInstances = [];
 
@@ -63,7 +71,7 @@ class StorageManager
 	/** @var L10n */
 	private $l10n;
 
-	/** @var Storage\IWritableStorage */
+	/** @var ICanWriteToStorage */
 	private $currentBackend;
 
 	/**
@@ -72,8 +80,8 @@ class StorageManager
 	 * @param LoggerInterface     $logger
 	 * @param L10n                $l10n
 	 *
-	 * @throws Storage\InvalidClassStorageException in case the active backend class is invalid
-	 * @throws Storage\StorageException in case of unexpected errors during the active backend class loading
+	 * @throws InvalidClassStorageException in case the active backend class is invalid
+	 * @throws StorageException in case of unexpected errors during the active backend class loading
 	 */
 	public function __construct(Database $dba, IManageConfigValues $config, LoggerInterface $logger, L10n $l10n)
 	{
@@ -92,9 +100,9 @@ class StorageManager
 	/**
 	 * Return current storage backend class
 	 *
-	 * @return Storage\IWritableStorage
+	 * @return ICanWriteToStorage
 	 */
-	public function getBackend()
+	public function getBackend(): ICanWriteToStorage
 	{
 		return $this->currentBackend;
 	}
@@ -104,16 +112,16 @@ class StorageManager
 	 *
 	 * @param string $name Backend name
 	 *
-	 * @return Storage\IWritableStorage
+	 * @return ICanWriteToStorage
 	 *
-	 * @throws Storage\InvalidClassStorageException in case there's no backend class for the name
-	 * @throws Storage\StorageException in case of an unexpected failure during the hook call
+	 * @throws InvalidClassStorageException in case there's no backend class for the name
+	 * @throws StorageException in case of an unexpected failure during the hook call
 	 */
-	public function getWritableStorageByName(string $name): Storage\IWritableStorage
+	public function getWritableStorageByName(string $name): ICanWriteToStorage
 	{
 		$storage = $this->getByName($name, $this->validBackends);
-		if (!$storage instanceof Storage\IWritableStorage) {
-			throw new Storage\InvalidClassStorageException(sprintf('Backend %s is not writable', $name));
+		if (!$storage instanceof ICanWriteToStorage) {
+			throw new InvalidClassStorageException(sprintf('Backend %s is not writable', $name));
 		}
 
 		return $storage;
@@ -124,19 +132,19 @@ class StorageManager
 	 *
 	 * @param string     $name Backend name
 	 *
-	 * @return Storage\IStorageConfiguration|false
+	 * @return ICanConfigureStorage|false
 	 *
-	 * @throws Storage\InvalidClassStorageException in case there's no backend class for the name
-	 * @throws Storage\StorageException in case of an unexpected failure during the hook call
+	 * @throws InvalidClassStorageException in case there's no backend class for the name
+	 * @throws StorageException in case of an unexpected failure during the hook call
 	 */
 	public function getConfigurationByName(string $name)
 	{
 		switch ($name) {
 			// Try the filesystem backend
-			case Storage\Filesystem::getName():
-				return new Storage\FilesystemConfig($this->config, $this->l10n);
+			case Type\Filesystem::getName():
+				return new Type\FilesystemConfig($this->config, $this->l10n);
 			// try the database backend
-			case Storage\Database::getName():
+			case Type\Database::getName():
 				return false;
 			default:
 				$data = [
@@ -145,13 +153,13 @@ class StorageManager
 				];
 				try {
 					Hook::callAll('storage_config', $data);
-					if (!($data['storage_config'] ?? null) instanceof Storage\IStorageConfiguration) {
-						throw new Storage\InvalidClassStorageException(sprintf('Configuration for backend %s was not found', $name));
+					if (!($data['storage_config'] ?? null) instanceof ICanConfigureStorage) {
+						throw new InvalidClassStorageException(sprintf('Configuration for backend %s was not found', $name));
 					}
 
 					return $data['storage_config'];
 				} catch (InternalServerErrorException $exception) {
-					throw new Storage\StorageException(sprintf('Failed calling hook::storage_config for backend %s', $name), $exception);
+					throw new StorageException(sprintf('Failed calling hook::storage_config for backend %s', $name), $exception);
 				}
 		}
 	}
@@ -162,36 +170,36 @@ class StorageManager
 	 * @param string     $name Backend name
 	 * @param string[]|null $validBackends possible, manual override of the valid backends
 	 *
-	 * @return Storage\IStorage
+	 * @return ICanReadFromStorage
 	 *
-	 * @throws Storage\InvalidClassStorageException in case there's no backend class for the name
-	 * @throws Storage\StorageException in case of an unexpected failure during the hook call
+	 * @throws InvalidClassStorageException in case there's no backend class for the name
+	 * @throws StorageException in case of an unexpected failure during the hook call
 	 */
-	public function getByName(string $name, array $validBackends = null): Storage\IStorage
+	public function getByName(string $name, array $validBackends = null): ICanReadFromStorage
 	{
 		// If there's no cached instance create a new instance
 		if (!isset($this->backendInstances[$name])) {
 			// If the current name isn't a valid backend (or the SystemResource instance) create it
 			if (!$this->isValidBackend($name, $validBackends)) {
-				throw new Storage\InvalidClassStorageException(sprintf('Backend %s is not valid', $name));
+				throw new InvalidClassStorageException(sprintf('Backend %s is not valid', $name));
 			}
 
 			switch ($name) {
 				// Try the filesystem backend
-				case Storage\Filesystem::getName():
-					$storageConfig                 = new Storage\FilesystemConfig($this->config, $this->l10n);
-					$this->backendInstances[$name] = new Storage\Filesystem($storageConfig->getStoragePath());
+				case Type\Filesystem::getName():
+					$storageConfig                 = new Type\FilesystemConfig($this->config, $this->l10n);
+					$this->backendInstances[$name] = new Type\Filesystem($storageConfig->getStoragePath());
 					break;
 				// try the database backend
-				case Storage\Database::getName():
-					$this->backendInstances[$name] = new Storage\Database($this->dba);
+				case Type\Database::getName():
+					$this->backendInstances[$name] = new Type\Database($this->dba);
 					break;
 				// at least, try if there's an addon for the backend
-				case Storage\SystemResource::getName():
-					$this->backendInstances[$name] = new Storage\SystemResource();
+				case Type\SystemResource::getName():
+					$this->backendInstances[$name] = new Type\SystemResource();
 					break;
-				case Storage\ExternalResource::getName():
-					$this->backendInstances[$name] = new Storage\ExternalResource();
+				case Type\ExternalResource::getName():
+					$this->backendInstances[$name] = new Type\ExternalResource();
 					break;
 				default:
 					$data = [
@@ -200,13 +208,13 @@ class StorageManager
 					];
 					try {
 						Hook::callAll('storage_instance', $data);
-						if (!($data['storage'] ?? null) instanceof Storage\IStorage) {
-							throw new Storage\InvalidClassStorageException(sprintf('Backend %s was not found', $name));
+						if (!($data['storage'] ?? null) instanceof ICanReadFromStorage) {
+							throw new InvalidClassStorageException(sprintf('Backend %s was not found', $name));
 						}
 
 						$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
 					} catch (InternalServerErrorException $exception) {
-						throw new Storage\StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception);
+						throw new StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception);
 					}
 					break;
 			}
@@ -227,8 +235,8 @@ class StorageManager
 	{
 		$validBackends = $validBackends ?? array_merge($this->validBackends,
 				[
-					Storage\SystemResource::getName(),
-					Storage\ExternalResource::getName(),
+					Type\SystemResource::getName(),
+					Type\ExternalResource::getName(),
 				]);
 		return in_array($name, $validBackends);
 	}
@@ -236,11 +244,11 @@ class StorageManager
 	/**
 	 * Set current storage backend class
 	 *
-	 * @param Storage\IWritableStorage $storage The storage class
+	 * @param ICanWriteToStorage $storage The storage class
 	 *
 	 * @return boolean True, if the set was successful
 	 */
-	public function setBackend(Storage\IWritableStorage $storage): bool
+	public function setBackend(ICanWriteToStorage $storage): bool
 	{
 		if ($this->config->set('storage', 'name', $storage::getName())) {
 			$this->currentBackend = $storage;
@@ -271,9 +279,8 @@ class StorageManager
 	 */
 	public function register(string $class): bool
 	{
-		if (is_subclass_of($class, Storage\IStorage::class)) {
-			/** @var Storage\IStorage $class */
-
+		if (is_subclass_of($class, ICanReadFromStorage::class)) {
+			/** @var ICanReadFromStorage $class */
 			if ($this->isValidBackend($class::getName(), $this->validBackends)) {
 				return true;
 			}
@@ -299,15 +306,14 @@ class StorageManager
 	 *
 	 * @return boolean True, if unregistering was successful
 	 *
-	 * @throws Storage\StorageException
+	 * @throws StorageException
 	 */
 	public function unregister(string $class): bool
 	{
-		if (is_subclass_of($class, Storage\IStorage::class)) {
-			/** @var Storage\IStorage $class */
-
+		if (is_subclass_of($class, ICanReadFromStorage::class)) {
+			/** @var ICanReadFromStorage $class */
 			if ($this->currentBackend::getName() == $class::getName()) {
-				throw new Storage\StorageException(sprintf('Cannot unregister %s, because it\'s currently active.', $class::getName()));
+				throw new StorageException(sprintf('Cannot unregister %s, because it\'s currently active.', $class::getName()));
 			}
 
 			$key = array_search($class::getName(), $this->validBackends);
@@ -336,18 +342,18 @@ class StorageManager
 	 * Copy existing data to destination storage and delete from source.
 	 * This method cannot move to legacy in-table `data` field.
 	 *
-	 * @param Storage\IWritableStorage $destination Destination storage class name
-	 * @param array                    $tables      Tables to look in for resources. Optional, defaults to ['photo', 'attach']
-	 * @param int                      $limit       Limit of the process batch size, defaults to 5000
+	 * @param ICanWriteToStorage $destination Destination storage class name
+	 * @param array              $tables      Tables to look in for resources. Optional, defaults to ['photo', 'attach']
+	 * @param int                $limit       Limit of the process batch size, defaults to 5000
 	 *
 	 * @return int Number of moved resources
-	 * @throws Storage\StorageException
+	 * @throws StorageException
 	 * @throws Exception
 	 */
-	public function move(Storage\IWritableStorage $destination, array $tables = self::TABLES, int $limit = 5000): int
+	public function move(ICanWriteToStorage $destination, array $tables = self::TABLES, int $limit = 5000): int
 	{
 		if (!$this->isValidBackend($destination, $this->validBackends)) {
-			throw new Storage\StorageException(sprintf("Can't move to storage backend '%s'", $destination::getName()));
+			throw new StorageException(sprintf("Can't move to storage backend '%s'", $destination::getName()));
 		}
 
 		$moved = 0;
@@ -369,10 +375,10 @@ class StorageManager
 					$source = $this->getWritableStorageByName($resource['backend-class'] ?? '');
 					$this->logger->info('Get data from old backend.', ['oldBackend' => $source, 'oldReference' => $sourceRef]);
 					$data = $source->get($sourceRef);
-				} catch (Storage\InvalidClassStorageException $exception) {
+				} catch (InvalidClassStorageException $exception) {
 					$this->logger->info('Get data from DB resource field.', ['oldReference' => $sourceRef]);
 					$data = $resource['data'];
-				} catch (Storage\ReferenceStorageException $exception) {
+				} catch (ReferenceStorageException $exception) {
 					$this->logger->info('Invalid source reference.', ['oldBackend' => $source, 'oldReference' => $sourceRef]);
 					continue;
 				}
@@ -385,7 +391,7 @@ class StorageManager
 					$this->logger->info('update row');
 					if ($this->dba->update($table, ['backend-class' => $destination::getName(), 'backend-ref' => $destinationRef, 'data' => ''], ['id' => $id])) {
 						if (!empty($source)) {
-							$this->logger->info('Delete data from old backend.', ['oldBackend' => $source, 'oldReference' => $sourceRef]);
+							$this->logger->info('Deleted data from old backend.', ['oldBackend' => $source, 'oldReference' => $sourceRef]);
 							$source->delete($sourceRef);
 						}
 						$moved++;

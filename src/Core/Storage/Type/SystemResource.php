@@ -19,7 +19,11 @@
  *
  */
 
-namespace Friendica\Model\Storage;
+namespace Friendica\Core\Storage\Type;
+
+use Friendica\Core\Storage\Exception\ReferenceStorageException;
+use Friendica\Core\Storage\Exception\StorageException;
+use Friendica\Core\Storage\Capability\ICanReadFromStorage;
 
 /**
  * System resource storage class
@@ -27,7 +31,7 @@ namespace Friendica\Model\Storage;
  * This class is used to load system resources, like images.
  * Is not intended to be selectable by admins as default storage class.
  */
-class SystemResource implements IStorage
+class SystemResource implements ICanReadFromStorage
 {
 	const NAME = 'SystemResource';
 
@@ -58,7 +62,7 @@ class SystemResource implements IStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		return self::NAME;
 	}

@@ -19,16 +19,16 @@
  *
  */
 
-namespace Friendica\Test\src\Model\Storage;
+namespace Friendica\Test\src\Core\Storage;
 
-use Friendica\Model\Storage\IWritableStorage;
-use Friendica\Model\Storage\IStorage;
-use Friendica\Model\Storage\ReferenceStorageException;
+use Friendica\Core\Storage\Capability\ICanReadFromStorage;
+use Friendica\Core\Storage\Capability\ICanWriteToStorage;
+use Friendica\Core\Storage\Exception\ReferenceStorageException;
 use Friendica\Test\MockedTest;
 
 abstract class StorageTest extends MockedTest
 {
-	/** @return IWritableStorage */
+	/** @return ICanWriteToStorage */
 	abstract protected function getInstance();
 
 	/**
@@ -37,7 +37,7 @@ abstract class StorageTest extends MockedTest
 	public function testInstance()
 	{
 		$instance = $this->getInstance();
-		self::assertInstanceOf(IStorage::class, $instance);
+		self::assertInstanceOf(ICanReadFromStorage::class, $instance);
 	}
 
 	/**
