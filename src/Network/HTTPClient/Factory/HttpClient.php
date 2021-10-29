@@ -6,7 +6,7 @@ use Friendica\App;
 use Friendica\BaseFactory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Network\HTTPClient\Client;
-use Friendica\Network\HTTPClient\Capability\ICanRequestPerHttp;
+use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 use GuzzleHttp;
@@ -42,9 +42,9 @@ class HttpClient extends BaseFactory
 	 *
 	 * @param HandlerStack|null $handlerStack (optional) A handler replacement (just usefull at test environments)
 	 *
-	 * @return ICanRequestPerHttp
+	 * @return ICanSendHttpRequests
 	 */
-	public function createClient(HandlerStack $handlerStack = null): ICanRequestPerHttp
+	public function createClient(HandlerStack $handlerStack = null): ICanSendHttpRequests
 	{
 		$proxy = $this->config->get('system', 'proxy');
 
@@ -108,6 +108,6 @@ class HttpClient extends BaseFactory
 		// Some websites test the browser for cookie support, so this enhances results.
 		$resolver->setCookieJar(get_temppath() .'/resolver-cookie-' . Strings::getRandomName(10));
 
-		return new Client\HttpClientCan($logger, $this->profiler, $guzzle, $resolver);
+		return new Client\HttpClient($logger, $this->profiler, $guzzle, $resolver);
 	}
 }

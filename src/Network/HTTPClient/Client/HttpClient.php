@@ -24,7 +24,7 @@ namespace Friendica\Network\HTTPClient\Client;
 use Friendica\Core\System;
 use Friendica\Network\HTTPClient\Response\CurlResult;
 use Friendica\Network\HTTPClient\Response\GuzzleResponse;
-use Friendica\Network\HTTPClient\Capability\ICanRequestPerHttp;
+use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
 use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Network;
@@ -42,7 +42,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Performs HTTP requests to a given URL
  */
-class HttpClientCan implements ICanRequestPerHttp
+class HttpClient implements ICanSendHttpRequests
 {
 	/** @var LoggerInterface */
 	private $logger;

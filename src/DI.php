@@ -415,11 +415,11 @@ abstract class DI
 	//
 
 	/**
-	 * @return Network\HTTPClient\Capability\ICanRequestPerHttp
+	 * @return Network\HTTPClient\Capability\ICanSendHttpRequests
 	 */
 	public static function httpClient()
 	{
-		return self::$dice->create(Network\HTTPClient\Capability\ICanRequestPerHttp::class);
+		return self::$dice->create(Network\HTTPClient\Capability\ICanSendHttpRequests::class);
 	}
 
 	//

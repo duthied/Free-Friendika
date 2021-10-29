@@ -146,7 +146,7 @@ return [
 			'index',
 		],
 		'call'       => [
-			['create', ['index'], Dice::CHAIN_CALL],
+			['create', [], Dice::CHAIN_CALL],
 		],
 	],
 	'$devLogger'                    => [
@@ -224,7 +224,7 @@ return [
 			['getBackend', [], Dice::CHAIN_CALL],
 		],
 	],
-	Network\HTTPClient\Capability\ICanRequestPerHttp::class => [
+	Network\HTTPClient\Capability\ICanSendHttpRequests::class => [
 		'instanceOf' => Network\HTTPClient\Factory\HttpClient::class,
 		'call'       => [
 			['createClient', [], Dice::CHAIN_CALL],

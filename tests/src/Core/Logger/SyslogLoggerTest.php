@@ -23,6 +23,7 @@ namespace Friendica\Test\src\Core\Logger;
 
 use Friendica\Core\Logger\Exception\LoggerArgumentException;
 use Friendica\Core\Logger\Exception\LoggerException;
+use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Core\Logger\Type\SyslogLogger;
 use Psr\Log\LogLevel;
 
@@ -64,7 +65,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongMinimumLevel()
 	{
-		$this->expectException(LoggerArgumentException::class);
+		$this->expectException(LogLevelException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 		
 		$logger = new SyslogLoggerWrapper('test', $this->introspection, 'NOPE');
@@ -75,7 +76,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongLogLevel()
 	{
-		$this->expectException(LoggerArgumentException::class);
+		$this->expectException(LogLevelException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
 		$logger = new SyslogLoggerWrapper('test', $this->introspection);

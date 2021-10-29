@@ -24,6 +24,7 @@ namespace Friendica\Core\Logger\Factory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core;
+use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Database\Database;
 use Friendica\Util\FileSystem;
 use Friendica\Util\Introspection;
@@ -54,7 +55,6 @@ class Logger
 		Core\Logger::class,
 		Profiler::class,
 		'Friendica\\Core\\Logger\\Type',
-		'Friendica\\Core\\Logger\\Type\\Monolog',
 	];
 
 	/** @var string The log-channel (app, worker, ...) */
@@ -72,10 +72,11 @@ class Logger
 	 * @param IManageConfigValues $config     The config
 	 * @param Profiler            $profiler   The profiler of the app
 	 * @param FileSystem          $fileSystem FileSystem utils
+	 * @param string|null         $minLevel   (optional) Override minimum Loglevel to log
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 */
-	public function create(Database $database, IManageConfigValues $config, Profiler $profiler, FileSystem $fileSystem): LoggerInterface
+	public function create(Database $database, IManageConfigValues $config, Profiler $profiler, FileSystem $fileSystem, ?string $minLevel = null): LoggerInterface
 	{
 		if (empty($config->get('system', 'debugging', false))) {
 			$logger = new NullLogger();
@@ -84,8 +85,8 @@ class Logger
 		}
 
 		$introspection = new Introspection(self::$ignoreClassList);
-		$level         = $config->get('system', 'loglevel');
-		$loglevel      = self::mapLegacyConfigDebugLevel((string)$level);
+		$minLevel      = $minLevel ?? $config->get('system', 'loglevel');
+		$loglevel      = self::mapLegacyConfigDebugLevel((string)$minLevel);
 
 		switch ($config->get('system', 'logger_config', 'stream')) {
 			case 'monolog':
@@ -106,8 +107,12 @@ class Logger
 						static::addStreamHandler($logger, $stream, $loglevel);
 					} catch (\Throwable $e) {
 						// No Logger ..
-						/// @todo isn't it possible to give the admin any hint about this wrong configuration?
-						$logger = new NullLogger();
+						try {
+							$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+						} catch (\Throwable $e) {
+							// No logger ...
+							$logger = new NullLogger();
+						}
 					}
 				}
 				break;
@@ -115,9 +120,12 @@ class Logger
 			case 'syslog':
 				try {
 					$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+				} catch (LogLevelException $exception) {
+					// If there's a wrong config value for loglevel, try again with standard
+					$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
+					$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
 				} catch (\Throwable $e) {
 					// No logger ...
-					/// @todo isn't it possible to give the admin any hint about this wrong configuration?
 					$logger = new NullLogger();
 				}
 				break;
@@ -129,14 +137,25 @@ class Logger
 				if (!is_file($stream) || is_writable($stream)) {
 					try {
 						$logger = new StreamLogger($this->channel, $stream, $introspection, $fileSystem, $loglevel);
+					} catch (LogLevelException $exception) {
+						// If there's a wrong config value for loglevel, try again with standard
+						$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
+						$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
 					} catch (\Throwable $t) {
 						// No logger ...
-						/// @todo isn't it possible to give the admin any hint about this wrong configuration?
 						$logger = new NullLogger();
 					}
 				} else {
-					/// @todo isn't it possible to give the admin any hint about this wrong configuration?
-					$logger = new NullLogger();
+					try {
+						$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+					} catch (LogLevelException $exception) {
+						// If there's a wrong config value for loglevel, try again with standard
+						$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
+						$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
+					} catch (\Throwable $e) {
+						// No logger ...
+						$logger = new NullLogger();
+					}
 				}
 				break;
 		}

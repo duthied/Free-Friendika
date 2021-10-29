@@ -23,6 +23,7 @@ namespace Friendica\Core\Logger\Type;
 
 use Friendica\Core\Logger\Exception\LoggerArgumentException;
 use Friendica\Core\Logger\Exception\LoggerException;
+use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\FileSystem;
 use Friendica\Util\Introspection;
@@ -83,6 +84,7 @@ class StreamLogger extends AbstractLogger
 	 * @param string          $level  The minimum loglevel at which this logger will be triggered
 	 *
 	 * @throws LoggerArgumentException
+	 * @throws LogLevelException
 	 */
 	public function __construct($channel, $stream, Introspection $introspection, FileSystem $fileSystem, string $level = LogLevel::DEBUG)
 	{
@@ -102,7 +104,7 @@ class StreamLogger extends AbstractLogger
 		if (array_key_exists($level, $this->levelToInt)) {
 			$this->logLevel = $this->levelToInt[$level];
 		} else {
-			throw new LoggerArgumentException(sprintf('The level "%s" is not valid.', $level));
+			throw new LogLevelException(sprintf('The level "%s" is not valid.', $level));
 		}
 
 		$this->checkStream();
@@ -127,12 +129,12 @@ class StreamLogger extends AbstractLogger
 	 * @return void
 	 *
 	 * @throws LoggerException
-	 * @throws LoggerArgumentException
+	 * @throws LogLevelException
 	 */
 	protected function addEntry($level, string $message, array $context = [])
 	{
 		if (!array_key_exists($level, $this->levelToInt)) {
-			throw new LoggerArgumentException(sprintf('The level "%s" is not valid.', $level));
+			throw new LogLevelException(sprintf('The level "%s" is not valid.', $level));
 		}
 
 		$logLevel = $this->levelToInt[$level];

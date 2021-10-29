@@ -26,7 +26,7 @@ use GuzzleHttp\Exception\TransferException;
 /**
  * Interface for calling HTTP requests and returning their responses
  */
-interface ICanRequestPerHttp
+interface ICanSendHttpRequests
 {
 	/**
 	 * Fetches the content of an URL

@@ -21,10 +21,9 @@
 
 namespace Friendica\Core\Logger\Type;
 
-use Friendica\Core\Logger\Exception\LoggerArgumentException;
 use Friendica\Core\Logger\Exception\LoggerException;
+use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Util\Introspection;
-use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
 
 /**
@@ -99,7 +98,8 @@ class SyslogLogger extends AbstractLogger
 	 * @param int    $logOpts     Indicates what logging options will be used when generating a log message
 	 * @param int    $logFacility Used to specify what type of program is logging the message
 	 *
-	 * @throws LoggerArgumentException
+	 * @throws LogLevelException
+	 * @throws LoggerException
 	 */
 	public function __construct($channel, Introspection $introspection, string $level = LogLevel::NOTICE, int $logOpts = LOG_PID, int $logFacility = LOG_USER)
 	{
@@ -117,7 +117,7 @@ class SyslogLogger extends AbstractLogger
 	 * @param string $message
 	 * @param array  $context
 	 *
-	 * @throws LoggerArgumentException in case the level isn't valid
+	 * @throws LogLevelException in case the level isn't valid
 	 * @throws LoggerException In case the syslog cannot be opened for writing
 	 */
 	protected function addEntry($level, string $message, array $context = [])
@@ -139,12 +139,12 @@ class SyslogLogger extends AbstractLogger
 	 *
 	 * @return int The SysLog priority
 	 *
-	 * @throws LoggerArgumentException If the loglevel isn't valid
+	 * @throws LogLevelException If the loglevel isn't valid
 	 */
 	public function mapLevelToPriority(string $level): int
 	{
 		if (!array_key_exists($level, $this->logLevels)) {
-			throw new LoggerArgumentException(sprintf('The level "%s" is not valid.', $level));
+			throw new LogLevelException(sprintf('The level "%s" is not valid.', $level));
 		}
 
 		return $this->logLevels[$level];

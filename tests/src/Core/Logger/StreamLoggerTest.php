@@ -23,6 +23,7 @@ namespace Friendica\Test\src\Core\Logger;
 
 use Friendica\Core\Logger\Exception\LoggerArgumentException;
 use Friendica\Core\Logger\Exception\LoggerException;
+use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Util\FileSystem;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Core\Logger\Type\StreamLogger;
@@ -160,7 +161,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongMinimumLevel()
 	{
-		$this->expectException(LoggerArgumentException::class);
+		$this->expectException(LogLevelException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
 		$logger = new StreamLogger('test', 'file.text', $this->introspection, $this->fileSystem, 'NOPE');
@@ -171,7 +172,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongLogLevel()
 	{
-		$this->expectException(LoggerArgumentException::class);
+		$this->expectException(LogLevelException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
 		$logfile = vfsStream::newFile('friendica.log')
