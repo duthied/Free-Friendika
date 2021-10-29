@@ -21,7 +21,7 @@
 
 namespace Friendica\Core\Logger\Type\Monolog;
 
-use Friendica\Util\Introspection;
+use Friendica\Core\Logger\Util\Introspection;
 use Monolog\Logger;
 use Monolog\Processor\ProcessorInterface;
 

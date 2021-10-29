@@ -19,15 +19,17 @@
  *
  */
 
-namespace Friendica\Util;
+namespace Friendica\Core\Logger\Util;
 
 /**
  * Get Introspection information about the current call
  */
 class Introspection
 {
+	/** @var int  */
 	private $skipStackFramesCount;
 
+	/** @var string[] */
 	private $skipClassesPartials;
 
 	private $skipFunctions = [
@@ -36,10 +38,10 @@ class Introspection
 	];
 
 	/**
-	 * @param array $skipClassesPartials  An array of classes to skip during logging
-	 * @param int   $skipStackFramesCount If the logger should use information from other hierarchy levels of the call
+	 * @param string[] $skipClassesPartials  An array of classes to skip during logging
+	 * @param int      $skipStackFramesCount If the logger should use information from other hierarchy levels of the call
 	 */
-	public function __construct($skipClassesPartials = array(), $skipStackFramesCount = 0)
+	public function __construct(array $skipClassesPartials = [], int $skipStackFramesCount = 0)
 	{
 		$this->skipClassesPartials  = $skipClassesPartials;
 		$this->skipStackFramesCount = $skipStackFramesCount;
@@ -47,6 +49,7 @@ class Introspection
 
 	/**
 	 * Adds new classes to get skipped
+	 *
 	 * @param array $classNames
 	 */
 	public function addClasses(array $classNames)
@@ -59,7 +62,7 @@ class Introspection
 	 *
 	 * @return array
 	 */
-	public function getRecord()
+	public function getRecord(): array
 	{
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
@@ -73,8 +76,8 @@ class Introspection
 
 		return [
 			'file'     => isset($trace[$i - 1]['file']) ? basename($trace[$i - 1]['file']) : null,
-			'line'     => isset($trace[$i - 1]['line']) ? $trace[$i - 1]['line'] : null,
-			'function' => isset($trace[$i]['function']) ? $trace[$i]['function'] : null,
+			'line'     => $trace[$i - 1]['line'] ?? null,
+			'function' => $trace[$i]['function'] ?? null,
 		];
 	}
 
@@ -86,7 +89,7 @@ class Introspection
 	 *
 	 * @return bool True if the class or function should get skipped, otherwise false
 	 */
-	private function isTraceClassOrSkippedFunction(array $trace, $index)
+	private function isTraceClassOrSkippedFunction(array $trace, int $index): bool
 	{
 		if (!isset($trace[$index])) {
 			return false;

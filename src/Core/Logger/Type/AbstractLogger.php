@@ -22,7 +22,7 @@
 namespace Friendica\Core\Logger\Type;
 
 use Friendica\Core\Logger\Exception\LoggerException;
-use Friendica\Util\Introspection;
+use Friendica\Core\Logger\Util\Introspection;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;

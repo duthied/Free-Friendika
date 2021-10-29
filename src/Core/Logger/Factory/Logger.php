@@ -27,7 +27,7 @@ use Friendica\Core;
 use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Database\Database;
 use Friendica\Util\FileSystem;
-use Friendica\Util\Introspection;
+use Friendica\Core\Logger\Util\Introspection;
 use Friendica\Core\Logger\Type\Monolog\DevelopHandler;
 use Friendica\Core\Logger\Type\Monolog\IntrospectionProcessor;
 use Friendica\Core\Logger\Type\ProfilerLogger;

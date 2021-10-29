@@ -26,7 +26,7 @@ use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\FileSystem;
-use Friendica\Util\Introspection;
+use Friendica\Core\Logger\Util\Introspection;
 use Psr\Log\LogLevel;
 
 /**

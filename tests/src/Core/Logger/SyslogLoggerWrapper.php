@@ -22,7 +22,7 @@
 namespace Friendica\Test\src\Core\Logger;
 
 use Friendica\Core\Logger\Type\SyslogLogger;
-use Friendica\Util\Introspection;
+use Friendica\Core\Logger\Util\Introspection;
 use Psr\Log\LogLevel;
 
 /**

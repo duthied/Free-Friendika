@@ -22,7 +22,7 @@
 namespace Friendica\Test\src\Core\Logger;
 
 use Friendica\Test\MockedTest;
-use Friendica\Util\Introspection;
+use Friendica\Core\Logger\Util\Introspection;
 use Mockery\MockInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
