@@ -246,8 +246,6 @@ function api_login(App $a)
 	if (!DBA::isResult($record)) {
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
-		//header('HTTP/1.0 401 Unauthorized');
-		//die('This api requires login');
 		throw new UnauthorizedException("This API requires login");
 	}
 

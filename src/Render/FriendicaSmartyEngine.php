@@ -23,7 +23,7 @@ namespace Friendica\Render;
 
 use Friendica\Core\Hook;
 use Friendica\DI;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Util\Strings;
 
 /**
@@ -54,7 +54,7 @@ final class FriendicaSmartyEngine extends TemplateEngine
 			$message = is_site_admin() ?
 				$admin_message :
 				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
-			throw new InternalServerErrorException($message);
+			throw new ServiceUnavailableException($message);
 		}
 	}
 

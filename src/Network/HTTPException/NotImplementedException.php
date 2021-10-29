@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class NotImplementedException extends HTTPException
 {
-	protected $code = 501;
+	protected $code  = 501;
+	var $httpdesc    = 'Not Implemented';
+	var $explanation = 'The server either does not recognize the request method, or it lacks the ability to fulfil the request. Usually this implies future availability (e.g., a new feature of a web-service API).';
 }

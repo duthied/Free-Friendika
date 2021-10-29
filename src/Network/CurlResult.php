@@ -22,8 +22,7 @@
 namespace Friendica\Network;
 
 use Friendica\Core\Logger;
-use Friendica\Core\System;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\UnprocessableEntityException;
 use Friendica\Util\Network;
 
 /**
@@ -102,7 +101,7 @@ class CurlResult implements IHTTPResult
 	 * @param string $url optional URL
 	 *
 	 * @return IHTTPResult a CURL with error response
-	 * @throws InternalServerErrorException
+	 * @throws UnprocessableEntityException
 	 */
 	public static function createErrorCurl($url = '')
 	{
@@ -117,12 +116,12 @@ class CurlResult implements IHTTPResult
 	 * @param int $errorNumber the error number or 0 (zero) if no error
 	 * @param string $error the error message or '' (the empty string) if no
 	 *
-	 * @throws InternalServerErrorException when HTTP code of the CURL response is missing
+	 * @throws UnprocessableEntityException when HTTP code of the CURL response is missing
 	 */
 	public function __construct($url, $result, $info, $errorNumber = 0, $error = '')
 	{
 		if (!array_key_exists('http_code', $info)) {
-			throw new InternalServerErrorException('CURL response doesn\'t contains a response HTTP code');
+			throw new UnprocessableEntityException('CURL response doesn\'t contains a response HTTP code');
 		}
 
 		$this->returnCode = $info['http_code'];

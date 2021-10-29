@@ -30,6 +30,7 @@ use Friendica\Database\PostUpdate;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\ImATeapotException;
 use Friendica\Protocol\ActivityPub;
 
 /**

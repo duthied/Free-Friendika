@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class BadRequestException extends HTTPException
 {
-	protected $code = 400;
+	protected $code  = 400;
+	var $httpdesc    = 'Bad Request';
+	var $explanation = 'The server cannot or will not process the request due to an apparent client error.';
 }

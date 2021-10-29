@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class NonAcceptableException extends HTTPException
 {
-	protected $code = 406;
+	protected $code  = 406;
+	var $httpdesc    = 'Not Acceptable';
+	var $explanation = 'The requested resource is capable of generating only content not acceptable according to the Accept headers sent in the request.';
 }

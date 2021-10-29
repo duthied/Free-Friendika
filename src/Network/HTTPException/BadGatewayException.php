@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class BadGatewayException extends HTTPException
 {
-	protected $code = 502;
+	protected $code  = 502;
+	var $httpdesc    = 'Bad Gateway';
+	var $explanation = 'The server was acting as a gateway or proxy and received an invalid response from the upstream server.';
 }

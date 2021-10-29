@@ -21,6 +21,7 @@
 
 use Friendica\Core\Logger;
 use Friendica\DI;
+use Friendica\Network\HTTPException\NotModifiedException;
 
 $uid = $_REQUEST['puid'] ?? 0;
 
@@ -67,8 +68,7 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && isset($_SERVER['HTTP_IF_NONE_MA
 				stripslashes($_SERVER['HTTP_IF_NONE_MATCH']));
 
 	if (($cached_modified == $modified) && ($cached_etag == $etag)) {
-		header('HTTP/1.1 304 Not Modified');
-		exit();
+		throw new NotModifiedException();
 	}
 }
 echo $stylecss;

@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class NotFoundException extends HTTPException
 {
-	protected $code = 404;
+	protected $code  = 404;
+	var $httpdesc    = 'Not Found';
+	var $explanation = 'The requested resource could not be found but may be available in the future.';
 }

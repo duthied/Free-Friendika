@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class UnsupportedMediaTypeException extends HTTPException
 {
-	protected $code = 415;
+	protected $code  = 415;
+	var $httpdesc    = 'Unsupported Media Type';
+	var $explanation = 'The request entity has a media type which the server or resource does not support. For example, the client uploads an image as image/svg+xml, but the server requires that images use a different format.';
 }

@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class PreconditionFailedException extends HTTPException
 {
-	protected $code = 412;
+	protected $code  = 412;
+	var $httpdesc    = 'Precondition Failed';
+	var $explanation = 'The server does not meet one of the preconditions that the requester put on the request header fields.';
 }

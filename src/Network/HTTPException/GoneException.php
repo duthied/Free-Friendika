@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class GoneException extends HTTPException
 {
-	protected $code = 410;
+	protected $code  = 410;
+	var $httpdesc    = 'Gone';
+	var $explanation = 'Indicates that the resource requested is no longer available and will not be available again.';
 }

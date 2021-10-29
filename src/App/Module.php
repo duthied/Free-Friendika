@@ -29,6 +29,7 @@ use Friendica\Module\Home;
 use Friendica\Module\HTTPException\MethodNotAllowed;
 use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
+use Friendica\Network\HTTPException\NoContentException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -291,9 +292,8 @@ class Module
 		// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
 		// @todo Check allowed methods per requested path
 		if ($server['REQUEST_METHOD'] === Router::OPTIONS) {
-			header('HTTP/1.1 204 No Content');
 			header('Allow: ' . implode(',', Router::ALLOWED_METHODS));
-			exit();
+			throw new NoContentException();
 		}
 
 		$placeholder = '';

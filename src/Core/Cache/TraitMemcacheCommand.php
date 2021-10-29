@@ -21,7 +21,7 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\ServiceUnavailableException;
 
 /**
  * Trait for Memcache to add a custom version of the
@@ -52,7 +52,7 @@ trait TraitMemcacheCommand
 	 *
 	 * @return array All keys of the memcache instance
 	 *
-	 * @throws InternalServerErrorException
+	 * @throws ServiceUnavailableException
 	 */
 	protected function getMemcacheKeys()
 	{
@@ -88,13 +88,13 @@ trait TraitMemcacheCommand
 	 *
 	 * @return string The returned buffer result
 	 *
-	 * @throws InternalServerErrorException In case the memcache server isn't available (anymore)
+	 * @throws ServiceUnavailableException In case the memcache server isn't available (anymore)
 	 */
 	protected function sendMemcacheCommand(string $command)
 	{
 		$s = @fsockopen($this->server, $this->port);
 		if (!$s) {
-			throw new InternalServerErrorException("Cant connect to:" . $this->server . ':' . $this->port);
+			throw new ServiceUnavailableException("Cant connect to:" . $this->server . ':' . $this->port);
 		}
 
 		fwrite($s, $command . "\r\n");

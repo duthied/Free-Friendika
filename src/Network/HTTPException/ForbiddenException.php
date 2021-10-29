@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class ForbiddenException extends HTTPException
 {
-	protected $code = 403;
+	protected $code  = 403;
+	var $httpdesc    = 'Forbidden';
+	var $explanation = 'The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource, or may need an account.';
 }

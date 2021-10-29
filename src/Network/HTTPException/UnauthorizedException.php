@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class UnauthorizedException extends HTTPException
 {
-	protected $code = 401;
+	protected $code  = 401;
+	var $httpdesc    = 'Unauthorized';
+	var $explanation = 'Authentication is required and has failed or has not yet been provided.';
 }

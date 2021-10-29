@@ -23,9 +23,8 @@ namespace Friendica\Network\HTTPException;
 
 use Friendica\Network\HTTPException;
 
-class ConflictException extends HTTPException
+class TemporaryRedirectException extends HTTPException
 {
-	protected $code  = 409;
-	var $httpdesc    = 'Conflict ';
-	var $explanation = 'Indicates that the request could not be processed because of conflict in the current state of the resource, such as an edit conflict between multiple simultaneous updates.';
+	protected $code = 307;
+	var $httpdesc   = 'Temporary Redirect';
 }

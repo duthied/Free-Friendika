@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class ExpectationFailedException extends HTTPException
 {
-	protected $code = 417;
+	protected $code  = 417;
+	var $httpdesc    = 'Expectation Failed';
+	var $explanation = 'The server cannot meet the requirements of the Expect request-header field.';
 }

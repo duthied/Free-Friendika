@@ -25,6 +25,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Network\HTTPException\NotModifiedException;
 
 class Network
 {
@@ -544,8 +545,7 @@ class Network
 		header('Last-Modified: ' . $last_modified);
 
 		if ($flag_not_modified) {
-			header("HTTP/1.1 304 Not Modified");
-			exit;
+			throw new NotModifiedException();
 		}
 	}
 
