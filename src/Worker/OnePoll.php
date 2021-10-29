@@ -29,7 +29,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\User;
-use Friendica\Network\HTTPClientOptions;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
@@ -153,7 +153,7 @@ class OnePoll
 		}
 
 		$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-		$curlResult = DI::httpClient()->get($contact['poll'], [HTTPClientOptions::COOKIEJAR => $cookiejar]);
+		$curlResult = DI::httpClient()->get($contact['poll'], [HttpClientOptions::COOKIEJAR => $cookiejar]);
 		unlink($cookiejar);
 
 		if ($curlResult->isTimeout()) {

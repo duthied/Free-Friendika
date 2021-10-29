@@ -28,9 +28,9 @@ use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
-use Friendica\Network\CurlResult;
-use Friendica\Network\HTTPClientOptions;
-use Friendica\Network\IHTTPResult;
+use Friendica\Network\HTTPClient\Response\CurlResult;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
+use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
 
 /**
  * Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -414,7 +414,7 @@ class HTTPSignature
 	 *                         'nobody' => only return the header
 	 *                         'cookiejar' => path to cookie jar file
 	 *
-	 * @return IHTTPResult CurlResult
+	 * @return \Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchRaw($request, $uid = 0, $opts = ['accept_content' => ['application/activity+json', 'application/ld+json']])
@@ -450,7 +450,7 @@ class HTTPSignature
 		}
 
 		$curl_opts                             = $opts;
-		$curl_opts[HTTPClientOptions::HEADERS] = $header;
+		$curl_opts[HttpClientOptions::HEADERS] = $header;
 
 		if (!empty($opts['nobody'])) {
 			$curlResult = DI::httpClient()->head($request, $curl_opts);

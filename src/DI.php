@@ -243,7 +243,7 @@ abstract class DI
 	 */
 	public static function workerLogger()
 	{
-		return self::$dice->create(Util\Logger\WorkerLogger::class);
+		return self::$dice->create(Core\Logger\Type\WorkerLogger::class);
 	}
 
 	//
@@ -415,11 +415,11 @@ abstract class DI
 	//
 
 	/**
-	 * @return Network\IHTTPClient
+	 * @return Network\HTTPClient\Capability\ICanSendHttpRequests
 	 */
 	public static function httpClient()
 	{
-		return self::$dice->create(Network\IHTTPClient::class);
+		return self::$dice->create(Network\HTTPClient\Capability\ICanSendHttpRequests::class);
 	}
 
 	//

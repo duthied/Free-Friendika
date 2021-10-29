@@ -141,16 +141,16 @@ return [
 	 *    and is automatically passed as an argument with the same name
 	 */
 	LoggerInterface::class          => [
-		'instanceOf' => Factory\LoggerFactory::class,
+		'instanceOf' => \Friendica\Core\Logger\Factory\Logger::class,
 		'constructParams' => [
 			'index',
 		],
 		'call'       => [
-			['create', ['index'], Dice::CHAIN_CALL],
+			['create', [], Dice::CHAIN_CALL],
 		],
 	],
 	'$devLogger'                    => [
-		'instanceOf' => Factory\LoggerFactory::class,
+		'instanceOf' => \Friendica\Core\Logger\Factory\Logger::class,
 		'constructParams' => [
 			'dev',
 		],
@@ -224,8 +224,8 @@ return [
 			['getBackend', [], Dice::CHAIN_CALL],
 		],
 	],
-	Network\IHTTPClient::class => [
-		'instanceOf' => Factory\HTTPClientFactory::class,
+	Network\HTTPClient\Capability\ICanSendHttpRequests::class => [
+		'instanceOf' => Network\HTTPClient\Factory\HttpClient::class,
 		'call'       => [
 			['createClient', [], Dice::CHAIN_CALL],
 		],
