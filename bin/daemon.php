@@ -26,7 +26,8 @@
 use Friendica\Network\HTTPException\ForbiddenException;
 
 if (php_sapi_name() !== 'cli') {
-	throw new ForbiddenException();
+	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
+	exit();
 }
 
 use Dice\Dice;
