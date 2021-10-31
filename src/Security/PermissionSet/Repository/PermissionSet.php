@@ -153,7 +153,7 @@ class PermissionSet extends BaseRepository
 				$cid                = $cdata['user'];
 			} else {
 				$public_contact_str = $this->aclFormatter->toString($cid);
-				$user_contact_str   = '';
+				$user_contact_str   = '<<>>';
 			}
 
 			$groups = [];
