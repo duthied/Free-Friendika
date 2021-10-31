@@ -2,6 +2,8 @@
 
 namespace Friendica\Test\src\Security\PermissionSet\Repository;
 
+use Friendica\Database\Database;
+use Friendica\Security\PermissionSet\Collection\PermissionSets;
 use Friendica\Security\PermissionSet\Repository\PermissionSet as PermissionSetRepository;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
 use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
@@ -60,5 +62,151 @@ class PermissionSetTest extends FixtureTest
 		$permissionSetSavedSelected = $this->repository->selectOneById($savedPermissionSet->id, 42);
 
 		self::assertEquals($savedPermissionSet, $permissionSetSavedSelected);
+	}
+
+	/**
+	 * Asserts that the actual permissionset is equal to the expected permissionset
+	 *   --> It skips the "id" fields
+	 *
+	 * @param PermissionSets $expected
+	 * @param PermissionSets $actual
+	 */
+	public static function assertEqualPermissionSets(PermissionSets $expected, PermissionSets $actual)
+	{
+		self::assertEquals($expected->count(), $actual->count(), 'PermissionSets not even ' . PHP_EOL . 'expected: ' . print_r($expected, true) . 'actual: ' . print_r($actual, true));
+
+		foreach ($expected as $outputPermissionSet) {
+			self::assertCount(1, $actual->filter(function (PermissionSet $actualPermissionSet) use ($outputPermissionSet) {
+				return (
+					$actualPermissionSet->uid == $outputPermissionSet->uid &&
+					$actualPermissionSet->allow_cid == $outputPermissionSet->allow_cid &&
+					$actualPermissionSet->allow_gid == $outputPermissionSet->allow_gid &&
+					$actualPermissionSet->deny_cid == $outputPermissionSet->deny_cid &&
+					$actualPermissionSet->deny_gid == $outputPermissionSet->deny_gid
+				);
+			}), 'PermissionSet not found: ' . print_r($outputPermissionSet, true));
+		}
+	}
+
+	public function dataSet()
+	{
+		return [
+			'standard' => [
+				'permissionSets' => [
+					[
+						'uid'       => 42,
+						'allow_cid' => '<<43>>',
+						'allow_gid' => '',
+						'deny_cid'  => '<<44>>',
+						'deny_gid'  => '',
+					],
+					[
+						'uid'       => 42,
+						'allow_cid' => '',
+						'allow_gid' => '<<>>',
+						'deny_cid'  => '',
+						'deny_gid'  => '',
+					],
+					[
+						'uid'       => 42,
+						'allow_cid' => '<<44>>',
+						'allow_gid' => '',
+						'deny_cid'  => '',
+						'deny_gid'  => '',
+					],
+				],
+				'assertions' => [
+					[
+						'input' => [
+							'cid' => 43,
+							'uid' => 42,
+						],
+						'output' => new PermissionSets([
+							new PermissionSet(42, [43], [], [44], []),
+							new PermissionSet(42, [], [], [], []),
+						]),
+					],
+					[
+						'input' => [
+							'cid' => 44,
+							'uid' => 42,
+						],
+						'output' => new PermissionSets([
+							new PermissionSet(42, [], [], [], []),
+							new PermissionSet(42, [44], [], [], []),
+						]),
+					],
+					[
+						'input' => [
+							'cid' => 47,
+							'uid' => 42,
+						],
+						'output' => new PermissionSets([
+							new PermissionSet(42, [], [], [], []),
+						]),
+					],
+				]
+			],
+			'empty' => [
+				'permissionSets' => [
+					[
+						'uid'       => 42,
+						'allow_cid' => '',
+						'allow_gid' => '<<>>',
+						'deny_cid'  => '',
+						'deny_gid'  => '',
+					],
+				],
+				'assertions' => [
+					[
+						'input' => [
+							'cid' => 43,
+							'uid' => 42,
+						],
+						'output' => new PermissionSets([
+							new PermissionSet(42, [], [], [], []),
+						]),
+					],
+					[
+						'input' => [
+							'cid' => 44,
+							'uid' => 42,
+						],
+						'output' => new PermissionSets([
+							new PermissionSet(42, [], [], [], []),
+						]),
+					],
+					[
+						'input' => [
+							'cid' => 47,
+							'uid' => 42,
+						],
+						'output' => new PermissionSets([
+							new PermissionSet(42, [], [], [], []),
+						]),
+					],
+				]
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataSet
+	 */
+	public function testSelectContactId(array $inputPermissionSets, array $assertions)
+	{
+		/** @var Database $db */
+		$db = $this->dice->create(Database::class);
+
+
+		foreach ($inputPermissionSets as $inputPermissionSet) {
+			$db->insert('permissionset', $inputPermissionSet);
+		}
+
+		foreach ($assertions as $assertion) {
+			$permissionSets = $this->repository->selectByContactId($assertion['input']['cid'], $assertion['input']['uid']);
+			self::assertInstanceOf(PermissionSets::class, $permissionSets);
+			self::assertEqualPermissionSets($assertion['output'], $permissionSets);
+		}
 	}
 }
