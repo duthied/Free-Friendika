@@ -4,6 +4,7 @@ namespace Friendica\Test\src\Security\PermissionSet\Repository;
 
 use Friendica\Database\Database;
 use Friendica\Security\PermissionSet\Collection\PermissionSets;
+use Friendica\Security\PermissionSet\Exception\PermissionSetNotFoundException;
 use Friendica\Security\PermissionSet\Repository\PermissionSet as PermissionSetRepository;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
 use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
@@ -198,7 +199,6 @@ class PermissionSetTest extends FixtureTest
 		/** @var Database $db */
 		$db = $this->dice->create(Database::class);
 
-
 		foreach ($inputPermissionSets as $inputPermissionSet) {
 			$db->insert('permissionset', $inputPermissionSet);
 		}
@@ -207,6 +207,30 @@ class PermissionSetTest extends FixtureTest
 			$permissionSets = $this->repository->selectByContactId($assertion['input']['cid'], $assertion['input']['uid']);
 			self::assertInstanceOf(PermissionSets::class, $permissionSets);
 			self::assertEqualPermissionSets($assertion['output'], $permissionSets);
+		}
+	}
+
+	public function testSelectOneByIdInvalid()
+	{
+		self::expectException(PermissionSetNotFoundException::class);
+		self::expectExceptionMessage('PermissionSet with id -1 for user 42 doesn\'t exist.');
+
+		$this->repository->selectOneById(-1, 42);
+	}
+
+	/**
+	 * @dataProvider dataSet
+	 */
+	public function testSelectOneById(array $inputPermissionSets, array $assertions)
+	{
+		/** @var Database $db */
+		$db = $this->dice->create(Database::class);
+
+		foreach ($inputPermissionSets as $inputPermissionSet) {
+			$db->insert('permissionset', $inputPermissionSet);
+			$id = $db->lastInsertId();
+
+			self::assertInstanceOf(PermissionSet::class, $this->repository->selectOneById($id, $inputPermissionSet['uid']));
 		}
 	}
 }

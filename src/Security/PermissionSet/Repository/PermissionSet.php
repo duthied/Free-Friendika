@@ -56,22 +56,6 @@ class PermissionSet extends BaseRepository
 	}
 
 	/**
-	 * replaces the PUBLIC id for the public permissionSet
-	 * (no need to create the default permission set over and over again)
-	 *
-	 * @param $condition
-	 */
-	private function checkPublicSelect(&$condition)
-	{
-		if (empty($condition['allow_cid']) &&
-			empty($condition['allow_gid']) &&
-			empty($condition['deny_cid']) &&
-			empty($condition['deny_gid'])) {
-			$condition['uid'] = self::PUBLIC;
-		}
-	}
-
-	/**
 	 * @param array $condition
 	 * @param array $params
 	 *
