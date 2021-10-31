@@ -27,6 +27,8 @@ use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Security\PermissionSet\Exception\PermissionSetNotFoundException;
+use Friendica\Security\PermissionSet\Exception\PermissionSetPersistenceException;
 use Friendica\Security\PermissionSet\Factory;
 use Friendica\Security\PermissionSet\Collection;
 use Friendica\Security\PermissionSet\Entity;
@@ -75,12 +77,16 @@ class PermissionSet extends BaseRepository
 	 *
 	 * @return Entity\PermissionSet
 	 * @throws NotFoundException
+	 * @throws Exception
 	 */
 	private function selectOne(array $condition, array $params = []): Entity\PermissionSet
 	{
 		return parent::_selectOne($condition, $params);
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	private function select(array $condition, array $params = []): Collection\PermissionSets
 	{
 		return new Collection\PermissionSets(parent::_select($condition, $params)->getArrayCopy());
@@ -108,7 +114,9 @@ class PermissionSet extends BaseRepository
 	 * @param int $id  A PermissionSet table row id or self::PUBLIC
 	 * @param int $uid The owner of the PermissionSet
 	 * @return Entity\PermissionSet
-	 * @throws NotFoundException
+	 *
+	 * @throws PermissionSetNotFoundException
+	 * @throws PermissionSetPersistenceException
 	 */
 	public function selectOneById(int $id, int $uid): Entity\PermissionSet
 	{
@@ -116,7 +124,13 @@ class PermissionSet extends BaseRepository
 			return $this->factory->createFromString($uid);
 		}
 
-		return $this->selectOne(['id' => $id, 'uid' => $uid]);
+		try {
+			return $this->selectOne(['id' => $id, 'uid' => $uid]);
+		} catch (NotFoundException $exception) {
+			throw new PermissionSetNotFoundException(sprintf('PermissionSet with id %d for user %u doesn\'t exist.', $id, $uid), $exception);
+		} catch (Exception $exception) {
+			throw new PermissionSetPersistenceException(sprintf('Cannot select PermissionSet %d for user %d', $id, $uid), $exception);
+		}
 	}
 
 	/**
@@ -126,45 +140,51 @@ class PermissionSet extends BaseRepository
 	 * @param int $uid User id whom the items belong, used for ownership check.
 	 *
 	 * @return Collection\PermissionSets
+	 *
+	 * @throws PermissionSetPersistenceException
 	 */
 	public function selectByContactId(int $cid, int $uid): Collection\PermissionSets
 	{
-		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
-		if (!empty($cdata)) {
-			$public_contact_str = $this->aclFormatter->toString($cdata['public']);
-			$user_contact_str   = $this->aclFormatter->toString($cdata['user']);
-			$cid                = $cdata['user'];
-		} else {
-			$public_contact_str = $this->aclFormatter->toString($cid);
-			$user_contact_str   = '';
-		}
+		try {
+			$cdata = Contact::getPublicAndUserContactID($cid, $uid);
+			if (!empty($cdata)) {
+				$public_contact_str = $this->aclFormatter->toString($cdata['public']);
+				$user_contact_str   = $this->aclFormatter->toString($cdata['user']);
+				$cid                = $cdata['user'];
+			} else {
+				$public_contact_str = $this->aclFormatter->toString($cid);
+				$user_contact_str   = '';
+			}
 
-		$groups = [];
-		if (!empty($user_contact_str) && $this->db->exists('contact', [
-			'id' => $cid,
-			'uid' => $uid,
-			'blocked' => false
-		])) {
-			$groups = Group::getIdsByContactId($cid);
-		}
+			$groups = [];
+			if (!empty($user_contact_str) && $this->db->exists('contact', [
+				'id' => $cid,
+				'uid' => $uid,
+				'blocked' => false
+			])) {
+				$groups = Group::getIdsByContactId($cid);
+			}
 
-		$group_str = '<<>>'; // should be impossible to match
-		foreach ($groups as $group_id) {
-			$group_str .= '|<' . preg_quote($group_id) . '>';
-		}
+			$group_str = '<<>>'; // should be impossible to match
+			foreach ($groups as $group_id) {
+				$group_str .= '|<' . preg_quote($group_id) . '>';
+			}
 
-		if (!empty($user_contact_str)) {
-			$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR `deny_cid` REGEXP ? OR deny_gid REGEXP ?)
+			if (!empty($user_contact_str)) {
+				$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR `deny_cid` REGEXP ? OR deny_gid REGEXP ?)
 				AND (allow_cid REGEXP ? OR allow_cid REGEXP ? OR allow_gid REGEXP ? OR (allow_cid = '' AND allow_gid = '')))",
-				$uid, $user_contact_str, $public_contact_str, $group_str,
-				$user_contact_str, $public_contact_str, $group_str];
-		} else {
-			$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR deny_gid REGEXP ?)
+					$uid, $user_contact_str, $public_contact_str, $group_str,
+					$user_contact_str, $public_contact_str, $group_str];
+			} else {
+				$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR deny_gid REGEXP ?)
 				AND (allow_cid REGEXP ? OR allow_gid REGEXP ? OR (allow_cid = '' AND allow_gid = '')))",
-				$uid, $public_contact_str, $group_str, $public_contact_str, $group_str];
-		}
+					$uid, $public_contact_str, $group_str, $public_contact_str, $group_str];
+			}
 
-		return $this->select($condition);
+			return $this->select($condition);
+		} catch (Exception $exception) {
+			throw new PermissionSetPersistenceException(sprintf('Cannot select PermissionSet for contact %d and user %d', $cid, $uid), $exception);
+		}
 	}
 
 	/**
@@ -173,11 +193,20 @@ class PermissionSet extends BaseRepository
 	 * @param int $uid
 	 *
 	 * @return Entity\PermissionSet
-	 * @throws Exception
+	 *
+	 * @throws PermissionSetPersistenceException
 	 */
 	public function selectDefaultForUser(int $uid): Entity\PermissionSet
 	{
-		$self_contact = Contact::selectFirst(['id'], ['uid' => $uid, 'self' => true]);
+		try {
+			$self_contact = Contact::selectFirst(['id'], ['uid' => $uid, 'self' => true]);
+		} catch (Exception $exception) {
+			throw new PermissionSetPersistenceException(sprintf('Cannot select Contact for user %d', $uid));
+		}
+
+		if (!$this->db->isResult($self_contact)) {
+			throw new PermissionSetPersistenceException(sprintf('No "self" contact found for user %d', $uid));
+		}
 
 		return $this->selectOrCreate($this->factory->createFromString(
 			$uid,
@@ -203,6 +232,8 @@ class PermissionSet extends BaseRepository
 	 * @param Entity\PermissionSet $permissionSet
 	 *
 	 * @return Entity\PermissionSet
+	 *
+	 * @throws PermissionSetPersistenceException
 	 */
 	public function selectOrCreate(Entity\PermissionSet $permissionSet): Entity\PermissionSet
 	{
@@ -219,6 +250,8 @@ class PermissionSet extends BaseRepository
 			return $this->selectOne($this->convertToTableRow($permissionSet));
 		} catch (NotFoundException $exception) {
 			return $this->save($permissionSet);
+		} catch (Exception $exception) {
+			throw new PermissionSetPersistenceException(sprintf('Cannot select PermissionSet %d', $permissionSet->id ?? 0), $exception);
 		}
 	}
 
@@ -226,7 +259,8 @@ class PermissionSet extends BaseRepository
 	 * @param Entity\PermissionSet $permissionSet
 	 *
 	 * @return Entity\PermissionSet
-	 * @throws NotFoundException
+	 *
+	 * @throws PermissionSetPersistenceException
 	 */
 	public function save(Entity\PermissionSet $permissionSet): Entity\PermissionSet
 	{
@@ -237,12 +271,16 @@ class PermissionSet extends BaseRepository
 
 		$fields = $this->convertToTableRow($permissionSet);
 
-		if ($permissionSet->id) {
-			$this->db->update(self::$table_name, $fields, ['id' => $permissionSet->id]);
-		} else {
-			$this->db->insert(self::$table_name, $fields);
+		try {
+			if ($permissionSet->id) {
+				$this->db->update(self::$table_name, $fields, ['id' => $permissionSet->id]);
+			} else {
+				$this->db->insert(self::$table_name, $fields);
 
-			$permissionSet = $this->selectOneById($this->db->lastInsertId(), $permissionSet->uid);
+				$permissionSet = $this->selectOneById($this->db->lastInsertId(), $permissionSet->uid);
+			}
+		} catch (Exception $exception) {
+			throw new PermissionSetPersistenceException(sprintf('Cannot save PermissionSet %d', $permissionSet->id ?? 0), $exception);
 		}
 
 		return $permissionSet;
