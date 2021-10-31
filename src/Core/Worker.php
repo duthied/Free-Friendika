@@ -1183,22 +1183,22 @@ class Worker
 		DBA::connect();
 
 		DI::flushLogger();
-		$process = DI::process()->create($pid);
+		$process = DI::process()->create(getmypid());
 
 		$cycles = 0;
-		while (!self::IPCJobsExists($pid) && (++$cycles < 100)) {
+		while (!self::IPCJobsExists($process->pid) && (++$cycles < 100)) {
 			usleep(10000);
 		}
 
-		Logger::info('Worker spawned', ['pid' => $pid, 'wait_cycles' => $cycles]);
+		Logger::info('Worker spawned', ['pid' => $process->pid, 'wait_cycles' => $cycles]);
 
 		self::processQueue($do_cron, $process);
 
 		self::unclaimProcess($process);
 
-		self::IPCSetJobState(false, $pid);
+		self::IPCSetJobState(false, $process->pid);
 		DI::process()->delete($process);
-		Logger::info('Worker ended', ['pid' => $pid]);
+		Logger::info('Worker ended', ['pid' => $process->pid]);
 		exit();
 	}
 
