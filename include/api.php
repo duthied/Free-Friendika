@@ -386,11 +386,11 @@ function api_call(App $a, App\Arguments $args = null)
  */
 function api_error($type, $e, App\Arguments $args)
 {
-	$error = ($e->getMessage() !== "" ? $e->getMessage() : $e->httpdesc);
+	$error = ($e->getMessage() !== "" ? $e->getMessage() : $e->getDescription());
 	/// @TODO:  https://dev.twitter.com/overview/api/response-codes
 
 	$error = ["error" => $error,
-			"code" => $e->getCode() . " " . $e->httpdesc,
+			"code" => $e->getCode() . " " . $e->getDescription(),
 			"request" => $args->getQueryString()];
 
 	$return = api_format_data('status', $type, ['status' => $error]);
