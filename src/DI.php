@@ -231,6 +231,18 @@ abstract class DI
 	//
 
 	/**
+	 * Flushes the Logger instance, so the factory is called again
+	 * (creates a new id and retrieves the current PID)
+	 */
+	public static function flushLogger()
+	{
+		$flushDice = self::$dice
+			->addRule(LoggerInterface::class, self::$dice->getRule(LoggerInterface::class))
+			->addRule('$devLogger', self::$dice->getRule('$devLogger'));
+		static::init($flushDice);
+	}
+
+	/**
 	 * @return LoggerInterface
 	 */
 	public static function logger()

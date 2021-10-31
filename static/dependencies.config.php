@@ -40,7 +40,6 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock;
-use Friendica\Core\Process;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Storage\Repository\StorageManager;
 use Friendica\Database\Database;

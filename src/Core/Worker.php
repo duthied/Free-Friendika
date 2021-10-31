@@ -1182,7 +1182,7 @@ class Worker
 		// We now are in the new worker
 		DBA::connect();
 
-		/// @todo Reinitialize the logger to set a new process_id and uid
+		DI::flushLogger();
 		$process = DI::process()->create($pid);
 
 		$cycles = 0;
