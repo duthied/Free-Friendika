@@ -59,11 +59,16 @@ class Process extends BaseRepository
 		try {
 			$this->db->transaction();
 
-			$newProcess = $this->factory->create($pid);
+			$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+			$last  = $trace[count($trace) - 1];
+
+			$command = strtolower(basename($last['file']));
+
+			$newProcess = $this->factory->create($pid, $command);
 
 			if (!$this->db->exists('process', ['pid' => $pid])) {
 				if (!$this->db->insert(static::$table_name, [
-					'pid' => $newProcess->pid,
+					'pid'     => $newProcess->pid,
 					'command' => $newProcess->command,
 					'created' => $newProcess->created->format(DateTimeFormat::MYSQL)
 				])) {
@@ -113,6 +118,24 @@ class Process extends BaseRepository
 			throw new ProcessPersistenceException('Cannot delete inactive process', $exception);
 		} finally {
 			$this->db->commit();
+		}
+	}
+
+	/**
+	 * Returns the number of processes with a given command
+	 *
+	 * @param string $command
+	 *
+	 * @return int Number of processes
+	 *
+	 * @throws ProcessPersistenceException
+	 */
+	public function countCommand(string $command): int
+	{
+		try {
+			return $this->count(['command' => strtolower($command)]);
+		} catch (\Exception $exception) {
+			throw new ProcessPersistenceException('Cannot count ', $exception);
 		}
 	}
 }

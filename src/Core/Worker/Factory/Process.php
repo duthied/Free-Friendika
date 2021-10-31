@@ -20,16 +20,13 @@ class Process extends BaseFactory implements ICanCreateFromTableRow
 	/**
 	 * Creates a new process entry for a given PID
 	 *
-	 * @param int $pid
+	 * @param int    $pid
+	 * @param string $command
 	 *
 	 * @return Entity\Process
 	 */
-	public function create(int $pid): Entity\Process
+	public function create(int $pid, string $command): Entity\Process
 	{
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-
-		$command = basename($trace[0]['file']);
-
 		return $this->createFromTableRow([
 			'pid'     => $pid,
 			'command' => $command,

@@ -846,7 +846,7 @@ class Worker
 	private static function activeWorkers()
 	{
 		$stamp = (float)microtime(true);
-		$count = DBA::count('process', ['command' => 'Worker.php']);
+		$count = DI::process()->countCommand('Worker.php');
 		self::$db_duration += (microtime(true) - $stamp);
 		self::$db_duration_count += (microtime(true) - $stamp);
 		return $count;

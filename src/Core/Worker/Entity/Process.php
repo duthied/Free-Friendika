@@ -30,17 +30,4 @@ class Process extends BaseEntity
 		$this->command = $command;
 		$this->created = $created;
 	}
-
-	/**
-	 * Returns a new Process with the given PID
-	 *
-	 * @param int $pid
-	 *
-	 * @return $this
-	 * @throws \Exception
-	 */
-	public function withPid(int $pid): Process
-	{
-		return new static($pid, $this->command, new DateTime('now', new \DateTimeZone('URC')));
-	}
 }
