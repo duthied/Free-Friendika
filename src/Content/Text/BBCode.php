@@ -39,7 +39,7 @@ use Friendica\Model\Event;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
-use Friendica\Network\HTTPClientOptions;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Images;
@@ -1201,7 +1201,7 @@ class BBCode
 		$text = DI::cache()->get($cache_key);
 
 		if (is_null($text)) {
-			$curlResult = DI::httpClient()->head($match[1], [HTTPClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
+			$curlResult = DI::httpClient()->head($match[1], [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
 			if ($curlResult->isSuccess()) {
 				$mimetype = $curlResult->getHeader('Content-Type')[0] ?? '';
 			} else {
@@ -1272,7 +1272,7 @@ class BBCode
 			return $text;
 		}
 
-		$curlResult = DI::httpClient()->head($match[1], [HTTPClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
+		$curlResult = DI::httpClient()->head($match[1], [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
 		if ($curlResult->isSuccess()) {
 			$mimetype = $curlResult->getHeader('Content-Type')[0] ?? '';
 		} else {

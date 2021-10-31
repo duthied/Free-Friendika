@@ -5,7 +5,7 @@ namespace Friendica\Navigation\Notifications\Repository;
 use Friendica\App\BaseURL;
 use Friendica\BaseRepository;
 use Friendica\Content\Text\Plaintext;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
@@ -33,7 +33,7 @@ class Notify extends BaseRepository
 	/** @var BaseURL  */
 	protected $baseUrl;
 
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	protected $config;
 
 	/** @var Emailer */
@@ -44,7 +44,7 @@ class Notify extends BaseRepository
 
 	protected static $table_name = 'notify';
 
-	public function __construct(Database $database, LoggerInterface $logger, L10n $l10n, BaseURL $baseUrl, IConfig $config, Emailer $emailer, Factory\Notification $notification, Factory\Notify $factory = null)
+	public function __construct(Database $database, LoggerInterface $logger, L10n $l10n, BaseURL $baseUrl, IManageConfigValues $config, Emailer $emailer, Factory\Notification $notification, Factory\Notify $factory = null)
 	{
 		$this->l10n         = $l10n;
 		$this->baseUrl      = $baseUrl;

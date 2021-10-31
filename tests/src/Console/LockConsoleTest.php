@@ -24,7 +24,7 @@ namespace Friendica\Test\src\Console;
 use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Console\Lock;
-use Friendica\Core\Lock\ILock;
+use Friendica\Core\Lock\Capability\ICanLock;
 use Mockery;
 use Mockery\MockInterface;
 
@@ -36,7 +36,7 @@ class LockConsoleTest extends ConsoleTest
 	private $appMode;
 
 	/**
-	 * @var ILock|MockInterface
+	 * @var ICanLock|MockInterface
 	 */
 	private $lockMock;
 
@@ -54,7 +54,7 @@ class LockConsoleTest extends ConsoleTest
 		$this->appMode->shouldReceive('has')
 		        ->andReturn(true);
 
-		$this->lockMock = Mockery::mock(ILock::class);
+		$this->lockMock = Mockery::mock(ICanLock::class);
 	}
 
 	public function testList()

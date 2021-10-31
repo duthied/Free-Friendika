@@ -155,35 +155,35 @@ abstract class DI
 	//
 
 	/**
-	 * @return Core\Cache\ICache
+	 * @return Core\Cache\Capability\ICanCache
 	 */
 	public static function cache()
 	{
-		return self::$dice->create(Core\Cache\ICache::class);
+		return self::$dice->create(Core\Cache\Capability\ICanCache::class);
 	}
 
 	/**
-	 * @return Core\Config\IConfig
+	 * @return Core\Config\Capability\IManageConfigValues
 	 */
 	public static function config()
 	{
-		return self::$dice->create(Core\Config\IConfig::class);
+		return self::$dice->create(Core\Config\Capability\IManageConfigValues::class);
 	}
 
 	/**
-	 * @return Core\PConfig\IPConfig
+	 * @return Core\PConfig\Capability\IManagePersonalConfigValues
 	 */
 	public static function pConfig()
 	{
-		return self::$dice->create(Core\PConfig\IPConfig::class);
+		return self::$dice->create(Core\PConfig\Capability\IManagePersonalConfigValues::class);
 	}
 
 	/**
-	 * @return Core\Lock\ILock
+	 * @return Core\Lock\Capability\ICanLock
 	 */
 	public static function lock()
 	{
-		return self::$dice->create(Core\Lock\ILock::class);
+		return self::$dice->create(Core\Lock\Capability\ICanLock::class);
 	}
 
 	/**
@@ -203,19 +203,19 @@ abstract class DI
 	}
 
 	/**
-	 * @return Core\Session\ISession
+	 * @return Core\Session\Capability\IHandleSessions
 	 */
 	public static function session()
 	{
-		return self::$dice->create(Core\Session\ISession::class);
+		return self::$dice->create(Core\Session\Capability\IHandleSessions::class);
 	}
 
 	/**
-	 * @return Core\StorageManager
+	 * @return \Friendica\Core\Storage\Repository\StorageManager
 	 */
 	public static function storageManager()
 	{
-		return self::$dice->create(Core\StorageManager::class);
+		return self::$dice->create(Core\Storage\Repository\StorageManager::class);
 	}
 
 	//
@@ -243,7 +243,7 @@ abstract class DI
 	 */
 	public static function workerLogger()
 	{
-		return self::$dice->create(Util\Logger\WorkerLogger::class);
+		return self::$dice->create(Core\Logger\Type\WorkerLogger::class);
 	}
 
 	//
@@ -395,11 +395,11 @@ abstract class DI
 	}
 
 	/**
-	 * @return Model\Storage\IWritableStorage
+	 * @return Core\Storage\Capability\ICanWriteToStorage
 	 */
 	public static function storage()
 	{
-		return self::$dice->create(Model\Storage\IWritableStorage::class);
+		return self::$dice->create(Core\Storage\Capability\ICanWriteToStorage::class);
 	}
 
 	/**
@@ -415,11 +415,11 @@ abstract class DI
 	//
 
 	/**
-	 * @return Network\IHTTPClient
+	 * @return Network\HTTPClient\Capability\ICanSendHttpRequests
 	 */
 	public static function httpClient()
 	{
-		return self::$dice->create(Network\IHTTPClient::class);
+		return self::$dice->create(Network\HTTPClient\Capability\ICanSendHttpRequests::class);
 	}
 
 	//

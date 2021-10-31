@@ -22,7 +22,7 @@
 namespace Friendica\Core;
 
 use Friendica\App;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Model;
 use Psr\Log\LoggerInterface;
 
@@ -48,7 +48,7 @@ class Process
 	private $mode;
 
 	/**
-	 * @var IConfig
+	 * @var IManageConfigValues
 	 */
 	private $config;
 
@@ -67,7 +67,7 @@ class Process
 	 */
 	private $pid;
 
-	public function __construct(LoggerInterface $logger, App\Mode $mode, IConfig $config, Model\Process $processModel, string $basepath, int $pid)
+	public function __construct(LoggerInterface $logger, App\Mode $mode, IManageConfigValues $config, Model\Process $processModel, string $basepath, int $pid)
 	{
 		$this->logger = $logger;
 		$this->mode = $mode;
@@ -176,7 +176,7 @@ class Process
 			if (count($data) != 2) {
 				continue;
 			}
-			list($key, $val) = $data;
+			[$key, $val] = $data;
 			$meminfo[$key] = (int)trim(str_replace('kB', '', $val));
 			$meminfo[$key] = (int)($meminfo[$key] / 1024);
 		}

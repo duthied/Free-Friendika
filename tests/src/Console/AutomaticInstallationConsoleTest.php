@@ -24,7 +24,7 @@ namespace Friendica\Test\src\Console;
 use Dice\Dice;
 use Friendica\App;
 use Friendica\Console\AutomaticInstallation;
-use Friendica\Core\Config\Cache;
+use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Installer;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -32,11 +32,11 @@ use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Test\Util\RendererMockTrait;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\Logger\VoidLogger;
 use Mockery;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
+use Psr\Log\NullLogger;
 
 class AutomaticInstallationConsoleTest extends ConsoleTest
 {
@@ -53,7 +53,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	private $assertFileDb;
 
 	/**
-	 * @var Cache The configuration cache to check after each test
+	 * @var \Friendica\Core\Config\ValueObject\Cache The configuration cache to check after each test
 	 */
 	private $configCache;
 
@@ -117,7 +117,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		});
 
 		$this->mode->shouldReceive('isInstall')->andReturn(true);
-		Logger::init(new VoidLogger());
+		Logger::init(new NullLogger());
 	}
 
 	/**

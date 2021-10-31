@@ -22,9 +22,9 @@
 namespace Friendica\Test\src\Core\Lock;
 
 use Exception;
-use Friendica\Core\Cache\MemcacheCache;
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\Lock\CacheLock;
+use Friendica\Core\Cache\Type\MemcacheCache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\Lock\Type\CacheLock;
 use Mockery;
 
 /**
@@ -35,7 +35,7 @@ class MemcacheCacheLockTest extends LockTest
 {
 	protected function getInstance()
 	{
-		$configMock = Mockery::mock(IConfig::class);
+		$configMock = Mockery::mock(IManageConfigValues::class);
 
 		$host = $_SERVER['MEMCACHE_HOST'] ?? 'localhost';
 		$port = $_SERVER['MEMCACHE_PORT'] ?? '11211';
@@ -53,7 +53,7 @@ class MemcacheCacheLockTest extends LockTest
 
 		try {
 			$cache = new MemcacheCache($host, $configMock);
-			$lock = new CacheLock($cache);
+			$lock = new \Friendica\Core\Lock\Type\CacheLock($cache);
 		} catch (Exception $e) {
 			static::markTestSkipped('Memcache is not available');
 		}

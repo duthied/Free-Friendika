@@ -2,12 +2,11 @@
 
 namespace Friendica\Test\src\Model;
 
-use Friendica\Factory\ConfigFactory;
+use Friendica\Core\Config\Factory\Config;
 use Friendica\Model\Process;
 use Friendica\Test\DatabaseTest;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\Profiler;
 use Psr\Log\NullLogger;
 
@@ -32,8 +31,8 @@ class ProcessTest extends DatabaseTest
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		// load real config to avoid mocking every config-entry which is related to the Database class
-		$configFactory = new ConfigFactory();
-		$loader        = (new ConfigFactory())->createConfigFileLoader($this->root->url(), []);
+		$configFactory = new Config();
+		$loader        = (new Config())->createConfigFileLoader($this->root->url(), []);
 		$configCache   = $configFactory->createCache($loader);
 
 		$this->dba = new StaticDatabase($configCache, $profiler, $logger);

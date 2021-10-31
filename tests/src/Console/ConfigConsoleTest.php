@@ -24,7 +24,7 @@ namespace Friendica\Test\src\Console;
 use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Console\Config;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Mockery;
 use Mockery\LegacyMockInterface;
 use Mockery\MockInterface;
@@ -35,7 +35,7 @@ class ConfigConsoleTest extends ConsoleTest
 	 * @var App\Mode|MockInterface $appMode
 	 */
 	private $appMode;
-	/** @var IConfig|LegacyMockInterface|MockInterface */
+	/** @var IManageConfigValues|LegacyMockInterface|MockInterface */
 	private $configMock;
 
 	protected function setUp() : void
@@ -52,7 +52,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$this->appMode->shouldReceive('has')
 					  ->andReturn(true);
 
-		$this->configMock = Mockery::mock(IConfig::class);
+		$this->configMock = Mockery::mock(IManageConfigValues::class);
 	}
 
 	public function testSetGetKeyValue()

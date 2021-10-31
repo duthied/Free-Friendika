@@ -26,8 +26,8 @@ use DOMDocument;
 use DOMXPath;
 use Friendica\App;
 use Friendica\Content\Nav;
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
@@ -190,15 +190,15 @@ class Page implements ArrayAccess
 	 * - Infinite scroll data
 	 * - head.tpl template
 	 *
-	 * @param App      $app     The Friendica App instance
-	 * @param Module   $module  The loaded Friendica module
-	 * @param L10n     $l10n    The l10n language instance
-	 * @param IConfig  $config  The Friendica configuration
-	 * @param IPConfig $pConfig The Friendica personal configuration (for user)
+	 * @param App                         $app     The Friendica App instance
+	 * @param Module                      $module  The loaded Friendica module
+	 * @param L10n                        $l10n    The l10n language instance
+	 * @param IManageConfigValues         $config  The Friendica configuration
+	 * @param IManagePersonalConfigValues $pConfig The Friendica personal configuration (for user)
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initHead(App $app, Module $module, L10n $l10n, IConfig $config, IPConfig $pConfig)
+	private function initHead(App $app, Module $module, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig)
 	{
 		$interval = ((local_user()) ? $pConfig->get(local_user(), 'system', 'update_interval') : 40000);
 
@@ -367,17 +367,17 @@ class Page implements ArrayAccess
 	/**
 	 * Executes the creation of the current page and prints it to the screen
 	 *
-	 * @param App      $app     The Friendica App
-	 * @param BaseURL  $baseURL The Friendica Base URL
-	 * @param Mode     $mode    The current node mode
-	 * @param Module   $module  The loaded Friendica module
-	 * @param L10n     $l10n    The l10n language class
-	 * @param IConfig  $config  The Configuration of this node
-	 * @param IPConfig $pconfig The personal/user configuration
+	 * @param App                         $app     The Friendica App
+	 * @param BaseURL                     $baseURL The Friendica Base URL
+	 * @param Mode                        $mode    The current node mode
+	 * @param Module                      $module  The loaded Friendica module
+	 * @param L10n                        $l10n    The l10n language class
+	 * @param IManageConfigValues         $config  The Configuration of this node
+	 * @param IManagePersonalConfigValues $pconfig The personal/user configuration
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function run(App $app, BaseURL $baseURL, Mode $mode, Module $module, L10n $l10n, Profiler $profiler, IConfig $config, IPConfig $pconfig)
+	public function run(App $app, BaseURL $baseURL, Mode $mode, Module $module, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
 	{
 		$moduleName = $module->getName();
 

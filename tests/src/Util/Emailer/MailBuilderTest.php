@@ -22,7 +22,7 @@
 namespace Friendica\Test\src\Util\Emailer;
 
 use Friendica\App\BaseURL;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\EMail\IEmail;
@@ -41,7 +41,7 @@ class MailBuilderTest extends MockedTest
 {
 	use VFSTrait;
 
-	/** @var IConfig|MockInterface */
+	/** @var IManageConfigValues|MockInterface */
 	private $config;
 	/** @var L10n|MockInterface */
 	private $l10n;
@@ -57,7 +57,7 @@ class MailBuilderTest extends MockedTest
 
 		$this->setUpVfsDir();
 
-		$this->config  = \Mockery::mock(IConfig::class);
+		$this->config  = \Mockery::mock(IManageConfigValues::class);
 		$this->l10n    = \Mockery::mock(L10n::class);
 		$this->baseUrl = \Mockery::mock(BaseURL::class);
 		$this->baseUrl->shouldReceive('getHostname')->andReturn('friendica.local');

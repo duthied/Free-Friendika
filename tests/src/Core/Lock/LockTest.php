@@ -21,7 +21,7 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use Friendica\Core\Lock\ILock;
+use Friendica\Core\Lock\Capability\ICanLock;
 use Friendica\Test\MockedTest;
 
 abstract class LockTest extends MockedTest
@@ -32,7 +32,7 @@ abstract class LockTest extends MockedTest
 	protected $startTime = 1417011228;
 
 	/**
-	 * @var ILock
+	 * @var ICanLock
 	 */
 	protected $instance;
 

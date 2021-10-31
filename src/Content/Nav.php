@@ -190,7 +190,7 @@ class Nav
 			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
 			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname() . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
 			$nav['usermenu'][] = ['photos/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
-			$nav['usermenu'][] = ['media/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Media'), '', DI::l10n()->t('Your postings with media')];
+			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname() . '/media', DI::l10n()->t('Media'), '', DI::l10n()->t('Your postings with media')];
 			$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
 			$nav['usermenu'][] = ['notes/', DI::l10n()->t('Personal notes'), '', DI::l10n()->t('Your personal notes')];
 

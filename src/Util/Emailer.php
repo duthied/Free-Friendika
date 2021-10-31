@@ -22,10 +22,10 @@
 namespace Friendica\Util;
 
 use Friendica\App;
-use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\EMail\IEmail;
 use Friendica\Protocol\Email;
@@ -38,9 +38,9 @@ use Psr\Log\LoggerInterface;
  */
 class Emailer
 {
-	/** @var IConfig */
+	/** @var IManageConfigValues */
 	private $config;
-	/** @var IPConfig */
+	/** @var IManagePersonalConfigValues */
 	private $pConfig;
 	/** @var LoggerInterface */
 	private $logger;
@@ -54,7 +54,7 @@ class Emailer
 	/** @var string */
 	private $siteEmailName;
 
-	public function __construct(IConfig $config, IPConfig $pConfig, App\BaseURL $baseURL, LoggerInterface $logger,
+	public function __construct(IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\BaseURL $baseURL, LoggerInterface $logger,
 	                            L10n $defaultLang)
 	{
 		$this->config      = $config;

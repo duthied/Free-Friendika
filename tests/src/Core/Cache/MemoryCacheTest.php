@@ -22,12 +22,12 @@
 namespace Friendica\Test\src\Core\Cache;
 
 use Exception;
-use Friendica\Core\Cache\IMemoryCache;
+use Friendica\Core\Cache\Capability\ICanCacheInMemory;
 
 abstract class MemoryCacheTest extends CacheTest
 {
 	/**
-	 * @var IMemoryCache
+	 * @var \Friendica\Core\Cache\Capability\ICanCacheInMemory
 	 */
 	protected $instance;
 
@@ -35,7 +35,7 @@ abstract class MemoryCacheTest extends CacheTest
 	{
 		parent::setUp();
 
-		if (!($this->instance instanceof IMemoryCache)) {
+		if (!($this->instance instanceof ICanCacheInMemory)) {
 			throw new Exception('MemoryCacheTest unsupported');
 		}
 	}

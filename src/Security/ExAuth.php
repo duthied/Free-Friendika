@@ -36,8 +36,8 @@ namespace Friendica\Security;
 
 use Exception;
 use Friendica\App;
-use Friendica\Core\Config\IConfig;
-use Friendica\Core\PConfig\IPConfig;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -54,11 +54,11 @@ class ExAuth
 	 */
 	private $appMode;
 	/**
-	 * @var IConfig
+	 * @var IManageConfigValues
 	 */
 	private $config;
 	/**
-	 * @var IPConfig
+	 * @var IManagePersonalConfigValues
 	 */
 	private $pConfig;
 	/**
@@ -71,14 +71,15 @@ class ExAuth
 	private $baseURL;
 
 	/**
-	 * @param App\Mode    $appMode
-	 * @param IConfig      $config
-	 * @param IPConfig     $pConfig
-	 * @param Database    $dba
-	 * @param App\BaseURL $baseURL
+	 * @param App\Mode                    $appMode
+	 * @param IManageConfigValues         $config
+	 * @param IManagePersonalConfigValues $pConfig
+	 * @param Database                    $dba
+	 * @param App\BaseURL                 $baseURL
+	 *
 	 * @throws Exception
 	 */
-	public function __construct(App\Mode $appMode, IConfig $config, IPConfig $pConfig, Database $dba, App\BaseURL $baseURL)
+	public function __construct(App\Mode $appMode, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, Database $dba, App\BaseURL $baseURL)
 	{
 		$this->appMode = $appMode;
 		$this->config  = $config;

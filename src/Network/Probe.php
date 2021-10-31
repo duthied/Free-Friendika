@@ -34,6 +34,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
@@ -170,7 +171,7 @@ class Probe
 		Logger::info('Probing', ['host' => $host, 'ssl_url' => $ssl_url, 'url' => $url, 'callstack' => System::callstack(20)]);
 		$xrd = null;
 
-		$curlResult = DI::httpClient()->get($ssl_url, [HTTPClientOptions::TIMEOUT => $xrd_timeout, HTTPClientOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
+		$curlResult = DI::httpClient()->get($ssl_url, [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
 		$ssl_connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
@@ -187,7 +188,7 @@ class Probe
 		}
 
 		if (!is_object($xrd) && !empty($url)) {
-			$curlResult = DI::httpClient()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout, HTTPClientOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
+			$curlResult = DI::httpClient()->get($url, [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => ['application/xrd+xml']]);
 			$connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 			if ($curlResult->isTimeout()) {
 				Logger::info('Probing timeout', ['url' => $url]);
@@ -429,7 +430,7 @@ class Probe
 	 */
 	private static function getHideStatus($url)
 	{
-		$curlResult = DI::httpClient()->get($url, [HTTPClientOptions::CONTENT_LENGTH => 1000000]);
+		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
@@ -950,7 +951,7 @@ class Probe
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
-		$curlResult = DI::httpClient()->get($url, [HTTPClientOptions::TIMEOUT => $xrd_timeout, HTTPClientOptions::ACCEPT_CONTENT => [$type]]);
+		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => [$type]]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];

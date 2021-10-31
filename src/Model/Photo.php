@@ -21,17 +21,17 @@
 
 namespace Friendica\Model;
 
-use Friendica\Core\Cache\Duration;
+use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Storage\ExternalResource;
-use Friendica\Model\Storage\InvalidClassStorageException;
-use Friendica\Model\Storage\ReferenceStorageException;
-use Friendica\Model\Storage\StorageException;
-use Friendica\Model\Storage\SystemResource;
+use Friendica\Core\Storage\Type\ExternalResource;
+use Friendica\Core\Storage\Exception\InvalidClassStorageException;
+use Friendica\Core\Storage\Exception\ReferenceStorageException;
+use Friendica\Core\Storage\Exception\StorageException;
+use Friendica\Core\Storage\Type\SystemResource;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
