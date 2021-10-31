@@ -8,6 +8,6 @@ class PermissionSetNotFoundException extends \RuntimeException
 {
 	public function __construct($message = '', Exception $previous = null)
 	{
-		parent::__construct($message, 500, $previous);
+		parent::__construct($message, 404, $previous);
 	}
 }
