@@ -25,7 +25,7 @@ use Friendica\Network\HTTPException;
 
 class ConflictException extends HTTPException
 {
-	protected $code  = 409;
-	var $httpdesc    = 'Conflict ';
-	var $explanation = 'Indicates that the request could not be processed because of conflict in the current state of the resource, such as an edit conflict between multiple simultaneous updates.';
+	protected $code        = 409;
+	protected $httpdesc    = 'Conflict ';
+	protected $explanation = 'Indicates that the request could not be processed because of conflict in the current state of the resource, such as an edit conflict between multiple simultaneous updates.';
 }

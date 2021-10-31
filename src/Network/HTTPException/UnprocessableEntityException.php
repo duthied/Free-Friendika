@@ -25,7 +25,7 @@ use Friendica\Network\HTTPException;
 
 class UnprocessableEntityException extends HTTPException
 {
-	protected $code  = 422;
-	var $httpdesc    = 'Unprocessable Entity';
-	var $explanation = 'The request was well-formed but was unable to be followed due to semantic errors.';
+	protected $code        = 422;
+	protected $httpdesc    = 'Unprocessable Entity';
+	protected $explanation = 'The request was well-formed but was unable to be followed due to semantic errors.';
 }

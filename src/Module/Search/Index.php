@@ -51,9 +51,7 @@ class Index extends BaseSearch
 		}
 
 		if (DI::config()->get('system', 'local_search') && !Session::isAuthenticated()) {
-			$e = new HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a search.'));
-			$e->httpdesc = DI::l10n()->t('Public access denied.');
-			throw $e;
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a search.'));
 		}
 
 		if (DI::config()->get('system', 'permit_crawling') && !Session::isAuthenticated()) {

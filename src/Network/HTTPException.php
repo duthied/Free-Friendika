@@ -31,11 +31,21 @@ use Exception;
  */
 abstract class HTTPException extends Exception
 {
-	public $httpdesc    = '';
-	public $explanation = '';
+	protected $httpdesc    = '';
+	protected $explanation = '';
 
 	public function __construct($message = '', Exception $previous = null)
 	{
 		parent::__construct($message, $this->code, $previous);
+	}
+
+	public function getDescription()
+	{
+		return $this->httpdesc;
+	}
+
+	public function getExplanation()
+	{
+		return $this->explanation;
 	}
 }

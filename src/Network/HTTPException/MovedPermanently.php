@@ -25,6 +25,6 @@ use Friendica\Network\HTTPException;
 
 class MovedPermanentlyException extends HTTPException
 {
-	protected $code = 301;
-	var $httpdesc   = 'Moved Permanently';
+	protected $code     = 301;
+	protected $httpdesc = 'Moved Permanently';
 }

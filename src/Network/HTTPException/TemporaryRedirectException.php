@@ -25,6 +25,6 @@ use Friendica\Network\HTTPException;
 
 class TemporaryRedirectException extends HTTPException
 {
-	protected $code = 307;
-	var $httpdesc   = 'Temporary Redirect';
+	protected $code     = 307;
+	protected $httpdesc = 'Temporary Redirect';
 }

@@ -25,6 +25,6 @@ use Friendica\Network\HTTPException;
 
 class FoundException extends HTTPException
 {
-	protected $code = 302;
-	var $httpdesc   = 'Found (Moved Temporarily)';
+	protected $code     = 302;
+	protected $httpdesc = 'Found (Moved Temporarily)';
 }

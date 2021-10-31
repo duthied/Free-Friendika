@@ -25,6 +25,6 @@ use Friendica\Network\HTTPException;
 
 class NoContentException extends HTTPException
 {
-	protected $code = 204;
-	var $httpdesc   = 'No Content';
+	protected $code     = 204;
+	protected $httpdesc = 'No Content';
 }

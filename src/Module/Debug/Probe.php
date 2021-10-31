@@ -35,9 +35,7 @@ class Probe extends BaseModule
 	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
-			$e           = new HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a probing.'));
-			$e->httpdesc = DI::l10n()->t('Public access denied.');
-			throw $e;
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a probing.'));
 		}
 
 		$addr = $_GET['addr'] ?? '';

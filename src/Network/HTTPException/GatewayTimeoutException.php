@@ -25,7 +25,7 @@ use Friendica\Network\HTTPException;
 
 class GatewayTimeoutException extends HTTPException
 {
-	protected $code  = 504;
-	var $httpdesc    = 'Gateway Timeout';
-	var $explanation = 'The server was acting as a gateway or proxy and did not receive a timely response from the upstream server.';
+	protected $code        = 504;
+	protected $httpdesc    = 'Gateway Timeout';
+	protected $explanation = 'The server was acting as a gateway or proxy and did not receive a timely response from the upstream server.';
 }

@@ -25,7 +25,7 @@ use Friendica\Network\HTTPException;
 
 class InternalServerErrorException extends HTTPException
 {
-	protected $code  = 500;
-	var $httpdesc    = 'Internal Server Error';
-	var $explanation = 'An unexpected condition was encountered and no more specific message is suitable.';
+	protected $code        = 500;
+	protected $httpdesc    = 'Internal Server Error';
+	protected $explanation = 'An unexpected condition was encountered and no more specific message is suitable.';
 }

@@ -45,8 +45,8 @@ class HTTPException
 	{
 		// Explanations are mostly taken from https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 		$vars = [
-			'$title' => $e->httpdesc ?: 'Error ' . $e->getCode(),
-			'$message' => $e->getMessage() ?: $e->explanation,
+			'$title' => $e->getDescription() ?: 'Error ' . $e->getCode(),
+			'$message' => $e->getMessage() ?: $e->getExplanation(),
 			'$back' => DI::l10n()->t('Go back'),
 			'$stack_trace' => DI::l10n()->t('Stack trace:'),
 		];
@@ -74,7 +74,7 @@ class HTTPException
 			$content = Renderer::replaceMacros($tpl, self::getVars($e));
 		}
 
-		System::httpExit($e->getCode(), $e->httpdesc, $content);
+		System::httpExit($e->getCode(), $e->getDescription(), $content);
 	}
 
 	/**
@@ -86,10 +86,10 @@ class HTTPException
 	 */
 	public static function content(\Friendica\Network\HTTPException $e)
 	{
-		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $e->getCode() . ' ' . $e->httpdesc);
+		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $e->getCode() . ' ' . $e->getDescription());
 
 		if ($e->getCode() >= 400) {
-			Logger::debug('Exit with error', ['code' => $e->getCode(), 'description' => $e->httpdesc, 'query' => DI::args()->getQueryString(), 'callstack' => System::callstack(20), 'method' => $_SERVER['REQUEST_METHOD'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			Logger::debug('Exit with error', ['code' => $e->getCode(), 'description' => $e->getDescription(), 'query' => DI::args()->getQueryString(), 'callstack' => System::callstack(20), 'method' => $_SERVER['REQUEST_METHOD'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
 
 		$tpl = Renderer::getMarkupTemplate('exception.tpl');

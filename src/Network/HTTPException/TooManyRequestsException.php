@@ -25,7 +25,7 @@ use Friendica\Network\HTTPException;
 
 class TooManyRequestsException extends HTTPException
 {
-	protected $code  = 429;
-	var $httpdesc    = 'Too Many Requests';
-	var $explanation = 'The user has sent too many requests in a given amount of time.';
+	protected $code        = 429;
+	protected $httpdesc    = 'Too Many Requests';
+	protected $explanation = 'The user has sent too many requests in a given amount of time.';
 }

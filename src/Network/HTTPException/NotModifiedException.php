@@ -25,6 +25,6 @@ use Friendica\Network\HTTPException;
 
 class NotModifiedException extends HTTPException
 {
-	protected $code = 304;
-	var $httpdesc   = 'Not Modified';
+	protected $code     = 304;
+	protected $httpdesc = 'Not Modified';
 }

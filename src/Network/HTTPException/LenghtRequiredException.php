@@ -25,7 +25,7 @@ use Friendica\Network\HTTPException;
 
 class LenghtRequiredException extends HTTPException
 {
-	protected $code  = 411;
-	var $httpdesc    = 'Length Required';
-	var $explanation = 'The request did not specify the length of its content, which is required by the requested resource.';
+	protected $code        = 411;
+	protected $httpdesc    = 'Length Required';
+	protected $explanation = 'The request did not specify the length of its content, which is required by the requested resource.';
 }
