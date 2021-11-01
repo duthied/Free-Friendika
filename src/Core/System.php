@@ -221,6 +221,7 @@ class System
 			$this->logger->warning('We got no resource for command.', ['command' => $cmdline]);
 			return;
 		}
+
 		proc_close($resource);
 
 		$this->logger->info('Executed "proc_open"', ['command' => $cmdline, 'callstack' => System::callstack(10)]);
