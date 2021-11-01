@@ -588,14 +588,6 @@ class App
 				throw new HTTPException\InternalServerErrorException('Apologies but the website is unavailable at the moment.');
 			}
 
-			// Max Load Average reached: ERROR
-			if ($this->system->isMaxProcessesReached() || $this->system->isMaxLoadReached()) {
-				header('Retry-After: 120');
-				header('Refresh: 120; url=' . $this->baseURL->get() . "/" . $this->args->getQueryString());
-
-				throw new HTTPException\ServiceUnavailableException('The node is currently overloaded. Please try again later.');
-			}
-
 			if (!$this->mode->isInstall()) {
 				// Force SSL redirection
 				if ($this->baseURL->checkRedirectHttps()) {

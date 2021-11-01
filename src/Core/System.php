@@ -43,11 +43,6 @@ class System
 	private $logger;
 
 	/**
-	 * @var App\Mode
-	 */
-	private $mode;
-
-	/**
 	 * @var IManageConfigValues
 	 */
 	private $config;
@@ -57,10 +52,9 @@ class System
 	 */
 	private $basePath;
 
-	public function __construct(LoggerInterface $logger, App\Mode $mode, IManageConfigValues $config, string $basepath)
+	public function __construct(LoggerInterface $logger, IManageConfigValues $config, string $basepath)
 	{
 		$this->logger   = $logger;
-		$this->mode     = $mode;
 		$this->config   = $config;
 		$this->basePath = $basepath;
 	}
@@ -156,24 +150,15 @@ class System
 	 */
 	public function isMaxLoadReached(): bool
 	{
-		if ($this->mode->isBackend()) {
-			$process    = 'backend';
-			$maxsysload = intval($this->config->get('system', 'maxloadavg'));
-			if ($maxsysload < 1) {
-				$maxsysload = 50;
-			}
-		} else {
-			$process    = 'frontend';
-			$maxsysload = intval($this->config->get('system', 'maxloadavg_frontend'));
-			if ($maxsysload < 1) {
-				$maxsysload = 50;
-			}
+		$maxsysload = intval($this->config->get('system', 'maxloadavg'));
+		if ($maxsysload < 1) {
+			$maxsysload = 50;
 		}
 
 		$load = System::currentLoad();
 		if ($load) {
 			if (intval($load) > $maxsysload) {
-				$this->logger->warning('system load for process too high.', ['load' => $load, 'process' => $process, 'maxsysload' => $maxsysload]);
+				$this->logger->warning('system load for process too high.', ['load' => $load, 'process' => 'backend', 'maxsysload' => $maxsysload]);
 				return true;
 			}
 		}

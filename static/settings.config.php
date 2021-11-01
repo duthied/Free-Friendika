@@ -148,10 +148,6 @@ return [
 		// Maximum system load before delivery and poll processes are deferred.
 		'maxloadavg' => 20,
 
-		// maxloadavg_frontend (Integer)
-		// Maximum system load before the frontend quits service - default 50.
-		'maxloadavg_frontend' => 50,
-
 		// min_memory (Integer)
 		// Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).
 		'min_memory' => 0,
