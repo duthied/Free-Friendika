@@ -1183,7 +1183,7 @@ class Worker
 		DBA::connect();
 
 		DI::flushLogger();
-		$process = DI::process()->create(getmypid());
+		$process = DI::process()->create(getmypid(), basename(__FILE__));
 
 		$cycles = 0;
 		while (!self::IPCJobsExists($process->pid) && (++$cycles < 100)) {

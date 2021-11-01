@@ -47,22 +47,18 @@ class Process extends BaseRepository
 	/**
 	 * Starts and Returns the process for a given PID
 	 *
-	 * @param int $pid
+	 * @param int    $pid
+	 * @param string $command
 	 *
 	 * @return Entity\Process
 	 */
-	public function create(int $pid): Entity\Process
+	public function create(int $pid, string $command): Entity\Process
 	{
 		// Cleanup inactive process
 		$this->deleteInactive();
 
 		try {
 			$this->db->transaction();
-
-			$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-			$last  = $trace[count($trace) - 1];
-
-			$command = strtolower(basename($last['file']));
 
 			$newProcess = $this->factory->create($pid, $command);
 
@@ -114,10 +110,10 @@ class Process extends BaseRepository
 				}
 			}
 			$this->db->close($processes);
-		} catch (\Exception $exception) {
-			throw new ProcessPersistenceException('Cannot delete inactive process', $exception);
-		} finally {
 			$this->db->commit();
+		} catch (\Exception $exception) {
+			$this->db->rollback();
+			throw new ProcessPersistenceException('Cannot delete inactive process', $exception);
 		}
 	}
 

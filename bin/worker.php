@@ -81,7 +81,7 @@ if ($spawn) {
 
 $run_cron = !array_key_exists('n', $options) && !array_key_exists('no_cron', $options);
 
-$process = DI::process()->create(getmypid());
+$process = DI::process()->create(getmypid(), basename(__FILE__));
 
 Worker::processQueue($run_cron, $process);
 
