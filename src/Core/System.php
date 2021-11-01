@@ -106,6 +106,12 @@ class System
 	 */
 	public function isMinMemoryReached(): bool
 	{
+		// Deactivated, needs more investigating if this check really makes sense
+		return false;
+
+		/*
+		 * Commented out to suppress static analyzer issues
+		 *
 		$min_memory = $this->config->get('system', 'min_memory', 0);
 		if ($min_memory == 0) {
 			return false;
@@ -141,6 +147,7 @@ class System
 		}
 
 		return $reached;
+		 */
 	}
 
 	/**
