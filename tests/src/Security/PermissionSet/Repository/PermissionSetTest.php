@@ -105,7 +105,7 @@ class PermissionSetTest extends FixtureTest
 					[
 						'uid'       => 42,
 						'allow_cid' => '',
-						'allow_gid' => '<<>>',
+						'allow_gid' => '',
 						'deny_cid'  => '',
 						'deny_gid'  => '',
 					],
@@ -155,7 +155,7 @@ class PermissionSetTest extends FixtureTest
 					[
 						'uid'       => 42,
 						'allow_cid' => '',
-						'allow_gid' => '<<>>',
+						'allow_gid' => '',
 						'deny_cid'  => '',
 						'deny_gid'  => '',
 					],
@@ -247,7 +247,7 @@ class PermissionSetTest extends FixtureTest
 					[
 						'uid'       => 42,
 						'allow_cid' => '',
-						'allow_gid' => '<<>>',
+						'allow_gid' => '',
 						'deny_cid'  => '',
 						'deny_gid'  => '<2>',
 					],
