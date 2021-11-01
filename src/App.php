@@ -327,7 +327,7 @@ class App
 	 * @param Profiler                    $profiler The profiler of this application
 	 * @param L10n                        $l10n     The translator instance
 	 * @param App\Arguments               $args     The Friendica Arguments of the call
-	 * @param Core\System     $system   The system methods
+	 * @param Core\System                 $system   The system methods
 	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
 	 */
 	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\System $system, IManagePersonalConfigValues $pConfig)
