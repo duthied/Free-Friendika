@@ -22,7 +22,6 @@
 namespace Friendica\Core;
 
 use Friendica\DI;
-use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\FoundException;
 use Friendica\Network\HTTPException\MovedPermanentlyException;
 use Friendica\Network\HTTPException\TemporaryRedirectException;
@@ -229,13 +228,12 @@ class System
 	 *
 	 * @param string $url  The new Location to redirect
 	 * @param int    $code The redirection code, which is used (Default is 302)
-	 *
-	 * @throws BadRequestException If the URL is not fully qualified
 	 */
 	public static function externalRedirect($url, $code = 302)
 	{
 		if (empty(parse_url($url, PHP_URL_SCHEME))) {
-			throw new BadRequestException("'$url' is not a fully qualified URL, please use App->internalRedirect() instead");
+			Logger::warning('No fully qualified URL provided', ['url' => $url, 'callstack' => self::callstack(20)]);
+			DI::baseUrl()->redirect($url);
 		}
 
 		header("Location: $url");
