@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-23 21:51-0400\n"
-"PO-Revision-Date: 2021-10-24 13:04+0000\n"
+"POT-Creation-Date: 2021-10-27 20:01+0200\n"
+"PO-Revision-Date: 2021-11-01 05:59+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -2129,11 +2129,11 @@ msgid ""
 "your site allow private mail from unknown senders."
 msgstr "Wenn du möchtest, dass %s dir antworten kann, überprüfe deine Privatsphären-Einstellungen und erlaube private Nachrichten von unbekannten Absendern."
 
-#: src/App.php:456
+#: src/App.php:455
 msgid "No system theme config value set."
 msgstr "Es wurde kein Konfigurationswert für das systemweite Theme gesetzt."
 
-#: src/App/Module.php:240
+#: src/App/Module.php:241
 msgid "You must be logged in to use addons. "
 msgstr "Du musst angemeldet sein, um Addons benutzen zu können."
 
@@ -3923,6 +3923,20 @@ msgstr "Die Template Engine kann nicht ohne einen Namen registriert werden."
 msgid "template engine is not registered!"
 msgstr "Template Engine wurde nicht registriert!"
 
+#: src/Core/Storage/Type/FilesystemConfig.php:78
+msgid "Storage base path"
+msgstr "Dateipfad zum Speicher"
+
+#: src/Core/Storage/Type/FilesystemConfig.php:80
+msgid ""
+"Folder where uploaded files are saved. For maximum security, This should be "
+"a path outside web server folder tree"
+msgstr "Verzeichnis, in das Dateien hochgeladen werden. Für maximale Sicherheit sollte dies ein Pfad außerhalb der Webserver-Verzeichnisstruktur sein"
+
+#: src/Core/Storage/Type/FilesystemConfig.php:93
+msgid "Enter a valid existing folder"
+msgstr "Gib einen gültigen, existierenden Ordner ein"
+
 #: src/Core/Update.php:67
 #, php-format
 msgid ""
@@ -4168,10 +4182,9 @@ msgstr "Eingeschränktes Profil. Diese Person wird keine direkten/privaten Nachr
 msgid "Unable to retrieve contact information."
 msgstr "Konnte die Kontaktinformationen nicht empfangen."
 
-#: src/Model/Event.php:52 src/Model/Event.php:853
-#: src/Module/Debug/Localtime.php:38
-msgid "l F d, Y \\@ g:i A"
-msgstr "l, d. F Y\\, H:i"
+#: src/Model/Event.php:52
+msgid "l F d, Y \\@ g:i A \\G\\M\\TP (e)"
+msgstr "l F d, Y \\@ g:i A \\G\\M\\TP (e)"
 
 #: src/Model/Event.php:73 src/Model/Event.php:90 src/Model/Event.php:464
 #: src/Model/Event.php:897
@@ -4210,6 +4223,10 @@ msgstr "Veranstaltung kopieren"
 #: src/Model/Event.php:611
 msgid "Delete event"
 msgstr "Veranstaltung löschen"
+
+#: src/Model/Event.php:853 src/Module/Debug/Localtime.php:38
+msgid "l F d, Y \\@ g:i A"
+msgstr "l, d. F Y\\, H:i"
 
 #: src/Model/Event.php:854
 msgid "D g:i A"
@@ -4455,20 +4472,6 @@ msgstr "Schule/Ausbildung"
 msgid "Contact information and Social Networks"
 msgstr "Kontaktinformationen und Soziale Netzwerke"
 
-#: src/Model/Storage/FilesystemConfig.php:77
-msgid "Storage base path"
-msgstr "Dateipfad zum Speicher"
-
-#: src/Model/Storage/FilesystemConfig.php:79
-msgid ""
-"Folder where uploaded files are saved. For maximum security, This should be "
-"a path outside web server folder tree"
-msgstr "Verzeichnis, in das Dateien hochgeladen werden. Für maximale Sicherheit sollte dies ein Pfad außerhalb der Webserver-Verzeichnisstruktur sein"
-
-#: src/Model/Storage/FilesystemConfig.php:92
-msgid "Enter a valid existing folder"
-msgstr "Gib einen gültigen, existierenden Ordner ein"
-
 #: src/Model/User.php:208 src/Model/User.php:1050
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr "FATALER FEHLER: Sicherheitsschlüssel konnten nicht erzeugt werden."
@@ -4516,13 +4519,13 @@ msgstr "Die Einladung konnte nicht überprüft werden."
 msgid "Invalid OpenID url"
 msgstr "Ungültige OpenID URL"
 
-#: src/Model/User.php:962 src/Security/Authentication.php:223
+#: src/Model/User.php:962 src/Security/Authentication.php:224
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr "Beim Versuch, dich mit der von dir angegebenen OpenID anzumelden, trat ein Problem auf. Bitte überprüfe, dass du die OpenID richtig geschrieben hast."
 
-#: src/Model/User.php:962 src/Security/Authentication.php:223
+#: src/Model/User.php:962 src/Security/Authentication.php:224
 msgid "The error message was:"
 msgstr "Die Fehlermeldung lautete:"
 
@@ -8546,21 +8549,21 @@ msgstr "Entfernte Privatsphäreneinstellungen nicht verfügbar."
 msgid "Visible to:"
 msgstr "Sichtbar für:"
 
-#: src/Module/Photo.php:122
+#: src/Module/Photo.php:123
 msgid "The Photo is not available."
 msgstr "Das Foto ist nicht verfügbar."
 
-#: src/Module/Photo.php:135
+#: src/Module/Photo.php:136
 #, php-format
 msgid "The Photo with id %s is not available."
 msgstr "Das Bild mit ID %s ist nicht verfügbar."
 
-#: src/Module/Photo.php:168
+#: src/Module/Photo.php:169
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr "Ungültige externe Ressource mit der URL %s"
 
-#: src/Module/Photo.php:170
+#: src/Module/Photo.php:171
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr "Fehlerhaftes Foto mit der ID %s."
@@ -10624,20 +10627,20 @@ msgstr "wird nicht mehr gefolgt"
 msgid "The folder view/smarty3/ must be writable by webserver."
 msgstr "Das Verzeichnis view/smarty3/ muss für den Web-Server beschreibbar sein."
 
-#: src/Security/Authentication.php:209
+#: src/Security/Authentication.php:210
 msgid "Login failed."
 msgstr "Anmeldung fehlgeschlagen."
 
-#: src/Security/Authentication.php:250
+#: src/Security/Authentication.php:251
 msgid "Login failed. Please check your credentials."
 msgstr "Anmeldung fehlgeschlagen. Bitte überprüfe deine Angaben."
 
-#: src/Security/Authentication.php:348
+#: src/Security/Authentication.php:349
 #, php-format
 msgid "Welcome %s"
 msgstr "Willkommen %s"
 
-#: src/Security/Authentication.php:349
+#: src/Security/Authentication.php:350
 msgid "Please upload a profile photo."
 msgstr "Bitte lade ein Profilbild hoch."
 
