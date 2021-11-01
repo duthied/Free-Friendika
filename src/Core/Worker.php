@@ -52,7 +52,7 @@ class Worker
 	private static $last_update;
 	private static $state;
 	private static $daemon_mode = null;
-	/** @var Worker\Entity\Process */
+	/** @var Process */
 	private static $process;
 
 	/**
