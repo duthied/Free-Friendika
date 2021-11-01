@@ -216,6 +216,7 @@ class System
 		} else {
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->basePath);
 		}
+
 		if (!is_resource($resource)) {
 			$this->logger->warning('We got no resource for command.', ['command' => $cmdline]);
 			return;
