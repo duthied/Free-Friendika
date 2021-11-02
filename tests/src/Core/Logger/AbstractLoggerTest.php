@@ -157,7 +157,7 @@ abstract class AbstractLoggerTest extends MockedTest
 
 		self::assertLogline($text);
 
-		self::assertStringContainsString(@json_encode($context), $text);
+		self::assertStringContainsString(@json_encode($context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), $text);
 	}
 
 	/**
@@ -176,7 +176,7 @@ abstract class AbstractLoggerTest extends MockedTest
 
 		self::assertLogline($text);
 
-		self::assertStringContainsString(@json_encode($assertion), $this->getContent());
+		self::assertStringContainsString(@json_encode($assertion, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), $this->getContent());
 	}
 
 	public function testNoObjectHandling()
