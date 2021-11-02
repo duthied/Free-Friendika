@@ -23,7 +23,7 @@ namespace Friendica\Database;
 
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\System;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
 use mysqli;
@@ -520,7 +520,7 @@ class Database
 		$called_from_e = ($called_from['function'] == 'e');
 
 		if (!isset($this->connection)) {
-			throw new InternalServerErrorException('The Connection is empty, although connected is set true.');
+			throw new ServiceUnavailableException('The Connection is empty, although connected is set true.');
 		}
 
 		switch ($this->driver) {

@@ -23,7 +23,7 @@ namespace Friendica\Core;
 
 use Exception;
 use Friendica\DI;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Render\TemplateEngine;
 
 /**
@@ -69,7 +69,7 @@ class Renderer
 	 * @param string $template
 	 * @param array  $vars
 	 * @return string
-	 * @throws InternalServerErrorException
+	 * @throws ServiceUnavailableException
 	 */
 	public static function replaceMacros(string $template, array $vars = [])
 	{
@@ -87,7 +87,7 @@ class Renderer
 			$message = is_site_admin() ?
 				$e->getMessage() :
 				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
-			throw new InternalServerErrorException($message);
+			throw new ServiceUnavailableException($message);
 		}
 
 		DI::profiler()->stopRecording();
@@ -102,7 +102,7 @@ class Renderer
 	 * @param string $subDir Subdirectory (Optional)
 	 *
 	 * @return string template.
-	 * @throws InternalServerErrorException
+	 * @throws ServiceUnavailableException
 	 */
 	public static function getMarkupTemplate($file, $subDir = '')
 	{
@@ -116,7 +116,7 @@ class Renderer
 			$message = is_site_admin() ?
 				$e->getMessage() :
 				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
-			throw new InternalServerErrorException($message);
+			throw new ServiceUnavailableException($message);
 		}
 
 		DI::profiler()->stopRecording();
@@ -128,7 +128,7 @@ class Renderer
 	 * Register template engine class
 	 *
 	 * @param string $class
-	 * @throws InternalServerErrorException
+	 * @throws ServiceUnavailableException
 	 */
 	public static function registerTemplateEngine($class)
 	{
@@ -143,7 +143,7 @@ class Renderer
 			$message = is_site_admin() ?
 				$admin_message :
 				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
-			throw new InternalServerErrorException($message);
+			throw new ServiceUnavailableException($message);
 		}
 	}
 
@@ -154,7 +154,7 @@ class Renderer
 	 * or default
 	 *
 	 * @return TemplateEngine Template Engine instance
-	 * @throws InternalServerErrorException
+	 * @throws ServiceUnavailableException
 	 */
 	public static function getTemplateEngine()
 	{
@@ -177,7 +177,7 @@ class Renderer
 		$message = is_site_admin() ?
 			$admin_message :
 			DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
-		throw new InternalServerErrorException($message);
+		throw new ServiceUnavailableException($message);
 	}
 
 	/**

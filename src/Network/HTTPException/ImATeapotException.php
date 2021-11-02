@@ -25,6 +25,7 @@ use Friendica\Network\HTTPException;
 
 class ImATeapotException extends HTTPException
 {
-	protected $code = 418;
-	var $httpdesc = "I'm A Teapot";
+	protected $code        = 418;
+	protected $httpdesc    = "I'm A Teapot";
+	protected $explanation = 'This is a teapot that is requested to brew coffee.';
 }

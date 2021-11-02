@@ -25,5 +25,7 @@ use Friendica\Network\HTTPException;
 
 class ServiceUnavailableException extends HTTPException
 {
-	protected $code = 503;
+	protected $code        = 503;
+	protected $httpdesc    = 'Service Unavailable';
+	protected $explanation = 'The server is currently unavailable (because it is overloaded or down for maintenance). Please try again later.';
 }

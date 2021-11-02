@@ -25,5 +25,6 @@ use Friendica\Network\HTTPException;
 
 class AcceptedException extends HTTPException
 {
-	protected $code = 202;
+	protected $code     = 202;
+	protected $httpdesc = 'Accepted';
 }

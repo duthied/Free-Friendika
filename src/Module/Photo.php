@@ -33,6 +33,7 @@ use Friendica\Core\Storage\Type\ExternalResource;
 use Friendica\Core\Storage\Type\SystemResource;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\NotModifiedException;
 use Friendica\Object\Image;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
@@ -55,7 +56,6 @@ class Photo extends BaseModule
 		$totalstamp = microtime(true);
 
 		if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
-			header("HTTP/1.1 304 Not Modified");
 			header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
 			if (!empty($_SERVER["HTTP_IF_NONE_MATCH"])) {
 				header("Etag: " . $_SERVER["HTTP_IF_NONE_MATCH"]);
@@ -67,7 +67,7 @@ class Photo extends BaseModule
 				header_remove("Expires");
 				header_remove("Cache-Control");
 			}
-			exit;
+			throw new NotModifiedException();
 		}
 
 		Profile::addVisitorCookieForHTTPSigner();

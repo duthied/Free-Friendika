@@ -693,7 +693,7 @@ class Notifier
 	private static function notifySelfRemoval($self_user_id, $priority, $created)
 	{
 		$owner = User::getOwnerDataById($self_user_id);
-		if (!$owner) {
+		if (empty($self_user_id) || empty($owner)) {
 			return false;
 		}
 

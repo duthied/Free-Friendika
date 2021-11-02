@@ -25,5 +25,6 @@ use Friendica\Network\HTTPException;
 
 class OKException extends HTTPException
 {
-	protected $code = 200;
+	protected $code     = 200;
+	protected $httpdesc = 'OK';
 }

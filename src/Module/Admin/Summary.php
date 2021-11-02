@@ -32,8 +32,7 @@ use Friendica\DI;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Model\Register;
 use Friendica\Module\BaseAdmin;
-use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Core\Config\Util\ConfigFileLoader;
+use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Util\DateTimeFormat;
 
 class Summary extends BaseAdmin
@@ -129,7 +128,7 @@ class Summary extends BaseAdmin
 				$stream = $fileSystem->createStream($file);
 
 				if (!isset($stream)) {
-					throw new InternalServerErrorException('Stream is null.');
+					throw new ServiceUnavailableException('Stream is null.');
 				}
 
 			} catch (\Throwable $exception) {
@@ -143,7 +142,7 @@ class Summary extends BaseAdmin
 					$stream = $fileSystem->createStream($file);
 
 					if (!isset($stream)) {
-						throw new InternalServerErrorException('Stream is null.');
+						throw new ServiceUnavailableException('Stream is null.');
 					}
 				}
 			} catch (\Throwable $exception) {

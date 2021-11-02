@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-27 20:01+0200\n"
+"POT-Creation-Date: 2021-10-31 05:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,21 +18,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-#: include/api.php:1113 src/Module/BaseApi.php:294
+#: include/api.php:1111 src/Module/BaseApi.php:294
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: include/api.php:1127 src/Module/BaseApi.php:310
+#: include/api.php:1125 src/Module/BaseApi.php:310
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: include/api.php:1141 src/Module/BaseApi.php:326
+#: include/api.php:1139 src/Module/BaseApi.php:326
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
@@ -157,9 +157,8 @@ msgid "calendar"
 msgstr ""
 
 #: mod/display.php:165 mod/photos.php:811
-#: src/Module/Conversation/Community.php:176 src/Module/Debug/Probe.php:39
-#: src/Module/Debug/WebFinger.php:38 src/Module/Directory.php:49
-#: src/Module/Search/Index.php:50 src/Module/Search/Index.php:55
+#: src/Module/Conversation/Community.php:176 src/Module/Directory.php:49
+#: src/Module/Search/Index.php:50
 msgid "Public access denied."
 msgstr ""
 
@@ -180,7 +179,7 @@ msgid "Edit post"
 msgstr ""
 
 #: mod/editpost.php:91 mod/notes.php:56 src/Content/Text/HTML.php:885
-#: src/Module/Admin/Storage.php:143 src/Module/Filer/SaveTag.php:69
+#: src/Module/Admin/Storage.php:142 src/Module/Filer/SaveTag.php:69
 msgid "Save"
 msgstr ""
 
@@ -343,7 +342,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Server.php:80
 #: src/Module/Admin/Blocklist/Server.php:99
 #: src/Module/Admin/Blocklist/Server.php:100
-#: src/Module/Admin/Item/Delete.php:70 src/Module/Debug/Probe.php:61
+#: src/Module/Admin/Item/Delete.php:70 src/Module/Debug/Probe.php:59
 #: src/Module/Install.php:200 src/Module/Install.php:233
 #: src/Module/Install.php:238 src/Module/Install.php:257
 #: src/Module/Install.php:268 src/Module/Install.php:273
@@ -392,7 +391,7 @@ msgstr ""
 #: src/Module/Contact/Advanced.php:133 src/Module/Contact/Poke.php:158
 #: src/Module/Debug/ActivityPubConversion.php:141
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
-#: src/Module/Debug/Probe.php:56 src/Module/Debug/WebFinger.php:53
+#: src/Module/Debug/Probe.php:54 src/Module/Debug/WebFinger.php:51
 #: src/Module/Delegation.php:147 src/Module/FriendSuggest.php:128
 #: src/Module/Install.php:245 src/Module/Install.php:287
 #: src/Module/Install.php:324 src/Module/Invite.php:177
@@ -2091,7 +2090,7 @@ msgstr ""
 msgid "No system theme config value set."
 msgstr ""
 
-#: src/App/Module.php:241
+#: src/App/Module.php:242
 msgid "You must be logged in to use addons. "
 msgstr ""
 
@@ -2791,7 +2790,7 @@ msgstr ""
 msgid "Nothing new here"
 msgstr ""
 
-#: src/Content/Nav.php:94 src/Module/Special/HTTPException.php:75
+#: src/Content/Nav.php:94 src/Module/Special/HTTPException.php:50
 msgid "Go back"
 msgstr ""
 
@@ -2902,7 +2901,7 @@ msgid "Addon applications, utilities, games"
 msgstr ""
 
 #: src/Content/Nav.php:230 src/Content/Text/HTML.php:891
-#: src/Module/Admin/Logs/View.php:86 src/Module/Search/Index.php:99
+#: src/Module/Admin/Logs/View.php:86 src/Module/Search/Index.php:97
 msgid "Search"
 msgstr ""
 
@@ -4041,7 +4040,6 @@ msgid "Unprocessable Entity"
 msgstr ""
 
 #: src/Factory/Api/Mastodon/Error.php:75
-#: src/Module/Special/HTTPException.php:50
 msgid "Unauthorized"
 msgstr ""
 
@@ -4051,7 +4049,6 @@ msgid ""
 msgstr ""
 
 #: src/Factory/Api/Mastodon/Error.php:95
-#: src/Module/Special/HTTPException.php:53
 msgid "Internal Server Error"
 msgstr ""
 
@@ -4388,7 +4385,7 @@ msgstr ""
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:988 src/Module/Admin/Summary.php:234
+#: src/Model/Profile.php:988 src/Module/Admin/Summary.php:233
 msgid "Summary"
 msgstr ""
 
@@ -4711,8 +4708,8 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Server.php:88 src/Module/Admin/Federation.php:159
 #: src/Module/Admin/Item/Delete.php:65 src/Module/Admin/Logs/Settings.php:80
 #: src/Module/Admin/Logs/View.php:83 src/Module/Admin/Queue.php:72
-#: src/Module/Admin/Site.php:499 src/Module/Admin/Storage.php:139
-#: src/Module/Admin/Summary.php:233 src/Module/Admin/Themes/Details.php:90
+#: src/Module/Admin/Site.php:499 src/Module/Admin/Storage.php:138
+#: src/Module/Admin/Summary.php:232 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:58
 #: src/Module/Admin/Users/Active.php:136 src/Module/Admin/Users/Blocked.php:137
 #: src/Module/Admin/Users/Create.php:61 src/Module/Admin/Users/Deleted.php:85
@@ -6264,48 +6261,48 @@ msgstr ""
 msgid "Storage backend %s error: %s"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:85 src/Module/Admin/Storage.php:88
+#: src/Module/Admin/Storage.php:84 src/Module/Admin/Storage.php:87
 msgid "Invalid storage backend setting value."
 msgstr ""
 
-#: src/Module/Admin/Storage.php:140
+#: src/Module/Admin/Storage.php:139
 msgid "Current Storage Backend"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:141
+#: src/Module/Admin/Storage.php:140
 msgid "Storage Configuration"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:142 src/Module/BaseAdmin.php:91
+#: src/Module/Admin/Storage.php:141 src/Module/BaseAdmin.php:91
 msgid "Storage"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:144
+#: src/Module/Admin/Storage.php:143
 msgid "Save & Use storage backend"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:145
+#: src/Module/Admin/Storage.php:144
 msgid "Use storage backend"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:146
+#: src/Module/Admin/Storage.php:145
 msgid "Save & Reload"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:147
+#: src/Module/Admin/Storage.php:146
 msgid "This backend doesn't have custom settings"
 msgstr ""
 
-#: src/Module/Admin/Storage.php:150
+#: src/Module/Admin/Storage.php:149
 msgid "Database (legacy)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:54
+#: src/Module/Admin/Summary.php:53
 #, php-format
 msgid "Template engine (%s) error: %s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:58
+#: src/Module/Admin/Summary.php:57
 #, php-format
 msgid ""
 "Your DB still runs with MyISAM tables. You should change the engine type to "
@@ -6316,7 +6313,7 @@ msgid ""
 "automatic conversion.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:63
+#: src/Module/Admin/Summary.php:62
 #, php-format
 msgid ""
 "Your DB still runs with InnoDB tables in the Antelope file format. You "
@@ -6327,7 +6324,7 @@ msgid ""
 "installation for an automatic conversion.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:73
+#: src/Module/Admin/Summary.php:72
 #, php-format
 msgid ""
 "Your table_definition_cache is too low (%d). This can lead to the database "
@@ -6335,39 +6332,39 @@ msgid ""
 "to %d. See <a href=\"%s\">here</a> for more information.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:83
+#: src/Module/Admin/Summary.php:82
 #, php-format
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:92
+#: src/Module/Admin/Summary.php:91
 msgid ""
 "The database update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:96
+#: src/Module/Admin/Summary.php:95
 msgid ""
 "The last update failed. Please run \"php bin/console.php dbstructure update"
 "\" from the command line and have a look at the errors that might appear. "
 "(Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:101
+#: src/Module/Admin/Summary.php:100
 msgid "The worker was never executed. Please check your database structure!"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:103
+#: src/Module/Admin/Summary.php:102
 #, php-format
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please "
 "check your crontab settings."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:108
+#: src/Module/Admin/Summary.php:107
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -6376,7 +6373,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:112
+#: src/Module/Admin/Summary.php:111
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -6385,7 +6382,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:118
+#: src/Module/Admin/Summary.php:117
 #, php-format
 msgid ""
 "<a href=\"%s\">%s</a> is not reachable on your system. This is a severe "
@@ -6393,82 +6390,82 @@ msgid ""
 "href=\"%s\">the installation page</a> for help."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:136
+#: src/Module/Admin/Summary.php:135
 #, php-format
 msgid "The logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:150
+#: src/Module/Admin/Summary.php:149
 #, php-format
 msgid "The debug logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:166
+#: src/Module/Admin/Summary.php:165
 #, php-format
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the "
 "system.basepath from your db to avoid differences."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:174
+#: src/Module/Admin/Summary.php:173
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is wrong and the config file '%s' "
 "isn't used."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:182
+#: src/Module/Admin/Summary.php:181
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:189
+#: src/Module/Admin/Summary.php:188
 msgid "Normal Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:190
+#: src/Module/Admin/Summary.php:189
 msgid "Automatic Follower Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:191
+#: src/Module/Admin/Summary.php:190
 msgid "Public Forum Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:192
+#: src/Module/Admin/Summary.php:191
 msgid "Automatic Friend Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:193
+#: src/Module/Admin/Summary.php:192
 msgid "Blog Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:194
+#: src/Module/Admin/Summary.php:193
 msgid "Private Forum Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:214
+#: src/Module/Admin/Summary.php:213
 msgid "Message queues"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:220
+#: src/Module/Admin/Summary.php:219
 msgid "Server Settings"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:236
+#: src/Module/Admin/Summary.php:235
 msgid "Registered users"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:238
+#: src/Module/Admin/Summary.php:237
 msgid "Pending registrations"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:239
+#: src/Module/Admin/Summary.php:238
 msgid "Version"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:243
+#: src/Module/Admin/Summary.php:242
 msgid "Active addons"
 msgstr ""
 
@@ -7247,7 +7244,7 @@ msgstr ""
 msgid "Search your contacts"
 msgstr ""
 
-#: src/Module/Contact.php:779 src/Module/Search/Index.php:194
+#: src/Module/Contact.php:779 src/Module/Search/Index.php:192
 #, php-format
 msgid "Results for: %s"
 msgstr ""
@@ -7526,8 +7523,8 @@ msgstr ""
 msgid "Hide"
 msgstr ""
 
-#: src/Module/Conversation/Community.php:137 src/Module/Search/Index.php:139
-#: src/Module/Search/Index.php:181
+#: src/Module/Conversation/Community.php:137 src/Module/Search/Index.php:137
+#: src/Module/Search/Index.php:179
 msgid "No results."
 msgstr ""
 
@@ -7836,23 +7833,23 @@ msgstr ""
 msgid "Only logged in users are permitted to perform a probing."
 msgstr ""
 
-#: src/Module/Debug/Probe.php:54
+#: src/Module/Debug/Probe.php:52
 msgid "Probe Diagnostic"
 msgstr ""
 
-#: src/Module/Debug/Probe.php:55
+#: src/Module/Debug/Probe.php:53
 msgid "Output"
 msgstr ""
 
-#: src/Module/Debug/Probe.php:58
+#: src/Module/Debug/Probe.php:56
 msgid "Lookup address"
 msgstr ""
 
-#: src/Module/Debug/WebFinger.php:52
+#: src/Module/Debug/WebFinger.php:50
 msgid "Webfinger Diagnostic"
 msgstr ""
 
-#: src/Module/Debug/WebFinger.php:54
+#: src/Module/Debug/WebFinger.php:52
 msgid "Lookup address:"
 msgstr ""
 
@@ -8793,11 +8790,11 @@ msgstr ""
 msgid "Only logged in users are permitted to perform a search."
 msgstr ""
 
-#: src/Module/Search/Index.php:76
+#: src/Module/Search/Index.php:74
 msgid "Only one search per minute is permitted for not logged in users."
 msgstr ""
 
-#: src/Module/Search/Index.php:192
+#: src/Module/Search/Index.php:190
 #, php-format
 msgid "Items tagged with: %s"
 msgstr ""
@@ -9666,60 +9663,11 @@ msgid ""
 "e.g. Mastodon."
 msgstr ""
 
-#: src/Module/Special/HTTPException.php:49
-msgid "Bad Request"
-msgstr ""
-
 #: src/Module/Special/HTTPException.php:51
-msgid "Forbidden"
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:52
-msgid "Not Found"
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:54
-msgid "Service Unavailable"
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:61
-msgid ""
-"The server cannot or will not process the request due to an apparent client "
-"error."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:62
-msgid "Authentication is required and has failed or has not yet been provided."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:63
-msgid ""
-"The request was valid, but the server is refusing action. The user might not "
-"have the necessary permissions for a resource, or may need an account."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:64
-msgid ""
-"The requested resource could not be found but may be available in the future."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:65
-msgid ""
-"An unexpected condition was encountered and no more specific message is "
-"suitable."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:66
-msgid ""
-"The server is currently unavailable (because it is overloaded or down for "
-"maintenance). Please try again later."
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:76
 msgid "Stack trace:"
 msgstr ""
 
-#: src/Module/Special/HTTPException.php:80
+#: src/Module/Special/HTTPException.php:55
 #, php-format
 msgid "Exception thrown in %s:%d"
 msgstr ""

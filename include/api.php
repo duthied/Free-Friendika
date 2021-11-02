@@ -246,8 +246,6 @@ function api_login(App $a)
 	if (!DBA::isResult($record)) {
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
-		//header('HTTP/1.0 401 Unauthorized');
-		//die('This api requires login');
 		throw new UnauthorizedException("This API requires login");
 	}
 
@@ -373,7 +371,7 @@ function api_call(App $a, App\Arguments $args = null)
 		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString()]);
 		throw new NotFoundException();
 	} catch (HTTPException $e) {
-		header("HTTP/1.1 {$e->getCode()} {$e->httpdesc}");
+		header("HTTP/1.1 {$e->getCode()} {$e->getDescription()}");
 		return api_error($type, $e, $args);
 	}
 }
@@ -388,11 +386,11 @@ function api_call(App $a, App\Arguments $args = null)
  */
 function api_error($type, $e, App\Arguments $args)
 {
-	$error = ($e->getMessage() !== "" ? $e->getMessage() : $e->httpdesc);
+	$error = ($e->getMessage() !== "" ? $e->getMessage() : $e->getDescription());
 	/// @TODO:  https://dev.twitter.com/overview/api/response-codes
 
 	$error = ["error" => $error,
-			"code" => $e->getCode() . " " . $e->httpdesc,
+			"code" => $e->getCode() . " " . $e->getDescription(),
 			"request" => $args->getQueryString()];
 
 	$return = api_format_data('status', $type, ['status' => $error]);

@@ -476,7 +476,7 @@ class HTTPSignature
 	public static function getSigner($content, $http_headers)
 	{
 		if (empty($http_headers['HTTP_SIGNATURE'])) {
-			Logger::info('No HTTP_SIGNATURE header');
+			Logger::debug('No HTTP_SIGNATURE header');
 			return false;
 		}
 

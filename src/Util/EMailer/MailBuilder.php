@@ -27,7 +27,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Model\User;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\UnprocessableEntityException;
 use Friendica\Object\Email;
 use Friendica\Object\EMail\IEmail;
 use Psr\Log\LoggerInterface;
@@ -226,7 +226,7 @@ abstract class MailBuilder
 	 *
 	 * @return IEmail A new generated email
 	 *
-	 * @throws InternalServerErrorException
+	 * @throws UnprocessableEntityException
 	 * @throws Exception
 	 */
 	public function build(bool $raw = false)
@@ -241,11 +241,11 @@ abstract class MailBuilder
 		}
 
 		if (empty($this->recipientAddress)) {
-			throw new InternalServerErrorException('Recipient address is missing.');
+			throw new UnprocessableEntityException('Recipient address is missing.');
 		}
 
 		if (empty($this->senderAddress) || empty($this->senderName)) {
-			throw new InternalServerErrorException('Sender address or name is missing.');
+			throw new UnprocessableEntityException('Sender address or name is missing.');
 		}
 
 		$this->senderNoReply = $this->senderNoReply ?? $this->senderAddress;

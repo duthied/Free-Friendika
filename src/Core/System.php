@@ -22,7 +22,9 @@
 namespace Friendica\Core;
 
 use Friendica\DI;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\FoundException;
+use Friendica\Network\HTTPException\MovedPermanentlyException;
+use Friendica\Network\HTTPException\TemporaryRedirectException;
 use Friendica\Util\XML;
 
 /**
@@ -122,7 +124,9 @@ class System
 	 */
 	public static function httpExit($val, $message = '', $content = '')
 	{
-		Logger::log('http_status_exit ' . $val);
+		if ($val >= 400) {
+			Logger::debug('Exit with error', ['code' => $val, 'message' => $message, 'callstack' => System::callstack(20), 'method' => $_SERVER['REQUEST_METHOD'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+		}
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $message);
 
 		echo $content;
@@ -132,6 +136,9 @@ class System
 
 	public static function jsonError($httpCode, $data, $content_type = 'application/json')
 	{
+		if ($httpCode >= 400) {
+			Logger::debug('Exit with error', ['code' => $httpCode, 'content_type' => $content_type, 'callstack' => System::callstack(20), 'method' => $_SERVER['REQUEST_METHOD'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+		}
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $httpCode);
 		self::jsonExit($data, $content_type);
 	}
@@ -221,29 +228,25 @@ class System
 	 *
 	 * @param string $url  The new Location to redirect
 	 * @param int    $code The redirection code, which is used (Default is 302)
-	 *
-	 * @throws InternalServerErrorException If the URL is not fully qualified
 	 */
 	public static function externalRedirect($url, $code = 302)
 	{
 		if (empty(parse_url($url, PHP_URL_SCHEME))) {
-			throw new InternalServerErrorException("'$url' is not a fully qualified URL, please use App->internalRedirect() instead");
-		}
-
-		switch ($code) {
-			case 302:
-				// this is the default code for a REDIRECT
-				// We don't need a extra header here
-				break;
-			case 301:
-				header('HTTP/1.1 301 Moved Permanently');
-				break;
-			case 307:
-				header('HTTP/1.1 307 Temporary Redirect');
-				break;
+			Logger::warning('No fully qualified URL provided', ['url' => $url, 'callstack' => self::callstack(20)]);
+			DI::baseUrl()->redirect($url);
 		}
 
 		header("Location: $url");
+
+		switch ($code) {
+			case 302:
+				throw new FoundException();
+			case 301:
+				throw new MovedPermanentlyException();
+			case 307:
+				throw new TemporaryRedirectException();
+		}
+
 		exit();
 	}
 

@@ -31,15 +31,21 @@ use Exception;
  */
 abstract class HTTPException extends Exception
 {
-	public $httpdesc = '';
+	protected $httpdesc    = '';
+	protected $explanation = '';
 
 	public function __construct($message = '', Exception $previous = null)
 	{
 		parent::__construct($message, $this->code, $previous);
+	}
 
-		if (empty($this->httpdesc)) {
-			$classname = str_replace('Exception', '', str_replace('Friendica\Network\HTTPException\\', '', get_class($this)));
-			$this->httpdesc = preg_replace("|([a-z])([A-Z])|",'$1 $2', $classname);
-		}
+	public function getDescription()
+	{
+		return $this->httpdesc;
+	}
+
+	public function getExplanation()
+	{
+		return $this->explanation;
 	}
 }

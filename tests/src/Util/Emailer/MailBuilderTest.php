@@ -24,7 +24,7 @@ namespace Friendica\Test\src\Util\Emailer;
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\UnprocessableEntityException;
 use Friendica\Object\EMail\IEmail;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\SampleMailBuilder;
@@ -133,7 +133,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderWithEmptyMail()
 	{
-		$this->expectException(InternalServerErrorException::class);
+		$this->expectException(UnprocessableEntityException::class);
 		$this->expectExceptionMessage("Recipient address is missing.");
 
 		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
@@ -146,7 +146,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderWithEmptySender()
 	{
-		$this->expectException(InternalServerErrorException::class);
+		$this->expectException(UnprocessableEntityException::class);
 		$this->expectExceptionMessage("Sender address or name is missing.");
 
 		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());

@@ -96,7 +96,9 @@ class Receive extends BaseModule
 		if (Diaspora::dispatch($importer, $msg)) {
 			throw new HTTPException\OKException();
 		} else {
-			throw new HTTPException\InternalServerErrorException();
+			// We couldn't process the content.
+			// To avoid the remote system trying again we send the message that we accepted the content.
+			throw new HTTPException\AcceptedException();
 		}
 	}
 

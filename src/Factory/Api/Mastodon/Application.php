@@ -23,7 +23,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
 use Friendica\Database\Database;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\UnprocessableEntityException;
 use Psr\Log\LoggerInterface;
 
 class Application extends BaseFactory
@@ -42,13 +42,13 @@ class Application extends BaseFactory
 	 *
 	 * @return \Friendica\Object\Api\Mastodon\Application
 	 *
-	 * @throws InternalServerErrorException
+	 * @throws UnprocessableEntityException
 	 */
 	public function createFromApplicationId(int $id): \Friendica\Object\Api\Mastodon\Application
 	{
 		$application = $this->dba->selectFirst('application', ['client_id', 'client_secret', 'id', 'name', 'redirect_uri', 'website'], ['id' => $id]);
 		if (!$this->dba->isResult($application)) {
-			throw new InternalServerErrorException(sprintf("ID '%s' not found", $id));
+			throw new UnprocessableEntityException(sprintf("ID '%s' not found", $id));
 		}
 
 		return new \Friendica\Object\Api\Mastodon\Application(
