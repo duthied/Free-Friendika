@@ -20,8 +20,6 @@
  *
  */
 
-use Friendica\Network\HTTPException\ForbiddenException;
-
 if (php_sapi_name() !== 'cli') {
 	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
 	exit();
