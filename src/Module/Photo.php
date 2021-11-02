@@ -289,13 +289,17 @@ class Photo extends BaseModule
 				$mimetext = '';
 				if (!empty($url)) {
 					$mime = ParseUrl::getContentType($url);
-					if (empty($mime) || ($mime[0] != 'image')) {
-						$url = '';
-					} else {
+					if (!empty($mime)) {
 						$mimetext = $mime[0] . '/' . $mime[1];
+					} else {
+						Logger::info('Invalid file', ['url' => $url]);
+					}
+					if (!empty($mimetext) && ($mime[0] != 'image') && ($mimetext != 'application/octet-stream')) {
+						Logger::info('Unexpected Content-Type', ['mime' => $mimetext, 'url' => $url]);
+						$mimetext = '';
 					}
 				}
-				if (empty($url)) {
+				if (empty($mimetext)) {
 					if ($customsize <= Proxy::PIXEL_MICRO) {
 						$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
 					} elseif ($customsize <= Proxy::PIXEL_THUMB) {
