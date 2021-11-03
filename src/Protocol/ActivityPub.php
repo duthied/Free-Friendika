@@ -21,6 +21,7 @@
 
 namespace Friendica\Protocol;
 
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\APContact;
 use Friendica\Model\User;
@@ -80,9 +81,15 @@ class ActivityPub
 	 */
 	public static function isRequest()
 	{
-		return stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') ||
+		$isrequest = stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') ||
 			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') ||
 			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/ld+json');
+
+		if ($isrequest) {
+			Logger::debug('Is AP request', ['accept' => $_SERVER['HTTP_ACCEPT'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+		}
+
+		return $isrequest;
 	}
 
 	/**

@@ -69,17 +69,6 @@ class Receiver
 	const TARGET_GLOBAL = 7;
 
 	/**
-	 * Checks if the web request is done for the AP protocol
-	 *
-	 * @return bool is it AP?
-	 */
-	public static function isRequest()
-	{
-		return stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') ||
-			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/ld+json');
-	}
-
-	/**
 	 * Checks incoming message from the inbox
 	 *
 	 * @param         $body
