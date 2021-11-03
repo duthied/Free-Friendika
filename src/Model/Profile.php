@@ -219,7 +219,7 @@ class Profile
 	{
 		$profile = User::getOwnerDataByNick($nickname);
 		if (empty($profile)) {
-			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
+			Logger::info('profile error: ' . DI::args()->getQueryString());
 			return [];
 		}
 
@@ -706,27 +706,27 @@ class Profile
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($my_url);
 		if (!$cid) {
-			Logger::log('No contact record found for ' . $my_url, Logger::DEBUG);
+			Logger::info('No contact record found for ' . $my_url);
 			return;
 		}
 
 		$contact = DBA::selectFirst('contact',['id', 'url'], ['id' => $cid]);
 
 		if (DBA::isResult($contact) && remote_user() && remote_user() == $contact['id']) {
-			Logger::log('The visitor ' . $my_url . ' is already authenticated', Logger::DEBUG);
+			Logger::info('The visitor ' . $my_url . ' is already authenticated');
 			return;
 		}
 
 		// Avoid endless loops
 		$cachekey = 'zrlInit:' . $my_url;
 		if (DI::cache()->get($cachekey)) {
-			Logger::log('URL ' . $my_url . ' already tried to authenticate.', Logger::DEBUG);
+			Logger::info('URL ' . $my_url . ' already tried to authenticate.');
 			return;
 		} else {
 			DI::cache()->set($cachekey, true, Duration::MINUTE);
 		}
 
-		Logger::log('Not authenticated. Invoking reverse magic-auth for ' . $my_url, Logger::DEBUG);
+		Logger::info('Not authenticated. Invoking reverse magic-auth for ' . $my_url);
 
 		// Remove the "addr" parameter from the destination. It is later added as separate parameter again.
 		$addr_request = 'addr=' . urlencode($addr);
@@ -745,7 +745,7 @@ class Profile
 			// We have to check if the remote server does understand /magic without invoking something
 			$serverret = DI::httpClient()->get($basepath . '/magic');
 			if ($serverret->isSuccess()) {
-				Logger::log('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path, Logger::DEBUG);
+				Logger::info('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path);
 				System::externalRedirect($magic_path);
 			}
 		}
@@ -845,7 +845,7 @@ class Profile
 
 		info(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
 
-		Logger::log('OpenWebAuth: auth success from ' . $visitor['addr'], Logger::DEBUG);
+		Logger::info('OpenWebAuth: auth success from ' . $visitor['addr']);
 	}
 
 	public static function zrl($s, $force = false)

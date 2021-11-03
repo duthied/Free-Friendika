@@ -594,10 +594,10 @@ class Post
 	{
 		$item_id = $item->getId();
 		if (!$item_id) {
-			Logger::log('[ERROR] Post::addChild : Item has no ID!!', Logger::DEBUG);
+			Logger::info('[ERROR] Post::addChild : Item has no ID!!');
 			return false;
 		} elseif ($this->getChild($item->getId())) {
-			Logger::log('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').', Logger::DEBUG);
+			Logger::info('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').');
 			return false;
 		}
 
@@ -696,7 +696,7 @@ class Post
 				return true;
 			}
 		}
-		Logger::log('[WARN] Item::removeChild : Item is not a child (' . $id . ').', Logger::DEBUG);
+		Logger::info('[WARN] Item::removeChild : Item is not a child (' . $id . ').');
 		return false;
 	}
 
@@ -760,7 +760,7 @@ class Post
 	public function getDataValue($name)
 	{
 		if (!isset($this->data[$name])) {
-			// Logger::log('[ERROR] Item::getDataValue : Item has no value name "'. $name .'".', Logger::DEBUG);
+			// Logger::info('[ERROR] Item::getDataValue : Item has no value name "'. $name .'".');
 			return false;
 		}
 
@@ -777,7 +777,7 @@ class Post
 	private function setTemplate($name)
 	{
 		if (empty($this->available_templates[$name])) {
-			Logger::log('[ERROR] Item::setTemplate : Template not available ("' . $name . '").', Logger::DEBUG);
+			Logger::info('[ERROR] Item::setTemplate : Template not available ("' . $name . '").');
 			return false;
 		}
 

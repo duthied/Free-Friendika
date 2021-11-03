@@ -95,7 +95,7 @@ class Thread
 				$this->writable = $writable;
 				break;
 			default:
-				Logger::log('[ERROR] Conversation::setMode : Unhandled mode ('. $mode .').', Logger::DEBUG);
+				Logger::info('[ERROR] Conversation::setMode : Unhandled mode ('. $mode .').');
 				return false;
 				break;
 		}
@@ -156,12 +156,12 @@ class Thread
 		$item_id = $item->getId();
 
 		if (!$item_id) {
-			Logger::log('[ERROR] Conversation::addThread : Item has no ID!!', Logger::DEBUG);
+			Logger::info('[ERROR] Conversation::addThread : Item has no ID!!');
 			return false;
 		}
 
 		if ($this->getParent($item->getId())) {
-			Logger::log('[WARN] Conversation::addThread : Thread already exists ('. $item->getId() .').', Logger::DEBUG);
+			Logger::info('[WARN] Conversation::addThread : Thread already exists ('. $item->getId() .').');
 			return false;
 		}
 
@@ -169,12 +169,12 @@ class Thread
 		 * Only add will be displayed
 		 */
 		if ($item->getDataValue('network') === Protocol::MAIL && local_user() != $item->getDataValue('uid')) {
-			Logger::log('[WARN] Conversation::addThread : Thread is a mail ('. $item->getId() .').', Logger::DEBUG);
+			Logger::info('[WARN] Conversation::addThread : Thread is a mail ('. $item->getId() .').');
 			return false;
 		}
 
 		if ($item->getDataValue('verb') === Activity::LIKE || $item->getDataValue('verb') === Activity::DISLIKE) {
-			Logger::log('[WARN] Conversation::addThread : Thread is a (dis)like ('. $item->getId() .').', Logger::DEBUG);
+			Logger::info('[WARN] Conversation::addThread : Thread is a (dis)like ('. $item->getId() .').');
 			return false;
 		}
 
@@ -208,7 +208,7 @@ class Thread
 			$item_data = $item->getTemplateData($conv_responses, $formSecurityToken);
 
 			if (!$item_data) {
-				Logger::log('[ERROR] Conversation::getTemplateData : Failed to get item template data ('. $item->getId() .').', Logger::DEBUG);
+				Logger::info('[ERROR] Conversation::getTemplateData : Failed to get item template data ('. $item->getId() .').');
 				return false;
 			}
 			$result[] = $item_data;

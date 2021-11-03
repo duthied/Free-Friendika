@@ -102,7 +102,7 @@ class System
 		}
 
 		if ($st) {
-			Logger::log('xml_status returning non_zero: ' . $st . " message=" . $message);
+			Logger::notice('xml_status returning non_zero: ' . $st . " message=" . $message);
 		}
 
 		header("Content-type: text/xml");
@@ -278,27 +278,27 @@ class System
 	public static function isDirectoryUsable($directory, $check_writable = true)
 	{
 		if ($directory == '') {
-			Logger::log('Directory is empty. This shouldn\'t happen.', Logger::DEBUG);
+			Logger::info('Directory is empty. This shouldn\'t happen.');
 			return false;
 		}
 
 		if (!file_exists($directory)) {
-			Logger::log('Path "' . $directory . '" does not exist for user ' . static::getUser(), Logger::DEBUG);
+			Logger::info('Path "' . $directory . '" does not exist for user ' . static::getUser());
 			return false;
 		}
 
 		if (is_file($directory)) {
-			Logger::log('Path "' . $directory . '" is a file for user ' . static::getUser(), Logger::DEBUG);
+			Logger::info('Path "' . $directory . '" is a file for user ' . static::getUser());
 			return false;
 		}
 
 		if (!is_dir($directory)) {
-			Logger::log('Path "' . $directory . '" is not a directory for user ' . static::getUser(), Logger::DEBUG);
+			Logger::info('Path "' . $directory . '" is not a directory for user ' . static::getUser());
 			return false;
 		}
 
 		if ($check_writable && !is_writable($directory)) {
-			Logger::log('Path "' . $directory . '" is not writable for user ' . static::getUser(), Logger::DEBUG);
+			Logger::info('Path "' . $directory . '" is not writable for user ' . static::getUser());
 			return false;
 		}
 
