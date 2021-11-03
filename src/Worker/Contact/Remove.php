@@ -29,19 +29,21 @@ use Friendica\Database\DBA;
  */
 class Remove extends RemoveContent
 {
-	public static function execute(int $id): array
+	public static function execute(int $id): bool
 	{
-		$contact = parent::execute($id);
+		// Only delete if the contact is to be deleted
+		$contact = DBA::selectFirst('contact', ['id', 'uid', 'url', 'nick', 'name'], ['deleted' => true, 'id' => $id]);
+		if (!DBA::isResult($contact)) {
+			return false;
+		}
 
-		if (!empty($contact)) {
-			return [];
+		if (!parent::execute($id)) {
+			return false;
 		}
 
 		$ret = DBA::delete('contact', ['id' => $id]);
 		Logger::info('Deleted contact', ['id' => $id, 'result' => $ret]);
 
-		$contact['id'] = null;
-
-		return $contact;
+		return true;
 	}
 }

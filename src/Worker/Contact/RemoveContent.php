@@ -33,19 +33,13 @@ use Friendica\Model\Post;
  */
 class RemoveContent
 {
-	public static function execute(int $id): array
+	public static function execute(int $id): bool
 	{
 		if (empty($id)) {
-			return [];
+			return false;
 		}
 
-		// Only delete if the contact is to be deleted
-		$contact = DBA::selectFirst('contact', ['id', 'uid', 'url', 'nick', 'name'], ['deleted' => true, 'id' => $id]);
-		if (!DBA::isResult($contact)) {
-			return [];
-		}
-
-		Logger::info('Start deleting contact content', ['contact' => $contact]);
+		Logger::info('Start deleting contact content', ['cid' => $id]);
 
 		// Now we delete the contact and all depending tables
 		DBA::delete('post-tag', ['cid' => $id]);
@@ -87,6 +81,6 @@ class RemoveContent
 		DBA::delete('group_member', ['contact-id' => $id]);
 		DI::intro()->delete(DI::introFactory()->createDummy($id));
 
-		return $contact;
+		return true;
 	}
 }
