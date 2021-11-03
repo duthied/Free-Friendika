@@ -417,7 +417,7 @@ class HTTPSignature
 	 * @return \Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchRaw($request, $uid = 0, $opts = ['accept_content' => ['application/activity+json', 'application/ld+json']])
+	public static function fetchRaw($request, $uid = 0, $opts = ['accept_content' => ['application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"']])
 	{
 		$header = [];
 
