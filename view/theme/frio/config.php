@@ -57,7 +57,7 @@ function theme_post(App $a)
 
 function theme_admin_post(App $a)
 {
-	if (!is_site_admin()) {
+	if (!$a->isSiteAdmin()) {
 		return;
 	}
 

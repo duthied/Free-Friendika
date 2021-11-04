@@ -492,7 +492,7 @@ function settings_content(App $a)
 		$settings_connectors = '';
 		Hook::callAll('connector_settings', $settings_connectors);
 
-		if (is_site_admin()) {
+		if ($a->isSiteAdmin()) {
 			$diasp_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t('Diaspora (Socialhome, Hubzilla)'), ((DI::config()->get('system', 'diaspora_enabled')) ? DI::l10n()->t('enabled') : DI::l10n()->t('disabled')));
 			$ostat_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t('OStatus (GNU Social)'), ((DI::config()->get('system', 'ostatus_disabled')) ? DI::l10n()->t('disabled') : DI::l10n()->t('enabled')));
 		} else {

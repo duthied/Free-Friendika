@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -152,7 +153,7 @@ class OnePoll
 			return false;
 		}
 
-		$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
+		$cookiejar = tempnam(System::getTempPath(), 'cookiejar-onepoll-');
 		$curlResult = DI::httpClient()->get($contact['poll'], [HttpClientOptions::COOKIEJAR => $cookiejar]);
 		unlink($cookiejar);
 

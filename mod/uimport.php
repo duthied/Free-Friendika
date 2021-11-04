@@ -29,7 +29,7 @@ use Friendica\DI;
 
 function uimport_post(App $a)
 {
-	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
+	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !$a->isSiteAdmin()) {
 		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
@@ -42,7 +42,7 @@ function uimport_post(App $a)
 
 function uimport_content(App $a)
 {
-	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
+	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !$a->isSiteAdmin()) {
 		notice(DI::l10n()->t('User imports on closed servers can only be done by an administrator.'));
 		return;
 	}

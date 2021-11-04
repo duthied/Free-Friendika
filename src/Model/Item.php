@@ -448,7 +448,7 @@ class Item
 		// We use "microtime" to keep the arrival order and "mt_rand" to avoid duplicates
 		$file = 'item-' . round(microtime(true) * 10000) . '-' . mt_rand() . '.msg';
 
-		$spoolpath = get_spoolpath();
+		$spoolpath = System::getSpoolPath();
 		if ($spoolpath != "") {
 			$spool = $spoolpath . '/' . $file;
 

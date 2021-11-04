@@ -196,7 +196,7 @@ function ping_init(App $a)
 		$myurl = DI::baseUrl() . '/profile/' . $a->getLoggedInUserNickname();
 		$mail_count = DBA::count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", local_user(), $myurl]);
 
-		if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::APPROVE && is_site_admin()) {
+		if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::APPROVE && $a->isSiteAdmin()) {
 			$regs = Friendica\Model\Register::getPending();
 
 			if (DBA::isResult($regs)) {

@@ -59,7 +59,7 @@ abstract class BaseAdmin extends BaseModule
 			}
 		}
 
-		if (!is_site_admin()) {
+		if (!DI::app()->isSiteAdmin()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('You don\'t have access to administration pages.'));
 		}
 

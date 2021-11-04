@@ -223,12 +223,12 @@ class Conversation
 					break;
 			}
 		} elseif ($total > 1) {
-			if ($total < MAX_LIKERS) {
+			if ($total < $this->config->get('system', 'max_likers')) {
 				$likers = implode(', ', array_slice($links, 0, -1));
 				$likers .= ' ' . $this->l10n->t('and') . ' ' . $links[count($links) - 1];
 			} else {
-				$likers = implode(', ', array_slice($links, 0, MAX_LIKERS - 1));
-				$likers .= ' ' . $this->l10n->t('and %d other people', $total - MAX_LIKERS);
+				$likers = implode(', ', array_slice($links, 0, $this->config->get('system', 'max_likers') - 1));
+				$likers .= ' ' . $this->l10n->t('and %d other people', $total - $this->config->get('system', 'max_likers'));
 			}
 
 			$spanatts = "class=\"fakelink\" onclick=\"openClose('{$verb}list-$id');\"";

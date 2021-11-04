@@ -177,9 +177,6 @@ function wall_upload_post(App $a, $desktopmode = true)
 	@unlink($src);
 
 	$max_length = DI::config()->get('system', 'max_image_length');
-	if (!$max_length) {
-		$max_length = MAX_IMAGE_LENGTH;
-	}
 	if ($max_length > 0) {
 		$Image->scaleDown($max_length);
 		$filesize = strlen($Image->asString());

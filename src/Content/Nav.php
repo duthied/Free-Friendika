@@ -295,7 +295,7 @@ class Nav
 		}
 
 		// Show the link to the admin configuration page if user is admin
-		if (is_site_admin()) {
+		if ($a->isSiteAdmin()) {
 			$nav['admin'] = ['admin/', DI::l10n()->t('Admin'), '', DI::l10n()->t('Site setup and configuration')];
 		}
 

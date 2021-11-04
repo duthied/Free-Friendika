@@ -67,7 +67,7 @@ class Invite extends BaseModule
 		if ($config->get('system', 'invitation_only')) {
 			$invitation_only = true;
 			$invites_remaining = DI::pConfig()->get(local_user(), 'system', 'invites_remaining');
-			if ((!$invites_remaining) && (!is_site_admin())) {
+			if ((!$invites_remaining) && (!$app->isSiteAdmin())) {
 				throw new HTTPException\ForbiddenException();
 			}
 		}
@@ -82,11 +82,11 @@ class Invite extends BaseModule
 				continue;
 			}
 
-			if ($invitation_only && ($invites_remaining || is_site_admin())) {
+			if ($invitation_only && ($invites_remaining || $app->isSiteAdmin())) {
 				$code = Model\Register::createForInvitation();
 				$nmessage = str_replace('$invite_code', $code, $message);
 
-				if (!is_site_admin()) {
+				if (!$app->isSiteAdmin()) {
 					$invites_remaining--;
 					if ($invites_remaining >= 0) {
 						DI::pConfig()->set(local_user(), 'system', 'invites_remaining', $invites_remaining);
@@ -138,7 +138,7 @@ class Invite extends BaseModule
 		if ($config->get('system', 'invitation_only')) {
 			$inviteOnly = true;
 			$x = DI::pConfig()->get(local_user(), 'system', 'invites_remaining');
-			if ((!$x) && (!is_site_admin())) {
+			if ((!$x) && (!$app->isSiteAdmin())) {
 				throw new HTTPException\ForbiddenException(DI::l10n()->t('You have no more invitations available'));
 			}
 		}

@@ -155,6 +155,20 @@ class App
 	}
 
 	/**
+	 * Check if current user has admin role.
+	 *
+	 * @return bool true if user is an admin
+	 */
+	public function isSiteAdmin()
+	{
+		$admin_email = $this->config->get('config', 'admin_email');
+
+		$adminlist = explode(',', str_replace(' ', '', $admin_email));
+
+		return local_user() && $admin_email && $this->database->exists('user', ['uid' => $this->getLoggedInUserId(), 'email' => $adminlist]);
+	}
+
+	/**
 	 * Fetch the user id
 	 * @return int 
 	 */

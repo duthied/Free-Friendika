@@ -258,6 +258,28 @@ class Page implements ArrayAccess
 	}
 
 	/**
+	 * Returns the complete URL of the current page, e.g.: http(s)://something.com/network
+	 *
+	 * Taken from http://webcheatsheet.com/php/get_current_page_url.php
+	 */
+	private function curPageURL()
+	{
+		$pageURL = 'http';
+		if (!empty($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on")) {
+			$pageURL .= "s";
+		}
+	
+		$pageURL .= "://";
+	
+		if ($_SERVER["SERVER_PORT"] != "80" && $_SERVER["SERVER_PORT"] != "443") {
+			$pageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"];
+		} else {
+			$pageURL .= $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"];
+		}
+		return $pageURL;
+	}
+      
+	/**
 	 * Initializes Page->page['footer'].
 	 *
 	 * Includes:
@@ -290,9 +312,9 @@ class Page implements ArrayAccess
 		 */
 		if ($mode->isMobile() || $mode->isTablet()) {
 			if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-				$link = 'toggle_mobile?address=' . urlencode(curPageURL());
+				$link = 'toggle_mobile?address=' . urlencode($this->curPageURL());
 			} else {
-				$link = 'toggle_mobile?off=1&address=' . urlencode(curPageURL());
+				$link = 'toggle_mobile?off=1&address=' . urlencode($this->curPageURL());
 			}
 			$this->page['footer'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate("toggle_mobile_footer.tpl"), [
 				'$toggle_link' => $link,

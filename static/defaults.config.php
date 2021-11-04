@@ -295,6 +295,12 @@ return [
 		// on detected mobile devices
 		'itemspage_network_mobile' => 20,
 
+		// jpeg_quality (Integer)
+		// 
+		// Lower numbers save space at cost of image detail
+		// where n is between 1 and 100, and with very poor results below about 50
+		'jpeg_quality' => 100,
+
 		// like_no_comment (Boolean)
 		// Don't update the "commented" value of an item when it is liked.
 		'like_no_comment' => false,
@@ -358,6 +364,10 @@ return [
 		// Pictures longer than this length will be resized to be this length (on the longest side, the other side will be scaled appropriately).
 		// If you don't want to set a maximum length, set to -1.
 		'max_image_length' => -1,
+
+		// max_likers (Integer)
+		// Maximum number of "people who like (or don't like) this"  that we will list by name
+		'max_likers' => 75,
 
 		// max_processes_backend (Integer)
 		// Maximum number of concurrent database processes for background tasks.

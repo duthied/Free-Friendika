@@ -5,6 +5,7 @@ namespace Friendica\Network\HTTPClient\Factory;
 use Friendica\App;
 use Friendica\BaseFactory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\System;
 use Friendica\Network\HTTPClient\Client;
 use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
 use Friendica\Util\Profiler;
@@ -106,7 +107,7 @@ class HttpClient extends BaseFactory
 		$resolver->setMaxResponseDataSize(1000000);
 		// Designate a temporary file that will store cookies during the session.
 		// Some websites test the browser for cookie support, so this enhances results.
-		$resolver->setCookieJar(get_temppath() .'/resolver-cookie-' . Strings::getRandomName(10));
+		$resolver->setCookieJar(System::getTempPath() .'/resolver-cookie-' . Strings::getRandomName(10));
 
 		return new Client\HttpClient($logger, $this->profiler, $guzzle, $resolver);
 	}

@@ -24,6 +24,7 @@ namespace Friendica\Module\WellKnown;
 use Friendica\BaseModule;
 use Friendica\DI;
 use Friendica\Model\Search;
+use Friendica\Protocol\Relay;
 
 /**
  * Node subscription preferences for social realy systems
@@ -40,7 +41,7 @@ class XSocialRelay extends BaseModule
 		$systemTags = [];
 		$userTags = [];
 
-		if ($scope == SR_SCOPE_TAGS) {
+		if ($scope == Relay::SCOPE_TAGS) {
 			$server_tags = $config->get('system', 'relay_server_tags');
 			$tagitems = explode(',', $server_tags);
 
@@ -57,7 +58,7 @@ class XSocialRelay extends BaseModule
 		$tagList = array_unique(array_merge($systemTags, $userTags));
 
 		$relay = [
-			'subscribe' => ($scope != SR_SCOPE_NONE),
+			'subscribe' => ($scope != Relay::SCOPE_NONE),
 			'scope'     => $scope,
 			'tags'      => $tagList,
 			'protocols' => [

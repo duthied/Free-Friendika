@@ -134,9 +134,6 @@ class Image
 			switch ($this->getType()) {
 				case "image/png":
 					$quality = DI::config()->get('system', 'png_quality');
-					if ((! $quality) || ($quality > 9)) {
-						$quality = PNG_QUALITY;
-					}
 					/*
 					 * From http://www.imagemagick.org/script/command-line-options.php#quality:
 					 *
@@ -150,9 +147,6 @@ class Image
 					break;
 				case "image/jpeg":
 					$quality = DI::config()->get('system', 'jpeg_quality');
-					if ((! $quality) || ($quality > 100)) {
-						$quality = JPEG_QUALITY;
-					}
 					$this->image->setCompressionQuality($quality);
 			}
 
@@ -680,16 +674,10 @@ class Image
 		switch ($this->getType()) {
 			case "image/png":
 				$quality = DI::config()->get('system', 'png_quality');
-				if ((!$quality) || ($quality > 9)) {
-					$quality = PNG_QUALITY;
-				}
 				imagepng($this->image, null, $quality);
 				break;
 			case "image/jpeg":
 				$quality = DI::config()->get('system', 'jpeg_quality');
-				if ((!$quality) || ($quality > 100)) {
-					$quality = JPEG_QUALITY;
-				}
 				imagejpeg($this->image, null, $quality);
 		}
 		$string = ob_get_contents();

@@ -51,7 +51,7 @@ final class FriendicaSmartyEngine extends TemplateEngine
 		if (!is_writable(DI::basePath() . '/view/smarty3')) {
 			$admin_message = DI::l10n()->t('The folder view/smarty3/ must be writable by webserver.');
 			DI::logger()->critical($admin_message);
-			$message = is_site_admin() ?
+			$message = DI::app()->isSiteAdmin() ?
 				$admin_message :
 				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
 			throw new ServiceUnavailableException($message);
