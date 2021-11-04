@@ -406,14 +406,4 @@ class System
 		// Reaching this point means that the operating system is configured badly.
 		return "";
 	}
-
-	/// @todo Move the following functions from boot.php
-	/*
-	function local_user()
-	function public_contact()
-	function remote_user()
-	function notice($s)
-	function info($s)
-	function is_site_admin()
-	*/
 }
