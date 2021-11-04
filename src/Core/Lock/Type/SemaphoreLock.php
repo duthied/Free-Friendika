@@ -24,7 +24,7 @@ namespace Friendica\Core\Lock\Type;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Lock\Enum\Type;
 use Friendica\Core\Lock\Exception\InvalidLockDriverException;
-use function get_temppath;
+use Friendica\Core\System;
 
 class SemaphoreLock extends AbstractLock
 {
@@ -44,7 +44,7 @@ class SemaphoreLock extends AbstractLock
 	{
 		$success = true;
 
-		$temp = get_temppath();
+		$temp = System::getTempPath();
 
 		$file = $temp . '/' . $key . '.sem';
 

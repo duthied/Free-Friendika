@@ -278,6 +278,44 @@ class Worker
 	}
 
 	/**
+	 * Checks if the given file is valid to be included
+	 *
+	 * @param mixed $file 
+	 * @return bool 
+	 */
+	private static function validateInclude(&$file)
+	{
+		$orig_file = $file;
+	
+		$file = realpath($file);
+	
+		if (strpos($file, getcwd()) !== 0) {
+			return false;
+		}
+	
+		$file = str_replace(getcwd() . "/", "", $file, $count);
+		if ($count != 1) {
+			return false;
+		}
+	
+		if ($orig_file !== $file) {
+			return false;
+		}
+	
+		$valid = false;
+		if (strpos($file, "include/") === 0) {
+			$valid = true;
+		}
+	
+		if (strpos($file, "addon/") === 0) {
+			$valid = true;
+		}
+	
+		// Simply return flag
+		return $valid;
+	}
+	
+	/**
 	 * Execute a worker entry
 	 *
 	 * @param array $queue Workerqueue entry
@@ -360,7 +398,7 @@ class Worker
 			$include = "include/".$include.".php";
 		}
 
-		if (!validate_include($include)) {
+		if (!self::validateInclude($include)) {
 			Logger::warning("Include file is not valid", ['file' => $argv[0]]);
 			$stamp = (float)microtime(true);
 			DBA::delete('workerqueue', ['id' => $queue["id"]]);

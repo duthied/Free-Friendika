@@ -176,9 +176,9 @@ return [
 		// Directly transmit content to relay subscribers without using a relay server
 		'relay_directly' => false,
 
-		// relay_scope (SR_SCOPE_NONE, SR_SCOPE_TAGS or SR_SCOPE_ALL)
+		// relay_scope (Relay::SCOPE_NONE, Relay::SCOPE_TAGS or Relay::SCOPE_ALL)
 		// Defines the scope of accepted posts from the relay servers
-		'relay_scope' => SR_SCOPE_NONE,
+		'relay_scope' => '',
 
 		// relay_server_tags (String)
 		// Comma separated list of tags for the "tags" subscription.

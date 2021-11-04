@@ -414,6 +414,48 @@ class DFRN
 	}
 
 	/**
+	 * Determine the next birthday, but only if the birthday is published
+	 * in the default profile. We _could_ also look for a private profile that the
+	 * recipient can see, but somebody could get mad at us if they start getting
+	 * public birthday greetings when they haven't made this info public.
+	 *
+	 * Assuming we are able to publish this info, we are then going to convert
+	 * the start time from the owner's timezone to UTC.
+	 *
+	 * This will potentially solve the problem found with some social networks
+	 * where birthdays are converted to the viewer's timezone and salutations from
+	 * elsewhere in the world show up on the wrong day. We will convert it to the
+	 * viewer's timezone also, but first we are going to convert it from the birthday
+	 * person's timezone to GMT - so the viewer may find the birthday starting at
+	 * 6:00PM the day before, but that will correspond to midnight to the birthday person.
+	 */
+	private static function determineNextBirthday($uid, $tz)
+	{
+		$birthday = '';
+
+		if (!strlen($tz)) {
+			$tz = 'UTC';
+		}
+
+		$profile = DBA::selectFirst('profile', ['dob'], ['uid' => $uid]);
+		if (DBA::isResult($profile)) {
+			$tmp_dob = substr($profile['dob'], 5);
+			if (intval($tmp_dob)) {
+				$y = DateTimeFormat::timezoneNow($tz, 'Y');
+				$bd = $y . '-' . $tmp_dob . ' 00:00';
+				$t_dob = strtotime($bd);
+				$now = strtotime(DateTimeFormat::timezoneNow($tz));
+				if ($t_dob < $now) {
+					$bd = $y + 1 . '-' . $tmp_dob . ' 00:00';
+				}
+				$birthday = DateTimeFormat::convert($bd, 'UTC', $tz, DateTimeFormat::ATOM);
+			}
+		}
+
+		return $birthday;
+	}
+
+	/**
 	 * Adds the author element in the header for the DFRN protocol
 	 *
 	 * @param DOMDocument $doc           XML document
@@ -467,7 +509,7 @@ class DFRN
 			return $author;
 		}
 
-		$birthday = feed_birthday($owner['uid'], $owner['timezone']);
+		$birthday = self::determineNextBirthday($owner['uid'], $owner['timezone']);
 
 		if ($birthday) {
 			XML::addElement($doc, $author, "dfrn:birthday", $birthday);

@@ -27,14 +27,7 @@
  * easily as email does today.
  */
 
-use Friendica\Core\Protocol;
-use Friendica\Core\System;
-use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Notification;
-use Friendica\Util\BasePath;
-use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Siberian Iris');
@@ -52,51 +45,6 @@ define('NEW_TABLE_STRUCTURE_VERSION', 1288);
 define('EOL',                    "<br />\r\n");
 
 /**
- * Image storage quality.
- *
- * Lower numbers save space at cost of image detail.
- * For ease of upgrade, please do not change here. Set system.jpegquality = n in config/local.config.php,
- * where n is between 1 and 100, and with very poor results below about 50
- */
-define('JPEG_QUALITY',            100);
-
-/**
- * system.png_quality = n where is between 0 (uncompressed) to 9
- */
-define('PNG_QUALITY',             8);
-
-/**
- * An alternate way of limiting picture upload sizes. Specify the maximum pixel
- * length that pictures are allowed to be (for non-square pictures, it will apply
- * to the longest side). Pictures longer than this length will be resized to be
- * this length (on the longest side, the other side will be scaled appropriately).
- * Modify this value using
- *
- * 'system' => [
- *      'max_image_length' => 'n',
- *      ...
- * ],
- *
- * in config/local.config.php
- *
- * If you don't want to set a maximum length, set to -1. The default value is
- * defined by 'MAX_IMAGE_LENGTH' below.
- */
-define('MAX_IMAGE_LENGTH',        -1);
-
-/**
- * Not yet used
- */
-define('DEFAULT_DB_ENGINE',  'InnoDB');
-
-/** @deprecated since version 2019.03, please use \Friendica\Module\Register::CLOSED instead */
-define('REGISTER_CLOSED',        \Friendica\Module\Register::CLOSED);
-/** @deprecated since version 2019.03, please use \Friendica\Module\Register::APPROVE instead */
-define('REGISTER_APPROVE',       \Friendica\Module\Register::APPROVE);
-/** @deprecated since version 2019.03, please use \Friendica\Module\Register::OPEN instead */
-define('REGISTER_OPEN',          \Friendica\Module\Register::OPEN);
-
-/**
  * @name CP
  *
  * Type of the community page
@@ -110,72 +58,6 @@ define('CP_USERS_AND_GLOBAL',       2);
 /**
  * @}
  */
-
-/**
- * These numbers are used in stored permissions
- * and existing allocations MUST NEVER BE CHANGED
- * OR RE-ASSIGNED! You may only add to them.
- */
-$netgroup_ids = [
-	Protocol::DFRN     => (-1),
-	Protocol::ZOT      => (-2),
-	Protocol::OSTATUS  => (-3),
-	Protocol::FEED     => (-4),
-	Protocol::DIASPORA => (-5),
-	Protocol::MAIL     => (-6),
-	Protocol::FACEBOOK => (-8),
-	Protocol::LINKEDIN => (-9),
-	Protocol::XMPP     => (-10),
-	Protocol::MYSPACE  => (-11),
-	Protocol::GPLUS    => (-12),
-	Protocol::PUMPIO   => (-13),
-	Protocol::TWITTER  => (-14),
-	Protocol::DIASPORA2 => (-15),
-	Protocol::STATUSNET => (-16),
-	Protocol::NEWS      => (-18),
-	Protocol::ICALENDAR => (-19),
-	Protocol::PNUT      => (-20),
-
-	Protocol::PHANTOM  => (-127),
-];
-
-/**
- * Maximum number of "people who like (or don't like) this"  that we will list by name
- */
-define('MAX_LIKERS',    75);
-
-/**
- * @name Notification
- *
- * Email notification options
- * @{
- */
-/** @deprecated since 2020.03, use Notification\Type::INTRO instead */
-define('NOTIFY_INTRO',        Notification\Type::INTRO);
-/** @deprecated since 2020.03, use Notification\Type::CONFIRM instead */
-define('NOTIFY_CONFIRM',      Notification\Type::CONFIRM);
-/** @deprecated since 2020.03, use Notification\Type::WALL instead */
-define('NOTIFY_WALL',         Notification\Type::WALL);
-/** @deprecated since 2020.03, use Notification\Type::COMMENT instead */
-define('NOTIFY_COMMENT',      Notification\Type::COMMENT);
-/** @deprecated since 2020.03, use Notification\Type::MAIL instead */
-define('NOTIFY_MAIL',        Notification\Type::MAIL);
-/** @deprecated since 2020.03, use Notification\Type::SUGGEST instead */
-define('NOTIFY_SUGGEST',     Notification\Type::SUGGEST);
-/** @deprecated since 2020.03, use Notification\Type::PROFILE instead */
-define('NOTIFY_PROFILE',     Notification\Type::PROFILE);
-/** @deprecated since 2020.03, use Notification\Type::TAG_SELF instead */
-define('NOTIFY_TAGSELF',     Notification\Type::TAG_SELF);
-/** @deprecated since 2020.03, use Notification\Type::TAG_SHARE instead */
-define('NOTIFY_TAGSHARE',    Notification\Type::TAG_SHARE);
-/** @deprecated since 2020.03, use Notification\Type::POKE instead */
-define('NOTIFY_POKE',        Notification\Type::POKE);
-/** @deprecated since 2020.03, use Notification\Type::SHARE instead */
-define('NOTIFY_SHARE',       Notification\Type::SHARE);
-
-/** @deprecated since 2020.12, use Notification\Type::SYSTEM instead */
-define('NOTIFY_SYSTEM',      Notification\Type::SYSTEM);
-/* @}*/
 
 /**
  * @name Gravity
@@ -204,18 +86,6 @@ define('PRIORITY_NEGLIGIBLE', 50);
 define('PRIORITIES', [PRIORITY_CRITICAL, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_NEGLIGIBLE]);
 /* @}*/
 
-/**
- * @name Social Relay settings
- *
- * See here: https://github.com/jaywink/social-relay
- * and here: https://wiki.diasporafoundation.org/Relay_servers_for_public_posts
- * @{
- */
-define('SR_SCOPE_NONE', '');
-define('SR_SCOPE_ALL',  'all');
-define('SR_SCOPE_TAGS', 'tags');
-/* @}*/
-
 // Normally this constant is defined - but not if "pcntl" isn't installed
 if (!defined("SIGTERM")) {
 	define("SIGTERM", 15);
@@ -227,6 +97,14 @@ if (!defined("SIGTERM")) {
  */
 if (!defined('CURLE_OPERATION_TIMEDOUT')) {
 	define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
+}
+
+if (!function_exists('exif_imagetype')) {
+	function exif_imagetype($file)
+	{
+		$size = getimagesize($file);
+		return $size[2];
+	}
 }
 
 /**
@@ -322,201 +200,4 @@ function info($s)
 	}
 
 	$_SESSION['sysmsg_info'][] = $s;
-}
-
-function feed_birthday($uid, $tz)
-{
-	/**
-	 * Determine the next birthday, but only if the birthday is published
-	 * in the default profile. We _could_ also look for a private profile that the
-	 * recipient can see, but somebody could get mad at us if they start getting
-	 * public birthday greetings when they haven't made this info public.
-	 *
-	 * Assuming we are able to publish this info, we are then going to convert
-	 * the start time from the owner's timezone to UTC.
-	 *
-	 * This will potentially solve the problem found with some social networks
-	 * where birthdays are converted to the viewer's timezone and salutations from
-	 * elsewhere in the world show up on the wrong day. We will convert it to the
-	 * viewer's timezone also, but first we are going to convert it from the birthday
-	 * person's timezone to GMT - so the viewer may find the birthday starting at
-	 * 6:00PM the day before, but that will correspond to midnight to the birthday person.
-	 */
-	$birthday = '';
-
-	if (!strlen($tz)) {
-		$tz = 'UTC';
-	}
-
-	$profile = DBA::selectFirst('profile', ['dob'], ['uid' => $uid]);
-	if (DBA::isResult($profile)) {
-		$tmp_dob = substr($profile['dob'], 5);
-		if (intval($tmp_dob)) {
-			$y = DateTimeFormat::timezoneNow($tz, 'Y');
-			$bd = $y . '-' . $tmp_dob . ' 00:00';
-			$t_dob = strtotime($bd);
-			$now = strtotime(DateTimeFormat::timezoneNow($tz));
-			if ($t_dob < $now) {
-				$bd = $y + 1 . '-' . $tmp_dob . ' 00:00';
-			}
-			$birthday = DateTimeFormat::convert($bd, 'UTC', $tz, DateTimeFormat::ATOM);
-		}
-	}
-
-	return $birthday;
-}
-
-/**
- * Check if current user has admin role.
- *
- * @return bool true if user is an admin
- */
-function is_site_admin()
-{
-	$a = DI::app();
-
-	$admin_email = DI::config()->get('config', 'admin_email');
-
-	$adminlist = explode(',', str_replace(' ', '', $admin_email));
-
-	return local_user() && $admin_email && DBA::exists('user', ['uid' => $a->getLoggedInUserId(), 'email' => $adminlist]);
-}
-
-/**
- * Returns the complete URL of the current page, e.g.: http(s)://something.com/network
- *
- * Taken from http://webcheatsheet.com/php/get_current_page_url.php
- */
-function curPageURL()
-{
-	$pageURL = 'http';
-	if (!empty($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on")) {
-		$pageURL .= "s";
-	}
-
-	$pageURL .= "://";
-
-	if ($_SERVER["SERVER_PORT"] != "80" && $_SERVER["SERVER_PORT"] != "443") {
-		$pageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"];
-	} else {
-		$pageURL .= $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"];
-	}
-	return $pageURL;
-}
-
-function get_temppath()
-{
-	$temppath = DI::config()->get("system", "temppath");
-
-	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
-		// We have a temp path and it is usable
-		return BasePath::getRealPath($temppath);
-	}
-
-	// We don't have a working preconfigured temp path, so we take the system path.
-	$temppath = sys_get_temp_dir();
-
-	// Check if it is usable
-	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
-		// Always store the real path, not the path through symlinks
-		$temppath = BasePath::getRealPath($temppath);
-
-		// To avoid any interferences with other systems we create our own directory
-		$new_temppath = $temppath . "/" . DI::baseUrl()->getHostname();
-		if (!is_dir($new_temppath)) {
-			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
-			mkdir($new_temppath);
-		}
-
-		if (System::isDirectoryUsable($new_temppath)) {
-			// The new path is usable, we are happy
-			DI::config()->set("system", "temppath", $new_temppath);
-			return $new_temppath;
-		} else {
-			// We can't create a subdirectory, strange.
-			// But the directory seems to work, so we use it but don't store it.
-			return $temppath;
-		}
-	}
-
-	// Reaching this point means that the operating system is configured badly.
-	return '';
-}
-
-/**
- * Returns the path where spool files are stored
- *
- * @return string Spool path
- */
-function get_spoolpath()
-{
-	$spoolpath = DI::config()->get('system', 'spoolpath');
-	if (($spoolpath != "") && System::isDirectoryUsable($spoolpath)) {
-		// We have a spool path and it is usable
-		return $spoolpath;
-	}
-
-	// We don't have a working preconfigured spool path, so we take the temp path.
-	$temppath = get_temppath();
-
-	if ($temppath != "") {
-		// To avoid any interferences with other systems we create our own directory
-		$spoolpath = $temppath . "/spool";
-		if (!is_dir($spoolpath)) {
-			mkdir($spoolpath);
-		}
-
-		if (System::isDirectoryUsable($spoolpath)) {
-			// The new path is usable, we are happy
-			DI::config()->set("system", "spoolpath", $spoolpath);
-			return $spoolpath;
-		} else {
-			// We can't create a subdirectory, strange.
-			// But the directory seems to work, so we use it but don't store it.
-			return $temppath;
-		}
-	}
-
-	// Reaching this point means that the operating system is configured badly.
-	return "";
-}
-
-if (!function_exists('exif_imagetype')) {
-	function exif_imagetype($file)
-	{
-		$size = getimagesize($file);
-		return $size[2];
-	}
-}
-
-function validate_include(&$file)
-{
-	$orig_file = $file;
-
-	$file = realpath($file);
-
-	if (strpos($file, getcwd()) !== 0) {
-		return false;
-	}
-
-	$file = str_replace(getcwd() . "/", "", $file, $count);
-	if ($count != 1) {
-		return false;
-	}
-
-	if ($orig_file !== $file) {
-		return false;
-	}
-
-	$valid = false;
-	if (strpos($file, "include/") === 0) {
-		$valid = true;
-	}
-
-	if (strpos($file, "addon/") === 0) {
-		$valid = true;
-	}
-
-	// Simply return flag
-	return $valid;
 }

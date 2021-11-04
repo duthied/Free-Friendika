@@ -22,6 +22,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Model\Item;
 
 /**
@@ -29,7 +30,7 @@ use Friendica\Model\Item;
  */
 class SpoolPost {
 	public static function execute() {
-		$path = get_spoolpath();
+		$path = System::getSpoolPath();
 
 		if (($path != '') && is_writable($path)){
 			if ($dh = opendir($path)) {

@@ -21,10 +21,12 @@
 
 namespace Friendica\Core;
 
+use Exception;
 use Friendica\DI;
 use Friendica\Network\HTTPException\FoundException;
 use Friendica\Network\HTTPException\MovedPermanentlyException;
 use Friendica\Network\HTTPException\TemporaryRedirectException;
+use Friendica\Util\BasePath;
 use Friendica\Util\XML;
 
 /**
@@ -323,6 +325,88 @@ class System
 		exit();
 	}
 
+	/**
+	 * Fetch the temp path of the system
+	 *
+	 * @return string Path for temp files
+	 */
+	public static function getTempPath()
+	{
+		$temppath = DI::config()->get("system", "temppath");
+
+		if (($temppath != "") && System::isDirectoryUsable($temppath)) {
+			// We have a temp path and it is usable
+			return BasePath::getRealPath($temppath);
+		}
+
+		// We don't have a working preconfigured temp path, so we take the system path.
+		$temppath = sys_get_temp_dir();
+
+		// Check if it is usable
+		if (($temppath != "") && System::isDirectoryUsable($temppath)) {
+			// Always store the real path, not the path through symlinks
+			$temppath = BasePath::getRealPath($temppath);
+
+			// To avoid any interferences with other systems we create our own directory
+			$new_temppath = $temppath . "/" . DI::baseUrl()->getHostname();
+			if (!is_dir($new_temppath)) {
+				/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
+				mkdir($new_temppath);
+			}
+
+			if (System::isDirectoryUsable($new_temppath)) {
+				// The new path is usable, we are happy
+				DI::config()->set("system", "temppath", $new_temppath);
+				return $new_temppath;
+			} else {
+				// We can't create a subdirectory, strange.
+				// But the directory seems to work, so we use it but don't store it.
+				return $temppath;
+			}
+		}
+
+		// Reaching this point means that the operating system is configured badly.
+		return '';
+	}
+
+	/**
+	 * Returns the path where spool files are stored
+	 *
+	 * @return string Spool path
+	 */
+	public static function getSpoolPath()
+	{
+		$spoolpath = DI::config()->get('system', 'spoolpath');
+		if (($spoolpath != "") && System::isDirectoryUsable($spoolpath)) {
+			// We have a spool path and it is usable
+			return $spoolpath;
+		}
+
+		// We don't have a working preconfigured spool path, so we take the temp path.
+		$temppath = self::getTempPath();
+
+		if ($temppath != "") {
+			// To avoid any interferences with other systems we create our own directory
+			$spoolpath = $temppath . "/spool";
+			if (!is_dir($spoolpath)) {
+				mkdir($spoolpath);
+			}
+
+			if (System::isDirectoryUsable($spoolpath)) {
+				// The new path is usable, we are happy
+				DI::config()->set("system", "spoolpath", $spoolpath);
+				return $spoolpath;
+			} else {
+				// We can't create a subdirectory, strange.
+				// But the directory seems to work, so we use it but don't store it.
+				return $temppath;
+			}
+		}
+
+		// Reaching this point means that the operating system is configured badly.
+		return "";
+	}
+
 	/// @todo Move the following functions from boot.php
 	/*
 	function local_user()
@@ -331,7 +415,5 @@ class System
 	function notice($s)
 	function info($s)
 	function is_site_admin()
-	function get_temppath()
-	function get_spoolpath()
 	*/
 }

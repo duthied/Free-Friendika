@@ -4604,9 +4604,6 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 	// check max length of images on server
 	$max_length = DI::config()->get('system', 'max_image_length');
-	if (!$max_length) {
-		$max_length = MAX_IMAGE_LENGTH;
-	}
 	if ($max_length > 0) {
 		$Image->scaleDown($max_length);
 		logger::info("File upload: Scaling picture to new size " . $max_length);

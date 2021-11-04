@@ -23,6 +23,7 @@ namespace Friendica\Module\ActivityPub;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\ActivityPub;
@@ -48,7 +49,7 @@ class Inbox extends BaseModule
 			} else {
 				$filename = 'failed-activitypub';
 			}
-			$tempfile = tempnam(get_temppath(), $filename);
+			$tempfile = tempnam(System::getTempPath(), $filename);
 			file_put_contents($tempfile, json_encode(['parameters' => $parameters, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 			Logger::notice('Incoming message stored', ['file' => $tempfile]);
 		}

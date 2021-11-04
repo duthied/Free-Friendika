@@ -26,6 +26,7 @@ use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Config\Type\JitConfig;
 use Friendica\Core\Lock\Type\SemaphoreLock;
+use Friendica\Core\System;
 use Friendica\DI;
 use Mockery;
 use Mockery\MockInterface;
@@ -73,7 +74,7 @@ class SemaphoreLockTest extends LockTest
 	 */
 	public function testMissingFileNotOverriding()
 	{
-		$file = get_temppath() . '/test.sem';
+		$file = System::getTempPath() . '/test.sem';
 		touch($file);
 
 		self::assertTrue(file_exists($file));
@@ -91,7 +92,7 @@ class SemaphoreLockTest extends LockTest
 	 */
 	public function testMissingFileOverriding()
 	{
-		$file = get_temppath() . '/test.sem';
+		$file = System::getTempPath() . '/test.sem';
 		touch($file);
 
 		self::assertTrue(file_exists($file));
@@ -104,7 +105,7 @@ class SemaphoreLockTest extends LockTest
 	 */
 	public function testOverrideSemFile()
 	{
-		$file = get_temppath() . '/test.sem';
+		$file = System::getTempPath() . '/test.sem';
 		touch($file);
 
 		self::assertTrue(file_exists($file));

@@ -703,9 +703,6 @@ function photos_post(App $a)
 	@unlink($src);
 
 	$max_length = DI::config()->get('system', 'max_image_length');
-	if (!$max_length) {
-		$max_length = MAX_IMAGE_LENGTH;
-	}
 	if ($max_length > 0) {
 		$image->scaleDown($max_length);
 	}

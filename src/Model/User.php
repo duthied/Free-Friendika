@@ -706,7 +706,7 @@ class User
 	{
 		$cache = new CacheItemPool();
 		$cache->changeConfig([
-			'cacheDirectory' => get_temppath() . '/password-exposed-cache/',
+			'cacheDirectory' => System::getTempPath() . '/password-exposed-cache/',
 		]);
 
 		try {

@@ -37,9 +37,15 @@ use Friendica\Util\Strings;
 
 /**
  * Base class for relay handling
+ * @see https://github.com/jaywink/social-relay
+ * @see https://wiki.diasporafoundation.org/Relay_servers_for_public_posts
  */
 class Relay
 {
+	const SCOPE_NONE = '';
+	const SCOPE_ALL = 'all';
+	const SCOPE_TAGS = 'tags';
+
 	/**
 	 * Check if a post is wanted
 	 *
@@ -55,7 +61,7 @@ class Relay
 
 		$scope = $config->get('system', 'relay_scope');
 
-		if ($scope == SR_SCOPE_NONE) {
+		if ($scope == self::SCOPE_NONE) {
 			Logger::info('Server does not accept relay posts - rejected', ['network' => $network, 'url' => $url]);
 			return false;
 		}
@@ -74,7 +80,7 @@ class Relay
 		$userTags = [];
 		$denyTags = [];
 
-		if ($scope == SR_SCOPE_TAGS) {
+		if ($scope == self::SCOPE_TAGS) {
 			$server_tags = $config->get('system', 'relay_server_tags');
 			$tagitems = explode(',', mb_strtolower($server_tags));
 			foreach ($tagitems as $tag) {
@@ -119,7 +125,7 @@ class Relay
 			}
 		}
 
-		if ($scope == SR_SCOPE_ALL) {
+		if ($scope == self::SCOPE_ALL) {
 			Logger::info('Server accept all posts - accepted', ['network' => $network, 'url' => $url]);
 			return true;
 		}
