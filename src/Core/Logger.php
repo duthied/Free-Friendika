@@ -32,37 +32,6 @@ use Psr\Log\LogLevel;
 class Logger
 {
 	/**
-	 * @see Logger::error()
-	 * @deprecated since 2019.01
-	 */
-	const WARNING = LogLevel::ERROR;
-	/**
-	 * @see Logger::warning()
-	 * @deprecated since 2019.01
-	 */
-	const INFO = LogLevel::WARNING;
-	/**
-	 * @see Logger::notice()
-	 * @deprecated since 2019.01
-	 */
-	const TRACE = LogLevel::NOTICE;
-	/**
-	 * @see Logger::info()
-	 * @deprecated since 2019.01
-	 */
-	const DEBUG = LogLevel::INFO;
-	/**
-	 * @see Logger::debug()
-	 * @deprecated since 2019.01
-	 */
-	const DATA = LogLevel::DEBUG;
-	/**
-	 * @see Logger::debug()
-	 * @deprecated since 2019.01
-	 */
-	const ALL = LogLevel::DEBUG;
-
-	/**
 	 * @var LoggerInterface The default Logger type
 	 */
 	const TYPE_LOGGER = LoggerInterface::class;
@@ -74,20 +43,6 @@ class Logger
 	 * @var LoggerInterface The current logger type
 	 */
 	private static $type = self::TYPE_LOGGER;
-
-	/**
-	 * @var array the legacy loglevels
-	 * @deprecated 2019.03 use PSR-3 loglevels
-	 * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#5-psrlogloglevel
-	 *
-	 */
-	public static $levels = [
-		self::WARNING => 'Warning',
-		self::INFO => 'Info',
-		self::TRACE => 'Trace',
-		self::DEBUG => 'Debug',
-		self::DATA => 'Data',
-	];
 
 	/**
 	 * @return LoggerInterface
@@ -252,20 +207,6 @@ class Logger
 	public static function debug($message, $context = [])
 	{
 		self::getWorker()->debug($message, $context);
-	}
-
-	/**
-	 * Logs the given message at the given log level
-	 *
-	 * @param string $msg
-	 * @param string $level
-	 *
-	 * @throws \Exception
-	 * @deprecated since 2019.03 Use Logger::debug() Logger::info() , ... instead
-	 */
-	public static function log($msg, $level = LogLevel::INFO)
-	{
-		self::getWorker()->log($level, $msg);
 	}
 
 	/**

@@ -105,12 +105,12 @@ class Delivery
 			DBA::close($itemdata);
 
 			if (empty($target_item)) {
-				Logger::log('Item ' . $target_id . "wasn't found. Quitting here.");
+				Logger::notice('Item ' . $target_id . "wasn't found. Quitting here.");
 				return;
 			}
 
 			if (empty($parent)) {
-				Logger::log('Parent ' . $parent_id . ' for item ' . $target_id . "wasn't found. Quitting here.");
+				Logger::notice('Parent ' . $parent_id . ' for item ' . $target_id . "wasn't found. Quitting here.");
 				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
@@ -120,7 +120,7 @@ class Delivery
 			} elseif (!empty($target_item['uid'])) {
 				$uid = $target_item['uid'];
 			} else {
-				Logger::log('Only public users for item ' . $target_id, Logger::DEBUG);
+				Logger::info('Only public users for item ' . $target_id);
 				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
@@ -169,7 +169,7 @@ class Delivery
 			 */
 
 			if (!$top_level && ($parent['wall'] == 0) && stristr($target_item['uri'], $localhost)) {
-				Logger::log('Followup ' . $target_item["guid"], Logger::DEBUG);
+				Logger::info('Followup ' . $target_item["guid"]);
 				// local followup to remote post
 				$followup = true;
 			}
@@ -419,22 +419,22 @@ class Delivery
 			$deliver_status = Diaspora::sendAccountMigration($owner, $contact, $owner['uid']);
 		} elseif ($target_item['deleted'] && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
 			// top-level retraction
-			Logger::log('diaspora retract: ' . $loc);
+			Logger::notice('diaspora retract: ' . $loc);
 			$deliver_status = Diaspora::sendRetraction($target_item, $owner, $contact, $public_message);
 		} elseif ($followup) {
 			// send comments and likes to owner to relay
-			Logger::log('diaspora followup: ' . $loc);
+			Logger::notice('diaspora followup: ' . $loc);
 			$deliver_status = Diaspora::sendFollowup($target_item, $owner, $contact, $public_message);
 		} elseif ($target_item['uri'] !== $target_item['parent-uri']) {
 			// we are the relay - send comments, likes and relayable_retractions to our conversants
-			Logger::log('diaspora relay: ' . $loc);
+			Logger::notice('diaspora relay: ' . $loc);
 			$deliver_status = Diaspora::sendRelay($target_item, $owner, $contact, $public_message);
 		} elseif ($top_level && !$walltowall) {
 			// currently no workable solution for sending walltowall
-			Logger::log('diaspora status: ' . $loc);
+			Logger::notice('diaspora status: ' . $loc);
 			$deliver_status = Diaspora::sendStatus($target_item, $owner, $contact, $public_message);
 		} else {
-			Logger::log('Unknown mode ' . $cmd . ' for ' . $loc);
+			Logger::notice('Unknown mode ' . $cmd . ' for ' . $loc);
 			return;
 		}
 

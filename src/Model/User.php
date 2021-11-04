@@ -979,7 +979,7 @@ class User
 		$username_max_length = max(1, min(64, intval(DI::config()->get('system', 'username_max_length', 48))));
 
 		if ($username_min_length > $username_max_length) {
-			Logger::log(DI::l10n()->t('system.username_min_length (%s) and system.username_max_length (%s) are excluding each other, swapping values.', $username_min_length, $username_max_length), Logger::WARNING);
+			Logger::error(DI::l10n()->t('system.username_min_length (%s) and system.username_max_length (%s) are excluding each other, swapping values.', $username_min_length, $username_max_length));
 			$tmp = $username_min_length;
 			$username_min_length = $username_max_length;
 			$username_max_length = $tmp;

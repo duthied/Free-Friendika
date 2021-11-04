@@ -296,7 +296,7 @@ class Notifier
 					$push_notify = false;
 				}
 
-				Logger::log('Notify ' . $target_item["guid"] .' via PuSH: ' . ($push_notify ? "Yes":"No"), Logger::DEBUG);
+				Logger::info('Notify ' . $target_item["guid"] .' via PuSH: ' . ($push_notify ? "Yes":"No"));
 			} elseif ($exclusive_delivery) {
 				$followup = true;
 
@@ -315,7 +315,7 @@ class Notifier
 				// don't send deletions onward for other people's stuff
 
 				if ($target_item['deleted'] && !intval($target_item['wall'])) {
-					Logger::log('Ignoring delete notification for non-wall item');
+					Logger::notice('Ignoring delete notification for non-wall item');
 					return;
 				}
 
@@ -385,7 +385,7 @@ class Notifier
 			if (($thr_parent && ($thr_parent['network'] == Protocol::OSTATUS)) || ($parent['network'] == Protocol::OSTATUS)) {
 				$diaspora_delivery = false;
 
-				Logger::log('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent['author-id']." - Owner: ".$thr_parent['owner-id'], Logger::DEBUG);
+				Logger::info('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent['author-id']." - Owner: ".$thr_parent['owner-id']);
 
 				// Send a salmon to the parent author
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['author-id']]);
@@ -490,7 +490,7 @@ class Notifier
 		$delivery_queue_count += self::deliverOStatus($target_id, $target_item, $owner, $url_recipients, $public_message, $push_notify);
 
 		if (!empty($target_item)) {
-			Logger::log('Calling hooks for ' . $cmd . ' ' . $target_id, Logger::DEBUG);
+			Logger::info('Calling hooks for ' . $cmd . ' ' . $target_id);
 
 			Hook::fork($a->getQueueValue('priority'), 'notifier_normal', $target_item);
 
@@ -767,12 +767,12 @@ class Notifier
 				$relay_inboxes = ActivityPub\Transmitter::addRelayServerInboxes();
 			}
 
-			Logger::log('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
+			Logger::info('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.');
 		} elseif (Item::isForumPost($target_item, $owner)) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid, false, 0, true);
-			Logger::log('Forum item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
+			Logger::info('Forum item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.');
 		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
-			Logger::log('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', Logger::DEBUG);
+			Logger::info('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.');
 			return ['count' => 0, 'contacts' => []];
 		} elseif ($parent['origin']) {
 			// Remote items are transmitted via the personal inboxes.
@@ -784,11 +784,11 @@ class Notifier
 				$relay_inboxes = ActivityPub\Transmitter::addRelayServerInboxes([]);
 			}
 
-			Logger::log('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
+			Logger::info('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.');
 		}
 
 		if (empty($inboxes) && empty($relay_inboxes)) {
-			Logger::log('No inboxes found for item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . '. It will not be distributed.', Logger::DEBUG);
+			Logger::info('No inboxes found for item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . '. It will not be distributed.');
 			return ['count' => 0, 'contacts' => []];
 		}
 

@@ -231,7 +231,7 @@ class OnePoll
 			$metas = Email::messageMeta($mbox, implode(',', $msgs));
 
 			if (count($metas) != count($msgs)) {
-				Logger::log("for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", Logger::DEBUG);
+				Logger::info("for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas");
 			} else {
 				$msgs = array_combine($msgs, $metas);
 
@@ -253,7 +253,7 @@ class OnePoll
 					$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
 					$item = Post::selectFirst($fields, $condition);
 					if (DBA::isResult($item)) {
-						Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],Logger::DEBUG);
+						Logger::info("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri']);
 
 						// Only delete when mails aren't automatically moved or deleted
 						if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
@@ -264,18 +264,18 @@ class OnePoll
 
 						switch ($mailconf['action']) {
 							case 0:
-								Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", Logger::DEBUG);
+								Logger::info("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.");
 								break;
 							case 1:
-								Logger::log("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
+								Logger::notice("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
 								imap_delete($mbox, $msg_uid, FT_UID);
 								break;
 							case 2:
-								Logger::log("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
+								Logger::notice("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
 								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 								break;
 							case 3:
-								Logger::log("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
+								Logger::notice("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
 								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 								if ($mailconf['movetofolder'] != "") {
 									imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
@@ -387,28 +387,28 @@ class OnePoll
 
 					$datarray = Email::getMessage($mbox, $msg_uid, $reply, $datarray);
 					if (empty($datarray['body'])) {
-						Logger::log("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
+						Logger::notice("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
 						continue;
 					}
 
-					Logger::log("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
+					Logger::notice("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
 
 					Item::insert($datarray);
 
 					switch ($mailconf['action']) {
 						case 0:
-							Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", Logger::DEBUG);
+							Logger::info("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.");
 							break;
 						case 1:
-							Logger::log("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
+							Logger::notice("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
 							imap_delete($mbox, $msg_uid, FT_UID);
 							break;
 						case 2:
-							Logger::log("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
+							Logger::notice("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
 							imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 							break;
 						case 3:
-							Logger::log("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
+							Logger::notice("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
 							imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 							if ($mailconf['movetofolder'] != "") {
 								imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);

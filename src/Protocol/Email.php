@@ -50,12 +50,12 @@ class Email
 
 		$errors = imap_errors();
 		if (!empty($errors)) {
-			Logger::log('IMAP Errors occured: ' . json_encode($errors));
+			Logger::notice('IMAP Errors occured', ['errora' => $errors]);
 		}
 
 		$alerts = imap_alerts();
 		if (!empty($alerts)) {
-			Logger::log('IMAP Alerts occured: ' . json_encode($alerts));
+			Logger::notice('IMAP Alerts occured: ', ['alerts' => $alerts]);
 		}
 
 		return $mbox;
@@ -77,21 +77,21 @@ class Email
 		if (!$search1) {
 			$search1 = [];
 		} else {
-			Logger::log("Found mails from ".$email_addr, Logger::DEBUG);
+			Logger::notice("Found mails from ".$email_addr);
 		}
 
 		$search2 = @imap_search($mbox, 'UNDELETED TO "' . $email_addr . '"', SE_UID);
 		if (!$search2) {
 			$search2 = [];
 		} else {
-			Logger::log("Found mails to ".$email_addr, Logger::DEBUG);
+			Logger::notice("Found mails to ".$email_addr);
 		}
 
 		$search3 = @imap_search($mbox, 'UNDELETED CC "' . $email_addr . '"', SE_UID);
 		if (!$search3) {
 			$search3 = [];
 		} else {
-			Logger::log("Found mails cc ".$email_addr, Logger::DEBUG);
+			Logger::notice("Found mails cc ".$email_addr);
 		}
 
 		$res = array_unique(array_merge($search1, $search2, $search3));
@@ -396,7 +396,7 @@ class Email
 
 		//$message = '<html><body>' . $html . '</body></html>';
 		//$message = html2plain($html);
-		Logger::log('notifier: email delivery to ' . $addr);
+		Logger::notice('notifier: email delivery to ' . $addr);
 		mail($addr, $subject, $body, $headers);
 	}
 

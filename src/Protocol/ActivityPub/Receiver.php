@@ -117,28 +117,28 @@ class Receiver
 		if (LDSignature::isSigned($activity)) {
 			$ld_signer = LDSignature::getSigner($activity);
 			if (empty($ld_signer)) {
-				Logger::log('Invalid JSON-LD signature from ' . $actor, Logger::DEBUG);
+				Logger::info('Invalid JSON-LD signature from ' . $actor);
 			} elseif ($ld_signer != $http_signer) {
 				$signer[] = $ld_signer;
 			}
 			if (!empty($ld_signer && ($actor == $http_signer))) {
-				Logger::log('The HTTP and the JSON-LD signature belong to ' . $ld_signer, Logger::DEBUG);
+				Logger::info('The HTTP and the JSON-LD signature belong to ' . $ld_signer);
 				$trust_source = true;
 			} elseif (!empty($ld_signer)) {
-				Logger::log('JSON-LD signature is signed by ' . $ld_signer, Logger::DEBUG);
+				Logger::info('JSON-LD signature is signed by ' . $ld_signer);
 				$trust_source = true;
 			} elseif ($actor == $http_signer) {
-				Logger::log('Bad JSON-LD signature, but HTTP signer fits the actor.', Logger::DEBUG);
+				Logger::info('Bad JSON-LD signature, but HTTP signer fits the actor.');
 				$trust_source = true;
 			} else {
-				Logger::log('Invalid JSON-LD signature and the HTTP signer is different.', Logger::DEBUG);
+				Logger::info('Invalid JSON-LD signature and the HTTP signer is different.');
 				$trust_source = false;
 			}
 		} elseif ($actor == $http_signer) {
-			Logger::log('Trusting post without JSON-LD signature, The actor fits the HTTP signer.', Logger::DEBUG);
+			Logger::info('Trusting post without JSON-LD signature, The actor fits the HTTP signer.');
 			$trust_source = true;
 		} else {
-			Logger::log('No JSON-LD signature, different actor.', Logger::DEBUG);
+			Logger::info('No JSON-LD signature, different actor.');
 			$trust_source = false;
 		}
 
@@ -310,7 +310,7 @@ class Receiver
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
-			Logger::log('No object found', Logger::DEBUG);
+			Logger::info('No object found');
 			return [];
 		}
 
@@ -327,7 +327,7 @@ class Receiver
 			// Always fetch on "Announce"
 			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $uid);
 			if (empty($object_data)) {
-				Logger::log("Object data couldn't be processed", Logger::DEBUG);
+				Logger::info("Object data couldn't be processed");
 				return [];
 			}
 
@@ -401,7 +401,7 @@ class Receiver
 			}
 		}
 
-		Logger::log('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id'], Logger::DEBUG);
+		Logger::info('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id']);
 
 		return $object_data;
 	}
@@ -606,7 +606,7 @@ class Receiver
 				break;
 
 			default:
-				Logger::log('Unknown activity: ' . $type . ' ' . $object_data['object_type'], Logger::DEBUG);
+				Logger::info('Unknown activity: ' . $type . ' ' . $object_data['object_type']);
 				break;
 		}
 	}
@@ -921,16 +921,16 @@ class Receiver
 			$data = ActivityPub::fetchContent($object_id, $uid);
 			if (!empty($data)) {
 				$object = JsonLD::compact($data);
-				Logger::log('Fetched content for ' . $object_id, Logger::DEBUG);
+				Logger::info('Fetched content for ' . $object_id);
 			} else {
-				Logger::log('Empty content for ' . $object_id . ', check if content is available locally.', Logger::DEBUG);
+				Logger::info('Empty content for ' . $object_id . ', check if content is available locally.');
 
 				$item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['uri' => $object_id]);
 				if (!DBA::isResult($item)) {
-					Logger::log('Object with url ' . $object_id . ' was not found locally.', Logger::DEBUG);
+					Logger::info('Object with url ' . $object_id . ' was not found locally.');
 					return false;
 				}
-				Logger::log('Using already stored item for url ' . $object_id, Logger::DEBUG);
+				Logger::info('Using already stored item for url ' . $object_id);
 				$data = ActivityPub\Transmitter::createNote($item);
 				$object = JsonLD::compact($data);
 			}
@@ -946,7 +946,7 @@ class Receiver
 				return false;
 			}
 		} else {
-			Logger::log('Using original object for url ' . $object_id, Logger::DEBUG);
+			Logger::info('Using original object for url ' . $object_id);
 		}
 
 		$type = JsonLD::fetchElement($object, '@type');
@@ -973,7 +973,7 @@ class Receiver
 			return self::fetchObject($object_id, [], false, $uid);
 		}
 
-		Logger::log('Unhandled object type: ' . $type, Logger::DEBUG);
+		Logger::info('Unhandled object type: ' . $type);
 		return false;
 	}
 

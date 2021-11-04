@@ -1796,7 +1796,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::log('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
+		Logger::info('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub');
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1825,7 +1825,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::log('Deliver profile relocation for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
+		Logger::info('Deliver profile relocation for user ' . $uid . ' to ' . $inbox . ' via ActivityPub');
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1864,7 +1864,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::log('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
+		Logger::info('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub');
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1896,7 +1896,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::log('Deliver profile update for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
+		Logger::info('Deliver profile update for user ' . $uid . ' to ' . $inbox . ' via ActivityPub');
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1933,7 +1933,7 @@ class Transmitter
 			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
-		Logger::log('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, Logger::DEBUG);
+		Logger::info('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid);
 
 		$signed = LDSignature::sign($data, $owner);
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1972,7 +1972,7 @@ class Transmitter
 		$condition = ['verb' => Activity::FOLLOW, 'uid' => 0, 'parent-uri' => $object,
 			'author-id' => Contact::getPublicIdByUserId($uid)];
 		if (Post::exists($condition)) {
-			Logger::log('Follow for ' . $object . ' for user ' . $uid . ' does already exist.', Logger::DEBUG);
+			Logger::info('Follow for ' . $object . ' for user ' . $uid . ' does already exist.');
 			return false;
 		}
 
@@ -1986,7 +1986,7 @@ class Transmitter
 			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
-		Logger::log('Sending follow ' . $object . ' to ' . $target . ' for user ' . $uid, Logger::DEBUG);
+		Logger::info('Sending follow ' . $object . ' to ' . $target . ' for user ' . $uid);
 
 		$signed = LDSignature::sign($data, $owner);
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -2103,7 +2103,7 @@ class Transmitter
 			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
-		Logger::log('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
+		Logger::info('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
 		$signed = LDSignature::sign($data, $owner);
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
