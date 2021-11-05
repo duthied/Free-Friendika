@@ -27,72 +27,47 @@ use Psr\Log\LoggerInterface;
 
 class WorkerLoggerTest extends MockedTest
 {
-	private function assertUid($uid, $length = 7)
+	private function assertUid($uid)
 	{
-		self::assertRegExp('/^[a-zA-Z0-9]{' . $length . '}+$/', $uid);
-	}
-
-	/**
-	 * Test the a id with length zero
-	 *
-	 */
-	public function testGetWorkerIdZero()
-	{
-		$this->expectException(\Error::class);
-		
-		$logger = \Mockery::mock(LoggerInterface::class);
-		new WorkerLogger($logger, 'test', 0);
-	}
-
-	/**
-	 * Test the generated Uid
-	 */
-	public function testGetWorkerId()
-	{
-		$logger = \Mockery::mock(LoggerInterface::class);
-		for ($i = 1; $i < 14; $i++) {
-			$workLogger = new WorkerLogger($logger, 'test', $i);
-			$uid = $workLogger->getWorkerId();
-			self::assertUid($uid, $i);
-		}
+		self::assertRegExp('/^[a-zA-Z0-9]{' . WorkerLogger::WORKER_ID_LENGTH . '}+$/', $uid);
 	}
 
 	public function dataTest()
 	{
 		return [
 			'info' => [
-				'func' => 'info',
-				'msg' => 'the alert',
+				'func'    => 'info',
+				'msg'     => 'the alert',
 				'context' => [],
 			],
 			'alert' => [
-				'func' => 'alert',
-				'msg' => 'another alert',
+				'func'    => 'alert',
+				'msg'     => 'another alert',
 				'context' => ['test' => 'it'],
 			],
 			'critical' => [
-				'func' => 'critical',
-				'msg' => 'Critical msg used',
+				'func'    => 'critical',
+				'msg'     => 'Critical msg used',
 				'context' => ['test' => 'it', 'more' => 0.24545],
 			],
 			'error' => [
-				'func' => 'error',
-				'msg' => 21345623,
+				'func'    => 'error',
+				'msg'     => 21345623,
 				'context' => ['test' => 'it', 'yet' => true],
 			],
 			'warning' => [
-				'func' => 'warning',
-				'msg' => 'another alert' . 123523 . 324.54534 . 'test',
+				'func'    => 'warning',
+				'msg'     => 'another alert' . 123523 . 324.54534 . 'test',
 				'context' => ['test' => 'it', 2 => 'nope'],
 			],
 			'notice' => [
-				'func' => 'notice',
-				'msg' => 'Notice' . ' alert' . true . 'with' . '\'strange\'' . 1.24. 'behavior',
+				'func'    => 'notice',
+				'msg'     => 'Notice' . ' alert' . true . 'with' . '\'strange\'' . 1.24. 'behavior',
 				'context' => ['test' => 'it'],
 			],
 			'debug' => [
-				'func' => 'debug',
-				'msg' => 'at last a debug',
+				'func'    => 'debug',
+				'msg'     => 'at last a debug',
 				'context' => ['test' => 'it'],
 			],
 		];
@@ -104,11 +79,11 @@ class WorkerLoggerTest extends MockedTest
 	 */
 	public function testEmergency($func, $msg, $context = [])
 	{
-		$logger = \Mockery::mock(LoggerInterface::class);
-		$workLogger = new WorkerLogger($logger, 'test');
-		$testContext = $context;
-		$testContext['worker_id'] = $workLogger->getWorkerId();
-		$testContext['worker_cmd'] = 'test';
+		$logger                    = \Mockery::mock(LoggerInterface::class);
+		$workLogger                = new WorkerLogger($logger);
+		$testContext               = $context;
+		$testContext['worker_id']  = $workLogger->getWorkerId();
+		$testContext['worker_cmd'] = '';
 		self::assertUid($testContext['worker_id']);
 		$logger
 			->shouldReceive($func)
@@ -122,11 +97,44 @@ class WorkerLoggerTest extends MockedTest
 	 */
 	public function testLog()
 	{
-		$logger = \Mockery::mock(LoggerInterface::class);
-		$workLogger = new WorkerLogger($logger, 'test');
-		$context = $testContext = ['test' => 'it'];
-		$testContext['worker_id'] = $workLogger->getWorkerId();
-		$testContext['worker_cmd'] = 'test';
+		$logger                    = \Mockery::mock(LoggerInterface::class);
+		$workLogger                = new WorkerLogger($logger);
+		$context                   = $testContext                   = ['test' => 'it'];
+		$testContext['worker_id']  = $workLogger->getWorkerId();
+		$testContext['worker_cmd'] = '';
+		self::assertUid($testContext['worker_id']);
+		$logger
+			->shouldReceive('log')
+			->with('debug', 'a test', $testContext)
+			->once();
+		$workLogger->log('debug', 'a test', $context);
+	}
+
+
+	/**
+	 * Test the WorkerLogger after setting a worker function
+	 */
+	public function testChangedId()
+	{
+		$logger                    = \Mockery::mock(LoggerInterface::class);
+		$workLogger                = new WorkerLogger($logger);
+		$context                   = $testContext                   = ['test' => 'it'];
+		$testContext['worker_id']  = $workLogger->getWorkerId();
+		$testContext['worker_cmd'] = '';
+		self::assertUid($testContext['worker_id']);
+		$logger
+			->shouldReceive('log')
+			->with('debug', 'a test', $testContext)
+			->once();
+		$workLogger->log('debug', 'a test', $context);
+
+		$workLogger->setFunctionName('testFunc');
+
+		self::assertNotEquals($testContext['worker_id'], $workLogger->getWorkerId());
+
+		$context                   = $testContext                   = ['test' => 'it'];
+		$testContext['worker_id']  = $workLogger->getWorkerId();
+		$testContext['worker_cmd'] = 'testFunc';
 		self::assertUid($testContext['worker_id']);
 		$logger
 			->shouldReceive('log')
