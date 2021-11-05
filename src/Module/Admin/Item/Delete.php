@@ -40,7 +40,7 @@ class Delete extends BaseAdmin
 		self::checkFormSecurityTokenRedirectOnError('/admin/item/delete', 'admin_deleteitem');
 
 		if (!empty($_POST['page_deleteitem_submit'])) {
-			$guid = trim(Strings::escapeTags($_POST['deleteitemguid']));
+			$guid = trim($_POST['deleteitemguid']);
 			// The GUID should not include a "/", so if there is one, we got an URL
 			// and the last part of it is most likely the GUID.
 			if (strpos($guid, '/')) {

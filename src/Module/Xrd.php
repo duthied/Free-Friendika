@@ -30,7 +30,6 @@ use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\Salmon;
-use Friendica\Util\Strings;
 
 /**
  * Prints responses to /.well-known/webfinger  or /xrd requests
@@ -45,7 +44,7 @@ class Xrd extends BaseModule
 				return;
 			}
 
-			$uri = urldecode(Strings::escapeTags(trim($_GET['uri'])));
+			$uri = urldecode(trim($_GET['uri']));
 			if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/jrd+json') !== false)  {
 				$mode = 'json';
 			} else {
@@ -56,7 +55,7 @@ class Xrd extends BaseModule
 				return;
 			}
 
-			$uri = urldecode(Strings::escapeTags(trim($_GET['resource'])));
+			$uri = urldecode(trim($_GET['resource']));
 			if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/xrd+xml') !== false)  {
 				$mode = 'xml';
 			} else {

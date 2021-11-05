@@ -1996,8 +1996,6 @@ class Probe
 							$data["name"] .= $perspart->text;
 						}
 					}
-
-					$data["name"] = Strings::escapeTags($data["name"]);
 				}
 			}
 		}

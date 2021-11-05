@@ -911,18 +911,18 @@ class User
 
 		$using_invites = DI::config()->get('system', 'invitation_only');
 
-		$invite_id  = !empty($data['invite_id'])  ? Strings::escapeTags(trim($data['invite_id']))  : '';
-		$username   = !empty($data['username'])   ? Strings::escapeTags(trim($data['username']))   : '';
-		$nickname   = !empty($data['nickname'])   ? Strings::escapeTags(trim($data['nickname']))   : '';
-		$email      = !empty($data['email'])      ? Strings::escapeTags(trim($data['email']))      : '';
-		$openid_url = !empty($data['openid_url']) ? Strings::escapeTags(trim($data['openid_url'])) : '';
-		$photo      = !empty($data['photo'])      ? Strings::escapeTags(trim($data['photo']))      : '';
-		$password   = !empty($data['password'])   ? trim($data['password'])           : '';
-		$password1  = !empty($data['password1'])  ? trim($data['password1'])          : '';
-		$confirm    = !empty($data['confirm'])    ? trim($data['confirm'])            : '';
+		$invite_id  = !empty($data['invite_id'])  ? trim($data['invite_id'])  : '';
+		$username   = !empty($data['username'])   ? trim($data['username'])   : '';
+		$nickname   = !empty($data['nickname'])   ? trim($data['nickname'])   : '';
+		$email      = !empty($data['email'])      ? trim($data['email'])      : '';
+		$openid_url = !empty($data['openid_url']) ? trim($data['openid_url']) : '';
+		$photo      = !empty($data['photo'])      ? trim($data['photo'])      : '';
+		$password   = !empty($data['password'])   ? trim($data['password'])   : '';
+		$password1  = !empty($data['password1'])  ? trim($data['password1'])  : '';
+		$confirm    = !empty($data['confirm'])    ? trim($data['confirm'])    : '';
 		$blocked    = !empty($data['blocked']);
 		$verified   = !empty($data['verified']);
-		$language   = !empty($data['language'])   ? Strings::escapeTags(trim($data['language']))   : 'en';
+		$language   = !empty($data['language'])   ? trim($data['language'])   : 'en';
 
 		$netpublish = $publish = !empty($data['profile_publish_reg']);
 

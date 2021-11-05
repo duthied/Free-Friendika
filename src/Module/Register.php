@@ -302,7 +302,7 @@ class Register extends BaseModule
 
 		$using_invites = DI::config()->get('system', 'invitation_only');
 		$num_invites   = DI::config()->get('system', 'number_invites');
-		$invite_id = (!empty($_POST['invite_id']) ? Strings::escapeTags(trim($_POST['invite_id'])) : '');
+		$invite_id = (!empty($_POST['invite_id']) ? trim($_POST['invite_id']) : '');
 
 		if (intval(DI::config()->get('config', 'register_policy')) === self::OPEN) {
 			if ($using_invites && $invite_id) {

@@ -37,7 +37,7 @@ function unfollow_post(App $a)
 		// NOTREACHED
 	}
 
-	$url = Strings::escapeTags(trim($_REQUEST['url'] ?? ''));
+	$url = trim($_REQUEST['url'] ?? '');
 
 	unfollow_process($url);
 }
@@ -53,7 +53,7 @@ function unfollow_content(App $a)
 	}
 
 	$uid = local_user();
-	$url = Strings::escapeTags(trim($_REQUEST['url']));
+	$url = trim($_REQUEST['url']);
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 		local_user(), Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),

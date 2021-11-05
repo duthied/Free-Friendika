@@ -102,7 +102,7 @@ class OnePoll
 
 		if ($success) {
 			self::updateContact($contact, ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
-			Contact::unmarkForArchival($contact);	
+			Contact::unmarkForArchival($contact);
 		} else {
 			self::updateContact($contact, ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
 			Contact::markForArchival($contact);
@@ -317,7 +317,7 @@ class OnePoll
 							$datarray['title'] .= $subpart->text;
 						}
 					}
-					$datarray['title'] = Strings::escapeTags(trim($datarray['title']));
+					$datarray['title'] = trim($datarray['title']);
 
 					//$datarray['title'] = Strings::escapeTags(trim($meta->subject));
 					$datarray['created'] = DateTimeFormat::utc($meta->date);

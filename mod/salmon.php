@@ -24,7 +24,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityNamespace;
@@ -42,7 +41,7 @@ function salmon_post(App $a, $xml = '') {
 
 	Logger::debug('new salmon ' . $xml);
 
-	$nick       = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(trim(DI::args()->getArgv()[1])) : '');
+	$nick = ((DI::args()->getArgc() > 1) ? trim(DI::args()->getArgv()[1]) : '');
 
 	$importer = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
 	if (! DBA::isResult($importer)) {

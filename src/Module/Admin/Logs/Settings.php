@@ -39,7 +39,7 @@ class Settings extends BaseAdmin
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/logs', 'admin_logs');
 
-		$logfile   = (!empty($_POST['logfile']) ? Strings::escapeTags(trim($_POST['logfile'])) : '');
+		$logfile   = (!empty($_POST['logfile']) ? trim($_POST['logfile']) : '');
 		$debugging = !empty($_POST['debugging']);
 		$loglevel  = ($_POST['loglevel'] ?? '') ?: LogLevel::ERROR;
 
