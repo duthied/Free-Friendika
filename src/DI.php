@@ -195,11 +195,11 @@ abstract class DI
 	}
 
 	/**
-	 * @return Core\Process
+	 * @return Core\Worker\Repository\Process
 	 */
 	public static function process()
 	{
-		return self::$dice->create(Core\Process::class);
+		return self::$dice->create(Core\Worker\Repository\Process::class);
 	}
 
 	/**
@@ -218,9 +218,29 @@ abstract class DI
 		return self::$dice->create(Core\Storage\Repository\StorageManager::class);
 	}
 
+	/**
+	 * @return \Friendica\Core\System
+	 */
+	public static function system()
+	{
+		return self::$dice->create(Core\System::class);
+	}
+
 	//
 	// "LoggerInterface" instances
 	//
+
+	/**
+	 * Flushes the Logger instance, so the factory is called again
+	 * (creates a new id and retrieves the current PID)
+	 */
+	public static function flushLogger()
+	{
+		$flushDice = self::$dice
+			->addRule(LoggerInterface::class, self::$dice->getRule(LoggerInterface::class))
+			->addRule('$devLogger', self::$dice->getRule('$devLogger'));
+		static::init($flushDice);
+	}
 
 	/**
 	 * @return LoggerInterface
@@ -379,11 +399,11 @@ abstract class DI
 	// "Model" namespace instances
 	//
 	/**
-	 * @return Model\Process
+	 * @return \Friendica\Core\Worker\Repository\Process
 	 */
 	public static function modelProcess()
 	{
-		return self::$dice->create(Model\Process::class);
+		return self::$dice->create(Core\Worker\Repository\Process::class);
 	}
 
 	/**

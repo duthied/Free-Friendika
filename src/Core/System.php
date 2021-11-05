@@ -22,18 +22,203 @@
 namespace Friendica\Core;
 
 use Exception;
+use Friendica\App;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\DI;
 use Friendica\Network\HTTPException\FoundException;
 use Friendica\Network\HTTPException\MovedPermanentlyException;
 use Friendica\Network\HTTPException\TemporaryRedirectException;
 use Friendica\Util\BasePath;
 use Friendica\Util\XML;
+use Psr\Log\LoggerInterface;
 
 /**
  * Contains the class with system relevant stuff
  */
 class System
 {
+	/**
+	 * @var LoggerInterface
+	 */
+	private $logger;
+
+	/**
+	 * @var IManageConfigValues
+	 */
+	private $config;
+
+	/**
+	 * @var string
+	 */
+	private $basePath;
+
+	public function __construct(LoggerInterface $logger, IManageConfigValues $config, string $basepath)
+	{
+		$this->logger   = $logger;
+		$this->config   = $config;
+		$this->basePath = $basepath;
+	}
+
+	/**
+	 * Checks if the maximum number of database processes is reached
+	 *
+	 * @return bool Is the limit reached?
+	 */
+	public function isMaxProcessesReached(): bool
+	{
+		// Deactivated, needs more investigating if this check really makes sense
+		return false;
+
+		/*
+		 * Commented out to suppress static analyzer issues
+		 *
+		if ($this->mode->isBackend()) {
+			$process = 'backend';
+			$max_processes = $this->config->get('system', 'max_processes_backend');
+			if (intval($max_processes) == 0) {
+				$max_processes = 5;
+			}
+		} else {
+			$process = 'frontend';
+			$max_processes = $this->config->get('system', 'max_processes_frontend');
+			if (intval($max_processes) == 0) {
+				$max_processes = 20;
+			}
+		}
+
+		$processlist = DBA::processlist();
+		if ($processlist['list'] != '') {
+			$this->logger->debug('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list']);
+
+			if ($processlist['amount'] > $max_processes) {
+				$this->logger->debug('Processcheck: Maximum number of processes for ' . $process . ' tasks (' . $max_processes . ') reached.');
+				return true;
+			}
+		}
+		return false;
+		 */
+	}
+
+	/**
+	 * Checks if the minimal memory is reached
+	 *
+	 * @return bool Is the memory limit reached?
+	 */
+	public function isMinMemoryReached(): bool
+	{
+		// Deactivated, needs more investigating if this check really makes sense
+		return false;
+
+		/*
+		 * Commented out to suppress static analyzer issues
+		 *
+		$min_memory = $this->config->get('system', 'min_memory', 0);
+		if ($min_memory == 0) {
+			return false;
+		}
+
+		if (!is_readable('/proc/meminfo')) {
+			return false;
+		}
+
+		$memdata = explode("\n", file_get_contents('/proc/meminfo'));
+
+		$meminfo = [];
+		foreach ($memdata as $line) {
+			$data = explode(':', $line);
+			if (count($data) != 2) {
+				continue;
+			}
+			[$key, $val]     = $data;
+			$meminfo[$key]   = (int)trim(str_replace('kB', '', $val));
+			$meminfo[$key]   = (int)($meminfo[$key] / 1024);
+		}
+
+		if (!isset($meminfo['MemFree'])) {
+			return false;
+		}
+
+		$free = $meminfo['MemFree'];
+
+		$reached = ($free < $min_memory);
+
+		if ($reached) {
+			$this->logger->warning('Minimal memory reached.', ['free' => $free, 'memtotal' => $meminfo['MemTotal'], 'limit' => $min_memory]);
+		}
+
+		return $reached;
+		 */
+	}
+
+	/**
+	 * Checks if the maximum load is reached
+	 *
+	 * @return bool Is the load reached?
+	 */
+	public function isMaxLoadReached(): bool
+	{
+		$maxsysload = intval($this->config->get('system', 'maxloadavg'));
+		if ($maxsysload < 1) {
+			$maxsysload = 50;
+		}
+
+		$load = System::currentLoad();
+		if ($load) {
+			if (intval($load) > $maxsysload) {
+				$this->logger->warning('system load for process too high.', ['load' => $load, 'process' => 'backend', 'maxsysload' => $maxsysload]);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Executes a child process with 'proc_open'
+	 *
+	 * @param string $command The command to execute
+	 * @param array  $args    Arguments to pass to the command ( [ 'key' => value, 'key2' => value2, ... ]
+	 */
+	public function run(string $command, array $args)
+	{
+		if (!function_exists('proc_open')) {
+			$this->logger->warning('"proc_open" not available - quitting');
+			return;
+		}
+
+		$cmdline = $this->config->get('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
+
+		foreach ($args as $key => $value) {
+			if (!is_null($value) && is_bool($value) && !$value) {
+				continue;
+			}
+
+			$cmdline .= ' --' . $key;
+			if (!is_null($value) && !is_bool($value)) {
+				$cmdline .= ' ' . $value;
+			}
+		}
+
+		if ($this->isMinMemoryReached()) {
+			$this->logger->warning('Memory limit reached - quitting');
+			return;
+		}
+
+		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->basePath);
+		} else {
+			$resource = proc_open($cmdline . ' &', [], $foo, $this->basePath);
+		}
+
+		if (!is_resource($resource)) {
+			$this->logger->warning('We got no resource for command.', ['command' => $cmdline]);
+			return;
+		}
+
+		proc_close($resource);
+
+		$this->logger->info('Executed "proc_open"', ['command' => $cmdline, 'callstack' => System::callstack(10)]);
+	}
+
 	/**
 	 * Returns a string with a callstack. Can be used for logging.
 	 *
@@ -42,7 +227,7 @@ class System
 	 *                        this is called from a centralized method that isn't relevant to the callstack
 	 * @return string
 	 */
-	public static function callstack(int $depth = 4, int $offset = 0)
+	public static function callstack(int $depth = 4, int $offset = 0): string
 	{
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 

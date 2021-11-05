@@ -31,6 +31,9 @@ use Psr\Log\LoggerInterface;
  */
 class WorkerLogger implements LoggerInterface
 {
+	/** @var int Length of the unique worker id */
+	const WORKER_ID_LENGTH = 7;
+
 	/**
 	 * @var LoggerInterface The original Logger instance
 	 */
@@ -48,17 +51,14 @@ class WorkerLogger implements LoggerInterface
 
 	/**
 	 * @param LoggerInterface $logger       The logger for worker entries
-	 * @param string          $functionName The current function name of the worker
-	 * @param int             $idLength     The length of the generated worker ID
 	 *
 	 * @throws LoggerException
 	 */
-	public function __construct(LoggerInterface $logger, string $functionName = '', int $idLength = 7)
+	public function __construct(LoggerInterface $logger)
 	{
-		$this->logger       = $logger;
-		$this->functionName = $functionName;
+		$this->logger = $logger;
 		try {
-			$this->workerId = Strings::getRandomHex($idLength);
+			$this->workerId = Strings::getRandomHex(self::WORKER_ID_LENGTH);
 		} catch (\Exception $exception) {
 			throw new LoggerException('Cannot generate random Hex.', $exception);
 		}
@@ -68,10 +68,17 @@ class WorkerLogger implements LoggerInterface
 	 * Sets the function name for additional logging
 	 *
 	 * @param string $functionName
+	 *
+	 * @throws LoggerException
 	 */
 	public function setFunctionName(string $functionName)
 	{
 		$this->functionName = $functionName;
+		try {
+			$this->workerId = Strings::getRandomHex(self::WORKER_ID_LENGTH);
+		} catch (\Exception $exception) {
+			throw new LoggerException('Cannot generate random Hex.', $exception);
+		}
 	}
 
 	/**

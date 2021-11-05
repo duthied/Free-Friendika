@@ -91,7 +91,6 @@
 		{{include file="field_input.tpl" field=$proxy}}
 		{{include file="field_input.tpl" field=$proxyuser}}
 		{{include file="field_input.tpl" field=$timeout}}
-		{{include file="field_input.tpl" field=$maxloadavg_frontend}}
 		{{include file="field_input.tpl" field=$abandon_days}}
 		{{include file="field_input.tpl" field=$temppath}}
 		{{include file="field_checkbox.tpl" field=$suppress_tags}}

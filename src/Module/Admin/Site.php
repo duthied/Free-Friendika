@@ -177,7 +177,6 @@ class Site extends BaseAdmin
 		$proxy                  = (!empty($_POST['proxy'])                  ? Strings::escapeTags(trim($_POST['proxy']))     : '');
 		$timeout                = (!empty($_POST['timeout'])                ? intval(trim($_POST['timeout']))                : 60);
 		$maxloadavg             = (!empty($_POST['maxloadavg'])             ? intval(trim($_POST['maxloadavg']))             : 20);
-		$maxloadavg_frontend    = (!empty($_POST['maxloadavg_frontend'])    ? intval(trim($_POST['maxloadavg_frontend']))    : 50);
 		$min_memory             = (!empty($_POST['min_memory'])             ? intval(trim($_POST['min_memory']))             : 0);
 		$optimize_tables        = (!empty($_POST['optimize_tables'])        ? intval(trim($_POST['optimize_tables']))        : false);
 		$contact_discovery      = (!empty($_POST['contact_discovery'])      ? intval(trim($_POST['contact_discovery']))      : Contact\Relation::DISCOVERY_NONE);
@@ -264,7 +263,6 @@ class Site extends BaseAdmin
 		}
 		DI::config()->set('system', 'ssl_policy'            , $ssl_policy);
 		DI::config()->set('system', 'maxloadavg'            , $maxloadavg);
-		DI::config()->set('system', 'maxloadavg_frontend'   , $maxloadavg_frontend);
 		DI::config()->set('system', 'min_memory'            , $min_memory);
 		DI::config()->set('system', 'optimize_tables'       , $optimize_tables);
 		DI::config()->set('system', 'contact_discovery'     , $contact_discovery);
@@ -576,7 +574,6 @@ class Site extends BaseAdmin
 			'$proxy'                  => ['proxy', DI::l10n()->t('Proxy URL'), DI::config()->get('system', 'proxy'), ''],
 			'$timeout'                => ['timeout', DI::l10n()->t('Network timeout'), DI::config()->get('system', 'curl_timeout'), DI::l10n()->t('Value is in seconds. Set to 0 for unlimited (not recommended).')],
 			'$maxloadavg'             => ['maxloadavg', DI::l10n()->t('Maximum Load Average'), DI::config()->get('system', 'maxloadavg'), DI::l10n()->t('Maximum system load before delivery and poll processes are deferred - default %d.', 20)],
-			'$maxloadavg_frontend'    => ['maxloadavg_frontend', DI::l10n()->t('Maximum Load Average (Frontend)'), DI::config()->get('system', 'maxloadavg_frontend'), DI::l10n()->t('Maximum system load before the frontend quits service - default 50.')],
 			'$min_memory'             => ['min_memory', DI::l10n()->t('Minimal Memory'), DI::config()->get('system', 'min_memory'), DI::l10n()->t('Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).')],
 			'$optimize_tables'        => ['optimize_tables', DI::l10n()->t('Periodically optimize tables'), DI::config()->get('system', 'optimize_tables'), DI::l10n()->t('Periodically optimize tables like the cache and the workerqueue')],
 

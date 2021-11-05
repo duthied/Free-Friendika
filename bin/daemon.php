@@ -196,7 +196,7 @@ while (true) {
 		$do_cron = true;
 	}
 
-	if ($do_cron || (!DI::process()->isMaxLoadReached() && Worker::entriesExists() && Worker::isReady())) {
+	if ($do_cron || (!DI::system()->isMaxLoadReached() && Worker::entriesExists() && Worker::isReady())) {
 		Worker::spawnWorker($do_cron);
 	} else {
 		Logger::info('Cool down for 5 seconds', ['pid' => $pid]);
