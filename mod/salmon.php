@@ -41,7 +41,7 @@ function salmon_post(App $a, $xml = '') {
 
 	Logger::debug('new salmon ' . $xml);
 
-	$nick = ((DI::args()->getArgc() > 1) ? trim(DI::args()->getArgv()[1]) : '');
+	$nick = trim(DI::args()->getArgv()[1] ?? '');
 
 	$importer = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
 	if (! DBA::isResult($importer)) {
