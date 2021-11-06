@@ -2492,7 +2492,7 @@ class Contact
 		$contact_id = $contact['id'];
 		$result['cid'] = $contact_id;
 
-		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact_id);
+		Group::addMember(User::getDefaultGroup($uid), $contact_id);
 
 		// Update the avatar
 		self::updateAvatar($contact_id, $ret['photo']);
@@ -2699,7 +2699,7 @@ class Contact
 					DI::intro()->save($intro);
 				}
 
-				Group::addMember(User::getDefaultGroup($importer['uid'], $contact_record["network"]), $contact_record['id']);
+				Group::addMember(User::getDefaultGroup($importer['uid']), $contact_record['id']);
 
 				if (($user['notify-flags'] & Notification\Type::INTRO) &&
 					in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL])) {
