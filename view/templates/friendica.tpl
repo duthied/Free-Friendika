@@ -12,7 +12,7 @@
 
 	<p>{{$visible_addons.title nofilter}}</p>
 	{{if $visible_addons.list}}
-	<div style="margin-left: 25px; margin-right: 25px; margin-bottom: 25px;">{{$visible_addons.list nofilter}}</div>
+	<div style="margin-left: 25px; margin-right: 25px; margin-bottom: 25px;">{{$visible_addons.list}}</div>
 	{{/if}}
 
 	{{if $tos}}
@@ -21,20 +21,20 @@
 
 	{{if $block_list}}
 	<div id="about_blocklist">
-		<p>{{$block_list.title nofilter}}</p>
+		<p>{{$block_list.title}}</p>
 		<br>
 		<table class="table">
 			<thead>
 				<tr>
-					<th>{{$block_list.header[0] nofilter}}</th>
-					<th>{{$block_list.header[1] nofilter}}</th>
+					<th>{{$block_list.header[0]}}</th>
+					<th>{{$block_list.header[1]}}</th>
 				</tr>
 			</thead>
 			<tbody>
 			{{foreach $block_list.list as $blocked}}
 				<tr>
-					<td>{{$blocked.domain nofilter}}</td>
-					<td>{{$blocked.reason nofilter}}</td>
+					<td>{{$blocked.domain}}</td>
+					<td>{{$blocked.reason}}</td>
 				</tr>
 			{{/foreach}}
 			</tbody>

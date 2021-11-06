@@ -118,6 +118,33 @@ class GServer
 	}
 
 	/**
+	 * Retrieves all the servers which base domain are matching the provided domain pattern
+	 *
+	 * The pattern is a simple fnmatch() pattern with ? for single wildcard and * for multiple wildcard
+	 *
+	 * @param string $pattern
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function listByDomainPattern(string $pattern): array
+	{
+		$likePattern = 'http://' . strtr($pattern, ['_' => '\_', '%' => '\%', '?' => '_', '*' => '%']);
+
+		// The SUBSTRING_INDEX returns everything before the eventual third /, which effectively trims an
+		// eventual server path and keep only the server domain which we're matching against the pattern.
+		$sql = "SELECT `gserver`.*, COUNT(*) AS `contacts`
+			FROM `gserver`
+			LEFT JOIN `contact` ON `gserver`.`id` = `contact`.`gsid`
+			WHERE SUBSTRING_INDEX(`gserver`.`nurl`, '/', 3) LIKE ?
+			AND NOT `gserver`.`failed`
+			GROUP BY `gserver`.`id`";
+
+		$stmt = DI::dba()->p($sql, $likePattern);
+
+		return DI::dba()->toArray($stmt);
+	}
+
+	/**
 	 * Checks if the given server is reachable
 	 *
 	 * @param string  $profile URL of the given profile

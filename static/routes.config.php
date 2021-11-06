@@ -180,8 +180,9 @@ return [
 		'/addons/{addon}' => [Module\Admin\Addons\Details::class, [R::GET, R::POST]],
 
 
-		'/blocklist/contact' => [Module\Admin\Blocklist\Contact::class, [R::GET, R::POST]],
-		'/blocklist/server'  => [Module\Admin\Blocklist\Server::class,  [R::GET, R::POST]],
+		'/blocklist/contact'    => [Module\Admin\Blocklist\Contact::class,      [R::GET, R::POST]],
+		'/blocklist/server'     => [Module\Admin\Blocklist\Server\Index::class, [R::GET, R::POST]],
+		'/blocklist/server/add' => [Module\Admin\Blocklist\Server\Add::class,   [R::GET, R::POST]],
 
 		'/dbsync[/{action}[/{update:\d+}]]' => [Module\Admin\DBSync::class, [R::GET]],
 
