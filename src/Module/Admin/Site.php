@@ -128,16 +128,16 @@ class Site extends BaseAdmin
 		}
 		// end relocate
 
-		$sitename         = (!empty($_POST['sitename'])         ? Strings::escapeTags(trim($_POST['sitename']))      : '');
-		$sender_email     = (!empty($_POST['sender_email'])     ? Strings::escapeTags(trim($_POST['sender_email']))  : '');
+		$sitename         = (!empty($_POST['sitename'])         ? trim($_POST['sitename'])      : '');
+		$sender_email     = (!empty($_POST['sender_email'])     ? trim($_POST['sender_email'])  : '');
 		$banner           = (!empty($_POST['banner'])           ? trim($_POST['banner'])                             : false);
 		$email_banner     = (!empty($_POST['email_banner'])     ? trim($_POST['email_banner'])                       : false);
-		$shortcut_icon    = (!empty($_POST['shortcut_icon'])    ? Strings::escapeTags(trim($_POST['shortcut_icon'])) : '');
-		$touch_icon       = (!empty($_POST['touch_icon'])       ? Strings::escapeTags(trim($_POST['touch_icon']))    : '');
+		$shortcut_icon    = (!empty($_POST['shortcut_icon'])    ? trim($_POST['shortcut_icon']) : '');
+		$touch_icon       = (!empty($_POST['touch_icon'])       ? trim($_POST['touch_icon'])    : '');
 		$additional_info  = (!empty($_POST['additional_info'])  ? trim($_POST['additional_info'])                    : '');
-		$language         = (!empty($_POST['language'])         ? Strings::escapeTags(trim($_POST['language']))      : '');
-		$theme            = (!empty($_POST['theme'])            ? Strings::escapeTags(trim($_POST['theme']))         : '');
-		$theme_mobile     = (!empty($_POST['theme_mobile'])     ? Strings::escapeTags(trim($_POST['theme_mobile']))  : '');
+		$language         = (!empty($_POST['language'])         ? trim($_POST['language'])      : '');
+		$theme            = (!empty($_POST['theme'])            ? trim($_POST['theme'])         : '');
+		$theme_mobile     = (!empty($_POST['theme_mobile'])     ? trim($_POST['theme_mobile'])  : '');
 		$maximagesize     = (!empty($_POST['maximagesize'])     ? intval(trim($_POST['maximagesize']))               : 0);
 		$maximagelength   = (!empty($_POST['maximagelength'])   ? intval(trim($_POST['maximagelength']))             : -1);
 		$jpegimagequality = (!empty($_POST['jpegimagequality']) ? intval(trim($_POST['jpegimagequality']))           : 100);
@@ -148,15 +148,15 @@ class Site extends BaseAdmin
 
 		$register_text          = (!empty($_POST['register_text'])           ? strip_tags(trim($_POST['register_text']))           : '');
 
-		$allowed_sites          = (!empty($_POST['allowed_sites'])           ? Strings::escapeTags(trim($_POST['allowed_sites']))  : '');
-		$allowed_email          = (!empty($_POST['allowed_email'])           ? Strings::escapeTags(trim($_POST['allowed_email']))  : '');
-		$forbidden_nicknames    = (!empty($_POST['forbidden_nicknames'])     ? strtolower(Strings::escapeTags(trim($_POST['forbidden_nicknames']))) : '');
-		$system_actor_name      = (!empty($_POST['system_actor_name'])       ? Strings::escapeTags(trim($_POST['system_actor_name'])) : '');
+		$allowed_sites          = (!empty($_POST['allowed_sites'])           ? trim($_POST['allowed_sites'])  : '');
+		$allowed_email          = (!empty($_POST['allowed_email'])           ? trim($_POST['allowed_email'])  : '');
+		$forbidden_nicknames    = (!empty($_POST['forbidden_nicknames'])     ? strtolower(trim($_POST['forbidden_nicknames'])) : '');
+		$system_actor_name      = (!empty($_POST['system_actor_name'])       ? trim($_POST['system_actor_name']) : '');
 		$no_oembed_rich_content = !empty($_POST['no_oembed_rich_content']);
-		$allowed_oembed         = (!empty($_POST['allowed_oembed'])          ? Strings::escapeTags(trim($_POST['allowed_oembed'])) : '');
+		$allowed_oembed         = (!empty($_POST['allowed_oembed'])          ? trim($_POST['allowed_oembed']) : '');
 		$block_public           = !empty($_POST['block_public']);
 		$force_publish          = !empty($_POST['publish_all']);
-		$global_directory       = (!empty($_POST['directory'])               ? Strings::escapeTags(trim($_POST['directory']))      : '');
+		$global_directory       = (!empty($_POST['directory'])               ? trim($_POST['directory'])      : '');
 		$newuser_private        = !empty($_POST['newuser_private']);
 		$enotify_no_content     = !empty($_POST['enotify_no_content']);
 		$private_addons         = !empty($_POST['private_addons']);
@@ -173,8 +173,8 @@ class Site extends BaseAdmin
 		$max_author_posts_community_page = (!empty($_POST['max_author_posts_community_page']) ? intval(trim($_POST['max_author_posts_community_page'])) : 0);
 
 		$verifyssl              = !empty($_POST['verifyssl']);
-		$proxyuser              = (!empty($_POST['proxyuser'])              ? Strings::escapeTags(trim($_POST['proxyuser'])) : '');
-		$proxy                  = (!empty($_POST['proxy'])                  ? Strings::escapeTags(trim($_POST['proxy']))     : '');
+		$proxyuser              = (!empty($_POST['proxyuser'])              ? trim($_POST['proxyuser']) : '');
+		$proxy                  = (!empty($_POST['proxy'])                  ? trim($_POST['proxy'])     : '');
 		$timeout                = (!empty($_POST['timeout'])                ? intval(trim($_POST['timeout']))                : 60);
 		$maxloadavg             = (!empty($_POST['maxloadavg'])             ? intval(trim($_POST['maxloadavg']))             : 20);
 		$min_memory             = (!empty($_POST['min_memory'])             ? intval(trim($_POST['min_memory']))             : 0);
@@ -198,20 +198,20 @@ class Site extends BaseAdmin
 		$suppress_tags          = !empty($_POST['suppress_tags']);
 		$max_comments           = (!empty($_POST['max_comments'])           ? intval($_POST['max_comments'])                  : 0);
 		$max_display_comments   = (!empty($_POST['max_display_comments'])   ? intval($_POST['max_display_comments'])          : 0);
-		$temppath               = (!empty($_POST['temppath'])               ? Strings::escapeTags(trim($_POST['temppath']))   : '');
-		$singleuser             = (!empty($_POST['singleuser'])             ? Strings::escapeTags(trim($_POST['singleuser'])) : '');
+		$temppath               = (!empty($_POST['temppath'])               ? trim($_POST['temppath'])   : '');
+		$singleuser             = (!empty($_POST['singleuser'])             ? trim($_POST['singleuser']) : '');
 		$only_tag_search        = !empty($_POST['only_tag_search']);
-		$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? Strings::escapeTags(trim($_POST['check_new_version_url'])) : 'none');
+		$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? trim($_POST['check_new_version_url']) : 'none');
 
 		$worker_queues    = (!empty($_POST['worker_queues'])                ? intval($_POST['worker_queues'])                 : 10);
 		$worker_fastlane  = !empty($_POST['worker_fastlane']);
 
 		$relay_directly    = !empty($_POST['relay_directly']);
-		$relay_scope       = (!empty($_POST['relay_scope'])       ? Strings::escapeTags(trim($_POST['relay_scope']))        : '');
-		$relay_server_tags = (!empty($_POST['relay_server_tags']) ? Strings::escapeTags(trim($_POST['relay_server_tags']))  : '');
-		$relay_deny_tags   = (!empty($_POST['relay_deny_tags'])   ? Strings::escapeTags(trim($_POST['relay_deny_tags']))    : '');
+		$relay_scope       = (!empty($_POST['relay_scope'])       ? trim($_POST['relay_scope'])        : '');
+		$relay_server_tags = (!empty($_POST['relay_server_tags']) ? trim($_POST['relay_server_tags'])  : '');
+		$relay_deny_tags   = (!empty($_POST['relay_deny_tags'])   ? trim($_POST['relay_deny_tags'])    : '');
 		$relay_user_tags   = !empty($_POST['relay_user_tags']);
-		$active_panel      = (!empty($_POST['active_panel'])      ? "#" . Strings::escapeTags(trim($_POST['active_panel'])) : '');
+		$active_panel      = (!empty($_POST['active_panel'])      ? "#" . trim($_POST['active_panel']) : '');
 
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
 		if ($global_directory != DI::config()->get('system', 'directory') && ($global_directory != '')) {

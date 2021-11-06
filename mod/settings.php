@@ -37,7 +37,6 @@ use Friendica\Model\User;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
 use Friendica\Protocol\Email;
-use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use Friendica\Worker\Delivery;
 
@@ -216,14 +215,14 @@ function settings_post(App $a)
 		}
 	}
 
-	$username         = (!empty($_POST['username'])   ? Strings::escapeTags(trim($_POST['username']))     : '');
-	$email            = (!empty($_POST['email'])      ? Strings::escapeTags(trim($_POST['email']))        : '');
-	$timezone         = (!empty($_POST['timezone'])   ? Strings::escapeTags(trim($_POST['timezone']))     : '');
-	$language         = (!empty($_POST['language'])   ? Strings::escapeTags(trim($_POST['language']))     : '');
+	$username         = (!empty($_POST['username'])        ? trim($_POST['username'])          : '');
+	$email            = (!empty($_POST['email'])           ? trim($_POST['email'])             : '');
+	$timezone         = (!empty($_POST['timezone'])        ? trim($_POST['timezone'])          : '');
+	$language         = (!empty($_POST['language'])        ? trim($_POST['language'])          : '');
 
-	$defloc           = (!empty($_POST['defloc'])     ? Strings::escapeTags(trim($_POST['defloc']))       : '');
-	$maxreq           = (!empty($_POST['maxreq'])     ? intval($_POST['maxreq'])             : 0);
-	$expire           = (!empty($_POST['expire'])     ? intval($_POST['expire'])             : 0);
+	$defloc           = (!empty($_POST['defloc'])          ? trim($_POST['defloc'])            : '');
+	$maxreq           = (!empty($_POST['maxreq'])          ? intval($_POST['maxreq'])          : 0);
+	$expire           = (!empty($_POST['expire'])          ? intval($_POST['expire'])          : 0);
 	$def_gid          = (!empty($_POST['group-selection']) ? intval($_POST['group-selection']) : 0);
 
 

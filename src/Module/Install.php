@@ -30,7 +30,6 @@ use Friendica\Core\Theme;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Util\BasePath;
-use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 class Install extends BaseModule
@@ -380,10 +379,8 @@ class Install extends BaseModule
 	private static function checkSetting(Cache $configCache, array $post, $cat, $key, $default = null)
 	{
 		$configCache->set($cat, $key,
-			Strings::escapeTags(
-				trim(($post[sprintf('%s-%s', $cat, $key)] ?? '') ?:
-						($default ?? $configCache->get($cat, $key))
-				)
+			trim(($post[sprintf('%s-%s', $cat, $key)] ?? '') ?:
+					($default ?? $configCache->get($cat, $key))
 			)
 		);
 	}

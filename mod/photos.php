@@ -291,11 +291,11 @@ function photos_post(App $a)
 	}
 
 	if (DI::args()->getArgc() > 2 && (!empty($_POST['desc']) || !empty($_POST['newtag']) || isset($_POST['albname']))) {
-		$desc        = !empty($_POST['desc'])      ? Strings::escapeTags(trim($_POST['desc']))      : '';
-		$rawtags     = !empty($_POST['newtag'])    ? Strings::escapeTags(trim($_POST['newtag']))    : '';
-		$item_id     = !empty($_POST['item_id'])   ? intval($_POST['item_id'])                      : 0;
-		$albname     = !empty($_POST['albname'])   ? trim($_POST['albname'])                        : '';
-		$origaname   = !empty($_POST['origaname']) ? Strings::escapeTags(trim($_POST['origaname'])) : '';
+		$desc      = !empty($_POST['desc'])      ? trim($_POST['desc'])      : '';
+		$rawtags   = !empty($_POST['newtag'])    ? trim($_POST['newtag'])    : '';
+		$item_id   = !empty($_POST['item_id'])   ? intval($_POST['item_id']) : 0;
+		$albname   = !empty($_POST['albname'])   ? trim($_POST['albname'])   : '';
+		$origaname = !empty($_POST['origaname']) ? trim($_POST['origaname']) : '';
 
 		$resource_id = DI::args()->getArgv()[3];
 

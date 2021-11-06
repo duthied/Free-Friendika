@@ -234,10 +234,10 @@ class Contact extends BaseModule
 
 		$a = DI::app();
 
-		$search = Strings::escapeTags(trim($_GET['search'] ?? ''));
-		$nets   = Strings::escapeTags(trim($_GET['nets']   ?? ''));
-		$rel    = Strings::escapeTags(trim($_GET['rel']    ?? ''));
-		$group  = Strings::escapeTags(trim($_GET['group']  ?? ''));
+		$search = trim($_GET['search'] ?? '');
+		$nets   = trim($_GET['nets']   ?? '');
+		$rel    = trim($_GET['rel']    ?? '');
+		$group  = trim($_GET['group']  ?? '');
 
 		$accounttype = $_GET['accounttype'] ?? '';
 		$accounttypeid = User::getAccountTypeByString($accounttype);
@@ -523,7 +523,7 @@ class Contact extends BaseModule
 				'$submit'         => DI::l10n()->t('Submit'),
 				'$lbl_info1'      => $lbl_info1,
 				'$lbl_info2'      => DI::l10n()->t('Their personal note'),
-				'$reason'         => trim(Strings::escapeTags($contact['reason'])),
+				'$reason'         => trim($contact['reason']),
 				'$infedit'        => DI::l10n()->t('Edit contact notes'),
 				'$common_link'    => 'contact/' . $contact['id'] . '/contacts/common',
 				'$relation_text'  => $relation_text,

@@ -63,7 +63,7 @@
 
 		<div id="photo-photo-end"></div>
 		{{* The photo description *}}
-		<div id="photo-caption">{{$desc nofilter}}</div>
+		<div id="photo-caption">{{$desc}}</div>
 
 		{{* Tags and mentions *}}
 		{{if $tags}}

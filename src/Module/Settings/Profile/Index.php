@@ -37,7 +37,6 @@ use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 class Index extends BaseSettings
@@ -79,23 +78,23 @@ class Index extends BaseSettings
 			}
 		}
 
-		$name = Strings::escapeTags(trim($_POST['name'] ?? ''));
+		$name = trim($_POST['name'] ?? '');
 		if (!strlen($name)) {
 			notice(DI::l10n()->t('Profile Name is required.'));
 			return;
 		}
 
-		$about = Strings::escapeTags(trim($_POST['about']));
-		$address = Strings::escapeTags(trim($_POST['address']));
-		$locality = Strings::escapeTags(trim($_POST['locality']));
-		$region = Strings::escapeTags(trim($_POST['region']));
-		$postal_code = Strings::escapeTags(trim($_POST['postal_code']));
-		$country_name = Strings::escapeTags(trim($_POST['country_name']));
-		$pub_keywords = self::cleanKeywords(Strings::escapeTags(trim($_POST['pub_keywords'])));
-		$prv_keywords = self::cleanKeywords(Strings::escapeTags(trim($_POST['prv_keywords'])));
-		$xmpp = Strings::escapeTags(trim($_POST['xmpp']));
-		$matrix = Strings::escapeTags(trim($_POST['matrix']));
-		$homepage = Strings::escapeTags(trim($_POST['homepage']));
+		$about = trim($_POST['about']);
+		$address = trim($_POST['address']);
+		$locality = trim($_POST['locality']);
+		$region = trim($_POST['region']);
+		$postal_code = trim($_POST['postal_code']);
+		$country_name = trim($_POST['country_name']);
+		$pub_keywords = self::cleanKeywords(trim($_POST['pub_keywords']));
+		$prv_keywords = self::cleanKeywords(trim($_POST['prv_keywords']));
+		$xmpp = trim($_POST['xmpp']);
+		$matrix = trim($_POST['matrix']);
+		$homepage = trim($_POST['homepage']);
 		if ((strpos($homepage, 'http') !== 0) && (strlen($homepage))) {
 			// neither http nor https in URL, add them
 			$homepage = 'http://' . $homepage;

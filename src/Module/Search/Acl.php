@@ -32,7 +32,6 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
-use Friendica\Util\Strings;
 
 /**
  * ACL selector json backend
@@ -69,7 +68,7 @@ class Acl extends BaseModule
 	private static function globalContactSearch()
 	{
 		// autocomplete for global contact search (e.g. navbar search)
-		$search = Strings::escapeTags(trim($_REQUEST['search']));
+		$search = trim($_REQUEST['search']);
 		$mode = $_REQUEST['smode'];
 		$page = $_REQUEST['page'] ?? 1;
 

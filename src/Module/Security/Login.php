@@ -27,7 +27,6 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Module\Register;
-use Friendica\Util\Strings;
 
 /**
  * Login module
@@ -187,16 +186,16 @@ class Login extends BaseModule
 		if (is_array($attr) && count($attr)) {
 			foreach ($attr as $k => $v) {
 				if ($k === 'namePerson/friendly') {
-					$nick = Strings::escapeTags(trim($v));
+					$nick = trim($v);
 				}
 				if ($k === 'namePerson/first') {
-					$first = Strings::escapeTags(trim($v));
+					$first = trim($v);
 				}
 				if ($k === 'namePerson') {
-					$args['username'] = Strings::escapeTags(trim($v));
+					$args['username'] = trim($v);
 				}
 				if ($k === 'contact/email') {
-					$args['email'] = Strings::escapeTags(trim($v));
+					$args['email'] = trim($v);
 				}
 				if ($k === 'media/image/aspect11') {
 					$photosq = bin2hex(trim($v));
@@ -219,7 +218,7 @@ class Login extends BaseModule
 			$args['photo'] = $photo;
 		}
 
-		$args['openid_url'] = Strings::escapeTags(trim(Session::get('openid_identity')));
+		$args['openid_url'] = trim(Session::get('openid_identity'));
 
 		return 'register?' . http_build_query($args);
 	}

@@ -70,10 +70,10 @@ function message_post(App $a)
 		return;
 	}
 
-	$replyto   = !empty($_REQUEST['replyto'])   ? Strings::escapeTags(trim($_REQUEST['replyto'])) : '';
-	$subject   = !empty($_REQUEST['subject'])   ? Strings::escapeTags(trim($_REQUEST['subject'])) : '';
-	$body      = !empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body']))    : '';
-	$recipient = !empty($_REQUEST['recipient']) ? intval($_REQUEST['recipient'])                  : 0;
+	$replyto   = !empty($_REQUEST['replyto'])   ? trim($_REQUEST['replyto'])                   : '';
+	$subject   = !empty($_REQUEST['subject'])   ? trim($_REQUEST['subject'])                   : '';
+	$body      = !empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '';
+	$recipient = !empty($_REQUEST['recipient']) ? intval($_REQUEST['recipient'])               : 0;
 
 	$ret = Mail::send($recipient, $body, $subject, $replyto);
 	$norecip = false;

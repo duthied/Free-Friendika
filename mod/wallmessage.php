@@ -37,10 +37,10 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	$subject   = (!empty($_REQUEST['subject'])   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '');
-	$body      = (!empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '');
+	$subject   = trim($_REQUEST['subject'] ?? '');
+	$body      = Strings::escapeHtml(trim($_REQUEST['body'] ?? ''));
 
-	$recipient = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(DI::args()->getArgv()[1]) : '');
+	$recipient = ((DI::args()->getArgc() > 1) ? DI::args()->getArgv()[1] : '');
 	if ((! $recipient) || (! $body)) {
 		return;
 	}
