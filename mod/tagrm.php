@@ -23,10 +23,8 @@ use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
-use Friendica\Util\Strings;
 
 function tagrm_post(App $a)
 {
@@ -40,7 +38,7 @@ function tagrm_post(App $a)
 
 	$tags = [];
 	foreach ($_POST['tag'] ?? [] as $tag) {
-		$tags[] = hex2bin(Strings::escapeTags(trim($tag)));
+		$tags[] = hex2bin(trim($tag));
 	}
 
 	$item_id = $_POST['item'] ?? 0;
@@ -89,7 +87,7 @@ function tagrm_content(App $a)
 	}
 
 	if (DI::args()->getArgc()== 3) {
-		update_tags(DI::args()->getArgv()[1], [Strings::escapeTags(trim(hex2bin(DI::args()->getArgv()[2])))]);
+		update_tags(DI::args()->getArgv()[1], [trim(hex2bin(DI::args()->getArgv()[2]))]);
 		DI::baseUrl()->redirect($photo_return);
 	}
 

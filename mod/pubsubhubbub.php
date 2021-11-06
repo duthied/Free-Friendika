@@ -26,10 +26,6 @@ use Friendica\DI;
 use Friendica\Model\PushSubscriber;
 use Friendica\Util\Strings;
 
-function post_var($name) {
-	return !empty($_POST[$name]) ? Strings::escapeTags(trim($_POST[$name])) : '';
-}
-
 function pubsubhubbub_init(App $a) {
 	// PuSH subscription must be considered "public" so just block it
 	// if public access isn't enabled.
@@ -48,11 +44,11 @@ function pubsubhubbub_init(App $a) {
 	// [hub_topic] => http://friendica.local/dfrn_poll/sazius
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-		$hub_mode = post_var('hub_mode');
-		$hub_callback = post_var('hub_callback');
-		$hub_verify_token = post_var('hub_verify_token');
-		$hub_secret = post_var('hub_secret');
-		$hub_topic = post_var('hub_topic');
+		$hub_mode         = $_POST['hub_mode']         ?? '';
+		$hub_callback     = $_POST['hub_callback']     ?? '';
+		$hub_verify_token = $_POST['hub_verify_token'] ?? '';
+		$hub_secret       = $_POST['hub_secret']       ?? '';
+		$hub_topic        = $_POST['hub_topic']        ?? '';
 
 		// check for valid hub_mode
 		if ($hub_mode === 'subscribe') {

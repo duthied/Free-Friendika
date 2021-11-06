@@ -37,7 +37,6 @@ use Friendica\Network\HTTPException;
 use Friendica\Security\TwoFactor\Repository\TrustedBrowser;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Util\Strings;
 use LightOpenID;
 use Friendica\Core\L10n;
 use Psr\Log\LoggerInterface;
@@ -247,7 +246,7 @@ class Authentication
 				['uid' => User::getIdFromPasswordAuthentication($username, $password)]
 			);
 		} catch (Exception $e) {
-			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => Strings::escapeTags($username), 'ip' => $_SERVER['REMOTE_ADDR']]);
+			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => $username, 'ip' => $_SERVER['REMOTE_ADDR']]);
 			notice($this->l10n->t('Login failed. Please check your credentials.'));
 			$this->baseUrl->redirect();
 		}

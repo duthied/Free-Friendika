@@ -29,7 +29,7 @@ use Friendica\Util\Strings;
 
 function lostpass_post(App $a)
 {
-	$loginame = Strings::escapeTags(trim($_POST['login-name']));
+	$loginame = trim($_POST['login-name']);
 	if (!$loginame) {
 		DI::baseUrl()->redirect();
 	}

@@ -50,14 +50,14 @@ function hub_post_return()
 
 function pubsub_init(App $a)
 {
-	$nick       = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(trim(DI::args()->getArgv()[1])) : '');
-	$contact_id = ((DI::args()->getArgc() > 2) ? intval(DI::args()->getArgv()[2])       : 0 );
+	$nick       = ((DI::args()->getArgc() > 1) ? trim(DI::args()->getArgv()[1])   : '');
+	$contact_id = ((DI::args()->getArgc() > 2) ? intval(DI::args()->getArgv()[2]) : 0 );
 
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-		$hub_mode      = Strings::escapeTags(trim($_GET['hub_mode'] ?? ''));
-		$hub_topic     = Strings::escapeTags(trim($_GET['hub_topic'] ?? ''));
-		$hub_challenge = Strings::escapeTags(trim($_GET['hub_challenge'] ?? ''));
-		$hub_verify    = Strings::escapeTags(trim($_GET['hub_verify_token'] ?? ''));
+		$hub_mode      = trim($_GET['hub_mode']         ?? '');
+		$hub_topic     = trim($_GET['hub_topic']        ?? '');
+		$hub_challenge = trim($_GET['hub_challenge']    ?? '');
+		$hub_verify    = trim($_GET['hub_verify_token'] ?? '');
 
 		Logger::notice('Subscription from ' . $_SERVER['REMOTE_ADDR'] . ' Mode: ' . $hub_mode . ' Nick: ' . $nick);
 		Logger::debug('Data: ', ['get' => $_GET]);
@@ -110,8 +110,8 @@ function pubsub_post(App $a)
 	Logger::info('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  DI::args()->getCommand() . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
 	Logger::debug('Data: ' . $xml);
 
-	$nick       = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(trim(DI::args()->getArgv()[1])) : '');
-	$contact_id = ((DI::args()->getArgc() > 2) ? intval(DI::args()->getArgv()[2])       : 0 );
+	$nick       = ((DI::args()->getArgc() > 1) ? trim(DI::args()->getArgv()[1])   : '');
+	$contact_id = ((DI::args()->getArgc() > 2) ? intval(DI::args()->getArgv()[2]) : 0 );
 
 	$importer = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
 	if (!DBA::isResult($importer)) {
