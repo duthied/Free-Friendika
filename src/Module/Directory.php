@@ -32,7 +32,6 @@ use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\Profile;
 use Friendica\Network\HTTPException;
-use Friendica\Util\Strings;
 
 /**
  * Shows the local directory of this node
@@ -59,9 +58,7 @@ class Directory extends BaseModule
 
 		Nav::setSelected('directory');
 
-		$search = (!empty($_REQUEST['search']) ?
-			Strings::escapeTags(trim(rawurldecode($_REQUEST['search']))) :
-			'');
+		$search = trim(rawurldecode($_REQUEST['search'] ?? ''));
 
 		$gDirPath = '';
 		$dirURL = $config->get('system', 'directory');

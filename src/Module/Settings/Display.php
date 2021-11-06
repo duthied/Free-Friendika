@@ -30,7 +30,6 @@ use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\BaseSettings;
 use Friendica\Network\HTTPException;
-use Friendica\Util\Strings;
 
 /**
  * Module to update user settings
@@ -47,9 +46,9 @@ class Display extends BaseSettings
 
 		$user = User::getById(local_user());
 
-		$theme                  = !empty($_POST['theme'])                  ? Strings::escapeTags(trim($_POST['theme'])) : $user['theme'];
-		$mobile_theme           = !empty($_POST['mobile_theme'])           ? Strings::escapeTags(trim($_POST['mobile_theme'])) : '';
-		$enable_smile           = !empty($_POST['enable_smile'])           ? intval($_POST['enable_smile'])            : 0;
+		$theme                  = !empty($_POST['theme'])                  ? trim($_POST['theme'])                : $user['theme'];
+		$mobile_theme           = !empty($_POST['mobile_theme'])           ? trim($_POST['mobile_theme'])         : '';
+		$enable_smile           = !empty($_POST['enable_smile'])           ? intval($_POST['enable_smile'])       : 0;
 		$first_day_of_week      = !empty($_POST['first_day_of_week'])      ? intval($_POST['first_day_of_week'])  : 0;
 		$infinite_scroll        = !empty($_POST['infinite_scroll'])        ? intval($_POST['infinite_scroll'])    : 0;
 		$no_auto_update         = !empty($_POST['no_auto_update'])         ? intval($_POST['no_auto_update'])     : 0;

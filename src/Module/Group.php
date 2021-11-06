@@ -27,7 +27,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
-use Friendica\Util\Strings;
 
 require_once 'boot.php';
 
@@ -50,7 +49,7 @@ class Group extends BaseModule
 		if ((DI::args()->getArgc() == 2) && (DI::args()->getArgv()[1] === 'new')) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/group/new', 'group_edit');
 
-			$name = Strings::escapeTags(trim($_POST['groupname']));
+			$name = trim($_POST['groupname']);
 			$r = Model\Group::create(local_user(), $name);
 			if ($r) {
 				$r = Model\Group::getIdByName(local_user(), $name);
@@ -72,7 +71,7 @@ class Group extends BaseModule
 				notice(DI::l10n()->t('Group not found.'));
 				DI::baseUrl()->redirect('contact');
 			}
-			$groupname = Strings::escapeTags(trim($_POST['groupname']));
+			$groupname = trim($_POST['groupname']);
 			if (strlen($groupname) && ($groupname != $group['name'])) {
 				if (!Model\Group::update($group['id'], $groupname)) {
 					notice(DI::l10n()->t('Group name was not changed.'));
