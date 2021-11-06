@@ -67,7 +67,7 @@ class Process extends BaseRepository
 		try {
 			$this->db->transaction();
 
-			if (!$this->db->exists('process', ['pid' => $pid, 'hostname' => $this->currentHost])) {
+			if (!$this->db->exists(static::$table_name, ['pid' => $pid, 'hostname' => $this->currentHost])) {
 				if (!$this->db->insert(static::$table_name, [
 					'pid'      => $pid,
 					'command'  => $command,
@@ -110,10 +110,10 @@ class Process extends BaseRepository
 		$this->db->transaction();
 
 		try {
-			$processes = $this->db->select('process', ['pid'], ['hostname' => $this->currentHost]);
+			$processes = $this->db->select(static::$table_name, ['pid'], ['hostname' => $this->currentHost]);
 			while ($process = $this->db->fetch($processes)) {
 				if (!posix_kill($process['pid'], 0)) {
-					$this->db->delete('process', ['pid' => $process['pid']]);
+					$this->db->delete(static::$table_name, ['pid' => $process['pid']]);
 				}
 			}
 			$this->db->close($processes);
