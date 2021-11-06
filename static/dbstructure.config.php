@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1442);
+	define('DB_UPDATE_VERSION', 1443);
 }
 
 return [
@@ -743,17 +743,6 @@ return [
 			"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
 		]
 	],
-	"host" => [
-		"comment" => "Hostname",
-		"fields" => [
-			"id" => ["type" => "tinyint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"name" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => "The hostname"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"name" => ["UNIQUE", "name"],
-		]
-	],
 	"inbox-status" => [
 		"comment" => "Status of ActivityPub inboxes",
 		"fields" => [
@@ -1343,12 +1332,13 @@ return [
 	"process" => [
 		"comment" => "Currently running system processes",
 		"fields" => [
-			"pid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "comment" => ""],
+			"pid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "comment" => "The process ID of the current node"],
+			"hostname" => ["type" => "varchar(32)", "not null" => "1", "primary" => "1", "comment" => "The hostname of the current node"],
 			"command" => ["type" => "varbinary(32)", "not null" => "1", "default" => "", "comment" => ""],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 		],
 		"indexes" => [
-			"PRIMARY" => ["pid"],
+			"PRIMARY" => ["pid", "hostname"],
 			"command" => ["command"],
 		]
 	],

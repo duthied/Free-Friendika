@@ -34,18 +34,25 @@ use Psr\Log\LoggerInterface;
  */
 class Process extends BaseRepository
 {
+	const NODE_ENV = 'NODE_ENV';
+
 	protected static $table_name = 'process';
 
 	/** @var Factory\Process */
 	protected $factory;
 
-	public function __construct(Database $database, LoggerInterface $logger, Factory\Process $factory)
+	/** @var string */
+	private $currentHost;
+
+	public function __construct(Database $database, LoggerInterface $logger, Factory\Process $factory, array $server)
 	{
 		parent::__construct($database, $logger, $factory);
+
+		$this->currentHost = $factory->determineHost($server[self::NODE_ENV] ?? '');
 	}
 
 	/**
-	 * Starts and Returns the process for a given PID
+	 * Starts and Returns the process for a given PID at the current host
 	 *
 	 * @param int    $pid
 	 * @param string $command
@@ -60,19 +67,18 @@ class Process extends BaseRepository
 		try {
 			$this->db->transaction();
 
-			$newProcess = $this->factory->create($pid, $command);
-
-			if (!$this->db->exists('process', ['pid' => $pid])) {
+			if (!$this->db->exists('process', ['pid' => $pid, 'hostname' => $this->currentHost])) {
 				if (!$this->db->insert(static::$table_name, [
-					'pid'     => $newProcess->pid,
-					'command' => $newProcess->command,
-					'created' => $newProcess->created->format(DateTimeFormat::MYSQL)
+					'pid'      => $pid,
+					'command'  => $command,
+					'hostname' => $this->currentHost,
+					'created'  => DateTimeFormat::utcNow()
 				])) {
 					throw new ProcessPersistenceException(sprintf('The process with PID %s already exists.', $pid));
 				}
 			}
 
-			$result = $this->_selectOne(['pid' => $pid]);
+			$result = $this->_selectOne(['pid' => $pid, 'hostname' => $this->currentHost]);
 
 			$this->db->commit();
 
@@ -86,7 +92,8 @@ class Process extends BaseRepository
 	{
 		try {
 			if (!$this->db->delete(static::$table_name, [
-				'pid' => $process->pid
+				'pid'      => $process->pid,
+				'hostname' => $this->currentHost,
 			])) {
 				throw new ProcessPersistenceException(sprintf('The process with PID %s doesn\'t exists.', $process->pi));
 			}
@@ -103,7 +110,7 @@ class Process extends BaseRepository
 		$this->db->transaction();
 
 		try {
-			$processes = $this->db->select('process', ['pid']);
+			$processes = $this->db->select('process', ['pid'], ['hostname' => $this->currentHost]);
 			while ($process = $this->db->fetch($processes)) {
 				if (!posix_kill($process['pid'], 0)) {
 					$this->db->delete('process', ['pid' => $process['pid']]);

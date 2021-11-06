@@ -238,4 +238,9 @@ return [
 			[Dice::INSTANCE => Util\ReversedFileReader::class],
 		]
 	],
+	\Friendica\Core\Worker\Repository\Process::class => [
+		'constructParams' => [
+			$_SERVER
+		],
+	],
 ];
