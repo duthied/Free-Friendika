@@ -48,7 +48,6 @@ class BaseSearch extends BaseModule
 	 */
 	public static function performContactSearch($search, $prefix = '')
 	{
-		$a      = DI::app();
 		$config = DI::config();
 
 		$type = Search::TYPE_ALL;

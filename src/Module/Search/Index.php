@@ -38,13 +38,12 @@ use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseSearch;
 use Friendica\Network\HTTPException;
-use Friendica\Util\Strings;
 
 class Index extends BaseSearch
 {
 	public static function content(array $parameters = [])
 	{
-		$search = (!empty($_GET['q']) ? Strings::escapeTags(trim(rawurldecode($_GET['q']))) : '');
+		$search = (!empty($_GET['q']) ? trim(rawurldecode($_GET['q'])) : '');
 
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
@@ -88,7 +87,7 @@ class Index extends BaseSearch
 		$tag = false;
 		if (!empty($_GET['tag'])) {
 			$tag = true;
-			$search = '#' . Strings::escapeTags(trim(rawurldecode($_GET['tag'])));
+			$search = '#' . trim(rawurldecode($_GET['tag']));
 		}
 
 		// contruct a wrapper for the search header
