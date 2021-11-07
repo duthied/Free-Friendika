@@ -2508,59 +2508,9 @@ class Contact
 			Worker::add(PRIORITY_HIGH, 'UpdateContact', $contact_id);
 		}
 
-		$owner = User::getOwnerDataById($uid);
+		$result['success'] = Protocol::follow($uid, $contact, $protocol);
 
-		if (DBA::isResult($owner)) {
-			if (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
-				// create a follow slap
-				$item = [];
-				$item['verb'] = Activity::FOLLOW;
-				$item['gravity'] = GRAVITY_ACTIVITY;
-				$item['follow'] = $contact["url"];
-				$item['body'] = '';
-				$item['title'] = '';
-				$item['guid'] = '';
-				$item['uri-id'] = 0;
-
-				$slap = OStatus::salmon($item, $owner);
-
-				if (!empty($contact['notify'])) {
-					Salmon::slapper($owner, $contact['notify'], $slap);
-				}
-			} elseif ($protocol == Protocol::DIASPORA) {
-				$ret = Diaspora::sendShare($owner, $contact);
-				Logger::notice('share returns: ' . $ret);
-			} elseif ($protocol == Protocol::ACTIVITYPUB) {
-				$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact_id);
-				if (empty($activity_id)) {
-					// This really should never happen
-					return false;
-				}
-
-				$ret = ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $uid, $activity_id);
-				Logger::notice('Follow returns: ' . $ret);
-			}
-		}
-
-		$result['success'] = true;
 		return $result;
-	}
-
-	/**
-	 * Follow a contact
-	 *
-	 * @param int $cid Public contact id
-	 * @param int $uid  User ID
-	 *
-	 * @return bool "true" if following had been successful
-	 */
-	public static function follow(int $cid, int $uid)
-	{
-		$contact = self::getById($cid, ['url']);
-
-		$result = self::createFromProbeForUser($uid, $contact['url']);
-
-		return $result['cid'];
 	}
 
 	/**
