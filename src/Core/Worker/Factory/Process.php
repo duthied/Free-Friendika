@@ -29,11 +29,7 @@ class Process extends BaseFactory implements ICanCreateFromTableRow
 {
 	public function determineHost(?string $hostname = null): string
 	{
-		if (empty($hostname)) {
-			$hostname = php_uname('n');
-		}
-
-		return strtolower($hostname);
+		return strtolower($hostname ?? php_uname('n'));
 	}
 
 	public function createFromTableRow(array $row): Entity\Process
