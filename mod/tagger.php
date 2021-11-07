@@ -32,7 +32,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Protocol\Activity;
-use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Worker\Delivery;
 
@@ -42,15 +41,15 @@ function tagger_content(App $a) {
 		return;
 	}
 
-	$term = Strings::escapeTags(trim($_GET['term']));
+	$term = trim($_GET['term']);
 	// no commas allowed
-	$term = str_replace([',',' '],['','_'],$term);
+	$term = str_replace([',',' ', '<', '>'],['','_', '', ''], $term);
 
 	if (!$term) {
 		return;
 	}
 
-	$item_id = ((DI::args()->getArgc() > 1) ? Strings::escapeTags(trim(DI::args()->getArgv()[1])) : 0);
+	$item_id = ((DI::args()->getArgc() > 1) ? trim(DI::args()->getArgv()[1]) : 0);
 
 	Logger::notice('tagger: tag ' . $term . ' item ' . $item_id);
 

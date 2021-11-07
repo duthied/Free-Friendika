@@ -25,14 +25,13 @@ use Friendica\BaseModule;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Util\Strings;
 
 class Saved extends BaseModule
 {
 	public static function init(array $parameters = [])
 	{
 		$action = DI::args()->get(2, 'none');
-		$search = Strings::escapeTags(trim(rawurldecode($_GET['term'] ?? '')));
+		$search = trim(rawurldecode($_GET['term'] ?? ''));
 
 		$return_url = $_GET['return_url'] ?? Search::getSearchPath($search);
 

@@ -58,7 +58,7 @@ class Invite extends BaseModule
 
 
 		$recipients = !empty($_POST['recipients']) ? explode("\n", $_POST['recipients']) : [];
-		$message = !empty($_POST['message']) ? Strings::escapeTags(trim($_POST['message'])) : '';
+		$message = !empty($_POST['message']) ? Strings::escapeHtml(trim($_POST['message'])) : '';
 
 		$total = 0;
 		$invitation_only = false;

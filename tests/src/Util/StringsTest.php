@@ -90,10 +90,8 @@ class StringsTest extends TestCase
 	{
 		$invalidstring='<submit type="button" onclick="alert(\'failed!\');" />';
 
-		$validstring = Strings::escapeTags($invalidstring);
 		$escapedString = Strings::escapeHtml($invalidstring);
 
-		self::assertEquals('[submit type="button" onclick="alert(\'failed!\');" /]', $validstring);
 		self::assertEquals(
 			"&lt;submit type=&quot;button&quot; onclick=&quot;alert('failed!');&quot; /&gt;",
 			$escapedString

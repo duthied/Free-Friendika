@@ -25,7 +25,6 @@ use Friendica\Content\Widget;
 use Friendica\DI;
 use Friendica\Module\BaseSearch;
 use Friendica\Module\Security\Login;
-use Friendica\Util\Strings;
 
 /**
  * Directory search module
@@ -39,7 +38,7 @@ class Directory extends BaseSearch
 			return Login::form();
 		}
 
-		$search = Strings::escapeTags(trim(rawurldecode($_REQUEST['search'] ?? '')));
+		$search = trim(rawurldecode($_REQUEST['search'] ?? ''));
 
 		if (empty(DI::page()['aside'])) {
 			DI::page()['aside'] = '';

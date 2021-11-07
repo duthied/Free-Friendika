@@ -60,22 +60,6 @@ class Strings
 	}
 
 	/**
-	 * This is our primary input filter.
-	 *
-	 * Use this on any text input where angle chars are not valid or permitted
-	 * They will be replaced with safer brackets. This may be filtered further
-	 * if these are not allowed either.
-	 *
-	 * @param string $string Input string
-	 * @return string Filtered string
-	 * @deprecated since 2020.09 Please use Smarty default HTML escaping for templates or htmlspecialchars() otherwise
-	 */
-	public static function escapeTags($string)
-	{
-		return str_replace(["<", ">"], ['[', ']'], $string);
-	}
-
-	/**
 	 * Use this on "body" or "content" input where angle chars shouldn't be removed,
 	 * and allow them to be safely displayed.
 	 * @param string $string
