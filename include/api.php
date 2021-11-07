@@ -239,11 +239,9 @@ function api_login(App $a)
 	} else {
 		try {
 			$user_id = User::getIdFromPasswordAuthentication(trim($user), trim($password), true);
-			if ($user_id !== false) {
-				$record = DBA::selectFirst('user', [], ['uid' => $user_id]);
-			}
-			} catch (Exception $ex) {
-				$record = [];
+			$record = DBA::selectFirst('user', [], ['uid' => $user_id]);
+		} catch (Exception $ex) {
+			$record = [];
 		}
 	}
 
