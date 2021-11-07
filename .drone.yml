@@ -146,7 +146,7 @@ steps:
     volumes:
       - name: cache
         path: /tmp/cache
-  - name: Test Friendica
+  - name: Recreate database.sql
     image: friendicaci/php7.4:php7.4.18
     environment:
       MYSQL_HOST: "mariadb"
@@ -183,6 +183,22 @@ steps:
         echo "database.sql mismatch.";
         exit 1;
         fi
+
+services:
+  - name: mariadb
+    image: mariadb:latest
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+    tmpfs:
+      - /var/lib/mysql
+
+volumes:
+  - name: cache
+    host:
+      path: /tmp/drone-cache
 ---
 kind: pipeline
 type: docker
