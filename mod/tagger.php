@@ -41,7 +41,7 @@ function tagger_content(App $a) {
 		return;
 	}
 
-	$term = trim($_GET['term']);
+	$term = trim($_GET['term'] ?? '');
 	// no commas allowed
 	$term = str_replace([',',' ', '<', '>'],['','_', '', ''], $term);
 

@@ -204,7 +204,7 @@ function photos_post(App $a)
 		}
 
 		// RENAME photo album
-		$newalbum = trim($_POST['albumname']);
+		$newalbum = trim($_POST['albumname'] ?? '');
 		if ($newalbum != $album) {
 			Photo::update(['album' => $newalbum], ['album' => $album, 'uid' => $page_owner_uid]);
 			// Update the photo albums cache
