@@ -175,13 +175,13 @@ steps:
       files:
         - clover.xml
   - name: Check database.sql
-    image: alpine
+    image: alpine/git
     commands:
       - git update-index --refresh
       - git diff-index --quiet HEAD --
       - if [[ $? -ne 0 ]]; then
-        echo "database.sql mismatch.";
-        exit 1;
+          echo "database.sql mismatch.";
+          exit 1;
         fi
 
 services:
