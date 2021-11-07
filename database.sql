@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1442
+-- DB_UPDATE_VERSION 1443
 -- ------------------------------------------
 
 
@@ -682,16 +682,6 @@ CREATE TABLE IF NOT EXISTS `hook` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='addon hook registry';
 
 --
--- TABLE host
---
-CREATE TABLE IF NOT EXISTS `host` (
-	`id` tinyint unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`name` varchar(128) NOT NULL DEFAULT '' COMMENT 'The hostname',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `name` (`name`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Hostname';
-
---
 -- TABLE inbox-status
 --
 CREATE TABLE IF NOT EXISTS `inbox-status` (
@@ -1325,10 +1315,11 @@ CREATE TABLE IF NOT EXISTS `post-user-notification` (
 -- TABLE process
 --
 CREATE TABLE IF NOT EXISTS `process` (
-	`pid` int unsigned NOT NULL COMMENT '',
+	`pid` int unsigned NOT NULL COMMENT 'The process ID of the current node',
+	`hostname` varchar(32) NOT NULL COMMENT 'The hostname of the node',
 	`command` varbinary(32) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	 PRIMARY KEY(`pid`),
+	 PRIMARY KEY(`pid`, `hostname`),
 	 INDEX `command` (`command`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Currently running system processes';
 
