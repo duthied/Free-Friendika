@@ -2,9 +2,6 @@
 -- Friendica 2021.12-dev (Siberian Iris)
 -- DB_UPDATE_VERSION 1443
 -- ------------------------------------------
-
-
---
 -- TABLE gserver
 --
 CREATE TABLE IF NOT EXISTS `gserver` (
