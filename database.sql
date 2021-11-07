@@ -1315,8 +1315,8 @@ CREATE TABLE IF NOT EXISTS `post-user-notification` (
 -- TABLE process
 --
 CREATE TABLE IF NOT EXISTS `process` (
-	`pid` int unsigned NOT NULL COMMENT 'The process ID of the current node',
-	`hostname` varchar(32) NOT NULL COMMENT 'The hostname of the current node',
+	`pid` int unsigned NOT NULL COMMENT 'The ID of the process',
+	`hostname` varchar(32) NOT NULL COMMENT 'The name of the host the process is ran on',
 	`command` varbinary(32) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`pid`,`hostname`),
