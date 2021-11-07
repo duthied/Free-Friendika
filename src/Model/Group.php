@@ -252,28 +252,6 @@ class Group
 	}
 
 	/**
-	 * Mark a group as deleted based on its name
-	 *
-	 * @param int    $uid
-	 * @param string $name
-	 * @return bool
-	 * @throws \Exception
-	 * @deprecated Use Group::remove instead
-	 *
-	 */
-	public static function removeByName($uid, $name)
-	{
-		$return = false;
-		if (!empty($uid) && !empty($name)) {
-			$gid = self::getIdByName($uid, $name);
-
-			$return = self::remove($gid);
-		}
-
-		return $return;
-	}
-
-	/**
 	 * Adds a contact to a group
 	 *
 	 * @param int $gid
@@ -313,26 +291,6 @@ class Group
 		}
 
 		$return = DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $cid]);
-
-		return $return;
-	}
-
-	/**
-	 * Removes a contact from a group based on its name
-	 *
-	 * @param int    $uid
-	 * @param string $name
-	 * @param int    $cid
-	 * @return boolean
-	 * @throws \Exception
-	 * @deprecated Use Group::removeMember instead
-	 *
-	 */
-	public static function removeMemberByName($uid, $name, $cid)
-	{
-		$gid = self::getIdByName($uid, $name);
-
-		$return = self::removeMember($gid, $cid);
 
 		return $return;
 	}

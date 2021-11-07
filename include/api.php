@@ -237,9 +237,13 @@ function api_login(App $a)
 	if ($addon_auth['authenticated'] && !empty($addon_auth['user_record'])) {
 		$record = $addon_auth['user_record'];
 	} else {
-		$user_id = User::authenticate(trim($user), trim($password), true);
-		if ($user_id !== false) {
-			$record = DBA::selectFirst('user', [], ['uid' => $user_id]);
+		try {
+			$user_id = User::getIdFromPasswordAuthentication(trim($user), trim($password), true);
+			if ($user_id !== false) {
+				$record = DBA::selectFirst('user', [], ['uid' => $user_id]);
+			}
+			} catch (Exception $ex) {
+				$record = [];
 		}
 	}
 
@@ -5137,7 +5141,13 @@ function api_friendica_group_delete($type)
 	}
 
 	// delete group
-	$ret = Group::removeByName($uid, $name);
+	$gid = Group::getIdByName($uid, $name);
+	if (empty($gid)) {
+		throw new BadRequestException('other API error');
+	}
+
+	$ret = Group::remove($gid);
+
 	if ($ret) {
 		// return success
 		$success = ['success' => $ret, 'gid' => $gid, 'name' => $name, 'status' => 'deleted', 'wrong users' => []];
@@ -5372,7 +5382,8 @@ function api_friendica_group_update($type)
 			$found = ($user['cid'] == $cid ? true : false);
 		}
 		if (!isset($found) || !$found) {
-			Group::removeMemberByName($uid, $name, $cid);
+			$gid = Group::getIdByName($uid, $name);
+			Group::removeMember($gid, $cid);
 		}
 	}
 

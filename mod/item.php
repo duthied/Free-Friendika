@@ -352,7 +352,8 @@ function item_post(App $a) {
 		$filedas = FileTag::fileToArray($categories);
 	}
 
-	$categories = FileTag::listToFile(trim($_REQUEST['category'] ?? ''), 'category');
+	$list_array = explode(',', trim($_REQUEST['category'] ?? ''));
+	$categories = FileTag::arrayToFile($list_array, 'category');
 
 	if (!empty($filedas) && is_array($filedas)) {
 		// append the fileas stuff to the new categories list

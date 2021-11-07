@@ -499,26 +499,6 @@ class User
 		return $default_group;
 	}
 
-
-	/**
-	 * Authenticate a user with a clear text password
-	 *
-	 * @param mixed  $user_info
-	 * @param string $password
-	 * @param bool   $third_party
-	 * @return int|boolean
-	 * @deprecated since version 3.6
-	 * @see        User::getIdFromPasswordAuthentication()
-	 */
-	public static function authenticate($user_info, $password, $third_party = false)
-	{
-		try {
-			return self::getIdFromPasswordAuthentication($user_info, $password, $third_party);
-		} catch (Exception $ex) {
-			return false;
-		}
-	}
-
 	/**
 	 * Authenticate a user with a clear text password
 	 *
