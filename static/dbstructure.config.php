@@ -1332,8 +1332,8 @@ return [
 	"process" => [
 		"comment" => "Currently running system processes",
 		"fields" => [
-			"pid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "comment" => "The process ID of the current node"],
-			"hostname" => ["type" => "varchar(32)", "not null" => "1", "primary" => "1", "comment" => "The hostname of the current node"],
+			"pid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "comment" => "The ID of the process"],
+			"hostname" => ["type" => "varchar(32)", "not null" => "1", "primary" => "1", "comment" => "The name of the host the process is ran on"],
 			"command" => ["type" => "varbinary(32)", "not null" => "1", "default" => "", "comment" => ""],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 		],
