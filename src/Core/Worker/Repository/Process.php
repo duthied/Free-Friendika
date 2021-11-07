@@ -48,7 +48,7 @@ class Process extends BaseRepository
 	{
 		parent::__construct($database, $logger, $factory);
 
-		$this->currentHost = $factory->determineHost($server[self::NODE_ENV] ?? '');
+		$this->currentHost = $factory->determineHost($server[self::NODE_ENV] ?? null);
 	}
 
 	/**
