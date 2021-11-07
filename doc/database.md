@@ -29,7 +29,6 @@ Database Tables
 | [gserver](help/database/db_gserver) | Global servers |
 | [gserver-tag](help/database/db_gserver-tag) | Tags that the server has subscribed |
 | [hook](help/database/db_hook) | addon hook registry |
-| [host](help/database/db_host) | Hostname |
 | [inbox-status](help/database/db_inbox-status) | Status of ActivityPub inboxes |
 | [intro](help/database/db_intro) |  |
 | [item-uri](help/database/db_item-uri) | URI and GUID for items |
