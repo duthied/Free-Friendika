@@ -252,7 +252,7 @@ class Contact extends BaseModule
 		$contact = null;
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgc() == 2 && intval(DI::args()->getArgv()[1])
-			|| DI::args()->getArgc() == 3 && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['posts', 'conversations'])
+			|| DI::args()->getArgc() == 3 && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['conversations'])
 		) {
 			$contact_id = intval(DI::args()->getArgv()[1]);
 
@@ -279,7 +279,7 @@ class Contact extends BaseModule
 		if (DBA::isResult($contact)) {
 			if ($contact['self']) {
 				// @TODO: Replace with parameter from router
-				if ((DI::args()->getArgc() == 3) && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['posts', 'conversations'])) {
+				if ((DI::args()->getArgc() == 3) && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['conversations'])) {
 					DI::baseUrl()->redirect('profile/' . $contact['nick']);
 				} else {
 					DI::baseUrl()->redirect('profile/' . $contact['nick'] . '/profile');
@@ -324,11 +324,6 @@ class Contact extends BaseModule
 		$o = '';
 		Nav::setSelected('contact');
 
-		if (!local_user()) {
-			notice(DI::l10n()->t('Permission denied.'));
-			return Login::form();
-		}
-
 		if (DI::args()->getArgc() == 3) {
 			$contact_id = intval(DI::args()->getArgv()[1]);
 			if (!$contact_id) {
@@ -341,10 +336,6 @@ class Contact extends BaseModule
 			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
 			if (!DBA::isResult($orig_record)) {
 				throw new NotFoundException(DI::l10n()->t('Contact not found'));
-			}
-
-			if ($cmd === 'posts') {
-				return self::getPostsHTML($contact_id);
 			}
 
 			if ($cmd === 'conversations') {
@@ -904,31 +895,6 @@ class Contact extends BaseModule
 				$o .= Model\Contact::getPostsFromId($contact['id'], true, $update, $parent);
 			} else {
 				$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update, $parent);
-			}
-		}
-
-		return $o;
-	}
-
-	private static function getPostsHTML(int $contact_id)
-	{
-		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
-
-		$o = self::getTabsHTML($contact, self::TAB_POSTS);
-
-		if (DBA::isResult($contact)) {
-			$profiledata = Model\Contact::getByURLForUser($contact['url'], local_user());
-
-			if (local_user() && in_array($profiledata['network'], Protocol::FEDERATED)) {
-				$profiledata['remoteconnect'] = DI::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);
-			}
-
-			DI::page()['aside'] = Widget\VCard::getHTML($profiledata);
-
-			if ($contact['uid'] == 0) {
-				$o .= Model\Contact::getPostsFromId($contact['id']);
-			} else {
-				$o .= Model\Contact::getPostsFromUrl($contact['url']);
 			}
 		}
 
