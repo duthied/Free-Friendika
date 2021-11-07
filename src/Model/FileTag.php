@@ -114,21 +114,4 @@ class FileTag
 
 		return $return;
 	}
-
-	/**
-	 * Get file tags from list
-	 *
-	 * ex. given music,video return <music><video> or [music][video]
-	 * @param string $list A comma delimited list of tags.
-	 * @param string $type Optional file type.
-	 *
-	 * @return string       A list of file tags.
-	 * @deprecated since 2019.06 use arrayToFile() instead
-	 */
-	public static function listToFile(string $list, string $type = 'file')
-	{
-		$list_array = explode(',', $list);
-
-		return self::arrayToFile($list_array, $type);
-	}
 }

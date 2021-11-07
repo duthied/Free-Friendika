@@ -308,7 +308,9 @@ function settings_post(App $a)
 
 	if ($email != $user['email']) {
 		//  check for the correct password
-		if (!User::authenticate(intval(local_user()), $_POST['mpassword'])) {
+		try {
+			User::getIdFromPasswordAuthentication(local_user(), $_POST['mpassword']);
+		} catch (Exception $ex) {
 			$err .= DI::l10n()->t('Wrong Password.');
 			$email = $user['email'];
 		}

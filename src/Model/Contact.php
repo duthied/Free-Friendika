@@ -58,36 +58,6 @@ class Contact
 	const DEFAULT_AVATAR_MICRO = '/images/person-48.jpg';
 
 	/**
-	 * @deprecated since version 2019.03
-	 * @see User::PAGE_FLAGS_NORMAL
-	 */
-	const PAGE_NORMAL    = User::PAGE_FLAGS_NORMAL;
-	/**
-	 * @deprecated since version 2019.03
-	 * @see User::PAGE_FLAGS_SOAPBOX
-	 */
-	const PAGE_SOAPBOX   = User::PAGE_FLAGS_SOAPBOX;
-	/**
-	 * @deprecated since version 2019.03
-	 * @see User::PAGE_FLAGS_COMMUNITY
-	 */
-	const PAGE_COMMUNITY = User::PAGE_FLAGS_COMMUNITY;
-	/**
-	 * @deprecated since version 2019.03
-	 * @see User::PAGE_FLAGS_FREELOVE
-	 */
-	const PAGE_FREELOVE  = User::PAGE_FLAGS_FREELOVE;
-	/**
-	 * @deprecated since version 2019.03
-	 * @see User::PAGE_FLAGS_BLOG
-	 */
-	const PAGE_BLOG      = User::PAGE_FLAGS_BLOG;
-	/**
-	 * @deprecated since version 2019.03
-	 * @see User::PAGE_FLAGS_PRVGROUP
-	 */
-	const PAGE_PRVGROUP  = User::PAGE_FLAGS_PRVGROUP;
-	/**
 	 * @}
 	 */
 

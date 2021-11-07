@@ -865,8 +865,8 @@ class OStatus
 	private static function fetchSelf($self, array &$item)
 	{
 		$condition = ['item-uri' => $self, 'protocol' => [Conversation::PARCEL_DFRN,
-			Conversation::PARCEL_DIASPORA_DFRN, Conversation::PARCEL_LEGACY_DFRN,
-			Conversation::PARCEL_LOCAL_DFRN, Conversation::PARCEL_DIRECT, Conversation::PARCEL_SALMON]];
+			Conversation::PARCEL_DIASPORA_DFRN, Conversation::PARCEL_LOCAL_DFRN,
+			Conversation::PARCEL_DIRECT, Conversation::PARCEL_SALMON]];
 		if (DBA::exists('conversation', $condition)) {
 			Logger::info('Conversation '.$item['uri'].' is already stored.');
 			return;
@@ -905,8 +905,8 @@ class OStatus
 	private static function fetchRelated($related, $related_uri, $importer)
 	{
 		$condition = ['item-uri' => $related_uri, 'protocol' => [Conversation::PARCEL_DFRN,
-			Conversation::PARCEL_DIASPORA_DFRN, Conversation::PARCEL_LEGACY_DFRN,
-			Conversation::PARCEL_LOCAL_DFRN, Conversation::PARCEL_DIRECT, Conversation::PARCEL_SALMON]];
+			Conversation::PARCEL_DIASPORA_DFRN, Conversation::PARCEL_LOCAL_DFRN,
+			Conversation::PARCEL_DIRECT, Conversation::PARCEL_SALMON]];
 		$conversation = DBA::selectFirst('conversation', ['source', 'protocol'], $condition);
 		if (DBA::isResult($conversation)) {
 			$stored = true;

@@ -685,49 +685,4 @@ class Image
 
 		return $string;
 	}
-
-	/**
-	 * supported mimetypes and corresponding file extensions
-	 *
-	 * @return array
-	 * @deprecated in version 2019.12 please use Util\Images::supportedTypes() instead.
-	 */
-	public static function supportedTypes()
-	{
-		return Images::supportedTypes();
-	}
-
-	/**
-	 * Maps Mime types to Imagick formats
-	 *
-	 * @return array With with image formats (mime type as key)
-	 * @deprecated in version 2019.12 please use Util\Images::getFormatsMap() instead.
-	 */
-	public static function getFormatsMap()
-	{
-		return Images::getFormatsMap();
-	}
-
-	/**
-	 * @param string $url url
-	 * @return array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @deprecated in version 2019.12 please use Util\Images::getInfoFromURLCached() instead.
-	 */
-	public static function getInfoFromURL($url)
-	{
-		return Images::getInfoFromURLCached($url);
-	}
-
-	/**
-	 * @param integer $width  width
-	 * @param integer $height height
-	 * @param integer $max    max
-	 * @return array
-	 * @deprecated in version 2019.12 please use Util\Images::getScalingDimensions() instead.
-	 */
-	public static function getScalingDimensions($width, $height, $max)
-	{
-		return Images::getScalingDimensions($width, $height, $max);
-	}
 }

@@ -785,16 +785,6 @@ class HTML
 	}
 
 	/**
-	 * return div element with class 'clear'
-	 * @return string
-	 * @deprecated
-	 */
-	public static function clearDiv()
-	{
-		return '<div class="clear"></div>';
-	}
-
-	/**
 	 * Loader for infinite scrolling
 	 *
 	 * @return string html for loader
