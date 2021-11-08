@@ -61,6 +61,7 @@ use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -614,10 +615,10 @@ function api_get_user(App $a, $contact_id = null)
 				'screen_name' => (($contact['nick']) ? $contact['nick'] : $contact['name']),
 				'location' => ($contact["location"] != "") ? $contact["location"] : ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']),
 				'description' => BBCode::toPlaintext($contact["about"] ?? ''),
-				'profile_image_url' => $contact["micro"],
-				'profile_image_url_https' => $contact["micro"],
-				'profile_image_url_profile_size' => $contact["thumb"],
-				'profile_image_url_large' => $contact["photo"],
+				'profile_image_url' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_MICRO),
+				'profile_image_url_https' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_MICRO),
+				'profile_image_url_profile_size' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_THUMB),
+				'profile_image_url_large' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_SMALL),
 				'url' => $contact["url"],
 				'protected' => false,
 				'followers_count' => 0,
@@ -688,10 +689,10 @@ function api_get_user(App $a, $contact_id = null)
 		'screen_name' => (($uinfo[0]['nick']) ? $uinfo[0]['nick'] : $uinfo[0]['name']),
 		'location' => $location,
 		'description' => BBCode::toPlaintext($description ?? ''),
-		'profile_image_url' => $uinfo[0]['micro'],
-		'profile_image_url_https' => $uinfo[0]['micro'],
-		'profile_image_url_profile_size' => $uinfo[0]["thumb"],
-		'profile_image_url_large' => $uinfo[0]["photo"],
+		'profile_image_url' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_MICRO),
+		'profile_image_url_https' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_MICRO),
+		'profile_image_url_profile_size' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_THUMB),
+		'profile_image_url_large' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_SMALL),
 		'url' => $uinfo[0]['url'],
 		'protected' => false,
 		'followers_count' => intval($countfollowers),
@@ -1983,7 +1984,7 @@ function api_conversation_show($type)
 	// try to fetch the item for the local user - or the public item, if there is no local one
 	$item = Post::selectFirst(['parent-uri-id'], ['id' => $id]);
 	if (!DBA::isResult($item)) {
-		throw new BadRequestException("There is no status with this id.");
+		throw new BadRequestException("There is no status with the id $id.");
 	}
 
 	$parent = Post::selectFirst(['id'], ['uri-id' => $item['parent-uri-id'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);

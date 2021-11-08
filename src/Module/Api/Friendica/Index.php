@@ -2,7 +2,7 @@
 /**
  * @copyright Copyright (C) 2010-2021, the Friendica project
  *
- * @license GNU AGPL version 3 or any later version
+ * @license   GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,21 +19,31 @@
  *
  */
 
-use Friendica\App;
+namespace Friendica\Module\Api\Friendica;
+
 use Friendica\DI;
+use Friendica\Module\BaseApi;
 
-require_once __DIR__ . '/../include/api.php';
-
-function api_post(App $a)
+/**
+ * api/friendica
+ *
+ * @package Friendica\Module\Api\Friendica
+ */
+class Index extends BaseApi
 {
-	if (!$a->isLoggedIn()) {
-		notice(DI::l10n()->t('Permission denied.'));
-		return;
+	public static function post(array $parameters = [])
+	{
+		self::checkAllowedScope(self::SCOPE_WRITE);		
 	}
-}
 
-function api_content(App $a)
-{
-	echo api_call($a);
-	exit();
+	public static function delete(array $parameters = [])
+	{
+		self::checkAllowedScope(self::SCOPE_WRITE);
+	}
+
+	public static function rawContent(array $parameters = [])
+	{
+		echo api_call(DI::app());
+		exit();
+	}
 }

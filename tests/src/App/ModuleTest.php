@@ -144,10 +144,8 @@ class ModuleTest extends DatabaseTest
 			],
 			'legacy'  => [
 				'assert'  => LegacyModule::class,
-				// API is one of the last modules to switch from legacy to new BaseModule
-				// so this should be a stable test case until we completely switch ;-)
-				'name'    => 'api',
-				'command' => 'api/test/it',
+				'name'    => 'display',
+				'command' => 'display/test/it',
 				'privAdd' => false,
 			],
 			'new'     => [
