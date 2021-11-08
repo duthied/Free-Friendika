@@ -232,8 +232,6 @@ class Contact extends BaseModule
 			return Login::form($_SERVER['REQUEST_URI']);
 		}
 
-		$a = DI::app();
-
 		$search = trim($_GET['search'] ?? '');
 		$nets   = trim($_GET['nets']   ?? '');
 		$rel    = trim($_GET['rel']    ?? '');
@@ -251,9 +249,7 @@ class Contact extends BaseModule
 
 		$contact = null;
 		// @TODO: Replace with parameter from router
-		if (DI::args()->getArgc() == 2 && intval(DI::args()->getArgv()[1])
-			|| DI::args()->getArgc() == 3 && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['conversations'])
-		) {
+		if (DI::args()->getArgc() == 2 && intval(DI::args()->getArgv()[1])) {
 			$contact_id = intval(DI::args()->getArgv()[1]);
 
 			// Ensure to use the user contact when the public contact was provided
@@ -278,12 +274,7 @@ class Contact extends BaseModule
 
 		if (DBA::isResult($contact)) {
 			if ($contact['self']) {
-				// @TODO: Replace with parameter from router
-				if ((DI::args()->getArgc() == 3) && intval(DI::args()->getArgv()[1]) && in_array(DI::args()->getArgv()[2], ['conversations'])) {
-					DI::baseUrl()->redirect('profile/' . $contact['nick']);
-				} else {
-					DI::baseUrl()->redirect('profile/' . $contact['nick'] . '/profile');
-				}
+				DI::baseUrl()->redirect('profile/' . $contact['nick'] . '/profile');
 			}
 
 			$vcard_widget = Widget\VCard::getHTML($contact);
@@ -336,10 +327,6 @@ class Contact extends BaseModule
 			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
 			if (!DBA::isResult($orig_record)) {
 				throw new NotFoundException(DI::l10n()->t('Contact not found'));
-			}
-
-			if ($cmd === 'conversations') {
-				return self::getConversationsHMTL($a, $contact_id, $update);
 			}
 
 			self::checkFormSecurityTokenRedirectOnError('contact/' . $contact_id, 'contact_action', 't');
@@ -864,41 +851,6 @@ class Contact extends BaseModule
 		$tab_str = Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
 
 		return $tab_str;
-	}
-
-	public static function getConversationsHMTL($a, $contact_id, $update, $parent = 0)
-	{
-		$o = '';
-
-		if (!$update) {
-			// We need the editor here to be able to reshare an item.
-			if (local_user()) {
-				$o = DI::conversation()->statusEditor([], 0, true);
-			}
-		}
-
-		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
-
-		if (!$update) {
-			$o .= self::getTabsHTML($contact, self::TAB_CONVERSATIONS);
-		}
-
-		if (DBA::isResult($contact)) {
-			if (!$update) {
-				$profiledata = Model\Contact::getByURLForUser($contact['url'], local_user());
-				DI::page()['aside'] = Widget\VCard::getHTML($profiledata);
-			} else {
-				DI::page()['aside'] = '';
-			}
-
-			if ($contact['uid'] == 0) {
-				$o .= Model\Contact::getPostsFromId($contact['id'], true, $update, $parent);
-			} else {
-				$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update, $parent);
-			}
-		}
-
-		return $o;
 	}
 
 	/**

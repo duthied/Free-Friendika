@@ -333,7 +333,7 @@ return [
 		'/{id:\d+}/archive'           => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/advanced'          => [Module\Contact\Advanced::class,  [R::GET, R::POST]],
 		'/{id:\d+}/block'             => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}/conversations'     => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/conversations'     => [Module\Contact\Conversations::class, [R::GET]],
 		'/{id:\d+}/contacts[/{type}]' => [Module\Contact\Contacts::class,  [R::GET]],
 		'/{id:\d+}/ignore'            => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/media'             => [Module\Contact\Media::class,     [R::GET]],

@@ -23,22 +23,25 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post;
-use Friendica\Module\Contact;
+use Friendica\Model\Contact;
 
 function update_contact_content(App $a)
 {
-	if (!empty(DI::args()->getArgv()[1]) && (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update'))) {
-		if (!empty($_GET['item'])) {
-			$item = Post::selectFirst(['parent'], ['id' => $_GET['item']]);
-			$parentid = $item['parent'] ?? 0;
-		} else {
-			$parentid = 0;
+	if (!empty(DI::args()->get(1)) && (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update'))) {
+		$contact = Contact::getById(DI::args()->get(1), ['id', 'deleted']);
+		if (DBA::isResult($contact) && empty($contact['deleted'])) {
+			DI::page()['aside'] = '';
+
+			if (!empty($_GET['item'])) {
+				$item = Post::selectFirst(['parent'], ['id' => $_GET['item']]);
+			}
+
+			$text = Contact::getPostsFromId($contact['id'], true, true, $item['parent'] ?? 0);
 		}
-		$text = Contact::getConversationsHMTL($a, DI::args()->getArgv()[1], true, $parentid);
-	} else {
-		$text = '';
 	}
-	System::htmlUpdateExit($text);
+
+	System::htmlUpdateExit($text ?? '');
 }
