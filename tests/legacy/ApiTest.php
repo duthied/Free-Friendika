@@ -14,6 +14,7 @@ use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Test\FixtureTest;
+use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Monolog\Handler\TestHandler;
@@ -998,7 +999,7 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the BaseApi::walkRecursive() function.
+	 * Test the Arrays::walkRecursive() function.
 	 *
 	 * @return void
 	 */
@@ -1007,7 +1008,7 @@ class ApiTest extends FixtureTest
 		$array = ['item1'];
 		self::assertEquals(
 			$array,
-			BaseApi::walkRecursive(
+			Arrays::walkRecursive(
 				$array,
 				function () {
 					// Should we test this with a callback that actually does something?
@@ -1018,7 +1019,7 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the BaseApi::walkRecursive() function with an array.
+	 * Test the Arrays::walkRecursive() function with an array.
 	 *
 	 * @return void
 	 */
@@ -1027,7 +1028,7 @@ class ApiTest extends FixtureTest
 		$array = [['item1'], ['item2']];
 		self::assertEquals(
 			$array,
-			BaseApi::walkRecursive(
+			Arrays::walkRecursive(
 				$array,
 				function () {
 					// Should we test this with a callback that actually does something?
@@ -2549,8 +2550,8 @@ class ApiTest extends FixtureTest
 	public function testApiHelpTest()
 	{
 		// @todo How to test the new API?
-		// $result = api_help_test('json');
-		// self::assertEquals(['ok' => 'ok'], $result);
+		$result = \Friendica\Module\Api\Friendica\Help\Test::rawcontent(['extension' => 'xml']);
+		self::assertEquals(['ok' => 'ok'], $result);
 	}
 
 	/**

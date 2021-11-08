@@ -29,6 +29,7 @@ use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
+use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPInputData;
 use Friendica\Util\XML;
@@ -385,34 +386,6 @@ class BaseApi extends BaseModule
 	}
 
 	/**
-	 * walks recursively through an array with the possibility to change value and key
-	 *
-	 * @param array    $array    The array to walk through
-	 * @param callable $callback The callback function
-	 *
-	 * @return array the transformed array
-	 */
-	static public function walkRecursive(array &$array, callable $callback)
-	{
-		$new_array = [];
-
-		foreach ($array as $k => $v) {
-			if (is_array($v)) {
-				if ($callback($v, $k)) {
-					$new_array[$k] = self::walkRecursive($v, $callback);
-				}
-			} else {
-				if ($callback($v, $k)) {
-					$new_array[$k] = $v;
-				}
-			}
-		}
-		$array = $new_array;
-
-		return $array;
-	}
-
-	/**
 	 * Formats the data according to the data type
 	 *
 	 * @param string $root_element Name of the root element
@@ -484,7 +457,7 @@ class BaseApi extends BaseModule
 
 		if (is_array($data2)) {
 			$key = key($data2);
-			self::walkRecursive($data2, ['Friendica\Module\BaseApi', 'reformatXML']);
+			Arrays::walkRecursive($data2, ['Friendica\Module\BaseApi', 'reformatXML']);
 
 			if ($key == '0') {
 				$data4 = [];
