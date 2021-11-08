@@ -30,12 +30,12 @@ class Test extends BaseApi
 {
 	public static function rawContent(array $parameters = [])
 	{
-        if (self::$format == 'xml') {
-            $ok = 'true';
-        } else {
-            $ok = 'ok';
-        }
-    
+		if (self::$format == 'xml') {
+			$ok = 'true';
+		} else {
+			$ok = 'ok';
+		}
+	
 		echo self::format('ok', ['ok' => $ok]);
 		exit;
 	}
