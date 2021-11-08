@@ -31,6 +31,7 @@ use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPInputData;
+use Friendica\Util\XML;
 
 require_once __DIR__ . '/../../include/api.php';
 
@@ -342,7 +343,7 @@ class BaseApi extends BaseModule
 	 */
 	protected static function getUser($contact_id = null)
 	{
-		return api_get_user(DI::app(), $contact_id);
+		return api_get_user($contact_id);
 	}
 
 	/**
@@ -354,28 +355,28 @@ class BaseApi extends BaseModule
 	 */
 	protected static function format(string $root_element, array $data)
 	{
-		$return = api_format_data($root_element, self::$format, $data);
+		$return = self::formatData($root_element, self::$format, $data);
 
 		switch (self::$format) {
-			case "xml":
-				header("Content-Type: text/xml");
+			case 'xml':
+				header('Content-Type: text/xml');
 				break;
-			case "json":
-				header("Content-Type: application/json");
+			case 'json':
+				header('Content-Type: application/json');
 				if (!empty($return)) {
 					$json = json_encode(end($return));
 					if (!empty($_GET['callback'])) {
-						$json = $_GET['callback'] . "(" . $json . ")";
+						$json = $_GET['callback'] . '(' . $json . ')';
 					}
 					$return = $json;
 				}
 				break;
-			case "rss":
-				header("Content-Type: application/rss+xml");
+			case 'rss':
+				header('Content-Type: application/rss+xml');
 				$return  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
 				break;
-			case "atom":
-				header("Content-Type: application/atom+xml");
+			case 'atom':
+				header('Content-Type: application/atom+xml');
 				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
 				break;
 		}
@@ -384,14 +385,122 @@ class BaseApi extends BaseModule
 	}
 
 	/**
+	 * walks recursively through an array with the possibility to change value and key
+	 *
+	 * @param array    $array    The array to walk through
+	 * @param callable $callback The callback function
+	 *
+	 * @return array the transformed array
+	 */
+	static public function walkRecursive(array &$array, callable $callback)
+	{
+		$new_array = [];
+
+		foreach ($array as $k => $v) {
+			if (is_array($v)) {
+				if ($callback($v, $k)) {
+					$new_array[$k] = self::walkRecursive($v, $callback);
+				}
+			} else {
+				if ($callback($v, $k)) {
+					$new_array[$k] = $v;
+				}
+			}
+		}
+		$array = $new_array;
+
+		return $array;
+	}
+
+	/**
+	 * Formats the data according to the data type
+	 *
+	 * @param string $root_element Name of the root element
+	 * @param string $type         Return type (atom, rss, xml, json)
+	 * @param array  $data         JSON style array
+	 *
+	 * @return array|string (string|array) XML data or JSON data
+	 */
+	public static function formatData($root_element, string $type, array $data)
+	{
+		switch ($type) {
+			case 'atom':
+			case 'rss':
+			case 'xml':
+				$ret = self::createXML($data, $root_element);
+				break;
+			case 'json':
+			default:
+				$ret = $data;
+				break;
+		}
+		return $ret;
+	}
+
+	/**
+	* Callback function to transform the array in an array that can be transformed in a XML file
+	*
+	* @param mixed  $item Array item value
+	* @param string $key  Array key
+	*
+	* @return boolean
+	*/
+	public static function reformatXML(&$item, &$key)
+	{
+		if (is_bool($item)) {
+			$item = ($item ? 'true' : 'false');
+		}
+	
+		if (substr($key, 0, 10) == 'statusnet_') {
+			$key = 'statusnet:'.substr($key, 10);
+		} elseif (substr($key, 0, 10) == 'friendica_') {
+			$key = 'friendica:'.substr($key, 10);
+		}
+		return true;
+	}
+   
+	/**
 	 * Creates the XML from a JSON style array
 	 *
-	 * @param $data
-	 * @param $root_element
-	 * @return string
+	 * @param array  $data         JSON style array
+	 * @param string $root_element Name of the root element
+	 *
+	 * @return string The XML data
 	 */
-	protected static function createXml($data, $root_element)
+	public static function createXML(array $data, $root_element)
 	{
-		return api_create_xml($data, $root_element);
+		$childname = key($data);
+		$data2 = array_pop($data);
+
+		$namespaces = ['' => 'http://api.twitter.com',
+			'statusnet' => 'http://status.net/schema/api/1/',
+			'friendica' => 'http://friendi.ca/schema/api/1/',
+			'georss' => 'http://www.georss.org/georss'];
+
+		/// @todo Auto detection of needed namespaces
+		if (in_array($root_element, ['ok', 'hash', 'config', 'version', 'ids', 'notes', 'photos'])) {
+			$namespaces = [];
+		}
+
+		if (is_array($data2)) {
+			$key = key($data2);
+			self::walkRecursive($data2, ['Friendica\Module\BaseApi', 'reformatXML']);
+
+			if ($key == '0') {
+				$data4 = [];
+				$i = 1;
+
+				foreach ($data2 as $item) {
+					$data4[$i++ . ':' . $childname] = $item;
+				}
+
+				$data2 = $data4;
+			}
+		}
+
+		$data3 = [$root_element => $data2];
+
+		$ret = XML::fromArray($data3, $xml, false, $namespaces);
+		return $ret;
 	}
 }

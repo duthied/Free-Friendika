@@ -100,9 +100,9 @@ $apiRoutes = [
 		'/photo[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,        [R::GET         ]],
 	],
 
-	'/gnusocial/config[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class, [R::GET         ]],
-	'/gnusocial/version[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
-	'/help/test[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/gnusocial/config[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,             [R::GET         ]],
+	'/gnusocial/version[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\GNUSocial\Version::class, [R::GET         ]],
+	'/help/test[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Help\Test::class,         [R::GET         ]],
 
 	'/lists' => [
 		'/create[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [        R::POST]],
@@ -114,15 +114,15 @@ $apiRoutes = [
 		'/update[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [        R::POST]],
 	],
 
-	'/media/upload[.{extension:json|xml|rss|atom}]'                => [Module\Api\Friendica\Index::class, [        R::POST]],
-	'/media/metadata/create[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class, [        R::POST]],
-	'/saved_searches/list[.{extension:json|xml|rss|atom}]'         => [Module\Api\Friendica\Index::class, [R::GET         ]],
-	'/search/tweets[.{extension:json|xml|rss|atom}]'               => [Module\Api\Friendica\Index::class, [R::GET         ]],
-	'/search[.{extension:json|xml|rss|atom}]'                      => [Module\Api\Friendica\Index::class, [R::GET         ]],
-	'/statusnet/config[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class, [R::GET         ]],
-	'/statusnet/conversation[.{extension:json|xml|rss|atom}]'      => [Module\Api\Friendica\Index::class, [R::GET         ]],
-	'/statusnet/conversation/{id:\d+}[.{extension:json|xml|rss|atom}]' => [Module\Api\Friendica\Index::class, [R::GET         ]],
-	'/statusnet/version[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/media/upload[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class,             [        R::POST]],
+	'/media/metadata/create[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class,             [        R::POST]],
+	'/saved_searches/list[.{extension:json|xml|rss|atom}]'             => [Module\Api\Friendica\Index::class,             [R::GET         ]],
+	'/search/tweets[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,             [R::GET         ]],
+	'/search[.{extension:json|xml|rss|atom}]'                          => [Module\Api\Friendica\Index::class,             [R::GET         ]],
+	'/statusnet/config[.{extension:json|xml|rss|atom}]'                => [Module\Api\Friendica\Index::class,             [R::GET         ]],
+	'/statusnet/conversation[.{extension:json|xml|rss|atom}]'          => [Module\Api\Friendica\Index::class,             [R::GET         ]],
+	'/statusnet/conversation/{id:\d+}[.{extension:json|xml|rss|atom}]' => [Module\Api\Friendica\Index::class,             [R::GET         ]],
+	'/statusnet/version[.{extension:json|xml|rss|atom}]'               => [Module\Api\Friendica\GNUSocial\Version::class, [R::GET         ]],
 
 	'/statuses' => [
 		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class, [R::DELETE, R::POST]],
