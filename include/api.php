@@ -4221,7 +4221,7 @@ api_register_func('api/account/update_profile_image', 'api_account_update_profil
 function api_account_update_profile($type)
 {
 	$local_user = api_user();
-	$api_user = api_get_user(DI::app());
+	$api_user = api_get_user();
 
 	if (!empty($_POST['name'])) {
 		DBA::update('profile', ['name' => $_POST['name']], ['uid' => $local_user]);
