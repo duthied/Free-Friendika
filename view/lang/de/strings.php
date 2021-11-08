@@ -1282,7 +1282,9 @@ $a->strings['URL of the remote contact to block.'] = 'Die URL des entfernten Kon
 $a->strings['Also purge contact'] = 'Kontakt auch löschen';
 $a->strings['Removes all content related to this contact from the node. Keeps the contact record. This action canoot be undone.'] = 'Entfernt alle Inhalte von diesem Knoten, die in Verbindung zu dem Kontakt stehen. Der Kontakt-Eintrag bleibt erhalten. Dieser Vorgang kann nicht rückgängig gemacht werden.';
 $a->strings['Block Reason'] = 'Sperrgrund';
-$a->strings['Server domain pattern added to blocklist.'] = 'Server Domain Muster zur Blockliste hinzugefügt';
+$a->strings['Server domain pattern added to the blocklist.'] = 'Server Domain Muster zur Blockliste hinzugefügt';
+$a->strings['Server Domain Pattern'] = 'Server Domain Muster';
+$a->strings['Block reason'] = 'Begründung der Blockierung';
 $a->strings['Blocked server domain pattern'] = 'Blockierte Server Domain Muster';
 $a->strings['Reason for the block'] = 'Begründung für die Blockierung';
 $a->strings['Delete server domain pattern'] = 'Server Domain Muster löschen';
@@ -1290,27 +1292,11 @@ $a->strings['Check to delete this entry from the blocklist'] = 'Markieren, um di
 $a->strings['Server Domain Pattern Blocklist'] = 'Server Domain Muster Blockliste';
 $a->strings['This page can be used to define a blocklist of server domain patterns from the federated network that are not allowed to interact with your node. For each domain pattern you should also provide the reason why you block it.'] = 'Auf dieser Seite kannst du Muster definieren mit denen Server Domains aus dem föderierten Netzwerk daran gehindert werden mit deiner Instanz zu interagieren. Es ist ratsam für jedes Muster anzugeben, warum du es zur Blockliste hinzugefügt hast.';
 $a->strings['The list of blocked server domain patterns will be made publically available on the <a href="/friendica">/friendica</a> page so that your users and people investigating communication problems can find the reason easily.'] = 'Die Liste der blockierten Domain Muster wird auf der Seite <a href="/friendica">/friendica</a> öffentlich einsehbar gemacht, damit deine Nutzer und Personen, die Kommunikationsprobleme erkunden, die Ursachen einfach finden können.';
-$a->strings['<p>The server domain pattern syntax is case-insensitive shell wildcard, comprising the following special characters:</p>
-<ul>
-	<li><code>*</code>: Any number of characters</li>
-	<li><code>?</code>: Any single character</li>
-	<li><code>[&lt;char1&gt;&lt;char2&gt;...]</code>: char1 or char2</li>
-</ul>'] = '<p>Die Server Domain Muster sind Groß-/Kleinschreibung unabhängig mit Shell-Jokerzeichen, die die folgenden Sonderzeichen umfassen:</p>
-<ul>
-	<li><code>*</code>: Beliebige Anzahl von Zeichen</li>
-	<li><code>?</code>: Ein einzelnes beliebiges Zeichen</li>
-	<li><code>[&lt;Zeichen1&gt;&lt;Zeichen2&gt;...]</code>:Zeichen1 oder Zeichen2</li>
-</ul>';
-$a->strings['Add new entry to block list'] = 'Neuen Eintrag in die Blockliste';
-$a->strings['Server Domain Pattern'] = 'Server Domain Muster';
-$a->strings['The domain pattern of the new server to add to the block list. Do not include the protocol.'] = 'Das Muster für Server Domains die geblockt werden sollen. Gib das Protokoll nicht mit an!';
-$a->strings['Block reason'] = 'Begründung der Blockierung';
-$a->strings['The reason why you blocked this server domain pattern.'] = 'Die Begründung, warum du dieses Domain Muster blockiert hast.';
-$a->strings['Add Entry'] = 'Eintrag hinzufügen';
+$a->strings['Add new entry to the blocklist'] = 'Neuen Eintrag in die Blockliste';
 $a->strings['Save changes to the blocklist'] = 'Änderungen der Blockliste speichern';
 $a->strings['Current Entries in the Blocklist'] = 'Aktuelle Einträge der Blockliste';
-$a->strings['Delete entry from blocklist'] = 'Eintrag von der Blockliste entfernen';
-$a->strings['Delete entry from blocklist?'] = 'Eintrag von der Blockliste entfernen?';
+$a->strings['Delete entry from the blocklist'] = 'Eintrag von der Blockliste entfernen';
+$a->strings['Delete entry from the blocklist?'] = 'Eintrag von der Blockliste entfernen?';
 $a->strings['Update has been marked successful'] = 'Update wurde als erfolgreich markiert';
 $a->strings['Database structure update %s was successfully applied.'] = 'Das Update %s der Struktur der Datenbank wurde erfolgreich angewandt.';
 $a->strings['Executing of database structure update %s failed with error: %s'] = 'Das Update %s der Struktur der Datenbank schlug mit folgender Fehlermeldung fehl: %s';
@@ -1522,8 +1508,6 @@ $a->strings['Network timeout'] = 'Netzwerk-Wartezeit';
 $a->strings['Value is in seconds. Set to 0 for unlimited (not recommended).'] = 'Der Wert ist in Sekunden. Setze 0 für unbegrenzt (nicht empfohlen).';
 $a->strings['Maximum Load Average'] = 'Maximum Load Average';
 $a->strings['Maximum system load before delivery and poll processes are deferred - default %d.'] = 'Maximale System-LOAD bevor Verteil- und Empfangsprozesse verschoben werden - Standard %d';
-$a->strings['Maximum Load Average (Frontend)'] = 'Maximum Load Average (Frontend)';
-$a->strings['Maximum system load before the frontend quits service - default 50.'] = 'Maximale Systemlast, bevor Vordergrundprozesse pausiert werden - Standard 50.';
 $a->strings['Minimal Memory'] = 'Minimaler Speicher';
 $a->strings['Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).'] = 'Minimal freier Speicher in MB für den Worker Prozess. Benötigt Zugriff auf /proc/meminfo - Standardwert ist 0 (deaktiviert)';
 $a->strings['Periodically optimize tables'] = 'Optimiere die Tabellen regelmäßig';
@@ -2412,16 +2396,6 @@ $a->strings['Export all'] = 'Alles exportieren';
 $a->strings['Export your account info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account (photos are not exported)'] = 'Exportiere deine Account Informationen, Kontakte und alle Einträge als JSON Datei. Dies könnte eine sehr große Datei werden und dementsprechend viel Zeit benötigen. Verwende dies um ein komplettes Backup deines Accounts anzulegen (Photos werden nicht exportiert).';
 $a->strings['Export Contacts to CSV'] = 'Kontakte nach CSV exportieren';
 $a->strings['Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.'] = 'Exportiert die Liste der Nutzerkonten denen du folgst in eine CSV Datei. Das Format ist z.B. zu Mastodon kompatibel.';
-$a->strings['Bad Request'] = 'Ungültige Anfrage';
-$a->strings['Forbidden'] = 'Verboten';
-$a->strings['Not Found'] = 'Nicht gefunden';
-$a->strings['Service Unavailable'] = 'Dienst nicht verfügbar';
-$a->strings['The server cannot or will not process the request due to an apparent client error.'] = 'Aufgrund eines offensichtlichen Fehlers auf der Seite des Clients kann oder wird der Server die Anfrage nicht bearbeiten.';
-$a->strings['Authentication is required and has failed or has not yet been provided.'] = 'Die erforderliche Authentifizierung ist fehlgeschlagen oder noch nicht erfolgt.';
-$a->strings['The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource, or may need an account.'] = 'Die Anfrage war gültig, aber der Server verweigert die Ausführung. Der Benutzer verfügt möglicherweise nicht über die erforderlichen Berechtigungen oder benötigt ein Nutzerkonto.';
-$a->strings['The requested resource could not be found but may be available in the future.'] = 'Die angeforderte Ressource konnte nicht gefunden werden, sie könnte allerdings zu einem späteren Zeitpunkt verfügbar sein.';
-$a->strings['An unexpected condition was encountered and no more specific message is suitable.'] = 'Eine unerwartete Situation ist eingetreten, zu der keine detailliertere Nachricht vorliegt.';
-$a->strings['The server is currently unavailable (because it is overloaded or down for maintenance). Please try again later.'] = 'Der Server ist derzeit nicht verfügbar (wegen Überlastung oder Wartungsarbeiten). Bitte versuche es später noch einmal.';
 $a->strings['Stack trace:'] = 'Stack trace:';
 $a->strings['Exception thrown in %s:%d'] = 'Exception thrown in %s:%d';
 $a->strings['At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node\'s user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication.'] = 'Zum Zwecke der Registrierung und um die Kommunikation zwischen dem Nutzer und seinen Kontakten zu gewährleisten, muß der Nutzer einen Namen (auch Pseudonym) und einen Nutzernamen (Spitzname) sowie eine funktionierende E-Mail-Adresse angeben. Der Name ist auf der Profilseite für alle Nutzer sichtbar, auch wenn die Profildetails nicht angezeigt werden.
