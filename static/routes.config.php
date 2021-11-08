@@ -40,6 +40,118 @@ $profileRoutes = [
 	'/media'                                   => [Module\Profile\Media::class,    [R::GET]],
 ];
 
+$apiRoutes = [
+	'/account' => [
+		'/verify_credentials[.{extension:json|xml|rss|atom}]'      => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/rate_limit_status[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/update_profile[.{extension:json|xml|rss|atom}]'          => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/update_profile_image[.{extension:json|xml|rss|atom}]'    => [Module\Api\Friendica\Index::class,        [        R::POST]],
+	],
+
+	'/blocks/list[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+	'/conversation/show[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+	'/direct_messages' => [
+		'/all[.{extension:json|xml|rss|atom}]'                     => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/conversation[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,        [R::DELETE, R::POST]],
+		'/new[.{extension:json|xml|rss|atom}]'                     => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/sent[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+	],
+	'/direct_messages[.{extension:json|xml|rss|atom}]'             => [Module\Api\Friendica\Index::class,        [R::GET, R::POST]],
+
+	'/externalprofile/show[.{extension:json|xml|rss|atom}]'        => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+	'/favorites/create[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [        R::POST]],
+	'/favorites/destroy[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class       , [R::DELETE, R::POST]],
+	'/favorites[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+	'/followers/ids[.{extension:json|xml|rss|atom}]'               => [Module\Api\Twitter\FollowersIds::class,   [R::GET         ]],
+	'/followers/list[.{extension:json|xml|rss|atom}]'              => [Module\Api\Twitter\FollowersList::class,  [R::GET         ]],
+	'/friends/ids[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\FriendsIds::class,     [R::GET         ]],
+	'/friends/list[.{extension:json|xml|rss|atom}]'                => [Module\Api\Twitter\FriendsList::class,    [R::GET         ]],
+	'/friendships/destroy[.{extension:json|xml|rss|atom}]'         => [Module\Api\Friendica\Index::class,        [        R::POST]],
+	'/friendships/incoming[.{extension:json|xml|rss|atom}]'        => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+
+	'/friendica' => [
+		'/activity/attendmaybe[.{extension:json|xml|rss|atom}]'    => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/activity/attendno[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/activity/attendyes[.{extension:json|xml|rss|atom}]'      => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/activity/dislike[.{extension:json|xml|rss|atom}]'        => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/activity/like[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/activity/unattendmaybe[.{extension:json|xml|rss|atom}]'  => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/activity/unattendno[.{extension:json|xml|rss|atom}]'     => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/activity/unattendyes[.{extension:json|xml|rss|atom}]'    => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/activity/undislike[.{extension:json|xml|rss|atom}]'      => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/activity/unlike[.{extension:json|xml|rss|atom}]'         => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/notification/seen[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/notification[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/direct_messages_setseen[.{extension:json|xml|rss|atom}]' => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/direct_messages_search[.{extension:json|xml|rss|atom}]'  => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/events[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Events\Index::class, [R::GET         ]],
+		'/group_show[.{extension:json|xml|rss|atom}]'              => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/group_create[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/group_delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [R::DELETE      ]],
+		'/group_update[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/profile/show[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Profile\Show::class, [R::GET         ]],
+		'/photoalbum/delete[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class,        [R::DELETE      ]],
+		'/photoalbum/update[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/photos/list[.{extension:json|xml|rss|atom}]'             => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/photo/create[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/photo/delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [R::DELETE      ]],
+		'/photo/update[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/photo[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		],
+
+	'/gnusocial/config[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/gnusocial/version[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/help/test[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class, [R::GET         ]],
+
+	'/lists' => [
+		'/create[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [        R::POST]],
+		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class, [R::DELETE, R::POST]],
+		'/list[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/ownerships[.{extension:json|xml|rss|atom}]'              => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/statuses[.{extension:json|xml|rss|atom}]'                => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/subscriptions[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/update[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [        R::POST]],
+	],
+
+	'/media/upload[.{extension:json|xml|rss|atom}]'                => [Module\Api\Friendica\Index::class, [        R::POST]],
+	'/media/metadata/create[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class, [        R::POST]],
+	'/saved_searches/list[.{extension:json|xml|rss|atom}]'         => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/search/tweets[.{extension:json|xml|rss|atom}]'               => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/search[.{extension:json|xml|rss|atom}]'                      => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/statusnet/config[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/statusnet/conversation[.{extension:json|xml|rss|atom}]'      => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/statusnet/conversation/{id:\d+}[.{extension:json|xml|rss|atom}]' => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	'/statusnet/version[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
+
+	'/statuses' => [
+		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class, [R::DELETE, R::POST]],
+		'/followers[.{extension:json|xml|rss|atom}]'               => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/friends[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/friends_timeline[.{extension:json|xml|rss|atom}]'        => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/home_timeline[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/mediap[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [        R::POST]],
+		'/mentions[.{extension:json|xml|rss|atom}]'                => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/mentions_timeline[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/networkpublic_timeline[.{extension:json|xml|rss|atom}]'  => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/public_timeline[.{extension:json|xml|rss|atom}]'         => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/replies[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/retweet[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class, [        R::POST]],
+		'/show[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/show/{id:\d+}[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/update[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [        R::POST]],
+		'/update_with_media[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class, [        R::POST]],
+		'/user_timeline[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	],
+
+	'/users' => [
+		'/lookup[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/search[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/show[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class, [R::GET         ]],
+		'/show/{id:\d+}[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
+	],
+];
+
 return [
 	'/' => [Module\Home::class, [R::GET]],
 
@@ -58,6 +170,8 @@ return [
 	],
 
 	'/api' => [
+		''     => $apiRoutes,
+		'/1.1' => $apiRoutes,
 		'/v1' => [
 			'/accounts'                          => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/accounts/{id:\d+}'                 => [Module\Api\Mastodon\Accounts::class,                 [R::GET         ]],
@@ -160,14 +274,6 @@ return [
 		'/v{version:\d+}' => [
 			'/search'                            => [Module\Api\Mastodon\Search::class,                   [R::GET         ]],
 		],
-		'/friendica' => [
-			'/profile/show'                      => [Module\Api\Friendica\Profile\Show::class, [R::GET         ]],
-			'/events'                            => [Module\Api\Friendica\Events\Index::class, [R::GET         ]],
-		],
-		'/followers/ids'                         => [Module\Api\Twitter\FollowersIds::class,   [R::GET         ]],
-		'/followers/list'                        => [Module\Api\Twitter\FollowersList::class,  [R::GET         ]],
-		'/friends/ids'                           => [Module\Api\Twitter\FriendsIds::class,     [R::GET         ]],
-		'/friends/list'                          => [Module\Api\Twitter\FriendsList::class,    [R::GET         ]],
 		'/meta'                                  => [Module\Api\Mastodon\Unimplemented::class, [R::POST        ]], // not supported
 		'/oembed'                                => [Module\Api\Mastodon\Unimplemented::class, [R::GET         ]],
 		'/proofs'                                => [Module\Api\Mastodon\Proofs::class,        [R::GET         ]], // Dummy, not supported
