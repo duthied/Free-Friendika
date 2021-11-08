@@ -505,6 +505,7 @@ $a->strings['To export your account, go to "Settings->Export your personal data"
 $a->strings['You aren\'t following this contact.'] = 'Вы не подписаны на этот контакт.';
 $a->strings['Unfollowing is currently not supported by your network.'] = 'Отписка в настоящий момент не предусмотрена этой сетью';
 $a->strings['Disconnect/Unfollow'] = 'Отсоединиться/Отписаться';
+$a->strings['Contact was successfully unfollowed'] = 'Подписка успешно удалена';
 $a->strings['Invalid request.'] = 'Неверный запрос.';
 $a->strings['Sorry, maybe your upload is bigger than the PHP configuration allows'] = 'Извините, похоже что загружаемый файл превышает лимиты, разрешенные конфигурацией PHP';
 $a->strings['Or - did you try to upload an empty file?'] = 'Или вы пытались загрузить пустой файл?';
@@ -1259,34 +1260,16 @@ $a->strings['%s total blocked contact'] = [
 ];
 $a->strings['URL of the remote contact to block.'] = 'URL блокируемого контакта.';
 $a->strings['Block Reason'] = 'Причина блокировки';
-$a->strings['Server domain pattern added to blocklist.'] = 'Маска адреса сервера добавлена в чёрный список.';
+$a->strings['Server Domain Pattern'] = 'Маска домена узла';
+$a->strings['Block reason'] = 'Причина блокировки';
 $a->strings['Blocked server domain pattern'] = 'Маска домена блокируемого сервера';
 $a->strings['Reason for the block'] = 'Причина блокировки';
 $a->strings['Delete server domain pattern'] = 'Удалить маску домена';
 $a->strings['Check to delete this entry from the blocklist'] = 'Отметьте, чтобы удалить эту запись из черного списка';
 $a->strings['Server Domain Pattern Blocklist'] = 'Чёрный список доменов';
 $a->strings['The list of blocked server domain patterns will be made publically available on the <a href="/friendica">/friendica</a> page so that your users and people investigating communication problems can find the reason easily.'] = 'Список блокируемых доменов будет отображаться публично на странице <a href="/friendica">/friendica</a>, чтобы ваши пользователи и другие люди могли легко понять причину проблем с доставкой записей.';
-$a->strings['<p>The server domain pattern syntax is case-insensitive shell wildcard, comprising the following special characters:</p>
-<ul>
-	<li><code>*</code>: Any number of characters</li>
-	<li><code>?</code>: Any single character</li>
-	<li><code>[&lt;char1&gt;&lt;char2&gt;...]</code>: char1 or char2</li>
-</ul>'] = '<p>Маска домена узла нечувствительна к регистру и представляет собой выражение shell из следующих специальных символов:</p>
-<ul>
-	<li><code>*</code>: Любые символы в любом количестве</li>
-	<li><code>?</code>: Один любой символ</li>
-	<li><code>[&lt;char1&gt;&lt;char2&gt;...]</code>: char1 или char2</li>
-</ul>';
-$a->strings['Add new entry to block list'] = 'Добавить новую запись в чёрный список';
-$a->strings['Server Domain Pattern'] = 'Маска домена узла';
-$a->strings['The domain pattern of the new server to add to the block list. Do not include the protocol.'] = 'Маска домена сервера, который вы хотите добавить в чёрный список. Не включайте префикс протокола.';
-$a->strings['Block reason'] = 'Причина блокировки';
-$a->strings['The reason why you blocked this server domain pattern.'] = 'Причина блокировки вами этого домена.';
-$a->strings['Add Entry'] = 'Добавить запись';
 $a->strings['Save changes to the blocklist'] = 'Сохранить изменения чёрного списка';
 $a->strings['Current Entries in the Blocklist'] = 'Текущие значения чёрного списка';
-$a->strings['Delete entry from blocklist'] = 'Удалить запись из чёрного списка';
-$a->strings['Delete entry from blocklist?'] = 'Удалить запись из чёрного списка?';
 $a->strings['Update has been marked successful'] = 'Обновление было успешно отмечено';
 $a->strings['Database structure update %s was successfully applied.'] = 'Обновление базы данных %s успешно применено.';
 $a->strings['Executing of database structure update %s failed with error: %s'] = 'Выполнение обновления базы данных %s завершено с ошибкой: %s';
@@ -1444,8 +1427,6 @@ $a->strings['Network timeout'] = 'Тайм-аут сети';
 $a->strings['Value is in seconds. Set to 0 for unlimited (not recommended).'] = 'Значение указывается в секундах. Установите 0 для снятия ограничений (не рекомендуется).';
 $a->strings['Maximum Load Average'] = 'Средняя максимальная нагрузка';
 $a->strings['Maximum system load before delivery and poll processes are deferred - default %d.'] = 'Максимальная нагрузка на систему, прежде чем задания опроса и доставки начнут приостанавливаться - по-умолчанию %d.';
-$a->strings['Maximum Load Average (Frontend)'] = 'Максимальная нагрузка (Frontend)';
-$a->strings['Maximum system load before the frontend quits service - default 50.'] = 'Максимальная нагрузка на систему, прежде чем frontend отключится - по-умолчанию 50.';
 $a->strings['Minimal Memory'] = 'Минимум памяти';
 $a->strings['Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).'] = 'Минимально допустимая свободная память ОЗУ для запуска заданий. Для работы нужен доступ в /proc/meminfo - по-умолчанию 0 (отключено).';
 $a->strings['Discover followers/followings from contacts'] = 'Обнаруживать подписчиков и друзей для контактов';
@@ -1712,6 +1693,8 @@ $a->strings['Pending incoming contact request'] = 'Входящий запрос
 $a->strings['Refetch contact data'] = 'Обновить данные контакта';
 $a->strings['Toggle Blocked status'] = 'Изменить статус блокированности (заблокировать/разблокировать)';
 $a->strings['Toggle Ignored status'] = 'Изменить статус игнорирования';
+$a->strings['Revoke Follow'] = 'Отозвать подписку';
+$a->strings['Revoke the follow from this contact'] = 'Отменить подписку этого контакта на вас';
 $a->strings['Contact update failed.'] = 'Обновление контакта неудачное.';
 $a->strings['<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.'] = '<strong>ВНИМАНИЕ: Это крайне важно!</strong> Если вы введете неверную информацию, ваша связь с этим контактом перестанет работать.';
 $a->strings['Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.'] = 'Пожалуйста, нажмите клавишу вашего браузера \'Back\' или \'Назад\' <strong>сейчас</strong>, если вы не уверены, что делаете на этой странице.';
@@ -1766,6 +1749,10 @@ $a->strings['poke, prod or do other things to somebody'] = 'Потыкать, п
 $a->strings['Choose what you wish to do to recipient'] = 'Выберите действия для получателя';
 $a->strings['Make this post private'] = 'Сделать эту запись личной';
 $a->strings['Contact is deleted.'] = 'Контакт удалён.';
+$a->strings['Follow was successfully revoked.'] = 'Подписка была успешно отозвана.';
+$a->strings['Follow was successfully revoked, however the remote contact won\'t be aware of this revokation.'] = 'Подписка успешно отозвана, но данный контакт не будет об этом уведомлён.';
+$a->strings['Unable to revoke follow, please try again later or contact the administrator.'] = 'Не получается отозвать подписку, попробуйте позже или свяжитесь с администратором.';
+$a->strings['Do you really want to revoke this contact\'s follow? This cannot be undone and they will have to manually follow you back again.'] = 'Вы действительно хотите отозвать подписку этого контакта на вас? Это нельзя будет отменить позже, им потребуется снова подписаться на вас.';
 $a->strings['Yes'] = 'Да';
 $a->strings['Local Community'] = 'Местное сообщество';
 $a->strings['Posts from local users on this server'] = 'Записи пользователей с этого сервера';
@@ -2123,11 +2110,6 @@ $a->strings['Export all'] = 'Экспорт всего';
 $a->strings['Export your account info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account (photos are not exported)'] = 'Выгрузить информацию о вашей учётной записи, контактах и всех ваших записях как файл JSON. Это может занять много времени и создать очень большой файл. Используйте это для создания резервной копии вашей учётной записи (изображения в неё не войдут).';
 $a->strings['Export Contacts to CSV'] = 'Экспорт контактов в CSV';
 $a->strings['Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.'] = 'Выгрузить список пользователей, на которых вы подписаны, в CSV-файл. Совместимо с Mastodon и др.';
-$a->strings['Bad Request'] = 'Ошибочный запрос';
-$a->strings['Forbidden'] = 'Запрещено';
-$a->strings['Not Found'] = 'Не найдено';
-$a->strings['Service Unavailable'] = 'Служба недоступна';
-$a->strings['The server is currently unavailable (because it is overloaded or down for maintenance). Please try again later.'] = 'Сервер в настоящий момент недоступен (из-за перегрузки или отключён для технических работ). Пожалуйста попробуйте зайти снова позднее. ';
 $a->strings['Privacy Statement'] = 'Положение о конфиденциальности';
 $a->strings['Welcome to Friendica'] = 'Добро пожаловать в Friendica';
 $a->strings['New Member Checklist'] = 'Новый контрольный список участников';
@@ -2179,13 +2161,13 @@ $a->strings['%1$s shared your comment %2$s'] = '%1$s поделился ваши
 $a->strings['%1$s shared your post %2$s'] = '%1$s поделился вашей записью %2$s';
 $a->strings['%1$s tagged you on %2$s'] = '%1$s отметил(а) вас в %2$s';
 $a->strings['%1$s replied to you on %2$s'] = '%1$s ответил(а) вам на %2$s';
-$a->strings['%1$s commented in your thread %2$s'] = '%1$s ответил в вашем обсуждении %2$s';
+$a->strings['%1$s commented in your thread %2$s'] = '%1$s ответил(а) в вашем обсуждении %2$s';
 $a->strings['%1$s commented on your comment %2$s'] = '%1$s ответил(а) на ваш комментарий %2$s';
-$a->strings['%1$s commented in their thread %2$s'] = '%1$s ответил в своём обсуждении %2$s';
-$a->strings['%1$s commented in their thread'] = '%1$s ответил в своём обсуждении';
-$a->strings['%1$s commented in the thread %2$s from %3$s'] = '%1$s ответил в обсуждении %2$s от %3$s';
-$a->strings['%1$s commented in the thread from %3$s'] = '%1$s ответил в обсуждении от %3$s';
-$a->strings['%1$s commented on your thread %2$s'] = '%1$s ответил в вашем обсуждении %2$s';
+$a->strings['%1$s commented in their thread %2$s'] = '%1$s ответил(а) в своём обсуждении %2$s';
+$a->strings['%1$s commented in their thread'] = '%1$s ответил(а) в своём обсуждении';
+$a->strings['%1$s commented in the thread %2$s from %3$s'] = '%1$s ответил(а) в обсуждении %2$s от %3$s';
+$a->strings['%1$s commented in the thread from %3$s'] = '%1$s ответил(а) в обсуждении от %3$s';
+$a->strings['%1$s commented on your thread %2$s'] = '%1$s ответил(а) в вашем обсуждении %2$s';
 $a->strings['%1$s shared the post %2$s from %3$s'] = '%1$s поделился записью %2$s от %3$s';
 $a->strings['%1$s shared a post from %3$s'] = '%1$s поделился записью от %3$s';
 $a->strings['%1$s shared the post %2$s'] = '%1$s поделился записью %2$s';
