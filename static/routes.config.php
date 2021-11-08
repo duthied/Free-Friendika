@@ -61,7 +61,7 @@ $apiRoutes = [
 
 	'/externalprofile/show[.{extension:json|xml|rss|atom}]'        => [Module\Api\Friendica\Index::class,        [R::GET         ]],
 	'/favorites/create[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [        R::POST]],
-	'/favorites/destroy[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class       , [R::DELETE, R::POST]],
+	'/favorites/destroy[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class,        [R::DELETE, R::POST]],
 	'/favorites[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,        [R::GET         ]],
 	'/followers/ids[.{extension:json|xml|rss|atom}]'               => [Module\Api\Twitter\FollowersIds::class,   [R::GET         ]],
 	'/followers/list[.{extension:json|xml|rss|atom}]'              => [Module\Api\Twitter\FollowersList::class,  [R::GET         ]],
@@ -98,7 +98,7 @@ $apiRoutes = [
 		'/photo/delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [R::DELETE      ]],
 		'/photo/update[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,        [        R::POST]],
 		'/photo[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,        [R::GET         ]],
-		],
+	],
 
 	'/gnusocial/config[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class, [R::GET         ]],
 	'/gnusocial/version[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
