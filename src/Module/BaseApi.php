@@ -344,7 +344,7 @@ class BaseApi extends BaseModule
 			'request' => DI::args()->getQueryString()
 		];
 
-		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $code . ' ' . $description);
+		header($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1' . ' ' . $code . ' ' . $description);
 
 		self::exit('status', ['status' => $error], $format);
 	}
