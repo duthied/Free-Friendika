@@ -36,7 +36,6 @@ class Test extends BaseApi
 			$ok = 'ok';
 		}
 
-		echo self::format('ok', ['ok' => $ok]);
-		exit;
+		self::exit('ok', ['ok' => $ok]);
 	}
 }

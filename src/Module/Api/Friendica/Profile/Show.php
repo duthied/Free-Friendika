@@ -66,8 +66,7 @@ class Show extends BaseApi
 			'profiles' => $profiles
 		];
 
-		echo self::format('friendica_profiles', ['$result' => $result]);
-		exit;
+		self::exit('friendica_profiles', ['$result' => $result]);
 	}
 
 	/**

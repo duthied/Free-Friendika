@@ -348,13 +348,13 @@ class BaseApi extends BaseModule
 	}
 
 	/**
-	 * Formats the data according to the data type
+	 * Outputs formatted data according to the data type and then exits the execution.
 	 *
 	 * @param string $root_element
 	 * @param array $data An array with a single element containing the returned result
 	 * @return false|string
 	 */
-	protected static function format(string $root_element, array $data)
+	protected static function exit(string $root_element, array $data)
 	{
 		$return = self::formatData($root_element, self::$format, $data);
 
@@ -382,7 +382,8 @@ class BaseApi extends BaseModule
 				break;
 		}
 
-		return $return;
+		echo $return;
+		exit;
 	}
 
 	/**
