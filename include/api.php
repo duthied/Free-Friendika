@@ -2937,42 +2937,6 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 }
 
 /**
- * Returns the remaining number of API requests available to the user before the API limit is reached.
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws Exception
- */
-function api_account_rate_limit_status($type)
-{
-	if ($type == "xml") {
-		$hash = [
-				'remaining-hits' => '150',
-				'@attributes' => ["type" => "integer"],
-				'hourly-limit' => '150',
-				'@attributes2' => ["type" => "integer"],
-				'reset-time' => DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM),
-				'@attributes3' => ["type" => "datetime"],
-				'reset_time_in_seconds' => strtotime('now + 1 hour'),
-				'@attributes4' => ["type" => "integer"],
-			];
-	} else {
-		$hash = [
-				'reset_time_in_seconds' => strtotime('now + 1 hour'),
-				'remaining_hits' => '150',
-				'hourly_limit' => '150',
-				'reset_time' => api_date(DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM)),
-			];
-	}
-
-	return BaseApi::formatData('hash', $type, ['hash' => $hash]);
-}
-
-/// @TODO move to top of file or somewhere better
-api_register_func('api/account/rate_limit_status', 'api_account_rate_limit_status', true);
-
-/**
  * Returns all lists the user subscribes to.
  *
  * @param string $type Return type (atom, rss, xml, json)
@@ -4518,8 +4482,8 @@ function prepare_photo_data($type, $scale, $photo_id)
 					`type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`,
 					MIN(`scale`) AS `minscale`, MAX(`scale`) AS `maxscale`
 			FROM `photo` WHERE `uid` = ? AND `resource-id` = ? $scale_sql GROUP BY
-			       `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
-			       `type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`",
+				   `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
+				   `type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`",
 		local_user(),
 		$photo_id
 	));

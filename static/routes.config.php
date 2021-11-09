@@ -42,10 +42,10 @@ $profileRoutes = [
 
 $apiRoutes = [
 	'/account' => [
-		'/verify_credentials[.{extension:json|xml|rss|atom}]'      => [Module\Api\Friendica\Index::class,        [R::GET         ]],
-		'/rate_limit_status[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class,        [R::GET         ]],
-		'/update_profile[.{extension:json|xml|rss|atom}]'          => [Module\Api\Friendica\Index::class,        [        R::POST]],
-		'/update_profile_image[.{extension:json|xml|rss|atom}]'    => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/verify_credentials[.{extension:json|xml|rss|atom}]'      => [Module\Api\Friendica\Index::class,                   [R::GET         ]],
+		'/rate_limit_status[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Account\RateLimitStatus::class, [R::GET         ]],
+		'/update_profile[.{extension:json|xml|rss|atom}]'          => [Module\Api\Friendica\Index::class,                   [        R::POST]],
+		'/update_profile_image[.{extension:json|xml|rss|atom}]'    => [Module\Api\Friendica\Index::class,                   [        R::POST]],
 	],
 
 	'/blocks/list[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,        [R::GET         ]],

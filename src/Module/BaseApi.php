@@ -225,7 +225,7 @@ class BaseApi extends BaseModule
 	 *
 	 * @return int User ID
 	 */
-	protected static function getCurrentUserID()
+	public static function getCurrentUserID()
 	{
 		$uid = OAuth::getCurrentUserID();
 
@@ -411,7 +411,7 @@ class BaseApi extends BaseModule
 		if (is_bool($item)) {
 			$item = ($item ? 'true' : 'false');
 		}
-	
+
 		if (substr($key, 0, 10) == 'statusnet_') {
 			$key = 'statusnet:'.substr($key, 10);
 		} elseif (substr($key, 0, 10) == 'friendica_') {
@@ -419,7 +419,7 @@ class BaseApi extends BaseModule
 		}
 		return true;
 	}
-   
+
 	/**
 	 * Creates the XML from a JSON style array
 	 *
