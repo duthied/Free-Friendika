@@ -44,11 +44,6 @@ class BaseApi extends BaseModule
 	const SCOPE_PUSH   = 'push';
 
 	/**
-	 * @var string json|xml|rss|atom
-	 */
-	protected static $format = 'json';
-
-	/**
 	 * @var array
 	 */
 	protected static $boundaries = [];
@@ -60,17 +55,6 @@ class BaseApi extends BaseModule
 
 	public static function init(array $parameters = [])
 	{
-		$arguments = DI::args();
-
-		if (substr($arguments->getCommand(), -4) === '.xml') {
-			self::$format = 'xml';
-		}
-		if (substr($arguments->getCommand(), -4) === '.rss') {
-			self::$format = 'rss';
-		}
-		if (substr($arguments->getCommand(), -4) === '.atom') {
-			self::$format = 'atom';
-		}
 	}
 
 	public static function delete(array $parameters = [])
@@ -351,14 +335,17 @@ class BaseApi extends BaseModule
 	 * Outputs formatted data according to the data type and then exits the execution.
 	 *
 	 * @param string $root_element
-	 * @param array $data An array with a single element containing the returned result
+	 * @param array  $data         An array with a single element containing the returned result
+	 * @param string $format       Output format (xml, json, rss, atom)
 	 * @return false|string
 	 */
-	protected static function exit(string $root_element, array $data)
+	protected static function exit(string $root_element, array $data, string $format = null)
 	{
-		$return = self::formatData($root_element, self::$format, $data);
+		$format = $format ?? 'json';
 
-		switch (self::$format) {
+		$return = self::formatData($root_element, $format, $data);
+
+		switch ($format) {
 			case 'xml':
 				header('Content-Type: text/xml');
 				break;

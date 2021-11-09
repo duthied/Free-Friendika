@@ -30,6 +30,6 @@ class Version extends BaseApi
 {
 	public static function rawContent(array $parameters = [])
 	{
-		self::exit('version', ['version' => '0.9.7']);
+		self::exit('version', ['version' => '0.9.7'], $parameters['extension'] ?? null);
 	}
 }
