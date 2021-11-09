@@ -71,7 +71,7 @@ class Arrays
 	 *
 	 * @return array the transformed array
 	 */
-	static public function walkRecursive(array &$array, callable $callback)
+	public static function walkRecursive(array &$array, callable $callback)
 	{
 		$new_array = [];
 
