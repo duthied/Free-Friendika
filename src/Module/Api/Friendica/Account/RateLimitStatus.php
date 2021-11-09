@@ -33,22 +33,22 @@ class RateLimitStatus extends BaseApi
 	{
 		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
 			$hash = [
-					'remaining-hits'        => '150',
-					'@attributes'           => ["type" => "integer"],
-					'hourly-limit'          => '150',
-					'@attributes2'          => ["type" => "integer"],
-					'reset-time'            => DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM),
-					'@attributes3'          => ["type" => "datetime"],
-					'reset_time_in_seconds' => strtotime('now + 1 hour'),
-					'@attributes4'          => ["type" => "integer"],
-				];
+				'remaining-hits'        => '150',
+				'@attributes'           => ["type" => "integer"],
+				'hourly-limit'          => '150',
+				'@attributes2'          => ["type" => "integer"],
+				'reset-time'            => DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM),
+				'@attributes3'          => ["type" => "datetime"],
+				'reset_time_in_seconds' => strtotime('now + 1 hour'),
+				'@attributes4'          => ["type" => "integer"],
+			];
 		} else {
 			$hash = [
-					'reset_time_in_seconds' => strtotime('now + 1 hour'),
-					'remaining_hits'        => '150',
-					'hourly_limit'          => '150',
-					'reset_time'            => api_date(DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM)),
-				];
+				'reset_time_in_seconds' => strtotime('now + 1 hour'),
+				'remaining_hits'        => '150',
+				'hourly_limit'          => '150',
+				'reset_time'            => api_date(DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM)),
+			];
 		}
 
 		self::exit('hash', ['hash' => $hash], $parameters['extension'] ?? null);
