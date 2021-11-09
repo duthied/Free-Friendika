@@ -284,47 +284,8 @@ function api_call(App $a, App\Arguments $args = null)
 		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString()]);
 		throw new NotFoundException();
 	} catch (HTTPException $e) {
-		header("HTTP/1.1 {$e->getCode()} {$e->getDescription()}");
-		return api_error($type, $e, $args);
+		BaseApi::error($e->getCode(), $e->getDescription(), $e->getMessage(), $type);
 	}
-}
-
-/**
- * Format API error string
- *
- * @param string $type Return type (xml, json, rss, as)
- * @param object $e    HTTPException Error object
- * @param App\Arguments $args The App arguments
- * @return string|array error message formatted as $type
- */
-function api_error($type, $e, App\Arguments $args)
-{
-	$error = ($e->getMessage() !== "" ? $e->getMessage() : $e->getDescription());
-	/// @TODO:  https://dev.twitter.com/overview/api/response-codes
-
-	$error = ["error" => $error,
-			"code" => $e->getCode() . " " . $e->getDescription(),
-			"request" => $args->getQueryString()];
-
-	$return = BaseApi::formatData('status', $type, ['status' => $error]);
-
-	switch ($type) {
-		case "xml":
-			header("Content-Type: text/xml");
-			break;
-		case "json":
-			header("Content-Type: application/json");
-			$return = json_encode($return);
-			break;
-		case "rss":
-			header("Content-Type: application/rss+xml");
-			break;
-		case "atom":
-			header("Content-Type: application/atom+xml");
-			break;
-	}
-
-	return $return;
 }
 
 /**

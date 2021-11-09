@@ -53,10 +53,6 @@ class BaseApi extends BaseModule
 	 */
 	protected static $request = [];
 
-	public static function init(array $parameters = [])
-	{
-	}
-
 	public static function delete(array $parameters = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
@@ -329,6 +325,28 @@ class BaseApi extends BaseModule
 	protected static function getUser($contact_id = null)
 	{
 		return api_get_user($contact_id);
+	}
+
+	/**
+	 * Exit with error code
+	 *
+	 * @param int $code
+	 * @param string $description
+	 * @param string $message
+	 * @param string|null $format
+	 * @return void
+	 */
+	public static function error(int $code, string $description, string $message, string $format = null)
+	{
+		$error = [
+			'error'   => $message ?: $description,
+			'code'    => $code . ' ' . $description,
+			'request' => DI::args()->getQueryString()
+		];
+
+		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $code . ' ' . $description);
+
+		self::exit('status', ['status' => $error], $format);
 	}
 
 	/**
