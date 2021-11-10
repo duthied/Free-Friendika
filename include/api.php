@@ -3869,53 +3869,6 @@ function api_fr_photo_create_update($type)
 }
 
 /**
- * delete a single photo from the database through api
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string|array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws InternalServerErrorException
- */
-function api_fr_photo_delete($type)
-{
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-
-	// input params
-	$photo_id = $_REQUEST['photo_id'] ?? null;
-
-	// do several checks on input parameters
-	// we do not allow calls without photo id
-	if ($photo_id == null) {
-		throw new BadRequestException("no photo_id specified");
-	}
-
-	// check if photo is existing in database
-	if (!Photo::exists(['resource-id' => $photo_id, 'uid' => api_user()])) {
-		throw new BadRequestException("photo not available");
-	}
-
-	// now we can perform on the deletion of the photo
-	$result = Photo::delete(['uid' => api_user(), 'resource-id' => $photo_id]);
-
-	// return success of deletion or error message
-	if ($result) {
-		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
-		// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-		$condition = ['uid' => api_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
-		Item::deleteForUser($condition, api_user());
-
-		$result = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
-		return BaseApi::formatData("photo_delete", $type, ['$result' => $result]);
-	} else {
-		throw new InternalServerErrorException("unknown error on deleting photo from database table");
-	}
-}
-
-
-/**
  * returns the details of a specified photo id, if scale is given, returns the photo data in base 64
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
@@ -4034,7 +3987,6 @@ function api_account_update_profile_image($type)
 api_register_func('api/friendica/photos/list', 'api_fr_photos_list', true);
 api_register_func('api/friendica/photo/create', 'api_fr_photo_create_update', true, API_METHOD_POST);
 api_register_func('api/friendica/photo/update', 'api_fr_photo_create_update', true, API_METHOD_POST);
-api_register_func('api/friendica/photo/delete', 'api_fr_photo_delete', true, API_METHOD_DELETE);
 api_register_func('api/friendica/photo', 'api_fr_photo_detail', true);
 api_register_func('api/account/update_profile_image', 'api_account_update_profile_image', true, API_METHOD_POST);
 

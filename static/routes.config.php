@@ -87,7 +87,7 @@ $apiRoutes = [
 		'/photoalbum/update[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Photoalbum\Update::class, [        R::POST]],
 		'/photos/list[.{extension:json|xml|rss|atom}]'             => [Module\Api\Friendica\Index::class,             [R::GET         ]],
 		'/photo/create[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,             [        R::POST]],
-		'/photo/delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,             [R::DELETE, R::POST]],
+		'/photo/delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Photo\Delete::class,      [R::DELETE, R::POST]],
 		'/photo/update[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,             [        R::POST]],
 		'/photo[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,             [R::GET         ]],
 	],
