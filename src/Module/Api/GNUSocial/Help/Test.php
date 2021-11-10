@@ -19,17 +19,23 @@
  *
  */
 
-namespace Friendica\Module\Api\Friendica\GNUSocial;
+namespace Friendica\Module\Api\GNUSocial\Help;
 
 use Friendica\Module\BaseApi;
 
 /**
- * API endpoint: /api/friendica/gnusocial/version, /api/friendica/statusnet/version
+ * API endpoint: /api/help/test
  */
-class Version extends BaseApi
+class Test extends BaseApi
 {
 	public static function rawContent(array $parameters = [])
 	{
-		self::exit('version', ['version' => '0.9.7'], $parameters['extension'] ?? null);
+		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
+			$ok = 'true';
+		} else {
+			$ok = 'ok';
+		}
+
+		self::exit('ok', ['ok' => $ok], $parameters['extension'] ?? null);
 	}
 }

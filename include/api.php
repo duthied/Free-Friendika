@@ -5408,40 +5408,6 @@ function api_friendica_direct_messages_search($type, $box = "")
 /// @TODO move to top of file or somewhere better
 api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
 
-/**
- * Returns a list of saved searches.
- *
- * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/get-saved_searches-list
- *
- * @param  string $type Return format: json or xml
- *
- * @return string|array
- * @throws Exception
- */
-function api_saved_searches_list($type)
-{
-	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
-
-	$result = [];
-	while ($term = DBA::fetch($terms)) {
-		$result[] = [
-			'created_at' => api_date(time()),
-			'id' => intval($term['id']),
-			'id_str' => $term['id'],
-			'name' => $term['term'],
-			'position' => null,
-			'query' => $term['term']
-		];
-	}
-
-	DBA::close($terms);
-
-	return BaseApi::formatData("terms", $type, ['terms' => $result]);
-}
-
-/// @TODO move to top of file or somewhere better
-api_register_func('api/saved_searches/list', 'api_saved_searches_list', true);
-
 /*
  * Number of comments
  *

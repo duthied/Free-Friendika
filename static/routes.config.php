@@ -42,10 +42,10 @@ $profileRoutes = [
 
 $apiRoutes = [
 	'/account' => [
-		'/verify_credentials[.{extension:json|xml|rss|atom}]'      => [Module\Api\Friendica\Index::class,                   [R::GET         ]],
-		'/rate_limit_status[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Account\RateLimitStatus::class, [R::GET         ]],
-		'/update_profile[.{extension:json|xml|rss|atom}]'          => [Module\Api\Friendica\Index::class,                   [        R::POST]],
-		'/update_profile_image[.{extension:json|xml|rss|atom}]'    => [Module\Api\Friendica\Index::class,                   [        R::POST]],
+		'/verify_credentials[.{extension:json|xml|rss|atom}]'      => [Module\Api\Friendica\Index::class,                 [R::GET         ]],
+		'/rate_limit_status[.{extension:json|xml|rss|atom}]'       => [Module\Api\Twitter\Account\RateLimitStatus::class, [R::GET         ]],
+		'/update_profile[.{extension:json|xml|rss|atom}]'          => [Module\Api\Friendica\Index::class,                 [        R::POST]],
+		'/update_profile_image[.{extension:json|xml|rss|atom}]'    => [Module\Api\Friendica\Index::class,                 [        R::POST]],
 	],
 
 	'/blocks/list[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,        [R::GET         ]],
@@ -101,8 +101,8 @@ $apiRoutes = [
 	],
 
 	'/gnusocial/config[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,             [R::GET         ]],
-	'/gnusocial/version[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\GNUSocial\Version::class, [R::GET         ]],
-	'/help/test[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Help\Test::class,         [R::GET         ]],
+	'/gnusocial/version[.{extension:json|xml|rss|atom}]'           => [Module\Api\GNUSocial\GNUSocial\Version::class, [R::GET         ]],
+	'/help/test[.{extension:json|xml|rss|atom}]'                   => [Module\Api\GNUSocial\Help\Test::class,         [R::GET         ]],
 
 	'/lists' => [
 		'/create[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [        R::POST]],
@@ -116,7 +116,7 @@ $apiRoutes = [
 
 	'/media/upload[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class,             [        R::POST]],
 	'/media/metadata/create[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class,             [        R::POST]],
-	'/saved_searches/list[.{extension:json|xml|rss|atom}]'             => [Module\Api\Friendica\Index::class,             [R::GET         ]],
+	'/saved_searches/list[.{extension:json|xml|rss|atom}]'             => [Module\Api\Twitter\SavedSearches::class,     [R::GET         ]],
 	'/search/tweets[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,             [R::GET         ]],
 	'/search[.{extension:json|xml|rss|atom}]'                          => [Module\Api\Friendica\Index::class,             [R::GET         ]],
 	'/statusnet/config[.{extension:json|xml|rss|atom}]'                => [Module\Api\Friendica\Index::class,             [R::GET         ]],

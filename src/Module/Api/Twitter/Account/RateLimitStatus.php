@@ -19,23 +19,38 @@
  *
  */
 
-namespace Friendica\Module\Api\Friendica\Help;
+namespace Friendica\Module\Api\Twitter\Account;
 
 use Friendica\Module\BaseApi;
+use Friendica\Util\DateTimeFormat;
 
 /**
- * API endpoint: /api/friendica/help/test
+ * API endpoint: /api/account/rate_limit_status
  */
-class Test extends BaseApi
+class RateLimitStatus extends BaseApi
 {
 	public static function rawContent(array $parameters = [])
 	{
 		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
-			$ok = 'true';
+			$hash = [
+				'remaining-hits'        => '150',
+				'@attributes'           => ["type" => "integer"],
+				'hourly-limit'          => '150',
+				'@attributes2'          => ["type" => "integer"],
+				'reset-time'            => DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM),
+				'@attributes3'          => ["type" => "datetime"],
+				'reset_time_in_seconds' => strtotime('now + 1 hour'),
+				'@attributes4'          => ["type" => "integer"],
+			];
 		} else {
-			$ok = 'ok';
+			$hash = [
+				'reset_time_in_seconds' => strtotime('now + 1 hour'),
+				'remaining_hits'        => '150',
+				'hourly_limit'          => '150',
+				'reset_time'            => api_date(DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM)),
+			];
 		}
 
-		self::exit('ok', ['ok' => $ok], $parameters['extension'] ?? null);
+		self::exit('hash', ['hash' => $hash], $parameters['extension'] ?? null);
 	}
 }
