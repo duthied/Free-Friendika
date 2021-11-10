@@ -105,55 +105,7 @@ class Contact extends BaseModule
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgv()[1] === 'batch') {
 			self::batchActions();
-			return;
 		}
-
-		// @TODO: Replace with parameter from router
-		$contact_id = intval(DI::args()->getArgv()[1]);
-		if (!$contact_id) {
-			return;
-		}
-
-		if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false])) {
-			notice(DI::l10n()->t('Could not access contact record.'));
-			DI::baseUrl()->redirect('contact');
-			return; // NOTREACHED
-		}
-
-		Hook::callAll('contact_edit_post', $_POST);
-
-		$hidden = !empty($_POST['hidden']);
-
-		$notify = !empty($_POST['notify']);
-
-		$fetch_further_information = intval($_POST['fetch_further_information'] ?? 0);
-
-		$remote_self = $_POST['remote_self'] ?? false;
-
-		$ffi_keyword_denylist = Strings::escapeHtml(trim($_POST['ffi_keyword_denylist'] ?? ''));
-
-		$priority = intval($_POST['poll'] ?? 0);
-		if ($priority > 5 || $priority < 0) {
-			$priority = 0;
-		}
-
-		$info = Strings::escapeHtml(trim($_POST['info'] ?? ''));
-
-		$r = Model\Contact::update([
-			'priority'   => $priority,
-			'info'       => $info,
-			'hidden'     => $hidden,
-			'notify_new_posts' => $notify,
-			'fetch_further_information' => $fetch_further_information,
-			'remote_self' => $remote_self,
-			'ffi_keyword_denylist'     => $ffi_keyword_denylist],
-			['id' => $contact_id, 'uid' => local_user()]
-		);
-
-		if (!DBA::isResult($r)) {
-			notice(DI::l10n()->t('Failed to update contact record.'));
-		}
-		return;
 	}
 
 	/* contact actions */
@@ -338,14 +290,10 @@ class Contact extends BaseModule
 
 			if ($cmd === 'update' && $cdata['user']) {
 				self::updateContactFromPoll($cdata['user']);
-				DI::baseUrl()->redirect('contact/' . $contact_id);
-				// NOTREACHED
 			}
 
 			if ($cmd === 'updateprofile' && $cdata['user']) {
 				self::updateContactFromProbe($cdata['user']);
-				DI::baseUrl()->redirect('contact/' . $contact_id);
-				// NOTREACHED
 			}
 
 			if ($cmd === 'block') {
@@ -357,9 +305,6 @@ class Contact extends BaseModule
 
 				$blocked = Model\Contact\User::isBlocked($contact_id, local_user());
 				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')));
-
-				DI::baseUrl()->redirect('contact/' . $contact_id);
-				// NOTREACHED
 			}
 
 			if ($cmd === 'ignore') {
@@ -371,204 +316,13 @@ class Contact extends BaseModule
 
 				$ignored = Model\Contact\User::isIgnored($cdata['public'], local_user());
 				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')));
-
-				DI::baseUrl()->redirect('contact/' . $contact_id);
-				// NOTREACHED
 			}
+
+			DI::baseUrl()->redirect('contact/' . $contact_id);
+			// NOTREACHED
 		}
 
 		$_SESSION['return_path'] = DI::args()->getQueryString();
-
-		if (!empty($contact)) {
-			DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_head.tpl'), [
-				'$baseurl' => DI::baseUrl()->get(true),
-			]);
-
-			$contact['blocked']  = Model\Contact\User::isBlocked($contact['id'], local_user());
-			$contact['readonly'] = Model\Contact\User::isIgnored($contact['id'], local_user());
-
-			$relation_text = '';
-			switch ($contact['rel']) {
-				case Model\Contact::FRIEND:
-					$relation_text = DI::l10n()->t('You are mutual friends with %s');
-					break;
-
-				case Model\Contact::FOLLOWER;
-					$relation_text = DI::l10n()->t('You are sharing with %s');
-					break;
-
-				case Model\Contact::SHARING;
-					$relation_text = DI::l10n()->t('%s is sharing with you');
-					break;
-
-				default:
-					break;
-			}
-
-			if ($contact['uid'] == 0) {
-				$relation_text = '';
-			}
-
-			if (!in_array($contact['network'], array_merge(Protocol::FEDERATED, [Protocol::TWITTER]))) {
-				$relation_text = '';
-			}
-
-			$relation_text = sprintf($relation_text, $contact['name']);
-
-			$url = Model\Contact::magicLinkByContact($contact);
-			if (strpos($url, 'redir/') === 0) {
-				$sparkle = ' class="sparkle" ';
-			} else {
-				$sparkle = '';
-			}
-
-			$insecure = DI::l10n()->t('Private communications are not available for this contact.');
-
-			$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME) ? DI::l10n()->t('Never') : DateTimeFormat::local($contact['last-update'], 'D, j M Y, g:i A'));
-
-			if ($contact['last-update'] > DBA::NULL_DATETIME) {
-				$last_update .= ' ' . ($contact['failed'] ? DI::l10n()->t('(Update was not successful)') : DI::l10n()->t('(Update was successful)'));
-			}
-			$lblsuggest = (($contact['network'] === Protocol::DFRN) ? DI::l10n()->t('Suggest friends') : '');
-
-			$poll_enabled = in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
-
-			$nettype = DI::l10n()->t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol'], $contact['gsid']));
-
-			// tabs
-			$tab_str = self::getTabsHTML($contact, self::TAB_PROFILE);
-
-			$lost_contact = (($contact['archive'] && $contact['term-date'] > DBA::NULL_DATETIME && $contact['term-date'] < DateTimeFormat::utcNow()) ? DI::l10n()->t('Communications lost with this contact!') : '');
-
-			$fetch_further_information = null;
-			if ($contact['network'] == Protocol::FEED) {
-				$fetch_further_information = [
-					'fetch_further_information',
-					DI::l10n()->t('Fetch further information for feeds'),
-					$contact['fetch_further_information'],
-					DI::l10n()->t('Fetch information like preview pictures, title and teaser from the feed item. You can activate this if the feed doesn\'t contain much text. Keywords are taken from the meta header in the feed item and are posted as hash tags.'),
-					[
-						'0' => DI::l10n()->t('Disabled'),
-						'1' => DI::l10n()->t('Fetch information'),
-						'3' => DI::l10n()->t('Fetch keywords'),
-						'2' => DI::l10n()->t('Fetch information and keywords')
-					]
-				];
-			}
-
-			// Disable remote self for everything except feeds.
-			// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
-			// Problem is, you couldn't reply to both networks.
-			$allow_remote_self = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::FEED, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER])
-				&& DI::config()->get('system', 'allow_users_remote_self');
-
-			if ($contact['network'] == Protocol::FEED) {
-				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'),
-					Model\Contact::MIRROR_FORWARDED => DI::l10n()->t('Mirror as forwarded posting'),
-					Model\Contact::MIRROR_OWN_POST => DI::l10n()->t('Mirror as my own posting')];
-			} elseif (in_array($contact['network'], [Protocol::ACTIVITYPUB])) {
-				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'),
-				Model\Contact::MIRROR_NATIVE_RESHARE => DI::l10n()->t('Native reshare')];
-			} elseif (in_array($contact['network'], [Protocol::DFRN])) {
-				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'),
-				Model\Contact::MIRROR_OWN_POST => DI::l10n()->t('Mirror as my own posting'),
-				Model\Contact::MIRROR_NATIVE_RESHARE => DI::l10n()->t('Native reshare')];
-			} else {
-				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'),
-					Model\Contact::MIRROR_OWN_POST => DI::l10n()->t('Mirror as my own posting')];
-			}
-
-			$poll_interval = null;
-			if ((($contact['network'] == Protocol::FEED) && !DI::config()->get('system', 'adjust_poll_frequency')) || ($contact['network'] == Protocol::MAIL)) {
-				$poll_interval = ContactSelector::pollInterval($contact['priority'], !$poll_enabled);
-			}
-
-			// Load contactact related actions like hide, suggest, delete and others
-			$contact_actions = self::getContactActions($contact);
-
-			if ($contact['uid'] != 0) {
-				$lbl_info1 = DI::l10n()->t('Contact Information / Notes');
-				$contact_settings_label = DI::l10n()->t('Contact Settings');
-			} else {
-				$lbl_info1 = null;
-				$contact_settings_label = null;
-			}
-
-			$tpl = Renderer::getMarkupTemplate('contact_edit.tpl');
-			$o .= Renderer::replaceMacros($tpl, [
-				'$header'         => DI::l10n()->t('Contact'),
-				'$tab_str'        => $tab_str,
-				'$submit'         => DI::l10n()->t('Submit'),
-				'$lbl_info1'      => $lbl_info1,
-				'$lbl_info2'      => DI::l10n()->t('Their personal note'),
-				'$reason'         => trim($contact['reason']),
-				'$infedit'        => DI::l10n()->t('Edit contact notes'),
-				'$common_link'    => 'contact/' . $contact['id'] . '/contacts/common',
-				'$relation_text'  => $relation_text,
-				'$visit'          => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
-				'$blockunblock'   => DI::l10n()->t('Block/Unblock contact'),
-				'$ignorecont'     => DI::l10n()->t('Ignore contact'),
-				'$lblrecent'      => DI::l10n()->t('View conversations'),
-				'$lblsuggest'     => $lblsuggest,
-				'$nettype'        => $nettype,
-				'$poll_interval'  => $poll_interval,
-				'$poll_enabled'   => $poll_enabled,
-				'$lastupdtext'    => DI::l10n()->t('Last update:'),
-				'$lost_contact'   => $lost_contact,
-				'$updpub'         => DI::l10n()->t('Update public posts'),
-				'$last_update'    => $last_update,
-				'$udnow'          => DI::l10n()->t('Update now'),
-				'$contact_id'     => $contact['id'],
-				'$block_text'     => ($contact['blocked'] ? DI::l10n()->t('Unblock') : DI::l10n()->t('Block')),
-				'$ignore_text'    => ($contact['readonly'] ? DI::l10n()->t('Unignore') : DI::l10n()->t('Ignore')),
-				'$insecure'       => (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA]) ? '' : $insecure),
-				'$info'           => $contact['info'],
-				'$cinfo'          => ['info', '', $contact['info'], ''],
-				'$blocked'        => ($contact['blocked'] ? DI::l10n()->t('Currently blocked') : ''),
-				'$ignored'        => ($contact['readonly'] ? DI::l10n()->t('Currently ignored') : ''),
-				'$archived'       => ($contact['archive'] ? DI::l10n()->t('Currently archived') : ''),
-				'$pending'        => ($contact['pending'] ? DI::l10n()->t('Awaiting connection acknowledge') : ''),
-				'$hidden'         => ['hidden', DI::l10n()->t('Hide this contact from others'), ($contact['hidden'] == 1), DI::l10n()->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
-				'$notify'         => ['notify', DI::l10n()->t('Notification for new posts'), ($contact['notify_new_posts'] == 1), DI::l10n()->t('Send a notification of every new post of this contact')],
-				'$fetch_further_information' => $fetch_further_information,
-				'$ffi_keyword_denylist' => ['ffi_keyword_denylist', DI::l10n()->t('Keyword Deny List'), $contact['ffi_keyword_denylist'], DI::l10n()->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
-				'$photo'          => Model\Contact::getPhoto($contact),
-				'$name'           => $contact['name'],
-				'$sparkle'        => $sparkle,
-				'$url'            => $url,
-				'$profileurllabel'=> DI::l10n()->t('Profile URL'),
-				'$profileurl'     => $contact['url'],
-				'$account_type'   => Model\Contact::getAccountType($contact),
-				'$location'       => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['location']),
-				'$location_label' => DI::l10n()->t('Location:'),
-				'$xmpp'           => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['xmpp']),
-				'$xmpp_label'     => DI::l10n()->t('XMPP:'),
-				'$matrix'         => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['matrix']),
-				'$matrix_label'   => DI::l10n()->t('Matrix:'),
-				'$about'          => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['about'], BBCode::EXTERNAL),
-				'$about_label'    => DI::l10n()->t('About:'),
-				'$keywords'       => $contact['keywords'],
-				'$keywords_label' => DI::l10n()->t('Tags:'),
-				'$contact_action_button' => DI::l10n()->t('Actions'),
-				'$contact_actions'=> $contact_actions,
-				'$contact_status' => DI::l10n()->t('Status'),
-				'$contact_settings_label' => $contact_settings_label,
-				'$contact_profile_label' => DI::l10n()->t('Profile'),
-				'$allow_remote_self' => $allow_remote_self,
-				'$remote_self'       => ['remote_self',
-					DI::l10n()->t('Mirror postings from this contact'),
-					$contact['remote_self'],
-					DI::l10n()->t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
-					$remote_self_options
-				],
-			]);
-
-			$arr = ['contact' => $contact, 'output' => $o];
-
-			Hook::callAll('contact_edit', $arr);
-
-			return $arr['output'];
-		}
 
 		$sql_values = [local_user()];
 
@@ -930,80 +684,5 @@ class Contact extends BaseModule
 			'itemurl'      => ($contact['addr'] ?? '') ?: $contact['url'],
 			'network'      => ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol'], $contact['gsid']),
 		];
-	}
-
-	/**
-	 * Gives a array with actions which can performed to a given contact
-	 *
-	 * This includes actions like e.g. 'block', 'hide', 'delete' and others
-	 *
-	 * @param array $contact Data about the Contact
-	 * @return array with contact related actions
-	 */
-	private static function getContactActions($contact)
-	{
-		$poll_enabled = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
-		$contact_actions = [];
-
-		$formSecurityToken = self::getFormSecurityToken('contact_action');
-
-		// Provide friend suggestion only for Friendica contacts
-		if ($contact['network'] === Protocol::DFRN) {
-			$contact_actions['suggest'] = [
-				'label' => DI::l10n()->t('Suggest friends'),
-				'url'   => 'fsuggest/' . $contact['id'],
-				'title' => '',
-				'sel'   => '',
-				'id'    => 'suggest',
-			];
-		}
-
-		if ($poll_enabled) {
-			$contact_actions['update'] = [
-				'label' => DI::l10n()->t('Update now'),
-				'url'   => 'contact/' . $contact['id'] . '/update?t=' . $formSecurityToken,
-				'title' => '',
-				'sel'   => '',
-				'id'    => 'update',
-			];
-		}
-
-		if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-			$contact_actions['updateprofile'] = [
-				'label' => DI::l10n()->t('Refetch contact data'),
-				'url'   => 'contact/' . $contact['id'] . '/updateprofile?t=' . $formSecurityToken,
-				'title' => '',
-				'sel'   => '',
-				'id'    => 'updateprofile',
-			];
-		}
-
-		$contact_actions['block'] = [
-			'label' => (intval($contact['blocked']) ? DI::l10n()->t('Unblock') : DI::l10n()->t('Block')),
-			'url'   => 'contact/' . $contact['id'] . '/block?t=' . $formSecurityToken,
-			'title' => DI::l10n()->t('Toggle Blocked status'),
-			'sel'   => (intval($contact['blocked']) ? 'active' : ''),
-			'id'    => 'toggle-block',
-		];
-
-		$contact_actions['ignore'] = [
-			'label' => (intval($contact['readonly']) ? DI::l10n()->t('Unignore') : DI::l10n()->t('Ignore')),
-			'url'   => 'contact/' . $contact['id'] . '/ignore?t=' . $formSecurityToken,
-			'title' => DI::l10n()->t('Toggle Ignored status'),
-			'sel'   => (intval($contact['readonly']) ? 'active' : ''),
-			'id'    => 'toggle-ignore',
-		];
-
-		if ($contact['uid'] != 0 && Protocol::supportsRevokeFollow($contact['network']) && in_array($contact['rel'], [Model\Contact::FOLLOWER, Model\Contact::FRIEND])) {
-			$contact_actions['revoke_follow'] = [
-				'label' => DI::l10n()->t('Revoke Follow'),
-				'url'   => 'contact/' . $contact['id'] . '/revoke',
-				'title' => DI::l10n()->t('Revoke the follow from this contact'),
-				'sel'   => '',
-				'id'    => 'revoke_follow',
-			];
-		}
-
-		return $contact_actions;
 	}
 }

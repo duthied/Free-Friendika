@@ -329,7 +329,7 @@ return [
 
 	'/contact'   => [
 		'[/]'                         => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}[/]'                => [Module\Contact::class,           [R::GET, R::POST]],
+		'/{id:\d+}[/]'                => [Module\Contact\Profile::class,   [R::GET, R::POST]],
 		'/{id:\d+}/archive'           => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/advanced'          => [Module\Contact\Advanced::class,  [R::GET, R::POST]],
 		'/{id:\d+}/block'             => [Module\Contact::class,           [R::GET]],
