@@ -50,7 +50,7 @@ class Show extends BaseApi
 		$profile = self::formatProfile($profile, $profileFields);
 
 		$profiles = [];
-		if (self::$format == 'xml') {
+		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
 			$profiles['0:profile'] = $profile;
 		} else {
 			$profiles[] = $profile;
@@ -66,8 +66,7 @@ class Show extends BaseApi
 			'profiles' => $profiles
 		];
 
-		echo self::format('friendica_profiles', ['$result' => $result]);
-		exit;
+		self::exit('friendica_profiles', ['$result' => $result], $parameters['extension'] ?? null);
 	}
 
 	/**

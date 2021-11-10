@@ -29,8 +29,10 @@ use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
+use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPInputData;
+use Friendica\Util\XML;
 
 require_once __DIR__ . '/../../include/api.php';
 
@@ -42,11 +44,6 @@ class BaseApi extends BaseModule
 	const SCOPE_PUSH   = 'push';
 
 	/**
-	 * @var string json|xml|rss|atom
-	 */
-	protected static $format = 'json';
-
-	/**
 	 * @var array
 	 */
 	protected static $boundaries = [];
@@ -55,21 +52,6 @@ class BaseApi extends BaseModule
 	 * @var array
 	 */
 	protected static $request = [];
-
-	public static function init(array $parameters = [])
-	{
-		$arguments = DI::args();
-
-		if (substr($arguments->getCommand(), -4) === '.xml') {
-			self::$format = 'xml';
-		}
-		if (substr($arguments->getCommand(), -4) === '.rss') {
-			self::$format = 'rss';
-		}
-		if (substr($arguments->getCommand(), -4) === '.atom') {
-			self::$format = 'atom';
-		}
-	}
 
 	public static function delete(array $parameters = [])
 	{
@@ -239,7 +221,7 @@ class BaseApi extends BaseModule
 	 *
 	 * @return int User ID
 	 */
-	protected static function getCurrentUserID()
+	public static function getCurrentUserID()
 	{
 		$uid = OAuth::getCurrentUserID();
 
@@ -342,56 +324,162 @@ class BaseApi extends BaseModule
 	 */
 	protected static function getUser($contact_id = null)
 	{
-		return api_get_user(DI::app(), $contact_id);
+		return api_get_user($contact_id);
+	}
+
+	/**
+	 * Exit with error code
+	 *
+	 * @param int $code
+	 * @param string $description
+	 * @param string $message
+	 * @param string|null $format
+	 * @return void
+	 */
+	public static function error(int $code, string $description, string $message, string $format = null)
+	{
+		$error = [
+			'error'   => $message ?: $description,
+			'code'    => $code . ' ' . $description,
+			'request' => DI::args()->getQueryString()
+		];
+
+		header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1') . ' ' . $code . ' ' . $description);
+
+		self::exit('status', ['status' => $error], $format);
+	}
+
+	/**
+	 * Outputs formatted data according to the data type and then exits the execution.
+	 *
+	 * @param string $root_element
+	 * @param array  $data         An array with a single element containing the returned result
+	 * @param string $format       Output format (xml, json, rss, atom)
+	 * @return false|string
+	 */
+	protected static function exit(string $root_element, array $data, string $format = null)
+	{
+		$format = $format ?? 'json';
+
+		$return = self::formatData($root_element, $format, $data);
+
+		switch ($format) {
+			case 'xml':
+				header('Content-Type: text/xml');
+				break;
+			case 'json':
+				header('Content-Type: application/json');
+				if (!empty($return)) {
+					$json = json_encode(end($return));
+					if (!empty($_GET['callback'])) {
+						$json = $_GET['callback'] . '(' . $json . ')';
+					}
+					$return = $json;
+				}
+				break;
+			case 'rss':
+				header('Content-Type: application/rss+xml');
+				$return  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
+				break;
+			case 'atom':
+				header('Content-Type: application/atom+xml');
+				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
+				break;
+		}
+
+		echo $return;
+		exit;
 	}
 
 	/**
 	 * Formats the data according to the data type
 	 *
-	 * @param string $root_element
-	 * @param array $data An array with a single element containing the returned result
-	 * @return false|string
+	 * @param string $root_element Name of the root element
+	 * @param string $type         Return type (atom, rss, xml, json)
+	 * @param array  $data         JSON style array
+	 *
+	 * @return array|string (string|array) XML data or JSON data
 	 */
-	protected static function format(string $root_element, array $data)
+	public static function formatData($root_element, string $type, array $data)
 	{
-		$return = api_format_data($root_element, self::$format, $data);
-
-		switch (self::$format) {
-			case "xml":
-				header("Content-Type: text/xml");
+		switch ($type) {
+			case 'atom':
+			case 'rss':
+			case 'xml':
+				$ret = self::createXML($data, $root_element);
 				break;
-			case "json":
-				header("Content-Type: application/json");
-				if (!empty($return)) {
-					$json = json_encode(end($return));
-					if (!empty($_GET['callback'])) {
-						$json = $_GET['callback'] . "(" . $json . ")";
-					}
-					$return = $json;
-				}
-				break;
-			case "rss":
-				header("Content-Type: application/rss+xml");
-				$return  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
-				break;
-			case "atom":
-				header("Content-Type: application/atom+xml");
-				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
+			case 'json':
+			default:
+				$ret = $data;
 				break;
 		}
+		return $ret;
+	}
 
-		return $return;
+	/**
+	* Callback function to transform the array in an array that can be transformed in a XML file
+	*
+	* @param mixed  $item Array item value
+	* @param string $key  Array key
+	*
+	* @return boolean
+	*/
+	public static function reformatXML(&$item, &$key)
+	{
+		if (is_bool($item)) {
+			$item = ($item ? 'true' : 'false');
+		}
+
+		if (substr($key, 0, 10) == 'statusnet_') {
+			$key = 'statusnet:'.substr($key, 10);
+		} elseif (substr($key, 0, 10) == 'friendica_') {
+			$key = 'friendica:'.substr($key, 10);
+		}
+		return true;
 	}
 
 	/**
 	 * Creates the XML from a JSON style array
 	 *
-	 * @param $data
-	 * @param $root_element
-	 * @return string
+	 * @param array  $data         JSON style array
+	 * @param string $root_element Name of the root element
+	 *
+	 * @return string The XML data
 	 */
-	protected static function createXml($data, $root_element)
+	public static function createXML(array $data, $root_element)
 	{
-		return api_create_xml($data, $root_element);
+		$childname = key($data);
+		$data2 = array_pop($data);
+
+		$namespaces = ['' => 'http://api.twitter.com',
+			'statusnet' => 'http://status.net/schema/api/1/',
+			'friendica' => 'http://friendi.ca/schema/api/1/',
+			'georss' => 'http://www.georss.org/georss'];
+
+		/// @todo Auto detection of needed namespaces
+		if (in_array($root_element, ['ok', 'hash', 'config', 'version', 'ids', 'notes', 'photos'])) {
+			$namespaces = [];
+		}
+
+		if (is_array($data2)) {
+			$key = key($data2);
+			Arrays::walkRecursive($data2, ['Friendica\Module\BaseApi', 'reformatXML']);
+
+			if ($key == '0') {
+				$data4 = [];
+				$i = 1;
+
+				foreach ($data2 as $item) {
+					$data4[$i++ . ':' . $childname] = $item;
+				}
+
+				$data2 = $data4;
+			}
+		}
+
+		$data3 = [$root_element => $data2];
+
+		$ret = XML::fromArray($data3, $xml, false, $namespaces);
+		return $ret;
 	}
 }

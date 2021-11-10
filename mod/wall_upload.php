@@ -55,7 +55,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 				return;
 			}
 		} else {
-			$user_info = api_get_user($a);
+			$user_info = api_get_user();
 			$user = DBA::selectFirst('owner-view', ['id', 'uid', 'nickname', 'page-flags'], ['nickname' => $user_info['screen_name'], 'blocked' => false]);
 		}
 	} else {

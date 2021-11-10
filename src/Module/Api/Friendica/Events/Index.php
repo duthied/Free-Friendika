@@ -70,7 +70,6 @@ class Index extends BaseApi
 			];
 		}
 
-		echo self::format('events', ['events' => $items]);
-		exit;
+		self::exit('events', ['events' => $items], $parameters['extension'] ?? null);
 	}
 }
