@@ -25,9 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
-use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
@@ -37,10 +35,7 @@ use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
-use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\NotFoundException;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Strings;
 
 /**
  *  Manages and show Contacts and their content
@@ -116,7 +111,7 @@ class Contact extends BaseModule
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function updateContactFromPoll(int $contact_id)
+	public static function updateContactFromPoll(int $contact_id)
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
@@ -135,22 +130,6 @@ class Contact extends BaseModule
 		} else {
 			Worker::add(PRIORITY_HIGH, 'UpdateContact', $contact_id);
 		}
-	}
-
-	/**
-	 * @param int $contact_id Id of the contact with uid != 0
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function updateContactFromProbe(int $contact_id)
-	{
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
-		if (!DBA::isResult($contact)) {
-			return;
-		}
-
-		// Update the entry in the contact table
-		Model\Contact::updateFromProbe($contact_id);
 	}
 
 	/**
@@ -199,63 +178,18 @@ class Contact extends BaseModule
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
-		$contact = null;
-		// @TODO: Replace with parameter from router
-		if (DI::args()->getArgc() == 2 && intval(DI::args()->getArgv()[1])) {
-			$contact_id = intval(DI::args()->getArgv()[1]);
-
-			// Ensure to use the user contact when the public contact was provided
-			$data = Model\Contact::getPublicAndUserContactID($contact_id, local_user());
-			if (!empty($data['user']) && ($contact_id == $data['public'])) {
-				$contact_id = $data['user'];
-			}
-
-			if (!empty($data)) {
-				$contact = DBA::selectFirst('contact', [], [
-					'id'      => $contact_id,
-					'uid'     => [0, local_user()],
-					'deleted' => false
-				]);
-
-				// Don't display contacts that are about to be deleted
-				if (DBA::isResult($contact) && !empty($contact['network']) && $contact['network'] == Protocol::PHANTOM) {
-					$contact = false;
-				}
-			}
-		}
-
-		if (DBA::isResult($contact)) {
-			if ($contact['self']) {
-				DI::baseUrl()->redirect('profile/' . $contact['nick'] . '/profile');
-			}
-
-			$vcard_widget = Widget\VCard::getHTML($contact);
-
-			$findpeople_widget = '';
-			$follow_widget = '';
-			$account_widget = '';
-			$networks_widget = '';
-			$rel_widget = '';
-
-			if ($contact['uid'] != 0) {
-				$groups_widget = Model\Group::sidebarWidget('contact', 'group', 'full', 'everyone', $contact_id);
-			} else {
-				$groups_widget = '';
-			}
+		$vcard_widget = '';
+		$findpeople_widget = Widget::findPeople();
+		if (isset($_GET['add'])) {
+			$follow_widget = Widget::follow($_GET['add']);
 		} else {
-			$vcard_widget = '';
-			$findpeople_widget = Widget::findPeople();
-			if (isset($_GET['add'])) {
-				$follow_widget = Widget::follow($_GET['add']);
-			} else {
-				$follow_widget = Widget::follow();
-			}
-
-			$account_widget = Widget::accounttypes($_SERVER['REQUEST_URI'], $accounttype);
-			$networks_widget = Widget::networks($_SERVER['REQUEST_URI'], $nets);
-			$rel_widget = Widget::contactRels($_SERVER['REQUEST_URI'], $rel);
-			$groups_widget = Widget::groups($_SERVER['REQUEST_URI'], $group);
+			$follow_widget = Widget::follow();
 		}
+
+		$account_widget = Widget::accounttypes($_SERVER['REQUEST_URI'], $accounttype);
+		$networks_widget = Widget::networks($_SERVER['REQUEST_URI'], $nets);
+		$rel_widget = Widget::contactRels($_SERVER['REQUEST_URI'], $rel);
+		$groups_widget = Widget::groups($_SERVER['REQUEST_URI'], $group);
 
 		DI::page()['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $account_widget . $groups_widget . $networks_widget . $rel_widget;
 
@@ -266,61 +200,6 @@ class Contact extends BaseModule
 
 		$o = '';
 		Nav::setSelected('contact');
-
-		if (DI::args()->getArgc() == 3) {
-			$contact_id = intval(DI::args()->getArgv()[1]);
-			if (!$contact_id) {
-				throw new BadRequestException();
-			}
-
-			// @TODO: Replace with parameter from router
-			$cmd = DI::args()->getArgv()[2];
-
-			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
-			if (!DBA::isResult($orig_record)) {
-				throw new NotFoundException(DI::l10n()->t('Contact not found'));
-			}
-
-			self::checkFormSecurityTokenRedirectOnError('contact/' . $contact_id, 'contact_action', 't');
-
-			$cdata = Model\Contact::getPublicAndUserContactID($orig_record['id'], local_user());
-			if (empty($cdata)) {
-				throw new NotFoundException(DI::l10n()->t('Contact not found'));
-			}
-
-			if ($cmd === 'update' && $cdata['user']) {
-				self::updateContactFromPoll($cdata['user']);
-			}
-
-			if ($cmd === 'updateprofile' && $cdata['user']) {
-				self::updateContactFromProbe($cdata['user']);
-			}
-
-			if ($cmd === 'block') {
-				if (public_contact() === $cdata['public']) {
-					throw new BadRequestException(DI::l10n()->t('You can\'t block yourself'));
-				}
-
-				self::toggleBlockContact($cdata['public'], local_user());
-
-				$blocked = Model\Contact\User::isBlocked($contact_id, local_user());
-				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')));
-			}
-
-			if ($cmd === 'ignore') {
-				if (public_contact() === $cdata['public']) {
-					throw new BadRequestException(DI::l10n()->t('You can\'t ignore yourself'));
-				}
-
-				self::toggleIgnoreContact($cdata['public']);
-
-				$ignored = Model\Contact\User::isIgnored($cdata['public'], local_user());
-				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')));
-			}
-
-			DI::baseUrl()->redirect('contact/' . $contact_id);
-			// NOTREACHED
-		}
 
 		$_SESSION['return_path'] = DI::args()->getQueryString();
 

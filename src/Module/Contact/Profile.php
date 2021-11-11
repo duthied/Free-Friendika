@@ -164,6 +164,53 @@ class Profile extends BaseModule
 			$this->baseUrl->redirect('profile/' . $contact['nick'] . '/profile');
 		}
 
+		if (isset($parameters['action'])) {
+			self::checkFormSecurityTokenRedirectOnError('contact/' . $contact['id'], 'contact_action', 't');
+
+			$cmd = $parameters['action'];
+			if ($cmd === 'update' && $localRelationship->rel !== Contact::NOTHING) {
+				Module\Contact::updateContactFromPoll($contact['id']);
+			}
+
+			if ($cmd === 'updateprofile' && $localRelationship->rel !== Contact::NOTHING) {
+				self::updateContactFromProbe($contact['id']);
+			}
+
+			if ($cmd === 'block') {
+				if ($localRelationship->blocked) {
+					// @TODO Backward compatibility, replace with $localRelationship->unblock()
+					Contact\User::setBlocked($contact['id'], local_user(), false);
+
+					$message = $this->t('Contact has been unblocked');
+				} else {
+					// @TODO Backward compatibility, replace with $localRelationship->block()
+					Contact\User::setBlocked($contact['id'], local_user(), true);
+					$message = $this->t('Contact has been blocked');
+				}
+
+				// @TODO: add $this->localRelationship->save($localRelationship);
+				info($message);
+			}
+
+			if ($cmd === 'ignore') {
+				if ($localRelationship->ignored) {
+					// @TODO Backward compatibility, replace with $localRelationship->unblock()
+					Contact\User::setIgnored($contact['id'], local_user(), false);
+
+					$message = $this->t('Contact has been unignored');
+				} else {
+					// @TODO Backward compatibility, replace with $localRelationship->block()
+					Contact\User::setIgnored($contact['id'], local_user(), true);
+					$message = $this->t('Contact has been ignored');
+				}
+
+				// @TODO: add $this->localRelationship->save($localRelationship);
+				info($message);
+			}
+
+			$this->baseUrl->redirect('contact/' . $contact['id']);
+		}
+
 		$vcard_widget  = Widget\VCard::getHTML($contact);
 		$groups_widget = '';
 
@@ -432,5 +479,21 @@ class Profile extends BaseModule
 		}
 
 		return $contact_actions;
+	}
+
+	/**
+	 * @param int $contact_id Id of the contact with uid != 0
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function updateContactFromProbe(int $contact_id)
+	{
+		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
+		if (!DBA::isResult($contact)) {
+			return;
+		}
+
+		// Update the entry in the contact table
+		Contact::updateFromProbe($contact_id);
 	}
 }
