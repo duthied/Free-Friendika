@@ -24,7 +24,6 @@
  */
 
 use Friendica\App;
-use Friendica\Collection\Api\Notifications as ApiNotifications;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
@@ -52,7 +51,6 @@ use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Network\HTTPException\UnauthorizedException;
-use Friendica\Object\Api\Friendica\Notification as ApiNotification;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Security\BasicAuth;
@@ -3684,95 +3682,6 @@ api_register_func('api/direct_messages/sent', 'api_direct_messages_sentbox', tru
 api_register_func('api/direct_messages', 'api_direct_messages_inbox', true);
 
 /**
- * delete a complete photoalbum with all containing photos from database through api
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string|array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws InternalServerErrorException
- */
-function api_fr_photoalbum_delete($type)
-{
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-	// input params
-	$album = $_REQUEST['album'] ?? '';
-
-	// we do not allow calls without album string
-	if ($album == "") {
-		throw new BadRequestException("no albumname specified");
-	}
-	// check if album is existing
-
-	$photos = DBA::selectToArray('photo', ['resource-id'], ['uid' => api_user(), 'album' => $album], ['group_by' => ['resource-id']]);
-	if (!DBA::isResult($photos)) {
-		throw new BadRequestException("album not available");
-	}
-
-	$resourceIds = array_column($photos, 'resource-id');
-
-	// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
-	// to the user and the contacts of the users (drop_items() performs the federation of the deletion to other networks
-	$condition = ['uid' => api_user(), 'resource-id' => $resourceIds, 'type' => 'photo'];
-	Item::deleteForUser($condition, api_user());
-
-	// now let's delete all photos from the album
-	$result = Photo::delete(['uid' => api_user(), 'album' => $album]);
-
-	// return success of deletion or error message
-	if ($result) {
-		$answer = ['result' => 'deleted', 'message' => 'album `' . $album . '` with all containing photos has been deleted.'];
-		return BaseApi::formatData("photoalbum_delete", $type, ['$result' => $answer]);
-	} else {
-		throw new InternalServerErrorException("unknown error - deleting from database failed");
-	}
-}
-
-/**
- * update the name of the album for all photos of an album
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string|array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws InternalServerErrorException
- */
-function api_fr_photoalbum_update($type)
-{
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-	// input params
-	$album = $_REQUEST['album'] ?? '';
-	$album_new = $_REQUEST['album_new'] ?? '';
-
-	// we do not allow calls without album string
-	if ($album == "") {
-		throw new BadRequestException("no albumname specified");
-	}
-	if ($album_new == "") {
-		throw new BadRequestException("no new albumname specified");
-	}
-	// check if album is existing
-	if (!Photo::exists(['uid' => api_user(), 'album' => $album])) {
-		throw new BadRequestException("album not available");
-	}
-	// now let's update all photos to the albumname
-	$result = Photo::update(['album' => $album_new], ['uid' => api_user(), 'album' => $album]);
-
-	// return success of updating or error message
-	if ($result) {
-		$answer = ['result' => 'updated', 'message' => 'album `' . $album . '` with all containing photos has been renamed to `' . $album_new . '`.'];
-		return BaseApi::formatData("photoalbum_update", $type, ['$result' => $answer]);
-	} else {
-		throw new InternalServerErrorException("unknown error - updating in database failed");
-	}
-}
-
-
-/**
  * list all photos of the authenticated user
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
@@ -3960,53 +3869,6 @@ function api_fr_photo_create_update($type)
 }
 
 /**
- * delete a single photo from the database through api
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string|array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws InternalServerErrorException
- */
-function api_fr_photo_delete($type)
-{
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-
-	// input params
-	$photo_id = $_REQUEST['photo_id'] ?? null;
-
-	// do several checks on input parameters
-	// we do not allow calls without photo id
-	if ($photo_id == null) {
-		throw new BadRequestException("no photo_id specified");
-	}
-
-	// check if photo is existing in database
-	if (!Photo::exists(['resource-id' => $photo_id, 'uid' => api_user()])) {
-		throw new BadRequestException("photo not available");
-	}
-
-	// now we can perform on the deletion of the photo
-	$result = Photo::delete(['uid' => api_user(), 'resource-id' => $photo_id]);
-
-	// return success of deletion or error message
-	if ($result) {
-		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
-		// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-		$condition = ['uid' => api_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
-		Item::deleteForUser($condition, api_user());
-
-		$result = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
-		return BaseApi::formatData("photo_delete", $type, ['$result' => $result]);
-	} else {
-		throw new InternalServerErrorException("unknown error on deleting photo from database table");
-	}
-}
-
-
-/**
  * returns the details of a specified photo id, if scale is given, returns the photo data in base 64
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
@@ -4122,12 +3984,9 @@ function api_account_update_profile_image($type)
 }
 
 // place api-register for photoalbum calls before 'api/friendica/photo', otherwise this function is never reached
-api_register_func('api/friendica/photoalbum/delete', 'api_fr_photoalbum_delete', true, API_METHOD_DELETE);
-api_register_func('api/friendica/photoalbum/update', 'api_fr_photoalbum_update', true, API_METHOD_POST);
 api_register_func('api/friendica/photos/list', 'api_fr_photos_list', true);
 api_register_func('api/friendica/photo/create', 'api_fr_photo_create_update', true, API_METHOD_POST);
 api_register_func('api/friendica/photo/update', 'api_fr_photo_create_update', true, API_METHOD_POST);
-api_register_func('api/friendica/photo/delete', 'api_fr_photo_delete', true, API_METHOD_DELETE);
 api_register_func('api/friendica/photo', 'api_fr_photo_detail', true);
 api_register_func('api/account/update_profile_image', 'api_account_update_profile_image', true, API_METHOD_POST);
 
@@ -5134,96 +4993,6 @@ function api_lists_update($type)
 api_register_func('api/lists/update', 'api_lists_update', true, API_METHOD_POST);
 
 /**
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- */
-function api_friendica_activity($type)
-{
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-	$verb = strtolower(DI::args()->getArgv()[3]);
-	$verb = preg_replace("|\..*$|", "", $verb);
-
-	$id = $_REQUEST['id'] ?? 0;
-
-	$res = Item::performActivity($id, $verb, api_user());
-
-	if ($res) {
-		if ($type == "xml") {
-			$ok = "true";
-		} else {
-			$ok = "ok";
-		}
-		return BaseApi::formatData('ok', $type, ['ok' => $ok]);
-	} else {
-		throw new BadRequestException('Error adding activity');
-	}
-}
-
-/// @TODO move to top of file or somewhere better
-api_register_func('api/friendica/activity/like', 'api_friendica_activity', true, API_METHOD_POST);
-api_register_func('api/friendica/activity/dislike', 'api_friendica_activity', true, API_METHOD_POST);
-api_register_func('api/friendica/activity/attendyes', 'api_friendica_activity', true, API_METHOD_POST);
-api_register_func('api/friendica/activity/attendno', 'api_friendica_activity', true, API_METHOD_POST);
-api_register_func('api/friendica/activity/attendmaybe', 'api_friendica_activity', true, API_METHOD_POST);
-api_register_func('api/friendica/activity/unlike', 'api_friendica_activity', true, API_METHOD_POST);
-api_register_func('api/friendica/activity/undislike', 'api_friendica_activity', true, API_METHOD_POST);
-api_register_func('api/friendica/activity/unattendyes', 'api_friendica_activity', true, API_METHOD_POST);
-api_register_func('api/friendica/activity/unattendno', 'api_friendica_activity', true, API_METHOD_POST);
-api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activity', true, API_METHOD_POST);
-
-/**
- * Returns notifications
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- *
- * @return string|array
- * @throws ForbiddenException
- * @throws BadRequestException
- * @throws Exception
- */
-function api_friendica_notification($type)
-{
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-	if (DI::args()->getArgc()!==3) {
-		throw new BadRequestException('Invalid argument count');
-	}
-
-	$Notifies = DI::notify()->selectAllForUser(local_user(), 50);
-
-	$notifications = new ApiNotifications();
-	foreach ($Notifies as $Notify) {
-		$notifications[] = new ApiNotification($Notify);
-	}
-
-	if ($type == 'xml') {
-		$xmlnotes = [];
-		foreach ($notifications as $notification) {
-			$xmlnotes[] = ['@attributes' => $notification->toArray()];
-		}
-
-		$result = $xmlnotes;
-	} elseif (count($notifications) > 0) {
-		$result = $notifications->getArrayCopy();
-	} else {
-		$result = false;
-	}
-
-	return BaseApi::formatData('notes', $type, ['note' => $result]);
-}
-
-/**
  * Set notification as seen and returns associated item (if possible)
  *
  * POST request with 'id' param as notification id
@@ -5284,58 +5053,6 @@ function api_friendica_notification_seen($type)
 
 /// @TODO move to top of file or somewhere better
 api_register_func('api/friendica/notification/seen', 'api_friendica_notification_seen', true, API_METHOD_POST);
-api_register_func('api/friendica/notification', 'api_friendica_notification', true, API_METHOD_GET);
-
-/**
- * update a direct_message to seen state
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string|array (success result=ok, error result=error with error message)
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_friendica_direct_messages_setseen($type)
-{
-	$a = DI::app();
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-
-	// params
-	$user_info = api_get_user();
-	$uid = $user_info['uid'];
-	$id = $_REQUEST['id'] ?? 0;
-
-	// return error if id is zero
-	if ($id == "") {
-		$answer = ['result' => 'error', 'message' => 'message id not specified'];
-		return BaseApi::formatData("direct_messages_setseen", $type, ['$result' => $answer]);
-	}
-
-	// error message if specified id is not in database
-	if (!DBA::exists('mail', ['id' => $id, 'uid' => $uid])) {
-		$answer = ['result' => 'error', 'message' => 'message id not in database'];
-		return BaseApi::formatData("direct_messages_setseen", $type, ['$result' => $answer]);
-	}
-
-	// update seen indicator
-	$result = DBA::update('mail', ['seen' => true], ['id' => $id]);
-
-	if ($result) {
-		// return success
-		$answer = ['result' => 'ok', 'message' => 'message set to seen'];
-		return BaseApi::formatData("direct_message_setseen", $type, ['$result' => $answer]);
-	} else {
-		$answer = ['result' => 'error', 'message' => 'unknown error'];
-		return BaseApi::formatData("direct_messages_setseen", $type, ['$result' => $answer]);
-	}
-}
-
-/// @TODO move to top of file or somewhere better
-api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct_messages_setseen', true);
 
 /**
  * search for direct_messages containing a searchstring through api
