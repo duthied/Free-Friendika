@@ -51,15 +51,12 @@ class Setseen extends BaseApi
 		}
 
 		// update seen indicator
-		$result = DBA::update('mail', ['seen' => true], ['id' => $request['id']]);
-
-		if ($result) {
-			// return success
+		if (DBA::update('mail', ['seen' => true], ['id' => $request['id']])) {
 			$answer = ['result' => 'ok', 'message' => 'message set to seen'];
-			self::exit('direct_messages_setseen', ['$result' => $answer], $parameters['extension'] ?? null);
 		} else {
 			$answer = ['result' => 'error', 'message' => 'unknown error'];
-			self::exit('direct_messages_setseen', ['$result' => $answer], $parameters['extension'] ?? null);
 		}
+
+		self::exit('direct_messages_setseen', ['$result' => $answer], $parameters['extension'] ?? null);
 	}
 }
