@@ -3231,48 +3231,6 @@ function api_friendships_incoming($type)
 api_register_func('api/friendships/incoming', 'api_friendships_incoming', true);
 
 /**
- * Returns the instance's configuration information.
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws InternalServerErrorException
- */
-function api_statusnet_config($type)
-{
-	$name      = DI::config()->get('config', 'sitename');
-	$server    = DI::baseUrl()->getHostname();
-	$logo      = DI::baseUrl() . '/images/friendica-64.png';
-	$email     = DI::config()->get('config', 'admin_email');
-	$closed    = intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 'true' : 'false';
-	$private   = DI::config()->get('system', 'block_public') ? 'true' : 'false';
-	$textlimit = (string) DI::config()->get('config', 'api_import_size', DI::config()->get('config', 'max_import_size', 200000));
-	$ssl       = DI::config()->get('system', 'have_ssl') ? 'true' : 'false';
-	$sslserver = DI::config()->get('system', 'have_ssl') ? str_replace('http:', 'https:', DI::baseUrl()) : '';
-
-	$config = [
-		'site' => ['name' => $name,'server' => $server, 'theme' => 'default', 'path' => '',
-			'logo' => $logo, 'fancy' => true, 'language' => 'en', 'email' => $email, 'broughtby' => '',
-			'broughtbyurl' => '', 'timezone' => 'UTC', 'closed' => $closed, 'inviteonly' => false,
-			'private' => $private, 'textlimit' => $textlimit, 'sslserver' => $sslserver, 'ssl' => $ssl,
-			'shorturllength' => '30',
-			'friendica' => [
-					'FRIENDICA_PLATFORM' => FRIENDICA_PLATFORM,
-					'FRIENDICA_VERSION' => FRIENDICA_VERSION,
-					'DFRN_PROTOCOL_VERSION' => DFRN_PROTOCOL_VERSION,
-					'DB_UPDATE_VERSION' => DB_UPDATE_VERSION
-					]
-		],
-	];
-
-	return DI::apiResponse()->formatData('config', $type, ['config' => $config]);
-}
-
-/// @TODO move to top of file or somewhere better
-api_register_func('api/gnusocial/config', 'api_statusnet_config', false);
-api_register_func('api/statusnet/config', 'api_statusnet_config', false);
-
-/**
  * Sends a new direct message.
  *
  * @param string $type Return type (atom, rss, xml, json)
@@ -4630,66 +4588,6 @@ function api_friendica_group_show($type)
 }
 
 api_register_func('api/friendica/group_show', 'api_friendica_group_show', true);
-
-
-/**
- * Delete the specified group of the user.
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_friendica_group_delete($type)
-{
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-
-	// params
-	$user_info = api_get_user();
-	$gid = $_REQUEST['gid'] ?? 0;
-	$name = $_REQUEST['name'] ?? '';
-	$uid = $user_info['uid'];
-
-	// error if no gid specified
-	if ($gid == 0 || $name == "") {
-		throw new BadRequestException('gid or name not specified');
-	}
-
-	// error message if specified gid is not in database
-	if (!DBA::exists('group', ['uid' => $uid, 'id' => $gid])) {
-		throw new BadRequestException('gid not available');
-	}
-
-	// error message if specified gid is not in database
-	if (!DBA::exists('group', ['uid' => $uid, 'id' => $gid, 'name' => $name])) {
-		throw new BadRequestException('wrong group name');
-	}
-
-	// delete group
-	$gid = Group::getIdByName($uid, $name);
-	if (empty($gid)) {
-		throw new BadRequestException('other API error');
-	}
-
-	$ret = Group::remove($gid);
-
-	if ($ret) {
-		// return success
-		$success = ['success' => $ret, 'gid' => $gid, 'name' => $name, 'status' => 'deleted', 'wrong users' => []];
-		return DI::apiResponse()->formatData("group_delete", $type, ['result' => $success]);
-	} else {
-		throw new BadRequestException('other API error');
-	}
-}
-api_register_func('api/friendica/group_delete', 'api_friendica_group_delete', true, API_METHOD_DELETE);
 
 /**
  * Delete a group.
