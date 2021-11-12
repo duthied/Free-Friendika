@@ -39,7 +39,7 @@ class ScheduledStatuses extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		ApiResponse::unsupported(Router::PUT);
+		DI::apiResponse()->unsupported(Router::PUT);
 	}
 
 	public static function delete(array $parameters = [])

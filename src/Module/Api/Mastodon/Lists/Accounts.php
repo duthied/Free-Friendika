@@ -37,12 +37,12 @@ class Accounts extends BaseApi
 {
 	public static function delete(array $parameters = [])
 	{
-		ApiResponse::unsupported(Router::DELETE);
+		DI::apiResponse()->unsupported(Router::DELETE);
 	}
 
 	public static function post(array $parameters = [])
 	{
-		ApiResponse::unsupported(Router::POST);
+		DI::apiResponse()->unsupported(Router::POST);
 	}
 
 	/**

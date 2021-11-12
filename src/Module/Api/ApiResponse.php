@@ -6,7 +6,6 @@ use Friendica\App\Arguments;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\DI;
 use Friendica\Object\Api\Mastodon\Error;
 use Friendica\Util\Arrays;
 use Friendica\Util\HTTPInputData;
@@ -199,9 +198,9 @@ class ApiResponse
 	 * @return void
 	 * @throws \Exception
 	 */
-	public static function unsupported(string $method = 'all')
+	public function unsupported(string $method = 'all')
 	{
-		$path = DI::args()->getQueryString();
+		$path = $this->args->getQueryString();
 		Logger::info('Unimplemented API call',
 			[
 				'method'  => $method,
@@ -209,8 +208,8 @@ class ApiResponse
 				'agent'   => $_SERVER['HTTP_USER_AGENT'] ?? '',
 				'request' => HTTPInputData::process()
 			]);
-		$error             = DI::l10n()->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
-		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');
+		$error             = $this->l10n->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
+		$error_description = $this->l10n->t('The API endpoint is currently not implemented but might be in the future.');
 		$errorobj          = new Error($error, $error_description);
 		System::jsonError(501, $errorobj->toArray());
 	}
