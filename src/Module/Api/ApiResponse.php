@@ -36,6 +36,29 @@ class ApiResponse
 	}
 
 	/**
+	 * Sets header directly
+	 * mainly used to override it for tests
+	 *
+	 * @param string $header
+	 */
+	protected function setHeader(string $header)
+	{
+		header($header);
+	}
+
+	/**
+	 * Prints output directly to the caller
+	 * mainly used to override it for tests
+	 *
+	 * @param string $output
+	 */
+	protected function printOutput(string $output)
+	{
+		echo $output;
+		exit;
+	}
+
+	/**
 	 * Creates the XML from a JSON style array
 	 *
 	 * @param array  $data         JSON style array
@@ -143,7 +166,7 @@ class ApiResponse
 			'request' => $this->args->getQueryString()
 		];
 
-		header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1') . ' ' . $code . ' ' . $description);
+		$this->setHeader(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1') . ' ' . $code . ' ' . $description);
 
 		$this->exit('status', ['status' => $error], $format);
 	}
@@ -165,10 +188,10 @@ class ApiResponse
 
 		switch ($format) {
 			case 'xml':
-				header('Content-Type: text/xml');
+				$this->setHeader('Content-Type: text/xml');
 				break;
 			case 'json':
-				header('Content-Type: application/json');
+				$this->setHeader('Content-Type: application/json');
 				if (!empty($return)) {
 					$json = json_encode(end($return));
 					if (!empty($_GET['callback'])) {
@@ -178,17 +201,16 @@ class ApiResponse
 				}
 				break;
 			case 'rss':
-				header('Content-Type: application/rss+xml');
+				$this->setHeader('Content-Type: application/rss+xml');
 				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
 				break;
 			case 'atom':
-				header('Content-Type: application/atom+xml');
+				$this->setHeader('Content-Type: application/atom+xml');
 				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
 				break;
 		}
 
-		echo $return;
-		exit;
+		$this->printOutput($return);
 	}
 
 	/**

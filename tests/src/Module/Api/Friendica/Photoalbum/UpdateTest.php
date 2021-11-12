@@ -10,19 +10,19 @@ class UpdateTest extends ApiTest
 {
 	public function testEmpty()
 	{
-		self::expectException(BadRequestException::class);
+		$this->expectException(BadRequestException::class);
 		Update::rawContent();
 	}
 
 	public function testTooFewArgs()
 	{
-		self::expectException(BadRequestException::class);
+		$this->expectException(BadRequestException::class);
 		Update::rawContent(['album' => 'album_name']);
 	}
 
 	public function testWrongUpdate()
 	{
-		self::expectException(BadRequestException::class);
+		$this->expectException(BadRequestException::class);
 		Update::rawContent(['album' => 'album_name', 'album_new' => 'album_name']);
 	}
 

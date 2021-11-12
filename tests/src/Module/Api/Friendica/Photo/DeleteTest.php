@@ -10,7 +10,7 @@ class DeleteTest extends ApiTest
 {
 	public function testEmpty()
 	{
-		self::expectException(BadRequestException::class);
+		$this->expectException(BadRequestException::class);
 		Delete::rawContent();
 	}
 
@@ -21,7 +21,7 @@ class DeleteTest extends ApiTest
 
 	public function testWrong()
 	{
-		self::expectException(BadRequestException::class);
+		$this->expectException(BadRequestException::class);
 		Delete::rawContent(['photo_id' => 1]);
 	}
 
