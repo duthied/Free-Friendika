@@ -4,12 +4,12 @@ namespace Friendica\Module\Api;
 
 use Friendica\App\Arguments;
 use Friendica\Core\L10n;
-use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Object\Api\Mastodon\Error;
 use Friendica\Util\Arrays;
 use Friendica\Util\HTTPInputData;
 use Friendica\Util\XML;
+use Psr\Log\LoggerInterface;
 
 /**
  * This class is used to format and return API responses
@@ -20,15 +20,19 @@ class ApiResponse
 	protected $l10n;
 	/** @var Arguments */
 	protected $args;
+	/** @var LoggerInterface */
+	protected $logger;
 
 	/**
-	 * @param L10n      $l10n
-	 * @param Arguments $args
+	 * @param L10n            $l10n
+	 * @param Arguments       $args
+	 * @param LoggerInterface $logger
 	 */
-	public function __construct(L10n $l10n, Arguments $args)
+	public function __construct(L10n $l10n, Arguments $args, LoggerInterface $logger)
 	{
-		$this->l10n = $l10n;
-		$this->args = $args;
+		$this->l10n   = $l10n;
+		$this->args   = $args;
+		$this->logger = $logger;
 	}
 
 	/**
@@ -201,7 +205,7 @@ class ApiResponse
 	public function unsupported(string $method = 'all')
 	{
 		$path = $this->args->getQueryString();
-		Logger::info('Unimplemented API call',
+		$this->logger->info('Unimplemented API call',
 			[
 				'method'  => $method,
 				'path'    => $path,
