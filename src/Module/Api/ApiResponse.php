@@ -96,14 +96,11 @@ class ApiResponse
 			case 'atom':
 			case 'rss':
 			case 'xml':
-				$ret = $this->createXML($data, $root_element);
-				break;
+				return $this->createXML($data, $root_element);
 			case 'json':
 			default:
-				$ret = $data;
-				break;
+				return $data;
 		}
-		return $ret;
 	}
 
 	/**
