@@ -2542,32 +2542,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_format_items() function.
-	 *
-	 * @return void
-	 */
-	public function testApiAccountRateLimitStatus()
-	{
-		// @todo How to test the new API?
-		// $result = api_account_rate_limit_status('json');
-		// self::assertEquals(150, $result['hash']['remaining_hits']);
-		// self::assertEquals(150, $result['hash']['hourly_limit']);
-		// self::assertIsInt($result['hash']['reset_time_in_seconds']);
-	}
-
-	/**
-	 * Test the api_format_items() function with an XML result.
-	 *
-	 * @return void
-	 */
-	public function testApiAccountRateLimitStatusWithXml()
-	{
-		// @todo How to test the new API?
-		// $result = api_account_rate_limit_status('xml');
-		// self::assertXml($result, 'hash');
-	}
-
-	/**
 	 * Test the api_lists_list() function.
 	 *
 	 * @return void
