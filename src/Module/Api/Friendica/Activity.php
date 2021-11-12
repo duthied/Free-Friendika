@@ -60,7 +60,7 @@ class Activity extends BaseApi
 			}
 			DI::apiResponse()->exit('ok', ['ok' => $ok], $parameters['extension'] ?? null);
 		} else {
-			ApiResponse::error(500, 'Error adding activity', '', $parameters['extension'] ?? null);
+			DI::apiResponse()->error(500, 'Error adding activity', '', $parameters['extension'] ?? null);
 		}
 	}
 }

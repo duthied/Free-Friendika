@@ -283,7 +283,7 @@ function api_call(App $a, App\Arguments $args = null)
 		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString()]);
 		throw new NotFoundException();
 	} catch (HTTPException $e) {
-		ApiResponse::error($e->getCode(), $e->getDescription(), $e->getMessage(), $type);
+		DI::apiResponse()->error($e->getCode(), $e->getDescription(), $e->getMessage(), $type);
 	}
 }
 

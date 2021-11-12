@@ -135,17 +135,17 @@ class ApiResponse
 	 *
 	 * @return void
 	 */
-	public static function error(int $code, string $description, string $message, string $format = null)
+	public function error(int $code, string $description, string $message, string $format = null)
 	{
 		$error = [
 			'error'   => $message ?: $description,
 			'code'    => $code . ' ' . $description,
-			'request' => DI::args()->getQueryString()
+			'request' => $this->args->getQueryString()
 		];
 
 		header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1') . ' ' . $code . ' ' . $description);
 
-		DI::apiResponse()->exit('status', ['status' => $error], $format);
+		$this->exit('status', ['status' => $error], $format);
 	}
 
 	/**
