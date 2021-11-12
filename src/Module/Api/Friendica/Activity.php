@@ -23,7 +23,6 @@ namespace Friendica\Module\Api\Friendica;
 
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 
 /**
