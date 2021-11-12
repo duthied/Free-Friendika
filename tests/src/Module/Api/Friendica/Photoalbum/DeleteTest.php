@@ -1,8 +1,8 @@
 <?php
 
-namespace Friendica\Test\src\Module\Api\Friendica\Photo;
+namespace Friendica\Test\src\Module\Api\Friendica\Photoalbum;
 
-use Friendica\Module\Api\Friendica\Photo\Delete;
+use Friendica\Module\Api\Friendica\Photoalbum\Delete;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Test\src\Module\Api\ApiTest;
 
@@ -14,18 +14,13 @@ class DeleteTest extends ApiTest
 		Delete::rawContent();
 	}
 
-	public function testWithoutAuthenticatedUser()
-	{
-		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
-	}
-
 	public function testWrong()
 	{
 		self::expectException(BadRequestException::class);
-		Delete::rawContent(['photo_id' => 1]);
+		Delete::rawContent(['album' => 'album_name']);
 	}
 
-	public function testWithCorrectPhotoId()
+	public function testValid()
 	{
 		self::markTestIncomplete('We need to add a dataset for this.');
 	}

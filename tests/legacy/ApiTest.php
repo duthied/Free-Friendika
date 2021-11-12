@@ -3255,51 +3255,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_fr_photo_delete() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoDelete()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// api_fr_photo_delete('json');
-	}
-
-	/**
-	 * Test the api_fr_photo_delete() function without an authenticated user.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoDeleteWithoutAuthenticatedUser()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		// $_SESSION['authenticated'] = false;
-		// api_fr_photo_delete('json');
-	}
-
-	/**
-	 * Test the api_fr_photo_delete() function with a photo ID.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoDeleteWithPhotoId()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// $_REQUEST['photo_id'] = 1;
-		// api_fr_photo_delete('json');
-	}
-
-	/**
-	 * Test the api_fr_photo_delete() function with a correct photo ID.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoDeleteWithCorrectPhotoId()
-	{
-		$this->markTestIncomplete('We need to create a dataset for this.');
-	}
-
-	/**
 	 * Test the api_fr_photo_detail() function.
 	 *
 	 * @return void

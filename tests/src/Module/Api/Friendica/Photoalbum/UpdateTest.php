@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\src\Module\Api\Friendica\Photo;
+namespace Friendica\Test\src\Module\Api\Friendica\Photoalbum;
 
 use Friendica\Module\Api\Friendica\Photoalbum\Update;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -26,7 +26,7 @@ class UpdateTest extends ApiTest
 		Update::rawContent(['album' => 'album_name', 'album_new' => 'album_name']);
 	}
 
-	public function testUpdateWithoutAuthenticatedUser()
+	public function testWithoutAuthenticatedUser()
 	{
 		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
 	}
