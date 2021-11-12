@@ -1114,7 +1114,7 @@ class ApiTest extends FixtureTest
 			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
 			'  <data>some_data</data>' . "\n" .
 			'</root_element>' . "\n",
-			ApiResponse::createXML(['data' => ['some_data']], 'root_element')
+			DI::apiResponse()->createXML(['data' => ['some_data']], 'root_element')
 		);
 	}
 
@@ -1130,7 +1130,7 @@ class ApiTest extends FixtureTest
 			'<ok>' . "\n" .
 			'  <data>some_data</data>' . "\n" .
 			'</ok>' . "\n",
-			ApiResponse::createXML(['data' => ['some_data']], 'ok')
+			DI::apiResponse()->createXML(['data' => ['some_data']], 'ok')
 		);
 	}
 

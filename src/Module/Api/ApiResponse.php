@@ -40,15 +40,17 @@ class ApiResponse
 	 *
 	 * @return string The XML data
 	 */
-	public static function createXML(array $data, string $root_element): string
+	public function createXML(array $data, string $root_element): string
 	{
 		$childname = key($data);
 		$data2     = array_pop($data);
 
-		$namespaces = ['' => 'http://api.twitter.com',
-			'statusnet'      => 'http://status.net/schema/api/1/',
-			'friendica'      => 'http://friendi.ca/schema/api/1/',
-			'georss'         => 'http://www.georss.org/georss'];
+		$namespaces = [
+			''          => 'http://api.twitter.com',
+			'statusnet' => 'http://status.net/schema/api/1/',
+			'friendica' => 'http://friendi.ca/schema/api/1/',
+			'georss'    => 'http://www.georss.org/georss'
+		];
 
 		/// @todo Auto detection of needed namespaces
 		if (in_array($root_element, ['ok', 'hash', 'config', 'version', 'ids', 'notes', 'photos'])) {
@@ -91,7 +93,7 @@ class ApiResponse
 			case 'atom':
 			case 'rss':
 			case 'xml':
-				$ret = static::createXML($data, $root_element);
+				$ret = DI::apiResponse()->createXML($data, $root_element);
 				break;
 			case 'json':
 			default:
