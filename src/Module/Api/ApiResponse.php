@@ -87,13 +87,13 @@ class ApiResponse
 	 *
 	 * @return array|string (string|array) XML data or JSON data
 	 */
-	public static function formatData(string $root_element, string $type, array $data)
+	public function formatData(string $root_element, string $type, array $data)
 	{
 		switch ($type) {
 			case 'atom':
 			case 'rss':
 			case 'xml':
-				$ret = DI::apiResponse()->createXML($data, $root_element);
+				$ret = $this->createXML($data, $root_element);
 				break;
 			case 'json':
 			default:
@@ -161,7 +161,7 @@ class ApiResponse
 	{
 		$format = $format ?? 'json';
 
-		$return = static::formatData($root_element, $format, $data);
+		$return = DI::apiResponse()->formatData($root_element, $format, $data);
 
 		switch ($format) {
 			case 'xml':

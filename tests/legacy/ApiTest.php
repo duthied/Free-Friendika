@@ -1142,7 +1142,7 @@ class ApiTest extends FixtureTest
 	public function testApiFormatData()
 	{
 		$data = ['some_data'];
-		self::assertEquals($data, ApiResponse::formatData('root_element', 'json', $data));
+		self::assertEquals($data, DI::apiResponse()->formatData('root_element', 'json', $data));
 	}
 
 	/**
@@ -1159,7 +1159,7 @@ class ApiTest extends FixtureTest
 			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
 			'  <data>some_data</data>' . "\n" .
 			'</root_element>' . "\n",
-			ApiResponse::formatData('root_element', 'xml', ['data' => ['some_data']])
+			DI::apiResponse()->formatData('root_element', 'xml', ['data' => ['some_data']])
 		);
 	}
 
