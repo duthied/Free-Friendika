@@ -4,8 +4,6 @@ namespace Friendica\Module\Api;
 
 use Friendica\App\Arguments;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
-use Friendica\Object\Api\Mastodon\Error;
 use Friendica\Util\Arrays;
 use Friendica\Util\HTTPInputData;
 use Friendica\Util\XML;
@@ -231,7 +229,7 @@ class ApiResponse
 			]);
 		$error             = $this->l10n->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
 		$error_description = $this->l10n->t('The API endpoint is currently not implemented but might be in the future.');
-		$errorobj          = new Error($error, $error_description);
-		System::jsonError(501, $errorobj->toArray());
+
+		$this->exit('error', ['error' => ['error' => $error, 'error_description' => $error_description]]);
 	}
 }

@@ -35,20 +35,24 @@ class NotificationTest extends ApiTest
 	{
 		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
 
+		/*
 		$this->expectException(BadRequestException::class);
 		DI::session()->set('uid', '');
 
 		Notification::rawContent();
+		*/
 	}
 
 	public function testWithoutAuthenticatedUser()
 	{
 		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
 
+		/*
 		$this->expectException(BadRequestException::class);
 		DI::session()->set('uid', 41);
 
 		Notification::rawContent();
+		*/
 	}
 
 	public function testWithXmlResult()

@@ -90,4 +90,19 @@ class ApiResponseTest extends MockedTest
 			'</status>' . "\n",
 			ApiResponseDouble::getOutput());
 	}
+
+	public function testUnsupported()
+	{
+		$l10n = \Mockery::mock(L10n::class);
+		$l10n->shouldReceive('t')->andReturnUsing(function ($args) {
+			return $args;
+		});
+		$args = \Mockery::mock(Arguments::class);
+		$args->shouldReceive('getQueryString')->andReturn('');
+
+		$response = new ApiResponseDouble($l10n, $args, new NullLogger());
+		$response->unsupported();
+
+		self::assertEquals('{"error":"API endpoint %s %s is not implemented","error_description":"The API endpoint is currently not implemented but might be in the future."}', ApiResponseDouble::getOutput());
+	}
 }

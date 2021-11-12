@@ -500,23 +500,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_call() function with an unimplemented API.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiCallWithUninplementedApi()
-	{
-		// @todo How to test the new API?
-		/*
-		self::assertEquals(
-			'{"status":{"error":"Not Found","code":"404 Not Found","request":""}}',
-			api_call($this->app)
-		);
-		*/
-	}
-
-	/**
 	 * Test the api_call() function with a JSON result.
 	 *
 	 * @runInSeparateProcess
@@ -621,35 +604,6 @@ class ApiTest extends FixtureTest
 			api_call($this->app, $args)
 		);
 	}
-
-	/**
-	 * Test the api_call() function with an unauthorized user.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiCallWithWrongAuth()
-	{
-		// @todo How to test the new API?
-		/*
-		global $API;
-		$API['api_path']           = [
-			'method' => 'method',
-			'auth'   => true
-		];
-		$_SESSION['authenticated'] = false;
-		$_SERVER['REQUEST_METHOD'] = 'method';
-		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
-
-		$args = DI::args()->determine($_SERVER, $_GET);
-
-		self::assertEquals(
-			'{"status":{"error":"This API requires login","code":"401 Unauthorized","request":"api_path"}}',
-			api_call($this->app, $args)
-		);
-		*/
-	}
-
 
 	/**
 	 * Test the api_rss_extra() function.
