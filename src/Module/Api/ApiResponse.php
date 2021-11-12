@@ -145,7 +145,7 @@ class ApiResponse
 
 		header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1') . ' ' . $code . ' ' . $description);
 
-		self::exit('status', ['status' => $error], $format);
+		DI::apiResponse()->exit('status', ['status' => $error], $format);
 	}
 
 	/**
@@ -157,11 +157,11 @@ class ApiResponse
 	 *
 	 * @return void
 	 */
-	public static function exit(string $root_element, array $data, string $format = null)
+	public function exit(string $root_element, array $data, string $format = null)
 	{
 		$format = $format ?? 'json';
 
-		$return = DI::apiResponse()->formatData($root_element, $format, $data);
+		$return = $this->formatData($root_element, $format, $data);
 
 		switch ($format) {
 			case 'xml':

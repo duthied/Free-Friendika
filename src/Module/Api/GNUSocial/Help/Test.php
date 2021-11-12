@@ -21,8 +21,8 @@
 
 namespace Friendica\Module\Api\GNUSocial\Help;
 
-use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
+use Friendica\DI;
 
 /**
  * API endpoint: /api/help/test
@@ -37,6 +37,6 @@ class Test extends BaseApi
 			$ok = 'ok';
 		}
 
-		ApiResponse::exit('ok', ['ok' => $ok], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('ok', ['ok' => $ok], $parameters['extension'] ?? null);
 	}
 }

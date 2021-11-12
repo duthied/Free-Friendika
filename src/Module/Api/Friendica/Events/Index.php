@@ -23,9 +23,8 @@ namespace Friendica\Module\Api\Friendica\Events;
 
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
-use Friendica\Module\Api\ApiResponse;
+use Friendica\DI;
 use Friendica\Module\BaseApi;
-use Friendica\Network\HTTPException;
 
 /**
  * api/friendica/events
@@ -71,6 +70,6 @@ class Index extends BaseApi
 			];
 		}
 
-		ApiResponse::exit('events', ['events' => $items], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('events', ['events' => $items], $parameters['extension'] ?? null);
 	}
 }

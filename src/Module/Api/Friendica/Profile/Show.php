@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Friendica\Profile;
 
-use Friendica\Module\Api\ApiResponse;
 use Friendica\Profile\ProfileField\Collection\ProfileFields;
 use Friendica\Content\Text\BBCode;
 use Friendica\DI;
@@ -29,7 +28,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
-use Friendica\Security\PermissionSet\Repository\PermissionSet;
 
 /**
  * API endpoint: /api/friendica/profile/show
@@ -67,7 +65,7 @@ class Show extends BaseApi
 			'profiles' => $profiles
 		];
 
-		ApiResponse::exit('friendica_profiles', ['$result' => $result], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('friendica_profiles', ['$result' => $result], $parameters['extension'] ?? null);
 	}
 
 	/**

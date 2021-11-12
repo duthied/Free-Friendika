@@ -22,9 +22,9 @@
 namespace Friendica\Module\Api\Friendica\Photoalbum;
 
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
-use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\InternalServerErrorException;
@@ -67,7 +67,7 @@ class Delete extends BaseApi
 		// return success of deletion or error message
 		if ($result) {
 			$answer = ['result' => 'deleted', 'message' => 'album `' . $request['album'] . '` with all containing photos has been deleted.'];
-			ApiResponse::exit('photoalbum_delete', ['$result' => $answer], $parameters['extension'] ?? null);
+			DI::apiResponse()->exit('photoalbum_delete', ['$result' => $answer], $parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error - deleting from database failed");
 		}

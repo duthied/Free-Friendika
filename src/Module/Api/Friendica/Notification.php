@@ -23,7 +23,6 @@ namespace Friendica\Module\Api\Friendica;
 
 use Friendica\Collection\Api\Notifications as ApiNotifications;
 use Friendica\DI;
-use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Object\Api\Friendica\Notification as ApiNotification;
 
@@ -57,6 +56,6 @@ class Notification extends BaseApi
 			$result = false;
 		}
 
-		ApiResponse::exit('notes', ['note' => $result], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('notes', ['note' => $result], $parameters['extension'] ?? null);
 	}
 }
