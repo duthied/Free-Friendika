@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-08 07:28+0000\n"
+"POT-Creation-Date: 2021-11-12 21:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,21 +18,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-#: include/api.php:1114 src/Module/BaseApi.php:294
+#: include/api.php:860 src/Module/BaseApi.php:260
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: include/api.php:1128 src/Module/BaseApi.php:310
+#: include/api.php:874 src/Module/BaseApi.php:276
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: include/api.php:1142 src/Module/BaseApi.php:326
+#: include/api.php:888 src/Module/BaseApi.php:292
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
@@ -145,9 +145,9 @@ msgstr ""
 #: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:68
 #: mod/wall_attach.php:71 mod/wall_upload.php:90 mod/wall_upload.php:93
 #: mod/wallmessage.php:36 mod/wallmessage.php:55 mod/wallmessage.php:89
-#: mod/wallmessage.php:109 src/Module/Attach.php:55 src/Module/BaseApi.php:79
-#: src/Module/BaseApi.php:88 src/Module/BaseApi.php:97
-#: src/Module/BaseApi.php:106 src/Module/BaseNotifications.php:88
+#: mod/wallmessage.php:109 src/Module/Attach.php:55 src/Module/BaseApi.php:61
+#: src/Module/BaseApi.php:70 src/Module/BaseApi.php:79
+#: src/Module/BaseApi.php:88 src/Module/BaseNotifications.php:88
 #: src/Module/Contact.php:328 src/Module/Contact/Advanced.php:44
 #: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:17
 #: src/Module/FriendSuggest.php:44 src/Module/Group.php:44
@@ -4473,13 +4473,13 @@ msgstr ""
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:942 src/Security/Authentication.php:223
+#: src/Model/User.php:942 src/Security/Authentication.php:235
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:942 src/Security/Authentication.php:223
+#: src/Model/User.php:942 src/Security/Authentication.php:235
 msgid "The error message was:"
 msgstr ""
 
@@ -6798,6 +6798,16 @@ msgstr ""
 msgid "Deny"
 msgstr ""
 
+#: src/Module/Api/ApiResponse.php:234
+#, php-format
+msgid "API endpoint %s %s is not implemented"
+msgstr ""
+
+#: src/Module/Api/ApiResponse.php:235
+msgid ""
+"The API endpoint is currently not implemented but might be in the future."
+msgstr ""
+
 #: src/Module/Api/Mastodon/Apps.php:58
 msgid "Missing parameters"
 msgstr ""
@@ -6940,18 +6950,8 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:120
-#, php-format
-msgid "API endpoint %s %s is not implemented"
-msgstr ""
-
-#: src/Module/BaseApi.php:121
-msgid ""
-"The API endpoint is currently not implemented but might be in the future."
-msgstr ""
-
-#: src/Module/BaseApi.php:293 src/Module/BaseApi.php:309
-#: src/Module/BaseApi.php:325
+#: src/Module/BaseApi.php:259 src/Module/BaseApi.php:275
+#: src/Module/BaseApi.php:291
 msgid "Too Many Requests"
 msgstr ""
 
@@ -10585,20 +10585,20 @@ msgstr ""
 msgid "The folder view/smarty3/ must be writable by webserver."
 msgstr ""
 
-#: src/Security/Authentication.php:209
+#: src/Security/Authentication.php:221
 msgid "Login failed."
 msgstr ""
 
-#: src/Security/Authentication.php:250
+#: src/Security/Authentication.php:262
 msgid "Login failed. Please check your credentials."
 msgstr ""
 
-#: src/Security/Authentication.php:348
+#: src/Security/Authentication.php:360
 #, php-format
 msgid "Welcome %s"
 msgstr ""
 
-#: src/Security/Authentication.php:349
+#: src/Security/Authentication.php:361
 msgid "Please upload a profile photo."
 msgstr ""
 
