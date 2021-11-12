@@ -2568,30 +2568,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_help_test() function.
-	 *
-	 * @return void
-	 */
-	public function testApiHelpTest()
-	{
-		// @todo How to test the new API?
-		// $result = \Friendica\Module\Api\Friendica\Help\Test::rawcontent(['extension' => 'json']);
-		// self::assertEquals(['ok' => 'ok'], $result);
-	}
-
-	/**
-	 * Test the api_help_test() function with an XML result.
-	 *
-	 * @return void
-	 */
-	public function testApiHelpTestWithXml()
-	{
-		// @todo How to test the new API?
-		// $result = api_help_test('xml');
-		// self::assertXml($result, 'ok');
-	}
-
-	/**
 	 * Test the api_lists_list() function.
 	 *
 	 * @return void
