@@ -2793,18 +2793,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_statusnet_version() function.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusnetVersion()
-	{
-		// @todo How to test the new API?
-		// $result = api_statusnet_version('json');
-		// self::assertEquals('0.9.7', $result['version']);
-	}
-
-	/**
 	 * Test the api_direct_messages_new() function.
 	 *
 	 * @return void
