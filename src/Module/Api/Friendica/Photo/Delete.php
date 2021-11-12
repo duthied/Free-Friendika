@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\Friendica\Photo;
 
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\InternalServerErrorException;
@@ -63,7 +64,7 @@ class Delete extends BaseApi
 			Item::deleteForUser($condition, $uid);
 
 			$result = ['result' => 'deleted', 'message' => 'photo with id `' . $request['photo_id'] . '` has been deleted from server.'];
-			self::exit('photo_delete', ['$result' => $result], $parameters['extension'] ?? null);
+			ApiResponse::exit('photo_delete', ['$result' => $result], $parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error on deleting photo from database table");
 		}

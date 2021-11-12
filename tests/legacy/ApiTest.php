@@ -10,6 +10,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\DI;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
@@ -1069,7 +1070,7 @@ class ApiTest extends FixtureTest
 	{
 		$item = true;
 		$key  = '';
-		self::assertTrue(BaseApi::reformatXML($item, $key));
+		self::assertTrue(ApiResponse::reformatXML($item, $key));
 		self::assertEquals('true', $item);
 	}
 
@@ -1082,7 +1083,7 @@ class ApiTest extends FixtureTest
 	{
 		$item = '';
 		$key  = 'statusnet_api';
-		self::assertTrue(BaseApi::reformatXML($item, $key));
+		self::assertTrue(ApiResponse::reformatXML($item, $key));
 		self::assertEquals('statusnet:api', $key);
 	}
 
@@ -1095,7 +1096,7 @@ class ApiTest extends FixtureTest
 	{
 		$item = '';
 		$key  = 'friendica_api';
-		self::assertTrue(BaseApi::reformatXML($item, $key));
+		self::assertTrue(ApiResponse::reformatXML($item, $key));
 		self::assertEquals('friendica:api', $key);
 	}
 
@@ -1113,7 +1114,7 @@ class ApiTest extends FixtureTest
 			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
 			'  <data>some_data</data>' . "\n" .
 			'</root_element>' . "\n",
-			BaseApi::createXML(['data' => ['some_data']], 'root_element')
+			ApiResponse::createXML(['data' => ['some_data']], 'root_element')
 		);
 	}
 
@@ -1129,7 +1130,7 @@ class ApiTest extends FixtureTest
 			'<ok>' . "\n" .
 			'  <data>some_data</data>' . "\n" .
 			'</ok>' . "\n",
-			BaseApi::createXML(['data' => ['some_data']], 'ok')
+			ApiResponse::createXML(['data' => ['some_data']], 'ok')
 		);
 	}
 
@@ -1141,7 +1142,7 @@ class ApiTest extends FixtureTest
 	public function testApiFormatData()
 	{
 		$data = ['some_data'];
-		self::assertEquals($data, BaseApi::formatData('root_element', 'json', $data));
+		self::assertEquals($data, ApiResponse::formatData('root_element', 'json', $data));
 	}
 
 	/**
@@ -1158,7 +1159,7 @@ class ApiTest extends FixtureTest
 			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
 			'  <data>some_data</data>' . "\n" .
 			'</root_element>' . "\n",
-			BaseApi::formatData('root_element', 'xml', ['data' => ['some_data']])
+			ApiResponse::formatData('root_element', 'xml', ['data' => ['some_data']])
 		);
 	}
 

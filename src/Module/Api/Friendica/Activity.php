@@ -22,6 +22,7 @@
 namespace Friendica\Module\Api\Friendica;
 
 use Friendica\Model\Item;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 
 /**
@@ -56,9 +57,9 @@ class Activity extends BaseApi
 			} else {
 				$ok = 'ok';
 			}
-			self::exit('ok', ['ok' => $ok], $parameters['extension'] ?? null);
+			ApiResponse::exit('ok', ['ok' => $ok], $parameters['extension'] ?? null);
 		} else {
-			self::error(500, 'Error adding activity', '', $parameters['extension'] ?? null);
+			ApiResponse::error(500, 'Error adding activity', '', $parameters['extension'] ?? null);
 		}
 	}
 }

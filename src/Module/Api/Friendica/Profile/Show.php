@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Friendica\Profile;
 
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Profile\ProfileField\Collection\ProfileFields;
 use Friendica\Content\Text\BBCode;
 use Friendica\DI;
@@ -66,7 +67,7 @@ class Show extends BaseApi
 			'profiles' => $profiles
 		];
 
-		self::exit('friendica_profiles', ['$result' => $result], $parameters['extension'] ?? null);
+		ApiResponse::exit('friendica_profiles', ['$result' => $result], $parameters['extension'] ?? null);
 	}
 
 	/**

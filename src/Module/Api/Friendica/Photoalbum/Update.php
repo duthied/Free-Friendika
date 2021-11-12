@@ -22,6 +22,7 @@
 namespace Friendica\Module\Api\Friendica\Photoalbum;
 
 use Friendica\Model\Photo;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\InternalServerErrorException;
@@ -58,7 +59,7 @@ class Update extends BaseApi
 		// return success of updating or error message
 		if ($result) {
 			$answer = ['result' => 'updated', 'message' => 'album `' . $request['album'] . '` with all containing photos has been renamed to `' . $request['album_new'] . '`.'];
-			self::exit('photoalbum_update', ['$result' => $answer], $parameters['extension'] ?? null);
+			ApiResponse::exit('photoalbum_update', ['$result' => $answer], $parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error - updating in database failed");
 		}

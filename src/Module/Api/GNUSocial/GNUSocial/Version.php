@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\GNUSocial\GNUSocial;
 
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 
 /**
@@ -30,6 +31,6 @@ class Version extends BaseApi
 {
 	public static function rawContent(array $parameters = [])
 	{
-		self::exit('version', ['version' => '0.9.7'], $parameters['extension'] ?? null);
+		ApiResponse::exit('version', ['version' => '0.9.7'], $parameters['extension'] ?? null);
 	}
 }

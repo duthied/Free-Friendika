@@ -22,6 +22,7 @@
 namespace Friendica\Module\Api\Twitter;
 
 use Friendica\Database\DBA;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 
 /**
@@ -44,6 +45,6 @@ class SavedSearches extends BaseApi
 
 		DBA::close($terms);
 
-		self::exit('terms', ['terms' => $result], $parameters['extension'] ?? null);
+		ApiResponse::exit('terms', ['terms' => $result], $parameters['extension'] ?? null);
 	}
 }

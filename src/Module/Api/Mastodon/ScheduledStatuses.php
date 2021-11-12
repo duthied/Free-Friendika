@@ -26,6 +26,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 
 /**
@@ -38,7 +39,7 @@ class ScheduledStatuses extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		self::unsupported(Router::PUT);
+		ApiResponse::unsupported(Router::PUT);
 	}
 
 	public static function delete(array $parameters = [])
