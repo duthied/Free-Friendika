@@ -202,11 +202,9 @@ class ApiResponse
 				break;
 			case 'rss':
 				$this->setHeader('Content-Type: application/rss+xml');
-				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
 				break;
 			case 'atom':
 				$this->setHeader('Content-Type: application/atom+xml');
-				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
 				break;
 		}
 

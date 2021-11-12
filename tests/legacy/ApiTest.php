@@ -623,30 +623,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_call() function with an unallowed method.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiCallWithWrongMethod()
-	{
-		// Shouldn't be needed anymore due to the router?
-		/*
-		global $API;
-		$API['api_path'] = ['method' => 'method'];
-
-		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
-
-		$args = DI::args()->determine($_SERVER, $_GET);
-
-		self::assertEquals(
-			'{"status":{"error":"Method Not Allowed","code":"405 Method Not Allowed","request":"api_path"}}',
-			api_call($this->app, $args)
-		);
-		*/
-	}
-
-	/**
 	 * Test the api_call() function with an unauthorized user.
 	 *
 	 * @runInSeparateProcess
@@ -674,92 +650,6 @@ class ApiTest extends FixtureTest
 		*/
 	}
 
-	/**
-	 * Test the api_error() function with a JSON result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiErrorWithJson()
-	{
-		// @todo How to test the new API?
-		// self::assertEquals(
-		// 	'{"status":{"error":"error_message","code":"200 OK","request":""}}',
-		// 	api_error('json', new HTTPException\OKException('error_message'), DI::args())
-		// );
-	}
-
-	/**
-	 * Test the api_error() function with an XML result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiErrorWithXml()
-	{
-		// @todo How to test the new API?
-		/*
-		self::assertEquals(
-			'<?xml version="1.0"?>' . "\n" .
-			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
-			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
-			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
-			'  <error>error_message</error>' . "\n" .
-			'  <code>200 OK</code>' . "\n" .
-			'  <request/>' . "\n" .
-			'</status>' . "\n",
-			api_error('xml', new HTTPException\OKException('error_message'), DI::args())
-		);
-		*/
-	}
-
-	/**
-	 * Test the api_error() function with an RSS result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiErrorWithRss()
-	{
-		// @todo How to test the new API?
-		/*
-		self::assertEquals(
-			'<?xml version="1.0"?>' . "\n" .
-			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
-			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
-			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
-			'  <error>error_message</error>' . "\n" .
-			'  <code>200 OK</code>' . "\n" .
-			'  <request/>' . "\n" .
-			'</status>' . "\n",
-			api_error('rss', new HTTPException\OKException('error_message'), DI::args())
-		);
-		*/
-	}
-
-	/**
-	 * Test the api_error() function with an Atom result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiErrorWithAtom()
-	{
-		// @todo How to test the new API?
-		/*
-		self::assertEquals(
-			'<?xml version="1.0"?>' . "\n" .
-			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
-			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
-			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
-			'  <error>error_message</error>' . "\n" .
-			'  <code>200 OK</code>' . "\n" .
-			'  <request/>' . "\n" .
-			'</status>' . "\n",
-			api_error('atom', new HTTPException\OKException('error_message'), DI::args())
-		);
-		*/
-	}
 
 	/**
 	 * Test the api_rss_extra() function.
