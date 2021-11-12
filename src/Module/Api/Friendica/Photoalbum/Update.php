@@ -43,10 +43,10 @@ class Update extends BaseApi
 		]);
 
 		// we do not allow calls without album string
-		if ($request['album'] == "") {
+		if (empty($request['album'])) {
 			throw new BadRequestException("no albumname specified");
 		}
-		if ($request['album_new'] == "") {
+		if (empty($request['album_new'])) {
 			throw new BadRequestException("no new albumname specified");
 		}
 		// check if album is existing

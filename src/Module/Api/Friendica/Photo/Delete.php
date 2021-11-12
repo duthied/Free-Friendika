@@ -44,7 +44,7 @@ class Delete extends BaseApi
 
 		// do several checks on input parameters
 		// we do not allow calls without photo id
-		if ($request['photo_id'] == null) {
+		if (empty($request['photo_id'])) {
 			throw new BadRequestException("no photo_id specified");
 		}
 

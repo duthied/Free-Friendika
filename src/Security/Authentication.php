@@ -66,6 +66,18 @@ class Authentication
 	private $pConfig;
 
 	/**
+	 * Sets the X-Account-Management-Status header
+	 *
+	 * mainly extracted to make it overridable for tests
+	 *
+	 * @param array $user_record
+	 */
+	protected function setXAccMgmtStatusHeader(array $user_record)
+	{
+		header('X-Account-Management-Status: active; name="' . $user_record['username'] . '"; id="' . $user_record['nickname'] . '"');
+	}
+
+	/**
 	 * Authentication constructor.
 	 *
 	 * @param IManageConfigValues                                $config
@@ -314,7 +326,7 @@ class Authentication
 			$this->session->set('cid', $contact['id']);
 		}
 
-		header('X-Account-Management-Status: active; name="' . $user_record['username'] . '"; id="' . $user_record['nickname'] . '"');
+		$this->setXAccMgmtStatusHeader($user_record);
 
 		if ($login_initial || $login_refresh) {
 			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
