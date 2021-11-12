@@ -31,7 +31,7 @@ use Friendica\Test\FixtureTest;
 use Friendica\Test\Util\ApiResponseDouble;
 use Friendica\Test\Util\AuthenticationDouble;
 
-class ApiTest extends FixtureTest
+abstract class ApiTest extends FixtureTest
 {
 	/**
 	 * Assert that the string is XML and contain the root element.
