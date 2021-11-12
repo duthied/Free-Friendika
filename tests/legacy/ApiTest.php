@@ -471,35 +471,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_call() function without any result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiCallWithNoResult()
-	{
-		// @todo How to test the new API?
-		/*
-		global $API;
-		$API['api_path']           = [
-			'method' => 'method',
-			'func'   => function () {
-				return false;
-			}
-		];
-		$_SERVER['REQUEST_METHOD'] = 'method';
-		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
-
-		$args = DI::args()->determine($_SERVER, $_GET);
-
-		self::assertEquals(
-			'{"status":{"error":"Internal Server Error","code":"500 Internal Server Error","request":"api_path"}}',
-			api_call($this->app, $args)
-		);
-		*/
-	}
-
-	/**
 	 * Test the api_call() function with a JSON result.
 	 *
 	 * @runInSeparateProcess
