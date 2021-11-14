@@ -32,7 +32,7 @@ use Friendica\Module\BaseApi;
  */
 class Note extends BaseApi
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

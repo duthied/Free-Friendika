@@ -30,7 +30,7 @@ use Friendica\Model\Contact;
  */
 class RandomProfile extends BaseModule
 {
-	public static function content()
+	public function content(): string
 	{
 		$a = DI::app();
 
@@ -42,5 +42,7 @@ class RandomProfile extends BaseModule
 		}
 
 		DI::baseUrl()->redirect('profile');
+
+		return '';
 	}
 }

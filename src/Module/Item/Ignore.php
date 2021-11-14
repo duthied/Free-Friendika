@@ -33,7 +33,7 @@ use Friendica\Network\HTTPException;
  */
 class Ignore extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		$l10n = DI::l10n();
 

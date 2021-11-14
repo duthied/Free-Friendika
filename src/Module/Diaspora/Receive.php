@@ -38,12 +38,12 @@ class Receive extends BaseModule
 	/** @var LoggerInterface */
 	private static $logger;
 
-	public static function init()
+	public function init()
 	{
 		self::$logger = DI::logger();
 	}
 
-	public static function post()
+	public function post()
 	{
 		$enabled = DI::config()->get('system', 'diaspora_enabled', false);
 		if (!$enabled) {

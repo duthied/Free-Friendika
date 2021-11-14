@@ -51,7 +51,7 @@ class Photo extends BaseModule
 	 * Fetch a photo or an avatar, in optional size, check for permissions and
 	 * return the image
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		$totalstamp = microtime(true);
 

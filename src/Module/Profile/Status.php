@@ -46,7 +46,7 @@ use Friendica\Util\XML;
 
 class Status extends BaseProfile
 {
-	public static function content()
+	public function content(): string
 	{
 		$args = DI::args();
 

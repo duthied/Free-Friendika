@@ -46,7 +46,7 @@ use Friendica\Util\Temporal;
 
 class Profile extends BaseProfile
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => static::$parameters['nickname']]);
@@ -73,7 +73,7 @@ class Profile extends BaseProfile
 		}
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		$a = DI::app();
 

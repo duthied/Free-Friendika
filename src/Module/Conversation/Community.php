@@ -49,7 +49,7 @@ class Community extends BaseModule
 	protected static $max_id;
 	protected static $item_id;
 
-	public static function content()
+	public function content(): string
 	{
 		self::parseRequest();
 

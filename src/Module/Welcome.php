@@ -30,7 +30,7 @@ use Friendica\DI;
  */
 class Welcome extends BaseModule
 {
-	public static function content()
+	public function content(): string
 	{
 		$config = DI::config();
 

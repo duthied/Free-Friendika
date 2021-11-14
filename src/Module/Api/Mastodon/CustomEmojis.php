@@ -37,7 +37,7 @@ class CustomEmojis extends BaseApi
 	 * @throws \ImagickException
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#pending-follows
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		$emojis = DI::mstdnEmoji()->createCollectionFromSmilies(Smilies::getList());
 

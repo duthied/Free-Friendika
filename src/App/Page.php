@@ -350,13 +350,13 @@ class Page implements ArrayAccess
 			$moduleClass = $module->getClass();
 
 			$arr = ['content' => $content];
-			Hook::callAll( $moduleClass::getClassName() . '_mod_content', $arr);
+			Hook::callAll( $moduleClass->getClassName() . '_mod_content', $arr);
 			$content = $arr['content'];
-			$arr     = ['content' => $moduleClass::content()];
-			Hook::callAll($moduleClass::getClassName() . '_mod_aftercontent', $arr);
+			$arr     = ['content' => $moduleClass->content()];
+			Hook::callAll($moduleClass->getClassName() . '_mod_aftercontent', $arr);
 			$content .= $arr['content'];
 		} catch (HTTPException $e) {
-			$content = ModuleHTTPException::content($e);
+			$content = (new ModuleHTTPException())->content($e);
 		}
 
 		// initialise content region

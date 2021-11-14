@@ -10,7 +10,7 @@ use Friendica\Model\Contact;
  */
 class FollowConfirm extends BaseModule
 {
-	public static function post()
+	public function post()
 	{
 		$uid = local_user();
 		if (!$uid) {

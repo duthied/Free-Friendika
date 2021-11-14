@@ -28,7 +28,7 @@ use Friendica\Module\Admin\BaseUsers;
 
 class Create extends BaseUsers
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -51,7 +51,7 @@ class Create extends BaseUsers
 		DI::baseUrl()->redirect('admin/users/create');
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		parent::content();
 

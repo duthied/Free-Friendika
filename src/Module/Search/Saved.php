@@ -28,7 +28,7 @@ use Friendica\DI;
 
 class Saved extends BaseModule
 {
-	public static function init()
+	public function init()
 	{
 		$action = DI::args()->get(2, 'none');
 		$search = trim(rawurldecode($_GET['term'] ?? ''));

@@ -32,7 +32,7 @@ class Endorsements extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		System::jsonExit([]);
 	}

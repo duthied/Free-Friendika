@@ -33,7 +33,7 @@ use Friendica\Model\Nodeinfo;
  */
 class NodeInfo210 extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		$config = DI::config();
 

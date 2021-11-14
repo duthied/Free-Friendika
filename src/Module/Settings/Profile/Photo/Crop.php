@@ -33,7 +33,7 @@ use Friendica\Network\HTTPException;
 
 class Crop extends BaseSettings
 {
-	public static function post()
+	public function post()
 	{
 		if (!Session::isAuthenticated()) {
 			return;
@@ -160,7 +160,7 @@ class Crop extends BaseSettings
 		DI::baseUrl()->redirect($path);
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		if (!Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));

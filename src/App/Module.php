@@ -297,32 +297,32 @@ class Module
 
 		Core\Hook::callAll($this->module . '_mod_init', $placeholder);
 
-		$this->module_class::init();
+		$this->module_class->init();
 
 		$profiler->set(microtime(true) - $timestamp, 'init');
 
 		if ($server['REQUEST_METHOD'] === Router::DELETE) {
-			$this->module_class::delete();
+			$this->module_class->delete();
 		}
 
 		if ($server['REQUEST_METHOD'] === Router::PATCH) {
-			$this->module_class::patch();
+			$this->module_class->patch();
 		}
 
 		if ($server['REQUEST_METHOD'] === Router::POST) {
 			Core\Hook::callAll($this->module . '_mod_post', $post);
-			$this->module_class::post();
+			$this->module_class->post();
 		}
 
 		if ($server['REQUEST_METHOD'] === Router::PUT) {
-			$this->module_class::put();
+			$this->module_class->put();
 		}
 
 		Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);
-		$this->module_class::afterpost();
+		$this->module_class->afterpost();
 
 		// "rawContent" is especially meant for technical endpoints.
 		// This endpoint doesn't need any theme initialization or other comparable stuff.
-		$this->module_class::rawContent();
+		$this->module_class->rawContent();
 	}
 }

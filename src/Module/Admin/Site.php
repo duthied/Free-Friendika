@@ -43,7 +43,7 @@ require_once __DIR__ . '/../../../boot.php';
 
 class Site extends BaseAdmin
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -384,7 +384,7 @@ class Site extends BaseAdmin
 		DI::baseUrl()->redirect('admin/site' . $active_panel);
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		parent::content();
 

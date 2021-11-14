@@ -30,7 +30,7 @@ use Friendica\Model\Contact;
  */
 class Acctlink extends BaseModule
 {
-	public static function content()
+	public function content(): string
 	{
 		$addr = trim($_GET['addr'] ?? '');
 
@@ -41,5 +41,7 @@ class Acctlink extends BaseModule
 				exit();
 			}
 		}
+
+		return '';
 	}
 }

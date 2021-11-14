@@ -35,7 +35,7 @@ abstract class ContactEndpoint extends BaseApi
 	const DEFAULT_COUNT = 20;
 	const MAX_COUNT = 200;
 
-	public static function init()
+	public function init()
 	{
 		parent::init();
 

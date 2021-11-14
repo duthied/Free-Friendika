@@ -33,7 +33,7 @@ use PragmaRX\Google2FA\Google2FA;
 
 class Index extends BaseSettings
 {
-	public static function post()
+	public function post()
 	{
 		if (!local_user()) {
 			return;
@@ -94,7 +94,7 @@ class Index extends BaseSettings
 		}
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa');

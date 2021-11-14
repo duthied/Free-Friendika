@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException;
  */
 class Show extends BaseApi
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

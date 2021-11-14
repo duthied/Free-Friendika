@@ -37,7 +37,7 @@ class Authorize extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		$request = self::getRequest([
 			'force_login'   => '', // Forces the user to re-login, which is necessary for authorizing with multiple accounts from the same instance.
@@ -97,7 +97,7 @@ class Authorize extends BaseApi
 		self::$oauth_code = $token['code'];
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		if (empty(self::$oauth_code)) {
 			return '';

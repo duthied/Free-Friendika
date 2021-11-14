@@ -31,7 +31,7 @@ use Friendica\Util\Temporal;
 
 class Blocked extends BaseUsers
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -61,7 +61,7 @@ class Blocked extends BaseUsers
 		DI::baseUrl()->redirect('admin/users/blocked');
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		parent::content();
 

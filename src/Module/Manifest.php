@@ -27,7 +27,7 @@ use Friendica\DI;
 
 class Manifest extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		$config = DI::config();
 

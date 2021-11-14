@@ -38,7 +38,7 @@ use Friendica\Util\Strings;
  */
 class Fetch extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		if (empty(static::$parameters['guid'])) {
 			throw new HTTPException\NotFoundException();

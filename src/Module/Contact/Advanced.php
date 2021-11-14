@@ -38,14 +38,14 @@ use Friendica\Util\Strings;
  */
 class Advanced extends BaseModule
 {
-	public static function init()
+	public function init()
 	{
 		if (!Session::isAuthenticated()) {
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 
-	public static function post()
+	public function post()
 	{
 		$cid = static::$parameters['id'];
 
@@ -96,7 +96,7 @@ class Advanced extends BaseModule
 		return;
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		$cid = static::$parameters['id'];
 

@@ -29,7 +29,7 @@ use Friendica\Network\HTTPException;
 
 class Media extends BaseProfile
 {
-	public static function content()
+	public function content(): string
 	{
 		$a = DI::app();
 

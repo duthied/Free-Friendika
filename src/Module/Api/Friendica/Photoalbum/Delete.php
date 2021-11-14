@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
  */
 class Delete extends BaseApi
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

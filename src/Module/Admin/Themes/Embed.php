@@ -28,7 +28,7 @@ use Friendica\Util\Strings;
 
 class Embed extends BaseAdmin
 {
-	public static function init()
+	public function init()
 	{
 		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {
@@ -36,7 +36,7 @@ class Embed extends BaseAdmin
 		}
 	}
 
-	public static function post()
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -56,7 +56,7 @@ class Embed extends BaseAdmin
 		DI::baseUrl()->redirect('admin/themes/' . $theme . '/embed?mode=minimal');
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		parent::content();
 

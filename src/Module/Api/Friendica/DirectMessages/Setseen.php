@@ -30,7 +30,7 @@ use Friendica\Module\BaseApi;
  */
 class Setseen extends BaseApi
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

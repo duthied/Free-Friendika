@@ -35,7 +35,7 @@ use Friendica\Network\HTTPException;
 
 class Common extends BaseProfile
 {
-	public static function content()
+	public function content(): string
 	{
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));

@@ -32,7 +32,7 @@ use Friendica\Module\BaseApi;
  */
 class Media extends BaseApi
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -53,7 +53,7 @@ class Media extends BaseApi
 		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($media['id']));
 	}
 
-	public static function put()
+	public function put()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -82,7 +82,7 @@ class Media extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

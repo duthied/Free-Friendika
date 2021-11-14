@@ -27,7 +27,7 @@ use Friendica\Module\BaseAdmin;
 
 class Tos extends BaseAdmin
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -48,7 +48,7 @@ class Tos extends BaseAdmin
 		DI::baseUrl()->redirect('admin/tos');
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		parent::content();
 

@@ -41,7 +41,7 @@ use Friendica\Util\Images;
  */
 class Statuses extends BaseApi
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -207,7 +207,7 @@ class Statuses extends BaseApi
 		DI::mstdnError()->InternalError();
 	}
 
-	public static function delete()
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
@@ -231,7 +231,7 @@ class Statuses extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		$uid = self::getCurrentUserID();
 

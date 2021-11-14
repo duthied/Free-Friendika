@@ -36,7 +36,7 @@ class OpenSearch extends BaseModule
 	/**
 	 * @throws \Exception
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		header('Content-type: application/opensearchdescription+xml');
 

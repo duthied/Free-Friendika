@@ -53,7 +53,7 @@ class BaseApi extends BaseModule
 	 */
 	protected static $request = [];
 
-	public static function delete()
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -62,7 +62,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function patch()
+	public function patch()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -71,7 +71,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function post()
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -80,7 +80,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function put()
+	public function put()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 

@@ -197,7 +197,7 @@ class ModuleTest extends DatabaseTest
 
 		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config, $dice);
 
-		self::assertEquals($assert, $module->getClass()::getClassName());
+		self::assertEquals($assert, $module->getClass()->getClassName());
 	}
 
 	/**

@@ -42,7 +42,7 @@ class FollowRequests extends BaseApi
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#accept-follow
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#reject-follow
 	 */
-	public static function post()
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
@@ -82,7 +82,7 @@ class FollowRequests extends BaseApi
 	 * @throws \ImagickException
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests/
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

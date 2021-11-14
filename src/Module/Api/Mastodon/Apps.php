@@ -35,7 +35,7 @@ class Apps extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post()
+	public function post()
 	{
 		$request = self::getRequest([
 			'client_name'   => '',

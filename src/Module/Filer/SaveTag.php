@@ -34,7 +34,7 @@ use Friendica\Util\XML;
  */
 class SaveTag extends BaseModule
 {
-	public static function init()
+	public function init()
 	{
 		if (!local_user()) {
 			notice(DI::l10n()->t('You must be logged in to use this module'));
@@ -42,7 +42,7 @@ class SaveTag extends BaseModule
 		}
 	}
 
-	public static function rawContent()
+	public function rawContent()
 	{
 		$logger = DI::logger();
 

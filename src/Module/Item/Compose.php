@@ -40,7 +40,7 @@ use Friendica\Util\Temporal;
 
 class Compose extends BaseModule
 {
-	public static function post()
+	public function post()
 	{
 		if (!empty($_REQUEST['body'])) {
 			$_REQUEST['return'] = 'network';
@@ -51,7 +51,7 @@ class Compose extends BaseModule
 		}
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		if (!local_user()) {
 			return Login::form('compose', false);

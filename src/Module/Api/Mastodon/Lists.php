@@ -31,7 +31,7 @@ use Friendica\Model\Group;
  */
 class Lists extends BaseApi
 {
-	public static function delete()
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -51,7 +51,7 @@ class Lists extends BaseApi
 		System::jsonExit([]);
 	}
 
-	public static function post()
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -74,7 +74,7 @@ class Lists extends BaseApi
 		System::jsonExit(DI::mstdnList()->createFromGroupId($id));
 	}
 
-	public static function put()
+	public function put()
 	{
 		$request = self::getRequest([
 			'title'          => '', // The title of the list to be updated.
@@ -91,7 +91,7 @@ class Lists extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

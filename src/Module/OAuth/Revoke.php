@@ -32,7 +32,7 @@ use Friendica\Module\BaseApi;
  */
 class Revoke extends BaseApi
 {
-	public static function post()
+	public function post()
 	{
 		$request = self::getRequest([
 			'client_id'     => '', // Client ID, obtained during app registration

@@ -28,7 +28,7 @@ use Friendica\Module\BaseAdmin;
 
 class Federation extends BaseAdmin
 {
-	public static function content()
+	public function content(): string
 	{
 		parent::content();
 

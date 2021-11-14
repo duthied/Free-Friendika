@@ -29,7 +29,7 @@ use Friendica\DI;
  */
 class Test extends BaseApi
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		if (!empty(static::$parameters['extension']) && (static::$parameters['extension'] == 'xml')) {
 			$ok = 'true';

@@ -54,22 +54,22 @@ class LegacyModule extends BaseModule
 		require_once $file_path;
 	}
 
-	public static function init()
+	public function init()
 	{
 		self::runModuleFunction('init', static::$parameters);
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		return self::runModuleFunction('content', static::$parameters);
 	}
 
-	public static function post()
+	public function post()
 	{
 		self::runModuleFunction('post', static::$parameters);
 	}
 
-	public static function afterpost()
+	public function afterpost()
 	{
 		self::runModuleFunction('afterpost', static::$parameters);
 	}

@@ -34,7 +34,7 @@ use Friendica\Util\Strings;
  */
 class Maintenance extends BaseModule
 {
-	public static function content()
+	public function content(): string
 	{
 		$reason = DI::config()->get('system', 'maintenance_reason');
 

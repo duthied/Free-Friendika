@@ -33,7 +33,7 @@ use Friendica\Util\Temporal;
 
 class Pending extends BaseUsers
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -58,7 +58,7 @@ class Pending extends BaseUsers
 		DI::baseUrl()->redirect('admin/users/pending');
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		parent::content();
 

@@ -30,7 +30,7 @@ use Friendica\Util\DateTimeFormat;
  */
 class RateLimitStatus extends BaseApi
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		if (!empty(static::$parameters['extension']) && (static::$parameters['extension'] == 'xml')) {
 			$hash = [

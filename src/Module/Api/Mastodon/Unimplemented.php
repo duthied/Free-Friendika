@@ -33,7 +33,7 @@ class Unimplemented extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function delete()
+	public function delete()
 	{
 		DI::apiResponse()->unsupported(Router::DELETE);
 	}
@@ -41,7 +41,7 @@ class Unimplemented extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function patch()
+	public function patch()
 	{
 		DI::apiResponse()->unsupported(Router::PATCH);
 	}
@@ -49,7 +49,7 @@ class Unimplemented extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post()
+	public function post()
 	{
 		DI::apiResponse()->unsupported(Router::POST);
 	}
@@ -57,7 +57,7 @@ class Unimplemented extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function put()
+	public function put()
 	{
 		DI::apiResponse()->unsupported(Router::PUT);
 	}
@@ -65,7 +65,7 @@ class Unimplemented extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		DI::apiResponse()->unsupported(Router::GET);
 	}

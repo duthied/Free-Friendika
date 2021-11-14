@@ -30,7 +30,7 @@ use Friendica\Util\Strings;
  */
 class Theme extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		header('Content-Type: text/css');
 

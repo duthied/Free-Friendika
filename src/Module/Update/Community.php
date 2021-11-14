@@ -33,7 +33,7 @@ use Friendica\Module\Conversation\Community as CommunityModule;
  */
 class Community extends CommunityModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::parseRequest();
 

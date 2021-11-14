@@ -35,7 +35,7 @@ use Friendica\Module\BaseApi;
  */
 class Unreblog extends BaseApi
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

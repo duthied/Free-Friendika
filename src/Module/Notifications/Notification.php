@@ -42,7 +42,7 @@ class Notification extends BaseModule
 	 * @throws \ImagickException
 	 * @throws \Exception
 	 */
-	public static function post()
+	public function post()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
@@ -73,7 +73,7 @@ class Notification extends BaseModule
 	 *
 	 * @throws HTTPException\UnauthorizedException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
@@ -101,7 +101,7 @@ class Notification extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \Exception
 	 */
-	public static function content(): string
+	public function content(): string
 	{
 		if (!local_user()) {
 			notice(DI::l10n()->t('You must be logged in to show this page.'));

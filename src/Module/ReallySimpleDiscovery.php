@@ -31,7 +31,7 @@ use Friendica\Util\XML;
  */
 class ReallySimpleDiscovery extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		header('Content-Type: text/xml');
 

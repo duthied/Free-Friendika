@@ -47,14 +47,14 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function init()
+	public function init()
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		// echo '';
 		// exit;
@@ -63,7 +63,7 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function content()
+	public function content(): string
 	{
 		return '';
 	}
@@ -71,21 +71,21 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function delete()
+	public function delete()
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function patch()
+	public function patch()
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function post()
+	public function post()
 	{
 		// DI::baseurl()->redirect('module');
 	}
@@ -93,19 +93,19 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function afterpost()
+	public function afterpost()
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function put()
+	public function put()
 	{
 	}
 
 	/** Gets the name of the current class */
-	public static function getClassName(): string
+	public function getClassName(): string
 	{
 		return static::class;
 	}

@@ -29,7 +29,7 @@ use Friendica\Model\Contact;
  */
 class FriendsList extends ContactEndpoint
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		// Expected value for user_id parameter: public/user contact id
 		$contact_id    = filter_input(INPUT_GET, 'user_id'      , FILTER_VALIDATE_INT);

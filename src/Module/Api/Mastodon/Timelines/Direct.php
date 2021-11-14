@@ -35,7 +35,7 @@ class Direct extends BaseApi
 	/**
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

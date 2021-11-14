@@ -32,7 +32,7 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
  */
 class Update extends BaseApi
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

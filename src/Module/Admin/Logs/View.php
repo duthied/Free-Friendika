@@ -31,7 +31,7 @@ class View extends BaseAdmin
 {
 	const LIMIT = 500;
 
-	public static function content()
+	public function content(): string
 	{
 		parent::content();
 

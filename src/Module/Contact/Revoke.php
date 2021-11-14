@@ -37,7 +37,7 @@ class Revoke extends BaseModule
 	/** @var array */
 	private static $contact;
 
-	public static function init()
+	public function init()
 	{
 		if (!local_user()) {
 			return;
@@ -63,7 +63,7 @@ class Revoke extends BaseModule
 		}
 	}
 
-	public static function post()
+	public function post()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException();
@@ -83,7 +83,7 @@ class Revoke extends BaseModule
 		DI::baseUrl()->redirect('contact/' . static::$parameters['id']);
 	}
 
-	public static function content(): string
+	public function content(): string
 	{
 		if (!local_user()) {
 			return Login::form($_SERVER['REQUEST_URI']);

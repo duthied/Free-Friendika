@@ -31,7 +31,7 @@ use Friendica\Protocol\ActivityPub;
  */
 class Following extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		if (empty(static::$parameters['nickname'])) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();

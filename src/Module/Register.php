@@ -53,7 +53,7 @@ class Register extends BaseModule
 	 *
 	 * @return string
 	 */
-	public static function content()
+	public function content(): string
 	{
 		// logged in users can register others (people/pages/groups)
 		// even with closed registrations, unless specifically prohibited by site policy.
@@ -182,7 +182,7 @@ class Register extends BaseModule
 	 * Extend this method if the module is supposed to process POST requests.
 	 * Doesn't display any content
 	 */
-	public static function post()
+	public function post()
 	{
 		BaseModule::checkFormSecurityTokenRedirectOnError('/register', 'register');
 

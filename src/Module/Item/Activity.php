@@ -38,7 +38,7 @@ use Friendica\Network\HTTPException;
  */
 class Activity extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		if (!Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();

@@ -42,7 +42,7 @@ class RemoteFollow extends BaseModule
 {
 	static $owner;
 
-	public static function init()
+	public function init()
 	{
 		self::$owner = User::getOwnerDataByNick(static::$parameters['profile']);
 		if (!self::$owner) {
@@ -52,7 +52,7 @@ class RemoteFollow extends BaseModule
 		DI::page()['aside'] = Widget\VCard::getHTML(self::$owner);
 	}
 
-	public static function post()
+	public function post()
 	{
 		if (!empty($_POST['cancel']) || empty($_POST['dfrn_url'])) {
 			DI::baseUrl()->redirect();
@@ -96,7 +96,7 @@ class RemoteFollow extends BaseModule
 		System::externalRedirect($follow_link);
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		if (empty(self::$owner)) {
 			return '';

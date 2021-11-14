@@ -35,7 +35,7 @@ use Friendica\Util\Network;
  */
 class Inbox extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		$postdata = Network::postdata();
 

@@ -39,7 +39,7 @@ use PragmaRX\Google2FA\Google2FA;
  */
 class Verify extends BaseSettings
 {
-	public static function init()
+	public function init()
 	{
 		if (!local_user()) {
 			return;
@@ -58,7 +58,7 @@ class Verify extends BaseSettings
 		}
 	}
 
-	public static function post()
+	public function post()
 	{
 		if (!local_user()) {
 			return;
@@ -84,7 +84,7 @@ class Verify extends BaseSettings
 		}
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa/verify');

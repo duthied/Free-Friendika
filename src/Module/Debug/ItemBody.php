@@ -31,7 +31,7 @@ use Friendica\Network\HTTPException;
  */
 class ItemBody extends BaseModule
 {
-	public static function content()
+	public function content(): string
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Access denied.'));

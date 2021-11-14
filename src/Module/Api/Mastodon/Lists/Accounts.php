@@ -35,12 +35,12 @@ use Friendica\Module\BaseApi;
  */
 class Accounts extends BaseApi
 {
-	public static function delete()
+	public function delete()
 	{
 		DI::apiResponse()->unsupported(Router::DELETE);
 	}
 
-	public static function post()
+	public function post()
 	{
 		DI::apiResponse()->unsupported(Router::POST);
 	}
@@ -48,7 +48,7 @@ class Accounts extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

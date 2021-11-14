@@ -29,7 +29,7 @@ use Friendica\DI;
  */
 class Version extends BaseApi
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		DI::apiResponse()->exit('version', ['version' => '0.9.7'], static::$parameters['extension'] ?? null);
 	}

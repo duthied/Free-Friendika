@@ -31,7 +31,7 @@ use Friendica\Module\BaseApi;
  */
 class Conversations extends BaseApi
 {
-	public static function delete()
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -49,7 +49,7 @@ class Conversations extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

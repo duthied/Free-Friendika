@@ -34,7 +34,7 @@ use Friendica\Util\XML;
 
 class ActivityPubConversion extends BaseModule
 {
-	public static function content()
+	public function content(): string
 	{
 		function visible_whitespace($s)
 		{

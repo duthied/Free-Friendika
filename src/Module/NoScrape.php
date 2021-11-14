@@ -35,7 +35,7 @@ use Friendica\Model\User;
  */
 class NoScrape extends BaseModule
 {
-	public static function rawContent()
+	public function rawContent()
 	{
 		$a = DI::app();
 

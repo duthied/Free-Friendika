@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException;
  */
 class HCard extends BaseModule
 {
-	public static function content()
+	public function content(): string
 	{
 		if ((local_user()) && (static::$parameters['action'] ?? '') === 'view') {
 			// A logged in user views a profile of a user

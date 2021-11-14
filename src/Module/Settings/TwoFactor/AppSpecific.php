@@ -36,7 +36,7 @@ class AppSpecific extends BaseSettings
 {
 	private static $appSpecificPassword = null;
 
-	public static function init()
+	public function init()
 	{
 		if (!local_user()) {
 			return;
@@ -54,7 +54,7 @@ class AppSpecific extends BaseSettings
 		}
 	}
 
-	public static function post()
+	public function post()
 	{
 		if (!local_user()) {
 			return;
@@ -97,7 +97,7 @@ class AppSpecific extends BaseSettings
 		}
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa/app_specific');

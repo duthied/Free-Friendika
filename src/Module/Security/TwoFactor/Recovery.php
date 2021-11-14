@@ -35,14 +35,14 @@ use Friendica\Security\TwoFactor\Model\RecoveryCode;
  */
 class Recovery extends BaseModule
 {
-	public static function init()
+	public function init()
 	{
 		if (!local_user()) {
 			return;
 		}
 	}
 
-	public static function post()
+	public function post()
 	{
 		if (!local_user()) {
 			return;
@@ -67,7 +67,7 @@ class Recovery extends BaseModule
 		}
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		if (!local_user()) {
 			DI::baseUrl()->redirect();

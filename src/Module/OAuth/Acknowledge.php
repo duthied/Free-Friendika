@@ -30,13 +30,13 @@ use Friendica\Module\BaseApi;
  */
 class Acknowledge extends BaseApi
 {
-	public static function post()
+	public function post()
 	{
 		DI::session()->set('oauth_acknowledge', true);
 		DI::app()->redirect(DI::session()->get('return_path'));
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		DI::session()->set('return_path', $_REQUEST['return_path'] ?? '');
 

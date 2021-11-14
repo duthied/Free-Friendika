@@ -38,14 +38,14 @@ use Friendica\Worker\Delivery;
  */
 class FriendSuggest extends BaseModule
 {
-	public static function init()
+	public function init()
 	{
 		if (!local_user()) {
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 
-	public static function post()
+	public function post()
 	{
 		$cid = intval(static::$parameters['contact']);
 
@@ -83,7 +83,7 @@ class FriendSuggest extends BaseModule
 		info(DI::l10n()->t('Friend suggestion sent.'));
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		$cid = intval(static::$parameters['contact']);
 

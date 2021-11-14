@@ -14,7 +14,7 @@ use UAParser\Parser;
  */
 class Trusted extends BaseSettings
 {
-	public static function init()
+	public function init()
 	{
 		if (!local_user()) {
 			return;
@@ -32,7 +32,7 @@ class Trusted extends BaseSettings
 		}
 	}
 
-	public static function post()
+	public function post()
 	{
 		if (!local_user()) {
 			return;
@@ -64,7 +64,7 @@ class Trusted extends BaseSettings
 	}
 
 
-	public static function content(): string
+	public function content(): string
 	{
 		parent::content();
 

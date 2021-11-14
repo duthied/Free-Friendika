@@ -34,7 +34,7 @@ use Friendica\Module\BaseApi;
  */
 class ScheduledStatuses extends BaseApi
 {
-	public static function put()
+	public function put()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -42,7 +42,7 @@ class ScheduledStatuses extends BaseApi
 		DI::apiResponse()->unsupported(Router::PUT);
 	}
 
-	public static function delete()
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -63,7 +63,7 @@ class ScheduledStatuses extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

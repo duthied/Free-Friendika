@@ -44,7 +44,7 @@ class Proxy extends BaseModule
 	/**
 	 * Fetch remote image content
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		$request = self::getRequestInfo();
 

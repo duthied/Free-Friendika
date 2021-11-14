@@ -57,7 +57,7 @@ class Network extends BaseModule
 	/** @var string */
 	protected static $order;
 
-	public static function content()
+	public function content(): string
 	{
 		if (!local_user()) {
 			return Login::form();

@@ -32,7 +32,7 @@ class Proofs extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent()
+	public function rawContent()
 	{
 		System::jsonError(404, ['error' => 'Record not found']);
 	}

@@ -27,7 +27,7 @@ use Friendica\Module\BaseAdmin;
 
 class Index extends BaseAdmin
 {
-	public static function post()
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -56,7 +56,7 @@ class Index extends BaseAdmin
 		DI::baseUrl()->redirect('admin/blocklist/server');
 	}
 
-	public static function content()
+	public function content(): string
 	{
 		parent::content();
 
