@@ -22,6 +22,7 @@
 namespace Friendica\Module\Api\Friendica\Group;
 
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Group;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -31,7 +32,7 @@ use Friendica\Network\HTTPException\BadRequestException;
  */
 class Delete extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -69,7 +70,7 @@ class Delete extends BaseApi
 		if ($ret) {
 			// return success
 			$success = ['success' => $ret, 'gid' => $request['gid'], 'name' => $request['name'], 'status' => 'deleted', 'wrong users' => []];
-			self::exit('group_delete', ['$result' => $success], $parameters['extension'] ?? null);
+			DI::apiResponse()->exit('group_delete', ['$result' => $success], $parameters['extension'] ?? null);
 		} else {
 			throw new BadRequestException('other API error');
 		}
