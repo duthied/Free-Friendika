@@ -347,13 +347,13 @@ class Page implements ArrayAccess
 		$content = '';
 
 		try {
-			$moduleClass = $module->getClassName();
+			$moduleClass = $module->getClass();
 
 			$arr = ['content' => $content];
-			Hook::callAll($moduleClass . '_mod_content', $arr);
+			Hook::callAll( $moduleClass::getClassName() . '_mod_content', $arr);
 			$content = $arr['content'];
-			$arr     = ['content' => call_user_func([$moduleClass, 'content'], $module->getParameters())];
-			Hook::callAll($moduleClass . '_mod_aftercontent', $arr);
+			$arr     = ['content' => $moduleClass::content($moduleClass::getParameters())];
+			Hook::callAll($moduleClass::getClassName() . '_mod_aftercontent', $arr);
 			$content .= $arr['content'];
 		} catch (HTTPException $e) {
 			$content = ModuleHTTPException::content($e);

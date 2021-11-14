@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\App;
 
+use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
@@ -38,7 +39,7 @@ class ModuleTest extends DatabaseTest
 	{
 		self::assertEquals($assert['isBackend'], $module->isBackend());
 		self::assertEquals($assert['name'], $module->getName());
-		self::assertEquals($assert['class'], $module->getClassName());
+		self::assertEquals($assert['class'], $module->getClass());
 	}
 
 	/**
@@ -48,21 +49,25 @@ class ModuleTest extends DatabaseTest
 	{
 		$module = new App\Module();
 
+		$defaultClass = App\Module::DEFAULT_CLASS;
+
 		self::assertModule([
 			'isBackend' => false,
 			'name'      => App\Module::DEFAULT,
-			'class'     => App\Module::DEFAULT_CLASS,
+			'class'     => new $defaultClass(),
 		], $module);
 	}
 
 	public function dataModuleName()
 	{
+		$defaultClass = App\Module::DEFAULT_CLASS;
+
 		return [
 			'default'                   => [
 				'assert' => [
 					'isBackend' => false,
 					'name'      => 'network',
-					'class'     => App\Module::DEFAULT_CLASS,
+					'class'     => new $defaultClass(),
 				],
 				'args'   => new App\Arguments('network/data/in',
 					'network/data/in',
@@ -73,7 +78,7 @@ class ModuleTest extends DatabaseTest
 				'assert' => [
 					'isBackend' => false,
 					'name'      => 'with_strike_and_point',
-					'class'     => App\Module::DEFAULT_CLASS,
+					'class'     => new $defaultClass(),
 				],
 				'args'   => new App\Arguments('with-strike.and-point/data/in',
 					'with-strike.and-point/data/in',
@@ -84,7 +89,7 @@ class ModuleTest extends DatabaseTest
 				'assert' => [
 					'isBackend' => false,
 					'name'      => App\Module::DEFAULT,
-					'class'     => App\Module::DEFAULT_CLASS,
+					'class'     => new $defaultClass(),
 				],
 				'args'   => new App\Arguments(),
 			],
@@ -92,7 +97,7 @@ class ModuleTest extends DatabaseTest
 				'assert' => [
 					'isBackend' => false,
 					'name'      => App\Module::DEFAULT,
-					'class'     => App\Module::DEFAULT_CLASS,
+					'class'     => new $defaultClass(),
 				],
 				'args'   => new App\Arguments(),
 			],
@@ -100,7 +105,7 @@ class ModuleTest extends DatabaseTest
 				'assert' => [
 					'isBackend' => true,
 					'name'      => App\Module::BACKEND_MODULES[0],
-					'class'     => App\Module::DEFAULT_CLASS,
+					'class'     => new $defaultClass(),
 				],
 				'args'   => new App\Arguments(App\Module::BACKEND_MODULES[0] . '/data/in',
 					App\Module::BACKEND_MODULES[0] . '/data/in',
@@ -111,7 +116,7 @@ class ModuleTest extends DatabaseTest
 				'assert' => [
 					'isBackend' => false,
 					'name'      => 'login',
-					'class'     => App\Module::DEFAULT_CLASS,
+					'class'     => new $defaultClass(),
 				],
 				'args'   => new App\Arguments('users/sign_in',
 					'users/sign_in',
@@ -187,9 +192,12 @@ class ModuleTest extends DatabaseTest
 
 		$router = (new App\Router([], __DIR__ . '/../../../static/routes.config.php', $l10n, $cache, $lock));
 
-		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config);
+		$dice = Mockery::mock(Dice::class);
+		$dice->shouldReceive('create')->andReturn(new $assert());
 
-		self::assertEquals($assert, $module->getClassName());
+		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config, $dice);
+
+		self::assertEquals($assert, $module->getClass()::getClassName());
 	}
 
 	/**

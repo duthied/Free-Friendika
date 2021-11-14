@@ -21,6 +21,7 @@
 
 namespace Friendica;
 
+use Dice\Dice;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
@@ -575,7 +576,7 @@ class App
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Module $module, App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, float $start_time)
+	public function runFrontend(App\Module $module, App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, Dice $dice, float $start_time)
 	{
 		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');
@@ -702,11 +703,11 @@ class App
 			$page['page_title'] = $moduleName;
 
 			if (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED)) {
-				$module = new Module('maintenance', Maintenance::class);
+				$module = new Module('maintenance', new Maintenance());
 			} else {
 				// determine the module class and save it to the module instance
 				// @todo there's an implicit dependency due SESSION::start(), so it has to be called here (yet)
-				$module = $module->determineClass($this->args, $router, $this->config);
+				$module = $module->determineClass($this->args, $router, $this->config, $dice);
 			}
 
 			// Let the module run it's internal process (init, get, post, ...)
