@@ -10,7 +10,8 @@ class VersionTest extends ApiTest
 {
 	public function test()
 	{
-		Version::rawContent(['extension' => 'json']);
+		$version = new Version(['extension' => 'json']);
+		$version->rawContent();
 
 		$result = json_decode(ApiResponseDouble::getOutput());
 

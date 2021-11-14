@@ -10,14 +10,16 @@ class TestTest extends ApiTest
 {
 	public function testJson()
 	{
-		Test::rawContent(['extension' => 'json']);
+		$test = new Test(['extension' => 'json']);
+		$test->rawContent();
 
 		self::assertEquals('"ok"', ApiResponseDouble::getOutput());
 	}
 
 	public function testXml()
 	{
-		Test::rawContent(['extension' => 'xml']);
+		$test = new Test(['extension' => 'xml']);
+		$test->rawContent();
 
 		self::assertxml(ApiResponseDouble::getOutput(), 'ok');
 	}
