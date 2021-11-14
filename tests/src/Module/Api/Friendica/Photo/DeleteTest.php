@@ -19,33 +19,33 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Test\src\Module\Api\Friendica\Photo;
 
-use Friendica\App\Router;
-use Friendica\Core\System;
-use Friendica\DI;
-use Friendica\Module\BaseApi;
+use Friendica\Module\Api\Friendica\Photo\Delete;
+use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Test\src\Module\Api\ApiTest;
 
-/**
- * @see https://docs.joinmastodon.org/methods/timelines/markers/
- */
-class Markers extends BaseApi
+class DeleteTest extends ApiTest
 {
-	public static function post(array $parameters = [])
+	public function testEmpty()
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-
-		DI::apiResponse()->unsupported(Router::POST);
+		$this->expectException(BadRequestException::class);
+		Delete::rawContent();
 	}
 
-	/**
-	 * @param array $parameters
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function rawContent(array $parameters = [])
+	public function testWithoutAuthenticatedUser()
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
+	}
 
-		System::jsonExit([]);
+	public function testWrong()
+	{
+		$this->expectException(BadRequestException::class);
+		Delete::rawContent(['photo_id' => 1]);
+	}
+
+	public function testWithCorrectPhotoId()
+	{
+		self::markTestIncomplete('We need to add a dataset for this.');
 	}
 }

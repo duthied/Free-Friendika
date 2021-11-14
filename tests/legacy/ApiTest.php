@@ -10,6 +10,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\DI;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
@@ -470,52 +471,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_call() function without any result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiCallWithNoResult()
-	{
-		// @todo How to test the new API?
-		/*
-		global $API;
-		$API['api_path']           = [
-			'method' => 'method',
-			'func'   => function () {
-				return false;
-			}
-		];
-		$_SERVER['REQUEST_METHOD'] = 'method';
-		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
-
-		$args = DI::args()->determine($_SERVER, $_GET);
-
-		self::assertEquals(
-			'{"status":{"error":"Internal Server Error","code":"500 Internal Server Error","request":"api_path"}}',
-			api_call($this->app, $args)
-		);
-		*/
-	}
-
-	/**
-	 * Test the api_call() function with an unimplemented API.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiCallWithUninplementedApi()
-	{
-		// @todo How to test the new API?
-		/*
-		self::assertEquals(
-			'{"status":{"error":"Not Found","code":"404 Not Found","request":""}}',
-			api_call($this->app)
-		);
-		*/
-	}
-
-	/**
 	 * Test the api_call() function with a JSON result.
 	 *
 	 * @runInSeparateProcess
@@ -619,145 +574,6 @@ class ApiTest extends FixtureTest
 			'some_data',
 			api_call($this->app, $args)
 		);
-	}
-
-	/**
-	 * Test the api_call() function with an unallowed method.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiCallWithWrongMethod()
-	{
-		// Shouldn't be needed anymore due to the router?
-		/*
-		global $API;
-		$API['api_path'] = ['method' => 'method'];
-
-		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
-
-		$args = DI::args()->determine($_SERVER, $_GET);
-
-		self::assertEquals(
-			'{"status":{"error":"Method Not Allowed","code":"405 Method Not Allowed","request":"api_path"}}',
-			api_call($this->app, $args)
-		);
-		*/
-	}
-
-	/**
-	 * Test the api_call() function with an unauthorized user.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiCallWithWrongAuth()
-	{
-		// @todo How to test the new API?
-		/*
-		global $API;
-		$API['api_path']           = [
-			'method' => 'method',
-			'auth'   => true
-		];
-		$_SESSION['authenticated'] = false;
-		$_SERVER['REQUEST_METHOD'] = 'method';
-		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
-
-		$args = DI::args()->determine($_SERVER, $_GET);
-
-		self::assertEquals(
-			'{"status":{"error":"This API requires login","code":"401 Unauthorized","request":"api_path"}}',
-			api_call($this->app, $args)
-		);
-		*/
-	}
-
-	/**
-	 * Test the api_error() function with a JSON result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiErrorWithJson()
-	{
-		// @todo How to test the new API?
-		// self::assertEquals(
-		// 	'{"status":{"error":"error_message","code":"200 OK","request":""}}',
-		// 	api_error('json', new HTTPException\OKException('error_message'), DI::args())
-		// );
-	}
-
-	/**
-	 * Test the api_error() function with an XML result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiErrorWithXml()
-	{
-		// @todo How to test the new API?
-		/*
-		self::assertEquals(
-			'<?xml version="1.0"?>' . "\n" .
-			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
-			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
-			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
-			'  <error>error_message</error>' . "\n" .
-			'  <code>200 OK</code>' . "\n" .
-			'  <request/>' . "\n" .
-			'</status>' . "\n",
-			api_error('xml', new HTTPException\OKException('error_message'), DI::args())
-		);
-		*/
-	}
-
-	/**
-	 * Test the api_error() function with an RSS result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiErrorWithRss()
-	{
-		// @todo How to test the new API?
-		/*
-		self::assertEquals(
-			'<?xml version="1.0"?>' . "\n" .
-			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
-			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
-			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
-			'  <error>error_message</error>' . "\n" .
-			'  <code>200 OK</code>' . "\n" .
-			'  <request/>' . "\n" .
-			'</status>' . "\n",
-			api_error('rss', new HTTPException\OKException('error_message'), DI::args())
-		);
-		*/
-	}
-
-	/**
-	 * Test the api_error() function with an Atom result.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiErrorWithAtom()
-	{
-		// @todo How to test the new API?
-		/*
-		self::assertEquals(
-			'<?xml version="1.0"?>' . "\n" .
-			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
-			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
-			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
-			'  <error>error_message</error>' . "\n" .
-			'  <code>200 OK</code>' . "\n" .
-			'  <request/>' . "\n" .
-			'</status>' . "\n",
-			api_error('atom', new HTTPException\OKException('error_message'), DI::args())
-		);
-		*/
 	}
 
 	/**
@@ -1069,7 +885,7 @@ class ApiTest extends FixtureTest
 	{
 		$item = true;
 		$key  = '';
-		self::assertTrue(BaseApi::reformatXML($item, $key));
+		self::assertTrue(ApiResponse::reformatXML($item, $key));
 		self::assertEquals('true', $item);
 	}
 
@@ -1082,7 +898,7 @@ class ApiTest extends FixtureTest
 	{
 		$item = '';
 		$key  = 'statusnet_api';
-		self::assertTrue(BaseApi::reformatXML($item, $key));
+		self::assertTrue(ApiResponse::reformatXML($item, $key));
 		self::assertEquals('statusnet:api', $key);
 	}
 
@@ -1095,7 +911,7 @@ class ApiTest extends FixtureTest
 	{
 		$item = '';
 		$key  = 'friendica_api';
-		self::assertTrue(BaseApi::reformatXML($item, $key));
+		self::assertTrue(ApiResponse::reformatXML($item, $key));
 		self::assertEquals('friendica:api', $key);
 	}
 
@@ -1113,7 +929,7 @@ class ApiTest extends FixtureTest
 			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
 			'  <data>some_data</data>' . "\n" .
 			'</root_element>' . "\n",
-			BaseApi::createXML(['data' => ['some_data']], 'root_element')
+			DI::apiResponse()->createXML(['data' => ['some_data']], 'root_element')
 		);
 	}
 
@@ -1129,7 +945,7 @@ class ApiTest extends FixtureTest
 			'<ok>' . "\n" .
 			'  <data>some_data</data>' . "\n" .
 			'</ok>' . "\n",
-			BaseApi::createXML(['data' => ['some_data']], 'ok')
+			DI::apiResponse()->createXML(['data' => ['some_data']], 'ok')
 		);
 	}
 
@@ -1141,7 +957,7 @@ class ApiTest extends FixtureTest
 	public function testApiFormatData()
 	{
 		$data = ['some_data'];
-		self::assertEquals($data, BaseApi::formatData('root_element', 'json', $data));
+		self::assertEquals($data, DI::apiResponse()->formatData('root_element', 'json', $data));
 	}
 
 	/**
@@ -1158,7 +974,7 @@ class ApiTest extends FixtureTest
 			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
 			'  <data>some_data</data>' . "\n" .
 			'</root_element>' . "\n",
-			BaseApi::formatData('root_element', 'xml', ['data' => ['some_data']])
+			DI::apiResponse()->formatData('root_element', 'xml', ['data' => ['some_data']])
 		);
 	}
 
@@ -2541,56 +2357,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_format_items() function.
-	 *
-	 * @return void
-	 */
-	public function testApiAccountRateLimitStatus()
-	{
-		// @todo How to test the new API?
-		// $result = api_account_rate_limit_status('json');
-		// self::assertEquals(150, $result['hash']['remaining_hits']);
-		// self::assertEquals(150, $result['hash']['hourly_limit']);
-		// self::assertIsInt($result['hash']['reset_time_in_seconds']);
-	}
-
-	/**
-	 * Test the api_format_items() function with an XML result.
-	 *
-	 * @return void
-	 */
-	public function testApiAccountRateLimitStatusWithXml()
-	{
-		// @todo How to test the new API?
-		// $result = api_account_rate_limit_status('xml');
-		// self::assertXml($result, 'hash');
-	}
-
-	/**
-	 * Test the api_help_test() function.
-	 *
-	 * @return void
-	 */
-	public function testApiHelpTest()
-	{
-		// @todo How to test the new API?
-		// $result = \Friendica\Module\Api\Friendica\Help\Test::rawcontent(['extension' => 'json']);
-		// self::assertEquals(['ok' => 'ok'], $result);
-	}
-
-	/**
-	 * Test the api_help_test() function with an XML result.
-	 *
-	 * @return void
-	 */
-	public function testApiHelpTestWithXml()
-	{
-		// @todo How to test the new API?
-		// $result = api_help_test('xml');
-		// self::assertXml($result, 'ok');
-	}
-
-	/**
 	 * Test the api_lists_list() function.
 	 *
 	 * @return void
@@ -2839,18 +2605,6 @@ class ApiTest extends FixtureTest
 		self::assertEquals('false', $result['config']['site']['private']);
 		self::assertEquals('false', $result['config']['site']['ssl']);
 		self::assertEquals(30, $result['config']['site']['shorturllength']);
-	}
-
-	/**
-	 * Test the api_statusnet_version() function.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusnetVersion()
-	{
-		// @todo How to test the new API?
-		// $result = api_statusnet_version('json');
-		// self::assertEquals('0.9.7', $result['version']);
 	}
 
 	/**
@@ -3178,97 +2932,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_fr_photoalbum_delete() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoalbumDelete()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// api_fr_photoalbum_delete('json');
-	}
-
-	/**
-	 * Test the api_fr_photoalbum_delete() function with an album name.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoalbumDeleteWithAlbum()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// $_REQUEST['album'] = 'album_name';
-		// api_fr_photoalbum_delete('json');
-	}
-
-	/**
-	 * Test the api_fr_photoalbum_delete() function with an album name.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoalbumDeleteWithValidAlbum()
-	{
-		$this->markTestIncomplete('We need to add a dataset for this.');
-	}
-
-	/**
-	 * Test the api_fr_photoalbum_delete() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoalbumUpdate()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// api_fr_photoalbum_update('json');
-	}
-
-	/**
-	 * Test the api_fr_photoalbum_delete() function with an album name.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoalbumUpdateWithAlbum()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// $_REQUEST['album'] = 'album_name';
-		// api_fr_photoalbum_update('json');
-	}
-
-	/**
-	 * Test the api_fr_photoalbum_delete() function with an album name.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoalbumUpdateWithAlbumAndNewAlbum()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// $_REQUEST['album']     = 'album_name';
-		// $_REQUEST['album_new'] = 'album_name';
-		// api_fr_photoalbum_update('json');
-	}
-
-	/**
-	 * Test the api_fr_photoalbum_update() function without an authenticated user.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoalbumUpdateWithoutAuthenticatedUser()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		// $_SESSION['authenticated'] = false;
-		// api_fr_photoalbum_update('json');
-	}
-
-	/**
-	 * Test the api_fr_photoalbum_delete() function with an album name.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoalbumUpdateWithValidAlbum()
-	{
-		$this->markTestIncomplete('We need to add a dataset for this.');
-	}
-
-	/**
 	 * Test the api_fr_photos_list() function.
 	 *
 	 * @return void
@@ -3342,51 +3005,6 @@ class ApiTest extends FixtureTest
 	public function testApiFrPhotoCreateUpdateWithFile()
 	{
 		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_fr_photo_delete() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoDelete()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// api_fr_photo_delete('json');
-	}
-
-	/**
-	 * Test the api_fr_photo_delete() function without an authenticated user.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoDeleteWithoutAuthenticatedUser()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		// $_SESSION['authenticated'] = false;
-		// api_fr_photo_delete('json');
-	}
-
-	/**
-	 * Test the api_fr_photo_delete() function with a photo ID.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoDeleteWithPhotoId()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// $_REQUEST['photo_id'] = 1;
-		// api_fr_photo_delete('json');
-	}
-
-	/**
-	 * Test the api_fr_photo_delete() function with a correct photo ID.
-	 *
-	 * @return void
-	 */
-	public function testApiFrPhotoDeleteWithCorrectPhotoId()
-	{
-		$this->markTestIncomplete('We need to create a dataset for this.');
 	}
 
 	/**
@@ -3701,77 +3319,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_friendica_notification() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaNotification()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// api_friendica_notification('json');
-	}
-
-	/**
-	 * Test the api_friendica_notification() function without an authenticated user.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaNotificationWithoutAuthenticatedUser()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		// $_SESSION['authenticated'] = false;
-		// api_friendica_notification('json');
-	}
-
-	/**
-	 * Test the api_friendica_notification() function with empty result
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaNotificationWithEmptyResult()
-	{
-		// DI::args()->setArgv(['api', 'friendica', 'notification']);
-		// $_SESSION['uid'] = 41;
-		// $result          = api_friendica_notification('json');
-		// self::assertEquals(['note' => false], $result);
-	}
-
-	/**
-	 * Test the api_friendica_notification() function with an XML result.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaNotificationWithXmlResult()
-	{
-		/*
-		DI::args()->setArgv(['api', 'friendica', 'notification']);
-		$result  = api_friendica_notification('xml');
-		$date = DateTimeFormat::local('2020-01-01 12:12:02');
-		$dateRel = Temporal::getRelativeDate('2020-01-01 07:12:02');
-
-		$assertXml=<<<XML
-<?xml version="1.0"?>
-<notes>
-  <note date="$date" date_rel="$dateRel" id="1" iid="4" link="http://localhost/notification/1" msg="A test reply from an item" msg_cache="A test reply from an item" msg_html="A test reply from an item" msg_plain="A test reply from an item" name="Reply to" name_cache="Reply to" otype="item" parent="" photo="http://localhost/" seen="false" timestamp="1577880722" type="8" uid="42" url="http://localhost/display/1" verb="http://activitystrea.ms/schema/1.0/post"/>
-</notes>
-XML;
-		self::assertXmlStringEqualsXmlString($assertXml, $result);
-		*/
-	}
-
-	/**
-	 * Test the api_friendica_notification() function with an JSON result.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaNotificationWithJsonResult()
-	{
-		// DI::args()->setArgv(['api', 'friendica', 'notification']);
-		// $result = json_encode(api_friendica_notification('json'));
-		// self::assertJson($result);
-	}
-
-	/**
 	 * Test the api_friendica_notification_seen() function.
 	 *
 	 * @return void
@@ -3799,19 +3346,5 @@ XML;
 	public function testApiFriendicaDirectMessagesSearch()
 	{
 		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_saved_searches_list() function.
-	 *
-	 * @return void
-	 */
-	public function testApiSavedSearchesList()
-	{
-		// $result = api_saved_searches_list('json');
-		// self::assertEquals(1, $result['terms'][0]['id']);
-		// self::assertEquals(1, $result['terms'][0]['id_str']);
-		// self::assertEquals('Saved search', $result['terms'][0]['name']);
-		// self::assertEquals('Saved search', $result['terms'][0]['query']);
 	}
 }

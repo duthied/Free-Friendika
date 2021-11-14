@@ -42,6 +42,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -282,7 +283,7 @@ function api_call(App $a, App\Arguments $args = null)
 		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString()]);
 		throw new NotFoundException();
 	} catch (HTTPException $e) {
-		BaseApi::error($e->getCode(), $e->getDescription(), $e->getMessage(), $type);
+		DI::apiResponse()->error($e->getCode(), $e->getDescription(), $e->getMessage(), $type);
 	}
 }
 
@@ -420,7 +421,7 @@ function api_get_user($contact_id = null)
 		if (!empty(DI::args()->getArgv()[$argid])) {
 			$data = explode(".", DI::args()->getArgv()[$argid]);
 			if (count($data) > 1) {
-				list($user, $null) = $data;
+				[$user, $null] = $data;
 			}
 		}
 		if (is_numeric($user)) {
@@ -706,7 +707,7 @@ function api_account_verify_credentials($type)
 	unset($user_info["uid"]);
 	unset($user_info["self"]);
 
-	return BaseApi::formatData("user", $type, ['user' => $user_info]);
+	return DI::apiResponse()->formatData("user", $type, ['user' => $user_info]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1095,7 +1096,7 @@ function api_status_show($type, $item_id)
 
 	Logger::info(API_LOG_PREFIX . 'End', ['action' => 'get_status', 'status_info' => $status_info]);
 
-	return BaseApi::formatData('statuses', $type, ['status' => $status_info]);
+	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
 }
 
 /**
@@ -1161,7 +1162,7 @@ function api_users_show($type)
 	unset($user_info['uid']);
 	unset($user_info['self']);
 
-	return BaseApi::formatData('user', $type, ['user' => $user_info]);
+	return DI::apiResponse()->formatData('user', $type, ['user' => $user_info]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1217,7 +1218,7 @@ function api_users_search($type)
 		throw new BadRequestException('No search term specified.');
 	}
 
-	return BaseApi::formatData('users', $type, $userlist);
+	return DI::apiResponse()->formatData('users', $type, $userlist);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1253,7 +1254,7 @@ function api_users_lookup($type)
 		throw new NotFoundException;
 	}
 
-	return BaseApi::formatData("users", $type, ['users' => $users]);
+	return DI::apiResponse()->formatData("users", $type, ['users' => $users]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1316,7 +1317,7 @@ function api_search($type)
 		DBA::close($tags);
 
 		if (empty($uriids)) {
-			return BaseApi::formatData('statuses', $type, $data);
+			return DI::apiResponse()->formatData('statuses', $type, $data);
 		}
 
 		$condition = ['uri-id' => $uriids];
@@ -1357,7 +1358,7 @@ function api_search($type)
 
 	bindComments($data['status']);
 
-	return BaseApi::formatData('statuses', $type, $data);
+	return DI::apiResponse()->formatData('statuses', $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1454,7 +1455,7 @@ function api_statuses_home_timeline($type)
 			break;
 	}
 
-	return BaseApi::formatData("statuses", $type, $data);
+	return DI::apiResponse()->formatData("statuses", $type, $data);
 }
 
 
@@ -1540,7 +1541,7 @@ function api_statuses_public_timeline($type)
 			break;
 	}
 
-	return BaseApi::formatData("statuses", $type, $data);
+	return DI::apiResponse()->formatData("statuses", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1599,7 +1600,7 @@ function api_statuses_networkpublic_timeline($type)
 			break;
 	}
 
-	return BaseApi::formatData("statuses", $type, $data);
+	return DI::apiResponse()->formatData("statuses", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1675,10 +1676,10 @@ function api_statuses_show($type)
 
 	if ($conversation) {
 		$data = ['status' => $ret];
-		return BaseApi::formatData("statuses", $type, $data);
+		return DI::apiResponse()->formatData("statuses", $type, $data);
 	} else {
 		$data = ['status' => $ret[0]];
-		return BaseApi::formatData("status", $type, $data);
+		return DI::apiResponse()->formatData("status", $type, $data);
 	}
 }
 
@@ -1757,7 +1758,7 @@ function api_conversation_show($type)
 	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
-	return BaseApi::formatData("statuses", $type, $data);
+	return DI::apiResponse()->formatData("statuses", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1968,7 +1969,7 @@ function api_statuses_mentions($type)
 			break;
 	}
 
-	return BaseApi::formatData("statuses", $type, $data);
+	return DI::apiResponse()->formatData("statuses", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -2046,7 +2047,7 @@ function api_statuses_user_timeline($type)
 			break;
 	}
 
-	return BaseApi::formatData("statuses", $type, $data);
+	return DI::apiResponse()->formatData("statuses", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -2128,7 +2129,7 @@ function api_favorites_create_destroy($type)
 			break;
 	}
 
-	return BaseApi::formatData("status", $type, $data);
+	return DI::apiResponse()->formatData("status", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -2201,7 +2202,7 @@ function api_favorites($type)
 			break;
 	}
 
-	return BaseApi::formatData("statuses", $type, $data);
+	return DI::apiResponse()->formatData("statuses", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -2710,7 +2711,7 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
 	}
 
 	foreach ((array)$items as $item) {
-		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
+		[$status_user, $author_user, $owner_user] = api_item_get_user($a, $item);
 
 		// Look if the posts are matching if they should be filtered by user id
 		if ($filter_user && ($status_user["id"] != $user_info["id"])) {
@@ -2742,7 +2743,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	$a = Friendica\DI::app();
 
 	if (empty($status_user) || empty($author_user) || empty($owner_user)) {
-		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
+		[$status_user, $author_user, $owner_user] = api_item_get_user($a, $item);
 	}
 
 	DI::contentItem()->localize($item);
@@ -2907,7 +2908,7 @@ function api_lists_list($type)
 {
 	$ret = [];
 	/// @TODO $ret is not filled here?
-	return BaseApi::formatData('lists', $type, ["lists_list" => $ret]);
+	return DI::apiResponse()->formatData('lists', $type, ["lists_list" => $ret]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -2957,7 +2958,7 @@ function api_lists_ownerships($type)
 			'mode' => $mode
 		];
 	}
-	return BaseApi::formatData("lists", $type, ['lists' => ['lists' => $lists]]);
+	return DI::apiResponse()->formatData("lists", $type, ['lists' => ['lists' => $lists]]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3037,7 +3038,7 @@ function api_lists_statuses($type)
 			break;
 	}
 
-	return BaseApi::formatData("statuses", $type, $data);
+	return DI::apiResponse()->formatData("statuses", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3151,7 +3152,7 @@ function api_statuses_friends($type)
 	if ($data === false) {
 		return false;
 	}
-	return BaseApi::formatData("users", $type, $data);
+	return DI::apiResponse()->formatData("users", $type, $data);
 }
 
 /**
@@ -3170,7 +3171,7 @@ function api_statuses_followers($type)
 	if ($data === false) {
 		return false;
 	}
-	return BaseApi::formatData("users", $type, $data);
+	return DI::apiResponse()->formatData("users", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3194,7 +3195,7 @@ function api_blocks_list($type)
 	if ($data === false) {
 		return false;
 	}
-	return BaseApi::formatData("users", $type, $data);
+	return DI::apiResponse()->formatData("users", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3223,7 +3224,7 @@ function api_friendships_incoming($type)
 		$ids[] = $user['id'];
 	}
 
-	return BaseApi::formatData("ids", $type, ['id' => $ids]);
+	return DI::apiResponse()->formatData("ids", $type, ['id' => $ids]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3264,7 +3265,7 @@ function api_statusnet_config($type)
 		],
 	];
 
-	return BaseApi::formatData('config', $type, ['config' => $config]);
+	return DI::apiResponse()->formatData('config', $type, ['config' => $config]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3348,7 +3349,7 @@ function api_direct_messages_new($type)
 			break;
 	}
 
-	return BaseApi::formatData("direct-messages", $type, $data);
+	return DI::apiResponse()->formatData("direct-messages", $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3387,7 +3388,7 @@ function api_direct_messages_destroy($type)
 	// error if no id or parenturi specified (for clients posting parent-uri as well)
 	if ($verbose == "true" && ($id == 0 || $parenturi == "")) {
 		$answer = ['result' => 'error', 'message' => 'message id or parenturi not specified'];
-		return BaseApi::formatData("direct_messages_delete", $type, ['$result' => $answer]);
+		return DI::apiResponse()->formatData("direct_messages_delete", $type, ['$result' => $answer]);
 	}
 
 	// BadRequestException if no id specified (for clients using Twitter API)
@@ -3402,7 +3403,7 @@ function api_direct_messages_destroy($type)
 	if (!DBA::exists('mail', ["`uid` = ? AND `id` = ? " . $sql_extra, $uid, $id])) {
 		if ($verbose == "true") {
 			$answer = ['result' => 'error', 'message' => 'message id not in database'];
-			return BaseApi::formatData("direct_messages_delete", $type, ['$result' => $answer]);
+			return DI::apiResponse()->formatData("direct_messages_delete", $type, ['$result' => $answer]);
 		}
 		/// @todo BadRequestException ok for Twitter API clients?
 		throw new BadRequestException('message id not in database');
@@ -3415,10 +3416,10 @@ function api_direct_messages_destroy($type)
 		if ($result) {
 			// return success
 			$answer = ['result' => 'ok', 'message' => 'message deleted'];
-			return BaseApi::formatData("direct_message_delete", $type, ['$result' => $answer]);
+			return DI::apiResponse()->formatData("direct_message_delete", $type, ['$result' => $answer]);
 		} else {
 			$answer = ['result' => 'error', 'message' => 'unknown error'];
-			return BaseApi::formatData("direct_messages_delete", $type, ['$result' => $answer]);
+			return DI::apiResponse()->formatData("direct_messages_delete", $type, ['$result' => $answer]);
 		}
 	}
 	/// @todo return JSON data like Twitter API not yet implemented
@@ -3503,8 +3504,9 @@ function api_friendships_destroy($type)
 	// Set screen_name since Twidere requests it
 	$contact['screen_name'] = $contact['nick'];
 
-	return BaseApi::formatData('friendships-destroy', $type, ['user' => $contact]);
+	return DI::apiResponse()->formatData('friendships-destroy', $type, ['user' => $contact]);
 }
+
 api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, API_METHOD_POST);
 
 /**
@@ -3584,7 +3586,7 @@ function api_direct_messages_box($type, $box, $verbose)
 	));
 	if ($verbose == "true" && !DBA::isResult($r)) {
 		$answer = ['result' => 'error', 'message' => 'no mails available'];
-		return BaseApi::formatData("direct_messages_all", $type, ['$result' => $answer]);
+		return DI::apiResponse()->formatData("direct_messages_all", $type, ['$result' => $answer]);
 	}
 
 	$ret = [];
@@ -3612,7 +3614,7 @@ function api_direct_messages_box($type, $box, $verbose)
 			break;
 	}
 
-	return BaseApi::formatData("direct-messages", $type, $data);
+	return DI::apiResponse()->formatData("direct-messages", $type, $data);
 }
 
 /**
@@ -3726,7 +3728,7 @@ function api_fr_photos_list($type)
 			}
 		}
 	}
-	return BaseApi::formatData("photos", $type, $data);
+	return DI::apiResponse()->formatData("photos", $type, $data);
 }
 
 /**
@@ -3798,7 +3800,7 @@ function api_fr_photo_create_update($type)
 
 		// return success of updating or error message
 		if (!is_null($data)) {
-			return BaseApi::formatData("photo_create", $type, $data);
+			return DI::apiResponse()->formatData("photo_create", $type, $data);
 		} else {
 			throw new InternalServerErrorException("unknown error - uploading photo failed, see Friendica log for more information");
 		}
@@ -3849,18 +3851,18 @@ function api_fr_photo_create_update($type)
 			$media = $_FILES['media'];
 			$data = save_media_to_database("photo", $media, $type, $album, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $desc, Photo::DEFAULT, $visibility, $photo_id);
 			if (!is_null($data)) {
-				return BaseApi::formatData("photo_update", $type, $data);
+				return DI::apiResponse()->formatData("photo_update", $type, $data);
 			}
 		}
 
 		// return success of updating or error message
 		if ($result) {
 			$answer = ['result' => 'updated', 'message' => 'Image id `' . $photo_id . '` has been updated.'];
-			return BaseApi::formatData("photo_update", $type, ['$result' => $answer]);
+			return DI::apiResponse()->formatData("photo_update", $type, ['$result' => $answer]);
 		} else {
 			if ($nothingtodo) {
 				$answer = ['result' => 'cancelled', 'message' => 'Nothing to update for image id `' . $photo_id . '`.'];
-				return BaseApi::formatData("photo_update", $type, ['$result' => $answer]);
+				return DI::apiResponse()->formatData("photo_update", $type, ['$result' => $answer]);
 			}
 			throw new InternalServerErrorException("unknown error - update photo entry in database failed");
 		}
@@ -3893,7 +3895,7 @@ function api_fr_photo_detail($type)
 	// prepare json/xml output with data from database for the requested photo
 	$data = prepare_photo_data($type, $scale, $photo_id);
 
-	return BaseApi::formatData("photo_detail", $type, $data);
+	return DI::apiResponse()->formatData("photo_detail", $type, $data);
 }
 
 
@@ -4624,8 +4626,9 @@ function api_friendica_group_show($type)
 		}
 		$grps[] = ['name' => $rr['name'], 'gid' => $rr['id'], $user_element => $users];
 	}
-	return BaseApi::formatData("groups", $type, ['group' => $grps]);
+	return DI::apiResponse()->formatData("groups", $type, ['group' => $grps]);
 }
+
 api_register_func('api/friendica/group_show', 'api_friendica_group_show', true);
 
 
@@ -4681,7 +4684,7 @@ function api_friendica_group_delete($type)
 	if ($ret) {
 		// return success
 		$success = ['success' => $ret, 'gid' => $gid, 'name' => $name, 'status' => 'deleted', 'wrong users' => []];
-		return BaseApi::formatData("group_delete", $type, ['result' => $success]);
+		return DI::apiResponse()->formatData("group_delete", $type, ['result' => $success]);
 	} else {
 		throw new BadRequestException('other API error');
 	}
@@ -4734,9 +4737,10 @@ function api_lists_destroy($type)
 			'user' => $user_info
 		];
 
-		return BaseApi::formatData("lists", $type, ['lists' => $list]);
+		return DI::apiResponse()->formatData("lists", $type, ['lists' => $list]);
 	}
 }
+
 api_register_func('api/lists/destroy', 'api_lists_destroy', true, API_METHOD_DELETE);
 
 /**
@@ -4822,8 +4826,9 @@ function api_friendica_group_create($type)
 
 	$success = group_create($name, $uid, $users);
 
-	return BaseApi::formatData("group_create", $type, ['result' => $success]);
+	return DI::apiResponse()->formatData("group_create", $type, ['result' => $success]);
 }
+
 api_register_func('api/friendica/group_create', 'api_friendica_group_create', true, API_METHOD_POST);
 
 /**
@@ -4861,9 +4866,10 @@ function api_lists_create($type)
 			'user' => $user_info
 		];
 
-		return BaseApi::formatData("lists", $type, ['lists'=>$grp]);
+		return DI::apiResponse()->formatData("lists", $type, ['lists' => $grp]);
 	}
 }
+
 api_register_func('api/lists/create', 'api_lists_create', true, API_METHOD_POST);
 
 /**
@@ -4934,7 +4940,7 @@ function api_friendica_group_update($type)
 	// return success message incl. missing users in array
 	$status = ($erroraddinguser ? "missing user" : "ok");
 	$success = ['success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers];
-	return BaseApi::formatData("group_update", $type, ['result' => $success]);
+	return DI::apiResponse()->formatData("group_update", $type, ['result' => $success]);
 }
 
 api_register_func('api/friendica/group_update', 'api_friendica_group_update', true, API_METHOD_POST);
@@ -4986,7 +4992,7 @@ function api_lists_update($type)
 			'user' => $user_info
 		];
 
-		return BaseApi::formatData("lists", $type, ['lists' => $list]);
+		return DI::apiResponse()->formatData("lists", $type, ['lists' => $list]);
 	}
 }
 
@@ -5038,12 +5044,12 @@ function api_friendica_notification_seen($type)
 				// we found the item, return it to the user
 				$ret  = api_format_items([$item], $user_info, false, $type);
 				$data = ['status' => $ret];
-				return BaseApi::formatData('status', $type, $data);
+				return DI::apiResponse()->formatData('status', $type, $data);
 			}
 			// the item can't be found, but we set the notification as seen, so we count this as a success
 		}
 
-		return BaseApi::formatData('result', $type, ['result' => 'success']);
+		return DI::apiResponse()->formatData('result', $type, ['result' => 'success']);
 	} catch (NotFoundException $e) {
 		throw new BadRequestException('Invalid argument', $e);
 	} catch (Exception $e) {
@@ -5084,7 +5090,7 @@ function api_friendica_direct_messages_search($type, $box = "")
 	// error if no searchstring specified
 	if ($searchstring == "") {
 		$answer = ['result' => 'error', 'message' => 'searchstring not specified'];
-		return BaseApi::formatData("direct_messages_search", $type, ['$result' => $answer]);
+		return DI::apiResponse()->formatData("direct_messages_search", $type, ['$result' => $answer]);
 	}
 
 	// get data for the specified searchstring
@@ -5119,7 +5125,7 @@ function api_friendica_direct_messages_search($type, $box = "")
 		$success = ['success' => true, 'search_results' => $ret];
 	}
 
-	return BaseApi::formatData("direct_message_search", $type, ['$result' => $success]);
+	return DI::apiResponse()->formatData("direct_message_search", $type, ['$result' => $success]);
 }
 
 /// @TODO move to top of file or somewhere better

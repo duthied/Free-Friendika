@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\App\Router;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
@@ -34,7 +35,7 @@ class Filters extends BaseApi
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		self::unsupported(Router::POST);
+		DI::apiResponse()->unsupported(Router::POST);
 	}
 
 	/**

@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Friendica\Photoalbum;
 
+use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -42,10 +43,10 @@ class Update extends BaseApi
 		]);
 
 		// we do not allow calls without album string
-		if ($request['album'] == "") {
+		if (empty($request['album'])) {
 			throw new BadRequestException("no albumname specified");
 		}
-		if ($request['album_new'] == "") {
+		if (empty($request['album_new'])) {
 			throw new BadRequestException("no new albumname specified");
 		}
 		// check if album is existing
@@ -58,7 +59,7 @@ class Update extends BaseApi
 		// return success of updating or error message
 		if ($result) {
 			$answer = ['result' => 'updated', 'message' => 'album `' . $request['album'] . '` with all containing photos has been renamed to `' . $request['album_new'] . '`.'];
-			self::exit('photoalbum_update', ['$result' => $answer], $parameters['extension'] ?? null);
+			DI::apiResponse()->exit('photoalbum_update', ['$result' => $answer], $parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error - updating in database failed");
 		}

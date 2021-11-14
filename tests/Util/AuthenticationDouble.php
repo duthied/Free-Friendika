@@ -19,33 +19,14 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Test\Util;
 
-use Friendica\App\Router;
-use Friendica\Core\System;
-use Friendica\DI;
-use Friendica\Module\BaseApi;
+use Friendica\Security\Authentication;
 
-/**
- * @see https://docs.joinmastodon.org/methods/timelines/markers/
- */
-class Markers extends BaseApi
+class AuthenticationDouble extends Authentication
 {
-	public static function post(array $parameters = [])
+	protected function setXAccMgmtStatusHeader(array $user_record)
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-
-		DI::apiResponse()->unsupported(Router::POST);
-	}
-
-	/**
-	 * @param array $parameters
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function rawContent(array $parameters = [])
-	{
-		self::checkAllowedScope(self::SCOPE_READ);
-
-		System::jsonExit([]);
+		// Don't set any header..
 	}
 }

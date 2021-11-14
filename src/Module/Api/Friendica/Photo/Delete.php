@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Friendica\Photo;
 
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Module\BaseApi;
@@ -43,7 +44,7 @@ class Delete extends BaseApi
 
 		// do several checks on input parameters
 		// we do not allow calls without photo id
-		if ($request['photo_id'] == null) {
+		if (empty($request['photo_id'])) {
 			throw new BadRequestException("no photo_id specified");
 		}
 
@@ -63,7 +64,7 @@ class Delete extends BaseApi
 			Item::deleteForUser($condition, $uid);
 
 			$result = ['result' => 'deleted', 'message' => 'photo with id `' . $request['photo_id'] . '` has been deleted from server.'];
-			self::exit('photo_delete', ['$result' => $result], $parameters['extension'] ?? null);
+			DI::apiResponse()->exit('photo_delete', ['$result' => $result], $parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error on deleting photo from database table");
 		}

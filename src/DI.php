@@ -431,6 +431,15 @@ abstract class DI
 	}
 
 	//
+	// "Module" namespace
+	//
+
+	public static function apiResponse(): Module\Api\ApiResponse
+	{
+		return self::$dice->create(Module\Api\ApiResponse::class);
+	}
+
+	//
 	// "Network" namespace
 	//
 

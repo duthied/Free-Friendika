@@ -19,33 +19,55 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Test\Util;
 
-use Friendica\App\Router;
-use Friendica\Core\System;
-use Friendica\DI;
-use Friendica\Module\BaseApi;
+use Friendica\Module\Api\ApiResponse;
 
-/**
- * @see https://docs.joinmastodon.org/methods/timelines/markers/
- */
-class Markers extends BaseApi
+class ApiResponseDouble extends ApiResponse
 {
-	public static function post(array $parameters = [])
-	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+	/**
+	 * The header list
+	 *
+	 * @var string[]
+	 */
+	protected static $header = [];
 
-		DI::apiResponse()->unsupported(Router::POST);
+	/**
+	 * The printed output
+	 *
+	 * @var string
+	 */
+	protected static $output = '';
+
+	/**
+	 * @return string[]
+	 */
+	public static function getHeader(): array
+	{
+		return static::$header;
 	}
 
 	/**
-	 * @param array $parameters
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @return string
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function getOutput(): string
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		return static::$output;
+	}
 
-		System::jsonExit([]);
+	public static function reset()
+	{
+		self::$output = '';
+		self::$header = [];
+	}
+
+	protected function setHeader(string $header)
+	{
+		static::$header[] = $header;
+	}
+
+	protected function printOutput(string $output)
+	{
+		static::$output .= $output;
 	}
 }

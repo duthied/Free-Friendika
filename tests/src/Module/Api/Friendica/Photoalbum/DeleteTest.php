@@ -19,33 +19,28 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Test\src\Module\Api\Friendica\Photoalbum;
 
-use Friendica\App\Router;
-use Friendica\Core\System;
-use Friendica\DI;
-use Friendica\Module\BaseApi;
+use Friendica\Module\Api\Friendica\Photoalbum\Delete;
+use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Test\src\Module\Api\ApiTest;
 
-/**
- * @see https://docs.joinmastodon.org/methods/timelines/markers/
- */
-class Markers extends BaseApi
+class DeleteTest extends ApiTest
 {
-	public static function post(array $parameters = [])
+	public function testEmpty()
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-
-		DI::apiResponse()->unsupported(Router::POST);
+		$this->expectException(BadRequestException::class);
+		Delete::rawContent();
 	}
 
-	/**
-	 * @param array $parameters
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function rawContent(array $parameters = [])
+	public function testWrong()
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->expectException(BadRequestException::class);
+		Delete::rawContent(['album' => 'album_name']);
+	}
 
-		System::jsonExit([]);
+	public function testValid()
+	{
+		self::markTestIncomplete('We need to add a dataset for this.');
 	}
 }
