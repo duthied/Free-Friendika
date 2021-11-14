@@ -35,7 +35,7 @@ use Friendica\Util\XML;
  */
 class Babel extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		function visible_whitespace($s)
 		{

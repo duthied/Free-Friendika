@@ -38,7 +38,7 @@ use Friendica\Network\HTTPException;
  */
 class Directory extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$app = DI::app();
 		$config = DI::config();

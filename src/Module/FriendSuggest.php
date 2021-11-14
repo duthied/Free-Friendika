@@ -38,16 +38,16 @@ use Friendica\Worker\Delivery;
  */
 class FriendSuggest extends BaseModule
 {
-	public static function init(array $parameters = [])
+	public static function init()
 	{
 		if (!local_user()) {
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
-		$cid = intval($parameters['contact']);
+		$cid = intval(static::$parameters['contact']);
 
 		// We do query the "uid" as well to ensure that it is our contact
 		if (!DI::dba()->exists('contact', ['id' => $cid, 'uid' => local_user()])) {
@@ -83,9 +83,9 @@ class FriendSuggest extends BaseModule
 		info(DI::l10n()->t('Friend suggestion sent.'));
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		$cid = intval($parameters['contact']);
+		$cid = intval(static::$parameters['contact']);
 
 		$contact = DI::dba()->selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {

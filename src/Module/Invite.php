@@ -35,7 +35,7 @@ use Friendica\Util\Strings;
  */
 class Invite extends BaseModule
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
@@ -124,7 +124,7 @@ class Invite extends BaseModule
 		info(DI::l10n()->tt('%d message sent.', '%d messages sent.', $total));
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));

@@ -41,7 +41,7 @@ use Friendica\Protocol\Feed as ProtocolFeed;
  */
 class Feed extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$a = DI::app();
 
@@ -68,7 +68,7 @@ class Feed extends BaseModule
 		}
 
 		header("Content-type: application/atom+xml; charset=utf-8");
-		echo ProtocolFeed::atom($parameters['nickname'], $last_update, 10, $type, $nocache, true);
+		echo ProtocolFeed::atom(static::$parameters['nickname'], $last_update, 10, $type, $nocache, true);
 		exit();
 	}
 }

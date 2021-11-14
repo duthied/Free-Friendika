@@ -31,7 +31,7 @@ use LightOpenID;
  */
 class OpenID extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (DI::config()->get('system', 'no_openid')) {
 			DI::baseUrl()->redirect();

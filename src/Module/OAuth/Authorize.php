@@ -35,10 +35,9 @@ class Authorize extends BaseApi
 	private static $oauth_code = '';
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$request = self::getRequest([
 			'force_login'   => '', // Forces the user to re-login, which is necessary for authorizing with multiple accounts from the same instance.
@@ -98,7 +97,7 @@ class Authorize extends BaseApi
 		self::$oauth_code = $token['code'];
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (empty(self::$oauth_code)) {
 			return '';

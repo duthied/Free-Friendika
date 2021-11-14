@@ -54,24 +54,24 @@ class LegacyModule extends BaseModule
 		require_once $file_path;
 	}
 
-	public static function init(array $parameters = [])
+	public static function init()
 	{
-		self::runModuleFunction('init', $parameters);
+		self::runModuleFunction('init', static::$parameters);
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		return self::runModuleFunction('content', $parameters);
+		return self::runModuleFunction('content', static::$parameters);
 	}
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
-		self::runModuleFunction('post', $parameters);
+		self::runModuleFunction('post', static::$parameters);
 	}
 
-	public static function afterpost(array $parameters = [])
+	public static function afterpost()
 	{
-		self::runModuleFunction('afterpost', $parameters);
+		self::runModuleFunction('afterpost', static::$parameters);
 	}
 
 	/**

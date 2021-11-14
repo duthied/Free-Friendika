@@ -33,10 +33,9 @@ use Friendica\Network\HTTPException;
 class Direct extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

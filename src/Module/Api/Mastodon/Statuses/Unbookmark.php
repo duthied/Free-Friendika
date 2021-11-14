@@ -33,16 +33,16 @@ use Friendica\Module\BaseApi;
  */
 class Unbookmark extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => $parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => static::$parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -53,6 +53,6 @@ class Unbookmark extends BaseApi
 
 		Item::update(['starred' => false], ['id' => $item['id']]);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId(static::$parameters['id'], $uid)->toArray());
 	}
 }

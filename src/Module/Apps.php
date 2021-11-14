@@ -31,7 +31,7 @@ use Friendica\DI;
  */
 class Apps extends BaseModule
 {
-	public static function init(array $parameters = [])
+	public static function init()
 	{
 		$privateaddons = DI::config()->get('config', 'private_addons');
 		if ($privateaddons === "1" && !local_user()) {
@@ -39,7 +39,7 @@ class Apps extends BaseModule
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$apps = Nav::getAppMenu();
 

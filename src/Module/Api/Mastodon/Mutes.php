@@ -32,19 +32,18 @@ use Friendica\Module\BaseApi;
 class Mutes extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $parameters['id'];
+		$id = static::$parameters['id'];
 		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -73,7 +72,7 @@ class Mutes extends BaseApi
 			$params['order'] = ['cid'];
 		}
 
-		$followers = DBA::select('user-contact', ['cid'], $condition, $parameters);
+		$followers = DBA::select('user-contact', ['cid'], $condition, static::$parameters);
 		while ($follower = DBA::fetch($followers)) {
 			self::setBoundaries($follower['cid']);
 			$accounts[] = DI::mstdnAccount()->createFromContactId($follower['cid'], $uid);

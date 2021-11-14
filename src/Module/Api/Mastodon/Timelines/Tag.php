@@ -35,15 +35,14 @@ use Friendica\Network\HTTPException;
 class Tag extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['hashtag'])) {
+		if (empty(static::$parameters['hashtag'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
@@ -70,7 +69,7 @@ class Tag extends BaseApi
 
 		$condition = ["`name` = ? AND (`uid` = ? OR (`uid` = ? AND NOT `global`))
 			AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
-			$parameters['hashtag'], 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
+			static::$parameters['hashtag'], 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
 
 		if ($request['local']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);

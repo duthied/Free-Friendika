@@ -31,10 +31,9 @@ use Friendica\Object\Api\Mastodon\Instance as InstanceEntity;
 class Instance extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		System::jsonExit(InstanceEntity::get());
 	}

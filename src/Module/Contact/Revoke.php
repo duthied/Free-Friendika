@@ -37,13 +37,13 @@ class Revoke extends BaseModule
 	/** @var array */
 	private static $contact;
 
-	public static function init(array $parameters = [])
+	public static function init()
 	{
 		if (!local_user()) {
 			return;
 		}
 
-		$data = Model\Contact::getPublicAndUserContactID($parameters['id'], local_user());
+		$data = Model\Contact::getPublicAndUserContactID(static::$parameters['id'], local_user());
 		if (!DBA::isResult($data)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Unknown contact.'));
 		}
@@ -63,13 +63,13 @@ class Revoke extends BaseModule
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException();
 		}
 
-		self::checkFormSecurityTokenRedirectOnError('contact/' . $parameters['id'], 'contact_revoke');
+		self::checkFormSecurityTokenRedirectOnError('contact/' . static::$parameters['id'], 'contact_revoke');
 
 		$result = Model\Contact::revokeFollow(self::$contact);
 		if ($result === true) {
@@ -80,10 +80,10 @@ class Revoke extends BaseModule
 			notice(DI::l10n()->t('Unable to revoke follow, please try again later or contact the administrator.'));
 		}
 
-		DI::baseUrl()->redirect('contact/' . $parameters['id']);
+		DI::baseUrl()->redirect('contact/' . static::$parameters['id']);
 	}
 
-	public static function content(array $parameters = []): string
+	public static function content(): string
 	{
 		if (!local_user()) {
 			return Login::form($_SERVER['REQUEST_URI']);

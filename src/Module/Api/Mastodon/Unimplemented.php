@@ -31,46 +31,41 @@ use Friendica\Module\BaseApi;
 class Unimplemented extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function delete(array $parameters = [])
+	public static function delete()
 	{
 		DI::apiResponse()->unsupported(Router::DELETE);
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function patch(array $parameters = [])
+	public static function patch()
 	{
 		DI::apiResponse()->unsupported(Router::PATCH);
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		DI::apiResponse()->unsupported(Router::POST);
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function put(array $parameters = [])
+	public static function put()
 	{
 		DI::apiResponse()->unsupported(Router::PUT);
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		DI::apiResponse()->unsupported(Router::GET);
 	}

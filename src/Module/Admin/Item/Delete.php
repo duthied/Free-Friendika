@@ -29,7 +29,7 @@ use Friendica\Util\Strings;
 
 class Delete extends BaseAdmin
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAdminAccess();
 
@@ -55,9 +55,9 @@ class Delete extends BaseAdmin
 		DI::baseUrl()->redirect('admin/item/delete');
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$t = Renderer::getMarkupTemplate('admin/item/delete.tpl');
 

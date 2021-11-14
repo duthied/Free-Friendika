@@ -31,17 +31,17 @@ use Friendica\Module\BaseApi;
  */
 class Index extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);		
 	}
 
-	public static function delete(array $parameters = [])
+	public static function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 	}
 
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		echo api_call(DI::app());
 		exit();

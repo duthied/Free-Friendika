@@ -33,13 +33,13 @@ use Friendica\Network\HTTPException;
 
 class Crop extends BaseSettings
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		if (!Session::isAuthenticated()) {
 			return;
 		}
 
-		$photo_prefix = $parameters['guid'];
+		$photo_prefix = static::$parameters['guid'];
 		$resource_id = $photo_prefix;
 		$scale = 0;
 		if (substr($photo_prefix, -2, 1) == '-') {
@@ -160,7 +160,7 @@ class Crop extends BaseSettings
 		DI::baseUrl()->redirect($path);
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (!Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
@@ -168,7 +168,7 @@ class Crop extends BaseSettings
 
 		parent::content();
 
-		$resource_id = $parameters['guid'];
+		$resource_id = static::$parameters['guid'];
 
 		$photos = Photo::selectToArray([], ['resource-id' => $resource_id, 'uid' => local_user()], ['order' => ['scale' => false]]);
 		if (!DBA::isResult($photos)) {

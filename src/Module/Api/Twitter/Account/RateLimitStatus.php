@@ -30,9 +30,9 @@ use Friendica\Util\DateTimeFormat;
  */
 class RateLimitStatus extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
-		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
+		if (!empty(static::$parameters['extension']) && (static::$parameters['extension'] == 'xml')) {
 			$hash = [
 				'remaining-hits'        => '150',
 				'@attributes'           => ["type" => "integer"],
@@ -52,6 +52,6 @@ class RateLimitStatus extends BaseApi
 			];
 		}
 
-		DI::apiResponse()->exit('hash', ['hash' => $hash], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('hash', ['hash' => $hash], static::$parameters['extension'] ?? null);
 	}
 }

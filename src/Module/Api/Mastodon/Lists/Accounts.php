@@ -35,30 +35,29 @@ use Friendica\Module\BaseApi;
  */
 class Accounts extends BaseApi
 {
-	public static function delete(array $parameters = [])
+	public static function delete()
 	{
 		DI::apiResponse()->unsupported(Router::DELETE);
 	}
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		DI::apiResponse()->unsupported(Router::POST);
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $parameters['id'];
+		$id = static::$parameters['id'];
 		if (!DBA::exists('group', ['id' => $id, 'uid' => $uid])) {
 			DI::mstdnError()->RecordNotFound();
 		}

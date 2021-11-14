@@ -30,14 +30,14 @@ use Friendica\Module\BaseAdmin;
 
 class DBSync extends BaseAdmin
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$a = DI::app();
 
-		$action = $parameters['action'] ?? '';
-		$update = $parameters['update'] ?? 0;
+		$action = static::$parameters['action'] ?? '';
+		$update = static::$parameters['update'] ?? 0;
 
 		switch ($action) {
 			case 'mark':

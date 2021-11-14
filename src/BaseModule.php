@@ -45,24 +45,16 @@ abstract class BaseModule implements ICanHandleRequests
 	}
 
 	/**
-	 * @return array
-	 */
-	public static function getParameters(): array
-	{
-		return self::$parameters;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
-	public static function init(array $parameters = [])
+	public static function init()
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		// echo '';
 		// exit;
@@ -71,7 +63,7 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		return '';
 	}
@@ -79,21 +71,21 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function delete(array $parameters = [])
+	public static function delete()
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function patch(array $parameters = [])
+	public static function patch()
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		// DI::baseurl()->redirect('module');
 	}
@@ -101,14 +93,14 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function afterpost(array $parameters = [])
+	public static function afterpost()
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function put(array $parameters = [])
+	public static function put()
 	{
 	}
 

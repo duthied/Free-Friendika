@@ -31,7 +31,7 @@ use Friendica\Object\Api\Friendica\Notification as ApiNotification;
  */
 class Notification extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
@@ -43,7 +43,7 @@ class Notification extends BaseApi
 			$notifications[] = new ApiNotification($Notify);
 		}
 
-		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
+		if (!empty(static::$parameters['extension']) && (static::$parameters['extension'] == 'xml')) {
 			$xmlnotes = [];
 			foreach ($notifications as $notification) {
 				$xmlnotes[] = ['@attributes' => $notification->toArray()];
@@ -56,6 +56,6 @@ class Notification extends BaseApi
 			$result = false;
 		}
 
-		DI::apiResponse()->exit('notes', ['note' => $result], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('notes', ['note' => $result], static::$parameters['extension'] ?? null);
 	}
 }

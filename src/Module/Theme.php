@@ -30,11 +30,11 @@ use Friendica\Util\Strings;
  */
 class Theme extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		header('Content-Type: text/css');
 
-		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
 
 		if (file_exists("view/theme/$theme/theme.php")) {
 			require_once "view/theme/$theme/theme.php";

@@ -28,7 +28,7 @@ use Friendica\Module\BaseAdmin;
 
 class Features extends BaseAdmin
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAdminAccess();
 
@@ -60,9 +60,9 @@ class Features extends BaseAdmin
 		DI::baseUrl()->redirect('admin/features');
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$features = [];
 

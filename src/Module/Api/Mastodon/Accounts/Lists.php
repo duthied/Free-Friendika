@@ -33,19 +33,18 @@ use Friendica\Module\BaseApi;
 class Lists extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $parameters['id'];
+		$id = static::$parameters['id'];
 		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
 			DI::mstdnError()->RecordNotFound();
 		}

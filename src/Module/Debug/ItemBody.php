@@ -31,17 +31,17 @@ use Friendica\Network\HTTPException;
  */
 class ItemBody extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Access denied.'));
 		}
 
-		if (empty($parameters['item'])) {
+		if (empty(static::$parameters['item'])) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Item not found.'));
 		}
 
-		$itemId = intval($parameters['item']);
+		$itemId = intval(static::$parameters['item']);
 
 		$item = Post::selectFirst(['body'], ['uid' => [0, local_user()], 'uri-id' => $itemId]);
 

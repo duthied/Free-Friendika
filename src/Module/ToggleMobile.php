@@ -29,7 +29,7 @@ use Friendica\DI;
  */
 class ToggleMobile extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$a = DI::app();
 

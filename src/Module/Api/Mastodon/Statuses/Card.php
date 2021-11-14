@@ -33,18 +33,17 @@ use Friendica\Network\HTTPException;
 class Card extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $parameters['id'];
+		$id = static::$parameters['id'];
 
 		if (!Post::exists(['uri-id' => $id, 'uid' => [0, $uid]])) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $id . ' not found' . ($uid ? ' for user ' . $uid : '.'));

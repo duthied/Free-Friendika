@@ -35,16 +35,16 @@ use Friendica\Module\BaseApi;
  */
 class Unreblog extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id', 'network'], ['uri-id' => $parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectFirstForUser($uid, ['id', 'network'], ['uri-id' => static::$parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -55,6 +55,6 @@ class Unreblog extends BaseApi
 
 		Item::performActivity($item['id'], 'unannounce', $uid);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId(static::$parameters['id'], $uid)->toArray());
 	}
 }

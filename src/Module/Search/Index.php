@@ -41,7 +41,7 @@ use Friendica\Network\HTTPException;
 
 class Index extends BaseSearch
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$search = (!empty($_GET['q']) ? trim(rawurldecode($_GET['q'])) : '');
 

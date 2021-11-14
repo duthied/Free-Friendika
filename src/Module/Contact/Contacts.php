@@ -14,7 +14,7 @@ use Friendica\Network\HTTPException;
 
 class Contacts extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$app = DI::app();
 
@@ -22,8 +22,8 @@ class Contacts extends BaseModule
 			throw new HTTPException\ForbiddenException();
 		}
 
-		$cid = $parameters['id'];
-		$type = $parameters['type'] ?? 'all';
+		$cid = static::$parameters['id'];
+		$type = static::$parameters['type'] ?? 'all';
 		$accounttype = $_GET['accounttype'] ?? '';
 		$accounttypeid = User::getAccountTypeByString($accounttype);
 

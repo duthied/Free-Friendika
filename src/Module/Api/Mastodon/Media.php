@@ -32,7 +32,7 @@ use Friendica\Module\BaseApi;
  */
 class Media extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -53,7 +53,7 @@ class Media extends BaseApi
 		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($media['id']));
 	}
 
-	public static function put(array $parameters = [])
+	public static function put()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -65,34 +65,33 @@ class Media extends BaseApi
 			'focus'       => '', // Two floating points (x,y), comma-delimited ranging from -1.0 to 1.0
 		]);
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$photo = Photo::selectFirst(['resource-id'], ['id' => $parameters['id'], 'uid' => $uid]);
+		$photo = Photo::selectFirst(['resource-id'], ['id' => static::$parameters['id'], 'uid' => $uid]);
 		if (empty($photo['resource-id'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
 		Photo::update(['desc' => $request['description']], ['resource-id' => $photo['resource-id']]);
 
-		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($parameters['id']));
+		System::jsonExit(DI::mstdnAttachment()->createFromPhoto(static::$parameters['id']));
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $parameters['id'];
+		$id = static::$parameters['id'];
 		if (!Photo::exists(['id' => $id, 'uid' => $uid])) {
 			DI::mstdnError()->RecordNotFound();
 		}

@@ -37,9 +37,9 @@ use Friendica\Util\DateTimeFormat;
 
 class Summary extends BaseAdmin
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$a = DI::app();
 

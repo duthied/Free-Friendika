@@ -31,9 +31,9 @@ class View extends BaseAdmin
 {
 	const LIMIT = 500;
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$t = Renderer::getMarkupTemplate('admin/logs/view.tpl');
 		DI::page()->registerFooterScript(Theme::getPathForFile('js/module/admin/logs/view.js'));
@@ -75,7 +75,7 @@ class View extends BaseAdmin
 						->withLimit(self::LIMIT)
 						->withFilters($filters)
 						->withSearch($search);
-			} catch (Exception $e) {
+			} catch (\Exception $e) {
 				$error = DI::l10n()->t('Couldn\'t open <strong>%1$s</strong> log file.<br/>Check to see if file %1$s is readable.', $f);
 			}
 		}

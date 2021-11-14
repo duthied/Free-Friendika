@@ -42,13 +42,13 @@ class Notification extends BaseModule
 	 * @throws \ImagickException
 	 * @throws \Exception
 	 */
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$request_id = $parameters['id'] ?? false;
+		$request_id = static::$parameters['id'] ?? false;
 
 		if ($request_id) {
 			$intro = DI::intro()->selectOneById($request_id, local_user());
@@ -73,7 +73,7 @@ class Notification extends BaseModule
 	 *
 	 * @throws HTTPException\UnauthorizedException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
@@ -101,14 +101,14 @@ class Notification extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \Exception
 	 */
-	public static function content(array $parameters = []): string
+	public static function content(): string
 	{
 		if (!local_user()) {
 			notice(DI::l10n()->t('You must be logged in to show this page.'));
 			return Login::form();
 		}
 
-		$request_id = $parameters['id'] ?? false;
+		$request_id = static::$parameters['id'] ?? false;
 
 		if ($request_id) {
 			$Notify = DI::notify()->selectOneById($request_id);

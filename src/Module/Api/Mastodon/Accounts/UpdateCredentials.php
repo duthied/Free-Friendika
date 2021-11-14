@@ -32,7 +32,7 @@ use Friendica\Util\HTTPInputData;
  */
 class UpdateCredentials extends BaseApi
 {
-	public static function patch(array $parameters = [])
+	public static function patch()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

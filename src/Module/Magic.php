@@ -39,7 +39,7 @@ use Friendica\Util\Strings;
  */
 class Magic extends BaseModule
 {
-	public static function init(array $parameters = [])
+	public static function init()
 	{
 		$a = DI::app();
 		$ret = ['success' => false, 'url' => '', 'message' => ''];

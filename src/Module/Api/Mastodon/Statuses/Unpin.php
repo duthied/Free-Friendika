@@ -32,16 +32,16 @@ use Friendica\Module\BaseApi;
  */
 class Unpin extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => $parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => static::$parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -50,8 +50,8 @@ class Unpin extends BaseApi
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be pinned'));
 		}
 
-		Post\ThreadUser::setPinned($parameters['id'], $uid, false);
+		Post\ThreadUser::setPinned(static::$parameters['id'], $uid, false);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId(static::$parameters['id'], $uid)->toArray());
 	}
 }

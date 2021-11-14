@@ -32,7 +32,7 @@ use Friendica\Protocol\Relay;
  */
 class XSocialRelay extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$config = DI::config();
 

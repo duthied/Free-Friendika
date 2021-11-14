@@ -15,10 +15,10 @@ use Friendica\Network\HTTPException;
  */
 class PermissionTooltip extends \Friendica\BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
-		$type = $parameters['type'];
-		$referenceId = $parameters['id'];
+		$type = static::$parameters['type'];
+		$referenceId = static::$parameters['id'];
 
 		$expectedTypes = ['item', 'photo', 'event'];
 		if (!in_array($type, $expectedTypes)) {

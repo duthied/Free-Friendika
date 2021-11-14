@@ -31,27 +31,27 @@ use Friendica\Model\Group;
  */
 class Lists extends BaseApi
 {
-	public static function delete(array $parameters = [])
+	public static function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		if (!Group::exists($parameters['id'], $uid)) {
+		if (!Group::exists(static::$parameters['id'], $uid)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		if (!Group::remove($parameters['id'])) {
+		if (!Group::remove(static::$parameters['id'])) {
 			DI::mstdnError()->InternalError();
 		}
 
 		System::jsonExit([]);
 	}
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -74,30 +74,29 @@ class Lists extends BaseApi
 		System::jsonExit(DI::mstdnList()->createFromGroupId($id));
 	}
 
-	public static function put(array $parameters = [])
+	public static function put()
 	{
 		$request = self::getRequest([
 			'title'          => '', // The title of the list to be updated.
 			'replies_policy' => '', // One of: "followed", "list", or "none".
 		]);
 
-		if (empty($request['title']) || empty($parameters['id'])) {
+		if (empty($request['title']) || empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		Group::update($parameters['id'], $request['title']);
+		Group::update(static::$parameters['id'], $request['title']);
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			$lists = [];
 
 			$groups = Group::getByUserId($uid);
@@ -106,7 +105,7 @@ class Lists extends BaseApi
 				$lists[] = DI::mstdnList()->createFromGroupId($group['id']);
 			}
 		} else {
-			$id = $parameters['id'];
+			$id = static::$parameters['id'];
 
 			if (!Group::exists($id, $uid)) {
 				DI::mstdnError()->RecordNotFound();

@@ -30,11 +30,11 @@ use Friendica\Util\Strings;
 
 class Details extends BaseAdmin
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAdminAccess();
 
-		$addon = Strings::sanitizeFilePathItem($parameters['addon']);
+		$addon = Strings::sanitizeFilePathItem(static::$parameters['addon']);
 
 		$redirect = 'admin/addons/' . $addon;
 
@@ -52,15 +52,15 @@ class Details extends BaseAdmin
 		DI::baseUrl()->redirect($redirect);
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$a = DI::app();
 
 		$addons_admin = Addon::getAdminList();
 
-		$addon = Strings::sanitizeFilePathItem($parameters['addon']);
+		$addon = Strings::sanitizeFilePathItem(static::$parameters['addon']);
 		if (!is_file("addon/$addon/$addon.php")) {
 			notice(DI::l10n()->t('Addon not found.'));
 			Addon::uninstall($addon);

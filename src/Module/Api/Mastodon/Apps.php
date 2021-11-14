@@ -33,10 +33,9 @@ use Friendica\Util\Network;
 class Apps extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		$request = self::getRequest([
 			'client_name'   => '',

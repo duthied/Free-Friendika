@@ -33,14 +33,13 @@ use Friendica\Module\BaseApi;
 class Context extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
@@ -48,7 +47,7 @@ class Context extends BaseApi
 			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
 		]);
 
-		$id = $parameters['id'];
+		$id = static::$parameters['id'];
 
 		$parents  = [];
 		$children = [];

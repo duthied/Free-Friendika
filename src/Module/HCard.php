@@ -34,14 +34,14 @@ use Friendica\Network\HTTPException;
  */
 class HCard extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		if ((local_user()) && ($parameters['action'] ?? '') === 'view') {
+		if ((local_user()) && (static::$parameters['action'] ?? '') === 'view') {
 			// A logged in user views a profile of a user
 			$nickname = DI::app()->getLoggedInUserNickname();
-		} elseif (empty($parameters['action'])) {
+		} elseif (empty(static::$parameters['action'])) {
 			// Show the profile hCard
-			$nickname = $parameters['profile'];
+			$nickname = static::$parameters['profile'];
 		} else {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('No profile'));
 		}

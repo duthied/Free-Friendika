@@ -34,13 +34,13 @@ use Friendica\BaseModule;
  */
 class Index extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
-		Profile::rawContent($parameters);
+		Profile::rawContent();
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		return Status::content($parameters);
+		return Status::content();
 	}
 }

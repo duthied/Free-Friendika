@@ -36,7 +36,7 @@ use Friendica\Network\HTTPException;
  */
 class Display extends BaseSettings
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
@@ -112,9 +112,9 @@ class Display extends BaseSettings
 		DI::baseUrl()->redirect('settings/display');
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));

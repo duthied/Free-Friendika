@@ -31,7 +31,7 @@ use Friendica\Util\Strings;
  */
 class Hashtag extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$result = [];
 

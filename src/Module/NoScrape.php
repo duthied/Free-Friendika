@@ -35,14 +35,14 @@ use Friendica\Model\User;
  */
 class NoScrape extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$a = DI::app();
 
-		if (isset($parameters['nick'])) {
+		if (isset(static::$parameters['nick'])) {
 			// Get infos about a specific nick (public)
-			$which = $parameters['nick'];
-		} elseif (local_user() && isset($parameters['profile']) && DI::args()->get(2) == 'view') {
+			$which = static::$parameters['nick'];
+		} elseif (local_user() && isset(static::$parameters['profile']) && DI::args()->get(2) == 'view') {
 			// view infos about a known profile (needs a login)
 			$which = $a->getLoggedInUserNickname();
 		} else {

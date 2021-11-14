@@ -34,9 +34,9 @@ use Friendica\Network\HTTPException\BadRequestException;
  */
 class Media extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		$cid = $parameters['id'];
+		$cid = static::$parameters['id'];
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid]);
 		if (empty($contact)) {

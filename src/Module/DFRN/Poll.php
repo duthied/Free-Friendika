@@ -29,11 +29,11 @@ use Friendica\Protocol\OStatus;
  */
 class Poll extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		header("Content-type: application/atom+xml");
 		$last_update = $_GET['last_update'] ?? '';
-		echo OStatus::feed($parameters['nickname'], $last_update, 10);
+		echo OStatus::feed(static::$parameters['nickname'], $last_update, 10);
 		exit();
 	}
 }

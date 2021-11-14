@@ -40,7 +40,7 @@ use Friendica\Util\Temporal;
 
 class Compose extends BaseModule
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		if (!empty($_REQUEST['body'])) {
 			$_REQUEST['return'] = 'network';
@@ -51,7 +51,7 @@ class Compose extends BaseModule
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (!local_user()) {
 			return Login::form('compose', false);
@@ -64,7 +64,7 @@ class Compose extends BaseModule
 		}
 
 		/// @TODO Retrieve parameter from router
-		$posttype = $parameters['type'] ?? Item::PT_ARTICLE;
+		$posttype = static::$parameters['type'] ?? Item::PT_ARTICLE;
 		if (!in_array($posttype, [Item::PT_ARTICLE, Item::PT_PERSONAL_NOTE])) {
 			switch ($posttype) {
 				case 'note':

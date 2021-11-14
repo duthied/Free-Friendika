@@ -33,7 +33,7 @@ use Friendica\Util\Crypto;
  */
 class HostMeta extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$config = DI::config();
 

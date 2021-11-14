@@ -32,7 +32,7 @@ use Friendica\Protocol;
  */
 class Feed extends BaseModule
 {
-	public static function init(array $parameters = [])
+	public static function init()
 	{
 		if (!local_user()) {
 			notice(DI::l10n()->t('You must be logged in to use this module'));
@@ -40,7 +40,7 @@ class Feed extends BaseModule
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$result = [];
 		if (!empty($_REQUEST['url'])) {

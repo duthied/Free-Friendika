@@ -33,7 +33,6 @@ use Friendica\Network\HTTPException;
 class FollowRequests extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\BadRequestException
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
@@ -43,16 +42,16 @@ class FollowRequests extends BaseApi
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#accept-follow
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#reject-follow
 	 */
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
-		$introduction = DI::intro()->selectOneById($parameters['id'], $uid);
+		$introduction = DI::intro()->selectOneById(static::$parameters['id'], $uid);
 
 		$contactId = $introduction->cid;
 
-		switch ($parameters['action']) {
+		switch (static::$parameters['action']) {
 			case 'authorize':
 				Contact\Introduction::confirm($introduction);
 				$relationship = DI::mstdnRelationship()->createFromContactId($contactId, $uid);
@@ -79,12 +78,11 @@ class FollowRequests extends BaseApi
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests/
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

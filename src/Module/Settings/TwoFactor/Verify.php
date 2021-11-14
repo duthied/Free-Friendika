@@ -39,7 +39,7 @@ use PragmaRX\Google2FA\Google2FA;
  */
 class Verify extends BaseSettings
 {
-	public static function init(array $parameters = [])
+	public static function init()
 	{
 		if (!local_user()) {
 			return;
@@ -58,7 +58,7 @@ class Verify extends BaseSettings
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		if (!local_user()) {
 			return;
@@ -84,13 +84,13 @@ class Verify extends BaseSettings
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa/verify');
 		}
 
-		parent::content($parameters);
+		parent::content();
 
 		$company = 'Friendica';
 		$holder = Session::get('my_address');

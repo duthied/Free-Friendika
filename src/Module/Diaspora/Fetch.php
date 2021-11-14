@@ -38,13 +38,13 @@ use Friendica\Util\Strings;
  */
 class Fetch extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
-		if (empty($parameters['guid'])) {
+		if (empty(static::$parameters['guid'])) {
 			throw new HTTPException\NotFoundException();
 		}
 
-		$guid = $parameters['guid'];
+		$guid = static::$parameters['guid'];
 
 		// Fetch the item
 		$condition = ['origin' => true, 'private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $guid,

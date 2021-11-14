@@ -57,13 +57,13 @@ class Network extends BaseModule
 	/** @var string */
 	protected static $order;
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (!local_user()) {
 			return Login::form();
 		}
 
-		self::parseRequest($parameters, $_GET);
+		self::parseRequest($_GET);
 
 		$module = 'network';
 
@@ -272,11 +272,11 @@ class Network extends BaseModule
 		return Renderer::replaceMacros($tpl, ['$tabs' => $arr['tabs']]);
 	}
 
-	protected static function parseRequest(array $parameters, array $get)
+	protected static function parseRequest(array $get)
 	{
-		self::$groupId = $parameters['group_id'] ?? 0;
+		self::$groupId = static::$parameters['group_id'] ?? 0;
 
-		self::$forumContactId = $parameters['contact_id'] ?? 0;
+		self::$forumContactId = static::$parameters['contact_id'] ?? 0;
 
 		self::$selectedTab = Session::get('network-tab', DI::pConfig()->get(local_user(), 'network.view', 'selected_tab', ''));
 
@@ -317,13 +317,13 @@ class Network extends BaseModule
 		Session::set('network-tab', self::$selectedTab);
 		DI::pConfig()->set(local_user(), 'network.view', 'selected_tab', self::$selectedTab);
 
-		self::$accountTypeString = $get['accounttype'] ?? $parameters['accounttype'] ?? '';
+		self::$accountTypeString = $get['accounttype'] ?? static::$parameters['accounttype'] ?? '';
 		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
 
 		self::$network = $get['nets'] ?? '';
 
-		self::$dateFrom = $parameters['from'] ?? '';
-		self::$dateTo = $parameters['to'] ?? '';
+		self::$dateFrom = static::$parameters['from'] ?? '';
+		self::$dateTo = static::$parameters['to'] ?? '';
 
 		if (DI::mode()->isMobile()) {
 			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',

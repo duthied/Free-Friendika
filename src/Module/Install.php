@@ -65,7 +65,7 @@ class Install extends BaseModule
 	 */
 	private static $installer;
 
-	public static function init(array $parameters = [])
+	public static function init()
 	{
 		$a = DI::app();
 
@@ -94,7 +94,7 @@ class Install extends BaseModule
 		self::$currentWizardStep = ($_POST['pass'] ?? '') ?: self::SYSTEM_CHECK;
 	}
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		$a           = DI::app();
 		$configCache = $a->getConfigCache();
@@ -177,7 +177,7 @@ class Install extends BaseModule
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$a           = DI::app();
 		$configCache = $a->getConfigCache();

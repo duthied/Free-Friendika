@@ -51,7 +51,7 @@ class Photo extends BaseModule
 	 * Fetch a photo or an avatar, in optional size, check for permissions and
 	 * return the image
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$totalstamp = microtime(true);
 
@@ -77,14 +77,14 @@ class Photo extends BaseModule
 		$scale = null;
 		$stamp = microtime(true);
 		// User avatar
-		if (!empty($parameters['type'])) {
-			if (!empty($parameters['customsize'])) {
-				$customsize = intval($parameters['customsize']);
-				$square_resize = !in_array($parameters['type'], ['media', 'preview']);
+		if (!empty(static::$parameters['type'])) {
+			if (!empty(static::$parameters['customsize'])) {
+				$customsize = intval(static::$parameters['customsize']);
+				$square_resize = !in_array(static::$parameters['type'], ['media', 'preview']);
 			}
 
-			if (!empty($parameters['guid'])) {
-				$guid = $parameters['guid'];
+			if (!empty(static::$parameters['guid'])) {
+				$guid = static::$parameters['guid'];
 				$account = DBA::selectFirst('account-user-view', ['id'], ['guid' => $guid], ['order' => ['uid' => true]]);
 				if (empty($account)) {
 					throw new HTTPException\NotFoundException();
@@ -94,12 +94,12 @@ class Photo extends BaseModule
 			}
 
 			// Contact Id Fallback, to remove after version 2021.12
-			if (isset($parameters['contact_id'])) {
-				$id = intval($parameters['contact_id']);
+			if (isset(static::$parameters['contact_id'])) {
+				$id = intval(static::$parameters['contact_id']);
 			}
 
-			if (!empty($parameters['nickname_ext'])) {
-				$nickname = pathinfo($parameters['nickname_ext'], PATHINFO_FILENAME);
+			if (!empty(static::$parameters['nickname_ext'])) {
+				$nickname = pathinfo(static::$parameters['nickname_ext'], PATHINFO_FILENAME);
 				$user = User::getByNickname($nickname, ['uid']);
 				if (empty($user)) {
 					throw new HTTPException\NotFoundException();
@@ -109,23 +109,23 @@ class Photo extends BaseModule
 			}
 
 			// User Id Fallback, to remove after version 2021.12
-			if (!empty($parameters['uid_ext'])) {
-				$id = intval(pathinfo($parameters['uid_ext'], PATHINFO_FILENAME));
+			if (!empty(static::$parameters['uid_ext'])) {
+				$id = intval(pathinfo(static::$parameters['uid_ext'], PATHINFO_FILENAME));
 			}
 
 			// Please refactor this for the love of everything that's good
-			if (isset($parameters['id'])) {
-				$id = $parameters['id'];
+			if (isset(static::$parameters['id'])) {
+				$id = static::$parameters['id'];
 			}
 
 			if (empty($id)) {
-				Logger::notice('No picture id was detected', ['parameters' => $parameters, 'query' => DI::args()->getQueryString()]);
+				Logger::notice('No picture id was detected', ['parameters' => static::$parameters, 'query' => DI::args()->getQueryString()]);
 				throw new HTTPException\NotFoundException(DI::l10n()->t('The Photo is not available.'));
 			}
 
-			$photo = self::getPhotoByid($id, $parameters['type'], $customsize ?: Proxy::PIXEL_SMALL);
+			$photo = self::getPhotoByid($id, static::$parameters['type'], $customsize ?: Proxy::PIXEL_SMALL);
 		} else {
-			$photoid = pathinfo($parameters['name'], PATHINFO_FILENAME);
+			$photoid = pathinfo(static::$parameters['name'], PATHINFO_FILENAME);
 			$scale = 0;
 			if (substr($photoid, -2, 1) == "-") {
 				$scale = intval(substr($photoid, -1, 1));

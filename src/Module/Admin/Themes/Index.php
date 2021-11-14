@@ -29,9 +29,9 @@ use Friendica\Util\Strings;
 
 class Index extends BaseAdmin
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$allowed_themes = Theme::getAllowedList();
 

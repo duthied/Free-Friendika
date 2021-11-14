@@ -33,7 +33,7 @@ use Friendica\Util\Temporal;
 
 class Deleted extends BaseUsers
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAdminAccess();
 
@@ -44,9 +44,9 @@ class Deleted extends BaseUsers
 		DI::baseUrl()->redirect('admin/users/deleted');
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 100);
 

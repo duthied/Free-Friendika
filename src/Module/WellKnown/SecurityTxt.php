@@ -29,7 +29,7 @@ use Friendica\BaseModule;
  */
 class SecurityTxt extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$name = 'security.txt';
 		$fp = fopen($name, 'rt');

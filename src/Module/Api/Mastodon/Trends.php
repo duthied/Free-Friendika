@@ -32,10 +32,9 @@ use Friendica\Module\BaseApi;
 class Trends extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$request = self::getRequest([
 			'limit' => 20, // Maximum number of results to return. Defaults to 10.

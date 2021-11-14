@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException;
 
 class Contacts extends Module\BaseProfile
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
@@ -42,8 +42,8 @@ class Contacts extends Module\BaseProfile
 
 		$a = DI::app();
 
-		$nickname = $parameters['nickname'];
-		$type = $parameters['type'] ?? 'all';
+		$nickname = static::$parameters['nickname'];
+		$type = static::$parameters['type'] ?? 'all';
 
 		$profile = Model\Profile::load($a, $nickname);
 		if (empty($profile)) {

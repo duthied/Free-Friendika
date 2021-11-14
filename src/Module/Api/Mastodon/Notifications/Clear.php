@@ -30,7 +30,7 @@ use Friendica\Module\BaseApi;
  */
 class Clear extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

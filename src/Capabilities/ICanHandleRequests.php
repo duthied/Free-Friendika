@@ -13,7 +13,7 @@ interface ICanHandleRequests
 	 * Extend this method if you need to do any shared processing before both
 	 * content() or post()
 	 */
-	public static function init(array $parameters = []);
+	public static function init();
 
 	/**
 	 * Module GET method to display raw content from technical endpoints
@@ -21,7 +21,7 @@ interface ICanHandleRequests
 	 * Extend this method if the module is supposed to return communication data,
 	 * e.g. from protocol implementations.
 	 */
-	public static function rawContent(array $parameters = []);
+	public static function rawContent();
 
 	/**
 	 * Module GET method to display any content
@@ -32,7 +32,7 @@ interface ICanHandleRequests
 	 *
 	 * @return string
 	 */
-	public static function content(array $parameters = []);
+	public static function content();
 
 	/**
 	 * Module DELETE method to process submitted data
@@ -40,7 +40,7 @@ interface ICanHandleRequests
 	 * Extend this method if the module is supposed to process DELETE requests.
 	 * Doesn't display any content
 	 */
-	public static function delete(array $parameters = []);
+	public static function delete();
 
 	/**
 	 * Module PATCH method to process submitted data
@@ -48,7 +48,7 @@ interface ICanHandleRequests
 	 * Extend this method if the module is supposed to process PATCH requests.
 	 * Doesn't display any content
 	 */
-	public static function patch(array $parameters = []);
+	public static function patch();
 
 	/**
 	 * Module POST method to process submitted data
@@ -56,14 +56,14 @@ interface ICanHandleRequests
 	 * Extend this method if the module is supposed to process POST requests.
 	 * Doesn't display any content
 	 */
-	public static function post(array $parameters = []);
+	public static function post();
 
 	/**
 	 * Called after post()
 	 *
 	 * Unknown purpose
 	 */
-	public static function afterpost(array $parameters = []);
+	public static function afterpost();
 
 	/**
 	 * Module PUT method to process submitted data
@@ -71,9 +71,7 @@ interface ICanHandleRequests
 	 * Extend this method if the module is supposed to process PUT requests.
 	 * Doesn't display any content
 	 */
-	public static function put(array $parameters = []);
+	public static function put();
 
 	public static function getClassName(): string;
-
-	public static function getParameters(): array;
 }

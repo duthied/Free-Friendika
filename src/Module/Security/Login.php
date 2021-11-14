@@ -33,7 +33,7 @@ use Friendica\Module\Register;
  */
 class Login extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$return_path = $_REQUEST['return_path'] ?? '' ;
 
@@ -46,7 +46,7 @@ class Login extends BaseModule
 		return self::form(Session::get('return_path'), intval(DI::config()->get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
 	}
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		$return_path = Session::get('return_path');
 		Session::clear();

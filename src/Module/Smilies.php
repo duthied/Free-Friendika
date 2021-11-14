@@ -33,7 +33,7 @@ use Friendica\DI;
  */
 class Smilies extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		if (!empty(DI::args()->getArgv()[1]) && (DI::args()->getArgv()[1] === "json")) {
 			$smilies = Content\Smilies::getList();
@@ -45,7 +45,7 @@ class Smilies extends BaseModule
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$smilies = Content\Smilies::getList();
 		$count = count($smilies['texts'] ?? []);

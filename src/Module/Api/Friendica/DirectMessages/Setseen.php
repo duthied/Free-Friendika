@@ -30,7 +30,7 @@ use Friendica\Module\BaseApi;
  */
 class Setseen extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -42,13 +42,13 @@ class Setseen extends BaseApi
 		// return error if id is zero
 		if (empty($request['id'])) {
 			$answer = ['result' => 'error', 'message' => 'message id not specified'];
-			DI::apiResponse()->exit('direct_messages_setseen', ['$result' => $answer], $parameters['extension'] ?? null);
+			DI::apiResponse()->exit('direct_messages_setseen', ['$result' => $answer], static::$parameters['extension'] ?? null);
 		}
 
 		// error message if specified id is not in database
 		if (!DBA::exists('mail', ['id' => $request['id'], 'uid' => $uid])) {
 			$answer = ['result' => 'error', 'message' => 'message id not in database'];
-			DI::apiResponse()->exit('direct_messages_setseen', ['$result' => $answer], $parameters['extension'] ?? null);
+			DI::apiResponse()->exit('direct_messages_setseen', ['$result' => $answer], static::$parameters['extension'] ?? null);
 		}
 
 		// update seen indicator
@@ -58,6 +58,6 @@ class Setseen extends BaseApi
 			$answer = ['result' => 'error', 'message' => 'unknown error'];
 		}
 
-		DI::apiResponse()->exit('direct_messages_setseen', ['$result' => $answer], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('direct_messages_setseen', ['$result' => $answer], static::$parameters['extension'] ?? null);
 	}
 }

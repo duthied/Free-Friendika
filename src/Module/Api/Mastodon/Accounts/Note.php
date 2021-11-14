@@ -32,12 +32,12 @@ use Friendica\Module\BaseApi;
  */
 class Note extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
@@ -45,13 +45,13 @@ class Note extends BaseApi
 			'comment' => '',
 		]);
 
-		$cdata = Contact::getPublicAndUserContactID($parameters['id'], $uid);
+		$cdata = Contact::getPublicAndUserContactID(static::$parameters['id'], $uid);
 		if (empty($cdata['user'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
 		Contact::update(['info' => $request['comment']], ['id' => $cdata['user']]);
 
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId($parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnRelationship()->createFromContactId(static::$parameters['id'], $uid)->toArray());
 	}
 }

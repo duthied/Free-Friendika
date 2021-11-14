@@ -48,7 +48,7 @@ class Acl extends BaseModule
 	const TYPE_PRIVATE_MESSAGE       = 'm';
 	const TYPE_ANY_CONTACT           = 'a';
 
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('You must be logged in to use this module.'));

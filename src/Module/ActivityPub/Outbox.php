@@ -31,13 +31,13 @@ use Friendica\Util\HTTPSignature;
  */
 class Outbox extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
-		if (empty($parameters['nickname'])) {
+		if (empty(static::$parameters['nickname'])) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		$owner = User::getOwnerDataByNick($parameters['nickname']);
+		$owner = User::getOwnerDataByNick(static::$parameters['nickname']);
 		if (empty($owner)) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}

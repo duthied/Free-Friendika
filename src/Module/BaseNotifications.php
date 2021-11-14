@@ -82,7 +82,7 @@ abstract class BaseNotifications extends BaseModule
 	 */
 	abstract public static function getNotifications();
 
-	public static function init(array $parameters = [])
+	public static function init()
 	{
 		if (!local_user()) {
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
@@ -94,7 +94,7 @@ abstract class BaseNotifications extends BaseModule
 		self::$showAll      = ($_REQUEST['show'] ?? '') === 'all';
 	}
 
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		// If the last argument of the query is NOT json, return
 		if (DI::args()->get(DI::args()->getArgc() - 1) !== 'json') {

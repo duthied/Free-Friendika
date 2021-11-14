@@ -35,7 +35,7 @@ use Friendica\Util\Network;
  */
 class Inbox extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$postdata = Network::postdata();
 
@@ -50,12 +50,12 @@ class Inbox extends BaseModule
 				$filename = 'failed-activitypub';
 			}
 			$tempfile = tempnam(System::getTempPath(), $filename);
-			file_put_contents($tempfile, json_encode(['parameters' => $parameters, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+			file_put_contents($tempfile, json_encode(['parameters' => static::$parameters, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 			Logger::notice('Incoming message stored', ['file' => $tempfile]);
 		}
 
-		if (!empty($parameters['nickname'])) {
-			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $parameters['nickname']]);
+		if (!empty(static::$parameters['nickname'])) {
+			$user = DBA::selectFirst('user', ['uid'], ['nickname' => static::$parameters['nickname']]);
 			if (!DBA::isResult($user)) {
 				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}

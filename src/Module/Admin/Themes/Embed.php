@@ -28,19 +28,19 @@ use Friendica\Util\Strings;
 
 class Embed extends BaseAdmin
 {
-	public static function init(array $parameters = [])
+	public static function init()
 	{
-		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {
 			DI::app()->setCurrentTheme($theme);
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		self::checkAdminAccess();
 
-		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {
 			require_once "view/theme/$theme/config.php";
 			if (function_exists('theme_admin_post')) {
@@ -56,11 +56,11 @@ class Embed extends BaseAdmin
 		DI::baseUrl()->redirect('admin/themes/' . $theme . '/embed?mode=minimal');
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
-		parent::content($parameters);
+		parent::content();
 
-		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
 		if (!is_dir("view/theme/$theme")) {
 			notice(DI::l10n()->t('Unknown theme.'));
 			return '';

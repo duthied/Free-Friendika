@@ -35,7 +35,7 @@ use Friendica\Network\HTTPException;
 
 class Common extends BaseProfile
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
@@ -45,7 +45,7 @@ class Common extends BaseProfile
 
 		Nav::setSelected('home');
 
-		$nickname = $parameters['nickname'];
+		$nickname = static::$parameters['nickname'];
 
 		$profile = Profile::load($a, $nickname);
 		if (empty($profile)) {

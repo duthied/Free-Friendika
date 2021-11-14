@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException;
  */
 class Pin extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		$l10n = DI::l10n();
 
@@ -42,11 +42,11 @@ class Pin extends BaseModule
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		if (empty($parameters['id'])) {
+		if (empty(static::$parameters['id'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
-		$itemId = intval($parameters['id']);
+		$itemId = intval(static::$parameters['id']);
 
 		$item = Post::selectFirst(['uri-id', 'uid'], ['id' => $itemId]);
 		if (!DBA::isResult($item)) {

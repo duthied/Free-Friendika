@@ -31,7 +31,7 @@ use Friendica\Module\BaseApi;
  */
 class SavedSearches extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
@@ -45,6 +45,6 @@ class SavedSearches extends BaseApi
 
 		DBA::close($terms);
 
-		DI::apiResponse()->exit('terms', ['terms' => $result], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('terms', ['terms' => $result], static::$parameters['extension'] ?? null);
 	}
 }

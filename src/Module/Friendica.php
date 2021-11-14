@@ -38,7 +38,7 @@ use Friendica\Protocol\ActivityPub;
  */
 class Friendica extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$config = DI::config();
 
@@ -110,7 +110,7 @@ class Friendica extends BaseModule
 		]);
 	}
 
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		if (ActivityPub::isRequest()) {
 			try {

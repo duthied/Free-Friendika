@@ -29,14 +29,14 @@ use Friendica\DI;
  */
 class Test extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
-		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
+		if (!empty(static::$parameters['extension']) && (static::$parameters['extension'] == 'xml')) {
 			$ok = 'true';
 		} else {
 			$ok = 'ok';
 		}
 
-		DI::apiResponse()->exit('ok', ['ok' => $ok], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('ok', ['ok' => $ok], static::$parameters['extension'] ?? null);
 	}
 }

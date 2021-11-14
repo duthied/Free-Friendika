@@ -32,7 +32,7 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
  */
 class Update extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public static function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -59,7 +59,7 @@ class Update extends BaseApi
 		// return success of updating or error message
 		if ($result) {
 			$answer = ['result' => 'updated', 'message' => 'album `' . $request['album'] . '` with all containing photos has been renamed to `' . $request['album_new'] . '`.'];
-			DI::apiResponse()->exit('photoalbum_update', ['$result' => $answer], $parameters['extension'] ?? null);
+			DI::apiResponse()->exit('photoalbum_update', ['$result' => $answer], static::$parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error - updating in database failed");
 		}

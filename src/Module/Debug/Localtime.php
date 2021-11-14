@@ -31,7 +31,7 @@ class Localtime extends BaseModule
 {
 	static $mod_localtime = '';
 
-	public static function post(array $parameters = [])
+	public static function post()
 	{
 		$time = ($_REQUEST['time'] ?? '') ?: 'now';
 
@@ -42,7 +42,7 @@ class Localtime extends BaseModule
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public static function content()
 	{
 		$time = ($_REQUEST['time'] ?? '') ?: 'now';
 
