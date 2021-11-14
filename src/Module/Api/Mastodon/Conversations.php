@@ -36,12 +36,12 @@ class Conversations extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (!empty(static::$parameters['id'])) {
+		if (!empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DBA::delete('conv', ['id' => static::$parameters['id'], 'uid' => $uid]);
-		DBA::delete('mail', ['convid' => static::$parameters['id'], 'uid' => $uid]);
+		DBA::delete('conv', ['id' => $this->parameters['id'], 'uid' => $uid]);
+		DBA::delete('mail', ['convid' => $this->parameters['id'], 'uid' => $uid]);
 
 		System::jsonExit([]);
 	}

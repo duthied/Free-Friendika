@@ -39,10 +39,10 @@ class NoScrape extends BaseModule
 	{
 		$a = DI::app();
 
-		if (isset(static::$parameters['nick'])) {
+		if (isset($this->parameters['nick'])) {
 			// Get infos about a specific nick (public)
-			$which = static::$parameters['nick'];
-		} elseif (local_user() && isset(static::$parameters['profile']) && DI::args()->get(2) == 'view') {
+			$which = $this->parameters['nick'];
+		} elseif (local_user() && isset($this->parameters['profile']) && DI::args()->get(2) == 'view') {
 			// view infos about a known profile (needs a login)
 			$which = $a->getLoggedInUserNickname();
 		} else {

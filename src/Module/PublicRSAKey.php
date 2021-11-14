@@ -35,11 +35,11 @@ class PublicRSAKey extends BaseModule
 {
 	public function rawContent()
 	{
-		if (empty(static::$parameters['nick'])) {
+		if (empty($this->parameters['nick'])) {
 			throw new BadRequestException();
 		}
 
-		$nick = static::$parameters['nick'];
+		$nick = $this->parameters['nick'];
 
 		$user = User::getByNickname($nick, ['spubkey']);
 		if (empty($user) || empty($user['spubkey'])) {

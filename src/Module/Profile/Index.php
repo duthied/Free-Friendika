@@ -36,11 +36,11 @@ class Index extends BaseModule
 {
 	public function rawContent()
 	{
-		(new Profile(static::$parameters))->rawContent();
+		(new Profile($this->parameters))->rawContent();
 	}
 
 	public function content(): string
 	{
-		return (new Status(static::$parameters))->content();
+		return (new Status($this->parameters))->content();
 	}
 }

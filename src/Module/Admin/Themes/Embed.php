@@ -30,7 +30,7 @@ class Embed extends BaseAdmin
 {
 	public function init()
 	{
-		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {
 			DI::app()->setCurrentTheme($theme);
 		}
@@ -40,7 +40,7 @@ class Embed extends BaseAdmin
 	{
 		self::checkAdminAccess();
 
-		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {
 			require_once "view/theme/$theme/config.php";
 			if (function_exists('theme_admin_post')) {
@@ -60,7 +60,7 @@ class Embed extends BaseAdmin
 	{
 		parent::content();
 
-		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (!is_dir("view/theme/$theme")) {
 			notice(DI::l10n()->t('Unknown theme.'));
 			return '';

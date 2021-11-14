@@ -47,7 +47,7 @@ class FriendSuggest extends BaseModule
 
 	public function post()
 	{
-		$cid = intval(static::$parameters['contact']);
+		$cid = intval($this->parameters['contact']);
 
 		// We do query the "uid" as well to ensure that it is our contact
 		if (!DI::dba()->exists('contact', ['id' => $cid, 'uid' => local_user()])) {
@@ -85,7 +85,7 @@ class FriendSuggest extends BaseModule
 
 	public function content(): string
 	{
-		$cid = intval(static::$parameters['contact']);
+		$cid = intval($this->parameters['contact']);
 
 		$contact = DI::dba()->selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {

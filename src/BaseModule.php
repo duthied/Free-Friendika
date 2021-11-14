@@ -37,11 +37,11 @@ use Friendica\Model\User;
 abstract class BaseModule implements ICanHandleRequests
 {
 	/** @var array */
-	protected static $parameters = [];
+	protected $parameters = [];
 
 	public function __construct(array $parameters = [])
 	{
-		static::$parameters = $parameters;
+		$this->parameters = $parameters;
 	}
 
 	/**

@@ -67,7 +67,7 @@ class Delete extends BaseApi
 		// return success of deletion or error message
 		if ($result) {
 			$answer = ['result' => 'deleted', 'message' => 'album `' . $request['album'] . '` with all containing photos has been deleted.'];
-			DI::apiResponse()->exit('photoalbum_delete', ['$result' => $answer], static::$parameters['extension'] ?? null);
+			DI::apiResponse()->exit('photoalbum_delete', ['$result' => $answer], $this->parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error - deleting from database failed");
 		}

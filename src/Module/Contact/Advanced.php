@@ -47,7 +47,7 @@ class Advanced extends BaseModule
 
 	public function post()
 	{
-		$cid = static::$parameters['id'];
+		$cid = $this->parameters['id'];
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {
@@ -98,7 +98,7 @@ class Advanced extends BaseModule
 
 	public function content(): string
 	{
-		$cid = static::$parameters['id'];
+		$cid = $this->parameters['id'];
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {

@@ -45,8 +45,8 @@ class Notifications extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (!empty(static::$parameters['id'])) {
-			$id = static::$parameters['id'];
+		if (!empty($this->parameters['id'])) {
+			$id = $this->parameters['id'];
 			try {
 				$notification = DI::notification()->selectOneForUser($uid, ['id' => $id]);
 				System::jsonExit(DI::mstdnNotification()->createFromNotification($notification));

@@ -129,7 +129,7 @@ class Register extends BaseModule
 
 		$tpl = $arr['template'];
 
-		$tos = new Tos(static::$parameters);
+		$tos = new Tos($this->parameters);
 
 		$o = Renderer::replaceMacros($tpl, [
 			'$invitations'  => DI::config()->get('system', 'invitation_only'),

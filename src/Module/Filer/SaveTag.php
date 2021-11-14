@@ -48,7 +48,7 @@ class SaveTag extends BaseModule
 
 		$term = XML::unescape(trim($_GET['term'] ?? ''));
 
-		$item_id = static::$parameters['id'] ?? 0;
+		$item_id = $this->parameters['id'] ?? 0;
 
 		$logger->info('filer', ['tag' => $term, 'item' => $item_id]);
 

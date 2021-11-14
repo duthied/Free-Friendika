@@ -36,15 +36,15 @@ class Lists extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		if (!Group::exists(static::$parameters['id'], $uid)) {
+		if (!Group::exists($this->parameters['id'], $uid)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		if (!Group::remove(static::$parameters['id'])) {
+		if (!Group::remove($this->parameters['id'])) {
 			DI::mstdnError()->InternalError();
 		}
 
@@ -81,11 +81,11 @@ class Lists extends BaseApi
 			'replies_policy' => '', // One of: "followed", "list", or "none".
 		]);
 
-		if (empty($request['title']) || empty(static::$parameters['id'])) {
+		if (empty($request['title']) || empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		Group::update(static::$parameters['id'], $request['title']);
+		Group::update($this->parameters['id'], $request['title']);
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Lists extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			$lists = [];
 
 			$groups = Group::getByUserId($uid);
@@ -105,7 +105,7 @@ class Lists extends BaseApi
 				$lists[] = DI::mstdnList()->createFromGroupId($group['id']);
 			}
 		} else {
-			$id = static::$parameters['id'];
+			$id = $this->parameters['id'];
 
 			if (!Group::exists($id, $uid)) {
 				DI::mstdnError()->RecordNotFound();

@@ -37,7 +37,7 @@ class Storage extends BaseAdmin
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/storage', 'admin_storage');
 
-		$storagebackend = trim(static::$parameters['name'] ?? '');
+		$storagebackend = trim($this->parameters['name'] ?? '');
 
 		try {
 			/** @var ICanConfigureStorage|false $newStorageConfig */

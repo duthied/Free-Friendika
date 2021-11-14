@@ -36,12 +36,12 @@ class Read extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (!empty(static::$parameters['id'])) {
+		if (!empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DBA::update('mail', ['seen' => true], ['convid' => static::$parameters['id'], 'uid' => $uid]);
+		DBA::update('mail', ['seen' => true], ['convid' => $this->parameters['id'], 'uid' => $uid]);
 
-		System::jsonExit(DI::mstdnConversation()->CreateFromConvId(static::$parameters['id'])->toArray());
+		System::jsonExit(DI::mstdnConversation()->CreateFromConvId($this->parameters['id'])->toArray());
 	}
 }

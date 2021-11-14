@@ -33,7 +33,7 @@ class Media extends BaseProfile
 	{
 		$a = DI::app();
 
-		$profile = ProfileModel::load($a, static::$parameters['nickname']);
+		$profile = ProfileModel::load($a, $this->parameters['nickname']);
 		if (empty($profile)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}

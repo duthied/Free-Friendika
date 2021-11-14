@@ -15,7 +15,7 @@ class Network extends NetworkModule
 			exit();
 		}
 
-		self::parseRequest($_GET);
+		$this->parseRequest($_GET);
 
 		$profile_uid = intval($_GET['p']);
 

@@ -50,12 +50,12 @@ class Inbox extends BaseModule
 				$filename = 'failed-activitypub';
 			}
 			$tempfile = tempnam(System::getTempPath(), $filename);
-			file_put_contents($tempfile, json_encode(['parameters' => static::$parameters, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+			file_put_contents($tempfile, json_encode(['parameters' => $this->parameters, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 			Logger::notice('Incoming message stored', ['file' => $tempfile]);
 		}
 
-		if (!empty(static::$parameters['nickname'])) {
-			$user = DBA::selectFirst('user', ['uid'], ['nickname' => static::$parameters['nickname']]);
+		if (!empty($this->parameters['nickname'])) {
+			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $this->parameters['nickname']]);
 			if (!DBA::isResult($user)) {
 				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}

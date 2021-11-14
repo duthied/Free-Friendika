@@ -182,7 +182,7 @@ class Module
 		 **/
 		try {
 			$module_class = $router->getModuleClass($args->getCommand());
-			$module_parameters = $router->getModuleParameters();
+			$module_parameters[] = $router->getModuleParameters();
 		} catch (MethodNotAllowedException $e) {
 			$module_class = MethodNotAllowed::class;
 		} catch (NotFoundException $e) {
@@ -195,8 +195,8 @@ class Module
 				} else {
 					include_once "addon/{$this->module}/{$this->module}.php";
 					if (function_exists($this->module . '_module')) {
-						LegacyModule::setModuleFile("addon/{$this->module}/{$this->module}.php");
-						$module_class = LegacyModule::class;
+						$module_parameters[] = "addon/{$this->module}/{$this->module}.php";
+						$module_class        = LegacyModule::class;
 					}
 				}
 			}
@@ -205,15 +205,15 @@ class Module
 			 * We emulate a Module class through the LegacyModule class
 			 */
 			if (!$module_class && file_exists("mod/{$this->module}.php")) {
-				LegacyModule::setModuleFile("mod/{$this->module}.php");
-				$module_class = LegacyModule::class;
+				$module_parameters[] = "mod/{$this->module}.php";
+				$module_class        = LegacyModule::class;
 			}
 
 			$module_class = $module_class ?: PageNotFound::class;
 		}
 
 		/** @var ICanHandleRequests $module */
-		$module = $dice->create($module_class, [$module_parameters]);
+		$module = $dice->create($module_class, $module_parameters);
 
 		return new Module($this->module, $module, $this->isBackend, $printNotAllowedAddon);
 	}

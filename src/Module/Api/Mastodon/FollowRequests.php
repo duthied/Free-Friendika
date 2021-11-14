@@ -47,11 +47,11 @@ class FollowRequests extends BaseApi
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
-		$introduction = DI::intro()->selectOneById(static::$parameters['id'], $uid);
+		$introduction = DI::intro()->selectOneById($this->parameters['id'], $uid);
 
 		$contactId = $introduction->cid;
 
-		switch (static::$parameters['action']) {
+		switch ($this->parameters['action']) {
 			case 'authorize':
 				Contact\Introduction::confirm($introduction);
 				$relationship = DI::mstdnRelationship()->createFromContactId($contactId, $uid);

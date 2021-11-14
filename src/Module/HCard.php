@@ -36,12 +36,12 @@ class HCard extends BaseModule
 {
 	public function content(): string
 	{
-		if ((local_user()) && (static::$parameters['action'] ?? '') === 'view') {
+		if ((local_user()) && ($this->parameters['action'] ?? '') === 'view') {
 			// A logged in user views a profile of a user
 			$nickname = DI::app()->getLoggedInUserNickname();
-		} elseif (empty(static::$parameters['action'])) {
+		} elseif (empty($this->parameters['action'])) {
 			// Show the profile hCard
-			$nickname = static::$parameters['profile'];
+			$nickname = $this->parameters['profile'];
 		} else {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('No profile'));
 		}

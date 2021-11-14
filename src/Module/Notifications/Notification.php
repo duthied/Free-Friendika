@@ -48,7 +48,7 @@ class Notification extends BaseModule
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$request_id = static::$parameters['id'] ?? false;
+		$request_id = $this->parameters['id'] ?? false;
 
 		if ($request_id) {
 			$intro = DI::intro()->selectOneById($request_id, local_user());
@@ -108,7 +108,7 @@ class Notification extends BaseModule
 			return Login::form();
 		}
 
-		$request_id = static::$parameters['id'] ?? false;
+		$request_id = $this->parameters['id'] ?? false;
 
 		if ($request_id) {
 			$Notify = DI::notify()->selectOneById($request_id);

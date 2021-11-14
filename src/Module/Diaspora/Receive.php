@@ -51,10 +51,10 @@ class Receive extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 		}
 
-		if (static::$parameters['type'] === 'public') {
+		if ($this->parameters['type'] === 'public') {
 			self::receivePublic();
-		} else if (static::$parameters['type'] === 'users') {
-			self::receiveUser(static::$parameters['guid']);
+		} else if ($this->parameters['type'] === 'users') {
+			self::receiveUser($this->parameters['guid']);
 		}
 	}
 

@@ -34,7 +34,7 @@ class Details extends BaseAdmin
 	{
 		parent::content();
 
-		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (!is_dir("view/theme/$theme")) {
 			notice(DI::l10n()->t("Item not found."));
 			return '';

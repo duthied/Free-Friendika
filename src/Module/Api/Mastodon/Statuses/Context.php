@@ -39,7 +39,7 @@ class Context extends BaseApi
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
@@ -47,7 +47,7 @@ class Context extends BaseApi
 			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
 		]);
 
-		$id = static::$parameters['id'];
+		$id = $this->parameters['id'];
 
 		$parents  = [];
 		$children = [];

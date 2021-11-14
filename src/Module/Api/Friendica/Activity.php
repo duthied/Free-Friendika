@@ -49,17 +49,17 @@ class Activity extends BaseApi
 			'id' => 0, // Id of the post
 		]);
 
-		$res = Item::performActivity($request['id'], static::$parameters['verb'], $uid);
+		$res = Item::performActivity($request['id'], $this->parameters['verb'], $uid);
 
 		if ($res) {
-			if (!empty(static::$parameters['extension']) && (static::$parameters['extension'] == 'xml')) {
+			if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
 				$ok = 'true';
 			} else {
 				$ok = 'ok';
 			}
-			DI::apiResponse()->exit('ok', ['ok' => $ok], static::$parameters['extension'] ?? null);
+			DI::apiResponse()->exit('ok', ['ok' => $ok], $this->parameters['extension'] ?? null);
 		} else {
-			DI::apiResponse()->error(500, 'Error adding activity', '', static::$parameters['extension'] ?? null);
+			DI::apiResponse()->error(500, 'Error adding activity', '', $this->parameters['extension'] ?? null);
 		}
 	}
 }

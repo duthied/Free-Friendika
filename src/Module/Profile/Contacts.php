@@ -42,8 +42,8 @@ class Contacts extends Module\BaseProfile
 
 		$a = DI::app();
 
-		$nickname = static::$parameters['nickname'];
-		$type = static::$parameters['type'] ?? 'all';
+		$nickname = $this->parameters['nickname'];
+		$type = $this->parameters['type'] ?? 'all';
 
 		$profile = Model\Profile::load($a, $nickname);
 		if (empty($profile)) {

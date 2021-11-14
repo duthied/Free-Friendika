@@ -47,15 +47,15 @@ class ScheduledStatuses extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		if (!DBA::exists('delayed-post', ['id' => static::$parameters['id'], 'uid' => $uid])) {
+		if (!DBA::exists('delayed-post', ['id' => $this->parameters['id'], 'uid' => $uid])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		Post\Delayed::deleteById(static::$parameters['id']);
+		Post\Delayed::deleteById($this->parameters['id']);
 
 		System::jsonExit([]);
 	}
@@ -68,8 +68,8 @@ class ScheduledStatuses extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (isset(static::$parameters['id'])) {
-			System::jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId(static::$parameters['id'], $uid)->toArray());
+		if (isset($this->parameters['id'])) {
+			System::jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($this->parameters['id'], $uid)->toArray());
 		}
 
 		$request = self::getRequest([

@@ -33,7 +33,7 @@ class Poll extends BaseModule
 	{
 		header("Content-type: application/atom+xml");
 		$last_update = $_GET['last_update'] ?? '';
-		echo OStatus::feed(static::$parameters['nickname'], $last_update, 10);
+		echo OStatus::feed($this->parameters['nickname'], $last_update, 10);
 		exit();
 	}
 }

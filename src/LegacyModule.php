@@ -35,7 +35,14 @@ class LegacyModule extends BaseModule
 	 *
 	 * @var string
 	 */
-	private static $moduleName = '';
+	private $moduleName = '';
+
+	public function __construct(string $file_path = '', array $parameters = [])
+	{
+		parent::__construct($parameters);
+
+		$this->setModuleFile($file_path);
+	}
 
 	/**
 	 * The only method that needs to be called, with the module/addon file name.
@@ -43,35 +50,35 @@ class LegacyModule extends BaseModule
 	 * @param string $file_path
 	 * @throws \Exception
 	 */
-	public static function setModuleFile($file_path)
+	private function setModuleFile($file_path)
 	{
 		if (!is_readable($file_path)) {
 			throw new \Exception(DI::l10n()->t('Legacy module file not found: %s', $file_path));
 		}
 
-		self::$moduleName = basename($file_path, '.php');
+		$this->moduleName = basename($file_path, '.php');
 
 		require_once $file_path;
 	}
 
 	public function init()
 	{
-		self::runModuleFunction('init', static::$parameters);
+		$this->runModuleFunction('init');
 	}
 
 	public function content(): string
 	{
-		return self::runModuleFunction('content', static::$parameters);
+		return $this->runModuleFunction('content');
 	}
 
 	public function post()
 	{
-		self::runModuleFunction('post', static::$parameters);
+		$this->runModuleFunction('post');
 	}
 
 	public function afterpost()
 	{
-		self::runModuleFunction('afterpost', static::$parameters);
+		$this->runModuleFunction('afterpost');
 	}
 
 	/**
@@ -81,15 +88,15 @@ class LegacyModule extends BaseModule
 	 * @return string
 	 * @throws \Exception
 	 */
-	private static function runModuleFunction($function_suffix, array $parameters = [])
+	private function runModuleFunction(string $function_suffix)
 	{
-		$function_name = static::$moduleName . '_' . $function_suffix;
+		$function_name = $this->moduleName . '_' . $function_suffix;
 
 		if (\function_exists($function_name)) {
 			$a = DI::app();
 			return $function_name($a);
 		} else {
-			return parent::{$function_suffix}($parameters);
+			return parent::{$function_suffix}($this->parameters);
 		}
 	}
 }

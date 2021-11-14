@@ -40,11 +40,11 @@ class Fetch extends BaseModule
 {
 	public function rawContent()
 	{
-		if (empty(static::$parameters['guid'])) {
+		if (empty($this->parameters['guid'])) {
 			throw new HTTPException\NotFoundException();
 		}
 
-		$guid = static::$parameters['guid'];
+		$guid = $this->parameters['guid'];
 
 		// Fetch the item
 		$condition = ['origin' => true, 'private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $guid,

@@ -22,8 +22,8 @@ class Contacts extends BaseModule
 			throw new HTTPException\ForbiddenException();
 		}
 
-		$cid = static::$parameters['id'];
-		$type = static::$parameters['type'] ?? 'all';
+		$cid = $this->parameters['id'];
+		$type = $this->parameters['type'] ?? 'all';
 		$accounttype = $_GET['accounttype'] ?? '';
 		$accounttypeid = User::getAccountTypeByString($accounttype);
 

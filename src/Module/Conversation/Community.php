@@ -51,7 +51,7 @@ class Community extends BaseModule
 
 	public function content(): string
 	{
-		self::parseRequest();
+		$this->parseRequest();
 
 		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
@@ -94,8 +94,8 @@ class Community extends BaseModule
 	
 			if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
 				$path = self::$content;
-				if (!empty(static::$parameters['accounttype'])) {
-					$path .= '/' . static::$parameters['accounttype'];
+				if (!empty($this->parameters['accounttype'])) {
+					$path .= '/' . $this->parameters['accounttype'];
 				}
 				$query_parameters = [];
 		
@@ -169,7 +169,7 @@ class Community extends BaseModule
 	 * @throws HTTPException\BadRequestException
 	 * @throws HTTPException\ForbiddenException
 	 */
-	protected static function parseRequest()
+	protected function parseRequest()
 	{
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
@@ -181,10 +181,10 @@ class Community extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 		}
 
-		self::$accountTypeString = $_GET['accounttype'] ?? static::$parameters['accounttype'] ?? '';
+		self::$accountTypeString = $_GET['accounttype'] ?? $this->parameters['accounttype'] ?? '';
 		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
 
-		self::$content = static::$parameters['content'] ?? '';
+		self::$content = $this->parameters['content'] ?? '';
 		if (!self::$content) {
 			if (!empty(DI::config()->get('system', 'singleuser'))) {
 				// On single user systems only the global page does make sense

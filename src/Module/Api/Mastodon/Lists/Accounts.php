@@ -53,11 +53,11 @@ class Accounts extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = static::$parameters['id'];
+		$id = $this->parameters['id'];
 		if (!DBA::exists('group', ['id' => $id, 'uid' => $uid])) {
 			DI::mstdnError()->RecordNotFound();
 		}

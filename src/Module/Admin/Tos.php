@@ -52,7 +52,7 @@ class Tos extends BaseAdmin
 	{
 		parent::content();
 
-		$tos = new \Friendica\Module\Tos(static::$parameters);
+		$tos = new \Friendica\Module\Tos($this->parameters);
 		$t = Renderer::getMarkupTemplate('admin/tos.tpl');
 		return Renderer::replaceMacros($t, [
 			'$title' => DI::l10n()->t('Administration'),

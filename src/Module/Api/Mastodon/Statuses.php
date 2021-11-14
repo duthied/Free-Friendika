@@ -212,11 +212,11 @@ class Statuses extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => static::$parameters['id'], 'uid' => $uid]);
+		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $this->parameters['id'], 'uid' => $uid]);
 		if (empty($item['id'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -235,10 +235,10 @@ class Statuses extends BaseApi
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId(static::$parameters['id'], $uid));
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid));
 	}
 }

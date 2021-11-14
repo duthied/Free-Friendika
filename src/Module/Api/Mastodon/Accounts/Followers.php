@@ -39,11 +39,11 @@ class Followers extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = static::$parameters['id'];
+		$id = $this->parameters['id'];
 		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -72,7 +72,7 @@ class Followers extends BaseApi
 			$params['order'] = ['cid'];
 		}
 
-		$followers = DBA::select('contact-relation', ['relation-cid'], $condition, static::$parameters);
+		$followers = DBA::select('contact-relation', ['relation-cid'], $condition, $this->parameters);
 		while ($follower = DBA::fetch($followers)) {
 			self::setBoundaries($follower['relation-cid']);
 			$accounts[] = DI::mstdnAccount()->createFromContactId($follower['relation-cid'], $uid);

@@ -68,7 +68,7 @@ class Feed extends BaseModule
 		}
 
 		header("Content-type: application/atom+xml; charset=utf-8");
-		echo ProtocolFeed::atom(static::$parameters['nickname'], $last_update, 10, $type, $nocache, true);
+		echo ProtocolFeed::atom($this->parameters['nickname'], $last_update, 10, $type, $nocache, true);
 		exit();
 	}
 }

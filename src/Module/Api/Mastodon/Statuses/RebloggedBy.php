@@ -39,11 +39,11 @@ class RebloggedBy extends BaseApi
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = static::$parameters['id'];
+		$id = $this->parameters['id'];
 		if (!Post::exists(['uri-id' => $id, 'uid' => [0, $uid]])) {
 			DI::mstdnError()->RecordNotFound();
 		}

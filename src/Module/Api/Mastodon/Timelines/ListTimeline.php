@@ -41,7 +41,7 @@ class ListTimeline extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
@@ -60,7 +60,7 @@ class ListTimeline extends BaseApi
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)",
-			$uid, GRAVITY_PARENT, GRAVITY_COMMENT, static::$parameters['id']];
+			$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $this->parameters['id']];
 
 		if (!empty($request['max_id'])) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);

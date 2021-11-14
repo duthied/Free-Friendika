@@ -35,7 +35,7 @@ class Community extends CommunityModule
 {
 	public function rawContent()
 	{
-		self::parseRequest();
+		$this->parseRequest();
 
 		$o = '';
 		if (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update')) {

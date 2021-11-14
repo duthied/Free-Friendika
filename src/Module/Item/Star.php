@@ -43,11 +43,11 @@ class Star extends BaseModule
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
-		$itemId = intval(static::$parameters['id']);
+		$itemId = intval($this->parameters['id']);
 
 
 		$item = Post::selectFirstForUser(local_user(), ['uid', 'uri-id', 'starred'], ['uid' => [0, local_user()], 'id' => $itemId]);

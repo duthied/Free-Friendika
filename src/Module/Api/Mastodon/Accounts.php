@@ -39,20 +39,20 @@ class Accounts extends BaseApi
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id']) && empty(static::$parameters['name'])) {
+		if (empty($this->parameters['id']) && empty($this->parameters['name'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		if (!empty(static::$parameters['id'])) {
-			$id = static::$parameters['id'];
+		if (!empty($this->parameters['id'])) {
+			$id = $this->parameters['id'];
 			if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
 				DI::mstdnError()->RecordNotFound();
 			}
 		} else {
-			$contact = Contact::selectFirst(['id'], ['nick' => static::$parameters['name'], 'uid' => 0]);
+			$contact = Contact::selectFirst(['id'], ['nick' => $this->parameters['name'], 'uid' => 0]);
 			if (!empty($contact['id'])) {
 				$id = $contact['id'];
-			} elseif (!($id = Contact::getIdForURL(static::$parameters['name'], 0, false))) {
+			} elseif (!($id = Contact::getIdForURL($this->parameters['name'], 0, false))) {
 				DI::mstdnError()->RecordNotFound();
 			}
 		}

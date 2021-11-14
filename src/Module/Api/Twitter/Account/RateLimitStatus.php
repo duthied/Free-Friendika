@@ -32,7 +32,7 @@ class RateLimitStatus extends BaseApi
 {
 	public function rawContent()
 	{
-		if (!empty(static::$parameters['extension']) && (static::$parameters['extension'] == 'xml')) {
+		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
 			$hash = [
 				'remaining-hits'        => '150',
 				'@attributes'           => ["type" => "integer"],
@@ -52,6 +52,6 @@ class RateLimitStatus extends BaseApi
 			];
 		}
 
-		DI::apiResponse()->exit('hash', ['hash' => $hash], static::$parameters['extension'] ?? null);
+		DI::apiResponse()->exit('hash', ['hash' => $hash], $this->parameters['extension'] ?? null);
 	}
 }

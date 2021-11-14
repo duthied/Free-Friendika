@@ -64,7 +64,7 @@ class Compose extends BaseModule
 		}
 
 		/// @TODO Retrieve parameter from router
-		$posttype = static::$parameters['type'] ?? Item::PT_ARTICLE;
+		$posttype = $this->parameters['type'] ?? Item::PT_ARTICLE;
 		if (!in_array($posttype, [Item::PT_ARTICLE, Item::PT_PERSONAL_NOTE])) {
 			switch ($posttype) {
 				case 'note':

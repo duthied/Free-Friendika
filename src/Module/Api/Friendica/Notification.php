@@ -43,7 +43,7 @@ class Notification extends BaseApi
 			$notifications[] = new ApiNotification($Notify);
 		}
 
-		if (!empty(static::$parameters['extension']) && (static::$parameters['extension'] == 'xml')) {
+		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
 			$xmlnotes = [];
 			foreach ($notifications as $notification) {
 				$xmlnotes[] = ['@attributes' => $notification->toArray()];
@@ -56,6 +56,6 @@ class Notification extends BaseApi
 			$result = false;
 		}
 
-		DI::apiResponse()->exit('notes', ['note' => $result], static::$parameters['extension'] ?? null);
+		DI::apiResponse()->exit('notes', ['note' => $result], $this->parameters['extension'] ?? null);
 	}
 }

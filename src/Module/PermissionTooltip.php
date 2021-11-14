@@ -17,8 +17,8 @@ class PermissionTooltip extends \Friendica\BaseModule
 {
 	public function rawContent()
 	{
-		$type = static::$parameters['type'];
-		$referenceId = static::$parameters['id'];
+		$type = $this->parameters['type'];
+		$referenceId = $this->parameters['id'];
 
 		$expectedTypes = ['item', 'photo', 'event'];
 		if (!in_array($type, $expectedTypes)) {

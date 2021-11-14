@@ -31,12 +31,12 @@ class Test extends BaseApi
 {
 	public function rawContent()
 	{
-		if (!empty(static::$parameters['extension']) && (static::$parameters['extension'] == 'xml')) {
+		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
 			$ok = 'true';
 		} else {
 			$ok = 'ok';
 		}
 
-		DI::apiResponse()->exit('ok', ['ok' => $ok], static::$parameters['extension'] ?? null);
+		DI::apiResponse()->exit('ok', ['ok' => $ok], $this->parameters['extension'] ?? null);
 	}
 }

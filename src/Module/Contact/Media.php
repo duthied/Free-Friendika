@@ -36,7 +36,7 @@ class Media extends BaseModule
 {
 	public function content(): string
 	{
-		$cid = static::$parameters['id'];
+		$cid = $this->parameters['id'];
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid]);
 		if (empty($contact)) {

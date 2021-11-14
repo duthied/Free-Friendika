@@ -34,7 +34,7 @@ class Theme extends BaseModule
 	{
 		header('Content-Type: text/css');
 
-		$theme = Strings::sanitizeFilePathItem(static::$parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 
 		if (file_exists("view/theme/$theme/theme.php")) {
 			require_once "view/theme/$theme/theme.php";

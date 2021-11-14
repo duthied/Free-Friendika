@@ -70,6 +70,6 @@ class Index extends BaseApi
 			];
 		}
 
-		DI::apiResponse()->exit('events', ['events' => $items], static::$parameters['extension'] ?? null);
+		DI::apiResponse()->exit('events', ['events' => $items], $this->parameters['extension'] ?? null);
 	}
 }

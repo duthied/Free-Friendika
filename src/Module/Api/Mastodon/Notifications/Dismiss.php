@@ -37,11 +37,11 @@ class Dismiss extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$Notification = DI::notification()->selectOneForUser($uid, static::$parameters['id']);
+		$Notification = DI::notification()->selectOneForUser($uid, $this->parameters['id']);
 		$Notification->setSeen();
 		DI::notification()->save($Notification);
 

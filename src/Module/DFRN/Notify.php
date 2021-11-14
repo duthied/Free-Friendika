@@ -47,8 +47,8 @@ class Notify extends BaseModule
 		}
 
 		$data = json_decode($postdata);
-		if (is_object($data) && !empty(static::$parameters['nickname'])) {
-			$user = User::getByNickname(static::$parameters['nickname']);
+		if (is_object($data) && !empty($this->parameters['nickname'])) {
+			$user = User::getByNickname($this->parameters['nickname']);
 			if (empty($user)) {
 				throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 			}

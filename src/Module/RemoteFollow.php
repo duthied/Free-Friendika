@@ -44,7 +44,7 @@ class RemoteFollow extends BaseModule
 
 	public function init()
 	{
-		self::$owner = User::getOwnerDataByNick(static::$parameters['profile']);
+		self::$owner = User::getOwnerDataByNick($this->parameters['profile']);
 		if (!self::$owner) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
@@ -115,7 +115,7 @@ class RemoteFollow extends BaseModule
 			'$submit'        => DI::l10n()->t('Submit Request'),
 			'$cancel'        => DI::l10n()->t('Cancel'),
 
-			'$request'       => 'remote_follow/' . static::$parameters['profile'],
+			'$request'       => 'remote_follow/' . $this->parameters['profile'],
 			'$name'          => self::$owner['name'],
 			'$myaddr'        => Profile::getMyURL(),
 		]);

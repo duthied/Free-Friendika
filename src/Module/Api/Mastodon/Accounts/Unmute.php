@@ -36,12 +36,12 @@ class Unmute extends BaseApi
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		Contact\User::setIgnored(static::$parameters['id'], $uid, false);
+		Contact\User::setIgnored($this->parameters['id'], $uid, false);
 
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId(static::$parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
 }

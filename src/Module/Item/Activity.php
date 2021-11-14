@@ -44,12 +44,12 @@ class Activity extends BaseModule
 			throw new HTTPException\ForbiddenException();
 		}
 
-		if (empty(static::$parameters['id']) || empty(static::$parameters['verb'])) {
+		if (empty($this->parameters['id']) || empty($this->parameters['verb'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
-		$verb = static::$parameters['verb'];
-		$itemId =  static::$parameters['id'];
+		$verb = $this->parameters['verb'];
+		$itemId =  $this->parameters['id'];
 
 		if (in_array($verb, ['announce', 'unannounce'])) {
 			$item = Post::selectFirst(['network'], ['id' => $itemId]);

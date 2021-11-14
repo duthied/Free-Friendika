@@ -45,7 +45,7 @@ class Common extends BaseProfile
 
 		Nav::setSelected('home');
 
-		$nickname = static::$parameters['nickname'];
+		$nickname = $this->parameters['nickname'];
 
 		$profile = Profile::load($a, $nickname);
 		if (empty($profile)) {

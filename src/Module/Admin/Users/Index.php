@@ -71,8 +71,8 @@ class Index extends BaseUsers
 	{
 		parent::content();
 
-		$action = static::$parameters['action'] ?? '';
-		$uid = static::$parameters['uid'] ?? 0;
+		$action = $this->parameters['action'] ?? '';
+		$uid = $this->parameters['uid'] ?? 0;
 
 		if ($uid) {
 			$user = User::getById($uid, ['username', 'blocked']);

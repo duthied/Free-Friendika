@@ -34,7 +34,7 @@ class Details extends BaseAdmin
 	{
 		self::checkAdminAccess();
 
-		$addon = Strings::sanitizeFilePathItem(static::$parameters['addon']);
+		$addon = Strings::sanitizeFilePathItem($this->parameters['addon']);
 
 		$redirect = 'admin/addons/' . $addon;
 
@@ -60,7 +60,7 @@ class Details extends BaseAdmin
 
 		$addons_admin = Addon::getAdminList();
 
-		$addon = Strings::sanitizeFilePathItem(static::$parameters['addon']);
+		$addon = Strings::sanitizeFilePathItem($this->parameters['addon']);
 		if (!is_file("addon/$addon/$addon.php")) {
 			notice(DI::l10n()->t('Addon not found.'));
 			Addon::uninstall($addon);

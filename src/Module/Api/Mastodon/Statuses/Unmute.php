@@ -37,11 +37,11 @@ class Unmute extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => static::$parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -50,8 +50,8 @@ class Unmute extends BaseApi
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be unmuted'));
 		}
 
-		Post\ThreadUser::setIgnored(static::$parameters['id'], $uid, false);
+		Post\ThreadUser::setIgnored($this->parameters['id'], $uid, false);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId(static::$parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid)->toArray());
 	}
 }

@@ -42,7 +42,7 @@ class Queue extends BaseAdmin
 	{
 		parent::content();
 
-		$status = static::$parameters['status'] ?? '';
+		$status = $this->parameters['status'] ?? '';
 
 		// get jobs from the workerqueue table
 		if ($status == 'deferred') {

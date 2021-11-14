@@ -36,8 +36,8 @@ class DBSync extends BaseAdmin
 
 		$a = DI::app();
 
-		$action = static::$parameters['action'] ?? '';
-		$update = static::$parameters['update'] ?? 0;
+		$action = $this->parameters['action'] ?? '';
+		$update = $this->parameters['update'] ?? 0;
 
 		switch ($action) {
 			case 'mark':

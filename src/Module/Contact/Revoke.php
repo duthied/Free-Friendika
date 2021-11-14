@@ -43,7 +43,7 @@ class Revoke extends BaseModule
 			return;
 		}
 
-		$data = Model\Contact::getPublicAndUserContactID(static::$parameters['id'], local_user());
+		$data = Model\Contact::getPublicAndUserContactID($this->parameters['id'], local_user());
 		if (!DBA::isResult($data)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Unknown contact.'));
 		}
@@ -69,7 +69,7 @@ class Revoke extends BaseModule
 			throw new HTTPException\UnauthorizedException();
 		}
 
-		self::checkFormSecurityTokenRedirectOnError('contact/' . static::$parameters['id'], 'contact_revoke');
+		self::checkFormSecurityTokenRedirectOnError('contact/' . $this->parameters['id'], 'contact_revoke');
 
 		$result = Model\Contact::revokeFollow(self::$contact);
 		if ($result === true) {
@@ -80,7 +80,7 @@ class Revoke extends BaseModule
 			notice(DI::l10n()->t('Unable to revoke follow, please try again later or contact the administrator.'));
 		}
 
-		DI::baseUrl()->redirect('contact/' . static::$parameters['id']);
+		DI::baseUrl()->redirect('contact/' . $this->parameters['id']);
 	}
 
 	public function content(): string

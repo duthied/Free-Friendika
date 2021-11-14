@@ -37,11 +37,11 @@ class ItemBody extends BaseModule
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Access denied.'));
 		}
 
-		if (empty(static::$parameters['item'])) {
+		if (empty($this->parameters['item'])) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Item not found.'));
 		}
 
-		$itemId = intval(static::$parameters['item']);
+		$itemId = intval($this->parameters['item']);
 
 		$item = Post::selectFirst(['body'], ['uid' => [0, local_user()], 'uri-id' => $itemId]);
 

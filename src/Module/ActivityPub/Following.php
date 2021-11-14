@@ -33,11 +33,11 @@ class Following extends BaseModule
 {
 	public function rawContent()
 	{
-		if (empty(static::$parameters['nickname'])) {
+		if (empty($this->parameters['nickname'])) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		$owner = User::getOwnerDataByNick(static::$parameters['nickname']);
+		$owner = User::getOwnerDataByNick($this->parameters['nickname']);
 		if (empty($owner)) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}

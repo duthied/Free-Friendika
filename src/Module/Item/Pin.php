@@ -42,11 +42,11 @@ class Pin extends BaseModule
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
-		$itemId = intval(static::$parameters['id']);
+		$itemId = intval($this->parameters['id']);
 
 		$item = Post::selectFirst(['uri-id', 'uid'], ['id' => $itemId]);
 		if (!DBA::isResult($item)) {

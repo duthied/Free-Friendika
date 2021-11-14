@@ -80,7 +80,7 @@ class Schedule extends BaseProfile
 			'$form_security_token' => BaseModule::getFormSecurityToken("profile_schedule"),
 			'$baseurl'             => DI::baseUrl()->get(true),
 			'$title'               => DI::l10n()->t('Scheduled Posts'),
-			'$nickname'            => static::$parameters['nickname'] ?? '',
+			'$nickname'            => $this->parameters['nickname'] ?? '',
 			'$scheduled_at'        => DI::l10n()->t('Scheduled'),
 			'$content'             => DI::l10n()->t('Content'),
 			'$delete'              => DI::l10n()->t('Remove post'),

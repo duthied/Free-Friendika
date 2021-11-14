@@ -65,18 +65,18 @@ class Media extends BaseApi
 			'focus'       => '', // Two floating points (x,y), comma-delimited ranging from -1.0 to 1.0
 		]);
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$photo = Photo::selectFirst(['resource-id'], ['id' => static::$parameters['id'], 'uid' => $uid]);
+		$photo = Photo::selectFirst(['resource-id'], ['id' => $this->parameters['id'], 'uid' => $uid]);
 		if (empty($photo['resource-id'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
 		Photo::update(['desc' => $request['description']], ['resource-id' => $photo['resource-id']]);
 
-		System::jsonExit(DI::mstdnAttachment()->createFromPhoto(static::$parameters['id']));
+		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($this->parameters['id']));
 	}
 
 	/**
@@ -87,11 +87,11 @@ class Media extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = static::$parameters['id'];
+		$id = $this->parameters['id'];
 		if (!Photo::exists(['id' => $id, 'uid' => $uid])) {
 			DI::mstdnError()->RecordNotFound();
 		}

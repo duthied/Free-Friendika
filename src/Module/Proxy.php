@@ -46,7 +46,7 @@ class Proxy extends BaseModule
 	 */
 	public function rawContent()
 	{
-		$request = self::getRequestInfo();
+		$request = $this->getRequestInfo();
 
 		if (!DI::config()->get('system', 'proxify_content')) {
 			Logger::notice('Proxy access is forbidden', ['request' => $request, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'accept' => $_SERVER['HTTP_ACCEPT'] ?? '']);
@@ -119,13 +119,13 @@ class Proxy extends BaseModule
 	 *    ]
 	 * @throws \Exception
 	 */
-	private static function getRequestInfo()
+	private function getRequestInfo()
 	{
 		$size = ProxyUtils::PIXEL_LARGE;
 		$sizetype = '';
 
-		if (!empty(static::$parameters['url']) && empty($_REQUEST['url'])) {
-			$url = static::$parameters['url'];
+		if (!empty($this->parameters['url']) && empty($_REQUEST['url'])) {
+			$url = $this->parameters['url'];
 
 			// thumb, small, medium and large.
 			if (substr($url, -6) == ':micro') {

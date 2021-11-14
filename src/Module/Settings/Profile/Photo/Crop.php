@@ -39,7 +39,7 @@ class Crop extends BaseSettings
 			return;
 		}
 
-		$photo_prefix = static::$parameters['guid'];
+		$photo_prefix = $this->parameters['guid'];
 		$resource_id = $photo_prefix;
 		$scale = 0;
 		if (substr($photo_prefix, -2, 1) == '-') {
@@ -168,7 +168,7 @@ class Crop extends BaseSettings
 
 		parent::content();
 
-		$resource_id = static::$parameters['guid'];
+		$resource_id = $this->parameters['guid'];
 
 		$photos = Photo::selectToArray([], ['resource-id' => $resource_id, 'uid' => local_user()], ['order' => ['scale' => false]]);
 		if (!DBA::isResult($photos)) {

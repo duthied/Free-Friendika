@@ -36,11 +36,11 @@ class Follow extends BaseApi
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$cid = Contact::follow(static::$parameters['id'], $uid);
+		$cid = Contact::follow($this->parameters['id'], $uid);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($cid, $uid)->toArray());
 	}

@@ -37,7 +37,7 @@ class Note extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
@@ -45,13 +45,13 @@ class Note extends BaseApi
 			'comment' => '',
 		]);
 
-		$cdata = Contact::getPublicAndUserContactID(static::$parameters['id'], $uid);
+		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
 		if (empty($cdata['user'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
 		Contact::update(['info' => $request['comment']], ['id' => $cdata['user']]);
 
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId(static::$parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
 }

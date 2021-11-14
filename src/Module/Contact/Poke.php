@@ -20,7 +20,7 @@ class Poke extends BaseModule
 {
 	public function post()
 	{
-		if (!local_user() || empty(static::$parameters['id'])) {
+		if (!local_user() || empty($this->parameters['id'])) {
 			return self::postReturn(false);
 		}
 
@@ -39,14 +39,14 @@ class Poke extends BaseModule
 
 		$activity = Activity::POKE . '#' . urlencode($verbs[$verb][0]);
 
-		$contact_id = intval(static::$parameters['id']);
+		$contact_id = intval($this->parameters['id']);
 		if (!$contact_id) {
 			return self::postReturn(false);
 		}
 
 		Logger::info('verb ' . $verb . ' contact ' . $contact_id);
 
-		$contact = DBA::selectFirst('contact', ['id', 'name', 'url', 'photo'], ['id' => static::$parameters['id'], 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', ['id', 'name', 'url', 'photo'], ['id' => $this->parameters['id'], 'uid' => local_user()]);
 		if (!DBA::isResult($contact)) {
 			return self::postReturn(false);
 		}
@@ -129,11 +129,11 @@ class Poke extends BaseModule
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('You must be logged in to use this module.'));
 		}
 
-		if (empty(static::$parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
-		$contact = DBA::selectFirst('contact', ['id', 'url', 'name'], ['id' => static::$parameters['id'], 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', ['id', 'url', 'name'], ['id' => $this->parameters['id'], 'uid' => local_user()]);
 		if (!DBA::isResult($contact)) {
 			throw new HTTPException\NotFoundException();
 		}

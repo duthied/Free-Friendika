@@ -59,7 +59,7 @@ class Update extends BaseApi
 		// return success of updating or error message
 		if ($result) {
 			$answer = ['result' => 'updated', 'message' => 'album `' . $request['album'] . '` with all containing photos has been renamed to `' . $request['album_new'] . '`.'];
-			DI::apiResponse()->exit('photoalbum_update', ['$result' => $answer], static::$parameters['extension'] ?? null);
+			DI::apiResponse()->exit('photoalbum_update', ['$result' => $answer], $this->parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error - updating in database failed");
 		}

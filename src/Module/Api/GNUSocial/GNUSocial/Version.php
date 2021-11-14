@@ -31,6 +31,6 @@ class Version extends BaseApi
 {
 	public function rawContent()
 	{
-		DI::apiResponse()->exit('version', ['version' => '0.9.7'], static::$parameters['extension'] ?? null);
+		DI::apiResponse()->exit('version', ['version' => '0.9.7'], $this->parameters['extension'] ?? null);
 	}
 }

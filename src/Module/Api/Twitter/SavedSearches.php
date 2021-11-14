@@ -45,6 +45,6 @@ class SavedSearches extends BaseApi
 
 		DBA::close($terms);
 
-		DI::apiResponse()->exit('terms', ['terms' => $result], static::$parameters['extension'] ?? null);
+		DI::apiResponse()->exit('terms', ['terms' => $result], $this->parameters['extension'] ?? null);
 	}
 }
