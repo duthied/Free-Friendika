@@ -146,24 +146,28 @@ class ModuleTest extends DatabaseTest
 				'name'    => App\Module::DEFAULT,
 				'command' => App\Module::DEFAULT,
 				'privAdd' => false,
+				'args'    => [],
 			],
 			'legacy'  => [
 				'assert'  => LegacyModule::class,
 				'name'    => 'display',
 				'command' => 'display/test/it',
 				'privAdd' => false,
+				'args'    => [__DIR__ . '/../../datasets/legacy/legacy.php'],
 			],
 			'new'     => [
 				'assert'  => HostMeta::class,
 				'not_required',
 				'command' => '.well-known/host-meta',
 				'privAdd' => false,
+				'args'    => [],
 			],
 			'404'     => [
 				'assert'  => PageNotFound::class,
 				'name'    => 'invalid',
 				'command' => 'invalid',
 				'privAdd' => false,
+				'args'    => [],
 			]
 		];
 	}
@@ -173,7 +177,7 @@ class ModuleTest extends DatabaseTest
 	 *
 	 * @dataProvider dataModuleClass
 	 */
-	public function testModuleClass($assert, string $name, string $command, bool $privAdd)
+	public function testModuleClass($assert, string $name, string $command, bool $privAdd, array $args)
 	{
 		$config = Mockery::mock(IManageConfigValues::class);
 		$config->shouldReceive('get')->with('config', 'private_addons', false)->andReturn($privAdd)->atMost()->once();
@@ -193,7 +197,8 @@ class ModuleTest extends DatabaseTest
 		$router = (new App\Router([], __DIR__ . '/../../../static/routes.config.php', $l10n, $cache, $lock));
 
 		$dice = Mockery::mock(Dice::class);
-		$dice->shouldReceive('create')->andReturn(new $assert());
+
+		$dice->shouldReceive('create')->andReturn(new $assert(...$args));
 
 		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config, $dice);
 
