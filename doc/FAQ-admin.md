@@ -9,6 +9,7 @@ Frequently Asked Questions (Admin) - FAQ
 * **[Can there be more then just one admin for a node?](help/FAQ#adminaccount2)**
 * **[The Database structure seems not to be updated. What can I do?](help/FAQ#dbupdate)**
 
+
 <a name="multiple"></a>
 ### Can I configure multiple domains with the same code instance?
 
