@@ -36,6 +36,7 @@ Friendica Documentation and Resources
 * [Improve Performance](help/Improve-Performance)
 * [Migrate](help/Migrate)
 * [Administration Tools](help/tools)
+* [Admin FAQ](help/FAQ-admin.md)
 
 **Developer Manual**
 
