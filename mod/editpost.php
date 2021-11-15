@@ -130,6 +130,15 @@ function editpost_content(App $a)
 		'$cancel' => DI::l10n()->t('Cancel'),
 		'$rand_num' => Crypto::randomDigits(12),
 
+		// Formatting button labels
+		'$edbold'   => DI::l10n()->t('Bold'),
+		'$editalic' => DI::l10n()->t('Italic'),
+		'$eduline'  => DI::l10n()->t('Underline'),
+		'$edquote'  => DI::l10n()->t('Quote'),
+		'$edcode'   => DI::l10n()->t('Code'),
+		'$edurl'    => DI::l10n()->t('Link'),
+		'$edattach' => DI::l10n()->t('Link or Media'),
+
 		//jot nav tab (used in some themes)
 		'$message' => DI::l10n()->t('Message'),
 		'$browser' => DI::l10n()->t('Browser'),
