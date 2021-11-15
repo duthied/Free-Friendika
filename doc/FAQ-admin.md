@@ -3,11 +3,11 @@ Frequently Asked Questions (Admin) - FAQ
 
 * [Home](help)
 
-* **[Can I configure multiple domains with the same code instance?](help/FAQ#multiple)**
-* **[Where can I find the source code of friendica, addons and themes?](help/FAQ#sources)**
-* **[I've changed the my email address now the admin panel is gone?](help/FAQ#adminaccount1)**
-* **[Can there be more then just one admin for a node?](help/FAQ#adminaccount2)**
-* **[The Database structure seems not to be updated. What can I do?](help/FAQ#dbupdate)**
+* **[Can I configure multiple domains with the same code instance?](help/FAQ-admin#multiple)**
+* **[Where can I find the source code of friendica, addons and themes?](help/FAQ-admin#sources)**
+* **[I've changed the my email address now the admin panel is gone?](help/FAQ-admin#adminaccount1)**
+* **[Can there be more then just one admin for a node?](help/FAQ-admin#adminaccount2)**
+* **[The Database structure seems not to be updated. What can I do?](help/FAQ-admin#dbupdate)**
 
 
 <a name="multiple"></a>

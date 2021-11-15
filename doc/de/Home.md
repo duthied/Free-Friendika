@@ -37,7 +37,7 @@ Friendica - Dokumentation und Ressourcen
 * [Konfigurationswerte, die nur in der config/local.config.php gesetzt werden können](help/Config) (EN)
 * [Performance verbessern](help/Improve-Performance)
 * [Administration Werkzeuge](help/tools) (EN)
-* [Admin FAQ](help/FAQ-admin.md)
+* [Admin FAQ](help/FAQ-admin)
 
 **Dokumentation für Entwickler**
 
