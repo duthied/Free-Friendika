@@ -139,14 +139,14 @@ class Mode
 	/**
 	 * Checks if the site is called via a backend process
 	 *
-	 * @param bool         $isBackend    True, if the call is from a backend script (daemon, worker, ...)
-	 * @param Module       $module       The pre-loaded module (just name, not class!)
-	 * @param array        $server       The $_SERVER variable
-	 * @param MobileDetect $mobileDetect The mobile detection library
+	 * @param bool             $isBackend    True, if the call is from a backend script (daemon, worker, ...)
+	 * @param ModuleController $module       The pre-loaded module (just name, not class!)
+	 * @param array            $server       The $_SERVER variable
+	 * @param MobileDetect     $mobileDetect The mobile detection library
 	 *
 	 * @return Mode returns the determined mode
 	 */
-	public function determineRunMode(bool $isBackend, Module $module, array $server, MobileDetect $mobileDetect)
+	public function determineRunMode(bool $isBackend, ModuleController $module, array $server, MobileDetect $mobileDetect)
 	{
 		foreach (self::BACKEND_CONTENT_TYPES as $type) {
 			if (strpos(strtolower($server['HTTP_ACCEPT'] ?? ''), $type) !== false) {

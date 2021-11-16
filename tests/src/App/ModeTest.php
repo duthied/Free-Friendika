@@ -23,7 +23,7 @@ namespace Friendica\Test\src\App;
 
 use Detection\MobileDetect;
 use Friendica\App\Mode;
-use Friendica\App\Module;
+use Friendica\App\ModuleController;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Database\Database;
 use Friendica\Test\MockedTest;
@@ -204,7 +204,7 @@ class ModeTest extends MockedTest
 	public function testIsBackendNotIsBackend()
 	{
 		$server       = [];
-		$module       = new Module();
+		$module       = new ModuleController();
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
@@ -218,7 +218,7 @@ class ModeTest extends MockedTest
 	public function testIsBackendButIndex()
 	{
 		$server       = [];
-		$module       = new Module(Module::DEFAULT, null, true);
+		$module       = new ModuleController(ModuleController::DEFAULT, null, true);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
@@ -232,7 +232,7 @@ class ModeTest extends MockedTest
 	public function testIsNotBackend()
 	{
 		$server       = [];
-		$module       = new Module(Module::DEFAULT, null, false);
+		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
@@ -250,7 +250,7 @@ class ModeTest extends MockedTest
 			'HTTP_X_REQUESTED_WITH' => 'xmlhttprequest',
 		];
 
-		$module       = new Module(Module::DEFAULT, null, false);
+		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
@@ -264,7 +264,7 @@ class ModeTest extends MockedTest
 	public function testIsNotAjax()
 	{
 		$server       = [];
-		$module       = new Module(Module::DEFAULT, null, false);
+		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
@@ -278,7 +278,7 @@ class ModeTest extends MockedTest
 	public function testIsMobileIsTablet()
 	{
 		$server       = [];
-		$module       = new Module(Module::DEFAULT, null, false);
+		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
 		$mobileDetect = Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(true);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(true);
@@ -296,7 +296,7 @@ class ModeTest extends MockedTest
 	public function testIsNotMobileIsNotTablet()
 	{
 		$server       = [];
-		$module       = new Module(Module::DEFAULT, null, false);
+		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
 		$mobileDetect = Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(false);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(false);

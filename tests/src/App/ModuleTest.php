@@ -35,11 +35,11 @@ use Mockery;
 
 class ModuleTest extends DatabaseTest
 {
-	private function assertModule(array $assert, App\Module $module)
+	private function assertModule(array $assert, App\ModuleController $module)
 	{
 		self::assertEquals($assert['isBackend'], $module->isBackend());
 		self::assertEquals($assert['name'], $module->getName());
-		self::assertEquals($assert['class'], $module->getClass());
+		self::assertEquals($assert['class'], $module->getModule());
 	}
 
 	/**
@@ -47,20 +47,20 @@ class ModuleTest extends DatabaseTest
 	 */
 	public function testDefault()
 	{
-		$module = new App\Module();
+		$module = new App\ModuleController();
 
-		$defaultClass = App\Module::DEFAULT_CLASS;
+		$defaultClass = App\ModuleController::DEFAULT_CLASS;
 
 		self::assertModule([
 			'isBackend' => false,
-			'name'      => App\Module::DEFAULT,
+			'name'      => App\ModuleController::DEFAULT,
 			'class'     => new $defaultClass(),
 		], $module);
 	}
 
 	public function dataModuleName()
 	{
-		$defaultClass = App\Module::DEFAULT_CLASS;
+		$defaultClass = App\ModuleController::DEFAULT_CLASS;
 
 		return [
 			'default'                   => [
@@ -88,7 +88,7 @@ class ModuleTest extends DatabaseTest
 			'withNothing'               => [
 				'assert' => [
 					'isBackend' => false,
-					'name'      => App\Module::DEFAULT,
+					'name'      => App\ModuleController::DEFAULT,
 					'class'     => new $defaultClass(),
 				],
 				'args'   => new App\Arguments(),
@@ -96,7 +96,7 @@ class ModuleTest extends DatabaseTest
 			'withIndex'                 => [
 				'assert' => [
 					'isBackend' => false,
-					'name'      => App\Module::DEFAULT,
+					'name'      => App\ModuleController::DEFAULT,
 					'class'     => new $defaultClass(),
 				],
 				'args'   => new App\Arguments(),
@@ -104,12 +104,12 @@ class ModuleTest extends DatabaseTest
 			'withBackendMod'    => [
 				'assert' => [
 					'isBackend' => true,
-					'name'      => App\Module::BACKEND_MODULES[0],
+					'name'      => App\ModuleController::BACKEND_MODULES[0],
 					'class'     => new $defaultClass(),
 				],
-				'args'   => new App\Arguments(App\Module::BACKEND_MODULES[0] . '/data/in',
-					App\Module::BACKEND_MODULES[0] . '/data/in',
-					[App\Module::BACKEND_MODULES[0], 'data', 'in'],
+				'args'   => new App\Arguments(App\ModuleController::BACKEND_MODULES[0] . '/data/in',
+					App\ModuleController::BACKEND_MODULES[0] . '/data/in',
+					[App\ModuleController::BACKEND_MODULES[0], 'data', 'in'],
 					3),
 			],
 			'withFirefoxApp'            => [
@@ -133,7 +133,7 @@ class ModuleTest extends DatabaseTest
 	 */
 	public function testModuleName(array $assert, App\Arguments $args)
 	{
-		$module = (new App\Module())->determineModule($args);
+		$module = (new App\ModuleController())->determineName($args);
 
 		self::assertModule($assert, $module);
 	}
@@ -142,9 +142,9 @@ class ModuleTest extends DatabaseTest
 	{
 		return [
 			'default' => [
-				'assert'  => App\Module::DEFAULT_CLASS,
-				'name'    => App\Module::DEFAULT,
-				'command' => App\Module::DEFAULT,
+				'assert'  => App\ModuleController::DEFAULT_CLASS,
+				'name'    => App\ModuleController::DEFAULT,
+				'command' => App\ModuleController::DEFAULT,
 				'privAdd' => false,
 				'args'    => [],
 			],
@@ -200,9 +200,9 @@ class ModuleTest extends DatabaseTest
 
 		$dice->shouldReceive('create')->andReturn(new $assert(...$args));
 
-		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config, $dice);
+		$module = (new App\ModuleController($name))->determineClass(new App\Arguments('', $command), $router, $config, $dice);
 
-		self::assertEquals($assert, $module->getClass()->getClassName());
+		self::assertEquals($assert, $module->getModule()->getClassName());
 	}
 
 	/**
@@ -210,9 +210,9 @@ class ModuleTest extends DatabaseTest
 	 */
 	public function testImmutable()
 	{
-		$module = new App\Module();
+		$module = new App\ModuleController();
 
-		$moduleNew = $module->determineModule(new App\Arguments());
+		$moduleNew = $module->determineName(new App\Arguments());
 
 		self::assertNotSame($moduleNew, $module);
 	}
