@@ -128,7 +128,7 @@ class User extends BaseDataTransferObject
 		$this->favourites_count        = 0;
 		$this->verified                = $uid != 0;
 		$this->statuses_count          = $apcontact['statuses_count'] ?? 0;
-		$this->profile_banner_url      = '';
+		$this->profile_banner_url      = Contact::getHeaderUrlForId($publicContact['id'], '', $publicContact['updated']);
 		$this->default_profile         = false;
 		$this->default_profile_image   = false;
 
