@@ -153,7 +153,7 @@ class Module
 
 		$isBackend = in_array($module, Module::BACKEND_MODULES);;
 
-		return new Module($module,null, $isBackend, $this->printNotAllowedAddon);
+		return new Module($module, null, $isBackend, $this->printNotAllowedAddon);
 	}
 
 	/**
