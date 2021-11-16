@@ -57,13 +57,6 @@ interface ICanHandleRequests
 	public function post();
 
 	/**
-	 * Called after post()
-	 *
-	 * Unknown purpose
-	 */
-	public function afterpost();
-
-	/**
 	 * Module PUT method to process submitted data
 	 *
 	 * Extend this method if the module is supposed to process PUT requests.

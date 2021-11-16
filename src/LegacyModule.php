@@ -76,11 +76,6 @@ class LegacyModule extends BaseModule
 		$this->runModuleFunction('post');
 	}
 
-	public function afterpost()
-	{
-		$this->runModuleFunction('afterpost');
-	}
-
 	/**
 	 * Runs the module function designated by the provided suffix if it exists, the BaseModule method otherwise
 	 *

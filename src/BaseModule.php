@@ -93,13 +93,6 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function afterpost()
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public function put()
 	{
 	}

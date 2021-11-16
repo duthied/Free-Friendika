@@ -318,9 +318,6 @@ class Module
 			$this->module_class->put();
 		}
 
-		Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);
-		$this->module_class->afterpost();
-
 		// "rawContent" is especially meant for technical endpoints.
 		// This endpoint doesn't need any theme initialization or other comparable stuff.
 		$this->module_class->rawContent();
