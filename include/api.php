@@ -464,168 +464,23 @@ function api_get_user($contact_id = null)
 		$user
 	));
 
-	// Selecting the id by priority, friendica first
-	if (is_array($uinfo)) {
+	if (DBA::isResult($uinfo)) {
+		// Selecting the id by priority, friendica first
 		api_best_nickname($uinfo);
+		return DI::twitterUser()->createFromContactId($uinfo[0]['cid'], $uinfo[0]['uid'])->toArray();
 	}
 
-	// if the contact wasn't found, fetch it from the contacts with uid = 0
-	if (!DBA::isResult($uinfo)) {
-		if ($url == "") {
-			throw new BadRequestException("User not found.");
-		}
-
-		$contact = DBA::selectFirst('contact', [], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
-
-		if (DBA::isResult($contact)) {
-			$ret = [
-				'id' => $contact["id"],
-				'id_str' => (string) $contact["id"],
-				'name' => $contact["name"],
-				'screen_name' => (($contact['nick']) ? $contact['nick'] : $contact['name']),
-				'location' => ($contact["location"] != "") ? $contact["location"] : ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']),
-				'description' => BBCode::toPlaintext($contact["about"] ?? ''),
-				'profile_image_url' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_MICRO),
-				'profile_image_url_https' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_MICRO),
-				'profile_image_url_profile_size' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_THUMB),
-				'profile_image_url_large' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_SMALL),
-				'url' => $contact["url"],
-				'protected' => false,
-				'followers_count' => 0,
-				'friends_count' => 0,
-				'listed_count' => 0,
-				'created_at' => api_date($contact["created"]),
-				'favourites_count' => 0,
-				'utc_offset' => 0,
-				'time_zone' => 'UTC',
-				'geo_enabled' => false,
-				'verified' => false,
-				'statuses_count' => 0,
-				'lang' => '',
-				'contributors_enabled' => false,
-				'is_translator' => false,
-				'is_translation_enabled' => false,
-				'following' => false,
-				'follow_request_sent' => false,
-				'statusnet_blocking' => false,
-				'notifications' => false,
-				'statusnet_profile_url' => $contact["url"],
-				'uid' => 0,
-				'cid' => Contact::getIdForURL($contact["url"], api_user(), false),
-				'pid' => Contact::getIdForURL($contact["url"], 0, false),
-				'self' => 0,
-				'network' => $contact["network"],
-			];
-
-			return $ret;
-		} else {
-			throw new BadRequestException("User ".$url." not found.");
-		}
+	if ($url == "") {
+		throw new BadRequestException("User not found.");
 	}
 
-	if ($uinfo[0]['self']) {
-		if ($uinfo[0]['network'] == "") {
-			$uinfo[0]['network'] = Protocol::DFRN;
-		}
+	$cid = Contact::getIdForURL($url, 0, false);
 
-		$usr = DBA::selectFirst('user', ['default-location'], ['uid' => api_user()]);
-		$profile = DBA::selectFirst('profile', ['about'], ['uid' => api_user(), 'is-default' => true]);
-	}
-	$countitems = 0;
-	$countfriends = 0;
-	$countfollowers = 0;
-	$starred = 0;
-
-	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, false);
-
-	if (!empty($profile['about'])) {
-		$description = $profile['about'];
+	if (!empty($cid)) {
+		return DI::twitterUser()->createFromContactId($cid, 0)->toArray();
 	} else {
-		$description = $uinfo[0]["about"];
+		throw new BadRequestException("User ".$url." not found.");
 	}
-
-	if (!empty($usr['default-location'])) {
-		$location = $usr['default-location'];
-	} elseif (!empty($uinfo[0]["location"])) {
-		$location = $uinfo[0]["location"];
-	} else {
-		$location = ContactSelector::networkToName($uinfo[0]['network'], $uinfo[0]['url'], $uinfo[0]['protocol']);
-	}
-
-	$ret = [
-		'id' => intval($pcontact_id),
-		'id_str' => (string) intval($pcontact_id),
-		'name' => (($uinfo[0]['name']) ? $uinfo[0]['name'] : $uinfo[0]['nick']),
-		'screen_name' => (($uinfo[0]['nick']) ? $uinfo[0]['nick'] : $uinfo[0]['name']),
-		'location' => $location,
-		'description' => BBCode::toPlaintext($description ?? ''),
-		'profile_image_url' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_MICRO),
-		'profile_image_url_https' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_MICRO),
-		'profile_image_url_profile_size' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_THUMB),
-		'profile_image_url_large' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_SMALL),
-		'url' => $uinfo[0]['url'],
-		'protected' => false,
-		'followers_count' => intval($countfollowers),
-		'friends_count' => intval($countfriends),
-		'listed_count' => 0,
-		'created_at' => api_date($uinfo[0]['created']),
-		'favourites_count' => intval($starred),
-		'utc_offset' => "0",
-		'time_zone' => 'UTC',
-		'geo_enabled' => false,
-		'verified' => true,
-		'statuses_count' => intval($countitems),
-		'lang' => '',
-		'contributors_enabled' => false,
-		'is_translator' => false,
-		'is_translation_enabled' => false,
-		'following' => (($uinfo[0]['rel'] == Contact::FOLLOWER) || ($uinfo[0]['rel'] == Contact::FRIEND)),
-		'follow_request_sent' => false,
-		'statusnet_blocking' => false,
-		'notifications' => false,
-		/// @TODO old way?
-		//'statusnet_profile_url' => DI::baseUrl()."/contact/".$uinfo[0]['cid'],
-		'statusnet_profile_url' => $uinfo[0]['url'],
-		'uid' => intval($uinfo[0]['uid']),
-		'cid' => intval($uinfo[0]['cid']),
-		'pid' => Contact::getIdForURL($uinfo[0]["url"], 0, false),
-		'self' => $uinfo[0]['self'],
-		'network' => $uinfo[0]['network'],
-	];
-
-	// If this is a local user and it uses Frio, we can get its color preferences.
-	if ($ret['self']) {
-		$theme_info = DBA::selectFirst('user', ['theme'], ['uid' => $ret['uid']]);
-		if ($theme_info['theme'] === 'frio') {
-			$schema = DI::pConfig()->get($ret['uid'], 'frio', 'schema');
-
-			if ($schema && ($schema != '---')) {
-				if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
-					$schemefile = 'view/theme/frio/schema/'.$schema.'.php';
-					require_once $schemefile;
-				}
-			} else {
-				$nav_bg = DI::pConfig()->get($ret['uid'], 'frio', 'nav_bg');
-				$link_color = DI::pConfig()->get($ret['uid'], 'frio', 'link_color');
-				$bgcolor = DI::pConfig()->get($ret['uid'], 'frio', 'background_color');
-			}
-			if (empty($nav_bg)) {
-				$nav_bg = "#708fa0";
-			}
-			if (empty($link_color)) {
-				$link_color = "#6fdbe8";
-			}
-			if (empty($bgcolor)) {
-				$bgcolor = "#ededed";
-			}
-
-			$ret['profile_sidebar_fill_color'] = str_replace('#', '', $nav_bg);
-			$ret['profile_link_color'] = str_replace('#', '', $link_color);
-			$ret['profile_background_color'] = str_replace('#', '', $bgcolor);
-		}
-	}
-
-	return $ret;
 }
 
 /**

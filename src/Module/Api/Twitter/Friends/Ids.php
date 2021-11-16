@@ -19,15 +19,16 @@
  *
  */
 
-namespace Friendica\Module\Api\Twitter;
+namespace Friendica\Module\Api\Twitter\Friends;
 
 use Friendica\Core\System;
 use Friendica\Model\Contact;
+use Friendica\Module\Api\Twitter\ContactEndpoint;
 
 /**
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids
  */
-class FriendsIds extends ContactEndpoint
+class Ids extends ContactEndpoint
 {
 	public static function rawContent(array $parameters = [])
 	{
