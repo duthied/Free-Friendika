@@ -10,7 +10,7 @@ interface ICanHandleRequests
 	/**
 	 * Initialization method common to both content() and post()
 	 *
-	 * Extend this method if you need to do any shared processing before both
+	 * Extend this method if you need to do any shared processing before either
 	 * content() or post()
 	 */
 	public function init();
