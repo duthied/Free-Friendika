@@ -41,7 +41,7 @@ class Help extends BaseModule
 
 		$config = DI::config();
 		$lang = DI::session()->get('language', $config->get('system', 'language'));
-		
+
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgc() > 1) {
 			$path = '';
