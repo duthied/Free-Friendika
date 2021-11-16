@@ -350,7 +350,7 @@ class Page implements ArrayAccess
 			$moduleClass = $module->getClass();
 
 			$arr = ['content' => $content];
-			Hook::callAll( $moduleClass->getClassName() . '_mod_content', $arr);
+			Hook::callAll($moduleClass->getClassName() . '_mod_content', $arr);
 			$content = $arr['content'];
 			$arr     = ['content' => $moduleClass->content()];
 			Hook::callAll($moduleClass->getClassName() . '_mod_aftercontent', $arr);
