@@ -91,7 +91,7 @@ class LegacyModule extends BaseModule
 			$a = DI::app();
 			return $function_name($a);
 		} else {
-			return parent::{$function_suffix}($this->parameters);
+			return parent::{$function_suffix}();
 		}
 	}
 }
