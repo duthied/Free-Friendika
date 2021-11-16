@@ -40,8 +40,7 @@ class Help extends BaseModule
 		$filename = '';
 
 		$config = DI::config();
-		$lang = DI::session()->get('language');
-		$lang = $lang ?? $config->get('system', 'language');
+		$lang = DI::session()->get('language', $config->get('system', 'language'));
 		
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgc() > 1) {
