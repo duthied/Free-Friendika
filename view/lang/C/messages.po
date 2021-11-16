@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-12 21:54+0100\n"
+"POT-Creation-Date: 2021-11-15 19:02-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -293,23 +293,58 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: mod/editpost.php:134 src/Content/Conversation.php:380
+#: mod/editpost.php:134 src/Content/Conversation.php:331
+#: src/Module/Item/Compose.php:151 src/Object/Post.php:965
+msgid "Bold"
+msgstr ""
+
+#: mod/editpost.php:135 src/Content/Conversation.php:332
+#: src/Module/Item/Compose.php:152 src/Object/Post.php:966
+msgid "Italic"
+msgstr ""
+
+#: mod/editpost.php:136 src/Content/Conversation.php:333
+#: src/Module/Item/Compose.php:153 src/Object/Post.php:967
+msgid "Underline"
+msgstr ""
+
+#: mod/editpost.php:137 src/Content/Conversation.php:334
+#: src/Module/Item/Compose.php:154 src/Object/Post.php:968
+msgid "Quote"
+msgstr ""
+
+#: mod/editpost.php:138 src/Content/Conversation.php:335
+#: src/Module/Item/Compose.php:155 src/Object/Post.php:969
+msgid "Code"
+msgstr ""
+
+#: mod/editpost.php:139 src/Content/Conversation.php:337
+#: src/Module/Item/Compose.php:157 src/Object/Post.php:971
+msgid "Link"
+msgstr ""
+
+#: mod/editpost.php:140 src/Content/Conversation.php:338
+#: src/Module/Item/Compose.php:158 src/Object/Post.php:972
+msgid "Link or Media"
+msgstr ""
+
+#: mod/editpost.php:143 src/Content/Conversation.php:380
 #: src/Content/Widget/VCard.php:107 src/Model/Profile.php:460
 #: src/Module/Admin/Logs/View.php:92
 msgid "Message"
 msgstr ""
 
-#: mod/editpost.php:135 src/Content/Conversation.php:381
+#: mod/editpost.php:144 src/Content/Conversation.php:381
 #: src/Module/Settings/TwoFactor/Trusted.php:101
 msgid "Browser"
 msgstr ""
 
-#: mod/editpost.php:136 mod/events.php:522 mod/photos.php:945
+#: mod/editpost.php:145 mod/events.php:522 mod/photos.php:945
 #: mod/photos.php:1297 src/Content/Conversation.php:357
 msgid "Permissions"
 msgstr ""
 
-#: mod/editpost.php:138 src/Content/Conversation.php:383
+#: mod/editpost.php:147 src/Content/Conversation.php:383
 msgid "Open Compose page"
 msgstr ""
 
@@ -2484,44 +2519,9 @@ msgstr ""
 msgid "Share"
 msgstr ""
 
-#: src/Content/Conversation.php:331 src/Module/Item/Compose.php:151
-#: src/Object/Post.php:965
-msgid "Bold"
-msgstr ""
-
-#: src/Content/Conversation.php:332 src/Module/Item/Compose.php:152
-#: src/Object/Post.php:966
-msgid "Italic"
-msgstr ""
-
-#: src/Content/Conversation.php:333 src/Module/Item/Compose.php:153
-#: src/Object/Post.php:967
-msgid "Underline"
-msgstr ""
-
-#: src/Content/Conversation.php:334 src/Module/Item/Compose.php:154
-#: src/Object/Post.php:968
-msgid "Quote"
-msgstr ""
-
-#: src/Content/Conversation.php:335 src/Module/Item/Compose.php:155
-#: src/Object/Post.php:969
-msgid "Code"
-msgstr ""
-
 #: src/Content/Conversation.php:336 src/Module/Item/Compose.php:156
 #: src/Object/Post.php:970
 msgid "Image"
-msgstr ""
-
-#: src/Content/Conversation.php:337 src/Module/Item/Compose.php:157
-#: src/Object/Post.php:971
-msgid "Link"
-msgstr ""
-
-#: src/Content/Conversation.php:338 src/Module/Item/Compose.php:158
-#: src/Object/Post.php:972
-msgid "Link or Media"
 msgstr ""
 
 #: src/Content/Conversation.php:339
@@ -6798,12 +6798,12 @@ msgstr ""
 msgid "Deny"
 msgstr ""
 
-#: src/Module/Api/ApiResponse.php:234
+#: src/Module/Api/ApiResponse.php:230
 #, php-format
 msgid "API endpoint %s %s is not implemented"
 msgstr ""
 
-#: src/Module/Api/ApiResponse.php:235
+#: src/Module/Api/ApiResponse.php:231
 msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr ""
