@@ -82,7 +82,7 @@ $called_api = [];
  */
 function api_user()
 {
-	$user = BaseApi::getCurrentUserID();
+	$user = OAuth::getCurrentUserID();
 	if (!empty($user)) {
 		return $user;
 	}
