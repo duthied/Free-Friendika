@@ -41,7 +41,7 @@ use Friendica\Util\Images;
  */
 class Statuses extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -207,16 +207,16 @@ class Statuses extends BaseApi
 		DI::mstdnError()->InternalError();
 	}
 
-	public static function delete(array $parameters = [])
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $parameters['id'], 'uid' => $uid]);
+		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $this->parameters['id'], 'uid' => $uid]);
 		if (empty($item['id'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -229,17 +229,16 @@ class Statuses extends BaseApi
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], $uid));
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid));
 	}
 }

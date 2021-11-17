@@ -27,7 +27,7 @@ use Friendica\Network\HTTPException;
 
 class PageNotFound extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		throw new HTTPException\NotFoundException(DI::l10n()->t('Page not found.'));
 	}

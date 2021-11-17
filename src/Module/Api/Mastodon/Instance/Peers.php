@@ -34,10 +34,9 @@ use Friendica\Util\Network;
 class Peers extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$return = [];
 

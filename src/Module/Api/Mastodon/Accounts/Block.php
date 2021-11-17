@@ -32,12 +32,12 @@ use Friendica\Module\BaseApi;
  */
 class Block extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
@@ -46,7 +46,7 @@ class Block extends BaseApi
 			DI::mstdnError()->Forbidden();
 		}
 
-		$cdata = Contact::getPublicAndUserContactID($parameters['id'], $uid);
+		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
 		if (empty($cdata['user'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -62,6 +62,6 @@ class Block extends BaseApi
 		Contact::terminateFriendship($owner, $contact);
 		Contact::revokeFollow($contact);
 
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId($parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
 }

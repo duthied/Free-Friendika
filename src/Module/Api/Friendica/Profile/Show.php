@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException;
  */
 class Show extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
@@ -49,7 +49,7 @@ class Show extends BaseApi
 		$profile = self::formatProfile($profile, $profileFields);
 
 		$profiles = [];
-		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
+		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
 			$profiles['0:profile'] = $profile;
 		} else {
 			$profiles[] = $profile;
@@ -65,7 +65,7 @@ class Show extends BaseApi
 			'profiles' => $profiles
 		];
 
-		DI::apiResponse()->exit('friendica_profiles', ['$result' => $result], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('friendica_profiles', ['$result' => $result], $this->parameters['extension'] ?? null);
 	}
 
 	/**

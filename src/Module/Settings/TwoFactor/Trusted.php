@@ -14,7 +14,7 @@ use UAParser\Parser;
  */
 class Trusted extends BaseSettings
 {
-	public static function init(array $parameters = [])
+	public function init()
 	{
 		if (!local_user()) {
 			return;
@@ -32,7 +32,7 @@ class Trusted extends BaseSettings
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		if (!local_user()) {
 			return;
@@ -64,9 +64,9 @@ class Trusted extends BaseSettings
 	}
 
 
-	public static function content(array $parameters = []): string
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$trustedBrowserRepository = new TwoFactor\Repository\TrustedBrowser(DI::dba(), DI::logger());
 		$trustedBrowsers = $trustedBrowserRepository->selectAllByUid(local_user());

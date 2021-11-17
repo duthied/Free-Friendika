@@ -41,9 +41,9 @@ use Friendica\Util\Strings;
  */
 class Objects extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
-		if (empty($parameters['guid'])) {
+		if (empty($this->parameters['guid'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
@@ -51,10 +51,10 @@ class Objects extends BaseModule
 			DI::baseUrl()->redirect(str_replace('objects/', 'display/', DI::args()->getQueryString()));
 		}
 
-		$itemuri = DBA::selectFirst('item-uri', ['id'], ['guid' => $parameters['guid']]);
+		$itemuri = DBA::selectFirst('item-uri', ['id'], ['guid' => $this->parameters['guid']]);
 
 		if (DBA::isResult($itemuri)) {
-			Logger::info('Provided GUID found.', ['guid' => $parameters['guid'], 'uri-id' => $itemuri['id']]);
+			Logger::info('Provided GUID found.', ['guid' => $this->parameters['guid'], 'uri-id' => $itemuri['id']]);
 		} else {
 			// The item URI does not always contain the GUID. This means that we have to search the URL instead
 			$url = DI::baseUrl()->get() . '/' . DI::args()->getQueryString();
@@ -104,11 +104,11 @@ class Objects extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		$etag          = md5($parameters['guid'] . '-' . $item['changed']);
+		$etag          = md5($this->parameters['guid'] . '-' . $item['changed']);
 		$last_modified = $item['changed'];
 		Network::checkEtagModified($etag, $last_modified);
 
-		if (empty($parameters['activity']) && ($item['gravity'] != GRAVITY_ACTIVITY)) {
+		if (empty($this->parameters['activity']) && ($item['gravity'] != GRAVITY_ACTIVITY)) {
 			$activity = ActivityPub\Transmitter::createActivityFromItem($item['id'], true);
 			if (empty($activity['type'])) {
 				throw new HTTPException\NotFoundException();
@@ -123,16 +123,16 @@ class Objects extends BaseModule
 
 			$data = ['@context' => ActivityPub::CONTEXT];
 			$data = array_merge($data, $activity['object']);
-		} elseif (empty($parameters['activity']) || in_array($parameters['activity'],
+		} elseif (empty($this->parameters['activity']) || in_array($this->parameters['activity'],
 			['Create', 'Announce', 'Update', 'Like', 'Dislike', 'Accept', 'Reject',
 			'TentativeAccept', 'Follow', 'Add'])) {
 			$data = ActivityPub\Transmitter::createActivityFromItem($item['id']);
 			if (empty($data)) {
 				throw new HTTPException\NotFoundException();
 			}
-			if (!empty($parameters['activity']) && ($parameters['activity'] != 'Create')) {
-				$data['type'] = $parameters['activity'];
-				$data['id'] = str_replace('/Create', '/' . $parameters['activity'], $data['id']);
+			if (!empty($this->parameters['activity']) && ($this->parameters['activity'] != 'Create')) {
+				$data['type'] = $this->parameters['activity'];
+				$data['id'] = str_replace('/Create', '/' . $this->parameters['activity'], $data['id']);
 			}
 		} else {
 			throw new HTTPException\NotFoundException();

@@ -9,13 +9,13 @@ use Friendica\Module\Conversation\Network as NetworkModule;
 
 class Network extends NetworkModule
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		if (!isset($_GET['p']) || !isset($_GET['item'])) {
 			exit();
 		}
 
-		self::parseRequest($parameters, $_GET);
+		$this->parseRequest($_GET);
 
 		$profile_uid = intval($_GET['p']);
 

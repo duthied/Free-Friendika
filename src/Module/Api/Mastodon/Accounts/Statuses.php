@@ -37,18 +37,17 @@ use Friendica\Protocol\Activity;
 class Statuses extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $parameters['id'];
+		$id = $this->parameters['id'];
 		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
 			DI::mstdnError()->RecordNotFound();
 		}

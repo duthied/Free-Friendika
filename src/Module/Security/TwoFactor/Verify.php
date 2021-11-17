@@ -38,7 +38,7 @@ class Verify extends BaseModule
 {
 	private static $errors = [];
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		if (!local_user()) {
 			return;
@@ -78,7 +78,7 @@ class Verify extends BaseModule
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		if (!local_user()) {
 			DI::baseUrl()->redirect();

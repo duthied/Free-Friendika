@@ -41,8 +41,10 @@ class Tos extends BaseModule
 	 * be properties of the class, however cannot be set directly as the property
 	 * cannot depend on a function result when declaring the variable.
 	 **/
-	public function __construct()
+	public function __construct(array $parameters = [])
 	{
+		parent::__construct($parameters);
+
 		$this->privacy_operate = DI::l10n()->t('At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node\'s user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication.');
 		$this->privacy_distribute = DI::l10n()->t('This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.');
 		$this->privacy_delete = DI::l10n()->t('At any point in time a logged in user can export their account data from the <a href="%1$s/settings/userexport">account settings</a>. If the user wants to delete their account they can do so at <a href="%1$s/removeme">%1$s/removeme</a>. The deletion of the account will be permanent. Deletion of the data will also be requested from the nodes of the communication partners.', DI::baseUrl());
@@ -58,7 +60,7 @@ class Tos extends BaseModule
 	 * dealings with their own node so a TOS is not necessary.
 	 *
 	 **/
-	public static function init(array $parameters = [])
+	public function init()
 	{
 		if (strlen(DI::config()->get('system','singleuser'))) {
 			DI::baseUrl()->redirect('profile/' . DI::config()->get('system','singleuser'));
@@ -77,7 +79,7 @@ class Tos extends BaseModule
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function content(array $parameters = []) {
+	public function content(): string {
 		$tpl = Renderer::getMarkupTemplate('tos.tpl');
 		if (DI::config()->get('system', 'tosdisplay')) {
 			return Renderer::replaceMacros($tpl, [
@@ -90,7 +92,7 @@ class Tos extends BaseModule
 				'$privacy_delete' => DI::l10n()->t('At any point in time a logged in user can export their account data from the <a href="%1$s/settings/userexport">account settings</a>. If the user wants to delete their account they can do so at <a href="%1$s/removeme">%1$s/removeme</a>. The deletion of the account will be permanent. Deletion of the data will also be requested from the nodes of the communication partners.', DI::baseUrl())
 			]);
 		} else {
-			return;
+			return '';
 		}
 	}
 }

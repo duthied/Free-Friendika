@@ -33,27 +33,26 @@ use Friendica\Module\BaseApi;
 class Accounts extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id']) && empty($parameters['name'])) {
+		if (empty($this->parameters['id']) && empty($this->parameters['name'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		if (!empty($parameters['id'])) {
-			$id = $parameters['id'];
+		if (!empty($this->parameters['id'])) {
+			$id = $this->parameters['id'];
 			if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
 				DI::mstdnError()->RecordNotFound();
 			}
 		} else {
-			$contact = Contact::selectFirst(['id'], ['nick' => $parameters['name'], 'uid' => 0]);
+			$contact = Contact::selectFirst(['id'], ['nick' => $this->parameters['name'], 'uid' => 0]);
 			if (!empty($contact['id'])) {
 				$id = $contact['id'];
-			} elseif (!($id = Contact::getIdForURL($parameters['name'], 0, false))) {
+			} elseif (!($id = Contact::getIdForURL($this->parameters['name'], 0, false))) {
 				DI::mstdnError()->RecordNotFound();
 			}
 		}

@@ -65,7 +65,7 @@ class HTTPException
 	 * @param \Friendica\Network\HTTPException $e
 	 * @throws \Exception
 	 */
-	public static function rawContent(\Friendica\Network\HTTPException $e)
+	public function rawContent(\Friendica\Network\HTTPException $e)
 	{
 		$content = '';
 
@@ -84,7 +84,7 @@ class HTTPException
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function content(\Friendica\Network\HTTPException $e)
+	public function content(\Friendica\Network\HTTPException $e): string
 	{
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $e->getCode() . ' ' . $e->getDescription());
 

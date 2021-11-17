@@ -33,7 +33,7 @@ use Friendica\Util\XML;
  */
 class RemoveTag extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException();
@@ -41,7 +41,7 @@ class RemoveTag extends BaseModule
 
 		$logger = DI::logger();
 
-		$item_id = $parameters['id'] ?? 0;
+		$item_id = $this->parameters['id'] ?? 0;
 
 		$term = XML::unescape(trim($_GET['term'] ?? ''));
 		$cat = XML::unescape(trim($_GET['cat'] ?? ''));
@@ -62,7 +62,7 @@ class RemoveTag extends BaseModule
 		if ($item_id && strlen($term)) {
 			$item = Post::selectFirst(['uri-id'], ['id' => $item_id]);
 			if (!DBA::isResult($item)) {
-				return;				
+				return '';
 			}
 			if (!Post\Category::deleteFileByURIId($item['uri-id'], local_user(), $type, $term)) {
 				notice(DI::l10n()->t('Item was not removed'));
@@ -74,5 +74,7 @@ class RemoveTag extends BaseModule
 		if ($type == Post\Category::FILE) {
 			DI::baseUrl()->redirect('filed?file=' . rawurlencode($term));
 		}
+
+		return '';
 	}
 }

@@ -30,7 +30,7 @@ use Friendica\Module\Admin\BaseUsers;
 
 class Active extends BaseUsers
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -60,12 +60,12 @@ class Active extends BaseUsers
 		DI::baseUrl()->redirect(DI::args()->getQueryString());
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
-		$action = $parameters['action'] ?? '';
-		$uid = $parameters['uid'] ?? 0;
+		$action = $this->parameters['action'] ?? '';
+		$uid = $this->parameters['uid'] ?? 0;
 
 		if ($uid) {
 			$user = User::getById($uid, ['username', 'blocked']);

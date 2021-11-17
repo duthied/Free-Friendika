@@ -33,7 +33,7 @@ use Friendica\Network\HTTPException;
  */
 class Ignore extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$l10n = DI::l10n();
 
@@ -41,11 +41,11 @@ class Ignore extends BaseModule
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
-		$itemId = intval($parameters['id']);
+		$itemId = intval($this->parameters['id']);
 
 		$dba = DI::dba();
 

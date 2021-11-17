@@ -21,8 +21,9 @@
 
 namespace Friendica\App;
 
+use Dice\Dice;
 use Friendica\App;
-use Friendica\BaseModule;
+use Friendica\Capabilities\ICanHandleRequests;
 use Friendica\Core;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\LegacyModule;
@@ -38,7 +39,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Holds the common context of the current, loaded module
  */
-class Module
+class ModuleController
 {
 	const DEFAULT       = 'home';
 	const DEFAULT_CLASS = Home::class;
@@ -77,17 +78,12 @@ class Module
 	/**
 	 * @var string The module name
 	 */
+	private $moduleName;
+
+	/**
+	 * @var ICanHandleRequests The module object
+	 */
 	private $module;
-
-	/**
-	 * @var BaseModule The module class
-	 */
-	private $module_class;
-
-	/**
-	 * @var array The module parameters
-	 */
-	private $module_parameters;
 
 	/**
 	 * @var bool true, if the module is a backend module
@@ -104,39 +100,32 @@ class Module
 	 */
 	public function getName()
 	{
+		return $this->moduleName;
+	}
+
+	/**
+	 * @return ICanHandleRequests The base module object
+	 */
+	public function getModule(): ICanHandleRequests
+	{
 		return $this->module;
 	}
 
 	/**
-	 * @return string The base class name
-	 */
-	public function getClassName()
-	{
-		return $this->module_class;
-	}
-
-	/**
-	 * @return array The module parameters extracted from the route
-	 */
-	public function getParameters()
-	{
-		return $this->module_parameters;
-	}
-
-	/**
 	 * @return bool True, if the current module is a backend module
-	 * @see Module::BACKEND_MODULES for a list
+	 * @see ModuleController::BACKEND_MODULES for a list
 	 */
 	public function isBackend()
 	{
 		return $this->isBackend;
 	}
 
-	public function __construct(string $module = self::DEFAULT, string $moduleClass = self::DEFAULT_CLASS, array $moduleParameters = [], bool $isBackend = false, bool $printNotAllowedAddon = false)
+	public function __construct(string $moduleName = self::DEFAULT, ICanHandleRequests $module = null, bool $isBackend = false, bool $printNotAllowedAddon = false)
 	{
-		$this->module               = $module;
-		$this->module_class         = $moduleClass;
-		$this->module_parameters    = $moduleParameters;
+		$defaultClass = static::DEFAULT_CLASS;
+
+		$this->moduleName           = $moduleName;
+		$this->module               = $module ?? new $defaultClass();
 		$this->isBackend            = $isBackend;
 		$this->printNotAllowedAddon = $printNotAllowedAddon;
 	}
@@ -146,9 +135,9 @@ class Module
 	 *
 	 * @param Arguments $args   The Friendica arguments
 	 *
-	 * @return Module The module with the determined module
+	 * @return ModuleController The module with the determined module
 	 */
-	public function determineModule(Arguments $args)
+	public function determineName(Arguments $args)
 	{
 		if ($args->getArgc() > 0) {
 			$module = str_replace('.', '_', $args->get(0));
@@ -162,27 +151,28 @@ class Module
 			$module = "login";
 		}
 
-		$isBackend = in_array($module, Module::BACKEND_MODULES);;
+		$isBackend = in_array($module, ModuleController::BACKEND_MODULES);
 
-		return new Module($module, $this->module_class, [], $isBackend, $this->printNotAllowedAddon);
+		return new ModuleController($module, null, $isBackend, $this->printNotAllowedAddon);
 	}
 
 	/**
 	 * Determine the class of the current module
 	 *
-	 * @param Arguments                                             $args   The Friendica execution arguments
-	 * @param Router                                                $router The Friendica routing instance
+	 * @param Arguments           $args   The Friendica execution arguments
+	 * @param Router              $router The Friendica routing instance
 	 * @param IManageConfigValues $config The Friendica Configuration
+	 * @param Dice                $dice   The Dependency Injection container
 	 *
-	 * @return Module The determined module of this call
+	 * @return ModuleController The determined module of this call
 	 *
 	 * @throws \Exception
 	 */
-	public function determineClass(Arguments $args, Router $router, IManageConfigValues $config)
+	public function determineClass(Arguments $args, Router $router, IManageConfigValues $config, Dice $dice)
 	{
 		$printNotAllowedAddon = false;
 
-		$module_class = null;
+		$module_class      = null;
 		$module_parameters = [];
 		/**
 		 * ROUTING
@@ -191,22 +181,22 @@ class Module
 		 * post() and/or content() static methods can be respectively called to produce a data change or an output.
 		 **/
 		try {
-			$module_class = $router->getModuleClass($args->getCommand());
-			$module_parameters = $router->getModuleParameters();
+			$module_class        = $router->getModuleClass($args->getCommand());
+			$module_parameters[] = $router->getModuleParameters();
 		} catch (MethodNotAllowedException $e) {
 			$module_class = MethodNotAllowed::class;
 		} catch (NotFoundException $e) {
 			// Then we try addon-provided modules that we wrap in the LegacyModule class
-			if (Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
+			if (Core\Addon::isEnabled($this->moduleName) && file_exists("addon/{$this->moduleName}/{$this->moduleName}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
 				$privateapps = $config->get('config', 'private_addons', false);
-				if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
+				if ((!local_user()) && Core\Hook::isAddonApp($this->moduleName) && $privateapps) {
 					$printNotAllowedAddon = true;
 				} else {
-					include_once "addon/{$this->module}/{$this->module}.php";
-					if (function_exists($this->module . '_module')) {
-						LegacyModule::setModuleFile("addon/{$this->module}/{$this->module}.php");
-						$module_class = LegacyModule::class;
+					include_once "addon/{$this->moduleName}/{$this->moduleName}.php";
+					if (function_exists($this->moduleName . '_module')) {
+						$module_parameters[] = "addon/{$this->moduleName}/{$this->moduleName}.php";
+						$module_class        = LegacyModule::class;
 					}
 				}
 			}
@@ -214,15 +204,18 @@ class Module
 			/* Finally, we look for a 'standard' program module in the 'mod' directory
 			 * We emulate a Module class through the LegacyModule class
 			 */
-			if (!$module_class && file_exists("mod/{$this->module}.php")) {
-				LegacyModule::setModuleFile("mod/{$this->module}.php");
-				$module_class = LegacyModule::class;
+			if (!$module_class && file_exists("mod/{$this->moduleName}.php")) {
+				$module_parameters[] = "mod/{$this->moduleName}.php";
+				$module_class        = LegacyModule::class;
 			}
 
 			$module_class = $module_class ?: PageNotFound::class;
 		}
 
-		return new Module($this->module, $module_class, $module_parameters, $this->isBackend, $printNotAllowedAddon);
+		/** @var ICanHandleRequests $module */
+		$module = $dice->create($module_class, $module_parameters);
+
+		return new ModuleController($this->moduleName, $module, $this->isBackend, $printNotAllowedAddon);
 	}
 
 	/**
@@ -251,7 +244,7 @@ class Module
 		 *
 		 * Otherwise we are going to emit a 404 not found.
 		 */
-		if ($this->module_class === PageNotFound::class) {
+		if ($this->module === PageNotFound::class) {
 			$queryString = $server['QUERY_STRING'];
 			// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
 			if (!empty($queryString) && preg_match('/{[0-9]}/', $queryString) !== 0) {
@@ -302,34 +295,31 @@ class Module
 		$profiler->set(microtime(true), 'ready');
 		$timestamp = microtime(true);
 
-		Core\Hook::callAll($this->module . '_mod_init', $placeholder);
+		Core\Hook::callAll($this->moduleName . '_mod_init', $placeholder);
 
-		call_user_func([$this->module_class, 'init'], $this->module_parameters);
+		$this->module->init();
 
 		$profiler->set(microtime(true) - $timestamp, 'init');
 
 		if ($server['REQUEST_METHOD'] === Router::DELETE) {
-			call_user_func([$this->module_class, 'delete'], $this->module_parameters);
+			$this->module->delete();
 		}
 
 		if ($server['REQUEST_METHOD'] === Router::PATCH) {
-			call_user_func([$this->module_class, 'patch'], $this->module_parameters);
+			$this->module->patch();
 		}
 
 		if ($server['REQUEST_METHOD'] === Router::POST) {
-			Core\Hook::callAll($this->module . '_mod_post', $post);
-			call_user_func([$this->module_class, 'post'], $this->module_parameters);
+			Core\Hook::callAll($this->moduleName . '_mod_post', $post);
+			$this->module->post();
 		}
 
 		if ($server['REQUEST_METHOD'] === Router::PUT) {
-			call_user_func([$this->module_class, 'put'], $this->module_parameters);
+			$this->module->put();
 		}
-
-		Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);
-		call_user_func([$this->module_class, 'afterpost'], $this->module_parameters);
 
 		// "rawContent" is especially meant for technical endpoints.
 		// This endpoint doesn't need any theme initialization or other comparable stuff.
-		call_user_func([$this->module_class, 'rawContent'], $this->module_parameters);
+		$this->module->rawContent();
 	}
 }

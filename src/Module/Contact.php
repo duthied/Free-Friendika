@@ -96,7 +96,7 @@ class Contact extends BaseModule
 		DI::baseUrl()->redirect($redirectUrl);
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		if (!local_user()) {
 			return;
@@ -226,7 +226,7 @@ class Contact extends BaseModule
 		Model\Contact\User::setIgnored($contact_id, local_user(), $ignored);
 	}
 
-	public static function content(array $parameters = [], $update = 0)
+	public function content($update = 0): string
 	{
 		if (!local_user()) {
 			return Login::form($_SERVER['REQUEST_URI']);

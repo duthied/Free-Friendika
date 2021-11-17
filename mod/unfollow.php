@@ -122,7 +122,7 @@ function unfollow_process(string $url)
 
 	$owner = User::getOwnerDataById($uid);
 	if (!$owner) {
-		\Friendica\Module\Security\Logout::init();
+		(new \Friendica\Module\Security\Logout())->init();
 		// NOTREACHED
 	}
 

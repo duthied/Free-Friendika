@@ -34,7 +34,7 @@ use Friendica\Module\Security\Login;
  */
 class Recovery extends BaseSettings
 {
-	public static function init(array $parameters = [])
+	public function init()
 	{
 		if (!local_user()) {
 			return;
@@ -52,7 +52,7 @@ class Recovery extends BaseSettings
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		if (!local_user()) {
 			return;
@@ -69,13 +69,13 @@ class Recovery extends BaseSettings
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa/recovery');
 		}
 
-		parent::content($parameters);
+		parent::content();
 
 		if (!RecoveryCode::countValidForUser(local_user())) {
 			RecoveryCode::generateForUser(local_user());

@@ -34,15 +34,14 @@ use Friendica\Network\HTTPException;
 class ListTimeline extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
@@ -61,7 +60,7 @@ class ListTimeline extends BaseApi
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)",
-			$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $parameters['id']];
+			$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $this->parameters['id']];
 
 		if (!empty($request['max_id'])) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);

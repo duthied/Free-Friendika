@@ -82,7 +82,7 @@ class Notifications extends BaseNotifications
 		];
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		Nav::setSelected('notifications');
 

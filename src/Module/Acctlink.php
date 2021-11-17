@@ -24,22 +24,25 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
+use Friendica\Network\HTTPException\NotFoundException;
 
 /**
  * Redirects to another URL based on the parameter 'addr'
  */
 class Acctlink extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public function rawContent()
 	{
 		$addr = trim($_GET['addr'] ?? '');
-
-		if ($addr) {
-			$url = Contact::getByURL($addr)['url'] ?? '';
-			if ($url) {
-				System::externalRedirect($url['url']);
-				exit();
-			}
+		if (!$addr) {
+			throw new NotFoundException('Parameter "addr" is missing or empty');
 		}
+
+		$contact = Contact::getByURL($addr, null, ['url']) ?? '';
+		if (!$contact) {
+			throw new NotFoundException('Contact not found');
+		}
+
+		System::externalRedirect($contact['url']);
 	}
 }

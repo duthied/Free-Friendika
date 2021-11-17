@@ -30,19 +30,19 @@ class UpdateTest extends ApiTest
 	public function testEmpty()
 	{
 		$this->expectException(BadRequestException::class);
-		Update::rawContent();
+		(new Update())->rawContent();
 	}
 
 	public function testTooFewArgs()
 	{
 		$this->expectException(BadRequestException::class);
-		Update::rawContent(['album' => 'album_name']);
+		(new Update(['album' => 'album_name']))->rawContent();
 	}
 
 	public function testWrongUpdate()
 	{
 		$this->expectException(BadRequestException::class);
-		Update::rawContent(['album' => 'album_name', 'album_new' => 'album_name']);
+		(new Update(['album' => 'album_name', 'album_new' => 'album_name']))->rawContent();
 	}
 
 	public function testWithoutAuthenticatedUser()

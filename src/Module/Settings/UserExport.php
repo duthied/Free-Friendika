@@ -47,18 +47,17 @@ class UserExport extends BaseSettings
 	 * If there is an action required through the URL / path, react
 	 * accordingly and export the requested data.
 	 *
-	 * @param array $parameters Router-supplied parameters
 	 * @return string
 	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		parent::content($parameters);
+		parent::content();
 
 		/**
 		 * options shown on "Export personal data" page
@@ -84,10 +83,9 @@ class UserExport extends BaseSettings
 	 * to the browser which then offers a save / open dialog
 	 * to the user.
 	 *
-	 * @param array $parameters Router-supplied parameters
 	 * @throws HTTPException\ForbiddenException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));

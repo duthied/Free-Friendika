@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException;
  */
 class Follow extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$l10n = DI::l10n();
 
@@ -42,11 +42,11 @@ class Follow extends BaseModule
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
-		$itemId = intval($parameters['id']);
+		$itemId = intval($this->parameters['id']);
 
 		if (!Item::performActivity($itemId, 'follow', local_user())) {
 			throw new HTTPException\BadRequestException($l10n->t('Unable to follow this item.'));

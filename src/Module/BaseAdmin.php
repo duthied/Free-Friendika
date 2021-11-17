@@ -68,7 +68,7 @@ abstract class BaseAdmin extends BaseModule
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		self::checkAdminAccess(true);
 

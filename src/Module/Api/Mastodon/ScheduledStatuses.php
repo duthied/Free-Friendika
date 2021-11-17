@@ -34,7 +34,7 @@ use Friendica\Module\BaseApi;
  */
 class ScheduledStatuses extends BaseApi
 {
-	public static function put(array $parameters = [])
+	public function put()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -42,35 +42,34 @@ class ScheduledStatuses extends BaseApi
 		DI::apiResponse()->unsupported(Router::PUT);
 	}
 
-	public static function delete(array $parameters = [])
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		if (!DBA::exists('delayed-post', ['id' => $parameters['id'], 'uid' => $uid])) {
+		if (!DBA::exists('delayed-post', ['id' => $this->parameters['id'], 'uid' => $uid])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		Post\Delayed::deleteById($parameters['id']);
+		Post\Delayed::deleteById($this->parameters['id']);
 
 		System::jsonExit([]);
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (isset($parameters['id'])) {
-			System::jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($parameters['id'], $uid)->toArray());
+		if (isset($this->parameters['id'])) {
+			System::jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($this->parameters['id'], $uid)->toArray());
 		}
 
 		$request = self::getRequest([

@@ -37,10 +37,9 @@ use Friendica\Network\HTTPException;
 class PublicTimeline extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$uid = self::getCurrentUserID();
 

@@ -27,7 +27,7 @@ use Friendica\Module\BaseAdmin;
 
 class Tos extends BaseAdmin
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -48,11 +48,11 @@ class Tos extends BaseAdmin
 		DI::baseUrl()->redirect('admin/tos');
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
-		$tos = new \Friendica\Module\Tos();
+		$tos = new \Friendica\Module\Tos($this->parameters);
 		$t = Renderer::getMarkupTemplate('admin/tos.tpl');
 		return Renderer::replaceMacros($t, [
 			'$title' => DI::l10n()->t('Administration'),

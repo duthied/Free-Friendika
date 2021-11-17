@@ -33,18 +33,17 @@ use Friendica\Protocol\Activity;
 class FavouritedBy extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $parameters['id'];
+		$id = $this->parameters['id'];
 		if (!Post::exists(['uri-id' => $id, 'uid' => [0, $uid]])) {
 			DI::mstdnError()->RecordNotFound();
 		}

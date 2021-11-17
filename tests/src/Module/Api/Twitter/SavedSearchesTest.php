@@ -10,7 +10,8 @@ class SavedSearchesTest extends ApiTest
 {
 	public function test()
 	{
-		SavedSearches::rawContent(['extension' => 'json']);
+		$savedSearch = new SavedSearches(['extension' => 'json']);
+		$savedSearch->rawContent();
 
 		$result = json_decode(ApiResponseDouble::getOutput());
 

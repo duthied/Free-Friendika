@@ -30,7 +30,7 @@ class DeleteTest extends ApiTest
 	public function testEmpty()
 	{
 		$this->expectException(BadRequestException::class);
-		Delete::rawContent();
+		(new Delete())->rawContent();
 	}
 
 	public function testWithoutAuthenticatedUser()
@@ -41,7 +41,7 @@ class DeleteTest extends ApiTest
 	public function testWrong()
 	{
 		$this->expectException(BadRequestException::class);
-		Delete::rawContent(['photo_id' => 1]);
+		(new Delete(['photo_id' => 1]))->rawContent();
 	}
 
 	public function testWithCorrectPhotoId()
