@@ -599,7 +599,10 @@ function api_statuses_mediap($type)
 {
 	$a = DI::app();
 
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+	if (empty(BaseApi::getCurrentUserID())) {
+		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+		throw new ForbiddenException();
+	}
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	
