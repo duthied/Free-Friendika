@@ -352,6 +352,7 @@ class Page implements ArrayAccess
 			$arr = ['content' => $content];
 			Hook::callAll($moduleClass->getClassName() . '_mod_content', $arr);
 			$content = $arr['content'];
+			$content .= $module->getModule()->content();
 		} catch (HTTPException $e) {
 			$content = (new ModuleHTTPException())->content($e);
 		}
