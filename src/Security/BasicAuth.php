@@ -62,6 +62,11 @@ class BasicAuth
 		return (int)self::$current_user_id;
 	}
 
+	public static function setCurrentUserID(int $uid)
+	{
+		self::$current_user_id = $uid;
+	}
+
 	/**
 	 * Fetch a dummy application token
 	 *

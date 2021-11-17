@@ -114,6 +114,7 @@ class ApiTest extends FixtureTest
 			'authenticated' => true,
 			'uid'           => $this->selfUser['id']
 		];
+		BasicAuth::setCurrentUserID($this->selfUser['id']);
 	}
 
 	/**
