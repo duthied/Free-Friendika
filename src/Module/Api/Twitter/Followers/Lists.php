@@ -50,6 +50,7 @@ class FollowersList extends ContactEndpoint
 			'default' => 1,
 		]]);
 
+		// @todo Use Model\Contact\Relation::listFollowers($cid, $condition, $count);
 
 		System::jsonExit(self::list(
 			[Contact::FOLLOWER, Contact::FRIEND],
