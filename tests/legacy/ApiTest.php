@@ -1068,6 +1068,7 @@ class ApiTest extends FixtureTest
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
 		$_SESSION['authenticated'] = false;
+		BasicAuth::setCurrentUserID();
 		api_statuses_mediap('json');
 	}
 

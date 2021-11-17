@@ -62,7 +62,7 @@ class BasicAuth
 		return (int)self::$current_user_id;
 	}
 
-	public static function setCurrentUserID(int $uid)
+	public static function setCurrentUserID(int $uid = null)
 	{
 		self::$current_user_id = $uid;
 	}
