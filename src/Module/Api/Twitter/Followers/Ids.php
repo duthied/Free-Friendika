@@ -48,6 +48,8 @@ class FollowersIds extends ContactEndpoint
 			'default' => 1,
 		]]);
 
+		// @todo Use Model\Contact\Relation::listFollowers($cid, $condition, $count);
+
 		System::jsonExit(self::ids(
 			[Contact::FOLLOWER, Contact::FRIEND],
 			self::getUid($contact_id, $screen_name),
