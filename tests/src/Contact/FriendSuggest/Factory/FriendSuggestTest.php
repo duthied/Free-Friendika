@@ -47,7 +47,7 @@ class FriendSuggestTest extends MockedTest
 					'',
 					'',
 					new \DateTime('now', new \DateTimeZone('UTC')),
-					28
+					20
 				),
 			],
 			'full' => [
