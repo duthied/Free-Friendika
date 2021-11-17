@@ -56,7 +56,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 				return;
 			}
 		} else {
-			$user = DBA::selectFirst('owner-view', ['id', 'uid', 'nickname', 'page-flags'], ['nickname' => BaseApi::getCurrentUserID(), 'blocked' => false]);
+			$user = DBA::selectFirst('owner-view', ['id', 'uid', 'nickname', 'page-flags'], ['uid' => BaseApi::getCurrentUserID(), 'blocked' => false]);
 		}
 	} else {
 		if ($r_json) {
