@@ -21,18 +21,32 @@
 
 namespace Friendica\Module\Admin\Themes;
 
+use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\DI;
 use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
 class Embed extends BaseAdmin
 {
-	public function init()
+	/** @var App */
+	protected $app;
+	/** @var App\BaseURL */
+	protected $baseUrl;
+	/** @var App\Mode */
+	protected $mode;
+
+	public function __construct(App $app, App\BaseURL $baseUrl, App\Mode $mode, L10n $l10n, array $parameters = [])
 	{
+		parent::__construct($l10n, $parameters);
+
+		$this->app     = $app;
+		$this->baseUrl = $baseUrl;
+		$this->mode    = $mode;
+
 		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {
-			DI::app()->setCurrentTheme($theme);
+			$this->app->setCurrentTheme($theme);
 		}
 	}
 
@@ -45,15 +59,15 @@ class Embed extends BaseAdmin
 			require_once "view/theme/$theme/config.php";
 			if (function_exists('theme_admin_post')) {
 				self::checkFormSecurityTokenRedirectOnError('/admin/themes/' . $theme . '/embed?mode=minimal', 'admin_theme_settings');
-				theme_admin_post(DI::app());
+				theme_admin_post($this->app);
 			}
 		}
 
-		if (DI::mode()->isAjax()) {
+		if ($this->mode->isAjax()) {
 			return;
 		}
 
-		DI::baseUrl()->redirect('admin/themes/' . $theme . '/embed?mode=minimal');
+		$this->baseUrl->redirect('admin/themes/' . $theme . '/embed?mode=minimal');
 	}
 
 	public function content(): string
@@ -62,7 +76,7 @@ class Embed extends BaseAdmin
 
 		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (!is_dir("view/theme/$theme")) {
-			notice(DI::l10n()->t('Unknown theme.'));
+			notice($this->l10n->t('Unknown theme.'));
 			return '';
 		}
 
@@ -71,7 +85,7 @@ class Embed extends BaseAdmin
 			require_once "view/theme/$theme/config.php";
 
 			if (function_exists('theme_admin')) {
-				$admin_form = theme_admin(DI::app());
+				$admin_form = theme_admin($this->app);
 			}
 		}
 

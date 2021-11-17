@@ -21,9 +21,11 @@
 
 namespace Friendica\Module;
 
+use Friendica\App\BaseURL;
+use Friendica\App\Page;
 use Friendica\BaseModule;
 use Friendica\Content\Widget;
-use Friendica\DI;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -40,56 +42,65 @@ use Friendica\Network\Probe;
  */
 class RemoteFollow extends BaseModule
 {
-	static $owner;
+	/** @var array */
+	protected $owner;
+	/** @var Page */
+	protected $page;
+	/** @var BaseURL */
+	protected $baseUrl;
 
-	public function init()
+	public function __construct(L10n $l10n, Page $page, BaseURL $baseUrl, array $parameters = [])
 	{
-		self::$owner = User::getOwnerDataByNick($this->parameters['profile']);
-		if (!self::$owner) {
-			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		parent::__construct($l10n, $parameters);
+
+		$this->owner = User::getOwnerDataByNick($this->parameters['profile']);
+		if (!$this->owner) {
+			throw new HTTPException\NotFoundException($this->l10n->t('User not found.'));
 		}
 
-		DI::page()['aside'] = Widget\VCard::getHTML(self::$owner);
+		$this->baseUrl = $baseUrl;
+
+		$page['aside'] = Widget\VCard::getHTML($this->owner);
 	}
 
 	public function post()
 	{
 		if (!empty($_POST['cancel']) || empty($_POST['dfrn_url'])) {
-			DI::baseUrl()->redirect();
+			$this->baseUrl->redirect();
 		}
 	
-		if (empty(self::$owner)) {
-			notice(DI::l10n()->t('Profile unavailable.'));
+		if (empty($this->owner)) {
+			notice($this->l10n->t('Profile unavailable.'));
 			return;
 		}
 		
 		$url = Probe::cleanURI($_POST['dfrn_url']);
 		if (!strlen($url)) {
-			notice(DI::l10n()->t("Invalid locator"));
+			notice($this->l10n->t("Invalid locator"));
 			return;
 		}
 
 		// Detect the network, make sure the provided URL is valid
 		$data = Contact::getByURL($url);
 		if (!$data) {
-			notice(DI::l10n()->t("The provided profile link doesn't seem to be valid"));
+			notice($this->l10n->t("The provided profile link doesn't seem to be valid"));
 			return;
 		}
 
 		if (empty($data['subscribe'])) {
-			notice(DI::l10n()->t("Remote subscription can't be done for your network. Please subscribe directly on your system."));
+			notice($this->l10n->t("Remote subscription can't be done for your network. Please subscribe directly on your system."));
 			return;
 		}
 
-		Logger::notice('Remote request', ['url' => $url, 'follow' => self::$owner['url'], 'remote' => $data['subscribe']]);
+		Logger::notice('Remote request', ['url' => $url, 'follow' => $this->owner['url'], 'remote' => $data['subscribe']]);
 		
 		// Substitute our user's feed URL into $data['subscribe']
 		// Send the subscriber home to subscribe
 		// Diaspora needs the uri in the format user@domain.tld
 		if ($data['network'] == Protocol::DIASPORA) {
-			$uri = urlencode(self::$owner['addr']);
+			$uri = urlencode($this->owner['addr']);
 		} else {
-			$uri = urlencode(self::$owner['url']);
+			$uri = urlencode($this->owner['url']);
 		}
 	
 		$follow_link = str_replace('{uri}', $uri, $data['subscribe']);
@@ -98,25 +109,25 @@ class RemoteFollow extends BaseModule
 
 	public function content(): string
 	{
-		if (empty(self::$owner)) {
+		if (empty($this->owner)) {
 			return '';
 		}
 	
-		$target_addr = self::$owner['addr'];
-		$target_url = self::$owner['url'];
+		$target_addr = $this->owner['addr'];
+		$target_url = $this->owner['url'];
 
 		$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$header'        => DI::l10n()->t('Friend/Connection Request'),
-			'$page_desc'     => DI::l10n()->t('Enter your Webfinger address (user@domain.tld) or profile URL here. If this isn\'t supported by your system, you have to subscribe to <strong>%s</strong> or <strong>%s</strong> directly on your system.', $target_addr, $target_url),
-			'$invite_desc'   => DI::l10n()->t('If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.', Search::getGlobalDirectory() . '/servers'),
-			'$your_address'  => DI::l10n()->t('Your Webfinger address or profile URL:'),
-			'$pls_answer'    => DI::l10n()->t('Please answer the following:'),
-			'$submit'        => DI::l10n()->t('Submit Request'),
-			'$cancel'        => DI::l10n()->t('Cancel'),
+			'$header'        => $this->l10n->t('Friend/Connection Request'),
+			'$page_desc'     => $this->l10n->t('Enter your Webfinger address (user@domain.tld) or profile URL here. If this isn\'t supported by your system, you have to subscribe to <strong>%s</strong> or <strong>%s</strong> directly on your system.', $target_addr, $target_url),
+			'$invite_desc'   => $this->l10n->t('If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.', Search::getGlobalDirectory() . '/servers'),
+			'$your_address'  => $this->l10n->t('Your Webfinger address or profile URL:'),
+			'$pls_answer'    => $this->l10n->t('Please answer the following:'),
+			'$submit'        => $this->l10n->t('Submit Request'),
+			'$cancel'        => $this->l10n->t('Cancel'),
 
 			'$request'       => 'remote_follow/' . $this->parameters['profile'],
-			'$name'          => self::$owner['name'],
+			'$name'          => $this->owner['name'],
 			'$myaddr'        => Profile::getMyURL(),
 		]);
 		return $o;

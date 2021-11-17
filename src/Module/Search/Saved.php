@@ -21,16 +21,34 @@
 
 namespace Friendica\Module\Search;
 
+use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
 use Friendica\Core\Search;
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\Database\Database;
 
 class Saved extends BaseModule
 {
-	public function init()
+	/** @var Arguments */
+	protected $args;
+	/** @var Database */
+	protected $dba;
+	/** @var BaseURL */
+	protected $baseUrl;
+
+	public function __construct(BaseURL $baseUrl, Database $dba, Arguments $args, L10n $l10n, array $parameters = [])
 	{
-		$action = DI::args()->get(2, 'none');
+		parent::__construct($l10n, $parameters);
+
+		$this->baseUrl = $baseUrl;
+		$this->dba     = $dba;
+		$this->args    = $args;
+	}
+
+	public function rawContent()
+	{
+		$action = $this->args->get(2, 'none');
 		$search = trim(rawurldecode($_GET['term'] ?? ''));
 
 		$return_url = $_GET['return_url'] ?? Search::getSearchPath($search);
@@ -39,23 +57,23 @@ class Saved extends BaseModule
 			switch ($action) {
 				case 'add':
 					$fields = ['uid' => local_user(), 'term' => $search];
-					if (!DBA::exists('search', $fields)) {
-						if (!DBA::insert('search', $fields)) {
-							notice(DI::l10n()->t('Search term was not saved.'));
+					if (!$this->dba->exists('search', $fields)) {
+						if (!$this->dba->insert('search', $fields)) {
+							notice($this->l10n->t('Search term was not saved.'));
 						}
 					} else {
-						notice(DI::l10n()->t('Search term already saved.'));
+						notice($this->l10n->t('Search term already saved.'));
 					}
 					break;
 
 				case 'remove':
-					if (!DBA::delete('search', ['uid' => local_user(), 'term' => $search])) {
-						notice(DI::l10n()->t('Search term was not removed.'));
+					if (!$this->dba->delete('search', ['uid' => local_user(), 'term' => $search])) {
+						notice($this->l10n->t('Search term was not removed.'));
 					}
 					break;
 			}
 		}
 
-		DI::baseUrl()->redirect($return_url);
+		$this->baseUrl->redirect($return_url);
 	}
 }

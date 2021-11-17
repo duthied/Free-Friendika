@@ -22,8 +22,10 @@
 namespace Friendica\Module;
 
 use Exception;
+use Friendica\App\Arguments;
 use Friendica\BaseModule;
 use Friendica\Content\Pager;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
@@ -70,9 +72,12 @@ abstract class BaseNotifications extends BaseModule
 	const DEFAULT_PAGE_LIMIT = 80;
 
 	/** @var boolean True, if ALL entries should get shown */
-	protected static $showAll;
+	protected $showAll;
 	/** @var int The determined start item of the current page */
-	protected static $firstItemNum;
+	protected $firstItemNum;
+
+	/** @var Arguments */
+	protected $args;
 
 	/**
 	 * Collects all notifications from the backend
@@ -80,33 +85,37 @@ abstract class BaseNotifications extends BaseModule
 	 * @return array The determined notification array
 	 *               ['header', 'notifications']
 	 */
-	abstract public static function getNotifications();
+	abstract public function getNotifications();
 
-	public function init()
+	public function __construct(Arguments $args, L10n $l10n, array $parameters = [])
 	{
+		parent::__construct($l10n, $parameters);
+
 		if (!local_user()) {
-			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
+			throw new ForbiddenException($this->l10n->t('Permission denied.'));
 		}
 
 		$page = ($_REQUEST['page'] ?? 0) ?: 1;
 
-		self::$firstItemNum = ($page * self::ITEMS_PER_PAGE) - self::ITEMS_PER_PAGE;
-		self::$showAll      = ($_REQUEST['show'] ?? '') === 'all';
+		$this->firstItemNum = ($page * self::ITEMS_PER_PAGE) - self::ITEMS_PER_PAGE;
+		$this->showAll      = ($_REQUEST['show'] ?? '') === 'all';
+
+		$this->args = $args;
 	}
 
 	public function rawContent()
 	{
 		// If the last argument of the query is NOT json, return
-		if (DI::args()->get(DI::args()->getArgc() - 1) !== 'json') {
+		if ($this->args->get($this->args->getArgc() - 1) !== 'json') {
 			return;
 		}
 
 		// Set the pager
-		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
+		$pager = new Pager($this->l10n, $this->args->getQueryString(), self::ITEMS_PER_PAGE);
 
 		// Add additional informations (needed for json output)
 		$notifications = [
-			'notifications' => static::getNotifications(),
+			'notifications' => $this->getNotifications(),
 			'items_page'    => $pager->getItemsPerPage(),
 			'page'          => $pager->getPage(),
 		];
@@ -126,7 +135,7 @@ abstract class BaseNotifications extends BaseModule
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	protected static function printContent(string $header, array $notifications, string $noContent, array $showLink)
+	protected function printContent(string $header, array $notifications, string $noContent, array $showLink)
 	{
 		// Get the nav tabs for the notification pages
 		$tabs = self::getTabs();
