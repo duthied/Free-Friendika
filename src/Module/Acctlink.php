@@ -34,15 +34,15 @@ class Acctlink extends BaseModule
 	public function rawContent()
 	{
 		$addr = trim($_GET['addr'] ?? '');
-
-		if ($addr) {
-			$url = Contact::getByURL($addr)['url'] ?? '';
-			if ($url) {
-				System::externalRedirect($url['url']);
-				exit();
-			}
+		if (!$addr) {
+			throw new NotFoundException('Parameter "addr" is missing or empty');
 		}
 
-		throw new NotFoundException('Parameter "url" is missing');
+		$contact = Contact::getByURL($addr, null, ['url']) ?? '';
+		if (!$contact) {
+			throw new NotFoundException('Contact not found');
+		}
+
+		System::externalRedirect($contact['url']);
 	}
 }
