@@ -152,7 +152,6 @@ class ModuleController
 		}
 
 		$isBackend = in_array($module, ModuleController::BACKEND_MODULES);
-		;
 
 		return new ModuleController($module, null, $isBackend, $this->printNotAllowedAddon);
 	}
