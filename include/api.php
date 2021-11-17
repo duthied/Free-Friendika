@@ -304,7 +304,7 @@ function api_rss_extra($arr, $user_info)
 		if (empty($uid)) {
 			throw new ForbiddenException();
 		}
-		
+
 		$user_info = DI::twitterUser()->createFromUserId($uid)->toArray();
 	}
 
@@ -600,12 +600,13 @@ function api_statuses_mediap($type)
 	$a = DI::app();
 
 	if (empty(BaseApi::getCurrentUserID())) {
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		throw new ForbiddenException();
 	}
 
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
-	
+
 	$_REQUEST['profile_uid'] = BaseApi::getCurrentUserID();
 	$_REQUEST['api_source'] = true;
 	$txt = requestdata('status') ?? '';
@@ -1216,7 +1217,7 @@ api_register_func('api/search', 'api_search', true);
 function api_statuses_home_timeline($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-	
+
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	unset($_REQUEST["user_id"]);
@@ -3032,7 +3033,7 @@ function api_direct_messages_new($type)
 	if (empty($uid)) {
 		throw new ForbiddenException();
 	}
-	
+
 	if (empty($_POST["text"]) || empty($_POST["screen_name"]) && empty($_POST["user_id"])) {
 		return;
 	}
