@@ -584,7 +584,7 @@ class ApiTest extends FixtureTest
 	public function testApiRssExtra()
 	{
 		$user_info = ['url' => 'user_url', 'lang' => 'en'];
-		$result    = api_rss_extra($this->app, [], $user_info);
+		$result    = api_rss_extra([], $user_info);
 		self::assertEquals($user_info, $result['$user']);
 		self::assertEquals($user_info['url'], $result['$rss']['alternate']);
 		self::assertArrayHasKey('self', $result['$rss']);
@@ -602,7 +602,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiRssExtraWithoutUserInfo()
 	{
-		$result = api_rss_extra($this->app, [], null);
+		$result = api_rss_extra([], null);
 		self::assertIsArray($result['$user']);
 		self::assertArrayHasKey('alternate', $result['$rss']);
 		self::assertArrayHasKey('self', $result['$rss']);

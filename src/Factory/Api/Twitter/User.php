@@ -52,4 +52,9 @@ class User extends BaseFactory
 
 		return new \Friendica\Object\Api\Twitter\User($publicContact, $apcontact, $userContact, $skip_status, $include_user_entities);
 	}
+
+	public function createFromUserId(int $uid, $skip_status = false, $include_user_entities = true)
+	{
+		return $this->createFromContactId(Contact::getPublicIdByUserId($uid), $uid, $skip_status, $include_user_entities);
+	}
 }
