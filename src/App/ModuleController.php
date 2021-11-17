@@ -81,7 +81,7 @@ class ModuleController
 	private $moduleName;
 
 	/**
-	 * @var ICanHandleRequests The module class
+	 * @var ICanHandleRequests The module object
 	 */
 	private $module;
 
