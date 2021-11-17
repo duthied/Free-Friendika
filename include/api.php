@@ -498,14 +498,14 @@ function api_get_user($contact_id = null)
  */
 function api_item_get_user(App $a, $item)
 {
-	$status_user = DI::twitterUser()->createFromContactId($item['author-id'] ?? null, api_user())->toArray();
+	$status_user = DI::twitterUser()->createFromContactId($item['author-id'] ?? 0, api_user())->toArray();
 
 	$author_user = $status_user;
 
 	$status_user["protected"] = isset($item['private']) && ($item['private'] == Item::PRIVATE);
 
 	if (($item['thr-parent'] ?? '') == ($item['uri'] ?? '')) {
-		$owner_user = DI::twitterUser()->createFromContactId($item['owner-id'] ?? null, api_user())->toArray();
+		$owner_user = DI::twitterUser()->createFromContactId($item['owner-id'] ?? 0, api_user())->toArray();
 	} else {
 		$owner_user = $author_user;
 	}
