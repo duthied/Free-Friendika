@@ -33,7 +33,7 @@ use Friendica\Module\WellKnown\HostMeta;
 use Friendica\Test\DatabaseTest;
 use Mockery;
 
-class ModuleTest extends DatabaseTest
+class ModuleControllerTest extends DatabaseTest
 {
 	private function assertModule(array $assert, App\ModuleController $module)
 	{
