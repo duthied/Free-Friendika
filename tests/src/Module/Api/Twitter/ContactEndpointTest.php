@@ -233,7 +233,7 @@ class ContactEndpointTest extends FixtureTest
 			'favourites_count' => 0,
 			'statuses_count' => 0,
 			'created_at' => 'Fri Feb 02 00:00:00 +0000 0000',
-			'profile_banner_url' => '',
+			'profile_banner_url' => 'http://localhost/photo/header/44?ts=-62135596800',
 			'profile_image_url_https' => 'http://localhost/photo/contact/48/44?ts=-62135596800',
 			'default_profile' => false,
 			'default_profile_image' => false,
