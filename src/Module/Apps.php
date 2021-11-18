@@ -48,12 +48,12 @@ class Apps extends BaseModule
 		$apps = Nav::getAppMenu();
 
 		if (count($apps) == 0) {
-			notice($this->l10n->t('No installed applications.'));
+			notice($this->t('No installed applications.'));
 		}
 
 		$tpl = Renderer::getMarkupTemplate('apps.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$title' => $this->l10n->t('Applications'),
+			'$title' => $this->t('Applications'),
 			'$apps'  => $apps,
 		]);
 	}

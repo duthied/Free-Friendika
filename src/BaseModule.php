@@ -50,6 +50,26 @@ abstract class BaseModule implements ICanHandleRequests
 	}
 
 	/**
+	 * Wraps the L10n::t() function for Modules
+	 *
+	 * @see L10n::t()
+	 */
+	protected function t(string $s, ...$args): string
+	{
+		return $this->l10n->t($s, $args);
+	}
+
+	/**
+	 * Wraps the L10n::tt() function for Modules
+	 *
+	 * @see L10n::tt()
+	 */
+	protected function tt(string $singular, string $plurarl, int $count): string
+	{
+		return $this->l10n->tt($singular, $plurarl, $count);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function rawContent()

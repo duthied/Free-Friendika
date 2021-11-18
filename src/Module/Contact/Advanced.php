@@ -57,7 +57,7 @@ class Advanced extends BaseModule
 		$this->page   = $page;
 
 		if (!Session::isAuthenticated()) {
-			throw new ForbiddenException($this->l10n->t('Permission denied.'));
+			throw new ForbiddenException($this->t('Permission denied.'));
 		}
 	}
 
@@ -67,7 +67,7 @@ class Advanced extends BaseModule
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {
-			throw new BadRequestException($this->l10n->t('Contact not found.'));
+			throw new BadRequestException($this->t('Contact not found.'));
 		}
 
 		$name        = ($_POST['name'] ?? '') ?: $contact['name'];
@@ -106,7 +106,7 @@ class Advanced extends BaseModule
 		}
 
 		if (!$r) {
-			notice($this->l10n->t('Contact update failed.'));
+			notice($this->t('Contact update failed.'));
 		}
 	}
 
@@ -116,13 +116,13 @@ class Advanced extends BaseModule
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {
-			throw new BadRequestException($this->l10n->t('Contact not found.'));
+			throw new BadRequestException($this->t('Contact not found.'));
 		}
 
 		$this->page['aside'] = Widget\VCard::getHTML($contact);
 
-		$warning = $this->l10n->t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
-		$info    = $this->l10n->t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
+		$warning = $this->t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
+		$info    = $this->t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
 
 		$returnaddr = "contact/$cid";
 
@@ -142,20 +142,20 @@ class Advanced extends BaseModule
 			'$warning'           => $warning,
 			'$info'              => $info,
 			'$returnaddr'        => $returnaddr,
-			'$return'            => $this->l10n->t('Return to contact editor'),
+			'$return'            => $this->t('Return to contact editor'),
 			'$contact_id'        => $contact['id'],
-			'$lbl_submit'        => $this->l10n->t('Submit'),
+			'$lbl_submit'        => $this->t('Submit'),
 
-			'$name'    => ['name', $this->l10n->t('Name'), $contact['name'], '', '', $readonly],
-			'$nick'    => ['nick', $this->l10n->t('Account Nickname'), $contact['nick'], '', '', $readonly],
-			'$attag'   => ['attag', $this->l10n->t('@Tagname - overrides Name/Nickname'), $contact['attag']],
-			'$url'     => ['url', $this->l10n->t('Account URL'), $contact['url'], '', '', $readonly],
-			'$alias'   => ['alias', $this->l10n->t('Account URL Alias'), $contact['alias'], '', '', $readonly],
-			'$request' => ['request', $this->l10n->t('Friend Request URL'), $contact['request'], '', '', $readonly],
-			'confirm'  => ['confirm', $this->l10n->t('Friend Confirm URL'), $contact['confirm'], '', '', $readonly],
-			'notify'   => ['notify', $this->l10n->t('Notification Endpoint URL'), $contact['notify'], '', '', $readonly],
-			'poll'     => ['poll', $this->l10n->t('Poll/Feed URL'), $contact['poll'], '', '', $readonly],
-			'photo'    => ['photo', $this->l10n->t('New photo from this URL'), '', '', '', $readonly],
+			'$name'    => ['name', $this->t('Name'), $contact['name'], '', '', $readonly],
+			'$nick'    => ['nick', $this->t('Account Nickname'), $contact['nick'], '', '', $readonly],
+			'$attag'   => ['attag', $this->t('@Tagname - overrides Name/Nickname'), $contact['attag']],
+			'$url'     => ['url', $this->t('Account URL'), $contact['url'], '', '', $readonly],
+			'$alias'   => ['alias', $this->t('Account URL Alias'), $contact['alias'], '', '', $readonly],
+			'$request' => ['request', $this->t('Friend Request URL'), $contact['request'], '', '', $readonly],
+			'confirm'  => ['confirm', $this->t('Friend Confirm URL'), $contact['confirm'], '', '', $readonly],
+			'notify'   => ['notify', $this->t('Notification Endpoint URL'), $contact['notify'], '', '', $readonly],
+			'poll'     => ['poll', $this->t('Poll/Feed URL'), $contact['poll'], '', '', $readonly],
+			'photo'    => ['photo', $this->t('New photo from this URL'), '', '', '', $readonly],
 		]);
 	}
 }

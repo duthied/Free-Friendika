@@ -59,7 +59,7 @@ class Recovery extends BaseSettings
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice($this->l10n->t('Please enter your password to access this page.'));
+			notice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
@@ -75,7 +75,7 @@ class Recovery extends BaseSettings
 
 			if ($_POST['action'] == 'regenerate') {
 				RecoveryCode::regenerateForUser(local_user());
-				info($this->l10n->t('New recovery codes successfully generated.'));
+				info($this->t('New recovery codes successfully generated.'));
 				$this->baseUrl->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 			}
 		}
@@ -101,14 +101,14 @@ class Recovery extends BaseSettings
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_recovery'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
 
-			'$title'              => $this->l10n->t('Two-factor recovery codes'),
-			'$help_label'         => $this->l10n->t('Help'),
-			'$message'            => $this->l10n->t('<p>Recovery codes can be used to access your account in the event you lose access to your device and cannot receive two-factor authentication codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your device and don’t have the recovery codes you will lose access to your account.</p>'),
+			'$title'              => $this->t('Two-factor recovery codes'),
+			'$help_label'         => $this->t('Help'),
+			'$message'            => $this->t('<p>Recovery codes can be used to access your account in the event you lose access to your device and cannot receive two-factor authentication codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your device and don’t have the recovery codes you will lose access to your account.</p>'),
 			'$recovery_codes'     => $recoveryCodes,
-			'$regenerate_message' => $this->l10n->t('When you generate new recovery codes, you must copy the new codes. Your old codes won’t work anymore.'),
-			'$regenerate_label'   => $this->l10n->t('Generate new recovery codes'),
+			'$regenerate_message' => $this->t('When you generate new recovery codes, you must copy the new codes. Your old codes won’t work anymore.'),
+			'$regenerate_label'   => $this->t('Generate new recovery codes'),
 			'$verified'           => $verified,
-			'$verify_label'       => $this->l10n->t('Next: Verification'),
+			'$verify_label'       => $this->t('Next: Verification'),
 		]);
 	}
 }

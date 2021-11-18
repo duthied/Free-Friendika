@@ -46,7 +46,7 @@ class SaveTag extends BaseModule
 		$this->logger = $logger;
 		
 		if (!local_user()) {
-			notice($this->l10n->t('You must be logged in to use this module'));
+			notice($this->t('You must be logged in to use this module'));
 			$baseUrl->redirect();
 		}
 	}
@@ -72,8 +72,8 @@ class SaveTag extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
 		echo Renderer::replaceMacros($tpl, [
-			'$field' => ['term', $this->l10n->t("Save to Folder:"), '', '', $filetags, $this->l10n->t('- select -')],
-			'$submit' => $this->l10n->t('Save'),
+			'$field' => ['term', $this->t("Save to Folder:"), '', '', $filetags, $this->t('- select -')],
+			'$submit' => $this->t('Save'),
 		]);
 
 		exit;

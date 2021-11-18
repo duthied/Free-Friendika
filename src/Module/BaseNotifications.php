@@ -91,7 +91,7 @@ abstract class BaseNotifications extends BaseModule
 		parent::__construct($l10n, $parameters);
 
 		if (!local_user()) {
-			throw new ForbiddenException($this->l10n->t('Permission denied.'));
+			throw new ForbiddenException($this->t('Permission denied.'));
 		}
 
 		$page = ($_REQUEST['page'] ?? 0) ?: 1;
@@ -144,7 +144,7 @@ abstract class BaseNotifications extends BaseModule
 
 		$notif_tpl = Renderer::getMarkupTemplate('notifications/notifications.tpl');
 		return Renderer::replaceMacros($notif_tpl, [
-			'$header'        => $header ?? $this->l10n->t('Notifications'),
+			'$header'        => $header ?? $this->t('Notifications'),
 			'$tabs'          => $tabs,
 			'$notifications' => $notifications,
 			'$noContent'     => $noContent,
@@ -167,7 +167,7 @@ abstract class BaseNotifications extends BaseModule
 
 		foreach (self::URL_TYPES as $type => $url) {
 			$tabs[] = [
-				'label'     => $this->l10n->t(self::PRINT_TYPES[$type]),
+				'label'     => $this->t(self::PRINT_TYPES[$type]),
 				'url'       => 'notifications/' . $url,
 				'sel'       => (($selected == $url) ? 'active' : ''),
 				'id'        => $type . '-tab',

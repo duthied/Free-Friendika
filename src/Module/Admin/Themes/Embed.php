@@ -76,7 +76,7 @@ class Embed extends BaseAdmin
 
 		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (!is_dir("view/theme/$theme")) {
-			notice($this->l10n->t('Unknown theme.'));
+			notice($this->t('Unknown theme.'));
 			return '';
 		}
 

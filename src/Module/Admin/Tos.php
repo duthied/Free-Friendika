@@ -72,15 +72,15 @@ class Tos extends BaseAdmin
 
 		$t = Renderer::getMarkupTemplate('admin/tos.tpl');
 		return Renderer::replaceMacros($t, [
-			'$title' => $this->l10n->t('Administration'),
-			'$page' => $this->l10n->t('Terms of Service'),
-			'$displaytos' => ['displaytos', $this->l10n->t('Display Terms of Service'), $this->config->get('system', 'tosdisplay'), $this->l10n->t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
-			'$displayprivstatement' => ['displayprivstatement', $this->l10n->t('Display Privacy Statement'), $this->config->get('system', 'tosprivstatement'), $this->l10n->t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank" rel="noopener noreferrer">EU-GDPR</a>.', 'https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
-			'$preview' => $this->l10n->t('Privacy Statement Preview'),
+			'$title' => $this->t('Administration'),
+			'$page' => $this->t('Terms of Service'),
+			'$displaytos' => ['displaytos', $this->t('Display Terms of Service'), $this->config->get('system', 'tosdisplay'), $this->t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
+			'$displayprivstatement' => ['displayprivstatement', $this->t('Display Privacy Statement'), $this->config->get('system', 'tosprivstatement'), $this->t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank" rel="noopener noreferrer">EU-GDPR</a>.', 'https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
+			'$preview' => $this->t('Privacy Statement Preview'),
 			'$privtext' => $this->tos->privacy_complete,
-			'$tostext' => ['tostext', $this->l10n->t('The Terms of Service'), $this->config->get('system', 'tostext'), $this->l10n->t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
+			'$tostext' => ['tostext', $this->t('The Terms of Service'), $this->config->get('system', 'tostext'), $this->t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
 			'$form_security_token' => self::getFormSecurityToken('admin_tos'),
-			'$submit' => $this->l10n->t('Save Settings'),
+			'$submit' => $this->t('Save Settings'),
 		]);
 	}
 }

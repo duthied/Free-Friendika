@@ -63,25 +63,25 @@ class Notifications extends BaseNotifications
 		$factory = $this->formattedNotificationFactory;
 
 		if (($this->args->get(1) == 'network')) {
-			$notificationHeader = $this->l10n->t('Network Notifications');
+			$notificationHeader = $this->t('Network Notifications');
 			$notifications      = [
 				'ident'        => FormattedNotification::NETWORK,
 				'notifications' => $factory->getNetworkList($this->showAll, $this->firstItemNum, self::ITEMS_PER_PAGE),
 			];
 		} elseif (($this->args->get(1) == 'system')) {
-			$notificationHeader = $this->l10n->t('System Notifications');
+			$notificationHeader = $this->t('System Notifications');
 			$notifications      = [
 				'ident'        => FormattedNotification::SYSTEM,
 				'notifications' => $factory->getSystemList($this->showAll, $this->firstItemNum, self::ITEMS_PER_PAGE),
 			];
 		} elseif (($this->args->get(1) == 'personal')) {
-			$notificationHeader = $this->l10n->t('Personal Notifications');
+			$notificationHeader = $this->t('Personal Notifications');
 			$notifications      = [
 				'ident'        => FormattedNotification::PERSONAL,
 				'notifications' => $factory->getPersonalList($this->showAll, $this->firstItemNum, self::ITEMS_PER_PAGE),
 			];
 		} elseif (($this->args->get(1) == 'home')) {
-			$notificationHeader = $this->l10n->t('Home Notifications');
+			$notificationHeader = $this->t('Home Notifications');
 			$notifications      = [
 				'ident'        => FormattedNotification::HOME,
 				'notifications' => $factory->getHomeList($this->showAll, $this->firstItemNum, self::ITEMS_PER_PAGE),
@@ -132,12 +132,12 @@ class Notifications extends BaseNotifications
 				]);
 			}
 		} else {
-			$notificationNoContent = $this->l10n->t('No more %s notifications.', $notificationResult['ident']);
+			$notificationNoContent = $this->t('No more %s notifications.', $notificationResult['ident']);
 		}
 
 		$notificationShowLink = [
 			'href' => ($this->showAll ? 'notifications/' . $notifications['ident'] : 'notifications/' . $notifications['ident'] . '?show=all'),
-			'text' => ($this->showAll ? $this->l10n->t('Show unread') : $this->l10n->t('Show all')),
+			'text' => ($this->showAll ? $this->t('Show unread') : $this->t('Show all')),
 		];
 
 		return $this->printContent($notificationHeader, $notificationContent, $notificationNoContent, $notificationShowLink);

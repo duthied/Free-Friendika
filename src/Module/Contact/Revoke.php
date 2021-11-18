@@ -60,7 +60,7 @@ class Revoke extends BaseModule
 
 		$data = Model\Contact::getPublicAndUserContactID($this->parameters['id'], local_user());
 		if (!$this->dba->isResult($data)) {
-			throw new HTTPException\NotFoundException($this->l10n->t('Unknown contact.'));
+			throw new HTTPException\NotFoundException($this->t('Unknown contact.'));
 		}
 
 		if (empty($data['user'])) {
@@ -70,11 +70,11 @@ class Revoke extends BaseModule
 		$this->contact = Model\Contact::getById($data['user']);
 
 		if ($this->contact['deleted']) {
-			throw new HTTPException\NotFoundException($this->l10n->t('Contact is deleted.'));
+			throw new HTTPException\NotFoundException($this->t('Contact is deleted.'));
 		}
 
 		if (!empty($this->contact['network']) && $this->contact['network'] == Protocol::PHANTOM) {
-			throw new HTTPException\NotFoundException($this->l10n->t('Contact is being deleted.'));
+			throw new HTTPException\NotFoundException($this->t('Contact is being deleted.'));
 		}
 	}
 
@@ -88,11 +88,11 @@ class Revoke extends BaseModule
 
 		$result = Model\Contact::revokeFollow($this->contact);
 		if ($result === true) {
-			notice($this->l10n->t('Follow was successfully revoked.'));
+			notice($this->t('Follow was successfully revoked.'));
 		} elseif ($result === null) {
-			notice($this->l10n->t('Follow was successfully revoked, however the remote contact won\'t be aware of this revokation.'));
+			notice($this->t('Follow was successfully revoked, however the remote contact won\'t be aware of this revokation.'));
 		} else {
-			notice($this->l10n->t('Unable to revoke follow, please try again later or contact the administrator.'));
+			notice($this->t('Unable to revoke follow, please try again later or contact the administrator.'));
 		}
 
 		$this->baseUrl->redirect('contact/' . $this->parameters['id']);
@@ -108,10 +108,10 @@ class Revoke extends BaseModule
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_drop_confirm.tpl'), [
 			'$l10n' => [
-				'header'  => $this->l10n->t('Revoke Follow'),
-				'message' => $this->l10n->t('Do you really want to revoke this contact\'s follow? This cannot be undone and they will have to manually follow you back again.'),
-				'confirm' => $this->l10n->t('Yes'),
-				'cancel'  => $this->l10n->t('Cancel'),
+				'header'  => $this->t('Revoke Follow'),
+				'message' => $this->t('Do you really want to revoke this contact\'s follow? This cannot be undone and they will have to manually follow you back again.'),
+				'confirm' => $this->t('Yes'),
+				'cancel'  => $this->t('Cancel'),
 			],
 			'$contact'       => Contact::getContactTemplateVars($this->contact),
 			'$method'        => 'post',

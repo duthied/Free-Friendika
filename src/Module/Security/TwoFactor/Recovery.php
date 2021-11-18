@@ -70,11 +70,11 @@ class Recovery extends BaseModule
 			if (RecoveryCode::existsForUser(local_user(), $recovery_code)) {
 				RecoveryCode::markUsedForUser(local_user(), $recovery_code);
 				$this->session->set('2fa', true);
-				info($this->l10n->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
+				info($this->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
 				$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
 			} else {
-				notice($this->l10n->t('Invalid code, please retry.'));
+				notice($this->t('Invalid code, please retry.'));
 			}
 		}
 	}
@@ -93,11 +93,11 @@ class Recovery extends BaseModule
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('twofactor/recovery.tpl'), [
 			'$form_security_token' => self::getFormSecurityToken('twofactor_recovery'),
 
-			'$title'            => $this->l10n->t('Two-factor recovery'),
-			'$message'          => $this->l10n->t('<p>You can enter one of your one-time recovery codes in case you lost access to your mobile device.</p>'),
-			'$recovery_message' => $this->l10n->t('Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>', '2fa/recovery'),
-			'$recovery_code'    => ['recovery_code', $this->l10n->t('Please enter a recovery code'), '', '', '', 'placeholder="000000-000000"'],
-			'$recovery_label'   => $this->l10n->t('Submit recovery code and complete login'),
+			'$title'            => $this->t('Two-factor recovery'),
+			'$message'          => $this->t('<p>You can enter one of your one-time recovery codes in case you lost access to your mobile device.</p>'),
+			'$recovery_message' => $this->t('Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>', '2fa/recovery'),
+			'$recovery_code'    => ['recovery_code', $this->t('Please enter a recovery code'), '', '', '', 'placeholder="000000-000000"'],
+			'$recovery_label'   => $this->t('Submit recovery code and complete login'),
 		]);
 	}
 }

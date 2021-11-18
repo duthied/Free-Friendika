@@ -44,7 +44,7 @@ class Feed extends BaseModule
 		$this->httpClient = $httpClient;
 
 		if (!local_user()) {
-			notice($this->l10n->t('You must be logged in to use this module'));
+			notice($this->t('You must be logged in to use this module'));
 			$baseUrl->redirect();
 		}
 	}
@@ -69,7 +69,7 @@ class Feed extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('feedtest.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$url'    => ['url', $this->l10n->t('Source URL'), $_REQUEST['url'] ?? '', ''],
+			'$url'    => ['url', $this->t('Source URL'), $_REQUEST['url'] ?? '', ''],
 			'$result' => $result
 		]);
 	}

@@ -84,7 +84,7 @@ class Logout extends BaseModule
 		if ($visitor_home) {
 			System::externalRedirect($visitor_home);
 		} else {
-			info($this->l10n->t('Logged out.'));
+			info($this->t('Logged out.'));
 			$this->baseUrl->redirect();
 		}
 	}

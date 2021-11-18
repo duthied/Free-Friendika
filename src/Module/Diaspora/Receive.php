@@ -54,7 +54,7 @@ class Receive extends BaseModule
 		$enabled = $this->config->get('system', 'diaspora_enabled', false);
 		if (!$enabled) {
 			$this->logger->info('Diaspora disabled.');
-			throw new HTTPException\ForbiddenException($this->l10n->t('Access denied.'));
+			throw new HTTPException\ForbiddenException($this->t('Access denied.'));
 		}
 
 		if ($this->parameters['type'] === 'public') {

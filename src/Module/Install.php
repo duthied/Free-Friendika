@@ -193,7 +193,7 @@ class Install extends BaseModule
 
 		$output = '';
 
-		$install_title = $this->l10n->t('Friendica Communications Server - Setup');
+		$install_title = $this->t('Friendica Communications Server - Setup');
 
 		switch ($this->currentWizardStep) {
 			case self::SYSTEM_CHECK:
@@ -204,53 +204,53 @@ class Install extends BaseModule
 				$tpl    = Renderer::getMarkupTemplate('install_checks.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'       => $install_title,
-					'$pass'        => $this->l10n->t('System check'),
-					'$required'    => $this->l10n->t('Required'),
-					'$requirement_not_satisfied' => $this->l10n->t('Requirement not satisfied'),
-					'$optional_requirement_not_satisfied' => $this->l10n->t('Optional requirement not satisfied'),
-					'$ok'          => $this->l10n->t('OK'),
+					'$pass'        => $this->t('System check'),
+					'$required'    => $this->t('Required'),
+					'$requirement_not_satisfied' => $this->t('Requirement not satisfied'),
+					'$optional_requirement_not_satisfied' => $this->t('Optional requirement not satisfied'),
+					'$ok'          => $this->t('OK'),
 					'$checks'      => $this->installer->getChecks(),
 					'$passed'      => $status,
-					'$see_install' => $this->l10n->t('Please see the file "doc/INSTALL.md".'),
-					'$next'        => $this->l10n->t('Next'),
-					'$reload'      => $this->l10n->t('Check again'),
+					'$see_install' => $this->t('Please see the file "doc/INSTALL.md".'),
+					'$next'        => $this->t('Next'),
+					'$reload'      => $this->t('Check again'),
 					'$php_path'    => $php_path,
 				]);
 				break;
 
 			case self::BASE_CONFIG:
 				$ssl_choices = [
-					App\BaseURL::SSL_POLICY_NONE     => $this->l10n->t("No SSL policy, links will track page SSL state"),
-					App\BaseURL::SSL_POLICY_FULL     => $this->l10n->t("Force all links to use SSL"),
-					App\BaseURL::SSL_POLICY_SELFSIGN => $this->l10n->t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
+					App\BaseURL::SSL_POLICY_NONE     => $this->t("No SSL policy, links will track page SSL state"),
+					App\BaseURL::SSL_POLICY_FULL     => $this->t("Force all links to use SSL"),
+					App\BaseURL::SSL_POLICY_SELFSIGN => $this->t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
 				];
 
 				$tpl    = Renderer::getMarkupTemplate('install_base.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'      => $install_title,
-					'$pass'       => $this->l10n->t('Base settings'),
+					'$pass'       => $this->t('Base settings'),
 					'$ssl_policy' => ['system-ssl_policy',
-						$this->l10n->t("SSL link policy"),
+						$this->t("SSL link policy"),
 						$configCache->get('system', 'ssl_policy'),
-						$this->l10n->t("Determines whether generated links should be forced to use SSL"),
+						$this->t("Determines whether generated links should be forced to use SSL"),
 						$ssl_choices],
 					'$hostname'   => ['config-hostname',
-						$this->l10n->t('Host name'),
+						$this->t('Host name'),
 						$configCache->get('config', 'hostname'),
-						$this->l10n->t('Overwrite this field in case the determinated hostname isn\'t right, otherweise leave it as is.'),
-						$this->l10n->t('Required')],
+						$this->t('Overwrite this field in case the determinated hostname isn\'t right, otherweise leave it as is.'),
+						$this->t('Required')],
 					'$basepath'   => ['system-basepath',
-						$this->l10n->t("Base path to installation"),
+						$this->t("Base path to installation"),
 						$configCache->get('system', 'basepath'),
-						$this->l10n->t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."),
-						$this->l10n->t('Required')],
+						$this->t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."),
+						$this->t('Required')],
 					'$urlpath'    => ['system-urlpath',
-						$this->l10n->t('Sub path of the URL'),
+						$this->t('Sub path of the URL'),
 						$configCache->get('system', 'urlpath'),
-						$this->l10n->t('Overwrite this field in case the sub path determination isn\'t right, otherwise leave it as is. Leaving this field blank means the installation is at the base URL without sub path.'),
+						$this->t('Overwrite this field in case the sub path determination isn\'t right, otherwise leave it as is. Leaving this field blank means the installation is at the base URL without sub path.'),
 						''],
 					'$php_path'   => $configCache->get('config', 'php_path'),
-					'$submit'     => $this->l10n->t('Submit'),
+					'$submit'     => $this->t('Submit'),
 				]);
 				break;
 
@@ -258,41 +258,41 @@ class Install extends BaseModule
 				$tpl    = Renderer::getMarkupTemplate('install_db.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'      => $install_title,
-					'$pass'       => $this->l10n->t('Database connection'),
-					'$info_01'    => $this->l10n->t('In order to install Friendica we need to know how to connect to your database.'),
-					'$info_02'    => $this->l10n->t('Please contact your hosting provider or site administrator if you have questions about these settings.'),
-					'$info_03'    => $this->l10n->t('The database you specify below should already exist. If it does not, please create it before continuing.'),
-					'$required'   => $this->l10n->t('Required'),
-					'$requirement_not_satisfied' => $this->l10n->t('Requirement not satisfied'),
+					'$pass'       => $this->t('Database connection'),
+					'$info_01'    => $this->t('In order to install Friendica we need to know how to connect to your database.'),
+					'$info_02'    => $this->t('Please contact your hosting provider or site administrator if you have questions about these settings.'),
+					'$info_03'    => $this->t('The database you specify below should already exist. If it does not, please create it before continuing.'),
+					'$required'   => $this->t('Required'),
+					'$requirement_not_satisfied' => $this->t('Requirement not satisfied'),
 					'$checks'     => $this->installer->getChecks(),
 					'$hostname'   => $configCache->get('config', 'hostname'),
 					'$ssl_policy' => $configCache->get('system', 'ssl_policy'),
 					'$basepath'   => $configCache->get('system', 'basepath'),
 					'$urlpath'    => $configCache->get('system', 'urlpath'),
 					'$dbhost'     => ['database-hostname',
-						$this->l10n->t('Database Server Name'),
+						$this->t('Database Server Name'),
 						$configCache->get('database', 'hostname'),
 						'',
-						$this->l10n->t('Required')],
+						$this->t('Required')],
 					'$dbuser'     => ['database-username',
-						$this->l10n->t('Database Login Name'),
+						$this->t('Database Login Name'),
 						$configCache->get('database', 'username'),
 						'',
-						$this->l10n->t('Required'),
+						$this->t('Required'),
 						'autofocus'],
 					'$dbpass'     => ['database-password',
-						$this->l10n->t('Database Login Password'),
+						$this->t('Database Login Password'),
 						$configCache->get('database', 'password'),
-						$this->l10n->t("For security reasons the password must not be empty"),
-						$this->l10n->t('Required')],
+						$this->t("For security reasons the password must not be empty"),
+						$this->t('Required')],
 					'$dbdata'     => ['database-database',
-						$this->l10n->t('Database Name'),
+						$this->t('Database Name'),
 						$configCache->get('database', 'database'),
 						'',
-						$this->l10n->t('Required')],
-					'$lbl_10'     => $this->l10n->t('Please select a default timezone for your website'),
+						$this->t('Required')],
+					'$lbl_10'     => $this->t('Please select a default timezone for your website'),
 					'$php_path'   => $configCache->get('config', 'php_path'),
-					'$submit'     => $this->l10n->t('Submit')
+					'$submit'     => $this->t('Submit')
 				]);
 				break;
 
@@ -303,9 +303,9 @@ class Install extends BaseModule
 				$tpl    = Renderer::getMarkupTemplate('install_settings.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'      => $install_title,
-					'$required'   => $this->l10n->t('Required'),
+					'$required'   => $this->t('Required'),
 					'$checks'     => $this->installer->getChecks(),
-					'$pass'       => $this->l10n->t('Site settings'),
+					'$pass'       => $this->t('Site settings'),
 					'$hostname'   => $configCache->get('config', 'hostname'),
 					'$ssl_policy' => $configCache->get('system', 'ssl_policy'),
 					'$basepath'   => $configCache->get('system', 'basepath'),
@@ -315,21 +315,21 @@ class Install extends BaseModule
 					'$dbpass'     => $configCache->get('database', 'password'),
 					'$dbdata'     => $configCache->get('database', 'database'),
 					'$adminmail'  => ['config-admin_email',
-						$this->l10n->t('Site administrator email address'),
+						$this->t('Site administrator email address'),
 						$configCache->get('config', 'admin_email'),
-						$this->l10n->t('Your account email address must match this in order to use the web admin panel.'),
-						$this->l10n->t('Required'), 'autofocus', 'email'],
+						$this->t('Your account email address must match this in order to use the web admin panel.'),
+						$this->t('Required'), 'autofocus', 'email'],
 					'$timezone'   => Temporal::getTimezoneField('system-default_timezone',
-						$this->l10n->t('Please select a default timezone for your website'),
+						$this->t('Please select a default timezone for your website'),
 						$configCache->get('system', 'default_timezone'),
 						''),
 					'$language'   => ['system-language',
-						$this->l10n->t('System Language:'),
+						$this->t('System Language:'),
 						$configCache->get('system', 'language'),
-						$this->l10n->t('Set the default language for your Friendica installation interface and to send emails.'),
+						$this->t('Set the default language for your Friendica installation interface and to send emails.'),
 						$lang_choices],
 					'$php_path'   => $configCache->get('config', 'php_path'),
-					'$submit'     => $this->l10n->t('Submit')
+					'$submit'     => $this->t('Submit')
 				]);
 				break;
 
@@ -338,17 +338,17 @@ class Install extends BaseModule
 
 				if (count($this->installer->getChecks()) == 0) {
 					$txt            = '<p style="font-size: 130%;">';
-					$txt            .= $this->l10n->t('Your Friendica site database has been installed.') . EOL;
+					$txt            .= $this->t('Your Friendica site database has been installed.') . EOL;
 					$db_return_text .= $txt;
 				}
 
 				$tpl    = Renderer::getMarkupTemplate('install_finished.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'    => $install_title,
-					'$required' => $this->l10n->t('Required'),
-					'$requirement_not_satisfied' => $this->l10n->t('Requirement not satisfied'),
+					'$required' => $this->t('Required'),
+					'$requirement_not_satisfied' => $this->t('Requirement not satisfied'),
 					'$checks'   => $this->installer->getChecks(),
-					'$pass'     => $this->l10n->t('Installation finished'),
+					'$pass'     => $this->t('Installation finished'),
 					'$text'     => $db_return_text . $this->whatNext(),
 				]);
 
@@ -368,11 +368,11 @@ class Install extends BaseModule
 	{
 		$baseurl = $this->baseUrl->get();
 		return
-			$this->l10n->t('<h1>What next</h1>')
-			. "<p>" . $this->l10n->t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
-			. $this->l10n->t('Please see the file "doc/INSTALL.md".')
+			$this->t('<h1>What next</h1>')
+			. "<p>" . $this->t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
+			. $this->t('Please see the file "doc/INSTALL.md".')
 			. "</p><p>"
-			. $this->l10n->t('Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.', $baseurl)
+			. $this->t('Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.', $baseurl)
 			. "</p>";
 	}
 

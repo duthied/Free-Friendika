@@ -65,7 +65,7 @@ class Verify extends BaseSettings
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice($this->l10n->t('Please enter your password to access this page.'));
+			notice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
@@ -87,11 +87,11 @@ class Verify extends BaseSettings
 				$this->pConfig->set(local_user(), '2fa', 'verified', true);
 				Session::set('2fa', true);
 
-				info($this->l10n->t('Two-factor authentication successfully activated.'));
+				info($this->t('Two-factor authentication successfully activated.'));
 
 				$this->baseUrl->redirect('settings/2fa');
 			} else {
-				notice($this->l10n->t('Invalid code, please retry.'));
+				notice($this->t('Invalid code, please retry.'));
 			}
 		}
 	}
@@ -120,7 +120,7 @@ class Verify extends BaseSettings
 
 		$shortOtpauthUrl = explode('?', $otpauthUrl)[0];
 
-		$manual_message = $this->l10n->t('<p>Or you can submit the authentication settings manually:</p>
+		$manual_message = $this->t('<p>Or you can submit the authentication settings manually:</p>
 <dl>
 	<dt>Issuer</dt>
 	<dd>%s</dd>
@@ -140,18 +140,18 @@ class Verify extends BaseSettings
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_verify'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
 
-			'$title'              => $this->l10n->t('Two-factor code verification'),
-			'$help_label'         => $this->l10n->t('Help'),
-			'$message'            => $this->l10n->t('<p>Please scan this QR Code with your authenticator app and submit the provided code.</p>'),
+			'$title'              => $this->t('Two-factor code verification'),
+			'$help_label'         => $this->t('Help'),
+			'$message'            => $this->t('<p>Please scan this QR Code with your authenticator app and submit the provided code.</p>'),
 			'$qrcode_image'       => $qrcode_image,
-			'$qrcode_url_message' => $this->l10n->t('<p>Or you can open the following URL in your mobile device:</p><p><a href="%s">%s</a></p>', $otpauthUrl, $shortOtpauthUrl),
+			'$qrcode_url_message' => $this->t('<p>Or you can open the following URL in your mobile device:</p><p><a href="%s">%s</a></p>', $otpauthUrl, $shortOtpauthUrl),
 			'$manual_message'     => $manual_message,
 			'$company'            => $company,
 			'$holder'             => $holder,
 			'$secret'             => $secret,
 
-			'$verify_code'  => ['verify_code', $this->l10n->t('Please enter a code from your authentication app'), '', '', $this->l10n->t('Required'), 'autofocus autocomplete="off" placeholder="000000"'],
-			'$verify_label' => $this->l10n->t('Verify code and enable two-factor authentication'),
+			'$verify_code'  => ['verify_code', $this->t('Please enter a code from your authentication app'), '', '', $this->t('Required'), 'autofocus autocomplete="off" placeholder="000000"'],
+			'$verify_label' => $this->t('Verify code and enable two-factor authentication'),
 		]);
 	}
 }

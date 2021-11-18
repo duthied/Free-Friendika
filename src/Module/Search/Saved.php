@@ -59,16 +59,16 @@ class Saved extends BaseModule
 					$fields = ['uid' => local_user(), 'term' => $search];
 					if (!$this->dba->exists('search', $fields)) {
 						if (!$this->dba->insert('search', $fields)) {
-							notice($this->l10n->t('Search term was not saved.'));
+							notice($this->t('Search term was not saved.'));
 						}
 					} else {
-						notice($this->l10n->t('Search term already saved.'));
+						notice($this->t('Search term already saved.'));
 					}
 					break;
 
 				case 'remove':
 					if (!$this->dba->delete('search', ['uid' => local_user(), 'term' => $search])) {
-						notice($this->l10n->t('Search term was not removed.'));
+						notice($this->t('Search term was not removed.'));
 					}
 					break;
 			}

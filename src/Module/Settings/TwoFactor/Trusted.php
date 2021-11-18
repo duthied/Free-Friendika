@@ -42,7 +42,7 @@ class Trusted extends BaseSettings
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice($this->l10n->t('Please enter your password to access this page.'));
+			notice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
@@ -59,7 +59,7 @@ class Trusted extends BaseSettings
 			switch ($_POST['action']) {
 				case 'remove_all' :
 					$this->trustedBrowserRepo->removeAllForUser(local_user());
-					info($this->l10n->t('Trusted browsers successfully removed.'));
+					info($this->t('Trusted browsers successfully removed.'));
 					$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					break;
 			}
@@ -69,7 +69,7 @@ class Trusted extends BaseSettings
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/trusted', 'settings_2fa_trusted');
 
 			if ($this->trustedBrowserRepo->removeForUser(local_user(), $_POST['remove_id'])) {
-				info($this->l10n->t('Trusted browser successfully removed.'));
+				info($this->t('Trusted browser successfully removed.'));
 			}
 
 			$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
@@ -106,15 +106,15 @@ class Trusted extends BaseSettings
 			'$form_security_token' => self::getFormSecurityToken('settings_2fa_trusted'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
 
-			'$title'               => $this->l10n->t('Two-factor Trusted Browsers'),
-			'$message'             => $this->l10n->t('Trusted browsers are individual browsers you chose to skip two-factor authentication to access Friendica. Please use this feature sparingly, as it can negate the benefit of two-factor authentication.'),
-			'$device_label'        => $this->l10n->t('Device'),
-			'$os_label'            => $this->l10n->t('OS'),
-			'$browser_label'       => $this->l10n->t('Browser'),
-			'$created_label'       => $this->l10n->t('Trusted'),
-			'$last_used_label'     => $this->l10n->t('Last Use'),
-			'$remove_label'        => $this->l10n->t('Remove'),
-			'$remove_all_label'    => $this->l10n->t('Remove All'),
+			'$title'               => $this->t('Two-factor Trusted Browsers'),
+			'$message'             => $this->t('Trusted browsers are individual browsers you chose to skip two-factor authentication to access Friendica. Please use this feature sparingly, as it can negate the benefit of two-factor authentication.'),
+			'$device_label'        => $this->t('Device'),
+			'$os_label'            => $this->t('OS'),
+			'$browser_label'       => $this->t('Browser'),
+			'$created_label'       => $this->t('Trusted'),
+			'$last_used_label'     => $this->t('Last Use'),
+			'$remove_label'        => $this->t('Remove'),
+			'$remove_all_label'    => $this->t('Remove All'),
 
 			'$trusted_browsers'    => $trustedBrowserDisplay,
 		]);
