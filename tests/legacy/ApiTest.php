@@ -1726,7 +1726,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesRepeat()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
 		api_statuses_repeat('json');
 	}
 
