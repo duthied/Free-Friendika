@@ -224,7 +224,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiUser()
 	{
-		self::assertEquals($this->selfUser['id'], api_user());
+		self::assertEquals($this->selfUser['id'], BaseApi::getCurrentUserID());
 	}
 
 	/**
@@ -711,11 +711,14 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithoutApiUser()
 	{
+		// api_get_user() with empty parameters is not used anymore
+		/*
 		$_SERVER['PHP_AUTH_USER'] = 'Test user';
 		$_SERVER['PHP_AUTH_PW']   = 'password';
 		$_SESSION['allow_api']    = false;
 		BasicAuth::setCurrentUserID();
 		self::assertFalse(api_get_user());
+		*/
 	}
 
 	/**
