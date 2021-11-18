@@ -1112,6 +1112,9 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
  */
 function api_search($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1216,6 +1219,9 @@ api_register_func('api/search', 'api_search', true);
  */
 function api_statuses_home_timeline($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1307,6 +1313,9 @@ api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline',
  */
 function api_statuses_public_timeline($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1387,6 +1396,9 @@ api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline'
  */
 function api_statuses_networkpublic_timeline($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1445,6 +1457,9 @@ api_register_func('api/statuses/networkpublic_timeline', 'api_statuses_networkpu
  */
 function api_statuses_show($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1521,6 +1536,9 @@ api_register_func('api/statuses/show', 'api_statuses_show', true);
  */
 function api_conversation_show($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1720,6 +1738,9 @@ api_register_func('api/statuses/destroy', 'api_statuses_destroy', true, API_METH
  */
 function api_statuses_mentions($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1795,6 +1816,9 @@ api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
  */
 function api_statuses_user_timeline($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1949,6 +1973,9 @@ function api_favorites($type)
 {
 	global $called_api;
 
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -2722,6 +2749,9 @@ api_register_func('api/lists/subscriptions', 'api_lists_list', true);
  */
 function api_lists_ownerships($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	// params
@@ -2767,6 +2797,9 @@ api_register_func('api/lists/ownerships', 'api_lists_ownerships', true);
  */
 function api_lists_statuses($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
