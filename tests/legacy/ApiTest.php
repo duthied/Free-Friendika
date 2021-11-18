@@ -715,7 +715,7 @@ class ApiTest extends FixtureTest
 		$_SERVER['PHP_AUTH_PW']   = 'password';
 		$_SESSION['allow_api']    = false;
 		BasicAuth::setCurrentUserID();
-		self::assertFalse(api_get_user());
+		self::assertFalse(BaseApi::getCurrentUserID());
 	}
 
 	/**
