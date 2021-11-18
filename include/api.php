@@ -104,19 +104,6 @@ function api_source()
 }
 
 /**
- * Format date for API
- *
- * @param string $str Source date, as UTC
- * @return string Date in UTC formatted as "D M d H:i:s +0000 Y"
- * @throws Exception
- */
-function api_date($str)
-{
-	// Wed May 23 06:01:13 +0000 2007
-	return DateTimeFormat::utc($str, "D M d H:i:s +0000 Y");
-}
-
-/**
  * Register a function to be the endpoint for defined API path.
  *
  * @param string $path   API URL path, relative to DI::baseUrl()
@@ -288,7 +275,7 @@ function api_rss_extra($arr, $user_info)
 		'alternate'    => $user_info['url'],
 		'self'         => DI::baseUrl() . "/" . DI::args()->getQueryString(),
 		'base'         => DI::baseUrl(),
-		'updated'      => api_date(null),
+		'updated'      => DateTimeFormat::utc(null, DateTimeFormat::API),
 		'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 		'language'     => $user_info['lang'],
 		'logo'         => DI::baseUrl() . "/images/friendica-32.png",
@@ -1925,7 +1912,7 @@ function api_format_messages($item, $recipient, $sender)
 		'sender_id'             => $sender['id'],
 		'text'                  => "",
 		'recipient_id'          => $recipient['id'],
-		'created_at'            => api_date($item['created'] ?? DateTimeFormat::utcNow()),
+		'created_at'            => DateTimeFormat::utc($item['created'] ?? DateTimeFormat::utcNow(), DateTimeFormat::API),
 		'sender_screen_name'    => $sender['screen_name'],
 		'recipient_screen_name' => $recipient['screen_name'],
 		'sender'                => $sender,
@@ -2459,7 +2446,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	$status = [
 		'text'		=> $converted["text"],
 		'truncated' => false,
-		'created_at'=> api_date($item['created']),
+		'created_at'=> DateTimeFormat::utc($item['created'], DateTimeFormat::API),
 		'in_reply_to_status_id' => $in_reply_to['status_id'],
 		'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
 		'source'    => (($item['app']) ? $item['app'] : 'web'),
@@ -2558,7 +2545,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		$retweeted_status['text'] = $rt_converted["text"];
 		$retweeted_status['statusnet_html'] = $rt_converted["html"];
 		$retweeted_status['friendica_html'] = $rt_converted["html"];
-		$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
+		$retweeted_status['created_at'] =  DateTimeFormat::utc($retweeted_item['created'], DateTimeFormat::API);
 
 		if (!empty($quoted_status)) {
 			$retweeted_status['quoted_status'] = $quoted_status;

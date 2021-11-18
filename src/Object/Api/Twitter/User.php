@@ -26,6 +26,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Protocol;
 use Friendica\Model\Contact;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
 
 /**
@@ -124,7 +125,7 @@ class User extends BaseDataTransferObject
 		$this->followers_count         = $apcontact['followers_count'] ?? 0;
 		$this->friends_count           = $apcontact['following_count'] ?? 0;
 		$this->listed_count            = 0;
-		$this->created_at              = api_date($publicContact['created']);
+		$this->created_at              = DateTimeFormat::utc($publicContact['created'], DateTimeFormat::API);
 		$this->favourites_count        = 0;
 		$this->verified                = $uid != 0;
 		$this->statuses_count          = $apcontact['statuses_count'] ?? 0;

@@ -48,7 +48,7 @@ class RateLimitStatus extends BaseApi
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'remaining_hits'        => '150',
 				'hourly_limit'          => '150',
-				'reset_time'            => api_date(DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM)),
+				'reset_time'            => DateTimeFormat::utc('now + 1 hour', DateTimeFormat::API),
 			];
 		}
 

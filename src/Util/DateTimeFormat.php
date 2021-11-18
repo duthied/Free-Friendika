@@ -35,6 +35,7 @@ class DateTimeFormat
 	const MYSQL = 'Y-m-d H:i:s';
 	const HTTP  = 'D, d M Y H:i:s \G\M\T';
 	const JSON  = 'Y-m-d\TH:i:s.v\Z';
+	const API   = 'D M d H:i:s +0000 Y';
 
 	static $localTimezone = 'UTC';
 
