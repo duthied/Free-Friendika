@@ -379,37 +379,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_check_method() function.
-	 *
-	 * @return void
-	 */
-	public function testApiCheckMethod()
-	{
-		self::assertFalse(api_check_method('method'));
-	}
-
-	/**
-	 * Test the api_check_method() function with a correct method.
-	 *
-	 * @return void
-	 */
-	public function testApiCheckMethodWithCorrectMethod()
-	{
-		$_SERVER['REQUEST_METHOD'] = 'method';
-		self::assertTrue(api_check_method('method'));
-	}
-
-	/**
-	 * Test the api_check_method() function with a wildcard.
-	 *
-	 * @return void
-	 */
-	public function testApiCheckMethodWithWildcard()
-	{
-		self::assertTrue(api_check_method('*'));
-	}
-
-	/**
 	 * Test the api_call() function.
 	 *
 	 * @runInSeparateProcess
@@ -782,27 +751,6 @@ class ApiTest extends FixtureTest
 		// global $called_api;
 		// $called_api = ['api', 'api_path'];
 		// self::assertSelfUser(api_get_user());
-	}
-
-	/**
-	 * Test the api_get_user() function with a valid user.
-	 *
-	 * @return void
-	 */
-	public function testApiGetUserWithCorrectUser()
-	{
-		self::assertOtherUser(api_get_user($this->otherUser['id']));
-	}
-
-	/**
-	 * Test the api_get_user() function with a wrong user ID.
-	 *
-	 * @return void
-	 */
-	public function testApiGetUserWithWrongUser()
-	{
-		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		self::assertOtherUser(api_get_user($this->wrongUserId));
 	}
 
 	/**

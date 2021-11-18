@@ -25,6 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
@@ -289,5 +290,16 @@ class BaseApi extends BaseModule
 				System::jsonError(429, $errorobj->toArray());
 			}
 		}
+	}
+
+	public static function getContactIDForSearchterm($searchterm)
+	{
+		if (intval($searchterm) == 0) {
+			$cid = Contact::getIdForURL($searchterm, 0, false);
+		} else {
+			$cid = intval($searchterm);
+		}
+
+		return $cid;
 	}
 }

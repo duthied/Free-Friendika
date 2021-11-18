@@ -134,24 +134,6 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
 }
 
 /**
- * Check HTTP method of called API
- *
- * API endpoints can define which HTTP method to accept when called.
- * This function check the current HTTP method agains endpoint
- * registered method.
- *
- * @param string $method Required methods, uppercase, separated by comma
- * @return bool
- */
-function api_check_method($method)
-{
-	if ($method == "*") {
-		return true;
-	}
-	return (stripos($method, $_SERVER['REQUEST_METHOD'] ?? 'GET') !== false);
-}
-
-/**
  * Main API entry point
  *
  * Authenticate user, call registered API function, set HTTP headers
@@ -186,10 +168,6 @@ function api_call(App $a, App\Arguments $args = null)
 	try {
 		foreach ($API as $p => $info) {
 			if (strpos($args->getCommand(), $p) === 0) {
-				if (!api_check_method($info['method'])) {
-					throw new MethodNotAllowedException();
-				}
-
 				if (!empty($info['auth']) && BaseApi::getCurrentUserID() === false) {
 					BasicAuth::getCurrentUserID(true);
 					Logger::info(API_LOG_PREFIX . 'nickname {nickname}', ['module' => 'api', 'action' => 'call', 'nickname' => $a->getLoggedInUserNickname()]);
@@ -301,85 +279,6 @@ function api_unique_id_to_nurl($id)
 		return $r["nurl"];
 	} else {
 		return false;
-	}
-}
-
-/**
- * Get user info array.
- *
- * @param App        $a          App
- * @param int|string $contact_id Contact ID or URL
- * @return array|bool
- * @throws BadRequestException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_get_user($contact_id = null)
-{
-	$user = null;
-	$extra_query = "";
-	$url = "";
-
-	Logger::info(API_LOG_PREFIX . 'Fetching data for user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $contact_id]);
-
-	// Searching for contact URL
-	if (intval($contact_id) == 0) {
-		$user = Strings::normaliseLink($contact_id);
-		$url = $user;
-		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (!empty(BaseApi::getCurrentUserID())) {
-			$extra_query .= "AND `contact`.`uid`=" . intval(BaseApi::getCurrentUserID());
-		}
-	}
-
-	// Searching for contact id with uid = 0
-	if (intval($contact_id) != 0) {
-		$user = api_unique_id_to_nurl(intval($contact_id));
-
-		if ($user == "") {
-			throw new BadRequestException("User ID ".$contact_id." not found.");
-		}
-
-		$url = $user;
-		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (!empty(BaseApi::getCurrentUserID())) {
-			$extra_query .= "AND `contact`.`uid`=" . intval(BaseApi::getCurrentUserID());
-		}
-	}
-
-	Logger::info(API_LOG_PREFIX . 'getting user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user]);
-
-	if (!$user) {
-		return false;
-	}
-
-	Logger::info(API_LOG_PREFIX . 'found user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user, 'extra_query' => $extra_query]);
-
-	// user info
-	$uinfo = DBA::toArray(DBA::p(
-		"SELECT *, `contact`.`id` AS `cid` FROM `contact`
-			WHERE 1
-		$extra_query",
-		$user
-	));
-
-	if (DBA::isResult($uinfo)) {
-		// Selecting the id by priority, friendica first
-		api_best_nickname($uinfo);
-		return DI::twitterUser()->createFromContactId($uinfo[0]['cid'], $uinfo[0]['uid'])->toArray();
-	}
-
-	if ($url == "") {
-		throw new BadRequestException("User not found.");
-	}
-
-	$cid = Contact::getIdForURL($url, 0, false);
-
-	if (!empty($cid)) {
-		return DI::twitterUser()->createFromContactId($cid, 0)->toArray();
-	} else {
-		throw new BadRequestException("User ".$url." not found.");
 	}
 }
 
@@ -981,7 +880,10 @@ function api_users_lookup($type)
 	if (!empty($_REQUEST['user_id'])) {
 		foreach (explode(',', $_REQUEST['user_id']) as $id) {
 			if (!empty($id)) {
-				$users[] = api_get_user($id);
+				$cid = BaseApi::getContactIDForSearchterm($id);
+				if (!empty($cid)) {
+					$users[] = DI::twitterUser()->createFromContactId($cid, BaseApi::getCurrentUserID())->toArray();
+				}
 			}
 		}
 	}
@@ -2940,7 +2842,10 @@ function api_direct_messages_new($type)
 			$recipient = DI::twitterUser()->createFromContactId($contacts[0]['id'], $uid)->toArray();
 		}
 	} else {
-		$recipient = api_get_user($_POST['user_id']);
+		$cid = BaseApi::getContactIDForSearchterm($_POST['user_id']);
+		if (!empty($cid)) {
+			$recipient = DI::twitterUser()->createFromContactId($cid, $uid)->toArray();
+		}
 	}
 
 	if (empty($recipient)) {
