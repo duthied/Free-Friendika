@@ -518,9 +518,6 @@ function api_item_get_user(App $a, $item)
  */
 function api_account_verify_credentials($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	unset($_REQUEST["user_id"]);
@@ -587,10 +584,6 @@ function api_statuses_mediap($type)
 {
 	$a = DI::app();
 
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
-
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -642,10 +635,6 @@ api_register_func('api/statuses/mediap', 'api_statuses_mediap', true, API_METHOD
 function api_statuses_update($type)
 {
 	$a = DI::app();
-
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
@@ -824,10 +813,6 @@ api_register_func('api/statuses/update_with_media', 'api_statuses_update', true,
 function api_media_upload()
 {
 	$a = DI::app();
-
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
@@ -1108,9 +1093,6 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
  */
 function api_search($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1140,7 +1122,7 @@ function api_search($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	if (preg_match('/^#(\w+)$/', $searchTerm, $matches) === 1 && isset($matches[1])) {
 		$searchTerm = $matches[1];
-		$condition = ["`iid` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, local_user()];
+		$condition = ["`iid` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, BaseApi::getCurrentUserID()];
 		$tags = DBA::select('tag-search-view', ['uri-id'], $condition);
 		$uriids = [];
 		while ($tag = DBA::fetch($tags)) {
@@ -1215,9 +1197,6 @@ api_register_func('api/search', 'api_search', true);
  */
 function api_statuses_home_timeline($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1309,9 +1288,6 @@ api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline',
  */
 function api_statuses_public_timeline($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1392,9 +1368,6 @@ api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline'
  */
 function api_statuses_networkpublic_timeline($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1453,9 +1426,6 @@ api_register_func('api/statuses/networkpublic_timeline', 'api_statuses_networkpu
  */
 function api_statuses_show($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1532,9 +1502,6 @@ api_register_func('api/statuses/show', 'api_statuses_show', true);
  */
 function api_conversation_show($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1616,10 +1583,6 @@ function api_statuses_repeat($type)
 
 	$a = DI::app();
 
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
-
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
@@ -1641,7 +1604,7 @@ function api_statuses_repeat($type)
 
 	if (DBA::isResult($item) && !empty($item['body'])) {
 		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::TWITTER])) {
-			if (!Item::performActivity($id, 'announce', local_user())) {
+			if (!Item::performActivity($id, 'announce', BaseApi::getCurrentUserID())) {
 				throw new InternalServerErrorException();
 			}
 
@@ -1697,10 +1660,6 @@ api_register_func('api/statuses/retweet', 'api_statuses_repeat', true, API_METHO
  */
 function api_statuses_destroy($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
-
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
@@ -1742,9 +1701,6 @@ api_register_func('api/statuses/destroy', 'api_statuses_destroy', true, API_METH
  */
 function api_statuses_mentions($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1820,9 +1776,6 @@ api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
  */
 function api_statuses_user_timeline($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -1899,10 +1852,6 @@ api_register_func('api/statuses/user_timeline', 'api_statuses_user_timeline', tr
  */
 function api_favorites_create_destroy($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
-
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// for versioned api.
@@ -1981,9 +1930,6 @@ function api_favorites($type)
 {
 	global $called_api;
 
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -2757,9 +2703,6 @@ api_register_func('api/lists/subscriptions', 'api_lists_list', true);
  */
 function api_lists_ownerships($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	// params
@@ -2805,9 +2748,6 @@ api_register_func('api/lists/ownerships', 'api_lists_ownerships', true);
  */
 function api_lists_statuses($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
@@ -3068,16 +3008,9 @@ api_register_func('api/friendships/incoming', 'api_friendships_incoming', true);
  */
 function api_direct_messages_new($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
-
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	$uid = BaseApi::getCurrentUserID();
-	if (empty($uid)) {
-		throw new ForbiddenException();
-	}
 
 	if (empty($_POST["text"]) || empty($_POST["screen_name"]) && empty($_POST["user_id"])) {
 		return;
@@ -3154,10 +3087,6 @@ api_register_func('api/direct_messages/new', 'api_direct_messages_new', true, AP
  */
 function api_direct_messages_destroy($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
-
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
@@ -3227,11 +3156,8 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
  */
 function api_friendships_destroy($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 	$uid = BaseApi::getCurrentUserID();
-
-	if ($uid === false) {
-		throw new HTTPException\ForbiddenException();
-	}
 
 	$owner = User::getOwnerDataById($uid);
 	if (!$owner) {
@@ -3309,9 +3235,6 @@ api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, AP
  */
 function api_direct_messages_box($type, $box, $verbose)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	// params
@@ -3477,14 +3400,13 @@ api_register_func('api/direct_messages', 'api_direct_messages_inbox', true);
  */
 function api_fr_photos_list($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+
 	$r = DBA::toArray(DBA::p(
 		"SELECT `resource-id`, MAX(scale) AS `scale`, `album`, `filename`, `type`, MAX(`created`) AS `created`,
 		MAX(`edited`) AS `edited`, MAX(`desc`) AS `desc` FROM `photo`
 		WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) GROUP BY `resource-id`, `album`, `filename`, `type`",
-		local_user(), Photo::CONTACT_AVATAR, Photo::CONTACT_BANNER
+		BaseApi::getCurrentUserID(), Photo::CONTACT_AVATAR, Photo::CONTACT_BANNER
 	));
 	$typetoext = [
 		'image/jpeg' => 'jpg',
@@ -3528,9 +3450,8 @@ function api_fr_photos_list($type)
  */
 function api_fr_photo_create_update($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+
 	// input params
 	$photo_id  = $_REQUEST['photo_id']  ?? null;
 	$desc      = $_REQUEST['desc']      ?? null;
@@ -3666,9 +3587,8 @@ function api_fr_photo_create_update($type)
  */
 function api_fr_photo_detail($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+
 	if (empty($_REQUEST['photo_id'])) {
 		throw new BadRequestException("No photo id.");
 	}
@@ -3698,9 +3618,8 @@ function api_fr_photo_detail($type)
  */
 function api_account_update_profile_image($type)
 {
-	if (empty(BaseApi::getCurrentUserID())) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+
 	// input params
 	$profile_id = $_REQUEST['profile_id'] ?? 0;
 
@@ -3941,13 +3860,13 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		// upload normal image (scales 0, 1, 2)
 		logger::info("photo upload: starting new photo upload");
 
-		$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 0, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+		$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 0, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 		if (!$r) {
 			logger::notice("photo upload: image upload with scale 0 (original size) failed");
 		}
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 1, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 1, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: image upload with scale 1 (640x640) failed");
 			}
@@ -3955,7 +3874,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 320 || $height > 320) {
 			$Image->scaleDown(320);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 2, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 2, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: image upload with scale 2 (320x320) failed");
 			}
@@ -3967,7 +3886,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 300 || $height > 300) {
 			$Image->scaleDown(300);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 4, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 4, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: profile image upload with scale 4 (300x300) failed");
 			}
@@ -3975,7 +3894,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 80 || $height > 80) {
 			$Image->scaleDown(80);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 5, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 5, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: profile image upload with scale 5 (80x80) failed");
 			}
@@ -3983,7 +3902,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 48 || $height > 48) {
 			$Image->scaleDown(48);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 6, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 6, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: profile image upload with scale 6 (48x48) failed");
 			}
@@ -4090,7 +4009,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 			FROM `photo` WHERE `uid` = ? AND `resource-id` = ? $scale_sql GROUP BY
 				   `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 				   `type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`",
-		local_user(),
+		BaseApi::getCurrentUserID(),
 		$photo_id
 	));
 
