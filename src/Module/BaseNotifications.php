@@ -28,7 +28,6 @@ use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\DI;
 use Friendica\Navigation\Notifications\ValueObject\FormattedNotification;
 use Friendica\Network\HTTPException\ForbiddenException;
 
@@ -138,14 +137,14 @@ abstract class BaseNotifications extends BaseModule
 	protected function printContent(string $header, array $notifications, string $noContent, array $showLink)
 	{
 		// Get the nav tabs for the notification pages
-		$tabs = self::getTabs();
+		$tabs = $this->getTabs();
 
 		// Set the pager
-		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
+		$pager = new Pager($this->l10n, $this->args->getQueryString(), self::ITEMS_PER_PAGE);
 
 		$notif_tpl = Renderer::getMarkupTemplate('notifications/notifications.tpl');
 		return Renderer::replaceMacros($notif_tpl, [
-			'$header'        => $header ?? DI::l10n()->t('Notifications'),
+			'$header'        => $header ?? $this->l10n->t('Notifications'),
 			'$tabs'          => $tabs,
 			'$notifications' => $notifications,
 			'$noContent'     => $noContent,
@@ -160,15 +159,15 @@ abstract class BaseNotifications extends BaseModule
 	 * @return array with with notifications TabBar data
 	 * @throws Exception
 	 */
-	private static function getTabs()
+	private function getTabs()
 	{
-		$selected = DI::args()->get(1, '');
+		$selected = $this->args->get(1, '');
 
 		$tabs = [];
 
 		foreach (self::URL_TYPES as $type => $url) {
 			$tabs[] = [
-				'label'     => DI::l10n()->t(self::PRINT_TYPES[$type]),
+				'label'     => $this->l10n->t(self::PRINT_TYPES[$type]),
 				'url'       => 'notifications/' . $url,
 				'sel'       => (($selected == $url) ? 'active' : ''),
 				'id'        => $type . '-tab',
