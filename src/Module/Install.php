@@ -65,7 +65,7 @@ class Install extends BaseModule
 	 * @var Core\Installer The installer
 	 */
 	private $installer;
-	
+
 	/** @var App */
 	protected $app;
 	/** @var App\Mode */
@@ -385,12 +385,21 @@ class Install extends BaseModule
 	 * @param string                                   $key         The key of the setting
 	 * @param null|string                              $default     The default value
 	 */
-	private function checkSetting(Cache $configCache, array $post, $cat, $key, $default = null)
+	private function checkSetting(Cache $configCache, array $post, string $cat, string $key, ?string $default = null)
 	{
-		$configCache->set($cat, $key,
-			trim(($post[sprintf('%s-%s', $cat, $key)] ?? '') ?:
-					($default ?? $configCache->get($cat, $key))
-			)
-		);
+		$value = null;
+
+		if (isset($post[sprintf('%s-%s', $cat, $key)])) {
+			$value = trim($post[sprintf('%s-%s', $cat, $key)]);
+		}
+
+		if (isset($value)) {
+			$configCache->set($cat, $key, $value, Cache::SOURCE_ENV);
+			return;
+		}
+
+		if (isset($default)) {
+			$configCache->set($cat, $key, $default, Cache::SOURCE_ENV);
+		}
 	}
 }
