@@ -110,7 +110,6 @@ class ApiTest extends FixtureTest
 
 		// Most API require login so we force the session
 		$_SESSION = [
-			'allow_api'     => true,
 			'authenticated' => true,
 			'uid'           => $this->selfUser['id']
 		];
@@ -234,8 +233,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiUserWithUnallowedUser()
 	{
-		$_SESSION = ['allow_api' => false];
-		self::assertEquals(false, api_user());
+		// self::assertEquals(false, api_user());
 	}
 
 	/**
@@ -715,7 +713,6 @@ class ApiTest extends FixtureTest
 		/*
 		$_SERVER['PHP_AUTH_USER'] = 'Test user';
 		$_SERVER['PHP_AUTH_PW']   = 'password';
-		$_SESSION['allow_api']    = false;
 		BasicAuth::setCurrentUserID();
 		self::assertFalse(api_get_user());
 		*/
@@ -1432,7 +1429,6 @@ class ApiTest extends FixtureTest
 	public function testApiSearchWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_search('json');
@@ -1489,7 +1485,6 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesHomeTimelineWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_statuses_home_timeline('json');
@@ -1561,7 +1556,6 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesPublicTimelineWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_statuses_public_timeline('json');
@@ -1616,7 +1610,6 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesNetworkpublicTimelineWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_statuses_networkpublic_timeline('json');
@@ -1680,7 +1673,6 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesShowWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_statuses_show('json');
@@ -1722,7 +1714,6 @@ class ApiTest extends FixtureTest
 	public function testApiConversationShowWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_conversation_show('json');
@@ -1839,7 +1830,6 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesMentionsWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_statuses_mentions('json');
@@ -1907,7 +1897,6 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesUserTimelineWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_statuses_user_timeline('json');
@@ -2037,7 +2026,6 @@ class ApiTest extends FixtureTest
 	public function testApiFavoritesWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_favorites('json');
@@ -2464,7 +2452,6 @@ class ApiTest extends FixtureTest
 	public function testApiListsStatusesWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_lists_statuses('json');
@@ -2893,7 +2880,6 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesBoxWithUnallowedUser()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
 		$_GET['screen_name']   = $this->selfUser['nick'];
 		BasicAuth::setCurrentUserID();
 		api_direct_messages_box('json', 'sentbox', 'false');

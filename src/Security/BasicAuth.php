@@ -123,7 +123,6 @@ class BasicAuth
 	private static function getUserIdByAuth(bool $do_login = true):int
 	{
 		$a = DI::app();
-		Session::set('allow_api', false);
 		self::$current_user_id = 0;
 
 		// workaround for HTTP-auth in CGI mode
@@ -187,15 +186,10 @@ class BasicAuth
 
 		DI::auth()->setForUser($a, $record, false, false, $login_refresh);
 
-		Session::set('allow_api', true);
-
 		Hook::callAll('logged_in', $record);
 
-		if (Session::get('allow_api')) {
-			self::$current_user_id = local_user();
-		} else {
-			self::$current_user_id = 0;
-		}
+		self::$current_user_id = local_user();
+
 		return self::$current_user_id;
 	}
 }

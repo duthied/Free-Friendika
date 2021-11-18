@@ -74,27 +74,6 @@ $API = [];
 $called_api = [];
 
 /**
- * Auth API user
- *
- * It is not sufficient to use local_user() to check whether someone is allowed to use the API,
- * because this will open CSRF holes (just embed an image with src=friendicasite.com/api/statuses/update?status=CSRF
- * into a page, and visitors will post something without noticing it).
- */
-function api_user()
-{
-	$user = OAuth::getCurrentUserID();
-	if (!empty($user)) {
-		return $user;
-	}
-
-	if (!empty($_SESSION['allow_api'])) {
-		return local_user();
-	}
-
-	return false;
-}
-
-/**
  * Get source name from API client
  *
  * Clients can send 'source' parameter to be show in post metadata
