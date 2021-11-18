@@ -452,11 +452,11 @@ function api_account_verify_credentials($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
 	$skip_status = $_REQUEST['skip_status'] ?? false;
 
@@ -710,7 +710,7 @@ function api_statuses_update($type)
 	$_REQUEST['api_source'] = true;
 
 	if (empty($_REQUEST['source'])) {
-		$_REQUEST["source"] = api_source();
+		$_REQUEST['source'] = api_source();
 	}
 
 	// call out normal post function
@@ -1133,11 +1133,11 @@ function api_statuses_home_timeline($type)
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
 	// get last network messages
 
@@ -1558,7 +1558,7 @@ function api_statuses_repeat($type)
 			$_REQUEST['api_source'] = true;
 
 			if (empty($_REQUEST['source'])) {
-				$_REQUEST["source"] = api_source();
+				$_REQUEST['source'] = api_source();
 			}
 
 			$item_id = item_post($a);
@@ -1634,11 +1634,11 @@ function api_statuses_mentions($type)
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
 	// get last network messages
 
@@ -2677,11 +2677,11 @@ function api_lists_statuses($type)
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
 	if (empty($_REQUEST['list_id'])) {
 		throw new BadRequestException('list_id not specified');
@@ -2937,7 +2937,7 @@ function api_direct_messages_new($type)
 
 	$uid = BaseApi::getCurrentUserID();
 
-	if (empty($_POST["text"]) || empty($_POST["screen_name"]) && empty($_POST["user_id"])) {
+	if (empty($_POST["text"]) || empty($_POST['screen_name']) && empty($_POST['user_id'])) {
 		return;
 	}
 
@@ -3173,11 +3173,11 @@ function api_direct_messages_box($type, $box, $verbose)
 	$screen_name = $_REQUEST['screen_name'] ?? '';
 
 	//  caller user info
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
