@@ -177,7 +177,10 @@ class BasicAuth
 				return 0;
 			}
 			Logger::debug('Access denied', ['parameters' => $_SERVER]);
-			header('WWW-Authenticate: Basic realm="Friendica"');
+			// Checking for commandline for the tests, we have to avoid to send a header
+			if (php_sapi_name() !== 'cli') {
+				header('WWW-Authenticate: Basic realm="Friendica"');
+			}
 			throw new UnauthorizedException("This API requires login");
 		}
 
