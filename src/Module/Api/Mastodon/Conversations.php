@@ -31,26 +31,25 @@ use Friendica\Module\BaseApi;
  */
 class Conversations extends BaseApi
 {
-	public static function delete(array $parameters = [])
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (!empty($parameters['id'])) {
+		if (!empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DBA::delete('conv', ['id' => $parameters['id'], 'uid' => $uid]);
-		DBA::delete('mail', ['convid' => $parameters['id'], 'uid' => $uid]);
+		DBA::delete('conv', ['id' => $this->parameters['id'], 'uid' => $uid]);
+		DBA::delete('mail', ['convid' => $this->parameters['id'], 'uid' => $uid]);
 
 		System::jsonExit([]);
 	}
 
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

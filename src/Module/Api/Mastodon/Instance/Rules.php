@@ -34,10 +34,9 @@ use Friendica\Network\HTTPException;
 class Rules extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$rules = [];
 		$id    = 0;

@@ -29,11 +29,11 @@ use Friendica\Network\HTTPException;
 
 class Media extends BaseProfile
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		$a = DI::app();
 
-		$profile = ProfileModel::load($a, $parameters['nickname']);
+		$profile = ProfileModel::load($a, $this->parameters['nickname']);
 		if (empty($profile)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}

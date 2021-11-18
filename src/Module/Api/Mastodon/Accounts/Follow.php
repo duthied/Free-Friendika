@@ -31,16 +31,16 @@ use Friendica\Module\BaseApi;
  */
 class Follow extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$cid = Contact::follow($parameters['id'], $uid);
+		$cid = Contact::follow($this->parameters['id'], $uid);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($cid, $uid)->toArray());
 	}

@@ -10,7 +10,8 @@ class RateLimitStatusTest extends ApiTest
 {
 	public function testWithJson()
 	{
-		RateLimitStatus::rawContent(['extension' => 'json']);
+		$rateLimitStatus = new RateLimitStatus(['extension' => 'json']);
+		$rateLimitStatus->rawContent();
 
 		$result = json_decode(ApiResponseDouble::getOutput());
 
@@ -21,7 +22,8 @@ class RateLimitStatusTest extends ApiTest
 
 	public function testWithXml()
 	{
-		RateLimitStatus::rawContent(['extension' => 'xml']);
+		$rateLimitStatus = new RateLimitStatus(['extension' => 'xml']);
+		$rateLimitStatus->rawContent();
 
 		self::assertXml(ApiResponseDouble::getOutput(), 'hash');
 	}

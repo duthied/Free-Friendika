@@ -28,14 +28,14 @@ use Friendica\Network\HTTPException\NotFoundException;
 
 class Statistics extends BaseModule
 {
-	public static function init(array $parameters = [])
+	public function init()
 	{
 		if (!DI::config()->get("system", "nodeinfo")) {
 			throw new NotFoundException();
 		}
 	}
 
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$config = DI::config();
 		$logger = DI::logger();

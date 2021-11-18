@@ -38,16 +38,15 @@ use Friendica\Protocol\Activity;
 class Notifications extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (!empty($parameters['id'])) {
-			$id = $parameters['id'];
+		if (!empty($this->parameters['id'])) {
+			$id = $this->parameters['id'];
 			try {
 				$notification = DI::notification()->selectOneForUser($uid, ['id' => $id]);
 				System::jsonExit(DI::mstdnNotification()->createFromNotification($notification));

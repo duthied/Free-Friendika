@@ -32,7 +32,7 @@ use Friendica\DI;
  */
 class Credits extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		/* fill the page with credits */
 		$credits_string = file_get_contents('CREDITS.txt');

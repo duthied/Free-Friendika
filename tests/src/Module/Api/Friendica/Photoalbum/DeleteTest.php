@@ -30,13 +30,13 @@ class DeleteTest extends ApiTest
 	public function testEmpty()
 	{
 		$this->expectException(BadRequestException::class);
-		Delete::rawContent();
+		(new Delete())->rawContent();
 	}
 
 	public function testWrong()
 	{
 		$this->expectException(BadRequestException::class);
-		Delete::rawContent(['album' => 'album_name']);
+		(new Delete(['album' => 'album_name']))->rawContent();
 	}
 
 	public function testValid()

@@ -181,10 +181,10 @@ return [
 			['determine', [$_SERVER, $_GET], Dice::CHAIN_CALL],
 		],
 	],
-	App\Module::class => [
-		'instanceOf' => App\Module::class,
+	App\ModuleController::class => [
+		'instanceOf' => App\ModuleController::class,
 		'call' => [
-			['determineModule', [], Dice::CHAIN_CALL],
+			['determineName', [], Dice::CHAIN_CALL],
 		],
 	],
 	\Friendica\Core\System::class => [

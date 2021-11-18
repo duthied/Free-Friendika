@@ -28,9 +28,9 @@ use Friendica\Module\BaseAdmin;
 
 class Federation extends BaseAdmin
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
 		// get counts on active federation systems this node is knowing
 		// We list the more common systems by name. The rest is counted as "other"

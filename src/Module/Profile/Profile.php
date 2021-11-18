@@ -46,10 +46,10 @@ use Friendica\Util\Temporal;
 
 class Profile extends BaseProfile
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		if (ActivityPub::isRequest()) {
-			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $parameters['nickname']]);
+			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $this->parameters['nickname']]);
 			if (DBA::isResult($user)) {
 				try {
 					$data = ActivityPub\Transmitter::getProfile($user['uid']);
@@ -61,9 +61,9 @@ class Profile extends BaseProfile
 				}
 			}
 
-			if (DBA::exists('userd', ['username' => $parameters['nickname']])) {
+			if (DBA::exists('userd', ['username' => $this->parameters['nickname']])) {
 				// Known deleted user
-				$data = ActivityPub\Transmitter::getDeletedUser($parameters['nickname']);
+				$data = ActivityPub\Transmitter::getDeletedUser($this->parameters['nickname']);
 
 				System::jsonError(410, $data);
 			} else {
@@ -73,11 +73,11 @@ class Profile extends BaseProfile
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		$a = DI::app();
 
-		$profile = ProfileModel::load($a, $parameters['nickname']);
+		$profile = ProfileModel::load($a, $this->parameters['nickname']);
 		if (!$profile) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Profile not found.'));
 		}
@@ -98,7 +98,7 @@ class Profile extends BaseProfile
 			DI::page()['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
 		}
 
-		DI::page()['htmlhead'] .= self::buildHtmlHead($profile, $parameters['nickname'], $remote_contact_id);
+		DI::page()['htmlhead'] .= self::buildHtmlHead($profile, $this->parameters['nickname'], $remote_contact_id);
 
 		Nav::setSelected('home');
 
@@ -134,7 +134,7 @@ class Profile extends BaseProfile
 				$view_as_contact_alert = DI::l10n()->t(
 					'You\'re currently viewing your profile as <b>%s</b> <a href="%s" class="btn btn-sm pull-right">Cancel</a>',
 					htmlentities($view_as_contacts[$key]['name'], ENT_COMPAT, 'UTF-8'),
-					'profile/' . $parameters['nickname'] . '/profile'
+					'profile/' . $this->parameters['nickname'] . '/profile'
 				);
 			}
 		}

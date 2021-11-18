@@ -49,7 +49,7 @@ class BaseApi extends BaseModule
 	 */
 	protected static $request = [];
 
-	public static function delete(array $parameters = [])
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -58,7 +58,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function patch(array $parameters = [])
+	public function patch()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -67,7 +67,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -76,7 +76,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function put(array $parameters = [])
+	public function put()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -135,7 +135,6 @@ class BaseApi extends BaseModule
 	 * Set boundaries for the "link" header
 	 * @param array $boundaries
 	 * @param int $id
-	 * @return array
 	 */
 	protected static function setBoundaries(int $id)
 	{

@@ -42,9 +42,9 @@ class RemoteFollow extends BaseModule
 {
 	static $owner;
 
-	public static function init(array $parameters = [])
+	public function init()
 	{
-		self::$owner = User::getOwnerDataByNick($parameters['profile']);
+		self::$owner = User::getOwnerDataByNick($this->parameters['profile']);
 		if (!self::$owner) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
@@ -52,7 +52,7 @@ class RemoteFollow extends BaseModule
 		DI::page()['aside'] = Widget\VCard::getHTML(self::$owner);
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		if (!empty($_POST['cancel']) || empty($_POST['dfrn_url'])) {
 			DI::baseUrl()->redirect();
@@ -96,7 +96,7 @@ class RemoteFollow extends BaseModule
 		System::externalRedirect($follow_link);
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		if (empty(self::$owner)) {
 			return '';
@@ -115,7 +115,7 @@ class RemoteFollow extends BaseModule
 			'$submit'        => DI::l10n()->t('Submit Request'),
 			'$cancel'        => DI::l10n()->t('Cancel'),
 
-			'$request'       => 'remote_follow/' . $parameters['profile'],
+			'$request'       => 'remote_follow/' . $this->parameters['profile'],
 			'$name'          => self::$owner['name'],
 			'$myaddr'        => Profile::getMyURL(),
 		]);

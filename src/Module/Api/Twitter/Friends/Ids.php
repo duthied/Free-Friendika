@@ -30,7 +30,7 @@ use Friendica\Module\Api\Twitter\ContactEndpoint;
  */
 class Ids extends ContactEndpoint
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		// Expected value for user_id parameter: public/user contact id
 		$contact_id    = filter_input(INPUT_GET, 'user_id'      , FILTER_VALIDATE_INT);

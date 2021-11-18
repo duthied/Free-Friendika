@@ -55,7 +55,7 @@ class Introductions extends BaseNotifications
 		];
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		Nav::setSelected('introductions');
 

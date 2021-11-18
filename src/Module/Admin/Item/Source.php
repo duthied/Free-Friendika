@@ -29,11 +29,11 @@ use Friendica\Module\BaseAdmin;
 class Source extends BaseAdmin
 
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
-		$guid = basename($_REQUEST['guid'] ?? $parameters['guid'] ?? '');
+		$guid = basename($_REQUEST['guid'] ?? $this->parameters['guid'] ?? '');
 
 		$source = '';
 		$item_uri = '';

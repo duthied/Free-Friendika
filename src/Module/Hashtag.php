@@ -31,7 +31,7 @@ use Friendica\Util\Strings;
  */
 class Hashtag extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		$result = [];
 
@@ -47,5 +47,7 @@ class Hashtag extends BaseModule
 		DBA::close($taglist);
 
 		System::jsonExit($result);
+
+		return '';
 	}
 }

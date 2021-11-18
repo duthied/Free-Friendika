@@ -34,7 +34,7 @@ use Friendica\Security\OAuth;
  */
 class Token extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		$request = self::getRequest([
 			'client_id'     => '', // Client ID, obtained during app registration

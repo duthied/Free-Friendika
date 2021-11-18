@@ -38,12 +38,12 @@ class Receive extends BaseModule
 	/** @var LoggerInterface */
 	private static $logger;
 
-	public static function init(array $parameters = [])
+	public function init()
 	{
 		self::$logger = DI::logger();
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		$enabled = DI::config()->get('system', 'diaspora_enabled', false);
 		if (!$enabled) {
@@ -51,10 +51,10 @@ class Receive extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 		}
 
-		if ($parameters['type'] === 'public') {
+		if ($this->parameters['type'] === 'public') {
 			self::receivePublic();
-		} else if ($parameters['type'] === 'users') {
-			self::receiveUser($parameters['guid']);
+		} else if ($this->parameters['type'] === 'users') {
+			self::receiveUser($this->parameters['guid']);
 		}
 	}
 

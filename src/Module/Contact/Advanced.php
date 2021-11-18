@@ -38,16 +38,16 @@ use Friendica\Util\Strings;
  */
 class Advanced extends BaseModule
 {
-	public static function init(array $parameters = [])
+	public function init()
 	{
 		if (!Session::isAuthenticated()) {
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
-		$cid = $parameters['id'];
+		$cid = $this->parameters['id'];
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {
@@ -96,9 +96,9 @@ class Advanced extends BaseModule
 		return;
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		$cid = $parameters['id'];
+		$cid = $this->parameters['id'];
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {

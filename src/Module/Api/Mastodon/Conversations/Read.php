@@ -31,17 +31,17 @@ use Friendica\Module\BaseApi;
  */
 class Read extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (!empty($parameters['id'])) {
+		if (!empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DBA::update('mail', ['seen' => true], ['convid' => $parameters['id'], 'uid' => $uid]);
+		DBA::update('mail', ['seen' => true], ['convid' => $this->parameters['id'], 'uid' => $uid]);
 
-		System::jsonExit(DI::mstdnConversation()->CreateFromConvId($parameters['id'])->toArray());
+		System::jsonExit(DI::mstdnConversation()->CreateFromConvId($this->parameters['id'])->toArray());
 	}
 }

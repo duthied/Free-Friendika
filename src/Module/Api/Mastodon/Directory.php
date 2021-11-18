@@ -35,12 +35,11 @@ use Friendica\Network\HTTPException;
 class Directory extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @see https://docs.joinmastodon.org/methods/instance/directory/
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$request = self::getRequest([
 			'offset' => 0,        // How many accounts to skip before returning results. Default 0.

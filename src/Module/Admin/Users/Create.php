@@ -28,7 +28,7 @@ use Friendica\Module\Admin\BaseUsers;
 
 class Create extends BaseUsers
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -51,9 +51,9 @@ class Create extends BaseUsers
 		DI::baseUrl()->redirect('admin/users/create');
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$t = Renderer::getMarkupTemplate('admin/users/create.tpl');
 		return self::getTabsHTML('all') . Renderer::replaceMacros($t, [

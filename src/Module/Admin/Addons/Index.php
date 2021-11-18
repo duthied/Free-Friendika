@@ -28,9 +28,9 @@ use Friendica\Module\BaseAdmin;
 
 class Index extends BaseAdmin
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
 		// reload active themes
 		if (!empty($_GET['action'])) {

@@ -33,12 +33,11 @@ use Friendica\Network\HTTPException;
 class CustomEmojis extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#pending-follows
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$emojis = DI::mstdnEmoji()->createCollectionFromSmilies(Smilies::getList());
 

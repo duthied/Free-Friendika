@@ -30,11 +30,11 @@ use Friendica\Util\Strings;
 
 class Details extends BaseAdmin
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
-		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (!is_dir("view/theme/$theme")) {
 			notice(DI::l10n()->t("Item not found."));
 			return '';

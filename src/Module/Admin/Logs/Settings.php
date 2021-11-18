@@ -29,7 +29,7 @@ use Psr\Log\LogLevel;
 
 class Settings extends BaseAdmin
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAdminAccess();
 
@@ -56,9 +56,9 @@ class Settings extends BaseAdmin
 		DI::baseUrl()->redirect('admin/logs');
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$log_choices = [
 			LogLevel::ERROR   => 'Error',
