@@ -54,7 +54,6 @@ use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Security\BasicAuth;
-use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
@@ -71,7 +70,6 @@ define('API_METHOD_DELETE', 'POST,DELETE');
 define('API_LOG_PREFIX', 'API {action} - ');
 
 $API = [];
-$called_api = [];
 
 /**
  * Get source name from API client
@@ -178,7 +176,7 @@ function api_check_method($method)
  */
 function api_call(App $a, App\Arguments $args = null)
 {
-	global $API, $called_api;
+	global $API;
 
 	if ($args == null) {
 		$args = DI::args();
@@ -204,8 +202,6 @@ function api_call(App $a, App\Arguments $args = null)
 				if (!api_check_method($info['method'])) {
 					throw new MethodNotAllowedException();
 				}
-
-				$called_api = explode("/", $p);
 
 				if (!empty($info['auth']) && BaseApi::getCurrentUserID() === false) {
 					BasicAuth::getCurrentUserID(true);
@@ -334,8 +330,6 @@ function api_unique_id_to_nurl($id)
  */
 function api_get_user($contact_id = null)
 {
-	global $called_api;
-
 	$user = null;
 	$extra_query = "";
 	$url = "";
@@ -343,7 +337,7 @@ function api_get_user($contact_id = null)
 	Logger::info(API_LOG_PREFIX . 'Fetching data for user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $contact_id]);
 
 	// Searching for contact URL
-	if (!is_null($contact_id) && (intval($contact_id) == 0)) {
+	if (intval($contact_id) == 0) {
 		$user = Strings::normaliseLink($contact_id);
 		$url = $user;
 		$extra_query = "AND `contact`.`nurl` = ? ";
@@ -353,7 +347,7 @@ function api_get_user($contact_id = null)
 	}
 
 	// Searching for contact id with uid = 0
-	if (!is_null($contact_id) && (intval($contact_id) != 0)) {
+	if (intval($contact_id) != 0) {
 		$user = api_unique_id_to_nurl(intval($contact_id));
 
 		if ($user == "") {
@@ -367,72 +361,10 @@ function api_get_user($contact_id = null)
 		}
 	}
 
-	if (is_null($user) && !empty($_GET['user_id'])) {
-		$user = api_unique_id_to_nurl($_GET['user_id']);
-
-		if ($user == "") {
-			throw new BadRequestException("User ID ".$_GET['user_id']." not found.");
-		}
-
-		$url = $user;
-		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (BaseApi::getCurrentUserID() !== false) {
-			$extra_query .= "AND `contact`.`uid`=" . intval(BaseApi::getCurrentUserID());
-		}
-	}
-	if (is_null($user) && !empty($_GET['screen_name'])) {
-		$user = $_GET['screen_name'];
-		$extra_query = "AND `contact`.`nick` = ? ";
-		if (BaseApi::getCurrentUserID() !== false) {
-			$extra_query .= "AND `contact`.`uid`=".intval(BaseApi::getCurrentUserID());
-		}
-	}
-
-	if (is_null($user) && !empty($_GET['profileurl'])) {
-		$user = Strings::normaliseLink($_GET['profileurl']);
-		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (BaseApi::getCurrentUserID() !== false) {
-			$extra_query .= "AND `contact`.`uid`=".intval(BaseApi::getCurrentUserID());
-		}
-	}
-
-	// $called_api is the API path exploded on / and is expected to have at least 2 elements
-	if (is_null($user) && (DI::args()->getArgc() > (count($called_api) - 1)) && (count($called_api) > 0)) {
-		$argid = count($called_api);
-		if (!empty(DI::args()->getArgv()[$argid])) {
-			$data = explode(".", DI::args()->getArgv()[$argid]);
-			if (count($data) > 1) {
-				[$user, $null] = $data;
-			}
-		}
-		if (is_numeric($user)) {
-			$user = api_unique_id_to_nurl(intval($user));
-
-			if ($user != "") {
-				$url = $user;
-				$extra_query = "AND `contact`.`nurl` = ? ";
-				if (BaseApi::getCurrentUserID() !== false) {
-					$extra_query .= "AND `contact`.`uid`=" . intval(BaseApi::getCurrentUserID());
-				}
-			}
-		} else {
-			$extra_query = "AND `contact`.`nick` = ? ";
-			if (BaseApi::getCurrentUserID() !== false) {
-				$extra_query .= "AND `contact`.`uid`=" . intval(BaseApi::getCurrentUserID());
-			}
-		}
-	}
-
 	Logger::info(API_LOG_PREFIX . 'getting user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user]);
 
 	if (!$user) {
-		if (empty(BaseApi::getCurrentUserID())) {
-			BasicAuth::getCurrentUserID(true);
-			return false;
-		} else {
-			$user = BaseApi::getCurrentUserID();
-			$extra_query = "AND `contact`.`uid` = ? AND `contact`.`self` ";
-		}
+		return false;
 	}
 
 	Logger::info(API_LOG_PREFIX . 'found user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user, 'extra_query' => $extra_query]);
@@ -1579,8 +1511,6 @@ api_register_func('api/statusnet/conversation', 'api_conversation_show', true);
  */
 function api_statuses_repeat($type)
 {
-	global $called_api;
-
 	$a = DI::app();
 
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
@@ -1638,7 +1568,6 @@ function api_statuses_repeat($type)
 	}
 
 	// output the post that we just posted.
-	$called_api = [];
 	return api_status_show($type, $item_id);
 }
 
@@ -1928,13 +1857,9 @@ api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true,
  */
 function api_favorites($type)
 {
-	global $called_api;
-
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
-
-	$called_api = [];
 
 	// in friendica starred item are private
 	// return favorites only for self

@@ -24,7 +24,6 @@ namespace Friendica\Module\Api\Friendica\Profile;
 use Friendica\Profile\ProfileField\Collection\ProfileFields;
 use Friendica\Content\Text\BBCode;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
@@ -55,13 +54,10 @@ class Show extends BaseApi
 			$profiles[] = $profile;
 		}
 
-		// return settings, authenticated user and profiles data
-		$self = Contact::selectFirst(['nurl'], ['uid' => $uid, 'self' => true]);
-
 		$result = [
 			'multi_profiles' => false,
 			'global_dir' => $directory,
-			'friendica_owner' => self::getUser($self['nurl']),
+			'friendica_owner' => DI::twitterUser()->createFromUserId($uid),
 			'profiles' => $profiles
 		];
 
