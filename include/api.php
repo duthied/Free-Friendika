@@ -3293,6 +3293,9 @@ api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, AP
  */
 function api_direct_messages_box($type, $box, $verbose)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	// params
