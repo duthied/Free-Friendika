@@ -341,7 +341,7 @@ function api_get_user($contact_id = null)
 		$user = Strings::normaliseLink($contact_id);
 		$url = $user;
 		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (BaseApi::getCurrentUserID() !== false) {
+		if (!empty(BaseApi::getCurrentUserID())) {
 			$extra_query .= "AND `contact`.`uid`=" . intval(BaseApi::getCurrentUserID());
 		}
 	}
@@ -356,7 +356,7 @@ function api_get_user($contact_id = null)
 
 		$url = $user;
 		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (BaseApi::getCurrentUserID() !== false) {
+		if (!empty(BaseApi::getCurrentUserID())) {
 			$extra_query .= "AND `contact`.`uid`=" . intval(BaseApi::getCurrentUserID());
 		}
 	}
