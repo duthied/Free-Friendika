@@ -447,7 +447,7 @@ function api_get_user($contact_id = null)
 	Logger::info(API_LOG_PREFIX . 'getting user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user]);
 
 	if (!$user) {
-		if (BaseApi::getCurrentUserID() === false) {
+		if (empty(BaseApi::getCurrentUserID())) {
 			BasicAuth::getCurrentUserID(true);
 			return false;
 		} else {
@@ -533,6 +533,9 @@ function api_item_get_user(App $a, $item)
  */
 function api_account_verify_credentials($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	unset($_REQUEST["user_id"]);
@@ -654,6 +657,10 @@ api_register_func('api/statuses/mediap', 'api_statuses_mediap', true, API_METHOD
 function api_statuses_update($type)
 {
 	$a = DI::app();
+
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
@@ -832,6 +839,10 @@ api_register_func('api/statuses/update_with_media', 'api_statuses_update', true,
 function api_media_upload()
 {
 	$a = DI::app();
+
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
 
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
@@ -1620,6 +1631,10 @@ function api_statuses_repeat($type)
 
 	$a = DI::app();
 
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
+
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
@@ -1697,6 +1712,10 @@ api_register_func('api/statuses/retweet', 'api_statuses_repeat', true, API_METHO
  */
 function api_statuses_destroy($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
+
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
@@ -1895,6 +1914,10 @@ api_register_func('api/statuses/user_timeline', 'api_statuses_user_timeline', tr
  */
 function api_favorites_create_destroy($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
+
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// for versioned api.
@@ -3060,6 +3083,10 @@ api_register_func('api/friendships/incoming', 'api_friendships_incoming', true);
  */
 function api_direct_messages_new($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
+
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	$uid = BaseApi::getCurrentUserID();
@@ -3142,6 +3169,10 @@ api_register_func('api/direct_messages/new', 'api_direct_messages_new', true, AP
  */
 function api_direct_messages_destroy($type)
 {
+	if (empty(BaseApi::getCurrentUserID())) {
+		throw new ForbiddenException();
+	}
+
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
@@ -3461,7 +3492,7 @@ api_register_func('api/direct_messages', 'api_direct_messages_inbox', true);
  */
 function api_fr_photos_list($type)
 {
-	if (BaseApi::getCurrentUserID() === false) {
+	if (empty(BaseApi::getCurrentUserID())) {
 		throw new ForbiddenException();
 	}
 	$r = DBA::toArray(DBA::p(
@@ -3512,7 +3543,7 @@ function api_fr_photos_list($type)
  */
 function api_fr_photo_create_update($type)
 {
-	if (BaseApi::getCurrentUserID() === false) {
+	if (empty(BaseApi::getCurrentUserID())) {
 		throw new ForbiddenException();
 	}
 	// input params
@@ -3650,7 +3681,7 @@ function api_fr_photo_create_update($type)
  */
 function api_fr_photo_detail($type)
 {
-	if (BaseApi::getCurrentUserID() === false) {
+	if (empty(BaseApi::getCurrentUserID())) {
 		throw new ForbiddenException();
 	}
 	if (empty($_REQUEST['photo_id'])) {
@@ -3682,7 +3713,7 @@ function api_fr_photo_detail($type)
  */
 function api_account_update_profile_image($type)
 {
-	if (BaseApi::getCurrentUserID() === false) {
+	if (empty(BaseApi::getCurrentUserID())) {
 		throw new ForbiddenException();
 	}
 	// input params
