@@ -311,6 +311,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiLoginWithoutLogin()
 	{
+		BasicAuth::setCurrentUserID();
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		BasicAuth::getCurrentUserID(true);
 	}
@@ -324,6 +325,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiLoginWithBadLogin()
 	{
+		BasicAuth::setCurrentUserID();
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		$_SERVER['PHP_AUTH_USER'] = 'user@server';
 		BasicAuth::getCurrentUserID(true);
@@ -358,6 +360,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiLoginWithCorrectLogin()
 	{
+		BasicAuth::setCurrentUserID();
 		$_SERVER['PHP_AUTH_USER'] = 'Test user';
 		$_SERVER['PHP_AUTH_PW']   = 'password';
 		BasicAuth::getCurrentUserID(true);
@@ -371,6 +374,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiLoginWithRemoteUser()
 	{
+		BasicAuth::setCurrentUserID();
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		$_SERVER['REDIRECT_REMOTE_USER'] = '123456dXNlcjpwYXNzd29yZA==';
 		BasicAuth::getCurrentUserID(true);
