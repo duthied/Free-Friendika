@@ -812,7 +812,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithZeroUser()
 	{
-		self::assertSelfUser(api_get_user(0));
+		self::assertSelfUser(DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
 	}
 
 	/**
