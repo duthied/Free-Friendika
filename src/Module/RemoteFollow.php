@@ -59,8 +59,7 @@ class RemoteFollow extends BaseModule
 		}
 
 		$this->baseUrl = $baseUrl;
-
-		$page['aside'] = Widget\VCard::getHTML($this->owner);
+		$this->page    = $page;
 	}
 
 	public function post()
@@ -112,7 +111,9 @@ class RemoteFollow extends BaseModule
 		if (empty($this->owner)) {
 			return '';
 		}
-	
+
+		$this->page['aside'] = Widget\VCard::getHTML($this->owner);
+
 		$target_addr = $this->owner['addr'];
 		$target_url = $this->owner['url'];
 

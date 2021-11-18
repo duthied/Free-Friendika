@@ -35,11 +35,6 @@ use Friendica\Core\L10n;
  */
 class Index extends BaseModule
 {
-	public function __construct(L10n $l10n, array $parameters = [])
-	{
-		parent::__construct($l10n, $parameters);
-	}
-
 	public function rawContent()
 	{
 		(new Profile($this->l10n, $this->parameters))->rawContent();
