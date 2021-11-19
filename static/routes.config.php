@@ -474,6 +474,7 @@ return [
 	'/photo' => [
 		'/{name}'                                                  => [Module\Photo::class, [R::GET]],
 		'/{type}/{id:\d+}'                                         => [Module\Photo::class, [R::GET]],
+		'/{type:contact|header}/{guid}'                            => [Module\Photo::class, [R::GET]],
 		// User Id Fallback, to remove after version 2021.12
 		'/{type}/{uid_ext:\d+\..*}'                                => [Module\Photo::class, [R::GET]],
 		'/{type}/{nickname_ext}'                                   => [Module\Photo::class, [R::GET]],
