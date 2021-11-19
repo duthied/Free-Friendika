@@ -19,15 +19,16 @@
  *
  */
 
-namespace Friendica\Module\Api\Twitter;
+namespace Friendica\Module\Api\Twitter\Friends;
 
 use Friendica\Core\System;
 use Friendica\Model\Contact;
+use Friendica\Module\Api\Twitter\ContactEndpoint;
 
 /**
- * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-list
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-list
  */
-class FollowersList extends ContactEndpoint
+class Lists extends ContactEndpoint
 {
 	public function rawContent()
 	{
@@ -49,9 +50,10 @@ class FollowersList extends ContactEndpoint
 			'default' => 1,
 		]]);
 
+		// @todo Use Model\Contact\Relation::listFollows($cid, $condition, $count);
 
 		System::jsonExit(self::list(
-			[Contact::FOLLOWER, Contact::FRIEND],
+			[Contact::SHARING, Contact::FRIEND],
 			self::getUid($contact_id, $screen_name),
 			$cursor ?? $since_id ?? - $max_id,
 			$count,

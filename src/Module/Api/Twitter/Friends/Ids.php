@@ -19,15 +19,16 @@
  *
  */
 
-namespace Friendica\Module\Api\Twitter;
+namespace Friendica\Module\Api\Twitter\Friends;
 
 use Friendica\Core\System;
 use Friendica\Model\Contact;
+use Friendica\Module\Api\Twitter\ContactEndpoint;
 
 /**
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids
  */
-class FriendsIds extends ContactEndpoint
+class Ids extends ContactEndpoint
 {
 	public function rawContent()
 	{
@@ -46,6 +47,8 @@ class FriendsIds extends ContactEndpoint
 		$max_id        = filter_input(INPUT_GET, 'max_id'       , FILTER_VALIDATE_INT, ['options' => [
 			'default' => 1,
 		]]);
+
+		// @todo Use Model\Contact\Relation::listFollows($cid, $condition, $count);
 
 		System::jsonExit(self::ids(
 			[Contact::SHARING, Contact::FRIEND],
