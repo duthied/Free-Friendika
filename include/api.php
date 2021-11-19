@@ -1814,7 +1814,7 @@ function api_format_messages($item, $recipient, $sender)
 		'sender_id'             => $sender['id'],
 		'text'                  => "",
 		'recipient_id'          => $recipient['id'],
-		'created_at'            => DateTimeFormat::utc($item['created'] ?? DateTimeFormat::utcNow(), DateTimeFormat::API),
+		'created_at'            => DateTimeFormat::utc($item['created'] ?? 'now', DateTimeFormat::API),
 		'sender_screen_name'    => $sender['screen_name'],
 		'recipient_screen_name' => $recipient['screen_name'],
 		'sender'                => $sender,
