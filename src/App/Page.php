@@ -25,6 +25,7 @@ use ArrayAccess;
 use DOMDocument;
 use DOMXPath;
 use Friendica\App;
+use Friendica\Capabilities\ICanHandleRequests;
 use Friendica\Content\Nav;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
@@ -191,14 +192,14 @@ class Page implements ArrayAccess
 	 * - head.tpl template
 	 *
 	 * @param App                         $app     The Friendica App instance
-	 * @param ModuleController            $module  The loaded Friendica module
+	 * @param Arguments                   $args    The Friendica App Arguments
 	 * @param L10n                        $l10n    The l10n language instance
 	 * @param IManageConfigValues         $config  The Friendica configuration
 	 * @param IManagePersonalConfigValues $pConfig The Friendica personal configuration (for user)
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initHead(App $app, ModuleController $module, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig)
+	private function initHead(App $app, Arguments $args, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig)
 	{
 		$interval = ((local_user()) ? $pConfig->get(local_user(), 'system', 'update_interval') : 40000);
 
@@ -212,8 +213,8 @@ class Page implements ArrayAccess
 		}
 
 		// Default title: current module called
-		if (empty($this->page['title']) && $module->getName()) {
-			$this->page['title'] = ucfirst($module->getName());
+		if (empty($this->page['title']) && $args->getModuleName()) {
+			$this->page['title'] = ucfirst($args->getModuleName());
 		}
 
 		// Prepend the sitename to the page title
@@ -337,22 +338,20 @@ class Page implements ArrayAccess
 	 * - module content
 	 * - hooks for content
 	 *
-	 * @param ModuleController $module The module
+	 * @param ICanHandleRequests $module The module
 	 * @param Mode             $mode   The Friendica execution mode
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initContent(ModuleController $module, Mode $mode)
+	private function initContent(ICanHandleRequests $module, Mode $mode)
 	{
 		$content = '';
 
 		try {
-			$moduleClass = $module->getModule();
-
 			$arr = ['content' => $content];
-			Hook::callAll($moduleClass->getClassName() . '_mod_content', $arr);
+			Hook::callAll($module->getClassName() . '_mod_content', $arr);
 			$content = $arr['content'];
-			$content .= $module->getModule()->content();
+			$content .= $module->content();
 		} catch (HTTPException $e) {
 			$content = (new ModuleHTTPException())->content($e);
 		}
@@ -389,17 +388,18 @@ class Page implements ArrayAccess
 	 *
 	 * @param App                         $app     The Friendica App
 	 * @param BaseURL                     $baseURL The Friendica Base URL
+	 * @param Arguments                   $args    The Friendica App arguments
 	 * @param Mode                        $mode    The current node mode
-	 * @param ModuleController            $module  The loaded Friendica module
+	 * @param ICanHandleRequests          $module  The loaded Friendica module
 	 * @param L10n                        $l10n    The l10n language class
 	 * @param IManageConfigValues         $config  The Configuration of this node
 	 * @param IManagePersonalConfigValues $pconfig The personal/user configuration
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function run(App $app, BaseURL $baseURL, Mode $mode, ModuleController $module, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
+	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ICanHandleRequests $module, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
 	{
-		$moduleName = $module->getName();
+		$moduleName = $args->getModuleName();
 
 		/* Create the page content.
 		 * Calls all hooks which are including content operations
@@ -429,7 +429,7 @@ class Page implements ArrayAccess
 		 * all the module functions have executed so that all
 		 * theme choices made by the modules can take effect.
 		 */
-		$this->initHead($app, $module, $l10n, $config, $pconfig);
+		$this->initHead($app, $args, $l10n, $config, $pconfig);
 
 		/* Build the page ending -- this is stuff that goes right before
 		 * the closing </body> tag

@@ -21,11 +21,9 @@
 
 namespace Friendica;
 
-use Dice\Dice;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
-use Friendica\App\ModuleController;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
@@ -567,7 +565,6 @@ class App
 	 *
 	 * This probably should change to limit the size of this monster method.
 	 *
-	 * @param App\ModuleController        $module The determined module
 	 * @param App\Router                  $router
 	 * @param IManagePersonalConfigValues $pconfig
 	 * @param Authentication              $auth   The Authentication backend of the node
@@ -576,12 +573,12 @@ class App
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\ModuleController $module, App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, Dice $dice, float $start_time)
+	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, float $start_time)
 	{
 		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');
 
-		$moduleName = $module->getName();
+		$moduleName = $this->args->getModuleName();
 
 		try {
 			// Missing DB connection: ERROR
@@ -703,20 +700,20 @@ class App
 			$page['page_title'] = $moduleName;
 
 			if (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED)) {
-				$module = new ModuleController('maintenance', new Maintenance($this->l10n));
+				$module = new Maintenance($this->l10n);
 			} else {
 				// determine the module class and save it to the module instance
 				// @todo there's an implicit dependency due SESSION::start(), so it has to be called here (yet)
-				$module = $module->determineClass($this->args, $router, $this->config, $dice);
+				$module = $router->getModule();
 			}
 
 			// Let the module run it's internal process (init, get, post, ...)
-			$module->run($this->l10n, $this->baseURL, $this->logger, $this->profiler, $_SERVER, $_POST);
+			$module->run($this->baseURL, $this->args, $this->logger, $this->profiler, $_SERVER, $_POST);
 		} catch (HTTPException $e) {
 			(new ModuleHTTPException())->rawContent($e);
 		}
 
-		$page->run($this, $this->baseURL, $this->mode, $module, $this->l10n, $this->profiler, $this->config, $pconfig);
+		$page->run($this, $this->baseURL, $this->args, $this->mode, $module, $this->l10n, $this->profiler, $this->config, $pconfig);
 	}
 
 	/**

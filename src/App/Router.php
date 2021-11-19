@@ -21,17 +21,25 @@
 
 namespace Friendica\App;
 
-
+use Dice\Dice;
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
+use Friendica\Capabilities\ICanHandleRequests;
+use Friendica\Core\Addon;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Cache\Capability\ICanCache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock\Capability\ICanLock;
+use Friendica\LegacyModule;
+use Friendica\Module\HTTPException\MethodNotAllowed;
+use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\MethodNotAllowedException;
+use Friendica\Network\HTTPException\NotFoundException;
 
 /**
  * Wrapper for FastRoute\Router
@@ -83,6 +91,15 @@ class Router
 	/** @var ICanLock */
 	private $lock;
 
+	/**	@var Arguments */
+	private $args;
+
+	/** @var IManageConfigValues */
+	private $config;
+
+	/** @var Dice */
+	private $dice;
+
 	/** @var string */
 	private $baseRoutesFilepath;
 
@@ -91,14 +108,21 @@ class Router
 	 * @param string              $baseRoutesFilepath The path to a base routes file to leverage cache, can be empty
 	 * @param L10n                $l10n
 	 * @param ICanCache           $cache
+	 * @param ICanLock            $lock
+	 * @param IManageConfigValues $config
+	 * @param Arguments           $args
+	 * @param Dice                $dice
 	 * @param RouteCollector|null $routeCollector
 	 */
-	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, RouteCollector $routeCollector = null)
+	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, IManageConfigValues $config, Arguments $args, Dice $dice, RouteCollector $routeCollector = null)
 	{
 		$this->baseRoutesFilepath = $baseRoutesFilepath;
 		$this->l10n = $l10n;
 		$this->cache = $cache;
 		$this->lock = $lock;
+		$this->args = $args;
+		$this->config = $config;
+		$this->dice = $dice;
 
 		$httpMethod = $server['REQUEST_METHOD'] ?? self::GET;
 		$this->httpMethod = in_array($httpMethod, self::ALLOWED_METHODS) ? $httpMethod : self::GET;
@@ -216,16 +240,15 @@ class Router
 	/**
 	 * Returns the relevant module class name for the given page URI or NULL if no route rule matched.
 	 *
-	 * @param string $cmd The path component of the request URL without the query string
-	 *
 	 * @return string A Friendica\BaseModule-extending class name if a route rule matched
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\MethodNotAllowedException    If a rule matched but the method didn't
 	 * @throws HTTPException\NotFoundException            If no rule matched
 	 */
-	public function getModuleClass($cmd)
+	private function getModuleClass()
 	{
+		$cmd = $this->args->getCommand();
 		$cmd = '/' . ltrim($cmd, '/');
 
 		$dispatcher = new Dispatcher\GroupCountBased($this->getCachedDispatchData());
@@ -246,14 +269,51 @@ class Router
 		return $moduleClass;
 	}
 
-	/**
-	 * Returns the module parameters.
-	 *
-	 * @return array parameters
-	 */
-	public function getModuleParameters()
+	public function getModule(): ICanHandleRequests
 	{
-		return $this->parameters;
+		$module_class      = null;
+		$module_parameters = [];
+		/**
+		 * ROUTING
+		 *
+		 * From the request URL, routing consists of obtaining the name of a BaseModule-extending class of which the
+		 * post() and/or content() static methods can be respectively called to produce a data change or an output.
+		 **/
+		try {
+			$module_class        = $this->getModuleClass();
+			$module_parameters[] = $this->parameters;
+		} catch (MethodNotAllowedException $e) {
+			$module_class = MethodNotAllowed::class;
+		} catch (NotFoundException $e) {
+			$moduleName = $this->args->getModuleName();
+			// Then we try addon-provided modules that we wrap in the LegacyModule class
+			if (Addon::isEnabled($moduleName) && file_exists("addon/{$moduleName}/{$moduleName}.php")) {
+				//Check if module is an app and if public access to apps is allowed or not
+				$privateapps = $this->config->get('config', 'private_addons', false);
+				if ((!local_user()) && Hook::isAddonApp($moduleName) && $privateapps) {
+					throw new MethodNotAllowedException($this->l10n->t("You must be logged in to use addons. "));
+				} else {
+					include_once "addon/{$moduleName}/{$moduleName}.php";
+					if (function_exists($moduleName . '_module')) {
+						$module_parameters[] = "addon/{$moduleName}/{$moduleName}.php";
+						$module_class        = LegacyModule::class;
+					}
+				}
+			}
+
+			/* Finally, we look for a 'standard' program module in the 'mod' directory
+			 * We emulate a Module class through the LegacyModule class
+			 */
+			if (!$module_class && file_exists("mod/{$moduleName}.php")) {
+				$module_parameters[] = "mod/{$moduleName}.php";
+				$module_class        = LegacyModule::class;
+			}
+
+			$module_class = $module_class ?: PageNotFound::class;
+		}
+
+		/** @var ICanHandleRequests $module */
+		return $this->dice->create($module_class, $module_parameters);
 	}
 
 	/**

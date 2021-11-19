@@ -80,7 +80,7 @@ class ACL
 
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
-		Hook::callAll(DI::module()->getName() . '_pre_recipient', $arr);
+		Hook::callAll(DI::args()->getModuleName() . '_pre_recipient', $arr);
 
 		$tpl = Renderer::getMarkupTemplate('acl/message_recipient.tpl');
 		$o = Renderer::replaceMacros($tpl, [
@@ -88,7 +88,7 @@ class ACL
 			'$selected' => $selected,
 		]);
 
-		Hook::callAll(DI::module()->getName() . '_post_recipient', $o);
+		Hook::callAll(DI::args()->getModuleName() . '_post_recipient', $o);
 
 		return $o;
 	}

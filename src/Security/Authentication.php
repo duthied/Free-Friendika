@@ -369,7 +369,7 @@ class Authentication
 		if ($login_initial) {
 			Hook::callAll('logged_in', $user_record);
 
-			if (DI::module()->getName() !== 'home' && $this->session->exists('return_path')) {
+			if (DI::args()->getModuleName() !== 'home' && $this->session->exists('return_path')) {
 				$this->baseUrl->redirect($this->session->get('return_path'));
 			}
 		}

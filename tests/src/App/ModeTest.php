@@ -22,8 +22,8 @@
 namespace Friendica\Test\src\App;
 
 use Detection\MobileDetect;
+use Friendica\App\Arguments;
 use Friendica\App\Mode;
-use Friendica\App\ModuleController;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Database\Database;
 use Friendica\Test\MockedTest;
@@ -204,10 +204,10 @@ class ModeTest extends MockedTest
 	public function testIsBackendNotIsBackend()
 	{
 		$server       = [];
-		$module       = new ModuleController();
+		$args         = new Arguments();
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $server, $args, $mobileDetect);
 
 		self::assertTrue($mode->isBackend());
 	}
@@ -218,10 +218,10 @@ class ModeTest extends MockedTest
 	public function testIsBackendButIndex()
 	{
 		$server       = [];
-		$module       = new ModuleController(ModuleController::DEFAULT, null, true);
+		$args         = new Arguments('', '', Mode::BACKEND_MODULES[0]);
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(false, $server, $args, $mobileDetect);
 
 		self::assertTrue($mode->isBackend());
 	}
@@ -232,10 +232,10 @@ class ModeTest extends MockedTest
 	public function testIsNotBackend()
 	{
 		$server       = [];
-		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
+		$args         = new Arguments('', '', Arguments::DEFAULT_MODULE);
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(false, $server, $args, $mobileDetect);
 
 		self::assertFalse($mode->isBackend());
 	}
@@ -250,10 +250,10 @@ class ModeTest extends MockedTest
 			'HTTP_X_REQUESTED_WITH' => 'xmlhttprequest',
 		];
 
-		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
+		$args         = new Arguments('', '', Arguments::DEFAULT_MODULE);
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $server, $args, $mobileDetect);
 
 		self::assertTrue($mode->isAjax());
 	}
@@ -264,10 +264,10 @@ class ModeTest extends MockedTest
 	public function testIsNotAjax()
 	{
 		$server       = [];
-		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
+		$args         = new Arguments('', '', Arguments::DEFAULT_MODULE);
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $server, $args, $mobileDetect);
 
 		self::assertFalse($mode->isAjax());
 	}
@@ -278,12 +278,12 @@ class ModeTest extends MockedTest
 	public function testIsMobileIsTablet()
 	{
 		$server       = [];
-		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
+		$args         = new Arguments('', '', Arguments::DEFAULT_MODULE);
 		$mobileDetect = Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(true);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(true);
 
-		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $server, $args, $mobileDetect);
 
 		self::assertTrue($mode->isMobile());
 		self::assertTrue($mode->isTablet());
@@ -296,12 +296,12 @@ class ModeTest extends MockedTest
 	public function testIsNotMobileIsNotTablet()
 	{
 		$server       = [];
-		$module       = new ModuleController(ModuleController::DEFAULT, null, false);
+		$args         = new Arguments('', '', Arguments::DEFAULT_MODULE);
 		$mobileDetect = Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(false);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(false);
 
-		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $server, $args, $mobileDetect);
 
 		self::assertFalse($mode->isMobile());
 		self::assertFalse($mode->isTablet());

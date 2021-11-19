@@ -25,6 +25,7 @@ use Detection\MobileDetect;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Database\Database;
 use Friendica\Util\BasePath;
+use phpDocumentor\Reflection\Types\Static_;
 
 /**
  * Mode of the current Friendica Node
@@ -45,6 +46,38 @@ class Mode
 
 	const BACKEND_CONTENT_TYPES = ['application/jrd+json', 'text/xml',
 		'application/rss+xml', 'application/atom+xml', 'application/activity+json'];
+
+	/**
+	 * A list of modules, which are backend methods
+	 *
+	 * @var array
+	 */
+	const BACKEND_MODULES = [
+		'_well_known',
+		'api',
+		'dfrn_notify',
+		'feed',
+		'fetch',
+		'followers',
+		'following',
+		'hcard',
+		'hostxrd',
+		'inbox',
+		'manifest',
+		'nodeinfo',
+		'noscrape',
+		'objects',
+		'outbox',
+		'poco',
+		'post',
+		'pubsub',
+		'pubsubhubbub',
+		'receive',
+		'rsd_xml',
+		'salmon',
+		'statistics_json',
+		'xrd',
+	];
 
 	/***
 	 * @var int The mode of this Application
@@ -140,13 +173,13 @@ class Mode
 	 * Checks if the site is called via a backend process
 	 *
 	 * @param bool             $isBackend    True, if the call is from a backend script (daemon, worker, ...)
-	 * @param ModuleController $module       The pre-loaded module (just name, not class!)
 	 * @param array            $server       The $_SERVER variable
+	 * @param Arguments        $args         The Friendica App arguments
 	 * @param MobileDetect     $mobileDetect The mobile detection library
 	 *
 	 * @return Mode returns the determined mode
 	 */
-	public function determineRunMode(bool $isBackend, ModuleController $module, array $server, MobileDetect $mobileDetect)
+	public function determineRunMode(bool $isBackend, array $server, Arguments $args, MobileDetect $mobileDetect)
 	{
 		foreach (self::BACKEND_CONTENT_TYPES as $type) {
 			if (strpos(strtolower($server['HTTP_ACCEPT'] ?? ''), $type) !== false) {
@@ -154,7 +187,7 @@ class Mode
 			}
 		}
 
-		$isBackend = $isBackend || $module->isBackend();
+		$isBackend = $isBackend || in_array($args->getModuleName(), static::BACKEND_MODULES);
 		$isMobile  = $mobileDetect->isMobile();
 		$isTablet  = $mobileDetect->isTablet();
 		$isAjax    = strtolower($server['HTTP_X_REQUESTED_WITH'] ?? '') == 'xmlhttprequest';
