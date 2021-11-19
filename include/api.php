@@ -221,6 +221,7 @@ function api_call(App $a, App\Arguments $args = null)
 		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString()]);
 		throw new NotFoundException();
 	} catch (HTTPException $e) {
+		Logger::notice(API_LOG_PREFIX . 'got exception', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString(), 'error' => $e]);
 		DI::apiResponse()->error($e->getCode(), $e->getDescription(), $e->getMessage(), $type);
 	}
 }
@@ -280,40 +281,6 @@ function api_unique_id_to_nurl($id)
 	} else {
 		return false;
 	}
-}
-
-/**
- * return api-formatted array for item's author and owner
- *
- * @param App   $a    App
- * @param array $item item from db
- * @return array(array:author, array:owner)
- * @throws BadRequestException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_item_get_user(App $a, $item)
-{
-	if (empty($item['author-id'])) {
-		$item['author-id'] = Contact::getPublicIdByUserId(BaseApi::getCurrentUserID());
-	}
-	$status_user = DI::twitterUser()->createFromContactId($item['author-id'], BaseApi::getCurrentUserID())->toArray();
-
-	$author_user = $status_user;
-
-	$status_user["protected"] = isset($item['private']) && ($item['private'] == Item::PRIVATE);
-
-	if (($item['thr-parent'] ?? '') == ($item['uri'] ?? '')) {
-		if (empty($item['owner-id'])) {
-			$item['owner-id'] = Contact::getPublicIdByUserId(BaseApi::getCurrentUserID());
-		}
-		$owner_user = DI::twitterUser()->createFromContactId($item['owner-id'], BaseApi::getCurrentUserID())->toArray();
-	} else {
-		$owner_user = $author_user;
-	}
-
-	return ([$status_user, $author_user, $owner_user]);
 }
 
 /**
@@ -2298,14 +2265,12 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
 	}
 
 	foreach ((array)$items as $item) {
-		[$status_user, $author_user, $owner_user] = api_item_get_user($a, $item);
-
 		// Look if the posts are matching if they should be filtered by user id
-		if ($filter_user && ($status_user["id"] != $user_info["id"])) {
+		if ($filter_user && ($item["author-id"] != $user_info["id"])) {
 			continue;
 		}
 
-		$status = api_format_item($item, $type, $status_user, $author_user, $owner_user);
+		$status = api_format_item($item, $type);
 
 		$ret[] = $status;
 	}
@@ -2325,13 +2290,10 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
  */
-function api_format_item($item, $type = "json", $status_user = null, $author_user = null, $owner_user = null)
+function api_format_item($item, $type = "json")
 {
-	$a = DI::app();
-
-	if (empty($status_user) || empty($author_user) || empty($owner_user)) {
-		[$status_user, $author_user, $owner_user] = api_item_get_user($a, $item);
-	}
+	$author_user = DI::twitterUser()->createFromContactId($item['author-id'], BaseApi::getCurrentUserID())->toArray();
+	$owner_user = DI::twitterUser()->createFromContactId($item['owner-id'], BaseApi::getCurrentUserID())->toArray();
 
 	DI::contentItem()->localize($item);
 
@@ -2359,7 +2321,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		'in_reply_to_screen_name' => $in_reply_to['screen_name'],
 		$geo => null,
 		'favorited' => $item['starred'] ? true : false,
-		'user' =>  $status_user,
+		'user' =>  $author_user,
 		'friendica_author' => $author_user,
 		'friendica_owner' => $owner_user,
 		'friendica_private' => $item['private'] == Item::PRIVATE,

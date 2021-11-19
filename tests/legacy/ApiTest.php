@@ -764,29 +764,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_item_get_user() function.
-	 *
-	 * @return void
-	 */
-	public function testApiItemGetUser()
-	{
-		$users = api_item_get_user($this->app, []);
-		self::assertSelfUser($users[0]);
-	}
-
-	/**
-	 * Test the api_item_get_user() function with a different item parent.
-	 *
-	 * @return void
-	 */
-	public function testApiItemGetUserWithDifferentParent()
-	{
-		$users = api_item_get_user($this->app, ['thr-parent' => 'item_parent', 'uri' => 'item_uri']);
-		self::assertSelfUser($users[0]);
-		self::assertEquals($users[0], $users[1]);
-	}
-
-	/**
 	 * Test the Arrays::walkRecursive() function.
 	 *
 	 * @return void
