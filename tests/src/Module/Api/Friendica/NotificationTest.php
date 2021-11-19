@@ -67,7 +67,7 @@ class NotificationTest extends ApiTest
 </notes>
 XML;
 
-		$notification = new Notification(['extension' => 'xml']);
+		$notification = new Notification(DI::l10n(), ['extension' => 'xml']);
 		$notification->rawContent();
 
 		self::assertXmlStringEqualsXmlString($assertXml, ApiResponseDouble::getOutput());
@@ -75,7 +75,7 @@ XML;
 
 	public function testWithJsonResult()
 	{
-		$notification = new Notification(['parameter' => 'json']);
+		$notification = new Notification(DI::l10n(),['parameter' => 'json']);
 		$notification->rawContent();
 
 		$result = json_encode(ApiResponseDouble::getOutput());

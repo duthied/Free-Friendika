@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Module\Api\Friendica\Photoalbum;
 
+use Friendica\DI;
 use Friendica\Module\Api\Friendica\Photoalbum\Update;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Test\src\Module\Api\ApiTest;
@@ -30,19 +31,19 @@ class UpdateTest extends ApiTest
 	public function testEmpty()
 	{
 		$this->expectException(BadRequestException::class);
-		(new Update())->rawContent();
+		(new Update(DI::l10n()))->rawContent();
 	}
 
 	public function testTooFewArgs()
 	{
 		$this->expectException(BadRequestException::class);
-		(new Update(['album' => 'album_name']))->rawContent();
+		(new Update(DI::l10n(), ['album' => 'album_name']))->rawContent();
 	}
 
 	public function testWrongUpdate()
 	{
 		$this->expectException(BadRequestException::class);
-		(new Update(['album' => 'album_name', 'album_new' => 'album_name']))->rawContent();
+		(new Update(DI::l10n(), ['album' => 'album_name', 'album_new' => 'album_name']))->rawContent();
 	}
 
 	public function testWithoutAuthenticatedUser()

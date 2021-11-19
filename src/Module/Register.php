@@ -33,7 +33,6 @@ use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\User;
 use Friendica\Util\Proxy;
-use Friendica\Util\Strings;
 
 /**
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
@@ -43,6 +42,16 @@ class Register extends BaseModule
 	const CLOSED  = 0;
 	const APPROVE = 1;
 	const OPEN    = 2;
+
+	/** @var Tos */
+	protected $tos;
+
+	public function __construct(Tos $tos, L10n $l10n, array $parameters = [])
+	{
+		parent::__construct($l10n, $parameters);
+
+		$this->tos = $tos;
+	}
 
 	/**
 	 * Module GET method to display any content
@@ -129,8 +138,6 @@ class Register extends BaseModule
 
 		$tpl = $arr['template'];
 
-		$tos = new Tos($this->parameters);
-
 		$o = Renderer::replaceMacros($tpl, [
 			'$invitations'  => DI::config()->get('system', 'invitation_only'),
 			'$permonly'     => intval(DI::config()->get('config', 'register_policy')) === self::APPROVE,
@@ -164,7 +171,7 @@ class Register extends BaseModule
 			'$showtoslink'  => DI::config()->get('system', 'tosdisplay'),
 			'$tostext'      => DI::l10n()->t('Terms of Service'),
 			'$showprivstatement' => DI::config()->get('system', 'tosprivstatement'),
-			'$privstatement'=> $tos->privacy_complete,
+			'$privstatement'=> $this->tos->privacy_complete,
 			'$form_security_token' => BaseModule::getFormSecurityToken('register'),
 			'$explicit_content' => DI::config()->get('system', 'explicit_content', false),
 			'$explicit_content_note' => DI::l10n()->t('Note: This node explicitly contains adult content'),

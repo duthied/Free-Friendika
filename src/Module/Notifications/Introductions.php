@@ -21,14 +21,17 @@
 
 namespace Friendica\Module\Notifications;
 
+use Friendica\App\Arguments;
+use Friendica\App\Mode;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\BaseNotifications;
+use Friendica\Navigation\Notifications\Factory\Introduction as IntroductionFactory;
 use Friendica\Navigation\Notifications\ValueObject\Introduction;
 
 /**
@@ -36,21 +39,34 @@ use Friendica\Navigation\Notifications\ValueObject\Introduction;
  */
 class Introductions extends BaseNotifications
 {
+	/** @var IntroductionFactory */
+	protected $notificationIntro;
+	/** @var Mode */
+	protected $mode;
+
+	public function __construct(Mode $mode, IntroductionFactory $notificationIntro, Arguments $args, L10n $l10n, array $parameters = [])
+	{
+		parent::__construct($args, $l10n, $parameters);
+
+		$this->notificationIntro = $notificationIntro;
+		$this->mode              = $mode;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
-	public static function getNotifications()
+	public function getNotifications()
 	{
-		$id  = (int)DI::args()->get(2, 0);
-		$all = DI::args()->get(2) == 'all';
+		$id  = (int)$this->args->get(2, 0);
+		$all = $this->args->get(2) == 'all';
 
 		$notifications = [
 			'ident'         => 'introductions',
-			'notifications' => DI::notificationIntro()->getList($all, self::$firstItemNum, self::ITEMS_PER_PAGE, $id),
+			'notifications' => $this->notificationIntro->getList($all, $this->firstItemNum, self::ITEMS_PER_PAGE, $id),
 		];
 
 		return [
-			'header'        => DI::l10n()->t('Notifications'),
+			'header'        => $this->t('Notifications'),
 			'notifications' => $notifications,
 		];
 	}
@@ -59,12 +75,12 @@ class Introductions extends BaseNotifications
 	{
 		Nav::setSelected('introductions');
 
-		$all = DI::args()->get(2) == 'all';
+		$all = $this->args->get(2) == 'all';
 
 		$notificationContent   = [];
 		$notificationNoContent = '';
 
-		$notificationResult = self::getNotifications();
+		$notificationResult = $this->getNotifications();
 		$notifications      = $notificationResult['notifications'] ?? [];
 		$notificationHeader = $notificationResult['header'] ?? '';
 
@@ -74,7 +90,7 @@ class Introductions extends BaseNotifications
 		// The link to switch between ignored and normal connection requests
 		$notificationShowLink = [
 			'href' => (!$all ? 'notifications/intros/all' : 'notifications/intros'),
-			'text' => (!$all ? DI::l10n()->t('Show Ignored Requests') : DI::l10n()->t('Hide Ignored Requests')),
+			'text' => (!$all ? $this->t('Show Ignored Requests') : $this->t('Hide Ignored Requests')),
 		];
 
 		$owner = User::getOwnerDataById(local_user());
@@ -90,10 +106,10 @@ class Introductions extends BaseNotifications
 				case 'friend_suggestion':
 					$notificationContent[] = Renderer::replaceMacros($notificationSuggestions, [
 						'$type'                  => $Introduction->getLabel(),
-						'$str_notification_type' => DI::l10n()->t('Notification type:'),
+						'$str_notification_type' => $this->t('Notification type:'),
 						'$str_type'              => $Introduction->getType(),
 						'$intro_id'              => $Introduction->getIntroId(),
-						'$lbl_madeby'            => DI::l10n()->t('Suggested by:'),
+						'$lbl_madeby'            => $this->t('Suggested by:'),
 						'$madeby'                => $Introduction->getMadeBy(),
 						'$madeby_url'            => $Introduction->getMadeByUrl(),
 						'$madeby_zrl'            => $Introduction->getMadeByZrl(),
@@ -104,22 +120,22 @@ class Introductions extends BaseNotifications
 						'$dfrn_url'              => $owner['url'],
 						'$url'                   => $Introduction->getUrl(),
 						'$zrl'                   => $Introduction->getZrl(),
-						'$lbl_url'               => DI::l10n()->t('Profile URL'),
+						'$lbl_url'               => $this->t('Profile URL'),
 						'$addr'                  => $Introduction->getAddr(),
 						'$action'                => 'follow',
-						'$approve'               => DI::l10n()->t('Approve'),
+						'$approve'               => $this->t('Approve'),
 						'$note'                  => $Introduction->getNote(),
-						'$ignore'                => DI::l10n()->t('Ignore'),
-						'$discard'               => DI::l10n()->t('Discard'),
-						'$is_mobile'             => DI::mode()->isMobile(),
+						'$ignore'                => $this->t('Ignore'),
+						'$discard'               => $this->t('Discard'),
+						'$is_mobile'             => $this->mode->isMobile(),
 					]);
 					break;
 
 				// Normal connection requests
 				default:
 					if ($Introduction->getNetwork() === Protocol::DFRN) {
-						$lbl_knowyou = DI::l10n()->t('Claims to be known to you: ');
-						$knowyou     = ($Introduction->getKnowYou() ? DI::l10n()->t('Yes') : DI::l10n()->t('No'));
+						$lbl_knowyou = $this->t('Claims to be known to you: ');
+						$knowyou     = ($Introduction->getKnowYou() ? $this->t('Yes') : $this->t('No'));
 					} else {
 						$lbl_knowyou = '';
 						$knowyou = '';
@@ -127,12 +143,12 @@ class Introductions extends BaseNotifications
 
 					$convertedName = BBCode::convert($Introduction->getName());
 
-					$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
-					$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $convertedName, $convertedName);
-					$helptext3 = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $convertedName);
+					$helptext  = $this->t('Shall your connection be bidirectional or not?');
+					$helptext2 = $this->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $convertedName, $convertedName);
+					$helptext3 = $this->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $convertedName);
 		
-					$friend = ['duplex', DI::l10n()->t('Friend'), '1', $helptext2, true];
-					$follower = ['duplex', DI::l10n()->t('Subscriber'), '0', $helptext3, false];
+					$friend = ['duplex', $this->t('Friend'), '1', $helptext2, true];
+					$follower = ['duplex', $this->t('Subscriber'), '0', $helptext3, false];
 
 					$action = 'follow_confirm';
 
@@ -145,7 +161,7 @@ class Introductions extends BaseNotifications
 					$header .= ' (' . ContactSelector::networkToName($Introduction->getNetwork(), $Introduction->getUrl()) . ')';
 
 					if ($Introduction->getNetwork() != Protocol::DIASPORA) {
-						$discard = DI::l10n()->t('Discard');
+						$discard = $this->t('Discard');
 					} else {
 						$discard = '';
 					}
@@ -153,7 +169,7 @@ class Introductions extends BaseNotifications
 					$notificationContent[] = Renderer::replaceMacros($notificationTemplate, [
 						'$type'                  => $Introduction->getLabel(),
 						'$header'                => $header,
-						'$str_notification_type' => DI::l10n()->t('Notification type:'),
+						'$str_notification_type' => $this->t('Notification type:'),
 						'$str_type'              => $Introduction->getType(),
 						'$dfrn_id'               => $Introduction->getDfrnId(),
 						'$uid'                   => $Introduction->getUid(),
@@ -162,39 +178,39 @@ class Introductions extends BaseNotifications
 						'$photo'                 => $Introduction->getPhoto(),
 						'$fullname'              => $Introduction->getName(),
 						'$location'              => $Introduction->getLocation(),
-						'$lbl_location'          => DI::l10n()->t('Location:'),
+						'$lbl_location'          => $this->t('Location:'),
 						'$about'                 => $Introduction->getAbout(),
-						'$lbl_about'             => DI::l10n()->t('About:'),
+						'$lbl_about'             => $this->t('About:'),
 						'$keywords'              => $Introduction->getKeywords(),
-						'$lbl_keywords'          => DI::l10n()->t('Tags:'),
-						'$hidden'                => ['hidden', DI::l10n()->t('Hide this contact from others'), $Introduction->isHidden(), ''],
+						'$lbl_keywords'          => $this->t('Tags:'),
+						'$hidden'                => ['hidden', $this->t('Hide this contact from others'), $Introduction->isHidden(), ''],
 						'$lbl_connection_type'   => $helptext,
 						'$friend'                => $friend,
 						'$follower'              => $follower,
 						'$url'                   => $Introduction->getUrl(),
 						'$zrl'                   => $Introduction->getZrl(),
-						'$lbl_url'               => DI::l10n()->t('Profile URL'),
+						'$lbl_url'               => $this->t('Profile URL'),
 						'$addr'                  => $Introduction->getAddr(),
 						'$lbl_knowyou'           => $lbl_knowyou,
-						'$lbl_network'           => DI::l10n()->t('Network:'),
+						'$lbl_network'           => $this->t('Network:'),
 						'$network'               => ContactSelector::networkToName($Introduction->getNetwork(), $Introduction->getUrl()),
 						'$knowyou'               => $knowyou,
-						'$approve'               => DI::l10n()->t('Approve'),
+						'$approve'               => $this->t('Approve'),
 						'$note'                  => $Introduction->getNote(),
-						'$ignore'                => DI::l10n()->t('Ignore'),
+						'$ignore'                => $this->t('Ignore'),
 						'$discard'               => $discard,
 						'$action'                => $action,
-						'$is_mobile'              => DI::mode()->isMobile(),
+						'$is_mobile'             => $this->mode->isMobile(),
 					]);
 					break;
 			}
 		}
 
 		if (count($notifications['notifications']) == 0) {
-			notice(DI::l10n()->t('No introductions.'));
-			$notificationNoContent = DI::l10n()->t('No more %s notifications.', $notifications['ident']);
+			notice($this->t('No introductions.'));
+			$notificationNoContent = $this->t('No more %s notifications.', $notifications['ident']);
 		}
 
-		return self::printContent($notificationHeader, $notificationContent, $notificationNoContent, $notificationShowLink);
+		return $this->printContent($notificationHeader, $notificationContent, $notificationNoContent, $notificationShowLink);
 	}
 }

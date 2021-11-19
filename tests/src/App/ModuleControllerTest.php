@@ -54,7 +54,7 @@ class ModuleControllerTest extends DatabaseTest
 		self::assertModule([
 			'isBackend' => false,
 			'name'      => App\ModuleController::DEFAULT,
-			'class'     => new $defaultClass(),
+			'class'     => null,
 		], $module);
 	}
 
@@ -146,28 +146,28 @@ class ModuleControllerTest extends DatabaseTest
 				'name'    => App\ModuleController::DEFAULT,
 				'command' => App\ModuleController::DEFAULT,
 				'privAdd' => false,
-				'args'    => [],
+				'args'    => [Mockery::mock(L10n::class)],
 			],
 			'legacy'  => [
 				'assert'  => LegacyModule::class,
 				'name'    => 'display',
 				'command' => 'display/test/it',
 				'privAdd' => false,
-				'args'    => [__DIR__ . '/../../datasets/legacy/legacy.php'],
+				'args'    => [Mockery::mock(L10n::class), __DIR__ . '/../../datasets/legacy/legacy.php'],
 			],
 			'new'     => [
 				'assert'  => HostMeta::class,
 				'not_required',
 				'command' => '.well-known/host-meta',
 				'privAdd' => false,
-				'args'    => [],
+				'args'    => [Mockery::mock(L10n::class)],
 			],
 			'404'     => [
 				'assert'  => PageNotFound::class,
 				'name'    => 'invalid',
 				'command' => 'invalid',
 				'privAdd' => false,
-				'args'    => [],
+				'args'    => [Mockery::mock(L10n::class)],
 			]
 		];
 	}
