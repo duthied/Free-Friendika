@@ -21,11 +21,15 @@
 
 namespace Friendica\Module\Security;
 
+use Friendica\App\BaseURL;
 use Friendica\BaseModule;
+use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\System;
-use Friendica\DI;
 use Friendica\Model\Profile;
+use Friendica\Model\User\Cookie;
 use Friendica\Security\TwoFactor;
 
 /**
@@ -33,33 +37,55 @@ use Friendica\Security\TwoFactor;
  */
 class Logout extends BaseModule
 {
+	/** @var ICanCache */
+	protected $cache;
+	/** @var Cookie */
+	protected $cookie;
+	/** @var IHandleSessions */
+	protected $session;
+	/** @var BaseURL */
+	protected $baseUrl;
+	/** @var TwoFactor\Repository\TrustedBrowser */
+	protected $trustedBrowserRepo;
+
+	public function __construct(TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, ICanCache $cache, Cookie $cookie, IHandleSessions $session, BaseURL $baseUrl, L10n $l10n, array $parameters = [])
+	{
+		parent::__construct($l10n, $parameters);
+
+		$this->cache              = $cache;
+		$this->cookie             = $cookie;
+		$this->session            = $session;
+		$this->baseUrl            = $baseUrl;
+		$this->trustedBrowserRepo = $trustedBrowserRepo;
+	}
+
+
 	/**
 	 * Process logout requests
 	 */
-	public function init()
+	public function rawContent()
 	{
 		$visitor_home = null;
 		if (remote_user()) {
 			$visitor_home = Profile::getMyURL();
-			DI::cache()->delete('zrlInit:' . $visitor_home);
+			$this->cache->delete('zrlInit:' . $visitor_home);
 		}
 
 		Hook::callAll("logging_out");
 
 		// Remove this trusted browser as it won't be able to be used ever again after the cookie is cleared
-		if (DI::cookie()->get('trusted')) {
-			$trustedBrowserRepository = new TwoFactor\Repository\TrustedBrowser(DI::dba(), DI::logger());
-			$trustedBrowserRepository->removeForUser(local_user(), DI::cookie()->get('trusted'));
+		if ($this->cookie->get('trusted')) {
+			$this->trustedBrowserRepo->removeForUser(local_user(), $this->cookie->get('trusted'));
 		}
 
-		DI::cookie()->clear();
-		DI::session()->clear();
+		$this->cookie->clear();
+		$this->session->clear();
 
 		if ($visitor_home) {
 			System::externalRedirect($visitor_home);
 		} else {
-			info(DI::l10n()->t('Logged out.'));
-			DI::baseUrl()->redirect();
+			info($this->t('Logged out.'));
+			$this->baseUrl->redirect();
 		}
 	}
 }
