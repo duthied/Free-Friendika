@@ -22,8 +22,7 @@
 namespace Friendica\Module\Diaspora;
 
 use Friendica\BaseModule;
-use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\L10n;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Diaspora;
@@ -37,30 +36,25 @@ use Psr\Log\LoggerInterface;
 class Receive extends BaseModule
 {
 	/** @var LoggerInterface */
-	protected $logger;
-	/** @var IManageConfigValues */
-	protected $config;
+	private static $logger;
 
-	public function __construct(LoggerInterface $logger, IManageConfigValues $config, L10n $l10n, array $parameters = [])
+	public function init()
 	{
-		parent::__construct($l10n, $parameters);
-		
-		$this->logger = $logger;
-		$this->config = $config;
+		self::$logger = DI::logger();
 	}
 
 	public function post()
 	{
-		$enabled = $this->config->get('system', 'diaspora_enabled', false);
+		$enabled = DI::config()->get('system', 'diaspora_enabled', false);
 		if (!$enabled) {
-			$this->logger->info('Diaspora disabled.');
-			throw new HTTPException\ForbiddenException($this->t('Access denied.'));
+			self::$logger->info('Diaspora disabled.');
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 		}
 
 		if ($this->parameters['type'] === 'public') {
-			$this->receivePublic();
+			self::receivePublic();
 		} else if ($this->parameters['type'] === 'users') {
-			$this->receiveUser();
+			self::receiveUser($this->parameters['guid']);
 		}
 	}
 
@@ -70,13 +64,13 @@ class Receive extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private  function receivePublic()
+	private static function receivePublic()
 	{
-		$this->logger->info('Diaspora: Receiving post.');
+		self::$logger->info('Diaspora: Receiving post.');
 
-		$msg = $this->decodePost();
+		$msg = self::decodePost();
 
-		$this->logger->info('Diaspora: Dispatching.');
+		self::$logger->info('Diaspora: Dispatching.');
 
 		Diaspora::dispatchPublic($msg);
 	}
@@ -84,18 +78,20 @@ class Receive extends BaseModule
 	/**
 	 * Receive a Diaspora posting for a user
 	 *
+	 * @param string $guid The GUID of the importer
+	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private function receiveUser()
+	private static function receiveUser(string $guid)
 	{
-		$this->logger->info('Diaspora: Receiving post.');
+		self::$logger->info('Diaspora: Receiving post.');
 
-		$importer = User::getByGuid($this->parameters['guid']);
+		$importer = User::getByGuid($guid);
 
-		$msg = $this->decodePost(false, $importer['prvkey'] ?? '');
+		$msg = self::decodePost(false, $importer['prvkey'] ?? '');
 
-		$this->logger->info('Diaspora: Dispatching.');
+		self::$logger->info('Diaspora: Dispatching.');
 
 		if (Diaspora::dispatch($importer, $msg)) {
 			throw new HTTPException\OKException();
@@ -116,7 +112,7 @@ class Receive extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private function decodePost(bool $public = true, string $privKey = '')
+	private static function decodePost(bool $public = true, string $privKey = '')
 	{
 		if (empty($_POST['xml'])) {
 
@@ -126,24 +122,24 @@ class Receive extends BaseModule
 				throw new HTTPException\InternalServerErrorException('Missing postdata.');
 			}
 
-			$this->logger->info('Diaspora: Message is in the new format.');
+			self::$logger->info('Diaspora: Message is in the new format.');
 
 			$msg = Diaspora::decodeRaw($postdata, $privKey);
 		} else {
 
 			$xml = urldecode($_POST['xml']);
 
-			$this->logger->info('Diaspora: Decode message in the old format.');
+			self::$logger->info('Diaspora: Decode message in the old format.');
 			$msg = Diaspora::decode($xml, $privKey);
 
 			if ($public && !$msg) {
-				$this->logger->info('Diaspora: Decode message in the new format.');
+				self::$logger->info('Diaspora: Decode message in the new format.');
 				$msg = Diaspora::decodeRaw($xml, $privKey);
 			}
 		}
 
-		$this->logger->info('Diaspora: Post decoded.');
-		$this->logger->debug('Diaspora: Decoded message.', ['msg' => $msg]);
+		self::$logger->info('Diaspora: Post decoded.');
+		self::$logger->debug('Diaspora: Decoded message.', ['msg' => $msg]);
 
 		if (!is_array($msg)) {
 			throw new HTTPException\InternalServerErrorException('Message is not an array.');

@@ -44,8 +44,9 @@ use Friendica\Util\Strings;
  */
 class Owa extends BaseModule
 {
-	public function rawContent()
+	public function init()
 	{
+
 		$ret = [ 'success' => false ];
 
 		foreach (['REDIRECT_REMOTE_USER', 'HTTP_AUTHORIZATION'] as $head) {

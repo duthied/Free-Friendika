@@ -21,18 +21,16 @@
 
 namespace Friendica\Module;
 
-use Friendica\App;
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Database\Database;
+use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
-use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Strings;
-use Psr\Log\LoggerInterface;
 
 /**
  * Magic Auth (remote authentication) module.
@@ -41,35 +39,17 @@ use Psr\Log\LoggerInterface;
  */
 class Magic extends BaseModule
 {
-	/** @var App */
-	protected $app;
-	/** @var LoggerInterface */
-	protected $logger;
-	/** @var Database */
-	protected $dba;
-	/** @var ICanSendHttpRequests */
-	protected $httpClient;
-	protected $baseUrl;
-
-	public function __construct(App $app, App\BaseURL $baseUrl, LoggerInterface $logger, Database $dba, ICanSendHttpRequests $httpClient, L10n $l10n, array $parameters = [])
+	public function init()
 	{
-		parent::__construct($l10n, $parameters);
+		$a = DI::app();
+		$ret = ['success' => false, 'url' => '', 'message' => ''];
+		Logger::info('magic mdule: invoked');
 
-		$this->app        = $app;
-		$this->logger     = $logger;
-		$this->dba        = $dba;
-		$this->httpClient = $httpClient;
-		$this->baseUrl    = $baseUrl;
-	}
-
-	public function rawContent()
-	{
-		$this->logger->info('magic module: invoked');
-
-		$this->logger->debug('args', ['request' => $_REQUEST]);
+		Logger::debug('args', ['request' => $_REQUEST]);
 
 		$addr = $_REQUEST['addr'] ?? '';
 		$dest = $_REQUEST['dest'] ?? '';
+		$test = (!empty($_REQUEST['test']) ? intval($_REQUEST['test']) : 0);
 		$owa  = (!empty($_REQUEST['owa'])  ? intval($_REQUEST['owa'])  : 0);
 		$cid  = 0;
 
@@ -80,15 +60,21 @@ class Magic extends BaseModule
 		}
 
 		if (!$cid) {
-			$this->logger->info('No contact record found', $_REQUEST);
+			Logger::info('No contact record found', $_REQUEST);
 			// @TODO Finding a more elegant possibility to redirect to either internal or external URL
-			$this->app->redirect($dest);
+			$a->redirect($dest);
 		}
-		$contact = $this->dba->selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
+		$contact = DBA::selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
 
 		// Redirect if the contact is already authenticated on this site.
-		if ($this->app->getContactId() && strpos($contact['nurl'], Strings::normaliseLink($this->baseUrl->get())) !== false) {
-			$this->logger->info('Contact is already authenticated');
+		if ($a->getContactId() && strpos($contact['nurl'], Strings::normaliseLink(DI::baseUrl()->get())) !== false) {
+			if ($test) {
+				$ret['success'] = true;
+				$ret['message'] .= 'Local site - you are already authenticated.' . EOL;
+				return $ret;
+			}
+
+			Logger::info('Contact is already authenticated');
 			System::externalRedirect($dest);
 		}
 
@@ -112,11 +98,11 @@ class Magic extends BaseModule
 			$header = HTTPSignature::createSig(
 				$header,
 				$user['prvkey'],
-				'acct:' . $user['nickname'] . '@' . $this->baseUrl->getHostname() . ($this->baseUrl->getUrlPath() ? '/' . $this->baseUrl->getUrlPath() : '')
+				'acct:' . $user['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : '')
 			);
 
 			// Try to get an authentication token from the other instance.
-			$curlResult = $this->httpClient->get($basepath . '/owa', [HttpClientOptions::HEADERS => $header]);
+			$curlResult = DI::httpClient()->get($basepath . '/owa', [HttpClientOptions::HEADERS => $header]);
 
 			if ($curlResult->isSuccess()) {
 				$j = json_decode($curlResult->getBody(), true);
@@ -132,14 +118,19 @@ class Magic extends BaseModule
 					}
 					$args = (strpbrk($dest, '?&') ? '&' : '?') . 'owt=' . $token;
 
-					$this->logger->info('Redirecting', ['path' => $dest . $args]);
+					Logger::info('Redirecting', ['path' => $dest . $args]);
 					System::externalRedirect($dest . $args);
 				}
 			}
 			System::externalRedirect($dest);
 		}
 
+		if ($test) {
+			$ret['message'] = 'Not authenticated or invalid arguments' . EOL;
+			return $ret;
+		}
+
 		// @TODO Finding a more elegant possibility to redirect to either internal or external URL
-		$this->app->redirect($dest);
+		$a->redirect($dest);
 	}
 }

@@ -8,6 +8,14 @@ namespace Friendica\Capabilities;
 interface ICanHandleRequests
 {
 	/**
+	 * Initialization method common to both content() and post()
+	 *
+	 * Extend this method if you need to do any shared processing before either
+	 * content() or post()
+	 */
+	public function init();
+
+	/**
 	 * Module GET method to display raw content from technical endpoints
 	 *
 	 * Extend this method if the module is supposed to return communication data,

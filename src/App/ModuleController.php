@@ -81,7 +81,7 @@ class ModuleController
 	private $moduleName;
 
 	/**
-	 * @var ?ICanHandleRequests The module object
+	 * @var ICanHandleRequests The module object
 	 */
 	private $module;
 
@@ -104,9 +104,9 @@ class ModuleController
 	}
 
 	/**
-	 * @return ?ICanHandleRequests The base module object
+	 * @return ICanHandleRequests The base module object
 	 */
-	public function getModule(): ?ICanHandleRequests
+	public function getModule(): ICanHandleRequests
 	{
 		return $this->module;
 	}
@@ -120,10 +120,12 @@ class ModuleController
 		return $this->isBackend;
 	}
 
-	public function __construct(string $moduleName = self::DEFAULT, ?ICanHandleRequests $module = null, bool $isBackend = false, bool $printNotAllowedAddon = false)
+	public function __construct(string $moduleName = self::DEFAULT, ICanHandleRequests $module = null, bool $isBackend = false, bool $printNotAllowedAddon = false)
 	{
+		$defaultClass = static::DEFAULT_CLASS;
+
 		$this->moduleName           = $moduleName;
-		$this->module               = $module;
+		$this->module               = $module ?? new $defaultClass();
 		$this->isBackend            = $isBackend;
 		$this->printNotAllowedAddon = $printNotAllowedAddon;
 	}
@@ -294,6 +296,8 @@ class ModuleController
 		$timestamp = microtime(true);
 
 		Core\Hook::callAll($this->moduleName . '_mod_init', $placeholder);
+
+		$this->module->init();
 
 		$profiler->set(microtime(true) - $timestamp, 'init');
 
