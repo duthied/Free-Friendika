@@ -22,12 +22,11 @@
 namespace Friendica\Module;
 
 use Exception;
-use Friendica\App\Arguments;
 use Friendica\BaseModule;
 use Friendica\Content\Pager;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Navigation\Notifications\ValueObject\FormattedNotification;
 use Friendica\Network\HTTPException\ForbiddenException;
 
@@ -71,12 +70,9 @@ abstract class BaseNotifications extends BaseModule
 	const DEFAULT_PAGE_LIMIT = 80;
 
 	/** @var boolean True, if ALL entries should get shown */
-	protected $showAll;
+	protected static $showAll;
 	/** @var int The determined start item of the current page */
-	protected $firstItemNum;
-
-	/** @var Arguments */
-	protected $args;
+	protected static $firstItemNum;
 
 	/**
 	 * Collects all notifications from the backend
@@ -84,37 +80,33 @@ abstract class BaseNotifications extends BaseModule
 	 * @return array The determined notification array
 	 *               ['header', 'notifications']
 	 */
-	abstract public function getNotifications();
+	abstract public static function getNotifications();
 
-	public function __construct(Arguments $args, L10n $l10n, array $parameters = [])
+	public function init()
 	{
-		parent::__construct($l10n, $parameters);
-
 		if (!local_user()) {
-			throw new ForbiddenException($this->t('Permission denied.'));
+			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		$page = ($_REQUEST['page'] ?? 0) ?: 1;
 
-		$this->firstItemNum = ($page * self::ITEMS_PER_PAGE) - self::ITEMS_PER_PAGE;
-		$this->showAll      = ($_REQUEST['show'] ?? '') === 'all';
-
-		$this->args = $args;
+		self::$firstItemNum = ($page * self::ITEMS_PER_PAGE) - self::ITEMS_PER_PAGE;
+		self::$showAll      = ($_REQUEST['show'] ?? '') === 'all';
 	}
 
 	public function rawContent()
 	{
 		// If the last argument of the query is NOT json, return
-		if ($this->args->get($this->args->getArgc() - 1) !== 'json') {
+		if (DI::args()->get(DI::args()->getArgc() - 1) !== 'json') {
 			return;
 		}
 
 		// Set the pager
-		$pager = new Pager($this->l10n, $this->args->getQueryString(), self::ITEMS_PER_PAGE);
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
 
 		// Add additional informations (needed for json output)
 		$notifications = [
-			'notifications' => $this->getNotifications(),
+			'notifications' => static::getNotifications(),
 			'items_page'    => $pager->getItemsPerPage(),
 			'page'          => $pager->getPage(),
 		];
@@ -134,17 +126,17 @@ abstract class BaseNotifications extends BaseModule
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	protected function printContent(string $header, array $notifications, string $noContent, array $showLink)
+	protected static function printContent(string $header, array $notifications, string $noContent, array $showLink)
 	{
 		// Get the nav tabs for the notification pages
-		$tabs = $this->getTabs();
+		$tabs = self::getTabs();
 
 		// Set the pager
-		$pager = new Pager($this->l10n, $this->args->getQueryString(), self::ITEMS_PER_PAGE);
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
 
 		$notif_tpl = Renderer::getMarkupTemplate('notifications/notifications.tpl');
 		return Renderer::replaceMacros($notif_tpl, [
-			'$header'        => $header ?? $this->t('Notifications'),
+			'$header'        => $header ?? DI::l10n()->t('Notifications'),
 			'$tabs'          => $tabs,
 			'$notifications' => $notifications,
 			'$noContent'     => $noContent,
@@ -159,15 +151,15 @@ abstract class BaseNotifications extends BaseModule
 	 * @return array with with notifications TabBar data
 	 * @throws Exception
 	 */
-	private function getTabs()
+	private static function getTabs()
 	{
-		$selected = $this->args->get(1, '');
+		$selected = DI::args()->get(1, '');
 
 		$tabs = [];
 
 		foreach (self::URL_TYPES as $type => $url) {
 			$tabs[] = [
-				'label'     => $this->t(self::PRINT_TYPES[$type]),
+				'label'     => DI::l10n()->t(self::PRINT_TYPES[$type]),
 				'url'       => 'notifications/' . $url,
 				'sel'       => (($selected == $url) ? 'active' : ''),
 				'id'        => $type . '-tab',

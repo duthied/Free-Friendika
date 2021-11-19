@@ -22,7 +22,6 @@
 namespace Friendica;
 
 use Friendica\Capabilities\ICanHandleRequests;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Model\User;
 
@@ -40,33 +39,16 @@ abstract class BaseModule implements ICanHandleRequests
 	/** @var array */
 	protected $parameters = [];
 
-	/** @var L10n */
-	protected $l10n;
-
-	public function __construct(L10n $l10n, array $parameters = [])
+	public function __construct(array $parameters = [])
 	{
 		$this->parameters = $parameters;
-		$this->l10n       = $l10n;
 	}
 
 	/**
-	 * Wraps the L10n::t() function for Modules
-	 *
-	 * @see L10n::t()
+	 * {@inheritDoc}
 	 */
-	protected function t(string $s, ...$args): string
+	public function init()
 	{
-		return $this->l10n->t($s, $args);
-	}
-
-	/**
-	 * Wraps the L10n::tt() function for Modules
-	 *
-	 * @see L10n::tt()
-	 */
-	protected function tt(string $singular, string $plurarl, int $count): string
-	{
-		return $this->l10n->tt($singular, $plurarl, $count);
 	}
 
 	/**

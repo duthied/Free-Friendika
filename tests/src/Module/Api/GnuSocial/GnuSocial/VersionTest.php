@@ -2,7 +2,6 @@
 
 namespace Friendica\Test\src\Module\Api\GnuSocial\GnuSocial;
 
-use Friendica\DI;
 use Friendica\Module\Api\GNUSocial\GNUSocial\Version;
 use Friendica\Test\src\Module\Api\ApiTest;
 use Friendica\Test\Util\ApiResponseDouble;
@@ -11,7 +10,7 @@ class VersionTest extends ApiTest
 {
 	public function test()
 	{
-		$version = new Version(DI::l10n(), ['extension' => 'json']);
+		$version = new Version(['extension' => 'json']);
 		$version->rawContent();
 
 		$result = json_decode(ApiResponseDouble::getOutput());

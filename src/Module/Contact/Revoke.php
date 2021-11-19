@@ -21,14 +21,12 @@
 
 namespace Friendica\Module\Contact;
 
-use Friendica\App\Arguments;
-use Friendica\App\BaseURL;
 use Friendica\BaseModule;
 use Friendica\Content\Nav;
-use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Database\Database;
+use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Module\Contact;
 use Friendica\Module\Security\Login;
@@ -37,44 +35,31 @@ use Friendica\Network\HTTPException;
 class Revoke extends BaseModule
 {
 	/** @var array */
-	protected $contact;
-	
-	/** @var Database */
-	protected $dba;
-	/** @var BaseURL */
-	protected $baseUrl;
-	/** @var Arguments */
-	protected $args;
-	
-	public function __construct(Database $dba, BaseURL $baseUrl, Arguments $args, L10n $l10n, array $parameters = [])
+	private static $contact;
+
+	public function init()
 	{
-		parent::__construct($l10n, $parameters);
-
-		$this->dba     = $dba;
-		$this->baseUrl = $baseUrl;
-		$this->args    = $args;
-
 		if (!local_user()) {
 			return;
 		}
 
 		$data = Model\Contact::getPublicAndUserContactID($this->parameters['id'], local_user());
-		if (!$this->dba->isResult($data)) {
-			throw new HTTPException\NotFoundException($this->t('Unknown contact.'));
+		if (!DBA::isResult($data)) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('Unknown contact.'));
 		}
 
 		if (empty($data['user'])) {
 			throw new HTTPException\ForbiddenException();
 		}
 
-		$this->contact = Model\Contact::getById($data['user']);
+		self::$contact = Model\Contact::getById($data['user']);
 
-		if ($this->contact['deleted']) {
-			throw new HTTPException\NotFoundException($this->t('Contact is deleted.'));
+		if (self::$contact['deleted']) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('Contact is deleted.'));
 		}
 
-		if (!empty($this->contact['network']) && $this->contact['network'] == Protocol::PHANTOM) {
-			throw new HTTPException\NotFoundException($this->t('Contact is being deleted.'));
+		if (!empty(self::$contact['network']) && self::$contact['network'] == Protocol::PHANTOM) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('Contact is being deleted.'));
 		}
 	}
 
@@ -86,16 +71,16 @@ class Revoke extends BaseModule
 
 		self::checkFormSecurityTokenRedirectOnError('contact/' . $this->parameters['id'], 'contact_revoke');
 
-		$result = Model\Contact::revokeFollow($this->contact);
+		$result = Model\Contact::revokeFollow(self::$contact);
 		if ($result === true) {
-			notice($this->t('Follow was successfully revoked.'));
+			notice(DI::l10n()->t('Follow was successfully revoked.'));
 		} elseif ($result === null) {
-			notice($this->t('Follow was successfully revoked, however the remote contact won\'t be aware of this revokation.'));
+			notice(DI::l10n()->t('Follow was successfully revoked, however the remote contact won\'t be aware of this revokation.'));
 		} else {
-			notice($this->t('Unable to revoke follow, please try again later or contact the administrator.'));
+			notice(DI::l10n()->t('Unable to revoke follow, please try again later or contact the administrator.'));
 		}
 
-		$this->baseUrl->redirect('contact/' . $this->parameters['id']);
+		DI::baseUrl()->redirect('contact/' . $this->parameters['id']);
 	}
 
 	public function content(): string
@@ -108,14 +93,14 @@ class Revoke extends BaseModule
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_drop_confirm.tpl'), [
 			'$l10n' => [
-				'header'  => $this->t('Revoke Follow'),
-				'message' => $this->t('Do you really want to revoke this contact\'s follow? This cannot be undone and they will have to manually follow you back again.'),
-				'confirm' => $this->t('Yes'),
-				'cancel'  => $this->t('Cancel'),
+				'header'  => DI::l10n()->t('Revoke Follow'),
+				'message' => DI::l10n()->t('Do you really want to revoke this contact\'s follow? This cannot be undone and they will have to manually follow you back again.'),
+				'confirm' => DI::l10n()->t('Yes'),
+				'cancel'  => DI::l10n()->t('Cancel'),
 			],
-			'$contact'       => Contact::getContactTemplateVars($this->contact),
+			'$contact'       => Contact::getContactTemplateVars(self::$contact),
 			'$method'        => 'post',
-			'$confirm_url'   => $this->args->getCommand(),
+			'$confirm_url'   => DI::args()->getCommand(),
 			'$confirm_name'  => 'form_security_token',
 			'$confirm_value' => BaseModule::getFormSecurityToken('contact_revoke'),
 		]);

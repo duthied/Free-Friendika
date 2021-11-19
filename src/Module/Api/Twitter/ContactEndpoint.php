@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Twitter;
 
-use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Profile;
@@ -36,9 +35,9 @@ abstract class ContactEndpoint extends BaseApi
 	const DEFAULT_COUNT = 20;
 	const MAX_COUNT = 200;
 
-	public function __construct(L10n $l10n, array $parameters = [])
+	public function init()
 	{
-		parent::__construct($l10n, $parameters);
+		parent::init();
 
 		self::checkAllowedScope(self::SCOPE_READ);
 	}

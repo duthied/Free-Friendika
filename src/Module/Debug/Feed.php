@@ -21,12 +21,10 @@
 
 namespace Friendica\Module\Debug;
 
-use Friendica\App\BaseURL;
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Model;
-use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
 use Friendica\Protocol;
 
 /**
@@ -34,18 +32,11 @@ use Friendica\Protocol;
  */
 class Feed extends BaseModule
 {
-	/** @var ICanSendHttpRequests */
-	protected $httpClient;
-
-	public function __construct(BaseURL $baseUrl, ICanSendHttpRequests $httpClient, L10n $l10n, array $parameters = [])
+	public function init()
 	{
-		parent::__construct($l10n, $parameters);
-
-		$this->httpClient = $httpClient;
-
 		if (!local_user()) {
-			notice($this->t('You must be logged in to use this module'));
-			$baseUrl->redirect();
+			notice(DI::l10n()->t('You must be logged in to use this module'));
+			DI::baseUrl()->redirect();
 		}
 	}
 
@@ -57,7 +48,7 @@ class Feed extends BaseModule
 
 			$contact = Model\Contact::getByURLForUser($url, local_user(), null);
 
-			$xml = $this->httpClient->fetch($contact['poll']);
+			$xml = DI::httpClient()->fetch($contact['poll']);
 
 			$import_result = Protocol\Feed::import($xml);
 
@@ -69,7 +60,7 @@ class Feed extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('feedtest.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$url'    => ['url', $this->t('Source URL'), $_REQUEST['url'] ?? '', ''],
+			'$url'    => ['url', DI::l10n()->t('Source URL'), $_REQUEST['url'] ?? '', ''],
 			'$result' => $result
 		]);
 	}

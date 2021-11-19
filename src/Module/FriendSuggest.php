@@ -21,16 +21,15 @@
 
 namespace Friendica\Module;
 
-use Friendica\App\BaseURL;
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
-use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
@@ -39,27 +38,11 @@ use Friendica\Worker\Delivery;
  */
 class FriendSuggest extends BaseModule
 {
-	/** @var BaseURL */
-	protected $baseUrl;
-	/** @var Database */
-	protected $dba;
-	/** @var \Friendica\Contact\FriendSuggest\Repository\FriendSuggest */
-	protected $friendSuggestRepo;
-	/** @var \Friendica\Contact\FriendSuggest\Factory\FriendSuggest */
-	protected $friendSuggestFac;
-
-	public function __construct(BaseURL $baseUrl, Database $dba, \Friendica\Contact\FriendSuggest\Repository\FriendSuggest $friendSuggestRepo, \Friendica\Contact\FriendSuggest\Factory\FriendSuggest $friendSuggestFac, L10n $l10n, array $parameters = [])
+	public function init()
 	{
-		parent::__construct($l10n, $parameters);
-
 		if (!local_user()) {
-			throw new ForbiddenException($this->t('Permission denied.'));
+			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
-
-		$this->baseUrl           = $baseUrl;
-		$this->dba               = $dba;
-		$this->friendSuggestRepo = $friendSuggestRepo;
-		$this->friendSuggestFac  = $friendSuggestFac;
 	}
 
 	public function post()
@@ -67,8 +50,8 @@ class FriendSuggest extends BaseModule
 		$cid = intval($this->parameters['contact']);
 
 		// We do query the "uid" as well to ensure that it is our contact
-		if (!$this->dba->exists('contact', ['id' => $cid, 'uid' => local_user()])) {
-			throw new NotFoundException($this->t('Contact not found.'));
+		if (!DI::dba()->exists('contact', ['id' => $cid, 'uid' => local_user()])) {
+			throw new NotFoundException(DI::l10n()->t('Contact not found.'));
 		}
 
 		$suggest_contact_id = intval($_POST['suggest']);
@@ -77,15 +60,15 @@ class FriendSuggest extends BaseModule
 		}
 
 		// We do query the "uid" as well to ensure that it is our contact
-		$contact = $this->dba->selectFirst('contact', ['name', 'url', 'request', 'avatar'], ['id' => $suggest_contact_id, 'uid' => local_user()]);
+		$contact = DI::dba()->selectFirst('contact', ['name', 'url', 'request', 'avatar'], ['id' => $suggest_contact_id, 'uid' => local_user()]);
 		if (empty($contact)) {
-			notice($this->t('Suggested contact not found.'));
+			notice(DI::l10n()->t('Suggested contact not found.'));
 			return;
 		}
 
 		$note = Strings::escapeHtml(trim($_POST['note'] ?? ''));
 
-		$suggest = $this->friendSuggestRepo->save($this->friendSuggestFac->createNew(
+		$suggest = DI::fsuggest()->save(DI::fsuggestFactory()->createNew(
 			local_user(),
 			$cid,
 			$contact['name'],
@@ -97,17 +80,17 @@ class FriendSuggest extends BaseModule
 
 		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::SUGGESTION, $suggest->id);
 
-		info($this->t('Friend suggestion sent.'));
+		info(DI::l10n()->t('Friend suggestion sent.'));
 	}
 
 	public function content(): string
 	{
 		$cid = intval($this->parameters['contact']);
 
-		$contact = $this->dba->selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
+		$contact = DI::dba()->selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {
-			notice($this->t('Contact not found.'));
-			$this->baseUrl->redirect();
+			notice(DI::l10n()->t('Contact not found.'));
+			DI::baseUrl()->redirect();
 		}
 
 		$suggestableContacts = ContactModel::selectToArray(['id', 'name'], [
@@ -134,15 +117,15 @@ class FriendSuggest extends BaseModule
 		$tpl = Renderer::getMarkupTemplate('fsuggest.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$contact_id'      => $cid,
-			'$fsuggest_title'  => $this->t('Suggest Friends'),
+			'$fsuggest_title'  => DI::l10n()->t('Suggest Friends'),
 			'$fsuggest_select' => [
 				'suggest',
-				$this->t('Suggest a friend for %s', $contact['name']),
+				DI::l10n()->t('Suggest a friend for %s', $contact['name']),
 				'',
 				'',
 				$formattedContacts,
 			],
-			'$submit'          => $this->t('Submit'),
+			'$submit'          => DI::l10n()->t('Submit'),
 		]);
 	}
 }

@@ -21,25 +21,21 @@
 
 namespace Friendica\Module;
 
-use Friendica\App\BaseURL;
 use Friendica\BaseModule;
 use Friendica\Content\Nav;
-use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 
 /**
  * Shows the App menu
  */
 class Apps extends BaseModule
 {
-	public function __construct(L10n $l10n, IManageConfigValues $config, BaseURL $baseUrl, array $parameters = [])
+	public function init()
 	{
-		parent::__construct($l10n, $parameters);
-
-		$privateaddons = $config->get('config', 'private_addons');
+		$privateaddons = DI::config()->get('config', 'private_addons');
 		if ($privateaddons === "1" && !local_user()) {
-			$baseUrl->redirect();
+			DI::baseUrl()->redirect();
 		}
 	}
 
@@ -48,12 +44,12 @@ class Apps extends BaseModule
 		$apps = Nav::getAppMenu();
 
 		if (count($apps) == 0) {
-			notice($this->t('No installed applications.'));
+			notice(DI::l10n()->t('No installed applications.'));
 		}
 
 		$tpl = Renderer::getMarkupTemplate('apps.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$title' => $this->t('Applications'),
+			'$title' => DI::l10n()->t('Applications'),
 			'$apps'  => $apps,
 		]);
 	}
