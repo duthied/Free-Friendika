@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Module\Api\Friendica\Photo;
 
+use Friendica\DI;
 use Friendica\Module\Api\Friendica\Photo\Delete;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Test\src\Module\Api\ApiTest;
@@ -30,7 +31,7 @@ class DeleteTest extends ApiTest
 	public function testEmpty()
 	{
 		$this->expectException(BadRequestException::class);
-		(new Delete())->rawContent();
+		(new Delete(DI::l10n()))->rawContent();
 	}
 
 	public function testWithoutAuthenticatedUser()
@@ -41,7 +42,7 @@ class DeleteTest extends ApiTest
 	public function testWrong()
 	{
 		$this->expectException(BadRequestException::class);
-		(new Delete(['photo_id' => 1]))->rawContent();
+		(new Delete(DI::l10n(), ['photo_id' => 1]))->rawContent();
 	}
 
 	public function testWithCorrectPhotoId()
