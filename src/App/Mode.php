@@ -25,7 +25,6 @@ use Detection\MobileDetect;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Database\Database;
 use Friendica\Util\BasePath;
-use phpDocumentor\Reflection\Types\Static_;
 
 /**
  * Mode of the current Friendica Node

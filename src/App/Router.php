@@ -91,7 +91,7 @@ class Router
 	/** @var ICanLock */
 	private $lock;
 
-	/**	@var Arguments */
+	/** @var Arguments */
 	private $args;
 
 	/** @var IManageConfigValues */
@@ -253,7 +253,6 @@ class Router
 
 		$dispatcher = new Dispatcher\GroupCountBased($this->getCachedDispatchData());
 
-		$moduleClass = null;
 		$this->parameters = [];
 
 		$routeInfo  = $dispatcher->dispatch($this->httpMethod, $cmd);
