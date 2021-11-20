@@ -92,7 +92,7 @@ class LegacyModule extends BaseModule
 
 		if (\function_exists($function_name)) {
 			$a = DI::app();
-			return $function_name($a);
+			return $function_name($a) ?? '';
 		}
 
 		return '';
