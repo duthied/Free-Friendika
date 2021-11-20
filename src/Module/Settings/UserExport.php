@@ -51,7 +51,7 @@ class UserExport extends BaseSettings
 	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
@@ -85,7 +85,7 @@ class UserExport extends BaseSettings
 	 *
 	 * @throws HTTPException\ForbiddenException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));

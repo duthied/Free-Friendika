@@ -33,7 +33,7 @@ use Friendica\Util\Temporal;
 
 class Deleted extends BaseUsers
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -44,7 +44,7 @@ class Deleted extends BaseUsers
 		DI::baseUrl()->redirect('admin/users/deleted');
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

@@ -15,7 +15,7 @@ use Friendica\Network\HTTPException;
  */
 class PermissionTooltip extends \Friendica\BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$type = $this->parameters['type'];
 		$referenceId = $this->parameters['id'];

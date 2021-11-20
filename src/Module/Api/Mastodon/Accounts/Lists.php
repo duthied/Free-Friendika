@@ -35,7 +35,7 @@ class Lists extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

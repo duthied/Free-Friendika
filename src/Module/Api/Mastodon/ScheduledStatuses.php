@@ -42,7 +42,7 @@ class ScheduledStatuses extends BaseApi
 		DI::apiResponse()->unsupported(Router::PUT);
 	}
 
-	public function delete()
+	protected function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -63,7 +63,7 @@ class ScheduledStatuses extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

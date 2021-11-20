@@ -31,7 +31,7 @@ use Friendica\Module\BaseApi;
  */
 class Markers extends BaseApi
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -41,7 +41,7 @@ class Markers extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 

@@ -31,7 +31,7 @@ use Friendica\Module\Security\Login;
  */
 class Directory extends BaseSearch
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			notice(DI::l10n()->t('Permission denied.'));

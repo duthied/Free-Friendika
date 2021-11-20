@@ -31,7 +31,7 @@ use Friendica\Util;
 
 class ParseUrl extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (!Session::isAuthenticated()) {
 			throw new \Friendica\Network\HTTPException\ForbiddenException();

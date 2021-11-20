@@ -35,7 +35,7 @@ use Friendica\Util\DateTimeFormat;
 
 class Profile extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$a = DI::app();
 
@@ -93,7 +93,7 @@ class Profile extends BaseModule
 		);
 
 		if (!DBA::isResult($items_stmt)) {
-			return '';
+			return;
 		}
 
 		// Set a time stamp for this page. We will make use of it when we

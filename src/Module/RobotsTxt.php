@@ -28,7 +28,7 @@ use Friendica\BaseModule;
  */
 class RobotsTxt extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$allDisalloweds = [
 			'/settings/',

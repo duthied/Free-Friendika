@@ -117,11 +117,6 @@ class App
 	private $args;
 
 	/**
-	 * @var Core\System The system methods
-	 */
-	private $system;
-
-	/**
 	 * @var IManagePersonalConfigValues
 	 */
 	private $pConfig;
@@ -326,10 +321,9 @@ class App
 	 * @param Profiler                    $profiler The profiler of this application
 	 * @param L10n                        $l10n     The translator instance
 	 * @param App\Arguments               $args     The Friendica Arguments of the call
-	 * @param Core\System                 $system   The system methods
 	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
 	 */
-	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\System $system, IManagePersonalConfigValues $pConfig)
+	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -339,7 +333,6 @@ class App
 		$this->logger   = $logger;
 		$this->l10n     = $l10n;
 		$this->args     = $args;
-		$this->system   = $system;
 		$this->pConfig  = $pConfig;
 
 		$this->load();
@@ -608,7 +601,7 @@ class App
 					// Only continue when the given profile link seems valid
 					// Valid profile links contain a path with "/profile/" and no query parameters
 					if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") &&
-					    strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
+						strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
 						if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
 							Core\Session::set('my_url', $_GET['zrl']);
 							Core\Session::set('authenticated', 0);
@@ -700,7 +693,7 @@ class App
 			$page['page_title'] = $moduleName;
 
 			if (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED)) {
-				$module = new Maintenance($this->l10n);
+				$module = $router->getModule(Maintenance::class);
 			} else {
 				// determine the module class and save it to the module instance
 				// @todo there's an implicit dependency due SESSION::start(), so it has to be called here (yet)
@@ -708,12 +701,11 @@ class App
 			}
 
 			// Let the module run it's internal process (init, get, post, ...)
-			$module->run($this->baseURL, $this->args, $this->logger, $this->profiler, $_SERVER, $_POST);
+			$content = $module->run($_POST, $_REQUEST);
+			$page->run($this, $this->baseURL, $this->args, $this->mode, $content, $this->l10n, $this->profiler, $this->config, $pconfig);
 		} catch (HTTPException $e) {
 			(new ModuleHTTPException())->rawContent($e);
 		}
-
-		$page->run($this, $this->baseURL, $this->args, $this->mode, $module, $this->l10n, $this->profiler, $this->config, $pconfig);
 	}
 
 	/**

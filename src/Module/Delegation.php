@@ -37,7 +37,7 @@ use Friendica\Util\Proxy;
  */
 class Delegation extends BaseModule
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			return;
@@ -112,7 +112,7 @@ class Delegation extends BaseModule
 		// NOTREACHED
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));

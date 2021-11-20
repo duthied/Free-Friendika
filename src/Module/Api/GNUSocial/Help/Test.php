@@ -29,7 +29,7 @@ use Friendica\DI;
  */
 class Test extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
 			$ok = 'true';

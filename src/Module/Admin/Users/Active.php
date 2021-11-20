@@ -30,7 +30,7 @@ use Friendica\Module\Admin\BaseUsers;
 
 class Active extends BaseUsers
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -60,7 +60,7 @@ class Active extends BaseUsers
 		DI::baseUrl()->redirect(DI::args()->getQueryString());
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

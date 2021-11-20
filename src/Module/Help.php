@@ -32,7 +32,7 @@ use Friendica\Network\HTTPException;
  */
 class Help extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		Nav::setSelected('help');
 

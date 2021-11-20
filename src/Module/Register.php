@@ -21,6 +21,7 @@
 
 namespace Friendica\Module;
 
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
@@ -32,7 +33,9 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\User;
+use Friendica\Util\Profiler;
 use Friendica\Util\Proxy;
+use Psr\Log\LoggerInterface;
 
 /**
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
@@ -46,9 +49,9 @@ class Register extends BaseModule
 	/** @var Tos */
 	protected $tos;
 
-	public function __construct(Tos $tos, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Tos $tos, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->tos = $tos;
 	}
@@ -62,7 +65,7 @@ class Register extends BaseModule
 	 *
 	 * @return string
 	 */
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		// logged in users can register others (people/pages/groups)
 		// even with closed registrations, unless specifically prohibited by site policy.
@@ -189,7 +192,7 @@ class Register extends BaseModule
 	 * Extend this method if the module is supposed to process POST requests.
 	 * Doesn't display any content
 	 */
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		BaseModule::checkFormSecurityTokenRedirectOnError('/register', 'register');
 

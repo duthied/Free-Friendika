@@ -33,7 +33,7 @@ use Friendica\Util\DateTimeFormat;
 
 class Schedule extends BaseProfile
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
@@ -50,7 +50,7 @@ class Schedule extends BaseProfile
 		Post\Delayed::deleteById($_REQUEST['delete']);
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));

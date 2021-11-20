@@ -39,6 +39,7 @@ use Friendica\Module\HTTPException\MethodNotAllowed;
 use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
+use Friendica\Network\HTTPException\NoContentException;
 use Friendica\Network\HTTPException\NotFoundException;
 
 /**
@@ -103,6 +104,9 @@ class Router
 	/** @var string */
 	private $baseRoutesFilepath;
 
+	/** @var array */
+	private $server;
+
 	/**
 	 * @param array               $server             The $_SERVER variable
 	 * @param string              $baseRoutesFilepath The path to a base routes file to leverage cache, can be empty
@@ -123,8 +127,17 @@ class Router
 		$this->args = $args;
 		$this->config = $config;
 		$this->dice = $dice;
+		$this->server = $server;
 
-		$httpMethod = $server['REQUEST_METHOD'] ?? self::GET;
+		$httpMethod = $this->server['REQUEST_METHOD'] ?? self::GET;
+
+		// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
+		// @todo Check allowed methods per requested path
+		if ($httpMethod === static::OPTIONS) {
+			header('Allow: ' . implode(',', Router::ALLOWED_METHODS));
+			throw new NoContentException();
+		}
+
 		$this->httpMethod = in_array($httpMethod, self::ALLOWED_METHODS) ? $httpMethod : self::GET;
 
 		$this->routeCollector = isset($routeCollector) ?
@@ -268,10 +281,9 @@ class Router
 		return $moduleClass;
 	}
 
-	public function getModule(): ICanHandleRequests
+	public function getModule(?string $module_class = null): ICanHandleRequests
 	{
-		$module_class      = null;
-		$module_parameters = [];
+		$module_parameters = [$this->server];
 		/**
 		 * ROUTING
 		 *
@@ -279,7 +291,7 @@ class Router
 		 * post() and/or content() static methods can be respectively called to produce a data change or an output.
 		 **/
 		try {
-			$module_class        = $this->getModuleClass();
+			$module_class        = $module_class ?? $this->getModuleClass();
 			$module_parameters[] = $this->parameters;
 		} catch (MethodNotAllowedException $e) {
 			$module_class = MethodNotAllowed::class;

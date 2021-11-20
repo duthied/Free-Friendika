@@ -34,7 +34,7 @@ class Trends extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$request = self::getRequest([
 			'limit' => 20, // Maximum number of results to return. Defaults to 10.

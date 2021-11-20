@@ -34,7 +34,7 @@ use Friendica\Util\Strings;
 
 class Index extends BaseSettings
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!Session::isAuthenticated()) {
 			return;
@@ -106,7 +106,7 @@ class Index extends BaseSettings
 		DI::baseUrl()->redirect('settings/profile/photo/crop/' . $resource_id);
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));

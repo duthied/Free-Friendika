@@ -21,13 +21,15 @@
 
 namespace Friendica\Module\Notifications;
 
+use Friendica\App;
 use Friendica\App\Arguments;
-use Friendica\App\BaseURL;
 use Friendica\Content\Nav;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Module\BaseNotifications;
 use Friendica\Navigation\Notifications\ValueObject\FormattedNotification;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Prints all notification types except introduction:
@@ -41,15 +43,11 @@ class Notifications extends BaseNotifications
 	/** @var \Friendica\Navigation\Notifications\Factory\FormattedNotification */
 	protected $formattedNotificationFactory;
 
-	/** @var BaseURL */
-	protected $baseUrl;
-
-	public function __construct(BaseURL $baseUrl, \Friendica\Navigation\Notifications\Factory\FormattedNotification $formattedNotificationFactory, Arguments $args, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, Arguments $args, LoggerInterface $logger, Profiler $profiler, \Friendica\Navigation\Notifications\Factory\FormattedNotification $formattedNotificationFactory, array $server, array $parameters = [])
 	{
-		parent::__construct($args, $l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->formattedNotificationFactory = $formattedNotificationFactory;
-		$this->baseUrl                      = $baseUrl;
 	}
 
 	/**
@@ -96,7 +94,7 @@ class Notifications extends BaseNotifications
 		];
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		Nav::setSelected('notifications');
 

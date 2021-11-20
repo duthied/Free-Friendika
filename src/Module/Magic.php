@@ -31,6 +31,7 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\HTTPSignature;
+use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
@@ -43,26 +44,21 @@ class Magic extends BaseModule
 {
 	/** @var App */
 	protected $app;
-	/** @var LoggerInterface */
-	protected $logger;
 	/** @var Database */
 	protected $dba;
 	/** @var ICanSendHttpRequests */
 	protected $httpClient;
-	protected $baseUrl;
 
-	public function __construct(App $app, App\BaseURL $baseUrl, LoggerInterface $logger, Database $dba, ICanSendHttpRequests $httpClient, L10n $l10n, array $parameters = [])
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Database $dba, ICanSendHttpRequests $httpClient, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->app        = $app;
-		$this->logger     = $logger;
 		$this->dba        = $dba;
 		$this->httpClient = $httpClient;
-		$this->baseUrl    = $baseUrl;
 	}
 
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$this->logger->info('magic module: invoked');
 

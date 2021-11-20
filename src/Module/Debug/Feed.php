@@ -21,13 +21,15 @@
 
 namespace Friendica\Module\Debug;
 
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Model;
 use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
 use Friendica\Protocol;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Tests a given feed of a contact
@@ -37,9 +39,9 @@ class Feed extends BaseModule
 	/** @var ICanSendHttpRequests */
 	protected $httpClient;
 
-	public function __construct(BaseURL $baseUrl, ICanSendHttpRequests $httpClient, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ICanSendHttpRequests $httpClient, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->httpClient = $httpClient;
 
@@ -49,7 +51,7 @@ class Feed extends BaseModule
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$result = [];
 		if (!empty($_REQUEST['url'])) {

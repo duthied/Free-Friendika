@@ -27,7 +27,7 @@ use Friendica\Network\HTTPException;
 
 class MethodNotAllowed extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		throw new HTTPException\MethodNotAllowedException(DI::l10n()->t('Method Not Allowed.'));
 	}

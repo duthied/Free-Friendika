@@ -25,7 +25,7 @@ use Friendica\Module\BaseAdmin;
 
 class PhpInfo extends BaseAdmin
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAdminAccess();
 

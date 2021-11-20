@@ -25,24 +25,23 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Module\BaseAdmin;
+use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
+use Psr\Log\LoggerInterface;
 
 class Embed extends BaseAdmin
 {
 	/** @var App */
 	protected $app;
-	/** @var App\BaseURL */
-	protected $baseUrl;
 	/** @var App\Mode */
 	protected $mode;
 
-	public function __construct(App $app, App\BaseURL $baseUrl, App\Mode $mode, L10n $l10n, array $parameters = [])
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, App\Mode $mode, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
-		$this->app     = $app;
-		$this->baseUrl = $baseUrl;
-		$this->mode    = $mode;
+		$this->app  = $app;
+		$this->mode = $mode;
 
 		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {
@@ -50,7 +49,7 @@ class Embed extends BaseAdmin
 		}
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -70,7 +69,7 @@ class Embed extends BaseAdmin
 		$this->baseUrl->redirect('admin/themes/' . $theme . '/embed?mode=minimal');
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

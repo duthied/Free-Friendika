@@ -21,8 +21,7 @@
 
 namespace Friendica\Module\Contact;
 
-use Friendica\App\Arguments;
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Nav;
 use Friendica\Core\L10n;
@@ -33,6 +32,8 @@ use Friendica\Model;
 use Friendica\Module\Contact;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class Revoke extends BaseModule
 {
@@ -41,18 +42,12 @@ class Revoke extends BaseModule
 	
 	/** @var Database */
 	protected $dba;
-	/** @var BaseURL */
-	protected $baseUrl;
-	/** @var Arguments */
-	protected $args;
-	
-	public function __construct(Database $dba, BaseURL $baseUrl, Arguments $args, L10n $l10n, array $parameters = [])
+
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Database $dba, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->dba     = $dba;
-		$this->baseUrl = $baseUrl;
-		$this->args    = $args;
 
 		if (!local_user()) {
 			return;
@@ -78,7 +73,7 @@ class Revoke extends BaseModule
 		}
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException();
@@ -98,7 +93,7 @@ class Revoke extends BaseModule
 		$this->baseUrl->redirect('contact/' . $this->parameters['id']);
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			return Login::form($_SERVER['REQUEST_URI']);

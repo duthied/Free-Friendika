@@ -41,7 +41,7 @@ use Friendica\Util\Strings;
  */
 class Objects extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (empty($this->parameters['guid'])) {
 			throw new HTTPException\BadRequestException();

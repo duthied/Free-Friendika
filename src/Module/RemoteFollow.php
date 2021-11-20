@@ -21,7 +21,7 @@
 
 namespace Friendica\Module;
 
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\App\Page;
 use Friendica\BaseModule;
 use Friendica\Content\Widget;
@@ -36,6 +36,8 @@ use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Remotely follow the account on this system by the provided account
@@ -46,23 +48,20 @@ class RemoteFollow extends BaseModule
 	protected $owner;
 	/** @var Page */
 	protected $page;
-	/** @var BaseURL */
-	protected $baseUrl;
 
-	public function __construct(L10n $l10n, Page $page, BaseURL $baseUrl, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, App\Page $page, LoggerInterface $logger, Profiler $profiler, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->owner = User::getOwnerDataByNick($this->parameters['profile']);
 		if (!$this->owner) {
 			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
 
-		$this->baseUrl = $baseUrl;
 		$this->page    = $page;
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!empty($_POST['cancel']) || empty($_POST['dfrn_url'])) {
 			$this->baseUrl->redirect();
@@ -106,7 +105,7 @@ class RemoteFollow extends BaseModule
 		System::externalRedirect($follow_link);
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (empty($this->owner)) {
 			return '';

@@ -34,7 +34,7 @@ class Attach extends BaseModule
 	/**
 	 * Return to user an attached file given the id
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$a = DI::app();
 		if (empty($this->parameters['item'])) {

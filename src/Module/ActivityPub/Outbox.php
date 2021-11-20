@@ -31,7 +31,7 @@ use Friendica\Util\HTTPSignature;
  */
 class Outbox extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (empty($this->parameters['nickname'])) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();

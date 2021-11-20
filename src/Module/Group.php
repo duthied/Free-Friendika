@@ -32,7 +32,7 @@ require_once 'boot.php';
 
 class Group extends BaseModule
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (DI::mode()->isAjax()) {
 			$this->ajaxPost();
@@ -140,7 +140,7 @@ class Group extends BaseModule
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$change = false;
 

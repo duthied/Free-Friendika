@@ -35,13 +35,13 @@ use Friendica\Core\L10n;
  */
 class Index extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
-		(new Profile($this->l10n, $this->parameters))->rawContent();
+		(new Profile($this->l10n, $this->baseUrl, $this->args, $this->logger, $this->profiler, $this->server, $this->parameters))->rawContent();
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
-		return (new Status($this->l10n, $this->parameters))->content();
+		return (new Status($this->l10n, $this->baseUrl, $this->args, $this->logger, $this->profiler, $this->server, $this->parameters))->content();
 	}
 }

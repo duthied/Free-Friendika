@@ -31,7 +31,7 @@ use Friendica\Network\HTTPException\NotFoundException;
  */
 class Acctlink extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$addr = trim($_GET['addr'] ?? '');
 		if (!$addr) {

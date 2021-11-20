@@ -36,7 +36,7 @@ class Rules extends BaseApi
 	/**
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$rules = [];
 		$id    = 0;

@@ -21,7 +21,7 @@
 
 namespace Friendica\Module;
 
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
@@ -31,16 +31,16 @@ use Friendica\Database\Database;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
+use Psr\Log\LoggerInterface;
 
 /**
  * Suggest friends to a known contact
  */
 class FriendSuggest extends BaseModule
 {
-	/** @var BaseURL */
-	protected $baseUrl;
 	/** @var Database */
 	protected $dba;
 	/** @var \Friendica\Contact\FriendSuggest\Repository\FriendSuggest */
@@ -48,21 +48,20 @@ class FriendSuggest extends BaseModule
 	/** @var \Friendica\Contact\FriendSuggest\Factory\FriendSuggest */
 	protected $friendSuggestFac;
 
-	public function __construct(BaseURL $baseUrl, Database $dba, \Friendica\Contact\FriendSuggest\Repository\FriendSuggest $friendSuggestRepo, \Friendica\Contact\FriendSuggest\Factory\FriendSuggest $friendSuggestFac, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler,Database $dba, \Friendica\Contact\FriendSuggest\Repository\FriendSuggest $friendSuggestRepo, \Friendica\Contact\FriendSuggest\Factory\FriendSuggest $friendSuggestFac, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		if (!local_user()) {
 			throw new ForbiddenException($this->t('Permission denied.'));
 		}
 
-		$this->baseUrl           = $baseUrl;
 		$this->dba               = $dba;
 		$this->friendSuggestRepo = $friendSuggestRepo;
 		$this->friendSuggestFac  = $friendSuggestFac;
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		$cid = intval($this->parameters['contact']);
 
@@ -100,7 +99,7 @@ class FriendSuggest extends BaseModule
 		info($this->t('Friend suggestion sent.'));
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$cid = intval($this->parameters['contact']);
 

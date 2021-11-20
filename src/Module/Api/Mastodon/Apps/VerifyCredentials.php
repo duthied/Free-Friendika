@@ -30,7 +30,7 @@ use Friendica\Module\BaseApi;
  */
 class VerifyCredentials extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$application = self::getCurrentApplication();

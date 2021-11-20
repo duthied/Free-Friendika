@@ -30,7 +30,7 @@ use Friendica\Model\Contact;
  */
 class RandomProfile extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$a = DI::app();
 

@@ -25,7 +25,6 @@ use ArrayAccess;
 use DOMDocument;
 use DOMXPath;
 use Friendica\App;
-use Friendica\Capabilities\ICanHandleRequests;
 use Friendica\Content\Nav;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
@@ -33,7 +32,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
-use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -269,9 +267,9 @@ class Page implements ArrayAccess
 		if (!empty($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on")) {
 			$pageURL .= "s";
 		}
-	
+
 		$pageURL .= "://";
-	
+
 		if ($_SERVER["SERVER_PORT"] != "80" && $_SERVER["SERVER_PORT"] != "443") {
 			$pageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"];
 		} else {
@@ -338,24 +336,13 @@ class Page implements ArrayAccess
 	 * - module content
 	 * - hooks for content
 	 *
-	 * @param ICanHandleRequests $module The module
-	 * @param Mode             $mode   The Friendica execution mode
+	 * @param string $content The content to print
+	 * @param Mode   $mode   The Friendica execution mode
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initContent(ICanHandleRequests $module, Mode $mode)
+	private function initContent(string $content, Mode $mode)
 	{
-		$content = '';
-
-		try {
-			$arr = ['content' => $content];
-			Hook::callAll($module->getClassName() . '_mod_content', $arr);
-			$content = $arr['content'];
-			$content .= $module->content();
-		} catch (HTTPException $e) {
-			$content = (new ModuleHTTPException())->content($e);
-		}
-
 		// initialise content region
 		if ($mode->isNormal()) {
 			Hook::callAll('page_content_top', $this->page['content']);
@@ -390,14 +377,14 @@ class Page implements ArrayAccess
 	 * @param BaseURL                     $baseURL The Friendica Base URL
 	 * @param Arguments                   $args    The Friendica App arguments
 	 * @param Mode                        $mode    The current node mode
-	 * @param ICanHandleRequests          $module  The loaded Friendica module
+	 * @param string                      $content The content to print on frontend
 	 * @param L10n                        $l10n    The l10n language class
 	 * @param IManageConfigValues         $config  The Configuration of this node
 	 * @param IManagePersonalConfigValues $pconfig The personal/user configuration
 	 *
-	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException|HTTPException\ServiceUnavailableException
 	 */
-	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ICanHandleRequests $module, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
+	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, string $content, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
 	{
 		$moduleName = $args->getModuleName();
 
@@ -407,7 +394,7 @@ class Page implements ArrayAccess
 		 * Sets the $Page->page['content'] variable
 		 */
 		$timestamp = microtime(true);
-		$this->initContent($module, $mode);
+		$this->initContent($content, $mode);
 		$profiler->set(microtime(true) - $timestamp, 'content');
 
 		// Load current theme info after module has been initialized as theme could have been set in module

@@ -30,7 +30,7 @@ use Friendica\BaseModule;
  */
 class AccountManagementControlDocument extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$output = [
 			'version' => 1,

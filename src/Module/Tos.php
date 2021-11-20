@@ -21,12 +21,14 @@
 
 namespace Friendica\Module;
 
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Content\Text\BBCode;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class Tos extends BaseModule
 {
@@ -38,8 +40,6 @@ class Tos extends BaseModule
 
 	/** @var IManageConfigValues */
 	protected $config;
-	/** @var BaseURL */
-	protected $baseUrl;
 
 	/**
 	 * constructor for the module, initializing the text variables
@@ -48,12 +48,11 @@ class Tos extends BaseModule
 	 * be properties of the class, however cannot be set directly as the property
 	 * cannot depend on a function result when declaring the variable.
 	 **/
-	public function __construct(IManageConfigValues $config, BaseURL $baseUrl, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IManageConfigValues $config, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->config  = $config;
-		$this->baseUrl = $baseUrl;
 
 		$this->privacy_operate    = $this->t('At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node\'s user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication.');
 		$this->privacy_distribute = $this->t('This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.');
@@ -76,7 +75,7 @@ class Tos extends BaseModule
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (strlen($this->config->get('system', 'singleuser'))) {
 			$this->baseUrl->redirect('profile/' . $this->config->get('system', 'singleuser'));

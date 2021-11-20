@@ -21,25 +21,24 @@
 
 namespace Friendica\Module;
 
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 class Statistics extends BaseModule
 {
 	/** @var IManageConfigValues */
 	protected $config;
-	/** @var LoggerInterface */
-	protected $logger;
 
-	public function __construct(IManageConfigValues $config, LoggerInterface $logger, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IManageConfigValues $config, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
-		$this->logger = $logger;
 		$this->config = $config;
 
 		if (!$this->config->get("system", "nodeinfo")) {
@@ -47,7 +46,7 @@ class Statistics extends BaseModule
 		}
 	}
 
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$registration_open =
 			intval($this->config->get('config', 'register_policy')) !== Register::CLOSED

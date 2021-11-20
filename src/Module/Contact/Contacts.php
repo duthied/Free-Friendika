@@ -14,7 +14,7 @@ use Friendica\Network\HTTPException;
 
 class Contacts extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$app = DI::app();
 

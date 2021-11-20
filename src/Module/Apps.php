@@ -21,21 +21,24 @@
 
 namespace Friendica\Module;
 
+use Friendica\App;
 use Friendica\App\BaseURL;
 use Friendica\BaseModule;
 use Friendica\Content\Nav;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Shows the App menu
  */
 class Apps extends BaseModule
 {
-	public function __construct(L10n $l10n, IManageConfigValues $config, BaseURL $baseUrl, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IManageConfigValues $config, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$privateaddons = $config->get('config', 'private_addons');
 		if ($privateaddons === "1" && !local_user()) {
@@ -43,7 +46,7 @@ class Apps extends BaseModule
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$apps = Nav::getAppMenu();
 

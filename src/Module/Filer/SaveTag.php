@@ -21,13 +21,14 @@
 
 namespace Friendica\Module\Filer;
 
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
 use Friendica\Util\XML;
 use Psr\Log\LoggerInterface;
 
@@ -36,22 +37,17 @@ use Psr\Log\LoggerInterface;
  */
 class SaveTag extends BaseModule
 {
-	/** @var LoggerInterface */
-	protected $logger;
-	
-	public function __construct(LoggerInterface $logger, BaseURL $baseUrl, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
-		
-		$this->logger = $logger;
-		
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
+
 		if (!local_user()) {
 			notice($this->t('You must be logged in to use this module'));
 			$baseUrl->redirect();
 		}
 	}
 
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$term = XML::unescape(trim($_GET['term'] ?? ''));
 

@@ -29,6 +29,8 @@ use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Model\User;
 use Friendica\Security\Authentication;
 use Friendica\Security\TwoFactor\Model\RecoveryCode;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * // Page 1a: Recovery code verification
@@ -41,22 +43,19 @@ class Recovery extends BaseModule
 	protected $session;
 	/** @var App */
 	protected $app;
-	/** @var App\BaseURL */
-	protected $baseUrl;
 	/** @var Authentication */
 	protected $auth;
 
-	public function __construct(App $app, App\BaseURL $baseUrl, Authentication $auth, IHandleSessions $session, L10n $l10n, array $parameters = [])
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Authentication $auth, IHandleSessions $session, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->app     = $app;
-		$this->baseUrl = $baseUrl;
 		$this->auth    = $auth;
 		$this->session = $session;
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			return;
@@ -79,7 +78,7 @@ class Recovery extends BaseModule
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			$this->baseUrl->redirect();

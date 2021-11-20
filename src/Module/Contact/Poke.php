@@ -18,7 +18,7 @@ use Friendica\Util\XML;
 
 class Poke extends BaseModule
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user() || empty($this->parameters['id'])) {
 			return self::postReturn(false);
@@ -123,7 +123,7 @@ class Poke extends BaseModule
 		return $success;
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('You must be logged in to use this module.'));

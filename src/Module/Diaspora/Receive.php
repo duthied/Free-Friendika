@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Diaspora;
 
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
@@ -28,6 +29,7 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Network;
+use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -36,20 +38,17 @@ use Psr\Log\LoggerInterface;
  */
 class Receive extends BaseModule
 {
-	/** @var LoggerInterface */
-	protected $logger;
 	/** @var IManageConfigValues */
 	protected $config;
 
-	public function __construct(LoggerInterface $logger, IManageConfigValues $config, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IManageConfigValues $config, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
-		
-		$this->logger = $logger;
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
+
 		$this->config = $config;
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		$enabled = $this->config->get('system', 'diaspora_enabled', false);
 		if (!$enabled) {

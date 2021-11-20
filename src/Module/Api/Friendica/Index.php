@@ -32,17 +32,17 @@ require_once __DIR__ . '/../../../../include/api.php';
  */
 class Index extends BaseApi
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);		
 	}
 
-	public function delete()
+	protected function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 	}
 
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		echo api_call(DI::args()->getCommand(), $this->parameters['extension'] ?? 'json');
 		exit();

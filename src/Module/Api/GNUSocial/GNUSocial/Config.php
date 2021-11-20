@@ -31,7 +31,7 @@ use Friendica\Module\Register;
  */
 class Config extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$config = [
 			'site' => [

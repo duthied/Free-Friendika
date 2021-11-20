@@ -23,11 +23,12 @@ namespace Friendica;
 
 use Friendica\App\Router;
 use Friendica\Capabilities\ICanHandleRequests;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Model\User;
-use Friendica\Module\HTTPException\PageNotFound;
-use Friendica\Network\HTTPException\NoContentException;
+use Friendica\Module\Special\HTTPException as ModuleHTTPException;
+use Friendica\Network\HTTPException;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -44,14 +45,28 @@ abstract class BaseModule implements ICanHandleRequests
 {
 	/** @var array */
 	protected $parameters = [];
-
 	/** @var L10n */
 	protected $l10n;
+	/** @var App\BaseURL */
+	protected $baseUrl;
+	/** @var App\Arguments */
+	protected $args;
+	/** @var LoggerInterface */
+	protected $logger;
+	/** @var Profiler */
+	protected $profiler;
+	/** @var array */
+	protected $server;
 
-	public function __construct(L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, array $server, array $parameters = [])
 	{
 		$this->parameters = $parameters;
 		$this->l10n       = $l10n;
+		$this->baseUrl    = $baseUrl;
+		$this->args       = $args;
+		$this->logger     = $logger;
+		$this->profiler   = $profiler;
+		$this->server     = $server;
 	}
 
 	/**
@@ -75,48 +90,75 @@ abstract class BaseModule implements ICanHandleRequests
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Module GET method to display raw content from technical endpoints
+	 *
+	 * Extend this method if the module is supposed to return communication data,
+	 * e.g. from protocol implementations.
+	 *
+	 * @param string[] $request The $_REQUEST content
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		// echo '';
 		// exit;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Module GET method to display any content
+	 *
+	 * Extend this method if the module is supposed to return any display
+	 * through a GET request. It can be an HTML page through templating or a
+	 * XML feed or a JSON output.
+	 *
+	 * @param string[] $request The $_REQUEST content
 	 */
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		return '';
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Module DELETE method to process submitted data
+	 *
+	 * Extend this method if the module is supposed to process DELETE requests.
+	 * Doesn't display any content
 	 */
-	public function delete()
+	protected function delete()
 	{
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Module PATCH method to process submitted data
+	 *
+	 * Extend this method if the module is supposed to process PATCH requests.
+	 * Doesn't display any content
 	 */
-	public function patch()
+	protected function patch()
 	{
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Module POST method to process submitted data
+	 *
+	 * Extend this method if the module is supposed to process POST requests.
+	 * Doesn't display any content
+	 *
+	 * @param string[] $request The $_REQUEST content
+	 * @param string[] $post    The $_POST content
+	 *
 	 */
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
-		// DI::baseurl()->redirect('module');
+		// $this->baseUrl->redirect('module');
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Module PUT method to process submitted data
+	 *
+	 * Extend this method if the module is supposed to process PUT requests.
+	 * Doesn't display any content
 	 */
-	public function put()
+	protected function put()
 	{
 	}
 
@@ -126,92 +168,73 @@ abstract class BaseModule implements ICanHandleRequests
 		return static::class;
 	}
 
-	public function run(App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, array $server, array $post)
+	/**
+	 * {@inheritDoc}
+	 */
+	public function run(array $post = [], array $request = []): string
 	{
-		/* The URL provided does not resolve to a valid module.
-		 *
-		 * On Dreamhost sites, quite often things go wrong for no apparent reason and they send us to '/internal_error.html'.
-		 * We don't like doing this, but as it occasionally accounts for 10-20% or more of all site traffic -
-		 * we are going to trap this and redirect back to the requested page. As long as you don't have a critical error on your page
-		 * this will often succeed and eventually do the right thing.
-		 *
-		 * Otherwise we are going to emit a 404 not found.
-		 */
-		if (static::class === PageNotFound::class) {
-			$queryString = $server['QUERY_STRING'];
-			// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
-			if (!empty($queryString) && preg_match('/{[0-9]}/', $queryString) !== 0) {
-				exit();
-			}
-
-			if (!empty($queryString) && ($queryString === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
-				$logger->info('index.php: dreamhost_error_hack invoked.', ['Original URI' => $server['REQUEST_URI']]);
-				$baseUrl->redirect($server['REQUEST_URI']);
-			}
-
-			$logger->debug('index.php: page not found.', ['request_uri' => $server['REQUEST_URI'], 'address' => $server['REMOTE_ADDR'], 'query' => $server['QUERY_STRING']]);
-		}
-
 		// @see https://github.com/tootsuite/mastodon/blob/c3aef491d66aec743a3a53e934a494f653745b61/config/initializers/cors.rb
-		if (substr($_REQUEST['pagename'] ?? '', 0, 12) == '.well-known/') {
+		if (substr($request['pagename'] ?? '', 0, 12) == '.well-known/') {
 			header('Access-Control-Allow-Origin: *');
 			header('Access-Control-Allow-Headers: *');
 			header('Access-Control-Allow-Methods: ' . Router::GET);
 			header('Access-Control-Allow-Credentials: false');
-		} elseif (substr($_REQUEST['pagename'] ?? '', 0, 8) == 'profile/') {
+		} elseif (substr($request['pagename'] ?? '', 0, 8) == 'profile/') {
 			header('Access-Control-Allow-Origin: *');
 			header('Access-Control-Allow-Headers: *');
 			header('Access-Control-Allow-Methods: ' . Router::GET);
 			header('Access-Control-Allow-Credentials: false');
-		} elseif (substr($_REQUEST['pagename'] ?? '', 0, 4) == 'api/') {
+		} elseif (substr($request['pagename'] ?? '', 0, 4) == 'api/') {
 			header('Access-Control-Allow-Origin: *');
 			header('Access-Control-Allow-Headers: *');
 			header('Access-Control-Allow-Methods: ' . implode(',', Router::ALLOWED_METHODS));
 			header('Access-Control-Allow-Credentials: false');
 			header('Access-Control-Expose-Headers: Link');
-		} elseif (substr($_REQUEST['pagename'] ?? '', 0, 11) == 'oauth/token') {
+		} elseif (substr($request['pagename'] ?? '', 0, 11) == 'oauth/token') {
 			header('Access-Control-Allow-Origin: *');
 			header('Access-Control-Allow-Headers: *');
 			header('Access-Control-Allow-Methods: ' . Router::POST);
 			header('Access-Control-Allow-Credentials: false');
 		}
 
-		// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
-		// @todo Check allowed methods per requested path
-		if ($server['REQUEST_METHOD'] === Router::OPTIONS) {
-			header('Allow: ' . implode(',', Router::ALLOWED_METHODS));
-			throw new NoContentException();
-		}
-
 		$placeholder = '';
 
-		$profiler->set(microtime(true), 'ready');
+		$this->profiler->set(microtime(true), 'ready');
 		$timestamp = microtime(true);
 
-		Core\Hook::callAll($args->getModuleName() . '_mod_init', $placeholder);
+		Core\Hook::callAll($this->args->getModuleName() . '_mod_init', $placeholder);
 
-		$profiler->set(microtime(true) - $timestamp, 'init');
+		$this->profiler->set(microtime(true) - $timestamp, 'init');
 
-		if ($server['REQUEST_METHOD'] === Router::DELETE) {
+		if ($this->server['REQUEST_METHOD'] === Router::DELETE) {
 			$this->delete();
 		}
 
-		if ($server['REQUEST_METHOD'] === Router::PATCH) {
+		if ($this->server['REQUEST_METHOD'] === Router::PATCH) {
 			$this->patch();
 		}
 
-		if ($server['REQUEST_METHOD'] === Router::POST) {
-			Core\Hook::callAll($args->getModuleName() . '_mod_post', $post);
-			$this->post();
+		if ($this->server['REQUEST_METHOD'] === Router::POST) {
+			Core\Hook::callAll($this->args->getModuleName() . '_mod_post', $post);
+			$this->post($request, $post);
 		}
 
-		if ($server['REQUEST_METHOD'] === Router::PUT) {
+		if ($this->server['REQUEST_METHOD'] === Router::PUT) {
 			$this->put();
 		}
 
 		// "rawContent" is especially meant for technical endpoints.
 		// This endpoint doesn't need any theme initialization or other comparable stuff.
-		$this->rawContent();
+		$this->rawContent($request);
+
+		try {
+			$arr = ['content' => ''];
+			Hook::callAll(static::class . '_mod_content', $arr);
+			$content = $arr['content'];
+			return $content . $this->content($_REQUEST);
+		} catch (HTTPException $e) {
+			return (new ModuleHTTPException())->content($e);
+		}
 	}
 
 	/*

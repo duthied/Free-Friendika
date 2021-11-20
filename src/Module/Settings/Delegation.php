@@ -36,7 +36,7 @@ use Friendica\Util\Strings;
  */
 class Delegation extends BaseSettings
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
@@ -62,7 +62,7 @@ class Delegation extends BaseSettings
 		DBA::update('user', ['parent-uid' => $parent_uid], ['uid' => local_user()]);
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

@@ -35,7 +35,7 @@ use Friendica\Util\Strings;
  */
 class Hovercard extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$contact_url = $_REQUEST['url'] ?? '';
 

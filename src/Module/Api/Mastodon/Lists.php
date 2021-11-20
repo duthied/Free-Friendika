@@ -31,7 +31,7 @@ use Friendica\Model\Group;
  */
 class Lists extends BaseApi
 {
-	public function delete()
+	protected function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -51,7 +51,7 @@ class Lists extends BaseApi
 		System::jsonExit([]);
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -91,7 +91,7 @@ class Lists extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

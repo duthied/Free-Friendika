@@ -31,7 +31,9 @@ use Friendica\Core\Theme;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Util\BasePath;
+use Friendica\Util\Profiler;
 use Friendica\Util\Temporal;
+use Psr\Log\LoggerInterface;
 
 class Install extends BaseModule
 {
@@ -70,16 +72,13 @@ class Install extends BaseModule
 	protected $app;
 	/** @var App\Mode */
 	protected $mode;
-	/** @var App\BaseURL */
-	protected $baseUrl;
 
-	public function __construct(App $app, App\Mode $mode, App\BaseURL $baseUrl, App\Arguments $args, Core\Installer $installer, L10n $l10n, array $parameters = [])
+	public function __construct(App $app, App\Mode $mode, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Core\Installer $installer, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->app       = $app;
 		$this->mode      = $mode;
-		$this->baseUrl   = $baseUrl;
 		$this->installer = $installer;
 
 		if (!$this->mode->isInstall()) {
@@ -105,7 +104,7 @@ class Install extends BaseModule
 		$this->currentWizardStep = ($_POST['pass'] ?? '') ?: self::SYSTEM_CHECK;
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		$configCache = $this->app->getConfigCache();
 
@@ -187,7 +186,7 @@ class Install extends BaseModule
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$configCache = $this->app->getConfigCache();
 

@@ -13,7 +13,7 @@ use Friendica\Util\Temporal;
 
 class Json extends \Friendica\BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException();

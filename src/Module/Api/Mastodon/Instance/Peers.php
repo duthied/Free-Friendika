@@ -36,7 +36,7 @@ class Peers extends BaseApi
 	/**
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$return = [];
 

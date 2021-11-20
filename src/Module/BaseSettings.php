@@ -28,7 +28,7 @@ use Friendica\DI;
 
 class BaseSettings extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$a = DI::app();
 

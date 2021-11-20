@@ -21,13 +21,15 @@
 
 namespace Friendica\Module\Settings\TwoFactor;
 
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Security\TwoFactor\Model\RecoveryCode;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * // Page 3: 2FA enabled but not verified, show recovery codes
@@ -38,15 +40,12 @@ class Recovery extends BaseSettings
 {
 	/** @var IManagePersonalConfigValues */
 	protected $pConfig;
-	/** @var BaseURL */
-	protected $baseUrl;
 
-	public function __construct(IManagePersonalConfigValues $pConfig, BaseURL $baseUrl, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IManagePersonalConfigValues $pConfig, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		$this->pConfig = $pConfig;
-		$this->baseUrl = $baseUrl;
 
 		if (!local_user()) {
 			return;
@@ -64,7 +63,7 @@ class Recovery extends BaseSettings
 		}
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			return;
@@ -81,7 +80,7 @@ class Recovery extends BaseSettings
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa/recovery');

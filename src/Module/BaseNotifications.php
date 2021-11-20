@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Exception;
+use Friendica\App;
 use Friendica\App\Arguments;
 use Friendica\BaseModule;
 use Friendica\Content\Pager;
@@ -30,6 +31,8 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Navigation\Notifications\ValueObject\FormattedNotification;
 use Friendica\Network\HTTPException\ForbiddenException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Base Module for each tab of the notification display
@@ -86,9 +89,9 @@ abstract class BaseNotifications extends BaseModule
 	 */
 	abstract public function getNotifications();
 
-	public function __construct(Arguments $args, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
 
 		if (!local_user()) {
 			throw new ForbiddenException($this->t('Permission denied.'));
@@ -98,11 +101,9 @@ abstract class BaseNotifications extends BaseModule
 
 		$this->firstItemNum = ($page * self::ITEMS_PER_PAGE) - self::ITEMS_PER_PAGE;
 		$this->showAll      = ($_REQUEST['show'] ?? '') === 'all';
-
-		$this->args = $args;
 	}
 
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		// If the last argument of the query is NOT json, return
 		if ($this->args->get($this->args->getArgc() - 1) !== 'json') {

@@ -32,7 +32,7 @@ use Friendica\Network\Probe as NetworkProbe;
  */
 class Probe extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a probing.'));
