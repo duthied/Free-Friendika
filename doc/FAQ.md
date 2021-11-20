@@ -171,9 +171,7 @@ Example: Friendica Support
 <a name="clients"></a>
 ### What friendica clients can I use?
 
-Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your platform as long as you can change the API path in its settings.
-Since the 2021.06 release, Friendica also supports the [Mastodon API](help/API-Mastodon) which works with many Mastodon clients.
-Here is a list of known working clients:
+Friendica supports [Mastodon API](help/API-Mastodon) and [Twitter API](help/api). This means you can use some of the Mastodon and Twitter clients for Friendica. The available features are client specific and may differ.
 
 #### Android
 
@@ -195,18 +193,17 @@ Here is a list of known working clients:
 
 #### SailfishOS
 
-* [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
+* [Friendly](https://openrepos.net/content/fabrixxm/friendly), last update: 2018
 
 #### iOS
 
 * [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
 * [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
-* [Metatext](https://apps.apple.com/app/metatext/id1523996615)
+* [Mastodon](https://apps.apple.com/us/app/mastodon-for-iphone/id1571998974)
 * [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
-* [StarPterano](https://apps.apple.com/de/app/starpterano/id1436972796) Uses an OAuth method where you have to manually copy and paste the provided code.
-* [Stella](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048?l=ms)
-* [Tooot](https://tooot.app/)
-* [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) entered hostname must match in upper/lower case. Currently crashes on "Status" type notifications.
+* [Stella*](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048)
+* [Tooot](https://apps.apple.com/app/id1549772269), Data collection (not linked to identity)
+* [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466), last update: 2020
 
 #### Linux
 
@@ -218,15 +215,14 @@ Here is a list of known working clients:
 
 #### macOS
 
-- [Mastonaut](https://mastonaut.app/)
+* [Mastonaut](https://apps.apple.com/us/app/mastonaut/id1450757574), costs ~8€
+* [Whalebird](https://apps.apple.com/de/app/whalebird/id1378283354)
 
 #### Windows
 
-* [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) (Windows 10)
-
-Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
+* [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1), for Windows 10
 
 #### Web Frontend
 
-- [Halcyon](https://www.halcyon.social/)
-- [Pinafore](https://github.com/nolanlawson/pinafore)
+* [Halcyon](https://www.halcyon.social/)
+* [Pinafore](https://github.com/nolanlawson/pinafore)

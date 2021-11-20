@@ -180,11 +180,7 @@ Beispiel: Friendica Support
 <a name="clients">
 ### Gibt es Clients für Friendica?
 
-Friendica verwendet eine [Twitter/GNU Social](help/api) kompatible API.
-Das bedeutet, dass du jeden Twitter/GNU Social Client verwenden kannst in dem du den API Pfad entsprechend änderst.
-Seit der Version 2021.06 unterstützt Friendica außerdem die [Mastodon API](help/API-Mastodon) die mit vielen Mastodon-Clients läuft.
-
-Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden oder die mit Friendica kompatibel sind:
+Friendica unterstützt [Mastodon API](help/API-Mastodon) und [Twitter API](help/api). Das bedeutet, du kannst einge der Mastodon und Twitter Clients für Friendica verwenden. Die verfügbaren Features sind Abhängig vom Client, so dass diese teils unterschiedlich sein können.
 
 #### Android
 
@@ -210,14 +206,13 @@ Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden o
 
 #### iOS
 
-- [Amaroq](https://github.com/ReticentJohn/Amaroq/tree/master)
-- [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
-- [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
-- [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
-- [StarPterano](https://apps.apple.com/de/app/starpterano/id1436972796)
-- [Stella](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048?l=ms)
-- [Tooot](https://tooot.app/)
-- [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) Der eingegene Hostname muss in Groß-/Kleinschreibung mit dem Hostnamen des Systems übereinstimmen. Die aktuelle Version stürzt bei Benachrichtungen bom Typ "status" ab.
+* [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
+* [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
+* [Mastodon](https://apps.apple.com/us/app/mastodon-for-iphone/id1571998974)
+* [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
+* [Stella*](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048)
+* [Tooot](https://apps.apple.com/app/id1549772269), Datensammlung (nicht mit Identität verknüpft)
+* [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466), letztes update: 2020
 
 #### Linux
 
@@ -227,15 +222,16 @@ Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden o
 * [Toot](https://toot.readthedocs.io/en/latest/)
 * [Tootle](https://github.com/bleakgrey/tootle)
 
-#### MacOS
+#### macOS
 
-- [Mastonaut](https://mastonaut.app/)
+* [Mastonaut](https://apps.apple.com/us/app/mastonaut/id1450757574), kostet ~8€
+* [Whalebird](https://apps.apple.com/de/app/whalebird/id1378283354)
 
 #### Windows
 
-* [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) für Windows 10
+* [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1), für Windows 10
 
 #### Web
 
-- [Halcyon](https://www.halcyon.social/)
-- [Pinafore](https://github.com/nolanlawson/pinafore)
+* [Halcyon](https://www.halcyon.social/)
+* [Pinafore](https://github.com/nolanlawson/pinafore)
