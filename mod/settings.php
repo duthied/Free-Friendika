@@ -62,9 +62,10 @@ function settings_post(App $a)
 	}
 
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] == 'addon')) {
-		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/addon', 'settings_addon');
+		BaseModule::checkFormSecurityTokenRedirectOnError(DI::args()->getQueryString(), 'settings_addon');
 
 		Hook::callAll('addon_settings_post', $_POST);
+		DI::baseUrl()->redirect(DI::args()->getQueryString());
 		return;
 	}
 
@@ -438,11 +439,27 @@ function settings_content(App $a)
 
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'addon')) {
 		$addon_settings_forms = [];
-
 		foreach (DI::dba()->selectToArray('hook', ['file', 'function'], ['hook' => 'addon_settings']) as $hook) {
-			$data = '';
+			$data = [];
 			Hook::callSingle(DI::app(), 'addon_settings', [$hook['file'], $hook['function']], $data);
-			$addon_settings_forms[] = $data;
+
+			if (!empty($data['href'])) {
+				$tpl = Renderer::getMarkupTemplate('settings/addon/link.tpl');
+				$addon_settings_forms[] = Renderer::replaceMacros($tpl, [
+					'$addon' => $data['addon'],
+					'$title' => $data['title'],
+					'$href'  => $data['href'],
+				]);
+			} elseif(!empty($data['addon'])) {
+				$tpl = Renderer::getMarkupTemplate('settings/addon/panel.tpl');
+				$addon_settings_forms[$data['addon']] = Renderer::replaceMacros($tpl, [
+					'$addon'  => $data['addon'],
+					'$title'  => $data['title'],
+					'$open'   => (DI::args()->getArgv()[2] ?? '') === $data['addon'],
+					'$html'   => $data['html'] ?? '',
+					'$submit' => $data['submit'] ?? DI::l10n()->t('Save Settings'),
+				]);
+			}
 		}
 
 		$tpl = Renderer::getMarkupTemplate('settings/addons.tpl');

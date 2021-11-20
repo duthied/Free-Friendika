@@ -242,7 +242,57 @@ Called when the Settings pages are submitted.
 
 ### addon_settings
 Called when generating the HTML for the addon settings page.
-`$b` is the (string) HTML of the addon settings page before the final `</form>` tag.
+`$data` is an array containing:
+
+- **addon** (output): Required. The addon folder name.
+- **title** (output): Required. The addon settings panel title.
+- **href** (output): Optional. If set, will reduce the panel to a link pointing to this URL, can be relative. Incompatible with the following keys.
+- **html** (output): Optional. Raw HTML of the addon form elements. Both the `<form>` tags and the submit buttons are taken care of elsewhere.
+- **submit** (output): Optional. If unset, a default submit button with `name="<addon name>-submit"` will be generated.
+  Can take different value types:
+  - **string**: The label to replace the default one.
+  - **associative array**: A list of submit button, the key is the value of the `name` attribute, the value is the displayed label.
+    The first submit button in this list is considered the main one and themes might emphasize its display.
+
+#### Examples
+
+##### With link
+```php
+$data = [
+	'addon' => 'advancedcontentfilter',
+	'title' => DI::l10n()->t('Advanced Content Filter'),
+	'href'  => 'advancedcontentfilter',
+];
+```
+##### With default submit button
+```php
+$data = [
+	'addon' => 'fromapp',
+	'title' => DI::l10n()->t('FromApp Settings'),
+	'html'  => $html,
+];
+```
+##### With no HTML, just a submit button
+```php
+$data = [
+	'addon'  => 'opmlexport',
+	'title'  => DI::l10n()->t('OPML Export'),
+	'submit' => DI::l10n()->t('Export RSS/Atom contacts'),
+];
+```
+##### With multiple submit buttons
+```php
+$data = [
+	'addon'  => 'catavar',
+	'title'  => DI::l10n()->t('Cat Avatar Settings'),
+	'html'   => $html,
+	'submit' => [
+		'catavatar-usecat'   => DI::l10n()->t('Use Cat as Avatar'),
+		'catavatar-morecat'  => DI::l10n()->t('Another random Cat!'),
+		'catavatar-emailcat' => DI::pConfig()->get(local_user(), 'catavatar', 'seed', false) ? DI::l10n()->t('Reset to email Cat') : null,
+	],
+];
+```
 
 ### addon_settings_post
 Called when the Addon Settings pages are submitted.
