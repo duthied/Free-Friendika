@@ -324,6 +324,10 @@ class BaseApi extends BaseModule
 	 */
 	public static function addRSSValues(array $arr, int $cid)
 	{
+		if (empty($cid)) {
+			return $arr;
+		}
+
 		$user_info = DI::twitterUser()->createFromContactId($cid)->toArray();
 
 		$arr['$user'] = $user_info;
