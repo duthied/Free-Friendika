@@ -263,26 +263,6 @@ function api_rss_extra($arr, $user_info)
 	return $arr;
 }
 
-
-/**
- * Unique contact to contact url.
- *
- * @param int $id Contact id
- * @return bool|string
- *                Contact url or False if contact id is unknown
- * @throws Exception
- */
-function api_unique_id_to_nurl($id)
-{
-	$r = DBA::selectFirst('contact', ['nurl'], ['id' => $id]);
-
-	if (DBA::isResult($r)) {
-		return $r["nurl"];
-	} else {
-		return false;
-	}
-}
-
 /**
  * TWITTER API
  */
@@ -371,13 +351,9 @@ function api_statuses_mediap($type)
 
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
-
 	$_REQUEST['profile_uid'] = BaseApi::getCurrentUserID();
 	$_REQUEST['api_source'] = true;
 	$txt = requestdata('status') ?? '';
-	/// @TODO old-lost code?
-	//$txt = urldecode(requestdata('status'));
 
 	if ((strpos($txt, '<') !== false) || (strpos($txt, '>') !== false)) {
 		$txt = HTML::toBBCodeVideo($txt);
@@ -387,8 +363,6 @@ function api_statuses_mediap($type)
 		$txt = $purifier->purify($txt);
 	}
 	$txt = HTML::toBBCode($txt);
-
-	DI::args()->getArgv()[1] = $user_info['screen_name']; //should be set to username?
 
 	$picture = wall_upload_post($a, false);
 
@@ -597,8 +571,6 @@ api_register_func('api/statuses/update_with_media', 'api_statuses_update', true,
  */
 function api_media_upload()
 {
-	$a = DI::app();
-
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	if (empty($_FILES['media'])) {
@@ -606,7 +578,7 @@ function api_media_upload()
 		throw new BadRequestException("No media.");
 	}
 
-	$media = wall_upload_post($a, false);
+	$media = wall_upload_post(DI::app(), false);
 	if (!$media) {
 		// Output error
 		throw new InternalServerErrorException();
@@ -845,12 +817,9 @@ function api_users_lookup($type)
 	$users = [];
 
 	if (!empty($_REQUEST['user_id'])) {
-		foreach (explode(',', $_REQUEST['user_id']) as $id) {
-			if (!empty($id)) {
-				$cid = BaseApi::getContactIDForSearchterm($id);
-				if (!empty($cid)) {
-					$users[] = DI::twitterUser()->createFromContactId($cid, BaseApi::getCurrentUserID())->toArray();
-				}
+		foreach (explode(',', $_REQUEST['user_id']) as $cid) {
+			if (!empty($cid) && is_numeric($cid)) {
+				$users[] = DI::twitterUser()->createFromContactId((int)$cid, BaseApi::getCurrentUserID())->toArray();
 			}
 		}
 	}
@@ -882,8 +851,6 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
 function api_search($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	if (empty($_REQUEST['q'])) {
 		throw new BadRequestException('q parameter is required.');
@@ -956,7 +923,7 @@ function api_search($type)
 
 	$statuses = $statuses ?: Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
-	$data['status'] = api_format_items(Post::toArray($statuses), $user_info);
+	$data['status'] = api_format_items(Post::toArray($statuses), $type);
 
 	bindComments($data['status']);
 
@@ -986,8 +953,6 @@ api_register_func('api/search', 'api_search', true);
 function api_statuses_home_timeline($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	unset($_REQUEST['user_id']);
 	unset($_GET['user_id']);
@@ -1028,7 +993,7 @@ function api_statuses_home_timeline($type)
 
 	$items = Post::toArray($statuses);
 
-	$ret = api_format_items($items, $user_info, false, $type);
+	$ret = api_format_items($items, $type);
 
 	// Set all posts from the query above to seen
 	$idarray = [];
@@ -1050,7 +1015,7 @@ function api_statuses_home_timeline($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($data, $user_info);
+			$data = api_rss_extra($data, DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
 			break;
 	}
 
@@ -1077,8 +1042,6 @@ api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline',
 function api_statuses_public_timeline($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	// get last network messages
 
@@ -1124,7 +1087,7 @@ function api_statuses_public_timeline($type)
 		$r = Post::toArray($statuses);
 	}
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$ret = api_format_items($r, $type);
 
 	bindComments($ret);
 
@@ -1133,7 +1096,7 @@ function api_statuses_public_timeline($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($data, $user_info);
+			$data = api_rss_extra($data, DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
 			break;
 	}
 
@@ -1158,8 +1121,6 @@ function api_statuses_networkpublic_timeline($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
-
 	$since_id        = $_REQUEST['since_id'] ?? 0;
 	$max_id          = $_REQUEST['max_id'] ?? 0;
 
@@ -1180,7 +1141,7 @@ function api_statuses_networkpublic_timeline($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Post::toArray(Post::selectForUser(BaseApi::getCurrentUserID(), Item::DISPLAY_FIELDLIST, $condition, $params));
 
-	$ret = api_format_items($statuses, $user_info, false, $type);
+	$ret = api_format_items($statuses, $type);
 
 	bindComments($ret);
 
@@ -1189,7 +1150,7 @@ function api_statuses_networkpublic_timeline($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($data, $user_info);
+			$data = api_rss_extra($data, DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
 			break;
 	}
 
@@ -1262,7 +1223,7 @@ function api_statuses_show($type)
 		throw new BadRequestException(sprintf("There is no status or conversation with the id %d.", $id));
 	}
 
-	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Post::toArray($statuses), $type);
 
 	if ($conversation) {
 		$data = ['status' => $ret];
@@ -1342,7 +1303,7 @@ function api_conversation_show($type)
 		throw new BadRequestException("There is no status with id $id.");
 	}
 
-	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Post::toArray($statuses), $type);
 
 	$data = ['status' => $ret];
 	return DI::apiResponse()->formatData("statuses", $type, $data);
@@ -1367,8 +1328,6 @@ api_register_func('api/statusnet/conversation', 'api_conversation_show', true);
  */
 function api_statuses_repeat($type)
 {
-	$a = DI::app();
-
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
@@ -1417,7 +1376,7 @@ function api_statuses_repeat($type)
 				$_REQUEST['source'] = api_source();
 			}
 
-			$item_id = item_post($a);
+			$item_id = item_post(DI::app());
 		}
 	} else {
 		throw new ForbiddenException();
@@ -1488,8 +1447,6 @@ function api_statuses_mentions($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
-
 	unset($_REQUEST['user_id']);
 	unset($_GET['user_id']);
 
@@ -1529,14 +1486,14 @@ function api_statuses_mentions($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
-	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Post::toArray($statuses), $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($data, $user_info);
+			$data = api_rss_extra($data, DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
 			break;
 	}
 
@@ -1563,10 +1520,11 @@ function api_statuses_user_timeline($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
+	$uid = BaseApi::getCurrentUserID();
 
-	Logger::info('api_statuses_user_timeline', ['api_user' => BaseApi::getCurrentUserID(), 'user_info' => $user_info, '_REQUEST' => $_REQUEST]);
+	Logger::info('api_statuses_user_timeline', ['api_user' => $uid, '_REQUEST' => $_REQUEST]);
 
+	$cid             = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
 	$since_id        = $_REQUEST['since_id'] ?? 0;
 	$max_id          = $_REQUEST['max_id'] ?? 0;
 	$exclude_replies = !empty($_REQUEST['exclude_replies']);
@@ -1578,12 +1536,8 @@ function api_statuses_user_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `contact-id` = ?",
-		BaseApi::getCurrentUserID(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['cid']];
-
-	if ($user_info['self'] == 1) {
-		$condition[0] .= ' AND `wall` ';
-	}
+	$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`)) AND `gravity` IN (?, ?) AND `id` > ? AND `author-id` = ?",
+		0, $uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $cid];
 
 	if ($exclude_replies) {
 		$condition[0] .= ' AND `gravity` = ?';
@@ -1600,9 +1554,9 @@ function api_statuses_user_timeline($type)
 		$condition[] = $max_id;
 	}
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
+	$statuses = Post::selectForUser($uid, [], $condition, $params);
 
-	$ret = api_format_items(Post::toArray($statuses), $user_info, true, $type);
+	$ret = api_format_items(Post::toArray($statuses), $type);
 
 	bindComments($ret);
 
@@ -1611,7 +1565,7 @@ function api_statuses_user_timeline($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($data, $user_info);
+			$data = api_rss_extra($data, DI::twitterUser()->createFromUserId($uid)->toArray());
 			break;
 	}
 
@@ -1679,16 +1633,14 @@ function api_favorites_create_destroy($type)
 		throw new InternalServerErrorException("DB error");
 	}
 
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
-	$rets = api_format_items([$item], $user_info, false, $type);
-	$ret = $rets[0];
+	$ret = api_format_item($item, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($data, $user_info);
+			$data = api_rss_extra($data, DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
 			break;
 	}
 
@@ -1715,37 +1667,31 @@ function api_favorites($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
-
 	// in friendica starred item are private
 	// return favorites only for self
-	Logger::info(API_LOG_PREFIX . 'for {self}', ['module' => 'api', 'action' => 'favorites', 'self' => $user_info['self']]);
+	Logger::info(API_LOG_PREFIX . 'for {self}', ['module' => 'api', 'action' => 'favorites']);
 
-	if ($user_info['self'] == 0) {
-		$ret = [];
-	} else {
-		// params
-		$since_id = $_REQUEST['since_id'] ?? 0;
-		$max_id = $_REQUEST['max_id'] ?? 0;
-		$count = $_GET['count'] ?? 20;
-		$page = $_REQUEST['page'] ?? 1;
+	// params
+	$since_id = $_REQUEST['since_id'] ?? 0;
+	$max_id = $_REQUEST['max_id'] ?? 0;
+	$count = $_GET['count'] ?? 20;
+	$page = $_REQUEST['page'] ?? 1;
 
-		$start = max(0, ($page - 1) * $count);
+	$start = max(0, ($page - 1) * $count);
 
-		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `starred`",
-			BaseApi::getCurrentUserID(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `starred`",
+		BaseApi::getCurrentUserID(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
-		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 
-		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
-			$condition[] = $max_id;
-		}
-
-		$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
-
-		$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
+	if ($max_id > 0) {
+		$condition[0] .= " AND `id` <= ?";
+		$condition[] = $max_id;
 	}
+
+	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
+
+	$ret = api_format_items(Post::toArray($statuses), $type);
 
 	bindComments($ret);
 
@@ -1754,7 +1700,7 @@ function api_favorites($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($data, $user_info);
+			$data = api_rss_extra($data, DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
 			break;
 	}
 
@@ -2245,8 +2191,6 @@ function api_format_items_activities($item, $type = "json")
  * format items to be returned by api
  *
  * @param array  $items       array of items
- * @param array  $user_info
- * @param bool   $filter_user filter items by $user_info
  * @param string $type        Return type (atom, rss, xml, json)
  * @return array
  * @throws BadRequestException
@@ -2254,25 +2198,11 @@ function api_format_items_activities($item, $type = "json")
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
  */
-function api_format_items($items, $user_info, $filter_user = false, $type = "json")
+function api_format_items($items, $type = "json")
 {
-	$a = DI::app();
-
 	$ret = [];
-
-	if (empty($items)) {
-		return $ret;
-	}
-
-	foreach ((array)$items as $item) {
-		// Look if the posts are matching if they should be filtered by user id
-		if ($filter_user && ($item["author-id"] != $user_info["id"])) {
-			continue;
-		}
-
-		$status = api_format_item($item, $type);
-
-		$ret[] = $status;
+	foreach ($items as $item) {
+		$ret[] = api_format_item($item, $type);
 	}
 
 	return $ret;
@@ -2526,8 +2456,6 @@ function api_lists_statuses($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
-
 	unset($_REQUEST['user_id']);
 	unset($_GET['user_id']);
 
@@ -2569,14 +2497,14 @@ function api_lists_statuses($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
-	$items = api_format_items(Post::toArray($statuses), $user_info, false, $type);
+	$items = api_format_items(Post::toArray($statuses), $type);
 
 	$data = ['status' => $items];
 	switch ($type) {
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($data, $user_info);
+			$data = api_rss_extra($data, DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
 			break;
 	}
 
@@ -2794,23 +2722,8 @@ function api_direct_messages_new($type)
 
 	$sender = DI::twitterUser()->createFromUserId($uid)->toArray();
 
-	$recipient = null;
-	if (!empty($_POST['screen_name'])) {
-		$contacts = Contact::selectToArray(['id', 'nurl', 'network'], ['uid' => BaseApi::getCurrentUserID(), 'nick' => $_POST['screen_name']]);
-		if (DBA::isResult($contacts)) {
-			// Selecting the id by priority, friendica first
-			api_best_nickname($contacts);
-
-			$recipient = DI::twitterUser()->createFromContactId($contacts[0]['id'], $uid)->toArray();
-		}
-	} else {
-		$cid = BaseApi::getContactIDForSearchterm($_POST['user_id']);
-		if (!empty($cid)) {
-			$recipient = DI::twitterUser()->createFromContactId($cid, $uid)->toArray();
-		}
-	}
-
-	if (empty($recipient)) {
+	$cid = BaseApi::getContactIDForSearchterm($_POST['screen_name'] ?? '', $_POST['user_id'] ?? 0, $uid);
+	if (empty($cid)) {
 		throw new NotFoundException('Recipient not found');
 	}
 
@@ -2827,11 +2740,11 @@ function api_direct_messages_new($type)
 		}
 	}
 
-	$id = Mail::send($recipient['cid'], $_POST['text'], $sub, $replyto);
+	$id = Mail::send($cid, $_POST['text'], $sub, $replyto);
 
 	if ($id > -1) {
 		$mail = DBA::selectFirst('mail', [], ['id' => $id]);
-		$ret = api_format_messages($mail, $recipient, $sender);
+		$ret = api_format_messages($mail, DI::twitterUser()->createFromContactId($cid, $uid)->toArray(), $sender);
 	} else {
 		$ret = ["error" => $id];
 	}
@@ -3846,7 +3759,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition);
 
 	// prepare output of comments
-	$commentData = api_format_items(Post::toArray($statuses), $user_info, false, $type);
+	$commentData = api_format_items(Post::toArray($statuses), $type);
 	$comments = [];
 	if ($type == "xml") {
 		$k = 0;
@@ -3979,74 +3892,6 @@ function api_clean_plain_items($text)
 	$text = BBCode::removeAttachment($text);
 
 	return $text;
-}
-
-/**
- *
- * @param array $contacts
- *
- * @return void
- */
-function api_best_nickname(&$contacts)
-{
-	$best_contact = [];
-
-	if (count($contacts) == 0) {
-		return;
-	}
-
-	foreach ($contacts as $contact) {
-		if ($contact["network"] == "") {
-			$contact["network"] = "dfrn";
-			$best_contact = [$contact];
-		}
-	}
-
-	if (sizeof($best_contact) == 0) {
-		foreach ($contacts as $contact) {
-			if ($contact["network"] == "dfrn") {
-				$best_contact = [$contact];
-			}
-		}
-	}
-
-	if (sizeof($best_contact) == 0) {
-		foreach ($contacts as $contact) {
-			if ($contact["network"] == "dspr") {
-				$best_contact = [$contact];
-			}
-		}
-	}
-
-	if (sizeof($best_contact) == 0) {
-		foreach ($contacts as $contact) {
-			if ($contact["network"] == "stat") {
-				$best_contact = [$contact];
-			}
-		}
-	}
-
-	if (sizeof($best_contact) == 0) {
-		foreach ($contacts as $contact) {
-			if ($contact["network"] == "pump") {
-				$best_contact = [$contact];
-			}
-		}
-	}
-
-	if (sizeof($best_contact) == 0) {
-		foreach ($contacts as $contact) {
-			if ($contact["network"] == "twit") {
-				$best_contact = [$contact];
-			}
-		}
-	}
-
-	if (sizeof($best_contact) == 1) {
-		$contacts = $best_contact;
-	} else {
-		$contacts = [$contacts[0]];
-	}
 }
 
 /**
@@ -4438,7 +4283,7 @@ function api_friendica_notification_seen($type)
 			$item = Post::selectFirstForUser(BaseApi::getCurrentUserID(), [], ['id' => $Notify->iid, 'uid' => BaseApi::getCurrentUserID()]);
 			if (DBA::isResult($item)) {
 				// we found the item, return it to the user
-				$ret  = api_format_items([$item], $user_info, false, $type);
+				$ret  = api_format_items([$item], $type);
 				$data = ['status' => $ret];
 				return DI::apiResponse()->formatData('status', $type, $data);
 			}

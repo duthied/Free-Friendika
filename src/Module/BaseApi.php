@@ -27,6 +27,7 @@ use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
@@ -292,12 +293,23 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function getContactIDForSearchterm($searchterm)
+	public static function getContactIDForSearchterm(string $screen_name, int $cid, int $uid)
 	{
-		if (intval($searchterm) == 0) {
-			$cid = Contact::getIdForURL($searchterm, 0, false);
+		if (!empty($cid)) {
+			return $cid;
+		}
+
+		if (strpos($screen_name, '@') !== false) {
+			$cid = Contact::getIdForURL($screen_name, 0, false);
 		} else {
-			$cid = intval($searchterm);
+			$user = User::getByNickname($screen_name, ['uid']);
+			if (!empty($user['uid'])) {
+				$cid = Contact::getPublicIdByUserId($user['uid']);
+			}
+		}
+
+		if (empty($cid) && ($uid != 0)) {
+			$cid = Contact::getPublicIdByUserId($uid);
 		}
 
 		return $cid;

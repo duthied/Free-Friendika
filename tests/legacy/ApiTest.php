@@ -586,26 +586,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_unique_id_to_nurl() function.
-	 *
-	 * @return void
-	 */
-	public function testApiUniqueIdToNurl()
-	{
-		self::assertFalse(api_unique_id_to_nurl($this->wrongUserId));
-	}
-
-	/**
-	 * Test the api_unique_id_to_nurl() function with a correct ID.
-	 *
-	 * @return void
-	 */
-	public function testApiUniqueIdToNurlWithCorrectId()
-	{
-		self::assertEquals($this->otherUser['nurl'], api_unique_id_to_nurl($this->otherUser['id']));
-	}
-
-	/**
 	 * Test the api_get_user() function.
 	 *
 	 * @return void
@@ -2252,7 +2232,7 @@ class ApiTest extends FixtureTest
 				'plink'          => '',
 			]
 		];
-		$result = api_format_items($items, ['id' => 0], true);
+		$result = api_format_items($items);
 		foreach ($result as $status) {
 			self::assertStatus($status);
 		}
@@ -2275,7 +2255,7 @@ class ApiTest extends FixtureTest
 				'plink'          => '',
 			]
 		];
-		$result = api_format_items($items, ['id' => 0], true, 'xml');
+		$result = api_format_items($items, 'xml');
 		foreach ($result as $status) {
 			self::assertStatus($status);
 		}
@@ -3136,18 +3116,6 @@ class ApiTest extends FixtureTest
 		$_REQUEST['include_entities'] = 'true';
 		$result                       = api_clean_plain_items('some_text [url="some_url"]some_text[/url]');
 		self::assertEquals('some_text [url="some_url"]"some_url"[/url]', $result);
-	}
-
-	/**
-	 * Test the api_best_nickname() function.
-	 *
-	 * @return void
-	 */
-	public function testApiBestNickname()
-	{
-		$contacts = [];
-		$result   = api_best_nickname($contacts);
-		self::assertNull($result);
 	}
 
 	/**
