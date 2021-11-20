@@ -15,9 +15,9 @@
 		<div class="panel">
 			<div class="section-subtitle-wrapper panel-title" role="tab" id="admin-settings-{{$storage.prefix}}">
 				<h3>
-					<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-{{$storage.prefix}}-collapse" aria-expanded="false" aria-controls="admin-settings-{{$storage.prefix}}-collapse">
+					<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-{{$storage.prefix}}-collapse" aria-expanded="false" aria-controls="admin-settings-{{$storage.prefix}}-collapse">
 						{{$storage.name}}
-					</a>
+					</button>
 				</h3>
 			</div>
 			<div id="admin-settings-{{$storage.prefix}}-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-{{$storage.prefix}}">

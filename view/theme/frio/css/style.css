@@ -2901,13 +2901,13 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 	padding: 1px 10px;
 }
 details.profile-jot-net[open] summary:before,
-.panel .section-subtitle-wrapper a.accordion-toggle:before {
+.panel .section-subtitle-wrapper .accordion-toggle:before {
 	font-family: ForkAwesome;
 	content: "\f0d7";
 	padding-right: 5px;
 }
 details.profile-jot-net summary:before,
-.panel .section-subtitle-wrapper a.accordion-toggle.collapsed:before {
+.panel .section-subtitle-wrapper .accordion-toggle.collapsed:before {
 	font-family: ForkAwesome;
 	content: "\f0da";
 }
@@ -2963,6 +2963,12 @@ details.profile-jot-net[open] summary:before {
 	font-size: 18px;
 	margin-top: 10px;
 	margin-bottom: 10px;
+}
+
+.section-subtitle-wrapper > h3 {
+	font-size: 16px;
+	margin-top: 8px;
+	margin-bottom: 8px;
 }
 
 .fakelink > h3:before {

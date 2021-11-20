@@ -11,9 +11,9 @@
 		<div class="panel">
 			<div class="panel-heading section-subtitle-wrapper" role="tab" id="admin-settings-contactblock-block">
 				<h4>
-					<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-contactblock-block-collapse" aria-expanded="false" aria-controls="admin-settings-contactblock-block-collapse">
+					<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-contactblock-block-collapse" aria-expanded="false" aria-controls="admin-settings-contactblock-block-collapse">
 						{{$h_newblock}}
-					</a>
+					</button>
 				</h4>
 			</div>
 
@@ -37,9 +37,9 @@
 		<div class="panel">
 			<div class="panel-heading section-subtitle-wrapper" role="tab" id="admin-settings-contactblock-blocked">
 				<h4>
-					<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-contactblock-blocked-collapse" aria-expanded="{{if count($contacts) > 0}}true{{else}}false{{/if}}" aria-controls="admin-settings-contactblock-blocked-collapse">
+					<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-contactblock-blocked-collapse" aria-expanded="{{if count($contacts) > 0}}true{{else}}false{{/if}}" aria-controls="admin-settings-contactblock-blocked-collapse">
 						{{$h_contacts}} ({{$total_contacts}})
-					</a>
+					</button>
 				</h4>
 			</div>
 

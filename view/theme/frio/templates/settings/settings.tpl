@@ -12,9 +12,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="password-settings">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#password-settings-collapse" aria-expanded="false" aria-controls="password-settings-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#password-settings-collapse" aria-expanded="false" aria-controls="password-settings-collapse">
 							{{$h_pass}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="password-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="password-settings">
@@ -38,9 +38,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="basic-settings">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#basic-settings-collapse" aria-expanded="false" aria-controls="basic-settings-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#basic-settings-collapse" aria-expanded="false" aria-controls="basic-settings-collapse">
 							{{$h_basic}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="basic-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="basic-settings">
@@ -63,9 +63,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="privacy-settings">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#privacy-settings-collapse" aria-expanded="false" aria-controls="privacy-settings-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#privacy-settings-collapse" aria-expanded="false" aria-controls="privacy-settings-collapse">
 							{{$h_prv}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="privacy-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="privacy-settings">
@@ -102,9 +102,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="expire-settings">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#expire-settings-collapse" aria-expanded="false" aria-controls="expire-settings-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#expire-settings-collapse" aria-expanded="false" aria-controls="expire-settings-collapse">
 							{{$expire.label}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="expire-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="expire-settings">
@@ -126,9 +126,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="notification-settings">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#notification-settings-collapse" aria-expanded="false" aria-controls="notification-settings-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#notification-settings-collapse" aria-expanded="false" aria-controls="notification-settings-collapse">
 							{{$h_not}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="notification-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="notification-settings">
@@ -210,9 +210,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="additional-account-settings">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#additional-account-settings-collapse" aria-expanded="false" aria-controls="additional-account-settings-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#additional-account-settings-collapse" aria-expanded="false" aria-controls="additional-account-settings-collapse">
 							{{$h_advn}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="additional-account-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="additional-account-settings">
@@ -231,9 +231,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="importcontact-settings">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#importcontact-settings-collapse" aria-expanded="false" aria-controls="importcontact-settings-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#importcontact-settings-collapse" aria-expanded="false" aria-controls="importcontact-settings-collapse">
 							{{$importcontact}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="importcontact-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="importcontact-settings">
@@ -252,9 +252,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="relocate-settings">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#relocate-settings-collapse" aria-expanded="false" aria-controls="relocate-settings-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#relocate-settings-collapse" aria-expanded="false" aria-controls="relocate-settings-collapse">
 							{{$relocate}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="relocate-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="relocate-settings">
