@@ -314,4 +314,29 @@ class BaseApi extends BaseModule
 
 		return $cid;
 	}
+
+	/**
+	 * Set values for RSS template
+	 *
+	 * @param array $arr Array to be passed to template
+	 * @param int   $cid Contact ID of template
+	 * @return array
+	 */
+	public static function addRSSValues(array $arr, int $cid)
+	{
+		$user_info = DI::twitterUser()->createFromContactId($cid)->toArray();
+
+		$arr['$user'] = $user_info;
+		$arr['$rss'] = [
+			'alternate'    => $user_info['url'],
+			'self'         => DI::baseUrl() . '/' . DI::args()->getQueryString(),
+			'base'         => DI::baseUrl(),
+			'updated'      => DateTimeFormat::utc(null, DateTimeFormat::API),
+			'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'language'     => $user_info['lang'],
+			'logo'         => DI::baseUrl() . '/images/friendica-32.png',
+		];
+
+		return $arr;
+	}
 }

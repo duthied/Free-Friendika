@@ -4,6 +4,7 @@ namespace Friendica\Module\Api;
 
 use Friendica\App\Arguments;
 use Friendica\Core\L10n;
+use Friendica\Module\BaseApi;
 use Friendica\Util\Arrays;
 use Friendica\Util\HTTPInputData;
 use Friendica\Util\XML;
@@ -108,14 +109,16 @@ class ApiResponse
 	 * @param string $root_element Name of the root element
 	 * @param string $type         Return type (atom, rss, xml, json)
 	 * @param array  $data         JSON style array
+	 * @param int    $cid          ID of the contact for RSS
 	 *
 	 * @return array|string (string|array) XML data or JSON data
 	 */
-	public function formatData(string $root_element, string $type, array $data)
+	public function formatData(string $root_element, string $type, array $data, int $cid = 0)
 	{
 		switch ($type) {
-			case 'atom':
 			case 'rss':
+				$data = BaseApi::addRSSValues($data, $cid);
+			case 'atom':
 			case 'xml':
 				return $this->createXML($data, $root_element);
 			case 'json':
