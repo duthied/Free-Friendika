@@ -2236,8 +2236,8 @@ class ApiTest extends FixtureTest
 				'plink'          => '',
 			]
 		];
-		$result = api_format_items($items, ['id' => 0], true);
-		foreach ($result as $status) {
+		foreach ($items as $item) {
+			$status = api_format_item($item);
 			self::assertStatus($status);
 		}
 	}
@@ -2259,8 +2259,9 @@ class ApiTest extends FixtureTest
 				'plink'          => '',
 			]
 		];
-		$result = api_format_items($items, ['id' => 0], true, 'xml');
-		foreach ($result as $status) {
+
+		foreach ($items as $item) {
+			$status = api_format_item($item, 'xml');
 			self::assertStatus($status);
 		}
 	}

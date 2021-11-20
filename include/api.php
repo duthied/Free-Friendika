@@ -898,9 +898,13 @@ function api_search($type)
 
 	$statuses = $statuses ?: Post::selectForUser($uid, [], $condition, $params);
 
-	$data['status'] = api_format_items(Post::toArray($statuses), $type);
+	$ret = [];
+	while ($status = DBA::fetch($statuses)) {
+		$ret[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
 
-	bindComments($data['status']);
+	$data['status'] = $ret;
 
 	return DI::apiResponse()->formatData('statuses', $type, $data);
 }
@@ -967,15 +971,13 @@ function api_statuses_home_timeline($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Post::selectForUser($uid, [], $condition, $params);
 
-	$items = Post::toArray($statuses);
-
-	$ret = api_format_items($items, $type);
-
-	// Set all posts from the query above to seen
+	$ret = [];
 	$idarray = [];
-	foreach ($items as $item) {
-		$idarray[] = intval($item["id"]);
+	while ($status = DBA::fetch($statuses)) {
+		$ret[] = api_format_item($status, $type);
+		$idarray[] = intval($status['id']);
 	}
+	DBA::close($statuses);
 
 	if (!empty($idarray)) {
 		$unseen = Post::exists(['unseen' => true, 'id' => $idarray]);
@@ -983,8 +985,6 @@ function api_statuses_home_timeline($type)
 			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
 		}
 	}
-
-	bindComments($ret);
 
 	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
 }
@@ -1034,8 +1034,6 @@ function api_statuses_public_timeline($type)
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
-
-		$r = Post::toArray($statuses);
 	} else {
 		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
@@ -1051,13 +1049,13 @@ function api_statuses_public_timeline($type)
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
-
-		$r = Post::toArray($statuses);
 	}
 
-	$ret = api_format_items($r, $type);
-
-	bindComments($ret);
+	$ret = [];
+	while ($status = DBA::fetch($statuses)) {
+		$ret[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
 
 	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
 }
@@ -1099,11 +1097,13 @@ function api_statuses_networkpublic_timeline($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::toArray(Post::selectForUser($uid, Item::DISPLAY_FIELDLIST, $condition, $params));
+	$statuses = Post::selectForUser($uid, Item::DISPLAY_FIELDLIST, $condition, $params);
 
-	$ret = api_format_items($statuses, $type);
-
-	bindComments($ret);
+	$ret = [];
+	while ($status = DBA::fetch($statuses)) {
+		$ret[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
 
 	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
 }
@@ -1173,7 +1173,11 @@ function api_statuses_show($type)
 		throw new BadRequestException(sprintf("There is no status or conversation with the id %d.", $id));
 	}
 
-	$ret = api_format_items(Post::toArray($statuses), $type);
+	$ret = [];
+	while ($status = DBA::fetch($statuses)) {
+		$ret[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
 
 	if ($conversation) {
 		$data = ['status' => $ret];
@@ -1252,7 +1256,11 @@ function api_conversation_show($type)
 		throw new BadRequestException("There is no status with id $id.");
 	}
 
-	$ret = api_format_items(Post::toArray($statuses), $type);
+	$ret = [];
+	while ($status = DBA::fetch($statuses)) {
+		$ret[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
 
 	$data = ['status' => $ret];
 	return DI::apiResponse()->formatData("statuses", $type, $data);
@@ -1438,7 +1446,11 @@ function api_statuses_mentions($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Post::selectForUser($uid, [], $condition, $params);
 
-	$ret = api_format_items(Post::toArray($statuses), $type);
+	$ret = [];
+	while ($status = DBA::fetch($statuses)) {
+		$ret[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
 
 	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
 }
@@ -1498,9 +1510,11 @@ function api_statuses_user_timeline($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Post::selectForUser($uid, [], $condition, $params);
 
-	$ret = api_format_items(Post::toArray($statuses), $type);
-
-	bindComments($ret);
+	$ret = [];
+	while ($status = DBA::fetch($statuses)) {
+		$ret[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
 
 	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
 }
@@ -1617,9 +1631,11 @@ function api_favorites($type)
 
 	$statuses = Post::selectForUser($uid, [], $condition, $params);
 
-	$ret = api_format_items(Post::toArray($statuses), $type);
-
-	bindComments($ret);
+	$ret = [];
+	while ($status = DBA::fetch($statuses)) {
+		$ret[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
 
 	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
 }
@@ -2105,27 +2121,6 @@ function api_format_items_activities($item, $type = "json")
 }
 
 /**
- * format items to be returned by api
- *
- * @param array  $items       array of items
- * @param string $type        Return type (atom, rss, xml, json)
- * @return array
- * @throws BadRequestException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_format_items($items, $type = "json")
-{
-	$ret = [];
-	foreach ($items as $item) {
-		$ret[] = api_format_item($item, $type);
-	}
-
-	return $ret;
-}
-
-/**
  * @param array  $item       Item record
  * @param string $type       Return format (atom, rss, xml, json)
  * @param array $status_user User record of the item author, can be provided by api_item_get_user()
@@ -2178,7 +2173,8 @@ function api_format_item($item, $type = "json")
 		'external_url' => DI::baseUrl() . "/display/" . $item['guid'],
 		'friendica_activities' => api_format_items_activities($item, $type),
 		'friendica_title' => $item['title'],
-		'friendica_html' => BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::EXTERNAL)
+		'friendica_html' => BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::EXTERNAL),
+		'friendica_comments' => Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT])
 	];
 
 	if (count($converted["attachments"]) > 0) {
@@ -2415,7 +2411,11 @@ function api_lists_statuses($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Post::selectForUser($uid, [], $condition, $params);
 
-	$items = api_format_items(Post::toArray($statuses), $type);
+	$items = [];
+	while ($status = DBA::fetch($statuses)) {
+		$items[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
 
 	return DI::apiResponse()->formatData("statuses", $type, ['status' => $items], Contact::createSelfFromUserId($uid));
 }
@@ -3646,7 +3646,12 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$statuses = Post::selectForUser($uid, [], $condition);
 
 	// prepare output of comments
-	$commentData = api_format_items(Post::toArray($statuses), $type);
+	$commentData = [];
+	while ($status = DBA::fetch($statuses)) {
+		$commentData[] = api_format_item($status, $type);
+	}
+	DBA::close($statuses);
+
 	$comments = [];
 	if ($type == "xml") {
 		$k = 0;
@@ -4163,7 +4168,7 @@ function api_friendica_notification_seen($type)
 			$item = Post::selectFirstForUser($uid, [], ['id' => $Notify->iid, 'uid' => $uid]);
 			if (DBA::isResult($item)) {
 				// we found the item, return it to the user
-				$ret  = api_format_items([$item], $type);
+				$ret = [api_format_item($item, $type)];
 				$data = ['status' => $ret];
 				return DI::apiResponse()->formatData('status', $type, $data);
 			}
@@ -4247,81 +4252,3 @@ function api_friendica_direct_messages_search($type, $box = "")
 
 /// @TODO move to top of file or somewhere better
 api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
-
-/*
- * Number of comments
- *
- * Bind comment numbers(friendica_comments: Int) on each statuses page of *_timeline / favorites / search
- *
- * @param object $data [Status, Status]
- *
- * @return void
- */
-function bindComments(&$data)
-{
-	if (count($data) == 0) {
-		return;
-	}
-
-	$ids = [];
-	$comments = [];
-	foreach ($data as $item) {
-		$ids[] = $item['id'];
-	}
-
-	$idStr = DBA::escape(implode(', ', $ids));
-	$sql = "SELECT `parent`, COUNT(*) as comments FROM `post-user-view` WHERE `parent` IN ($idStr) AND `deleted` = ? AND `gravity`= ? GROUP BY `parent`";
-	$items = DBA::p($sql, 0, GRAVITY_COMMENT);
-	$itemsData = DBA::toArray($items);
-
-	foreach ($itemsData as $item) {
-		$comments[$item['parent']] = $item['comments'];
-	}
-
-	foreach ($data as $idx => $item) {
-		$id = $item['id'];
-		$data[$idx]['friendica_comments'] = isset($comments[$id]) ? $comments[$id] : 0;
-	}
-}
-
-/*
-@TODO Maybe open to implement?
-To.Do:
-	[pagename] => api/1.1/statuses/lookup.json
-	[id] => 605138389168451584
-	[include_cards] => true
-	[cards_platform] => Android-12
-	[include_entities] => true
-	[include_my_retweet] => 1
-	[include_rts] => 1
-	[include_reply_count] => true
-	[include_descendent_reply_count] => true
-(?)
-
-
-Not implemented by now:
-statuses/retweets_of_me
-friendships/create
-friendships/destroy
-friendships/exists
-friendships/show
-account/update_location
-account/update_profile_background_image
-blocks/create
-blocks/destroy
-friendica/profile/update
-friendica/profile/create
-friendica/profile/delete
-
-Not implemented in status.net:
-statuses/retweeted_to_me
-statuses/retweeted_by_me
-direct_messages/destroy
-account/end_session
-account/update_delivery_device
-notifications/follow
-notifications/leave
-blocks/exists
-blocks/blocking
-lists
-*/
