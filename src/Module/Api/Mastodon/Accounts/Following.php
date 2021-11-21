@@ -51,6 +51,7 @@ class Following extends BaseApi
 		$request = self::getRequest([
 			'max_id'   => 0,  // Return results older than this id
 			'since_id' => 0,  // Return results newer than this id
+			'min_id'   => 0,  // Return results immediately newer than id			
 			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
 		]);
 
@@ -66,20 +67,20 @@ class Following extends BaseApi
 			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $request['since_id']]);
 		}
 
-		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $min_id]);
+		if (!empty($request['min_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $request['min_id']]);
 
 			$params['order'] = ['cid'];
 		}
 
-		$followers = DBA::select('contact-relation', ['cid'], $condition, $this->parameters);
+		$followers = DBA::select('contact-relation', ['cid'], $condition, $params);
 		while ($follower = DBA::fetch($followers)) {
 			self::setBoundaries($follower['cid']);
 			$accounts[] = DI::mstdnAccount()->createFromContactId($follower['cid'], $uid);
 		}
 		DBA::close($followers);
 
-		if (!empty($min_id)) {
+		if (!empty($request['min_id'])) {
 			array_reverse($accounts);
 		}
 
