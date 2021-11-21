@@ -37,6 +37,7 @@ class ApiResponseTest extends MockedTest
 		$response = new ApiResponse($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'xml');
 
+		self::assertEquals(['Content-type' => 'text/xml', 'HTTP/1.1 200 OK'], $response->getHeaders());
 		self::assertEquals('<?xml version="1.0"?>' . "\n" .
 						   '<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
 						   'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
@@ -59,6 +60,7 @@ class ApiResponseTest extends MockedTest
 		$response = new ApiResponse($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'rss');
 
+		self::assertEquals(['Content-type' => 'application/rss+xml', 'HTTP/1.1 200 OK'], $response->getHeaders());
 		self::assertEquals(
 			'<?xml version="1.0"?>' . "\n" .
 			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
@@ -82,6 +84,7 @@ class ApiResponseTest extends MockedTest
 		$response = new ApiResponse($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'atom');
 
+		self::assertEquals(['Content-type' => 'application/atom+xml', 'HTTP/1.1 200 OK'], $response->getHeaders());
 		self::assertEquals(
 			'<?xml version="1.0"?>' . "\n" .
 			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .

@@ -199,10 +199,10 @@ class ApiResponse extends Response
 
 		switch ($format) {
 			case 'xml':
-				$this->setHeader('Content-Type: text/xml');
+				$this->setType(static::TYPE_XML);
 				break;
 			case 'json':
-				$this->setHeader('Content-Type: application/json');
+				$this->setType(static::TYPE_JSON);
 				if (!empty($return)) {
 					$json = json_encode(end($return));
 					if (!empty($_GET['callback'])) {
@@ -212,10 +212,10 @@ class ApiResponse extends Response
 				}
 				break;
 			case 'rss':
-				$this->setHeader('Content-Type: application/rss+xml');
+				$this->setType(static::TYPE_RSS);
 				break;
 			case 'atom':
-				$this->setHeader('Content-Type: application/atom+xml');
+				$this->setType(static::TYPE_ATOM);
 				break;
 		}
 

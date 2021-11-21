@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter;
 
+use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\DI;
 use Friendica\Module\Api\Twitter\SavedSearches;
 use Friendica\Test\src\Module\Api\ApiTest;
@@ -15,6 +16,7 @@ class SavedSearchesTest extends ApiTest
 
 		$result = json_decode($response->getBody());
 
+		self::assertEquals(['Content-type' => ['application/json'], ICanCreateResponses::X_HEADER => ['json']], $response->getHeaders());
 		self::assertEquals(1, $result[0]->id);
 		self::assertEquals(1, $result[0]->id_str);
 		self::assertEquals('Saved search', $result[0]->name);

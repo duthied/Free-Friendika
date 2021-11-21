@@ -704,7 +704,7 @@ class App
 
 			// Let the module run it's internal process (init, get, post, ...)
 			$response = $module->run($_POST, $_REQUEST);
-			if ($response->getHeaderLine('X-RESPONSE-TYPE') === ICanCreateResponses::TYPE_HTML) {
+			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
 				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
 			} else {
 				$page->exit($response);

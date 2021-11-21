@@ -7,6 +7,11 @@ use Psr\Http\Message\ResponseInterface;
 
 interface ICanCreateResponses
 {
+	/**
+	 * This constant helps to find the specific return type of responses inside the headers array
+	 */
+	const X_HEADER = 'X-RESPONSE-TYPE';
+
 	const TYPE_HTML = 'html';
 	const TYPE_XML  = 'xml';
 	const TYPE_JSON = 'json';

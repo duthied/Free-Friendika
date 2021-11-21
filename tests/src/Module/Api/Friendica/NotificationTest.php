@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Module\Api\Friendica;
 
+use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\DI;
 use Friendica\Module\Api\Friendica\Notification;
 use Friendica\Test\src\Module\Api\ApiTest;
@@ -68,7 +69,10 @@ XML;
 		$notification = new Notification(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'xml']);
 		$response = $notification->run();
 
+		print_r($response->getHeaders());
+
 		self::assertXmlStringEqualsXmlString($assertXml, (string)$response->getBody());
+		self::assertEquals(['Content-type' => ['text/xml'], ICanCreateResponses::X_HEADER => ['xml']], $response->getHeaders());
 	}
 
 	public function testWithJsonResult()
@@ -77,5 +81,6 @@ XML;
 		$response = $notification->run();
 
 		self::assertJson($response->getBody());
+		self::assertEquals(['Content-type' => ['application/json'], ICanCreateResponses::X_HEADER => ['json']], $response->getHeaders());
 	}
 }

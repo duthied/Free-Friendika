@@ -19,7 +19,7 @@ class Response implements ICanCreateResponses
 	/**
 	 * @var string
 	 */
-	protected $type = ICanCreateResponses::TYPE_HTML;
+	protected $type = self::TYPE_HTML;
 
 	/**
 	 * {@inheritDoc}
@@ -68,7 +68,7 @@ class Response implements ICanCreateResponses
 	 */
 	public function setType(string $type, ?string $content_type = null): void
 	{
-		if (!in_array($type, ICanCreateResponses::ALLOWED_TYPES)) {
+		if (!in_array($type, static::ALLOWED_TYPES)) {
 			throw new InternalServerErrorException('wrong type');
 		}
 
@@ -79,8 +79,13 @@ class Response implements ICanCreateResponses
 			case static::TYPE_XML:
 				$content_type = $content_type ?? 'text/xml';
 				break;
+			case static::TYPE_RSS:
+				$content_type = $content_type ?? 'application/rss+xml';
+				break;
+			case static::TYPE_ATOM:
+				$content_type = $content_type ?? 'application/atom+xml';
+				break;
 		}
-
 
 		$this->setHeader($content_type, 'Content-type');
 
@@ -101,7 +106,7 @@ class Response implements ICanCreateResponses
 	public function generate(): ResponseInterface
 	{
 		// Setting the response type as an X-header for direct usage
-		$this->headers['X-RESPONSE-TYPE'] = $this->type;
+		$this->headers[static::X_HEADER] = $this->type;
 
 		return new \GuzzleHttp\Psr7\Response(200, $this->headers, $this->content);
 	}

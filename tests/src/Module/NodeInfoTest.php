@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Module;
 
+use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\DI;
 use Friendica\Module\NodeInfo110;
 use Friendica\Module\NodeInfo120;
@@ -19,7 +20,7 @@ class NodeInfoTest extends FixtureTest
 		$response = $nodeinfo->run();
 
 		self::assertJson($response->getBody());
-		self::assertEquals(['Content-type' => ['application/json']], $response->getHeaders());
+		self::assertEquals(['Content-type' => ['application/json'], ICanCreateResponses::X_HEADER => ['json']], $response->getHeaders());
 
 		$json = json_decode($response->getBody());
 
@@ -42,7 +43,7 @@ class NodeInfoTest extends FixtureTest
 		$response = $nodeinfo->run();
 
 		self::assertJson($response->getBody());
-		self::assertEquals(['Content-type' => ['application/json; charset=utf-8']], $response->getHeaders());
+		self::assertEquals(['Content-type' => ['application/json; charset=utf-8'], ICanCreateResponses::X_HEADER => ['json']], $response->getHeaders());
 
 		$json = json_decode($response->getBody());
 
@@ -64,7 +65,7 @@ class NodeInfoTest extends FixtureTest
 		$response = $nodeinfo->run();
 
 		self::assertJson($response->getBody());
-		self::assertEquals(['Content-type' => ['application/json; charset=utf-8']], $response->getHeaders());
+		self::assertEquals(['Content-type' => ['application/json; charset=utf-8'], ICanCreateResponses::X_HEADER => ['json']], $response->getHeaders());
 
 		$json = json_decode($response->getBody());
 
