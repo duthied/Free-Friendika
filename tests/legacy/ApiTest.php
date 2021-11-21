@@ -1770,7 +1770,7 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_user_timeline('json');
-		self::assertNotEmpty($result['status'], print_r($result['status'], true));
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
 		}
@@ -2238,6 +2238,7 @@ class ApiTest extends FixtureTest
 				'plink'          => '',
 				'uid'            => $this->selfUser['id'],
 				'uri-id'         => 1,
+				'created'        => '',
 			]
 		];
 		foreach ($items as $item) {
@@ -2265,6 +2266,7 @@ class ApiTest extends FixtureTest
 				'plink'          => '',
 				'uid'            => $this->selfUser['id'],
 				'uri-id'         => 1,
+				'created'        => '',
 			]
 		];
 
