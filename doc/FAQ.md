@@ -171,7 +171,7 @@ Example: Friendica Support
 <a name="clients"></a>
 ### What friendica clients can I use?
 
-Friendica supports [Mastodon API](help/API-Mastodon) and [Twitter API](help/api). This means you can use some of the Mastodon and Twitter clients for Friendica. The available features are client specific and may differ.
+Friendica supports [Mastodon API](help/API-Mastodon) and [Twitter API | gnusocial](help/api). This means you can use some of the Mastodon and Twitter clients for Friendica. The available features are client specific and may differ.
 
 #### Android
 

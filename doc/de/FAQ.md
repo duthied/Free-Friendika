@@ -180,7 +180,7 @@ Beispiel: Friendica Support
 <a name="clients">
 ### Gibt es Clients für Friendica?
 
-Friendica unterstützt [Mastodon API](help/API-Mastodon) und [Twitter API](help/api). Das bedeutet, du kannst einge der Mastodon und Twitter Clients für Friendica verwenden. Die verfügbaren Features sind Abhängig vom Client, so dass diese teils unterschiedlich sein können.
+Friendica unterstützt [Mastodon API](help/API-Mastodon) und [Twitter API | gnusocial](help/api). Das bedeutet, du kannst einge der Mastodon und Twitter Clients für Friendica verwenden. Die verfügbaren Features sind Abhängig vom Client, so dass diese teils unterschiedlich sein können.
 
 #### Android
 
@@ -203,7 +203,7 @@ Friendica unterstützt [Mastodon API](help/API-Mastodon) und [Twitter API](help/
 #### SailfishOS
 
 * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
-
+~
 #### iOS
 
 * [B4X for Pleroma & Mastodon](https://www.b4x.com/) ([AppStore](https://apps.apple.com/app/b4x-pleroma/id1538396871), [GitHub](https://github.com/AnywhereSoftware/B4X-Pleroma))
