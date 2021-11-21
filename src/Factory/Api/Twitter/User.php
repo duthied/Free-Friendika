@@ -48,6 +48,10 @@ class User extends BaseFactory
 			$userContact = [];
 		}
 
+		if (empty($publicContact)) {
+			return null;
+		}
+
 		$apcontact = APContact::getByURL($publicContact['url'], false);
 
 		return new \Friendica\Object\Api\Twitter\User($publicContact, $apcontact, $userContact, $skip_status, $include_user_entities);

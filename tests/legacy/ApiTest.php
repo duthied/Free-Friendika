@@ -2234,6 +2234,7 @@ class ApiTest extends FixtureTest
 				'author-network' => Protocol::DFRN,
 				'author-link'    => 'http://localhost/profile/othercontact',
 				'plink'          => '',
+				'uid'            => $this->selfUser['id'],
 			]
 		];
 		foreach ($items as $item) {
@@ -2257,6 +2258,7 @@ class ApiTest extends FixtureTest
 				'author-network' => Protocol::DFRN,
 				'author-link'    => 'http://localhost/profile/othercontact',
 				'plink'          => '',
+				'uid'            => $this->selfUser['id'],
 			]
 		];
 
