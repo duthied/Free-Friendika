@@ -175,26 +175,26 @@ abstract class BaseModule implements ICanHandleRequests
 	{
 		// @see https://github.com/tootsuite/mastodon/blob/c3aef491d66aec743a3a53e934a494f653745b61/config/initializers/cors.rb
 		if (substr($request['pagename'] ?? '', 0, 12) == '.well-known/') {
-			header('Access-Control-Allow-Origin: *');
-			header('Access-Control-Allow-Headers: *');
-			header('Access-Control-Allow-Methods: ' . Router::GET);
-			header('Access-Control-Allow-Credentials: false');
+			$this->response->setHeader('*', 'Access-Control-Allow-Origin');
+			$this->response->setHeader('*', 'Access-Control-Allow-Headers');
+			$this->response->setHeader(Router::GET, 'Access-Control-Allow-Methods');
+			$this->response->setHeader('false', 'Access-Control-Allow-Credentials');
 		} elseif (substr($request['pagename'] ?? '', 0, 8) == 'profile/') {
-			header('Access-Control-Allow-Origin: *');
-			header('Access-Control-Allow-Headers: *');
-			header('Access-Control-Allow-Methods: ' . Router::GET);
-			header('Access-Control-Allow-Credentials: false');
+			$this->response->setHeader('*', 'Access-Control-Allow-Origin');
+			$this->response->setHeader('*', 'Access-Control-Allow-Headers');
+			$this->response->setHeader(Router::GET, 'Access-Control-Allow-Methods');
+			$this->response->setHeader('false', 'Access-Control-Allow-Credentials');
 		} elseif (substr($request['pagename'] ?? '', 0, 4) == 'api/') {
-			header('Access-Control-Allow-Origin: *');
-			header('Access-Control-Allow-Headers: *');
-			header('Access-Control-Allow-Methods: ' . implode(',', Router::ALLOWED_METHODS));
-			header('Access-Control-Allow-Credentials: false');
-			header('Access-Control-Expose-Headers: Link');
+			$this->response->setHeader('*', 'Access-Control-Allow-Origin');
+			$this->response->setHeader('*', 'Access-Control-Allow-Headers');
+			$this->response->setHeader(implode(',', Router::ALLOWED_METHODS), 'Access-Control-Allow-Methods');
+			$this->response->setHeader('false', 'Access-Control-Allow-Credentials');
+			$this->response->setHeader('Link', 'Access-Control-Expose-Headers');
 		} elseif (substr($request['pagename'] ?? '', 0, 11) == 'oauth/token') {
-			header('Access-Control-Allow-Origin: *');
-			header('Access-Control-Allow-Headers: *');
-			header('Access-Control-Allow-Methods: ' . Router::POST);
-			header('Access-Control-Allow-Credentials: false');
+			$this->response->setHeader('*', 'Access-Control-Allow-Origin');
+			$this->response->setHeader('*', 'Access-Control-Allow-Headers');
+			$this->response->setHeader(Router::POST, 'Access-Control-Allow-Methods');
+			$this->response->setHeader('false', 'Access-Control-Allow-Credentials');
 		}
 
 		$placeholder = '';
