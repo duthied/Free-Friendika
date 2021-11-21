@@ -1755,7 +1755,7 @@ class ApiTest extends FixtureTest
 		$_REQUEST['user_id']         = 42;
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['exclude_replies'] = true;
-		$_REQUEST['conversation_id'] = 1;
+		$_REQUEST['conversation_id'] = 7;
 
 		$result = api_statuses_user_timeline('json');
 		self::assertNotEmpty($result['status']);
