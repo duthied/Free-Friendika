@@ -65,6 +65,7 @@ class Accounts extends BaseApi
 		$request = self::getRequest([
 			'max_id'   => 0,  // Return results older than this id
 			'since_id' => 0,  // Return results newer than this id
+			'min_id'   => 0,  // Return results immediately newer than id			
 			'limit'    => 40, // Maximum number of results. Defaults to 40. Max 40. Set to 0 in order to get all accounts without pagination.
 		]);
 
@@ -84,8 +85,8 @@ class Accounts extends BaseApi
 			$condition = DBA::mergeConditions($condition, ["`contact-id` > ?", $request['since_id']]);
 		}
 
-		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`contact-id` > ?", $min_id]);
+		if (!empty($request['min_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`contact-id` > ?", $request['min_id']]);
 
 			$params['order'] = ['contact-id'];
 		}
@@ -99,7 +100,7 @@ class Accounts extends BaseApi
 		}
 		DBA::close($members);
 
-		if (!empty($min_id)) {
+		if (!empty($request['min_id'])) {
 			array_reverse($accounts);
 		}
 
