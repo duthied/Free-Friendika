@@ -2236,6 +2236,7 @@ class ApiTest extends FixtureTest
 				'owner-id'       => 43,
 				'plink'          => '',
 				'uid'            => $this->selfUser['id'],
+				'uri-id'         => 1,
 			]
 		];
 		foreach ($items as $item) {
@@ -2261,6 +2262,7 @@ class ApiTest extends FixtureTest
 				'owner-id'       => 43,
 				'plink'          => '',
 				'uid'            => $this->selfUser['id'],
+				'uri-id'         => 1,
 			]
 		];
 

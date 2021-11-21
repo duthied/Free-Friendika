@@ -2633,7 +2633,7 @@ function api_direct_messages_new($type)
 
 	$replyto = '';
 	if (!empty($_REQUEST['replyto'])) {
-		$mail = DBA::selectFirst('mail', ['parent-uri', 'title'], ['uid' => $uid, 'id' => $_REQUEST['replyto']]);
+		$mail    = DBA::selectFirst('mail', ['parent-uri', 'title'], ['uid' => $uid, 'id' => $_REQUEST['replyto']]);
 		$replyto = $mail['parent-uri'];
 		$sub     = $mail['title'];
 	} else {
@@ -2644,7 +2644,9 @@ function api_direct_messages_new($type)
 		}
 	}
 
-	$id = Mail::send($cid, $_POST['text'], $sub, $replyto);
+	$cdata = Contact::getPublicAndUserContactID($cid, $uid);
+
+	$id = Mail::send($cdata['user'], $_POST['text'], $sub, $replyto);
 
 	if ($id > -1) {
 		$mail = DBA::selectFirst('mail', [], ['id' => $id]);
