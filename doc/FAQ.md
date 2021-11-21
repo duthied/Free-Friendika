@@ -197,13 +197,13 @@ Friendica supports [Mastodon API](help/API-Mastodon) and [Twitter API](help/api)
 
 #### iOS
 
-* [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
-* [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
-* [Mastodon](https://apps.apple.com/us/app/mastodon-for-iphone/id1571998974)
-* [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
-* [Stella*](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048)
-* [Tooot](https://apps.apple.com/app/id1549772269), Data collection (not linked to identity)
-* [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466), last update: 2020
+* [B4X for Pleroma & Mastodon](https://www.b4x.com/) ([AppStore](https://apps.apple.com/app/b4x-pleroma/id1538396871), [GitHub](https://github.com/AnywhereSoftware/B4X-Pleroma))
+* [Fedi](https://fediapp.com) ([AppStore](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281))
+* [Mastodon](https://joinmastodon.org/apps)([AppStore](https://apps.apple.com/us/app/mastodon-for-iphone/id1571998974))
+* [Roma](https://www.roma.rocks/)([AppStore](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699))
+* [Stella*](https://www.stella-app.net/) ([AppStore](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048))
+* [Tooot](https://tooot.app/) ([AppStore](https://apps.apple.com/app/id1549772269), [GitHub](https://github.com/tooot-app)), Data collection (not linked to identity)
+* [Tootle](https://mastodon.cloud/@tootleapp) ([AppStore](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466)), last update: 2020
 
 #### Linux
 
@@ -215,8 +215,8 @@ Friendica supports [Mastodon API](help/API-Mastodon) and [Twitter API](help/api)
 
 #### macOS
 
-* [Mastonaut](https://apps.apple.com/us/app/mastonaut/id1450757574), costs ~8€
-* [Whalebird](https://apps.apple.com/de/app/whalebird/id1378283354)
+* [Mastonaut](https://mastonaut.app/) ([AppStore](https://apps.apple.com/us/app/mastonaut/id1450757574)), costs ~8€
+* [Whalebird](https://whalebird.social/en/desktop/contents) ([AppStore](https://apps.apple.com/de/app/whalebird/id1378283354), [GitHub](https://github.com/h3poteto/whalebird-desktop))
 
 #### Windows
 
