@@ -21,36 +21,43 @@
 
 namespace Friendica\Module\Filer;
 
+use Friendica\App\BaseURL;
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model;
 use Friendica\Network\HTTPException;
 use Friendica\Util\XML;
+use Psr\Log\LoggerInterface;
 
 /**
  * Shows a dialog for adding tags to a file
  */
 class SaveTag extends BaseModule
 {
-	public function init()
+	/** @var LoggerInterface */
+	protected $logger;
+	
+	public function __construct(LoggerInterface $logger, BaseURL $baseUrl, L10n $l10n, array $parameters = [])
 	{
+		parent::__construct($l10n, $parameters);
+		
+		$this->logger = $logger;
+		
 		if (!local_user()) {
-			notice(DI::l10n()->t('You must be logged in to use this module'));
-			DI::baseUrl()->redirect();
+			notice($this->t('You must be logged in to use this module'));
+			$baseUrl->redirect();
 		}
 	}
 
 	public function rawContent()
 	{
-		$logger = DI::logger();
-
 		$term = XML::unescape(trim($_GET['term'] ?? ''));
 
 		$item_id = $this->parameters['id'] ?? 0;
 
-		$logger->info('filer', ['tag' => $term, 'item' => $item_id]);
+		$this->logger->info('filer', ['tag' => $term, 'item' => $item_id]);
 
 		if ($item_id && strlen($term)) {
 			$item = Model\Post::selectFirst(['uri-id'], ['id' => $item_id]);
@@ -65,8 +72,8 @@ class SaveTag extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
 		echo Renderer::replaceMacros($tpl, [
-			'$field' => ['term', DI::l10n()->t("Save to Folder:"), '', '', $filetags, DI::l10n()->t('- select -')],
-			'$submit' => DI::l10n()->t('Save'),
+			'$field' => ['term', $this->t("Save to Folder:"), '', '', $filetags, $this->t('- select -')],
+			'$submit' => $this->t('Save'),
 		]);
 
 		exit;

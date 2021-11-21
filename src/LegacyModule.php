@@ -21,6 +21,8 @@
 
 namespace Friendica;
 
+use Friendica\Core\L10n;
+
 /**
  * This mock module enable class encapsulation of legacy global function modules.
  * After having provided the module file name, all the methods will behave like a normal Module class.
@@ -37,11 +39,13 @@ class LegacyModule extends BaseModule
 	 */
 	private $moduleName = '';
 
-	public function __construct(string $file_path = '', array $parameters = [])
+	public function __construct(L10n $l10n, string $file_path = '', array $parameters = [])
 	{
-		parent::__construct($parameters);
+		parent::__construct($l10n, $parameters);
 
 		$this->setModuleFile($file_path);
+
+		$this->runModuleFunction('init');
 	}
 
 	/**
@@ -59,11 +63,6 @@ class LegacyModule extends BaseModule
 		$this->moduleName = basename($file_path, '.php');
 
 		require_once $file_path;
-	}
-
-	public function init()
-	{
-		$this->runModuleFunction('init');
 	}
 
 	public function content(): string
@@ -90,8 +89,8 @@ class LegacyModule extends BaseModule
 		if (\function_exists($function_name)) {
 			$a = DI::app();
 			return $function_name($a);
-		} else {
-			return parent::{$function_suffix}();
 		}
+
+		return '';
 	}
 }

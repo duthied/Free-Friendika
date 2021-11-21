@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Module\Api\Friendica\Photoalbum;
 
+use Friendica\DI;
 use Friendica\Module\Api\Friendica\Photoalbum\Delete;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Test\src\Module\Api\ApiTest;
@@ -30,13 +31,13 @@ class DeleteTest extends ApiTest
 	public function testEmpty()
 	{
 		$this->expectException(BadRequestException::class);
-		(new Delete())->rawContent();
+		(new Delete(DI::l10n()))->rawContent();
 	}
 
 	public function testWrong()
 	{
 		$this->expectException(BadRequestException::class);
-		(new Delete(['album' => 'album_name']))->rawContent();
+		(new Delete(DI::l10n(), ['album' => 'album_name']))->rawContent();
 	}
 
 	public function testValid()
