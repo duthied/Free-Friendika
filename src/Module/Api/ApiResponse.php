@@ -3,11 +3,14 @@
 namespace Friendica\Module\Api;
 
 use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
 use Friendica\Core\L10n;
 use Friendica\Util\Arrays;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPInputData;
 use Friendica\Util\XML;
 use Psr\Log\LoggerInterface;
+use Friendica\Factory\Api\Twitter\User as TwitterUser;
 
 /**
  * This class is used to format and return API responses
@@ -26,11 +29,13 @@ class ApiResponse
 	 * @param Arguments       $args
 	 * @param LoggerInterface $logger
 	 */
-	public function __construct(L10n $l10n, Arguments $args, LoggerInterface $logger)
+	public function __construct(L10n $l10n, Arguments $args, LoggerInterface $logger, BaseURL $baseurl, TwitterUser $twitteruser)
 	{
-		$this->l10n   = $l10n;
-		$this->args   = $args;
-		$this->logger = $logger;
+		$this->l10n        = $l10n;
+		$this->args        = $args;
+		$this->logger      = $logger;
+		$this->baseurl     = $baseurl;
+		$this->twitterUser = $twitteruser;
 	}
 
 	/**
@@ -103,19 +108,50 @@ class ApiResponse
 	}
 
 	/**
+	 * Set values for RSS template
+	 *
+	 * @param array $arr Array to be passed to template
+	 * @param int   $cid Contact ID of template
+	 * @return array
+	 */
+	private function addRSSValues(array $arr, int $cid)
+	{
+		if (empty($cid)) {
+			return $arr;
+		}
+
+		$user_info = $this->twitterUser->createFromContactId($cid)->toArray();
+
+		$arr['$user'] = $user_info;
+		$arr['$rss'] = [
+			'alternate'    => $user_info['url'],
+			'self'         => $this->baseurl . '/' . $this->args->getQueryString(),
+			'base'         => $this->baseurl,
+			'updated'      => DateTimeFormat::utc(null, DateTimeFormat::API),
+			'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'language'     => $user_info['lang'],
+			'logo'         => $this->baseurl . '/images/friendica-32.png',
+		];
+
+		return $arr;
+	}
+
+	/**
 	 * Formats the data according to the data type
 	 *
 	 * @param string $root_element Name of the root element
 	 * @param string $type         Return type (atom, rss, xml, json)
 	 * @param array  $data         JSON style array
+	 * @param int    $cid          ID of the contact for RSS
 	 *
 	 * @return array|string (string|array) XML data or JSON data
 	 */
-	public function formatData(string $root_element, string $type, array $data)
+	public function formatData(string $root_element, string $type, array $data, int $cid = 0)
 	{
 		switch ($type) {
-			case 'atom':
 			case 'rss':
+				$data = $this->addRSSValues($data, $cid);
+			case 'atom':
 			case 'xml':
 				return $this->createXML($data, $root_element);
 			case 'json':

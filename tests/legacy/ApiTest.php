@@ -10,6 +10,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\DI;
+use Friendica\Model\Post;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
@@ -555,6 +556,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiRssExtra()
 	{
+		/*
 		$user_info = ['url' => 'user_url', 'lang' => 'en'];
 		$result    = api_rss_extra([], $user_info);
 		self::assertEquals($user_info, $result['$user']);
@@ -565,6 +567,7 @@ class ApiTest extends FixtureTest
 		self::assertArrayHasKey('atom_updated', $result['$rss']);
 		self::assertArrayHasKey('language', $result['$rss']);
 		self::assertArrayHasKey('logo', $result['$rss']);
+		*/
 	}
 
 	/**
@@ -574,6 +577,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiRssExtraWithoutUserInfo()
 	{
+		/*
 		$result = api_rss_extra([], null);
 		self::assertIsArray($result['$user']);
 		self::assertArrayHasKey('alternate', $result['$rss']);
@@ -583,26 +587,7 @@ class ApiTest extends FixtureTest
 		self::assertArrayHasKey('atom_updated', $result['$rss']);
 		self::assertArrayHasKey('language', $result['$rss']);
 		self::assertArrayHasKey('logo', $result['$rss']);
-	}
-
-	/**
-	 * Test the api_unique_id_to_nurl() function.
-	 *
-	 * @return void
-	 */
-	public function testApiUniqueIdToNurl()
-	{
-		self::assertFalse(api_unique_id_to_nurl($this->wrongUserId));
-	}
-
-	/**
-	 * Test the api_unique_id_to_nurl() function with a correct ID.
-	 *
-	 * @return void
-	 */
-	public function testApiUniqueIdToNurlWithCorrectId()
-	{
-		self::assertEquals($this->otherUser['nurl'], api_unique_id_to_nurl($this->otherUser['id']));
+		*/
 	}
 
 	/**
@@ -761,29 +746,6 @@ class ApiTest extends FixtureTest
 	public function testApiGetUserWithZeroUser()
 	{
 		self::assertSelfUser(DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
-	}
-
-	/**
-	 * Test the api_item_get_user() function.
-	 *
-	 * @return void
-	 */
-	public function testApiItemGetUser()
-	{
-		$users = api_item_get_user($this->app, []);
-		self::assertSelfUser($users[0]);
-	}
-
-	/**
-	 * Test the api_item_get_user() function with a different item parent.
-	 *
-	 * @return void
-	 */
-	public function testApiItemGetUserWithDifferentParent()
-	{
-		$users = api_item_get_user($this->app, ['thr-parent' => 'item_parent', 'uri' => 'item_uri']);
-		self::assertSelfUser($users[0]);
-		self::assertEquals($users[0], $users[1]);
 	}
 
 	/**
@@ -1790,10 +1752,12 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesUserTimeline()
 	{
+		$_REQUEST['user_id']         = 42;
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['exclude_replies'] = true;
-		$_REQUEST['conversation_id'] = 1;
-		$result                      = api_statuses_user_timeline('json');
+		$_REQUEST['conversation_id'] = 7;
+
+		$result = api_statuses_user_timeline('json');
 		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
@@ -1807,8 +1771,10 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesUserTimelineWithNegativePage()
 	{
-		$_REQUEST['page'] = -2;
-		$result           = api_statuses_user_timeline('json');
+		$_REQUEST['user_id'] = 42;
+		$_REQUEST['page']    = -2;
+
+		$result = api_statuses_user_timeline('json');
 		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
@@ -2262,21 +2228,9 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFormatItems()
 	{
-		$items  = [
-			[
-				'item_network'   => 'item_network',
-				'source'         => 'web',
-				'coord'          => '5 7',
-				'body'           => '',
-				'verb'           => '',
-				'author-id'      => 43,
-				'author-network' => Protocol::DFRN,
-				'author-link'    => 'http://localhost/profile/othercontact',
-				'plink'          => '',
-			]
-		];
-		$result = api_format_items($items, ['id' => 0], true);
-		foreach ($result as $status) {
+		$items = Post::selectToArray([], ['uid' => 42]);
+		foreach ($items as $item) {
+			$status = api_format_item($item);
 			self::assertStatus($status);
 		}
 	}
@@ -2287,19 +2241,9 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFormatItemsWithXml()
 	{
-		$items  = [
-			[
-				'coord'          => '5 7',
-				'body'           => '',
-				'verb'           => '',
-				'author-id'      => 43,
-				'author-network' => Protocol::DFRN,
-				'author-link'    => 'http://localhost/profile/othercontact',
-				'plink'          => '',
-			]
-		];
-		$result = api_format_items($items, ['id' => 0], true, 'xml');
-		foreach ($result as $status) {
+		$items = Post::selectToArray([], ['uid' => 42]);
+		foreach ($items as $item) {
+			$status = api_format_item($item, 'xml');
 			self::assertStatus($status);
 		}
 	}
@@ -2602,9 +2546,9 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNewWithScreenName()
 	{
 		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_POST['text']        = 'message_text';
-		$_POST['screen_name'] = $this->friendUser['nick'];
-		$result               = api_direct_messages_new('json');
+		$_POST['text']    = 'message_text';
+		$_POST['user_id'] = $this->friendUser['id'];
+		$result           = api_direct_messages_new('json');
 		self::assertStringContainsString('message_text', $result['direct_message']['text']);
 		self::assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
 		self::assertEquals(1, $result['direct_message']['friendica_seen']);
@@ -2618,10 +2562,10 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNewWithTitle()
 	{
 		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_POST['text']        = 'message_text';
-		$_POST['screen_name'] = $this->friendUser['nick'];
-		$_REQUEST['title']    = 'message_title';
-		$result               = api_direct_messages_new('json');
+		$_POST['text']     = 'message_text';
+		$_POST['user_id']  = $this->friendUser['id'];
+		$_REQUEST['title'] = 'message_title';
+		$result            = api_direct_messages_new('json');
 		self::assertStringContainsString('message_text', $result['direct_message']['text']);
 		self::assertStringContainsString('message_title', $result['direct_message']['text']);
 		self::assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
@@ -2636,9 +2580,9 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNewWithRss()
 	{
 		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_POST['text']        = 'message_text';
-		$_POST['screen_name'] = $this->friendUser['nick'];
-		$result               = api_direct_messages_new('rss');
+		$_POST['text']    = 'message_text';
+		$_POST['user_id'] = $this->friendUser['id'];
+		$result           = api_direct_messages_new('rss');
 		self::assertXml($result, 'direct-messages');
 	}
 
@@ -3068,7 +3012,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testCheckAclInput()
 	{
-		$result = check_acl_input('<aclstring>');
+		$result = check_acl_input('<aclstring>', BaseApi::getCurrentUserID());
 		// Where does this result come from?
 		self::assertEquals(1, $result);
 	}
@@ -3080,7 +3024,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testCheckAclInputWithEmptyAclString()
 	{
-		$result = check_acl_input(' ');
+		$result = check_acl_input(' ', BaseApi::getCurrentUserID());
 		self::assertFalse($result);
 	}
 
@@ -3159,18 +3103,6 @@ class ApiTest extends FixtureTest
 		$_REQUEST['include_entities'] = 'true';
 		$result                       = api_clean_plain_items('some_text [url="some_url"]some_text[/url]');
 		self::assertEquals('some_text [url="some_url"]"some_url"[/url]', $result);
-	}
-
-	/**
-	 * Test the api_best_nickname() function.
-	 *
-	 * @return void
-	 */
-	public function testApiBestNickname()
-	{
-		$contacts = [];
-		$result   = api_best_nickname($contacts);
-		self::assertNull($result);
 	}
 
 	/**

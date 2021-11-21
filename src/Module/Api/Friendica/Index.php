@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\Friendica;
 
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+require_once __DIR__ . '/../../../../include/api.php';
 
 /**
  * api/friendica

@@ -3,7 +3,9 @@
 namespace Friendica\Test\src\Module\Api;
 
 use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
 use Friendica\Core\L10n;
+use Friendica\Factory\Api\Twitter\User;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\ApiResponseDouble;
 use Psr\Log\NullLogger;
@@ -22,8 +24,10 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
-		$response = new ApiResponseDouble($l10n, $args, new NullLogger());
+		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'json');
 
 		self::assertEquals('{"error":"error_message","code":"200 OK","request":""}', ApiResponseDouble::getOutput());
@@ -34,8 +38,10 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
-		$response = new ApiResponseDouble($l10n, $args, new NullLogger());
+		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'xml');
 
 		self::assertEquals('<?xml version="1.0"?>' . "\n" .
@@ -54,8 +60,10 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
-		$response = new ApiResponseDouble($l10n, $args, new NullLogger());
+		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'rss');
 
 		self::assertEquals(
@@ -75,8 +83,10 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
-		$response = new ApiResponseDouble($l10n, $args, new NullLogger());
+		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'atom');
 
 		self::assertEquals(
@@ -99,8 +109,10 @@ class ApiResponseTest extends MockedTest
 		});
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
-		$response = new ApiResponseDouble($l10n, $args, new NullLogger());
+		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->unsupported();
 
 		self::assertEquals('{"error":"API endpoint %s %s is not implemented","error_description":"The API endpoint is currently not implemented but might be in the future."}', ApiResponseDouble::getOutput());
