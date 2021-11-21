@@ -329,6 +329,9 @@ class BaseApi extends BaseModule
 		}
 
 		$user_info = DI::twitterUser()->createFromContactId($cid)->toArray();
+		if (empty($user_info)) {
+			return $arr;
+		}
 
 		$arr['$user'] = $user_info;
 		$arr['$rss'] = [
