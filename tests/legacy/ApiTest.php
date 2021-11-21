@@ -10,7 +10,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\DI;
-use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
@@ -2224,29 +2224,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFormatItems()
 	{
-		$items  = [
-			[
-				'item_network'   => 'item_network',
-				'source'         => 'web',
-				'coord'          => '5 7',
-				'title'          => '',
-				'body'           => '',
-				'verb'           => '',
-				'author-id'      => 43,
-				'author-network' => Protocol::DFRN,
-				'author-link'    => 'http://localhost/profile/othercontact',
-				'owner-id'       => 43,
-				'plink'          => '',
-				'uid'            => $this->selfUser['id'],
-				'id'             => 1,
-				'parent'         => 1,
-				'uri-id'         => 1,
-				'created'        => '',
-				'app'            => '',
-				'starred'        => false,
-				'private'        => Item::PRIVATE,
-			]
-		];
+		$items = Post::selectToArray([], ['uid' => 42]);
 		foreach ($items as $item) {
 			$status = api_format_item($item);
 			self::assertStatus($status);
@@ -2259,28 +2237,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFormatItemsWithXml()
 	{
-		$items  = [
-			[
-				'coord'          => '5 7',
-				'title'          => '',
-				'body'           => '',
-				'verb'           => '',
-				'author-id'      => 43,
-				'author-network' => Protocol::DFRN,
-				'author-link'    => 'http://localhost/profile/othercontact',
-				'owner-id'       => 43,
-				'plink'          => '',
-				'uid'            => $this->selfUser['id'],
-				'id'             => 1,
-				'parent'         => 1,
-				'uri-id'         => 1,
-				'created'        => '',
-				'app'            => '',
-				'starred'        => false,
-				'private'        => Item::PRIVATE,
-			]
-		];
-
+		$items = Post::selectToArray([], ['uid' => 42]);
 		foreach ($items as $item) {
 			$status = api_format_item($item, 'xml');
 			self::assertStatus($status);
