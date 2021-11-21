@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-18 21:26+0100\n"
+"POT-Creation-Date: 2021-11-21 17:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,21 +18,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-#: include/api.php:860 src/Module/BaseApi.php:259
+#: include/api.php:416 src/Module/BaseApi.php:257
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: include/api.php:874 src/Module/BaseApi.php:275
+#: include/api.php:430 src/Module/BaseApi.php:273
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: include/api.php:888 src/Module/BaseApi.php:291
+#: include/api.php:444 src/Module/BaseApi.php:289
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
@@ -145,9 +145,9 @@ msgstr ""
 #: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:68
 #: mod/wall_attach.php:71 mod/wall_upload.php:90 mod/wall_upload.php:93
 #: mod/wallmessage.php:36 mod/wallmessage.php:55 mod/wallmessage.php:89
-#: mod/wallmessage.php:109 src/Module/Attach.php:55 src/Module/BaseApi.php:61
-#: src/Module/BaseApi.php:70 src/Module/BaseApi.php:79
-#: src/Module/BaseApi.php:88 src/Module/BaseNotifications.php:94
+#: mod/wallmessage.php:109 src/Module/Attach.php:55 src/Module/BaseApi.php:59
+#: src/Module/BaseApi.php:68 src/Module/BaseApi.php:77
+#: src/Module/BaseApi.php:86 src/Module/BaseNotifications.php:94
 #: src/Module/Contact.php:328 src/Module/Contact/Advanced.php:60
 #: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:17
 #: src/Module/FriendSuggest.php:56 src/Module/Group.php:44
@@ -2076,7 +2076,7 @@ msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr ""
 
 #: mod/wall_attach.php:39 mod/wall_attach.php:46 mod/wall_attach.php:77
-#: mod/wall_upload.php:52 mod/wall_upload.php:63 mod/wall_upload.php:99
+#: mod/wall_upload.php:53 mod/wall_upload.php:63 mod/wall_upload.php:99
 #: mod/wall_upload.php:150 mod/wall_upload.php:153
 msgid "Invalid request."
 msgstr ""
@@ -2153,31 +2153,31 @@ msgstr ""
 msgid "Page not found."
 msgstr ""
 
-#: src/BaseModule.php:158
+#: src/BaseModule.php:178
 msgid ""
 "The form security token was not correct. This probably happened because the "
 "form has been opened for too long (>3 hours) before submitting it."
 msgstr ""
 
-#: src/BaseModule.php:185
+#: src/BaseModule.php:205
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:190 src/Content/Widget.php:231 src/Core/ACL.php:193
+#: src/BaseModule.php:210 src/Content/Widget.php:231 src/Core/ACL.php:193
 #: src/Module/Contact.php:756 src/Module/PermissionTooltip.php:79
 #: src/Module/PermissionTooltip.php:101
 msgid "Followers"
 msgstr ""
 
-#: src/BaseModule.php:195 src/Content/Widget.php:232 src/Module/Contact.php:757
+#: src/BaseModule.php:215 src/Content/Widget.php:232 src/Module/Contact.php:757
 msgid "Following"
 msgstr ""
 
-#: src/BaseModule.php:200 src/Content/Widget.php:233 src/Module/Contact.php:758
+#: src/BaseModule.php:220 src/Content/Widget.php:233 src/Module/Contact.php:758
 msgid "Mutual friends"
 msgstr ""
 
-#: src/BaseModule.php:208
+#: src/BaseModule.php:228
 msgid "Common"
 msgstr ""
 
@@ -6798,12 +6798,12 @@ msgstr ""
 msgid "Deny"
 msgstr ""
 
-#: src/Module/Api/ApiResponse.php:230
+#: src/Module/Api/ApiResponse.php:266
 #, php-format
 msgid "API endpoint %s %s is not implemented"
 msgstr ""
 
-#: src/Module/Api/ApiResponse.php:231
+#: src/Module/Api/ApiResponse.php:267
 msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr ""
@@ -6846,10 +6846,6 @@ msgstr ""
 #: src/Module/Api/Twitter/ContactEndpoint.php:64 src/Module/Contact.php:343
 #: src/Module/Contact.php:358
 msgid "Contact not found"
-msgstr ""
-
-#: src/Module/Api/Twitter/ContactEndpoint.php:134
-msgid "Profile not found"
 msgstr ""
 
 #: src/Module/Apps.php:51
@@ -6950,8 +6946,8 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:258 src/Module/BaseApi.php:274
-#: src/Module/BaseApi.php:290
+#: src/Module/BaseApi.php:256 src/Module/BaseApi.php:272
+#: src/Module/BaseApi.php:288
 msgid "Too Many Requests"
 msgstr ""
 
