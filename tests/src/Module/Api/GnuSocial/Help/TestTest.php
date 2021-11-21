@@ -13,7 +13,7 @@ class TestTest extends ApiTest
 		$test = new Test(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
 		$response = $test->run();
 
-		self::assertEquals('"ok"', $response->getContent());
+		self::assertEquals('"ok"', $response->getBody());
 	}
 
 	public function testXml()
@@ -21,6 +21,6 @@ class TestTest extends ApiTest
 		$test = new Test(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'xml']);
 		$response = $test->run();
 
-		self::assertxml($response->getContent(), 'ok');
+		self::assertxml($response->getBody(), 'ok');
 	}
 }

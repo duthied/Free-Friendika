@@ -68,7 +68,7 @@ XML;
 		$notification = new Notification(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'xml']);
 		$response = $notification->run();
 
-		self::assertXmlStringEqualsXmlString($assertXml, $response->getContent());
+		self::assertXmlStringEqualsXmlString($assertXml, (string)$response->getBody());
 	}
 
 	public function testWithJsonResult()
@@ -76,6 +76,6 @@ XML;
 		$notification = new Notification(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
 		$response = $notification->run();
 
-		self::assertJson($response->getContent());
+		self::assertJson($response->getBody());
 	}
 }

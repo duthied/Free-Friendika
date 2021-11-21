@@ -3,8 +3,8 @@
 namespace Friendica\Module;
 
 use Friendica\Capabilities\ICanCreateResponses;
-use Friendica\Capabilities\IRespondToRequests;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Psr\Http\Message\ResponseInterface;
 
 class Response implements ICanCreateResponses
 {
@@ -19,7 +19,7 @@ class Response implements ICanCreateResponses
 	/**
 	 * @var string
 	 */
-	protected $type = IRespondToRequests::TYPE_HTML;
+	protected $type = ICanCreateResponses::TYPE_HTML;
 
 	/**
 	 * {@inheritDoc}
@@ -68,7 +68,7 @@ class Response implements ICanCreateResponses
 	 */
 	public function setType(string $type, ?string $content_type = null): void
 	{
-		if (!in_array($type, IRespondToRequests::ALLOWED_TYPES)) {
+		if (!in_array($type, ICanCreateResponses::ALLOWED_TYPES)) {
 			throw new InternalServerErrorException('wrong type');
 		}
 
@@ -93,5 +93,26 @@ class Response implements ICanCreateResponses
 	public function getType(): string
 	{
 		return $this->type;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function generate(): ResponseInterface
+	{
+		$headers = [];
+
+		foreach ($this->headers as $key => $header) {
+			if (empty($key)) {
+				$headers[] = $header;
+			} else {
+				$headers[] = "$key: $header";
+			}
+		}
+
+		// Setting the response type as an X-header for direct usage
+		$headers['X-RESPONSE-TYPE'] = $this->type;
+
+		return new \GuzzleHttp\Psr7\Response(200, $this->headers, $this->content);
 	}
 }

@@ -25,7 +25,6 @@ use ArrayAccess;
 use DOMDocument;
 use DOMXPath;
 use Friendica\App;
-use Friendica\Capabilities\IRespondToRequests;
 use Friendica\Content\Nav;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
@@ -37,6 +36,7 @@ use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\Profiler;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Contains the page specific environment variables for the current Page
@@ -337,19 +337,19 @@ class Page implements ArrayAccess
 	 * - module content
 	 * - hooks for content
 	 *
-	 * @param IRespondToRequests $response The Module response class
+	 * @param ResponseInterface  $response The Module response class
 	 * @param Mode               $mode     The Friendica execution mode
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initContent(IRespondToRequests $response, Mode $mode)
+	private function initContent(ResponseInterface $response, Mode $mode)
 	{
 		// initialise content region
 		if ($mode->isNormal()) {
 			Hook::callAll('page_content_top', $this->page['content']);
 		}
 
-		$this->page['content'] .= $response->getContent();
+		$this->page['content'] .= (string)$response->getBody();
 	}
 
 	/**
@@ -374,19 +374,22 @@ class Page implements ArrayAccess
 	/**
 	 * Directly exit with the current response (include setting all headers)
 	 *
-	 * @param IRespondToRequests $response
+	 * @param ResponseInterface $response
 	 */
-	public function exit(IRespondToRequests $response)
+	public function exit(ResponseInterface $response)
 	{
 		foreach ($response->getHeaders() as $key => $header) {
+			if (is_array($header)) {
+				$header_str = implode(',', $header);
+			}
 			if (empty($key)) {
-				header($header);
+				header($header_str);
 			} else {
-				header("$key: $header");
+				header("$key: $header_str");
 			}
 		}
 
-		echo $response->getContent();
+		echo $response->getBody();
 	}
 
 	/**
@@ -396,14 +399,14 @@ class Page implements ArrayAccess
 	 * @param BaseURL                     $baseURL  The Friendica Base URL
 	 * @param Arguments                   $args     The Friendica App arguments
 	 * @param Mode                        $mode     The current node mode
-	 * @param IRespondToRequests          $response The Response of the module class, including type, content & headers
+	 * @param ResponseInterface           $response The Response of the module class, including type, content & headers
 	 * @param L10n                        $l10n     The l10n language class
 	 * @param IManageConfigValues         $config   The Configuration of this node
 	 * @param IManagePersonalConfigValues $pconfig  The personal/user configuration
 	 *
 	 * @throws HTTPException\InternalServerErrorException|HTTPException\ServiceUnavailableException
 	 */
-	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, IRespondToRequests $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
+	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ResponseInterface $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
 	{
 		$moduleName = $args->getModuleName();
 

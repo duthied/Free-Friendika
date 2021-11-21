@@ -2,7 +2,6 @@
 
 namespace Friendica\Test\src\Module;
 
-use Friendica\Capabilities\IRespondToRequests;
 use Friendica\DI;
 use Friendica\Module\NodeInfo110;
 use Friendica\Module\NodeInfo120;
@@ -19,11 +18,10 @@ class NodeInfoTest extends FixtureTest
 		$nodeinfo = new NodeInfo110(DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), $response, DI::config(), []);
 		$response = $nodeinfo->run();
 
-		self::assertEquals(IRespondToRequests::TYPE_JSON, $response->getType());
-		self::assertJson($response->getContent());
-		self::assertEquals(['Content-type' => 'application/json'], $response->getHeaders());
+		self::assertJson($response->getBody());
+		self::assertEquals(['Content-type' => ['application/json']], $response->getHeaders());
 
-		$json = json_decode($response->getContent());
+		$json = json_decode($response->getBody());
 
 		self::assertEquals('1.0', $json->version);
 
@@ -43,11 +41,10 @@ class NodeInfoTest extends FixtureTest
 		$nodeinfo = new NodeInfo120(DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), $response, DI::config(), []);
 		$response = $nodeinfo->run();
 
-		self::assertEquals(IRespondToRequests::TYPE_JSON, $response->getType());
-		self::assertJson($response->getContent());
-		self::assertEquals(['Content-type' => 'application/json; charset=utf-8'], $response->getHeaders());
+		self::assertJson($response->getBody());
+		self::assertEquals(['Content-type' => ['application/json; charset=utf-8']], $response->getHeaders());
 
-		$json = json_decode($response->getContent());
+		$json = json_decode($response->getBody());
 
 		self::assertEquals('2.0', $json->version);
 
@@ -66,11 +63,10 @@ class NodeInfoTest extends FixtureTest
 		$nodeinfo = new NodeInfo210(DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), $response, DI::config(), []);
 		$response = $nodeinfo->run();
 
-		self::assertEquals(IRespondToRequests::TYPE_JSON, $response->getType());
-		self::assertJson($response->getContent());
-		self::assertEquals(['Content-type' => 'application/json; charset=utf-8'], $response->getHeaders());
+		self::assertJson($response->getBody());
+		self::assertEquals(['Content-type' => ['application/json; charset=utf-8']], $response->getHeaders());
 
-		$json = json_decode($response->getContent());
+		$json = json_decode($response->getBody());
 
 		self::assertEquals('1.0', $json->version);
 

@@ -24,6 +24,7 @@ namespace Friendica;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
+use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
@@ -42,6 +43,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Response;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -702,7 +704,7 @@ class App
 
 			// Let the module run it's internal process (init, get, post, ...)
 			$response = $module->run($_POST, $_REQUEST);
-			if ($response->getType() === $response::TYPE_HTML) {
+			if ($response->getHeaderLine('X-RESPONSE-TYPE') === ICanCreateResponses::TYPE_HTML) {
 				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
 			} else {
 				$page->exit($response);

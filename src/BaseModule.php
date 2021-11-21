@@ -24,7 +24,6 @@ namespace Friendica;
 use Friendica\App\Router;
 use Friendica\Capabilities\ICanHandleRequests;
 use Friendica\Capabilities\ICanCreateResponses;
-use Friendica\Capabilities\IRespondToRequests;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -33,6 +32,7 @@ use Friendica\Module\Response;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Profiler;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -171,7 +171,7 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function run(array $post = [], array $request = []): IRespondToRequests
+	public function run(array $post = [], array $request = []): ResponseInterface
 	{
 		// @see https://github.com/tootsuite/mastodon/blob/c3aef491d66aec743a3a53e934a494f653745b61/config/initializers/cors.rb
 		if (substr($request['pagename'] ?? '', 0, 12) == '.well-known/') {
@@ -239,7 +239,7 @@ abstract class BaseModule implements ICanHandleRequests
 				break;
 		}
 
-		return $this->response;
+		return $this->response->generate();
 	}
 
 	/*

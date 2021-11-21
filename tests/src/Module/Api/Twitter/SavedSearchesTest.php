@@ -13,7 +13,7 @@ class SavedSearchesTest extends ApiTest
 		$savedSearch = new SavedSearches(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
 		$response = $savedSearch->run();
 
-		$result = json_decode($response->getContent());
+		$result = json_decode($response->getBody());
 
 		self::assertEquals(1, $result[0]->id);
 		self::assertEquals(1, $result[0]->id_str);
