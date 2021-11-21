@@ -1752,10 +1752,12 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesUserTimeline()
 	{
+		$_REQUEST['user_id']         = 42;
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['exclude_replies'] = true;
 		$_REQUEST['conversation_id'] = 1;
-		$result                      = api_statuses_user_timeline('json');
+
+		$result = api_statuses_user_timeline('json');
 		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
@@ -1769,8 +1771,10 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesUserTimelineWithNegativePage()
 	{
-		$_REQUEST['page'] = -2;
-		$result           = api_statuses_user_timeline('json');
+		$_REQUEST['user_id'] = 42;
+		$_REQUEST['page']    = -2;
+
+		$result = api_statuses_user_timeline('json');
 		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
