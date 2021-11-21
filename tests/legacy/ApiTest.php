@@ -10,6 +10,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
@@ -2238,9 +2239,12 @@ class ApiTest extends FixtureTest
 				'plink'          => '',
 				'uid'            => $this->selfUser['id'],
 				'id'             => 1,
+				'parent'         => 1,
 				'uri-id'         => 1,
 				'created'        => '',
 				'app'            => '',
+				'starred'        => false,
+				'private'        => Item::PRIVATE,
 			]
 		];
 		foreach ($items as $item) {
@@ -2268,9 +2272,12 @@ class ApiTest extends FixtureTest
 				'plink'          => '',
 				'uid'            => $this->selfUser['id'],
 				'id'             => 1,
+				'parent'         => 1,
 				'uri-id'         => 1,
 				'created'        => '',
 				'app'            => '',
+				'starred'        => false,
+				'private'        => Item::PRIVATE,
 			]
 		];
 
