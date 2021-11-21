@@ -28,10 +28,8 @@ use Friendica\DI;
 
 class BaseSettings extends BaseModule
 {
-	protected function content(array $request = []): string
+	public static function createAside()
 	{
-		$a = DI::app();
-
 		$tpl = Renderer::getMarkupTemplate('settings/head.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$ispublic' => DI::l10n()->t('everybody')
@@ -125,6 +123,13 @@ class BaseSettings extends BaseModule
 			'$class' => 'settings-widget',
 			'$items' => $tabs,
 		]);
+	}
+
+	protected function content(array $request = []): string
+	{
+		$a = DI::app();
+
+		static::createAside();
 
 		return '';
 	}

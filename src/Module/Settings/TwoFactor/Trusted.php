@@ -7,6 +7,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Module\BaseSettings;
+use Friendica\Module\Response;
 use Friendica\Security\TwoFactor;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -24,9 +25,9 @@ class Trusted extends BaseSettings
 	/** @var TwoFactor\Repository\TrustedBrowser */
 	protected $trustedBrowserRepo;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IManagePersonalConfigValues $pConfig, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManagePersonalConfigValues $pConfig, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->pConfig            = $pConfig;
 		$this->trustedBrowserRepo = $trustedBrowserRepo;

@@ -30,6 +30,7 @@ use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\System;
 use Friendica\Model\Profile;
 use Friendica\Model\User\Cookie;
+use Friendica\Module\Response;
 use Friendica\Security\TwoFactor;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -48,9 +49,9 @@ class Logout extends BaseModule
 	/** @var TwoFactor\Repository\TrustedBrowser */
 	protected $trustedBrowserRepo;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, ICanCache $cache, Cookie $cookie, IHandleSessions $session, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, ICanCache $cache, Cookie $cookie, IHandleSessions $session, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->cache              = $cache;
 		$this->cookie             = $cookie;

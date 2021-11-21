@@ -23,10 +23,13 @@ namespace Friendica;
 
 use Friendica\App\Router;
 use Friendica\Capabilities\ICanHandleRequests;
+use Friendica\Capabilities\ICanReadAndWriteToResponds;
+use Friendica\Capabilities\IRespondToRequests;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Model\User;
+use Friendica\Module\Response;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Profiler;
@@ -57,8 +60,10 @@ abstract class BaseModule implements ICanHandleRequests
 	protected $profiler;
 	/** @var array */
 	protected $server;
+	/** @var ICanReadAndWriteToResponds */
+	protected $response;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		$this->parameters = $parameters;
 		$this->l10n       = $l10n;
@@ -67,6 +72,7 @@ abstract class BaseModule implements ICanHandleRequests
 		$this->logger     = $logger;
 		$this->profiler   = $profiler;
 		$this->server     = $server;
+		$this->response   = $response;
 	}
 
 	/**
@@ -171,7 +177,7 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function run(array $post = [], array $request = []): string
+	public function run(array $post = [], array $request = []): IRespondToRequests
 	{
 		// @see https://github.com/tootsuite/mastodon/blob/c3aef491d66aec743a3a53e934a494f653745b61/config/initializers/cors.rb
 		if (substr($request['pagename'] ?? '', 0, 12) == '.well-known/') {
@@ -205,36 +211,43 @@ abstract class BaseModule implements ICanHandleRequests
 		Core\Hook::callAll($this->args->getModuleName() . '_mod_init', $placeholder);
 
 		$this->profiler->set(microtime(true) - $timestamp, 'init');
+		$this->response->setType(IRespondToRequests::TYPE_CONTENT);
 
-		if ($this->server['REQUEST_METHOD'] === Router::DELETE) {
-			$this->delete();
+		switch ($this->server['REQUEST_METHOD']) {
+			case Router::DELETE:
+				$this->response->setType(IRespondToRequests::TYPE_DELETE);
+				$this->delete();
+				break;
+			case Router::PATCH:
+				$this->response->setType(IRespondToRequests::TYPE_PATCH);
+				$this->patch();
+				break;
+			case Router::POST:
+				Core\Hook::callAll($this->args->getModuleName() . '_mod_post', $post);
+				$this->response->setType(IRespondToRequests::TYPE_POST);
+				$this->post($request, $post);
+				break;
+			case Router::PUT:
+				$this->response->setType(IRespondToRequests::TYPE_PUT);
+				$this->put();
+				break;
+			default:
+				// "rawContent" is especially meant for technical endpoints.
+				// This endpoint doesn't need any theme initialization or other comparable stuff.
+				$this->rawContent($request);
+
+				try {
+					$arr = ['content' => ''];
+					Hook::callAll(static::class . '_mod_content', $arr);
+					$this->response->addContent($arr['content']);
+					$this->response->addContent($this->content($_REQUEST));
+				} catch (HTTPException $e) {
+					$this->response->addContent((new ModuleHTTPException())->content($e));
+				}
+				break;
 		}
 
-		if ($this->server['REQUEST_METHOD'] === Router::PATCH) {
-			$this->patch();
-		}
-
-		if ($this->server['REQUEST_METHOD'] === Router::POST) {
-			Core\Hook::callAll($this->args->getModuleName() . '_mod_post', $post);
-			$this->post($request, $post);
-		}
-
-		if ($this->server['REQUEST_METHOD'] === Router::PUT) {
-			$this->put();
-		}
-
-		// "rawContent" is especially meant for technical endpoints.
-		// This endpoint doesn't need any theme initialization or other comparable stuff.
-		$this->rawContent($request);
-
-		try {
-			$arr = ['content' => ''];
-			Hook::callAll(static::class . '_mod_content', $arr);
-			$content = $arr['content'];
-			return $content . $this->content($_REQUEST);
-		} catch (HTTPException $e) {
-			return (new ModuleHTTPException())->content($e);
-		}
+		return $this->response;
 	}
 
 	/*
@@ -250,9 +263,9 @@ abstract class BaseModule implements ICanHandleRequests
 	 */
 	public static function getFormSecurityToken($typename = '')
 	{
-		$user = User::getById(DI::app()->getLoggedInUserId(), ['guid', 'prvkey']);
+		$user      = User::getById(DI::app()->getLoggedInUserId(), ['guid', 'prvkey']);
 		$timestamp = time();
-		$sec_hash = hash('whirlpool', ($user['guid'] ?? '') . ($user['prvkey'] ?? '') . session_id() . $timestamp . $typename);
+		$sec_hash  = hash('whirlpool', ($user['guid'] ?? '') . ($user['prvkey'] ?? '') . session_id() . $timestamp . $typename);
 
 		return $timestamp . '.' . $sec_hash;
 	}

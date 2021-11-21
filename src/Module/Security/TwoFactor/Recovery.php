@@ -27,6 +27,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Model\User;
+use Friendica\Module\Response;
 use Friendica\Security\Authentication;
 use Friendica\Security\TwoFactor\Model\RecoveryCode;
 use Friendica\Util\Profiler;
@@ -46,9 +47,9 @@ class Recovery extends BaseModule
 	/** @var Authentication */
 	protected $auth;
 
-	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Authentication $auth, IHandleSessions $session, array $server, array $parameters = [])
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Authentication $auth, IHandleSessions $session, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->app     = $app;
 		$this->auth    = $auth;

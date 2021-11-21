@@ -13,9 +13,9 @@ interface ICanHandleRequests
 	 * @param array $post    The $_POST content (in case of POST)
 	 * @param array $request The $_REQUEST content (in case of GET, POST)
 	 *
-	 * @return string Returns the content of the module as string
+	 * @return IRespondToRequests responding to the request handling
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function run(array $post = [], array $request = []): string;
+	public function run(array $post = [], array $request = []): IRespondToRequests;
 }

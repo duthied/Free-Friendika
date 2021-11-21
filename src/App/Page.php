@@ -25,6 +25,7 @@ use ArrayAccess;
 use DOMDocument;
 use DOMXPath;
 use Friendica\App;
+use Friendica\Capabilities\IRespondToRequests;
 use Friendica\Content\Nav;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
@@ -336,19 +337,19 @@ class Page implements ArrayAccess
 	 * - module content
 	 * - hooks for content
 	 *
-	 * @param string $content The content to print
-	 * @param Mode   $mode   The Friendica execution mode
+	 * @param IRespondToRequests $response The Module response class
+	 * @param Mode               $mode     The Friendica execution mode
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initContent(string $content, Mode $mode)
+	private function initContent(IRespondToRequests $response, Mode $mode)
 	{
 		// initialise content region
 		if ($mode->isNormal()) {
 			Hook::callAll('page_content_top', $this->page['content']);
 		}
 
-		$this->page['content'] .= $content;
+		$this->page['content'] .= $response->getContent();
 	}
 
 	/**
@@ -373,18 +374,18 @@ class Page implements ArrayAccess
 	/**
 	 * Executes the creation of the current page and prints it to the screen
 	 *
-	 * @param App                         $app     The Friendica App
-	 * @param BaseURL                     $baseURL The Friendica Base URL
-	 * @param Arguments                   $args    The Friendica App arguments
-	 * @param Mode                        $mode    The current node mode
-	 * @param string                      $content The content to print on frontend
-	 * @param L10n                        $l10n    The l10n language class
-	 * @param IManageConfigValues         $config  The Configuration of this node
-	 * @param IManagePersonalConfigValues $pconfig The personal/user configuration
+	 * @param App                         $app      The Friendica App
+	 * @param BaseURL                     $baseURL  The Friendica Base URL
+	 * @param Arguments                   $args     The Friendica App arguments
+	 * @param Mode                        $mode     The current node mode
+	 * @param IRespondToRequests          $response The Response of the module class, including type, content & headers
+	 * @param L10n                        $l10n     The l10n language class
+	 * @param IManageConfigValues         $config   The Configuration of this node
+	 * @param IManagePersonalConfigValues $pconfig  The personal/user configuration
 	 *
 	 * @throws HTTPException\InternalServerErrorException|HTTPException\ServiceUnavailableException
 	 */
-	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, string $content, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
+	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, IRespondToRequests $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
 	{
 		$moduleName = $args->getModuleName();
 
@@ -394,7 +395,7 @@ class Page implements ArrayAccess
 		 * Sets the $Page->page['content'] variable
 		 */
 		$timestamp = microtime(true);
-		$this->initContent($content, $mode);
+		$this->initContent($response, $mode);
 		$profiler->set(microtime(true) - $timestamp, 'content');
 
 		// Load current theme info after module has been initialized as theme could have been set in module
@@ -431,6 +432,16 @@ class Page implements ArrayAccess
 		if ($moduleName != 'install' && $moduleName != 'maintenance') {
 			$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('nav_head.tpl'), []);
 			$this->page['nav']      = Nav::build($app);
+		}
+
+		foreach ($response->getHeaders() as $key => $values) {
+			if (is_array($values)) {
+				foreach ($values as $value) {
+					header($key, $value);
+				}
+			} else {
+				header($key, $values);
+			}
 		}
 
 		// Build the page - now that we have all the components

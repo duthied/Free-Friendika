@@ -22,11 +22,11 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\App;
-use Friendica\App\BaseURL;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Module\BaseAdmin;
+use Friendica\Module\Response;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -37,9 +37,9 @@ class Tos extends BaseAdmin
 	/** @var IManageConfigValues */
 	protected $config;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, \Friendica\Module\Tos $tos, IManageConfigValues $config, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, \Friendica\Module\Tos $tos, IManageConfigValues $config, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->tos     = $tos;
 		$this->config  = $config;

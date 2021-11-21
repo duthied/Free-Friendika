@@ -32,6 +32,7 @@ use Friendica\Core\Session;
 use Friendica\Database\Database;
 use Friendica\Model;
 use Friendica\Module\Contact;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Util\Profiler;
@@ -48,9 +49,9 @@ class Advanced extends BaseModule
 	/** @var Page */
 	protected $page;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, App\Page $page, LoggerInterface $logger, Profiler $profiler, Database $dba, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, App\Page $page, LoggerInterface $logger, Profiler $profiler, Response $response, Database $dba, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->dba  = $dba;
 		$this->page = $page;

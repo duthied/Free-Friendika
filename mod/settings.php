@@ -47,7 +47,7 @@ function settings_init(App $a)
 		return;
 	}
 
-	BaseSettings::content();
+	BaseSettings::createAside();
 }
 
 function settings_post(App $a)
@@ -408,7 +408,7 @@ function settings_content(App $a)
 
 	if (!empty($_SESSION['submanage'])) {
 		notice(DI::l10n()->t('Permission denied.'));
-		return;
+		return '';
 	}
 
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'oauth')) {
@@ -417,7 +417,7 @@ function settings_content(App $a)
 
 			DBA::delete('application-token', ['application-id' => DI::args()->getArgv()[3], 'uid' => local_user()]);
 			DI::baseUrl()->redirect('settings/oauth/', true);
-			return;
+			return '';
 		}
 
 		$applications = DBA::selectToArray('application-view', ['id', 'uid', 'name', 'website', 'scopes', 'created_at'], ['uid' => local_user()]);
@@ -577,7 +577,7 @@ function settings_content(App $a)
 	$profile = DBA::selectFirst('profile', [], ['uid' => local_user()]);
 	if (!DBA::isResult($profile)) {
 		notice(DI::l10n()->t('Unable to find your profile. Please contact your admin.'));
-		return;
+		return '';
 	}
 
 	$user = User::getById($a->getLoggedInUserId());

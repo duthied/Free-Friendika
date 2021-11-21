@@ -701,8 +701,8 @@ class App
 			}
 
 			// Let the module run it's internal process (init, get, post, ...)
-			$content = $module->run($_POST, $_REQUEST);
-			$page->run($this, $this->baseURL, $this->args, $this->mode, $content, $this->l10n, $this->profiler, $this->config, $pconfig);
+			$response = $module->run($_POST, $_REQUEST);
+			$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
 		} catch (HTTPException $e) {
 			(new ModuleHTTPException())->rawContent($e);
 		}

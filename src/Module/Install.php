@@ -73,9 +73,9 @@ class Install extends BaseModule
 	/** @var App\Mode */
 	protected $mode;
 
-	public function __construct(App $app, App\Mode $mode, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Core\Installer $installer, array $server, array $parameters = [])
+	public function __construct(App $app, App\Mode $mode, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Core\Installer $installer, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->app       = $app;
 		$this->mode      = $mode;

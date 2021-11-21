@@ -27,6 +27,7 @@ use Friendica\Content\Nav;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Module\BaseNotifications;
+use Friendica\Module\Response;
 use Friendica\Navigation\Notifications\ValueObject\FormattedNotification;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -43,9 +44,9 @@ class Notifications extends BaseNotifications
 	/** @var \Friendica\Navigation\Notifications\Factory\FormattedNotification */
 	protected $formattedNotificationFactory;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, Arguments $args, LoggerInterface $logger, Profiler $profiler, \Friendica\Navigation\Notifications\Factory\FormattedNotification $formattedNotificationFactory, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, \Friendica\Navigation\Notifications\Factory\FormattedNotification $formattedNotificationFactory, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $server, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->formattedNotificationFactory = $formattedNotificationFactory;
 	}
