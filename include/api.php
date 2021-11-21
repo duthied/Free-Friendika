@@ -264,16 +264,15 @@ function api_account_verify_credentials($type)
 
 	// - Adding last status
 	if (!$skip_status) {
-		$item = api_get_last_status($user_info['pid'], $user_info['uid']);
+		$item = api_get_last_status($user_info['pid'], 0);
 		if (!empty($item)) {
 			$user_info['status'] = api_format_item($item, $type);
 		}
 	}
 
-	// "uid" and "self" are only needed for some internal stuff, so remove it from here
+	// "uid" is only needed for some internal stuff, so remove it from here
 	unset($user_info['uid']);
-	unset($user_info['self']);
-
+	
 	return DI::apiResponse()->formatData("user", $type, ['user' => $user_info]);
 }
 
@@ -697,14 +696,13 @@ function api_users_show($type)
 
 	$user_info = DI::twitterUser()->createFromUserId($uid)->toArray();
 
-	$item = api_get_last_status($user_info['pid'], $user_info['uid']);
+	$item = api_get_last_status($user_info['pid'], 0);
 	if (!empty($item)) {
 		$user_info['status'] = api_format_item($item, $type);
 	}
 
-	// "uid" and "self" are only needed for some internal stuff, so remove it from here
+	// "uid" is only needed for some internal stuff, so remove it from here
 	unset($user_info['uid']);
-	unset($user_info['self']);
 
 	return DI::apiResponse()->formatData('user', $type, ['user' => $user_info]);
 }
@@ -1670,18 +1668,12 @@ function api_format_messages($item, $recipient, $sender)
 		'friendica_parent_uri'  => $item['parent-uri'] ?? '',
 	];
 
-	// "uid" and "self" are only needed for some internal stuff, so remove it from here
+	// "uid" is only needed for some internal stuff, so remove it from here
 	if (isset($ret['sender']['uid'])) {
 		unset($ret['sender']['uid']);
 	}
-	if (isset($ret['sender']['self'])) {
-		unset($ret['sender']['self']);
-	}
 	if (isset($ret['recipient']['uid'])) {
 		unset($ret['recipient']['uid']);
-	}
-	if (isset($ret['recipient']['self'])) {
-		unset($ret['recipient']['self']);
 	}
 
 	//don't send title to regular StatusNET requests to avoid confusing these apps
@@ -2268,9 +2260,8 @@ function api_format_item($item, $type = "json")
 		$status['quoted_status'] = $quoted_status;
 	}
 
-	// "uid" and "self" are only needed for some internal stuff, so remove it from here
+	// "uid" is only needed for some internal stuff, so remove it from here
 	unset($status["user"]['uid']);
-	unset($status["user"]['self']);
 
 	if ($item["coord"] != "") {
 		$coords = explode(' ', $item["coord"]);
@@ -2494,9 +2485,8 @@ function api_statuses_f($qtype)
 	$ret = [];
 	foreach ($r as $cid) {
 		$user = DI::twitterUser()->createFromContactId($cid['id'], $uid)->toArray();
-		// "uid" and "self" are only needed for some internal stuff, so remove it from here
+		// "uid" is only needed for some internal stuff, so remove it from here
 		unset($user['uid']);
-		unset($user['self']);
 
 		if ($user) {
 			$ret[] = $user;
@@ -2794,9 +2784,8 @@ function api_friendships_destroy($type)
 		throw new HTTPException\InternalServerErrorException('Unable to unfollow this contact, please contact your administrator');
 	}
 
-	// "uid" and "self" are only needed for some internal stuff, so remove it from here
+	// "uid" is only needed for some internal stuff, so remove it from here
 	unset($contact['uid']);
-	unset($contact['self']);
 
 	// Set screen_name since Twidere requests it
 	$contact['screen_name'] = $contact['nick'];

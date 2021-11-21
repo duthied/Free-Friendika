@@ -22,21 +22,25 @@
 namespace Friendica\Module\Api\Twitter\Followers;
 
 use Friendica\Core\System;
-use Friendica\Model\Contact;
+use Friendica\Database\DBA;
 use Friendica\Module\Api\Twitter\ContactEndpoint;
+use Friendica\Module\BaseApi;
 
 /**
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-ids
  */
-class FollowersIds extends ContactEndpoint
+class Ids extends ContactEndpoint
 {
 	public function rawContent()
 	{
+		self::checkAllowedScope(self::SCOPE_READ);
+		$uid = BaseApi::getCurrentUserID();
+
 		// Expected value for user_id parameter: public/user contact id
 		$contact_id    = filter_input(INPUT_GET, 'user_id'      , FILTER_VALIDATE_INT);
 		$screen_name   = filter_input(INPUT_GET, 'screen_name');
-		$cursor        = filter_input(INPUT_GET, 'cursor'       , FILTER_VALIDATE_INT);
-		$stringify_ids = filter_input(INPUT_GET, 'stringify_ids', FILTER_VALIDATE_BOOLEAN);
+		$cursor        = filter_input(INPUT_GET, 'cursor'       , FILTER_VALIDATE_INT, ['options' => ['default' => -1]]);
+		$stringify_ids = filter_input(INPUT_GET, 'stringify_ids', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]);
 		$count         = filter_input(INPUT_GET, 'count'        , FILTER_VALIDATE_INT, ['options' => [
 			'default' => self::DEFAULT_COUNT,
 			'min_range' => 1,
@@ -44,18 +48,48 @@ class FollowersIds extends ContactEndpoint
 		]]);
 		// Friendica-specific
 		$since_id      = filter_input(INPUT_GET, 'since_id'     , FILTER_VALIDATE_INT);
-		$max_id        = filter_input(INPUT_GET, 'max_id'       , FILTER_VALIDATE_INT, ['options' => [
-			'default' => 1,
-		]]);
+		$max_id        = filter_input(INPUT_GET, 'max_id'       , FILTER_VALIDATE_INT);
+		$min_id        = filter_input(INPUT_GET, 'min_id'       , FILTER_VALIDATE_INT);
 
-		// @todo Use Model\Contact\Relation::listFollowers($cid, $condition, $count);
+		$cid = BaseApi::getContactIDForSearchterm($screen_name, $contact_id, $uid);
 
-		System::jsonExit(self::ids(
-			[Contact::FOLLOWER, Contact::FRIEND],
-			self::getUid($contact_id, $screen_name),
-			$cursor ?? $since_id ?? - $max_id,
-			$count,
-			$stringify_ids
-		));
+		$params = ['order' => ['relation-cid' => true], 'limit' => $count];
+
+		$condition = ['cid' => $cid, 'follows' => true];
+
+		$total_count = (int)DBA::count('contact-relation', $condition);
+
+		if (!empty($max_id)) {
+			$condition = DBA::mergeConditions($condition, ["`relation-cid` < ?", $max_id]);
+		}
+
+		if (!empty($since_id)) {
+			$condition = DBA::mergeConditions($condition, ["`relation-cid` > ?", $since_id]);
+		}
+
+		if (!empty($min_id)) {
+			$condition = DBA::mergeConditions($condition, ["`relation-cid` > ?", $min_id]);
+
+			$params['order'] = ['relation-cid'];
+		}
+
+		$ids = [];
+
+		$followers = DBA::select('contact-relation', ['relation-cid'], $condition, $params);
+		while ($follower = DBA::fetch($followers)) {
+			self::setBoundaries($follower['relation-cid']);
+			$ids[] = $follower['relation-cid'];
+		}
+		DBA::close($followers);
+
+		if (!empty($min_id)) {
+			array_reverse($ids);
+		}
+
+		$return = self::ids($ids, $total_count, $cursor, $count, $stringify_ids);
+
+		self::setLinkHeader();
+
+		System::jsonExit($return);
 	}
 }
