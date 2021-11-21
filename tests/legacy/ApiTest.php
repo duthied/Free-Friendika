@@ -2233,6 +2233,7 @@ class ApiTest extends FixtureTest
 				'author-id'      => 43,
 				'author-network' => Protocol::DFRN,
 				'author-link'    => 'http://localhost/profile/othercontact',
+				'owner-id'       => 43,
 				'plink'          => '',
 				'uid'            => $this->selfUser['id'],
 			]
@@ -2257,6 +2258,7 @@ class ApiTest extends FixtureTest
 				'author-id'      => 43,
 				'author-network' => Protocol::DFRN,
 				'author-link'    => 'http://localhost/profile/othercontact',
+				'owner-id'       => 43,
 				'plink'          => '',
 				'uid'            => $this->selfUser['id'],
 			]
