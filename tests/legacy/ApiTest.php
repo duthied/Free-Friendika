@@ -1770,7 +1770,7 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_user_timeline('json');
-		self::assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status'], print_r($result['status'], true));
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
 		}
@@ -2228,6 +2228,7 @@ class ApiTest extends FixtureTest
 				'item_network'   => 'item_network',
 				'source'         => 'web',
 				'coord'          => '5 7',
+				'title'          => '',
 				'body'           => '',
 				'verb'           => '',
 				'author-id'      => 43,
@@ -2254,6 +2255,7 @@ class ApiTest extends FixtureTest
 		$items  = [
 			[
 				'coord'          => '5 7',
+				'title'          => '',
 				'body'           => '',
 				'verb'           => '',
 				'author-id'      => 43,
