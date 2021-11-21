@@ -100,18 +100,8 @@ class Response implements ICanCreateResponses
 	 */
 	public function generate(): ResponseInterface
 	{
-		$headers = [];
-
-		foreach ($this->headers as $key => $header) {
-			if (empty($key)) {
-				$headers[] = $header;
-			} else {
-				$headers[] = "$key: $header";
-			}
-		}
-
 		// Setting the response type as an X-header for direct usage
-		$headers['X-RESPONSE-TYPE'] = $this->type;
+		$this->headers['X-RESPONSE-TYPE'] = $this->type;
 
 		return new \GuzzleHttp\Psr7\Response(200, $this->headers, $this->content);
 	}
