@@ -22,7 +22,7 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(BaseURL::class);
+		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
 		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
@@ -36,7 +36,7 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(BaseURL::class);
+		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
 		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
@@ -58,7 +58,7 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(BaseURL::class);
+		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
 		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
@@ -81,7 +81,7 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(BaseURL::class);
+		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
 		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
@@ -107,7 +107,7 @@ class ApiResponseTest extends MockedTest
 		});
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(BaseURL::class);
+		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
 		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
