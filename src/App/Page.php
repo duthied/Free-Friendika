@@ -191,14 +191,14 @@ class Page implements ArrayAccess
 	 * - head.tpl template
 	 *
 	 * @param App                         $app     The Friendica App instance
-	 * @param Module                      $module  The loaded Friendica module
+	 * @param ModuleController            $module  The loaded Friendica module
 	 * @param L10n                        $l10n    The l10n language instance
 	 * @param IManageConfigValues         $config  The Friendica configuration
 	 * @param IManagePersonalConfigValues $pConfig The Friendica personal configuration (for user)
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initHead(App $app, Module $module, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig)
+	private function initHead(App $app, ModuleController $module, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig)
 	{
 		$interval = ((local_user()) ? $pConfig->get(local_user(), 'system', 'update_interval') : 40000);
 
@@ -337,26 +337,24 @@ class Page implements ArrayAccess
 	 * - module content
 	 * - hooks for content
 	 *
-	 * @param Module $module The module
-	 * @param Mode   $mode   The Friendica execution mode
+	 * @param ModuleController $module The module
+	 * @param Mode             $mode   The Friendica execution mode
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initContent(Module $module, Mode $mode)
+	private function initContent(ModuleController $module, Mode $mode)
 	{
 		$content = '';
 
 		try {
-			$moduleClass = $module->getClassName();
+			$moduleClass = $module->getModule();
 
 			$arr = ['content' => $content];
-			Hook::callAll($moduleClass . '_mod_content', $arr);
+			Hook::callAll($moduleClass->getClassName() . '_mod_content', $arr);
 			$content = $arr['content'];
-			$arr     = ['content' => call_user_func([$moduleClass, 'content'], $module->getParameters())];
-			Hook::callAll($moduleClass . '_mod_aftercontent', $arr);
-			$content .= $arr['content'];
+			$content .= $module->getModule()->content();
 		} catch (HTTPException $e) {
-			$content = ModuleHTTPException::content($e);
+			$content = (new ModuleHTTPException())->content($e);
 		}
 
 		// initialise content region
@@ -392,14 +390,14 @@ class Page implements ArrayAccess
 	 * @param App                         $app     The Friendica App
 	 * @param BaseURL                     $baseURL The Friendica Base URL
 	 * @param Mode                        $mode    The current node mode
-	 * @param Module                      $module  The loaded Friendica module
+	 * @param ModuleController            $module  The loaded Friendica module
 	 * @param L10n                        $l10n    The l10n language class
 	 * @param IManageConfigValues         $config  The Configuration of this node
 	 * @param IManagePersonalConfigValues $pconfig The personal/user configuration
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function run(App $app, BaseURL $baseURL, Mode $mode, Module $module, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
+	public function run(App $app, BaseURL $baseURL, Mode $mode, ModuleController $module, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
 	{
 		$moduleName = $module->getName();
 

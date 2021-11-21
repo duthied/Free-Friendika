@@ -2,8 +2,10 @@
 
 namespace Friendica\Module\Settings\TwoFactor;
 
+use Friendica\App\BaseURL;
+use Friendica\Core\L10n;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
-use Friendica\DI;
 use Friendica\Module\BaseSettings;
 use Friendica\Security\TwoFactor;
 use Friendica\Util\Temporal;
@@ -14,40 +16,51 @@ use UAParser\Parser;
  */
 class Trusted extends BaseSettings
 {
-	public static function init(array $parameters = [])
+	/** @var IManagePersonalConfigValues */
+	protected $pConfig;
+	/** @var BaseURL */
+	protected $baseUrl;
+	/** @var TwoFactor\Repository\TrustedBrowser */
+	protected $trustedBrowserRepo;
+
+	public function __construct(IManagePersonalConfigValues $pConfig, BaseURL $baseUrl, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, L10n $l10n, array $parameters = [])
 	{
+		parent::__construct($l10n, $parameters);
+
+		$this->pConfig            = $pConfig;
+		$this->baseUrl            = $baseUrl;
+		$this->trustedBrowserRepo = $trustedBrowserRepo;
+
 		if (!local_user()) {
 			return;
 		}
 
-		$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
+		$verified = $this->pConfig->get(local_user(), '2fa', 'verified');
 
 		if (!$verified) {
-			DI::baseUrl()->redirect('settings/2fa');
+			$this->baseUrl->redirect('settings/2fa');
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice(DI::l10n()->t('Please enter your password to access this page.'));
-			DI::baseUrl()->redirect('settings/2fa');
+			notice($this->t('Please enter your password to access this page.'));
+			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		if (!local_user()) {
 			return;
 		}
-
-		$trustedBrowserRepository = new TwoFactor\Repository\TrustedBrowser(DI::dba(), DI::logger());
 
 		if (!empty($_POST['action'])) {
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/trusted', 'settings_2fa_trusted');
 
 			switch ($_POST['action']) {
 				case 'remove_all' :
-					$trustedBrowserRepository->removeAllForUser(local_user());
-					info(DI::l10n()->t('Trusted browsers successfully removed.'));
-					DI::baseUrl()->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
+					$this->trustedBrowserRepo->removeAllForUser(local_user());
+					info($this->t('Trusted browsers successfully removed.'));
+					$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					break;
 			}
 		}
@@ -55,21 +68,20 @@ class Trusted extends BaseSettings
 		if (!empty($_POST['remove_id'])) {
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/trusted', 'settings_2fa_trusted');
 
-			if ($trustedBrowserRepository->removeForUser(local_user(), $_POST['remove_id'])) {
-				info(DI::l10n()->t('Trusted browser successfully removed.'));
+			if ($this->trustedBrowserRepo->removeForUser(local_user(), $_POST['remove_id'])) {
+				info($this->t('Trusted browser successfully removed.'));
 			}
 
-			DI::baseUrl()->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
+			$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
 		}
 	}
 
 
-	public static function content(array $parameters = []): string
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
-		$trustedBrowserRepository = new TwoFactor\Repository\TrustedBrowser(DI::dba(), DI::logger());
-		$trustedBrowsers = $trustedBrowserRepository->selectAllByUid(local_user());
+		$trustedBrowsers = $this->trustedBrowserRepo->selectAllByUid(local_user());
 
 		$parser = Parser::create();
 
@@ -94,15 +106,15 @@ class Trusted extends BaseSettings
 			'$form_security_token' => self::getFormSecurityToken('settings_2fa_trusted'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
 
-			'$title'               => DI::l10n()->t('Two-factor Trusted Browsers'),
-			'$message'             => DI::l10n()->t('Trusted browsers are individual browsers you chose to skip two-factor authentication to access Friendica. Please use this feature sparingly, as it can negate the benefit of two-factor authentication.'),
-			'$device_label'        => DI::l10n()->t('Device'),
-			'$os_label'            => DI::l10n()->t('OS'),
-			'$browser_label'       => DI::l10n()->t('Browser'),
-			'$created_label'       => DI::l10n()->t('Trusted'),
-			'$last_used_label'     => DI::l10n()->t('Last Use'),
-			'$remove_label'        => DI::l10n()->t('Remove'),
-			'$remove_all_label'    => DI::l10n()->t('Remove All'),
+			'$title'               => $this->t('Two-factor Trusted Browsers'),
+			'$message'             => $this->t('Trusted browsers are individual browsers you chose to skip two-factor authentication to access Friendica. Please use this feature sparingly, as it can negate the benefit of two-factor authentication.'),
+			'$device_label'        => $this->t('Device'),
+			'$os_label'            => $this->t('OS'),
+			'$browser_label'       => $this->t('Browser'),
+			'$created_label'       => $this->t('Trusted'),
+			'$last_used_label'     => $this->t('Last Use'),
+			'$remove_label'        => $this->t('Remove'),
+			'$remove_all_label'    => $this->t('Remove All'),
 
 			'$trusted_browsers'    => $trustedBrowserDisplay,
 		]);

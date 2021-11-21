@@ -30,10 +30,9 @@ use Friendica\Module\BaseApi;
 class Proofs extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		System::jsonError(404, ['error' => 'Record not found']);
 	}

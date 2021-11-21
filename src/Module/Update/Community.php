@@ -33,9 +33,9 @@ use Friendica\Module\Conversation\Community as CommunityModule;
  */
 class Community extends CommunityModule
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
-		self::parseRequest($parameters);
+		$this->parseRequest();
 
 		$o = '';
 		if (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update')) {

@@ -30,9 +30,9 @@ use Friendica\Util\DateTimeFormat;
  */
 class RateLimitStatus extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
-		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
+		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
 			$hash = [
 				'remaining-hits'        => '150',
 				'@attributes'           => ["type" => "integer"],
@@ -48,10 +48,10 @@ class RateLimitStatus extends BaseApi
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'remaining_hits'        => '150',
 				'hourly_limit'          => '150',
-				'reset_time'            => api_date(DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM)),
+				'reset_time'            => DateTimeFormat::utc('now + 1 hour', DateTimeFormat::API),
 			];
 		}
 
-		DI::apiResponse()->exit('hash', ['hash' => $hash], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('hash', ['hash' => $hash], $this->parameters['extension'] ?? null);
 	}
 }

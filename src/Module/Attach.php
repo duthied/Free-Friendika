@@ -34,14 +34,14 @@ class Attach extends BaseModule
 	/**
 	 * Return to user an attached file given the id
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$a = DI::app();
-		if (empty($parameters['item'])) {
+		if (empty($this->parameters['item'])) {
 			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
-		$item_id = intval($parameters['item']);
+		$item_id = intval($this->parameters['item']);
 
 		// Check for existence
 		$item = MAttach::exists(['id' => $item_id]);

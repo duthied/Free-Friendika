@@ -38,18 +38,18 @@ use Friendica\Network\HTTPException;
  */
 class Activity extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		if (!Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
-		if (empty($parameters['id']) || empty($parameters['verb'])) {
+		if (empty($this->parameters['id']) || empty($this->parameters['verb'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
-		$verb = $parameters['verb'];
-		$itemId =  $parameters['id'];
+		$verb = $this->parameters['verb'];
+		$itemId =  $this->parameters['id'];
 
 		if (in_array($verb, ['announce', 'unannounce'])) {
 			$item = Post::selectFirst(['network'], ['id' => $itemId]);

@@ -22,6 +22,7 @@
 namespace Friendica\Module\Profile;
 
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
 
 /**
  * Profile index router
@@ -34,13 +35,13 @@ use Friendica\BaseModule;
  */
 class Index extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
-		Profile::rawContent($parameters);
+		(new Profile($this->l10n, $this->parameters))->rawContent();
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		return Status::content($parameters);
+		return (new Status($this->l10n, $this->parameters))->content();
 	}
 }

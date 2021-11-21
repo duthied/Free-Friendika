@@ -42,7 +42,6 @@ use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
-use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -55,11 +54,9 @@ use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Security\BasicAuth;
-use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
-use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 require_once __DIR__ . '/../mod/item.php';
@@ -73,28 +70,6 @@ define('API_METHOD_DELETE', 'POST,DELETE');
 define('API_LOG_PREFIX', 'API {action} - ');
 
 $API = [];
-$called_api = [];
-
-/**
- * Auth API user
- *
- * It is not sufficient to use local_user() to check whether someone is allowed to use the API,
- * because this will open CSRF holes (just embed an image with src=friendicasite.com/api/statuses/update?status=CSRF
- * into a page, and visitors will post something without noticing it).
- */
-function api_user()
-{
-	$user = OAuth::getCurrentUserID();
-	if (!empty($user)) {
-		return $user;
-	}
-
-	if (!empty($_SESSION['allow_api'])) {
-		return local_user();
-	}
-
-	return false;
-}
 
 /**
  * Get source name from API client
@@ -129,19 +104,6 @@ function api_source()
 }
 
 /**
- * Format date for API
- *
- * @param string $str Source date, as UTC
- * @return string Date in UTC formatted as "D M d H:i:s +0000 Y"
- * @throws Exception
- */
-function api_date($str)
-{
-	// Wed May 23 06:01:13 +0000 2007
-	return DateTimeFormat::utc($str, "D M d H:i:s +0000 Y");
-}
-
-/**
  * Register a function to be the endpoint for defined API path.
  *
  * @param string $path   API URL path, relative to DI::baseUrl()
@@ -172,24 +134,6 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
 }
 
 /**
- * Check HTTP method of called API
- *
- * API endpoints can define which HTTP method to accept when called.
- * This function check the current HTTP method agains endpoint
- * registered method.
- *
- * @param string $method Required methods, uppercase, separated by comma
- * @return bool
- */
-function api_check_method($method)
-{
-	if ($method == "*") {
-		return true;
-	}
-	return (stripos($method, $_SERVER['REQUEST_METHOD'] ?? 'GET') !== false);
-}
-
-/**
  * Main API entry point
  *
  * Authenticate user, call registered API function, set HTTP headers
@@ -201,7 +145,7 @@ function api_check_method($method)
  */
 function api_call(App $a, App\Arguments $args = null)
 {
-	global $API, $called_api;
+	global $API;
 
 	if ($args == null) {
 		$args = DI::args();
@@ -224,13 +168,7 @@ function api_call(App $a, App\Arguments $args = null)
 	try {
 		foreach ($API as $p => $info) {
 			if (strpos($args->getCommand(), $p) === 0) {
-				if (!api_check_method($info['method'])) {
-					throw new MethodNotAllowedException();
-				}
-
-				$called_api = explode("/", $p);
-
-				if (!empty($info['auth']) && api_user() === false) {
+				if (!empty($info['auth']) && BaseApi::getCurrentUserID() === false) {
 					BasicAuth::getCurrentUserID(true);
 					Logger::info(API_LOG_PREFIX . 'nickname {nickname}', ['module' => 'api', 'action' => 'call', 'nickname' => $a->getLoggedInUserNickname()]);
 				}
@@ -290,7 +228,6 @@ function api_call(App $a, App\Arguments $args = null)
 /**
  * Set values for RSS template
  *
- * @param App   $a
  * @param array $arr       Array to be passed to template
  * @param array $user_info User info
  * @return array
@@ -300,10 +237,15 @@ function api_call(App $a, App\Arguments $args = null)
  * @throws UnauthorizedException
  * @todo  find proper type-hints
  */
-function api_rss_extra(App $a, $arr, $user_info)
+function api_rss_extra($arr, $user_info)
 {
 	if (is_null($user_info)) {
-		$user_info = api_get_user();
+		$uid = BaseApi::getCurrentUserID();
+		if (empty($uid)) {
+			throw new ForbiddenException();
+		}
+
+		$user_info = DI::twitterUser()->createFromUserId($uid)->toArray();
 	}
 
 	$arr['$user'] = $user_info;
@@ -311,7 +253,7 @@ function api_rss_extra(App $a, $arr, $user_info)
 		'alternate'    => $user_info['url'],
 		'self'         => DI::baseUrl() . "/" . DI::args()->getQueryString(),
 		'base'         => DI::baseUrl(),
-		'updated'      => api_date(null),
+		'updated'      => DateTimeFormat::utc(null, DateTimeFormat::API),
 		'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 		'language'     => $user_info['lang'],
 		'logo'         => DI::baseUrl() . "/images/friendica-32.png",
@@ -341,294 +283,6 @@ function api_unique_id_to_nurl($id)
 }
 
 /**
- * Get user info array.
- *
- * @param App        $a          App
- * @param int|string $contact_id Contact ID or URL
- * @return array|bool
- * @throws BadRequestException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_get_user($contact_id = null)
-{
-	global $called_api;
-
-	$user = null;
-	$extra_query = "";
-	$url = "";
-
-	Logger::info(API_LOG_PREFIX . 'Fetching data for user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $contact_id]);
-
-	// Searching for contact URL
-	if (!is_null($contact_id) && (intval($contact_id) == 0)) {
-		$user = Strings::normaliseLink($contact_id);
-		$url = $user;
-		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (api_user() !== false) {
-			$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
-		}
-	}
-
-	// Searching for contact id with uid = 0
-	if (!is_null($contact_id) && (intval($contact_id) != 0)) {
-		$user = api_unique_id_to_nurl(intval($contact_id));
-
-		if ($user == "") {
-			throw new BadRequestException("User ID ".$contact_id." not found.");
-		}
-
-		$url = $user;
-		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (api_user() !== false) {
-			$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
-		}
-	}
-
-	if (is_null($user) && !empty($_GET['user_id'])) {
-		$user = api_unique_id_to_nurl($_GET['user_id']);
-
-		if ($user == "") {
-			throw new BadRequestException("User ID ".$_GET['user_id']." not found.");
-		}
-
-		$url = $user;
-		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (api_user() !== false) {
-			$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
-		}
-	}
-	if (is_null($user) && !empty($_GET['screen_name'])) {
-		$user = $_GET['screen_name'];
-		$extra_query = "AND `contact`.`nick` = ? ";
-		if (api_user() !== false) {
-			$extra_query .= "AND `contact`.`uid`=".intval(api_user());
-		}
-	}
-
-	if (is_null($user) && !empty($_GET['profileurl'])) {
-		$user = Strings::normaliseLink($_GET['profileurl']);
-		$extra_query = "AND `contact`.`nurl` = ? ";
-		if (api_user() !== false) {
-			$extra_query .= "AND `contact`.`uid`=".intval(api_user());
-		}
-	}
-
-	// $called_api is the API path exploded on / and is expected to have at least 2 elements
-	if (is_null($user) && (DI::args()->getArgc() > (count($called_api) - 1)) && (count($called_api) > 0)) {
-		$argid = count($called_api);
-		if (!empty(DI::args()->getArgv()[$argid])) {
-			$data = explode(".", DI::args()->getArgv()[$argid]);
-			if (count($data) > 1) {
-				[$user, $null] = $data;
-			}
-		}
-		if (is_numeric($user)) {
-			$user = api_unique_id_to_nurl(intval($user));
-
-			if ($user != "") {
-				$url = $user;
-				$extra_query = "AND `contact`.`nurl` = ? ";
-				if (api_user() !== false) {
-					$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
-				}
-			}
-		} else {
-			$extra_query = "AND `contact`.`nick` = ? ";
-			if (api_user() !== false) {
-				$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
-			}
-		}
-	}
-
-	Logger::info(API_LOG_PREFIX . 'getting user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user]);
-
-	if (!$user) {
-		if (api_user() === false) {
-			BasicAuth::getCurrentUserID(true);
-			return false;
-		} else {
-			$user = api_user();
-			$extra_query = "AND `contact`.`uid` = ? AND `contact`.`self` ";
-		}
-	}
-
-	Logger::info(API_LOG_PREFIX . 'found user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user, 'extra_query' => $extra_query]);
-
-	// user info
-	$uinfo = DBA::toArray(DBA::p(
-		"SELECT *, `contact`.`id` AS `cid` FROM `contact`
-			WHERE 1
-		$extra_query",
-		$user
-	));
-
-	// Selecting the id by priority, friendica first
-	if (is_array($uinfo)) {
-		api_best_nickname($uinfo);
-	}
-
-	// if the contact wasn't found, fetch it from the contacts with uid = 0
-	if (!DBA::isResult($uinfo)) {
-		if ($url == "") {
-			throw new BadRequestException("User not found.");
-		}
-
-		$contact = DBA::selectFirst('contact', [], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
-
-		if (DBA::isResult($contact)) {
-			$ret = [
-				'id' => $contact["id"],
-				'id_str' => (string) $contact["id"],
-				'name' => $contact["name"],
-				'screen_name' => (($contact['nick']) ? $contact['nick'] : $contact['name']),
-				'location' => ($contact["location"] != "") ? $contact["location"] : ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']),
-				'description' => BBCode::toPlaintext($contact["about"] ?? ''),
-				'profile_image_url' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_MICRO),
-				'profile_image_url_https' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_MICRO),
-				'profile_image_url_profile_size' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_THUMB),
-				'profile_image_url_large' => Contact::getAvatarUrlForUrl($contact['url'], api_user(), Proxy::SIZE_SMALL),
-				'url' => $contact["url"],
-				'protected' => false,
-				'followers_count' => 0,
-				'friends_count' => 0,
-				'listed_count' => 0,
-				'created_at' => api_date($contact["created"]),
-				'favourites_count' => 0,
-				'utc_offset' => 0,
-				'time_zone' => 'UTC',
-				'geo_enabled' => false,
-				'verified' => false,
-				'statuses_count' => 0,
-				'lang' => '',
-				'contributors_enabled' => false,
-				'is_translator' => false,
-				'is_translation_enabled' => false,
-				'following' => false,
-				'follow_request_sent' => false,
-				'statusnet_blocking' => false,
-				'notifications' => false,
-				'statusnet_profile_url' => $contact["url"],
-				'uid' => 0,
-				'cid' => Contact::getIdForURL($contact["url"], api_user(), false),
-				'pid' => Contact::getIdForURL($contact["url"], 0, false),
-				'self' => 0,
-				'network' => $contact["network"],
-			];
-
-			return $ret;
-		} else {
-			throw new BadRequestException("User ".$url." not found.");
-		}
-	}
-
-	if ($uinfo[0]['self']) {
-		if ($uinfo[0]['network'] == "") {
-			$uinfo[0]['network'] = Protocol::DFRN;
-		}
-
-		$usr = DBA::selectFirst('user', ['default-location'], ['uid' => api_user()]);
-		$profile = DBA::selectFirst('profile', ['about'], ['uid' => api_user(), 'is-default' => true]);
-	}
-	$countitems = 0;
-	$countfriends = 0;
-	$countfollowers = 0;
-	$starred = 0;
-
-	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, false);
-
-	if (!empty($profile['about'])) {
-		$description = $profile['about'];
-	} else {
-		$description = $uinfo[0]["about"];
-	}
-
-	if (!empty($usr['default-location'])) {
-		$location = $usr['default-location'];
-	} elseif (!empty($uinfo[0]["location"])) {
-		$location = $uinfo[0]["location"];
-	} else {
-		$location = ContactSelector::networkToName($uinfo[0]['network'], $uinfo[0]['url'], $uinfo[0]['protocol']);
-	}
-
-	$ret = [
-		'id' => intval($pcontact_id),
-		'id_str' => (string) intval($pcontact_id),
-		'name' => (($uinfo[0]['name']) ? $uinfo[0]['name'] : $uinfo[0]['nick']),
-		'screen_name' => (($uinfo[0]['nick']) ? $uinfo[0]['nick'] : $uinfo[0]['name']),
-		'location' => $location,
-		'description' => BBCode::toPlaintext($description ?? ''),
-		'profile_image_url' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_MICRO),
-		'profile_image_url_https' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_MICRO),
-		'profile_image_url_profile_size' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_THUMB),
-		'profile_image_url_large' => Contact::getAvatarUrlForUrl($uinfo[0]['url'], api_user(), Proxy::SIZE_SMALL),
-		'url' => $uinfo[0]['url'],
-		'protected' => false,
-		'followers_count' => intval($countfollowers),
-		'friends_count' => intval($countfriends),
-		'listed_count' => 0,
-		'created_at' => api_date($uinfo[0]['created']),
-		'favourites_count' => intval($starred),
-		'utc_offset' => "0",
-		'time_zone' => 'UTC',
-		'geo_enabled' => false,
-		'verified' => true,
-		'statuses_count' => intval($countitems),
-		'lang' => '',
-		'contributors_enabled' => false,
-		'is_translator' => false,
-		'is_translation_enabled' => false,
-		'following' => (($uinfo[0]['rel'] == Contact::FOLLOWER) || ($uinfo[0]['rel'] == Contact::FRIEND)),
-		'follow_request_sent' => false,
-		'statusnet_blocking' => false,
-		'notifications' => false,
-		/// @TODO old way?
-		//'statusnet_profile_url' => DI::baseUrl()."/contact/".$uinfo[0]['cid'],
-		'statusnet_profile_url' => $uinfo[0]['url'],
-		'uid' => intval($uinfo[0]['uid']),
-		'cid' => intval($uinfo[0]['cid']),
-		'pid' => Contact::getIdForURL($uinfo[0]["url"], 0, false),
-		'self' => $uinfo[0]['self'],
-		'network' => $uinfo[0]['network'],
-	];
-
-	// If this is a local user and it uses Frio, we can get its color preferences.
-	if ($ret['self']) {
-		$theme_info = DBA::selectFirst('user', ['theme'], ['uid' => $ret['uid']]);
-		if ($theme_info['theme'] === 'frio') {
-			$schema = DI::pConfig()->get($ret['uid'], 'frio', 'schema');
-
-			if ($schema && ($schema != '---')) {
-				if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
-					$schemefile = 'view/theme/frio/schema/'.$schema.'.php';
-					require_once $schemefile;
-				}
-			} else {
-				$nav_bg = DI::pConfig()->get($ret['uid'], 'frio', 'nav_bg');
-				$link_color = DI::pConfig()->get($ret['uid'], 'frio', 'link_color');
-				$bgcolor = DI::pConfig()->get($ret['uid'], 'frio', 'background_color');
-			}
-			if (empty($nav_bg)) {
-				$nav_bg = "#708fa0";
-			}
-			if (empty($link_color)) {
-				$link_color = "#6fdbe8";
-			}
-			if (empty($bgcolor)) {
-				$bgcolor = "#ededed";
-			}
-
-			$ret['profile_sidebar_fill_color'] = str_replace('#', '', $nav_bg);
-			$ret['profile_link_color'] = str_replace('#', '', $link_color);
-			$ret['profile_background_color'] = str_replace('#', '', $bgcolor);
-		}
-	}
-
-	return $ret;
-}
-
-/**
  * return api-formatted array for item's author and owner
  *
  * @param App   $a    App
@@ -641,14 +295,20 @@ function api_get_user($contact_id = null)
  */
 function api_item_get_user(App $a, $item)
 {
-	$status_user = api_get_user($item['author-id'] ?? null);
+	if (empty($item['author-id'])) {
+		$item['author-id'] = Contact::getPublicIdByUserId(BaseApi::getCurrentUserID());
+	}
+	$status_user = DI::twitterUser()->createFromContactId($item['author-id'], BaseApi::getCurrentUserID())->toArray();
 
 	$author_user = $status_user;
 
 	$status_user["protected"] = isset($item['private']) && ($item['private'] == Item::PRIVATE);
 
 	if (($item['thr-parent'] ?? '') == ($item['uri'] ?? '')) {
-		$owner_user = api_get_user($item['owner-id'] ?? null);
+		if (empty($item['owner-id'])) {
+			$item['owner-id'] = Contact::getPublicIdByUserId(BaseApi::getCurrentUserID());
+		}
+		$owner_user = DI::twitterUser()->createFromContactId($item['owner-id'], BaseApi::getCurrentUserID())->toArray();
 	} else {
 		$owner_user = $author_user;
 	}
@@ -676,21 +336,17 @@ function api_item_get_user(App $a, $item)
  */
 function api_account_verify_credentials($type)
 {
-	$a = DI::app();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
-
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
 	$skip_status = $_REQUEST['skip_status'] ?? false;
 
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	// "verified" isn't used here in the standard
 	unset($user_info["verified"]);
@@ -746,13 +402,11 @@ function api_statuses_mediap($type)
 {
 	$a = DI::app();
 
-	if (api_user() === false) {
-		logger::notice('api_statuses_update: no user');
-		throw new ForbiddenException();
-	}
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
-	$_REQUEST['profile_uid'] = api_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
+
+	$_REQUEST['profile_uid'] = BaseApi::getCurrentUserID();
 	$_REQUEST['api_source'] = true;
 	$txt = requestdata('status') ?? '';
 	/// @TODO old-lost code?
@@ -800,12 +454,7 @@ function api_statuses_update($type)
 {
 	$a = DI::app();
 
-	if (api_user() === false) {
-		logger::notice('api_statuses_update: no user');
-		throw new ForbiddenException();
-	}
-
-	api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// convert $_POST array items to the form we use for web posts.
 	if (requestdata('htmlstatus')) {
@@ -843,7 +492,7 @@ function api_statuses_update($type)
 	if (requestdata('lat') && requestdata('long')) {
 		$_REQUEST['coord'] = sprintf("%s %s", requestdata('lat'), requestdata('long'));
 	}
-	$_REQUEST['profile_uid'] = api_user();
+	$_REQUEST['profile_uid'] = BaseApi::getCurrentUserID();
 
 	if (!$parent) {
 		// Check for throttling (maximum posts per day, week and month)
@@ -851,11 +500,11 @@ function api_statuses_update($type)
 		if ($throttle_day > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
-			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, api_user(), $datefrom];
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, BaseApi::getCurrentUserID(), $datefrom];
 			$posts_day = Post::count($condition);
 
 			if ($posts_day > $throttle_day) {
-				logger::info('Daily posting limit reached for user '.api_user());
+				logger::info('Daily posting limit reached for user '.BaseApi::getCurrentUserID());
 				// die(api_error($type, DI::l10n()->t("Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
 				throw new TooManyRequestsException(DI::l10n()->tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
 			}
@@ -865,11 +514,11 @@ function api_statuses_update($type)
 		if ($throttle_week > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
-			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, api_user(), $datefrom];
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, BaseApi::getCurrentUserID(), $datefrom];
 			$posts_week = Post::count($condition);
 
 			if ($posts_week > $throttle_week) {
-				logger::info('Weekly posting limit reached for user '.api_user());
+				logger::info('Weekly posting limit reached for user '.BaseApi::getCurrentUserID());
 				// die(api_error($type, DI::l10n()->t("Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week)));
 				throw new TooManyRequestsException(DI::l10n()->tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week));
 			}
@@ -879,11 +528,11 @@ function api_statuses_update($type)
 		if ($throttle_month > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
-			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, api_user(), $datefrom];
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, BaseApi::getCurrentUserID(), $datefrom];
 			$posts_month = Post::count($condition);
 
 			if ($posts_month > $throttle_month) {
-				logger::info('Monthly posting limit reached for user '.api_user());
+				logger::info('Monthly posting limit reached for user '.BaseApi::getCurrentUserID());
 				// die(api_error($type, DI::l10n()->t("Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
 				throw new TooManyRequestsException(DI::l10n()->t("Monthly posting limit of %d post reached. The post was rejected.", "Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
 			}
@@ -908,7 +557,7 @@ function api_statuses_update($type)
 			$media = DBA::toArray(DBA::p("SELECT `resource-id`, `scale`, `nickname`, `type`, `desc`, `filename`, `datasize`, `width`, `height` FROM `photo`
 					INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN
 						(SELECT `resource-id` FROM `photo` WHERE `id` = ?) AND `photo`.`uid` = ?
-					ORDER BY `photo`.`width` DESC LIMIT 2", $id, api_user()));
+					ORDER BY `photo`.`width` DESC LIMIT 2", $id, BaseApi::getCurrentUserID()));
 
 			if (!empty($media)) {
 				$ressources[] = $media[0]['resource-id'];
@@ -947,7 +596,7 @@ function api_statuses_update($type)
 	$_REQUEST['api_source'] = true;
 
 	if (empty($_REQUEST['source'])) {
-		$_REQUEST["source"] = api_source();
+		$_REQUEST['source'] = api_source();
 	}
 
 	// call out normal post function
@@ -956,7 +605,7 @@ function api_statuses_update($type)
 	if (!empty($ressources) && !empty($item_id)) {
 		$item = Post::selectFirst(['uri-id', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], ['id' => $item_id]);
 		foreach ($ressources as $ressource) {
-			Photo::setPermissionForRessource($ressource, api_user(), $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
+			Photo::setPermissionForRessource($ressource, BaseApi::getCurrentUserID(), $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
 		}
 	}
 
@@ -983,12 +632,7 @@ function api_media_upload()
 {
 	$a = DI::app();
 
-	if (api_user() === false) {
-		logger::notice('no user');
-		throw new ForbiddenException();
-	}
-
-	api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	if (empty($_FILES['media'])) {
 		// Output error
@@ -1036,14 +680,7 @@ api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST)
  */
 function api_media_metadata_create($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		Logger::info('no user');
-		throw new ForbiddenException();
-	}
-
-	api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	$postdata = Network::postdata();
 
@@ -1066,7 +703,7 @@ function api_media_metadata_create($type)
 
 	Logger::info('Updating metadata', ['media_id' => $data['media_id']]);
 
-	$condition =  ['id' => $data['media_id'], 'uid' => api_user()];
+	$condition =  ['id' => $data['media_id'], 'uid' => BaseApi::getCurrentUserID()];
 	$photo = DBA::selectFirst('photo', ['resource-id'], $condition);
 	if (!DBA::isResult($photo)) {
 		throw new BadRequestException("Metadata not found.");
@@ -1149,9 +786,9 @@ function api_get_item(array $condition)
  */
 function api_users_show($type)
 {
-	$a = Friendica\DI::app();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	$item = api_get_last_status($user_info['pid'], $user_info['uid']);
 	if (!empty($item)) {
@@ -1183,8 +820,6 @@ api_register_func('api/externalprofile/show', 'api_users_show');
  */
 function api_users_search($type)
 {
-	$a = DI::app();
-
 	$userlist = [];
 
 	if (!empty($_GET['q'])) {
@@ -1202,7 +837,7 @@ function api_users_search($type)
 		if (DBA::isResult($contacts)) {
 			$k = 0;
 			foreach ($contacts as $contact) {
-				$user_info = api_get_user($contact['id']);
+				$user_info = DI::twitterUser()->createFromContactId($contact['id'], BaseApi::getCurrentUserID())->toArray();
 
 				if ($type == 'xml') {
 					$userlist[$k++ . ':user'] = $user_info;
@@ -1245,7 +880,10 @@ function api_users_lookup($type)
 	if (!empty($_REQUEST['user_id'])) {
 		foreach (explode(',', $_REQUEST['user_id']) as $id) {
 			if (!empty($id)) {
-				$users[] = api_get_user($id);
+				$cid = BaseApi::getContactIDForSearchterm($id);
+				if (!empty($cid)) {
+					$users[] = DI::twitterUser()->createFromContactId($cid, BaseApi::getCurrentUserID())->toArray();
+				}
 			}
 		}
 	}
@@ -1276,12 +914,9 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
  */
 function api_search($type)
 {
-	$a = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	if (empty($_REQUEST['q'])) {
 		throw new BadRequestException('q parameter is required.');
@@ -1308,7 +943,7 @@ function api_search($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	if (preg_match('/^#(\w+)$/', $searchTerm, $matches) === 1 && isset($matches[1])) {
 		$searchTerm = $matches[1];
-		$condition = ["`iid` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, local_user()];
+		$condition = ["`iid` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, BaseApi::getCurrentUserID()];
 		$tags = DBA::select('tag-search-view', ['uri-id'], $condition);
 		$uriids = [];
 		while ($tag = DBA::fetch($tags)) {
@@ -1331,7 +966,7 @@ function api_search($type)
 			" . ($exclude_replies ? " AND `gravity` = " . GRAVITY_PARENT : ' ') . "
 			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
 			AND `body` LIKE CONCAT('%',?,'%')",
-			$since_id, api_user(), $_REQUEST['q']];
+			$since_id, BaseApi::getCurrentUserID(), $_REQUEST['q']];
 		if ($max_id > 0) {
 			$condition[0] .= ' AND `id` <= ?';
 			$condition[] = $max_id;
@@ -1341,7 +976,7 @@ function api_search($type)
 	$statuses = [];
 
 	if (parse_url($searchTerm, PHP_URL_SCHEME) != '') {
-		$id = Item::fetchByLink($searchTerm, api_user());
+		$id = Item::fetchByLink($searchTerm, BaseApi::getCurrentUserID());
 		if (!$id) {
 			// Public post
 			$id = Item::fetchByLink($searchTerm);
@@ -1352,7 +987,7 @@ function api_search($type)
 		}
 	}
 
-	$statuses = $statuses ?: Post::selectForUser(api_user(), [], $condition, $params);
+	$statuses = $statuses ?: Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 	$data['status'] = api_format_items(Post::toArray($statuses), $user_info);
 
@@ -1383,18 +1018,15 @@ api_register_func('api/search', 'api_search', true);
  */
 function api_statuses_home_timeline($type)
 {
-	$a = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
 	// get last network messages
 
@@ -1409,7 +1041,7 @@ function api_statuses_home_timeline($type)
 	$start = max(0, ($page - 1) * $count);
 
 	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ?",
-		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+		BaseApi::getCurrentUserID(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `id` <= ?";
@@ -1425,7 +1057,7 @@ function api_statuses_home_timeline($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 	$items = Post::toArray($statuses);
 
@@ -1451,7 +1083,7 @@ function api_statuses_home_timeline($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($data, $user_info);
 			break;
 	}
 
@@ -1477,12 +1109,9 @@ api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline',
  */
 function api_statuses_public_timeline($type)
 {
-	$a = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	// get last network messages
 
@@ -1506,7 +1135,7 @@ function api_statuses_public_timeline($type)
 		}
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-		$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+		$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 		$r = Post::toArray($statuses);
 	} else {
@@ -1523,7 +1152,7 @@ function api_statuses_public_timeline($type)
 		}
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-		$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+		$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 		$r = Post::toArray($statuses);
 	}
@@ -1537,7 +1166,7 @@ function api_statuses_public_timeline($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($data, $user_info);
 			break;
 	}
 
@@ -1560,12 +1189,9 @@ api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline'
  */
 function api_statuses_networkpublic_timeline($type)
 {
-	$a = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	$since_id        = $_REQUEST['since_id'] ?? 0;
 	$max_id          = $_REQUEST['max_id'] ?? 0;
@@ -1585,7 +1211,7 @@ function api_statuses_networkpublic_timeline($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::toArray(Post::selectForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
+	$statuses = Post::toArray(Post::selectForUser(BaseApi::getCurrentUserID(), Item::DISPLAY_FIELDLIST, $condition, $params));
 
 	$ret = api_format_items($statuses, $user_info, false, $type);
 
@@ -1596,7 +1222,7 @@ function api_statuses_networkpublic_timeline($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($data, $user_info);
 			break;
 	}
 
@@ -1621,12 +1247,9 @@ api_register_func('api/statuses/networkpublic_timeline', 'api_statuses_networkpu
  */
 function api_statuses_show($type)
 {
-	$a = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	// params
 	$id = intval(DI::args()->getArgv()[3] ?? 0);
@@ -1650,7 +1273,7 @@ function api_statuses_show($type)
 		throw new BadRequestException(sprintf("There is no status with the id %d", $id));
 	}
 
-	$item = Post::selectFirst(['id'], ['uri-id' => $uri_item['uri-id'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	$item = Post::selectFirst(['id'], ['uri-id' => $uri_item['uri-id'], 'uid' => [0, BaseApi::getCurrentUserID()]], ['order' => ['uid' => true]]);
 	if (!DBA::isResult($item)) {
 		throw new BadRequestException(sprintf("There is no status with the uri-id %d for the given user.", $uri_item['uri-id']));
 	}
@@ -1665,7 +1288,7 @@ function api_statuses_show($type)
 		$params = [];
 	}
 
-	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 	/// @TODO How about copying this to above methods which don't check $r ?
 	if (!DBA::isResult($statuses)) {
@@ -1700,12 +1323,9 @@ api_register_func('api/statuses/show', 'api_statuses_show', true);
  */
 function api_conversation_show($type)
 {
-	$a = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	// params
 	$id       = intval(DI::args()->getArgv()[3]           ?? 0);
@@ -1733,7 +1353,7 @@ function api_conversation_show($type)
 		throw new BadRequestException("There is no status with the id $id.");
 	}
 
-	$parent = Post::selectFirst(['id'], ['uri-id' => $item['parent-uri-id'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	$parent = Post::selectFirst(['id'], ['uri-id' => $item['parent-uri-id'], 'uid' => [0, BaseApi::getCurrentUserID()]], ['order' => ['uid' => true]]);
 	if (!DBA::isResult($parent)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
@@ -1741,7 +1361,7 @@ function api_conversation_show($type)
 	$id = $parent['id'];
 
 	$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `id` > ?",
-		$id, api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+		$id, BaseApi::getCurrentUserID(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `id` <= ?";
@@ -1749,7 +1369,7 @@ function api_conversation_show($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 	if (!DBA::isResult($statuses)) {
 		throw new BadRequestException("There is no status with id $id.");
@@ -1780,15 +1400,9 @@ api_register_func('api/statusnet/conversation', 'api_conversation_show', true);
  */
 function api_statuses_repeat($type)
 {
-	global $called_api;
-
 	$a = DI::app();
 
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-
-	api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
 	$id = intval(DI::args()->getArgv()[3] ?? 0);
@@ -1809,7 +1423,7 @@ function api_statuses_repeat($type)
 
 	if (DBA::isResult($item) && !empty($item['body'])) {
 		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::TWITTER])) {
-			if (!Item::performActivity($id, 'announce', local_user())) {
+			if (!Item::performActivity($id, 'announce', BaseApi::getCurrentUserID())) {
 				throw new InternalServerErrorException();
 			}
 
@@ -1829,11 +1443,11 @@ function api_statuses_repeat($type)
 				$post .= "[/share]";
 			}
 			$_REQUEST['body'] = $post;
-			$_REQUEST['profile_uid'] = api_user();
+			$_REQUEST['profile_uid'] = BaseApi::getCurrentUserID();
 			$_REQUEST['api_source'] = true;
 
 			if (empty($_REQUEST['source'])) {
-				$_REQUEST["source"] = api_source();
+				$_REQUEST['source'] = api_source();
 			}
 
 			$item_id = item_post($a);
@@ -1843,7 +1457,6 @@ function api_statuses_repeat($type)
 	}
 
 	// output the post that we just posted.
-	$called_api = [];
 	return api_status_show($type, $item_id);
 }
 
@@ -1865,13 +1478,7 @@ api_register_func('api/statuses/retweet', 'api_statuses_repeat', true, API_METHO
  */
 function api_statuses_destroy($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-
-	api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
 	$id = intval(DI::args()->getArgv()[3] ?? 0);
@@ -1889,7 +1496,7 @@ function api_statuses_destroy($type)
 
 	$ret = api_statuses_show($type);
 
-	Item::deleteForUser(['id' => $id], api_user());
+	Item::deleteForUser(['id' => $id], BaseApi::getCurrentUserID());
 
 	return $ret;
 }
@@ -1912,18 +1519,15 @@ api_register_func('api/statuses/destroy', 'api_statuses_destroy', true, API_METH
  */
 function api_statuses_mentions($type)
 {
-	$a = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
 	// get last network messages
 
@@ -1941,11 +1545,11 @@ function api_statuses_mentions($type)
 
 	$condition = [
 		GRAVITY_PARENT, GRAVITY_COMMENT,
-		api_user(),
+		BaseApi::getCurrentUserID(),
 		Post\UserNotification::TYPE_EXPLICIT_TAGGED | Post\UserNotification::TYPE_IMPLICIT_TAGGED |
 		Post\UserNotification::TYPE_THREAD_COMMENT | Post\UserNotification::TYPE_DIRECT_COMMENT |
 		Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
-		api_user(), $since_id,
+		BaseApi::getCurrentUserID(), $since_id,
 	];
 
 	if ($max_id > 0) {
@@ -1956,7 +1560,7 @@ function api_statuses_mentions($type)
 	array_unshift($condition, $query);
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
@@ -1965,7 +1569,7 @@ function api_statuses_mentions($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($data, $user_info);
 			break;
 	}
 
@@ -1990,14 +1594,11 @@ api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
  */
 function api_statuses_user_timeline($type)
 {
-	$a = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
-	Logger::info('api_statuses_user_timeline', ['api_user' => api_user(), 'user_info' => $user_info, '_REQUEST' => $_REQUEST]);
+	Logger::info('api_statuses_user_timeline', ['api_user' => BaseApi::getCurrentUserID(), 'user_info' => $user_info, '_REQUEST' => $_REQUEST]);
 
 	$since_id        = $_REQUEST['since_id'] ?? 0;
 	$max_id          = $_REQUEST['max_id'] ?? 0;
@@ -2011,7 +1612,7 @@ function api_statuses_user_timeline($type)
 	$start = max(0, ($page - 1) * $count);
 
 	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `contact-id` = ?",
-		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['cid']];
+		BaseApi::getCurrentUserID(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['cid']];
 
 	if ($user_info['self'] == 1) {
 		$condition[0] .= ' AND `wall` ';
@@ -2032,7 +1633,7 @@ function api_statuses_user_timeline($type)
 		$condition[] = $max_id;
 	}
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 	$ret = api_format_items(Post::toArray($statuses), $user_info, true, $type);
 
@@ -2043,7 +1644,7 @@ function api_statuses_user_timeline($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($data, $user_info);
 			break;
 	}
 
@@ -2069,11 +1670,7 @@ api_register_func('api/statuses/user_timeline', 'api_statuses_user_timeline', tr
  */
 function api_favorites_create_destroy($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// for versioned api.
 	/// @TODO We need a better global soluton
@@ -2092,7 +1689,7 @@ function api_favorites_create_destroy($type)
 		$itemid = intval($_REQUEST['id'] ?? 0);
 	}
 
-	$item = Post::selectFirstForUser(api_user(), [], ['id' => $itemid, 'uid' => api_user()]);
+	$item = Post::selectFirstForUser(BaseApi::getCurrentUserID(), [], ['id' => $itemid, 'uid' => BaseApi::getCurrentUserID()]);
 
 	if (!DBA::isResult($item)) {
 		throw new BadRequestException("Invalid item.");
@@ -2115,8 +1712,7 @@ function api_favorites_create_destroy($type)
 		throw new InternalServerErrorException("DB error");
 	}
 
-
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	$rets = api_format_items([$item], $user_info, false, $type);
 	$ret = $rets[0];
 
@@ -2125,7 +1721,7 @@ function api_favorites_create_destroy($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($data, $user_info);
 			break;
 	}
 
@@ -2150,16 +1746,9 @@ api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true,
  */
 function api_favorites($type)
 {
-	global $called_api;
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	$a = DI::app();
-	$user_info = api_get_user();
-
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
-
-	$called_api = [];
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	// in friendica starred item are private
 	// return favorites only for self
@@ -2177,7 +1766,7 @@ function api_favorites($type)
 		$start = max(0, ($page - 1) * $count);
 
 		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `starred`",
-			api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+			BaseApi::getCurrentUserID(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 
@@ -2186,7 +1775,7 @@ function api_favorites($type)
 			$condition[] = $max_id;
 		}
 
-		$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+		$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 		$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 	}
@@ -2198,7 +1787,7 @@ function api_favorites($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($data, $user_info);
 			break;
 	}
 
@@ -2225,7 +1814,7 @@ function api_format_messages($item, $recipient, $sender)
 		'sender_id'             => $sender['id'],
 		'text'                  => "",
 		'recipient_id'          => $recipient['id'],
-		'created_at'            => api_date($item['created'] ?? DateTimeFormat::utcNow()),
+		'created_at'            => DateTimeFormat::utc($item['created'] ?? 'now', DateTimeFormat::API),
 		'sender_screen_name'    => $sender['screen_name'],
 		'recipient_screen_name' => $recipient['screen_name'],
 		'sender'                => $sender,
@@ -2624,8 +2213,6 @@ function api_contactlink_to_array($txt)
  */
 function api_format_items_activities($item, $type = "json")
 {
-	$a = DI::app();
-
 	$activities = [
 		'like' => [],
 		'dislike' => [],
@@ -2643,7 +2230,7 @@ function api_format_items_activities($item, $type = "json")
 		//builtin_activity_puller($i, $activities);
 
 		// get user data and add it to the array of the activity
-		$user = api_get_user($parent_item['author-id']);
+		$user = DI::twitterUser()->createFromContactId($parent_item['author-id'], BaseApi::getCurrentUserID())->toArray();
 		switch ($parent_item['verb']) {
 			case Activity::LIKE:
 				$activities['like'][] = $user;
@@ -2702,7 +2289,7 @@ function api_format_items_activities($item, $type = "json")
  */
 function api_format_items($items, $user_info, $filter_user = false, $type = "json")
 {
-	$a = Friendica\DI::app();
+	$a = DI::app();
 
 	$ret = [];
 
@@ -2740,7 +2327,7 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
  */
 function api_format_item($item, $type = "json", $status_user = null, $author_user = null, $owner_user = null)
 {
-	$a = Friendica\DI::app();
+	$a = DI::app();
 
 	if (empty($status_user) || empty($author_user) || empty($owner_user)) {
 		[$status_user, $author_user, $owner_user] = api_item_get_user($a, $item);
@@ -2761,7 +2348,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	$status = [
 		'text'		=> $converted["text"],
 		'truncated' => false,
-		'created_at'=> api_date($item['created']),
+		'created_at'=> DateTimeFormat::utc($item['created'], DateTimeFormat::API),
 		'in_reply_to_status_id' => $in_reply_to['status_id'],
 		'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
 		'source'    => (($item['app']) ? $item['app'] : 'web'),
@@ -2807,7 +2394,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		if (!empty($announce)) {
 			$retweeted_item = $item;
 			$item = $announce;
-			$status['friendica_owner'] = api_get_user($announce['author-id']);
+			$status['friendica_owner'] = DI::twitterUser()->createFromContactId($announce['author-id'], BaseApi::getCurrentUserID())->toArray();
 		}
 	}
 
@@ -2826,7 +2413,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 			$quoted_status['text'] = $conv_quoted['text'];
 			$quoted_status['statusnet_html'] = $conv_quoted['html'];
 			try {
-				$quoted_status["user"] = api_get_user($quoted_item["author-id"]);
+				$quoted_status["user"] = DI::twitterUser()->createFromContactId($quoted_item['author-id'], BaseApi::getCurrentUserID())->toArray();
 			} catch (BadRequestException $e) {
 				// user not found. should be found?
 				/// @todo check if the user should be always found
@@ -2848,7 +2435,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		unset($retweeted_status['statusnet_conversation_id']);
 		$status['user'] = $status['friendica_owner'];
 		try {
-			$retweeted_status["user"] = api_get_user($retweeted_item["author-id"]);
+			$retweeted_status["user"] = DI::twitterUser()->createFromContactId($retweeted_item['author-id'], BaseApi::getCurrentUserID())->toArray();
 		} catch (BadRequestException $e) {
 			// user not found. should be found?
 			/// @todo check if the user should be always found
@@ -2860,7 +2447,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		$retweeted_status['text'] = $rt_converted["text"];
 		$retweeted_status['statusnet_html'] = $rt_converted["html"];
 		$retweeted_status['friendica_html'] = $rt_converted["html"];
-		$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
+		$retweeted_status['created_at'] =  DateTimeFormat::utc($retweeted_item['created'], DateTimeFormat::API);
 
 		if (!empty($quoted_status)) {
 			$retweeted_status['quoted_status'] = $quoted_status;
@@ -2930,14 +2517,10 @@ api_register_func('api/lists/subscriptions', 'api_lists_list', true);
  */
 function api_lists_ownerships($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	// params
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	$uid = $user_info['uid'];
 
 	$groups = DBA::select('group', [], ['deleted' => 0, 'uid' => $uid]);
@@ -2979,18 +2562,15 @@ api_register_func('api/lists/ownerships', 'api_lists_ownerships', true);
  */
 function api_lists_statuses($type)
 {
-	$a = DI::app();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
-	$user_info = api_get_user();
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
 	if (empty($_REQUEST['list_id'])) {
 		throw new BadRequestException('list_id not specified');
@@ -3008,7 +2588,7 @@ function api_lists_statuses($type)
 
 	$groups = DBA::selectToArray('group_member', ['contact-id'], ['gid' => 1]);
 	$gids = array_column($groups, 'contact-id');
-	$condition = ['uid' => api_user(), 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'group-id' => $gids];
+	$condition = ['uid' => BaseApi::getCurrentUserID(), 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'group-id' => $gids];
 	$condition = DBA::mergeConditions($condition, ["`id` > ?", $since_id]);
 
 	if ($max_id > 0) {
@@ -3025,7 +2605,7 @@ function api_lists_statuses($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition, $params);
 
 	$items = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
@@ -3034,7 +2614,7 @@ function api_lists_statuses($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($data, $user_info);
 			break;
 	}
 
@@ -3060,11 +2640,7 @@ api_register_func('api/lists/statuses', 'api_lists_statuses', true);
  */
 function api_statuses_f($qtype)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	// pagination
 	$count = $_GET['count'] ?? 20;
@@ -3072,7 +2648,7 @@ function api_statuses_f($qtype)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	if (!empty($_GET['cursor']) && $_GET['cursor'] == 'undefined') {
 		/* this is to stop Hotot to load friends multiple times
@@ -3107,7 +2683,7 @@ function api_statuses_f($qtype)
 
 	// @todo This query most likely can be replaced with a Contact::select...
 	$r = DBA::toArray(DBA::p(
-		"SELECT `nurl`
+		"SELECT `id`
 		FROM `contact`
 		WHERE `uid` = ?
 		AND NOT `self`
@@ -3115,14 +2691,14 @@ function api_statuses_f($qtype)
 		$sql_extra
 		ORDER BY `nick`
 		LIMIT ?, ?",
-		api_user(),
+		BaseApi::getCurrentUserID(),
 		$start,
 		$count
 	));
 
 	$ret = [];
 	foreach ($r as $cid) {
-		$user = api_get_user($cid['nurl']);
+		$user = DI::twitterUser()->createFromContactId($cid['id'], BaseApi::getCurrentUserID())->toArray();
 		// "uid" and "self" are only needed for some internal stuff, so remove it from here
 		unset($user["uid"]);
 		unset($user["self"]);
@@ -3246,29 +2822,30 @@ api_register_func('api/friendships/incoming', 'api_friendships_incoming', true);
  */
 function api_direct_messages_new($type)
 {
-	$a = DI::app();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	$uid = BaseApi::getCurrentUserID();
 
-	if (empty($_POST["text"]) || empty($_POST["screen_name"]) && empty($_POST["user_id"])) {
+	if (empty($_POST["text"]) || empty($_POST['screen_name']) && empty($_POST['user_id'])) {
 		return;
 	}
 
-	$sender = api_get_user();
+	$sender = DI::twitterUser()->createFromUserId($uid)->toArray();
 
 	$recipient = null;
 	if (!empty($_POST['screen_name'])) {
-		$contacts = Contact::selectToArray(['id', 'nurl', 'network'], ['uid' => api_user(), 'nick' => $_POST['screen_name']]);
+		$contacts = Contact::selectToArray(['id', 'nurl', 'network'], ['uid' => BaseApi::getCurrentUserID(), 'nick' => $_POST['screen_name']]);
 		if (DBA::isResult($contacts)) {
 			// Selecting the id by priority, friendica first
 			api_best_nickname($contacts);
 
-			$recipient = api_get_user($contacts[0]['nurl']);
+			$recipient = DI::twitterUser()->createFromContactId($contacts[0]['id'], $uid)->toArray();
 		}
 	} else {
-		$recipient = api_get_user($_POST['user_id']);
+		$cid = BaseApi::getContactIDForSearchterm($_POST['user_id']);
+		if (!empty($cid)) {
+			$recipient = DI::twitterUser()->createFromContactId($cid, $uid)->toArray();
+		}
 	}
 
 	if (empty($recipient)) {
@@ -3277,7 +2854,7 @@ function api_direct_messages_new($type)
 
 	$replyto = '';
 	if (!empty($_REQUEST['replyto'])) {
-		$mail = DBA::selectFirst('mail', ['parent-uri', 'title'], ['uid' => api_user(), 'id' => $_REQUEST['replyto']]);
+		$mail = DBA::selectFirst('mail', ['parent-uri', 'title'], ['uid' => BaseApi::getCurrentUserID(), 'id' => $_REQUEST['replyto']]);
 		$replyto = $mail['parent-uri'];
 		$sub     = $mail['title'];
 	} else {
@@ -3303,7 +2880,7 @@ function api_direct_messages_new($type)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $sender);
+			$data = api_rss_extra($data, $sender);
 			break;
 	}
 
@@ -3327,14 +2904,10 @@ api_register_func('api/direct_messages/new', 'api_direct_messages_new', true, AP
  */
 function api_direct_messages_destroy($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	//required
 	$id = $_REQUEST['id'] ?? 0;
 	// optional
@@ -3400,11 +2973,8 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
  */
 function api_friendships_destroy($type)
 {
-	$uid = api_user();
-
-	if ($uid === false) {
-		throw new HTTPException\ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+	$uid = BaseApi::getCurrentUserID();
 
 	$owner = User::getOwnerDataById($uid);
 	if (!$owner) {
@@ -3482,10 +3052,8 @@ api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, AP
  */
 function api_direct_messages_box($type, $box, $verbose)
 {
-	$a = DI::app();
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+
 	// params
 	$count = $_GET['count'] ?? 20;
 	$page = $_REQUEST['page'] ?? 1;
@@ -3497,16 +3065,14 @@ function api_direct_messages_box($type, $box, $verbose)
 	$screen_name = $_REQUEST['screen_name'] ?? '';
 
 	//  caller user info
-	unset($_REQUEST["user_id"]);
-	unset($_GET["user_id"]);
+	unset($_REQUEST['user_id']);
+	unset($_GET['user_id']);
 
-	unset($_REQUEST["screen_name"]);
-	unset($_GET["screen_name"]);
+	unset($_REQUEST['screen_name']);
+	unset($_GET['screen_name']);
 
-	$user_info = api_get_user();
-	if ($user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
+
 	$profile_url = $user_info["url"];
 
 	// pagination
@@ -3537,7 +3103,7 @@ function api_direct_messages_box($type, $box, $verbose)
 
 	$r = DBA::toArray(DBA::p(
 		"SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid` = ? AND $sql_extra AND `mail`.`id` > ? ORDER BY `mail`.`id` DESC LIMIT ?,?",
-		api_user(),
+		BaseApi::getCurrentUserID(),
 		$since_id,
 		$start,
 		$count
@@ -3551,9 +3117,9 @@ function api_direct_messages_box($type, $box, $verbose)
 	foreach ($r as $item) {
 		if ($box == "inbox" || $item['from-url'] != $profile_url) {
 			$recipient = $user_info;
-			$sender = api_get_user(Strings::normaliseLink($item['contact-url']));
+			$sender = DI::twitterUser()->createFromContactId($item['contact-id'], BaseApi::getCurrentUserID())->toArray();
 		} elseif ($box == "sentbox" || $item['from-url'] == $profile_url) {
-			$recipient = api_get_user(Strings::normaliseLink($item['contact-url']));
+			$recipient = DI::twitterUser()->createFromContactId($item['contact-id'], BaseApi::getCurrentUserID())->toArray();
 			$sender = $user_info;
 		}
 
@@ -3568,7 +3134,7 @@ function api_direct_messages_box($type, $box, $verbose)
 		case "atom":
 			break;
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($data, $user_info);
 			break;
 	}
 
@@ -3651,14 +3217,13 @@ api_register_func('api/direct_messages', 'api_direct_messages_inbox', true);
  */
 function api_fr_photos_list($type)
 {
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+
 	$r = DBA::toArray(DBA::p(
 		"SELECT `resource-id`, MAX(scale) AS `scale`, `album`, `filename`, `type`, MAX(`created`) AS `created`,
 		MAX(`edited`) AS `edited`, MAX(`desc`) AS `desc` FROM `photo`
 		WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) GROUP BY `resource-id`, `album`, `filename`, `type`",
-		local_user(), Photo::CONTACT_AVATAR, Photo::CONTACT_BANNER
+		BaseApi::getCurrentUserID(), Photo::CONTACT_AVATAR, Photo::CONTACT_BANNER
 	));
 	$typetoext = [
 		'image/jpeg' => 'jpg',
@@ -3702,9 +3267,8 @@ function api_fr_photos_list($type)
  */
 function api_fr_photo_create_update($type)
 {
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+
 	// input params
 	$photo_id  = $_REQUEST['photo_id']  ?? null;
 	$desc      = $_REQUEST['desc']      ?? null;
@@ -3737,7 +3301,7 @@ function api_fr_photo_create_update($type)
 		$mode = "update";
 
 		// check if photo is existing in databasei
-		if (!Photo::exists(['resource-id' => $photo_id, 'uid' => api_user(), 'album' => $album])) {
+		if (!Photo::exists(['resource-id' => $photo_id, 'uid' => BaseApi::getCurrentUserID(), 'album' => $album])) {
 			throw new BadRequestException("photo not available");
 		}
 	}
@@ -3799,7 +3363,7 @@ function api_fr_photo_create_update($type)
 		$result = false;
 		if (count($updated_fields) > 0) {
 			$nothingtodo = false;
-			$result = Photo::update($updated_fields, ['uid' => api_user(), 'resource-id' => $photo_id, 'album' => $album]);
+			$result = Photo::update($updated_fields, ['uid' => BaseApi::getCurrentUserID(), 'resource-id' => $photo_id, 'album' => $album]);
 		} else {
 			$nothingtodo = true;
 		}
@@ -3840,9 +3404,8 @@ function api_fr_photo_create_update($type)
  */
 function api_fr_photo_detail($type)
 {
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+
 	if (empty($_REQUEST['photo_id'])) {
 		throw new BadRequestException("No photo id.");
 	}
@@ -3872,9 +3435,8 @@ function api_fr_photo_detail($type)
  */
 function api_account_update_profile_image($type)
 {
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+
 	// input params
 	$profile_id = $_REQUEST['profile_id'] ?? 0;
 
@@ -3885,7 +3447,7 @@ function api_account_update_profile_image($type)
 
 	// check if specified profile id is valid
 	if ($profile_id != 0) {
-		$profile = DBA::selectFirst('profile', ['is-default'], ['uid' => api_user(), 'id' => $profile_id]);
+		$profile = DBA::selectFirst('profile', ['is-default'], ['uid' => BaseApi::getCurrentUserID(), 'id' => $profile_id]);
 		// error message if specified profile id is not in database
 		if (!DBA::isResult($profile)) {
 			throw new BadRequestException("profile_id not available");
@@ -3921,18 +3483,18 @@ function api_account_update_profile_image($type)
 
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
-		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
+		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], BaseApi::getCurrentUserID()];
 		Photo::update(['profile' => false, 'photo-type' => Photo::DEFAULT], $condition);
 	} else {
 		$fields = ['photo' => DI::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $fileext,
 			'thumb' => DI::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $fileext];
-		DBA::update('profile', $fields, ['id' => $_REQUEST['profile'], 'uid' => api_user()]);
+		DBA::update('profile', $fields, ['id' => $_REQUEST['profile'], 'uid' => BaseApi::getCurrentUserID()]);
 	}
 
-	Contact::updateSelfFromUserID(api_user(), true);
+	Contact::updateSelfFromUserID(BaseApi::getCurrentUserID(), true);
 
 	// Update global directory in background
-	Profile::publishUpdate(api_user());
+	Profile::publishUpdate(BaseApi::getCurrentUserID());
 
 	// output for client
 	if ($data) {
@@ -3964,8 +3526,11 @@ api_register_func('api/account/update_profile_image', 'api_account_update_profil
  */
 function api_account_update_profile($type)
 {
-	$local_user = api_user();
-	$api_user = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+
+	$local_user = BaseApi::getCurrentUserID();
+
+	$api_user = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	if (!empty($_POST['name'])) {
 		DBA::update('profile', ['name' => $_POST['name']], ['uid' => $local_user]);
@@ -4010,7 +3575,7 @@ function check_acl_input($acl_string)
 	foreach ($cid_array as $cid) {
 		$cid = str_replace("<", "", $cid);
 		$cid = str_replace(">", "", $cid);
-		$condition = ['id' => $cid, 'uid' => api_user()];
+		$condition = ['id' => $cid, 'uid' => BaseApi::getCurrentUserID()];
 		$contact_not_found |= !DBA::exists('contact', $condition);
 	}
 	return $contact_not_found;
@@ -4112,13 +3677,13 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		// upload normal image (scales 0, 1, 2)
 		logger::info("photo upload: starting new photo upload");
 
-		$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 0, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+		$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 0, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 		if (!$r) {
 			logger::notice("photo upload: image upload with scale 0 (original size) failed");
 		}
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 1, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 1, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: image upload with scale 1 (640x640) failed");
 			}
@@ -4126,7 +3691,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 320 || $height > 320) {
 			$Image->scaleDown(320);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 2, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 2, Photo::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: image upload with scale 2 (320x320) failed");
 			}
@@ -4138,7 +3703,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 300 || $height > 300) {
 			$Image->scaleDown(300);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 4, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 4, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: profile image upload with scale 4 (300x300) failed");
 			}
@@ -4146,7 +3711,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 80 || $height > 80) {
 			$Image->scaleDown(80);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 5, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 5, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: profile image upload with scale 5 (80x80) failed");
 			}
@@ -4154,7 +3719,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 48 || $height > 48) {
 			$Image->scaleDown(48);
-			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 6, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, BaseApi::getCurrentUserID(), $visitor, $resource_id, $filename, $album, 6, $phototype, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				logger::notice("photo upload: profile image upload with scale 6 (48x48) failed");
 			}
@@ -4189,12 +3754,12 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $filetype, $visibility = false)
 {
 	// get data about the api authenticated user
-	$uri = Item::newURI(intval(api_user()));
-	$owner_record = DBA::selectFirst('contact', [], ['uid' => api_user(), 'self' => true]);
+	$uri = Item::newURI(intval(BaseApi::getCurrentUserID()));
+	$owner_record = DBA::selectFirst('contact', [], ['uid' => BaseApi::getCurrentUserID(), 'self' => true]);
 
 	$arr = [];
 	$arr['guid']          = System::createUUID();
-	$arr['uid']           = intval(api_user());
+	$arr['uid']           = intval(BaseApi::getCurrentUserID());
 	$arr['uri']           = $uri;
 	$arr['type']          = 'photo';
 	$arr['wall']          = 1;
@@ -4245,12 +3810,9 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
  */
 function prepare_photo_data($type, $scale, $photo_id)
 {
-	$a = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
-	if ($user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 
 	$scale_sql = ($scale === false ? "" : sprintf("AND scale=%d", intval($scale)));
 	$data_sql = ($scale === false ? "" : "data, ");
@@ -4264,7 +3826,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 			FROM `photo` WHERE `uid` = ? AND `resource-id` = ? $scale_sql GROUP BY
 				   `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 				   `type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`",
-		local_user(),
+		BaseApi::getCurrentUserID(),
 		$photo_id
 	));
 
@@ -4307,7 +3869,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	}
 
 	// retrieve item element for getting activities (like, dislike etc.) related to photo
-	$condition = ['uid' => api_user(), 'resource-id' => $photo_id];
+	$condition = ['uid' => BaseApi::getCurrentUserID(), 'resource-id' => $photo_id];
 	$item = Post::selectFirst(['id', 'uid', 'uri', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
 	if (!DBA::isResult($item)) {
 		throw new NotFoundException('Photo-related item not found.');
@@ -4317,9 +3879,9 @@ function prepare_photo_data($type, $scale, $photo_id)
 
 	// retrieve comments on photo
 	$condition = ["`parent` = ? AND `uid` = ? AND `gravity` IN (?, ?)",
-		$item['parent'], api_user(), GRAVITY_PARENT, GRAVITY_COMMENT];
+		$item['parent'], BaseApi::getCurrentUserID(), GRAVITY_PARENT, GRAVITY_COMMENT];
 
-	$statuses = Post::selectForUser(api_user(), [], $condition);
+	$statuses = Post::selectForUser(BaseApi::getCurrentUserID(), [], $condition);
 
 	// prepare output of comments
 	$commentData = api_format_items(Post::toArray($statuses), $user_info, false, $type);
@@ -4539,14 +4101,10 @@ function api_best_nickname(&$contacts)
  */
 function api_friendica_group_show($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	// params
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	$gid = $_REQUEST['gid'] ?? 0;
 	$uid = $user_info['uid'];
 
@@ -4572,13 +4130,13 @@ function api_friendica_group_show($type)
 			$user_element = "users";
 			$k = 0;
 			foreach ($members as $member) {
-				$user = api_get_user($member['nurl']);
+				$user = DI::twitterUser()->createFromContactId($member['contact-id'], BaseApi::getCurrentUserID())->toArray();
 				$users[$k++.":user"] = $user;
 			}
 		} else {
 			$user_element = "user";
 			foreach ($members as $member) {
-				$user = api_get_user($member['nurl']);
+				$user = DI::twitterUser()->createFromContactId($member['contact-id'], BaseApi::getCurrentUserID())->toArray();
 				$users[] = $user;
 			}
 		}
@@ -4604,14 +4162,10 @@ api_register_func('api/friendica/group_show', 'api_friendica_group_show', true);
  */
 function api_lists_destroy($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	$gid = $_REQUEST['list_id'] ?? 0;
 	$uid = $user_info['uid'];
 
@@ -4709,14 +4263,10 @@ function group_create($name, $uid, $users = [])
  */
 function api_friendica_group_create($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	$name = $_REQUEST['name'] ?? '';
 	$uid = $user_info['uid'];
 	$json = json_decode($_POST['json'], true);
@@ -4744,14 +4294,10 @@ api_register_func('api/friendica/group_create', 'api_friendica_group_create', tr
  */
 function api_lists_create($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	$name = $_REQUEST['name'] ?? '';
 	$uid = $user_info['uid'];
 
@@ -4784,14 +4330,10 @@ api_register_func('api/lists/create', 'api_lists_create', true, API_METHOD_POST)
  */
 function api_friendica_group_update($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	$uid = $user_info['uid'];
 	$gid = $_REQUEST['gid'] ?? 0;
 	$name = $_REQUEST['name'] ?? '';
@@ -4858,14 +4400,10 @@ api_register_func('api/friendica/group_update', 'api_friendica_group_update', tr
  */
 function api_lists_update($type)
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
 	// params
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	$gid = $_REQUEST['list_id'] ?? 0;
 	$name = $_REQUEST['name'] ?? '';
 	$uid = $user_info['uid'];
@@ -4911,12 +4449,10 @@ api_register_func('api/lists/update', 'api_lists_update', true, API_METHOD_POST)
  */
 function api_friendica_notification_seen($type)
 {
-	$a         = DI::app();
-	$user_info = api_get_user();
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
+
 	if (DI::args()->getArgc() !== 4) {
 		throw new BadRequestException('Invalid argument count');
 	}
@@ -4925,7 +4461,7 @@ function api_friendica_notification_seen($type)
 
 	try {
 		$Notify = DI::notify()->selectOneById($id);
-		if ($Notify->uid !== api_user()) {
+		if ($Notify->uid !== BaseApi::getCurrentUserID()) {
 			throw new NotFoundException();
 		}
 
@@ -4937,7 +4473,7 @@ function api_friendica_notification_seen($type)
 		DI::notify()->save($Notify);
 
 		if ($Notify->otype === Notification\ObjectType::ITEM) {
-			$item = Post::selectFirstForUser(api_user(), [], ['id' => $Notify->iid, 'uid' => api_user()]);
+			$item = Post::selectFirstForUser(BaseApi::getCurrentUserID(), [], ['id' => $Notify->iid, 'uid' => BaseApi::getCurrentUserID()]);
 			if (DBA::isResult($item)) {
 				// we found the item, return it to the user
 				$ret  = api_format_items([$item], $user_info, false, $type);
@@ -4974,14 +4510,10 @@ api_register_func('api/friendica/notification/seen', 'api_friendica_notification
  */
 function api_friendica_direct_messages_search($type, $box = "")
 {
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 
 	// params
-	$user_info = api_get_user();
+	$user_info = DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray();
 	$searchstring = $_REQUEST['searchstring'] ?? '';
 	$uid = $user_info['uid'];
 
@@ -5010,9 +4542,9 @@ function api_friendica_direct_messages_search($type, $box = "")
 		foreach ($r as $item) {
 			if ($box == "inbox" || $item['from-url'] != $profile_url) {
 				$recipient = $user_info;
-				$sender = api_get_user(Strings::normaliseLink($item['contact-url']));
+				$sender = DI::twitterUser()->createFromContactId($item['contact-id'], BaseApi::getCurrentUserID())->toArray();
 			} elseif ($box == "sentbox" || $item['from-url'] == $profile_url) {
-				$recipient = api_get_user(Strings::normaliseLink($item['contact-url']));
+				$recipient = DI::twitterUser()->createFromContactId($item['contact-id'], BaseApi::getCurrentUserID())->toArray();
 				$sender = $user_info;
 			}
 

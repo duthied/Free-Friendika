@@ -33,13 +33,13 @@ use Friendica\Util\Strings;
  */
 class PublicRSAKey extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
-		if (empty($parameters['nick'])) {
+		if (empty($this->parameters['nick'])) {
 			throw new BadRequestException();
 		}
 
-		$nick = $parameters['nick'];
+		$nick = $this->parameters['nick'];
 
 		$user = User::getByNickname($nick, ['spubkey']);
 		if (empty($user) || empty($user['spubkey'])) {

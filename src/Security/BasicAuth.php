@@ -62,6 +62,11 @@ class BasicAuth
 		return (int)self::$current_user_id;
 	}
 
+	public static function setCurrentUserID(int $uid = null)
+	{
+		self::$current_user_id = $uid;
+	}
+
 	/**
 	 * Fetch a dummy application token
 	 *
@@ -118,7 +123,6 @@ class BasicAuth
 	private static function getUserIdByAuth(bool $do_login = true):int
 	{
 		$a = DI::app();
-		Session::set('allow_api', false);
 		self::$current_user_id = 0;
 
 		// workaround for HTTP-auth in CGI mode
@@ -173,7 +177,10 @@ class BasicAuth
 				return 0;
 			}
 			Logger::debug('Access denied', ['parameters' => $_SERVER]);
-			header('WWW-Authenticate: Basic realm="Friendica"');
+			// Checking for commandline for the tests, we have to avoid to send a header
+			if (php_sapi_name() !== 'cli') {
+				header('WWW-Authenticate: Basic realm="Friendica"');
+			}
 			throw new UnauthorizedException("This API requires login");
 		}
 
@@ -182,15 +189,10 @@ class BasicAuth
 
 		DI::auth()->setForUser($a, $record, false, false, $login_refresh);
 
-		Session::set('allow_api', true);
-
 		Hook::callAll('logged_in', $record);
 
-		if (Session::get('allow_api')) {
-			self::$current_user_id = local_user();
-		} else {
-			self::$current_user_id = 0;
-		}
+		self::$current_user_id = local_user();
+
 		return self::$current_user_id;
 	}
 }

@@ -41,10 +41,11 @@ $a = \Friendica\DI::app();
 \Friendica\DI::mode()->setExecutor(\Friendica\App\Mode::INDEX);
 
 $a->runFrontend(
-	$dice->create(\Friendica\App\Module::class),
+	$dice->create(\Friendica\App\ModuleController::class),
 	$dice->create(\Friendica\App\Router::class),
 	$dice->create(\Friendica\Core\PConfig\Capability\IManagePersonalConfigValues::class),
 	$dice->create(\Friendica\Security\Authentication::class),
 	$dice->create(\Friendica\App\Page::class),
+	$dice,
 	$start_time
 );

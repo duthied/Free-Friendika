@@ -32,7 +32,7 @@ require_once 'boot.php';
 
 class Group extends BaseModule
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		$a = DI::app();
 
@@ -138,7 +138,7 @@ class Group extends BaseModule
 		}
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		$change = false;
 

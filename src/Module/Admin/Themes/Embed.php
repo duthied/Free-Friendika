@@ -21,48 +21,62 @@
 
 namespace Friendica\Module\Admin\Themes;
 
+use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\DI;
 use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
 class Embed extends BaseAdmin
 {
-	public static function init(array $parameters = [])
+	/** @var App */
+	protected $app;
+	/** @var App\BaseURL */
+	protected $baseUrl;
+	/** @var App\Mode */
+	protected $mode;
+
+	public function __construct(App $app, App\BaseURL $baseUrl, App\Mode $mode, L10n $l10n, array $parameters = [])
 	{
-		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		parent::__construct($l10n, $parameters);
+
+		$this->app     = $app;
+		$this->baseUrl = $baseUrl;
+		$this->mode    = $mode;
+
+		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {
-			DI::app()->setCurrentTheme($theme);
+			$this->app->setCurrentTheme($theme);
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAdminAccess();
 
-		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {
 			require_once "view/theme/$theme/config.php";
 			if (function_exists('theme_admin_post')) {
 				self::checkFormSecurityTokenRedirectOnError('/admin/themes/' . $theme . '/embed?mode=minimal', 'admin_theme_settings');
-				theme_admin_post(DI::app());
+				theme_admin_post($this->app);
 			}
 		}
 
-		if (DI::mode()->isAjax()) {
+		if ($this->mode->isAjax()) {
 			return;
 		}
 
-		DI::baseUrl()->redirect('admin/themes/' . $theme . '/embed?mode=minimal');
+		$this->baseUrl->redirect('admin/themes/' . $theme . '/embed?mode=minimal');
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
-		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (!is_dir("view/theme/$theme")) {
-			notice(DI::l10n()->t('Unknown theme.'));
+			notice($this->t('Unknown theme.'));
 			return '';
 		}
 
@@ -71,7 +85,7 @@ class Embed extends BaseAdmin
 			require_once "view/theme/$theme/config.php";
 
 			if (function_exists('theme_admin')) {
-				$admin_form = theme_admin(DI::app());
+				$admin_form = theme_admin($this->app);
 			}
 		}
 

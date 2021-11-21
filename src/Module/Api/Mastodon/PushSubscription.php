@@ -33,7 +33,7 @@ use Friendica\Object\Api\Mastodon\Notification;
  */
 class PushSubscription extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
@@ -66,7 +66,7 @@ class PushSubscription extends BaseApi
 		return DI::mstdnSubscription()->createForApplicationIdAndUserId($application['id'], $uid)->toArray();
 	}
 
-	public static function put(array $parameters = [])
+	public function put()
 	{
 		self::checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
@@ -99,7 +99,7 @@ class PushSubscription extends BaseApi
 		return DI::mstdnSubscription()->createForApplicationIdAndUserId($application['id'], $uid)->toArray();
 	}
 
-	public static function delete(array $parameters = [])
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
@@ -112,7 +112,7 @@ class PushSubscription extends BaseApi
 		System::jsonExit([]);
 	}
 
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();

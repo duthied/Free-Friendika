@@ -8,9 +8,11 @@
 		</div>
 
 		{{* The breadcrumb navigation *}}
-		<ol class="path breadcrumb" aria-label="Breadcrumb" role="navigation">
+		<ol class="path breadcrumb" aria-label="Breadcrumb" role="menu">
 		{{foreach $path as $folder => $name}}
-			<li role="presentation"><a href="#" data-folder="{{$folder}}">{{$name}}</a></li>
+			<li role="presentation">
+				<button type="button" class="btn btn-link" data-folder="{{$folder}}" role="menuitem">{{$name}}</button>
+			</li>
 		{{/foreach}}
 
 			{{* Switch between image and file mode *}}
@@ -28,7 +30,7 @@
 				<ul role="menu">
 					{{foreach $folders as $folder}}
 					<li role="presentation">
-						<a href="#" data-folder="{{$folder}}" role="menuitem">{{$folder}}</a>
+						<button type="button" data-folder="{{$folder}}" role="menuitem">{{$folder}}</button>
 					</li>
 					{{/foreach}}
 				</ul>

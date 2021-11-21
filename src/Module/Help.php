@@ -32,16 +32,15 @@ use Friendica\Network\HTTPException;
  */
 class Help extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		Nav::setSelected('help');
 
 		$text = '';
 		$filename = '';
 
-		$a = DI::app();
 		$config = DI::config();
-		$lang = $config->get('system', 'language');
+		$lang = DI::session()->get('language', $config->get('system', 'language'));
 
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgc() > 1) {

@@ -30,10 +30,9 @@ use Friendica\Module\BaseApi;
 class Endorsements extends BaseApi
 {
 	/**
-	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		System::jsonExit([]);
 	}

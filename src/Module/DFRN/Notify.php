@@ -38,7 +38,7 @@ use Friendica\Network\HTTPException;
  */
 class Notify extends BaseModule
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		$postdata = Network::postdata();
 
@@ -47,8 +47,8 @@ class Notify extends BaseModule
 		}
 
 		$data = json_decode($postdata);
-		if (is_object($data) && !empty($parameters['nickname'])) {
-			$user = User::getByNickname($parameters['nickname']);
+		if (is_object($data) && !empty($this->parameters['nickname'])) {
+			$user = User::getByNickname($this->parameters['nickname']);
 			if (empty($user)) {
 				throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 			}

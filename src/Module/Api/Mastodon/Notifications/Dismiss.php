@@ -32,16 +32,16 @@ use Friendica\Network\HTTPException\ForbiddenException;
  */
 class Dismiss extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$Notification = DI::notification()->selectOneForUser($uid, $parameters['id']);
+		$Notification = DI::notification()->selectOneForUser($uid, $this->parameters['id']);
 		$Notification->setSeen();
 		DI::notification()->save($Notification);
 

@@ -31,13 +31,13 @@ use Friendica\Util\Strings;
 
 class Storage extends BaseAdmin
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAdminAccess();
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/storage', 'admin_storage');
 
-		$storagebackend = trim($parameters['name'] ?? '');
+		$storagebackend = trim($this->parameters['name'] ?? '');
 
 		try {
 			/** @var ICanConfigureStorage|false $newStorageConfig */
@@ -91,9 +91,9 @@ class Storage extends BaseAdmin
 		DI::baseUrl()->redirect('admin/storage');
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
 		$current_storage_backend = DI::storage();
 		$available_storage_forms = [];

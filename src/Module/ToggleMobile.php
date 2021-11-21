@@ -29,7 +29,7 @@ use Friendica\DI;
  */
 class ToggleMobile extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		$a = DI::app();
 
@@ -46,5 +46,7 @@ class ToggleMobile extends BaseModule
 		}
 
 		$a->redirect($address);
+
+		return '';
 	}
 }

@@ -566,7 +566,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll($a->module.'_mod_init', $placeholder);
     Hook::callAll($a->module.'_mod_init', $placeholder);
     Hook::callAll($a->module.'_mod_post', $_POST);
-    Hook::callAll($a->module.'_mod_afterpost', $placeholder);
     Hook::callAll($a->module.'_mod_content', $arr);
     Hook::callAll($a->module.'_mod_aftercontent', $arr);
     Hook::callAll('page_end', DI::page()['content']);

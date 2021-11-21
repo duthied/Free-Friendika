@@ -24,7 +24,6 @@ namespace Friendica\Module\Api\Friendica\Profile;
 use Friendica\Profile\ProfileField\Collection\ProfileFields;
 use Friendica\Content\Text\BBCode;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
@@ -34,7 +33,7 @@ use Friendica\Network\HTTPException;
  */
 class Show extends BaseApi
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
@@ -49,23 +48,20 @@ class Show extends BaseApi
 		$profile = self::formatProfile($profile, $profileFields);
 
 		$profiles = [];
-		if (!empty($parameters['extension']) && ($parameters['extension'] == 'xml')) {
+		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
 			$profiles['0:profile'] = $profile;
 		} else {
 			$profiles[] = $profile;
 		}
 
-		// return settings, authenticated user and profiles data
-		$self = Contact::selectFirst(['nurl'], ['uid' => $uid, 'self' => true]);
-
 		$result = [
 			'multi_profiles' => false,
 			'global_dir' => $directory,
-			'friendica_owner' => self::getUser($self['nurl']),
+			'friendica_owner' => DI::twitterUser()->createFromUserId($uid),
 			'profiles' => $profiles
 		];
 
-		DI::apiResponse()->exit('friendica_profiles', ['$result' => $result], $parameters['extension'] ?? null);
+		DI::apiResponse()->exit('friendica_profiles', ['$result' => $result], $this->parameters['extension'] ?? null);
 	}
 
 	/**

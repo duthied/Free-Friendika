@@ -177,7 +177,7 @@ Friendica supports [Mastodon API](help/API-Mastodon) and [Twitter API](help/api)
 
 * [AndStatus](http://andstatus.org) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.andstatus.app), [Google Play](https://play.google.com/store/apps/details?id=org.andstatus.app))
 * [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
-* [DiCa](https://dica.mixi.cool/) (Available at Google Play)
+* DiCa ([Google Play](https://play.google.com/store/apps/details?id=cool.mixi.dica), last updated 2019)
 * [Fedi](https://play.google.com/store/apps/details?id=com.fediverse.app)
 * [Fedilab](https://fedilab.app) ([F-Droid](https://f-droid.org/app/fr.gouv.etalab.mastodon), [Google Play](https://play.google.com/store/apps/details?id=app.fedilab.android))
 * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) ([F-Droid](https://git.friendi.ca/lubuwest/Friendiqa#install), [Google Play](https://play.google.com/store/apps/details?id=org.qtproject.friendiqa))

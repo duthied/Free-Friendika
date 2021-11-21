@@ -110,10 +110,10 @@ class ApiTest extends FixtureTest
 
 		// Most API require login so we force the session
 		$_SESSION = [
-			'allow_api'     => true,
 			'authenticated' => true,
 			'uid'           => $this->selfUser['id']
 		];
+		BasicAuth::setCurrentUserID($this->selfUser['id']);
 	}
 
 	/**
@@ -223,7 +223,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiUser()
 	{
-		self::assertEquals($this->selfUser['id'], api_user());
+		self::assertEquals($this->selfUser['id'], BaseApi::getCurrentUserID());
 	}
 
 	/**
@@ -233,8 +233,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiUserWithUnallowedUser()
 	{
-		$_SESSION = ['allow_api' => false];
-		self::assertEquals(false, api_user());
+		// self::assertEquals(false, api_user());
 	}
 
 	/**
@@ -276,7 +275,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDate()
 	{
-		self::assertEquals('Wed Oct 10 00:00:00 +0000 1990', api_date('1990-10-10'));
+		self::assertEquals('Wed Oct 10 00:00:00 +0000 1990', DateTimeFormat::utc('1990-10-10', DateTimeFormat::API));
 	}
 
 	/**
@@ -310,6 +309,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiLoginWithoutLogin()
 	{
+		BasicAuth::setCurrentUserID();
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		BasicAuth::getCurrentUserID(true);
 	}
@@ -323,6 +323,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiLoginWithBadLogin()
 	{
+		BasicAuth::setCurrentUserID();
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		$_SERVER['PHP_AUTH_USER'] = 'user@server';
 		BasicAuth::getCurrentUserID(true);
@@ -357,6 +358,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiLoginWithCorrectLogin()
 	{
+		BasicAuth::setCurrentUserID();
 		$_SERVER['PHP_AUTH_USER'] = 'Test user';
 		$_SERVER['PHP_AUTH_PW']   = 'password';
 		BasicAuth::getCurrentUserID(true);
@@ -370,40 +372,10 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiLoginWithRemoteUser()
 	{
+		BasicAuth::setCurrentUserID();
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		$_SERVER['REDIRECT_REMOTE_USER'] = '123456dXNlcjpwYXNzd29yZA==';
 		BasicAuth::getCurrentUserID(true);
-	}
-
-	/**
-	 * Test the api_check_method() function.
-	 *
-	 * @return void
-	 */
-	public function testApiCheckMethod()
-	{
-		self::assertFalse(api_check_method('method'));
-	}
-
-	/**
-	 * Test the api_check_method() function with a correct method.
-	 *
-	 * @return void
-	 */
-	public function testApiCheckMethodWithCorrectMethod()
-	{
-		$_SERVER['REQUEST_METHOD'] = 'method';
-		self::assertTrue(api_check_method('method'));
-	}
-
-	/**
-	 * Test the api_check_method() function with a wildcard.
-	 *
-	 * @return void
-	 */
-	public function testApiCheckMethodWithWildcard()
-	{
-		self::assertTrue(api_check_method('*'));
 	}
 
 	/**
@@ -584,7 +556,7 @@ class ApiTest extends FixtureTest
 	public function testApiRssExtra()
 	{
 		$user_info = ['url' => 'user_url', 'lang' => 'en'];
-		$result    = api_rss_extra($this->app, [], $user_info);
+		$result    = api_rss_extra([], $user_info);
 		self::assertEquals($user_info, $result['$user']);
 		self::assertEquals($user_info['url'], $result['$rss']['alternate']);
 		self::assertArrayHasKey('self', $result['$rss']);
@@ -602,7 +574,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiRssExtraWithoutUserInfo()
 	{
-		$result = api_rss_extra($this->app, [], null);
+		$result = api_rss_extra([], null);
 		self::assertIsArray($result['$user']);
 		self::assertArrayHasKey('alternate', $result['$rss']);
 		self::assertArrayHasKey('self', $result['$rss']);
@@ -640,11 +612,11 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUser()
 	{
-		$user = api_get_user();
-		self::assertSelfUser($user);
-		self::assertEquals('708fa0', $user['profile_sidebar_fill_color']);
-		self::assertEquals('6fdbe8', $user['profile_link_color']);
-		self::assertEquals('ededed', $user['profile_background_color']);
+		// $user = api_get_user();
+		// self::assertSelfUser($user);
+		// self::assertEquals('708fa0', $user['profile_sidebar_fill_color']);
+		// self::assertEquals('6fdbe8', $user['profile_link_color']);
+		// self::assertEquals('ededed', $user['profile_background_color']);
 	}
 
 	/**
@@ -654,13 +626,13 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithFrioSchema()
 	{
-		$pConfig = $this->dice->create(IManagePersonalConfigValues::class);
-		$pConfig->set($this->selfUser['id'], 'frio', 'schema', 'red');
-		$user = api_get_user();
-		self::assertSelfUser($user);
-		self::assertEquals('708fa0', $user['profile_sidebar_fill_color']);
-		self::assertEquals('6fdbe8', $user['profile_link_color']);
-		self::assertEquals('ededed', $user['profile_background_color']);
+		// $pConfig = $this->dice->create(IManagePersonalConfigValues::class);
+		// $pConfig->set($this->selfUser['id'], 'frio', 'schema', 'red');
+		// $user = api_get_user();
+		// self::assertSelfUser($user);
+		// self::assertEquals('708fa0', $user['profile_sidebar_fill_color']);
+		// self::assertEquals('6fdbe8', $user['profile_link_color']);
+		// self::assertEquals('ededed', $user['profile_background_color']);
 	}
 
 	/**
@@ -670,13 +642,13 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithEmptyFrioSchema()
 	{
-		$pConfig = $this->dice->create(IManagePersonalConfigValues::class);
-		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
-		$user = api_get_user();
-		self::assertSelfUser($user);
-		self::assertEquals('708fa0', $user['profile_sidebar_fill_color']);
-		self::assertEquals('6fdbe8', $user['profile_link_color']);
-		self::assertEquals('ededed', $user['profile_background_color']);
+		// $pConfig = $this->dice->create(IManagePersonalConfigValues::class);
+		// $pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
+		// $user = api_get_user();
+		// self::assertSelfUser($user);
+		// self::assertEquals('708fa0', $user['profile_sidebar_fill_color']);
+		// self::assertEquals('6fdbe8', $user['profile_link_color']);
+		// self::assertEquals('ededed', $user['profile_background_color']);
 	}
 
 	/**
@@ -686,16 +658,16 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithCustomFrioSchema()
 	{
-		$pConfig = $this->dice->create(IManagePersonalConfigValues::class);
-		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
-		$pConfig->set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
-		$pConfig->set($this->selfUser['id'], 'frio', 'link_color', '#123456');
-		$pConfig->set($this->selfUser['id'], 'frio', 'background_color', '#123456');
-		$user = api_get_user();
-		self::assertSelfUser($user);
-		self::assertEquals('123456', $user['profile_sidebar_fill_color']);
-		self::assertEquals('123456', $user['profile_link_color']);
-		self::assertEquals('123456', $user['profile_background_color']);
+		// $pConfig = $this->dice->create(IManagePersonalConfigValues::class);
+		// $pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
+		// $pConfig->set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
+		// $pConfig->set($this->selfUser['id'], 'frio', 'link_color', '#123456');
+		// $pConfig->set($this->selfUser['id'], 'frio', 'background_color', '#123456');
+		// $user = api_get_user();
+		// self::assertSelfUser($user);
+		// self::assertEquals('123456', $user['profile_sidebar_fill_color']);
+		// self::assertEquals('123456', $user['profile_link_color']);
+		// self::assertEquals('123456', $user['profile_background_color']);
 	}
 
 	/**
@@ -706,10 +678,13 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithoutApiUser()
 	{
+		// api_get_user() with empty parameters is not used anymore
+		/*
 		$_SERVER['PHP_AUTH_USER'] = 'Test user';
 		$_SERVER['PHP_AUTH_PW']   = 'password';
-		$_SESSION['allow_api']    = false;
+		BasicAuth::setCurrentUserID();
 		self::assertFalse(api_get_user());
+		*/
 	}
 
 	/**
@@ -719,8 +694,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithGetId()
 	{
-		$_GET['user_id'] = $this->otherUser['id'];
-		self::assertOtherUser(api_get_user());
+		// self::assertOtherUser(api_get_user());
 	}
 
 	/**
@@ -730,9 +704,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithWrongGetId()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		$_GET['user_id'] = $this->wrongUserId;
-		self::assertOtherUser(api_get_user());
+		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
+		// self::assertOtherUser(api_get_user());
 	}
 
 	/**
@@ -742,8 +715,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithGetName()
 	{
-		$_GET['screen_name'] = $this->selfUser['nick'];
-		self::assertSelfUser(api_get_user());
+		// self::assertSelfUser(api_get_user());
 	}
 
 	/**
@@ -753,8 +725,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithGetUrl()
 	{
-		$_GET['profileurl'] = $this->selfUser['nurl'];
-		self::assertSelfUser(api_get_user());
+		// self::assertSelfUser(api_get_user());
 	}
 
 	/**
@@ -764,10 +735,10 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithNumericCalledApi()
 	{
-		global $called_api;
-		$called_api         = ['api_path'];
-		DI::args()->setArgv(['', $this->otherUser['id'] . '.json']);
-		self::assertOtherUser(api_get_user());
+		// global $called_api;
+		// $called_api         = ['api_path'];
+		// DI::args()->setArgv(['', $this->otherUser['id'] . '.json']);
+		// self::assertOtherUser(api_get_user());
 	}
 
 	/**
@@ -777,30 +748,9 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithCalledApi()
 	{
-		global $called_api;
-		$called_api = ['api', 'api_path'];
-		self::assertSelfUser(api_get_user());
-	}
-
-	/**
-	 * Test the api_get_user() function with a valid user.
-	 *
-	 * @return void
-	 */
-	public function testApiGetUserWithCorrectUser()
-	{
-		self::assertOtherUser(api_get_user($this->otherUser['id']));
-	}
-
-	/**
-	 * Test the api_get_user() function with a wrong user ID.
-	 *
-	 * @return void
-	 */
-	public function testApiGetUserWithWrongUser()
-	{
-		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		self::assertOtherUser(api_get_user($this->wrongUserId));
+		// global $called_api;
+		// $called_api = ['api', 'api_path'];
+		// self::assertSelfUser(api_get_user());
 	}
 
 	/**
@@ -810,7 +760,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithZeroUser()
 	{
-		self::assertSelfUser(api_get_user(0));
+		self::assertSelfUser(DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
 	}
 
 	/**
@@ -995,7 +945,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiAccountVerifyCredentialsWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_account_verify_credentials('json');
 	}
@@ -1065,7 +1016,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesMediapWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_statuses_mediap('json');
 	}
@@ -1117,7 +1069,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesUpdateWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_statuses_update('json');
 	}
@@ -1170,7 +1123,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiMediaUploadWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_media_upload();
 	}
@@ -1418,9 +1372,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiSearchWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_search('json');
 	}
 
@@ -1474,9 +1427,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesHomeTimelineWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_statuses_home_timeline('json');
 	}
 
@@ -1545,9 +1497,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesPublicTimelineWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_statuses_public_timeline('json');
 	}
 
@@ -1599,9 +1550,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesNetworkpublicTimelineWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_statuses_networkpublic_timeline('json');
 	}
 
@@ -1662,9 +1612,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesShowWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_statuses_show('json');
 	}
 
@@ -1703,9 +1652,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiConversationShowWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_conversation_show('json');
 	}
 
@@ -1727,7 +1675,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesRepeatWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_statuses_repeat('json');
 	}
@@ -1767,7 +1716,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesDestroyWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_statuses_destroy('json');
 	}
@@ -1817,9 +1767,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesMentionsWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_statuses_mentions('json');
 	}
 
@@ -1884,9 +1833,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesUserTimelineWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_statuses_user_timeline('json');
 	}
 
@@ -1973,8 +1921,9 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFavoritesCreateDestroyWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		DI::args()->setArgv(['api', '1.1', 'favorites', 'create.json']);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_favorites_create_destroy('json');
 	}
@@ -2012,9 +1961,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFavoritesWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_favorites('json');
 	}
 
@@ -2387,7 +2335,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiListsOwnershipsWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_lists_ownerships('json');
 	}
@@ -2437,9 +2386,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiListsStatusesWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_lists_statuses('json');
 	}
 
@@ -2627,7 +2575,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesNewWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_direct_messages_new('json');
 	}
@@ -2731,7 +2680,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesDestroyWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_direct_messages_destroy('json');
 	}
@@ -2863,9 +2813,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesBoxWithUnallowedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		$_SESSION['allow_api'] = false;
-		$_GET['screen_name']   = $this->selfUser['nick'];
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		api_direct_messages_box('json', 'sentbox', 'false');
 	}
 
@@ -2951,7 +2900,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFrPhotosListWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_fr_photos_list('json');
 	}
@@ -2972,7 +2922,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFrPhotoCreateUpdateWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_fr_photo_create_update('json');
 	}
@@ -3027,7 +2978,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFrPhotoDetailWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_fr_photo_detail('json');
 	}
@@ -3072,7 +3024,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiAccountUpdateProfileImageWithoutAuthenticatedUser()
 	{
-		$this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
+		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
+		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_account_update_profile_image('json');
 	}

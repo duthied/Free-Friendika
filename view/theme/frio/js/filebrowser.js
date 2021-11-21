@@ -96,7 +96,7 @@ var FileBrowser = {
 		});
 
 		// Click on album link
-		$(".fbrowser").on("click", ".folders a, .path a", function (e) {
+		$(".fbrowser").on("click", ".folders button, .path button", function (e) {
 			e.preventDefault();
 			var url =
 				baseurl +

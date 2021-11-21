@@ -44,9 +44,9 @@ class Proxy extends BaseModule
 	/**
 	 * Fetch remote image content
 	 */
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
-		$request = self::getRequestInfo($parameters);
+		$request = $this->getRequestInfo();
 
 		if (!DI::config()->get('system', 'proxify_content')) {
 			Logger::notice('Proxy access is forbidden', ['request' => $request, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'accept' => $_SERVER['HTTP_ACCEPT'] ?? '']);
@@ -119,13 +119,13 @@ class Proxy extends BaseModule
 	 *    ]
 	 * @throws \Exception
 	 */
-	private static function getRequestInfo(array $parameters)
+	private function getRequestInfo()
 	{
 		$size = ProxyUtils::PIXEL_LARGE;
 		$sizetype = '';
 
-		if (!empty($parameters['url']) && empty($_REQUEST['url'])) {
-			$url = $parameters['url'];
+		if (!empty($this->parameters['url']) && empty($_REQUEST['url'])) {
+			$url = $this->parameters['url'];
 
 			// thumb, small, medium and large.
 			if (substr($url, -6) == ':micro') {

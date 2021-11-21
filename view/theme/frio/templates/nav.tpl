@@ -110,7 +110,7 @@
 								{{* The notifications dropdown menu. There are two parts of menu. The second is at the bottom of this file. It is loaded via js. Look at nav-notifications-template *}}
 								<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu"
 									aria-labelledby="nav-notifications-menu-btn">
-									{{* the following list entry must have the id "nav-notificaionts-mark-all". Without it this isn't visable. ....strange behavior :-/ *}}
+									{{* the following list entry must have the id "nav-notifications-mark-all". Without it this isn't visible. ....strange behavior :-/ *}}
 									<li role="presentation" id="nav-notifications-mark-all" class="dropdown-header">
 										<div class="arrow"></div>
 										{{$nav.notifications.1}}
@@ -194,7 +194,8 @@
 										</li>
 									{{/if}}
 									{{if $nav.messages}}
-										<li role="presentation"><a role="menuitem"
+										<li role="presentation">
+											<a role="menuitem"
 												class="nav-commlink {{$nav.messages.2}} {{$sel.messages}}"
 												href="{{$nav.messages.0}}" title="{{$nav.messages.3}}">
 												<i class="fa fa-envelope fa-fw" aria-hidden="true"></i>
@@ -205,7 +206,8 @@
 									{{/if}}
 									<li role="presentation" class="divider"></li>
 									{{if $nav.contacts}}
-										<li role="presentation"><a role="menuitem" id="nav-menu-contacts-link"
+										<li role="presentation">
+											<a role="menuitem" id="nav-menu-contacts-link"
 												class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}"
 												title="{{$nav.contacts.3}}">
 												<i class="fa fa-users fa-fw" aria-hidden="true"></i>
@@ -235,6 +237,7 @@
 												href="{{$nav.apps.0}}" title="{{$nav.apps.3}}">
 												<i class="fa fa-puzzle-piece fa-fw" aria-hidden="true"></i> {{$nav.apps.1}}
 											</a>
+										</li>
 										<li role="presentation" class="divider"></li>
 									{{/if}}
 									{{if $nav.help}}
@@ -254,28 +257,40 @@
 										</li>
 									{{/if}}
 									{{if $nav.admin}}
-										<li role="presentation"><a accesskey="a" role="menuitem" id="nav-admin-link"
+										<li role="presentation">
+											<a accesskey="a" role="menuitem" id="nav-admin-link"
 												class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}"
 												title="{{$nav.admin.3}}"><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i>
-												{{$nav.admin.1}}</a></li>
+												{{$nav.admin.1}}
+											</a>
+										</li>
 									{{/if}}
 									{{if $nav.tos}}
 										<li role="presentation" class="divider"></li>
-										<li role="presentation"><a role="menuitem" id="nav-tos-link" class="nav-link {{$nav.tos.2}}"
+										<li role="presentation">
+											<a role="menuitem" id="nav-tos-link" class="nav-link {{$nav.tos.2}}"
 												href="{{$nav.tos.0}}" title="{{$nav.tos.3}}"><i class="fa fa-file-text"
-													aria-hidden="true"></i> {{$nav.tos.1}}</a></li>
+													aria-hidden="true"></i> {{$nav.tos.1}}
+											</a>
+										</li>
 									{{/if}}
 									<li role="presentation" class="divider"></li>
 									{{if $nav.logout}}
-										<li role="presentation"><a role="menuitem" id="nav-logout-link"
+										<li role="presentation">
+											<a role="menuitem" id="nav-logout-link"
 												class="nav-link {{$nav.logout.2}}" href="{{$nav.logout.0}}"
 												title="{{$nav.logout.3}}"><i class="fa fa fa-sign-out fa-fw" aria-hidden="true"></i>
-												{{$nav.logout.1}}</a></li>
+												{{$nav.logout.1}}
+											</a>
+										</li>
 									{{else}}
-										<li role="presentation"><a role="menuitem" id="nav-login-link"
+										<li role="presentation">
+											<a role="menuitem" id="nav-login-link"
 												class="nav-login-link {{$nav.login.2}}" href="{{$nav.login.0}}"
 												title="{{$nav.login.3}}"><i class="fa fa-power-off fa-fw" aria-hidden="true"></i>
-												{{$nav.login.1}}</a></li>
+												{{$nav.login.1}}
+											</a>
+										</li>
 									{{/if}}
 								</ul>
 							</li>{{* End of userinfo dropdown menu *}}
@@ -304,35 +319,49 @@
 								{{$userinfo.name}}{{if $nav.remote}} ({{$nav.remote}}){{/if}}
 							</li>
 							{{foreach $nav.usermenu as $usermenu}}
-								<li role="menuitem" class="list-group-item"><a role="menuitem" class="{{$usermenu.2}}"
-										href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem" class="{{$usermenu.2}}"
+										href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}
+									</a>
+								</li>
 							{{/foreach}}
 							{{if $nav.notifications || $nav.contacts || $nav.messages || $nav.delegation}}
 								<li role="presentation" class="divider"></li>
 							{{/if}}
 							{{if $nav.notifications}}
-								<li role="presentation" class="list-group-item"><a role="menuitem"
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem"
 										href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i
-											class="fa fa-bell fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a>
+											class="fa fa-bell fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}
+									</a>
 								</li>
 							{{/if}}
 							{{if $nav.contacts}}
-								<li role="presentation" class="list-group-item"><a role="menuitem"
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem"
 										class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}"
 										title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw" aria-hidden="true"></i>
-										{{$nav.contacts.1}}</a></li>
+										{{$nav.contacts.1}}
+									</a>
+								</li>
 							{{/if}}
 							{{if $nav.messages}}
-								<li role="presentation" class="list-group-item"><a role="menuitem"
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem"
 										class="nav-link {{$nav.messages.2}} {{$sel.messages}}" href="{{$nav.messages.0}}"
 										title="{{$nav.messages.3}}"><i class="fa fa-envelope fa-fw" aria-hidden="true"></i>
-										{{$nav.messages.1}}</a></li>
+										{{$nav.messages.1}}
+									</a>
+								</li>
 							{{/if}}
 							{{if $nav.delegation}}
-								<li role="presentation" class="list-group-item"><a role="menuitem"
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem"
 										class="nav-commlink {{$nav.delegation.2}} {{$sel.delegation}}"
 										href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}"><i class="fa fa-flag fa-fw"
-											aria-hidden="true"></i> {{$nav.delegation.1}}</a></li>
+											aria-hidden="true"></i> {{$nav.delegation.1}}
+									</a>
+								</li>
 							{{/if}}
 							{{if $nav.settings || $nav.admin || $nav.logout}}
 								<li role="presentation" class="divider"></li>
@@ -341,25 +370,35 @@
 								<li role="presentation" class="list-group-item">
 									<a role="menuitem" class="nav-link {{$nav.settings.2}}" href="{{$nav.settings.0}}"
 										title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw" aria-hidden="true"></i>
-										{{$nav.settings.1}}</a>
+										{{$nav.settings.1}}
+									</a>
 								</li>
 							{{/if}}
 							{{if $nav.admin}}
-								<li role="presentation" class="list-group-item"><a role="menuitem"
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem"
 										class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}"><i
 											class="fa fa-user-secret fa-fw" aria-hidden="true"></i>
-										{{$nav.admin.1}}</a></li>
+										{{$nav.admin.1}}
+									</a>
+								</li>
 							{{/if}}
 							{{if $nav.logout}}
-								<li role="presentation" class="list-group-item"><a role="menuitem"
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem"
 										class="nav-link {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}"><i
 											class="fa fa fa-sign-out fa-fw" aria-hidden="true"></i>
-										{{$nav.logout.1}}</a></li>
+										{{$nav.logout.1}}
+									</a>
+								</li>
 							{{else}}
-								<li role="presentation" class="list-group-item"><a role="menuitem"
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem"
 										class="nav-login-link {{$nav.login.2}}" href="{{$nav.login.0}}"
 										title="{{$nav.login.3}}"><i class="fa fa-power-off fa-fw" aria-hidden="true"></i>
-										{{$nav.login.1}}</a></li>
+										{{$nav.login.1}}
+									</a>
+								</li>
 							{{/if}}
 						</ul>
 					</div>

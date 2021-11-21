@@ -31,17 +31,17 @@ use Friendica\Module\BaseApi;
  */
 class Unfollow extends BaseApi
 {
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
+		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		Contact::unfollow($parameters['id'], $uid);
+		Contact::unfollow($this->parameters['id'], $uid);
 
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId($parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
 }

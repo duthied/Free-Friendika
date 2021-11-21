@@ -35,7 +35,7 @@ use Friendica\Util\DateTimeFormat;
 
 class Profile extends BaseModule
 {
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
 		$a = DI::app();
 

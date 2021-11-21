@@ -25,16 +25,13 @@ use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
-use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPInputData;
-use Friendica\Util\XML;
-
-require_once __DIR__ . '/../../include/api.php';
 
 class BaseApi extends BaseModule
 {
@@ -53,7 +50,7 @@ class BaseApi extends BaseModule
 	 */
 	protected static $request = [];
 
-	public static function delete(array $parameters = [])
+	public function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -62,7 +59,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function patch(array $parameters = [])
+	public function patch()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -71,7 +68,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function post(array $parameters = [])
+	public function post()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -80,7 +77,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function put(array $parameters = [])
+	public function put()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -139,7 +136,6 @@ class BaseApi extends BaseModule
 	 * Set boundaries for the "link" header
 	 * @param array $boundaries
 	 * @param int $id
-	 * @return array
 	 */
 	protected static function setBoundaries(int $id)
 	{
@@ -296,18 +292,14 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	/**
-	 * Get user info array.
-	 *
-	 * @param int|string $contact_id Contact ID or URL
-	 * @return array|bool
-	 * @throws HTTPException\BadRequestException
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws HTTPException\UnauthorizedException
-	 * @throws \ImagickException
-	 */
-	protected static function getUser($contact_id = null)
+	public static function getContactIDForSearchterm($searchterm)
 	{
-		return api_get_user($contact_id);
+		if (intval($searchterm) == 0) {
+			$cid = Contact::getIdForURL($searchterm, 0, false);
+		} else {
+			$cid = intval($searchterm);
+		}
+
+		return $cid;
 	}
 }

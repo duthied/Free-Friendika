@@ -21,13 +21,13 @@
 
 namespace Friendica\Module\Notifications;
 
+use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
 use Friendica\Content\Nav;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\DI;
 use Friendica\Module\BaseNotifications;
-use Friendica\Navigation\Notifications\Collection\FormattedNotifications;
 use Friendica\Navigation\Notifications\ValueObject\FormattedNotification;
-use Friendica\Network\HTTPException\InternalServerErrorException;
 
 /**
  * Prints all notification types except introduction:
@@ -38,42 +38,56 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
  */
 class Notifications extends BaseNotifications
 {
+	/** @var \Friendica\Navigation\Notifications\Factory\FormattedNotification */
+	protected $formattedNotificationFactory;
+
+	/** @var BaseURL */
+	protected $baseUrl;
+
+	public function __construct(BaseURL $baseUrl, \Friendica\Navigation\Notifications\Factory\FormattedNotification $formattedNotificationFactory, Arguments $args, L10n $l10n, array $parameters = [])
+	{
+		parent::__construct($args, $l10n, $parameters);
+
+		$this->formattedNotificationFactory = $formattedNotificationFactory;
+		$this->baseUrl                      = $baseUrl;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function getNotifications()
+	public function getNotifications()
 	{
 		$notificationHeader = '';
 		$notifications = [];
 
-		$factory = DI::formattedNotificationFactory();
+		$factory = $this->formattedNotificationFactory;
 
-		if ((DI::args()->get(1) == 'network')) {
-			$notificationHeader = DI::l10n()->t('Network Notifications');
+		if (($this->args->get(1) == 'network')) {
+			$notificationHeader = $this->t('Network Notifications');
 			$notifications      = [
 				'ident'        => FormattedNotification::NETWORK,
-				'notifications' => $factory->getNetworkList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+				'notifications' => $factory->getNetworkList($this->showAll, $this->firstItemNum, self::ITEMS_PER_PAGE),
 			];
-		} elseif ((DI::args()->get(1) == 'system')) {
-			$notificationHeader = DI::l10n()->t('System Notifications');
+		} elseif (($this->args->get(1) == 'system')) {
+			$notificationHeader = $this->t('System Notifications');
 			$notifications      = [
 				'ident'        => FormattedNotification::SYSTEM,
-				'notifications' => $factory->getSystemList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+				'notifications' => $factory->getSystemList($this->showAll, $this->firstItemNum, self::ITEMS_PER_PAGE),
 			];
-		} elseif ((DI::args()->get(1) == 'personal')) {
-			$notificationHeader = DI::l10n()->t('Personal Notifications');
+		} elseif (($this->args->get(1) == 'personal')) {
+			$notificationHeader = $this->t('Personal Notifications');
 			$notifications      = [
 				'ident'        => FormattedNotification::PERSONAL,
-				'notifications' => $factory->getPersonalList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+				'notifications' => $factory->getPersonalList($this->showAll, $this->firstItemNum, self::ITEMS_PER_PAGE),
 			];
-		} elseif ((DI::args()->get(1) == 'home')) {
-			$notificationHeader = DI::l10n()->t('Home Notifications');
+		} elseif (($this->args->get(1) == 'home')) {
+			$notificationHeader = $this->t('Home Notifications');
 			$notifications      = [
 				'ident'        => FormattedNotification::HOME,
-				'notifications' => $factory->getHomeList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+				'notifications' => $factory->getHomeList($this->showAll, $this->firstItemNum, self::ITEMS_PER_PAGE),
 			];
 		} else {
-			DI::baseUrl()->redirect('notifications');
+			$this->baseUrl->redirect('notifications');
 		}
 
 		return [
@@ -82,14 +96,14 @@ class Notifications extends BaseNotifications
 		];
 	}
 
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		Nav::setSelected('notifications');
 
 		$notificationContent   = [];
 		$notificationNoContent = '';
 
-		$notificationResult = self::getNotifications();
+		$notificationResult = $this->getNotifications();
 		$notifications      = $notificationResult['notifications'] ?? [];
 		$notificationHeader = $notificationResult['header'] ?? '';
 
@@ -118,14 +132,14 @@ class Notifications extends BaseNotifications
 				]);
 			}
 		} else {
-			$notificationNoContent = DI::l10n()->t('No more %s notifications.', $notificationResult['ident']);
+			$notificationNoContent = $this->t('No more %s notifications.', $notificationResult['ident']);
 		}
 
 		$notificationShowLink = [
-			'href' => (self::$showAll ? 'notifications/' . $notifications['ident'] : 'notifications/' . $notifications['ident'] . '?show=all'),
-			'text' => (self::$showAll ? DI::l10n()->t('Show unread') : DI::l10n()->t('Show all')),
+			'href' => ($this->showAll ? 'notifications/' . $notifications['ident'] : 'notifications/' . $notifications['ident'] . '?show=all'),
+			'text' => ($this->showAll ? $this->t('Show unread') : $this->t('Show all')),
 		];
 
-		return self::printContent($notificationHeader, $notificationContent, $notificationNoContent, $notificationShowLink);
+		return $this->printContent($notificationHeader, $notificationContent, $notificationNoContent, $notificationShowLink);
 	}
 }

@@ -40,7 +40,7 @@ use Friendica\Protocol\DFRN;
 function display_init(App $a)
 {
 	if (ActivityPub::isRequest()) {
-		Objects::rawContent(['guid' => DI::args()->getArgv()[1] ?? null]);
+		(new Objects(DI::l10n(), ['guid' => DI::args()->getArgv()[1] ?? null]))->rawContent();
 	}
 
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {

@@ -28,7 +28,7 @@ use Friendica\DI;
 
 class BaseSettings extends BaseModule
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
 		$a = DI::app();
 
@@ -125,5 +125,7 @@ class BaseSettings extends BaseModule
 			'$class' => 'settings-widget',
 			'$items' => $tabs,
 		]);
+
+		return '';
 	}
 }

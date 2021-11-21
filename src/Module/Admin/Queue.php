@@ -38,11 +38,11 @@ use Friendica\Util\DateTimeFormat;
  */
 class Queue extends BaseAdmin
 {
-	public static function content(array $parameters = [])
+	public function content(): string
 	{
-		parent::content($parameters);
+		parent::content();
 
-		$status = $parameters['status'] ?? '';
+		$status = $this->parameters['status'] ?? '';
 
 		// get jobs from the workerqueue table
 		if ($status == 'deferred') {

@@ -23,26 +23,35 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
-use Friendica\DI;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\L10n;
 use Friendica\Network\HTTPException\NotFoundException;
+use Psr\Log\LoggerInterface;
 
 class Statistics extends BaseModule
 {
-	public static function init(array $parameters = [])
+	/** @var IManageConfigValues */
+	protected $config;
+	/** @var LoggerInterface */
+	protected $logger;
+
+	public function __construct(IManageConfigValues $config, LoggerInterface $logger, L10n $l10n, array $parameters = [])
 	{
-		if (!DI::config()->get("system", "nodeinfo")) {
+		parent::__construct($l10n, $parameters);
+
+		$this->logger = $logger;
+		$this->config = $config;
+
+		if (!$this->config->get("system", "nodeinfo")) {
 			throw new NotFoundException();
 		}
 	}
 
-	public static function rawContent(array $parameters = [])
+	public function rawContent()
 	{
-		$config = DI::config();
-		$logger = DI::logger();
-
 		$registration_open =
-			intval($config->get('config', 'register_policy')) !== Register::CLOSED
-			&& !$config->get('config', 'invitation_only');
+			intval($this->config->get('config', 'register_policy')) !== Register::CLOSED
+			&& !$this->config->get('config', 'invitation_only');
 
 		/// @todo mark the "service" addons and load them dynamically here
 		$services = [
@@ -59,20 +68,20 @@ class Statistics extends BaseModule
 		];
 
 		$statistics = array_merge([
-			'name'                  => $config->get('config', 'sitename'),
+			'name'                  => $this->config->get('config', 'sitename'),
 			'network'               => FRIENDICA_PLATFORM,
 			'version'               => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
 			'registrations_open'    => $registration_open,
-			'total_users'           => $config->get('nodeinfo', 'total_users'),
-			'active_users_halfyear' => $config->get('nodeinfo', 'active_users_halfyear'),
-			'active_users_monthly'  => $config->get('nodeinfo', 'active_users_monthly'),
-			'local_posts'           => $config->get('nodeinfo', 'local_posts'),
+			'total_users'           => $this->config->get('nodeinfo', 'total_users'),
+			'active_users_halfyear' => $this->config->get('nodeinfo', 'active_users_halfyear'),
+			'active_users_monthly'  => $this->config->get('nodeinfo', 'active_users_monthly'),
+			'local_posts'           => $this->config->get('nodeinfo', 'local_posts'),
 			'services'              => $services,
 		], $services);
 
 		header("Content-Type: application/json");
 		echo json_encode($statistics, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		$logger->debug("statistics.", ['statistics' => $statistics]);
+		$this->logger->debug("statistics.", ['statistics' => $statistics]);
 		exit();
 	}
 }
