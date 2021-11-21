@@ -986,7 +986,7 @@ function api_statuses_home_timeline($type)
 		}
 	}
 
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
 
@@ -1057,7 +1057,7 @@ function api_statuses_public_timeline($type)
 	}
 	DBA::close($statuses);
 
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1105,7 +1105,7 @@ function api_statuses_networkpublic_timeline($type)
 	}
 	DBA::close($statuses);
 
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1452,7 +1452,7 @@ function api_statuses_mentions($type)
 	}
 	DBA::close($statuses);
 
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1516,7 +1516,7 @@ function api_statuses_user_timeline($type)
 	}
 	DBA::close($statuses);
 
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1583,7 +1583,7 @@ function api_favorites_create_destroy($type)
 
 	$ret = api_format_item($item, $type);
 
-	return DI::apiResponse()->formatData("status", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("status", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1637,7 +1637,7 @@ function api_favorites($type)
 	}
 	DBA::close($statuses);
 
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
 /// @TODO move to top of file or somewhere better
@@ -2417,7 +2417,7 @@ function api_lists_statuses($type)
 	}
 	DBA::close($statuses);
 
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $items], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("statuses", $type, ['status' => $items], Contact::getPublicIdByUserId($uid));
 }
 
 /// @TODO move to top of file or somewhere better
@@ -2653,7 +2653,7 @@ function api_direct_messages_new($type)
 		$ret = ["error" => $id];
 	}
 
-	return DI::apiResponse()->formatData("direct-messages", $type, ['direct_message' => $ret], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("direct-messages", $type, ['direct_message' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
 /// @TODO move to top of file or somewhere better
@@ -2896,7 +2896,7 @@ function api_direct_messages_box($type, $box, $verbose)
 		}
 	}
 
-	return DI::apiResponse()->formatData("direct-messages", $type, ['direct_message' => $ret], Contact::createSelfFromUserId($uid));
+	return DI::apiResponse()->formatData("direct-messages", $type, ['direct_message' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
 /**
