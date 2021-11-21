@@ -298,6 +298,62 @@ $data = [
 Called when the Addon Settings pages are submitted.
 `$b` is the $_POST array.
 
+### connector_settings
+Called when generating the HTML for a connector addon settings page.
+`$data` is an array containing:
+
+- **connector** (output): Required. The addon folder name.
+- **title** (output): Required. The addon settings panel title.
+- **image** (output): Required. The relative path of the logo image of the platform/protocol this addon is connecting to, max size 48x48px.
+- **enabled** (output): Optional. If set to a falsy value, the connector image will be dimmed.
+- **html** (output): Optional. Raw HTML of the addon form elements. Both the `<form>` tags and the submit buttons are taken care of elsewhere.
+- **submit** (output): Optional. If unset, a default submit button with `name="<addon name>-submit"` will be generated.
+  Can take different value types:
+    - **string**: The label to replace the default one.
+      - **associative array**: A list of submit button, the key is the value of the `name` attribute, the value is the displayed label.
+        The first submit button in this list is considered the main one and themes might emphasize its display.
+
+#### Examples
+
+##### With default submit button
+```php
+$data = [
+	'connector' => 'diaspora',
+	'title'     => DI::l10n()->t('Diaspora Export'),
+	'image'     => 'images/diaspora-logo.png',
+	'enabled'   => $enabled,
+	'html'      => $html,
+];
+```
+
+##### With custom submit button label and no logo dim
+```php
+$data = [
+	'connector' => 'ifttt',
+	'title'     => DI::l10n()->t('IFTTT Mirror'),
+	'image'     => 'addon/ifttt/ifttt.png',
+	'html'      => $html,
+	'submit'    => DI::l10n()->t('Generate new key'),
+];
+```
+
+##### With conditional submit buttons
+```php
+$submit = ['pumpio-submit' => DI::l10n()->t('Save Settings')];
+if ($oauth_token && $oauth_token_secret) {
+	$submit['pumpio-delete'] = DI::l10n()->t('Delete this preset');
+}
+
+$data = [
+	'connector' => 'pumpio',
+	'title'     => DI::l10n()->t('Pump.io Import/Export/Mirror'),
+	'image'     => 'images/pumpio.png',
+	'enabled'   => $enabled,
+	'html'      => $html,
+	'submit'    => $submit,
+];
+```
+
 ### profile_post
 Called when posting a profile page.
 `$b` is the $_POST array.
