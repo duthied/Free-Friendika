@@ -3,7 +3,9 @@
 namespace Friendica\Test\src\Module\Api;
 
 use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
 use Friendica\Core\L10n;
+use Friendica\Factory\Api\Twitter\User;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\ApiResponseDouble;
 use Psr\Log\NullLogger;
@@ -22,8 +24,8 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
-		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'json');
@@ -36,8 +38,8 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
-		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'xml');
@@ -58,8 +60,8 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
-		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'rss');
@@ -81,8 +83,8 @@ class ApiResponseTest extends MockedTest
 		$l10n = \Mockery::mock(L10n::class);
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
-		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->error(200, 'OK', 'error_message', 'atom');
@@ -107,8 +109,8 @@ class ApiResponseTest extends MockedTest
 		});
 		$args = \Mockery::mock(Arguments::class);
 		$args->shouldReceive('getQueryString')->andReturn('');
-		$baseUrl = \Mockery::mock(Friendica\App\BaseURL::class);
-		$twitterUser = \Mockery::mock(Friendica\Factory\Api\Twitter\User::class);
+		$baseUrl     = \Mockery::mock(BaseURL::class);
+		$twitterUser = \Mockery::mock(User::class);
 
 		$response = new ApiResponseDouble($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
 		$response->unsupported();
