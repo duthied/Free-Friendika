@@ -160,8 +160,6 @@ class User extends BaseDataTransferObject
 		$this->uid                   = (int)$uid;
 		$this->cid                   = (int)($userContact['id'] ?? 0);
 		$this->pid                   = (int)$publicContact['id'];
-		$this->self                  = (boolean)($userContact['self'] ?? false);
-		$this->network               = $publicContact['network'] ?: Protocol::DFRN;
 		$this->statusnet_profile_url = $publicContact['url'];
 	}
 }
