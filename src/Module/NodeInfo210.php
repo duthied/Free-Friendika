@@ -23,6 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Capabilities\IRespondToRequests;
 use Friendica\Core\Addon;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
@@ -88,6 +89,7 @@ class NodeInfo210 extends BaseModule
 			$nodeinfo['services']['inbound'][] = 'imap';
 		}
 
-		System::jsonExit($nodeinfo, 'application/json; charset=utf-8', JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		$this->response->setType(IRespondToRequests::TYPE_JSON, 'application/json; charset=utf-8');
+		$this->response->addContent(json_encode($nodeinfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 	}
 }
