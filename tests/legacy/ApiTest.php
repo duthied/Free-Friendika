@@ -2568,9 +2568,9 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNewWithScreenName()
 	{
 		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_POST['text']        = 'message_text';
-		$_POST['screen_name'] = $this->friendUser['nick'];
-		$result               = api_direct_messages_new('json');
+		$_POST['text']    = 'message_text';
+		$_POST['user_id'] = $this->friendUser['id'];
+		$result           = api_direct_messages_new('json');
 		self::assertStringContainsString('message_text', $result['direct_message']['text']);
 		self::assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
 		self::assertEquals(1, $result['direct_message']['friendica_seen']);
@@ -2584,10 +2584,10 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNewWithTitle()
 	{
 		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_POST['text']        = 'message_text';
-		$_POST['screen_name'] = $this->friendUser['nick'];
-		$_REQUEST['title']    = 'message_title';
-		$result               = api_direct_messages_new('json');
+		$_POST['text']     = 'message_text';
+		$_POST['user_id']  = $this->friendUser['id'];
+		$_REQUEST['title'] = 'message_title';
+		$result            = api_direct_messages_new('json');
 		self::assertStringContainsString('message_text', $result['direct_message']['text']);
 		self::assertStringContainsString('message_title', $result['direct_message']['text']);
 		self::assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
@@ -2602,9 +2602,9 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNewWithRss()
 	{
 		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_POST['text']        = 'message_text';
-		$_POST['screen_name'] = $this->friendUser['nick'];
-		$result               = api_direct_messages_new('rss');
+		$_POST['text']    = 'message_text';
+		$_POST['user_id'] = $this->friendUser['id'];
+		$result           = api_direct_messages_new('rss');
 		self::assertXml($result, 'direct-messages');
 	}
 
