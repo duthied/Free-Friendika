@@ -381,7 +381,10 @@ class Page implements ArrayAccess
 		foreach ($response->getHeaders() as $key => $header) {
 			if (is_array($header)) {
 				$header_str = implode(',', $header);
+			} else {
+				$header_str = $header;
 			}
+
 			if (empty($key)) {
 				header($header_str);
 			} else {
@@ -456,10 +459,16 @@ class Page implements ArrayAccess
 		}
 
 		foreach ($response->getHeaders() as $key => $header) {
-			if (empty($key)) {
-				header($header);
+			if (is_array($header)) {
+				$header_str = implode(',', $header);
 			} else {
-				header("$key: $header");
+				$header_str = $header;
+			}
+
+			if (empty($key)) {
+				header($header_str);
+			} else {
+				header("$key: $header_str");
 			}
 		}
 
