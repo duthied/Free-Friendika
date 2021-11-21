@@ -180,7 +180,7 @@ Beispiel: Friendica Support
 <a name="clients">
 ### Gibt es Clients für Friendica?
 
-Friendica unterstützt [Mastodon API](help/API-Mastodon) und [Twitter API](help/api). Das bedeutet, du kannst einge der Mastodon und Twitter Clients für Friendica verwenden. Die verfügbaren Features sind Abhängig vom Client, so dass diese teils unterschiedlich sein können.
+Friendica unterstützt [Mastodon API](help/API-Mastodon) und [Twitter API | gnusocial](help/api). Das bedeutet, du kannst einge der Mastodon und Twitter Clients für Friendica verwenden. Die verfügbaren Features sind Abhängig vom Client, so dass diese teils unterschiedlich sein können.
 
 #### Android
 
