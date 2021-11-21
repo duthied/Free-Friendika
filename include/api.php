@@ -3725,7 +3725,7 @@ function api_in_reply_to($item)
 	$in_reply_to['user_id_str'] = null;
 	$in_reply_to['screen_name'] = null;
 
-	if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] != GRAVITY_PARENT)) {
+	if (!empty($item['thr-parent']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] != GRAVITY_PARENT)) {
 		$parent = Post::selectFirst(['id'], ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
 		if (DBA::isResult($parent)) {
 			$in_reply_to['status_id'] = intval($parent['id']);
