@@ -5,16 +5,15 @@ namespace Friendica\Test\src\Module\Api\Twitter;
 use Friendica\DI;
 use Friendica\Module\Api\Twitter\SavedSearches;
 use Friendica\Test\src\Module\Api\ApiTest;
-use Friendica\Test\Util\ApiResponseDouble;
 
 class SavedSearchesTest extends ApiTest
 {
 	public function test()
 	{
-		$savedSearch = new SavedSearches(DI::l10n(), ['extension' => 'json']);
-		$savedSearch->rawContent();
+		$savedSearch = new SavedSearches(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
+		$response = $savedSearch->run();
 
-		$result = json_decode(ApiResponseDouble::getOutput());
+		$result = json_decode($response->getContent());
 
 		self::assertEquals(1, $result[0]->id);
 		self::assertEquals(1, $result[0]->id_str);

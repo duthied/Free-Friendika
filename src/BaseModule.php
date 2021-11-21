@@ -23,7 +23,7 @@ namespace Friendica;
 
 use Friendica\App\Router;
 use Friendica\Capabilities\ICanHandleRequests;
-use Friendica\Capabilities\ICanReadAndWriteToResponds;
+use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Capabilities\IRespondToRequests;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -60,7 +60,7 @@ abstract class BaseModule implements ICanHandleRequests
 	protected $profiler;
 	/** @var array */
 	protected $server;
-	/** @var ICanReadAndWriteToResponds */
+	/** @var ICanCreateResponses */
 	protected $response;
 
 	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
@@ -168,12 +168,6 @@ abstract class BaseModule implements ICanHandleRequests
 	{
 	}
 
-	/** Gets the name of the current class */
-	public function getClassName(): string
-	{
-		return static::class;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -211,27 +205,23 @@ abstract class BaseModule implements ICanHandleRequests
 		Core\Hook::callAll($this->args->getModuleName() . '_mod_init', $placeholder);
 
 		$this->profiler->set(microtime(true) - $timestamp, 'init');
-		$this->response->setType(IRespondToRequests::TYPE_CONTENT);
 
-		switch ($this->server['REQUEST_METHOD']) {
+		switch ($this->server['REQUEST_METHOD'] ?? Router::GET) {
 			case Router::DELETE:
-				$this->response->setType(IRespondToRequests::TYPE_DELETE);
 				$this->delete();
 				break;
 			case Router::PATCH:
-				$this->response->setType(IRespondToRequests::TYPE_PATCH);
 				$this->patch();
 				break;
 			case Router::POST:
 				Core\Hook::callAll($this->args->getModuleName() . '_mod_post', $post);
-				$this->response->setType(IRespondToRequests::TYPE_POST);
 				$this->post($request, $post);
 				break;
 			case Router::PUT:
-				$this->response->setType(IRespondToRequests::TYPE_PUT);
 				$this->put();
 				break;
 			default:
+				$timestamp = microtime(true);
 				// "rawContent" is especially meant for technical endpoints.
 				// This endpoint doesn't need any theme initialization or other comparable stuff.
 				$this->rawContent($request);
@@ -243,6 +233,8 @@ abstract class BaseModule implements ICanHandleRequests
 					$this->response->addContent($this->content($_REQUEST));
 				} catch (HTTPException $e) {
 					$this->response->addContent((new ModuleHTTPException())->content($e));
+				} finally {
+					$this->profiler->set(microtime(true) - $timestamp, 'content');
 				}
 				break;
 		}

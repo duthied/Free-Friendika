@@ -4,40 +4,38 @@ namespace Friendica\Capabilities;
 
 interface IRespondToRequests
 {
-	const TYPE_CONTENT     = 'content';
-	const TYPE_RAW_CONTENT = 'rawContent';
-	const TYPE_POST        = 'post';
-	const TYPE_PUT         = 'put';
-	const TYPE_DELETE      = 'delete';
-	const TYPE_PATCH       = 'patch';
+	const TYPE_HTML = 'html';
+	const TYPE_XML  = 'xml';
+	const TYPE_JSON = 'json';
+	const TYPE_ATOM = 'atom';
+	const TYPE_RSS  = 'rss';
 
 	const ALLOWED_TYPES = [
-		self::TYPE_CONTENT,
-		self::TYPE_RAW_CONTENT,
-		self::TYPE_POST,
-		self::TYPE_PUT,
-		self::TYPE_DELETE,
-		self::TYPE_PATCH,
+		self::TYPE_HTML,
+		self::TYPE_XML,
+		self::TYPE_JSON,
+		self::TYPE_ATOM,
+		self::TYPE_RSS
 	];
 
 	/**
 	 * Returns all set headers during the module execution
 	 *
-	 * @return string[][]
+	 * @return string[]
 	 */
 	public function getHeaders(): array;
 
 	/**
-	 * Returns the output of the module
+	 * Returns the output of the module (mixed content possible)
 	 *
-	 * @return string
+	 * @return mixed
 	 */
-	public function getContent(): string;
+	public function getContent();
 
 	/**
-	 * Returns the response type of the current request
+	 * Returns the response type
 	 *
 	 * @return string
 	 */
-	public function getTyp(): string;
+	public function getType(): string;
 }

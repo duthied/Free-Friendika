@@ -56,6 +56,6 @@ class Notification extends BaseApi
 			$result = false;
 		}
 
-		DI::apiResponse()->exit('notes', ['note' => $result], $this->parameters['extension'] ?? null);
+		$this->response->exit('notes', ['note' => $result], $this->parameters['extension'] ?? null);
 	}
 }

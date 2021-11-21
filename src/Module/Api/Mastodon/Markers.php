@@ -35,7 +35,7 @@ class Markers extends BaseApi
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		DI::apiResponse()->unsupported(Router::POST);
+		$this->response->unsupported(Router::POST);
 	}
 
 	/**

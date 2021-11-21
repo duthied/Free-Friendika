@@ -5,6 +5,7 @@ namespace Friendica\Module\Api;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\Core\L10n;
+use Friendica\Module\Response;
 use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPInputData;
@@ -13,9 +14,9 @@ use Psr\Log\LoggerInterface;
 use Friendica\Factory\Api\Twitter\User as TwitterUser;
 
 /**
- * This class is used to format and return API responses
+ * This class is used to format and create API responses
  */
-class ApiResponse
+class ApiResponse extends Response
 {
 	/** @var L10n */
 	protected $l10n;
@@ -23,42 +24,18 @@ class ApiResponse
 	protected $args;
 	/** @var LoggerInterface */
 	protected $logger;
+	/** @var BaseURL */
+	protected $baseUrl;
+	/** @var TwitterUser */
+	protected $twitterUser;
 
-	/**
-	 * @param L10n            $l10n
-	 * @param Arguments       $args
-	 * @param LoggerInterface $logger
-	 */
-	public function __construct(L10n $l10n, Arguments $args, LoggerInterface $logger, BaseURL $baseurl, TwitterUser $twitteruser)
+	public function __construct(L10n $l10n, Arguments $args, LoggerInterface $logger, BaseURL $baseUrl, TwitterUser $twitterUser)
 	{
 		$this->l10n        = $l10n;
 		$this->args        = $args;
 		$this->logger      = $logger;
-		$this->baseurl     = $baseurl;
-		$this->twitterUser = $twitteruser;
-	}
-
-	/**
-	 * Sets header directly
-	 * mainly used to override it for tests
-	 *
-	 * @param string $header
-	 */
-	protected function setHeader(string $header)
-	{
-		header($header);
-	}
-
-	/**
-	 * Prints output directly to the caller
-	 * mainly used to override it for tests
-	 *
-	 * @param string $output
-	 */
-	protected function printOutput(string $output)
-	{
-		echo $output;
-		exit;
+		$this->baseUrl     = $baseUrl;
+		$this->twitterUser = $twitterUser;
 	}
 
 	/**
@@ -125,12 +102,12 @@ class ApiResponse
 		$arr['$user'] = $user_info;
 		$arr['$rss'] = [
 			'alternate'    => $user_info['url'],
-			'self'         => $this->baseurl . '/' . $this->args->getQueryString(),
-			'base'         => $this->baseurl,
+			'self'         => $this->baseUrl . '/' . $this->args->getQueryString(),
+			'base'         => $this->baseUrl,
 			'updated'      => DateTimeFormat::utc(null, DateTimeFormat::API),
 			'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			'language'     => $user_info['lang'],
-			'logo'         => $this->baseurl . '/images/friendica-32.png',
+			'logo'         => $this->baseUrl . '/images/friendica-32.png',
 		];
 
 		return $arr;
@@ -242,7 +219,7 @@ class ApiResponse
 				break;
 		}
 
-		$this->printOutput($return);
+		$this->addContent($return);
 	}
 
 	/**

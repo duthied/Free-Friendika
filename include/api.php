@@ -391,6 +391,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		return prepare_photo_data($type, false, $resource_id, $uid);
 	} else {
 		throw new InternalServerErrorException("image upload failed");
+		DI::page()->exit(DI::apiResponse());
 	}
 }
 

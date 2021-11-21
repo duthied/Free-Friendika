@@ -372,6 +372,24 @@ class Page implements ArrayAccess
 	}
 
 	/**
+	 * Directly exit with the current response (include setting all headers)
+	 *
+	 * @param IRespondToRequests $response
+	 */
+	public function exit(IRespondToRequests $response)
+	{
+		foreach ($response->getHeaders() as $key => $header) {
+			if (empty($key)) {
+				header($header);
+			} else {
+				header("$key: $header");
+			}
+		}
+
+		echo $response->getContent();
+	}
+
+	/**
 	 * Executes the creation of the current page and prints it to the screen
 	 *
 	 * @param App                         $app      The Friendica App
@@ -434,13 +452,11 @@ class Page implements ArrayAccess
 			$this->page['nav']      = Nav::build($app);
 		}
 
-		foreach ($response->getHeaders() as $key => $values) {
-			if (is_array($values)) {
-				foreach ($values as $value) {
-					header($key, $value);
-				}
+		foreach ($response->getHeaders() as $key => $header) {
+			if (empty($key)) {
+				header($header);
 			} else {
-				header($key, $values);
+				header("$key: $header");
 			}
 		}
 

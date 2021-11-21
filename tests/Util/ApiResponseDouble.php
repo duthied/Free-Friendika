@@ -28,7 +28,7 @@ class ApiResponseDouble extends ApiResponse
 	/**
 	 * The header list
 	 *
-	 * @var string[]
+	 * @var string[][]
 	 */
 	protected static $header = [];
 
@@ -61,9 +61,22 @@ class ApiResponseDouble extends ApiResponse
 		self::$header = [];
 	}
 
-	protected function setHeader(string $header)
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setHeader(?string $header = null, ?string $key = null): void
 	{
-		static::$header[] = $header;
+		if (!isset($header) && !empty($key)) {
+			unset(static::$header[$key]);
+		}
+
+		if (isset($header)) {
+			if (empty($key)) {
+				static::$header[] = $header;
+			} else {
+				static::$header[$key] = $header;
+			}
+		}
 	}
 
 	protected function printOutput(string $output)

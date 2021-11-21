@@ -23,9 +23,7 @@ namespace Friendica\Test\src\Module\Api\Friendica;
 
 use Friendica\DI;
 use Friendica\Module\Api\Friendica\Notification;
-use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Test\src\Module\Api\ApiTest;
-use Friendica\Test\Util\ApiResponseDouble;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
@@ -67,19 +65,17 @@ class NotificationTest extends ApiTest
 </notes>
 XML;
 
-		$notification = new Notification(DI::l10n(), ['extension' => 'xml']);
-		$notification->rawContent();
+		$notification = new Notification(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'xml']);
+		$response = $notification->run();
 
-		self::assertXmlStringEqualsXmlString($assertXml, ApiResponseDouble::getOutput());
+		self::assertXmlStringEqualsXmlString($assertXml, $response->getContent());
 	}
 
 	public function testWithJsonResult()
 	{
-		$notification = new Notification(DI::l10n(),['parameter' => 'json']);
-		$notification->rawContent();
+		$notification = new Notification(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
+		$response = $notification->run();
 
-		$result = json_encode(ApiResponseDouble::getOutput());
-
-		self::assertJson($result);
+		self::assertJson($response->getContent());
 	}
 }

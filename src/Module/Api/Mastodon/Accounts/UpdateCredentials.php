@@ -23,7 +23,6 @@ namespace Friendica\Module\Api\Mastodon\Accounts;
 
 use Friendica\App\Router;
 use Friendica\Core\Logger;
-use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Util\HTTPInputData;
 
@@ -41,6 +40,6 @@ class UpdateCredentials extends BaseApi
 
 		Logger::info('Patch data', ['data' => $data]);
 
-		DI::apiResponse()->unsupported(Router::PATCH);
+		$this->response->unsupported(Router::PATCH);
 	}
 }

@@ -702,7 +702,11 @@ class App
 
 			// Let the module run it's internal process (init, get, post, ...)
 			$response = $module->run($_POST, $_REQUEST);
-			$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
+			if ($response->getType() === $response::TYPE_HTML) {
+				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
+			} else {
+				$page->exit($response);
+			}
 		} catch (HTTPException $e) {
 			(new ModuleHTTPException())->rawContent($e);
 		}

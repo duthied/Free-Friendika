@@ -61,7 +61,7 @@ class Show extends BaseApi
 			'profiles' => $profiles
 		];
 
-		DI::apiResponse()->exit('friendica_profiles', ['$result' => $result], $this->parameters['extension'] ?? null);
+		$this->response->exit('friendica_profiles', ['$result' => $result], $this->parameters['extension'] ?? null);
 	}
 
 	/**

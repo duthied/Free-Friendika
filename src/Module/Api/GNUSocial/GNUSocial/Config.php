@@ -61,6 +61,6 @@ class Config extends BaseApi
 			],
 		];
 
-		DI::apiResponse()->exit('config', ['config' => $config], $this->parameters['extension'] ?? null);
+		$this->response->exit('config', ['config' => $config], $this->parameters['extension'] ?? null);
 	}
 }

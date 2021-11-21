@@ -2,14 +2,14 @@
 
 namespace Friendica\Module;
 
-use Friendica\Capabilities\ICanReadAndWriteToResponds;
+use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Capabilities\IRespondToRequests;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 
-class Response implements ICanReadAndWriteToResponds
+class Response implements ICanCreateResponses
 {
 	/**
-	 * @var string[][]
+	 * @var string[]
 	 */
 	protected $headers = [];
 	/**
@@ -19,20 +19,30 @@ class Response implements ICanReadAndWriteToResponds
 	/**
 	 * @var string
 	 */
-	protected $type = IRespondToRequests::TYPE_CONTENT;
+	protected $type = IRespondToRequests::TYPE_HTML;
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function addHeader(string $key, string $value)
+	public function setHeader(?string $header = null, ?string $key = null): void
 	{
-		$this->headers[$key][] = $value;
+		if (!isset($header) && !empty($key)) {
+			unset($this->headers[$key]);
+		}
+
+		if (isset($header)) {
+			if (empty($key)) {
+				$this->headers[] = $header;
+			} else {
+				$this->headers[$key] = $header;
+			}
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function addContent(string $content)
+	public function addContent($content): void
 	{
 		$this->content .= $content;
 	}
@@ -48,7 +58,7 @@ class Response implements ICanReadAndWriteToResponds
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getContent(): string
+	public function getContent()
 	{
 		return $this->content;
 	}
@@ -56,11 +66,23 @@ class Response implements ICanReadAndWriteToResponds
 	/**
 	 * {@inheritDoc}
 	 */
-	public function setType(string $type)
+	public function setType(string $type, ?string $content_type = null): void
 	{
 		if (!in_array($type, IRespondToRequests::ALLOWED_TYPES)) {
 			throw new InternalServerErrorException('wrong type');
 		}
+
+		switch ($type) {
+			case static::TYPE_JSON:
+				$content_type = $content_type ?? 'application/json';
+				break;
+			case static::TYPE_XML:
+				$content_type = $content_type ?? 'text/xml';
+				break;
+		}
+
+
+		$this->setHeader($content_type, 'Content-type');
 
 		$this->type = $type;
 	}
@@ -68,7 +90,7 @@ class Response implements ICanReadAndWriteToResponds
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getTyp(): string
+	public function getType(): string
 	{
 		return $this->type;
 	}

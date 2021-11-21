@@ -5,17 +5,14 @@ namespace Friendica\Test\src\Module\Api\GnuSocial\GnuSocial;
 use Friendica\DI;
 use Friendica\Module\Api\GNUSocial\GNUSocial\Version;
 use Friendica\Test\src\Module\Api\ApiTest;
-use Friendica\Test\Util\ApiResponseDouble;
 
 class VersionTest extends ApiTest
 {
 	public function test()
 	{
-		$version = new Version(DI::l10n(), ['extension' => 'json']);
-		$version->rawContent();
+		$version = new Version(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
+		$response = $version->run();
 
-		$result = json_decode(ApiResponseDouble::getOutput());
-
-		self::assertEquals('0.9.7', $result);
+		self::assertEquals('"0.9.7"', $response->getContent());
 	}
 }

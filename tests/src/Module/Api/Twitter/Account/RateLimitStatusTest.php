@@ -5,16 +5,15 @@ namespace Friendica\Test\src\Module\Api\Twitter\Account;
 use Friendica\DI;
 use Friendica\Module\Api\Twitter\Account\RateLimitStatus;
 use Friendica\Test\src\Module\Api\ApiTest;
-use Friendica\Test\Util\ApiResponseDouble;
 
 class RateLimitStatusTest extends ApiTest
 {
 	public function testWithJson()
 	{
-		$rateLimitStatus = new RateLimitStatus(DI::l10n(), ['extension' => 'json']);
-		$rateLimitStatus->rawContent();
+		$rateLimitStatus = new RateLimitStatus(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
+		$response = $rateLimitStatus->run();
 
-		$result = json_decode(ApiResponseDouble::getOutput());
+		$result = json_decode($response->getContent());
 
 		self::assertEquals(150, $result->remaining_hits);
 		self::assertEquals(150, $result->hourly_limit);
@@ -23,9 +22,9 @@ class RateLimitStatusTest extends ApiTest
 
 	public function testWithXml()
 	{
-		$rateLimitStatus = new RateLimitStatus(DI::l10n(),['extension' => 'xml']);
-		$rateLimitStatus->rawContent();
+		$rateLimitStatus = new RateLimitStatus(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'xml']);
+		$response = $rateLimitStatus->run();
 
-		self::assertXml(ApiResponseDouble::getOutput(), 'hash');
+		self::assertXml($response->getContent(), 'hash');
 	}
 }

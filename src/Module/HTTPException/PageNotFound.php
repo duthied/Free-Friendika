@@ -22,6 +22,7 @@
 namespace Friendica\Module\HTTPException;
 
 use Friendica\BaseModule;
+use Friendica\Capabilities\IRespondToRequests;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 
@@ -32,7 +33,7 @@ class PageNotFound extends BaseModule
 		throw new HTTPException\NotFoundException(DI::l10n()->t('Page not found.'));
 	}
 
-	public function run(array $post = [], array $request = []): string
+	public function run(array $post = [], array $request = []): IRespondToRequests
 	{
 		/* The URL provided does not resolve to a valid module.
 		 *
