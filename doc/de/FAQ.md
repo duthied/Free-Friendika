@@ -203,7 +203,7 @@ Friendica unterstützt [Mastodon API](help/API-Mastodon) und [Twitter API | gnus
 #### SailfishOS
 
 * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
-~
+
 #### iOS
 
 * [B4X for Pleroma & Mastodon](https://www.b4x.com/) ([AppStore](https://apps.apple.com/app/b4x-pleroma/id1538396871), [GitHub](https://github.com/AnywhereSoftware/B4X-Pleroma))
