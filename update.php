@@ -1000,14 +1000,6 @@ function update_1434()
 	return Update::SUCCESS;
 }
 
-function update_1435()
-{
-	$contacts = DBA::select('contact', [], ["`uid` != ?", 0]);
-	while ($contact = DBA::fetch($contacts)) {
-		Contact\User::insertForContactArray($contact);
-	}
-}
-
 function update_1438()
 {
 	DBA::update('photo', ['photo-type' => Photo::USER_AVATAR], ['profile' => true]);
@@ -1058,6 +1050,23 @@ function update_1442()
 {
 	// transform blocked intros into ignored intros
 	DBA::update('intro', ['ignore' => 1, 'blocked' => 0], ['blocked' => 1]);
+
+	return Update::SUCCESS;
+}
+
+/**
+ * A bug in Contact\User::updateByContactUpdate prevented any update to the user-contact table since the rows have been
+ * created in version 1435. This version fixes this bug but the user-contact rows are outdated, we need to regenerate
+ * them.
+ */
+function update_1444()
+{
+	DBA::e('TRUNCATE TABLE `user-contact`');
+
+	$contacts = DBA::select('contact', [], ["`uid` != ?", 0]);
+	while ($contact = DBA::fetch($contacts)) {
+		Contact\User::insertForContactArray($contact);
+	}
 
 	return Update::SUCCESS;
 }

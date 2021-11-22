@@ -21,7 +21,9 @@
 
 namespace Friendica\Core;
 
+use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -206,6 +208,59 @@ class Protocol
 	public static function formatMention($profile_url, $display_name)
 	{
 		return $display_name . ' (' . self::getAddrFromProfileUrl($profile_url) . ')';
+	}
+
+	/**
+	 * Send a follow message to a remote server.
+	 *
+	 * @param int     $uid      User Id
+	 * @param array   $contact  Contact being followed
+	 * @param ?string $protocol Expected protocol
+	 * @return bool Only returns false in the unlikely case an ActivityPub contact ID doesn't exist (???)
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function follow(int $uid, array $contact, ?string $protocol = null): bool
+	{
+		$owner = User::getOwnerDataById($uid);
+		if (!DBA::isResult($owner)) {
+			return true;
+		}
+
+		$protocol = $protocol ?? $contact['protocol'];
+
+		if (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
+			// create a follow slap
+			$item = [
+				'verb'    => Activity::FOLLOW,
+				'gravity' => GRAVITY_ACTIVITY,
+				'follow'  => $contact['url'],
+				'body'    => '',
+				'title'   => '',
+				'guid'    => '',
+				'uri-id'  => 0,
+			];
+
+			$slap = OStatus::salmon($item, $owner);
+
+			if (!empty($contact['notify'])) {
+				Salmon::slapper($owner, $contact['notify'], $slap);
+			}
+		} elseif ($protocol == Protocol::DIASPORA) {
+			$contact = Diaspora::sendShare($owner, $contact);
+			Logger::notice('share returns: ' . $contact);
+		} elseif ($protocol == Protocol::ACTIVITYPUB) {
+			$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact['id']);
+			if (empty($activity_id)) {
+				// This really should never happen
+				return false;
+			}
+
+			$success = ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $owner['uid'], $activity_id);
+			Logger::notice('Follow returns: ' . $success);
+		}
+
+		return true;
 	}
 
 	/**

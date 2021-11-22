@@ -481,13 +481,12 @@ class User
 	/**
 	 * Returns the default group for a given user and network
 	 *
-	 * @param int    $uid     User id
-	 * @param string $network network name
+	 * @param int $uid User id
 	 *
 	 * @return int group id
 	 * @throws Exception
 	 */
-	public static function getDefaultGroup($uid, $network = '')
+	public static function getDefaultGroup($uid)
 	{
 		$user = DBA::selectFirst('user', ['def_gid'], ['uid' => $uid]);
 		if (DBA::isResult($user)) {

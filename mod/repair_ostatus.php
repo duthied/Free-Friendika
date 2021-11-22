@@ -33,7 +33,7 @@ function repair_ostatus_content(App $a) {
 		// NOTREACHED
 	}
 
-	$o = "<h2>" . DI::l10n()->t("Resubscribing to OStatus contacts") . "</h2>";
+	$o = '<h2>' . DI::l10n()->t('Resubscribing to OStatus contacts') . '</h2>';
 
 	$uid = local_user();
 
@@ -43,20 +43,20 @@ function repair_ostatus_content(App $a) {
 	$total = DBA::count('contact', $condition);
 
 	if (!$total) {
-		return ($o . DI::l10n()->t("Error"));
+		return ($o . DI::l10n()->t('Error'));
 	}
 
 	$contact = Contact::selectToArray(['url'], $condition, ['order' => ['url'], 'limit' => [$counter++, 1]]);
 	if (!DBA::isResult($contact)) {
-		$o .= DI::l10n()->t("Done");
+		$o .= DI::l10n()->t('Done');
 		return $o;
 	}
 
-	$o .= "<p>" . $counter . "/" . $total . ": " . $contact[0]["url"] . "</p>";
+	$o .= '<p>' . $counter . '/' . $total . ': ' . $contact[0]['url'] . '</p>';
 
-	$o .= "<p>" . DI::l10n()->t("Keep this window open until done.") . "</p>";
+	$o .= '<p>' . DI::l10n()->t('Keep this window open until done.') . '</p>';
 
-	Contact::createFromProbeForUser($a->getLoggedInUserId(), $contact[0]["url"]);
+	Contact::createFromProbeForUser($a->getLoggedInUserId(), $contact[0]['url']);
 
 	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="1; URL=' . DI::baseUrl() . '/repair_ostatus?counter=' . $counter . '">';
 
