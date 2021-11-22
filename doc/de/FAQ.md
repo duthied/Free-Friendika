@@ -229,10 +229,6 @@ Die verfügbaren Features sind Abhängig vom Client, so dass diese teils untersc
 * [Mastonaut](https://mastonaut.app/) ([AppStore](https://apps.apple.com/us/app/mastonaut/id1450757574)), kostet ~8€
 * [Whalebird](https://whalebird.social/en/desktop/contents) ([AppStore](https://apps.apple.com/de/app/whalebird/id1378283354), [GitHub](https://github.com/h3poteto/whalebird-desktop))
 
-#### Windows
-
-* [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1), für Windows 10
-
 #### Web
 
 * [Halcyon](https://www.halcyon.social/)
