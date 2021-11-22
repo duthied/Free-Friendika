@@ -81,8 +81,9 @@ abstract class ContactEndpoint extends BaseApi
 	/**
 	 * This methods expands the contact ids into full user objects in an existing result set.
 	 *
-	 * @param mixed $rel A relationship constant or a list of them
-	 * @param int   $uid The local user id we query the contacts from
+	 * @param array $ids           List of contact ids
+	 * @param int   $total_count   Total list of contacts
+	 * @param int   $uid           The local user id we query the contacts from
 	 * @param int   $cursor
 	 * @param int   $count
 	 * @param bool  $skip_status
@@ -92,9 +93,9 @@ abstract class ContactEndpoint extends BaseApi
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	protected static function list($rel, int $uid, int $cursor = -1, int $count = self::DEFAULT_COUNT, bool $skip_status = false, bool $include_user_entities = true)
+	protected static function list(array $ids, int $total_count, int $uid, int $cursor = -1, int $count = self::DEFAULT_COUNT, bool $skip_status = false, bool $include_user_entities = true)
 	{
-		$return = self::ids($rel, $uid, $cursor, $count);
+		$return = self::ids($ids, $total_count, $cursor, $count, false);
 
 		$users = [];
 		foreach ($return['ids'] as $contactId) {
@@ -110,108 +111,57 @@ abstract class ContactEndpoint extends BaseApi
 			'next_cursor_str' => $return['next_cursor_str'],
 			'previous_cursor' => $return['previous_cursor'],
 			'previous_cursor_str' => $return['previous_cursor_str'],
-			'total_count' => (int)$return['total_count'],
+			'total_count' => $return['total_count'],
 		];
 
 		return $return;
 	}
 
 	/**
-	 * @param mixed $rel A relationship constant or a list of them
-	 * @param int   $uid The local user id we query the contacts from
+	 * @param array $ids           List of contact ids
+	 * @param int   $total_count   Total list of contacts
 	 * @param int   $cursor
-	 * @param int   $count
-	 * @param bool  $stringify_ids
+	 * @param int   $count         Number of elements to return
+	 * @param bool  $stringify_ids if "true" then the id is converted to a string
 	 * @return array
 	 * @throws HTTPException\NotFoundException
 	 */
-	protected static function ids($rel, int $uid, int $cursor = -1, int $count = self::DEFAULT_COUNT, bool $stringify_ids = false)
+	protected static function ids(array $ids, int $total_count, int $cursor = -1, int $count = self::DEFAULT_COUNT, bool $stringify_ids = false)
 	{
-		$hide_friends = false;
-		if ($uid != self::getCurrentUserID()) {
-			$profile = Profile::getByUID($uid);
-			if (empty($profile)) {
-				throw new HTTPException\NotFoundException(DI::l10n()->t('Profile not found'));
-			}
-
-			$hide_friends = (bool)$profile['hide-friends'];
-		}
-
-		$ids = [];
 		$next_cursor = 0;
 		$previous_cursor = 0;
-		$total_count = 0;
-		if (!$hide_friends) {
-			$condition = [
-				'rel' => $rel,
-				'uid' => $uid,
-				'self' => false,
-				'deleted' => false,
-				'hidden' => false,
-				'archive' => false,
-				'pending' => false
-			];
 
-			$total_count = (int)DBA::count('contact', $condition);
+		// Cursor is on the user-specific contact id since it's the sort field
+		if (count($ids)) {
+			$previous_cursor = -$ids[0];
+			$next_cursor = (int)$ids[count($ids) -1];
+		}
 
-			$params = ['limit' => $count, 'order' => ['id' => 'ASC']];
+		// No next page
+		if ($total_count <= count($ids) || count($ids) < $count) {
+			$next_cursor = 0;
+		}
+		// End of results
+		if ($cursor < 0 && count($ids) === 0) {
+			$next_cursor = -1;
+		}
 
-			if ($cursor !== -1) {
-				if ($cursor > 0) {
-					$condition = DBA::mergeConditions($condition, ['`id` > ?', $cursor]);
-				} else {
-					$condition = DBA::mergeConditions($condition, ['`id` < ?', -$cursor]);
-					// Previous page case: we want the items closest to cursor but for that we need to reverse the query order
-					$params['order']['id'] = 'DESC';
-				}
-			}
+		// No previous page
+		if ($cursor === -1) {
+			$previous_cursor = 0;
+		}
 
-			$contacts = Contact::selectToArray(['id'], $condition, $params);
+		if ($cursor > 0 && count($ids) === 0) {
+			$previous_cursor = -$cursor;
+		}
 
-			// Previous page case: once we get the relevant items closest to cursor, we need to restore the expected display order
-			if ($cursor !== -1 && $cursor <= 0) {
-				$contacts = array_reverse($contacts);
-			}
+		if ($cursor < 0 && count($ids) === 0) {
+			$next_cursor = -1;
+		}
 
-			// Contains user-specific contact ids
-			$ids = array_column($contacts, 'id');
-
-			// Cursor is on the user-specific contact id since it's the sort field
-			if (count($ids)) {
-				$previous_cursor = -$ids[0];
-				$next_cursor = (int)$ids[count($ids) -1];
-			}
-
-			// No next page
-			if ($total_count <= count($contacts) || count($contacts) < $count) {
-				$next_cursor = 0;
-			}
-			// End of results
-			if ($cursor < 0 && count($contacts) === 0) {
-				$next_cursor = -1;
-			}
-
-			// No previous page
-			if ($cursor === -1) {
-				$previous_cursor = 0;
-			}
-
-			if ($cursor > 0 && count($contacts) === 0) {
-				$previous_cursor = -$cursor;
-			}
-
-			if ($cursor < 0 && count($contacts) === 0) {
-				$next_cursor = -1;
-			}
-
-			// Conversion to public contact ids
-			array_walk($ids, function (&$contactId) use ($uid, $stringify_ids) {
-				$cdata = Contact::getPublicAndUserContactID($contactId, $uid);
-				if ($stringify_ids) {
-					$contactId = (string)$cdata['public'];
-				} else {
-					$contactId = (int)$cdata['public'];
-				}
+		if ($stringify_ids) {
+			array_walk($ids, function (&$contactId) {
+				$contactId = (string)$contactId;
 			});
 		}
 

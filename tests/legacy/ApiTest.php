@@ -147,7 +147,6 @@ class ApiTest extends FixtureTest
 	{
 		self::assertEquals($this->otherUser['id'], $user['id']);
 		self::assertEquals($this->otherUser['id'], $user['id_str']);
-		self::assertEquals(0, $user['self']);
 		self::assertEquals($this->otherUser['name'], $user['name']);
 		self::assertEquals($this->otherUser['nick'], $user['screen_name']);
 		self::assertFalse($user['verified']);
@@ -739,16 +738,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_get_user() function with a 0 user ID.
-	 *
-	 * @return void
-	 */
-	public function testApiGetUserWithZeroUser()
-	{
-		self::assertSelfUser(DI::twitterUser()->createFromUserId(BaseApi::getCurrentUserID())->toArray());
-	}
-
-	/**
 	 * Test the Arrays::walkRecursive() function.
 	 *
 	 * @return void
@@ -1177,7 +1166,6 @@ class ApiTest extends FixtureTest
 		self::assertEquals('DFRN', $result['user']['location']);
 		self::assertEquals($this->selfUser['name'], $result['user']['name']);
 		self::assertEquals($this->selfUser['nick'], $result['user']['screen_name']);
-		self::assertEquals('dfrn', $result['user']['network']);
 		self::assertTrue($result['user']['verified']);
 	}
 
@@ -3000,7 +2988,6 @@ class ApiTest extends FixtureTest
 		self::assertEquals($this->selfUser['id'], $result['user']['cid']);
 		self::assertEquals('DFRN', $result['user']['location']);
 		self::assertEquals($this->selfUser['nick'], $result['user']['screen_name']);
-		self::assertEquals('dfrn', $result['user']['network']);
 		self::assertEquals('new_name', $result['user']['name']);
 		self::assertEquals('new_description', $result['user']['description']);
 	}

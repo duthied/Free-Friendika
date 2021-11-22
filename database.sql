@@ -1511,6 +1511,7 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`blocked` boolean COMMENT 'Contact is completely blocked for this user',
 	`ignored` boolean COMMENT 'Posts from this contact are ignored',
 	`collapsed` boolean COMMENT 'Posts from this contact are collapsed',
+	`hidden` boolean COMMENT 'This contact is hidden from the others',
 	`pending` boolean COMMENT '',
 	`rel` tinyint unsigned COMMENT 'The kind of the relation between the user and the contact',
 	`info` mediumtext COMMENT '',

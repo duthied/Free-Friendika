@@ -95,16 +95,17 @@ class User
 		$update_fields = self::preparedFields($fields);
 		if (!empty($update_fields)) {
 			$contacts = DBA::select('contact', ['uri-id', 'uid'], $condition);
-			while ($row = DBA::fetch($contacts)) {
-				if (empty($row['uri-id']) || empty($contact['uid'])) {
+			while ($contact = DBA::fetch($contacts)) {
+				if (empty($contact['uri-id']) || empty($contact['uid'])) {
 					continue;
 				}
-				$ret = DBA::update('user-contact', $update_fields, ['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
-				Logger::info('Updated user contact', ['uid' => $row['uid'], 'uri-id' => $row['uri-id'], 'ret' => $ret]);
+				$ret = DBA::update('user-contact', $update_fields, ['uri-id' => $contact['uri-id'], 'uid' => $contact['uid']]);
+				Logger::info('Updated user contact', ['uid' => $contact['uid'], 'uri-id' => $contact['uri-id'], 'ret' => $ret]);
 			}
 
 			DBA::close($contacts);
 		}
+
 		DBA::commit();	
 	}
 

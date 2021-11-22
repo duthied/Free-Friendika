@@ -1530,6 +1530,7 @@ return [
 			"blocked" => ["type" => "boolean", "comment" => "Contact is completely blocked for this user"],
 			"ignored" => ["type" => "boolean", "comment" => "Posts from this contact are ignored"],
 			"collapsed" => ["type" => "boolean", "comment" => "Posts from this contact are collapsed"],
+			"hidden" => ["type" => "boolean", "comment" => "This contact is hidden from the others"],
 			"pending" => ["type" => "boolean", "comment" => ""],
 			"rel" => ["type" => "tinyint unsigned", "comment" => "The kind of the relation between the user and the contact"],
 			"info" => ["type" => "mediumtext", "comment" => ""],
