@@ -95,14 +95,14 @@ class Status extends BaseFactory
 			$retweeted      = $this->createFromUriId($item['thr-parent-id'], $uid)->toArray();
 			$retweeted_item = Post::selectFirst(['title', 'body', 'author-id'], ['uri-id' => $item['thr-parent-id'],'uid' => [0, $uid]]);
 			$item['title']  = $retweeted_item['title'] ?? $item['title'];
-			$item['body']   = $retweeted_item['body'] ?? $item['body'];
+			$item['body']   = $retweeted_item['body']  ?? $item['body'];
 			$author         = $this->twitterUser->createFromContactId($retweeted_item['author-id'], $item['uid']);
 		} else {
 			$retweeted = [];
 		}
 
 		$quoted = [];
-	
+
 		return new \Friendica\Object\Api\Twitter\Status($item, $author, $owner, $retweeted, $quoted, $attachments, $geo, $friendica_activities, $entities, $friendica_comments);
 	}
 }
