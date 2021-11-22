@@ -193,6 +193,7 @@
 			"parent-author-id" => ["parent-post", "author-id"],
 			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
+			"parent-author-nick" => ["parent-post-author", "nick"],
 			"parent-author-network" => ["parent-post-author", "network"],
 			"parent-author-blocked" => ["parent-post-author", "blocked"],
 			"parent-author-hidden" => ["parent-post-author", "hidden"],

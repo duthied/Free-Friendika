@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1443
+-- DB_UPDATE_VERSION 1444
 -- ------------------------------------------
 
 
@@ -1701,6 +1701,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
+	`parent-post-author`.`nick` AS `parent-author-nick`,
 	`parent-post-author`.`network` AS `parent-author-network`,
 	`parent-post-author`.`blocked` AS `parent-author-blocked`,
 	`parent-post-author`.`hidden` AS `parent-author-hidden`
