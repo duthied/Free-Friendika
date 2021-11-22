@@ -168,9 +168,7 @@ as the value of $top_child_total (this is done at the end of this file)
 					<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
 						<small>
 							<a href="{{$item.plink.orig}}">
-								<span class="time" title="{{$item.localtime}}" data-toggle="tooltip">
-									<time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time>
-								</span>
+								<time class="time dt-published" title="{{$item.localtime}}" data-toggle="tooltip" datetime="{{$item.utc}}">{{$item.ago}}</time>
 							</a>
 							{{if $item.owner_self}}
 								{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
@@ -201,7 +199,9 @@ as the value of $top_child_total (this is done at the end of this file)
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
 					<p class="text-muted">
 						<small>
-							<a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a>
+							<a href="{{$item.plink.orig}}">
+								<time class="time" class="wall-item-ago" datetime="{{$item.utc}}">{{$item.ago}}</time>
+							</a>
 							{{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}
 							{{if $item.owner_self}}
 								{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
@@ -220,7 +220,9 @@ as the value of $top_child_total (this is done at the end of this file)
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span class="fakelink">{{$item.name}}</span></a>
 					<span class="text-muted">
 				<small>
-					<a class="time" href="{{$item.plink.orig}}" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</a>
+					<a href="{{$item.plink.orig}}">
+						<time class="time" title="{{$item.localtime}}" data-toggle="tooltip" datetime="{{$item.utc}}">{{$item.ago}}</time>
+					</a>
 					{{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}
 					{{if $item.owner_self}}
 						{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}

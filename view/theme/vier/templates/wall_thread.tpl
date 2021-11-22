@@ -56,7 +56,7 @@
 			<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}">{{$item.name}}</span></a>
 			{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
 			<span class="wall-item-ago">
-				{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="u-url" style="color: #999"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.created}}</time></a>{{else}} <time class="dt-published" datetime="{{$item.localtime}}">{{$item.created}}</time> {{/if}}
+				{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="u-url" style="color: #999"><time class="dt-published" datetime="{{$item.utc}}">{{$item.created}}</time></a>{{else}} <time class="dt-published" datetime="{{$item.utc}}">{{$item.created}}</time> {{/if}}
 				{{if $item.owner_self}}
 					{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 				{{/if}}

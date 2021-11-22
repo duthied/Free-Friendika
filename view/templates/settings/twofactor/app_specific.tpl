@@ -30,9 +30,7 @@
 		                {{$app_specific_password.description}}
 					</td>
 					<td>
-						<span class="time" title="{{$app_specific_password.last_used}}" data-toggle="tooltip">
-							<time datetime="{{$app_specific_password.last_used}}">{{$app_specific_password.ago}}</time>
-						</span>
+						<time class="time" title="{{$app_specific_password.local}}" data-toggle="tooltip" datetime="{{$app_specific_password.utc}}">{{$app_specific_password.ago}}</time>
 					</td>
 					<td>
 						<button type="submit" name="revoke_id" class="btn btn-default btn-small" value="{{$app_specific_password.id}}">{{$revoke_label}}</button>

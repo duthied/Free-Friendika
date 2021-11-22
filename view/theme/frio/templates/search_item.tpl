@@ -67,7 +67,11 @@
 
 					<div class="additional-info text-muted">
 						<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
-							<small><a href="{{$item.plink.orig}}"><span class="time" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span></a></small>
+							<small>
+								<a href="{{$item.plink.orig}}">
+									<time class="time" title="{{$item.localtime}}" data-toggle="tooltip" datetime="{{$item.utc}}">{{$item.ago}}</time>
+								</a>
+							</small>
 						</div>
 
 						{{if $item.location_html}}

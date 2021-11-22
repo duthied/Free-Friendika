@@ -87,6 +87,8 @@ class AppSpecificPassword
 
 		array_walk($appSpecificPasswords, function (&$value) {
 			$value['ago'] = Temporal::getRelativeDate($value['last_used']);
+			$value['utc'] = DateTimeFormat::utc($value['last_used'], 'c');
+			$value['local'] = DateTimeFormat::local($value['last_used'], 'r');
 		});
 
 		return $appSpecificPasswords;
