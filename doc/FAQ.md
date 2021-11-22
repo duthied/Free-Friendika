@@ -218,10 +218,6 @@ Friendica supports [Mastodon API](help/API-Mastodon) and [Twitter API](help/api)
 * [Mastonaut](https://apps.apple.com/us/app/mastonaut/id1450757574), costs ~8€
 * [Whalebird](https://apps.apple.com/de/app/whalebird/id1378283354)
 
-#### Windows
-
-* [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1), for Windows 10
-
 #### Web Frontend
 
 * [Halcyon](https://www.halcyon.social/)
