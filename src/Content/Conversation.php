@@ -669,6 +669,7 @@ class Conversation
 						'folders'              => $folders,
 						'text'                 => strip_tags($body_html),
 						'localtime'            => DateTimeFormat::local($item['created'], 'r'),
+						'utc'                  => DateTimeFormat::utc($item['created'], 'c'),
 						'ago'                  => (($item['app']) ? $this->l10n->t('%s from %s', Temporal::getRelativeDate($item['created']), $item['app']) : Temporal::getRelativeDate($item['created'])),
 						'location_html'        => $location_html,
 						'indent'               => '',

@@ -28,14 +28,10 @@
 		                {{$trusted_browser.browser}}
 					</td>
 					<td>
-						<span class="time" title="{{$trusted_browser.created}}" data-toggle="tooltip">
-							<time datetime="{{$trusted_browser.created}}">{{$trusted_browser.created_ago}}</time>
-						</span>
+						<time class="time" title="{{$trusted_browser.created_local}}" data-toggle="tooltip" datetime="{{$trusted_browser.created_utc}}">{{$trusted_browser.created_ago}}</time>
 					</td>
 					<td>
-						<span class="time" title="{{$trusted_browser.last_used}}" data-toggle="tooltip">
-							<time datetime="{{$trusted_browser.last_used}}">{{$trusted_browser.last_used_ago}}</time>
-						</span>
+						<time class="time" title="{{$trusted_browser.last_used_local}}" data-toggle="tooltip" datetime="{{$trusted_browser.last_used_utc}}">{{$trusted_browser.last_used_ago}}</time>
 					</td>
 					<td>
 						<button type="submit" name="remove_id" class="btn btn-default btn-small" value="{{$trusted_browser.cookie_hash}}">{{$remove_label}}</button>

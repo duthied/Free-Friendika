@@ -8,6 +8,7 @@ use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Module\BaseSettings;
 use Friendica\Security\TwoFactor;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use UAParser\Parser;
 
@@ -88,7 +89,11 @@ class Trusted extends BaseSettings
 		$trustedBrowserDisplay = array_map(function (TwoFactor\Model\TrustedBrowser $trustedBrowser) use ($parser) {
 			$dates = [
 				'created_ago' => Temporal::getRelativeDate($trustedBrowser->created),
+				'created_utc' => DateTimeFormat::utc($trustedBrowser->created, 'c'),
+				'created_local' => DateTimeFormat::local($trustedBrowser->created, 'r'),
 				'last_used_ago' => Temporal::getRelativeDate($trustedBrowser->last_used),
+				'last_used_utc' => DateTimeFormat::utc($trustedBrowser->last_used, 'c'),
+				'last_used_local' => DateTimeFormat::local($trustedBrowser->last_used, 'r'),
 			];
 
 			$result = $parser->parse($trustedBrowser->user_agent);
