@@ -23,8 +23,13 @@ namespace Friendica\Factory\Api\Twitter;
 
 use Friendica\BaseFactory;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Database\Database;
+use Friendica\Factory\Api\Friendica\Activities;
 use Friendica\Factory\Api\Twitter\User as TwitterUser;
+use Friendica\Factory\Api\Twitter\Hashtag;
+use Friendica\Factory\Api\Twitter\Mention;
+use Friendica\Factory\Api\Twitter\Url;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
@@ -36,14 +41,29 @@ class Status extends BaseFactory
 {
 	/** @var Database */
 	private $dba;
-	/** @var TwitterUser */
+	/** @var twitterUser entity */
 	private $twitterUser;
+	/** @var Hashtag entity */
+	private $hashtag;
+	/** @var Media entity */
+	private $media;
+	/** @var Url entity */
+	private $url;
+	/** @var Mention entity */
+	private $mention;
+	/** @var Activities entity */
+	private $activities;
 
-	public function __construct(LoggerInterface $logger, Database $dba, TwitterUser $twitteruser)
+	public function __construct(LoggerInterface $logger, Database $dba, TwitterUser $twitteruser, Hashtag $hashtag, Media $media, Url $url, Mention $mention, Activities $activities)
 	{
 		parent::__construct($logger);
 		$this->dba         = $dba;
 		$this->twitterUser = $twitteruser;
+		$this->hashtag     = $hashtag;
+		$this->media       = $media;
+		$this->url         = $url;
+		$this->mention     = $mention;
+		$this->activities  = $activities;
 	}
 
 	/**
@@ -57,7 +77,7 @@ class Status extends BaseFactory
 	public function createFromUriId(int $uriId, $uid = 0): \Friendica\Object\Api\Twitter\Status
 	{
 		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
-			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity'];
+			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
@@ -68,26 +88,38 @@ class Status extends BaseFactory
 
 		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT]);
 
+		$text = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::API), 0));
+
 		$geo = [];
 
-		//$mentions    = $this->mstdnMentionFactory->createFromUriId($uriId)->getArrayCopy();
-		//$tags        = $this->mstdnTagFactory->createFromUriId($uriId);
-		//$attachments = $this->mstdnAttachementFactory->createFromUriId($uriId);
-		$entities             = [];
-		$attachments          = [];
-		$friendica_activities = [];
+		if ($item['coord'] != '') {
+			$coords = explode(' ', $item["coord"]);
+			if (count($coords) == 2) {
+				$geo = [
+					'type' => 'Point',
+					'coordinates' => [(float) $coords[0], (float) $coords[1]]
+				];
+			}
+		}
+
+		$hashtags = $this->hashtag->createFromUriId($uriId, $text);
+		$medias   = $this->media->createFromUriId($uriId, $text);
+		$urls     = $this->url->createFromUriId($uriId, $text);
+		$mentions = $this->mention->createFromUriId($uriId, $text);
+
+		$friendica_activities = $this->activities->createFromUriId($uriId, $uid);
 
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (!empty($shared['guid'])) {
-			//$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
+			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
 
-			//$shared_uri_id = $shared_item['uri-id'] ?? 0;
+			$shared_uri_id = $shared_item['uri-id'] ?? 0;
 
-			//$mentions    = array_merge($mentions, $this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy());
-			//$tags        = array_merge($tags, $this->mstdnTagFactory->createFromUriId($shared_uri_id));
-			//$attachments = array_merge($attachments, $this->mstdnAttachementFactory->createFromUriId($shared_uri_id));
-			$entities             = [];
-			$attachments          = [];
+			$hashtags = array_merge($hashtags, $this->hashtag->createFromUriId($shared_uri_id, $text));
+			$medias   = array_merge($medias, $this->media->createFromUriId($shared_uri_id, $text));
+			$urls     = array_merge($urls, $this->url->createFromUriId($shared_uri_id, $text));
+			$mentions = array_merge($mentions, $this->mention->createFromUriId($shared_uri_id, $text));
+
 			$friendica_activities = [];
 		}
 
@@ -101,8 +133,10 @@ class Status extends BaseFactory
 			$retweeted = [];
 		}
 
-		$quoted = [];
+		$quoted = []; // @todo
 
-		return new \Friendica\Object\Api\Twitter\Status($item, $author, $owner, $retweeted, $quoted, $attachments, $geo, $friendica_activities, $entities, $friendica_comments);
+		$entities = ['hashtags' => $hashtags, 'media' => $medias, 'urls' => $urls, 'user_mentions' => $mentions];
+
+		return new \Friendica\Object\Api\Twitter\Status($text, $item, $author, $owner, $retweeted, $quoted, $geo, $friendica_activities, $entities, $friendica_comments);
 	}
 }

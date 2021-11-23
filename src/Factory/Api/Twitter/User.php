@@ -50,7 +50,9 @@ class User extends BaseFactory
 
 		$apcontact = APContact::getByURL($publicContact['url'], false);
 
-		return new \Friendica\Object\Api\Twitter\User($publicContact, $apcontact, $userContact, $skip_status, $include_user_entities);
+		$status = null; // @todo fetch last status
+
+		return new \Friendica\Object\Api\Twitter\User($publicContact, $apcontact, $userContact, $status, $include_user_entities);
 	}
 
 	public function createFromUserId(int $uid, $skip_status = false, $include_user_entities = true)

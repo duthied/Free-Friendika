@@ -99,7 +99,7 @@ class User extends BaseDataTransferObject
 	 * @param bool  $include_user_entities Whether to add the entities property
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $publicContact, array $apcontact = [], array $userContact = [], $skip_status = false, $include_user_entities = true)
+	public function __construct(array $publicContact, array $apcontact = [], array $userContact = [], $status = null, $include_user_entities = true)
 	{
 		$uid = $userContact['uid'] ?? 0;
 
@@ -133,8 +133,11 @@ class User extends BaseDataTransferObject
 		$this->default_profile         = false;
 		$this->default_profile_image   = false;
 
-		// @TODO Replace skip_status parameter with an optional Status parameter
-		unset($this->status);
+		if (!empty($status)) {
+			$this->status = $status;
+		} else {
+			unset($this->status);
+		}
 
 		//  Unused optional fields
 		unset($this->withheld_in_countries);

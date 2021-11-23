@@ -24,14 +24,13 @@ namespace Friendica\Object\Api\Twitter;
 use Friendica\BaseDataTransferObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
 use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 
 /**
  * Class Status
  *
- * @see https://docs.joinmastodon.org/entities/status
+ * @see https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet
  */
 class Status extends BaseDataTransferObject
 {
@@ -83,11 +82,13 @@ class Status extends BaseDataTransferObject
 	protected $statusnet_conversation_id;
 	/** @var bool */
 	protected $friendica_private;
-	/** @var Attachment */
-	protected $attachments = [];
 	protected $geo;
+	/** @var array */
 	protected $friendica_activities;
+	/** @var array */
 	protected $entities;
+	/** @var array */
+	protected $extended_entities;
 
 	/**
 	 * Creates a status record from an item record.
@@ -95,7 +96,7 @@ class Status extends BaseDataTransferObject
 	 * @param array   $item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $item, User $author, User $owner, array $retweeted, array $quoted, array $attachments, array $geo, array $friendica_activities, array $entities, int $friendica_comments)
+	public function __construct(string $text, array $item, User $author, User $owner, array $retweeted, array $quoted, array $geo, array $friendica_activities, array $entities, int $friendica_comments)
 	{
 		$this->id                        = (int)$item['id'];
 		$this->id_str                    = (string)$item['id'];
@@ -111,7 +112,7 @@ class Status extends BaseDataTransferObject
 			$this->in_reply_to_screen_name   = $item['parent-author-nick'];
 		}
 
-		$this->text                 = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::API), 0));
+		$this->text                 = $text;
 		$this->friendica_title      = $item['title'];
 		$this->statusnet_html       = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($item['raw-body'] ?? $item['body']), BBCode::API);
 		$this->friendica_html       = BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::EXTERNAL);
@@ -126,10 +127,10 @@ class Status extends BaseDataTransferObject
 		$this->favorited            = (bool)$item['starred'];
 		$this->friendica_comments   = $friendica_comments;
 		$this->source               = $item['app'] ?: 'web';
-		$this->attachments          = $attachments;
 		$this->geo                  = $geo;
 		$this->friendica_activities = $friendica_activities;
 		$this->entities             = $entities;
+		$this->extended_entities    = $entities;
 
 		if ($this->source == 'web') {
 			$this->source = ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']);

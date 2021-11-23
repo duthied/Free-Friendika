@@ -2126,6 +2126,8 @@ function api_format_items_activities($item, $type = "json")
  */
 function api_format_item($item, $type = "json")
 {
+	return DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid']);
+
 	$author_user = DI::twitterUser()->createFromContactId($item['author-id'], $item['uid'])->toArray();
 	$owner_user = DI::twitterUser()->createFromContactId($item['owner-id'], $item['uid'])->toArray();
 
