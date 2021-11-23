@@ -479,6 +479,17 @@ Hook data:
 - **uid** (input): the user to return the contact data for (can be empty for public contacts).
 - **result** (output): Leave null if address isn't relevant to the connector, set to contact array if probe is successful, false otherwise.
 
+### item_by_link
+
+Called when trying to probe an item from a given URI.
+If any registered hook function sets the `item_id` key of the hook data array, it will be returned immediately.
+Hook functions should also return immediately if the hook data contains an existing `item_id`.
+
+Hook data:
+- **uri** (input): the item URI.
+- **uid** (input): the user to return the item data for (can be empty for public contacts).
+- **item_id** (output): Leave null if URI isn't relevant to the connector, set to created item array if probe is successful, false otherwise.
+
 ### support_follow
 
 Called to assert whether a connector addon provides follow capabilities.
