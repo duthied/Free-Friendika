@@ -76,7 +76,9 @@ class Status extends BaseFactory
 	 */
 	public function createFromItemId(int $id): \Friendica\Object\Api\Twitter\Status
 	{
-		$item = Post::selectFirst([], ['id' => $id], ['order' => ['uid' => true]]);
+		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
+			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
+		$item = Post::selectFirst($fields, ['id' => $id], ['order' => ['uid' => true]]);
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with ID ' . $id . ' not found.');
 		}
@@ -93,7 +95,9 @@ class Status extends BaseFactory
 	 */
 	public function createFromUriId(int $uriId, $uid = 0): \Friendica\Object\Api\Twitter\Status
 	{
-		$item = Post::selectFirst([], ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
+		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
+			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
+		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
@@ -108,7 +112,7 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromArray(array $item, $uid = 0): \Friendica\Object\Api\Twitter\Status
+	private function createFromArray(array $item, $uid = 0): \Friendica\Object\Api\Twitter\Status
 	{
 		$author = $this->twitterUser->createFromContactId($item['author-id'], $item['uid']);
 		$owner  = $this->twitterUser->createFromContactId($item['owner-id'], $item['uid']);
