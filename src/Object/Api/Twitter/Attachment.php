@@ -26,7 +26,7 @@ use Friendica\BaseDataTransferObject;
 /**
  * Class Attachment
  *
- * 
+ *
  */
 class Attachment extends BaseDataTransferObject
 {

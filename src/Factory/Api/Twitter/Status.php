@@ -83,7 +83,7 @@ class Status extends BaseFactory
 		return $this->createFromArray($item);
 	}
 
-		/**
+	/**
 	 * @param int $uriId Uri-ID of the item
 	 * @param int $uid   Item user
 	 *
