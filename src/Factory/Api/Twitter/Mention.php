@@ -23,7 +23,6 @@ namespace Friendica\Factory\Api\Twitter;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
-use Friendica\Collection\Api\Mastodon\Mentions;
 use Friendica\Model\Contact;
 use Friendica\Model\Tag;
 use Friendica\Network\HTTPException;
@@ -46,12 +45,12 @@ class Mention extends BaseFactory
 	 * @return Array
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function createFromUriId(int $uriId): Array
+	public function createFromUriId(int $uriId): array
 	{
 		$mentions = [];
 		$tags     = Tag::getByURIId($uriId, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION]);
 		foreach ($tags as $tag) {
-			$indices  = [];
+			$indices    = [];
 			$contact    = Contact::getByURL($tag['url'], false);
 			$object     = new \Friendica\Object\Api\Twitter\Mention($tag, $contact, $indices);
 			$mentions[] = $object->toArray();

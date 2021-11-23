@@ -79,7 +79,7 @@ class Media extends BaseDataTransferObject
 				$size = 'large';
 			}
 
-			$this->sizes           = [
+			$this->sizes = [
 				$size => [
 					'h'      => $media['height'],
 					'resize' => 'fit',
@@ -87,7 +87,6 @@ class Media extends BaseDataTransferObject
 				]
 			];
 		}
-
 	}
 
 	/**

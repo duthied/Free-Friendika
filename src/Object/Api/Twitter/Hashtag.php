@@ -44,7 +44,7 @@ class Hashtag extends BaseDataTransferObject
 	public function __construct(string $name, array $indices)
 	{
 		$this->indices = $indices;
-		$this->text = $name;
+		$this->text    = $name;
 	}
 
 	/**

@@ -50,7 +50,7 @@ class Activities extends BaseFactory
 	 * @return Array
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function createFromUriId(int $uriId, int $uid): Array
+	public function createFromUriId(int $uriId, int $uid): array
 	{
 		$activities = [
 			'like'        => [],
@@ -60,10 +60,11 @@ class Activities extends BaseFactory
 			'attendmaybe' => [],
 			'announce'    => [],
 		];
-	
+
 		$condition = ['uid' => $uid, 'thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY];
+
 		$ret = Post::selectForUser($uid, ['author-id', 'verb'], $condition);
-	
+
 		while ($parent_item = Post::fetch($ret)) {
 			// get user data and add it to the array of the activity
 			$user = $this->twitterUser->createFromContactId($parent_item['author-id'], $uid)->toArray();
@@ -90,9 +91,9 @@ class Activities extends BaseFactory
 					break;
 			}
 		}
-	
+
 		DBA::close($ret);
-	
+
 		return $activities;
 	}
 }

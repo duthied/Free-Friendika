@@ -27,8 +27,6 @@ use Friendica\Content\Text\HTML;
 use Friendica\Database\Database;
 use Friendica\Factory\Api\Friendica\Activities;
 use Friendica\Factory\Api\Twitter\User as TwitterUser;
-use Friendica\Factory\Api\Twitter\Hashtag;
-use Friendica\Factory\Api\Twitter\Mention;
 use Friendica\Factory\Api\Twitter\Url;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
@@ -96,7 +94,7 @@ class Status extends BaseFactory
 			$coords = explode(' ', $item["coord"]);
 			if (count($coords) == 2) {
 				$geo = [
-					'type' => 'Point',
+					'type'        => 'Point',
 					'coordinates' => [(float) $coords[0], (float) $coords[1]]
 				];
 			}
