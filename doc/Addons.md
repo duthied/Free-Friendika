@@ -477,7 +477,7 @@ Hook data:
 - **uri** (input): the profile URI.
 - **network** (input): the target network (can be empty for auto-detection).
 - **uid** (input): the user to return the contact data for (can be empty for public contacts).
-- **result** (output): Set by the hook function to indicate a successful detection.
+- **result** (output): Leave null if address isn't relevant to the connector, set to contact array if probe is successful, false otherwise.
 
 ### support_follow
 
