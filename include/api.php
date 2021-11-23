@@ -24,7 +24,6 @@
  */
 
 use Friendica\App;
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
@@ -262,14 +261,6 @@ function api_account_verify_credentials($type)
 	// "verified" isn't used here in the standard
 	unset($user_info["verified"]);
 
-	// - Adding last status
-	if (!$skip_status) {
-		$item = api_get_last_status($user_info['pid'], 0);
-		if (!empty($item)) {
-			$user_info['status'] = api_format_item($item, $type);
-		}
-	}
-
 	// "uid" is only needed for some internal stuff, so remove it from here
 	unset($user_info['uid']);
 	
@@ -335,7 +326,8 @@ function api_statuses_mediap($type)
 	$item_id = item_post($a);
 
 	// output the post that we just posted.
-	return api_status_show($type, $item_id);
+	$status_info = DI::twitterStatus()->createFromItemId($item_id)->toArray();
+	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
 }
 
 /// @TODO move this to top of file or somewhere better!
@@ -516,7 +508,8 @@ function api_statuses_update($type)
 	}
 
 	// output the post that we just posted.
-	return api_status_show($type, $item_id);
+	$status_info = DI::twitterStatus()->createFromItemId($item_id)->toArray();
+	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -620,64 +613,6 @@ function api_media_metadata_create($type)
 api_register_func('api/media/metadata/create', 'api_media_metadata_create', true, API_METHOD_POST);
 
 /**
- * @param string $type    Return format (atom, rss, xml, json)
- * @param int    $item_id
- * @return array|string
- * @throws Exception
- */
-function api_status_show($type, $item_id)
-{
-	Logger::info(API_LOG_PREFIX . 'Start', ['action' => 'status_show', 'type' => $type, 'item_id' => $item_id]);
-
-	$status_info = [];
-
-	$item = api_get_item(['id' => $item_id]);
-	if (!empty($item)) {
-		$status_info = api_format_item($item, $type);
-	}
-
-	Logger::info(API_LOG_PREFIX . 'End', ['action' => 'get_status', 'status_info' => $status_info]);
-
-	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
-}
-
-/**
- * Retrieves the last public status of the provided user info
- *
- * @param int    $ownerId Public contact Id
- * @param int    $uid     User Id
- * @return array
- * @throws Exception
- */
-function api_get_last_status($ownerId, $uid)
-{
-	$condition = [
-		'author-id'=> $ownerId,
-		'uid'      => $uid,
-		'gravity'  => [GRAVITY_PARENT, GRAVITY_COMMENT],
-		'private'  => [Item::PUBLIC, Item::UNLISTED]
-	];
-
-	$item = api_get_item($condition);
-
-	return $item;
-}
-
-/**
- * Retrieves a single item record based on the provided condition and converts it for API use.
- *
- * @param array $condition Item table condition array
- * @return array
- * @throws Exception
- */
-function api_get_item(array $condition)
-{
-	$item = Post::selectFirst(Item::DISPLAY_FIELDLIST, $condition, ['order' => ['id' => true]]);
-
-	return $item;
-}
-
-/**
  * Returns extended information of a given user, specified by ID or screen name as per the required id parameter.
  * The author's most recent status will be returned inline.
  *
@@ -696,9 +631,16 @@ function api_users_show($type)
 
 	$user_info = DI::twitterUser()->createFromUserId($uid)->toArray();
 
-	$item = api_get_last_status($user_info['pid'], 0);
+	$condition = [
+		'author-id'=> $user_info['pid'],
+		'uid'      => $uid,
+		'gravity'  => [GRAVITY_PARENT, GRAVITY_COMMENT],
+		'private'  => [Item::PUBLIC, Item::UNLISTED]
+	];
+
+	$item = Post::selectFirst(['uri-id', 'id'], $condition);
 	if (!empty($item)) {
-		$user_info['status'] = api_format_item($item, $type);
+		$user_info['status'] = DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'])->toArray();
 	}
 
 	// "uid" is only needed for some internal stuff, so remove it from here
@@ -898,7 +840,7 @@ function api_search($type)
 
 	$ret = [];
 	while ($status = DBA::fetch($statuses)) {
-		$ret[] = api_format_item($status, $type);
+		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -972,7 +914,7 @@ function api_statuses_home_timeline($type)
 	$ret = [];
 	$idarray = [];
 	while ($status = DBA::fetch($statuses)) {
-		$ret[] = api_format_item($status, $type);
+		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 		$idarray[] = intval($status['id']);
 	}
 	DBA::close($statuses);
@@ -1051,7 +993,7 @@ function api_statuses_public_timeline($type)
 
 	$ret = [];
 	while ($status = DBA::fetch($statuses)) {
-		$ret[] = api_format_item($status, $type);
+		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -1099,7 +1041,7 @@ function api_statuses_networkpublic_timeline($type)
 
 	$ret = [];
 	while ($status = DBA::fetch($statuses)) {
-		$ret[] = api_format_item($status, $type);
+		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -1173,7 +1115,7 @@ function api_statuses_show($type)
 
 	$ret = [];
 	while ($status = DBA::fetch($statuses)) {
-		$ret[] = api_format_item($status, $type);
+		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -1256,7 +1198,7 @@ function api_conversation_show($type)
 
 	$ret = [];
 	while ($status = DBA::fetch($statuses)) {
-		$ret[] = api_format_item($status, $type);
+		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -1339,7 +1281,8 @@ function api_statuses_repeat($type)
 	}
 
 	// output the post that we just posted.
-	return api_status_show($type, $item_id);
+	$status_info = DI::twitterStatus()->createFromItemId($item_id)->toArray();
+	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1446,7 +1389,7 @@ function api_statuses_mentions($type)
 
 	$ret = [];
 	while ($status = DBA::fetch($statuses)) {
-		$ret[] = api_format_item($status, $type);
+		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -1510,7 +1453,7 @@ function api_statuses_user_timeline($type)
 
 	$ret = [];
 	while ($status = DBA::fetch($statuses)) {
-		$ret[] = api_format_item($status, $type);
+		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -1579,7 +1522,7 @@ function api_favorites_create_destroy($type)
 		throw new InternalServerErrorException("DB error");
 	}
 
-	$ret = api_format_item($item, $type);
+	$ret = DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'])->toArray();
 
 	return DI::apiResponse()->formatData("status", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
 }
@@ -1631,7 +1574,7 @@ function api_favorites($type)
 
 	$ret = [];
 	while ($status = DBA::fetch($statuses)) {
-		$ret[] = api_format_item($status, $type);
+		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -1694,346 +1637,6 @@ function api_format_messages($item, $recipient, $sender)
 
 	return $ret;
 }
-
-/**
- *
- * @param array $item
- *
- * @return array
- * @throws InternalServerErrorException
- */
-function api_convert_item($item)
-{
-	$body = api_add_attachments_to_body($item);
-
-	$entities = api_get_entitities($statustext, $body, $item['uri-id']);
-
-	// Add pictures to the attachment array and remove them from the body
-	$attachments = api_get_attachments($body, $item['uri-id']);
-
-	// Workaround for ostatus messages where the title is identically to the body
-	$html = BBCode::convertForUriId($item['uri-id'], api_clean_plain_items($body), BBCode::API);
-	$statusbody = trim(HTML::toPlaintext($html, 0));
-
-	// handle data: images
-	$statusbody = api_format_items_embeded_images($item, $statusbody);
-
-	$statustitle = trim($item['title']);
-
-	if (($statustitle != '') && (strpos($statusbody, $statustitle) !== false)) {
-		$statustext = trim($statusbody);
-	} else {
-		$statustext = trim($statustitle."\n\n".$statusbody);
-	}
-
-	if ((($item['network'] ?? Protocol::PHANTOM) == Protocol::FEED) && (mb_strlen($statustext)> 1000)) {
-		$statustext = mb_substr($statustext, 0, 1000) . "... \n" . ($item['plink'] ?? '');
-	}
-
-	$statushtml = BBCode::convertForUriId($item['uri-id'], BBCode::removeAttachment($body), BBCode::API);
-
-	// Workaround for clients with limited HTML parser functionality
-	$search = ["<br>", "<blockquote>", "</blockquote>",
-			"<h1>", "</h1>", "<h2>", "</h2>",
-			"<h3>", "</h3>", "<h4>", "</h4>",
-			"<h5>", "</h5>", "<h6>", "</h6>"];
-	$replace = ["<br>", "<br><blockquote>", "</blockquote><br>",
-			"<br><h1>", "</h1><br>", "<br><h2>", "</h2><br>",
-			"<br><h3>", "</h3><br>", "<br><h4>", "</h4><br>",
-			"<br><h5>", "</h5><br>", "<br><h6>", "</h6><br>"];
-	$statushtml = str_replace($search, $replace, $statushtml);
-
-	if ($item['title'] != "") {
-		$statushtml = "<br><h4>" . BBCode::convertForUriId($item['uri-id'], $item['title']) . "</h4><br>" . $statushtml;
-	}
-
-	do {
-		$oldtext = $statushtml;
-		$statushtml = str_replace("<br><br>", "<br>", $statushtml);
-	} while ($oldtext != $statushtml);
-
-	if (substr($statushtml, 0, 4) == '<br>') {
-		$statushtml = substr($statushtml, 4);
-	}
-
-	if (substr($statushtml, 0, -4) == '<br>') {
-		$statushtml = substr($statushtml, -4);
-	}
-
-	// feeds without body should contain the link
-	if ((($item['network'] ?? Protocol::PHANTOM) == Protocol::FEED) && (strlen($item['body']) == 0)) {
-		$statushtml .= BBCode::convertForUriId($item['uri-id'], $item['plink']);
-	}
-
-	return [
-		"text" => $statustext,
-		"html" => $statushtml,
-		"attachments" => $attachments,
-		"entities" => $entities
-	];
-}
-
-/**
- * Add media attachments to the body
- *
- * @param array $item
- * @return string body with added media
- */
-function api_add_attachments_to_body(array $item)
-{
-	$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
-
-	if (strpos($body, '[/img]') !== false) {
-		return $body;
-	}
-
-	foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::HTML]) as $media) {
-		if (!empty($media['preview'])) {
-			$description = $media['description'] ?: $media['name'];
-			if (!empty($description)) {
-				$body .= "\n[img=" . $media['preview'] . ']' . $description .'[/img]';
-			} else {
-				$body .= "\n[img]" . $media['preview'] .'[/img]';
-			}
-		}
-	}
-
-	return $body;
-}
-
-/**
- *
- * @param string $body
- * @param int    $uriid
- *
- * @return array
- * @throws InternalServerErrorException
- */
-function api_get_attachments(&$body, $uriid)
-{
-	$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
-	$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
-
-	$URLSearchString = "^\[\]";
-	if (!preg_match_all("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $body, $images)) {
-		return [];
-	}
-
-	// Remove all embedded pictures, since they are added as attachments
-	foreach ($images[0] as $orig) {
-		$body = str_replace($orig, '', $body);
-	}
-
-	$attachments = [];
-
-	foreach ($images[1] as $image) {
-		$imagedata = Images::getInfoFromURLCached($image);
-
-		if ($imagedata) {
-			$attachments[] = ["url" => Post\Link::getByLink($uriid, $image), "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
-		}
-	}
-
-	return $attachments;
-}
-
-/**
- *
- * @param string $text
- * @param string $bbcode
- *
- * @return array
- * @throws InternalServerErrorException
- * @todo Links at the first character of the post
- */
-function api_get_entitities(&$text, $bbcode, $uriid)
-{
-	$include_entities = strtolower($_REQUEST['include_entities'] ?? 'false');
-
-	if ($include_entities != "true") {
-		preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
-
-		foreach ($images[1] as $image) {
-			$replace = Post\Link::getByLink($uriid, $image);
-			$text = str_replace($image, $replace, $text);
-		}
-		return [];
-	}
-
-	$bbcode = BBCode::cleanPictureLinks($bbcode);
-
-	// Change pure links in text to bbcode uris
-	$bbcode = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2]$2[/url]', $bbcode);
-
-	$entities = [];
-	$entities["hashtags"] = [];
-	$entities["symbols"] = [];
-	$entities["urls"] = [];
-	$entities["user_mentions"] = [];
-
-	$URLSearchString = "^\[\]";
-
-	$bbcode = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '#$2', $bbcode);
-
-	$bbcode = preg_replace("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism", '[url=$1]$2[/url]', $bbcode);
-	$bbcode = preg_replace("/\[video\](.*?)\[\/video\]/ism", '[url=$1]$1[/url]', $bbcode);
-
-	$bbcode = preg_replace(
-		"/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism",
-		'[url=https://www.youtube.com/watch?v=$1]https://www.youtube.com/watch?v=$1[/url]',
-		$bbcode
-	);
-	$bbcode = preg_replace("/\[youtube\](.*?)\[\/youtube\]/ism", '[url=$1]$1[/url]', $bbcode);
-
-	$bbcode = preg_replace(
-		"/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
-		'[url=https://vimeo.com/$1]https://vimeo.com/$1[/url]',
-		$bbcode
-	);
-	$bbcode = preg_replace("/\[vimeo\](.*?)\[\/vimeo\]/ism", '[url=$1]$1[/url]', $bbcode);
-
-	$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $bbcode);
-
-	preg_match_all("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $bbcode, $urls);
-
-	$ordered_urls = [];
-	foreach ($urls[1] as $id => $url) {
-		$start = iconv_strpos($text, $url, 0, "UTF-8");
-		if (!($start === false)) {
-			$ordered_urls[$start] = ["url" => $url, "title" => $urls[2][$id]];
-		}
-	}
-
-	ksort($ordered_urls);
-
-	$offset = 0;
-
-	foreach ($ordered_urls as $url) {
-		if ((substr($url["title"], 0, 7) != "http://") && (substr($url["title"], 0, 8) != "https://")
-			&& !strpos($url["title"], "http://") && !strpos($url["title"], "https://")
-		) {
-			$display_url = $url["title"];
-		} else {
-			$display_url = str_replace(["http://www.", "https://www."], ["", ""], $url["url"]);
-			$display_url = str_replace(["http://", "https://"], ["", ""], $display_url);
-
-			if (strlen($display_url) > 26) {
-				$display_url = substr($display_url, 0, 25)."…";
-			}
-		}
-
-		$start = iconv_strpos($text, $url["url"], $offset, "UTF-8");
-		if (!($start === false)) {
-			$entities["urls"][] = ["url" => $url["url"],
-							"expanded_url" => $url["url"],
-							"display_url" => $display_url,
-							"indices" => [$start, $start+strlen($url["url"])]];
-			$offset = $start + 1;
-		}
-	}
-
-	preg_match_all("/\[img\=(.*?)\](.*?)\[\/img\]/ism", $bbcode, $images, PREG_SET_ORDER);
-	$ordered_images = [];
-	foreach ($images as $image) {
-		$start = iconv_strpos($text, $image[1], 0, "UTF-8");
-		if (!($start === false)) {
-			$ordered_images[$start] = ['url' => $image[1], 'alt' => $image[2]];
-		}
-	}
-
-	preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
-	foreach ($images[1] as $image) {
-		$start = iconv_strpos($text, $image, 0, "UTF-8");
-		if (!($start === false)) {
-			$ordered_images[$start] = ['url' => $image, 'alt' => ''];
-		}
-	}
-
-	$offset = 0;
-
-	foreach ($ordered_images as $image) {
-		$url = $image['url'];
-		$ext_alt_text = $image['alt'];
-
-		$display_url = str_replace(["http://www.", "https://www."], ["", ""], $url);
-		$display_url = str_replace(["http://", "https://"], ["", ""], $display_url);
-
-		if (strlen($display_url) > 26) {
-			$display_url = substr($display_url, 0, 25)."…";
-		}
-
-		$start = iconv_strpos($text, $url, $offset, "UTF-8");
-		if (!($start === false)) {
-			$image = Images::getInfoFromURLCached($url);
-			if ($image) {
-				$media_url = Post\Link::getByLink($uriid, $url);
-				$sizes["medium"] = ["w" => $image[0], "h" => $image[1], "resize" => "fit"];
-
-				$entities["media"][] = [
-							"id" => $start+1,
-							"id_str" => (string) ($start + 1),
-							"indices" => [$start, $start+strlen($url)],
-							"media_url" => Strings::normaliseLink($media_url),
-							"media_url_https" => $media_url,
-							"url" => $url,
-							"display_url" => $display_url,
-							"expanded_url" => $url,
-							"ext_alt_text" => $ext_alt_text,
-							"type" => "photo",
-							"sizes" => $sizes];
-			}
-			$offset = $start + 1;
-		}
-	}
-
-	return $entities;
-}
-
-/**
- *
- * @param array $item
- * @param string $text
- *
- * @return string
- */
-function api_format_items_embeded_images($item, $text)
-{
-	$text = preg_replace_callback(
-		'|data:image/([^;]+)[^=]+=*|m',
-		function () use ($item) {
-			return DI::baseUrl() . '/display/' . $item['guid'];
-		},
-		$text
-	);
-	return $text;
-}
-
-/**
- * return <a href='url'>name</a> as array
- *
- * @param string $txt text
- * @return array
- * 			'name' => 'name',
- * 			'url => 'url'
- */
-function api_contactlink_to_array($txt)
-{
-	$match = [];
-	$r = preg_match_all('|<a href="([^"]*)">([^<]*)</a>|', $txt, $match);
-	if ($r && count($match)==3) {
-		$res = [
-			'name' => $match[2],
-			'url' => $match[1]
-		];
-	} else {
-		$res = [
-			'name' => $txt,
-			'url' => ""
-		];
-	}
-	return $res;
-}
-
 
 /**
  * return likes, dislikes and attend status for item
@@ -2110,175 +1713,6 @@ function api_format_items_activities($item, $type = "json")
 	}
 
 	return $activities;
-}
-
-/**
- * @param array  $item       Item record
- * @param string $type       Return format (atom, rss, xml, json)
- * @param array $status_user User record of the item author, can be provided by api_item_get_user()
- * @param array $author_user User record of the item author, can be provided by api_item_get_user()
- * @param array $owner_user  User record of the item owner, can be provided by api_item_get_user()
- * @return array API-formatted status
- * @throws BadRequestException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_format_item($item, $type = "json")
-{
-	return DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'])->toArray();
-
-	$author_user = DI::twitterUser()->createFromContactId($item['author-id'], $item['uid'])->toArray();
-	$owner_user = DI::twitterUser()->createFromContactId($item['owner-id'], $item['uid'])->toArray();
-
-	DI::contentItem()->localize($item);
-
-	$in_reply_to = api_in_reply_to($item);
-
-	$converted = api_convert_item($item);
-
-	if ($type == "xml") {
-		$geo = "georss:point";
-	} else {
-		$geo = "geo";
-	}
-
-	$status = [
-		'text'		=> $converted["text"],
-		'truncated' => false,
-		'created_at'=> DateTimeFormat::utc($item['created'], DateTimeFormat::API),
-		'in_reply_to_status_id' => $in_reply_to['status_id'],
-		'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
-		'source'    => (($item['app']) ? $item['app'] : 'web'),
-		'id'		=> intval($item['id']),
-		'id_str'	=> (string) intval($item['id']),
-		'in_reply_to_user_id' => $in_reply_to['user_id'],
-		'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
-		'in_reply_to_screen_name' => $in_reply_to['screen_name'],
-		$geo => null,
-		'favorited' => $item['starred'] ? true : false,
-		'user' =>  $author_user,
-		'friendica_author' => $author_user,
-		'friendica_owner' => $owner_user,
-		'friendica_private' => $item['private'] == Item::PRIVATE,
-		//'entities' => NULL,
-		'statusnet_html' => $converted["html"],
-		'statusnet_conversation_id' => $item['parent'],
-		'external_url' => DI::baseUrl() . "/display/" . $item['guid'],
-		'friendica_activities' => api_format_items_activities($item, $type),
-		'friendica_title' => $item['title'],
-		'friendica_html' => BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::EXTERNAL),
-		'friendica_comments' => Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT])
-	];
-
-	if (count($converted["attachments"]) > 0) {
-		$status["attachments"] = $converted["attachments"];
-	}
-
-	if (count($converted["entities"]) > 0) {
-		$status["entities"] = $converted["entities"];
-	}
-
-	if ($status["source"] == 'web') {
-		$status["source"] = ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']);
-	} elseif (ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']) != $status["source"]) {
-		$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']).')');
-	}
-
-	$retweeted_item = [];
-	$quoted_item = [];
-
-	if (empty($retweeted_item) && ($item['owner-id'] == $item['author-id'])) {
-		$announce = api_get_announce($item);
-		if (!empty($announce)) {
-			$retweeted_item = $item;
-			$item = $announce;
-			$status['friendica_owner'] = DI::twitterUser()->createFromContactId($announce['author-id'], $item['uid'])->toArray();
-		}
-	}
-
-	if (!empty($quoted_item)) {
-		if ($quoted_item['id'] != $item['id']) {
-			$quoted_status = api_format_item($quoted_item);
-			/// @todo Only remove the attachments that are also contained in the quotes status
-			unset($status['attachments']);
-			unset($status['entities']);
-		} else {
-			$conv_quoted = api_convert_item($quoted_item);
-			$quoted_status = $status;
-			unset($quoted_status['attachments']);
-			unset($quoted_status['entities']);
-			unset($quoted_status['statusnet_conversation_id']);
-			$quoted_status['text'] = $conv_quoted['text'];
-			$quoted_status['statusnet_html'] = $conv_quoted['html'];
-			try {
-				$quoted_status["user"] = DI::twitterUser()->createFromContactId($quoted_item['author-id'], $item['uid'])->toArray();
-			} catch (BadRequestException $e) {
-				// user not found. should be found?
-				/// @todo check if the user should be always found
-				$quoted_status["user"] = [];
-			}
-		}
-		unset($quoted_status['friendica_author']);
-		unset($quoted_status['friendica_owner']);
-		unset($quoted_status['friendica_activities']);
-		unset($quoted_status['friendica_private']);
-	}
-
-	if (!empty($retweeted_item)) {
-		$retweeted_status = $status;
-		unset($retweeted_status['friendica_author']);
-		unset($retweeted_status['friendica_owner']);
-		unset($retweeted_status['friendica_activities']);
-		unset($retweeted_status['friendica_private']);
-		unset($retweeted_status['statusnet_conversation_id']);
-		$status['user'] = $status['friendica_owner'];
-		try {
-			$retweeted_status["user"] = DI::twitterUser()->createFromContactId($retweeted_item['author-id'], $item['uid'])->toArray();
-		} catch (BadRequestException $e) {
-			// user not found. should be found?
-			/// @todo check if the user should be always found
-			$retweeted_status["user"] = [];
-		}
-
-		$rt_converted = api_convert_item($retweeted_item);
-
-		$retweeted_status['text'] = $rt_converted["text"];
-		$retweeted_status['statusnet_html'] = $rt_converted["html"];
-		$retweeted_status['friendica_html'] = $rt_converted["html"];
-		$retweeted_status['created_at'] =  DateTimeFormat::utc($retweeted_item['created'], DateTimeFormat::API);
-
-		if (!empty($quoted_status)) {
-			$retweeted_status['quoted_status'] = $quoted_status;
-		}
-
-		$status['friendica_author'] = $retweeted_status['user'];
-		$status['retweeted_status'] = $retweeted_status;
-	} elseif (!empty($quoted_status)) {
-		$root_status = api_convert_item($item);
-
-		$status['text'] = $root_status["text"];
-		$status['statusnet_html'] = $root_status["html"];
-		$status['quoted_status'] = $quoted_status;
-	}
-
-	// "uid" is only needed for some internal stuff, so remove it from here
-	unset($status["user"]['uid']);
-
-	if ($item["coord"] != "") {
-		$coords = explode(' ', $item["coord"]);
-		if (count($coords) == 2) {
-			if ($type == "json") {
-				$status["geo"] = ['type' => 'Point',
-					'coordinates' => [(float) $coords[0],
-						(float) $coords[1]]];
-			} else {// Not sure if this is the official format - if someone founds a documentation we can check
-				$status["georss:point"] = $item["coord"];
-			}
-		}
-	}
-
-	return $status;
 }
 
 /**
@@ -2406,7 +1840,7 @@ function api_lists_statuses($type)
 
 	$items = [];
 	while ($status = DBA::fetch($statuses)) {
-		$items[] = api_format_item($status, $type);
+		$items[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -3641,7 +3075,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	// prepare output of comments
 	$commentData = [];
 	while ($status = DBA::fetch($statuses)) {
-		$commentData[] = api_format_item($status, $type);
+		$commentData[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 	}
 	DBA::close($statuses);
 
@@ -3699,58 +3133,6 @@ function api_get_announce($item)
 	}
 
 	return array_merge($item, $announce);
-}
-
-/**
- *
- * @param array $item
- *
- * @return array
- * @throws Exception
- */
-function api_in_reply_to($item)
-{
-	$in_reply_to = [];
-
-	$in_reply_to['status_id'] = null;
-	$in_reply_to['user_id'] = null;
-	$in_reply_to['status_id_str'] = null;
-	$in_reply_to['user_id_str'] = null;
-	$in_reply_to['screen_name'] = null;
-
-	if (!empty($item['thr-parent']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] != GRAVITY_PARENT)) {
-		$parent = Post::selectFirst(['id'], ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
-		if (DBA::isResult($parent)) {
-			$in_reply_to['status_id'] = intval($parent['id']);
-		} else {
-			$in_reply_to['status_id'] = intval($item['parent']);
-		}
-
-		$in_reply_to['status_id_str'] = (string) intval($in_reply_to['status_id']);
-
-		$fields = ['author-nick', 'author-name', 'author-id', 'author-link'];
-		$parent = Post::selectFirst($fields, ['id' => $in_reply_to['status_id']]);
-
-		if (DBA::isResult($parent)) {
-			$in_reply_to['screen_name'] = (($parent['author-nick']) ? $parent['author-nick'] : $parent['author-name']);
-			$in_reply_to['user_id'] = intval($parent['author-id']);
-			$in_reply_to['user_id_str'] = (string) intval($parent['author-id']);
-		}
-
-		// There seems to be situation, where both fields are identical:
-		// https://github.com/friendica/friendica/issues/1010
-		// This is a bugfix for that.
-		if (intval($in_reply_to['status_id']) == intval($item['id'])) {
-			Logger::warning(API_LOG_PREFIX . 'ID {id} is similar to reply-to {reply-to}', ['module' => 'api', 'action' => 'in_reply_to', 'id' => $item['id'], 'reply-to' => $in_reply_to['status_id']]);
-			$in_reply_to['status_id'] = null;
-			$in_reply_to['user_id'] = null;
-			$in_reply_to['status_id_str'] = null;
-			$in_reply_to['user_id_str'] = null;
-			$in_reply_to['screen_name'] = null;
-		}
-	}
-
-	return $in_reply_to;
 }
 
 /**
@@ -4161,7 +3543,7 @@ function api_friendica_notification_seen($type)
 			$item = Post::selectFirstForUser($uid, [], ['id' => $Notify->iid, 'uid' => $uid]);
 			if (DBA::isResult($item)) {
 				// we found the item, return it to the user
-				$ret = [api_format_item($item, $type)];
+				$ret = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'])->toArray()];
 				$data = ['status' => $ret];
 				return DI::apiResponse()->formatData('status', $type, $data);
 			}

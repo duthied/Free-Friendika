@@ -34,22 +34,32 @@ use Friendica\Util\DateTimeFormat;
  */
 class Status extends BaseDataTransferObject
 {
-	/** @var int */
-	protected $id;
 	/** @var string */
-	protected $id_str;
+	protected $text;
+	/** @var bool */
+	protected $truncated;
 	/** @var string (Datetime) */
 	protected $created_at;
 	/** @var int|null */
 	protected $in_reply_to_status_id = null;
 	/** @var string|null */
 	protected $in_reply_to_status_id_str = null;
+	/** @var string */
+	protected $source;
+	/** @var int */
+	protected $id;
+	/** @var string */
+	protected $id_str;
 	/** @var int|null */
 	protected $in_reply_to_user_id = null;
 	/** @var string|null */
 	protected $in_reply_to_user_id_str = null;
 	/** @var string|null */
 	protected $in_reply_to_screen_name = null;
+	/** @var array|null */
+	protected $geo;
+	/** @var bool */
+	protected $favorited = false;
 	/** @var User */
 	protected $user;
 	/** @var User */
@@ -57,34 +67,27 @@ class Status extends BaseDataTransferObject
 	/** @var User */
 	protected $friendica_owner;
 	/** @var bool */
-	protected $favorited = false;
+	protected $friendica_private;
+	/** @var string */
+	protected $statusnet_html;
+	/** @var int */
+	protected $statusnet_conversation_id;
+	/** @var string */
+	protected $external_url;
+	/** @var array */
+	protected $friendica_activities;
+	/** @var string */
+	protected $friendica_title;
+	/** @var string */
+	protected $friendica_html;
+	/** @var int */
+	protected $friendica_comments;
 	/** @var Status|null */
 	protected $retweeted_status = null;
 	/** @var Status|null */
 	protected $quoted_status = null;
-	/** @var string */
-	protected $text;
-	/** @var string */
-	protected $statusnet_html;
-	/** @var string */
-	protected $friendica_html;
-	/** @var string */
-	protected $friendica_title;
-	/** @var bool */
-	protected $truncated;
-	/** @var int */
-	protected $friendica_comments;
-	/** @var string */
-	protected $source;
-	/** @var string */
-	protected $external_url;
-	/** @var int */
-	protected $statusnet_conversation_id;
-	/** @var bool */
-	protected $friendica_private;
-	protected $geo;
 	/** @var array */
-	protected $friendica_activities;
+	protected $attachments;
 	/** @var array */
 	protected $entities;
 	/** @var array */
@@ -96,7 +99,7 @@ class Status extends BaseDataTransferObject
 	 * @param array   $item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(string $text, array $item, User $author, User $owner, array $retweeted, array $quoted, array $geo, array $friendica_activities, array $entities, int $friendica_comments)
+	public function __construct(string $text, array $item, User $author, User $owner, array $retweeted, array $quoted, array $geo, array $friendica_activities, array $entities, array $attachments, int $friendica_comments)
 	{
 		$this->id                        = (int)$item['id'];
 		$this->id_str                    = (string)$item['id'];
@@ -129,6 +132,7 @@ class Status extends BaseDataTransferObject
 		$this->source               = $item['app'] ?: 'web';
 		$this->geo                  = $geo;
 		$this->friendica_activities = $friendica_activities;
+		$this->attachments          = $attachments;
 		$this->entities             = $entities;
 		$this->extended_entities    = $entities;
 
@@ -154,6 +158,10 @@ class Status extends BaseDataTransferObject
 
 		if (empty($status['quoted_status'])) {
 			unset($status['quoted_status']);
+		}
+
+		if (empty($status['geo'])) {
+			$status['geo'] = null;
 		}
 
 		return $status;
