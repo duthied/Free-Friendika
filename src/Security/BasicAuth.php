@@ -78,9 +78,9 @@ class BasicAuth
 			return [];
 		}
 
-		if (!empty(self::$current_token)) {
-			return self::$current_token;
-		}
+		//if (!empty(self::$current_token)) {
+		//	return self::$current_token;
+		//}
 
 		$source = $_REQUEST['source'] ?? '';
 
