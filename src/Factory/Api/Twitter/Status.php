@@ -155,10 +155,10 @@ class Status extends BaseFactory
 			$shared_uri_id = $shared_item['uri-id'] ?? 0;
 
 			if ($include_entities) {
-				$hashtags    = array_merge($hashtags, $this->hashtag->createFromUriId($shared_uri_id, $text));
-				$medias      = array_merge($medias, $this->media->createFromUriId($shared_uri_id, $text));
-				$urls        = array_merge($urls, $this->url->createFromUriId($shared_uri_id, $text));
-				$mentions    = array_merge($mentions, $this->mention->createFromUriId($shared_uri_id, $text));
+				$hashtags = array_merge($hashtags, $this->hashtag->createFromUriId($shared_uri_id, $text));
+				$medias   = array_merge($medias, $this->media->createFromUriId($shared_uri_id, $text));
+				$urls     = array_merge($urls, $this->url->createFromUriId($shared_uri_id, $text));
+				$mentions = array_merge($mentions, $this->mention->createFromUriId($shared_uri_id, $text));
 			} else {
 				$attachments = array_merge($attachments, $this->attachment->createFromUriId($item['uri-id'], $text));
 			}
