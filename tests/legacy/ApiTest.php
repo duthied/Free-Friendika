@@ -243,7 +243,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiSource()
 	{
-		self::assertEquals('API', BaseApi::getCurrentApplication()['name']);
+		self::assertEquals('api', BaseApi::getCurrentApplication()['name']);
 	}
 
 	/**
@@ -264,7 +264,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiSourceWithGet()
 	{
-		$_GET['source'] = 'source_name';
+		$_REQUEST['source'] = 'source_name';
 		self::assertEquals('source_name', BaseApi::getCurrentApplication()['name']);
 	}
 
