@@ -42,31 +42,31 @@ class Seen extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		if (DI::args()->getArgc() !== 4) {
 			throw new BadRequestException('Invalid argument count');
 		}
-	
+
 		$id = intval($_REQUEST['id'] ?? 0);
-	
+
 		try {
 			$Notify = DI::notify()->selectOneById($id);
 			if ($Notify->uid !== $uid) {
 				throw new NotFoundException();
 			}
-	
+
 			if ($Notify->uriId) {
 				DI::notification()->setAllSeenForUser($Notify->uid, ['target-uri-id' => $Notify->uriId]);
 			}
-	
+
 			$Notify->setSeen();
 			DI::notify()->save($Notify);
-	
+
 			if ($Notify->otype === Notification\ObjectType::ITEM) {
 				$item = Post::selectFirstForUser($uid, [], ['id' => $Notify->iid, 'uid' => $uid]);
 				if (DBA::isResult($item)) {
 					$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-	
+
 					// we found the item, return it to the user
 					$ret = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray()];
 					$data = ['status' => $ret];
@@ -74,7 +74,7 @@ class Seen extends BaseApi
 				}
 				// the item can't be found, but we set the notification as seen, so we count this as a success
 			}
-	
+
 			DI::apiResponse()->exit('statuses', ['result' => 'success'], $this->parameters['extension'] ?? null);
 		} catch (NotFoundException $e) {
 			throw new BadRequestException('Invalid argument', $e);
