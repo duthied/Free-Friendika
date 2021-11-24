@@ -706,12 +706,6 @@ function api_account_verify_credentials($type)
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$uid = BaseApi::getCurrentUserID();
 
-	unset($_REQUEST['user_id']);
-	unset($_GET['user_id']);
-
-	unset($_REQUEST['screen_name']);
-	unset($_GET['screen_name']);
-
 	$skip_status = $_REQUEST['skip_status'] ?? false;
 
 	$user_info = DI::twitterUser()->createFromUserId($uid, $skip_status)->toArray();
@@ -1302,12 +1296,6 @@ function api_statuses_home_timeline($type)
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$uid = BaseApi::getCurrentUserID();
 
-	unset($_REQUEST['user_id']);
-	unset($_GET['user_id']);
-
-	unset($_REQUEST['screen_name']);
-	unset($_GET['screen_name']);
-
 	// get last network messages
 
 	// params
@@ -1781,12 +1769,6 @@ function api_statuses_mentions($type)
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$uid = BaseApi::getCurrentUserID();
 
-	unset($_REQUEST['user_id']);
-	unset($_GET['user_id']);
-
-	unset($_REQUEST['screen_name']);
-	unset($_GET['screen_name']);
-
 	// get last network messages
 
 	// params
@@ -2100,12 +2082,6 @@ function api_lists_statuses($type)
 {
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$uid = BaseApi::getCurrentUserID();
-
-	unset($_REQUEST['user_id']);
-	unset($_GET['user_id']);
-
-	unset($_REQUEST['screen_name']);
-	unset($_GET['screen_name']);
 
 	if (empty($_REQUEST['list_id'])) {
 		throw new BadRequestException('list_id not specified');
@@ -2556,13 +2532,6 @@ function api_direct_messages_box($type, $box, $verbose)
 
 	$user_id = $_REQUEST['user_id'] ?? '';
 	$screen_name = $_REQUEST['screen_name'] ?? '';
-
-	//  caller user info
-	unset($_REQUEST['user_id']);
-	unset($_GET['user_id']);
-
-	unset($_REQUEST['screen_name']);
-	unset($_GET['screen_name']);
 
 	$user_info = DI::twitterUser()->createFromUserId($uid, true)->toArray();
 
