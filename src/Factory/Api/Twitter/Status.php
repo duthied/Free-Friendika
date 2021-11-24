@@ -74,7 +74,7 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromItemId(int $id): \Friendica\Object\Api\Twitter\Status
+	public function createFromItemId(int $id, $include_entities = false): \Friendica\Object\Api\Twitter\Status
 	{
 		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
 			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
@@ -82,7 +82,7 @@ class Status extends BaseFactory
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with ID ' . $id . ' not found.');
 		}
-		return $this->createFromArray($item);
+		return $this->createFromArray($item, $include_entities);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $uriId, $uid = 0): \Friendica\Object\Api\Twitter\Status
+	public function createFromUriId(int $uriId, $uid = 0, $include_entities = false): \Friendica\Object\Api\Twitter\Status
 	{
 		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
 			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
@@ -101,7 +101,7 @@ class Status extends BaseFactory
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
-		return $this->createFromArray($item);
+		return $this->createFromArray($item, $include_entities);
 	}
 
 	/**
@@ -112,12 +112,16 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	private function createFromArray(array $item, $uid = 0): \Friendica\Object\Api\Twitter\Status
+	private function createFromArray(array $item, $include_entities): \Friendica\Object\Api\Twitter\Status
 	{
 		$author = $this->twitterUser->createFromContactId($item['author-id'], $item['uid']);
 		$owner  = $this->twitterUser->createFromContactId($item['owner-id'], $item['uid']);
 
 		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT]);
+
+		if (!$include_entities) {
+			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
+		}
 
 		$text = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::API), 0));
 
@@ -133,13 +137,16 @@ class Status extends BaseFactory
 			}
 		}
 
-		$hashtags = $this->hashtag->createFromUriId($item['uri-id'], $text);
-		$medias   = $this->media->createFromUriId($item['uri-id'], $text);
-		$urls     = $this->url->createFromUriId($item['uri-id'], $text);
-		$mentions = $this->mention->createFromUriId($item['uri-id'], $text);
+		if ($include_entities) {
+			$hashtags = $this->hashtag->createFromUriId($item['uri-id'], $text);
+			$medias   = $this->media->createFromUriId($item['uri-id'], $text);
+			$urls     = $this->url->createFromUriId($item['uri-id'], $text);
+			$mentions = $this->mention->createFromUriId($item['uri-id'], $text);
+		} else {
+			$attachments = $this->attachment->createFromUriId($item['uri-id'], $text);
+		}
 
-		$friendica_activities = $this->activities->createFromUriId($item['uri-id'], $uid);
-		$attachments          = $this->attachment->createFromUriId($item['uri-id'], $text);
+		$friendica_activities = $this->activities->createFromUriId($item['uri-id'], $item['uid']);
 
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (!empty($shared['guid'])) {
@@ -147,16 +154,19 @@ class Status extends BaseFactory
 
 			$shared_uri_id = $shared_item['uri-id'] ?? 0;
 
-			$hashtags    = array_merge($hashtags, $this->hashtag->createFromUriId($shared_uri_id, $text));
-			$medias      = array_merge($medias, $this->media->createFromUriId($shared_uri_id, $text));
-			$urls        = array_merge($urls, $this->url->createFromUriId($shared_uri_id, $text));
-			$mentions    = array_merge($mentions, $this->mention->createFromUriId($shared_uri_id, $text));
-			$attachments = array_merge($attachments, $this->attachment->createFromUriId($item['uri-id'], $text));
+			if ($include_entities) {
+				$hashtags    = array_merge($hashtags, $this->hashtag->createFromUriId($shared_uri_id, $text));
+				$medias      = array_merge($medias, $this->media->createFromUriId($shared_uri_id, $text));
+				$urls        = array_merge($urls, $this->url->createFromUriId($shared_uri_id, $text));
+				$mentions    = array_merge($mentions, $this->mention->createFromUriId($shared_uri_id, $text));
+			} else {
+				$attachments = array_merge($attachments, $this->attachment->createFromUriId($item['uri-id'], $text));
+			}
 		}
 
 		if ($item['vid'] == Verb::getID(Activity::ANNOUNCE)) {
-			$retweeted      = $this->createFromUriId($item['thr-parent-id'], $uid)->toArray();
-			$retweeted_item = Post::selectFirst(['title', 'body', 'author-id'], ['uri-id' => $item['thr-parent-id'],'uid' => [0, $uid]]);
+			$retweeted      = $this->createFromUriId($item['thr-parent-id'], $item['uid'])->toArray();
+			$retweeted_item = Post::selectFirst(['title', 'body', 'author-id'], ['uri-id' => $item['thr-parent-id'],'uid' => [0, $item['uid']]]);
 			$item['title']  = $retweeted_item['title'] ?? $item['title'];
 			$item['body']   = $retweeted_item['body']  ?? $item['body'];
 			$author         = $this->twitterUser->createFromContactId($retweeted_item['author-id'], $item['uid']);
@@ -166,10 +176,12 @@ class Status extends BaseFactory
 
 		$quoted = []; // @todo
 
-		$entities = ['hashtags' => $hashtags, 'media' => $medias, 'urls' => $urls, 'user_mentions' => $mentions];
-
-		// Attachments are currently deactivated for testing purposes
-		$attachments = [];
+		if ($include_entities) {
+			$entities    = ['hashtags' => $hashtags, 'media' => $medias, 'urls' => $urls, 'user_mentions' => $mentions];
+			$attachments = [];
+		} else {
+			$entities = [];
+		}
 
 		return new \Friendica\Object\Api\Twitter\Status($text, $item, $author, $owner, $retweeted, $quoted, $geo, $friendica_activities, $entities, $attachments,  $friendica_comments);
 	}

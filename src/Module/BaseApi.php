@@ -186,7 +186,7 @@ class BaseApi extends BaseModule
 	 *
 	 * @return array token
 	 */
-	protected static function getCurrentApplication()
+	public static function getCurrentApplication()
 	{
 		$token = OAuth::getCurrentApplicationToken();
 

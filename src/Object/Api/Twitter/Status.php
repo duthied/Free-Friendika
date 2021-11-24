@@ -129,17 +129,19 @@ class Status extends BaseDataTransferObject
 		$this->external_url         = $item['plink'];
 		$this->favorited            = (bool)$item['starred'];
 		$this->friendica_comments   = $friendica_comments;
-		$this->source               = $item['app'] ?: 'web';
+		$this->source               = $item['app'];
 		$this->geo                  = $geo;
 		$this->friendica_activities = $friendica_activities;
 		$this->attachments          = $attachments;
 		$this->entities             = $entities;
 		$this->extended_entities    = $entities;
 
-		if ($this->source == 'web') {
-			$this->source = ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']);
-		} elseif (ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']) != $this->source) {
-			$this->source = trim($this->source. ' (' . ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']) . ')');
+		$origin = ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']);
+
+		if (empty($this->source)) {
+			$this->source = $origin;
+		} elseif ($origin != $this->source) {
+			$this->source = trim($this->source. ' (' . $origin . ')');
 		}
 	}
 
@@ -163,6 +165,19 @@ class Status extends BaseDataTransferObject
 		if (empty($status['geo'])) {
 			$status['geo'] = null;
 		}
+
+		if (empty($status['entities'])) {
+			$status['entities'] = null;
+		}
+
+		if (empty($status['extended_entities'])) {
+			$status['extended_entities'] = null;
+		}
+
+		if (empty($status['attachments'])) {
+			$status['attachments'] = null;
+		}
+
 
 		return $status;
 	}
