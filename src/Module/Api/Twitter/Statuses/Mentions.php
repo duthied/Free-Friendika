@@ -38,21 +38,21 @@ class Mentions extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		// get last network messages
-	
+
 		// params
 		$since_id = intval($_REQUEST['since_id'] ?? 0);
 		$max_id   = intval($_REQUEST['max_id']   ?? 0);
 		$count    = intval($_REQUEST['count']    ?? 20);
 		$page     = intval($_REQUEST['page']     ?? 1);
-	
+
 		$start = max(0, ($page - 1) * $count);
-	
+
 		$query = "`gravity` IN (?, ?) AND `uri-id` IN
 			(SELECT `uri-id` FROM `post-user-notification` WHERE `uid` = ? AND `notification-type` & ? != 0 ORDER BY `uri-id`)
 			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `id` > ?";
-	
+
 		$condition = [
 			GRAVITY_PARENT, GRAVITY_COMMENT,
 			$uid,
@@ -61,25 +61,25 @@ class Mentions extends BaseApi
 			Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
 			$uid, $since_id,
 		];
-	
+
 		if ($max_id > 0) {
 			$query .= " AND `id` <= ?";
 			$condition[] = $max_id;
 		}
-	
+
 		array_unshift($condition, $query);
-	
+
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
-	
+
 		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-	
+
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {
 			$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
 		}
 		DBA::close($statuses);
-	
+
 		DI::apiResponse()->exit('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

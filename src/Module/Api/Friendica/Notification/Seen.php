@@ -68,7 +68,7 @@ class Seen extends BaseApi
 					$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
 
 					// we found the item, return it to the user
-					$ret = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray()];
+					$ret  = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray()];
 					$data = ['status' => $ret];
 					DI::apiResponse()->exit('statuses', $data, $this->parameters['extension'] ?? null);
 				}

@@ -39,10 +39,10 @@ class Show extends BaseApi
 		$cid = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
 
 		$user_info = DI::twitterUser()->createFromContactId($cid, $uid)->toArray();
-	
+
 		// "uid" is only needed for some internal stuff, so remove it from here
 		unset($user_info['uid']);
-	
+
 		DI::apiResponse()->exit('user', ['user' => $user_info], $this->parameters['extension'] ?? null);
 	}
 }

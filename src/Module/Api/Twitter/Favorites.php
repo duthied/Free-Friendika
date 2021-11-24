@@ -39,39 +39,39 @@ class Favorites extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		// in friendica starred item are private
 		// return favorites only for self
 		Logger::info(API_LOG_PREFIX . 'for {self}', ['module' => 'api', 'action' => 'favorites']);
-	
+
 		// params
 		$since_id = $_REQUEST['since_id'] ?? 0;
 		$max_id = $_REQUEST['max_id'] ?? 0;
 		$count = $_GET['count'] ?? 20;
 		$page = $_REQUEST['page'] ?? 1;
-	
+
 		$start = max(0, ($page - 1) * $count);
-	
+
 		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `starred`",
 			$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
-	
+
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	
+
 		if ($max_id > 0) {
 			$condition[0] .= " AND `id` <= ?";
 			$condition[] = $max_id;
 		}
-	
+
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
-	
+
 		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-	
+
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {
 			$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
 		}
 		DBA::close($statuses);
-	
+
 		DI::apiResponse()->exit('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }
