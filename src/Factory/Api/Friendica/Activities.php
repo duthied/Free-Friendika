@@ -107,7 +107,7 @@ class Activities extends BaseFactory
 			}
 			$activities = $xml_activities;
 		}
-	
+
 		return $activities;
 	}
 }
