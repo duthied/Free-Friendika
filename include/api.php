@@ -688,40 +688,6 @@ function group_create($name, $uid, $users = [])
  */
 
 /**
- * Returns an HTTP 200 OK response code and a representation of the requesting user if authentication was successful;
- * returns a 401 status code and an error message if not.
- *
- * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/get-account-verify_credentials
- *
- * @param string $type Return type (atom, rss, xml, json)
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_account_verify_credentials($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-	$uid = BaseApi::getCurrentUserID();
-
-	$skip_status = $_REQUEST['skip_status'] ?? false;
-
-	$user_info = DI::twitterUser()->createFromUserId($uid, $skip_status)->toArray();
-
-	// "verified" isn't used here in the standard
-	unset($user_info["verified"]);
-
-	// "uid" is only needed for some internal stuff, so remove it from here
-	unset($user_info['uid']);
-	
-	return DI::apiResponse()->formatData("user", $type, ['user' => $user_info]);
-}
-
-api_register_func('api/account/verify_credentials', 'api_account_verify_credentials', true);
-
-/**
  * Deprecated function to upload media.
  *
  * @param string $type Return type (atom, rss, xml, json)
@@ -1276,201 +1242,6 @@ api_register_func('api/search/tweets', 'api_search', true);
 api_register_func('api/search', 'api_search', true);
 
 /**
- * Returns the most recent statuses posted by the user and the users they follow.
- *
- * @see  https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-home_timeline
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- * @todo Optional parameters
- * @todo Add reply info
- */
-function api_statuses_home_timeline($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-	$uid = BaseApi::getCurrentUserID();
-
-	// get last network messages
-
-	// params
-	$count = $_REQUEST['count'] ?? 20;
-	$page = $_REQUEST['page']?? 0;
-	$since_id = $_REQUEST['since_id'] ?? 0;
-	$max_id = $_REQUEST['max_id'] ?? 0;
-	$exclude_replies = !empty($_REQUEST['exclude_replies']);
-	$conversation_id = $_REQUEST['conversation_id'] ?? 0;
-
-	$start = max(0, ($page - 1) * $count);
-
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ?",
-		$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
-
-	if ($max_id > 0) {
-		$condition[0] .= " AND `id` <= ?";
-		$condition[] = $max_id;
-	}
-	if ($exclude_replies) {
-		$condition[0] .= ' AND `gravity` = ?';
-		$condition[] = GRAVITY_PARENT;
-	}
-	if ($conversation_id > 0) {
-		$condition[0] .= " AND `parent` = ?";
-		$condition[] = $conversation_id;
-	}
-
-	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser($uid, [], $condition, $params);
-
-	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
-	$ret = [];
-	$idarray = [];
-	while ($status = DBA::fetch($statuses)) {
-		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
-		$idarray[] = intval($status['id']);
-	}
-	DBA::close($statuses);
-
-	if (!empty($idarray)) {
-		$unseen = Post::exists(['unseen' => true, 'id' => $idarray]);
-		if ($unseen) {
-			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
-		}
-	}
-
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
-}
-
-
-api_register_func('api/statuses/home_timeline', 'api_statuses_home_timeline', true);
-api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline', true);
-
-/**
- * Returns the most recent statuses from public users.
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_statuses_public_timeline($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-	$uid = BaseApi::getCurrentUserID();
-
-	// get last network messages
-
-	// params
-	$count = $_REQUEST['count'] ?? 20;
-	$page = $_REQUEST['page'] ?? 1;
-	$since_id = $_REQUEST['since_id'] ?? 0;
-	$max_id = $_REQUEST['max_id'] ?? 0;
-	$exclude_replies = (!empty($_REQUEST['exclude_replies']) ? 1 : 0);
-	$conversation_id = $_REQUEST['conversation_id'] ?? 0;
-
-	$start = max(0, ($page - 1) * $count);
-
-	if ($exclude_replies && !$conversation_id) {
-		$condition = ["`gravity` = ? AND `id` > ? AND `private` = ? AND `wall` AND NOT `author-hidden`",
-			GRAVITY_PARENT, $since_id, Item::PUBLIC];
-
-		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
-			$condition[] = $max_id;
-		}
-
-		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-		$statuses = Post::selectForUser($uid, [], $condition, $params);
-	} else {
-		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
-			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
-
-		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
-			$condition[] = $max_id;
-		}
-		if ($conversation_id > 0) {
-			$condition[0] .= " AND `parent` = ?";
-			$condition[] = $conversation_id;
-		}
-
-		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-		$statuses = Post::selectForUser($uid, [], $condition, $params);
-	}
-
-	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
-	$ret = [];
-	while ($status = DBA::fetch($statuses)) {
-		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
-	}
-	DBA::close($statuses);
-
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
-}
-
-api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline', true);
-
-/**
- * Returns the most recent statuses posted by users this node knows about.
- *
- * @param string $type Return format: json, xml, atom, rss
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_statuses_networkpublic_timeline($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-	$uid = BaseApi::getCurrentUserID();
-
-	$since_id = $_REQUEST['since_id'] ?? 0;
-	$max_id   = $_REQUEST['max_id'] ?? 0;
-
-	// pagination
-	$count = $_REQUEST['count'] ?? 20;
-	$page  = $_REQUEST['page'] ?? 1;
-
-	$start = max(0, ($page - 1) * $count);
-
-	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `id` > ? AND `private` = ?",
-		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
-
-	if ($max_id > 0) {
-		$condition[0] .= " AND `id` <= ?";
-		$condition[] = $max_id;
-	}
-
-	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser($uid, Item::DISPLAY_FIELDLIST, $condition, $params);
-
-	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
-	$ret = [];
-	while ($status = DBA::fetch($statuses)) {
-		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
-	}
-	DBA::close($statuses);
-
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
-}
-
-api_register_func('api/statuses/networkpublic_timeline', 'api_statuses_networkpublic_timeline', true);
-
-/**
  * Returns a single status.
  *
  * @param string $type Return type (atom, rss, xml, json)
@@ -1752,135 +1523,6 @@ function api_statuses_destroy($type)
 api_register_func('api/statuses/destroy', 'api_statuses_destroy', true, API_METHOD_DELETE);
 
 /**
- * Returns the most recent mentions.
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- * @see http://developer.twitter.com/doc/get/statuses/mentions
- */
-function api_statuses_mentions($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-	$uid = BaseApi::getCurrentUserID();
-
-	// get last network messages
-
-	// params
-	$since_id = intval($_REQUEST['since_id'] ?? 0);
-	$max_id   = intval($_REQUEST['max_id']   ?? 0);
-	$count    = intval($_REQUEST['count']    ?? 20);
-	$page     = intval($_REQUEST['page']     ?? 1);
-
-	$start = max(0, ($page - 1) * $count);
-
-	$query = "`gravity` IN (?, ?) AND `uri-id` IN
-		(SELECT `uri-id` FROM `post-user-notification` WHERE `uid` = ? AND `notification-type` & ? != 0 ORDER BY `uri-id`)
-		AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `id` > ?";
-
-	$condition = [
-		GRAVITY_PARENT, GRAVITY_COMMENT,
-		$uid,
-		Post\UserNotification::TYPE_EXPLICIT_TAGGED | Post\UserNotification::TYPE_IMPLICIT_TAGGED |
-		Post\UserNotification::TYPE_THREAD_COMMENT | Post\UserNotification::TYPE_DIRECT_COMMENT |
-		Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
-		$uid, $since_id,
-	];
-
-	if ($max_id > 0) {
-		$query .= " AND `id` <= ?";
-		$condition[] = $max_id;
-	}
-
-	array_unshift($condition, $query);
-
-	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser($uid, [], $condition, $params);
-
-	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
-	$ret = [];
-	while ($status = DBA::fetch($statuses)) {
-		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
-	}
-	DBA::close($statuses);
-
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
-}
-
-api_register_func('api/statuses/mentions', 'api_statuses_mentions', true);
-api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
-
-/**
- * Returns the most recent statuses posted by the user.
- *
- * @param string $type Either "json" or "xml"
- * @return string|array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- * @see   https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-user_timeline
- */
-function api_statuses_user_timeline($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-	$uid = BaseApi::getCurrentUserID();
-
-	Logger::info('api_statuses_user_timeline', ['api_user' => $uid, '_REQUEST' => $_REQUEST]);
-
-	$cid             = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
-	$since_id        = $_REQUEST['since_id'] ?? 0;
-	$max_id          = $_REQUEST['max_id'] ?? 0;
-	$exclude_replies = !empty($_REQUEST['exclude_replies']);
-	$conversation_id = $_REQUEST['conversation_id'] ?? 0;
-
-	// pagination
-	$count = $_REQUEST['count'] ?? 20;
-	$page  = $_REQUEST['page'] ?? 1;
-
-	$start = max(0, ($page - 1) * $count);
-
-	$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`)) AND `gravity` IN (?, ?) AND `id` > ? AND `author-id` = ?",
-		0, $uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $cid];
-
-	if ($exclude_replies) {
-		$condition[0] .= ' AND `gravity` = ?';
-		$condition[] = GRAVITY_PARENT;
-	}
-
-	if ($conversation_id > 0) {
-		$condition[0] .= " AND `parent` = ?";
-		$condition[] = $conversation_id;
-	}
-
-	if ($max_id > 0) {
-		$condition[0] .= " AND `id` <= ?";
-		$condition[] = $max_id;
-	}
-	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser($uid, [], $condition, $params);
-
-	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
-	$ret = [];
-	while ($status = DBA::fetch($statuses)) {
-		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
-	}
-	DBA::close($statuses);
-
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
-}
-
-api_register_func('api/statuses/user_timeline', 'api_statuses_user_timeline', true);
-
-/**
  * Star/unstar an item.
  * param: id : id of the item
  *
@@ -1948,60 +1590,6 @@ function api_favorites_create_destroy($type)
 
 api_register_func('api/favorites/create', 'api_favorites_create_destroy', true, API_METHOD_POST);
 api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true, API_METHOD_DELETE);
-
-/**
- * Returns the most recent favorite statuses.
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return string|array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_favorites($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-	$uid = BaseApi::getCurrentUserID();
-
-	// in friendica starred item are private
-	// return favorites only for self
-	Logger::info(API_LOG_PREFIX . 'for {self}', ['module' => 'api', 'action' => 'favorites']);
-
-	// params
-	$since_id = $_REQUEST['since_id'] ?? 0;
-	$max_id = $_REQUEST['max_id'] ?? 0;
-	$count = $_GET['count'] ?? 20;
-	$page = $_REQUEST['page'] ?? 1;
-
-	$start = max(0, ($page - 1) * $count);
-
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `starred`",
-		$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
-
-	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-
-	if ($max_id > 0) {
-		$condition[0] .= " AND `id` <= ?";
-		$condition[] = $max_id;
-	}
-
-	$statuses = Post::selectForUser($uid, [], $condition, $params);
-
-	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
-	$ret = [];
-	while ($status = DBA::fetch($statuses)) {
-		$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
-	}
-	DBA::close($statuses);
-
-	return DI::apiResponse()->formatData("statuses", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
-}
-
-api_register_func('api/favorites', 'api_favorites', true);
 
 /**
  * Returns all lists the user subscribes to.
@@ -2962,7 +2550,17 @@ function api_account_update_profile_image($type)
 
 	// output for client
 	if ($data) {
-		return api_account_verify_credentials($type);
+		$skip_status = $_REQUEST['skip_status'] ?? false;
+	
+		$user_info = DI::twitterUser()->createFromUserId($uid, $skip_status)->toArray();
+	
+		// "verified" isn't used here in the standard
+		unset($user_info["verified"]);
+	
+		// "uid" is only needed for some internal stuff, so remove it from here
+		unset($user_info['uid']);
+
+		return DI::apiResponse()->formatData("user", $type, ['user' => $user_info]);
 	} else {
 		// SaveMediaToDatabase failed for some reason
 		throw new InternalServerErrorException("image upload failed");
@@ -2970,45 +2568,6 @@ function api_account_update_profile_image($type)
 }
 
 api_register_func('api/account/update_profile_image', 'api_account_update_profile_image', true, API_METHOD_POST);
-
-/**
- * Update user profile
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- *
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_account_update_profile($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
-	$uid = BaseApi::getCurrentUserID();
-
-	$api_user = DI::twitterUser()->createFromUserId($uid, true)->toArray();
-
-	if (!empty($_POST['name'])) {
-		DBA::update('profile', ['name' => $_POST['name']], ['uid' => $uid]);
-		DBA::update('user', ['username' => $_POST['name']], ['uid' => $uid]);
-		Contact::update(['name' => $_POST['name']], ['uid' => $uid, 'self' => 1]);
-		Contact::update(['name' => $_POST['name']], ['id' => $api_user['id']]);
-	}
-
-	if (isset($_POST['description'])) {
-		DBA::update('profile', ['about' => $_POST['description']], ['uid' => $uid]);
-		Contact::update(['about' => $_POST['description']], ['uid' => $uid, 'self' => 1]);
-		Contact::update(['about' => $_POST['description']], ['id' => $api_user['id']]);
-	}
-
-	Profile::publishUpdate($uid);
-
-	return api_account_verify_credentials($type);
-}
-
-api_register_func('api/account/update_profile', 'api_account_update_profile', true, API_METHOD_POST);
 
 /**
  * Return all or a specified group of the user with the containing contacts.
@@ -3296,66 +2855,6 @@ function api_lists_update($type)
 }
 
 api_register_func('api/lists/update', 'api_lists_update', true, API_METHOD_POST);
-
-/**
- * Set notification as seen and returns associated item (if possible)
- *
- * POST request with 'id' param as notification id
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string|array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_friendica_notification_seen($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
-	$uid = BaseApi::getCurrentUserID();
-
-	if (DI::args()->getArgc() !== 4) {
-		throw new BadRequestException('Invalid argument count');
-	}
-
-	$id = intval($_REQUEST['id'] ?? 0);
-
-	try {
-		$Notify = DI::notify()->selectOneById($id);
-		if ($Notify->uid !== $uid) {
-			throw new NotFoundException();
-		}
-
-		if ($Notify->uriId) {
-			DI::notification()->setAllSeenForUser($Notify->uid, ['target-uri-id' => $Notify->uriId]);
-		}
-
-		$Notify->setSeen();
-		DI::notify()->save($Notify);
-
-		if ($Notify->otype === Notification\ObjectType::ITEM) {
-			$item = Post::selectFirstForUser($uid, [], ['id' => $Notify->iid, 'uid' => $uid]);
-			if (DBA::isResult($item)) {
-				$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
-				// we found the item, return it to the user
-				$ret = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray()];
-				$data = ['status' => $ret];
-				return DI::apiResponse()->formatData('status', $type, $data);
-			}
-			// the item can't be found, but we set the notification as seen, so we count this as a success
-		}
-
-		return DI::apiResponse()->formatData('result', $type, ['result' => 'success']);
-	} catch (NotFoundException $e) {
-		throw new BadRequestException('Invalid argument', $e);
-	} catch (Exception $e) {
-		throw new InternalServerErrorException('Internal Server exception', $e);
-	}
-}
-
-api_register_func('api/friendica/notification/seen', 'api_friendica_notification_seen', true, API_METHOD_POST);
 
 /**
  * search for direct_messages containing a searchstring through api
