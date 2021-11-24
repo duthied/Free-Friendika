@@ -44,13 +44,13 @@ class UserTimeline extends BaseApi
 
 		$cid             = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
 		$since_id        = $_REQUEST['since_id'] ?? 0;
-		$max_id          = $_REQUEST['max_id'] ?? 0;
+		$max_id          = $_REQUEST['max_id']   ?? 0;
 		$exclude_replies = !empty($_REQUEST['exclude_replies']);
 		$conversation_id = $_REQUEST['conversation_id'] ?? 0;
 
 		// pagination
 		$count = $_REQUEST['count'] ?? 20;
-		$page  = $_REQUEST['page'] ?? 1;
+		$page  = $_REQUEST['page']  ?? 1;
 
 		$start = max(0, ($page - 1) * $count);
 
@@ -71,7 +71,7 @@ class UserTimeline extends BaseApi
 			$condition[0] .= " AND `id` <= ?";
 			$condition[] = $max_id;
 		}
-		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
 
 		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');

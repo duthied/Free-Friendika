@@ -55,7 +55,7 @@ class NetworkPublicTimeline extends BaseApi
 			$condition[] = $max_id;
 		}
 
-		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, Item::DISPLAY_FIELDLIST, $condition, $params);
 
 		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');

@@ -73,7 +73,7 @@ class HomeTimeline extends BaseApi
 
 		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
 
-		$ret = [];
+		$ret     = [];
 		$idarray = [];
 		while ($status = DBA::fetch($statuses)) {
 			$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
