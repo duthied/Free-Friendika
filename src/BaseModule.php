@@ -56,7 +56,7 @@ abstract class BaseModule implements ICanHandleRequests
 	 */
 	protected function t(string $s, ...$args): string
 	{
-		return $this->l10n->t($s, $args);
+		return $this->l10n->t($s, ...$args);
 	}
 
 	/**
