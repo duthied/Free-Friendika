@@ -1088,20 +1088,7 @@ function api_users_show($type)
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$uid = BaseApi::getCurrentUserID();
 
-	$user_info = DI::twitterUser()->createFromUserId($uid)->toArray();
-
-	$condition = [
-		'author-id'=> $user_info['pid'],
-		'uid'      => $uid,
-		'gravity'  => [GRAVITY_PARENT, GRAVITY_COMMENT],
-		'private'  => [Item::PUBLIC, Item::UNLISTED]
-	];
-
-	$item = Post::selectFirst(['uri-id', 'id'], $condition);
-	if (!empty($item)) {
-		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-		$user_info['status'] = DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray();
-	}
+	$user_info = DI::twitterUser()->createFromUserId($uid, false)->toArray();
 
 	// "uid" is only needed for some internal stuff, so remove it from here
 	unset($user_info['uid']);
@@ -1146,7 +1133,7 @@ function api_users_search($type)
 		if (DBA::isResult($contacts)) {
 			$k = 0;
 			foreach ($contacts as $contact) {
-				$user_info = DI::twitterUser()->createFromContactId($contact['id'], $uid)->toArray();
+				$user_info = DI::twitterUser()->createFromContactId($contact['id'], $uid, false)->toArray();
 
 				if ($type == 'xml') {
 					$userlist[$k++ . ':user'] = $user_info;
@@ -1191,7 +1178,7 @@ function api_users_lookup($type)
 	if (!empty($_REQUEST['user_id'])) {
 		foreach (explode(',', $_REQUEST['user_id']) as $cid) {
 			if (!empty($cid) && is_numeric($cid)) {
-				$users[] = DI::twitterUser()->createFromContactId((int)$cid, $uid)->toArray();
+				$users[] = DI::twitterUser()->createFromContactId((int)$cid, $uid, false)->toArray();
 			}
 		}
 	}
@@ -2088,7 +2075,7 @@ function api_lists_ownerships($type)
 	$uid = BaseApi::getCurrentUserID();
 
 	// params
-	$user_info = DI::twitterUser()->createFromUserId($uid)->toArray();
+	$user_info = DI::twitterUser()->createFromUserId($uid, true)->toArray();
 
 	$groups = DBA::select('group', [], ['deleted' => 0, 'uid' => $uid]);
 
@@ -2253,7 +2240,7 @@ function api_statuses_f($qtype)
 
 	$ret = [];
 	foreach ($r as $cid) {
-		$user = DI::twitterUser()->createFromContactId($cid['id'], $uid)->toArray();
+		$user = DI::twitterUser()->createFromContactId($cid['id'], $uid, false)->toArray();
 		// "uid" is only needed for some internal stuff, so remove it from here
 		unset($user['uid']);
 
@@ -2380,7 +2367,7 @@ function api_direct_messages_new($type)
 		return;
 	}
 
-	$sender = DI::twitterUser()->createFromUserId($uid)->toArray();
+	$sender = DI::twitterUser()->createFromUserId($uid, true)->toArray();
 
 	$cid = BaseApi::getContactIDForSearchterm($_POST['screen_name'] ?? '', $_POST['user_id'] ?? 0, $uid);
 	if (empty($cid)) {
@@ -2406,7 +2393,7 @@ function api_direct_messages_new($type)
 
 	if ($id > -1) {
 		$mail = DBA::selectFirst('mail', [], ['id' => $id]);
-		$ret = api_format_messages($mail, DI::twitterUser()->createFromContactId($cid, $uid)->toArray(), $sender);
+		$ret = api_format_messages($mail, DI::twitterUser()->createFromContactId($cid, $uid, true)->toArray(), $sender);
 	} else {
 		$ret = ["error" => $id];
 	}
@@ -2594,7 +2581,7 @@ function api_direct_messages_box($type, $box, $verbose)
 	unset($_REQUEST['screen_name']);
 	unset($_GET['screen_name']);
 
-	$user_info = DI::twitterUser()->createFromUserId($uid)->toArray();
+	$user_info = DI::twitterUser()->createFromUserId($uid, true)->toArray();
 
 	$profile_url = $user_info["url"];
 
@@ -2640,9 +2627,9 @@ function api_direct_messages_box($type, $box, $verbose)
 	foreach ($r as $item) {
 		if ($box == "inbox" || $item['from-url'] != $profile_url) {
 			$recipient = $user_info;
-			$sender = DI::twitterUser()->createFromContactId($item['contact-id'], $uid)->toArray();
+			$sender = DI::twitterUser()->createFromContactId($item['contact-id'], $uid, true)->toArray();
 		} elseif ($box == "sentbox" || $item['from-url'] == $profile_url) {
-			$recipient = DI::twitterUser()->createFromContactId($item['contact-id'], $uid)->toArray();
+			$recipient = DI::twitterUser()->createFromContactId($item['contact-id'], $uid, true)->toArray();
 			$sender = $user_info;
 		}
 
@@ -3049,7 +3036,7 @@ function api_account_update_profile($type)
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 	$uid = BaseApi::getCurrentUserID();
 
-	$api_user = DI::twitterUser()->createFromUserId($uid)->toArray();
+	$api_user = DI::twitterUser()->createFromUserId($uid, true)->toArray();
 
 	if (!empty($_POST['name'])) {
 		DBA::update('profile', ['name' => $_POST['name']], ['uid' => $uid]);
@@ -3113,13 +3100,13 @@ function api_friendica_group_show($type)
 			$user_element = "users";
 			$k = 0;
 			foreach ($members as $member) {
-				$user = DI::twitterUser()->createFromContactId($member['contact-id'], $uid)->toArray();
+				$user = DI::twitterUser()->createFromContactId($member['contact-id'], $uid, true)->toArray();
 				$users[$k++.":user"] = $user;
 			}
 		} else {
 			$user_element = "user";
 			foreach ($members as $member) {
-				$user = DI::twitterUser()->createFromContactId($member['contact-id'], $uid)->toArray();
+				$user = DI::twitterUser()->createFromContactId($member['contact-id'], $uid, true)->toArray();
 				$users[] = $user;
 			}
 		}
@@ -3168,7 +3155,7 @@ function api_lists_destroy($type)
 			'name' => $group['name'],
 			'id' => intval($gid),
 			'id_str' => (string) $gid,
-			'user' => DI::twitterUser()->createFromUserId($uid)->toArray()
+			'user' => DI::twitterUser()->createFromUserId($uid, true)->toArray()
 		];
 
 		return DI::apiResponse()->formatData("lists", $type, ['lists' => $list]);
@@ -3233,7 +3220,7 @@ function api_lists_create($type)
 			'name' => $success['name'],
 			'id' => intval($success['gid']),
 			'id_str' => (string) $success['gid'],
-			'user' => DI::twitterUser()->createFromUserId($uid)->toArray()
+			'user' => DI::twitterUser()->createFromUserId($uid, true)->toArray()
 		];
 
 		return DI::apiResponse()->formatData("lists", $type, ['lists' => $grp]);
@@ -3349,7 +3336,7 @@ function api_lists_update($type)
 			'name' => $name,
 			'id' => intval($gid),
 			'id_str' => (string) $gid,
-			'user' => DI::twitterUser()->createFromUserId($uid)->toArray()
+			'user' => DI::twitterUser()->createFromUserId($uid, true)->toArray()
 		];
 
 		return DI::apiResponse()->formatData("lists", $type, ['lists' => $list]);
@@ -3438,7 +3425,7 @@ function api_friendica_direct_messages_search($type, $box = "")
 	$uid = BaseApi::getCurrentUserID();
 
 	// params
-	$user_info = DI::twitterUser()->createFromUserId($uid)->toArray();
+	$user_info = DI::twitterUser()->createFromUserId($uid, true)->toArray();
 	$searchstring = $_REQUEST['searchstring'] ?? '';
 
 	// error if no searchstring specified
@@ -3466,9 +3453,9 @@ function api_friendica_direct_messages_search($type, $box = "")
 		foreach ($r as $item) {
 			if ($box == "inbox" || $item['from-url'] != $profile_url) {
 				$recipient = $user_info;
-				$sender = DI::twitterUser()->createFromContactId($item['contact-id'], $uid)->toArray();
+				$sender = DI::twitterUser()->createFromContactId($item['contact-id'], $uid, true)->toArray();
 			} elseif ($box == "sentbox" || $item['from-url'] == $profile_url) {
-				$recipient = DI::twitterUser()->createFromContactId($item['contact-id'], $uid)->toArray();
+				$recipient = DI::twitterUser()->createFromContactId($item['contact-id'], $uid, true)->toArray();
 				$sender = $user_info;
 			}
 

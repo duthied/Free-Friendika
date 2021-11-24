@@ -114,8 +114,8 @@ class Status extends BaseFactory
 	 */
 	private function createFromArray(array $item, $include_entities): \Friendica\Object\Api\Twitter\Status
 	{
-		$author = $this->twitterUser->createFromContactId($item['author-id'], $item['uid']);
-		$owner  = $this->twitterUser->createFromContactId($item['owner-id'], $item['uid']);
+		$author = $this->twitterUser->createFromContactId($item['author-id'], $item['uid'], true);
+		$owner  = $this->twitterUser->createFromContactId($item['owner-id'], $item['uid'], true);
 
 		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT]);
 
@@ -169,7 +169,7 @@ class Status extends BaseFactory
 			$retweeted_item = Post::selectFirst(['title', 'body', 'author-id'], ['uri-id' => $item['thr-parent-id'],'uid' => [0, $item['uid']]]);
 			$item['title']  = $retweeted_item['title'] ?? $item['title'];
 			$item['body']   = $retweeted_item['body']  ?? $item['body'];
-			$author         = $this->twitterUser->createFromContactId($retweeted_item['author-id'], $item['uid']);
+			$author         = $this->twitterUser->createFromContactId($retweeted_item['author-id'], $item['uid'], true);
 		} else {
 			$retweeted = [];
 		}

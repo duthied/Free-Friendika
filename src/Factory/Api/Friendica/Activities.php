@@ -67,7 +67,7 @@ class Activities extends BaseFactory
 
 		while ($parent_item = Post::fetch($ret)) {
 			// get user data and add it to the array of the activity
-			$user = $this->twitterUser->createFromContactId($parent_item['author-id'], $uid)->toArray();
+			$user = $this->twitterUser->createFromContactId($parent_item['author-id'], $uid, true)->toArray();
 			switch ($parent_item['verb']) {
 				case Activity::LIKE:
 					$activities['like'][] = $user;
