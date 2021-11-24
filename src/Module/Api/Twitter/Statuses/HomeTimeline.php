@@ -76,7 +76,7 @@ class HomeTimeline extends BaseApi
 		$ret     = [];
 		$idarray = [];
 		while ($status = DBA::fetch($statuses)) {
-			$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
+			$ret[]     = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
 			$idarray[] = intval($status['id']);
 		}
 		DBA::close($statuses);
