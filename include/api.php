@@ -49,7 +49,6 @@ use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
-use Friendica\Protocol\Activity;
 use Friendica\Security\BasicAuth;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
@@ -243,83 +242,6 @@ function api_format_messages($item, $recipient, $sender)
 	}
 
 	return $ret;
-}
-
-/**
- * return likes, dislikes and attend status for item
- *
- * @param array  $item array
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array
- *            likes => int count,
- *            dislikes => int count
- * @throws BadRequestException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_format_items_activities($item, $type = "json")
-{
-	$activities = [
-		'like' => [],
-		'dislike' => [],
-		'attendyes' => [],
-		'attendno' => [],
-		'attendmaybe' => [],
-		'announce' => [],
-	];
-
-	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY];
-	$ret = Post::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
-
-	while ($parent_item = Post::fetch($ret)) {
-		// not used as result should be structured like other user data
-		//builtin_activity_puller($i, $activities);
-
-		// get user data and add it to the array of the activity
-		$user = DI::twitterUser()->createFromContactId($parent_item['author-id'], $item['uid'])->toArray();
-		switch ($parent_item['verb']) {
-			case Activity::LIKE:
-				$activities['like'][] = $user;
-				break;
-			case Activity::DISLIKE:
-				$activities['dislike'][] = $user;
-				break;
-			case Activity::ATTEND:
-				$activities['attendyes'][] = $user;
-				break;
-			case Activity::ATTENDNO:
-				$activities['attendno'][] = $user;
-				break;
-			case Activity::ATTENDMAYBE:
-				$activities['attendmaybe'][] = $user;
-				break;
-			case Activity::ANNOUNCE:
-				$activities['announce'][] = $user;
-				break;
-			default:
-				break;
-		}
-	}
-
-	DBA::close($ret);
-
-	if ($type == "xml") {
-		$xml_activities = [];
-		foreach ($activities as $k => $v) {
-			// change xml element from "like" to "friendica:like"
-			$xml_activities["friendica:".$k] = $v;
-			// add user data into xml output
-			$k_user = 0;
-			foreach ($v as $user) {
-				$xml_activities["friendica:".$k][$k_user++.":user"] = $user;
-			}
-		}
-		$activities = $xml_activities;
-	}
-
-	return $activities;
 }
 
 /**
@@ -643,7 +565,7 @@ function prepare_photo_data($type, $scale, $photo_id, $uid)
 		throw new NotFoundException('Photo-related item not found.');
 	}
 
-	$data['photo']['friendica_activities'] = api_format_items_activities($item, $type);
+	$data['photo']['friendica_activities'] = DI::friendicaActivities()->createFromUriId($item['uri-id'], $item['uid'], $type);
 
 	// retrieve comments on photo
 	$condition = ["`parent` = ? AND `uid` = ? AND `gravity` IN (?, ?)",

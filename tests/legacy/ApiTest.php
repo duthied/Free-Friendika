@@ -2162,8 +2162,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFormatItemsActivities()
 	{
-		$item   = ['uid' => 0, 'uri' => ''];
-		$result = api_format_items_activities($item);
+		$item   = ['uid' => 0, 'uri-id' => 1];
+		$result = DI::friendicaActivities()->createFromUriId($item['uri-id'], $item['uid']);
 		self::assertArrayHasKey('like', $result);
 		self::assertArrayHasKey('dislike', $result);
 		self::assertArrayHasKey('attendyes', $result);
@@ -2178,8 +2178,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFormatItemsActivitiesWithXml()
 	{
-		$item   = ['uid' => 0, 'uri' => ''];
-		$result = api_format_items_activities($item, 'xml');
+		$item   = ['uid' => 0, 'uri-id' => 1];
+		$result = DI::friendicaActivities()->createFromUriId($item['uri-id'], $item['uid'], 'xml');
 		self::assertArrayHasKey('friendica:like', $result);
 		self::assertArrayHasKey('friendica:dislike', $result);
 		self::assertArrayHasKey('friendica:attendyes', $result);

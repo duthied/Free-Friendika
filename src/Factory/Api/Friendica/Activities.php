@@ -50,7 +50,7 @@ class Activities extends BaseFactory
 	 * @return Array
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function createFromUriId(int $uriId, int $uid): array
+	public function createFromUriId(int $uriId, int $uid, $type = 'json'): array
 	{
 		$activities = [
 			'like'        => [],
@@ -94,6 +94,20 @@ class Activities extends BaseFactory
 
 		DBA::close($ret);
 
+		if ($type == 'xml') {
+			$xml_activities = [];
+			foreach ($activities as $k => $v) {
+				// change xml element from "like" to "friendica:like"
+				$xml_activities["friendica:".$k] = $v;
+				// add user data into xml output
+				$k_user = 0;
+				foreach ($v as $user) {
+					$xml_activities['friendica:' . $k][$k_user++ . ':user'] = $user;
+				}
+			}
+			$activities = $xml_activities;
+		}
+	
 		return $activities;
 	}
 }
