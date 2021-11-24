@@ -46,9 +46,9 @@ class Favorites extends BaseApi
 
 		// params
 		$since_id = $_REQUEST['since_id'] ?? 0;
-		$max_id   = $_REQUEST['max_id'] ?? 0;
-		$count    = $_GET['count'] ?? 20;
-		$page     = $_REQUEST['page'] ?? 1;
+		$max_id   = $_REQUEST['max_id']   ?? 0;
+		$count    = $_GET['count']        ?? 20;
+		$page     = $_REQUEST['page']     ?? 1;
 
 		$start = max(0, ($page - 1) * $count);
 

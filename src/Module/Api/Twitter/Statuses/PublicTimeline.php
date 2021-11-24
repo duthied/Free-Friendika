@@ -41,10 +41,10 @@ class PublicTimeline extends BaseApi
 		// get last network messages
 
 		// params
-		$count = $_REQUEST['count'] ?? 20;
-		$page = $_REQUEST['page'] ?? 1;
-		$since_id = $_REQUEST['since_id'] ?? 0;
-		$max_id = $_REQUEST['max_id'] ?? 0;
+		$count           = $_REQUEST['count'] ?? 20;
+		$page            = $_REQUEST['page'] ?? 1;
+		$since_id        = $_REQUEST['since_id'] ?? 0;
+		$max_id          = $_REQUEST['max_id'] ?? 0;
 		$exclude_replies = (!empty($_REQUEST['exclude_replies']) ? 1 : 0);
 		$conversation_id = $_REQUEST['conversation_id'] ?? 0;
 
@@ -59,7 +59,7 @@ class PublicTimeline extends BaseApi
 				$condition[] = $max_id;
 			}
 
-			$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+			$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 			$statuses = Post::selectForUser($uid, [], $condition, $params);
 		} else {
 			$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
