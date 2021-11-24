@@ -43,10 +43,10 @@ class HomeTimeline extends BaseApi
 		// get last network messages
 
 		// params
-		$count = $_REQUEST['count'] ?? 20;
-		$page = $_REQUEST['page']?? 0;
-		$since_id = $_REQUEST['since_id'] ?? 0;
-		$max_id = $_REQUEST['max_id'] ?? 0;
+		$count           = $_REQUEST['count'] ?? 20;
+		$page            = $_REQUEST['page']?? 0;
+		$since_id        = $_REQUEST['since_id'] ?? 0;
+		$max_id          = $_REQUEST['max_id'] ?? 0;
 		$exclude_replies = !empty($_REQUEST['exclude_replies']);
 		$conversation_id = $_REQUEST['conversation_id'] ?? 0;
 

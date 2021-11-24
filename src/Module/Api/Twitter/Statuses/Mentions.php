@@ -69,7 +69,7 @@ class Mentions extends BaseApi
 
 		array_unshift($condition, $query);
 
-		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
 
 		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
