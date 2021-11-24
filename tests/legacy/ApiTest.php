@@ -948,11 +948,11 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesUpdate()
 	{
-		$_GET['status']                = 'Status content #friendica';
-		$_GET['in_reply_to_status_id'] = -1;
-		$_GET['lat']                   = 48;
-		$_GET['long']                  = 7;
-		$_FILES                        = [
+		$_REQUEST['status']                = 'Status content #friendica';
+		$_REQUEST['in_reply_to_status_id'] = -1;
+		$_REQUEST['lat']                   = 48;
+		$_REQUEST['long']                  = 7;
+		$_FILES                            = [
 			'media' => [
 				'id'       => 666,
 				'size'     => 666,
@@ -975,7 +975,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesUpdateWithHtml()
 	{
-		$_GET['htmlstatus'] = '<b>Status content</b>';
+		$_REQUEST['htmlstatus'] = '<b>Status content</b>';
 
 		$result = api_statuses_update('json');
 		self::assertStatus($result['status']);
