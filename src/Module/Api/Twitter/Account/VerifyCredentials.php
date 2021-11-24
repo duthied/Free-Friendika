@@ -29,7 +29,7 @@ use Friendica\DI;
  * returns a 401 status code and an error message if not.
  *
  * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/get-account-verify_credentials
-*/
+ */
 class VerifyCredentials extends BaseApi
 {
 	public function rawContent()

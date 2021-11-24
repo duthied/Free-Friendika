@@ -42,10 +42,10 @@ class Mentions extends BaseApi
 		// get last network messages
 
 		// params
-		$since_id = intval($_REQUEST['since_id'] ?? 0);
-		$max_id   = intval($_REQUEST['max_id']   ?? 0);
-		$count    = intval($_REQUEST['count']    ?? 20);
-		$page     = intval($_REQUEST['page']     ?? 1);
+		$since_id = $_REQUEST['since_id'] ?? 0;
+		$max_id   = $_REQUEST['max_id']   ?? 0;
+		$count    = $_REQUEST['count']    ?? 20;
+		$page     = $_REQUEST['page']     ?? 1;
 
 		$start = max(0, ($page - 1) * $count);
 
