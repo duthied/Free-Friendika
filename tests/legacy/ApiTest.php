@@ -903,38 +903,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the requestdata() function.
-	 *
-	 * @return void
-	 */
-	public function testRequestdata()
-	{
-		self::assertNull(requestdata('variable_name'));
-	}
-
-	/**
-	 * Test the requestdata() function with a POST parameter.
-	 *
-	 * @return void
-	 */
-	public function testRequestdataWithPost()
-	{
-		$_POST['variable_name'] = 'variable_value';
-		self::assertEquals('variable_value', requestdata('variable_name'));
-	}
-
-	/**
-	 * Test the requestdata() function with a GET parameter.
-	 *
-	 * @return void
-	 */
-	public function testRequestdataWithGet()
-	{
-		$_GET['variable_name'] = 'variable_value';
-		self::assertEquals('variable_value', requestdata('variable_name'));
-	}
-
-	/**
 	 * Test the api_statuses_mediap() function.
 	 *
 	 * @return void

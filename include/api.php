@@ -684,23 +684,6 @@ function group_create($name, $uid, $users = [])
 }
 
 /**
- * Get data from $_POST or $_GET
- *
- * @param string $k
- * @return null
- */
-function requestdata($k)
-{
-	if (!empty($_POST[$k])) {
-		return $_POST[$k];
-	}
-	if (!empty($_GET[$k])) {
-		return $_GET[$k];
-	}
-	return null;
-}
-
-/**
  * TWITTER API
  */
 
@@ -765,7 +748,7 @@ function api_statuses_mediap($type)
 
 	$_REQUEST['profile_uid'] = $uid;
 	$_REQUEST['api_source'] = true;
-	$txt = requestdata('status') ?? '';
+	$txt = $_REQUEST['status'] ?? '';
 
 	if ((strpos($txt, '<') !== false) || (strpos($txt, '>') !== false)) {
 		$txt = HTML::toBBCodeVideo($txt);
@@ -814,8 +797,8 @@ function api_statuses_update($type)
 	$a = DI::app();
 
 	// convert $_POST array items to the form we use for web posts.
-	if (requestdata('htmlstatus')) {
-		$txt = requestdata('htmlstatus') ?? '';
+	if (!empty($_REQUEST['htmlstatus'])) {
+		$txt = $_REQUEST['htmlstatus'];
 		if ((strpos($txt, '<') !== false) || (strpos($txt, '>') !== false)) {
 			$txt = HTML::toBBCodeVideo($txt);
 
@@ -828,12 +811,12 @@ function api_statuses_update($type)
 			$_REQUEST['body'] = HTML::toBBCode($txt);
 		}
 	} else {
-		$_REQUEST['body'] = requestdata('status');
+		$_REQUEST['body'] = $_REQUEST['status'] ?? null;
 	}
 
-	$_REQUEST['title'] = requestdata('title');
+	$_REQUEST['title'] = $_REQUEST['title'] ?? null;
 
-	$parent = requestdata('in_reply_to_status_id');
+	$parent = $_REQUEST['in_reply_to_status_id'] ?? null;
 
 	// Twidere sends "-1" if it is no reply ...
 	if ($parent == -1) {
@@ -846,8 +829,8 @@ function api_statuses_update($type)
 		$_REQUEST['parent_uri'] = $parent;
 	}
 
-	if (requestdata('lat') && requestdata('long')) {
-		$_REQUEST['coord'] = sprintf("%s %s", requestdata('lat'), requestdata('long'));
+	if (!empty($_REQUEST['lat']) && !empty($_REQUEST['long'])) {
+		$_REQUEST['coord'] = sprintf("%s %s", $_REQUEST['lat'], $_REQUEST['long']);
 	}
 	$_REQUEST['profile_uid'] = $uid;
 
@@ -896,8 +879,8 @@ function api_statuses_update($type)
 		}
 	}
 
-	if (requestdata('media_ids')) {
-		$ids = explode(',', requestdata('media_ids') ?? '');
+	if (!empty($_REQUEST['media_ids'])) {
+		$ids = explode(',', $_REQUEST['media_ids']);
 	} elseif (!empty($_FILES['media'])) {
 		// upload the image if we have one
 		$picture = wall_upload_post($a, false);
