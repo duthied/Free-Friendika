@@ -243,7 +243,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiSource()
 	{
-		self::assertEquals('api', BaseApi::getCurrentApplication()['name']);
+		self::assertEquals('api', BasicAuth::getCurrentApplicationToken()['name']);
 	}
 
 	/**
@@ -254,7 +254,7 @@ class ApiTest extends FixtureTest
 	public function testApiSourceWithTwidere()
 	{
 		$_SERVER['HTTP_USER_AGENT'] = 'Twidere';
-		self::assertEquals('Twidere', BaseApi::getCurrentApplication()['name']);
+		self::assertEquals('Twidere', BasicAuth::getCurrentApplicationToken()['name']);
 	}
 
 	/**
@@ -265,7 +265,7 @@ class ApiTest extends FixtureTest
 	public function testApiSourceWithGet()
 	{
 		$_REQUEST['source'] = 'source_name';
-		self::assertEquals('source_name', BaseApi::getCurrentApplication()['name']);
+		self::assertEquals('source_name', BasicAuth::getCurrentApplicationToken()['name']);
 	}
 
 	/**
