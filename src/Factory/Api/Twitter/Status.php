@@ -119,11 +119,9 @@ class Status extends BaseFactory
 
 		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT]);
 
-		if (!$include_entities) {
-			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
-		}
+		$text = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 
-		$text = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::API), 0));
+		$text = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], $text, BBCode::API), 0));
 
 		$geo = [];
 
@@ -160,7 +158,7 @@ class Status extends BaseFactory
 				$urls     = array_merge($urls, $this->url->createFromUriId($shared_uri_id, $text));
 				$mentions = array_merge($mentions, $this->mention->createFromUriId($shared_uri_id, $text));
 			} else {
-				$attachments = array_merge($attachments, $this->attachment->createFromUriId($item['uri-id'], $text));
+				$attachments = array_merge($attachments, $this->attachment->createFromUriId($shared_uri_id, $text));
 			}
 		}
 
