@@ -40,29 +40,30 @@ class Tweets extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		if (empty($_REQUEST['q'])) {
 			throw new BadRequestException('q parameter is required.');
 		}
-	
+
 		$searchTerm = trim(rawurldecode($_REQUEST['q']));
-	
-		$data = [];
+
 		$data['status'] = [];
+
 		$count = 15;
+
 		$exclude_replies = !empty($_REQUEST['exclude_replies']);
 		if (!empty($_REQUEST['rpp'])) {
 			$count = $_REQUEST['rpp'];
 		} elseif (!empty($_REQUEST['count'])) {
 			$count = $_REQUEST['count'];
 		}
-	
+
 		$since_id = $_REQUEST['since_id'] ?? 0;
 		$max_id = $_REQUEST['max_id'] ?? 0;
 		$page = $_REQUEST['page'] ?? 1;
-	
+
 		$start = max(0, ($page - 1) * $count);
-	
+
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		if (preg_match('/^#(\w+)$/', $searchTerm, $matches) === 1 && isset($matches[1])) {
 			$searchTerm = $matches[1];
@@ -73,16 +74,16 @@ class Tweets extends BaseApi
 				$uriids[] = $tag['uri-id'];
 			}
 			DBA::close($tags);
-	
+
 			if (empty($uriids)) {
 				DI::apiResponse()->exit('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 			}
-	
+
 			$condition = ['uri-id' => $uriids];
 			if ($exclude_replies) {
 				$condition['gravity'] = GRAVITY_PARENT;
 			}
-	
+
 			$params['group_by'] = ['uri-id'];
 		} else {
 			$condition = ["`id` > ?
@@ -95,31 +96,31 @@ class Tweets extends BaseApi
 				$condition[] = $max_id;
 			}
 		}
-	
+
 		$statuses = [];
-	
+
 		if (parse_url($searchTerm, PHP_URL_SCHEME) != '') {
 			$id = Item::fetchByLink($searchTerm, $uid);
 			if (!$id) {
 				// Public post
 				$id = Item::fetchByLink($searchTerm);
 			}
-	
+
 			if (!empty($id)) {
 				$statuses = Post::select([], ['id' => $id]);
 			}
 		}
-	
+
 		$statuses = $statuses ?: Post::selectForUser($uid, [], $condition, $params);
-	
+
 		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-	
+
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {
 			$ret[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
 		}
 		DBA::close($statuses);
-	
+
 		DI::apiResponse()->exit('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

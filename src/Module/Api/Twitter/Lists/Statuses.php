@@ -39,26 +39,26 @@ class Statuses extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		if (empty($_REQUEST['list_id'])) {
 			throw new BadRequestException('list_id not specified');
 		}
-	
+
 		// params
-		$count = $_REQUEST['count'] ?? 20;
-		$page = $_REQUEST['page'] ?? 1;
-		$since_id = $_REQUEST['since_id'] ?? 0;
-		$max_id = $_REQUEST['max_id'] ?? 0;
+		$count           = $_REQUEST['count']    ?? 20;
+		$page            = $_REQUEST['page']     ?? 1;
+		$since_id        = $_REQUEST['since_id'] ?? 0;
+		$max_id          = $_REQUEST['max_id']   ?? 0;
 		$exclude_replies = (!empty($_REQUEST['exclude_replies']) ? 1 : 0);
 		$conversation_id = $_REQUEST['conversation_id'] ?? 0;
-	
+
 		$start = max(0, ($page - 1) * $count);
-	
-		$groups = DBA::selectToArray('group_member', ['contact-id'], ['gid' => 1]);
-		$gids = array_column($groups, 'contact-id');
+
+		$groups    = DBA::selectToArray('group_member', ['contact-id'], ['gid' => 1]);
+		$gids      = array_column($groups, 'contact-id');
 		$condition = ['uid' => $uid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'group-id' => $gids];
 		$condition = DBA::mergeConditions($condition, ["`id` > ?", $since_id]);
-	
+
 		if ($max_id > 0) {
 			$condition[0] .= " AND `id` <= ?";
 			$condition[] = $max_id;
@@ -71,18 +71,18 @@ class Statuses extends BaseApi
 			$condition[0] .= " AND `parent` = ?";
 			$condition[] = $conversation_id;
 		}
-	
-		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+
+		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
-	
+
 		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-	
+
 		$items = [];
 		while ($status = DBA::fetch($statuses)) {
 			$items[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
 		}
 		DBA::close($statuses);
-	
+
 		DI::apiResponse()->exit('statuses', ['status' => $items], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }
