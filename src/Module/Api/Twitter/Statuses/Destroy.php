@@ -19,18 +19,20 @@
  *
  */
 
-namespace Friendica\Module\Api\Twitter\Users;
+namespace Friendica\Module\Api\Twitter\Statuses;
 
+use Friendica\Core\Logger;
 use Friendica\Module\BaseApi;
 use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\Item;
 
 /**
- * Returns extended information of a given user, specified by ID or screen name as per the required id parameter.
- * The author's most recent status will be returned inline.
+ * Destroys a specific status.
  *
- * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-users-show
+ * @see https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-destroy-id
  */
-class Show extends BaseApi
+class Destroy extends BaseApi
 {
 	public function rawContent()
 	{
@@ -38,16 +40,19 @@ class Show extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$cid = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
+			$id = intval($_REQUEST['id'] ?? 0);
 		} else {
-			$cid = (int)$this->parameters['id'];
+			$id = (int)$this->parameters['id'];
 		}
 
-		$user_info = DI::twitterUser()->createFromContactId($cid, $uid)->toArray();
+		logger::notice('API: api_statuses_destroy: ' . $id);
 
-		// "uid" is only needed for some internal stuff, so remove it from here
-		unset($user_info['uid']);
+		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
 
-		DI::apiResponse()->exit('user', ['user' => $user_info], $this->parameters['extension'] ?? null);
+		$ret = DI::twitterStatus()->createFromItemId($$id, $uid, $include_entities)->toArray();
+
+		Item::deleteForUser(['id' => $id], $uid);
+
+		DI::apiResponse()->exit('status', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

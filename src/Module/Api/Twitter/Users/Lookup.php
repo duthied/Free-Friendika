@@ -23,31 +23,34 @@ namespace Friendica\Module\Api\Twitter\Users;
 
 use Friendica\Module\BaseApi;
 use Friendica\DI;
+use Friendica\Network\HTTPException\NotFoundException;
 
 /**
- * Returns extended information of a given user, specified by ID or screen name as per the required id parameter.
- * The author's most recent status will be returned inline.
+ * Return user objects
  *
- * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-users-show
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-users-lookup
  */
-class Show extends BaseApi
+class Lookup extends BaseApi
 {
 	public function rawContent()
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		if (empty($this->parameters['id'])) {
-			$cid = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
-		} else {
-			$cid = (int)$this->parameters['id'];
+		$users = [];
+
+		if (!empty($_REQUEST['user_id'])) {
+			foreach (explode(',', $_REQUEST['user_id']) as $cid) {
+				if (!empty($cid) && is_numeric($cid)) {
+					$users[] = DI::twitterUser()->createFromContactId((int)$cid, $uid, false)->toArray();
+				}
+			}
 		}
 
-		$user_info = DI::twitterUser()->createFromContactId($cid, $uid)->toArray();
+		if (empty($users)) {
+			throw new NotFoundException();
+		}
 
-		// "uid" is only needed for some internal stuff, so remove it from here
-		unset($user_info['uid']);
-
-		DI::apiResponse()->exit('user', ['user' => $user_info], $this->parameters['extension'] ?? null);
+		DI::apiResponse()->exit('users', ['user' => $users], $this->parameters['extension'] ?? null);
 	}
 }
