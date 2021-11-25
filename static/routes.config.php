@@ -73,7 +73,7 @@ $apiRoutes = [
 	'/friendica' => [
 		'/activity/{verb:attendmaybe|attendno|attendyes|dislike|like|unattendmaybe|unattendno|unattendyes|undislike|unlike}[.{extension:json|xml|rss|atom}]'
 			=> [Module\Api\Friendica\Activity::class, [        R::POST]],
-		'/notification/seen[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Index::class,                  [        R::POST]],
+		'/notification/seen[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Notification\Seen::class,      [        R::POST]],
 		'/notification[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Notification::class,           [R::GET         ]],
 		'/direct_messages_setseen[.{extension:json|xml|rss|atom}]' => [Module\Api\Friendica\DirectMessages\Setseen::class, [        R::POST]],
 		'/direct_messages_search[.{extension:json|xml|rss|atom}]'  => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
@@ -97,20 +97,20 @@ $apiRoutes = [
 	'/help/test[.{extension:json|xml|rss|atom}]'                   => [Module\Api\GNUSocial\Help\Test::class,         [R::GET         ]],
 
 	'/lists' => [
-		'/create[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [        R::POST]],
-		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class, [R::DELETE, R::POST]],
-		'/list[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class, [R::GET         ]],
-		'/ownerships[.{extension:json|xml|rss|atom}]'              => [Module\Api\Friendica\Index::class, [R::GET         ]],
-		'/statuses[.{extension:json|xml|rss|atom}]'                => [Module\Api\Friendica\Index::class, [R::GET         ]],
-		'/subscriptions[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class, [R::GET         ]],
-		'/update[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class, [        R::POST]],
+		'/create[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class,        [        R::POST]],
+		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,        [R::DELETE, R::POST]],
+		'/list[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/ownerships[.{extension:json|xml|rss|atom}]'              => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/statuses[.{extension:json|xml|rss|atom}]'                => [Module\Api\Twitter\Lists\Statuses::class, [R::GET         ]],
+		'/subscriptions[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class,        [R::GET         ]],
+		'/update[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class,        [        R::POST]],
 	],
 
 	'/media/upload[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class,                  [        R::POST]],
 	'/media/metadata/create[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class,                  [        R::POST]],
 	'/saved_searches/list[.{extension:json|xml|rss|atom}]'             => [Module\Api\Twitter\SavedSearches::class,            [R::GET         ]],
-	'/search/tweets[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
-	'/search[.{extension:json|xml|rss|atom}]'                          => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
+	'/search/tweets[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Twitter\Search\Tweets::class,            [R::GET         ]],
+	'/search[.{extension:json|xml|rss|atom}]'                          => [Module\Api\Twitter\Search\Tweets::class,            [R::GET         ]],
 	'/statusnet/config[.{extension:json|xml|rss|atom}]'                => [Module\Api\GNUSocial\GNUSocial\Config::class,       [R::GET         ]],
 	'/statusnet/conversation[.{extension:json|xml|rss|atom}]'          => [Module\Api\GNUSocial\Statusnet\Conversation::class, [R::GET         ]],
 	'/statusnet/conversation/{id:\d+}[.{extension:json|xml|rss|atom}]' => [Module\Api\GNUSocial\Statusnet\Conversation::class, [R::GET         ]],
