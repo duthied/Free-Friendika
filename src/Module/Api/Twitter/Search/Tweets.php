@@ -59,16 +59,17 @@ class Tweets extends BaseApi
 		}
 
 		$since_id = $_REQUEST['since_id'] ?? 0;
-		$max_id = $_REQUEST['max_id'] ?? 0;
-		$page = $_REQUEST['page'] ?? 1;
+		$max_id   = $_REQUEST['max_id']   ?? 0;
+		$page     = $_REQUEST['page']     ?? 1;
 
 		$start = max(0, ($page - 1) * $count);
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		if (preg_match('/^#(\w+)$/', $searchTerm, $matches) === 1 && isset($matches[1])) {
 			$searchTerm = $matches[1];
-			$condition = ["`iid` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, $uid];
-			$tags = DBA::select('tag-search-view', ['uri-id'], $condition);
+			$condition  = ["`iid` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, $uid];
+
+			$tags   = DBA::select('tag-search-view', ['uri-id'], $condition);
 			$uriids = [];
 			while ($tag = DBA::fetch($tags)) {
 				$uriids[] = $tag['uri-id'];
