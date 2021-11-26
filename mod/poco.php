@@ -123,7 +123,7 @@ function poco_init(App $a) {
 			}
 			$about = DI::cache()->get("about:" . $contact['updated'] . ":" . $contact['nurl']);
 			if (is_null($about)) {
-				$about = BBCode::convert($contact['about'], false);
+				$about = BBCode::convertForUriId($contact['uri-id'], $contact['about']);
 				DI::cache()->set("about:" . $contact['updated'] . ":" . $contact['nurl'], $about);
 			}
 

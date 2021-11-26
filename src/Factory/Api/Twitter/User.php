@@ -25,9 +25,23 @@ use Friendica\BaseFactory;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
+use Friendica\Factory\Api\Twitter\Status;
+use Friendica\Model\Item;
+use Friendica\Model\Post;
+use Psr\Log\LoggerInterface;
 
 class User extends BaseFactory
 {
+	/** @var Status entity */
+	private $status;
+
+	public function __construct(LoggerInterface $logger, Status $status)
+	{
+		parent::__construct($logger);
+		$this->status = $status;
+
+	}
+
 	/**
 	 * @param int  $contactId
 	 * @param int  $uid Public contact (=0) or owner user id
@@ -37,7 +51,7 @@ class User extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function createFromContactId(int $contactId, $uid = 0, $skip_status = false, $include_user_entities = true)
+	public function createFromContactId(int $contactId, $uid = 0, $skip_status = true, $include_user_entities = true)
 	{
 		$cdata = Contact::getPublicAndUserContactID($contactId, $uid);
 		if (!empty($cdata)) {
@@ -50,10 +64,21 @@ class User extends BaseFactory
 
 		$apcontact = APContact::getByURL($publicContact['url'], false);
 
-		return new \Friendica\Object\Api\Twitter\User($publicContact, $apcontact, $userContact, $skip_status, $include_user_entities);
+		$status = null;
+
+		if (!$skip_status) {
+			$post = Post::selectFirstPost(['uri-id'],
+				['author-id' => $publicContact['id'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_PARENT], 'private'  => [Item::PUBLIC, Item::UNLISTED]],
+				['order' => ['uri-id' => true]]);
+			if (!empty($post['uri-id'])) {
+				$status = $this->status->createFromUriId($post['uri-id'], $uid)->toArray();
+			}
+		}
+
+		return new \Friendica\Object\Api\Twitter\User($publicContact, $apcontact, $userContact, $status, $include_user_entities);
 	}
 
-	public function createFromUserId(int $uid, $skip_status = false, $include_user_entities = true)
+	public function createFromUserId(int $uid, $skip_status = true, $include_user_entities = true)
 	{
 		return $this->createFromContactId(Contact::getPublicIdByUserId($uid), $uid, $skip_status, $include_user_entities);
 	}

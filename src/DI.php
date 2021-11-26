@@ -271,6 +271,14 @@ abstract class DI
 	//
 
 	/**
+	 * @return Factory\Api\Friendica\Activities
+	 */
+	public static function friendicaActivities()
+	{
+		return self::$dice->create(Factory\Api\Friendica\Activities::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Account
 	 */
 	public static function mstdnAccount()
@@ -380,6 +388,14 @@ abstract class DI
 	public static function mstdnNotification()
 	{
 		return self::$dice->create(Factory\Api\Mastodon\Notification::class);
+	}
+
+	/**
+	 * @return Factory\Api\Twitter\Status
+	 */
+	public static function twitterStatus()
+	{
+		return self::$dice->create(Factory\Api\Twitter\Status::class);
 	}
 
 	/**

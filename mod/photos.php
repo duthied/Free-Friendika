@@ -1432,7 +1432,7 @@ function photos_content(App $a)
 					];
 
 					$title_e = $item['title'];
-					$body_e = BBCode::convert($item['body']);
+					$body_e = BBCode::convertForUriId($item['uri-id'], $item['body']);
 
 					$comments .= Renderer::replaceMacros($template,[
 						'$id' => $item['id'],

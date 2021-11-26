@@ -214,11 +214,11 @@ class ApiResponse
 	 *
 	 * @return void
 	 */
-	public function exit(string $root_element, array $data, string $format = null)
+	public function exit(string $root_element, array $data, string $format = null, int $cid = 0)
 	{
 		$format = $format ?? 'json';
 
-		$return = $this->formatData($root_element, $format, $data);
+		$return = $this->formatData($root_element, $format, $data, $cid);
 
 		switch ($format) {
 			case 'xml':
