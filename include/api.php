@@ -1387,7 +1387,7 @@ function api_direct_messages_new($type)
 
 	$sender = DI::twitterUser()->createFromUserId($uid, true)->toArray();
 
-	$cid = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
+	$cid = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, 0);
 	if (empty($cid)) {
 		throw new NotFoundException('Recipient not found');
 	}

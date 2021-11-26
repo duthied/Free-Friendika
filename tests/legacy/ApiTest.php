@@ -2499,8 +2499,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesNewWithUserId()
 	{
-		$_POST['text']    = 'message_text';
-		$_POST['user_id'] = $this->otherUser['id'];
+		$_POST['text']       = 'message_text';
+		$_REQUEST['user_id'] = $this->otherUser['id'];
 		$result           = api_direct_messages_new('json');
 		self::assertEquals(['direct_message' => ['error' => -1]], $result);
 	}
