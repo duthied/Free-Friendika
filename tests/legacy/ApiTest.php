@@ -295,7 +295,6 @@ class ApiTest extends FixtureTest
 				'method'
 			)
 		);
-		self::assertEquals('method', $API['api_path']['method']);
 		self::assertTrue(is_callable($API['api_path']['func']));
 	}
 
