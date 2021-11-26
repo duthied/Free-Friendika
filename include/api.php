@@ -1381,7 +1381,7 @@ function api_direct_messages_new($type)
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 	$uid = BaseApi::getCurrentUserID();
 
-	if (empty($_POST["text"]) || empty($_POST['screen_name']) && empty($_POST['user_id'])) {
+	if (empty($_POST["text"]) || empty($_REQUEST['screen_name']) && empty($_REQUEST['user_id'])) {
 		return;
 	}
 
