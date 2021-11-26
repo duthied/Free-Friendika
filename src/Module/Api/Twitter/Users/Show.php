@@ -23,7 +23,6 @@ namespace Friendica\Module\Api\Twitter\Users;
 
 use Friendica\Module\BaseApi;
 use Friendica\DI;
-use Friendica\Model\Contact;
 
 /**
  * Returns extended information of a given user, specified by ID or screen name as per the required id parameter.
