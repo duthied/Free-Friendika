@@ -25,8 +25,10 @@ use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPException;
 
 /**
  * functions for interacting with the group database table
@@ -259,21 +261,24 @@ class Group
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	public static function addMember($gid, $cid)
+	public static function addMember(int $gid, int $cid): bool
 	{
 		if (!$gid || !$cid) {
 			return false;
 		}
 
-		$row_exists = DBA::exists('group_member', ['gid' => $gid, 'contact-id' => $cid]);
-		if ($row_exists) {
-			// Row already existing, nothing to do
-			$return = true;
-		} else {
-			$return = DBA::insert('group_member', ['gid' => $gid, 'contact-id' => $cid]);
+		// @TODO Backward compatibility with user contacts, remove by version 2022.03
+		$group = DBA::selectFirst('group', ['uid'], ['id' => $gid]);
+		if (empty($group)) {
+			throw new HTTPException\NotFoundException('Group not found.');
 		}
 
-		return $return;
+		$cdata = Contact::getPublicAndUserContactID($cid, $group['uid']);
+		if (empty($cdata['user'])) {
+			throw new HTTPException\NotFoundException('Invalid contact.');
+		}
+
+		return DBA::insert('group_member', ['gid' => $gid, 'contact-id' => $cdata['user']], Database::INSERT_IGNORE);
 	}
 
 	/**
@@ -284,15 +289,24 @@ class Group
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	public static function removeMember($gid, $cid)
+	public static function removeMember(int $gid, int $cid): bool
 	{
 		if (!$gid || !$cid) {
 			return false;
 		}
 
-		$return = DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $cid]);
+		// @TODO Backward compatibility with user contacts, remove by version 2022.03
+		$group = DBA::selectFirst('group', ['uid'], ['id' => $gid]);
+		if (empty($group)) {
+			throw new HTTPException\NotFoundException('Group not found.');
+		}
 
-		return $return;
+		$cdata = Contact::getPublicAndUserContactID($cid, $group['uid']);
+		if (empty($cdata['user'])) {
+			throw new HTTPException\NotFoundException('Invalid contact.');
+		}
+
+		return DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $cid]);
 	}
 
 	/**

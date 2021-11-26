@@ -93,7 +93,17 @@ class Group extends BaseModule
 					throw new \Exception(DI::l10n()->t('Unknown group.'), 404);
 				}
 
-				$contact = DBA::selectFirst('contact', ['deleted'], ['id' => $contact_id, 'uid' => local_user()]);
+				// @TODO Backward compatibility with user contacts, remove by version 2022.03
+				$cdata = Model\Contact::getPublicAndUserContactID($contact_id, local_user());
+				if (empty($cdata['public'])) {
+					throw new \Exception(DI::l10n()->t('Contact not found.'), 404);
+				}
+
+				if (empty($cdata['user'])) {
+					throw new \Exception(DI::l10n()->t('Invalid contact.'), 404);
+				}
+
+				$contact = Model\Contact::getById($cdata['user'], ['deleted']);
 				if (!DBA::isResult($contact)) {
 					throw new \Exception(DI::l10n()->t('Contact not found.'), 404);
 				}
@@ -104,14 +114,14 @@ class Group extends BaseModule
 
 				switch($this->parameters['command']) {
 					case 'add':
-						if (!Model\Group::addMember($group_id, $contact_id)) {
+						if (!Model\Group::addMember($group_id, $cdata['user'])) {
 							throw new \Exception(DI::l10n()->t('Unable to add the contact to the group.'), 500);
 						}
 
 						$message = DI::l10n()->t('Contact successfully added to group.');
 						break;
 					case 'remove':
-						if (!Model\Group::removeMember($group_id, $contact_id)) {
+						if (!Model\Group::removeMember($group_id, $cdata['user'])) {
 							throw new \Exception(DI::l10n()->t('Unable to remove the contact from the group.'), 500);
 						}
 
