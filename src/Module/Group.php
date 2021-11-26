@@ -34,10 +34,8 @@ class Group extends BaseModule
 {
 	public function post()
 	{
-		$a = DI::app();
-
 		if (DI::mode()->isAjax()) {
-			self::ajaxPost();
+			$this->ajaxPost();
 		}
 
 		if (!local_user()) {
@@ -80,20 +78,16 @@ class Group extends BaseModule
 		}
 	}
 
-	public static function ajaxPost()
+	public function ajaxPost()
 	{
 		try {
-			$a = DI::app();
-
 			if (!local_user()) {
 				throw new \Exception(DI::l10n()->t('Permission denied.'), 403);
 			}
 
-			// POST /group/123/add/123
-			// POST /group/123/remove/123
-			// @TODO: Replace with parameter from router
-			if (DI::args()->getArgc() == 4) {
-				list($group_id, $command, $contact_id) = array_slice(DI::args()->getArgv(), 1);
+			if (isset($this->parameters['command'])) {
+				$group_id = $this->parameters['group'];
+				$contact_id = $this->parameters['contact'];
 
 				if (!Model\Group::exists($group_id, local_user())) {
 					throw new \Exception(DI::l10n()->t('Unknown group.'), 404);
@@ -108,7 +102,7 @@ class Group extends BaseModule
 					throw new \Exception(DI::l10n()->t('Contact is deleted.'), 410);
 				}
 
-				switch($command) {
+				switch($this->parameters['command']) {
 					case 'add':
 						if (!Model\Group::addMember($group_id, $contact_id)) {
 							throw new \Exception(DI::l10n()->t('Unable to add the contact to the group.'), 500);
@@ -123,8 +117,6 @@ class Group extends BaseModule
 
 						$message = DI::l10n()->t('Contact successfully removed from group.');
 						break;
-					default:
-						throw new \Exception(DI::l10n()->t('Unknown group command.'), 400);
 				}
 			} else {
 				throw new \Exception(DI::l10n()->t('Bad request.'), 400);

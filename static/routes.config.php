@@ -389,9 +389,7 @@ return [
 		'/new'                       => [Module\Group::class, [R::GET, R::POST]],
 		'/drop/{group:\d+}'          => [Module\Group::class, [R::GET, R::POST]],
 		'/{group:\d+}/{contact:\d+}' => [Module\Group::class, [R::GET, R::POST]],
-
-		'/{group:\d+}/add/{contact:\d+}'    => [Module\Group::class, [R::GET, R::POST]],
-		'/{group:\d+}/remove/{contact:\d+}' => [Module\Group::class, [R::GET, R::POST]],
+		'/{group:\d+}/{command:add|remove}/{contact:\d+}'    => [Module\Group::class, [R::GET, R::POST]],
 	],
 	'/hashtag'                    => [Module\Hashtag::class,           [R::GET]],
 	'/help[/{doc:.+}]'            => [Module\Help::class,              [R::GET]],
