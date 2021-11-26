@@ -41,14 +41,14 @@ class Lists extends ContactEndpoint
 		$skip_status           = filter_input(INPUT_GET, 'skip_status'          , FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]);
 		$include_user_entities = filter_input(INPUT_GET, 'include_user_entities', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]);
 		$count                 = filter_input(INPUT_GET, 'count'                , FILTER_VALIDATE_INT, ['options' => [
-			'default' => self::DEFAULT_COUNT,
+			'default'   => self::DEFAULT_COUNT,
 			'min_range' => 1,
 			'max_range' => self::MAX_COUNT,
 		]]);
 		// Friendica-specific
-		$since_id              = filter_input(INPUT_GET, 'since_id', FILTER_VALIDATE_INT);
-		$max_id                = filter_input(INPUT_GET, 'max_id'  , FILTER_VALIDATE_INT);
-		$min_id                = filter_input(INPUT_GET, 'min_id'  , FILTER_VALIDATE_INT);
+		$since_id = filter_input(INPUT_GET, 'since_id', FILTER_VALIDATE_INT);
+		$max_id   = filter_input(INPUT_GET, 'max_id'  , FILTER_VALIDATE_INT);
+		$min_id   = filter_input(INPUT_GET, 'min_id'  , FILTER_VALIDATE_INT);
 
 		$params = ['order' => ['cid' => true], 'limit' => $count];
 
