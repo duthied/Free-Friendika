@@ -295,8 +295,6 @@ class ApiTest extends FixtureTest
 				'method'
 			)
 		);
-		self::assertTrue($API['api_path']['auth']);
-		self::assertEquals('method', $API['api_path']['method']);
 		self::assertTrue(is_callable($API['api_path']['func']));
 	}
 
@@ -397,11 +395,9 @@ class ApiTest extends FixtureTest
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
 		$_GET['callback']          = 'callback_name';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		self::assertEquals(
 			'callback_name(["some_data"])',
-			api_call($this->app, $args)
+			api_call('api_path', 'json')
 		);
 	}
 
@@ -424,8 +420,6 @@ class ApiTest extends FixtureTest
 		$_SERVER['REQUEST_METHOD'] = 'method';
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		$this->config->set('system', 'profiler', true);
 		$this->config->set('rendertime', 'callstack', true);
 		$this->app->callstack = [
@@ -438,7 +432,7 @@ class ApiTest extends FixtureTest
 
 		self::assertEquals(
 			'["some_data"]',
-			api_call($this->app, $args)
+			api_call('api_path', 'json')
 		);
 	}
 
@@ -460,11 +454,9 @@ class ApiTest extends FixtureTest
 		$_SERVER['REQUEST_METHOD'] = 'method';
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path.json';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		self::assertEquals(
 			'["some_data"]',
-			api_call($this->app, $args)
+			api_call('api_path.json', 'json')
 		);
 	}
 
@@ -490,7 +482,7 @@ class ApiTest extends FixtureTest
 
 		self::assertEquals(
 			'some_data',
-			api_call($this->app, $args)
+			api_call('api_path.xml', 'xml')
 		);
 	}
 
@@ -512,12 +504,10 @@ class ApiTest extends FixtureTest
 		$_SERVER['REQUEST_METHOD'] = 'method';
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path.rss';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		self::assertEquals(
 			'<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
 			'some_data',
-			api_call($this->app, $args)
+			api_call('api_path.rss', 'rss')
 		);
 	}
 
@@ -539,12 +529,10 @@ class ApiTest extends FixtureTest
 		$_SERVER['REQUEST_METHOD'] = 'method';
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path.atom';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		self::assertEquals(
 			'<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
 			'some_data',
-			api_call($this->app, $args)
+			api_call('api_path.atom', 'atom')
 		);
 	}
 
@@ -2511,8 +2499,8 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesNewWithUserId()
 	{
-		$_POST['text']    = 'message_text';
-		$_POST['user_id'] = $this->otherUser['id'];
+		$_POST['text']       = 'message_text';
+		$_REQUEST['user_id'] = $this->otherUser['id'];
 		$result           = api_direct_messages_new('json');
 		self::assertEquals(['direct_message' => ['error' => -1]], $result);
 	}
@@ -2525,9 +2513,9 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNewWithScreenName()
 	{
 		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_POST['text']    = 'message_text';
-		$_POST['user_id'] = $this->friendUser['id'];
-		$result           = api_direct_messages_new('json');
+		$_POST['text']       = 'message_text';
+		$_REQUEST['user_id'] = $this->friendUser['id'];
+		$result              = api_direct_messages_new('json');
 		self::assertStringContainsString('message_text', $result['direct_message']['text']);
 		self::assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
 		self::assertEquals(1, $result['direct_message']['friendica_seen']);
@@ -2541,9 +2529,9 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNewWithTitle()
 	{
 		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_POST['text']     = 'message_text';
-		$_POST['user_id']  = $this->friendUser['id'];
-		$_REQUEST['title'] = 'message_title';
+		$_POST['text']        = 'message_text';
+		$_REQUEST['user_id']  = $this->friendUser['id'];
+		$_REQUEST['title']    = 'message_title';
 		$result            = api_direct_messages_new('json');
 		self::assertStringContainsString('message_text', $result['direct_message']['text']);
 		self::assertStringContainsString('message_title', $result['direct_message']['text']);
@@ -2559,9 +2547,9 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNewWithRss()
 	{
 		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_POST['text']    = 'message_text';
-		$_POST['user_id'] = $this->friendUser['id'];
-		$result           = api_direct_messages_new('rss');
+		$_POST['text']       = 'message_text';
+		$_REQUEST['user_id'] = $this->friendUser['id'];
+		$result              = api_direct_messages_new('rss');
 		self::assertXml($result, 'direct-messages');
 	}
 

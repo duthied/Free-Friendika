@@ -35,7 +35,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
-use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
@@ -49,7 +48,6 @@ use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
-use Friendica\Security\BasicAuth;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
@@ -58,13 +56,6 @@ use Friendica\Util\Strings;
 require_once __DIR__ . '/../mod/item.php';
 require_once __DIR__ . '/../mod/wall_upload.php';
 
-define('API_METHOD_ANY', '*');
-define('API_METHOD_GET', 'GET');
-define('API_METHOD_POST', 'POST,PUT');
-define('API_METHOD_DELETE', 'POST,DELETE');
-
-define('API_LOG_PREFIX', 'API {action} - ');
-
 $API = [];
 
 /**
@@ -72,19 +63,13 @@ $API = [];
  *
  * @param string $path   API URL path, relative to DI::baseUrl()
  * @param string $func   Function name to call on path request
- * @param bool   $auth   API need logged user
- * @param string $method HTTP method reqiured to call this endpoint.
- *                       One of API_METHOD_ANY, API_METHOD_GET, API_METHOD_POST.
- *                       Default to API_METHOD_ANY
  */
-function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY)
+function api_register_func($path, $func)
 {
 	global $API;
 
 	$API[$path] = [
 		'func'   => $func,
-		'auth'   => $auth,
-		'method' => $method,
 	];
 
 	// Workaround for hotot
@@ -92,8 +77,6 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
 
 	$API[$path] = [
 		'func'   => $func,
-		'auth'   => $auth,
-		'method' => $method,
 	];
 }
 
@@ -102,50 +85,28 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  *
  * Authenticate user, call registered API function, set HTTP headers
  *
- * @param App $a App
  * @param App\Arguments $args The app arguments (optional, will retrieved by the DI-Container in case of missing)
  * @return string|array API call result
  * @throws Exception
  */
-function api_call(App $a, App\Arguments $args = null)
+function api_call($command, $extension)
 {
 	global $API;
 
-	if ($args == null) {
-		$args = DI::args();
-	}
-
-	$type = "json";
-	if (strpos($args->getCommand(), ".xml") > 0) {
-		$type = "xml";
-	}
-	if (strpos($args->getCommand(), ".json") > 0) {
-		$type = "json";
-	}
-	if (strpos($args->getCommand(), ".rss") > 0) {
-		$type = "rss";
-	}
-	if (strpos($args->getCommand(), ".atom") > 0) {
-		$type = "atom";
-	}
+	Logger::info('Legacy API call', ['command' => $command, 'extension' => $extension]);
 
 	try {
 		foreach ($API as $p => $info) {
-			if (strpos($args->getCommand(), $p) === 0) {
-				if (!empty($info['auth']) && BaseApi::getCurrentUserID() === false) {
-					BasicAuth::getCurrentUserID(true);
-					Logger::info(API_LOG_PREFIX . 'nickname {nickname}', ['module' => 'api', 'action' => 'call', 'nickname' => $a->getLoggedInUserNickname()]);
-				}
-
-				Logger::debug(API_LOG_PREFIX . 'parameters', ['module' => 'api', 'action' => 'call', 'parameters' => $_REQUEST]);
+			if (strpos($command, $p) === 0) {
+				Logger::debug(BaseApi::LOG_PREFIX . 'parameters', ['module' => 'api', 'action' => 'call', 'parameters' => $_REQUEST]);
 
 				$stamp =  microtime(true);
-				$return = call_user_func($info['func'], $type);
+				$return = call_user_func($info['func'], $extension);
 				$duration = floatval(microtime(true) - $stamp);
 
-				Logger::info(API_LOG_PREFIX . 'duration {duration}', ['module' => 'api', 'action' => 'call', 'duration' => round($duration, 2)]);
+				Logger::info(BaseApi::LOG_PREFIX . 'duration {duration}', ['module' => 'api', 'action' => 'call', 'duration' => round($duration, 2)]);
 
-				DI::profiler()->saveLog(DI::logger(), API_LOG_PREFIX . 'performance');
+				DI::profiler()->saveLog(DI::logger(), BaseApi::LOG_PREFIX . 'performance');
 
 				if (false === $return) {
 					/*
@@ -155,7 +116,7 @@ function api_call(App $a, App\Arguments $args = null)
 					throw new InternalServerErrorException();
 				}
 
-				switch ($type) {
+				switch ($extension) {
 					case "xml":
 						header("Content-Type: text/xml");
 						break;
@@ -182,11 +143,11 @@ function api_call(App $a, App\Arguments $args = null)
 			}
 		}
 
-		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString()]);
+		Logger::warning(BaseApi::LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString()]);
 		throw new NotFoundException();
 	} catch (HTTPException $e) {
-		Logger::notice(API_LOG_PREFIX . 'got exception', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString(), 'error' => $e]);
-		DI::apiResponse()->error($e->getCode(), $e->getDescription(), $e->getMessage(), $type);
+		Logger::notice(BaseApi::LOG_PREFIX . 'got exception', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString(), 'error' => $e]);
+		DI::apiResponse()->error($e->getCode(), $e->getDescription(), $e->getMessage(), $extension);
 	}
 }
 
@@ -733,7 +694,7 @@ function api_statuses_mediap($type)
 }
 
 /// @TODO move this to top of file or somewhere better!
-api_register_func('api/statuses/mediap', 'api_statuses_mediap', true, API_METHOD_POST);
+api_register_func('api/statuses/mediap', 'api_statuses_mediap', true);
 
 /**
  * Updates the user’s current status.
@@ -916,8 +877,8 @@ function api_statuses_update($type)
 	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
 }
 
-api_register_func('api/statuses/update', 'api_statuses_update', true, API_METHOD_POST);
-api_register_func('api/statuses/update_with_media', 'api_statuses_update', true, API_METHOD_POST);
+api_register_func('api/statuses/update', 'api_statuses_update', true);
+api_register_func('api/statuses/update_with_media', 'api_statuses_update', true);
 
 /**
  * Uploads an image to Friendica.
@@ -959,7 +920,7 @@ function api_media_upload()
 	return ["media" => $returndata];
 }
 
-api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST);
+api_register_func('api/media/upload', 'api_media_upload', true);
 
 /**
  * Updates media meta data (picture descriptions)
@@ -1012,7 +973,7 @@ function api_media_metadata_create($type)
 	DBA::update('photo', ['desc' => $data['alt_text']['text']], ['resource-id' => $photo['resource-id']]);
 }
 
-api_register_func('api/media/metadata/create', 'api_media_metadata_create', true, API_METHOD_POST);
+api_register_func('api/media/metadata/create', 'api_media_metadata_create', true);
 
 /**
  * Repeats a status.
@@ -1091,7 +1052,7 @@ function api_statuses_repeat($type)
 	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
 }
 
-api_register_func('api/statuses/retweet', 'api_statuses_repeat', true, API_METHOD_POST);
+api_register_func('api/statuses/retweet', 'api_statuses_repeat', true);
 
 /**
  * Star/unstar an item.
@@ -1159,8 +1120,8 @@ function api_favorites_create_destroy($type)
 	return DI::apiResponse()->formatData("status", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
-api_register_func('api/favorites/create', 'api_favorites_create_destroy', true, API_METHOD_POST);
-api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true, API_METHOD_DELETE);
+api_register_func('api/favorites/create', 'api_favorites_create_destroy', true);
+api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true);
 
 /**
  * Returns all lists the user subscribes to.
@@ -1172,6 +1133,7 @@ api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true,
  */
 function api_lists_list($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$ret = [];
 	/// @TODO $ret is not filled here?
 	return DI::apiResponse()->formatData('lists', $type, ["lists_list" => $ret]);
@@ -1316,6 +1278,7 @@ function api_statuses_f($qtype)
  */
 function api_statuses_friends($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$data =  api_statuses_f("friends");
 	if ($data === false) {
 		return false;
@@ -1337,6 +1300,7 @@ api_register_func('api/statuses/friends', 'api_statuses_friends', true);
  */
 function api_statuses_followers($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$data = api_statuses_f("followers");
 	if ($data === false) {
 		return false;
@@ -1359,6 +1323,7 @@ api_register_func('api/statuses/followers', 'api_statuses_followers', true);
  */
 function api_blocks_list($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$data =  api_statuses_f('blocks');
 	if ($data === false) {
 		return false;
@@ -1381,6 +1346,7 @@ api_register_func('api/blocks/list', 'api_blocks_list', true);
  */
 function api_friendships_incoming($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$data =  api_statuses_f('incoming');
 	if ($data === false) {
 		return false;
@@ -1415,13 +1381,13 @@ function api_direct_messages_new($type)
 	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 	$uid = BaseApi::getCurrentUserID();
 
-	if (empty($_POST["text"]) || empty($_POST['screen_name']) && empty($_POST['user_id'])) {
+	if (empty($_POST["text"]) || empty($_REQUEST['screen_name']) && empty($_REQUEST['user_id'])) {
 		return;
 	}
 
 	$sender = DI::twitterUser()->createFromUserId($uid, true)->toArray();
 
-	$cid = BaseApi::getContactIDForSearchterm($_POST['screen_name'] ?? '', $_POST['user_id'] ?? 0, $uid);
+	$cid = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, 0);
 	if (empty($cid)) {
 		throw new NotFoundException('Recipient not found');
 	}
@@ -1453,7 +1419,7 @@ function api_direct_messages_new($type)
 	return DI::apiResponse()->formatData("direct-messages", $type, ['direct_message' => $ret], Contact::getPublicIdByUserId($uid));
 }
 
-api_register_func('api/direct_messages/new', 'api_direct_messages_new', true, API_METHOD_POST);
+api_register_func('api/direct_messages/new', 'api_direct_messages_new', true);
 
 /**
  * delete a direct_message from mail table through api
@@ -1519,7 +1485,7 @@ function api_direct_messages_destroy($type)
 	/// @todo return JSON data like Twitter API not yet implemented
 }
 
-api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', true, API_METHOD_DELETE);
+api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', true);
 
 /**
  * Unfollow Contact
@@ -1540,14 +1506,14 @@ function api_friendships_destroy($type)
 
 	$owner = User::getOwnerDataById($uid);
 	if (!$owner) {
-		Logger::notice(API_LOG_PREFIX . 'No owner {uid} found', ['module' => 'api', 'action' => 'friendships_destroy', 'uid' => $uid]);
+		Logger::notice(BaseApi::LOG_PREFIX . 'No owner {uid} found', ['module' => 'api', 'action' => 'friendships_destroy', 'uid' => $uid]);
 		throw new HTTPException\NotFoundException('Error Processing Request');
 	}
 
 	$contact_id = $_REQUEST['user_id'] ?? 0;
 
 	if (empty($contact_id)) {
-		Logger::notice(API_LOG_PREFIX . 'No user_id specified', ['module' => 'api', 'action' => 'friendships_destroy']);
+		Logger::notice(BaseApi::LOG_PREFIX . 'No user_id specified', ['module' => 'api', 'action' => 'friendships_destroy']);
 		throw new HTTPException\BadRequestException('no user_id specified');
 	}
 
@@ -1555,7 +1521,7 @@ function api_friendships_destroy($type)
 	$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => 0, 'self' => false]);
 
 	if(!DBA::isResult($contact)) {
-		Logger::notice(API_LOG_PREFIX . 'No public contact found for ID {contact}', ['module' => 'api', 'action' => 'friendships_destroy', 'contact' => $contact_id]);
+		Logger::notice(BaseApi::LOG_PREFIX . 'No public contact found for ID {contact}', ['module' => 'api', 'action' => 'friendships_destroy', 'contact' => $contact_id]);
 		throw new HTTPException\NotFoundException('no contact found to given ID');
 	}
 
@@ -1567,7 +1533,7 @@ function api_friendships_destroy($type)
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
-		Logger::notice(API_LOG_PREFIX . 'Not following contact', ['module' => 'api', 'action' => 'friendships_destroy']);
+		Logger::notice(BaseApi::LOG_PREFIX . 'Not following contact', ['module' => 'api', 'action' => 'friendships_destroy']);
 		throw new HTTPException\NotFoundException('Not following Contact');
 	}
 
@@ -1575,7 +1541,7 @@ function api_friendships_destroy($type)
 		$result = Contact::terminateFriendship($owner, $contact);
 
 		if ($result === null) {
-			Logger::notice(API_LOG_PREFIX . 'Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
+			Logger::notice(BaseApi::LOG_PREFIX . 'Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
 			throw new HTTPException\ExpectationFailedException('Unfollowing is currently not supported by this contact\'s network.');
 		}
 
@@ -1583,7 +1549,7 @@ function api_friendships_destroy($type)
 			throw new HTTPException\ServiceUnavailableException('Unable to unfollow this contact, please retry in a few minutes or contact your administrator.');
 		}
 	} catch (Exception $e) {
-		Logger::error(API_LOG_PREFIX . $e->getMessage(), ['owner' => $owner, 'contact' => $contact]);
+		Logger::error(BaseApi::LOG_PREFIX . $e->getMessage(), ['owner' => $owner, 'contact' => $contact]);
 		throw new HTTPException\InternalServerErrorException('Unable to unfollow this contact, please contact your administrator');
 	}
 
@@ -1596,7 +1562,7 @@ function api_friendships_destroy($type)
 	return DI::apiResponse()->formatData('friendships-destroy', $type, ['user' => $contact]);
 }
 
-api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, API_METHOD_POST);
+api_register_func('api/friendships/destroy', 'api_friendships_destroy', true);
 
 /**
  *
@@ -1698,6 +1664,7 @@ function api_direct_messages_box($type, $box, $verbose)
  */
 function api_direct_messages_sentbox($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$verbose = !empty($_GET['friendica_verbose']) ? strtolower($_GET['friendica_verbose']) : "false";
 	return api_direct_messages_box($type, "sentbox", $verbose);
 }
@@ -1716,6 +1683,7 @@ api_register_func('api/direct_messages/sent', 'api_direct_messages_sentbox', tru
  */
 function api_direct_messages_inbox($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$verbose = !empty($_GET['friendica_verbose']) ? strtolower($_GET['friendica_verbose']) : "false";
 	return api_direct_messages_box($type, "inbox", $verbose);
 }
@@ -1732,6 +1700,7 @@ api_register_func('api/direct_messages', 'api_direct_messages_inbox', true);
  */
 function api_direct_messages_all($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$verbose = !empty($_GET['friendica_verbose']) ? strtolower($_GET['friendica_verbose']) : "false";
 	return api_direct_messages_box($type, "all", $verbose);
 }
@@ -1748,6 +1717,7 @@ api_register_func('api/direct_messages/all', 'api_direct_messages_all', true);
  */
 function api_direct_messages_conversation($type)
 {
+	BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 	$verbose = !empty($_GET['friendica_verbose']) ? strtolower($_GET['friendica_verbose']) : "false";
 	return api_direct_messages_box($type, "conversation", $verbose);
 }
@@ -1943,8 +1913,8 @@ function api_fr_photo_create_update($type)
 	throw new InternalServerErrorException("unknown error - this error on uploading or updating a photo should never happen");
 }
 
-api_register_func('api/friendica/photo/create', 'api_fr_photo_create_update', true, API_METHOD_POST);
-api_register_func('api/friendica/photo/update', 'api_fr_photo_create_update', true, API_METHOD_POST);
+api_register_func('api/friendica/photo/create', 'api_fr_photo_create_update', true);
+api_register_func('api/friendica/photo/update', 'api_fr_photo_create_update', true);
 
 /**
  * returns the details of a specified photo id, if scale is given, returns the photo data in base 64
@@ -2072,7 +2042,7 @@ function api_account_update_profile_image($type)
 	}
 }
 
-api_register_func('api/account/update_profile_image', 'api_account_update_profile_image', true, API_METHOD_POST);
+api_register_func('api/account/update_profile_image', 'api_account_update_profile_image', true);
 
 /**
  * Return all or a specified group of the user with the containing contacts.
@@ -2178,7 +2148,7 @@ function api_lists_destroy($type)
 	}
 }
 
-api_register_func('api/lists/destroy', 'api_lists_destroy', true, API_METHOD_DELETE);
+api_register_func('api/lists/destroy', 'api_lists_destroy', true);
 
 /**
  * Create the specified group with the posted array of contacts.
@@ -2207,7 +2177,7 @@ function api_friendica_group_create($type)
 	return DI::apiResponse()->formatData("group_create", $type, ['result' => $success]);
 }
 
-api_register_func('api/friendica/group_create', 'api_friendica_group_create', true, API_METHOD_POST);
+api_register_func('api/friendica/group_create', 'api_friendica_group_create', true);
 
 /**
  * Create a new group.
@@ -2243,7 +2213,7 @@ function api_lists_create($type)
 	}
 }
 
-api_register_func('api/lists/create', 'api_lists_create', true, API_METHOD_POST);
+api_register_func('api/lists/create', 'api_lists_create', true);
 
 /**
  * Update the specified group with the posted array of contacts.
@@ -2311,7 +2281,7 @@ function api_friendica_group_update($type)
 	return DI::apiResponse()->formatData("group_update", $type, ['result' => $success]);
 }
 
-api_register_func('api/friendica/group_update', 'api_friendica_group_update', true, API_METHOD_POST);
+api_register_func('api/friendica/group_update', 'api_friendica_group_update', true);
 
 /**
  * Update information about a group.
@@ -2359,7 +2329,7 @@ function api_lists_update($type)
 	}
 }
 
-api_register_func('api/lists/update', 'api_lists_update', true, API_METHOD_POST);
+api_register_func('api/lists/update', 'api_lists_update', true);
 
 /**
  * search for direct_messages containing a searchstring through api

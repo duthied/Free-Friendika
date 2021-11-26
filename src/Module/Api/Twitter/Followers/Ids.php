@@ -39,6 +39,7 @@ class Ids extends ContactEndpoint
 		// Expected value for user_id parameter: public/user contact id
 		$contact_id    = filter_input(INPUT_GET, 'user_id'      , FILTER_VALIDATE_INT);
 		$screen_name   = filter_input(INPUT_GET, 'screen_name');
+		$profile_url   = filter_input(INPUT_GET, 'profile_url');
 		$cursor        = filter_input(INPUT_GET, 'cursor'       , FILTER_VALIDATE_INT, ['options' => ['default' => -1]]);
 		$stringify_ids = filter_input(INPUT_GET, 'stringify_ids', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]);
 		$count         = filter_input(INPUT_GET, 'count'        , FILTER_VALIDATE_INT, ['options' => [
@@ -51,7 +52,7 @@ class Ids extends ContactEndpoint
 		$max_id        = filter_input(INPUT_GET, 'max_id'       , FILTER_VALIDATE_INT);
 		$min_id        = filter_input(INPUT_GET, 'min_id'       , FILTER_VALIDATE_INT);
 
-		$cid = BaseApi::getContactIDForSearchterm($screen_name, $contact_id, $uid);
+		$cid = BaseApi::getContactIDForSearchterm($screen_name, $profile_url, $contact_id, $uid);
 
 		$params = ['order' => ['relation-cid' => true], 'limit' => $count];
 
