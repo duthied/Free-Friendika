@@ -42,7 +42,7 @@ class Favorites extends BaseApi
 
 		// in friendica starred item are private
 		// return favorites only for self
-		Logger::info(API_LOG_PREFIX . 'for {self}', ['module' => 'api', 'action' => 'favorites']);
+		Logger::info(BaseApi::LOG_PREFIX . 'for {self}', ['module' => 'api', 'action' => 'favorites']);
 
 		// params
 		$since_id = $_REQUEST['since_id'] ?? 0;

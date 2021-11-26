@@ -397,11 +397,9 @@ class ApiTest extends FixtureTest
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
 		$_GET['callback']          = 'callback_name';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		self::assertEquals(
 			'callback_name(["some_data"])',
-			api_call($this->app, $args)
+			api_call('api_path', 'json')
 		);
 	}
 
@@ -424,8 +422,6 @@ class ApiTest extends FixtureTest
 		$_SERVER['REQUEST_METHOD'] = 'method';
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		$this->config->set('system', 'profiler', true);
 		$this->config->set('rendertime', 'callstack', true);
 		$this->app->callstack = [
@@ -438,7 +434,7 @@ class ApiTest extends FixtureTest
 
 		self::assertEquals(
 			'["some_data"]',
-			api_call($this->app, $args)
+			api_call('api_path', 'json')
 		);
 	}
 
@@ -460,11 +456,9 @@ class ApiTest extends FixtureTest
 		$_SERVER['REQUEST_METHOD'] = 'method';
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path.json';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		self::assertEquals(
 			'["some_data"]',
-			api_call($this->app, $args)
+			api_call('api_path.json', 'json')
 		);
 	}
 
@@ -490,7 +484,7 @@ class ApiTest extends FixtureTest
 
 		self::assertEquals(
 			'some_data',
-			api_call($this->app, $args)
+			api_call('api_path.xml', 'xml')
 		);
 	}
 
@@ -512,12 +506,10 @@ class ApiTest extends FixtureTest
 		$_SERVER['REQUEST_METHOD'] = 'method';
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path.rss';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		self::assertEquals(
 			'<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
 			'some_data',
-			api_call($this->app, $args)
+			api_call('api_path.rss', 'rss')
 		);
 	}
 
@@ -539,12 +531,10 @@ class ApiTest extends FixtureTest
 		$_SERVER['REQUEST_METHOD'] = 'method';
 		$_SERVER['QUERY_STRING'] = 'pagename=api_path.atom';
 
-		$args = DI::args()->determine($_SERVER, $_GET);
-
 		self::assertEquals(
 			'<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
 			'some_data',
-			api_call($this->app, $args)
+			api_call('api_path.atom', 'atom')
 		);
 	}
 

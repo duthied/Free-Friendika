@@ -36,6 +36,8 @@ use Friendica\Util\HTTPInputData;
 
 class BaseApi extends BaseModule
 {
+	const LOG_PREFIX = 'API {action} - ';
+
 	const SCOPE_READ   = 'read';
 	const SCOPE_WRITE  = 'write';
 	const SCOPE_FOLLOW = 'follow';
@@ -293,25 +295,31 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function getContactIDForSearchterm(string $screen_name = null, int $cid = null, int $uid)
+	public static function getContactIDForSearchterm(string $screen_name = null, int $cid = null, string $profileurl = null, int $uid)
 	{
 		if (!empty($cid)) {
 			return $cid;
 		}
 
-		if (strpos($screen_name, '@') !== false) {
-			$cid = Contact::getIdForURL($screen_name, 0, false);
-		} else {
+		if (!empty($profileurl)) {
+			return Contact::getIdForURL($profileurl);
+		}
+
+		if (empty($cid) && !empty($screen_name)) {
+			if (strpos($screen_name, '@') !== false) {
+				return Contact::getIdForURL($screen_name, 0, false);
+			}
+
 			$user = User::getByNickname($screen_name, ['uid']);
 			if (!empty($user['uid'])) {
-				$cid = Contact::getPublicIdByUserId($user['uid']);
+				return Contact::getPublicIdByUserId($user['uid']);
 			}
 		}
 
-		if (empty($cid) && ($uid != 0)) {
-			$cid = Contact::getPublicIdByUserId($uid);
+		if ($uid != 0) {
+			return Contact::getPublicIdByUserId($uid);
 		}
 
-		return $cid;
+		return null;
 	}
 }

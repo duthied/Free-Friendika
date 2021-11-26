@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\Twitter\Users;
 
 use Friendica\Module\BaseApi;
 use Friendica\DI;
+use Friendica\Model\Contact;
 
 /**
  * Returns extended information of a given user, specified by ID or screen name as per the required id parameter.
@@ -38,7 +39,7 @@ class Show extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$cid = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
+			$cid = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
 		} else {
 			$cid = (int)$this->parameters['id'];
 		}

@@ -44,7 +44,7 @@ class Index extends BaseApi
 
 	public function rawContent()
 	{
-		echo api_call(DI::app());
+		echo api_call(DI::args()->getCommand(), $this->parameters['extension'] ?? 'json');
 		exit();
 	}
 }

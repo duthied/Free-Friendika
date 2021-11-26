@@ -42,7 +42,7 @@ class UserTimeline extends BaseApi
 
 		Logger::info('api_statuses_user_timeline', ['api_user' => $uid, '_REQUEST' => $_REQUEST]);
 
-		$cid             = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
+		$cid             = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
 		$since_id        = $_REQUEST['since_id'] ?? 0;
 		$max_id          = $_REQUEST['max_id']   ?? 0;
 		$exclude_replies = !empty($_REQUEST['exclude_replies']);

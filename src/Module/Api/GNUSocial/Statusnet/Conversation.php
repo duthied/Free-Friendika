@@ -52,7 +52,7 @@ class Conversation extends BaseApi
 			$id = $_REQUEST['id'] ?? 0;
 		}
 
-		Logger::info(API_LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
+		Logger::info(BaseApi::LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
 
 		// try to fetch the item for the local user - or the public item, if there is no local one
 		$item = Post::selectFirst(['parent-uri-id'], ['id' => $id]);
