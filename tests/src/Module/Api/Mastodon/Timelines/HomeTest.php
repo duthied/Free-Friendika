@@ -66,6 +66,4 @@ class HomeTest extends ApiTest
 		// $result = api_statuses_home_timeline('rss');
 		// self::assertXml($result, 'statuses');
 	}
-
-
 }
