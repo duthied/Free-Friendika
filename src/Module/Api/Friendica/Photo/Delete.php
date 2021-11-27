@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Friendica\Photo;
 
-use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Module\BaseApi;
@@ -35,11 +34,10 @@ class Delete extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
-			'photo_id' => null, // Photo id
+			'photo_id' => '', // Photo id
 		], $request);
 
 		// do several checks on input parameters
@@ -60,7 +58,7 @@ class Delete extends BaseApi
 		if ($result) {
 			// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 			// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-			$condition = ['uid' => $uid, 'resource-id' => $request['photo_id'], 'type' => 'photo'];
+			$condition = ['uid' => $uid, 'resource-id' => $request['photo_id'], 'post-type' => Item::PT_IMAGE, 'origin' => true];
 			Item::deleteForUser($condition, $uid);
 
 			$result = ['result' => 'deleted', 'message' => 'photo with id `' . $request['photo_id'] . '` has been deleted from server.'];
