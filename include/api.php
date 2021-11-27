@@ -647,53 +647,6 @@ function group_create($name, $uid, $users = [])
  */
 
 /**
- * Deprecated function to upload media.
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_statuses_mediap($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
-	$uid = BaseApi::getCurrentUserID();
-
-	$a = DI::app();
-
-	$_REQUEST['profile_uid'] = $uid;
-	$_REQUEST['api_source'] = true;
-	$txt = $_REQUEST['status'] ?? '';
-
-	if ((strpos($txt, '<') !== false) || (strpos($txt, '>') !== false)) {
-		$txt = HTML::toBBCodeVideo($txt);
-		$config = HTMLPurifier_Config::createDefault();
-		$config->set('Cache.DefinitionImpl', null);
-		$purifier = new HTMLPurifier($config);
-		$txt = $purifier->purify($txt);
-	}
-	$txt = HTML::toBBCode($txt);
-
-	$picture = Photo::upload($uid, $_FILES['media']);
-
-	// now that we have the img url in bbcode we can add it to the status and insert the wall item.
-	$_REQUEST['body'] = $txt . "\n\n" . '[url=' . $picture["albumpage"] . '][img]' . $picture["preview"] . "[/img][/url]";
-	$item_id = item_post($a);
-
-	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
-	// output the post that we just posted.
-	$status_info = DI::twitterStatus()->createFromItemId($item_id, $uid, $include_entities)->toArray();
-	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
-}
-
-api_register_func('api/statuses/mediap', 'api_statuses_mediap', true);
-
-/**
  * Updates the user’s current status.
  *
  * @param string $type Return type (atom, rss, xml, json)
@@ -876,6 +829,7 @@ function api_statuses_update($type)
 
 api_register_func('api/statuses/update', 'api_statuses_update', true);
 api_register_func('api/statuses/update_with_media', 'api_statuses_update', true);
+api_register_func('api/statuses/mediap', 'api_statuses_update', true);
 
 /**
  * Repeats a status.
