@@ -31,7 +31,7 @@ use Friendica\Module\BaseApi;
  */
 class Filters extends BaseApi
 {
-	public function post(array $request = [], array $post = [])
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 

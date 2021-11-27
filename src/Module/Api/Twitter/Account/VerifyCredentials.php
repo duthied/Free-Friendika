@@ -32,7 +32,7 @@ use Friendica\DI;
  */
 class VerifyCredentials extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
