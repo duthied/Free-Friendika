@@ -37,11 +37,11 @@ class Tos extends BaseAdmin
 	/** @var IManageConfigValues */
 	protected $config;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, \Friendica\Module\Tos $tos, IManageConfigValues $config, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManageConfigValues $config, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->tos     = $tos;
+		$this->tos     = new \Friendica\Module\Tos($l10n, $baseUrl, $args, $logger, $profiler, $response, $config, $server, $parameters);
 		$this->config  = $config;
 	}
 
