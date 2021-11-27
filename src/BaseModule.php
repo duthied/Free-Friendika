@@ -220,23 +220,22 @@ abstract class BaseModule implements ICanHandleRequests
 			case Router::PUT:
 				$this->put();
 				break;
-			default:
-				$timestamp = microtime(true);
-				// "rawContent" is especially meant for technical endpoints.
-				// This endpoint doesn't need any theme initialization or other comparable stuff.
-				$this->rawContent($request);
+		}
 
-				try {
-					$arr = ['content' => ''];
-					Hook::callAll(static::class . '_mod_content', $arr);
-					$this->response->addContent($arr['content']);
-					$this->response->addContent($this->content($_REQUEST));
-				} catch (HTTPException $e) {
-					$this->response->addContent((new ModuleHTTPException())->content($e));
-				} finally {
-					$this->profiler->set(microtime(true) - $timestamp, 'content');
-				}
-				break;
+		$timestamp = microtime(true);
+		// "rawContent" is especially meant for technical endpoints.
+		// This endpoint doesn't need any theme initialization or other comparable stuff.
+		$this->rawContent($request);
+
+		try {
+			$arr = ['content' => ''];
+			Hook::callAll(static::class . '_mod_content', $arr);
+			$this->response->addContent($arr['content']);
+			$this->response->addContent($this->content($_REQUEST));
+		} catch (HTTPException $e) {
+			$this->response->addContent((new ModuleHTTPException())->content($e));
+		} finally {
+			$this->profiler->set(microtime(true) - $timestamp, 'content');
 		}
 
 		return $this->response->generate();
