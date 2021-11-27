@@ -3262,6 +3262,18 @@ class Item
 			return $item_id;
 		}
 
+		$hookData = [
+			'uri'     => $uri,
+			'uid'     => $uid,
+			'item_id' => null,
+		];
+
+		Hook::callAll('item_by_link', $hookData);
+
+		if (isset($hookData['item_id'])) {
+			return is_numeric($hookData['item_id']) ? $hookData['item_id'] : 0;
+		}
+
 		if ($fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri)) {
 			$item_id = self::searchByLink($fetched_uri, $uid);
 		} else {

@@ -682,26 +682,18 @@ class Probe
 			'uri'     => $uri,
 			'network' => $network,
 			'uid'     => $uid,
-			'result'  => [],
+			'result'  => null,
 		];
 
 		Hook::callAll('probe_detect', $hookData);
 
-		if ($hookData['result']) {
-			if (!is_array($hookData['result'])) {
-				return [];
-			} else {
-				return $hookData['result'];
-			}
+		if (isset($hookData['result'])) {
+			return is_array($hookData['result']) ? $hookData['result'] : [];
 		}
 
 		$parts = parse_url($uri);
 
-		if (!empty($parts['scheme']) && !empty($parts['host'])) {
-			if (in_array($parts['host'], ['twitter.com', 'mobile.twitter.com'])) {
-				return self::twitter($uri);
-			}
-		} elseif (strstr($uri, '@')) {
+		if (empty($parts['scheme']) || !empty($parts['host']) && strstr($uri, '@')) {
 			// If the URI starts with "mailto:" then jump directly to the mail detection
 			if (strpos($uri, 'mailto:') !== false) {
 				$uri = str_replace('mailto:', '', $uri);
@@ -710,12 +702,6 @@ class Probe
 
 			if ($network == Protocol::MAIL) {
 				return self::mail($uri, $uid);
-			}
-
-			if (Strings::endsWith($uri, '@twitter.com')
-				|| Strings::endsWith($uri, '@mobile.twitter.com')
-			) {
-				return self::twitter($uri);
 			}
 		} else {
 			Logger::info('URI was not detectable', ['uri' => $uri]);
@@ -1738,33 +1724,6 @@ class Probe
 				$data['name'] = $name;
 			}
 		}
-
-		return $data;
-	}
-
-	/**
-	 * Check for twitter contact
-	 *
-	 * @param string $uri
-	 *
-	 * @return array twitter data
-	 */
-	private static function twitter($uri)
-	{
-		if (preg_match('=([^@]+)@(?:mobile\.)?twitter\.com$=i', $uri, $matches)) {
-			$nick = $matches[1];
-		} elseif (preg_match('=^https?://(?:mobile\.)?twitter\.com/(.+)=i', $uri, $matches)) {
-			$nick = $matches[1];
-		} else {
-			return [];
-		}
-
-		$data = [];
-		$data['url'] = 'https://twitter.com/' . $nick;
-		$data['addr'] = $nick . '@twitter.com';
-		$data['nick'] = $data['name'] = $nick;
-		$data['network'] = Protocol::TWITTER;
-		$data['baseurl'] = 'https://twitter.com';
 
 		return $data;
 	}
