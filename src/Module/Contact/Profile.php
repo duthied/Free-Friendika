@@ -355,7 +355,7 @@ class Profile extends BaseModule
 			'$archived'                  => ($contact['archive'] ? $this->t('Currently archived') : ''),
 			'$pending'                   => ($contact['pending'] ? $this->t('Awaiting connection acknowledge') : ''),
 			'$hidden'                    => ['hidden', $this->t('Hide this contact from others'), $localRelationship->hidden, $this->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
-			'notify_new_posts'           => ['notify_new_posts', $this->t('Notification for new posts'), ($localRelationship->notifyNewPosts), $this->t('Send a notification of every new post of this contact')],
+			'$notify_new_posts'          => ['notify_new_posts', $this->t('Notification for new posts'), ($localRelationship->notifyNewPosts), $this->t('Send a notification of every new post of this contact')],
 			'$fetch_further_information' => $fetch_further_information,
 			'$ffi_keyword_denylist'      => ['ffi_keyword_denylist', $this->t('Keyword Deny List'), $localRelationship->ffiKeywordDenylist, $this->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
 			'$photo'                     => Contact::getPhoto($contact),
