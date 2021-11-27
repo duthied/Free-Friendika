@@ -94,8 +94,8 @@ class Profile extends BaseModule
 			$fields['hidden'] = !empty($_POST['hidden']);
 		}
 
-		if (isset($_POST['notify'])) {
-			$fields['notify'] = !empty($_POST['notify']);
+		if (isset($_POST['notify_new_posts'])) {
+			$fields['notify_new_posts'] = !empty($_POST['notify_new_posts']);
 		}
 
 		if (isset($_POST['fetch_further_information'])) {
@@ -355,7 +355,7 @@ class Profile extends BaseModule
 			'$archived'                  => ($contact['archive'] ? $this->t('Currently archived') : ''),
 			'$pending'                   => ($contact['pending'] ? $this->t('Awaiting connection acknowledge') : ''),
 			'$hidden'                    => ['hidden', $this->t('Hide this contact from others'), $localRelationship->hidden, $this->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
-			'$notify'                    => ['notify', $this->t('Notification for new posts'), ($contact['notify_new_posts'] == 1), $this->t('Send a notification of every new post of this contact')],
+			'notify_new_posts'           => ['notify_new_posts', $this->t('Notification for new posts'), ($localRelationship->notifyNewPosts), $this->t('Send a notification of every new post of this contact')],
 			'$fetch_further_information' => $fetch_further_information,
 			'$ffi_keyword_denylist'      => ['ffi_keyword_denylist', $this->t('Keyword Deny List'), $localRelationship->ffiKeywordDenylist, $this->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
 			'$photo'                     => Contact::getPhoto($contact),
