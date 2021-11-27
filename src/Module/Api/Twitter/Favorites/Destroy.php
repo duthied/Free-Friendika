@@ -19,40 +19,33 @@
  *
  */
 
-namespace Friendica\Module\Api\Twitter\Statuses;
+namespace Friendica\Module\Api\Twitter\Favorites;
 
-use Friendica\Core\Logger;
-use Friendica\Module\BaseApi;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException\BadRequestException;
 
 /**
- * Destroys a specific status.
- *
- * @see https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-destroy-id
+ * @see https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-favorites-destroy
  */
 class Destroy extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-		$uid = BaseApi::getCurrentUserID();
+		self::checkAllowedScope(self::SCOPE_WRITE);
+		$uid = self::getCurrentUserID();
 
-		if (empty($this->parameters['id'])) {
-			$id = intval($request['id'] ?? 0);
-		} else {
-			$id = (int)$this->parameters['id'];
+		$id = $request['id'] ?? 0;
+
+		if (empty($id)) {
+			throw new BadRequestException('Item id not specified');
 		}
 
-		$this->logger->notice('API: api_statuses_destroy: ' . $id);
+		Item::performActivity($id, 'unlike', $uid);
 
-		$include_entities = strtolower(($request['include_entities'] ?? 'false') == 'true');
+		$status_info = DI::twitterStatus()->createFromItemId($id, $uid)->toArray();
 
-		$ret = DI::twitterStatus()->createFromItemId($id, $uid, $include_entities)->toArray();
-
-		Item::deleteForUser(['id' => $id], $uid);
-
-		DI::apiResponse()->exit('status', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		DI::apiResponse()->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
 	}
 }

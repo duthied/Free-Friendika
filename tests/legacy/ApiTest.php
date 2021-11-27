@@ -12,6 +12,7 @@ use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Model\Post;
 use Friendica\Module\Api\ApiResponse;
+use Friendica\Module\Api\Twitter\Media\Upload;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
@@ -990,18 +991,18 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_media_upload() function.
+	 * Test the \Friendica\Module\Api\Twitter\Media\Upload module.
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	public function testApiMediaUpload()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		api_media_upload();
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
 	}
 
 	/**
-	 * Test the api_media_upload() function without an authenticated user.
+	 * Test the \Friendica\Module\Api\Twitter\Media\Upload module without an authenticated user.
 	 *
 	 * @return void
 	 */
@@ -1010,11 +1011,11 @@ class ApiTest extends FixtureTest
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
-		api_media_upload();
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
 	}
 
 	/**
-	 * Test the api_media_upload() function with an invalid uploaded media.
+	 * Test the \Friendica\Module\Api\Twitter\Media\Upload module with an invalid uploaded media.
 	 *
 	 * @return void
 	 */
@@ -1027,11 +1028,11 @@ class ApiTest extends FixtureTest
 				'tmp_name' => 'tmp_name'
 			]
 		];
-		api_media_upload();
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
 	}
 
 	/**
-	 * Test the api_media_upload() function with an valid uploaded media.
+	 * Test the \Friendica\Module\Api\Twitter\Media\Upload module with an valid uploaded media.
 	 *
 	 * @return void
 	 */
@@ -1048,14 +1049,14 @@ class ApiTest extends FixtureTest
 				'type'     => 'image/png'
 			]
 		];
-		$app       = DI::app();
-		DI::args()->setArgc(2);
 
-		$result = api_media_upload();
-		self::assertEquals('image/png', $result['media']['image']['image_type']);
-		self::assertEquals(1, $result['media']['image']['w']);
-		self::assertEquals(1, $result['media']['image']['h']);
-		self::assertNotEmpty($result['media']['image']['friendica_preview_url']);
+		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
+		$media = json_decode($response->getBody(), true);
+
+		self::assertEquals('image/png', $media['image']['image_type']);
+		self::assertEquals(1, $media['image']['w']);
+		self::assertEquals(1, $media['image']['h']);
+		self::assertNotEmpty($media['image']['friendica_preview_url']);
 	}
 
 	/**

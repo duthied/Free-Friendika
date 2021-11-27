@@ -74,7 +74,7 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromItemId(int $id, $include_entities = false): \Friendica\Object\Api\Twitter\Status
+	public function createFromItemId(int $id, int $uid, bool $include_entities = false): \Friendica\Object\Api\Twitter\Status
 	{
 		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
 			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
@@ -82,7 +82,7 @@ class Status extends BaseFactory
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with ID ' . $id . ' not found.');
 		}
-		return $this->createFromArray($item, $include_entities);
+		return $this->createFromArray($item, $uid, $include_entities);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Status extends BaseFactory
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
-		return $this->createFromArray($item, $include_entities);
+		return $this->createFromArray($item, $uid, $include_entities);
 	}
 
 	/**
@@ -112,10 +112,10 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	private function createFromArray(array $item, $include_entities): \Friendica\Object\Api\Twitter\Status
+	private function createFromArray(array $item, int $uid, bool $include_entities): \Friendica\Object\Api\Twitter\Status
 	{
-		$author = $this->twitterUser->createFromContactId($item['author-id'], $item['uid'], true);
-		$owner  = $this->twitterUser->createFromContactId($item['owner-id'], $item['uid'], true);
+		$author = $this->twitterUser->createFromContactId($item['author-id'], $uid, true);
+		$owner  = $this->twitterUser->createFromContactId($item['owner-id'], $uid, true);
 
 		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT]);
 
@@ -135,6 +135,15 @@ class Status extends BaseFactory
 			}
 		}
 
+		$liked = Post::exists([
+			'thr-parent-id' => $item['uri-id'],
+			'uid'           => $uid,
+			'origin'        => true,
+			'gravity'       => GRAVITY_ACTIVITY,
+			'vid'           => Verb::getID(Activity::LIKE),
+			'deleted'       => false
+		]);
+
 		if ($include_entities) {
 			$hashtags = $this->hashtag->createFromUriId($item['uri-id'], $text);
 			$medias   = $this->media->createFromUriId($item['uri-id'], $text);
@@ -144,7 +153,7 @@ class Status extends BaseFactory
 			$attachments = $this->attachment->createFromUriId($item['uri-id'], $text);
 		}
 
-		$friendica_activities = $this->activities->createFromUriId($item['uri-id'], $item['uid']);
+		$friendica_activities = $this->activities->createFromUriId($item['uri-id'], $uid);
 
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (!empty($shared['guid'])) {
@@ -163,11 +172,11 @@ class Status extends BaseFactory
 		}
 
 		if ($item['vid'] == Verb::getID(Activity::ANNOUNCE)) {
-			$retweeted      = $this->createFromUriId($item['thr-parent-id'], $item['uid'])->toArray();
-			$retweeted_item = Post::selectFirst(['title', 'body', 'author-id'], ['uri-id' => $item['thr-parent-id'],'uid' => [0, $item['uid']]]);
+			$retweeted      = $this->createFromUriId($item['thr-parent-id'], $uid)->toArray();
+			$retweeted_item = Post::selectFirst(['title', 'body', 'author-id'], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $uid]]);
 			$item['title']  = $retweeted_item['title'] ?? $item['title'];
 			$item['body']   = $retweeted_item['body']  ?? $item['body'];
-			$author         = $this->twitterUser->createFromContactId($retweeted_item['author-id'], $item['uid'], true);
+			$author         = $this->twitterUser->createFromContactId($retweeted_item['author-id'], $uid, true);
 		} else {
 			$retweeted = [];
 		}
@@ -181,6 +190,6 @@ class Status extends BaseFactory
 			$entities = [];
 		}
 
-		return new \Friendica\Object\Api\Twitter\Status($text, $item, $author, $owner, $retweeted, $quoted, $geo, $friendica_activities, $entities, $attachments,  $friendica_comments);
+		return new \Friendica\Object\Api\Twitter\Status($text, $item, $author, $owner, $retweeted, $quoted, $geo, $friendica_activities, $entities, $attachments,  $friendica_comments, $liked);
 	}
 }

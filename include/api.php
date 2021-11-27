@@ -38,7 +38,6 @@ use Friendica\Model\Mail;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
-use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -50,11 +49,9 @@ use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 require_once __DIR__ . '/../mod/item.php';
-require_once __DIR__ . '/../mod/wall_upload.php';
 
 $API = [];
 
@@ -681,7 +678,7 @@ function api_statuses_mediap($type)
 	}
 	$txt = HTML::toBBCode($txt);
 
-	$picture = wall_upload_post($a, false);
+	$picture = Photo::upload($uid, $_FILES['media']);
 
 	// now that we have the img url in bbcode we can add it to the status and insert the wall item.
 	$_REQUEST['body'] = $txt . "\n\n" . '[url=' . $picture["albumpage"] . '][img]' . $picture["preview"] . "[/img][/url]";
@@ -690,11 +687,10 @@ function api_statuses_mediap($type)
 	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
 
 	// output the post that we just posted.
-	$status_info = DI::twitterStatus()->createFromItemId($item_id, $include_entities)->toArray();
+	$status_info = DI::twitterStatus()->createFromItemId($item_id, $uid, $include_entities)->toArray();
 	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
 }
 
-/// @TODO move this to top of file or somewhere better!
 api_register_func('api/statuses/mediap', 'api_statuses_mediap', true);
 
 /**
@@ -805,7 +801,7 @@ function api_statuses_update($type)
 		$ids = explode(',', $_REQUEST['media_ids']);
 	} elseif (!empty($_FILES['media'])) {
 		// upload the image if we have one
-		$picture = wall_upload_post($a, false);
+		$picture = Photo::upload($uid, $_FILES['media']);
 		if (is_array($picture)) {
 			$ids[] = $picture['id'];
 		}
@@ -874,107 +870,12 @@ function api_statuses_update($type)
 	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
 
 	// output the post that we just posted.
-	$status_info = DI::twitterStatus()->createFromItemId($item_id, $include_entities)->toArray();
+	$status_info = DI::twitterStatus()->createFromItemId($item_id, $uid, $include_entities)->toArray();
 	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
 }
 
 api_register_func('api/statuses/update', 'api_statuses_update', true);
 api_register_func('api/statuses/update_with_media', 'api_statuses_update', true);
-
-/**
- * Uploads an image to Friendica.
- *
- * @return array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- * @see https://developer.twitter.com/en/docs/media/upload-media/api-reference/post-media-upload
- */
-function api_media_upload()
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
-
-	if (empty($_FILES['media'])) {
-		// Output error
-		throw new BadRequestException("No media.");
-	}
-
-	$media = wall_upload_post(DI::app(), false);
-	if (!$media) {
-		// Output error
-		throw new InternalServerErrorException();
-	}
-
-	$returndata = [];
-	$returndata["media_id"] = $media["id"];
-	$returndata["media_id_string"] = (string)$media["id"];
-	$returndata["size"] = $media["size"];
-	$returndata["image"] = ["w" => $media["width"],
-				"h" => $media["height"],
-				"image_type" => $media["type"],
-				"friendica_preview_url" => $media["preview"]];
-
-	Logger::info('Media uploaded', ['return' => $returndata]);
-
-	return ["media" => $returndata];
-}
-
-api_register_func('api/media/upload', 'api_media_upload', true);
-
-/**
- * Updates media meta data (picture descriptions)
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws TooManyRequestsException
- * @throws UnauthorizedException
- * @see https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-update
- *
- * @todo Compare the corresponding Twitter function for correct return values
- */
-function api_media_metadata_create($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
-	$uid = BaseApi::getCurrentUserID();
-
-	$postdata = Network::postdata();
-
-	if (empty($postdata)) {
-		throw new BadRequestException("No post data");
-	}
-
-	$data = json_decode($postdata, true);
-	if (empty($data)) {
-		throw new BadRequestException("Invalid post data");
-	}
-
-	if (empty($data['media_id']) || empty($data['alt_text'])) {
-		throw new BadRequestException("Missing post data values");
-	}
-
-	if (empty($data['alt_text']['text'])) {
-		throw new BadRequestException("No alt text.");
-	}
-
-	Logger::info('Updating metadata', ['media_id' => $data['media_id']]);
-
-	$condition = ['id' => $data['media_id'], 'uid' => $uid];
-	$photo = DBA::selectFirst('photo', ['resource-id'], $condition);
-	if (!DBA::isResult($photo)) {
-		throw new BadRequestException("Metadata not found.");
-	}
-
-	DBA::update('photo', ['desc' => $data['alt_text']['text']], ['resource-id' => $photo['resource-id']]);
-}
-
-api_register_func('api/media/metadata/create', 'api_media_metadata_create', true);
 
 /**
  * Repeats a status.
@@ -1049,80 +950,11 @@ function api_statuses_repeat($type)
 	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
 
 	// output the post that we just posted.
-	$status_info = DI::twitterStatus()->createFromItemId($item_id, $include_entities)->toArray();
+	$status_info = DI::twitterStatus()->createFromItemId($item_id, $uid, $include_entities)->toArray();
 	return DI::apiResponse()->formatData('statuses', $type, ['status' => $status_info]);
 }
 
 api_register_func('api/statuses/retweet', 'api_statuses_repeat', true);
-
-/**
- * Star/unstar an item.
- * param: id : id of the item
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- * @see https://web.archive.org/web/20131019055350/https://dev.twitter.com/docs/api/1/post/favorites/create/%3Aid
- */
-function api_favorites_create_destroy($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
-	$uid = BaseApi::getCurrentUserID();
-
-	// for versioned api.
-	/// @TODO We need a better global soluton
-	$action_argv_id = 2;
-	if (count(DI::args()->getArgv()) > 1 && DI::args()->getArgv()[1] == "1.1") {
-		$action_argv_id = 3;
-	}
-
-	if (DI::args()->getArgc() <= $action_argv_id) {
-		throw new BadRequestException("Invalid request.");
-	}
-	$action = str_replace("." . $type, "", DI::args()->getArgv()[$action_argv_id]);
-	if (DI::args()->getArgc() == $action_argv_id + 2) {
-		$itemid = intval(DI::args()->getArgv()[$action_argv_id + 1] ?? 0);
-	} else {
-		$itemid = intval($_REQUEST['id'] ?? 0);
-	}
-
-	$item = Post::selectFirstForUser($uid, [], ['id' => $itemid, 'uid' => $uid]);
-
-	if (!DBA::isResult($item)) {
-		throw new BadRequestException("Invalid item.");
-	}
-
-	switch ($action) {
-		case "create":
-			$item['starred'] = 1;
-			break;
-		case "destroy":
-			$item['starred'] = 0;
-			break;
-		default:
-			throw new BadRequestException("Invalid action ".$action);
-	}
-
-	$r = Item::update(['starred' => $item['starred']], ['id' => $itemid]);
-
-	if ($r === false) {
-		throw new InternalServerErrorException("DB error");
-	}
-
-	$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
-	$ret = DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray();
-
-	return DI::apiResponse()->formatData("status", $type, ['status' => $ret], Contact::getPublicIdByUserId($uid));
-}
-
-api_register_func('api/favorites/create', 'api_favorites_create_destroy', true);
-api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true);
 
 /**
  * Returns all lists the user subscribes to.
@@ -1311,83 +1143,6 @@ function api_direct_messages_destroy($type)
 }
 
 api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', true);
-
-/**
- * Unfollow Contact
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string|array
- * @throws HTTPException\BadRequestException
- * @throws HTTPException\ExpectationFailedException
- * @throws HTTPException\ForbiddenException
- * @throws HTTPException\InternalServerErrorException
- * @throws HTTPException\NotFoundException
- * @see   https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy.html
- */
-function api_friendships_destroy($type)
-{
-	BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
-	$uid = BaseApi::getCurrentUserID();
-
-	$owner = User::getOwnerDataById($uid);
-	if (!$owner) {
-		Logger::notice(BaseApi::LOG_PREFIX . 'No owner {uid} found', ['module' => 'api', 'action' => 'friendships_destroy', 'uid' => $uid]);
-		throw new HTTPException\NotFoundException('Error Processing Request');
-	}
-
-	$contact_id = $_REQUEST['user_id'] ?? 0;
-
-	if (empty($contact_id)) {
-		Logger::notice(BaseApi::LOG_PREFIX . 'No user_id specified', ['module' => 'api', 'action' => 'friendships_destroy']);
-		throw new HTTPException\BadRequestException('no user_id specified');
-	}
-
-	// Get Contact by given id
-	$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => 0, 'self' => false]);
-
-	if(!DBA::isResult($contact)) {
-		Logger::notice(BaseApi::LOG_PREFIX . 'No public contact found for ID {contact}', ['module' => 'api', 'action' => 'friendships_destroy', 'contact' => $contact_id]);
-		throw new HTTPException\NotFoundException('no contact found to given ID');
-	}
-
-	$url = $contact['url'];
-
-	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
-			$uid, Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
-			Strings::normaliseLink($url), $url];
-	$contact = DBA::selectFirst('contact', [], $condition);
-
-	if (!DBA::isResult($contact)) {
-		Logger::notice(BaseApi::LOG_PREFIX . 'Not following contact', ['module' => 'api', 'action' => 'friendships_destroy']);
-		throw new HTTPException\NotFoundException('Not following Contact');
-	}
-
-	try {
-		$result = Contact::terminateFriendship($owner, $contact);
-
-		if ($result === null) {
-			Logger::notice(BaseApi::LOG_PREFIX . 'Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
-			throw new HTTPException\ExpectationFailedException('Unfollowing is currently not supported by this contact\'s network.');
-		}
-
-		if ($result === false) {
-			throw new HTTPException\ServiceUnavailableException('Unable to unfollow this contact, please retry in a few minutes or contact your administrator.');
-		}
-	} catch (Exception $e) {
-		Logger::error(BaseApi::LOG_PREFIX . $e->getMessage(), ['owner' => $owner, 'contact' => $contact]);
-		throw new HTTPException\InternalServerErrorException('Unable to unfollow this contact, please contact your administrator');
-	}
-
-	// "uid" is only needed for some internal stuff, so remove it from here
-	unset($contact['uid']);
-
-	// Set screen_name since Twidere requests it
-	$contact['screen_name'] = $contact['nick'];
-
-	return DI::apiResponse()->formatData('friendships-destroy', $type, ['user' => $contact]);
-}
-
-api_register_func('api/friendships/destroy', 'api_friendships_destroy', true);
 
 /**
  *
