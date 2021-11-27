@@ -31,7 +31,7 @@ use Friendica\Module\BaseApi;
  */
 class Incoming extends ContactEndpoint
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();

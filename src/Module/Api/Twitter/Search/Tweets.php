@@ -36,7 +36,7 @@ use Friendica\Network\HTTPException\BadRequestException;
  */
 class Tweets extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();

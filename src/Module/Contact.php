@@ -157,7 +157,7 @@ class Contact extends BaseModule
 		Model\Contact\User::setIgnored($contact_id, local_user(), $ignored);
 	}
 
-	public function content($update = 0): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			return Login::form($_SERVER['REQUEST_URI']);

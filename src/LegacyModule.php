@@ -68,12 +68,12 @@ class LegacyModule extends BaseModule
 		require_once $file_path;
 	}
 
-	public function content(array $request = []): string
+	protected function content(array $request = []): string
 	{
 		return $this->runModuleFunction('content');
 	}
 
-	public function post(array $request = [], array $post = [])
+	protected function post(array $request = [], array $post = [])
 	{
 		parent::post($post);
 
