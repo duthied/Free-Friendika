@@ -38,8 +38,11 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Module;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  *  Show a contact profile
@@ -51,34 +54,24 @@ class Profile extends BaseModule
 	 */
 	private $localRelationship;
 	/**
-	 * @var App\BaseURL
-	 */
-	private $baseUrl;
-	/**
 	 * @var App\Page
 	 */
 	private $page;
-	/**
-	 * @var App\Arguments
-	 */
-	private $args;
 	/**
 	 * @var IManageConfigValues
 	 */
 	private $config;
 
-	public function __construct(L10n $l10n, Repository\LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Page $page, App\Arguments $args, IManageConfigValues $config, array $parameters = [])
+	public function __construct(L10n $l10n, Repository\LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Page $page, IManageConfigValues $config, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->localRelationship = $localRelationship;
-		$this->baseUrl           = $baseUrl;
 		$this->page              = $page;
-		$this->args              = $args;
 		$this->config            = $config;
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			return;
@@ -135,7 +128,7 @@ class Profile extends BaseModule
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			return Module\Security\Login::form($_SERVER['REQUEST_URI']);
