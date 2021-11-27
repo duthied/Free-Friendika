@@ -69,8 +69,6 @@ XML;
 		$notification = new Notification(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'xml']);
 		$response = $notification->run();
 
-		print_r($response->getHeaders());
-
 		self::assertXmlStringEqualsXmlString($assertXml, (string)$response->getBody());
 		self::assertEquals(['Content-type' => ['text/xml'], ICanCreateResponses::X_HEADER => ['xml']], $response->getHeaders());
 	}
