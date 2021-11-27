@@ -48,7 +48,8 @@ $apiRoutes = [
 		'/update_profile_image[.{extension:json|xml|rss|atom}]'    => [Module\Api\Friendica\Index::class,                   [        R::POST]],
 	],
 
-	'/blocks/list[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
+	'/blocks/ids[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Twitter\Blocks\Ids::class,               [R::GET         ]],
+	'/blocks/list[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Blocks\Lists::class,             [R::GET         ]],
 	'/conversation/show[.{extension:json|xml|rss|atom}]'           => [Module\Api\GNUSocial\Statusnet\Conversation::class, [R::GET         ]],
 	'/direct_messages' => [
 		'/all[.{extension:json|xml|rss|atom}]'                     => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
@@ -68,7 +69,7 @@ $apiRoutes = [
 	'/friends/ids[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Friends\Ids::class,              [R::GET         ]],
 	'/friends/list[.{extension:json|xml|rss|atom}]'                => [Module\Api\Twitter\Friends\Lists::class,            [R::GET         ]],
 	'/friendships/destroy[.{extension:json|xml|rss|atom}]'         => [Module\Api\Friendica\Index::class,                  [        R::POST]],
-	'/friendships/incoming[.{extension:json|xml|rss|atom}]'        => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
+	'/friendships/incoming[.{extension:json|xml|rss|atom}]'        => [Module\Api\Twitter\Friendships\Incoming::class,     [R::GET         ]],
 
 	'/friendica' => [
 		'/activity/{verb:attendmaybe|attendno|attendyes|dislike|like|unattendmaybe|unattendno|unattendyes|undislike|unlike}[.{extension:json|xml|rss|atom}]'
@@ -118,8 +119,8 @@ $apiRoutes = [
 
 	'/statuses' => [
 		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,                        [R::DELETE, R::POST]],
-		'/followers[.{extension:json|xml|rss|atom}]'               => [Module\Api\Friendica\Index::class,                        [R::GET         ]],
-		'/friends[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,                        [R::GET         ]],
+		'/followers[.{extension:json|xml|rss|atom}]'               => [Module\Api\Twitter\Followers\Lists::class,                [R::GET         ]],
+		'/friends[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Friends\Lists::class,                  [R::GET         ]],
 		'/friends_timeline[.{extension:json|xml|rss|atom}]'        => [Module\Api\Twitter\Statuses\HomeTimeline::class,          [R::GET         ]],
 		'/home_timeline[.{extension:json|xml|rss|atom}]'           => [Module\Api\Twitter\Statuses\HomeTimeline::class,          [R::GET         ]],
 		'/mediap[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class,                        [        R::POST]],
