@@ -32,7 +32,7 @@ use GuzzleHttp\Psr7\Uri;
 
 class Add extends BaseAdmin
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -66,7 +66,7 @@ class Add extends BaseAdmin
 		DI::baseUrl()->redirect('admin/blocklist/server');
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

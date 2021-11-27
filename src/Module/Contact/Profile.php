@@ -38,8 +38,11 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Module;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  *  Show a contact profile
@@ -51,34 +54,24 @@ class Profile extends BaseModule
 	 */
 	private $localRelationship;
 	/**
-	 * @var App\BaseURL
-	 */
-	private $baseUrl;
-	/**
 	 * @var App\Page
 	 */
 	private $page;
-	/**
-	 * @var App\Arguments
-	 */
-	private $args;
 	/**
 	 * @var IManageConfigValues
 	 */
 	private $config;
 
-	public function __construct(L10n $l10n, Repository\LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Page $page, App\Arguments $args, IManageConfigValues $config, array $parameters = [])
+	public function __construct(L10n $l10n, Repository\LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Page $page, IManageConfigValues $config, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->localRelationship = $localRelationship;
-		$this->baseUrl           = $baseUrl;
 		$this->page              = $page;
-		$this->args              = $args;
 		$this->config            = $config;
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			return;
@@ -101,8 +94,8 @@ class Profile extends BaseModule
 			$fields['hidden'] = !empty($_POST['hidden']);
 		}
 
-		if (isset($_POST['notify'])) {
-			$fields['notify'] = !empty($_POST['notify']);
+		if (isset($_POST['notify_new_posts'])) {
+			$fields['notify_new_posts'] = !empty($_POST['notify_new_posts']);
 		}
 
 		if (isset($_POST['fetch_further_information'])) {
@@ -135,7 +128,7 @@ class Profile extends BaseModule
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			return Module\Security\Login::form($_SERVER['REQUEST_URI']);
@@ -362,7 +355,7 @@ class Profile extends BaseModule
 			'$archived'                  => ($contact['archive'] ? $this->t('Currently archived') : ''),
 			'$pending'                   => ($contact['pending'] ? $this->t('Awaiting connection acknowledge') : ''),
 			'$hidden'                    => ['hidden', $this->t('Hide this contact from others'), $localRelationship->hidden, $this->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
-			'$notify'                    => ['notify', $this->t('Notification for new posts'), ($contact['notify_new_posts'] == 1), $this->t('Send a notification of every new post of this contact')],
+			'$notify_new_posts'          => ['notify_new_posts', $this->t('Notification for new posts'), ($localRelationship->notifyNewPosts), $this->t('Send a notification of every new post of this contact')],
 			'$fetch_further_information' => $fetch_further_information,
 			'$ffi_keyword_denylist'      => ['ffi_keyword_denylist', $this->t('Keyword Deny List'), $localRelationship->ffiKeywordDenylist, $this->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
 			'$photo'                     => Contact::getPhoto($contact),

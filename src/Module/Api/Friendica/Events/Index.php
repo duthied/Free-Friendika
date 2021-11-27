@@ -33,7 +33,7 @@ use Friendica\Module\BaseApi;
  */
 class Index extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
@@ -70,6 +70,6 @@ class Index extends BaseApi
 			];
 		}
 
-		DI::apiResponse()->exit('events', ['events' => $items], $this->parameters['extension'] ?? null);
+		$this->response->exit('events', ['events' => $items], $this->parameters['extension'] ?? null);
 	}
 }

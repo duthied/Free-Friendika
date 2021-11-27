@@ -21,7 +21,7 @@
 
 namespace Friendica\Module\Security;
 
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Hook;
@@ -30,7 +30,10 @@ use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\System;
 use Friendica\Model\Profile;
 use Friendica\Model\User\Cookie;
+use Friendica\Module\Response;
 use Friendica\Security\TwoFactor;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Logout module
@@ -43,19 +46,16 @@ class Logout extends BaseModule
 	protected $cookie;
 	/** @var IHandleSessions */
 	protected $session;
-	/** @var BaseURL */
-	protected $baseUrl;
 	/** @var TwoFactor\Repository\TrustedBrowser */
 	protected $trustedBrowserRepo;
 
-	public function __construct(TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, ICanCache $cache, Cookie $cookie, IHandleSessions $session, BaseURL $baseUrl, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, ICanCache $cache, Cookie $cookie, IHandleSessions $session, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->cache              = $cache;
 		$this->cookie             = $cookie;
 		$this->session            = $session;
-		$this->baseUrl            = $baseUrl;
 		$this->trustedBrowserRepo = $trustedBrowserRepo;
 	}
 
@@ -63,7 +63,7 @@ class Logout extends BaseModule
 	/**
 	 * Process logout requests
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$visitor_home = null;
 		if (remote_user()) {

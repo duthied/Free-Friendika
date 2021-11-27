@@ -32,8 +32,11 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Theme;
 use Friendica\Model;
 use Friendica\Module\Contact;
+use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  *  Manages and show Contacts and their content
@@ -49,25 +52,20 @@ class Conversations extends BaseModule
 	 */
 	private $conversation;
 	/**
-	 * @var App\BaseURL
-	 */
-	private $baseUrl;
-	/**
 	 * @var LocalRelationship
 	 */
 	private $localRelationship;
 
-	public function __construct(L10n $l10n, LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Page $page, Conversation $conversation, array $parameters = [])
+	public function __construct(L10n $l10n, LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Page $page, Conversation $conversation, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->page              = $page;
 		$this->conversation      = $conversation;
-		$this->baseUrl           = $baseUrl;
 		$this->localRelationship = $localRelationship;
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			return Login::form($_SERVER['REQUEST_URI']);

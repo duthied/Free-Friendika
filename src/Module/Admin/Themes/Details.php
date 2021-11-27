@@ -30,7 +30,7 @@ use Friendica\Util\Strings;
 
 class Details extends BaseAdmin
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

@@ -33,7 +33,7 @@ use Friendica\Util\Strings;
  */
 class PublicRSAKey extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (empty($this->parameters['nick'])) {
 			throw new BadRequestException();

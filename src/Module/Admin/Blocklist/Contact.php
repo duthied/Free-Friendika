@@ -32,7 +32,7 @@ use Friendica\Util\Network;
 
 class Contact extends BaseAdmin
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -76,7 +76,7 @@ class Contact extends BaseAdmin
 		DI::baseUrl()->redirect('admin/blocklist/contact');
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

@@ -21,32 +21,28 @@
 
 namespace Friendica\Module\Search;
 
-use Friendica\App\Arguments;
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Search;
 use Friendica\Database\Database;
+use Friendica\Module\Response;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class Saved extends BaseModule
 {
-	/** @var Arguments */
-	protected $args;
 	/** @var Database */
 	protected $dba;
-	/** @var BaseURL */
-	protected $baseUrl;
 
-	public function __construct(BaseURL $baseUrl, Database $dba, Arguments $args, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Database $dba, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->baseUrl = $baseUrl;
-		$this->dba     = $dba;
-		$this->args    = $args;
+		$this->dba = $dba;
 	}
 
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$action = $this->args->get(2, 'none');
 		$search = trim(rawurldecode($_GET['term'] ?? ''));

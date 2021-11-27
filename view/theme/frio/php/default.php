@@ -77,7 +77,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 ?>
 	</head>
 
-	<body id="top" class="mod-<?php echo DI::module()->getName() . " " . $is_singleuser_class . " " . $view_mode_class;?>">
+	<body id="top" class="mod-<?php echo DI::args()->getModuleName() . " " . $is_singleuser_class . " " . $view_mode_class;?>">
 		<a href="#content" class="sr-only sr-only-focusable"><?php echo DI::l10n()->t('Skip to main content'); ?></a>
 <?php
 	if (!empty($page['nav']) && !$minimal) {

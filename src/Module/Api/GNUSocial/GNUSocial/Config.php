@@ -31,7 +31,7 @@ use Friendica\Module\Register;
  */
 class Config extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$config = [
 			'site' => [
@@ -61,6 +61,6 @@ class Config extends BaseApi
 			],
 		];
 
-		DI::apiResponse()->exit('config', ['config' => $config], $this->parameters['extension'] ?? null);
+		$this->response->exit('config', ['config' => $config], $this->parameters['extension'] ?? null);
 	}
 }

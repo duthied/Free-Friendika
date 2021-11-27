@@ -21,11 +21,10 @@
 
 namespace Friendica;
 
-use Dice\Dice;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
-use Friendica\App\ModuleController;
+use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
@@ -44,6 +43,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Response;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -117,11 +117,6 @@ class App
 	 * @var App\Arguments
 	 */
 	private $args;
-
-	/**
-	 * @var Core\System The system methods
-	 */
-	private $system;
 
 	/**
 	 * @var IManagePersonalConfigValues
@@ -328,10 +323,9 @@ class App
 	 * @param Profiler                    $profiler The profiler of this application
 	 * @param L10n                        $l10n     The translator instance
 	 * @param App\Arguments               $args     The Friendica Arguments of the call
-	 * @param Core\System                 $system   The system methods
 	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
 	 */
-	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\System $system, IManagePersonalConfigValues $pConfig)
+	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -341,7 +335,6 @@ class App
 		$this->logger   = $logger;
 		$this->l10n     = $l10n;
 		$this->args     = $args;
-		$this->system   = $system;
 		$this->pConfig  = $pConfig;
 
 		$this->load();
@@ -567,7 +560,6 @@ class App
 	 *
 	 * This probably should change to limit the size of this monster method.
 	 *
-	 * @param App\ModuleController        $module The determined module
 	 * @param App\Router                  $router
 	 * @param IManagePersonalConfigValues $pconfig
 	 * @param Authentication              $auth   The Authentication backend of the node
@@ -576,12 +568,12 @@ class App
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\ModuleController $module, App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, Dice $dice, float $start_time)
+	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, float $start_time)
 	{
 		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');
 
-		$moduleName = $module->getName();
+		$moduleName = $this->args->getModuleName();
 
 		try {
 			// Missing DB connection: ERROR
@@ -611,7 +603,7 @@ class App
 					// Only continue when the given profile link seems valid
 					// Valid profile links contain a path with "/profile/" and no query parameters
 					if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") &&
-					    strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
+						strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
 						if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
 							Core\Session::set('my_url', $_GET['zrl']);
 							Core\Session::set('authenticated', 0);
@@ -703,20 +695,23 @@ class App
 			$page['page_title'] = $moduleName;
 
 			if (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED)) {
-				$module = new ModuleController('maintenance', new Maintenance($this->l10n));
+				$module = $router->getModule(Maintenance::class);
 			} else {
 				// determine the module class and save it to the module instance
 				// @todo there's an implicit dependency due SESSION::start(), so it has to be called here (yet)
-				$module = $module->determineClass($this->args, $router, $this->config, $dice);
+				$module = $router->getModule();
 			}
 
 			// Let the module run it's internal process (init, get, post, ...)
-			$module->run($this->l10n, $this->baseURL, $this->logger, $this->profiler, $_SERVER, $_POST);
+			$response = $module->run($_POST, $_REQUEST);
+			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
+				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
+			} else {
+				$page->exit($response);
+			}
 		} catch (HTTPException $e) {
 			(new ModuleHTTPException())->rawContent($e);
 		}
-
-		$page->run($this, $this->baseURL, $this->mode, $module, $this->l10n, $this->profiler, $this->config, $pconfig);
 	}
 
 	/**

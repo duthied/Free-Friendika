@@ -22,7 +22,6 @@
 namespace Friendica\Module\Api\Twitter\Account;
 
 use Friendica\Module\BaseApi;
-use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -30,7 +29,7 @@ use Friendica\Util\DateTimeFormat;
  */
 class RateLimitStatus extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
 			$hash = [
@@ -52,6 +51,6 @@ class RateLimitStatus extends BaseApi
 			];
 		}
 
-		DI::apiResponse()->exit('hash', ['hash' => $hash], $this->parameters['extension'] ?? null);
+		$this->response->exit('hash', ['hash' => $hash], $this->parameters['extension'] ?? null);
 	}
 }

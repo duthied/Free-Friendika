@@ -30,7 +30,7 @@ use Friendica\DI;
  */
 class NodeInfo extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::printWellKnown();
 	}

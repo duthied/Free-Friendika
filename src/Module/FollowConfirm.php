@@ -10,8 +10,9 @@ use Friendica\Model\Contact;
  */
 class FollowConfirm extends BaseModule
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
+		parent::post($post);
 		$uid = local_user();
 		if (!$uid) {
 			notice(DI::l10n()->t('Permission denied.'));

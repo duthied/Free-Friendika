@@ -34,7 +34,7 @@ use Friendica\Util\Strings;
  */
 class Bookmarklet extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$_GET['mode'] = 'minimal';
 

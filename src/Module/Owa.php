@@ -44,7 +44,7 @@ use Friendica\Util\Strings;
  */
 class Owa extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$ret = [ 'success' => false ];
 

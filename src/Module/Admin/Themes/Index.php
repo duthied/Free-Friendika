@@ -29,7 +29,7 @@ use Friendica\Util\Strings;
 
 class Index extends BaseAdmin
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

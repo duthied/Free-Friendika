@@ -99,14 +99,6 @@ abstract class DI
 	}
 
 	/**
-	 * @return App\ModuleController
-	 */
-	public static function module()
-	{
-		return self::$dice->create(App\ModuleController::class);
-	}
-
-	/**
 	 * @return App\Page
 	 */
 	public static function page()

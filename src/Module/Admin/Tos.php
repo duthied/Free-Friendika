@@ -21,11 +21,14 @@
 
 namespace Friendica\Module\Admin;
 
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Module\BaseAdmin;
+use Friendica\Module\Response;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class Tos extends BaseAdmin
 {
@@ -33,19 +36,16 @@ class Tos extends BaseAdmin
 	protected $tos;
 	/** @var IManageConfigValues */
 	protected $config;
-	/** @var BaseURL */
-	protected $baseUrl;
 
-	public function __construct(\Friendica\Module\Tos $tos, IManageConfigValues $config, BaseURL $baseUrl, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManageConfigValues $config, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->tos     = $tos;
+		$this->tos     = new \Friendica\Module\Tos($l10n, $baseUrl, $args, $logger, $profiler, $response, $config, $server, $parameters);
 		$this->config  = $config;
-		$this->baseUrl = $baseUrl;
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -66,7 +66,7 @@ class Tos extends BaseAdmin
 		$this->baseUrl->redirect('admin/tos');
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

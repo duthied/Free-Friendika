@@ -31,7 +31,7 @@ use Friendica\Util\Strings;
 
 class Storage extends BaseAdmin
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -91,7 +91,7 @@ class Storage extends BaseAdmin
 		DI::baseUrl()->redirect('admin/storage');
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

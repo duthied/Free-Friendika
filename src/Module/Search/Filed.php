@@ -17,7 +17,7 @@ use Friendica\Module\Security\Login;
 
 class Filed extends BaseSearch
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			return Login::form();

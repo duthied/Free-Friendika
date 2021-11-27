@@ -29,7 +29,7 @@ use Friendica\Core\Theme;
  */
 class ThemeDetails extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (!empty($_REQUEST['theme'])) {
 			$theme = $_REQUEST['theme'];

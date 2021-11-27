@@ -22,6 +22,9 @@
 namespace Friendica;
 
 use Friendica\Core\L10n;
+use Friendica\Module\Response;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * This mock module enable class encapsulation of legacy global function modules.
@@ -39,9 +42,9 @@ class LegacyModule extends BaseModule
 	 */
 	private $moduleName = '';
 
-	public function __construct(L10n $l10n, string $file_path = '', array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, string $file_path = '', array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->setModuleFile($file_path);
 
@@ -65,13 +68,15 @@ class LegacyModule extends BaseModule
 		require_once $file_path;
 	}
 
-	public function content(): string
+	public function content(array $request = []): string
 	{
 		return $this->runModuleFunction('content');
 	}
 
-	public function post()
+	public function post(array $request = [], array $post = [])
 	{
+		parent::post($post);
+
 		$this->runModuleFunction('post');
 	}
 
@@ -88,7 +93,7 @@ class LegacyModule extends BaseModule
 
 		if (\function_exists($function_name)) {
 			$a = DI::app();
-			return $function_name($a);
+			return $function_name($a) ?? '';
 		}
 
 		return '';

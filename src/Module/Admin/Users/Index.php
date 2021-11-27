@@ -30,7 +30,7 @@ use Friendica\Module\Admin\BaseUsers;
 
 class Index extends BaseUsers
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -67,7 +67,7 @@ class Index extends BaseUsers
 		DI::baseUrl()->redirect(DI::args()->getQueryString());
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

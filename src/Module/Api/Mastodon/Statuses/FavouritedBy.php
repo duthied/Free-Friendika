@@ -35,7 +35,7 @@ class FavouritedBy extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$uid = self::getCurrentUserID();
 

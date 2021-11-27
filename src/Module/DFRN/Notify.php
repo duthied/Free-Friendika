@@ -38,7 +38,7 @@ use Friendica\Network\HTTPException;
  */
 class Notify extends BaseModule
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		$postdata = Network::postdata();
 

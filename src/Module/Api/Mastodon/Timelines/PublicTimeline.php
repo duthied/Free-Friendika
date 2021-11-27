@@ -39,7 +39,7 @@ class PublicTimeline extends BaseApi
 	/**
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$uid = self::getCurrentUserID();
 

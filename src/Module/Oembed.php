@@ -37,7 +37,7 @@ use Friendica\Util\Strings;
  */
 class Oembed extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		// Unused form: /oembed/b2h?url=...
 		if (DI::args()->getArgv()[1] == 'b2h') {

@@ -9,7 +9,7 @@ use Friendica\Module\Conversation\Network as NetworkModule;
 
 class Network extends NetworkModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (!isset($_GET['p']) || !isset($_GET['item'])) {
 			exit();

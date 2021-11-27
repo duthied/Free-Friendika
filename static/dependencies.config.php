@@ -181,12 +181,6 @@ return [
 			['determine', [$_SERVER, $_GET], Dice::CHAIN_CALL],
 		],
 	],
-	App\ModuleController::class => [
-		'instanceOf' => App\ModuleController::class,
-		'call' => [
-			['determineName', [], Dice::CHAIN_CALL],
-		],
-	],
 	\Friendica\Core\System::class => [
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
@@ -196,6 +190,7 @@ return [
 		'constructParams' => [
 			$_SERVER,
 			__DIR__ . '/routes.config.php',
+			[Dice::INSTANCE => Dice::SELF],
 			null
 		],
 	],

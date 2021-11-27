@@ -38,7 +38,7 @@ use Friendica\Util\DateTimeFormat;
  */
 class Queue extends BaseAdmin
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

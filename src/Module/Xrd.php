@@ -36,7 +36,7 @@ use Friendica\Protocol\Salmon;
  */
 class Xrd extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgv()[0] == 'xrd') {

@@ -30,7 +30,7 @@ use Friendica\Util\Strings;
 
 class Details extends BaseAdmin
 {
-	public function post()
+	public function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -52,7 +52,7 @@ class Details extends BaseAdmin
 		DI::baseUrl()->redirect($redirect);
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

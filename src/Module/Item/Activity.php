@@ -38,7 +38,7 @@ use Friendica\Network\HTTPException;
  */
 class Activity extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (!Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();

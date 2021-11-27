@@ -25,14 +25,17 @@ use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Module\BaseSettings;
+use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
+use Friendica\Util\Profiler;
 use PragmaRX\Google2FA\Google2FA;
+use Psr\Log\LoggerInterface;
 
 /**
  * // Page 4: 2FA enabled but not verified, QR code and verification
@@ -43,15 +46,12 @@ class Verify extends BaseSettings
 {
 	/** @var IManagePersonalConfigValues */
 	protected $pConfig;
-	/** @var BaseURL */
-	protected $baseUrl;
 
-	public function __construct(IManagePersonalConfigValues $pConfig, BaseURL $baseUrl, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManagePersonalConfigValues $pConfig, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->pConfig = $pConfig;
-		$this->baseUrl = $baseUrl;
 
 		if (!local_user()) {
 			return;
@@ -70,7 +70,7 @@ class Verify extends BaseSettings
 		}
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			return;
@@ -96,7 +96,7 @@ class Verify extends BaseSettings
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa/verify');

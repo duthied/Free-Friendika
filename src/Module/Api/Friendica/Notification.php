@@ -31,7 +31,7 @@ use Friendica\Object\Api\Friendica\Notification as ApiNotification;
  */
 class Notification extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
@@ -56,6 +56,6 @@ class Notification extends BaseApi
 			$result = false;
 		}
 
-		DI::apiResponse()->exit('notes', ['note' => $result], $this->parameters['extension'] ?? null);
+		$this->response->exit('notes', ['note' => $result], $this->parameters['extension'] ?? null);
 	}
 }

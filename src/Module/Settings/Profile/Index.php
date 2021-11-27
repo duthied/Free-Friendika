@@ -41,7 +41,7 @@ use Friendica\Util\Temporal;
 
 class Index extends BaseSettings
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			return;
@@ -135,7 +135,7 @@ class Index extends BaseSettings
 		DI::baseUrl()->redirect('settings/profile');
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
 			notice(DI::l10n()->t('You must be logged in to use this module'));

@@ -2,14 +2,17 @@
 
 namespace Friendica\Module\Settings\TwoFactor;
 
-use Friendica\App\BaseURL;
+use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Module\BaseSettings;
+use Friendica\Module\Response;
 use Friendica\Security\TwoFactor;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Profiler;
 use Friendica\Util\Temporal;
+use Psr\Log\LoggerInterface;
 use UAParser\Parser;
 
 /**
@@ -19,17 +22,14 @@ class Trusted extends BaseSettings
 {
 	/** @var IManagePersonalConfigValues */
 	protected $pConfig;
-	/** @var BaseURL */
-	protected $baseUrl;
 	/** @var TwoFactor\Repository\TrustedBrowser */
 	protected $trustedBrowserRepo;
 
-	public function __construct(IManagePersonalConfigValues $pConfig, BaseURL $baseUrl, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManagePersonalConfigValues $pConfig, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->pConfig            = $pConfig;
-		$this->baseUrl            = $baseUrl;
 		$this->trustedBrowserRepo = $trustedBrowserRepo;
 
 		if (!local_user()) {
@@ -48,7 +48,7 @@ class Trusted extends BaseSettings
 		}
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			return;
@@ -78,7 +78,7 @@ class Trusted extends BaseSettings
 	}
 
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

@@ -29,7 +29,7 @@ use Friendica\Util\Strings;
 
 class Delete extends BaseAdmin
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAdminAccess();
 
@@ -55,7 +55,7 @@ class Delete extends BaseAdmin
 		DI::baseUrl()->redirect('admin/item/delete');
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

@@ -29,7 +29,7 @@ use Friendica\Protocol\OStatus;
  */
 class Poll extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		header("Content-type: application/atom+xml");
 		$last_update = $_GET['last_update'] ?? '';

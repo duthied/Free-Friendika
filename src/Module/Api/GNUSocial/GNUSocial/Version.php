@@ -29,8 +29,8 @@ use Friendica\DI;
  */
 class Version extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
-		DI::apiResponse()->exit('version', ['version' => '0.9.7'], $this->parameters['extension'] ?? null);
+		$this->response->exit('version', ['version' => '0.9.7'], $this->parameters['extension'] ?? null);
 	}
 }

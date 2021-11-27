@@ -33,7 +33,7 @@ use Friendica\Network\HTTPException;
  */
 class Show extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
@@ -61,7 +61,7 @@ class Show extends BaseApi
 			'profiles' => $profiles
 		];
 
-		DI::apiResponse()->exit('friendica_profiles', ['$result' => $result], $this->parameters['extension'] ?? null);
+		$this->response->exit('friendica_profiles', ['$result' => $result], $this->parameters['extension'] ?? null);
 	}
 
 	/**

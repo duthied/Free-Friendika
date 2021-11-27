@@ -33,7 +33,7 @@ use Friendica\Module\BaseApi;
  */
 class Bookmark extends BaseApi
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

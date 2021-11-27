@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
  */
 class Delete extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -67,7 +67,7 @@ class Delete extends BaseApi
 		// return success of deletion or error message
 		if ($result) {
 			$answer = ['result' => 'deleted', 'message' => 'album `' . $request['album'] . '` with all containing photos has been deleted.'];
-			DI::apiResponse()->exit('photoalbum_delete', ['$result' => $answer], $this->parameters['extension'] ?? null);
+			$this->response->exit('photoalbum_delete', ['$result' => $answer], $this->parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error - deleting from database failed");
 		}

@@ -41,7 +41,7 @@ use Friendica\Protocol\Feed as ProtocolFeed;
  */
 class Feed extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$a = DI::app();
 

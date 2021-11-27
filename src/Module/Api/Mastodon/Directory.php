@@ -39,7 +39,7 @@ class Directory extends BaseApi
 	 * @throws \ImagickException
 	 * @see https://docs.joinmastodon.org/methods/instance/directory/
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$request = self::getRequest([
 			'offset' => 0,        // How many accounts to skip before returning results. Default 0.

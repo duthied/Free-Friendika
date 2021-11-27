@@ -66,7 +66,7 @@
 				<input type="hidden" name="contact_id" value="{{$contact_id}}">
 
 					<div id="contact-edit-end"></div>
-					{{include file="field_checkbox.tpl" field=$notify}}
+					{{include file="field_checkbox.tpl" field=$notify_new_posts}}
 					{{if $fetch_further_information}}
 						{{include file="field_select.tpl" field=$fetch_further_information}}
 						{{if $fetch_further_information.2 == 2 || $fetch_further_information.2 == 3}} {{include file="field_textarea.tpl" field=$ffi_keyword_denylist}} {{/if}}

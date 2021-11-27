@@ -31,7 +31,7 @@ use Friendica\Module\BaseApi;
  */
 class Unfollow extends BaseApi
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();

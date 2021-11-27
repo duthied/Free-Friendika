@@ -22,7 +22,6 @@
 namespace Friendica\Module\Api\Twitter;
 
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
@@ -31,7 +30,7 @@ use Friendica\Module\BaseApi;
  */
 class SavedSearches extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
@@ -45,6 +44,6 @@ class SavedSearches extends BaseApi
 
 		DBA::close($terms);
 
-		DI::apiResponse()->exit('terms', ['terms' => $result], $this->parameters['extension'] ?? null);
+		$this->response->exit('terms', ['terms' => $result], $this->parameters['extension'] ?? null);
 	}
 }

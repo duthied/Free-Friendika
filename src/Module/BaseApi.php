@@ -21,18 +21,23 @@
 
 namespace Friendica\Module;
 
+use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\User;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPInputData;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class BaseApi extends BaseModule
 {
@@ -53,30 +58,41 @@ class BaseApi extends BaseModule
 	 */
 	protected static $request = [];
 
-	public function delete()
+	/** @var App */
+	protected $app;
+
+	/** @var ApiResponse */
+	protected $response;
+
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+	}
+
+	protected function delete()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		if (!DI::app()->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		if (!$this->app->isLoggedIn()) {
+			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 		}
 	}
 
-	public function patch()
+	protected function patch()
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		if (!DI::app()->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		if (!$this->app->isLoggedIn()) {
+			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 		}
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		if (!DI::app()->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		if (!$this->app->isLoggedIn()) {
+			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 		}
 	}
 
@@ -84,8 +100,8 @@ class BaseApi extends BaseModule
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		if (!DI::app()->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		if (!$this->app->isLoggedIn()) {
+			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 		}
 	}
 

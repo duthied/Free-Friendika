@@ -35,7 +35,7 @@ use Friendica\Module\BaseApi;
  */
 class Reblog extends BaseApi
 {
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

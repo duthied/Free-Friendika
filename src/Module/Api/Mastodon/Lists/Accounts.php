@@ -25,7 +25,6 @@ use Friendica\App\Router;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 
 /**
@@ -35,20 +34,20 @@ use Friendica\Module\BaseApi;
  */
 class Accounts extends BaseApi
 {
-	public function delete()
+	protected function delete()
 	{
-		DI::apiResponse()->unsupported(Router::DELETE);
+		$this->response->unsupported(Router::DELETE);
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
-		DI::apiResponse()->unsupported(Router::POST);
+		$this->response->unsupported(Router::POST);
 	}
 
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

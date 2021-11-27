@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException;
  */
 class Follow extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		$l10n = DI::l10n();
 

@@ -49,7 +49,7 @@ class Community extends BaseModule
 	protected static $max_id;
 	protected static $item_id;
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$this->parseRequest();
 

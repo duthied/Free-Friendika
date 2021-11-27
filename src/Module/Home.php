@@ -32,7 +32,7 @@ use Friendica\Module\Security\Login;
  */
 class Home extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$app = DI::app();
 		$config = DI::config();

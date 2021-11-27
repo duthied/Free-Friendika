@@ -40,7 +40,7 @@ use Friendica\Module\BaseApi;
  */
 class Activity extends BaseApi
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -57,9 +57,9 @@ class Activity extends BaseApi
 			} else {
 				$ok = 'ok';
 			}
-			DI::apiResponse()->exit('ok', ['ok' => $ok], $this->parameters['extension'] ?? null);
+			$this->response->exit('ok', ['ok' => $ok], $this->parameters['extension'] ?? null);
 		} else {
-			DI::apiResponse()->error(500, 'Error adding activity', '', $this->parameters['extension'] ?? null);
+			$this->response->error(500, 'Error adding activity', '', $this->parameters['extension'] ?? null);
 		}
 	}
 }

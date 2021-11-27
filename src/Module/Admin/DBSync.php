@@ -30,7 +30,7 @@ use Friendica\Module\BaseAdmin;
 
 class DBSync extends BaseAdmin
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		parent::content();
 

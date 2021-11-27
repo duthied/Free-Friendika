@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Notifications;
 
+use Friendica\App;
 use Friendica\App\Arguments;
 use Friendica\App\Mode;
 use Friendica\Content\ContactSelector;
@@ -31,8 +32,11 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Model\User;
 use Friendica\Module\BaseNotifications;
+use Friendica\Module\Response;
 use Friendica\Navigation\Notifications\Factory\Introduction as IntroductionFactory;
 use Friendica\Navigation\Notifications\ValueObject\Introduction;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Prints notifications about introduction
@@ -44,9 +48,9 @@ class Introductions extends BaseNotifications
 	/** @var Mode */
 	protected $mode;
 
-	public function __construct(Mode $mode, IntroductionFactory $notificationIntro, Arguments $args, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Mode $mode, IntroductionFactory $notificationIntro, array $server, array $parameters = [])
 	{
-		parent::__construct($args, $l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->notificationIntro = $notificationIntro;
 		$this->mode              = $mode;
@@ -71,7 +75,7 @@ class Introductions extends BaseNotifications
 		];
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		Nav::setSelected('introductions');
 

@@ -22,7 +22,6 @@
 namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\App\Router;
-use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
@@ -33,25 +32,25 @@ class Unimplemented extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function delete()
+	protected function delete()
 	{
-		DI::apiResponse()->unsupported(Router::DELETE);
+		$this->response->unsupported(Router::DELETE);
 	}
 
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function patch()
+	protected function patch()
 	{
-		DI::apiResponse()->unsupported(Router::PATCH);
+		$this->response->unsupported(Router::PATCH);
 	}
 
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
-		DI::apiResponse()->unsupported(Router::POST);
+		$this->response->unsupported(Router::POST);
 	}
 
 	/**
@@ -59,14 +58,14 @@ class Unimplemented extends BaseApi
 	 */
 	public function put()
 	{
-		DI::apiResponse()->unsupported(Router::PUT);
+		$this->response->unsupported(Router::PUT);
 	}
 
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
-		DI::apiResponse()->unsupported(Router::GET);
+		$this->response->unsupported(Router::GET);
 	}
 }

@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Contact;
 
+use Friendica\App;
 use Friendica\App\Page;
 use Friendica\BaseModule;
 use Friendica\Content\Widget;
@@ -31,8 +32,10 @@ use Friendica\Core\Session;
 use Friendica\Database\Database;
 use Friendica\Model;
 use Friendica\Module\Contact;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ForbiddenException;
+use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
@@ -43,25 +46,22 @@ class Advanced extends BaseModule
 {
 	/** @var Database */
 	protected $dba;
-	/** @var LoggerInterface */
-	protected $logger;
 	/** @var Page */
 	protected $page;
 
-	public function __construct(Database $dba, LoggerInterface $logger, Page $page, L10n $l10n, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, App\Page $page, LoggerInterface $logger, Profiler $profiler, Response $response, Database $dba, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->dba    = $dba;
-		$this->logger = $logger;
-		$this->page   = $page;
+		$this->dba  = $dba;
+		$this->page = $page;
 
 		if (!Session::isAuthenticated()) {
 			throw new ForbiddenException($this->t('Permission denied.'));
 		}
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		$cid = $this->parameters['id'];
 
@@ -110,7 +110,7 @@ class Advanced extends BaseModule
 		}
 	}
 
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$cid = $this->parameters['id'];
 

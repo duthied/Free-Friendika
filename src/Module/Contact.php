@@ -91,7 +91,7 @@ class Contact extends BaseModule
 		DI::baseUrl()->redirect($redirectUrl);
 	}
 
-	public function post()
+	protected function post(array $request = [], array $post = [])
 	{
 		if (!local_user()) {
 			return;

@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException\BadRequestException;
  */
 class Media extends BaseModule
 {
-	public function content(): string
+	protected function content(array $request = []): string
 	{
 		$cid = $this->parameters['id'];
 

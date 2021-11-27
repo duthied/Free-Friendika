@@ -36,7 +36,7 @@ class OpenSearch extends BaseModule
 	/**
 	 * @throws \Exception
 	 */
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		header('Content-type: application/opensearchdescription+xml');
 

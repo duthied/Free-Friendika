@@ -30,6 +30,8 @@ namespace Friendica\App;
  */
 class Arguments
 {
+	const DEFAULT_MODULE = 'home';
+
 	/**
 	 * @var string The complete query string
 	 */
@@ -39,6 +41,10 @@ class Arguments
 	 */
 	private $command;
 	/**
+	 * @var string The name of the current module
+	 */
+	private $moduleName;
+	/**
 	 * @var array The arguments of the current execution
 	 */
 	private $argv;
@@ -47,10 +53,11 @@ class Arguments
 	 */
 	private $argc;
 
-	public function __construct(string $queryString = '', string $command = '', array $argv = [], int $argc = 0)
+	public function __construct(string $queryString = '', string $command = '', string $moduleName = '', array $argv = [], int $argc = 0)
 	{
 		$this->queryString = $queryString;
 		$this->command     = $command;
+		$this->moduleName  = $moduleName;
 		$this->argv        = $argv;
 		$this->argc        = $argc;
 	}
@@ -69,6 +76,14 @@ class Arguments
 	public function getCommand()
 	{
 		return $this->command;
+	}
+
+	/**
+	 * @return string The module name based on the arguments
+	 */
+	public function getModuleName(): string
+	{
+		return $this->moduleName;
 	}
 
 	/**
@@ -172,6 +187,18 @@ class Arguments
 
 		$queryString = $command . ($queryParameters ? '?' . http_build_query($queryParameters) : '');
 
-		return new Arguments($queryString, $command, $argv, $argc);
+		if ($argc > 0) {
+			$module = str_replace('.', '_', $argv[0]);
+			$module = str_replace('-', '_', $module);
+		} else {
+			$module = self::DEFAULT_MODULE;
+		}
+
+		// Compatibility with the Firefox App
+		if (($module == "users") && ($command == "users/sign_in")) {
+			$module = "login";
+		}
+
+		return new Arguments($queryString, $command, $module, $argv, $argc);
 	}
 }

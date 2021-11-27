@@ -31,7 +31,7 @@ use Friendica\Protocol\ActivityPub;
  */
 class Followers extends BaseModule
 {
-	public function rawContent()
+	protected function rawContent(array $request = [])
 	{
 		if (empty($this->parameters['nickname'])) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
