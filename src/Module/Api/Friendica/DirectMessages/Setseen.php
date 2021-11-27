@@ -37,7 +37,7 @@ class Setseen extends BaseApi
 
 		$request = self::getRequest([
 			'id' => 0, // Id of the direct message
-		]);
+		], $request);
 
 		// return error if id is zero
 		if (empty($request['id'])) {

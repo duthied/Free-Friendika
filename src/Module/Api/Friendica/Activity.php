@@ -47,7 +47,7 @@ class Activity extends BaseApi
 
 		$request = self::getRequest([
 			'id' => 0, // Id of the post
-		]);
+		], $request);
 
 		$res = Item::performActivity($request['id'], $this->parameters['verb'], $uid);
 

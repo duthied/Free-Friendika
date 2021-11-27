@@ -53,7 +53,7 @@ class Following extends BaseApi
 			'since_id' => 0,  // Return results newer than this id
 			'min_id'   => 0,  // Return results immediately newer than id			
 			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
-		]);
+		], $request);
 
 		$params = ['order' => ['cid' => true], 'limit' => $request['limit']];
 

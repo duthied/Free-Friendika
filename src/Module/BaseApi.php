@@ -108,12 +108,16 @@ class BaseApi extends BaseModule
 	/**
 	 * Processes data from GET requests and sets defaults
 	 *
+	 * @param array      $defaults Associative array of expected request keys and their default typed value. A null
+	 *                             value will remove the request key from the resulting value array.
+	 * @param array|null $request  Custom REQUEST array, superglobal instead
 	 * @return array request data
+	 * @throws \Exception
 	 */
-	public static function getRequest(array $defaults)
+	public static function getRequest(array $defaults, array $request = null): array
 	{
 		$httpinput = HTTPInputData::process();
-		$input = array_merge($httpinput['variables'], $httpinput['files'], $_REQUEST);
+		$input = array_merge($httpinput['variables'], $httpinput['files'], $request ?? $_REQUEST);
 
 		self::$request    = $input;
 		self::$boundaries = [];

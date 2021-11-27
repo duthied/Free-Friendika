@@ -64,7 +64,7 @@ class Notifications extends BaseApi
 			'account_id'    => 0,     // Return only notifications received from this account
 			'with_muted'    => false, // Pleroma extension: return activities by muted (not by blocked!) users.
 			'count'         => 0,     // Unknown parameter
-		]);
+		], $request);
 
 		$params = ['order' => ['id' => true]];
 

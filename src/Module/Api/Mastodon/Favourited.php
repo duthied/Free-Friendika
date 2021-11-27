@@ -47,7 +47,7 @@ class Favourited extends BaseApi
 			'min_id'     => 0,     // Return results immediately newer than id
 			'max_id'     => 0,     // Return results older than id
 			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
-		]);
+		], $request);
 
 		$params = ['order' => ['thr-parent-id' => true], 'limit' => $request['limit']];
 

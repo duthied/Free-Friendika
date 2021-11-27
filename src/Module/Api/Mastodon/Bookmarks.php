@@ -47,7 +47,7 @@ class Bookmarks extends BaseApi
 			'since_id'   => 0,     // Return results newer than id
 			'min_id'     => 0,     // Return results immediately newer than id
 			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
-		]);
+		], $request);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 

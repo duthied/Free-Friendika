@@ -51,7 +51,7 @@ class Home extends BaseApi
 			'only_media'      => false, // Show only statuses with media attached? Defaults to false.
 			'remote'          => false, // Show only remote statuses? Defaults to false.
 			'exclude_replies' => false, // Don't show comments
-		]);
+		], $request);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 

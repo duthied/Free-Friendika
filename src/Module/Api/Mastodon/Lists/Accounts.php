@@ -66,7 +66,7 @@ class Accounts extends BaseApi
 			'since_id' => 0,  // Return results newer than this id
 			'min_id'   => 0,  // Return results immediately newer than id			
 			'limit'    => 40, // Maximum number of results. Defaults to 40. Max 40. Set to 0 in order to get all accounts without pagination.
-		]);
+		], $request);
 
 		$params = ['order' => ['contact-id' => true]];
 

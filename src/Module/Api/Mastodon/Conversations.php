@@ -59,7 +59,7 @@ class Conversations extends BaseApi
 			'max_id'   => 0,  // Return results older than this ID. Use HTTP Link header to paginate.
 			'since_id' => 0,  // Return results newer than this ID. Use HTTP Link header to paginate.
 			'min_id'   => 0,  // Return results immediately newer than this ID. Use HTTP Link header to paginate.
-		]);
+		], $request);
 
 		$params = ['order' => ['id' => true], 'limit' => $request['limit']];
 

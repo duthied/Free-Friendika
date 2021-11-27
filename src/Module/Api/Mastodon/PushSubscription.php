@@ -42,7 +42,7 @@ class PushSubscription extends BaseApi
 		$request = self::getRequest([
 			'subscription' => [],
 			'data'         => [],
-		]);
+		], $request);
 
 		$subscription = [
 			'application-id'                => $application['id'],

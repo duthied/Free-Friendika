@@ -43,7 +43,7 @@ class Note extends BaseApi
 
 		$request = self::getRequest([
 			'comment' => '',
-		]);
+		], $request);
 
 		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
 		if (empty($cdata['user'])) {

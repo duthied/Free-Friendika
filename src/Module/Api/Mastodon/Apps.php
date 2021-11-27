@@ -42,7 +42,7 @@ class Apps extends BaseApi
 			'redirect_uris' => '',
 			'scopes'        => 'read',
 			'website'       => '',
-		]);
+		], $request);
 
 		// Workaround for AndStatus, see issue https://github.com/andstatus/andstatus/issues/538
 		$postdata = Network::postdata();

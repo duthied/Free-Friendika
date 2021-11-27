@@ -40,7 +40,7 @@ class Delete extends BaseApi
 
 		$request = self::getRequest([
 			'photo_id' => null, // Photo id
-		]);
+		], $request);
 
 		// do several checks on input parameters
 		// we do not allow calls without photo id
