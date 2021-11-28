@@ -39,7 +39,7 @@ class PushSubscription extends BaseApi
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'subscription' => [],
 			'data'         => [],
 		], $request);
@@ -72,7 +72,7 @@ class PushSubscription extends BaseApi
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'data' => [],
 		]);
 

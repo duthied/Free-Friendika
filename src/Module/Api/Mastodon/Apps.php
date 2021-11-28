@@ -37,7 +37,7 @@ class Apps extends BaseApi
 	 */
 	protected function post(array $request = [], array $post = [])
 	{
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'client_name'   => '',
 			'redirect_uris' => '',
 			'scopes'        => 'read',

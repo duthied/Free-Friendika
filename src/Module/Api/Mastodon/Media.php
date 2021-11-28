@@ -58,7 +58,7 @@ class Media extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'file'        => [], // The file to be attached, using multipart form data.
 			'thumbnail'   => [], // The custom thumbnail of the media to be attached, using multipart form data.
 			'description' => '', // A plain-text description of the media, for accessibility purposes.

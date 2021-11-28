@@ -54,7 +54,7 @@ class Conversations extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'limit'    => 20, // Maximum number of results. Defaults to 20. Max 40.
 			'max_id'   => 0,  // Return results older than this ID. Use HTTP Link header to paginate.
 			'since_id' => 0,  // Return results newer than this ID. Use HTTP Link header to paginate.

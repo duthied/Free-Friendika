@@ -56,7 +56,7 @@ class Lists extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'title' => '',
 		], $request);
 
@@ -76,7 +76,7 @@ class Lists extends BaseApi
 
 	public function put()
 	{
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'title'          => '', // The title of the list to be updated.
 			'replies_policy' => '', // One of: "followed", "list", or "none".
 		]);

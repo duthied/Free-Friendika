@@ -241,6 +241,48 @@ abstract class BaseModule implements ICanHandleRequests
 		return $this->response->generate();
 	}
 
+	/**
+	 * Checks request inputs and sets default parameters
+	 *
+	 * @param array $defaults Associative array of expected request keys and their default typed value. A null
+	 *                        value will remove the request key from the resulting value array.
+	 * @param array $input    Custom REQUEST array, superglobal instead
+	 *
+	 * @return array Request data
+	 */
+	protected function checkDefaults(array $defaults, array $input): array
+	{
+		$request = [];
+
+		foreach ($defaults as $parameter => $defaultvalue) {
+			if (is_string($defaultvalue)) {
+				$request[$parameter] = $input[$parameter] ?? $defaultvalue;
+			} elseif (is_int($defaultvalue)) {
+				$request[$parameter] = (int)($input[$parameter] ?? $defaultvalue);
+			} elseif (is_float($defaultvalue)) {
+				$request[$parameter] = (float)($input[$parameter] ?? $defaultvalue);
+			} elseif (is_array($defaultvalue)) {
+				$request[$parameter] = $input[$parameter] ?? [];
+			} elseif (is_bool($defaultvalue)) {
+				$request[$parameter] = in_array(strtolower($input[$parameter] ?? ''), ['true', '1']);
+			} else {
+				$this->logger->notice('Unhandled default value type', ['parameter' => $parameter, 'type' => gettype($defaultvalue)]);
+			}
+		}
+
+		foreach ($input ?? [] as $parameter => $value) {
+			if ($parameter == 'pagename') {
+				continue;
+			}
+			if (!in_array($parameter, array_keys($defaults))) {
+				$this->logger->notice('Unhandled request field', ['parameter' => $parameter, 'value' => $value, 'command' => $this->args->getCommand()]);
+			}
+		}
+
+		$this->logger->debug('Got request parameters', ['request' => $request, 'command' => $this->args->getCommand()]);
+		return $request;
+	}
+
 	/*
 	 * Functions used to protect against Cross-Site Request Forgery
 	 * The security token has to base on at least one value that an attacker can't know - here it's the session ID and the private key.

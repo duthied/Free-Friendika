@@ -41,7 +41,7 @@ class Note extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'comment' => '',
 		], $request);
 

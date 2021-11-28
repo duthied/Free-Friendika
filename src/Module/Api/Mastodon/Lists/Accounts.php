@@ -61,7 +61,7 @@ class Accounts extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'max_id'   => 0,  // Return results older than this id
 			'since_id' => 0,  // Return results newer than this id
 			'min_id'   => 0,  // Return results immediately newer than id			
