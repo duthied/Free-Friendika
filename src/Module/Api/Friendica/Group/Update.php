@@ -22,7 +22,6 @@
 namespace Friendica\Module\Api\Friendica\Group;
 
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Module\BaseApi;
@@ -84,6 +83,6 @@ class Update extends BaseApi
 		// return success message incl. missing users in array
 		$status  = ($erroraddinguser ? 'missing user' : 'ok');
 		$success = ['success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers];
-		DI::apiResponse()->exit('group_update', ['$result' => $success], $this->parameters['extension'] ?? null);
+		$this->response->exit('group_update', ['$result' => $success], $this->parameters['extension'] ?? null);
 	}
 }

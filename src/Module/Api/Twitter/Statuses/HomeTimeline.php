@@ -88,6 +88,6 @@ class HomeTimeline extends BaseApi
 			}
 		}
 
-		DI::apiResponse()->exit('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->exit('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

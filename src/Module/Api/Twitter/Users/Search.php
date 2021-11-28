@@ -69,6 +69,6 @@ class Search extends BaseApi
 			throw new BadRequestException('No search term specified.');
 		}
 
-		DI::apiResponse()->exit('users', ['user' => $userlist], $this->parameters['extension'] ?? null);
+		$this->response->exit('users', ['user' => $userlist], $this->parameters['extension'] ?? null);
 	}
 }

@@ -64,6 +64,6 @@ class UpdateProfile extends BaseApi
 		// "uid" is only needed for some internal stuff, so remove it from here
 		unset($user_info['uid']);
 
-		DI::apiResponse()->exit('user', ['user' => $user_info], $this->parameters['extension'] ?? null);
+		$this->response->exit('user', ['user' => $user_info], $this->parameters['extension'] ?? null);
 	}
 }

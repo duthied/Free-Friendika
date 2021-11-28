@@ -82,6 +82,6 @@ class UserTimeline extends BaseApi
 		}
 		DBA::close($statuses);
 
-		DI::apiResponse()->exit('user', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->exit('user', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

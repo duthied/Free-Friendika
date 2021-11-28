@@ -51,6 +51,6 @@ class Lookup extends BaseApi
 			throw new NotFoundException();
 		}
 
-		DI::apiResponse()->exit('users', ['user' => $users], $this->parameters['extension'] ?? null);
+		$this->response->exit('users', ['user' => $users], $this->parameters['extension'] ?? null);
 	}
 }

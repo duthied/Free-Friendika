@@ -65,6 +65,6 @@ class Upload extends BaseApi
 
 		Logger::info('Media uploaded', ['return' => $returndata]);
 
-		DI::apiResponse()->exit('media', ['media' => $returndata], $this->parameters['extension'] ?? null);
+		$this->response->exit('media', ['media' => $returndata], $this->parameters['extension'] ?? null);
 	}
 }
