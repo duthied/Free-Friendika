@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\App;
+use Friendica\App\Router;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -36,6 +37,7 @@ use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 class BaseApi extends BaseModule
@@ -70,40 +72,29 @@ class BaseApi extends BaseModule
 		$this->app = $app;
 	}
 
-	protected function delete(array $request = [])
+	/**
+	 * Additionally checks, if the caller is permitted to do this action
+	 *
+	 * {@inheritDoc}
+	 *
+	 * @throws HTTPException\ForbiddenException
+	 */
+	public function run(array $request = []): ResponseInterface
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		switch ($this->server['REQUEST_METHOD'] ?? Router::GET) {
+			case Router::DELETE:
+			case Router::PATCH:
+			case Router::POST:
+			case Router::PUT:
+				self::checkAllowedScope(self::SCOPE_WRITE);
 
-		if (!$this->app->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
+				if (!$this->app->isLoggedIn()) {
+					throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
+				}
+				break;
 		}
-	}
 
-	protected function patch(array $request = [])
-	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-
-		if (!$this->app->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
-		}
-	}
-
-	protected function post(array $request = [])
-	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-
-		if (!$this->app->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
-		}
-	}
-
-	public function put(array $request = [])
-	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-
-		if (!$this->app->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
-		}
+		return parent::run($request);
 	}
 
 	/**
