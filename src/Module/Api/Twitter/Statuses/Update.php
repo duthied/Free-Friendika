@@ -101,7 +101,7 @@ class Update extends BaseApi
 		if (!empty($request['lat']) && !empty($request['long'])) {
 			$item['coord'] = sprintf("%s %s", $request['lat'], $request['long']);
 		}
-	
+
 		$item['allow_cid'] = $owner['allow_cid'];
 		$item['allow_gid'] = $owner['allow_gid'];
 		$item['deny_cid']  = $owner['deny_cid'];

@@ -51,26 +51,26 @@ class Retweet extends BaseApi
 		}
 
 		$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
-		$item = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
-	
+		$item   = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
+
 		if (DBA::isResult($item) && !empty($item['body'])) {
 			if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::TWITTER])) {
 				if (!Item::performActivity($id, 'announce', $uid)) {
 					throw new InternalServerErrorException();
 				}
-	
+
 				$item_id = $id;
 			} else {
 				if (strpos($item['body'], "[/share]") !== false) {
-					$pos = strpos($item['body'], "[share");
+					$pos  = strpos($item['body'], "[share");
 					$post = substr($item['body'], $pos);
 				} else {
 					$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
-	
+
 					if (!empty($item['title'])) {
 						$post .= '[h3]' . $item['title'] . "[/h3]\n";
 					}
-	
+
 					$post .= $item['body'];
 					$post .= "[/share]";
 				}
@@ -83,13 +83,13 @@ class Retweet extends BaseApi
 				if (empty($item['app']) && !empty(self::getCurrentApplication()['name'])) {
 					$item['app'] = self::getCurrentApplication()['name'];
 				}
-	
+
 				$item_id = Item::insert($item, true);
 			}
 		} else {
 			throw new ForbiddenException();
 		}
-	
+
 		$status_info = DI::twitterStatus()->createFromItemId($item_id, $uid)->toArray();
 
 		DI::apiResponse()->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
