@@ -32,7 +32,7 @@ use Friendica\Model\Profile;
  */
 class UpdateProfile extends BaseApi
 {
-	protected function rawContent(array $request = [])
+	protected function post(array $request = [], array $post = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
