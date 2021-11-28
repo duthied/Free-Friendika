@@ -1,4 +1,50 @@
 Version 2021.12 (unreleased)
+  Friendica Core
+    Updates to the translations DE, FR, GB_EN, GB_US, HU, RU [translation teams]
+    Updates to the documentation [annando, foss-, tobiasd]
+    Updates to the themes (duepuntozero, frio, quattro, vier) [MrPetovan, tobiasd]
+    General code cleanup [annando, nupplaphil, MrPetovan, tobiasd]
+    Enhanced the connector hooks [MrPetovan]
+    Enhanced the API [annando, MrPetovan, nupplaphil]
+    Enhanced the screen reader accessibility of the frio theme [MrPetovan]
+    Enhanced the federation with Pleroma (attached images) [annando]
+    Enhanced the performance of database handling of unused contacts [annando]
+    Enhanced the Vagrant development configuration [nupplaphil, tobiasd]
+    Enhanced the handling of emoticons [annando]
+    Enhanced the handling of blocked domains [annando, MrPetovan]
+    Enhanced the translation string extraction [fabrixxm]
+    Fixed a problem linking to an addons authors profile [annando]
+    Fixed a problem with the automatic installation [nupplaphil]
+    Added AR translations [FaridaK, Mohamed_Ahmed_AF, abidin24, alsabi.abdullah, ButterflyOfFire, ominds, hisoka512]
+    Added language detection for the /help files [annando]
+    Added current timezone information to the date time picker [MrPetovan]
+    Added an option to purge contacts from blocked servers [MrPetovan]
+    Added a media tab on profile pages [annando]
+    Removed video tab on profile pages [annando]
+  
+  Friendica Addons
+    Updates to the translations AR, DE, HU, IT, PL [translation teams]
+    Deprecated addons: blogger, buffer, jappixmini, notimeline, xmpp
+    Added addons: bird avatar, webdav storage [fabrixxm, nupplaphil]
+    markdown
+      Enhanced the HTML escaping [MrPetovan]
+    nitter
+      Enhanced link detection in attachments [tobiasd]
+    securemail
+      Updated dependencies to enhance the PHP8 support [MrPetovan]
+    twitter
+      Added block and unblock hook usage [MrPetovan]
+      Added support for unretweet and post/comment deletion [MrPetovan]
+      Added support for the unfollow hook [MrPetovan]
+      Fixed API calls [MrPetovan]
+      Fixed a problem leading to duplicated links [annando]
+      Updated twitteroauth dependency [nupplaphil]
+  
+  Closed Issues
+    9720, 10454, 10634, 10691, 10725, 10726, 10729, 10734, 10737, 10739,
+    10745, 10754, 10767, 10791, 10829, 10832, 10839, 10841, 10844, 10851,
+    10864, 10865, 10868, 10872, 10876, 10877, 10886, 10887, 10897, 10903,
+    10943, 10972, 10973, 10979, 10983, 10991, 11021, 11022, 11029, 11033
 
 Version 2021.09 (2021-09-25)
   Friendica Core
