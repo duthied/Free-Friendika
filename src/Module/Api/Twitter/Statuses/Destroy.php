@@ -40,16 +40,16 @@ class Destroy extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$id = intval($_REQUEST['id'] ?? 0);
+			$id = intval($request['id'] ?? 0);
 		} else {
 			$id = (int)$this->parameters['id'];
 		}
 
-		logger::notice('API: api_statuses_destroy: ' . $id);
+		$this->logger->notice('API: api_statuses_destroy: ' . $id);
 
-		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
+		$include_entities = strtolower(($request['include_entities'] ?? 'false') == 'true');
 
-		$ret = DI::twitterStatus()->createFromItemId($$id, $uid, $include_entities)->toArray();
+		$ret = DI::twitterStatus()->createFromItemId($id, $uid, $include_entities)->toArray();
 
 		Item::deleteForUser(['id' => $id], $uid);
 

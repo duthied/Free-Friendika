@@ -54,21 +54,21 @@ $apiRoutes = [
 	'/direct_messages' => [
 		'/all[.{extension:json|xml|rss|atom}]'                     => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
 		'/conversation[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
-		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,                  [R::DELETE, R::POST]],
+		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,                  [        R::POST]],
 		'/new[.{extension:json|xml|rss|atom}]'                     => [Module\Api\Friendica\Index::class,                  [        R::POST]],
 		'/sent[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
 	],
 	'/direct_messages[.{extension:json|xml|rss|atom}]'             => [Module\Api\Friendica\Index::class,                  [R::GET, R::POST]],
 
 	'/externalprofile/show[.{extension:json|xml|rss|atom}]'        => [Module\Api\Twitter\Users\Show::class,               [R::GET         ]],
-	'/favorites/create[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,                  [        R::POST]],
-	'/favorites/destroy[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class,                  [R::DELETE, R::POST]],
+	'/favorites/create[.{extension:json|xml|rss|atom}]'            => [Module\Api\Twitter\Favorites\Create::class,         [        R::POST]],
+	'/favorites/destroy[.{extension:json|xml|rss|atom}]'           => [Module\Api\Twitter\Favorites\Destroy::class,        [        R::POST]],
 	'/favorites[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Twitter\Favorites::class,                [R::GET         ]],
 	'/followers/ids[.{extension:json|xml|rss|atom}]'               => [Module\Api\Twitter\Followers\Ids::class,            [R::GET         ]],
 	'/followers/list[.{extension:json|xml|rss|atom}]'              => [Module\Api\Twitter\Followers\Lists::class,          [R::GET         ]],
 	'/friends/ids[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Friends\Ids::class,              [R::GET         ]],
 	'/friends/list[.{extension:json|xml|rss|atom}]'                => [Module\Api\Twitter\Friends\Lists::class,            [R::GET         ]],
-	'/friendships/destroy[.{extension:json|xml|rss|atom}]'         => [Module\Api\Friendica\Index::class,                  [        R::POST]],
+	'/friendships/destroy[.{extension:json|xml|rss|atom}]'         => [Module\Api\Twitter\Friendships\Destroy::class,      [        R::POST]],
 	'/friendships/incoming[.{extension:json|xml|rss|atom}]'        => [Module\Api\Twitter\Friendships\Incoming::class,     [R::GET         ]],
 
 	'/friendica' => [
@@ -81,14 +81,14 @@ $apiRoutes = [
 		'/events[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Events\Index::class,           [R::GET         ]],
 		'/group_show[.{extension:json|xml|rss|atom}]'              => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
 		'/group_create[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,                  [        R::POST]],
-		'/group_delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Group\Delete::class,           [R::DELETE, R::POST]],
-		'/group_update[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,                  [        R::POST]],
+		'/group_delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Group\Delete::class,           [        R::POST]],
+		'/group_update[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Group\Update::class,           [        R::POST]],
 		'/profile/show[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Profile\Show::class,           [R::GET         ]],
-		'/photoalbum/delete[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Photoalbum\Delete::class,      [R::DELETE, R::POST]],
+		'/photoalbum/delete[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Photoalbum\Delete::class,      [        R::POST]],
 		'/photoalbum/update[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Photoalbum\Update::class,      [        R::POST]],
 		'/photos/list[.{extension:json|xml|rss|atom}]'             => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
 		'/photo/create[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,                  [        R::POST]],
-		'/photo/delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Photo\Delete::class,           [R::DELETE, R::POST]],
+		'/photo/delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Photo\Delete::class,           [        R::POST]],
 		'/photo/update[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Index::class,                  [        R::POST]],
 		'/photo[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Friendica\Index::class,                  [R::GET         ]],
 	],
@@ -99,7 +99,7 @@ $apiRoutes = [
 
 	'/lists' => [
 		'/create[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class,        [        R::POST]],
-		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,        [R::DELETE, R::POST]],
+		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,        [        R::POST]],
 		'/list[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class,        [R::GET         ]],
 		'/ownerships[.{extension:json|xml|rss|atom}]'              => [Module\Api\Friendica\Index::class,        [R::GET         ]],
 		'/statuses[.{extension:json|xml|rss|atom}]'                => [Module\Api\Twitter\Lists\Statuses::class, [R::GET         ]],
@@ -107,8 +107,8 @@ $apiRoutes = [
 		'/update[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Index::class,        [        R::POST]],
 	],
 
-	'/media/upload[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Friendica\Index::class,                  [        R::POST]],
-	'/media/metadata/create[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Index::class,                  [        R::POST]],
+	'/media/upload[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Twitter\Media\Upload::class,             [        R::POST]],
+	'/media/metadata/create[.{extension:json|xml|rss|atom}]'           => [Module\Api\Twitter\Media\Metadata\Create::class,    [        R::POST]],
 	'/saved_searches/list[.{extension:json|xml|rss|atom}]'             => [Module\Api\Twitter\SavedSearches::class,            [R::GET         ]],
 	'/search/tweets[.{extension:json|xml|rss|atom}]'                   => [Module\Api\Twitter\Search\Tweets::class,            [R::GET         ]],
 	'/search[.{extension:json|xml|rss|atom}]'                          => [Module\Api\Twitter\Search\Tweets::class,            [R::GET         ]],
@@ -118,7 +118,7 @@ $apiRoutes = [
 	'/statusnet/version[.{extension:json|xml|rss|atom}]'               => [Module\Api\GNUSocial\GNUSocial\Version::class,      [R::GET         ]],
 
 	'/statuses' => [
-		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,                        [R::DELETE, R::POST]],
+		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Friendica\Index::class,                        [        R::POST]],
 		'/followers[.{extension:json|xml|rss|atom}]'               => [Module\Api\Twitter\Followers\Lists::class,                [R::GET         ]],
 		'/friends[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Friends\Lists::class,                  [R::GET         ]],
 		'/friends_timeline[.{extension:json|xml|rss|atom}]'        => [Module\Api\Twitter\Statuses\HomeTimeline::class,          [R::GET         ]],

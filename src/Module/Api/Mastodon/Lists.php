@@ -58,7 +58,7 @@ class Lists extends BaseApi
 
 		$request = self::getRequest([
 			'title' => '',
-		]);
+		], $request);
 
 		if (empty($request['title'])) {
 			DI::mstdnError()->UnprocessableEntity();

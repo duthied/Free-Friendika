@@ -40,7 +40,7 @@ class Update extends BaseApi
 		$request = self::getRequest([
 			'album'     => '', // Current album name
 			'album_new' => '', // New album name
-		]);
+		], $request);
 
 		// we do not allow calls without album string
 		if (empty($request['album'])) {

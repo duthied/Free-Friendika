@@ -41,7 +41,7 @@ class Relationships extends BaseApi
 
 		$request = self::getRequest([
 			'id' => [],
-		]);
+		], $request);
 
 		if (empty($request['id'])) {
 			DI::mstdnError()->UnprocessableEntity();

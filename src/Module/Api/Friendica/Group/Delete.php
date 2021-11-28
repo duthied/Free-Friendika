@@ -40,7 +40,7 @@ class Delete extends BaseApi
 		$request = self::getRequest([
 			'gid'  => 0,
 			'name' => ''
-		]);
+		], $request);
 
 		// params
 

@@ -56,7 +56,7 @@ class Statuses extends BaseApi
 			'visibility'     => '',    // Visibility of the posted status. One of: "public", "unlisted", "private" or "direct".
 			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this paramter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
 			'language'       => '',    // ISO 639 language code for this status.
-		]);
+		], $request);
 
 		$owner = User::getOwnerDataById($uid);
 

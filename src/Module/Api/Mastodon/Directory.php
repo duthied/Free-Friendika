@@ -46,7 +46,7 @@ class Directory extends BaseApi
 			'limit'  => 40,       // How many accounts to load. Default 40.
 			'order'  => 'active', // active to sort by most recently posted statuses (default) or new to sort by most recently created profiles.
 			'local'  => false,    // Only return local accounts.
-		]);
+		], $request);
 
 		Logger::info('directory', ['offset' => $request['offset'], 'limit' => $request['limit'], 'order' => $request['order'], 'local' => $request['local']]);
 

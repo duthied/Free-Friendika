@@ -76,7 +76,7 @@ class ScheduledStatuses extends BaseApi
 			'max_id'          => 0,  // Return results older than ID
 			'since_id'        => 0,  // Return results newer than ID
 			'min_id'          => 0,  // Return results immediately newer than ID
-		]);
+		], $request);
 
 		$params = ['order' => ['id' => true], 'limit' => $request['limit']];
 

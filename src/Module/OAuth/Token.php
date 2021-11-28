@@ -43,7 +43,7 @@ class Token extends BaseApi
 			'scope'         => 'read', // List of requested OAuth scopes, separated by spaces. Must be a subset of scopes declared during app registration. If not provided, defaults to "read".
 			'code'          => '', // A user authorization code, obtained via /oauth/authorize
 			'grant_type'    => '', // Set equal to "authorization_code" if code is provided in order to gain user-level access. Otherwise, set equal to "client_credentials" to obtain app-level access only.
-		]);
+		], $request);
 
 		// AndStatus transmits the client data in the AUTHORIZATION header field, see https://github.com/andstatus/andstatus/issues/530
 		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';

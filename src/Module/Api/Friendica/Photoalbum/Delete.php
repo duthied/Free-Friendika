@@ -41,7 +41,7 @@ class Delete extends BaseApi
 
 		$request = self::getRequest([
 			'album' => '', // Album name
-		]);
+		], $request);
 
 		// we do not allow calls without album string
 		if (empty($request['album'])) {

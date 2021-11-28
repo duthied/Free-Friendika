@@ -38,7 +38,7 @@ class Revoke extends BaseApi
 			'client_id'     => '', // Client ID, obtained during app registration
 			'client_secret' => '', // Client secret, obtained during app registration
 			'token'         => '', // The previously obtained token, to be invalidated
-		]);
+		], $request);
 
 		$condition = ['client_id' => $request['client_id'], 'client_secret' => $request['client_secret'], 'access_token' => $request['token']];
 		$token = DBA::selectFirst('application-view', ['id'], $condition);

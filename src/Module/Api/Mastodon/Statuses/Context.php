@@ -45,7 +45,7 @@ class Context extends BaseApi
 
 		$request = self::getRequest([
 			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
-		]);
+		], $request);
 
 		$id = $this->parameters['id'];
 

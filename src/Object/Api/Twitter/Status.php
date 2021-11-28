@@ -99,7 +99,7 @@ class Status extends BaseDataTransferObject
 	 * @param array   $item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(string $text, array $item, User $author, User $owner, array $retweeted, array $quoted, array $geo, array $friendica_activities, array $entities, array $attachments, int $friendica_comments)
+	public function __construct(string $text, array $item, User $author, User $owner, array $retweeted, array $quoted, array $geo, array $friendica_activities, array $entities, array $attachments, int $friendica_comments, bool $liked)
 	{
 		$this->id                        = (int)$item['id'];
 		$this->id_str                    = (string)$item['id'];
@@ -127,7 +127,7 @@ class Status extends BaseDataTransferObject
 		$this->retweeted_status     = $retweeted;
 		$this->quoted_status        = $quoted;
 		$this->external_url         = $item['plink'];
-		$this->favorited            = (bool)$item['starred'];
+		$this->favorited            = $liked;
 		$this->friendica_comments   = $friendica_comments;
 		$this->source               = $item['app'];
 		$this->geo                  = $geo;

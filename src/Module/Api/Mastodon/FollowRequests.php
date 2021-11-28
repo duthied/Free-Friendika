@@ -91,7 +91,7 @@ class FollowRequests extends BaseApi
 			'min_id' => 0,
 			'max_id' => 0,
 			'limit'  => 40, // Maximum number of results to return. Defaults to 40. Paginate using the HTTP Link header.
-		]);
+		], $request);
 
 		$introductions = DI::intro()->selectForUser($uid, $request['min_id'], $request['max_id'], $request['limit']);
 

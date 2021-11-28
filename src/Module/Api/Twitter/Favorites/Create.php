@@ -19,47 +19,33 @@
  *
  */
 
-namespace Friendica\Module\Api\Friendica;
+namespace Friendica\Module\Api\Twitter\Favorites;
 
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException\BadRequestException;
 
 /**
- * API endpoints:
- * - /api/friendica/activity/like
- * - /api/friendica/activity/dislike
- * - /api/friendica/activity/attendyes
- * - /api/friendica/activity/attendno
- * - /api/friendica/activity/attendmaybe
- * - /api/friendica/activity/unlike
- * - /api/friendica/activity/undislike
- * - /api/friendica/activity/unattendyes
- * - /api/friendica/activity/unattendno
- * - /api/friendica/activity/unattendmaybe
+ * @see https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-favorites-create
  */
-class Activity extends BaseApi
+class Create extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
-			'id' => 0, // Id of the post
-		], $request);
+		$id = $request['id'] ?? 0;
 
-		$res = Item::performActivity($request['id'], $this->parameters['verb'], $uid);
-
-		if ($res) {
-			if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
-				$ok = 'true';
-			} else {
-				$ok = 'ok';
-			}
-			$this->response->exit('ok', ['ok' => $ok], $this->parameters['extension'] ?? null);
-		} else {
-			$this->response->error(500, 'Error adding activity', '', $this->parameters['extension'] ?? null);
+		if (empty($id)) {
+			throw new BadRequestException('Item id not specified');
 		}
+
+		Item::performActivity($id, 'like', $uid);
+
+		$status_info = DI::twitterStatus()->createFromItemId($id, $uid)->toArray();
+
+		DI::apiResponse()->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
 	}
 }

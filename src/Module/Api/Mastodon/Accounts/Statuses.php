@@ -63,7 +63,7 @@ class Statuses extends BaseApi
 			'with_muted'      => false, // Pleroma extension: return activities by muted (not by blocked!) users.
 			'exclude_reblogs' => false, // Undocumented parameter
 			'tagged'          => false, // Undocumented parameter
-		]);
+		], $request);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 

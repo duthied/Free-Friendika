@@ -41,7 +41,7 @@ class Index extends BaseApi
 		$request = self::getRequest([
 			'since_id' => 0,
 			'count'    => 0,
-		]);
+		], $request);
 
 		$condition = ["`id` > ? AND `uid` = ?", $request['since_id'], $uid];
 		$params = ['limit' => $request['count']];
