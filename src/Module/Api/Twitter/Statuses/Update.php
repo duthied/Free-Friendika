@@ -154,16 +154,19 @@ class Update extends BaseApi
 				Photo::setPermissionForRessource($media[0]['resource-id'], $uid, $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
 
 				$ressources[] = $media[0]['resource-id'];
-				$phototypes = Images::supportedTypes();
-				$ext        = $phototypes[$media[0]['type']];
+				$phototypes   = Images::supportedTypes();
+				$ext          = $phototypes[$media[0]['type']];
 
-				$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
+				$attachment = [
+					'type'        => Post\Media::IMAGE,
+					'mimetype'    => $media[0]['type'],
 					'url'         => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
 					'size'        => $media[0]['datasize'],
 					'name'        => $media[0]['filename'] ?: $media[0]['resource-id'],
 					'description' => $media[0]['desc'] ?? '',
 					'width'       => $media[0]['width'],
-					'height'      => $media[0]['height']];
+					'height'      => $media[0]['height']
+				];
 
 				if (count($media) > 1) {
 					$attachment['preview']        = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
