@@ -42,8 +42,20 @@ class DeleteTest extends ApiTest
 		(new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run(['album' => 'album_name']);
 	}
 
-	public function testValid()
+	public function testValidWithDelete()
 	{
-		self::markTestIncomplete('We need to add a dataset for this.');
+		$this->loadFixture(__DIR__ . '/../../../../../datasets/photo/photo.fixture.php', DI::dba());
+
+		$delete   = new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::DELETE]);
+		$response = $delete->run([], ['album' => 'test_album']);
+
+		$responseText = (string)$response->getBody();
+
+		self::assertJson($responseText);
+
+		$json = json_decode($responseText);
+
+		self::assertEquals('deleted', $json->result);
+		self::assertEquals('album `test_album` with all containing photos has been deleted.', $json->message);
 	}
 }
