@@ -57,7 +57,7 @@ abstract class ApiTest extends FixtureTest
 			->addRule(App::class, ['instanceOf' => AppDouble::class, 'shared' => true]);
 		DI::init($this->dice);
 
-		// Manual overwrite for API testrs :-)
+		// Manual override to bypass API authentication
 		DI::app()->setIsLoggedIn(true);
 
 		$this->installAuthTest();
