@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-28 13:40+0000\n"
+"POT-Creation-Date: 2021-11-28 13:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -126,9 +126,9 @@ msgstr ""
 #: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:68
 #: mod/wall_attach.php:71 mod/wall_upload.php:90 mod/wall_upload.php:93
 #: mod/wallmessage.php:36 mod/wallmessage.php:55 mod/wallmessage.php:89
-#: mod/wallmessage.php:109 src/Module/Attach.php:55 src/Module/BaseApi.php:77
-#: src/Module/BaseApi.php:86 src/Module/BaseApi.php:95
-#: src/Module/BaseApi.php:104 src/Module/BaseNotifications.php:97
+#: mod/wallmessage.php:109 src/Module/Attach.php:55 src/Module/BaseApi.php:79
+#: src/Module/BaseApi.php:88 src/Module/BaseApi.php:97
+#: src/Module/BaseApi.php:106 src/Module/BaseNotifications.php:97
 #: src/Module/Contact/Advanced.php:60 src/Module/Delegation.php:118
 #: src/Module/FollowConfirm.php:18 src/Module/FriendSuggest.php:56
 #: src/Module/Group.php:42 src/Module/Group.php:85 src/Module/Invite.php:41
@@ -6932,26 +6932,26 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:278 src/Module/BaseApi.php:294
-#: src/Module/BaseApi.php:310
+#: src/Module/BaseApi.php:280 src/Module/BaseApi.php:296
+#: src/Module/BaseApi.php:312
 msgid "Too Many Requests"
 msgstr ""
 
-#: src/Module/BaseApi.php:279
+#: src/Module/BaseApi.php:281
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:295
+#: src/Module/BaseApi.php:297
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:311
+#: src/Module/BaseApi.php:313
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""

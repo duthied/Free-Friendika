@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 2021.12-dev (Siberian Iris)
+-- Friendica 2021.12-rc (Siberian Iris)
 -- DB_UPDATE_VERSION 1445
 -- ------------------------------------------
 
