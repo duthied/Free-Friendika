@@ -30,20 +30,18 @@ use Friendica\Util\HTTPInputData;
 class HTTPInputDataDouble extends HTTPInputData
 {
 	/** @var false|resource */
-	protected static $injectedStream = false;
+	protected $injectedStream = false;
 	/** @var false|string */
-	protected static $injectedContent = false;
-	/** @var false|string */
-	protected static $injectedContentType = false;
+	protected $injectedContent = false;
 
 	/**
 	 * injects the PHP input stream for a test
 	 *
 	 * @param false|resource $stream
 	 */
-	public static function setPhpInputStream($stream)
+	public function setPhpInputStream($stream)
 	{
-		self::$injectedStream = $stream;
+		$this->injectedStream = $stream;
 	}
 
 	/**
@@ -51,9 +49,9 @@ class HTTPInputDataDouble extends HTTPInputData
 	 *
 	 * @param false|string $content
 	 */
-	public static function setPhpInputContent($content)
+	public function setPhpInputContent($content)
 	{
-		self::$injectedContent = $content;
+		$this->injectedContent = $content;
 	}
 
 	/**
@@ -61,30 +59,24 @@ class HTTPInputDataDouble extends HTTPInputData
 	 *
 	 * @param false|string $contentType
 	 */
-	public static function setPhpInputContentType($contentType)
+	public function setPhpInputContentType($contentType)
 	{
-		self::$injectedContentType = $contentType;
+		$this->injectedContentType = $contentType;
 	}
 
 	/** {@inheritDoc} */
-	protected static function getPhpInputStream()
+	protected function getPhpInputStream()
 	{
-		return static::$injectedStream;
+		return $this->injectedStream;
 	}
 
 	/** {@inheritDoc} */
-	protected static function getPhpInputContent()
+	protected function getPhpInputContent()
 	{
-		return static::$injectedContent;
+		return $this->injectedContent;
 	}
 
-	/** {@inheritDoc} */
-	protected static function getContentType()
-	{
-		return static::$injectedContentType;
-	}
-
-	protected static function fetchFileData($stream, string $boundary, array $headers, string $filename)
+	protected function fetchFileData($stream, string $boundary, array $headers, string $filename)
 	{
 		$data = parent::fetchFileData($stream, $boundary, $headers, $filename);
 		if (!empty($data['tmp_name'])) {

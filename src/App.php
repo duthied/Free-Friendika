@@ -44,7 +44,6 @@ use Friendica\Util\HTTPInputData;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
-use GuzzleHttp\Psr7\Response;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -563,13 +562,15 @@ class App
 	 *
 	 * @param App\Router                  $router
 	 * @param IManagePersonalConfigValues $pconfig
-	 * @param Authentication              $auth   The Authentication backend of the node
-	 * @param App\Page                    $page   The Friendica page printing container
+	 * @param Authentication              $auth       The Authentication backend of the node
+	 * @param App\Page                    $page       The Friendica page printing container
+	 * @param HTTPInputData               $httpInput  A library for processing PHP input streams
+	 * @param float                       $start_time The start time of the overall script execution
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, float $start_time)
+	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, HTTPInputData $httpInput, float $start_time)
 	{
 		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');
@@ -704,8 +705,8 @@ class App
 			}
 
 			// Processes data from GET requests
-			$httpinput = HTTPInputData::process();
-			$input = array_merge($httpinput['variables'], $httpinput['files'], $request ?? $_REQUEST);
+			$httpinput = $httpInput->process();
+			$input     = array_merge($httpinput['variables'], $httpinput['files'], $request ?? $_REQUEST);
 
 			// Let the module run it's internal process (init, get, post, ...)
 			$response = $module->run($input);
