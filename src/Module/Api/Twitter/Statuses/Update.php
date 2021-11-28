@@ -24,8 +24,6 @@ namespace Friendica\Module\Api\Twitter\Statuses;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
-use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -43,7 +41,7 @@ use HTMLPurifier_Config;
  * Updates the user’s current status.
  *
  * @see https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-update
-*/
+ */
 class Update extends BaseApi
 {
 	public function post(array $request = [], array $post = [])
@@ -72,7 +70,7 @@ class Update extends BaseApi
 			$config->set('Cache.DefinitionImpl', null);
 
 			$purifier = new HTMLPurifier($config);
-			$body = $purifier->purify($body);
+			$body     = $purifier->purify($body);
 
 			$body = HTML::toBBCode($request['htmlstatus']);
 		} else {
@@ -85,11 +83,12 @@ class Update extends BaseApi
 			return BBCode::expandTags($body);
 		});
 
-		$item = [];
+		$item               = [];
 		$item['uid']        = $uid;
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
-		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
+		$item['author-id']  = Contact::getPublicIdByUserId($uid);
+		$item['owner-id']   = $item['author-id'];
 		$item['title']      = $request['title'];
 		$item['body']       = $body;
 		$item['app']        = $request['source'];
@@ -117,6 +116,7 @@ class Update extends BaseApi
 
 		if ($request['in_reply_to_status_id']) {
 			$parent = Post::selectFirst(['uri'], ['id' => $request['in_reply_to_status_id'], 'uid' => [0, $uid]]);
+
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
@@ -155,19 +155,19 @@ class Update extends BaseApi
 
 				$ressources[] = $media[0]['resource-id'];
 				$phototypes = Images::supportedTypes();
-				$ext = $phototypes[$media[0]['type']];
+				$ext        = $phototypes[$media[0]['type']];
 
 				$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
-					'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
-					'size' => $media[0]['datasize'],
-					'name' => $media[0]['filename'] ?: $media[0]['resource-id'],
+					'url'         => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
+					'size'        => $media[0]['datasize'],
+					'name'        => $media[0]['filename'] ?: $media[0]['resource-id'],
 					'description' => $media[0]['desc'] ?? '',
-					'width' => $media[0]['width'],
-					'height' => $media[0]['height']];
+					'width'       => $media[0]['width'],
+					'height'      => $media[0]['height']];
 
 				if (count($media) > 1) {
-					$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
-					$attachment['preview-width'] = $media[1]['width'];
+					$attachment['preview']        = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
+					$attachment['preview-width']  = $media[1]['width'];
 					$attachment['preview-height'] = $media[1]['height'];
 				}
 				$item['attachments'][] = $attachment;
