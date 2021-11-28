@@ -31,7 +31,7 @@ use Friendica\Network\HTTPException\BadRequestException;
  */
 class Create extends BaseApi
 {
-	protected function rawContent(array $request = [])
+	protected function post(array $request = [], array $post = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

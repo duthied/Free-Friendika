@@ -34,7 +34,7 @@ use Friendica\Util\Network;
  */
 class Create extends BaseApi
 {
-	protected function rawContent(array $request = [])
+	protected function post(array $request = [], array $post = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
