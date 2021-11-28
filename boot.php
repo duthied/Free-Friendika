@@ -31,7 +31,7 @@ use Friendica\Model\Contact;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Siberian Iris');
-define('FRIENDICA_VERSION',      '2021.12-dev');
+define('FRIENDICA_VERSION',      '2021.12-rc');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_TABLE_STRUCTURE_VERSION', 1288);
 
