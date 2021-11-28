@@ -30,7 +30,7 @@ use Friendica\Module\Admin\BaseUsers;
 
 class Index extends BaseUsers
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 

@@ -193,7 +193,7 @@ class Register extends BaseModule
 	 * Extend this method if the module is supposed to process POST requests.
 	 * Doesn't display any content
 	 */
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		BaseModule::checkFormSecurityTokenRedirectOnError('/register', 'register');
 

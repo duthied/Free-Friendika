@@ -45,7 +45,7 @@ class Tos extends BaseAdmin
 		$this->config  = $config;
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 

@@ -46,7 +46,7 @@ class Login extends BaseModule
 		return self::form(Session::get('return_path'), intval(DI::config()->get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		$return_path = Session::get('return_path');
 		Session::clear();

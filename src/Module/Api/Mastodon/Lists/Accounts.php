@@ -34,14 +34,14 @@ use Friendica\Module\BaseApi;
  */
 class Accounts extends BaseApi
 {
-	protected function delete()
+	protected function delete(array $request = [])
 	{
-		$this->response->unsupported(Router::DELETE);
+		$this->response->unsupported(Router::DELETE, $request);
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
-		$this->response->unsupported(Router::POST);
+		$this->response->unsupported(Router::POST, $request);
 	}
 
 	/**

@@ -35,7 +35,6 @@ use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\HTTPInputData;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -71,7 +70,7 @@ class BaseApi extends BaseModule
 		$this->app = $app;
 	}
 
-	protected function delete()
+	protected function delete(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -80,7 +79,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	protected function patch()
+	protected function patch(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -89,7 +88,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -98,7 +97,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public function put()
+	public function put(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
@@ -112,21 +111,18 @@ class BaseApi extends BaseModule
 	 *
 	 * @param array      $defaults Associative array of expected request keys and their default typed value. A null
 	 *                             value will remove the request key from the resulting value array.
-	 * @param array|null $request  Custom REQUEST array, superglobal instead
+	 * @param array $request       Custom REQUEST array, superglobal instead
 	 * @return array request data
 	 * @throws \Exception
 	 */
-	public function getRequest(array $defaults, array $request = null): array
+	public function getRequest(array $defaults, array $request): array
 	{
-		$httpinput = HTTPInputData::process();
-		$input = array_merge($httpinput['variables'], $httpinput['files'], $request ?? $_REQUEST);
-
-		self::$request    = $input;
+		self::$request    = $request;
 		self::$boundaries = [];
 
 		unset(self::$request['pagename']);
 
-		return $this->checkDefaults($defaults, $input);
+		return $this->checkDefaults($defaults, $request);
 	}
 
 	/**

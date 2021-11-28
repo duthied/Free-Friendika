@@ -40,6 +40,7 @@ use Friendica\Model\Profile;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPInputData;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
@@ -702,8 +703,12 @@ class App
 				$module = $router->getModule();
 			}
 
+			// Processes data from GET requests
+			$httpinput = HTTPInputData::process();
+			$input = array_merge($httpinput['variables'], $httpinput['files'], $request ?? $_REQUEST);
+
 			// Let the module run it's internal process (init, get, post, ...)
-			$response = $module->run($_POST, $_REQUEST);
+			$response = $module->run($input);
 			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
 				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
 			} else {

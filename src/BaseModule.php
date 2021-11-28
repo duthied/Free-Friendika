@@ -128,8 +128,10 @@ abstract class BaseModule implements ICanHandleRequests
 	 *
 	 * Extend this method if the module is supposed to process DELETE requests.
 	 * Doesn't display any content
+	 *
+	 * @param string[] $request The $_REQUEST content
 	 */
-	protected function delete()
+	protected function delete(array $request = [])
 	{
 	}
 
@@ -138,8 +140,10 @@ abstract class BaseModule implements ICanHandleRequests
 	 *
 	 * Extend this method if the module is supposed to process PATCH requests.
 	 * Doesn't display any content
+	 *
+	 * @param string[] $request The $_REQUEST content
 	 */
-	protected function patch()
+	protected function patch(array $request = [])
 	{
 	}
 
@@ -150,10 +154,9 @@ abstract class BaseModule implements ICanHandleRequests
 	 * Doesn't display any content
 	 *
 	 * @param string[] $request The $_REQUEST content
-	 * @param string[] $post    The $_POST content
 	 *
 	 */
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		// $this->baseUrl->redirect('module');
 	}
@@ -163,15 +166,17 @@ abstract class BaseModule implements ICanHandleRequests
 	 *
 	 * Extend this method if the module is supposed to process PUT requests.
 	 * Doesn't display any content
+	 *
+	 * @param string[] $request The $_REQUEST content
 	 */
-	protected function put()
+	protected function put(array $request = [])
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function run(array $post = [], array $request = []): ResponseInterface
+	public function run(array $request = []): ResponseInterface
 	{
 		// @see https://github.com/tootsuite/mastodon/blob/c3aef491d66aec743a3a53e934a494f653745b61/config/initializers/cors.rb
 		if (substr($request['pagename'] ?? '', 0, 12) == '.well-known/') {
@@ -208,17 +213,17 @@ abstract class BaseModule implements ICanHandleRequests
 
 		switch ($this->server['REQUEST_METHOD'] ?? Router::GET) {
 			case Router::DELETE:
-				$this->delete();
+				$this->delete($request);
 				break;
 			case Router::PATCH:
-				$this->patch();
+				$this->patch($request);
 				break;
 			case Router::POST:
-				Core\Hook::callAll($this->args->getModuleName() . '_mod_post', $post);
-				$this->post($request, $post);
+				Core\Hook::callAll($this->args->getModuleName() . '_mod_post', $request);
+				$this->post($request);
 				break;
 			case Router::PUT:
-				$this->put();
+				$this->put($request);
 				break;
 		}
 
@@ -231,7 +236,7 @@ abstract class BaseModule implements ICanHandleRequests
 			$arr = ['content' => ''];
 			Hook::callAll(static::class . '_mod_content', $arr);
 			$this->response->addContent($arr['content']);
-			$this->response->addContent($this->content($_REQUEST));
+			$this->response->addContent($this->content($request));
 		} catch (HTTPException $e) {
 			$this->response->addContent((new ModuleHTTPException())->content($e));
 		} finally {

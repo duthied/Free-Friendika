@@ -71,7 +71,7 @@ class Profile extends BaseModule
 		$this->config            = $config;
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!local_user()) {
 			return;

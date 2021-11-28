@@ -42,7 +42,7 @@ class FollowRequests extends BaseApi
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#accept-follow
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#reject-follow
 	 */
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();

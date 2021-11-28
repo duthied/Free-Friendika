@@ -33,7 +33,7 @@ use Friendica\Network\HTTPException;
 
 class Crop extends BaseSettings
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!Session::isAuthenticated()) {
 			return;

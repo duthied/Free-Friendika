@@ -49,7 +49,7 @@ class Receive extends BaseModule
 		$this->config = $config;
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		$enabled = $this->config->get('system', 'diaspora_enabled', false);
 		if (!$enabled) {

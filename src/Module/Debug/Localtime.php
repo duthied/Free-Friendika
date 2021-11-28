@@ -31,7 +31,7 @@ class Localtime extends BaseModule
 {
 	static $mod_localtime = '';
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		$time = ($_REQUEST['time'] ?? '') ?: 'now';
 

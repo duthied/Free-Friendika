@@ -33,15 +33,15 @@ use Friendica\Module\BaseApi;
  */
 class ScheduledStatuses extends BaseApi
 {
-	public function put()
+	public function put(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$this->response->unsupported(Router::PUT);
+		$this->response->unsupported(Router::PUT, $request);
 	}
 
-	protected function delete()
+	protected function delete(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

@@ -18,7 +18,7 @@ use Friendica\Util\XML;
 
 class Poke extends BaseModule
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!local_user() || empty($this->parameters['id'])) {
 			return self::postReturn(false);

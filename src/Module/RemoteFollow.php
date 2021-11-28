@@ -61,7 +61,7 @@ class RemoteFollow extends BaseModule
 		$this->page    = $page;
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!empty($_POST['cancel']) || empty($_POST['dfrn_url'])) {
 			$this->baseUrl->redirect();
