@@ -71,6 +71,7 @@ class Seen extends BaseApi
 					$ret  = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray()];
 					$data = ['status' => $ret];
 					DI::apiResponse()->exit('statuses', $data, $this->parameters['extension'] ?? null);
+					return;
 				}
 				// the item can't be found, but we set the notification as seen, so we count this as a success
 			}

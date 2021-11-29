@@ -70,6 +70,7 @@ $apiRoutes = [
 	'/friends/list[.{extension:json|xml|rss|atom}]'                => [Module\Api\Twitter\Friends\Lists::class,            [R::GET         ]],
 	'/friendships/destroy[.{extension:json|xml|rss|atom}]'         => [Module\Api\Twitter\Friendships\Destroy::class,      [        R::POST]],
 	'/friendships/incoming[.{extension:json|xml|rss|atom}]'        => [Module\Api\Twitter\Friendships\Incoming::class,     [R::GET         ]],
+	'/friendships/show[.{extension:json|xml|rss|atom}]'            => [Module\Api\Twitter\Friendships\Show::class,         [R::GET         ]],
 
 	'/friendica' => [
 		'/activity/{verb:attendmaybe|attendno|attendyes|dislike|like|unattendmaybe|unattendno|unattendyes|undislike|unlike}[.{extension:json|xml|rss|atom}]'
