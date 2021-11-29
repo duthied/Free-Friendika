@@ -56,7 +56,7 @@ class Update extends BaseApi
 			'in_reply_to_status_id' => 0,
 			'lat'                   => 0,
 			'long'                  => 0,
-			'media_ids'             => [],
+			'media_ids'             => '',
 			'source'                => '',
 			'include_entities'      => false,
 		], $request);
@@ -127,9 +127,9 @@ class Update extends BaseApi
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		}
 
-		$ids = $request['media_ids'];
-
-		if (!empty($_FILES['media'])) {
+		if (!empty($_REQUEST['media_ids'])) {
+			$ids = explode(',', $_REQUEST['media_ids']);
+		} elseif (!empty($_FILES['media'])) {
 			// upload the image if we have one
 			$picture = Photo::upload($uid, $_FILES['media']);
 			if (!empty($picture)) {
