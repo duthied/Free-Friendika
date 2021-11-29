@@ -157,10 +157,10 @@ class Profile extends BaseModule
 			$this->baseUrl->redirect('profile/' . $contact['nick'] . '/profile');
 		}
 
-		if (isset($parameters['action'])) {
+		if (isset($this->parameters['action'])) {
 			self::checkFormSecurityTokenRedirectOnError('contact/' . $contact['id'], 'contact_action', 't');
 
-			$cmd = $parameters['action'];
+			$cmd = $this->parameters['action'];
 			if ($cmd === 'update' && $localRelationship->rel !== Contact::NOTHING) {
 				Module\Contact::updateContactFromPoll($contact['id']);
 			}
