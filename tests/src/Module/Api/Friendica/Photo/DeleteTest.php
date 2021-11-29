@@ -46,8 +46,37 @@ class DeleteTest extends ApiTest
 		(new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run(['photo_id' => 1]);
 	}
 
-	public function testWithCorrectPhotoId()
+	public function testValidWithPost()
 	{
-		self::markTestIncomplete('We need to add a dataset for this.');
+		$this->loadFixture(__DIR__ . '/../../../../../datasets/photo/photo.fixture.php', DI::dba());
+
+		$delete   = new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]);
+		$response = $delete->run([], ['photo_id' => '709057080661a283a6aa598501504178']);
+
+		$responseText = (string)$response->getBody();
+
+		self::assertJson($responseText);
+
+		$json = json_decode($responseText);
+
+		self::assertEquals('deleted', $json->result);
+		self::assertEquals('photo with id `709057080661a283a6aa598501504178` has been deleted from server.', $json->message);
+	}
+
+	public function testValidWithDelete()
+	{
+		$this->loadFixture(__DIR__ . '/../../../../../datasets/photo/photo.fixture.php', DI::dba());
+
+		$delete   = new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::DELETE]);
+		$response = $delete->run([], ['photo_id' => '709057080661a283a6aa598501504178']);
+
+		$responseText = (string)$response->getBody();
+
+		self::assertJson($responseText);
+
+		$json = json_decode($responseText);
+
+		self::assertEquals('deleted', $json->result);
+		self::assertEquals('photo with id `709057080661a283a6aa598501504178` has been deleted from server.', $json->message);
 	}
 }
