@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ForbiddenException;
@@ -79,6 +80,21 @@ class Retweet extends BaseApi
 					'body' => $post,
 					'app'  => $request['source'] ?? '',
 				];
+
+				$owner = User::getOwnerDataById($uid);
+
+				$item['allow_cid'] = $owner['allow_cid'];
+				$item['allow_gid'] = $owner['allow_gid'];
+				$item['deny_cid']  = $owner['deny_cid'];
+				$item['deny_gid']  = $owner['deny_gid'];
+
+				if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
+					$item['private'] = Item::PRIVATE;
+				} elseif (DI::pConfig()->get($uid, 'system', 'unlisted')) {
+					$item['private'] = Item::UNLISTED;
+				} else {
+					$item['private'] = Item::PUBLIC;
+				}
 
 				if (empty($item['app']) && !empty(self::getCurrentApplication()['name'])) {
 					$item['app'] = self::getCurrentApplication()['name'];
