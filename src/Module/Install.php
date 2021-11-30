@@ -104,7 +104,7 @@ class Install extends BaseModule
 		$this->currentWizardStep = ($_POST['pass'] ?? '') ?: self::SYSTEM_CHECK;
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		$configCache = $this->app->getConfigCache();
 

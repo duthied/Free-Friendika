@@ -73,9 +73,9 @@ class LegacyModule extends BaseModule
 		return $this->runModuleFunction('content');
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
-		parent::post($post);
+		parent::post($request);
 
 		$this->runModuleFunction('post');
 	}

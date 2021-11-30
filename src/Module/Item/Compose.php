@@ -40,7 +40,7 @@ use Friendica\Util\Temporal;
 
 class Compose extends BaseModule
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!empty($_REQUEST['body'])) {
 			$_REQUEST['return'] = 'network';

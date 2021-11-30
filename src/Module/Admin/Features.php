@@ -28,7 +28,7 @@ use Friendica\Module\BaseAdmin;
 
 class Features extends BaseAdmin
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 

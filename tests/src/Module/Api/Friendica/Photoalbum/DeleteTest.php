@@ -47,7 +47,7 @@ class DeleteTest extends ApiTest
 		$this->loadFixture(__DIR__ . '/../../../../../datasets/photo/photo.fixture.php', DI::dba());
 
 		$delete   = new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::DELETE]);
-		$response = $delete->run([], ['album' => 'test_album']);
+		$response = $delete->run(['album' => 'test_album']);
 
 		$responseText = (string)$response->getBody();
 

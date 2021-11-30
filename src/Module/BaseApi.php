@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\App;
+use Friendica\App\Router;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -35,8 +36,8 @@ use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\HTTPInputData;
 use Friendica\Util\Profiler;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 class BaseApi extends BaseModule
@@ -71,40 +72,29 @@ class BaseApi extends BaseModule
 		$this->app = $app;
 	}
 
-	protected function delete()
+	/**
+	 * Additionally checks, if the caller is permitted to do this action
+	 *
+	 * {@inheritDoc}
+	 *
+	 * @throws HTTPException\ForbiddenException
+	 */
+	public function run(array $request = []): ResponseInterface
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		switch ($this->server['REQUEST_METHOD'] ?? Router::GET) {
+			case Router::DELETE:
+			case Router::PATCH:
+			case Router::POST:
+			case Router::PUT:
+				self::checkAllowedScope(self::SCOPE_WRITE);
 
-		if (!$this->app->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
+				if (!$this->app->isLoggedIn()) {
+					throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
+				}
+				break;
 		}
-	}
 
-	protected function patch()
-	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-
-		if (!$this->app->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
-		}
-	}
-
-	protected function post(array $request = [], array $post = [])
-	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-
-		if (!$this->app->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
-		}
-	}
-
-	public function put()
-	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-
-		if (!$this->app->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
-		}
+		return parent::run($request);
 	}
 
 	/**
@@ -112,49 +102,18 @@ class BaseApi extends BaseModule
 	 *
 	 * @param array      $defaults Associative array of expected request keys and their default typed value. A null
 	 *                             value will remove the request key from the resulting value array.
-	 * @param array|null $request  Custom REQUEST array, superglobal instead
+	 * @param array $request       Custom REQUEST array, superglobal instead
 	 * @return array request data
 	 * @throws \Exception
 	 */
-	public static function getRequest(array $defaults, array $request = null): array
+	public function getRequest(array $defaults, array $request): array
 	{
-		$httpinput = HTTPInputData::process();
-		$input = array_merge($httpinput['variables'], $httpinput['files'], $request ?? $_REQUEST);
-
-		self::$request    = $input;
+		self::$request    = $request;
 		self::$boundaries = [];
 
 		unset(self::$request['pagename']);
 
-		$request = [];
-
-		foreach ($defaults as $parameter => $defaultvalue) {
-			if (is_string($defaultvalue)) {
-				$request[$parameter] = $input[$parameter] ?? $defaultvalue;
-			} elseif (is_int($defaultvalue)) {
-				$request[$parameter] = (int)($input[$parameter] ?? $defaultvalue);
-			} elseif (is_float($defaultvalue)) {
-				$request[$parameter] = (float)($input[$parameter] ?? $defaultvalue);
-			} elseif (is_array($defaultvalue)) {
-				$request[$parameter] = $input[$parameter] ?? [];
-			} elseif (is_bool($defaultvalue)) {
-				$request[$parameter] = in_array(strtolower($input[$parameter] ?? ''), ['true', '1']);
-			} else {
-				Logger::notice('Unhandled default value type', ['parameter' => $parameter, 'type' => gettype($defaultvalue)]);
-			}
-		}
-
-		foreach ($input ?? [] as $parameter => $value) {
-			if ($parameter == 'pagename') {
-				continue;
-			}
-			if (!in_array($parameter, array_keys($defaults))) {
-				Logger::notice('Unhandled request field', ['parameter' => $parameter, 'value' => $value, 'command' => DI::args()->getCommand()]);
-			}
-		}
-
-		Logger::debug('Got request parameters', ['request' => $request, 'command' => DI::args()->getCommand()]);
-		return $request;
+		return $this->checkDefaults($defaults, $request);
 	}
 
 	/**

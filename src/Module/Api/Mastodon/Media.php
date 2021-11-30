@@ -32,7 +32,7 @@ use Friendica\Module\BaseApi;
  */
 class Media extends BaseApi
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -53,12 +53,12 @@ class Media extends BaseApi
 		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($media['id']));
 	}
 
-	public function put()
+	public function put(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'file'        => [], // The file to be attached, using multipart form data.
 			'thumbnail'   => [], // The custom thumbnail of the media to be attached, using multipart form data.
 			'description' => '', // A plain-text description of the media, for accessibility purposes.

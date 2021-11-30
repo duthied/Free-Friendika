@@ -39,7 +39,7 @@ class Relationships extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'id' => [],
 		], $request);
 

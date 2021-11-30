@@ -32,7 +32,7 @@ require_once 'boot.php';
 
 class Group extends BaseModule
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (DI::mode()->isAjax()) {
 			$this->ajaxPost();
@@ -47,7 +47,7 @@ class Group extends BaseModule
 		if ((DI::args()->getArgc() == 2) && (DI::args()->getArgv()[1] === 'new')) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/group/new', 'group_edit');
 
-			$name = trim($_POST['groupname']);
+			$name = trim($request['groupname']);
 			$r = Model\Group::create(local_user(), $name);
 			if ($r) {
 				$r = Model\Group::getIdByName(local_user(), $name);

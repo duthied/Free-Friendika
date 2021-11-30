@@ -61,7 +61,7 @@ class FriendSuggest extends BaseModule
 		$this->friendSuggestFac  = $friendSuggestFac;
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		$cid = intval($this->parameters['contact']);
 

@@ -33,7 +33,7 @@ use Friendica\Util\Temporal;
 
 class Deleted extends BaseUsers
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 

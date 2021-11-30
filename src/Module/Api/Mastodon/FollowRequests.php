@@ -42,7 +42,7 @@ class FollowRequests extends BaseApi
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#accept-follow
 	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#reject-follow
 	 */
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
@@ -87,7 +87,7 @@ class FollowRequests extends BaseApi
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'min_id' => 0,
 			'max_id' => 0,
 			'limit'  => 40, // Maximum number of results to return. Defaults to 40. Paginate using the HTTP Link header.

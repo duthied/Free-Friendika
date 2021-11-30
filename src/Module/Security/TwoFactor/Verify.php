@@ -38,7 +38,7 @@ class Verify extends BaseModule
 {
 	private static $errors = [];
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!local_user()) {
 			return;

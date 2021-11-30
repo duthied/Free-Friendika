@@ -55,7 +55,7 @@ class Notifications extends BaseApi
 			}
 		}
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'max_id'        => 0,     // Return results older than this ID
 			'since_id'      => 0,     // Return results newer than this ID
 			'min_id'        => 0,     // Return results immediately newer than this ID

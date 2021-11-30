@@ -32,7 +32,7 @@ use Friendica\Module\BaseApi;
  */
 class Note extends BaseApi
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -41,7 +41,7 @@ class Note extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'comment' => '',
 		], $request);
 

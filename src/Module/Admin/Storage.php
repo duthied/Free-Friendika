@@ -31,7 +31,7 @@ use Friendica\Util\Strings;
 
 class Storage extends BaseAdmin
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 
