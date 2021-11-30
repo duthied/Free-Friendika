@@ -8,9 +8,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="{{$g}}-settings-title">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#{{$g}}-settings-content" aria-expanded="true" aria-controls="{{$g}}-settings-content">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#{{$g}}-settings-content" aria-expanded="true" aria-controls="{{$g}}-settings-content">
 							{{$f.0}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="{{$g}}-settings-content" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{$g}}-settings-title">

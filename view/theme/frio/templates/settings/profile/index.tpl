@@ -52,9 +52,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="personal">
 					<h2>
-						<a class="accordion-toggle" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#personal-collapse" aria-expanded="true" aria-controls="personal-collapse">
+						<button class="btn-link accordion-toggle" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#personal-collapse" aria-expanded="true" aria-controls="personal-collapse">
 							{{$lbl_personal_section}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				{{* for the $detailed_profile we use bootstraps collapsable panel-groups to have expandable groups *}}
@@ -78,9 +78,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="location">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#location-collapse" aria-expanded="false" aria-controls="location-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#location-collapse" aria-expanded="false" aria-controls="location-collapse">
 							{{$lbl_location_section}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="location-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="location">
@@ -118,9 +118,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="miscellaneous">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#miscellaneous-collapse" aria-expanded="false" aria-controls="miscellaneous-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#miscellaneous-collapse" aria-expanded="false" aria-controls="miscellaneous-collapse">
 							{{$lbl_miscellaneous_section}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="miscellaneous-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="miscellaneous">
@@ -145,9 +145,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="custom-fields">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#custom-fields-collapse" aria-expanded="false" aria-controls="custom-fields-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#custom-fields-collapse" aria-expanded="false" aria-controls="custom-fields-collapse">
 							{{$lbl_custom_fields_section}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="custom-fields-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="custom-fields">

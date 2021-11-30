@@ -29,9 +29,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-general">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-general-collapse" aria-expanded="false" aria-controls="admin-settings-general-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-general-collapse" aria-expanded="false" aria-controls="admin-settings-general-collapse">
 							{{$general_info}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="admin-settings-general-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-general">
@@ -64,9 +64,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-registration">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-registration-collapse" aria-expanded="false" aria-controls="admin-settings-registration-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-registration-collapse" aria-expanded="false" aria-controls="admin-settings-registration-collapse">
 							{{$registration}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="admin-settings-registration-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-registration">
@@ -93,9 +93,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-upload">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-upload-collapse" aria-expanded="false" aria-controls="admin-settings-upload-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-upload-collapse" aria-expanded="false" aria-controls="admin-settings-upload-collapse">
 							{{$upload}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="admin-settings-upload-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-upload">
@@ -118,9 +118,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-corporate">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-corporate-collapse" aria-expanded="false" aria-controls="admin-settings-corporate-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-corporate-collapse" aria-expanded="false" aria-controls="admin-settings-corporate-collapse">
 							{{$corporate}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="admin-settings-corporate-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-corporate">
@@ -179,9 +179,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-$dvanced">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-advanced-collapse" aria-expanded="false" aria-controls="admin-settings-advanced-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-advanced-collapse" aria-expanded="false" aria-controls="admin-settings-advanced-collapse">
 							{{$advanced}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="admin-settings-advanced-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-advanced">
@@ -209,9 +209,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-contacts">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-contacts-collapse" aria-expanded="false" aria-controls="admin-settings-contacts-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-contacts-collapse" aria-expanded="false" aria-controls="admin-settings-contacts-collapse">
 							{{$portable_contacts}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="admin-settings-contacts-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-cocontactsrporate">
@@ -235,9 +235,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-performance">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-performance-collapse" aria-expanded="false" aria-controls="admin-settings-performance-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-performance-collapse" aria-expanded="false" aria-controls="admin-settings-performance-collapse">
 							{{$performance}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="admin-settings-performance-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-performance">
@@ -265,9 +265,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-worker">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-worker-collapse" aria-expanded="false" aria-controls="admin-settings-worker-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-worker-collapse" aria-expanded="false" aria-controls="admin-settings-worker-collapse">
 							{{$worker_title}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="admin-settings-worker-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-worker">
@@ -290,9 +290,9 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-relay-corporate">
 					<h2>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-relay-collapse" aria-expanded="false" aria-controls="admin-settings-relay-collapse">
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-relay-collapse" aria-expanded="false" aria-controls="admin-settings-relay-collapse">
 							{{$relay_title}}
-						</a>
+						</button>
 					</h2>
 				</div>
 				<div id="admin-settings-relay-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-relay">
@@ -331,9 +331,9 @@
 			<input type="hidden" name="active_panel" value="admin-settings-relocate-collapse">
 			<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-relocate">
 				<h2>
-					<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-relocate-collapse" aria-expanded="false" aria-controls="admin-settings-relocate-collapse">
+					<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-relocate-collapse" aria-expanded="false" aria-controls="admin-settings-relocate-collapse">
 						{{$relocate}}
-					</a>
+					</button>
 				</h2>
 			</div>
 			<div id="admin-settings-relocate-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-relocate">
