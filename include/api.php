@@ -431,11 +431,7 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 	$arr['visible']       = $visibility;
 	$arr['origin']        = 1;
 
-	$typetoext = [
-			'image/jpeg' => 'jpg',
-			'image/png' => 'png',
-			'image/gif' => 'gif'
-			];
+	$typetoext = Images::supportedTypes();
 
 	// adds link to the thumbnail scale photo
 	$arr['body'] = '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nick'] . '/image/' . $hash . ']'
