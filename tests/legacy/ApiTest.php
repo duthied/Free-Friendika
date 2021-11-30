@@ -200,25 +200,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Get the path to a temporary empty PNG image.
-	 *
-	 * @return string Path
-	 */
-	private function getTempImage()
-	{
-		$tmpFile = tempnam(sys_get_temp_dir(), 'tmp_file');
-		file_put_contents(
-			$tmpFile,
-			base64_decode(
-			// Empty 1x1 px PNG image
-				'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
-			)
-		);
-
-		return $tmpFile;
-	}
-
-	/**
 	 * Test the api_user() function.
 	 *
 	 * @return void
@@ -999,79 +980,7 @@ class ApiTest extends FixtureTest
 		$this->markTestIncomplete();
 	}
 
-	/**
-	 * Test the \Friendica\Module\Api\Twitter\Media\Upload module.
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function testApiMediaUpload()
-	{
-		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		$_SERVER['REQUEST_METHOD'] = Router::POST;
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
-	}
 
-	/**
-	 * Test the \Friendica\Module\Api\Twitter\Media\Upload module without an authenticated user.
-	 *
-	 * @return void
-	 */
-	public function testApiMediaUploadWithoutAuthenticatedUser()
-	{
-		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
-		BasicAuth::setCurrentUserID();
-		$_SESSION['authenticated'] = false;
-		$_SERVER['REQUEST_METHOD'] = Router::POST;
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
-	}
-
-	/**
-	 * Test the \Friendica\Module\Api\Twitter\Media\Upload module with an invalid uploaded media.
-	 *
-	 * @return void
-	 */
-	public function testApiMediaUploadWithMedia()
-	{
-		$this->expectException(\Friendica\Network\HTTPException\InternalServerErrorException::class);
-		$_FILES = [
-			'media' => [
-				'id'       => 666,
-				'tmp_name' => 'tmp_name'
-			]
-		];
-		$_SERVER['REQUEST_METHOD'] = Router::POST;
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
-	}
-
-	/**
-	 * Test the \Friendica\Module\Api\Twitter\Media\Upload module with an valid uploaded media.
-	 *
-	 * @return void
-	 */
-	public function testApiMediaUploadWithValidMedia()
-	{
-		$_FILES    = [
-			'media' => [
-				'id'       => 666,
-				'size'     => 666,
-				'width'    => 666,
-				'height'   => 666,
-				'tmp_name' => $this->getTempImage(),
-				'name'     => 'spacer.png',
-				'type'     => 'image/png'
-			]
-		];
-
-		$_SERVER['REQUEST_METHOD'] = Router::POST;
-
-		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
-		$media = json_decode($response->getBody(), true);
-
-		self::assertEquals('image/png', $media['image']['image_type']);
-		self::assertEquals(1, $media['image']['w']);
-		self::assertEquals(1, $media['image']['h']);
-		self::assertNotEmpty($media['image']['friendica_preview_url']);
-	}
 
 	/**
 	 * Test the api_statuses_repeat() function.
