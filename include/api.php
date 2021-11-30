@@ -518,7 +518,7 @@ function prepare_photo_data($type, $scale, $photo_id, $uid)
 
 	// retrieve item element for getting activities (like, dislike etc.) related to photo
 	$condition = ['uid' => $uid, 'resource-id' => $photo_id];
-	$item = Post::selectFirst(['id', 'uid', 'uri', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
+	$item = Post::selectFirst(['id', 'uid', 'uri', 'uri-id', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
 	if (!DBA::isResult($item)) {
 		throw new NotFoundException('Photo-related item not found.');
 	}

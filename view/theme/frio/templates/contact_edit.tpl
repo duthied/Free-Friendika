@@ -68,9 +68,9 @@
 					<div class="panel">
 						<div class="section-subtitle-wrapper panel-heading" role="tab" id="contact-edit-profile">
 							<h4>
-								<a class="accordion-toggle" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-profile-collapse" aria-expanded="true" aria-controls="contact-edit-profile-collapse">
+								<button class="btn-link accordion-toggle" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-profile-collapse" aria-expanded="true" aria-controls="contact-edit-profile-collapse">
 									{{$contact_profile_label}}
-								</a>
+								</button>
 							</h4>
 						</div>
 						<div id="contact-edit-profile-collapse" class="panel-body panel-collapse collapse in" role="tabpanel" aria-labelledby="contact-edit-profile">
@@ -127,9 +127,9 @@
 					<div class="panel">
 						<div class="section-subtitle-wrapper panel-heading" role="tab" id="contact-edit-settings">
 							<h4>
-								<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-settings-collapse" aria-expanded="false" aria-controls="contact-edit-settings-collapse">
+								<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-settings-collapse" aria-expanded="false" aria-controls="contact-edit-settings-collapse">
 									{{$contact_settings_label}}
-								</a>
+								</button>
 							</h4>
 						</div>
 						<div id="contact-edit-settings-collapse" class="panel-body panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-settings">
@@ -161,9 +161,9 @@
 					<div class="panel">
 						<div class="section-subtitle-wrapper panel-heading" role="tab" id="contact-edit-info">
 							<h4>
-								<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-info-collapse" aria-expanded="false" aria-controls="contact-edit-info-collapse">
+								<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-info-collapse" aria-expanded="false" aria-controls="contact-edit-info-collapse">
 									{{$lbl_info1}}
-								</a>
+								</button>
 							</h4>
 						</div>
 						<div id="contact-edit-info-collapse" class="panel-body panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-info">

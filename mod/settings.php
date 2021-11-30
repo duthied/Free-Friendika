@@ -62,16 +62,17 @@ function settings_post(App $a)
 	}
 
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] == 'addon')) {
-		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/addon', 'settings_addon');
+		BaseModule::checkFormSecurityTokenRedirectOnError(DI::args()->getQueryString(), 'settings_addon');
 
 		Hook::callAll('addon_settings_post', $_POST);
+		DI::baseUrl()->redirect(DI::args()->getQueryString());
 		return;
 	}
 
 	$user = User::getById($a->getLoggedInUserId());
 
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] == 'connectors')) {
-		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/connectors', 'settings_connectors');
+		BaseModule::checkFormSecurityTokenRedirectOnError(DI::args()->getQueryString(), 'settings_connectors');
 
 		if (!empty($_POST['general-submit'])) {
 			DI::pConfig()->set(local_user(), 'system', 'accept_only_sharer', intval($_POST['accept_only_sharer']));
@@ -80,7 +81,7 @@ function settings_post(App $a)
 			DI::pConfig()->set(local_user(), 'system', 'simple_shortening', intval($_POST['simple_shortening']));
 			DI::pConfig()->set(local_user(), 'system', 'attach_link_title', intval($_POST['attach_link_title']));
 			DI::pConfig()->set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
-		} elseif (!empty($_POST['imap-submit'])) {
+		} elseif (!empty($_POST['mail-submit'])) {
 			$mail_server       =                 $_POST['mail_server']       ?? '';
 			$mail_port         =                 $_POST['mail_port']         ?? '';
 			$mail_ssl          = strtolower(trim($_POST['mail_ssl']          ?? ''));
@@ -132,6 +133,7 @@ function settings_post(App $a)
 		}
 
 		Hook::callAll('connector_settings_post', $_POST);
+		DI::baseUrl()->redirect(DI::args()->getQueryString());
 		return;
 	}
 
@@ -438,11 +440,27 @@ function settings_content(App $a)
 
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'addon')) {
 		$addon_settings_forms = [];
-
 		foreach (DI::dba()->selectToArray('hook', ['file', 'function'], ['hook' => 'addon_settings']) as $hook) {
-			$data = '';
+			$data = [];
 			Hook::callSingle(DI::app(), 'addon_settings', [$hook['file'], $hook['function']], $data);
-			$addon_settings_forms[] = $data;
+
+			if (!empty($data['href'])) {
+				$tpl = Renderer::getMarkupTemplate('settings/addon/link.tpl');
+				$addon_settings_forms[] = Renderer::replaceMacros($tpl, [
+					'$addon' => $data['addon'],
+					'$title' => $data['title'],
+					'$href'  => $data['href'],
+				]);
+			} elseif(!empty($data['addon'])) {
+				$tpl = Renderer::getMarkupTemplate('settings/addon/panel.tpl');
+				$addon_settings_forms[$data['addon']] = Renderer::replaceMacros($tpl, [
+					'$addon'  => $data['addon'],
+					'$title'  => $data['title'],
+					'$open'   => (DI::args()->getArgv()[2] ?? '') === $data['addon'],
+					'$html'   => $data['html'] ?? '',
+					'$submit' => $data['submit'] ?? DI::l10n()->t('Save Settings'),
+				]);
+			}
 		}
 
 		$tpl = Renderer::getMarkupTemplate('settings/addons.tpl');
@@ -490,8 +508,22 @@ function settings_content(App $a)
 			DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . DI::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
 		}
 
-		$settings_connectors = '';
-		Hook::callAll('connector_settings', $settings_connectors);
+		$connector_settings_forms = [];
+		foreach (DI::dba()->selectToArray('hook', ['file', 'function'], ['hook' => 'connector_settings']) as $hook) {
+			$data = [];
+			Hook::callSingle(DI::app(), 'connector_settings', [$hook['file'], $hook['function']], $data);
+
+			$tpl = Renderer::getMarkupTemplate('settings/addon/connector.tpl');
+			$connector_settings_forms[$data['connector']] = Renderer::replaceMacros($tpl, [
+				'$connector' => $data['connector'],
+				'$title'     => $data['title'],
+				'$image'     => $data['image'] ?? '',
+				'$enabled'   => $data['enabled'] ?? true,
+				'$open'      => (DI::args()->getArgv()[2] ?? '') === $data['connector'],
+				'$html'      => $data['html'] ?? '',
+				'$submit'    => $data['submit'] ?? DI::l10n()->t('Save Settings'),
+			]);
+		}
 
 		if ($a->isSiteAdmin()) {
 			$diasp_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t('Diaspora (Socialhome, Hubzilla)'), ((DI::config()->get('system', 'diaspora_enabled')) ? DI::l10n()->t('enabled') : DI::l10n()->t('disabled')));
@@ -548,11 +580,11 @@ function settings_content(App $a)
 			'$repair_ostatus_url' => DI::baseUrl() . '/repair_ostatus',
 			'$repair_ostatus_text' => DI::l10n()->t('Repair OStatus subscriptions'),
 
-			'$settings_connectors' => $settings_connectors,
+			'$connector_settings_forms' => $connector_settings_forms,
 
-			'$h_imap' => DI::l10n()->t('Email/Mailbox Setup'),
-			'$imap_desc' => DI::l10n()->t("If you wish to communicate with email contacts using this service \x28optional\x29, please specify how to connect to your mailbox."),
-			'$imap_lastcheck' => ['imap_lastcheck', DI::l10n()->t('Last successful email check:'), $mail_chk, ''],
+			'$h_mail' => DI::l10n()->t('Email/Mailbox Setup'),
+			'$mail_desc' => DI::l10n()->t("If you wish to communicate with email contacts using this service \x28optional\x29, please specify how to connect to your mailbox."),
+			'$mail_lastcheck' => ['mail_lastcheck', DI::l10n()->t('Last successful email check:'), $mail_chk, ''],
 			'$mail_disabled' => $mail_disabled_message,
 			'$mail_server'	=> ['mail_server',	DI::l10n()->t('IMAP server name:'), $mail_server, ''],
 			'$mail_port'	=> ['mail_port', 	DI::l10n()->t('IMAP port:'), $mail_port, ''],
