@@ -34,7 +34,7 @@ use Friendica\Model\Item;
  */
 class Destroy extends BaseApi
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();

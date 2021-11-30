@@ -40,7 +40,7 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
  */
 class Retweet extends BaseApi
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();

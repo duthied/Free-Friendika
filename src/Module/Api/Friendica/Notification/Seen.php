@@ -38,7 +38,7 @@ use Friendica\Network\HTTPException\NotFoundException;
  */
 class Seen extends BaseApi
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();

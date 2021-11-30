@@ -37,7 +37,7 @@ use Friendica\Network\HTTPException;
  */
 class Destroy extends ContactEndpoint
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
