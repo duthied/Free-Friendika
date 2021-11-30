@@ -65,12 +65,12 @@ class Show extends ContactEndpoint
 						$follower  = true;
 						$following = false;
 						break;
-					
+
 					case Contact::SHARING:
 						$follower  = false;
 						$following = true;
 						break;
-					
+
 					case Contact::FRIEND:
 						$follower  = true;
 						$following = true;
@@ -79,7 +79,7 @@ class Show extends ContactEndpoint
 			}
 		} else {
 			$follower  = DBA::exists('contact-relation', ['cid' => $source_cid, 'relation-cid' => $target_cid, 'follows' => true]);
-			$following = DBA::exists('contact-relation', ['relation-cid' => $source_cid, 'cid' => $target_cid, 'follows' => true]);				
+			$following = DBA::exists('contact-relation', ['relation-cid' => $source_cid, 'cid' => $target_cid, 'follows' => true]);
 		}
 
 		$relationship = [
@@ -102,17 +102,17 @@ class Show extends ContactEndpoint
 					'all_replies'           => null,
 					'marked_spam'           => null
 				],
-					'target' => [
-						'id'                  => $target['id'],
-						'id_str'              => (string)$target['id'],
-						'screen_name'         => $target['nick'],
-						'following'           => $follower,
-						'followed_by'         => $following,
-						'following_received'  => null,
-						'following_requested' => null
-					]
+				'target' => [
+					'id'                  => $target['id'],
+					'id_str'              => (string)$target['id'],
+					'screen_name'         => $target['nick'],
+					'following'           => $follower,
+					'followed_by'         => $following,
+					'following_received'  => null,
+					'following_requested' => null
 				]
-			];
+			]
+		];
 
 		DI::apiResponse()->exit('relationship', ['relationship' => $relationship], $this->parameters['extension'] ?? null);
 	}
