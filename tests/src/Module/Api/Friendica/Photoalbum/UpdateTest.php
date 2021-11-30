@@ -54,6 +54,17 @@ class UpdateTest extends ApiTest
 
 	public function testValid()
 	{
-		self::markTestIncomplete('We need to add a dataset for this.');
+		$this->loadFixture(__DIR__ . '/../../../../../datasets/photo/photo.fixture.php', DI::dba());
+
+		$response = (new Update(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run([], ['album' => 'test_album', 'album_new' => 'test_album_2']);
+
+		$responseBody = (string)$response->getBody();
+
+		self::assertJson($responseBody);
+
+		$json = json_decode($responseBody);
+
+		self::assertEquals('updated', $json->result);
+		self::assertEquals('album `test_album` with all containing photos has been renamed to `test_album_2`.', $json->message);
 	}
 }

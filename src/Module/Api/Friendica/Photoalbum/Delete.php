@@ -58,7 +58,7 @@ class Delete extends BaseApi
 
 		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 		// to the user and the contacts of the users (drop_items() performs the federation of the deletion to other networks
-		$condition = ['uid' => $uid, 'resource-id' => $resourceIds, 'type' => 'photo'];
+		$condition = ['uid' => $uid, 'resource-id' => $resourceIds, 'post-type' => Item::PT_IMAGE, 'origin' => true];
 		Item::deleteForUser($condition, $uid);
 
 		// now let's delete all photos from the album
