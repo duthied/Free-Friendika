@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Twitter\Friendships;
 
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
