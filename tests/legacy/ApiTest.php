@@ -1007,7 +1007,8 @@ class ApiTest extends FixtureTest
 	public function testApiMediaUpload()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
+		$_SERVER['REQUEST_METHOD'] = Router::POST;
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
 	}
 
 	/**
@@ -1020,7 +1021,8 @@ class ApiTest extends FixtureTest
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
+		$_SERVER['REQUEST_METHOD'] = Router::POST;
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
 	}
 
 	/**
@@ -1037,7 +1039,8 @@ class ApiTest extends FixtureTest
 				'tmp_name' => 'tmp_name'
 			]
 		];
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
+		$_SERVER['REQUEST_METHOD'] = Router::POST;
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
 	}
 
 	/**
@@ -1059,7 +1062,9 @@ class ApiTest extends FixtureTest
 			]
 		];
 
-		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
+		$_SERVER['REQUEST_METHOD'] = Router::POST;
+
+		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
 		$media = json_decode($response->getBody(), true);
 
 		self::assertEquals('image/png', $media['image']['image_type']);
