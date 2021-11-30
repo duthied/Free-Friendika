@@ -6,6 +6,7 @@
 namespace Friendica\Test\legacy;
 
 use Friendica\App;
+use Friendica\App\Router;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
@@ -1006,7 +1007,7 @@ class ApiTest extends FixtureTest
 	public function testApiMediaUpload()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
 	}
 
 	/**
@@ -1019,7 +1020,7 @@ class ApiTest extends FixtureTest
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
 	}
 
 	/**
@@ -1036,7 +1037,7 @@ class ApiTest extends FixtureTest
 				'tmp_name' => 'tmp_name'
 			]
 		];
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
 	}
 
 	/**
@@ -1058,7 +1059,7 @@ class ApiTest extends FixtureTest
 			]
 		];
 
-		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), $_SERVER))->run();
+		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
 		$media = json_decode($response->getBody(), true);
 
 		self::assertEquals('image/png', $media['image']['image_type']);
