@@ -411,9 +411,9 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 
 	$arr = [];
 	$arr['guid']          = System::createUUID();
-	$arr['uid']           = intval($uid);
+	$arr['uid']           = $uid;
 	$arr['uri']           = $uri;
-	$arr['type']          = 'photo';
+	$arr['post-type']     = Item::PT_IMAGE;
 	$arr['wall']          = 1;
 	$arr['resource-id']   = $hash;
 	$arr['contact-id']    = $owner_record['id'];
@@ -423,7 +423,7 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 	$arr['author-name']   = $owner_record['name'];
 	$arr['author-link']   = $owner_record['url'];
 	$arr['author-avatar'] = $owner_record['thumb'];
-	$arr['title']         = "";
+	$arr['title']         = '';
 	$arr['allow_cid']     = $allow_cid;
 	$arr['allow_gid']     = $allow_gid;
 	$arr['deny_cid']      = $deny_cid;
