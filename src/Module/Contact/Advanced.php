@@ -61,7 +61,7 @@ class Advanced extends BaseModule
 		}
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		$cid = $this->parameters['id'];
 

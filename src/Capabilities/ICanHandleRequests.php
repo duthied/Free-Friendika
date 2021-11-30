@@ -11,12 +11,11 @@ use Psr\Http\Message\ResponseInterface;
 interface ICanHandleRequests
 {
 	/**
-	 * @param array $post    The $_POST content (in case of POST)
-	 * @param array $request The $_REQUEST content (in case of GET, POST)
+	 * @param array $request The $_REQUEST content (including content from the PHP input stream)
 	 *
 	 * @return ResponseInterface responding to the request handling
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function run(array $post = [], array $request = []): ResponseInterface;
+	public function run(array $request = []): ResponseInterface;
 }

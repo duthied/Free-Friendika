@@ -31,11 +31,11 @@ use Friendica\Module\BaseApi;
  */
 class Markers extends BaseApi
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
-		$this->response->unsupported(Router::POST);
+		$this->response->unsupported(Router::POST, $request);
 	}
 
 	/**

@@ -32,7 +32,7 @@ use Friendica\Module\BaseApi;
  */
 class Block extends BaseApi
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();

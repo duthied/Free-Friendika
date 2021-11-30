@@ -36,7 +36,7 @@ class Trends extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'limit' => 20, // Maximum number of results to return. Defaults to 10.
 		], $request);
 

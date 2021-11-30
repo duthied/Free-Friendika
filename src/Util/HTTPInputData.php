@@ -27,9 +27,22 @@ namespace Friendica\Util;
  */
 class HTTPInputData
 {
-	public static function process()
+	/** @var array The $_SERVER variable */
+	protected $server;
+
+	public function __construct(array $server)
 	{
-		$content_parts = explode(';', static::getContentType());
+		$this->server = $server;
+	}
+
+	/**
+	 * Process the PHP input stream and creates an array with its content
+	 *
+	 * @return array|array[]
+	 */
+	public function process(): array
+	{
+		$content_parts = explode(';', $this->server['CONTENT_TYPE'] ?? 'application/x-www-form-urlencoded');
 
 		$boundary = '';
 		$encoding = '';
@@ -54,7 +67,7 @@ class HTTPInputData
 		}
 
 		if ($content_type == 'multipart/form-data') {
-			return self::fetchFromMultipart($boundary);
+			return $this->fetchFromMultipart($boundary);
 		}
 
 		// can be handled by built in PHP functionality
@@ -69,7 +82,7 @@ class HTTPInputData
 		return ['variables' => $variables, 'files' => []];
 	}
 
-	private static function fetchFromMultipart(string $boundary)
+	private function fetchFromMultipart(string $boundary): array
 	{
 		$result = ['variables' => [], 'files' => []];
 
@@ -94,7 +107,7 @@ class HTTPInputData
 				continue;
 			}
 
-			$result = self::parseRawHeader($stream, $raw_headers, $boundary, $result);
+			$result = $this->parseRawHeader($stream, $raw_headers, $boundary, $result);
 
 			$raw_headers = '';
 		}
@@ -104,7 +117,7 @@ class HTTPInputData
 		return $result;
 	}
 
-	private static function parseRawHeader($stream, string $raw_headers, string $boundary, array $result)
+	private function parseRawHeader($stream, string $raw_headers, string $boundary, array $result)
 	{
 		$variables = $result['variables'];
 		$files     = $result['files'];
@@ -115,7 +128,7 @@ class HTTPInputData
 			if (strpos($header, ':') === false) {
 				continue;
 			}
-			list($name, $value) = explode(':', $header, 2);
+			[$name, $value] = explode(':', $header, 2);
 
 			$headers[strtolower($name)] = ltrim($value, ' ');
 		}
@@ -135,13 +148,13 @@ class HTTPInputData
 			$files[$name] = static::fetchFileData($stream, $boundary, $headers, $filename);
 			return ['variables' => $variables, 'files' => $files];
 		} else {
-			$variables = self::fetchVariables($stream, $boundary, $headers, $name, $variables);
+			$variables = $this->fetchVariables($stream, $boundary, $headers, $name, $variables);
 		}
 
 		return ['variables' => $variables, 'files' => $files];
 	}
 
-	protected static function fetchFileData($stream, string $boundary, array $headers, string $filename)
+	protected function fetchFileData($stream, string $boundary, array $headers, string $filename)
 	{
 		$error = UPLOAD_ERR_OK;
 
@@ -186,7 +199,7 @@ class HTTPInputData
 		];
 	}
 
-	private static function fetchVariables($stream, string $boundary, array $headers, string $name, array $variables)
+	private function fetchVariables($stream, string $boundary, array $headers, string $name, array $variables)
 	{
 		$fullValue = '';
 		$lastLine  = null;
@@ -229,10 +242,10 @@ class HTTPInputData
 		$tmp = [];
 		parse_str($fullValue, $tmp);
 
-		return self::expandVariables(explode('[', $name), $variables, $tmp);
+		return $this->expandVariables(explode('[', $name), $variables, $tmp);
 	}
 
-	private static function expandVariables(array $names, $variables, array $values)
+	private function expandVariables(array $names, $variables, array $values)
 	{
 		if (!is_array($variables)) {
 			return $values;
@@ -252,7 +265,7 @@ class HTTPInputData
 		if ($name === '') {
 			$variables[] = reset($values);
 		} elseif (isset($variables[$name]) && isset($values[$name])) {
-			$variables[$name] = self::expandVariables($names, $variables[$name], $values[$name]);
+			$variables[$name] = $this->expandVariables($names, $variables[$name], $values[$name]);
 		} elseif (isset($values[$name])) {
 			$variables[$name] = $values[$name];
 		}
@@ -266,7 +279,7 @@ class HTTPInputData
 	 *
 	 * @return false|resource
 	 */
-	protected static function getPhpInputStream()
+	protected function getPhpInputStream()
 	{
 		return fopen('php://input', 'rb');
 	}
@@ -277,19 +290,8 @@ class HTTPInputData
 	 *
 	 * @return false|string
 	 */
-	protected static function getPhpInputContent()
+	protected function getPhpInputContent()
 	{
 		return file_get_contents('php://input');
-	}
-
-	/**
-	 * Returns the content type string of the current call
-	 * Mainly used for test doubling
-	 *
-	 * @return false|string
-	 */
-	protected static function getContentType()
-	{
-		return $_SERVER['CONTENT_TYPE'] ?? 'application/x-www-form-urlencoded';
 	}
 }

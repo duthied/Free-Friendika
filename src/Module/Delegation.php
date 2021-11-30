@@ -37,7 +37,7 @@ use Friendica\Util\Proxy;
  */
 class Delegation extends BaseModule
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!local_user()) {
 			return;

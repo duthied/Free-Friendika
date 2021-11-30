@@ -36,7 +36,7 @@ use Friendica\Util\Strings;
  */
 class Delegation extends BaseSettings
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!DI::app()->isLoggedIn()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));

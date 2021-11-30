@@ -37,7 +37,7 @@ class Update extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'album'     => '', // Current album name
 			'album_new' => '', // New album name
 		], $request);

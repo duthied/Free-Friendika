@@ -30,7 +30,7 @@ use Friendica\Util\Strings;
 
 class Details extends BaseAdmin
 {
-	public function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 

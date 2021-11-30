@@ -74,7 +74,7 @@ class Revoke extends BaseModule
 		}
 	}
 
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException();

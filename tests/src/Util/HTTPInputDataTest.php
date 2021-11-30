@@ -139,14 +139,15 @@ class HTTPInputDataTest extends MockedTest
 	 */
 	public function testHttpInput(string $contentType, string $input, array $expected)
 	{
-		HTTPInputDataDouble::setPhpInputContentType($contentType);
-		HTTPInputDataDouble::setPhpInputContent($input);
+		$httpInput = new HTTPInputDataDouble(['CONTENT_TYPE' => $contentType]);
+		$httpInput->setPhpInputContent($input);
+
 		$stream = fopen('php://memory', 'r+');
 		fwrite($stream, $input);
 		rewind($stream);
 
-		HTTPInputDataDouble::setPhpInputStream($stream);
-		$output = HTTPInputDataDouble::process();
+		$httpInput->setPhpInputStream($stream);
+		$output = $httpInput->process();
 		$this->assertEqualsCanonicalizing($expected, $output);
 	}
 }

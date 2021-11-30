@@ -32,7 +32,7 @@ use GuzzleHttp\Psr7\Uri;
 
 class Add extends BaseAdmin
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 

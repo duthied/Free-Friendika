@@ -77,7 +77,8 @@ class Tweets extends BaseApi
 			DBA::close($tags);
 
 			if (empty($uriids)) {
-				DI::apiResponse()->exit('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+				$this->response->exit('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+				return;
 			}
 
 			$condition = ['uri-id' => $uriids];
@@ -122,6 +123,6 @@ class Tweets extends BaseApi
 		}
 		DBA::close($statuses);
 
-		DI::apiResponse()->exit('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->exit('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

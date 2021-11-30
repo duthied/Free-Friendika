@@ -52,7 +52,7 @@ class Statuses extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'only_media'      => false, // Show only statuses with media attached? Defaults to false.
 			'max_id'          => 0,     // Return results older than this id
 			'since_id'        => 0,     // Return results newer than this id

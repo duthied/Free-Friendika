@@ -28,7 +28,7 @@ use Friendica\Module\Admin\BaseUsers;
 
 class Create extends BaseUsers
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 

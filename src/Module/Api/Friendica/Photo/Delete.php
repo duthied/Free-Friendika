@@ -36,7 +36,7 @@ class Delete extends BaseApi
 	{
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'photo_id' => '', // Photo id
 		], $request);
 

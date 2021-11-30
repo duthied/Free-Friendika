@@ -41,12 +41,12 @@ use Friendica\Util\Images;
  */
 class Statuses extends BaseApi
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'status'         => '',    // Text content of the status. If media_ids is provided, this becomes optional. Attaching a poll is optional while status is provided.
 			'media_ids'      => [],    // Array of Attachment ids to be attached as media. If provided, status becomes optional, and poll cannot be used.
 			'poll'           => [],    // Poll data. If provided, media_ids cannot be used, and poll[expires_in] must be provided.
@@ -207,7 +207,7 @@ class Statuses extends BaseApi
 		DI::mstdnError()->InternalError();
 	}
 
-	protected function delete()
+	protected function delete(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();

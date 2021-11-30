@@ -35,9 +35,9 @@ class Apps extends BaseApi
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
-		$request = self::getRequest([
+		$request = $this->getRequest([
 			'client_name'   => '',
 			'redirect_uris' => '',
 			'scopes'        => 'read',

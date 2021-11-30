@@ -25,11 +25,10 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Module\BaseAdmin;
-use Friendica\Util\Strings;
 
 class Delete extends BaseAdmin
 {
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 

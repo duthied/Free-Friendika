@@ -42,7 +42,7 @@ class Notification extends BaseModule
 	 * @throws \ImagickException
 	 * @throws \Exception
 	 */
-	protected function post(array $request = [], array $post = [])
+	protected function post(array $request = [])
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));

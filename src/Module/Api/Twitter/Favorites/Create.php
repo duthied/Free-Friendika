@@ -46,6 +46,6 @@ class Create extends BaseApi
 
 		$status_info = DI::twitterStatus()->createFromItemId($id, $uid)->toArray();
 
-		DI::apiResponse()->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
+		$this->response->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
 	}
 }
