@@ -220,7 +220,7 @@ Deprecated Twitter sent direct message list endpoint. Returns [Private Messages]
 * `friendica_verbose`: "true" enables different error returns (default: "false")
 
 
-### POST/PUT api/direct_messages/new
+### POST api/direct_messages/new
 
 Deprecated Twitter direct message submission endpoint.
 
@@ -232,7 +232,7 @@ Deprecated Twitter direct message submission endpoint.
 * `replyto`: ID of the replied direct message
 * `title`: Title of the direct message
 
-### POST/DELETE api/direct_messages/destroy
+### POST api/direct_messages/destroy
 
 Deprecated Twitter direct message deletion endpoint.
 
@@ -313,7 +313,7 @@ Array of:
 * `gid`: id of the group
 * `user`: array of [Contacts](help/API-Entities#Contact)
 
-### POST/PUT api/friendica/group_create
+### POST api/friendica/group_create
 
 Create the group with the posted array of contacts as members.
 
@@ -366,7 +366,7 @@ Array of:
 * `status`: "missing user" | "ok"
 * `wrong users`: array of users, which were not available in the contact table
 
-### POST/DELETE api/friendica/group_delete
+### POST api/friendica/group_delete
 
 Delete the specified group of contacts; API call need to include the correct gid AND name of the group to be deleted.
 
@@ -565,7 +565,7 @@ On error:
 			"unknown error - update photo entry in database failed",
 			"unknown error - this error on uploading or updating a photo should never happen"
 
-### DELETE api/friendica/photo/delete
+### POST api/friendica/photo/delete
 
 Deletes a single image with the specified id, is not reversible -> ensure that client is asking user for being sure to do this
 Sets item table entries for this photo to deleted = 1.
@@ -595,7 +595,7 @@ On error:
 
 ---
 
-### POST/DELETE api/friendica/photoalbum/delete
+### POST api/friendica/photoalbum/delete
 
 Deletes all images with the specified album name, is not reversible -> ensure that client is asking user for being sure to do this.
 
@@ -622,7 +622,7 @@ On error:
 * 400 BADREQUEST: "no albumname specified", "album not available"
 * 500 INTERNALSERVERERROR: "problem with deleting item occured", "unknown error - deleting from database failed"
 
-### POST/PUT api/friendica/photoalbum/update
+### POST api/friendica/photoalbum/update
 
 Changes the album name to album_new for all photos in album.
 
