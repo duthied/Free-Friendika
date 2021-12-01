@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-29 06:06-0500\n"
+"POT-Creation-Date: 2021-11-30 05:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,25 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-
-#: include/api.php:720 src/Module/BaseApi.php:281
-#, php-format
-msgid "Daily posting limit of %d post reached. The post was rejected."
-msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/api.php:734 src/Module/BaseApi.php:297
-#, php-format
-msgid "Weekly posting limit of %d post reached. The post was rejected."
-msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/api.php:748 src/Module/BaseApi.php:313
-#, php-format
-msgid "Monthly posting limit of %d post reached. The post was rejected."
-msgstr ""
 
 #: mod/cal.php:44 mod/cal.php:48 mod/follow.php:39 mod/redir.php:34
 #: mod/redir.php:175 src/Module/Conversation/Community.php:181
@@ -6955,6 +6936,25 @@ msgstr ""
 #: src/Module/BaseApi.php:280 src/Module/BaseApi.php:296
 #: src/Module/BaseApi.php:312
 msgid "Too Many Requests"
+msgstr ""
+
+#: src/Module/BaseApi.php:281
+#, php-format
+msgid "Daily posting limit of %d post reached. The post was rejected."
+msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/BaseApi.php:297
+#, php-format
+msgid "Weekly posting limit of %d post reached. The post was rejected."
+msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/BaseApi.php:313
+#, php-format
+msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
 
 #: src/Module/BaseProfile.php:51 src/Module/Contact.php:460

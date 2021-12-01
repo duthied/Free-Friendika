@@ -38,7 +38,7 @@ use Friendica\Network\HTTPException\NotFoundException;
  */
 class Seen extends BaseApi
 {
-	protected function rawContent(array $request = [])
+	protected function post(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
@@ -71,6 +71,7 @@ class Seen extends BaseApi
 					$ret  = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray()];
 					$data = ['status' => $ret];
 					$this->response->exit('statuses', $data, $this->parameters['extension'] ?? null);
+					return;
 				}
 				// the item can't be found, but we set the notification as seen, so we count this as a success
 			}

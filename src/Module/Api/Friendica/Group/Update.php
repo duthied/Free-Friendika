@@ -32,7 +32,7 @@ use Friendica\Network\HTTPException\BadRequestException;
  */
 class Update extends BaseApi
 {
-	protected function rawContent(array $request = [])
+	protected function post(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();

@@ -16,6 +16,6 @@ function authtest_install()
 
 function authtest_authenticate($a,&$b)
 {
-	$b['authenticated'] = 1;
-	$b['user_record']   = User::getById(42);
+	$b['authenticated'] = \Friendica\Test\Util\AuthTestConfig::$authenticated;
+	$b['user_record']   = User::getById(\Friendica\Test\Util\AuthTestConfig::$user_id);
 }

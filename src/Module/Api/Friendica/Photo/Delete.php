@@ -32,7 +32,7 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
  */
 class Delete extends BaseApi
 {
-	protected function rawContent(array $request = [])
+	protected function post(array $request = [])
 	{
 		$uid = self::getCurrentUserID();
 
