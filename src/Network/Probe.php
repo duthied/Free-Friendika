@@ -44,6 +44,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
+use GuzzleHttp\Psr7\Uri;
 
 /**
  * This class contain functions for probing URL
@@ -58,26 +59,23 @@ class Probe
 	/**
 	 * Remove stuff from an URI that doesn't belong there
 	 *
-	 * @param string $URI
+	 * @param string $rawUri
 	 * @return string Cleaned URI
 	 */
-	public static function cleanURI(string $URI)
+	public static function cleanURI(string $rawUri): string
 	{
 		// At first remove leading and trailing junk
-		$URI = trim($URI, "@#?:/ \t\n\r\0\x0B");
+		$rawUri = trim($rawUri, "@#?:/ \t\n\r\0\x0B");
 
-		$parts = parse_url($URI);
-
-		if (empty($parts['scheme'])) {
-			return $URI;
+		$uri = new Uri($rawUri);
+		if (!$uri->getScheme()) {
+			return $uri->__toString();
 		}
 
 		// Remove the URL fragment, since these shouldn't be part of any profile URL
-		unset($parts['fragment']);
+		$uri = $uri->withFragment('');
 
-		$URI = Network::unparseURL($parts);
-
-		return $URI;
+		return $uri->__toString();
 	}
 
 	/**

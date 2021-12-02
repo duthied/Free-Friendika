@@ -117,12 +117,48 @@ class ProbeTest extends FixtureTest
 		}
 	}
 
-	public function dataUri()
+	public function dataCleanUri(): array
 	{
 		return [
 			'@-first' => [
-				'uri'         => '@Artists4Future_Muenchen@climatejustice.global',
-				'assertUri'   => 'Artists4Future_Muenchen@climatejustice.global',
+				'expected' => 'Artists4Future_Muenchen@climatejustice.global',
+				'uri'      => '@Artists4Future_Muenchen@climatejustice.global',
+			],
+			'no-scheme-no-fragment' => [
+				'expected' => 'example.com/path?arg=value',
+				'uri'      => 'example.com/path?arg=value',
+			],
+			/* This case makes little sense, both in our expectation of receiving it in any context and in the way we
+			 * do not change it in Probe::cleanUri, but it doesn't seem to be the source of any terrible security hole.
+			 */
+			'no-scheme-fragment' => [
+				'expected' => 'example.com/path?arg=value#fragment',
+				'uri'      => 'example.com/path?arg=value#fragment',
+			],
+			'scheme-no-fragment' => [
+				'expected' => 'https://example.com/path?arg=value',
+				'uri'      => 'https://example.com/path?arg=value#fragment',
+			],
+			'scheme-fragment' => [
+				'expected' => 'https://example.com/path?arg=value',
+				'uri'      => 'https://example.com/path?arg=value#fragment',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataCleanUri
+	 */
+	public function testCleanUri(string $expected, string $uri)
+	{
+		self::assertEquals($expected, Probe::cleanURI($uri));
+	}
+
+	public function dataUri(): array
+	{
+		return [
+			'Artists4Future_Muenchen@climatejustice.global' => [
+				'uri'         => 'Artists4Future_Muenchen@climatejustice.global',
 				'assertInfos' => [
 					'name'         => 'Artists4Future München',
 					'nick'         => 'Artists4Future_Muenchen',
@@ -163,7 +199,7 @@ xQIDAQAB
 	/**
 	 * @dataProvider dataUri
 	 */
-	public function testCleanUri(string $uri, string $assertUri, array $assertInfos)
+	public function testProbeUri(string $uri, array $assertInfos)
 	{
 		self::markTestIncomplete('hard work due mocking 19 different http-requests');
 
@@ -216,10 +252,7 @@ xQIDAQAB
 
 		$this->httpRequestHandler->push($history);
 
-		$cleaned = Probe::cleanURI($uri);
-		self::assertEquals($assertUri, $cleaned);
-		self::assertArraySubset($assertInfos, Probe::uri($cleaned, '', 0));
-
+		self::assertArraySubset($assertInfos, Probe::uri($uri, '', 0));
 
 		// Iterate over the requests and responses
 		foreach ($container as $transaction) {
