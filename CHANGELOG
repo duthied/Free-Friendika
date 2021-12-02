@@ -21,6 +21,7 @@ Version 2021.12 (unreleased)
     Added an option to purge contacts from blocked servers [MrPetovan]
     Added a media tab on profile pages [annando]
     Removed video tab on profile pages [annando]
+    Bumped the minimal version of PHP to 7.3
   
   Friendica Addons
     Updates to the translations AR, DE, HU, IT, PL [translation teams]
@@ -44,7 +45,8 @@ Version 2021.12 (unreleased)
     9720, 10454, 10634, 10691, 10725, 10726, 10729, 10734, 10737, 10739,
     10745, 10754, 10767, 10791, 10829, 10832, 10839, 10841, 10844, 10851,
     10864, 10865, 10868, 10872, 10876, 10877, 10886, 10887, 10897, 10903,
-    10943, 10972, 10973, 10979, 10983, 10991, 11021, 11022, 11029, 11033
+    10943, 10972, 10973, 10978, 10979, 10983, 10990, 10991, 11021, 11022,
+    11023, 11029, 11033
 
 Version 2021.09 (2021-09-25)
   Friendica Core
