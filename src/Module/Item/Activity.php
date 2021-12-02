@@ -22,15 +22,14 @@
 namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
-use Friendica\Content\Text\BBCode;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Core\Session;
-use Friendica\Database\DBA;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
+use Friendica\Protocol\Diaspora;
 
 /**
  * Performs an activity (like, dislike, announce, attendyes, attendno, attendmaybe)
@@ -52,9 +51,9 @@ class Activity extends BaseModule
 		$itemId =  $this->parameters['id'];
 
 		if (in_array($verb, ['announce', 'unannounce'])) {
-			$item = Post::selectFirst(['network'], ['id' => $itemId]);
+			$item = Post::selectFirst(['network', 'uri-id', 'uid'], ['id' => $itemId]);
 			if ($item['network'] == Protocol::DIASPORA) {
-				self::performDiasporaReshare($itemId);
+				Diaspora::performReshare($item['uri-id'], $item['uid']);
 			}
 		}
 
@@ -83,33 +82,5 @@ class Activity extends BaseModule
 		];
 
 		System::jsonExit($return);
-	}
-
-	private static function performDiasporaReshare(int $itemId)
-	{
-		$fields = ['uri-id', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
-		$item = Post::selectFirst($fields, ['id' => $itemId, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
-		if (!DBA::isResult($item)) {
-			return;
-		}
-
-		if (strpos($item['body'], '[/share]') !== false) {
-			$pos = strpos($item['body'], '[share');
-			$post = substr($item['body'], $pos);
-		} else {
-			$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
-
-			if (!empty($item['title'])) {
-				$post .= '[h3]' . $item['title'] . "[/h3]\n";
-			}
-
-			$post .= $item['body'];
-			$post .= '[/share]';
-		}
-		$_REQUEST['body'] = $post;
-		$_REQUEST['profile_uid'] = local_user();
-
-		require_once 'mod/item.php';
-		item_post(DI::app());
 	}
 }

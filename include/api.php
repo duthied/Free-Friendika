@@ -27,7 +27,6 @@ use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -49,8 +48,6 @@ use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Strings;
-
-require_once __DIR__ . '/../mod/item.php';
 
 $API = [];
 

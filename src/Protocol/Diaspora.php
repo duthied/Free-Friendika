@@ -4053,4 +4053,53 @@ class Diaspora
 
 		return $message;
 	}
+
+	public static function performReshare(int $UriId, int $uid)
+	{
+		$fields = ['uri-id', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+		$item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [Item::PUBLIC, Item::UNLISTED]]);
+		if (!DBA::isResult($item)) {
+			return 0;
+		}
+
+		if (strpos($item['body'], '[/share]') !== false) {
+			$pos = strpos($item['body'], '[share');
+			$post = substr($item['body'], $pos);
+		} else {
+			$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
+
+			if (!empty($item['title'])) {
+				$post .= '[h3]' . $item['title'] . "[/h3]\n";
+			}
+
+			$post .= $item['body'];
+			$post .= '[/share]';
+		}
+
+		$owner  = User::getOwnerDataById($uid);
+		$author = Contact::getPublicIdByUserId($uid);
+
+		$item = [
+			'uid'        => $uid,
+			'verb'       => Activity::POST,
+			'contact-id' => $owner['id'],
+			'author-id'  => $author,
+			'owner-id'   => $author,
+			'body'       => $post,
+			'allow_cid'  => $owner['allow_cid'],
+			'allow_gid'  => $owner['allow_gid'],
+			'deny_cid'   => $owner['deny_cid'],
+			'deny_gid'   => $owner['deny_gid'],
+		];
+
+		if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
+			$item['private'] = Item::PRIVATE;
+		} elseif (DI::pConfig()->get($uid, 'system', 'unlisted')) {
+			$item['private'] = Item::UNLISTED;
+		} else {
+			$item['private'] = Item::PUBLIC;
+		}
+
+		return Item::insert($item, true);
+	}
 }

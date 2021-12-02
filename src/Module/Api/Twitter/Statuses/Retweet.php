@@ -27,11 +27,11 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
-use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Protocol\Diaspora;
 
 /**
  * Repeats a status.
@@ -62,45 +62,7 @@ class Retweet extends BaseApi
 
 				$item_id = $id;
 			} else {
-				if (strpos($item['body'], "[/share]") !== false) {
-					$pos  = strpos($item['body'], "[share");
-					$post = substr($item['body'], $pos);
-				} else {
-					$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
-
-					if (!empty($item['title'])) {
-						$post .= '[h3]' . $item['title'] . "[/h3]\n";
-					}
-
-					$post .= $item['body'];
-					$post .= "[/share]";
-				}
-				$item = [
-					'uid'  => $uid,
-					'body' => $post,
-					'app'  => $request['source'] ?? '',
-				];
-
-				$owner = User::getOwnerDataById($uid);
-
-				$item['allow_cid'] = $owner['allow_cid'];
-				$item['allow_gid'] = $owner['allow_gid'];
-				$item['deny_cid']  = $owner['deny_cid'];
-				$item['deny_gid']  = $owner['deny_gid'];
-
-				if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
-					$item['private'] = Item::PRIVATE;
-				} elseif (DI::pConfig()->get($uid, 'system', 'unlisted')) {
-					$item['private'] = Item::UNLISTED;
-				} else {
-					$item['private'] = Item::PUBLIC;
-				}
-
-				if (empty($item['app']) && !empty(self::getCurrentApplication()['name'])) {
-					$item['app'] = self::getCurrentApplication()['name'];
-				}
-
-				$item_id = Item::insert($item, true);
+				$item_id = Diaspora::performReshare($item['uri-id'], $uid);
 			}
 		} else {
 			throw new ForbiddenException();
