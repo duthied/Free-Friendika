@@ -686,20 +686,19 @@ class Probe
 		}
 
 		$parts = parse_url($uri);
-
-		if (empty($parts['scheme']) || !empty($parts['host']) && strstr($uri, '@')) {
-			// If the URI starts with "mailto:" then jump directly to the mail detection
-			if (strpos($uri, 'mailto:') !== false) {
-				$uri = str_replace('mailto:', '', $uri);
-				return self::mail($uri, $uid);
-			}
-
-			if ($network == Protocol::MAIL) {
-				return self::mail($uri, $uid);
-			}
-		} else {
+		if (empty($parts['scheme']) && empty($parts['host']) && !strstr($parts['path'], '@')) {
 			Logger::info('URI was not detectable', ['uri' => $uri]);
 			return [];
+		}
+
+		// If the URI starts with "mailto:" then jump directly to the mail detection
+		if (strpos($uri, 'mailto:') !== false) {
+			$uri = str_replace('mailto:', '', $uri);
+			return self::mail($uri, $uid);
+		}
+
+		if ($network == Protocol::MAIL) {
+			return self::mail($uri, $uid);
 		}
 
 		Logger::info('Probing start', ['uri' => $uri]);
