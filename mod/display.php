@@ -121,7 +121,7 @@ function display_fetchauthor($item)
 	$shared = Item::getShareArray($item);
 	if (!empty($shared) && empty($shared['comment'])) {
 		$profiledata = [
-			'uid' => -1,
+			'uid' => 0,
 			'id' => -1,
 			'nickname' => '',
 			'name' => '',
