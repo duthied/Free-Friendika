@@ -52,7 +52,7 @@ class DateTimeFormat
 	 * @return string
 	 * @throws Exception
 	 */
-	public static function utc($time, $format = self::MYSQL)
+	public static function utc(string $time, string $format = self::MYSQL): string
 	{
 		return self::convert($time, 'UTC', 'UTC', $format);
 	}
@@ -102,7 +102,7 @@ class DateTimeFormat
 	 * @return string
 	 * @throws Exception
 	 */
-	public static function utcNow($format = self::MYSQL)
+	public static function utcNow(string $format = self::MYSQL): string
 	{
 		return self::utc('now', $format);
 	}
