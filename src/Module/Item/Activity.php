@@ -50,17 +50,13 @@ class Activity extends BaseModule
 
 		$verb = $this->parameters['verb'];
 		$itemId =  $this->parameters['id'];
-Logger::info('Blubb-1', ['id' => $itemId, 'verb' => $verb]);
+
 		if (in_array($verb, ['announce', 'unannounce'])) {
 			$item = Post::selectFirst(['network', 'uri-id', 'uid'], ['id' => $itemId]);
-			Logger::info('Blubb-2', ['id' => $itemId, 'item' => $item]);
 			if ($item['network'] == Protocol::DIASPORA) {
-				Logger::info('Blubb-3', ['id' => $itemId]);
-				$id = Diaspora::performReshare($item['uri-id'], $item['uid']);
-				Logger::info('Blubb-ende', ['id' => $id]);
+				Diaspora::performReshare($item['uri-id'], $item['uid']);
 			}
 		}
-		Logger::info('Blubb-activity', ['id' => $itemId]);
 
 		if (!Item::performActivity($itemId, $verb, local_user())) {
 			throw new HTTPException\BadRequestException();

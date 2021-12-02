@@ -4059,7 +4059,6 @@ class Diaspora
 		$fields = ['uri-id', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 		$item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 		if (!DBA::isResult($item)) {
-			Logger::info('Blubb-4', ['uri-id' => $UriId, 'uid' => $uid]);
 			return 0;
 		}
 
@@ -4100,7 +4099,6 @@ class Diaspora
 		} else {
 			$item['private'] = Item::PUBLIC;
 		}
-		Logger::info('Blubb-5', ['uri-id' => $UriId, 'uid' => $uid, 'item' => $item]);
 
 		return Item::insert($item, true);
 	}
