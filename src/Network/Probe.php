@@ -508,16 +508,17 @@ class Probe
 	 * Get webfinger data from a given URI
 	 *
 	 * @param string $uri
-	 * @return array Webfinger array
+	 * @return array
+	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function getWebfingerArray(string $uri)
+	private static function getWebfingerArray(string $uri): array
 	{
 		$parts = parse_url($uri);
 
 		if (!empty($parts['scheme']) && !empty($parts['host'])) {
 			$host = $parts['host'];
 			if (!empty($parts['port'])) {
-				$host .= ':'.$parts['port'];
+				$host .= ':' . $parts['port'];
 			}
 
 			$baseurl = $parts['scheme'] . '://' . $host;
@@ -525,15 +526,10 @@ class Probe
 			$nick = '';
 			$addr = '';
 
-			$path_parts = explode("/", trim($parts['path'] ?? '', "/"));
+			$path_parts = explode('/', trim($parts['path'] ?? '', '/'));
 			if (!empty($path_parts)) {
 				$nick = ltrim(end($path_parts), '@');
-				// When the last part of the URI is numeric then it is most likely an ID and not a nick name
-				if (!is_numeric($nick)) {
-					$addr = $nick."@".$host;
-				} else {
-					$nick = '';
-				}
+				$addr = $nick . '@' . $host;
 			}
 
 			$webfinger = self::getWebfinger($parts['scheme'] . '://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
@@ -543,11 +539,11 @@ class Probe
 
 			if (empty($webfinger) && empty($lrdd)) {
 				while (empty($lrdd) && empty($webfinger) && (sizeof($path_parts) > 1)) {
-					$host .= "/".array_shift($path_parts);
+					$host    .= '/' . array_shift($path_parts);
 					$baseurl = $parts['scheme'] . '://' . $host;
 
 					if (!empty($nick)) {
-						$addr = $nick."@".$host;
+						$addr = $nick . '@' . $host;
 					}
 
 					$webfinger = self::getWebfinger($parts['scheme'] . '://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
