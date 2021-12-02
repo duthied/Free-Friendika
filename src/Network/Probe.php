@@ -529,12 +529,7 @@ class Probe
 			$path_parts = explode('/', trim($parts['path'] ?? '', '/'));
 			if (!empty($path_parts)) {
 				$nick = ltrim(end($path_parts), '@');
-				// When the last part of the URI is numeric then it is most likely an ID and not a nick name
-				if (!is_numeric($nick)) {
-					$addr = $nick . '@' . $host;
-				} else {
-					$nick = '';
-				}
+				$addr = $nick . '@' . $host;
 			}
 
 			$webfinger = self::getWebfinger($parts['scheme'] . '://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
