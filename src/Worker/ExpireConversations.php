@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Util\DateTimeFormat;
 
 class ExpireConversations
 {
@@ -36,6 +37,6 @@ class ExpireConversations
 			return;
 		}
 
-		DBA::delete('conversation', ["`received` < UTC_TIMESTAMP() - INTERVAL ? DAY", $days]);
+		DBA::delete('conversation', ["`received` < ?", DateTimeFormat::utc('now - ' . $days . ' days')]);
 	}
 }

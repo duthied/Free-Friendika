@@ -27,6 +27,7 @@ use Friendica\DI;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
 function wallmessage_post(App $a) {
@@ -56,7 +57,7 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	$total = DBA::count('mail', ["`uid` = ? AND `created` > UTC_TIMESTAMP() - INTERVAL 1 DAY AND `unknown`", $user['uid']]);
+	$total = DBA::count('mail', ["`uid` = ? AND `created` > ? AND `unknown`", $user['uid'], DateTimeFormat::utc('now - 1 day')]);
 	if ($total > $user['cntunkmail']) {
 		notice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;
@@ -110,7 +111,7 @@ function wallmessage_content(App $a) {
 		return;
 	}
 
-	$total = DBA::count('mail', ["`uid` = ? AND `created` > UTC_TIMESTAMP() - INTERVAL 1 DAY AND `unknown`", $user['uid']]);
+	$total = DBA::count('mail', ["`uid` = ? AND `created` > ? AND `unknown`", $user['uid'], DateTimeFormat::utc('now - 1 day')]);
 	if ($total > $user['cntunkmail']) {
 		notice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;

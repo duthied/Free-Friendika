@@ -604,7 +604,7 @@ function photos_post(App $a)
 	 * they acquire comments, likes, dislikes, and/or tags
 	 */
 
-	$r = Photo::selectToArray([], ['`album` = ? AND `uid` = ? AND `created` > UTC_TIMESTAMP() - INTERVAL 3 HOUR', $album, $page_owner_uid]);
+	$r = Photo::selectToArray([], ['`album` = ? AND `uid` = ? AND `created` > ?', $album, $page_owner_uid, DateTimeFormat::utc('now - 3 hours')]);
 
 	if (!DBA::isResult($r) || ($album == DI::l10n()->t(Photo::PROFILE_PHOTOS))) {
 		$visible = 1;

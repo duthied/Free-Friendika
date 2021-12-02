@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
 class UpdateGServers
@@ -47,7 +48,7 @@ class UpdateGServers
 		}
 
 		$total = DBA::count('gserver');
-		$condition = ["`next_contact` < UTC_TIMESTAMP() AND (`nurl` != ? OR `url` != ?)", '', ''];
+		$condition = ["`next_contact` < ? AND (`nurl` != ? OR `url` != ?)",  DateTimeFormat::utcNow(), '', ''];
 		$outdated = DBA::count('gserver', $condition);
 		Logger::info('Server status', ['total' => $total, 'outdated' => $outdated, 'updating' => $limit]);
 

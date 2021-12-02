@@ -24,6 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * Delete all done workerqueue entries
@@ -32,7 +33,7 @@ class CleanWorkerQueue
 {
 	public static function execute()
 	{
-		DBA::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
+		DBA::delete('workerqueue', ["`done` AND `executed` < ?", DateTimeFormat::utc('now - 1 hour')]);
 
 		// Optimizing this table only last seconds
 		if (DI::config()->get('system', 'optimize_tables')) {
