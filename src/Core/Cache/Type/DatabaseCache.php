@@ -146,7 +146,7 @@ class DatabaseCache extends AbstractCache implements ICanCache
 	{
 		try {
 			if ($outdated) {
-				return $this->dba->delete('cache', ['`expires` < NOW()']);
+				return $this->dba->delete('cache', ['`expires` < ?', DateTimeFormat::utcNow()]);
 			} else {
 				return $this->dba->delete('cache', ['`k` IS NOT NULL ']);
 			}
