@@ -114,7 +114,7 @@ class Contact extends BaseAdmin
 			'$total_contacts' => DI::l10n()->tt('%s total blocked contact', '%s total blocked contacts', $total),
 			'$paginate'   => $pager->renderFull($total),
 			'$contacturl' => ['contact_url', DI::l10n()->t('Profile URL'), '', DI::l10n()->t('URL of the remote contact to block.')],
-			'$contact_block_purge'  => ['contact_block_purge', DI::l10n()->t('Also purge contact'), false, DI::l10n()->t('Removes all content related to this contact from the node. Keeps the contact record. This action canoot be undone.')],
+			'$contact_block_purge'  => ['contact_block_purge', DI::l10n()->t('Also purge contact'), false, DI::l10n()->t('Removes all content related to this contact from the node. Keeps the contact record. This action cannot be undone.')],
 			'$contact_block_reason' => ['contact_block_reason', DI::l10n()->t('Block Reason')],
 		]);
 		return $o;
