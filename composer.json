@@ -13,7 +13,7 @@
 		"issues": "https://github.com/friendica/friendica/issues"
 	},
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.3",
 		"ext-ctype": "*",
 		"ext-curl": "*",
 		"ext-dom": "*",
@@ -95,7 +95,7 @@
 	},
 	"config": {
 		"platform": {
-			"php": "7.2"
+			"php": "7.3"
 		},
 		"autoloader-suffix": "Friendica",
 		"optimize-autoloader": true,
