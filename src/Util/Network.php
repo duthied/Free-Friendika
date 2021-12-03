@@ -435,7 +435,8 @@ class Network
 	 *
 	 * @param array $parsed URL parts
 	 *
-	 * @return string The glued URL
+	 * @return string The glued URL.
+	 * @deprecated since version 2021.12, use a UriInterface object like GuzzleHttp\Psr7\Uri instead
 	 */
 	public static function unparseURL(array $parsed)
 	{
