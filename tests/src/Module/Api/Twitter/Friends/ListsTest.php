@@ -26,9 +26,6 @@ class ListsTest extends ApiTest
 		$json = json_decode($body);
 
 		self::assertIsArray($json->users);
-
-		// $result       = api_statuses_f('friends');
-		// self::assertArrayHasKey('user', $result);
 	}
 
 	/**
