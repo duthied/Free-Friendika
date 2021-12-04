@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Module\Api\GnuSocial\GnuSocial;
 
+use Friendica\App\BaseURL;
 use Friendica\App\Router;
 use Friendica\DI;
 use Friendica\Module\Api\GNUSocial\GNUSocial\Config;
@@ -14,6 +15,8 @@ class ConfigTest extends ApiTest
 	 */
 	public function testApiStatusnetConfig()
 	{
+		DI::config()->set('system', 'ssl_policy', BaseURL::SSL_POLICY_FULL);
+
 		$config   = new Config(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
 		$response = $config->run();
 		$body     = (string)$response->getBody();
