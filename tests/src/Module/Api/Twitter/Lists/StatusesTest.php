@@ -2,6 +2,10 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Lists;
 
+use Friendica\App\Router;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Lists\Statuses;
+use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class StatusesTest extends ApiTest
@@ -13,37 +17,41 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiListsStatuses()
 	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// api_lists_statuses('json');
+		$this->expectException(BadRequestException::class);
+
+		$lists = new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$lists->run();
 	}
 
 	/**
 	 * Test the api_lists_statuses() function with a list ID.
-	 * @doesNotPerformAssertions
 	 */
 	public function testApiListsStatusesWithListId()
 	{
-		/*
-		$_REQUEST['list_id'] = 1;
-		$_REQUEST['page']    = -1;
-		$_REQUEST['max_id']  = 10;
-		$result              = api_lists_statuses('json');
-		foreach ($result['status'] as $status) {
-			self::assertStatus($status);
+		$lists    = new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $lists->run(['list_id' => 1, 'page' => -1, 'max_id' => 10]);
+
+		$body = (string)$response->getBody();
+
+		self::assertJson($body);
+
+		$json = json_decode($body);
+
+		foreach ($json as $status) {
+			self::assertIsString($status->text);
+			self::assertIsInt($status->id);
 		}
-		*/
 	}
 
 	/**
 	 * Test the api_lists_statuses() function with a list ID and a RSS result.
-	 *
-	 * @return void
 	 */
 	public function testApiListsStatusesWithListIdAndRss()
 	{
-		// $_REQUEST['list_id'] = 1;
-		// $result              = api_lists_statuses('rss');
-		// self::assertXml($result, 'statuses');
+		$lists    = new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'rss']);
+		$response = $lists->run(['list_id' => 1]);
+
+		self::assertXml((string)$response->getBody());
 	}
 
 	/**
@@ -53,6 +61,8 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiListsStatusesWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// api_lists_statuses('json');

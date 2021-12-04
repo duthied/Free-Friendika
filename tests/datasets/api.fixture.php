@@ -827,6 +827,13 @@ return [
 			'name'    => 'Private list',
 		],
 	],
+	'group_member' => [
+		[
+			'id' => 1,
+			'gid' => 1,
+			'contact-id' => 42,
+		],
+	],
 	'search' => [
 		[
 			'id'   => 1,
