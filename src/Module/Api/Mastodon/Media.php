@@ -63,7 +63,7 @@ class Media extends BaseApi
 			'thumbnail'   => [], // The custom thumbnail of the media to be attached, using multipart form data.
 			'description' => '', // A plain-text description of the media, for accessibility purposes.
 			'focus'       => '', // Two floating points (x,y), comma-delimited ranging from -1.0 to 1.0
-		]);
+		], $request);
 
 		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();

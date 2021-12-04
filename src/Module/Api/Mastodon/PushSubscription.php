@@ -74,7 +74,7 @@ class PushSubscription extends BaseApi
 
 		$request = $this->getRequest([
 			'data' => [],
-		]);
+		], $request);
 
 		$subscription = Subscription::select($application['id'], $uid, ['id']);
 		if (empty($subscription)) {
