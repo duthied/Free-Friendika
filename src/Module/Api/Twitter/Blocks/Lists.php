@@ -87,6 +87,6 @@ class Lists extends ContactEndpoint
 
 		self::setLinkHeader();
 
-		System::jsonExit($return);
+		$this->response->exit('lists', ['lists' => $return]);
 	}
 }
