@@ -2,6 +2,9 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Friends;
 
+use Friendica\App\Router;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Friends\Lists;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class ListsTest extends ApiTest
@@ -13,7 +16,17 @@ class ListsTest extends ApiTest
 	 */
 	public function testApiStatusesFWithFriends()
 	{
-		// $_GET['page'] = -1;
+		$lists    = new Lists(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $lists->run();
+
+		$body = (string)$response->getBody();
+
+		self::assertJson($body);
+
+		$json = json_decode($body);
+
+		self::assertIsArray($json->users);
+
 		// $result       = api_statuses_f('friends');
 		// self::assertArrayHasKey('user', $result);
 	}
@@ -25,29 +38,9 @@ class ListsTest extends ApiTest
 	 */
 	public function testApiStatusesFWithUndefinedCursor()
 	{
+		self::markTestIncomplete('Needs refactoring of Lists - replace filter_input() with $request parameter checks');
+
 		// $_GET['cursor'] = 'undefined';
 		// self::assertFalse(api_statuses_f('friends'));
-	}
-
-	/**
-	 * Test the api_statuses_friends() function.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusesFriends()
-	{
-		// $result = api_statuses_friends('json');
-		// self::assertArrayHasKey('user', $result);
-	}
-
-	/**
-	 * Test the api_statuses_friends() function an undefined cursor GET variable.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusesFriendsWithUndefinedCursor()
-	{
-		// $_GET['cursor'] = 'undefined';
-		// self::assertFalse(api_statuses_friends('json'));
 	}
 }
