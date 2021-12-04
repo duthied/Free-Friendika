@@ -525,6 +525,29 @@ class Feed
 					$taglist = $contact["fetch_further_information"] == 2 ? PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"] ?? '') : [];
 					$item["object-type"] = Activity\ObjectType::BOOKMARK;
 					$attachments = [];
+
+					foreach (['audio', 'video'] as $elementname) {
+						if (!empty($data[$elementname])) {
+							foreach ($data[$elementname] as $element) {
+								if (!empty($element['src'])) {
+									$src = $element['src'];
+								} elseif (!empty($element['content'])) {
+									$src = $element['content'];
+								} else {
+									continue;
+								}
+
+								$attachments[] = [
+									'type'        => ($elementname == 'audio') ? Post\Media::AUDIO : Post\Media::VIDEO,
+									'url'         => $src,
+									'preview'     => $element['image']       ?? null,
+									'mimetype'    => $element['contenttype'] ?? null,
+									'name'        => $element['name']        ?? null,
+									'description' => $element['description'] ?? null,
+								];
+							}
+						}
+					}
 				}
 			} else {
 				if (!empty($summary)) {
@@ -541,7 +564,7 @@ class Feed
 				}
 
 				// Add the link to the original feed entry if not present in feed
-				if (($item['plink'] != '') && !strstr($item["body"], $item['plink'])) {
+				if (($item['plink'] != '') && !strstr($item["body"], $item['plink']) && !in_array($item['plink'], array_column($attachments, 'url'))) {
 					$item["body"] .= "[hr][url]" . $item['plink'] . "[/url]";
 				}
 			}
