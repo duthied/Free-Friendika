@@ -23,9 +23,6 @@ class UpdateProfileTest extends ApiTest
 
 		$json = json_decode($body);
 
-		self::assertEquals(42, $json->id);
-		self::assertEquals('DFRN', $json->location);
-		self::assertEquals('selfcontact', $json->screen_name);
 		self::assertEquals('new_name', $json->name);
 		self::assertEquals('new_description', $json->description);
 	}
