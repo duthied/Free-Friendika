@@ -2990,8 +2990,9 @@ class Item
 	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links)
 	{
 		DI::profiler()->startRecording('rendering');
-		// @ToDo Check only for audio and video
-		$preview = empty($attachments['visual']);
+		// Don't show a preview when there is a visual attachment (audio or video)
+		$types = array_column($attachments['visual'], 'type');
+		$preview = !in_array(Post\Media::IMAGE, $types) && !in_array(Post\Media::VIDEO, $types);
 
 		if (!empty($attachments['link'])) {
 			foreach ($attachments['link'] as $link) {
