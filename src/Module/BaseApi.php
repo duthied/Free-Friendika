@@ -88,7 +88,7 @@ class BaseApi extends BaseModule
 			case Router::PUT:
 				self::checkAllowedScope(self::SCOPE_WRITE);
 
-				if (!$this->app->isLoggedIn()) {
+				if (!self::getCurrentUserID()) {
 					throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 				}
 				break;
