@@ -79,7 +79,7 @@ class Lists extends BaseApi
 		$request = $this->getRequest([
 			'title'          => '', // The title of the list to be updated.
 			'replies_policy' => '', // One of: "followed", "list", or "none".
-		]);
+		], $request);
 
 		if (empty($request['title']) || empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
