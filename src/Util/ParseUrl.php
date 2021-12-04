@@ -344,9 +344,6 @@ class ParseUrl
 			$siteinfo['title'] = trim($list->item(0)->nodeValue);
 		}
 
-		$twitter_card = false;
-		$twitter_image = false;
-
 		$list = $xpath->query('//meta[@name]');
 		foreach ($list as $node) {
 			$meta_tag = [];
@@ -374,22 +371,27 @@ class ParseUrl
 					break;
 				case 'twitter:image':
 					$siteinfo['image'] = $meta_tag['content'];
-					$twitter_image = true;
 					break;
 				case 'twitter:image:src':
 					$siteinfo['image'] = $meta_tag['content'];
-					break;
-				case 'twitter:card':
-					// Detect photo pages
-					if ($meta_tag['content'] == 'summary_large_image') {
-						$twitter_card = true;
-					}
 					break;
 				case 'twitter:description':
 					$siteinfo['text'] = trim($meta_tag['content']);
 					break;
 				case 'twitter:title':
 					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'twitter:player':
+					$siteinfo['player']['embed'] = trim($meta_tag['content']);
+					break;
+				case 'twitter:player:stream':
+					$siteinfo['player']['stream'] = trim($meta_tag['content']);
+					break;
+				case 'twitter:player:width':
+					$siteinfo['player']['width'] = intval($meta_tag['content']);
+					break;
+				case 'twitter:player:height':
+					$siteinfo['player']['height'] = intval($meta_tag['content']);
 					break;
 				case 'dc.title':
 					$siteinfo['title'] = trim($meta_tag['content']);
@@ -457,7 +459,6 @@ class ParseUrl
 						break;
 					case 'twitter:image':
 						$siteinfo['image'] = $meta_tag['content'];
-						$twitter_image = true;
 						break;
 				}
 			}
@@ -472,11 +473,22 @@ class ParseUrl
 			}
 		}
 
-// Currently deactivated, see https://github.com/friendica/friendica/pull/10148#issuecomment-821512658
-		// Prevent to have a photo type without an image
-//		if ($twitter_card && $twitter_image && !empty($siteinfo['image'])) {
-//			$siteinfo['type'] = 'photo';
-//		}
+		if (!empty($siteinfo['player']['stream'])) {
+			// Only add player data to media arrays if there is no duplicate
+			$content_urls = array_merge(array_column($siteinfo['audio'] ?? [], 'content'), array_column($siteinfo['video'] ?? [], 'content'));
+			if (!in_array($siteinfo['player']['stream'], $content_urls)) {
+				$contenttype = self::getContentType($siteinfo['player']['stream']);
+				if (!empty($contenttype[0]) && in_array($contenttype[0], ['audio', 'video'])) {
+					$media = ['content' => $siteinfo['player']['stream']];
+
+					if (!empty($siteinfo['player']['embed'])) {
+						$media['embed'] = $siteinfo['player']['embed'];
+					}
+
+					$siteinfo[$contenttype[0]][] = $media;
+				}
+			}
+		}
 
 		if (!empty($siteinfo['image'])) {
 			$siteinfo['images'] = $siteinfo['images'] ?? [];
@@ -498,6 +510,8 @@ class ParseUrl
 
 		Hook::callAll('getsiteinfo', $siteinfo);
 
+		ksort($siteinfo);
+
 		return $siteinfo;
 	}
 
@@ -509,7 +523,7 @@ class ParseUrl
 	 * @param array $siteinfo
 	 * @return void
 	 */
-	private static function checkMedia(string $page_url, array $siteinfo)
+	private static function checkMedia(string $page_url, array $siteinfo) : array
 	{
 		if (!empty($siteinfo['images'])) {
 			array_walk($siteinfo['images'], function (&$image) use ($page_url) {
@@ -572,8 +586,8 @@ class ParseUrl
 					}
 					if (!empty($embed)) {
 						$media['embed'] = $embed;
-						if (!empty($media['main'])) {
-							$siteinfo['embed'] = $embed;
+						if (empty($siteinfo['player']['embed'])) {
+							$siteinfo['player']['embed'] = $embed;
 						}
 					}
 					if (!empty($content)) {
