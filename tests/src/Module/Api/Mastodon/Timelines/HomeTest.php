@@ -13,6 +13,8 @@ class HomeTest extends ApiTest
 	 */
 	public function testApiStatusesHomeTimeline()
 	{
+		self::markTestIncomplete('Needs Home to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['exclude_replies'] = true;
@@ -32,6 +34,8 @@ class HomeTest extends ApiTest
 	 */
 	public function testApiStatusesHomeTimelineWithNegativePage()
 	{
+		self::markTestIncomplete('Needs Home to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_home_timeline('json');
@@ -49,6 +53,8 @@ class HomeTest extends ApiTest
 	 */
 	public function testApiStatusesHomeTimelineWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs Home to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		BasicAuth::setCurrentUserID();
@@ -63,6 +69,8 @@ class HomeTest extends ApiTest
 	 */
 	public function testApiStatusesHomeTimelineWithRss()
 	{
+		self::markTestIncomplete('Needs Home to not set header during call (like at BaseApi::setLinkHeader');
+
 		// $result = api_statuses_home_timeline('rss');
 		// self::assertXml($result, 'statuses');
 	}

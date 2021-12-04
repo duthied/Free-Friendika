@@ -13,6 +13,8 @@ class PublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesPublicTimeline()
 	{
+		self::markTestIncomplete('Needs PublicTimeline to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['conversation_id'] = 1;
@@ -31,6 +33,8 @@ class PublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesPublicTimelineWithExcludeReplies()
 	{
+		self::markTestIncomplete('Needs PublicTimeline to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['exclude_replies'] = true;
@@ -49,6 +53,8 @@ class PublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesPublicTimelineWithNegativePage()
 	{
+		self::markTestIncomplete('Needs PublicTimeline to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_public_timeline('json');
@@ -66,6 +72,8 @@ class PublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesPublicTimelineWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs PublicTimeline to not set header during call (like at BaseApi::setLinkHeader');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// api_statuses_public_timeline('json');
@@ -78,6 +86,8 @@ class PublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesPublicTimelineWithRss()
 	{
+		self::markTestIncomplete('Needs PublicTimeline to not set header during call (like at BaseApi::setLinkHeader');
+
 		// $result = api_statuses_public_timeline('rss');
 		// self::assertXml($result, 'statuses');
 	}
