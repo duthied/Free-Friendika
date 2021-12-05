@@ -91,7 +91,7 @@ class Conversations extends BaseApi
 		DBA::close($convs);
 
 		if (!empty($request['min_id'])) {
-			array_reverse($conversations);
+			$conversations = array_reverse($conversations);
 		}
 
 		self::setLinkHeader();
