@@ -13,6 +13,7 @@ Version 2021.12 (unreleased)
     Enhanced the handling of emoticons [annando]
     Enhanced the handling of blocked domains [annando, MrPetovan]
     Enhanced the translation string extraction [fabrixxm]
+    Enhanced the detection of embedded content [annando]
     Fixed a problem linking to an addons authors profile [annando]
     Fixed a problem with the automatic installation [nupplaphil]
     Added AR translations [FaridaK, Mohamed_Ahmed_AF, abidin24, alsabi.abdullah, ButterflyOfFire, ominds, hisoka512]
@@ -45,8 +46,8 @@ Version 2021.12 (unreleased)
     9720, 10454, 10634, 10691, 10725, 10726, 10729, 10734, 10737, 10739,
     10745, 10754, 10767, 10791, 10829, 10832, 10839, 10841, 10844, 10851,
     10864, 10865, 10868, 10872, 10876, 10877, 10886, 10887, 10897, 10903,
-    10943, 10972, 10973, 10978, 10979, 10983, 10990, 10991, 11021, 11022,
-    11023, 11029, 11033
+    10939, 10943, 10955, 10971, 10972, 10973, 10978, 10979, 10983, 10990,
+    10991, 11021, 11022, 11023, 11029, 11033, 11047, 11055, 11063
 
 Version 2021.09 (2021-09-25)
   Friendica Core
