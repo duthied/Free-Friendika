@@ -52,6 +52,6 @@ class VerifyCredentials extends BaseApi
 
 		// @todo Support the source property,
 		$account = DI::mstdnAccount()->createFromContactId($cdata['user'], $uid);
-		$this->response->exit('account', ['account' => $account->toArray()]);
+		$this->response->exitWithJson($account->toArray());
 	}
 }

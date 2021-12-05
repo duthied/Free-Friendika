@@ -14,7 +14,7 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiStatusShowWithJson()
 	{
-		self::markTestIncomplete('Needs Stastuses to not set header during call (like at BaseApi::setLinkHeader');
+		self::markTestIncomplete('Needs Statuses to not set header during call (like at BaseApi::setLinkHeader');
 
 		// $result = api_status_show('json', 1);
 		// self::assertStatus($result['status']);
@@ -25,7 +25,7 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiStatusShowWithXml()
 	{
-		self::markTestIncomplete('Needs Stastuses to not set header during call (like at BaseApi::setLinkHeader');
+		self::markTestIncomplete('Needs Statuses to not set header during call (like at BaseApi::setLinkHeader');
 
 		// $result = api_status_show('xml', 1);
 		// self::assertXml($result, 'statuses');
