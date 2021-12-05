@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Security\OAuth;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * @see https://docs.joinmastodon.org/spec/oauth/
@@ -76,8 +77,8 @@ class Token extends BaseApi
 			$token = OAuth::createTokenForUser($application, 0, '');
 		} elseif ($request['grant_type'] == 'authorization_code') {
 			// For security reasons only allow freshly created tokens
-			$condition = ["`redirect_uri` = ? AND `id` = ? AND `code` = ? AND `created_at` > UTC_TIMESTAMP() - INTERVAL ? MINUTE",
-				$request['redirect_uri'], $application['id'], $request['code'], 5];
+			$condition = ["`redirect_uri` = ? AND `id` = ? AND `code` = ? AND `created_at` > ?",
+				$request['redirect_uri'], $application['id'], $request['code'], DateTimeFormat::utc('now - 5 minutes')];
 
 			$token = DBA::selectFirst('application-view', ['access_token', 'created_at'], $condition);
 			if (!DBA::isResult($token)) {

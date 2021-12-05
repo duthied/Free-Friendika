@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * Clear cache entries
@@ -31,15 +32,13 @@ class ClearCache
 {
 	public static function execute()
 	{
-		$a = DI::app();
-
 		// clear old cache
 		DI::cache()->clear();
 
 		// Delete the cached OEmbed entries that are older than three month
-		DBA::delete('oembed', ["`created` < NOW() - INTERVAL 3 MONTH"]);
+		DBA::delete('oembed', ["`created` < ?", DateTimeFormat::utc('now - 3 months')]);
 
 		// Delete the cached "parsed_url" entries that are expired
-		DBA::delete('parsed_url', ["`expires` < NOW()"]);
+		DBA::delete('parsed_url', ["`expires` < ?", DateTimeFormat::utcNow()]);
 	}
 }

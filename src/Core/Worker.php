@@ -754,7 +754,7 @@ class Worker
 					}
 
 					$stamp = (float)microtime(true);
-					$jobs = DBA::count('workerqueue', ["`done` AND `executed` > UTC_TIMESTAMP() - INTERVAL ? MINUTE", $interval]);
+					$jobs = DBA::count('workerqueue', ["`done` AND `executed` > ?", DateTimeFormat::utc('now - ' . $interval . ' minute')]);
 					self::$db_duration += (microtime(true) - $stamp);
 					self::$db_duration_stat += (microtime(true) - $stamp);
 					$jobs_per_minute[$interval] = number_format($jobs / $interval, 0);

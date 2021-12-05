@@ -103,7 +103,7 @@ class ApiResponse extends Response
 			'alternate'    => $user_info['url'],
 			'self'         => $this->baseUrl . '/' . $this->args->getQueryString(),
 			'base'         => $this->baseUrl,
-			'updated'      => DateTimeFormat::utc(null, DateTimeFormat::API),
+			'updated'      => DateTimeFormat::utcNow(DateTimeFormat::API),
 			'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			'language'     => $user_info['lang'],
 			'logo'         => $this->baseUrl . '/images/friendica-32.png',

@@ -29,6 +29,7 @@ use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Util\DateTimeFormat;
 
 class ExpirePosts
 {
@@ -67,7 +68,7 @@ class ExpirePosts
 	{
 		Logger::notice('Delete expired posts');
 		// physically remove anything that has been deleted for more than two months
-		$condition = ["`gravity` = ? AND `deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY", GRAVITY_PARENT];
+		$condition = ["`gravity` = ? AND `deleted` AND `changed` < ?", GRAVITY_PARENT, DateTimeFormat::utc('now - 60 days')];
 		$rows = Post::select(['guid', 'uri-id', 'uid'],  $condition);
 		while ($row = Post::fetch($rows)) {
 			Logger::info('Delete expired item', ['uri-id' => $row['uri-id'], 'guid' => $row['guid']]);
@@ -170,7 +171,7 @@ class ExpirePosts
 	{
 		// We have to avoid deleting newly created "item-uri" entries.
 		// So we fetch a post that had been stored yesterday and only delete older ones.
-		$item = Post::selectFirstThread(['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY", 0, 1],
+		$item = Post::selectFirstThread(['uri-id'], ["`uid` = ? AND `received` < ?", 0, DateTimeFormat::utc('now - 1 day')],
 			['order' => ['received' => true]]);
 		if (empty($item['uri-id'])) {
 			Logger::warning('No item with uri-id found - we better quit here');
@@ -222,7 +223,7 @@ class ExpirePosts
 		if (!empty($expire_days)) {
 			Logger::notice('Start collecting expired threads', ['expiry_days' => $expire_days]);
 			$uris = DBA::select('item-uri', ['id'], ["`id` IN
-				(SELECT `uri-id` FROM `post-thread` WHERE `received` < UTC_TIMESTAMP() - INTERVAL ? DAY
+				(SELECT `uri-id` FROM `post-thread` WHERE `received` < ?
 					AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-thread-user`
 						WHERE (`mention` OR `starred` OR `wall` OR `pinned`) AND `uri-id` = `post-thread`.`uri-id`)
 					AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-category`
@@ -235,7 +236,7 @@ class ExpirePosts
 						WHERE (`origin` OR `event-id` != 0 OR `post-type` = ?) AND `parent-uri-id` = `post-thread`.`uri-id`)
 					AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-content`
 						WHERE `resource-id` != 0 AND `uri-id` = `post-thread`.`uri-id`))",
-				$expire_days, Item::PT_PERSONAL_NOTE]);
+			    DateTimeFormat::utc('now - ' . (int)$expire_days . ' days'), Item::PT_PERSONAL_NOTE]);
 
 			Logger::notice('Start deleting expired threads');
 			$affected_count = 0;
@@ -252,12 +253,12 @@ class ExpirePosts
 		if (!empty($expire_days_unclaimed)) {
 			Logger::notice('Start collecting unclaimed public items', ['expiry_days' => $expire_days_unclaimed]);
 			$uris = DBA::select('item-uri', ['id'], ["`id` IN
-				(SELECT `uri-id` FROM `post-user` WHERE `gravity` = ? AND `uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY
+				(SELECT `uri-id` FROM `post-user` WHERE `gravity` = ? AND `uid` = ? AND `received` < ?
 					AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `post-user` AS `i` WHERE `i`.`uid` != ?
 						AND `i`.`parent-uri-id` = `post-user`.`uri-id`)
 					AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `post-user` AS `i` WHERE `i`.`uid` = ?
-						AND `i`.`parent-uri-id` = `post-user`.`uri-id` AND `i`.`received` > UTC_TIMESTAMP() - INTERVAL ? DAY))",
-				GRAVITY_PARENT, 0, $expire_days_unclaimed, 0, 0, $expire_days_unclaimed]);
+						AND `i`.`parent-uri-id` = `post-user`.`uri-id` AND `i`.`received` > ?))",
+				GRAVITY_PARENT, 0, DateTimeFormat::utc('now - ' . (int)$expire_days_unclaimed . ' days'), 0, 0, DateTimeFormat::utc('now - ' . (int)$expire_days_unclaimed . ' days')]);
 
 			Logger::notice('Start deleting unclaimed public items');
 			$affected_count = 0;

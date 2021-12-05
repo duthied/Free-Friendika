@@ -2258,8 +2258,8 @@ class Item
 			$condition[] = $network;
 		}
 
-		$condition[0] .= " AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY";
-		$condition[] = $days;
+		$condition[0] .= " AND `received` < ?";
+		$condition[] = DateTimeFormat::utc('now - ' . $days . ' day');
 
 		$items = Post::select(['resource-id', 'starred', 'id', 'post-type', 'uid', 'uri-id'], $condition);
 

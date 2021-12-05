@@ -54,7 +54,7 @@ class PushSubscriber
 	{
 		// We'll push to each subscriber that has push > 0,
 		// i.e. there has been an update (set in notifier.php).
-		$subscribers = DBA::select('push_subscriber', ['id', 'push', 'callback_url', 'nickname'], ["`push` > 0 AND `next_try` < UTC_TIMESTAMP()"]);
+		$subscribers = DBA::select('push_subscriber', ['id', 'push', 'callback_url', 'nickname'], ["`push` > 0 AND `next_try` < ?", DateTimeFormat::utcNow()]);
 
 		while ($subscriber = DBA::fetch($subscribers)) {
 			// We always handle retries with low priority

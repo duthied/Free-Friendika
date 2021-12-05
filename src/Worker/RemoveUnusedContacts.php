@@ -26,6 +26,7 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Photo;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * Removes public contacts that aren't in use
@@ -35,13 +36,13 @@ class RemoveUnusedContacts
 	public static function execute()
 	{
 		$condition = ["`id` != ? AND `uid` = ? AND NOT `self` AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
-			AND (NOT `network` IN (?, ?, ?, ?, ?, ?) OR (`archive` AND `success_update` < UTC_TIMESTAMP() - INTERVAL ? DAY))
+			AND (NOT `network` IN (?, ?, ?, ?, ?, ?) OR (`archive` AND `success_update` < ?))
 			AND NOT `id` IN (SELECT `author-id` FROM `post-user`) AND NOT `id` IN (SELECT `owner-id` FROM `post-user`)
 			AND NOT `id` IN (SELECT `causer-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `post-tag`)
 			AND NOT `id` IN (SELECT `contact-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `user-contact`)
 			AND NOT `id` IN (SELECT `cid` FROM `event`) AND NOT `id` IN (SELECT `contact-id` FROM `group_member`)
-			AND `created` < UTC_TIMESTAMP() - INTERVAL ? DAY",
-			0, 0, 0, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Protocol::ACTIVITYPUB, 365, 30];
+			AND `created` < ?",
+			0, 0, 0, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Protocol::ACTIVITYPUB, DateTimeFormat::utc('now - 365 days'), DateTimeFormat::utc('now - 30 days')];
 
 		$total = DBA::count('contact', $condition);
 		Logger::notice('Starting removal', ['total' => $total]);

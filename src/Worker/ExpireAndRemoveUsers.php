@@ -25,6 +25,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * Expire and remove user entries
@@ -34,8 +35,8 @@ class ExpireAndRemoveUsers
 	public static function execute()
 	{
 		// expire any expired regular accounts. Don't expire forums.
-		$condition = ["NOT `account_expired` AND `account_expires_on` > ? AND `account_expires_on` < UTC_TIMESTAMP() AND `page-flags` = ? AND `uid` != ?",
-			DBA::NULL_DATETIME, User::PAGE_FLAGS_NORMAL, 0];
+		$condition = ["NOT `account_expired` AND `account_expires_on` > ? AND `account_expires_on` < ? AND `page-flags` = ? AND `uid` != ?",
+			DBA::NULL_DATETIME, DateTimeFormat::utcNow(), User::PAGE_FLAGS_NORMAL, 0];
 		DBA::update('user', ['account_expired' => true], $condition);
 
 		// Ensure to never remove the user with uid=0
@@ -52,7 +53,7 @@ class ExpireAndRemoveUsers
 		DBA::close($users);
 
 		// delete user records for recently removed accounts
-		$users = DBA::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < UTC_TIMESTAMP()  AND `uid` != ?", 0]);
+		$users = DBA::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < ? AND `uid` != ?", DateTimeFormat::utcNow(), 0]);
 		while ($user = DBA::fetch($users)) {
 			// We have to delete photo entries by hand because otherwise the photo data won't be deleted
 			Photo::delete(['uid' => $user['uid']]);

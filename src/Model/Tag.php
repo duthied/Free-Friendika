@@ -29,6 +29,7 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
 /**
@@ -547,7 +548,7 @@ class Tag
 	{
 		// Get a uri-id that is at least X hours old.
 		// We use the uri-id in the query for the hash tags since this is much faster
-		$post = Post::selectFirstThread(['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? HOUR", 0, $period],
+		$post = Post::selectFirstThread(['uri-id'], ["`uid` = ? AND `received` < ?", 0, DateTimeFormat::utc('now - ' . $period . ' hour')],
 			['order' => ['received' => true]]);
 		if (empty($post['uri-id'])) {
 			return [];
@@ -600,7 +601,7 @@ class Tag
 	{
 		// Get a uri-id that is at least X hours old.
 		// We use the uri-id in the query for the hash tags since this is much faster
-		$post = Post::selectFirstThread(['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? HOUR", 0, $period],
+		$post = Post::selectFirstThread(['uri-id'], ["`uid` = ? AND `received` < ?", 0, DateTimeFormat::utc('now - ' . $period . ' hour')],
 			['order' => ['received' => true]]);
 		if (empty($post['uri-id'])) {
 			return [];
