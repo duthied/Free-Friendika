@@ -222,6 +222,16 @@ class ApiResponse extends Response
 	}
 
 	/**
+	 * Wrapper around exit() for JSON only responses
+	 *
+	 * @param array $data
+	 */
+	public function exitWithJson(array $data)
+	{
+		$this->exit('content', ['content' => $data], static::TYPE_JSON);
+	}
+
+	/**
 	 * Quit execution with the message that the endpoint isn't implemented
 	 *
 	 * @param string $method

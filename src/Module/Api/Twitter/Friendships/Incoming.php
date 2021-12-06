@@ -86,6 +86,6 @@ class Incoming extends ContactEndpoint
 
 		self::setLinkHeader();
 
-		System::jsonExit($return);
+		$this->response->exit('incoming', ['incoming' => $return]);
 	}
 }

@@ -13,6 +13,8 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiSearch()
 	{
+		self::markTestIncomplete('Needs Search to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['q']      = 'reply';
 		$_REQUEST['max_id'] = 10;
@@ -31,6 +33,8 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiSearchWithCount()
 	{
+		self::markTestIncomplete('Needs Search to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['q']     = 'reply';
 		$_REQUEST['count'] = 20;
@@ -49,6 +53,8 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiSearchWithRpp()
 	{
+		self::markTestIncomplete('Needs Search to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['q']   = 'reply';
 		$_REQUEST['rpp'] = 20;
@@ -66,6 +72,8 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiSearchWithHashtag()
 	{
+		self::markTestIncomplete('Needs Search to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['q'] = '%23friendica';
 		$result        = api_search('json');
@@ -82,6 +90,8 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiSearchWithExcludeReplies()
 	{
+		self::markTestIncomplete('Needs Search to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['exclude_replies'] = true;
@@ -100,6 +110,8 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiSearchWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs Search to not set header during call (like at BaseApi::setLinkHeader');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// api_search('json');
@@ -112,6 +124,8 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiSearchWithoutQuery()
 	{
+		self::markTestIncomplete('Needs Search to not set header during call (like at BaseApi::setLinkHeader');
+
 		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
 		// api_search('json');
 	}

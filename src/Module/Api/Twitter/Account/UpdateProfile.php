@@ -39,22 +39,22 @@ class UpdateProfile extends BaseApi
 
 		$api_user = DI::twitterUser()->createFromUserId($uid, true)->toArray();
 
-		if (!empty($_POST['name'])) {
-			DBA::update('profile', ['name' => $_POST['name']], ['uid' => $uid]);
-			DBA::update('user', ['username' => $_POST['name']], ['uid' => $uid]);
-			Contact::update(['name' => $_POST['name']], ['uid' => $uid, 'self' => 1]);
-			Contact::update(['name' => $_POST['name']], ['id' => $api_user['id']]);
+		if (!empty($request['name'])) {
+			DBA::update('profile', ['name' => $request['name']], ['uid' => $uid]);
+			DBA::update('user', ['username' => $request['name']], ['uid' => $uid]);
+			Contact::update(['name' => $request['name']], ['uid' => $uid, 'self' => 1]);
+			Contact::update(['name' => $request['name']], ['id' => $api_user['id']]);
 		}
 
-		if (isset($_POST['description'])) {
-			DBA::update('profile', ['about' => $_POST['description']], ['uid' => $uid]);
-			Contact::update(['about' => $_POST['description']], ['uid' => $uid, 'self' => 1]);
-			Contact::update(['about' => $_POST['description']], ['id' => $api_user['id']]);
+		if (isset($request['description'])) {
+			DBA::update('profile', ['about' => $request['description']], ['uid' => $uid]);
+			Contact::update(['about' => $request['description']], ['uid' => $uid, 'self' => 1]);
+			Contact::update(['about' => $request['description']], ['id' => $api_user['id']]);
 		}
 
 		Profile::publishUpdate($uid);
 
-		$skip_status = $_REQUEST['skip_status'] ?? false;
+		$skip_status = $request['skip_status'] ?? false;
 
 		$user_info = DI::twitterUser()->createFromUserId($uid, $skip_status)->toArray();
 

@@ -13,6 +13,8 @@ class ConversationsTest extends ApiTest
 	 */
 	public function testApiConversationShow()
 	{
+		self::markTestIncomplete('Needs Conversations to not set header during call (like at BaseApi::setLinkHeader');
+
 		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
 		// api_conversation_show('json');
 	}
@@ -24,6 +26,8 @@ class ConversationsTest extends ApiTest
 	 */
 	public function testApiConversationShowWithId()
 	{
+		self::markTestIncomplete('Needs Conversations to not set header during call (like at BaseApi::setLinkHeader');
+
 		/*
 		DI::args()->setArgv(['', '', '', 1]);
 		$_REQUEST['max_id'] = 10;
@@ -43,6 +47,8 @@ class ConversationsTest extends ApiTest
 	 */
 	public function testApiConversationShowWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs Conversations to not set header during call (like at BaseApi::setLinkHeader');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// api_conversation_show('json');

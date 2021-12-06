@@ -6,21 +6,14 @@
 namespace Friendica\Test\legacy;
 
 use Friendica\App;
-use Friendica\App\Router;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
-use Friendica\Core\Protocol;
 use Friendica\DI;
-use Friendica\Model\Post;
 use Friendica\Module\Api\ApiResponse;
-use Friendica\Module\Api\Twitter\Media\Upload;
 use Friendica\Module\BaseApi;
-use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Test\FixtureTest;
 use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Temporal;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
