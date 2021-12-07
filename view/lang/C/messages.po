@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-30 05:49+0000\n"
+"POT-Creation-Date: 2021-12-07 16:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -125,14 +125,13 @@ msgstr ""
 #: mod/suggest.php:34 mod/uimport.php:33 mod/unfollow.php:35
 #: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:68
 #: mod/wall_attach.php:71 mod/wall_upload.php:90 mod/wall_upload.php:93
-#: mod/wallmessage.php:36 mod/wallmessage.php:55 mod/wallmessage.php:89
-#: mod/wallmessage.php:109 src/Module/Attach.php:55 src/Module/BaseApi.php:79
-#: src/Module/BaseApi.php:88 src/Module/BaseApi.php:97
-#: src/Module/BaseApi.php:106 src/Module/BaseNotifications.php:97
-#: src/Module/Contact/Advanced.php:60 src/Module/Delegation.php:118
-#: src/Module/FollowConfirm.php:18 src/Module/FriendSuggest.php:56
-#: src/Module/Group.php:42 src/Module/Group.php:85 src/Module/Invite.php:41
-#: src/Module/Invite.php:130 src/Module/Notifications/Notification.php:48
+#: mod/wallmessage.php:37 mod/wallmessage.php:56 mod/wallmessage.php:90
+#: mod/wallmessage.php:110 src/Module/Attach.php:55 src/Module/BaseApi.php:92
+#: src/Module/BaseNotifications.php:97 src/Module/Contact/Advanced.php:60
+#: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:18
+#: src/Module/FriendSuggest.php:56 src/Module/Group.php:42
+#: src/Module/Group.php:85 src/Module/Invite.php:41 src/Module/Invite.php:130
+#: src/Module/Notifications/Notification.php:48
 #: src/Module/Notifications/Notification.php:79
 #: src/Module/Profile/Common.php:56 src/Module/Profile/Contacts.php:56
 #: src/Module/Profile/Schedule.php:39 src/Module/Profile/Schedule.php:56
@@ -169,7 +168,7 @@ msgid "Loading..."
 msgstr ""
 
 #: mod/editpost.php:93 mod/message.php:198 mod/message.php:355
-#: mod/wallmessage.php:139 src/Content/Conversation.php:327
+#: mod/wallmessage.php:140 src/Content/Conversation.php:327
 msgid "Upload photo"
 msgstr ""
 
@@ -186,7 +185,7 @@ msgid "attach file"
 msgstr ""
 
 #: mod/editpost.php:97 mod/message.php:199 mod/message.php:356
-#: mod/wallmessage.php:140
+#: mod/wallmessage.php:141
 msgid "Insert web link"
 msgstr ""
 
@@ -228,7 +227,7 @@ msgid "clear location"
 msgstr ""
 
 #: mod/editpost.php:107 mod/message.php:200 mod/message.php:358
-#: mod/photos.php:1495 mod/wallmessage.php:141 src/Content/Conversation.php:355
+#: mod/photos.php:1495 mod/wallmessage.php:142 src/Content/Conversation.php:355
 #: src/Content/Conversation.php:690 src/Module/Item/Compose.php:165
 #: src/Object/Post.php:502
 msgid "Please wait"
@@ -358,7 +357,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Server/Index.php:68
 #: src/Module/Admin/Blocklist/Server/Index.php:69
 #: src/Module/Admin/Blocklist/Server/Index.php:96
-#: src/Module/Admin/Item/Delete.php:70 src/Module/Debug/Probe.php:59
+#: src/Module/Admin/Item/Delete.php:69 src/Module/Debug/Probe.php:59
 #: src/Module/Install.php:207 src/Module/Install.php:240
 #: src/Module/Install.php:245 src/Module/Install.php:264
 #: src/Module/Install.php:275 src/Module/Install.php:280
@@ -691,7 +690,7 @@ msgstr ""
 msgid "New Message"
 msgstr ""
 
-#: mod/message.php:83 mod/wallmessage.php:69
+#: mod/message.php:83 mod/wallmessage.php:70
 msgid "No recipient selected."
 msgstr ""
 
@@ -699,11 +698,11 @@ msgstr ""
 msgid "Unable to locate contact information."
 msgstr ""
 
-#: mod/message.php:90 mod/wallmessage.php:75
+#: mod/message.php:90 mod/wallmessage.php:76
 msgid "Message could not be sent."
 msgstr ""
 
-#: mod/message.php:93 mod/wallmessage.php:78
+#: mod/message.php:93 mod/wallmessage.php:79
 msgid "Message collection failure."
 msgstr ""
 
@@ -729,23 +728,23 @@ msgstr ""
 msgid "Conversation was not removed."
 msgstr ""
 
-#: mod/message.php:180 mod/message.php:286 mod/wallmessage.php:123
+#: mod/message.php:180 mod/message.php:286 mod/wallmessage.php:124
 msgid "Please enter a link URL:"
 msgstr ""
 
-#: mod/message.php:189 mod/wallmessage.php:128
+#: mod/message.php:189 mod/wallmessage.php:129
 msgid "Send Private Message"
 msgstr ""
 
-#: mod/message.php:190 mod/message.php:347 mod/wallmessage.php:130
+#: mod/message.php:190 mod/message.php:347 mod/wallmessage.php:131
 msgid "To:"
 msgstr ""
 
-#: mod/message.php:191 mod/message.php:348 mod/wallmessage.php:131
+#: mod/message.php:191 mod/message.php:348 mod/wallmessage.php:132
 msgid "Subject:"
 msgstr ""
 
-#: mod/message.php:195 mod/message.php:351 mod/wallmessage.php:137
+#: mod/message.php:195 mod/message.php:351 mod/wallmessage.php:138
 #: src/Module/Invite.php:170
 msgid "Your message:"
 msgstr ""
@@ -1275,7 +1274,7 @@ msgstr ""
 #: mod/settings.php:461 mod/settings.php:493 mod/settings.php:524
 #: mod/settings.php:598 mod/settings.php:735
 #: src/Module/Admin/Addons/Index.php:69 src/Module/Admin/Features.php:87
-#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:501
+#: src/Module/Admin/Logs/Settings.php:81 src/Module/Admin/Site.php:501
 #: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:83
 #: src/Module/Settings/Delegation.php:170 src/Module/Settings/Display.php:193
 msgid "Save Settings"
@@ -2090,20 +2089,20 @@ msgstr ""
 msgid "Wall Photos"
 msgstr ""
 
-#: mod/wallmessage.php:61 mod/wallmessage.php:115
+#: mod/wallmessage.php:62 mod/wallmessage.php:116
 #, php-format
 msgid "Number of daily wall messages for %s exceeded. Message failed."
 msgstr ""
 
-#: mod/wallmessage.php:72
+#: mod/wallmessage.php:73
 msgid "Unable to check your home location."
 msgstr ""
 
-#: mod/wallmessage.php:96 mod/wallmessage.php:103
+#: mod/wallmessage.php:97 mod/wallmessage.php:104
 msgid "No recipient."
 msgstr ""
 
-#: mod/wallmessage.php:129
+#: mod/wallmessage.php:130
 #, php-format
 msgid ""
 "If you wish for %s to respond, please check that the privacy settings on "
@@ -2141,31 +2140,31 @@ msgstr ""
 msgid "You must be logged in to use addons. "
 msgstr ""
 
-#: src/BaseModule.php:298
+#: src/BaseModule.php:345
 msgid ""
 "The form security token was not correct. This probably happened because the "
 "form has been opened for too long (>3 hours) before submitting it."
 msgstr ""
 
-#: src/BaseModule.php:325
+#: src/BaseModule.php:372
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:330 src/Content/Widget.php:231 src/Core/ACL.php:193
+#: src/BaseModule.php:377 src/Content/Widget.php:231 src/Core/ACL.php:193
 #: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:79
 #: src/Module/PermissionTooltip.php:101
 msgid "Followers"
 msgstr ""
 
-#: src/BaseModule.php:335 src/Content/Widget.php:232 src/Module/Contact.php:368
+#: src/BaseModule.php:382 src/Content/Widget.php:232 src/Module/Contact.php:368
 msgid "Following"
 msgstr ""
 
-#: src/BaseModule.php:340 src/Content/Widget.php:233 src/Module/Contact.php:369
+#: src/BaseModule.php:387 src/Content/Widget.php:233 src/Module/Contact.php:369
 msgid "Mutual friends"
 msgstr ""
 
-#: src/BaseModule.php:348
+#: src/BaseModule.php:395
 msgid "Common"
 msgstr ""
 
@@ -3067,8 +3066,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3154
-#: src/Model/Item.php:3160 src/Model/Item.php:3161
+#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3155
+#: src/Model/Item.php:3161 src/Model/Item.php:3162
 msgid "Link to source"
 msgstr ""
 
@@ -4262,11 +4261,11 @@ msgstr ""
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3119
+#: src/Model/Item.php:3120
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3148 src/Model/Item.php:3149
+#: src/Model/Item.php:3149 src/Model/Item.php:3150
 msgid "View on separate page"
 msgstr ""
 
@@ -4696,8 +4695,8 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Contact.php:94
 #: src/Module/Admin/Blocklist/Server/Add.php:89
 #: src/Module/Admin/Blocklist/Server/Index.php:78
-#: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:65
-#: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:83
+#: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:64
+#: src/Module/Admin/Logs/Settings.php:79 src/Module/Admin/Logs/View.php:83
 #: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:498
 #: src/Module/Admin/Storage.php:138 src/Module/Admin/Summary.php:232
 #: src/Module/Admin/Themes/Details.php:90 src/Module/Admin/Themes/Index.php:111
@@ -4875,7 +4874,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Contact.php:117
 msgid ""
 "Removes all content related to this contact from the node. Keeps the contact "
-"record. This action canoot be undone."
+"record. This action cannot be undone."
 msgstr ""
 
 #: src/Module/Admin/Blocklist/Contact.php:118
@@ -5132,36 +5131,36 @@ msgid ""
 "following platforms:"
 msgstr ""
 
-#: src/Module/Admin/Item/Delete.php:54
+#: src/Module/Admin/Item/Delete.php:53
 msgid "Item marked for deletion."
 msgstr ""
 
-#: src/Module/Admin/Item/Delete.php:66 src/Module/BaseAdmin.php:106
+#: src/Module/Admin/Item/Delete.php:65 src/Module/BaseAdmin.php:106
 msgid "Delete Item"
 msgstr ""
 
-#: src/Module/Admin/Item/Delete.php:67
+#: src/Module/Admin/Item/Delete.php:66
 msgid "Delete this Item"
 msgstr ""
 
-#: src/Module/Admin/Item/Delete.php:68
+#: src/Module/Admin/Item/Delete.php:67
 msgid ""
 "On this page you can delete an item from your node. If the item is a top "
 "level posting, the entire thread will be deleted."
 msgstr ""
 
-#: src/Module/Admin/Item/Delete.php:69
+#: src/Module/Admin/Item/Delete.php:68
 msgid ""
 "You need to know the GUID of the item. You can find it e.g. by looking at "
 "the display URL. The last part of http://example.com/display/123456 is the "
 "GUID, here 123456."
 msgstr ""
 
-#: src/Module/Admin/Item/Delete.php:70
+#: src/Module/Admin/Item/Delete.php:69
 msgid "GUID"
 msgstr ""
 
-#: src/Module/Admin/Item/Delete.php:70
+#: src/Module/Admin/Item/Delete.php:69
 msgid "The GUID of the item you want to delete."
 msgstr ""
 
@@ -5215,51 +5214,51 @@ msgstr ""
 msgid "Source"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:48
+#: src/Module/Admin/Logs/Settings.php:47
 #, php-format
 msgid "The logfile '%s' is not writable. No logging possible"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:72
+#: src/Module/Admin/Logs/Settings.php:71
 msgid "PHP log currently enabled."
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:74
+#: src/Module/Admin/Logs/Settings.php:73
 msgid "PHP log currently disabled."
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:81 src/Module/BaseAdmin.php:108
+#: src/Module/Admin/Logs/Settings.php:80 src/Module/BaseAdmin.php:108
 #: src/Module/BaseAdmin.php:109
 msgid "Logs"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:83
+#: src/Module/Admin/Logs/Settings.php:82
 msgid "Clear"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:87
+#: src/Module/Admin/Logs/Settings.php:86
 msgid "Enable Debugging"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:88
+#: src/Module/Admin/Logs/Settings.php:87
 msgid "Log file"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:88
+#: src/Module/Admin/Logs/Settings.php:87
 msgid ""
 "Must be writable by web server. Relative to your Friendica top-level "
 "directory."
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:89
+#: src/Module/Admin/Logs/Settings.php:88
 msgid "Log level"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:91
+#: src/Module/Admin/Logs/Settings.php:90
 msgid "PHP logging"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:92
+#: src/Module/Admin/Logs/Settings.php:91
 msgid ""
 "To temporarily enable logging of PHP errors and warnings you can prepend the "
 "following to the index.php file of your installation. The filename set in "
@@ -6786,12 +6785,12 @@ msgstr ""
 msgid "Deny"
 msgstr ""
 
-#: src/Module/Api/ApiResponse.php:243
+#: src/Module/Api/ApiResponse.php:253
 #, php-format
 msgid "API endpoint %s %s is not implemented"
 msgstr ""
 
-#: src/Module/Api/ApiResponse.php:244
+#: src/Module/Api/ApiResponse.php:254
 msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr ""
@@ -6933,26 +6932,26 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:280 src/Module/BaseApi.php:296
-#: src/Module/BaseApi.php:312
+#: src/Module/BaseApi.php:239 src/Module/BaseApi.php:255
+#: src/Module/BaseApi.php:271
 msgid "Too Many Requests"
 msgstr ""
 
-#: src/Module/BaseApi.php:281
+#: src/Module/BaseApi.php:240
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:297
+#: src/Module/BaseApi.php:256
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:313
+#: src/Module/BaseApi.php:272
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
@@ -8520,7 +8519,7 @@ msgstr ""
 msgid "Unsupported or missing response type"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:65
+#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:66
 msgid "Incomplete request data"
 msgstr ""
 
@@ -8531,7 +8530,7 @@ msgid ""
 "close this window: %s"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:89
+#: src/Module/OAuth/Token.php:90
 msgid "Unsupported or missing grant type"
 msgstr ""
 
@@ -8629,19 +8628,19 @@ msgstr ""
 
 #: src/Module/Profile/Profile.php:326 src/Module/Profile/Profile.php:329
 #: src/Module/Profile/Status.php:65 src/Module/Profile/Status.php:68
-#: src/Protocol/Feed.php:953 src/Protocol/OStatus.php:1242
+#: src/Protocol/Feed.php:976 src/Protocol/OStatus.php:1242
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:327 src/Module/Profile/Status.php:66
-#: src/Protocol/Feed.php:957 src/Protocol/OStatus.php:1246
+#: src/Protocol/Feed.php:980 src/Protocol/OStatus.php:1246
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:328 src/Module/Profile/Status.php:67
-#: src/Protocol/Feed.php:960 src/Protocol/OStatus.php:1249
+#: src/Protocol/Feed.php:983 src/Protocol/OStatus.php:1249
 #, php-format
 msgid "%s's comments"
 msgstr ""
