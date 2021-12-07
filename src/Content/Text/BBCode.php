@@ -1052,7 +1052,7 @@ class BBCode
 
 				$author_contact = Contact::getByURL($attributes['profile'], false, ['id', 'url', 'addr', 'name', 'micro']);
 				$author_contact['url'] = ($author_contact['url'] ?? $attributes['profile']);
-				$author_contact['addr'] = ($author_contact['addr'] ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
+				$author_contact['addr'] = ($author_contact['addr'] ?? '');
 
 				$attributes['author']   = ($author_contact['name']  ?? '') ?: $attributes['author'];
 				$attributes['avatar']   = ($author_contact['micro'] ?? '') ?: $attributes['avatar'];
@@ -1129,7 +1129,7 @@ class BBCode
 	private static function convertShareCallback(array $attributes, array $author_contact, $content, $is_quote_share, $simplehtml)
 	{
 		DI::profiler()->startRecording('rendering');
-		$mention = Protocol::formatMention($attributes['profile'], $attributes['author']);
+		$mention = $attributes['author'] . ' (' . ($author_contact['addr'] ?? '') . ')';
 
 		switch ($simplehtml) {
 			case self::API:
