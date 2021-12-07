@@ -437,6 +437,13 @@ class Transmitter
 			return [];
 		}
 
+		$permissions = [
+			'to' => [],
+			'cc' => [],
+			'bto' => [],
+			'bcc' => [],
+		];
+
 		$activity = json_decode($conversation['source'], true);
 
 		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
