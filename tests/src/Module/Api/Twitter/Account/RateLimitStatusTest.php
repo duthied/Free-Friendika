@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Account;
 
+use Friendica\App\Router;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\DI;
 use Friendica\Module\Api\Twitter\Account\RateLimitStatus;
@@ -11,7 +12,7 @@ class RateLimitStatusTest extends ApiTest
 {
 	public function testWithJson()
 	{
-		$rateLimitStatus = new RateLimitStatus(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
+		$rateLimitStatus = new RateLimitStatus(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
 		$response = $rateLimitStatus->run();
 
 		$result = json_decode($response->getBody());

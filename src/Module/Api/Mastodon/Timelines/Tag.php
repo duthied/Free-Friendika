@@ -112,7 +112,7 @@ class Tag extends BaseApi
 		DBA::close($items);
 
 		if (!empty($request['min_id'])) {
-			array_reverse($statuses);
+			$statuses = array_reverse($statuses);
 		}
 
 		self::setLinkHeader();

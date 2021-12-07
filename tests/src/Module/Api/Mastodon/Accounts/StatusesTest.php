@@ -2,6 +2,9 @@
 
 namespace Friendica\Test\src\Module\Api\Mastodon\Accounts;
 
+use Friendica\App\Router;
+use Friendica\DI;
+use Friendica\Module\Api\Mastodon\Accounts\Statuses;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class StatusesTest extends ApiTest
@@ -11,6 +14,8 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiStatusShowWithJson()
 	{
+		self::markTestIncomplete('Needs Statuses to not set header during call (like at BaseApi::setLinkHeader');
+
 		// $result = api_status_show('json', 1);
 		// self::assertStatus($result['status']);
 	}
@@ -20,6 +25,8 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiStatusShowWithXml()
 	{
+		self::markTestIncomplete('Needs Statuses to not set header during call (like at BaseApi::setLinkHeader');
+
 		// $result = api_status_show('xml', 1);
 		// self::assertXml($result, 'statuses');
 	}

@@ -80,13 +80,13 @@ class Lists extends ContactEndpoint
 		DBA::close($contacts);
 
 		if (!empty($min_id)) {
-			array_reverse($ids);
+			$ids = array_reverse($ids);
 		}
 
 		$return = self::list($ids, $total_count, $uid, $cursor, $count, $skip_status, $include_user_entities);
 
 		self::setLinkHeader();
 
-		System::jsonExit($return);
+		$this->response->exit('lists', ['lists' => $return]);
 	}
 }

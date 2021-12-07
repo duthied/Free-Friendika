@@ -84,7 +84,7 @@ class Ids extends ContactEndpoint
 		DBA::close($followers);
 
 		if (!empty($min_id)) {
-			array_reverse($ids);
+			$ids = array_reverse($ids);
 		}
 
 		$return = self::ids($ids, $total_count, $cursor, $count, $stringify_ids);

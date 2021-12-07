@@ -105,7 +105,7 @@ class ScheduledStatuses extends BaseApi
 		DBA::close($posts);
 
 		if (!empty($request['min_id'])) {
-			array_reverse($statuses);
+			$statuses = array_reverse($statuses);
 		}
 
 		self::setLinkHeader();

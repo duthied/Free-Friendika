@@ -100,7 +100,7 @@ class Accounts extends BaseApi
 		DBA::close($members);
 
 		if (!empty($request['min_id'])) {
-			array_reverse($accounts);
+			$accounts = array_reverse($accounts);
 		}
 
 		self::setLinkHeader();

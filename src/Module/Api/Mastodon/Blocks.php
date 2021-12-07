@@ -81,7 +81,7 @@ class Blocks extends BaseApi
 		DBA::close($followers);
 
 		if (!empty($request['min_id'])) {
-			array_reverse($accounts);
+			$accounts = array_reverse($accounts);
 		}
 
 		self::setLinkHeader();

@@ -40,23 +40,23 @@ class Statuses extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		if (empty($_REQUEST['list_id'])) {
+		if (empty($request['list_id'])) {
 			throw new BadRequestException('list_id not specified');
 		}
 
 		// params
-		$count           = $_REQUEST['count']    ?? 20;
-		$page            = $_REQUEST['page']     ?? 1;
-		$since_id        = $_REQUEST['since_id'] ?? 0;
-		$max_id          = $_REQUEST['max_id']   ?? 0;
-		$exclude_replies = (!empty($_REQUEST['exclude_replies']) ? 1 : 0);
-		$conversation_id = $_REQUEST['conversation_id'] ?? 0;
+		$count           = $request['count']    ?? 20;
+		$page            = $request['page']     ?? 1;
+		$since_id        = $request['since_id'] ?? 0;
+		$max_id          = $request['max_id']   ?? 0;
+		$exclude_replies = (!empty($request['exclude_replies']) ? 1 : 0);
+		$conversation_id = $request['conversation_id'] ?? 0;
 
 		$start = max(0, ($page - 1) * $count);
 
-		$groups    = DBA::selectToArray('group_member', ['contact-id'], ['gid' => 1]);
+		$groups    = DBA::selectToArray('group_member', ['contact-id'], ['gid' => $request['list_id']]);
 		$gids      = array_column($groups, 'contact-id');
-		$condition = ['uid' => $uid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'group-id' => $gids];
+		$condition = ['uid' => $uid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'contact-id' => $gids];
 		$condition = DBA::mergeConditions($condition, ["`id` > ?", $since_id]);
 
 		if ($max_id > 0) {
@@ -75,7 +75,7 @@ class Statuses extends BaseApi
 		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
 
-		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
+		$include_entities = strtolower(($request['include_entities'] ?? 'false') == 'true');
 
 		$items = [];
 		while ($status = DBA::fetch($statuses)) {

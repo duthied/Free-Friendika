@@ -75,7 +75,7 @@ class Direct extends BaseApi
 		}
 
 		if (!empty($request['min_id'])) {
-			array_reverse($statuses);
+			$statuses = array_reverse($statuses);
 		}
 
 		self::setLinkHeader();

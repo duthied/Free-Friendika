@@ -2,29 +2,39 @@
 
 namespace Friendica\Test\src\Module\Api\GnuSocial\GnuSocial;
 
+use Friendica\App\BaseURL;
+use Friendica\App\Router;
+use Friendica\DI;
+use Friendica\Module\Api\GNUSocial\GNUSocial\Config;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class ConfigTest extends ApiTest
 {
 	/**
 	 * Test the api_statusnet_config() function.
-	 *
-	 * @return void
 	 */
 	public function testApiStatusnetConfig()
 	{
-		/*
-		$result = api_statusnet_config('json');
-		self::assertEquals('localhost', $result['config']['site']['server']);
-		self::assertEquals('default', $result['config']['site']['theme']);
-		self::assertEquals(DI::baseUrl() . '/images/friendica-64.png', $result['config']['site']['logo']);
-		self::assertTrue($result['config']['site']['fancy']);
-		self::assertEquals('en', $result['config']['site']['language']);
-		self::assertEquals('UTC', $result['config']['site']['timezone']);
-		self::assertEquals(200000, $result['config']['site']['textlimit']);
-		self::assertEquals('false', $result['config']['site']['private']);
-		self::assertEquals('false', $result['config']['site']['ssl']);
-		self::assertEquals(30, $result['config']['site']['shorturllength']);
-		*/
+		DI::config()->set('system', 'ssl_policy', BaseURL::SSL_POLICY_FULL);
+
+		$config   = new Config(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $config->run();
+		$body     = (string)$response->getBody();
+
+		self::assertJson($body);
+
+		$json = json_decode($body);
+
+		self::assertEquals(1, 1);
+
+		self::assertEquals('localhost', $json->site->server);
+		self::assertEquals('frio', $json->site->theme);
+		self::assertEquals(DI::baseUrl() . '/images/friendica-64.png', $json->site->logo);
+		self::assertTrue($json->site->fancy);
+		self::assertEquals('en', $json->site->language);
+		self::assertEquals('UTC', $json->site->timezone);
+		self::assertEquals(200000, $json->site->textlimit);
+		self::assertFalse($json->site->private);
+		self::assertEquals('always', $json->site->ssl);
 	}
 }
