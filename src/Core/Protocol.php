@@ -176,7 +176,7 @@ class Protocol
 			$statusnet_user = $matches[2];
 			$UserData = DI::httpClient()->fetch('http://' . $statusnet_host . '/api/users/show.json?user_id=' . $statusnet_user);
 			$user = json_decode($UserData);
-			if ($user) {
+			if (!empty($user->screen_name)) {
 				$matches[2] = $user->screen_name;
 				return self::STATUSNET;
 			}
