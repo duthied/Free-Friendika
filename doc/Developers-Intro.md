@@ -51,7 +51,7 @@ It's a command-line tool that downloads required libraries into the `vendor` fol
 
 If you want to have git automatically update the dependencies with composer, you can use the `post-merge` [git-hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) with a script similar to this one:
 
-    #/usr/bin/env bash
+    #!/usr/bin/env bash
     # MIT © Sindre Sorhus - sindresorhus.com
     # forked by Gianluca Guarini
     # phponly by Ivo Bathke ;)
