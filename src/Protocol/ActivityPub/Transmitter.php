@@ -1293,7 +1293,7 @@ class Transmitter
 
 		$urls = [];
 		foreach ($uriids as $uriid) {
-			foreach (Post\Media::getByURIId($uriid, [Post\Media::DOCUMENT, Post\Media::TORRENT]) as $attachment) {
+			foreach (Post\Media::getByURIId($uriid, [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO, Post\Media::DOCUMENT, Post\Media::TORRENT]) as $attachment) {
 				if (in_array($attachment['url'], $urls)) {
 					continue;
 				}
@@ -1318,52 +1318,6 @@ class Transmitter
 
 				$attachments[] = $attach;
 			}
-		}
-
-		if ($type != 'Note') {
-			return $attachments;
-		}
-
-		foreach ($uriids as $uriid) {
-			foreach (Post\Media::getByURIId($uriid, [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]) as $attachment) {
-				if (in_array($attachment['url'], $urls)) {
-					continue;
-				}
-				$urls[] = $attachment['url'];
-
-				$attach = ['type' => 'Document',
-					'mediaType' => $attachment['mimetype'],
-					'url' => $attachment['url'],
-					'name' => $attachment['description']];
-
-				if (!empty($attachment['height'])) {
-					$attach['height'] = $attachment['height'];
-				}
-
-				if (!empty($attachment['width'])) {
-					$attach['width'] = $attachment['width'];
-				}
-
-				if (!empty($attachment['preview'])) {
-					$attach['image'] = $attachment['preview'];
-				}
-
-				$attachments[] = $attach;
-			}
-			// Currently deactivated, since it creates side effects on Mastodon and Pleroma.
-			// It will be activated, once this cleared.
-			/*
-			foreach (Post\Media::getByURIId($uriid, [Post\Media::HTML]) as $attachment) {
-				if (in_array($attachment['url'], $urls)) {
-					continue;
-				}
-				$urls[] = $attachment['url'];
-
-				$attachments[] = ['type' => 'Page',
-					'mediaType' => $attachment['mimetype'],
-					'url' => $attachment['url'],
-					'name' => $attachment['description']];
-			}*/
 		}
 
 		return $attachments;

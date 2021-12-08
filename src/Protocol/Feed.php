@@ -401,7 +401,16 @@ class Feed
 				}
 
 				if (!empty($href)) {
-					$attachments[] = ['type' => Post\Media::DOCUMENT, 'url' => $href, 'mimetype' => $type, 'size' => $length];
+					$attachment = ['type' => Post\Media::UNKNOWN, 'url' => $href, 'mimetype' => $type, 'size' => $length];
+
+					$attachment = Post\Media::fetchAdditionalData($attachment);
+
+					// By now we separate the visible media types (audio, video, image) from the rest
+					// In the future we should try to avoid the DOCUMENT type and only use the real one - but not in the RC phase.
+					if (!in_array($attachment['type'], [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO])) {
+						$attachment['type'] = Post\Media::DOCUMENT;
+					}
+					$attachments[] = $attachment;
 				}
 			}
 

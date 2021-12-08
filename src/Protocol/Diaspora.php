@@ -3411,7 +3411,7 @@ class Diaspora
 
 			$attachments = Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]);
 			if (!empty($attachments)) {
-				$body .= "\n".DI::l10n()->t("Attachments:")."\n";
+				$body .= "\n[hr]\n";
 				foreach ($attachments as $attachment) {
 					$body .= "[" . $attachment['description'] . "](" . $attachment['url'] . ")\n";
 				}
