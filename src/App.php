@@ -600,29 +600,27 @@ class App
 			}
 
 			// ZRL
-			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend()) {
-				if (!local_user()) {
-					// Only continue when the given profile link seems valid
-					// Valid profile links contain a path with "/profile/" and no query parameters
-					if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") &&
-						strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
-						if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
-							Core\Session::set('my_url', $_GET['zrl']);
-							Core\Session::set('authenticated', 0);
+			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend() && !local_user()) {
+				// Only continue when the given profile link seems valid
+				// Valid profile links contain a path with "/profile/" and no query parameters
+				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") &&
+					strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
+					if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
+						Core\Session::set('my_url', $_GET['zrl']);
+						Core\Session::set('authenticated', 0);
 
-							$remote_contact = Contact::getByURL($_GET['zrl'], false, ['subscribe']);
-							if (!empty($remote_contact['subscribe'])) {
-								$_SESSION['remote_comment'] = $remote_contact['subscribe'];
-							}
+						$remote_contact = Contact::getByURL($_GET['zrl'], false, ['subscribe']);
+						if (!empty($remote_contact['subscribe'])) {
+							$_SESSION['remote_comment'] = $remote_contact['subscribe'];
 						}
-
-						Model\Profile::zrlInit($this);
-					} else {
-						// Someone came with an invalid parameter, maybe as a DDoS attempt
-						// We simply stop processing here
-						$this->logger->debug('Invalid ZRL parameter.', ['zrl' => $_GET['zrl']]);
-						throw new HTTPException\ForbiddenException();
 					}
+
+					Model\Profile::zrlInit($this);
+				} else {
+					// Someone came with an invalid parameter, maybe as a DDoS attempt
+					// We simply stop processing here
+					$this->logger->debug('Invalid ZRL parameter.', ['zrl' => $_GET['zrl']]);
+					throw new HTTPException\ForbiddenException();
 				}
 			}
 
