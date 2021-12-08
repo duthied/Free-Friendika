@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-07 16:06+0100\n"
+"POT-Creation-Date: 2021-12-08 13:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8628,19 +8628,19 @@ msgstr ""
 
 #: src/Module/Profile/Profile.php:326 src/Module/Profile/Profile.php:329
 #: src/Module/Profile/Status.php:65 src/Module/Profile/Status.php:68
-#: src/Protocol/Feed.php:976 src/Protocol/OStatus.php:1242
+#: src/Protocol/Feed.php:985 src/Protocol/OStatus.php:1242
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:327 src/Module/Profile/Status.php:66
-#: src/Protocol/Feed.php:980 src/Protocol/OStatus.php:1246
+#: src/Protocol/Feed.php:989 src/Protocol/OStatus.php:1246
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:328 src/Module/Profile/Status.php:67
-#: src/Protocol/Feed.php:983 src/Protocol/OStatus.php:1249
+#: src/Protocol/Feed.php:992 src/Protocol/OStatus.php:1249
 #, php-format
 msgid "%s's comments"
 msgstr ""
@@ -10545,10 +10545,6 @@ msgstr ""
 
 #: src/Object/Post.php:544
 msgid "Show fewer"
-msgstr ""
-
-#: src/Protocol/Diaspora.php:3414
-msgid "Attachments:"
 msgstr ""
 
 #: src/Protocol/OStatus.php:1645

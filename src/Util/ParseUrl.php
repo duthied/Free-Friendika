@@ -451,6 +451,12 @@ class ParseUrl
 					case 'og:site_name':
 						$siteinfo['publisher_name'] = trim($meta_tag['content']);
 						break;
+					case 'og:locale':
+						$siteinfo['language'] = trim($meta_tag['content']);
+						break;
+					case 'og:type':
+						$siteinfo['type'] = trim($meta_tag['content']);
+						break;
 					case 'twitter:description':
 						$siteinfo['text'] = trim($meta_tag['content']);
 						break;
@@ -521,7 +527,7 @@ class ParseUrl
 	 *
 	 * @param string $page_url
 	 * @param array $siteinfo
-	 * @return void
+	 * @return array
 	 */
 	private static function checkMedia(string $page_url, array $siteinfo) : array
 	{
@@ -965,6 +971,16 @@ class ParseUrl
 			if (!empty($content) && is_array($content)) {
 				$jsonldinfo['keywords'] = $content;
 			}
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'datePublished');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['published'] = DateTimeFormat::utc($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'dateModified');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['modified'] = DateTimeFormat::utc($content);
 		}
 
 		$jsonldinfo = self::parseJsonLdAuthor($jsonldinfo, $jsonld);
