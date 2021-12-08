@@ -144,7 +144,7 @@ function display_fetchauthor($item)
 		}
 
 		$profiledata['nickname'] = $profiledata['name'];
-		$profiledata['network'] = Protocol::matchByProfileUrl($profiledata['url']);
+		$profiledata['network'] = Protocol::PHANTOM;
 
 		$profiledata['address'] = '';
 		$profiledata['about'] = '';
