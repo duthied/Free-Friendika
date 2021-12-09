@@ -455,7 +455,7 @@ class ParseUrl
 						$siteinfo['language'] = trim($meta_tag['content']);
 						break;
 					case 'og:type':
-						$siteinfo['type'] = trim($meta_tag['content']);
+						$siteinfo['pagetype'] = trim($meta_tag['content']);
 						break;
 					case 'twitter:description':
 						$siteinfo['text'] = trim($meta_tag['content']);
