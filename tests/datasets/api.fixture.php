@@ -836,6 +836,16 @@ return [
 			'gid' => 1,
 			'contact-id' => 42,
 		],
+		[
+			'id' => 2,
+			'gid' => 1,
+			'contact-id' => 42,
+		],
+		[
+			'id' => 3,
+			'gid' => 2,
+			'contact-id' => 43,
+		],
 	],
 	'search' => [
 		[

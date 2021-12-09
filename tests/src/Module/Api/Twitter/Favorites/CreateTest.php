@@ -31,7 +31,7 @@ class CreateTest extends ApiTest
 	 */
 	public function testApiFavoritesCreateDestroyWithCreateAction()
 	{
-		$create = new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]);
+		$create   = new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]);
 		$response = $create->run(['id' => 3]);
 
 		$json = $this->toJson($response);
@@ -46,7 +46,7 @@ class CreateTest extends ApiTest
 	 */
 	public function testApiFavoritesCreateDestroyWithCreateActionAndRss()
 	{
-		$create = new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST], ['extension' => ICanCreateResponses::TYPE_RSS]);
+		$create   = new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST], ['extension' => ICanCreateResponses::TYPE_RSS]);
 		$response = $create->run(['id' => 3]);
 
 		self::assertEquals(ICanCreateResponses::TYPE_RSS, $response->getHeaderLine(ICanCreateResponses::X_HEADER));
