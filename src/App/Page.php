@@ -420,7 +420,6 @@ class Page implements ArrayAccess
 		 */
 		$timestamp = microtime(true);
 		$this->initContent($response, $mode);
-		$profiler->set(microtime(true) - $timestamp, 'content');
 
 		// Load current theme info after module has been initialized as theme could have been set in module
 		$currentTheme = $app->getCurrentTheme();
@@ -447,6 +446,8 @@ class Page implements ArrayAccess
 		 * the closing </body> tag
 		 */
 		$this->initFooter($app, $mode, $l10n);
+
+		$profiler->set(microtime(true) - $timestamp, 'aftermath');
 
 		if (!$mode->isAjax()) {
 			Hook::callAll('page_end', $this->page['content']);
