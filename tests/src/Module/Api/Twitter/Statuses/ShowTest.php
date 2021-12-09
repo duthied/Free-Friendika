@@ -2,6 +2,10 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Statuses;
 
+use Friendica\App\Router;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Statuses\Show;
+use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class ShowTest extends ApiTest
@@ -13,8 +17,10 @@ class ShowTest extends ApiTest
 	 */
 	public function testApiStatusesShow()
 	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// api_statuses_show('json');
+		$this->expectException(BadRequestException::class);
+
+		$show = new Show(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$show->run();
 	}
 
 	/**
@@ -24,9 +30,13 @@ class ShowTest extends ApiTest
 	 */
 	public function testApiStatusesShowWithId()
 	{
-		// DI::args()->setArgv(['', '', '', 1]);
-		// $result = api_statuses_show('json');
-		// self::assertStatus($result['status']);
+		$show = new Show(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $show->run(['id' => 1]);
+
+		$json = $this->toJson($response);
+
+		self::assertIsInt($json->id);
+		self::assertIsString($json->text);
 	}
 
 	/**
@@ -36,15 +46,17 @@ class ShowTest extends ApiTest
 	 */
 	public function testApiStatusesShowWithConversation()
 	{
-		/*
-		DI::args()->setArgv(['', '', '', 1]);
-		$_REQUEST['conversation'] = 1;
-		$result                   = api_statuses_show('json');
-		self::assertNotEmpty($result['status']);
-		foreach ($result['status'] as $status) {
-			self::assertStatus($status);
+		$show = new Show(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $show->run(['id' => 1, 'conversation' => 1]);
+
+		$json = $this->toJson($response);
+
+		self::assertIsArray($json);
+
+		foreach ($json as $status) {
+			self::assertIsInt($status->id);
+			self::assertIsString($status->text);
 		}
-		*/
 	}
 
 	/**
@@ -54,6 +66,8 @@ class ShowTest extends ApiTest
 	 */
 	public function testApiStatusesShowWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// api_statuses_show('json');

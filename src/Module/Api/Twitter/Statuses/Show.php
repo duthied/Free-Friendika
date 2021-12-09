@@ -42,14 +42,14 @@ class Show extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$id = intval($_REQUEST['id'] ?? 0);
+			$id = intval($request['id'] ?? 0);
 		} else {
 			$id = (int)$this->parameters['id'];
 		}
 
 		Logger::notice('API: api_statuses_show: ' . $id);
 
-		$conversation = !empty($_REQUEST['conversation']);
+		$conversation = !empty($request['conversation']);
 
 		// try to fetch the item for the local user - or the public item, if there is no local one
 		$uri_item = Post::selectFirst(['uri-id'], ['id' => $id]);
@@ -79,7 +79,7 @@ class Show extends BaseApi
 			throw new BadRequestException(sprintf("There is no status or conversation with the id %d.", $id));
 		}
 
-		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
+		$include_entities = strtolower(($request['include_entities'] ?? 'false') == 'true');
 
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {
@@ -92,7 +92,7 @@ class Show extends BaseApi
 			$this->response->exit('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 		} else {
 			$data = ['status' => $ret[0]];
-			$this->response->exit('status', ['status' => $data], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+			$this->response->exit('status', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 		}
 	}
 }
