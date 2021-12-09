@@ -2,6 +2,10 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Statuses;
 
+use Friendica\App\Router;
+use Friendica\Capabilities\ICanCreateResponses;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Statuses\NetworkPublicTimeline;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class NetworkPublicTimelineTest extends ApiTest
@@ -13,14 +17,17 @@ class NetworkPublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesNetworkpublicTimeline()
 	{
-		/*
-		$_REQUEST['max_id'] = 10;
-		$result             = api_statuses_networkpublic_timeline('json');
-		self::assertNotEmpty($result['status']);
-		foreach ($result['status'] as $status) {
-			self::assertStatus($status);
+		$networkPublicTimeline = new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $networkPublicTimeline->run(['max_id' => 10]);
+
+		$json = $this->toJson($response);
+
+		self::assertIsArray($json);
+		self::assertNotEmpty($json);
+		foreach ($json as $status) {
+			self::assertIsString($status->text);
+			self::assertIsInt($status->id);
 		}
-		*/
 	}
 
 	/**
@@ -30,14 +37,17 @@ class NetworkPublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesNetworkpublicTimelineWithNegativePage()
 	{
-		/*
-		$_REQUEST['page'] = -2;
-		$result           = api_statuses_networkpublic_timeline('json');
-		self::assertNotEmpty($result['status']);
-		foreach ($result['status'] as $status) {
-			self::assertStatus($status);
+		$networkPublicTimeline = new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $networkPublicTimeline->run(['page' => -2]);
+
+		$json = $this->toJson($response);
+
+		self::assertIsArray($json);
+		self::assertNotEmpty($json);
+		foreach ($json as $status) {
+			self::assertIsString($status->text);
+			self::assertIsInt($status->id);
 		}
-		*/
 	}
 
 	/**
@@ -47,6 +57,8 @@ class NetworkPublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesNetworkpublicTimelineWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// api_statuses_networkpublic_timeline('json');
@@ -59,7 +71,11 @@ class NetworkPublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesNetworkpublicTimelineWithRss()
 	{
-		// $result = api_statuses_networkpublic_timeline('rss');
-		// self::assertXml($result, 'statuses');
+		$networkPublicTimeline = new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => ICanCreateResponses::TYPE_RSS]);
+		$response = $networkPublicTimeline->run(['page' => -2]);
+
+		self::assertEquals(ICanCreateResponses::TYPE_RSS, $response->getHeaderLine(ICanCreateResponses::X_HEADER));
+
+		self::assertXml((string)$response->getBody(), 'statuses');
 	}
 }
