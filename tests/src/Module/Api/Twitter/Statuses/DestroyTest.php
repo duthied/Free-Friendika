@@ -2,6 +2,10 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Statuses;
 
+use Friendica\App\Router;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Statuses\Destroy;
+use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class DestroyTest extends ApiTest
@@ -13,8 +17,10 @@ class DestroyTest extends ApiTest
 	 */
 	public function testApiStatusesDestroy()
 	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// api_statuses_destroy('json');
+		$this->expectException(BadRequestException::class);
+
+		$destroy = new Destroy(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]);
+		$destroy->run();
 	}
 
 	/**
@@ -24,6 +30,8 @@ class DestroyTest extends ApiTest
 	 */
 	public function testApiStatusesDestroyWithoutAuthenticatedUser()
 	{
+		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// $_SESSION['authenticated'] = false;
@@ -37,8 +45,13 @@ class DestroyTest extends ApiTest
 	 */
 	public function testApiStatusesDestroyWithId()
 	{
-		// DI::args()->setArgv(['', '', '', 1]);
-		// $result = api_statuses_destroy('json');
-		// self::assertStatus($result['status']);
+		$destroy = new Destroy(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]);
+		$response = $destroy->run(['id' => 1]);
+
+		$json = $this->toJson($response);
+
+		self::assertEquals(1, $json->id);
+		self::assertIsObject($json->user);
+		self::assertIsObject($json->friendica_author);
 	}
 }
