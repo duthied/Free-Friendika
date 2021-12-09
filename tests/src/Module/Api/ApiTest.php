@@ -115,14 +115,14 @@ abstract class ApiTest extends FixtureTest
 	/**
 	 * Assert that a status array contains expected keys.
 	 *
-	 * @param array $status Status array
+	 * @param \stdClass $status Status
 	 *
 	 * @return void
 	 */
-	protected function assertStatus(array $status = [])
+	protected function assertStatus(\stdClass $status)
 	{
-		self::assertIsString($status['text'] ?? '');
-		self::assertIsInt($status['id'] ?? '');
+		self::assertIsString($status->text);
+		self::assertIsInt($status->id);
 		// We could probably do more checks here.
 	}
 
