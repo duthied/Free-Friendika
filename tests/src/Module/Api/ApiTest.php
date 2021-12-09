@@ -127,6 +127,25 @@ abstract class ApiTest extends FixtureTest
 	}
 
 	/**
+	 * Get the path to a temporary empty PNG image.
+	 *
+	 * @return string Path
+	 */
+	protected function getTempImage()
+	{
+		$tmpFile = tempnam(sys_get_temp_dir(), 'tmp_file');
+		file_put_contents(
+			$tmpFile,
+			base64_decode(
+			// Empty 1x1 px PNG image
+				'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
+			)
+		);
+
+		return $tmpFile;
+	}
+
+	/**
 	 * Transforms a response into a JSON class
 	 *
 	 * @param ResponseInterface $response
