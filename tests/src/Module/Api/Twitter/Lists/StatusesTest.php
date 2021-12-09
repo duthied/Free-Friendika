@@ -31,11 +31,7 @@ class StatusesTest extends ApiTest
 		$lists    = new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
 		$response = $lists->run(['list_id' => 1, 'page' => -1, 'max_id' => 10]);
 
-		$body = (string)$response->getBody();
-
-		self::assertJson($body);
-
-		$json = json_decode($body);
+		$json = $this->toJson($response);
 
 		foreach ($json as $status) {
 			self::assertIsString($status->text);

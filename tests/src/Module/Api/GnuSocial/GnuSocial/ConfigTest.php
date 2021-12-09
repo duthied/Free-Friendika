@@ -19,13 +19,8 @@ class ConfigTest extends ApiTest
 
 		$config   = new Config(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
 		$response = $config->run();
-		$body     = (string)$response->getBody();
 
-		self::assertJson($body);
-
-		$json = json_decode($body);
-
-		self::assertEquals(1, 1);
+		$json = $this->toJson($response);
 
 		self::assertEquals('localhost', $json->site->server);
 		self::assertEquals('frio', $json->site->theme);

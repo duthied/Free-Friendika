@@ -19,11 +19,7 @@ class VerifyCredentialsTest extends ApiTest
 		$verifyCredentials = new VerifyCredentials(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
 		$response          = $verifyCredentials->run();
 
-		$body = (string)$response->getBody();
-
-		self::assertJson($body);
-
-		$json = json_decode($body);
+		$json = $this->toJson($response);
 
 		self::assertEquals(48, $json->id);
 		self::assertIsArray($json->emojis);

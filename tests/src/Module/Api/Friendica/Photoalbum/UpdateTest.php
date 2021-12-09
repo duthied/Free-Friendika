@@ -58,11 +58,7 @@ class UpdateTest extends ApiTest
 
 		$response = (new Update(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run(['album' => 'test_album', 'album_new' => 'test_album_2']);
 
-		$responseBody = (string)$response->getBody();
-
-		self::assertJson($responseBody);
-
-		$json = json_decode($responseBody);
+		$json = $this->toJson($response);
 
 		self::assertEquals('updated', $json->result);
 		self::assertEquals('album `test_album` with all containing photos has been renamed to `test_album_2`.', $json->message);

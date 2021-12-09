@@ -72,12 +72,13 @@ class UploadTest extends ApiTest
 		];
 
 		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
-		$media    = json_decode($response->getBody(), true);
 
-		self::assertEquals('image/png', $media['image']['image_type']);
-		self::assertEquals(1, $media['image']['w']);
-		self::assertEquals(1, $media['image']['h']);
-		self::assertNotEmpty($media['image']['friendica_preview_url']);
+		$media = $this->toJson($response);
+
+		self::assertEquals('image/png', $media->image->image_type);
+		self::assertEquals(1, $media->image->w);
+		self::assertEquals(1, $media->image->h);
+		self::assertNotEmpty($media->image->friendica_preview_url);
 	}
 
 	/**

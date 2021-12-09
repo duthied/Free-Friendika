@@ -78,7 +78,8 @@ XML;
 		$notification = new Notification(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
 		$response = $notification->run();
 
-		self::assertJson($response->getBody());
+		$this->toJson($response);
+
 		self::assertEquals(['Content-type' => ['application/json'], ICanCreateResponses::X_HEADER => ['json']], $response->getHeaders());
 	}
 }

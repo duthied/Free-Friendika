@@ -15,7 +15,7 @@ class RateLimitStatusTest extends ApiTest
 		$rateLimitStatus = new RateLimitStatus(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
 		$response = $rateLimitStatus->run();
 
-		$result = json_decode($response->getBody());
+		$result = $this->toJson($response);
 
 		self::assertEquals(['Content-type' => ['application/json'], ICanCreateResponses::X_HEADER => ['json']], $response->getHeaders());
 		self::assertEquals(150, $result->remaining_hits);

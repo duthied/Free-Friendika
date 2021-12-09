@@ -14,8 +14,10 @@ class TestTest extends ApiTest
 		$test = new Test(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']);
 		$response = $test->run();
 
+		$json = $this->toJson($response);
+
 		self::assertEquals(['Content-type' => ['application/json'], ICanCreateResponses::X_HEADER => ['json']], $response->getHeaders());
-		self::assertEquals('"ok"', $response->getBody());
+		self::assertEquals('ok', $json);
 	}
 
 	public function testXml()
