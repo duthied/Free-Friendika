@@ -2,6 +2,11 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Users;
 
+use Friendica\App\Router;
+use Friendica\Capabilities\ICanCreateResponses;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Users\Search;
+use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class SearchTest extends ApiTest
@@ -13,9 +18,12 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiUsersSearch()
 	{
-		// $_GET['q'] = 'othercontact';
-		// $result    = api_users_search('json');
-		// self::assertOtherUser($result['users'][0]);
+		$search = new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$respone = $search->run(['q' => static::OTHER_USER['name']]);
+
+		$json = $this->toJson($respone);
+
+		self::assertOtherUser($json[0]);
 	}
 
 	/**
@@ -25,9 +33,10 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiUsersSearchWithXml()
 	{
-		// $_GET['q'] = 'othercontact';
-		// $result    = api_users_search('xml');
-		// self::assertXml($result, 'users');
+		$search = new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => ICanCreateResponses::TYPE_XML]);
+		$respone = $search->run(['q' => static::OTHER_USER['name']]);
+
+		self::assertXml((string)$respone->getBody(), 'users');
 	}
 
 	/**
@@ -37,7 +46,9 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiUsersSearchWithoutQuery()
 	{
-		// $this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		// api_users_search('json');
+		$this->expectException(BadRequestException::class);
+
+		$search = new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$search->run();
 	}
 }

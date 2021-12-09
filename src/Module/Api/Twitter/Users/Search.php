@@ -42,15 +42,15 @@ class Search extends BaseApi
 
 		$userlist = [];
 
-		if (!empty($_GET['q'])) {
+		if (!empty($request['q'])) {
 			$contacts = Contact::selectToArray(
 				['id'],
 				[
 					'`uid` = 0 AND (`name` = ? OR `nick` = ? OR `url` = ? OR `addr` = ?)',
-					$_GET['q'],
-					$_GET['q'],
-					$_GET['q'],
-					$_GET['q'],
+					$request['q'],
+					$request['q'],
+					$request['q'],
+					$request['q'],
 				]
 			);
 
@@ -63,12 +63,12 @@ class Search extends BaseApi
 				}
 				$userlist = ['users' => $userlist];
 			} else {
-				throw new NotFoundException('User ' . $_GET['q'] . ' not found.');
+				throw new NotFoundException('User ' . $request['q'] . ' not found.');
 			}
 		} else {
 			throw new BadRequestException('No search term specified.');
 		}
 
-		$this->response->exit('users', ['user' => $userlist], $this->parameters['extension'] ?? null);
+		$this->response->exit('users', $userlist, $this->parameters['extension'] ?? null);
 	}
 }
