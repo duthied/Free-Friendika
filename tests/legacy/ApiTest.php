@@ -836,47 +836,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_statuses_repeat() function.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusesRepeat()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\ForbiddenException::class);
-		// api_statuses_repeat('json');
-	}
-
-	/**
-	 * Test the api_statuses_repeat() function without an authenticated user.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusesRepeatWithoutAuthenticatedUser()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
-		// BasicAuth::setCurrentUserID();
-		// $_SESSION['authenticated'] = false;
-		// api_statuses_repeat('json');
-	}
-
-	/**
-	 * Test the api_statuses_repeat() function with an ID.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusesRepeatWithId()
-	{
-		// DI::args()->setArgv(['', '', '', 1]);
-		// $result = api_statuses_repeat('json');
-		// self::assertStatus($result['status']);
-
-		// Also test with a shared status
-		// DI::args()->setArgv(['', '', '', 5]);
-		// $result = api_statuses_repeat('json');
-		// self::assertStatus($result['status']);
-	}
-
-	/**
 	 * Test the api_format_messages() function.
 	 *
 	 * @return void
