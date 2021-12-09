@@ -37,6 +37,31 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class ApiTest extends FixtureTest
 {
+	// User data that the test database is populated with
+	const SELF_USER = [
+		'id'   => 42,
+		'name' => 'Self contact',
+		'nick' => 'selfcontact',
+		'nurl' => 'http://localhost/profile/selfcontact'
+	];
+
+	const FRIEND_USER = [
+		'id'   => 44,
+		'name' => 'Friend contact',
+		'nick' => 'friendcontact',
+		'nurl' => 'http://localhost/profile/friendcontact'
+	];
+
+	const OTHER_USER = [
+		'id'   => 43,
+		'name' => 'othercontact',
+		'nick' => 'othercontact',
+		'nurl' => 'http://localhost/profile/othercontact'
+	];
+
+	// User ID that we know is not in the database
+	const WRONG_USER_ID = 666;
+
 	/**
 	 * Assert that the string is XML and contain the root element.
 	 *
@@ -49,6 +74,55 @@ abstract class ApiTest extends FixtureTest
 	{
 		self::assertStringStartsWith('<?xml version="1.0"?>', $result);
 		self::assertStringContainsString('<' . $root_element, $result);
+		// We could probably do more checks here.
+	}
+
+	/**
+	 * Assert that an user array contains expected keys.
+	 *
+	 * @param \stdClass $user User
+	 *
+	 * @return void
+	 */
+	protected function assertSelfUser(\stdClass $user)
+	{
+		self::assertEquals(self::SELF_USER['id'], $user->uid);
+		self::assertEquals(self::SELF_USER['id'], $user->cid);
+		self::assertEquals(1, $user->self);
+		self::assertEquals('DFRN', $user->location);
+		self::assertEquals(self::SELF_USER['name'], $user->name);
+		self::assertEquals(self::SELF_USER['nick'], $user->screen_name);
+		self::assertEquals('dfrn', $user->network);
+		self::assertTrue($user->verified);
+	}
+
+	/**
+	 * Assert that an user array contains expected keys.
+	 *
+	 * @param \stdClass $user User
+	 *
+	 * @return void
+	 */
+	protected function assertOtherUser(\stdClass $user)
+	{
+		self::assertEquals(self::OTHER_USER['id'], $user->id);
+		self::assertEquals(self::OTHER_USER['id'], $user->id_str);
+		self::assertEquals(self::OTHER_USER['name'], $user->name);
+		self::assertEquals(self::OTHER_USER['nick'], $user->screen_name);
+		self::assertFalse($user->verified);
+	}
+
+	/**
+	 * Assert that a status array contains expected keys.
+	 *
+	 * @param array $status Status array
+	 *
+	 * @return void
+	 */
+	protected function assertStatus(array $status = [])
+	{
+		self::assertIsString($status['text'] ?? '');
+		self::assertIsInt($status['id'] ?? '');
 		// We could probably do more checks here.
 	}
 

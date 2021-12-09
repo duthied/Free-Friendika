@@ -113,55 +113,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Assert that an user array contains expected keys.
-	 *
-	 * @param array $user User array
-	 *
-	 * @return void
-	 */
-	private function assertSelfUser(array $user)
-	{
-		self::assertEquals($this->selfUser['id'], $user['uid']);
-		self::assertEquals($this->selfUser['id'], $user['cid']);
-		self::assertEquals(1, $user['self']);
-		self::assertEquals('DFRN', $user['location']);
-		self::assertEquals($this->selfUser['name'], $user['name']);
-		self::assertEquals($this->selfUser['nick'], $user['screen_name']);
-		self::assertEquals('dfrn', $user['network']);
-		self::assertTrue($user['verified']);
-	}
-
-	/**
-	 * Assert that an user array contains expected keys.
-	 *
-	 * @param array $user User array
-	 *
-	 * @return void
-	 */
-	private function assertOtherUser(array $user = [])
-	{
-		self::assertEquals($this->otherUser['id'], $user['id']);
-		self::assertEquals($this->otherUser['id'], $user['id_str']);
-		self::assertEquals($this->otherUser['name'], $user['name']);
-		self::assertEquals($this->otherUser['nick'], $user['screen_name']);
-		self::assertFalse($user['verified']);
-	}
-
-	/**
-	 * Assert that a status array contains expected keys.
-	 *
-	 * @param array $status Status array
-	 *
-	 * @return void
-	 */
-	private function assertStatus(array $status = [])
-	{
-		self::assertIsString($status['text'] ?? '');
-		self::assertIsInt($status['id'] ?? '');
-		// We could probably do more checks here.
-	}
-
-	/**
 	 * Assert that a list array contains expected keys.
 	 *
 	 * @param array $list List array
