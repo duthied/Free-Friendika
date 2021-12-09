@@ -23,8 +23,8 @@ namespace Friendica\Network\HTTPClient\Response;
 
 use Friendica\Core\Logger;
 use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
-use Friendica\Network\HTTPException\NotImplementedException;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\RedirectMiddleware;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -48,6 +48,11 @@ class GuzzleResponse extends Response implements ICanHandleHttpResponses, Respon
 	 */
 	private $error;
 
+	/** @var string  */
+	private $redirectUrl = '';
+	/** @var bool */
+	private $isRedirectUrl = false;
+
 	public function __construct(ResponseInterface $response, string $url, $errorNumber = 0, $error = '')
 	{
 		parent::__construct($response->getStatusCode(), $response->getHeaders(), $response->getBody(), $response->getProtocolVersion(), $response->getReasonPhrase());
@@ -56,6 +61,7 @@ class GuzzleResponse extends Response implements ICanHandleHttpResponses, Respon
 		$this->errorNumber = $errorNumber;
 
 		$this->checkSuccess();
+		$this->checkRedirect($response);
 	}
 
 	private function checkSuccess()
@@ -75,6 +81,16 @@ class GuzzleResponse extends Response implements ICanHandleHttpResponses, Respon
 			$this->isTimeout = true;
 		} else {
 			$this->isTimeout = false;
+		}
+	}
+
+	private function checkRedirect(ResponseInterface $response)
+	{
+		$headersRedirect = $response->getHeader(RedirectMiddleware::HISTORY_HEADER) ?? [];
+
+		if (count($headersRedirect) > 0) {
+			$this->redirectUrl   = $headersRedirect[0];
+			$this->isRedirectUrl = true;
 		}
 	}
 
@@ -119,16 +135,14 @@ class GuzzleResponse extends Response implements ICanHandleHttpResponses, Respon
 	/** {@inheritDoc} */
 	public function getRedirectUrl(): string
 	{
-		return $this->url;
+		return $this->redirectUrl;
 	}
 
 	/** {@inheritDoc}
-	 *
-	 * @throws NotImplementedException
 	 */
 	public function isRedirectUrl(): bool
 	{
-		throw new NotImplementedException();
+		return $this->isRedirectUrl;
 	}
 
 	/** {@inheritDoc} */
