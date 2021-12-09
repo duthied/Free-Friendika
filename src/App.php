@@ -707,7 +707,9 @@ class App
 			$input     = array_merge($httpinput['variables'], $httpinput['files'], $request ?? $_REQUEST);
 
 			// Let the module run it's internal process (init, get, post, ...)
+			$timestamp = microtime(true);
 			$response = $module->run($input);
+			$this->profiler->set(microtime(true) - $timestamp, 'content');
 			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
 				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
 			} else {
