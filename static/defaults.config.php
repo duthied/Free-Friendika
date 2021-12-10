@@ -202,6 +202,10 @@ return [
 		// Periodically delete waiting database processes.
 		'delete_sleeping_processes' => false,
 
+		// dice_profiler_threshold (Float)
+		// For profiling Dice class creation (0 = disabled, >0 = seconds threshold for profiling)
+		'dice_profiler_threshold' => 0.5,
+
 		// diaspora_test (Boolean)
 		// For development only. Disables the message transfer.
 		'diaspora_test' => false,
