@@ -23,6 +23,7 @@
 namespace Friendica\Core;
 
 use Dice\Dice;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\DI;
 use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
@@ -35,6 +36,7 @@ use Mockery\MockInterface;
 class InstallerTest extends MockedTest
 {
 	use VFSTrait;
+	use ArraySubsetAsserts;
 
 	/**
 	 * @var L10n|MockInterface
