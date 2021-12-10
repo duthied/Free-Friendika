@@ -27,7 +27,7 @@
 		"ext-simplexml": "*",
 		"ext-xml": "*",
 		"asika/simple-console": "^1.0",
-		"bacon/bacon-qr-code": "^1.0",
+		"bacon/bacon-qr-code": "^2.0.0",
 		"divineomega/password_exposed": "^2.8",
 		"ezyang/htmlpurifier": "^4.7",
 		"friendica/json-ld": "^1.0",

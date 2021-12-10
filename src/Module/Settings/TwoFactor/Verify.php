@@ -110,9 +110,10 @@ class Verify extends BaseSettings
 
 		$otpauthUrl = (new Google2FA())->getQRCodeUrl($company, $holder, $secret);
 
-		$renderer = (new \BaconQrCode\Renderer\Image\Svg())
-			->setHeight(256)
-			->setWidth(256);
+		$renderer = new ImageRenderer(
+			new RendererStyle(256),
+			new SvgImageBackEnd()
+		);
 
 		$writer = new Writer($renderer);
 
