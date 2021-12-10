@@ -40,17 +40,17 @@ class UserTimeline extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		Logger::info('api_statuses_user_timeline', ['api_user' => $uid, '_REQUEST' => $_REQUEST]);
+		Logger::info('api_statuses_user_timeline', ['api_user' => $uid, '_REQUEST' => $request]);
 
-		$cid             = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, $uid);
-		$since_id        = $_REQUEST['since_id'] ?? 0;
-		$max_id          = $_REQUEST['max_id']   ?? 0;
-		$exclude_replies = !empty($_REQUEST['exclude_replies']);
-		$conversation_id = $_REQUEST['conversation_id'] ?? 0;
+		$cid             = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, $uid);
+		$since_id        = $request['since_id'] ?? 0;
+		$max_id          = $request['max_id']   ?? 0;
+		$exclude_replies = !empty($request['exclude_replies']);
+		$conversation_id = $request['conversation_id'] ?? 0;
 
 		// pagination
-		$count = $_REQUEST['count'] ?? 20;
-		$page  = $_REQUEST['page']  ?? 1;
+		$count = $request['count'] ?? 20;
+		$page  = $request['page']  ?? 1;
 
 		$start = max(0, ($page - 1) * $count);
 
@@ -74,7 +74,7 @@ class UserTimeline extends BaseApi
 		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
 
-		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
+		$include_entities = strtolower(($request['include_entities'] ?? 'false') == 'true');
 
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {
@@ -82,6 +82,6 @@ class UserTimeline extends BaseApi
 		}
 		DBA::close($statuses);
 
-		$this->response->exit('user', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->exit('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

@@ -2,6 +2,10 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter;
 
+use Friendica\App\Router;
+use Friendica\Capabilities\ICanCreateResponses;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Favorites;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class FavoritesTest extends ApiTest
@@ -13,14 +17,17 @@ class FavoritesTest extends ApiTest
 	 */
 	public function testApiFavorites()
 	{
-		/*
-		$_REQUEST['page']   = -1;
-		$_REQUEST['max_id'] = 10;
-		$result             = api_favorites('json');
-		foreach ($result['status'] as $status) {
-			self::assertStatus($status);
+		$favorites = new Favorites(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $favorites->run([
+			'page' => -1,
+			'max_id' => 10,
+		]);
+
+		$json = $this->toJson($response);
+
+		foreach ($json as $status) {
+			$this->assertStatus($status);
 		}
-		*/
 	}
 
 	/**
@@ -30,8 +37,12 @@ class FavoritesTest extends ApiTest
 	 */
 	public function testApiFavoritesWithRss()
 	{
-		// $result = api_favorites('rss');
-		// self::assertXml($result, 'statuses');
+		$favorites = new Favorites(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => ICanCreateResponses::TYPE_RSS]);
+		$response = $favorites->run();
+
+		self::assertEquals(ICanCreateResponses::TYPE_RSS, $response->getHeaderLine(ICanCreateResponses::X_HEADER));
+
+		self::assertXml((string)$response->getBody(), 'statuses');
 	}
 
 	/**
@@ -41,6 +52,8 @@ class FavoritesTest extends ApiTest
 	 */
 	public function testApiFavoritesWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// api_favorites('json');

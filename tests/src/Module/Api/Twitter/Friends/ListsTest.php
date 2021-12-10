@@ -19,11 +19,7 @@ class ListsTest extends ApiTest
 		$lists    = new Lists(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
 		$response = $lists->run();
 
-		$body = (string)$response->getBody();
-
-		self::assertJson($body);
-
-		$json = json_decode($body);
+		$json = $this->toJson($response);
 
 		self::assertIsArray($json->users);
 	}

@@ -72,30 +72,12 @@ class UploadTest extends ApiTest
 		];
 
 		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))->run();
-		$media    = json_decode($response->getBody(), true);
 
-		self::assertEquals('image/png', $media['image']['image_type']);
-		self::assertEquals(1, $media['image']['w']);
-		self::assertEquals(1, $media['image']['h']);
-		self::assertNotEmpty($media['image']['friendica_preview_url']);
-	}
+		$media = $this->toJson($response);
 
-	/**
-	 * Get the path to a temporary empty PNG image.
-	 *
-	 * @return string Path
-	 */
-	private function getTempImage()
-	{
-		$tmpFile = tempnam(sys_get_temp_dir(), 'tmp_file');
-		file_put_contents(
-			$tmpFile,
-			base64_decode(
-			// Empty 1x1 px PNG image
-				'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
-			)
-		);
-
-		return $tmpFile;
+		self::assertEquals('image/png', $media->image->image_type);
+		self::assertEquals(1, $media->image->w);
+		self::assertEquals(1, $media->image->h);
+		self::assertNotEmpty($media->image->friendica_preview_url);
 	}
 }

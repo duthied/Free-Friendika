@@ -44,7 +44,7 @@ use HTMLPurifier_Config;
  */
 class Update extends BaseApi
 {
-	public function post(array $request = [], array $post = [])
+	public function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
@@ -101,10 +101,10 @@ class Update extends BaseApi
 			$item['coord'] = sprintf("%s %s", $request['lat'], $request['long']);
 		}
 
-		$item['allow_cid'] = $owner['allow_cid'];
-		$item['allow_gid'] = $owner['allow_gid'];
-		$item['deny_cid']  = $owner['deny_cid'];
-		$item['deny_gid']  = $owner['deny_gid'];
+		$item['allow_cid'] = $owner['allow_cid'] ?? '';
+		$item['allow_gid'] = $owner['allow_gid'] ?? '';
+		$item['deny_cid']  = $owner['deny_cid'] ?? '';
+		$item['deny_gid']  = $owner['deny_gid'] ?? '';
 
 		if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
 			$item['private'] = Item::PRIVATE;
@@ -127,8 +127,8 @@ class Update extends BaseApi
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		}
 
-		if (!empty($_REQUEST['media_ids'])) {
-			$ids = explode(',', $_REQUEST['media_ids']);
+		if (!empty($request['media_ids'])) {
+			$ids = explode(',', $request['media_ids']);
 		} elseif (!empty($_FILES['media'])) {
 			// upload the image if we have one
 			$picture = Photo::upload($uid, $_FILES['media']);

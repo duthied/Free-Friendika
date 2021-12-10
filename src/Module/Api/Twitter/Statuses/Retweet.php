@@ -70,6 +70,6 @@ class Retweet extends BaseApi
 
 		$status_info = DI::twitterStatus()->createFromItemId($item_id, $uid)->toArray();
 
-		DI::apiResponse()->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
+		DI::apiResponse()->exit('statuses', ['status' => $status_info], $this->parameters['extension'] ?? null);
 	}
 }

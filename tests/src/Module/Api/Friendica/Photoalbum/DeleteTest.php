@@ -49,11 +49,7 @@ class DeleteTest extends ApiTest
 		$delete   = new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]);
 		$response = $delete->run(['album' => 'test_album']);
 
-		$responseText = (string)$response->getBody();
-
-		self::assertJson($responseText);
-
-		$json = json_decode($responseText);
+		$json = $this->toJson($response);
 
 		self::assertEquals('deleted', $json->result);
 		self::assertEquals('album `test_album` with all containing photos has been deleted.', $json->message);

@@ -39,8 +39,8 @@ class Lookup extends BaseApi
 
 		$users = [];
 
-		if (!empty($_REQUEST['user_id'])) {
-			foreach (explode(',', $_REQUEST['user_id']) as $cid) {
+		if (!empty($request['user_id'])) {
+			foreach (explode(',', $request['user_id']) as $cid) {
 				if (!empty($cid) && is_numeric($cid)) {
 					$users[] = DI::twitterUser()->createFromContactId((int)$cid, $uid, false)->toArray();
 				}

@@ -26,6 +26,7 @@ use Friendica\Module\BaseApi;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Network\HTTPException\BadRequestException;
 
 /**
  * Destroys a specific status.
@@ -39,10 +40,12 @@ class Destroy extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		if (empty($this->parameters['id'])) {
-			$id = intval($request['id'] ?? 0);
-		} else {
+		if (!empty($this->parameters['id'])) {
 			$id = (int)$this->parameters['id'];
+		} elseif (!empty($request['id'])) {
+			$id = (int)$request['id'];
+		} else {
+			throw new BadRequestException('An id is missing.');
 		}
 
 		$this->logger->notice('API: api_statuses_destroy: ' . $id);

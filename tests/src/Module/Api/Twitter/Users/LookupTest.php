@@ -2,6 +2,10 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Users;
 
+use Friendica\App\Router;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Users\Lookup;
+use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class LookupTest extends ApiTest
@@ -13,8 +17,10 @@ class LookupTest extends ApiTest
 	 */
 	public function testApiUsersLookup()
 	{
-		// $this->expectException(\Friendica\Network\HTTPException\NotFoundException::class);
-		// api_users_lookup('json');
+		$this->expectException(NotFoundException::class);
+
+		$lookup = new Lookup(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$lookup->run();
 	}
 
 	/**
@@ -24,8 +30,11 @@ class LookupTest extends ApiTest
 	 */
 	public function testApiUsersLookupWithUserId()
 	{
-		// $_REQUEST['user_id'] = $this->otherUser['id'];
-		// $result              = api_users_lookup('json');
-		// self::assertOtherUser($result['users'][0]);
+		$lookup = new Lookup(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$respone = $lookup->run(['user_id' => static::OTHER_USER['id']]);
+
+		$json = $this->toJson($respone);
+
+		self::assertOtherUser($json[0]);
 	}
 }

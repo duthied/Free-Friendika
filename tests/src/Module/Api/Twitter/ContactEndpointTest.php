@@ -32,6 +32,8 @@ class ContactEndpointTest extends FixtureTest
 {
 	public function testIds()
 	{
+		self::markTestIncomplete('Needs overall refactoring due changed method signature - Calling MrPetovan for help ;-)');
+
 		/*
 		$expectedEmpty = [
 			'ids' => [],
@@ -77,6 +79,8 @@ class ContactEndpointTest extends FixtureTest
 	 */
 	public function testIdsStringify()
 	{
+		self::markTestIncomplete('Needs overall refactoring due changed method signature - Calling MrPetovan for help ;-)');
+
 		/*
 		$result = ContactEndpointMock::ids(Contact::SHARING, 42, -1, ContactEndpoint::DEFAULT_COUNT, true);
 
@@ -88,6 +92,8 @@ class ContactEndpointTest extends FixtureTest
 
 	public function testIdsPagination()
 	{
+		self::markTestIncomplete('Needs overall refactoring due changed method signature - Calling MrPetovan for help ;-)');
+
 		/*
 		$expectedDefaultPageResult = [
 			'ids' => [45],
@@ -172,6 +178,8 @@ class ContactEndpointTest extends FixtureTest
 	 */
 	public function testList()
 	{
+		self::markTestIncomplete('Needs overall refactoring due changed method signature - Calling MrPetovan for help ;-)');
+
 		/*
 		$expectedEmpty = [
 			'users' => [],

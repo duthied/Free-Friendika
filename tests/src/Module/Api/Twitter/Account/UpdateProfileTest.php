@@ -17,11 +17,7 @@ class UpdateProfileTest extends ApiTest
 		$updateProfile = new UpdateProfile(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST], ['extension' => 'json']);
 		$response      = $updateProfile->run(['name' => 'new_name', 'description' => 'new_description']);
 
-		$body = (string)$response->getBody();
-
-		self::assertJson($body);
-
-		$json = json_decode($body);
+		$json = $this->toJson($response);
 
 		self::assertEquals('new_name', $json->name);
 		self::assertEquals('new_description', $json->description);

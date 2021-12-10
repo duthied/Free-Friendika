@@ -2,6 +2,10 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Statuses;
 
+use Friendica\App\Router;
+use Friendica\Capabilities\ICanCreateResponses;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Statuses\UserTimeline;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class UserTimelineTest extends ApiTest
@@ -13,18 +17,23 @@ class UserTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesUserTimeline()
 	{
-		/*
-			$_REQUEST['user_id']         = 42;
-			$_REQUEST['max_id']          = 10;
-			$_REQUEST['exclude_replies'] = true;
-			$_REQUEST['conversation_id'] = 7;
+		$networkPublicTimeline = new UserTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
 
-			$result = api_statuses_user_timeline('json');
-			self::assertNotEmpty($result['status']);
-			foreach ($result['status'] as $status) {
-				self::assertStatus($status);
-			}
-			*/
+		$response = $networkPublicTimeline->run([
+			'user_id'         => 42,
+			'max_id'          => 10,
+			'exclude_replies' => true,
+			'conversation_id' => 7,
+		]);
+
+		$json = $this->toJson($response);
+
+		self::assertIsArray($json);
+		self::assertNotEmpty($json);
+		foreach ($json as $status) {
+			self::assertIsString($status->text);
+			self::assertIsInt($status->id);
+		}
 	}
 
 	/**
@@ -34,16 +43,21 @@ class UserTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesUserTimelineWithNegativePage()
 	{
-		/*
-		$_REQUEST['user_id'] = 42;
-		$_REQUEST['page']    = -2;
+		$networkPublicTimeline = new UserTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
 
-		$result = api_statuses_user_timeline('json');
-		self::assertNotEmpty($result['status']);
-		foreach ($result['status'] as $status) {
-			self::assertStatus($status);
+		$response = $networkPublicTimeline->run([
+			'user_id' => 42,
+			'page'    => -2,
+		]);
+
+		$json = $this->toJson($response);
+
+		self::assertIsArray($json);
+		self::assertNotEmpty($json);
+		foreach ($json as $status) {
+			self::assertIsString($status->text);
+			self::assertIsInt($status->id);
 		}
-		*/
 	}
 
 	/**
@@ -53,8 +67,13 @@ class UserTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesUserTimelineWithRss()
 	{
-		// $result = api_statuses_user_timeline('rss');
-		// self::assertXml($result, 'statuses');
+		$networkPublicTimeline = new UserTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => ICanCreateResponses::TYPE_RSS]);
+
+		$response = $networkPublicTimeline->run();
+
+		self::assertEquals(ICanCreateResponses::TYPE_RSS, $response->getHeaderLine(ICanCreateResponses::X_HEADER));
+
+		self::assertXml((string)$response->getBody(), 'statuses');
 	}
 
 	/**
@@ -64,6 +83,8 @@ class UserTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesUserTimelineWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// api_statuses_user_timeline('json');

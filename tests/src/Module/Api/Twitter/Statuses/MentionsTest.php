@@ -2,6 +2,10 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter\Statuses;
 
+use Friendica\App\Router;
+use Friendica\Capabilities\ICanCreateResponses;
+use Friendica\DI;
+use Friendica\Module\Api\Twitter\Statuses\Mentions;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class MentionsTest extends ApiTest
@@ -13,13 +17,13 @@ class MentionsTest extends ApiTest
 	 */
 	public function testApiStatusesMentions()
 	{
-		/*
-		$this->app->setLoggedInUserNickname($this->selfUser['nick']);
-		$_REQUEST['max_id'] = 10;
-		$result             = api_statuses_mentions('json');
-		self::assertEmpty($result['status']);
+		$mentions = new Mentions(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $mentions->run(['max_id' => 10]);
+
+		$json = $this->toJson($response);
+
+		self::assertEmpty($json);
 		// We should test with mentions in the database.
-		*/
 	}
 
 	/**
@@ -29,9 +33,13 @@ class MentionsTest extends ApiTest
 	 */
 	public function testApiStatusesMentionsWithNegativePage()
 	{
-		// $_REQUEST['page'] = -2;
-		// $result           = api_statuses_mentions('json');
-		// self::assertEmpty($result['status']);
+		$mentions = new Mentions(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
+		$response = $mentions->run(['page' => -2]);
+
+		$json = $this->toJson($response);
+
+		self::assertEmpty($json);
+		// We should test with mentions in the database.
 	}
 
 	/**
@@ -41,6 +49,8 @@ class MentionsTest extends ApiTest
 	 */
 	public function testApiStatusesMentionsWithUnallowedUser()
 	{
+		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
+
 		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
 		// BasicAuth::setCurrentUserID();
 		// api_statuses_mentions('json');
@@ -53,7 +63,11 @@ class MentionsTest extends ApiTest
 	 */
 	public function testApiStatusesMentionsWithRss()
 	{
-		// $result = api_statuses_mentions('rss');
-		// self::assertXml($result, 'statuses');
+		$mentions = new Mentions(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => ICanCreateResponses::TYPE_RSS]);
+		$response = $mentions->run(['page' => -2]);
+
+		self::assertEquals(ICanCreateResponses::TYPE_RSS, $response->getHeaderLine(ICanCreateResponses::X_HEADER));
+
+		self::assertXml((string)$response->getBody(), 'statuses');
 	}
 }
