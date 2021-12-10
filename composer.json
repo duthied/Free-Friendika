@@ -44,7 +44,7 @@
 		"monolog/monolog": "^1.25",
 		"nikic/fast-route": "^1.3",
 		"paragonie/hidden-string": "^1.0",
-		"patrickschur/language-detection": "^3.4",
+		"patrickschur/language-detection": "^5.0.0",
 		"pear/console_table": "^1.3",
 		"phpseclib/phpseclib": "^2.0",
 		"pragmarx/google2fa": "^5.0",

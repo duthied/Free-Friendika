@@ -2878,25 +2878,25 @@
         },
         {
             "name": "patrickschur/language-detection",
-            "version": "v3.4.2",
+            "version": "v5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/patrickschur/language-detection.git",
-                "reference": "9d7a45118289939ef46d8a02763c7fec32eed7ba"
+                "reference": "728f1434dcf126ce3ed7118567c014d80d7fdd9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/patrickschur/language-detection/zipball/9d7a45118289939ef46d8a02763c7fec32eed7ba",
-                "reference": "9d7a45118289939ef46d8a02763c7fec32eed7ba",
+                "url": "https://api.github.com/repos/patrickschur/language-detection/zipball/728f1434dcf126ce3ed7118567c014d80d7fdd9c",
+                "reference": "728f1434dcf126ce3ed7118567c014d80d7fdd9c",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "php": "^7.2"
+                "php": "^7.3 || ^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^8.4.3"
+                "phpunit/phpunit": "^9.5.0"
             },
             "type": "library",
             "autoload": {
@@ -2921,7 +2921,7 @@
                 "detection",
                 "language"
             ],
-            "time": "2019-11-16T14:23:06+00:00"
+            "time": "2021-03-05T22:18:57+00:00"
         },
         {
             "name": "pear/console_table",
