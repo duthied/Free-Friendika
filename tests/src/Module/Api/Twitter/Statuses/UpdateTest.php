@@ -39,8 +39,8 @@ class UpdateTest extends ApiTest
 		$json = $this->toJson($response);
 
 		self::assertStatus($json);
-		self::assertContains('Status content #friendica', $json->text);
-		self::assertContains('Status content #', $json->statusnet_html);
+		self::assertStringContainsString('Status content #friendica', $json->text);
+		self::assertStringContainsString('Status content #', $json->statusnet_html);
 	}
 
 	/**

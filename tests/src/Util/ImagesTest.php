@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Util;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Friendica\Test\DiceHttpMockHandlerTrait;
 use Friendica\Test\MockedTest;
 use Friendica\Util\Images;
@@ -11,6 +12,7 @@ use GuzzleHttp\Psr7\Response;
 class ImagesTest extends MockedTest
 {
 	use DiceHttpMockHandlerTrait;
+	use ArraySubsetAsserts;
 
 	protected function setUp(): void
 	{
