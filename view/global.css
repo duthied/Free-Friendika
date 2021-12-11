@@ -666,3 +666,7 @@ body.dragging, body.dragging * {
 span.required {
 	color: #c80000;
 }
+
+audio {
+  width: 100%;
+}
