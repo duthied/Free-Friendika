@@ -41,6 +41,7 @@ use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NoContentException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Psr\Log\LoggerInterface;
 
 /**
  * Wrapper for FastRoute\Router
@@ -98,6 +99,12 @@ class Router
 	/** @var IManageConfigValues */
 	private $config;
 
+	/** @var LoggerInterface */
+	private $logger;
+
+	/** @var float */
+	private $dice_profiler_threshold;
+
 	/** @var Dice */
 	private $dice;
 
@@ -115,10 +122,11 @@ class Router
 	 * @param ICanLock            $lock
 	 * @param IManageConfigValues $config
 	 * @param Arguments           $args
+	 * @param LoggerInterface     $logger
 	 * @param Dice                $dice
 	 * @param RouteCollector|null $routeCollector
 	 */
-	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, IManageConfigValues $config, Arguments $args, Dice $dice, RouteCollector $routeCollector = null)
+	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, IManageConfigValues $config, Arguments $args, LoggerInterface $logger, Dice $dice, RouteCollector $routeCollector = null)
 	{
 		$this->baseRoutesFilepath = $baseRoutesFilepath;
 		$this->l10n = $l10n;
@@ -128,6 +136,8 @@ class Router
 		$this->config = $config;
 		$this->dice = $dice;
 		$this->server = $server;
+		$this->logger = $logger;
+		$this->dice_profiler_threshold = $config->get('system', 'dice_profiler_threshold', 0);
 
 		$httpMethod = $this->server['REQUEST_METHOD'] ?? self::GET;
 
@@ -323,8 +333,19 @@ class Router
 			$module_class = $module_class ?: PageNotFound::class;
 		}
 
-		/** @var ICanHandleRequests $module */
-		return $this->dice->create($module_class, $module_parameters);
+		$stamp = microtime(true);
+
+		try {
+			/** @var ICanHandleRequests $module */
+			return $this->dice->create($module_class, $module_parameters);
+		} finally {
+			if ($this->dice_profiler_threshold > 0) {
+				$dur = floatval(microtime(true) - $stamp);
+				if ($dur >= $this->dice_profiler_threshold) {
+					$this->logger->warning('Dice module creation lasts too long.', ['duration' => round($dur, 3), 'module' => $module_class, 'parameters' => $module_parameters]);
+				}
+			}
+		}
 	}
 
 	/**
