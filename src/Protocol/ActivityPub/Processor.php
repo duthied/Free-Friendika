@@ -287,8 +287,8 @@ class Processor
 
 		$item['uri'] = $activity['id'];
 
-		$item['created'] = DateTimeFormat::utc($activity['published']);
-		$item['edited'] = DateTimeFormat::utc($activity['updated']);
+		$item['created'] = DateTimeFormat::utc($activity['published'] ?? 'now');
+		$item['edited'] = DateTimeFormat::utc($activity['updated'] ?? 'now');
 		$guid = $activity['sc:identifier'] ?: self::getGUIDByURL($item['uri']);
 		$item['guid'] = $activity['diaspora:guid'] ?: $guid;
 
