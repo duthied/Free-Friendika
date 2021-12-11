@@ -26,6 +26,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
@@ -286,6 +287,10 @@ class Processor
 		}
 
 		$item['uri'] = $activity['id'];
+
+		if (empty($activity['published']) || empty($activity['updated'])) {
+			DI::logger()->notice('published or updated keys are empty for activity', ['activity' => $activity, 'callstack' => System::callstack(10)]);
+		}
 
 		$item['created'] = DateTimeFormat::utc($activity['published'] ?? 'now');
 		$item['edited'] = DateTimeFormat::utc($activity['updated'] ?? 'now');
