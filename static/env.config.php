@@ -45,6 +45,9 @@ return [
 	'FRIENDICA_LOGFILE' => ['system', 'logfile'],
 	'FRIENDICA_LOGLEVEL'=> ['system', 'loglevel'],
 	'FRIENDICA_PROFILING' => ['system', 'profiler'],
+	'FRIENDICA_LOGGER' => ['system', 'logger_config'],
+	'FRIENDICA_SYSLOG_FLAGS' => ['system', 'syslog_flags'],
+	'FRIENDICA_SYSLOG_FACILITY' => ['system', 'syslog_facility'],
 
 	// Caching
 	'FRIENDICA_CACHE_DRIVER' => ['system', 'cache_driver'],

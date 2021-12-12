@@ -119,7 +119,7 @@ class Logger
 
 			case 'syslog':
 				try {
-					$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+					$logger = new SyslogLogger($this->channel, $introspection, $loglevel, $config->get('system', 'syslog_flags', SyslogLogger::DEFAULT_FLAGS), $config->get('system', 'syslog_facility', SyslogLogger::DEFAULT_FACILITY));
 				} catch (LogLevelException $exception) {
 					// If there's a wrong config value for loglevel, try again with standard
 					$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
