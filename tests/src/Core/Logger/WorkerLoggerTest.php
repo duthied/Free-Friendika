@@ -29,7 +29,7 @@ class WorkerLoggerTest extends MockedTest
 {
 	private function assertUid($uid)
 	{
-		self::assertRegExp('/^[a-zA-Z0-9]{' . WorkerLogger::WORKER_ID_LENGTH . '}+$/', $uid);
+		self::assertMatchesRegularExpression('/^[a-zA-Z0-9]{' . WorkerLogger::WORKER_ID_LENGTH . '}+$/', $uid);
 	}
 
 	public function dataTest()

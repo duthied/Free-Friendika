@@ -31,7 +31,7 @@ abstract class AbstractLoggerTest extends MockedTest
 {
 	use LoggerDataTrait;
 
-	const LOGLINE = '/.* \[.*\]: .* \{.*\"file\":\".*\".*,.*\"line\":\d*,.*\"function\":\".*\".*,.*\"uid\":\".*\".*}/';
+	const LOGLINE = '/.* \[.*]: .* {.*\"file\":\".*\".*,.*\"line\":\d*,.*\"function\":\".*\".*,.*\"uid\":\".*\".*}/';
 
 	const FILE = 'test';
 	const LINE = 666;
@@ -72,7 +72,7 @@ abstract class AbstractLoggerTest extends MockedTest
 
 	public function assertLogline($string)
 	{
-		self::assertRegExp(self::LOGLINE, $string);
+		self::assertMatchesRegularExpression(self::LOGLINE, $string);
 	}
 
 	public function assertLoglineNums($assertNum, $string)

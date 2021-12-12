@@ -42,7 +42,7 @@ class SystemTest extends TestCase
 	private function assertGuid($guid, $length, $prefix = '')
 	{
 		$length -= strlen($prefix);
-		self::assertRegExp("/^" . $prefix . "[a-z0-9]{" . $length . "}?$/", $guid);
+		self::assertMatchesRegularExpression("/^" . $prefix . "[a-z0-9]{" . $length . "}?$/", $guid);
 	}
 
 	public function testGuidWithoutParameter()
