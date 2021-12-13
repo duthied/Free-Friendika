@@ -82,22 +82,16 @@ class Lock
 				case Enum\Type::MEMCACHED:
 				case Enum\Type::REDIS:
 				case Enum\Type::APCU:
-					$cache = $this->cacheFactory->create($lock_type);
+					$cache = $this->cacheFactory->createLocal($lock_type);
 					if ($cache instanceof ICanCacheInMemory) {
 						return new Type\CacheLock($cache);
 					} else {
 						throw new \Exception(sprintf('Incompatible cache driver \'%s\' for lock used', $lock_type));
 					}
-					break;
-
 				case 'database':
 					return new Type\DatabaseLock($this->dba);
-					break;
-
 				case 'semaphore':
 					return new Type\SemaphoreLock();
-					break;
-
 				default:
 					return self::useAutoDriver();
 			}
@@ -132,7 +126,7 @@ class Lock
 		$cache_type = $this->config->get('system', 'cache_driver', 'database');
 		if ($cache_type != Enum\Type::DATABASE) {
 			try {
-				$cache = $this->cacheFactory->create($cache_type);
+				$cache = $this->cacheFactory->createLocal($cache_type);
 				if ($cache instanceof ICanCacheInMemory) {
 					return new Type\CacheLock($cache);
 				}
