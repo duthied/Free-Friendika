@@ -160,13 +160,13 @@ return [
 	Cache\Capability\ICanCache::class => [
 		'instanceOf' => Cache\Factory\Cache::class,
 		'call'       => [
-			['create', [], Dice::CHAIN_CALL],
+			['createLocal', [], Dice::CHAIN_CALL],
 		],
 	],
 	Cache\Capability\ICanCacheInMemory::class => [
 		'instanceOf' => Cache\Factory\Cache::class,
 		'call'       => [
-			['create', [], Dice::CHAIN_CALL],
+			['createLocal', [], Dice::CHAIN_CALL],
 		],
 	],
 	Lock\Capability\ICanLock::class => [

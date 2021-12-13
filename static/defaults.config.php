@@ -141,6 +141,10 @@ return [
 		// Whether to use Memcache, Memcached, Redis or APCu to store temporary cache.
 		'cache_driver' => 'database',
 
+		// distributed_cache_driver (database|memcache|memcached|redis)
+		// Whether to use database, Memcache, Memcached or Redis as a distributed cache.
+		'distributed_cache_driver' => 'database',
+
 		// config_adapter (jit|preload)
 		// Allow to switch the configuration adapter to improve performances at the cost of memory consumption.
 		'config_adapter' => 'jit',

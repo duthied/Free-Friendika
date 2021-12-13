@@ -81,7 +81,7 @@ class Cache
 	}
 
 	/**
-	 * This method creates a CacheDriver for the given cache driver name
+	 * This method creates a CacheDriver for distributed caching with the given cache driver name
 	 *
 	 * @param string|null $type The cache type to create (default is per config)
 	 *
@@ -90,12 +90,42 @@ class Cache
 	 * @throws InvalidCacheDriverException In case the underlying cache driver isn't valid or not configured properly
 	 * @throws CachePersistenceException In case the underlying cache has errors during persistence
 	 */
-	public function create(string $type = null): ICanCache
+	public function createDistributed(string $type = null): ICanCache
 	{
-		if (empty($type)) {
-			$type = $this->config->get('system', 'cache_driver', self::DEFAULT_TYPE);
+		if ($type === Enum\Type::APCU) {
+			throw new InvalidCacheDriverException('apcu doesn\'t support distributed caching.');
 		}
 
+		return $this->create($type ?? $this->config->get('system', 'distributed_cache_driver', self::DEFAULT_TYPE));
+	}
+
+	/**
+	 * This method creates a CacheDriver for local caching with the given cache driver name
+	 *
+	 * @param string|null $type The cache type to create (default is per config)
+	 *
+	 * @return ICanCache  The instance of the CacheDriver
+	 *
+	 * @throws InvalidCacheDriverException In case the underlying cache driver isn't valid or not configured properly
+	 * @throws CachePersistenceException In case the underlying cache has errors during persistence
+	 */
+	public function createLocal(string $type = null): ICanCache
+	{
+		return $this->create($type ?? $this->config->get('system', 'cache_driver', self::DEFAULT_TYPE));
+	}
+
+	/**
+	 * Creates a new Cache instance
+	 *
+	 * @param string $type The type of cache
+	 *
+	 * @return ICanCache
+	 *
+	 * @throws InvalidCacheDriverException In case the underlying cache driver isn't valid or not configured properly
+	 * @throws CachePersistenceException In case the underlying cache has errors during persistence
+	 */
+	protected function create(string $type): ICanCache
+	{
 		switch ($type) {
 			case Enum\Type::MEMCACHE:
 				$cache = new Type\MemcacheCache($this->hostname, $this->config);
