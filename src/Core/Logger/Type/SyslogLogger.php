@@ -34,6 +34,11 @@ class SyslogLogger extends AbstractLogger
 {
 	const IDENT = 'Friendica';
 
+	/** @var int The default syslog flags */
+	const DEFAULT_FLAGS = LOG_PID | LOG_ODELAY | LOG_CONS;
+	/** @var int The default syslog facility */
+	const DEFAULT_FACILITY = LOG_USER;
+
 	/**
 	 * Translates LogLevel log levels to syslog log priorities.
 	 * @var array
@@ -101,7 +106,7 @@ class SyslogLogger extends AbstractLogger
 	 * @throws LogLevelException
 	 * @throws LoggerException
 	 */
-	public function __construct($channel, Introspection $introspection, string $level = LogLevel::NOTICE, int $logOpts = LOG_PID, int $logFacility = LOG_USER)
+	public function __construct($channel, Introspection $introspection, string $level = LogLevel::NOTICE, int $logOpts = self::DEFAULT_FLAGS, int $logFacility = self::DEFAULT_FACILITY )
 	{
 		parent::__construct($channel, $introspection);
 		$this->logOpts     = $logOpts;

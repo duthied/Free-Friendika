@@ -325,6 +325,14 @@ return [
 		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
 		'logger_config' => 'stream',
 
+		// syslog flags (Integer)
+		// Sets the syslog flags in case 'logger_config' is set to 'syslog'
+		'syslog_flags' => LOG_CONS | LOG_PID | LOG_ODELAY,
+
+		// syslog flags (Integer)
+		// Sets the syslog facility in case 'logger_config' is set to 'syslog'
+		'syslog_facility' => LOG_USER,
+
 		// maintenance_start (String)
 		// Start of the window for the daily maintenance cron call.
 		// The system timezone is used when no timezone is defined here.
