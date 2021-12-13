@@ -229,7 +229,7 @@ class ProfilerTest extends MockedTest
 		foreach ($data as $perf => $items) {
 			foreach ($items['functions'] as $function) {
 				// assert that the output contains the functions
-				self::assertRegExp('/' . $function . ': \d+/', $output);
+				self::assertMatchesRegularExpression('/' . $function . ': \d+/', $output);
 			}
 		}
 	}
@@ -286,7 +286,7 @@ class ProfilerTest extends MockedTest
 
 		self::assertTrue($profiler->isRendertime());
 		$output = $profiler->getRendertimeString();
-		self::assertRegExp('/test1: \d+/', $output);
-		self::assertRegExp('/test2: \d+/', $output);
+		self::assertMatchesRegularExpression('/test1: \d+/', $output);
+		self::assertMatchesRegularExpression('/test2: \d+/', $output);
 	}
 }
