@@ -106,7 +106,7 @@ class SyslogLogger extends AbstractLogger
 	 * @throws LogLevelException
 	 * @throws LoggerException
 	 */
-	public function __construct($channel, Introspection $introspection, string $level = LogLevel::NOTICE, int $logOpts = self::DEFAULT_FLAGS, int $logFacility = self::DEFAULT_FLAGS)
+	public function __construct($channel, Introspection $introspection, string $level = LogLevel::NOTICE, int $logOpts = self::DEFAULT_FLAGS, int $logFacility = self::DEFAULT_FACILITY )
 	{
 		parent::__construct($channel, $introspection);
 		$this->logOpts     = $logOpts;
