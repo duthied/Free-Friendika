@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce08cdf59a7d3e85aabef6c9f96586e0",
+    "content-hash": "3d221e30c9cb7e3f34d8d8141b6fea6c",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -41,32 +41,35 @@
         },
         {
             "name": "bacon/bacon-qr-code",
-            "version": "1.0.3",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Bacon/BaconQrCode.git",
-                "reference": "5a91b62b9d37cee635bbf8d553f4546057250bee"
+                "reference": "f73543ac4e1def05f1a70bcd1525c8a157a1ad09"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/5a91b62b9d37cee635bbf8d553f4546057250bee",
-                "reference": "5a91b62b9d37cee635bbf8d553f4546057250bee",
+                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/f73543ac4e1def05f1a70bcd1525c8a157a1ad09",
+                "reference": "f73543ac4e1def05f1a70bcd1525c8a157a1ad09",
                 "shasum": ""
             },
             "require": {
+                "dasprid/enum": "^1.0.3",
                 "ext-iconv": "*",
-                "php": "^5.4|^7.0"
+                "php": "^7.1 || ^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8"
+                "phly/keep-a-changelog": "^1.4",
+                "phpunit/phpunit": "^7 | ^8 | ^9",
+                "squizlabs/php_codesniffer": "^3.4"
             },
             "suggest": {
-                "ext-gd": "to generate QR code images"
+                "ext-imagick": "to generate QR code images"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "BaconQrCode": "src/"
+                "psr-4": {
+                    "BaconQrCode\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -77,13 +80,13 @@
                 {
                     "name": "Ben Scholzen 'DASPRiD'",
                     "email": "mail@dasprids.de",
-                    "homepage": "http://www.dasprids.de",
+                    "homepage": "https://dasprids.de/",
                     "role": "Developer"
                 }
             ],
             "description": "BaconQrCode is a QR code generator for PHP.",
             "homepage": "https://github.com/Bacon/BaconQrCode",
-            "time": "2017-10-17T09:59:25+00:00"
+            "time": "2021-06-18T13:26:35+00:00"
         },
         {
             "name": "bower-asset/Chart-js",
@@ -379,6 +382,49 @@
                 }
             ],
             "time": "2021-10-28T20:44:15+00:00"
+        },
+        {
+            "name": "dasprid/enum",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DASPRiD/Enum.git",
+                "reference": "5abf82f213618696dda8e3bf6f64dd042d8542b2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DASPRiD/Enum/zipball/5abf82f213618696dda8e3bf6f64dd042d8542b2",
+                "reference": "5abf82f213618696dda8e3bf6f64dd042d8542b2",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7 | ^8 | ^9",
+                "squizlabs/php_codesniffer": "^3.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DASPRiD\\Enum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "https://dasprids.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP 7.1 enum implementation",
+            "keywords": [
+                "enum",
+                "map"
+            ],
+            "time": "2020-10-02T16:03:48+00:00"
         },
         {
             "name": "divineomega/do-file-cache",
@@ -2832,25 +2878,25 @@
         },
         {
             "name": "patrickschur/language-detection",
-            "version": "v3.4.2",
+            "version": "v5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/patrickschur/language-detection.git",
-                "reference": "9d7a45118289939ef46d8a02763c7fec32eed7ba"
+                "reference": "728f1434dcf126ce3ed7118567c014d80d7fdd9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/patrickschur/language-detection/zipball/9d7a45118289939ef46d8a02763c7fec32eed7ba",
-                "reference": "9d7a45118289939ef46d8a02763c7fec32eed7ba",
+                "url": "https://api.github.com/repos/patrickschur/language-detection/zipball/728f1434dcf126ce3ed7118567c014d80d7fdd9c",
+                "reference": "728f1434dcf126ce3ed7118567c014d80d7fdd9c",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "php": "^7.2"
+                "php": "^7.3 || ^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^8.4.3"
+                "phpunit/phpunit": "^9.5.0"
             },
             "type": "library",
             "autoload": {
@@ -2875,7 +2921,7 @@
                 "detection",
                 "language"
             ],
-            "time": "2019-11-16T14:23:06+00:00"
+            "time": "2021-03-05T22:18:57+00:00"
         },
         {
             "name": "pear/console_table",
@@ -3158,26 +3204,26 @@
         },
         {
             "name": "pragmarx/recovery",
-            "version": "v0.1.0",
+            "version": "v0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/antonioribeiro/recovery.git",
-                "reference": "e16573a1ae5345cc3b100eec6d0296a1a15a90fe"
+                "reference": "b5ce4082f059afac6761714a84497816f45271cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/antonioribeiro/recovery/zipball/e16573a1ae5345cc3b100eec6d0296a1a15a90fe",
-                "reference": "e16573a1ae5345cc3b100eec6d0296a1a15a90fe",
+                "url": "https://api.github.com/repos/antonioribeiro/recovery/zipball/b5ce4082f059afac6761714a84497816f45271cc",
+                "reference": "b5ce4082f059afac6761714a84497816f45271cc",
                 "shasum": ""
             },
             "require": {
-                "php": "~7.0",
+                "php": ">=7.0",
                 "pragmarx/random": "~0.1"
             },
             "require-dev": {
                 "phpunit/phpunit": ">=5.4.3",
                 "squizlabs/php_codesniffer": "^2.3",
-                "tightenco/collect": "^5"
+                "tightenco/collect": "^5.0"
             },
             "suggest": {
                 "tightenco/collect": "Allows to generate recovery codes as collections"
@@ -3218,7 +3264,7 @@
                 "recovery codes",
                 "two factor auth"
             ],
-            "time": "2017-09-19T16:58:00+00:00"
+            "time": "2021-08-15T12:26:51+00:00"
         },
         {
             "name": "psr/cache",
