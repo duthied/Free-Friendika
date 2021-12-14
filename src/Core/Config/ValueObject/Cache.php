@@ -31,14 +31,16 @@ use ParagonIE\HiddenString\HiddenString;
  */
 class Cache
 {
+	/** @var int Indicates that the cache entry is a default value - Lowest Priority */
+	const SOURCE_STATIC = 0;
 	/** @var int Indicates that the cache entry is set by file - Low Priority */
-	const SOURCE_FILE = 0;
+	const SOURCE_FILE = 1;
 	/** @var int Indicates that the cache entry is set by the DB config table - Middle Priority */
-	const SOURCE_DB = 1;
+	const SOURCE_DB = 2;
 	/** @var int Indicates that the cache entry is set by a server environment variable - High Priority */
 	const SOURCE_ENV = 3;
 	/** @var int Indicates that the cache entry is fixed and must not be changed */
-	const SOURCE_FIX = 4;
+	const SOURCE_FIX = 5;
 
 	/** @var int Default value for a config source */
 	const SOURCE_DEFAULT = self::SOURCE_FILE;
@@ -111,6 +113,19 @@ class Cache
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Returns the source value of the current, cached config value
+	 *
+	 * @param string $cat Config category
+	 * @param string $key Config key
+	 *
+	 * @return int
+	 */
+	public function getSource(string $cat, string $key): int
+	{
+		return $this->source[$cat][$key] ?? -1;
 	}
 
 	/**
