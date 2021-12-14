@@ -96,8 +96,8 @@ class ConfigFileLoader
 	public function setupCache(Cache $config, array $server = [], bool $raw = false)
 	{
 		// Load static config files first, the order is important
-		$config->load($this->loadStaticConfig('defaults'), Cache::SOURCE_FILE);
-		$config->load($this->loadStaticConfig('settings'), Cache::SOURCE_FILE);
+		$config->load($this->loadStaticConfig('defaults'), Cache::SOURCE_STATIC);
+		$config->load($this->loadStaticConfig('settings'), Cache::SOURCE_STATIC);
 
 		// try to load the legacy config first
 		$config->load($this->loadLegacyConfig('htpreconfig'), Cache::SOURCE_FILE);
