@@ -1079,7 +1079,7 @@ function update_1446()
 	// In case the distributed cache driver is the default value, but the current cache driver isn't default,
 	// we assume that the distributed cache driver should be the same as the current cache driver
 	if ($distributed_cache_driver_source === \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC &&
-		$cache_driver_source !== \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC) {
+		$cache_driver_source > \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC) {
 		 DI::config()->set('system', 'distributed_cache_driver', DI::config()->get('system', 'cache_driver'));
 	}
 
