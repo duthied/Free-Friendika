@@ -91,7 +91,7 @@ class DirectMessage extends BaseFactory
 			}
 		} else {
 			$title = '';
-			$text = $mail['title'] . "\n" . HTML::toPlaintext(BBCode::convertForUriId($mail['uri-id'], $mail['body'], BBCode::API), 0);
+			$text  = $mail['title'] . "\n" . HTML::toPlaintext(BBCode::convertForUriId($mail['uri-id'], $mail['body'], BBCode::API), 0);
 		}
 
 		$pcid = Contact::getPublicIdByUserId($uid);

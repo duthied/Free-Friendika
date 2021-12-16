@@ -37,7 +37,7 @@ class Destroy extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
-		$id      = filter_var($request['id']                ?? 0,     FILTER_VALIDATE_INT);
+		$id      = filter_var($request['id'] ?? 0,                    FILTER_VALIDATE_INT);
 		$verbose = filter_var($request['friendica_verbose'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 		$parenturi = $request['friendica_parenturi'] ?? '';
