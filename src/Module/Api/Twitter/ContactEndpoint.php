@@ -23,9 +23,7 @@ namespace Friendica\Module\Api\Twitter;
 
 use Friendica\App;
 use Friendica\Core\L10n;
-use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
