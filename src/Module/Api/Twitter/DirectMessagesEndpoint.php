@@ -21,17 +21,10 @@
 
 namespace Friendica\Module\Api\Twitter;
 
-use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
-use Friendica\Util\Profiler;
-use Friendica\Factory\Api\Twitter\DirectMessage;
-use Psr\Log\LoggerInterface;
-
 abstract class DirectMessagesEndpoint extends BaseApi
 {
 	/**
@@ -39,17 +32,17 @@ abstract class DirectMessagesEndpoint extends BaseApi
 	protected function getMessages(array $request, int $uid, array $condition)
 	{
 		// params
-		$count    = filter_var($request['count']             ?? 20,    FILTER_VALIDATE_INT, ['options' => ['max_range' => 100]]);
-		$page     = filter_var($request['page']              ?? 1,     FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-		$since_id = filter_var($request['since_id']          ?? 0,     FILTER_VALIDATE_INT);
-		$max_id   = filter_var($request['max_id']            ?? 0,     FILTER_VALIDATE_INT);
-		$min_id   = filter_var($request['min_id']            ?? 0,     FILTER_VALIDATE_INT);
+		$count    = filter_var($request['count'] ?? 20,                FILTER_VALIDATE_INT, ['options' => ['max_range' => 100]]);
+		$page     = filter_var($request['page'] ?? 1,                  FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+		$since_id = filter_var($request['since_id'] ?? 0,              FILTER_VALIDATE_INT);
+		$max_id   = filter_var($request['max_id'] ?? 0,                FILTER_VALIDATE_INT);
+		$min_id   = filter_var($request['min_id'] ?? 0,                FILTER_VALIDATE_INT);
 		$verbose  = filter_var($request['friendica_verbose'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 		// pagination
 		$start = max(0, ($page - 1) * $count);
 
-		$params    = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 
 		if (!empty($max_id)) {
 			$condition = DBA::mergeConditions($condition, ["`id` < ?", $max_id]);
