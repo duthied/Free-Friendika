@@ -26,12 +26,17 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Util\Network;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Apps class to register new OAuth clients
  */
 class Apps extends BaseApi
 {
+	public function run(array $request = [], bool $scopecheck = true): ResponseInterface
+	{
+		return parent::run($request, false);
+	}
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
