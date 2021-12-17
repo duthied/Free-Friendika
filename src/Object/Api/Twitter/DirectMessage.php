@@ -92,12 +92,8 @@ class DirectMessage extends BaseDataTransferObject
 			unset($status['title']);
 		}
 
-		if (isset($status['sender']['uid'])) {
-			unset($status['sender']['uid']);
-		}
-		if (isset($status['recipient']['uid'])) {
-			unset($status['recipient']['uid']);
-		}
+		unset($status['sender']['uid']);
+		unset($status['recipient']['uid']);
 
 		return $status;
 	}
