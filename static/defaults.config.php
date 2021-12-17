@@ -141,6 +141,10 @@ return [
 		// Whether to use Memcache, Memcached, Redis or APCu to store temporary cache.
 		'cache_driver' => 'database',
 
+		// distributed_cache_driver (database|memcache|memcached|redis)
+		// Whether to use database, Memcache, Memcached or Redis as a distributed cache.
+		'distributed_cache_driver' => 'database',
+
 		// config_adapter (jit|preload)
 		// Allow to switch the configuration adapter to improve performances at the cost of memory consumption.
 		'config_adapter' => 'jit',
@@ -324,6 +328,14 @@ return [
 		// logger_config (String)
 		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
 		'logger_config' => 'stream',
+
+		// syslog flags (Integer)
+		// Sets the syslog flags in case 'logger_config' is set to 'syslog'
+		'syslog_flags' => LOG_CONS | LOG_PID | LOG_ODELAY,
+
+		// syslog flags (Integer)
+		// Sets the syslog facility in case 'logger_config' is set to 'syslog'
+		'syslog_facility' => LOG_USER,
 
 		// maintenance_start (String)
 		// Start of the window for the daily maintenance cron call.

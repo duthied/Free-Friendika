@@ -79,19 +79,21 @@ class BaseApi extends BaseModule
 	 *
 	 * @throws HTTPException\ForbiddenException
 	 */
-	public function run(array $request = []): ResponseInterface
+	public function run(array $request = [], bool $scopecheck = true): ResponseInterface
 	{
-		switch ($this->server['REQUEST_METHOD'] ?? Router::GET) {
-			case Router::DELETE:
-			case Router::PATCH:
-			case Router::POST:
-			case Router::PUT:
-				self::checkAllowedScope(self::SCOPE_WRITE);
-
-				if (!self::getCurrentUserID()) {
-					throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
-				}
-				break;
+		if ($scopecheck) {
+			switch ($this->server['REQUEST_METHOD'] ?? Router::GET) {
+				case Router::DELETE:
+				case Router::PATCH:
+				case Router::POST:
+				case Router::PUT:
+					self::checkAllowedScope(self::SCOPE_WRITE);
+	
+					if (!self::getCurrentUserID()) {
+						throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
+					}
+					break;
+			}	
 		}
 
 		return parent::run($request);

@@ -22,8 +22,8 @@
 namespace Friendica\Core\Session\Factory;
 
 use Friendica\App;
-use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Enum;
+use Friendica\Core\Cache\Factory\Cache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Session\Type;
@@ -51,14 +51,14 @@ class Session
 	 * @param App\BaseURL         $baseURL
 	 * @param IManageConfigValues $config
 	 * @param Database            $dba
-	 * @param ICanCache           $cache
+	 * @param Cache               $cacheFactory
 	 * @param LoggerInterface     $logger
 	 * @param Profiler            $profiler
 	 * @param array               $server
 	 *
 	 * @return IHandleSessions
 	 */
-	public function createSession(App\Mode $mode, App\BaseURL $baseURL, IManageConfigValues $config, Database $dba, ICanCache $cache, LoggerInterface $logger, Profiler $profiler, array $server = [])
+	public function createSession(App\Mode $mode, App\BaseURL $baseURL, IManageConfigValues $config, Database $dba, Cache $cacheFactory, LoggerInterface $logger, Profiler $profiler, array $server = [])
 	{
 		$profiler->startRecording('session');
 		$session = null;
@@ -75,6 +75,8 @@ class Session
 						$handler = new Handler\Database($dba, $logger, $server);
 						break;
 					case self::HANDLER_CACHE:
+						$cache = $cacheFactory->createDistributed();
+
 						// In case we're using the db as cache driver, use the native db session, not the cache
 						if ($config->get('system', 'cache_driver') === Enum\Type::DATABASE) {
 							$handler = new Handler\Database($dba, $logger, $server);
