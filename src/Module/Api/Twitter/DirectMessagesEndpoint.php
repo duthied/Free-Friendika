@@ -29,6 +29,11 @@ use Friendica\Module\BaseApi;
 abstract class DirectMessagesEndpoint extends BaseApi
 {
 	/**
+	 * Handles a direct messages endpoint with the given condition
+	 * 
+	 * @param array $request
+	 * @param int   $uid
+	 * @param array $condition
 	 */
 	protected function getMessages(array $request, int $uid, array $condition)
 	{
