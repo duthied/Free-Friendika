@@ -24,12 +24,18 @@ namespace Friendica\Module\OAuth;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Acknowledgement of OAuth requests
  */
 class Acknowledge extends BaseApi
 {
+	public function run(array $request = [], bool $scopecheck = true): ResponseInterface
+	{
+		return parent::run($request, false);
+	}
+
 	protected function post(array $request = [])
 	{
 		DI::session()->set('oauth_acknowledge', true);
