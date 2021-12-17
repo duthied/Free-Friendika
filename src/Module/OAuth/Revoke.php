@@ -26,12 +26,18 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * @see https://docs.joinmastodon.org/spec/oauth/
  */
 class Revoke extends BaseApi
 {
+	public function run(array $request = [], bool $scopecheck = true): ResponseInterface
+	{
+		return parent::run($request, false);
+	}
+
 	protected function post(array $request = [])
 	{
 		$request = $this->getRequest([
