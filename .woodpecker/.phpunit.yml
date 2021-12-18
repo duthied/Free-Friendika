@@ -1,0 +1,96 @@
+matrix:
+  include:
+    - PHP_MAJOR_VERSION: 7.3
+      PHP_VERSION: 7.3.28
+    - PHP_MAJOR_VERSION: 7.4
+      PHP_VERSION: 7.4.18
+    - PHP_MAJOR_VERSION: 8.0
+      PHP_VERSION: 8.0.5
+
+pipeline:
+  php-lint:
+    image: php:${PHP_MAJOR_VERSION}
+    group: lint
+    commands:
+      - ./bin/composer.phar run lint
+  restore_cache:
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: "{{ .Repo.Name }}_php${PHP_MAJOR_VERSION}_{{ arch }}_{{ os }}"
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - /tmp/drone-cache:/tmp/cache
+  composer_install:
+    image: friendicaci/php${PHP_MAJOR_VERSION}:php${PHP_VERSION}
+    commands:
+      - export COMPOSER_HOME=.composer
+      - ./bin/composer.phar validate
+      - ./bin/composer.phar install --prefer-dist
+    volumes:
+      - /etc/hosts:/etc/hosts
+  rebuild_cache:
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: "{{ .Repo.Name }}_php${PHP_MAJOR_VERSION}_{{ arch }}_{{ os }}"
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - /tmp/drone-cache:/tmp/cache
+  test:
+    image: friendicaci/php${PHP_MAJOR_VERSION}:php${PHP_VERSION}
+    environment:
+      MYSQL_HOST: "mariadb"
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+      REDIS_HOST: "redis"
+      MEMCACHED_HOST: "memcached"
+      MEMCACHE_HOST: "memcached"
+    commands:
+      - cp config/local-sample.config.php config/local.config.php
+      - if ! bin/wait-for-connection $MYSQL_HOST $MYSQL_PORT 300; then echo "[ERROR] Waited 300 seconds, no response" >&2; exit 1; fi
+      - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
+      - if [ "${PHP_MAJOR_VERSION}" = "7.4" -a "${CI_REPO}" = "friendica/friendica" ]; then
+          phpenmod xdebug;
+          export XDEBUG_MODE=coverage;
+          phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml;
+        else
+          phpunit --configuration tests/phpunit.xml;
+        fi
+
+  codecov:
+    image: plugins/codecov
+    when:
+      matrix:
+        PHP_MAJOR_VERSION: 7.4
+        PHP_VERSION: 7.4.18
+      repo:
+        - friendica/friendica
+    settings:
+      token:
+        from_secret: codecov-token
+      files:
+        - clover.xml
+
+services:
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+
+  memcached:
+    image: memcached
+
+  redis:
+    image: redis

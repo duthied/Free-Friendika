@@ -1,0 +1,33 @@
+pipeline:
+  restore_cache:
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: '{{ .Repo.Name }}_phpcs_{{ arch }}_{{ os }}'
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - /tmp/drone-cache:/tmp/cache
+  composer_install:
+    image: composer
+    commands:
+      - export COMPOSER_HOME=.composer
+      - ./bin/composer.phar run cs:install
+  rebuild_cache:
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: '{{ .Repo.Name }}_phpcs_{{ arch }}_{{ os }}'
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - /tmp/drone-cache:/tmp/cache
+  check:
+    image: friendicaci/php-cs
+    commands:
+      - export CHANGED_FILES="$(git diff --name-status ${CI_PREV_COMMIT_SHA}..${CI_COMMIT_SHA} | grep ^A | cut -f2)"
+      - /check-php-cs.sh
