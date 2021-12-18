@@ -349,7 +349,7 @@ class GServer
 		}
 
 		// On a redirect follow the new host but mark the old one as failure
-		if ($curlResult->isSuccess() && (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
+		if ($curlResult->isSuccess() && !empty($curlResult->getRedirectUrl()) && (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
 			$curlResult = DI::httpClient()->get($url, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 			if (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST)) {
 				Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $curlResult->getRedirectUrl()]);
