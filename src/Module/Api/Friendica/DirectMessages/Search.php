@@ -21,9 +21,15 @@
 
 namespace Friendica\Module\Api\Friendica\DirectMessages;
 
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\Factory\Api\Twitter\DirectMessage;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * search for direct_messages containing a searchstring through api
@@ -32,6 +38,20 @@ use Friendica\Module\BaseApi;
  */
 class Search extends BaseApi
 {
+	/** @var Database */
+	private $dba;
+
+	/** @var DirectMessage */
+	private $directMessage;
+
+	public function __construct(DirectMessage $directMessage, Database $dba, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->dba           = $dba;
+		$this->directMessage = $directMessage;
+	}
+
 	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
@@ -45,11 +65,11 @@ class Search extends BaseApi
 		if ($request['searchstring'] == '') {
 			$answer = ['result' => 'error', 'message' => 'searchstring not specified'];
 			$this->response->exit('direct_message_search', ['$result' => $answer], $this->parameters['extension'] ?? null);
-			exit;
+			return;
 		}
 
 		// get data for the specified searchstring
-		$mails = DBA::selectToArray('mail', ['id'], ["`uid` = ? AND `body` LIKE ?", $uid, '%' . $request['searchstring'] . '%'], ['order' => ['id' => true]]);
+		$mails = $this->dba->selectToArray('mail', ['id'], ["`uid` = ? AND `body` LIKE ?", $uid, '%' . $request['searchstring'] . '%'], ['order' => ['id' => true]]);
 
 		// message if nothing was found
 		if (!DBA::isResult($mails)) {
@@ -59,7 +79,7 @@ class Search extends BaseApi
 		} else {
 			$ret = [];
 			foreach ($mails as $mail) {
-				$ret[] = DI::twitterDirectMessage()->createFromMailId($mail['id'], $uid, $request['getText'] ?? '');
+				$ret[] = $this->directMessage->createFromMailId($mail['id'], $uid, $request['getText'] ?? '');
 			}
 			$success = ['success' => true, 'search_results' => $ret];
 		}

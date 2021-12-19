@@ -21,13 +21,33 @@
 
 namespace Friendica\Module\Api\Twitter;
 
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\Factory\Api\Twitter\DirectMessage;
 use Friendica\Model\Contact;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 abstract class DirectMessagesEndpoint extends BaseApi
 {
+	/** @var Database */
+	private $dba;
+
+	/** @var DirectMessage */
+	private $directMessage;
+
+	public function __construct(DirectMessage $directMessage, Database $dba, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->dba           = $dba;
+		$this->directMessage = $directMessage;
+	}
+
 	/**
 	 * Handles a direct messages endpoint with the given condition
 	 *
@@ -64,7 +84,7 @@ abstract class DirectMessagesEndpoint extends BaseApi
 			$params['order'] = ['id'];
 		}
 
-		$cid = BaseApi::getContactIDForSearchterm($_REQUEST['screen_name'] ?? '', $_REQUEST['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, 0);
+		$cid = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, 0);
 		if (!empty($cid)) {
 			$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 			if (!empty($cdata['user'])) {
@@ -74,11 +94,11 @@ abstract class DirectMessagesEndpoint extends BaseApi
 
 		$condition = DBA::mergeConditions($condition, ["`uid` = ?", $uid]);
 
-		$mails = DBA::selectToArray('mail', ['id'], $condition, $params);
+		$mails = $this->dba->selectToArray('mail', ['id'], $condition, $params);
 		if ($verbose && !DBA::isResult($mails)) {
 			$answer = ['result' => 'error', 'message' => 'no mails available'];
 			$this->response->exit('direct-messages', ['direct_message' => $answer], $this->parameters['extension'] ?? null);
-			exit;
+			return;
 		}
 
 		$ids = array_column($mails, 'id');
@@ -89,7 +109,7 @@ abstract class DirectMessagesEndpoint extends BaseApi
 
 		$ret = [];
 		foreach ($ids as $id) {
-			$ret[] = DI::twitterDirectMessage()->createFromMailId($id, $uid, $request['getText'] ?? '');
+			$ret[] = $this->directMessage->createFromMailId($id, $uid, $request['getText'] ?? '');
 		}
 
 		self::setLinkHeader();
