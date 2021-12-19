@@ -28,6 +28,7 @@ use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * @see https://docs.joinmastodon.org/spec/oauth/
@@ -35,6 +36,11 @@ use Friendica\Util\DateTimeFormat;
  */
 class Token extends BaseApi
 {
+	public function run(array $request = [], bool $scopecheck = true): ResponseInterface
+	{
+		return parent::run($request, false);
+	}
+
 	protected function post(array $request = [])
 	{
 		$request = $this->getRequest([

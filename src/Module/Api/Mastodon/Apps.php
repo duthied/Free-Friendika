@@ -37,6 +37,7 @@ class Apps extends BaseApi
 	{
 		return parent::run($request, false);
 	}
+
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
