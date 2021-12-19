@@ -25,8 +25,6 @@ use Friendica\BaseFactory;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Database\Database;
-use Friendica\Database\DBA;
-use Friendica\Factory\Api\Friendica\Activities;
 use Friendica\Factory\Api\Twitter\User as TwitterUser;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
@@ -38,30 +36,12 @@ class DirectMessage extends BaseFactory
 	private $dba;
 	/** @var twitterUser entity */
 	private $twitterUser;
-	/** @var Hashtag entity */
-	private $hashtag;
-	/** @var Media entity */
-	private $media;
-	/** @var Url entity */
-	private $url;
-	/** @var Mention entity */
-	private $mention;
-	/** @var Activities entity */
-	private $activities;
-	/** @var Activities entity */
-	private $attachment;
 
-	public function __construct(LoggerInterface $logger, Database $dba, TwitterUser $twitteruser, Hashtag $hashtag, Media $media, Url $url, Mention $mention, Activities $activities, Attachment $attachment)
+	public function __construct(LoggerInterface $logger, Database $dba, TwitterUser $twitteruser)
 	{
 		parent::__construct($logger);
 		$this->dba         = $dba;
 		$this->twitterUser = $twitteruser;
-		$this->hashtag     = $hashtag;
-		$this->media       = $media;
-		$this->url         = $url;
-		$this->mention     = $mention;
-		$this->activities  = $activities;
-		$this->attachment  = $attachment;
 	}
 
 	/**
@@ -77,7 +57,7 @@ class DirectMessage extends BaseFactory
 	 */
 	public function createFromMailId(int $id, int $uid, string $text_mode = ''): \Friendica\Object\Api\Twitter\DirectMessage
 	{
-		$mail = DBA::selectFirst('mail', [], ['id' => $id, 'uid' => $uid]);
+		$mail = $this->dba->selectFirst('mail', [], ['id' => $id, 'uid' => $uid]);
 		if (!$mail) {
 			throw new HTTPException\NotFoundException('Direct message with ID ' . $mail . ' not found.');
 		}
