@@ -21,9 +21,15 @@
 
 namespace Friendica\Module\Api\Twitter\DirectMessages;
 
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * delete a direct_message from mail table through api
@@ -32,6 +38,15 @@ use Friendica\Network\HTTPException\BadRequestException;
  */
 class Destroy extends BaseApi
 {
+	/** @var Database */
+	private $dba;
+
+	public function __construct(Database $dba, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->dba = $dba;
+	}
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
@@ -58,7 +73,7 @@ class Destroy extends BaseApi
 		$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . DBA::escape($parenturi) . "'" : "");
 
 		// error message if specified id is not in database
-		if (!DBA::exists('mail', ["`uid` = ? AND `id` = ? " . $sql_extra, $uid, $id])) {
+		if (!$this->dba->exists('mail', ["`uid` = ? AND `id` = ? " . $sql_extra, $uid, $id])) {
 			if ($verbose) {
 				$answer = ['result' => 'error', 'message' => 'message id not in database'];
 				$this->response->exit('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
@@ -68,7 +83,7 @@ class Destroy extends BaseApi
 		}
 
 		// delete message
-		$result = DBA::delete('mail', ["`uid` = ? AND `id` = ? " . $sql_extra, $uid, $id]);
+		$result = $this->dba->delete('mail', ["`uid` = ? AND `id` = ? " . $sql_extra, $uid, $id]);
 
 		if ($verbose) {
 			if ($result) {

@@ -21,12 +21,17 @@
 
 namespace Friendica\Module\Api\Twitter\DirectMessages;
 
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Database\Database;
+use Friendica\Factory\Api\Twitter\DirectMessage;
 use Friendica\Model\Contact;
 use Friendica\Model\Mail;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Sends a new direct message.
@@ -35,6 +40,20 @@ use Friendica\Network\HTTPException\NotFoundException;
  */
 class NewDM extends BaseApi
 {
+	/** @var Database */
+	private $dba;
+
+	/** @var DirectMessage */
+	private $directMessage;
+
+	public function __construct(DirectMessage $directMessage, Database $dba, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->dba           = $dba;
+		$this->directMessage = $directMessage;
+	}
+
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
@@ -51,7 +70,7 @@ class NewDM extends BaseApi
 
 		$replyto = '';
 		if (!empty($request['replyto'])) {
-			$mail    = DBA::selectFirst('mail', ['parent-uri', 'title'], ['uid' => $uid, 'id' => $request['replyto']]);
+			$mail    = $this->dba->selectFirst('mail', ['parent-uri', 'title'], ['uid' => $uid, 'id' => $request['replyto']]);
 			$replyto = $mail['parent-uri'];
 			$sub     = $mail['title'];
 		} else {
@@ -67,7 +86,7 @@ class NewDM extends BaseApi
 		$id = Mail::send($cdata['user'], $request['text'], $sub, $replyto);
 
 		if ($id > -1) {
-			$ret = DI::twitterDirectMessage()->createFromMailId($id, $uid, $request['getText'] ?? '');
+			$ret = $this->directMessage->createFromMailId($id, $uid, $request['getText'] ?? '');
 		} else {
 			$ret = ['error' => $id];
 		}
