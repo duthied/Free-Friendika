@@ -25,7 +25,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-11-27 12:46+0100\n"
-"PO-Revision-Date: 2021-11-30 17:39+0000\n"
+"PO-Revision-Date: 2021-12-20 05:54+0000\n"
 "Last-Translator: Alexander An <ravnina@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/friendica/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -6642,8 +6642,8 @@ msgstr "Показать Положение о конфиденциальнос�
 #, php-format
 msgid ""
 "Show some informations regarding the needed information to operate the node "
-"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer"
-"\">EU-GDPR</a>."
+"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener "
+"noreferrer\">EU-GDPR</a>."
 msgstr "Показать различную информацию о соответствии узла различным требованиям конфиденциальности, например, <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">EU-GDPR</a>."
 
 #: src/Module/Admin/Tos.php:79
@@ -7671,7 +7671,7 @@ msgstr "Группа: %s"
 
 #: src/Module/Conversation/Network.php:234
 msgid "Latest Activity"
-msgstr "Недавняя активность"
+msgstr "Вся активность"
 
 #: src/Module/Conversation/Network.php:237
 msgid "Sort by latest activity"
@@ -7679,7 +7679,7 @@ msgstr "Отсортировать по свежей активности"
 
 #: src/Module/Conversation/Network.php:242
 msgid "Latest Posts"
-msgstr "Недавние записи"
+msgstr "Новые записи"
 
 #: src/Module/Conversation/Network.php:245
 msgid "Sort by post received date"
@@ -7973,11 +7973,11 @@ msgstr ""
 
 #: src/Module/Delegation.php:142
 msgid "Switch between your accounts"
-msgstr ""
+msgstr "Переключить учётную запись"
 
 #: src/Module/Delegation.php:143
 msgid "Manage your accounts"
-msgstr ""
+msgstr "Управление учётными записями"
 
 #: src/Module/Delegation.php:144
 msgid ""
