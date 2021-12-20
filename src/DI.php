@@ -398,14 +398,6 @@ abstract class DI
 		return self::$dice->create(Factory\Api\Twitter\User::class);
 	}
 
-	/**
-	 * @return Factory\Api\Twitter\DirectMessage
-	 */
-	public static function twitterDirectMessage()
-	{
-		return self::$dice->create(Factory\Api\Twitter\DirectMessage::class);
-	}
-
 	public static function notificationIntro(): Navigation\Notifications\Factory\Introduction
 	{
 		return self::$dice->create(Navigation\Notifications\Factory\Introduction::class);
