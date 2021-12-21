@@ -949,7 +949,9 @@ class Item
 			$item['parent'] = $parent_id;
 
 			// Trigger automatic reactions for addons
-			$item['api_source'] = true;
+			if (!isset($item['api_source'])) {
+				$item['api_source'] = true;
+			}
 
 			// We have to tell the hooks who we are - this really should be improved
 			if (!local_user()) {

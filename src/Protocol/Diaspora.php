@@ -4100,6 +4100,9 @@ class Diaspora
 			$item['private'] = Item::PUBLIC;
 		}
 
+		// Don't trigger the addons
+		$item['api_source'] = false;
+
 		return Item::insert($item, true);
 	}
 }
