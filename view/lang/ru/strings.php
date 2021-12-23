@@ -5,19 +5,6 @@ function string_plural_select_ru($n){
 	$n = intval($n);
 	if ($n%10==1 && $n%100!=11) { return 0; } else if ($n%10>=2 && $n%10<=4 && ($n%100<12 || $n%100>14)) { return 1; } else if ($n%10==0 || ($n%10>=5 && $n%10<=9) || ($n%100>=11 && $n%100<=14)) { return 2; } else  { return 3; }
 }}
-$a->strings['Daily posting limit of %d post reached. The post was rejected.'] = [
-	0 => 'Дневной лимит в %d запись достигнут. Запись отклонена.',
-	1 => 'Дневной лимит в %d записи достигнут. Запись отклонена.',
-	2 => 'Дневной лимит в %d записей достигнут. Запись отклонена.',
-	3 => 'Дневной лимит в %d записей достигнут. Запись отклонена.',
-];
-$a->strings['Weekly posting limit of %d post reached. The post was rejected.'] = [
-	0 => 'Недельный лимит в %d запись достигнут. Запись была отклонена.',
-	1 => 'Недельный лимит в %d записи достигнут. Запись была отклонена.',
-	2 => 'Недельный лимит в %d записей достигнут. Запись была отклонена.',
-	3 => 'Недельный лимит в %d записей достигнут. Запись была отклонена.',
-];
-$a->strings['Monthly posting limit of %d post reached. The post was rejected.'] = 'Месячный лимит в %d записей достигнут. Запись была отклонена.';
 $a->strings['Access denied.'] = 'Доступ запрещен.';
 $a->strings['User not found.'] = 'Пользователь не найден.';
 $a->strings['Access to this profile has been restricted.'] = 'Доступ к этому профилю ограничен.';
@@ -350,10 +337,10 @@ $a->strings['Name'] = 'Имя';
 $a->strings['Home Page'] = 'Главная страница';
 $a->strings['Created'] = 'Создано';
 $a->strings['Remove authorization'] = 'Удалить авторизацию';
+$a->strings['Save Settings'] = 'Сохранить настройки';
 $a->strings['Addon Settings'] = 'Настройки дополнений';
 $a->strings['No Addon settings configured'] = 'Настройки дополнений не изменены';
 $a->strings['Additional Features'] = 'Дополнительные возможности';
-$a->strings['Save Settings'] = 'Сохранить настройки';
 $a->strings['Diaspora (Socialhome, Hubzilla)'] = 'Diaspora (Socialhome, Hubzilla)';
 $a->strings['enabled'] = 'подключено';
 $a->strings['disabled'] = 'отключено';
@@ -1478,7 +1465,7 @@ $a->strings['Direct relay transfer'] = 'Прямая ретрансляция';
 $a->strings['Enables the direct transfer to other servers without using the relay servers'] = 'Разрешает прямую отправку на другие серверы без использования ретрансляторов';
 $a->strings['Relay scope'] = 'Область ретрансляции';
 $a->strings['Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'] = 'Допустимые значения "all" или "tags". "all" означает, что любые публичные записи будут получены. "tags" включает приём публичных записей с выбранными тэгами.';
-$a->strings['Disabled'] = 'Отключенный';
+$a->strings['Disabled'] = 'Отключено';
 $a->strings['all'] = 'all';
 $a->strings['tags'] = 'tags';
 $a->strings['Server tags'] = 'Тэги сервера';
@@ -1599,6 +1586,19 @@ $a->strings['Contact Blocklist'] = 'Чёрный список контактов
 $a->strings['Server Blocklist'] = 'Чёрный список серверов';
 $a->strings['Diagnostics'] = 'Диагностика';
 $a->strings['User registrations waiting for confirmation'] = 'Регистрации пользователей, ожидающие подтверждения';
+$a->strings['Daily posting limit of %d post reached. The post was rejected.'] = [
+	0 => 'Дневной лимит в %d запись достигнут. Запись отклонена.',
+	1 => 'Дневной лимит в %d записи достигнут. Запись отклонена.',
+	2 => 'Дневной лимит в %d записей достигнут. Запись отклонена.',
+	3 => 'Дневной лимит в %d записей достигнут. Запись отклонена.',
+];
+$a->strings['Weekly posting limit of %d post reached. The post was rejected.'] = [
+	0 => 'Недельный лимит в %d запись достигнут. Запись была отклонена.',
+	1 => 'Недельный лимит в %d записи достигнут. Запись была отклонена.',
+	2 => 'Недельный лимит в %d записей достигнут. Запись была отклонена.',
+	3 => 'Недельный лимит в %d записей достигнут. Запись была отклонена.',
+];
+$a->strings['Monthly posting limit of %d post reached. The post was rejected.'] = 'Месячный лимит в %d записей достигнут. Запись была отклонена.';
 $a->strings['Profile Details'] = 'Информация о вас';
 $a->strings['Only You Can See This'] = 'Только вы можете это видеть';
 $a->strings['Scheduled Posts'] = 'Запланированные записи';
@@ -1786,6 +1786,7 @@ $a->strings['UTC time: %s'] = 'UTC время: %s';
 $a->strings['Current timezone: %s'] = 'Ваш часовой пояс: %s';
 $a->strings['Converted localtime: %s'] = 'Ваше изменённое время: %s';
 $a->strings['Please select your timezone:'] = 'Выберите пожалуйста ваш часовой пояс:';
+$a->strings['You are now logged in as %s'] = 'Вы вошли как %s';
 $a->strings['Switch between your accounts'] = 'Переключить учётную запись';
 $a->strings['Manage your accounts'] = 'Управление учётными записями';
 $a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Переключайтесь между разными профилями или страницами сообществ/групп, которые зарегистрированы на одинаковые контактные данные, либо вам предоставлено право управления ими.';
@@ -2280,7 +2281,6 @@ $a->strings['%d comment'] = [
 ];
 $a->strings['Show more'] = 'Показать больше';
 $a->strings['Show fewer'] = 'Показать меньше';
-$a->strings['Attachments:'] = 'Вложения:';
 $a->strings['%s is now following %s.'] = '%s теперь подписан на %s.';
 $a->strings['following'] = 'следует';
 $a->strings['%s stopped following %s.'] = '%s отписался от %s.';

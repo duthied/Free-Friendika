@@ -24,8 +24,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-27 12:46+0100\n"
-"PO-Revision-Date: 2021-12-20 05:54+0000\n"
+"POT-Creation-Date: 2021-12-12 07:58-0500\n"
+"PO-Revision-Date: 2021-12-22 17:46+0000\n"
 "Last-Translator: Alexander An <ravnina@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/friendica/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -33,30 +33,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
-
-#: include/api.php:771 src/Module/BaseApi.php:275
-#, php-format
-msgid "Daily posting limit of %d post reached. The post was rejected."
-msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
-msgstr[0] "Дневной лимит в %d запись достигнут. Запись отклонена."
-msgstr[1] "Дневной лимит в %d записи достигнут. Запись отклонена."
-msgstr[2] "Дневной лимит в %d записей достигнут. Запись отклонена."
-msgstr[3] "Дневной лимит в %d записей достигнут. Запись отклонена."
-
-#: include/api.php:785 src/Module/BaseApi.php:291
-#, php-format
-msgid "Weekly posting limit of %d post reached. The post was rejected."
-msgid_plural ""
-"Weekly posting limit of %d posts reached. The post was rejected."
-msgstr[0] "Недельный лимит в %d запись достигнут. Запись была отклонена."
-msgstr[1] "Недельный лимит в %d записи достигнут. Запись была отклонена."
-msgstr[2] "Недельный лимит в %d записей достигнут. Запись была отклонена."
-msgstr[3] "Недельный лимит в %d записей достигнут. Запись была отклонена."
-
-#: include/api.php:799 src/Module/BaseApi.php:307
-#, php-format
-msgid "Monthly posting limit of %d post reached. The post was rejected."
-msgstr "Месячный лимит в %d записей достигнут. Запись была отклонена."
 
 #: mod/cal.php:44 mod/cal.php:48 mod/follow.php:39 mod/redir.php:34
 #: mod/redir.php:175 src/Module/Conversation/Community.php:181
@@ -72,7 +48,7 @@ msgstr "Доступ запрещен."
 #: src/Module/Profile/Common.php:41 src/Module/Profile/Common.php:52
 #: src/Module/Profile/Contacts.php:40 src/Module/Profile/Contacts.php:50
 #: src/Module/Profile/Media.php:38 src/Module/Profile/Status.php:58
-#: src/Module/Register.php:266 src/Module/RemoteFollow.php:58
+#: src/Module/Register.php:267 src/Module/RemoteFollow.php:58
 msgid "User not found."
 msgstr "Пользователь не найден."
 
@@ -161,23 +137,22 @@ msgstr "Лента недоступна для этого объекта."
 #: mod/item.php:185 mod/item.php:190 mod/item.php:937 mod/message.php:69
 #: mod/message.php:111 mod/notes.php:44 mod/ostatus_subscribe.php:32
 #: mod/photos.php:160 mod/photos.php:897 mod/repair_ostatus.php:31
-#: mod/settings.php:46 mod/settings.php:56 mod/settings.php:410
+#: mod/settings.php:46 mod/settings.php:56 mod/settings.php:412
 #: mod/suggest.php:34 mod/uimport.php:33 mod/unfollow.php:35
 #: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:68
 #: mod/wall_attach.php:71 mod/wall_upload.php:90 mod/wall_upload.php:93
-#: mod/wallmessage.php:36 mod/wallmessage.php:55 mod/wallmessage.php:89
-#: mod/wallmessage.php:109 src/Module/Attach.php:55 src/Module/BaseApi.php:77
-#: src/Module/BaseApi.php:86 src/Module/BaseApi.php:95
-#: src/Module/BaseApi.php:104 src/Module/BaseNotifications.php:97
-#: src/Module/Contact/Advanced.php:60 src/Module/Delegation.php:118
-#: src/Module/FollowConfirm.php:18 src/Module/FriendSuggest.php:56
-#: src/Module/Group.php:42 src/Module/Group.php:85 src/Module/Invite.php:41
-#: src/Module/Invite.php:130 src/Module/Notifications/Notification.php:48
+#: mod/wallmessage.php:37 mod/wallmessage.php:56 mod/wallmessage.php:90
+#: mod/wallmessage.php:110 src/Module/Attach.php:55 src/Module/BaseApi.php:92
+#: src/Module/BaseNotifications.php:97 src/Module/Contact/Advanced.php:60
+#: src/Module/Delegation.php:119 src/Module/FollowConfirm.php:18
+#: src/Module/FriendSuggest.php:56 src/Module/Group.php:42
+#: src/Module/Group.php:85 src/Module/Invite.php:41 src/Module/Invite.php:130
+#: src/Module/Notifications/Notification.php:48
 #: src/Module/Notifications/Notification.php:79
 #: src/Module/Profile/Common.php:56 src/Module/Profile/Contacts.php:56
 #: src/Module/Profile/Schedule.php:39 src/Module/Profile/Schedule.php:56
-#: src/Module/Register.php:76 src/Module/Register.php:89
-#: src/Module/Register.php:205 src/Module/Register.php:244
+#: src/Module/Register.php:77 src/Module/Register.php:90
+#: src/Module/Register.php:206 src/Module/Register.php:245
 #: src/Module/Search/Directory.php:37 src/Module/Settings/Delegation.php:42
 #: src/Module/Settings/Delegation.php:70 src/Module/Settings/Display.php:42
 #: src/Module/Settings/Display.php:120
@@ -209,7 +184,7 @@ msgid "Loading..."
 msgstr "Загрузка..."
 
 #: mod/editpost.php:93 mod/message.php:198 mod/message.php:355
-#: mod/wallmessage.php:139 src/Content/Conversation.php:327
+#: mod/wallmessage.php:140 src/Content/Conversation.php:327
 msgid "Upload photo"
 msgstr "Загрузить фото"
 
@@ -226,7 +201,7 @@ msgid "attach file"
 msgstr "приложить файл"
 
 #: mod/editpost.php:97 mod/message.php:199 mod/message.php:356
-#: mod/wallmessage.php:140
+#: mod/wallmessage.php:141
 msgid "Insert web link"
 msgstr "Вставить веб-ссылку"
 
@@ -268,7 +243,7 @@ msgid "clear location"
 msgstr "убрать местонахождение"
 
 #: mod/editpost.php:107 mod/message.php:200 mod/message.php:358
-#: mod/photos.php:1495 mod/wallmessage.php:141
+#: mod/photos.php:1495 mod/wallmessage.php:142
 #: src/Content/Conversation.php:355 src/Content/Conversation.php:690
 #: src/Module/Item/Compose.php:165 src/Object/Post.php:502
 msgid "Please wait"
@@ -398,13 +373,13 @@ msgstr "Начало мероприятия:"
 #: src/Module/Admin/Blocklist/Server/Index.php:68
 #: src/Module/Admin/Blocklist/Server/Index.php:69
 #: src/Module/Admin/Blocklist/Server/Index.php:96
-#: src/Module/Admin/Item/Delete.php:70 src/Module/Debug/Probe.php:59
+#: src/Module/Admin/Item/Delete.php:69 src/Module/Debug/Probe.php:59
 #: src/Module/Install.php:207 src/Module/Install.php:240
 #: src/Module/Install.php:245 src/Module/Install.php:264
 #: src/Module/Install.php:275 src/Module/Install.php:280
 #: src/Module/Install.php:286 src/Module/Install.php:291
 #: src/Module/Install.php:305 src/Module/Install.php:320
-#: src/Module/Install.php:347 src/Module/Register.php:147
+#: src/Module/Install.php:347 src/Module/Register.php:148
 #: src/Module/Security/TwoFactor/Verify.php:100
 #: src/Module/Settings/TwoFactor/Index.php:133
 #: src/Module/Settings/TwoFactor/Verify.php:153
@@ -426,7 +401,7 @@ msgstr "Описание:"
 
 #: mod/events.php:508 src/Content/Widget/VCard.php:98 src/Model/Event.php:80
 #: src/Model/Event.php:107 src/Model/Event.php:466 src/Model/Event.php:915
-#: src/Model/Profile.php:368 src/Module/Contact/Profile.php:376
+#: src/Model/Profile.php:368 src/Module/Contact/Profile.php:369
 #: src/Module/Directory.php:147 src/Module/Notifications/Introductions.php:185
 #: src/Module/Profile/Profile.php:194
 msgid "Location:"
@@ -444,11 +419,11 @@ msgstr "Поделиться этим мероприятием"
 #: mod/photos.php:927 mod/photos.php:1031 mod/photos.php:1301
 #: mod/photos.php:1342 mod/photos.php:1398 mod/photos.php:1472
 #: src/Module/Admin/Item/Source.php:65 src/Module/Contact/Advanced.php:147
-#: src/Module/Contact/Poke.php:158 src/Module/Contact/Profile.php:334
+#: src/Module/Contact/Poke.php:158 src/Module/Contact/Profile.php:327
 #: src/Module/Debug/ActivityPubConversion.php:141
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
 #: src/Module/Debug/Probe.php:54 src/Module/Debug/WebFinger.php:51
-#: src/Module/Delegation.php:147 src/Module/FriendSuggest.php:144
+#: src/Module/Delegation.php:148 src/Module/FriendSuggest.php:144
 #: src/Module/Install.php:252 src/Module/Install.php:294
 #: src/Module/Install.php:331 src/Module/Invite.php:177
 #: src/Module/Item/Compose.php:150 src/Module/Profile/Profile.php:247
@@ -521,13 +496,13 @@ msgstr "Ваш адрес:"
 
 #: mod/follow.php:141 mod/unfollow.php:100
 #: src/Module/Admin/Blocklist/Contact.php:116
-#: src/Module/Contact/Profile.php:372
+#: src/Module/Contact/Profile.php:365
 #: src/Module/Notifications/Introductions.php:127
 #: src/Module/Notifications/Introductions.php:196
 msgid "Profile URL"
 msgstr "URL профиля"
 
-#: mod/follow.php:142 src/Module/Contact/Profile.php:384
+#: mod/follow.php:142 src/Module/Contact/Profile.php:377
 #: src/Module/Notifications/Introductions.php:189
 #: src/Module/Profile/Profile.php:207
 msgid "Tags:"
@@ -727,7 +702,7 @@ msgstr "Похожие профили"
 msgid "New Message"
 msgstr "Новое сообщение"
 
-#: mod/message.php:83 mod/wallmessage.php:69
+#: mod/message.php:83 mod/wallmessage.php:70
 msgid "No recipient selected."
 msgstr "Не выбран получатель."
 
@@ -735,11 +710,11 @@ msgstr "Не выбран получатель."
 msgid "Unable to locate contact information."
 msgstr "Не удалось найти контактную информацию."
 
-#: mod/message.php:90 mod/wallmessage.php:75
+#: mod/message.php:90 mod/wallmessage.php:76
 msgid "Message could not be sent."
 msgstr "Сообщение не может быть отправлено."
 
-#: mod/message.php:93 mod/wallmessage.php:78
+#: mod/message.php:93 mod/wallmessage.php:79
 msgid "Message collection failure."
 msgstr "Неудача коллекции сообщения."
 
@@ -765,23 +740,23 @@ msgstr "Сообщение не было удалено."
 msgid "Conversation was not removed."
 msgstr "Беседа не была удалена."
 
-#: mod/message.php:180 mod/message.php:286 mod/wallmessage.php:123
+#: mod/message.php:180 mod/message.php:286 mod/wallmessage.php:124
 msgid "Please enter a link URL:"
 msgstr "Пожалуйста, введите URL ссылки:"
 
-#: mod/message.php:189 mod/wallmessage.php:128
+#: mod/message.php:189 mod/wallmessage.php:129
 msgid "Send Private Message"
 msgstr "Отправить личное сообщение"
 
-#: mod/message.php:190 mod/message.php:347 mod/wallmessage.php:130
+#: mod/message.php:190 mod/message.php:347 mod/wallmessage.php:131
 msgid "To:"
 msgstr "Кому:"
 
-#: mod/message.php:191 mod/message.php:348 mod/wallmessage.php:131
+#: mod/message.php:191 mod/message.php:348 mod/wallmessage.php:132
 msgid "Subject:"
 msgstr "Тема:"
 
-#: mod/message.php:195 mod/message.php:351 mod/wallmessage.php:137
+#: mod/message.php:195 mod/message.php:351 mod/wallmessage.php:138
 #: src/Module/Invite.php:170
 msgid "Your message:"
 msgstr "Ваше сообщение:"
@@ -1120,7 +1095,7 @@ msgstr "Комментировать"
 msgid "Select"
 msgstr "Выберите"
 
-#: mod/photos.php:1431 mod/settings.php:564 src/Content/Conversation.php:616
+#: mod/photos.php:1431 mod/settings.php:596 src/Content/Conversation.php:616
 #: src/Module/Admin/Users/Active.php:139
 #: src/Module/Admin/Users/Blocked.php:140 src/Module/Admin/Users/Index.php:153
 msgid "Delete"
@@ -1169,12 +1144,12 @@ msgstr "Ошибочный запрос."
 
 #: mod/redir.php:55 mod/redir.php:129 src/Module/Contact/Advanced.php:70
 #: src/Module/Contact/Advanced.php:119 src/Module/Contact/Contacts.php:36
-#: src/Module/Contact/Conversations.php:80
-#: src/Module/Contact/Conversations.php:85
-#: src/Module/Contact/Conversations.php:90 src/Module/Contact/Media.php:43
-#: src/Module/Contact/Posts.php:74 src/Module/Contact/Posts.php:79
-#: src/Module/Contact/Posts.php:84 src/Module/Contact/Profile.php:148
-#: src/Module/Contact/Profile.php:153 src/Module/Contact/Profile.php:158
+#: src/Module/Contact/Conversations.php:78
+#: src/Module/Contact/Conversations.php:83
+#: src/Module/Contact/Conversations.php:88 src/Module/Contact/Media.php:43
+#: src/Module/Contact/Posts.php:72 src/Module/Contact/Posts.php:77
+#: src/Module/Contact/Posts.php:82 src/Module/Contact/Profile.php:141
+#: src/Module/Contact/Profile.php:146 src/Module/Contact/Profile.php:151
 #: src/Module/FriendSuggest.php:70 src/Module/FriendSuggest.php:108
 #: src/Module/Group.php:99 src/Module/Group.php:108
 msgid "Contact not found."
@@ -1226,75 +1201,75 @@ msgstr[1] "Ошибки"
 msgstr[2] "Ошибки"
 msgstr[3] "Ошибки"
 
-#: mod/settings.php:127
+#: mod/settings.php:128
 msgid "Failed to connect with email account using the settings provided."
 msgstr "Не удалось подключиться к аккаунту e-mail, используя указанные настройки."
 
-#: mod/settings.php:156
+#: mod/settings.php:158
 msgid "Contact CSV file upload error"
 msgstr "Ошибка загрузки CSV с контактами"
 
-#: mod/settings.php:175
+#: mod/settings.php:177
 msgid "Importing Contacts done"
 msgstr "Импорт контактов завершён"
 
-#: mod/settings.php:188
+#: mod/settings.php:190
 msgid "Relocate message has been send to your contacts"
 msgstr "Перемещённое сообщение было отправлено списку контактов"
 
-#: mod/settings.php:200
+#: mod/settings.php:202
 msgid "Passwords do not match."
 msgstr "Пароли не совпадают"
 
-#: mod/settings.php:208 src/Console/User.php:210
+#: mod/settings.php:210 src/Console/User.php:210
 msgid "Password update failed. Please try again."
 msgstr "Обновление пароля не удалось. Пожалуйста, попробуйте еще раз."
 
-#: mod/settings.php:211 src/Console/User.php:213
+#: mod/settings.php:213 src/Console/User.php:213
 msgid "Password changed."
 msgstr "Пароль изменен."
 
-#: mod/settings.php:214
+#: mod/settings.php:216
 msgid "Password unchanged."
 msgstr "Пароль не поменялся"
 
-#: mod/settings.php:302
+#: mod/settings.php:304
 msgid "Please use a shorter name."
 msgstr "Пожалуйста, выберите имя короче."
 
-#: mod/settings.php:305
+#: mod/settings.php:307
 msgid "Name too short."
 msgstr "Имя слишком короткое"
 
-#: mod/settings.php:314
+#: mod/settings.php:316
 msgid "Wrong Password."
 msgstr "Неправильный пароль"
 
-#: mod/settings.php:319
+#: mod/settings.php:321
 msgid "Invalid email."
 msgstr "Неправильный адрес почты"
 
-#: mod/settings.php:325
+#: mod/settings.php:327
 msgid "Cannot change to that email."
 msgstr "Нельзя установить этот адрес почты"
 
-#: mod/settings.php:366
+#: mod/settings.php:368
 msgid "Private forum has no privacy permissions. Using default privacy group."
 msgstr "Частный форум не имеет настроек приватности. Используется группа конфиденциальности по умолчанию."
 
-#: mod/settings.php:369
+#: mod/settings.php:371
 msgid "Private forum has no privacy permissions and no default privacy group."
 msgstr "Частный форум не имеет настроек приватности и не имеет групп приватности по умолчанию."
 
-#: mod/settings.php:388
+#: mod/settings.php:390
 msgid "Settings were not updated."
 msgstr "Настройки не были изменены."
 
-#: mod/settings.php:429
+#: mod/settings.php:431
 msgid "Connected Apps"
 msgstr "Подключенные приложения"
 
-#: mod/settings.php:430 src/Module/Admin/Blocklist/Contact.php:106
+#: mod/settings.php:432 src/Module/Admin/Blocklist/Contact.php:106
 #: src/Module/Admin/Users/Active.php:129
 #: src/Module/Admin/Users/Blocked.php:130 src/Module/Admin/Users/Create.php:71
 #: src/Module/Admin/Users/Deleted.php:88 src/Module/Admin/Users/Index.php:142
@@ -1303,80 +1278,81 @@ msgstr "Подключенные приложения"
 msgid "Name"
 msgstr "Имя"
 
-#: mod/settings.php:431 src/Content/Nav.php:212
+#: mod/settings.php:433 src/Content/Nav.php:212
 msgid "Home Page"
 msgstr "Главная страница"
 
-#: mod/settings.php:432 src/Module/Admin/Queue.php:78
+#: mod/settings.php:434 src/Module/Admin/Queue.php:78
 msgid "Created"
 msgstr "Создано"
 
-#: mod/settings.php:433
+#: mod/settings.php:435
 msgid "Remove authorization"
 msgstr "Удалить авторизацию"
 
-#: mod/settings.php:451
-msgid "Addon Settings"
-msgstr "Настройки дополнений"
-
-#: mod/settings.php:452
-msgid "No Addon settings configured"
-msgstr "Настройки дополнений не изменены"
-
-#: mod/settings.php:473
-msgid "Additional Features"
-msgstr "Дополнительные возможности"
-
-#: mod/settings.php:475 mod/settings.php:566 mod/settings.php:703
+#: mod/settings.php:461 mod/settings.php:493 mod/settings.php:524
+#: mod/settings.php:598 mod/settings.php:735
 #: src/Module/Admin/Addons/Index.php:69 src/Module/Admin/Features.php:87
-#: src/Module/Admin/Logs/Settings.php:82 src/Module/Admin/Site.php:501
+#: src/Module/Admin/Logs/Settings.php:81 src/Module/Admin/Site.php:501
 #: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:83
 #: src/Module/Settings/Delegation.php:170 src/Module/Settings/Display.php:193
 msgid "Save Settings"
 msgstr "Сохранить настройки"
 
-#: mod/settings.php:497
+#: mod/settings.php:469
+msgid "Addon Settings"
+msgstr "Настройки дополнений"
+
+#: mod/settings.php:470
+msgid "No Addon settings configured"
+msgstr "Настройки дополнений не изменены"
+
+#: mod/settings.php:491
+msgid "Additional Features"
+msgstr "Дополнительные возможности"
+
+#: mod/settings.php:529
 msgid "Diaspora (Socialhome, Hubzilla)"
 msgstr "Diaspora (Socialhome, Hubzilla)"
 
-#: mod/settings.php:497 mod/settings.php:498
+#: mod/settings.php:529 mod/settings.php:530
 msgid "enabled"
 msgstr "подключено"
 
-#: mod/settings.php:497 mod/settings.php:498
+#: mod/settings.php:529 mod/settings.php:530
 msgid "disabled"
 msgstr "отключено"
 
-#: mod/settings.php:497 mod/settings.php:498
+#: mod/settings.php:529 mod/settings.php:530
 #, php-format
 msgid "Built-in support for %s connectivity is %s"
 msgstr "Встроенная  поддержка для %s подключение %s"
 
-#: mod/settings.php:498
+#: mod/settings.php:530
 msgid "OStatus (GNU Social)"
 msgstr "OStatus (GNU Social)"
 
-#: mod/settings.php:524
+#: mod/settings.php:556
 msgid "Email access is disabled on this site."
 msgstr "Доступ эл. почты отключен на этом сайте."
 
-#: mod/settings.php:529 mod/settings.php:564
+#: mod/settings.php:561 mod/settings.php:596
 msgid "None"
 msgstr "Ничего"
 
-#: mod/settings.php:535 src/Module/BaseSettings.php:78
+#: mod/settings.php:567 src/Module/BaseSettings.php:78
 msgid "Social Networks"
 msgstr "Социальные сети"
 
-#: mod/settings.php:540
+#: mod/settings.php:572
 msgid "General Social Media Settings"
 msgstr "Общие настройки социальных медиа"
 
-#: mod/settings.php:541
+#: mod/settings.php:573
 msgid "Accept only top level posts by contacts you follow"
 msgstr "Получать начальные записи только от ваших контактов"
 
-#: mod/settings.php:541
+#: mod/settings.php:573
 msgid ""
 "The system does an auto completion of threads when a comment arrives. This "
 "has got the side effect that you can receive posts that had been started by "
@@ -1385,11 +1361,11 @@ msgid ""
 "posts from people you really do follow."
 msgstr "Система автоматически загружает диалоги, когда получает комментарии. Это может приводить к тому, что вы можете видеть записи от людей, на которых вы не подписаны, потому что их прокомментировал кто-то из ваших контактов. Эта настройка отключает такое поведение и вы будете видеть только записи тех людей, на которых подписаны."
 
-#: mod/settings.php:542
+#: mod/settings.php:574
 msgid "Enable Content Warning"
 msgstr "Включить предупреждение о контенте"
 
-#: mod/settings.php:542
+#: mod/settings.php:574
 msgid ""
 "Users on networks like Mastodon or Pleroma are able to set a content warning"
 " field which collapse their post by default. This enables the automatic "
@@ -1397,223 +1373,223 @@ msgid ""
 " affect any other content filtering you eventually set up."
 msgstr "Пользователи некоторых сетей, таких как Mastodon или Pleroma, могут использовать \"предупреждение о контенте\", сворачивающее их записи. Эта настройка выключает это свёртывание вместо обычного помещения \"предупреждения о контенте\" в заголовок записи. Это не влияет на другие фильтры, которые вы можете настроить."
 
-#: mod/settings.php:543
+#: mod/settings.php:575
 msgid "Enable intelligent shortening"
 msgstr "Включить умное сокращение"
 
-#: mod/settings.php:543
+#: mod/settings.php:575
 msgid ""
 "Normally the system tries to find the best link to add to shortened posts. "
 "If disabled, every shortened post will always point to the original "
 "friendica post."
 msgstr ""
 
-#: mod/settings.php:544
+#: mod/settings.php:576
 msgid "Enable simple text shortening"
 msgstr ""
 
-#: mod/settings.php:544
+#: mod/settings.php:576
 msgid ""
 "Normally the system shortens posts at the next line feed. If this option is "
 "enabled then the system will shorten the text at the maximum character "
 "limit."
 msgstr ""
 
-#: mod/settings.php:545
+#: mod/settings.php:577
 msgid "Attach the link title"
 msgstr "Присоединять заголовок ссылок"
 
-#: mod/settings.php:545
+#: mod/settings.php:577
 msgid ""
 "When activated, the title of the attached link will be added as a title on "
 "posts to Diaspora. This is mostly helpful with \"remote-self\" contacts that"
 " share feed content."
 msgstr "Если включено. заголовок добавленной ссылки будет добавлен к записи в Диаспоре как заголовок. Это в основном нужно для контактов \"мой двойник\", которые публикуют содержимое ленты."
 
-#: mod/settings.php:546
+#: mod/settings.php:578
 msgid "Your legacy ActivityPub/GNU Social account"
 msgstr ""
 
-#: mod/settings.php:546
+#: mod/settings.php:578
 msgid ""
 "If you enter your old account name from an ActivityPub based system or your "
 "GNU Social/Statusnet account name here (in the format user@domain.tld), your"
 " contacts will be added automatically. The field will be emptied when done."
 msgstr ""
 
-#: mod/settings.php:549
+#: mod/settings.php:581
 msgid "Repair OStatus subscriptions"
 msgstr "Починить подписки OStatus"
 
-#: mod/settings.php:553
+#: mod/settings.php:585
 msgid "Email/Mailbox Setup"
 msgstr "Настройка эл. почты / почтового ящика"
 
-#: mod/settings.php:554
+#: mod/settings.php:586
 msgid ""
 "If you wish to communicate with email contacts using this service "
 "(optional), please specify how to connect to your mailbox."
 msgstr "Если вы хотите общаться с Email контактами, используя этот сервис (по желанию), пожалуйста, уточните, как подключиться к вашему почтовому ящику."
 
-#: mod/settings.php:555
+#: mod/settings.php:587
 msgid "Last successful email check:"
 msgstr "Последняя успешная проверка электронной почты:"
 
-#: mod/settings.php:557
+#: mod/settings.php:589
 msgid "IMAP server name:"
 msgstr "Имя IMAP сервера:"
 
-#: mod/settings.php:558
+#: mod/settings.php:590
 msgid "IMAP port:"
 msgstr "Порт IMAP:"
 
-#: mod/settings.php:559
+#: mod/settings.php:591
 msgid "Security:"
 msgstr "Безопасность:"
 
-#: mod/settings.php:560
+#: mod/settings.php:592
 msgid "Email login name:"
 msgstr "Логин эл. почты:"
 
-#: mod/settings.php:561
+#: mod/settings.php:593
 msgid "Email password:"
 msgstr "Пароль эл. почты:"
 
-#: mod/settings.php:562
+#: mod/settings.php:594
 msgid "Reply-to address:"
 msgstr "Адрес для ответа:"
 
-#: mod/settings.php:563
+#: mod/settings.php:595
 msgid "Send public posts to all email contacts:"
 msgstr "Отправлять открытые сообщения на все контакты электронной почты:"
 
-#: mod/settings.php:564
+#: mod/settings.php:596
 msgid "Action after import:"
 msgstr "Действие после импорта:"
 
-#: mod/settings.php:564 src/Content/Nav.php:280
+#: mod/settings.php:596 src/Content/Nav.php:280
 msgid "Mark as seen"
 msgstr "Отметить, как прочитанное"
 
-#: mod/settings.php:564
+#: mod/settings.php:596
 msgid "Move to folder"
 msgstr "Переместить в папку"
 
-#: mod/settings.php:565
+#: mod/settings.php:597
 msgid "Move to folder:"
 msgstr "Переместить в папку:"
 
-#: mod/settings.php:579
+#: mod/settings.php:611
 msgid "Unable to find your profile. Please contact your admin."
 msgstr "Не получается найти ваш профиль. Пожалуйста свяжитесь с администратором."
 
-#: mod/settings.php:617 src/Content/Widget.php:526
+#: mod/settings.php:649 src/Content/Widget.php:526
 msgid "Account Types"
 msgstr "Тип учетной записи"
 
-#: mod/settings.php:618
+#: mod/settings.php:650
 msgid "Personal Page Subtypes"
 msgstr "Подтипы личной страницы"
 
-#: mod/settings.php:619
+#: mod/settings.php:651
 msgid "Community Forum Subtypes"
 msgstr "Подтипы форума сообщества"
 
-#: mod/settings.php:626 src/Module/Admin/BaseUsers.php:106
+#: mod/settings.php:658 src/Module/Admin/BaseUsers.php:106
 msgid "Personal Page"
 msgstr "Личная страница"
 
-#: mod/settings.php:627
+#: mod/settings.php:659
 msgid "Account for a personal profile."
 msgstr "Личная учётная запись"
 
-#: mod/settings.php:630 src/Module/Admin/BaseUsers.php:107
+#: mod/settings.php:662 src/Module/Admin/BaseUsers.php:107
 msgid "Organisation Page"
 msgstr "Организационная страница"
 
-#: mod/settings.php:631
+#: mod/settings.php:663
 msgid ""
 "Account for an organisation that automatically approves contact requests as "
 "\"Followers\"."
 msgstr "Учётная запись организации, которая автоматически одобряет новых подписчиков."
 
-#: mod/settings.php:634 src/Module/Admin/BaseUsers.php:108
+#: mod/settings.php:666 src/Module/Admin/BaseUsers.php:108
 msgid "News Page"
 msgstr "Новостная страница"
 
-#: mod/settings.php:635
+#: mod/settings.php:667
 msgid ""
 "Account for a news reflector that automatically approves contact requests as"
 " \"Followers\"."
 msgstr "Учётная запись новостной ленты, которая автоматически одобряет новых подписчиков."
 
-#: mod/settings.php:638 src/Module/Admin/BaseUsers.php:109
+#: mod/settings.php:670 src/Module/Admin/BaseUsers.php:109
 msgid "Community Forum"
 msgstr "Форум сообщества"
 
-#: mod/settings.php:639
+#: mod/settings.php:671
 msgid "Account for community discussions."
 msgstr "Учётная запись для совместных обсуждений."
 
-#: mod/settings.php:642 src/Module/Admin/BaseUsers.php:99
+#: mod/settings.php:674 src/Module/Admin/BaseUsers.php:99
 msgid "Normal Account Page"
 msgstr "Стандартная страница аккаунта"
 
-#: mod/settings.php:643
+#: mod/settings.php:675
 msgid ""
 "Account for a regular personal profile that requires manual approval of "
 "\"Friends\" and \"Followers\"."
 msgstr "Личная учётная запись, которая требует ручного одобрения для новых подписчиков и друзей."
 
-#: mod/settings.php:646 src/Module/Admin/BaseUsers.php:100
+#: mod/settings.php:678 src/Module/Admin/BaseUsers.php:100
 msgid "Soapbox Page"
 msgstr "Песочница"
 
-#: mod/settings.php:647
+#: mod/settings.php:679
 msgid ""
 "Account for a public profile that automatically approves contact requests as"
 " \"Followers\"."
 msgstr "Учётная запись для публичного профиля, которая автоматически одобряет новых подписчиков."
 
-#: mod/settings.php:650 src/Module/Admin/BaseUsers.php:101
+#: mod/settings.php:682 src/Module/Admin/BaseUsers.php:101
 msgid "Public Forum"
 msgstr "Публичный форум"
 
-#: mod/settings.php:651
+#: mod/settings.php:683
 msgid "Automatically approves all contact requests."
 msgstr "Автоматически одобряет все запросы на подписку."
 
-#: mod/settings.php:654 src/Module/Admin/BaseUsers.php:102
+#: mod/settings.php:686 src/Module/Admin/BaseUsers.php:102
 msgid "Automatic Friend Page"
 msgstr "\"Автоматический друг\" страница"
 
-#: mod/settings.php:655
+#: mod/settings.php:687
 msgid ""
 "Account for a popular profile that automatically approves contact requests "
 "as \"Friends\"."
 msgstr "Учётная запись для публичной личности, которая автоматически добавляет все новые контакты в друзья."
 
-#: mod/settings.php:658
+#: mod/settings.php:690
 msgid "Private Forum [Experimental]"
 msgstr "Личный форум [экспериментально]"
 
-#: mod/settings.php:659
+#: mod/settings.php:691
 msgid "Requires manual approval of contact requests."
 msgstr "Требует ручного одобрения запросов на подписку."
 
-#: mod/settings.php:670
+#: mod/settings.php:702
 msgid "OpenID:"
 msgstr "OpenID:"
 
-#: mod/settings.php:670
+#: mod/settings.php:702
 msgid "(Optional) Allow this OpenID to login to this account."
 msgstr "(Необязательно) Разрешить этому OpenID входить в этот аккаунт"
 
-#: mod/settings.php:678
+#: mod/settings.php:710
 msgid "Publish your profile in your local site directory?"
 msgstr "Опубликовать ваш профиль в каталоге вашего сервера?"
 
-#: mod/settings.php:678
+#: mod/settings.php:710
 #, php-format
 msgid ""
 "Your profile will be published in this node's <a href=\"%s\">local "
@@ -1621,115 +1597,115 @@ msgid ""
 " system settings."
 msgstr "Ваш профиль будет опубликован в <a href=\"%s\">локальном каталоге</a> этого сервера. Данные вашего профиля могут быть доступны публично в зависимости от настроек."
 
-#: mod/settings.php:684
+#: mod/settings.php:716
 #, php-format
 msgid ""
 "Your profile will also be published in the global friendica directories "
 "(e.g. <a href=\"%s\">%s</a>)."
 msgstr "Ваш профиль так же будет опубликован в глобальных каталогах Френдики (напр. <a href=\"%s\">%s</a>)."
 
-#: mod/settings.php:690
+#: mod/settings.php:722
 #, php-format
 msgid "Your Identity Address is <strong>'%s'</strong> or '%s'."
 msgstr "Ваш адрес: <strong>'%s'</strong> или '%s'."
 
-#: mod/settings.php:701
+#: mod/settings.php:733
 msgid "Account Settings"
 msgstr "Настройки аккаунта"
 
-#: mod/settings.php:709
+#: mod/settings.php:741
 msgid "Password Settings"
 msgstr "Смена пароля"
 
-#: mod/settings.php:710 src/Module/Register.php:161
+#: mod/settings.php:742 src/Module/Register.php:162
 msgid "New Password:"
 msgstr "Новый пароль:"
 
-#: mod/settings.php:710
+#: mod/settings.php:742
 msgid ""
 "Allowed characters are a-z, A-Z, 0-9 and special characters except white "
 "spaces, accentuated letters and colon (:)."
 msgstr "Разрешенные символы: a-z, A-Z, 0-9 специальные символы за исключением пробелов, букв с акцентами и двоеточия (:)."
 
-#: mod/settings.php:711 src/Module/Register.php:162
+#: mod/settings.php:743 src/Module/Register.php:163
 msgid "Confirm:"
 msgstr "Подтвердите:"
 
-#: mod/settings.php:711
+#: mod/settings.php:743
 msgid "Leave password fields blank unless changing"
 msgstr "Оставьте поля пароля пустыми, если он не изменяется"
 
-#: mod/settings.php:712
+#: mod/settings.php:744
 msgid "Current Password:"
 msgstr "Текущий пароль:"
 
-#: mod/settings.php:712
+#: mod/settings.php:744
 msgid "Your current password to confirm the changes"
 msgstr "Ваш текущий пароль, для подтверждения изменений"
 
-#: mod/settings.php:713
+#: mod/settings.php:745
 msgid "Password:"
 msgstr "Пароль:"
 
-#: mod/settings.php:713
+#: mod/settings.php:745
 msgid "Your current password to confirm the changes of the email address"
 msgstr "Ваш текущий пароль для подтверждения смены адреса почты"
 
-#: mod/settings.php:716
+#: mod/settings.php:748
 msgid "Delete OpenID URL"
 msgstr "Удалить ссылку OpenID"
 
-#: mod/settings.php:718
+#: mod/settings.php:750
 msgid "Basic Settings"
 msgstr "Основные параметры"
 
-#: mod/settings.php:719 src/Module/Profile/Profile.php:144
+#: mod/settings.php:751 src/Module/Profile/Profile.php:144
 msgid "Full Name:"
 msgstr "Полное имя:"
 
-#: mod/settings.php:720
+#: mod/settings.php:752
 msgid "Email Address:"
 msgstr "Адрес электронной почты:"
 
-#: mod/settings.php:721
+#: mod/settings.php:753
 msgid "Your Timezone:"
 msgstr "Ваш часовой пояс:"
 
-#: mod/settings.php:722
+#: mod/settings.php:754
 msgid "Your Language:"
 msgstr "Ваш язык:"
 
-#: mod/settings.php:722
+#: mod/settings.php:754
 msgid ""
 "Set the language we use to show you friendica interface and to send you "
 "emails"
 msgstr "Выберите язык, на котором вы будете видеть интерфейс Friendica и на котором вы будете получать письма"
 
-#: mod/settings.php:723
+#: mod/settings.php:755
 msgid "Default Post Location:"
 msgstr "Местонахождение по умолчанию:"
 
-#: mod/settings.php:724
+#: mod/settings.php:756
 msgid "Use Browser Location:"
 msgstr "Использовать определение местоположения браузером:"
 
-#: mod/settings.php:726
+#: mod/settings.php:758
 msgid "Security and Privacy Settings"
 msgstr "Параметры безопасности и конфиденциальности"
 
-#: mod/settings.php:728
+#: mod/settings.php:760
 msgid "Maximum Friend Requests/Day:"
 msgstr "Максимум запросов в друзья в день:"
 
-#: mod/settings.php:728 mod/settings.php:738
+#: mod/settings.php:760 mod/settings.php:770
 msgid "(to prevent spam abuse)"
 msgstr "(для предотвращения спама)"
 
-#: mod/settings.php:730
+#: mod/settings.php:762
 msgid "Allow your profile to be searchable globally?"
 msgstr "Сделать ваш профиль доступным для поиска глобально?"
 
-#: mod/settings.php:730
+#: mod/settings.php:762
 msgid ""
 "Activate this setting if you want others to easily find and follow you. Your"
 " profile will be searchable on remote systems. This setting also determines "
@@ -1737,43 +1713,43 @@ msgid ""
 "indexed or not."
 msgstr "Включите эту настройку, если вы хотите, чтобы другие люди могли легко вас находить. Ваш профиль станет доступным для поиска на других узлах. Так же эта настройка разрешает поисковым системам индексировать ваш профиль."
 
-#: mod/settings.php:731
+#: mod/settings.php:763
 msgid "Hide your contact/friend list from viewers of your profile?"
 msgstr "Скрыть список ваших контактов/друзей от просмотра в вашем профиле?"
 
-#: mod/settings.php:731
+#: mod/settings.php:763
 msgid ""
 "A list of your contacts is displayed on your profile page. Activate this "
 "option to disable the display of your contact list."
 msgstr "Список ваших контактов отображается на вашей странице профиля. Включите эту настройку, чтобы скрыть отображение вашего списка контактов."
 
-#: mod/settings.php:732
+#: mod/settings.php:764
 msgid "Hide your profile details from anonymous viewers?"
 msgstr "Скрыть данные профиля от анонимных посетителей?"
 
-#: mod/settings.php:732
+#: mod/settings.php:764
 msgid ""
 "Anonymous visitors will only see your profile picture, your display name and"
 " the nickname you are using on your profile page. Your public posts and "
 "replies will still be accessible by other means."
 msgstr "Анонимные посетители будут видеть только вашу картинку, ваше имя и и ник. Публичные записи и комментарии могут быть доступны другими способами."
 
-#: mod/settings.php:733
+#: mod/settings.php:765
 msgid "Make public posts unlisted"
 msgstr "Скрыть публичные записи из общих лент"
 
-#: mod/settings.php:733
+#: mod/settings.php:765
 msgid ""
 "Your public posts will not appear on the community pages or in search "
 "results, nor be sent to relay servers. However they can still appear on "
 "public feeds on remote servers."
 msgstr "Ваши публичные записи не будут отражаться в общей ленте сервера или в результатах поиска, так же они не будут отправляться на ретранслтяторы. Тем не менее, они всё равно могут быть доступны в публичных лентах других серверов."
 
-#: mod/settings.php:734
+#: mod/settings.php:766
 msgid "Make all posted pictures accessible"
 msgstr "Сделать все опубликованные изображения доступными"
 
-#: mod/settings.php:734
+#: mod/settings.php:766
 msgid ""
 "This option makes every posted picture accessible via the direct link. This "
 "is a workaround for the problem that most other networks can't handle "
@@ -1781,221 +1757,221 @@ msgid ""
 "public on your photo albums though."
 msgstr "Эта настройка делает все опубликованные изображения доступными по прямой ссылке. Это можно применить для решения проблем с другими социальными сетями, которые не умеют работать с разрешениями доступа для изображений. Непубличные изображения в любом случае не будут доступны для просмотра публично в ваших альбомах."
 
-#: mod/settings.php:735
+#: mod/settings.php:767
 msgid "Allow friends to post to your profile page?"
 msgstr "Разрешить друзьям оставлять сообщения на страницу вашего профиля?"
 
-#: mod/settings.php:735
+#: mod/settings.php:767
 msgid ""
 "Your contacts may write posts on your profile wall. These posts will be "
 "distributed to your contacts"
 msgstr "Ваши контакты могут оставлять записи на стене вашего профиля. Эти записи будут распространены вашим подписчикам."
 
-#: mod/settings.php:736
+#: mod/settings.php:768
 msgid "Allow friends to tag your posts?"
 msgstr "Разрешить друзьям отмечать ваши сообщения?"
 
-#: mod/settings.php:736
+#: mod/settings.php:768
 msgid "Your contacts can add additional tags to your posts."
 msgstr "Ваши контакты могут добавлять дополнительные теги к вашим записям."
 
-#: mod/settings.php:737
+#: mod/settings.php:769
 msgid "Permit unknown people to send you private mail?"
 msgstr "Разрешить незнакомым людям отправлять вам личные сообщения?"
 
-#: mod/settings.php:737
+#: mod/settings.php:769
 msgid ""
 "Friendica network users may send you private messages even if they are not "
 "in your contact list."
 msgstr "Пользователи Френдики могут отправлять вам личные сообщения даже если их нет в вашем списке контактов."
 
-#: mod/settings.php:738
+#: mod/settings.php:770
 msgid "Maximum private messages per day from unknown people:"
 msgstr "Максимальное количество личных сообщений от незнакомых людей в день:"
 
-#: mod/settings.php:740
+#: mod/settings.php:772
 msgid "Default Post Permissions"
 msgstr "Разрешение на сообщения по умолчанию"
 
-#: mod/settings.php:744
+#: mod/settings.php:776
 msgid "Expiration settings"
 msgstr "Очистка старых записей"
 
-#: mod/settings.php:745
+#: mod/settings.php:777
 msgid "Automatically expire posts after this many days:"
 msgstr "Автоматическое истекание срока действия сообщения после стольких дней:"
 
-#: mod/settings.php:745
+#: mod/settings.php:777
 msgid "If empty, posts will not expire. Expired posts will be deleted"
 msgstr "Если пусто, срок действия сообщений не будет ограничен. Сообщения с истекшим сроком действия будут удалены"
 
-#: mod/settings.php:746
+#: mod/settings.php:778
 msgid "Expire posts"
 msgstr "Удалять старые записи"
 
-#: mod/settings.php:746
+#: mod/settings.php:778
 msgid "When activated, posts and comments will be expired."
 msgstr "Если включено, то старые записи и комментарии будут удаляться."
 
-#: mod/settings.php:747
+#: mod/settings.php:779
 msgid "Expire personal notes"
 msgstr "Удалять персональные заметки"
 
-#: mod/settings.php:747
+#: mod/settings.php:779
 msgid ""
 "When activated, the personal notes on your profile page will be expired."
 msgstr "Если включено, старые личные заметки из вашего профиля будут удаляться."
 
-#: mod/settings.php:748
+#: mod/settings.php:780
 msgid "Expire starred posts"
 msgstr "Удалять избранные записи"
 
-#: mod/settings.php:748
+#: mod/settings.php:780
 msgid ""
 "Starring posts keeps them from being expired. That behaviour is overwritten "
 "by this setting."
 msgstr "Добавление записи в избранные защищает её от удаления. Эта настройка выключает эту защиту."
 
-#: mod/settings.php:749
+#: mod/settings.php:781
 msgid "Expire photos"
 msgstr "Удалять фото"
 
-#: mod/settings.php:749
+#: mod/settings.php:781
 msgid "When activated, photos will be expired."
 msgstr "Если включено, старые фото будут удаляться."
 
-#: mod/settings.php:750
+#: mod/settings.php:782
 msgid "Only expire posts by others"
 msgstr "Удалять только записи других людей"
 
-#: mod/settings.php:750
+#: mod/settings.php:782
 msgid ""
 "When activated, your own posts never expire. Then the settings above are "
 "only valid for posts you received."
 msgstr "Если включено, ваши собственные записи никогда не удаляются. В этом случае все настройки выше применяются только к записям, которые вы получаете от других."
 
-#: mod/settings.php:753
+#: mod/settings.php:785
 msgid "Notification Settings"
 msgstr "Настройка уведомлений"
 
-#: mod/settings.php:754
+#: mod/settings.php:786
 msgid "Send a notification email when:"
 msgstr "Отправлять уведомление по электронной почте, когда:"
 
-#: mod/settings.php:755
+#: mod/settings.php:787
 msgid "You receive an introduction"
 msgstr "Вы получили запрос"
 
-#: mod/settings.php:756
+#: mod/settings.php:788
 msgid "Your introductions are confirmed"
 msgstr "Ваши запросы подтверждены"
 
-#: mod/settings.php:757
+#: mod/settings.php:789
 msgid "Someone writes on your profile wall"
 msgstr "Кто-то пишет на стене вашего профиля"
 
-#: mod/settings.php:758
+#: mod/settings.php:790
 msgid "Someone writes a followup comment"
 msgstr "Кто-то пишет последующий комментарий"
 
-#: mod/settings.php:759
+#: mod/settings.php:791
 msgid "You receive a private message"
 msgstr "Вы получаете личное сообщение"
 
-#: mod/settings.php:760
+#: mod/settings.php:792
 msgid "You receive a friend suggestion"
 msgstr "Вы полулили предложение о добавлении в друзья"
 
-#: mod/settings.php:761
+#: mod/settings.php:793
 msgid "You are tagged in a post"
 msgstr "Вы отмечены в записи"
 
-#: mod/settings.php:762
+#: mod/settings.php:794
 msgid "You are poked/prodded/etc. in a post"
 msgstr "Вас потыкали/подтолкнули/и т.д. в записи"
 
-#: mod/settings.php:764
+#: mod/settings.php:796
 msgid "Create a desktop notification when:"
 msgstr "Показывать уведомление на рабочем столе для:"
 
-#: mod/settings.php:765
+#: mod/settings.php:797
 msgid "Someone liked your content"
 msgstr "Ваш комментарий понравился"
 
-#: mod/settings.php:766
+#: mod/settings.php:798
 msgid "Someone shared your content"
 msgstr ""
 
-#: mod/settings.php:768
+#: mod/settings.php:800
 msgid "Activate desktop notifications"
 msgstr "Активировать уведомления на рабочем столе"
 
-#: mod/settings.php:768
+#: mod/settings.php:800
 msgid "Show desktop popup on new notifications"
 msgstr "Показывать уведомления на рабочем столе"
 
-#: mod/settings.php:770
+#: mod/settings.php:802
 msgid "Text-only notification emails"
 msgstr "Только текстовые письма"
 
-#: mod/settings.php:772
+#: mod/settings.php:804
 msgid "Send text only notification emails, without the html part"
 msgstr "Отправлять только текстовые уведомления, без HTML"
 
-#: mod/settings.php:774
+#: mod/settings.php:806
 msgid "Show detailled notifications"
 msgstr "Показывать подробные уведомления"
 
-#: mod/settings.php:776
+#: mod/settings.php:808
 msgid ""
 "Per default, notifications are condensed to a single notification per item. "
 "When enabled every notification is displayed."
 msgstr "По-умолчанию уведомления группируются в одно для каждой записи. Эта настройка показывает все уведомления по отдельности."
 
-#: mod/settings.php:778
+#: mod/settings.php:810
 msgid "Show notifications of ignored contacts"
 msgstr "Показывать уведомления игнорируемых контактов"
 
-#: mod/settings.php:780
+#: mod/settings.php:812
 msgid ""
 "You don't see posts from ignored contacts. But you still see their comments."
 " This setting controls if you want to still receive regular notifications "
 "that are caused by ignored contacts or not."
 msgstr "Вы не видите записи от игнорируемых контактов, но вы видите их комментарии. Эта настройка определяет, хотите ли вы получать уведомления от действий игнорируемых контактов или нет."
 
-#: mod/settings.php:782
+#: mod/settings.php:814
 msgid "Advanced Account/Page Type Settings"
 msgstr "Расширенные настройки учётной записи"
 
-#: mod/settings.php:783
+#: mod/settings.php:815
 msgid "Change the behaviour of this account for special situations"
 msgstr "Измените поведение этого аккаунта в специальных ситуациях"
 
-#: mod/settings.php:786
+#: mod/settings.php:818
 msgid "Import Contacts"
 msgstr "Импорт контактов"
 
-#: mod/settings.php:787
+#: mod/settings.php:819
 msgid ""
 "Upload a CSV file that contains the handle of your followed accounts in the "
 "first column you exported from the old account."
 msgstr "Загрузите файл CSV, который содержит адреса ваших контактов в первой колонке. Вы можете экспортировать его из вашей старой учётной записи."
 
-#: mod/settings.php:788
+#: mod/settings.php:820
 msgid "Upload File"
 msgstr "Загрузить файл"
 
-#: mod/settings.php:790
+#: mod/settings.php:822
 msgid "Relocate"
 msgstr "Перемещение"
 
-#: mod/settings.php:791
+#: mod/settings.php:823
 msgid ""
 "If you have moved this profile from another server, and some of your "
 "contacts don't receive your updates, try pushing this button."
 msgstr "Если вы переместили эту анкету с другого сервера, и некоторые из ваших контактов не получили ваши обновления, попробуйте нажать эту кнопку."
 
-#: mod/settings.php:792
+#: mod/settings.php:824
 msgid "Resend relocate message to contacts"
 msgstr "Отправить перемещённые сообщения контактам"
 
@@ -2039,13 +2015,13 @@ msgstr "Удалить"
 msgid "User imports on closed servers can only be done by an administrator."
 msgstr "Импорт пользователей на закрытых серверах может быть произведён только администратором."
 
-#: mod/uimport.php:55 src/Module/Register.php:98
+#: mod/uimport.php:55 src/Module/Register.php:99
 msgid ""
 "This site has exceeded the number of allowed daily account registrations. "
 "Please try again tomorrow."
 msgstr "Этот сайт превысил допустимое количество ежедневных регистраций. Пожалуйста, повторите попытку завтра."
 
-#: mod/uimport.php:62 src/Module/Register.php:172
+#: mod/uimport.php:62 src/Module/Register.php:173
 msgid "Import"
 msgstr "Импорт"
 
@@ -2133,20 +2109,20 @@ msgstr "Загрузка файла не удалась."
 msgid "Wall Photos"
 msgstr "Фото стены"
 
-#: mod/wallmessage.php:61 mod/wallmessage.php:115
+#: mod/wallmessage.php:62 mod/wallmessage.php:116
 #, php-format
 msgid "Number of daily wall messages for %s exceeded. Message failed."
 msgstr "Количество ежедневных сообщений на стене %s превышено. Сообщение отменено.."
 
-#: mod/wallmessage.php:72
+#: mod/wallmessage.php:73
 msgid "Unable to check your home location."
 msgstr "Невозможно проверить местоположение."
 
-#: mod/wallmessage.php:96 mod/wallmessage.php:103
+#: mod/wallmessage.php:97 mod/wallmessage.php:104
 msgid "No recipient."
 msgstr "Без адресата."
 
-#: mod/wallmessage.php:129
+#: mod/wallmessage.php:130
 #, php-format
 msgid ""
 "If you wish for %s to respond, please check that the privacy settings on "
@@ -2171,46 +2147,46 @@ msgstr "Заблокировать этого автора? Они не смог
 msgid "toggle mobile"
 msgstr "мобильная версия"
 
-#: src/App/Router.php:276
+#: src/App/Router.php:286
 #, php-format
 msgid "Method not allowed for this module. Allowed method(s): %s"
 msgstr "Метод не разрешён для этого модуля. Разрешенный метод(ы): %s"
 
-#: src/App/Router.php:278 src/Module/HTTPException/PageNotFound.php:33
+#: src/App/Router.php:288 src/Module/HTTPException/PageNotFound.php:33
 msgid "Page not found."
 msgstr "Страница не найдена."
 
-#: src/App/Router.php:305
+#: src/App/Router.php:315
 msgid "You must be logged in to use addons. "
 msgstr "Вы должны войти в систему, чтобы использовать аддоны."
 
-#: src/BaseModule.php:299
+#: src/BaseModule.php:345
 msgid ""
 "The form security token was not correct. This probably happened because the "
 "form has been opened for too long (>3 hours) before submitting it."
 msgstr "Ключ формы безопасности неправильный. Вероятно, это произошло потому, что форма была открыта слишком долго (более 3 часов) до её отправки."
 
-#: src/BaseModule.php:326
+#: src/BaseModule.php:372
 msgid "All contacts"
 msgstr "Все контакты"
 
-#: src/BaseModule.php:331 src/Content/Widget.php:231 src/Core/ACL.php:193
+#: src/BaseModule.php:377 src/Content/Widget.php:231 src/Core/ACL.php:193
 #: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:79
 #: src/Module/PermissionTooltip.php:101
 msgid "Followers"
 msgstr "Подписаны на вас"
 
-#: src/BaseModule.php:336 src/Content/Widget.php:232
+#: src/BaseModule.php:382 src/Content/Widget.php:232
 #: src/Module/Contact.php:368
 msgid "Following"
 msgstr "Ваши подписки"
 
-#: src/BaseModule.php:341 src/Content/Widget.php:233
+#: src/BaseModule.php:387 src/Content/Widget.php:233
 #: src/Module/Contact.php:369
 msgid "Mutual friends"
 msgstr "Взаимные друзья"
 
-#: src/BaseModule.php:349
+#: src/BaseModule.php:395
 msgid "Common"
 msgstr ""
 
@@ -2799,13 +2775,13 @@ msgstr "Отправить ЛС"
 
 #: src/Content/Item.php:449 src/Module/Admin/Blocklist/Contact.php:100
 #: src/Module/Admin/Users/Active.php:140 src/Module/Admin/Users/Index.php:154
-#: src/Module/Contact.php:398 src/Module/Contact/Profile.php:355
-#: src/Module/Contact/Profile.php:456
+#: src/Module/Contact.php:398 src/Module/Contact/Profile.php:348
+#: src/Module/Contact/Profile.php:449
 msgid "Block"
 msgstr "Заблокировать"
 
 #: src/Content/Item.php:450 src/Module/Contact.php:399
-#: src/Module/Contact/Profile.php:356 src/Module/Contact/Profile.php:464
+#: src/Module/Contact/Profile.php:349 src/Module/Contact/Profile.php:457
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
 #: src/Module/Notifications/Notification.php:61
@@ -2854,7 +2830,7 @@ msgid "Sign in"
 msgstr "Вход"
 
 #: src/Content/Nav.php:190 src/Module/BaseProfile.php:56
-#: src/Module/Contact.php:433 src/Module/Contact/Profile.php:387
+#: src/Module/Contact.php:433 src/Module/Contact/Profile.php:380
 #: src/Module/Settings/TwoFactor/Index.php:112 view/theme/frio/theme.php:225
 msgid "Status"
 msgstr "Записи"
@@ -2866,7 +2842,7 @@ msgstr "Ваши записи и диалоги"
 
 #: src/Content/Nav.php:191 src/Module/BaseProfile.php:48
 #: src/Module/BaseSettings.php:55 src/Module/Contact.php:457
-#: src/Module/Contact/Profile.php:389 src/Module/Profile/Profile.php:241
+#: src/Module/Contact/Profile.php:382 src/Module/Profile/Profile.php:241
 #: src/Module/Welcome.php:57 view/theme/frio/theme.php:226
 msgid "Profile"
 msgstr "Информация"
@@ -2905,7 +2881,7 @@ msgstr "Ваши личные заметки"
 msgid "Home"
 msgstr "Мой профиль"
 
-#: src/Content/Nav.php:216 src/Module/Register.php:167
+#: src/Content/Nav.php:216 src/Module/Register.php:168
 #: src/Module/Security/Login.php:105
 msgid "Register"
 msgstr "Регистрация"
@@ -2989,7 +2965,7 @@ msgid "Information about this friendica instance"
 msgstr "Информация об этом экземпляре Friendica"
 
 #: src/Content/Nav.php:266 src/Module/Admin/Tos.php:76
-#: src/Module/BaseAdmin.php:96 src/Module/Register.php:175
+#: src/Module/BaseAdmin.php:96 src/Module/Register.php:176
 #: src/Module/Tos.php:87
 msgid "Terms of Service"
 msgstr "Условия оказания услуг"
@@ -3111,8 +3087,8 @@ msgstr "Изображение / Фото"
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 
-#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3154
-#: src/Model/Item.php:3160 src/Model/Item.php:3161
+#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3155
+#: src/Model/Item.php:3161 src/Model/Item.php:3162
 msgid "Link to source"
 msgstr "Ссылка на источник"
 
@@ -3330,12 +3306,12 @@ msgid "More Trending Tags"
 msgstr "Больше популярных тэгов"
 
 #: src/Content/Widget/VCard.php:96 src/Model/Profile.php:373
-#: src/Module/Contact/Profile.php:378 src/Module/Profile/Profile.php:176
+#: src/Module/Contact/Profile.php:371 src/Module/Profile/Profile.php:176
 msgid "XMPP:"
 msgstr "XMPP:"
 
 #: src/Content/Widget/VCard.php:97 src/Model/Profile.php:374
-#: src/Module/Contact/Profile.php:380 src/Module/Profile/Profile.php:180
+#: src/Module/Contact/Profile.php:373 src/Module/Profile/Profile.php:180
 msgid "Matrix:"
 msgstr "Matrix:"
 
@@ -4316,11 +4292,11 @@ msgstr "пост"
 msgid "Content warning: %s"
 msgstr "Предупреждение о контенте: %s"
 
-#: src/Model/Item.php:3119
+#: src/Model/Item.php:3120
 msgid "bytes"
 msgstr "байт"
 
-#: src/Model/Item.php:3148 src/Model/Item.php:3149
+#: src/Model/Item.php:3149 src/Model/Item.php:3150
 msgid "View on separate page"
 msgstr "Посмотреть в отдельной вкладке"
 
@@ -4342,7 +4318,7 @@ msgstr "Изменить фото профиля"
 msgid "Homepage:"
 msgstr "Домашняя страничка:"
 
-#: src/Model/Profile.php:372 src/Module/Contact/Profile.php:382
+#: src/Model/Profile.php:372 src/Module/Contact/Profile.php:375
 #: src/Module/Notifications/Introductions.php:187
 msgid "About:"
 msgstr "О себе:"
@@ -4742,8 +4718,8 @@ msgstr "Включить"
 #: src/Module/Admin/Blocklist/Contact.php:94
 #: src/Module/Admin/Blocklist/Server/Add.php:89
 #: src/Module/Admin/Blocklist/Server/Index.php:78
-#: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:65
-#: src/Module/Admin/Logs/Settings.php:80 src/Module/Admin/Logs/View.php:83
+#: src/Module/Admin/Federation.php:159 src/Module/Admin/Item/Delete.php:64
+#: src/Module/Admin/Logs/Settings.php:79 src/Module/Admin/Logs/View.php:83
 #: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:498
 #: src/Module/Admin/Storage.php:138 src/Module/Admin/Summary.php:232
 #: src/Module/Admin/Themes/Details.php:90
@@ -4883,8 +4859,8 @@ msgstr "сбросить выбор"
 
 #: src/Module/Admin/Blocklist/Contact.php:101
 #: src/Module/Admin/Users/Blocked.php:142 src/Module/Admin/Users/Index.php:156
-#: src/Module/Contact.php:398 src/Module/Contact/Profile.php:355
-#: src/Module/Contact/Profile.php:456
+#: src/Module/Contact.php:398 src/Module/Contact/Profile.php:348
+#: src/Module/Contact/Profile.php:449
 msgid "Unblock"
 msgstr "Разблокировать"
 
@@ -4928,7 +4904,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Contact.php:117
 msgid ""
 "Removes all content related to this contact from the node. Keeps the contact"
-" record. This action canoot be undone."
+" record. This action cannot be undone."
 msgstr ""
 
 #: src/Module/Admin/Blocklist/Contact.php:118
@@ -5190,36 +5166,36 @@ msgid ""
 "following platforms:"
 msgstr "В настоящий момент этому узлу известно %d узлов с %d зарегистрированных пользователей со следующих платформ:"
 
-#: src/Module/Admin/Item/Delete.php:54
+#: src/Module/Admin/Item/Delete.php:53
 msgid "Item marked for deletion."
 msgstr "Запись помечена для удаления."
 
-#: src/Module/Admin/Item/Delete.php:66 src/Module/BaseAdmin.php:106
+#: src/Module/Admin/Item/Delete.php:65 src/Module/BaseAdmin.php:106
 msgid "Delete Item"
 msgstr "Удалить запись"
 
-#: src/Module/Admin/Item/Delete.php:67
+#: src/Module/Admin/Item/Delete.php:66
 msgid "Delete this Item"
 msgstr "Удалить эту запись"
 
-#: src/Module/Admin/Item/Delete.php:68
+#: src/Module/Admin/Item/Delete.php:67
 msgid ""
 "On this page you can delete an item from your node. If the item is a top "
 "level posting, the entire thread will be deleted."
 msgstr "На этой странице вы можете удалять записи на вашем узле. Если запись является родительской, то будет удалена вся её ветка."
 
-#: src/Module/Admin/Item/Delete.php:69
+#: src/Module/Admin/Item/Delete.php:68
 msgid ""
 "You need to know the GUID of the item. You can find it e.g. by looking at "
 "the display URL. The last part of http://example.com/display/123456 is the "
 "GUID, here 123456."
 msgstr "Вам нужно знать GUID записи. Вы можете узнать его, посмотрев на ссылку записи. Последняя часть ссылки - GUID. Например, для  http://example.com/display/123456 - GUID будет 123456."
 
-#: src/Module/Admin/Item/Delete.php:70
+#: src/Module/Admin/Item/Delete.php:69
 msgid "GUID"
 msgstr "GUID"
 
-#: src/Module/Admin/Item/Delete.php:70
+#: src/Module/Admin/Item/Delete.php:69
 msgid "The GUID of the item you want to delete."
 msgstr "GUID записи, которую вы хотите удалить."
 
@@ -5273,51 +5249,51 @@ msgstr ""
 msgid "Source"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:48
+#: src/Module/Admin/Logs/Settings.php:47
 #, php-format
 msgid "The logfile '%s' is not writable. No logging possible"
 msgstr "Файл журнала '%s' недоступен для записи. Журналирование невозможно."
 
-#: src/Module/Admin/Logs/Settings.php:72
+#: src/Module/Admin/Logs/Settings.php:71
 msgid "PHP log currently enabled."
 msgstr "Лог PHP включен."
 
-#: src/Module/Admin/Logs/Settings.php:74
+#: src/Module/Admin/Logs/Settings.php:73
 msgid "PHP log currently disabled."
 msgstr "Лог PHP выключен."
 
-#: src/Module/Admin/Logs/Settings.php:81 src/Module/BaseAdmin.php:108
+#: src/Module/Admin/Logs/Settings.php:80 src/Module/BaseAdmin.php:108
 #: src/Module/BaseAdmin.php:109
 msgid "Logs"
 msgstr "Журналы"
 
-#: src/Module/Admin/Logs/Settings.php:83
+#: src/Module/Admin/Logs/Settings.php:82
 msgid "Clear"
 msgstr "Очистить"
 
-#: src/Module/Admin/Logs/Settings.php:87
+#: src/Module/Admin/Logs/Settings.php:86
 msgid "Enable Debugging"
 msgstr "Включить отладку"
 
-#: src/Module/Admin/Logs/Settings.php:88
+#: src/Module/Admin/Logs/Settings.php:87
 msgid "Log file"
 msgstr "Лог-файл"
 
-#: src/Module/Admin/Logs/Settings.php:88
+#: src/Module/Admin/Logs/Settings.php:87
 msgid ""
 "Must be writable by web server. Relative to your Friendica top-level "
 "directory."
 msgstr "Должно быть доступно для записи в веб-сервере. Относительно вашего Friendica каталога верхнего уровня."
 
-#: src/Module/Admin/Logs/Settings.php:89
+#: src/Module/Admin/Logs/Settings.php:88
 msgid "Log level"
 msgstr "Уровень лога"
 
-#: src/Module/Admin/Logs/Settings.php:91
+#: src/Module/Admin/Logs/Settings.php:90
 msgid "PHP logging"
 msgstr "PHP логирование"
 
-#: src/Module/Admin/Logs/Settings.php:92
+#: src/Module/Admin/Logs/Settings.php:91
 msgid ""
 "To temporarily enable logging of PHP errors and warnings you can prepend the"
 " following to the index.php file of your installation. The filename set in "
@@ -5542,7 +5518,7 @@ msgstr ""
 msgid "Republish users to directory"
 msgstr "Переопубликовать пользователей в каталог"
 
-#: src/Module/Admin/Site.php:503 src/Module/Register.php:151
+#: src/Module/Admin/Site.php:503 src/Module/Register.php:152
 msgid "Registration"
 msgstr "Регистрация"
 
@@ -6313,10 +6289,10 @@ msgid ""
 "received."
 msgstr "Допустимые значения \"all\" или \"tags\". \"all\" означает, что любые публичные записи будут получены. \"tags\" включает приём публичных записей с выбранными тэгами."
 
-#: src/Module/Admin/Site.php:610 src/Module/Contact/Profile.php:280
+#: src/Module/Admin/Site.php:610 src/Module/Contact/Profile.php:273
 #: src/Module/Settings/TwoFactor/Index.php:118
 msgid "Disabled"
-msgstr "Отключенный"
+msgstr "Отключено"
 
 #: src/Module/Admin/Site.php:610
 msgid "all"
@@ -6859,12 +6835,12 @@ msgstr "Сообщение от пользователя"
 msgid "Deny"
 msgstr "Отклонить"
 
-#: src/Module/Api/ApiResponse.php:243
+#: src/Module/Api/ApiResponse.php:253
 #, php-format
 msgid "API endpoint %s %s is not implemented"
 msgstr ""
 
-#: src/Module/Api/ApiResponse.php:244
+#: src/Module/Api/ApiResponse.php:254
 msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr ""
@@ -7006,10 +6982,34 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr "Регистрации пользователей, ожидающие подтверждения"
 
-#: src/Module/BaseApi.php:274 src/Module/BaseApi.php:290
-#: src/Module/BaseApi.php:306
+#: src/Module/BaseApi.php:239 src/Module/BaseApi.php:255
+#: src/Module/BaseApi.php:271
 msgid "Too Many Requests"
 msgstr ""
+
+#: src/Module/BaseApi.php:240
+#, php-format
+msgid "Daily posting limit of %d post reached. The post was rejected."
+msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
+msgstr[0] "Дневной лимит в %d запись достигнут. Запись отклонена."
+msgstr[1] "Дневной лимит в %d записи достигнут. Запись отклонена."
+msgstr[2] "Дневной лимит в %d записей достигнут. Запись отклонена."
+msgstr[3] "Дневной лимит в %d записей достигнут. Запись отклонена."
+
+#: src/Module/BaseApi.php:256
+#, php-format
+msgid "Weekly posting limit of %d post reached. The post was rejected."
+msgid_plural ""
+"Weekly posting limit of %d posts reached. The post was rejected."
+msgstr[0] "Недельный лимит в %d запись достигнут. Запись была отклонена."
+msgstr[1] "Недельный лимит в %d записи достигнут. Запись была отклонена."
+msgstr[2] "Недельный лимит в %d записей достигнут. Запись была отклонена."
+msgstr[3] "Недельный лимит в %d записей достигнут. Запись была отклонена."
+
+#: src/Module/BaseApi.php:272
+#, php-format
+msgid "Monthly posting limit of %d post reached. The post was rejected."
+msgstr "Месячный лимит в %d записей достигнут. Запись была отклонена."
 
 #: src/Module/BaseProfile.php:51 src/Module/Contact.php:460
 msgid "Profile Details"
@@ -7141,8 +7141,8 @@ msgstr "Результаты для: %s"
 msgid "Update"
 msgstr "Обновление"
 
-#: src/Module/Contact.php:399 src/Module/Contact/Profile.php:356
-#: src/Module/Contact/Profile.php:464
+#: src/Module/Contact.php:399 src/Module/Contact/Profile.php:349
+#: src/Module/Contact/Profile.php:457
 msgid "Unignore"
 msgstr "Не игнорировать"
 
@@ -7190,7 +7190,7 @@ msgstr "Исходящий запрос на подписку"
 msgid "Pending incoming contact request"
 msgstr "Входящий запрос на подписку"
 
-#: src/Module/Contact.php:552 src/Module/Contact/Profile.php:341
+#: src/Module/Contact.php:552 src/Module/Contact/Profile.php:334
 #, php-format
 msgid "Visit %s's profile [%s]"
 msgstr "Посетить профиль %s [%s]"
@@ -7345,231 +7345,231 @@ msgstr "Выберите действия для получателя"
 msgid "Make this post private"
 msgstr "Сделать эту запись личной"
 
-#: src/Module/Contact/Profile.php:134
+#: src/Module/Contact/Profile.php:127
 msgid "Failed to update contact record."
 msgstr "Не удалось обновить запись контакта."
 
-#: src/Module/Contact/Profile.php:184
+#: src/Module/Contact/Profile.php:177
 msgid "Contact has been unblocked"
 msgstr "Контакт разблокирован"
 
-#: src/Module/Contact/Profile.php:188
+#: src/Module/Contact/Profile.php:181
 msgid "Contact has been blocked"
 msgstr "Контакт заблокирован"
 
-#: src/Module/Contact/Profile.php:200
+#: src/Module/Contact/Profile.php:193
 msgid "Contact has been unignored"
 msgstr "У контакта отменено игнорирование"
 
-#: src/Module/Contact/Profile.php:204
+#: src/Module/Contact/Profile.php:197
 msgid "Contact has been ignored"
 msgstr "Контакт проигнорирован"
 
-#: src/Module/Contact/Profile.php:236
+#: src/Module/Contact/Profile.php:229
 #, php-format
 msgid "You are mutual friends with %s"
 msgstr "У Вас взаимная дружба с %s"
 
-#: src/Module/Contact/Profile.php:237
+#: src/Module/Contact/Profile.php:230
 #, php-format
 msgid "You are sharing with %s"
 msgstr "Вы делитесь с %s"
 
-#: src/Module/Contact/Profile.php:238
+#: src/Module/Contact/Profile.php:231
 #, php-format
 msgid "%s is sharing with you"
 msgstr "%s делится с Вами"
 
-#: src/Module/Contact/Profile.php:254
+#: src/Module/Contact/Profile.php:247
 msgid "Private communications are not available for this contact."
 msgstr "Приватные коммуникации недоступны для этого контакта."
 
-#: src/Module/Contact/Profile.php:256
+#: src/Module/Contact/Profile.php:249
 msgid "Never"
 msgstr "Никогда"
 
-#: src/Module/Contact/Profile.php:259
+#: src/Module/Contact/Profile.php:252
 msgid "(Update was not successful)"
 msgstr "(Обновление не удалось)"
 
-#: src/Module/Contact/Profile.php:259
+#: src/Module/Contact/Profile.php:252
 msgid "(Update was successful)"
 msgstr "(Обновление было успешно)"
 
-#: src/Module/Contact/Profile.php:261 src/Module/Contact/Profile.php:427
+#: src/Module/Contact/Profile.php:254 src/Module/Contact/Profile.php:420
 msgid "Suggest friends"
 msgstr "Предложить друзей"
 
-#: src/Module/Contact/Profile.php:265
+#: src/Module/Contact/Profile.php:258
 #, php-format
 msgid "Network type: %s"
 msgstr "Сеть: %s"
 
-#: src/Module/Contact/Profile.php:270
+#: src/Module/Contact/Profile.php:263
 msgid "Communications lost with this contact!"
 msgstr "Связь с контактом утеряна!"
 
-#: src/Module/Contact/Profile.php:276
+#: src/Module/Contact/Profile.php:269
 msgid "Fetch further information for feeds"
 msgstr "Получить подробную информацию о фидах"
 
-#: src/Module/Contact/Profile.php:278
+#: src/Module/Contact/Profile.php:271
 msgid ""
 "Fetch information like preview pictures, title and teaser from the feed "
 "item. You can activate this if the feed doesn't contain much text. Keywords "
 "are taken from the meta header in the feed item and are posted as hash tags."
 msgstr "Извлекать картинки предпросмотра, заголовок и вступление из записи ленты. Вы можете включить эту опцию, если лента не содержит много текста. Ключевые слова берутся из метаданных записи и публикуются как теги."
 
-#: src/Module/Contact/Profile.php:281
+#: src/Module/Contact/Profile.php:274
 msgid "Fetch information"
 msgstr "Получить информацию"
 
-#: src/Module/Contact/Profile.php:282
+#: src/Module/Contact/Profile.php:275
 msgid "Fetch keywords"
 msgstr "Получить ключевые слова"
 
-#: src/Module/Contact/Profile.php:283
+#: src/Module/Contact/Profile.php:276
 msgid "Fetch information and keywords"
 msgstr "Получить информацию и ключевые слова"
 
-#: src/Module/Contact/Profile.php:293 src/Module/Contact/Profile.php:299
-#: src/Module/Contact/Profile.php:304 src/Module/Contact/Profile.php:310
+#: src/Module/Contact/Profile.php:286 src/Module/Contact/Profile.php:292
+#: src/Module/Contact/Profile.php:297 src/Module/Contact/Profile.php:303
 msgid "No mirroring"
 msgstr "Не зеркалировать"
 
-#: src/Module/Contact/Profile.php:294
+#: src/Module/Contact/Profile.php:287
 msgid "Mirror as forwarded posting"
 msgstr "Зеркалировать как переадресованные сообщения"
 
-#: src/Module/Contact/Profile.php:295 src/Module/Contact/Profile.php:305
-#: src/Module/Contact/Profile.php:311
+#: src/Module/Contact/Profile.php:288 src/Module/Contact/Profile.php:298
+#: src/Module/Contact/Profile.php:304
 msgid "Mirror as my own posting"
 msgstr "Зеркалировать как мои сообщения"
 
-#: src/Module/Contact/Profile.php:300 src/Module/Contact/Profile.php:306
+#: src/Module/Contact/Profile.php:293 src/Module/Contact/Profile.php:299
 msgid "Native reshare"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:323
+#: src/Module/Contact/Profile.php:316
 msgid "Contact Information / Notes"
 msgstr "Информация о контакте / Заметки"
 
-#: src/Module/Contact/Profile.php:324
+#: src/Module/Contact/Profile.php:317
 msgid "Contact Settings"
 msgstr "Настройки контакта"
 
-#: src/Module/Contact/Profile.php:332
+#: src/Module/Contact/Profile.php:325
 msgid "Contact"
 msgstr "Контакт"
 
-#: src/Module/Contact/Profile.php:336
+#: src/Module/Contact/Profile.php:329
 msgid "Their personal note"
 msgstr "Персональная заметка"
 
-#: src/Module/Contact/Profile.php:338
+#: src/Module/Contact/Profile.php:331
 msgid "Edit contact notes"
 msgstr "Редактировать заметки контакта"
 
-#: src/Module/Contact/Profile.php:342
+#: src/Module/Contact/Profile.php:335
 msgid "Block/Unblock contact"
 msgstr "Блокировать / Разблокировать контакт"
 
-#: src/Module/Contact/Profile.php:343
+#: src/Module/Contact/Profile.php:336
 msgid "Ignore contact"
 msgstr "Игнорировать контакт"
 
-#: src/Module/Contact/Profile.php:344
+#: src/Module/Contact/Profile.php:337
 msgid "View conversations"
 msgstr "Просмотр бесед"
 
-#: src/Module/Contact/Profile.php:349
+#: src/Module/Contact/Profile.php:342
 msgid "Last update:"
 msgstr "Последнее обновление: "
 
-#: src/Module/Contact/Profile.php:351
+#: src/Module/Contact/Profile.php:344
 msgid "Update public posts"
 msgstr "Обновить публичные сообщения"
 
-#: src/Module/Contact/Profile.php:353 src/Module/Contact/Profile.php:437
+#: src/Module/Contact/Profile.php:346 src/Module/Contact/Profile.php:430
 msgid "Update now"
 msgstr "Обновить сейчас"
 
-#: src/Module/Contact/Profile.php:360
+#: src/Module/Contact/Profile.php:353
 msgid "Currently blocked"
 msgstr "В настоящее время заблокирован"
 
-#: src/Module/Contact/Profile.php:361
+#: src/Module/Contact/Profile.php:354
 msgid "Currently ignored"
 msgstr "В настоящее время игнорируется"
 
-#: src/Module/Contact/Profile.php:362
+#: src/Module/Contact/Profile.php:355
 msgid "Currently archived"
 msgstr "В данный момент архивирован"
 
-#: src/Module/Contact/Profile.php:363
+#: src/Module/Contact/Profile.php:356
 msgid "Awaiting connection acknowledge"
 msgstr "Ожидаем подтверждения соединения"
 
-#: src/Module/Contact/Profile.php:364
+#: src/Module/Contact/Profile.php:357
 #: src/Module/Notifications/Introductions.php:190
 msgid "Hide this contact from others"
 msgstr "Скрыть этот контакт от других"
 
-#: src/Module/Contact/Profile.php:364
+#: src/Module/Contact/Profile.php:357
 msgid ""
 "Replies/likes to your public posts <strong>may</strong> still be visible"
 msgstr "Ответы/лайки ваших публичных сообщений <strong>будут</strong> видимы."
 
-#: src/Module/Contact/Profile.php:365
+#: src/Module/Contact/Profile.php:358
 msgid "Notification for new posts"
 msgstr "Уведомление о новых записях"
 
-#: src/Module/Contact/Profile.php:365
+#: src/Module/Contact/Profile.php:358
 msgid "Send a notification of every new post of this contact"
 msgstr "Отправлять уведомление о каждом новой записи контакта"
 
-#: src/Module/Contact/Profile.php:367
+#: src/Module/Contact/Profile.php:360
 msgid "Keyword Deny List"
 msgstr "Запретный список слов"
 
-#: src/Module/Contact/Profile.php:367
+#: src/Module/Contact/Profile.php:360
 msgid ""
 "Comma separated list of keywords that should not be converted to hashtags, "
 "when \"Fetch information and keywords\" is selected"
 msgstr "Список слов через запятую, которые не должны конвертироваться в хэштеги, когда включено \"Получать информацию и хэштеги\""
 
-#: src/Module/Contact/Profile.php:385
+#: src/Module/Contact/Profile.php:378
 #: src/Module/Settings/TwoFactor/Index.php:132
 msgid "Actions"
 msgstr "Действия"
 
-#: src/Module/Contact/Profile.php:393
+#: src/Module/Contact/Profile.php:386
 msgid "Mirror postings from this contact"
 msgstr "Зекралировать сообщения от этого контакта"
 
-#: src/Module/Contact/Profile.php:395
+#: src/Module/Contact/Profile.php:388
 msgid ""
 "Mark this contact as remote_self, this will cause friendica to repost new "
 "entries from this contact."
 msgstr "Пометить этот контакт как remote_self, что заставит Friendica отправлять сообщения от этого контакта."
 
-#: src/Module/Contact/Profile.php:447
+#: src/Module/Contact/Profile.php:440
 msgid "Refetch contact data"
 msgstr "Обновить данные контакта"
 
-#: src/Module/Contact/Profile.php:458
+#: src/Module/Contact/Profile.php:451
 msgid "Toggle Blocked status"
 msgstr "Изменить статус блокированности (заблокировать/разблокировать)"
 
-#: src/Module/Contact/Profile.php:466
+#: src/Module/Contact/Profile.php:459
 msgid "Toggle Ignored status"
 msgstr "Изменить статус игнорирования"
 
-#: src/Module/Contact/Profile.php:473 src/Module/Contact/Revoke.php:107
+#: src/Module/Contact/Profile.php:466 src/Module/Contact/Revoke.php:107
 msgid "Revoke Follow"
 msgstr "Отозвать подписку"
 
-#: src/Module/Contact/Profile.php:475
+#: src/Module/Contact/Profile.php:468
 msgid "Revoke the follow from this contact"
 msgstr "Отменить подписку этого контакта на вас"
 
@@ -7609,7 +7609,7 @@ msgstr "Вы действительно хотите отозвать подпи
 
 #: src/Module/Contact/Revoke.php:109
 #: src/Module/Notifications/Introductions.php:142
-#: src/Module/OAuth/Acknowledge.php:47 src/Module/Register.php:129
+#: src/Module/OAuth/Acknowledge.php:47 src/Module/Register.php:130
 msgid "Yes"
 msgstr "Да"
 
@@ -7971,21 +7971,26 @@ msgstr ""
 msgid "Lookup address:"
 msgstr ""
 
-#: src/Module/Delegation.php:142
+#: src/Module/Delegation.php:111
+#, php-format
+msgid "You are now logged in as %s"
+msgstr "Вы вошли как %s"
+
+#: src/Module/Delegation.php:143
 msgid "Switch between your accounts"
 msgstr "Переключить учётную запись"
 
-#: src/Module/Delegation.php:143
+#: src/Module/Delegation.php:144
 msgid "Manage your accounts"
 msgstr "Управление учётными записями"
 
-#: src/Module/Delegation.php:144
+#: src/Module/Delegation.php:145
 msgid ""
 "Toggle between different identities or community/group pages which share "
 "your account details or which you have been granted \"manage\" permissions"
 msgstr "Переключайтесь между разными профилями или страницами сообществ/групп, которые зарегистрированы на одинаковые контактные данные, либо вам предоставлено право управления ими."
 
-#: src/Module/Delegation.php:145
+#: src/Module/Delegation.php:146
 msgid "Select an identity to manage: "
 msgstr "Выберите учётную запись:"
 
@@ -8511,7 +8516,7 @@ msgid "Claims to be known to you: "
 msgstr "Утверждения, о которых должно быть вам известно: "
 
 #: src/Module/Notifications/Introductions.php:142
-#: src/Module/OAuth/Acknowledge.php:48 src/Module/Register.php:130
+#: src/Module/OAuth/Acknowledge.php:48 src/Module/Register.php:131
 msgid "No"
 msgstr "Нет"
 
@@ -8589,7 +8594,7 @@ msgstr "Вы действительно хотите разрешить этом
 msgid "Unsupported or missing response type"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:65
+#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:66
 msgid "Incomplete request data"
 msgstr ""
 
@@ -8600,7 +8605,7 @@ msgid ""
 "close this window: %s"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:89
+#: src/Module/OAuth/Token.php:90
 msgid "Unsupported or missing grant type"
 msgstr ""
 
@@ -8700,19 +8705,19 @@ msgstr "Посмотреть как"
 
 #: src/Module/Profile/Profile.php:326 src/Module/Profile/Profile.php:329
 #: src/Module/Profile/Status.php:65 src/Module/Profile/Status.php:68
-#: src/Protocol/Feed.php:953 src/Protocol/OStatus.php:1242
+#: src/Protocol/Feed.php:985 src/Protocol/OStatus.php:1242
 #, php-format
 msgid "%s's timeline"
 msgstr "Лента %s"
 
 #: src/Module/Profile/Profile.php:327 src/Module/Profile/Status.php:66
-#: src/Protocol/Feed.php:957 src/Protocol/OStatus.php:1246
+#: src/Protocol/Feed.php:989 src/Protocol/OStatus.php:1246
 #, php-format
 msgid "%s's posts"
 msgstr "Записи %s"
 
 #: src/Module/Profile/Profile.php:328 src/Module/Profile/Status.php:67
-#: src/Protocol/Feed.php:960 src/Protocol/OStatus.php:1249
+#: src/Protocol/Feed.php:992 src/Protocol/OStatus.php:1249
 #, php-format
 msgid "%s's comments"
 msgstr "Комментарии %s"
@@ -8729,137 +8734,137 @@ msgstr "Содержание"
 msgid "Remove post"
 msgstr "Удалить запись"
 
-#: src/Module/Register.php:83
+#: src/Module/Register.php:84
 msgid "Only parent users can create additional accounts."
 msgstr "Только основные пользователи могут создавать дополнительные учётные записи."
 
-#: src/Module/Register.php:115
+#: src/Module/Register.php:116
 msgid ""
 "You may (optionally) fill in this form via OpenID by supplying your OpenID "
 "and clicking \"Register\"."
 msgstr ""
 
-#: src/Module/Register.php:116
+#: src/Module/Register.php:117
 msgid ""
 "If you are not familiar with OpenID, please leave that field blank and fill "
 "in the rest of the items."
 msgstr "Если вы не знакомы с OpenID, пожалуйста, оставьте это поле пустым и заполните остальные элементы."
 
-#: src/Module/Register.php:117
+#: src/Module/Register.php:118
 msgid "Your OpenID (optional): "
 msgstr "Ваш OpenID (необязательно):"
 
-#: src/Module/Register.php:126
+#: src/Module/Register.php:127
 msgid "Include your profile in member directory?"
 msgstr "Включить ваш профиль в каталог участников?"
 
-#: src/Module/Register.php:147
+#: src/Module/Register.php:148
 msgid "Note for the admin"
 msgstr "Сообщение для администратора"
 
-#: src/Module/Register.php:147
+#: src/Module/Register.php:148
 msgid "Leave a message for the admin, why you want to join this node"
 msgstr "Сообщения для администратора сайта на тему \"почему я хочу присоединиться к вам\""
 
-#: src/Module/Register.php:148
+#: src/Module/Register.php:149
 msgid "Membership on this site is by invitation only."
 msgstr "Членство на сайте только по приглашению."
 
-#: src/Module/Register.php:149
+#: src/Module/Register.php:150
 msgid "Your invitation code: "
 msgstr "Ваш код приглашения:"
 
-#: src/Module/Register.php:157
+#: src/Module/Register.php:158
 msgid "Your Full Name (e.g. Joe Smith, real or real-looking): "
 msgstr "Ваше полное имя (например, Иван Иванов):"
 
-#: src/Module/Register.php:158
+#: src/Module/Register.php:159
 msgid ""
 "Your Email Address: (Initial information will be send there, so this has to "
 "be an existing address.)"
 msgstr "Ваш адрес электронной почты: (Информация для входа будет отправлена туда, это должен быть существующий адрес.)"
 
-#: src/Module/Register.php:159
+#: src/Module/Register.php:160
 msgid "Please repeat your e-mail address:"
 msgstr "Пожалуйста, введите адрес электронной почты ещё раз:"
 
-#: src/Module/Register.php:161
+#: src/Module/Register.php:162
 msgid "Leave empty for an auto generated password."
 msgstr "Оставьте пустым для автоматической генерации пароля."
 
-#: src/Module/Register.php:163
+#: src/Module/Register.php:164
 #, php-format
 msgid ""
 "Choose a profile nickname. This must begin with a text character. Your "
 "profile address on this site will then be \"<strong>nickname@%s</strong>\"."
 msgstr ""
 
-#: src/Module/Register.php:164
+#: src/Module/Register.php:165
 msgid "Choose a nickname: "
 msgstr "Выберите псевдоним: "
 
-#: src/Module/Register.php:173
+#: src/Module/Register.php:174
 msgid "Import your profile to this friendica instance"
 msgstr "Импорт своего профиля в этот экземпляр friendica"
 
-#: src/Module/Register.php:180
+#: src/Module/Register.php:181
 msgid "Note: This node explicitly contains adult content"
 msgstr "Внимание: на этом сервере размещаются материалы для взрослых."
 
-#: src/Module/Register.php:182 src/Module/Settings/Delegation.php:155
+#: src/Module/Register.php:183 src/Module/Settings/Delegation.php:155
 msgid "Parent Password:"
 msgstr "Родительский пароль:"
 
-#: src/Module/Register.php:182 src/Module/Settings/Delegation.php:155
+#: src/Module/Register.php:183 src/Module/Settings/Delegation.php:155
 msgid ""
 "Please enter the password of the parent account to legitimize your request."
 msgstr ""
 
-#: src/Module/Register.php:211
+#: src/Module/Register.php:212
 msgid "Password doesn't match."
 msgstr "Пароль не совпадает"
 
-#: src/Module/Register.php:217
+#: src/Module/Register.php:218
 msgid "Please enter your password."
 msgstr "Пожалуйста, введите ваш пароль."
 
-#: src/Module/Register.php:259
+#: src/Module/Register.php:260
 msgid "You have entered too much information."
 msgstr "Вы ввели слишком много информации."
 
-#: src/Module/Register.php:282
+#: src/Module/Register.php:283
 msgid "Please enter the identical mail address in the second field."
 msgstr "Пожалуйста, введите тот же самый адрес почты во второе поле."
 
-#: src/Module/Register.php:309
+#: src/Module/Register.php:310
 msgid "The additional account was created."
 msgstr "Дополнительная учётная запись создана."
 
-#: src/Module/Register.php:334
+#: src/Module/Register.php:335
 msgid ""
 "Registration successful. Please check your email for further instructions."
 msgstr "Регистрация успешна. Пожалуйста, проверьте свою электронную почту для получения дальнейших инструкций."
 
-#: src/Module/Register.php:338
+#: src/Module/Register.php:339
 #, php-format
 msgid ""
 "Failed to send email message. Here your accout details:<br> login: %s<br> "
 "password: %s<br><br>You can change your password after login."
 msgstr "Ошибка отправки письма. Вот ваши учетные данные: <br> логин: %s<br> пароль: %s<br><br>Вы сможете изменить пароль после входа."
 
-#: src/Module/Register.php:344
+#: src/Module/Register.php:345
 msgid "Registration successful."
 msgstr "Регистрация успешна."
 
-#: src/Module/Register.php:349 src/Module/Register.php:356
+#: src/Module/Register.php:350 src/Module/Register.php:357
 msgid "Your registration can not be processed."
 msgstr "Ваша регистрация не может быть обработана."
 
-#: src/Module/Register.php:355
+#: src/Module/Register.php:356
 msgid "You have to leave a request note for the admin."
 msgstr ""
 
-#: src/Module/Register.php:401
+#: src/Module/Register.php:402
 msgid "Your registration is pending approval by the site owner."
 msgstr "Ваша регистрация в ожидании одобрения владельцем сайта."
 
@@ -10625,10 +10630,6 @@ msgstr "Показать больше"
 #: src/Object/Post.php:544
 msgid "Show fewer"
 msgstr "Показать меньше"
-
-#: src/Protocol/Diaspora.php:3414
-msgid "Attachments:"
-msgstr "Вложения:"
 
 #: src/Protocol/OStatus.php:1645
 #, php-format
