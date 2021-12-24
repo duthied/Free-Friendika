@@ -128,7 +128,7 @@ class Active extends BaseUsers
 
 		$th_users = array_map(null, [DI::l10n()->t('Name'), DI::l10n()->t('Email'), DI::l10n()->t('Register date'), DI::l10n()->t('Last login'), DI::l10n()->t('Last public item'), DI::l10n()->t('Type')], $valid_orders);
 
-		$count = DBA::count('user', ['blocked' => false, 'account_removed' => false]);
+		$count = DBA::count('user', ["NOT `blocked` AND `verified` AND NOT `account_removed` AND `uid` != ?", 0]);
 
 		$t = Renderer::getMarkupTemplate('admin/users/active.tpl');
 		return self::getTabsHTML('active') .	Renderer::replaceMacros($t, [

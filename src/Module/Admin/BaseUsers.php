@@ -40,14 +40,15 @@ abstract class BaseUsers extends BaseAdmin
 	 */
 	protected static function getTabsHTML(string $selectedTab)
 	{
-		$active = DBA::count('user', ['blocked' => false, 'verified' => true, 'account_removed' => false]);
+		$all     = DBA::count('user', ["`uid` != ?", 0]);
+		$active  = DBA::count('user', ["NOT `blocked` AND `verified` AND NOT `account_removed` AND `uid` != ?", 0]);
 		$pending = Register::getPendingCount();
 		$blocked = DBA::count('user', ['blocked' => true, 'verified' => true, 'account_removed' => false]);
 		$deleted = DBA::count('user', ['account_removed' => true]);
 
 		$tabs = [
 			[
-				'label'	=> DI::l10n()->t('All') . ' (' . DBA::count('user') . ')',
+				'label'	=> DI::l10n()->t('All') . ' (' . $all . ')',
 				'url'	=> 'admin/users',
 				'sel'	=> !$selectedTab || $selectedTab == 'all' ? 'active' : '',
 				'title'	=> DI::l10n()->t('List of all users'),

@@ -141,7 +141,7 @@ class Index extends BaseUsers
 
 		$th_users = array_map(null, [DI::l10n()->t('Name'), DI::l10n()->t('Email'), DI::l10n()->t('Register date'), DI::l10n()->t('Last login'), DI::l10n()->t('Last public item'), DI::l10n()->t('Type')], $valid_orders);
 
-		$count = DBA::count('user');
+		$count = DBA::count('user', ["`uid` != ?", 0]);
 
 		$t = Renderer::getMarkupTemplate('admin/users/index.tpl');
 		return self::getTabsHTML('all') .	Renderer::replaceMacros($t, [
