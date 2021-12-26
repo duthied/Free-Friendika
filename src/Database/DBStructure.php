@@ -82,7 +82,7 @@ class DBStructure
 		$old_tables = ['fserver', 'gcign', 'gcontact', 'gcontact-relation', 'gfollower' ,'glink', 'item-delivery-data',
 			'item-activity', 'item-content', 'item_id', 'participation', 'poll', 'poll_result', 'queue', 'retriever_rule',
 			'deliverq', 'dsprphotoq', 'ffinder', 'sign', 'spam', 'term', 'user-item', 'thread', 'item', 'challenge',
-			'auth_codes', 'clients', 'tokens', 'profile_check', 'host'];
+			'auth_codes', 'tokens', 'clients', 'profile_check', 'host'];
 
 		$tables = DBA::selectToArray(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_NAME'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_TYPE' => 'BASE TABLE']);
@@ -96,10 +96,10 @@ class DBStructure
 			echo DI::l10n()->t('These tables are not used for friendica and will be deleted when you execute "dbstructure drop -e":') . "\n\n";
 		}
 
-		foreach ($tables as $table) {
-			if (in_array($table['TABLE_NAME'], $old_tables)) {
+		foreach ($old_tables as $table) {
+			if (in_array($table, array_column($tables, 'TABLE_NAME'))) {
 				if ($execute) {
-					$sql = 'DROP TABLE ' . DBA::quoteIdentifier($table['TABLE_NAME']) . ';';
+					$sql = 'DROP TABLE ' . DBA::quoteIdentifier($table) . ';';
 					echo $sql . "\n";
 
 					$result = DBA::e($sql);
@@ -107,7 +107,7 @@ class DBStructure
 						self::printUpdateError($sql);
 					}
 				} else {
-					echo $table['TABLE_NAME'] . "\n";
+					echo $table . "\n";
 				}
 			}
 		}
