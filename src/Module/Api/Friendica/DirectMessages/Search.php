@@ -73,8 +73,6 @@ class Search extends BaseApi
 
 		// message if nothing was found
 		if (!DBA::isResult($mails)) {
-			$success = ['success' => false, 'search_results' => 'problem with query'];
-		} elseif (count($mails) == 0) {
 			$success = ['success' => false, 'search_results' => 'nothing found'];
 		} else {
 			$ret = [];
