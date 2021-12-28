@@ -42,7 +42,7 @@ class Dismiss extends BaseApi
 		}
 
 		$Notification = DI::notification()->selectOneForUser($uid, $this->parameters['id']);
-		$Notification->setSeen();
+		$Notification->setDismissed();
 		DI::notification()->save($Notification);
 
 		System::jsonExit([]);

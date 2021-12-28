@@ -110,6 +110,13 @@ class Notification extends BaseRepository
 		return $this->db->update(self::$table_name, ['seen' => true], $condition);
 	}
 
+	public function setAllDismissedForUser(int $uid, array $condition = []): bool
+	{
+		$condition = DBA::mergeConditions($condition, ['uid' => $uid]);
+
+		return $this->db->update(self::$table_name, ['dismissed' => true], $condition);
+	}
+
 	/**
 	 * @param Entity\Notification $Notification
 	 * @return Entity\Notification
@@ -125,6 +132,7 @@ class Notification extends BaseRepository
 			'target-uri-id' => $Notification->targetUriId,
 			'parent-uri-id' => $Notification->parentUriId,
 			'seen'          => $Notification->seen,
+			'dismissed'     => $Notification->dismissed,
 		];
 
 		if ($Notification->id) {

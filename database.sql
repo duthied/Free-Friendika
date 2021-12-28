@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1446
+-- DB_UPDATE_VERSION 1447
 -- ------------------------------------------
 
 
@@ -824,7 +824,8 @@ CREATE TABLE IF NOT EXISTS `notification` (
 	`target-uri-id` int unsigned COMMENT 'Item-uri id of the related post',
 	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`created` datetime COMMENT '',
-	`seen` boolean DEFAULT '0' COMMENT '',
+	`seen` boolean DEFAULT '0' COMMENT 'Seen on the desktop',
+	`dismissed` boolean DEFAULT '0' COMMENT 'Dismissed via the API',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uid_vid_type_actor-id_target-uri-id` (`uid`,`vid`,`type`,`actor-id`,`target-uri-id`),
 	 INDEX `vid` (`vid`),

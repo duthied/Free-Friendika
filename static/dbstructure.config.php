@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1446);
+	define('DB_UPDATE_VERSION', 1447);
 }
 
 return [
@@ -880,7 +880,8 @@ return [
 			"target-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the related post"],
 			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],
 			"created" => ["type" => "datetime", "comment" => ""],
-			"seen" => ["type" => "boolean", "default" => "0", "comment" => ""],
+			"seen" => ["type" => "boolean", "default" => "0", "comment" => "Seen on the desktop"],
+			"dismissed" => ["type" => "boolean", "default" => "0", "comment" => "Dismissed via the API"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],

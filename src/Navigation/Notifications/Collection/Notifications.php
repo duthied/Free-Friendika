@@ -40,4 +40,11 @@ class Notifications extends BaseCollection
 			$Notification->setSeen();
 		});
 	}
+
+	public function setDismissed(): Notifications
+	{
+		return $this->map(function (Entity\Notification $Notification) {
+			$Notification->setDismissed();
+		});
+	}
 }
