@@ -35,7 +35,7 @@ class Clear extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		DI::notification()->setAllSeenForUser($uid);
+		DI::notification()->setAllDismissedForUser($uid);
 
 		System::jsonExit([]);
 	}

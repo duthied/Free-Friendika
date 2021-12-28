@@ -68,7 +68,7 @@ class Notifications extends BaseApi
 
 		$params = ['order' => ['id' => true]];
 
-		$condition = ['uid' => $uid, 'seen' => false];
+		$condition = ['uid' => $uid, 'dismissed' => false];
 
 		if (!empty($request['account_id'])) {
 			$contact = Contact::getById($request['account_id'], ['url']);

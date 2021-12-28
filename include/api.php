@@ -24,8 +24,6 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -33,7 +31,6 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\Mail;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
@@ -45,7 +42,6 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Strings;
 

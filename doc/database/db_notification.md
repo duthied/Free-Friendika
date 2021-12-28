@@ -16,7 +16,8 @@ Fields
 | target-uri-id | Item-uri id of the related post                                                | int unsigned       | YES  |     | NULL    |                |
 | parent-uri-id | Item-uri id of the parent of the related post                                  | int unsigned       | YES  |     | NULL    |                |
 | created       |                                                                                | datetime           | YES  |     | NULL    |                |
-| seen          |                                                                                | boolean            | YES  |     | 0       |                |
+| seen          | Seen on the desktop                                                            | boolean            | YES  |     | 0       |                |
+| dismissed     | Dismissed via the API                                                          | boolean            | YES  |     | 0       |                |
 
 Indexes
 ------------
