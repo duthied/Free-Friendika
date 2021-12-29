@@ -1,0 +1,85 @@
+matrix:
+  include:
+    - PHP_MAJOR_VERSION: 7.4
+      PHP_VERSION: 7.4.18
+
+branches:
+  exclude: [ stable ]
+
+pipeline:
+  db_version_match:
+    image: friendicaci/transifex
+    commands:
+      - export DBSTRUCTURE_VERSION="$(sed -rn "s/.*'DB_UPDATE_VERSION', ([0-9]+).*/\1/p" static/dbstructure.config.php)"
+      - export DATABASE_VERSION="$(sed -rn 's/.*DB_UPDATE_VERSION ([0-9]+).*/\1/p' database.sql)"
+      - echo "Database $DATABASE_VERSION - DB-Structure $DBSTRUCTURE_VERSION"
+      - if [ "$DBSTRUCTURE_VERSION" != "$DATABASE_VERSION" ]; then
+          echo "Database version mismatch.";
+          exit 1;
+        fi
+  restore_cache:
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: "{{ .Repo.Name }}_php${PHP_MAJOR_VERSION}_{{ arch }}_{{ os }}"
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - /tmp/drone-cache:/tmp/cache
+  composer_install:
+    image: friendicaci/php${PHP_MAJOR_VERSION}:php${PHP_VERSION}
+    commands:
+      - export COMPOSER_HOME=.composer
+      - ./bin/composer.phar validate
+      - ./bin/composer.phar install --prefer-dist
+    volumes:
+      - /etc/hosts:/etc/hosts
+  rebuild_cache:
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: "{{ .Repo.Name }}_php${PHP_MAJOR_VERSION}_{{ arch }}_{{ os }}"
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - /tmp/drone-cache:/tmp/cache
+  recreate_database.sql:
+    image: friendicaci/php${PHP_MAJOR_VERSION}:php${PHP_VERSION}
+    environment:
+      MYSQL_HOST: "mariadb"
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+      REDIS_HOST: "redis"
+      MEMCACHED_HOST: "memcached"
+      MEMCACHE_HOST: "memcached"
+      XDEBUG_MODE: "coverage"
+    commands:
+      - phpenmod xdebug
+      - cp config/local-sample.config.php config/local.config.php
+      - if ! bin/wait-for-connection $MYSQL_HOST $MYSQL_PORT 300; then echo "[ERROR] Waited 300 seconds, no response" >&2; exit 1; fi
+      - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
+      - php ./bin/console.php dbstructure dumpsql > database.sql
+  check_database.sql:
+    image: alpine/git
+    commands:
+      - git update-index --refresh
+      - git diff-index --quiet HEAD --
+      - if [[ $? -ne 0 ]]; then
+          echo "database.sql mismatch.";
+          exit 1;
+        fi
+
+services:
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
