@@ -1,6 +1,6 @@
 Version 2021.12 (unreleased)
   Friendica Core
-    Updates to the translations DE, FR, GB_EN, GB_US, HU, RU [translation teams]
+    Updates to the translations DE, ET, FR, GB_EN, GB_US, HU, RU [translation teams]
     Updates to the documentation [annando, foss-, tobiasd]
     Updates to the themes (duepuntozero, frio, quattro, vier) [MrPetovan, tobiasd]
     General code cleanup [annando, nupplaphil, MrPetovan, tobiasd]
@@ -14,8 +14,14 @@ Version 2021.12 (unreleased)
     Enhanced the handling of blocked domains [annando, MrPetovan]
     Enhanced the translation string extraction [fabrixxm]
     Enhanced the detection of embedded content [annando]
+    Enhanced the handling of attached media files [annando]
+    Enhanced the logging with syslog [nupplaphil]
+    Enhanced the display of audio elements [annando]
+    Enhanced the PHP 8 compatibility [nupplaphil]
     Fixed a problem linking to an addons authors profile [annando]
     Fixed a problem with the automatic installation [nupplaphil]
+    Fixed a problem in the order of database table modifications [annando]
+    Fixed a problem during the node detection process [annando]
     Added AR translations [FaridaK, Mohamed_Ahmed_AF, abidin24, alsabi.abdullah, ButterflyOfFire, ominds, hisoka512]
     Added language detection for the /help files [annando]
     Added current timezone information to the date time picker [MrPetovan]
@@ -28,6 +34,8 @@ Version 2021.12 (unreleased)
     Updates to the translations AR, DE, HU, IT, PL [translation teams]
     Deprecated addons: blogger, buffer, jappixmini, notimeline, xmpp
     Added addons: bird avatar, webdav storage [fabrixxm, nupplaphil]
+    blockbot
+      Updated the allow and deny lists of bots [annando]
     markdown
       Enhanced the HTML escaping [MrPetovan]
     nitter
