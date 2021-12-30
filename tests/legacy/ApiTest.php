@@ -8,7 +8,6 @@ namespace Friendica\Test\legacy;
 use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\DI;
-use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Security\BasicAuth;
 use Friendica\Test\FixtureTest;
@@ -536,107 +535,7 @@ class ApiTest extends FixtureTest
 		);
 	}
 
-	/**
-	 * Test the BaseApi::reformatXML() function.
-	 *
-	 * @return void
-	 */
-	public function testApiReformatXml()
-	{
-		$item = true;
-		$key  = '';
-		self::assertTrue(ApiResponse::reformatXML($item, $key));
-		self::assertEquals('true', $item);
-	}
 
-	/**
-	 * Test the BaseApi::reformatXML() function with a statusnet_api key.
-	 *
-	 * @return void
-	 */
-	public function testApiReformatXmlWithStatusnetKey()
-	{
-		$item = '';
-		$key  = 'statusnet_api';
-		self::assertTrue(ApiResponse::reformatXML($item, $key));
-		self::assertEquals('statusnet:api', $key);
-	}
-
-	/**
-	 * Test the BaseApi::reformatXML() function with a friendica_api key.
-	 *
-	 * @return void
-	 */
-	public function testApiReformatXmlWithFriendicaKey()
-	{
-		$item = '';
-		$key  = 'friendica_api';
-		self::assertTrue(ApiResponse::reformatXML($item, $key));
-		self::assertEquals('friendica:api', $key);
-	}
-
-	/**
-	 * Test the BaseApi::createXML() function.
-	 *
-	 * @return void
-	 */
-	public function testApiCreateXml()
-	{
-		self::assertEquals(
-			'<?xml version="1.0"?>' . "\n" .
-			'<root_element xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
-			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
-			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
-			'  <data>some_data</data>' . "\n" .
-			'</root_element>' . "\n",
-			DI::apiResponse()->createXML(['data' => ['some_data']], 'root_element')
-		);
-	}
-
-	/**
-	 * Test the BaseApi::createXML() function without any XML namespace.
-	 *
-	 * @return void
-	 */
-	public function testApiCreateXmlWithoutNamespaces()
-	{
-		self::assertEquals(
-			'<?xml version="1.0"?>' . "\n" .
-			'<ok>' . "\n" .
-			'  <data>some_data</data>' . "\n" .
-			'</ok>' . "\n",
-			DI::apiResponse()->createXML(['data' => ['some_data']], 'ok')
-		);
-	}
-
-	/**
-	 * Test the BaseApi::formatData() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFormatData()
-	{
-		$data = ['some_data'];
-		self::assertEquals($data, DI::apiResponse()->formatData('root_element', 'json', $data));
-	}
-
-	/**
-	 * Test the BaseApi::formatData() function with an XML result.
-	 *
-	 * @return void
-	 */
-	public function testApiFormatDataWithXml()
-	{
-		self::assertEquals(
-			'<?xml version="1.0"?>' . "\n" .
-			'<root_element xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
-			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
-			'xmlns:georss="http://www.georss.org/georss">' . "\n" .
-			'  <data>some_data</data>' . "\n" .
-			'</root_element>' . "\n",
-			DI::apiResponse()->formatData('root_element', 'xml', ['data' => ['some_data']])
-		);
-	}
 
 	/**
 	 * Test the api_format_items_embeded_images() function.
@@ -651,38 +550,6 @@ class ApiTest extends FixtureTest
 			api_format_items_embeded_images(['guid' => 'item_guid'], 'text data:image/foo')
 		);
 		*/
-	}
-
-	/**
-	 * Test the api_format_items_activities() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFormatItemsActivities()
-	{
-		$item   = ['uid' => 0, 'uri-id' => 1];
-		$result = DI::friendicaActivities()->createFromUriId($item['uri-id'], $item['uid']);
-		self::assertArrayHasKey('like', $result);
-		self::assertArrayHasKey('dislike', $result);
-		self::assertArrayHasKey('attendyes', $result);
-		self::assertArrayHasKey('attendno', $result);
-		self::assertArrayHasKey('attendmaybe', $result);
-	}
-
-	/**
-	 * Test the api_format_items_activities() function with an XML result.
-	 *
-	 * @return void
-	 */
-	public function testApiFormatItemsActivitiesWithXml()
-	{
-		$item   = ['uid' => 0, 'uri-id' => 1];
-		$result = DI::friendicaActivities()->createFromUriId($item['uri-id'], $item['uid'], 'xml');
-		self::assertArrayHasKey('friendica:like', $result);
-		self::assertArrayHasKey('friendica:dislike', $result);
-		self::assertArrayHasKey('friendica:attendyes', $result);
-		self::assertArrayHasKey('friendica:attendno', $result);
-		self::assertArrayHasKey('friendica:attendmaybe', $result);
 	}
 
 	/**
