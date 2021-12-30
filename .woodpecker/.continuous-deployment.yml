@@ -11,7 +11,20 @@ depends_on:
 
 platform: releaser/release # This prevents executing this pipeline at other servers than ci.friendi.ca
 
+skip_clone: true
+
 pipeline:
+  clone:
+    image: alpine/git
+    commands:
+      - git clone $CI_REPO_LINK .
+      - git checkout $CI_COMMIT_BRANCH
+      - git fetch origin $CI_COMMIT_REF
+      - git merge $CI_COMMIT_SHA
+    when:
+      repo: friendica/friendica
+      branch: [ develop, '*-rc' ]
+      event: push
   restore_cache:
     image: meltwater/drone-cache:dev
     settings:
