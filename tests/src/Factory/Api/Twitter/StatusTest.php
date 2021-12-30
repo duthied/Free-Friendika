@@ -108,4 +108,28 @@ class StatusTest extends FixtureTest
 		self::assertIsArray($status['entities']['urls']);
 		self::assertIsArray($status['entities']['user_mentions']);
 	}
+
+	/**
+	 * Test the api_format_items() function.
+	 */
+	public function testApiFormatItems()
+	{
+		$hashTagFac    = new Hashtag(DI::logger());
+		$mediaFac      = new Media(DI::logger(), DI::baseUrl());
+		$urlFac        = new Url(DI::logger());
+		$mentionFac    = new Mention(DI::logger(), DI::baseUrl());
+		$activitiesFac = new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser());
+		$attachmentFac = new Attachment(DI::logger());
+
+		$statusFac = new Status(DI::logger(), DI::dba(), DI::twitterUser(), $hashTagFac, $mediaFac, $urlFac, $mentionFac, $activitiesFac, $attachmentFac);
+
+		$posts = DI::dba()->selectToArray('post-view', ['uri-id']);
+		foreach ($posts as $item) {
+			$statusObj = $statusFac->createFromUriId($item['uri-id'], ApiTest::SELF_USER['id']);
+			$status    = $statusObj->toArray();
+
+			self::assertIsInt($status['id']);
+			self::assertIsString($status['text']);
+		}
+	}
 }

@@ -535,8 +535,6 @@ class ApiTest extends FixtureTest
 		);
 	}
 
-
-
 	/**
 	 * Test the api_format_items_embeded_images() function.
 	 *
@@ -549,36 +547,6 @@ class ApiTest extends FixtureTest
 			'text ' . DI::baseUrl() . '/display/item_guid',
 			api_format_items_embeded_images(['guid' => 'item_guid'], 'text data:image/foo')
 		);
-		*/
-	}
-
-	/**
-	 * Test the api_format_items() function.
-	 * @doesNotPerformAssertions
-	 */
-	public function testApiFormatItems()
-	{
-		/*
-		$items = Post::selectToArray([], ['uid' => 42]);
-		foreach ($items as $item) {
-			$status = api_format_item($item);
-			self::assertStatus($status);
-		}
-		*/
-	}
-
-	/**
-	 * Test the api_format_items() function with an XML result.
-	 * @doesNotPerformAssertions
-	 */
-	public function testApiFormatItemsWithXml()
-	{
-		/*
-		$items = Post::selectToArray([], ['uid' => 42]);
-		foreach ($items as $item) {
-			$status = api_format_item($item, 'xml');
-			self::assertStatus($status);
-		}
 		*/
 	}
 
