@@ -26,6 +26,7 @@ use Friendica\BaseFactory;
 use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
+use Friendica\Model\FContact;
 use Friendica\Network\HTTPException;
 use Friendica\Profile\ProfileField\Repository\ProfileField as ProfileFieldRepository;
 use ImagickException;
@@ -73,6 +74,7 @@ class Account extends BaseFactory
 		}
 
 		$apcontact = APContact::getByURL($publicContact['url'], false);
+		$fcontact  = FContact::getByURL($publicContact['url'], false);
 
 		$self_contact = Contact::selectFirst(['uid'], ['nurl' => $publicContact['nurl'], 'self' => true]);
 		if (!empty($self_contact['uid'])) {
@@ -82,7 +84,7 @@ class Account extends BaseFactory
 			$fields = new Fields();
 		}
 
-		return new \Friendica\Object\Api\Mastodon\Account($this->baseUrl, $publicContact, $fields, $apcontact, $userContact);
+		return new \Friendica\Object\Api\Mastodon\Account($this->baseUrl, $publicContact, $fields, $apcontact, $userContact, $fcontact);
 	}
 
 	/**

@@ -212,6 +212,19 @@ class Contact
 	}
 
 	/**
+	 * Fetch the first contact with the provided uri-id.
+	 *
+	 * @param integer $uri_id uri-id of the contact
+	 * @param array   $fields Array of selected fields, empty for all
+	 * @return array|boolean Contact record if it exists, false otherwise
+	 * @throws \Exception
+	 */
+	public static function getByUriId($uri_id, $fields = [])
+	{
+		return DBA::selectFirst('contact', $fields, ['uri-id' => $uri_id], ['order' => ['uid']]);
+	}
+
+	/**
 	 * Fetches a contact by a given url
 	 *
 	 * @param string  $url    profile url
@@ -1228,6 +1241,10 @@ class Contact
 			Logger::info('Contact will be updated', ['url' => $url, 'uid' => $uid, 'update' => $update, 'cid' => $contact_id]);
 		}
 
+		if ($data['network'] == Protocol::DIASPORA) {
+			FContact::updateFromProbeArray($data);
+		}
+
 		self::updateFromProbeArray($contact_id, $data);
 
 		// Don't return a number for a deleted account
@@ -2063,6 +2080,11 @@ class Contact
 		}
 
 		$ret = Probe::uri($contact['url'], $network, $contact['uid']);
+
+		if ($ret['network'] == Protocol::DIASPORA) {
+			FContact::updateFromProbeArray($ret);
+		}
+
 		return self::updateFromProbeArray($id, $ret);
 	}
 
