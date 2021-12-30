@@ -1189,44 +1189,7 @@ class ApiTest extends FixtureTest
 		// self::assertArrayHasKey('user', $result);
 	}
 
-	/**
-	 * Test the api_direct_messages_box() function.
-	 *
-	 * @return void
-	 */
-	public function testApiDirectMessagesBoxWithSentbox()
-	{
-		/*
-		$_REQUEST['page']   = -1;
-		$_REQUEST['max_id'] = 10;
-		$result             = api_direct_messages_box('json', 'sentbox', 'false');
-		self::assertArrayHasKey('direct_message', $result);
-		*/
-	}
 
-	/**
-	 * Test the api_direct_messages_box() function.
-	 *
-	 * @return void
-	 */
-	public function testApiDirectMessagesBoxWithConversation()
-	{
-		//$result = api_direct_messages_box('json', 'conversation', 'false');
-		//self::assertArrayHasKey('direct_message', $result);
-	}
-
-
-
-	/**
-	 * Test the api_direct_messages_conversation() function.
-	 *
-	 * @return void
-	 */
-	public function testApiDirectMessagesConversation()
-	{
-		//$result = api_direct_messages_conversation('json');
-		//self::assertArrayHasKey('direct_message', $result);
-	}
 
 	/**
 	 * Test the api_oauth_request_token() function.
