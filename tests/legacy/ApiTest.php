@@ -639,49 +639,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_statuses_mediap() function.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusesMediap()
-	{
-		/*
-		DI::args()->setArgc(2);
-
-		$_FILES         = [
-			'media' => [
-				'id'       => 666,
-				'size'     => 666,
-				'width'    => 666,
-				'height'   => 666,
-				'tmp_name' => $this->getTempImage(),
-				'name'     => 'spacer.png',
-				'type'     => 'image/png'
-			]
-		];
-		$_GET['status'] = '<b>Status content</b>';
-
-		$result = api_statuses_mediap('json');
-		self::assertStatus($result['status']);
-		*/
-	}
-
-	/**
-	 * Test the api_statuses_mediap() function without an authenticated user.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusesMediapWithoutAuthenticatedUser()
-	{
-		// $this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
-		// BasicAuth::setCurrentUserID();
-		// $_SESSION['authenticated'] = false;
-		// api_statuses_mediap('json');
-	}
-
-
-
-	/**
 	 * Test the api_get_entitities() function.
 	 *
 	 * @return void
