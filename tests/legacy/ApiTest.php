@@ -1189,28 +1189,6 @@ class ApiTest extends FixtureTest
 		// self::assertArrayHasKey('user', $result);
 	}
 
-
-
-	/**
-	 * Test the api_oauth_request_token() function.
-	 *
-	 * @return void
-	 */
-	public function testApiOauthRequestToken()
-	{
-		$this->markTestIncomplete('exit() kills phpunit as well');
-	}
-
-	/**
-	 * Test the api_oauth_access_token() function.
-	 *
-	 * @return void
-	 */
-	public function testApiOauthAccessToken()
-	{
-		$this->markTestIncomplete('exit() kills phpunit as well');
-	}
-
 	/**
 	 * Test the api_fr_photos_list() function.
 	 *
@@ -1424,26 +1402,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_share_as_retweet() function with a valid item.
-	 *
-	 * @return void
-	 */
-	public function testApiShareAsRetweetWithValidItem()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_in_reply_to() function with a valid item.
-	 *
-	 * @return void
-	 */
-	public function testApiInReplyToWithValidItem()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
 	 * Test the api_clean_plain_items() function.
 	 *
 	 * @return void
@@ -1456,31 +1414,11 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_best_nickname() function with contacts.
-	 *
-	 * @return void
-	 */
-	public function testApiBestNicknameWithContacts()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
 	 * Test the api_friendica_group_show() function.
 	 *
 	 * @return void
 	 */
 	public function testApiFriendicaGroupShow()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_friendica_group_delete() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaGroupDelete()
 	{
 		$this->markTestIncomplete();
 	}
@@ -1526,61 +1464,11 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_friendica_group_update() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaGroupUpdate()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
 	 * Test the api_lists_update() function.
 	 *
 	 * @return void
 	 */
 	public function testApiListsUpdate()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_friendica_activity() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaActivity()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_friendica_notification_seen() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaNotificationSeen()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_friendica_direct_messages_setseen() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaDirectMessagesSetseen()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_friendica_direct_messages_search() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendicaDirectMessagesSearch()
 	{
 		$this->markTestIncomplete();
 	}
