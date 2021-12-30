@@ -124,4 +124,16 @@ class UserTest extends FixtureTest
 		self::assertEquals(0, $user['pid']);
 		self::assertEmpty($user['name']);
 	}
+
+	/**
+	 * Test the api_user() function with an unallowed user.
+	 *
+	 * @return void
+	 */
+	public function testApiUserWithUnallowedUser()
+	{
+		self::markTestIncomplete('Needs BasicAuth as dynamic method for overriding first');
+
+		// self::assertEquals(false, api_user());
+	}
 }

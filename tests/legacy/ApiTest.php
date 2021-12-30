@@ -153,15 +153,7 @@ class ApiTest extends FixtureTest
 		self::assertEquals($this->selfUser['id'], BaseApi::getCurrentUserID());
 	}
 
-	/**
-	 * Test the api_user() function with an unallowed user.
-	 *
-	 * @return void
-	 */
-	public function testApiUserWithUnallowedUser()
-	{
-		// self::assertEquals(false, api_user());
-	}
+
 
 	/**
 	 * Test the api_source() function.
