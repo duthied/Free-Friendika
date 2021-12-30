@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1447);
+	define('DB_UPDATE_VERSION', 1448);
 }
 
 return [
@@ -662,6 +662,9 @@ return [
 			"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"pubkey" => ["type" => "text", "comment" => ""],
 			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"interacting_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts this contact interactes with"],
+			"interacted_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts that interacted with this contact"],
+			"post_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of posts and comments"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],

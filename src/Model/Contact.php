@@ -212,6 +212,19 @@ class Contact
 	}
 
 	/**
+	 * Fetch the first contact with the provided uri-id.
+	 *
+	 * @param integer $uri_id uri-id of the contact
+	 * @param array   $fields Array of selected fields, empty for all
+	 * @return array|boolean Contact record if it exists, false otherwise
+	 * @throws \Exception
+	 */
+	public static function getByUriId($uri_id, $fields = [])
+	{
+		return DBA::selectFirst('contact', $fields, ['uri-id' => $uri_id], ['order' => ['uid']]);
+	}
+
+	/**
 	 * Fetches a contact by a given url
 	 *
 	 * @param string  $url    profile url

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1447
+-- DB_UPDATE_VERSION 1448
 -- ------------------------------------------
 
 
@@ -601,6 +601,9 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	`alias` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`pubkey` text COMMENT '',
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`interacting_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts this contact interactes with',
+	`interacted_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts that interacted with this contact',
+	`post_count` int unsigned DEFAULT 0 COMMENT 'Number of posts and comments',
 	 PRIMARY KEY(`id`),
 	 INDEX `addr` (`addr`(32)),
 	 UNIQUE INDEX `url` (`url`(190)),

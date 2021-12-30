@@ -89,9 +89,10 @@ class Account extends BaseDataTransferObject
 	 * @param array   $publicContact Full contact table record with uid = 0
 	 * @param array   $apcontact     Optional full apcontact table record
 	 * @param array   $userContact   Optional full contact table record with uid != 0
+	 * @param array   $fcontact      Optional full fcontact table record
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(BaseURL $baseUrl, array $publicContact, Fields $fields, array $apcontact = [], array $userContact = [])
+	public function __construct(BaseURL $baseUrl, array $publicContact, Fields $fields, array $apcontact = [], array $userContact = [], array $fcontact = [])
 	{
 		$this->id              = (string)$publicContact['id'];
 		$this->username        = $publicContact['nick'];
@@ -117,9 +118,9 @@ class Account extends BaseDataTransferObject
 		$this->avatar_static   = $this->avatar;
 		$this->header          = Contact::getHeaderUrlForId($userContact['id'] ?? 0 ?: $publicContact['id'], '', $userContact['updated'] ?? '' ?: $publicContact['updated']);
 		$this->header_static   = $this->header;
-		$this->followers_count = $apcontact['followers_count'] ?? 0;
-		$this->following_count = $apcontact['following_count'] ?? 0;
-		$this->statuses_count  = $apcontact['statuses_count'] ?? 0;
+		$this->followers_count = $apcontact['followers_count'] ?? $fcontact['interacted_count'] ?? 0;
+		$this->following_count = $apcontact['following_count'] ?? $fcontact['interacting_count'] ?? 0;
+		$this->statuses_count  = $apcontact['statuses_count'] ?? $fcontact['post_count'] ?? 0;
 
 		$publicContactLastItem = $publicContact['last-item'] ?: DBA::NULL_DATETIME;
 		$userContactLastItem = $userContact['last-item'] ?? DBA::NULL_DATETIME;
