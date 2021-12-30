@@ -52,7 +52,7 @@ class SearchTest extends ApiTest
 		$directMessage = new DirectMessage(new NullLogger(), DI::dba(), DI::twitterUser());
 
 		$search   = new Search($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]);
-		$response = $search->run(['searchstring' => 'test']);
+		$response = $search->run(['searchstring' => 'item_body']);
 
 		$json = $this->toJson($response);
 
