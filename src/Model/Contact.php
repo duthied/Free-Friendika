@@ -1241,6 +1241,10 @@ class Contact
 			Logger::info('Contact will be updated', ['url' => $url, 'uid' => $uid, 'update' => $update, 'cid' => $contact_id]);
 		}
 
+		if ($data['network'] == Protocol::DIASPORA) {
+			FContact::updateFromProbeArray($data);
+		}
+
 		self::updateFromProbeArray($contact_id, $data);
 
 		// Don't return a number for a deleted account
@@ -2076,6 +2080,11 @@ class Contact
 		}
 
 		$ret = Probe::uri($contact['url'], $network, $contact['uid']);
+
+		if ($ret['network'] == Protocol::DIASPORA) {
+			FContact::updateFromProbeArray($ret);
+		}
+
 		return self::updateFromProbeArray($id, $ret);
 	}
 

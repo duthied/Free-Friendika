@@ -75,7 +75,7 @@ class FContact
 			// Note that Friendica contacts will return a "Diaspora person"
 			// if Diaspora connectivity is enabled on their server
 			if ($data['network'] ?? '' === Protocol::DIASPORA) {
-				self::updateFContact($data);
+				self::updateFromProbeArray($data);
 
 				$person = self::getByURL($handle, false);
 			}
@@ -90,7 +90,7 @@ class FContact
 	 * @param array $arr The fcontact data
 	 * @throws \Exception
 	 */
-	private static function updateFContact($arr)
+	public static function updateFromProbeArray($arr)
 	{
 		$uriid = ItemURI::insert(['uri' => $arr['url'], 'guid' => $arr['guid']]);
 
