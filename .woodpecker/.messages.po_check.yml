@@ -1,0 +1,12 @@
+pipeline:
+  build_xgettext:
+    image: friendicaci/transifex
+    commands:
+      - ./bin/run_xgettext.sh
+  check:
+    image: friendicaci/transifex
+    commands:
+      - /check-messages.sh
+
+branches:
+  exclude: [ stable ]
