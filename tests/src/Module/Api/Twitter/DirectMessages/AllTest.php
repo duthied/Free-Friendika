@@ -4,24 +4,24 @@ namespace Friendica\Test\src\Module\Api\Twitter\DirectMessages;
 
 use Friendica\App\Router;
 use Friendica\DI;
+use Friendica\Module\Api\Twitter\DirectMessages\All;
 use Friendica\Factory\Api\Twitter\DirectMessage;
-use Friendica\Module\Api\Twitter\DirectMessages\Inbox;
 use Friendica\Test\src\Module\Api\ApiTest;
 
-class InboxTest extends ApiTest
+class AllTest extends ApiTest
 {
 	/**
 	 * Test the api_direct_messages_box() function.
 	 *
 	 * @return void
 	 */
-	public function testApiDirectMessagesBoxWithInbox()
+	public function testApiDirectMessagesBoxWithAll()
 	{
 		$this->loadFixture(__DIR__ . '/../../../../../datasets/mail/mail.fixture.php', DI::dba());
 
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$destroy  = new Inbox($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
+		$destroy  = new All($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
 		$response = $destroy->run();
 
 		$json = $this->toJson($response);
