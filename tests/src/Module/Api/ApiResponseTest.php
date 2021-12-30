@@ -259,4 +259,68 @@ class ApiResponseTest extends MockedTest
 			$response->formatData('root_element', 'xml', ['data' => ['some_data']])
 		);
 	}
+
+	/**
+	 * Test the api_rss_extra() function.
+	 *
+	 * @return void
+	 */
+	public function testApiRssExtra()
+	{
+		self::markTestIncomplete('Cannot mock it yet.');
+
+		/*
+		$user_info = ['url' => 'user_url', 'lang' => 'en'];
+		$userMock = \Mockery::mock(\Friendica\Object\Api\Twitter\User::class);
+		$userMock->shouldReceive('toArray')->andReturn($user_info);
+
+		$l10n = \Mockery::mock(L10n::class);
+		$l10n->shouldReceive('t')->andReturnUsing(function ($args) {
+			return $args;
+		});
+		$args = \Mockery::mock(Arguments::class);
+		$args->shouldReceive('getQueryString')->andReturn('');
+		$baseUrl = \Mockery::mock(BaseURL::class);
+		$baseUrl->shouldReceive('__toString')->andReturn('https://friendica.local');
+		$twitterUser = \Mockery::mock(User::class);
+		$twitterUser->shouldReceive('createFromContactId')->with(1)->andReturn($userMock);
+
+		$response = new ApiResponse($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
+
+		$result = $response->formatData('root_element', 'rss', ['data' => ['some_data']], 1);
+
+		print_r($result);
+
+		self::assertEquals($user_info, $result['$user']);
+		self::assertEquals($user_info['url'], $result['$rss']['alternate']);
+		self::assertArrayHasKey('self', $result['$rss']);
+		self::assertArrayHasKey('base', $result['$rss']);
+		self::assertArrayHasKey('updated', $result['$rss']);
+		self::assertArrayHasKey('atom_updated', $result['$rss']);
+		self::assertArrayHasKey('language', $result['$rss']);
+		self::assertArrayHasKey('logo', $result['$rss']);
+		*/
+	}
+
+	/**
+	 * Test the api_rss_extra() function without any user info.
+	 *
+	 * @return void
+	 */
+	public function testApiRssExtraWithoutUserInfo()
+	{
+		self::markTestIncomplete('Cannot mock it yet.');
+
+		/*
+		$result = api_rss_extra([], null);
+		self::assertIsArray($result['$user']);
+		self::assertArrayHasKey('alternate', $result['$rss']);
+		self::assertArrayHasKey('self', $result['$rss']);
+		self::assertArrayHasKey('base', $result['$rss']);
+		self::assertArrayHasKey('updated', $result['$rss']);
+		self::assertArrayHasKey('atom_updated', $result['$rss']);
+		self::assertArrayHasKey('language', $result['$rss']);
+		self::assertArrayHasKey('logo', $result['$rss']);
+		*/
+	}
 }

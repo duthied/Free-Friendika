@@ -454,46 +454,7 @@ class ApiTest extends FixtureTest
 		);
 	}
 
-	/**
-	 * Test the api_rss_extra() function.
-	 *
-	 * @return void
-	 */
-	public function testApiRssExtra()
-	{
-		/*
-		$user_info = ['url' => 'user_url', 'lang' => 'en'];
-		$result    = api_rss_extra([], $user_info);
-		self::assertEquals($user_info, $result['$user']);
-		self::assertEquals($user_info['url'], $result['$rss']['alternate']);
-		self::assertArrayHasKey('self', $result['$rss']);
-		self::assertArrayHasKey('base', $result['$rss']);
-		self::assertArrayHasKey('updated', $result['$rss']);
-		self::assertArrayHasKey('atom_updated', $result['$rss']);
-		self::assertArrayHasKey('language', $result['$rss']);
-		self::assertArrayHasKey('logo', $result['$rss']);
-		*/
-	}
 
-	/**
-	 * Test the api_rss_extra() function without any user info.
-	 *
-	 * @return void
-	 */
-	public function testApiRssExtraWithoutUserInfo()
-	{
-		/*
-		$result = api_rss_extra([], null);
-		self::assertIsArray($result['$user']);
-		self::assertArrayHasKey('alternate', $result['$rss']);
-		self::assertArrayHasKey('self', $result['$rss']);
-		self::assertArrayHasKey('base', $result['$rss']);
-		self::assertArrayHasKey('updated', $result['$rss']);
-		self::assertArrayHasKey('atom_updated', $result['$rss']);
-		self::assertArrayHasKey('language', $result['$rss']);
-		self::assertArrayHasKey('logo', $result['$rss']);
-		*/
-	}
 
 	/**
 	 * Test the Arrays::walkRecursive() function.
