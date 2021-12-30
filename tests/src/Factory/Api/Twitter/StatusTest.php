@@ -82,4 +82,30 @@ class StatusTest extends FixtureTest
 		self::assertEquals('<h4>item_title</h4><br>item_title item_body', $result['html']);
 		*/
 	}
+
+	/**
+	 * Test the api_get_entitities() function.
+	 *
+	 * @return void
+	 */
+	public function testApiGetEntititiesWithIncludeEntities()
+	{
+		$hashTagFac    = new Hashtag(DI::logger());
+		$mediaFac      = new Media(DI::logger(), DI::baseUrl());
+		$urlFac        = new Url(DI::logger());
+		$mentionFac    = new Mention(DI::logger(), DI::baseUrl());
+		$activitiesFac = new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser());
+		$attachmentFac = new Attachment(DI::logger());
+
+		$statusFac = new Status(DI::logger(), DI::dba(), DI::twitterUser(), $hashTagFac, $mediaFac, $urlFac, $mentionFac, $activitiesFac, $attachmentFac);
+		$statusObj = $statusFac->createFromItemId(13, ApiTest::SELF_USER['id'], true);
+		$status    = $statusObj->toArray();
+
+		self::assertIsArray($status['entities']);
+		self::assertIsArray($status['extended_entities']);
+		self::assertIsArray($status['entities']['hashtags']);
+		self::assertIsArray($status['entities']['media']);
+		self::assertIsArray($status['entities']['urls']);
+		self::assertIsArray($status['entities']['user_mentions']);
+	}
 }

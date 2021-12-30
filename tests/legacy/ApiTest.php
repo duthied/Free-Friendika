@@ -639,35 +639,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_get_entitities() function.
-	 *
-	 * @return void
-	 */
-	public function testApiGetEntitities()
-	{
-		// $text = 'text';
-		// self::assertIsArray(api_get_entitities($text, 'bbcode', 0));
-	}
-
-	/**
-	 * Test the api_get_entitities() function with the include_entities parameter.
-	 *
-	 * @return void
-	 */
-	public function testApiGetEntititiesWithIncludeEntities()
-	{
-		/*
-		$_REQUEST['include_entities'] = 'true';
-		$text                         = 'text';
-		$result                       = api_get_entitities($text, 'bbcode', 0);
-		self::assertIsArray($result['hashtags']);
-		self::assertIsArray($result['symbols']);
-		self::assertIsArray($result['urls']);
-		self::assertIsArray($result['user_mentions']);
-		*/
-	}
-
-	/**
 	 * Test the api_format_items_embeded_images() function.
 	 *
 	 * @return void
