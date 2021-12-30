@@ -454,8 +454,6 @@ class ApiTest extends FixtureTest
 		);
 	}
 
-
-
 	/**
 	 * Test the Arrays::walkRecursive() function.
 	 *
@@ -497,21 +495,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_format_items_embeded_images() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFormatItemsEmbededImages()
-	{
-		/*
-		self::assertEquals(
-			'text ' . DI::baseUrl() . '/display/item_guid',
-			api_format_items_embeded_images(['guid' => 'item_guid'], 'text data:image/foo')
-		);
-		*/
-	}
-
-	/**
 	 * Test the api_lists_list() function.
 	 *
 	 * @return void
@@ -546,17 +529,6 @@ class ApiTest extends FixtureTest
 		BasicAuth::setCurrentUserID();
 		$_SESSION['authenticated'] = false;
 		api_lists_ownerships('json');
-	}
-
-	/**
-	 * Test the api_statuses_f() function.
-	 *
-	 * @return void
-	 */
-	public function testApiStatusesFWithIncoming()
-	{
-		// $result = api_statuses_f('incoming');
-		// self::assertArrayHasKey('user', $result);
 	}
 
 	/**
@@ -769,18 +741,6 @@ class ApiTest extends FixtureTest
 	public function testPreparePhotoData()
 	{
 		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_clean_plain_items() function.
-	 *
-	 * @return void
-	 */
-	public function testApiCleanPlainItems()
-	{
-		//$_REQUEST['include_entities'] = 'true';
-		//$result                       = api_clean_plain_items('some_text [url="some_url"]some_text[/url]');
-		//self::assertEquals('some_text [url="some_url"]"some_url"[/url]', $result);
 	}
 
 	/**
