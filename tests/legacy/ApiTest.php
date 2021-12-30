@@ -1215,60 +1215,7 @@ class ApiTest extends FixtureTest
 		//self::assertArrayHasKey('direct_message', $result);
 	}
 
-	/**
-	 * Test the api_direct_messages_box() function.
-	 *
-	 * @return void
-	 */
-	public function testApiDirectMessagesBoxWithVerbose()
-	{
-		/*
-		$result = api_direct_messages_box('json', 'sentbox', 'true');
-		self::assertEquals(
-			[
-				'$result' => [
-					'result'  => 'error',
-					'message' => 'no mails available'
-				]
-			],
-			$result
-		);
-		*/
-	}
 
-	/**
-	 * Test the api_direct_messages_box() function with a RSS result.
-	 *
-	 * @return void
-	 */
-	public function testApiDirectMessagesBoxWithRss()
-	{
-		//$result = api_direct_messages_box('rss', 'sentbox', 'false');
-		//self::assertXml($result, 'direct-messages');
-	}
-
-	/**
-	 * Test the api_direct_messages_box() function without an authenticated user.
-	 *
-	 * @return void
-	 */
-	public function testApiDirectMessagesBoxWithUnallowedUser()
-	{
-		//$this->expectException(\Friendica\Network\HTTPException\UnauthorizedException::class);
-		//BasicAuth::setCurrentUserID();
-		//api_direct_messages_box('json', 'sentbox', 'false');
-	}
-
-	/**
-	 * Test the api_direct_messages_sentbox() function.
-	 *
-	 * @return void
-	 */
-	public function testApiDirectMessagesSentbox()
-	{
-		//$result = api_direct_messages_sentbox('json');
-		//self::assertArrayHasKey('direct_message', $result);
-	}
 
 	/**
 	 * Test the api_direct_messages_conversation() function.
