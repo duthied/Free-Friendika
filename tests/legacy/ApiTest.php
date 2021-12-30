@@ -1231,17 +1231,6 @@ class ApiTest extends FixtureTest
 	 *
 	 * @return void
 	 */
-	public function testApiDirectMessagesBoxWithInbox()
-	{
-		//$result = api_direct_messages_box('json', 'inbox', 'false');
-		//self::assertArrayHasKey('direct_message', $result);
-	}
-
-	/**
-	 * Test the api_direct_messages_box() function.
-	 *
-	 * @return void
-	 */
 	public function testApiDirectMessagesBoxWithVerbose()
 	{
 		/*
@@ -1289,17 +1278,6 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesSentbox()
 	{
 		//$result = api_direct_messages_sentbox('json');
-		//self::assertArrayHasKey('direct_message', $result);
-	}
-
-	/**
-	 * Test the api_direct_messages_inbox() function.
-	 *
-	 * @return void
-	 */
-	public function testApiDirectMessagesInbox()
-	{
-		//$result = api_direct_messages_inbox('json');
 		//self::assertArrayHasKey('direct_message', $result);
 	}
 
