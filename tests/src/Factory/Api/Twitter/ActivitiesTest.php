@@ -6,7 +6,7 @@ use Friendica\DI;
 use Friendica\Factory\Api\Friendica\Activities;
 use Friendica\Test\FixtureTest;
 
-class ActvitiesTest extends FixtureTest
+class ActivitiesTest extends FixtureTest
 {
 	/**
 	 * Test the api_format_items_activities() function.
