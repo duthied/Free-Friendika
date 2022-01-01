@@ -119,19 +119,17 @@ class Status extends BaseFactory
 
 		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT]);
 
-		$text = '';
+		$text  = '';
+		$title = '';
 
 		// Add the title to text / html if set
 		if (!empty($item['title'])) {
 			$text .= $item['title'] . ' ';
-
-			$title         = sprintf("[h4]%s[/h4]\n", $item['title']);
-			$statusnetHtml = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($title . $item['raw-body'] ?? $item['body']), BBCode::API);
-			$friendicaHtml = BBCode::convertForUriId($item['uri-id'], $title . $item['body'], BBCode::EXTERNAL);
-		} else {
-			$statusnetHtml = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($item['raw-body'] ?? $item['body']), BBCode::API);
-			$friendicaHtml = BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::EXTERNAL);
+			$title = sprintf("[h4]%s[/h4]\n", $item['title']);
 		}
+
+		$statusnetHtml = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($title . ($item['raw-body'] ?? $item['body'])), BBCode::API);
+		$friendicaHtml = BBCode::convertForUriId($item['uri-id'], $title . $item['body'], BBCode::EXTERNAL);
 
 		$text .= Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 
