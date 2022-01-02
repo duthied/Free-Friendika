@@ -315,7 +315,7 @@ class System
 			Logger::debug('Exit with error', ['code' => $val, 'message' => $message, 'callstack' => System::callstack(20), 'method' => $_SERVER['REQUEST_METHOD'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $message);
-
+		DI::page()->exit(DI::apiResponse()->generate());
 		echo $content;
 
 		exit();
@@ -342,6 +342,7 @@ class System
 	 * @param integer $options JSON options
 	 */
 	public static function jsonExit($x, $content_type = 'application/json', int $options = 0) {
+		DI::page()->exit(DI::apiResponse()->generate());
 		header("Content-type: $content_type");
 		echo json_encode($x, $options);
 		exit();
