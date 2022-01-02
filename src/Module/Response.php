@@ -140,6 +140,6 @@ class Response implements ICanCreateResponses
 		// Setting the response type as an X-header for direct usage
 		$this->headers[static::X_HEADER] = $this->type;
 
-		return new \GuzzleHttp\Psr7\Response($this->status, $this->headers, $this->content, $this->reason);
+		return new \GuzzleHttp\Psr7\Response($this->status, $this->headers, $this->content, '1.1', $this->reason);
 	}
 }

@@ -32,6 +32,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
+use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -378,7 +379,7 @@ class Page implements ArrayAccess
 	 */
 	public function exit(ResponseInterface $response)
 	{
-		header(sprintf("HTTP/%s %i %s",
+		header(sprintf("HTTP/%s %s %s",
 			$response->getProtocolVersion(),
 			$response->getStatusCode(),
 			$response->getReasonPhrase())

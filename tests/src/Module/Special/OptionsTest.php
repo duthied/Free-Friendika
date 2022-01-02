@@ -2,6 +2,8 @@
 
 namespace Friendica\Test\src\Module\Special;
 
+use Friendica\App\Arguments;
+use Friendica\App\Page;
 use Friendica\App\Router;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\DI;
