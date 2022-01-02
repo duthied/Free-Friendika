@@ -6,6 +6,8 @@
 namespace Friendica\Test;
 
 use Dice\Dice;
+use Friendica\App\Arguments;
+use Friendica\App\Router;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Session;
@@ -49,5 +51,21 @@ abstract class FixtureTest extends DatabaseTest
 
 		// Load the API dataset for the whole API
 		$this->loadFixture(__DIR__ . '/datasets/api.fixture.php', $dba);
+	}
+
+	protected function useHttpMethod(string $method = Router::GET)
+	{
+		$server                   = $_SERVER;
+		$server['REQUEST_METHOD'] = $method;
+
+		$this->dice = $this->dice
+			->addRule(Arguments::class, [
+				'instanceOf' => Arguments::class,
+				'call'       => [
+					['determine', [$server, $_GET], Dice::CHAIN_CALL],
+				],
+			]);
+
+		DI::init($this->dice);
 	}
 }

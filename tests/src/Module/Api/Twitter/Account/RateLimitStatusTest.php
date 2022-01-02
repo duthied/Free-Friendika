@@ -12,7 +12,7 @@ class RateLimitStatusTest extends ApiTest
 {
 	public function testWithJson()
 	{
-		$response = (new RateLimitStatus(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+		$response = (new RateLimitStatus(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
 			->run();
 
 		$result = $this->toJson($response);

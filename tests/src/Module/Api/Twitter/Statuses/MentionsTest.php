@@ -17,7 +17,7 @@ class MentionsTest extends ApiTest
 	 */
 	public function testApiStatusesMentions()
 	{
-		$response = (new Mentions(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		$response = (new Mentions(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'max_id' => 10
 			]);
@@ -35,7 +35,7 @@ class MentionsTest extends ApiTest
 	 */
 	public function testApiStatusesMentionsWithNegativePage()
 	{
-		$response = (new Mentions(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		$response = (new Mentions(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'page' => -2
 			]);
@@ -67,7 +67,7 @@ class MentionsTest extends ApiTest
 	 */
 	public function testApiStatusesMentionsWithRss()
 	{
-		$response = (new Mentions(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => ICanCreateResponses::TYPE_RSS]))
+		$response = (new Mentions(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => ICanCreateResponses::TYPE_RSS]))
 			->run([
 				'page' => -2
 			]);

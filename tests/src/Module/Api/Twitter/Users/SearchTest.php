@@ -18,7 +18,7 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiUsersSearch()
 	{
-		$respone = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		$respone = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'q' => static::OTHER_USER['name']
 			]);
@@ -35,7 +35,7 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiUsersSearchWithXml()
 	{
-		$respone = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], [
+		$respone = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], [
 			'extension' => ICanCreateResponses::TYPE_XML
 		]))->run([
 			'q' => static::OTHER_USER['name']
@@ -53,7 +53,7 @@ class SearchTest extends ApiTest
 	{
 		$this->expectException(BadRequestException::class);
 
-		(new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		(new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 	}
 }

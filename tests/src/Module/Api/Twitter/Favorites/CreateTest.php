@@ -11,6 +11,13 @@ use Friendica\Test\src\Module\Api\ApiTest;
 
 class CreateTest extends ApiTest
 {
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->useHttpMethod(Router::POST);
+	}
+
 	/**
 	 * Test the api_favorites_create_destroy() function with an invalid ID.
 	 *
@@ -20,7 +27,7 @@ class CreateTest extends ApiTest
 	{
 		$this->expectException(BadRequestException::class);
 
-		(new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		(new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 	}
 
@@ -31,7 +38,7 @@ class CreateTest extends ApiTest
 	 */
 	public function testApiFavoritesCreateDestroyWithCreateAction()
 	{
-		$response = (new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		$response = (new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'id' => 3
 			]);
@@ -48,7 +55,7 @@ class CreateTest extends ApiTest
 	 */
 	public function testApiFavoritesCreateDestroyWithCreateActionAndRss()
 	{
-		$response = (new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST], ['extension' => ICanCreateResponses::TYPE_RSS]))
+		$response = (new Create(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => ICanCreateResponses::TYPE_RSS]))
 			->run([
 				'id' => 3
 			]);

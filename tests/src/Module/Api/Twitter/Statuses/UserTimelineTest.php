@@ -17,7 +17,7 @@ class UserTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesUserTimeline()
 	{
-		$response = (new UserTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		$response = (new UserTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'user_id'         => 42,
 				'max_id'          => 10,
@@ -42,7 +42,7 @@ class UserTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesUserTimelineWithNegativePage()
 	{
-		$response = (new UserTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		$response = (new UserTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'user_id' => 42,
 				'page'    => -2,
@@ -65,7 +65,7 @@ class UserTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesUserTimelineWithRss()
 	{
-		$response = (new UserTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], [
+		$response = (new UserTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], [
 			'extension' => ICanCreateResponses::TYPE_RSS
 		]))->run();
 

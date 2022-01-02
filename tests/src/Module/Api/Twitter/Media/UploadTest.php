@@ -13,6 +13,13 @@ use Friendica\Test\Util\AuthTestConfig;
 
 class UploadTest extends ApiTest
 {
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->useHttpMethod(Router::POST);
+	}
+
 	/**
 	 * Test the \Friendica\Module\Api\Twitter\Media\Upload module.
 	 */
@@ -20,7 +27,7 @@ class UploadTest extends ApiTest
 	{
 		$this->expectException(BadRequestException::class);
 
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 	}
 
@@ -34,7 +41,7 @@ class UploadTest extends ApiTest
 		$this->expectException(UnauthorizedException::class);
 		AuthTestConfig::$authenticated = false;
 
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 	}
 
@@ -53,7 +60,7 @@ class UploadTest extends ApiTest
 			]
 		];
 
-		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		(new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 	}
 
@@ -76,7 +83,7 @@ class UploadTest extends ApiTest
 			]
 		];
 
-		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		$response = (new Upload(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 
 		$media = $this->toJson($response);

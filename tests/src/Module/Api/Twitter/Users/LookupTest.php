@@ -19,7 +19,7 @@ class LookupTest extends ApiTest
 	{
 		$this->expectException(NotFoundException::class);
 
-		(new Lookup(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		(new Lookup(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 	}
 
@@ -30,7 +30,7 @@ class LookupTest extends ApiTest
 	 */
 	public function testApiUsersLookupWithUserId()
 	{
-		$respone = (new Lookup(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		$respone = (new Lookup(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'user_id' => static::OTHER_USER['id']
 			]);
