@@ -37,9 +37,9 @@ use Friendica\Core\Lock\Capability\ICanLock;
 use Friendica\LegacyModule;
 use Friendica\Module\HTTPException\MethodNotAllowed;
 use Friendica\Module\HTTPException\PageNotFound;
+use Friendica\Module\Special\Options;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
-use Friendica\Network\HTTPException\NoContentException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Psr\Log\LoggerInterface;
 
@@ -140,13 +140,6 @@ class Router
 		$this->dice_profiler_threshold = $config->get('system', 'dice_profiler_threshold', 0);
 
 		$httpMethod = $this->server['REQUEST_METHOD'] ?? self::GET;
-
-		// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
-		// @todo Check allowed methods per requested path
-		if ($httpMethod === static::OPTIONS) {
-			header('Allow: ' . implode(',', Router::ALLOWED_METHODS));
-			throw new NoContentException();
-		}
 
 		$this->httpMethod = in_array($httpMethod, self::ALLOWED_METHODS) ? $httpMethod : self::GET;
 
@@ -284,6 +277,9 @@ class Router
 			$this->parameters = $routeInfo[2];
 		} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
 			throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
+		} elseif ($this->httpMethod === static::OPTIONS) {
+			// Default response for HTTP OPTIONS requests in case there is no special treatment
+			$moduleClass = Options::class;
 		} else {
 			throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
 		}
