@@ -32,10 +32,19 @@ abstract class FixtureTest extends DatabaseTest
 	{
 		parent::setUp();
 
+		$server                   = $_SERVER;
+		$server['REQUEST_METHOD'] = Router::GET;
+
 		$this->dice = (new Dice())
 			->addRules(include __DIR__ . '/../static/dependencies.config.php')
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
-			->addRule(IHandleSessions::class, ['instanceOf' => Session\Type\Memory::class, 'shared' => true, 'call' => null]);
+			->addRule(IHandleSessions::class, ['instanceOf' => Session\Type\Memory::class, 'shared' => true, 'call' => null])
+			->addRule(Arguments::class, [
+				'instanceOf' => Arguments::class,
+				'call'       => [
+					['determine', [$server, $_GET], Dice::CHAIN_CALL],
+				],
+			]);
 		DI::init($this->dice);
 
 		/** @var IManageConfigValues $config */
