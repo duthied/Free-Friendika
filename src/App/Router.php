@@ -276,10 +276,12 @@ class Router
 			$moduleClass = $routeInfo[1];
 			$this->parameters = $routeInfo[2];
 		} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-			throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
-		} elseif ($this->httpMethod === static::OPTIONS) {
-			// Default response for HTTP OPTIONS requests in case there is no special treatment
-			$moduleClass = Options::class;
+			if ($this->httpMethod === static::OPTIONS) {
+				// Default response for HTTP OPTIONS requests in case there is no special treatment
+				$moduleClass = Options::class;
+			} else {
+				throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
+			}
 		} else {
 			throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
 		}
