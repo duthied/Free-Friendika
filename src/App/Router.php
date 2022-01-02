@@ -75,11 +75,6 @@ class Router
 	protected $routeCollector;
 
 	/**
-	 * @var string The HTTP method
-	 */
-	private $httpMethod;
-
-	/**
 	 * @var array Module parameters
 	 */
 	private $parameters = [];
@@ -138,10 +133,6 @@ class Router
 		$this->server = $server;
 		$this->logger = $logger;
 		$this->dice_profiler_threshold = $config->get('system', 'dice_profiler_threshold', 0);
-
-		$httpMethod = $this->server['REQUEST_METHOD'] ?? self::GET;
-
-		$this->httpMethod = in_array($httpMethod, self::ALLOWED_METHODS) ? $httpMethod : self::GET;
 
 		$this->routeCollector = isset($routeCollector) ?
 			$routeCollector :
@@ -271,12 +262,12 @@ class Router
 
 		$this->parameters = [];
 
-		$routeInfo  = $dispatcher->dispatch($this->httpMethod, $cmd);
+		$routeInfo  = $dispatcher->dispatch($this->args->getMethod(), $cmd);
 		if ($routeInfo[0] === Dispatcher::FOUND) {
 			$moduleClass = $routeInfo[1];
 			$this->parameters = $routeInfo[2];
 		} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-			if ($this->httpMethod === static::OPTIONS) {
+			if ($this->args->getMethod() === static::OPTIONS) {
 				// Default response for HTTP OPTIONS requests in case there is no special treatment
 				$moduleClass = Options::class;
 			} else {

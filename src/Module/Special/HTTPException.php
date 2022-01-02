@@ -89,7 +89,7 @@ class HTTPException
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $e->getCode() . ' ' . $e->getDescription());
 
 		if ($e->getCode() >= 400) {
-			Logger::debug('Exit with error', ['code' => $e->getCode(), 'description' => $e->getDescription(), 'query' => DI::args()->getQueryString(), 'callstack' => System::callstack(20), 'method' => $_SERVER['REQUEST_METHOD'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			Logger::debug('Exit with error', ['code' => $e->getCode(), 'description' => $e->getDescription(), 'query' => DI::args()->getQueryString(), 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
 
 		$tpl = Renderer::getMarkupTemplate('exception.tpl');
