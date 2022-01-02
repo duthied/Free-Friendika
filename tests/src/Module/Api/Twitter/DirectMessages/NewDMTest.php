@@ -19,8 +19,8 @@ class NewDMTest extends ApiTest
 	{
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$newDm    = new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
-		$response = $newDm->run();
+		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+			->run();
 
 		self::assertEmpty((string)$response->getBody());
 	}
@@ -51,11 +51,11 @@ class NewDMTest extends ApiTest
 	{
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$newDm    = new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
-		$response = $newDm->run([
-			'text'    => 'message_text',
-			'user_id' => 43
-		]);
+		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+			->run([
+				'text'    => 'message_text',
+				'user_id' => 43
+			]);
 
 		$json = $this->toJson($response);
 
@@ -73,11 +73,11 @@ class NewDMTest extends ApiTest
 
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$newDm    = new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
-		$response = $newDm->run([
-			'text'    => 'message_text',
-			'user_id' => 44
-		]);
+		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+			->run([
+				'text'    => 'message_text',
+				'user_id' => 44
+			]);
 
 		$json = $this->toJson($response);
 
@@ -97,12 +97,12 @@ class NewDMTest extends ApiTest
 
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$newDm    = new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
-		$response = $newDm->run([
-			'text'    => 'message_text',
-			'user_id' => 44,
-			'title'   => 'message_title',
-		]);
+		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+			->run([
+				'text'    => 'message_text',
+				'user_id' => 44,
+				'title'   => 'message_title',
+			]);
 
 		$json = $this->toJson($response);
 
@@ -123,12 +123,12 @@ class NewDMTest extends ApiTest
 
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$newDm    = new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'rss']);
-		$response = $newDm->run([
-			'text'    => 'message_text',
-			'user_id' => 44,
-			'title'   => 'message_title',
-		]);
+		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'rss']))
+			->run([
+				'text'    => 'message_text',
+				'user_id' => 44,
+				'title'   => 'message_title',
+			]);
 
 		self::assertXml((string)$response->getBody(), 'direct-messages');
 	}

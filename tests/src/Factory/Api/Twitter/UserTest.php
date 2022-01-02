@@ -31,9 +31,9 @@ class UserTest extends FixtureTest
 	 */
 	public function testApiGetUser()
 	{
-		$userFactory = new User(DI::logger(), DI::twitterStatus());
-		$userObj     = $userFactory->createFromUserId(ApiTest::SELF_USER['id']);
-		$user        = $userObj->toArray();
+		$user = (new User(DI::logger(), DI::twitterStatus()))
+			->createFromUserId(ApiTest::SELF_USER['id'])
+			->toArray();
 
 		$this->assertSelfUser($user);
 	}
@@ -114,9 +114,9 @@ class UserTest extends FixtureTest
 	 */
 	public function testApiGetUserWithWrongGetId()
 	{
-		$userFactory = new User(DI::logger(), DI::twitterStatus());
-		$userObj     = $userFactory->createFromUserId(-1);
-		$user        = $userObj->toArray();
+		$user = (new User(DI::logger(), DI::twitterStatus()))
+			->createFromUserId(-1)
+			->toArray();
 
 		self::assertEquals(0, $user['id']);
 		self::assertEquals(0, $user['uid']);

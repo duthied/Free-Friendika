@@ -15,6 +15,24 @@ use Friendica\Test\src\Module\Api\ApiTest;
 
 class StatusTest extends FixtureTest
 {
+	protected $statusFactory;
+
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->statusFactory = new Status(
+			DI::logger(),
+			DI::dba(),
+			DI::twitterUser(),
+			new Hashtag(DI::logger()),
+			new Media(DI::logger(), DI::baseUrl()),
+			new Url(DI::logger()),
+			new Mention(DI::logger(), DI::baseUrl()),
+			new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser()),
+			new Attachment(DI::logger()));
+	}
+
 	/**
 	 * Test the api_convert_item() function.
 	 *
@@ -22,16 +40,9 @@ class StatusTest extends FixtureTest
 	 */
 	public function testApiConvertItem()
 	{
-		$hashTagFac    = new Hashtag(DI::logger());
-		$mediaFac      = new Media(DI::logger(), DI::baseUrl());
-		$urlFac        = new Url(DI::logger());
-		$mentionFac    = new Mention(DI::logger(), DI::baseUrl());
-		$activitiesFac = new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser());
-		$attachmentFac = new Attachment(DI::logger());
-
-		$statusFac = new Status(DI::logger(), DI::dba(), DI::twitterUser(), $hashTagFac, $mediaFac, $urlFac, $mentionFac, $activitiesFac, $attachmentFac);
-		$statusObj = $statusFac->createFromItemId(13, ApiTest::SELF_USER['id']);
-		$status    = $statusObj->toArray();
+		$status = $this->statusFactory
+			->createFromItemId(13, ApiTest::SELF_USER['id'])
+			->toArray();
 
 		self::assertStringStartsWith('item_title', $status['text']);
 		self::assertStringStartsWith('<h4>item_title</h4><br>perspiciatis impedit voluptatem', $status['friendica_html']);
@@ -90,16 +101,9 @@ class StatusTest extends FixtureTest
 	 */
 	public function testApiGetEntititiesWithIncludeEntities()
 	{
-		$hashTagFac    = new Hashtag(DI::logger());
-		$mediaFac      = new Media(DI::logger(), DI::baseUrl());
-		$urlFac        = new Url(DI::logger());
-		$mentionFac    = new Mention(DI::logger(), DI::baseUrl());
-		$activitiesFac = new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser());
-		$attachmentFac = new Attachment(DI::logger());
-
-		$statusFac = new Status(DI::logger(), DI::dba(), DI::twitterUser(), $hashTagFac, $mediaFac, $urlFac, $mentionFac, $activitiesFac, $attachmentFac);
-		$statusObj = $statusFac->createFromItemId(13, ApiTest::SELF_USER['id'], true);
-		$status    = $statusObj->toArray();
+		$status = $this->statusFactory
+			->createFromItemId(13, ApiTest::SELF_USER['id'], true)
+			->toArray();
 
 		self::assertIsArray($status['entities']);
 		self::assertIsArray($status['extended_entities']);
@@ -114,19 +118,11 @@ class StatusTest extends FixtureTest
 	 */
 	public function testApiFormatItems()
 	{
-		$hashTagFac    = new Hashtag(DI::logger());
-		$mediaFac      = new Media(DI::logger(), DI::baseUrl());
-		$urlFac        = new Url(DI::logger());
-		$mentionFac    = new Mention(DI::logger(), DI::baseUrl());
-		$activitiesFac = new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser());
-		$attachmentFac = new Attachment(DI::logger());
-
-		$statusFac = new Status(DI::logger(), DI::dba(), DI::twitterUser(), $hashTagFac, $mediaFac, $urlFac, $mentionFac, $activitiesFac, $attachmentFac);
-
 		$posts = DI::dba()->selectToArray('post-view', ['uri-id']);
 		foreach ($posts as $item) {
-			$statusObj = $statusFac->createFromUriId($item['uri-id'], ApiTest::SELF_USER['id']);
-			$status    = $statusObj->toArray();
+			$status = $this->statusFactory
+				->createFromUriId($item['uri-id'], ApiTest::SELF_USER['id'])
+				->toArray();
 
 			self::assertIsInt($status['id']);
 			self::assertIsString($status['text']);

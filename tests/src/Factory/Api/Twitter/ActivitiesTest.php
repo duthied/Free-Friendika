@@ -17,8 +17,8 @@ class ActivitiesTest extends FixtureTest
 	{
 		$item = ['uid' => 0, 'uri-id' => 1];
 
-		$friendicaActivitiesFac = new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser());
-		$result                 = $friendicaActivitiesFac->createFromUriId($item['uri-id'], $item['uid']);
+		$result = (new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser()))
+			->createFromUriId($item['uri-id'], $item['uid']);
 
 		self::assertArrayHasKey('like', $result);
 		self::assertArrayHasKey('dislike', $result);
@@ -36,8 +36,8 @@ class ActivitiesTest extends FixtureTest
 	{
 		$item = ['uid' => 0, 'uri-id' => 1];
 
-		$friendicaActivitiesFac = new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser());
-		$result                 = $friendicaActivitiesFac->createFromUriId($item['uri-id'], $item['uid'], 'xml');
+		$result = (new Activities(DI::logger(), DI::baseUrl(), DI::twitterUser()))
+			->createFromUriId($item['uri-id'], $item['uid'], 'xml');
 
 		self::assertArrayHasKey('friendica:like', $result);
 		self::assertArrayHasKey('friendica:dislike', $result);

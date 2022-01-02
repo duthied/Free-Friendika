@@ -19,10 +19,10 @@ class SentTest extends ApiTest
 	{
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$sent     = new Sent($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
-		$response = $sent->run([
-			'friendica_verbose' => true,
-		]);
+		$response = (new Sent($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+			->run([
+				'friendica_verbose' => true,
+			]);
 
 		$json = $this->toJson($response);
 
@@ -39,8 +39,8 @@ class SentTest extends ApiTest
 	{
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$sent     = new Sent($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'rss']);
-		$response = $sent->run();
+		$response = (new Sent($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'rss']))
+			->run();
 
 		self::assertXml((string)$response->getBody(), 'direct-messages');
 	}

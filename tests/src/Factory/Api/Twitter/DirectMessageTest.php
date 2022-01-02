@@ -20,9 +20,9 @@ class DirectMessageTest extends FixtureTest
 		$ids = DI::dba()->selectToArray('mail', ['id']);
 		$id  = $ids[0]['id'];
 
-		$directMessageFactory = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
-		$directMessageObj     = $directMessageFactory->createFromMailId($id, ApiTest::SELF_USER['id']);
-		$directMessage        = $directMessageObj->toArray();
+		$directMessage = (new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser()))
+			->createFromMailId($id, ApiTest::SELF_USER['id'])
+			->toArray();
 
 		self::assertEquals('item_title' . "\n" . 'item_body', $directMessage['text']);
 		self::assertIsInt($directMessage['id']);
@@ -43,9 +43,9 @@ class DirectMessageTest extends FixtureTest
 		$ids = DI::dba()->selectToArray('mail', ['id']);
 		$id  = $ids[0]['id'];
 
-		$directMessageFactory = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
-		$directMessageObj     = $directMessageFactory->createFromMailId($id, ApiTest::SELF_USER['id'], 'html');
-		$directMessage        = $directMessageObj->toArray();
+		$directMessage = (new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser()))
+			->createFromMailId($id, ApiTest::SELF_USER['id'], 'html')
+			->toArray();
 
 		self::assertEquals('item_title', $directMessage['title']);
 		self::assertEquals('<strong>item_body</strong>', $directMessage['text']);
@@ -62,9 +62,9 @@ class DirectMessageTest extends FixtureTest
 		$ids = DI::dba()->selectToArray('mail', ['id']);
 		$id  = $ids[0]['id'];
 
-		$directMessageFactory = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
-		$directMessageObj     = $directMessageFactory->createFromMailId($id, ApiTest::SELF_USER['id'], 'plain');
-		$directMessage        = $directMessageObj->toArray();
+		$directMessage = (new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser()))
+			->createFromMailId($id, ApiTest::SELF_USER['id'], 'plain')
+			->toArray();
 
 		self::assertEquals('item_title', $directMessage['title']);
 		self::assertEquals('item_body', $directMessage['text']);
@@ -84,9 +84,9 @@ class DirectMessageTest extends FixtureTest
 		$ids = DI::dba()->selectToArray('mail', ['id']);
 		$id  = $ids[0]['id'];
 
-		$directMessageFactory = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
-		$directMessageObj     = $directMessageFactory->createFromMailId($id, ApiTest::SELF_USER['id'], 'plain', $$GETUSEROBJECTS$$);
-		$directMessage        = $directMessageObj->toArray();
+		$directMessage = (new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser()))
+			->createFromMailId($id, ApiTest::SELF_USER['id'], 'plain', $$GETUSEROBJECTS$$)
+			->toArray();
 
 		self::assertTrue(!isset($directMessage['sender']));
 		self::assertTrue(!isset($directMessage['recipient']));

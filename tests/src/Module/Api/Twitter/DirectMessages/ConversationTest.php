@@ -19,10 +19,10 @@ class ConversationTest extends ApiTest
 	{
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$sent     = new Conversation($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']);
-		$response = $sent->run([
-			'friendica_verbose' => true,
-		]);
+		$response = (new Conversation($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+			->run([
+				'friendica_verbose' => true,
+			]);
 
 		$json = $this->toJson($response);
 
