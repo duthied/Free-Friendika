@@ -40,6 +40,10 @@ class Response implements ICanCreateResponses
 	 */
 	protected $type = self::TYPE_HTML;
 
+	protected $status = 200;
+
+	protected $reason = null;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -114,6 +118,15 @@ class Response implements ICanCreateResponses
 	/**
 	 * {@inheritDoc}
 	 */
+	public function setStatus(int $status = 200, ?string $reason = null): void
+	{
+		$this->status = $status;
+		$this->reason = $reason;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getType(): string
 	{
 		return $this->type;
@@ -127,6 +140,6 @@ class Response implements ICanCreateResponses
 		// Setting the response type as an X-header for direct usage
 		$this->headers[static::X_HEADER] = $this->type;
 
-		return new \GuzzleHttp\Psr7\Response(200, $this->headers, $this->content);
+		return new \GuzzleHttp\Psr7\Response($this->status, $this->headers, $this->content, $this->reason);
 	}
 }

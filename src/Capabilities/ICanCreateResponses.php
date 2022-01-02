@@ -71,6 +71,16 @@ interface ICanCreateResponses
 	public function setType(string $type, ?string $content_type = null): void;
 
 	/**
+	 * Sets the status and the reason for the response
+	 *
+	 * @param int $status The HTTP status code
+	 * @param null|string $reason Reason phrase (when empty a default will be used based on the status code)
+	 *
+	 * @return void
+	 */
+	public function setStatus(int $status = 200, ?string $reason = null): void;
+
+	/**
 	 * Creates a PSR-7 compliant interface
 	 * @see https://www.php-fig.org/psr/psr-7/
 	 *
