@@ -21,10 +21,9 @@
 
 namespace Friendica\Core;
 
-use Exception;
-use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\DI;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException\FoundException;
 use Friendica\Network\HTTPException\MovedPermanentlyException;
 use Friendica\Network\HTTPException\TemporaryRedirectException;
@@ -292,11 +291,9 @@ class System
 			Logger::notice('xml_status returning non_zero: ' . $st . " message=" . $message);
 		}
 
-		header("Content-type: text/xml");
-
-		$xmldata = ["result" => $result];
-
-		echo XML::fromArray($xmldata, $xml);
+		DI::apiResponse()->setType(Response::TYPE_XML);
+		DI::apiResponse()->addContent(XML::fromArray(["result" => $result], $xml));
+		DI::page()->exit(DI::apiResponse()->generate());
 
 		exit();
 	}
@@ -314,9 +311,9 @@ class System
 		if ($val >= 400) {
 			Logger::debug('Exit with error', ['code' => $val, 'message' => $message, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
-		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $message);
+		DI::apiResponse()->setStatus($val, $message);
+		DI::apiResponse()->addContent($content);
 		DI::page()->exit(DI::apiResponse()->generate());
-		echo $content;
 
 		exit();
 	}
@@ -326,7 +323,7 @@ class System
 		if ($httpCode >= 400) {
 			Logger::debug('Exit with error', ['code' => $httpCode, 'content_type' => $content_type, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
-		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $httpCode);
+		DI::apiResponse()->setStatus($httpCode);
 		self::jsonExit($data, $content_type);
 	}
 
@@ -342,9 +339,9 @@ class System
 	 * @param integer $options JSON options
 	 */
 	public static function jsonExit($x, $content_type = 'application/json', int $options = 0) {
+		DI::apiResponse()->setType(Response::TYPE_JSON, $content_type);
+		DI::apiResponse()->addContent(json_encode($x, $options));
 		DI::page()->exit(DI::apiResponse()->generate());
-		header("Content-type: $content_type");
-		echo json_encode($x, $options);
 		exit();
 	}
 
@@ -500,7 +497,7 @@ class System
 	 */
 	public static function htmlUpdateExit($o)
 	{
-		header("Content-type: text/html");
+		DI::apiResponse()->setType(Response::TYPE_HTML);
 		echo "<!DOCTYPE html><html><body>\r\n";
 		// We can remove this hack once Internet Explorer recognises HTML5 natively
 		echo "<section>";
