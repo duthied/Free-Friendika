@@ -31,18 +31,20 @@ interface ICanCreateResponses
 	 */
 	const X_HEADER = 'X-RESPONSE-TYPE';
 
-	const TYPE_HTML = 'html';
-	const TYPE_XML  = 'xml';
-	const TYPE_JSON = 'json';
-	const TYPE_ATOM = 'atom';
-	const TYPE_RSS  = 'rss';
+	const TYPE_HTML  = 'html';
+	const TYPE_XML   = 'xml';
+	const TYPE_JSON  = 'json';
+	const TYPE_ATOM  = 'atom';
+	const TYPE_RSS   = 'rss';
+	const TYPE_BLANK = 'blank';
 
 	const ALLOWED_TYPES = [
 		self::TYPE_HTML,
 		self::TYPE_XML,
 		self::TYPE_JSON,
 		self::TYPE_ATOM,
-		self::TYPE_RSS
+		self::TYPE_RSS,
+		self::TYPE_BLANK,
 	];
 
 	/**

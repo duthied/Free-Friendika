@@ -710,8 +710,7 @@ class App
 			$timestamp = microtime(true);
 			$response = $module->run($input);
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
-			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML &&
-				$response->getStatusCode() == 200) {
+			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
 				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
 			} else {
 				$page->exit($response);

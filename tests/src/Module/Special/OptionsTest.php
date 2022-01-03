@@ -21,7 +21,7 @@ class OptionsTest extends FixtureTest
 		self::assertEquals('No Content', $response->getReasonPhrase());
 		self::assertEquals([
 			'Allow'                       => [implode(',', Router::ALLOWED_METHODS)],
-			ICanCreateResponses::X_HEADER => ['html'],
+			ICanCreateResponses::X_HEADER => ['blank'],
 		], $response->getHeaders());
 		self::assertEquals(implode(',', Router::ALLOWED_METHODS), $response->getHeaderLine('Allow'));
 	}
@@ -39,7 +39,8 @@ class OptionsTest extends FixtureTest
 		self::assertEquals('No Content', $response->getReasonPhrase());
 		self::assertEquals([
 			'Allow'                       => [implode(',', [Router::GET, Router::POST])],
-			ICanCreateResponses::X_HEADER => ['html'],
+			ICanCreateResponses::X_HEADER => ['blank'],
+			'Content-Type'
 		], $response->getHeaders());
 		self::assertEquals(implode(',', [Router::GET, Router::POST]), $response->getHeaderLine('Allow'));
 	}

@@ -23,6 +23,7 @@ namespace Friendica\Module\Special;
 
 use Friendica\App\Router;
 use Friendica\BaseModule;
+use Friendica\Module\Response;
 
 /**
  * Returns the allowed HTTP methods based on the route information
@@ -44,5 +45,6 @@ class Options extends BaseModule
 		// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
 		$this->response->setHeader(implode(',', $allowedMethods), 'Allow');
 		$this->response->setStatus(204);
+		$this->response->setType(Response::TYPE_BLANK);
 	}
 }
