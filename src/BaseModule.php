@@ -223,7 +223,7 @@ abstract class BaseModule implements ICanHandleRequests
 
 		$this->profiler->set(microtime(true) - $timestamp, 'init');
 
-		switch ($this->args->getMethod() ?? Router::GET) {
+		switch ($this->args->getMethod()) {
 			case Router::DELETE:
 				$this->delete($request);
 				break;

@@ -99,6 +99,9 @@ class Arguments
 		return $this->argv;
 	}
 
+	/**
+	 * @return string The used HTTP method
+	 */
 	public function getMethod()
 	{
 		return $this->method;
