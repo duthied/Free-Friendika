@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-12 07:58-0500\n"
+"POT-Creation-Date: 2022-01-03 22:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,7 +87,7 @@ msgstr ""
 #: mod/cal.php:265 src/Console/User.php:182 src/Model/User.php:659
 #: src/Module/Admin/Users/Active.php:73 src/Module/Admin/Users/Blocked.php:74
 #: src/Module/Admin/Users/Index.php:80 src/Module/Admin/Users/Pending.php:71
-#: src/Module/Api/Twitter/ContactEndpoint.php:76
+#: src/Module/Api/Twitter/ContactEndpoint.php:74
 msgid "User not found"
 msgstr ""
 
@@ -126,7 +126,7 @@ msgstr ""
 #: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:68
 #: mod/wall_attach.php:71 mod/wall_upload.php:90 mod/wall_upload.php:93
 #: mod/wallmessage.php:37 mod/wallmessage.php:56 mod/wallmessage.php:90
-#: mod/wallmessage.php:110 src/Module/Attach.php:55 src/Module/BaseApi.php:92
+#: mod/wallmessage.php:110 src/Module/Attach.php:55 src/Module/BaseApi.php:93
 #: src/Module/BaseNotifications.php:97 src/Module/Contact/Advanced.php:60
 #: src/Module/Delegation.php:119 src/Module/FollowConfirm.php:18
 #: src/Module/FriendSuggest.php:56 src/Module/Group.php:42
@@ -366,7 +366,7 @@ msgstr ""
 #: src/Module/Install.php:347 src/Module/Register.php:148
 #: src/Module/Security/TwoFactor/Verify.php:100
 #: src/Module/Settings/TwoFactor/Index.php:133
-#: src/Module/Settings/TwoFactor/Verify.php:153
+#: src/Module/Settings/TwoFactor/Verify.php:154
 msgid "Required"
 msgstr ""
 
@@ -465,7 +465,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr ""
 
 #: mod/follow.php:138 src/Content/Item.php:463 src/Content/Widget.php:76
-#: src/Model/Contact.php:1042 src/Model/Contact.php:1054
+#: src/Model/Contact.php:1055 src/Model/Contact.php:1067
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr ""
@@ -1475,7 +1475,7 @@ msgstr ""
 msgid "Community Forum Subtypes"
 msgstr ""
 
-#: mod/settings.php:658 src/Module/Admin/BaseUsers.php:106
+#: mod/settings.php:658 src/Module/Admin/BaseUsers.php:107
 msgid "Personal Page"
 msgstr ""
 
@@ -1483,7 +1483,7 @@ msgstr ""
 msgid "Account for a personal profile."
 msgstr ""
 
-#: mod/settings.php:662 src/Module/Admin/BaseUsers.php:107
+#: mod/settings.php:662 src/Module/Admin/BaseUsers.php:108
 msgid "Organisation Page"
 msgstr ""
 
@@ -1493,7 +1493,7 @@ msgid ""
 "\"Followers\"."
 msgstr ""
 
-#: mod/settings.php:666 src/Module/Admin/BaseUsers.php:108
+#: mod/settings.php:666 src/Module/Admin/BaseUsers.php:109
 msgid "News Page"
 msgstr ""
 
@@ -1503,7 +1503,7 @@ msgid ""
 "\"Followers\"."
 msgstr ""
 
-#: mod/settings.php:670 src/Module/Admin/BaseUsers.php:109
+#: mod/settings.php:670 src/Module/Admin/BaseUsers.php:110
 msgid "Community Forum"
 msgstr ""
 
@@ -1511,7 +1511,7 @@ msgstr ""
 msgid "Account for community discussions."
 msgstr ""
 
-#: mod/settings.php:674 src/Module/Admin/BaseUsers.php:99
+#: mod/settings.php:674 src/Module/Admin/BaseUsers.php:100
 msgid "Normal Account Page"
 msgstr ""
 
@@ -1521,7 +1521,7 @@ msgid ""
 "\"Friends\" and \"Followers\"."
 msgstr ""
 
-#: mod/settings.php:678 src/Module/Admin/BaseUsers.php:100
+#: mod/settings.php:678 src/Module/Admin/BaseUsers.php:101
 msgid "Soapbox Page"
 msgstr ""
 
@@ -1531,7 +1531,7 @@ msgid ""
 "\"Followers\"."
 msgstr ""
 
-#: mod/settings.php:682 src/Module/Admin/BaseUsers.php:101
+#: mod/settings.php:682 src/Module/Admin/BaseUsers.php:102
 msgid "Public Forum"
 msgstr ""
 
@@ -1539,7 +1539,7 @@ msgstr ""
 msgid "Automatically approves all contact requests."
 msgstr ""
 
-#: mod/settings.php:686 src/Module/Admin/BaseUsers.php:102
+#: mod/settings.php:686 src/Module/Admin/BaseUsers.php:103
 msgid "Automatic Friend Page"
 msgstr ""
 
@@ -1965,7 +1965,7 @@ msgstr ""
 msgid "Friend Suggestions"
 msgstr ""
 
-#: mod/tagger.php:78 src/Content/Item.php:346 src/Model/Item.php:2626
+#: mod/tagger.php:78 src/Content/Item.php:346 src/Model/Item.php:2628
 msgid "photo"
 msgstr ""
 
@@ -2111,6 +2111,10 @@ msgstr ""
 
 #: src/App.php:463
 msgid "No system theme config value set."
+msgstr ""
+
+#: src/App.php:583
+msgid "Apologies but the website is unavailable at the moment."
 msgstr ""
 
 #: src/App/Page.php:250
@@ -2715,7 +2719,7 @@ msgstr ""
 msgid "%1$s poked %2$s"
 msgstr ""
 
-#: src/Content/Item.php:338 src/Model/Item.php:2624
+#: src/Content/Item.php:338 src/Model/Item.php:2626
 msgid "event"
 msgstr ""
 
@@ -2723,31 +2727,31 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:443 src/Model/Contact.php:1047
+#: src/Content/Item.php:443 src/Model/Contact.php:1060
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:981
-#: src/Model/Contact.php:1039 src/Model/Contact.php:1048
+#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:994
+#: src/Model/Contact.php:1052 src/Model/Contact.php:1061
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:225
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:445 src/Model/Contact.php:1049
+#: src/Content/Item.php:445 src/Model/Contact.php:1062
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:446 src/Model/Contact.php:1040
-#: src/Model/Contact.php:1050
+#: src/Content/Item.php:446 src/Model/Contact.php:1053
+#: src/Model/Contact.php:1063
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1041
-#: src/Model/Contact.php:1051
+#: src/Content/Item.php:447 src/Model/Contact.php:1054
+#: src/Model/Contact.php:1064
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:448 src/Model/Contact.php:1052
+#: src/Content/Item.php:448 src/Model/Contact.php:1065
 msgid "Send PM"
 msgstr ""
 
@@ -2770,7 +2774,7 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-#: src/Content/Item.php:458 src/Model/Contact.php:1053
+#: src/Content/Item.php:458 src/Model/Contact.php:1066
 msgid "Poke"
 msgstr ""
 
@@ -2872,7 +2876,7 @@ msgstr ""
 #: src/Module/Settings/TwoFactor/AppSpecific.php:127
 #: src/Module/Settings/TwoFactor/Index.php:111
 #: src/Module/Settings/TwoFactor/Recovery.php:105
-#: src/Module/Settings/TwoFactor/Verify.php:144 view/theme/vier/theme.php:217
+#: src/Module/Settings/TwoFactor/Verify.php:145 view/theme/vier/theme.php:217
 msgid "Help"
 msgstr ""
 
@@ -3066,8 +3070,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3155
-#: src/Model/Item.php:3161 src/Model/Item.php:3162
+#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3157
+#: src/Model/Item.php:3163 src/Model/Item.php:3164
 msgid "Link to source"
 msgstr ""
 
@@ -3222,11 +3226,11 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:522 src/Model/Contact.php:1476
+#: src/Content/Widget.php:522 src/Model/Contact.php:1493
 msgid "News"
 msgstr ""
 
-#: src/Content/Widget.php:527 src/Module/Admin/BaseUsers.php:50
+#: src/Content/Widget.php:527 src/Module/Admin/BaseUsers.php:51
 msgid "All"
 msgstr ""
 
@@ -4045,81 +4049,81 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1043 src/Model/Contact.php:1055
+#: src/Model/Contact.php:1056 src/Model/Contact.php:1068
 msgid "UnFollow"
 msgstr ""
 
-#: src/Model/Contact.php:1061 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1074 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:130
 #: src/Module/Notifications/Introductions.php:202
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1472
+#: src/Model/Contact.php:1489
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1480
+#: src/Model/Contact.php:1497
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2350
+#: src/Model/Contact.php:2372
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2355 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2377 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2360
+#: src/Model/Contact.php:2382
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2369
+#: src/Model/Contact.php:2391
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2406
+#: src/Model/Contact.php:2428
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2408
+#: src/Model/Contact.php:2430
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2411
+#: src/Model/Contact.php:2433
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2414
+#: src/Model/Contact.php:2436
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2417
+#: src/Model/Contact.php:2439
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2418
+#: src/Model/Contact.php:2440
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2424
+#: src/Model/Contact.php:2446
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2429
+#: src/Model/Contact.php:2451
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2488
+#: src/Model/Contact.php:2510
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -4239,33 +4243,33 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1677
+#: src/Model/Item.php:1679
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2628
+#: src/Model/Item.php:2630
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2630
+#: src/Model/Item.php:2632
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2633
+#: src/Model/Item.php:2635
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:2770
+#: src/Model/Item.php:2772
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3120
+#: src/Model/Item.php:3122
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3149 src/Model/Item.php:3150
+#: src/Model/Item.php:3151 src/Model/Item.php:3152
 msgid "View on separate page"
 msgstr ""
 
@@ -4748,49 +4752,49 @@ msgid ""
 "the open addon registry at %2$s"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:53
+#: src/Module/Admin/BaseUsers.php:54
 msgid "List of all users"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:58
+#: src/Module/Admin/BaseUsers.php:59
 msgid "Active"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:61
+#: src/Module/Admin/BaseUsers.php:62
 msgid "List of active accounts"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:66 src/Module/Contact.php:314
+#: src/Module/Admin/BaseUsers.php:67 src/Module/Contact.php:314
 #: src/Module/Contact.php:374
 msgid "Pending"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:69
+#: src/Module/Admin/BaseUsers.php:70
 msgid "List of pending registrations"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:74 src/Module/Contact.php:322
+#: src/Module/Admin/BaseUsers.php:75 src/Module/Contact.php:322
 #: src/Module/Contact.php:375
 msgid "Blocked"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:77
+#: src/Module/Admin/BaseUsers.php:78
 msgid "List of blocked users"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:82
+#: src/Module/Admin/BaseUsers.php:83
 msgid "Deleted"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:85
+#: src/Module/Admin/BaseUsers.php:86
 msgid "List of pending user deletions"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:103
+#: src/Module/Admin/BaseUsers.php:104
 msgid "Private Forum"
 msgstr ""
 
-#: src/Module/Admin/BaseUsers.php:110
+#: src/Module/Admin/BaseUsers.php:111
 msgid "Relay"
 msgstr ""
 
@@ -6795,7 +6799,7 @@ msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr ""
 
-#: src/Module/Api/Mastodon/Apps.php:57
+#: src/Module/Api/Mastodon/Apps.php:63
 msgid "Missing parameters"
 msgstr ""
 
@@ -6830,7 +6834,7 @@ msgstr ""
 msgid "Posts from %s can't be unshared"
 msgstr ""
 
-#: src/Module/Api/Twitter/ContactEndpoint.php:68
+#: src/Module/Api/Twitter/ContactEndpoint.php:66
 msgid "Contact not found"
 msgstr ""
 
@@ -6932,26 +6936,26 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:239 src/Module/BaseApi.php:255
-#: src/Module/BaseApi.php:271
+#: src/Module/BaseApi.php:241 src/Module/BaseApi.php:257
+#: src/Module/BaseApi.php:273
 msgid "Too Many Requests"
 msgstr ""
 
-#: src/Module/BaseApi.php:240
+#: src/Module/BaseApi.php:242
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:256
+#: src/Module/BaseApi.php:258
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:272
+#: src/Module/BaseApi.php:274
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
@@ -7541,7 +7545,7 @@ msgstr ""
 
 #: src/Module/Contact/Revoke.php:109
 #: src/Module/Notifications/Introductions.php:142
-#: src/Module/OAuth/Acknowledge.php:47 src/Module/Register.php:130
+#: src/Module/OAuth/Acknowledge.php:53 src/Module/Register.php:130
 msgid "Yes"
 msgstr ""
 
@@ -8446,7 +8450,7 @@ msgid "Claims to be known to you: "
 msgstr ""
 
 #: src/Module/Notifications/Introductions.php:142
-#: src/Module/OAuth/Acknowledge.php:48 src/Module/Register.php:131
+#: src/Module/OAuth/Acknowledge.php:54 src/Module/Register.php:131
 msgid "No"
 msgstr ""
 
@@ -8510,11 +8514,11 @@ msgstr ""
 msgid "Show unread"
 msgstr ""
 
-#: src/Module/OAuth/Acknowledge.php:44
+#: src/Module/OAuth/Acknowledge.php:50
 msgid "Authorize application connection"
 msgstr ""
 
-#: src/Module/OAuth/Acknowledge.php:46
+#: src/Module/OAuth/Acknowledge.php:52
 msgid ""
 "Do you want to authorize this application to access your posts and contacts, "
 "and/or create new posts for you?"
@@ -8524,7 +8528,7 @@ msgstr ""
 msgid "Unsupported or missing response type"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:66
+#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:72
 msgid "Incomplete request data"
 msgstr ""
 
@@ -8535,7 +8539,7 @@ msgid ""
 "close this window: %s"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:90
+#: src/Module/OAuth/Token.php:96
 msgid "Unsupported or missing grant type"
 msgstr ""
 
@@ -8971,7 +8975,7 @@ msgid ""
 msgstr ""
 
 #: src/Module/Security/TwoFactor/Verify.php:100
-#: src/Module/Settings/TwoFactor/Verify.php:153
+#: src/Module/Settings/TwoFactor/Verify.php:154
 msgid "Please enter a code from your authentication app"
 msgstr ""
 
@@ -9642,7 +9646,7 @@ msgstr ""
 msgid "Two-factor authentication successfully activated."
 msgstr ""
 
-#: src/Module/Settings/TwoFactor/Verify.php:123
+#: src/Module/Settings/TwoFactor/Verify.php:124
 #, php-format
 msgid ""
 "<p>Or you can submit the authentication settings manually:</p>\n"
@@ -9662,24 +9666,24 @@ msgid ""
 "</dl>"
 msgstr ""
 
-#: src/Module/Settings/TwoFactor/Verify.php:143
+#: src/Module/Settings/TwoFactor/Verify.php:144
 msgid "Two-factor code verification"
 msgstr ""
 
-#: src/Module/Settings/TwoFactor/Verify.php:145
+#: src/Module/Settings/TwoFactor/Verify.php:146
 msgid ""
 "<p>Please scan this QR Code with your authenticator app and submit the "
 "provided code.</p>"
 msgstr ""
 
-#: src/Module/Settings/TwoFactor/Verify.php:147
+#: src/Module/Settings/TwoFactor/Verify.php:148
 #, php-format
 msgid ""
 "<p>Or you can open the following URL in your mobile device:</p><p><a href="
 "\"%s\">%s</a></p>"
 msgstr ""
 
-#: src/Module/Settings/TwoFactor/Verify.php:154
+#: src/Module/Settings/TwoFactor/Verify.php:155
 msgid "Verify code and enable two-factor authentication"
 msgstr ""
 
