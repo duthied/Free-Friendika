@@ -580,7 +580,7 @@ class App
 		try {
 			// Missing DB connection: ERROR
 			if ($this->mode->has(App\Mode::LOCALCONFIGPRESENT) && !$this->mode->has(App\Mode::DBAVAILABLE)) {
-				throw new HTTPException\InternalServerErrorException('Apologies but the website is unavailable at the moment.');
+				throw new HTTPException\InternalServerErrorException($this->l10n->t('Apologies but the website is unavailable at the moment.'));
 			}
 
 			if (!$this->mode->isInstall()) {
