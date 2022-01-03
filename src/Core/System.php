@@ -312,7 +312,7 @@ class System
 	public static function httpExit($val, $message = '', $content = '')
 	{
 		if ($val >= 400) {
-			Logger::debug('Exit with error', ['code' => $val, 'message' => $message, 'callstack' => System::callstack(20), 'method' => $_SERVER['REQUEST_METHOD'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			Logger::debug('Exit with error', ['code' => $val, 'message' => $message, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $message);
 		DI::page()->exit(DI::apiResponse()->generate());
@@ -324,7 +324,7 @@ class System
 	public static function jsonError($httpCode, $data, $content_type = 'application/json')
 	{
 		if ($httpCode >= 400) {
-			Logger::debug('Exit with error', ['code' => $httpCode, 'content_type' => $content_type, 'callstack' => System::callstack(20), 'method' => $_SERVER['REQUEST_METHOD'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			Logger::debug('Exit with error', ['code' => $httpCode, 'content_type' => $content_type, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $httpCode);
 		self::jsonExit($data, $content_type);

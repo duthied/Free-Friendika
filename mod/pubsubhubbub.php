@@ -43,7 +43,7 @@ function pubsubhubbub_init(App $a) {
 	// [hub_secret] => af11...
 	// [hub_topic] => http://friendica.local/dfrn_poll/sazius
 
-	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	if (DI::args()->getMethod() === App\Router::POST) {
 		$hub_mode         = $_POST['hub_mode']         ?? '';
 		$hub_callback     = $_POST['hub_callback']     ?? '';
 		$hub_verify_token = $_POST['hub_verify_token'] ?? '';
