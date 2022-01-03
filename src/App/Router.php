@@ -41,6 +41,7 @@ use Friendica\Module\Special\Options;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Util\Router\FriendicaGroupCountBased;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -123,20 +124,18 @@ class Router
 	 */
 	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, IManageConfigValues $config, Arguments $args, LoggerInterface $logger, Dice $dice, RouteCollector $routeCollector = null)
 	{
-		$this->baseRoutesFilepath = $baseRoutesFilepath;
-		$this->l10n = $l10n;
-		$this->cache = $cache;
-		$this->lock = $lock;
-		$this->args = $args;
-		$this->config = $config;
-		$this->dice = $dice;
-		$this->server = $server;
-		$this->logger = $logger;
+		$this->baseRoutesFilepath      = $baseRoutesFilepath;
+		$this->l10n                    = $l10n;
+		$this->cache                   = $cache;
+		$this->lock                    = $lock;
+		$this->args                    = $args;
+		$this->config                  = $config;
+		$this->dice                    = $dice;
+		$this->server                  = $server;
+		$this->logger                  = $logger;
 		$this->dice_profiler_threshold = $config->get('system', 'dice_profiler_threshold', 0);
 
-		$this->routeCollector = isset($routeCollector) ?
-			$routeCollector :
-			new RouteCollector(new Std(), new GroupCountBased());
+		$this->routeCollector = $routeCollector ?? new RouteCollector(new Std(), new GroupCountBased());
 
 		if ($this->baseRoutesFilepath && !file_exists($this->baseRoutesFilepath)) {
 			throw new HTTPException\InternalServerErrorException('Routes file path does\'n exist.');
@@ -155,9 +154,7 @@ class Router
 	 */
 	public function loadRoutes(array $routes)
 	{
-		$routeCollector = (isset($this->routeCollector) ?
-			$this->routeCollector :
-			new RouteCollector(new Std(), new GroupCountBased()));
+		$routeCollector = ($this->routeCollector ?? new RouteCollector(new Std(), new GroupCountBased()));
 
 		$this->addRoutes($routeCollector, $routes);
 
@@ -175,7 +172,10 @@ class Router
 			if ($this->isGroup($config)) {
 				$this->addGroup($route, $config, $routeCollector);
 			} elseif ($this->isRoute($config)) {
-				$routeCollector->addRoute($config[1], $route, $config[0]);
+				// Always add the OPTIONS endpoint to a route
+				$httpMethods   = (array) $config[1];
+				$httpMethods[] = Router::OPTIONS;
+				$routeCollector->addRoute($httpMethods, $route, $config[0]);
 			} else {
 				throw new HTTPException\InternalServerErrorException("Wrong route config for route '" . print_r($route, true) . "'");
 			}
@@ -258,23 +258,26 @@ class Router
 		$cmd = $this->args->getCommand();
 		$cmd = '/' . ltrim($cmd, '/');
 
-		$dispatcher = new Dispatcher\GroupCountBased($this->getCachedDispatchData());
+		$dispatcher = new FriendicaGroupCountBased($this->getCachedDispatchData());
 
 		$this->parameters = [];
 
-		$routeInfo  = $dispatcher->dispatch($this->args->getMethod(), $cmd);
-		if ($routeInfo[0] === Dispatcher::FOUND) {
-			$moduleClass = $routeInfo[1];
-			$this->parameters = $routeInfo[2];
-		} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-			if ($this->args->getMethod() === static::OPTIONS) {
-				// Default response for HTTP OPTIONS requests in case there is no special treatment
-				$moduleClass = Options::class;
-			} else {
-				throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
-			}
+		// Check if the HTTP method ist OPTIONS and return the special Options Module with the possible HTTP methods
+		if ($this->args->getMethod() === static::OPTIONS) {
+			$routeOptions = $dispatcher->getOptions($cmd);
+
+			$moduleClass      = Options::class;
+			$this->parameters = ['allowedMethods' => $routeOptions];
 		} else {
-			throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
+			$routeInfo = $dispatcher->dispatch($this->args->getMethod(), $cmd);
+			if ($routeInfo[0] === Dispatcher::FOUND) {
+				$moduleClass      = $routeInfo[1];
+				$this->parameters = $routeInfo[2];
+			} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+				throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
+			} else {
+				throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
+			}
 		}
 
 		return $moduleClass;
@@ -374,13 +377,13 @@ class Router
 	 */
 	private function getCachedDispatchData()
 	{
-		$routerDispatchData = $this->cache->get('routerDispatchData');
+		$routerDispatchData         = $this->cache->get('routerDispatchData');
 		$lastRoutesFileModifiedTime = $this->cache->get('lastRoutesFileModifiedTime');
-		$forceRecompute = false;
+		$forceRecompute             = false;
 
 		if ($this->baseRoutesFilepath) {
 			$routesFileModifiedTime = filemtime($this->baseRoutesFilepath);
-			$forceRecompute = $lastRoutesFileModifiedTime != $routesFileModifiedTime;
+			$forceRecompute         = $lastRoutesFileModifiedTime != $routesFileModifiedTime;
 		}
 
 		if (!$forceRecompute && $routerDispatchData) {
