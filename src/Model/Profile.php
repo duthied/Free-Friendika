@@ -495,7 +495,7 @@ class Profile
 		$bd_short = DI::l10n()->t('F d');
 
 		$cachekey = 'get_birthdays:' . local_user();
-		$events = DI::cache()->get($cachekey);
+		$events   = DI::cache()->get($cachekey);
 		if (is_null($events)) {
 			$result = DBA::p(
 				"SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
@@ -508,7 +508,7 @@ class Profile
 					AND NOT `contact`.`archive`
 					AND NOT `contact`.`deleted`
 				WHERE `event`.`uid` = ? AND `type` = 'birthday' AND `start` < ? AND `finish` > ?
-				ORDER BY `start` ASC ",
+				ORDER BY `start`",
 				Contact::SHARING,
 				Contact::FRIEND,
 				local_user(),
@@ -521,11 +521,11 @@ class Profile
 			}
 		}
 
-		$total = 0;
+		$total      = 0;
 		$classtoday = '';
 		$tpl_events = [];
 		if (DBA::isResult($events)) {
-			$now = strtotime('now');
+			$now  = strtotime('now');
 			$cids = [];
 
 			$istoday = false;
@@ -563,13 +563,13 @@ class Profile
 		}
 		$tpl = Renderer::getMarkupTemplate('birthdays_reminder.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$classtoday' => $classtoday,
-			'$count' => $total,
+			'$classtoday'      => $classtoday,
+			'$count'           => $total,
 			'$event_reminders' => DI::l10n()->t('Birthday Reminders'),
-			'$event_title' => DI::l10n()->t('Birthdays this week:'),
-			'$events' => $tpl_events,
-			'$lbr' => '{', // raw brackets mess up if/endif macro processing
-			'$rbr' => '}'
+			'$event_title'     => DI::l10n()->t('Birthdays this week:'),
+			'$events'          => $tpl_events,
+			'$lbr'             => '{', // raw brackets mess up if/endif macro processing
+			'$rbr'             => '}'
 		]);
 	}
 
