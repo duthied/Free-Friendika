@@ -477,12 +477,19 @@ class Profile
 		return $o;
 	}
 
-	public static function getBirthdays()
+	/**
+	 * Returns the upcoming birthdays of contacts of the current user as HTML content
+	 *
+	 * @return string The upcoming birthdays (HTML)
+	 *
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\ServiceUnavailableException
+	 * @throws \ImagickException
+	 */
+	public static function getBirthdays(): string
 	{
-		$o = '';
-
 		if (!local_user() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
-			return $o;
+			return '';
 		}
 
 		/*
@@ -494,8 +501,8 @@ class Profile
 
 		$bd_short = DI::l10n()->t('F d');
 
-		$cachekey = 'get_birthdays:' . local_user();
-		$events   = DI::cache()->get($cachekey);
+		$cacheKey = 'get_birthdays:' . local_user();
+		$events   = DI::cache()->get($cacheKey);
 		if (is_null($events)) {
 			$result = DBA::p(
 				"SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
@@ -517,53 +524,53 @@ class Profile
 			);
 			if (DBA::isResult($result)) {
 				$events = DBA::toArray($result);
-				DI::cache()->set($cachekey, $events, Duration::HOUR);
+				DI::cache()->set($cacheKey, $events, Duration::HOUR);
 			}
 		}
 
 		$total      = 0;
-		$classtoday = '';
+		$classToday = '';
 		$tpl_events = [];
 		if (DBA::isResult($events)) {
 			$now  = strtotime('now');
 			$cids = [];
 
-			$istoday = false;
-			foreach ($events as $rr) {
-				if (strlen($rr['name'])) {
-					$total ++;
+			$isToday = false;
+			foreach ($events as $event) {
+				if (strlen($event['name'])) {
+					$total++;
 				}
-				if ((strtotime($rr['start'] . ' +00:00') < $now) && (strtotime($rr['finish'] . ' +00:00') > $now)) {
-					$istoday = true;
+				if ((strtotime($event['start'] . ' +00:00') < $now) && (strtotime($event['finish'] . ' +00:00') > $now)) {
+					$isToday = true;
 				}
 			}
-			$classtoday = $istoday ? ' birthday-today ' : '';
+			$classToday = $isToday ? ' birthday-today ' : '';
 			if ($total) {
-				foreach ($events as $rr) {
-					if (!strlen($rr['name'])) {
+				foreach ($events as $event) {
+					if (!strlen($event['name'])) {
 						continue;
 					}
 
 					// avoid duplicates
-					if (in_array($rr['cid'], $cids)) {
+					if (in_array($event['cid'], $cids)) {
 						continue;
 					}
-					$cids[] = $rr['cid'];
+					$cids[] = $event['cid'];
 
-					$today = (((strtotime($rr['start'] . ' +00:00') < $now) && (strtotime($rr['finish'] . ' +00:00') > $now)) ? true : false);
+					$today = (strtotime($event['start'] . ' +00:00') < $now) && (strtotime($event['finish'] . ' +00:00') > $now);
 
 					$tpl_events[] = [
-						'id'    => $rr['id'],
-						'link'  => Contact::magicLinkById($rr['cid']),
-						'title' => $rr['name'],
-						'date'  => DI::l10n()->getDay(DateTimeFormat::local($rr['start'], $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '')
+						'id'    => $event['id'],
+						'link'  => Contact::magicLinkById($event['cid']),
+						'title' => $event['name'],
+						'date'  => DI::l10n()->getDay(DateTimeFormat::local($event['start'], $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '')
 					];
 				}
 			}
 		}
 		$tpl = Renderer::getMarkupTemplate('birthdays_reminder.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$classtoday'      => $classtoday,
+			'$classtoday'      => $classToday,
 			'$count'           => $total,
 			'$event_reminders' => DI::l10n()->t('Birthday Reminders'),
 			'$event_title'     => DI::l10n()->t('Birthdays this week:'),
