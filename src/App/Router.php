@@ -264,10 +264,8 @@ class Router
 
 		// Check if the HTTP method is OPTIONS and return the special Options Module with the possible HTTP methods
 		if ($this->args->getMethod() === static::OPTIONS) {
-			$routeOptions = $dispatcher->getOptions($cmd);
-
 			$moduleClass      = Options::class;
-			$this->parameters = ['allowedMethods' => $routeOptions];
+			$this->parameters = ['allowedMethods' => $dispatcher->getOptions($cmd)];
 		} else {
 			$routeInfo = $dispatcher->dispatch($this->args->getMethod(), $cmd);
 			if ($routeInfo[0] === Dispatcher::FOUND) {

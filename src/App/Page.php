@@ -32,7 +32,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
-use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
