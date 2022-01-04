@@ -262,7 +262,7 @@ class Router
 
 		$this->parameters = [];
 
-		// Check if the HTTP method ist OPTIONS and return the special Options Module with the possible HTTP methods
+		// Check if the HTTP method is OPTIONS and return the special Options Module with the possible HTTP methods
 		if ($this->args->getMethod() === static::OPTIONS) {
 			$routeOptions = $dispatcher->getOptions($cmd);
 

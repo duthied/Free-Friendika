@@ -174,18 +174,6 @@ abstract class BaseModule implements ICanHandleRequests
 	}
 
 	/**
-	 * Module OPTIONS method to process submitted data
-	 *
-	 * Extend this method if the module is supposed to process OPTIONS requests.
-	 * Doesn't display any content
-	 *
-	 * @param string[] $request The $_REQUEST content
-	 */
-	protected function options(array $request = [])
-	{
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public function run(array $request = []): ResponseInterface
@@ -236,9 +224,6 @@ abstract class BaseModule implements ICanHandleRequests
 				break;
 			case Router::PUT:
 				$this->put($request);
-				break;
-			case Router::OPTIONS:
-				$this->options($request);
 				break;
 		}
 

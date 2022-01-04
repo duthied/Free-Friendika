@@ -40,7 +40,6 @@ class OptionsTest extends FixtureTest
 		self::assertEquals([
 			'Allow'                       => [implode(',', [Router::GET, Router::POST])],
 			ICanCreateResponses::X_HEADER => ['blank'],
-			'Content-Type'
 		], $response->getHeaders());
 		self::assertEquals(implode(',', [Router::GET, Router::POST]), $response->getHeaderLine('Allow'));
 	}

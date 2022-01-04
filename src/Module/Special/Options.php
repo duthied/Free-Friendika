@@ -34,13 +34,9 @@ use Friendica\Module\Response;
  */
 class Options extends BaseModule
 {
-	protected function options(array $request = [])
+	protected function rawContent(array $request = [])
 	{
-		$allowedMethods = $this->parameters['AllowedMethods'] ?? [];
-
-		if (empty($allowedMethods)) {
-			$allowedMethods = Router::ALLOWED_METHODS;
-		}
+		$allowedMethods = $this->parameters['AllowedMethods'] ?? Router::ALLOWED_METHODS;
 
 		// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
 		$this->response->setHeader(implode(',', $allowedMethods), 'Allow');
