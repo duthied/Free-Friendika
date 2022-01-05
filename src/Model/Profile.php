@@ -477,13 +477,19 @@ class Profile
 		return $o;
 	}
 
-	public static function getBirthdays()
+	/**
+	 * Returns the upcoming birthdays of contacts of the current user as HTML content
+	 *
+	 * @return string The upcoming birthdays (HTML)
+	 *
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\ServiceUnavailableException
+	 * @throws \ImagickException
+	 */
+	public static function getBirthdays(): string
 	{
-		$a = DI::app();
-		$o = '';
-
 		if (!local_user() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
-			return $o;
+			return '';
 		}
 
 		/*
@@ -493,13 +499,12 @@ class Profile
 		* 			return $o;
 		*/
 
-		$bd_format = DI::l10n()->t('g A l F d'); // 8 AM Friday January 18
 		$bd_short = DI::l10n()->t('F d');
 
-		$cachekey = 'get_birthdays:' . local_user();
-		$r = DI::cache()->get($cachekey);
-		if (is_null($r)) {
-			$s = DBA::p(
+		$cacheKey = 'get_birthdays:' . local_user();
+		$events   = DI::cache()->get($cacheKey);
+		if (is_null($events)) {
+			$result = DBA::p(
 				"SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
 				INNER JOIN `contact`
 					ON `contact`.`id` = `event`.`cid`
@@ -510,67 +515,68 @@ class Profile
 					AND NOT `contact`.`archive`
 					AND NOT `contact`.`deleted`
 				WHERE `event`.`uid` = ? AND `type` = 'birthday' AND `start` < ? AND `finish` > ?
-				ORDER BY `start` ASC ",
+				ORDER BY `start`",
 				Contact::SHARING,
 				Contact::FRIEND,
 				local_user(),
 				DateTimeFormat::utc('now + 6 days'),
 				DateTimeFormat::utcNow()
 			);
-			if (DBA::isResult($s)) {
-				$r = DBA::toArray($s);
-				DI::cache()->set($cachekey, $r, Duration::HOUR);
+			if (DBA::isResult($result)) {
+				$events = DBA::toArray($result);
+				DI::cache()->set($cacheKey, $events, Duration::HOUR);
 			}
 		}
 
-		$total = 0;
-		$classtoday = '';
-		if (DBA::isResult($r)) {
-			$now = strtotime('now');
+		$total      = 0;
+		$classToday = '';
+		$tpl_events = [];
+		if (DBA::isResult($events)) {
+			$now  = strtotime('now');
 			$cids = [];
 
-			$istoday = false;
-			foreach ($r as $rr) {
-				if (strlen($rr['name'])) {
-					$total ++;
+			$isToday = false;
+			foreach ($events as $event) {
+				if (strlen($event['name'])) {
+					$total++;
 				}
-				if ((strtotime($rr['start'] . ' +00:00') < $now) && (strtotime($rr['finish'] . ' +00:00') > $now)) {
-					$istoday = true;
+				if ((strtotime($event['start'] . ' +00:00') < $now) && (strtotime($event['finish'] . ' +00:00') > $now)) {
+					$isToday = true;
 				}
 			}
-			$classtoday = $istoday ? ' birthday-today ' : '';
+			$classToday = $isToday ? ' birthday-today ' : '';
 			if ($total) {
-				foreach ($r as &$rr) {
-					if (!strlen($rr['name'])) {
+				foreach ($events as $event) {
+					if (!strlen($event['name'])) {
 						continue;
 					}
 
 					// avoid duplicates
-
-					if (in_array($rr['cid'], $cids)) {
+					if (in_array($event['cid'], $cids)) {
 						continue;
 					}
-					$cids[] = $rr['cid'];
+					$cids[] = $event['cid'];
 
-					$today = (((strtotime($rr['start'] . ' +00:00') < $now) && (strtotime($rr['finish'] . ' +00:00') > $now)) ? true : false);
+					$today = (strtotime($event['start'] . ' +00:00') < $now) && (strtotime($event['finish'] . ' +00:00') > $now);
 
-					$rr['link'] = Contact::magicLinkById($rr['cid']);
-					$rr['title'] = $rr['name'];
-					$rr['date'] = DI::l10n()->getDay(DateTimeFormat::local($rr['start'], $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
-					$rr['startime'] = null;
-					$rr['today'] = $today;
+					$tpl_events[] = [
+						'id'    => $event['id'],
+						'link'  => Contact::magicLinkById($event['cid']),
+						'title' => $event['name'],
+						'date'  => DI::l10n()->getDay(DateTimeFormat::local($event['start'], $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '')
+					];
 				}
 			}
 		}
 		$tpl = Renderer::getMarkupTemplate('birthdays_reminder.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$classtoday' => $classtoday,
-			'$count' => $total,
+			'$classtoday'      => $classToday,
+			'$count'           => $total,
 			'$event_reminders' => DI::l10n()->t('Birthday Reminders'),
-			'$event_title' => DI::l10n()->t('Birthdays this week:'),
-			'$events' => $r,
-			'$lbr' => '{', // raw brackets mess up if/endif macro processing
-			'$rbr' => '}'
+			'$event_title'     => DI::l10n()->t('Birthdays this week:'),
+			'$events'          => $tpl_events,
+			'$lbr'             => '{', // raw brackets mess up if/endif macro processing
+			'$rbr'             => '}'
 		]);
 	}
 
