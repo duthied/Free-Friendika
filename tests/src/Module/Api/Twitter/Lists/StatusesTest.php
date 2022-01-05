@@ -19,7 +19,7 @@ class StatusesTest extends ApiTest
 	{
 		$this->expectException(BadRequestException::class);
 
-		(new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		(new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 	}
 
@@ -28,7 +28,7 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiListsStatusesWithListId()
 	{
-		$response = (new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		$response = (new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'list_id' => 1,
 				'page'    => -1,
@@ -48,7 +48,7 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiListsStatusesWithListIdAndRss()
 	{
-		$response = (new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'rss']))
+		$response = (new Statuses(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'rss']))
 			->run([
 				'list_id' => 1
 			]);

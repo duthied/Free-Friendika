@@ -29,10 +29,17 @@ use Friendica\Test\src\Module\Api\ApiTest;
 
 class DeleteTest extends ApiTest
 {
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->useHttpMethod(Router::POST);
+	}
+
 	public function testEmpty()
 	{
 		$this->expectException(BadRequestException::class);
-		(new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		(new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 
 	}
@@ -40,7 +47,7 @@ class DeleteTest extends ApiTest
 	public function testWrong()
 	{
 		$this->expectException(BadRequestException::class);
-		(new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		(new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'album' => 'album_name'
 			]);
@@ -50,7 +57,7 @@ class DeleteTest extends ApiTest
 	{
 		$this->loadFixture(__DIR__ . '/../../../../../datasets/photo/photo.fixture.php', DI::dba());
 
-		$response = (new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		$response = (new Delete(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'album' => 'test_album']
 			);

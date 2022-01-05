@@ -378,6 +378,12 @@ class Page implements ArrayAccess
 	 */
 	public function exit(ResponseInterface $response)
 	{
+		header(sprintf("HTTP/%s %s %s",
+			$response->getProtocolVersion(),
+			$response->getStatusCode(),
+			$response->getReasonPhrase())
+		);
+
 		foreach ($response->getHeaders() as $key => $header) {
 			if (is_array($header)) {
 				$header_str = implode(',', $header);

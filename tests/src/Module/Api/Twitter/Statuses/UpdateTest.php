@@ -9,6 +9,13 @@ use Friendica\Test\src\Module\Api\ApiTest;
 
 class UpdateTest extends ApiTest
 {
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->useHttpMethod(Router::POST);
+	}
+
 	/**
 	 * Test the api_statuses_update() function.
 	 *
@@ -28,7 +35,7 @@ class UpdateTest extends ApiTest
 			]
 		];
 
-		$response = (new Update(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		$response = (new Update(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'status'                => 'Status content #friendica',
 				'in_reply_to_status_id' => 0,
@@ -50,7 +57,7 @@ class UpdateTest extends ApiTest
 	 */
 	public function testApiStatusesUpdateWithHtml()
 	{
-		$response = (new Update(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		$response = (new Update(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'htmlstatus' => '<b>Status content</b>',
 			]);

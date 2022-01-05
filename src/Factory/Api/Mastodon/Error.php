@@ -47,7 +47,7 @@ class Error extends BaseFactory
 
 	private function logError(int $errorno, string $error)
 	{
-		$this->logger->info('API Error', ['no' => $errorno, 'error' => $error, 'method' => $this->server['REQUEST_METHOD'] ?? '', 'command' => $this->args->getQueryString(), 'user-agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
+		$this->logger->info('API Error', ['no' => $errorno, 'error' => $error, 'method' => $this->args->getMethod(), 'command' => $this->args->getQueryString(), 'user-agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
 	}
 
 	public function RecordNotFound()

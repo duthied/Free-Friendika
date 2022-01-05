@@ -73,6 +73,8 @@ class Following extends BaseApi
 			$params['order'] = ['cid'];
 		}
 
+		$accounts = [];
+
 		$followers = DBA::select('contact-relation', ['cid'], $condition, $params);
 		while ($follower = DBA::fetch($followers)) {
 			self::setBoundaries($follower['cid']);

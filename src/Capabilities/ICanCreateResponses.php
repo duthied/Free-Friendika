@@ -31,18 +31,20 @@ interface ICanCreateResponses
 	 */
 	const X_HEADER = 'X-RESPONSE-TYPE';
 
-	const TYPE_HTML = 'html';
-	const TYPE_XML  = 'xml';
-	const TYPE_JSON = 'json';
-	const TYPE_ATOM = 'atom';
-	const TYPE_RSS  = 'rss';
+	const TYPE_HTML  = 'html';
+	const TYPE_XML   = 'xml';
+	const TYPE_JSON  = 'json';
+	const TYPE_ATOM  = 'atom';
+	const TYPE_RSS   = 'rss';
+	const TYPE_BLANK = 'blank';
 
 	const ALLOWED_TYPES = [
 		self::TYPE_HTML,
 		self::TYPE_XML,
 		self::TYPE_JSON,
 		self::TYPE_ATOM,
-		self::TYPE_RSS
+		self::TYPE_RSS,
+		self::TYPE_BLANK,
 	];
 
 	/**
@@ -69,6 +71,16 @@ interface ICanCreateResponses
 	 * @throws InternalServerErrorException
 	 */
 	public function setType(string $type, ?string $content_type = null): void;
+
+	/**
+	 * Sets the status and the reason for the response
+	 *
+	 * @param int $status The HTTP status code
+	 * @param null|string $reason Reason phrase (when empty a default will be used based on the status code)
+	 *
+	 * @return void
+	 */
+	public function setStatus(int $status = 200, ?string $reason = null): void;
 
 	/**
 	 * Creates a PSR-7 compliant interface

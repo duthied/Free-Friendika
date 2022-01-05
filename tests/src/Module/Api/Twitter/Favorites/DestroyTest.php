@@ -10,6 +10,13 @@ use Friendica\Test\src\Module\Api\ApiTest;
 
 class DestroyTest extends ApiTest
 {
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->useHttpMethod(Router::POST);
+	}
+
 	/**
 	 * Test the api_favorites_create_destroy() function with an invalid ID.
 	 *
@@ -19,7 +26,7 @@ class DestroyTest extends ApiTest
 	{
 		$this->expectException(BadRequestException::class);
 
-		(new Destroy(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		(new Destroy(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 	}
 
@@ -30,7 +37,7 @@ class DestroyTest extends ApiTest
 	 */
 	public function testApiFavoritesCreateDestroyWithDestroyAction()
 	{
-		$response = (new Destroy(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		$response = (new Destroy(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'id' => 3
 			]);

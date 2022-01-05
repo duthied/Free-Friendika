@@ -17,7 +17,7 @@ class NetworkPublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesNetworkpublicTimeline()
 	{
-		$response = (new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		$response = (new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'max_id' => 10
 			]);
@@ -39,7 +39,7 @@ class NetworkPublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesNetworkpublicTimelineWithNegativePage()
 	{
-		$response = (new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET]))
+		$response = (new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'page' => -2
 			]);
@@ -75,7 +75,7 @@ class NetworkPublicTimelineTest extends ApiTest
 	 */
 	public function testApiStatusesNetworkpublicTimelineWithRss()
 	{
-		$response = (new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], [
+		$response = (new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], [
 			'extension' => ICanCreateResponses::TYPE_RSS
 		]))->run([
 			'page' => -2

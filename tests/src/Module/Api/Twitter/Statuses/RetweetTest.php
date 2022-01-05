@@ -10,6 +10,13 @@ use Friendica\Test\src\Module\Api\ApiTest;
 
 class RetweetTest extends ApiTest
 {
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->useHttpMethod(Router::POST);
+	}
+
 	/**
 	 * Test the api_statuses_repeat() function.
 	 *
@@ -19,7 +26,7 @@ class RetweetTest extends ApiTest
 	{
 		$this->expectException(BadRequestException::class);
 
-		(new Retweet(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		(new Retweet(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run();
 	}
 
@@ -45,7 +52,7 @@ class RetweetTest extends ApiTest
 	 */
 	public function testApiStatusesRepeatWithId()
 	{
-		$response = (new Retweet(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		$response = (new Retweet(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'id' => 1
 			]);
@@ -62,7 +69,7 @@ class RetweetTest extends ApiTest
 	 */
 	public function testApiStatusesRepeatWithSharedId()
 	{
-		$response = (new Retweet(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::POST]))
+		$response = (new Retweet(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run([
 				'id' => 5
 			]);

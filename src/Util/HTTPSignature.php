@@ -28,9 +28,7 @@ use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
-use Friendica\Network\HTTPClient\Response\CurlResult;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
-use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
 
 /**
  * Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -66,7 +64,7 @@ class HTTPSignature
 
 		// Decide if $data arrived via controller submission or curl.
 		$headers = [];
-		$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']).' '.$_SERVER['REQUEST_URI'];
+		$headers['(request-target)'] = strtolower(DI::args()->getMethod()).' '.$_SERVER['REQUEST_URI'];
 
 		foreach ($_SERVER as $k => $v) {
 			if (strpos($k, 'HTTP_') === 0) {
@@ -493,7 +491,7 @@ class HTTPSignature
 		}
 
 		$headers = [];
-		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . parse_url($http_headers['REQUEST_URI'], PHP_URL_PATH);
+		$headers['(request-target)'] = strtolower(DI::args()->getMethod()) . ' ' . parse_url($http_headers['REQUEST_URI'], PHP_URL_PATH);
 
 		// First take every header
 		foreach ($http_headers as $k => $v) {

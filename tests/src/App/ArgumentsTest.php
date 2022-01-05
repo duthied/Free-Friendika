@@ -32,6 +32,7 @@ class ArgumentsTest extends TestCase
 		self::assertEquals($assert['command'], $arguments->getCommand());
 		self::assertEquals($assert['argv'], $arguments->getArgv());
 		self::assertEquals($assert['argc'], $arguments->getArgc());
+		self::assertEquals($assert['method'], $arguments->getMethod());
 		self::assertCount($assert['argc'], $arguments->getArgv());
 	}
 
@@ -47,6 +48,7 @@ class ArgumentsTest extends TestCase
 			'command'     => '',
 			'argv'        => [],
 			'argc'        => 0,
+			'method'      => App\Router::GET
 		],
 			$arguments);
 	}
@@ -60,6 +62,7 @@ class ArgumentsTest extends TestCase
 					'command'     => 'profile/test/it',
 					'argv'        => ['profile', 'test', 'it'],
 					'argc'        => 3,
+					'method'      => App\Router::GET,
 				],
 				'server' => [
 					'QUERY_STRING' => 'pagename=profile/test/it&arg1=value1&arg2=value2',
@@ -74,6 +77,7 @@ class ArgumentsTest extends TestCase
 					'command'     => '~test/it',
 					'argv'        => ['~test', 'it'],
 					'argc'        => 2,
+					'method'      => App\Router::GET,
 				],
 				'server' => [
 					'QUERY_STRING' => 'pagename=~test/it&arg1=value1&arg2=value2',
@@ -88,6 +92,7 @@ class ArgumentsTest extends TestCase
 					'command'     => 'u/test/it',
 					'argv'        => ['u', 'test', 'it'],
 					'argc'        => 3,
+					'method'      => App\Router::GET,
 				],
 				'server' => [
 					'QUERY_STRING' => 'pagename=u/test/it&arg1=value1&arg2=value2',
@@ -102,6 +107,7 @@ class ArgumentsTest extends TestCase
 					'command'     => 'profile/test/it',
 					'argv'        => ['profile', 'test', 'it'],
 					'argc'        => 3,
+					'method'      => App\Router::GET,
 				],
 				'server' => [
 					'QUERY_STRING' => 'pagename=profile/test/it&arg1=value1&arg2=value2/',
@@ -116,6 +122,7 @@ class ArgumentsTest extends TestCase
 					'command'     => 'profile/test/it',
 					'argv'        => ['profile', 'test', 'it'],
 					'argc'        => 3,
+					'method'      => App\Router::GET,
 				],
 				'server' => [
 					'QUERY_STRING' => 'wrong=profile/test/it&arg1=value1&arg2=value2/',
@@ -130,6 +137,7 @@ class ArgumentsTest extends TestCase
 					'command'     => 'notvalid/it',
 					'argv'        => ['notvalid', 'it'],
 					'argc'        => 2,
+					'method'      => App\Router::GET,
 				],
 				'server' => [
 					'QUERY_STRING' => 'pagename=notvalid/it&arg1=value1&arg2=value2/',
@@ -143,6 +151,7 @@ class ArgumentsTest extends TestCase
 					'command'     => '',
 					'argv'        => [],
 					'argc'        => 0,
+					'method'      => App\Router::GET,
 				],
 				'server' => [
 					'QUERY_STRING' => 'arg1=value1&arg2=value2/',
@@ -156,9 +165,26 @@ class ArgumentsTest extends TestCase
 					'command'     => 'api/call.json',
 					'argv'        => ['api', 'call.json'],
 					'argc'        => 2,
+					'method'      => App\Router::GET,
 				],
 				'server' => [
 					'QUERY_STRING' => 'pagename=api/call.json',
+				],
+				'get'    => [
+					'pagename' => 'api/call.json'
+				],
+			],
+			'withHTTPMethod'  => [
+				'assert' => [
+					'queryString' => 'api/call.json',
+					'command'     => 'api/call.json',
+					'argv'        => ['api', 'call.json'],
+					'argc'        => 2,
+					'method'      => App\Router::POST,
+				],
+				'server' => [
+					'QUERY_STRING' => 'pagename=api/call.json',
+					'REQUEST_METHOD' => App\Router::POST,
 				],
 				'get'    => [
 					'pagename' => 'api/call.json'

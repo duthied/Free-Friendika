@@ -18,7 +18,7 @@ class DestroyTest extends ApiTest
 	public function testApiDirectMessagesDestroy()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		(new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+		(new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
 			->run();
 	}
 
@@ -29,7 +29,7 @@ class DestroyTest extends ApiTest
 	 */
 	public function testApiDirectMessagesDestroyWithVerbose()
 	{
-		$response = (new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+		$response = (new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
 			->run([
 				'friendica_verbose' => true,
 			]);
@@ -65,7 +65,7 @@ class DestroyTest extends ApiTest
 	public function testApiDirectMessagesDestroyWithId()
 	{
 		$this->expectException(\Friendica\Network\HTTPException\BadRequestException::class);
-		(new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+		(new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
 			->run([
 				'id' => 1
 			]);
@@ -78,7 +78,7 @@ class DestroyTest extends ApiTest
 	 */
 	public function testApiDirectMessagesDestroyWithIdAndVerbose()
 	{
-		$response = (new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+		$response = (new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
 			->run([
 				'id'                  => 1,
 				'friendica_parenturi' => 'parent_uri',
@@ -102,7 +102,7 @@ class DestroyTest extends ApiTest
 		$ids = DBA::selectToArray('mail', ['id']);
 		$id  = $ids[0]['id'];
 
-		$response = (new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+		$response = (new Destroy(DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
 			->run([
 				'id'                => $id,
 				'friendica_verbose' => true,

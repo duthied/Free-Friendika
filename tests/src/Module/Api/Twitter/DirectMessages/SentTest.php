@@ -19,7 +19,7 @@ class SentTest extends ApiTest
 	{
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$response = (new Sent($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'json']))
+		$response = (new Sent($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
 			->run([
 				'friendica_verbose' => true,
 			]);
@@ -39,7 +39,7 @@ class SentTest extends ApiTest
 	{
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$response = (new Sent($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), ['REQUEST_METHOD' => Router::GET], ['extension' => 'rss']))
+		$response = (new Sent($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'rss']))
 			->run();
 
 		self::assertXml((string)$response->getBody(), 'direct-messages');
