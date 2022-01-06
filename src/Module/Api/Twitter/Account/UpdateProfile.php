@@ -52,6 +52,8 @@ class UpdateProfile extends BaseApi
 			Contact::update(['about' => $request['description']], ['id' => $api_user['id']]);
 		}
 
+		Contact::updateSelfFromUserID($uid, true);
+
 		Profile::publishUpdate($uid);
 
 		$skip_status = $request['skip_status'] ?? false;

@@ -46,6 +46,7 @@ class Photo
 {
 	const CONTACT_PHOTOS = 'Contact Photos';
 	const PROFILE_PHOTOS = 'Profile Photos';
+	const BANNER_PHOTOS  = 'Banner Photos';
 
 	const DEFAULT        = 0;
 	const USER_AVATAR    = 10;
@@ -768,7 +769,7 @@ class Photo
 	/**
 	 * Add permissions to photo ressource
 	 * @todo mix with previous photo permissions
-	 * 
+	 *
 	 * @param string $image_rid
 	 * @param integer $uid
 	 * @param string $str_contact_allow
@@ -870,21 +871,9 @@ class Photo
 		return DBA::exists('photo', ['resource-id' => $guid]);
 	}
 
-	/**
-	 * 
-	 * @param int   $uid   User ID
-	 * @param array $files uploaded file array
-	 * @return array photo record
-	 */
-	public static function upload(int $uid, array $files)
+	private static function uploadImage(array $files)
 	{
 		Logger::info('starting new upload');
-
-		$user = User::getOwnerDataById($uid);
-		if (empty($user)) {
-			Logger::notice('User not found', ['uid' => $uid]);
-			return [];
-		}
 
 		if (empty($files)) {
 			Logger::notice('Empty upload file');
@@ -932,7 +921,7 @@ class Photo
 		}
 
 		if (empty($src)) {
-			Logger::notice('No source file name', ['uid' => $uid, 'files' => $files]);
+			Logger::notice('No source file name', ['files' => $files]);
 			return [];
 		}
 
@@ -943,7 +932,7 @@ class Photo
 		$imagedata = @file_get_contents($src);
 		$Image = new Image($imagedata, $filetype);
 		if (!$Image->isValid()) {
-			Logger::notice('Image is unvalid', ['uid' => $uid, 'files' => $files]);
+			Logger::notice('Image is unvalid', ['files' => $files]);
 			return [];
 		}
 
@@ -980,13 +969,45 @@ class Photo
 			}
 		}
 
-		$resource_id = Photo::newResource();
-		$album       = DI::l10n()->t('Wall Photos');
-		$defperm     = '<' . $user['id'] . '>';
+		return ['image' => $Image, 'filename' => $filename, 'width' => $width, 'height' => $height];
+	}
+
+	/**
+	 *
+	 * @param int   $uid   User ID
+	 * @param array $files uploaded file array
+	 * @return array photo record
+	 */
+	public static function upload(int $uid, array $files, string $album = '', string $allow_cid = null, string $allow_gid = null, string $deny_cid = '', string $deny_gid = '', string $desc = '', string $resource_id = '')
+	{
+		$user = User::getOwnerDataById($uid);
+		if (empty($user)) {
+			Logger::notice('User not found', ['uid' => $uid]);
+			return [];
+		}
+
+		$data = self::uploadImage($files);
+		if (empty($data)) {
+			Logger::info('upload failed');
+			return [];
+		}
+
+		$Image    = $data['image'];
+		$filename = $data['filename'];
+		$width    = $data['width'];
+		$height   = $data['height'];
+
+		$resource_id = $resource_id ?: Photo::newResource();
+		$album       = $album ?: DI::l10n()->t('Wall Photos');
+
+		if (is_null($allow_cid) && is_null($allow_gid)) {
+			$allow_cid = '<' . $user['id'] . '>';
+			$allow_gid = '';
+		}
 
 		$smallest = 0;
 
-		$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 0, self::DEFAULT, $defperm);
+		$r = self::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 0, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 		if (!$r) {
 			Logger::notice('Photo could not be stored');
 			return [];
@@ -994,7 +1015,7 @@ class Photo
 
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
-			$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 1, self::DEFAULT, $defperm);
+			$r = self::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 1, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if ($r) {
 				$smallest = 1;
 			}
@@ -1002,7 +1023,7 @@ class Photo
 
 		if ($width > 320 || $height > 320) {
 			$Image->scaleDown(320);
-			$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 2, self::DEFAULT, $defperm);
+			$r = self::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 2, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if ($r && ($smallest == 0)) {
 				$smallest = 2;
 			}
@@ -1017,16 +1038,129 @@ class Photo
 
 		$picture = [];
 
-		$picture['id']        = $photo['id'];
-		$picture['size']      = $photo['datasize'];
-		$picture['width']     = $photo['width'];
-		$picture['height']    = $photo['height'];
-		$picture['type']      = $photo['type'];
-		$picture['albumpage'] = DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $resource_id;
-		$picture['picture']   = DI::baseUrl() . '/photo/{$resource_id}-0.' . $Image->getExt();
-		$picture['preview']   = DI::baseUrl() . '/photo/{$resource_id}-{$smallest}.' . $Image->getExt();
+		$picture['id']          = $photo['id'];
+		$picture['resource_id'] = $resource_id;
+		$picture['size']        = $photo['datasize'];
+		$picture['width']       = $photo['width'];
+		$picture['height']      = $photo['height'];
+		$picture['type']        = $photo['type'];
+		$picture['albumpage']   = DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $resource_id;
+		$picture['picture']     = DI::baseUrl() . '/photo/{$resource_id}-0.' . $Image->getExt();
+		$picture['preview']     = DI::baseUrl() . '/photo/{$resource_id}-{$smallest}.' . $Image->getExt();
+
+		$Image->__destruct();
 
 		Logger::info('upload done', ['picture' => $picture]);
 		return $picture;
+	}
+
+	/**
+	 *
+	 * @param int   $uid   User ID
+	 * @param array $files uploaded file array
+	 * @return string avatar resource
+	 */
+	public static function uploadAvatar(int $uid, array $files)
+	{
+		$data = self::uploadImage($files);
+		if (empty($data)) {
+			return [];
+		}
+
+		$Image    = $data['image'];
+		$filename = $data['filename'];
+		$width    = $data['width'];
+		$height   = $data['height'];
+
+		$resource_id = Photo::newResource();
+		$album       = DI::l10n()->t(Photo::PROFILE_PHOTOS);
+
+		// upload profile image (scales 4, 5, 6)
+		logger::info('starting new profile image upload');
+
+		if ($width > 300 || $height > 300) {
+			$Image->scaleDown(300);
+		}
+
+		$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $album, 4, Photo::USER_AVATAR);
+		if (!$r) {
+			logger::notice('profile image upload with scale 4 (300) failed');
+		}
+
+		if ($width > 80 || $height > 80) {
+			$Image->scaleDown(80);
+		}
+
+		$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $album, 5, Photo::USER_AVATAR);
+		if (!$r) {
+			logger::notice('profile image upload with scale 5 (80) failed');
+		}
+
+		if ($width > 48 || $height > 48) {
+			$Image->scaleDown(48);
+		}
+
+		$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $album, 6, Photo::USER_AVATAR);
+		if (!$r) {
+			logger::notice('profile image upload with scale 6 (48) failed');
+		}
+
+		$Image->__destruct();
+		logger::info('new profile image upload ended');
+
+		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $resource_id, $uid];
+		Photo::update(['profile' => false, 'photo-type' => Photo::DEFAULT], $condition);
+
+		Contact::updateSelfFromUserID($uid, true);
+
+		// Update global directory in background
+		Profile::publishUpdate($uid);
+
+		return $resource_id;
+	}
+
+	/**
+	 *
+	 * @param int   $uid   User ID
+	 * @param array $files uploaded file array
+	 * @return string avatar resource
+	 */
+	public static function uploadBanner(int $uid, array $files)
+	{
+		$data = self::uploadImage($files);
+		if (empty($data)) {
+			Logger::info('upload failed');
+			return [];
+		}
+
+		$Image    = $data['image'];
+		$filename = $data['filename'];
+		$width    = $data['width'];
+		$height   = $data['height'];
+
+		$resource_id = Photo::newResource();
+		$album       = DI::l10n()->t(Photo::BANNER_PHOTOS);
+
+		if ($width > 960) {
+			$Image->scaleDown(960);
+		}
+
+		$r = self::store($Image, $uid, 0, $resource_id, $filename, $album, 3, self::USER_BANNER);
+		if (!$r) {
+			logger::notice('profile banner upload with scale 3 (960) failed');
+		}
+
+		$Image->__destruct();
+		logger::info('new profile banner upload ended');
+
+		$condition = ["`photo-type` = ? AND `resource-id` != ? AND `uid` = ?", self::USER_BANNER, $resource_id, $uid];
+		Photo::update(['photo-type' => Photo::DEFAULT], $condition);
+
+		Contact::updateSelfFromUserID($uid, true);
+
+		// Update global directory in background
+		Profile::publishUpdate($uid);
+
+		return $resource_id;
 	}
 }
