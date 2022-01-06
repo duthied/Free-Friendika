@@ -692,28 +692,6 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the ACL::isValidContact() function.
-	 *
-	 * @return void
-	 */
-	public function testCheckAclInput()
-	{
-		$result = ACL::isValidContact('<aclstring>', BaseApi::getCurrentUserID());
-		self::assertFalse($result);
-	}
-
-	/**
-	 * Test the ACL::isValidContact() function with an empty ACL string.
-	 *
-	 * @return void
-	 */
-	public function testCheckAclInputWithEmptyAclString()
-	{
-		$result = ACL::isValidContact('', BaseApi::getCurrentUserID());
-		self::assertTrue($result);
-	}
-
-	/**
 	 * Test the save_media_to_database() function.
 	 *
 	 * @return void

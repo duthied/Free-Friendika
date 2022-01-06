@@ -633,7 +633,7 @@ class Photo
 	{
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
-		$avatar_type = (local_user() && (local_user() == $uid)) ? Photo::USER_AVATAR : Photo::DEFAULT;
+		$avatar_type = (local_user() && (local_user() == $uid)) ? self::USER_AVATAR : self::DEFAULT;
 
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 		$albums = DI::cache()->get($key);
@@ -743,7 +743,7 @@ class Photo
 				'allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
 				'resource-id' => $image_rid, 'uid' => $uid
 			];
-			if (!Photo::exists($condition)) {
+			if (!self::exists($condition)) {
 				$photo = self::selectFirst(['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'uid'], ['resource-id' => $image_rid]);
 				if (!DBA::isResult($photo)) {
 					Logger::info('Image not found', ['resource-id' => $image_rid]);
@@ -786,7 +786,7 @@ class Photo
 
 		$condition = ['resource-id' => $image_rid, 'uid' => $uid];
 		Logger::info('Set permissions', ['condition' => $condition, 'permissions' => $fields]);
-		Photo::update($fields, $condition);
+		self::update($fields, $condition);
 	}
 
 	/**
@@ -978,7 +978,7 @@ class Photo
 	 * @param array $files uploaded file array
 	 * @return array photo record
 	 */
-	public static function upload(int $uid, array $files, string $album = '', string $allow_cid = null, string $allow_gid = null, string $deny_cid = '', string $deny_gid = '', string $desc = '', string $resource_id = '')
+	public static function upload(int $uid, array $files, string $album = '', string $allow_cid = null, string $allow_gid = null, string $deny_cid = '', string $deny_gid = '', string $desc = '', string $resource_id = ''): array
 	{
 		$user = User::getOwnerDataById($uid);
 		if (empty($user)) {
@@ -997,7 +997,7 @@ class Photo
 		$width    = $data['width'];
 		$height   = $data['height'];
 
-		$resource_id = $resource_id ?: Photo::newResource();
+		$resource_id = $resource_id ?: self::newResource();
 		$album       = $album ?: DI::l10n()->t('Wall Photos');
 
 		if (is_null($allow_cid) && is_null($allow_gid)) {
@@ -1048,8 +1048,6 @@ class Photo
 		$picture['picture']     = DI::baseUrl() . '/photo/{$resource_id}-0.' . $Image->getExt();
 		$picture['preview']     = DI::baseUrl() . '/photo/{$resource_id}-{$smallest}.' . $Image->getExt();
 
-		$Image->__destruct();
-
 		Logger::info('upload done', ['picture' => $picture]);
 		return $picture;
 	}
@@ -1060,11 +1058,11 @@ class Photo
 	 * @param array $files uploaded file array
 	 * @return string avatar resource
 	 */
-	public static function uploadAvatar(int $uid, array $files)
+	public static function uploadAvatar(int $uid, array $files): string
 	{
 		$data = self::uploadImage($files);
 		if (empty($data)) {
-			return [];
+			return '';
 		}
 
 		$Image    = $data['image'];
@@ -1072,8 +1070,8 @@ class Photo
 		$width    = $data['width'];
 		$height   = $data['height'];
 
-		$resource_id = Photo::newResource();
-		$album       = DI::l10n()->t(Photo::PROFILE_PHOTOS);
+		$resource_id = self::newResource();
+		$album       = DI::l10n()->t(self::PROFILE_PHOTOS);
 
 		// upload profile image (scales 4, 5, 6)
 		logger::info('starting new profile image upload');
@@ -1082,7 +1080,7 @@ class Photo
 			$Image->scaleDown(300);
 		}
 
-		$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $album, 4, Photo::USER_AVATAR);
+		$r = self::store($Image, $uid, 0, $resource_id, $filename, $album, 4, self::USER_AVATAR);
 		if (!$r) {
 			logger::notice('profile image upload with scale 4 (300) failed');
 		}
@@ -1091,7 +1089,7 @@ class Photo
 			$Image->scaleDown(80);
 		}
 
-		$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $album, 5, Photo::USER_AVATAR);
+		$r = self::store($Image, $uid, 0, $resource_id, $filename, $album, 5, self::USER_AVATAR);
 		if (!$r) {
 			logger::notice('profile image upload with scale 5 (80) failed');
 		}
@@ -1100,16 +1098,15 @@ class Photo
 			$Image->scaleDown(48);
 		}
 
-		$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $album, 6, Photo::USER_AVATAR);
+		$r = self::store($Image, $uid, 0, $resource_id, $filename, $album, 6, self::USER_AVATAR);
 		if (!$r) {
 			logger::notice('profile image upload with scale 6 (48) failed');
 		}
 
-		$Image->__destruct();
 		logger::info('new profile image upload ended');
 
 		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $resource_id, $uid];
-		Photo::update(['profile' => false, 'photo-type' => Photo::DEFAULT], $condition);
+		self::update(['profile' => false, 'photo-type' => self::DEFAULT], $condition);
 
 		Contact::updateSelfFromUserID($uid, true);
 
@@ -1125,12 +1122,12 @@ class Photo
 	 * @param array $files uploaded file array
 	 * @return string avatar resource
 	 */
-	public static function uploadBanner(int $uid, array $files)
+	public static function uploadBanner(int $uid, array $files): string
 	{
 		$data = self::uploadImage($files);
 		if (empty($data)) {
 			Logger::info('upload failed');
-			return [];
+			return '';
 		}
 
 		$Image    = $data['image'];
@@ -1138,8 +1135,8 @@ class Photo
 		$width    = $data['width'];
 		$height   = $data['height'];
 
-		$resource_id = Photo::newResource();
-		$album       = DI::l10n()->t(Photo::BANNER_PHOTOS);
+		$resource_id = self::newResource();
+		$album       = DI::l10n()->t(self::BANNER_PHOTOS);
 
 		if ($width > 960) {
 			$Image->scaleDown(960);
@@ -1150,11 +1147,10 @@ class Photo
 			logger::notice('profile banner upload with scale 3 (960) failed');
 		}
 
-		$Image->__destruct();
 		logger::info('new profile banner upload ended');
 
 		$condition = ["`photo-type` = ? AND `resource-id` != ? AND `uid` = ?", self::USER_BANNER, $resource_id, $uid];
-		Photo::update(['photo-type' => Photo::DEFAULT], $condition);
+		self::update(['photo-type' => self::DEFAULT], $condition);
 
 		Contact::updateSelfFromUserID($uid, true);
 
