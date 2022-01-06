@@ -341,4 +341,62 @@ class ACL
 
 		return $o;
 	}
+
+	/**
+	 * Checks the validity of the given ACL string
+	 *
+	 * @param string $acl_string
+	 * @param int    $uid
+	 * @return bool
+	 * @throws Exception
+	 */
+	public static function isValidContact($acl_string, $uid)
+	{
+		if (empty($acl_string)) {
+			return true;
+		}
+
+		// split <x><y><z> into array of cids
+		preg_match_all('/<[A-Za-z0-9]+>/', $acl_string, $array);
+
+		// check for each cid if the contact is valid for the given user
+		$cid_array = $array[0];
+		foreach ($cid_array as $cid) {
+			$cid = str_replace(['<', '>'], ['', ''], $cid);
+			if (!DBA::exists('contact', ['id' => $cid, 'uid' => $uid])) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks the validity of the given ACL string
+	 *
+	 * @param string $acl_string
+	 * @param int    $uid
+	 * @return bool
+	 * @throws Exception
+	 */
+	public static function isValidGroup($acl_string, $uid)
+	{
+		if (empty($acl_string)) {
+			return true;
+		}
+
+		// split <x><y><z> into array of cids
+		preg_match_all('/<[A-Za-z0-9]+>/', $acl_string, $array);
+
+		// check for each cid if the contact is valid for the given user
+		$gid_array = $array[0];
+		foreach ($gid_array as $gid) {
+			$gid = str_replace(['<', '>'], ['', ''], $gid);
+			if (!DBA::exists('group', ['id' => $gid, 'uid' => $uid, 'deleted' => false])) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 }
