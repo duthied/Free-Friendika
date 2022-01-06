@@ -6,6 +6,7 @@
 namespace Friendica\Test\legacy;
 
 use Friendica\App;
+use Friendica\Core\ACL;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
@@ -691,26 +692,25 @@ class ApiTest extends FixtureTest
 	}
 
 	/**
-	 * Test the check_acl_input() function.
+	 * Test the ACL::isValidContact() function.
 	 *
 	 * @return void
 	 */
 	public function testCheckAclInput()
 	{
-		$result = check_acl_input('<aclstring>', BaseApi::getCurrentUserID());
-		// Where does this result come from?
-		self::assertEquals(1, $result);
+		$result = ACL::isValidContact('<aclstring>', BaseApi::getCurrentUserID());
+		self::assertFalse($result);
 	}
 
 	/**
-	 * Test the check_acl_input() function with an empty ACL string.
+	 * Test the ACL::isValidContact() function with an empty ACL string.
 	 *
 	 * @return void
 	 */
 	public function testCheckAclInputWithEmptyAclString()
 	{
-		$result = check_acl_input(' ', BaseApi::getCurrentUserID());
-		self::assertFalse($result);
+		$result = ACL::isValidContact('', BaseApi::getCurrentUserID());
+		self::assertTrue($result);
 	}
 
 	/**
