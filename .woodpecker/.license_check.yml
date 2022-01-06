@@ -1,0 +1,6 @@
+pipeline:
+  check:
+    image: friendicaci/php-cs
+    commands:
+      - export CHANGED_FILES="$(git diff --name-status ${CI_PREV_COMMIT_SHA}..${CI_COMMIT_SHA} | grep -i '\.php$' | cut -f2)"
+      - /check-license.sh
