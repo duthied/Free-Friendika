@@ -1,0 +1,11 @@
+pipeline:
+  check:
+    image: friendicaci/php-cs
+    commands:
+      - if [ ! -z "$${CI_COMMIT_PULL_REQUEST}" ]; then
+          git fetch --no-tags origin ${CI_COMMIT_TARGET_BRANCH};
+          export CHANGED_FILES="$(git diff --name-status $(git merge-base FETCH_HEAD origin/${CI_COMMIT_TARGET_BRANCH})..${CI_COMMIT_SHA} | grep -i '\.php$' | cut -f2)";
+        else
+          export CHANGED_FILES="$(git diff --name-status ${CI_COMMIT_SHA} | grep -i '\.php$' | cut -f2)";
+        fi
+      - /check-license.sh
