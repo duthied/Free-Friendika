@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Twitter\Statuses;
 
-use Friendica\Content\Text\BBCode;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -45,10 +44,12 @@ class Retweet extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$id = $request['id'] ?? 0;
-
-		if (empty($id)) {
-			throw new BadRequestException('Item id not specified');
+		if (!empty($this->parameters['id'])) {
+			$id = (int)$this->parameters['id'];
+		} elseif (!empty($request['id'])) {
+			$id = (int)$request['id'];
+		} else {
+			throw new BadRequestException('An id is missing.');
 		}
 
 		$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
