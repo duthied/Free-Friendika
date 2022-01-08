@@ -866,6 +866,36 @@ class User
 	}
 
 	/**
+	 * Get banner link for given user
+	 *
+	 * @param array  $user
+	 * @return string banner link
+	 * @throws Exception
+	 */
+	public static function getBannerUrl(array $user):string
+	{
+		if (empty($user['nickname'])) {
+			DI::logger()->warning('Missing user nickname key', ['trace' => System::callstack(20)]);
+		}
+
+		$url = DI::baseUrl() . '/photo/banner/';
+
+		$updated =  '';
+		$imagetype = IMAGETYPE_JPEG;
+
+		$photo = Photo::selectFirst(['type', 'created', 'edited', 'updated'], ["scale" => 3, 'uid' => $user['uid'], 'photo-type' => Photo::USER_BANNER]);
+		if (!empty($photo)) {
+			$updated = max($photo['created'], $photo['edited'], $photo['updated']);
+
+			if (in_array($photo['type'], ['image/png', 'image/gif'])) {
+				$imagetype = IMAGETYPE_PNG;
+			}
+		}
+
+		return $url . $user['nickname'] . image_type_to_extension($imagetype) . ($updated ? '?ts=' . strtotime($updated) : '');
+	}
+
+	/**
 	 * Catch-all user creation function
 	 *
 	 * Creates a user from the provided data array, either form fields or OpenID.

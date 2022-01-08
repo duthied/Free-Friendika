@@ -687,7 +687,7 @@ class Contact
 	{
 		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey',
 			'xmpp', 'matrix', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
-			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network'];
+			'photo', 'thumb', 'micro', 'header', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return false;
@@ -753,6 +753,7 @@ class Contact
 		}
 
 		$fields['avatar'] = User::getAvatarUrl($user);
+		$fields['header'] = User::getBannerUrl($user);
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = !$profile['net-publish'];
@@ -2105,7 +2106,7 @@ class Contact
 		// These fields aren't updated by this routine:
 		// 'sensitive'
 
-		$fields = ['uid', 'uri-id', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
+		$fields = ['uid', 'uri-id', 'gsid', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
 			'manually-approve', 'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item', 'xmpp', 'matrix'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
@@ -2136,6 +2137,9 @@ class Contact
 
 		$uriid = $contact['uri-id'];
 		unset($contact['uri-id']);
+
+		$gsid = $contact['gsid'];
+		unset($contact['gsid']);
 
 		$pubkey = $contact['pubkey'];
 		unset($contact['pubkey']);
@@ -2222,6 +2226,30 @@ class Contact
 
 		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
 			self::updateAvatar($id, $ret['photo'], $update);
+		}
+
+		if (empty($ret['header']) && !empty($gsid)) {
+			$gserver = DBA::selectFirst('gserver', ['platform'], ['id' => $gsid]);
+			switch (strtolower($gserver['platform'] ?? '')) {
+				case 'friendica':
+				case 'friendika':
+					/**
+					 * Picture credits
+					 * @author  Lostinlight <https://gitlab.com/lostinlight>
+					 * @link    https://gitlab.com/lostinlight/per_aspera_ad_astra/-/blob/master/friendica-404/friendica-promo-bubbles.jpg
+					 */
+					$ret['header'] = DI::baseUrl() . '/images/friendica-banner.jpg';
+					break;
+				case 'diaspora':
+					/**
+					 * Picture credits
+					 * @author  John Liu <https://www.flickr.com/photos/8047705@N02/>
+					 * @license CC BY 2.0 https://creativecommons.org/licenses/by/2.0/
+					 * @link    https://www.flickr.com/photos/8047705@N02/5572197407
+					 */
+					$ret['header'] = DI::baseUrl() . '/images/diaspora-banner.jpg';
+					break;
+				}
 		}
 
 		$uriid = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);

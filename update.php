@@ -1087,3 +1087,16 @@ function update_1446()
 
 	return Update::SUCCESS;
 }
+
+function update_1449()
+{
+	$users = DBA::select('user', ['uid']);
+	while ($user = DBA::fetch($users)) {
+		if (Contact::updateSelfFromUserID($user['uid'])) {
+			Profile::publishUpdate($user['uid']);
+		}
+	}
+	DBA::close($users);
+
+	return Update::SUCCESS;
+}

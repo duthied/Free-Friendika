@@ -323,6 +323,12 @@ class Photo extends BaseModule
 					$url = DI::baseUrl() . '/images/blank.png';
 				}
 				return MPhoto::createPhotoForExternalResource($url);
+			case "banner":
+				$photo = MPhoto::selectFirst([], ["scale" => 3, 'uid' => $id, 'photo-type' => MPhoto::USER_BANNER]);
+				if (!empty($photo)) {
+					return $photo;
+				}
+				return MPhoto::createPhotoForExternalResource(DI::baseUrl() . '/images/friendica-banner.jpg');
 			case "profile":
 			case "custom":
 				$scale = 4;

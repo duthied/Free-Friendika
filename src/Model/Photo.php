@@ -634,6 +634,7 @@ class Photo
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
 		$avatar_type = (local_user() && (local_user() == $uid)) ? self::USER_AVATAR : self::DEFAULT;
+		$banner_type = (local_user() && (local_user() == $uid)) ? self::USER_BANNER : self::DEFAULT;
 
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 		$albums = DI::cache()->get($key);
@@ -643,19 +644,21 @@ class Photo
 				// At this time we just store the data in the cache
 				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
 					FROM `photo`
-					WHERE `uid` = ? AND `photo-type` IN (?, ?) $sql_extra
+					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
 					$uid,
 					self::DEFAULT,
+					$banner_type,
 					$avatar_type
 				));
 			} else {
 				// This query doesn't do the count and is much faster
 				$albums = DBA::toArray(DBA::p("SELECT DISTINCT(`album`), '' AS `total`
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
-					WHERE `uid` = ? AND `photo-type` IN (?, ?) $sql_extra",
+					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra",
 					$uid,
 					self::DEFAULT,
+					$banner_type,
 					$avatar_type
 				));
 			}
@@ -871,6 +874,69 @@ class Photo
 		return DBA::exists('photo', ['resource-id' => $guid]);
 	}
 
+	private static function fitImageSize($Image)
+	{
+		$max_length = DI::config()->get('system', 'max_image_length');
+		if ($max_length > 0) {
+			$Image->scaleDown($max_length);
+			Logger::info('File upload: Scaling picture to new size', ['max-length' => $max_length]);
+		}
+
+		$filesize = strlen($Image->asString());
+		$width    = $Image->getWidth();
+		$height   = $Image->getHeight();
+
+		$maximagesize = DI::config()->get('system', 'maximagesize');
+
+		if (!empty($maximagesize) && ($filesize > $maximagesize)) {
+			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
+			foreach ([5120, 2560, 1280, 640] as $pixels) {
+				if (($filesize > $maximagesize) && (max($width, $height) > $pixels)) {
+					Logger::info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
+					$Image->scaleDown($pixels);
+					$filesize = strlen($Image->asString());
+					$width = $Image->getWidth();
+					$height = $Image->getHeight();
+				}
+			}
+			if ($filesize > $maximagesize) {
+				Logger::notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
+				return null;
+			}
+		}
+
+		return $Image;
+	}
+
+	private static function loadImageFromURL(string $image_url)
+	{
+		$filename = basename($image_url);
+		if (!empty($image_url)) {
+			$ret = DI::httpClient()->get($image_url);
+			$img_str = $ret->getBody();
+			$type = $ret->getContentType();
+		} else {
+			$img_str = '';
+			$type = '';
+		}
+
+		if (empty($img_str)) {
+			Logger::notice('Empty content');
+			return [];
+		}
+
+		$type = Images::getMimeTypeByData($img_str, $image_url, $type);
+
+		$Image = new Image($img_str, $type);
+
+		$Image = self::fitImageSize($Image);
+		if (empty($Image)) {
+			return [];
+		}
+
+		return ['image' => $Image, 'filename' => $filename];
+	}
+
 	private static function uploadImage(array $files)
 	{
 		Logger::info('starting new upload');
@@ -939,37 +1005,12 @@ class Photo
 		$Image->orient($src);
 		@unlink($src);
 
-		$max_length = DI::config()->get('system', 'max_image_length');
-		if ($max_length > 0) {
-			$Image->scaleDown($max_length);
-			$filesize = strlen($Image->asString());
-			Logger::info('File upload: Scaling picture to new size', ['max-length' => $max_length]);
+		$Image = self::fitImageSize($Image);
+		if (empty($Image)) {
+			return [];
 		}
 
-		$width = $Image->getWidth();
-		$height = $Image->getHeight();
-
-		$maximagesize = DI::config()->get('system', 'maximagesize');
-
-		if (!empty($maximagesize) && ($filesize > $maximagesize)) {
-			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
-			foreach ([5120, 2560, 1280, 640] as $pixels) {
-				if (($filesize > $maximagesize) && (max($width, $height) > $pixels)) {
-					Logger::info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
-					$Image->scaleDown($pixels);
-					$filesize = strlen($Image->asString());
-					$width = $Image->getWidth();
-					$height = $Image->getHeight();
-				}
-			}
-			if ($filesize > $maximagesize) {
-				@unlink($src);
-				Logger::notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
-				return [];
-			}
-		}
-
-		return ['image' => $Image, 'filename' => $filename, 'width' => $width, 'height' => $height];
+		return ['image' => $Image, 'filename' => $filename];
 	}
 
 	/**
@@ -994,8 +1035,8 @@ class Photo
 
 		$Image    = $data['image'];
 		$filename = $data['filename'];
-		$width    = $data['width'];
-		$height   = $data['height'];
+		$width    = $Image->getWidth();
+		$height   = $Image->getHeight();
 
 		$resource_id = $resource_id ?: self::newResource();
 		$album       = $album ?: DI::l10n()->t('Wall Photos');
@@ -1053,22 +1094,36 @@ class Photo
 	}
 
 	/**
+	 * Upload a user avatar
 	 *
-	 * @param int   $uid   User ID
-	 * @param array $files uploaded file array
+	 * @param int    $uid   User ID
+	 * @param array  $files uploaded file array
+	 * @param string $url   External image url
 	 * @return string avatar resource
 	 */
-	public static function uploadAvatar(int $uid, array $files): string
+	public static function uploadAvatar(int $uid, array $files, string $url = ''): string
 	{
-		$data = self::uploadImage($files);
-		if (empty($data)) {
+		if (!empty($files)) {
+			$data = self::uploadImage($files);
+			if (empty($data)) {
+				Logger::info('upload failed');
+				return '';
+			}
+		} elseif (!empty($url)) {
+			$data = self::loadImageFromURL($url);
+			if (empty($data)) {
+				Logger::info('loading from external url failed');
+				return '';
+			}
+		} else {
+			Logger::info('Neither files nor url provided');
 			return '';
 		}
 
 		$Image    = $data['image'];
 		$filename = $data['filename'];
-		$width    = $data['width'];
-		$height   = $data['height'];
+		$width    = $Image->getWidth();
+		$height   = $Image->getHeight();
 
 		$resource_id = self::newResource();
 		$album       = DI::l10n()->t(self::PROFILE_PHOTOS);
@@ -1117,23 +1172,36 @@ class Photo
 	}
 
 	/**
+	 * Upload a user banner
 	 *
-	 * @param int   $uid   User ID
-	 * @param array $files uploaded file array
+	 * @param int    $uid   User ID
+	 * @param array  $files uploaded file array
+	 * @param string $url   External image url
 	 * @return string avatar resource
 	 */
-	public static function uploadBanner(int $uid, array $files): string
+	public static function uploadBanner(int $uid, array $files = [], string $url = ''): string
 	{
-		$data = self::uploadImage($files);
-		if (empty($data)) {
-			Logger::info('upload failed');
+		if (!empty($files)) {
+			$data = self::uploadImage($files);
+			if (empty($data)) {
+				Logger::info('upload failed');
+				return '';
+			}
+		} elseif (!empty($url)) {
+			$data = self::loadImageFromURL($url);
+			if (empty($data)) {
+				Logger::info('loading from external url failed');
+				return '';
+			}
+		} else {
+			Logger::info('Neither files nor url provided');
 			return '';
 		}
 
 		$Image    = $data['image'];
 		$filename = $data['filename'];
-		$width    = $data['width'];
-		$height   = $data['height'];
+		$width    = $Image->getWidth();
+		$height   = $Image->getHeight();
 
 		$resource_id = self::newResource();
 		$album       = DI::l10n()->t(self::BANNER_PHOTOS);
