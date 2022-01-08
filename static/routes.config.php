@@ -120,6 +120,7 @@ $apiRoutes = [
 
 	'/statuses' => [
 		'/destroy[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Statuses\Destroy::class,               [        R::POST]],
+		'/destroy/{id:\d+}[.{extension:json|xml|rss|atom}]'        => [Module\Api\Twitter\Statuses\Destroy::class,               [        R::POST]],
 		'/followers[.{extension:json|xml|rss|atom}]'               => [Module\Api\Twitter\Followers\Lists::class,                [R::GET         ]],
 		'/friends[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Friends\Lists::class,                  [R::GET         ]],
 		'/friends_timeline[.{extension:json|xml|rss|atom}]'        => [Module\Api\Twitter\Statuses\HomeTimeline::class,          [R::GET         ]],
@@ -131,6 +132,7 @@ $apiRoutes = [
 		'/public_timeline[.{extension:json|xml|rss|atom}]'         => [Module\Api\Twitter\Statuses\PublicTimeline::class,        [R::GET         ]],
 		'/replies[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Statuses\Mentions::class,              [R::GET         ]],
 		'/retweet[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Statuses\Retweet::class,               [        R::POST]],
+		'/retweet/{id:\d+}[.{extension:json|xml|rss|atom}]'        => [Module\Api\Twitter\Statuses\Retweet::class,               [        R::POST]],
 		'/show[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Twitter\Statuses\Show::class,                  [R::GET         ]],
 		'/show/{id:\d+}[.{extension:json|xml|rss|atom}]'           => [Module\Api\Twitter\Statuses\Show::class,                  [R::GET         ]],
 		'/update[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Twitter\Statuses\Update::class,                [        R::POST]],
