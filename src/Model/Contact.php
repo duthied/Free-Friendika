@@ -2229,6 +2229,7 @@ class Contact
 		}
 
 		if (empty($ret['header']) && !empty($gsid)) {
+			// Use default banners for certain platforms
 			$gserver = DBA::selectFirst('gserver', ['platform'], ['id' => $gsid]);
 			switch (strtolower($gserver['platform'] ?? '')) {
 				case 'friendica':
@@ -2251,6 +2252,15 @@ class Contact
 					$ret['header'] = DI::baseUrl() . '/images/diaspora-banner.jpg';
 					break;
 				}
+		}
+
+		if (empty($ret['header']) && !in_array($ret['network'], [Protocol::ACTIVITYPUB, Protocol::TWITTER])) {
+			/**
+			 * Use random pictures for networks that don't provide banners.
+			 * The service provides random pictures from Unsplash.
+			 * @license https://unsplash.com/license
+			 */
+			$ret['header'] = 'https://picsum.photos/seed/' . hash('ripemd128', $ret['url']) . '/960/300';
 		}
 
 		$uriid = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
