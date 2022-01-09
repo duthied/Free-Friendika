@@ -890,6 +890,9 @@ class User
 			if (in_array($photo['type'], ['image/png', 'image/gif'])) {
 				$imagetype = IMAGETYPE_PNG;
 			}
+		} else {
+			// Only for the RC phase: Don't return an image link for the default picture
+			return '';
 		}
 
 		return $url . $user['nickname'] . image_type_to_extension($imagetype) . ($updated ? '?ts=' . strtotime($updated) : '');

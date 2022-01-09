@@ -47,6 +47,30 @@ class Images
 	}
 
 	/**
+	 * Return file extension for mime type
+	 * @param string $mimetype
+	 * @return string
+	 */
+	public static function getExtensionByMimeType(string $mimetype): string
+	{
+		switch ($mimetype) {
+			case 'image/png':
+				$imagetype = IMAGETYPE_PNG;
+				break;
+
+			case 'image/gif':
+				$imagetype = IMAGETYPE_GIF;
+				break;
+
+			default:
+				$imagetype = IMAGETYPE_JPC;
+				break;
+		}
+
+		return image_type_to_extension($imagetype);
+	}
+
+	/**
 	 * Returns supported image mimetypes and corresponding file extensions
 	 *
 	 * @return array
