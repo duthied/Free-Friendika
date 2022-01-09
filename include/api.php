@@ -177,14 +177,14 @@ function prepare_photo_data($type, $scale, $photo_id, $uid)
 			for ($k = intval($data['photo']['minscale']); $k <= intval($data['photo']['maxscale']); $k++) {
 				$data['photo']['links'][$k . ":link"]["@attributes"] = ["type" => $data['photo']['type'],
 										"scale" => $k,
-										"href" => DI::baseUrl() . "/photo/" . $data['photo']['resource-id'] . "-" . $k . "." . Images::getExtensionByMimeType($data['photo']['type'])];
+										"href" => DI::baseUrl() . "/photo/" . $data['photo']['resource-id'] . "-" . $k . Images::getExtensionByMimeType($data['photo']['type'])];
 			}
 		} else {
 			$data['photo']['link'] = [];
 			// when we have profile images we could have only scales from 4 to 6, but index of array always needs to start with 0
 			$i = 0;
 			for ($k = intval($data['photo']['minscale']); $k <= intval($data['photo']['maxscale']); $k++) {
-				$data['photo']['link'][$i] = DI::baseUrl() . "/photo/" . $data['photo']['resource-id'] . "-" . $k . "." . Images::getExtensionByMimeType($data['photo']['type']);
+				$data['photo']['link'][$i] = DI::baseUrl() . "/photo/" . $data['photo']['resource-id'] . "-" . $k . Images::getExtensionByMimeType($data['photo']['type']);
 				$i++;
 			}
 		}
@@ -335,7 +335,7 @@ function api_fr_photos_list($type)
 			$photo['album'] = $rr['album'];
 			$photo['filename'] = $rr['filename'];
 			$photo['type'] = $rr['type'];
-			$thumb = DI::baseUrl() . "/photo/" . $rr['resource-id'] . "-" . $rr['scale'] . "." . Images::getExtensionByMimeType($rr['type']);
+			$thumb = DI::baseUrl() . "/photo/" . $rr['resource-id'] . "-" . $rr['scale'] . Images::getExtensionByMimeType($rr['type']);
 			$photo['created'] = $rr['created'];
 			$photo['edited'] = $rr['edited'];
 			$photo['desc'] = $rr['desc'];

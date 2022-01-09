@@ -850,19 +850,16 @@ class User
 				break;
 		}
 
-		$updated =  '';
-		$imagetype = IMAGETYPE_JPEG;
+		$updated  =  '';
+		$mimetype = '';
 
 		$photo = Photo::selectFirst(['type', 'created', 'edited', 'updated'], ["scale" => $scale, 'uid' => $user['uid'], 'profile' => true]);
 		if (!empty($photo)) {
-			$updated = max($photo['created'], $photo['edited'], $photo['updated']);
-
-			if (in_array($photo['type'], ['image/png', 'image/gif'])) {
-				$imagetype = IMAGETYPE_PNG;
-			}
+			$updated  = max($photo['created'], $photo['edited'], $photo['updated']);
+			$mimetype = $photo['type'];
 		}
 
-		return $url . $user['nickname'] . image_type_to_extension($imagetype) . ($updated ? '?ts=' . strtotime($updated) : '');
+		return $url . $user['nickname'] . Images::getExtensionByMimeType($mimetype) . ($updated ? '?ts=' . strtotime($updated) : '');
 	}
 
 	/**
@@ -880,22 +877,19 @@ class User
 
 		$url = DI::baseUrl() . '/photo/banner/';
 
-		$updated =  '';
-		$imagetype = IMAGETYPE_JPEG;
+		$updated  = '';
+		$mimetype = '';
 
 		$photo = Photo::selectFirst(['type', 'created', 'edited', 'updated'], ["scale" => 3, 'uid' => $user['uid'], 'photo-type' => Photo::USER_BANNER]);
 		if (!empty($photo)) {
-			$updated = max($photo['created'], $photo['edited'], $photo['updated']);
-
-			if (in_array($photo['type'], ['image/png', 'image/gif'])) {
-				$imagetype = IMAGETYPE_PNG;
-			}
+			$updated  = max($photo['created'], $photo['edited'], $photo['updated']);
+			$mimetype = $photo['type'];
 		} else {
 			// Only for the RC phase: Don't return an image link for the default picture
 			return '';
 		}
 
-		return $url . $user['nickname'] . image_type_to_extension($imagetype) . ($updated ? '?ts=' . strtotime($updated) : '');
+		return $url . $user['nickname'] . Images::getExtensionByMimeType($mimetype) . ($updated ? '?ts=' . strtotime($updated) : '');
 	}
 
 	/**

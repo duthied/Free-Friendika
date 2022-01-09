@@ -63,7 +63,7 @@ class Images
 				break;
 
 			default:
-				$imagetype = IMAGETYPE_JPC;
+				$imagetype = IMAGETYPE_JPEG;
 				break;
 		}
 
