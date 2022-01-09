@@ -2159,7 +2159,7 @@ class Contact
 		// These fields aren't updated by this routine:
 		// 'sensitive'
 
-		$fields = ['uid', 'uri-id', 'gsid', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
+		$fields = ['uid', 'uri-id', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
 			'manually-approve', 'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item', 'xmpp', 'matrix'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
@@ -2190,9 +2190,6 @@ class Contact
 
 		$uriid = $contact['uri-id'];
 		unset($contact['uri-id']);
-
-		$gsid = $contact['gsid'];
-		unset($contact['gsid']);
 
 		$pubkey = $contact['pubkey'];
 		unset($contact['pubkey']);
