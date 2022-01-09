@@ -1661,6 +1661,59 @@ class Contact
 	}
 
 	/**
+	 * Fetch the default header for the given contact
+	 *
+	 * @param array $contact  contact array
+	 * @return string avatar URL
+	 */
+	public static function getDefaultHeader(array $contact): string
+	{
+		if (!empty($contact['header']) || in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::TWITTER])) {
+			return DI::baseUrl() . '/images/blank.png';
+		}
+
+		if (!empty($contact['gsid'])) {
+			// Use default banners for certain platforms
+			$gserver = DBA::selectFirst('gserver', ['platform'], ['id' => $contact['gsid']]);
+			$platform = strtolower($gserver['platform'] ?? '');
+		} else {
+			$platform = '';
+		}
+
+		switch ($platform) {
+			case 'friendica':
+			case 'friendika':
+				/**
+				 * Picture credits
+				 * @author  Lostinlight <https://mastodon.xyz/@lightone>
+				 * @license CC0 https://creativecommons.org/share-your-work/public-domain/cc0/
+				 * @link    https://gitlab.com/lostinlight/per_aspera_ad_astra/-/blob/master/friendica-404/friendica-promo-bubbles.jpg
+				 */
+				$header = DI::baseUrl() . '/images/friendica-banner.jpg';
+				break;
+			case 'diaspora':
+				/**
+				 * Picture credits
+				 * @author  John Liu <https://www.flickr.com/photos/8047705@N02/>
+				 * @license CC BY 2.0 https://creativecommons.org/licenses/by/2.0/
+				 * @link    https://www.flickr.com/photos/8047705@N02/5572197407
+				 */
+				$header = DI::baseUrl() . '/images/diaspora-banner.jpg';
+				break;
+			default:
+				/**
+				 * Use random pictures for networks that don't provide banners.
+				 * The service provides random pictures from Unsplash.
+				 * @license https://unsplash.com/license
+				 */
+				$header = 'https://picsum.photos/seed/' . hash('ripemd128', $contact['url']) . '/960/300';
+				break;
+		}
+
+		return $header;
+	}
+
+	/**
 	 * Fetch the default avatar for the given contact and size
 	 *
 	 * @param array $contact  contact array
@@ -2201,41 +2254,6 @@ class Contact
 
 		$update = false;
 		$guid = ($ret['guid'] ?? '') ?: Item::guidFromUri($ret['url'], parse_url($ret['url'], PHP_URL_HOST));
-
-		if (empty($ret['header']) && !empty($gsid)) {
-			// Use default banners for certain platforms
-			$gserver = DBA::selectFirst('gserver', ['platform'], ['id' => $gsid]);
-			switch (strtolower($gserver['platform'] ?? '')) {
-				case 'friendica':
-				case 'friendika':
-					/**
-					 * Picture credits
-					 * @author  Lostinlight <https://mastodon.xyz/@lightone>
-					 * @license CC0 https://creativecommons.org/share-your-work/public-domain/cc0/
-					 * @link    https://gitlab.com/lostinlight/per_aspera_ad_astra/-/blob/master/friendica-404/friendica-promo-bubbles.jpg
-					 */
-					$ret['header'] = DI::baseUrl() . '/images/friendica-banner.jpg';
-					break;
-				case 'diaspora':
-					/**
-					 * Picture credits
-					 * @author  John Liu <https://www.flickr.com/photos/8047705@N02/>
-					 * @license CC BY 2.0 https://creativecommons.org/licenses/by/2.0/
-					 * @link    https://www.flickr.com/photos/8047705@N02/5572197407
-					 */
-					$ret['header'] = DI::baseUrl() . '/images/diaspora-banner.jpg';
-					break;
-				}
-		}
-
-		if (empty($ret['header']) && !in_array($ret['network'], [Protocol::ACTIVITYPUB, Protocol::TWITTER])) {
-			/**
-			 * Use random pictures for networks that don't provide banners.
-			 * The service provides random pictures from Unsplash.
-			 * @license https://unsplash.com/license
-			 */
-			$ret['header'] = 'https://picsum.photos/seed/' . hash('ripemd128', $ret['url']) . '/960/300';
-		}
 
 		// make sure to not overwrite existing values with blank entries except some technical fields
 		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];

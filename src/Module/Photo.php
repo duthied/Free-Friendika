@@ -310,17 +310,18 @@ class Photo extends BaseModule
 				}
 				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext);
 			case "header":
-				$contact = Contact::getById($id, ['uid', 'url', 'header']);
+				$fields = ['uid', 'url', 'header', 'network', 'gsid'];
+				$contact = Contact::getById($id, $fields);
 				if (empty($contact)) {
 					return false;
 				}
 				If (($contact['uid'] != 0) && empty($contact['header'])) {
-					$contact = Contact::getByURL($contact['url'], false, ['header']);
+					$contact = Contact::getByURL($contact['url'], false, $fields);
 				}
 				if (!empty($contact['header'])) {
 					$url = $contact['header'];
 				} else {
-					$url = DI::baseUrl() . '/images/blank.png';
+					$url = Contact::getDefaultHeader($contact);
 				}
 				return MPhoto::createPhotoForExternalResource($url);
 			case "banner":
