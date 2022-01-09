@@ -2235,7 +2235,8 @@ class Contact
 				case 'friendika':
 					/**
 					 * Picture credits
-					 * @author  Lostinlight <https://gitlab.com/lostinlight>
+					 * @author  Lostinlight <https://mastodon.xyz/@lightone>
+					 * @license CC0 https://creativecommons.org/share-your-work/public-domain/cc0/
 					 * @link    https://gitlab.com/lostinlight/per_aspera_ad_astra/-/blob/master/friendica-404/friendica-promo-bubbles.jpg
 					 */
 					$ret['header'] = DI::baseUrl() . '/images/friendica-banner.jpg';
