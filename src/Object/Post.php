@@ -135,8 +135,6 @@ class Post
 	 */
 	public function getTemplateData(array $conv_responses, string $formSecurityToken, $thread_level = 1)
 	{
-		$a = DI::app();
-
 		$item = $this->getData();
 		$edited = false;
 		// If the time between "created" and "edited" differs we add
@@ -480,6 +478,7 @@ class Post
 			'owner_photo'     => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['owner-link'], $item['uid'], Proxy::SIZE_THUMB)),
 			'owner_name'      => $this->getOwnerName(),
 			'plink'           => Item::getPlink($item),
+			'browsershare'    => DI::l10n()->t('Share'),
 			'edpost'          => $edpost,
 			'ispinned'        => $ispinned,
 			'pin'             => $pin,

@@ -177,6 +177,10 @@
 						{{/if}}
 					{{/if}}
 
+                {{if !$item.lock && !$item.connector}}
+					<span role="presentation" class="separator button-browser-share"></span>
+					<button type="button" class="btn-link button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})"><i class="fa fa-share-alt"></i> {{$item.browsershare}}</button>
+                {{/if}}
 
 				{{* Put additional actions in a dropdown menu *}}
 				{{if $item.menu && ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || $item.drop.dropping)}}
