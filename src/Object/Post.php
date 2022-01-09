@@ -177,6 +177,8 @@ class Post
 			? DI::l10n()->t('Private Message')
 			: false);
 
+		$connector = !$item['global'] ? DI::l10n()->t('Connector Message') : false;
+
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != Item::PRIVATE;
 		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER]);
 
@@ -469,6 +471,7 @@ class Post
 			'app'             => $item['app'],
 			'created'         => $ago,
 			'lock'            => $lock,
+			'connector'       => $connector,
 			'location_html'   => $location_html,
 			'indent'          => $indent,
 			'shiny'           => $shiny,
