@@ -1668,8 +1668,8 @@ class Contact
 	 */
 	public static function getDefaultHeader(array $contact): string
 	{
-		if (!empty($contact['header']) || in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::TWITTER])) {
-			return DI::baseUrl() . '/images/blank.png';
+		if (!empty($contact['header'])) {
+			return $contact['header'];
 		}
 
 		if (!empty($contact['gsid'])) {
@@ -1702,7 +1702,7 @@ class Contact
 				break;
 			default:
 				/**
-				 * Use random pictures for networks that don't provide banners.
+				 * Use a random picture. 
 				 * The service provides random pictures from Unsplash.
 				 * @license https://unsplash.com/license
 				 */
