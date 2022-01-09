@@ -2202,32 +2202,6 @@ class Contact
 		$update = false;
 		$guid = ($ret['guid'] ?? '') ?: Item::guidFromUri($ret['url'], parse_url($ret['url'], PHP_URL_HOST));
 
-		// make sure to not overwrite existing values with blank entries except some technical fields
-		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];
-		foreach ($ret as $key => $val) {
-			if (!array_key_exists($key, $contact)) {
-				unset($ret[$key]);
-			} elseif (($contact[$key] != '') && ($val === '') && !is_bool($ret[$key]) && !in_array($key, $keep)) {
-				$ret[$key] = $contact[$key];
-			} elseif ($ret[$key] != $contact[$key]) {
-				$update = true;
-			}
-		}
-
-		if (!empty($ret['last-item']) && ($contact['last-item'] < $ret['last-item'])) {
-			$update = true;
-		} else {
-			unset($ret['last-item']);
-		}
-
-		if (empty($uriid)) {
-			$update = true;
-		}
-
-		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
-			self::updateAvatar($id, $ret['photo'], $update);
-		}
-
 		if (empty($ret['header']) && !empty($gsid)) {
 			// Use default banners for certain platforms
 			$gserver = DBA::selectFirst('gserver', ['platform'], ['id' => $gsid]);
@@ -2261,6 +2235,32 @@ class Contact
 			 * @license https://unsplash.com/license
 			 */
 			$ret['header'] = 'https://picsum.photos/seed/' . hash('ripemd128', $ret['url']) . '/960/300';
+		}
+
+		// make sure to not overwrite existing values with blank entries except some technical fields
+		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];
+		foreach ($ret as $key => $val) {
+			if (!array_key_exists($key, $contact)) {
+				unset($ret[$key]);
+			} elseif (($contact[$key] != '') && ($val === '') && !is_bool($ret[$key]) && !in_array($key, $keep)) {
+				$ret[$key] = $contact[$key];
+			} elseif ($ret[$key] != $contact[$key]) {
+				$update = true;
+			}
+		}
+
+		if (!empty($ret['last-item']) && ($contact['last-item'] < $ret['last-item'])) {
+			$update = true;
+		} else {
+			unset($ret['last-item']);
+		}
+
+		if (empty($uriid)) {
+			$update = true;
+		}
+
+		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
+			self::updateAvatar($id, $ret['photo'], $update);
 		}
 
 		$uriid = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
