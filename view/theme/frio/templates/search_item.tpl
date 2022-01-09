@@ -63,8 +63,9 @@
 					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}">
 						&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small>
 					</span>
+				{{elseif $item.connector}}
+					<span class="fa fa-lock" title="{{$item.connector}}"></span>
 				{{/if}}
-
 					<div class="additional-info text-muted">
 						<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
 							<small>
@@ -176,6 +177,10 @@
 						{{/if}}
 					{{/if}}
 
+                {{if !$item.lock && !$item.connector}}
+					<span role="presentation" class="separator button-browser-share"></span>
+					<button type="button" class="btn-link button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})"><i class="fa fa-share-alt"></i> {{$item.browsershare}}</button>
+                {{/if}}
 
 				{{* Put additional actions in a dropdown menu *}}
 				{{if $item.menu && ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || $item.drop.dropping)}}
