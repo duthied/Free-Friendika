@@ -459,6 +459,10 @@ $(document).ready(function () {
 				$pokeSubmit.button("reset");
 			});
 	});
+
+	if (!navigator.canShare || !navigator.canShare()) {
+		$('.button-browser-share').hide();
+	}
 });
 
 function openClose(theID) {
