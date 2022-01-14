@@ -73,12 +73,7 @@ class Advanced extends BaseModule
 		$name        = ($_POST['name'] ?? '') ?: $contact['name'];
 		$nick        = $_POST['nick'] ?? '';
 		$url         = $_POST['url'] ?? '';
-		$alias       = $_POST['alias'] ?? '';
-		$request     = $_POST['request'] ?? '';
-		$confirm     = $_POST['confirm'] ?? '';
-		$notify      = $_POST['notify'] ?? '';
 		$poll        = $_POST['poll'] ?? '';
-		$attag       = $_POST['attag'] ?? '';
 		$photo       = $_POST['photo'] ?? '';
 		$nurl        = Strings::normaliseLink($url);
 
@@ -89,12 +84,7 @@ class Advanced extends BaseModule
 				'nick'        => $nick,
 				'url'         => $url,
 				'nurl'        => $nurl,
-				'alias'       => $alias,
-				'request'     => $request,
-				'confirm'     => $confirm,
-				'notify'      => $notify,
 				'poll'        => $poll,
-				'attag'       => $attag,
 			],
 			['id' => $contact['id'], 'uid' => local_user()]
 		);
@@ -121,9 +111,6 @@ class Advanced extends BaseModule
 
 		$this->page['aside'] = Widget\VCard::getHTML($contact);
 
-		$warning = $this->t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
-		$info    = $this->t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
-
 		$returnaddr = "contact/$cid";
 
 		// This data is fetched automatically for most networks.
@@ -139,22 +126,15 @@ class Advanced extends BaseModule
 		$tpl = Renderer::getMarkupTemplate('contact/advanced.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$tab_str'           => $tab_str,
-			'$warning'           => $warning,
-			'$info'              => $info,
 			'$returnaddr'        => $returnaddr,
 			'$return'            => $this->t('Return to contact editor'),
 			'$contact_id'        => $contact['id'],
 			'$lbl_submit'        => $this->t('Submit'),
 
 			'$name'    => ['name', $this->t('Name'), $contact['name'], '', '', $readonly],
-			'$nick'    => ['nick', $this->t('Account Nickname'), $contact['nick'], '', '', $readonly],
-			'$attag'   => ['attag', $this->t('@Tagname - overrides Name/Nickname'), $contact['attag']],
-			'$url'     => ['url', $this->t('Account URL'), $contact['url'], '', '', $readonly],
-			'$alias'   => ['alias', $this->t('Account URL Alias'), $contact['alias'], '', '', $readonly],
-			'$request' => ['request', $this->t('Friend Request URL'), $contact['request'], '', '', $readonly],
-			'confirm'  => ['confirm', $this->t('Friend Confirm URL'), $contact['confirm'], '', '', $readonly],
-			'notify'   => ['notify', $this->t('Notification Endpoint URL'), $contact['notify'], '', '', $readonly],
-			'poll'     => ['poll', $this->t('Poll/Feed URL'), $contact['poll'], '', '', $readonly],
+			'$nick'    => ['nick', $this->t('Account Nickname'), $contact['nick'], '', '', 'readonly'],
+			'$url'     => ['url', $this->t('Account URL'), $contact['url'], '', '', 'readonly'],
+			'poll'     => ['poll', $this->t('Poll/Feed URL'), $contact['poll'], '', '', ($contact['network'] == Protocol::FEED) ? '' : 'readonly'],
 			'photo'    => ['photo', $this->t('New photo from this URL'), '', '', '', $readonly],
 		]);
 	}

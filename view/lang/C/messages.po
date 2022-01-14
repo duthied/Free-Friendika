@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-09 12:31-0500\n"
+"POT-Creation-Date: 2022-01-12 21:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -402,7 +402,7 @@ msgstr ""
 #: mod/events.php:519 mod/message.php:201 mod/message.php:357
 #: mod/photos.php:927 mod/photos.php:1031 mod/photos.php:1301
 #: mod/photos.php:1342 mod/photos.php:1398 mod/photos.php:1472
-#: src/Module/Admin/Item/Source.php:65 src/Module/Contact/Advanced.php:147
+#: src/Module/Admin/Item/Source.php:65 src/Module/Contact/Advanced.php:132
 #: src/Module/Contact/Poke.php:177 src/Module/Contact/Profile.php:327
 #: src/Module/Debug/ActivityPubConversion.php:141
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
@@ -1127,7 +1127,7 @@ msgid "Bad Request."
 msgstr ""
 
 #: mod/redir.php:55 mod/redir.php:129 src/Module/Contact/Advanced.php:70
-#: src/Module/Contact/Advanced.php:119 src/Module/Contact/Contacts.php:55
+#: src/Module/Contact/Advanced.php:109 src/Module/Contact/Contacts.php:55
 #: src/Module/Contact/Conversations.php:78
 #: src/Module/Contact/Conversations.php:83
 #: src/Module/Contact/Conversations.php:88 src/Module/Contact/Media.php:43
@@ -1255,7 +1255,7 @@ msgstr ""
 #: src/Module/Admin/Users/Active.php:129 src/Module/Admin/Users/Blocked.php:130
 #: src/Module/Admin/Users/Create.php:71 src/Module/Admin/Users/Deleted.php:88
 #: src/Module/Admin/Users/Index.php:142 src/Module/Admin/Users/Index.php:162
-#: src/Module/Admin/Users/Pending.php:104 src/Module/Contact/Advanced.php:149
+#: src/Module/Admin/Users/Pending.php:104 src/Module/Contact/Advanced.php:134
 msgid "Name"
 msgstr ""
 
@@ -7142,59 +7142,27 @@ msgstr ""
 msgid "Visit %s's profile [%s]"
 msgstr ""
 
-#: src/Module/Contact/Advanced.php:109
+#: src/Module/Contact/Advanced.php:99
 msgid "Contact update failed."
 msgstr ""
 
-#: src/Module/Contact/Advanced.php:124
-msgid ""
-"<strong>WARNING: This is highly advanced</strong> and if you enter incorrect "
-"information your communications with this contact may stop working."
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:125
-msgid ""
-"Please use your browser 'Back' button <strong>now</strong> if you are "
-"uncertain what to do on this page."
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:145
+#: src/Module/Contact/Advanced.php:130
 msgid "Return to contact editor"
 msgstr ""
 
-#: src/Module/Contact/Advanced.php:150
+#: src/Module/Contact/Advanced.php:135
 msgid "Account Nickname"
 msgstr ""
 
-#: src/Module/Contact/Advanced.php:151
-msgid "@Tagname - overrides Name/Nickname"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:152
+#: src/Module/Contact/Advanced.php:136
 msgid "Account URL"
 msgstr ""
 
-#: src/Module/Contact/Advanced.php:153
-msgid "Account URL Alias"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:154
-msgid "Friend Request URL"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:155
-msgid "Friend Confirm URL"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:156
-msgid "Notification Endpoint URL"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:157
+#: src/Module/Contact/Advanced.php:137
 msgid "Poll/Feed URL"
 msgstr ""
 
-#: src/Module/Contact/Advanced.php:158
+#: src/Module/Contact/Advanced.php:138
 msgid "New photo from this URL"
 msgstr ""
 
