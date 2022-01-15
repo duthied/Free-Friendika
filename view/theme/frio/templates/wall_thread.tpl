@@ -63,7 +63,8 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{if $item.star}}
 	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
 	{{/if}}
-	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock"></span>{{/if}}
+	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock"></span>
+	{{elseif $item.connector}}<span class="fa fa-lock" title="{{$item.connector}}"></span>{{/if}}
 </div>
 {{* /TODO => Unknown block *}}
 
@@ -161,6 +162,8 @@ as the value of $top_child_total (this is done at the end of this file)
 					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}" data-toggle="tooltip">
 						&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small>
 					</span>
+				{{elseif $item.connector}}
+					<small><i class="fa fa-lock" title="{{$item.connector}}"></i></small>
 				{{/if}}
 				</h4>
 
@@ -327,6 +330,11 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{/if}}
 			{{/if}}
 
+            {{if !$item.lock && !$item.connector}}
+				<span role="presentation" class="separator button-browser-share"></span>
+				<button type="button" class="btn-link button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})"><i class="fa fa-share-alt"></i> {{$item.browsershare}}</button>
+			{{/if}}
+
 			{{* Put additional actions in a dropdown menu *}}
 			{{if $item.menu && ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || $item.drop.dropping)}}
 				<span role="presentation" class="separator"></span>
@@ -476,6 +484,10 @@ as the value of $top_child_total (this is done at the end of this file)
 						{{/if}}
 					</ul>
 				</div>
+			{{/if}}
+
+			{{if !$item.lock && !$item.connector}}
+				<button type="button" class="btn btn-sm button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})" title="{{$item.browsershare}}"><i class="fa fa-share-alt"></i></button>
 			{{/if}}
 
 			{{* Put additional actions in a dropdown menu *}}
