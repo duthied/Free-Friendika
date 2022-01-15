@@ -1,0 +1,82 @@
+<?php
+/**
+ * @copyright Copyright (C) 2010-2022, the Friendica project
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+namespace Friendica\Module\Api\Friendica\Photo;
+
+use Friendica\Core\ACL;
+use Friendica\DI;
+use Friendica\Model\Photo;
+use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException;
+
+/**
+ * API endpoint: /api/friendica/photo/create
+ */
+class Create extends BaseApi
+{
+	protected function post(array $request = [])
+	{
+		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+		$uid  = BaseApi::getCurrentUserID();
+		$type = $this->parameters['extension'] ?? '';
+
+		// input params
+		$desc      = $_REQUEST['desc']      ?? null;
+		$album     = $_REQUEST['album']     ?? null;
+		$allow_cid = $_REQUEST['allow_cid'] ?? null;
+		$deny_cid  = $_REQUEST['deny_cid' ] ?? null;
+		$allow_gid = $_REQUEST['allow_gid'] ?? null;
+		$deny_gid  = $_REQUEST['deny_gid' ] ?? null;
+	
+		// do several checks on input parameters
+		// we do not allow calls without album string
+		if ($album == null) {
+			throw new HTTPException\BadRequestException('no albumname specified');
+		}
+	
+		// error if no media posted in create-mode
+		if (empty($_FILES['media'])) {
+			// Output error
+			throw new HTTPException\BadRequestException('no media data submitted');
+		}
+	
+		// checks on acl strings provided by clients
+		$acl_input_error = false;
+		$acl_input_error |= !ACL::isValidContact($allow_cid, $uid);
+		$acl_input_error |= !ACL::isValidContact($deny_cid, $uid);
+		$acl_input_error |= !ACL::isValidGroup($allow_gid, $uid);
+		$acl_input_error |= !ACL::isValidGroup($deny_gid, $uid);
+		if ($acl_input_error) {
+			throw new HTTPException\BadRequestException('acl data invalid');
+		}
+		// now let's upload the new media in create-mode
+		$photo = Photo::upload($uid, $_FILES['media'], $album, trim($allow_cid), trim($allow_gid), trim($deny_cid), trim($deny_gid), $desc);
+
+		// return success of updating or error message
+		if (!empty($photo)) {
+			$data = ['photo' => DI::friendicaPhoto()->createFromId($photo['resource_id'], null, $uid, $type)];
+			$this->response->exit('photo_create', $data, $this->parameters['extension'] ?? null);
+			return;
+		} else {
+			throw new HTTPException\InternalServerErrorException('unknown error - uploading photo failed, see Friendica log for more information');
+		}
+	}
+}

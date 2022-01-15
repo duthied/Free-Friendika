@@ -271,6 +271,22 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Friendica\Group
+	 */
+	public static function friendicaGroup()
+	{
+		return self::$dice->create(Factory\Api\Friendica\Group::class);
+	}
+
+	/**
+	 * @return Factory\Api\Friendica\Photo
+	 */
+	public static function friendicaPhoto()
+	{
+		return self::$dice->create(Factory\Api\Friendica\Photo::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Account
 	 */
 	public static function mstdnAccount()

@@ -1134,7 +1134,7 @@ class BBCode
 		switch ($simplehtml) {
 			case self::API:
 				$text = ($is_quote_share? '<br>' : '') .
-				'<b><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . "</a>:</b><br>\n" .
+				'<b><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . "</a>:</b><br>\n" .
 				'<blockquote class="shared_content">' . $content . '</blockquote>';
 				break;
 			case self::DIASPORA:
