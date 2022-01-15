@@ -59,12 +59,13 @@ class Photo extends BaseFactory
 	public function createFromId(string $photo_id, int $scale = null, int $uid, string $type = 'json', bool $with_posts = true): array
 	{
 		$fields = ['resource-id', 'created', 'edited', 'title', 'desc', 'album', 'filename','type',
-		'height', 'width', 'datasize', 'profile', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid',
-		'backend-class', 'backend-ref', 'id', 'scale'];
+			'height', 'width', 'datasize', 'profile', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid',
+			'backend-class', 'backend-ref', 'id', 'scale'];
 
 		$condition = ['uid' => $uid, 'resource-id' => $photo_id];
 		if (is_int($scale)) {
 			$fields = array_merge(['data'], $fields);
+
 			$condition['scale'] = $scale;
 		}
 
@@ -72,7 +73,7 @@ class Photo extends BaseFactory
 		if (empty($photos)) {
 			throw new HTTPException\NotFoundException();
 		}
-		$data = $photos[0];
+		$data       = $photos[0];
 		$data['id'] = $data['resource-id'];
 		if (is_int($scale)) {
 			$data['data'] = base64_encode(ModelPhoto::getImageDataForPhoto($data));
@@ -103,7 +104,7 @@ class Photo extends BaseFactory
 		unset($data['backend-ref']);
 		unset($data['resource-id']);
 		unset($data['scale']);
-	
+
 		if ($with_posts) {
 			// retrieve item element for getting activities (like, dislike etc.) related to photo
 			$condition = ['uid' => $uid, 'resource-id' => $photo_id];
@@ -111,20 +112,20 @@ class Photo extends BaseFactory
 		}
 		if (!empty($item)) {
 			$data['friendica_activities'] = $this->activities->createFromUriId($item['uri-id'], $item['uid'], $type);
-	
+
 			// retrieve comments on photo
 			$condition = ["`parent` = ? AND `uid` = ? AND `gravity` IN (?, ?)",
 				$item['parent'], $uid, GRAVITY_PARENT, GRAVITY_COMMENT];
-		
+
 			$statuses = Post::selectForUser($uid, [], $condition);
-		
+
 			// prepare output of comments
 			$commentData = [];
 			while ($status = DBA::fetch($statuses)) {
 				$commentData[] = $this->status->createFromUriId($status['uri-id'], $status['uid'])->toArray();
 			}
 			DBA::close($statuses);
-		
+
 			$comments = [];
 			if ($type == 'xml') {
 				$k = 0;
@@ -137,7 +138,7 @@ class Photo extends BaseFactory
 				}
 			}
 			$data['friendica_comments'] = $comments;
-		
+
 			// include info if rights on photo and rights on item are mismatching
 			$data['rights_mismatch'] = $data['allow_cid'] != $item['allow_cid'] ||
 				$data['deny_cid'] != $item['deny_cid'] ||
@@ -148,7 +149,7 @@ class Photo extends BaseFactory
 			$data['friendica_comments']   = [];
 			$data['rights_mismatch'] = false;
 		}
-	
+
 		return $data;
 	}
 }

@@ -37,7 +37,7 @@ class Update extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid  = BaseApi::getCurrentUserID();
 		$type = $this->parameters['extension'] ?? '';
-	
+
 		// input params
 		$photo_id  = $_REQUEST['photo_id']  ?? null;
 		$desc      = $_REQUEST['desc']      ?? null;
@@ -47,7 +47,7 @@ class Update extends BaseApi
 		$deny_cid  = $_REQUEST['deny_cid' ] ?? null;
 		$allow_gid = $_REQUEST['allow_gid'] ?? null;
 		$deny_gid  = $_REQUEST['deny_gid' ] ?? null;
-	
+
 		// do several checks on input parameters
 		// we do not allow calls without album string
 		if ($album == null) {
@@ -58,7 +58,7 @@ class Update extends BaseApi
 		if (!Photo::exists(['resource-id' => $photo_id, 'uid' => $uid, 'album' => $album])) {
 			throw new HTTPException\BadRequestException('photo not available');
 		}
-	
+
 		// checks on acl strings provided by clients
 		$acl_input_error = false;
 		$acl_input_error |= !ACL::isValidContact($allow_cid, $uid);
@@ -68,7 +68,7 @@ class Update extends BaseApi
 		if ($acl_input_error) {
 			throw new HTTPException\BadRequestException('acl data invalid');
 		}
-	
+
 		$updated_fields = [];
 
 		if (!is_null($desc)) {

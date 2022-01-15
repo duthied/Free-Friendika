@@ -42,15 +42,15 @@ class Lists extends BaseApi
 
 		$photos = Photo::selectToArray(['resource-id'], ["`uid` = ? AND NOT `photo-type` IN (?, ?)", $uid, Photo::CONTACT_AVATAR, Photo::CONTACT_BANNER],
 			['order' => ['id'], 'group_by' => ['resource-id']]);
-	
+
 		$data = ['photo' => []];
 		if (DBA::isResult($photos)) {
 			foreach ($photos as $photo) {
 				$element = DI::friendicaPhoto()->createFromId($photo['resource-id'], null, $uid, 'json', false);
-	
+
 				$element['thumb'] = end($element['link']);
 				unset($element['link']);
-	
+
 				if ($type == 'xml') {
 					$thumb = $element['thumb'];
 					unset($element['thumb']);

@@ -45,19 +45,19 @@ class Create extends BaseApi
 		$deny_cid  = $_REQUEST['deny_cid' ] ?? null;
 		$allow_gid = $_REQUEST['allow_gid'] ?? null;
 		$deny_gid  = $_REQUEST['deny_gid' ] ?? null;
-	
+
 		// do several checks on input parameters
 		// we do not allow calls without album string
 		if ($album == null) {
 			throw new HTTPException\BadRequestException('no albumname specified');
 		}
-	
+
 		// error if no media posted in create-mode
 		if (empty($_FILES['media'])) {
 			// Output error
 			throw new HTTPException\BadRequestException('no media data submitted');
 		}
-	
+
 		// checks on acl strings provided by clients
 		$acl_input_error = false;
 		$acl_input_error |= !ACL::isValidContact($allow_cid, $uid);

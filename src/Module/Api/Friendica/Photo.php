@@ -26,7 +26,7 @@ use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 
-class Activity extends BaseApi
+class Photo extends BaseApi
 {
 	protected function post(array $request = [])
 	{
@@ -37,13 +37,13 @@ class Activity extends BaseApi
 		if (empty($_REQUEST['photo_id'])) {
 			throw new HTTPException\BadRequestException('No photo id.');
 		}
-	
+
 		$scale = (!empty($_REQUEST['scale']) ? intval($_REQUEST['scale']) : false);
 		$photo_id = $_REQUEST['photo_id'];
-	
+
 		// prepare json/xml output with data from database for the requested photo
 		$data = ['photo' => DI::friendicaPhoto()->createFromId($photo_id, $scale, $uid, $type)];
-	
+
 		$this->response->exit('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }
