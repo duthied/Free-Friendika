@@ -37,8 +37,8 @@ class Create extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		// params
-		$name = $request['name'] ?? '';
-		$json = json_decode($request['json'], true);
+		$name  = $request['name'] ?? '';
+		$json  = json_decode($request['json'], true);
 		$users = $json['user'];
 
 		// error if no name specified
@@ -66,14 +66,14 @@ class Create extends BaseApi
 
 		// add members
 		$erroraddinguser = false;
-		$errorusers = [];
+		$errorusers      = [];
 		foreach ($users as $user) {
 			$cid = $user['cid'];
 			if (DBA::exists('contact', ['id' => $cid, 'uid' => $uid])) {
 				Group::addMember($gid, $cid);
 			} else {
 				$erroraddinguser = true;
-				$errorusers[] = $cid;
+				$errorusers[]    = $cid;
 			}
 		}
 

@@ -57,20 +57,18 @@ class Show extends BaseApi
 		$grps = [];
 		foreach ($groups as $rr) {
 			$members = Contact\Group::getById($rr['id']);
-			$users = [];
+			$users   = [];
 
 			if ($type == 'xml') {
 				$user_element = 'users';
-				$k = 0;
+				$k            = 0;
 				foreach ($members as $member) {
-					$user = DI::twitterUser()->createFromContactId($member['contact-id'], $uid, true)->toArray();
-					$users[$k++.':user'] = $user;
+					$users[$k++.':user'] = DI::twitterUser()->createFromContactId($member['contact-id'], $uid, true)->toArray();
 				}
 			} else {
 				$user_element = 'user';
 				foreach ($members as $member) {
-					$user = DI::twitterUser()->createFromContactId($member['contact-id'], $uid, true)->toArray();
-					$users[] = $user;
+					$users[] = DI::twitterUser()->createFromContactId($member['contact-id'], $uid, true)->toArray();
 				}
 			}
 			$grps[] = ['name' => $rr['name'], 'gid' => $rr['id'], $user_element => $users];

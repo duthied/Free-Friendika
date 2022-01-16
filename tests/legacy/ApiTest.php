@@ -32,8 +32,6 @@ use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 use Monolog\Handler\TestHandler;
 
-require_once __DIR__ . '/../../include/api.php';
-
 /**
  * Tests for the API functions.
  *

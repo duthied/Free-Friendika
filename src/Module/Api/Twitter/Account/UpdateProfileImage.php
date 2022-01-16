@@ -57,7 +57,7 @@ class UpdateProfileImage extends BaseApi
 		}
 	
 		// output for client
-		$skip_status = $request['skip_status'] ?? false;
+		$skip_status = filter_var($request['skip_status'] ?? false, FILTER_VALIDATE_BOOLEAN);
 	
 		$user_info = DI::twitterUser()->createFromUserId($uid, $skip_status)->toArray();
 	

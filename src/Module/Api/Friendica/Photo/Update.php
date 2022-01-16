@@ -118,14 +118,14 @@ class Update extends BaseApi
 		$result = false;
 		if (count($updated_fields) > 0) {
 			$nothingtodo = false;
-			$result = Photo::update($updated_fields, ['uid' => $uid, 'resource-id' => $photo_id, 'album' => $album]);
+			$result      = Photo::update($updated_fields, ['uid' => $uid, 'resource-id' => $photo_id, 'album' => $album]);
 		} else {
 			$nothingtodo = true;
 		}
 
 		if (!empty($_FILES['media'])) {
 			$nothingtodo = false;
-			$photo = Photo::upload($uid, $_FILES['media'], $album, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc, $photo_id);
+			$photo       = Photo::upload($uid, $_FILES['media'], $album, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc, $photo_id);
 			if (!empty($photo)) {
 				$data = ['photo' => $this->friendicaPhoto->createFromId($photo['resource_id'], null, $uid, $type)];
 				$this->response->exit('photo_update', $data, $this->parameters['extension'] ?? null);
