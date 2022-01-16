@@ -37,36 +37,36 @@ class UpdateProfileImage extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		// get mediadata from image or media (Twitter call api/account/update_profile_image provides image)
 		if (!empty($_FILES['image'])) {
 			$media = $_FILES['image'];
 		} elseif (!empty($_FILES['media'])) {
 			$media = $_FILES['media'];
 		}
-	
+
 		// error if image data is missing
 		if (empty($media)) {
 			throw new HTTPException\BadRequestException('no media data submitted');
 		}
-		
+
 		// save new profile image
 		$resource_id = Photo::uploadAvatar($uid, $media);
 		if (empty($resource_id)) {
 			throw new HTTPException\InternalServerErrorException('image upload failed');
 		}
-	
+
 		// output for client
 		$skip_status = $this->getRequestValue($request, 'skip_status', false);
-	
+
 		$user_info = DI::twitterUser()->createFromUserId($uid, $skip_status)->toArray();
-	
+
 		// "verified" isn't used here in the standard
 		unset($user_info['verified']);
-	
+
 		// "uid" is only needed for some internal stuff, so remove it from here
 		unset($user_info['uid']);
-	
+
 		$this->response->exit('user', ['user' => $user_info], $this->parameters['extension'] ?? null);
 	}
 }

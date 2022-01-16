@@ -49,7 +49,7 @@ class Tweets extends BaseApi
 
 		$data['status'] = [];
 
-		$count            = $this->getRequestValue($request, 'count', 15);
+		$count            = $this->getRequestValue($request, 'count', 20, 1, 100);
 		$count            = $this->getRequestValue($request, 'rpp', $count);
 		$since_id         = $this->getRequestValue($request, 'since_id', 0, 0);
 		$max_id           = $this->getRequestValue($request, 'max_id', 0, 0);

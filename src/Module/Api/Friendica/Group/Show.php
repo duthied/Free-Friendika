@@ -36,7 +36,7 @@ class Show extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid  = BaseApi::getCurrentUserID();
-		$type = $this->getRequestValue($this->parameters, 'extension', 'json');		
+		$type = $this->getRequestValue($this->parameters, 'extension', 'json');
 
 		// params
 		$gid = $this->getRequestValue($request, 'gid', 0);

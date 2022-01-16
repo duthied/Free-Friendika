@@ -54,7 +54,7 @@ class Create extends BaseApi
 		$uid  = BaseApi::getCurrentUserID();
 		$type = $this->getRequestValue($this->parameters, 'extension', 'json');
 
-		// input params	
+		// input params
 		$desc      = $this->getRequestValue($request, 'desc');
 		$album     = $this->getRequestValue($request, 'album');
 		$allow_cid = $this->getRequestValue($request, 'allow_cid');

@@ -96,22 +96,22 @@ class Update extends BaseApi
 		}
 
 		if (!is_null($allow_cid)) {
-			$allow_cid = trim($allow_cid);
+			$allow_cid                   = trim($allow_cid);
 			$updated_fields['allow_cid'] = $allow_cid;
 		}
 
 		if (!is_null($deny_cid)) {
-			$deny_cid = trim($deny_cid);
+			$deny_cid                   = trim($deny_cid);
 			$updated_fields['deny_cid'] = $deny_cid;
 		}
 
 		if (!is_null($allow_gid)) {
-			$allow_gid = trim($allow_gid);
+			$allow_gid                   = trim($allow_gid);
 			$updated_fields['allow_gid'] = $allow_gid;
 		}
 
 		if (!is_null($deny_gid)) {
-			$deny_gid = trim($deny_gid);
+			$deny_gid                   = trim($deny_gid);
 			$updated_fields['deny_gid'] = $deny_gid;
 		}
 

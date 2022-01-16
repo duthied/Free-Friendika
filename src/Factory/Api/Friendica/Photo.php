@@ -91,9 +91,9 @@ class Photo extends BaseFactory
 			$link = $this->baseUrl->get() . '/photo/' . $data['resource-id'] . '-' . $photo['scale'] . Images::getExtensionByMimeType($data['type']);
 			if ($type == 'xml') {
 				$data['links'][$photo['scale'] . ':link']['@attributes'] = [
-					'type' => $data['type'],
+					'type'  => $data['type'],
 					'scale' => $photo['scale'],
-					'href' => $link
+					'href'  => $link
 				];
 			} else {
 				$data['link'][$id] = $link;
@@ -108,6 +108,7 @@ class Photo extends BaseFactory
 		if ($with_posts) {
 			// retrieve item element for getting activities (like, dislike etc.) related to photo
 			$condition = ['uid' => $uid, 'resource-id' => $photo_id];
+
 			$item = Post::selectFirst(['id', 'uid', 'uri', 'uri-id', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
 		}
 		if (!empty($item)) {
@@ -147,7 +148,7 @@ class Photo extends BaseFactory
 		} elseif ($with_posts) {
 			$data['friendica_activities'] = [];
 			$data['friendica_comments']   = [];
-			$data['rights_mismatch'] = false;
+			$data['rights_mismatch']      = false;
 		}
 
 		return $data;
