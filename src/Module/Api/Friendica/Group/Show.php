@@ -39,7 +39,7 @@ class Show extends BaseApi
 		$type = $this->parameters['extension'] ?? '';
 
 		// params
-		$gid = $_REQUEST['gid'] ?? 0;
+		$gid = $request['gid'] ?? 0;
 
 		// get data of the specified group id or all groups if not specified
 		if ($gid != 0) {

@@ -50,12 +50,12 @@ class Photo extends BaseApi
 		$uid  = BaseApi::getCurrentUserID();
 		$type = $this->parameters['extension'] ?? '';
 
-		if (empty($_REQUEST['photo_id'])) {
+		if (empty($request['photo_id'])) {
 			throw new HTTPException\BadRequestException('No photo id.');
 		}
 
-		$scale = (!empty($_REQUEST['scale']) ? intval($_REQUEST['scale']) : false);
-		$photo_id = $_REQUEST['photo_id'];
+		$scale = (!empty($request['scale']) ? intval($request['scale']) : false);
+		$photo_id = $request['photo_id'];
 
 		// prepare json/xml output with data from database for the requested photo
 		$data = ['photo' => $this->friendicaPhoto->createFromId($photo_id, $scale, $uid, $type)];

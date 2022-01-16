@@ -55,14 +55,14 @@ class Update extends BaseApi
 		$type = $this->parameters['extension'] ?? '';
 
 		// input params
-		$photo_id  = $_REQUEST['photo_id']  ?? null;
-		$desc      = $_REQUEST['desc']      ?? null;
-		$album     = $_REQUEST['album']     ?? null;
-		$album_new = $_REQUEST['album_new'] ?? null;
-		$allow_cid = $_REQUEST['allow_cid'] ?? null;
-		$deny_cid  = $_REQUEST['deny_cid' ] ?? null;
-		$allow_gid = $_REQUEST['allow_gid'] ?? null;
-		$deny_gid  = $_REQUEST['deny_gid' ] ?? null;
+		$photo_id  = $request['photo_id']  ?? null;
+		$desc      = $request['desc']      ?? null;
+		$album     = $request['album']     ?? null;
+		$album_new = $request['album_new'] ?? null;
+		$allow_cid = $request['allow_cid'] ?? null;
+		$deny_cid  = $request['deny_cid' ] ?? null;
+		$allow_gid = $request['allow_gid'] ?? null;
+		$deny_gid  = $request['deny_gid' ] ?? null;
 
 		// do several checks on input parameters
 		// we do not allow calls without album string

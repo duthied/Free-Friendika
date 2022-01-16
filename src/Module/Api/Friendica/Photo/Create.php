@@ -55,12 +55,12 @@ class Create extends BaseApi
 		$type = $this->parameters['extension'] ?? '';
 
 		// input params
-		$desc      = $_REQUEST['desc']      ?? null;
-		$album     = $_REQUEST['album']     ?? null;
-		$allow_cid = $_REQUEST['allow_cid'] ?? null;
-		$deny_cid  = $_REQUEST['deny_cid' ] ?? null;
-		$allow_gid = $_REQUEST['allow_gid'] ?? null;
-		$deny_gid  = $_REQUEST['deny_gid' ] ?? null;
+		$desc      = $request['desc']      ?? null;
+		$album     = $request['album']     ?? null;
+		$allow_cid = $request['allow_cid'] ?? null;
+		$deny_cid  = $request['deny_cid' ] ?? null;
+		$allow_gid = $request['allow_gid'] ?? null;
+		$deny_gid  = $request['deny_gid' ] ?? null;
 
 		// do several checks on input parameters
 		// we do not allow calls without album string
