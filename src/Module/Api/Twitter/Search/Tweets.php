@@ -49,19 +49,13 @@ class Tweets extends BaseApi
 
 		$data['status'] = [];
 
-		$count = 15;
-
-		$exclude_replies = !empty($request['exclude_replies']);
-		if (!empty($request['rpp'])) {
-			$count = $request['rpp'];
-		} elseif (!empty($request['count'])) {
-			$count = $request['count'];
-		}
-
+		$count            = $this->getRequestValue($request, 'count', 15);
+		$count            = $this->getRequestValue($request, 'rpp', $count);
 		$since_id         = $this->getRequestValue($request, 'since_id', 0, 0);
 		$max_id           = $this->getRequestValue($request, 'max_id', 0, 0);
 		$page             = $this->getRequestValue($request, 'page', 1, 1);
 		$include_entities = $this->getRequestValue($request, 'include_entities', false);
+		$exclude_replies  = $this->getRequestValue($request, 'exclude_replies', false);
 
 		$start = max(0, ($page - 1) * $count);
 
