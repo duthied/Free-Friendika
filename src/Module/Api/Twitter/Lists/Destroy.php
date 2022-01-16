@@ -53,29 +53,29 @@ class Destroy extends BaseApi
 		$this->dba = $dba;
 		$this->friendicaGroup = $friendicaGroup;
 	}
-	
+
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		// params
 		$gid = $_REQUEST['list_id'] ?? 0;
-	
+
 		// error if no gid specified
 		if ($gid == 0) {
 			throw new HTTPException\BadRequestException('gid not specified');
 		}
-	
+
 		// get data of the specified group id
 		$group = $this->dba->selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
 		// error message if specified gid is not in database
 		if (!$group) {
 			throw new HTTPException\BadRequestException('gid not available');
 		}
-	
+
 		$list = $this->friendicaGroup->createFromId($gid);
-	
+
 		if (Group::remove($gid)) {
 			$this->response->exit('statuses', ['lists' => ['lists' => $list]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 		}

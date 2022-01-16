@@ -37,14 +37,14 @@ class Show extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid  = BaseApi::getCurrentUserID();
 		$type = $this->parameters['extension'] ?? '';
-	
+
 		// params
 		$gid = $_REQUEST['gid'] ?? 0;
-	
+
 		// get data of the specified group id or all groups if not specified
 		if ($gid != 0) {
 			$groups = DBA::selectToArray('group', [], ['deleted' => false, 'uid' => $uid, 'id' => $gid]);
-	
+
 			// error message if specified gid is not in database
 			if (!DBA::isResult($groups)) {
 				throw new HTTPException\BadRequestException('gid not available');
@@ -52,13 +52,13 @@ class Show extends BaseApi
 		} else {
 			$groups = DBA::selectToArray('group', [], ['deleted' => false, 'uid' => $uid]);
 		}
-	
+
 		// loop through all groups and retrieve all members for adding data in the user array
 		$grps = [];
 		foreach ($groups as $rr) {
 			$members = Contact\Group::getById($rr['id']);
 			$users = [];
-	
+
 			if ($type == 'xml') {
 				$user_element = 'users';
 				$k = 0;

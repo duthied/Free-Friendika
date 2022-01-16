@@ -54,7 +54,7 @@ class Statuses extends BaseApi
 		$this->dba = $dba;
 		$this->twitterStatus = $twitterStatus;
 	}
-	
+
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);

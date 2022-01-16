@@ -58,26 +58,26 @@ class Update extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		// params
 		$gid  = $_REQUEST['list_id'] ?? 0;
 		$name = $_REQUEST['name'] ?? '';
-	
+
 		// error if no gid specified
 		if ($gid == 0) {
 			throw new HTTPException\BadRequestException('gid not specified');
 		}
-	
+
 		// get data of the specified group id
 		$group = $this->dba->selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
 		// error message if specified gid is not in database
 		if (!$group) {
 			throw new HTTPException\BadRequestException('gid not available');
 		}
-	
+
 		if (Group::update($gid, $name)) {
 			$list = $this->friendicaGroup->createFromId($gid);
-	
+
 			$this->response->exit('statuses', ['lists' => ['lists' => $list]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 		}
 	}

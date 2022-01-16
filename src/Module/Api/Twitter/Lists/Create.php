@@ -53,33 +53,33 @@ class Create extends BaseApi
 		$this->dba = $dba;
 		$this->friendicaGroup = $friendicaGroup;
 	}
-	
+
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		// params
 		$name = $_REQUEST['name'] ?? '';
-	
+
 		if ($name == '') {
 			throw new HTTPException\BadRequestException('group name not specified');
 		}
-	
+
 		// error message if specified group name already exists
 		if ($this->dba->exists('group', ['uid' => $uid, 'name' => $name, 'deleted' => false])) {
 			throw new HTTPException\BadRequestException('group name already exists');
 		}
-	
+
 		$ret = Group::create($uid, $name);
 		if ($ret) {
 			$gid = Group::getIdByName($uid, $name);
 		} else {
 			throw new HTTPException\BadRequestException('other API error');
 		}
-	
+
 		$grp = $this->friendicaGroup->createFromId($gid);
-	
+
 		$this->response->exit('statuses', ['lists' => ['lists' => $grp]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

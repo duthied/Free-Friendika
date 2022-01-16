@@ -35,27 +35,27 @@ class Create extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
-	
+
 		// params
 		$name = $_REQUEST['name'] ?? '';
 		$json = json_decode($_POST['json'], true);
 		$users = $json['user'];
-	
+
 		// error if no name specified
 		if ($name == '') {
 			throw new HTTPException\BadRequestException('group name not specified');
 		}
-	
+
 		// error message if specified group name already exists
 		if (DBA::exists('group', ['uid' => $uid, 'name' => $name, 'deleted' => false])) {
 			throw new HTTPException\BadRequestException('group name already exists');
 		}
-	
+
 		// Check if the group needs to be reactivated
 		if (DBA::exists('group', ['uid' => $uid, 'name' => $name, 'deleted' => true])) {
 			$reactivate_group = true;
 		}
-	
+
 		// create group
 		$ret = Group::create($uid, $name);
 		if ($ret) {
@@ -63,7 +63,7 @@ class Create extends BaseApi
 		} else {
 			throw new HTTPException\BadRequestException('other API error');
 		}
-	
+
 		// add members
 		$erroraddinguser = false;
 		$errorusers = [];
@@ -76,12 +76,12 @@ class Create extends BaseApi
 				$errorusers[] = $cid;
 			}
 		}
-	
+
 		// return success message incl. missing users in array
 		$status = ($erroraddinguser ? 'missing user' : ((isset($reactivate_group) && $reactivate_group) ? 'reactivated' : 'ok'));
-	
+
 		$result = ['success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers];
-		
+
 		$this->response->exit('group_create', ['$result' => $result], $this->parameters['extension'] ?? null);
 	}
 }
