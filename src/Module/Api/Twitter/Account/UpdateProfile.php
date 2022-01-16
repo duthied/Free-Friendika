@@ -56,7 +56,7 @@ class UpdateProfile extends BaseApi
 
 		Profile::publishUpdate($uid);
 
-		$skip_status = $request['skip_status'] ?? false;
+		$skip_status = filter_var($request['skip_status'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 		$user_info = DI::twitterUser()->createFromUserId($uid, $skip_status)->toArray();
 

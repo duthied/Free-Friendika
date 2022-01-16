@@ -50,7 +50,7 @@ class Destroy extends BaseApi
 
 		$this->logger->notice('API: api_statuses_destroy: ' . $id);
 
-		$include_entities = strtolower(($request['include_entities'] ?? 'false') == 'true');
+		$include_entities = filter_var($request['include_entities'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 		$ret = DI::twitterStatus()->createFromItemId($id, $uid, $include_entities)->toArray();
 

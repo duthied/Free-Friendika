@@ -37,7 +37,7 @@ class VerifyCredentials extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		$skip_status = $_REQUEST['skip_status'] ?? false;
+		$skip_status = filter_var($request['skip_status'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 		$user_info = DI::twitterUser()->createFromUserId($uid, $skip_status)->toArray();
 

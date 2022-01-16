@@ -72,7 +72,7 @@ class Mentions extends BaseApi
 		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
 
-		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
+		$include_entities = filter_var($request['include_entities'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {
