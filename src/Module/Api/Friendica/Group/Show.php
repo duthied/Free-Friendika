@@ -22,6 +22,7 @@
 namespace Friendica\Module\Api\Friendica\Group;
 
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;

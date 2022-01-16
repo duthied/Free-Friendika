@@ -54,9 +54,6 @@ class Destroy extends BaseApi
 
 		$id = $this->getRequestValue($request, 'id', 0);
 		$id = $this->getRequestValue($this->parameters, 'id', $id);
-		if (empty($id)) {
-			throw new BadRequestException('Message id not specified');
-		}
 
 		$verbose = $this->getRequestValue($request, 'friendica_verbose', false);
 
