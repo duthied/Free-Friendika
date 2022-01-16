@@ -22,10 +22,15 @@
 namespace Friendica\Module\Api\Friendica\Photo;
 
 use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Factory\Api\Friendica\Photo as FriendicaPhoto;
 use Friendica\Module\BaseApi;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo;
+use Friendica\Module\Api\ApiResponse;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Returns all lists the user subscribes to.
@@ -34,6 +39,17 @@ use Friendica\Model\Photo;
  */
 class Lists extends BaseApi
 {
+	/** @var FriendicaPhoto */
+	private $friendicaPhoto;
+
+
+	public function __construct(FriendicaPhoto $friendicaPhoto, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->friendicaPhoto = $friendicaPhoto;
+	}
+
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
@@ -46,7 +62,7 @@ class Lists extends BaseApi
 		$data = ['photo' => []];
 		if (DBA::isResult($photos)) {
 			foreach ($photos as $photo) {
-				$element = DI::friendicaPhoto()->createFromId($photo['resource-id'], null, $uid, 'json', false);
+				$element = $this->friendicaPhoto->createFromId($photo['resource-id'], null, $uid, 'json', false);
 
 				$element['thumb'] = end($element['link']);
 				unset($element['link']);

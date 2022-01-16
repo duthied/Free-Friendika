@@ -21,17 +21,33 @@
 
 namespace Friendica\Module\Api\Friendica\Photo;
 
+use Friendica\App;
 use Friendica\Core\ACL;
-use Friendica\DI;
-use Friendica\Model\Photo;
+use Friendica\Core\L10n;
+use Friendica\Factory\Api\Friendica\Photo as FriendicaPhoto;
 use Friendica\Module\BaseApi;
+use Friendica\Model\Photo;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * API endpoint: /api/friendica/photo/create
  */
 class Create extends BaseApi
 {
+	/** @var FriendicaPhoto */
+	private $friendicaPhoto;
+
+
+	public function __construct(FriendicaPhoto $friendicaPhoto, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->friendicaPhoto = $friendicaPhoto;
+	}
+
 	protected function post(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
@@ -72,7 +88,7 @@ class Create extends BaseApi
 
 		// return success of updating or error message
 		if (!empty($photo)) {
-			$data = ['photo' => DI::friendicaPhoto()->createFromId($photo['resource_id'], null, $uid, $type)];
+			$data = ['photo' => $this->friendicaPhoto->createFromId($photo['resource_id'], null, $uid, $type)];
 			$this->response->exit('photo_create', $data, $this->parameters['extension'] ?? null);
 			return;
 		} else {

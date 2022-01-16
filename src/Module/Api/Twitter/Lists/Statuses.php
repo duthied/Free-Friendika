@@ -21,12 +21,18 @@
 
 namespace Friendica\Module\Api\Twitter\Lists;
 
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Factory\Api\Twitter\Status as TwitterStatus;
 use Friendica\Module\BaseApi;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
-use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Module\Api\ApiResponse;
+use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Returns recent statuses from users in the specified group.
@@ -35,13 +41,27 @@ use Friendica\Network\HTTPException\BadRequestException;
  */
 class Statuses extends BaseApi
 {
+	/** @var TwitterStatus */
+	private $twitterStatus;
+
+	/** @var Database */
+	private $dba;
+
+	public function __construct(Database $dba, TwitterStatus $twitterStatus, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->dba = $dba;
+		$this->twitterStatus = $twitterStatus;
+	}
+	
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
 		if (empty($request['list_id'])) {
-			throw new BadRequestException('list_id not specified');
+			throw new HTTPException\BadRequestException('list_id not specified');
 		}
 
 		// params
@@ -54,7 +74,7 @@ class Statuses extends BaseApi
 
 		$start = max(0, ($page - 1) * $count);
 
-		$groups    = DBA::selectToArray('group_member', ['contact-id'], ['gid' => $request['list_id']]);
+		$groups    = $this->dba->selectToArray('group_member', ['contact-id'], ['gid' => $request['list_id']]);
 		$gids      = array_column($groups, 'contact-id');
 		$condition = ['uid' => $uid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'contact-id' => $gids];
 		$condition = DBA::mergeConditions($condition, ["`id` > ?", $since_id]);
@@ -78,10 +98,10 @@ class Statuses extends BaseApi
 		$include_entities = strtolower(($request['include_entities'] ?? 'false') == 'true');
 
 		$items = [];
-		while ($status = DBA::fetch($statuses)) {
-			$items[] = DI::twitterStatus()->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
+		while ($status = $this->dba->fetch($statuses)) {
+			$items[] = $this->twitterStatus->createFromUriId($status['uri-id'], $status['uid'], $include_entities)->toArray();
 		}
-		DBA::close($statuses);
+		$this->dba->close($statuses);
 
 		$this->response->exit('statuses', ['status' => $items], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}

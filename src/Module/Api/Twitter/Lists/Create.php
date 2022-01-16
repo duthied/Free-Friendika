@@ -21,12 +21,17 @@
 
 namespace Friendica\Module\Api\Twitter\Lists;
 
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Database\Database;
+use Friendica\Factory\Api\Friendica\Group as FriendicaGroup;
 use Friendica\Module\BaseApi;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Update information about a group.
@@ -35,6 +40,20 @@ use Friendica\Network\HTTPException;
  */
 class Create extends BaseApi
 {
+	/** @var friendicaGroup */
+	private $friendicaGroup;
+
+	/** @var Database */
+	private $dba;
+
+	public function __construct(Database $dba, FriendicaGroup $friendicaGroup, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->dba = $dba;
+		$this->friendicaGroup = $friendicaGroup;
+	}
+	
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
@@ -48,7 +67,7 @@ class Create extends BaseApi
 		}
 	
 		// error message if specified group name already exists
-		if (DBA::exists('group', ['uid' => $uid, 'name' => $name, 'deleted' => false])) {
+		if ($this->dba->exists('group', ['uid' => $uid, 'name' => $name, 'deleted' => false])) {
 			throw new HTTPException\BadRequestException('group name already exists');
 		}
 	
@@ -59,7 +78,7 @@ class Create extends BaseApi
 			throw new HTTPException\BadRequestException('other API error');
 		}
 	
-		$grp = DI::friendicaGroup()->createFromId($gid);
+		$grp = $this->friendicaGroup->createFromId($gid);
 	
 		$this->response->exit('statuses', ['lists' => ['lists' => $grp]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}

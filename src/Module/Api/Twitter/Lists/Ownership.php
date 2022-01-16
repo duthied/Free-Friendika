@@ -21,10 +21,15 @@
 
 namespace Friendica\Module\Api\Twitter\Lists;
 
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Database\Database;
+use Friendica\Factory\Api\Friendica\Group as FriendicaGroup;
 use Friendica\Module\BaseApi;
 use Friendica\Model\Contact;
+use Friendica\Module\Api\ApiResponse;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Returns all groups the user owns.
@@ -33,17 +38,30 @@ use Friendica\Model\Contact;
  */
 class Ownership extends BaseApi
 {
+	/** @var friendicaGroup */
+	private $friendicaGroup;
+
+	/** @var Database */
+	private $dba;
+
+	public function __construct(Database $dba, FriendicaGroup $friendicaGroup, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->dba = $dba;
+		$this->friendicaGroup = $friendicaGroup;
+	}
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 	
-		$groups = DBA::select('group', [], ['deleted' => false, 'uid' => $uid]);
+		$groups = $this->dba->select('group', [], ['deleted' => false, 'uid' => $uid]);
 	
 		// loop through all groups
 		$lists = [];
 		foreach ($groups as $group) {
-			$lists[] = DI::friendicaGroup()->createFromId($group['id']);
+			$lists[] = $this->friendicaGroup->createFromId($group['id']);
 		}
 
 		$this->response->exit('statuses', ['lists' => ['lists' => $lists]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
