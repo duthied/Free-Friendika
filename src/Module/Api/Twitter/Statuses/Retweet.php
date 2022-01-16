@@ -44,11 +44,9 @@ class Retweet extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		if (!empty($this->parameters['id'])) {
-			$id = (int)$this->parameters['id'];
-		} elseif (!empty($request['id'])) {
-			$id = (int)$request['id'];
-		} else {
+		$id = $this->getRequestValue($request, 'id', 0);
+		$id = $this->getRequestValue($this->parameters, 'id', $id);
+		if (empty($id)) {
 			throw new BadRequestException('An id is missing.');
 		}
 

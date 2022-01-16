@@ -52,7 +52,7 @@ class Create extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid  = BaseApi::getCurrentUserID();
-		$type = $this->parameters['extension'] ?? '';
+		$type = $this->getRequestValue($this->parameters, 'extension', 'json');
 
 		// input params	
 		$desc      = $this->getRequestValue($request, 'desc');

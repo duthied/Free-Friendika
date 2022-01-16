@@ -52,7 +52,12 @@ class Destroy extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
-		$id      = $this->getRequestValue($request, 'id', 0);
+		$id = $this->getRequestValue($request, 'id', 0);
+		$id = $this->getRequestValue($this->parameters, 'id', $id);
+		if (empty($id)) {
+			throw new BadRequestException('Message id not specified');
+		}
+
 		$verbose = $this->getRequestValue($request, 'friendica_verbose', false);
 
 		$parenturi = $request['friendica_parenturi'] ?? '';
@@ -62,11 +67,6 @@ class Destroy extends BaseApi
 			$answer = ['result' => 'error', 'message' => 'message id or parenturi not specified'];
 			$this->response->exit('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
 			return;
-		}
-
-		// BadRequestException if no id specified (for clients using Twitter API)
-		if ($id == 0) {
-			throw new BadRequestException('Message id not specified');
 		}
 
 		// add parent-uri to sql command if specified by calling app

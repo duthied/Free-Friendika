@@ -52,7 +52,7 @@ class Update extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid  = BaseApi::getCurrentUserID();
-		$type = $this->parameters['extension'] ?? '';
+		$type = $this->getRequestValue($this->parameters, 'extension', 'json');
 
 		// input params
 		$photo_id  = $this->getRequestValue($request, 'photo_id');

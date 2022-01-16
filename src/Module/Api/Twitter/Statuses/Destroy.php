@@ -39,11 +39,9 @@ class Destroy extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		if (!empty($this->parameters['id'])) {
-			$id = (int)$this->parameters['id'];
-		} elseif (!empty($request['id'])) {
-			$id = (int)$request['id'];
-		} else {
+		$id = $this->getRequestValue($request, 'id', 0);
+		$id = $this->getRequestValue($this->parameters, 'id', $id);
+		if (empty($id)) {
 			throw new BadRequestException('An id is missing.');
 		}
 

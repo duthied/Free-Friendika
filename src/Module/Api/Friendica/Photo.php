@@ -48,7 +48,7 @@ class Photo extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid  = BaseApi::getCurrentUserID();
-		$type = $this->parameters['extension'] ?? '';
+		$type = $this->getRequestValue($this->parameters, 'extension', 'json');
 
 		if (empty($request['photo_id'])) {
 			throw new HTTPException\BadRequestException('No photo id.');

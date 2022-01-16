@@ -41,10 +41,10 @@ class Show extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		if (empty($this->parameters['id'])) {
-			$id = intval($request['id'] ?? 0);
-		} else {
-			$id = (int)$this->parameters['id'];
+		$id = $this->getRequestValue($request, 'id', 0);
+		$id = $this->getRequestValue($this->parameters, 'id', $id);
+		if (empty($id)) {
+			throw new BadRequestException('An id is missing.');
 		}
 
 		Logger::notice('API: api_statuses_show: ' . $id);

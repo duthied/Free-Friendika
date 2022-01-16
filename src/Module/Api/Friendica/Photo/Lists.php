@@ -54,7 +54,7 @@ class Lists extends BaseApi
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid  = BaseApi::getCurrentUserID();
-		$type = $this->parameters['extension'] ?? '';
+		$type = $this->getRequestValue($this->parameters, 'extension', 'json');
 
 		$photos = Photo::selectToArray(['resource-id'], ["`uid` = ? AND NOT `photo-type` IN (?, ?)", $uid, Photo::CONTACT_AVATAR, Photo::CONTACT_BANNER],
 			['order' => ['id'], 'group_by' => ['resource-id']]);
