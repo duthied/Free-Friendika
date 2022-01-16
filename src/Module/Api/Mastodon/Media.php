@@ -37,7 +37,7 @@ class Media extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		Logger::info('Photo post', ['request' => $_REQUEST, 'files' => $_FILES]);
+		Logger::info('Photo post', ['request' => $request, 'files' => $_FILES]);
 
 		if (empty($_FILES['file'])) {
 			DI::mstdnError()->UnprocessableEntity();

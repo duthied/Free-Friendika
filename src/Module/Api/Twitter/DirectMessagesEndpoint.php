@@ -84,7 +84,7 @@ abstract class DirectMessagesEndpoint extends BaseApi
 			$params['order'] = ['id'];
 		}
 
-		$cid = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, 0);
+		$cid = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, 0);
 		if (!empty($cid)) {
 			$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 			if (!empty($cdata['user'])) {
