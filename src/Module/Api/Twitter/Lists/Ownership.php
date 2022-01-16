@@ -48,7 +48,7 @@ class Ownership extends BaseApi
 	{
 		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->dba = $dba;
+		$this->dba            = $dba;
 		$this->friendicaGroup = $friendicaGroup;
 	}
 	protected function rawContent(array $request = [])
