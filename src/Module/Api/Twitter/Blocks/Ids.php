@@ -37,17 +37,14 @@ class Ids extends ContactEndpoint
 		$uid = BaseApi::getCurrentUserID();
 
 		// Expected value for user_id parameter: public/user contact id
-		$cursor        = filter_input(INPUT_GET, 'cursor'       , FILTER_VALIDATE_INT, ['options' => ['default' => -1]]);
-		$stringify_ids = filter_input(INPUT_GET, 'stringify_ids', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]);
-		$count         = filter_input(INPUT_GET, 'count'        , FILTER_VALIDATE_INT, ['options' => [
-			'default'   => self::DEFAULT_COUNT,
-			'min_range' => 1,
-			'max_range' => self::MAX_COUNT,
-		]]);
+		$cursor        = $this->getRequestValue($request, 'cursor', -1);
+		$stringify_ids = $this->getRequestValue($request, 'stringify_ids', false);
+		$count         = $this->getRequestValue($request, 'count', self::DEFAULT_COUNT, 1, self::MAX_COUNT);
+
 		// Friendica-specific
-		$since_id = filter_input(INPUT_GET, 'since_id', FILTER_VALIDATE_INT);
-		$max_id   = filter_input(INPUT_GET, 'max_id'  , FILTER_VALIDATE_INT);
-		$min_id   = filter_input(INPUT_GET, 'min_id'  , FILTER_VALIDATE_INT);
+		$since_id = $this->getRequestValue($request, 'since_id', 0, 0);
+		$max_id   = $this->getRequestValue($request, 'max_id', 0, 0);
+		$min_id   = $this->getRequestValue($request, 'min_id', 0, 0);
 
 		$params = ['order' => ['cid' => true], 'limit' => $count];
 

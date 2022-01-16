@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Twitter\Statuses;
 
-use Friendica\Core\Logger;
 use Friendica\Module\BaseApi;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -40,17 +39,15 @@ class Destroy extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		if (!empty($this->parameters['id'])) {
-			$id = (int)$this->parameters['id'];
-		} elseif (!empty($request['id'])) {
-			$id = (int)$request['id'];
-		} else {
+		$id = $this->getRequestValue($request, 'id', 0);
+		$id = $this->getRequestValue($this->parameters, 'id', $id);
+		if (empty($id)) {
 			throw new BadRequestException('An id is missing.');
 		}
 
 		$this->logger->notice('API: api_statuses_destroy: ' . $id);
 
-		$include_entities = strtolower(($request['include_entities'] ?? 'false') == 'true');
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
 
 		$ret = DI::twitterStatus()->createFromItemId($id, $uid, $include_entities)->toArray();
 

@@ -47,7 +47,9 @@ class Seen extends BaseApi
 			throw new BadRequestException('Invalid argument count');
 		}
 
-		$id = intval($_REQUEST['id'] ?? 0);
+		$id = intval($request['id'] ?? 0);
+
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
 
 		try {
 			$Notify = DI::notify()->selectOneById($id);
@@ -65,8 +67,6 @@ class Seen extends BaseApi
 			if ($Notify->otype === Notification\ObjectType::ITEM) {
 				$item = Post::selectFirstForUser($uid, [], ['id' => $Notify->iid, 'uid' => $uid]);
 				if (DBA::isResult($item)) {
-					$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
-
 					// we found the item, return it to the user
 					$ret  = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray()];
 					$data = ['status' => $ret];

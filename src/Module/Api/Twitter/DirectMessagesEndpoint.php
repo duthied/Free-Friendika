@@ -58,12 +58,12 @@ abstract class DirectMessagesEndpoint extends BaseApi
 	protected function getMessages(array $request, int $uid, array $condition)
 	{
 		// params
-		$count    = filter_var($request['count'] ?? 20,                FILTER_VALIDATE_INT, ['options' => ['max_range' => 100]]);
-		$page     = filter_var($request['page'] ?? 1,                  FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-		$since_id = filter_var($request['since_id'] ?? 0,              FILTER_VALIDATE_INT);
-		$max_id   = filter_var($request['max_id'] ?? 0,                FILTER_VALIDATE_INT);
-		$min_id   = filter_var($request['min_id'] ?? 0,                FILTER_VALIDATE_INT);
-		$verbose  = filter_var($request['friendica_verbose'] ?? false, FILTER_VALIDATE_BOOLEAN);
+		$count    = $this->getRequestValue($request, 'count', 20, 1, 100);
+		$page     = $this->getRequestValue($request, 'page', 1, 1);
+		$since_id = $this->getRequestValue($request, 'since_id', 0, 0);
+		$max_id   = $this->getRequestValue($request, 'max_id', 0, 0);
+		$min_id   = $this->getRequestValue($request, 'min_id', 0, 0);
+		$verbose  = $this->getRequestValue($request, 'friendica_verbose', false);
 
 		// pagination
 		$start = max(0, ($page - 1) * $count);
@@ -84,7 +84,7 @@ abstract class DirectMessagesEndpoint extends BaseApi
 			$params['order'] = ['id'];
 		}
 
-		$cid = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $_REQUEST['user_id'] ?? 0, 0);
+		$cid = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, 0);
 		if (!empty($cid)) {
 			$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 			if (!empty($cdata['user'])) {
