@@ -32,14 +32,14 @@ class Group extends BaseFactory
 	/** @var twitterUser entity */
 	private $twitterUser;
 	/** @var Database */
-	private $database;
+	private $dba;
 
 	public function __construct(LoggerInterface $logger, TwitterUser $twitteruser, Database $dba)
 	{
 		parent::__construct($logger);
 
 		$this->twitterUser = $twitteruser;
-		$this->dba = $dba;
+		$this->dba         = $dba;
 	}
 
 	/**
