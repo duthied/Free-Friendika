@@ -261,15 +261,15 @@ abstract class BaseModule implements ICanHandleRequests
 
 		foreach ($defaults as $parameter => $defaultvalue) {
 			if (is_string($defaultvalue)) {
-				$request[$parameter] = $input[$parameter] ?? $defaultvalue;
+				$request[$parameter] = (string)($input[$parameter] ?? $defaultvalue);
 			} elseif (is_int($defaultvalue)) {
-				$request[$parameter] = (int)($input[$parameter] ?? $defaultvalue);
+				$request[$parameter] = filter_var($input[$parameter] ?? $defaultvalue, FILTER_VALIDATE_INT);
 			} elseif (is_float($defaultvalue)) {
-				$request[$parameter] = (float)($input[$parameter] ?? $defaultvalue);
+				$request[$parameter] = filter_var($input[$parameter] ?? $defaultvalue, FILTER_VALIDATE_FLOAT);
 			} elseif (is_array($defaultvalue)) {
-				$request[$parameter] = $input[$parameter] ?? [];
+				$request[$parameter] = filter_var($input[$parameter] ?? $defaultvalue, FILTER_DEFAULT, ['flags' => FILTER_FORCE_ARRAY]);
 			} elseif (is_bool($defaultvalue)) {
-				$request[$parameter] = in_array(strtolower($input[$parameter] ?? ''), ['true', '1']);
+				$request[$parameter] = filter_var($input[$parameter] ?? $defaultvalue, FILTER_VALIDATE_BOOLEAN);
 			} else {
 				$this->logger->notice('Unhandled default value type', ['parameter' => $parameter, 'type' => gettype($defaultvalue)]);
 			}
