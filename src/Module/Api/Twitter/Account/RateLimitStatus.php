@@ -31,7 +31,7 @@ class RateLimitStatus extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
-		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
+		if ($this->parameters['extension'] ?? '' == 'xml') {
 			$hash = [
 				'remaining-hits'        => '150',
 				'@attributes'           => ["type" => "integer"],
