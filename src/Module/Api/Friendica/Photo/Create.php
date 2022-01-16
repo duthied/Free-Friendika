@@ -54,13 +54,13 @@ class Create extends BaseApi
 		$uid  = BaseApi::getCurrentUserID();
 		$type = $this->parameters['extension'] ?? '';
 
-		// input params
-		$desc      = $request['desc']      ?? null;
-		$album     = $request['album']     ?? null;
-		$allow_cid = $request['allow_cid'] ?? null;
-		$deny_cid  = $request['deny_cid' ] ?? null;
-		$allow_gid = $request['allow_gid'] ?? null;
-		$deny_gid  = $request['deny_gid' ] ?? null;
+		// input params	
+		$desc      = $this->getRequestValue($request, 'desc');
+		$album     = $this->getRequestValue($request, 'album');
+		$allow_cid = $this->getRequestValue($request, 'allow_cid');
+		$deny_cid  = $this->getRequestValue($request, 'deny_cid');
+		$allow_gid = $this->getRequestValue($request, 'allow_gid');
+		$deny_gid  = $this->getRequestValue($request, 'deny_gid');
 
 		// do several checks on input parameters
 		// we do not allow calls without album string

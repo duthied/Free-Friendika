@@ -60,7 +60,7 @@ class Destroy extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		// params
-		$gid = $request['list_id'] ?? 0;
+		$gid = $this->getRequestValue($request, 'list_id', 0);
 
 		// error if no gid specified
 		if ($gid == 0) {

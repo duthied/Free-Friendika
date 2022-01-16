@@ -45,10 +45,10 @@ class Favorites extends BaseApi
 		Logger::info(BaseApi::LOG_PREFIX . 'for {self}', ['module' => 'api', 'action' => 'favorites']);
 
 		// params
-		$since_id = $request['since_id'] ?? 0;
-		$max_id   = $request['max_id']   ?? 0;
-		$count    = $request['count']    ?? 20;
-		$page     = $request['page']     ?? 1;
+		$count    = $this->getRequestValue($request, 'count', 20, 1, 100);
+		$page     = $this->getRequestValue($request, 'page', 1, 1);
+		$since_id = $this->getRequestValue($request, 'since_id', 0, 1);
+		$max_id   = $this->getRequestValue($request, 'max_id', 0, 1);
 
 		$start = max(0, ($page - 1) * $count);
 

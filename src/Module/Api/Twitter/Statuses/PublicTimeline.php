@@ -41,12 +41,12 @@ class PublicTimeline extends BaseApi
 		// get last network messages
 
 		// params
-		$count           = $_REQUEST['count']    ?? 20;
-		$page            = $_REQUEST['page']     ?? 1;
-		$since_id        = $_REQUEST['since_id'] ?? 0;
-		$max_id          = $_REQUEST['max_id']   ?? 0;
-		$exclude_replies = (!empty($_REQUEST['exclude_replies']) ? 1 : 0);
-		$conversation_id = $_REQUEST['conversation_id'] ?? 0;
+		$count           = $this->getRequestValue($request, 'count', 20, 1, 100);
+		$page            = $this->getRequestValue($request, 'page', 1, 1);
+		$since_id        = $this->getRequestValue($request, 'since_id', 0, 1);
+		$max_id          = $this->getRequestValue($request, 'max_id', 0, 1);
+		$exclude_replies = $this->getRequestValue($request, 'exclude_replies', false);
+		$conversation_id = $this->getRequestValue($request, 'conversation_id', 0);
 
 		$start = max(0, ($page - 1) * $count);
 

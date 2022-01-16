@@ -260,19 +260,7 @@ abstract class BaseModule implements ICanHandleRequests
 		$request = [];
 
 		foreach ($defaults as $parameter => $defaultvalue) {
-			if (is_string($defaultvalue)) {
-				$request[$parameter] = (string)($input[$parameter] ?? $defaultvalue);
-			} elseif (is_int($defaultvalue)) {
-				$request[$parameter] = filter_var($input[$parameter] ?? $defaultvalue, FILTER_VALIDATE_INT);
-			} elseif (is_float($defaultvalue)) {
-				$request[$parameter] = filter_var($input[$parameter] ?? $defaultvalue, FILTER_VALIDATE_FLOAT);
-			} elseif (is_array($defaultvalue)) {
-				$request[$parameter] = filter_var($input[$parameter] ?? $defaultvalue, FILTER_DEFAULT, ['flags' => FILTER_FORCE_ARRAY]);
-			} elseif (is_bool($defaultvalue)) {
-				$request[$parameter] = filter_var($input[$parameter] ?? $defaultvalue, FILTER_VALIDATE_BOOLEAN);
-			} else {
-				$this->logger->notice('Unhandled default value type', ['parameter' => $parameter, 'type' => gettype($defaultvalue)]);
-			}
+			$request[$parameter] = $this->getRequestValue($input, $parameter, $defaultvalue);
 		}
 
 		foreach ($input ?? [] as $parameter => $value) {
@@ -286,6 +274,50 @@ abstract class BaseModule implements ICanHandleRequests
 
 		$this->logger->debug('Got request parameters', ['request' => $request, 'command' => $this->args->getCommand()]);
 		return $request;
+	}
+
+	/**
+	 * Fetch a request value and apply default values and check against minimal and maximal values
+	 *
+	 * @param array $input 
+	 * @param string $parameter 
+	 * @param mixed $default 
+	 * @param mixed $minimal_value 
+	 * @param mixed $maximum_value 
+	 * @return mixed 
+	 */
+	public function getRequestValue(array $input, string $parameter, $default = null, $minimal_value = null, $maximum_value = null)
+	{
+		if (is_string($default)) {
+			$value = (string)($input[$parameter] ?? $default);
+		} elseif (is_int($default)) {
+			$value = filter_var($input[$parameter] ?? $default, FILTER_VALIDATE_INT);
+			if (!is_null($minimal_value)) {
+				$value = max(filter_var($minimal_value, FILTER_VALIDATE_INT), $value);
+			}
+			if (!is_null($maximum_value)) {
+				$value = min(filter_var($minimal_value, FILTER_VALIDATE_INT), $value);
+			}
+		} elseif (is_float($default)) {
+			$value = filter_var($input[$parameter] ?? $default, FILTER_VALIDATE_FLOAT);
+			if (!is_null($minimal_value)) {
+				$value = max(filter_var($minimal_value, FILTER_VALIDATE_FLOAT), $value);
+			}
+			if (!is_null($maximum_value)) {
+				$value = min(filter_var($minimal_value, FILTER_VALIDATE_FLOAT), $value);
+			}
+		} elseif (is_array($default)) {
+			$value = filter_var($input[$parameter] ?? $default, FILTER_DEFAULT, ['flags' => FILTER_FORCE_ARRAY]);
+		} elseif (is_bool($default)) {
+			$value = filter_var($input[$parameter] ?? $default, FILTER_VALIDATE_BOOLEAN);
+		} elseif (is_null($default)) {
+			$value = $input[$parameter] ?? null;
+		} else {
+			$this->logger->notice('Unhandled default value type', ['parameter' => $parameter, 'type' => gettype($default)]);
+			$value = null;
+		}
+
+		return $value;
 	}
 
 	/*

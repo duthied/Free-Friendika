@@ -37,7 +37,7 @@ class Create extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		// params
-		$name  = $request['name'] ?? '';
+		$name  = $this->getRequestValue($request, 'name', '');
 		$json  = json_decode($request['json'], true);
 		$users = $json['user'];
 

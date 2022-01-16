@@ -38,8 +38,8 @@ class Update extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		// params
-		$gid   = $request['gid']  ?? 0;
-		$name  = $request['name'] ?? '';
+		$gid   = $this->getRequestValue($request, 'gid', 0);
+		$name  = $this->getRequestValue($request, 'name', '');
 		$json  = json_decode($request['json'], true);
 		$users = $json['user'];
 

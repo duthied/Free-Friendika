@@ -60,8 +60,8 @@ class Update extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		// params
-		$gid  = $request['list_id'] ?? 0;
-		$name = $request['name'] ?? '';
+		$gid  = $this->getRequestValue($request, 'list_id', 0);
+		$name = $this->getRequestValue($request, 'name', '');
 
 		// error if no gid specified
 		if ($gid == 0) {

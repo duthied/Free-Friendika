@@ -60,7 +60,7 @@ class Create extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		// params
-		$name = $request['name'] ?? '';
+		$name = $this->getRequestValue($request, 'name', '');
 
 		if ($name == '') {
 			throw new HTTPException\BadRequestException('group name not specified');
