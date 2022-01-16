@@ -41,10 +41,10 @@ class Conversation extends BaseApi
 
 		// params
 		$id       = $this->parameters['id'] ?? 0;
-		$since_id = $this->getRequestValue($request, 'since_id', 0);
-		$max_id   = $this->getRequestValue($request, 'max_id', 0);
-		$count    = $this->getRequestValue($request, 'count', 20);
-		$page     = $this->getRequestValue($request, 'page', 1);
+		$since_id = $this->getRequestValue($request, 'since_id', 0, 0);
+		$max_id   = $this->getRequestValue($request, 'max_id', 0, 0);
+		$count    = $this->getRequestValue($request, 'count', 20, 1, 100);
+		$page     = $this->getRequestValue($request, 'page', 1, 1);
 
 		$start = max(0, ($page - 1) * $count);
 

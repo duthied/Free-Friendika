@@ -60,9 +60,9 @@ abstract class DirectMessagesEndpoint extends BaseApi
 		// params
 		$count    = $this->getRequestValue($request, 'count', 20, 1, 100);
 		$page     = $this->getRequestValue($request, 'page', 1, 1);
-		$since_id = $this->getRequestValue($request, 'since_id', 0, 1);
-		$max_id   = $this->getRequestValue($request, 'max_id', 0, 1);
-		$min_id   = $this->getRequestValue($request, 'min_id', 0, 1);
+		$since_id = $this->getRequestValue($request, 'since_id', 0, 0);
+		$max_id   = $this->getRequestValue($request, 'max_id', 0, 0);
+		$min_id   = $this->getRequestValue($request, 'min_id', 0, 0);
 		$verbose  = $this->getRequestValue($request, 'friendica_verbose', false);
 
 		// pagination
