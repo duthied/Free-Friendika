@@ -22,7 +22,7 @@
 namespace Friendica\Factory\Api\Friendica;
 
 use Friendica\BaseFactory;
-use Friendica\Database\DBA;
+use Friendica\Database\Database;
 use Friendica\Network\HTTPException;
 use Psr\Log\LoggerInterface;
 use Friendica\Factory\Api\Twitter\User as TwitterUser;
@@ -31,12 +31,15 @@ class Group extends BaseFactory
 {
 	/** @var twitterUser entity */
 	private $twitterUser;
+	/** @var Database */
+	private $database;
 
-	public function __construct(LoggerInterface $logger, TwitterUser $twitteruser)
+	public function __construct(LoggerInterface $logger, TwitterUser $twitteruser, Database $dba)
 	{
 		parent::__construct($logger);
 
 		$this->twitterUser = $twitteruser;
+		$this->dba = $dba;
 	}
 
 	/**
@@ -46,7 +49,7 @@ class Group extends BaseFactory
 	 */
 	public function createFromId(int $id): array
 	{
-		$group = DBA::selectFirst('group', [], ['id' => $id, 'deleted' => false]);
+		$group = $this->dba->selectFirst('group', [], ['id' => $id, 'deleted' => false]);
 		if (empty($group)) {
 			return [];
 		}
