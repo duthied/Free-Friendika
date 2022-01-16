@@ -49,6 +49,8 @@ class Seen extends BaseApi
 
 		$id = intval($request['id'] ?? 0);
 
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
+
 		try {
 			$Notify = DI::notify()->selectOneById($id);
 			if ($Notify->uid !== $uid) {
@@ -65,8 +67,6 @@ class Seen extends BaseApi
 			if ($Notify->otype === Notification\ObjectType::ITEM) {
 				$item = Post::selectFirstForUser($uid, [], ['id' => $Notify->iid, 'uid' => $uid]);
 				if (DBA::isResult($item)) {
-					$include_entities = filter_var($request['include_entities'] ?? false, FILTER_VALIDATE_BOOLEAN);
-
 					// we found the item, return it to the user
 					$ret  = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray()];
 					$data = ['status' => $ret];

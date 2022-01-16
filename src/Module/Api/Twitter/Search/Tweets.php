@@ -62,6 +62,8 @@ class Tweets extends BaseApi
 		$max_id   = $_REQUEST['max_id']   ?? 0;
 		$page     = $_REQUEST['page']     ?? 1;
 
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
+
 		$start = max(0, ($page - 1) * $count);
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
@@ -114,8 +116,6 @@ class Tweets extends BaseApi
 		}
 
 		$statuses = $statuses ?: Post::selectForUser($uid, [], $condition, $params);
-
-		$include_entities = filter_var($request['include_entities'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {

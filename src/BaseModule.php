@@ -296,7 +296,7 @@ abstract class BaseModule implements ICanHandleRequests
 				$value = max(filter_var($minimal_value, FILTER_VALIDATE_INT), $value);
 			}
 			if (!is_null($maximum_value)) {
-				$value = min(filter_var($minimal_value, FILTER_VALIDATE_INT), $value);
+				$value = min(filter_var($maximum_value, FILTER_VALIDATE_INT), $value);
 			}
 		} elseif (is_float($default)) {
 			$value = filter_var($input[$parameter] ?? $default, FILTER_VALIDATE_FLOAT);
@@ -304,7 +304,7 @@ abstract class BaseModule implements ICanHandleRequests
 				$value = max(filter_var($minimal_value, FILTER_VALIDATE_FLOAT), $value);
 			}
 			if (!is_null($maximum_value)) {
-				$value = min(filter_var($minimal_value, FILTER_VALIDATE_FLOAT), $value);
+				$value = min(filter_var($maximum_value, FILTER_VALIDATE_FLOAT), $value);
 			}
 		} elseif (is_array($default)) {
 			$value = filter_var($input[$parameter] ?? $default, FILTER_DEFAULT, ['flags' => FILTER_FORCE_ARRAY]);

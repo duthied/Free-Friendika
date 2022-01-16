@@ -42,15 +42,14 @@ class UserTimeline extends BaseApi
 
 		Logger::info('api_statuses_user_timeline', ['api_user' => $uid, '_REQUEST' => $request]);
 
-		$cid             = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, $uid);
-		$since_id        = $request['since_id'] ?? 0;
-		$max_id          = $request['max_id']   ?? 0;
-		$exclude_replies = !empty($request['exclude_replies']);
-		$conversation_id = $request['conversation_id'] ?? 0;
-
-		// pagination
-		$count = $request['count'] ?? 20;
-		$page  = $request['page']  ?? 1;
+		$cid              = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, $uid);
+		$count            = $this->getRequestValue($request, 'count', 20, 1, 100);
+		$page             = $this->getRequestValue($request, 'page', 1, 1);
+		$since_id         = $this->getRequestValue($request, 'since_id', 0, 0);
+		$max_id           = $this->getRequestValue($request, 'max_id', 0, 0);
+		$exclude_replies  = $this->getRequestValue($request, 'exclude_replies', false);
+		$conversation_id  = $this->getRequestValue($request, 'conversation_id', 0, 0);
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
 
 		$start = max(0, ($page - 1) * $count);
 
@@ -73,8 +72,6 @@ class UserTimeline extends BaseApi
 		}
 		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
-
-		$include_entities = filter_var($request['include_entities'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {

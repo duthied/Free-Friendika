@@ -42,10 +42,11 @@ class Mentions extends BaseApi
 		// get last network messages
 
 		// params
-		$count    = $this->getRequestValue($request, 'count', 20, 1, 100);
-		$page     = $this->getRequestValue($request, 'page', 1, 1);
-		$since_id = $this->getRequestValue($request, 'since_id', 0, 0);
-		$max_id   = $this->getRequestValue($request, 'max_id', 0, 0);
+		$count            = $this->getRequestValue($request, 'count', 20, 1, 100);
+		$page             = $this->getRequestValue($request, 'page', 1, 1);
+		$since_id         = $this->getRequestValue($request, 'since_id', 0, 0);
+		$max_id           = $this->getRequestValue($request, 'max_id', 0, 0);
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
 
 		$start = max(0, ($page - 1) * $count);
 
@@ -71,8 +72,6 @@ class Mentions extends BaseApi
 
 		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
-
-		$include_entities = filter_var($request['include_entities'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {

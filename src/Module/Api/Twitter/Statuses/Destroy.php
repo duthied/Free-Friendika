@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Twitter\Statuses;
 
-use Friendica\Core\Logger;
 use Friendica\Module\BaseApi;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -50,7 +49,7 @@ class Destroy extends BaseApi
 
 		$this->logger->notice('API: api_statuses_destroy: ' . $id);
 
-		$include_entities = filter_var($request['include_entities'] ?? false, FILTER_VALIDATE_BOOLEAN);
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
 
 		$ret = DI::twitterStatus()->createFromItemId($id, $uid, $include_entities)->toArray();
 

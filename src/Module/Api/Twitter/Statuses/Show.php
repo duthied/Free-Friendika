@@ -79,7 +79,7 @@ class Show extends BaseApi
 			throw new BadRequestException(sprintf("There is no status or conversation with the id %d.", $id));
 		}
 
-		$include_entities = filter_var($request['include_entities'] ?? false, FILTER_VALIDATE_BOOLEAN);
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
 
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {
