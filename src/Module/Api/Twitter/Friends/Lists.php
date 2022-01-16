@@ -37,9 +37,7 @@ class Lists extends ContactEndpoint
 		$uid = BaseApi::getCurrentUserID();
 
 		// Expected value for user_id parameter: public/user contact id
-		$contact_id            = $this->getRequestValue($request, 'user_id', 0);
-		$screen_name           = $this->getRequestValue($request, 'screen_name', '');
-		$profile_url           = $this->getRequestValue($request, 'profile_url', '');
+		$cid                   = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, $uid);
 		$cursor                = $this->getRequestValue($request, 'cursor', -1);
 		$skip_status           = $this->getRequestValue($request, 'skip_status', false);
 		$include_user_entities = $this->getRequestValue($request, 'include_user_entities', false);
@@ -49,8 +47,6 @@ class Lists extends ContactEndpoint
 		$since_id = $this->getRequestValue($request, 'since_id', 0, 0);
 		$max_id   = $this->getRequestValue($request, 'max_id', 0, 0);
 		$min_id   = $this->getRequestValue($request, 'min_id', 0, 0);
-
-		$cid = BaseApi::getContactIDForSearchterm($screen_name, $profile_url, $contact_id, $uid);
 
 		$params = ['order' => ['cid' => true], 'limit' => $count];
 
