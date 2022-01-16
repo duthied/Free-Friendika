@@ -40,7 +40,7 @@ class Update extends BaseApi
 		// params
 		$gid   = $request['gid']  ?? 0;
 		$name  = $request['name'] ?? '';
-		$json  = json_decode($_POST['json'], true);
+		$json  = json_decode($request['json'], true);
 		$users = $json['user'];
 
 		// error if no name specified

@@ -38,7 +38,7 @@ class Create extends BaseApi
 
 		// params
 		$name = $request['name'] ?? '';
-		$json = json_decode($_POST['json'], true);
+		$json = json_decode($request['json'], true);
 		$users = $json['user'];
 
 		// error if no name specified
