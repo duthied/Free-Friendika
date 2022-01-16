@@ -51,6 +51,6 @@ class TestTest extends ApiTest
 			'Content-type'                => ['text/xml'],
 			ICanCreateResponses::X_HEADER => ['xml']
 		], $response->getHeaders());
-		self::assertxml($response->getBody(), 'true');
+		self::assertxml($response->getBody(), 'ok');
 	}
 }

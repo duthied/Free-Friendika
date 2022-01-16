@@ -43,7 +43,7 @@ class Notification extends BaseApi
 			$notifications[] = new ApiNotification($Notify);
 		}
 
-		if ($this->parameters['extension'] ?? '' == 'xml') {
+		if (($this->parameters['extension'] ?? '') == 'xml') {
 			$xmlnotes = [];
 			foreach ($notifications as $notification) {
 				$xmlnotes[] = ['@attributes' => $notification->toArray()];
