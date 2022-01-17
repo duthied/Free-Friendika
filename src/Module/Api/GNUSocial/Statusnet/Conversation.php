@@ -40,16 +40,17 @@ class Conversation extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		// params
-		$id       = $this->parameters['id'] ?? 0;
-		$since_id = $_REQUEST['since_id']   ?? 0;
-		$max_id   = $_REQUEST['max_id']     ?? 0;
-		$count    = $_REQUEST['count']      ?? 20;
-		$page     = $_REQUEST['page']       ?? 1;
+		$id               = $this->getRequestValue($this->parameters, 'id', 0);
+		$since_id         = $this->getRequestValue($request, 'since_id', 0, 0);
+		$max_id           = $this->getRequestValue($request, 'max_id', 0, 0);
+		$count            = $this->getRequestValue($request, 'count', 20, 1, 100);
+		$page             = $this->getRequestValue($request, 'page', 1, 1);
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
 
 		$start = max(0, ($page - 1) * $count);
 
 		if ($id == 0) {
-			$id = $_REQUEST['id'] ?? 0;
+			$id = $request['id'] ?? 0;
 		}
 
 		Logger::info(BaseApi::LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
@@ -81,8 +82,6 @@ class Conversation extends BaseApi
 		if (!DBA::isResult($statuses)) {
 			throw new BadRequestException("There is no status with id $id.");
 		}
-
-		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
 
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {

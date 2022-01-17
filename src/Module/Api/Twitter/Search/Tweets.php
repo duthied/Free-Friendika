@@ -41,26 +41,21 @@ class Tweets extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		if (empty($_REQUEST['q'])) {
+		if (empty($request['q'])) {
 			throw new BadRequestException('q parameter is required.');
 		}
 
-		$searchTerm = trim(rawurldecode($_REQUEST['q']));
+		$searchTerm = trim(rawurldecode($request['q']));
 
 		$data['status'] = [];
 
-		$count = 15;
-
-		$exclude_replies = !empty($_REQUEST['exclude_replies']);
-		if (!empty($_REQUEST['rpp'])) {
-			$count = $_REQUEST['rpp'];
-		} elseif (!empty($_REQUEST['count'])) {
-			$count = $_REQUEST['count'];
-		}
-
-		$since_id = $_REQUEST['since_id'] ?? 0;
-		$max_id   = $_REQUEST['max_id']   ?? 0;
-		$page     = $_REQUEST['page']     ?? 1;
+		$count            = $this->getRequestValue($request, 'count', 20, 1, 100);
+		$count            = $this->getRequestValue($request, 'rpp', $count);
+		$since_id         = $this->getRequestValue($request, 'since_id', 0, 0);
+		$max_id           = $this->getRequestValue($request, 'max_id', 0, 0);
+		$page             = $this->getRequestValue($request, 'page', 1, 1);
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
+		$exclude_replies  = $this->getRequestValue($request, 'exclude_replies', false);
 
 		$start = max(0, ($page - 1) * $count);
 
@@ -114,8 +109,6 @@ class Tweets extends BaseApi
 		}
 
 		$statuses = $statuses ?: Post::selectForUser($uid, [], $condition, $params);
-
-		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
 
 		$ret = [];
 		while ($status = DBA::fetch($statuses)) {

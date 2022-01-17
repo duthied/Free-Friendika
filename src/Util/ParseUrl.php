@@ -216,6 +216,7 @@ class ParseUrl
 
 		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+			Logger::info('Empty body or error when fetching', ['url' => $url, 'success' => $curlResult->isSuccess(), 'code' => $curlResult->getReturnCode()]);
 			return $siteinfo;
 		}
 

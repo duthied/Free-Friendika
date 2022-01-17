@@ -263,14 +263,6 @@ abstract class DI
 	//
 
 	/**
-	 * @return Factory\Api\Friendica\Activities
-	 */
-	public static function friendicaActivities()
-	{
-		return self::$dice->create(Factory\Api\Friendica\Activities::class);
-	}
-
-	/**
 	 * @return Factory\Api\Mastodon\Account
 	 */
 	public static function mstdnAccount()

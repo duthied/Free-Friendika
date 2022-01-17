@@ -21,47 +21,48 @@
 
 namespace Friendica\Module\Api\Twitter\Account;
 
-use Friendica\Database\DBA;
 use Friendica\Module\BaseApi;
 use Friendica\DI;
-use Friendica\Model\Contact;
-use Friendica\Model\Profile;
+use Friendica\Model\Photo;
+use Friendica\Network\HTTPException;
 
 /**
- * Update user profile
+ * updates the profile image for the user (either a specified profile or the default profile)
+ *
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_image
  */
-class UpdateProfile extends BaseApi
+class UpdateProfileImage extends BaseApi
 {
 	protected function post(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
-		$api_user = DI::twitterUser()->createFromUserId($uid, true)->toArray();
-
-		if (!empty($request['name'])) {
-			DBA::update('profile', ['name' => $request['name']], ['uid' => $uid]);
-			DBA::update('user', ['username' => $request['name']], ['uid' => $uid]);
-			Contact::update(['name' => $request['name']], ['uid' => $uid, 'self' => 1]);
-			Contact::update(['name' => $request['name']], ['id' => $api_user['id']]);
+		// get mediadata from image or media (Twitter call api/account/update_profile_image provides image)
+		if (!empty($_FILES['image'])) {
+			$media = $_FILES['image'];
+		} elseif (!empty($_FILES['media'])) {
+			$media = $_FILES['media'];
 		}
 
-		if (isset($request['description'])) {
-			DBA::update('profile', ['about' => $request['description']], ['uid' => $uid]);
-			Contact::update(['about' => $request['description']], ['uid' => $uid, 'self' => 1]);
-			Contact::update(['about' => $request['description']], ['id' => $api_user['id']]);
+		// error if image data is missing
+		if (empty($media)) {
+			throw new HTTPException\BadRequestException('no media data submitted');
 		}
 
-		Contact::updateSelfFromUserID($uid, true);
+		// save new profile image
+		$resource_id = Photo::uploadAvatar($uid, $media);
+		if (empty($resource_id)) {
+			throw new HTTPException\InternalServerErrorException('image upload failed');
+		}
 
-		Profile::publishUpdate($uid);
-
+		// output for client
 		$skip_status = $this->getRequestValue($request, 'skip_status', false);
 
 		$user_info = DI::twitterUser()->createFromUserId($uid, $skip_status)->toArray();
 
 		// "verified" isn't used here in the standard
-		unset($user_info["verified"]);
+		unset($user_info['verified']);
 
 		// "uid" is only needed for some internal stuff, so remove it from here
 		unset($user_info['uid']);

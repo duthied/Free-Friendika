@@ -19,32 +19,25 @@
  *
  */
 
-namespace Friendica\Module\Api\Friendica;
+namespace Friendica\Module\Api\Twitter\Lists;
 
-use Friendica\DI;
 use Friendica\Module\BaseApi;
-require_once __DIR__ . '/../../../../include/api.php';
+use Friendica\Model\Contact;
 
 /**
- * api/friendica
+ * Returns all lists the user subscribes to.
  *
- * @package Friendica\Module\Api\Friendica
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/get-lists-list
  */
-class Index extends BaseApi
+class Lists extends BaseApi
 {
-	protected function post(array $request = [])
-	{
-		self::checkAllowedScope(self::SCOPE_WRITE);		
-	}
-
-	protected function delete(array $request = [])
-	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
-	}
-
 	protected function rawContent(array $request = [])
 	{
-		echo api_call(DI::args()->getCommand(), $this->parameters['extension'] ?? 'json');
-		exit();
+		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+		$uid = BaseApi::getCurrentUserID();
+
+		// This is a dummy endpoint
+		$ret = [];
+		$this->response->exit('statuses', ["lists_list" => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

@@ -19,24 +19,41 @@
  *
  */
 
-namespace Friendica\Module\Api\GNUSocial\Help;
+namespace Friendica\Object\Api\Friendica;
 
-use Friendica\Module\BaseApi;
-use Friendica\DI;
+use Friendica\BaseDataTransferObject;
 
 /**
- * API endpoint: /api/help/test
+ * Class Group
+ *
+ *
  */
-class Test extends BaseApi
+class Group extends BaseDataTransferObject
 {
-	protected function rawContent(array $request = [])
-	{
-		if (($this->parameters['extension'] ?? '') == 'xml') {
-			$ok = 'true';
-		} else {
-			$ok = 'ok';
-		}
+	/** @var string */
+	protected $name;
+	/** @var int */
+	protected $id;
+	/** @var string */
+	protected $id_str;
+	/** @var array */
+	protected $user;
+	/** @var string */
+	protected $mode;
 
-		$this->response->exit('ok', ['ok' => $ok], $this->parameters['extension'] ?? null);
+	/**
+	 * Creates an Group entity array
+	 *
+	 * @param array $group
+	 * @param array $user
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function __construct(array $group, array $user)
+	{
+		$this->name   = $group['name'];
+		$this->id     = $group['id'];
+		$this->id_str = (string)$group['id'];
+		$this->user   = $user;
+		$this->mode   = $group['visible'] ? 'public' : 'private';
 	}
 }

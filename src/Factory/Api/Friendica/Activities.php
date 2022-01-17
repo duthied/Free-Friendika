@@ -21,7 +21,6 @@
 
 namespace Friendica\Factory\Api\Friendica;
 
-use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
 use Friendica\Database\DBA;
 use Friendica\Model\Post;
@@ -32,17 +31,14 @@ use Friendica\Factory\Api\Twitter\User as TwitterUser;
 
 class Activities extends BaseFactory
 {
-	/** @var BaseURL */
-	private $baseUrl;
 	/** @var twitterUser entity */
 	private $twitterUser;
 
-	public function __construct(LoggerInterface $logger, BaseURL $baseURL, TwitterUser $twitteruser)
+	public function __construct(LoggerInterface $logger, TwitterUser $twitteruser)
 	{
 		parent::__construct($logger);
 
 		$this->twitterUser = $twitteruser;
-		$this->baseUrl     = $baseURL;
 	}
 
 	/**

@@ -43,12 +43,13 @@ class HomeTimeline extends BaseApi
 		// get last network messages
 
 		// params
-		$count           = $_REQUEST['count']    ?? 20;
-		$page            = $_REQUEST['page']     ?? 0;
-		$since_id        = $_REQUEST['since_id'] ?? 0;
-		$max_id          = $_REQUEST['max_id']   ?? 0;
-		$exclude_replies = !empty($_REQUEST['exclude_replies']);
-		$conversation_id = $_REQUEST['conversation_id'] ?? 0;
+		$count            = $this->getRequestValue($request, 'count', 20, 1, 100);
+		$page             = $this->getRequestValue($request, 'page', 1, 1);
+		$since_id         = $this->getRequestValue($request, 'since_id', 0, 0);
+		$max_id           = $this->getRequestValue($request, 'max_id', 0, 0);
+		$exclude_replies  = $this->getRequestValue($request, 'exclude_replies', false);
+		$include_entities = $this->getRequestValue($request, 'include_entities', false);
+		$conversation_id  = $this->getRequestValue($request, 'conversation_id', 0, 0);
 
 		$start = max(0, ($page - 1) * $count);
 
@@ -70,8 +71,6 @@ class HomeTimeline extends BaseApi
 
 		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
-
-		$include_entities = strtolower(($_REQUEST['include_entities'] ?? 'false') == 'true');
 
 		$ret     = [];
 		$idarray = [];

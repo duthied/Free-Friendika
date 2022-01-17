@@ -48,7 +48,7 @@ class Show extends BaseApi
 		$profile = self::formatProfile($profile, $profileFields);
 
 		$profiles = [];
-		if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
+		if (($this->parameters['extension'] ?? '') == 'xml') {
 			$profiles['0:profile'] = $profile;
 		} else {
 			$profiles[] = $profile;

@@ -52,7 +52,7 @@ class Activity extends BaseApi
 		$res = Item::performActivity($request['id'], $this->parameters['verb'], $uid);
 
 		if ($res) {
-			if (!empty($this->parameters['extension']) && ($this->parameters['extension'] == 'xml')) {
+			if (($this->parameters['extension'] ?? '') == 'xml') {
 				$ok = 'true';
 			} else {
 				$ok = 'ok';
