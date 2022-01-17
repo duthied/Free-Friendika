@@ -34,5 +34,5 @@
 			{{/if}}
 		</div>
 	</div>
-	<blockquote class="shared_content">{{$content nofilter}}</blockquote>
+	<blockquote class="shared_content" dir="auto">{{$content nofilter}}</blockquote>
 </div>
