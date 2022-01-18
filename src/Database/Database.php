@@ -1377,7 +1377,7 @@ class Database
 	private function escapeFields(array $fields, array $options)
 	{
 		// In the case of a "GROUP BY" we have to add all the ORDER fields to the fieldlist.
-		// This needs to done to apply the "MAX(...)" treatment from below to them.
+		// This needs to done to apply the "ANY_VALUE(...)" treatment from below to them.
 		// Otherwise MySQL would report errors.
 		if (!empty($options['group_by']) && !empty($options['order'])) {
 			foreach ($options['order'] as $key => $field) {
@@ -1399,7 +1399,7 @@ class Database
 			$value = '`' . str_replace('`', '``', $value) . '`';
 
 			if (!empty($options['group_by']) && !in_array($field, $options['group_by'])) {
-				$value = 'MAX(' . $value . ') AS ' . $value;
+				$value = 'ANY_VALUE(' . $value . ') AS ' . $value;
 			}
 		});
 
