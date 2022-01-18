@@ -1368,6 +1368,45 @@ class Database
 	}
 
 	/**
+	 * Escape fields, adding special treatment for "group by" handling
+	 *
+	 * @param array $fields 
+	 * @param array $options 
+	 * @return array 
+	 */
+	private function escapeFields(array $fields, array $options)
+	{
+		// In the case of a "GROUP BY" we have to add all the ORDER fields to the fieldlist.
+		// This needs to done to apply the "MAX(...)" treatment from below to them.
+		// Otherwise MySQL would report errors.
+		if (!empty($options['group_by']) && !empty($options['order'])) {
+			foreach ($options['order'] as $key => $field) {
+				if (!is_int($key)) {
+					if (!in_array($key, $fields)) {
+						$fields[] = $key;
+					}
+				} else {
+					if (!in_array($field, $fields)) {
+						$fields[] = $field;
+					}
+				}
+			}
+		}
+
+		array_walk($fields, function(&$value, $key) use ($options)
+		{
+			$field = $value;
+			$value = '`' . str_replace('`', '``', $value) . '`';
+
+			if (!empty($options['group_by']) && !in_array($field, $options['group_by'])) {
+				$value = 'MAX(' . $value . ') AS ' . $value;
+			}
+		});
+
+		return $fields;
+	}
+
+	/**
 	 * Select rows from a table
 	 *
 	 *
@@ -1403,7 +1442,8 @@ class Database
 		}
 
 		if (count($fields) > 0) {
-			$select_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], $fields));
+			$fields = $this->escapeFields($fields, $params);
+			$select_string = implode(', ', $fields);
 		} else {
 			$select_string = '*';
 		}
