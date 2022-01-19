@@ -446,26 +446,9 @@ class Notifier
 			if ($diaspora_delivery && !$unlisted) {
 				$batch_delivery = true;
 
-				$participants_stmt = DBA::p(
-					"SELECT
-						`batch`, `network`, `protocol`,
-						ANY_VALUE(`id`) AS `id`,
-						ANY_VALUE(`url`) AS `url`,
-						ANY_VALUE(`name`) AS `name`
-					FROM `contact`
-					WHERE `network` = ?
-					AND `batch` != ''
-					AND `uid` = ?
-					AND `rel` != ?
-					AND NOT `blocked`
-					AND NOT `pending`
-					AND NOT `archive`
-					GROUP BY `batch`, `network`, `protocol`",
-					Protocol::DIASPORA,
-					$owner['uid'],
-					Contact::SHARING
-				);
-				$participants = DBA::toArray($participants_stmt);
+				$participants = DBA::selectToArray('contact', ['batch', 'network', 'protocol', 'id', 'url', 'name'],
+					["`network` = ? AND `batch` != '' AND `uid` = ? AND `rel` != ? AND NOT `blocked` AND NOT `pending` AND NOT `archive`", Protocol::DIASPORA, $owner['uid'], Contact::SHARING],
+					['group_by' => ['batch', 'network', 'protocol']]);
 
 				// Fetch the participation list
 				// The function will ensure that there are no duplicates

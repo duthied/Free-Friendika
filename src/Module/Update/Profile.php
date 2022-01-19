@@ -70,31 +70,34 @@ class Profile extends BaseModule
 
 		$last_updated = $last_updated_array[$last_updated_key] ?? 0;
 
+		$condition = ["`uid` = ? AND NOT `contact-blocked` AND NOT `contact-pending`
+				AND `visible` AND (NOT `deleted` OR `gravity` = ?)
+				AND `wall` " . $sql_extra, $a->getProfileOwner(), GRAVITY_ACTIVITY];
+
 		if ($_GET['force'] && !empty($_GET['item'])) {
 			// When the parent is provided, we only fetch this
-			$sql_extra4 = " AND `parent` = " . intval($_GET['item']);
+			$condition = DBA::mergeConditions($condition, ['parent' => $_GET['item']]);
 		} elseif ($is_owner || !$last_updated) {
 			// If the page user is the owner of the page we should query for unseen
 			// items. Otherwise use a timestamp of the last succesful update request.
-			$sql_extra4 = " AND `unseen`";
+			$condition = DBA::mergeConditions($condition, ['unseen' => true]);
 		} else {
 			$gmupdate = gmdate(DateTimeFormat::MYSQL, $last_updated);
-			$sql_extra4 = " AND `received` > '" . $gmupdate . "'";
+			$condition = DBA::mergeConditions($condition, ["`received` > ?", $gmupdate]);
 		}
 
-		$items_stmt = DBA::p(
-			"SELECT `parent-uri-id` AS `uri-id`, MAX(`created`), MAX(`received`) FROM `post-user-view`
-				WHERE `uid` = ? AND NOT `contact-blocked` AND NOT `contact-pending`
-				AND `visible` AND (NOT `deleted` OR `gravity` = ?)
-				AND `wall` $sql_extra4 $sql_extra
-			GROUP BY `parent-uri-id` ORDER BY `received` DESC",
-			$a->getProfileOwner(),
-			GRAVITY_ACTIVITY
-		);
-
-		if (!DBA::isResult($items_stmt)) {
+		$items = Post::selectToArray(['parent-uri-id', 'created', 'received'], $condition, ['group_by' => ['parent-uri-id'], 'order' => ['received' => true]]);
+		if (!DBA::isResult($items)) {
 			return;
 		}
+
+		// @todo the DBA functions should handle "SELECT field AS alias" in the future,
+		// so that this workaround here could be removed.
+		$items = array_map(function ($item) {
+			$item['uri-id'] = $item['parent-uri-id'];
+			unset($item['parent-uri-id']);
+			return $item;
+		}, $items);
 
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
@@ -112,8 +115,6 @@ class Profile extends BaseModule
 				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => local_user()]);
 			}
 		}
-
-		$items = DBA::toArray($items_stmt);
 
 		$o .= DI::conversation()->create($items, 'profile', $a->getProfileOwner(), false, 'received', $a->getProfileOwner());
 
