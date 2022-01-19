@@ -55,7 +55,7 @@ class Create extends BaseApi
 		$type = $this->getRequestValue($this->parameters, 'extension', 'json');
 
 		// input params
-		$desc      = $this->getRequestValue($request, 'desc');
+		$desc      = $this->getRequestValue($request, 'desc', '');
 		$album     = $this->getRequestValue($request, 'album');
 		$allow_cid = $this->getRequestValue($request, 'allow_cid');
 		$deny_cid  = $this->getRequestValue($request, 'deny_cid');

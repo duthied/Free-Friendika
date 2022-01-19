@@ -1135,7 +1135,7 @@ class BBCode
 			case self::API:
 				$text = ($is_quote_share? '<br>' : '') .
 				'<b><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . "</a>:</b><br>\n" .
-				'<blockquote class="shared_content">' . $content . '</blockquote>';
+				'<blockquote class="shared_content" dir="auto">' . $content . '</blockquote>';
 				break;
 			case self::DIASPORA:
 				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0) {
@@ -1160,7 +1160,7 @@ class BBCode
 				$headline .= DI::l10n()->t('<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a> %3$s', $attributes['link'], $mention, $attributes['posted']);
 				$headline .= ':</b></p>' . "\n";
 
-				$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote class="shared_content">' . trim($content) . '</blockquote>' . "\n";
+				$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote class="shared_content" dir="auto">' . trim($content) . '</blockquote>' . "\n";
 
 				break;
 			case self::OSTATUS:

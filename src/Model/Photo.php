@@ -1014,10 +1014,17 @@ class Photo
 	}
 
 	/**
-	 *
-	 * @param int   $uid   User ID
-	 * @param array $files uploaded file array
+	 * @param int         $uid   User ID
+	 * @param array       $files uploaded file array
+	 * @param string      $album
+	 * @param string|null $allow_cid
+	 * @param string|null $allow_gid
+	 * @param string      $deny_cid
+	 * @param string      $deny_gid
+	 * @param string      $desc
+	 * @param string      $resource_id
 	 * @return array photo record
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function upload(int $uid, array $files, string $album = '', string $allow_cid = null, string $allow_gid = null, string $deny_cid = '', string $deny_gid = '', string $desc = '', string $resource_id = ''): array
 	{
