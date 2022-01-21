@@ -277,7 +277,7 @@ class Nav
 				$nav['introductions'] = ['notifications/intros', DI::l10n()->t('Introductions'), '', DI::l10n()->t('Friend Requests')];
 				$nav['notifications'] = ['notifications',	DI::l10n()->t('Notifications'), '', DI::l10n()->t('Notifications')];
 				$nav['notifications']['all'] = ['notifications/system', DI::l10n()->t('See all notifications'), '', ''];
-				$nav['notifications']['mark'] = ['', DI::l10n()->t('Mark as seen'), '', DI::l10n()->t('Mark all system notifications seen')];
+				$nav['notifications']['mark'] = ['', DI::l10n()->t('Mark as seen'), '', DI::l10n()->t('Mark all system notifications as seen')];
 			}
 
 			$nav['messages'] = ['message', DI::l10n()->t('Messages'), '', DI::l10n()->t('Private mail')];
