@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-16 08:58+0000\n"
+"POT-Creation-Date: 2022-01-21 14:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2085,7 +2085,7 @@ msgstr ""
 msgid "File upload failed."
 msgstr ""
 
-#: mod/wall_upload.php:221 src/Model/Photo.php:1001
+#: mod/wall_upload.php:221 src/Model/Photo.php:1008
 msgid "Wall Photos"
 msgstr ""
 
@@ -2144,31 +2144,31 @@ msgstr ""
 msgid "You must be logged in to use addons. "
 msgstr ""
 
-#: src/BaseModule.php:345
+#: src/BaseModule.php:377
 msgid ""
 "The form security token was not correct. This probably happened because the "
 "form has been opened for too long (>3 hours) before submitting it."
 msgstr ""
 
-#: src/BaseModule.php:372
+#: src/BaseModule.php:404
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:377 src/Content/Widget.php:231 src/Core/ACL.php:193
+#: src/BaseModule.php:409 src/Content/Widget.php:231 src/Core/ACL.php:193
 #: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:98
 #: src/Module/PermissionTooltip.php:120
 msgid "Followers"
 msgstr ""
 
-#: src/BaseModule.php:382 src/Content/Widget.php:232 src/Module/Contact.php:368
+#: src/BaseModule.php:414 src/Content/Widget.php:232 src/Module/Contact.php:368
 msgid "Following"
 msgstr ""
 
-#: src/BaseModule.php:387 src/Content/Widget.php:233 src/Module/Contact.php:369
+#: src/BaseModule.php:419 src/Content/Widget.php:233 src/Module/Contact.php:369
 msgid "Mutual friends"
 msgstr ""
 
-#: src/BaseModule.php:395
+#: src/BaseModule.php:427
 msgid "Common"
 msgstr ""
 
@@ -2982,7 +2982,7 @@ msgid "See all notifications"
 msgstr ""
 
 #: src/Content/Nav.php:280
-msgid "Mark all system notifications seen"
+msgid "Mark all system notifications as seen"
 msgstr ""
 
 #: src/Content/Nav.php:283 view/theme/frio/theme.php:234
