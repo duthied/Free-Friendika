@@ -509,6 +509,15 @@ class HTTPSignature
 
 		$sig_block = self::parseSigHeader($http_headers['HTTP_SIGNATURE']);
 
+		// Add fields from the signature block to the header. See issue 8845
+		if (!empty($sig_block['created']) && empty($headers['(created)'])) {
+			$headers['(created)'] = $sig_block['created'];
+		}
+
+		if (!empty($sig_block['expires']) && empty($headers['(expires)'])) {
+			$headers['(expires)'] = $sig_block['expires'];
+		}
+
 		if (empty($sig_block) || empty($sig_block['headers']) || empty($sig_block['keyId'])) {
 			Logger::info('No headers or keyId');
 			return false;
@@ -518,6 +527,8 @@ class HTTPSignature
 		foreach ($sig_block['headers'] as $h) {
 			if (array_key_exists($h, $headers)) {
 				$signed_data .= $h . ': ' . $headers[$h] . "\n";
+			} else {
+				Logger::info('Requested header field not found', ['field' => $h, 'header' => $headers]);
 			}
 		}
 		$signed_data = rtrim($signed_data, "\n");
@@ -572,7 +583,7 @@ class HTTPSignature
 		}
 
 		if (!Crypto::rsaVerify($signed_data, $sig_block['signature'], $key['pubkey'], $algorithm)) {
-			Logger::info('Verification failed');
+			Logger::info('Verification failed', ['signed_data' => $signed_data, 'algorithm' => $algorithm, 'header' => $sig_block['headers'], 'http_headers' => $http_headers]);
 			return false;
 		}
 
@@ -598,13 +609,35 @@ class HTTPSignature
 			$hasGoodSignedContent = true;
 		}
 
+		if (in_array('date', $sig_block['headers']) && !empty($headers['date'])) {
+			$created = strtotime($headers['date']);
+		} elseif (in_array('(created)', $sig_block['headers']) && !empty($sig_block['created'])) {
+			$created = $sig_block['created'];
+		} else {
+			$created = 0;
+		}
+
+		if (in_array('(expires)', $sig_block['headers']) && !empty($sig_block['expires'])) {
+			$expired = min($sig_block['expires'], $created + 300);
+		} else {
+			$expired = $created + 300;
+		}
+
 		//  Check if the signed date field is in an acceptable range
-		if (in_array('date', $sig_block['headers'])) {
-			$diff = abs(strtotime($headers['date']) - time());
-			if ($diff > 300) {
-				Logger::notice("Header date '" . $headers['date'] . "' is with " . $diff . " seconds out of the 300 second frame. The signature is invalid.");
+		if (!empty($created)) {
+			$current = time();
+
+			if ($created > $current) {
+				Logger::notice('Signature created in the future', ['created' => date(DateTimeFormat::MYSQL, $created), 'expired' => date(DateTimeFormat::MYSQL, $expired), 'current' => date(DateTimeFormat::MYSQL, $current)]);
 				return false;
 			}
+
+			if ($current > $expired) {
+				Logger::notice('Signature expired', ['created' => date(DateTimeFormat::MYSQL, $created), 'expired' => date(DateTimeFormat::MYSQL, $expired), 'current' => date(DateTimeFormat::MYSQL, $current)]);
+				return false;
+			}
+
+			Logger::debug('Valid creation date', ['created' => date(DateTimeFormat::MYSQL, $created), 'expired' => date(DateTimeFormat::MYSQL, $expired), 'current' => date(DateTimeFormat::MYSQL, $current)]);
 			$hasGoodSignedContent = true;
 		}
 
