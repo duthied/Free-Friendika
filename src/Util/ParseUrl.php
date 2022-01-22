@@ -60,6 +60,12 @@ class ParseUrl
 	public static function getContentType(string $url)
 	{
 		$curlResult = DI::httpClient()->head($url);
+
+		// Workaround for systems that can't handle a HEAD request
+		if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() == 405)) {
+			$curlResult = DI::httpClient()->get($url, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
+		}
+
 		if (!$curlResult->isSuccess()) {
 			return [];
 		}
