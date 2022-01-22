@@ -50,7 +50,7 @@ class BaseApiTest extends ApiTest
 	}
 
 	/**
-	 * Test the api_user() function.
+	 * Test the BaseApi::getCurrentUserID() function.
 	 *
 	 * @return void
 	 */

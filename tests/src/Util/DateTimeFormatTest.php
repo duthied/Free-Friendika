@@ -79,7 +79,7 @@ class DateTimeFormatTest extends MockedTest
 	}
 
 	/**
-	 * Test the api_date() function.
+	 * Test the DateTimeFormat::API output.
 	 *
 	 * @return void
 	 */
