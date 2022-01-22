@@ -77,4 +77,14 @@ class DateTimeFormatTest extends MockedTest
 
 		self::assertEquals($assert, $dtFormat->isYearMonth($input));
 	}
+
+	/**
+	 * Test the DateTimeFormat::API output.
+	 *
+	 * @return void
+	 */
+	public function testApiDate()
+	{
+		self::assertEquals('Wed Oct 10 00:00:00 +0000 1990', DateTimeFormat::utc('1990-10-10', DateTimeFormat::API));
+	}
 }
