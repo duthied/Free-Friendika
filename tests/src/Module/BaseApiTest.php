@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Module;
 
+use Friendica\Module\BaseApi;
 use Friendica\Test\src\Module\Api\ApiTest;
 
 class BaseApiTest extends ApiTest
@@ -46,5 +47,15 @@ class BaseApiTest extends ApiTest
 			api_call($this->app, $args)
 		);
 		*/
+	}
+
+	/**
+	 * Test the api_user() function.
+	 *
+	 * @return void
+	 */
+	public function testApiUser()
+	{
+		self::assertEquals(parent::SELF_USER['id'], BaseApi::getCurrentUserID());
 	}
 }
