@@ -56,6 +56,7 @@ class Item
 	const PT_VIDEO = 18;
 	const PT_DOCUMENT = 19;
 	const PT_EVENT = 32;
+	const PT_POLL = 33;
 	const PT_PERSONAL_NOTE = 128;
 
 	// Posting reasons (Why had a post been stored for a user?)
