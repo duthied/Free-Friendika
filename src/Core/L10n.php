@@ -25,7 +25,6 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Database\Database;
 use Friendica\Util\Strings;
-use Psr\Log\LoggerInterface;
 
 /**
  * Provide Language, Translation, and Localization functions to the application
@@ -85,15 +84,9 @@ class L10n
 	 */
 	private $dba;
 
-	/**
-	 * @var LoggerInterface
-	 */
-	private $logger;
-
-	public function __construct(IManageConfigValues $config, Database $dba, LoggerInterface $logger, IHandleSessions $session, array $server, array $get)
+	public function __construct(IManageConfigValues $config, Database $dba, IHandleSessions $session, array $server, array $get)
 	{
 		$this->dba    = $dba;
-		$this->logger = $logger;
 
 		$this->loadTranslationTable(L10n::detectLanguage($server, $get, $config->get('system', 'language', self::DEFAULT)));
 		$this->setSessionVariable($session);
