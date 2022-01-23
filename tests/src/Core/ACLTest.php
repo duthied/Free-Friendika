@@ -22,7 +22,6 @@
 namespace Friendica\Test\src\Core;
 
 use Friendica\Core\ACL;
-use Friendica\Module\BaseApi;
 use Friendica\Test\FixtureTest;
 
 class ACLTest extends FixtureTest
@@ -34,7 +33,7 @@ class ACLTest extends FixtureTest
 	 */
 	public function testCheckAclInput()
 	{
-		$result = ACL::isValidContact('<aclstring>', BaseApi::getCurrentUserID());
+		$result = ACL::isValidContact('<aclstring>', '42');
 		self::assertFalse($result);
 	}
 
@@ -45,7 +44,7 @@ class ACLTest extends FixtureTest
 	 */
 	public function testCheckAclInputWithEmptyAclString()
 	{
-		$result = ACL::isValidContact('', BaseApi::getCurrentUserID());
+		$result = ACL::isValidContact('', '42');
 		self::assertTrue($result);
 	}
 }

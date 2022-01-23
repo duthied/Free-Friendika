@@ -9,7 +9,6 @@
 		xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
 	<testsuite name="friendica">
 		<directory suffix=".php">functional/</directory>
-		<directory suffix=".php">legacy/</directory>
 		<directory suffix=".php">src/</directory>
 	</testsuite>
 	<!-- Filters for Code Coverage -->
