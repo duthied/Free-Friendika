@@ -687,7 +687,7 @@ class Contact
 	{
 		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey',
 			'xmpp', 'matrix', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
-			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network'];
+			'photo', 'thumb', 'micro', 'header', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return false;
@@ -753,6 +753,7 @@ class Contact
 		}
 
 		$fields['avatar'] = User::getAvatarUrl($user);
+		$fields['header'] = User::getBannerUrl($user);
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = !$profile['net-publish'];
@@ -1657,6 +1658,59 @@ class Contact
 		}
 
 		return $contact;
+	}
+
+	/**
+	 * Fetch the default header for the given contact
+	 *
+	 * @param array $contact  contact array
+	 * @return string avatar URL
+	 */
+	public static function getDefaultHeader(array $contact): string
+	{
+		if (!empty($contact['header'])) {
+			return $contact['header'];
+		}
+
+		if (!empty($contact['gsid'])) {
+			// Use default banners for certain platforms
+			$gserver = DBA::selectFirst('gserver', ['platform'], ['id' => $contact['gsid']]);
+			$platform = strtolower($gserver['platform'] ?? '');
+		} else {
+			$platform = '';
+		}
+
+		switch ($platform) {
+			case 'friendica':
+			case 'friendika':
+				/**
+				 * Picture credits
+				 * @author  Lostinlight <https://mastodon.xyz/@lightone>
+				 * @license CC0 https://creativecommons.org/share-your-work/public-domain/cc0/
+				 * @link    https://gitlab.com/lostinlight/per_aspera_ad_astra/-/blob/master/friendica-404/friendica-promo-bubbles.jpg
+				 */
+				$header = DI::baseUrl() . '/images/friendica-banner.jpg';
+				break;
+			case 'diaspora':
+				/**
+				 * Picture credits
+				 * @author  John Liu <https://www.flickr.com/photos/8047705@N02/>
+				 * @license CC BY 2.0 https://creativecommons.org/licenses/by/2.0/
+				 * @link    https://www.flickr.com/photos/8047705@N02/5572197407
+				 */
+				$header = DI::baseUrl() . '/images/diaspora-banner.jpg';
+				break;
+			default:
+				/**
+				 * Use a random picture. 
+				 * The service provides random pictures from Unsplash.
+				 * @license https://unsplash.com/license
+				 */
+				$header = 'https://picsum.photos/seed/' . hash('ripemd128', $contact['url']) . '/960/300';
+				break;
+		}
+
+		return $header;
 	}
 
 	/**
