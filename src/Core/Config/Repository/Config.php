@@ -21,6 +21,7 @@
 
 namespace Friendica\Core\Config\Repository;
 
+use Friendica\App\Mode;
 use Friendica\Core\Config\Exception\ConfigPersistenceException;
 use Friendica\Core\Config\Util\ValueConversion;
 use Friendica\Database\Database;
@@ -32,10 +33,13 @@ class Config
 {
 	/** @var Database */
 	protected $db;
+	/** @var Mode */
+	protected $mode;
 
-	public function __construct(Database $db)
+	public function __construct(Database $db, Mode $mode)
 	{
-		$this->db = $db;
+		$this->db   = $db;
+		$this->mode = $mode;
 	}
 
 	protected static $table_name = 'config';
@@ -47,7 +51,7 @@ class Config
 	 */
 	public function isConnected(): bool
 	{
-		return $this->db->isConnected();
+		return $this->db->isConnected() && !$this->mode->isInstall();
 	}
 
 	/**

@@ -22,6 +22,7 @@
 namespace Friendica\Test\src\Core\Storage\Repository;
 
 use Dice\Dice;
+use Friendica\App\Mode;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Config\Type\PreloadConfig;
 use Friendica\Core\Hook;
@@ -83,7 +84,7 @@ class StorageManagerTest extends DatabaseTest
 
 		$this->dba = new StaticDatabase($configCache, $profiler, $this->logger);
 
-		$configModel  = new Repository\Config($this->dba);
+		$configModel  = new Repository\Config($this->dba, new Mode(Mode::DBCONFIGAVAILABLE));
 		$this->config = new PreloadConfig($configCache, $configModel);
 		$this->config->set('storage', 'name', 'Database');
 		$this->config->set('storage', 'filesystem_path', $this->root->getChild(Type\FilesystemConfig::DEFAULT_BASE_FOLDER)->url());

@@ -25,7 +25,6 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Database\Database;
 use Friendica\Util\Strings;
-use Psr\Log\LoggerInterface;
 
 /**
  * Provide Language, Translation, and Localization functions to the application
@@ -35,6 +34,34 @@ class L10n
 {
 	/** @var string The default language */
 	const DEFAULT = 'en';
+	/** @var string[] The language names in their language */
+	const LANG_NAMES = [
+		'ar'    => 'العربية',
+		'bg'    => 'Български',
+		'ca'    => 'Català',
+		'cs'    => 'Česky',
+		'de'    => 'Deutsch',
+		'en-gb' => 'English (United Kingdom)',
+		'en-us' => 'English (United States)',
+		'en'    => 'English (Default)',
+		'eo'    => 'Esperanto',
+		'es'    => 'Español',
+		'et'    => 'Eesti',
+		'fi-fi' => 'Suomi',
+		'fr'    => 'Français',
+		'hu'    => 'Magyar',
+		'is'    => 'Íslenska',
+		'it'    => 'Italiano',
+		'ja'    => '日本語',
+		'nb-no' => 'Norsk bokmål',
+		'nl'    => 'Nederlands',
+		'pl'    => 'Polski',
+		'pt-br' => 'Português Brasileiro',
+		'ro'    => 'Română',
+		'ru'    => 'Русский',
+		'sv'    => 'Svenska',
+		'zh-cn' => '简体中文',
+	];
 
 	/**
 	 * A string indicating the current language used for translation:
@@ -57,15 +84,9 @@ class L10n
 	 */
 	private $dba;
 
-	/**
-	 * @var LoggerInterface
-	 */
-	private $logger;
-
-	public function __construct(IManageConfigValues $config, Database $dba, LoggerInterface $logger, IHandleSessions $session, array $server, array $get)
+	public function __construct(IManageConfigValues $config, Database $dba, IHandleSessions $session, array $server, array $get)
 	{
 		$this->dba    = $dba;
-		$this->logger = $logger;
 
 		$this->loadTranslationTable(L10n::detectLanguage($server, $get, $config->get('system', 'language', self::DEFAULT)));
 		$this->setSessionVariable($session);
@@ -340,9 +361,10 @@ class L10n
 	 *
 	 * Scans the view/lang directory for the existence of "strings.php" files, and
 	 * returns an alphabetical list of their folder names (@-char language codes).
-	 * Adds the english language if it's missing from the list.
+	 * Adds the english language if it's missing from the list. Folder names are
+	 * replaced by nativ language names.
 	 *
-	 * Ex: array('de' => 'de', 'en' => 'en', 'fr' => 'fr', ...)
+	 * Ex: array('de' => 'Deutsch', 'en' => 'English', 'fr' => 'Français', ...)
 	 *
 	 * @return array
 	 */
@@ -358,7 +380,7 @@ class L10n
 			asort($strings_file_paths);
 			foreach ($strings_file_paths as $strings_file_path) {
 				$path_array            = explode('/', $strings_file_path);
-				$langs[$path_array[2]] = $path_array[2];
+				$langs[$path_array[2]] = self::LANG_NAMES[$path_array[2]] ?? $path_array[2];
 			}
 		}
 		return $langs;
