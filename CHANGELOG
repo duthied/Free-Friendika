@@ -1,6 +1,6 @@
 Version 2021.12 (unreleased)
   Friendica Core
-    Updates to the translations DE, ET, FR, GB_EN, GB_US, HU, RU [translation teams]
+    Updates to the translations DE, ET, FR, GB_EN, GB_US, HU, RU, SV [translation teams]
     Updates to the documentation [annando, foss-, tobiasd]
     Updates to the themes (duepuntozero, frio, quattro, vier) [MrPetovan, tobiasd]
     General code cleanup [annando, nupplaphil, MrPetovan, tobiasd]
@@ -22,6 +22,8 @@ Version 2021.12 (unreleased)
     Fixed a problem with the automatic installation [nupplaphil]
     Fixed a problem in the order of database table modifications [annando]
     Fixed a problem during the node detection process [annando]
+    Fixed a problem handling configuring trusted 2FA browsers [MrPetovan]
+    Fixed a problem preventing the federation with Lemmy [annando]
     Added AR translations [FaridaK, Mohamed_Ahmed_AF, abidin24, alsabi.abdullah, ButterflyOfFire, ominds, hisoka512]
     Added language detection for the /help files [annando]
     Added current timezone information to the date time picker [MrPetovan]
@@ -31,7 +33,7 @@ Version 2021.12 (unreleased)
     Bumped the minimal version of PHP to 7.3
   
   Friendica Addons
-    Updates to the translations AR, DE, HU, IT, PL [translation teams]
+    Updates to the translations AR, DE, HU, IT, PL. SV [translation teams]
     Deprecated addons: blogger, buffer, jappixmini, notimeline, xmpp
     Added addons: bird avatar, webdav storage [fabrixxm, nupplaphil]
     blockbot
