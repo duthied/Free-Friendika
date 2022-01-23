@@ -20,7 +20,7 @@ The discussion of Friendica development takes place in the following Friendica f
 ## Help other users
 
 Remember the questions you had when you first tried Friendica?
-A good place to start can be to help new people find their way around Friendica in the [general support forum](https://forum.friendi.ca/prufile/helpers).
+A good place to start can be to help new people find their way around Friendica in the [general support forum](https://forum.friendi.ca/profile/helpers).
 Welcome them, answer their questions, point them to documentation or ping other helpers directly if you can't help but think you know who can.
 
 ## Translation
