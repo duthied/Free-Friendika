@@ -80,11 +80,12 @@ class StorageManager
 	 * @param IManageConfigValues $config
 	 * @param LoggerInterface     $logger
 	 * @param L10n                $l10n
+	 * @param bool                $includeAddon (DEVELOP ONLY) Used for testing only - avoids loading addons because of DB direct access
 	 *
 	 * @throws InvalidClassStorageException in case the active backend class is invalid
 	 * @throws StorageException in case of unexpected errors during the active backend class loading
 	 */
-	public function __construct(Database $dba, IManageConfigValues $config, LoggerInterface $logger, L10n $l10n)
+	public function __construct(Database $dba, IManageConfigValues $config, LoggerInterface $logger, L10n $l10n, bool $includeAddon = true)
 	{
 		$this->dba           = $dba;
 		$this->config        = $config;
@@ -96,8 +97,10 @@ class StorageManager
 
 		/// @fixme Loading the addons & hooks here is really bad practice, but solves https://github.com/friendica/friendica/issues/11178
 		/// clean solution = Making Addon & Hook dynamic and load them inside the constructor, so there's no custom load logic necessary anymore
-		Addon::loadAddons();
-		Hook::loadHooks();
+		if ($includeAddon) {
+			Addon::loadAddons();
+			Hook::loadHooks();
+		}
 
 		// you can only use user backends as a "default" backend, so the second parameter is true
 		$this->currentBackend = $this->getWritableStorageByName($currentName);
