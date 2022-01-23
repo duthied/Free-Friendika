@@ -153,6 +153,8 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				$title = '';
 			}
 
+			$this->logger->debug('Got verb and type', ['verb' => $Notification->verb, 'type' => $Notification->type]);
+
 			switch ($Notification->verb) {
 				case Activity::LIKE:
 					switch ($Notification->type) {
@@ -181,6 +183,17 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 							break;
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
 							$msg = $userL10n->t('%1$s shared your post %2$s');
+							break;
+						case Post\UserNotification::TYPE_SHARED:
+							if (($causer['id'] != $author['id']) && ($title != '')) {
+								$msg = $userL10n->t('%1$s shared the post %2$s from %3$s');
+							} elseif ($causer['id'] != $author['id']) {
+								$msg = $userL10n->t('%1$s shared a post from %3$s');
+							} elseif ($title != '') {
+								$msg = $userL10n->t('%1$s shared the post %2$s');
+							} else {
+								$msg = $userL10n->t('%1$s shared a post');
+							}
 							break;
 					}
 					break;

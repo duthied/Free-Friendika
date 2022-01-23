@@ -257,8 +257,12 @@ class UserNotification
 			}
 		}
 
+		if (empty($notification_type)) {
+			return;
+		}
+
 		// Only create notifications for posts and comments, not for activities
-		if (empty($notification_type) || !in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT])) {
+		if (($item['gravity'] == GRAVITY_ACTIVITY) && ($item['verb'] != Activity::ANNOUNCE)) {
 			return;
 		}
 
@@ -280,7 +284,7 @@ class UserNotification
 	 */
 	private static function insertNotificationByItem(int $type, int $uid, array $item): void
 	{
-		if (($item['gravity'] == GRAVITY_ACTIVITY) &&
+		if (($item['verb'] != Activity::ANNOUNCE) && ($item['gravity'] == GRAVITY_ACTIVITY) &&
 			!in_array($type, [self::TYPE_DIRECT_COMMENT, self::TYPE_DIRECT_THREAD_COMMENT])) {
 			// Activities are only stored when performed on the user's post or comment
 			return;
