@@ -25,7 +25,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-21 14:21+0100\n"
-"PO-Revision-Date: 2022-01-22 16:18+0000\n"
+"PO-Revision-Date: 2022-01-22 21:48+0000\n"
 "Last-Translator: Alexander An <ravnina@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/friendica/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -1900,7 +1900,7 @@ msgstr "Ваш комментарий понравился"
 
 #: mod/settings.php:798
 msgid "Someone shared your content"
-msgstr ""
+msgstr "Вашей записью поделились"
 
 #: mod/settings.php:800
 msgid "Activate desktop notifications"
@@ -2072,7 +2072,7 @@ msgstr "Отсоединиться/Отписаться"
 msgid ""
 "Unable to unfollow this contact, please retry in a few minutes or contact "
 "your administrator."
-msgstr ""
+msgstr "Не получается отписаться от контакта, попробуйте ещё раз через несколько минут или свяжитесь с вашим администратором."
 
 #: mod/unfollow.php:148
 msgid "Contact was successfully unfollowed"
@@ -2080,7 +2080,7 @@ msgstr "Подписка успешно удалена"
 
 #: mod/unfollow.php:152
 msgid "Unable to unfollow this contact, please contact your administrator"
-msgstr ""
+msgstr "Не получается отписаться от этого контакта, пожалуйста, свяжитесь с вашим администратором"
 
 #: mod/wall_attach.php:39 mod/wall_attach.php:46 mod/wall_attach.php:77
 #: mod/wall_upload.php:53 mod/wall_upload.php:63 mod/wall_upload.php:99
@@ -2135,7 +2135,7 @@ msgstr "Настройки системной темы не установлен
 
 #: src/App.php:583
 msgid "Apologies but the website is unavailable at the moment."
-msgstr ""
+msgstr "Приносим извинения, но этот сервис сейчас недоступен."
 
 #: src/App/Page.php:250
 msgid "Delete this item?"
@@ -2598,7 +2598,7 @@ msgstr "Репост"
 #: src/Content/Conversation.php:851
 #, php-format
 msgid "Reshared by %s <%s>"
-msgstr ""
+msgstr "Репост от %s <%s>"
 
 #: src/Content/Conversation.php:854
 #, php-format
@@ -3005,7 +3005,7 @@ msgstr "Посмотреть все уведомления"
 
 #: src/Content/Nav.php:280
 msgid "Mark all system notifications as seen"
-msgstr ""
+msgstr "Пометить все уведомления прочитанными"
 
 #: src/Content/Nav.php:283 view/theme/frio/theme.php:234
 msgid "Private mail"
@@ -8169,7 +8169,7 @@ msgstr ""
 
 #: src/Module/Install.php:210
 msgid "OK"
-msgstr ""
+msgstr "ОК"
 
 #: src/Module/Install.php:215
 msgid "Check again"
@@ -9180,11 +9180,11 @@ msgstr "Автообновление может загружать новые з
 
 #: src/Module/Settings/Display.php:212
 msgid "Display emoticons"
-msgstr ""
+msgstr "Показывать смайлики"
 
 #: src/Module/Settings/Display.php:212
 msgid "When enabled, emoticons are replaced with matching symbols."
-msgstr ""
+msgstr "Когда включено, соответствующие символы отображаются как смайлики."
 
 #: src/Module/Settings/Display.php:213
 msgid "Infinite scroll"
@@ -9204,28 +9204,28 @@ msgstr "Включить автоматическое удаление изли�
 
 #: src/Module/Settings/Display.php:215
 msgid "Display the Dislike feature"
-msgstr ""
+msgstr "Показывать \"Не нравится\""
 
 #: src/Module/Settings/Display.php:215
 msgid ""
 "Display the Dislike button and dislike reactions on posts and comments."
-msgstr ""
+msgstr "Показывать кнопку \"Не нравится\" и соответствующие реакции на записях и комментариях."
 
 #: src/Module/Settings/Display.php:216
 msgid "Display the resharer"
-msgstr ""
+msgstr "Показывать поделившегося"
 
 #: src/Module/Settings/Display.php:216
 msgid "Display the first resharer as icon and text on a reshared item."
-msgstr ""
+msgstr "Показывать первого из поделившихся записью в виде значка над этой записью."
 
 #: src/Module/Settings/Display.php:217
 msgid "Stay local"
-msgstr ""
+msgstr "Оставаться локально"
 
 #: src/Module/Settings/Display.php:217
 msgid "Don't go to a remote system when following a contact link."
-msgstr ""
+msgstr "Не переходить на другие серверы по ссылкам профилей."
 
 #: src/Module/Settings/Display.php:219
 msgid "Beginning of week:"
@@ -10070,7 +10070,7 @@ msgstr "%1$s отметил(а) вас в %2$s"
 #: src/Navigation/Notifications/Factory/Notification.php:194
 #, php-format
 msgid "%1$s replied to you on %2$s"
-msgstr "%1$s ответил(а) вам на %2$s"
+msgstr "%1$s ответил(а) на %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:198
 #, php-format
@@ -10896,7 +10896,7 @@ msgstr ""
 
 #: view/theme/frio/php/Image.php:40
 msgid "Top Banner"
-msgstr ""
+msgstr "Верхний баннер"
 
 #: view/theme/frio/php/Image.php:40
 msgid ""
@@ -10976,11 +10976,11 @@ msgstr ""
 
 #: view/theme/vier/config.php:115
 msgid "don't show"
-msgstr ""
+msgstr "не показывать"
 
 #: view/theme/vier/config.php:115
 msgid "show"
-msgstr ""
+msgstr "показывать"
 
 #: view/theme/vier/config.php:121
 msgid "Set style"
@@ -11000,16 +11000,16 @@ msgstr ""
 
 #: view/theme/vier/config.php:125 view/theme/vier/theme.php:296
 msgid "Connect Services"
-msgstr ""
+msgstr "Подключить службы"
 
 #: view/theme/vier/config.php:126
 msgid "Find Friends"
-msgstr ""
+msgstr "Найти друзей"
 
 #: view/theme/vier/config.php:127 view/theme/vier/theme.php:152
 msgid "Last users"
-msgstr ""
+msgstr "Последние пользователи"
 
 #: view/theme/vier/theme.php:211
 msgid "Quick Start"
-msgstr ""
+msgstr "Быстрый старт"
