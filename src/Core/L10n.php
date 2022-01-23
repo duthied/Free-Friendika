@@ -35,6 +35,34 @@ class L10n
 {
 	/** @var string The default language */
 	const DEFAULT = 'en';
+	/** @var string[] The language names in their language */
+	const LANG_NAMES = [
+		'ar'    => 'العربية',
+		'bg'    => 'Български',
+		'ca'    => 'Català',
+		'cs'    => 'Česky',
+		'de'    => 'Deutsch',
+		'en-gb' => 'English (United Kingdom)',
+		'en-us' => 'English (United States)',
+		'en'    => 'English (Default)',
+		'eo'    => 'Esperanto',
+		'es'    => 'Español',
+		'et'    => 'Eesti',
+		'fi-fi' => 'Suomi',
+		'fr'    => 'Français',
+		'hu'    => 'Magyar',
+		'is'    => 'Íslenska',
+		'it'    => 'Italiano',
+		'ja'    => '日本語',
+		'nb-no' => 'Norsk bokmål',
+		'nl'    => 'Nederlands',
+		'pl'    => 'Polski',
+		'pt-br' => 'Português Brasileiro',
+		'ro'    => 'Română',
+		'ru'    => 'Русский',
+		'sv'    => 'Svenska',
+		'zh-cn' => '简体中文',
+	];
 
 	/**
 	 * A string indicating the current language used for translation:
@@ -351,33 +379,6 @@ class L10n
 	{
 		$langs              = [];
 		$strings_file_paths = glob('view/lang/*/strings.php');
-		$lang_names = [
-			'ar'    => 'العربية',
-			'bg'    => 'Български',
-			'ca'    => 'Català',
-			'cs'    => 'Česky',
-			'de'    => 'Deutsch',
-			'en-gb' => 'English (United Kingdom)',
-			'en-us' => 'English (United States)',
-			'en'    => 'English (Default)',
-			'eo'    => 'Esperanto',
-			'es'    => 'Español',
-			'et'    => 'Eesti',
-			'fi-fi' => 'Suomi',
-			'fr'    => 'Français',
-			'hu'    => 'Magyar',
-			'is'    => 'Íslenska',
-			'it'    => 'Italiano',
-			'ja'    => '日本語',
-			'nb-no' => 'Norsk bokmål',
-			'nl'    => 'Nederlands',
-			'pl'    => 'Polski',
-			'pt-br' => 'Português Brasileiro',
-			'ro'    => 'Română',
-			'ru'    => 'Русский',
-			'sv'    => 'Svenska',
-			'zh-cn' => '简体中文',
-		];
 
 		if (is_array($strings_file_paths) && count($strings_file_paths)) {
 			if (!in_array('view/lang/en/strings.php', $strings_file_paths)) {
@@ -386,7 +387,7 @@ class L10n
 			asort($strings_file_paths);
 			foreach ($strings_file_paths as $strings_file_path) {
 				$path_array            = explode('/', $strings_file_path);
-				$langs[$path_array[2]] = isset($lang_names[$path_array[2]]) ? $lang_names[$path_array[2]] : $path_array[2];
+				$langs[$path_array[2]] = self::LANG_NAMES[$path_array[2]] ?? $path_array[2];
 			}
 		}
 		return $langs;
