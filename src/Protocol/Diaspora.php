@@ -2712,6 +2712,9 @@ class Diaspora
 
 			$datarray["object-type"] = Activity\ObjectType::IMAGE;
 			$datarray["post-type"] = Item::PT_IMAGE;
+		} elseif ($data->poll) {
+			$datarray["object-type"] = Activity\ObjectType::NOTE;
+			$datarray["post-type"] = Item::PT_POLL;
 		} else {
 			$datarray["object-type"] = Activity\ObjectType::NOTE;
 			$datarray["post-type"] = Item::PT_NOTE;
