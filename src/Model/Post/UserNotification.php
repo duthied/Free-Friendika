@@ -406,21 +406,6 @@ class UserNotification
 			return true;
 		}
 
-		// The following check doesn't make sense on activities, so quit here
-		if ($item['verb'] == Activity::ANNOUNCE) {
-			return false;
-		}
-
-		// Check if the contact is a mentioned forum
-		$tags = DBA::select('tag-view', ['url'], ['uri-id' => $item['uri-id'], 'type' => [Tag::MENTION, Tag::EXCLUSIVE_MENTION]]);
-		while ($tag = DBA::fetch($tags)) {
-			$condition = ['nurl' => Strings::normaliseLink($tag['url']), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
-			if (DBA::exists('contact', $condition)) {
-				return true;
-			}
-		}
-		DBA::close($tags);
-
 		return false;
 	}
 

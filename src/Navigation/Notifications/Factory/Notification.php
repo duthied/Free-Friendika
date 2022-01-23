@@ -114,7 +114,8 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 					return $message;
 				}
 
-				if ($Notification->verb == Activity::POST) {
+				if (($Notification->verb == Activity::POST) || 
+					(($Notification->type === Post\UserNotification::TYPE_SHARED) && ($Notification->verb == Activity::ANNOUNCE))) {
 					$item = Post::selectFirst([], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
 					if (empty($item)) {
 						$this->logger->info('Thread parent post not found', ['uri-id' => $item['thr-parent-id']]);
@@ -123,17 +124,10 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				}
 			}
 
-			if ($item['owner-id'] != $item['author-id']) {
-				$cid = $item['owner-id'];
-			}
-			if (!empty($item['causer-id']) && ($item['causer-id'] != $item['author-id'])) {
-				$cid = $item['causer-id'];
-			}
-
-			if (($Notification->type === Post\UserNotification::TYPE_SHARED) && !empty($cid)) {
-				$causer = Contact::getById($cid, ['id', 'name', 'url']);
-				if (empty($causer)) {
-					$this->logger->info('Causer not found', ['causer' => $cid]);
+			if ($Notification->type === Post\UserNotification::TYPE_SHARED) {
+				$author = Contact::getById($item['author-id'], ['id', 'name', 'url']);
+				if (empty($author)) {
+					$this->logger->info('Author not found', ['author' => $item['author-id']]);
 					return $message;
 				}
 			} elseif (in_array($Notification->type, [Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION])) {
@@ -230,18 +224,6 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
 							$msg = $userL10n->t('%1$s commented on your thread %2$s');
-							break;
-
-						case Post\UserNotification::TYPE_SHARED:
-							if (($causer['id'] != $author['id']) && ($title != '')) {
-								$msg = $userL10n->t('%1$s shared the post %2$s from %3$s');
-							} elseif ($causer['id'] != $author['id']) {
-								$msg = $userL10n->t('%1$s shared a post from %3$s');
-							} elseif ($title != '') {
-								$msg = $userL10n->t('%1$s shared the post %2$s');
-							} else {
-								$msg = $userL10n->t('%1$s shared a post');
-							}
 							break;
 					}
 					break;
