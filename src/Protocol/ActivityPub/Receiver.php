@@ -56,7 +56,7 @@ class Receiver
 {
 	const PUBLIC_COLLECTION = 'as:Public';
 	const ACCOUNT_TYPES = ['as:Person', 'as:Organization', 'as:Service', 'as:Group', 'as:Application'];
-	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event', 'as:Audio'];
+	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event', 'as:Audio', 'as:Page'];
 	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept'];
 
 	const TARGET_UNKNOWN = 0;
@@ -321,6 +321,20 @@ class Receiver
 
 		$object_type = self::fetchObjectType($activity, $object_id, $uid);
 
+		// Fetch the activity on Lemmy "Announce" messages (announces of activities)
+		if (($type == 'as:Announce') && in_array($object_type, self::ACTIVITY_TYPES)) {
+			$data = ActivityPub::fetchContent($object_id, $uid);
+			if (!empty($data)) {
+				$type = $object_type;
+				$activity = JsonLD::compact($data);
+
+				// Some variables need to be refetched since the activity changed
+				$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
+				$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
+				$object_type = self::fetchObjectType($activity, $object_id, $uid);
+			}
+		}
+
 		// Fetch the content only on activities where this matters
 		// We can receive "#emojiReaction" when fetching content from Hubzilla systems
 		if (in_array($type, ['as:Create', 'as:Update', 'as:Announce']) || strpos($type, '#emojiReaction')) {
@@ -471,6 +485,12 @@ class Receiver
 		if (empty($object_data)) {
 			Logger::info('No object data found', ['activity' => $activity]);
 			return;
+		}
+
+		// Lemmy is announcing activities.
+		// We are changing the announces into regular activities.
+		if (($type == 'as:Announce') && in_array($object_data['type'] ?? '', self::ACTIVITY_TYPES)) {
+			$type = $object_data['type'];
 		}
 
 		if (!$trust_source) {
@@ -955,6 +975,18 @@ class Receiver
 			return false;
 		}
 
+		// Lemmy is resharing "create" activities instead of content
+		// We fetch the content from the activity.
+		if (in_array($type, ['as:Create'])) {
+			$object = $object['as:object'];
+			$type = JsonLD::fetchElement($object, '@type');
+			if (empty($type)) {
+				Logger::info('Empty type');
+				return false;
+			}
+			$object_data = self::processObject($object);
+		}
+
 		// We currently don't handle 'pt:CacheFile', but with this step we avoid logging
 		if (in_array($type, self::CONTENT_TYPES) || ($type == 'pt:CacheFile')) {
 			$object_data = self::processObject($object);
@@ -1329,6 +1361,14 @@ class Receiver
 		// An empty "id" field is translated to "./" by the compactor, so we have to check for this content
 		if (empty($object_data['reply-to-id']) || ($object_data['reply-to-id'] == './')) {
 			$object_data['reply-to-id'] = $object_data['id'];
+
+			// On activities the "reply to" is the id of the object it refers to
+			if (in_array($object_data['object_type'], self::ACTIVITY_TYPES)) {
+				$object_id = JsonLD::fetchElement($object, 'as:object', '@id');
+				if (!empty($object_id)) {
+					$object_data['reply-to-id'] = $object_id;
+				}
+			}
 		} else {
 			// Some systems (e.g. GNU Social) don't reply to the "id" field but the "uri" field.
 			$replyToId = Item::getURIByLink($object_data['reply-to-id']);
