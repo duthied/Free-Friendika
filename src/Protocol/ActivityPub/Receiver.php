@@ -56,7 +56,7 @@ class Receiver
 {
 	const PUBLIC_COLLECTION = 'as:Public';
 	const ACCOUNT_TYPES = ['as:Person', 'as:Organization', 'as:Service', 'as:Group', 'as:Application'];
-	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event', 'as:Audio', 'as:Page'];
+	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event', 'as:Audio', 'as:Page', 'as:Question'];
 	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept'];
 
 	const TARGET_UNKNOWN = 0;
@@ -322,7 +322,7 @@ class Receiver
 		$object_type = self::fetchObjectType($activity, $object_id, $uid);
 
 		// Fetch the activity on Lemmy "Announce" messages (announces of activities)
-		if (($type == 'as:Announce') && in_array($object_type, self::ACTIVITY_TYPES)) {
+		if (($type == 'as:Announce') && in_array($object_type, array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
 			$data = ActivityPub::fetchContent($object_id, $uid);
 			if (!empty($data)) {
 				$type = $object_type;
@@ -335,9 +335,18 @@ class Receiver
 			}
 		}
 
+		// Any activities on account types must not be altered
+		if (in_array($object_type, self::ACCOUNT_TYPES)) {
+			$object_data = [];
+			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
+			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object', '@id');
+			$object_data['object_actor'] = JsonLD::fetchElement($activity['as:object'], 'as:actor', '@id');
+			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
+			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
+			$object_data['push'] = $push;
+		} elseif (in_array($type, ['as:Create', 'as:Update', 'as:Announce']) || strpos($type, '#emojiReaction')) {
 		// Fetch the content only on activities where this matters
 		// We can receive "#emojiReaction" when fetching content from Hubzilla systems
-		if (in_array($type, ['as:Create', 'as:Update', 'as:Announce']) || strpos($type, '#emojiReaction')) {
 			// Always fetch on "Announce"
 			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $uid);
 			if (empty($object_data)) {
@@ -361,7 +370,7 @@ class Receiver
 			}
 		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
-			// This way we later don't have to check for the existence of ech individual array element.
+			// This way we later don't have to check for the existence of each individual array element.
 			$object_data = self::processObject($activity);
 			$object_data['name'] = $type;
 			$object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
@@ -489,7 +498,7 @@ class Receiver
 
 		// Lemmy is announcing activities.
 		// We are changing the announces into regular activities.
-		if (($type == 'as:Announce') && in_array($object_data['type'] ?? '', self::ACTIVITY_TYPES)) {
+		if (($type == 'as:Announce') && in_array($object_data['type'] ?? '', array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
 			$type = $object_data['type'];
 		}
 

@@ -258,6 +258,8 @@ class Processor
 			$item['post-type'] = Item::PT_IMAGE;
 		} elseif ($activity['object_type'] == 'as:Page') {
 			$item['post-type'] = Item::PT_PAGE;
+		} elseif ($activity['object_type'] == 'as:Question') {
+			$item['post-type'] = Item::PT_POLL;
 		} elseif ($activity['object_type'] == 'as:Video') {
 			$item['post-type'] = Item::PT_VIDEO;
 		} else {
