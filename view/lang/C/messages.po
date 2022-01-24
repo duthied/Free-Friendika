@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-21 14:21+0100\n"
+"POT-Creation-Date: 2022-01-24 04:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -465,7 +465,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr ""
 
 #: mod/follow.php:138 src/Content/Item.php:463 src/Content/Widget.php:76
-#: src/Model/Contact.php:1055 src/Model/Contact.php:1067
+#: src/Model/Contact.php:1056 src/Model/Contact.php:1068
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr ""
@@ -1965,7 +1965,7 @@ msgstr ""
 msgid "Friend Suggestions"
 msgstr ""
 
-#: mod/tagger.php:78 src/Content/Item.php:346 src/Model/Item.php:2628
+#: mod/tagger.php:78 src/Content/Item.php:346 src/Model/Item.php:2629
 msgid "photo"
 msgstr ""
 
@@ -2085,7 +2085,7 @@ msgstr ""
 msgid "File upload failed."
 msgstr ""
 
-#: mod/wall_upload.php:221 src/Model/Photo.php:1008
+#: mod/wall_upload.php:221 src/Model/Photo.php:1049
 msgid "Wall Photos"
 msgstr ""
 
@@ -2719,7 +2719,7 @@ msgstr ""
 msgid "%1$s poked %2$s"
 msgstr ""
 
-#: src/Content/Item.php:338 src/Model/Item.php:2626
+#: src/Content/Item.php:338 src/Model/Item.php:2627
 msgid "event"
 msgstr ""
 
@@ -2727,31 +2727,31 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:443 src/Model/Contact.php:1060
+#: src/Content/Item.php:443 src/Model/Contact.php:1061
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:994
-#: src/Model/Contact.php:1052 src/Model/Contact.php:1061
+#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:995
+#: src/Model/Contact.php:1053 src/Model/Contact.php:1062
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:225
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:445 src/Model/Contact.php:1062
+#: src/Content/Item.php:445 src/Model/Contact.php:1063
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:446 src/Model/Contact.php:1053
-#: src/Model/Contact.php:1063
+#: src/Content/Item.php:446 src/Model/Contact.php:1054
+#: src/Model/Contact.php:1064
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1054
-#: src/Model/Contact.php:1064
+#: src/Content/Item.php:447 src/Model/Contact.php:1055
+#: src/Model/Contact.php:1065
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:448 src/Model/Contact.php:1065
+#: src/Content/Item.php:448 src/Model/Contact.php:1066
 msgid "Send PM"
 msgstr ""
 
@@ -2774,7 +2774,7 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-#: src/Content/Item.php:458 src/Model/Contact.php:1066
+#: src/Content/Item.php:458 src/Model/Contact.php:1067
 msgid "Poke"
 msgstr ""
 
@@ -3070,8 +3070,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3157
-#: src/Model/Item.php:3163 src/Model/Item.php:3164
+#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3158
+#: src/Model/Item.php:3164 src/Model/Item.php:3165
 msgid "Link to source"
 msgstr ""
 
@@ -3226,7 +3226,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:522 src/Model/Contact.php:1493
+#: src/Content/Widget.php:522 src/Model/Contact.php:1494
 msgid "News"
 msgstr ""
 
@@ -4049,81 +4049,81 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1056 src/Model/Contact.php:1068
+#: src/Model/Contact.php:1057 src/Model/Contact.php:1069
 msgid "UnFollow"
 msgstr ""
 
-#: src/Model/Contact.php:1074 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1075 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:130
 #: src/Module/Notifications/Introductions.php:202
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1489
+#: src/Model/Contact.php:1490
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1497
+#: src/Model/Contact.php:1498
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2372
+#: src/Model/Contact.php:2426
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2377 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2431 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2382
+#: src/Model/Contact.php:2436
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2391
+#: src/Model/Contact.php:2445
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2428
+#: src/Model/Contact.php:2482
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2430
+#: src/Model/Contact.php:2484
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2433
+#: src/Model/Contact.php:2487
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2436
+#: src/Model/Contact.php:2490
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2439
+#: src/Model/Contact.php:2493
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2440
+#: src/Model/Contact.php:2494
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2446
+#: src/Model/Contact.php:2500
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2451
+#: src/Model/Contact.php:2505
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2510
+#: src/Model/Contact.php:2564
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -4243,33 +4243,33 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1679
+#: src/Model/Item.php:1680
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2630
+#: src/Model/Item.php:2631
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2632
+#: src/Model/Item.php:2633
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2635
+#: src/Model/Item.php:2636
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:2772
+#: src/Model/Item.php:2773
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3122
+#: src/Model/Item.php:3123
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3151 src/Model/Item.php:3152
+#: src/Model/Item.php:3152 src/Model/Item.php:3153
 msgid "View on separate page"
 msgstr ""
 
@@ -4417,7 +4417,7 @@ msgstr ""
 msgid "Contact information and Social Networks"
 msgstr ""
 
-#: src/Model/User.php:208 src/Model/User.php:1029
+#: src/Model/User.php:208 src/Model/User.php:1056
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr ""
 
@@ -4448,111 +4448,111 @@ msgid ""
 "The password can't contain accentuated letters, white spaces or colons (:)"
 msgstr ""
 
-#: src/Model/User.php:909
+#: src/Model/User.php:936
 msgid "Passwords do not match. Password unchanged."
 msgstr ""
 
-#: src/Model/User.php:916
+#: src/Model/User.php:943
 msgid "An invitation is required."
 msgstr ""
 
-#: src/Model/User.php:920
+#: src/Model/User.php:947
 msgid "Invitation could not be verified."
 msgstr ""
 
-#: src/Model/User.php:928
+#: src/Model/User.php:955
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:941 src/Security/Authentication.php:235
+#: src/Model/User.php:968 src/Security/Authentication.php:235
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:941 src/Security/Authentication.php:235
+#: src/Model/User.php:968 src/Security/Authentication.php:235
 msgid "The error message was:"
 msgstr ""
 
-#: src/Model/User.php:947
+#: src/Model/User.php:974
 msgid "Please enter the required information."
 msgstr ""
 
-#: src/Model/User.php:961
+#: src/Model/User.php:988
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr ""
 
-#: src/Model/User.php:968
+#: src/Model/User.php:995
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:972
+#: src/Model/User.php:999
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:980
+#: src/Model/User.php:1007
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr ""
 
-#: src/Model/User.php:985
+#: src/Model/User.php:1012
 msgid "Your email domain is not among those allowed on this site."
 msgstr ""
 
-#: src/Model/User.php:989
+#: src/Model/User.php:1016
 msgid "Not a valid email address."
 msgstr ""
 
-#: src/Model/User.php:992
+#: src/Model/User.php:1019
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr ""
 
-#: src/Model/User.php:996 src/Model/User.php:1004
+#: src/Model/User.php:1023 src/Model/User.php:1031
 msgid "Cannot use that email."
 msgstr ""
 
-#: src/Model/User.php:1011
+#: src/Model/User.php:1038
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr ""
 
-#: src/Model/User.php:1019 src/Model/User.php:1076
+#: src/Model/User.php:1046 src/Model/User.php:1103
 msgid "Nickname is already registered. Please choose another."
 msgstr ""
 
-#: src/Model/User.php:1063 src/Model/User.php:1067
+#: src/Model/User.php:1090 src/Model/User.php:1094
 msgid "An error occurred during registration. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1090
+#: src/Model/User.php:1117
 msgid "An error occurred creating your default profile. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1097
+#: src/Model/User.php:1124
 msgid "An error occurred creating your self contact. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1102
+#: src/Model/User.php:1129
 msgid "Friends"
 msgstr ""
 
-#: src/Model/User.php:1106
+#: src/Model/User.php:1133
 msgid ""
 "An error occurred creating your default contact group. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1144
+#: src/Model/User.php:1171
 msgid "Profile Photos"
 msgstr ""
 
-#: src/Model/User.php:1338
+#: src/Model/User.php:1365
 #, php-format
 msgid ""
 "\n"
@@ -4560,7 +4560,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1341
+#: src/Model/User.php:1368
 #, php-format
 msgid ""
 "\n"
@@ -4597,12 +4597,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1374 src/Model/User.php:1481
+#: src/Model/User.php:1401 src/Model/User.php:1508
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1394
+#: src/Model/User.php:1421
 #, php-format
 msgid ""
 "\n"
@@ -4618,12 +4618,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1413
+#: src/Model/User.php:1440
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1437
+#: src/Model/User.php:1464
 #, php-format
 msgid ""
 "\n"
@@ -4632,7 +4632,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1445
+#: src/Model/User.php:1472
 #, php-format
 msgid ""
 "\n"
@@ -9957,99 +9957,114 @@ msgstr ""
 msgid "%1$s had started following you"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:160
+#: src/Navigation/Notifications/Factory/Notification.php:149
 #, php-format
 msgid "%1$s liked your comment %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:163
+#: src/Navigation/Notifications/Factory/Notification.php:152
 #, php-format
 msgid "%1$s liked your post %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:170
+#: src/Navigation/Notifications/Factory/Notification.php:159
 #, php-format
 msgid "%1$s disliked your comment %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:173
+#: src/Navigation/Notifications/Factory/Notification.php:162
 #, php-format
 msgid "%1$s disliked your post %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:180
+#: src/Navigation/Notifications/Factory/Notification.php:169
 #, php-format
 msgid "%1$s shared your comment %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:183
+#: src/Navigation/Notifications/Factory/Notification.php:172
 #, php-format
 msgid "%1$s shared your post %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:190
-#, php-format
-msgid "%1$s tagged you on %2$s"
-msgstr ""
-
-#: src/Navigation/Notifications/Factory/Notification.php:194
-#, php-format
-msgid "%1$s replied to you on %2$s"
-msgstr ""
-
-#: src/Navigation/Notifications/Factory/Notification.php:198
-#, php-format
-msgid "%1$s commented in your thread %2$s"
-msgstr ""
-
-#: src/Navigation/Notifications/Factory/Notification.php:202
-#, php-format
-msgid "%1$s commented on your comment %2$s"
-msgstr ""
-
-#: src/Navigation/Notifications/Factory/Notification.php:208
-#, php-format
-msgid "%1$s commented in their thread %2$s"
-msgstr ""
-
-#: src/Navigation/Notifications/Factory/Notification.php:210
-#, php-format
-msgid "%1$s commented in their thread"
-msgstr ""
-
-#: src/Navigation/Notifications/Factory/Notification.php:212
-#, php-format
-msgid "%1$s commented in the thread %2$s from %3$s"
-msgstr ""
-
-#: src/Navigation/Notifications/Factory/Notification.php:214
-#, php-format
-msgid "%1$s commented in the thread from %3$s"
-msgstr ""
-
-#: src/Navigation/Notifications/Factory/Notification.php:219
-#, php-format
-msgid "%1$s commented on your thread %2$s"
-msgstr ""
-
-#: src/Navigation/Notifications/Factory/Notification.php:224
+#: src/Navigation/Notifications/Factory/Notification.php:176
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:226
+#: src/Navigation/Notifications/Factory/Notification.php:178
 #, php-format
 msgid "%1$s shared a post from %3$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:228
+#: src/Navigation/Notifications/Factory/Notification.php:180
 #, php-format
 msgid "%1$s shared the post %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:230
+#: src/Navigation/Notifications/Factory/Notification.php:182
 #, php-format
 msgid "%1$s shared a post"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:190
+#, php-format
+msgid "%1$s wants to attend your event %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:197
+#, php-format
+msgid "%1$s does not want to attend your event %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:204
+#, php-format
+msgid "%1$s maybe wants to attend your event %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:211
+#, php-format
+msgid "%1$s tagged you on %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:215
+#, php-format
+msgid "%1$s replied to you on %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:219
+#, php-format
+msgid "%1$s commented in your thread %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:223
+#, php-format
+msgid "%1$s commented on your comment %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:229
+#, php-format
+msgid "%1$s commented in their thread %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:231
+#, php-format
+msgid "%1$s commented in their thread"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:233
+#, php-format
+msgid "%1$s commented in the thread %2$s from %3$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:235
+#, php-format
+msgid "%1$s commented in the thread from %3$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:240
+#, php-format
+msgid "%1$s commented on your thread %2$s"
 msgstr ""
 
 #: src/Navigation/Notifications/Repository/Notify.php:211

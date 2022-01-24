@@ -257,8 +257,12 @@ class UserNotification
 			}
 		}
 
+		if (empty($notification_type)) {
+			return;
+		}
+
 		// Only create notifications for posts and comments, not for activities
-		if (empty($notification_type) || !in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT])) {
+		if (($item['gravity'] == GRAVITY_ACTIVITY) && ($item['verb'] != Activity::ANNOUNCE)) {
 			return;
 		}
 
@@ -280,7 +284,7 @@ class UserNotification
 	 */
 	private static function insertNotificationByItem(int $type, int $uid, array $item): void
 	{
-		if (($item['gravity'] == GRAVITY_ACTIVITY) &&
+		if (($item['verb'] != Activity::ANNOUNCE) && ($item['gravity'] == GRAVITY_ACTIVITY) &&
 			!in_array($type, [self::TYPE_DIRECT_COMMENT, self::TYPE_DIRECT_THREAD_COMMENT])) {
 			// Activities are only stored when performed on the user's post or comment
 			return;
@@ -401,21 +405,6 @@ class UserNotification
 		if (DBA::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true])) {
 			return true;
 		}
-
-		// The following check doesn't make sense on activities, so quit here
-		if ($item['verb'] == Activity::ANNOUNCE) {
-			return false;
-		}
-
-		// Check if the contact is a mentioned forum
-		$tags = DBA::select('tag-view', ['url'], ['uri-id' => $item['uri-id'], 'type' => [Tag::MENTION, Tag::EXCLUSIVE_MENTION]]);
-		while ($tag = DBA::fetch($tags)) {
-			$condition = ['nurl' => Strings::normaliseLink($tag['url']), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
-			if (DBA::exists('contact', $condition)) {
-				return true;
-			}
-		}
-		DBA::close($tags);
 
 		return false;
 	}
