@@ -140,7 +140,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				$title = '';
 			}
 
-			$this->logger->info('Got verb and type', ['verb' => $Notification->verb, 'type' => $Notification->type]);
+			$this->logger->debug('Got verb and type', ['verb' => $Notification->verb, 'type' => $Notification->type]);
 
 			switch ($Notification->verb) {
 				case Activity::LIKE:
@@ -201,7 +201,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				case Activity::ATTENDMAYBE:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
-							$msg = $userL10n->t('%1$s maybe wants to attends your event %2$s');
+							$msg = $userL10n->t('%1$s maybe wants to attend your event %2$s');
 							break;
 					}
 					break;
