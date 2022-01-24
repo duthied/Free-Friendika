@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-24 04:13+0000\n"
+"POT-Creation-Date: 2022-01-24 04:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10009,45 +10009,60 @@ msgstr ""
 
 #: src/Navigation/Notifications/Factory/Notification.php:190
 #, php-format
+msgid "%1$s wants to attend your event %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:197
+#, php-format
+msgid "%1$s does not want to attend your event %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:204
+#, php-format
+msgid "%1$s maybe wants to attends your event %2$s"
+msgstr ""
+
+#: src/Navigation/Notifications/Factory/Notification.php:211
+#, php-format
 msgid "%1$s tagged you on %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:194
+#: src/Navigation/Notifications/Factory/Notification.php:215
 #, php-format
 msgid "%1$s replied to you on %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:198
+#: src/Navigation/Notifications/Factory/Notification.php:219
 #, php-format
 msgid "%1$s commented in your thread %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:202
+#: src/Navigation/Notifications/Factory/Notification.php:223
 #, php-format
 msgid "%1$s commented on your comment %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:208
+#: src/Navigation/Notifications/Factory/Notification.php:229
 #, php-format
 msgid "%1$s commented in their thread %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:210
+#: src/Navigation/Notifications/Factory/Notification.php:231
 #, php-format
 msgid "%1$s commented in their thread"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:212
+#: src/Navigation/Notifications/Factory/Notification.php:233
 #, php-format
 msgid "%1$s commented in the thread %2$s from %3$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:214
+#: src/Navigation/Notifications/Factory/Notification.php:235
 #, php-format
 msgid "%1$s commented in the thread from %3$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:219
+#: src/Navigation/Notifications/Factory/Notification.php:240
 #, php-format
 msgid "%1$s commented on your thread %2$s"
 msgstr ""

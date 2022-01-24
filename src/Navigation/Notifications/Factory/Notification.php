@@ -140,7 +140,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				$title = '';
 			}
 
-			$this->logger->debug('Got verb and type', ['verb' => $Notification->verb, 'type' => $Notification->type]);
+			$this->logger->info('Got verb and type', ['verb' => $Notification->verb, 'type' => $Notification->type]);
 
 			switch ($Notification->verb) {
 				case Activity::LIKE:
@@ -181,6 +181,27 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 							} else {
 								$msg = $userL10n->t('%1$s shared a post');
 							}
+							break;
+					}
+					break;
+				case Activity::ATTEND:
+					switch ($Notification->type) {
+						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
+							$msg = $userL10n->t('%1$s wants to attend your event %2$s');
+							break;
+					}
+					break;
+				case Activity::ATTENDNO:
+					switch ($Notification->type) {
+						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
+							$msg = $userL10n->t('%1$s does not want to attend your event %2$s');
+							break;
+					}
+					break;
+				case Activity::ATTENDMAYBE:
+					switch ($Notification->type) {
+						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
+							$msg = $userL10n->t('%1$s maybe wants to attends your event %2$s');
 							break;
 					}
 					break;
