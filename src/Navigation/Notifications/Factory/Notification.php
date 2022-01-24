@@ -114,8 +114,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 					return $message;
 				}
 
-				if (($Notification->verb == Activity::POST) || 
-					(($Notification->type === Post\UserNotification::TYPE_SHARED) && ($Notification->verb == Activity::ANNOUNCE))) {
+				if (($Notification->verb == Activity::POST) || ($Notification->type === Post\UserNotification::TYPE_SHARED)) {
 					$item = Post::selectFirst([], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
 					if (empty($item)) {
 						$this->logger->info('Thread parent post not found', ['uri-id' => $item['thr-parent-id']]);
@@ -124,13 +123,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				}
 			}
 
-			if ($Notification->type === Post\UserNotification::TYPE_SHARED) {
-				$author = Contact::getById($item['author-id'], ['id', 'name', 'url']);
-				if (empty($author)) {
-					$this->logger->info('Author not found', ['author' => $item['author-id']]);
-					return $message;
-				}
-			} elseif (in_array($Notification->type, [Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION])) {
+			if (in_array($Notification->type, [Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_SHARED])) {
 				$author = Contact::getById($item['author-id'], ['id', 'name', 'url']);
 				if (empty($author)) {
 					$this->logger->info('Author not found', ['author' => $item['author-id']]);
