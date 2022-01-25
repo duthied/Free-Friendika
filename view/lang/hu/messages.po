@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-21 14:21+0100\n"
-"PO-Revision-Date: 2022-01-21 19:41+0000\n"
+"POT-Creation-Date: 2022-01-24 04:58+0000\n"
+"PO-Revision-Date: 2022-01-24 22:47+0000\n"
 "Last-Translator: Balázs Úr\n"
 "Language-Team: Hungarian (http://www.transifex.com/Friendica/friendica/language/hu/)\n"
 "MIME-Version: 1.0\n"
@@ -469,7 +469,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr "Az OStatus támogatása le van tiltva. A partnert nem lehet hozzáadni."
 
 #: mod/follow.php:138 src/Content/Item.php:463 src/Content/Widget.php:76
-#: src/Model/Contact.php:1055 src/Model/Contact.php:1067
+#: src/Model/Contact.php:1056 src/Model/Contact.php:1068
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "Kapcsolódás vagy követés"
@@ -1969,7 +1969,7 @@ msgstr "Nem érhetők el javaslatok. Ha ez egy új oldal, akkor próbálja újra
 msgid "Friend Suggestions"
 msgstr "Ismerős javaslatok"
 
-#: mod/tagger.php:78 src/Content/Item.php:346 src/Model/Item.php:2628
+#: mod/tagger.php:78 src/Content/Item.php:346 src/Model/Item.php:2629
 msgid "photo"
 msgstr "fénykép"
 
@@ -2089,7 +2089,7 @@ msgstr "A fájl meghaladja a beállított %s méretkorlátot"
 msgid "File upload failed."
 msgstr "A fájl feltöltése sikertelen."
 
-#: mod/wall_upload.php:221 src/Model/Photo.php:1008
+#: mod/wall_upload.php:221 src/Model/Photo.php:1049
 msgid "Wall Photos"
 msgstr "Falfényképek"
 
@@ -2725,7 +2725,7 @@ msgstr "több megjelenítése"
 msgid "%1$s poked %2$s"
 msgstr "%1$s megbökte őt: %2$s"
 
-#: src/Content/Item.php:338 src/Model/Item.php:2626
+#: src/Content/Item.php:338 src/Model/Item.php:2627
 msgid "event"
 msgstr "esemény"
 
@@ -2733,31 +2733,31 @@ msgstr "esemény"
 msgid "Follow Thread"
 msgstr "Szál követése"
 
-#: src/Content/Item.php:443 src/Model/Contact.php:1060
+#: src/Content/Item.php:443 src/Model/Contact.php:1061
 msgid "View Status"
 msgstr "Állapot megtekintése"
 
-#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:994
-#: src/Model/Contact.php:1052 src/Model/Contact.php:1061
+#: src/Content/Item.php:444 src/Content/Item.php:466 src/Model/Contact.php:995
+#: src/Model/Contact.php:1053 src/Model/Contact.php:1062
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:225
 msgid "View Profile"
 msgstr "Profil megtekintése"
 
-#: src/Content/Item.php:445 src/Model/Contact.php:1062
+#: src/Content/Item.php:445 src/Model/Contact.php:1063
 msgid "View Photos"
 msgstr "Fényképek megtekintése"
 
-#: src/Content/Item.php:446 src/Model/Contact.php:1053
-#: src/Model/Contact.php:1063
+#: src/Content/Item.php:446 src/Model/Contact.php:1054
+#: src/Model/Contact.php:1064
 msgid "Network Posts"
 msgstr "Hálózati bejegyzések"
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1054
-#: src/Model/Contact.php:1064
+#: src/Content/Item.php:447 src/Model/Contact.php:1055
+#: src/Model/Contact.php:1065
 msgid "View Contact"
 msgstr "Partner megtekintése"
 
-#: src/Content/Item.php:448 src/Model/Contact.php:1065
+#: src/Content/Item.php:448 src/Model/Contact.php:1066
 msgid "Send PM"
 msgstr "Személyes üzenet küldése"
 
@@ -2780,7 +2780,7 @@ msgstr "Mellőzés"
 msgid "Languages"
 msgstr "Nyelvek"
 
-#: src/Content/Item.php:458 src/Model/Contact.php:1066
+#: src/Content/Item.php:458 src/Model/Contact.php:1067
 msgid "Poke"
 msgstr "Megbökés"
 
@@ -3075,8 +3075,8 @@ msgstr "Kép vagy fénykép"
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 
-#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3157
-#: src/Model/Item.php:3163 src/Model/Item.php:3164
+#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3158
+#: src/Model/Item.php:3164 src/Model/Item.php:3165
 msgid "Link to source"
 msgstr "Hivatkozás a forráshoz"
 
@@ -3231,7 +3231,7 @@ msgstr "Személyek"
 msgid "Organisations"
 msgstr "Szervezetek"
 
-#: src/Content/Widget.php:522 src/Model/Contact.php:1493
+#: src/Content/Widget.php:522 src/Model/Contact.php:1494
 msgid "News"
 msgstr "Hírek"
 
@@ -4054,81 +4054,81 @@ msgstr "Belső kiszolgálóhiba"
 msgid "Legacy module file not found: %s"
 msgstr "Az örökölt modulfájl nem található: %s"
 
-#: src/Model/Contact.php:1056 src/Model/Contact.php:1068
+#: src/Model/Contact.php:1057 src/Model/Contact.php:1069
 msgid "UnFollow"
 msgstr "Követés megszüntetése"
 
-#: src/Model/Contact.php:1074 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1075 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:130
 #: src/Module/Notifications/Introductions.php:202
 msgid "Approve"
 msgstr "Jóváhagyás"
 
-#: src/Model/Contact.php:1489
+#: src/Model/Contact.php:1490
 msgid "Organisation"
 msgstr "Szervezet"
 
-#: src/Model/Contact.php:1497
+#: src/Model/Contact.php:1498
 msgid "Forum"
 msgstr "Fórum"
 
-#: src/Model/Contact.php:2372
+#: src/Model/Contact.php:2426
 msgid "Disallowed profile URL."
 msgstr "Nem engedélyezett profil URL."
 
-#: src/Model/Contact.php:2377 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2431 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Tiltott tartomány"
 
-#: src/Model/Contact.php:2382
+#: src/Model/Contact.php:2436
 msgid "Connect URL missing."
 msgstr "A kapcsolódási URL hiányzik."
 
-#: src/Model/Contact.php:2391
+#: src/Model/Contact.php:2445
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "A partnert nem sikerült hozzáadni. Ellenőrizze a hozzá tartozó hálózat hitelesítési adatait a Beállítások → Közösségi hálózatok oldalon."
 
-#: src/Model/Contact.php:2428
+#: src/Model/Contact.php:2482
 msgid "The profile address specified does not provide adequate information."
 msgstr "A megadott profilcím nem biztosít elegendő információt."
 
-#: src/Model/Contact.php:2430
+#: src/Model/Contact.php:2484
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Nem lettek megfelelő kommunikációs protokollok vagy hírforrások felfedezve."
 
-#: src/Model/Contact.php:2433
+#: src/Model/Contact.php:2487
 msgid "An author or name was not found."
 msgstr "Egy szerző vagy név nem található."
 
-#: src/Model/Contact.php:2436
+#: src/Model/Contact.php:2490
 msgid "No browser URL could be matched to this address."
 msgstr "Egyetlen böngésző URL-t sem sikerült illeszteni ehhez a címhez."
 
-#: src/Model/Contact.php:2439
+#: src/Model/Contact.php:2493
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Nem lehet illeszteni @-stílusú személyazonosság-címet egy ismert protokollal vagy e-mailes partnerrel."
 
-#: src/Model/Contact.php:2440
+#: src/Model/Contact.php:2494
 msgid "Use mailto: in front of address to force email check."
 msgstr "Használja a mailto: előtagot a cím előtt az e-mail-ellenőrzés kényszerítéséhez."
 
-#: src/Model/Contact.php:2446
+#: src/Model/Contact.php:2500
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "A megadott profilcím egy olyan hálózathoz tartozik, amely le lett tiltva ezen az oldalon."
 
-#: src/Model/Contact.php:2451
+#: src/Model/Contact.php:2505
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Korlátozott profil. Ez a személy nem lesz képes közvetlen vagy személyes értesítéseket fogadni Öntől."
 
-#: src/Model/Contact.php:2510
+#: src/Model/Contact.php:2564
 msgid "Unable to retrieve contact information."
 msgstr "Nem lehet lekérni a partner információit."
 
@@ -4248,33 +4248,33 @@ msgstr "Csoport neve: "
 msgid "Edit groups"
 msgstr "Csoportok szerkesztése"
 
-#: src/Model/Item.php:1679
+#: src/Model/Item.php:1680
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr "A bejegyzésben felismert nyelvek:\\n%s"
 
-#: src/Model/Item.php:2630
+#: src/Model/Item.php:2631
 msgid "activity"
 msgstr "tevékenység"
 
-#: src/Model/Item.php:2632
+#: src/Model/Item.php:2633
 msgid "comment"
 msgstr "hozzászólás"
 
-#: src/Model/Item.php:2635
+#: src/Model/Item.php:2636
 msgid "post"
 msgstr "bejegyzés"
 
-#: src/Model/Item.php:2772
+#: src/Model/Item.php:2773
 #, php-format
 msgid "Content warning: %s"
 msgstr "Tartalom figyelmeztetés: %s"
 
-#: src/Model/Item.php:3122
+#: src/Model/Item.php:3123
 msgid "bytes"
 msgstr "bájt"
 
-#: src/Model/Item.php:3151 src/Model/Item.php:3152
+#: src/Model/Item.php:3152 src/Model/Item.php:3153
 msgid "View on separate page"
 msgstr "Megtekintés külön oldalon"
 
@@ -4422,7 +4422,7 @@ msgstr "Iskola, oktatás"
 msgid "Contact information and Social Networks"
 msgstr "Partnerinformációk és közösségi hálózatok"
 
-#: src/Model/User.php:208 src/Model/User.php:1029
+#: src/Model/User.php:208 src/Model/User.php:1056
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr "SÚLYOS HIBA: a biztonsági kulcsok előállítása nem sikerült."
 
@@ -4453,111 +4453,111 @@ msgid ""
 "The password can't contain accentuated letters, white spaces or colons (:)"
 msgstr "A jelszó nem tartalmazhat ékezetes betűket, üres karaktereket vagy kettőspontot (:)"
 
-#: src/Model/User.php:909
+#: src/Model/User.php:936
 msgid "Passwords do not match. Password unchanged."
 msgstr "A jelszavak nem egyeznek. A jelszó változatlan maradt."
 
-#: src/Model/User.php:916
+#: src/Model/User.php:943
 msgid "An invitation is required."
 msgstr "Egy meghívás szükséges."
 
-#: src/Model/User.php:920
+#: src/Model/User.php:947
 msgid "Invitation could not be verified."
 msgstr "A meghívást nem sikerült ellenőrizni."
 
-#: src/Model/User.php:928
+#: src/Model/User.php:955
 msgid "Invalid OpenID url"
 msgstr "Érvénytelen OpenID URL"
 
-#: src/Model/User.php:941 src/Security/Authentication.php:235
+#: src/Model/User.php:968 src/Security/Authentication.php:235
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr "Problémába ütköztünk a megadott OpenID-val történő bejelentkezés közben. Ellenőrizze az azonosító helyesírását."
 
-#: src/Model/User.php:941 src/Security/Authentication.php:235
+#: src/Model/User.php:968 src/Security/Authentication.php:235
 msgid "The error message was:"
 msgstr "A hibaüzenet ez volt:"
 
-#: src/Model/User.php:947
+#: src/Model/User.php:974
 msgid "Please enter the required information."
 msgstr "Adja meg a szükséges információkat."
 
-#: src/Model/User.php:961
+#: src/Model/User.php:988
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr "A system.username_min_length (%s) és a system.username_max_length (%s) kizárják egymást, értékek felcserélése."
 
-#: src/Model/User.php:968
+#: src/Model/User.php:995
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] "A felhasználónévnek legalább %s karakternek kell lennie."
 msgstr[1] "A felhasználónévnek legalább %s karakternek kell lennie."
 
-#: src/Model/User.php:972
+#: src/Model/User.php:999
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] "A felhasználónévnek legfeljebb %s karakternek kell lennie."
 msgstr[1] "A felhasználónévnek legfeljebb %s karakternek kell lennie."
 
-#: src/Model/User.php:980
+#: src/Model/User.php:1007
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr "Úgy tűnik, hogy ez nem a teljes neve (vezetéknév és keresztnév)."
 
-#: src/Model/User.php:985
+#: src/Model/User.php:1012
 msgid "Your email domain is not among those allowed on this site."
 msgstr "Az e-mail tartománya nem tartozik azok közé, amelyek megengedettek ezen az oldalon."
 
-#: src/Model/User.php:989
+#: src/Model/User.php:1016
 msgid "Not a valid email address."
 msgstr "Nem érvényes e-mail-cím."
 
-#: src/Model/User.php:992
+#: src/Model/User.php:1019
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr "A becenevet a csomópont adminisztrátora tiltotta a regisztrációtól."
 
-#: src/Model/User.php:996 src/Model/User.php:1004
+#: src/Model/User.php:1023 src/Model/User.php:1031
 msgid "Cannot use that email."
 msgstr "Nem lehet használni azt az e-mail-címet."
 
-#: src/Model/User.php:1011
+#: src/Model/User.php:1038
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr "A becenév csak a-z, 0-9 és _ karaktereket tartalmazhat."
 
-#: src/Model/User.php:1019 src/Model/User.php:1076
+#: src/Model/User.php:1046 src/Model/User.php:1103
 msgid "Nickname is already registered. Please choose another."
 msgstr "A becenév már regisztrálva van. Válasszon egy másikat."
 
-#: src/Model/User.php:1063 src/Model/User.php:1067
+#: src/Model/User.php:1090 src/Model/User.php:1094
 msgid "An error occurred during registration. Please try again."
 msgstr "Hiba történt a regisztráció során. Próbálja újra."
 
-#: src/Model/User.php:1090
+#: src/Model/User.php:1117
 msgid "An error occurred creating your default profile. Please try again."
 msgstr "Hiba történt az alapértelmezett profil létrehozásakor. Próbálja újra."
 
-#: src/Model/User.php:1097
+#: src/Model/User.php:1124
 msgid "An error occurred creating your self contact. Please try again."
 msgstr "Hiba történt a saját partnere létrehozásakor. Próbálja újra."
 
-#: src/Model/User.php:1102
+#: src/Model/User.php:1129
 msgid "Friends"
 msgstr "Ismerősök"
 
-#: src/Model/User.php:1106
+#: src/Model/User.php:1133
 msgid ""
 "An error occurred creating your default contact group. Please try again."
 msgstr "Hiba történt az alapértelmezett partnercsoport létrehozásakor. Próbálja újra."
 
-#: src/Model/User.php:1144
+#: src/Model/User.php:1171
 msgid "Profile Photos"
 msgstr "Profilfényképek"
 
-#: src/Model/User.php:1338
+#: src/Model/User.php:1365
 #, php-format
 msgid ""
 "\n"
@@ -4565,7 +4565,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr "\n\t\tKedves %1$s!\n\t\t\tA(z) %2$s adminisztrátora beállított egy fiókot Önnek."
 
-#: src/Model/User.php:1341
+#: src/Model/User.php:1368
 #, php-format
 msgid ""
 "\n"
@@ -4597,12 +4597,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr "\n\t\tA bejelentkezés részletei a következők:\n\n\t\tOldal címe:\t%1$s\n\t\tBejelentkezési név:\t\t%2$s\n\t\tJelszó:\t\t%3$s\n\n\t\tA jelszavát a fiókja „Beállítások” oldalán változtathatja meg, miután\n\t\tbejelentkezett.\n\n\t\tSzánjon pár percet a többi fiókbeállítás felülvizsgálatára is azon az oldalon.\n\n\t\tÉrdemes lehet néhány alapvető információt is hozzáadnia az\n\t\talapértelmezett profiljához (a „Profilok” oldalon), azért hogy más\n\t\temberek egyszerűen megtalálják Önt.\n\n\t\tAzt ajánljuk, hogy állítsa be a teljes nevét, adjon hozzá\n\t\tprofilfényképet, adjon hozzá néhány profil „kulcsszót” (nagyon hasznos\n\t\túj ismerősök kereséséhez), valamint talán azt, hogy mely országban él,\n\t\tha nem szeretne annál pontosabbat megadni.\n\n\t\tTeljes mértékben tiszteletben tartjuk az adatvédelemmel kapcsolatos\n\t\tjogát, és ezen elemek egyike sem kötelező. Ha még új itt, és senkit\n\t\tsem ismer, akkor ezek segíthetnek Önnek néhány új és érdekes\n\t\tismerőst találni.\n\n\t\tHa bármikor törölni szeretné a fiókját, akkor megteheti azt a\n\t\tkövetkező címen: %1$s/removeme\n\n\t\t\tKöszönjük, és üdvözöljük a %4$s oldalon."
 
-#: src/Model/User.php:1374 src/Model/User.php:1481
+#: src/Model/User.php:1401 src/Model/User.php:1508
 #, php-format
 msgid "Registration details for %s"
 msgstr "Regisztrációs részletek ehhez: %s"
 
-#: src/Model/User.php:1394
+#: src/Model/User.php:1421
 #, php-format
 msgid ""
 "\n"
@@ -4617,12 +4617,12 @@ msgid ""
 "\t\t"
 msgstr "\n\t\t\tKedves %1$s!\n\t\t\t\tKöszönjük, hogy regisztrált itt: %2$s. A fiókja adminisztrátori jóváhagyásra vár.\n\n\t\t\tA bejelentkezés részletei a következők:\n\n\t\t\tOldal címe:\t%3$s\n\t\t\tBejelentkezési név:\t\t%4$s\n\t\t\tJelszó:\t\t%5$s\n\t\t"
 
-#: src/Model/User.php:1413
+#: src/Model/User.php:1440
 #, php-format
 msgid "Registration at %s"
 msgstr "Regisztráció itt: %s"
 
-#: src/Model/User.php:1437
+#: src/Model/User.php:1464
 #, php-format
 msgid ""
 "\n"
@@ -4631,7 +4631,7 @@ msgid ""
 "\t\t\t"
 msgstr "\n\t\t\t\tKedves %1$s!\n\t\t\t\tKöszönjük, hogy regisztrált itt: %2$s. A fiókja létrejött.\n\t\t\t"
 
-#: src/Model/User.php:1445
+#: src/Model/User.php:1472
 #, php-format
 msgid ""
 "\n"
@@ -9962,100 +9962,115 @@ msgstr "%1$s követni szeretné Önt"
 msgid "%1$s had started following you"
 msgstr "%1$s elkezdte követni Önt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:160
+#: src/Navigation/Notifications/Factory/Notification.php:149
 #, php-format
 msgid "%1$s liked your comment %2$s"
 msgstr "%1$s kedvelte az Ön %2$s hozzászólását"
 
-#: src/Navigation/Notifications/Factory/Notification.php:163
+#: src/Navigation/Notifications/Factory/Notification.php:152
 #, php-format
 msgid "%1$s liked your post %2$s"
 msgstr "%1$s kedvelte az Ön %2$s bejegyzését"
 
-#: src/Navigation/Notifications/Factory/Notification.php:170
+#: src/Navigation/Notifications/Factory/Notification.php:159
 #, php-format
 msgid "%1$s disliked your comment %2$s"
 msgstr "%1$s nem kedvelte az Ön %2$s hozzászólását"
 
-#: src/Navigation/Notifications/Factory/Notification.php:173
+#: src/Navigation/Notifications/Factory/Notification.php:162
 #, php-format
 msgid "%1$s disliked your post %2$s"
 msgstr "%1$s nem kedvelte az Ön %2$s bejegyzését"
 
-#: src/Navigation/Notifications/Factory/Notification.php:180
+#: src/Navigation/Notifications/Factory/Notification.php:169
 #, php-format
 msgid "%1$s shared your comment %2$s"
 msgstr "%1$s megosztotta az Ön %2$s hozzászólását"
 
-#: src/Navigation/Notifications/Factory/Notification.php:183
+#: src/Navigation/Notifications/Factory/Notification.php:172
 #, php-format
 msgid "%1$s shared your post %2$s"
 msgstr "%1$s megosztotta az Ön %2$s bejegyzését"
 
-#: src/Navigation/Notifications/Factory/Notification.php:190
-#, php-format
-msgid "%1$s tagged you on %2$s"
-msgstr "%1$s bejelölte Önt ezen: %2$s"
-
-#: src/Navigation/Notifications/Factory/Notification.php:194
-#, php-format
-msgid "%1$s replied to you on %2$s"
-msgstr "%1$s válaszolt Önnek ezen: %2$s"
-
-#: src/Navigation/Notifications/Factory/Notification.php:198
-#, php-format
-msgid "%1$s commented in your thread %2$s"
-msgstr "%1$s hozzászólt az Ön %2$s szálában"
-
-#: src/Navigation/Notifications/Factory/Notification.php:202
-#, php-format
-msgid "%1$s commented on your comment %2$s"
-msgstr "%1$s hozzászólt az Ön %2$s hozzászólásánál"
-
-#: src/Navigation/Notifications/Factory/Notification.php:208
-#, php-format
-msgid "%1$s commented in their thread %2$s"
-msgstr "%1$s hozzászólt az ő %2$s szálában"
-
-#: src/Navigation/Notifications/Factory/Notification.php:210
-#, php-format
-msgid "%1$s commented in their thread"
-msgstr "%1$s hozzászólt az ő szálában"
-
-#: src/Navigation/Notifications/Factory/Notification.php:212
-#, php-format
-msgid "%1$s commented in the thread %2$s from %3$s"
-msgstr "%1$s hozzászólt egy %3$s által közzétett %2$s szálában"
-
-#: src/Navigation/Notifications/Factory/Notification.php:214
-#, php-format
-msgid "%1$s commented in the thread from %3$s"
-msgstr "%1$s hozzászólt egy %3$s által közzétett szálában"
-
-#: src/Navigation/Notifications/Factory/Notification.php:219
-#, php-format
-msgid "%1$s commented on your thread %2$s"
-msgstr "%1$s hozzászólt az Ön %2$s szálánál"
-
-#: src/Navigation/Notifications/Factory/Notification.php:224
+#: src/Navigation/Notifications/Factory/Notification.php:176
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
 msgstr "%1$s megosztott egy %3$s által közzétett %2$s bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:226
+#: src/Navigation/Notifications/Factory/Notification.php:178
 #, php-format
 msgid "%1$s shared a post from %3$s"
 msgstr "%1$s megosztott egy %3$s által közzétett bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:228
+#: src/Navigation/Notifications/Factory/Notification.php:180
 #, php-format
 msgid "%1$s shared the post %2$s"
 msgstr "%1$s megosztotta a(z) %2$s bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:230
+#: src/Navigation/Notifications/Factory/Notification.php:182
 #, php-format
 msgid "%1$s shared a post"
 msgstr "%1$s megosztott egy bejegyzést"
+
+#: src/Navigation/Notifications/Factory/Notification.php:190
+#, php-format
+msgid "%1$s wants to attend your event %2$s"
+msgstr "%1$s szeretne részt venni az Ön %2$s eseményén"
+
+#: src/Navigation/Notifications/Factory/Notification.php:197
+#, php-format
+msgid "%1$s does not want to attend your event %2$s"
+msgstr "%1$s nem szeretne részt venni az Ön %2$s eseményén"
+
+#: src/Navigation/Notifications/Factory/Notification.php:204
+#, php-format
+msgid "%1$s maybe wants to attend your event %2$s"
+msgstr "%1$s talán szeretne részt venni az Ön %2$s eseményén"
+
+#: src/Navigation/Notifications/Factory/Notification.php:211
+#, php-format
+msgid "%1$s tagged you on %2$s"
+msgstr "%1$s bejelölte Önt ezen: %2$s"
+
+#: src/Navigation/Notifications/Factory/Notification.php:215
+#, php-format
+msgid "%1$s replied to you on %2$s"
+msgstr "%1$s válaszolt Önnek ezen: %2$s"
+
+#: src/Navigation/Notifications/Factory/Notification.php:219
+#, php-format
+msgid "%1$s commented in your thread %2$s"
+msgstr "%1$s hozzászólt az Ön %2$s szálában"
+
+#: src/Navigation/Notifications/Factory/Notification.php:223
+#, php-format
+msgid "%1$s commented on your comment %2$s"
+msgstr "%1$s hozzászólt az Ön %2$s hozzászólásánál"
+
+#: src/Navigation/Notifications/Factory/Notification.php:229
+#, php-format
+msgid "%1$s commented in their thread %2$s"
+msgstr "%1$s hozzászólt az ő %2$s szálában"
+
+#: src/Navigation/Notifications/Factory/Notification.php:231
+#, php-format
+msgid "%1$s commented in their thread"
+msgstr "%1$s hozzászólt az ő szálában"
+
+#: src/Navigation/Notifications/Factory/Notification.php:233
+#, php-format
+msgid "%1$s commented in the thread %2$s from %3$s"
+msgstr "%1$s hozzászólt egy %3$s által közzétett %2$s szálában"
+
+#: src/Navigation/Notifications/Factory/Notification.php:235
+#, php-format
+msgid "%1$s commented in the thread from %3$s"
+msgstr "%1$s hozzászólt egy %3$s által közzétett szálában"
+
+#: src/Navigation/Notifications/Factory/Notification.php:240
+#, php-format
+msgid "%1$s commented on your thread %2$s"
+msgstr "%1$s hozzászólt az Ön %2$s szálánál"
 
 #: src/Navigation/Notifications/Repository/Notify.php:211
 #: src/Navigation/Notifications/Repository/Notify.php:694
