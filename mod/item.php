@@ -391,48 +391,51 @@ function item_post(App $a) {
 	$only_to_forum = false;
 	$forum_contact = [];
 
-	$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network, $str_contact_allow, &$inform, &$private_forum, &$private_id, &$only_to_forum, &$forum_contact) {
-		$tags = BBCode::getTags($body);
+	// Personal notes must never be altered to a forum post.
+	if ($posttype != Item::PT_PERSONAL_NOTE) {
+		$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network, $str_contact_allow, &$inform, &$private_forum, &$private_id, &$only_to_forum, &$forum_contact) {
+			$tags = BBCode::getTags($body);
 
-		$tagged = [];
+			$tagged = [];
 
-		foreach ($tags as $tag) {
-			$tag_type = substr($tag, 0, 1);
+			foreach ($tags as $tag) {
+				$tag_type = substr($tag, 0, 1);
 
-			if ($tag_type == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
-				continue;
-			}
+				if ($tag_type == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
+					continue;
+				}
 
-			/* If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
-			 * Robert Johnson should be first in the $tags array
-			 */
-			foreach ($tagged as $nextTag) {
-				if (stristr($nextTag, $tag . ' ')) {
-					continue 2;
+				/* If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
+				* Robert Johnson should be first in the $tags array
+				*/
+				foreach ($tagged as $nextTag) {
+					if (stristr($nextTag, $tag . ' ')) {
+						continue 2;
+					}
+				}
+
+				if ($success = ItemHelper::replaceTag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network)) {
+					if ($success['replaced']) {
+						$tagged[] = $tag;
+					}
+					// When the forum is private or the forum is addressed with a "!" make the post private
+					if (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
+						$private_forum = $success['contact']['prv'];
+						$only_to_forum = ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
+						$private_id = $success['contact']['id'];
+						$forum_contact = $success['contact'];
+					} elseif (!empty($success['contact']['forum']) && ($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
+						$private_forum = false;
+						$only_to_forum = true;
+						$private_id = $success['contact']['id'];
+						$forum_contact = $success['contact'];
+					}
 				}
 			}
 
-			if ($success = ItemHelper::replaceTag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network)) {
-				if ($success['replaced']) {
-					$tagged[] = $tag;
-				}
-				// When the forum is private or the forum is addressed with a "!" make the post private
-				if (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
-					$private_forum = $success['contact']['prv'];
-					$only_to_forum = ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
-					$private_id = $success['contact']['id'];
-					$forum_contact = $success['contact'];
-				} elseif (!empty($success['contact']['forum']) && ($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
-					$private_forum = false;
-					$only_to_forum = true;
-					$private_id = $success['contact']['id'];
-					$forum_contact = $success['contact'];
-				}
-			}
-		}
-
-		return $body;
-	});
+			return $body;
+		});
+	}
 
 	$original_contact_id = $contact_id;
 
