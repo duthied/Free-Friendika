@@ -110,7 +110,7 @@ class Acl extends BaseModule
 			$search = $_REQUEST['query'];
 		}
 
-		Logger::info('ACL {action} - {subaction}', ['module' => 'acl', 'action' => 'content', 'subaction' => 'search', 'search' => $search, 'type' => $type, 'conversation' => $conv_id]);
+		Logger::info('ACL {action} - {subaction} - start', ['module' => 'acl', 'action' => 'content', 'subaction' => 'search', 'search' => $search, 'type' => $type, 'conversation' => $conv_id]);
 
 		$sql_extra = '';
 		$condition       = ["`uid` = ? AND NOT `deleted` AND NOT `pending` AND NOT `archive`", local_user()];
@@ -207,7 +207,7 @@ class Acl extends BaseModule
 			foreach ($r as $g) {
 				$entry = [
 					'type'    => 'c',
-					'photo'   => Contact::getMicro($g),
+					'photo'   => Contact::getMicro($g, true),
 					'name'    => htmlspecialchars($g['name']),
 					'id'      => intval($g['id']),
 					'network' => $g['network'],
@@ -268,7 +268,7 @@ class Acl extends BaseModule
 				if (count($contact) > 0) {
 					$unknown_contacts[] = [
 						'type'    => 'c',
-						'photo'   => Contact::getMicro($contact),
+						'photo'   => Contact::getMicro($contact, true),
 						'name'    => htmlspecialchars($contact['name']),
 						'id'      => intval($contact['id']),
 						'network' => $contact['network'],
@@ -304,6 +304,7 @@ class Acl extends BaseModule
 			'items' => $results['items'],
 		];
 
+		Logger::info('ACL {action} - {subaction} - done', ['module' => 'acl', 'action' => 'content', 'subaction' => 'search', 'search' => $search, 'type' => $type, 'conversation' => $conv_id]);
 		return $o;
 	}
 }
