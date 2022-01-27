@@ -1454,6 +1454,14 @@ class Receiver
 			$object_data['attachments'] = array_merge($object_data['attachments'], self::processAttachmentUrls($object['as:url'] ?? []));
 		}
 
+		// For page types we expect that the alternate url posts to some page.
+		// So we add this to the attachments if it differs from the id.
+		// Currently only Lemmy is using the page type.
+		if (($object_data['object_type'] == 'as:Page') && !empty($object_data['alternate-url']) && !Strings::compareLink($object_data['alternate-url'], $object_data['id'])) {
+			$object_data['attachments'][] = ['url' => $object_data['alternate-url']];
+			$object_data['alternate-url'] = null;
+		}
+
 		$receiverdata = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {

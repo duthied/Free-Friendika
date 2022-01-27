@@ -125,7 +125,7 @@ class Processor
 		$data = ['uri-id' => $uriid];
 		$data['type'] = Post\Media::UNKNOWN;
 		$data['url'] = $attachment['url'];
-		$data['mimetype'] = $attachment['mediaType'];
+		$data['mimetype'] = $attachment['mediaType'] ?? null;
 		$data['height'] = $attachment['height'] ?? null;
 		$data['width'] = $attachment['width'] ?? null;
 		$data['size'] = $attachment['size'] ?? null;
