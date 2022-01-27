@@ -72,7 +72,7 @@ class ParseUrl
 
 		$contenttype =  $curlResult->getHeader('Content-Type')[0] ?? '';
 		if (empty($contenttype)) {
-			return [];
+			return ['application', 'octet-stream'];
 		}
 
 		return explode('/', current(explode(';', $contenttype)));
