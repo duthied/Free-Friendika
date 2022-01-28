@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-24 04:58+0000\n"
+"POT-Creation-Date: 2022-01-28 05:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -118,7 +118,7 @@ msgid "The feed for this item is unavailable."
 msgstr ""
 
 #: mod/editpost.php:38 mod/events.php:220 mod/follow.php:56 mod/follow.php:130
-#: mod/item.php:185 mod/item.php:190 mod/item.php:937 mod/message.php:69
+#: mod/item.php:185 mod/item.php:190 mod/item.php:940 mod/message.php:69
 #: mod/message.php:111 mod/notes.php:44 mod/ostatus_subscribe.php:32
 #: mod/photos.php:160 mod/photos.php:897 mod/repair_ostatus.php:31
 #: mod/settings.php:46 mod/settings.php:56 mod/settings.php:412
@@ -518,19 +518,19 @@ msgstr ""
 msgid "Empty post discarded."
 msgstr ""
 
-#: mod/item.php:743
+#: mod/item.php:746
 msgid "Post updated."
 msgstr ""
 
-#: mod/item.php:753 mod/item.php:758
+#: mod/item.php:756 mod/item.php:761
 msgid "Item wasn't stored."
 msgstr ""
 
-#: mod/item.php:769
+#: mod/item.php:772
 msgid "Item couldn't be fetched."
 msgstr ""
 
-#: mod/item.php:915 src/Module/Admin/Themes/Details.php:39
+#: mod/item.php:918 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:41
 #: src/Module/Debug/ItemBody.php:56
 msgid "Item not found."
@@ -3655,201 +3655,201 @@ msgstr ""
 msgid "Could not connect to database."
 msgstr ""
 
-#: src/Core/L10n.php:377 src/Model/Event.php:425
+#: src/Core/L10n.php:399 src/Model/Event.php:425
 #: src/Module/Settings/Display.php:182
 msgid "Monday"
 msgstr ""
 
-#: src/Core/L10n.php:377 src/Model/Event.php:426
+#: src/Core/L10n.php:399 src/Model/Event.php:426
 msgid "Tuesday"
 msgstr ""
 
-#: src/Core/L10n.php:377 src/Model/Event.php:427
+#: src/Core/L10n.php:399 src/Model/Event.php:427
 msgid "Wednesday"
 msgstr ""
 
-#: src/Core/L10n.php:377 src/Model/Event.php:428
+#: src/Core/L10n.php:399 src/Model/Event.php:428
 msgid "Thursday"
 msgstr ""
 
-#: src/Core/L10n.php:377 src/Model/Event.php:429
+#: src/Core/L10n.php:399 src/Model/Event.php:429
 msgid "Friday"
 msgstr ""
 
-#: src/Core/L10n.php:377 src/Model/Event.php:430
+#: src/Core/L10n.php:399 src/Model/Event.php:430
 msgid "Saturday"
 msgstr ""
 
-#: src/Core/L10n.php:377 src/Model/Event.php:424
+#: src/Core/L10n.php:399 src/Model/Event.php:424
 #: src/Module/Settings/Display.php:182
 msgid "Sunday"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:445
+#: src/Core/L10n.php:403 src/Model/Event.php:445
 msgid "January"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:446
+#: src/Core/L10n.php:403 src/Model/Event.php:446
 msgid "February"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:447
+#: src/Core/L10n.php:403 src/Model/Event.php:447
 msgid "March"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:448
+#: src/Core/L10n.php:403 src/Model/Event.php:448
 msgid "April"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Core/L10n.php:401 src/Model/Event.php:436
+#: src/Core/L10n.php:403 src/Core/L10n.php:423 src/Model/Event.php:436
 msgid "May"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:449
+#: src/Core/L10n.php:403 src/Model/Event.php:449
 msgid "June"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:450
+#: src/Core/L10n.php:403 src/Model/Event.php:450
 msgid "July"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:451
+#: src/Core/L10n.php:403 src/Model/Event.php:451
 msgid "August"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:452
+#: src/Core/L10n.php:403 src/Model/Event.php:452
 msgid "September"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:453
+#: src/Core/L10n.php:403 src/Model/Event.php:453
 msgid "October"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:454
+#: src/Core/L10n.php:403 src/Model/Event.php:454
 msgid "November"
 msgstr ""
 
-#: src/Core/L10n.php:381 src/Model/Event.php:455
+#: src/Core/L10n.php:403 src/Model/Event.php:455
 msgid "December"
 msgstr ""
 
-#: src/Core/L10n.php:397 src/Model/Event.php:417
+#: src/Core/L10n.php:419 src/Model/Event.php:417
 msgid "Mon"
 msgstr ""
 
-#: src/Core/L10n.php:397 src/Model/Event.php:418
+#: src/Core/L10n.php:419 src/Model/Event.php:418
 msgid "Tue"
 msgstr ""
 
-#: src/Core/L10n.php:397 src/Model/Event.php:419
+#: src/Core/L10n.php:419 src/Model/Event.php:419
 msgid "Wed"
 msgstr ""
 
-#: src/Core/L10n.php:397 src/Model/Event.php:420
+#: src/Core/L10n.php:419 src/Model/Event.php:420
 msgid "Thu"
 msgstr ""
 
-#: src/Core/L10n.php:397 src/Model/Event.php:421
+#: src/Core/L10n.php:419 src/Model/Event.php:421
 msgid "Fri"
 msgstr ""
 
-#: src/Core/L10n.php:397 src/Model/Event.php:422
+#: src/Core/L10n.php:419 src/Model/Event.php:422
 msgid "Sat"
 msgstr ""
 
-#: src/Core/L10n.php:397 src/Model/Event.php:416
+#: src/Core/L10n.php:419 src/Model/Event.php:416
 msgid "Sun"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:432
+#: src/Core/L10n.php:423 src/Model/Event.php:432
 msgid "Jan"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:433
+#: src/Core/L10n.php:423 src/Model/Event.php:433
 msgid "Feb"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:434
+#: src/Core/L10n.php:423 src/Model/Event.php:434
 msgid "Mar"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:435
+#: src/Core/L10n.php:423 src/Model/Event.php:435
 msgid "Apr"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:437
+#: src/Core/L10n.php:423 src/Model/Event.php:437
 msgid "Jun"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:438
+#: src/Core/L10n.php:423 src/Model/Event.php:438
 msgid "Jul"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:439
+#: src/Core/L10n.php:423 src/Model/Event.php:439
 msgid "Aug"
 msgstr ""
 
-#: src/Core/L10n.php:401
+#: src/Core/L10n.php:423
 msgid "Sep"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:441
+#: src/Core/L10n.php:423 src/Model/Event.php:441
 msgid "Oct"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:442
+#: src/Core/L10n.php:423 src/Model/Event.php:442
 msgid "Nov"
 msgstr ""
 
-#: src/Core/L10n.php:401 src/Model/Event.php:443
+#: src/Core/L10n.php:423 src/Model/Event.php:443
 msgid "Dec"
 msgstr ""
 
-#: src/Core/L10n.php:420
+#: src/Core/L10n.php:442
 msgid "poke"
 msgstr ""
 
-#: src/Core/L10n.php:420
+#: src/Core/L10n.php:442
 msgid "poked"
 msgstr ""
 
-#: src/Core/L10n.php:421
+#: src/Core/L10n.php:443
 msgid "ping"
 msgstr ""
 
-#: src/Core/L10n.php:421
+#: src/Core/L10n.php:443
 msgid "pinged"
 msgstr ""
 
-#: src/Core/L10n.php:422
+#: src/Core/L10n.php:444
 msgid "prod"
 msgstr ""
 
-#: src/Core/L10n.php:422
+#: src/Core/L10n.php:444
 msgid "prodded"
 msgstr ""
 
-#: src/Core/L10n.php:423
+#: src/Core/L10n.php:445
 msgid "slap"
 msgstr ""
 
-#: src/Core/L10n.php:423
+#: src/Core/L10n.php:445
 msgid "slapped"
 msgstr ""
 
-#: src/Core/L10n.php:424
+#: src/Core/L10n.php:446
 msgid "finger"
 msgstr ""
 
-#: src/Core/L10n.php:424
+#: src/Core/L10n.php:446
 msgid "fingered"
 msgstr ""
 
-#: src/Core/L10n.php:425
+#: src/Core/L10n.php:447
 msgid "rebuff"
 msgstr ""
 
-#: src/Core/L10n.php:425
+#: src/Core/L10n.php:447
 msgid "rebuffed"
 msgstr ""
 
@@ -9988,21 +9988,25 @@ msgid "%1$s shared your post %2$s"
 msgstr ""
 
 #: src/Navigation/Notifications/Factory/Notification.php:176
+#: src/Navigation/Notifications/Factory/Notification.php:245
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
 msgstr ""
 
 #: src/Navigation/Notifications/Factory/Notification.php:178
+#: src/Navigation/Notifications/Factory/Notification.php:247
 #, php-format
 msgid "%1$s shared a post from %3$s"
 msgstr ""
 
 #: src/Navigation/Notifications/Factory/Notification.php:180
+#: src/Navigation/Notifications/Factory/Notification.php:249
 #, php-format
 msgid "%1$s shared the post %2$s"
 msgstr ""
 
 #: src/Navigation/Notifications/Factory/Notification.php:182
+#: src/Navigation/Notifications/Factory/Notification.php:251
 #, php-format
 msgid "%1$s shared a post"
 msgstr ""

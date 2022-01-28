@@ -140,7 +140,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				$title = '';
 			}
 
-			$this->logger->debug('Got verb and type', ['verb' => $Notification->verb, 'type' => $Notification->type]);
+			$this->logger->debug('Got verb and type', ['verb' => $Notification->verb, 'type' => $Notification->type, 'causer' => $causer['id'], 'author' => $author['id'], 'item' => $item['id'], 'uid' => $Notification->uid]);
 
 			switch ($Notification->verb) {
 				case Activity::LIKE:
@@ -238,6 +238,18 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
 							$msg = $userL10n->t('%1$s commented on your thread %2$s');
+							break;
+
+						case Post\UserNotification::TYPE_SHARED:
+							if (($causer['id'] != $author['id']) && ($title != '')) {
+								$msg = $userL10n->t('%1$s shared the post %2$s from %3$s');
+							} elseif ($causer['id'] != $author['id']) {
+								$msg = $userL10n->t('%1$s shared a post from %3$s');
+							} elseif ($title != '') {
+								$msg = $userL10n->t('%1$s shared the post %2$s');
+							} else {
+								$msg = $userL10n->t('%1$s shared a post');
+							}
 							break;
 					}
 					break;
