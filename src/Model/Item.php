@@ -1862,73 +1862,60 @@ class Item
 	{
 		$mention = false;
 
-		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
-		if (!DBA::isResult($user)) {
+		$owner = User::getOwnerDataById($uid);
+		if (!DBA::isResult($owner)) {
+			Logger::warning('User not found, quitting.', ['uid' => $uid]);
 			return false;
 		}
 
-		$community_page = (($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
-		$prvgroup = (($user['page-flags'] == User::PAGE_FLAGS_PRVGROUP) ? true : false);
+		if ($owner['contact-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
+			Logger::debug('Owner is no community, quitting here.', ['uid' => $uid, 'id' => $item_id]);
+			return false;
+		}
 
 		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
+			Logger::warning('Post not found, quitting.', ['id' => $item_id]);
 			return false;
 		}
 
-		$link = Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname']);
+		if ($item['wall'] || $item['origin'] || ($item['gravity'] != GRAVITY_PARENT)) {
+			Logger::debug('Wall item, origin item or no parent post, quitting here.', ['wall' => $item['wall'], 'origin' => $item['origin'], 'gravity' => $item['gravity'], 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			return false;
+		}
 
-		/*
-		 * Diaspora uses their own hardwired link URL in @-tags
-		 * instead of the one we supply with webfinger
-		 */
-		$dlink = Strings::normaliseLink(DI::baseUrl() . '/u/' . $user['nickname']);
+		$tags = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
+		foreach ($tags as $tag) {
+			if (Strings::compareLink($owner['url'], $tag['url'])) {
+				$mention = true;
+				Logger::info('Mention found in tag.', ['url' => $tag['url'], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			}
+		}
 
-		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				if (Strings::compareLink($link, $mtch[1]) || Strings::compareLink($dlink, $mtch[1])) {
-					$mention = true;
-					Logger::notice('mention found', ['mention' => $mtch[2]]);
+		// This check can most likely be removed since we always are having the tags
+		if (!$mention) {
+			$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
+			if ($cnt) {
+				foreach ($matches as $mtch) {
+					if (Strings::compareLink($owner['url'], $mtch[1])) {
+						$mention = true;
+						Logger::notice('Mention found in body.', ['mention' => $mtch[2], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+					}
 				}
 			}
 		}
 
 		if (!$mention) {
-			$tags = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
-			foreach ($tags as $tag) {
-				if (Strings::compareLink($link, $tag['url']) || Strings::compareLink($dlink, $tag['url'])) {
-					$mention = true;
-					DI::logger()->info('mention found in tag.', ['url' => $tag['url']]);
-				}
-			}
+			Logger::info('Top-level post without mention is deleted.', ['uri' => $item['uri'], $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
+			return true;
 		}
 
-		if (!$mention) {
-			if (($community_page || $prvgroup) &&
-				  !$item['wall'] && !$item['origin'] && ($item['gravity'] == GRAVITY_PARENT)) {
-				Logger::info('Delete private group/communiy top-level item without mention', ['id' => $item['id'], 'guid'=> $item['guid']]);
-				Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
-				return true;
-			}
-			return false;
-		}
-
-		$arr = ['item' => $item, 'user' => $user];
+		$arr = ['item' => $item, 'user' => $owner];
 
 		Hook::callAll('tagged', $arr);
 
-		if (!$community_page && !$prvgroup) {
-			return false;
-		}
-
-		/*
-		 * tgroup delivery - setup a second delivery chain
-		 * prevent delivery looping - only proceed
-		 * if the message originated elsewhere and is a top-level post
-		 */
-		if ($item['wall'] || $item['origin'] || ($item['id'] != $item['parent'])) {
-			return false;
-		}
+		Logger::info('Community post will be distributed', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 
 		self::performActivity($item['id'], 'announce', $uid);
 
@@ -1939,18 +1926,10 @@ class Item
 		 * Or possibly we could store the receivers that had been in the "announce" message above and use this.
 		 */
 
-		// now change this copy of the post to a forum head message and deliver to all the tgroup members
-		$self = DBA::selectFirst('contact', ['id', 'name', 'url', 'thumb'], ['uid' => $uid, 'self' => true]);
-		if (!DBA::isResult($self)) {
-			return false;
-		}
-
-		$owner_id = Contact::getIdForURL($self['url']);
-
 		// also reset all the privacy bits to the forum default permissions
-		if ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) {
+		if ($owner['allow_cid'] || $owner['allow_gid'] || $owner['deny_cid'] || $owner['deny_gid']) {
 			$private = self::PRIVATE;
-		} elseif (DI::pConfig()->get($user['uid'], 'system', 'unlisted')) {
+		} elseif (DI::pConfig()->get($owner['uid'], 'system', 'unlisted')) {
 			$private = self::UNLISTED;
 		} else {
 			$private = self::PUBLIC;
@@ -1958,21 +1937,22 @@ class Item
 
 		$permissionSet = DI::permissionSet()->selectOrCreate(
 			DI::permissionSetFactory()->createFromString(
-				$user['uid'],
-				$user['allow_cid'],
-				$user['allow_gid'],
-				$user['deny_cid'],
-				$user['deny_gid']
+				$owner['uid'],
+				$owner['allow_cid'],
+				$owner['allow_gid'],
+				$owner['deny_cid'],
+				$owner['deny_gid']
 			));
 
-		$forum_mode = ($prvgroup ? 2 : 1);
+		$forum_mode = ($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) ? 2 : 1;
 
-		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $self['id'],
-			'owner-id' => $owner_id, 'private' => $private, 'psid' => $permissionSet->id];
+		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $owner['id'],
+			'owner-id' => Contact::getPublicIdByUserId($uid), 'private' => $private, 'psid' => $permissionSet->id];
 		self::update($fields, ['id' => $item['id']]);
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, (int)$item['uri-id'], (int)$item['uid']);
 
+		Logger::info('Community post had been distributed', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 		return false;
 	}
 
