@@ -1998,7 +1998,7 @@ class Probe
 	/**
 	 * Fetch the last date that the contact had posted something (publically)
 	 *
-	 * @param string $data  probing result
+	 * @param array $data  probing result
 	 * @return string last activity
 	 */
 	public static function getLastUpdate(array $data)
