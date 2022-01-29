@@ -101,7 +101,7 @@
 			"title" => ["post-content", "title"],
 			"content-warning" => ["post-content", "content-warning"],
 			"raw-body" => ["post-content", "raw-body"],
-			"body" => ["post-content", "body"],
+			"body" => "IFNULL (`post-content`.`body`, '')",
 			"rendered-hash" => ["post-content", "rendered-hash"],
 			"rendered-html" => ["post-content", "rendered-html"],
 			"language" => ["post-content", "language"],

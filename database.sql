@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1448
+-- DB_UPDATE_VERSION 1449
 -- ------------------------------------------
 
 
@@ -1614,7 +1614,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-content`.`title` AS `title`,
 	`post-content`.`content-warning` AS `content-warning`,
 	`post-content`.`raw-body` AS `raw-body`,
-	`post-content`.`body` AS `body`,
+	IFNULL (`post-content`.`body`, '') AS `body`,
 	`post-content`.`rendered-hash` AS `rendered-hash`,
 	`post-content`.`rendered-html` AS `rendered-html`,
 	`post-content`.`language` AS `language`,
