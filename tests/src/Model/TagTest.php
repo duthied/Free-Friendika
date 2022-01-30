@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Model;
 
+use Friendica\Model\Tag;
 use PHPUnit\Framework\TestCase;
 
 class TagTest extends TestCase
@@ -30,6 +31,9 @@ class TagTest extends TestCase
      */
     public function testGetFromBody()
     {
+        $body = '![url=https://pirati.ca/profile/test1]Testgruppe 1b[/url] Test, please ignore';
+        $tags = Tag::getFromBody($body);
+        // Some expectations here
         self::markTestIncomplete('Needs knowledge.');
     }
 
