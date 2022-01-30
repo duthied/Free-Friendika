@@ -26,7 +26,7 @@ use PHPUnit\Framework\TestCase;
 class TagTest extends TestCase
 {
     /**
-     * 
+     *
      */
     public function testGetFromBody()
     {
