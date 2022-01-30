@@ -33,7 +33,15 @@ class TagTest extends TestCase
 	{
 		$body = '![url=https://pirati.ca/profile/test1]Testgruppe 1b[/url] Test, please ignore';
 		$tags = Tag::getFromBody($body);
-		// Some expectations here
-		self::markTestIncomplete('Needs knowledge.');
+        $expected = [
+            [
+                '![url=https://pirati.ca/profile/test1]Testgruppe 1b[/url]',
+                '!',
+                'https://pirati.ca/profile/test1',
+                'Testgruppe 1b'
+            ]
+        ];
+
+        self::assertEquals($expected, $tags);
 	}
 }
