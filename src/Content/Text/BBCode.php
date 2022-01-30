@@ -2358,11 +2358,10 @@ class BBCode
 	public static function setMentions($body, $profile_uid = 0, $network = '')
 	{
 		DI::profiler()->startRecording('rendering');
-		self::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network) {
+		$body = self::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network) {
 			$tags = self::getTags($body);
 
 			$tagged = [];
-			$inform = '';
 
 			foreach ($tags as $tag) {
 				$tag_type = substr($tag, 0, 1);
@@ -2381,7 +2380,7 @@ class BBCode
 					}
 				}
 
-				if (($success = Item::replaceTag($body, $inform, $profile_uid, $tag, $network)) && $success['replaced']) {
+				if (($success = Item::replaceTag($body, $profile_uid, $tag, $network)) && $success['replaced']) {
 					$tagged[] = $tag;
 				}
 			}

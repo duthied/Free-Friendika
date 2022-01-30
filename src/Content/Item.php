@@ -135,7 +135,6 @@ class Item
 	 * the appropriate link.
 	 *
 	 * @param string  $body        the text to replace the tag in
-	 * @param string  $inform      a comma-seperated string containing everybody to inform
 	 * @param integer $profile_uid the user id to replace the tag for (0 = anyone)
 	 * @param string  $tag         the tag to replace
 	 * @param string  $network     The network of the post
@@ -144,7 +143,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function replaceTag(&$body, &$inform, $profile_uid, $tag, $network = '')
+	public static function replaceTag(&$body, $profile_uid, $tag, $network = '')
 	{
 		$replaced = false;
 
@@ -218,16 +217,6 @@ class Item
 
 			// Check if $contact has been successfully loaded
 			if (DBA::isResult($contact)) {
-				if (strlen($inform) && (isset($contact['notify']) || isset($contact['id']))) {
-					$inform .= ',';
-				}
-
-				if (isset($contact['id'])) {
-					$inform .= 'cid:' . $contact['id'];
-				} elseif (isset($contact['notify'])) {
-					$inform  .= $contact['notify'];
-				}
-
 				$profile = $contact['url'];
 				$newname = ($contact['name'] ?? '') ?: $contact['nick'];
 			}

@@ -394,57 +394,37 @@ function item_post(App $a) {
 	// Personal notes must never be altered to a forum post.
 	if ($posttype != Item::PT_PERSONAL_NOTE) {
 		// Convert mentions in the body to a unified format
-		$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network, &$inform) {
-			$tags = BBCode::getTags($body);
-
-			$tagged = [];
-
-			foreach ($tags as $tag) {
-				$tag_type = substr($tag, 0, 1);
-
-				if ($tag_type == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
-					continue;
-				}
-
-				// If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
-				// Robert Johnson should be first in the $tags array
-				foreach ($tagged as $nextTag) {
-					if (stristr($nextTag, $tag . ' ')) {
-						continue 2;
-					}
-				}
-
-				ItemHelper::replaceTag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network);
-			}
-
-			return $body;
-		});
+		$body = BBCode::setMentions($body, local_user() ? local_user() : $profile_uid, $network);
 
 		// Search for forum mentions
-		if (!$toplevel_item_id) {
-			foreach (Tag::getFromBody($body, Tag::TAG_CHARACTER[Tag::MENTION] . Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
-				$contact = Contact::getByURL($tag[2], false, [], $profile_uid);
-				if ($contact['contact-type'] != Contact::TYPE_COMMUNITY) {
-					continue;
-				}
+		foreach (Tag::getFromBody($body, Tag::TAG_CHARACTER[Tag::MENTION] . Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
+			$contact = Contact::getByURL($tag[2], false, [], $profile_uid);
+			if (!empty($inform)) {
+				$inform .= ',';
+			}
+			$inform .= 'cid:' . $contact['id'];
 
-				if (!empty($contact['prv']) || ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
-					$private_forum = $contact['prv'];
-					$only_to_forum = ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
-					$private_id = $contact['id'];
-					$forum_contact = $contact;
-					Logger::info('Private forum or exclusive mention', ['url' => $tag[2], 'mention' => $tag[1]]);
-				} elseif ($str_contact_allow == '<' . $contact['id'] . '>') {
-					$private_forum = false;
-					$only_to_forum = true;
-					$private_id = $contact['id'];
-					$forum_contact = $contact;
-					Logger::info('Public forum', ['url' => $tag[2], 'mention' => $tag[1]]);
-				} else {
-					Logger::info('Post with forum mention will not be converted to a forum post', ['url' => $tag[2], 'mention' => $tag[1]]);
-				}
+			if (!$toplevel_item_id || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
+				continue;
+			}
+
+			if (!empty($contact['prv']) || ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
+				$private_forum = $contact['prv'];
+				$only_to_forum = ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
+				$private_id = $contact['id'];
+				$forum_contact = $contact;
+				Logger::info('Private forum or exclusive mention', ['url' => $tag[2], 'mention' => $tag[1]]);
+			} elseif ($str_contact_allow == '<' . $contact['id'] . '>') {
+				$private_forum = false;
+				$only_to_forum = true;
+				$private_id = $contact['id'];
+				$forum_contact = $contact;
+				Logger::info('Public forum', ['url' => $tag[2], 'mention' => $tag[1]]);
+			} else {
+				Logger::info('Post with forum mention will not be converted to a forum post', ['url' => $tag[2], 'mention' => $tag[1]]);
 			}
 		}
+		Logger::info('Got inform', ['inform' => $inform]);
 	}
 
 	$original_contact_id = $contact_id;
