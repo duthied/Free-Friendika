@@ -36,5 +36,4 @@ class TagTest extends TestCase
 		// Some expectations here
 		self::markTestIncomplete('Needs knowledge.');
 	}
-
 }
