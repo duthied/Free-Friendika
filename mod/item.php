@@ -422,7 +422,7 @@ function item_post(App $a) {
 
 		// Search for forum mentions
 		if (!$toplevel_item_id) {
-			foreach (Tag::getFromBody($body) as $tag) {
+			foreach (Tag::getFromBody($body, Tag::TAG_CHARACTER[Tag::MENTION] . Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
 				$contact = Contact::getByURL($tag[2], false, [], $profile_uid);
 				if ($contact['contact-type'] != Contact::TYPE_COMMUNITY) {
 					continue;
