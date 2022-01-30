@@ -398,13 +398,13 @@ function item_post(App $a) {
 
 		// Search for forum mentions
 		foreach (Tag::getFromBody($body, Tag::TAG_CHARACTER[Tag::MENTION] . Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
-			$contact = Contact::getByURL($tag[2], false, [], $profile_uid);
+			$contact = Contact::getByURLForUser($tag[2], $profile_uid);
 			if (!empty($inform)) {
 				$inform .= ',';
 			}
 			$inform .= 'cid:' . $contact['id'];
 
-			if (!$toplevel_item_id || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
+			if (!$toplevel_item_id || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
 				continue;
 			}
 
