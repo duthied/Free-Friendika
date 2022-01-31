@@ -207,6 +207,27 @@ class Tag
 	}
 
 	/**
+	 * Get tags and mentions from the body
+	 * 
+	 * @param string  $body    Body of the post
+	 * @param string  $tags    Accepted tags
+	 *
+	 * @return array Tag list
+	 */
+	public static function getFromBody(string $body, string $tags = null)
+	{
+		if (is_null($tags)) {
+			$tags =  self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
+		}
+
+		if (!preg_match_all("/([" . $tags . "])\[url\=([^\[\]]*)\]([^\[\]]*)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
+			return [];
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Store tags and mentions from the body
 	 * 
 	 * @param integer $uriid   URI-Id
@@ -216,13 +237,10 @@ class Tag
 	 */
 	public static function storeFromBody(int $uriid, string $body, string $tags = null, $probing = true)
 	{
-		if (is_null($tags)) {
-			$tags =  self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
-		}
-
 		Logger::info('Check for tags', ['uri-id' => $uriid, 'hash' => $tags, 'callstack' => System::callstack()]);
 
-		if (!preg_match_all("/([" . $tags . "])\[url\=([^\[\]]*)\]([^\[\]]*)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
+		$result = self::getFromBody($body, $tags);
+		if (empty($result)) {
 			return;
 		}
 
