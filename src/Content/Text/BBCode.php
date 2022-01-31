@@ -2346,7 +2346,7 @@ class BBCode
 	}
 
 	/**
-	 * Replaces mentions in the provided message body for the provided user and network if any
+	 * Replaces mentions in the provided message body in BBCode links for the provided user and network if any
 	 *
 	 * @param $body
 	 * @param $profile_uid
