@@ -984,6 +984,7 @@ class HTML
 		$config->set('Attr.AllowedRel', [
 			'noreferrer' => true,
 			'noopener' => true,
+			'tag' => true,
 		]);
 		$config->set('Attr.AllowedFrameTargets', [
 			'_blank' => true,
