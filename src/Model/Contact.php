@@ -1913,7 +1913,14 @@ class Contact
 			$avatar = self::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
 		}
 
-		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) || DI::config()->get('system', 'cache_contact_avatar')) {
+		$cache_avatar = DI::config()->get('system', 'cache_contact_avatar');
+
+		// Local contact avatars don't need to be cached
+		if ($cache_avatar && Network::isLocalLink($contact['url'])) {
+			$cache_avatar = !DBA::exists('contact', ['nurl' => $contact['nurl'], 'self' => true]);
+		}
+
+		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) || $cache_avatar) {
 			if ($default_avatar && Proxy::isLocalImage($avatar)) {
 				$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
 					'photo' => $avatar,
