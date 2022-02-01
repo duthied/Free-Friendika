@@ -350,9 +350,11 @@ function ping_init(App $a)
 	}
 
 	if ($format == 'json') {
+		$notification_count = $sysnotify_count + $intro_count + $register_count;
+		
 		$data['groups'] = $groups_unseen;
 		$data['forums'] = $forums_unseen;
-		$data['notification'] = $sysnotify_count + $intro_count + $register_count;
+		$data['notification'] = ($notification_count < 50) ? $notification_count : '49+';
 		$data['notifications'] = $notifications;
 		$data['sysmsgs'] = [
 			'notice' => $sysmsgs,
