@@ -1,12 +1,7 @@
 <div class="vcard h-card widget">
 
 	<div id="profile-photo-wrapper">
-		{{if $profile.picdate}}
-		<a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></a>
-		{{else}}
 		<a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}" alt="{{$profile.name}}" /></a>
-		{{/if}}
-
 		<div class="tool visible-lg visible-md">
 			{{if $profile.edit}}
 			<div class="action">
@@ -21,11 +16,7 @@
 	<div id="vcard-short-info-wrapper" style="display: none;">
 		<div id="vcard-short-info" class="media" style="display: none">
 			<div id="vcard-short-photo-wrapper" class="pull-left">
-				{{if $profile.picdate}}
-				<img class="media-object" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></a>
-				{{else}}
 				<img class="media-object" src="{{$profile.photo}}" alt="{{$profile.name}}"></a>
-				{{/if}}
 			</div>
 
 			<div id="vcard-short-desc" class="media-body">

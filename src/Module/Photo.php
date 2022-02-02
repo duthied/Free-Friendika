@@ -265,10 +265,29 @@ class Photo extends BaseModule
 
 				return MPhoto::createPhotoForExternalResource($link['url'], (int)local_user(), $link['mimetype']);
 			case "contact":
-				$contact = Contact::getById($id, ['uid', 'url', 'avatar', 'photo', 'xmpp', 'addr']);
+				$contact = Contact::getById($id, ['uid', 'url', 'nurl', 'avatar', 'photo', 'xmpp', 'addr']);
 				if (empty($contact)) {
 					return false;
 				}
+
+				// For local users directly use the photo record that is marked as the profile
+				if (Network::isLocalLink($contact['url'])) {
+					$contact = Contact::selectFirst(['uid', 'url', 'avatar', 'photo', 'xmpp', 'addr'], ['nurl' => $contact['nurl'], 'self' => true]);
+					if (!empty($contact)) {
+						if ($customsize <= Proxy::PIXEL_MICRO) {
+							$scale = 6;
+						} elseif ($customsize <= Proxy::PIXEL_THUMB) {
+							$scale = 5;
+						} else {
+							$scale = 4;
+						}
+						$photo = MPhoto::selectFirst([], ["scale" => $scale, "uid" => $contact['uid'], "profile" => 1]);
+						if (!empty($photo)) {
+							return $photo;
+						}
+					}
+				}
+
 				If (($contact['uid'] != 0) && empty($contact['photo']) && empty($contact['avatar'])) {
 					$contact = Contact::getByURL($contact['url'], false, ['avatar', 'photo', 'xmpp', 'addr']);
 				}
