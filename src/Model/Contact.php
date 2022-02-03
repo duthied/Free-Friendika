@@ -2947,7 +2947,7 @@ class Contact
 	 */
 	public static function isForum($contactid)
 	{
-		$fields = ['forum', 'prv'];
+		$fields = ['contact-type', 'forum', 'prv'];
 		$condition = ['id' => $contactid];
 		$contact = DBA::selectFirst('contact', $fields, $condition);
 		if (!DBA::isResult($contact)) {
@@ -2955,7 +2955,7 @@ class Contact
 		}
 
 		// Is it a forum?
-		return ($contact['forum'] || $contact['prv']);
+		return (($contact['contact-type'] == self::TYPE_COMMUNITY) || $contact['forum'] || $contact['prv']);
 	}
 
 	/**
