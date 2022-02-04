@@ -1,7 +1,8 @@
 23n
+Abdullah Alsabi
+abidin toumi
 Abinoam P. Marques Jr.
 Abraham Pérez Hernández
-Abrax
 Adam Clark
 Adam Jurkiewicz
 Adam Magness
@@ -55,6 +56,7 @@ Casper
 Cat Gray
 Chris Case
 Christian González
+Christian Kalkhoff
 Christian M. Grube
 Christian Vogeley
 Christian Wiwie
@@ -93,6 +95,7 @@ Eugene Veresk
 Extarys
 Fabian Dost
 Fabio Comuni
+Farida Khalaf
 felixgilles
 Filip Bugaj
 Filip H.F. "FiXato" Slagter
@@ -105,6 +108,7 @@ Frederico Gonçalves Guimarães
 Gerhard Seeber
 gerhard6380
 Gert Cauwenberg
+Gidi Kroon
 GLComo
 greeneyedred
 Gregory Smith
@@ -122,12 +126,14 @@ Ilmari
 ImgBotApp
 irhen
 Jakob
+Jakobus Schürz (admin)
 Jens Tautenhahn
 jensp
 Jeroen De Meerleer
 joenepraat
 Joan Bar
 JOduMonT
+Joe Doe
 joe slam
 Johannes Schwab
 John Brazil
@@ -146,6 +152,7 @@ Klaus Weidenbach
 Koyu Berteon
 kPherox
 Kris
+Kristoffer Grundström
 Lea1995polish
 Leberwurscht
 Leonard Lausen
@@ -165,6 +172,7 @@ Marie Olive
 Mariusz Pisz
 marmor
 Martin Schmitt
+martincodes
 Mateusz Mikos
 Mats Sjöberg
 Matthew Exon
@@ -190,6 +198,7 @@ Oliver
 Olivier
 Olivier Mehani
 Olivier Migeot
+ominds
 ozero dien
 Paolo Wave
 Pascal
@@ -202,6 +211,7 @@ peturisfeld
 Phigger Phigger
 Philipp
 Philipp Holzer
+Pierre Bernardeau
 Pierre Rudloff
 Piotr Blonkowski
 pokerazor
@@ -221,13 +231,12 @@ rebeka-catalina
 René Wagner
 repat
 Ricardo Pereira
+Richard Zsemberi
 Rik 4
 RJ Madsen
 Roger Meyer
 Roland Häder
-Rui Andrada
 rwa
-RyDroid
 S.Krumbholz
 Sakałoŭ Alaksiej
 Sam
@@ -237,6 +246,7 @@ Sebastian Egbers
 sella
 Senex Petrovic
 Seth
+SickShark X
 Silke Meyer
 Simon L'nu
 Simon Rupf
@@ -297,6 +307,7 @@ Vladimir Núñez
 VVelox
 Vít Šesták 'v6ak'
 Waldemar Stoczkowski
+Walter Bulbazor
 Wil Tur
 Wouter Broers
 XMPPはいいぞ
