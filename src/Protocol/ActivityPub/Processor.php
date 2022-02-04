@@ -619,7 +619,16 @@ class Processor
 				continue;
 			}
 
-			if (!Contact::isForum($receiver) && DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
+			$is_forum = false;
+
+			if ($receiver != 0) {
+				$user = User::getById($receiver, ['account-type']);
+				if (!empty($user['account-type'])) {
+					$is_forum = ($user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY);
+				}
+			}
+
+			if (!$is_forum && DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
 				$skip = !Contact::isSharingByURL($activity['author'], $receiver);
 
 				if ($skip && (($activity['type'] == 'as:Announce') || ($item['isForum'] ?? false))) {
