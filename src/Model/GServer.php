@@ -67,6 +67,7 @@ class GServer
 	const DETECT_MASTODON_API = 16;
 	const DETECT_STATUS_PHP = 17; // Nextcloud
 	const DETECT_V1_CONFIG = 18;
+	const DETECT_PUMPIO = 19;
 
 	// Standardized endpoints
 	const DETECT_STATISTICS_JSON = 100;
@@ -466,6 +467,10 @@ class GServer
 
 			if (empty($serverdata['network'])) {
 				$serverdata = self::detectGNUSocial($url, $serverdata);
+			}
+
+			if (empty($serverdata['network'])) {
+				$serverdata = self::detectPumpIO($url, $serverdata);
 			}
 
 			$serverdata = array_merge($nodeinfo, $serverdata);
@@ -1366,7 +1371,57 @@ class GServer
 		}
 
 		return $val;
-        }
+    }
+
+	/**
+	 * Detect if the URL belongs to a pump.io server
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function detectPumpIO(string $url, array $serverdata)
+	{
+		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta.json');
+		if (!$curlResult->isSuccess()) {
+			return $serverdata;
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (empty($data['links'])) {
+			return $serverdata;
+
+		}
+
+		// We are looking for some endpoints that are typical for pump.io
+		$trust = 0;
+		foreach ($data['links'] as $link) {
+			if (empty($link['rel'])) {
+				continue;
+			}
+			if (in_array($link['rel'], ['registration_endpoint', 'dialback', 'http://apinamespace.org/activitypub/whoami'])) {
+				++$trust;
+			}
+		}
+
+		if ($trust == 3) {
+			$serverdata['detection-method'] = self::DETECT_PUMPIO;
+
+			$serverdata['platform'] = 'pumpio';
+			$serverdata['version']  = '';
+			$serverdata['network']  = Protocol::PUMPIO;
+
+			$servers = $curlResult->getHeader('Server');
+			foreach ($servers as $server) {
+				if (preg_match("#pump.io/(.*)\s#U", $server, $matches)) {
+					$serverdata['version']  = $matches[1];
+				}
+			}
+		}
+
+		return $serverdata;
+	}
 
 	/**
 	 * Detect if the URL belongs to a GNU Social server
