@@ -1371,7 +1371,7 @@ class GServer
 		}
 
 		return $val;
-    }
+	}
 
 	/**
 	 * Detect if the URL belongs to a pump.io server
