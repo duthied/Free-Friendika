@@ -182,11 +182,8 @@ class Processor
 		Item::update($item, ['uri' => $activity['id']]);
 
 		if ($activity['object_type'] == 'as:Event') {
-			$posts = Post::select(['event-id', 'uid'], ['uri' => $activity['id']]);
+			$posts = Post::select(['event-id', 'uid'], ["`uri` = ? AND `event-id` > ?", $activity['id'], 0]);
 			while ($post = DBA::fetch($posts)) {
-				if (empty($post['event-id'])) {
-					continue;
-				}
 				self::updateEvent($post['event-id'], $activity);
 			}
 		}
