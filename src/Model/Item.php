@@ -1428,6 +1428,17 @@ class Item
 	private static function storeForUser(array $item, int $uid)
 	{
 		if (Post::exists(['uri-id' => $item['uri-id'], 'uid' => $uid])) {
+			if (!empty($item['event-id'])) {
+				$post = Post::selectFirst(['event-id'], ['uri-id' => $item['uri-id'], 'uid' => $uid]);
+				if (!empty($post['event-id'])) {
+					$event = DBA::selectFirst('event', ['edited', 'start', 'finish', 'summary', 'desc', 'location', 'nofinish', 'adjust'], ['id' => $item['event-id']]);
+					if (!empty($event)) {
+						// We aren't using "Event::store" here, since we don't want to trigger any further action
+						$ret = DBA::update('event', $event, ['id' => $post['event-id']]);
+						Logger::info('Event updated', ['uid' => $uid, 'source-event' => $item['event-id'], 'target-event' => $post['event-id'], 'ret' => $ret]);
+					}
+				}
+			}
 			Logger::info('Item already exists', ['uri-id' => $item['uri-id'], 'uid' => $uid]);
 			return 0;
 		}
