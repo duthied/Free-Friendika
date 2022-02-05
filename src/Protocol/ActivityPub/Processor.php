@@ -180,6 +180,38 @@ class Processor
 		}
 
 		Item::update($item, ['uri' => $activity['id']]);
+
+		if ($activity['object_type'] == 'as:Event') {
+			$posts = Post::select(['event-id', 'uid'], ['uri' => $activity['id']]);
+			while ($post = DBA::fetch($posts)) {
+				if (empty($post['event-id'])) {
+					continue;
+				}
+				self::updateEvent($post['event-id'], $activity);
+			}
+		}
+	}
+
+	/**
+	 * Update an existing event
+	 *
+	 * @param int $event_id 
+	 * @param array $activity 
+	 */
+	private static function updateEvent(int $event_id, array $activity)
+	{
+		$event = DBA::selectFirst('event', [], ['id' => $event_id]);
+
+		$event['edited']   = DateTimeFormat::utc($activity['updated']);
+		$event['summary']  = HTML::toBBCode($activity['name']);
+		$event['desc']     = HTML::toBBCode($activity['content']);
+		$event['start']    = $activity['start-time'];
+		$event['finish']   = $activity['end-time'];
+		$event['nofinish'] = empty($event['finish']);
+		$event['location'] = $activity['location'];
+
+		Logger::info('Updating event', ['uri' => $activity['id'], 'id' => $event_id]);
+		Event::store($event);
 	}
 
 	/**
