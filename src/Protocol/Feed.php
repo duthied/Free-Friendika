@@ -898,6 +898,11 @@ class Feed
 
 		$cachekey = "feed:feed:" . $owner_nick . ":" . $filter . ":" . $last_update;
 
+		// Display events in the users's timezone
+		if (strlen($owner['timezone'])) {
+			DI::app()->setTimeZone($owner['timezone']);
+		}
+
 		$previous_created = $last_update;
 
 		// Don't cache when the last item was posted less then 15 minutes ago (Cache duration)
