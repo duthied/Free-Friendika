@@ -1433,6 +1433,7 @@ class Item
 				if (!empty($post['event-id'])) {
 					$event = DBA::selectFirst('event', ['edited', 'start', 'finish', 'summary', 'desc', 'location', 'nofinish', 'adjust'], ['id' => $item['event-id']]);
 					if (!empty($event)) {
+						// We aren't using "Event::store" here, since we don't want to trigger any further action
 						$ret = DBA::update('event', $event, ['id' => $post['event-id']]);
 						Logger::info('Event updated', ['uid' => $uid, 'source-event' => $item['event-id'], 'target-event' => $post['event-id'], 'ret' => $ret]);
 					}
