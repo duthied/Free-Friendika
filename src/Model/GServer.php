@@ -496,7 +496,7 @@ class GServer
 		$serverdata['url'] = $url;
 		$serverdata['nurl'] = Strings::normaliseLink($url);
 
-		if ($serverdata['network'] == Protocol::PHANTOM) {
+		if (in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED])) {
 			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
 		}
 
@@ -1617,11 +1617,8 @@ class GServer
 						$serverdata['version'] = $version_part[1];
 
 						// We still do need a reliable test if some AP plugin is activated
-						if (DBA::exists('apcontact', ['baseurl' => $url])) {
-							$serverdata['network'] = Protocol::ACTIVITYPUB;
-						} else {
-							$serverdata['network'] = Protocol::FEED;
-						}
+						// By now we just check in a later process for some known contacts
+						$serverdata['network'] = Protocol::FEED;
 
 						if ($serverdata['detection-method'] == self::DETECT_MANUAL) {
 							$serverdata['detection-method'] = self::DETECT_BODY;
