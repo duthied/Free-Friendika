@@ -14,12 +14,15 @@ Version 2021.12 (unreleased)
     Enhanced the handling of blocked domains [annando, MrPetovan]
     Enhanced the translation string extraction [fabrixxm]
     Enhanced the detection of embedded content [annando]
+    Enhanced the detection of pump.io servers [annando]
     Enhanced the handling of attached media files [annando]
     Enhanced the logging with syslog [nupplaphil]
     Enhanced the display of audio elements [annando]
     Enhanced the PHP 8 compatibility [nupplaphil]
     Enhanced the contact handling by forum accounts [annando]
     Enhanced the display of the notification count [annando]
+    Enhanced the display of start and end times of events [annando]
+    Enhanced the federation statistics [annando]
     Fixed a problem linking to an addons authors profile [annando]
     Fixed a problem with the automatic installation [nupplaphil]
     Fixed a problem in the order of database table modifications [annando]
@@ -28,6 +31,7 @@ Version 2021.12 (unreleased)
     Fixed a problem with caching user avatars from the local node [annando]
     Fixed a problem preventing the federation with Lemmy [annando]
     Fixed a problem causing non-notifications for new postings [annando]
+    Fixed a problem with updating event contents [annando]
     Added AR translations [FaridaK, Mohamed_Ahmed_AF, abidin24, alsabi.abdullah, ButterflyOfFire, ominds, hisoka512]
     Added language detection for the /help files [annando]
     Added current timezone information to the date time picker [MrPetovan]
@@ -62,14 +66,14 @@ Version 2021.12 (unreleased)
       Updated twitteroauth dependency [nupplaphil]
   
   Closed Issues
-    9720, 10301, 10454, 10634, 10691, 10725, 10726, 10729, 10734, 10737,
-    10739, 10745, 10754, 10767, 10791, 10829, 10832, 10839, 10841, 10844,
-    10851, 10864, 10865, 10868, 10872, 10876, 10877, 10886, 10887, 10897,
-    10903, 10906, 10939, 10943, 10945, 10955, 10966, 10971, 10972, 10973,
-    10978, 10979, 10983, 10990, 10991, 10998, 11021, 11022, 11023, 11029,
-    11033, 11034, 11047, 11055, 11063, 11078, 11091, 11101, 11109, 11111,
-    11130, 11133, 11139, 11144, 11147, 11148, 11152, 11156, 11160, 11163,
-    11169, 11178, 11189, 11193
+     9720, 10301, 10365, 10454, 10634, 10691, 10725, 10726, 10729, 10734,
+    10737, 10739, 10745, 10754, 10767, 10791, 10829, 10832, 10839, 10841,
+    10844, 10851, 10864, 10865, 10868, 10872, 10876, 10877, 10886, 10887,
+    10897, 10903, 10906, 10914, 10939, 10943, 10945, 10955, 10966, 10971,
+    10972, 10973, 10978, 10979, 10983, 10990, 10991, 10998, 11020, 11021,
+    11022, 11023, 11029, 11033, 11034, 11047, 11055, 11063, 11078, 11091,
+    11101, 11109, 11111, 11130, 11133, 11139, 11144, 11147, 11148, 11152,
+    11156, 11160, 11163, 11169, 11178, 11189, 11193
 
 Version 2021.09 (2021-09-25)
   Friendica Core
