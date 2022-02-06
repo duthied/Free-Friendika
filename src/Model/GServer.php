@@ -496,17 +496,17 @@ class GServer
 		$serverdata['url'] = $url;
 		$serverdata['nurl'] = Strings::normaliseLink($url);
 
-		// We take the highest number that we do find
-		$registeredUsers = $serverdata['registered-users'] ?? 0;
-
-		// On an active server there has to be at least a single user
-		if (($serverdata['network'] != Protocol::PHANTOM) && ($registeredUsers == 0)) {
-			$registeredUsers = 1;
+		if (in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED])) {
+			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
 		}
 
-		if ($serverdata['network'] == Protocol::PHANTOM) {
-			$serverdata['registered-users'] = max($registeredUsers, 1);
-			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
+		$serverdata['registered-users'] = $serverdata['registered-users'] ?? 0;
+
+		// On an active server there has to be at least a single user
+		if (!in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED]) && ($serverdata['registered-users'] == 0)) {
+			$serverdata['registered-users'] = 1;
+		} elseif (in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED])) {
+			$serverdata['registered-users'] = 0;
 		}
 
 		$serverdata['next_contact'] = self::getNextUpdateDate(true);
@@ -520,11 +520,6 @@ class GServer
 			$ret = DBA::insert('gserver', $serverdata);
 			$id = DBA::lastInsertId();
 		} else {
-			// Don't override the network with 'unknown' when there had been a valid entry before
-			if (($serverdata['network'] == Protocol::PHANTOM) && !empty($gserver['network'])) {
-				unset($serverdata['network']);
-			}
-
 			$ret = DBA::update('gserver', $serverdata, ['nurl' => $serverdata['nurl']]);
 			$gserver = DBA::selectFirst('gserver', ['id'], ['nurl' => $serverdata['nurl']]);
 			if (DBA::isResult($gserver)) {
@@ -532,11 +527,12 @@ class GServer
 			}
 		}
 
-		if (!empty($serverdata['network']) && !empty($id) && ($serverdata['network'] != Protocol::PHANTOM)) {
+		// Count the number of known contacts from this server
+		if (!empty($id) && !in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED])) {
 			$apcontacts = DBA::count('apcontact', ['gsid' => $id]);
-			$contacts = DBA::count('contact', ['uid' => 0, 'gsid' => $id]);
-			$max_users = max($apcontacts, $contacts, $registeredUsers, 1);
-			if ($max_users > $registeredUsers) {
+			$contacts = DBA::count('contact', ['uid' => 0, 'gsid' => $id, 'failed' => false]);
+			$max_users = max($apcontacts, $contacts);
+			if ($max_users > $serverdata['registered-users']) {
 				Logger::info('Update registered users', ['id' => $id, 'url' => $serverdata['nurl'], 'registered-users' => $max_users]);
 				DBA::update('gserver', ['registered-users' => $max_users], ['id' => $id]);
 			}
@@ -1054,15 +1050,17 @@ class GServer
 			return $serverdata;
 		}
 
+		$time = time();
 		foreach ($contacts as $contact) {
-			$probed = Contact::getByURL($contact);
-			if (!empty($probed) && in_array($probed['network'], Protocol::FEDERATED)) {
+			$probed = Contact::getByURL($contact, true);
+			if (!empty($probed) && !$probed['failed'] && in_array($probed['network'], Protocol::FEDERATED)) {
 				$serverdata['network'] = $probed['network'];
+				break;
+			} elseif ((time() - $time) > 10) {
+				// To reduce the stress on remote systems we probe a maximum of 10 seconds
 				break;
 			}
 		}
-
-		$serverdata['registered-users'] = max($serverdata['registered-users'], count($contacts), 1);
 
 		return $serverdata;
 	}
@@ -1568,7 +1566,7 @@ class GServer
 
 		// Using only body information we cannot safely detect a lot of systems.
 		// So we define a list of platforms that we can detect safely.
-		$valid_platforms = ['friendica', 'friendika', 'hubzilla', 'misskey', 'peertube', 'wordpress', 'write.as'];
+		$valid_platforms = ['friendica', 'friendika', 'diaspora', 'mastodon', 'hubzilla', 'misskey', 'peertube', 'wordpress', 'write.as'];
 
 		$doc = new DOMDocument();
 		@$doc->loadHTML($curlResult->getBody());
@@ -1598,10 +1596,6 @@ class GServer
 				}
 			}
 
-			if (!in_array(strtolower($attr['content']), $valid_platforms)) {
-				continue;
-			}
-
 			if ($attr['name'] == 'description') {
 				$serverdata['info'] = $attr['content'];
 			}
@@ -1623,11 +1617,8 @@ class GServer
 						$serverdata['version'] = $version_part[1];
 
 						// We still do need a reliable test if some AP plugin is activated
-						if (DBA::exists('apcontact', ['baseurl' => $url])) {
-							$serverdata['network'] = Protocol::ACTIVITYPUB;
-						} else {
-							$serverdata['network'] = Protocol::FEED;
-						}
+						// By now we just check in a later process for some known contacts
+						$serverdata['network'] = Protocol::FEED;
 
 						if ($serverdata['detection-method'] == self::DETECT_MANUAL) {
 							$serverdata['detection-method'] = self::DETECT_BODY;
@@ -1661,10 +1652,6 @@ class GServer
 				}
 			}
 
-			if (!in_array(strtolower($attr['content']), $valid_platforms)) {
-				continue;
-			}
-
 			if ($attr['property'] == 'og:site_name') {
 				$serverdata['site_name'] = $attr['content'];
 			}
@@ -1691,7 +1678,11 @@ class GServer
 			}
 		}
 
-		if (!empty($serverdata['network']) && ($serverdata['detection-method'] == self::DETECT_MANUAL)) {
+		if (!empty($serverdata['platform']) && in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_BODY]) && !in_array($serverdata['platform'], $valid_platforms)) {
+			$serverdata['network'] = Protocol::PHANTOM;
+			$serverdata['version'] = '';
+			$serverdata['detection-method'] = self::DETECT_MANUAL;
+		} elseif (!empty($serverdata['network']) && ($serverdata['detection-method'] == self::DETECT_MANUAL)) {
 			$serverdata['detection-method'] = self::DETECT_BODY;
 		}
 
