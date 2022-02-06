@@ -377,6 +377,12 @@ class GServer
 		if (empty($nodeinfo['network']) || in_array($nodeinfo['network'], [Protocol::DFRN, Protocol::ZOT])) {
 			if (!empty($nodeinfo['detection-method'])) {
 				$serverdata['detection-method'] = $nodeinfo['detection-method'];
+
+				foreach (['registered-users', 'active_users_monthly', 'active-halfyear-users', 'local-posts'] as $field) {
+					if (!empty($nodeinfo[$field])) {
+						$serverdata[$field] = $nodeinfo[$field];
+					}
+				}
 			}
 
 			// Fetch the landing page, possibly it reveals some data
@@ -498,6 +504,10 @@ class GServer
 
 		if (in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED])) {
 			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
+		}
+
+		if ($serverdata['network'] == Protocol::ACTIVITYPUB) {
+			$serverdata = self::fetchWeeklyUsage($url, $serverdata);
 		}
 
 		$serverdata['registered-users'] = $serverdata['registered-users'] ?? 0;
@@ -687,6 +697,21 @@ class GServer
 			}
 		}
 
+		if (!empty($data['total_users'])) {
+			$serverdata['registered-users'] = max($data['total_users'], 1);
+		}
+
+		if (!empty($data['active_users_monthly'])) {
+			$serverdata['active-month-users'] = max($data['active_users_monthly'], 0);
+		}
+
+		if (!empty($data['active_users_halfyear'])) {
+			$serverdata['active-halfyear-users'] = max($data['active_users_halfyear'], 0);
+		}
+
+		if (!empty($data['local_posts'])) {
+			$serverdata['local-posts'] = max($data['local_posts'], 0);
+		}
 
 		if (!empty($data['registrations_open'])) {
 			$serverdata['register_policy'] = Register::OPEN;
@@ -801,6 +826,22 @@ class GServer
 			$server['registered-users'] = max($nodeinfo['usage']['users']['total'], 1);
 		}
 
+		if (!empty($nodeinfo['usage']['users']['activeMonth'])) {
+			$server['active-month-users'] = max($nodeinfo['usage']['users']['activeMonth'], 0);
+		}
+
+		if (!empty($nodeinfo['usage']['users']['activeHalfyear'])) {
+			$server['active-halfyear-users'] = max($nodeinfo['usage']['users']['activeHalfyear'], 0);
+		}
+
+		if (!empty($nodeinfo['usage']['localPosts'])) {
+			$server['local-posts'] = max($nodeinfo['usage']['localPosts'], 0);
+		}
+
+		if (!empty($nodeinfo['usage']['localComments'])) {
+			$server['local-comments'] = max($nodeinfo['usage']['localComments'], 0);
+		}
+
 		if (!empty($nodeinfo['protocols']['inbound']) && is_array($nodeinfo['protocols']['inbound'])) {
 			$protocols = [];
 			foreach ($nodeinfo['protocols']['inbound'] as $protocol) {
@@ -876,6 +917,22 @@ class GServer
 
 		if (!empty($nodeinfo['usage']['users']['total'])) {
 			$server['registered-users'] = max($nodeinfo['usage']['users']['total'], 1);
+		}
+
+		if (!empty($nodeinfo['usage']['users']['activeMonth'])) {
+			$server['active-month-users'] = max($nodeinfo['usage']['users']['activeMonth'], 0);
+		}
+
+		if (!empty($nodeinfo['usage']['users']['activeHalfyear'])) {
+			$server['active-halfyear-users'] = max($nodeinfo['usage']['users']['activeHalfyear'], 0);
+		}
+
+		if (!empty($nodeinfo['usage']['localPosts'])) {
+			$server['local-posts'] = max($nodeinfo['usage']['localPosts'], 0);
+		}
+
+		if (!empty($nodeinfo['usage']['localComments'])) {
+			$server['local-comments'] = max($nodeinfo['usage']['localComments'], 0);
 		}
 
 		if (!empty($nodeinfo['protocols'])) {
@@ -955,6 +1012,22 @@ class GServer
 
 		if (!empty($data['channels_total'])) {
 			$serverdata['registered-users'] = max($data['channels_total'], 1);
+		}
+
+		if (!empty($data['channels_active_monthly'])) {
+			$serverdata['active-month-users'] = max($data['channels_active_monthly'], 0);
+		}
+
+		if (!empty($data['channels_active_halfyear'])) {
+			$serverdata['active-halfyear-users'] = max($data['channels_active_halfyear'], 0);
+		}
+
+		if (!empty($data['local_posts'])) {
+			$serverdata['local-posts'] = max($data['local_posts'], 0);
+		}
+
+		if (!empty($data['local_comments'])) {
+			$serverdata['local-comments'] = max($data['local_comments'], 0);
 		}
 
 		if (!empty($data['register_policy'])) {
@@ -1203,6 +1276,38 @@ class GServer
 			if (in_array($serverdata['detection-method'], [self::DETECT_HEADER, self::DETECT_BODY, self::DETECT_MANUAL])) {
 				$serverdata['detection-method'] = self::DETECT_STATUS_PHP;
 			}
+		}
+
+		return $serverdata;
+	}
+
+	private static function fetchWeeklyUsage(string $url, array $serverdata) {
+		$curlResult = DI::httpClient()->get($url . '/api/v1/instance/activity');
+
+		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+			return $serverdata;
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (empty($data)) {
+			return $serverdata;
+		}
+
+		$current_week = [];
+		foreach ($data as $week) {
+			// Use only data from a full week
+			if (empty($week['week']) || (time() - $week['week']) < 7 * 24 * 60 * 60) {
+				continue;
+			}
+
+			// Most likely the data is sorted correctly. But we better are safe than sorry
+			if (empty($current_week['week']) || ($current_week['week'] < $week['week'])) {
+				$current_week = $week;
+			} 
+		}
+
+		if (!empty($current_week['logins'])) {
+			$serverdata['active-week-users'] = max($current_week['logins'], 0);
 		}
 
 		return $serverdata;

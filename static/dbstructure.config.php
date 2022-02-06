@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1449);
+	define('DB_UPDATE_VERSION', 1450);
 }
 
 return [
@@ -71,6 +71,11 @@ return [
 			"info" => ["type" => "text", "comment" => ""],
 			"register_policy" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
 			"registered-users" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Number of registered users"],
+			"active-week-users" => ["type" => "int unsigned", "comment" => "Number of active users in the last week"],
+			"active-month-users" => ["type" => "int unsigned", "comment" => "Number of active users in the last month"],
+			"active-halfyear-users" => ["type" => "int unsigned", "comment" => "Number of active users in the last six month"],
+			"local-posts" => ["type" => "int unsigned", "comment" => "Number of local posts"],
+			"local-comments" => ["type" => "int unsigned", "comment" => "Number of local comments"],
 			"directory-type" => ["type" => "tinyint", "default" => "0", "comment" => "Type of directory service (Poco, Mastodon)"],
 			"poco" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"noscrape" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],

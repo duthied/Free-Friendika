@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.12-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1449
+-- DB_UPDATE_VERSION 1450
 -- ------------------------------------------
 
 
@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`info` text COMMENT '',
 	`register_policy` tinyint NOT NULL DEFAULT 0 COMMENT '',
 	`registered-users` int unsigned NOT NULL DEFAULT 0 COMMENT 'Number of registered users',
+	`active-week-users` int unsigned COMMENT 'Number of active users in the last week',
+	`active-month-users` int unsigned COMMENT 'Number of active users in the last month',
+	`active-halfyear-users` int unsigned COMMENT 'Number of active users in the last six month',
+	`local-posts` int unsigned COMMENT 'Number of local posts',
+	`local-comments` int unsigned COMMENT 'Number of local comments',
 	`directory-type` tinyint DEFAULT 0 COMMENT 'Type of directory service (Poco, Mastodon)',
 	`poco` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`noscrape` varchar(255) NOT NULL DEFAULT '' COMMENT '',
