@@ -496,17 +496,17 @@ class GServer
 		$serverdata['url'] = $url;
 		$serverdata['nurl'] = Strings::normaliseLink($url);
 
-		// We take the highest number that we do find
-		$registeredUsers = $serverdata['registered-users'] ?? 0;
-
-		// On an active server there has to be at least a single user
-		if (($serverdata['network'] != Protocol::PHANTOM) && ($registeredUsers == 0)) {
-			$registeredUsers = 1;
+		if ($serverdata['network'] == Protocol::PHANTOM) {
+			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
 		}
 
-		if ($serverdata['network'] == Protocol::PHANTOM) {
-			$serverdata['registered-users'] = max($registeredUsers, 1);
-			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
+		$serverdata['registered-users'] = $serverdata['registered-users'] ?? 0;
+
+		// On an active server there has to be at least a single user
+		if (!in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED]) && ($serverdata['registered-users'] == 0)) {
+			$serverdata['registered-users'] = 1;
+		} elseif (in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED])) {
+			$serverdata['registered-users'] = 0;
 		}
 
 		$serverdata['next_contact'] = self::getNextUpdateDate(true);
@@ -520,11 +520,6 @@ class GServer
 			$ret = DBA::insert('gserver', $serverdata);
 			$id = DBA::lastInsertId();
 		} else {
-			// Don't override the network with 'unknown' when there had been a valid entry before
-			if (($serverdata['network'] == Protocol::PHANTOM) && !empty($gserver['network'])) {
-				unset($serverdata['network']);
-			}
-
 			$ret = DBA::update('gserver', $serverdata, ['nurl' => $serverdata['nurl']]);
 			$gserver = DBA::selectFirst('gserver', ['id'], ['nurl' => $serverdata['nurl']]);
 			if (DBA::isResult($gserver)) {
@@ -532,11 +527,12 @@ class GServer
 			}
 		}
 
-		if (!empty($serverdata['network']) && !empty($id) && ($serverdata['network'] != Protocol::PHANTOM)) {
+		// Count the number of known contacts from this server
+		if (!empty($id) && !in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED])) {
 			$apcontacts = DBA::count('apcontact', ['gsid' => $id]);
-			$contacts = DBA::count('contact', ['uid' => 0, 'gsid' => $id]);
-			$max_users = max($apcontacts, $contacts, $registeredUsers, 1);
-			if ($max_users > $registeredUsers) {
+			$contacts = DBA::count('contact', ['uid' => 0, 'gsid' => $id, 'failed' => false]);
+			$max_users = max($apcontacts, $contacts);
+			if ($max_users > $serverdata['registered-users']) {
 				Logger::info('Update registered users', ['id' => $id, 'url' => $serverdata['nurl'], 'registered-users' => $max_users]);
 				DBA::update('gserver', ['registered-users' => $max_users], ['id' => $id]);
 			}
@@ -1056,13 +1052,11 @@ class GServer
 
 		foreach ($contacts as $contact) {
 			$probed = Contact::getByURL($contact);
-			if (!empty($probed) && in_array($probed['network'], Protocol::FEDERATED)) {
+			if (!empty($probed) && !$probed['failed'] && in_array($probed['network'], Protocol::FEDERATED)) {
 				$serverdata['network'] = $probed['network'];
 				break;
 			}
 		}
-
-		$serverdata['registered-users'] = max($serverdata['registered-users'], count($contacts), 1);
 
 		return $serverdata;
 	}
@@ -1598,7 +1592,8 @@ class GServer
 				}
 			}
 
-			if (!in_array(strtolower($attr['content']), $valid_platforms)) {
+			$platform = explode(' ', strtolower($attr['content']));
+			if (!in_array($platform[0], $valid_platforms)) {
 				continue;
 			}
 
@@ -1661,7 +1656,8 @@ class GServer
 				}
 			}
 
-			if (!in_array(strtolower($attr['content']), $valid_platforms)) {
+			$platform = explode(' ', strtolower($attr['content']));
+			if (!in_array($platform[0], $valid_platforms)) {
 				continue;
 			}
 
