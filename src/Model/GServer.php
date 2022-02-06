@@ -1562,7 +1562,7 @@ class GServer
 
 		// Using only body information we cannot safely detect a lot of systems.
 		// So we define a list of platforms that we can detect safely.
-		$valid_platforms = ['friendica', 'friendika', 'hubzilla', 'misskey', 'peertube', 'wordpress', 'write.as'];
+		$valid_platforms = ['friendica', 'friendika', 'diaspora', 'mastodon', 'hubzilla', 'misskey', 'peertube', 'wordpress', 'write.as'];
 
 		$doc = new DOMDocument();
 		@$doc->loadHTML($curlResult->getBody());
@@ -1590,11 +1590,6 @@ class GServer
 				if (empty($attr['name']) || empty($attr['content'])) {
 					continue;
 				}
-			}
-
-			$platform = explode(' ', strtolower($attr['content']));
-			if (!in_array($platform[0], $valid_platforms)) {
-				continue;
 			}
 
 			if ($attr['name'] == 'description') {
@@ -1656,11 +1651,6 @@ class GServer
 				}
 			}
 
-			$platform = explode(' ', strtolower($attr['content']));
-			if (!in_array($platform[0], $valid_platforms)) {
-				continue;
-			}
-
 			if ($attr['property'] == 'og:site_name') {
 				$serverdata['site_name'] = $attr['content'];
 			}
@@ -1687,7 +1677,11 @@ class GServer
 			}
 		}
 
-		if (!empty($serverdata['network']) && ($serverdata['detection-method'] == self::DETECT_MANUAL)) {
+		if (!empty($serverdata['platform']) && in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_BODY]) && !in_array($serverdata['platform'], $valid_platforms)) {
+			$serverdata['network'] = Protocol::PHANTOM;
+			$serverdata['version'] = '';
+			$serverdata['detection-method'] = self::DETECT_MANUAL;
+		} elseif (!empty($serverdata['network']) && ($serverdata['detection-method'] == self::DETECT_MANUAL)) {
 			$serverdata['detection-method'] = self::DETECT_BODY;
 		}
 
