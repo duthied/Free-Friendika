@@ -1566,6 +1566,10 @@ class GServer
 			return $serverdata;
 		}
 
+		// Using only body information we cannot safely detect a lot of systems.
+		// So we define a list of platforms that we can detect safely.
+		$valid_platforms = ['friendica', 'friendika', 'hubzilla', 'misskey', 'peertube', 'wordpress', 'write.as'];
+
 		$doc = new DOMDocument();
 		@$doc->loadHTML($curlResult->getBody());
 		$xpath = new DOMXPath($doc);
@@ -1592,6 +1596,10 @@ class GServer
 				if (empty($attr['name']) || empty($attr['content'])) {
 					continue;
 				}
+			}
+
+			if (!in_array(strtolower($attr['content']), $valid_platforms)) {
+				continue;
 			}
 
 			if ($attr['name'] == 'description') {
@@ -1651,6 +1659,10 @@ class GServer
 				if (empty($attr['property']) || empty($attr['content'])) {
 					continue;
 				}
+			}
+
+			if (!in_array(strtolower($attr['content']), $valid_platforms)) {
+				continue;
 			}
 
 			if ($attr['property'] == 'og:site_name') {

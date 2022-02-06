@@ -24,6 +24,7 @@ namespace Friendica\Module\Admin;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\GServer;
 use Friendica\Module\BaseAdmin;
 
 class Federation extends BaseAdmin
@@ -71,15 +72,15 @@ class Federation extends BaseAdmin
 
 		$gservers = DBA::p("SELECT COUNT(*) AS `total`, SUM(`registered-users`) AS `users`, `platform`,
 			ANY_VALUE(`network`) AS `network`, MAX(`version`) AS `version`
-			FROM `gserver` WHERE NOT `failed` GROUP BY `platform`");
+			FROM `gserver` WHERE NOT `failed` AND `detection-method` != ? GROUP BY `platform`", GServer::DETECT_MANUAL);
 		while ($gserver = DBA::fetch($gservers)) {
 			$total += $gserver['total'];
 			$users += $gserver['users'];
 
 			$versionCounts = [];
 			$versions = DBA::p("SELECT COUNT(*) AS `total`, `version` FROM `gserver`
-				WHERE NOT `failed` AND `platform` = ?
-				GROUP BY `version` ORDER BY `version`", $gserver['platform']);
+				WHERE NOT `failed` AND `platform` = ? AND `detection-method` != ?
+				GROUP BY `version` ORDER BY `version`", $gserver['platform'], GServer::DETECT_MANUAL);
 			while ($version = DBA::fetch($versions)) {
 				$version['version'] = str_replace(["\n", "\r", "\t"], " ", $version['version']);
 
