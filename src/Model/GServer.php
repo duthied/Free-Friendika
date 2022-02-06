@@ -1050,14 +1050,14 @@ class GServer
 			return $serverdata;
 		}
 
-		$retrial = 0;
+		$time = time();
 		foreach ($contacts as $contact) {
 			$probed = Contact::getByURL($contact, true);
 			if (!empty($probed) && !$probed['failed'] && in_array($probed['network'], Protocol::FEDERATED)) {
 				$serverdata['network'] = $probed['network'];
 				break;
-			} elseif (++$retrial > 10) {
-				// To reduce the stress on remote systems we probe a maximum of 10 contacts
+			} elseif ((time() - $time) > 10) {
+				// To reduce the stress on remote systems we probe a maximum of 10 seconds
 				break;
 			}
 		}
