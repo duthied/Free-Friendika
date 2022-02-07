@@ -10,7 +10,7 @@
 	<ul>
 		{{foreach $counts as $c}}
 			{{if $c[0]['total'] > 0}}
-			<li>{{$c[0]['platform']}} ({{$c[0]['total']}}/{{$c[0]['users']}})</li>
+			<li>{{$c[0]['platform']}} ({{$c[0]['total']}} &bull; {{$c[0]['month']}} &bull; {{$c[0]['halfyear']}} &bull; {{$c[0]['users']}})</li>
 			{{/if}}
 		{{/foreach}}
 	</ul>
