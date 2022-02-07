@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-07 06:23+0000\n"
+"POT-Creation-Date: 2022-02-07 06:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5129,7 +5129,7 @@ msgstr ""
 
 #: src/Module/Admin/Federation.php:169
 #, php-format
-msgid "%d active users last six month"
+msgid "%d active users last six months"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:170
@@ -5139,7 +5139,7 @@ msgstr ""
 
 #: src/Module/Admin/Federation.php:171
 #, php-format
-msgid "%d local posts"
+msgid "%d locally created posts and comments"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:174

@@ -166,9 +166,9 @@ class Federation extends BaseAdmin
 			$gserver['platform']    = $systems[$platform]['name'];
 			$gserver['totallbl']    = DI::l10n()->t('%d total systems', $gserver['total']);
 			$gserver['monthlbl']    = DI::l10n()->t('%d active users last month', $gserver['month']);
-			$gserver['halfyearlbl'] = DI::l10n()->t('%d active users last six month', $gserver['halfyear']);
+			$gserver['halfyearlbl'] = DI::l10n()->t('%d active users last six months', $gserver['halfyear']);
 			$gserver['userslbl']    = DI::l10n()->t('%d registered users', $gserver['users']);
-			$gserver['postslbl']    = DI::l10n()->t('%d local posts', $gserver['posts']);
+			$gserver['postslbl']    = DI::l10n()->t('%d locally created posts and comments', $gserver['posts']);
 
 			if (($gserver['users'] > 0) && ($gserver['posts'] > 0)) {
 				$gserver['postsuserlbl'] = DI::l10n()->t('%d posts per user', $gserver['posts'] / $gserver['users']);
