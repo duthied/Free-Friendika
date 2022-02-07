@@ -43,6 +43,7 @@ class Federation extends BaseAdmin
 			'diaspora'     => ['name' => 'Diaspora', 'color' => '#a1a1a1'], // logo is black and white, makes a gray
 			'funkwhale'    => ['name' => 'Funkwhale', 'color' => '#4082B4'], // From the homepage
 			'gnusocial'    => ['name' => 'GNU Social/Statusnet', 'color' => '#a22430'], // dark red from the logo
+			'hometown'     => ['name' => 'Hometown', 'color' => '#1f70c1'], // Color from the Patreon page
 			'hubzilla'     => ['name' => 'Hubzilla/Red Matrix', 'color' => '#43488a'], // blue from the logo
 			'lemmy'        => ['name' => 'Lemmy', 'color' => '#00c853'], // Green from the page
 			'mastodon'     => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
@@ -57,6 +58,7 @@ class Federation extends BaseAdmin
 			'relay'        => ['name' => 'ActivityPub Relay', 'color' => '#888888'], // Grey like the second color of the ActivityPub logo
 			'socialhome'   => ['name' => 'SocialHome', 'color' => '#52056b'], // lilac from the Django Image used at the Socialhome homepage
 			'wordpress'    => ['name' => 'WordPress', 'color' => '#016087'], // Background color of the homepage
+			'write.as'     => ['name' => 'Write.as', 'color' => '#00ace3'], // Border color of the homepage
 			'writefreely'  => ['name' => 'WriteFreely', 'color' => '#292929'], // Font color of the homepage
 			'other'        => ['name' => DI::l10n()->t('Other'), 'color' => '#F1007E'], // ActivityPub main color
 		];
@@ -68,15 +70,24 @@ class Federation extends BaseAdmin
 			$counts[$platform] = [];
 		}
 
-		$total = 0;
-		$users = 0;
+		$total    = 0;
+		$users    = 0;
+		$month    = 0;
+		$halfyear = 0;
+		$posts    = 0;
 
-		$gservers = DBA::p("SELECT COUNT(*) AS `total`, SUM(`registered-users`) AS `users`, `platform`,
+		$gservers = DBA::p("SELECT COUNT(*) AS `total`, SUM(`registered-users`) AS `users`,
+			SUM(IFNULL(`local-posts`, 0) + IFNULL(`local-comments`, 0)) AS `posts`,
+			SUM(IFNULL(`active-month-users`, `active-week-users`)) AS `month`,
+			SUM(IFNULL(`active-halfyear-users`, `active-week-users`)) AS `halfyear`, `platform`,
 			ANY_VALUE(`network`) AS `network`, MAX(`version`) AS `version`
 			FROM `gserver` WHERE NOT `failed` AND `detection-method` != ? AND NOT `network` IN (?, ?) GROUP BY `platform`", GServer::DETECT_MANUAL, Protocol::PHANTOM, Protocol::FEED);
 		while ($gserver = DBA::fetch($gservers)) {
-			$total += $gserver['total'];
-			$users += $gserver['users'];
+			$total    += $gserver['total'];
+			$users    += $gserver['users'];
+			$month    += $gserver['month'];
+			$halfyear += $gserver['halfyear'];
+			$posts    += $gserver['posts'];
 
 			$versionCounts = [];
 			$versions = DBA::p("SELECT COUNT(*) AS `total`, `version` FROM `gserver`
@@ -126,9 +137,12 @@ class Federation extends BaseAdmin
 					$versionCounts = array_merge($versionCounts, $counts[$platform][1] ?? []);
 				}
 
-				$gserver['platform'] = $platform;
-				$gserver['total'] += $counts[$platform][0]['total'] ?? 0;
-				$gserver['users'] += $counts[$platform][0]['users'] ?? 0;
+				$gserver['platform']  = $platform;
+				$gserver['total']    += $counts[$platform][0]['total'] ?? 0;
+				$gserver['users']    += $counts[$platform][0]['users'] ?? 0;
+				$gserver['month']    += $counts[$platform][0]['month'] ?? 0;
+				$gserver['halfyear'] += $counts[$platform][0]['halfyear'] ?? 0;
+				$gserver['posts']    += $counts[$platform][0]['posts'] ?? 0;
 			}
 
 			if ($platform == 'friendica') {
@@ -149,9 +163,25 @@ class Federation extends BaseAdmin
 				ksort($versionCounts);
 			}
 
-			$gserver['platform'] = $systems[$platform]['name'];
+			$gserver['platform']    = $systems[$platform]['name'];
+			$gserver['totallbl']    = DI::l10n()->t('%d total systems', $gserver['total']);
+			$gserver['monthlbl']    = DI::l10n()->t('%d active users last month', $gserver['month']);
+			$gserver['halfyearlbl'] = DI::l10n()->t('%d active users last six month', $gserver['halfyear']);
+			$gserver['userslbl']    = DI::l10n()->t('%d registered users', $gserver['users']);
+			$gserver['postslbl']    = DI::l10n()->t('%d local posts', $gserver['posts']);
 
-			$counts[$platform] = [$gserver, $versionCounts, str_replace([' ', '%'], '', $platform), $systems[$platform]['color']];
+			if (($gserver['users'] > 0) && ($gserver['posts'] > 0)) {
+				$gserver['postsuserlbl'] = DI::l10n()->t('%d posts per user', $gserver['posts'] / $gserver['users']);
+			} else {
+				$gserver['postsuserlbl'] = '';
+			}
+			if (($gserver['users'] > 0) && ($gserver['total'] > 0)) {
+				$gserver['userssystemlbl'] = DI::l10n()->t('%d users per system', $gserver['users'] / $gserver['total']);
+			} else {
+				$gserver['userssystemlbl'] = '';
+			}
+
+			$counts[$platform] = [$gserver, $versionCounts, str_replace([' ', '%', '.'], '', $platform), $systems[$platform]['color']];
 		}
 		DBA::close($gserver);
 
@@ -166,7 +196,7 @@ class Federation extends BaseAdmin
 			'$intro' => $intro,
 			'$counts' => $counts,
 			'$version' => FRIENDICA_VERSION,
-			'$legendtext' => DI::l10n()->t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),
+			'$legendtext' => DI::l10n()->t('Currently this node is aware of %d nodes (%d active users last month, %d active users last six month, %d registered users in total) from the following platforms:', $total, $month, $halfyear, $users),
 		]);
 	}
 

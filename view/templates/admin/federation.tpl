@@ -61,6 +61,19 @@
 			<td>{{$c[0]['network']}}</td>
 		</tr>
 		<tr>
+			<td colspan="3" class="federation-summary">
+				<ul>
+					{{if $c[0]['total']}}<li>{{$c[0]['totallbl']}}</li>{{/if}}
+					{{if $c[0]['month']}}<li>{{$c[0]['monthlbl']}}</li>{{/if}}
+					{{if $c[0]['halfyear']}}<li>{{$c[0]['halfyearlbl']}}</li>{{/if}}
+					{{if $c[0]['users']}}<li>{{$c[0]['userslbl']}}</li>{{/if}}
+					{{if $c[0]['posts']}}<li>{{$c[0]['postslbl']}}</li>{{/if}}
+					{{if $c[0]['postsuserlbl']}}<li>{{$c[0]['postsuserlbl']}}</li>{{/if}}
+					{{if $c[0]['userssystemlbl']}}<li>{{$c[0]['userssystemlbl']}}</li>{{/if}}
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td colspan="3" class="federation-data">
 				<canvas id="{{$c[2]}}Chart" class="federation-network-graph" width="240" height="240"></canvas>
 				<script>
