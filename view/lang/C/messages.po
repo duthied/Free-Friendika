@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-07 06:23+0000\n"
+"POT-Creation-Date: 2022-02-07 19:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5119,37 +5119,37 @@ msgstr ""
 
 #: src/Module/Admin/Federation.php:167
 #, php-format
-msgid "%d total systems"
+msgid "%s total systems"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:168
 #, php-format
-msgid "%d active users last month"
+msgid "%s active users last month"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:169
 #, php-format
-msgid "%d active users last six month"
+msgid "%s active users last six month"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:170
 #, php-format
-msgid "%d registered users"
+msgid "%s registered users"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:171
 #, php-format
-msgid "%d local posts"
+msgid "%s local posts"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:174
 #, php-format
-msgid "%d posts per user"
+msgid "%s posts per user"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:179
 #, php-format
-msgid "%d users per system"
+msgid "%s users per system"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:189
@@ -5166,8 +5166,8 @@ msgstr ""
 #: src/Module/Admin/Federation.php:199
 #, php-format
 msgid ""
-"Currently this node is aware of %d nodes (%d active users last month, %d "
-"active users last six month, %d registered users in total) from the "
+"Currently this node is aware of %s nodes (%s active users last month, %s "
+"active users last six month, %s registered users in total) from the "
 "following platforms:"
 msgstr ""
 
