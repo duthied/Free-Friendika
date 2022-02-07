@@ -10,7 +10,7 @@
 	<ul>
 		{{foreach $counts as $c}}
 			{{if $c[0]['total'] > 0}}
-			<li>{{$c[0]['platform']}} ({{$c[0]['total']}} &bull; {{$c[0]['month']}} &bull; {{$c[0]['halfyear']}} &bull; {{$c[0]['users']}})</li>
+			<li>{{$c[0]['platform']}} ({{$c[0]['total']}}/{{$c[0]['users']}})</li>
 			{{/if}}
 		{{/foreach}}
 	</ul>
@@ -59,6 +59,17 @@
 			<th>{{$c[0]['platform']}}</th>
 			<th><strong>{{$c[0]['total']}}</strong></td>
 			<td>{{$c[0]['network']}}</td>
+		</tr>
+		<tr>
+			<td colspan="3" class="federation-summary">
+				<ul>
+					{{if $c[0]['month']}}<li>{{$c[0]['monthlbl']}}</li>{{/if}}
+					{{if $c[0]['halfyear']}}<li>{{$c[0]['halfyearlbl']}}</li>{{/if}}
+					{{if $c[0]['users']}}<li>{{$c[0]['userslbl']}}</li>{{/if}}
+					{{if $c[0]['posts']}}<li>{{$c[0]['postslbl']}}</li>{{/if}}
+					{{if $c[0]['postsuserlbl']}}<li>{{$c[0]['postsuserlbl']}}</li>{{/if}}
+				</ul>
+			</td>
 		</tr>
 		<tr>
 			<td colspan="3" class="federation-data">

@@ -74,8 +74,10 @@ class Federation extends BaseAdmin
 		$users    = 0;
 		$month    = 0;
 		$halfyear = 0;
+		$posts    = 0;
 
 		$gservers = DBA::p("SELECT COUNT(*) AS `total`, SUM(`registered-users`) AS `users`,
+			SUM(IFNULL(`local-posts`, 0) + IFNULL(`local-comments`, 0)) AS `posts`,
 			SUM(IFNULL(`active-month-users`, `active-week-users`)) AS `month`,
 			SUM(IFNULL(`active-halfyear-users`, `active-week-users`)) AS `halfyear`, `platform`,
 			ANY_VALUE(`network`) AS `network`, MAX(`version`) AS `version`
@@ -85,6 +87,7 @@ class Federation extends BaseAdmin
 			$users    += $gserver['users'];
 			$month    += $gserver['month'];
 			$halfyear += $gserver['halfyear'];
+			$posts    += $gserver['posts'];
 
 			$versionCounts = [];
 			$versions = DBA::p("SELECT COUNT(*) AS `total`, `version` FROM `gserver`
@@ -139,6 +142,7 @@ class Federation extends BaseAdmin
 				$gserver['users']    += $counts[$platform][0]['users'] ?? 0;
 				$gserver['month']    += $counts[$platform][0]['month'] ?? 0;
 				$gserver['halfyear'] += $counts[$platform][0]['halfyear'] ?? 0;
+				$gserver['posts']    += $counts[$platform][0]['posts'] ?? 0;
 			}
 
 			if ($platform == 'friendica') {
@@ -159,7 +163,17 @@ class Federation extends BaseAdmin
 				ksort($versionCounts);
 			}
 
-			$gserver['platform'] = $systems[$platform]['name'];
+			$gserver['platform']    = $systems[$platform]['name'];
+			$gserver['monthlbl']    = DI::l10n()->t('%d active users last month', $gserver['month']);
+			$gserver['halfyearlbl'] = DI::l10n()->t('%d active users last six month', $gserver['halfyear']);
+			$gserver['userslbl']    = DI::l10n()->t('%d registered users', $gserver['users']);
+			$gserver['postslbl']    = DI::l10n()->t('%d local posts', $gserver['posts']);
+
+			if (($gserver['users'] > 0) && ($gserver['posts'] > 0)) {
+				$gserver['postsuserlbl'] = DI::l10n()->t('%d posts per user', $gserver['posts'] / $gserver['users']);
+			} else {
+				$gserver['postsuserlbl'] = '';
+			}
 
 			$counts[$platform] = [$gserver, $versionCounts, str_replace([' ', '%', '.'], '', $platform), $systems[$platform]['color']];
 		}
