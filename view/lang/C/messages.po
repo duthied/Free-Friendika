@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-07 06:11+0000\n"
+"POT-Creation-Date: 2022-02-07 06:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4699,7 +4699,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Contact.php:94
 #: src/Module/Admin/Blocklist/Server/Add.php:89
 #: src/Module/Admin/Blocklist/Server/Index.php:78
-#: src/Module/Admin/Federation.php:188 src/Module/Admin/Item/Delete.php:64
+#: src/Module/Admin/Federation.php:194 src/Module/Admin/Item/Delete.php:64
 #: src/Module/Admin/Logs/Settings.php:79 src/Module/Admin/Logs/View.php:83
 #: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:498
 #: src/Module/Admin/Storage.php:138 src/Module/Admin/Summary.php:232
@@ -5113,47 +5113,57 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:134 src/Module/Admin/Federation.php:377
+#: src/Module/Admin/Federation.php:134 src/Module/Admin/Federation.php:383
 msgid "unknown"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:167
 #, php-format
-msgid "%d active users last month"
+msgid "%d total systems"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:168
 #, php-format
-msgid "%d active users last six month"
+msgid "%d active users last month"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:169
 #, php-format
-msgid "%d registered users"
+msgid "%d active users last six month"
 msgstr ""
 
 #: src/Module/Admin/Federation.php:170
 #, php-format
+msgid "%d registered users"
+msgstr ""
+
+#: src/Module/Admin/Federation.php:171
+#, php-format
 msgid "%d local posts"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:173
+#: src/Module/Admin/Federation.php:174
 #, php-format
 msgid "%d posts per user"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:183
+#: src/Module/Admin/Federation.php:179
+#, php-format
+msgid "%d users per system"
+msgstr ""
+
+#: src/Module/Admin/Federation.php:189
 msgid ""
 "This page offers you some numbers to the known part of the federated social "
 "network your Friendica node is part of. These numbers are not complete but "
 "only reflect the part of the network your node is aware of."
 msgstr ""
 
-#: src/Module/Admin/Federation.php:189 src/Module/BaseAdmin.php:87
+#: src/Module/Admin/Federation.php:195 src/Module/BaseAdmin.php:87
 msgid "Federation Statistics"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:193
+#: src/Module/Admin/Federation.php:199
 #, php-format
 msgid ""
 "Currently this node is aware of %d nodes (%d active users last month, %d "

@@ -164,6 +164,7 @@ class Federation extends BaseAdmin
 			}
 
 			$gserver['platform']    = $systems[$platform]['name'];
+			$gserver['totallbl']    = DI::l10n()->t('%d total systems', $gserver['total']);
 			$gserver['monthlbl']    = DI::l10n()->t('%d active users last month', $gserver['month']);
 			$gserver['halfyearlbl'] = DI::l10n()->t('%d active users last six month', $gserver['halfyear']);
 			$gserver['userslbl']    = DI::l10n()->t('%d registered users', $gserver['users']);
@@ -173,6 +174,11 @@ class Federation extends BaseAdmin
 				$gserver['postsuserlbl'] = DI::l10n()->t('%d posts per user', $gserver['posts'] / $gserver['users']);
 			} else {
 				$gserver['postsuserlbl'] = '';
+			}
+			if (($gserver['users'] > 0) && ($gserver['total'] > 0)) {
+				$gserver['userssystemlbl'] = DI::l10n()->t('%d users per system', $gserver['users'] / $gserver['total']);
+			} else {
+				$gserver['userssystemlbl'] = '';
 			}
 
 			$counts[$platform] = [$gserver, $versionCounts, str_replace([' ', '%', '.'], '', $platform), $systems[$platform]['color']];
