@@ -36,7 +36,6 @@ use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
-use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
@@ -49,6 +48,7 @@ use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
@@ -146,15 +146,16 @@ class Transmitter
 	/**
 	 * Collects a list of contacts of the given owner
 	 *
-	 * @param array     $owner  Owner array
-	 * @param int|array $rel    The relevant value(s) contact.rel should match
-	 * @param string    $module The name of the relevant AP endpoint module (followers|following)
-	 * @param integer   $page   Page number
+	 * @param array     $owner     Owner array
+	 * @param int|array $rel       The relevant value(s) contact.rel should match
+	 * @param string    $module    The name of the relevant AP endpoint module (followers|following)
+	 * @param integer   $page      Page number
+	 * @param string    $requester URL of the requester
 	 *
 	 * @return array of owners
 	 * @throws \Exception
 	 */
-	public static function getContacts($owner, $rel, $module, $page = null)
+	public static function getContacts($owner, $rel, $module, $page = null, string $requester = null)
 	{
 		$parameters = [
 			'rel' => $rel,
@@ -179,8 +180,14 @@ class Transmitter
 		$data['totalItems'] = $total;
 
 		// When we hide our friends we will only show the pure number but don't allow more.
-		$profile = Profile::getByUID($owner['uid']);
-		if (!empty($profile['hide-friends'])) {
+		$show_contacts = empty($owner['hide-friends']);
+
+		// Allow fetching the contact list when the requester is part of the list.
+		if (($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) && !empty($requester)) {
+			$show_contacts = DBA::exists('contact', ['nurl' => Strings::normaliseLink($requester), 'rel' => $rel]);
+		}
+
+		if (!$show_contacts) {
 			return $data;
 		}
 

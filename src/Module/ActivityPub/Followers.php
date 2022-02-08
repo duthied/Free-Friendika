@@ -25,6 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\HTTPSignature;
 
 /**
  * ActivityPub Followers
@@ -45,7 +46,7 @@ class Followers extends BaseModule
 
 		$page = $_REQUEST['page'] ?? null;
 
-		$followers = ActivityPub\Transmitter::getContacts($owner, [Contact::FOLLOWER, Contact::FRIEND], 'followers', $page);
+		$followers = ActivityPub\Transmitter::getContacts($owner, [Contact::FOLLOWER, Contact::FRIEND], 'followers', $page, (string)HTTPSignature::getSigner('', $_SERVER));
 
 		header('Content-Type: application/activity+json');
 		echo json_encode($followers);
