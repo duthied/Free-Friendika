@@ -55,6 +55,7 @@ use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Security\PermissionSet\Repository\PermissionSet;
 use Friendica\Worker\Delivery;
 
@@ -1084,6 +1085,14 @@ function update_1446()
 	) {
 		DI::config()->set('system', 'distributed_cache_driver', DI::config()->get('system', 'cache_driver'));
 	}
+
+	return Update::SUCCESS;
+}
+
+function update_1451()
+{
+	DBA::update('user', ['account-type' => User::ACCOUNT_TYPE_COMMUNITY], ['page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]]);
+	DBA::update('contact', ['contact-type' => Contact::TYPE_COMMUNITY], ["`forum` OR `prv`"]);
 
 	return Update::SUCCESS;
 }

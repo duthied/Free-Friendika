@@ -364,7 +364,7 @@ class Profile extends BaseModule
 			'$url'                       => $url,
 			'$profileurllabel'           => $this->t('Profile URL'),
 			'$profileurl'                => $contact['url'],
-			'$account_type'              => Contact::getAccountType($contact),
+			'$account_type'              => Contact::getAccountType($contact['contact-type']),
 			'$location'                  => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['location']),
 			'$location_label'            => $this->t('Location:'),
 			'$xmpp'                      => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['xmpp']),

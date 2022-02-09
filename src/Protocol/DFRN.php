@@ -925,9 +925,9 @@ class DFRN
 
 		foreach ($mentioned as $mention) {
 			$condition = ['uid' => $owner["uid"], 'nurl' => Strings::normaliseLink($mention)];
-			$contact = DBA::selectFirst('contact', ['forum', 'prv'], $condition);
+			$contact = DBA::selectFirst('contact', ['contact-type'], $condition);
 
-			if (DBA::isResult($contact) && ($contact["forum"] || $contact["prv"])) {
+			if (DBA::isResult($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
 				XML::addElement(
 					$doc,
 					$entry,

@@ -362,7 +362,7 @@ class Profile
 		}
 
 		// Fetch the account type
-		$account_type = Contact::getAccountType($profile);
+		$account_type = Contact::getAccountType($profile['account-type']);
 
 		if (!empty($profile['address'])	|| !empty($profile['location'])) {
 			$location = DI::l10n()->t('Location:');
