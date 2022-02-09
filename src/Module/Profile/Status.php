@@ -159,7 +159,7 @@ class Status extends BaseProfile
 
 		// Does the profile page belong to a forum?
 		// If not then we can improve the performance with an additional condition
-		$condition2 = ['uid' => $profile['uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
+		$condition2 = ['uid' => $profile['uid'], 'account-type' => User::ACCOUNT_TYPE_COMMUNITY];
 		if (!DBA::exists('user', $condition2)) {
 			$condition = DBA::mergeConditions($condition, ['contact-id' => $profile['id']]);
 		}

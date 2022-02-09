@@ -1547,7 +1547,7 @@ class DFRN
 		if ($item["thr-parent"] != $item["uri"]) {
 			$community = false;
 
-			if ($importer["page-flags"] == User::PAGE_FLAGS_COMMUNITY || $importer["page-flags"] == User::PAGE_FLAGS_PRVGROUP) {
+			if ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 				$sql_extra = "";
 				$community = true;
 				Logger::notice("possible community action");
@@ -2381,13 +2381,10 @@ class DFRN
 			return false;
 		}
 
-		$user = DBA::selectFirst('user', ['page-flags', 'nickname'], ['uid' => $uid]);
+		$user = DBA::selectFirst('user', ['account-type', 'nickname'], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			return false;
 		}
-
-		$community_page = ($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY);
-		$prvgroup = ($user['page-flags'] == User::PAGE_FLAGS_PRVGROUP);
 
 		$link = Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname']);
 
@@ -2411,7 +2408,7 @@ class DFRN
 			return false;
 		}
 
-		return $community_page || $prvgroup;
+		return ($user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY);
 	}
 
 	/**
