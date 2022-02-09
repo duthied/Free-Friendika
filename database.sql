@@ -644,10 +644,13 @@ CREATE TABLE IF NOT EXISTS `group` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
 	`visible` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates the member list is not private',
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates the group has been deleted',
+	`cid` int unsigned COMMENT 'Contact id of forum. When this field is filled then the members are synced automatically.',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'human readable name of group',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, group info';
 
 --
