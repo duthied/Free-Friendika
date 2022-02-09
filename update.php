@@ -1093,6 +1093,7 @@ function update_1451()
 {
 	DBA::update('user', ['account-type' => User::ACCOUNT_TYPE_COMMUNITY], ['page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]]);
 	DBA::update('contact', ['contact-type' => Contact::TYPE_COMMUNITY], ["`forum` OR `prv`"]);
+	DBA::update('contact', ['manually-approve' => true], ['prv' => true]);
 
 	return Update::SUCCESS;
 }
