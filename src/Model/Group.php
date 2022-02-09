@@ -29,6 +29,7 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * functions for interacting with the group database table
@@ -518,5 +519,54 @@ class Group
 		]);
 
 		return $o;
+	}
+
+	/**
+	 * Fetch the followers of a given contact id and store them as group members
+	 *
+	 * @param integer $id Contact ID
+	 */
+	public static function getMembersForForum(int $id) {
+		$contact = Contact::getById($id, ['uid', 'url', 'name']);
+		if (empty($contact)) {
+			return;
+		}
+	
+		$apcontact = APContact::getByURL($contact['url']);
+		if (empty($apcontact['followers'])) {
+			return;
+		}
+	
+		$group = DBA::selectFirst('group', ['id'], ['uid' => $contact['uid'], 'cid' => $id]);
+		if (empty($group)) {
+			$fields = [
+				'uid'  => $contact['uid'],
+				'name' => $contact['name'],
+				'cid'  => $id,
+			];
+			DBA::insert('group', $fields);
+			$gid = DBA::lastInsertId();
+		} else {
+			$gid = $group['id'];
+		}
+	
+		$group_members = DBA::selectToArray('group_member', ['contact-id'], ['gid' => $gid]);
+		if (!empty($group_members)) {
+			$current = array_unique(array_column($group_members, 'contact-id'));
+		} else {
+			$current = [];
+		}
+	
+		foreach (ActivityPub::fetchItems($apcontact['followers']) as $follower) {
+			$id = Contact::getIdForURL($follower);
+			if (!in_array($id, $current)) {
+				DBA::insert('group_member', ['gid' => $gid, 'contact-id' => $id]);
+			} else {
+				$key = array_search($id, $current);
+				unset($current[$key]);
+			}
+		}
+	
+		DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $current]);
 	}
 }
