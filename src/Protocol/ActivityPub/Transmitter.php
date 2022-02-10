@@ -512,13 +512,13 @@ class Transmitter
 	 * @param array   $item       Item array
 	 * @param boolean $blindcopy  addressing via "bcc" or "cc"?
 	 * @param integer $last_id    Last item id for adding receivers
-	 * @param boolean $forum_mode "true" means that we are sending content to a forum
+	 * @param boolean $forum_post "true" means that we are sending content to a forum
 	 *
 	 * @return array with permission data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0, $forum_mode = false)
+	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0, $forum_post = false)
 	{
 		if ($last_id == 0) {
 			$last_id = $item['id'];
@@ -645,7 +645,7 @@ class Transmitter
 							// Public thread parent post always are directed to the followers.
 							// This mustn't be done by posts that are directed to forum servers via the exclusive mention.
 							// But possibly in that case we could add the "followers" collection of the forum to the message.
-							if (($item['private'] != Item::PRIVATE) && !$forum_mode) {
+							if (($item['private'] != Item::PRIVATE) && !$forum_post) {
 								$data['cc'][] = $actor_profile['followers'];
 							}
 						}
@@ -815,14 +815,14 @@ class Transmitter
 	 * @param integer $uid        User ID
 	 * @param boolean $personal   fetch personal inboxes
 	 * @param integer $last_id    Last item id for adding receivers
-	 * @param boolean $forum_mode "true" means that we are sending content to a forum
+	 * @param boolean $forum_post "true" means that we are sending content to a forum
 	 * @return array with inboxes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0, $forum_mode = false)
+	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0, $forum_post = false)
 	{
-		$permissions = self::createPermissionBlockForItem($item, true, $last_id, $forum_mode);
+		$permissions = self::createPermissionBlockForItem($item, true, $last_id, $forum_post);
 		if (empty($permissions)) {
 			return [];
 		}

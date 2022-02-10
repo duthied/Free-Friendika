@@ -859,7 +859,7 @@ class Diaspora
 			// Yes, then it is fine.
 			return true;
 			// Is it a post to a community?
-		} elseif (($contact["rel"] == Contact::FOLLOWER) && in_array($importer["page-flags"], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
+		} elseif (($contact["rel"] == Contact::FOLLOWER) && ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY)) {
 			// That's good
 			return true;
 			// Is the message a global user or a comment?

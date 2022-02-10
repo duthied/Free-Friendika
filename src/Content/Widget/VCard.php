@@ -99,7 +99,7 @@ class VCard
 			'$network_link'     => $network_link,
 			'$network_avatar'   => $network_avatar,
 			'$network'          => DI::l10n()->t('Network:'),
-			'$account_type'     => Contact::getAccountType($contact),
+			'$account_type'     => Contact::getAccountType($contact['contact-type']),
 			'$follow'           => DI::l10n()->t('Follow'),
 			'$follow_link'      => $follow_link,
 			'$unfollow'         => DI::l10n()->t('Unfollow'),

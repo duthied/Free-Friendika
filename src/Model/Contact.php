@@ -1457,34 +1457,11 @@ class Contact
 	 *
 	 * The function can be called with either the user or the contact array
 	 *
-	 * @param array $contact contact or user array
+	 * @param int $type type of contact or account
 	 * @return string
 	 */
-	public static function getAccountType(array $contact)
+	public static function getAccountType(int $type)
 	{
-		// There are several fields that indicate that the contact or user is a forum
-		// "page-flags" is a field in the user table,
-		// "forum" and "prv" are used in the contact table. They stand for User::PAGE_FLAGS_COMMUNITY and User::PAGE_FLAGS_PRVGROUP.
-		if ((isset($contact['page-flags']) && (intval($contact['page-flags']) == User::PAGE_FLAGS_COMMUNITY))
-			|| (isset($contact['page-flags']) && (intval($contact['page-flags']) == User::PAGE_FLAGS_PRVGROUP))
-			|| (isset($contact['forum']) && intval($contact['forum']))
-			|| (isset($contact['prv']) && intval($contact['prv']))
-			|| (isset($contact['community']) && intval($contact['community']))
-		) {
-			$type = self::TYPE_COMMUNITY;
-		} else {
-			$type = self::TYPE_PERSON;
-		}
-
-		// The "contact-type" (contact table) and "account-type" (user table) are more general then the chaos from above.
-		if (isset($contact["contact-type"])) {
-			$type = $contact["contact-type"];
-		}
-
-		if (isset($contact["account-type"])) {
-			$type = $contact["account-type"];
-		}
-
 		switch ($type) {
 			case self::TYPE_ORGANISATION:
 				$account_type = DI::l10n()->t("Organisation");
@@ -2947,7 +2924,7 @@ class Contact
 	 */
 	public static function isForum($contactid)
 	{
-		$fields = ['contact-type', 'forum', 'prv'];
+		$fields = ['contact-type'];
 		$condition = ['id' => $contactid];
 		$contact = DBA::selectFirst('contact', $fields, $condition);
 		if (!DBA::isResult($contact)) {
@@ -2955,7 +2932,7 @@ class Contact
 		}
 
 		// Is it a forum?
-		return (($contact['contact-type'] == self::TYPE_COMMUNITY) || $contact['forum'] || $contact['prv']);
+		return ($contact['contact-type'] == self::TYPE_COMMUNITY);
 	}
 
 	/**

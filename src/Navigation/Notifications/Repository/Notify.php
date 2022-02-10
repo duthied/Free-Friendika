@@ -216,7 +216,7 @@ class Notify extends BaseRepository
 		}
 
 		// Ensure that the important fields are set at any time
-		$fields = ['nickname', 'page-flags', 'notify-flags', 'language', 'username', 'email'];
+		$fields = ['nickname', 'account-type', 'notify-flags', 'language', 'username', 'email'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $params['uid']]);
 
 		if (!DBA::isResult($user)) {
@@ -225,7 +225,7 @@ class Notify extends BaseRepository
 		}
 
 		// There is no need to create notifications for forum accounts
-		if (in_array($user['page-flags'], [Model\User::PAGE_FLAGS_COMMUNITY, Model\User::PAGE_FLAGS_PRVGROUP])) {
+		if ($user['account-type'] == Model\User::ACCOUNT_TYPE_COMMUNITY) {
 			return false;
 		}
 

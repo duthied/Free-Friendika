@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1450);
+	define('DB_UPDATE_VERSION', 1451);
 }
 
 return [
@@ -704,11 +704,13 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates the member list is not private"],
 			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates the group has been deleted"],
+			"cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Contact id of forum. When this field is filled then the members are synced automatically."],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "human readable name of group"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid" => ["uid"],
+			"cid" => ["cid"],
 		]
 	],
 	"group_member" => [

@@ -208,7 +208,7 @@ class Index extends BaseSettings
 			'$baseurl' => DI::baseUrl()->get(true),
 		]);
 
-		$personal_account = !in_array($profile['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]);
+		$personal_account = ($profile['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);
 
 		$tpl = Renderer::getMarkupTemplate('settings/profile/index.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
