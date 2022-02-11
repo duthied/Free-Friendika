@@ -3,7 +3,7 @@
 * [Home](help)
 
 In addition to [move your account](help/Move-Account) you can export and import the list of accounts you follow.
-The exported list is stored as CSV file that is compatible to the format used by other platforms as e.g. Mastodon or Pleroma.
+The exported list is stored as CSV file that is compatible to the format used by other platforms as e.g. Mastodon, Misskey or Pleroma.
 
 ## Export of followed Contacts
 
