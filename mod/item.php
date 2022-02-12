@@ -29,7 +29,6 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Item as ItemHelper;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
@@ -40,11 +39,11 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\APContact;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
+use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Notification;
@@ -404,7 +403,7 @@ function item_post(App $a) {
 			}
 			$inform .= 'cid:' . $contact['id'];
 
-			if (!$toplevel_item_id || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
+			if ($toplevel_item_id || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
 				continue;
 			}
 
@@ -437,26 +436,15 @@ function item_post(App $a) {
 			$postopts = '';
 		}
 
-		if (!$private_forum) {
+		$str_contact_deny  = '';
+		$str_group_deny    = '';
+
+		if ($private_forum) {
+			$str_contact_allow = '<' . $private_id . '>';
+			$str_group_allow   = '<' . Group::getIdForForum($forum_contact['id']) . '>';
+		} else {
 			$str_contact_allow = '';
 			$str_group_allow   = '';
-			$str_contact_deny  = '';
-			$str_group_deny    = '';
-		}
-
-		if ($private_forum || !APContact::getByURL($forum_contact['url'])) {
-			$str_group_allow = '';
-			$str_contact_deny = '';
-			$str_group_deny = '';
-			if ($private_forum) {
-				$str_contact_allow = '<' . $private_id . '>';
-			} else {
-				$str_contact_allow = '';
-			}
-			$contact_id = $private_id;
-			$contact_record = $forum_contact;
-			$_REQUEST['origin'] = false;
-			$wall = 0;
 		}
 	}
 

@@ -24,7 +24,7 @@ Fields
 | wall         | This item was posted to the wall of uid                                                                 | boolean            | NO   |     | 0                   |       |
 | mention      |                                                                                                         | boolean            | NO   |     | 0                   |       |
 | pubmail      |                                                                                                         | boolean            | NO   |     | 0                   |       |
-| forum_mode   |                                                                                                         | tinyint unsigned   | NO   |     | 0                   |       |
+| forum_mode   | Deprecated                                                                                              | tinyint unsigned   | NO   |     | 0                   |       |
 | contact-id   | contact.id                                                                                              | int unsigned       | NO   |     | 0                   |       |
 | unseen       | post has not been seen                                                                                  | boolean            | NO   |     | 1                   |       |
 | hidden       | Marker to hide the post from the user                                                                   | boolean            | NO   |     | 0                   |       |
