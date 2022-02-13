@@ -306,7 +306,7 @@ class Processor
 			} else {
 				// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
 				$item['causer-link'] = $item['owner-link'];
-				$item['causer-id'] = $item['owner-id'];
+				$item['causer-id']   = $item['owner-id'];
 				Logger::info('Use actor as causer.', ['id' => $item['owner-id'], 'actor' => $item['owner-link']]);
 			}
 
@@ -642,10 +642,16 @@ class Processor
 				continue;
 			}
 
-			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) &&
-				($item['post-reason'] == Item::PR_BCC) && !Contact::isSharingByURL($activity['author'], $receiver)) {
-				Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
-				continue;
+			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !Contact::isSharingByURL($activity['author'], $receiver)) {
+				if ($item['post-reason'] == Item::PR_BCC) {
+					Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
+					continue;
+				}
+				if (!empty($activity['thread-children-type']) && in_array($activity['thread-children-type'], Receiver::ACTIVITY_TYPES)) {
+					Logger::info('Top level post from thread completion from a non sharer had been initiated via an activity, ignoring',
+						['type' => $activity['thread-children-type'], 'user' => $item['uid'], 'causer' => $item['causer-link'], 'author' => $activity['author'], 'url' => $item['uri']]);
+					continue;
+				}
 			}
 
 			$is_forum = false;
@@ -885,6 +891,10 @@ class Processor
 			$ldactivity['thread-completion'] = $child['thread-completion'];
 		} else {
 			$ldactivity['thread-completion'] = Contact::getIdForURL($actor);
+		}
+
+		if (!empty($child['type'])) {
+			$ldactivity['thread-children-type'] = $child['type'];
 		}
 
 		if (!empty($relay_actor) && !self::acceptIncomingMessage($ldactivity, $object['id'])) {

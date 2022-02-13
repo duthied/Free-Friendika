@@ -515,6 +515,9 @@ class Receiver
 		if (!empty($activity['thread-completion'])) {
 			$object_data['thread-completion'] = $activity['thread-completion'];
 		}
+		if (!empty($activity['thread-children-type'])) {
+			$object_data['thread-children-type'] = $activity['thread-children-type'];
+		}
 
 		// Internal flag for posts that arrived via relay
 		if (!empty($activity['from-relay'])) {
