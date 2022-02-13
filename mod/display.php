@@ -23,7 +23,6 @@ use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
 use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
@@ -36,6 +35,7 @@ use Friendica\Module\ActivityPub\Objects;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\Diaspora;
 
 function display_init(App $a)
 {
@@ -108,55 +108,23 @@ function display_init(App $a)
 		$item = $parent ?: $item;
 	}
 
-	$profiledata = display_fetchauthor($item);
-
-	DI::page()['aside'] = Widget\VCard::getHTML($profiledata);
+	DI::page()['aside'] = Widget\VCard::getHTML(display_fetchauthor($item));
 }
 
 function display_fetchauthor($item)
 {
-	$profiledata = Contact::getByURLForUser($item['author-link'], local_user());
-
-	// Check for a repeated message
-	$shared = Item::getShareArray($item);
-	if (!empty($shared) && empty($shared['comment'])) {
-		$profiledata = [
-			'uid' => 0,
-			'id' => -1,
-			'nickname' => '',
-			'name' => '',
-			'picdate' => '',
-			'photo' => '',
-			'url' => '',
-			'network' => '',
-		];
-
-		if (!empty($shared['author'])) {
-			$profiledata['name'] = $shared['author'];
-		}
-
+	if (Diaspora::isReshare($item['body'], true)) {
+		$shared = Item::getShareArray($item);
 		if (!empty($shared['profile'])) {
-			$profiledata['url'] = $shared['profile'];
+			$contact = Contact::getByURLForUser($shared['profile'], local_user());
 		}
-
-		if (!empty($shared['avatar'])) {
-			$profiledata['photo'] = $shared['avatar'];
-		}
-
-		$profiledata['nickname'] = $profiledata['name'];
-		$profiledata['network'] = Protocol::PHANTOM;
-
-		$profiledata['address'] = '';
-		$profiledata['about'] = '';
-
-		$profiledata = Contact::getByURLForUser($profiledata['url'], local_user()) ?: $profiledata;
 	}
 
-	if (!empty($profiledata['photo'])) {
-		$profiledata['photo'] = DI::baseUrl()->remove($profiledata['photo']);
+	if (empty($contact)) {
+		$contact = Contact::getById($item['author-id']);
 	}
 
-	return $profiledata;
+	return $contact;
 }
 
 function display_content(App $a, $update = false, $update_uid = 0)
