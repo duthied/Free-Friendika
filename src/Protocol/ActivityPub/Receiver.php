@@ -263,7 +263,19 @@ class Receiver
 	{
 		$id = JsonLD::fetchElement($activity, '@id');
 		if (!empty($id) && !$trust_source) {
-			$fetched_activity = ActivityPub::fetchContent($id, $uid ?? 0);
+			if (empty($uid)) {
+				$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
+				if (empty($actor)) {
+					$actor = '';
+				}
+	
+				// Fetch a user out of the receivers of the message.
+				$fetch_uid = Receiver::getBestUserForActivity($activity, $actor);
+			} else {
+				$fetch_uid = $uid;
+			}
+
+			$fetched_activity = ActivityPub::fetchContent($id, $fetch_uid);
 			if (!empty($fetched_activity)) {
 				$object = JsonLD::compact($fetched_activity);
 				$fetched_id = JsonLD::fetchElement($object, '@id');
@@ -641,6 +653,29 @@ class Receiver
 				Logger::info('Unknown activity: ' . $type . ' ' . $object_data['object_type']);
 				break;
 		}
+	}
+
+	/**
+	 * Fetch a user id from an activity array
+	 *
+	 * @param array  $activity
+	 * @param string $actor
+	 *
+	 * @return int   user id
+	 */
+	private static function getBestUserForActivity(array $activity, string $actor)
+	{
+		$uid = 0;
+		$receivers = self::getReceivers($activity, $actor);
+		foreach ($receivers as $receiver) {
+			if ($receiver['type'] == self::TARGET_GLOBAL) {
+				return 0;
+			}
+			if (empty($uid) || ($receiver['type'] == self::TARGET_TO)) {
+				$uid = $receiver['uid'];
+			}
+		}
+		return $uid;
 	}
 
 	/**
