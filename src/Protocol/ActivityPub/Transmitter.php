@@ -600,23 +600,32 @@ class Transmitter
 						continue;
 					}
 
-					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
+					$profile = APContact::getByURL($term['url'], false);
+					if (!empty($profile)) {
+						if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
+							$exclusive = true;
+							if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
+								$data['cc'][] = $profile['followers'];
+							}
+						}
 						$data['to'][] = $profile['url'];
 					}
 				}
 			}
 
-			foreach ($receiver_list as $receiver) {
-				$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol', 'gsid'], ['id' => $receiver, 'network' => Protocol::FEDERATED]);
-				if (!DBA::isResult($contact) || !self::isAPContact($contact, $networks)) {
-					continue;
-				}
+			if (!$exclusive) {
+				foreach ($receiver_list as $receiver) {
+					$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol', 'gsid'], ['id' => $receiver, 'network' => Protocol::FEDERATED]);
+					if (!DBA::isResult($contact) || !self::isAPContact($contact, $networks)) {
+						continue;
+					}
 
-				if (!empty($profile = APContact::getByURL($contact['url'], false))) {
-					if ($contact['hidden'] || $always_bcc) {
-						$data['bcc'][] = $profile['url'];
-					} else {
-						$data['cc'][] = $profile['url'];
+					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
+						if ($contact['hidden'] || $always_bcc) {
+							$data['bcc'][] = $profile['url'];
+						} else {
+							$data['cc'][] = $profile['url'];
+						}
 					}
 				}
 			}

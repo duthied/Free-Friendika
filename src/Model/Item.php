@@ -1402,15 +1402,61 @@ class Item
 		}
 
 		if ((($item['gravity'] == GRAVITY_COMMENT) || $is_reshare) && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
-			// Only do an auto complete with the source uid "0" to prevent privavy problems
+			// Fetch the origin user for the post
+			$origin_uid = self::GetOriginUidForUriId($item['thr-parent-id'], $uid);
+			if (is_null($origin_uid)) {
+				Logger::info('Origin item was not found', ['uid' => $uid, 'uri-id' => $item['thr-parent-id']]);
+				return 0;
+			}
+
 			$causer = $item['causer-id'] ?: $item['author-id'];
-			$result = self::storeForUserByUriId($item['thr-parent-id'], $uid, ['causer-id' => $causer, 'post-reason' => self::PR_FETCHED]);
+			$result = self::storeForUserByUriId($item['thr-parent-id'], $uid, ['causer-id' => $causer, 'post-reason' => self::PR_FETCHED], $origin_uid);
 			Logger::info('Fetched thread parent', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'causer' => $causer, 'result' => $result]);
 		}
 
 		$stored = self::storeForUser($item, $uid);
 		Logger::info('Item stored for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'source-uid' => $source_uid, 'stored' => $stored]);
 		return $stored;
+	}
+
+	/**
+	 * Returns the origin uid of a post if the given user is allowed to see it.
+	 *
+	 * @param int $uriid
+	 * @param int $uid
+	 * @return int
+	 */
+	private static function GetOriginUidForUriId(int $uriid, int $uid)
+	{
+		if (Post::exists(['uri-id' => $uriid, 'uid' => $uid])) {
+			return $uid;
+		}
+
+		$post = Post::selectFirst(['uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'private'], ['uri-id' => $uriid, 'origin' => true]);
+		if (empty($post)) {
+			if (Post::exists(['uri-id' => $uriid, 'uid' => 0])) {
+				return 0;
+			} else {
+				return null;
+			}
+		}
+
+		if (in_array($post['private'], [Item::PUBLIC, Item::UNLISTED])) {
+			return $post['uid'];
+		}
+
+		$pcid = Contact::getPublicIdByUserId($uid);
+		if (empty($pcid)) {
+			return null;
+		}
+
+		foreach (Item::enumeratePermissions($post, true) as $receiver) {
+			if ($receiver == $pcid) {
+				return $post['uid'];
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -1928,7 +1974,7 @@ class Item
 
 			$allow_cid = '<' . $owner['id'] . '>';
 			$allow_gid = '<' . Group::getIdForForum($owner['id']) . '>';
-			$deny_cid  = ''; 
+			$deny_cid  = '';
 			$deny_gid  = '';
 			self::performActivity($item['id'], 'announce', $uid, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
 		} else {
