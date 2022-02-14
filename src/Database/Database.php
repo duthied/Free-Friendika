@@ -114,6 +114,7 @@ class Database
 		$pass    = trim($this->configCache->get('database', 'password'));
 		$db      = trim($this->configCache->get('database', 'database'));
 		$charset = trim($this->configCache->get('database', 'charset'));
+                $socket  = trim($this->configCache->get('database', 'socket')); 
 
 		if (!(strlen($server) && strlen($user))) {
 			return false;
@@ -125,7 +126,7 @@ class Database
 
 		if (!$this->configCache->get('database', 'disable_pdo') && class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
 			$this->driver = self::PDO;
-			$connect      = "mysql:host=" . $server . ";dbname=" . $db;
+			$connect      = "mysql:host=" . $server . ";dbname=" . $db . ";unix_socket=" . $socket;
 
 			if ($port > 0) {
 				$connect .= ";port=" . $port;
@@ -149,9 +150,9 @@ class Database
 			$this->driver = self::MYSQLI;
 
 			if ($port > 0) {
-				$this->connection = @new mysqli($server, $user, $pass, $db, $port);
+				$this->connection = @new mysqli($server, $user, $pass, $db, $port, $socket);
 			} else {
-				$this->connection = @new mysqli($server, $user, $pass, $db);
+				$this->connection = @new mysqli($server, $user, $pass, $db, $socket);
 			}
 
 			if (!mysqli_connect_errno()) {
