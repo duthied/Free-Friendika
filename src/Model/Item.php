@@ -2516,11 +2516,6 @@ class Item
 			return true;
 		}
 
-		$allow_cid = $allow_cid ?? $item['allow_cid'];
-		$allow_gid = $allow_gid ?? $item['allow_gid'];
-		$deny_cid  = $deny_cid ?? $item['deny_cid'];
-		$deny_gid  = $deny_gid ?? $item['deny_gid'];
-
 		$objtype = $item['resource-id'] ? Activity\ObjectType::IMAGE : Activity\ObjectType::NOTE;
 
 		$new_item = [
@@ -2541,10 +2536,10 @@ class Item
 			'body'          => $activity,
 			'verb'          => $activity,
 			'object-type'   => $objtype,
-			'allow_cid'     => $allow_cid,
-			'allow_gid'     => $allow_gid,
-			'deny_cid'      => $deny_cid,
-			'deny_gid'      => $deny_gid,
+			'allow_cid'     => $allow_cid ?? $item['allow_cid'],
+			'allow_gid'     => $allow_gid ?? $item['allow_gid'],
+			'deny_cid'      => $deny_cid ?? $item['deny_cid'],
+			'deny_gid'      => $deny_gid ?? $item['deny_gid'],
 			'visible'       => 1,
 			'unseen'        => 1,
 		];
