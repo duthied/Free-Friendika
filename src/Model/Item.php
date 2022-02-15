@@ -100,7 +100,7 @@ class Item
 			'inform', 'deleted', 'extid', 'post-type', 'post-reason', 'gravity',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'owner-id', 'owner-link', 'contact-uid',
-			'signed_text', 'network', 'wall', 'contact-id', 'plink', 'forum_mode', 'origin',
+			'signed_text', 'network', 'wall', 'contact-id', 'plink', 'origin',
 			'thr-parent-id', 'parent-uri-id', 'postopts', 'pubmail',
 			'event-created', 'event-edited', 'event-start', 'event-finish',
 			'event-summary', 'event-desc', 'event-location', 'event-type',
@@ -114,7 +114,7 @@ class Item
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type', 'post-reason',
 			'private', 'pubmail', 'visible', 'starred',
-			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
+			'unseen', 'deleted', 'origin', 'mention', 'global', 'network',
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
 			'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
@@ -655,7 +655,7 @@ class Item
 		$fields = ['uid', 'uri', 'parent-uri', 'id', 'deleted',
 			'uri-id', 'parent-uri-id',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-			'wall', 'private', 'forum_mode', 'origin', 'author-id'];
+			'wall', 'private', 'origin', 'author-id'];
 		$condition = ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']];
 		$params = ['order' => ['id' => false]];
 		$parent = Post::selectFirst($fields, $condition, $params);
@@ -818,6 +818,15 @@ class Item
 		$item['inform']        = trim($item['inform'] ?? '');
 		$item['file']          = trim($item['file'] ?? '');
 
+		// Communities aren't working with the Diaspora protoccol
+		if (($uid != 0) && ($item['network'] == Protocol::DIASPORA)) {
+			$user = User::getById($uid, ['account-type']);
+		 	if ($user['account-type'] == Contact::TYPE_COMMUNITY) {
+				Logger::info('Community posts are not supported via Diaspora');
+				return 0;
+			}
+		}
+
 		// Items cannot be stored before they happen ...
 		if ($item['created'] > DateTimeFormat::utcNow()) {
 			$item['created'] = DateTimeFormat::utcNow();
@@ -881,10 +890,15 @@ class Item
 			$item['parent-uri']    = $toplevel_parent['uri'];
 			$item['parent-uri-id'] = $toplevel_parent['uri-id'];
 			$item['deleted']       = $toplevel_parent['deleted'];
-			$item['allow_cid']     = $toplevel_parent['allow_cid'];
-			$item['allow_gid']     = $toplevel_parent['allow_gid'];
-			$item['deny_cid']      = $toplevel_parent['deny_cid'];
-			$item['deny_gid']      = $toplevel_parent['deny_gid'];
+
+			// Reshares have to keep their permissions to allow forums to work
+			if (!$item['origin'] || ($item['verb'] != Activity::ANNOUNCE)) {
+				$item['allow_cid']     = $toplevel_parent['allow_cid'];
+				$item['allow_gid']     = $toplevel_parent['allow_gid'];
+				$item['deny_cid']      = $toplevel_parent['deny_cid'];
+				$item['deny_gid']      = $toplevel_parent['deny_gid'];
+			}
+
 			$parent_origin         = $toplevel_parent['origin'];
 
 			// Don't federate received participation messages
@@ -903,15 +917,6 @@ class Item
 			 */
 			if ($toplevel_parent['private']) {
 				$item['private'] = $toplevel_parent['private'];
-			}
-
-			/*
-			 * Edge case. We host a public forum that was originally posted to privately.
-			 * The original author commented, but as this is a comment, the permissions
-			 * weren't fixed up so it will still show the comment as private unless we fix it here.
-			 */
-			if ((intval($toplevel_parent['forum_mode']) == 1) && ($toplevel_parent['private'] != self::PUBLIC)) {
-				$item['private'] = self::PUBLIC;
 			}
 
 			// If its a post that originated here then tag the thread as "mention"
@@ -1406,15 +1411,61 @@ class Item
 		}
 
 		if ((($item['gravity'] == GRAVITY_COMMENT) || $is_reshare) && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
-			// Only do an auto complete with the source uid "0" to prevent privavy problems
+			// Fetch the origin user for the post
+			$origin_uid = self::GetOriginUidForUriId($item['thr-parent-id'], $uid);
+			if (is_null($origin_uid)) {
+				Logger::info('Origin item was not found', ['uid' => $uid, 'uri-id' => $item['thr-parent-id']]);
+				return 0;
+			}
+
 			$causer = $item['causer-id'] ?: $item['author-id'];
-			$result = self::storeForUserByUriId($item['thr-parent-id'], $uid, ['causer-id' => $causer, 'post-reason' => self::PR_FETCHED]);
+			$result = self::storeForUserByUriId($item['thr-parent-id'], $uid, ['causer-id' => $causer, 'post-reason' => self::PR_FETCHED], $origin_uid);
 			Logger::info('Fetched thread parent', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'causer' => $causer, 'result' => $result]);
 		}
 
 		$stored = self::storeForUser($item, $uid);
 		Logger::info('Item stored for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'source-uid' => $source_uid, 'stored' => $stored]);
 		return $stored;
+	}
+
+	/**
+	 * Returns the origin uid of a post if the given user is allowed to see it.
+	 *
+	 * @param int $uriid
+	 * @param int $uid
+	 * @return int
+	 */
+	private static function GetOriginUidForUriId(int $uriid, int $uid)
+	{
+		if (Post::exists(['uri-id' => $uriid, 'uid' => $uid])) {
+			return $uid;
+		}
+
+		$post = Post::selectFirst(['uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'private'], ['uri-id' => $uriid, 'origin' => true]);
+		if (empty($post)) {
+			if (Post::exists(['uri-id' => $uriid, 'uid' => 0])) {
+				return 0;
+			} else {
+				return null;
+			}
+		}
+
+		if (in_array($post['private'], [Item::PUBLIC, Item::UNLISTED])) {
+			return $post['uid'];
+		}
+
+		$pcid = Contact::getPublicIdByUserId($uid);
+		if (empty($pcid)) {
+			return null;
+		}
+
+		foreach (Item::enumeratePermissions($post, true) as $receiver) {
+			if ($receiver == $pcid) {
+				return $post['uid'];
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -1443,6 +1494,7 @@ class Item
 			return 0;
 		}
 
+		// Data from the "post-user" table
 		unset($item['id']);
 		unset($item['mention']);
 		unset($item['starred']);
@@ -1451,11 +1503,14 @@ class Item
 		unset($item['pinned']);
 		unset($item['ignored']);
 		unset($item['pubmail']);
-		unset($item['forum_mode']);
-
 		unset($item['event-id']);
 		unset($item['hidden']);
 		unset($item['notification-type']);
+		unset($item['post-reason']);
+
+		// Data from the "post-delivery-data" table
+		unset($item['postopts']);
+		unset($item['inform']);
 
 		$item['uid'] = $uid;
 		$item['origin'] = 0;
@@ -1928,40 +1983,17 @@ class Item
 
 		Logger::info('Community post will be distributed', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 
-		self::performActivity($item['id'], 'announce', $uid);
+		if ($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) {
+			Group::getMembersForForum($owner['id']);
 
-		/**
-		 * All the following lines are only needed for private forums and compatibility to older systems without AP support.
-		 * A possible way would be that the followers list of a forum would always be readable by all followers.
-		 * So this would mean that the comment distribution could be done exactly for the intended audience.
-		 * Or possibly we could store the receivers that had been in the "announce" message above and use this.
-		 */
-
-		// also reset all the privacy bits to the forum default permissions
-		if ($owner['allow_cid'] || $owner['allow_gid'] || $owner['deny_cid'] || $owner['deny_gid']) {
-			$private = self::PRIVATE;
-		} elseif (DI::pConfig()->get($owner['uid'], 'system', 'unlisted')) {
-			$private = self::UNLISTED;
+			$allow_cid = '<' . $owner['id'] . '>';
+			$allow_gid = '<' . Group::getIdForForum($owner['id']) . '>';
+			$deny_cid  = '';
+			$deny_gid  = '';
+			self::performActivity($item['id'], 'announce', $uid, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
 		} else {
-			$private = self::PUBLIC;
+			self::performActivity($item['id'], 'announce', $uid);
 		}
-
-		$permissionSet = DI::permissionSet()->selectOrCreate(
-			DI::permissionSetFactory()->createFromString(
-				$owner['uid'],
-				$owner['allow_cid'],
-				$owner['allow_gid'],
-				$owner['deny_cid'],
-				$owner['deny_gid']
-			));
-
-		$forum_mode = ($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) ? 2 : 1;
-
-		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $owner['id'],
-			'owner-id' => Contact::getPublicIdByUserId($uid), 'private' => $private, 'psid' => $permissionSet->id];
-		self::update($fields, ['id' => $item['id']]);
-
-		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, (int)$item['uri-id'], (int)$item['uid']);
 
 		Logger::info('Community post had been distributed', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 		return false;
@@ -2325,12 +2357,17 @@ class Item
 	 *
 	 * Toggle activities as like,dislike,attend of an item
 	 *
-	 * @param int $item_id
+	 * @param int    $item_id
 	 * @param string $verb
 	 *            Activity verb. One of
 	 *            like, unlike, dislike, undislike, attendyes, unattendyes,
 	 *            attendno, unattendno, attendmaybe, unattendmaybe,
 	 *            announce, unannouce
+	 * @param int    $uid
+	 * @param string $allow_cid
+	 * @param string $allow_gid
+	 * @param string $deny_cid
+	 * @param string $deny_gid
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -2338,7 +2375,7 @@ class Item
 	 *            array $arr
 	 *            'post_id' => ID of posted item
 	 */
-	public static function performActivity(int $item_id, string $verb, int $uid)
+	public static function performActivity(int $item_id, string $verb, int $uid, string $allow_cid = null, string $allow_gid = null, string $deny_cid = null, string $deny_gid = null)
 	{
 		if (empty($uid)) {
 			return false;
@@ -2499,10 +2536,10 @@ class Item
 			'body'          => $activity,
 			'verb'          => $activity,
 			'object-type'   => $objtype,
-			'allow_cid'     => $item['allow_cid'],
-			'allow_gid'     => $item['allow_gid'],
-			'deny_cid'      => $item['deny_cid'],
-			'deny_gid'      => $item['deny_gid'],
+			'allow_cid'     => $allow_cid ?? $item['allow_cid'],
+			'allow_gid'     => $allow_gid ?? $item['allow_gid'],
+			'deny_cid'      => $deny_cid ?? $item['deny_cid'],
+			'deny_gid'      => $deny_gid ?? $item['deny_gid'],
 			'visible'       => 1,
 			'unseen'        => 1,
 		];

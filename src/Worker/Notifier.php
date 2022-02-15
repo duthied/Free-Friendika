@@ -153,7 +153,7 @@ class Notifier
 		}
 
 		// Should the post be transmitted to Diaspora?
-		$diaspora_delivery = true;
+		$diaspora_delivery = ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);
 
 		// If this is a public conversation, notify the feed hub
 		$public_message = true;
@@ -220,10 +220,6 @@ class Notifier
 			$relay_to_owner = false;
 
 			if (!$top_level && ($parent['wall'] == 0) && (stristr($target_item['uri'],$localhost))) {
-				$relay_to_owner = true;
-			}
-
-			if (($cmd === Delivery::UPLINK) && (intval($parent['forum_mode']) == 1) && !$top_level) {
 				$relay_to_owner = true;
 			}
 
@@ -332,15 +328,6 @@ class Notifier
 				$allow_groups = Group::expand($uid, $aclFormatter->expand($parent['allow_gid']),true);
 				$deny_people  = $aclFormatter->expand($parent['deny_cid']);
 				$deny_groups  = Group::expand($uid, $aclFormatter->expand($parent['deny_gid']));
-
-				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
-				// a delivery fork. private groups (forum_mode == 2) do not uplink
-				/// @todo Possibly we should not uplink when the author is the forum itself?
-
-				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)
-					&& ($target_item['verb'] != Activity::ANNOUNCE)) {
-					Worker::add($a->getQueueValue('priority'), 'Notifier', Delivery::UPLINK, $post_uriid, $sender_uid);
-				}
 
 				foreach ($items as $item) {
 					$recipients[] = $item['contact-id'];
@@ -812,16 +799,5 @@ class Notifier
 		}
 
 		return ['count' => $delivery_queue_count, 'contacts' => $contacts];
-	}
-
-	/**
-	 * Check if the delivered item is a forum post
-	 *
-	 * @param array $item
-	 * @return boolean
-	 */
-	public static function isForumPost(array $item)
-	{
-		return ($item['gravity'] == GRAVITY_PARENT) && !empty($item['forum_mode']);
 	}
 }

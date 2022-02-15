@@ -41,7 +41,7 @@ class Group
 
 	public static function getByUserId($uid, $includesDeleted = false)
 	{
-		$conditions = ['uid' => $uid];
+		$conditions = ['uid' => $uid, 'cid' => null];
 
 		if (!$includesDeleted) {
 			$conditions['deleted'] = false;
@@ -408,7 +408,7 @@ class Group
 			]
 		];
 
-		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => $uid], ['order' => ['name']]);
+		$stmt = DBA::select('group', [], ['deleted' => false, 'uid' => $uid, 'cid' => null], ['order' => ['name']]);
 		while ($group = DBA::fetch($stmt)) {
 			$display_groups[] = [
 				'name' => $group['name'],
@@ -465,7 +465,7 @@ class Group
 			$member_of = self::getIdsByContactId($cid);
 		}
 
-		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name']]);
+		$stmt = DBA::select('group', [], ['deleted' => false, 'uid' => local_user(), 'cid' => null], ['order' => ['name']]);
 		while ($group = DBA::fetch($stmt)) {
 			$selected = (($group_id == $group['id']) ? ' group-selected' : '');
 
@@ -522,21 +522,19 @@ class Group
 	}
 
 	/**
-	 * Fetch the followers of a given contact id and store them as group members
+	 * Fetch the group id for the given contact id
 	 *
 	 * @param integer $id Contact ID
+	 * @return integer Group IO
 	 */
-	public static function getMembersForForum(int $id) {
-		$contact = Contact::getById($id, ['uid', 'url', 'name']);
-		if (empty($contact)) {
-			return;
+	public static function getIdForForum(int $id)
+	{
+		Logger::info('Get id for forum id', ['id' => $id]);
+		$contact = Contact::getById($id, ['uid', 'name', 'contact-type', 'manually-approve']);
+		if (empty($contact) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY) || !$contact['manually-approve']) {
+			return 0;
 		}
-	
-		$apcontact = APContact::getByURL($contact['url']);
-		if (empty($apcontact['followers'])) {
-			return;
-		}
-	
+
 		$group = DBA::selectFirst('group', ['id'], ['uid' => $contact['uid'], 'cid' => $id]);
 		if (empty($group)) {
 			$fields = [
@@ -549,15 +547,42 @@ class Group
 		} else {
 			$gid = $group['id'];
 		}
-	
+
+		return $gid;
+	}
+
+	/**
+	 * Fetch the followers of a given contact id and store them as group members
+	 *
+	 * @param integer $id Contact ID
+	 */
+	public static function getMembersForForum(int $id)
+	{
+		Logger::info('Update forum members', ['id' => $id]);
+
+		$contact = Contact::getById($id, ['uid', 'url']);
+		if (empty($contact)) {
+			return;
+		}
+
+		$apcontact = APContact::getByURL($contact['url']);
+		if (empty($apcontact['followers'])) {
+			return;
+		}
+
+		$gid = self::getIdForForum($id);
+		if (empty($gid)) {
+			return;
+		}
+
 		$group_members = DBA::selectToArray('group_member', ['contact-id'], ['gid' => $gid]);
 		if (!empty($group_members)) {
 			$current = array_unique(array_column($group_members, 'contact-id'));
 		} else {
 			$current = [];
 		}
-	
-		foreach (ActivityPub::fetchItems($apcontact['followers']) as $follower) {
+
+		foreach (ActivityPub::fetchItems($apcontact['followers'], $contact['uid']) as $follower) {
 			$id = Contact::getIdForURL($follower);
 			if (!in_array($id, $current)) {
 				DBA::insert('group_member', ['gid' => $gid, 'contact-id' => $id]);
@@ -566,7 +591,8 @@ class Group
 				unset($current[$key]);
 			}
 		}
-	
+
 		DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $current]);
+		Logger::info('Updated forum members', ['id' => $id, 'count' => DBA::count('group_member', ['gid' => $gid])]);
 	}
 }

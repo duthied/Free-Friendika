@@ -263,7 +263,9 @@ class Receiver
 	{
 		$id = JsonLD::fetchElement($activity, '@id');
 		if (!empty($id) && !$trust_source) {
-			$fetched_activity = ActivityPub::fetchContent($id, $uid ?? 0);
+			$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
+
+			$fetched_activity = ActivityPub::fetchContent($id, $fetch_uid);
 			if (!empty($fetched_activity)) {
 				$object = JsonLD::compact($fetched_activity);
 				$fetched_id = JsonLD::fetchElement($object, '@id');
@@ -302,11 +304,11 @@ class Receiver
 			if (empty($activity['thread-completion']) && (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER, self::TARGET_GLOBAL]))) {
 				$reception_types[$uid] = self::TARGET_BCC;
 			}
-		} else {
-			// We possibly need some user to fetch private content,
-			// so we fetch the first out ot the list.
-			$uid = self::getFirstUserFromReceivers($receivers);
 		}
+
+		// We possibly need some user to fetch private content,
+		// so we fetch one out of the receivers if no uid is provided.
+		$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
@@ -319,11 +321,11 @@ class Receiver
 			return [];
 		}
 
-		$object_type = self::fetchObjectType($activity, $object_id, $uid);
+		$object_type = self::fetchObjectType($activity, $object_id, $fetch_uid);
 
 		// Fetch the activity on Lemmy "Announce" messages (announces of activities)
 		if (($type == 'as:Announce') && in_array($object_type, array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
-			$data = ActivityPub::fetchContent($object_id, $uid);
+			$data = ActivityPub::fetchContent($object_id, $fetch_uid);
 			if (!empty($data)) {
 				$type = $object_type;
 				$activity = JsonLD::compact($data);
@@ -331,7 +333,7 @@ class Receiver
 				// Some variables need to be refetched since the activity changed
 				$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
 				$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
-				$object_type = self::fetchObjectType($activity, $object_id, $uid);
+				$object_type = self::fetchObjectType($activity, $object_id, $fetch_uid);
 			}
 		}
 
@@ -348,7 +350,7 @@ class Receiver
 		// Fetch the content only on activities where this matters
 		// We can receive "#emojiReaction" when fetching content from Hubzilla systems
 			// Always fetch on "Announce"
-			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $uid);
+			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $fetch_uid);
 			if (empty($object_data)) {
 				Logger::info("Object data couldn't be processed");
 				return [];
@@ -396,7 +398,7 @@ class Receiver
 
 			// An Undo is done on the object of an object, so we need that type as well
 			if (($type == 'as:Undo') && !empty($object_data['object_object'])) {
-				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object'], $uid);
+				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object'], $fetch_uid);
 			}
 		}
 
@@ -641,6 +643,31 @@ class Receiver
 				Logger::info('Unknown activity: ' . $type . ' ' . $object_data['object_type']);
 				break;
 		}
+	}
+
+	/**
+	 * Fetch a user id from an activity array
+	 *
+	 * @param array  $activity
+	 * @param string $actor
+	 *
+	 * @return int   user id
+	 */
+	public static function getBestUserForActivity(array $activity)
+	{
+		$uid = 0;
+		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
+
+		$receivers = self::getReceivers($activity, $actor);
+		foreach ($receivers as $receiver) {
+			if ($receiver['type'] == self::TARGET_GLOBAL) {
+				return 0;
+			}
+			if (empty($uid) || ($receiver['type'] == self::TARGET_TO)) {
+				$uid = $receiver['uid'];
+			}
+		}
+		return $uid;
 	}
 
 	/**

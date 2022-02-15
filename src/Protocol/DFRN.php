@@ -1557,21 +1557,10 @@ class DFRN
 
 			// was the top-level post for this action written by somebody on this site?
 			// Specifically, the recipient?
-			$parent = Post::selectFirst(['forum_mode', 'wall'],
+			$parent = Post::selectFirst(['wall'],
 				["`uri` = ? AND `uid` = ?" . $sql_extra, $item["thr-parent"], $importer["importer_uid"]]);
 
 			$is_a_remote_action = DBA::isResult($parent);
-
-			/*
-			 * Does this have the characteristics of a community or private group action?
-			 * If it's an action to a wall post on a community/prvgroup page it's a
-			 * valid community action. Also forum_mode makes it valid for sure.
-			 * If neither, it's not.
-			 */
-			if ($is_a_remote_action && $community && (!$parent["forum_mode"]) && (!$parent["wall"])) {
-				$is_a_remote_action = false;
-				Logger::notice("not a community action");
-			}
 
 			if ($is_a_remote_action) {
 				return DFRN::REPLY_RC;

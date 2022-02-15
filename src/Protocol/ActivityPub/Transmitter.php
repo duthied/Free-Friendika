@@ -184,7 +184,7 @@ class Transmitter
 
 		// Allow fetching the contact list when the requester is part of the list.
 		if (($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) && !empty($requester)) {
-			$show_contacts = DBA::exists('contact', ['nurl' => Strings::normaliseLink($requester), 'rel' => $rel]);
+			$show_contacts = DBA::exists('contact', ['nurl' => Strings::normaliseLink($requester), 'uid' => $owner['uid'], 'blocked' => false]);
 		}
 
 		if (!$show_contacts) {
@@ -600,23 +600,32 @@ class Transmitter
 						continue;
 					}
 
-					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
+					$profile = APContact::getByURL($term['url'], false);
+					if (!empty($profile)) {
+						if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
+							$exclusive = true;
+							if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
+								$data['cc'][] = $profile['followers'];
+							}
+						}
 						$data['to'][] = $profile['url'];
 					}
 				}
 			}
 
-			foreach ($receiver_list as $receiver) {
-				$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol', 'gsid'], ['id' => $receiver, 'network' => Protocol::FEDERATED]);
-				if (!DBA::isResult($contact) || !self::isAPContact($contact, $networks)) {
-					continue;
-				}
+			if (!$exclusive) {
+				foreach ($receiver_list as $receiver) {
+					$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol', 'gsid'], ['id' => $receiver, 'network' => Protocol::FEDERATED]);
+					if (!DBA::isResult($contact) || !self::isAPContact($contact, $networks)) {
+						continue;
+					}
 
-				if (!empty($profile = APContact::getByURL($contact['url'], false))) {
-					if ($contact['hidden'] || $always_bcc) {
-						$data['bcc'][] = $profile['url'];
-					} else {
-						$data['cc'][] = $profile['url'];
+					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
+						if ($contact['hidden'] || $always_bcc) {
+							$data['bcc'][] = $profile['url'];
+						} else {
+							$data['cc'][] = $profile['url'];
+						}
 					}
 				}
 			}
@@ -1077,20 +1086,6 @@ class Transmitter
 		$item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
 		if (!DBA::isResult($item)) {
 			return false;
-		}
-
-		// In case of a forum post ensure to return the original post if author and forum are on the same machine
-		if (($item['gravity'] == GRAVITY_PARENT) && !empty($item['forum_mode'])) {
-			$author = Contact::getById($item['author-id'], ['nurl']);
-			if (!empty($author['nurl'])) {
-				$self = Contact::selectFirst(['uid'], ['nurl' => $author['nurl'], 'self' => true]);
-				if (!empty($self['uid'])) {
-					$forum_item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['uri-id' => $item['uri-id'], 'uid' => $self['uid']]);
-					if (DBA::isResult($forum_item)) {
-						$item = $forum_item;
-					}
-				}
-			}
 		}
 
 		if (empty($item['uri-id'])) {

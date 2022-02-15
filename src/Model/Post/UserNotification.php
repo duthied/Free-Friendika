@@ -33,6 +33,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Subscription;
 use Friendica\Model\Tag;
+use Friendica\Model\User;
 use Friendica\Navigation\Notifications;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
@@ -173,6 +174,11 @@ class UserNotification
 	private static function setNotificationForUser(array $item, int $uid)
 	{
 		if (Post\ThreadUser::getIgnored($item['parent-uri-id'], $uid)) {
+			return;
+		}
+
+		$user = User::getById($uid, ['account-type']);
+		if (in_array($user['account-type'], [User::ACCOUNT_TYPE_COMMUNITY, User::ACCOUNT_TYPE_RELAY])) {
 			return;
 		}
 

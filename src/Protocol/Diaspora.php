@@ -858,10 +858,6 @@ class Diaspora
 		} elseif (($contact["rel"] == Contact::SHARING) || ($contact["rel"] == Contact::FRIEND)) {
 			// Yes, then it is fine.
 			return true;
-			// Is it a post to a community?
-		} elseif (($contact["rel"] == Contact::FOLLOWER) && ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY)) {
-			// That's good
-			return true;
 			// Is the message a global user or a comment?
 		} elseif (($importer["uid"] == 0) || $is_comment) {
 			// Messages for the global users and comments are always accepted
@@ -3473,9 +3469,8 @@ class Diaspora
 
 	private static function prependParentAuthorMention($body, $profile_url)
 	{
-		$profile = Contact::getByURL($profile_url, false, ['addr', 'name', 'contact-type']);
+		$profile = Contact::getByURL($profile_url, false, ['addr', 'name']);
 		if (!empty($profile['addr'])
-			&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
 			&& !strstr($body, $profile['addr'])
 			&& !strstr($body, $profile_url)
 		) {

@@ -93,6 +93,12 @@ class Receive extends BaseModule
 
 		$importer = User::getByGuid($this->parameters['guid']);
 
+		if ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
+			// Communities aren't working with the Diaspora protoccol
+			// We throw an "accepted" here, so that the sender doesn't repeat the delivery
+			throw new HTTPException\AcceptedException();
+		}
+
 		$msg = $this->decodePost(false, $importer['prvkey'] ?? '');
 
 		$this->logger->info('Diaspora: Dispatching.');
