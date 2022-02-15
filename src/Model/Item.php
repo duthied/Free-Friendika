@@ -1485,6 +1485,7 @@ class Item
 			return 0;
 		}
 
+		// Data from the "post-user" table
 		unset($item['id']);
 		unset($item['mention']);
 		unset($item['starred']);
@@ -1493,10 +1494,14 @@ class Item
 		unset($item['pinned']);
 		unset($item['ignored']);
 		unset($item['pubmail']);
-
 		unset($item['event-id']);
 		unset($item['hidden']);
 		unset($item['notification-type']);
+		unset($item['post-reason']);
+
+		// Data from the "post-delivery-data" table
+		unset($item['postopts']);
+		unset($item['inform']);
 
 		$item['uid'] = $uid;
 		$item['origin'] = 0;
