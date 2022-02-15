@@ -31,6 +31,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Notification;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -570,7 +571,17 @@ function settings_content(App $a)
 			'$ostat_enabled' => $ostat_enabled,
 
 			'$general_settings' => DI::l10n()->t('General Social Media Settings'),
-			'$accept_only_sharer' => ['accept_only_sharer', DI::l10n()->t('Accept only top level posts by contacts you follow'), $accept_only_sharer, DI::l10n()->t('The system does an auto completion of threads when a comment arrives. This has got the side effect that you can receive posts that had been started by a non-follower but had been commented by someone you follow. This setting deactivates this behaviour. When activated, you strictly only will receive posts from people you really do follow.')],
+			'$accept_only_sharer' => [
+				'accept_only_sharer',
+				DI::l10n()->t('Followed content scope'),
+				$accept_only_sharer,
+				DI::l10n()->t('By default, conversations in which your follows participated but didn\'t start will be shown in your timeline. You can turn this behavior off, or expand it to the conversations in which your follows liked a post.'),
+				[
+					Item::COMPLETION_NONE    => DI::l10n()->t('Only conversations my follows started'),
+					Item::COMPLETION_COMMENT => DI::l10n()->t('Conversations my follows started or commented on (default)'),
+					Item::COMPLETION_LIKE    => DI::l10n()->t('Any conversation my follows interacted with, including likes'),
+				]
+			],
 			'$enable_cw' => ['enable_cw', DI::l10n()->t('Enable Content Warning'), $enable_cw, DI::l10n()->t('Users on networks like Mastodon or Pleroma are able to set a content warning field which collapse their post by default. This enables the automatic collapsing instead of setting the content warning as the post title. Doesn\'t affect any other content filtering you eventually set up.')],
 			'$enable_smart_shortening' => ['enable_smart_shortening', DI::l10n()->t('Enable intelligent shortening'), $enable_smart_shortening, DI::l10n()->t('Normally the system tries to find the best link to add to shortened posts. If disabled, every shortened post will always point to the original friendica post.')],
 			'$simple_shortening' => ['simple_shortening', DI::l10n()->t('Enable simple text shortening'), $simple_shortening, DI::l10n()->t('Normally the system shortens posts at the next line feed. If this option is enabled then the system will shorten the text at the maximum character limit.')],

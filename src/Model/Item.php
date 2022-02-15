@@ -74,6 +74,11 @@ class Item
 	const PR_RELAY = 74;
 	const PR_FETCHED = 75;
 
+	// system.accept_only_sharer setting values
+	const COMPLETION_NONE    = 1;
+	const COMPLETION_COMMENT = 0;
+	const COMPLETION_LIKE    = 2;
+
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = [
 		'uid', 'id', 'parent', 'guid', 'network', 'gravity',
@@ -1403,7 +1408,7 @@ class Item
 		$is_reshare = ($item['gravity'] == GRAVITY_ACTIVITY) && ($item['verb'] == Activity::ANNOUNCE);
 
 		if ((($item['gravity'] == GRAVITY_PARENT) || $is_reshare) &&
-			DI::pConfig()->get($uid, 'system', 'accept_only_sharer') &&
+			DI::pConfig()->get($uid, 'system', 'accept_only_sharer') === self::COMPLETION_NONE &&
 			!Contact::isSharingByURL($item['author-link'], $uid) &&
 			!Contact::isSharingByURL($item['owner-link'], $uid)) {
 			Logger::info('Contact is not a follower, thread will not be stored', ['author' => $item['author-link'], 'uid' => $uid]);
