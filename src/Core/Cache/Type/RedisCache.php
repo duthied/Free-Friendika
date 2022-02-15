@@ -59,13 +59,13 @@ class RedisCache extends AbstractCache implements ICanCacheInMemory
 		$redis_pw   = $config->get('system', 'redis_password');
 		$redis_db   = $config->get('system', 'redis_db', 0);
 
-		if (isset($redis_port) && !@$this->redis->connect($redis_host, $redis_port)) {
+		if (!empty($redis_port) && !@$this->redis->connect($redis_host, $redis_port)) {
 			throw new CachePersistenceException('Expected Redis server at ' . $redis_host . ':' . $redis_port . ' isn\'t available');
 		} elseif (!@$this->redis->connect($redis_host)) {
 			throw new CachePersistenceException('Expected Redis server at ' . $redis_host . ' isn\'t available');
 		}
 
-		if (isset($redis_pw) && !$this->redis->auth($redis_pw)) {
+		if (!empty($redis_pw) && !$this->redis->auth($redis_pw)) {
 			throw new CachePersistenceException('Cannot authenticate redis server at ' . $redis_host . ':' . $redis_port);
 		}
 
