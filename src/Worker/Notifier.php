@@ -153,7 +153,7 @@ class Notifier
 		}
 
 		// Should the post be transmitted to Diaspora?
-		$diaspora_delivery = true;
+		$diaspora_delivery = ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);
 
 		// If this is a public conversation, notify the feed hub
 		$public_message = true;

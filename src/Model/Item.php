@@ -818,6 +818,15 @@ class Item
 		$item['inform']        = trim($item['inform'] ?? '');
 		$item['file']          = trim($item['file'] ?? '');
 
+		// Communities aren't working with the Diaspora protoccol
+		if (($uid != 0) && ($item['network'] == Protocol::DIASPORA)) {
+			$user = User::getById($uid, ['account-type']);
+		 	if ($user['account-type'] == Contact::TYPE_COMMUNITY) {
+				Logger::info('Community posts are not supported via Diaspora');
+				return 0;
+			}
+		}
+
 		// Items cannot be stored before they happen ...
 		if ($item['created'] > DateTimeFormat::utcNow()) {
 			$item['created'] = DateTimeFormat::utcNow();
