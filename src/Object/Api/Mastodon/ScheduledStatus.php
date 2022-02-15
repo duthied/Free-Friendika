@@ -71,7 +71,7 @@ class ScheduledStatus extends BaseDataTransferObject
 			'media_ids'      => $media_ids,
 			'sensitive'      => null,
 			'spoiler_text'   => $parameters['item']['title'] ?? '',
-			'visibility'     => $visibility[$parameters['item']['private']],
+			'visibility'     => $visibility[$parameters['item']['private'] ?? 1],
 			'scheduled_at'   => $this->scheduled_at,
 			'poll'           => null,
 			'idempotency'    => null,
