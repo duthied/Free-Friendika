@@ -667,6 +667,15 @@ class Receiver
 				$uid = $receiver['uid'];
 			}
 		}
+
+		// When we haven't found any user yet, we just chose a user who most likely could have access to the content
+		if (empty($uid)) {
+			$contact = Contact::selectFirst(['uid'], ['nurl' => Strings::normaliseLink($actor), 'rel' => [Contact::SHARING, Contact::FRIEND]]);
+			if (!empty($contact['uid'])) {
+				$uid = $contact['uid'];
+			}
+		}
+
 		return $uid;
 	}
 

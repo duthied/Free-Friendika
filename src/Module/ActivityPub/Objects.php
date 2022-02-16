@@ -81,6 +81,7 @@ class Objects extends BaseModule
 			$requester = HTTPSignature::getSigner('', $_SERVER);
 			if (!empty($requester)) {
 				$receivers = Item::enumeratePermissions($item, false);
+				$receivers[] = $item['contact-id'];
 
 				$validated = in_array(Contact::getIdForURL($requester, $item['uid']), $receivers);
 				if (!$validated) {

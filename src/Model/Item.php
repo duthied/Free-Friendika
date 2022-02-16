@@ -1994,10 +1994,8 @@ class Item
 		Logger::info('Community post will be distributed', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 
 		if ($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) {
-			Group::getMembersForForum($owner['id']);
-
-			$allow_cid = '<' . $owner['id'] . '>';
-			$allow_gid = '<' . Group::getIdForForum($owner['id']) . '>';
+			$allow_cid = '';
+			$allow_gid = '<' . Group::FOLLOWERS . '>';
 			$deny_cid  = '';
 			$deny_gid  = '';
 			self::performActivity($item['id'], 'announce', $uid, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
@@ -3210,30 +3208,20 @@ class Item
 	}
 
 	/**
-	 * Is the given item array a post that is sent as starting post to a forum?
+	 * Does the given uri-id belongs to a post that is sent as starting post to a forum?
 	 *
-	 * @param array $item
-	 * @param array $owner
+	 * @param int $uri_id
 	 *
 	 * @return boolean "true" when it is a forum post
 	 */
-	public static function isForumPost(array $item, array $owner = [])
+	public static function isForumPost(int $uri_id)
 	{
-		if (empty($owner)) {
-			$owner = User::getOwnerDataById($item['uid']);
-			if (empty($owner)) {
-				return false;
+		foreach (Tag::getByURIId($uri_id, [Tag::EXCLUSIVE_MENTION]) as $tag) {
+			if (DBA::exists('contact', ['uid' => 0, 'nurl' => Strings::normaliseLink($tag['url']), 'contact-type' => Contact::TYPE_COMMUNITY])) {
+				return true;
 			}
 		}
-
-		if (($item['author-id'] == $item['owner-id']) ||
-			($owner['id'] == $item['contact-id']) ||
-			($item['uri-id'] != $item['parent-uri-id']) ||
-			$item['origin']) {
-			return false;
-		}
-
-		return Contact::isForum($item['contact-id']);
+		return false;
 	}
 
 	/**
