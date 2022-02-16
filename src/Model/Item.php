@@ -1442,26 +1442,36 @@ class Item
 		}
 
 		$post = Post::selectFirst(['uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'private'], ['uri-id' => $uriid, 'origin' => true]);
-		if (empty($post)) {
-			if (Post::exists(['uri-id' => $uriid, 'uid' => 0])) {
-				return 0;
-			} else {
+		if (!empty($post)) {
+			if (in_array($post['private'], [Item::PUBLIC, Item::UNLISTED])) {
+				return $post['uid'];
+			}
+
+			$pcid = Contact::getPublicIdByUserId($uid);
+			if (empty($pcid)) {
 				return null;
 			}
-		}
 
-		if (in_array($post['private'], [Item::PUBLIC, Item::UNLISTED])) {
-			return $post['uid'];
-		}
+			foreach (Item::enumeratePermissions($post, true) as $receiver) {
+				if ($receiver == $pcid) {
+					return $post['uid'];
+				}
+			}
 
-		$pcid = Contact::getPublicIdByUserId($uid);
-		if (empty($pcid)) {
 			return null;
 		}
 
-		foreach (Item::enumeratePermissions($post, true) as $receiver) {
-			if ($receiver == $pcid) {
-				return $post['uid'];
+		if (Post::exists(['uri-id' => $uriid, 'uid' => 0])) {
+			return 0;
+		}
+
+		// When the post belongs to a a forum then all forum users are allowed to access it
+		foreach (Tag::getByURIId($uriid, [Tag::EXCLUSIVE_MENTION]) as $tag) {
+			if (DBA::exists('contact', ['uid' => $uid, 'nurl' => Strings::normaliseLink($tag['url']), 'contact-type' => Contact::TYPE_COMMUNITY])) {
+				$target_uid = User::getIdForURL($tag['url']);
+				if (!empty($target_uid)) {
+					return $target_uid;
+				}
 			}
 		}
 
