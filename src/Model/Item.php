@@ -1236,8 +1236,9 @@ class Item
 			return;
 		}
 
+		$self = Contact::selectFirst(['id'], ['uid' => $item['uid'], 'self' => true]);
 		$cid = Contact::getIdForURL($author['url'], $item['uid']);
-		if (empty($cid) || !Contact::isSharing($cid, $item['uid'])) {
+		if (empty($cid) || (!Contact::isSharing($cid, $item['uid']) && ($cid != $self['id']))) {
 			Logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid'], 'cid' => $cid]);
 			return;
 		}
