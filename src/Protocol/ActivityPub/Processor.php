@@ -647,7 +647,12 @@ class Processor
 					Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
 					continue;
 				}
-				if (!empty($activity['thread-children-type']) && in_array($activity['thread-children-type'], Receiver::ACTIVITY_TYPES)) {
+
+				if (
+					!empty($activity['thread-children-type'])
+					&& in_array($activity['thread-children-type'], Receiver::ACTIVITY_TYPES)
+					&& DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', Item::COMPLETION_COMMENT) !== Item::COMPLETION_LIKE
+				) {
 					Logger::info('Top level post from thread completion from a non sharer had been initiated via an activity, ignoring',
 						['type' => $activity['thread-children-type'], 'user' => $item['uid'], 'causer' => $item['causer-link'], 'author' => $activity['author'], 'url' => $item['uri']]);
 					continue;
@@ -663,7 +668,7 @@ class Processor
 				}
 			}
 
-			if (!$is_forum && DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
+			if (!$is_forum && DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', Item::COMPLETION_COMMENT) === Item::COMPLETION_NONE && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
 				$skip = !Contact::isSharingByURL($activity['author'], $receiver);
 
 				if ($skip && (($activity['type'] == 'as:Announce') || ($item['isForum'] ?? false))) {
