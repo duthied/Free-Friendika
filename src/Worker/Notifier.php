@@ -733,7 +733,7 @@ class Notifier
 		foreach (Tag::getByURIId($target_item['uri-id'], [Tag::EXCLUSIVE_MENTION]) as $tag) {
 			$target_contact = Contact::getByURL(Strings::normaliseLink($tag['url']), null, [], $uid);
 			if (($target_contact['contact-type'] == Contact::TYPE_COMMUNITY) && $target_contact['manually-approve']) {
-				Group::getMembersForForum($target_contact['id']);
+				Group::UpdateMembersForForum($target_contact['id']);
 			}
 		}
 
