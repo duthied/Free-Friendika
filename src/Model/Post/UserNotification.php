@@ -182,6 +182,11 @@ class UserNotification
 			return;
 		}
 
+		$author = Contact::getById($item['author-id'], ['contact-type']);
+		if (empty($author)) {
+			return;
+		}
+
 		$notification_type = self::TYPE_NONE;
 
 		if (self::checkShared($item, $uid)) {
@@ -232,7 +237,7 @@ class UserNotification
 			}
 		}
 
-		if (self::checkDirectCommentedThread($item, $contacts)) {
+		if (($contact['contact-type'] != Contact::TYPE_COMMUNITY) && self::checkDirectCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_DIRECT_THREAD_COMMENT;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_DIRECT_THREAD_COMMENT, $uid, $item);

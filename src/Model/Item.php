@@ -1945,7 +1945,7 @@ class Item
 
 		$owner = User::getOwnerDataById($uid);
 		if (!DBA::isResult($owner)) {
-			Logger::warning('User not found, quitting.', ['uid' => $uid]);
+			Logger::warning('User not found, quitting here.', ['uid' => $uid]);
 			return false;
 		}
 
@@ -1954,47 +1954,44 @@ class Item
 			return false;
 		}
 
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
+		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'origin' => false]);
 		if (!DBA::isResult($item)) {
-			Logger::warning('Post not found, quitting.', ['id' => $item_id]);
+			Logger::debug('Post is an activity or origin or not found at all, quitting here.', ['id' => $item_id]);
 			return false;
 		}
 
-		if ($item['wall'] || $item['origin'] || ($item['gravity'] != GRAVITY_PARENT)) {
-			Logger::debug('Wall item, origin item or no parent post, quitting here.', ['wall' => $item['wall'], 'origin' => $item['origin'], 'gravity' => $item['gravity'], 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-			return false;
-		}
-
-		$tags = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
-		foreach ($tags as $tag) {
-			if (Strings::compareLink($owner['url'], $tag['url'])) {
-				$mention = true;
-				Logger::info('Mention found in tag.', ['url' => $tag['url'], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-			}
-		}
-
-		// This check can most likely be removed since we always are having the tags
-		if (!$mention) {
-			$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
-			if ($cnt) {
-				foreach ($matches as $mtch) {
-					if (Strings::compareLink($owner['url'], $mtch[1])) {
-						$mention = true;
-						Logger::notice('Mention found in body.', ['mention' => $mtch[2], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-					}
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			$tags = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
+			foreach ($tags as $tag) {
+				if (Strings::compareLink($owner['url'], $tag['url'])) {
+					$mention = true;
+					Logger::info('Mention found in tag.', ['url' => $tag['url'], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 				}
 			}
+
+			if (!$mention) {
+				Logger::info('Top-level post without mention is deleted.', ['uri' => $item['uri'], $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+				Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
+				return true;
+			}
+
+			$arr = ['item' => $item, 'user' => $owner];
+
+			Hook::callAll('tagged', $arr);
+		} else {
+			$tags = Tag::getByURIId($item['parent-uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
+			foreach ($tags as $tag) {
+				if (Strings::compareLink($owner['url'], $tag['url'])) {
+					$mention = true;
+					Logger::info('Mention found in parent tag.', ['url' => $tag['url'], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+				}
+			}
+
+			if (!$mention) {
+				Logger::debug('No mentions found in parent, quitting here.', ['id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+				return false;
+			}
 		}
-
-		if (!$mention) {
-			Logger::info('Top-level post without mention is deleted.', ['uri' => $item['uri'], $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-			Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
-			return true;
-		}
-
-		$arr = ['item' => $item, 'user' => $owner];
-
-		Hook::callAll('tagged', $arr);
 
 		Logger::info('Community post will be distributed', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 
