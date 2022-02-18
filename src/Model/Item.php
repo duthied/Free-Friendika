@@ -1474,7 +1474,7 @@ class Item
 		}
 
 		// When the post belongs to a a forum then all forum users are allowed to access it
-		foreach (Tag::getByURIId($uriid, [Tag::EXCLUSIVE_MENTION]) as $tag) {
+		foreach (Tag::getByURIId($uriid, [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $tag) {
 			if (DBA::exists('contact', ['uid' => $uid, 'nurl' => Strings::normaliseLink($tag['url']), 'contact-type' => Contact::TYPE_COMMUNITY])) {
 				$target_uid = User::getIdForURL($tag['url']);
 				if (!empty($target_uid)) {
