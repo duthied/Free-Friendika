@@ -500,7 +500,7 @@ class OStatus
 
 					if (!$valid) {
 						// If not, then it depends on this setting
-						$valid = !$uid || DI::pConfig()->get($uid, 'system', 'accept_only_sharer', Item::COMPLETION_COMMENT) !== Item::COMPLETION_NONE;
+						$valid = !$uid || DI::pConfig()->get($uid, 'system', 'accept_only_sharer') != Item::COMPLETION_NONE;
 
 						if ($valid) {
 							Logger::info("Item with uri ".self::$itemlist[0]['uri']." will be imported due to the system settings.");
@@ -509,7 +509,7 @@ class OStatus
 						Logger::info("Item with uri ".self::$itemlist[0]['uri']." belongs to a contact (".self::$itemlist[0]['contact-id']."). It will be imported.");
 					}
 
-					if ($valid && DI::pConfig()->get($uid, 'system', 'accept_only_sharer', Item::COMPLETION_COMMENT) !== Item::COMPLETION_LIKE) {
+					if ($valid && DI::pConfig()->get($uid, 'system', 'accept_only_sharer') != Item::COMPLETION_LIKE) {
 						// Never post a thread when the only interaction by our contact was a like
 						$valid = false;
 						$verbs = [Activity::POST, Activity::SHARE];
