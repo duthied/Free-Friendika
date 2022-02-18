@@ -509,28 +509,33 @@ class Transmitter
 	/**
 	 * Creates an array of permissions from an item thread
 	 *
-	 * @param array   $item       Item array
-	 * @param boolean $blindcopy  addressing via "bcc" or "cc"?
-	 * @param integer $last_id    Last item id for adding receivers
-	 * @param boolean $forum_post "true" means that we are sending content to a forum
+	 * @param array   $item      Item array
+	 * @param boolean $blindcopy addressing via "bcc" or "cc"?
+	 * @param integer $last_id   Last item id for adding receivers
 	 *
 	 * @return array with permission data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0, $forum_post = false)
+	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0)
 	{
 		if ($last_id == 0) {
 			$last_id = $item['id'];
 		}
 
 		$always_bcc = false;
+		$is_forum   = false;
+		$follower   = '';
 
 		// Check if we should always deliver our stuff via BCC
 		if (!empty($item['uid'])) {
-			$profile = User::getOwnerDataById($item['uid']);
-			if (!empty($profile)) {
-				$always_bcc = $profile['hide-friends'];
+			$owner = User::getOwnerDataById($item['uid']);
+			if (!empty($owner)) {
+				$always_bcc = $owner['hide-friends'];
+				$is_forum   = ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) && $owner['manually-approve'];
+
+				$profile  = APContact::getByURL($owner['url'], false);
+				$follower = $profile['followers'] ?? '';
 			}
 		}
 
@@ -613,7 +618,9 @@ class Transmitter
 				}
 			}
 
-			if (!$exclusive) {
+			if ($is_forum && !$exclusive && !empty($follower)) {
+				$data['cc'][] = $follower;
+			} elseif (!$exclusive) {
 				foreach ($receiver_list as $receiver) {
 					$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol', 'gsid'], ['id' => $receiver, 'network' => Protocol::FEDERATED]);
 					if (!DBA::isResult($contact) || !self::isAPContact($contact, $networks)) {
@@ -652,9 +659,7 @@ class Transmitter
 							}
 						} elseif (!$exclusive) {
 							// Public thread parent post always are directed to the followers.
-							// This mustn't be done by posts that are directed to forum servers via the exclusive mention.
-							// But possibly in that case we could add the "followers" collection of the forum to the message.
-							if (($item['private'] != Item::PRIVATE) && !$forum_post) {
+							if ($item['private'] != Item::PRIVATE) {
 								$data['cc'][] = $actor_profile['followers'];
 							}
 						}
@@ -820,18 +825,17 @@ class Transmitter
 	/**
 	 * Fetches an array of inboxes for the given item and user
 	 *
-	 * @param array   $item       Item array
-	 * @param integer $uid        User ID
-	 * @param boolean $personal   fetch personal inboxes
-	 * @param integer $last_id    Last item id for adding receivers
-	 * @param boolean $forum_post "true" means that we are sending content to a forum
+	 * @param array   $item     Item array
+	 * @param integer $uid      User ID
+	 * @param boolean $personal fetch personal inboxes
+	 * @param integer $last_id  Last item id for adding receivers
 	 * @return array with inboxes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0, $forum_post = false)
+	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0)
 	{
-		$permissions = self::createPermissionBlockForItem($item, true, $last_id, $forum_post);
+		$permissions = self::createPermissionBlockForItem($item, true, $last_id);
 		if (empty($permissions)) {
 			return [];
 		}

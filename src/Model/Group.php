@@ -556,7 +556,7 @@ class Group
 	 *
 	 * @param integer $id Contact ID
 	 */
-	public static function getMembersForForum(int $id)
+	public static function updateMembersForForum(int $id)
 	{
 		Logger::info('Update forum members', ['id' => $id]);
 

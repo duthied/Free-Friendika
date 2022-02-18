@@ -1236,8 +1236,11 @@ class Item
 			return;
 		}
 
+		$self_contact = Contact::selectFirst(['id'], ['uid' => $item['uid'], 'self' => true]);
+		$self = !empty($self_contact) ? $self_contact['id'] : 0;
+		
 		$cid = Contact::getIdForURL($author['url'], $item['uid']);
-		if (empty($cid) || !Contact::isSharing($cid, $item['uid'])) {
+		if (empty($cid) || (!Contact::isSharing($cid, $item['uid']) && ($cid != $self))) {
 			Logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid'], 'cid' => $cid]);
 			return;
 		}
@@ -1471,7 +1474,7 @@ class Item
 		}
 
 		// When the post belongs to a a forum then all forum users are allowed to access it
-		foreach (Tag::getByURIId($uriid, [Tag::EXCLUSIVE_MENTION]) as $tag) {
+		foreach (Tag::getByURIId($uriid, [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $tag) {
 			if (DBA::exists('contact', ['uid' => $uid, 'nurl' => Strings::normaliseLink($tag['url']), 'contact-type' => Contact::TYPE_COMMUNITY])) {
 				$target_uid = User::getIdForURL($tag['url']);
 				if (!empty($target_uid)) {
@@ -1945,7 +1948,7 @@ class Item
 
 		$owner = User::getOwnerDataById($uid);
 		if (!DBA::isResult($owner)) {
-			Logger::warning('User not found, quitting.', ['uid' => $uid]);
+			Logger::warning('User not found, quitting here.', ['uid' => $uid]);
 			return false;
 		}
 
@@ -1954,55 +1957,50 @@ class Item
 			return false;
 		}
 
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
+		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'origin' => false]);
 		if (!DBA::isResult($item)) {
-			Logger::warning('Post not found, quitting.', ['id' => $item_id]);
+			Logger::debug('Post is an activity or origin or not found at all, quitting here.', ['id' => $item_id]);
 			return false;
 		}
 
-		if ($item['wall'] || $item['origin'] || ($item['gravity'] != GRAVITY_PARENT)) {
-			Logger::debug('Wall item, origin item or no parent post, quitting here.', ['wall' => $item['wall'], 'origin' => $item['origin'], 'gravity' => $item['gravity'], 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-			return false;
-		}
-
-		$tags = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
-		foreach ($tags as $tag) {
-			if (Strings::compareLink($owner['url'], $tag['url'])) {
-				$mention = true;
-				Logger::info('Mention found in tag.', ['url' => $tag['url'], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-			}
-		}
-
-		// This check can most likely be removed since we always are having the tags
-		if (!$mention) {
-			$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
-			if ($cnt) {
-				foreach ($matches as $mtch) {
-					if (Strings::compareLink($owner['url'], $mtch[1])) {
-						$mention = true;
-						Logger::notice('Mention found in body.', ['mention' => $mtch[2], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-					}
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			$tags = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
+			foreach ($tags as $tag) {
+				if (Strings::compareLink($owner['url'], $tag['url'])) {
+					$mention = true;
+					Logger::info('Mention found in tag.', ['url' => $tag['url'], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 				}
 			}
+
+			if (!$mention) {
+				Logger::info('Top-level post without mention is deleted.', ['uri' => $item['uri'], $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+				Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
+				return true;
+			}
+
+			$arr = ['item' => $item, 'user' => $owner];
+
+			Hook::callAll('tagged', $arr);
+		} else {
+			$tags = Tag::getByURIId($item['parent-uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
+			foreach ($tags as $tag) {
+				if (Strings::compareLink($owner['url'], $tag['url'])) {
+					$mention = true;
+					Logger::info('Mention found in parent tag.', ['url' => $tag['url'], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+				}
+			}
+
+			if (!$mention) {
+				Logger::debug('No mentions found in parent, quitting here.', ['id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+				return false;
+			}
 		}
-
-		if (!$mention) {
-			Logger::info('Top-level post without mention is deleted.', ['uri' => $item['uri'], $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-			Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
-			return true;
-		}
-
-		$arr = ['item' => $item, 'user' => $owner];
-
-		Hook::callAll('tagged', $arr);
 
 		Logger::info('Community post will be distributed', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 
 		if ($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) {
-			Group::getMembersForForum($owner['id']);
-
-			$allow_cid = '<' . $owner['id'] . '>';
-			$allow_gid = '<' . Group::getIdForForum($owner['id']) . '>';
+			$allow_cid = '';
+			$allow_gid = '<' . Group::FOLLOWERS . '>';
 			$deny_cid  = '';
 			$deny_gid  = '';
 			self::performActivity($item['id'], 'announce', $uid, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
@@ -3215,30 +3213,20 @@ class Item
 	}
 
 	/**
-	 * Is the given item array a post that is sent as starting post to a forum?
+	 * Does the given uri-id belongs to a post that is sent as starting post to a forum?
 	 *
-	 * @param array $item
-	 * @param array $owner
+	 * @param int $uri_id
 	 *
 	 * @return boolean "true" when it is a forum post
 	 */
-	public static function isForumPost(array $item, array $owner = [])
+	public static function isForumPost(int $uri_id)
 	{
-		if (empty($owner)) {
-			$owner = User::getOwnerDataById($item['uid']);
-			if (empty($owner)) {
-				return false;
+		foreach (Tag::getByURIId($uri_id, [Tag::EXCLUSIVE_MENTION]) as $tag) {
+			if (DBA::exists('contact', ['uid' => 0, 'nurl' => Strings::normaliseLink($tag['url']), 'contact-type' => Contact::TYPE_COMMUNITY])) {
+				return true;
 			}
 		}
-
-		if (($item['author-id'] == $item['owner-id']) ||
-			($owner['id'] == $item['contact-id']) ||
-			($item['uri-id'] != $item['parent-uri-id']) ||
-			$item['origin']) {
-			return false;
-		}
-
-		return Contact::isForum($item['contact-id']);
+		return false;
 	}
 
 	/**

@@ -240,7 +240,6 @@ function settings_post(App $a)
 	$allow_location   = ((!empty($_POST['allow_location']) && (intval($_POST['allow_location']) == 1)) ? 1: 0);
 	$publish          = ((!empty($_POST['profile_in_directory']) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
 	$net_publish      = ((!empty($_POST['profile_in_netdirectory']) && (intval($_POST['profile_in_netdirectory']) == 1)) ? 1: 0);
-	$old_visibility   = ((!empty($_POST['visibility']) && (intval($_POST['visibility']) == 1)) ? 1 : 0);
 	$account_type     = ((!empty($_POST['account-type']) && (intval($_POST['account-type']))) ? intval($_POST['account-type']) : 0);
 	$page_flags       = ((!empty($_POST['page-flags']) && (intval($_POST['page-flags']))) ? intval($_POST['page-flags']) : 0);
 	$blockwall        = ((!empty($_POST['blockwall']) && (intval($_POST['blockwall']) == 1)) ? 0: 1); // this setting is inverted!
@@ -362,16 +361,21 @@ function settings_post(App $a)
 	DI::pConfig()->set(local_user(), 'system', 'unlisted', $unlisted);
 	DI::pConfig()->set(local_user(), 'system', 'accessible-photos', $accessiblephotos);
 
+	if ($account_type == User::ACCOUNT_TYPE_COMMUNITY) {
+		$str_group_allow   = '';
+		$str_contact_allow = '';
+		$str_group_deny    = '';
+		$str_contact_deny  = '';
+
+		DI::pConfig()->set(local_user(), 'system', 'unlisted', true);
+
+		$blockwall    = true;
+		$blocktags    = true;
+		$hide_friends = true;
+	}
+
 	if ($page_flags == User::PAGE_FLAGS_PRVGROUP) {
-		$hidewall = 1;
-		if (!$str_contact_allow && !$str_group_allow && !$str_contact_deny && !$str_group_deny) {
-			if ($def_gid) {
-				info(DI::l10n()->t('Private forum has no privacy permissions. Using default privacy group.'));
-				$str_group_allow = '<' . $def_gid . '>';
-			} else {
-				notice(DI::l10n()->t('Private forum has no privacy permissions and no default privacy group.'));
-			}
-		}
+		$str_group_allow = '<' . Group::FOLLOWERS . '>';
 	}
 
 	$fields = ['username' => $username, 'email' => $email, 'timezone' => $timezone,
@@ -767,7 +771,7 @@ function settings_content(App $a)
 		'$allowloc' => ['allow_location', DI::l10n()->t('Use Browser Location:'), ($user['allow_location'] == 1), ''],
 
 		'$h_prv' 	          => DI::l10n()->t('Security and Privacy Settings'),
-		'$visibility'         => $profile['net-publish'],
+		'$is_community'       => ($user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY),
 		'$maxreq' 	          => ['maxreq', DI::l10n()->t('Maximum Friend Requests/Day:'), $maxreq , DI::l10n()->t("\x28to prevent spam abuse\x29")],
 		'$profile_in_dir'     => $profile_in_dir,
 		'$profile_in_net_dir' => ['profile_in_netdirectory', DI::l10n()->t('Allow your profile to be searchable globally?'), $profile['net-publish'], DI::l10n()->t("Activate this setting if you want others to easily find and follow you. Your profile will be searchable on remote systems. This setting also determines whether Friendica will inform search engines that your profile should be indexed or not.") . $net_pub_desc],
