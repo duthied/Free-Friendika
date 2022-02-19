@@ -58,5 +58,7 @@ class FriendicaSmarty extends Smarty
 
 		// Don't report errors so verbosely
 		$this->error_reporting = E_ALL & ~E_NOTICE;
+
+		$this->muteUndefinedOrNullWarnings();
 	}
 }
