@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-17 07:11+0000\n"
+"POT-Creation-Date: 2022-02-19 13:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -163,7 +163,7 @@ msgid "Save"
 msgstr ""
 
 #: mod/editpost.php:92 mod/photos.php:1344 src/Content/Conversation.php:326
-#: src/Module/Contact/Poke.php:176 src/Object/Post.php:966
+#: src/Module/Contact/Poke.php:176 src/Object/Post.php:960
 msgid "Loading..."
 msgstr ""
 
@@ -229,7 +229,7 @@ msgstr ""
 #: mod/editpost.php:107 mod/message.php:200 mod/message.php:358
 #: mod/photos.php:1495 mod/wallmessage.php:142 src/Content/Conversation.php:355
 #: src/Content/Conversation.php:690 src/Module/Item/Compose.php:165
-#: src/Object/Post.php:504
+#: src/Object/Post.php:498
 msgid "Please wait"
 msgstr ""
 
@@ -261,7 +261,7 @@ msgstr ""
 
 #: mod/editpost.php:128 mod/events.php:517 mod/photos.php:1343
 #: mod/photos.php:1399 mod/photos.php:1473 src/Content/Conversation.php:370
-#: src/Module/Item/Compose.php:160 src/Object/Post.php:976
+#: src/Module/Item/Compose.php:160 src/Object/Post.php:970
 msgid "Preview"
 msgstr ""
 
@@ -273,37 +273,37 @@ msgid "Cancel"
 msgstr ""
 
 #: mod/editpost.php:134 src/Content/Conversation.php:331
-#: src/Module/Item/Compose.php:151 src/Object/Post.php:967
+#: src/Module/Item/Compose.php:151 src/Object/Post.php:961
 msgid "Bold"
 msgstr ""
 
 #: mod/editpost.php:135 src/Content/Conversation.php:332
-#: src/Module/Item/Compose.php:152 src/Object/Post.php:968
+#: src/Module/Item/Compose.php:152 src/Object/Post.php:962
 msgid "Italic"
 msgstr ""
 
 #: mod/editpost.php:136 src/Content/Conversation.php:333
-#: src/Module/Item/Compose.php:153 src/Object/Post.php:969
+#: src/Module/Item/Compose.php:153 src/Object/Post.php:963
 msgid "Underline"
 msgstr ""
 
 #: mod/editpost.php:137 src/Content/Conversation.php:334
-#: src/Module/Item/Compose.php:154 src/Object/Post.php:970
+#: src/Module/Item/Compose.php:154 src/Object/Post.php:964
 msgid "Quote"
 msgstr ""
 
 #: mod/editpost.php:138 src/Content/Conversation.php:335
-#: src/Module/Item/Compose.php:155 src/Object/Post.php:971
+#: src/Module/Item/Compose.php:155 src/Object/Post.php:965
 msgid "Code"
 msgstr ""
 
 #: mod/editpost.php:139 src/Content/Conversation.php:337
-#: src/Module/Item/Compose.php:157 src/Object/Post.php:973
+#: src/Module/Item/Compose.php:157 src/Object/Post.php:967
 msgid "Link"
 msgstr ""
 
 #: mod/editpost.php:140 src/Content/Conversation.php:338
-#: src/Module/Item/Compose.php:158 src/Object/Post.php:974
+#: src/Module/Item/Compose.php:158 src/Object/Post.php:968
 msgid "Link or Media"
 msgstr ""
 
@@ -411,7 +411,7 @@ msgstr ""
 #: src/Module/Install.php:252 src/Module/Install.php:294
 #: src/Module/Install.php:331 src/Module/Invite.php:177
 #: src/Module/Item/Compose.php:150 src/Module/Profile/Profile.php:247
-#: src/Module/Settings/Profile/Index.php:222 src/Object/Post.php:965
+#: src/Module/Settings/Profile/Index.php:222 src/Object/Post.php:959
 #: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
 #: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
@@ -1066,12 +1066,12 @@ msgstr ""
 
 #: mod/photos.php:1339 mod/photos.php:1395 mod/photos.php:1469
 #: src/Module/Contact.php:544 src/Module/Item/Compose.php:148
-#: src/Object/Post.php:962
+#: src/Object/Post.php:956
 msgid "This is you"
 msgstr ""
 
 #: mod/photos.php:1341 mod/photos.php:1397 mod/photos.php:1471
-#: src/Object/Post.php:498 src/Object/Post.php:964
+#: src/Object/Post.php:492 src/Object/Post.php:958
 msgid "Comment"
 msgstr ""
 
@@ -2484,7 +2484,7 @@ msgid "Visible to <strong>everybody</strong>"
 msgstr ""
 
 #: src/Content/Conversation.php:308 src/Module/Item/Compose.php:159
-#: src/Object/Post.php:975
+#: src/Object/Post.php:969
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr ""
 
@@ -2508,12 +2508,12 @@ msgstr ""
 msgid "New Post"
 msgstr ""
 
-#: src/Content/Conversation.php:325 src/Object/Post.php:481
+#: src/Content/Conversation.php:325 src/Object/Post.php:475
 msgid "Share"
 msgstr ""
 
 #: src/Content/Conversation.php:336 src/Module/Item/Compose.php:156
-#: src/Object/Post.php:972
+#: src/Object/Post.php:966
 msgid "Image"
 msgstr ""
 
@@ -2525,21 +2525,21 @@ msgstr ""
 msgid "Scheduled at"
 msgstr ""
 
-#: src/Content/Conversation.php:651 src/Object/Post.php:454
-#: src/Object/Post.php:455
+#: src/Content/Conversation.php:651 src/Object/Post.php:448
+#: src/Object/Post.php:449
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr ""
 
-#: src/Content/Conversation.php:664 src/Object/Post.php:442
+#: src/Content/Conversation.php:664 src/Object/Post.php:436
 msgid "Categories:"
 msgstr ""
 
-#: src/Content/Conversation.php:665 src/Object/Post.php:443
+#: src/Content/Conversation.php:665 src/Object/Post.php:437
 msgid "Filed under:"
 msgstr ""
 
-#: src/Content/Conversation.php:673 src/Object/Post.php:468
+#: src/Content/Conversation.php:673 src/Object/Post.php:462
 #, php-format
 msgid "%s from %s"
 msgstr ""
@@ -2772,7 +2772,7 @@ msgstr ""
 msgid "Ignore"
 msgstr ""
 
-#: src/Content/Item.php:443 src/Object/Post.php:429
+#: src/Content/Item.php:443 src/Object/Post.php:423
 msgid "Languages"
 msgstr ""
 
@@ -4245,7 +4245,7 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1761
+#: src/Model/Item.php:1764
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
@@ -10527,71 +10527,63 @@ msgstr ""
 msgid "Remote comment"
 msgstr ""
 
-#: src/Object/Post.php:422
-msgid "Pushed"
-msgstr ""
-
-#: src/Object/Post.php:422
-msgid "Pulled"
-msgstr ""
-
-#: src/Object/Post.php:456
+#: src/Object/Post.php:450
 msgid "to"
 msgstr ""
 
-#: src/Object/Post.php:457
+#: src/Object/Post.php:451
 msgid "via"
 msgstr ""
 
-#: src/Object/Post.php:458
+#: src/Object/Post.php:452
 msgid "Wall-to-Wall"
 msgstr ""
 
-#: src/Object/Post.php:459
+#: src/Object/Post.php:453
 msgid "via Wall-To-Wall:"
 msgstr ""
 
-#: src/Object/Post.php:499
+#: src/Object/Post.php:493
 #, php-format
 msgid "Reply to %s"
 msgstr ""
 
-#: src/Object/Post.php:502
+#: src/Object/Post.php:496
 msgid "More"
 msgstr ""
 
-#: src/Object/Post.php:520
+#: src/Object/Post.php:514
 msgid "Notifier task is pending"
 msgstr ""
 
-#: src/Object/Post.php:521
+#: src/Object/Post.php:515
 msgid "Delivery to remote servers is pending"
 msgstr ""
 
-#: src/Object/Post.php:522
+#: src/Object/Post.php:516
 msgid "Delivery to remote servers is underway"
 msgstr ""
 
-#: src/Object/Post.php:523
+#: src/Object/Post.php:517
 msgid "Delivery to remote servers is mostly done"
 msgstr ""
 
-#: src/Object/Post.php:524
+#: src/Object/Post.php:518
 msgid "Delivery to remote servers is done"
 msgstr ""
 
-#: src/Object/Post.php:544
+#: src/Object/Post.php:538
 #, php-format
 msgid "%d comment"
 msgid_plural "%d comments"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Object/Post.php:545
+#: src/Object/Post.php:539
 msgid "Show more"
 msgstr ""
 
-#: src/Object/Post.php:546
+#: src/Object/Post.php:540
 msgid "Show fewer"
 msgstr ""
 

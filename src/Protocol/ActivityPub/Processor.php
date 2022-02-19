@@ -526,6 +526,8 @@ class Processor
 		self::storeFromBody($item);
 		self::storeTags($item['uri-id'], $activity['tags']);
 
+		self::storeReceivers($item['uri-id'], $activity['receiver_urls'] ?? []);
+
 		$item['location'] = $activity['location'];
 
 		if (!empty($activity['latitude']) && !empty($activity['longitude'])) {
@@ -753,6 +755,22 @@ class Processor
 			}
 
 			Tag::store($uriid, $type, $tag['name'], $tag['href']);
+		}
+	}
+
+	public static function storeReceivers(int $uriid, array $receivers)
+	{
+		foreach (['as:to' => Tag::TO, 'as:cc' => Tag::CC, 'as:bto' => Tag::BTO, 'as:bcc' => Tag::BCC] as $element => $type) {
+			if (!empty($receivers[$element])) {
+				foreach ($receivers[$element] as $receiver) {
+					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
+						$name = Receiver::PUBLIC_COLLECTION;
+					} else {
+						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+					}
+					Tag::store($uriid, $type, $name, $receiver);
+				}
+			}
 		}
 	}
 
