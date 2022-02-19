@@ -702,13 +702,15 @@ class Transmitter
 		}
 
 		foreach (['to' => Tag::TO, 'cc' => Tag::CC, 'bcc' => Tag::BCC] as $element => $type) {
-			foreach ($receivers[$element] as $receiver) {
-				if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
-					$name = Receiver::PUBLIC_COLLECTION;
-				} else {
-					$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+			if (!empty($receivers[$element])) {
+				foreach ($receivers[$element] as $receiver) {
+					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
+						$name = Receiver::PUBLIC_COLLECTION;
+					} else {
+						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+					}
+					Tag::store($item['uri-id'], $type, $name, $receiver);
 				}
-				Tag::store($item['uri-id'], $type, $name, $receiver);
 			}
 		}
 
