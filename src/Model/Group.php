@@ -311,6 +311,64 @@ class Group
 	}
 
 	/**
+	 * Adds contacts to a group
+	 *
+	 * @param int $gid
+	 * @param array $contacts
+	 * @throws \Exception
+	 */
+	public static function addMembers(int $gid, array $contacts)
+	{
+		if (!$gid || !$contacts) {
+			return false;
+		}
+
+		// @TODO Backward compatibility with user contacts, remove by version 2022.03
+		$group = DBA::selectFirst('group', ['uid'], ['id' => $gid]);
+		if (empty($group)) {
+			throw new HTTPException\NotFoundException('Group not found.');
+		}
+
+		foreach ($contacts as $cid) {
+			$cdata = Contact::getPublicAndUserContactID($cid, $group['uid']);
+			if (empty($cdata['user'])) {
+				throw new HTTPException\NotFoundException('Invalid contact.');
+			}
+
+			DBA::insert('group_member', ['gid' => $gid, 'contact-id' => $cdata['user']], Database::INSERT_IGNORE);
+		}
+	}
+
+	/**
+	 * Removes contacts from a group
+	 *
+	 * @param int $gid
+	 * @param array $contacts
+	 * @throws \Exception
+	 */
+	public static function removeMembers(int $gid, array $contacts)
+	{
+		if (!$gid || !$contacts) {
+			return false;
+		}
+
+		// @TODO Backward compatibility with user contacts, remove by version 2022.03
+		$group = DBA::selectFirst('group', ['uid'], ['id' => $gid]);
+		if (empty($group)) {
+			throw new HTTPException\NotFoundException('Group not found.');
+		}
+
+		foreach ($contacts as $cid) {
+			$cdata = Contact::getPublicAndUserContactID($cid, $group['uid']);
+			if (empty($cdata['user'])) {
+				throw new HTTPException\NotFoundException('Invalid contact.');
+			}
+
+			DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $cdata['user']]);
+		}
+	}
+
+	/**
 	 * Returns the combined list of contact ids from a group id list
 	 *
 	 * @param int     $uid
