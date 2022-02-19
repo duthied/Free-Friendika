@@ -118,7 +118,7 @@ class Status extends BaseProfile
 		$commvisitor = $commpage && $remote_contact;
 
 		DI::page()['aside'] .= Widget::postedByYear(DI::baseUrl() . '/profile/' . $profile['nickname'] . '/status', $profile['profile_uid'] ?? 0, true);
-		DI::page()['aside'] .= Widget::categories(DI::baseUrl() . '/profile/' . $profile['nickname'] . '/status', XML::escape($category));
+		DI::page()['aside'] .= Widget::categories($profile['uid'], DI::baseUrl() . '/profile/' . $profile['nickname'] . '/status', $category);
 		DI::page()['aside'] .= Widget::tagCloud($profile['uid']);
 
 		if (Security::canWriteToUserWall($profile['uid'])) {
