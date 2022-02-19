@@ -424,7 +424,7 @@ class Transmitter
 	}
 
 	/**
-	 * Returns an array with permissions of a given item array
+	 * Returns an array with permissions of the thread parent of the given item array
 	 *
 	 * @param array $item
 	 *
@@ -432,34 +432,25 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchPermissionBlockFromConversation($item)
+	public static function fetchPermissionBlockFromThreadParent($item)
 	{
-		if (empty($item['thr-parent'])) {
+		if (empty($item['thr-parent-id'])) {
 			return [];
 		}
 
-		$condition = ['item-uri' => $item['thr-parent'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
-		$conversation = DBA::selectFirst('conversation', ['source'], $condition);
-		if (!DBA::isResult($conversation)) {
+		$parent = Post::selectFirstPost(['author-link'], ['uri-id' => $item['thr-parent-id']]);
+		if (empty($parent)) {
 			return [];
 		}
 
 		$permissions = [
-			'to' => [],
+			'to' => [$parent['author-link']],
 			'cc' => [],
 			'bto' => [],
 			'bcc' => [],
 		];
 
-		$activity = json_decode($conversation['source'], true);
-
-		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
-		if (!empty($actor)) {
-			$permissions['to'][] = $actor;
-			$profile = APContact::getByURL($actor);
-		} else {
-			$profile = [];
-		}
+		$parent_profile = APContact::getByURL($parent['author-link']);
 
 		$item_profile = APContact::getByURL($item['author-link']);
 		$exclude[] = $item['author-link'];
@@ -468,26 +459,15 @@ class Transmitter
 			$exclude[] = $item['owner-link'];
 		}
 
-		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
-			if (empty($activity[$element])) {
-				continue;
-			}
-			if (is_string($activity[$element])) {
-				$activity[$element] = [$activity[$element]];
-			}
-
-			foreach ($activity[$element] as $receiver) {
-				if (empty($receiver)) {
-					continue;
-				}
-
-				if (!empty($profile['followers']) && $receiver == $profile['followers'] && !empty($item_profile['followers'])) {
-					$permissions[$element][] = $item_profile['followers'];
-				} elseif (!in_array($receiver, $exclude)) {
-					$permissions[$element][] = $receiver;
-				}
+		$type = [Tag::TO => 'to', Tag::CC => 'cc', Tag::BTO => 'bto', Tag::BCC => 'bcc'];
+		foreach (Tag::getByURIId($item['thr-parent-id'], [Tag::TO, Tag::CC, Tag::BTO, Tag::BCC]) as $receiver) {
+			if (!empty($parent_profile['followers']) && $receiver['url'] == $parent_profile['followers'] && !empty($item_profile['followers'])) {
+				$permissions[$type[$receiver['type']]][] = $item_profile['followers'];
+			} elseif (!in_array($receiver['url'], $exclude)) {
+				$permissions[$type[$receiver['type']]][] = $receiver['url'];
 			}
 		}
+
 		return $permissions;
 	}
 
@@ -573,7 +553,7 @@ class Transmitter
 				$data['cc'][] = $announce['actor']['url'];
 			}
 
-			$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
+			$data = array_merge($data, self::fetchPermissionBlockFromThreadParent($item));
 
 			// Check if the item is completely public or unlisted
 			if ($item['private'] == Item::PUBLIC) {
@@ -719,6 +699,19 @@ class Transmitter
 
 		if (!$blindcopy) {
 			unset($receivers['bcc']);
+		}
+
+		foreach (['to' => Tag::TO, 'cc' => Tag::CC, 'bcc' => Tag::BCC] as $element => $type) {
+			if (!empty($receivers[$element])) {
+				foreach ($receivers[$element] as $receiver) {
+					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
+						$name = Receiver::PUBLIC_COLLECTION;
+					} else {
+						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+					}
+					Tag::store($item['uri-id'], $type, $name, $receiver);
+				}
+			}
 		}
 
 		return $receivers;

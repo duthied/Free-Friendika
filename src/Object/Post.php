@@ -416,12 +416,6 @@ class Post
 		$direction = [];
 		if (!empty($item['direction'])) {
 			$direction = $item['direction'];
-		} elseif (DI::config()->get('debug', 'show_direction')) {
-			$conversation = DBA::selectFirst('conversation', ['direction'], ['item-uri' => $item['uri']]);
-			if (!empty($conversation['direction']) && in_array($conversation['direction'], [1, 2])) {
-				$direction_title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];
-				$direction = ['direction' => $conversation['direction'], 'title' => $direction_title[$conversation['direction']]];
-			}
 		}
 
 		$languages = [];

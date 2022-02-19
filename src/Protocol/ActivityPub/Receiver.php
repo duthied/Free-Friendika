@@ -297,12 +297,18 @@ class Receiver
 			$reception_types[$data['uid']] = $data['type'] ?? self::TARGET_UNKNOWN;
 		}
 
+		$urls = self::getReceiverURL($activity);
+
 		// When it is a delivery to a personal inbox we add that user to the receivers
 		if (!empty($uid)) {
 			$additional = [$uid => $uid];
 			$receivers = array_replace($receivers, $additional);
 			if (empty($activity['thread-completion']) && (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER, self::TARGET_GLOBAL]))) {
 				$reception_types[$uid] = self::TARGET_BCC;
+				$owner = User::getOwnerDataById($uid);
+				if (!empty($owner['url'])) {
+					$urls['as:bcc'][] = $owner['url'];
+				}
 			}
 		}
 
@@ -406,6 +412,12 @@ class Receiver
 
 		if (empty($object_data['object_type'])) {
 			$object_data['object_type'] = $object_type;
+		}
+
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
+			if (!empty($urls[$element])) {
+				$object_data['receiver_urls'][$element] = array_unique(array_merge($object_data['receiver_urls'][$element] ?? [], $urls[$element]));
+			}
 		}
 
 		$object_data['type'] = $type;
@@ -677,6 +689,27 @@ class Receiver
 		}
 
 		return $uid;
+	}
+
+	public static function getReceiverURL($activity)
+	{
+		$urls = [];
+
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
+			$receiver_list = JsonLD::fetchElementArray($activity, $element, '@id');
+			if (empty($receiver_list)) {
+				continue;
+			}
+
+			foreach ($receiver_list as $receiver) {
+				if ($receiver == self::PUBLIC_COLLECTION) {
+					$receiver = ActivityPub::PUBLIC_COLLECTION;
+				}
+				$urls[$element][] = $receiver;
+			}
+		}
+
+		return $urls;
 	}
 
 	/**
@@ -1508,7 +1541,8 @@ class Receiver
 			$reception_types[$data['uid']] = $data['type'] ?? 0;
 		}
 
-		$object_data['receiver'] = $receivers;
+		$object_data['receiver_urls']  = self::getReceiverURL($object);
+		$object_data['receiver']       = $receivers;
 		$object_data['reception_type'] = $reception_types;
 
 		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
