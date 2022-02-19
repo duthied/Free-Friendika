@@ -732,7 +732,7 @@ class Notifier
 		// Update the locally stored follower list when we deliver to a forum
 		foreach (Tag::getByURIId($target_item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $tag) {
 			$target_contact = Contact::getByURL(Strings::normaliseLink($tag['url']), null, [], $uid);
-			if (($target_contact['contact-type'] == Contact::TYPE_COMMUNITY) && $target_contact['manually-approve']) {
+			if ($target_contact && $target_contact['contact-type'] == Contact::TYPE_COMMUNITY && $target_contact['manually-approve']) {
 				Group::updateMembersForForum($target_contact['id']);
 			}
 		}
