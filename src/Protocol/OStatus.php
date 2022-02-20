@@ -1731,6 +1731,7 @@ class OStatus
 
 			if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
 				$contact = Contact::getByURL($item['author-link']) ?: $owner;
+				$contact['nickname'] = $contact['nickname'] ?? $contact['nick']; 
 				$author = self::addAuthor($doc, $contact, false);
 				$entry->appendChild($author);
 			}

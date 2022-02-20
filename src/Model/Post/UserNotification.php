@@ -200,11 +200,16 @@ class UserNotification
 		$profiles = self::getProfileForUser($uid);
 
 		// Fetch all contacts for the given profiles
-		$contacts = [];
+		$contacts    = [];
+		$iscommunity = false;
 
-		$ret = DBA::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
+		$ret = DBA::select('contact', ['id', 'contact-type'], ['uid' => 0, 'nurl' => $profiles]);
 		while ($contact = DBA::fetch($ret)) {
 			$contacts[] = $contact['id'];
+
+			if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
+				$iscommunity = true;
+			}
 		}
 		DBA::close($ret);
 
@@ -237,7 +242,7 @@ class UserNotification
 			}
 		}
 
-		if (($contact['contact-type'] != Contact::TYPE_COMMUNITY) && self::checkDirectCommentedThread($item, $contacts)) {
+		if (!$iscommunity && self::checkDirectCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_DIRECT_THREAD_COMMENT;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_DIRECT_THREAD_COMMENT, $uid, $item);
