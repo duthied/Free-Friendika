@@ -140,6 +140,10 @@ return [
 		// If you don't want to set a maximum length, set to -1.
 		'max_image_length' => -1,
 
+		// max_receivers (Integer)
+		// The maximum number of displayed receivers of posts
+		'max_receivers' => 10,
+
 		// maximagesize (Integer)
 		// Maximum size in bytes of an uploaded photo.
 		'maximagesize' => 800000,
