@@ -318,23 +318,20 @@ class Widget
 	/**
 	 * Return categories widget
 	 *
-	 * @param string $baseurl  baseurl
-	 * @param string $selected optional, default empty
+	 * @param int    $uid      Id of the user owning the categories
+	 * @param string $baseurl  Base page URL
+	 * @param string $selected Selected category
 	 * @return string|void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function categories($baseurl, $selected = '')
+	public static function categories(int $uid, string $baseurl, string $selected = '')
 	{
-		$a = DI::app();
-
-		$uid = intval($a->getProfileOwner());
-
 		if (!Feature::isEnabled($uid, 'categories')) {
 			return '';
 		}
 
 		$terms = array();
-		foreach (Post\Category::getArray(local_user(), Post\Category::CATEGORY) as $savedFolderName) {
+		foreach (Post\Category::getArray($uid, Post\Category::CATEGORY) as $savedFolderName) {
 			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
 
