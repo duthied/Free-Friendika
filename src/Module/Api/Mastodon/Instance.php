@@ -21,21 +21,44 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\App;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\DI;
+use Friendica\Database\Database;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Object\Api\Mastodon\Instance as InstanceEntity;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * @see https://docs.joinmastodon.org/api/rest/instances/
  */
 class Instance extends BaseApi
 {
+	/** @var Database */
+	private $database;
+
+	/** @var IManageConfigValues */
+	private $config;
+
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, Database $database, IManageConfigValues $config, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->database = $database;
+		$this->config = $config;
+	}
+
 	/**
+	 * @param array $request
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Friendica\Network\HTTPException\NotFoundException
+	 * @throws \ImagickException
 	 */
 	protected function rawContent(array $request = [])
 	{
-		System::jsonExit(new InstanceEntity(DI::config(), $this->baseUrl, DI::dba()));
+		System::jsonExit(new InstanceEntity($this->config, $this->baseUrl, $this->database));
 	}
 }

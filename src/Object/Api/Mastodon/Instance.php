@@ -87,7 +87,7 @@ class Instance extends BaseDataTransferObject
 		$this->title             = $config->get('config', 'sitename');
 		$this->short_description = $this->description = $config->get('config', 'info');
 		$this->email             = $config->get('config', 'admin_email');
-		$this->version           = FRIENDICA_VERSION;
+		$this->version           = '2.8.0 (compatible; Friendica ' . FRIENDICA_VERSION . ')';
 		$this->urls              = null; // Not supported
 		$this->stats             = new Stats($config, $database);
 		$this->thumbnail         = $baseUrl->get() . ($config->get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
