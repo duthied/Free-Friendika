@@ -1039,7 +1039,8 @@ class PostUpdate
 		Logger::info('Start', ['uri-id' => $id]);
 
 		$start_id = $id;
-		$rows = 0;
+		$rows     = 0;
+		$received = '';
 
 		$conversations = DBA::p("SELECT `post-view`.`uri-id`, `conversation`.`source`, `conversation`.`received` FROM `conversation`
 			INNER JOIN `post-view` ON `post-view`.`uri` = `conversation`.`item-uri`
