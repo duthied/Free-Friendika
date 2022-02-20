@@ -22,6 +22,7 @@
 namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Object\Api\Mastodon\Instance as InstanceEntity;
 
@@ -35,6 +36,6 @@ class Instance extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		System::jsonExit(InstanceEntity::get());
+		System::jsonExit(new InstanceEntity(DI::config(), $this->baseUrl, DI::dba()));
 	}
 }

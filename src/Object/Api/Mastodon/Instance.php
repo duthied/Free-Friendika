@@ -21,11 +21,15 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
+use Friendica\App\BaseURL;
 use Friendica\BaseDataTransferObject;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\Register;
+use Friendica\Network\HTTPException;
 
 /**
  * Class Instance
@@ -68,43 +72,39 @@ class Instance extends BaseDataTransferObject
 	protected $rules = [];
 
 	/**
-	 * Creates an instance record
-	 *
-	 * @return Instance
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param IManageConfigValues $config
+	 * @param BaseURL             $baseUrl
+	 * @param Database            $database
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function get()
+	public function __construct(IManageConfigValues $config, BaseURL $baseUrl, Database $database)
 	{
-		$register_policy = intval(DI::config()->get('config', 'register_policy'));
+		$register_policy = intval($config->get('config', 'register_policy'));
 
-		$baseUrl = DI::baseUrl();
+		$this->uri               = $baseUrl->get();
+		$this->title             = $config->get('config', 'sitename');
+		$this->short_description = $this->description = $config->get('config', 'info');
+		$this->email             = $config->get('config', 'admin_email');
+		$this->version           = FRIENDICA_VERSION;
+		$this->urls              = null; // Not supported
+		$this->stats             = new Stats($config, $database);
+		$this->thumbnail         = $baseUrl->get() . ($config->get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
+		$this->languages         = [$config->get('system', 'language')];
+		$this->max_toot_chars    = (int)$config->get('config', 'api_import_size', $config->get('config', 'max_import_size'));
+		$this->registrations     = ($register_policy != Register::CLOSED);
+		$this->approval_required = ($register_policy == Register::APPROVE);
+		$this->invites_enabled   = false;
+		$this->contact_account   = [];
 
-		$instance = new Instance();
-		$instance->uri = $baseUrl->get();
-		$instance->title = DI::config()->get('config', 'sitename');
-		$instance->short_description = $instance->description = DI::config()->get('config', 'info');
-		$instance->email = DI::config()->get('config', 'admin_email');
-		$instance->version = FRIENDICA_VERSION;
-		$instance->urls = null; // Not supported
-		$instance->stats = Stats::get();
-		$instance->thumbnail = $baseUrl->get() . (DI::config()->get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
-		$instance->languages = [DI::config()->get('system', 'language')];
-		$instance->max_toot_chars = (int)DI::config()->get('config', 'api_import_size', DI::config()->get('config', 'max_import_size'));
-		$instance->registrations = ($register_policy != Register::CLOSED);
-		$instance->approval_required = ($register_policy == Register::APPROVE);
-		$instance->invites_enabled = false;
-		$instance->contact_account = [];
-
-		if (!empty(DI::config()->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
+		if (!empty($config->get('config', 'admin_email'))) {
+			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
 			$administrator = User::getByEmail($adminList[0], ['nickname']);
 			if (!empty($administrator)) {
-				$adminContact = DBA::selectFirst('contact', ['id'], ['nick' => $administrator['nickname'], 'self' => true]);
-				$instance->contact_account = DI::mstdnAccount()->createFromContactId($adminContact['id']);
+				$adminContact = $database->selectFirst('contact', ['id'], ['nick' => $administrator['nickname'], 'self' => true]);
+				$this->contact_account = DI::mstdnAccount()->createFromContactId($adminContact['id']);
 			}
 		}
-
-		return $instance;
 	}
 }
