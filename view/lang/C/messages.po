@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-20 19:29+0000\n"
+"POT-Creation-Date: 2022-02-20 20:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,26 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-
-#: local/test.php:116 src/Module/PermissionTooltip.php:174
-#, php-format
-msgid "%d more"
-msgstr ""
-
-#: local/test.php:120
-#, php-format
-msgid "To: %s"
-msgstr ""
-
-#: local/test.php:123
-#, php-format
-msgid "CC: %s"
-msgstr ""
-
-#: local/test.php:126
-#, php-format
-msgid "BCC: %s"
-msgstr ""
 
 #: mod/cal.php:44 mod/cal.php:48 mod/follow.php:39 mod/redir.php:34
 #: mod/redir.php:175 src/Module/Conversation/Community.php:181
@@ -3191,7 +3171,7 @@ msgstr ""
 msgid "Local Directory"
 msgstr ""
 
-#: src/Content/Widget.php:207 src/Model/Group.php:508
+#: src/Content/Widget.php:207 src/Model/Group.php:570
 #: src/Module/Contact.php:354 src/Module/Welcome.php:76
 msgid "Groups"
 msgstr ""
@@ -4228,40 +4208,40 @@ msgid ""
 "not what you intended, please create another group with a different name."
 msgstr ""
 
-#: src/Model/Group.php:424
+#: src/Model/Group.php:486
 msgid "Default privacy group for new contacts"
 msgstr ""
 
-#: src/Model/Group.php:456
+#: src/Model/Group.php:518
 msgid "Everybody"
 msgstr ""
 
-#: src/Model/Group.php:475
+#: src/Model/Group.php:537
 msgid "edit"
 msgstr ""
 
-#: src/Model/Group.php:507
+#: src/Model/Group.php:569
 msgid "add"
 msgstr ""
 
-#: src/Model/Group.php:512
+#: src/Model/Group.php:574
 msgid "Edit group"
 msgstr ""
 
-#: src/Model/Group.php:513 src/Module/Group.php:194
+#: src/Model/Group.php:575 src/Module/Group.php:194
 msgid "Contacts not in any group"
 msgstr ""
 
-#: src/Model/Group.php:515
+#: src/Model/Group.php:577
 msgid "Create a new group"
 msgstr ""
 
-#: src/Model/Group.php:516 src/Module/Group.php:179 src/Module/Group.php:202
+#: src/Model/Group.php:578 src/Module/Group.php:179 src/Module/Group.php:202
 #: src/Module/Group.php:277
 msgid "Group Name: "
 msgstr ""
 
-#: src/Model/Group.php:517
+#: src/Model/Group.php:579
 msgid "Edit groups"
 msgstr ""
 
@@ -8594,6 +8574,11 @@ msgstr ""
 
 #: src/Module/PermissionTooltip.php:97
 msgid "Visible to:"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:174
+#, php-format
+msgid "%d more"
 msgstr ""
 
 #: src/Module/PermissionTooltip.php:178
