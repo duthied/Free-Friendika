@@ -122,6 +122,29 @@ class Post
 	}
 
 	/**
+	 * Fetch the privacy of the post
+	 *
+	 * @param array $item 
+	 * @return string 
+	 */
+	private function fetchPrivacy(array $item):string
+	{
+		switch ($item['private']) {
+			case Item::PRIVATE:
+				$output = DI::l10n()->t('Private Message');
+				break;
+			case Item::PUBLIC:
+				$output = DI::l10n()->t('Public Message');
+				break;
+			case Item::UNLISTED:
+				$output = DI::l10n()->t('Unlisted Message');
+				break;
+		}
+
+		return $output;
+	}
+
+	/**
 	 * Get data in a form usable by a conversation template
 	 *
 	 * @param array   $conv_responses conversation responses
@@ -170,12 +193,9 @@ class Post
 
 		$conv = $this->getThread();
 
-		$lock = ((($item['private'] == Item::PRIVATE) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
-			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
-			? DI::l10n()->t('Private Message')
-			: false);
-
-		$connector = !$item['global'] ? DI::l10n()->t('Connector Message') : false;
+		$privacy   = $this->fetchPrivacy($item);
+		$lock      = ($item['private'] == Item::PRIVATE) ? $privacy : false;
+		$connector = !in_array($item['network'], Protocol::NATIVE_SUPPORT) ? DI::l10n()->t('Connector Message') : false;
 
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != Item::PRIVATE;
 		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER]);
@@ -463,6 +483,8 @@ class Post
 			'app'             => $item['app'],
 			'created'         => $ago,
 			'lock'            => $lock,
+			'private'         => $item['private'],
+			'privacy'         => $privacy,
 			'connector'       => $connector,
 			'location_html'   => $location_html,
 			'indent'          => $indent,

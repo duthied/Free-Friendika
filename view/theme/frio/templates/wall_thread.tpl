@@ -158,12 +158,12 @@ as the value of $top_child_total (this is done at the end of this file)
 						<span class="wall-item-name {{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span>
 					</a>
 				{{/if}}
-				{{if $item.lock}}
-					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}" data-toggle="tooltip">
-						&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small>
+				{{if $item.connector}}
+					<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
+				{{else}}
+					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
+						&nbsp;<small><i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i></small>
 					</span>
-				{{elseif $item.connector}}
-					<small><i class="fa fa-lock" title="{{$item.connector}}"></i></small>
 				{{/if}}
 				</h4>
 
@@ -221,7 +221,15 @@ as the value of $top_child_total (this is done at the end of this file)
 			<div class="contact-info-comment">
 				<h5 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span class="fakelink">{{$item.name}}</span></a>
+					{{if $item.connector}}
+						<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
+					{{else}}
+						<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
+							&nbsp;<small><i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i></small>
+						</span>
+					{{/if}}
 					<span class="text-muted">
+				</h5>
 				<small>
 					<a href="{{$item.plink.orig}}">
 						<time class="time" title="{{$item.localtime}}" data-toggle="tooltip" datetime="{{$item.utc}}">{{$item.ago}}</time>
@@ -235,7 +243,6 @@ as the value of $top_child_total (this is done at the end of this file)
 					{{/if}}
 				</small>
 			</span>
-				</h5>
 			</div>
 		{{/if}} {{* End of if $item.thread_level != 1 *}}
 		</div>

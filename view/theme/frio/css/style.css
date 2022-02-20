@@ -1757,8 +1757,7 @@ blockquote.shared_content {
 	font-weight: 500;
 	color: $font_color_darker;
 }
-.media .media-body .addional-info a,
-.media .media-body h5.media-heading > a {
+.media .media-body .addional-info a {
 	display: block;
 }
 .media .contact-info-comment {
@@ -1769,7 +1768,7 @@ blockquote.shared_content {
 	margin: 0 0 5px;
 }
 .media-heading {
-	margin: 0 0 5px;
+	margin: 0px;
 }
 .wall-item-name,
 .shared-author {
