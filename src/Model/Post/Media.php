@@ -518,7 +518,7 @@ class Media
 			$condition = DBA::mergeConditions($condition, ['type' => $types]);
 		}
 
-		return DBA::selectToArray('post-media', [], $condition);
+		return DBA::selectToArray('post-media', [], $condition, ['order' => ['id']]);
 	}
 
 	/**

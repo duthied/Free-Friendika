@@ -56,7 +56,7 @@ class Ownership extends BaseApi
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		$groups = $this->dba->select('group', [], ['deleted' => false, 'uid' => $uid]);
+		$groups = $this->dba->select('group', [], ['deleted' => false, 'uid' => $uid, 'cid' => null]);
 
 		// loop through all groups
 		$lists = [];

@@ -1,5 +1,6 @@
 Version 2022.05 (unreleased)
   Friendica Core
+    Breaking: The distribution of _private forums_ was moved to ActivityPub, making them incompatible with older versions of Friendica [annando]
 
   Friendica Addons
 

@@ -153,7 +153,7 @@ class Notifier
 		}
 
 		// Should the post be transmitted to Diaspora?
-		$diaspora_delivery = true;
+		$diaspora_delivery = ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);
 
 		// If this is a public conversation, notify the feed hub
 		$public_message = true;
@@ -223,10 +223,6 @@ class Notifier
 				$relay_to_owner = true;
 			}
 
-			if (($cmd === Delivery::UPLINK) && (intval($parent['forum_mode']) == 1) && !$top_level) {
-				$relay_to_owner = true;
-			}
-
 			// until the 'origin' flag has been in use for several months
 			// we will just use it as a fallback test
 			// later we will be able to use it as the primary test of whether or not to relay.
@@ -239,13 +235,13 @@ class Notifier
 			}
 
 			// Special treatment for forum posts
-			if (Item::isForumPost($target_item, $owner)) {
+			if (Item::isForumPost($target_item['uri-id'])) {
 				$relay_to_owner = true;
 				$direct_forum_delivery = true;
 			}
 
 			// Avoid that comments in a forum thread are sent to OStatus
-			if (Item::isForumPost($parent, $owner)) {
+			if (Item::isForumPost($parent['uri-id'])) {
 				$direct_forum_delivery = true;
 			}
 
@@ -332,15 +328,6 @@ class Notifier
 				$allow_groups = Group::expand($uid, $aclFormatter->expand($parent['allow_gid']),true);
 				$deny_people  = $aclFormatter->expand($parent['deny_cid']);
 				$deny_groups  = Group::expand($uid, $aclFormatter->expand($parent['deny_gid']));
-
-				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
-				// a delivery fork. private groups (forum_mode == 2) do not uplink
-				/// @todo Possibly we should not uplink when the author is the forum itself?
-
-				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)
-					&& ($target_item['verb'] != Activity::ANNOUNCE)) {
-					Worker::add($a->getQueueValue('priority'), 'Notifier', Delivery::UPLINK, $post_uriid, $sender_uid);
-				}
 
 				foreach ($items as $item) {
 					$recipients[] = $item['contact-id'];
@@ -742,6 +729,14 @@ class Notifier
 
 		$uid = $target_item['contact-uid'] ?: $target_item['uid'];
 
+		// Update the locally stored follower list when we deliver to a forum
+		foreach (Tag::getByURIId($target_item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $tag) {
+			$target_contact = Contact::getByURL(Strings::normaliseLink($tag['url']), null, [], $uid);
+			if ($target_contact && $target_contact['contact-type'] == Contact::TYPE_COMMUNITY && $target_contact['manually-approve']) {
+				Group::updateMembersForForum($target_contact['id']);
+			}
+		}
+
 		if ($target_item['origin']) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
 
@@ -751,9 +746,6 @@ class Notifier
 			}
 
 			Logger::info('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.');
-		} elseif (Item::isForumPost($target_item, $owner)) {
-			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid, false, 0, true);
-			Logger::info('Forum item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.');
 		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
 			Logger::info('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.');
 			return ['count' => 0, 'contacts' => []];
@@ -812,16 +804,5 @@ class Notifier
 		}
 
 		return ['count' => $delivery_queue_count, 'contacts' => $contacts];
-	}
-
-	/**
-	 * Check if the delivered item is a forum post
-	 *
-	 * @param array $item
-	 * @return boolean
-	 */
-	public static function isForumPost(array $item)
-	{
-		return ($item['gravity'] == GRAVITY_PARENT) && !empty($item['forum_mode']);
 	}
 }

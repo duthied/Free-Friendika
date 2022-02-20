@@ -306,7 +306,7 @@ class Processor
 			} else {
 				// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
 				$item['causer-link'] = $item['owner-link'];
-				$item['causer-id'] = $item['owner-id'];
+				$item['causer-id']   = $item['owner-id'];
 				Logger::info('Use actor as causer.', ['id' => $item['owner-id'], 'actor' => $item['owner-link']]);
 			}
 
@@ -526,6 +526,8 @@ class Processor
 		self::storeFromBody($item);
 		self::storeTags($item['uri-id'], $activity['tags']);
 
+		self::storeReceivers($item['uri-id'], $activity['receiver_urls'] ?? []);
+
 		$item['location'] = $activity['location'];
 
 		if (!empty($activity['latitude']) && !empty($activity['longitude'])) {
@@ -642,10 +644,21 @@ class Processor
 				continue;
 			}
 
-			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) &&
-				($item['post-reason'] == Item::PR_BCC) && !Contact::isSharingByURL($activity['author'], $receiver)) {
-				Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
-				continue;
+			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !Contact::isSharingByURL($activity['author'], $receiver)) {
+				if ($item['post-reason'] == Item::PR_BCC) {
+					Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
+					continue;
+				}
+
+				if (
+					!empty($activity['thread-children-type'])
+					&& in_array($activity['thread-children-type'], Receiver::ACTIVITY_TYPES)
+					&& DI::pConfig()->get($receiver, 'system', 'accept_only_sharer') != Item::COMPLETION_LIKE
+				) {
+					Logger::info('Top level post from thread completion from a non sharer had been initiated via an activity, ignoring',
+						['type' => $activity['thread-children-type'], 'user' => $item['uid'], 'causer' => $item['causer-link'], 'author' => $activity['author'], 'url' => $item['uri']]);
+					continue;
+				}
 			}
 
 			$is_forum = false;
@@ -657,7 +670,7 @@ class Processor
 				}
 			}
 
-			if (!$is_forum && DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
+			if (!$is_forum && DI::pConfig()->get($receiver, 'system', 'accept_only_sharer') == Item::COMPLETION_NONE && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
 				$skip = !Contact::isSharingByURL($activity['author'], $receiver);
 
 				if ($skip && (($activity['type'] == 'as:Announce') || ($item['isForum'] ?? false))) {
@@ -742,6 +755,22 @@ class Processor
 			}
 
 			Tag::store($uriid, $type, $tag['name'], $tag['href']);
+		}
+	}
+
+	public static function storeReceivers(int $uriid, array $receivers)
+	{
+		foreach (['as:to' => Tag::TO, 'as:cc' => Tag::CC, 'as:bto' => Tag::BTO, 'as:bcc' => Tag::BCC] as $element => $type) {
+			if (!empty($receivers[$element])) {
+				foreach ($receivers[$element] as $receiver) {
+					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
+						$name = Receiver::PUBLIC_COLLECTION;
+					} else {
+						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+					}
+					Tag::store($uriid, $type, $name, $receiver);
+				}
+			}
 		}
 	}
 
@@ -885,6 +914,10 @@ class Processor
 			$ldactivity['thread-completion'] = $child['thread-completion'];
 		} else {
 			$ldactivity['thread-completion'] = Contact::getIdForURL($actor);
+		}
+
+		if (!empty($child['type'])) {
+			$ldactivity['thread-children-type'] = $child['type'];
 		}
 
 		if (!empty($relay_actor) && !self::acceptIncomingMessage($ldactivity, $object['id'])) {

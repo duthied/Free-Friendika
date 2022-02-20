@@ -82,7 +82,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 	{
 		$message = [];
 
-		$causer = $author = Contact::getById($Notification->actorId, ['id', 'name', 'url', 'pending']);
+		$causer = $author = Contact::getById($Notification->actorId, ['id', 'name', 'url', 'contact-type', 'pending']);
 		if (empty($causer)) {
 			$this->logger->info('Causer not found', ['contact' => $Notification->actorId]);
 			return $message;
@@ -124,7 +124,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 			}
 
 			if (in_array($Notification->type, [Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_SHARED])) {
-				$author = Contact::getById($item['author-id'], ['id', 'name', 'url']);
+				$author = Contact::getById($item['author-id'], ['id', 'name', 'url', 'contact-type']);
 				if (empty($author)) {
 					$this->logger->info('Author not found', ['author' => $item['author-id']]);
 					return $message;

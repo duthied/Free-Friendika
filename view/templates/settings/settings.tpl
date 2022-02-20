@@ -39,28 +39,28 @@
 
 	<h2 class="settings-heading"><a href="javascript:;">{{$h_prv}}</a></h2>
 	<div class="settings-content-block">
-
-		<input type="hidden" name="visibility" value="{{$visibility}}"/>
-
 		{{include file="field_input.tpl" field=$maxreq}}
 
 		{{$profile_in_dir nofilter}}
 
 		{{include file="field_checkbox.tpl" field=$profile_in_net_dir}}
-		{{include file="field_checkbox.tpl" field=$hide_friends}}
+		{{if not $is_community}}{{include file="field_checkbox.tpl" field=$hide_friends}}{{/if}}
 		{{include file="field_checkbox.tpl" field=$hide_wall}}
-		{{include file="field_checkbox.tpl" field=$unlisted}}
+		{{if not $is_community}}{{include file="field_checkbox.tpl" field=$unlisted}}{{/if}}
 		{{include file="field_checkbox.tpl" field=$accessiblephotos}}
+		{{if not $is_community}}
 		{{include file="field_checkbox.tpl" field=$blockwall}}
 		{{include file="field_checkbox.tpl" field=$blocktags}}
+		{{/if}}
 		{{include file="field_checkbox.tpl" field=$unkmail}}
 		{{include file="field_input.tpl" field=$cntunkmail}}
 
 		{{$group_select nofilter}}
-
+		{{if not $is_community}}
 		<h3>{{$permissions}}</h3>
 
 		{{$aclselect nofilter}}
+		{{/if}}
 		<div class="settings-submit-wrapper">
 			<input type="submit" name="submit" class="settings-submit" value="{{$submit}}"/>
 		</div>

@@ -31,6 +31,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Notification;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -239,7 +240,6 @@ function settings_post(App $a)
 	$allow_location   = ((!empty($_POST['allow_location']) && (intval($_POST['allow_location']) == 1)) ? 1: 0);
 	$publish          = ((!empty($_POST['profile_in_directory']) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
 	$net_publish      = ((!empty($_POST['profile_in_netdirectory']) && (intval($_POST['profile_in_netdirectory']) == 1)) ? 1: 0);
-	$old_visibility   = ((!empty($_POST['visibility']) && (intval($_POST['visibility']) == 1)) ? 1 : 0);
 	$account_type     = ((!empty($_POST['account-type']) && (intval($_POST['account-type']))) ? intval($_POST['account-type']) : 0);
 	$page_flags       = ((!empty($_POST['page-flags']) && (intval($_POST['page-flags']))) ? intval($_POST['page-flags']) : 0);
 	$blockwall        = ((!empty($_POST['blockwall']) && (intval($_POST['blockwall']) == 1)) ? 0: 1); // this setting is inverted!
@@ -361,16 +361,21 @@ function settings_post(App $a)
 	DI::pConfig()->set(local_user(), 'system', 'unlisted', $unlisted);
 	DI::pConfig()->set(local_user(), 'system', 'accessible-photos', $accessiblephotos);
 
+	if ($account_type == User::ACCOUNT_TYPE_COMMUNITY) {
+		$str_group_allow   = '';
+		$str_contact_allow = '';
+		$str_group_deny    = '';
+		$str_contact_deny  = '';
+
+		DI::pConfig()->set(local_user(), 'system', 'unlisted', true);
+
+		$blockwall    = true;
+		$blocktags    = true;
+		$hide_friends = true;
+	}
+
 	if ($page_flags == User::PAGE_FLAGS_PRVGROUP) {
-		$hidewall = 1;
-		if (!$str_contact_allow && !$str_group_allow && !$str_contact_deny && !$str_group_deny) {
-			if ($def_gid) {
-				info(DI::l10n()->t('Private forum has no privacy permissions. Using default privacy group.'));
-				$str_group_allow = '<' . $def_gid . '>';
-			} else {
-				notice(DI::l10n()->t('Private forum has no privacy permissions and no default privacy group.'));
-			}
-		}
+		$str_group_allow = '<' . Group::FOLLOWERS . '>';
 	}
 
 	$fields = ['username' => $username, 'email' => $email, 'timezone' => $timezone,
@@ -570,7 +575,17 @@ function settings_content(App $a)
 			'$ostat_enabled' => $ostat_enabled,
 
 			'$general_settings' => DI::l10n()->t('General Social Media Settings'),
-			'$accept_only_sharer' => ['accept_only_sharer', DI::l10n()->t('Accept only top level posts by contacts you follow'), $accept_only_sharer, DI::l10n()->t('The system does an auto completion of threads when a comment arrives. This has got the side effect that you can receive posts that had been started by a non-follower but had been commented by someone you follow. This setting deactivates this behaviour. When activated, you strictly only will receive posts from people you really do follow.')],
+			'$accept_only_sharer' => [
+				'accept_only_sharer',
+				DI::l10n()->t('Followed content scope'),
+				$accept_only_sharer,
+				DI::l10n()->t('By default, conversations in which your follows participated but didn\'t start will be shown in your timeline. You can turn this behavior off, or expand it to the conversations in which your follows liked a post.'),
+				[
+					Item::COMPLETION_NONE    => DI::l10n()->t('Only conversations my follows started'),
+					Item::COMPLETION_COMMENT => DI::l10n()->t('Conversations my follows started or commented on (default)'),
+					Item::COMPLETION_LIKE    => DI::l10n()->t('Any conversation my follows interacted with, including likes'),
+				]
+			],
 			'$enable_cw' => ['enable_cw', DI::l10n()->t('Enable Content Warning'), $enable_cw, DI::l10n()->t('Users on networks like Mastodon or Pleroma are able to set a content warning field which collapse their post by default. This enables the automatic collapsing instead of setting the content warning as the post title. Doesn\'t affect any other content filtering you eventually set up.')],
 			'$enable_smart_shortening' => ['enable_smart_shortening', DI::l10n()->t('Enable intelligent shortening'), $enable_smart_shortening, DI::l10n()->t('Normally the system tries to find the best link to add to shortened posts. If disabled, every shortened post will always point to the original friendica post.')],
 			'$simple_shortening' => ['simple_shortening', DI::l10n()->t('Enable simple text shortening'), $simple_shortening, DI::l10n()->t('Normally the system shortens posts at the next line feed. If this option is enabled then the system will shorten the text at the maximum character limit.')],
@@ -756,7 +771,7 @@ function settings_content(App $a)
 		'$allowloc' => ['allow_location', DI::l10n()->t('Use Browser Location:'), ($user['allow_location'] == 1), ''],
 
 		'$h_prv' 	          => DI::l10n()->t('Security and Privacy Settings'),
-		'$visibility'         => $profile['net-publish'],
+		'$is_community'       => ($user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY),
 		'$maxreq' 	          => ['maxreq', DI::l10n()->t('Maximum Friend Requests/Day:'), $maxreq , DI::l10n()->t("\x28to prevent spam abuse\x29")],
 		'$profile_in_dir'     => $profile_in_dir,
 		'$profile_in_net_dir' => ['profile_in_netdirectory', DI::l10n()->t('Allow your profile to be searchable globally?'), $profile['net-publish'], DI::l10n()->t("Activate this setting if you want others to easily find and follow you. Your profile will be searchable on remote systems. This setting also determines whether Friendica will inform search engines that your profile should be indexed or not.") . $net_pub_desc],

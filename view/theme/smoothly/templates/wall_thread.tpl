@@ -135,12 +135,12 @@
 			{{/if}}
 
 			<div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-{{$item.id}}">
-				{{if $item.drop.dropping}}
+				{{if $item.drop && $item.drop.dropping}}
 				<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon drophide" title="{{$item.drop.delete}}" onmouseover="imgbright(this);" onmouseout="imgdull(this);"></a>
 				{{/if}}
 			</div>
 
-			{{if $item.drop.pagedrop}}
+			{{if $item.drop && $item.drop.pagedrop}}
 			<input type="checkbox" onclick="checkboxhighlight(this);" title="{{$item.drop.select}}" class="item-select" name="itemselected[]" value="{{$item.id}}" />
 			{{/if}}
 

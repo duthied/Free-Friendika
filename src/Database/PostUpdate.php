@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
@@ -33,6 +34,9 @@ use Friendica\Model\Post;
 use Friendica\Model\Post\Category;
 use Friendica\Model\Tag;
 use Friendica\Model\Verb;
+use Friendica\Protocol\ActivityPub\Processor;
+use Friendica\Protocol\ActivityPub\Receiver;
+use Friendica\Util\JsonLD;
 use Friendica\Util\Strings;
 
 /**
@@ -46,7 +50,7 @@ class PostUpdate
 	// Needed for the helper function to read from the legacy term table
 	const OBJECT_TYPE_POST  = 1;
 
-	const VERSION = 1427;
+	const VERSION = 1452;
 
 	/**
 	 * Calls the post update functions
@@ -102,6 +106,9 @@ class PostUpdate
 			return false;
 		}
 		if (!self::update1427()) {
+			return false;
+		}
+		if (!self::update1452()) {
 			return false;
 		}
 		return true;
@@ -1006,6 +1013,72 @@ class PostUpdate
 
 		if ($rows <= 100) {
 			DI::config()->set("system", "post_update_version", 1427);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Fill the receivers of the post via the raw source
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1452()
+	{
+		// Was the script completed?
+		if (DI::config()->get('system', 'post_update_version') >= 1452) {
+			return true;
+		}
+
+		$id = DI::config()->get('system', 'post_update_version_1452_id', 0);
+
+		Logger::info('Start', ['uri-id' => $id]);
+
+		$start_id = $id;
+		$rows = 0;
+
+		$conversations = DBA::p("SELECT `post-view`.`uri-id`, `conversation`.`source`, `conversation`.`received` FROM `conversation`
+			INNER JOIN `post-view` ON `post-view`.`uri` = `conversation`.`item-uri`
+			WHERE NOT `source` IS NULL AND `conversation`.`protocol` = ? AND `uri-id` > ? LIMIT ?",
+			Conversation::PARCEL_ACTIVITYPUB, $id, 1000);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($conversation = DBA::fetch($conversations)) {
+			$id       = $conversation['uri-id'];
+			$received = $conversation['received'];
+
+			$raw = json_decode($conversation['source'], true);
+			if (empty($raw)) {
+				continue;
+			}
+			$activity = JsonLD::compact($raw);
+
+			$urls = Receiver::getReceiverURL($activity);
+			Processor::storeReceivers($conversation['uri-id'], $urls);
+
+			if (!empty($activity['as:object'])) {
+				$urls = array_merge($urls, Receiver::getReceiverURL($activity['as:object']));
+				Processor::storeReceivers($conversation['uri-id'], $urls);
+			}
+			++$rows;
+		}
+
+		DBA::close($conversations);
+
+		DI::config()->set('system', 'post_update_version_1452_id', $id);
+
+		Logger::info('Processed', ['rows' => $rows, 'last' => $id, 'last-received' => $received]);
+
+		if ($start_id == $id) {
+			DI::config()->set('system', 'post_update_version', 1452);
 			Logger::info('Done');
 			return true;
 		}

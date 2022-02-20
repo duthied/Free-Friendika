@@ -151,7 +151,7 @@ HELP;
 					$this->out("{$cat}.{$key}[{$k}] => " . (is_array($v) ? implode(', ', $v) : $v));
 				}
 			} else {
-				$this->out("{$cat}.{$key} => " . $value);
+				$this->out("{$cat}.{$key} => " . ($value ?? 'NULL'));
 			}
 		}
 

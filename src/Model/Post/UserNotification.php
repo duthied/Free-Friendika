@@ -33,6 +33,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Subscription;
 use Friendica\Model\Tag;
+use Friendica\Model\User;
 use Friendica\Navigation\Notifications;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
@@ -176,6 +177,16 @@ class UserNotification
 			return;
 		}
 
+		$user = User::getById($uid, ['account-type']);
+		if (in_array($user['account-type'], [User::ACCOUNT_TYPE_COMMUNITY, User::ACCOUNT_TYPE_RELAY])) {
+			return;
+		}
+
+		$author = Contact::getById($item['author-id'], ['contact-type']);
+		if (empty($author)) {
+			return;
+		}
+
 		$notification_type = self::TYPE_NONE;
 
 		if (self::checkShared($item, $uid)) {
@@ -189,11 +200,16 @@ class UserNotification
 		$profiles = self::getProfileForUser($uid);
 
 		// Fetch all contacts for the given profiles
-		$contacts = [];
+		$contacts    = [];
+		$iscommunity = false;
 
-		$ret = DBA::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
+		$ret = DBA::select('contact', ['id', 'contact-type'], ['uid' => 0, 'nurl' => $profiles]);
 		while ($contact = DBA::fetch($ret)) {
 			$contacts[] = $contact['id'];
+
+			if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
+				$iscommunity = true;
+			}
 		}
 		DBA::close($ret);
 
@@ -226,7 +242,7 @@ class UserNotification
 			}
 		}
 
-		if (self::checkDirectCommentedThread($item, $contacts)) {
+		if (!$iscommunity && self::checkDirectCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_DIRECT_THREAD_COMMENT;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_DIRECT_THREAD_COMMENT, $uid, $item);

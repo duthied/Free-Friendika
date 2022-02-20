@@ -627,7 +627,8 @@ class HTTPSignature
 		if (!empty($created)) {
 			$current = time();
 
-			if ($created > $current) {
+			// Calculate with a grace period of 60 seconds to avoid slight time differences between the servers
+			if (($created - 60) > $current) {
 				Logger::notice('Signature created in the future', ['created' => date(DateTimeFormat::MYSQL, $created), 'expired' => date(DateTimeFormat::MYSQL, $expired), 'current' => date(DateTimeFormat::MYSQL, $current)]);
 				return false;
 			}

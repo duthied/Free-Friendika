@@ -184,7 +184,7 @@ class Transmitter
 
 		// Allow fetching the contact list when the requester is part of the list.
 		if (($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) && !empty($requester)) {
-			$show_contacts = DBA::exists('contact', ['nurl' => Strings::normaliseLink($requester), 'rel' => $rel]);
+			$show_contacts = DBA::exists('contact', ['nurl' => Strings::normaliseLink($requester), 'uid' => $owner['uid'], 'blocked' => false]);
 		}
 
 		if (!$show_contacts) {
@@ -424,7 +424,7 @@ class Transmitter
 	}
 
 	/**
-	 * Returns an array with permissions of a given item array
+	 * Returns an array with permissions of the thread parent of the given item array
 	 *
 	 * @param array $item
 	 *
@@ -432,34 +432,25 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchPermissionBlockFromConversation($item)
+	public static function fetchPermissionBlockFromThreadParent($item)
 	{
-		if (empty($item['thr-parent'])) {
+		if (empty($item['thr-parent-id'])) {
 			return [];
 		}
 
-		$condition = ['item-uri' => $item['thr-parent'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
-		$conversation = DBA::selectFirst('conversation', ['source'], $condition);
-		if (!DBA::isResult($conversation)) {
+		$parent = Post::selectFirstPost(['author-link'], ['uri-id' => $item['thr-parent-id']]);
+		if (empty($parent)) {
 			return [];
 		}
 
 		$permissions = [
-			'to' => [],
+			'to' => [$parent['author-link']],
 			'cc' => [],
 			'bto' => [],
 			'bcc' => [],
 		];
 
-		$activity = json_decode($conversation['source'], true);
-
-		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
-		if (!empty($actor)) {
-			$permissions['to'][] = $actor;
-			$profile = APContact::getByURL($actor);
-		} else {
-			$profile = [];
-		}
+		$parent_profile = APContact::getByURL($parent['author-link']);
 
 		$item_profile = APContact::getByURL($item['author-link']);
 		$exclude[] = $item['author-link'];
@@ -468,26 +459,15 @@ class Transmitter
 			$exclude[] = $item['owner-link'];
 		}
 
-		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
-			if (empty($activity[$element])) {
-				continue;
-			}
-			if (is_string($activity[$element])) {
-				$activity[$element] = [$activity[$element]];
-			}
-
-			foreach ($activity[$element] as $receiver) {
-				if (empty($receiver)) {
-					continue;
-				}
-
-				if (!empty($profile['followers']) && $receiver == $profile['followers'] && !empty($item_profile['followers'])) {
-					$permissions[$element][] = $item_profile['followers'];
-				} elseif (!in_array($receiver, $exclude)) {
-					$permissions[$element][] = $receiver;
-				}
+		$type = [Tag::TO => 'to', Tag::CC => 'cc', Tag::BTO => 'bto', Tag::BCC => 'bcc'];
+		foreach (Tag::getByURIId($item['thr-parent-id'], [Tag::TO, Tag::CC, Tag::BTO, Tag::BCC]) as $receiver) {
+			if (!empty($parent_profile['followers']) && $receiver['url'] == $parent_profile['followers'] && !empty($item_profile['followers'])) {
+				$permissions[$type[$receiver['type']]][] = $item_profile['followers'];
+			} elseif (!in_array($receiver['url'], $exclude)) {
+				$permissions[$type[$receiver['type']]][] = $receiver['url'];
 			}
 		}
+
 		return $permissions;
 	}
 
@@ -509,28 +489,33 @@ class Transmitter
 	/**
 	 * Creates an array of permissions from an item thread
 	 *
-	 * @param array   $item       Item array
-	 * @param boolean $blindcopy  addressing via "bcc" or "cc"?
-	 * @param integer $last_id    Last item id for adding receivers
-	 * @param boolean $forum_post "true" means that we are sending content to a forum
+	 * @param array   $item      Item array
+	 * @param boolean $blindcopy addressing via "bcc" or "cc"?
+	 * @param integer $last_id   Last item id for adding receivers
 	 *
 	 * @return array with permission data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0, $forum_post = false)
+	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0)
 	{
 		if ($last_id == 0) {
 			$last_id = $item['id'];
 		}
 
 		$always_bcc = false;
+		$is_forum   = false;
+		$follower   = '';
 
 		// Check if we should always deliver our stuff via BCC
 		if (!empty($item['uid'])) {
-			$profile = User::getOwnerDataById($item['uid']);
-			if (!empty($profile)) {
-				$always_bcc = $profile['hide-friends'];
+			$owner = User::getOwnerDataById($item['uid']);
+			if (!empty($owner)) {
+				$always_bcc = $owner['hide-friends'];
+				$is_forum   = ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) && $owner['manually-approve'];
+
+				$profile  = APContact::getByURL($owner['url'], false);
+				$follower = $profile['followers'] ?? '';
 			}
 		}
 
@@ -568,7 +553,7 @@ class Transmitter
 				$data['cc'][] = $announce['actor']['url'];
 			}
 
-			$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
+			$data = array_merge($data, self::fetchPermissionBlockFromThreadParent($item));
 
 			// Check if the item is completely public or unlisted
 			if ($item['private'] == Item::PUBLIC) {
@@ -600,23 +585,34 @@ class Transmitter
 						continue;
 					}
 
-					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
+					$profile = APContact::getByURL($term['url'], false);
+					if (!empty($profile)) {
+						if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
+							$exclusive = true;
+							if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
+								$data['cc'][] = $profile['followers'];
+							}
+						}
 						$data['to'][] = $profile['url'];
 					}
 				}
 			}
 
-			foreach ($receiver_list as $receiver) {
-				$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol', 'gsid'], ['id' => $receiver, 'network' => Protocol::FEDERATED]);
-				if (!DBA::isResult($contact) || !self::isAPContact($contact, $networks)) {
-					continue;
-				}
+			if ($is_forum && !$exclusive && !empty($follower)) {
+				$data['cc'][] = $follower;
+			} elseif (!$exclusive) {
+				foreach ($receiver_list as $receiver) {
+					$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol', 'gsid'], ['id' => $receiver, 'network' => Protocol::FEDERATED]);
+					if (!DBA::isResult($contact) || !self::isAPContact($contact, $networks)) {
+						continue;
+					}
 
-				if (!empty($profile = APContact::getByURL($contact['url'], false))) {
-					if ($contact['hidden'] || $always_bcc) {
-						$data['bcc'][] = $profile['url'];
-					} else {
-						$data['cc'][] = $profile['url'];
+					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
+						if ($contact['hidden'] || $always_bcc) {
+							$data['bcc'][] = $profile['url'];
+						} else {
+							$data['cc'][] = $profile['url'];
+						}
 					}
 				}
 			}
@@ -643,9 +639,7 @@ class Transmitter
 							}
 						} elseif (!$exclusive) {
 							// Public thread parent post always are directed to the followers.
-							// This mustn't be done by posts that are directed to forum servers via the exclusive mention.
-							// But possibly in that case we could add the "followers" collection of the forum to the message.
-							if (($item['private'] != Item::PRIVATE) && !$forum_post) {
+							if ($item['private'] != Item::PRIVATE) {
 								$data['cc'][] = $actor_profile['followers'];
 							}
 						}
@@ -705,6 +699,19 @@ class Transmitter
 
 		if (!$blindcopy) {
 			unset($receivers['bcc']);
+		}
+
+		foreach (['to' => Tag::TO, 'cc' => Tag::CC, 'bcc' => Tag::BCC] as $element => $type) {
+			if (!empty($receivers[$element])) {
+				foreach ($receivers[$element] as $receiver) {
+					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
+						$name = Receiver::PUBLIC_COLLECTION;
+					} else {
+						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+					}
+					Tag::store($item['uri-id'], $type, $name, $receiver);
+				}
+			}
 		}
 
 		return $receivers;
@@ -811,18 +818,17 @@ class Transmitter
 	/**
 	 * Fetches an array of inboxes for the given item and user
 	 *
-	 * @param array   $item       Item array
-	 * @param integer $uid        User ID
-	 * @param boolean $personal   fetch personal inboxes
-	 * @param integer $last_id    Last item id for adding receivers
-	 * @param boolean $forum_post "true" means that we are sending content to a forum
+	 * @param array   $item     Item array
+	 * @param integer $uid      User ID
+	 * @param boolean $personal fetch personal inboxes
+	 * @param integer $last_id  Last item id for adding receivers
 	 * @return array with inboxes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0, $forum_post = false)
+	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0)
 	{
-		$permissions = self::createPermissionBlockForItem($item, true, $last_id, $forum_post);
+		$permissions = self::createPermissionBlockForItem($item, true, $last_id);
 		if (empty($permissions)) {
 			return [];
 		}
@@ -1077,20 +1083,6 @@ class Transmitter
 		$item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
 		if (!DBA::isResult($item)) {
 			return false;
-		}
-
-		// In case of a forum post ensure to return the original post if author and forum are on the same machine
-		if (($item['gravity'] == GRAVITY_PARENT) && !empty($item['forum_mode'])) {
-			$author = Contact::getById($item['author-id'], ['nurl']);
-			if (!empty($author['nurl'])) {
-				$self = Contact::selectFirst(['uid'], ['nurl' => $author['nurl'], 'self' => true]);
-				if (!empty($self['uid'])) {
-					$forum_item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['uri-id' => $item['uri-id'], 'uid' => $self['uid']]);
-					if (DBA::isResult($forum_item)) {
-						$item = $forum_item;
-					}
-				}
-			}
 		}
 
 		if (empty($item['uri-id'])) {

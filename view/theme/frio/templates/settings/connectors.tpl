@@ -18,7 +18,7 @@
 			</div>
 			<div id="content-settings-content" class="panel-collapse collapse" role="tabpanel" aria-labelledby="content-settings-title">
 				<div class="panel-body">
-					{{include file="field_checkbox.tpl" field=$accept_only_sharer}}
+					{{include file="field_select.tpl" field=$accept_only_sharer}}
 
 					{{include file="field_checkbox.tpl" field=$enable_cw}}
 
