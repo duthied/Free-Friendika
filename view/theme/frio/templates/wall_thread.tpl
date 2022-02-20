@@ -336,7 +336,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 			{{* Put additional actions in a dropdown menu *}}
-			{{if $item.menu && ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || $item.drop.dropping)}}
+			{{if $item.menu && ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || ($item.drop && $item.drop.dropping))}}
 				<span role="presentation" class="separator"></span>
 				<span class="more-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
 					<button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i>&nbsp;{{$item.menu}}</button>
@@ -385,7 +385,7 @@ as the value of $top_child_total (this is done at the end of this file)
 						</li>
 						{{/if}}
 
-						{{if ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread) && ($item.ignore || $item.drop.dropping)}}
+						{{if ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread) && ($item.ignore || ($item.drop && $item.drop.dropping))}}
 						<li role="separator" class="divider"></li>
 						{{/if}}
 
@@ -398,7 +398,7 @@ as the value of $top_child_total (this is done at the end of this file)
 							</li>
 						{{/if}}
 
-						{{if $item.drop.dropping}}
+						{{if $item.drop && $item.drop.dropping}}
 						<li role="menuitem">
 							<a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.delete}}</a>
 						</li>
@@ -429,7 +429,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 				<span class="pull-right checkbox">
-			{{if $item.drop.pagedrop}}
+			{{if $item.drop && $item.drop.pagedrop}}
 					<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
 					<label for="checkbox-{{$item.id}}"></label>
 			{{/if}}
@@ -506,7 +506,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				</div>
 			{{/if}}
 
-			{{if $item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || $item.drop.dropping}}
+			{{if $item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || ($item.drop && $item.drop.dropping)}}
 				<div class="more-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
 					<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></button>
 					<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenuOptions-{{$item.id}}">
@@ -548,7 +548,7 @@ as the value of $top_child_total (this is done at the end of this file)
 						</li>
 						{{/if}}
 
-						{{if $item.ignore || $item.drop.dropping}}
+						{{if $item.ignore || ($item.drop && $item.drop.dropping)}}
 							<li role="separator" class="divider"></li>
 						{{/if}}
 
@@ -561,7 +561,7 @@ as the value of $top_child_total (this is done at the end of this file)
 						</li>
 						{{/if}}
 
-						{{if $item.drop.dropping}}
+						{{if $item.drop && $item.drop.dropping}}
 							<li role="menuitem">
 							<a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.delete}}</a>
 						</li>
@@ -571,7 +571,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				</div>
 			{{/if}}
 				<span class="pull-right checkbox">
-			{{if $item.drop.pagedrop}}
+			{{if $item.drop && $item.drop.pagedrop}}
 					<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
 					<label for="checkbox-{{$item.id}}"></label>
 			{{/if}}
