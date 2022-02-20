@@ -358,14 +358,18 @@ class Group
 			throw new HTTPException\NotFoundException('Group not found.');
 		}
 
+		$contactIds = [];
+
 		foreach ($contacts as $cid) {
 			$cdata = Contact::getPublicAndUserContactID($cid, $group['uid']);
 			if (empty($cdata['user'])) {
 				throw new HTTPException\NotFoundException('Invalid contact.');
 			}
 
-			DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $cdata['user']]);
+			$contactIds[] = $cdata['user'];
 		}
+
+		DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $contactIds]);
 	}
 
 	/**

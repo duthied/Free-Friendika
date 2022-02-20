@@ -45,6 +45,7 @@ class Accounts extends BaseApi
 		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
+
 		return Group::removeMembers($this->parameters['id'], $request['account_ids']);
 	}
 
@@ -59,6 +60,7 @@ class Accounts extends BaseApi
 		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
+
 		return Group::addMembers($this->parameters['id'], $request['account_ids']);
 	}
 
