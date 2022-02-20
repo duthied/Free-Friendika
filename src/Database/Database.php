@@ -126,7 +126,7 @@ class Database
 
 		if (!$this->configCache->get('database', 'disable_pdo') && class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
 			$this->driver = self::PDO;
-			$connect      = "mysql:host=" . $server . ";dbname=" . $db . ";unix_socket=" . $socket;
+			$connect      = "mysql:host=" . $server . ";dbname=" . $db;
 
 			if ($port > 0) {
 				$connect .= ";port=" . $port;
@@ -135,8 +135,12 @@ class Database
 			if ($charset) {
 				$connect .= ";charset=" . $charset;
 			}
-
-			try {
+			
+                        if ($socket) {
+                                $connect .= ";$unix_socket=" . $socket;
+                        }
+			
+                        try {
 				$this->connection = @new PDO($connect, $user, $pass, [PDO::ATTR_PERSISTENT => $persistent]);
 				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 				$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
@@ -150,9 +154,9 @@ class Database
 			$this->driver = self::MYSQLI;
 
 			if ($port > 0) {
-				$this->connection = @new mysqli($server, $user, $pass, $db, $port, $socket);
+				$this->connection = @new mysqli($server, $user, $pass, $db, $port);
 			} else {
-				$this->connection = @new mysqli($server, $user, $pass, $db, $socket);
+				$this->connection = @new mysqli($server, $user, $pass, $db);
 			}
 
 			if (!mysqli_connect_errno()) {
@@ -161,6 +165,11 @@ class Database
 				if ($charset) {
 					$this->connection->set_charset($charset);
 				}
+                                
+                                if ($socket) {
+                                        $this->connection->set_socket($socket);
+                                }
+
 			}
 		}
 
