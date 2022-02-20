@@ -36,12 +36,32 @@ class Accounts extends BaseApi
 {
 	protected function delete(array $request = [])
 	{
-		$this->response->unsupported(Router::DELETE, $request);
+		self::checkAllowedScope(self::SCOPE_WRITE);
+
+		$request = $this->getRequest([
+			'account_ids' => [], // Array of account IDs to remove from the list
+		], $request);
+
+		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
+			DI::mstdnError()->UnprocessableEntity();
+		}
+
+		return Group::removeMembers($this->parameters['id'], $request['account_ids']);
 	}
 
 	protected function post(array $request = [])
 	{
-		$this->response->unsupported(Router::POST, $request);
+		self::checkAllowedScope(self::SCOPE_WRITE);
+
+		$request = $this->getRequest([
+			'account_ids' =>  [], // Array of account IDs to add to the list
+		], $request);
+
+		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
+			DI::mstdnError()->UnprocessableEntity();
+		}
+
+		return Group::addMembers($this->parameters['id'], $request['account_ids']);
 	}
 
 	/**
