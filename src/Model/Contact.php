@@ -2747,7 +2747,7 @@ class Contact
 	public static function removeFollower(array $contact)
 	{
 		if (in_array($contact['rel'] ?? [], [self::FRIEND, self::SHARING])) {
-			DBA::update('contact', ['rel' => self::SHARING], ['id' => $contact['id']]);
+			self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
 		} elseif (!empty($contact['id'])) {
 			self::remove($contact['id']);
 		} else {

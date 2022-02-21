@@ -837,8 +837,7 @@ class Diaspora
 		// It is deactivated by now, due to side effects. See issue https://github.com/friendica/friendica/pull/4033
 		// It is not removed by now. Possibly the code is needed?
 		//if (!$is_comment && $contact["rel"] == Contact::FOLLOWER && in_array($importer["page-flags"], array(User::PAGE_FLAGS_FREELOVE))) {
-		//	DBA::update(
-		//		'contact',
+		//	Contact::update(
 		//		array('rel' => Contact::FRIEND, 'writable' => true),
 		//		array('id' => $contact["id"], 'uid' => $contact["uid"])
 		//	);
@@ -2123,8 +2122,7 @@ class Diaspora
 	private static function receiveRequestMakeFriend(array $importer, array $contact)
 	{
 		if ($contact["rel"] == Contact::SHARING) {
-			DBA::update(
-				'contact',
+			Contact::update(
 				['rel' => Contact::FRIEND, 'writable' => true],
 				['id' => $contact["id"], 'uid' => $importer["uid"]]
 			);
