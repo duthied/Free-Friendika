@@ -154,7 +154,7 @@ class Conversation
 
 				// Skip when the causer of the parent is the same than the author of the announce
 				if (($verb == Activity::ANNOUNCE) && Post::exists(['uri-id' => $activity['thr-parent-id'],
-					'uid' => $activity['uid'], 'causer-id' => $activity['author-id'], 'gravity' => GRAVITY_PARENT])) {
+					'uid' => $activity['uid'], 'causer-id' => $activity['author-id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]])) {
 					continue;
 				}
 
@@ -843,7 +843,7 @@ class Conversation
 					$row['owner-name']   = $row['causer-name'];
 				}
 
-				if (($row['gravity'] == GRAVITY_PARENT) && !empty($row['causer-id'])) {
+				if (in_array($row['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) && !empty($row['causer-id'])) {
 					$causer = ['uid' => 0, 'id' => $row['causer-id'], 'network' => $row['causer-network'], 'url' => $row['causer-link']];
 
 					$row['reshared'] = $this->l10n->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($row['causer-name']) . '</a>');
