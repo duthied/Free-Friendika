@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-20 20:50+0000\n"
+"POT-Creation-Date: 2022-02-23 20:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2157,8 +2157,8 @@ msgid "All contacts"
 msgstr ""
 
 #: src/BaseModule.php:409 src/Content/Widget.php:231 src/Core/ACL.php:193
-#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:103
-#: src/Module/PermissionTooltip.php:125
+#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:104
+#: src/Module/PermissionTooltip.php:126
 msgid "Followers"
 msgstr ""
 
@@ -3305,8 +3305,8 @@ msgstr ""
 msgid "Yourself"
 msgstr ""
 
-#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:109
-#: src/Module/PermissionTooltip.php:131
+#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:110
+#: src/Module/PermissionTooltip.php:132
 msgid "Mutuals"
 msgstr ""
 
@@ -3314,7 +3314,7 @@ msgstr ""
 msgid "Post to Email"
 msgstr ""
 
-#: src/Core/ACL.php:319
+#: src/Core/ACL.php:319 src/Module/PermissionTooltip.php:166
 msgid "Public"
 msgstr ""
 
@@ -8559,34 +8559,39 @@ msgstr ""
 msgid "Unsupported or missing grant type"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:44
+#: src/Module/PermissionTooltip.php:45
 #, php-format
 msgid "Wrong type \"%s\", expected one of: %s"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:61
+#: src/Module/PermissionTooltip.php:62
 msgid "Model not found"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:88
+#: src/Module/PermissionTooltip.php:89
 msgid "Remote privacy information not available."
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:97
+#: src/Module/PermissionTooltip.php:98
 msgid "Visible to:"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:174
+#: src/Module/PermissionTooltip.php:170
+#, php-format
+msgid "Followers (%s)"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:184
 #, php-format
 msgid "%d more"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:178
+#: src/Module/PermissionTooltip.php:188
 #, php-format
 msgid "<b>To:</b> %s<br>"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:181
+#: src/Module/PermissionTooltip.php:191
 #, php-format
 msgid "<b>CC:</b> %s<br>"
 msgstr ""
