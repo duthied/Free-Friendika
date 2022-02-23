@@ -28,6 +28,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Network\HTTPException;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * Outputs the permission tooltip HTML content for the provided item, photo or event id.
@@ -161,7 +162,16 @@ class PermissionTooltip extends \Friendica\BaseModule
 		// We only fetch "to" and "cc", because "bcc" should never be displayed
 		$receivers = [];
 		foreach (Tag::getByURIId($uriId, [Tag::TO, Tag::CC]) as $receiver) {
-			$receivers[$receiver['type']][] = $receiver['name'];
+			if ($receiver['url'] == ActivityPub::PUBLIC_COLLECTION) {
+				$receivers[$receiver['type']][] = DI::l10n()->t('Public');
+			} else {
+				$apcontact = DBA::selectFirst('apcontact', ['name'], ['followers' => $receiver['url']]);
+				if (!empty($apcontact['name'])) {
+					$receivers[$receiver['type']][] = DI::l10n()->t('Followers (%s)', $apcontact['name']);
+				} else {
+					$receivers[$receiver['type']][] = $receiver['name'];
+				}
+			}
 		}
 
 		$output = '';

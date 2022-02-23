@@ -415,7 +415,7 @@ class Receiver
 		}
 
 		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
-			if (!empty($urls[$element])) {
+			if ((empty($object_data['receiver_urls'][$element]) || in_array($element, ['as:bto', 'as:bcc'])) && !empty($urls[$element])) {
 				$object_data['receiver_urls'][$element] = array_unique(array_merge($object_data['receiver_urls'][$element] ?? [], $urls[$element]));
 			}
 		}
