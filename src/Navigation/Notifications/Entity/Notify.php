@@ -46,6 +46,8 @@ use Psr\Http\Message\UriInterface;
  * @property-read $uriId
  * @property-read $parentUriId
  * @property-read $id
+ *
+ * @deprecated since 2022.05 Use \Friendica\Navigation\Notifications\Entity\Notification instead
  */
 class Notify extends BaseEntity
 {

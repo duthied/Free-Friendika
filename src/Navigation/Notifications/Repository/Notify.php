@@ -41,6 +41,9 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @deprecated since 2022.05 Use \Friendica\Navigation\Notifications\Repository\Notification instead
+ */
 class Notify extends BaseRepository
 {
 	/** @var Factory\Notify  */

@@ -527,9 +527,9 @@ abstract class DI
 		return self::$dice->create(Navigation\Notifications\Factory\Notify::class);
 	}
 
-	public static function formattedNotificationFactory(): Navigation\Notifications\Factory\FormattedNotification
+	public static function formattedNotificationFactory(): Navigation\Notifications\Factory\FormattedNotify
 	{
-		return self::$dice->create(Navigation\Notifications\Factory\FormattedNotification::class);
+		return self::$dice->create(Navigation\Notifications\Factory\FormattedNotify::class);
 	}
 
 	//
