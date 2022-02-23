@@ -471,7 +471,7 @@ You tried to upload an image up to 100kB and it failed.
 
 You may not have the ownership or file mode set correctly if you are using the file system storage backend.
 
-Change the backend to database. If this solves it, that that is was needs to be fixed.
+Change the backend to database. If this solves it, that is what needs to be fixed.
 
 ### Error uploading large files
 
