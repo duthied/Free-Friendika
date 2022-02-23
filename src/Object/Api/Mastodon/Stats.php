@@ -22,7 +22,9 @@
 namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\BaseDataTransferObject;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Protocol;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 
@@ -40,19 +42,12 @@ class Stats extends BaseDataTransferObject
 	/** @var int */
 	protected $domain_count = 0;
 
-	/**
-	 * Creates a stats record
-	 *
-	 * @return Stats
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function get() {
-		$stats = new Stats();
-		if (!empty(DI::config()->get('system', 'nodeinfo'))) {
-			$stats->user_count = intval(DI::config()->get('nodeinfo', 'total_users'));
-			$stats->status_count = DI::config()->get('nodeinfo', 'local_posts') + DI::config()->get('nodeinfo', 'local_comments');
-			$stats->domain_count = DBA::count('gserver', ["`network` in (?, ?) AND NOT `failed`", Protocol::DFRN, Protocol::ACTIVITYPUB]);
+	public function __construct(IManageConfigValues $config, Database $database)
+	{
+		if (!empty($config->get('system', 'nodeinfo'))) {
+			$this->user_count   = intval($config->get('nodeinfo', 'total_users'));
+			$this->status_count = $config->get('nodeinfo', 'local_posts') + $config->get('nodeinfo', 'local_comments');
+			$this->domain_count = $database->count('gserver', ["`network` in (?, ?) AND NOT `failed`", Protocol::DFRN, Protocol::ACTIVITYPUB]);
 		}
-		return $stats;
 	}
 }
