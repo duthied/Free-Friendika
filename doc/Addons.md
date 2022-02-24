@@ -626,7 +626,8 @@ Hook data:
 Called when unfollowing a remote contact on a non-native network (like Twitter)
 
 Hook data:
-- **contact** (input): the remote contact (uid = local unfollowing user id) array.
+- **contact** (input): the target public contact (uid = 0) array.
+- **uid** (input): the id of the source local user.
 - **result** (output): wether the unfollowing is successful or not.
 
 ### revoke_follow
@@ -634,7 +635,8 @@ Hook data:
 Called when making a remote contact on a non-native network (like Twitter) unfollow you.
 
 Hook data:
-- **contact** (input): the remote contact (uid = local revoking user id) array.
+- **contact** (input): the target public contact (uid = 0) array.
+- **uid** (input): the id of the source local user.
 - **result** (output): a boolean value indicating wether the operation was successful or not.
 
 ### block

@@ -22,7 +22,6 @@
 namespace Friendica\Core;
 
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
@@ -171,15 +170,15 @@ class Protocol
 	}
 
 	/**
-	 * Sends an unfriend message. Does not remove the contact
+	 * Sends an unfollow message. Does not remove the contact
 	 *
-	 * @param array   $user    User unfriending
-	 * @param array   $contact Contact unfriended
+	 * @param array $contact Target public contact (uid = 0) array
+	 * @param array $user    Source local user array
 	 * @return bool|null true if successful, false if not, null if no remote action was performed
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function terminateFriendship(array $user, array $contact): ?bool
+	public static function unfollow(array $contact, array $user): ?bool
 	{
 		if (empty($contact['network'])) {
 			throw new \InvalidArgumentException('Missing network key in contact array');
@@ -216,7 +215,8 @@ class Protocol
 		// Catch-all hook for connector addons
 		$hook_data = [
 			'contact' => $contact,
-			'result' => null
+			'uid'     => $user['uid'],
+			'result'  => null,
 		];
 		Hook::callAll('unfollow', $hook_data);
 
@@ -226,12 +226,13 @@ class Protocol
 	/**
 	 * Revoke an incoming follow from the provided contact
 	 *
-	 * @param array $contact Private contact (uid != 0) array
+	 * @param array $contact Target public contact (uid == 0) array
+	 * @param int   $uid     Source local user id
 	 * @return bool|null true if successful, false if not, null if no action was performed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function revokeFollow(array $contact): ?bool
+	public static function revokeFollow(array $contact, int $uid): ?bool
 	{
 		if (empty($contact['network'])) {
 			throw new \InvalidArgumentException('Missing network key in contact array');
@@ -243,13 +244,14 @@ class Protocol
 		}
 
 		if ($protocol == Protocol::ACTIVITYPUB) {
-			return ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $contact['uid']);
+			return ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $uid);
 		}
 
 		// Catch-all hook for connector addons
 		$hook_data = [
 			'contact' => $contact,
-			'result' => null,
+			'uid'     => $uid,
+			'result'  => null,
 		];
 		Hook::callAll('revoke_follow', $hook_data);
 

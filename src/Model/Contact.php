@@ -813,37 +813,13 @@ class Contact
 	}
 
 	/**
-	 * Sends an unfriend message. Removes the contact for two-way unfriending or sharing only protocols (feed an mail)
+	 * Unfollow the remote contact
 	 *
-	 * @param array   $user    User unfriending
-	 * @param array   $contact Contact (uid != 0) unfriended
-	 * @param boolean $two_way Revoke eventual inbound follow as well
-	 * @return bool|null true if successful, false if not, null if no remote action was performed
+	 * @param array $contact Target user-specific contact (uid != 0) array
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function terminateFriendship(array $user, array $contact): ?bool
-	{
-		$result = Protocol::terminateFriendship($user, $contact);
-
-		if ($contact['rel'] == Contact::SHARING || in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
-			self::remove($contact['id']);
-		} else {
-			self::update(['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Revoke follow privileges of the remote user contact
-	 *
-	 * @param array   $contact  Contact unfriended
-	 * @return bool|null Whether the remote operation is successful or null if no remote operation was performed
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function revokeFollow(array $contact): ?bool
+	public static function unfollow(array $contact): void
 	{
 		if (empty($contact['network'])) {
 			throw new \InvalidArgumentException('Empty network in contact array');
@@ -853,19 +829,69 @@ class Contact
 			throw new \InvalidArgumentException('Unexpected public contact record');
 		}
 
-		$result = Protocol::revokeFollow($contact);
-
-		// A null value here means the remote network doesn't support explicit follow revocation, we can still
-		// break the locally recorded relationship
-		if ($result !== false) {
-			if ($contact['rel'] == self::FRIEND) {
-				self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
-			} else {
-				self::remove($contact['id']);
-			}
+		if (in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
+			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+			Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
 		}
 
-		return $result;
+		self::removeSharer($contact);
+	}
+
+	/**
+	 * Revoke follow privileges of the remote user contact
+	 *
+	 * The local relationship is updated immediately, the eventual remote server is messaged in the background.
+	 *
+	 * @param array $contact User-specific contact array (uid != 0) to revoke the follow from
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function revokeFollow(array $contact): void
+	{
+		if (empty($contact['network'])) {
+			throw new \InvalidArgumentException('Empty network in contact array');
+		}
+
+		if (empty($contact['uid'])) {
+			throw new \InvalidArgumentException('Unexpected public contact record');
+		}
+
+		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
+			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+			Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
+		}
+
+		self::removeFollower($contact);
+	}
+
+	/**
+	 * Completely severs a relationship with a contact
+	 *
+	 * @param array $contact User-specific contact (uid != 0) array
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function terminateFriendship(array $contact)
+	{
+		if (empty($contact['network'])) {
+			throw new \InvalidArgumentException('Empty network in contact array');
+		}
+
+		if (empty($contact['uid'])) {
+			throw new \InvalidArgumentException('Unexpected public contact record');
+		}
+
+		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+
+		if (in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
+			Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
+		}
+
+		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
+			Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
+		}
+
+		self::remove($contact['id']);
 	}
 
 
@@ -2575,28 +2601,6 @@ class Contact
 	}
 
 	/**
-	 * Unfollow a contact
-	 *
-	 * @param int $cid Public contact id
-	 * @param int $uid  User ID
-	 *
-	 * @return bool "true" if unfollowing had been successful
-	 */
-	public static function unfollow(int $cid, int $uid)
-	{
-		$cdata = self::getPublicAndUserContactID($cid, $uid);
-		if (empty($cdata['user'])) {
-			return false;
-		}
-
-		$contact = self::getById($cdata['user']);
-
-		self::removeSharer([], $contact);
-
-		return true;
-	}
-
-	/**
 	 * @param array  $importer Owner (local user) data
 	 * @param array  $contact  Existing owner-specific contact data we want to expand the relationship with. Optional.
 	 * @param array  $datarray An item-like array with at least the 'author-id' and 'author-url' keys for the contact. Mandatory.
@@ -2744,10 +2748,17 @@ class Contact
 		return null;
 	}
 
+	/**
+	 * Update the local relationship when a local user loses a follower
+	 *
+	 * @param array $contact User-specific contact (uid != 0) array
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
 	public static function removeFollower(array $contact)
 	{
 		if (in_array($contact['rel'] ?? [], [self::FRIEND, self::SHARING])) {
-			DBA::update('contact', ['rel' => self::SHARING], ['id' => $contact['id']]);
+			self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
 		} elseif (!empty($contact['id'])) {
 			self::remove($contact['id']);
 		} else {
@@ -2755,12 +2766,19 @@ class Contact
 		}
 	}
 
-	public static function removeSharer($importer, $contact)
+	/**
+	 * Update the local relationship when a local user unfollow a contact.
+	 * Removes the contact for sharing-only protocols (feed and mail).
+	 *
+	 * @param array $contact User-specific contact (uid != 0) array
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function removeSharer(array $contact)
 	{
-		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::FOLLOWER)) {
-			self::update(['rel' => self::FOLLOWER], ['id' => $contact['id']]);
-		} else {
+		if ($contact['rel'] == self::SHARING || in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
 			self::remove($contact['id']);
+		} else {
+			self::update(['rel' => self::FOLLOWER], ['id' => $contact['id']]);
 		}
 	}
 

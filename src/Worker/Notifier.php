@@ -445,7 +445,7 @@ class Notifier
 			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
 				'pending' => false, 'archive' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
 
-			$contacts = DBA::toArray(DBA::select('contact', ['id', 'url', 'addr', 'name', 'network', 'protocol'], $condition));
+			$contacts = DBA::selectToArray('contact', ['id', 'url', 'addr', 'name', 'network', 'protocol'], $condition);
 
 			$conversants = array_merge($contacts, $participants);
 
@@ -673,7 +673,7 @@ class Notifier
 		}
 
 		while($contact = DBA::fetch($contacts_stmt)) {
-			Protocol::terminateFriendship($owner, $contact, true);
+			Contact::terminateFriendship($contact);
 		}
 		DBA::close($contacts_stmt);
 

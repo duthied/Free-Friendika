@@ -22,13 +22,18 @@
 namespace Friendica\Module\Api\Twitter\Friendships;
 
 use Exception;
+use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\DI;
+use Friendica\Factory\Api\Twitter\User as TwitterUser;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\Api\Twitter\ContactEndpoint;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Unfollow Contact
@@ -37,6 +42,16 @@ use Friendica\Network\HTTPException;
  */
 class Destroy extends ContactEndpoint
 {
+	/** @var TwitterUser */
+	private $twitterUser;
+
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, TwitterUser $twitterUser, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->twitterUser = $twitterUser;
+	}
+
 	protected function post(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
@@ -66,18 +81,9 @@ class Destroy extends ContactEndpoint
 		$user    = $this->twitterUser->createFromContactId($contact_id, $uid, true)->toArray();
 
 		try {
-			$result = Contact::terminateFriendship($owner, $contact);
-
-			if ($result === null) {
-				Logger::notice(BaseApi::LOG_PREFIX . 'Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
-				throw new HTTPException\ExpectationFailedException('Unfollowing is currently not supported by this contact\'s network.');
-			}
-
-			if ($result === false) {
-				throw new HTTPException\ServiceUnavailableException('Unable to unfollow this contact, please retry in a few minutes or contact your administrator.');
-			}
+			Contact::unfollow($contact);
 		} catch (Exception $e) {
-			Logger::error(BaseApi::LOG_PREFIX . $e->getMessage(), ['owner' => $owner, 'contact' => $contact]);
+			Logger::error(BaseApi::LOG_PREFIX . $e->getMessage(), ['contact' => $contact]);
 			throw new HTTPException\InternalServerErrorException('Unable to unfollow this contact, please contact your administrator');
 		}
 

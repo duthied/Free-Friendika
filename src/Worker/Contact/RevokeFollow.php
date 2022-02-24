@@ -19,36 +19,33 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Accounts;
+namespace Friendica\Worker\Contact;
 
-use Friendica\Core\System;
-use Friendica\DI;
+use Friendica\Core\Protocol;
+use Friendica\Core\Worker;
 use Friendica\Model\Contact;
-use Friendica\Module\BaseApi;
 
-/**
- * @see https://docs.joinmastodon.org/methods/accounts/
- */
-class Unfollow extends BaseApi
+class RevokeFollow
 {
-	protected function post(array $request = [])
+	/**
+	 * Issue asynchronous follow revokation message to remote servers.
+	 * The local relationship has already been updated, so we can't use the user-specific contact
+	 *
+	 * @param int $cid Target public contact id
+	 * @param int $uid Source local user id
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function execute(int $cid, int $uid)
 	{
-		self::checkAllowedScope(self::SCOPE_FOLLOW);
-		$uid = self::getCurrentUserID();
-
-		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+		$contact = Contact::getById($cid);
+		if (empty($contact)) {
+			return;
 		}
 
-		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
-		if (empty($cdata['user'])) {
-			DI::mstdnError()->RecordNotFound();
+		$result = Protocol::revokeFollow($contact, $uid);
+		if ($result === false) {
+			Worker::defer();
 		}
-
-		$contact = Contact::getById($cdata['user']);
-
-		Contact::unfollow($contact);
-
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
 }
