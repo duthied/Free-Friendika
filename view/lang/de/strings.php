@@ -2131,6 +2131,7 @@ $a->strings['Wrong type "%s", expected one of: %s'] = 'Falscher Typ "%s", hatte 
 $a->strings['Model not found'] = 'Model nicht gefunden';
 $a->strings['Remote privacy information not available.'] = 'Entfernte Privatsphäreneinstellungen nicht verfügbar.';
 $a->strings['Visible to:'] = 'Sichtbar für:';
+$a->strings['Followers (%s)'] = 'Folgende (%s)';
 $a->strings['%d more'] = '%d weitere';
 $a->strings['<b>To:</b> %s<br>'] = '<b>To:</b> %s<br>';
 $a->strings['<b>CC:</b> %s<br>'] = '<b>CC:</b> %s<br>';

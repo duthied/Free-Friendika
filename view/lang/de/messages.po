@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-20 20:50+0000\n"
-"PO-Revision-Date: 2022-02-21 05:34+0000\n"
+"POT-Creation-Date: 2022-02-23 20:09+0000\n"
+"PO-Revision-Date: 2022-02-24 07:12+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -2198,8 +2198,8 @@ msgid "All contacts"
 msgstr "Alle Kontakte"
 
 #: src/BaseModule.php:409 src/Content/Widget.php:231 src/Core/ACL.php:193
-#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:103
-#: src/Module/PermissionTooltip.php:125
+#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:104
+#: src/Module/PermissionTooltip.php:126
 msgid "Followers"
 msgstr "Folgende"
 
@@ -3347,8 +3347,8 @@ msgstr "Entfolgen"
 msgid "Yourself"
 msgstr "Du selbst"
 
-#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:109
-#: src/Module/PermissionTooltip.php:131
+#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:110
+#: src/Module/PermissionTooltip.php:132
 msgid "Mutuals"
 msgstr "Beidseitige Freundschaft"
 
@@ -3356,7 +3356,7 @@ msgstr "Beidseitige Freundschaft"
 msgid "Post to Email"
 msgstr "An E-Mail senden"
 
-#: src/Core/ACL.php:319
+#: src/Core/ACL.php:319 src/Module/PermissionTooltip.php:166
 msgid "Public"
 msgstr "Öffentlich"
 
@@ -8598,34 +8598,39 @@ msgstr "Bitte kopiere den folgenden Authentifizierungscode in deine App und schl
 msgid "Unsupported or missing grant type"
 msgstr "Der Grant-Typ fehlt oder wird nicht unterstützt"
 
-#: src/Module/PermissionTooltip.php:44
+#: src/Module/PermissionTooltip.php:45
 #, php-format
 msgid "Wrong type \"%s\", expected one of: %s"
 msgstr "Falscher Typ \"%s\", hatte einen der Folgenden erwartet: %s"
 
-#: src/Module/PermissionTooltip.php:61
+#: src/Module/PermissionTooltip.php:62
 msgid "Model not found"
 msgstr "Model nicht gefunden"
 
-#: src/Module/PermissionTooltip.php:88
+#: src/Module/PermissionTooltip.php:89
 msgid "Remote privacy information not available."
 msgstr "Entfernte Privatsphäreneinstellungen nicht verfügbar."
 
-#: src/Module/PermissionTooltip.php:97
+#: src/Module/PermissionTooltip.php:98
 msgid "Visible to:"
 msgstr "Sichtbar für:"
 
-#: src/Module/PermissionTooltip.php:174
+#: src/Module/PermissionTooltip.php:170
+#, php-format
+msgid "Followers (%s)"
+msgstr "Folgende (%s)"
+
+#: src/Module/PermissionTooltip.php:184
 #, php-format
 msgid "%d more"
 msgstr "%d weitere"
 
-#: src/Module/PermissionTooltip.php:178
+#: src/Module/PermissionTooltip.php:188
 #, php-format
 msgid "<b>To:</b> %s<br>"
 msgstr "<b>To:</b> %s<br>"
 
-#: src/Module/PermissionTooltip.php:181
+#: src/Module/PermissionTooltip.php:191
 #, php-format
 msgid "<b>CC:</b> %s<br>"
 msgstr "<b>CC:</b> %s<br>"
