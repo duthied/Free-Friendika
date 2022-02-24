@@ -21,6 +21,7 @@
 
 namespace Friendica\Model;
 
+use Friendica\Core\ACL;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -39,10 +40,12 @@ class Mail
 	 * Insert private message
 	 *
 	 * @param array $msg
-	 * @param bool  $notifiction
+	 * @param bool  $notification
 	 * @return int|boolean Message ID or false on error
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function insert($msg, $notifiction = true)
+	public static function insert($msg, $notification = true)
 	{
 		if (!isset($msg['reply'])) {
 			$msg['reply'] = DBA::exists('mail', ['parent-uri' => $msg['parent-uri']]);
@@ -92,7 +95,7 @@ class Mail
 			DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $msg['convid']]);
 		}
 
-		if ($notifiction) {
+		if ($notification) {
 			$user = User::getById($msg['uid']);
 			// send notifications.
 			$notif_params = [
@@ -139,10 +142,14 @@ class Mail
 			return -2;
 		}
 
-		$contact = DBA::selectFirst('contact', [], ['id' => $recipient, 'uid' => local_user()]);
-		if (!DBA::isResult($contact)) {
+		$contacts = ACL::getValidMessageRecipientsForUser(local_user());
+
+		$contactIndex = array_search($recipient, array_column($contacts, 'id'));
+		if ($contactIndex === false) {
 			return -2;
 		}
+
+		$contact = $contacts[$contactIndex];
 
 		Photo::setPermissionFromBody($body, local_user(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
 
@@ -167,20 +174,12 @@ class Mail
 		$convuri = '';
 		if (!$convid) {
 			// create a new conversation
-			$recip_host = substr($contact['url'], strpos($contact['url'], '://') + 3);
-			$recip_host = substr($recip_host, 0, strpos($recip_host, '/'));
-
-			$recip_handle = (($contact['addr']) ? $contact['addr'] : $contact['nick'] . '@' . $recip_host);
-			$sender_handle = $a->getLoggedInUserNickname() . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
-
 			$conv_guid = System::createUUID();
-			$convuri = $recip_handle . ':' . $conv_guid;
+			$convuri = $contact['addr'] . ':' . $conv_guid;
 
-			$handles = $recip_handle . ';' . $sender_handle;
-
-			$fields = ['uid' => local_user(), 'guid' => $conv_guid, 'creator' => $sender_handle,
+			$fields = ['uid' => local_user(), 'guid' => $conv_guid, 'creator' => $me['addr'],
 				'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(),
-				'subject' => $subject, 'recips' => $handles];
+				'subject' => $subject, 'recips' => $contact['addr'] . ';' . $me['addr']];
 			if (DBA::insert('conv', $fields)) {
 				$convid = DBA::lastInsertId();
 			}

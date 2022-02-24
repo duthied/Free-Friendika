@@ -51,7 +51,7 @@ class ACL
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function getMessageContactSelectHTML(int $selected = null)
+	public static function getMessageContactSelectHTML(int $selected = null): string
 	{
 		$o = '';
 
@@ -62,25 +62,7 @@ class ACL
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
-		$condition = [
-			'uid' => local_user(),
-			'self' => false,
-			'blocked' => false,
-			'pending' => false,
-			'archive' => false,
-			'deleted' => false,
-			'rel' => [Contact::FOLLOWER, Contact::SHARING, Contact::FRIEND],
-			'network' => Protocol::SUPPORT_PRIVATE,
-		];
-
-		$contacts = Contact::selectToArray(
-			['id', 'name', 'addr', 'micro'],
-			DBA::mergeConditions($condition, ["`notify` != ''"])
-		);
-
-		$arr = ['contact' => $contacts, 'entry' => $o];
-
-		Hook::callAll(DI::args()->getModuleName() . '_pre_recipient', $arr);
+		$contacts = self::getValidMessageRecipientsForUser(local_user());
 
 		$tpl = Renderer::getMarkupTemplate('acl/message_recipient.tpl');
 		$o = Renderer::replaceMacros($tpl, [
@@ -91,6 +73,25 @@ class ACL
 		Hook::callAll(DI::args()->getModuleName() . '_post_recipient', $o);
 
 		return $o;
+	}
+
+	public static function getValidMessageRecipientsForUser(int $uid): array
+	{
+		$condition = [
+			'uid'     => $uid,
+			'self'    => false,
+			'blocked' => false,
+			'pending' => false,
+			'archive' => false,
+			'deleted' => false,
+			'rel'     => [Contact::FOLLOWER, Contact::SHARING, Contact::FRIEND],
+			'network' => Protocol::SUPPORT_PRIVATE,
+		];
+
+		return Contact::selectToArray(
+			['id', 'name', 'addr', 'micro', 'url', 'nick'],
+			DBA::mergeConditions($condition, ["`notify` != ''"])
+		);
 	}
 
 	/**
