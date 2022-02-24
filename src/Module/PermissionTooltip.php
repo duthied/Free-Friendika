@@ -24,9 +24,11 @@ namespace Friendica\Module;
 use Friendica\Core\Hook;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\APContact;
 use Friendica\Model\Group;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 
@@ -159,15 +161,30 @@ class PermissionTooltip extends \Friendica\BaseModule
 	 */
 	private function fetchReceivers(int $uriId):string
 	{
-		// We only fetch "to" and "cc", because "bcc" should never be displayed
+		$own_url = '';
+		$uid = local_user();
+		if ($uid) {
+			$owner = User::getOwnerDataById($uid);
+			if (!empty($owner['url'])) {
+				$own_url = $owner['url'];
+			}
+		}
+
 		$receivers = [];
-		foreach (Tag::getByURIId($uriId, [Tag::TO, Tag::CC]) as $receiver) {
+		foreach (Tag::getByURIId($uriId, [Tag::TO, Tag::CC, Tag::BCC]) as $receiver) {
+			// We only display BCC when it contains the current user
+			if (($receiver['type'] == Tag::BCC) && ($receiver['url'] != $own_url)) {
+				continue;
+			}
+
 			if ($receiver['url'] == ActivityPub::PUBLIC_COLLECTION) {
 				$receivers[$receiver['type']][] = DI::l10n()->t('Public');
 			} else {
 				$apcontact = DBA::selectFirst('apcontact', ['name'], ['followers' => $receiver['url']]);
 				if (!empty($apcontact['name'])) {
 					$receivers[$receiver['type']][] = DI::l10n()->t('Followers (%s)', $apcontact['name']);
+				} elseif ($apcontact = APContact::getByURL($receiver['url'], false)) {
+					$receivers[$receiver['type']][] = $apcontact['name'];
 				} else {
 					$receivers[$receiver['type']][] = $receiver['name'];
 				}
@@ -189,6 +206,9 @@ class PermissionTooltip extends \Friendica\BaseModule
 					break;
 				case Tag::CC:
 					$output .= DI::l10n()->t('<b>CC:</b> %s<br>', implode(', ', $receiver));
+					break;
+				case Tag::BCC:
+					$output .= DI::l10n()->t('<b>BCC:</b> %s<br>', implode(', ', $receiver));
 					break;
 			}
 		}

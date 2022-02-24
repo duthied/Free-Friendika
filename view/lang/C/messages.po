@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-23 20:09+0000\n"
+"POT-Creation-Date: 2022-02-24 07:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -237,7 +237,7 @@ msgstr ""
 msgid "Permission settings"
 msgstr ""
 
-#: mod/editpost.php:116 src/Core/ACL.php:325
+#: mod/editpost.php:116 src/Core/ACL.php:326
 msgid "CC: email addresses"
 msgstr ""
 
@@ -255,7 +255,7 @@ msgstr ""
 msgid "Categories (comma-separated list)"
 msgstr ""
 
-#: mod/editpost.php:123 src/Core/ACL.php:326
+#: mod/editpost.php:123 src/Core/ACL.php:327
 msgid "Example: bob@example.com, mary@example.com"
 msgstr ""
 
@@ -2156,9 +2156,9 @@ msgstr ""
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:409 src/Content/Widget.php:231 src/Core/ACL.php:193
-#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:104
-#: src/Module/PermissionTooltip.php:126
+#: src/BaseModule.php:409 src/Content/Widget.php:231 src/Core/ACL.php:194
+#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:106
+#: src/Module/PermissionTooltip.php:128
 msgid "Followers"
 msgstr ""
 
@@ -3301,49 +3301,49 @@ msgstr ""
 msgid "Unfollow"
 msgstr ""
 
-#: src/Core/ACL.php:164 src/Module/Profile/Profile.php:242
+#: src/Core/ACL.php:165 src/Module/Profile/Profile.php:242
 msgid "Yourself"
 msgstr ""
 
-#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:110
-#: src/Module/PermissionTooltip.php:132
+#: src/Core/ACL.php:201 src/Module/PermissionTooltip.php:112
+#: src/Module/PermissionTooltip.php:134
 msgid "Mutuals"
 msgstr ""
 
-#: src/Core/ACL.php:292
+#: src/Core/ACL.php:293
 msgid "Post to Email"
 msgstr ""
 
-#: src/Core/ACL.php:319 src/Module/PermissionTooltip.php:166
+#: src/Core/ACL.php:320 src/Module/PermissionTooltip.php:181
 msgid "Public"
 msgstr ""
 
-#: src/Core/ACL.php:320
+#: src/Core/ACL.php:321
 msgid ""
 "This content will be shown to all your followers and can be seen in the "
 "community pages and by anyone with its link."
 msgstr ""
 
-#: src/Core/ACL.php:321
+#: src/Core/ACL.php:322
 msgid "Limited/Private"
 msgstr ""
 
-#: src/Core/ACL.php:322
+#: src/Core/ACL.php:323
 msgid ""
 "This content will be shown only to the people in the first box, to the "
 "exception of the people mentioned in the second box. It won't appear "
 "anywhere public."
 msgstr ""
 
-#: src/Core/ACL.php:323
+#: src/Core/ACL.php:324
 msgid "Show to:"
 msgstr ""
 
-#: src/Core/ACL.php:324
+#: src/Core/ACL.php:325
 msgid "Except to:"
 msgstr ""
 
-#: src/Core/ACL.php:327
+#: src/Core/ACL.php:328
 msgid "Connectors"
 msgstr ""
 
@@ -4275,7 +4275,7 @@ msgstr ""
 msgid "View on separate page"
 msgstr ""
 
-#: src/Model/Mail.php:134 src/Model/Mail.php:266
+#: src/Model/Mail.php:137 src/Model/Mail.php:265
 msgid "[no subject]"
 msgstr ""
 
@@ -8559,41 +8559,46 @@ msgstr ""
 msgid "Unsupported or missing grant type"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:45
+#: src/Module/PermissionTooltip.php:47
 #, php-format
 msgid "Wrong type \"%s\", expected one of: %s"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:62
+#: src/Module/PermissionTooltip.php:64
 msgid "Model not found"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:89
+#: src/Module/PermissionTooltip.php:91
 msgid "Remote privacy information not available."
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:98
+#: src/Module/PermissionTooltip.php:100
 msgid "Visible to:"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:170
+#: src/Module/PermissionTooltip.php:185
 #, php-format
 msgid "Followers (%s)"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:184
+#: src/Module/PermissionTooltip.php:201
 #, php-format
 msgid "%d more"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:188
+#: src/Module/PermissionTooltip.php:205
 #, php-format
 msgid "<b>To:</b> %s<br>"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:191
+#: src/Module/PermissionTooltip.php:208
 #, php-format
 msgid "<b>CC:</b> %s<br>"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:211
+#, php-format
+msgid "<b>BCC:</b> %s<br>"
 msgstr ""
 
 #: src/Module/Photo.php:123
