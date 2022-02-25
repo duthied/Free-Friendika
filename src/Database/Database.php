@@ -114,7 +114,7 @@ class Database
 		$pass    = trim($this->configCache->get('database', 'password'));
 		$db      = trim($this->configCache->get('database', 'database'));
 		$charset = trim($this->configCache->get('database', 'charset'));
-                $socket  = trim($this->configCache->get('database', 'socket')); 
+		$socket  = trim($this->configCache->get('database', 'socket')); 
 
 		if (!(strlen($server) && strlen($user))) {
 			return false;
