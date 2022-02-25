@@ -53,7 +53,7 @@ class UserTimeline extends BaseApi
 
 		$start = max(0, ($page - 1) * $count);
 
-		$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`)) AND `gravity` IN (?, ?) AND `id` > ? AND `author-id` = ?",
+		$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`)) AND `gravity` IN (?, ?) AND `uri-id` > ? AND `author-id` = ?",
 			0, $uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $cid];
 
 		if ($exclude_replies) {
@@ -62,15 +62,15 @@ class UserTimeline extends BaseApi
 		}
 
 		if ($conversation_id > 0) {
-			$condition[0] .= " AND `parent` = ?";
+			$condition[0] .= " AND `parent-uri-id` = ?";
 			$condition[] = $conversation_id;
 		}
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
+			$condition[0] .= " AND `uri-id` <= ?";
 			$condition[] = $max_id;
 		}
-		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params   = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
 
 		$ret = [];

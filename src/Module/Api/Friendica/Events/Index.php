@@ -23,7 +23,6 @@ namespace Friendica\Module\Api\Friendica\Events;
 
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
@@ -40,7 +39,7 @@ class Index extends BaseApi
 
 		$request = $this->getRequest([
 			'since_id' => 0,
-			'count'    => 0,
+			'count'    => 50,
 		], $request);
 
 		$condition = ["`id` > ? AND `uid` = ?", $request['since_id'], $uid];

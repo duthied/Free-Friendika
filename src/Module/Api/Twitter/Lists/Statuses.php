@@ -78,10 +78,10 @@ class Statuses extends BaseApi
 		$groups    = $this->dba->selectToArray('group_member', ['contact-id'], ['gid' => $request['list_id']]);
 		$gids      = array_column($groups, 'contact-id');
 		$condition = ['uid' => $uid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'contact-id' => $gids];
-		$condition = DBA::mergeConditions($condition, ["`id` > ?", $since_id]);
+		$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $since_id]);
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
+			$condition[0] .= " AND `uri-id` <= ?";
 			$condition[] = $max_id;
 		}
 		if ($exclude_replies) {
@@ -89,11 +89,11 @@ class Statuses extends BaseApi
 			$condition[] = GRAVITY_PARENT;
 		}
 		if ($conversation_id > 0) {
-			$condition[0] .= " AND `parent` = ?";
+			$condition[0] .= " AND `parent-uri-id` = ?";
 			$condition[] = $conversation_id;
 		}
 
-		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params   = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
 
 		$items = [];

@@ -92,6 +92,11 @@ class Receive extends BaseModule
 		$this->logger->info('Diaspora: Receiving post.');
 
 		$importer = User::getByGuid($this->parameters['guid']);
+		if (empty($importer)) {
+			// We haven't found the user.
+			// To avoid the remote system trying again we send the message that we accepted the content.
+			throw new HTTPException\AcceptedException();
+		}
 
 		if ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 			// Communities aren't working with the Diaspora protoccol
@@ -99,7 +104,7 @@ class Receive extends BaseModule
 			throw new HTTPException\AcceptedException();
 		}
 
-		$msg = $this->decodePost(false, $importer['prvkey'] ?? '');
+		$msg = $this->decodePost(false, $importer['prvkey']);
 
 		$this->logger->info('Diaspora: Dispatching.');
 

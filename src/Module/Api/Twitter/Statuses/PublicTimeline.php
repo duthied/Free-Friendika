@@ -52,30 +52,30 @@ class PublicTimeline extends BaseApi
 		$start = max(0, ($page - 1) * $count);
 
 		if ($exclude_replies && !$conversation_id) {
-			$condition = ["`gravity` = ? AND `id` > ? AND `private` = ? AND `wall` AND NOT `author-hidden`",
+			$condition = ["`gravity` = ? AND `uri-id` > ? AND `private` = ? AND `wall` AND NOT `author-hidden`",
 				GRAVITY_PARENT, $since_id, Item::PUBLIC];
 
 			if ($max_id > 0) {
-				$condition[0] .= " AND `id` <= ?";
+				$condition[0] .= " AND `uri-id` <= ?";
 				$condition[] = $max_id;
 			}
 
-			$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
+			$params   = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 			$statuses = Post::selectForUser($uid, [], $condition, $params);
 		} else {
-			$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
+			$condition = ["`gravity` IN (?, ?) AND `uri-id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
 				GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 			if ($max_id > 0) {
-				$condition[0] .= " AND `id` <= ?";
+				$condition[0] .= " AND `uri-id` <= ?";
 				$condition[] = $max_id;
 			}
 			if ($conversation_id > 0) {
-				$condition[0] .= " AND `parent` = ?";
+				$condition[0] .= " AND `parent-uri-id` = ?";
 				$condition[] = $conversation_id;
 			}
 
-			$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
+			$params   = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 			$statuses = Post::selectForUser($uid, [], $condition, $params);
 		}
 

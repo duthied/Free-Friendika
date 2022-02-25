@@ -21,9 +21,10 @@
 
 namespace Friendica\Module\Api\Friendica;
 
-use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException\BadRequestException;
 
 /**
  * API endpoints:
@@ -49,7 +50,12 @@ class Activity extends BaseApi
 			'id' => 0, // Id of the post
 		], $request);
 
-		$res = Item::performActivity($request['id'], $this->parameters['verb'], $uid);
+		$post = Post::selectFirst(['id'], ['uri-id' => $request['id'], 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
+		if (empty($post['id'])) {
+			throw new BadRequestException('Item id not found');
+		}
+
+		$res = Item::performActivity($post['id'], $this->parameters['verb'], $uid);
 
 		if ($res) {
 			if (($this->parameters['extension'] ?? '') == 'xml') {

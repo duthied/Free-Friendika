@@ -59,10 +59,10 @@ class Tweets extends BaseApi
 
 		$start = max(0, ($page - 1) * $count);
 
-		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 		if (preg_match('/^#(\w+)$/', $searchTerm, $matches) === 1 && isset($matches[1])) {
 			$searchTerm = $matches[1];
-			$condition  = ["`iid` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, $uid];
+			$condition  = ["`uri-id` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, $uid];
 
 			$tags   = DBA::select('tag-search-view', ['uri-id'], $condition);
 			$uriids = [];
@@ -83,13 +83,13 @@ class Tweets extends BaseApi
 
 			$params['group_by'] = ['uri-id'];
 		} else {
-			$condition = ["`id` > ?
+			$condition = ["`uri-id` > ?
 				" . ($exclude_replies ? " AND `gravity` = " . GRAVITY_PARENT : ' ') . "
 				AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
 				AND `body` LIKE CONCAT('%',?,'%')",
 				$since_id, $uid, $_REQUEST['q']];
 			if ($max_id > 0) {
-				$condition[0] .= ' AND `id` <= ?';
+				$condition[0] .= ' AND `uri-id` <= ?';
 				$condition[] = $max_id;
 			}
 		}

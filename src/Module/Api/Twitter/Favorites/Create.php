@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\Twitter\Favorites;
 
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException\BadRequestException;
 
@@ -42,9 +43,14 @@ class Create extends BaseApi
 			throw new BadRequestException('Item id not specified');
 		}
 
-		Item::performActivity($id, 'like', $uid);
+		$post = Post::selectFirst(['id'], ['uri-id' => $request['id'], 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
+		if (empty($post['id'])) {
+			throw new BadRequestException('Item id not found');
+		}
 
-		$status_info = DI::twitterStatus()->createFromItemId($id, $uid)->toArray();
+		Item::performActivity($post['id'], 'like', $uid);
+
+		$status_info = DI::twitterStatus()->createFromUriId($id, $uid)->toArray();
 
 		$this->response->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
 	}
