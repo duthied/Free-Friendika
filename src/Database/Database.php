@@ -136,11 +136,11 @@ class Database
 				$connect .= ";charset=" . $charset;
 			}
 
-		if ($socket) {
-			$connect .= ";$unix_socket=" . $socket;
-		}
+			if ($socket) {
+				$connect .= ";$unix_socket=" . $socket;
+			}
 
-		try {
+			try {
 				$this->connection = @new PDO($connect, $user, $pass, [PDO::ATTR_PERSISTENT => $persistent]);
 				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 				$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
