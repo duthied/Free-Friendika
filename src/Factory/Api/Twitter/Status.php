@@ -76,7 +76,7 @@ class Status extends BaseFactory
 	 */
 	public function createFromItemId(int $id, int $uid, bool $include_entities = false): \Friendica\Object\Api\Twitter\Status
 	{
-		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
+		$fields = ['parent-uri-id', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
 			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
 		$item = Post::selectFirst($fields, ['id' => $id], ['order' => ['uid' => true]]);
 		if (!$item) {
