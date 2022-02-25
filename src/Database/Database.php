@@ -165,10 +165,10 @@ class Database
 				if ($charset) {
 					$this->connection->set_charset($charset);
 				}
-                                
-                                if ($socket) {
-                                        $this->connection->set_socket($socket);
-                                }
+
+				if ($socket) {
+					$this->connection->set_socket($socket);
+				}
 
 			}
 		}
