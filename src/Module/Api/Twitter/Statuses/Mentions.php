@@ -52,7 +52,7 @@ class Mentions extends BaseApi
 
 		$query = "`gravity` IN (?, ?) AND `uri-id` IN
 			(SELECT `uri-id` FROM `post-user-notification` WHERE `uid` = ? AND `notification-type` & ? != 0 ORDER BY `uri-id`)
-			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `id` > ?";
+			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `uri-id` > ?";
 
 		$condition = [
 			GRAVITY_PARENT, GRAVITY_COMMENT,
@@ -64,13 +64,13 @@ class Mentions extends BaseApi
 		];
 
 		if ($max_id > 0) {
-			$query .= " AND `id` <= ?";
+			$query .= " AND `uri-id` <= ?";
 			$condition[] = $max_id;
 		}
 
 		array_unshift($condition, $query);
 
-		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params   = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
 
 		$ret = [];

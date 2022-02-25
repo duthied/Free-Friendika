@@ -46,15 +46,15 @@ class NetworkPublicTimeline extends BaseApi
 
 		$start = max(0, ($page - 1) * $count);
 
-		$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `id` > ? AND `private` = ?",
+		$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `uri-id` > ? AND `private` = ?",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
+			$condition[0] .= " AND `uri-id` <= ?";
 			$condition[] = $max_id;
 		}
 
-		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params   = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, Item::DISPLAY_FIELDLIST, $condition, $params);
 
 		$ret = [];

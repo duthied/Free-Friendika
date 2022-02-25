@@ -70,13 +70,13 @@ class Status extends BaseFactory
 	 * @param int $uriId Uri-ID of the item
 	 * @param int $uid   Item user
 	 *
-	 * @return \Friendica\Object\Api\Mastodon\Status
+	 * @return \Friendica\Object\Api\Twitter\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
 	public function createFromItemId(int $id, int $uid, bool $include_entities = false): \Friendica\Object\Api\Twitter\Status
 	{
-		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
+		$fields = ['parent-uri-id', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
 			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
 		$item = Post::selectFirst($fields, ['id' => $id], ['order' => ['uid' => true]]);
 		if (!$item) {
@@ -89,13 +89,13 @@ class Status extends BaseFactory
 	 * @param int $uriId Uri-ID of the item
 	 * @param int $uid   Item user
 	 *
-	 * @return \Friendica\Object\Api\Mastodon\Status
+	 * @return \Friendica\Object\Api\Twitter\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
 	public function createFromUriId(int $uriId, $uid = 0, $include_entities = false): \Friendica\Object\Api\Twitter\Status
 	{
-		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
+		$fields = ['parent-uri-id', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
 			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
@@ -108,7 +108,7 @@ class Status extends BaseFactory
 	 * @param array $item item array
 	 * @param int   $uid  Item user
 	 *
-	 * @return \Friendica\Object\Api\Mastodon\Status
+	 * @return \Friendica\Object\Api\Twitter\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */

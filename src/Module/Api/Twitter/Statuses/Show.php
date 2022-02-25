@@ -52,23 +52,18 @@ class Show extends BaseApi
 		$conversation = !empty($request['conversation']);
 
 		// try to fetch the item for the local user - or the public item, if there is no local one
-		$uri_item = Post::selectFirst(['uri-id'], ['id' => $id]);
-		if (!DBA::isResult($uri_item)) {
-			throw new BadRequestException(sprintf("There is no status with the id %d", $id));
-		}
-
-		$item = Post::selectFirst(['id'], ['uri-id' => $uri_item['uri-id'], 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
+		$item = Post::selectFirst(['id'], ['uri-id' => $id, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!DBA::isResult($item)) {
-			throw new BadRequestException(sprintf("There is no status with the uri-id %d for the given user.", $uri_item['uri-id']));
+			throw new BadRequestException(sprintf("There is no status with the uri-id %d for the given user.", $id));
 		}
 
-		$id = $item['id'];
+		$item_id = $item['id'];
 
 		if ($conversation) {
-			$condition = ['parent' => $id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
-			$params    = ['order' => ['id' => true]];
+			$condition = ['parent' => $item_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+			$params    = ['order' => ['uri-id' => true]];
 		} else {
-			$condition = ['id' => $id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+			$condition = ['id' => $item_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
 			$params    = [];
 		}
 

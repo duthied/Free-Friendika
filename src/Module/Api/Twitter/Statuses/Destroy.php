@@ -25,6 +25,7 @@ use Friendica\Module\BaseApi;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Network\HTTPException\BadRequestException;
 
 /**
@@ -45,13 +46,18 @@ class Destroy extends BaseApi
 			throw new BadRequestException('An id is missing.');
 		}
 
+		$post = Post::selectFirst(['id'], ['uri-id' => $request['id'], 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
+		if (empty($post['id'])) {
+			throw new BadRequestException('Item id not found');
+		}
+
 		$this->logger->notice('API: api_statuses_destroy: ' . $id);
 
 		$include_entities = $this->getRequestValue($request, 'include_entities', false);
 
-		$ret = DI::twitterStatus()->createFromItemId($id, $uid, $include_entities)->toArray();
+		$ret = DI::twitterStatus()->createFromUriId($id, $uid, $include_entities)->toArray();
 
-		Item::deleteForUser(['id' => $id], $uid);
+		Item::deleteForUser(['id' => $post['id']], $uid);
 
 		$this->response->exit('status', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}

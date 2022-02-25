@@ -53,13 +53,13 @@ class Favorites extends BaseApi
 
 		$start = max(0, ($page - 1) * $count);
 
-		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `starred`",
+		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `uri-id` > ? AND `starred`",
 			$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
-		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
+			$condition[0] .= " AND `uri-id` <= ?";
 			$condition[] = $max_id;
 		}
 

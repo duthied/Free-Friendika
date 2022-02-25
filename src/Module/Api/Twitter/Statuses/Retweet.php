@@ -50,8 +50,8 @@ class Retweet extends BaseApi
 			throw new BadRequestException('An id is missing.');
 		}
 
-		$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
-		$item   = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
+		$fields = ['id', 'uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+		$item   = Post::selectFirst($fields, ['uri-id' => $id, 'uid' => [0, $uid], 'private' => [Item::PUBLIC, Item::UNLISTED]], ['order' => ['uid' => true]]);
 
 		if (DBA::isResult($item) && !empty($item['body'])) {
 			if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::TWITTER])) {
@@ -59,7 +59,7 @@ class Retweet extends BaseApi
 					throw new InternalServerErrorException();
 				}
 
-				$item_id = $id;
+				$item_id = $item['id'];
 			} else {
 				$item_id = Diaspora::performReshare($item['uri-id'], $uid);
 			}

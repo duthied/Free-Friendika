@@ -77,6 +77,7 @@ $apiRoutes = [
 			=> [Module\Api\Friendica\Activity::class, [        R::POST]],
 		'/notification/seen[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Notification\Seen::class,      [        R::POST]],
 		'/notification[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Notification::class,           [R::GET         ]],
+		'/notifications[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Notification::class,           [R::GET         ]],
 		'/direct_messages_setseen[.{extension:json|xml|rss|atom}]' => [Module\Api\Friendica\DirectMessages\Setseen::class, [        R::POST]],
 		'/direct_messages_search[.{extension:json|xml|rss|atom}]'  => [Module\Api\Friendica\DirectMessages\Search ::class, [R::GET         ]],
 		'/events[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Events\Index::class,           [R::GET         ]],

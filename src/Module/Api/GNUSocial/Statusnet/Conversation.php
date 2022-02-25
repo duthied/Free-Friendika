@@ -56,7 +56,7 @@ class Conversation extends BaseApi
 		Logger::info(BaseApi::LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
 
 		// try to fetch the item for the local user - or the public item, if there is no local one
-		$item = Post::selectFirst(['parent-uri-id'], ['id' => $id]);
+		$item = Post::selectFirst(['parent-uri-id'], ['uri-id' => $id]);
 		if (!DBA::isResult($item)) {
 			throw new BadRequestException("There is no status with the id $id.");
 		}
@@ -68,15 +68,15 @@ class Conversation extends BaseApi
 
 		$id = $parent['id'];
 
-		$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `id` > ?",
+		$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `uri-id` > ?",
 			$id, $uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
+			$condition[0] .= " AND `uri-id` <= ?";
 			$condition[] = $max_id;
 		}
 
-		$params   = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$params   = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 		$statuses = Post::selectForUser($uid, [], $condition, $params);
 
 		if (!DBA::isResult($statuses)) {
