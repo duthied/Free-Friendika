@@ -41,7 +41,7 @@ class UserTimelineTest extends ApiTest
 				'user_id'         => 42,
 				'max_id'          => 10,
 				'exclude_replies' => true,
-				'conversation_id' => 7,
+				'conversation_id' => 1,
 			]);
 
 		$json = $this->toJson($response);
