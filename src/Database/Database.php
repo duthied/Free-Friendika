@@ -114,6 +114,7 @@ class Database
 		$pass    = trim($this->configCache->get('database', 'password'));
 		$db      = trim($this->configCache->get('database', 'database'));
 		$charset = trim($this->configCache->get('database', 'charset'));
+		$socket  = trim($this->configCache->get('database', 'socket')); 
 
 		if (!(strlen($server) && strlen($user))) {
 			return false;
@@ -133,6 +134,10 @@ class Database
 
 			if ($charset) {
 				$connect .= ";charset=" . $charset;
+			}
+
+			if ($socket) {
+				$connect .= ";$unix_socket=" . $socket;
 			}
 
 			try {
@@ -160,6 +165,11 @@ class Database
 				if ($charset) {
 					$this->connection->set_charset($charset);
 				}
+
+				if ($socket) {
+					$this->connection->set_socket($socket);
+				}
+
 			}
 		}
 

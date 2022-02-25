@@ -64,6 +64,7 @@ Options
     -s|--savedb               Save the DB credentials to the file (if environment variables is used)
     -H|--dbhost <host>        The host of the mysql/mariadb database (env MYSQL_HOST)
     -p|--dbport <port>        The port of the mysql/mariadb database (env MYSQL_PORT)
+    -s|--dbsocket <socket>    The socket of the mysql/mariadb database (env MYSQL_SOCKET)
     -d|--dbdata <database>    The name of the mysql/mariadb database (env MYSQL_DATABASE)
     -u|--dbuser <username>    The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
     -P|--dbpass <password>    The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
@@ -76,6 +77,7 @@ Options
 Environment variables
    MYSQL_HOST                  The host of the mysql/mariadb database (mandatory if mysql and environment is used)
    MYSQL_PORT                  The port of the mysql/mariadb database
+   MYSQL_SOCKET                The socket of the mysql/mariadb database
    MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
    MYSQL_PASSWORD              The password of the mysql/mariadb database login
    MYSQL_DATABASE              The name of the mysql/mariadb database
@@ -157,6 +159,7 @@ HELP;
 
 			$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? (getenv('MYSQL_HOST')) : Installer::DEFAULT_HOST);
 			$db_port = $this->getOption(['p', 'dbport'], ($save_db) ? getenv('MYSQL_PORT') : null);
+			$db_socket = $this->getOption(['s', 'dbsocket'], ($save_db) ? getenv('MYSQL_SOCKET') : null);
 			$configCache->set('database', 'hostname', $db_host . (!empty($db_port) ? ':' . $db_port : ''));
 			$configCache->set('database', 'database',
 				$this->getOption(['d', 'dbdata'],

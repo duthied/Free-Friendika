@@ -37,6 +37,11 @@ return [
 		// Can be used instead of adding a port number to the hostname
 		'port' => null,
 
+		// socket (String)
+                // Socket of the database server.
+                // Can be used instead of adding a socket location to the hostname
+                'socket' => '',
+
 		// user (String)
 		// Database user name. Please don't use "root".
 		'username' => '',
