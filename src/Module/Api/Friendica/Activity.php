@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Friendica;
 
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
@@ -58,12 +59,8 @@ class Activity extends BaseApi
 		$res = Item::performActivity($post['id'], $this->parameters['verb'], $uid);
 
 		if ($res) {
-			if (($this->parameters['extension'] ?? '') == 'xml') {
-				$ok = 'true';
-			} else {
-				$ok = 'ok';
-			}
-			$this->response->exit('ok', ['ok' => $ok], $this->parameters['extension'] ?? null);
+			$status_info = DI::twitterStatus()->createFromUriId($request['id'], $uid)->toArray();
+			$this->response->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
 		} else {
 			$this->response->error(500, 'Error adding activity', '', $this->parameters['extension'] ?? null);
 		}
