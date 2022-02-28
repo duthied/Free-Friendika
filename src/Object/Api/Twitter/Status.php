@@ -118,7 +118,7 @@ class Status extends BaseDataTransferObject
 		$this->friendica_title      = $item['title'];
 		$this->statusnet_html       = $statusnetHtml;
 		$this->friendica_html       = $friendicaHtml;
-		$this->user                 = $author->toArray();
+		$this->user                 = $owner->toArray();
 		$this->friendica_author     = $author->toArray();
 		$this->friendica_owner      = $owner->toArray();
 		$this->truncated            = false;
