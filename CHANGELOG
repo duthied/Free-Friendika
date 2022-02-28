@@ -1,7 +1,24 @@
-Version 2022.05 (unreleased)
+Version 2022.03 (unreleased)
   Friendica Core
-    Breaking: The distribution of _private forums_ was moved to ActivityPub, making them incompatible with older versions of Friendica [annando]
-    Breaking: The Twitter-/Friendica-/Statusnet-API now uses the same base for the id as the Mastodon API (uri-id instead of id). To still receive new posts with (for example) Friendiqa you have to remove the account and add it again. [annando]
+    Updates to the translations DE [translation teams]
+    Updates to the documentation [bkil, tobiasd]
+    General code cleanup [annando, MrPetovan]
+    Enhanced the federation statistics page in the admin panel [annando]
+    Enhanced handling of database errors [annando]
+    Enhanced the thread completion [annando, MrPetovan]
+    Enhanced the handling of unfollow/revoke actions [MrPetovan]
+    Enhanced the API [annando]
+    Fixed a bug that caused wrong categories were displayed in a users profile [MrPetovan]
+    Fixed a bug that lead to private messages being send to the wrong recipient [MrPetovan]
+    Added display of post receivers [annando]
+    Added pleroma like version to the API results [MrPetovan]
+    Switched to SMARTY-4 templating engine [MrPetovan]
+    Breaking: The distribution of _private forums_ was moved to ActivityPub,
+         making them incompatible with older versions of Friendica [annando]
+    Breaking: The Twitter-/Friendica-/Statusnet-API now uses the same base
+         for the id as the Mastodon API (uri-id instead of id). To still
+         receive new posts with (for example) Friendiqa you have to remove
+         the account and add it again. [annando]
 
   Friendica Addons
 
