@@ -46,32 +46,32 @@ class Incoming extends ContactEndpoint
 		$max_id   = $this->getRequestValue($request, 'max_id', 0, 0);
 		$min_id   = $this->getRequestValue($request, 'min_id', 0, 0);
 
-		$params = ['order' => ['cid' => true], 'limit' => $count];
+		$params = ['order' => ['contact-id' => true], 'limit' => $count];
 
-		$condition = ['uid' => $uid, 'pending' => true];
+		$condition = ["`uid` = ? AND NOT `blocked` AND NOT `ignore` AND `contact-id` != 0 AND (`suggest-cid` = 0 OR `suggest-cid` IS NULL)", $uid];
 
-		$total_count = (int)DBA::count('user-contact', $condition);
+		$total_count = (int)DBA::count('intro', $condition);
 
 		if (!empty($max_id)) {
-			$condition = DBA::mergeConditions($condition, ["`cid` < ?", $max_id]);
+			$condition = DBA::mergeConditions($condition, ["`contact-id` < ?", $max_id]);
 		}
 
 		if (!empty($since_id)) {
-			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $since_id]);
+			$condition = DBA::mergeConditions($condition, ["`contact-id` > ?", $since_id]);
 		}
 
 		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $min_id]);
+			$condition = DBA::mergeConditions($condition, ["`contact-id` > ?", $min_id]);
 
-			$params['order'] = ['cid'];
+			$params['order'] = ['contact-id'];
 		}
 
 		$ids = [];
 
-		$contacts = DBA::select('user-contact', ['cid'], $condition, $params);
+		$contacts = DBA::select('intro', ['contact-id'], $condition, $params);
 		while ($contact = DBA::fetch($contacts)) {
-			self::setBoundaries($contact['cid']);
-			$ids[] = $contact['cid'];
+			self::setBoundaries($contact['contact-id']);
+			$ids[] = $contact['contact-id'];
 		}
 		DBA::close($contacts);
 
