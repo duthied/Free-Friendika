@@ -383,69 +383,34 @@ function item_post(App $a) {
 		$contact_record = DBA::selectFirst('contact', [], ['uid' => $profile_uid, 'self' => true]) ?: [];
 	}
 
-	// Look for any tags and linkify them
-	$inform   = '';
-	$private_forum = false;
-	$private_id = null;
-	$only_to_forum = false;
-	$forum_contact = [];
-
 	// Personal notes must never be altered to a forum post.
 	if ($posttype != Item::PT_PERSONAL_NOTE) {
-		// Convert mentions in the body to a unified format
-		$body = BBCode::setMentions($body, local_user() ? local_user() : $profile_uid, $network);
+		// Look for any tags and linkify them
+		$item = [
+			'uid'       => local_user() ? local_user() : $profile_uid,
+			'gravity'   => $toplevel_item_id ? GRAVITY_COMMENT : GRAVITY_PARENT,
+			'network'   => $network,
+			'body'      => $body,
+			'postopts'  => $postopts,
+			'private'   => $private,
+			'allow_cid' => $str_contact_allow,
+			'allow_gid' => $str_group_allow,
+			'deny_cid'  => $str_contact_deny,
+			'deny_gid'  => $str_group_deny,
+		];
 
-		// Search for forum mentions
-		foreach (Tag::getFromBody($body, Tag::TAG_CHARACTER[Tag::MENTION] . Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
-			$contact = Contact::getByURLForUser($tag[2], $profile_uid);
-			if (!empty($inform)) {
-				$inform .= ',';
-			}
-			$inform .= 'cid:' . $contact['id'];
+		$item = DI::contentItem()->expandTags($item);
 
-			if ($toplevel_item_id || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
-				continue;
-			}
-
-			if (!empty($contact['prv']) || ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
-				$private_forum = $contact['prv'];
-				$only_to_forum = ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
-				$private_id = $contact['id'];
-				$forum_contact = $contact;
-				Logger::info('Private forum or exclusive mention', ['url' => $tag[2], 'mention' => $tag[1]]);
-			} elseif ($str_contact_allow == '<' . $contact['id'] . '>') {
-				$private_forum = false;
-				$only_to_forum = true;
-				$private_id = $contact['id'];
-				$forum_contact = $contact;
-				Logger::info('Public forum', ['url' => $tag[2], 'mention' => $tag[1]]);
-			} else {
-				Logger::info('Post with forum mention will not be converted to a forum post', ['url' => $tag[2], 'mention' => $tag[1]]);
-			}
-		}
-		Logger::info('Got inform', ['inform' => $inform]);
-	}
-
-	$original_contact_id = $contact_id;
-
-	if (!$toplevel_item_id && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
-		// we tagged a forum in a top level post. Now we change the post
-		$private = $private_forum ? Item::PRIVATE : Item::UNLISTED;
-
-		if ($only_to_forum) {
-			$postopts = '';
-		}
-
-		$str_contact_deny  = '';
-		$str_group_deny    = '';
-
-		if ($private_forum) {
-			$str_contact_allow = '<' . $private_id . '>';
-			$str_group_allow   = '<' . Group::getIdForForum($forum_contact['id']) . '>';
-		} else {
-			$str_contact_allow = '';
-			$str_group_allow   = '';
-		}
+		$body              = $item['body'];
+		$inform            = $item['inform'];
+		$postopts          = $item['postopts'];
+		$private           = $item['private']; 
+		$str_contact_allow = $item['allow_cid'];
+		$str_group_allow   = $item['allow_gid'];
+		$str_contact_deny  = $item['deny_cid'];
+		$str_group_deny    = $item['deny_gid'];
+	} else {
+		$inform   = '';
 	}
 
 	/*
@@ -460,7 +425,7 @@ function item_post(App $a) {
 
 	$match = null;
 
-	if (!$preview && Photo::setPermissionFromBody($body, $uid, $original_contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)) {
+	if (!$preview && Photo::setPermissionFromBody($body, $uid, $contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)) {
 		$objecttype = Activity\ObjectType::IMAGE;
 	}
 
@@ -475,7 +440,7 @@ function item_post(App $a) {
 		if (count($attaches)) {
 			foreach ($attaches as $attach) {
 				// Ensure to only modify attachments that you own
-				$srch = '<' . intval($original_contact_id) . '>';
+				$srch = '<' . intval($contact_id) . '>';
 
 				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
 						'id' => $attach];
@@ -795,12 +760,6 @@ function item_post(App $a) {
 					$datarray, $address, $author['thumb'] ?? ''));
 			}
 		}
-	}
-
-	// When we are doing some forum posting via ! we have to start the notifier manually.
-	// These kind of posts don't initiate the notifier call in the item class.
-	if ($only_to_forum) {
-		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => false], "Notifier", Delivery::POST, (int)$datarray['uri-id'], (int)$datarray['uid']);
 	}
 
 	Logger::info('post_complete');

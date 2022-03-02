@@ -21,9 +21,9 @@
 
 namespace Friendica\Module\Api\Twitter\Statuses;
 
-use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
+use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -78,17 +78,12 @@ class Update extends BaseApi
 			$body = Markdown::toBBCode($request['status']);
 		}
 
-		// Avoids potential double expansion of existing links
-		$body = BBCode::performWithEscapedTags($body, ['url'], function ($body) {
-			return BBCode::expandTags($body);
-		});
-
 		$item               = [];
+		$item['network']    = Protocol::DFRN;
 		$item['uid']        = $uid;
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
-		$item['author-id']  = Contact::getPublicIdByUserId($uid);
-		$item['owner-id']   = $item['author-id'];
+		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
 		$item['title']      = $request['title'];
 		$item['body']       = $body;
 		$item['app']        = $request['source'];
@@ -126,6 +121,8 @@ class Update extends BaseApi
 			$item['gravity']     = GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		}
+
+		$item = DI::contentItem()->expandTags($item);
 
 		if (!empty($request['media_ids'])) {
 			$ids = explode(',', $request['media_ids']);
