@@ -21,9 +21,9 @@
 
 namespace Friendica\Module\Api\Twitter\Statuses;
 
-use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
+use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -79,11 +79,11 @@ class Update extends BaseApi
 		}
 
 		$item               = [];
+		$item['network']    = Protocol::DFRN;
 		$item['uid']        = $uid;
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
-		$item['author-id']  = Contact::getPublicIdByUserId($uid);
-		$item['owner-id']   = $item['author-id'];
+		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
 		$item['title']      = $request['title'];
 		$item['body']       = $body;
 		$item['app']        = $request['source'];

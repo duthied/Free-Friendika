@@ -21,8 +21,8 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -63,12 +63,8 @@ class Statuses extends BaseApi
 		// The imput is defined as text. So we can use Markdown for some enhancements
 		$body = Markdown::toBBCode($request['status']);
 
-		// Avoids potential double expansion of existing links
-		$body = BBCode::performWithEscapedTags($body, ['url'], function ($body) {
-			return BBCode::expandTags($body);
-		});
-
-		$item = [];
+		$item               = [];
+		$item['network']    = Protocol::DFRN;
 		$item['uid']        = $uid;
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
@@ -148,6 +144,8 @@ class Statuses extends BaseApi
 			$item['gravity']     = GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		}
+
+		$item = DI::contentItem()->expandTags($item);
 
 		if (!empty($request['media_ids'])) {
 			$item['object-type'] = Activity\ObjectType::IMAGE;
