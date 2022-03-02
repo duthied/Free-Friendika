@@ -78,11 +78,6 @@ class Update extends BaseApi
 			$body = Markdown::toBBCode($request['status']);
 		}
 
-		// Avoids potential double expansion of existing links
-		$body = BBCode::performWithEscapedTags($body, ['url'], function ($body) {
-			return BBCode::expandTags($body);
-		});
-
 		$item               = [];
 		$item['uid']        = $uid;
 		$item['verb']       = Activity::POST;
@@ -126,6 +121,8 @@ class Update extends BaseApi
 			$item['gravity']     = GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		}
+
+		$item = DI::contentItem()->expandTags($item);
 
 		if (!empty($request['media_ids'])) {
 			$ids = explode(',', $request['media_ids']);

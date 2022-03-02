@@ -21,12 +21,15 @@
 
 namespace Friendica\Content;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 use Friendica\Model\Item as ModelItem;
 use Friendica\Model\Tag;
 use Friendica\Model\Post;
@@ -53,7 +56,7 @@ class Item
 		$this->activity = $activity;
 		$this->l10n   = $l10n;
 	}
-	
+
 	/**
 	 * Return array with details for categories and folders for an item
 	 *
@@ -479,7 +482,7 @@ class Item
 		if (empty($item['verb']) || $this->activity->isHidden($item['verb'])) {
 			return false;
 		}
-	
+
 		// @TODO below if() block can be rewritten to a single line: $isVisible = allConditionsHere;
 		if ($this->activity->match($item['verb'], Activity::FOLLOW) &&
 			$item['object-type'] === Activity\ObjectType::NOTE &&
@@ -487,7 +490,71 @@ class Item
 			$item['uid'] == local_user()) {
 			return false;
 		}
-	
+
 		return true;
+	}
+
+	public function expandTags(array $item)
+	{
+		// Look for any tags and linkify them
+		$item['inform'] = '';
+		$private_forum  = false;
+		$private_id     = null;
+		$only_to_forum  = false;
+		$forum_contact  = [];
+
+		// Convert mentions in the body to a unified format
+		$item['body'] = BBCode::setMentions($item['body'], $item['uid'], $item['network']);
+
+		// Search for forum mentions
+		foreach (Tag::getFromBody($item['body'], Tag::TAG_CHARACTER[Tag::MENTION] . Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
+			$contact = Contact::getByURLForUser($tag[2], $item['uid']);
+			if (!empty($item['inform'])) {
+				$item['inform'] .= ',';
+			}
+			$item['inform'] .= 'cid:' . $contact['id'];
+
+			if (($item['gravity'] == GRAVITY_COMMENT) || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
+				continue;
+			}
+
+			if (!empty($contact['prv']) || ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
+				$private_forum = $contact['prv'];
+				$only_to_forum = ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
+				$private_id = $contact['id'];
+				$forum_contact = $contact;
+				Logger::info('Private forum or exclusive mention', ['url' => $tag[2], 'mention' => $tag[1]]);
+			} elseif ($item['allow_cid'] == '<' . $contact['id'] . '>') {
+				$private_forum = false;
+				$only_to_forum = true;
+				$private_id = $contact['id'];
+				$forum_contact = $contact;
+				Logger::info('Public forum', ['url' => $tag[2], 'mention' => $tag[1]]);
+			} else {
+				Logger::info('Post with forum mention will not be converted to a forum post', ['url' => $tag[2], 'mention' => $tag[1]]);
+			}
+		}
+		Logger::info('Got inform', ['inform' => $item['inform']]);
+
+		if (($item['gravity'] == GRAVITY_PARENT) && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
+			// we tagged a forum in a top level post. Now we change the post
+			$item['private'] = $private_forum ? ModelItem::PRIVATE : ModelItem::UNLISTED;
+
+			if ($only_to_forum) {
+				$item['postopts'] = '';
+			}
+
+			$item['deny_cid'] = '';
+			$item['deny_gid'] = '';
+
+			if ($private_forum) {
+				$item['allow_cid'] = '<' . $private_id . '>';
+				$item['allow_gid'] = '<' . Group::getIdForForum($forum_contact['id']) . '>';
+			} else {
+				$item['allow_cid'] = '';
+				$item['allow_gid'] = '';
+			}
+		}
+		return $item;
 	}
 }
