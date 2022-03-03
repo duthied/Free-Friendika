@@ -449,6 +449,8 @@ return [
 		'/{id:\d+}' => [Module\Notifications\Notification::class, [R::GET, R::POST]],
 	],
 
+	'/notify/{notify_id:\d+}' => [Module\Notifications\Notification::class, [R::GET]],
+
 	'/oauth' => [
 		'/acknowledge' => [Module\OAuth\Acknowledge::class, [R::GET, R::POST]],
 		'/authorize'   => [Module\OAuth\Authorize::class,   [R::GET]],

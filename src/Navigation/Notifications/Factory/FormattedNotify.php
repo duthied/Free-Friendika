@@ -214,7 +214,7 @@ class FormattedNotify extends BaseFactory
 			foreach ($Notifies as $Notify) {
 				$formattedNotifications[] = new ValueObject\FormattedNotify(
 					'notification',
-					$this->baseUrl->get(true) . '/notification/' . $Notify->id,
+					$this->baseUrl->get(true) . '/notify/' . $Notify->id,
 					Contact::getAvatarUrlForUrl($Notify->url, $Notify->uid, Proxy::SIZE_MICRO),
 					$Notify->url,
 					strip_tags(BBCode::toPlaintext($Notify->msg)),

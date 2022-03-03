@@ -442,7 +442,7 @@ function ping_get_notifications($uid)
 				DBA::update('notify', ['name_cache' => $notification["name"], 'msg_cache' => $notification["message"]], ['id' => $notification["id"]]);
 			}
 
-			$notification["href"] = DI::baseUrl() . "/notification/" . $notification["id"];
+			$notification["href"] = DI::baseUrl() . "/notify/" . $notification["id"];
 
 			if ($notification["visible"]
 				&& !$notification["deleted"]

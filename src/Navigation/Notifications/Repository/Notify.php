@@ -570,7 +570,7 @@ class Notify extends BaseRepository
 			$Notify->updateMsgFromPreamble($epreamble);
 			$Notify = $this->save($Notify);
 
-			$itemlink  = $this->baseUrl->get() . '/notification/' . $Notify->id;
+			$itemlink  = $this->baseUrl->get() . '/notify/' . $Notify->id;
 			$notify_id = $Notify->id;
 		}
 
