@@ -487,6 +487,11 @@ abstract class DI
 		return self::$dice->create(Contact\Introduction\Factory\Introduction::class);
 	}
 
+	public static function localRelationship(): Contact\LocalRelationship\Repository\LocalRelationship
+	{
+		return self::$dice->create(Contact\LocalRelationship\Repository\LocalRelationship::class);
+	}
+
 	public static function permissionSet(): Security\PermissionSet\Repository\PermissionSet
 	{
 		return self::$dice->create(Security\PermissionSet\Repository\PermissionSet::class);

@@ -2665,7 +2665,7 @@ class Contact
 			// Ensure to always have the correct network type, independent from the connection request method
 			self::updateFromProbe($contact['id']);
 
-			Post\UserNotification::insertNotification($contact['id'], Activity::FOLLOW, $importer['uid']);
+			Post\UserNotification::insertNotification($pub_contact['id'], Activity::FOLLOW, $importer['uid']);
 
 			return true;
 		} else {
@@ -2696,7 +2696,7 @@ class Contact
 
 			self::updateAvatar($contact_id, $photo, true);
 
-			Post\UserNotification::insertNotification($contact_id, Activity::FOLLOW, $importer['uid']);
+			Post\UserNotification::insertNotification($pub_contact['id'], Activity::FOLLOW, $importer['uid']);
 
 			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
 
@@ -2716,9 +2716,7 @@ class Contact
 
 				Group::addMember(User::getDefaultGroup($importer['uid']), $contact_record['id']);
 
-				if (($user['notify-flags'] & Notification\Type::INTRO) &&
-					in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL])) {
-
+				if (($user['notify-flags'] & Notification\Type::INTRO) && $user['page-flags'] == User::PAGE_FLAGS_NORMAL) {
 					DI::notify()->createFromArray([
 						'type'  => Notification\Type::INTRO,
 						'otype' => Notification\ObjectType::INTRO,

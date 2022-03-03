@@ -41,9 +41,9 @@ class Notification extends BaseRepository
 
 	protected static $table_name = 'notification';
 
-	public function __construct(Database $database, LoggerInterface $logger, Factory\Notification $factory = null)
+	public function __construct(Database $database, LoggerInterface $logger, Factory\Notification $factory)
 	{
-		parent::__construct($database, $logger, $factory ?? new Factory\Notification($logger));
+		parent::__construct($database, $logger, $factory);
 	}
 
 	/**

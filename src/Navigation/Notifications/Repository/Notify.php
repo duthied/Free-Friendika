@@ -732,7 +732,7 @@ class Notify extends BaseRepository
 			$subject        = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
 		}
 
-		$msg = $this->notification->getMessageFromNotification($Notification, $this->baseUrl, $l10n);
+		$msg = $this->notification->getMessageFromNotification($Notification);
 		if (empty($msg)) {
 			$this->logger->info('No notification message, quitting', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
 			return false;
