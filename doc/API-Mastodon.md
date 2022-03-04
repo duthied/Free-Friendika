@@ -74,7 +74,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 
 - [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance#fetch-instance)
-- GET /api/v1/instance/rules Undocumented, returns Terms of Service
+- `GET /api/v1/instance/rules` Undocumented, returns Terms of Service
 - [`GET /api/v1/instance/peers`](https://docs.joinmastodon.org/methods/instance#list-of-connected-domains)
 - [`GET /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
 - [`POST /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
@@ -102,6 +102,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`GET /api/v1/search`](https://docs.joinmastodon.org/methods/search/)
 - [`POST /api/v1/statuses`](https://docs.joinmastodon.org/methods/statuses/)
+    - Additionally to the static values `public`, `unlisted` and `private`, the `visibility` parameter can contain a numeric value with a group id.
 - [`GET /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/)
 - [`DELETE /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/)
 - [`GET /api/v1/statuses/:id/card`](https://docs.joinmastodon.org/methods/statuses/)
@@ -150,7 +151,7 @@ They refer to features that don't exist in Friendica yet.
 These endpoints won't be implemented at the moment.
 They refer to features or data that don't exist in Friendica yet.
 
-- POST /api/meta Misskey API endpoint.
+- `POST /api/meta` Misskey API endpoint.
 - [`POST /api/v1/accounts`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/:id/featured_tags`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/pin`](https://docs.joinmastodon.org/methods/accounts/)
