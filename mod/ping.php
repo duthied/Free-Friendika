@@ -31,6 +31,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Notification;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
+use Friendica\Navigation\Notifications\Entity;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
@@ -253,58 +254,53 @@ function ping_init(App $a)
 		$data['birthdays']        = $birthdays;
 		$data['birthdays-today']  = $birthdays_today;
 
-		if (DBA::isResult($notifications)) {
-			foreach ($notifications as $notif) {
-				if ($notif['seen'] == 0) {
-					$sysnotify_count ++;
-				}
+		foreach ($notifications as $notification) {
+			if ($notification['seen'] == 0) {
+				$sysnotify_count ++;
 			}
 		}
 
 		// merge all notification types in one array
 		if (DBA::isResult($intros)) {
 			foreach ($intros as $intro) {
-				$notif = [
-					'id'      => 0,
+				$notifications[] = [
 					'href'    => DI::baseUrl() . '/notifications/intros/' . $intro['id'],
-					'name'    => BBCode::convert($intro['name']),
-					'url'     => $intro['url'],
-					'photo'   => $intro['photo'],
+					'contact' => [
+						'name'    => strip_tags(BBCode::convert($intro['name'])),
+						'url'     => $intro['url'],
+					],
+					'message' => DI::l10n()->t('{0}} wants to follow you'),
 					'date'    => $intro['datetime'],
 					'seen'    => false,
-					'message' => DI::l10n()->t('{0} wants to be your friend'),
 				];
-				$notifications[] = $notif;
 			}
 		}
 
 		if (DBA::isResult($regs)) {
 			if (count($regs) <= 1 || DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 				foreach ($regs as $reg) {
-					$notif = [
-						'id'      => 0,
+					$notifications[] = [
 						'href'    => DI::baseUrl()->get(true) . '/admin/users/pending',
-						'name'    => $reg['name'],
-						'url'     => $reg['url'],
-						'photo'   => $reg['micro'],
+						'contact' => [
+							'name'    => $reg['name'],
+							'url'     => $reg['url'],
+						],
+						'message' => DI::l10n()->t('{0} requested registration'),
 						'date'    => $reg['created'],
 						'seen'    => false,
-						'message' => DI::l10n()->t('{0} requested registration'),
 					];
-					$notifications[] = $notif;
 				}
 			} else {
-				$notif = [
-					'id'      => 0,
+				$notifications[] = [
 					'href'    => DI::baseUrl()->get(true) . '/admin/users/pending',
-					'name'    => $regs[0]['name'],
-					'url'     => $regs[0]['url'],
-					'photo'   => $regs[0]['micro'],
+					'contact' => [
+						'name'    => $regs[0]['name'],
+						'url'     => $regs[0]['url'],
+					],
+					'message' => DI::l10n()->t('{0} and %d others requested registration', count($regs) - 1),
 					'date'    => $regs[0]['created'],
 					'seen'    => false,
-					'message' => DI::l10n()->t('{0} and %d others requested registration', count($regs) - 1),
 				];
-				$notifications[] = $notif;
 			}
 		}
 
@@ -328,12 +324,6 @@ function ping_init(App $a)
 			return ($adate < $bdate) ? 1 : -1;
 		};
 		usort($notifications, $sort_function);
-
-		array_walk($notifications, function (&$notification) {
-			$notification['photo']     = Contact::getAvatarUrlForUrl($notification['url'], local_user(), Proxy::SIZE_MICRO);
-			$notification['timestamp'] = DateTimeFormat::local($notification['date']);
-			$notification['date']      = Temporal::getRelativeDate($notification['date']);
-		});
 	}
 
 	$sysmsgs = [];
@@ -351,11 +341,26 @@ function ping_init(App $a)
 
 	if ($format == 'json') {
 		$notification_count = $sysnotify_count + $intro_count + $register_count;
-		
+
+		$tpl = \Friendica\Core\Renderer::getMarkupTemplate('notifications/nav/notify.tpl');
+
 		$data['groups'] = $groups_unseen;
 		$data['forums'] = $forums_unseen;
 		$data['notification'] = ($notification_count < 50) ? $notification_count : '49+';
-		$data['notifications'] = $notifications;
+		$data['notifications'] = array_map(function ($navNotification) use ($tpl) {
+			$navNotification['contact']['photo'] = Contact::getAvatarUrlForUrl($navNotification['contact']['url'], local_user(), Proxy::SIZE_MICRO);
+
+			$navNotification['timestamp'] = strtotime($navNotification['date']);
+			$navNotification['localdate'] = DateTimeFormat::local($navNotification['date']);
+			$navNotification['ago']       = Temporal::getRelativeDate($navNotification['date']);
+			$navNotification['richtext']  = Entity\Notify::formatMessage($navNotification['contact']['name'], $navNotification['message']);
+			$navNotification['plaintext'] = strip_tags($navNotification['richtext']);
+			$navNotification['html']      = \Friendica\Core\Renderer::replaceMacros($tpl, [
+				'notify' => $navNotification,
+			]);
+
+			return $navNotification;
+		}, $notifications);
 		$data['sysmsgs'] = [
 			'notice' => $sysmsgs,
 			'info' => $sysmsgs_info
@@ -394,14 +399,15 @@ function ping_get_notifications($uid)
 	$result  = [];
 	$offset  = 0;
 	$seen    = false;
-	$seensql = "NOT";
-	$order   = "DESC";
+	$seensql = 'NOT';
+	$order   = 'DESC';
 	$quit    = false;
 
 	do {
-		$r = DBA::toArray(DBA::p(
+		$notifies = DBA::toArray(DBA::p(
 			"SELECT `notify`.*, `post`.`visible`, `post`.`deleted`
-			FROM `notify` LEFT JOIN `post` ON `post`.`uri-id` = `notify`.`uri-id`
+			FROM `notify`
+			LEFT JOIN `post` ON `post`.`uri-id` = `notify`.`uri-id`
 			WHERE `notify`.`uid` = ? AND `notify`.`msg` != ''
 			AND NOT (`notify`.`type` IN (?, ?))
 			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` $order LIMIT ?, 50",
@@ -411,48 +417,52 @@ function ping_get_notifications($uid)
 			$offset
 		));
 
-		if (!$r && !$seen) {
+		if (!$notifies && !$seen) {
 			$seen = true;
-			$seensql = "";
-			$order = "DESC";
+			$seensql = '';
+			$order = 'DESC';
 			$offset = 0;
-		} elseif (!$r) {
+		} elseif (!$notifies) {
 			$quit = true;
 		} else {
 			$offset += 50;
 		}
 
-		foreach ($r as $notification) {
-			if (is_null($notification["visible"])) {
-				$notification["visible"] = true;
-			}
+		foreach ($notifies as $notify) {
+			$notify['visible'] = $notify['visible'] ?? true;
+			$notify['deleted'] = $notify['deleted'] ?? 0;
 
-			if (is_null($notification["deleted"])) {
-				$notification["deleted"] = 0;
-			}
-
-			if ($notification["msg_cache"]) {
-				$notification["name"] = $notification["name_cache"];
-				$notification["message"] = $notification["msg_cache"];
+			if ($notify['msg_cache']) {
+				$notify['name'] = $notify['name_cache'];
+				$notify['message'] = $notify['msg_cache'];
 			} else {
-				$notification["name"] = strip_tags(BBCode::convert($notification["name"]));
-				$notification["message"] = \Friendica\Navigation\Notifications\Entity\Notify::formatMessage($notification["name"], BBCode::toPlaintext($notification["msg"]));
+				$notify['name'] = strip_tags(BBCode::convert($notify['name']));
+				$notify['message'] = BBCode::toPlaintext($notify['msg']);
 
 				// @todo Replace this with a call of the Notify model class
-				DBA::update('notify', ['name_cache' => $notification["name"], 'msg_cache' => $notification["message"]], ['id' => $notification["id"]]);
+				DBA::update('notify', ['name_cache' => $notify['name'], 'msg_cache' => $notify['message']], ['id' => $notify['id']]);
 			}
 
-			$notification["href"] = DI::baseUrl() . "/notify/" . $notification["id"];
-
-			if ($notification["visible"]
-				&& !$notification["deleted"]
-				&& empty($result['p:' . $notification['parent']])
+			if ($notify['visible']
+				&& !$notify['deleted']
+				&& empty($result['p:' . $notify['parent']])
 			) {
+				$notification = [
+					'href' => DI::baseUrl() . '/notify/' . $notify['id'],
+					'contact' => [
+						'name'  => $notify['name'],
+						'url'   => $notify['url'],
+					],
+					'message' => $notify['message'],
+					'date'    => $notify['date'],
+					'seen'    => $notify['seen'],
+				];
+
 				// Should we condense the notifications or show them all?
-				if (($notification['verb'] != Activity::POST) || DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
+				if (($notify['verb'] != Activity::POST) || DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 					$result[] = $notification;
 				} else {
-					$result['p:' . $notification['parent']] = $notification;
+					$result['p:' . $notify['parent']] = $notification;
 				}
 			}
 		}
