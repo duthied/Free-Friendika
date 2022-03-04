@@ -24,6 +24,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Hook;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -36,14 +37,9 @@ use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
 use Friendica\Util\Temporal;
-use Friendica\Util\XML;
 
 /**
  * Outputs the counts and the lists of various notifications
- *
- * The output format can be controlled via the GET parameter 'format'. It can be
- * - xml (deprecated legacy default)
- * - json (outputs JSONP with the 'callback' GET parameter)
  *
  * Expected JSON structure:
  * {
@@ -75,12 +71,6 @@ use Friendica\Util\XML;
  */
 function ping_init(App $a)
 {
-	$format = 'xml';
-
-	if (isset($_GET['format']) && $_GET['format'] == 'json') {
-		$format = 'json';
-	}
-
 	$regs          = [];
 	$notifications = [];
 
@@ -100,41 +90,8 @@ function ping_init(App $a)
 	$birthdays        = 0;
 	$birthdays_today  = 0;
 
-	$data = [];
-	$data['intro']    = $intro_count;
-	$data['mail']     = $mail_count;
-	$data['net']      = $network_count;
-	$data['home']     = $home_count;
-	$data['register'] = $register_count;
-
-	$data['all-events']       = $all_events;
-	$data['all-events-today'] = $all_events_today;
-	$data['events']           = $events;
-	$data['events-today']     = $events_today;
-	$data['birthdays']        = $birthdays;
-	$data['birthdays-today']  = $birthdays_today;
 
 	if (local_user()) {
-		// Different login session than the page that is calling us.
-		if (!empty($_GET['uid']) && intval($_GET['uid']) != local_user()) {
-			$data = ['result' => ['invalid' => 1]];
-
-			if ($format == 'json') {
-				if (isset($_GET['callback'])) {
-					// JSONP support
-					header("Content-type: application/javascript");
-					echo $_GET['callback'] . '(' . json_encode($data) . ')';
-				} else {
-					header("Content-type: application/json");
-					echo json_encode($data);
-				}
-			} else {
-				header("Content-type: text/xml");
-				echo XML::fromArray($data, $xml);
-			}
-			exit();
-		}
-
 		$notifications = ping_get_notifications(local_user());
 
 		$condition = ["`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
@@ -241,18 +198,6 @@ function ping_init(App $a)
 			}
 		}
 
-		$data['intro']    = $intro_count;
-		$data['mail']     = $mail_count;
-		$data['net']      = ($network_count < 1000) ? $network_count : '999+';
-		$data['home']     = ($home_count < 1000) ? $home_count : '999+';
-		$data['register'] = $register_count;
-
-		$data['all-events']       = $all_events;
-		$data['all-events-today'] = $all_events_today;
-		$data['events']           = $events;
-		$data['events-today']     = $events_today;
-		$data['birthdays']        = $birthdays;
-		$data['birthdays-today']  = $birthdays_today;
 
 		foreach ($notifications as $notification) {
 			if ($notification['seen'] == 0) {
@@ -339,49 +284,54 @@ function ping_init(App $a)
 		unset($_SESSION['sysmsg_info']);
 	}
 
-	if ($format == 'json') {
-		$notification_count = $sysnotify_count + $intro_count + $register_count;
+	$notification_count = $sysnotify_count + $intro_count + $register_count;
 
-		$tpl = \Friendica\Core\Renderer::getMarkupTemplate('notifications/nav/notify.tpl');
+	$tpl = Renderer::getMarkupTemplate('notifications/nav/notify.tpl');
 
-		$data['groups'] = $groups_unseen;
-		$data['forums'] = $forums_unseen;
-		$data['notification'] = ($notification_count < 50) ? $notification_count : '49+';
-		$data['notifications'] = array_map(function ($navNotification) use ($tpl) {
-			$navNotification['contact']['photo'] = Contact::getAvatarUrlForUrl($navNotification['contact']['url'], local_user(), Proxy::SIZE_MICRO);
+	$data = [];
+	$data['intro']    = $intro_count;
+	$data['mail']     = $mail_count;
+	$data['net']      = ($network_count < 1000) ? $network_count : '999+';
+	$data['home']     = ($home_count < 1000) ? $home_count : '999+';
+	$data['register'] = $register_count;
 
-			$navNotification['timestamp'] = strtotime($navNotification['date']);
-			$navNotification['localdate'] = DateTimeFormat::local($navNotification['date']);
-			$navNotification['ago']       = Temporal::getRelativeDate($navNotification['date']);
-			$navNotification['richtext']  = Entity\Notify::formatMessage($navNotification['contact']['name'], $navNotification['message']);
-			$navNotification['plaintext'] = strip_tags($navNotification['richtext']);
-			$navNotification['html']      = \Friendica\Core\Renderer::replaceMacros($tpl, [
-				'notify' => $navNotification,
-			]);
+	$data['all-events']       = $all_events;
+	$data['all-events-today'] = $all_events_today;
+	$data['events']           = $events;
+	$data['events-today']     = $events_today;
+	$data['birthdays']        = $birthdays;
+	$data['birthdays-today']  = $birthdays_today;
+	$data['groups'] = $groups_unseen;
+	$data['forums'] = $forums_unseen;
+	$data['notification'] = ($notification_count < 50) ? $notification_count : '49+';
+	$data['notifications'] = array_map(function ($navNotification) use ($tpl) {
+		$navNotification['contact']['photo'] = Contact::getAvatarUrlForUrl($navNotification['contact']['url'], local_user(), Proxy::SIZE_MICRO);
 
-			return $navNotification;
-		}, $notifications);
-		$data['sysmsgs'] = [
-			'notice' => $sysmsgs,
-			'info' => $sysmsgs_info
-		];
+		$navNotification['timestamp'] = strtotime($navNotification['date']);
+		$navNotification['localdate'] = DateTimeFormat::local($navNotification['date']);
+		$navNotification['ago']       = Temporal::getRelativeDate($navNotification['date']);
+		$navNotification['richtext']  = Entity\Notify::formatMessage($navNotification['contact']['name'], $navNotification['message']);
+		$navNotification['plaintext'] = strip_tags($navNotification['richtext']);
+		$navNotification['html']      = Renderer::replaceMacros($tpl, [
+			'notify' => $navNotification,
+		]);
 
-		$json_payload = json_encode(["result" => $data]);
+		return $navNotification;
+	}, $notifications);
+	$data['sysmsgs'] = [
+		'notice' => $sysmsgs,
+		'info' => $sysmsgs_info
+	];
 
-		if (isset($_GET['callback'])) {
-			// JSONP support
-			header("Content-type: application/javascript");
-			echo $_GET['callback'] . '(' . $json_payload . ')';
-		} else {
-			header("Content-type: application/json");
-			echo $json_payload;
-		}
+	$json_payload = json_encode(["result" => $data]);
+
+	if (isset($_GET['callback'])) {
+		// JSONP support
+		header("Content-type: application/javascript");
+		echo $_GET['callback'] . '(' . $json_payload . ')';
 	} else {
-		// Legacy slower XML format output
-		$data = ping_format_xml_data($data, $sysnotify_count, $notifications, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen);
-
-		header("Content-type: text/xml");
-		echo XML::fromArray(["result" => $data], $xml);
+		header("Content-type: application/json");
+		echo $json_payload;
 	}
 
 	exit();
@@ -469,73 +419,4 @@ function ping_get_notifications($uid)
 	} while ((count($result) < 50) && !$quit);
 
 	return($result);
-}
-
-/**
- * Backward-compatible XML formatting for ping.php output
- * @deprecated
- *
- * @param array $data            The initial ping data array
- * @param int   $sysnotify_count Number of unseen system notifications
- * @param array $notifs          Complete list of notification
- * @param array $sysmsgs         List of system notice messages
- * @param array $sysmsgs_info    List of system info messages
- * @param array $groups_unseen   List of unseen group items
- * @param array $forums_unseen   List of unseen forum items
- *
- * @return array XML-transform ready data array
- */
-function ping_format_xml_data($data, $sysnotify_count, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen)
-{
-	$notifications = [];
-	foreach ($notifs as $key => $notif) {
-		$notifications[$key . ':note'] = $notif['message'];
-
-		$notifications[$key . ':@attributes'] = [
-			'id'        => $notif['id'],
-			'href'      => $notif['href'],
-			'name'      => $notif['name'],
-			'url'       => $notif['url'],
-			'photo'     => $notif['photo'],
-			'date'      => $notif['date'],
-			'seen'      => $notif['seen'],
-			'timestamp' => $notif['timestamp']
-		];
-	}
-
-	$sysmsg = [];
-	foreach ($sysmsgs as $key => $m) {
-		$sysmsg[$key . ':notice'] = $m;
-	}
-	foreach ($sysmsgs_info as $key => $m) {
-		$sysmsg[$key . ':info'] = $m;
-	}
-
-	$data['notif'] = $notifications;
-	$data['@attributes'] = ['count' => $sysnotify_count + $data['intro'] + $data['mail'] + $data['register']];
-	$data['sysmsgs'] = $sysmsg;
-
-	if ($data['register'] == 0) {
-		unset($data['register']);
-	}
-
-	$groups = [];
-	if (count($groups_unseen)) {
-		foreach ($groups_unseen as $key => $item) {
-			$groups[$key . ':group'] = $item['count'];
-			$groups[$key . ':@attributes'] = ['id' => $item['id']];
-		}
-		$data['groups'] = $groups;
-	}
-
-	$forums = [];
-	if (count($forums_unseen)) {
-		foreach ($forums_unseen as $key => $item) {
-			$forums[$key . ':forum'] = $item['count'];
-			$forums[$key . ':@attributes'] = ['id' => $item['id']];
-		}
-		$data['forums'] = $forums;
-	}
-
-	return $data;
 }

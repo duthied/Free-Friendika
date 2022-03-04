@@ -499,7 +499,7 @@ function insertBBCodeInTextarea(BBCode, textarea) {
 
 function NavUpdate() {
 	if (!stopped) {
-		var pingCmd = 'ping?format=json' + ((localUser != 0) ? '&uid=' + localUser : '');
+		var pingCmd = 'ping';
 		$.get(pingCmd, function(data) {
 			if (data.result) {
 				// send nav-update event
