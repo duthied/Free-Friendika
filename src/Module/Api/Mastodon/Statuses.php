@@ -114,10 +114,17 @@ class Statuses extends BaseApi
 				DI::mstdnError()->InternalError('Direct messages are currently unsupported');
 				break;
 			default:
-				$item['allow_cid'] = $owner['allow_cid'];
-				$item['allow_gid'] = $owner['allow_gid'];
-				$item['deny_cid']  = $owner['deny_cid'];
-				$item['deny_gid']  = $owner['deny_gid'];
+				if (is_numeric($request['visibility']) && Group::exists($request['visibility'], $uid)) {
+					$item['allow_cid'] = '';
+					$item['allow_gid'] = '<' . $request['visibility'] . '>';
+					$item['deny_cid']  = '';
+					$item['deny_gid']  = '';
+				} else {
+					$item['allow_cid'] = $owner['allow_cid'];
+					$item['allow_gid'] = $owner['allow_gid'];
+					$item['deny_cid']  = $owner['deny_cid'];
+					$item['deny_gid']  = $owner['deny_gid'];
+				}
 
 				if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
 					$item['private'] = Item::PRIVATE;
