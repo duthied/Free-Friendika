@@ -494,7 +494,7 @@ class Item
 		return true;
 	}
 
-	public function expandTags(array $item)
+	public function expandTags(array $item, bool $setPermissions = false)
 	{
 		// Look for any tags and linkify them
 		$item['inform'] = '';
@@ -502,6 +502,7 @@ class Item
 		$private_id     = null;
 		$only_to_forum  = false;
 		$forum_contact  = [];
+		$receivers      = [];
 
 		// Convert mentions in the body to a unified format
 		$item['body'] = BBCode::setMentions($item['body'], $item['uid'], $item['network']);
@@ -509,6 +510,9 @@ class Item
 		// Search for forum mentions
 		foreach (Tag::getFromBody($item['body'], Tag::TAG_CHARACTER[Tag::MENTION] . Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
 			$contact = Contact::getByURLForUser($tag[2], $item['uid']);
+
+			$receivers[] = $contact['id'];
+
 			if (!empty($item['inform'])) {
 				$item['inform'] .= ',';
 			}
@@ -553,6 +557,22 @@ class Item
 			} else {
 				$item['allow_cid'] = '';
 				$item['allow_gid'] = '';
+			}
+		} elseif ($setPermissions && ($item['gravity'] == GRAVITY_PARENT)) {
+			if (empty($receivers)) {
+				// For security reasons direct posts without any receiver will be posts to yourself
+				$self = Contact::selectFirst(['id'], ['uid' => $item['uid'], 'self' => true]);
+				$receivers[] = $self['id'];
+			}
+
+			$item['private']   = ModelItem::PRIVATE;
+			$item['allow_cid'] = '';
+			$item['allow_gid'] = '';
+			$item['deny_cid']  = '';
+			$item['deny_gid']  = '';
+
+			foreach ($receivers as $receiver) {
+				$item['allow_cid'] .= '<' . $receiver . '>';
 			}
 		}
 		return $item;
