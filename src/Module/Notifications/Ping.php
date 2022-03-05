@@ -21,53 +21,75 @@
 
 namespace Friendica\Module\Notifications;
 
+use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Contact\Introduction\Repository\Introduction;
 use Friendica\Content\ForumManager;
-use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Hook;
-use Friendica\Core\Renderer;
+use Friendica\Core\L10n;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Group;
-use Friendica\Model\Notification;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Module\Register;
+use Friendica\Module\Response;
 use Friendica\Navigation\Notifications\Entity;
-use Friendica\Network\HTTPException;
+use Friendica\Navigation\Notifications\Factory;
+use Friendica\Navigation\Notifications\Repository;
+use Friendica\Navigation\Notifications\ValueObject;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy;
-use Friendica\Util\Temporal;
+use Friendica\Util\Profiler;
+use GuzzleHttp\Psr7\Uri;
+use Psr\Log\LoggerInterface;
 
 class Ping extends BaseModule
 {
+	/** @var Repository\Notification */
+	private $notificationRepo;
+	/** @var Introduction */
+	private $introductionRepo;
+	/** @var Factory\FormattedNavNotification */
+	private $formattedNavNotification;
+
+	public function __construct(Repository\Notification $notificationRepo, Introduction $introductionRepo, Factory\FormattedNavNotification $formattedNavNotification, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->notificationRepo         = $notificationRepo;
+		$this->introductionRepo         = $introductionRepo;
+		$this->formattedNavNotification = $formattedNavNotification;
+	}
+
 	protected function rawContent(array $request = [])
 	{
-		$regs          = [];
-		$notifications = [];
+		$regs             = [];
+		$navNotifications = [];
 
-		$intro_count    = 0;
-		$mail_count     = 0;
-		$home_count     = 0;
-		$network_count  = 0;
-		$register_count = 0;
+		$intro_count     = 0;
+		$mail_count      = 0;
+		$home_count      = 0;
+		$network_count   = 0;
+		$register_count  = 0;
 		$sysnotify_count = 0;
-		$groups_unseen  = [];
-		$forums_unseen  = [];
+		$groups_unseen   = [];
+		$forums_unseen   = [];
 
-		$all_events       = 0;
-		$all_events_today = 0;
-		$events           = 0;
-		$events_today     = 0;
-		$birthdays        = 0;
-		$birthdays_today  = 0;
+		$event_count          = 0;
+		$today_event_count    = 0;
+		$birthday_count       = 0;
+		$today_birthday_count = 0;
 
 
 		if (local_user()) {
-			$notifications = $this->getNotificationList(local_user());
+			if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
+				$notifications = $this->notificationRepo->selectForUser(local_user(), [], ['limit' => 50]);
+			} else {
+				$notifications = $this->notificationRepo->selectDigestForUser(local_user());
+			}
 
 			$condition = [
 				"`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
@@ -76,7 +98,7 @@ class Ping extends BaseModule
 			$items = Post::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition, ['limit' => 1000]);
 			if (DBA::isResult($items)) {
 				$items_unseen = Post::toArray($items, false);
-				$arr = ['items' => $items_unseen];
+				$arr          = ['items' => $items_unseen];
 				Hook::callAll('network_ping', $arr);
 
 				foreach ($items_unseen as $item) {
@@ -110,25 +132,11 @@ class Ping extends BaseModule
 				}
 			}
 
-			$intros1 = DBA::toArray(DBA::p(
-				"SELECT  `intro`.`id`, `intro`.`datetime`,
-			`contact`.`name`, `contact`.`url`, `contact`.`photo`
-			FROM `intro` INNER JOIN `contact` ON `intro`.`suggest-cid` = `contact`.`id`
-			WHERE `intro`.`uid` = ? AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`suggest-cid` != 0",
-				local_user()
-			));
-			$intros2 = DBA::toArray(DBA::p(
-				"SELECT `intro`.`id`, `intro`.`datetime`,
-			`contact`.`name`, `contact`.`url`, `contact`.`photo`
-			FROM `intro` INNER JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
-			WHERE `intro`.`uid` = ? AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`contact-id` != 0 AND (`intro`.`suggest-cid` = 0 OR `intro`.`suggest-cid` IS NULL)",
-				local_user()
-			));
+			$intros = $this->introductionRepo->selectForUser(local_user());
 
-			$intro_count = count($intros1) + count($intros2);
-			$intros = $intros1 + $intros2;
+			$intro_count = $intros->count();
 
-			$myurl = DI::baseUrl() . '/profile/' . DI::app()->getLoggedInUserNickname();
+			$myurl      = DI::baseUrl() . '/profile/' . DI::app()->getLoggedInUserNickname();
 			$mail_count = DBA::count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", local_user(), $myurl]);
 
 			if (intval(DI::config()->get('config', 'register_policy')) === Register::APPROVE && DI::app()->isSiteAdmin()) {
@@ -139,8 +147,8 @@ class Ping extends BaseModule
 				}
 			}
 
-			$cachekey = "ping_init:" . local_user();
-			$ev = DI::cache()->get($cachekey);
+			$cachekey = 'ping:events:' . local_user();
+			$ev       = DI::cache()->get($cachekey);
 			if (is_null($ev)) {
 				$ev = DBA::selectToArray('event', ['type', 'start'],
 					["`uid` = ? AND `start` < ? AND `finish` > ? AND NOT `ignore`",
@@ -158,97 +166,79 @@ class Ping extends BaseModule
 					foreach ($ev as $x) {
 						$bd = false;
 						if ($x['type'] === 'birthday') {
-							$birthdays ++;
+							$birthday_count++;
 							$bd = true;
 						} else {
-							$events ++;
+							$event_count++;
 						}
 						if (DateTimeFormat::local($x['start'], 'Y-m-d') === $str_now) {
-							$all_events_today ++;
 							if ($bd) {
-								$birthdays_today ++;
+								$today_birthday_count++;
 							} else {
-								$events_today ++;
+								$today_event_count++;
 							}
 						}
 					}
 				}
 			}
 
+			$sysnotify_count = $notifications->countUnseen();
 
-			foreach ($notifications as $notification) {
-				if ($notification['seen'] == 0) {
-					$sysnotify_count ++;
-				}
-			}
+			$navNotifications = array_map(function (Entity\Notification $notification) {
+				return $this->formattedNavNotification->createFromNotification($notification);
+			}, $notifications->getArrayCopy());
 
 			// merge all notification types in one array
-			if (DBA::isResult($intros)) {
-				foreach ($intros as $intro) {
-					$notifications[] = [
-						'href'    => DI::baseUrl() . '/notifications/intros/' . $intro['id'],
-						'contact' => [
-							'name'    => strip_tags(BBCode::convert($intro['name'])),
-							'url'     => $intro['url'],
-						],
-						'message' => DI::l10n()->t('{0}} wants to follow you'),
-						'date'    => $intro['datetime'],
-						'seen'    => false,
-					];
-				}
+			foreach ($intros as $intro) {
+				$navNotifications[] = $this->formattedNavNotification->createFromIntro($intro);
 			}
 
 			if (DBA::isResult($regs)) {
 				if (count($regs) <= 1 || DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 					foreach ($regs as $reg) {
-						$notifications[] = [
-							'href'    => DI::baseUrl()->get(true) . '/admin/users/pending',
-							'contact' => [
-								'name'    => $reg['name'],
-								'url'     => $reg['url'],
+						$navNotifications[] = $this->formattedNavNotification->createFromParams(
+							[
+								'name' => $reg['name'],
+								'url'  => $reg['url'],
 							],
-							'message' => DI::l10n()->t('{0} requested registration'),
-							'date'    => $reg['created'],
-							'seen'    => false,
-						];
+							DI::l10n()->t('{0} requested registration'),
+							new \DateTime($reg['created'], new \DateTimeZone('UTC')),
+							new Uri(DI::baseUrl()->get(true) . '/admin/users/pending')
+						);
 					}
 				} else {
-					$notifications[] = [
-						'href'    => DI::baseUrl()->get(true) . '/admin/users/pending',
-						'contact' => [
-							'name'    => $regs[0]['name'],
-							'url'     => $regs[0]['url'],
+					$navNotifications[] = $this->formattedNavNotification->createFromParams(
+						[
+							'name' => $regs[0]['name'],
+							'url'  => $regs[0]['url'],
 						],
-						'message' => DI::l10n()->t('{0} and %d others requested registration', count($regs) - 1),
-						'date'    => $regs[0]['created'],
-						'seen'    => false,
-					];
+						DI::l10n()->t('{0} and %d others requested registration', count($regs) - 1),
+						new \DateTime($regs[0]['created'], new \DateTimeZone('UTC')),
+						new Uri(DI::baseUrl()->get(true) . '/admin/users/pending')
+					);
 				}
 			}
 
 			// sort notifications by $[]['date']
-			$sort_function = function ($a, $b) {
-				$adate = strtotime($a['date']);
-				$bdate = strtotime($b['date']);
+			$sort_function = function (ValueObject\FormattedNavNotification $a, ValueObject\FormattedNavNotification $b) {
+				$a = $a->toArray();
+				$b = $b->toArray();
 
 				// Unseen messages are kept at the top
-				// The value 31536000 means one year. This should be enough :-)
-				if (!$a['seen']) {
-					$adate += 31536000;
+				if ($a['seen'] == $b['seen']) {
+					if ($a['timestamp'] == $b['timestamp']) {
+						return 0;
+					} else {
+						return $a['timestamp'] < $b['timestamp'] ? 1 : -1;
+					}
+				} else {
+					return $a['seen'] ? 1 : -1;
 				}
-				if (!$b['seen']) {
-					$bdate += 31536000;
-				}
-
-				if ($adate == $bdate) {
-					return 0;
-				}
-				return ($adate < $bdate) ? 1 : -1;
 			};
-			usort($notifications, $sort_function);
+			usort($navNotifications, $sort_function);
 		}
 
-		$sysmsgs = [];
+		$sysmsgs      = [];
 		$sysmsgs_info = [];
 
 		if (!empty($_SESSION['sysmsg'])) {
@@ -263,138 +253,35 @@ class Ping extends BaseModule
 
 		$notification_count = $sysnotify_count + $intro_count + $register_count;
 
-		$tpl = Renderer::getMarkupTemplate('notifications/nav/notify.tpl');
-
-		$data = [];
+		$data             = [];
 		$data['intro']    = $intro_count;
 		$data['mail']     = $mail_count;
 		$data['net']      = ($network_count < 1000) ? $network_count : '999+';
 		$data['home']     = ($home_count < 1000) ? $home_count : '999+';
 		$data['register'] = $register_count;
 
-		$data['all-events']       = $all_events;
-		$data['all-events-today'] = $all_events_today;
-		$data['events']           = $events;
-		$data['events-today']     = $events_today;
-		$data['birthdays']        = $birthdays;
-		$data['birthdays-today']  = $birthdays_today;
-		$data['groups'] = $groups_unseen;
-		$data['forums'] = $forums_unseen;
-		$data['notification'] = ($notification_count < 50) ? $notification_count : '49+';
-		$data['notifications'] = array_map(function ($navNotification) use ($tpl) {
-			$navNotification['contact']['photo'] = Contact::getAvatarUrlForUrl($navNotification['contact']['url'], local_user(), Proxy::SIZE_MICRO);
+		$data['events']          = $event_count;
+		$data['events-today']    = $today_event_count;
+		$data['birthdays']       = $birthday_count;
+		$data['birthdays-today'] = $today_birthday_count;
+		$data['groups']          = $groups_unseen;
+		$data['forums']          = $forums_unseen;
+		$data['notification']    = ($notification_count < 50) ? $notification_count : '49+';
 
-			$navNotification['timestamp'] = strtotime($navNotification['date']);
-			$navNotification['localdate'] = DateTimeFormat::local($navNotification['date']);
-			$navNotification['ago']       = Temporal::getRelativeDate($navNotification['date']);
-			$navNotification['richtext']  = Entity\Notify::formatMessage($navNotification['contact']['name'], $navNotification['message']);
-			$navNotification['plaintext'] = strip_tags($navNotification['richtext']);
-			$navNotification['html']      = Renderer::replaceMacros($tpl, [
-				'notify' => $navNotification,
-			]);
+		$data['notifications'] = $navNotifications;
 
-			return $navNotification;
-		}, $notifications);
 		$data['sysmsgs'] = [
 			'notice' => $sysmsgs,
-			'info' => $sysmsgs_info
+			'info'   => $sysmsgs_info
 		];
-
-		$json_payload = json_encode(["result" => $data]);
 
 		if (isset($_GET['callback'])) {
 			// JSONP support
 			header("Content-type: application/javascript");
-			echo $_GET['callback'] . '(' . $json_payload . ')';
+			echo $_GET['callback'] . '(' . json_encode(['result' => $data]) . ')';
+			exit;
 		} else {
-			header("Content-type: application/json");
-			echo $json_payload;
+			System::jsonExit(['result' => $data]);
 		}
-
-		exit();
-	}
-
-	/**
-	 * Retrieves the notifications array for the given user ID
-	 *
-	 * @param int $uid User id
-	 * @return array Associative array of notifications
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	private function getNotificationList(int $uid): array
-	{
-		$result  = [];
-		$offset  = 0;
-		$seen    = false;
-		$seensql = 'NOT';
-		$order   = 'DESC';
-		$quit    = false;
-
-		do {
-			$notifies = DBA::toArray(DBA::p(
-				"SELECT `notify`.*, `post`.`visible`, `post`.`deleted`
-			FROM `notify`
-			LEFT JOIN `post` ON `post`.`uri-id` = `notify`.`uri-id`
-			WHERE `notify`.`uid` = ? AND `notify`.`msg` != ''
-			AND NOT (`notify`.`type` IN (?, ?))
-			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` $order LIMIT ?, 50",
-				$uid,
-				Notification\Type::INTRO,
-				Notification\Type::MAIL,
-				$offset
-			));
-
-			if (!$notifies && !$seen) {
-				$seen = true;
-				$seensql = '';
-				$order = 'DESC';
-				$offset = 0;
-			} elseif (!$notifies) {
-				$quit = true;
-			} else {
-				$offset += 50;
-			}
-
-			foreach ($notifies as $notify) {
-				$notify['visible'] = $notify['visible'] ?? true;
-				$notify['deleted'] = $notify['deleted'] ?? 0;
-
-				if ($notify['msg_cache']) {
-					$notify['name'] = $notify['name_cache'];
-					$notify['message'] = $notify['msg_cache'];
-				} else {
-					$notify['name'] = strip_tags(BBCode::convert($notify['name']));
-					$notify['message'] = BBCode::toPlaintext($notify['msg']);
-
-					// @todo Replace this with a call of the Notify model class
-					DBA::update('notify', ['name_cache' => $notify['name'], 'msg_cache' => $notify['message']], ['id' => $notify['id']]);
-				}
-
-				if ($notify['visible']
-					&& !$notify['deleted']
-					&& empty($result['p:' . $notify['parent']])
-				) {
-					$notification = [
-						'href' => DI::baseUrl() . '/notify/' . $notify['id'],
-						'contact' => [
-							'name'  => $notify['name'],
-							'url'   => $notify['url'],
-						],
-						'message' => $notify['message'],
-						'date'    => $notify['date'],
-						'seen'    => $notify['seen'],
-					];
-
-					// Should we condense the notifications or show them all?
-					if (($notify['verb'] != Activity::POST) || DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
-						$result[] = $notification;
-					} else {
-						$result['p:' . $notify['parent']] = $notification;
-					}
-				}
-			}
-		} while ((count($result) < 50) && !$quit);
-
-		return($result);
 	}
 }
