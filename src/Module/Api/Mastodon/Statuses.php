@@ -110,8 +110,7 @@ class Statuses extends BaseApi
 				$item['private'] = Item::PRIVATE;
 				break;
 			case 'direct':
-				// Direct messages are currently unsupported
-				DI::mstdnError()->InternalError('Direct messages are currently unsupported');
+				// The permissions are assigned in "expandTags"
 				break;
 			default:
 				if (is_numeric($request['visibility']) && Group::exists($request['visibility'], $uid)) {
@@ -152,7 +151,7 @@ class Statuses extends BaseApi
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		}
 
-		$item = DI::contentItem()->expandTags($item);
+		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
 
 		if (!empty($request['media_ids'])) {
 			$item['object-type'] = Activity\ObjectType::IMAGE;
