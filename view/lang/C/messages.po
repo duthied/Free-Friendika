@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-24 09:39-0500\n"
+"POT-Creation-Date: 2022-03-06 11:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -118,7 +118,7 @@ msgid "The feed for this item is unavailable."
 msgstr ""
 
 #: mod/editpost.php:38 mod/events.php:220 mod/follow.php:56 mod/follow.php:130
-#: mod/item.php:184 mod/item.php:189 mod/item.php:918 mod/message.php:69
+#: mod/item.php:184 mod/item.php:189 mod/item.php:877 mod/message.php:69
 #: mod/message.php:111 mod/notes.php:44 mod/ostatus_subscribe.php:32
 #: mod/photos.php:160 mod/photos.php:897 mod/repair_ostatus.php:31
 #: mod/settings.php:47 mod/settings.php:57 mod/settings.php:417
@@ -163,7 +163,7 @@ msgid "Save"
 msgstr ""
 
 #: mod/editpost.php:92 mod/photos.php:1344 src/Content/Conversation.php:326
-#: src/Module/Contact/Poke.php:176 src/Object/Post.php:982
+#: src/Module/Contact/Poke.php:176 src/Object/Post.php:986
 msgid "Loading..."
 msgstr ""
 
@@ -261,7 +261,7 @@ msgstr ""
 
 #: mod/editpost.php:128 mod/events.php:517 mod/photos.php:1343
 #: mod/photos.php:1399 mod/photos.php:1473 src/Content/Conversation.php:370
-#: src/Module/Item/Compose.php:160 src/Object/Post.php:992
+#: src/Module/Item/Compose.php:160 src/Object/Post.php:996
 msgid "Preview"
 msgstr ""
 
@@ -273,37 +273,37 @@ msgid "Cancel"
 msgstr ""
 
 #: mod/editpost.php:134 src/Content/Conversation.php:331
-#: src/Module/Item/Compose.php:151 src/Object/Post.php:983
+#: src/Module/Item/Compose.php:151 src/Object/Post.php:987
 msgid "Bold"
 msgstr ""
 
 #: mod/editpost.php:135 src/Content/Conversation.php:332
-#: src/Module/Item/Compose.php:152 src/Object/Post.php:984
+#: src/Module/Item/Compose.php:152 src/Object/Post.php:988
 msgid "Italic"
 msgstr ""
 
 #: mod/editpost.php:136 src/Content/Conversation.php:333
-#: src/Module/Item/Compose.php:153 src/Object/Post.php:985
+#: src/Module/Item/Compose.php:153 src/Object/Post.php:989
 msgid "Underline"
 msgstr ""
 
 #: mod/editpost.php:137 src/Content/Conversation.php:334
-#: src/Module/Item/Compose.php:154 src/Object/Post.php:986
+#: src/Module/Item/Compose.php:154 src/Object/Post.php:990
 msgid "Quote"
 msgstr ""
 
 #: mod/editpost.php:138 src/Content/Conversation.php:335
-#: src/Module/Item/Compose.php:155 src/Object/Post.php:987
+#: src/Module/Item/Compose.php:155 src/Object/Post.php:991
 msgid "Code"
 msgstr ""
 
 #: mod/editpost.php:139 src/Content/Conversation.php:337
-#: src/Module/Item/Compose.php:157 src/Object/Post.php:989
+#: src/Module/Item/Compose.php:157 src/Object/Post.php:993
 msgid "Link"
 msgstr ""
 
 #: mod/editpost.php:140 src/Content/Conversation.php:338
-#: src/Module/Item/Compose.php:158 src/Object/Post.php:990
+#: src/Module/Item/Compose.php:158 src/Object/Post.php:994
 msgid "Link or Media"
 msgstr ""
 
@@ -411,7 +411,7 @@ msgstr ""
 #: src/Module/Install.php:252 src/Module/Install.php:294
 #: src/Module/Install.php:331 src/Module/Invite.php:177
 #: src/Module/Item/Compose.php:150 src/Module/Profile/Profile.php:247
-#: src/Module/Settings/Profile/Index.php:222 src/Object/Post.php:981
+#: src/Module/Settings/Profile/Index.php:222 src/Object/Post.php:985
 #: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
 #: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
@@ -464,7 +464,7 @@ msgstr ""
 msgid "OStatus support is disabled. Contact can't be added."
 msgstr ""
 
-#: mod/follow.php:138 src/Content/Item.php:452 src/Content/Widget.php:76
+#: mod/follow.php:138 src/Content/Item.php:455 src/Content/Widget.php:76
 #: src/Model/Contact.php:1083 src/Model/Contact.php:1095
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
@@ -518,19 +518,19 @@ msgstr ""
 msgid "Empty post discarded."
 msgstr ""
 
-#: mod/item.php:724
+#: mod/item.php:689
 msgid "Post updated."
 msgstr ""
 
-#: mod/item.php:734 mod/item.php:739
+#: mod/item.php:699 mod/item.php:704
 msgid "Item wasn't stored."
 msgstr ""
 
-#: mod/item.php:750
+#: mod/item.php:715
 msgid "Item couldn't be fetched."
 msgstr ""
 
-#: mod/item.php:896 src/Module/Admin/Themes/Details.php:39
+#: mod/item.php:855 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:41
 #: src/Module/Debug/ItemBody.php:56
 msgid "Item not found."
@@ -1066,12 +1066,12 @@ msgstr ""
 
 #: mod/photos.php:1339 mod/photos.php:1395 mod/photos.php:1469
 #: src/Module/Contact.php:544 src/Module/Item/Compose.php:148
-#: src/Object/Post.php:978
+#: src/Object/Post.php:982
 msgid "This is you"
 msgstr ""
 
 #: mod/photos.php:1341 mod/photos.php:1397 mod/photos.php:1471
-#: src/Object/Post.php:514 src/Object/Post.php:980
+#: src/Object/Post.php:514 src/Object/Post.php:984
 msgid "Comment"
 msgstr ""
 
@@ -1967,15 +1967,15 @@ msgstr ""
 msgid "Friend Suggestions"
 msgstr ""
 
-#: mod/tagger.php:78 src/Content/Item.php:335 src/Model/Item.php:2670
+#: mod/tagger.php:78 src/Content/Item.php:338 src/Model/Item.php:2670
 msgid "photo"
 msgstr ""
 
-#: mod/tagger.php:78 src/Content/Item.php:330 src/Content/Item.php:339
+#: mod/tagger.php:78 src/Content/Item.php:333 src/Content/Item.php:342
 msgid "status"
 msgstr ""
 
-#: mod/tagger.php:111 src/Content/Item.php:349
+#: mod/tagger.php:111 src/Content/Item.php:352
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
 msgstr ""
@@ -2478,7 +2478,7 @@ msgid "Visible to <strong>everybody</strong>"
 msgstr ""
 
 #: src/Content/Conversation.php:308 src/Module/Item/Compose.php:159
-#: src/Object/Post.php:991
+#: src/Object/Post.php:995
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr ""
 
@@ -2507,7 +2507,7 @@ msgid "Share"
 msgstr ""
 
 #: src/Content/Conversation.php:336 src/Module/Item/Compose.php:156
-#: src/Object/Post.php:988
+#: src/Object/Post.php:992
 msgid "Image"
 msgstr ""
 
@@ -2652,43 +2652,54 @@ msgid ""
 "mentioned in replies."
 msgstr ""
 
-#: src/Content/Feature.php:111
+#: src/Content/Feature.php:107
+msgid "Add an abstract from ActivityPub content warnings"
+msgstr ""
+
+#: src/Content/Feature.php:107
+msgid ""
+"Add an abstract when commenting on ActivityPub posts with a content warning. "
+"Abstracts are displayed as content warning on systems like Mastodon or "
+"Pleroma."
+msgstr ""
+
+#: src/Content/Feature.php:112
 msgid "Post/Comment Tools"
 msgstr ""
 
-#: src/Content/Feature.php:112
+#: src/Content/Feature.php:113
 msgid "Post Categories"
 msgstr ""
 
-#: src/Content/Feature.php:112
+#: src/Content/Feature.php:113
 msgid "Add categories to your posts"
 msgstr ""
 
-#: src/Content/Feature.php:117
+#: src/Content/Feature.php:118
 msgid "Advanced Profile Settings"
 msgstr ""
 
-#: src/Content/Feature.php:118
+#: src/Content/Feature.php:119
 msgid "List Forums"
 msgstr ""
 
-#: src/Content/Feature.php:118
+#: src/Content/Feature.php:119
 msgid "Show visitors public community forums at the Advanced Profile Page"
 msgstr ""
 
-#: src/Content/Feature.php:119
+#: src/Content/Feature.php:120
 msgid "Tag Cloud"
 msgstr ""
 
-#: src/Content/Feature.php:119
+#: src/Content/Feature.php:120
 msgid "Provide a personal tag cloud on your profile page"
 msgstr ""
 
-#: src/Content/Feature.php:120
+#: src/Content/Feature.php:121
 msgid "Display Membership Date"
 msgstr ""
 
-#: src/Content/Feature.php:120
+#: src/Content/Feature.php:121
 msgid "Display membership date in profile"
 msgstr ""
 
@@ -2710,55 +2721,55 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:294
+#: src/Content/Item.php:297
 #, php-format
 msgid "%1$s poked %2$s"
 msgstr ""
 
-#: src/Content/Item.php:327 src/Model/Item.php:2668
+#: src/Content/Item.php:330 src/Model/Item.php:2668
 msgid "event"
 msgstr ""
 
-#: src/Content/Item.php:431 view/theme/frio/theme.php:254
+#: src/Content/Item.php:434 view/theme/frio/theme.php:254
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:432 src/Model/Contact.php:1088
+#: src/Content/Item.php:435 src/Model/Contact.php:1088
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:433 src/Content/Item.php:455 src/Model/Contact.php:1022
+#: src/Content/Item.php:436 src/Content/Item.php:458 src/Model/Contact.php:1022
 #: src/Model/Contact.php:1080 src/Model/Contact.php:1089
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:225
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:434 src/Model/Contact.php:1090
+#: src/Content/Item.php:437 src/Model/Contact.php:1090
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:435 src/Model/Contact.php:1081
+#: src/Content/Item.php:438 src/Model/Contact.php:1081
 #: src/Model/Contact.php:1091
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:436 src/Model/Contact.php:1082
+#: src/Content/Item.php:439 src/Model/Contact.php:1082
 #: src/Model/Contact.php:1092
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:437 src/Model/Contact.php:1093
+#: src/Content/Item.php:440 src/Model/Contact.php:1093
 msgid "Send PM"
 msgstr ""
 
-#: src/Content/Item.php:438 src/Module/Admin/Blocklist/Contact.php:100
+#: src/Content/Item.php:441 src/Module/Admin/Blocklist/Contact.php:100
 #: src/Module/Admin/Users/Active.php:140 src/Module/Admin/Users/Index.php:154
 #: src/Module/Contact.php:398 src/Module/Contact/Profile.php:348
 #: src/Module/Contact/Profile.php:449
 msgid "Block"
 msgstr ""
 
-#: src/Content/Item.php:439 src/Module/Contact.php:399
+#: src/Content/Item.php:442 src/Module/Contact.php:399
 #: src/Module/Contact/Profile.php:349 src/Module/Contact/Profile.php:457
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
@@ -2766,11 +2777,11 @@ msgstr ""
 msgid "Ignore"
 msgstr ""
 
-#: src/Content/Item.php:443 src/Object/Post.php:443
+#: src/Content/Item.php:446 src/Object/Post.php:443
 msgid "Languages"
 msgstr ""
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1094
+#: src/Content/Item.php:450 src/Model/Contact.php:1094
 msgid "Poke"
 msgstr ""
 

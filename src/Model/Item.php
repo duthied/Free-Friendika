@@ -1076,6 +1076,13 @@ class Item
 			unset($item['causer-id']);
 		}
 
+		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			$content_warning = BBCode::getAbstract($item['body'], Protocol::ACTIVITYPUB);
+			if (!empty($content_warning) && empty($item['content-warning'])) {
+				$item['content-warning'] = $content_warning;
+			}
+		}
+
 		Post::insert($item['uri-id'], $item);
 
 		if ($item['gravity'] == GRAVITY_PARENT) {
@@ -1238,7 +1245,7 @@ class Item
 
 		$self_contact = Contact::selectFirst(['id'], ['uid' => $item['uid'], 'self' => true]);
 		$self = !empty($self_contact) ? $self_contact['id'] : 0;
-		
+
 		$cid = Contact::getIdForURL($author['url'], $item['uid']);
 		if (empty($cid) || (!Contact::isSharing($cid, $item['uid']) && ($cid != $self))) {
 			Logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid'], 'cid' => $cid]);
