@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-23 20:09+0000\n"
-"PO-Revision-Date: 2022-02-24 07:12+0000\n"
+"POT-Creation-Date: 2022-03-06 11:22+0000\n"
+"PO-Revision-Date: 2022-03-06 13:21+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -159,7 +159,7 @@ msgid "The feed for this item is unavailable."
 msgstr "Der Feed für diesen Beitrag ist nicht verfügbar."
 
 #: mod/editpost.php:38 mod/events.php:220 mod/follow.php:56 mod/follow.php:130
-#: mod/item.php:184 mod/item.php:189 mod/item.php:918 mod/message.php:69
+#: mod/item.php:184 mod/item.php:189 mod/item.php:877 mod/message.php:69
 #: mod/message.php:111 mod/notes.php:44 mod/ostatus_subscribe.php:32
 #: mod/photos.php:160 mod/photos.php:897 mod/repair_ostatus.php:31
 #: mod/settings.php:47 mod/settings.php:57 mod/settings.php:417
@@ -204,7 +204,7 @@ msgid "Save"
 msgstr "Speichern"
 
 #: mod/editpost.php:92 mod/photos.php:1344 src/Content/Conversation.php:326
-#: src/Module/Contact/Poke.php:176 src/Object/Post.php:982
+#: src/Module/Contact/Poke.php:176 src/Object/Post.php:986
 msgid "Loading..."
 msgstr "lädt..."
 
@@ -278,7 +278,7 @@ msgstr "Bitte warten"
 msgid "Permission settings"
 msgstr "Berechtigungseinstellungen"
 
-#: mod/editpost.php:116 src/Core/ACL.php:325
+#: mod/editpost.php:116 src/Core/ACL.php:326
 msgid "CC: email addresses"
 msgstr "Cc: E-Mail-Addressen"
 
@@ -296,55 +296,55 @@ msgstr "Titel setzen"
 msgid "Categories (comma-separated list)"
 msgstr "Kategorien (kommasepariert)"
 
-#: mod/editpost.php:123 src/Core/ACL.php:326
+#: mod/editpost.php:123 src/Core/ACL.php:327
 msgid "Example: bob@example.com, mary@example.com"
 msgstr "Z.B.: bob@example.com, mary@example.com"
 
 #: mod/editpost.php:128 mod/events.php:517 mod/photos.php:1343
 #: mod/photos.php:1399 mod/photos.php:1473 src/Content/Conversation.php:370
-#: src/Module/Item/Compose.php:160 src/Object/Post.php:992
+#: src/Module/Item/Compose.php:160 src/Object/Post.php:996
 msgid "Preview"
 msgstr "Vorschau"
 
 #: mod/editpost.php:130 mod/fbrowser.php:117 mod/fbrowser.php:144
 #: mod/follow.php:144 mod/photos.php:1010 mod/photos.php:1111 mod/tagrm.php:35
 #: mod/tagrm.php:127 mod/unfollow.php:97 src/Content/Conversation.php:373
-#: src/Module/Contact/Revoke.php:110 src/Module/RemoteFollow.php:127
+#: src/Module/Contact/Revoke.php:108 src/Module/RemoteFollow.php:127
 msgid "Cancel"
 msgstr "Abbrechen"
 
 #: mod/editpost.php:134 src/Content/Conversation.php:331
-#: src/Module/Item/Compose.php:151 src/Object/Post.php:983
+#: src/Module/Item/Compose.php:151 src/Object/Post.php:987
 msgid "Bold"
 msgstr "Fett"
 
 #: mod/editpost.php:135 src/Content/Conversation.php:332
-#: src/Module/Item/Compose.php:152 src/Object/Post.php:984
+#: src/Module/Item/Compose.php:152 src/Object/Post.php:988
 msgid "Italic"
 msgstr "Kursiv"
 
 #: mod/editpost.php:136 src/Content/Conversation.php:333
-#: src/Module/Item/Compose.php:153 src/Object/Post.php:985
+#: src/Module/Item/Compose.php:153 src/Object/Post.php:989
 msgid "Underline"
 msgstr "Unterstrichen"
 
 #: mod/editpost.php:137 src/Content/Conversation.php:334
-#: src/Module/Item/Compose.php:154 src/Object/Post.php:986
+#: src/Module/Item/Compose.php:154 src/Object/Post.php:990
 msgid "Quote"
 msgstr "Zitat"
 
 #: mod/editpost.php:138 src/Content/Conversation.php:335
-#: src/Module/Item/Compose.php:155 src/Object/Post.php:987
+#: src/Module/Item/Compose.php:155 src/Object/Post.php:991
 msgid "Code"
 msgstr "Code"
 
 #: mod/editpost.php:139 src/Content/Conversation.php:337
-#: src/Module/Item/Compose.php:157 src/Object/Post.php:989
+#: src/Module/Item/Compose.php:157 src/Object/Post.php:993
 msgid "Link"
 msgstr "Link"
 
 #: mod/editpost.php:140 src/Content/Conversation.php:338
-#: src/Module/Item/Compose.php:158 src/Object/Post.php:990
+#: src/Module/Item/Compose.php:158 src/Object/Post.php:994
 msgid "Link or Media"
 msgstr "Link oder Mediendatei"
 
@@ -452,7 +452,7 @@ msgstr "Veranstaltung teilen"
 #: src/Module/Install.php:252 src/Module/Install.php:294
 #: src/Module/Install.php:331 src/Module/Invite.php:177
 #: src/Module/Item/Compose.php:150 src/Module/Profile/Profile.php:247
-#: src/Module/Settings/Profile/Index.php:222 src/Object/Post.php:981
+#: src/Module/Settings/Profile/Index.php:222 src/Object/Post.php:985
 #: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
 #: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
@@ -505,8 +505,8 @@ msgstr "Diaspora-Unterstützung ist nicht aktiviert. Der Kontakt kann nicht zuge
 msgid "OStatus support is disabled. Contact can't be added."
 msgstr "OStatus-Unterstützung ist nicht aktiviert. Der Kontakt kann nicht zugefügt werden."
 
-#: mod/follow.php:138 src/Content/Item.php:452 src/Content/Widget.php:76
-#: src/Model/Contact.php:1057 src/Model/Contact.php:1069
+#: mod/follow.php:138 src/Content/Item.php:455 src/Content/Widget.php:76
+#: src/Model/Contact.php:1083 src/Model/Contact.php:1095
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "Verbinden/Folgen"
@@ -559,19 +559,19 @@ msgstr "Konnte den Originalbeitrag nicht finden."
 msgid "Empty post discarded."
 msgstr "Leerer Beitrag wurde verworfen."
 
-#: mod/item.php:724
+#: mod/item.php:689
 msgid "Post updated."
 msgstr "Beitrag aktualisiert."
 
-#: mod/item.php:734 mod/item.php:739
+#: mod/item.php:699 mod/item.php:704
 msgid "Item wasn't stored."
 msgstr "Eintrag wurde nicht gespeichert"
 
-#: mod/item.php:750
+#: mod/item.php:715
 msgid "Item couldn't be fetched."
 msgstr "Eintrag konnte nicht geholt werden."
 
-#: mod/item.php:896 src/Module/Admin/Themes/Details.php:39
+#: mod/item.php:855 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:41
 #: src/Module/Debug/ItemBody.php:56
 msgid "Item not found."
@@ -1104,12 +1104,12 @@ msgstr "Drehen EUS (links)"
 
 #: mod/photos.php:1339 mod/photos.php:1395 mod/photos.php:1469
 #: src/Module/Contact.php:544 src/Module/Item/Compose.php:148
-#: src/Object/Post.php:978
+#: src/Object/Post.php:982
 msgid "This is you"
 msgstr "Das bist du"
 
 #: mod/photos.php:1341 mod/photos.php:1397 mod/photos.php:1471
-#: src/Object/Post.php:514 src/Object/Post.php:980
+#: src/Object/Post.php:514 src/Object/Post.php:984
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -2008,15 +2008,15 @@ msgstr "Keine Vorschläge verfügbar. Falls der Server frisch aufgesetzt wurde, 
 msgid "Friend Suggestions"
 msgstr "Kontaktvorschläge"
 
-#: mod/tagger.php:78 src/Content/Item.php:335 src/Model/Item.php:2670
+#: mod/tagger.php:78 src/Content/Item.php:338 src/Model/Item.php:2670
 msgid "photo"
 msgstr "Foto"
 
-#: mod/tagger.php:78 src/Content/Item.php:330 src/Content/Item.php:339
+#: mod/tagger.php:78 src/Content/Item.php:333 src/Content/Item.php:342
 msgid "status"
 msgstr "Status"
 
-#: mod/tagger.php:111 src/Content/Item.php:349
+#: mod/tagger.php:111 src/Content/Item.php:352
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
 msgstr "%1$s hat %2$ss %3$s mit %4$s getaggt"
@@ -2079,7 +2079,7 @@ msgid ""
 "select \"Export account\""
 msgstr "Um Deinen Account zu exportieren, rufe \"Einstellungen -> Persönliche Daten exportieren\" auf und wähle \"Account exportieren\""
 
-#: mod/unfollow.php:65 mod/unfollow.php:135
+#: mod/unfollow.php:65 mod/unfollow.php:134
 msgid "You aren't following this contact."
 msgstr "Du folgst diesem Kontakt."
 
@@ -2091,17 +2091,11 @@ msgstr "Bei diesem Netzwerk wird das Entfolgen derzeit nicht unterstützt."
 msgid "Disconnect/Unfollow"
 msgstr "Verbindung lösen/Nicht mehr folgen"
 
-#: mod/unfollow.php:146
-msgid ""
-"Unable to unfollow this contact, please retry in a few minutes or contact "
-"your administrator."
-msgstr "Konnte dem Kontakt nicht entfolgen. Bitte warte ein paar Minuten und versuche es dann noch einmal, oder kontaktiere deinen Administrator."
-
-#: mod/unfollow.php:148
+#: mod/unfollow.php:143
 msgid "Contact was successfully unfollowed"
 msgstr "Kontakt wurde erfolgreich entfolgt."
 
-#: mod/unfollow.php:152
+#: mod/unfollow.php:146
 msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr "Konnte dem Kontakt nicht entfolgen. Bitte kontaktiere deinen Administrator."
 
@@ -2197,9 +2191,9 @@ msgstr "Das Sicherheitsmerkmal war nicht korrekt. Das passiert meistens, wenn da
 msgid "All contacts"
 msgstr "Alle Kontakte"
 
-#: src/BaseModule.php:409 src/Content/Widget.php:231 src/Core/ACL.php:193
-#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:104
-#: src/Module/PermissionTooltip.php:126
+#: src/BaseModule.php:409 src/Content/Widget.php:231 src/Core/ACL.php:194
+#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:106
+#: src/Module/PermissionTooltip.php:128
 msgid "Followers"
 msgstr "Folgende"
 
@@ -2527,7 +2521,7 @@ msgid "Visible to <strong>everybody</strong>"
 msgstr "Für <strong>jedermann</strong> sichtbar"
 
 #: src/Content/Conversation.php:308 src/Module/Item/Compose.php:159
-#: src/Object/Post.php:991
+#: src/Object/Post.php:995
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr "Bitte gib eine Bild/Video/Audio/Webseiten-URL ein:"
 
@@ -2556,7 +2550,7 @@ msgid "Share"
 msgstr "Teilen"
 
 #: src/Content/Conversation.php:336 src/Module/Item/Compose.php:156
-#: src/Object/Post.php:988
+#: src/Object/Post.php:992
 msgid "Image"
 msgstr "Bild"
 
@@ -2701,43 +2695,54 @@ msgid ""
 "mentioned in replies."
 msgstr "Füge Erwähnungen zum Kommentarfeld hinzu, um manuell über die explizite Erwähnung von Gesprächsteilnehmern zu entscheiden."
 
-#: src/Content/Feature.php:111
+#: src/Content/Feature.php:107
+msgid "Add an abstract from ActivityPub content warnings"
+msgstr "Abstract aus Inhaltswarnungen von ActivityPub zu Beiträgen hinzufügen"
+
+#: src/Content/Feature.php:107
+msgid ""
+"Add an abstract when commenting on ActivityPub posts with a content warning."
+" Abstracts are displayed as content warning on systems like Mastodon or "
+"Pleroma."
+msgstr "Wenn ActivityPub Beiträge kommentiert werden, die mit einer Inhaltswarnung versehen sind, wird mit dieser Option automatisch ein identischer Abstract angefügt. Systeme wie Mastodon oder Pleroma verwenden diesen als Inhaltswarnung."
+
+#: src/Content/Feature.php:112
 msgid "Post/Comment Tools"
 msgstr "Werkzeuge für Beiträge und Kommentare"
 
-#: src/Content/Feature.php:112
+#: src/Content/Feature.php:113
 msgid "Post Categories"
 msgstr "Beitragskategorien"
 
-#: src/Content/Feature.php:112
+#: src/Content/Feature.php:113
 msgid "Add categories to your posts"
 msgstr "Eigene Beiträge mit Kategorien versehen"
 
-#: src/Content/Feature.php:117
+#: src/Content/Feature.php:118
 msgid "Advanced Profile Settings"
 msgstr "Erweiterte Profil-Einstellungen"
 
-#: src/Content/Feature.php:118
+#: src/Content/Feature.php:119
 msgid "List Forums"
 msgstr "Zeige Foren"
 
-#: src/Content/Feature.php:118
+#: src/Content/Feature.php:119
 msgid "Show visitors public community forums at the Advanced Profile Page"
 msgstr "Zeige Besuchern öffentliche Gemeinschafts-Foren auf der Erweiterten Profil-Seite"
 
-#: src/Content/Feature.php:119
+#: src/Content/Feature.php:120
 msgid "Tag Cloud"
 msgstr "Schlagwortwolke"
 
-#: src/Content/Feature.php:119
+#: src/Content/Feature.php:120
 msgid "Provide a personal tag cloud on your profile page"
 msgstr "Wortwolke aus den von dir verwendeten Schlagwörtern im Profil anzeigen"
 
-#: src/Content/Feature.php:120
+#: src/Content/Feature.php:121
 msgid "Display Membership Date"
 msgstr "Mitgliedschaftsdatum anzeigen"
 
-#: src/Content/Feature.php:120
+#: src/Content/Feature.php:121
 msgid "Display membership date in profile"
 msgstr "Das Datum der Registrierung deines Accounts im Profil anzeigen"
 
@@ -2759,55 +2764,56 @@ msgstr "weniger anzeigen"
 msgid "show more"
 msgstr "mehr anzeigen"
 
-#: src/Content/Item.php:294
+#: src/Content/Item.php:297
 #, php-format
 msgid "%1$s poked %2$s"
 msgstr "%1$s stupste %2$s"
 
-#: src/Content/Item.php:327 src/Model/Item.php:2668
+#: src/Content/Item.php:330 src/Model/Item.php:2668
 msgid "event"
 msgstr "Veranstaltung"
 
-#: src/Content/Item.php:431 view/theme/frio/theme.php:254
+#: src/Content/Item.php:434 view/theme/frio/theme.php:254
 msgid "Follow Thread"
 msgstr "Folge der Unterhaltung"
 
-#: src/Content/Item.php:432 src/Model/Contact.php:1062
+#: src/Content/Item.php:435 src/Model/Contact.php:1088
 msgid "View Status"
 msgstr "Status anschauen"
 
-#: src/Content/Item.php:433 src/Content/Item.php:455 src/Model/Contact.php:996
-#: src/Model/Contact.php:1054 src/Model/Contact.php:1063
-#: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:225
+#: src/Content/Item.php:436 src/Content/Item.php:458
+#: src/Model/Contact.php:1022 src/Model/Contact.php:1080
+#: src/Model/Contact.php:1089 src/Module/Directory.php:157
+#: src/Module/Settings/Profile/Index.php:225
 msgid "View Profile"
 msgstr "Profil anschauen"
 
-#: src/Content/Item.php:434 src/Model/Contact.php:1064
+#: src/Content/Item.php:437 src/Model/Contact.php:1090
 msgid "View Photos"
 msgstr "Bilder anschauen"
 
-#: src/Content/Item.php:435 src/Model/Contact.php:1055
-#: src/Model/Contact.php:1065
+#: src/Content/Item.php:438 src/Model/Contact.php:1081
+#: src/Model/Contact.php:1091
 msgid "Network Posts"
 msgstr "Netzwerkbeiträge"
 
-#: src/Content/Item.php:436 src/Model/Contact.php:1056
-#: src/Model/Contact.php:1066
+#: src/Content/Item.php:439 src/Model/Contact.php:1082
+#: src/Model/Contact.php:1092
 msgid "View Contact"
 msgstr "Kontakt anzeigen"
 
-#: src/Content/Item.php:437 src/Model/Contact.php:1067
+#: src/Content/Item.php:440 src/Model/Contact.php:1093
 msgid "Send PM"
 msgstr "Private Nachricht senden"
 
-#: src/Content/Item.php:438 src/Module/Admin/Blocklist/Contact.php:100
+#: src/Content/Item.php:441 src/Module/Admin/Blocklist/Contact.php:100
 #: src/Module/Admin/Users/Active.php:140 src/Module/Admin/Users/Index.php:154
 #: src/Module/Contact.php:398 src/Module/Contact/Profile.php:348
 #: src/Module/Contact/Profile.php:449
 msgid "Block"
 msgstr "Sperren"
 
-#: src/Content/Item.php:439 src/Module/Contact.php:399
+#: src/Content/Item.php:442 src/Module/Contact.php:399
 #: src/Module/Contact/Profile.php:349 src/Module/Contact/Profile.php:457
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
@@ -2815,11 +2821,11 @@ msgstr "Sperren"
 msgid "Ignore"
 msgstr "Ignorieren"
 
-#: src/Content/Item.php:443 src/Object/Post.php:443
+#: src/Content/Item.php:446 src/Object/Post.php:443
 msgid "Languages"
 msgstr "Sprachen"
 
-#: src/Content/Item.php:447 src/Model/Contact.php:1068
+#: src/Content/Item.php:450 src/Model/Contact.php:1094
 msgid "Poke"
 msgstr "Anstupsen"
 
@@ -3270,7 +3276,7 @@ msgstr "Personen"
 msgid "Organisations"
 msgstr "Organisationen"
 
-#: src/Content/Widget.php:519 src/Model/Contact.php:1472
+#: src/Content/Widget.php:519 src/Model/Contact.php:1498
 msgid "News"
 msgstr "Nachrichten"
 
@@ -3343,49 +3349,49 @@ msgstr "Netzwerk:"
 msgid "Unfollow"
 msgstr "Entfolgen"
 
-#: src/Core/ACL.php:164 src/Module/Profile/Profile.php:242
+#: src/Core/ACL.php:165 src/Module/Profile/Profile.php:242
 msgid "Yourself"
 msgstr "Du selbst"
 
-#: src/Core/ACL.php:200 src/Module/PermissionTooltip.php:110
-#: src/Module/PermissionTooltip.php:132
+#: src/Core/ACL.php:201 src/Module/PermissionTooltip.php:112
+#: src/Module/PermissionTooltip.php:134
 msgid "Mutuals"
 msgstr "Beidseitige Freundschaft"
 
-#: src/Core/ACL.php:292
+#: src/Core/ACL.php:293
 msgid "Post to Email"
 msgstr "An E-Mail senden"
 
-#: src/Core/ACL.php:319 src/Module/PermissionTooltip.php:166
+#: src/Core/ACL.php:320 src/Module/PermissionTooltip.php:181
 msgid "Public"
 msgstr "Öffentlich"
 
-#: src/Core/ACL.php:320
+#: src/Core/ACL.php:321
 msgid ""
 "This content will be shown to all your followers and can be seen in the "
 "community pages and by anyone with its link."
 msgstr "Dieser Inhalt wird all deine Abonenten sowie auf der Gemeinschaftsseite angezeigt. Außerdem kann ihn jeder sehen, der den Link kennt."
 
-#: src/Core/ACL.php:321
+#: src/Core/ACL.php:322
 msgid "Limited/Private"
 msgstr "Begrenzt/Privat"
 
-#: src/Core/ACL.php:322
+#: src/Core/ACL.php:323
 msgid ""
 "This content will be shown only to the people in the first box, to the "
 "exception of the people mentioned in the second box. It won't appear "
 "anywhere public."
 msgstr "Dieser Inhalt wird außschließlich den Kontakten gezeigt, die du in der ersten Box ausgewählt hast, mit den Ausnahmen derer die du in der zweiten Box auflistest. Er wird nicht öffentlich zugänglich sein."
 
-#: src/Core/ACL.php:323
+#: src/Core/ACL.php:324
 msgid "Show to:"
 msgstr "Sichtbar für:"
 
-#: src/Core/ACL.php:324
+#: src/Core/ACL.php:325
 msgid "Except to:"
 msgstr "Ausgenommen:"
 
-#: src/Core/ACL.php:327
+#: src/Core/ACL.php:328
 msgid "Connectors"
 msgstr "Connectoren"
 
@@ -4093,81 +4099,81 @@ msgstr "Interner Serverfehler"
 msgid "Legacy module file not found: %s"
 msgstr "Legacy-Moduldatei nicht gefunden: %s"
 
-#: src/Model/Contact.php:1058 src/Model/Contact.php:1070
+#: src/Model/Contact.php:1084 src/Model/Contact.php:1096
 msgid "UnFollow"
 msgstr "Entfolgen"
 
-#: src/Model/Contact.php:1076 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1102 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:130
 #: src/Module/Notifications/Introductions.php:202
 msgid "Approve"
 msgstr "Genehmigen"
 
-#: src/Model/Contact.php:1468
+#: src/Model/Contact.php:1494
 msgid "Organisation"
 msgstr "Organisation"
 
-#: src/Model/Contact.php:1476
+#: src/Model/Contact.php:1502
 msgid "Forum"
 msgstr "Forum"
 
-#: src/Model/Contact.php:2411
+#: src/Model/Contact.php:2437
 msgid "Disallowed profile URL."
 msgstr "Nicht erlaubte Profil-URL."
 
-#: src/Model/Contact.php:2416 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2442 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Blockierte Domain"
 
-#: src/Model/Contact.php:2421
+#: src/Model/Contact.php:2447
 msgid "Connect URL missing."
 msgstr "Connect-URL fehlt"
 
-#: src/Model/Contact.php:2430
+#: src/Model/Contact.php:2456
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "Der Kontakt konnte nicht hinzugefügt werden. Bitte überprüfe die Einstellungen unter Einstellungen -> Soziale Netzwerke"
 
-#: src/Model/Contact.php:2467
+#: src/Model/Contact.php:2493
 msgid "The profile address specified does not provide adequate information."
 msgstr "Die angegebene Profiladresse liefert unzureichende Informationen."
 
-#: src/Model/Contact.php:2469
+#: src/Model/Contact.php:2495
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Es wurden keine kompatiblen Kommunikationsprotokolle oder Feeds gefunden."
 
-#: src/Model/Contact.php:2472
+#: src/Model/Contact.php:2498
 msgid "An author or name was not found."
 msgstr "Es wurde kein Autor oder Name gefunden."
 
-#: src/Model/Contact.php:2475
+#: src/Model/Contact.php:2501
 msgid "No browser URL could be matched to this address."
 msgstr "Zu dieser Adresse konnte keine passende Browser-URL gefunden werden."
 
-#: src/Model/Contact.php:2478
+#: src/Model/Contact.php:2504
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Konnte die @-Adresse mit keinem der bekannten Protokolle oder Email-Kontakte abgleichen."
 
-#: src/Model/Contact.php:2479
+#: src/Model/Contact.php:2505
 msgid "Use mailto: in front of address to force email check."
 msgstr "Verwende mailto: vor der E-Mail-Adresse, um eine Überprüfung der E-Mail-Adresse zu erzwingen."
 
-#: src/Model/Contact.php:2485
+#: src/Model/Contact.php:2511
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "Die Adresse dieses Profils gehört zu einem Netzwerk, mit dem die Kommunikation auf dieser Seite ausgeschaltet wurde."
 
-#: src/Model/Contact.php:2490
+#: src/Model/Contact.php:2516
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Eingeschränktes Profil. Diese Person wird keine direkten/privaten Nachrichten von dir erhalten können."
 
-#: src/Model/Contact.php:2549
+#: src/Model/Contact.php:2575
 msgid "Unable to retrieve contact information."
 msgstr "Konnte die Kontaktinformationen nicht empfangen."
 
@@ -4317,7 +4323,7 @@ msgstr "Byte"
 msgid "View on separate page"
 msgstr "Auf separater Seite ansehen"
 
-#: src/Model/Mail.php:134 src/Model/Mail.php:266
+#: src/Model/Mail.php:137 src/Model/Mail.php:265
 msgid "[no subject]"
 msgstr "[kein Betreff]"
 
@@ -7556,7 +7562,7 @@ msgstr "Geblockt-Status ein-/ausschalten"
 msgid "Toggle Ignored status"
 msgstr "Ignoriert-Status ein-/ausschalten"
 
-#: src/Module/Contact/Profile.php:466 src/Module/Contact/Revoke.php:107
+#: src/Module/Contact/Profile.php:466 src/Module/Contact/Revoke.php:105
 msgid "Revoke Follow"
 msgstr "Folgen widerrufen"
 
@@ -7564,41 +7570,29 @@ msgstr "Folgen widerrufen"
 msgid "Revoke the follow from this contact"
 msgstr "Widerruft das Folgen dieses Kontaktes"
 
-#: src/Module/Contact/Revoke.php:59
+#: src/Module/Contact/Revoke.php:62
 msgid "Unknown contact."
 msgstr "Unbekannter Kontakt."
 
-#: src/Module/Contact/Revoke.php:69 src/Module/Group.php:112
+#: src/Module/Contact/Revoke.php:72 src/Module/Group.php:112
 msgid "Contact is deleted."
 msgstr "Kontakt wurde gelöscht"
 
-#: src/Module/Contact/Revoke.php:73
+#: src/Module/Contact/Revoke.php:76
 msgid "Contact is being deleted."
 msgstr "Kontakt wurde gelöscht."
 
-#: src/Module/Contact/Revoke.php:87
+#: src/Module/Contact/Revoke.php:90
 msgid "Follow was successfully revoked."
 msgstr "Folgen wurde erfolgreich widerrufen."
 
-#: src/Module/Contact/Revoke.php:89
-msgid ""
-"Follow was successfully revoked, however the remote contact won't be aware "
-"of this revokation."
-msgstr "Folgen wurde erfolgreich widerrufen, allerdings wird der entfernte Kontakt keine Notiz dieses Widerrufs erhalten."
-
-#: src/Module/Contact/Revoke.php:91
-msgid ""
-"Unable to revoke follow, please try again later or contact the "
-"administrator."
-msgstr "Konnte das Folgen des Kontakts nicht widerrufen. Versuche es bitte später nochmal oder kontaktiere deinen Administrator."
-
-#: src/Module/Contact/Revoke.php:108
+#: src/Module/Contact/Revoke.php:106
 msgid ""
 "Do you really want to revoke this contact's follow? This cannot be undone "
 "and they will have to manually follow you back again."
 msgstr "Willst du das Folgen dieses Kontakt wirklich widerrufen? Dies kann nicht rückgängig gemacht werden und der Kontakt muss Ihnen manuell wieder folgen."
 
-#: src/Module/Contact/Revoke.php:109
+#: src/Module/Contact/Revoke.php:107
 #: src/Module/Notifications/Introductions.php:142
 #: src/Module/OAuth/Acknowledge.php:53 src/Module/Register.php:130
 msgid "Yes"
@@ -8598,42 +8592,47 @@ msgstr "Bitte kopiere den folgenden Authentifizierungscode in deine App und schl
 msgid "Unsupported or missing grant type"
 msgstr "Der Grant-Typ fehlt oder wird nicht unterstützt"
 
-#: src/Module/PermissionTooltip.php:45
+#: src/Module/PermissionTooltip.php:47
 #, php-format
 msgid "Wrong type \"%s\", expected one of: %s"
 msgstr "Falscher Typ \"%s\", hatte einen der Folgenden erwartet: %s"
 
-#: src/Module/PermissionTooltip.php:62
+#: src/Module/PermissionTooltip.php:64
 msgid "Model not found"
 msgstr "Model nicht gefunden"
 
-#: src/Module/PermissionTooltip.php:89
+#: src/Module/PermissionTooltip.php:91
 msgid "Remote privacy information not available."
 msgstr "Entfernte Privatsphäreneinstellungen nicht verfügbar."
 
-#: src/Module/PermissionTooltip.php:98
+#: src/Module/PermissionTooltip.php:100
 msgid "Visible to:"
 msgstr "Sichtbar für:"
 
-#: src/Module/PermissionTooltip.php:170
+#: src/Module/PermissionTooltip.php:185
 #, php-format
 msgid "Followers (%s)"
 msgstr "Folgende (%s)"
 
-#: src/Module/PermissionTooltip.php:184
+#: src/Module/PermissionTooltip.php:201
 #, php-format
 msgid "%d more"
 msgstr "%d weitere"
 
-#: src/Module/PermissionTooltip.php:188
+#: src/Module/PermissionTooltip.php:205
 #, php-format
 msgid "<b>To:</b> %s<br>"
 msgstr "<b>To:</b> %s<br>"
 
-#: src/Module/PermissionTooltip.php:191
+#: src/Module/PermissionTooltip.php:208
 #, php-format
 msgid "<b>CC:</b> %s<br>"
 msgstr "<b>CC:</b> %s<br>"
+
+#: src/Module/PermissionTooltip.php:211
+#, php-format
+msgid "<b>BCC:</b> %s<br>"
+msgstr "<b>BCC:</b> %s<br>"
 
 #: src/Module/Photo.php:123
 msgid "The Photo is not available."
