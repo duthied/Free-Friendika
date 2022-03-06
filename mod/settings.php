@@ -108,7 +108,7 @@ function settings_post(App $a)
 					'port'         => $mail_port,
 					'ssltype'      => $mail_ssl,
 					'user'         => $mail_user,
-					`action`       => $mail_action,
+					'action'       => $mail_action,
 					'movetofolder' => $mail_movetofolder,
 					'mailbox'      => 'INBOX',
 					'reply_to'     => $mail_replyto,
