@@ -68,7 +68,7 @@ class Email
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function poll($mbox, $email_addr): array
+	public static function poll(Connection $mbox, $email_addr): array
 	{
 		if (!$mbox || !$email_addr) {
 			return [];
@@ -130,7 +130,7 @@ class Email
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getMessage($mbox, $uid, $reply, $item): array
+	public static function getMessage(Connection $mbox, $uid, $reply, $item): array
 	{
 		$ret = $item;
 
