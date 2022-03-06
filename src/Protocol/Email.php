@@ -41,7 +41,7 @@ class Email
 	 * @return Connection
 	 * @throws \Exception
 	 */
-	public static function connect($mailbox, $username, $password)
+	public static function connect($mailbox, $username, $password): Connection
 	{
 		if (!function_exists('imap_open')) {
 			return false;
@@ -117,7 +117,7 @@ class Email
 	 * @param integer    $uid  user id
 	 * @return mixed
 	 */
-	public static function messageMeta($mbox, $uid)
+	public static function messageMeta(Connection $mbox, $uid)
 	{
 		$ret = (($mbox && $uid) ? @imap_fetch_overview($mbox, $uid, FT_UID) : [[]]); // POSSIBLE CLEANUP --> array(array()) is probably redundant now
 		return (count($ret)) ? $ret : [];
@@ -218,7 +218,7 @@ class Email
 	 * @param string     $subtype sub type
 	 * @return string
 	 */
-	private static function messageGetPart($mbox, $uid, $p, $partno, $subtype)
+	private static function messageGetPart(Connection $mbox, $uid, $p, $partno, $subtype)
 	{
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
 		global $htmlmsg,$plainmsg,$charset,$attachments;
