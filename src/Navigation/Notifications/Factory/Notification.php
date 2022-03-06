@@ -118,7 +118,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 			if ($localRelationship->pending) {
 				$msg = $this->l10n->t('%1$s wants to follow you');
 			} else {
-				$msg = $this->l10n->t('%1$s had started following you');
+				$msg = $this->l10n->t('%1$s has started following you');
 			}
 
 			$title = $causer['name'];

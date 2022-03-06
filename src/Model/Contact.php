@@ -2617,7 +2617,7 @@ class Contact
 			return false;
 		}
 
-		$fields = ['url', 'name', 'nick', 'avatar', 'photo', 'network', 'blocked'];
+		$fields = ['id', 'url', 'name', 'nick', 'avatar', 'photo', 'network', 'blocked'];
 		$pub_contact = DBA::selectFirst('contact', $fields, ['id' => $datarray['author-id']]);
 		if (!DBA::isResult($pub_contact)) {
 			// Should never happen
@@ -2762,6 +2762,10 @@ class Contact
 		} else {
 			DI::logger()->info('Couldn\'t remove follower because of invalid contact array', ['contact' => $contact, 'callstack' => System::callstack()]);
 		}
+
+		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+
+		DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
 	}
 
 	/**

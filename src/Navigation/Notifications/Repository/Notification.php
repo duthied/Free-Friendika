@@ -195,4 +195,14 @@ class Notification extends BaseRepository
 
 		return $Notification;
 	}
+
+	public function deleteForUserByVerb(int $uid, string $verb, array $condition = []): bool
+	{
+		$condition['uid'] = $uid;
+		$condition['vid'] = Verb::getID($verb);
+
+		$this->logger->notice('deleteForUserByVerb', ['condition' => $condition]);
+
+		return $this->db->delete(self::$table_name, $condition);
+	}
 }
