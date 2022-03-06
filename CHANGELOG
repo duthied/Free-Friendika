@@ -12,6 +12,7 @@ Version 2022.03 (unreleased)
     Fixed a bug that lead to private messages being send to the wrong recipient [MrPetovan]
     Added display of post receivers [annando]
     Added pleroma like version to the API results [MrPetovan]
+    Added advanced configuration option to automatically re-use the abstract field from AP conversations [annando]
     Switched to SMARTY-4 templating engine [MrPetovan]
     Breaking: The distribution of _private forums_ was moved to ActivityPub,
          making them incompatible with older versions of Friendica [annando]
