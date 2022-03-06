@@ -891,20 +891,24 @@ class Post
 
 		$owner = User::getOwnerDataById($a->getLoggedInUserId());
 
-		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
-			return '';
-		}
-
-		$item = PostModel::selectFirst(['author-addr', 'uri-id', 'network', 'gravity'], ['id' => $this->getId()]);
+		$item = PostModel::selectFirst(['author-addr', 'uri-id', 'network', 'gravity', 'content-warning'], ['id' => $this->getId()]);
 		if (!DBA::isResult($item) || empty($item['author-addr'])) {
 			// Should not happen
 			return '';
 		}
 
-		if (($item['author-addr'] != $owner['addr']) && (($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], [Protocol::DIASPORA]))) {
-			$text = '@' . $item['author-addr'] . ' ';
+		if (!empty($item['content-warning']) && Feature::isEnabled(local_user(), 'add_abstract')) {
+			$text = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $item['content-warning'] . "[/abstract]\n";
 		} else {
 			$text = '';
+		}
+
+		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
+			return $text;
+		}
+
+		if (($item['author-addr'] != $owner['addr']) && (($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], [Protocol::DIASPORA]))) {
+			$text .= '@' . $item['author-addr'] . ' ';
 		}
 
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
