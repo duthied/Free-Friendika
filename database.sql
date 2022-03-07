@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 2022.03 (Siberian Iris)
+-- Friendica 2022.05-dev (Siberian Iris)
 -- DB_UPDATE_VERSION 1452
 -- ------------------------------------------
 
