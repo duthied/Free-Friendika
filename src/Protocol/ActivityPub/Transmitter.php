@@ -911,6 +911,7 @@ class Transmitter
 			$mail['title']        = '';
 		}
 
+		$mail['content-warning']  = '';
 		$mail['author-link']      = $mail['owner-link'] = $mail['from-url'];
 		$mail['owner-id']         = $mail['author-id'];
 		$mail['allow_cid']        = '<'.$mail['contact-id'].'>';

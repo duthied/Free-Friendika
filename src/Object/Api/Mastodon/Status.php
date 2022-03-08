@@ -107,8 +107,8 @@ class Status extends BaseDataTransferObject
 			$this->in_reply_to_account_id = (string)$item['parent-author-id'];
 		}
 
-		$this->sensitive = $sensitive;
-		$this->spoiler_text = $item['title'];
+		$this->sensitive    = $sensitive;
+		$this->spoiler_text = $item['title'] ?: $item['content-warning'];
 
 		$visibility = ['public', 'private', 'unlisted'];
 		$this->visibility = $visibility[$item['private']];

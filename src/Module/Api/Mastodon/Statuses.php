@@ -69,7 +69,6 @@ class Statuses extends BaseApi
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
 		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
-		$item['title']      = $request['spoiler_text'];
 		$item['body']       = $body;
 
 		if (!empty(self::getCurrentApplication()['name'])) {
@@ -141,14 +140,17 @@ class Statuses extends BaseApi
 
 		if ($request['in_reply_to_id']) {
 			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
+
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
+			$item['body']        = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
 		} else {
 			self::checkThrottleLimit();
 
 			$item['gravity']     = GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
+			$item['title']       = $request['spoiler_text'];
 		}
 
 		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
