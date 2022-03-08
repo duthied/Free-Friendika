@@ -42,13 +42,25 @@ class Bookmark extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectFirst(['uid', 'id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
 		if ($item['gravity'] != GRAVITY_PARENT) {
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be bookmarked'));
+		}
+
+		if ($item['uid'] == 0) {
+			$stored = Item::storeForUserByUriId($this->parameters['id'], $uid);
+			if (!empty($stored)) {
+				$item = Post::selectFirst(['id', 'gravity'], ['id' => $stored]);
+				if (!DBA::isResult($item)) {
+					DI::mstdnError()->RecordNotFound();
+				}
+			} else {
+				DI::mstdnError()->RecordNotFound();
+			}
 		}
 
 		Item::update(['starred' => true], ['id' => $item['id']]);
