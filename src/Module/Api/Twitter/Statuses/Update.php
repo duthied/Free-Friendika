@@ -110,7 +110,7 @@ class Update extends BaseApi
 		}
 
 		if ($request['in_reply_to_status_id']) {
-			$parent = Post::selectFirst(['uri'], ['id' => $request['in_reply_to_status_id'], 'uid' => [0, $uid]]);
+			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_status_id'], 'uid' => [0, $uid]]);
 
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = GRAVITY_COMMENT;
