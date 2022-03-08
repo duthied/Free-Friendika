@@ -38,10 +38,10 @@ class Email
 	 * @param string $mailbox  The mailbox name
 	 * @param string $username The username
 	 * @param string $password The password
-	 * @return Connection
+	 * @return Connection|resource
 	 * @throws \Exception
 	 */
-	public static function connect($mailbox, $username, $password): Connection
+	public static function connect($mailbox, $username, $password)
 	{
 		if (!function_exists('imap_open')) {
 			return false;
@@ -63,12 +63,12 @@ class Email
 	}
 
 	/**
-	 * @param Connection $mbox       mailbox
-	 * @param string     $email_addr email
+	 * @param Connection|resource $mbox       mailbox
+	 * @param string              $email_addr email
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function poll(Connection $mbox, $email_addr): array
+	public static function poll($mbox, $email_addr): array
 	{
 		if (!$mbox || !$email_addr) {
 			return [];
@@ -113,24 +113,24 @@ class Email
 	}
 
 	/**
-	 * @param Connection $mbox mailbox
-	 * @param integer    $uid  user id
+	 * @param Connection|resource $mbox mailbox
+	 * @param integer             $uid  user id
 	 * @return mixed
 	 */
-	public static function messageMeta(Connection $mbox, $uid)
+	public static function messageMeta($mbox, $uid)
 	{
 		$ret = (($mbox && $uid) ? @imap_fetch_overview($mbox, $uid, FT_UID) : [[]]); // POSSIBLE CLEANUP --> array(array()) is probably redundant now
 		return (count($ret)) ? $ret : [];
 	}
 
 	/**
-	 * @param Connection $mbox  mailbox
-	 * @param integer    $uid   user id
-	 * @param string     $reply reply
+	 * @param Connection|resource $mbox  mailbox
+	 * @param integer             $uid   user id
+	 * @param string              $reply reply
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getMessage(Connection $mbox, $uid, $reply, $item): array
+	public static function getMessage($mbox, $uid, $reply, $item): array
 	{
 		$ret = $item;
 
@@ -211,14 +211,14 @@ class Email
 	/**
 	 * fetch the specified message part number with the specified subtype
 	 *
-	 * @param Connection $mbox    mailbox
-	 * @param integer    $uid     user id
-	 * @param object     $p       parts
-	 * @param integer    $partno  part number
-	 * @param string     $subtype sub type
+	 * @param Connection|resource $mbox    mailbox
+	 * @param integer             $uid     user id
+	 * @param object              $p       parts
+	 * @param integer             $partno  part number
+	 * @param string              $subtype sub type
 	 * @return string
 	 */
-	private static function messageGetPart(Connection $mbox, $uid, $p, $partno, $subtype)
+	private static function messageGetPart($mbox, $uid, $p, $partno, $subtype)
 	{
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
 		global $htmlmsg,$plainmsg,$charset,$attachments;
