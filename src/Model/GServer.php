@@ -546,6 +546,22 @@ class GServer
 				Logger::info('Update registered users', ['id' => $id, 'url' => $serverdata['nurl'], 'registered-users' => $max_users]);
 				DBA::update('gserver', ['registered-users' => $max_users], ['id' => $id]);
 			}
+
+			if (empty($serverdata['active-month-users'])) {
+				$contacts = DBA::count('contact', ["`uid` = ? AND `gsid` = ? AND NOT `failed` AND `last-item` > ?", 0, $id, DateTimeFormat::utc('now - 30 days')]);
+				if ($contacts > 0) {
+					Logger::info('Update monthly users', ['id' => $id, 'url' => $serverdata['nurl'], 'monthly-users' => $contacts]);
+					DBA::update('gserver', ['active-month-users' => $contacts], ['id' => $id]);
+				}
+			}
+	
+			if (empty($serverdata['active-halfyear-users'])) {
+				$contacts = DBA::count('contact', ["`uid` = ? AND `gsid` = ? AND NOT `failed` AND `last-item` > ?", 0, $id, DateTimeFormat::utc('now - 180 days')]);
+				if ($contacts > 0) {
+					Logger::info('Update halfyear users', ['id' => $id, 'url' => $serverdata['nurl'], 'halfyear-users' => $contacts]);
+					DBA::update('gserver', ['active-halfyear-users' => $contacts], ['id' => $id]);
+				}
+			}
 		}
 
 		if (!empty($serverdata['network']) && in_array($serverdata['network'], [Protocol::DFRN, Protocol::DIASPORA])) {
