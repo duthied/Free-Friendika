@@ -26,6 +26,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
@@ -47,7 +48,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 			throw new HTTPException\BadRequestException(DI::l10n()->t('Wrong type "%s", expected one of: %s', $type, implode(', ', $expectedTypes)));
 		}
 
-		$condition = ['id' => $referenceId];
+		$condition = ['id' => $referenceId, 'uid' => [0, local_user()]];
 		if ($type == 'item') {
 			$fields = ['uid', 'psid', 'private', 'uri-id'];
 			$model = Post::selectFirst($fields, $condition);
@@ -77,12 +78,26 @@ class PermissionTooltip extends \Friendica\BaseModule
 
 		if ($type == 'item') {
 			$receivers = $this->fetchReceivers($model['uri-id']);
+			if (empty($receivers)) {
+				switch ($model['private']) {
+					case Item::PUBLIC:
+						$receivers = DI::l10n()->t('Public');
+						break;
+					
+					case Item::UNLISTED:
+						$receivers = DI::l10n()->t('Unlisted');
+						break;
+					
+					case Item::PRIVATE:
+						$receivers = DI::l10n()->t('Limited/Private');
+						break;
+				}				
+			}
 		} else {
 			$receivers = '';
 		}
 
-		if ($model['uid'] != local_user() ||
-			empty($model['allow_cid'])
+		if (empty($model['allow_cid'])
 			&& empty($model['allow_gid'])
 			&& empty($model['deny_cid'])
 			&& empty($model['deny_gid'])
