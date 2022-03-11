@@ -60,8 +60,8 @@ class Tag
 	const TAG_CHARACTER = [
 		self::HASHTAG           => '#',
 		self::MENTION           => '@',
-		self::IMPLICIT_MENTION  => '%',
 		self::EXCLUSIVE_MENTION => '!',
+		self::IMPLICIT_MENTION  => '%',
 	];
 
 	/**
@@ -273,7 +273,7 @@ class Tag
 	 */
 	public static function existsForPost(int $uriid)
 	{
-		return DBA::exists('post-tag', ['uri-id' => $uriid, 'type' => [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION]]);
+		return DBA::exists('post-tag', ['uri-id' => $uriid, 'type' => [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION]]);
 	}
 
 	/**
@@ -355,7 +355,7 @@ class Tag
 			return;
 		}
 
-		$tags = DBA::select('tag-view', ['name', 'url'], ['uri-id' => $parent_uri_id]);
+		$tags = DBA::select('tag-view', ['name', 'url'], ['uri-id' => $parent_uri_id, 'type' => [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION]]);
 		while ($tag = DBA::fetch($tags)) {
 			self::store($uri_id, self::IMPLICIT_MENTION, $tag['name'], $tag['url']);
 		}
@@ -370,7 +370,7 @@ class Tag
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
+	public static function getByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])
 	{
 		$condition = ['uri-id' => $uri_id, 'type' => $type];
 		return DBA::selectToArray('tag-view', ['type', 'name', 'url'], $condition);
@@ -384,7 +384,7 @@ class Tag
 	 * @return string tags and mentions
 	 * @throws \Exception
 	 */
-	public static function getCSVByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
+	public static function getCSVByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])
 	{
 		$tag_list = [];
 		$tags = self::getByURIId($uri_id, $type);
