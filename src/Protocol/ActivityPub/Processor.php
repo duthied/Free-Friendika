@@ -573,6 +573,53 @@ class Processor
 	}
 
 	/**
+	 * Checks if an incoming message is wanted
+	 *
+	 * @param array $activity
+	 * @param array $item
+	 * @return boolean Is the message wanted?
+	 */
+	private static function isSolicitedMessage(array $activity, array $item)
+	{
+		// The checks are split to improve the support when searching why a message was accepted.
+		if (count($activity['receiver']) != 1) {
+			// The message has more than one receiver, so it is wanted.
+			Logger::debug('Message has got several receivers - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		if ($item['private'] == Item::PRIVATE) {
+			// We only look at public posts here. Private posts are expected to be intentionally posted to the single receiver.
+			Logger::debug('Message is private - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+		
+		if (!empty($activity['from-relay'])) {
+			// We check relay posts at another place. When it arrived here, the message is already checked.
+			Logger::debug('Message is a relay post that is already checked - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		if (!empty($activity['thread-completion'])) {
+			// The thread completion mode means that the post is fetched intentionally.
+			// This can have several causes, in doubt we keep the message.
+			// This can possibly be improved in the future.
+			Logger::debug('Message is in completion mode - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		if ($item['gravity'] != GRAVITY_PARENT) {
+			// We cannot reliably check at this point if a comment or activity belongs to an accepted post or needs to be fetched
+			// This can possibly be improved in the future.
+			Logger::debug('Message is no parent - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
+		return Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB);
+	}
+
+	/**
 	 * Creates an item post
 	 *
 	 * @param array $activity Activity data
@@ -588,6 +635,11 @@ class Processor
 
 		$stored = false;
 		ksort($activity['receiver']);
+
+		if (!self::isSolicitedMessage($activity, $item)) {
+			DBA::delete('item-uri', ['id' => $item['uri-id']]);
+			return;
+		}
 
 		foreach ($activity['receiver'] as $receiver) {
 			if ($receiver == -1) {
