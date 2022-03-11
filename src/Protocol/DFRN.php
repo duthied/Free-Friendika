@@ -1775,12 +1775,11 @@ class DFRN
 	{
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
 			Strings::normaliseLink($item["author-link"]), 0, Contact::FRIEND, Contact::SHARING])) {
-			Logger::info('Author has got followers - accepted', ['uri' => $item['uri'], 'author' => $item["author-link"]]);
+			Logger::debug('Author has got followers - accepted', ['uri' => $item['uri'], 'author' => $item["author-link"]]);
 			return true;
 		}
 
-		$taglist = Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]);
-		$tags = array_column($taglist, 'name');
+		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
 		return Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::DFRN);
 	}
 

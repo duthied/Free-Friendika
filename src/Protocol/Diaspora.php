@@ -2620,12 +2620,11 @@ class Diaspora
 		$contact = Contact::getByURL($author);
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
 			$contact['nurl'], 0, Contact::FRIEND, Contact::SHARING])) {
-			Logger::info('Author has got followers - accepted', ['url' => $url, 'author' => $author]);
+			Logger::debug('Author has got followers - accepted', ['url' => $url, 'author' => $author]);
 			return true;
 		}
 
-		$taglist = Tag::getByURIId($uriid, [Tag::HASHTAG]);
-		$tags = array_column($taglist, 'name');
+		$tags = array_column(Tag::getByURIId($uriid, [Tag::HASHTAG]), 'name');
 		return Relay::isSolicitedPost($tags, $body, $contact['id'], $url, Protocol::DIASPORA);
 	}
 
