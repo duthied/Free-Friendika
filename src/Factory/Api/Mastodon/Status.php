@@ -27,6 +27,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Post;
+use Friendica\Model\Tag as TagModel;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
@@ -127,7 +128,7 @@ class Status extends BaseFactory
 			Post\ThreadUser::getPinned($uriId, $uid)
 		);
 
-		$sensitive   = $this->dba->exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw']);
+		$sensitive   = $this->dba->exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw', 'type' => TagModel::HASHTAG]);
 		$application = new \Friendica\Object\Api\Mastodon\Application($item['app'] ?: ContactSelector::networkToName($item['network'], $item['author-link']));
 
 		$mentions    = $this->mstdnMentionFactory->createFromUriId($uriId)->getArrayCopy();

@@ -1408,7 +1408,7 @@ class Transmitter
 	 */
 	private static function isSensitive($uri_id)
 	{
-		return DBA::exists('tag-view', ['uri-id' => $uri_id, 'name' => 'nsfw']);
+		return DBA::exists('tag-view', ['uri-id' => $uri_id, 'name' => 'nsfw', 'type' => Tag::HASHTAG]);
 	}
 
 	/**
