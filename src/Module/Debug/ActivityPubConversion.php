@@ -114,6 +114,10 @@ class ActivityPubConversion extends BaseModule
 					$object_data['thread-completion'] = $activity['thread-completion'];
 				}
 
+				if (!empty($activity['completion-mode'])) {
+					$object_data['completion-mode'] = $activity['completion-mode'];
+				}
+
 				$results[] = [
 					'title'   => DI::l10n()->t('Object data'),
 					'content' => visible_whitespace(var_export($object_data, true))
