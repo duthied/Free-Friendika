@@ -417,6 +417,14 @@ class UserNotification
 			return false;
 		}
 
+		// Don't notify about reshares by communities of our own posts or each time someone comments
+		if (($item['verb'] == Activity::ANNOUNCE) && DBA::exists('contact', ['id' => $item['contact-id'], 'contact-type' => Contact::TYPE_COMMUNITY])) {
+			$post = Post::selectFirst(['origin', 'gravity'], ['uri-id' => $item['thr-parent-id'], 'uid' => $uid]);
+			if ($post['origin'] || ($post['gravity'] != GRAVITY_PARENT)) {
+				return false;
+			}
+		}
+
 		// Check if the contact posted or shared something directly
 		if (DBA::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true])) {
 			return true;
