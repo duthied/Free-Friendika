@@ -1769,9 +1769,10 @@ class DFRN
 	 * Checks if an incoming message is wanted
 	 *
 	 * @param array $item
+	 * @param array $imporer
 	 * @return boolean Is the message wanted?
 	 */
-	private static function isSolicitedMessage(array $item)
+	private static function isSolicitedMessage(array $item, array $importer)
 	{
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
 			Strings::normaliseLink($item["author-link"]), 0, Contact::FRIEND, Contact::SHARING])) {
@@ -1779,8 +1780,23 @@ class DFRN
 			return true;
 		}
 
+		if ($importer['importer_uid'] != 0) {
+			Logger::debug('Message is directed to a user - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'importer' => $importer['importer_uid']]);
+			return true;
+		}
+
+		if ($item['uri'] != $item['thr-parent']) {
+			Logger::debug('Message is no parent - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
 		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
-		return Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::DFRN);
+		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::DFRN)) {
+			Logger::debug('Post is accepted because of the relay settings', ['uri' => $item['uri'], 'author' => $item["author-link"]]);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -1981,11 +1997,9 @@ class DFRN
 		}
 
 		// Check if the message is wanted
-		if (($importer['importer_uid'] == 0) && ($item['uri'] == $item['thr-parent'])) {
-			if (!self::isSolicitedMessage($item)) {
-				DBA::delete('item-uri', ['uri' => $item['uri']]);
-				return 403;
-			}
+		if (!self::isSolicitedMessage($item, $importer)) {
+			DBA::delete('item-uri', ['uri' => $item['uri']]);
+			return 403;
 		}
 
 		// Get the type of the item (Top level post, reply or remote reply)

@@ -2639,7 +2639,12 @@ class Diaspora
 		}
 
 		$tags = array_column(Tag::getByURIId($uriid, [Tag::HASHTAG]), 'name');
-		return Relay::isSolicitedPost($tags, $body, $contact['id'], $url, Protocol::DIASPORA);
+		if (Relay::isSolicitedPost($tags, $body, $contact['id'], $url, Protocol::DIASPORA)) {
+			Logger::debug('Post is accepted because of the relay settings', ['url' => $url, 'author' => $author]);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -2669,7 +2674,7 @@ class Diaspora
 	 * @param SimpleXMLElement $data      The message object
 	 * @param string           $xml       The original XML of the message
 	 * @param int              $direction Indicates if the message had been fetched or pushed
-	 * 
+	 *
 	 * @return int The message id of the newly created item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException

@@ -192,8 +192,8 @@ class Processor
 	/**
 	 * Update an existing event
 	 *
-	 * @param int $event_id 
-	 * @param array $activity 
+	 * @param int $event_id
+	 * @param array $activity
 	 */
 	private static function updateEvent(int $event_id, array $activity)
 	{
@@ -593,7 +593,7 @@ class Processor
 			Logger::debug('Message is private - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;
 		}
-		
+
 		if (!empty($activity['from-relay'])) {
 			// We check relay posts at another place. When it arrived here, the message is already checked.
 			Logger::debug('Message is a relay post that is already checked - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
@@ -616,7 +616,12 @@ class Processor
 		}
 
 		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
-		return Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB);
+		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB)) {
+			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
