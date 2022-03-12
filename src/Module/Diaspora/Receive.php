@@ -78,7 +78,7 @@ class Receive extends BaseModule
 
 		$this->logger->info('Diaspora: Dispatching.');
 
-		Diaspora::dispatchPublic($msg);
+		Diaspora::dispatchPublic($msg, Diaspora::PUSHED);
 	}
 
 	/**

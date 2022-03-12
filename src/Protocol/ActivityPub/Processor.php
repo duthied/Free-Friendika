@@ -192,8 +192,8 @@ class Processor
 	/**
 	 * Update an existing event
 	 *
-	 * @param int $event_id 
-	 * @param array $activity 
+	 * @param int $event_id
+	 * @param array $activity
 	 */
 	private static function updateEvent(int $event_id, array $activity)
 	{
@@ -235,7 +235,7 @@ class Processor
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id']]);
-			self::fetchMissingActivity($activity['reply-to-id'], $activity);
+			self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 		}
 
 		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
@@ -593,18 +593,16 @@ class Processor
 			Logger::debug('Message is private - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;
 		}
-		
+
 		if (!empty($activity['from-relay'])) {
 			// We check relay posts at another place. When it arrived here, the message is already checked.
 			Logger::debug('Message is a relay post that is already checked - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;
 		}
 
-		if (!empty($activity['thread-completion'])) {
-			// The thread completion mode means that the post is fetched intentionally.
-			// This can have several causes, in doubt we keep the message.
-			// This can possibly be improved in the future.
-			Logger::debug('Message is in completion mode - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+		if (in_array($activity['completion-mode'] ?? Receiver::COMPLETION_NONE, [Receiver::COMPLETION_MANUAL, Receiver::COMPLETION_ANNOUCE])) {
+			// Manual completions and completions caused by reshares are allowed without any further checks.
+			Logger::debug('Message is in completion mode - accepted', ['mode' => $activity['completion-mode'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;
 		}
 
@@ -616,7 +614,12 @@ class Processor
 		}
 
 		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
-		return Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB);
+		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB)) {
+			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -895,10 +898,11 @@ class Processor
 	 * @param string $url         message URL
 	 * @param array  $child       activity array with the child of this message
 	 * @param string $relay_actor Relay actor
+	 * @param int    $completion  Completion mode, see Receiver::COMPLETION_*
 	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '')
+	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL)
 	{
 		if (!empty($child['receiver'])) {
 			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
@@ -962,10 +966,13 @@ class Processor
 
 		if (!empty($relay_actor)) {
 			$ldactivity['thread-completion'] = $ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);
+			$ldactivity['completion-mode']   = Receiver::COMPLETION_RELAY;
 		} elseif (!empty($child['thread-completion'])) {
 			$ldactivity['thread-completion'] = $child['thread-completion'];
+			$ldactivity['completion-mode']   = $child['completion-mode'] ?? Receiver::COMPLETION_NONE;
 		} else {
 			$ldactivity['thread-completion'] = Contact::getIdForURL($actor);
+			$ldactivity['completion-mode']   = $completion;
 		}
 
 		if (!empty($child['type'])) {

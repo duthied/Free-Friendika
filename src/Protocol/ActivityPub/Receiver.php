@@ -68,6 +68,12 @@ class Receiver
 	const TARGET_ANSWER = 6;
 	const TARGET_GLOBAL = 7;
 
+	const COMPLETION_NONE    = 0;
+	const COMPLETION_ANNOUCE = 1;
+	const COMPLETION_RELAY   = 2;
+	const COMPLETION_MANUAL  = 3;
+	const COMPLETION_AUTO    = 4;
+
 	/**
 	 * Checks incoming message from the inbox
 	 *
@@ -190,7 +196,7 @@ class Receiver
 			return;
 		}
 
-		$id = Processor::fetchMissingActivity($object_id, [], $actor);
+		$id = Processor::fetchMissingActivity($object_id, [], $actor, self::COMPLETION_RELAY);
 		if (empty($id)) {
 			Logger::notice('Relayed message had not been fetched', ['id' => $object_id]);
 			return;
@@ -529,6 +535,11 @@ class Receiver
 		if (!empty($activity['thread-completion'])) {
 			$object_data['thread-completion'] = $activity['thread-completion'];
 		}
+
+		if (!empty($activity['completion-mode'])) {
+			$object_data['completion-mode'] = $activity['completion-mode'];
+		}
+
 		if (!empty($activity['thread-children-type'])) {
 			$object_data['thread-children-type'] = $activity['thread-children-type'];
 		}
@@ -555,6 +566,7 @@ class Receiver
 			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					$object_data['thread-completion'] = Contact::getIdForURL($actor);
+					$object_data['completion-mode']   = self::COMPLETION_ANNOUCE;
 
 					$item = ActivityPub\Processor::createItem($object_data);
 					if (empty($item)) {
