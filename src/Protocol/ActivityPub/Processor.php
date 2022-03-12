@@ -898,6 +898,7 @@ class Processor
 	 * @param string $url         message URL
 	 * @param array  $child       activity array with the child of this message
 	 * @param string $relay_actor Relay actor
+	 * @param int    $completion  Completion mode, see Receiver::COMPLETION_*
 	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
