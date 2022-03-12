@@ -21,9 +21,9 @@
 
 namespace Friendica\Module\Admin\Logs;
 
-use Friendica\DI;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
+use Friendica\DI;
 use Friendica\Module\BaseAdmin;
 use Psr\Log\LogLevel;
 
@@ -80,9 +80,10 @@ class View extends BaseAdmin
 			}
 		}
 		return Renderer::replaceMacros($t, [
-			'$title' => DI::l10n()->t('Administration'),
-			'$page'  => DI::l10n()->t('View Logs'),
-			'$l10n'  => [
+			'$baseurl'       => DI::baseUrl()->get(true),
+			'$title'         => DI::l10n()->t('Administration'),
+			'$page'          => DI::l10n()->t('View Logs'),
+			'$l10n'          => [
 				'Search'                => DI::l10n()->t('Search'),
 				'Search_in_logs'        => DI::l10n()->t('Search in logs'),
 				'Show_all'              => DI::l10n()->t('Show all'),
