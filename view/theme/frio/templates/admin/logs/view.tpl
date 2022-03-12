@@ -18,7 +18,7 @@
 				</div>
 			</div>
 			<div class="xol-xs-4">
-				<a href="/admin/logs/view" class="btn btn-default">{{$l10n.Show_all}}</a>
+				<a href="{{$baseurl}}/admin/logs/view" class="btn btn-default">{{$l10n.Show_all}}</a>
 			</div>
 		</form>
 
@@ -33,7 +33,7 @@
 						<ul class="dropdown-menu" aria-labelledby="level">
 							{{foreach $filtersvalues.level as $v }}
 								<li {{if $filters.level == $v}}class="active"{{/if}}>
-									<a href="/admin/logs/view?level={{$v}}" data-filter="level" data-filter-value="{{$v}}">
+									<a href="{{$baseurl}}/admin/logs/view?level={{$v}}" data-filter="level" data-filter-value="{{$v}}">
 										{{if $v == ""}}{{$l10n.ALL}}{{/if}}{{$v}}
 									</a>
 								</li>
@@ -47,7 +47,7 @@
 						<ul class="dropdown-menu" aria-labelledby="context">
 							{{foreach $filtersvalues.context as $v }}
 								<li {{if $filters.context == $v}}class="active"{{/if}}>
-									<a href="/admin/logs/view?context={{$v}}" data-filter="context" data-filter-value="{{$v}}">
+									<a href="{{$baseurl}}/admin/logs/view?context={{$v}}" data-filter="context" data-filter-value="{{$v}}">
 										{{if $v == ""}}{{$l10n.ALL}}{{/if}}{{$v}}
 									</a>
 								</li>

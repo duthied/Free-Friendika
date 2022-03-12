@@ -380,11 +380,11 @@ class Register extends BaseModule
 					'type'         => Model\Notification\Type::SYSTEM,
 					'event'        => 'SYSTEM_REGISTER_REQUEST',
 					'uid'          => $admin['uid'],
-					'link'         => $base_url . '/admin/users/',
+					'link'         => DI::baseUrl()->get(true) . '/admin/users/',
 					'source_name'  => $user['username'],
 					'source_mail'  => $user['email'],
 					'source_nick'  => $user['nickname'],
-					'source_link'  => $base_url . '/admin/users/',
+					'source_link'  => DI::baseUrl()->get(true) . '/admin/users/',
 					'source_photo' => User::getAvatarUrl($user, Proxy::SIZE_THUMB),
 					'show_in_notification_page' => false
 				]);

@@ -24,6 +24,7 @@ namespace Friendica\Module\Admin\Themes;
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Module\BaseAdmin;
 use Friendica\Module\Response;
 use Friendica\Util\Profiler;
@@ -94,7 +95,7 @@ class Embed extends BaseAdmin
 
 		$t = Renderer::getMarkupTemplate('admin/addons/embed.tpl');
 		return Renderer::replaceMacros($t, [
-			'$action' => '/admin/themes/' . $theme . '/embed?mode=minimal',
+			'$action' => DI::baseUrl()->get(true) . '/admin/themes/' . $theme . '/embed?mode=minimal',
 			'$form' => $admin_form,
 			'$form_security_token' => self::getFormSecurityToken("admin_theme_settings"),
 		]);

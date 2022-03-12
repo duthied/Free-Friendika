@@ -34,7 +34,7 @@
 		<dt>{{$addons.0}}</dt>
 		
 		{{foreach $addons.1 as $p}}
-			<dd><a href="/admin/addons/{{$p}}/">{{$p}}</a></dd>
+			<dd><a href="{{$baseurl}}/admin/addons/{{$p}}/">{{$p}}</a></dd>
 		{{/foreach}}
 		
 	</dl>

@@ -76,7 +76,7 @@ class Details extends BaseAdmin
 			require_once "view/theme/$theme/config.php";
 
 			if (function_exists('theme_admin')) {
-				$admin_form = '<iframe onload="resizeIframe(this);" src="/admin/themes/' . $theme . '/embed?mode=minimal" width="100%" height="600px" frameborder="no"></iframe>';
+				$admin_form = '<iframe onload="resizeIframe(this);" src="' . DI::baseUrl()->get(true) . '/admin/themes/' . $theme . '/embed?mode=minimal" width="100%" height="600px" frameborder="no"></iframe>';
 			}
 		}
 
