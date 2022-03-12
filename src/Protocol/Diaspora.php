@@ -2616,31 +2616,30 @@ class Diaspora
 	/**
 	 * Checks if an incoming message is wanted
 	 *
-	 * @param string $url
-	 * @param integer $uriid
+	 * @param array  $item
 	 * @param string $author
 	 * @param string $body
 	 * @param int    $direction Indicates if the message had been fetched or pushed
 	 *
 	 * @return boolean Is the message wanted?
 	 */
-	private static function isSolicitedMessage(string $url, int $uriid, string $author, string $body, int $direction)
+	private static function isSolicitedMessage(array $item, string $author, string $body, int $direction)
 	{
 		$contact = Contact::getByURL($author);
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
 			$contact['nurl'], 0, Contact::FRIEND, Contact::SHARING])) {
-			Logger::debug('Author has got followers - accepted', ['url' => $url, 'author' => $author]);
+			Logger::debug('Author has got followers - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $author]);
 			return true;
 		}
 
 		if ($direction == self::FORCED_FETCH) {
-			Logger::debug('Post is a forced fetch - accepted', ['url' => $url, 'author' => $author]);
+			Logger::debug('Post is a forced fetch - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $author]);
 			return true;
 		}
 
-		$tags = array_column(Tag::getByURIId($uriid, [Tag::HASHTAG]), 'name');
-		if (Relay::isSolicitedPost($tags, $body, $contact['id'], $url, Protocol::DIASPORA)) {
-			Logger::debug('Post is accepted because of the relay settings', ['url' => $url, 'author' => $author]);
+		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
+		if (Relay::isSolicitedPost($tags, $body, $contact['id'], $item['uri'], Protocol::DIASPORA)) {
+			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $author]);
 			return true;
 		} else {
 			return false;
@@ -2771,7 +2770,7 @@ class Diaspora
 		self::storeMentions($datarray['uri-id'], $text);
 		Tag::storeRawTagsFromBody($datarray['uri-id'], $datarray["body"]);
 
-		if (!self::isSolicitedMessage($datarray["uri"], $datarray['uri-id'], $author, $body, $direction)) {
+		if (!self::isSolicitedMessage($datarray, $author, $body, $direction)) {
 			DBA::delete('item-uri', ['uri' => $datarray['uri']]);
 			return false;
 		}

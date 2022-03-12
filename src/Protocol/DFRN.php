@@ -1776,7 +1776,7 @@ class DFRN
 	{
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
 			Strings::normaliseLink($item["author-link"]), 0, Contact::FRIEND, Contact::SHARING])) {
-			Logger::debug('Author has got followers - accepted', ['uri' => $item['uri'], 'author' => $item["author-link"]]);
+			Logger::debug('Author has got followers - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $item["author-link"]]);
 			return true;
 		}
 
@@ -1792,7 +1792,7 @@ class DFRN
 
 		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
 		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::DFRN)) {
-			Logger::debug('Post is accepted because of the relay settings', ['uri' => $item['uri'], 'author' => $item["author-link"]]);
+			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $item["author-link"]]);
 			return true;
 		} else {
 			return false;
