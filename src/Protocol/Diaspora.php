@@ -454,7 +454,7 @@ class Diaspora
 	 * Dispatches public messages and find the fitting receivers
 	 *
 	 * @param array $msg       The post that will be dispatched
-	 * @param int   $direction Indicates if the message had been fetched or pushed
+	 * @param int   $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int The message id of the generated message, "true" or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -485,7 +485,7 @@ class Diaspora
 	 * @param array            $importer  Array of the importer user
 	 * @param array            $msg       The post that will be dispatched
 	 * @param SimpleXMLElement $fields    SimpleXML object that contains the message
-	 * @param int              $direction Indicates if the message had been fetched or pushed
+	 * @param int              $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int The message id of the generated message, "true" or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -1449,7 +1449,7 @@ class Diaspora
 	 * @param string $sender    The sender of the message
 	 * @param object $data      The message object
 	 * @param string $xml       The original XML of the message
-	 * @param int    $direction Indicates if the message had been fetched or pushed
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int The message id of the generated comment or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -1705,7 +1705,7 @@ class Diaspora
 	 * @param array  $importer  Array of the importer user
 	 * @param string $sender    The sender of the message
 	 * @param object $data      The message object
-	 * @param int    $direction Indicates if the message had been fetched or pushed
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int The message id of the generated like or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -1892,7 +1892,7 @@ class Diaspora
 	 *
 	 * @param array  $importer  Array of the importer user
 	 * @param object $data      The message object
-	 * @param int    $direction Indicates if the message had been fetched or pushed
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return bool success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -2385,7 +2385,7 @@ class Diaspora
 	 * @param array  $importer  Array of the importer user
 	 * @param object $data      The message object
 	 * @param string $xml       The original XML of the message
-	 * @param int    $direction Indicates if the message had been fetched or pushed
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int the message id
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -2619,7 +2619,7 @@ class Diaspora
 	 * @param array  $item
 	 * @param string $author
 	 * @param string $body
-	 * @param int    $direction Indicates if the message had been fetched or pushed
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return boolean Is the message wanted?
 	 */
@@ -2672,7 +2672,7 @@ class Diaspora
 	 * @param array            $importer  Array of the importer user
 	 * @param SimpleXMLElement $data      The message object
 	 * @param string           $xml       The original XML of the message
-	 * @param int              $direction Indicates if the message had been fetched or pushed
+	 * @param int              $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int The message id of the newly created item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
