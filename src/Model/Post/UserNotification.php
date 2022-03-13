@@ -193,6 +193,8 @@ class UserNotification
 			$notification_type = $notification_type | self::TYPE_SHARED;
 			self::insertNotificationByItem(self::TYPE_SHARED, $uid, $item);
 			$notified = true;
+		} elseif ($author['contact-type'] == Contact::TYPE_COMMUNITY) {
+			return;
 		} else {
 			$notified = false;
 		}
