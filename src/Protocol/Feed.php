@@ -197,7 +197,6 @@ class Feed
 			$author["author-link"] = XML::getFirstNodeValue($xpath, '/rss/channel/link/text()');
 
 			$author["author-name"] = XML::getFirstNodeValue($xpath, '/rss/channel/title/text()');
-			$author["author-avatar"] = XML::getFirstNodeValue($xpath, '/rss/channel/image/url/text()');
 
 			if (empty($author["author-name"])) {
 				$author["author-name"] = XML::getFirstNodeValue($xpath, '/rss/channel/copyright/text()');
@@ -205,6 +204,25 @@ class Feed
 
 			if (empty($author["author-name"])) {
 				$author["author-name"] = XML::getFirstNodeValue($xpath, '/rss/channel/description/text()');
+			}
+
+			$author["author-avatar"] = XML::getFirstNodeValue($xpath, '/rss/channel/image/url/text()');
+
+			if (empty($author["author-avatar"])) {
+				$avatar = XML::getFirstAttributes($xpath, "/rss/channel/itunes:image");
+				if (is_object($avatar)) {
+					foreach ($avatar as $attribute) {
+						if ($attribute->name == "href") {
+							$author["author-avatar"] = $attribute->textContent;
+						}
+					}
+				}
+			}
+
+			$author["author-about"] = HTML::toBBCode(XML::getFirstNodeValue($xpath, '/rss/channel/description/text()'), $basepath);
+
+			if (empty($author["author-about"])) {
+				$author["author-about"] = XML::getFirstNodeValue($xpath, '/rss/channel/itunes:summary/text()');
 			}
 
 			$author["edited"] = $author["created"] = XML::getFirstNodeValue($xpath, '/rss/channel/pubDate/text()');
@@ -284,19 +302,20 @@ class Feed
 				$item["plink"] = XML::getFirstNodeValue($xpath, 'rss:link/text()', $entry);
 			}
 
+			// Add the base path if missing
+			$item["plink"] = Network::addBasePath($item["plink"], $basepath);
+
 			$item["uri"] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
 
-			if (empty($item["uri"])) {
-				$item["uri"] = XML::getFirstNodeValue($xpath, 'guid/text()', $entry);
+			$guid = XML::getFirstNodeValue($xpath, 'guid/text()', $entry);
+			if (!empty($guid)) {
+				$item["uri"] = $guid;
+				$item["guid"] = $guid;
 			}
 
 			if (empty($item["uri"])) {
 				$item["uri"] = $item["plink"];
 			}
-
-			// Add the base path if missing
-			$item["uri"] = Network::addBasePath($item["uri"], $basepath);
-			$item["plink"] = Network::addBasePath($item["plink"], $basepath);
 
 			$orig_plink = $item["plink"];
 
@@ -311,8 +330,13 @@ class Feed
 			if (empty($item["title"])) {
 				$item["title"] = XML::getFirstNodeValue($xpath, 'title/text()', $entry);
 			}
+
 			if (empty($item["title"])) {
 				$item["title"] = XML::getFirstNodeValue($xpath, 'rss:title/text()', $entry);
+			}
+
+			if (empty($item["title"])) {
+				$item["title"] = XML::getFirstNodeValue($xpath, 'itunes:title/text()', $entry);
 			}
 
 			$item["title"] = html_entity_decode($item["title"], ENT_QUOTES, 'UTF-8');
@@ -457,6 +481,7 @@ class Feed
 			}
 
 			if ($dryRun) {
+				$item['attachments'] = $attachments;
 				$items[] = $item;
 				break;
 			} elseif (!Item::isValid($item)) {
