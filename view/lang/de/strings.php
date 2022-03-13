@@ -1458,7 +1458,7 @@ $a->strings['Additional Info'] = 'Zusätzliche Informationen';
 $a->strings['For public servers: you can add additional information here that will be listed at %s/servers.'] = 'Für öffentliche Server kannst du hier zusätzliche Informationen angeben, die dann auf %s/servers angezeigt werden.';
 $a->strings['System language'] = 'Systemsprache';
 $a->strings['System theme'] = 'Systemweites Theme';
-$a->strings['Default system theme - may be over-ridden by user profiles - <a href="/admin/themes" id="cnftheme">Change default theme settings</a>'] = 'Standard-Theme des Systems - kann von Benutzerprofilen überschrieben werden - <a href="/admin/themes" id="cnftheme">Ändere Einstellung des Standard-Themes</a>';
+$a->strings['Default system theme - may be over-ridden by user profiles - <a href="%s" id="cnftheme">Change default theme settings</a>'] = 'Standard-Theme des Systems - kann von Benutzerprofilen überschrieben werden - <a href="%s" id="cnftheme">Einstellungen des Standard-Themes ändern</a>';
 $a->strings['Mobile system theme'] = 'Systemweites mobiles Theme';
 $a->strings['Theme for mobile devices'] = 'Theme für mobile Geräte';
 $a->strings['SSL link policy'] = 'Regeln für SSL Links';
@@ -2128,6 +2128,7 @@ $a->strings['Please copy the following authentication code into your application
 $a->strings['Unsupported or missing grant type'] = 'Der Grant-Typ fehlt oder wird nicht unterstützt';
 $a->strings['Wrong type "%s", expected one of: %s'] = 'Falscher Typ "%s", hatte einen der Folgenden erwartet: %s';
 $a->strings['Model not found'] = 'Model nicht gefunden';
+$a->strings['Unlisted'] = 'Ungelistet';
 $a->strings['Remote privacy information not available.'] = 'Entfernte Privatsphäreneinstellungen nicht verfügbar.';
 $a->strings['Visible to:'] = 'Sichtbar für:';
 $a->strings['Followers (%s)'] = 'Folgende (%s)';

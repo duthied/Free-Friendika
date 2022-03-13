@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-06 11:22+0000\n"
-"PO-Revision-Date: 2022-03-06 13:21+0000\n"
+"POT-Creation-Date: 2022-03-11 22:56-0500\n"
+"PO-Revision-Date: 2022-03-12 13:16+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -350,7 +350,7 @@ msgstr "Link oder Mediendatei"
 
 #: mod/editpost.php:143 src/Content/Conversation.php:380
 #: src/Content/Widget/VCard.php:107 src/Model/Profile.php:460
-#: src/Module/Admin/Logs/View.php:92
+#: src/Module/Admin/Logs/View.php:93
 msgid "Message"
 msgstr "Nachricht"
 
@@ -380,7 +380,7 @@ msgstr "Der Veranstaltungstitel und die Anfangszeit müssen angegeben werden."
 msgid "Create New Event"
 msgstr "Neue Veranstaltung erstellen"
 
-#: mod/events.php:478 src/Module/Admin/Logs/View.php:96
+#: mod/events.php:478 src/Module/Admin/Logs/View.php:97
 msgid "Event details"
 msgstr "Veranstaltungsdetails"
 
@@ -2008,7 +2008,7 @@ msgstr "Keine Vorschläge verfügbar. Falls der Server frisch aufgesetzt wurde, 
 msgid "Friend Suggestions"
 msgstr "Kontaktvorschläge"
 
-#: mod/tagger.php:78 src/Content/Item.php:338 src/Model/Item.php:2670
+#: mod/tagger.php:78 src/Content/Item.php:338 src/Model/Item.php:2677
 msgid "photo"
 msgstr "Foto"
 
@@ -2192,8 +2192,8 @@ msgid "All contacts"
 msgstr "Alle Kontakte"
 
 #: src/BaseModule.php:409 src/Content/Widget.php:231 src/Core/ACL.php:194
-#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:106
-#: src/Module/PermissionTooltip.php:128
+#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:121
+#: src/Module/PermissionTooltip.php:143
 msgid "Followers"
 msgstr "Folgende"
 
@@ -2769,7 +2769,7 @@ msgstr "mehr anzeigen"
 msgid "%1$s poked %2$s"
 msgstr "%1$s stupste %2$s"
 
-#: src/Content/Item.php:330 src/Model/Item.php:2668
+#: src/Content/Item.php:330 src/Model/Item.php:2675
 msgid "event"
 msgstr "Veranstaltung"
 
@@ -2944,7 +2944,7 @@ msgid "Addon applications, utilities, games"
 msgstr "Zusätzliche Anwendungen, Dienstprogramme, Spiele"
 
 #: src/Content/Nav.php:230 src/Content/Text/HTML.php:881
-#: src/Module/Admin/Logs/View.php:86 src/Module/Search/Index.php:96
+#: src/Module/Admin/Logs/View.php:87 src/Module/Search/Index.php:96
 msgid "Search"
 msgstr "Suche"
 
@@ -3120,8 +3120,8 @@ msgstr "Bild/Foto"
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a>%3$s"
 
-#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3199
-#: src/Model/Item.php:3205 src/Model/Item.php:3206
+#: src/Content/Text/BBCode.php:1185 src/Model/Item.php:3206
+#: src/Model/Item.php:3212 src/Model/Item.php:3213
 msgid "Link to source"
 msgstr "Link zum Originalbeitrag"
 
@@ -3353,8 +3353,8 @@ msgstr "Entfolgen"
 msgid "Yourself"
 msgstr "Du selbst"
 
-#: src/Core/ACL.php:201 src/Module/PermissionTooltip.php:112
-#: src/Module/PermissionTooltip.php:134
+#: src/Core/ACL.php:201 src/Module/PermissionTooltip.php:127
+#: src/Module/PermissionTooltip.php:149
 msgid "Mutuals"
 msgstr "Beidseitige Freundschaft"
 
@@ -3362,7 +3362,8 @@ msgstr "Beidseitige Freundschaft"
 msgid "Post to Email"
 msgstr "An E-Mail senden"
 
-#: src/Core/ACL.php:320 src/Module/PermissionTooltip.php:181
+#: src/Core/ACL.php:320 src/Module/PermissionTooltip.php:84
+#: src/Module/PermissionTooltip.php:196
 msgid "Public"
 msgstr "Öffentlich"
 
@@ -3372,7 +3373,7 @@ msgid ""
 "community pages and by anyone with its link."
 msgstr "Dieser Inhalt wird all deine Abonenten sowie auf der Gemeinschaftsseite angezeigt. Außerdem kann ihn jeder sehen, der den Link kennt."
 
-#: src/Core/ACL.php:322
+#: src/Core/ACL.php:322 src/Module/PermissionTooltip.php:92
 msgid "Limited/Private"
 msgstr "Begrenzt/Privat"
 
@@ -4293,33 +4294,33 @@ msgstr "Gruppenname:"
 msgid "Edit groups"
 msgstr "Gruppen bearbeiten"
 
-#: src/Model/Item.php:1764
+#: src/Model/Item.php:1771
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr "Erkannte Sprachen in diesem Beitrag:\\n%s"
 
-#: src/Model/Item.php:2672
+#: src/Model/Item.php:2679
 msgid "activity"
 msgstr "Aktivität"
 
-#: src/Model/Item.php:2674
+#: src/Model/Item.php:2681
 msgid "comment"
 msgstr "Kommentar"
 
-#: src/Model/Item.php:2677
+#: src/Model/Item.php:2684
 msgid "post"
 msgstr "Beitrag"
 
-#: src/Model/Item.php:2814
+#: src/Model/Item.php:2821
 #, php-format
 msgid "Content warning: %s"
 msgstr "Inhaltswarnung: %s"
 
-#: src/Model/Item.php:3164
+#: src/Model/Item.php:3171
 msgid "bytes"
 msgstr "Byte"
 
-#: src/Model/Item.php:3193 src/Model/Item.php:3194
+#: src/Model/Item.php:3200 src/Model/Item.php:3201
 msgid "View on separate page"
 msgstr "Auf separater Seite ansehen"
 
@@ -4738,7 +4739,7 @@ msgstr "Einschalten"
 #: src/Module/Admin/Blocklist/Server/Add.php:89
 #: src/Module/Admin/Blocklist/Server/Index.php:78
 #: src/Module/Admin/Federation.php:194 src/Module/Admin/Item/Delete.php:64
-#: src/Module/Admin/Logs/Settings.php:79 src/Module/Admin/Logs/View.php:83
+#: src/Module/Admin/Logs/Settings.php:79 src/Module/Admin/Logs/View.php:84
 #: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:498
 #: src/Module/Admin/Storage.php:138 src/Module/Admin/Summary.php:232
 #: src/Module/Admin/Themes/Details.php:90
@@ -5289,7 +5290,7 @@ msgstr "Mention"
 msgid "Implicit Mention"
 msgstr "Implicit Mention"
 
-#: src/Module/Admin/Item/Source.php:73 src/Module/Admin/Logs/View.php:98
+#: src/Module/Admin/Item/Source.php:73 src/Module/Admin/Logs/View.php:99
 #: src/Module/Debug/ActivityPubConversion.php:62
 msgid "Source"
 msgstr "Quelle"
@@ -5361,68 +5362,68 @@ msgid ""
 "is readable."
 msgstr "Konnte die Logdatei <strong>%1$s</strong> nicht öffnen.<br/>Bitte stelle sicher, dass die Datei %1$s lesbar ist."
 
-#: src/Module/Admin/Logs/View.php:84 src/Module/BaseAdmin.php:110
+#: src/Module/Admin/Logs/View.php:85 src/Module/BaseAdmin.php:110
 msgid "View Logs"
 msgstr "Protokolle anzeigen"
 
-#: src/Module/Admin/Logs/View.php:87
+#: src/Module/Admin/Logs/View.php:88
 msgid "Search in logs"
 msgstr "Logs durchsuchen"
 
-#: src/Module/Admin/Logs/View.php:88
+#: src/Module/Admin/Logs/View.php:89
 #: src/Module/Notifications/Notifications.php:139
 msgid "Show all"
 msgstr "Alle anzeigen"
 
-#: src/Module/Admin/Logs/View.php:89
+#: src/Module/Admin/Logs/View.php:90
 msgid "Date"
 msgstr "Datum"
 
-#: src/Module/Admin/Logs/View.php:90
+#: src/Module/Admin/Logs/View.php:91
 msgid "Level"
 msgstr "Level"
 
-#: src/Module/Admin/Logs/View.php:91
+#: src/Module/Admin/Logs/View.php:92
 msgid "Context"
 msgstr "Zusammenhang"
 
-#: src/Module/Admin/Logs/View.php:93
+#: src/Module/Admin/Logs/View.php:94
 msgid "ALL"
 msgstr "ALLE"
 
-#: src/Module/Admin/Logs/View.php:94
+#: src/Module/Admin/Logs/View.php:95
 msgid "View details"
 msgstr "Details anzeigen"
 
-#: src/Module/Admin/Logs/View.php:95
+#: src/Module/Admin/Logs/View.php:96
 msgid "Click to view details"
 msgstr "Anklicken zum Anzeigen der Details"
 
-#: src/Module/Admin/Logs/View.php:97
+#: src/Module/Admin/Logs/View.php:98
 msgid "Data"
 msgstr "Daten"
 
-#: src/Module/Admin/Logs/View.php:99
+#: src/Module/Admin/Logs/View.php:100
 msgid "File"
 msgstr "Datei"
 
-#: src/Module/Admin/Logs/View.php:100
+#: src/Module/Admin/Logs/View.php:101
 msgid "Line"
 msgstr "Zeile"
 
-#: src/Module/Admin/Logs/View.php:101
+#: src/Module/Admin/Logs/View.php:102
 msgid "Function"
 msgstr "Funktion"
 
-#: src/Module/Admin/Logs/View.php:102
+#: src/Module/Admin/Logs/View.php:103
 msgid "UID"
 msgstr "UID"
 
-#: src/Module/Admin/Logs/View.php:103
+#: src/Module/Admin/Logs/View.php:104
 msgid "Process ID"
 msgstr "Prozess ID"
 
-#: src/Module/Admin/Logs/View.php:104
+#: src/Module/Admin/Logs/View.php:105
 msgid "Close"
 msgstr "Schließen"
 
@@ -5683,10 +5684,11 @@ msgid "System theme"
 msgstr "Systemweites Theme"
 
 #: src/Module/Admin/Site.php:529
+#, php-format
 msgid ""
-"Default system theme - may be over-ridden by user profiles - <a "
-"href=\"/admin/themes\" id=\"cnftheme\">Change default theme settings</a>"
-msgstr "Standard-Theme des Systems - kann von Benutzerprofilen überschrieben werden - <a href=\"/admin/themes\" id=\"cnftheme\">Ändere Einstellung des Standard-Themes</a>"
+"Default system theme - may be over-ridden by user profiles - <a href=\"%s\" "
+"id=\"cnftheme\">Change default theme settings</a>"
+msgstr "Standard-Theme des Systems - kann von Benutzerprofilen überschrieben werden - <a href=\"%s\" id=\"cnftheme\">Einstellungen des Standard-Themes ändern</a>"
 
 #: src/Module/Admin/Site.php:530
 msgid "Mobile system theme"
@@ -6630,7 +6632,7 @@ msgstr "Bildschirmfoto"
 msgid "Themes"
 msgstr "Themen"
 
-#: src/Module/Admin/Themes/Embed.php:79
+#: src/Module/Admin/Themes/Embed.php:80
 msgid "Unknown theme."
 msgstr "Unbekanntes Theme"
 
@@ -8592,44 +8594,48 @@ msgstr "Bitte kopiere den folgenden Authentifizierungscode in deine App und schl
 msgid "Unsupported or missing grant type"
 msgstr "Der Grant-Typ fehlt oder wird nicht unterstützt"
 
-#: src/Module/PermissionTooltip.php:47
+#: src/Module/PermissionTooltip.php:48
 #, php-format
 msgid "Wrong type \"%s\", expected one of: %s"
 msgstr "Falscher Typ \"%s\", hatte einen der Folgenden erwartet: %s"
 
-#: src/Module/PermissionTooltip.php:64
+#: src/Module/PermissionTooltip.php:65
 msgid "Model not found"
 msgstr "Model nicht gefunden"
 
-#: src/Module/PermissionTooltip.php:91
+#: src/Module/PermissionTooltip.php:88
+msgid "Unlisted"
+msgstr "Ungelistet"
+
+#: src/Module/PermissionTooltip.php:106
 msgid "Remote privacy information not available."
 msgstr "Entfernte Privatsphäreneinstellungen nicht verfügbar."
 
-#: src/Module/PermissionTooltip.php:100
+#: src/Module/PermissionTooltip.php:115
 msgid "Visible to:"
 msgstr "Sichtbar für:"
 
-#: src/Module/PermissionTooltip.php:185
+#: src/Module/PermissionTooltip.php:200
 #, php-format
 msgid "Followers (%s)"
 msgstr "Folgende (%s)"
 
-#: src/Module/PermissionTooltip.php:201
+#: src/Module/PermissionTooltip.php:216
 #, php-format
 msgid "%d more"
 msgstr "%d weitere"
 
-#: src/Module/PermissionTooltip.php:205
+#: src/Module/PermissionTooltip.php:220
 #, php-format
 msgid "<b>To:</b> %s<br>"
 msgstr "<b>To:</b> %s<br>"
 
-#: src/Module/PermissionTooltip.php:208
+#: src/Module/PermissionTooltip.php:223
 #, php-format
 msgid "<b>CC:</b> %s<br>"
 msgstr "<b>CC:</b> %s<br>"
 
-#: src/Module/PermissionTooltip.php:211
+#: src/Module/PermissionTooltip.php:226
 #, php-format
 msgid "<b>BCC:</b> %s<br>"
 msgstr "<b>BCC:</b> %s<br>"
