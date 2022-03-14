@@ -41,9 +41,9 @@ class Notification extends BaseRepository
 
 	protected static $table_name = 'notification';
 
-	public function __construct(Database $database, LoggerInterface $logger, Factory\Notification $factory = null)
+	public function __construct(Database $database, LoggerInterface $logger, Factory\Notification $factory)
 	{
-		parent::__construct($database, $logger, $factory ?? new Factory\Notification($logger));
+		parent::__construct($database, $logger, $factory);
 	}
 
 	/**
@@ -98,6 +98,36 @@ class Notification extends BaseRepository
 		$condition = DBA::mergeConditions($condition, ['uid' => $uid]);
 
 		return $this->select($condition, $params);
+	}
+
+	/**
+	 * Returns only the most recent notifications for the same conversation or contact
+	 *
+	 * @param int $uid
+	 * @return Collection\Notifications
+	 * @throws Exception
+	 */
+	public function selectDigestForUser(int $uid): Collection\Notifications
+	{
+		$rows = $this->db->p("
+		SELECT notification.*
+		FROM notification
+		WHERE id IN (
+		    SELECT MAX(`id`)
+		    FROM notification
+		    WHERE uid = ?
+		    GROUP BY IFNULL(`parent-uri-id`, `actor-id`)
+		)
+		ORDER BY `seen`, `id` DESC
+		LIMIT 50
+		", $uid);
+
+		$Entities = new Collection\Notifications();
+		foreach ($rows as $fields) {
+			$Entities[] = $this->factory->createFromTableRow($fields);
+		}
+
+		return $Entities;
 	}
 
 	public function selectAllForUser(int $uid): Collection\Notifications
@@ -164,5 +194,15 @@ class Notification extends BaseRepository
 		}
 
 		return $Notification;
+	}
+
+	public function deleteForUserByVerb(int $uid, string $verb, array $condition = []): bool
+	{
+		$condition['uid'] = $uid;
+		$condition['vid'] = Verb::getID($verb);
+
+		$this->logger->notice('deleteForUserByVerb', ['condition' => $condition]);
+
+		return $this->db->delete(self::$table_name, $condition);
 	}
 }

@@ -26,40 +26,36 @@ use Friendica\BaseDataTransferObject;
 /**
  * A view-only object for printing item notifications to the frontend
  */
-class FormattedNotification extends BaseDataTransferObject
+class FormattedNavNotification extends BaseDataTransferObject
 {
-	const SYSTEM   = 'system';
-	const PERSONAL = 'personal';
-	const NETWORK  = 'network';
-	const INTRO    = 'intro';
-	const HOME     = 'home';
+	/** @var array */
+	protected $contact;
+	/** @var string */
+	protected $timestamp;
+	/** @var string */
+	protected $plaintext;
+	/** @var string */
+	protected $html;
+	/** @var string */
+	protected $href;
+	/** @var bool */
+	protected $seen;
 
-	/** @var string */
-	protected $label = '';
-	/** @var string */
-	protected $link = '';
-	/** @var string */
-	protected $image = '';
-	/** @var string */
-	protected $url = '';
-	/** @var string */
-	protected $text = '';
-	/** @var string */
-	protected $when = '';
-	/** @var string */
-	protected $ago = '';
-	/** @var boolean */
-	protected $seen = false;
-
-	public function __construct(string $label, string $link, string $image, string $url, string $text, string $when, string $ago, bool $seen)
+	/**
+	 * @param array  $contact   Contact array with the following keys: name, url, photo
+	 * @param string $timestamp Unix timestamp
+	 * @param string $plaintext Localized notification message with the placeholder replaced by the contact name
+	 * @param string $html      Full HTML string of the notification menu element
+	 * @param string $href      Absolute URL this notification should send the user to when interacted with
+	 * @param bool   $seen      Whether the user interacted with this notification once
+	 */
+	public function __construct(array $contact, string $timestamp, string $plaintext, string $html, string $href, bool $seen)
 	{
-		$this->label = $label ?? '';
-		$this->link  = $link  ?? '';
-		$this->image = $image ?? '';
-		$this->url   = $url   ?? '';
-		$this->text  = $text  ?? '';
-		$this->when  = $when  ?? '';
-		$this->ago   = $ago   ?? '';
-		$this->seen  = $seen  ?? false;
+		$this->contact   = $contact;
+		$this->timestamp = $timestamp;
+		$this->plaintext = $plaintext;
+		$this->html      = $html;
+		$this->href      = $href;
+		$this->seen      = $seen;
 	}
 }
