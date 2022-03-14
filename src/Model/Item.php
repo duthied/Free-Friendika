@@ -1785,19 +1785,14 @@ class Item
 		// We have to avoid that different routines could accidentally create the same value
 		$parsed = parse_url($uri);
 
-		// We use a hash of the hostname as prefix for the guid
-		$guid_prefix = hash("crc32", $host);
-
 		// Remove the scheme to make sure that "https" and "http" doesn't make a difference
 		unset($parsed["scheme"]);
 
 		// Glue it together to be able to make a hash from it
 		$host_id = implode("/", $parsed);
 
-		// We could use any hash algorithm since it isn't a security issue
-		$host_hash = hash("ripemd128", $host_id);
-
-		return $guid_prefix.$host_hash;
+		// Use a mixture of several hashes to provide some GUID like experience
+		return hash("crc32", $host) . '-'. hash('joaat', $host_id) . '-'. hash('fnv164', $host_id);
 	}
 
 	/**
