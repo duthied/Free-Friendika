@@ -427,12 +427,13 @@ class Transmitter
 	 * Returns an array with permissions of the thread parent of the given item array
 	 *
 	 * @param array $item
+	 * @param bool  $is_forum_thread
 	 *
 	 * @return array with permissions
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchPermissionBlockFromThreadParent($item)
+	private static function fetchPermissionBlockFromThreadParent(array $item, bool $is_forum_thread)
 	{
 		if (empty($item['thr-parent-id'])) {
 			return [];
@@ -462,7 +463,9 @@ class Transmitter
 		$type = [Tag::TO => 'to', Tag::CC => 'cc', Tag::BTO => 'bto', Tag::BCC => 'bcc'];
 		foreach (Tag::getByURIId($item['thr-parent-id'], [Tag::TO, Tag::CC, Tag::BTO, Tag::BCC]) as $receiver) {
 			if (!empty($parent_profile['followers']) && $receiver['url'] == $parent_profile['followers'] && !empty($item_profile['followers'])) {
-				$permissions[$type[$receiver['type']]][] = $item_profile['followers'];
+				if (!$is_forum_thread) {
+					$permissions[$type[$receiver['type']]][] = $item_profile['followers'];
+				}
 			} elseif (!in_array($receiver['url'], $exclude)) {
 				$permissions[$type[$receiver['type']]][] = $receiver['url'];
 			}
@@ -523,6 +526,14 @@ class Transmitter
 			$always_bcc = true;
 		}
 
+		$parent = Post::selectFirst(['causer-link', 'post-reason'], ['id' => $item['parent']]);
+		if (($parent['post-reason'] == Item::PR_ANNOUNCEMENT) && !empty($parent['causer-link'])) {
+			$profile = APContact::getByURL($parent['causer-link'], false);
+			$is_forum_thread = ($profile['type'] == 'Group');
+		} else {
+			$is_forum_thread = false;
+		}
+
 		if (self::isAnnounce($item) || DI::config()->get('debug', 'total_ap_delivery') || self::isAPPost($last_id)) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
@@ -553,7 +564,7 @@ class Transmitter
 				$data['cc'][] = $announce['actor']['url'];
 			}
 
-			$data = array_merge($data, self::fetchPermissionBlockFromThreadParent($item));
+			$data = array_merge($data, self::fetchPermissionBlockFromThreadParent($item, $is_forum_thread));
 
 			// Check if the item is completely public or unlisted
 			if ($item['private'] == Item::PUBLIC) {
@@ -618,17 +629,10 @@ class Transmitter
 			}
 		}
 
-		$is_forum_thread = false;
-
 		if (!empty($item['parent'])) {
-			$parents = Post::select(['id', 'author-link', 'owner-link', 'causer-link', 'gravity', 'uri', 'post-reason'], ['parent' => $item['parent']], ['order' => ['id']]);
+			$parents = Post::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']], ['order' => ['id']]);
 			while ($parent = Post::fetch($parents)) {
 				if ($parent['gravity'] == GRAVITY_PARENT) {
-					if (($parent['post-reason'] == Item::PR_ANNOUNCEMENT) && !empty($parent['causer-link'])) {
-						$profile = APContact::getByURL($parent['causer-link'], false);
-						$is_forum_thread = ($profile['type'] == 'Group');
-					}
-
 					$profile = APContact::getByURL($parent['owner-link'], false);
 					if (!empty($profile)) {
 						if ($item['gravity'] != GRAVITY_PARENT) {
