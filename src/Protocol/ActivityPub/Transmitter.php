@@ -618,10 +618,17 @@ class Transmitter
 			}
 		}
 
+		$is_forum_thread = false;
+
 		if (!empty($item['parent'])) {
-			$parents = Post::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']]);
+			$parents = Post::select(['id', 'author-link', 'owner-link', 'causer-link', 'gravity', 'uri', 'post-reason'], ['parent' => $item['parent']], ['order' => ['id']]);
 			while ($parent = Post::fetch($parents)) {
 				if ($parent['gravity'] == GRAVITY_PARENT) {
+					if (($parent['post-reason'] == Item::PR_ANNOUNCEMENT) && !empty($parent['causer-link'])) {
+						$profile = APContact::getByURL($parent['causer-link'], false);
+						$is_forum_thread = ($profile['type'] == 'Group');
+					}
+
 					$profile = APContact::getByURL($parent['owner-link'], false);
 					if (!empty($profile)) {
 						if ($item['gravity'] != GRAVITY_PARENT) {
@@ -633,11 +640,11 @@ class Transmitter
 								$data['to'][] = $profile['url'];
 							} else {
 								$data['cc'][] = $profile['url'];
-								if (($item['private'] != Item::PRIVATE) && !empty($actor_profile['followers'])) {
+								if (($item['private'] != Item::PRIVATE) && !empty($actor_profile['followers'])&& !$is_forum_thread) {
 									$data['cc'][] = $actor_profile['followers'];
 								}
 							}
-						} elseif (!$exclusive) {
+						} elseif (!$exclusive && !$is_forum_thread) {
 							// Public thread parent post always are directed to the followers.
 							if ($item['private'] != Item::PRIVATE) {
 								$data['cc'][] = $actor_profile['followers'];
