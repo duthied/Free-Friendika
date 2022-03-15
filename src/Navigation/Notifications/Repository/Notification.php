@@ -116,11 +116,12 @@ class Notification extends BaseRepository
 		    SELECT MAX(`id`)
 		    FROM notification
 		    WHERE uid = ?
+		    AND vid != ?
 		    GROUP BY IFNULL(`parent-uri-id`, `actor-id`)
 		)
 		ORDER BY `seen`, `id` DESC
 		LIMIT 50
-		", $uid);
+		", $uid, Verb::getID(\Friendica\Protocol\Activity::LIKE));
 
 		$Entities = new Collection\Notifications();
 		foreach ($rows as $fields) {
