@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-14 08:01-0400\n"
+"POT-Creation-Date: 2022-03-14 22:29-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8513,11 +8513,11 @@ msgstr ""
 msgid "Show unread"
 msgstr ""
 
-#: src/Module/Notifications/Ping.php:204
+#: src/Module/Notifications/Ping.php:211
 msgid "{0} requested registration"
 msgstr ""
 
-#: src/Module/Notifications/Ping.php:215
+#: src/Module/Notifications/Ping.php:222
 #, php-format
 msgid "{0} and %d others requested registration"
 msgstr ""
@@ -9963,7 +9963,7 @@ msgid ""
 "features and resources."
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:122
+#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:135
 msgid "{0}} wants to follow you"
 msgstr ""
 
@@ -10032,7 +10032,7 @@ msgstr ""
 
 #: src/Navigation/Notifications/Factory/Notification.php:178
 #, php-format
-msgid "%1$s liked your comment %2$s"
+msgid "%1$s liked your comment on %2$s"
 msgstr ""
 
 #: src/Navigation/Notifications/Factory/Notification.php:181
@@ -10042,7 +10042,7 @@ msgstr ""
 
 #: src/Navigation/Notifications/Factory/Notification.php:188
 #, php-format
-msgid "%1$s disliked your comment %2$s"
+msgid "%1$s disliked your comment on %2$s"
 msgstr ""
 
 #: src/Navigation/Notifications/Factory/Notification.php:191
