@@ -175,7 +175,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				case Activity::LIKE:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_DIRECT_COMMENT:
-							$msg = $this->l10n->t('%1$s liked your comment %2$s');
+							$msg = $this->l10n->t('%1$s liked your comment on %2$s');
 							break;
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
 							$msg = $this->l10n->t('%1$s liked your post %2$s');
@@ -185,7 +185,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				case Activity::DISLIKE:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_DIRECT_COMMENT:
-							$msg = $this->l10n->t('%1$s disliked your comment %2$s');
+							$msg = $this->l10n->t('%1$s disliked your comment on %2$s');
 							break;
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
 							$msg = $this->l10n->t('%1$s disliked your post %2$s');
