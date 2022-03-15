@@ -98,6 +98,7 @@ class UpdateContacts
 	 * Returns contact ids based on a given condition
 	 *
 	 * @param array $condition
+	 * @param int $limit
 	 * @param array $ids
 	 * @return array contact ids
 	 */
