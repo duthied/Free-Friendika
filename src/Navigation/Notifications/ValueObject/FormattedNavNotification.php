@@ -21,12 +21,12 @@
 
 namespace Friendica\Navigation\Notifications\ValueObject;
 
-use Friendica\BaseDataTransferObject;
+use Friendica\BaseEntity;
 
 /**
  * A view-only object for printing item notifications to the frontend
  */
-class FormattedNavNotification extends BaseDataTransferObject
+class FormattedNavNotification extends BaseEntity
 {
 	/** @var array */
 	protected $contact;

@@ -25,6 +25,7 @@ use Friendica\BaseFactory;
 use Friendica\Core\Renderer;
 use Friendica\Model\Contact;
 use Friendica\Navigation\Notifications\Entity;
+use Friendica\Navigation\Notifications\Exception\NoMessageException;
 use Friendica\Navigation\Notifications\ValueObject;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
@@ -94,9 +95,21 @@ class FormattedNavNotification extends BaseFactory
 		);
 	}
 
+	/**
+	 * @param Entity\Notification $notification
+	 * @return ValueObject\FormattedNavNotification
+	 * @throws NoMessageException
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Friendica\Network\HTTPException\NotFoundException
+	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 */
 	public function createFromNotification(Entity\Notification $notification): ValueObject\FormattedNavNotification
 	{
 		$message = $this->notification->getMessageFromNotification($notification);
+
+		if (empty($message)) {
+			throw new NoMessageException();
+		}
 
 		if (!isset(self::$contacts[$notification->actorId])) {
 			self::$contacts[$notification->actorId] = Contact::getById($notification->actorId, ['name', 'url']);

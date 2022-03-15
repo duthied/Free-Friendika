@@ -37,6 +37,7 @@ use Friendica\Model\Verb;
 use Friendica\Module\Register;
 use Friendica\Module\Response;
 use Friendica\Navigation\Notifications\Entity;
+use Friendica\Navigation\Notifications\Exception\NoMessageException;
 use Friendica\Navigation\Notifications\Factory;
 use Friendica\Navigation\Notifications\Repository;
 use Friendica\Navigation\Notifications\ValueObject;
@@ -182,11 +183,20 @@ class Ping extends BaseModule
 				}
 			}
 
-			$sysnotify_count = $notifications->countUnseen();
-
+			// Temporary workaround for notifications without messages like with the following verb:
+			// - \Friendica\Protocol\Activity::ANNOUNCE
 			$navNotifications = array_map(function (Entity\Notification $notification) {
-				return $this->formattedNavNotification->createFromNotification($notification);
+				try {
+					return $this->formattedNavNotification->createFromNotification($notification);
+				} catch (NoMessageException $e) {
+					return null;
+				}
 			}, $notifications->getArrayCopy());
+			$navNotifications = array_filter($navNotifications);
+
+			$sysnotify_count = array_reduce($navNotifications, function (int $carry, ValueObject\FormattedNavNotification $navNotification) {
+				return $carry + ($navNotification->seen ? 0 : 1);
+			}, 0);
 
 			// merge all notification types in one array
 			foreach ($intros as $intro) {
