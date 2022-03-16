@@ -19,7 +19,7 @@ AddType audio/ogg .oga
 </FilesMatch>
 
 # deny access to backup files
-<FilesMatch "(~|\.bak|\.swp)$">
+<FilesMatch "(\~|\.bak|\.swp)$">
   <IfModule authz_host_module>
     #Apache 2.4
     Require all denied
