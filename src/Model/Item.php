@@ -1773,7 +1773,10 @@ class Item
 	}
 
 	/**
-	 * Creates an unique guid out of a given uri
+	 * Creates an unique guid out of a given uri.
+	 * This function is used for messages outside the fediverse (Connector posts, feeds, Mails, ...)
+	 * Posts that are created on this system are using System::createUUID.
+	 * Received ActivityPub posts are using Processor::getGUIDByURL.
 	 *
 	 * @param string $uri uri of an item entry
 	 * @param string $host hostname for the GUID prefix
