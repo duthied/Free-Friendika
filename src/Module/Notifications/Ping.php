@@ -87,7 +87,7 @@ class Ping extends BaseModule
 
 		if (local_user()) {
 			if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
-				$notifications = $this->notificationRepo->selectForUser(local_user(), ['`vid` != ?', Verb::getID(\Friendica\Protocol\Activity::LIKE)], ['limit' => 50, 'order' => ['id' => true]]);
+				$notifications = $this->notificationRepo->selectDetailedForUser(local_user());
 			} else {
 				$notifications = $this->notificationRepo->selectDigestForUser(local_user());
 			}
