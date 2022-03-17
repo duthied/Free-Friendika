@@ -24,6 +24,7 @@ namespace Friendica\Navigation\Notifications\Repository;
 use Exception;
 use Friendica\BaseCollection;
 use Friendica\BaseRepository;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Verb;
@@ -41,9 +42,14 @@ class Notification extends BaseRepository
 
 	protected static $table_name = 'notification';
 
-	public function __construct(Database $database, LoggerInterface $logger, Factory\Notification $factory)
+	/** @var IManagePersonalConfigValues */
+	private $pconfig;
+
+	public function __construct(IManagePersonalConfigValues $pconfig, Database $database, LoggerInterface $logger, Factory\Notification $factory)
 	{
 		parent::__construct($database, $logger, $factory);
+
+		$this->pconfig = $pconfig;
 	}
 
 	/**
@@ -100,6 +106,28 @@ class Notification extends BaseRepository
 		return $this->select($condition, $params);
 	}
 
+
+	/**
+	 * Returns only the most recent notifications for the same conversation or contact
+	 *
+	 * @param int $uid
+	 * @return Collection\Notifications
+	 * @throws Exception
+	 */
+	public function selectDetailedForUser(int $uid): Collection\Notifications
+	{
+		$condition = [];
+		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
+			$condition = DBA::mergeConditions($condition, ['`vid` != ?', Verb::getID(\Friendica\Protocol\Activity::LIKE)]);
+		}
+
+		if (!$this->pconfig->get($uid, 'system', 'notify_announce')) {
+			$condition = DBA::mergeConditions($condition, ['`vid` != ?', Verb::getID(\Friendica\Protocol\Activity::ANNOUNCE)]);
+		}
+
+		return $this->selectForUser(local_user(), $condition, ['limit' => 50, 'order' => ['id' => true]]);
+	}
+
 	/**
 	 * Returns only the most recent notifications for the same conversation or contact
 	 *
@@ -109,6 +137,20 @@ class Notification extends BaseRepository
 	 */
 	public function selectDigestForUser(int $uid): Collection\Notifications
 	{
+		$values = [$uid];
+
+		$like_condition = '';
+		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
+			$like_condition = 'AND vid != ?';
+			$values[] = Verb::getID(\Friendica\Protocol\Activity::LIKE);
+		}
+
+		$announce_condition = '';
+		if (!$this->pconfig->get($uid, 'system', 'notify_announce')) {
+			$announce_condition = 'AND vid != ?';
+			$values[] = Verb::getID(\Friendica\Protocol\Activity::ANNOUNCE);
+		}
+
 		$rows = $this->db->p("
 		SELECT notification.*
 		FROM notification
@@ -116,12 +158,13 @@ class Notification extends BaseRepository
 		    SELECT MAX(`id`)
 		    FROM notification
 		    WHERE uid = ?
-		    AND vid != ?
+		    $like_condition
+		    $announce_condition
 		    GROUP BY IFNULL(`parent-uri-id`, `actor-id`)
 		)
 		ORDER BY `seen`, `id` DESC
 		LIMIT 50
-		", $uid, Verb::getID(\Friendica\Protocol\Activity::LIKE));
+		", ...$values);
 
 		$Entities = new Collection\Notifications();
 		foreach ($rows as $fields) {
