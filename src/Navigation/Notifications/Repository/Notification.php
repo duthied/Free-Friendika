@@ -125,7 +125,7 @@ class Notification extends BaseRepository
 			$condition = DBA::mergeConditions($condition, ['`vid` != ?', Verb::getID(\Friendica\Protocol\Activity::ANNOUNCE)]);
 		}
 
-		return $this->selectForUser(local_user(), $condition, ['limit' => 50, 'order' => ['id' => true]]);
+		return $this->selectForUser($uid, $condition, ['limit' => 50, 'order' => ['id' => true]]);
 	}
 
 	/**

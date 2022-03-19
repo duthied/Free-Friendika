@@ -133,7 +133,7 @@ class FormattedNavNotification extends BaseFactory
 		return $this->createFromParams(
 			self::$contacts[$intro->cid],
 			$this->l10n->t('{0} wants to follow you'),
-			new \DateTime($intro->datetime, new \DateTimeZone('UTC')),
+			$intro->datetime,
 			new Uri($this->baseUrl->get() . '/notifications/intros/' . $intro->id)
 		);
 	}

@@ -128,27 +128,33 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				return $message;
 			}
 
-			$item = Post::selectFirst([], ['uri-id' => $Notification->targetUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
-			if (empty($item)) {
-				$this->logger->info('Post not found', ['uri-id' => $Notification->targetUriId]);
+			if (Post\ThreadUser::getIgnored($Notification->parentUriId, $Notification->uid)) {
+				$this->logger->info('Thread is ignored', ['parent-uri-id' => $Notification->parentUriId, 'type' => $Notification->type]);
 				return $message;
 			}
-
-			if ($Notification->type == Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION) {
-				$thrParentId = $item['thr-parent-id'];
-				$item = Post::selectFirst([], ['uri-id' => $thrParentId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
+	
+			if (in_array($Notification->type, [Post\UserNotification::TYPE_THREAD_COMMENT, Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_EXPLICIT_TAGGED])) {
+				$item = Post::selectFirst([], ['uri-id' => $Notification->parentUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
 				if (empty($item)) {
-					$this->logger->info('Thread parent post not found', ['uri-id' => $thrParentId]);
+					$this->logger->info('Parent post not found', ['uri-id' => $Notification->parentUriId]);
 					return $message;
 				}
-			}
-
-			$parent = $item;
-			if ($Notification->targetUriId != $Notification->parentUriId) {
-				$parent = Post::selectFirst([], ['uri-id' => $Notification->parentUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
-				if (empty($parent)) {
-					$this->logger->info('Top level post not found', ['uri-id' => $Notification->parentUriId]);
+				if ($Notification->type == Post\UserNotification::TYPE_COMMENT_PARTICIPATION) {
+					$link_item = Post::selectFirst(['guid'], ['uri-id' => $Notification->targetUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
+				}
+			} else {
+				$item = Post::selectFirst([], ['uri-id' => $Notification->targetUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
+				if (empty($item)) {
+					$this->logger->info('Post not found', ['uri-id' => $Notification->targetUriId]);
 					return $message;
+				}
+
+				if (($Notification->verb == Activity::POST) || ($Notification->type === Post\UserNotification::TYPE_SHARED)) {
+					$item = Post::selectFirst([], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
+					if (empty($item)) {
+						$this->logger->info('Thread parent post not found', ['uri-id' => $item['thr-parent-id']]);
+						return $message;
+					}
 				}
 			}
 
@@ -160,9 +166,9 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				}
 			}
 
-			$link = $this->baseUrl . '/display/' . urlencode($item['guid']);
+			$link = $this->baseUrl . '/display/' . urlencode($link_item['guid'] ?? $item['guid']);
 
-			$content = Plaintext::getPost($parent, 70);
+			$content = Plaintext::getPost($item, 70);
 			if (!empty($content['text'])) {
 				$title = '"' . trim(str_replace("\n", " ", $content['text'])) . '"';
 			} else {
@@ -298,6 +304,8 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				'[url=' . $link . ']' . $title . '[/url]',
 				'[url=' . $author['url'] . ']' . $author['name'] . '[/url]');
 			$message['link'] = $link;
+		} else {
+			$this->logger->debug('Unhandled notification', ['notification' => $Notification]);
 		}
 
 		return $message;

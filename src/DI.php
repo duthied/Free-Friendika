@@ -537,6 +537,11 @@ abstract class DI
 		return self::$dice->create(Navigation\Notifications\Factory\FormattedNotify::class);
 	}
 
+	public static function formattedNavNotificationFactory(): Navigation\Notifications\Factory\FormattedNavNotification
+	{
+		return self::$dice->create(Navigation\Notifications\Factory\FormattedNavNotification::class);
+	}
+
 	//
 	// "Protocol" namespace instances
 	//
