@@ -1,6 +1,6 @@
 <!-- TODO => Unknow block -->
 <div class="wall-item-decor" style="display:none;">
-	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
+	{{if $item.star}}<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>{{/if}}
 	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock" aria-hidden="true"></span>{{/if}}
 </div>
 <!-- ./TODO => Unknow block -->
@@ -245,7 +245,7 @@
 							</li>
 						{{/if}}
 
-						{{if $item.drop.dropping}}
+						{{if $item.drop && $item.drop.dropping}}
 							<li role="menuitem">
 								<a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.delete}}</a>
 							</li>
@@ -270,7 +270,7 @@
 				{{/if}}
 
 					<span class="pull-right checkbox">
-				{{if $item.drop.pagedrop}}
+				{{if $item.drop && $item.drop.pagedrop}}
 						<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
 						<label for="checkbox-{{$item.id}}"></label>
 				{{/if}}

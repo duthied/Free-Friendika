@@ -46,7 +46,6 @@ class Delivery
 	const DELETION      = 'drop';
 	const POST          = 'wall-new';
 	const POKE          = 'poke';
-	const UPLINK        = 'uplink';
 	const REMOVAL       = 'removeme';
 	const PROFILEUPDATE = 'profileupdate';
 

@@ -27,6 +27,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Database\Database;
 use Friendica\Factory\Api\Friendica\Activities;
 use Friendica\Factory\Api\Twitter\User as TwitterUser;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
@@ -70,14 +71,15 @@ class Status extends BaseFactory
 	 * @param int $uriId Uri-ID of the item
 	 * @param int $uid   Item user
 	 *
-	 * @return \Friendica\Object\Api\Mastodon\Status
+	 * @return \Friendica\Object\Api\Twitter\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
 	public function createFromItemId(int $id, int $uid, bool $include_entities = false): \Friendica\Object\Api\Twitter\Status
 	{
-		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
-			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
+		$fields = ['parent-uri-id', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'causer-id',
+			'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network','post-reason', 'language', 'gravity',
+			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'uri', 'plink', 'private', 'vid', 'coord'];
 		$item = Post::selectFirst($fields, ['id' => $id], ['order' => ['uid' => true]]);
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with ID ' . $id . ' not found.');
@@ -89,14 +91,15 @@ class Status extends BaseFactory
 	 * @param int $uriId Uri-ID of the item
 	 * @param int $uid   Item user
 	 *
-	 * @return \Friendica\Object\Api\Mastodon\Status
+	 * @return \Friendica\Object\Api\Twitter\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
 	public function createFromUriId(int $uriId, $uid = 0, $include_entities = false): \Friendica\Object\Api\Twitter\Status
 	{
-		$fields = ['id', 'parent', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
-			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'coord'];
+		$fields = ['parent-uri-id', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'causer-id',
+			'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network','post-reason', 'language', 'gravity',
+			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'uri', 'plink', 'private', 'vid', 'coord'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
@@ -108,14 +111,19 @@ class Status extends BaseFactory
 	 * @param array $item item array
 	 * @param int   $uid  Item user
 	 *
-	 * @return \Friendica\Object\Api\Mastodon\Status
+	 * @return \Friendica\Object\Api\Twitter\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
 	private function createFromArray(array $item, int $uid, bool $include_entities): \Friendica\Object\Api\Twitter\Status
 	{
 		$author = $this->twitterUser->createFromContactId($item['author-id'], $uid, true);
-		$owner  = $this->twitterUser->createFromContactId($item['owner-id'], $uid, true);
+
+		if (!empty($item['causer-id']) && ($item['post-reason'] == Item::PR_ANNOUNCEMENT)) {
+			$owner = $this->twitterUser->createFromContactId($item['causer-id'], $uid, true);
+		} else {
+			$owner = $this->twitterUser->createFromContactId($item['owner-id'], $uid, true);
+		}
 
 		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT]);
 

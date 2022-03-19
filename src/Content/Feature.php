@@ -104,6 +104,7 @@ class Feature
 				DI::l10n()->t('Post Composition Features'),
 				['aclautomention', DI::l10n()->t('Auto-mention Forums'), DI::l10n()->t('Add/remove mention when a forum page is selected/deselected in ACL window.'), false, DI::config()->get('feature_lock', 'aclautomention', false)],
 				['explicit_mentions', DI::l10n()->t('Explicit Mentions'), DI::l10n()->t('Add explicit mentions to comment box for manual control over who gets mentioned in replies.'), false, DI::config()->get('feature_lock', 'explicit_mentions', false)],
+				['add_abstract', DI::l10n()->t('Add an abstract from ActivityPub content warnings'), DI::l10n()->t('Add an abstract when commenting on ActivityPub posts with a content warning. Abstracts are displayed as content warning on systems like Mastodon or Pleroma.'), false, DI::config()->get('feature_lock', 'add_abstract', false)],
 			],
 
 			// Item tools

@@ -40,10 +40,10 @@
 			{{$item.ago}} {{$item.body_html nofilter}}
 		</div>
 			<div class="wall-item-tools">
-				{{if $item.drop.pagedrop}}
+				{{if $item.drop && $item.drop.pagedrop}}
 					<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" class="item-select" value="{{$item.id}}" />
 				{{/if}}
-				{{if $item.drop.dropping}}
+				{{if $item.drop && $item.drop.dropping}}
 					<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon delete s16" title="{{$item.drop.delete}}">{{$item.drop.delete}}</a>
 				{{/if}}
 			</div>

@@ -38,7 +38,10 @@ use Psr\Log\LoggerInterface;
 
 class Revoke extends BaseModule
 {
-	/** @var array */
+	/**
+	 * User-specific contact (uid != 0) array
+	 * @var array
+	 */
 	protected $contact;
 	
 	/** @var Database */
@@ -82,14 +85,9 @@ class Revoke extends BaseModule
 
 		self::checkFormSecurityTokenRedirectOnError('contact/' . $this->parameters['id'], 'contact_revoke');
 
-		$result = Model\Contact::revokeFollow($this->contact);
-		if ($result === true) {
-			notice($this->t('Follow was successfully revoked.'));
-		} elseif ($result === null) {
-			notice($this->t('Follow was successfully revoked, however the remote contact won\'t be aware of this revokation.'));
-		} else {
-			notice($this->t('Unable to revoke follow, please try again later or contact the administrator.'));
-		}
+		Model\Contact::revokeFollow($this->contact);
+
+		notice($this->t('Follow was successfully revoked.'));
 
 		$this->baseUrl->redirect('contact/' . $this->parameters['id']);
 	}

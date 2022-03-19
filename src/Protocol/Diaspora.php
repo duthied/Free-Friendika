@@ -56,6 +56,10 @@ use SimpleXMLElement;
  */
 class Diaspora
 {
+	const PUSHED       = 0;
+	const FETCHED      = 1;
+	const FORCED_FETCH = 2;
+
 	/**
 	 * Return a list of participating contacts for a thread
 	 *
@@ -449,14 +453,14 @@ class Diaspora
 	/**
 	 * Dispatches public messages and find the fitting receivers
 	 *
-	 * @param array $msg     The post that will be dispatched
-	 * @param bool  $fetched The message had been fetched (default "false")
+	 * @param array $msg       The post that will be dispatched
+	 * @param int   $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int The message id of the generated message, "true" or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function dispatchPublic($msg, bool $fetched = false)
+	public static function dispatchPublic($msg, int $direction)
 	{
 		$enabled = intval(DI::config()->get("system", "diaspora_enabled"));
 		if (!$enabled) {
@@ -470,7 +474,7 @@ class Diaspora
 		}
 
 		$importer = ["uid" => 0, "page-flags" => User::PAGE_FLAGS_FREELOVE];
-		$success = self::dispatch($importer, $msg, $fields, $fetched);
+		$success = self::dispatch($importer, $msg, $fields, $direction);
 
 		return $success;
 	}
@@ -478,16 +482,16 @@ class Diaspora
 	/**
 	 * Dispatches the different message types to the different functions
 	 *
-	 * @param array            $importer Array of the importer user
-	 * @param array            $msg      The post that will be dispatched
-	 * @param SimpleXMLElement $fields   SimpleXML object that contains the message
-	 * @param bool             $fetched  The message had been fetched (default "false")
+	 * @param array            $importer  Array of the importer user
+	 * @param array            $msg       The post that will be dispatched
+	 * @param SimpleXMLElement $fields    SimpleXML object that contains the message
+	 * @param int              $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int The message id of the generated message, "true" or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function dispatch(array $importer, $msg, SimpleXMLElement $fields = null, bool $fetched = false)
+	public static function dispatch(array $importer, $msg, SimpleXMLElement $fields = null, int $direction = self::PUSHED)
 	{
 		// The sender is the handle of the contact that sent the message.
 		// This will often be different with relayed messages (for example "like" and "comment")
@@ -520,7 +524,7 @@ class Diaspora
 				return self::receiveAccountDeletion($fields);
 
 			case "comment":
-				return self::receiveComment($importer, $sender, $fields, $msg["message"], $fetched);
+				return self::receiveComment($importer, $sender, $fields, $msg["message"], $direction);
 
 			case "contact":
 				if (!$private) {
@@ -537,7 +541,7 @@ class Diaspora
 				return self::receiveConversation($importer, $msg, $fields);
 
 			case "like":
-				return self::receiveLike($importer, $sender, $fields, $fetched);
+				return self::receiveLike($importer, $sender, $fields, $direction);
 
 			case "message":
 				if (!$private) {
@@ -551,7 +555,7 @@ class Diaspora
 					Logger::notice('Message with type ' . $type . ' is not private, quitting.');
 					return false;
 				}
-				return self::receiveParticipation($importer, $fields, $fetched);
+				return self::receiveParticipation($importer, $fields, $direction);
 
 			case "photo": // Not implemented
 				return self::receivePhoto($importer, $fields);
@@ -567,13 +571,13 @@ class Diaspora
 				return self::receiveProfile($importer, $fields);
 
 			case "reshare":
-				return self::receiveReshare($importer, $fields, $msg["message"], $fetched);
+				return self::receiveReshare($importer, $fields, $msg["message"], $direction);
 
 			case "retraction":
 				return self::receiveRetraction($importer, $sender, $fields);
 
 			case "status_message":
-				return self::receiveStatusMessage($importer, $fields, $msg["message"], $fetched);
+				return self::receiveStatusMessage($importer, $fields, $msg["message"], $direction);
 
 			default:
 				Logger::notice("Unknown message type ".$type);
@@ -837,8 +841,7 @@ class Diaspora
 		// It is deactivated by now, due to side effects. See issue https://github.com/friendica/friendica/pull/4033
 		// It is not removed by now. Possibly the code is needed?
 		//if (!$is_comment && $contact["rel"] == Contact::FOLLOWER && in_array($importer["page-flags"], array(User::PAGE_FLAGS_FREELOVE))) {
-		//	DBA::update(
-		//		'contact',
+		//	Contact::update(
 		//		array('rel' => Contact::FRIEND, 'writable' => true),
 		//		array('id' => $contact["id"], 'uid' => $contact["uid"])
 		//	);
@@ -857,10 +860,6 @@ class Diaspora
 			// We are following this person?
 		} elseif (($contact["rel"] == Contact::SHARING) || ($contact["rel"] == Contact::FRIEND)) {
 			// Yes, then it is fine.
-			return true;
-			// Is it a post to a community?
-		} elseif (($contact["rel"] == Contact::FOLLOWER) && in_array($importer["page-flags"], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
-			// That's good
 			return true;
 			// Is the message a global user or a comment?
 		} elseif (($importer["uid"] == 0) || $is_comment) {
@@ -996,8 +995,8 @@ class Diaspora
 	 */
 	private static function fetchGuidSub($match, $item)
 	{
-		if (!self::storeByGuid($match[1], $item["author-link"])) {
-			self::storeByGuid($match[1], $item["owner-link"]);
+		if (!self::storeByGuid($match[1], $item["author-link"], true)) {
+			self::storeByGuid($match[1], $item["owner-link"], true);
 		}
 	}
 
@@ -1006,13 +1005,13 @@ class Diaspora
 	 *
 	 * @param string $guid   the message guid
 	 * @param string $server The server address
-	 * @param int    $uid    The user id of the user
+	 * @param bool   $force  Forced fetch
 	 *
 	 * @return int the message id of the stored message or false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function storeByGuid($guid, $server, $uid = 0)
+	private static function storeByGuid($guid, $server, $force)
 	{
 		$serverparts = parse_url($server);
 
@@ -1033,7 +1032,7 @@ class Diaspora
 		Logger::info("Successfully fetched item ".$guid." from ".$server);
 
 		// Now call the dispatcher
-		return self::dispatchPublic($msg, true);
+		return self::dispatchPublic($msg, $force ? self::FORCED_FETCH : self::FETCHED);
 	}
 
 	/**
@@ -1141,7 +1140,7 @@ class Diaspora
 		}
 
 		Logger::info('Fetch GUID from origin', ['guid' => $guid, 'server' => $matches[1]]);
-		$ret = self::storeByGuid($guid, $matches[1], $uid);
+		$ret = self::storeByGuid($guid, $matches[1], true);
 		Logger::info('Result', ['ret' => $ret]);
 
 		$item = Post::selectFirst(['id'], ['guid' => $guid, 'uid' => $uid]);
@@ -1175,11 +1174,11 @@ class Diaspora
 
 		if (!DBA::isResult($item)) {
 			$person = FContact::getByURL($author);
-			$result = self::storeByGuid($guid, $person["url"], $uid);
+			$result = self::storeByGuid($guid, $person["url"], false);
 
 			// We don't have an url for items that arrived at the public dispatcher
 			if (!$result && !empty($contact["url"])) {
-				$result = self::storeByGuid($guid, $contact["url"], $uid);
+				$result = self::storeByGuid($guid, $contact["url"], false);
 			}
 
 			if ($result) {
@@ -1446,17 +1445,17 @@ class Diaspora
 	/**
 	 * Processes an incoming comment
 	 *
-	 * @param array  $importer Array of the importer user
-	 * @param string $sender   The sender of the message
-	 * @param object $data     The message object
-	 * @param string $xml      The original XML of the message
-	 * @param bool   $fetched  The message had been fetched and not pushed
+	 * @param array  $importer  Array of the importer user
+	 * @param string $sender    The sender of the message
+	 * @param object $data      The message object
+	 * @param string $xml       The original XML of the message
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int The message id of the generated comment or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveComment(array $importer, $sender, $data, $xml, bool $fetched)
+	private static function receiveComment(array $importer, $sender, $data, $xml, int $direction)
 	{
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
@@ -1517,7 +1516,7 @@ class Diaspora
 		$datarray["owner-id"] = Contact::getIdForURL($contact["url"], 0);
 
 		// Will be overwritten for sharing accounts in Item::insert
-		if ($fetched) {
+		if (in_array($direction, [self::FETCHED, self::FORCED_FETCH])) {
 			$datarray["post-reason"] = Item::PR_FETCHED;
 		} elseif ($datarray["uid"] == 0) {
 			$datarray["post-reason"] = Item::PR_GLOBAL;
@@ -1539,7 +1538,7 @@ class Diaspora
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
-		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
+		$datarray["direction"] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
 
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
@@ -1703,15 +1702,16 @@ class Diaspora
 	/**
 	 * Processes "like" messages
 	 *
-	 * @param array  $importer Array of the importer user
-	 * @param string $sender   The sender of the message
-	 * @param object $data     The message object
+	 * @param array  $importer  Array of the importer user
+	 * @param string $sender    The sender of the message
+	 * @param object $data      The message object
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int The message id of the generated like or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveLike(array $importer, $sender, $data, bool $fetched)
+	private static function receiveLike(array $importer, $sender, $data, int $direction)
 	{
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
@@ -1764,7 +1764,7 @@ class Diaspora
 		$datarray = [];
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
-		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
+		$datarray["direction"] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
 
 		$datarray["uid"] = $importer["uid"];
 		$datarray["contact-id"] = $author_contact["cid"];
@@ -1890,14 +1890,15 @@ class Diaspora
 	/**
 	 * Processes participations - unsupported by now
 	 *
-	 * @param array  $importer Array of the importer user
-	 * @param object $data     The message object
+	 * @param array  $importer  Array of the importer user
+	 * @param object $data      The message object
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return bool success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveParticipation(array $importer, $data, bool $fetched)
+	private static function receiveParticipation(array $importer, $data, int $direction)
 	{
 		$author = strtolower(XML::unescape($data->author));
 		$guid = XML::unescape($data->guid);
@@ -1942,7 +1943,7 @@ class Diaspora
 		$datarray = [];
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
-		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
+		$datarray["direction"] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
 
 		$datarray["uid"] = $importer["uid"];
 		$datarray["contact-id"] = $author_contact["cid"];
@@ -2127,8 +2128,7 @@ class Diaspora
 	private static function receiveRequestMakeFriend(array $importer, array $contact)
 	{
 		if ($contact["rel"] == Contact::SHARING) {
-			DBA::update(
-				'contact',
+			Contact::update(
 				['rel' => Contact::FRIEND, 'writable' => true],
 				['id' => $contact["id"], 'uid' => $importer["uid"]]
 			);
@@ -2296,12 +2296,12 @@ class Diaspora
 
 			$server = "https://".substr($orig_author, strpos($orig_author, "@") + 1);
 			Logger::notice("1st try: reshared message ".$guid." will be fetched via SSL from the server ".$server);
-			$stored = self::storeByGuid($guid, $server);
+			$stored = self::storeByGuid($guid, $server, true);
 
 			if (!$stored) {
 				$server = "http://".substr($orig_author, strpos($orig_author, "@") + 1);
 				Logger::notice("2nd try: reshared message ".$guid." will be fetched without SSL from the server ".$server);
-				$stored = self::storeByGuid($guid, $server);
+				$stored = self::storeByGuid($guid, $server, true);
 			}
 
 			if ($stored) {
@@ -2382,15 +2382,16 @@ class Diaspora
 	/**
 	 * Processes a reshare message
 	 *
-	 * @param array  $importer Array of the importer user
-	 * @param object $data     The message object
-	 * @param string $xml      The original XML of the message
+	 * @param array  $importer  Array of the importer user
+	 * @param object $data      The message object
+	 * @param string $xml       The original XML of the message
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return int the message id
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveReshare(array $importer, $data, $xml, bool $fetched)
+	private static function receiveReshare(array $importer, $data, $xml, int $direction)
 	{
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
@@ -2444,7 +2445,7 @@ class Diaspora
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
-		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
+		$datarray["direction"] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
 
 		/// @todo Copy tag data from original post
 
@@ -2615,24 +2616,34 @@ class Diaspora
 	/**
 	 * Checks if an incoming message is wanted
 	 *
-	 * @param string $url
-	 * @param integer $uriid
+	 * @param array  $item
 	 * @param string $author
 	 * @param string $body
+	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
+	 *
 	 * @return boolean Is the message wanted?
 	 */
-	private static function isSolicitedMessage(string $url, int $uriid, string $author, string $body)
+	private static function isSolicitedMessage(array $item, string $author, string $body, int $direction)
 	{
 		$contact = Contact::getByURL($author);
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
 			$contact['nurl'], 0, Contact::FRIEND, Contact::SHARING])) {
-			Logger::info('Author has got followers - accepted', ['url' => $url, 'author' => $author]);
+			Logger::debug('Author has got followers - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $author]);
 			return true;
 		}
 
-		$taglist = Tag::getByURIId($uriid, [Tag::HASHTAG]);
-		$tags = array_column($taglist, 'name');
-		return Relay::isSolicitedPost($tags, $body, $contact['id'], $url, Protocol::DIASPORA);
+		if ($direction == self::FORCED_FETCH) {
+			Logger::debug('Post is a forced fetch - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $author]);
+			return true;
+		}
+
+		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
+		if (Relay::isSolicitedPost($tags, $body, $contact['id'], $item['uri'], Protocol::DIASPORA)) {
+			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $author]);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -2658,15 +2669,16 @@ class Diaspora
 	/**
 	 * Receives status messages
 	 *
-	 * @param array            $importer Array of the importer user
-	 * @param SimpleXMLElement $data     The message object
-	 * @param string           $xml      The original XML of the message
-	 * @param bool             $fetched  The message had been fetched and not pushed
+	 * @param array            $importer  Array of the importer user
+	 * @param SimpleXMLElement $data      The message object
+	 * @param string           $xml       The original XML of the message
+	 * @param int              $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
+	 *
 	 * @return int The message id of the newly created item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveStatusMessage(array $importer, SimpleXMLElement $data, $xml, bool $fetched)
+	private static function receiveStatusMessage(array $importer, SimpleXMLElement $data, $xml, int $direction)
 	{
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
@@ -2744,9 +2756,9 @@ class Diaspora
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
-		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
+		$datarray["direction"] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
 
-		if ($fetched) {
+		if (in_array($direction, [self::FETCHED, self::FORCED_FETCH])) {
 			$datarray["post-reason"] = Item::PR_FETCHED;
 		} elseif ($datarray["uid"] == 0) {
 			$datarray["post-reason"] = Item::PR_GLOBAL;
@@ -2758,7 +2770,7 @@ class Diaspora
 		self::storeMentions($datarray['uri-id'], $text);
 		Tag::storeRawTagsFromBody($datarray['uri-id'], $datarray["body"]);
 
-		if (!$fetched && !self::isSolicitedMessage($datarray["uri"], $datarray['uri-id'], $author, $body)) {
+		if (!self::isSolicitedMessage($datarray, $author, $body, $direction)) {
 			DBA::delete('item-uri', ['uri' => $datarray['uri']]);
 			return false;
 		}
@@ -3473,9 +3485,8 @@ class Diaspora
 
 	private static function prependParentAuthorMention($body, $profile_url)
 	{
-		$profile = Contact::getByURL($profile_url, false, ['addr', 'name', 'contact-type']);
+		$profile = Contact::getByURL($profile_url, false, ['addr', 'name']);
 		if (!empty($profile['addr'])
-			&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
 			&& !strstr($body, $profile['addr'])
 			&& !strstr($body, $profile_url)
 		) {

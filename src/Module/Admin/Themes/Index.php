@@ -37,7 +37,7 @@ class Index extends BaseAdmin
 
 		// reload active themes
 		if (!empty($_GET['action'])) {
-			self::checkFormSecurityTokenRedirectOnError(DI::baseUrl()->get() . '/admin/themes', 'admin_themes', 't');
+			self::checkFormSecurityTokenRedirectOnError('/admin/themes', 'admin_themes', 't');
 
 			switch ($_GET['action']) {
 				case 'reload':

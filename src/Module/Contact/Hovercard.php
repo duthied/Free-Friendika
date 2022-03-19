@@ -101,7 +101,7 @@ class Hovercard extends BaseModule
 				'network_link' => Strings::formatNetworkName($contact['network'], $contact['url']),
 				'tags'         => $contact['keywords'],
 				'bd'           => $contact['bd'] <= DBA::NULL_DATE ? '' : $contact['bd'],
-				'account_type' => Contact::getAccountType($contact),
+				'account_type' => Contact::getAccountType($contact['contact-type']),
 				'actions'      => $actions,
 			],
 		]);

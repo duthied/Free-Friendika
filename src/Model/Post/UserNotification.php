@@ -33,6 +33,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Subscription;
 use Friendica\Model\Tag;
+use Friendica\Model\User;
 use Friendica\Navigation\Notifications;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
@@ -176,12 +177,24 @@ class UserNotification
 			return;
 		}
 
+		$user = User::getById($uid, ['account-type']);
+		if (in_array($user['account-type'], [User::ACCOUNT_TYPE_COMMUNITY, User::ACCOUNT_TYPE_RELAY])) {
+			return;
+		}
+
+		$author = Contact::getById($item['author-id'], ['contact-type']);
+		if (empty($author)) {
+			return;
+		}
+
 		$notification_type = self::TYPE_NONE;
 
 		if (self::checkShared($item, $uid)) {
 			$notification_type = $notification_type | self::TYPE_SHARED;
 			self::insertNotificationByItem(self::TYPE_SHARED, $uid, $item);
 			$notified = true;
+		} elseif ($author['contact-type'] == Contact::TYPE_COMMUNITY) {
+			return;
 		} else {
 			$notified = false;
 		}
@@ -189,11 +202,16 @@ class UserNotification
 		$profiles = self::getProfileForUser($uid);
 
 		// Fetch all contacts for the given profiles
-		$contacts = [];
+		$contacts    = [];
+		$iscommunity = false;
 
-		$ret = DBA::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
+		$ret = DBA::select('contact', ['id', 'contact-type'], ['uid' => 0, 'nurl' => $profiles]);
 		while ($contact = DBA::fetch($ret)) {
 			$contacts[] = $contact['id'];
+
+			if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
+				$iscommunity = true;
+			}
 		}
 		DBA::close($ret);
 
@@ -226,7 +244,7 @@ class UserNotification
 			}
 		}
 
-		if (self::checkDirectCommentedThread($item, $contacts)) {
+		if (!$iscommunity && self::checkDirectCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_DIRECT_THREAD_COMMENT;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_DIRECT_THREAD_COMMENT, $uid, $item);
@@ -290,7 +308,7 @@ class UserNotification
 			return;
 		}
 
-		$notification = (new Notifications\Factory\Notification(DI::logger()))->createForUser(
+		$notification = (new Notifications\Factory\Notification(DI::baseUrl(), DI::l10n(), DI::localRelationship(), DI::logger()))->createForUser(
 			$uid,
 			$item['vid'],
 			$type,
@@ -310,7 +328,7 @@ class UserNotification
 	/**
 	 * Add a notification entry
 	 *
-	 * @param int    $actor Contact ID of the actor
+	 * @param int    $actor Public contact ID of the actor
 	 * @param string $verb  One of the Activity verb constant values
 	 * @param int    $uid   User ID
 	 * @return boolean
@@ -318,7 +336,7 @@ class UserNotification
 	 */
 	public static function insertNotification(int $actor, string $verb, int $uid): bool
 	{
-		$notification = (new Notifications\Factory\Notification(DI::logger()))->createForRelationship(
+		$notification = (new Notifications\Factory\Notification(DI::baseUrl(), DI::l10n(), DI::localRelationship(), DI::logger()))->createForRelationship(
 			$uid,
 			$actor,
 			$verb
@@ -399,6 +417,14 @@ class UserNotification
 		// Only check on original posts and reshare ("announce") activities, otherwise return
 		if (($item['gravity'] != GRAVITY_PARENT) && ($item['verb'] != Activity::ANNOUNCE)) {
 			return false;
+		}
+
+		// Don't notify about reshares by communities of our own posts or each time someone comments
+		if (($item['verb'] == Activity::ANNOUNCE) && DBA::exists('contact', ['id' => $item['contact-id'], 'contact-type' => Contact::TYPE_COMMUNITY])) {
+			$post = Post::selectFirst(['origin', 'gravity'], ['uri-id' => $item['thr-parent-id'], 'uid' => $uid]);
+			if ($post['origin'] || ($post['gravity'] != GRAVITY_PARENT)) {
+				return false;
+			}
 		}
 
 		// Check if the contact posted or shared something directly

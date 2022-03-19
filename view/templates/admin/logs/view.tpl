@@ -11,7 +11,7 @@
 			<p>
 				<input type="search" name="q" value="{{$q}}" placeholder="{{$l10n.Search}}"></input>
 				<input type="submit" value="{{$l10n.Search}}">
-				<a href="/admin/logs/view">{{$l10n.Show_all}}</a>
+				<a href="{{$baseurl}}/admin/logs/view">{{$l10n.Show_all}}</a>
 			</p>
 
 

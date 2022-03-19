@@ -24,10 +24,14 @@ namespace Friendica\Module;
 use Friendica\Core\Hook;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\APContact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Model\Tag;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * Outputs the permission tooltip HTML content for the provided item, photo or event id.
@@ -44,9 +48,9 @@ class PermissionTooltip extends \Friendica\BaseModule
 			throw new HTTPException\BadRequestException(DI::l10n()->t('Wrong type "%s", expected one of: %s', $type, implode(', ', $expectedTypes)));
 		}
 
-		$condition = ['id' => $referenceId];
+		$condition = ['id' => $referenceId, 'uid' => [0, local_user()]];
 		if ($type == 'item') {
-			$fields = ['uid', 'psid', 'private'];
+			$fields = ['uid', 'psid', 'private', 'uri-id'];
 			$model = Post::selectFirst($fields, $condition);
 		} else {
 			$fields = ['uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
@@ -72,13 +76,32 @@ class PermissionTooltip extends \Friendica\BaseModule
 		// Kept for backwards compatiblity
 		Hook::callAll('lockview_content', $model);
 
-		if ($model['uid'] != local_user() ||
-			isset($model['private'])
-			&& $model['private'] == Item::PRIVATE
-			&& empty($model['allow_cid'])
+		if ($type == 'item') {
+			$receivers = $this->fetchReceivers($model['uri-id']);
+			if (empty($receivers)) {
+				switch ($model['private']) {
+					case Item::PUBLIC:
+						$receivers = DI::l10n()->t('Public');
+						break;
+					
+					case Item::UNLISTED:
+						$receivers = DI::l10n()->t('Unlisted');
+						break;
+					
+					case Item::PRIVATE:
+						$receivers = DI::l10n()->t('Limited/Private');
+						break;
+				}				
+			}
+		} else {
+			$receivers = '';
+		}
+
+		if (empty($model['allow_cid'])
 			&& empty($model['allow_gid'])
 			&& empty($model['deny_cid'])
-			&& empty($model['deny_gid']))
+			&& empty($model['deny_gid'])
+			&& empty($receivers))
 		{
 			echo DI::l10n()->t('Remote privacy information not available.');
 			exit;
@@ -136,7 +159,75 @@ class PermissionTooltip extends \Friendica\BaseModule
 			$l[] = '<strike>' . $contact['name'] . '</strike>';
 		}
 
-		echo $o . implode(', ', $l);
+		if (!empty($l)) {
+			echo $o . implode(', ', $l);
+		} else {
+			echo $o . $receivers;
+		}
+
 		exit();
+	}
+
+	/**
+	 * Fetch a list of receivers
+	 *
+	 * @param int $uriId
+	 * @return string 
+	 */
+	private function fetchReceivers(int $uriId):string
+	{
+		$own_url = '';
+		$uid = local_user();
+		if ($uid) {
+			$owner = User::getOwnerDataById($uid);
+			if (!empty($owner['url'])) {
+				$own_url = $owner['url'];
+			}
+		}
+
+		$receivers = [];
+		foreach (Tag::getByURIId($uriId, [Tag::TO, Tag::CC, Tag::BCC]) as $receiver) {
+			// We only display BCC when it contains the current user
+			if (($receiver['type'] == Tag::BCC) && ($receiver['url'] != $own_url)) {
+				continue;
+			}
+
+			if ($receiver['url'] == ActivityPub::PUBLIC_COLLECTION) {
+				$receivers[$receiver['type']][] = DI::l10n()->t('Public');
+			} else {
+				$apcontact = DBA::selectFirst('apcontact', ['name'], ['followers' => $receiver['url']]);
+				if (!empty($apcontact['name'])) {
+					$receivers[$receiver['type']][] = DI::l10n()->t('Followers (%s)', $apcontact['name']);
+				} elseif ($apcontact = APContact::getByURL($receiver['url'], false)) {
+					$receivers[$receiver['type']][] = $apcontact['name'];
+				} else {
+					$receivers[$receiver['type']][] = $receiver['name'];
+				}
+			}
+		}
+
+		$output = '';
+
+		foreach ($receivers as $type => $receiver) {
+			$max = DI::config()->get('system', 'max_receivers');
+			$total = count($receiver);
+			if ($total > $max) {
+				$receiver = array_slice($receiver, 0, $max);
+				$receiver[] = DI::l10n()->t('%d more', $total - $max);
+			}
+			switch ($type) {
+				case Tag::TO:
+					$output .= DI::l10n()->t('<b>To:</b> %s<br>', implode(', ', $receiver));
+					break;
+				case Tag::CC:
+					$output .= DI::l10n()->t('<b>CC:</b> %s<br>', implode(', ', $receiver));
+					break;
+				case Tag::BCC:
+					$output .= DI::l10n()->t('<b>BCC:</b> %s<br>', implode(', ', $receiver));
+					break;
+			}
+		}
+
+		return $output;
 	}
 }

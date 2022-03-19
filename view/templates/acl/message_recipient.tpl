@@ -1,4 +1,4 @@
-<select name="recipient" class="form-control input-lg" id="recipient">
+<select name="recipient" class="form-control input-lg" id="recipient" required>
 	{{foreach $contacts as $contact}}
 		<option value="{{$contact.id}}"{{if $contact.id == $selected}} selected{{/if}}>{{$contact.name}}</option>
 	{{/foreach}}
@@ -48,7 +48,9 @@
 			}
 		});
 
+		{{if $selected}}
 		// Import existing ACL into the tags input fields.
 		$recipient_input.tagsinput('add', acl.get({{$selected}})[0]);
+		{{/if}}
 	});
 </script>

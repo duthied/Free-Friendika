@@ -68,6 +68,12 @@ class Receiver
 	const TARGET_ANSWER = 6;
 	const TARGET_GLOBAL = 7;
 
+	const COMPLETION_NONE    = 0;
+	const COMPLETION_ANNOUCE = 1;
+	const COMPLETION_RELAY   = 2;
+	const COMPLETION_MANUAL  = 3;
+	const COMPLETION_AUTO    = 4;
+
 	/**
 	 * Checks incoming message from the inbox
 	 *
@@ -190,7 +196,7 @@ class Receiver
 			return;
 		}
 
-		$id = Processor::fetchMissingActivity($object_id, [], $actor);
+		$id = Processor::fetchMissingActivity($object_id, [], $actor, self::COMPLETION_RELAY);
 		if (empty($id)) {
 			Logger::notice('Relayed message had not been fetched', ['id' => $object_id]);
 			return;
@@ -263,7 +269,9 @@ class Receiver
 	{
 		$id = JsonLD::fetchElement($activity, '@id');
 		if (!empty($id) && !$trust_source) {
-			$fetched_activity = ActivityPub::fetchContent($id, $uid ?? 0);
+			$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
+
+			$fetched_activity = ActivityPub::fetchContent($id, $fetch_uid);
 			if (!empty($fetched_activity)) {
 				$object = JsonLD::compact($fetched_activity);
 				$fetched_id = JsonLD::fetchElement($object, '@id');
@@ -295,18 +303,24 @@ class Receiver
 			$reception_types[$data['uid']] = $data['type'] ?? self::TARGET_UNKNOWN;
 		}
 
+		$urls = self::getReceiverURL($activity);
+
 		// When it is a delivery to a personal inbox we add that user to the receivers
 		if (!empty($uid)) {
 			$additional = [$uid => $uid];
 			$receivers = array_replace($receivers, $additional);
 			if (empty($activity['thread-completion']) && (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER, self::TARGET_GLOBAL]))) {
 				$reception_types[$uid] = self::TARGET_BCC;
+				$owner = User::getOwnerDataById($uid);
+				if (!empty($owner['url'])) {
+					$urls['as:bcc'][] = $owner['url'];
+				}
 			}
-		} else {
-			// We possibly need some user to fetch private content,
-			// so we fetch the first out ot the list.
-			$uid = self::getFirstUserFromReceivers($receivers);
 		}
+
+		// We possibly need some user to fetch private content,
+		// so we fetch one out of the receivers if no uid is provided.
+		$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
@@ -319,11 +333,11 @@ class Receiver
 			return [];
 		}
 
-		$object_type = self::fetchObjectType($activity, $object_id, $uid);
+		$object_type = self::fetchObjectType($activity, $object_id, $fetch_uid);
 
 		// Fetch the activity on Lemmy "Announce" messages (announces of activities)
 		if (($type == 'as:Announce') && in_array($object_type, array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
-			$data = ActivityPub::fetchContent($object_id, $uid);
+			$data = ActivityPub::fetchContent($object_id, $fetch_uid);
 			if (!empty($data)) {
 				$type = $object_type;
 				$activity = JsonLD::compact($data);
@@ -331,7 +345,7 @@ class Receiver
 				// Some variables need to be refetched since the activity changed
 				$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
 				$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
-				$object_type = self::fetchObjectType($activity, $object_id, $uid);
+				$object_type = self::fetchObjectType($activity, $object_id, $fetch_uid);
 			}
 		}
 
@@ -348,7 +362,7 @@ class Receiver
 		// Fetch the content only on activities where this matters
 		// We can receive "#emojiReaction" when fetching content from Hubzilla systems
 			// Always fetch on "Announce"
-			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $uid);
+			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $fetch_uid);
 			if (empty($object_data)) {
 				Logger::info("Object data couldn't be processed");
 				return [];
@@ -396,7 +410,7 @@ class Receiver
 
 			// An Undo is done on the object of an object, so we need that type as well
 			if (($type == 'as:Undo') && !empty($object_data['object_object'])) {
-				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object'], $uid);
+				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object'], $fetch_uid);
 			}
 		}
 
@@ -404,6 +418,12 @@ class Receiver
 
 		if (empty($object_data['object_type'])) {
 			$object_data['object_type'] = $object_type;
+		}
+
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
+			if ((empty($object_data['receiver_urls'][$element]) || in_array($element, ['as:bto', 'as:bcc'])) && !empty($urls[$element])) {
+				$object_data['receiver_urls'][$element] = array_unique(array_merge($object_data['receiver_urls'][$element] ?? [], $urls[$element]));
+			}
 		}
 
 		$object_data['type'] = $type;
@@ -516,6 +536,14 @@ class Receiver
 			$object_data['thread-completion'] = $activity['thread-completion'];
 		}
 
+		if (!empty($activity['completion-mode'])) {
+			$object_data['completion-mode'] = $activity['completion-mode'];
+		}
+
+		if (!empty($activity['thread-children-type'])) {
+			$object_data['thread-children-type'] = $activity['thread-children-type'];
+		}
+
 		// Internal flag for posts that arrived via relay
 		if (!empty($activity['from-relay'])) {
 			$object_data['from-relay'] = $activity['from-relay'];
@@ -538,6 +566,7 @@ class Receiver
 			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					$object_data['thread-completion'] = Contact::getIdForURL($actor);
+					$object_data['completion-mode']   = self::COMPLETION_ANNOUCE;
 
 					$item = ActivityPub\Processor::createItem($object_data);
 					if (empty($item)) {
@@ -638,6 +667,61 @@ class Receiver
 				Logger::info('Unknown activity: ' . $type . ' ' . $object_data['object_type']);
 				break;
 		}
+	}
+
+	/**
+	 * Fetch a user id from an activity array
+	 *
+	 * @param array  $activity
+	 * @param string $actor
+	 *
+	 * @return int   user id
+	 */
+	public static function getBestUserForActivity(array $activity)
+	{
+		$uid = 0;
+		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
+
+		$receivers = self::getReceivers($activity, $actor);
+		foreach ($receivers as $receiver) {
+			if ($receiver['type'] == self::TARGET_GLOBAL) {
+				return 0;
+			}
+			if (empty($uid) || ($receiver['type'] == self::TARGET_TO)) {
+				$uid = $receiver['uid'];
+			}
+		}
+
+		// When we haven't found any user yet, we just chose a user who most likely could have access to the content
+		if (empty($uid)) {
+			$contact = Contact::selectFirst(['uid'], ['nurl' => Strings::normaliseLink($actor), 'rel' => [Contact::SHARING, Contact::FRIEND]]);
+			if (!empty($contact['uid'])) {
+				$uid = $contact['uid'];
+			}
+		}
+
+		return $uid;
+	}
+
+	public static function getReceiverURL($activity)
+	{
+		$urls = [];
+
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
+			$receiver_list = JsonLD::fetchElementArray($activity, $element, '@id');
+			if (empty($receiver_list)) {
+				continue;
+			}
+
+			foreach ($receiver_list as $receiver) {
+				if ($receiver == self::PUBLIC_COLLECTION) {
+					$receiver = ActivityPub::PUBLIC_COLLECTION;
+				}
+				$urls[$element][] = $receiver;
+			}
+		}
+
+		return $urls;
 	}
 
 	/**
@@ -1469,7 +1553,8 @@ class Receiver
 			$reception_types[$data['uid']] = $data['type'] ?? 0;
 		}
 
-		$object_data['receiver'] = $receivers;
+		$object_data['receiver_urls']  = self::getReceiverURL($object);
+		$object_data['receiver']       = $receivers;
 		$object_data['reception_type'] = $reception_types;
 
 		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);

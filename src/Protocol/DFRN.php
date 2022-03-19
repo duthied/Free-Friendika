@@ -925,9 +925,9 @@ class DFRN
 
 		foreach ($mentioned as $mention) {
 			$condition = ['uid' => $owner["uid"], 'nurl' => Strings::normaliseLink($mention)];
-			$contact = DBA::selectFirst('contact', ['forum', 'prv'], $condition);
+			$contact = DBA::selectFirst('contact', ['contact-type'], $condition);
 
-			if (DBA::isResult($contact) && ($contact["forum"] || $contact["prv"])) {
+			if (DBA::isResult($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
 				XML::addElement(
 					$doc,
 					$entry,
@@ -1547,7 +1547,7 @@ class DFRN
 		if ($item["thr-parent"] != $item["uri"]) {
 			$community = false;
 
-			if ($importer["page-flags"] == User::PAGE_FLAGS_COMMUNITY || $importer["page-flags"] == User::PAGE_FLAGS_PRVGROUP) {
+			if ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 				$sql_extra = "";
 				$community = true;
 				Logger::notice("possible community action");
@@ -1557,21 +1557,10 @@ class DFRN
 
 			// was the top-level post for this action written by somebody on this site?
 			// Specifically, the recipient?
-			$parent = Post::selectFirst(['forum_mode', 'wall'],
+			$parent = Post::selectFirst(['wall'],
 				["`uri` = ? AND `uid` = ?" . $sql_extra, $item["thr-parent"], $importer["importer_uid"]]);
 
 			$is_a_remote_action = DBA::isResult($parent);
-
-			/*
-			 * Does this have the characteristics of a community or private group action?
-			 * If it's an action to a wall post on a community/prvgroup page it's a
-			 * valid community action. Also forum_mode makes it valid for sure.
-			 * If neither, it's not.
-			 */
-			if ($is_a_remote_action && $community && (!$parent["forum_mode"]) && (!$parent["wall"])) {
-				$is_a_remote_action = false;
-				Logger::notice("not a community action");
-			}
 
 			if ($is_a_remote_action) {
 				return DFRN::REPLY_RC;
@@ -1679,7 +1668,7 @@ class DFRN
 			}
 			if ($activity->match($item["verb"], Activity::UNFRIEND)) {
 				Logger::notice("Lost sharer");
-				Contact::removeSharer($importer, $contact, $item);
+				Contact::removeSharer($contact);
 				return false;
 			}
 		} else {
@@ -1780,19 +1769,34 @@ class DFRN
 	 * Checks if an incoming message is wanted
 	 *
 	 * @param array $item
+	 * @param array $imporer
 	 * @return boolean Is the message wanted?
 	 */
-	private static function isSolicitedMessage(array $item)
+	private static function isSolicitedMessage(array $item, array $importer)
 	{
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
 			Strings::normaliseLink($item["author-link"]), 0, Contact::FRIEND, Contact::SHARING])) {
-			Logger::info('Author has got followers - accepted', ['uri' => $item['uri'], 'author' => $item["author-link"]]);
+			Logger::debug('Author has got followers - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $item["author-link"]]);
 			return true;
 		}
 
-		$taglist = Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]);
-		$tags = array_column($taglist, 'name');
-		return Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::DFRN);
+		if ($importer['importer_uid'] != 0) {
+			Logger::debug('Message is directed to a user - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'importer' => $importer['importer_uid']]);
+			return true;
+		}
+
+		if ($item['uri'] != $item['thr-parent']) {
+			Logger::debug('Message is no parent - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
+		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::DFRN)) {
+			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri'], 'author' => $item["author-link"]]);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -1993,11 +1997,9 @@ class DFRN
 		}
 
 		// Check if the message is wanted
-		if (($importer['importer_uid'] == 0) && ($item['uri'] == $item['thr-parent'])) {
-			if (!self::isSolicitedMessage($item)) {
-				DBA::delete('item-uri', ['uri' => $item['uri']]);
-				return 403;
-			}
+		if (!self::isSolicitedMessage($item, $importer)) {
+			DBA::delete('item-uri', ['uri' => $item['uri']]);
+			return 403;
 		}
 
 		// Get the type of the item (Top level post, reply or remote reply)
@@ -2381,13 +2383,10 @@ class DFRN
 			return false;
 		}
 
-		$user = DBA::selectFirst('user', ['page-flags', 'nickname'], ['uid' => $uid]);
+		$user = DBA::selectFirst('user', ['account-type', 'nickname'], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			return false;
 		}
-
-		$community_page = ($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY);
-		$prvgroup = ($user['page-flags'] == User::PAGE_FLAGS_PRVGROUP);
 
 		$link = Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname']);
 
@@ -2411,7 +2410,7 @@ class DFRN
 			return false;
 		}
 
-		return $community_page || $prvgroup;
+		return ($user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY);
 	}
 
 	/**

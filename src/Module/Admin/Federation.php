@@ -164,19 +164,19 @@ class Federation extends BaseAdmin
 			}
 
 			$gserver['platform']    = $systems[$platform]['name'];
-			$gserver['totallbl']    = DI::l10n()->t('%d total systems', $gserver['total']);
-			$gserver['monthlbl']    = DI::l10n()->t('%d active users last month', $gserver['month']);
-			$gserver['halfyearlbl'] = DI::l10n()->t('%d active users last six months', $gserver['halfyear']);
-			$gserver['userslbl']    = DI::l10n()->t('%d registered users', $gserver['users']);
-			$gserver['postslbl']    = DI::l10n()->t('%d locally created posts and comments', $gserver['posts']);
+			$gserver['totallbl']    = DI::l10n()->t('%s total systems', number_format($gserver['total']));
+			$gserver['monthlbl']    = DI::l10n()->t('%s active users last month', number_format($gserver['month']));
+			$gserver['halfyearlbl'] = DI::l10n()->t('%s active users last six months', number_format($gserver['halfyear']));
+			$gserver['userslbl']    = DI::l10n()->t('%s registered users', number_format($gserver['users']));
+			$gserver['postslbl']    = DI::l10n()->t('%s locally created posts and comments', number_format($gserver['posts']));
 
 			if (($gserver['users'] > 0) && ($gserver['posts'] > 0)) {
-				$gserver['postsuserlbl'] = DI::l10n()->t('%d posts per user', $gserver['posts'] / $gserver['users']);
+				$gserver['postsuserlbl'] = DI::l10n()->t('%s posts per user', number_format($gserver['posts'] / $gserver['users'], 1));
 			} else {
 				$gserver['postsuserlbl'] = '';
 			}
 			if (($gserver['users'] > 0) && ($gserver['total'] > 0)) {
-				$gserver['userssystemlbl'] = DI::l10n()->t('%d users per system', $gserver['users'] / $gserver['total']);
+				$gserver['userssystemlbl'] = DI::l10n()->t('%s users per system', number_format($gserver['users'] / $gserver['total'], 1));
 			} else {
 				$gserver['userssystemlbl'] = '';
 			}
@@ -196,7 +196,7 @@ class Federation extends BaseAdmin
 			'$intro' => $intro,
 			'$counts' => $counts,
 			'$version' => FRIENDICA_VERSION,
-			'$legendtext' => DI::l10n()->t('Currently this node is aware of %d nodes (%d active users last month, %d active users last six months, %d registered users in total) from the following platforms:', $total, $month, $halfyear, $users),
+			'$legendtext' => DI::l10n()->t('Currently this node is aware of %d nodes (%d active users last month, %d active users last six months, %d registered users in total) from the following platforms:', number_format($total), number_format($month), number_format($halfyear), number_format($users)),
 		]);
 	}
 

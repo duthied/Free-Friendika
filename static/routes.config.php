@@ -77,6 +77,7 @@ $apiRoutes = [
 			=> [Module\Api\Friendica\Activity::class, [        R::POST]],
 		'/notification/seen[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Notification\Seen::class,      [        R::POST]],
 		'/notification[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Notification::class,           [R::GET         ]],
+		'/notifications[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Notification::class,           [R::GET         ]],
 		'/direct_messages_setseen[.{extension:json|xml|rss|atom}]' => [Module\Api\Friendica\DirectMessages\Setseen::class, [        R::POST]],
 		'/direct_messages_search[.{extension:json|xml|rss|atom}]'  => [Module\Api\Friendica\DirectMessages\Search ::class, [R::GET         ]],
 		'/events[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Friendica\Events\Index::class,           [R::GET         ]],
@@ -448,6 +449,8 @@ return [
 		'/{id:\d+}' => [Module\Notifications\Notification::class, [R::GET, R::POST]],
 	],
 
+	'/notify/{notify_id:\d+}' => [Module\Notifications\Notification::class, [R::GET]],
+
 	'/oauth' => [
 		'/acknowledge' => [Module\OAuth\Acknowledge::class, [R::GET, R::POST]],
 		'/authorize'   => [Module\OAuth\Authorize::class,   [R::GET]],
@@ -486,6 +489,7 @@ return [
 		'/{type}/{customsize:\d+}/{nickname_ext}'                  => [Module\Photo::class, [R::GET]],
 	],
 
+	'/ping'              => [Module\Notifications\Ping::class, [R::GET]],
 	'/pretheme'          => [Module\ThemeDetails::class, [R::GET]],
 	'/probe'             => [Module\Debug\Probe::class,  [R::GET]],
 

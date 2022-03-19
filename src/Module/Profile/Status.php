@@ -118,7 +118,7 @@ class Status extends BaseProfile
 		$commvisitor = $commpage && $remote_contact;
 
 		DI::page()['aside'] .= Widget::postedByYear(DI::baseUrl() . '/profile/' . $profile['nickname'] . '/status', $profile['profile_uid'] ?? 0, true);
-		DI::page()['aside'] .= Widget::categories(DI::baseUrl() . '/profile/' . $profile['nickname'] . '/status', XML::escape($category));
+		DI::page()['aside'] .= Widget::categories($profile['uid'], DI::baseUrl() . '/profile/' . $profile['nickname'] . '/status', $category);
 		DI::page()['aside'] .= Widget::tagCloud($profile['uid']);
 
 		if (Security::canWriteToUserWall($profile['uid'])) {
@@ -159,7 +159,7 @@ class Status extends BaseProfile
 
 		// Does the profile page belong to a forum?
 		// If not then we can improve the performance with an additional condition
-		$condition2 = ['uid' => $profile['uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
+		$condition2 = ['uid' => $profile['uid'], 'account-type' => User::ACCOUNT_TYPE_COMMUNITY];
 		if (!DBA::exists('user', $condition2)) {
 			$condition = DBA::mergeConditions($condition, ['contact-id' => $profile['id']]);
 		}

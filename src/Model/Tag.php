@@ -48,15 +48,20 @@ class Tag
 	 */
 	const IMPLICIT_MENTION  = 8;
 	/**
-	 * An exclusive mention transfers the ownership of the post to the target account, usually a forum.
+	 * An exclusive mention transmits the post only to the target account without transmitting it to the followers, usually a forum.
 	 */
 	const EXCLUSIVE_MENTION = 9;
+
+	const TO  = 10;
+	const CC  = 11;
+	const BTO = 12;
+	const BCC = 13;
 
 	const TAG_CHARACTER = [
 		self::HASHTAG           => '#',
 		self::MENTION           => '@',
-		self::IMPLICIT_MENTION  => '%',
 		self::EXCLUSIVE_MENTION => '!',
+		self::IMPLICIT_MENTION  => '%',
 	];
 
 	/**
@@ -66,9 +71,8 @@ class Tag
 	 * @param integer $type
 	 * @param string  $name
 	 * @param string  $url
-	 * @param boolean $probing
 	 */
-	public static function store(int $uriid, int $type, string $name, string $url = '', $probing = true)
+	public static function store(int $uriid, int $type, string $name, string $url = '')
 	{
 		if ($type == self::HASHTAG) {
 			// Trim Unicode non-word characters
@@ -77,7 +81,7 @@ class Tag
 			$tags = explode(self::TAG_CHARACTER[self::HASHTAG], $name);
 			if (count($tags) > 1) {
 				foreach ($tags as $tag) {
-					self::store($uriid, $type, $tag, $url, $probing);
+					self::store($uriid, $type, $tag, $url);
 				}
 				return;
 			}
@@ -90,7 +94,7 @@ class Tag
 		$cid = 0;
 		$tagid = 0;
 
-		if (in_array($type, [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])) {
+		if (in_array($type, [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION, self::TO, self::CC, self::BTO, self::BCC])) {
 			if (empty($url)) {
 				// No mention without a contact url
 				return;
@@ -100,32 +104,13 @@ class Tag
 				Logger::notice('Wrong scheme in url', ['url' => $url, 'callstack' => System::callstack(20)]);
 			}
 
-			if (!$probing) {
-				$condition = ['nurl' => Strings::normaliseLink($url), 'uid' => 0, 'deleted' => false];
-				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
-				if (DBA::isResult($contact)) {
-					$cid = $contact['id'];
-					Logger::info('Got id for contact url', ['cid' => $cid, 'url' => $url]);
-				}
-
-				if (empty($cid)) {
-					$ssl_url = str_replace('http://', 'https://', $url);
-					$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, 0];
-					$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
-					if (DBA::isResult($contact)) {
-						$cid = $contact['id'];
-						Logger::info('Got id for contact alias', ['cid' => $cid, 'url' => $url]);
-					}
-				}
-			} else {
-				$cid = Contact::getIdForURL($url, 0, false);
-				Logger::info('Got id by probing', ['cid' => $cid, 'url' => $url]);
-			}
+			$cid = Contact::getIdForURL($url, 0, false);
+			Logger::debug('Got id for contact', ['cid' => $cid, 'url' => $url]);
 
 			if (empty($cid)) {
 				// The contact wasn't found in the system (most likely some dead account)
 				// We ensure that we only store a single entry by overwriting the previous name
-				Logger::info('Contact not found, updating tag', ['url' => $url, 'name' => $name]);
+				Logger::info('URL is not a known contact, updating tag', ['url' => $url, 'name' => $name]);
 				if (!DBA::exists('tag', ['name' => substr($name, 0, 96), 'url' => $url])) {
 					DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url]);
 				}
@@ -133,10 +118,12 @@ class Tag
 		}
 
 		if (empty($cid)) {
-			if (($type != self::HASHTAG) && !empty($url) && ($url != $name)) {
-				$url = strtolower($url);
-			} else {
-				$url = '';
+			if (!in_array($type, [self::TO, self::CC, self::BTO, self::BCC])) {
+				if (($type != self::HASHTAG) && !empty($url) && ($url != $name)) {
+					$url = strtolower($url);
+				} else {
+					$url = '';
+				}
 			}
 
 			$tagid = self::getID($name, $url);
@@ -286,7 +273,7 @@ class Tag
 	 */
 	public static function existsForPost(int $uriid)
 	{
-		return DBA::exists('post-tag', ['uri-id' => $uriid, 'type' => [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION]]);
+		return DBA::exists('post-tag', ['uri-id' => $uriid, 'type' => [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION]]);
 	}
 
 	/**
@@ -368,7 +355,7 @@ class Tag
 			return;
 		}
 
-		$tags = DBA::select('tag-view', ['name', 'url'], ['uri-id' => $parent_uri_id]);
+		$tags = DBA::select('tag-view', ['name', 'url'], ['uri-id' => $parent_uri_id, 'type' => [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION]]);
 		while ($tag = DBA::fetch($tags)) {
 			self::store($uri_id, self::IMPLICIT_MENTION, $tag['name'], $tag['url']);
 		}
@@ -383,7 +370,7 @@ class Tag
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
+	public static function getByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])
 	{
 		$condition = ['uri-id' => $uri_id, 'type' => $type];
 		return DBA::selectToArray('tag-view', ['type', 'name', 'url'], $condition);
@@ -397,7 +384,7 @@ class Tag
 	 * @return string tags and mentions
 	 * @throws \Exception
 	 */
-	public static function getCSVByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
+	public static function getCSVByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])
 	{
 		$tag_list = [];
 		$tags = self::getByURIId($uri_id, $type);

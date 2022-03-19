@@ -122,6 +122,29 @@ class Post
 	}
 
 	/**
+	 * Fetch the privacy of the post
+	 *
+	 * @param array $item 
+	 * @return string 
+	 */
+	private function fetchPrivacy(array $item):string
+	{
+		switch ($item['private']) {
+			case Item::PRIVATE:
+				$output = DI::l10n()->t('Private Message');
+				break;
+			case Item::PUBLIC:
+				$output = DI::l10n()->t('Public Message');
+				break;
+			case Item::UNLISTED:
+				$output = DI::l10n()->t('Unlisted Message');
+				break;
+		}
+
+		return $output;
+	}
+
+	/**
 	 * Get data in a form usable by a conversation template
 	 *
 	 * @param array   $conv_responses conversation responses
@@ -170,12 +193,9 @@ class Post
 
 		$conv = $this->getThread();
 
-		$lock = ((($item['private'] == Item::PRIVATE) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
-			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
-			? DI::l10n()->t('Private Message')
-			: false);
-
-		$connector = !$item['global'] ? DI::l10n()->t('Connector Message') : false;
+		$privacy   = $this->fetchPrivacy($item);
+		$lock      = ($item['private'] == Item::PRIVATE) ? $privacy : false;
+		$connector = !in_array($item['network'], Protocol::NATIVE_SUPPORT) ? DI::l10n()->t('Connector Message') : false;
 
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != Item::PRIVATE;
 		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER]);
@@ -416,12 +436,6 @@ class Post
 		$direction = [];
 		if (!empty($item['direction'])) {
 			$direction = $item['direction'];
-		} elseif (DI::config()->get('debug', 'show_direction')) {
-			$conversation = DBA::selectFirst('conversation', ['direction'], ['item-uri' => $item['uri']]);
-			if (!empty($conversation['direction']) && in_array($conversation['direction'], [1, 2])) {
-				$direction_title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];
-				$direction = ['direction' => $conversation['direction'], 'title' => $direction_title[$conversation['direction']]];
-			}
 		}
 
 		$languages = [];
@@ -469,6 +483,8 @@ class Post
 			'app'             => $item['app'],
 			'created'         => $ago,
 			'lock'            => $lock,
+			'private'         => $item['private'],
+			'privacy'         => $privacy,
 			'connector'       => $connector,
 			'location_html'   => $location_html,
 			'indent'          => $indent,
@@ -875,20 +891,24 @@ class Post
 
 		$owner = User::getOwnerDataById($a->getLoggedInUserId());
 
-		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
-			return '';
-		}
-
-		$item = PostModel::selectFirst(['author-addr', 'uri-id', 'network', 'gravity'], ['id' => $this->getId()]);
+		$item = PostModel::selectFirst(['author-addr', 'uri-id', 'network', 'gravity', 'content-warning'], ['id' => $this->getId()]);
 		if (!DBA::isResult($item) || empty($item['author-addr'])) {
 			// Should not happen
 			return '';
 		}
 
-		if (($item['author-addr'] != $owner['addr']) && (($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], [Protocol::DIASPORA]))) {
-			$text = '@' . $item['author-addr'] . ' ';
+		if (!empty($item['content-warning']) && Feature::isEnabled(local_user(), 'add_abstract')) {
+			$text = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $item['content-warning'] . "[/abstract]\n";
 		} else {
 			$text = '';
+		}
+
+		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
+			return $text;
+		}
+
+		if (($item['author-addr'] != $owner['addr']) && (($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], [Protocol::DIASPORA]))) {
+			$text .= '@' . $item['author-addr'] . ' ';
 		}
 
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);

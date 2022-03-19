@@ -114,6 +114,7 @@ class Database
 		$pass    = trim($this->configCache->get('database', 'password'));
 		$db      = trim($this->configCache->get('database', 'database'));
 		$charset = trim($this->configCache->get('database', 'charset'));
+		$socket  = trim($this->configCache->get('database', 'socket')); 
 
 		if (!(strlen($server) && strlen($user))) {
 			return false;
@@ -135,9 +136,14 @@ class Database
 				$connect .= ";charset=" . $charset;
 			}
 
+			if ($socket) {
+				$connect .= ";$unix_socket=" . $socket;
+			}
+
 			try {
 				$this->connection = @new PDO($connect, $user, $pass, [PDO::ATTR_PERSISTENT => $persistent]);
 				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
+				$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 				$this->connected = true;
 			} catch (PDOException $e) {
 				$this->connected = false;
@@ -159,6 +165,11 @@ class Database
 				if ($charset) {
 					$this->connection->set_charset($charset);
 				}
+
+				if ($socket) {
+					$this->connection->set_socket($socket);
+				}
+
 			}
 		}
 

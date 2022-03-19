@@ -41,6 +41,9 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @deprecated since 2022.05 Use \Friendica\Navigation\Notifications\Repository\Notification instead
+ */
 class Notify extends BaseRepository
 {
 	/** @var Factory\Notify  */
@@ -216,7 +219,7 @@ class Notify extends BaseRepository
 		}
 
 		// Ensure that the important fields are set at any time
-		$fields = ['nickname', 'page-flags', 'notify-flags', 'language', 'username', 'email'];
+		$fields = ['nickname', 'account-type', 'notify-flags', 'language', 'username', 'email'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $params['uid']]);
 
 		if (!DBA::isResult($user)) {
@@ -225,7 +228,7 @@ class Notify extends BaseRepository
 		}
 
 		// There is no need to create notifications for forum accounts
-		if (in_array($user['page-flags'], [Model\User::PAGE_FLAGS_COMMUNITY, Model\User::PAGE_FLAGS_PRVGROUP])) {
+		if ($user['account-type'] == Model\User::ACCOUNT_TYPE_COMMUNITY) {
 			return false;
 		}
 
@@ -567,7 +570,7 @@ class Notify extends BaseRepository
 			$Notify->updateMsgFromPreamble($epreamble);
 			$Notify = $this->save($Notify);
 
-			$itemlink  = $this->baseUrl->get() . '/notification/' . $Notify->id;
+			$itemlink  = $this->baseUrl->get() . '/notify/' . $Notify->id;
 			$notify_id = $Notify->id;
 		}
 
@@ -729,7 +732,7 @@ class Notify extends BaseRepository
 			$subject        = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
 		}
 
-		$msg = $this->notification->getMessageFromNotification($Notification, $this->baseUrl, $l10n);
+		$msg = $this->notification->getMessageFromNotification($Notification);
 		if (empty($msg)) {
 			$this->logger->info('No notification message, quitting', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
 			return false;

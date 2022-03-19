@@ -192,8 +192,8 @@ class Processor
 	/**
 	 * Update an existing event
 	 *
-	 * @param int $event_id 
-	 * @param array $activity 
+	 * @param int $event_id
+	 * @param array $activity
 	 */
 	private static function updateEvent(int $event_id, array $activity)
 	{
@@ -235,7 +235,7 @@ class Processor
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id']]);
-			self::fetchMissingActivity($activity['reply-to-id'], $activity);
+			self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 		}
 
 		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
@@ -306,7 +306,7 @@ class Processor
 			} else {
 				// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
 				$item['causer-link'] = $item['owner-link'];
-				$item['causer-id'] = $item['owner-id'];
+				$item['causer-id']   = $item['owner-id'];
 				Logger::info('Use actor as causer.', ['id' => $item['owner-id'], 'actor' => $item['owner-link']]);
 			}
 
@@ -526,6 +526,8 @@ class Processor
 		self::storeFromBody($item);
 		self::storeTags($item['uri-id'], $activity['tags']);
 
+		self::storeReceivers($item['uri-id'], $activity['receiver_urls'] ?? []);
+
 		$item['location'] = $activity['location'];
 
 		if (!empty($activity['latitude']) && !empty($activity['longitude'])) {
@@ -551,7 +553,7 @@ class Processor
 	}
 
 	/**
-	 * Generate a GUID out of an URL
+	 * Generate a GUID out of an URL of an ActivityPub post.
 	 *
 	 * @param string $url message URL
 	 * @return string with GUID
@@ -571,6 +573,56 @@ class Processor
 	}
 
 	/**
+	 * Checks if an incoming message is wanted
+	 *
+	 * @param array $activity
+	 * @param array $item
+	 * @return boolean Is the message wanted?
+	 */
+	private static function isSolicitedMessage(array $activity, array $item)
+	{
+		// The checks are split to improve the support when searching why a message was accepted.
+		if (count($activity['receiver']) != 1) {
+			// The message has more than one receiver, so it is wanted.
+			Logger::debug('Message has got several receivers - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		if ($item['private'] == Item::PRIVATE) {
+			// We only look at public posts here. Private posts are expected to be intentionally posted to the single receiver.
+			Logger::debug('Message is private - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		if (!empty($activity['from-relay'])) {
+			// We check relay posts at another place. When it arrived here, the message is already checked.
+			Logger::debug('Message is a relay post that is already checked - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		if (in_array($activity['completion-mode'] ?? Receiver::COMPLETION_NONE, [Receiver::COMPLETION_MANUAL, Receiver::COMPLETION_ANNOUCE])) {
+			// Manual completions and completions caused by reshares are allowed without any further checks.
+			Logger::debug('Message is in completion mode - accepted', ['mode' => $activity['completion-mode'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		if ($item['gravity'] != GRAVITY_PARENT) {
+			// We cannot reliably check at this point if a comment or activity belongs to an accepted post or needs to be fetched
+			// This can possibly be improved in the future.
+			Logger::debug('Message is no parent - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		}
+
+		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
+		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB)) {
+			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Creates an item post
 	 *
 	 * @param array $activity Activity data
@@ -586,6 +638,11 @@ class Processor
 
 		$stored = false;
 		ksort($activity['receiver']);
+
+		if (!self::isSolicitedMessage($activity, $item)) {
+			DBA::delete('item-uri', ['id' => $item['uri-id']]);
+			return;
+		}
 
 		foreach ($activity['receiver'] as $receiver) {
 			if ($receiver == -1) {
@@ -642,10 +699,21 @@ class Processor
 				continue;
 			}
 
-			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) &&
-				($item['post-reason'] == Item::PR_BCC) && !Contact::isSharingByURL($activity['author'], $receiver)) {
-				Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
-				continue;
+			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !Contact::isSharingByURL($activity['author'], $receiver)) {
+				if ($item['post-reason'] == Item::PR_BCC) {
+					Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
+					continue;
+				}
+
+				if (
+					!empty($activity['thread-children-type'])
+					&& in_array($activity['thread-children-type'], Receiver::ACTIVITY_TYPES)
+					&& DI::pConfig()->get($receiver, 'system', 'accept_only_sharer') != Item::COMPLETION_LIKE
+				) {
+					Logger::info('Top level post from thread completion from a non sharer had been initiated via an activity, ignoring',
+						['type' => $activity['thread-children-type'], 'user' => $item['uid'], 'causer' => $item['causer-link'], 'author' => $activity['author'], 'url' => $item['uri']]);
+					continue;
+				}
 			}
 
 			$is_forum = false;
@@ -657,7 +725,7 @@ class Processor
 				}
 			}
 
-			if (!$is_forum && DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
+			if (!$is_forum && DI::pConfig()->get($receiver, 'system', 'accept_only_sharer') == Item::COMPLETION_NONE && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
 				$skip = !Contact::isSharingByURL($activity['author'], $receiver);
 
 				if ($skip && (($activity['type'] == 'as:Announce') || ($item['isForum'] ?? false))) {
@@ -745,6 +813,22 @@ class Processor
 		}
 	}
 
+	public static function storeReceivers(int $uriid, array $receivers)
+	{
+		foreach (['as:to' => Tag::TO, 'as:cc' => Tag::CC, 'as:bto' => Tag::BTO, 'as:bcc' => Tag::BCC] as $element => $type) {
+			if (!empty($receivers[$element])) {
+				foreach ($receivers[$element] as $receiver) {
+					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
+						$name = Receiver::PUBLIC_COLLECTION;
+					} else {
+						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+					}
+					Tag::store($uriid, $type, $name, $receiver);
+				}
+			}
+		}
+	}
+
 	/**
 	 * Creates an mail post
 	 *
@@ -814,10 +898,11 @@ class Processor
 	 * @param string $url         message URL
 	 * @param array  $child       activity array with the child of this message
 	 * @param string $relay_actor Relay actor
+	 * @param int    $completion  Completion mode, see Receiver::COMPLETION_*
 	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '')
+	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL)
 	{
 		if (!empty($child['receiver'])) {
 			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
@@ -881,10 +966,17 @@ class Processor
 
 		if (!empty($relay_actor)) {
 			$ldactivity['thread-completion'] = $ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);
+			$ldactivity['completion-mode']   = Receiver::COMPLETION_RELAY;
 		} elseif (!empty($child['thread-completion'])) {
 			$ldactivity['thread-completion'] = $child['thread-completion'];
+			$ldactivity['completion-mode']   = $child['completion-mode'] ?? Receiver::COMPLETION_NONE;
 		} else {
 			$ldactivity['thread-completion'] = Contact::getIdForURL($actor);
+			$ldactivity['completion-mode']   = $completion;
+		}
+
+		if (!empty($child['type'])) {
+			$ldactivity['thread-children-type'] = $child['type'];
 		}
 
 		if (!empty($relay_actor) && !self::acceptIncomingMessage($ldactivity, $object['id'])) {

@@ -199,19 +199,18 @@ HELP;
 			throw new RuntimeException('Contact not found');
 		}
 
-		$user = UserModel::getById($contact['uid']);
+		if (empty($contact['uid'])) {
+			throw new RuntimeException('Contact must be user-specific (uid != 0)');
+		}
 
 		try {
-			$result = ContactModel::terminateFriendship($user, $contact);
-			if ($result === false) {
-				throw new RuntimeException('Unable to unfollow this contact, please retry in a few minutes or check the logs.');
-			}
+			ContactModel::unfollow($contact);
 
 			$this->out('Contact was successfully unfollowed');
 
 			return true;
 		} catch (\Exception $e) {
-			DI::logger()->error($e->getMessage(), ['owner' => $user, 'contact' => $contact]);
+			DI::logger()->error($e->getMessage(), ['contact' => $contact]);
 			throw new RuntimeException('Unable to unfollow this contact, please check the log');
 		}
 	}

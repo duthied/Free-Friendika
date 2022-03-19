@@ -21,8 +21,8 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -63,17 +63,12 @@ class Statuses extends BaseApi
 		// The imput is defined as text. So we can use Markdown for some enhancements
 		$body = Markdown::toBBCode($request['status']);
 
-		// Avoids potential double expansion of existing links
-		$body = BBCode::performWithEscapedTags($body, ['url'], function ($body) {
-			return BBCode::expandTags($body);
-		});
-
-		$item = [];
+		$item               = [];
+		$item['network']    = Protocol::DFRN;
 		$item['uid']        = $uid;
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
 		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
-		$item['title']      = $request['spoiler_text'];
 		$item['body']       = $body;
 
 		if (!empty(self::getCurrentApplication()['name'])) {
@@ -114,14 +109,20 @@ class Statuses extends BaseApi
 				$item['private'] = Item::PRIVATE;
 				break;
 			case 'direct':
-				// Direct messages are currently unsupported
-				DI::mstdnError()->InternalError('Direct messages are currently unsupported');
+				// The permissions are assigned in "expandTags"
 				break;
 			default:
-				$item['allow_cid'] = $owner['allow_cid'];
-				$item['allow_gid'] = $owner['allow_gid'];
-				$item['deny_cid']  = $owner['deny_cid'];
-				$item['deny_gid']  = $owner['deny_gid'];
+				if (is_numeric($request['visibility']) && Group::exists($request['visibility'], $uid)) {
+					$item['allow_cid'] = '';
+					$item['allow_gid'] = '<' . $request['visibility'] . '>';
+					$item['deny_cid']  = '';
+					$item['deny_gid']  = '';
+				} else {
+					$item['allow_cid'] = $owner['allow_cid'];
+					$item['allow_gid'] = $owner['allow_gid'];
+					$item['deny_cid']  = $owner['deny_cid'];
+					$item['deny_gid']  = $owner['deny_gid'];
+				}
 
 				if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
 					$item['private'] = Item::PRIVATE;
@@ -139,15 +140,20 @@ class Statuses extends BaseApi
 
 		if ($request['in_reply_to_id']) {
 			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
+
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
+			$item['body']        = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
 		} else {
 			self::checkThrottleLimit();
 
 			$item['gravity']     = GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
+			$item['title']       = $request['spoiler_text'];
 		}
+
+		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
 
 		if (!empty($request['media_ids'])) {
 			$item['object-type'] = Activity\ObjectType::IMAGE;

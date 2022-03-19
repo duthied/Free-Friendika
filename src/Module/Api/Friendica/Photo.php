@@ -44,7 +44,7 @@ class Photo extends BaseApi
 		$this->friendicaPhoto = $friendicaPhoto;
 	}
 
-	protected function post(array $request = [])
+	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid  = BaseApi::getCurrentUserID();

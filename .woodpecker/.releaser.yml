@@ -60,7 +60,7 @@ pipeline:
       - export RELEASE="friendica-full-$VERSION"
       - export ARTIFACT="$RELEASE.tar.gz"
       - tar
-        --transform "s,^,$RELEASE/,"
+        --transform "s,^,$RELEASE/,S"
         -X mods/release-list-exclude.txt
         -T mods/release-list-include.txt
         -cvzf ./build/$ARTIFACT

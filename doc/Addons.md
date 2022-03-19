@@ -626,7 +626,8 @@ Hook data:
 Called when unfollowing a remote contact on a non-native network (like Twitter)
 
 Hook data:
-- **contact** (input): the remote contact (uid = local unfollowing user id) array.
+- **contact** (input): the target public contact (uid = 0) array.
+- **uid** (input): the id of the source local user.
 - **result** (output): wether the unfollowing is successful or not.
 
 ### revoke_follow
@@ -634,7 +635,8 @@ Hook data:
 Called when making a remote contact on a non-native network (like Twitter) unfollow you.
 
 Hook data:
-- **contact** (input): the remote contact (uid = local revoking user id) array.
+- **contact** (input): the target public contact (uid = 0) array.
+- **uid** (input): the id of the source local user.
 - **result** (output): a boolean value indicating wether the operation was successful or not.
 
 ### block
@@ -716,10 +718,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 ### mod/xrd.php
 
     Hook::callAll('personal_xrd', $arr);
-
-### mod/ping.php
-
-    Hook::callAll('network_ping', $arr);
 
 ### mod/parse_url.php
 
@@ -862,6 +860,10 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('authenticate', $addon_auth);
     Hook::callAll('register_account', $uid);
     Hook::callAll('remove_user', $user);
+
+### src/Module/Notifications/Ping.php
+
+    Hook::callAll('network_ping', $arr);
 
 ### src/Module/PermissionTooltip.php
 

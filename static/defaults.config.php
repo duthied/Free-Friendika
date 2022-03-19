@@ -37,6 +37,11 @@ return [
 		// Can be used instead of adding a port number to the hostname
 		'port' => null,
 
+		// socket (String)
+                // Socket of the database server.
+                // Can be used instead of adding a socket location to the hostname
+                'socket' => '',
+
 		// user (String)
 		// Database user name. Please don't use "root".
 		'username' => '',
@@ -615,10 +620,6 @@ return [
 		// ap_inbox_log (Boolean)
 		// Logs every call to /inbox as a JSON file in Friendica's temporary directory
 		'ap_inbox_log' => false,
-
-		// show_direction (Boolean)
-		// Display if a post had been fetched or had been pushed towards our server
-		'show_direction' => false,
 
 		// total_ap_delivery (Boolean)
 		// Deliver via AP to every possible receiver and we suppress the delivery to these contacts with other protocols

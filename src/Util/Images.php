@@ -184,12 +184,14 @@ class Images
 			return $data;
 		}
 
-		$data = DI::cache()->get($url);
+		$cacheKey = 'getInfoFromURL:' . sha1($url);
+
+		$data = DI::cache()->get($cacheKey);
 
 		if (empty($data) || !is_array($data)) {
 			$data = self::getInfoFromURL($url);
 
-			DI::cache()->set($url, $data);
+			DI::cache()->set($cacheKey, $data);
 		}
 
 		return $data;

@@ -26,6 +26,7 @@ return [
 	'MYSQL_USERNAME' => ['database', 'username'],
 	'MYSQL_USER'     => ['database', 'username'],
 	'MYSQL_PORT'     => ['database', 'port'],
+	'MYSQL_SOCKET'   => ['database', 'socket'],
 	'MYSQL_PASSWORD' => ['database', 'password'],
 	'MYSQL_DATABASE' => ['database', 'database'],
 

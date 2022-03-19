@@ -27,6 +27,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Model\Item;
 use Friendica\Util\Strings;
+use \IMAP\Connection;
 
 /**
  * Email class
@@ -37,7 +38,7 @@ class Email
 	 * @param string $mailbox  The mailbox name
 	 * @param string $username The username
 	 * @param string $password The password
-	 * @return resource
+	 * @return Connection|resource
 	 * @throws \Exception
 	 */
 	public static function connect($mailbox, $username, $password)
@@ -50,7 +51,7 @@ class Email
 
 		$errors = imap_errors();
 		if (!empty($errors)) {
-			Logger::notice('IMAP Errors occured', ['errora' => $errors]);
+			Logger::notice('IMAP Errors occured', ['errors' => $errors]);
 		}
 
 		$alerts = imap_alerts();
@@ -62,12 +63,12 @@ class Email
 	}
 
 	/**
-	 * @param resource $mbox       mailbox
-	 * @param string   $email_addr email
+	 * @param Connection|resource $mbox       mailbox
+	 * @param string              $email_addr email
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function poll($mbox, $email_addr)
+	public static function poll($mbox, $email_addr): array
 	{
 		if (!$mbox || !$email_addr) {
 			return [];
@@ -112,8 +113,8 @@ class Email
 	}
 
 	/**
-	 * @param resource $mbox mailbox
-	 * @param integer  $uid  user id
+	 * @param Connection|resource $mbox mailbox
+	 * @param integer             $uid  user id
 	 * @return mixed
 	 */
 	public static function messageMeta($mbox, $uid)
@@ -123,13 +124,13 @@ class Email
 	}
 
 	/**
-	 * @param resource $mbox  mailbox
-	 * @param integer  $uid   user id
-	 * @param string   $reply reply
+	 * @param Connection|resource $mbox  mailbox
+	 * @param integer             $uid   user id
+	 * @param string              $reply reply
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getMessage($mbox, $uid, $reply, $item)
+	public static function getMessage($mbox, $uid, $reply, $item): array
 	{
 		$ret = $item;
 
@@ -210,11 +211,11 @@ class Email
 	/**
 	 * fetch the specified message part number with the specified subtype
 	 *
-	 * @param resource $mbox    mailbox
-	 * @param integer  $uid     user id
-	 * @param object   $p       parts
-	 * @param integer  $partno  part number
-	 * @param string   $subtype sub type
+	 * @param Connection|resource $mbox    mailbox
+	 * @param integer             $uid     user id
+	 * @param object              $p       parts
+	 * @param integer             $partno  part number
+	 * @param string              $subtype sub type
 	 * @return string
 	 */
 	private static function messageGetPart($mbox, $uid, $p, $partno, $subtype)

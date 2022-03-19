@@ -102,7 +102,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
-		self::assertEquals("config.test => \n", $txt);
+		self::assertEquals("config.test => NULL\n", $txt);
 	}
 
 	public function testSetArrayValue()

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1450
+-- DB_UPDATE_VERSION 1452
 -- ------------------------------------------
 
 
@@ -644,10 +644,13 @@ CREATE TABLE IF NOT EXISTS `group` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
 	`visible` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates the member list is not private',
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates the group has been deleted',
+	`cid` int unsigned COMMENT 'Contact id of forum. When this field is filled then the members are synced automatically.',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'human readable name of group',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, group info';
 
 --
@@ -879,7 +882,7 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='notifications';
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='[Deprecated] User notifications';
 
 --
 -- TABLE notify-threads
@@ -1274,7 +1277,7 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
 	`mention` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Deprecated',
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
 	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'post has not been seen',
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide the post from the user',
@@ -1609,7 +1612,6 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-user`.`deleted` AS `deleted`,
 	`post-user`.`origin` AS `origin`,
 	`post-thread-user`.`origin` AS `parent-origin`,
-	`post-thread-user`.`forum_mode` AS `forum_mode`,
 	`post-thread-user`.`mention` AS `mention`,
 	`post-user`.`global` AS `global`,
 	`post-user`.`network` AS `network`,
@@ -1770,7 +1772,6 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-thread-user`.`unseen` AS `unseen`,
 	`post-user`.`deleted` AS `deleted`,
 	`post-thread-user`.`origin` AS `origin`,
-	`post-thread-user`.`forum_mode` AS `forum_mode`,
 	`post-thread-user`.`mention` AS `mention`,
 	`post-user`.`global` AS `global`,
 	`post-thread-user`.`network` AS `network`,

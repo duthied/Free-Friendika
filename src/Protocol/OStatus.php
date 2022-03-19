@@ -494,19 +494,22 @@ class OStatus
 
 			if ($initialize && (count(self::$itemlist) > 0)) {
 				if (self::$itemlist[0]['uri'] == self::$itemlist[0]['thr-parent']) {
+					$uid = self::$itemlist[0]['uid'];
 					// We will import it everytime, when it is started by our contacts
-					$valid = Contact::isSharingByURL(self::$itemlist[0]['author-link'], self::$itemlist[0]['uid']);
+					$valid = Contact::isSharingByURL(self::$itemlist[0]['author-link'], $uid);
 
 					if (!$valid) {
 						// If not, then it depends on this setting
-						$valid = ((self::$itemlist[0]['uid'] == 0) || !DI::pConfig()->get(self::$itemlist[0]['uid'], 'system', 'accept_only_sharer', false));
+						$valid = !$uid || DI::pConfig()->get($uid, 'system', 'accept_only_sharer') != Item::COMPLETION_NONE;
+
 						if ($valid) {
 							Logger::info("Item with uri ".self::$itemlist[0]['uri']." will be imported due to the system settings.");
 						}
 					} else {
 						Logger::info("Item with uri ".self::$itemlist[0]['uri']." belongs to a contact (".self::$itemlist[0]['contact-id']."). It will be imported.");
 					}
-					if ($valid) {
+
+					if ($valid && DI::pConfig()->get($uid, 'system', 'accept_only_sharer') != Item::COMPLETION_LIKE) {
 						// Never post a thread when the only interaction by our contact was a like
 						$valid = false;
 						$verbs = [Activity::POST, Activity::SHARE];
@@ -1728,6 +1731,7 @@ class OStatus
 
 			if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
 				$contact = Contact::getByURL($item['author-link']) ?: $owner;
+				$contact['nickname'] = $contact['nickname'] ?? $contact['nick']; 
 				$author = self::addAuthor($doc, $contact, false);
 				$entry->appendChild($author);
 			}

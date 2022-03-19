@@ -685,7 +685,7 @@ class Contact
 	 */
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
-		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey',
+		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey', 'manually-approve',
 			'xmpp', 'matrix', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
 			'photo', 'thumb', 'micro', 'header', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
@@ -757,6 +757,7 @@ class Contact
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = !$profile['net-publish'];
+		$fields['manually-approve'] = in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
 
 		$update = false;
 
@@ -812,37 +813,13 @@ class Contact
 	}
 
 	/**
-	 * Sends an unfriend message. Removes the contact for two-way unfriending or sharing only protocols (feed an mail)
+	 * Unfollow the remote contact
 	 *
-	 * @param array   $user    User unfriending
-	 * @param array   $contact Contact (uid != 0) unfriended
-	 * @param boolean $two_way Revoke eventual inbound follow as well
-	 * @return bool|null true if successful, false if not, null if no remote action was performed
+	 * @param array $contact Target user-specific contact (uid != 0) array
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function terminateFriendship(array $user, array $contact): ?bool
-	{
-		$result = Protocol::terminateFriendship($user, $contact);
-
-		if ($contact['rel'] == Contact::SHARING || in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
-			self::remove($contact['id']);
-		} else {
-			self::update(['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Revoke follow privileges of the remote user contact
-	 *
-	 * @param array   $contact  Contact unfriended
-	 * @return bool|null Whether the remote operation is successful or null if no remote operation was performed
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function revokeFollow(array $contact): ?bool
+	public static function unfollow(array $contact): void
 	{
 		if (empty($contact['network'])) {
 			throw new \InvalidArgumentException('Empty network in contact array');
@@ -852,19 +829,69 @@ class Contact
 			throw new \InvalidArgumentException('Unexpected public contact record');
 		}
 
-		$result = Protocol::revokeFollow($contact);
-
-		// A null value here means the remote network doesn't support explicit follow revocation, we can still
-		// break the locally recorded relationship
-		if ($result !== false) {
-			if ($contact['rel'] == self::FRIEND) {
-				self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
-			} else {
-				self::remove($contact['id']);
-			}
+		if (in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
+			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+			Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
 		}
 
-		return $result;
+		self::removeSharer($contact);
+	}
+
+	/**
+	 * Revoke follow privileges of the remote user contact
+	 *
+	 * The local relationship is updated immediately, the eventual remote server is messaged in the background.
+	 *
+	 * @param array $contact User-specific contact array (uid != 0) to revoke the follow from
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function revokeFollow(array $contact): void
+	{
+		if (empty($contact['network'])) {
+			throw new \InvalidArgumentException('Empty network in contact array');
+		}
+
+		if (empty($contact['uid'])) {
+			throw new \InvalidArgumentException('Unexpected public contact record');
+		}
+
+		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
+			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+			Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
+		}
+
+		self::removeFollower($contact);
+	}
+
+	/**
+	 * Completely severs a relationship with a contact
+	 *
+	 * @param array $contact User-specific contact (uid != 0) array
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function terminateFriendship(array $contact)
+	{
+		if (empty($contact['network'])) {
+			throw new \InvalidArgumentException('Empty network in contact array');
+		}
+
+		if (empty($contact['uid'])) {
+			throw new \InvalidArgumentException('Unexpected public contact record');
+		}
+
+		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+
+		if (in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
+			Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
+		}
+
+		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
+			Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
+		}
+
+		self::remove($contact['id']);
 	}
 
 
@@ -1457,34 +1484,11 @@ class Contact
 	 *
 	 * The function can be called with either the user or the contact array
 	 *
-	 * @param array $contact contact or user array
+	 * @param int $type type of contact or account
 	 * @return string
 	 */
-	public static function getAccountType(array $contact)
+	public static function getAccountType(int $type)
 	{
-		// There are several fields that indicate that the contact or user is a forum
-		// "page-flags" is a field in the user table,
-		// "forum" and "prv" are used in the contact table. They stand for User::PAGE_FLAGS_COMMUNITY and User::PAGE_FLAGS_PRVGROUP.
-		if ((isset($contact['page-flags']) && (intval($contact['page-flags']) == User::PAGE_FLAGS_COMMUNITY))
-			|| (isset($contact['page-flags']) && (intval($contact['page-flags']) == User::PAGE_FLAGS_PRVGROUP))
-			|| (isset($contact['forum']) && intval($contact['forum']))
-			|| (isset($contact['prv']) && intval($contact['prv']))
-			|| (isset($contact['community']) && intval($contact['community']))
-		) {
-			$type = self::TYPE_COMMUNITY;
-		} else {
-			$type = self::TYPE_PERSON;
-		}
-
-		// The "contact-type" (contact table) and "account-type" (user table) are more general then the chaos from above.
-		if (isset($contact["contact-type"])) {
-			$type = $contact["contact-type"];
-		}
-
-		if (isset($contact["account-type"])) {
-			$type = $contact["account-type"];
-		}
-
 		switch ($type) {
 			case self::TYPE_ORGANISATION:
 				$account_type = DI::l10n()->t("Organisation");
@@ -2597,28 +2601,6 @@ class Contact
 	}
 
 	/**
-	 * Unfollow a contact
-	 *
-	 * @param int $cid Public contact id
-	 * @param int $uid  User ID
-	 *
-	 * @return bool "true" if unfollowing had been successful
-	 */
-	public static function unfollow(int $cid, int $uid)
-	{
-		$cdata = self::getPublicAndUserContactID($cid, $uid);
-		if (empty($cdata['user'])) {
-			return false;
-		}
-
-		$contact = self::getById($cdata['user']);
-
-		self::removeSharer([], $contact);
-
-		return true;
-	}
-
-	/**
 	 * @param array  $importer Owner (local user) data
 	 * @param array  $contact  Existing owner-specific contact data we want to expand the relationship with. Optional.
 	 * @param array  $datarray An item-like array with at least the 'author-id' and 'author-url' keys for the contact. Mandatory.
@@ -2635,7 +2617,7 @@ class Contact
 			return false;
 		}
 
-		$fields = ['url', 'name', 'nick', 'avatar', 'photo', 'network', 'blocked'];
+		$fields = ['id', 'url', 'name', 'nick', 'avatar', 'photo', 'network', 'blocked'];
 		$pub_contact = DBA::selectFirst('contact', $fields, ['id' => $datarray['author-id']]);
 		if (!DBA::isResult($pub_contact)) {
 			// Should never happen
@@ -2683,7 +2665,7 @@ class Contact
 			// Ensure to always have the correct network type, independent from the connection request method
 			self::updateFromProbe($contact['id']);
 
-			Post\UserNotification::insertNotification($contact['id'], Activity::FOLLOW, $importer['uid']);
+			Post\UserNotification::insertNotification($pub_contact['id'], Activity::FOLLOW, $importer['uid']);
 
 			return true;
 		} else {
@@ -2714,7 +2696,7 @@ class Contact
 
 			self::updateAvatar($contact_id, $photo, true);
 
-			Post\UserNotification::insertNotification($contact_id, Activity::FOLLOW, $importer['uid']);
+			Post\UserNotification::insertNotification($pub_contact['id'], Activity::FOLLOW, $importer['uid']);
 
 			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
 
@@ -2734,9 +2716,7 @@ class Contact
 
 				Group::addMember(User::getDefaultGroup($importer['uid']), $contact_record['id']);
 
-				if (($user['notify-flags'] & Notification\Type::INTRO) &&
-					in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL])) {
-
+				if (($user['notify-flags'] & Notification\Type::INTRO) && $user['page-flags'] == User::PAGE_FLAGS_NORMAL) {
 					DI::notify()->createFromArray([
 						'type'  => Notification\Type::INTRO,
 						'otype' => Notification\ObjectType::INTRO,
@@ -2766,23 +2746,41 @@ class Contact
 		return null;
 	}
 
+	/**
+	 * Update the local relationship when a local user loses a follower
+	 *
+	 * @param array $contact User-specific contact (uid != 0) array
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
 	public static function removeFollower(array $contact)
 	{
 		if (in_array($contact['rel'] ?? [], [self::FRIEND, self::SHARING])) {
-			DBA::update('contact', ['rel' => self::SHARING], ['id' => $contact['id']]);
+			self::update(['rel' => self::SHARING], ['id' => $contact['id']]);
 		} elseif (!empty($contact['id'])) {
 			self::remove($contact['id']);
 		} else {
 			DI::logger()->info('Couldn\'t remove follower because of invalid contact array', ['contact' => $contact, 'callstack' => System::callstack()]);
 		}
+
+		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+
+		DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
 	}
 
-	public static function removeSharer($importer, $contact)
+	/**
+	 * Update the local relationship when a local user unfollow a contact.
+	 * Removes the contact for sharing-only protocols (feed and mail).
+	 *
+	 * @param array $contact User-specific contact (uid != 0) array
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function removeSharer(array $contact)
 	{
-		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::FOLLOWER)) {
-			self::update(['rel' => self::FOLLOWER], ['id' => $contact['id']]);
-		} else {
+		if ($contact['rel'] == self::SHARING || in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
 			self::remove($contact['id']);
+		} else {
+			self::update(['rel' => self::FOLLOWER], ['id' => $contact['id']]);
 		}
 	}
 
@@ -2947,7 +2945,7 @@ class Contact
 	 */
 	public static function isForum($contactid)
 	{
-		$fields = ['contact-type', 'forum', 'prv'];
+		$fields = ['contact-type'];
 		$condition = ['id' => $contactid];
 		$contact = DBA::selectFirst('contact', $fields, $condition);
 		if (!DBA::isResult($contact)) {
@@ -2955,7 +2953,7 @@ class Contact
 		}
 
 		// Is it a forum?
-		return (($contact['contact-type'] == self::TYPE_COMMUNITY) || $contact['forum'] || $contact['prv']);
+		return ($contact['contact-type'] == self::TYPE_COMMUNITY);
 	}
 
 	/**

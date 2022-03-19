@@ -100,9 +100,9 @@ class Status extends BaseDataTransferObject
 	 */
 	public function __construct(string $text, string $statusnetHtml, string $friendicaHtml, array $item, User $author, User $owner, array $retweeted, array $quoted, array $geo, array $friendica_activities, array $entities, array $attachments, int $friendica_comments, bool $liked)
 	{
-		$this->id                        = (int)$item['id'];
-		$this->id_str                    = (string)$item['id'];
-		$this->statusnet_conversation_id = (int)$item['parent'];
+		$this->id                        = (int)$item['uri-id'];
+		$this->id_str                    = (string)$item['uri-id'];
+		$this->statusnet_conversation_id = (int)$item['parent-uri-id'];
 
 		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::API);
 
@@ -118,7 +118,7 @@ class Status extends BaseDataTransferObject
 		$this->friendica_title      = $item['title'];
 		$this->statusnet_html       = $statusnetHtml;
 		$this->friendica_html       = $friendicaHtml;
-		$this->user                 = $author->toArray();
+		$this->user                 = $owner->toArray();
 		$this->friendica_author     = $author->toArray();
 		$this->friendica_owner      = $owner->toArray();
 		$this->truncated            = false;

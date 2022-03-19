@@ -40,7 +40,14 @@ class Unfollow extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		Contact::unfollow($this->parameters['id'], $uid);
+		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
+		if (empty($cdata['user'])) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		$contact = Contact::getById($cdata['user']);
+
+		Contact::unfollow($contact);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
