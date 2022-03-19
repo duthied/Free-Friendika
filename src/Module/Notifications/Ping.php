@@ -33,6 +33,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Group;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Model\Verb;
 use Friendica\Module\Register;
 use Friendica\Module\Response;
@@ -183,7 +184,12 @@ class Ping extends BaseModule
 				}
 			}
 
-			$navNotifications = array_map(function (Entity\Notification $notification) {
+			$owner = User::getOwnerDataById(local_user());
+
+			$navNotifications = array_map(function (Entity\Notification $notification) use ($owner) {
+				if (($notification->type == Post\UserNotification::TYPE_NONE) && in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])) {
+					return null;
+				}
 				try {
 					return $this->formattedNavNotification->createFromNotification($notification);
 				} catch (NoMessageException $e) {
