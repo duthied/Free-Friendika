@@ -27,6 +27,7 @@ use Friendica\BaseRepository;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Model\Post\UserNotification;
 use Friendica\Model\Verb;
 use Friendica\Navigation\Notifications\Collection;
 use Friendica\Navigation\Notifications\Entity;
@@ -137,7 +138,8 @@ class Notification extends BaseRepository
 	 */
 	public function selectDigestForUser(int $uid): Collection\Notifications
 	{
-		$values = [$uid];
+		$values = [$uid, Verb::getID(\Friendica\Protocol\Activity::ANNOUNCE),
+			UserNotification::TYPE_COMMENT_PARTICIPATION, UserNotification::TYPE_ACTIVITY_PARTICIPATION, UserNotification::TYPE_THREAD_COMMENT];
 
 		$like_condition = '';
 		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
@@ -154,10 +156,10 @@ class Notification extends BaseRepository
 		$rows = $this->db->p("
 		SELECT notification.*
 		FROM notification
-		WHERE id IN (
+		WHERE `id` IN (
 		    SELECT MAX(`id`)
-		    FROM notification
-		    WHERE uid = ?
+		    FROM `notification`
+		    WHERE `uid` = ? AND NOT (`vid` = ? AND `type` IN (?, ?, ?))
 		    $like_condition
 		    $announce_condition
 		    GROUP BY IFNULL(`parent-uri-id`, `actor-id`)
