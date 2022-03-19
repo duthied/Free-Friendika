@@ -138,8 +138,7 @@ class Notification extends BaseRepository
 	 */
 	public function selectDigestForUser(int $uid): Collection\Notifications
 	{
-		$values = [$uid, Verb::getID(\Friendica\Protocol\Activity::ANNOUNCE),
-			UserNotification::TYPE_COMMENT_PARTICIPATION, UserNotification::TYPE_ACTIVITY_PARTICIPATION, UserNotification::TYPE_THREAD_COMMENT];
+		$values = [$uid];
 
 		$like_condition = '';
 		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
@@ -159,7 +158,7 @@ class Notification extends BaseRepository
 		WHERE `id` IN (
 		    SELECT MAX(`id`)
 		    FROM `notification`
-		    WHERE `uid` = ? AND NOT (`vid` = ? AND `type` IN (?, ?, ?))
+		    WHERE `uid` = ?
 		    $like_condition
 		    $announce_condition
 		    GROUP BY IFNULL(`parent-uri-id`, `actor-id`)

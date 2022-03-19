@@ -220,7 +220,7 @@ class UserNotification
 			return;
 		}
 
-		if (self::checkExplicitMention($item, $profiles)) {
+		if (($item['verb'] != Activity::ANNOUNCE) && self::checkExplicitMention($item, $profiles)) {
 			$notification_type = $notification_type | self::TYPE_EXPLICIT_TAGGED;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_EXPLICIT_TAGGED, $uid, $item);
@@ -228,7 +228,7 @@ class UserNotification
 			}
 		}
 
-		if (self::checkImplicitMention($item, $profiles)) {
+		if (($item['verb'] != Activity::ANNOUNCE) && self::checkImplicitMention($item, $profiles)) {
 			$notification_type = $notification_type | self::TYPE_IMPLICIT_TAGGED;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_IMPLICIT_TAGGED, $uid, $item);
@@ -252,7 +252,7 @@ class UserNotification
 			}
 		}
 
-		if (self::checkCommentedThread($item, $contacts)) {
+		if (($item['verb'] != Activity::ANNOUNCE) && self::checkCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_THREAD_COMMENT;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_THREAD_COMMENT, $uid, $item);
@@ -260,7 +260,7 @@ class UserNotification
 			}
 		}
 
-		if (self::checkCommentedParticipation($item, $contacts)) {
+		if (($item['verb'] != Activity::ANNOUNCE) && self::checkCommentedParticipation($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_COMMENT_PARTICIPATION;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_COMMENT_PARTICIPATION, $uid, $item);
@@ -268,7 +268,7 @@ class UserNotification
 			}
 		}
 
-		if (self::checkActivityParticipation($item, $contacts)) {
+		if (($item['verb'] != Activity::ANNOUNCE) && self::checkActivityParticipation($item, $contacts)) {
 			$notification_type = $notification_type | self::TYPE_ACTIVITY_PARTICIPATION;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_ACTIVITY_PARTICIPATION, $uid, $item);
