@@ -166,9 +166,9 @@ class Federation extends BaseAdmin
 			$gserver['platform']    = $systems[$platform]['name'];
 			$gserver['totallbl']    = DI::l10n()->t('%s total systems', number_format($gserver['total']));
 			$gserver['monthlbl']    = DI::l10n()->t('%s active users last month', number_format($gserver['month']));
-			$gserver['halfyearlbl'] = DI::l10n()->t('%s active users last six month', number_format($gserver['halfyear']));
+			$gserver['halfyearlbl'] = DI::l10n()->t('%s active users last six months', number_format($gserver['halfyear']));
 			$gserver['userslbl']    = DI::l10n()->t('%s registered users', number_format($gserver['users']));
-			$gserver['postslbl']    = DI::l10n()->t('%s local posts', number_format($gserver['posts']));
+			$gserver['postslbl']    = DI::l10n()->t('%s locally created posts and comments', number_format($gserver['posts']));
 
 			if (($gserver['users'] > 0) && ($gserver['posts'] > 0)) {
 				$gserver['postsuserlbl'] = DI::l10n()->t('%s posts per user', number_format($gserver['posts'] / $gserver['users'], 1));
@@ -196,7 +196,7 @@ class Federation extends BaseAdmin
 			'$intro' => $intro,
 			'$counts' => $counts,
 			'$version' => FRIENDICA_VERSION,
-			'$legendtext' => DI::l10n()->t('Currently this node is aware of %s nodes (%s active users last month, %s active users last six month, %s registered users in total) from the following platforms:', number_format($total), number_format($month), number_format($halfyear), number_format($users)),
+			'$legendtext' => DI::l10n()->t('Currently this node is aware of %s nodes (%s active users last month, %s active users last six months, %s registered users in total) from the following platforms:', number_format($total), number_format($month), number_format($halfyear), number_format($users)),
 		]);
 	}
 
