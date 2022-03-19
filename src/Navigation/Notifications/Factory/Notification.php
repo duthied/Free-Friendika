@@ -139,9 +139,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 					$this->logger->info('Parent post not found', ['uri-id' => $Notification->parentUriId]);
 					return $message;
 				}
-				if ($Notification->type == Post\UserNotification::TYPE_COMMENT_PARTICIPATION) {
-					$link_item = Post::selectFirst(['guid'], ['uri-id' => $Notification->targetUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
-				}
+				$link_item = Post::selectFirstPost(['guid'], ['uri-id' => $Notification->targetUriId]);
 			} else {
 				$item = Post::selectFirst([], ['uri-id' => $Notification->targetUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
 				if (empty($item)) {
@@ -156,6 +154,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 						return $message;
 					}
 				}
+				$link_item = $item;
 			}
 
 			if (in_array($Notification->type, [Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_SHARED])) {
@@ -166,7 +165,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				}
 			}
 
-			$link = $this->baseUrl . '/display/' . urlencode($link_item['guid'] ?? $item['guid']);
+			$link = $this->baseUrl . '/display/' . urlencode($link_item['guid']);
 
 			$content = Plaintext::getPost($item, 70);
 			if (!empty($content['text'])) {
