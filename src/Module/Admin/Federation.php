@@ -196,7 +196,7 @@ class Federation extends BaseAdmin
 			'$intro' => $intro,
 			'$counts' => $counts,
 			'$version' => FRIENDICA_VERSION,
-			'$legendtext' => DI::l10n()->t('Currently this node is aware of %d nodes (%d active users last month, %d active users last six months, %d registered users in total) from the following platforms:', number_format($total), number_format($month), number_format($halfyear), number_format($users)),
+			'$legendtext' => DI::l10n()->t('Currently this node is aware of %s nodes (%s active users last month, %s active users last six months, %s registered users in total) from the following platforms:', number_format($total), number_format($month), number_format($halfyear), number_format($users)),
 		]);
 	}
 
