@@ -183,8 +183,6 @@ class Ping extends BaseModule
 				}
 			}
 
-			// Temporary workaround for notifications without messages like with the following verb:
-			// - \Friendica\Protocol\Activity::ANNOUNCE
 			$navNotifications = array_map(function (Entity\Notification $notification) {
 				try {
 					return $this->formattedNavNotification->createFromNotification($notification);
