@@ -107,11 +107,6 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 	{
 		$message = [];
 
-		if (Post\ThreadUser::getIgnored($Notification->parentUriId, $Notification->uid)) {
-			$this->logger->info('Thread is ignored', ['parent-uri-id' => $Notification->parentUriId, 'type' => $Notification->type]);
-			return $message;
-		}
-
 		$causer = $author = Contact::getById($Notification->actorId, ['id', 'name', 'url', 'contact-type', 'pending']);
 		if (empty($causer)) {
 			$this->logger->info('Causer not found', ['contact' => $Notification->actorId]);
@@ -133,6 +128,11 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				return $message;
 			}
 
+			if (Post\ThreadUser::getIgnored($Notification->parentUriId, $Notification->uid)) {
+				$this->logger->info('Thread is ignored', ['parent-uri-id' => $Notification->parentUriId, 'type' => $Notification->type]);
+				return $message;
+			}
+	
 			if (in_array($Notification->type, [Post\UserNotification::TYPE_THREAD_COMMENT, Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_EXPLICIT_TAGGED])) {
 				$item = Post::selectFirst([], ['uri-id' => $Notification->parentUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
 				if (empty($item)) {
