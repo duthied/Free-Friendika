@@ -141,7 +141,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				}
 				$link_item = Post::selectFirstPost(['guid'], ['uri-id' => $Notification->targetUriId]);
 			} else {
-				$item = Post::selectFirst([], ['uri-id' => $Notification->targetUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
+				$link_item = $item = Post::selectFirst([], ['uri-id' => $Notification->targetUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
 				if (empty($item)) {
 					$this->logger->info('Post not found', ['uri-id' => $Notification->targetUriId]);
 					return $message;
@@ -154,7 +154,10 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 						return $message;
 					}
 				}
-				$link_item = $item;
+
+				if (($Notification->verb != Activity::POST) || !in_array($Notification->type, [Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT, Post\UserNotification::TYPE_IMPLICIT_TAGGED])) {
+					$link_item = $item;
+				}
 			}
 
 			if (in_array($Notification->type, [Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_SHARED])) {
