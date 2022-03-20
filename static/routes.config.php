@@ -51,6 +51,7 @@ $apiRoutes = [
 	'/blocks/ids[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Twitter\Blocks\Ids::class,               [R::GET         ]],
 	'/blocks/list[.{extension:json|xml|rss|atom}]'                 => [Module\Api\Twitter\Blocks\Lists::class,             [R::GET         ]],
 	'/conversation/show[.{extension:json|xml|rss|atom}]'           => [Module\Api\GNUSocial\Statusnet\Conversation::class, [R::GET         ]],
+	'/conversation/show/{id:\d+}[.{extension:json|xml|rss|atom}]'  => [Module\Api\GNUSocial\Statusnet\Conversation::class, [R::GET         ]],
 	'/direct_messages' => [
 		'/all[.{extension:json|xml|rss|atom}]'                     => [Module\Api\Twitter\DirectMessages\All::class,          [R::GET         ]],
 		'/conversation[.{extension:json|xml|rss|atom}]'            => [Module\Api\Twitter\DirectMessages\Conversation::class, [R::GET         ]],
