@@ -218,7 +218,7 @@ class Status extends BaseProfile
 			} elseif ($profile['uid'] == local_user()) {
 				$condition = [];
 			}
-	
+
 			$pinned_items = Post::selectPinned($profile['uid'], ['uri-id', 'pinned'], $condition);
 			$pinned = Post::toArray($pinned_items);
 			$items = array_merge($items, $pinned);
