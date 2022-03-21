@@ -454,7 +454,7 @@ class Conversation
 					. "'; </script>\r\n";
 			}
 		} elseif ($mode === 'profile') {
-			$items = $this->addChildren($items, false, $order, local_user());
+			$items = $this->addChildren($items, false, $order, $uid);
 
 			if (!$update) {
 				$tab = !empty($_GET['tab']) ? trim($_GET['tab']) : 'posts';
@@ -929,7 +929,7 @@ class Conversation
 		$condition = DBA::mergeConditions($condition,
 			["`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW)]);
 
-		$thread_items = Post::selectForUser(local_user(), array_merge(ItemModel::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
+		$thread_items = Post::selectForUser($uid, array_merge(ItemModel::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
 		$items = [];
 
