@@ -393,6 +393,8 @@ class Post
 			$title = $item['title'];
 		} elseif (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
 			$title = ucfirst($item['content-warning']);
+		} else {
+			$title = '';
 		}
 
 		if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {

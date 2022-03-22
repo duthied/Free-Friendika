@@ -635,6 +635,8 @@ class Conversation
 						$title = $item['title'];
 					} elseif (!empty($item['content-warning']) && $this->pConfig->get(local_user(), 'system', 'disable_cw', false)) {
 						$title = ucfirst($item['content-warning']);
+					} else {
+						$title = '';
 					}
 
 					$tmp_item = [
