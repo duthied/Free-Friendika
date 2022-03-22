@@ -164,6 +164,10 @@ class Processor
 		if (!DBA::isResult($item)) {
 			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
 			$item = self::createItem($activity);
+			if (empty($item)) {
+				return;
+			}
+
 			self::postItem($activity, $item);
 			return;
 		}
@@ -416,6 +420,10 @@ class Processor
 	public static function createActivity($activity, $verb)
 	{
 		$item = self::createItem($activity);
+		if (empty($item)) {
+			return;
+		}
+
 		$item['verb'] = $verb;
 		$item['thr-parent'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
@@ -584,6 +592,7 @@ class Processor
 		// The checks are split to improve the support when searching why a message was accepted.
 		if (count($activity['receiver']) != 1) {
 			// The message has more than one receiver, so it is wanted.
+			if (!isset($item['uri-id'])) Logger::info('Blubb', ['callstack' => System::callstack(20), 'receiver' => $activity['receiver']]);
 			Logger::debug('Message has got several receivers - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;
 		}
