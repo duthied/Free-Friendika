@@ -592,7 +592,6 @@ class Processor
 		// The checks are split to improve the support when searching why a message was accepted.
 		if (count($activity['receiver']) != 1) {
 			// The message has more than one receiver, so it is wanted.
-			if (!isset($item['uri-id'])) Logger::info('Blubb', ['callstack' => System::callstack(20), 'receiver' => $activity['receiver']]);
 			Logger::debug('Message has got several receivers - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;
 		}
