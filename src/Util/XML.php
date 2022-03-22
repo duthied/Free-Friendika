@@ -250,7 +250,7 @@ class XML
 	 * Examples: $array =  Xml::toArray(file_get_contents('feed.xml'));
 	 *        $array =  Xml::toArray(file_get_contents('feed.xml', true, 1, 'attribute'));
 	 *
-	 * @param object  $contents         The XML text
+	 * @param string  $contents         The XML text
 	 * @param boolean $namespaces       True or false include namespace information
 	 *                                  in the returned array as array elements.
 	 * @param integer $get_attributes   1 or 0. If this is 1 the function will get the attributes as well as the tag values -
@@ -475,7 +475,7 @@ class XML
 
 	public static function getFirstAttributes(DOMXPath $xpath, $element, $context = null)
 	{
-		$result = $xpath->query($element, $context);
+		$result = @$xpath->query($element, $context);
 		if (!is_object($result)) {
 			return false;
 		}
@@ -490,7 +490,7 @@ class XML
 
 	public static function getFirstValue($xpath, $search, $context)
 	{
-		$result = $xpath->query($search, $context);
+		$result = @$xpath->query($search, $context);
 		if (!is_object($result)) {
 			return '';
 		}
