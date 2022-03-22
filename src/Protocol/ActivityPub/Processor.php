@@ -164,6 +164,10 @@ class Processor
 		if (!DBA::isResult($item)) {
 			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
 			$item = self::createItem($activity);
+			if (empty($item)) {
+				return;
+			}
+
 			self::postItem($activity, $item);
 			return;
 		}
@@ -416,6 +420,10 @@ class Processor
 	public static function createActivity($activity, $verb)
 	{
 		$item = self::createItem($activity);
+		if (empty($item)) {
+			return;
+		}
+
 		$item['verb'] = $verb;
 		$item['thr-parent'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
