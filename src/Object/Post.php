@@ -389,10 +389,12 @@ class Post
 
 		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item, local_user());
 
-		if (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
+		if (!empty($item['title'])) {
+			$title = $item['title'];
+		} elseif (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
 			$title = ucfirst($item['content-warning']);
 		} else {
-			$title = $item['title'];
+			$title = '';
 		}
 
 		if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {

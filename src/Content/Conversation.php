@@ -631,10 +631,12 @@ class Conversation
 
 					[$categories, $folders] = $this->item->determineCategoriesTerms($item, local_user());
 
-					if (!empty($item['content-warning']) && $this->pConfig->get(local_user(), 'system', 'disable_cw', false)) {
+					if (!empty($item['title'])) {
+						$title = $item['title'];
+					} elseif (!empty($item['content-warning']) && $this->pConfig->get(local_user(), 'system', 'disable_cw', false)) {
 						$title = ucfirst($item['content-warning']);
 					} else {
-						$title = $item['title'];
+						$title = '';
 					}
 
 					$tmp_item = [
