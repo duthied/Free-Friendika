@@ -214,7 +214,7 @@ msgstr "Zapisz"
 #: mod/editpost.php:92 mod/photos.php:1344 src/Content/Conversation.php:326
 #: src/Module/Contact/Poke.php:176 src/Object/Post.php:986
 msgid "Loading..."
-msgstr "Ładowanie..."
+msgstr "Wczytywanie..."
 
 #: mod/editpost.php:93 mod/message.php:198 mod/message.php:355
 #: mod/wallmessage.php:140 src/Content/Conversation.php:327
@@ -223,7 +223,7 @@ msgstr "Wyślij zdjęcie"
 
 #: mod/editpost.php:94 src/Content/Conversation.php:328
 msgid "upload photo"
-msgstr "dodaj zdjęcie"
+msgstr "wyślij zdjęcie"
 
 #: mod/editpost.php:95 src/Content/Conversation.php:329
 msgid "Attach file"
@@ -487,7 +487,7 @@ msgstr "Zdjęcia"
 #: mod/fbrowser.php:119 mod/fbrowser.php:146
 #: src/Module/Settings/Profile/Photo/Index.php:129
 msgid "Upload"
-msgstr "Załaduj"
+msgstr "Wyślij"
 
 #: mod/fbrowser.php:141
 msgid "Files"
@@ -539,7 +539,7 @@ msgstr "Adres URL profilu"
 #: src/Module/Notifications/Introductions.php:189
 #: src/Module/Profile/Profile.php:207
 msgid "Tags:"
-msgstr "Tagi:"
+msgstr "Znaczniki:"
 
 #: mod/follow.php:153
 #, php-format
@@ -553,7 +553,7 @@ msgstr "Dodaj osobistą notkę:"
 #: mod/follow.php:163 mod/unfollow.php:109 src/Module/BaseProfile.php:59
 #: src/Module/Contact.php:444
 msgid "Status Messages and Posts"
-msgstr "Status wiadomości i postów"
+msgstr "Stan wiadomości i wpisów"
 
 #: mod/follow.php:191
 msgid "The contact could not be added."
@@ -854,7 +854,7 @@ msgstr "Notatki"
 
 #: mod/notes.php:55
 msgid "Personal notes are visible only by yourself."
-msgstr "Notatki osobiste sa widziane tylko przez Ciebie."
+msgstr "Notatki osobiste są widziane tylko przez Ciebie."
 
 #: mod/ostatus_subscribe.php:37
 msgid "Subscribing to contacts"
@@ -947,7 +947,7 @@ msgstr "zdjęcie"
 #: mod/photos.php:559
 #, php-format
 msgid "%1$s was tagged in %2$s by %3$s"
-msgstr "%1$szostał oznaczony tagiem %2$s przez %3$s"
+msgstr "%1$szostał oznaczony znacznikiem %2$s przez %3$s"
 
 #: mod/photos.php:642 mod/photos.php:645 mod/photos.php:672
 #: mod/wall_upload.php:204 src/Module/Settings/Profile/Photo/Index.php:60
@@ -1005,7 +1005,7 @@ msgstr "lub wybierz istniejący album:"
 
 #: mod/photos.php:943
 msgid "Do not show a status post for this upload"
-msgstr "Nie pokazuj statusu postów dla tego wysłania"
+msgstr "Nie pokazuj stanu wpisów dla tego wysłania"
 
 #: mod/photos.php:1008
 msgid "Do you really want to delete this photo album and all its photos?"
@@ -1313,7 +1313,7 @@ msgstr "Zapisz ustawienia"
 
 #: mod/settings.php:487
 msgid "Addon Settings"
-msgstr "Ustawienia Dodatków"
+msgstr "Ustawienia dodatków"
 
 #: mod/settings.php:488
 msgid "No Addon settings configured"
@@ -1393,7 +1393,7 @@ msgid ""
 " field which collapse their post by default. This enables the automatic "
 "collapsing instead of setting the content warning as the post title. Doesn't"
 " affect any other content filtering you eventually set up."
-msgstr ""
+msgstr "Użytkownicy w sieciach takich jak Mastodon lub Pleroma mogą ustawić pole ostrzeżenia o treści, które domyślnie zwija ich posty. Umożliwia to automatyczne zwijanie zamiast ustawiania ostrzeżenia o treści jako tytułu posta. Nie wpływa na żadne inne skonfigurowane filtrowanie treści."
 
 #: mod/settings.php:603
 msgid "Enable intelligent shortening"
@@ -1404,7 +1404,7 @@ msgid ""
 "Normally the system tries to find the best link to add to shortened posts. "
 "If disabled, every shortened post will always point to the original "
 "friendica post."
-msgstr ""
+msgstr "Zwykle system próbuje znaleźć najlepszy odnośnik do dodania do skróconych postów. Jeśli wyłączone, każdy skrócony wpis będzie zawsze wskazywał na oryginalny wpis friendica."
 
 #: mod/settings.php:604
 msgid "Enable simple text shortening"
@@ -1415,7 +1415,7 @@ msgid ""
 "Normally the system shortens posts at the next line feed. If this option is "
 "enabled then the system will shorten the text at the maximum character "
 "limit."
-msgstr ""
+msgstr "Zwykle system skraca wpisy przy następnym wysunięciu wiersza. Jeśli ta opcja jest włączona, system skróci tekst do maksymalnego limitu znaków."
 
 #: mod/settings.php:605
 msgid "Attach the link title"
@@ -1437,7 +1437,7 @@ msgid ""
 "If you enter your old account name from an ActivityPub based system or your "
 "GNU Social/Statusnet account name here (in the format user@domain.tld), your"
 " contacts will be added automatically. The field will be emptied when done."
-msgstr ""
+msgstr "Jeśli wprowadzisz tutaj swoją starą nazwę konta z systemu opartego na ActivityPub lub nazwę konta GNU Social/Statusnet (w formacie użytkownik@domena.tld), Twoje kontakty zostaną dodane automatycznie. Po zakończeniu pole zostanie opróżnione."
 
 #: mod/settings.php:609
 msgid "Repair OStatus subscriptions"
@@ -1906,7 +1906,7 @@ msgstr "Otrzymałeś propozycję od znajomych"
 
 #: mod/settings.php:821
 msgid "You are tagged in a post"
-msgstr "Jesteś oznaczony tagiem w poście"
+msgstr "Jesteś oznaczony znacznikiem we wpisie"
 
 #: mod/settings.php:822
 msgid "You are poked/prodded/etc. in a post"
@@ -1959,7 +1959,7 @@ msgid ""
 "You don't see posts from ignored contacts. But you still see their comments."
 " This setting controls if you want to still receive regular notifications "
 "that are caused by ignored contacts or not."
-msgstr ""
+msgstr "Nie widzisz wpisów od ignorowanych kontaktów. Ale nadal widzisz ich komentarze. To ustawienie określa, czy chcesz nadal otrzymywać regularne powiadomienia, które są powodowane przez ignorowane kontakty, czy nie."
 
 #: mod/settings.php:842
 msgid "Advanced Account/Page Type Settings"
@@ -2013,7 +2013,7 @@ msgstr "zdjęcie"
 
 #: mod/tagger.php:78 src/Content/Item.php:333 src/Content/Item.php:342
 msgid "status"
-msgstr "status"
+msgstr "stan"
 
 #: mod/tagger.php:111 src/Content/Item.php:352
 #, php-format
@@ -2022,11 +2022,11 @@ msgstr "%1$s zaznaczył %2$s'go %3$s przy użyciu %4$s"
 
 #: mod/tagrm.php:113
 msgid "Remove Item Tag"
-msgstr "Usuń pozycję Tag"
+msgstr "Usuń pozycję znacznika"
 
 #: mod/tagrm.php:115
 msgid "Select a tag to remove: "
-msgstr "Wybierz tag do usunięcia: "
+msgstr "Wybierz znacznik do usunięcia: "
 
 #: mod/tagrm.php:126 src/Module/Settings/Delegation.php:179
 #: src/Module/Settings/TwoFactor/Trusted.php:140
@@ -2096,7 +2096,7 @@ msgstr "Kontakt pomyślnie przestał być obserwowany"
 
 #: mod/unfollow.php:146
 msgid "Unable to unfollow this contact, please contact your administrator"
-msgstr ""
+msgstr "Nie można przestać obserwować tego kontaktu, skontaktuj się z administratorem"
 
 #: mod/wall_attach.php:39 mod/wall_attach.php:46 mod/wall_attach.php:77
 #: mod/wall_upload.php:53 mod/wall_upload.php:63 mod/wall_upload.php:99
@@ -2151,7 +2151,7 @@ msgstr "Nie ustawiono wartości konfiguracyjnej zestawu tematycznego."
 
 #: src/App.php:583
 msgid "Apologies but the website is unavailable at the moment."
-msgstr ""
+msgstr "Przepraszamy, ale strona jest w tej chwili niedostępna."
 
 #: src/App/Page.php:250
 msgid "Delete this item?"
@@ -2161,7 +2161,7 @@ msgstr "Usunąć ten element?"
 msgid ""
 "Block this author? They won't be able to follow you nor see your public "
 "posts, and you won't be able to see their posts and their notifications."
-msgstr ""
+msgstr "Zablokować tego autora? Nie będą mogli Cię obserwować ani widzieć Twoich publicznych wpisów, a Ty nie będziesz widzieć ich wpisów i powiadomień."
 
 #: src/App/Page.php:321
 msgid "toggle mobile"
@@ -2285,11 +2285,11 @@ msgstr "Wpisz język (opcjonalnie):"
 
 #: src/Console/User.php:286
 msgid "User is not pending."
-msgstr ""
+msgstr "Użytkownik nie jest oczekujący."
 
 #: src/Console/User.php:318
 msgid "User has already been marked for deletion."
-msgstr ""
+msgstr "Użytkownik został już oznaczony do usunięcia."
 
 #: src/Console/User.php:323
 #, php-format
@@ -2559,7 +2559,7 @@ msgstr "Filmy"
 
 #: src/Content/Conversation.php:352 src/Module/Item/Compose.php:172
 msgid "Scheduled at"
-msgstr ""
+msgstr "Zaplanowane na"
 
 #: src/Content/Conversation.php:651 src/Object/Post.php:468
 #: src/Object/Post.php:469
@@ -2605,7 +2605,7 @@ msgstr ""
 
 #: src/Content/Conversation.php:836
 msgid "Tagged"
-msgstr ""
+msgstr "Oznaczone"
 
 #: src/Content/Conversation.php:851
 msgid "Reshared"
@@ -2696,14 +2696,14 @@ msgstr "Dodaj wyraźne wzmianki do pola komentarza, aby ręcznie kontrolować, k
 
 #: src/Content/Feature.php:107
 msgid "Add an abstract from ActivityPub content warnings"
-msgstr ""
+msgstr "Dodaj streszczenie z ostrzeżeń dotyczących treści w ActivityPub"
 
 #: src/Content/Feature.php:107
 msgid ""
 "Add an abstract when commenting on ActivityPub posts with a content warning."
 " Abstracts are displayed as content warning on systems like Mastodon or "
 "Pleroma."
-msgstr ""
+msgstr "Dodaj streszczenie, gdy komentujesz wpisy ActivityPub z ostrzeżeniem o treści. Streszczenia są wyświetlane jako ostrzeżenie dotyczące treści w systemach takich jak Mastodon czy Pleroma."
 
 #: src/Content/Feature.php:112
 msgid "Post/Comment Tools"
@@ -2756,7 +2756,7 @@ msgstr "Zewnętrzny link do forum"
 
 #: src/Content/ForumManager.php:150 src/Content/Widget.php:499
 msgid "show less"
-msgstr ""
+msgstr "pokaż mniej"
 
 #: src/Content/ForumManager.php:151 src/Content/Widget.php:401
 #: src/Content/Widget.php:500
@@ -2842,7 +2842,7 @@ msgstr "Wyczyść powiadomienia"
 
 #: src/Content/Nav.php:96 src/Content/Text/HTML.php:883
 msgid "@name, !forum, #tags, content"
-msgstr "@imię, !forum, #tagi, treść"
+msgstr "@imię, !forum, #znaczniki, treść"
 
 #: src/Content/Nav.php:183 src/Module/Security/Login.php:144
 msgid "Logout"
@@ -2865,7 +2865,7 @@ msgstr "Zaloguj się"
 #: src/Module/Contact.php:433 src/Module/Contact/Profile.php:380
 #: src/Module/Settings/TwoFactor/Index.php:112 view/theme/frio/theme.php:225
 msgid "Status"
-msgstr "Status"
+msgstr "Stan"
 
 #: src/Content/Nav.php:190 src/Content/Nav.php:273
 #: view/theme/frio/theme.php:225
@@ -3033,7 +3033,7 @@ msgstr "Zobacz wszystkie powiadomienia"
 
 #: src/Content/Nav.php:280
 msgid "Mark all system notifications as seen"
-msgstr ""
+msgstr "Oznacz wszystkie powiadomienia systemowe jako przeczytane"
 
 #: src/Content/Nav.php:283 view/theme/frio/theme.php:234
 msgid "Private mail"
@@ -3328,10 +3328,10 @@ msgstr "Zapisywanie wyszukiwania"
 #, php-format
 msgid "Trending Tags (last %d hour)"
 msgid_plural "Trending Tags (last %d hours)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Popularne znaczniki (ostatnia %d godzina)"
+msgstr[1] "Popularne znaczniki (ostatnie %d godziny)"
+msgstr[2] "Popularne znaczniki (ostatnie %d godzin)"
+msgstr[3] "Popularne znaczniki (ostatnie %d godzin)"
 
 #: src/Content/Widget/TrendingTags.php:52
 msgid "More Trending Tags"
@@ -3345,7 +3345,7 @@ msgstr "XMPP:"
 #: src/Content/Widget/VCard.php:97 src/Model/Profile.php:374
 #: src/Module/Contact/Profile.php:373 src/Module/Profile/Profile.php:180
 msgid "Matrix:"
-msgstr ""
+msgstr "Matrix:"
 
 #: src/Content/Widget/VCard.php:101 src/Model/Profile.php:466
 #: src/Module/Notifications/Introductions.php:199
@@ -3358,7 +3358,7 @@ msgstr "Przestań obserwować"
 
 #: src/Core/ACL.php:165 src/Module/Profile/Profile.php:242
 msgid "Yourself"
-msgstr ""
+msgstr "Siebie"
 
 #: src/Core/ACL.php:201 src/Module/PermissionTooltip.php:127
 #: src/Module/PermissionTooltip.php:149
@@ -3680,19 +3680,19 @@ msgstr ""
 msgid ""
 "It is highly encouraged to use Friendica only over a secure connection as "
 "sensitive information like passwords will be transmitted."
-msgstr ""
+msgstr "Zachęcamy do korzystania z Friendica tylko przez bezpieczne połączenie, ponieważ przesyłane będą poufne informacje, takie jak hasła."
 
 #: src/Core/Installer.php:609
 msgid "Please ensure that the connection to the server is secure."
-msgstr ""
+msgstr "Upewnij się, że połączenie z serwerem jest bezpieczne."
 
 #: src/Core/Installer.php:610
 msgid "No TLS detected"
-msgstr ""
+msgstr "Nie wykryto TLS"
 
 #: src/Core/Installer.php:612
 msgid "TLS detected"
-msgstr ""
+msgstr "Wykryto TLS"
 
 #: src/Core/Installer.php:639
 msgid "ImageMagick PHP extension is not installed"
@@ -3918,7 +3918,7 @@ msgstr "odrzucony"
 msgid ""
 "Friendica can't display this page at the moment, please contact the "
 "administrator."
-msgstr ""
+msgstr "Friendica nie może obecnie wyświetlić tej strony, skontaktuj się z administratorem."
 
 #: src/Core/Renderer.php:141
 msgid "template engine cannot be registered without a name."
@@ -4071,7 +4071,7 @@ msgstr "Błędy napotkane podczas dokonywania zmian w bazie danych: "
 
 #: src/Database/DBStructure.php:549
 msgid "Another database update is currently running."
-msgstr ""
+msgstr "Trwa inna aktualizacja bazy danych."
 
 #: src/Database/DBStructure.php:553
 #, php-format
@@ -4098,7 +4098,7 @@ msgstr "Nieautoryzowane"
 #: src/Factory/Api/Mastodon/Error.php:85
 msgid ""
 "Token is not authorized with a valid user or is missing a required scope"
-msgstr ""
+msgstr "Token nie jest autoryzowany z prawidłowym użytkownikiem lub nie ma wymaganego zakresu"
 
 #: src/Factory/Api/Mastodon/Error.php:95
 msgid "Internal Server Error"
@@ -4787,7 +4787,7 @@ msgstr "Opiekun: "
 
 #: src/Module/Admin/Addons/Index.php:42
 msgid "Addons reloaded"
-msgstr ""
+msgstr "Dodatki zostały ponownie wczytane"
 
 #: src/Module/Admin/Addons/Index.php:53
 #, php-format
@@ -4959,11 +4959,11 @@ msgstr[3] ""
 
 #: src/Module/Admin/Blocklist/Server/Add.php:88
 msgid "← Return to the list"
-msgstr ""
+msgstr "← Wróć do listy"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:90
 msgid "Block A New Server Domain Pattern"
-msgstr ""
+msgstr "Zablokuj nowy wzorzec domeny serwera"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:91
 #: src/Module/Admin/Blocklist/Server/Index.php:82
@@ -5007,7 +5007,7 @@ msgstr[3] ""
 
 #: src/Module/Admin/Blocklist/Server/Add.php:102
 msgid "Add pattern to the blocklist"
-msgstr ""
+msgstr "Dodaj wzór do listy blokad"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:104
 #: src/Module/Admin/Blocklist/Server/Index.php:96
@@ -5019,11 +5019,11 @@ msgstr "Wzorzec domeny serwera"
 msgid ""
 "The domain pattern of the new server to add to the blocklist. Do not include"
 " the protocol."
-msgstr ""
+msgstr "Wzorzec domeny nowego serwera do dodania do listy blokad. Nie dołączaj protokołu."
 
 #: src/Module/Admin/Blocklist/Server/Add.php:105
 msgid "Purge server"
-msgstr ""
+msgstr "Wyczyść serwer"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:105
 msgid ""
@@ -5995,29 +5995,29 @@ msgstr "Po sprawdzeniu tego każdy użytkownik może zaznaczyć każdy kontakt j
 
 #: src/Module/Admin/Site.php:560
 msgid "Enable multiple registrations"
-msgstr ""
+msgstr "Włącz wiele rejestracji"
 
 #: src/Module/Admin/Site.php:560
 msgid "Enable users to register additional accounts for use as pages."
-msgstr ""
+msgstr "Zezwól użytkownikom na rejestrowanie dodatkowych kont do użytku jako strony."
 
 #: src/Module/Admin/Site.php:561
 msgid "Enable OpenID"
-msgstr ""
+msgstr "Włącz OpenID"
 
 #: src/Module/Admin/Site.php:561
 msgid "Enable OpenID support for registration and logins."
-msgstr ""
+msgstr "Włącz obsługę OpenID dla rejestracji i logowania."
 
 #: src/Module/Admin/Site.php:562
 msgid "Enable Fullname check"
-msgstr ""
+msgstr "Włącz sprawdzanie pełnej nazwy"
 
 #: src/Module/Admin/Site.php:562
 msgid ""
 "Enable check to only allow users to register with a space between the first "
 "name and the last name in their full name."
-msgstr ""
+msgstr "Włącz sprawdzenie, aby zezwolić użytkownikom tylko na rejestrację ze spacją między imieniem a nazwiskiem w ich pełnym imieniu."
 
 #: src/Module/Admin/Site.php:563
 msgid "Community pages for visitors"
@@ -6041,12 +6041,12 @@ msgstr "Maksymalna liczba postów na użytkownika na stronie społeczności. (Ni
 
 #: src/Module/Admin/Site.php:566
 msgid "Enable Mail support"
-msgstr ""
+msgstr "Włącz obsługę maili"
 
 #: src/Module/Admin/Site.php:566
 msgid ""
 "Enable built-in mail support to poll IMAP folders and to reply via mail."
-msgstr ""
+msgstr "Włącz wbudowaną obsługę poczty, aby odpytywać foldery IMAP i odpowiadać pocztą."
 
 #: src/Module/Admin/Site.php:567
 msgid ""
@@ -6055,13 +6055,13 @@ msgstr ""
 
 #: src/Module/Admin/Site.php:568
 msgid "Enable OStatus support"
-msgstr ""
+msgstr "Włącz obsługę OStatus"
 
 #: src/Module/Admin/Site.php:568
 msgid ""
 "Enable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All "
 "communications in OStatus are public."
-msgstr ""
+msgstr "Włącz wbudowaną kompatybilność z OStatus (StatusNet, GNU Social itp.). Wszystkie komunikaty w OSstatus są publiczne."
 
 #: src/Module/Admin/Site.php:570
 msgid ""
@@ -6095,7 +6095,7 @@ msgstr "Użytkownik proxy"
 
 #: src/Module/Admin/Site.php:573
 msgid "User name for the proxy server."
-msgstr ""
+msgstr "Nazwa użytkownika serwera proxy."
 
 #: src/Module/Admin/Site.php:574
 msgid "Proxy URL"
@@ -6151,11 +6151,11 @@ msgstr ""
 #: src/Module/Admin/Site.php:580
 msgid ""
 "If enabled, contacts are checked for their followers and following contacts."
-msgstr ""
+msgstr "Jeśli ta opcja jest włączona, kontakty są sprawdzane pod kątem ich obserwujących i śledzonych kontaktów."
 
 #: src/Module/Admin/Site.php:581
 msgid "None - deactivated"
-msgstr ""
+msgstr "Brak - dezaktywowany"
 
 #: src/Module/Admin/Site.php:582
 msgid ""
@@ -6171,7 +6171,7 @@ msgstr ""
 
 #: src/Module/Admin/Site.php:585
 msgid "Synchronize the contacts with the directory server"
-msgstr ""
+msgstr "Synchronizuj kontakty z serwerem katalogowym"
 
 #: src/Module/Admin/Site.php:585
 msgid ""
@@ -6232,7 +6232,7 @@ msgstr "Umożliwia sprawdzenie nowych wersji Friendica na github. Jeśli pojawi 
 
 #: src/Module/Admin/Site.php:594
 msgid "Suppress Tags"
-msgstr "Ukryj tagi"
+msgstr "Pomiń znaczniki"
 
 #: src/Module/Admin/Site.php:594
 msgid "Suppress showing a list of hashtags at the end of the posting."
@@ -6392,11 +6392,11 @@ msgstr "Rozdzielana przecinkami lista tagów dla subskrypcji „tagi”."
 
 #: src/Module/Admin/Site.php:612
 msgid "Deny Server tags"
-msgstr ""
+msgstr "Odrzuć znaczniki serwera"
 
 #: src/Module/Admin/Site.php:612
 msgid "Comma separated list of tags that are rejected."
-msgstr ""
+msgstr "Lista oddzielonych przecinkami znaczników, które zostały odrzucone."
 
 #: src/Module/Admin/Site.php:613
 msgid "Allow user tags"
@@ -6452,7 +6452,7 @@ msgstr "Zapisz i wczytaj ponownie"
 
 #: src/Module/Admin/Storage.php:146
 msgid "This backend doesn't have custom settings"
-msgstr ""
+msgstr "Ten backend nie ma niestandardowych ustawień"
 
 #: src/Module/Admin/Storage.php:149
 msgid "Database (legacy)"
@@ -6940,7 +6940,7 @@ msgstr ""
 #: src/Module/Api/Mastodon/Statuses/Pin.php:50
 #: src/Module/Api/Mastodon/Statuses/Unpin.php:50
 msgid "Only starting posts can be pinned"
-msgstr ""
+msgstr "Jedynie ogwiazdkowane wpisy mogą być przypięte"
 
 #: src/Module/Api/Mastodon/Statuses/Reblog.php:53
 #, php-format
@@ -7101,11 +7101,11 @@ msgstr "Tylko ty możesz to zobaczyć"
 
 #: src/Module/BaseProfile.php:114 src/Module/Profile/Schedule.php:82
 msgid "Scheduled Posts"
-msgstr ""
+msgstr "Zaplanowane wpisy"
 
 #: src/Module/BaseProfile.php:117
 msgid "Posts that are scheduled for publishing"
-msgstr ""
+msgstr "Wpisy zaplanowane do publikacji"
 
 #: src/Module/BaseProfile.php:136 src/Module/BaseProfile.php:139
 msgid "Tips for New Members"
@@ -7358,7 +7358,7 @@ msgstr[3] ""
 msgid ""
 "Both <strong>%s</strong> and yourself have publicly interacted with these "
 "contacts (follow, comment or likes on public posts)."
-msgstr ""
+msgstr "Zarówno <strong>%s</strong>, jak i Ty, nawiązaliście publiczną interakcję z tymi kontaktami (obserwujecie, komentujecie lub polubiliście publiczne wpisy)."
 
 #: src/Module/Contact/Contacts.php:123 src/Module/Profile/Contacts.php:110
 #, php-format
@@ -7607,11 +7607,11 @@ msgstr "Odśwież dane kontaktowe"
 
 #: src/Module/Contact/Profile.php:451
 msgid "Toggle Blocked status"
-msgstr "Przełącz status na Zablokowany"
+msgstr "Przełącz stan na Zablokowany"
 
 #: src/Module/Contact/Profile.php:459
 msgid "Toggle Ignored status"
-msgstr "Przełącz status na Ignorowany"
+msgstr "Przełącz stan na Ignorowany"
 
 #: src/Module/Contact/Profile.php:466 src/Module/Contact/Revoke.php:105
 msgid "Revoke Follow"
@@ -7919,7 +7919,7 @@ msgstr ""
 
 #: src/Module/Debug/Babel.php:294
 msgid "Twitter addon is absent from the addon/ folder."
-msgstr ""
+msgstr "Dodatek do Twittera jest nieobecny w katalogu addon/."
 
 #: src/Module/Debug/Babel.php:304
 msgid "Babel Diagnostic"
@@ -8524,7 +8524,7 @@ msgid ""
 "This Friendica node is currently in maintenance mode, either automatically "
 "because it is self-updating or manually by the node administrator. This "
 "condition should be temporary, please come back in a few minutes."
-msgstr ""
+msgstr "Ten węzeł Friendica jest obecnie w trybie konserwacji, przełączanej automatycznie, ponieważ jest aktualizowany samodzielnie lub ręcznie przez administratora węzła. Ten stan powinien być tymczasowy, proszę wrócić za kilka minut."
 
 #: src/Module/Manifest.php:42
 msgid "A Decentralized Social Network"
@@ -8760,10 +8760,10 @@ msgstr "Wiek: "
 #, php-format
 msgid "%d year old"
 msgid_plural "%d years old"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%d rok"
+msgstr[1] "%d lata"
+msgstr[2] "%d lat"
+msgstr[3] "%d lat"
 
 #: src/Module/Profile/Profile.php:234
 msgid "Forums:"
@@ -8775,7 +8775,7 @@ msgstr "Wyświetl profil jako:"
 
 #: src/Module/Profile/Profile.php:263
 msgid "View as"
-msgstr ""
+msgstr "Zobacz jako"
 
 #: src/Module/Profile/Profile.php:326 src/Module/Profile/Profile.php:329
 #: src/Module/Profile/Status.php:65 src/Module/Profile/Status.php:68
@@ -8798,7 +8798,7 @@ msgstr "komentarze %s"
 
 #: src/Module/Profile/Schedule.php:84
 msgid "Scheduled"
-msgstr ""
+msgstr "Zaplanowane"
 
 #: src/Module/Profile/Schedule.php:85
 msgid "Content"
@@ -8994,7 +8994,7 @@ msgstr "Dla niezalogowanych użytkowników dozwolone jest tylko jedno wyszukiwan
 #: src/Module/Search/Index.php:189
 #, php-format
 msgid "Items tagged with: %s"
-msgstr "Przedmioty oznaczone tagiem: %s"
+msgstr "Elementy oznaczone znacznikiem: %s"
 
 #: src/Module/Search/Saved.php:58
 msgid "Search term was not saved."
@@ -9302,7 +9302,7 @@ msgstr ""
 
 #: src/Module/Settings/Display.php:214
 msgid "Enable the automatic suppression of extraneous thread indentation."
-msgstr ""
+msgstr "Włącz automatyczne tłumienie obcych wcięć wątku."
 
 #: src/Module/Settings/Display.php:215
 msgid "Display the Dislike feature"
@@ -9354,7 +9354,7 @@ msgstr "Wartość:"
 #: src/Module/Settings/Profile/Index.php:183
 #: src/Module/Settings/Profile/Index.php:203
 msgid "Field Permissions"
-msgstr ""
+msgstr "Uprawnienia pola"
 
 #: src/Module/Settings/Profile/Index.php:184
 #: src/Module/Settings/Profile/Index.php:204
@@ -9388,11 +9388,11 @@ msgstr "Lokalizacja"
 #: src/Module/Settings/Profile/Index.php:230 src/Util/Temporal.php:93
 #: src/Util/Temporal.php:95
 msgid "Miscellaneous"
-msgstr "Różny"
+msgstr "Różne"
 
 #: src/Module/Settings/Profile/Index.php:231
 msgid "Custom Profile Fields"
-msgstr ""
+msgstr "Niestandardowe pola profilu"
 
 #: src/Module/Settings/Profile/Index.php:233 src/Module/Welcome.php:58
 msgid "Upload Profile Photo"
@@ -9429,16 +9429,16 @@ msgstr "Adres XMPP (Jabber):"
 #: src/Module/Settings/Profile/Index.php:246
 msgid ""
 "The XMPP address will be published so that people can follow you there."
-msgstr ""
+msgstr "Adres XMPP zostanie opublikowany, aby ludzie mogli Cię tam śledzić."
 
 #: src/Module/Settings/Profile/Index.php:247
 msgid "Matrix (Element) address:"
-msgstr ""
+msgstr "Adres Matrix (Element):"
 
 #: src/Module/Settings/Profile/Index.php:247
 msgid ""
 "The Matrix address will be published so that people can follow you there."
-msgstr ""
+msgstr "Adres Matrix zostanie opublikowany, aby ludzie mogli Cię tam śledzić."
 
 #: src/Module/Settings/Profile/Index.php:248
 msgid "Homepage URL:"
@@ -9749,11 +9749,11 @@ msgstr "Następny: Weryfikacja"
 
 #: src/Module/Settings/TwoFactor/Trusted.php:82
 msgid "Trusted browsers successfully removed."
-msgstr ""
+msgstr "Zaufane przeglądarki zostały pomyślnie usunięte."
 
 #: src/Module/Settings/TwoFactor/Trusted.php:92
 msgid "Trusted browser successfully removed."
-msgstr ""
+msgstr "Zaufana przeglądarka została pomyślnie usunięta."
 
 #: src/Module/Settings/TwoFactor/Trusted.php:133
 msgid "Two-factor Trusted Browsers"
@@ -9768,7 +9768,7 @@ msgstr ""
 
 #: src/Module/Settings/TwoFactor/Trusted.php:135
 msgid "Device"
-msgstr ""
+msgstr "Urządzenie"
 
 #: src/Module/Settings/TwoFactor/Trusted.php:136
 msgid "OS"
@@ -10444,7 +10444,7 @@ msgstr "%2$s zaakceptował twoją [url=%1$s] prośbę o połączenie [/url]."
 msgid ""
 "You are now mutual friends and may exchange status updates, photos, and "
 "email without restriction."
-msgstr "Jesteście teraz przyjaciółmi i możesz wymieniać aktualizacje statusu, zdjęcia i e-maile bez ograniczeń."
+msgstr "Jesteście teraz przyjaciółmi i możesz wymieniać aktualizacje stanu, zdjęcia i e-maile bez ograniczeń."
 
 #: src/Navigation/Notifications/Repository/Notify.php:449
 #, php-format
@@ -10558,7 +10558,7 @@ msgstr "Edytuj"
 
 #: src/Object/Post.php:235
 msgid "Pinned item"
-msgstr ""
+msgstr "Przypięty element"
 
 #: src/Object/Post.php:239
 msgid "Delete globally"
@@ -10599,7 +10599,7 @@ msgstr ""
 
 #: src/Object/Post.php:326
 msgid "Toggle ignore status"
-msgstr ""
+msgstr "Przełącz stan ignorowania"
 
 #: src/Object/Post.php:336
 msgid "Add star"
@@ -10611,23 +10611,23 @@ msgstr ""
 
 #: src/Object/Post.php:338
 msgid "Toggle star status"
-msgstr ""
+msgstr "Przełącz stan gwiazdy"
 
 #: src/Object/Post.php:349
 msgid "Pin"
-msgstr ""
+msgstr "Przypnij"
 
 #: src/Object/Post.php:350
 msgid "Unpin"
-msgstr ""
+msgstr "Odepnij"
 
 #: src/Object/Post.php:351
 msgid "Toggle pin status"
-msgstr ""
+msgstr "Przełącz stan podpięcia"
 
 #: src/Object/Post.php:354
 msgid "Pinned"
-msgstr ""
+msgstr "Przypięty"
 
 #: src/Object/Post.php:359
 msgid "Add tag"
@@ -10752,7 +10752,7 @@ msgstr "przestał śledzić"
 
 #: src/Render/FriendicaSmartyEngine.php:52
 msgid "The folder view/smarty3/ must be writable by webserver."
-msgstr ""
+msgstr "Katalog view/smarty3/ musi być zapisywalny przez serwer WWW."
 
 #: src/Security/Authentication.php:221
 msgid "Login failed."
@@ -10801,7 +10801,7 @@ msgstr ""
 #: src/Util/Temporal.php:275
 #, php-format
 msgid "Time zone: <strong>%s</strong> <a href=\"%s\">Change in Settings</a>"
-msgstr ""
+msgstr "Strefa czasowa: <strong>%s</strong> <a href=\"%s\">Zmień w ustawieniach</a>"
 
 #: src/Util/Temporal.php:318
 msgid "never"
@@ -10967,7 +10967,7 @@ msgstr ""
 
 #: view/theme/frio/config.php:166
 msgid "Pink"
-msgstr ""
+msgstr "Różowy"
 
 #: view/theme/frio/config.php:167
 msgid "Copy or paste schemestring"
@@ -11036,7 +11036,7 @@ msgstr "Pełny ekran"
 #: view/theme/frio/php/Image.php:41
 msgid ""
 "Resize image to fill entire screen, clipping either the right or the bottom."
-msgstr ""
+msgstr "Zmień rozmiar obrazu, aby wypełnić cały ekran, przycinając prawy lub dolny."
 
 #: view/theme/frio/php/Image.php:42
 msgid "Single row mosaic"
