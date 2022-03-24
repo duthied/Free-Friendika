@@ -873,10 +873,8 @@
 			"archive" => ["contact", "archive"],
 			"deleted" => ["contact", "deleted"],
 			"blocked" => ["contact", "blocked"],
-			"dfrn-request" => ["contact", "request"],
 			"dfrn-notify" => ["contact", "notify"],
 			"dfrn-poll" => ["contact", "poll"],
-			"dfrn-confirm" => ["contact", "confirm"],
 			"diaspora-guid" => ["fcontact", "guid"],
 			"diaspora-batch" => ["fcontact", "batch"],
 			"diaspora-notify" => ["fcontact", "notify"],
@@ -893,11 +891,15 @@
 			"ap-following_count" => ["apcontact", "following_count"],
 			"ap-followers_count" => ["apcontact", "followers_count"],
 			"ap-statuses_count" => ["apcontact", "statuses_count"],
+			"site_name" => ["gserver", "site_name"],
+			"platform" => ["gserver", "platform"],
+			"version" => ["gserver", "version"],
 		],
 		"query" => "FROM `contact`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `contact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `contact`.`uri-id`
 			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = contact.`uri-id`
+			LEFT JOIN `gserver` ON `gserver`.`id` = contact.`gsid`
 			WHERE `contact`.`uid` = 0"			
 	],
 	"account-user-view" => [
@@ -970,10 +972,8 @@
 			"subhub" => ["ucontact", "subhub"],
 			"hub-verify" => ["ucontact", "hub-verify"],
 			"reason" => ["ucontact", "reason"],
-			"dfrn-request" => ["contact", "request"],
 			"dfrn-notify" => ["contact", "notify"],
 			"dfrn-poll" => ["contact", "poll"],
-			"dfrn-confirm" => ["contact", "confirm"],
 			"diaspora-guid" => ["fcontact", "guid"],
 			"diaspora-batch" => ["fcontact", "batch"],
 			"diaspora-notify" => ["fcontact", "notify"],
@@ -990,12 +990,16 @@
 			"ap-following_count" => ["apcontact", "following_count"],
 			"ap-followers_count" => ["apcontact", "followers_count"],
 			"ap-statuses_count" => ["apcontact", "statuses_count"],
+			"site_name" => ["gserver", "site_name"],
+			"platform" => ["gserver", "platform"],
+			"version" => ["gserver", "version"],
 		],
 		"query" => "FROM `contact` AS `ucontact`
 			INNER JOIN `contact` ON `contact`.`uri-id` = `ucontact`.`uri-id` AND `contact`.`uid` = 0
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `ucontact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `ucontact`.`uri-id`
-			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = `ucontact`.`uri-id` AND `fcontact`.`network` = 'dspr'"
+			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = `ucontact`.`uri-id` AND `fcontact`.`network` = 'dspr'
+			LEFT JOIN `gserver` ON `gserver`.`id` = contact.`gsid`"
 	],
 	"pending-view" => [
 		"fields" => [
