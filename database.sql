@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1452
+-- DB_UPDATE_VERSION 1453
 -- ------------------------------------------
 
 
@@ -2412,10 +2412,8 @@ CREATE VIEW `account-view` AS SELECT
 	`contact`.`archive` AS `archive`,
 	`contact`.`deleted` AS `deleted`,
 	`contact`.`blocked` AS `blocked`,
-	`contact`.`request` AS `dfrn-request`,
 	`contact`.`notify` AS `dfrn-notify`,
 	`contact`.`poll` AS `dfrn-poll`,
-	`contact`.`confirm` AS `dfrn-confirm`,
 	`fcontact`.`guid` AS `diaspora-guid`,
 	`fcontact`.`batch` AS `diaspora-batch`,
 	`fcontact`.`notify` AS `diaspora-notify`,
@@ -2431,11 +2429,15 @@ CREATE VIEW `account-view` AS SELECT
 	`apcontact`.`generator` AS `ap-generator`,
 	`apcontact`.`following_count` AS `ap-following_count`,
 	`apcontact`.`followers_count` AS `ap-followers_count`,
-	`apcontact`.`statuses_count` AS `ap-statuses_count`
+	`apcontact`.`statuses_count` AS `ap-statuses_count`,
+	`gserver`.`site_name` AS `site_name`,
+	`gserver`.`platform` AS `platform`,
+	`gserver`.`version` AS `version`
 	FROM `contact`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `contact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `contact`.`uri-id`
 			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = contact.`uri-id`
+			LEFT JOIN `gserver` ON `gserver`.`id` = contact.`gsid`
 			WHERE `contact`.`uid` = 0;
 
 --
@@ -2511,10 +2513,8 @@ CREATE VIEW `account-user-view` AS SELECT
 	`ucontact`.`subhub` AS `subhub`,
 	`ucontact`.`hub-verify` AS `hub-verify`,
 	`ucontact`.`reason` AS `reason`,
-	`contact`.`request` AS `dfrn-request`,
 	`contact`.`notify` AS `dfrn-notify`,
 	`contact`.`poll` AS `dfrn-poll`,
-	`contact`.`confirm` AS `dfrn-confirm`,
 	`fcontact`.`guid` AS `diaspora-guid`,
 	`fcontact`.`batch` AS `diaspora-batch`,
 	`fcontact`.`notify` AS `diaspora-notify`,
@@ -2530,12 +2530,16 @@ CREATE VIEW `account-user-view` AS SELECT
 	`apcontact`.`generator` AS `ap-generator`,
 	`apcontact`.`following_count` AS `ap-following_count`,
 	`apcontact`.`followers_count` AS `ap-followers_count`,
-	`apcontact`.`statuses_count` AS `ap-statuses_count`
+	`apcontact`.`statuses_count` AS `ap-statuses_count`,
+	`gserver`.`site_name` AS `site_name`,
+	`gserver`.`platform` AS `platform`,
+	`gserver`.`version` AS `version`
 	FROM `contact` AS `ucontact`
 			INNER JOIN `contact` ON `contact`.`uri-id` = `ucontact`.`uri-id` AND `contact`.`uid` = 0
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `ucontact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `ucontact`.`uri-id`
-			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = `ucontact`.`uri-id` AND `fcontact`.`network` = 'dspr';
+			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = `ucontact`.`uri-id` AND `fcontact`.`network` = 'dspr'
+			LEFT JOIN `gserver` ON `gserver`.`id` = contact.`gsid`;
 
 --
 -- VIEW pending-view

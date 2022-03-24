@@ -57,23 +57,29 @@ class ForumManager
 			$params = ['order' => ['name']];
 		}
 
-		$condition_str = "`network` IN (?, ?) AND `uid` = ? AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND ";
+		$condition = [
+			'contact-type' => Contact::TYPE_COMMUNITY,
+			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB],
+			'uid' => $uid, 
+			'blocked' => false,
+			'pending' => false,
+			'archive' => false, 
+		];
 
-		if ($showprivate) {
-			$condition_str .= '(`forum` OR `prv`)';
-		} else {
-			$condition_str .= '`forum`';
+		$condition = DBA::mergeConditions($condition, ["`platform` != ?", 'peertube']);
+
+		if (!$showprivate) {
+			$condition = DBA::mergeConditions($condition, ['manually-approve' => false]);
 		}
 
 		if (!$showhidden) {
-			$condition_str .=  ' AND NOT `hidden`';
+			$condition = DBA::mergeConditions($condition, ['hidden' => false]);
 		}
 
 		$forumlist = [];
 
 		$fields = ['id', 'url', 'name', 'micro', 'thumb', 'avatar', 'network', 'uid'];
-		$condition = [$condition_str, Protocol::DFRN, Protocol::ACTIVITYPUB, $uid];
-		$contacts = DBA::select('contact', $fields, $condition, $params);
+		$contacts = DBA::select('account-user-view', $fields, $condition, $params);
 		if (!$contacts) {
 			return($forumlist);
 		}
