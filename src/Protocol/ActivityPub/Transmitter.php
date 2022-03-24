@@ -1467,10 +1467,28 @@ class Transmitter
 			return [];
 		}
 
+		// We are treating posts differently when they are directed to a community.
+		// This is done to better support Lemmy. Most of the changes should work with other systems as well.
+		// But to not risk compatibility issues we currently perform the changes only for communities.
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			$isCommunityPost = !empty(Tag::getByURIId($item['uri-id'], [Tag::EXCLUSIVE_MENTION]));
+			$links = Post\Media::getByURIId($item['uri-id'], [Post\Media::HTML]);
+			if ($isCommunityPost && (count($links) == 1)) {
+				$link = $links[0]['url'];
+			}
+		} else {
+			$isCommunityPost = false;
+		}
+
 		if ($item['event-type'] == 'event') {
 			$type = 'Event';
 		} elseif (!empty($item['title'])) {
-			$type = 'Article';
+			if (!$isCommunityPost || empty($link)) {
+				$type = 'Article';
+			} else {
+				// "Page" is used by Lemmy for posts that contain an external link
+				$type = 'Page';
+			}
 		} else {
 			$type = 'Note';
 		}
@@ -1502,7 +1520,7 @@ class Transmitter
 			$data['updated'] = DateTimeFormat::utc($item['edited'] . '+00:00', DateTimeFormat::ATOM);
 		}
 
-		$data['url'] = $item['plink'];
+		$data['url'] = $link ?? $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
 		$data['sensitive'] = self::isSensitive($item['uri-id']);
 		$data['context'] = self::fetchContextURLForItem($item);
@@ -1539,6 +1557,19 @@ class Transmitter
 		if ($type == 'Event') {
 			$data = array_merge($data, self::createEvent($item));
 		} else {
+			if ($isCommunityPost) {
+				// For community posts we remove the visible "!user@domain.tld".
+				// This improves the look at systems like Lemmy.
+				// Also in the future we should control the community delivery via other methods.
+				$body = preg_replace("/!\[url\=[^\[\]]*\][^\[\]]*\[\/url\]/ism", '', $body);
+			}
+
+			if ($type == 'Page') {
+				// When we transmit "Page" posts we have to remove the attachment.
+				// The attachment contains the link that we already transmit in the "url" field.
+				$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
+			}
+
 			$body = BBCode::setMentionsToNicknames($body);
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
