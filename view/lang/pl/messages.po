@@ -288,7 +288,7 @@ msgstr "Ustawienia uprawnień"
 
 #: mod/editpost.php:116 src/Core/ACL.php:326
 msgid "CC: email addresses"
-msgstr "CC: adresy e-mail"
+msgstr "DW: adresy e-mail"
 
 #: mod/editpost.php:117 src/Content/Conversation.php:366
 msgid "Public post"
@@ -354,7 +354,7 @@ msgstr "Odnośnik"
 #: mod/editpost.php:140 src/Content/Conversation.php:338
 #: src/Module/Item/Compose.php:158 src/Object/Post.php:994
 msgid "Link or Media"
-msgstr "Link lub Media"
+msgstr "Odnośnik lub Media"
 
 #: mod/editpost.php:143 src/Content/Conversation.php:380
 #: src/Content/Widget/VCard.php:107 src/Model/Profile.php:460
@@ -1106,11 +1106,11 @@ msgstr "Nie obracaj"
 
 #: mod/photos.php:1292
 msgid "Rotate CW (right)"
-msgstr "Obróć CW (w prawo)"
+msgstr "Obróć zgodnie z kierunkiem wskazówek zegara (w prawo)"
 
 #: mod/photos.php:1293
 msgid "Rotate CCW (left)"
-msgstr "Obróć CCW (w lewo)"
+msgstr "Obróć w przeciwnym kierunku do ruchu wskazówek zegara (w lewo)"
 
 #: mod/photos.php:1339 mod/photos.php:1395 mod/photos.php:1469
 #: src/Module/Contact.php:544 src/Module/Item/Compose.php:148
@@ -1362,7 +1362,7 @@ msgstr "Ogólne ustawienia mediów społecznościowych"
 
 #: mod/settings.php:593
 msgid "Followed content scope"
-msgstr ""
+msgstr "Obserwowany zakres treści"
 
 #: mod/settings.php:595
 msgid ""
@@ -1381,7 +1381,7 @@ msgstr "Rozmowy, które rozpoczęli moi obserwowani, lub które komentowali (dom
 
 #: mod/settings.php:599
 msgid "Any conversation my follows interacted with, including likes"
-msgstr ""
+msgstr "Wszelkie rozmowy, z którymi wchodziłem w interakcję, w tym polubienia"
 
 #: mod/settings.php:602
 msgid "Enable Content Warning"
@@ -1467,7 +1467,7 @@ msgstr "Port IMAP:"
 
 #: mod/settings.php:619
 msgid "Security:"
-msgstr "Ochrona:"
+msgstr "Bezpieczeństwo:"
 
 #: mod/settings.php:620
 msgid "Email login name:"
@@ -1475,7 +1475,7 @@ msgstr "Nazwa logowania e-mail:"
 
 #: mod/settings.php:621
 msgid "Email password:"
-msgstr "E-mail hasło:"
+msgstr "Hasło e-mail:"
 
 #: mod/settings.php:622
 msgid "Reply-to address:"
@@ -2208,7 +2208,7 @@ msgstr "Wspólni znajomi"
 
 #: src/BaseModule.php:427
 msgid "Common"
-msgstr ""
+msgstr "Wspólne"
 
 #: src/Console/Addon.php:177 src/Console/Addon.php:202
 msgid "Addon not found"
@@ -2397,7 +2397,7 @@ msgstr "Twitter"
 
 #: src/Content/ContactSelector.php:135
 msgid "Discourse"
-msgstr "Rozmowa"
+msgstr "Discourse"
 
 #: src/Content/ContactSelector.php:136
 msgid "Diaspora Connector"
@@ -2409,11 +2409,11 @@ msgstr "Łącze GNU Social"
 
 #: src/Content/ContactSelector.php:138
 msgid "ActivityPub"
-msgstr "Pub aktywności"
+msgstr "ActivityPub"
 
 #: src/Content/ContactSelector.php:139
 msgid "pnut"
-msgstr "orzech"
+msgstr "pnut"
 
 #: src/Content/ContactSelector.php:175
 #, php-format
@@ -2542,7 +2542,7 @@ msgstr "Usunąć pozycję (pozycje)?"
 
 #: src/Content/Conversation.php:322
 msgid "New Post"
-msgstr "Nowy Post"
+msgstr "Nowy wpis"
 
 #: src/Content/Conversation.php:325 src/Object/Post.php:497
 msgid "Share"
@@ -2573,7 +2573,7 @@ msgstr "Kategorie:"
 
 #: src/Content/Conversation.php:665 src/Object/Post.php:457
 msgid "Filed under:"
-msgstr "Zapisano w:"
+msgstr "Umieszczono w:"
 
 #: src/Content/Conversation.php:673 src/Object/Post.php:482
 #, php-format
@@ -2596,12 +2596,12 @@ msgstr "Usuń zaznaczone elementy"
 #: src/Content/Conversation.php:827 src/Content/Conversation.php:830
 #, php-format
 msgid "You had been addressed (%s)."
-msgstr ""
+msgstr "Zostałeś zaadresowany (%s)."
 
 #: src/Content/Conversation.php:833
 #, php-format
 msgid "You are following %s."
-msgstr ""
+msgstr "Zacząłeś obserwować %s."
 
 #: src/Content/Conversation.php:836
 msgid "Tagged"
@@ -2609,43 +2609,43 @@ msgstr "Oznaczone"
 
 #: src/Content/Conversation.php:851
 msgid "Reshared"
-msgstr ""
+msgstr "Udostępnione"
 
 #: src/Content/Conversation.php:851
 #, php-format
 msgid "Reshared by %s <%s>"
-msgstr ""
+msgstr "Udostępnione przez %s <%s>"
 
 #: src/Content/Conversation.php:854
 #, php-format
 msgid "%s is participating in this thread."
-msgstr ""
+msgstr "%s bierze udział w tym wątku."
 
 #: src/Content/Conversation.php:857
 msgid "Stored"
-msgstr ""
+msgstr "Przechowywane"
 
 #: src/Content/Conversation.php:860
 msgid "Global"
-msgstr ""
+msgstr "Globalne"
 
 #: src/Content/Conversation.php:863
 msgid "Relayed"
-msgstr ""
+msgstr "Przekazany"
 
 #: src/Content/Conversation.php:863
 #, php-format
 msgid "Relayed by %s <%s>"
-msgstr ""
+msgstr "Przekazany przez %s <%s>"
 
 #: src/Content/Conversation.php:866
 msgid "Fetched"
-msgstr ""
+msgstr "Pobrane"
 
 #: src/Content/Conversation.php:866
 #, php-format
 msgid "Fetched because of %s <%s>"
-msgstr ""
+msgstr "Pobrano ponieważ %s <%s>"
 
 #: src/Content/Feature.php:96
 msgid "General Features"
@@ -2686,7 +2686,7 @@ msgstr "Dodaj/usuń wzmiankę, gdy strona forum zostanie wybrana/cofnięta w okn
 
 #: src/Content/Feature.php:106
 msgid "Explicit Mentions"
-msgstr ""
+msgstr "Wyraźne wzmianki"
 
 #: src/Content/Feature.php:106
 msgid ""
@@ -2711,7 +2711,7 @@ msgstr "Narzędzia post/komentarz"
 
 #: src/Content/Feature.php:113
 msgid "Post Categories"
-msgstr "Kategorie postów"
+msgstr "Kategorie wpisów"
 
 #: src/Content/Feature.php:113
 msgid "Add categories to your posts"
@@ -2870,18 +2870,18 @@ msgstr "Stan"
 #: src/Content/Nav.php:190 src/Content/Nav.php:273
 #: view/theme/frio/theme.php:225
 msgid "Your posts and conversations"
-msgstr "Twoje posty i rozmowy"
+msgstr "Twoje wpisy i rozmowy"
 
 #: src/Content/Nav.php:191 src/Module/BaseProfile.php:48
 #: src/Module/BaseSettings.php:55 src/Module/Contact.php:457
 #: src/Module/Contact/Profile.php:382 src/Module/Profile/Profile.php:241
 #: src/Module/Welcome.php:57 view/theme/frio/theme.php:226
 msgid "Profile"
-msgstr "Profil użytkownika"
+msgstr "Profil"
 
 #: src/Content/Nav.php:191 view/theme/frio/theme.php:226
 msgid "Your profile page"
-msgstr "Twoja strona profilowa"
+msgstr "Twoja strona profilu"
 
 #: src/Content/Nav.php:192 view/theme/frio/theme.php:227
 msgid "Your photos"
@@ -2903,11 +2903,11 @@ msgstr "Twoje wydarzenia"
 
 #: src/Content/Nav.php:195
 msgid "Personal notes"
-msgstr "Notatki"
+msgstr "Osobiste notatki"
 
 #: src/Content/Nav.php:195
 msgid "Your personal notes"
-msgstr "Twoje prywatne notatki"
+msgstr "Twoje osobiste notatki"
 
 #: src/Content/Nav.php:212 src/Content/Nav.php:273
 msgid "Home"
@@ -3049,7 +3049,7 @@ msgstr "Wysłane"
 
 #: src/Content/Nav.php:289
 msgid "Accounts"
-msgstr "Konto"
+msgstr "Konta"
 
 #: src/Content/Nav.php:289
 msgid "Manage other pages"
@@ -3071,11 +3071,11 @@ msgstr "Zarządzaj listą przyjaciół i kontaktami"
 
 #: src/Content/Nav.php:299 src/Module/BaseAdmin.php:126
 msgid "Admin"
-msgstr "Administator"
+msgstr "Administrator"
 
 #: src/Content/Nav.php:299
 msgid "Site setup and configuration"
-msgstr "Konfiguracja i ustawienia instancji"
+msgstr "Konfiguracja i ustawienia strony"
 
 #: src/Content/Nav.php:302
 msgid "Navigation"
@@ -3146,7 +3146,7 @@ msgstr "Niepoprawny link protokołu"
 
 #: src/Content/Text/HTML.php:797
 msgid "Loading more entries..."
-msgstr "Ładuję więcej wpisów..."
+msgstr "Wczytywanie kolejnych wpisów..."
 
 #: src/Content/Text/HTML.php:798
 msgid "The end"
@@ -3248,7 +3248,7 @@ msgstr "Wszystkie protokoły"
 
 #: src/Content/Widget.php:309
 msgid "Saved Folders"
-msgstr "Zapisz w folderach"
+msgstr "Zapisane foldery"
 
 #: src/Content/Widget.php:311 src/Content/Widget.php:342
 msgid "Everything"
@@ -3265,11 +3265,11 @@ msgid_plural "%d contacts in common"
 msgstr[0] "%d wspólny kontakt"
 msgstr[1] "%d wspólne kontakty"
 msgstr[2] "%d wspólnych kontaktów"
-msgstr[3] "%dwspólnych kontaktów"
+msgstr[3] "%d wspólnych kontaktów"
 
 #: src/Content/Widget.php:493
 msgid "Archives"
-msgstr "Archiwum"
+msgstr "Archiwa"
 
 #: src/Content/Widget.php:517
 msgid "Persons"
@@ -3285,7 +3285,7 @@ msgstr "Aktualności"
 
 #: src/Content/Widget.php:524 src/Module/Admin/BaseUsers.php:51
 msgid "All"
-msgstr ""
+msgstr "Wszyscy"
 
 #: src/Content/Widget/CalendarExport.php:54
 msgid "Export"
@@ -3419,7 +3419,7 @@ msgstr "Może być konieczne zaimportowanie pliku \"database.sql\" ręcznie, uż
 #: src/Core/Installer.php:203 src/Module/Install.php:213
 #: src/Module/Install.php:372
 msgid "Please see the file \"doc/INSTALL.md\"."
-msgstr ""
+msgstr "Proszę zobaczyć plik \"doc/INSTALL.md\"."
 
 #: src/Core/Installer.php:264
 msgid "Could not find a command line version of PHP in the web server PATH."
@@ -3431,7 +3431,7 @@ msgid ""
 "you will not be able to run the background processing. See <a "
 "href='https://github.com/friendica/friendica/blob/stable/doc/Install.md#set-"
 "up-the-worker'>'Setup the worker'</a>"
-msgstr ""
+msgstr "Jeśli nie masz zainstalowanej na serwerze wersji PHP działającej w wierszu poleceń, nie będziesz w stanie uruchomić przetwarzania w tle. Zobacz <a href='https://github.com/friendica/friendica/blob/stable/doc/Install.md#set-up-the-worker'>„Ustawienie workera”</a>."
 
 #: src/Core/Installer.php:270
 msgid "PHP executable path"
@@ -3445,7 +3445,7 @@ msgstr "Wprowadź pełną ścieżkę do pliku wykonywalnego php. Możesz pozosta
 
 #: src/Core/Installer.php:275
 msgid "Command line PHP"
-msgstr "Linia komend PHP"
+msgstr "Wiersz poleceń PHP"
 
 #: src/Core/Installer.php:284
 msgid "PHP executable is not the php cli binary (could be cgi-fgci version)"
@@ -3569,12 +3569,12 @@ msgstr "Błąd: wymagany moduł POSIX PHP, ale nie zainstalowany."
 
 #: src/Core/Installer.php:471
 msgid "Program execution functions"
-msgstr ""
+msgstr "Funkcje wykonywania programu"
 
 #: src/Core/Installer.php:472
 msgid ""
 "Error: Program execution functions (proc_open) required but not enabled."
-msgstr ""
+msgstr "Błąd: Funkcje wykonywania programu (proc_open) są wymagane, ale nie są włączone."
 
 #: src/Core/Installer.php:478
 msgid "JSON PHP module"
@@ -3615,7 +3615,7 @@ msgstr "Pod koniec tej procedury otrzymasz tekst do zapisania w pliku o nazwie l
 msgid ""
 "You can alternatively skip this procedure and perform a manual installation."
 " Please see the file \"doc/INSTALL.md\" for instructions."
-msgstr ""
+msgstr "Alternatywnie można pominąć tę procedurę i przeprowadzić instalację ręczną. Proszę zobaczyć plik \"doc/INSTALL.md\" z instrukcjami."
 
 #: src/Core/Installer.php:515
 msgid "config/local.config.php is writable"
@@ -3654,13 +3654,13 @@ msgstr "view/smarty3 jest zapisywalny"
 msgid ""
 "Url rewrite in .htaccess seems not working. Make sure you copied .htaccess-"
 "dist to .htaccess."
-msgstr ""
+msgstr "Adres URL zapisany w .htaccess wydaje się nie działać. Upewnij się, że skopiowano .htaccess-dist do .htaccess."
 
 #: src/Core/Installer.php:570
 msgid ""
 "In some circumstances (like running inside containers), you can skip this "
 "error."
-msgstr ""
+msgstr "W niektórych okolicznościach (np. uruchamianie wewnątrz kontenerów) możesz pominąć ten błąd."
 
 #: src/Core/Installer.php:572
 msgid "Error message from Curl when fetching"
@@ -3674,7 +3674,7 @@ msgstr "Działający adres URL"
 msgid ""
 "The detection of TLS to secure the communication between the browser and the"
 " new Friendica server failed."
-msgstr ""
+msgstr "Wykrycie TLS w celu zabezpieczenia komunikacji między przeglądarką a nowym serwerem Friendica nie powiodło się."
 
 #: src/Core/Installer.php:608
 msgid ""
@@ -3922,11 +3922,11 @@ msgstr "Friendica nie może obecnie wyświetlić tej strony, skontaktuj się z a
 
 #: src/Core/Renderer.php:141
 msgid "template engine cannot be registered without a name."
-msgstr ""
+msgstr "silnik szablonów nie może być zarejestrowany bez nazwy."
 
 #: src/Core/Renderer.php:175
 msgid "template engine is not registered!"
-msgstr ""
+msgstr "silnik szablonów nie jest zarejestrowany!"
 
 #: src/Core/Storage/Type/FilesystemConfig.php:78
 msgid "Storage base path"
@@ -3947,24 +3947,24 @@ msgstr "Wprowadź poprawny istniejący folder"
 msgid ""
 "Updates from version %s are not supported. Please update at least to version"
 " 2021.01 and wait until the postupdate finished version 1383."
-msgstr ""
+msgstr "Aktualizacje z wersji %s nie są obsługiwane. Zaktualizuj co najmniej do wersji 2021.01 i poczekaj, aż po aktualizacji zakończy się wersja 1383."
 
 #: src/Core/Update.php:78
 #, php-format
 msgid ""
 "Updates from postupdate version %s are not supported. Please update at least"
 " to version 2021.01 and wait until the postupdate finished version 1383."
-msgstr ""
+msgstr "Aktualizacje z wersji postupdate %s nie są obsługiwane. Zaktualizuj co najmniej do wersji 2021.01 i poczekaj, aż po aktualizacji zakończy się wersja 1383."
 
 #: src/Core/Update.php:152
 #, php-format
 msgid "%s: executing pre update %d"
-msgstr ""
+msgstr "%s: wykonywanie wstępnej aktualizacji %d"
 
 #: src/Core/Update.php:190
 #, php-format
 msgid "%s: executing post update %d"
-msgstr ""
+msgstr "%s: wykonywanie czynności poaktualizacyjnych %d"
 
 #: src/Core/Update.php:261
 #, php-format
@@ -3984,7 +3984,7 @@ msgstr "\n\t\t\t\tDeweloperzy friendica wydali niedawno aktualizację %s,\n\t\t\
 #: src/Core/Update.php:320
 #, php-format
 msgid "The error message is\\n[pre]%s[/pre]"
-msgstr ""
+msgstr "Komunikat o błędzie:\\n[pre]%s[/pre]"
 
 #: src/Core/Update.php:324 src/Core/Update.php:366
 msgid "[Friendica Notify] Database update"
@@ -4034,14 +4034,14 @@ msgstr "Gotowe. Możesz teraz zalogować się z użyciem nazwy użytkownika i ha
 #: src/Database/DBStructure.php:65
 #, php-format
 msgid "The database version had been set to %s."
-msgstr ""
+msgstr "Wersja bazy danych została ustawiona na %s."
 
 #: src/Database/DBStructure.php:78
 #, php-format
 msgid ""
 "The post update is at version %d, it has to be at %d to safely drop the "
 "tables."
-msgstr ""
+msgstr "Aktualizacja po aktualizacji jest w wersji %d, musi nastąpić %d, aby bezpiecznie usunąć tabele."
 
 #: src/Database/DBStructure.php:91
 msgid "No unused tables found."
@@ -4051,7 +4051,7 @@ msgstr "Nie odnaleziono nieużywanych tabel"
 msgid ""
 "These tables are not used for friendica and will be deleted when you execute"
 " \"dbstructure drop -e\":"
-msgstr ""
+msgstr "Te tabele nie są używane we friendice i zostaną usunięte po wykonaniu \"dbstructure drop -e\":"
 
 #: src/Database/DBStructure.php:134
 msgid "There are no tables on MyISAM or InnoDB with the Antelope file format."
@@ -4089,7 +4089,7 @@ msgstr "Rekord nie został odnaleziony"
 
 #: src/Factory/Api/Mastodon/Error.php:65
 msgid "Unprocessable Entity"
-msgstr ""
+msgstr "Podmiot nieprzetwarzalny"
 
 #: src/Factory/Api/Mastodon/Error.php:75
 msgid "Unauthorized"
@@ -4252,12 +4252,12 @@ msgstr "Ukryj mapę"
 #: src/Model/Event.php:1009
 #, php-format
 msgid "%s's birthday"
-msgstr "%s urodzin"
+msgstr "Urodziny %s"
 
 #: src/Model/Event.php:1010
 #, php-format
 msgid "Happy Birthday %s"
-msgstr "Urodziny %s"
+msgstr "Wszystkiego najlepszego %s"
 
 #: src/Model/Group.php:95
 msgid ""
@@ -4306,7 +4306,7 @@ msgstr "Edytuj grupy"
 #: src/Model/Item.php:1771
 #, php-format
 msgid "Detected languages in this post:\\n%s"
-msgstr ""
+msgstr "Wykryte języki w tym wpisie:\\n%s"
 
 #: src/Model/Item.php:2677
 msgid "activity"
@@ -4573,7 +4573,7 @@ msgstr "Twoja domena internetowa nie jest obsługiwana na tej stronie."
 
 #: src/Model/User.php:1016
 msgid "Not a valid email address."
-msgstr "Niepoprawny adres e mail.."
+msgstr "Niepoprawny adres e-mail."
 
 #: src/Model/User.php:1019
 msgid "The nickname was blocked from registration by the nodes admin."
@@ -4842,7 +4842,7 @@ msgstr "Usunięte"
 
 #: src/Module/Admin/BaseUsers.php:86
 msgid "List of pending user deletions"
-msgstr ""
+msgstr "Lista oczekujących na usunięcie użytkowników"
 
 #: src/Module/Admin/BaseUsers.php:104
 msgid "Private Forum"
@@ -4854,7 +4854,7 @@ msgstr "Przekaźnik"
 
 #: src/Module/Admin/Blocklist/Contact.php:54
 msgid "You can't block a local contact, please block the user instead"
-msgstr ""
+msgstr "Nie możesz zablokować lokalnego kontaktu, zamiast tego zablokuj użytkownika"
 
 #: src/Module/Admin/Blocklist/Contact.php:73
 #, php-format
@@ -4932,13 +4932,13 @@ msgstr "Adres URL kontaktu zdalnego do zablokowania."
 
 #: src/Module/Admin/Blocklist/Contact.php:117
 msgid "Also purge contact"
-msgstr ""
+msgstr "Wyczyść również kontakt"
 
 #: src/Module/Admin/Blocklist/Contact.php:117
 msgid ""
 "Removes all content related to this contact from the node. Keeps the contact"
 " record. This action cannot be undone."
-msgstr ""
+msgstr "Usuwa z węzła całą zawartość związaną z tym kontaktem. Zachowuje rejestr kontaktów. Tej czynności nie można cofnąć."
 
 #: src/Module/Admin/Blocklist/Contact.php:118
 msgid "Block Reason"
@@ -4946,7 +4946,7 @@ msgstr "Powód blokady"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:55
 msgid "Server domain pattern added to the blocklist."
-msgstr ""
+msgstr "Do listy zablokowanych dodano wzorzec domeny serwera."
 
 #: src/Module/Admin/Blocklist/Server/Add.php:63
 #, php-format
@@ -4978,11 +4978,11 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Server/Add.php:96
 #: src/Module/Admin/Blocklist/Server/Index.php:88
 msgid "Check pattern"
-msgstr ""
+msgstr "Sprawdź wzór"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:97
 msgid "Matching known servers"
-msgstr ""
+msgstr "Dopasowanie znanych serwerów"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:98
 msgid "Server Name"
@@ -5034,10 +5034,10 @@ msgid_plural ""
 "Also purges all the locally stored content authored by the known contacts "
 "registered on these servers. Keeps the contacts and the servers records. "
 "This action cannot be undone."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Usuwa również całą lokalnie przechowywaną zawartość stworzoną przez znane kontakty zarejestrowane na tych serwerach. Zachowuje ewidencję kontaktów i serwerów. Tej czynności nie można cofnąć."
+msgstr[1] "Usuwa również całą lokalnie przechowywaną zawartość stworzoną przez znane kontakty zarejestrowane na tych serwerach. Zachowuje ewidencję kontaktów i serwerów. Tej czynności nie można cofnąć."
+msgstr[2] "Usuwa również całą lokalnie przechowywaną zawartość stworzoną przez znane kontakty zarejestrowane na tych serwerach. Zachowuje ewidencję kontaktów i serwerów. Tej czynności nie można cofnąć."
+msgstr[3] "Usuwa również całą lokalnie przechowywaną zawartość stworzoną przez znane kontakty zarejestrowane na tych serwerach. Zachowuje ewidencję kontaktów i serwerów. Tej czynności nie można cofnąć."
 
 #: src/Module/Admin/Blocklist/Server/Add.php:106
 msgid "Block reason"
@@ -5047,7 +5047,7 @@ msgstr "Powód zablokowania"
 msgid ""
 "The reason why you blocked this server domain pattern. This reason will be "
 "shown publicly in the server information page."
-msgstr ""
+msgstr "Powód, dla którego zablokowałeś ten wzorzec domeny serwera. Powód ten zostanie pokazany publicznie na stronie informacyjnej serwera."
 
 #: src/Module/Admin/Blocklist/Server/Index.php:68
 #: src/Module/Admin/Blocklist/Server/Index.php:91
@@ -5076,18 +5076,18 @@ msgid ""
 "This page can be used to define a blocklist of server domain patterns from "
 "the federated network that are not allowed to interact with your node. For "
 "each domain pattern you should also provide the reason why you block it."
-msgstr ""
+msgstr "Ta strona może służyć do definiowania listy zablokowanych wzorców domen serwera z sieci stowarzyszonej, które nie mogą komunikować się z węzłem. Dla każdego wzorca domeny należy również podać powód, dla którego go blokujesz."
 
 #: src/Module/Admin/Blocklist/Server/Index.php:81
 msgid ""
 "The list of blocked server domain patterns will be made publically available"
 " on the <a href=\"/friendica\">/friendica</a> page so that your users and "
 "people investigating communication problems can find the reason easily."
-msgstr ""
+msgstr "Lista zablokowanych wzorców domen serwera zostanie udostępniona publicznie na stronie <a href=\"/friendica\">/friendica</a>, aby użytkownicy i osoby badające problemy z komunikacją mogły łatwo znaleźć przyczynę."
 
 #: src/Module/Admin/Blocklist/Server/Index.php:87
 msgid "Add new entry to the blocklist"
-msgstr ""
+msgstr "Dodaj nowy wpis do listy zablokowanych"
 
 #: src/Module/Admin/Blocklist/Server/Index.php:89
 msgid "Save changes to the blocklist"
@@ -5099,11 +5099,11 @@ msgstr "Aktualne wpisy na liście zablokowanych"
 
 #: src/Module/Admin/Blocklist/Server/Index.php:93
 msgid "Delete entry from the blocklist"
-msgstr ""
+msgstr "Usuń wpis z listy zablokowanych"
 
 #: src/Module/Admin/Blocklist/Server/Index.php:94
 msgid "Delete entry from the blocklist?"
-msgstr ""
+msgstr "Usunąć wpis z listy zablokowanych?"
 
 #: src/Module/Admin/DBSync.php:51
 msgid "Update has been marked successful"
@@ -5225,7 +5225,7 @@ msgstr "Ta strona zawiera kilka numerów do znanej części federacyjnej sieci s
 
 #: src/Module/Admin/Federation.php:195 src/Module/BaseAdmin.php:87
 msgid "Federation Statistics"
-msgstr "Statystyki Organizacji"
+msgstr "Statystyki Federacji"
 
 #: src/Module/Admin/Federation.php:199
 #, php-format
@@ -5278,11 +5278,11 @@ msgstr "Element Guid"
 
 #: src/Module/Admin/Item/Source.php:63
 msgid "Item Id"
-msgstr ""
+msgstr "Identyfikator elementu"
 
 #: src/Module/Admin/Item/Source.php:64
 msgid "Item URI"
-msgstr ""
+msgstr "Identyfikator URI elementu"
 
 #: src/Module/Admin/Item/Source.php:66
 msgid "Terms"
@@ -5307,11 +5307,11 @@ msgstr "URL"
 
 #: src/Module/Admin/Item/Source.php:71
 msgid "Mention"
-msgstr ""
+msgstr "Wzmianka"
 
 #: src/Module/Admin/Item/Source.php:72
 msgid "Implicit Mention"
-msgstr ""
+msgstr "Wzmianka niejawna"
 
 #: src/Module/Admin/Item/Source.php:73 src/Module/Admin/Logs/View.php:99
 #: src/Module/Debug/ActivityPubConversion.php:62
@@ -5391,7 +5391,7 @@ msgstr "Zobacz rejestry"
 
 #: src/Module/Admin/Logs/View.php:88
 msgid "Search in logs"
-msgstr ""
+msgstr "Szukaj w dziennikach"
 
 #: src/Module/Admin/Logs/View.php:89
 #: src/Module/Notifications/Notifications.php:139
@@ -5408,11 +5408,11 @@ msgstr "Poziom"
 
 #: src/Module/Admin/Logs/View.php:92
 msgid "Context"
-msgstr ""
+msgstr "Kontekst"
 
 #: src/Module/Admin/Logs/View.php:94
 msgid "ALL"
-msgstr ""
+msgstr "WSZYSTKO"
 
 #: src/Module/Admin/Logs/View.php:95
 msgid "View details"
@@ -5440,11 +5440,11 @@ msgstr "Funkcja"
 
 #: src/Module/Admin/Logs/View.php:103
 msgid "UID"
-msgstr ""
+msgstr "UID"
 
 #: src/Module/Admin/Logs/View.php:104
 msgid "Process ID"
-msgstr ""
+msgstr "Identyfikator procesu"
 
 #: src/Module/Admin/Logs/View.php:105
 msgid "Close"
@@ -5462,7 +5462,7 @@ msgstr "Ta strona zawiera listę zadań opóźnionych pracowników. Są to zadan
 
 #: src/Module/Admin/Queue.php:54
 msgid "Inspect Worker Queue"
-msgstr "Sprawdź Kolejkę Pracowników"
+msgstr "Sprawdź kolejkę workerów"
 
 #: src/Module/Admin/Queue.php:55
 msgid ""
@@ -5492,7 +5492,7 @@ msgstr "Nie można zanalizować podstawowego adresu URL. Musi mieć co najmniej 
 
 #: src/Module/Admin/Site.php:125
 msgid "Relocation started. Could take a while to complete."
-msgstr ""
+msgstr "Rozpoczęła się relokacja. Może trochę potrwać."
 
 #: src/Module/Admin/Site.php:403 src/Module/Settings/Display.php:138
 msgid "No special theme for mobile devices"
@@ -5549,7 +5549,7 @@ msgstr "Wymuś używanie SSL na wszystkich odnośnikach"
 
 #: src/Module/Admin/Site.php:477 src/Module/Install.php:224
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
-msgstr "Wewnętrzne Certyfikaty, użyj SSL tylko dla linków lokalnych . "
+msgstr "Certyfikat z podpisem własnym, używaj SSL tylko dla łączy lokalnych (odradzane)"
 
 #: src/Module/Admin/Site.php:481
 msgid "Don't check"
@@ -5573,7 +5573,7 @@ msgstr "Kontakty lokalne"
 
 #: src/Module/Admin/Site.php:489
 msgid "Interactors"
-msgstr ""
+msgstr "Interaktorzy"
 
 #: src/Module/Admin/Site.php:499 src/Module/BaseAdmin.php:90
 msgid "Site"
@@ -5613,21 +5613,21 @@ msgstr "Pracownik"
 
 #: src/Module/Admin/Site.php:510
 msgid "Message Relay"
-msgstr "Przekazywanie wiadomości"
+msgstr "Przekaźnik wiadomości"
 
 #: src/Module/Admin/Site.php:511
 msgid ""
 "Use the command \"console relay\" in the command line to add or remove "
 "relays."
-msgstr ""
+msgstr "Użyj polecenia „console relay” w wierszu poleceń, aby dodać lub usunąć przekaźniki."
 
 #: src/Module/Admin/Site.php:512
 msgid "The system is not subscribed to any relays at the moment."
-msgstr ""
+msgstr "System nie jest aktualnie objęty abonamentem na żadne przekaźniki."
 
 #: src/Module/Admin/Site.php:513
 msgid "The system is currently subscribed to the following relays:"
-msgstr ""
+msgstr "System jest obecnie objęty abonamentem na następujące przekaźniki:"
 
 #: src/Module/Admin/Site.php:515
 msgid "Relocate Instance"
@@ -5637,7 +5637,7 @@ msgstr "Zmień lokalizację"
 msgid ""
 "<strong>Warning!</strong> Advanced function. Could make this server "
 "unreachable."
-msgstr ""
+msgstr "<strong>Ostrzeżenie!</strong> Zaawansowana funkcja. Może sprawić, że ten serwer będzie nieosiągalny."
 
 #: src/Module/Admin/Site.php:520
 msgid "Site name"
@@ -5654,22 +5654,22 @@ msgstr "Adres e-mail używany przez Twój serwer do wysyłania e-maili z powiado
 
 #: src/Module/Admin/Site.php:522
 msgid "Name of the system actor"
-msgstr ""
+msgstr "Imię i nazwisko aktora systemu"
 
 #: src/Module/Admin/Site.php:522
 msgid ""
 "Name of the internal system account that is used to perform ActivityPub "
 "requests. This must be an unused username. If set, this can't be changed "
 "again."
-msgstr ""
+msgstr "Nazwa wewnętrznego konta systemowego, które jest używane do wykonywania żądań ActivityPub. Musi to być nieużywana nazwa użytkownika. Jeśli jest ustawiona, nie można jej zmienić ponownie."
 
 #: src/Module/Admin/Site.php:523
 msgid "Banner/Logo"
-msgstr "Logo"
+msgstr "Baner/Logo"
 
 #: src/Module/Admin/Site.php:524
 msgid "Email Banner/Logo"
-msgstr ""
+msgstr "Baner/logo e-maila"
 
 #: src/Module/Admin/Site.php:525
 msgid "Shortcut icon"
@@ -5711,7 +5711,7 @@ msgstr "Motyw systemowy"
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a href=\"%s\" "
 "id=\"cnftheme\">Change default theme settings</a>"
-msgstr ""
+msgstr "Domyślny motyw systemu - może być nadpisywany przez profile użytkowników - <a href=\"%s\" id=\"cnftheme\">Zmień domyślne ustawienia motywu</a>"
 
 #: src/Module/Admin/Site.php:530
 msgid "Mobile system theme"
@@ -5741,13 +5741,13 @@ msgstr "Wymuszaj wszystkie żądania SSL bez SSL - Uwaga: w niektórych systemac
 
 #: src/Module/Admin/Site.php:533
 msgid "Show help entry from navigation menu"
-msgstr ""
+msgstr "Pokaż wpis pomocy z menu nawigacyjnego"
 
 #: src/Module/Admin/Site.php:533
 msgid ""
 "Displays the menu entry for the Help pages from the navigation menu. It is "
 "always accessible by calling /help directly."
-msgstr ""
+msgstr "Wyświetla pozycję menu dla stron pomocy z menu nawigacyjnego. Jest zawsze dostępna, odwołując się bezpośrednio do /help."
 
 #: src/Module/Admin/Site.php:534
 msgid "Single user instance"
@@ -5865,14 +5865,14 @@ msgstr "Nie wyświetlaj zasobów treści (np. osadzonego pliku PDF), z wyjątkie
 
 #: src/Module/Admin/Site.php:548
 msgid "Trusted third-party domains"
-msgstr ""
+msgstr "Zaufane domeny zewnętrzne"
 
 #: src/Module/Admin/Site.php:548
 msgid ""
 "Comma separated list of domains from which content is allowed to be embedded"
 " in posts like with OEmbed. All sub-domains of the listed domains are "
 "allowed as well."
-msgstr ""
+msgstr "Oddzielona przecinkami lista domen, z których treść może być osadzana we wpisach, tak jak w przypadku OEmbed. Dozwolone są również wszystkie subdomeny wymienionych domen."
 
 #: src/Module/Admin/Site.php:549
 msgid "Block public"
@@ -5964,23 +5964,23 @@ msgstr "Ustaw to, aby ogłosić, że Twój węzeł jest używany głównie do ja
 
 #: src/Module/Admin/Site.php:557
 msgid "Proxify external content"
-msgstr ""
+msgstr "Udostępniaj treści zewnętrzne"
 
 #: src/Module/Admin/Site.php:557
 msgid ""
 "Route external content via the proxy functionality. This is used for example"
 " for some OEmbed accesses and in some other rare cases."
-msgstr ""
+msgstr "Kieruj zawartość zewnętrzną za pośrednictwem funkcji proxy. Jest to używane na przykład w przypadku niektórych dostępów OEmbed i w niektórych innych rzadkich przypadkach."
 
 #: src/Module/Admin/Site.php:558
 msgid "Cache contact avatars"
-msgstr ""
+msgstr "Buforuj awatary kontaktów"
 
 #: src/Module/Admin/Site.php:558
 msgid ""
 "Locally store the avatar pictures of the contacts. This uses a lot of "
 "storage space but it increases the performance."
-msgstr ""
+msgstr "Lokalnie przechowuj zdjęcia awatarów kontaktów. To zajmuje dużo miejsca, ale zwiększa wydajność."
 
 #: src/Module/Admin/Site.php:559
 msgid "Allow Users to set remote_self"
@@ -6051,7 +6051,7 @@ msgstr "Włącz wbudowaną obsługę poczty, aby odpytywać foldery IMAP i odpow
 #: src/Module/Admin/Site.php:567
 msgid ""
 "Mail support can't be enabled because the PHP IMAP module is not installed."
-msgstr ""
+msgstr "Nie można włączyć obsługi poczty, ponieważ moduł PHP IMAP nie jest zainstalowany."
 
 #: src/Module/Admin/Site.php:568
 msgid "Enable OStatus support"
@@ -6077,7 +6077,7 @@ msgstr "Włączyć obsługę Diaspory"
 msgid ""
 "Enable built-in Diaspora network compatibility for communicating with "
 "diaspora servers."
-msgstr ""
+msgstr "Włącz wbudowaną kompatybilność sieci Diaspora do komunikacji z serwerami diaspory."
 
 #: src/Module/Admin/Site.php:572
 msgid "Verify SSL"
@@ -6105,7 +6105,7 @@ msgstr "URL pośrednika"
 msgid ""
 "If you want to use a proxy server that Friendica should use to connect to "
 "the network, put the URL of the proxy here."
-msgstr ""
+msgstr "Jeśli chcesz używać serwera proxy, którego Friendica powinna używać do łączenia się z siecią, umieść tutaj adres URL proxy."
 
 #: src/Module/Admin/Site.php:575
 msgid "Network timeout"
@@ -6161,7 +6161,7 @@ msgstr "Brak - dezaktywowany"
 msgid ""
 "Local contacts - contacts of our local contacts are discovered for their "
 "followers/followings."
-msgstr ""
+msgstr "Kontakty lokalne - kontakty naszych lokalnych kontaktów są wykrywane dla ich obserwujących/obserwujących."
 
 #: src/Module/Admin/Site.php:583
 msgid ""
@@ -6428,7 +6428,7 @@ msgstr "Nieprawidłowa wartość ustawienia magazynu pamięci."
 
 #: src/Module/Admin/Storage.php:139
 msgid "Current Storage Backend"
-msgstr ""
+msgstr "Bieżące zaplecze pamięci przechowywania"
 
 #: src/Module/Admin/Storage.php:140
 msgid "Storage Configuration"
@@ -6444,7 +6444,7 @@ msgstr "Zapisz i użyj backendu przechowywania"
 
 #: src/Module/Admin/Storage.php:144
 msgid "Use storage backend"
-msgstr ""
+msgstr "Użyj backendu pamięci przechowywania"
 
 #: src/Module/Admin/Storage.php:145
 msgid "Save & Reload"
@@ -6461,7 +6461,7 @@ msgstr "Baza danych (legacy)"
 #: src/Module/Admin/Summary.php:53
 #, php-format
 msgid "Template engine (%s) error: %s"
-msgstr ""
+msgstr "Silnik szablonów (%s) błąd: %s"
 
 #: src/Module/Admin/Summary.php:57
 #, php-format
@@ -6661,7 +6661,7 @@ msgstr "Nieznany motyw."
 
 #: src/Module/Admin/Themes/Index.php:51
 msgid "Themes reloaded"
-msgstr ""
+msgstr "Motywy zostały ponownie wczytane"
 
 #: src/Module/Admin/Themes/Index.php:114
 msgid "Reload active themes"
@@ -6700,7 +6700,7 @@ msgid ""
 "Show some informations regarding the needed information to operate the node "
 "according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener "
 "noreferrer\">EU-GDPR</a>."
-msgstr ""
+msgstr "Pokaż informacje dotyczące potrzebnych informacji do obsługi węzła zgodnie z np. <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">EU-RODO</a>."
 
 #: src/Module/Admin/Tos.php:79
 msgid "Privacy Statement Preview"
@@ -6771,7 +6771,7 @@ msgstr "Ostatnie logowanie"
 #: src/Module/Admin/Users/Deleted.php:88 src/Module/Admin/Users/Index.php:142
 #: src/Module/Admin/Users/Index.php:162
 msgid "Last public item"
-msgstr ""
+msgstr "Ostatni element publiczny"
 
 #: src/Module/Admin/Users/Active.php:137
 msgid "Active Accounts"
@@ -6854,7 +6854,7 @@ msgstr "Adres email nowego użytkownika."
 
 #: src/Module/Admin/Users/Deleted.php:86
 msgid "Users awaiting permanent deletion"
-msgstr ""
+msgstr "Użytkownicy oczekujący na trwałe usunięcie"
 
 #: src/Module/Admin/Users/Deleted.php:88 src/Module/Admin/Users/Index.php:162
 msgid "Permanent deletion"
@@ -6897,7 +6897,7 @@ msgstr "Rejestracja odwołana"
 
 #: src/Module/Admin/Users/Pending.php:102
 msgid "User registrations awaiting review"
-msgstr ""
+msgstr "Rejestracje użytkowników oczekujące na sprawdzenie"
 
 #: src/Module/Admin/Users/Pending.php:104
 msgid "Request date"
@@ -6931,11 +6931,11 @@ msgstr "Brakuje parametrów"
 
 #: src/Module/Api/Mastodon/Statuses/Bookmark.php:51
 msgid "Only starting posts can be bookmarked"
-msgstr ""
+msgstr "Tylko początkowe wpisy można dodawać do zakładek"
 
 #: src/Module/Api/Mastodon/Statuses/Mute.php:50
 msgid "Only starting posts can be muted"
-msgstr ""
+msgstr "Można wyciszyć tylko początkowe wpisy"
 
 #: src/Module/Api/Mastodon/Statuses/Pin.php:50
 #: src/Module/Api/Mastodon/Statuses/Unpin.php:50
@@ -6949,11 +6949,11 @@ msgstr ""
 
 #: src/Module/Api/Mastodon/Statuses/Unbookmark.php:51
 msgid "Only starting posts can be unbookmarked"
-msgstr ""
+msgstr "Tylko początkowe wpisy można usunąć z zakładek"
 
 #: src/Module/Api/Mastodon/Statuses/Unmute.php:50
 msgid "Only starting posts can be unmuted"
-msgstr ""
+msgstr "Wyłączać wyciszenie można tylko we wpisach początkowych"
 
 #: src/Module/Api/Mastodon/Statuses/Unreblog.php:53
 #, php-format
@@ -6982,13 +6982,13 @@ msgstr "Zaloguj się aby kontynuować."
 
 #: src/Module/BaseAdmin.php:63
 msgid "You don't have access to administration pages."
-msgstr ""
+msgstr "Nie masz dostępu do stron administracyjnych."
 
 #: src/Module/BaseAdmin.php:67
 msgid ""
 "Submanaged account can't access the administration pages. Please log back in"
 " as the main account."
-msgstr ""
+msgstr "Konto zarządzane podrzędnie nie ma dostępu do stron administracyjnych. Zaloguj się ponownie poprzez konto główne."
 
 #: src/Module/BaseAdmin.php:86
 msgid "Overview"
@@ -7065,7 +7065,7 @@ msgstr "Rejestracje użytkowników czekające na potwierdzenie"
 #: src/Module/BaseApi.php:241 src/Module/BaseApi.php:257
 #: src/Module/BaseApi.php:273
 msgid "Too Many Requests"
-msgstr ""
+msgstr "Zbyt dużo próśb"
 
 #: src/Module/BaseApi.php:242
 #, php-format
@@ -7240,11 +7240,11 @@ msgstr "Posty i komentarze"
 
 #: src/Module/Contact.php:452
 msgid "Posts containing media objects"
-msgstr ""
+msgstr "Wpisy zawierające obiekty multimedialne"
 
 #: src/Module/Contact.php:467
 msgid "View all known contacts"
-msgstr ""
+msgstr "Zobacz wszystkie znane kontakty"
 
 #: src/Module/Contact.php:477
 msgid "Advanced Contact Settings"
@@ -7306,11 +7306,11 @@ msgstr "Nieprawidłowy kontakt."
 
 #: src/Module/Contact/Contacts.php:73
 msgid "No known contacts."
-msgstr ""
+msgstr "Brak znanych kontaktów."
 
 #: src/Module/Contact/Contacts.php:87 src/Module/Profile/Common.php:98
 msgid "No common contacts."
-msgstr ""
+msgstr "Brak wspólnych kontaktów."
 
 #: src/Module/Contact/Contacts.php:99 src/Module/Profile/Contacts.php:96
 #, php-format
@@ -7342,7 +7342,7 @@ msgstr[3] ""
 #: src/Module/Contact/Contacts.php:109 src/Module/Profile/Contacts.php:104
 #, php-format
 msgid "These contacts both follow and are followed by <strong>%s</strong>."
-msgstr ""
+msgstr "Te kontakty zarówno śledzą, jak i są śledzone przez <strong>%s</strong>."
 
 #: src/Module/Contact/Contacts.php:115 src/Module/Profile/Common.php:86
 #, php-format
@@ -7371,7 +7371,7 @@ msgstr[3] ""
 
 #: src/Module/Contact/Poke.php:135
 msgid "Error while sending poke, please retry."
-msgstr ""
+msgstr "Błąd wysyłania zaczepki, spróbuj ponownie."
 
 #: src/Module/Contact/Poke.php:148 src/Module/Search/Acl.php:54
 msgid "You must be logged in to use this module."
@@ -7603,7 +7603,7 @@ msgstr "Oznacz ten kontakt jako remote_self, spowoduje to, że friendica odeśle
 
 #: src/Module/Contact/Profile.php:440
 msgid "Refetch contact data"
-msgstr "Odśwież dane kontaktowe"
+msgstr "Pobierz ponownie dane kontaktowe"
 
 #: src/Module/Contact/Profile.php:451
 msgid "Toggle Blocked status"
@@ -7631,11 +7631,11 @@ msgstr "Kontakt został usunięty."
 
 #: src/Module/Contact/Revoke.php:76
 msgid "Contact is being deleted."
-msgstr ""
+msgstr "Kontakt jest usuwany."
 
 #: src/Module/Contact/Revoke.php:90
 msgid "Follow was successfully revoked."
-msgstr ""
+msgstr "Obserwacja została pomyślnie anulowana."
 
 #: src/Module/Contact/Revoke.php:106
 msgid ""
@@ -8005,7 +8005,7 @@ msgstr ""
 
 #: src/Module/Debug/WebFinger.php:52
 msgid "Lookup address:"
-msgstr ""
+msgstr "Wyszukaj adres:"
 
 #: src/Module/Delegation.php:111
 #, php-format
@@ -8018,7 +8018,7 @@ msgstr "Przełącz się pomiędzy kontami"
 
 #: src/Module/Delegation.php:144
 msgid "Manage your accounts"
-msgstr ""
+msgstr "Zarządzaj swoimi kontami"
 
 #: src/Module/Delegation.php:145
 msgid ""
@@ -8127,7 +8127,7 @@ msgstr "Nie znaleziono grupy."
 
 #: src/Module/Group.php:75
 msgid "Group name was not changed."
-msgstr ""
+msgstr "Nazwa grupy nie została zmieniona."
 
 #: src/Module/Group.php:93
 msgid "Unknown group."
@@ -8225,11 +8225,11 @@ msgstr "Sprawdzanie systemu"
 #: src/Module/Install.php:208 src/Module/Install.php:265
 #: src/Module/Install.php:348
 msgid "Requirement not satisfied"
-msgstr ""
+msgstr "Wymaganie niespełnione"
 
 #: src/Module/Install.php:209
 msgid "Optional requirement not satisfied"
-msgstr ""
+msgstr "Opcjonalne wymagania niespełnione"
 
 #: src/Module/Install.php:210
 msgid "OK"
@@ -8513,7 +8513,7 @@ msgstr "Usługi lokalizacyjne są wyłączone. Sprawdź uprawnienia strony inter
 
 #: src/Module/Item/Follow.php:52
 msgid "Unable to follow this item."
-msgstr ""
+msgstr "Nie można obserwować tego elementu."
 
 #: src/Module/Maintenance.php:48 src/Module/Maintenance.php:53
 msgid "System down for maintenance"
@@ -8637,11 +8637,11 @@ msgstr "Czy chcesz zezwolić tej aplikacji na dostęp do swoich postów i kontak
 
 #: src/Module/OAuth/Authorize.php:54
 msgid "Unsupported or missing response type"
-msgstr ""
+msgstr "Nieobsługiwany lub brakujący typ odpowiedzi"
 
 #: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:72
 msgid "Incomplete request data"
-msgstr ""
+msgstr "Niekompletne dane żądania"
 
 #: src/Module/OAuth/Authorize.php:106
 #, php-format
@@ -8661,7 +8661,7 @@ msgstr ""
 
 #: src/Module/PermissionTooltip.php:65
 msgid "Model not found"
-msgstr ""
+msgstr "Nie znaleziono modelu"
 
 #: src/Module/PermissionTooltip.php:88
 msgid "Unlisted"
@@ -8693,16 +8693,16 @@ msgstr ""
 #: src/Module/PermissionTooltip.php:223
 #, php-format
 msgid "<b>CC:</b> %s<br>"
-msgstr ""
+msgstr "<b>DW:</b> %s<br>"
 
 #: src/Module/PermissionTooltip.php:226
 #, php-format
 msgid "<b>BCC:</b> %s<br>"
-msgstr ""
+msgstr "<b>UDW:</b> %s<br>"
 
 #: src/Module/Photo.php:123
 msgid "The Photo is not available."
-msgstr ""
+msgstr "Zdjęcie jest niedostępne."
 
 #: src/Module/Photo.php:136
 #, php-format
@@ -8806,7 +8806,7 @@ msgstr ""
 
 #: src/Module/Profile/Schedule.php:86
 msgid "Remove post"
-msgstr ""
+msgstr "Usuń wpis"
 
 #: src/Module/Register.php:84
 msgid "Only parent users can create additional accounts."
@@ -8970,7 +8970,7 @@ msgid ""
 "Enter your Webfinger address (user@domain.tld) or profile URL here. If this "
 "isn't supported by your system, you have to subscribe to <strong>%s</strong>"
 " or <strong>%s</strong> directly on your system."
-msgstr ""
+msgstr "Wpisz tutaj swój adres Webfinger (user@domain.tld) lub adres URL profilu. Jeśli nie jest to obsługiwane przez system, musisz subskrybować <strong>%s</strong> lub <strong>%s</strong> bezpośrednio w systemie."
 
 #: src/Module/RemoteFollow.php:123
 #, php-format
@@ -9006,7 +9006,7 @@ msgstr "Wyszukiwane hasło jest już zapisane."
 
 #: src/Module/Search/Saved.php:67
 msgid "Search term was not removed."
-msgstr ""
+msgstr "Wyszukiwane hasło nie zostało usunięte."
 
 #: src/Module/Security/Login.php:104
 msgid "Create a New Account"
@@ -9327,7 +9327,7 @@ msgstr ""
 
 #: src/Module/Settings/Display.php:217
 msgid "Don't go to a remote system when following a contact link."
-msgstr ""
+msgstr "Nie przechodź do zdalnego systemu podczas korzystania z łącza kontaktowego."
 
 #: src/Module/Settings/Display.php:219
 msgid "Beginning of week:"
@@ -9578,7 +9578,7 @@ msgid ""
 "<p>App-specific passwords are randomly generated passwords used instead your"
 " regular password to authenticate your account on third-party applications "
 "that don't support two-factor authentication.</p>"
-msgstr ""
+msgstr "<p>Hasła aplikacji to losowo generowane hasła używane zamiast zwykłego hasła do uwierzytelniania konta w aplikacjach innych firm, które nie obsługują uwierzytelniania dwuskładnikowego.</p>"
 
 #: src/Module/Settings/TwoFactor/AppSpecific.php:129
 msgid ""
@@ -9757,14 +9757,14 @@ msgstr "Zaufana przeglądarka została pomyślnie usunięta."
 
 #: src/Module/Settings/TwoFactor/Trusted.php:133
 msgid "Two-factor Trusted Browsers"
-msgstr ""
+msgstr "Zaufane przeglądarki dwuskładnikowe"
 
 #: src/Module/Settings/TwoFactor/Trusted.php:134
 msgid ""
 "Trusted browsers are individual browsers you chose to skip two-factor "
 "authentication to access Friendica. Please use this feature sparingly, as it"
 " can negate the benefit of two-factor authentication."
-msgstr ""
+msgstr "Zaufane przeglądarki to indywidualne przeglądarki, które zostały wybrane, aby pominąć uwierzytelnianie dwuskładnikowe celem uzyskania dostępu do Friendica. Korzystaj z tej funkcji oszczędnie, ponieważ może ona negować korzyści płynące z uwierzytelniania dwuskładnikowego."
 
 #: src/Module/Settings/TwoFactor/Trusted.php:135
 msgid "Device"
@@ -9772,19 +9772,19 @@ msgstr "Urządzenie"
 
 #: src/Module/Settings/TwoFactor/Trusted.php:136
 msgid "OS"
-msgstr ""
+msgstr "System operacyjny"
 
 #: src/Module/Settings/TwoFactor/Trusted.php:138
 msgid "Trusted"
-msgstr ""
+msgstr "Zaufane"
 
 #: src/Module/Settings/TwoFactor/Trusted.php:139
 msgid "Last Use"
-msgstr ""
+msgstr "Ostatnie użycie"
 
 #: src/Module/Settings/TwoFactor/Trusted.php:141
 msgid "Remove All"
-msgstr ""
+msgstr "Usuń wszystkie"
 
 #: src/Module/Settings/TwoFactor/Verify.php:90
 msgid "Two-factor authentication successfully activated."
@@ -9850,7 +9850,7 @@ msgid ""
 "Export your account info, contacts and all your items as json. Could be a "
 "very big file, and could take a lot of time. Use this to make a full backup "
 "of your account (photos are not exported)"
-msgstr ""
+msgstr "Wyeksportuj informacje o swoim koncie, kontakty i wszystkie swoje elementy jako json. Może to być bardzo duży plik i może zająć dużo czasu. Użyj tego, aby wykonać pełną kopię zapasową swojego konta (zdjęcia nie są eksportowane)."
 
 #: src/Module/Settings/UserExport.php:69
 msgid "Export Contacts to CSV"
@@ -10333,7 +10333,7 @@ msgstr "%1$s opublikował(-a) na [url=%2$s]Twojej tablicy[/url]"
 #: src/Navigation/Notifications/Repository/Notify.php:355
 #, php-format
 msgid "%1$s %2$s poked you"
-msgstr "%1$s %2$s zaczepił cię"
+msgstr "%1$s %2$s zaczepił Cię"
 
 #: src/Navigation/Notifications/Repository/Notify.php:357
 #, php-format
@@ -10538,11 +10538,11 @@ msgstr "Wiadomość prywatna"
 
 #: src/Object/Post.php:137
 msgid "Public Message"
-msgstr ""
+msgstr "Wiadomość publiczna"
 
 #: src/Object/Post.php:140
 msgid "Unlisted Message"
-msgstr ""
+msgstr "Wiadomość niepubliczna"
 
 #: src/Object/Post.php:170
 msgid "This entry was edited"
@@ -10603,11 +10603,11 @@ msgstr "Przełącz stan ignorowania"
 
 #: src/Object/Post.php:336
 msgid "Add star"
-msgstr ""
+msgstr "Dodaj gwiazdkę"
 
 #: src/Object/Post.php:337
 msgid "Remove star"
-msgstr ""
+msgstr "Usuń gwiazdkę"
 
 #: src/Object/Post.php:338
 msgid "Toggle star status"
@@ -10635,11 +10635,11 @@ msgstr "Dodaj znacznik"
 
 #: src/Object/Post.php:372
 msgid "Quote share this"
-msgstr ""
+msgstr "Cytuj udostępnij to"
 
 #: src/Object/Post.php:372
 msgid "Quote Share"
-msgstr ""
+msgstr "Udostępnienie cytatu"
 
 #: src/Object/Post.php:375
 msgid "Reshare this"
@@ -10668,7 +10668,7 @@ msgstr ""
 
 #: src/Object/Post.php:426
 msgid "Remote comment"
-msgstr ""
+msgstr "Zdalny komentarz"
 
 #: src/Object/Post.php:470
 msgid "to"
@@ -10773,30 +10773,30 @@ msgstr "Proszę dodać zdjęcie profilowe."
 
 #: src/Util/EMailer/MailBuilder.php:259
 msgid "Friendica Notification"
-msgstr ""
+msgstr "Powiadomienia Friendica"
 
 #: src/Util/EMailer/NotifyMailBuilder.php:78
 #: src/Util/EMailer/SystemMailBuilder.php:54
 #, php-format
 msgid "%1$s, %2$s Administrator"
-msgstr ""
+msgstr "%1$s, %2$s Administrator"
 
 #: src/Util/EMailer/NotifyMailBuilder.php:80
 #: src/Util/EMailer/SystemMailBuilder.php:56
 #, php-format
 msgid "%s Administrator"
-msgstr ""
+msgstr "%s Administrator"
 
 #: src/Util/EMailer/NotifyMailBuilder.php:193
 #: src/Util/EMailer/NotifyMailBuilder.php:217
 #: src/Util/EMailer/SystemMailBuilder.php:101
 #: src/Util/EMailer/SystemMailBuilder.php:118
 msgid "thanks"
-msgstr ""
+msgstr "dziękuję"
 
 #: src/Util/Temporal.php:167
 msgid "YYYY-MM-DD or MM-DD"
-msgstr ""
+msgstr "RRRR-MM-DD lub MM-DD"
 
 #: src/Util/Temporal.php:275
 #, php-format
@@ -10805,77 +10805,77 @@ msgstr "Strefa czasowa: <strong>%s</strong> <a href=\"%s\">Zmień w ustawieniach
 
 #: src/Util/Temporal.php:318
 msgid "never"
-msgstr ""
+msgstr "nigdy"
 
 #: src/Util/Temporal.php:325
 msgid "less than a second ago"
-msgstr ""
+msgstr "mniej niż sekundę temu"
 
 #: src/Util/Temporal.php:333
 msgid "year"
-msgstr ""
+msgstr "rok"
 
 #: src/Util/Temporal.php:333
 msgid "years"
-msgstr ""
+msgstr "lata"
 
 #: src/Util/Temporal.php:334
 msgid "months"
-msgstr ""
+msgstr "miesiące"
 
 #: src/Util/Temporal.php:335
 msgid "weeks"
-msgstr ""
+msgstr "tygodnie"
 
 #: src/Util/Temporal.php:336
 msgid "days"
-msgstr ""
+msgstr "dni"
 
 #: src/Util/Temporal.php:337
 msgid "hour"
-msgstr ""
+msgstr "godzina"
 
 #: src/Util/Temporal.php:337
 msgid "hours"
-msgstr ""
+msgstr "godziny"
 
 #: src/Util/Temporal.php:338
 msgid "minute"
-msgstr ""
+msgstr "minuta"
 
 #: src/Util/Temporal.php:338
 msgid "minutes"
-msgstr ""
+msgstr "minut"
 
 #: src/Util/Temporal.php:339
 msgid "second"
-msgstr ""
+msgstr "sekunda"
 
 #: src/Util/Temporal.php:339
 msgid "seconds"
-msgstr ""
+msgstr "sekundy"
 
 #: src/Util/Temporal.php:349
 #, php-format
 msgid "in %1$d %2$s"
-msgstr ""
+msgstr "w %1$d %2$s"
 
 #: src/Util/Temporal.php:352
 #, php-format
 msgid "%1$d %2$s ago"
-msgstr ""
+msgstr "%1$d %2$s temu"
 
 #: src/Worker/Delivery.php:524
 msgid "(no subject)"
-msgstr ""
+msgstr "(bez tematu)"
 
 #: src/Worker/PushSubscription.php:103
 msgid "Notification from Friendica"
-msgstr ""
+msgstr "Powiadomienia z Friendica"
 
 #: src/Worker/PushSubscription.php:104
 msgid "Empty Post"
-msgstr ""
+msgstr "Pusty wpis"
 
 #: view/theme/duepuntozero/config.php:52
 msgid "default"
@@ -10883,63 +10883,63 @@ msgstr "standardowe"
 
 #: view/theme/duepuntozero/config.php:53
 msgid "greenzero"
-msgstr ""
+msgstr "zielone zero"
 
 #: view/theme/duepuntozero/config.php:54
 msgid "purplezero"
-msgstr ""
+msgstr "fioletowe zero"
 
 #: view/theme/duepuntozero/config.php:55
 msgid "easterbunny"
-msgstr ""
+msgstr "zajączek wielkanocny"
 
 #: view/theme/duepuntozero/config.php:56
 msgid "darkzero"
-msgstr ""
+msgstr "ciemne zero"
 
 #: view/theme/duepuntozero/config.php:57
 msgid "comix"
-msgstr ""
+msgstr "comix"
 
 #: view/theme/duepuntozero/config.php:58
 msgid "slackr"
-msgstr ""
+msgstr "luźny"
 
 #: view/theme/duepuntozero/config.php:71
 msgid "Variations"
-msgstr ""
+msgstr "Wariacje"
 
 #: view/theme/frio/config.php:142
 msgid "Light (Accented)"
-msgstr ""
+msgstr "Jasny (akcentowany)"
 
 #: view/theme/frio/config.php:143
 msgid "Dark (Accented)"
-msgstr ""
+msgstr "Ciemny (akcentowany)"
 
 #: view/theme/frio/config.php:144
 msgid "Black (Accented)"
-msgstr ""
+msgstr "Czarny (z akcentem)"
 
 #: view/theme/frio/config.php:156
 msgid "Note"
-msgstr ""
+msgstr "Uwaga"
 
 #: view/theme/frio/config.php:156
 msgid "Check image permissions if all users are allowed to see the image"
-msgstr ""
+msgstr "Sprawdź uprawnienia do obrazu, jeśli wszyscy użytkownicy mogą oglądać obraz"
 
 #: view/theme/frio/config.php:162
 msgid "Custom"
-msgstr ""
+msgstr "Własne"
 
 #: view/theme/frio/config.php:163
 msgid "Legacy"
-msgstr ""
+msgstr "Przestarzałe"
 
 #: view/theme/frio/config.php:164
 msgid "Accented"
-msgstr ""
+msgstr "Akcentowany"
 
 #: view/theme/frio/config.php:165
 msgid "Select color scheme"
@@ -10947,7 +10947,7 @@ msgstr "Wybierz schemat kolorów"
 
 #: view/theme/frio/config.php:166
 msgid "Select scheme accent"
-msgstr ""
+msgstr "Wybierz akcent schematu"
 
 #: view/theme/frio/config.php:166
 msgid "Blue"
@@ -10955,15 +10955,15 @@ msgstr "Niebieski"
 
 #: view/theme/frio/config.php:166
 msgid "Red"
-msgstr ""
+msgstr "Czerwony"
 
 #: view/theme/frio/config.php:166
 msgid "Purple"
-msgstr ""
+msgstr "Purpurowy"
 
 #: view/theme/frio/config.php:166
 msgid "Green"
-msgstr ""
+msgstr "Zielony"
 
 #: view/theme/frio/config.php:166
 msgid "Pink"
@@ -10971,37 +10971,37 @@ msgstr "Różowy"
 
 #: view/theme/frio/config.php:167
 msgid "Copy or paste schemestring"
-msgstr ""
+msgstr "Skopiuj lub wklej ciąg schematu"
 
 #: view/theme/frio/config.php:167
 msgid ""
 "You can copy this string to share your theme with others. Pasting here "
 "applies the schemestring"
-msgstr ""
+msgstr "Możesz skopiować ten ciąg, aby podzielić się swoim motywem z innymi. Wklejanie tutaj stosuje schemat"
 
 #: view/theme/frio/config.php:168
 msgid "Navigation bar background color"
-msgstr ""
+msgstr "Kolor tła paska nawigacyjnego"
 
 #: view/theme/frio/config.php:169
 msgid "Navigation bar icon color "
-msgstr ""
+msgstr "Kolor ikon na pasku nawigacyjnym "
 
 #: view/theme/frio/config.php:170
 msgid "Link color"
-msgstr ""
+msgstr "Kolor odnośników"
 
 #: view/theme/frio/config.php:171
 msgid "Set the background color"
-msgstr ""
+msgstr "Ustaw kolor tła"
 
 #: view/theme/frio/config.php:172
 msgid "Content background opacity"
-msgstr ""
+msgstr "Nieprzezroczystość tła treści"
 
 #: view/theme/frio/config.php:173
 msgid "Set the background image"
-msgstr ""
+msgstr "Ustaw obraz tła"
 
 #: view/theme/frio/config.php:174
 msgid "Background image style"
@@ -11009,7 +11009,7 @@ msgstr "Styl obrazu tła"
 
 #: view/theme/frio/config.php:179
 msgid "Login page background image"
-msgstr ""
+msgstr "Obraz tła strony logowania"
 
 #: view/theme/frio/config.php:183
 msgid "Login page background color"
@@ -11017,17 +11017,17 @@ msgstr "Kolor tła strony logowania"
 
 #: view/theme/frio/config.php:183
 msgid "Leave background image and color empty for theme defaults"
-msgstr ""
+msgstr "Pozostaw pusty obraz tła i kolor dla domyślnych ustawień motywu"
 
 #: view/theme/frio/php/Image.php:40
 msgid "Top Banner"
-msgstr ""
+msgstr "Górny baner"
 
 #: view/theme/frio/php/Image.php:40
 msgid ""
 "Resize image to the width of the screen and show background color below on "
 "long pages."
-msgstr ""
+msgstr "Zmień rozmiar obrazu do szerokości ekranu i pokaż kolor tła poniżej na długich stronach."
 
 #: view/theme/frio/php/Image.php:41
 msgid "Full screen"
@@ -11040,48 +11040,48 @@ msgstr "Zmień rozmiar obrazu, aby wypełnić cały ekran, przycinając prawy lu
 
 #: view/theme/frio/php/Image.php:42
 msgid "Single row mosaic"
-msgstr ""
+msgstr "Mozaika jednorzędowa"
 
 #: view/theme/frio/php/Image.php:42
 msgid ""
 "Resize image to repeat it on a single row, either vertical or horizontal."
-msgstr ""
+msgstr "Zmień rozmiar obrazu, aby powtórzyć go w jednym wierszu, w pionie lub w poziomie."
 
 #: view/theme/frio/php/Image.php:43
 msgid "Mosaic"
-msgstr ""
+msgstr "Mozaika"
 
 #: view/theme/frio/php/Image.php:43
 msgid "Repeat image to fill the screen."
-msgstr ""
+msgstr "Powtórz obraz, aby wypełnić ekran."
 
 #: view/theme/frio/php/default.php:81 view/theme/frio/php/standard.php:40
 msgid "Skip to main content"
-msgstr ""
+msgstr "Przejdź do głównej zawartości"
 
 #: view/theme/frio/php/default.php:152 view/theme/frio/php/standard.php:75
 msgid "Back to top"
-msgstr ""
+msgstr "Powrót do góry"
 
 #: view/theme/frio/theme.php:207
 msgid "Guest"
-msgstr ""
+msgstr "Gość"
 
 #: view/theme/frio/theme.php:210
 msgid "Visitor"
-msgstr ""
+msgstr "Odwiedzający"
 
 #: view/theme/quattro/config.php:73
 msgid "Alignment"
-msgstr ""
+msgstr "Wyrównanie"
 
 #: view/theme/quattro/config.php:73
 msgid "Left"
-msgstr ""
+msgstr "Do lewej"
 
 #: view/theme/quattro/config.php:73
 msgid "Center"
-msgstr ""
+msgstr "Do środka"
 
 #: view/theme/quattro/config.php:74
 msgid "Color scheme"
@@ -11089,23 +11089,23 @@ msgstr "Schemat kolorów"
 
 #: view/theme/quattro/config.php:75
 msgid "Posts font size"
-msgstr ""
+msgstr "Rozmiar czcionki wpisów"
 
 #: view/theme/quattro/config.php:76
 msgid "Textareas font size"
-msgstr ""
+msgstr "Rozmiar czcionki obszarów tekstowych"
 
 #: view/theme/vier/config.php:75
 msgid "Comma separated list of helper forums"
-msgstr ""
+msgstr "Lista oddzielonych przecinkami forów pomocniczych"
 
 #: view/theme/vier/config.php:115
 msgid "don't show"
-msgstr ""
+msgstr "nie pokazuj"
 
 #: view/theme/vier/config.php:115
 msgid "show"
-msgstr ""
+msgstr "pokazuj"
 
 #: view/theme/vier/config.php:121
 msgid "Set style"
@@ -11125,7 +11125,7 @@ msgstr "Pomóż lub @NowyTutaj ?"
 
 #: view/theme/vier/config.php:125 view/theme/vier/theme.php:296
 msgid "Connect Services"
-msgstr ""
+msgstr "Połączone serwisy"
 
 #: view/theme/vier/config.php:126
 msgid "Find Friends"
