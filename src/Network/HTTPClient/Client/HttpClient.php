@@ -26,7 +26,6 @@ use Friendica\Network\HTTPClient\Response\CurlResult;
 use Friendica\Network\HTTPClient\Response\GuzzleResponse;
 use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
 use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
-use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use GuzzleHttp\Client;
@@ -44,6 +43,9 @@ use Psr\Log\LoggerInterface;
  */
 class HttpClient implements ICanSendHttpRequests
 {
+	/** @var string Default value for "Accept" header */
+	const DEFAULT_ACCEPT = '*/*';
+
 	/** @var LoggerInterface */
 	private $logger;
 	/** @var Profiler */
@@ -140,6 +142,10 @@ class HttpClient implements ICanSendHttpRequests
 				throw new TransferException('The file is too big!');
 			}
 		};
+
+		if (empty($conf[HttpClientOptions::HEADERS]['Accept'])) {
+			$conf[HttpClientOptions::HEADERS]['Accept'] = static::DEFAULT_ACCEPT;
+		}
 
 		try {
 			$this->logger->debug('http request config.', ['url' => $url, 'method' => $method, 'options' => $conf]);
