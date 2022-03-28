@@ -44,7 +44,17 @@ use Psr\Log\LoggerInterface;
 class HttpClient implements ICanSendHttpRequests
 {
 	/** @var string Default value for "Accept" header */
-	const DEFAULT_ACCEPT = '*/*';
+	const ACCEPT_DEFAULT  = '*/*';
+	const ACCEPT_ATOM_XML = 'application/atom+xml,text/xml;q=0.9,*/*;q=0.8';
+	const ACCEPT_FEED_XML = 'application/atom+xml,application/rss+xml;q=0.9,application/rdf+xml;q=0.8,text/xml;q=0.7,*/*;q=0.6';
+	const ACCEPT_HTML     = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+	const ACCEPT_IMAGE    = 'image/png,image/jpeg,image/gif,image/*;q=0.9,*/*;q=0.8';
+	const ACCEPT_JRD_JSON = 'application/jrd+json,application/json;q=0.9';
+	const ACCEPT_JSON     = 'application/json,*/*;q=0.9';
+	const ACCEPT_JSON_AS  = 'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
+	const ACCEPT_RSS_XML  = 'application/rss+xml,text/xml;q=0.9,*/*;q=0.8';
+	const ACCEPT_VIDEO    = 'video/mp4,video/*;q=0.9,*/*;q=0.8';
+	const ACCEPT_XRD_XML  = 'application/xrd+xml,text/xml;q=0.9,*/*;q=0.8';
 
 	/** @var LoggerInterface */
 	private $logger;
@@ -144,7 +154,7 @@ class HttpClient implements ICanSendHttpRequests
 		};
 
 		if (empty($conf[HttpClientOptions::HEADERS]['Accept'])) {
-			$conf[HttpClientOptions::HEADERS]['Accept'] = static::DEFAULT_ACCEPT;
+			$conf[HttpClientOptions::HEADERS]['Accept'] = static::ACCEPT_DEFAULT;
 		}
 
 		try {
