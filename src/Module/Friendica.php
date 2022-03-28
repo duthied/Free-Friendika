@@ -112,7 +112,12 @@ class Friendica extends BaseModule
 
 	protected function rawContent(array $request = [])
 	{
-		if (ActivityPub::isRequest()) {
+		// @TODO: Replace with parameter from router
+		if (DI::args()->getArgc() <= 1 || (DI::args()->getArgv()[1] !== 'json')) {
+			if (!ActivityPub::isRequest()) {
+				return;
+			}
+
 			try {
 				$data = ActivityPub\Transmitter::getProfile(0);
 				header('Access-Control-Allow-Origin: *');
@@ -121,11 +126,6 @@ class Friendica extends BaseModule
 			} catch (HTTPException\NotFoundException $e) {
 				System::jsonError(404, ['error' => 'Record not found']);
 			}
-		}
-
-		// @TODO: Replace with parameter from router
-		if (DI::args()->getArgc() <= 1 || (DI::args()->getArgv()[1] !== 'json')) {
-			return;
 		}
 
 		$config = DI::config();
