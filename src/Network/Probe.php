@@ -34,6 +34,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
@@ -530,7 +531,7 @@ class Probe
 				$addr = $nick . '@' . $host;
 			}
 
-			$webfinger = self::getWebfinger($parts['scheme'] . '://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
+			$webfinger = self::getWebfinger($parts['scheme'] . '://' . $host . self::WEBFINGER, HttpClient::ACCEPT_JRD_JSON, $uri, $addr);
 			if (empty($webfinger)) {
 				$lrdd = self::hostMeta($host);
 			}
@@ -544,7 +545,7 @@ class Probe
 						$addr = $nick . '@' . $host;
 					}
 
-					$webfinger = self::getWebfinger($parts['scheme'] . '://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
+					$webfinger = self::getWebfinger($parts['scheme'] . '://' . $host . self::WEBFINGER, HttpClient::ACCEPT_JRD_JSON, $uri, $addr);
 					if (empty($webfinger)) {
 						$lrdd = self::hostMeta($host);
 					}
@@ -562,13 +563,13 @@ class Probe
 			$nick = substr($uri, 0, strpos($uri, '@'));
 			$addr = $uri;
 
-			$webfinger = self::getWebfinger('https://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
+			$webfinger = self::getWebfinger('https://' . $host . self::WEBFINGER, HttpClient::ACCEPT_JRD_JSON, $uri, $addr);
 			if (self::$istimeout) {
 				return [];
 			}
 
 			if (empty($webfinger)) {
-				$webfinger = self::getWebfinger('http://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
+				$webfinger = self::getWebfinger('http://' . $host . self::WEBFINGER, HttpClient::ACCEPT_JRD_JSON, $uri, $addr);
 				if (self::$istimeout) {
 					return [];
 				}
