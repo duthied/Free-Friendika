@@ -1204,7 +1204,7 @@ class BBCode
 		$text = DI::cache()->get($cache_key);
 
 		if (is_null($text)) {
-			$curlResult = DI::httpClient()->head($match[1], [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
+			$curlResult = DI::httpClient()->head($match[1], [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout'), HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_DEFAULT]);
 			if ($curlResult->isSuccess()) {
 				$mimetype = $curlResult->getHeader('Content-Type')[0] ?? '';
 			} else {
@@ -1275,7 +1275,7 @@ class BBCode
 			return $text;
 		}
 
-		$curlResult = DI::httpClient()->head($match[1], [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
+		$curlResult = DI::httpClient()->head($match[1], [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout'), HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_DEFAULT]);
 		if ($curlResult->isSuccess()) {
 			$mimetype = $curlResult->getHeader('Content-Type')[0] ?? '';
 		} else {
