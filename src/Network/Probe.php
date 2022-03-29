@@ -834,8 +834,7 @@ class Probe
 
 	public static function pollZot($url, $data)
 	{
-		// @todo Check if this endpoint might be queried via a POST
-		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_DEFAULT]);
+		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_JSON]);
 		if ($curlResult->isTimeout()) {
 			return $data;
 		}
