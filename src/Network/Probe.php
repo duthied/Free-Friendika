@@ -932,7 +932,7 @@ class Probe
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
-		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => [$type]]);
+		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => $type]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];

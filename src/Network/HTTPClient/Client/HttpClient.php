@@ -267,9 +267,9 @@ class HttpClient implements ICanSendHttpRequests
 		return $this->get(
 			$url,
 			[
-				'timeout'        => $timeout,
-				'accept_content' => $accept_content,
-				'cookiejar'      => $cookiejar
+				HttpClientOptions::TIMEOUT        => $timeout,
+				HttpClientOptions::ACCEPT_CONTENT => $accept_content,
+				HttpClientOptions::COOKIEJAR      => $cookiejar
 			]
 		);
 	}
