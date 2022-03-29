@@ -32,6 +32,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
@@ -97,7 +98,7 @@ class OEmbed
 
 			if (!in_array($ext, $noexts)) {
 				// try oembed autodiscovery
-				$html_text = DI::httpClient()->fetch($embedurl, 15, 'text/*');
+				$html_text = DI::httpClient()->fetch($embedurl, 15, HttpClient::ACCEPT_HTML);
 				if (!empty($html_text)) {
 					$dom = new DOMDocument();
 					if (@$dom->loadHTML($html_text)) {

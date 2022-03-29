@@ -52,7 +52,9 @@ class HttpClient implements ICanSendHttpRequests
 	const ACCEPT_JRD_JSON = 'application/jrd+json,application/json;q=0.9';
 	const ACCEPT_JSON     = 'application/json,*/*;q=0.9';
 	const ACCEPT_JSON_AS  = 'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
+	const ACCEPT_MAGIC    = 'application/magic-envelope+xml';
 	const ACCEPT_RSS_XML  = 'application/rss+xml,text/xml;q=0.9,*/*;q=0.8';
+	const ACCEPT_TEXT     = 'text/plain,text/*;q=0.9,*/*;q=0.8';
 	const ACCEPT_VIDEO    = 'video/mp4,video/*;q=0.9,*/*;q=0.8';
 	const ACCEPT_XRD_XML  = 'application/xrd+xml,text/xml;q=0.9,*/*;q=0.8';
 

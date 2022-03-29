@@ -39,6 +39,7 @@ use Friendica\Model\Event;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
@@ -501,10 +502,12 @@ class BBCode
 					continue;
 				}
 
-				$curlResult = DI::httpClient()->get($mtch[1]);
+				$curlResult = DI::httpClient()->get($mtch[1], [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_IMAGE]);
 				if (!$curlResult->isSuccess()) {
 					continue;
 				}
+
+				Logger::debug('Got picture', ['Content-Type' => $curlResult->getHeader('Content-Type'), 'url' => $mtch[1]]);
 
 				$i = $curlResult->getBody();
 				$type = $curlResult->getContentType();
@@ -1096,7 +1099,7 @@ class BBCode
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
 
-				$img_str = '<img src="' . 
+				$img_str = '<img src="' .
 				self::proxyUrl($match[2], $simplehtml, $uriid) . '"';
 				foreach ($attributes as $key => $value) {
 					if (!empty($value)) {
@@ -1214,7 +1217,7 @@ class BBCode
 				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
 
 				// if its not a picture then look if its a page that contains a picture link
-				$body = DI::httpClient()->fetch($match[1]);
+				$body = DI::httpClient()->fetch($match[1], 0, HttpClient::ACCEPT_HTML);
 				if (empty($body)) {
 					DI::cache()->set($cache_key, $text);
 					return $text;
@@ -1290,7 +1293,7 @@ class BBCode
 			}
 
 			// if its not a picture then look if its a page that contains a picture link
-			$body = DI::httpClient()->fetch($match[1]);
+			$body = DI::httpClient()->fetch($match[1], 0, HttpClient::ACCEPT_HTML);
 			if (empty($body)) {
 				DI::cache()->set($cache_key, $text);
 				return $text;
@@ -1780,7 +1783,7 @@ class BBCode
 
 				$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . DI::l10n()->t('Image/photo') . '" />', $text);
 				$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . DI::l10n()->t('Image/photo') . '" />', $text);
-	
+
 				$text = self::convertImages($text, $simple_html, $uriid);
 
 				$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . DI::l10n()->t('Encrypted content') . '" /><br>', $text);
@@ -1894,7 +1897,7 @@ class BBCode
 				} else {
 					$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
 				}
-				
+
 				if (!$for_plaintext) {
 					if (in_array($simple_html, [self::OSTATUS, self::API, self::ACTIVITYPUB])) {
 						$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);

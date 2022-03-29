@@ -32,6 +32,8 @@ use Friendica\Core\Storage\Exception\InvalidClassStorageException;
 use Friendica\Core\Storage\Exception\ReferenceStorageException;
 use Friendica\Core\Storage\Exception\StorageException;
 use Friendica\Core\Storage\Type\SystemResource;
+use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
@@ -497,7 +499,8 @@ class Photo
 
 		$filename = basename($image_url);
 		if (!empty($image_url)) {
-			$ret = DI::httpClient()->get($image_url);
+			$ret = DI::httpClient()->get($image_url, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_IMAGE]);
+			Logger::debug('Got picture', ['Content-Type' => $ret->getHeader('Content-Type'), 'url' => $image_url]);
 			$img_str = $ret->getBody();
 			$type = $ret->getContentType();
 		} else {
@@ -912,7 +915,8 @@ class Photo
 	{
 		$filename = basename($image_url);
 		if (!empty($image_url)) {
-			$ret = DI::httpClient()->get($image_url);
+			$ret = DI::httpClient()->get($image_url, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_IMAGE]);
+			Logger::debug('Got picture', ['Content-Type' => $ret->getHeader('Content-Type'), 'url' => $image_url]);
 			$img_str = $ret->getBody();
 			$type = $ret->getContentType();
 		} else {
