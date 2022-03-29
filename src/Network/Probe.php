@@ -1532,6 +1532,7 @@ class Probe
 							self::$istimeout = true;
 							return $short ? false : [];
 						}
+						Logger::debug('Fetched public key', ['Content-Type' => $curlResult->getHeader('Content-Type'), 'url' => $pubkey]);
 						$pubkey = $curlResult->getBody();
 					}
 
