@@ -751,7 +751,7 @@ class Profile
 			$magic_path = $basepath . '/magic' . '?owa=1&dest=' . $dest . '&' . $addr_request;
 
 			// We have to check if the remote server does understand /magic without invoking something
-			$serverret = DI::httpClient()->get($basepath . '/magic', [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_DEFAULT]);
+			$serverret = DI::httpClient()->head($basepath . '/magic', [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_HTML]);
 			if ($serverret->isSuccess()) {
 				Logger::info('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path);
 				System::externalRedirect($magic_path);

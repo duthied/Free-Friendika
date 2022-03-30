@@ -73,7 +73,7 @@ class Salmon
 						$ret[$x] = substr($ret[$x], 5);
 					}
 				} elseif (Strings::normaliseLink($ret[$x]) == 'http://') {
-					$ret[$x] = DI::httpClient()->fetch($ret[$x], 0, HttpClient::ACCEPT_DEFAULT);
+					$ret[$x] = DI::httpClient()->fetch($ret[$x], 0, HttpClient::ACCEPT_MAGIC_KEY);
 					Logger::debug('Fetched public key', ['url' => $ret[$x]]);
 				}
 			}

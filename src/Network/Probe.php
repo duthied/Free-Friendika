@@ -1527,7 +1527,7 @@ class Probe
 							$pubkey = substr($pubkey, 5);
 						}
 					} elseif (Strings::normaliseLink($pubkey) == 'http://') {
-						$curlResult = DI::httpClient()->get($pubkey, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_DEFAULT]);
+						$curlResult = DI::httpClient()->get($pubkey, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_MAGIC_KEY]);
 						if ($curlResult->isTimeout()) {
 							self::$istimeout = true;
 							return $short ? false : [];

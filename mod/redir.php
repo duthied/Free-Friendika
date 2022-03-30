@@ -144,7 +144,7 @@ function redir_magic($a, $cid, $url)
 	}
 
 	// Test for magic auth on the target system
-	$serverret = DI::httpClient()->get($basepath . '/magic', [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_DEFAULT]);
+	$serverret = DI::httpClient()->head($basepath . '/magic', [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_HTML]);
 	if ($serverret->isSuccess()) {
 		$separator = strpos($target_url, '?') ? '&' : '?';
 		$target_url .= $separator . 'zrl=' . urlencode($visitor) . '&addr=' . urlencode($contact_url);
