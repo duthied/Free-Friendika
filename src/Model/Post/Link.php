@@ -26,6 +26,7 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\Proxy;
 
@@ -96,11 +97,11 @@ class Link
 		return $url . $id;
 	}
 
-	private static function fetchMimeType(string $url)
+	private static function fetchMimeType(string $url, string $accept = HttpClient::ACCEPT_DEFAULT)
 	{
 		$timeout = DI::config()->get('system', 'xrd_timeout');
 
-		$curlResult = DI::httpClient()->head($url, [HttpClientOptions::TIMEOUT => $timeout]);
+		$curlResult = DI::httpClient()->head($url, [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => $accept]);
 		if ($curlResult->isSuccess()) {
 			if (empty($media['mimetype'])) {
 				return $curlResult->getHeader('Content-Type')[0] ?? '';

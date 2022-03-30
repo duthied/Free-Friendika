@@ -26,6 +26,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Search;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 
 class SearchDirectory
 {
@@ -46,7 +47,7 @@ class SearchDirectory
 			}
 		}
 
-		$x = DI::httpClient()->fetch(Search::getGlobalDirectory() . '/lsearch?p=1&n=500&search=' . urlencode($search));
+		$x = DI::httpClient()->fetch(Search::getGlobalDirectory() . '/lsearch?p=1&n=500&search=' . urlencode($search), 0, HttpClient::ACCEPT_JSON);
 		$j = json_decode($x);
 
 		if (!empty($j->results)) {

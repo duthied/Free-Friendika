@@ -32,6 +32,7 @@ use Friendica\Model\Profile;
 use Friendica\Core\Storage\Type\ExternalResource;
 use Friendica\Core\Storage\Type\SystemResource;
 use Friendica\Model\User;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\NotModifiedException;
 use Friendica\Object\Image;
@@ -308,7 +309,7 @@ class Photo extends BaseModule
 				}
 				$mimetext = '';
 				if (!empty($url)) {
-					$mime = ParseUrl::getContentType($url);
+					$mime = ParseUrl::getContentType($url, HttpClient::ACCEPT_IMAGE);
 					if (!empty($mime)) {
 						$mimetext = $mime[0] . '/' . $mime[1];
 					} else {
@@ -317,6 +318,8 @@ class Photo extends BaseModule
 					if (!empty($mimetext) && ($mime[0] != 'image') && ($mimetext != 'application/octet-stream')) {
 						Logger::info('Unexpected Content-Type', ['mime' => $mimetext, 'url' => $url]);
 						$mimetext = '';
+					} if (!empty($mimetext)) {
+						Logger::debug('Expected Content-Type', ['mime' => $mimetext, 'url' => $url]);
 					}
 				}
 				if (empty($mimetext)) {

@@ -23,6 +23,7 @@ namespace Friendica\Core;
 
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Object\Search\ContactResult;
@@ -122,7 +123,7 @@ class Search
 			$searchUrl .= '&page=' . $page;
 		}
 
-		$resultJson = DI::httpClient()->fetch($searchUrl, 0, 'application/json');
+		$resultJson = DI::httpClient()->fetch($searchUrl, 0, HttpClient::ACCEPT_JSON);
 
 		$results = json_decode($resultJson, true);
 
@@ -228,7 +229,7 @@ class Search
 			$return = Contact::searchByName($search, $mode);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
-			$curlResult = DI::httpClient()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), [HttpClientOptions::ACCEPT_CONTENT => ['application/json']]);
+			$curlResult = DI::httpClient()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_JSON]);
 			if ($curlResult->isSuccess()) {
 				$searchResult = json_decode($curlResult->getBody(), true);
 				if (!empty($searchResult['profiles'])) {

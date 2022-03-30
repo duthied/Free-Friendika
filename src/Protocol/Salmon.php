@@ -23,6 +23,7 @@ namespace Friendica\Protocol;
 
 use Friendica\Core\Logger;
 use Friendica\DI;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\Strings;
@@ -72,7 +73,8 @@ class Salmon
 						$ret[$x] = substr($ret[$x], 5);
 					}
 				} elseif (Strings::normaliseLink($ret[$x]) == 'http://') {
-					$ret[$x] = DI::httpClient()->fetch($ret[$x]);
+					$ret[$x] = DI::httpClient()->fetch($ret[$x], 0, HttpClient::ACCEPT_MAGIC_KEY);
+					Logger::debug('Fetched public key', ['url' => $ret[$x]]);
 				}
 			}
 		}

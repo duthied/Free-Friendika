@@ -29,6 +29,7 @@ use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;

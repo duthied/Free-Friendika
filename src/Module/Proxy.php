@@ -25,6 +25,8 @@ use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException\NotModifiedException;
 use Friendica\Object\Image;
 use Friendica\Util\HTTPSignature;
@@ -81,7 +83,7 @@ class Proxy extends BaseModule
 		$request['url'] = str_replace(' ', '+', $request['url']);
 
 		// Fetch the content with the local user
-		$fetchResult = HTTPSignature::fetchRaw($request['url'], local_user(), ['accept_content' => [], 'timeout' => 10]);
+		$fetchResult = HTTPSignature::fetchRaw($request['url'], local_user(), [HttpClientOptions::ACCEPT_CONTENT => [HttpClient::ACCEPT_IMAGE], 'timeout' => 10]);
 		$img_str = $fetchResult->getBody();
 
 		if (!$fetchResult->isSuccess() || empty($img_str)) {
@@ -89,6 +91,8 @@ class Proxy extends BaseModule
 			self::responseError();
 			// stop.
 		}
+
+		Logger::debug('Got picture', ['Content-Type' => $fetchResult->getHeader('Content-Type'), 'uid' => local_user(), 'image' => $request['url']]);
 
 		$mime = Images::getMimeTypeByData($img_str);
 

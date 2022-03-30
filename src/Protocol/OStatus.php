@@ -38,6 +38,7 @@ use Friendica\Model\ItemURI;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Network\HTTPClient\Client\HttpClient;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
@@ -731,7 +732,7 @@ class OStatus
 
 		self::$conv_list[$conversation] = true;
 
-		$curlResult = DI::httpClient()->get($conversation, [HttpClientOptions::ACCEPT_CONTENT => ['application/atom+xml', 'text/html']]);
+		$curlResult = DI::httpClient()->get($conversation, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_ATOM_XML]);
 
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return;
@@ -761,7 +762,7 @@ class OStatus
 					}
 				}
 				if ($file != '') {
-					$conversation_atom = DI::httpClient()->get($attribute['href']);
+					$conversation_atom = DI::httpClient()->get($attribute['href'], [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_ATOM_XML]);
 
 					if ($conversation_atom->isSuccess()) {
 						$xml = $conversation_atom->getBody();
@@ -875,7 +876,7 @@ class OStatus
 			return;
 		}
 
-		$curlResult = DI::httpClient()->get($self);
+		$curlResult = DI::httpClient()->get($self, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_ATOM_XML]);
 
 		if (!$curlResult->isSuccess()) {
 			return;
@@ -925,7 +926,7 @@ class OStatus
 		}
 
 		$stored = false;
-		$curlResult = DI::httpClient()->get($related, [HttpClientOptions::ACCEPT_CONTENT => ['application/atom+xml', 'text/html']]);
+		$curlResult = DI::httpClient()->get($related, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_ATOM_XML]);
 
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return;
@@ -957,7 +958,7 @@ class OStatus
 					}
 				}
 				if ($atom_file != '') {
-					$curlResult = DI::httpClient()->get($atom_file);
+					$curlResult = DI::httpClient()->get($atom_file, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_ATOM_XML]);
 
 					if ($curlResult->isSuccess()) {
 						Logger::info('Fetched XML for URI ' . $related_uri);
@@ -969,7 +970,7 @@ class OStatus
 
 		// Workaround for older GNU Social servers
 		if (($xml == '') && strstr($related, '/notice/')) {
-			$curlResult = DI::httpClient()->get(str_replace('/notice/', '/api/statuses/show/', $related) . '.atom');
+			$curlResult = DI::httpClient()->get(str_replace('/notice/', '/api/statuses/show/', $related) . '.atom', [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_ATOM_XML]);
 
 			if ($curlResult->isSuccess()) {
 				Logger::info('GNU Social workaround to fetch XML for URI ' . $related_uri);
@@ -980,7 +981,7 @@ class OStatus
 		// Even more worse workaround for GNU Social ;-)
 		if ($xml == '') {
 			$related_guess = self::convertHref($related_uri);
-			$curlResult = DI::httpClient()->get(str_replace('/notice/', '/api/statuses/show/', $related_guess) . '.atom');
+			$curlResult = DI::httpClient()->get(str_replace('/notice/', '/api/statuses/show/', $related_guess) . '.atom', [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_ATOM_XML]);
 
 			if ($curlResult->isSuccess()) {
 				Logger::info('GNU Social workaround 2 to fetch XML for URI ' . $related_uri);

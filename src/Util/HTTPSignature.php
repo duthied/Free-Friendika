@@ -416,7 +416,7 @@ class HTTPSignature
 	 * @return \Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchRaw($request, $uid = 0, $opts = ['accept_content' => [HttpClient::ACCEPT_JSON_AS]])
+	public static function fetchRaw($request, $uid = 0, $opts = [HttpClientOptions::ACCEPT_CONTENT => [HttpClient::ACCEPT_JSON_AS]])
 	{
 		$header = [];
 
