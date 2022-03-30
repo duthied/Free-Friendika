@@ -229,7 +229,6 @@ return [
 			'/lists/{id:\d+}'                    => [Module\Api\Mastodon\Lists::class,                    [R::GET, R::PUT, R::DELETE]],
 			'/lists/{id:\d+}/accounts'           => [Module\Api\Mastodon\Lists\Accounts::class,           [R::GET, R::POST, R::DELETE]],
 			'/markers'                           => [Module\Api\Mastodon\Markers::class,                  [R::GET, R::POST]], // Dummy, not supported
-			'/media'                             => [Module\Api\Mastodon\Media::class,                    [        R::POST]],
 			'/media/{id:\d+}'                    => [Module\Api\Mastodon\Media::class,                    [R::GET, R::PUT ]],
 			'/mutes'                             => [Module\Api\Mastodon\Mutes::class,                    [R::GET         ]],
 			'/notifications'                     => [Module\Api\Mastodon\Notifications::class,            [R::GET         ]],
@@ -270,6 +269,7 @@ return [
 			'/trends'                            => [Module\Api\Mastodon\Trends::class,                   [R::GET         ]],
 		],
 		'/v{version:\d+}' => [
+			'/media'                             => [Module\Api\Mastodon\Media::class,                    [        R::POST]],
 			'/search'                            => [Module\Api\Mastodon\Search::class,                   [R::GET         ]],
 		],
 		'/meta'                                  => [Module\Api\Mastodon\Unimplemented::class, [R::POST        ]], // not supported
