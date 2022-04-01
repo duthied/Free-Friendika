@@ -752,7 +752,7 @@ class Receiver
 				break;
 
 			case 'litepub:EmojiReact':
-				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+				if (in_array($object_data['object_type'], array_merge([''], self::CONTENT_TYPES))) {
 					// Unhandled Pleroma activity to react to a post via an emoji
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
