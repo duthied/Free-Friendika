@@ -1060,7 +1060,7 @@ class Diaspora
 
 		Logger::info("Fetch post from ".$source_url);
 
-		$envelope = DI::httpClient()->fetch($source_url, 0, HttpClientAccept::MAGIC);
+		$envelope = DI::httpClient()->fetch($source_url, HttpClientAccept::MAGIC);
 		if ($envelope) {
 			Logger::info("Envelope was fetched.");
 			$x = self::verifyMagicEnvelope($envelope);
@@ -3018,7 +3018,7 @@ class Diaspora
 		if (!intval(DI::config()->get("system", "diaspora_test"))) {
 			$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-			$postResult = DI::httpClient()->post($dest_url . "/", $envelope, ['Content-Type' => $content_type]);
+			$postResult = DI::httpClient()->post($dest_url . "/", $envelope, HttpClientAccept::DEFAULT, ['Content-Type' => $content_type]);
 			$return_code = $postResult->getReturnCode();
 		} else {
 			Logger::notice("test_mode");

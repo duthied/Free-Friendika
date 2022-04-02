@@ -63,7 +63,7 @@ class HttpClient implements ICanSendHttpRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function request(string $method, string $url, array $opts = []): ICanHandleHttpResponses
+	public function request(string $method, string $url, string $accept_content = HttpClientAccept::DEFAULT, array $opts = []): ICanHandleHttpResponses
 	{
 		$this->profiler->startRecording('network');
 		$this->logger->debug('Request start.', ['url' => $url, 'method' => $method]);
@@ -141,7 +141,7 @@ class HttpClient implements ICanSendHttpRequests
 		};
 
 		if (empty($conf[HttpClientOptions::HEADERS]['Accept'])) {
-			$conf[HttpClientOptions::HEADERS]['Accept'] = HttpClientAccept::DEFAULT;
+			$conf[HttpClientOptions::HEADERS]['Accept'] = $accept_content;
 		}
 
 		try {
@@ -167,23 +167,23 @@ class HttpClient implements ICanSendHttpRequests
 
 	/** {@inheritDoc}
 	 */
-	public function head(string $url, array $opts = []): ICanHandleHttpResponses
+	public function head(string $url, string $accept_content = HttpClientAccept::DEFAULT, array $opts = []): ICanHandleHttpResponses
 	{
-		return $this->request('head', $url, $opts);
+		return $this->request('head', $url, $accept_content, $opts);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get(string $url, array $opts = []): ICanHandleHttpResponses
+	public function get(string $url, string $accept_content = HttpClientAccept::DEFAULT, array $opts = []): ICanHandleHttpResponses
 	{
-		return $this->request('get', $url, $opts);
+		return $this->request('get', $url, $accept_content, $opts);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function post(string $url, $params, array $headers = [], int $timeout = 0): ICanHandleHttpResponses
+	public function post(string $url, $params, string $accept_content = HttpClientAccept::DEFAULT, array $headers = [], int $timeout = 0): ICanHandleHttpResponses
 	{
 		$opts = [];
 
@@ -197,7 +197,7 @@ class HttpClient implements ICanSendHttpRequests
 			$opts[HttpClientOptions::TIMEOUT] = $timeout;
 		}
 
-		return $this->request('post', $url, $opts);
+		return $this->request('post', $url, $accept_content, $opts);
 	}
 
 	/**
@@ -237,9 +237,9 @@ class HttpClient implements ICanSendHttpRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): string
+	public function fetch(string $url, string $accept_content = HttpClientAccept::DEFAULT, int $timeout = 0, string $cookiejar = ''): string
 	{
-		$ret = $this->fetchFull($url, $timeout, $accept_content, $cookiejar);
+		$ret = $this->fetchFull($url, $accept_content, $timeout, $cookiejar);
 
 		return $ret->getBody();
 	}
@@ -247,14 +247,14 @@ class HttpClient implements ICanSendHttpRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): ICanHandleHttpResponses
+	public function fetchFull(string $url, string $accept_content = HttpClientAccept::DEFAULT, int $timeout = 0, string $cookiejar = ''): ICanHandleHttpResponses
 	{
 		return $this->get(
 			$url,
+			$accept_content,
 			[
-				HttpClientOptions::TIMEOUT        => $timeout,
-				HttpClientOptions::ACCEPT_CONTENT => $accept_content,
-				HttpClientOptions::COOKIEJAR      => $cookiejar
+				HttpClientOptions::TIMEOUT   => $timeout,
+				HttpClientOptions::COOKIEJAR => $cookiejar
 			]
 		);
 	}

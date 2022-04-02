@@ -344,7 +344,7 @@ class GServer
 
 		// When a nodeinfo is present, we don't need to dig further
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = DI::httpClient()->get($url . '/.well-known/nodeinfo', [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/.well-known/nodeinfo', HttpClientAccept::JSON, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 		if ($curlResult->isTimeout()) {
 			self::setFailure($url);
 			return false;
@@ -352,7 +352,7 @@ class GServer
 
 		// On a redirect follow the new host but mark the old one as failure
 		if ($curlResult->isSuccess() && !empty($curlResult->getRedirectUrl()) && (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
-			$curlResult = DI::httpClient()->get($url, [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::HTML]);
+			$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 			if (!empty($curlResult->getRedirectUrl()) && parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST)) {
 				Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $curlResult->getRedirectUrl()]);
 				self::setFailure($url);
@@ -394,7 +394,7 @@ class GServer
 					$basedata = ['detection-method' => self::DETECT_MANUAL];
 				}
 
-				$curlResult = DI::httpClient()->get($baseurl, [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::HTML]);
+				$curlResult = DI::httpClient()->get($baseurl, HttpClientAccept::HTML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 				if ($curlResult->isSuccess()) {
 					if (!empty($curlResult->getRedirectUrl()) && (parse_url($baseurl, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
 						Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $curlResult->getRedirectUrl()]);
@@ -418,7 +418,7 @@ class GServer
 					// When the base path doesn't seem to contain a social network we try the complete path.
 					// Most detectable system have to be installed in the root directory.
 					// We checked the base to avoid false positives.
-					$curlResult = DI::httpClient()->get($url, [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::HTML]);
+					$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 					if ($curlResult->isSuccess()) {
 						$urldata = self::analyseRootHeader($curlResult, $serverdata);
 						$urldata = self::analyseRootBody($curlResult, $urldata, $url);
@@ -588,7 +588,7 @@ class GServer
 	{
 		Logger::info('Discover relay data', ['server' => $server_url]);
 
-		$curlResult = DI::httpClient()->get($server_url . '/.well-known/x-social-relay', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($server_url . '/.well-known/x-social-relay', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
 			return;
 		}
@@ -683,7 +683,7 @@ class GServer
 	 */
 	private static function fetchStatistics(string $url)
 	{
-		$curlResult = DI::httpClient()->get($url . '/statistics.json', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/statistics.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
 			return [];
 		}
@@ -809,7 +809,7 @@ class GServer
 	 */
 	private static function parseNodeinfo1(string $nodeinfo_url)
 	{
-		$curlResult = DI::httpClient()->get($nodeinfo_url, [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($nodeinfo_url, HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
 			return [];
 		}
@@ -902,7 +902,7 @@ class GServer
 	 */
 	private static function parseNodeinfo2(string $nodeinfo_url)
 	{
-		$curlResult = DI::httpClient()->get($nodeinfo_url, [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($nodeinfo_url, HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
 			return [];
 		}
@@ -997,7 +997,7 @@ class GServer
 	 */
 	private static function fetchSiteinfo(string $url, array $serverdata)
 	{
-		$curlResult = DI::httpClient()->get($url . '/siteinfo.json', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/siteinfo.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
 			return $serverdata;
 		}
@@ -1082,7 +1082,7 @@ class GServer
 	private static function validHostMeta(string $url)
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta', [HttpClientOptions::TIMEOUT => $xrd_timeout, HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::XRD_XML]);
+		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta', HttpClientAccept::XRD_XML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
@@ -1174,7 +1174,7 @@ class GServer
 	{
 		$serverdata['poco'] = '';
 
-		$curlResult = DI::httpClient()->get($url . '/poco', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/poco', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
 			return $serverdata;
 		}
@@ -1204,7 +1204,7 @@ class GServer
 	 */
 	public static function checkMastodonDirectory(string $url, array $serverdata)
 	{
-		$curlResult = DI::httpClient()->get($url . '/api/v1/directory?limit=1', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/api/v1/directory?limit=1', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
 			return $serverdata;
 		}
@@ -1231,7 +1231,7 @@ class GServer
 	 */
 	private static function detectPeertube(string $url, array $serverdata)
 	{
-		$curlResult = DI::httpClient()->get($url . '/api/v1/config', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/api/v1/config', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
 		}
@@ -1278,7 +1278,7 @@ class GServer
 	 */
 	private static function detectNextcloud(string $url, array $serverdata)
 	{
-		$curlResult = DI::httpClient()->get($url . '/status.php', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/status.php', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
 		}
@@ -1302,7 +1302,7 @@ class GServer
 	}
 
 	private static function fetchWeeklyUsage(string $url, array $serverdata) {
-		$curlResult = DI::httpClient()->get($url . '/api/v1/instance/activity', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/api/v1/instance/activity', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
 		}
@@ -1370,7 +1370,7 @@ class GServer
 	 */
 	private static function detectMastodonAlikes(string $url, array $serverdata)
 	{
-		$curlResult = DI::httpClient()->get($url . '/api/v1/instance', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/api/v1/instance', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
 		}
@@ -1435,7 +1435,7 @@ class GServer
 	 */
 	private static function detectHubzilla(string $url, array $serverdata)
 	{
-		$curlResult = DI::httpClient()->get($url . '/api/statusnet/config.json', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/api/statusnet/config.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
 		}
@@ -1532,7 +1532,7 @@ class GServer
 	 */
 	private static function detectPumpIO(string $url, array $serverdata)
 	{
-		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta.json', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
 			return $serverdata;
 		}
@@ -1583,7 +1583,7 @@ class GServer
 	private static function detectGNUSocial(string $url, array $serverdata)
 	{
 		// Test for GNU Social
-		$curlResult = DI::httpClient()->get($url . '/api/gnusocial/version.json', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/api/gnusocial/version.json', HttpClientAccept::JSON);
 		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
 			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
 			$serverdata['platform'] = 'gnusocial';
@@ -1601,7 +1601,7 @@ class GServer
 		}
 
 		// Test for Statusnet
-		$curlResult = DI::httpClient()->get($url . '/api/statusnet/version.json', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$curlResult = DI::httpClient()->get($url . '/api/statusnet/version.json', HttpClientAccept::JSON);
 		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
 			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
 
@@ -1639,9 +1639,9 @@ class GServer
 	{
 		// There is a bug in some versions of Friendica that will return an ActivityStream actor when the content type "application/json" is requested.
 		// Because of this me must not use ACCEPT_JSON here.
-		$curlResult = DI::httpClient()->get($url . '/friendica/json', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::DEFAULT]);
+		$curlResult = DI::httpClient()->get($url . '/friendica/json');
 		if (!$curlResult->isSuccess()) {
-			$curlResult = DI::httpClient()->get($url . '/friendika/json', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::DEFAULT]);
+			$curlResult = DI::httpClient()->get($url . '/friendika/json');
 			$friendika = true;
 			$platform = 'Friendika';
 		} else {
@@ -1946,7 +1946,7 @@ class GServer
 		$protocols = ['activitypub', 'diaspora', 'dfrn', 'ostatus'];
 		foreach ($protocols as $protocol) {
 			$query = '{nodes(protocol:"' . $protocol . '"){host}}';
-			$curlResult = DI::httpClient()->fetch('https://the-federation.info/graphql?query=' . urlencode($query), 0, HttpClientAccept::JSON);
+			$curlResult = DI::httpClient()->fetch('https://the-federation.info/graphql?query=' . urlencode($query), HttpClientAccept::JSON);
 			if (!empty($curlResult)) {
 				$data = json_decode($curlResult, true);
 				if (!empty($data['data']['nodes'])) {
@@ -1963,7 +1963,7 @@ class GServer
 
 		if (!empty($accesstoken)) {
 			$api = 'https://instances.social/api/1.0/instances/list?count=0';
-			$curlResult = DI::httpClient()->get($api, [HttpClientOptions::HEADERS => ['Authorization' => ['Bearer ' . $accesstoken]], HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+			$curlResult = DI::httpClient()->get($api, HttpClientAccept::JSON, [HttpClientOptions::HEADERS => ['Authorization' => ['Bearer ' . $accesstoken]]]);
 			if ($curlResult->isSuccess()) {
 				$servers = json_decode($curlResult->getBody(), true);
 

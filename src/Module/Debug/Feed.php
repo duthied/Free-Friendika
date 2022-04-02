@@ -61,7 +61,7 @@ class Feed extends BaseModule
 
 			$contact = Model\Contact::getByURLForUser($url, local_user(), null);
 
-			$xml = $this->httpClient->fetch($contact['poll'], 0, HttpClientAccept::FEED_XML);
+			$xml = $this->httpClient->fetch($contact['poll'], HttpClientAccept::FEED_XML);
 
 			$import_result = Protocol\Feed::import($xml);
 

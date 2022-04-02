@@ -26,7 +26,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\GServer;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
-use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\Strings;
 
 class UpdateServerPeers
@@ -37,7 +36,7 @@ class UpdateServerPeers
 	 */
 	public static function execute(string $url)
 	{
-		$ret = DI::httpClient()->get($url . '/api/v1/instance/peers', [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
+		$ret = DI::httpClient()->get($url . '/api/v1/instance/peers', HttpClientAccept::JSON);
 		if (!$ret->isSuccess() || empty($ret->getBody())) {
 			Logger::info('Server is not reachable or does not offer the "peers" endpoint', ['url' => $url]);
 			return;

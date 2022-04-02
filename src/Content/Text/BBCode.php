@@ -502,7 +502,7 @@ class BBCode
 					continue;
 				}
 
-				$curlResult = DI::httpClient()->get($mtch[1], [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::IMAGE]);
+				$curlResult = DI::httpClient()->get($mtch[1], HttpClientAccept::IMAGE);
 				if (!$curlResult->isSuccess()) {
 					continue;
 				}
@@ -1204,7 +1204,7 @@ class BBCode
 		$text = DI::cache()->get($cache_key);
 
 		if (is_null($text)) {
-			$curlResult = DI::httpClient()->head($match[1], [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout'), HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::DEFAULT]);
+			$curlResult = DI::httpClient()->head($match[1], HttpClientAccept::DEFAULT, [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
 			if ($curlResult->isSuccess()) {
 				$mimetype = $curlResult->getHeader('Content-Type')[0] ?? '';
 			} else {
@@ -1217,7 +1217,7 @@ class BBCode
 				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
 
 				// if its not a picture then look if its a page that contains a picture link
-				$body = DI::httpClient()->fetch($match[1], 0, HttpClientAccept::HTML);
+				$body = DI::httpClient()->fetch($match[1], HttpClientAccept::HTML, 0);
 				if (empty($body)) {
 					DI::cache()->set($cache_key, $text);
 					return $text;
@@ -1275,7 +1275,7 @@ class BBCode
 			return $text;
 		}
 
-		$curlResult = DI::httpClient()->head($match[1], [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout'), HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::DEFAULT]);
+		$curlResult = DI::httpClient()->head($match[1], HttpClientAccept::DEFAULT, [HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout')]);
 		if ($curlResult->isSuccess()) {
 			$mimetype = $curlResult->getHeader('Content-Type')[0] ?? '';
 		} else {
@@ -1293,7 +1293,7 @@ class BBCode
 			}
 
 			// if its not a picture then look if its a page that contains a picture link
-			$body = DI::httpClient()->fetch($match[1], 0, HttpClientAccept::HTML);
+			$body = DI::httpClient()->fetch($match[1], HttpClientAccept::HTML, 0);
 			if (empty($body)) {
 				DI::cache()->set($cache_key, $text);
 				return $text;

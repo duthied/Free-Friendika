@@ -2,6 +2,9 @@
 
 namespace Friendica\Network\HTTPClient\Client;
 
+/**
+ * This class contains a list of possible HTTPClient ACCEPT options.
+ */
 class HttpClientAccept
 {
 	/** @var string Default value for "Accept" header */
@@ -20,4 +23,5 @@ class HttpClientAccept
 	public const TEXT      = 'text/plain,text/*;q=0.9,*/*;q=0.8';
 	public const VIDEO     = 'video/mp4,video/*;q=0.9,*/*;q=0.8';
 	public const XRD_XML   = 'application/xrd+xml,text/xml;q=0.9,*/*;q=0.8';
+	public const XML       = 'application/xml,text/xml;q=0.9,*/*;q=0.8';
 }

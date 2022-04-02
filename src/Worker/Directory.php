@@ -54,7 +54,7 @@ class Directory
 
 		Logger::info('Updating directory: ' . $arr['url']);
 		if (strlen($arr['url'])) {
-			DI::httpClient()->fetch($dir . '?url=' . bin2hex($arr['url']), 0, HttpClientAccept::HTML);
+			DI::httpClient()->fetch($dir . '?url=' . bin2hex($arr['url']), HttpClientAccept::HTML);
 		}
 
 		return;
