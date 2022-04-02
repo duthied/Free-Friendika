@@ -6138,15 +6138,15 @@ msgstr "Minimalna wolna pamięć w MB dla pracownika. Potrzebuje dostępu do /pr
 
 #: src/Module/Admin/Site.php:578
 msgid "Periodically optimize tables"
-msgstr ""
+msgstr "Okresowo optymalizuj tabele"
 
 #: src/Module/Admin/Site.php:578
 msgid "Periodically optimize tables like the cache and the workerqueue"
-msgstr ""
+msgstr "Okresowo optymalizuj tabele, takie jak pamięć podręczna i kolejka workerów"
 
 #: src/Module/Admin/Site.php:580
 msgid "Discover followers/followings from contacts"
-msgstr ""
+msgstr "Odkryj obserwujących/obserwowanych z kontaktów"
 
 #: src/Module/Admin/Site.php:580
 msgid ""
@@ -6167,7 +6167,7 @@ msgstr "Kontakty lokalne - kontakty naszych lokalnych kontaktów są wykrywane d
 msgid ""
 "Interactors - contacts of our local contacts and contacts who interacted on "
 "locally visible postings are discovered for their followers/followings."
-msgstr ""
+msgstr "Interaktorzy - kontakty naszych lokalnych kontaktów i kontakty, które wchodziły w interakcję z lokalnie widocznymi wpisami, są wykrywane dla ich obserwujących/obserwowanych."
 
 #: src/Module/Admin/Site.php:585
 msgid "Synchronize the contacts with the directory server"
@@ -6177,7 +6177,7 @@ msgstr "Synchronizuj kontakty z serwerem katalogowym"
 msgid ""
 "if enabled, the system will check periodically for new contacts on the "
 "defined directory server."
-msgstr ""
+msgstr "jeśli ta opcja jest włączona, system będzie okresowo sprawdzać nowe kontakty na zdefiniowanym serwerze katalogowym."
 
 #: src/Module/Admin/Site.php:587
 msgid "Days between requery"
@@ -6195,7 +6195,7 @@ msgstr "Odkryj kontakty z innych serwerów"
 msgid ""
 "Periodically query other servers for contacts. The system queries Friendica,"
 " Mastodon and Hubzilla servers."
-msgstr ""
+msgstr "Okresowo pytaj inne serwery o kontakty. System wysyła zapytania do serwerów Friendica, Mastodon i Hubzilla."
 
 #: src/Module/Admin/Site.php:589
 msgid "Search the local directory"
@@ -6292,13 +6292,13 @@ msgstr "Ile komentarzy powinno być pokazywanych dla każdego posta? Domyślna w
 
 #: src/Module/Admin/Site.php:600
 msgid "Maximum numbers of comments per post on the display page"
-msgstr ""
+msgstr "Maksymalna liczba komentarzy na wpis na wyświetlanej stronie"
 
 #: src/Module/Admin/Site.php:600
 msgid ""
 "How many comments should be shown on the single view for each post? Default "
 "value is 1000."
-msgstr ""
+msgstr "Ile komentarzy powinno być wyświetlanych w pojedynczym widoku dla każdego wpisu? Wartość domyślna to 1000."
 
 #: src/Module/Admin/Site.php:601
 msgid "Temp path"
@@ -6923,7 +6923,7 @@ msgstr ""
 #: src/Module/Api/ApiResponse.php:273
 msgid ""
 "The API endpoint is currently not implemented but might be in the future."
-msgstr ""
+msgstr "Punkt końcowy interfejsu API nie jest obecnie zaimplementowany, ale może zostać w przyszłości."
 
 #: src/Module/Api/Mastodon/Apps.php:63
 msgid "Missing parameters"
@@ -7052,7 +7052,7 @@ msgstr ""
 
 #: src/Module/BaseAdmin.php:118 src/Module/Debug/ActivityPubConversion.php:142
 msgid "ActivityPub Conversion"
-msgstr ""
+msgstr "Konwersja ActivityPub"
 
 #: src/Module/BaseAdmin.php:127
 msgid "Addon Features"
@@ -7496,7 +7496,7 @@ msgstr "Lustro mojego własnego komentarza"
 
 #: src/Module/Contact/Profile.php:293 src/Module/Contact/Profile.php:299
 msgid "Native reshare"
-msgstr ""
+msgstr "Udostępnianie natywne"
 
 #: src/Module/Contact/Profile.php:316
 msgid "Contact Information / Notes"
@@ -7578,7 +7578,7 @@ msgstr "Wyślij powiadomienie o każdym nowym poście tego kontaktu"
 
 #: src/Module/Contact/Profile.php:360
 msgid "Keyword Deny List"
-msgstr ""
+msgstr "Lista odrzuconych słów kluczowych"
 
 #: src/Module/Contact/Profile.php:360
 msgid ""
@@ -7615,11 +7615,11 @@ msgstr "Przełącz stan na Ignorowany"
 
 #: src/Module/Contact/Profile.php:466 src/Module/Contact/Revoke.php:105
 msgid "Revoke Follow"
-msgstr ""
+msgstr "Anuluj obserwowanie"
 
 #: src/Module/Contact/Profile.php:468
 msgid "Revoke the follow from this contact"
-msgstr ""
+msgstr "Anuluj obserwację przez ten kontakt"
 
 #: src/Module/Contact/Revoke.php:62
 msgid "Unknown contact."
@@ -7641,7 +7641,7 @@ msgstr "Obserwacja została pomyślnie anulowana."
 msgid ""
 "Do you really want to revoke this contact's follow? This cannot be undone "
 "and they will have to manually follow you back again."
-msgstr ""
+msgstr "Czy na pewno chcesz cofnąć obserwowanie przez ten kontakt? Nie można tego cofnąć i przy chęci przywrócenia obserwacji będzie trzeba zrobić to ponownie ręcznie."
 
 #: src/Module/Contact/Revoke.php:107
 #: src/Module/Notifications/Introductions.php:142
@@ -7671,7 +7671,7 @@ msgstr "Własne kontakty"
 
 #: src/Module/Conversation/Community.php:119
 msgid "Include"
-msgstr ""
+msgstr "Zawiera"
 
 #: src/Module/Conversation/Community.php:120
 msgid "Hide"
@@ -7751,23 +7751,23 @@ msgstr "Friendica to projekt społecznościowy, który nie byłby możliwy bez p
 
 #: src/Module/Debug/ActivityPubConversion.php:58
 msgid "Formatted"
-msgstr ""
+msgstr "Sformatowany"
 
 #: src/Module/Debug/ActivityPubConversion.php:70
 msgid "Activity"
-msgstr ""
+msgstr "Aktywność"
 
 #: src/Module/Debug/ActivityPubConversion.php:122
 msgid "Object data"
-msgstr ""
+msgstr "Dane obiektu"
 
 #: src/Module/Debug/ActivityPubConversion.php:129
 msgid "Result Item"
-msgstr ""
+msgstr "Pozycja wynikowa"
 
 #: src/Module/Debug/ActivityPubConversion.php:143
 msgid "Source activity"
-msgstr ""
+msgstr "Aktywność źródła"
 
 #: src/Module/Debug/Babel.php:51
 msgid "Source input"
@@ -7903,7 +7903,7 @@ msgstr ""
 
 #: src/Module/Debug/Babel.php:255
 msgid "Decoded post"
-msgstr ""
+msgstr "Odkodowany wpis"
 
 #: src/Module/Debug/Babel.php:276
 msgid "Post array before expand entities"
@@ -7911,7 +7911,7 @@ msgstr ""
 
 #: src/Module/Debug/Babel.php:283
 msgid "Post converted"
-msgstr ""
+msgstr "Wpis przekonwertowany"
 
 #: src/Module/Debug/Babel.php:288
 msgid "Converted body"
@@ -8048,11 +8048,11 @@ msgstr "Katalog Witryny"
 
 #: src/Module/Filer/RemoveTag.php:68
 msgid "Item was not removed"
-msgstr ""
+msgstr "Element nie został usunięty"
 
 #: src/Module/Filer/RemoveTag.php:71
 msgid "Item was not deleted"
-msgstr ""
+msgstr "Element nie został skasowany"
 
 #: src/Module/Filer/SaveTag.php:72
 msgid "- select -"
@@ -8665,7 +8665,7 @@ msgstr "Nie znaleziono modelu"
 
 #: src/Module/PermissionTooltip.php:88
 msgid "Unlisted"
-msgstr ""
+msgstr "Niekatalogowany"
 
 #: src/Module/PermissionTooltip.php:106
 msgid "Remote privacy information not available."
@@ -9014,7 +9014,7 @@ msgstr "Załóż nowe konto"
 
 #: src/Module/Security/Login.php:129
 msgid "Your OpenID: "
-msgstr ""
+msgstr "Twój OpenID: "
 
 #: src/Module/Security/Login.php:132
 msgid ""
@@ -9060,7 +9060,7 @@ msgstr "Wylogowano."
 
 #: src/Module/Security/OpenID.php:54
 msgid "OpenID protocol error. No ID returned"
-msgstr ""
+msgstr "Błąd protokołu OpenID. Nie zwrócono identyfikatora"
 
 #: src/Module/Security/OpenID.php:92
 msgid ""
@@ -9122,7 +9122,7 @@ msgstr "Wprowadź kod z aplikacji uwierzytelniającej"
 
 #: src/Module/Security/TwoFactor/Verify.php:101
 msgid "This is my two-factor authenticator app device"
-msgstr ""
+msgstr "To jest moje urządzenie z dwuskładnikową aplikacją uwierzytelniającą"
 
 #: src/Module/Security/TwoFactor/Verify.php:102
 msgid "Verify code and complete login"
@@ -9278,15 +9278,15 @@ msgid ""
 "Auto update may add new posts at the top of the post stream pages, which can"
 " affect the scroll position and perturb normal reading if it happens "
 "anywhere else the top of the page."
-msgstr ""
+msgstr "Automatyczna aktualizacja może dodawać nowe wpisy na górze stron strumienia wpisów, co może wpływać na pozycję przewijania i zakłócać normalne czytanie, jeśli dzieje się ono w innym miejscu na górze strony."
 
 #: src/Module/Settings/Display.php:212
 msgid "Display emoticons"
-msgstr ""
+msgstr "Wyświetl emotikony"
 
 #: src/Module/Settings/Display.php:212
 msgid "When enabled, emoticons are replaced with matching symbols."
-msgstr ""
+msgstr "Po włączeniu emotikony są zastępowane pasującymi symbolami."
 
 #: src/Module/Settings/Display.php:213
 msgid "Infinite scroll"
@@ -9298,7 +9298,7 @@ msgstr "Automatyczne pobieranie nowych elementów po osiągnięciu końca strony
 
 #: src/Module/Settings/Display.php:214
 msgid "Enable Smart Threading"
-msgstr ""
+msgstr "Włącz inteligentne wątkowanie"
 
 #: src/Module/Settings/Display.php:214
 msgid "Enable the automatic suppression of extraneous thread indentation."
@@ -9306,24 +9306,24 @@ msgstr "Włącz automatyczne tłumienie obcych wcięć wątku."
 
 #: src/Module/Settings/Display.php:215
 msgid "Display the Dislike feature"
-msgstr ""
+msgstr "Wyświetl funkcję \"Nie lubię\""
 
 #: src/Module/Settings/Display.php:215
 msgid ""
 "Display the Dislike button and dislike reactions on posts and comments."
-msgstr ""
+msgstr "Wyświetlaj przycisk \"Nie lubię\" i reakcje na wpisy i komentarze."
 
 #: src/Module/Settings/Display.php:216
 msgid "Display the resharer"
-msgstr ""
+msgstr "Wyświetl udostępniającego"
 
 #: src/Module/Settings/Display.php:216
 msgid "Display the first resharer as icon and text on a reshared item."
-msgstr ""
+msgstr "Wyświetlaj pierwszego udostępniającego jako ikonę i tekst na elemencie udostępnianym dalej."
 
 #: src/Module/Settings/Display.php:217
 msgid "Stay local"
-msgstr ""
+msgstr "Pozostań lokalny"
 
 #: src/Module/Settings/Display.php:217
 msgid "Don't go to a remote system when following a contact link."
@@ -9584,7 +9584,7 @@ msgstr "<p>Hasła aplikacji to losowo generowane hasła używane zamiast zwykłe
 msgid ""
 "Make sure to copy your new app-specific password now. You won’t be able to "
 "see it again!"
-msgstr ""
+msgstr "Pamiętaj, aby teraz skopiować nowe hasło aplikacji. Nie będziesz mógł go zobaczyć ponownie!"
 
 #: src/Module/Settings/TwoFactor/AppSpecific.php:132
 msgid "Description"
@@ -9710,7 +9710,7 @@ msgstr "Zarządzaj hasłami specyficznymi dla aplikacji"
 
 #: src/Module/Settings/TwoFactor/Index.php:138
 msgid "Manage trusted browsers"
-msgstr ""
+msgstr "Zarządzaj zaufanymi przeglądarkami"
 
 #: src/Module/Settings/TwoFactor/Index.php:139
 msgid "Finish app configuration"
@@ -10073,7 +10073,7 @@ msgstr "Na naszych stronach <strong>pomocy</strong> można znaleźć szczegóło
 
 #: src/Navigation/Notifications/Factory/FormattedNavNotification.php:135
 msgid "{0} wants to follow you"
-msgstr ""
+msgstr "{0} chce Cię obserwować"
 
 #: src/Navigation/Notifications/Factory/FormattedNotify.php:91
 #, php-format
@@ -10550,7 +10550,7 @@ msgstr "Ten wpis został zedytowany"
 
 #: src/Object/Post.php:198
 msgid "Connector Message"
-msgstr ""
+msgstr "Komunikat łącznika"
 
 #: src/Object/Post.php:213 src/Object/Post.php:215
 msgid "Edit"
@@ -10571,7 +10571,7 @@ msgstr "Usuń lokalnie"
 #: src/Object/Post.php:255
 #, php-format
 msgid "Block %s"
-msgstr ""
+msgstr "Zablokuj %s"
 
 #: src/Object/Post.php:260
 msgid "Save to folder"
@@ -10591,11 +10591,11 @@ msgstr "Mogę wziąć udział"
 
 #: src/Object/Post.php:324
 msgid "Ignore thread"
-msgstr ""
+msgstr "Zignoruj ​​wątek"
 
 #: src/Object/Post.php:325
 msgid "Unignore thread"
-msgstr ""
+msgstr "Przestań ignorować ​​wątek"
 
 #: src/Object/Post.php:326
 msgid "Toggle ignore status"
@@ -10643,19 +10643,19 @@ msgstr "Udostępnienie cytatu"
 
 #: src/Object/Post.php:375
 msgid "Reshare this"
-msgstr ""
+msgstr "Udostępnij to dalej"
 
 #: src/Object/Post.php:375
 msgid "Reshare"
-msgstr ""
+msgstr "Udostępnij dalej"
 
 #: src/Object/Post.php:376
 msgid "Cancel your Reshare"
-msgstr ""
+msgstr "Anuluj swoje dalsze udostępnianie"
 
 #: src/Object/Post.php:376
 msgid "Unshare"
-msgstr ""
+msgstr "Przestań udostępniać"
 
 #: src/Object/Post.php:421
 #, php-format
@@ -10664,7 +10664,7 @@ msgstr ""
 
 #: src/Object/Post.php:426
 msgid "Comment this item on your system"
-msgstr ""
+msgstr "Skomentuj ten element w swoim systemie"
 
 #: src/Object/Post.php:426
 msgid "Remote comment"
