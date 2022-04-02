@@ -30,7 +30,7 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
@@ -169,11 +169,11 @@ class Media
 		// Fetch the mimetype or size if missing.
 		if (empty($media['mimetype']) || empty($media['size'])) {
 			$timeout = DI::config()->get('system', 'xrd_timeout');
-			$curlResult = DI::httpClient()->head($media['url'], [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_DEFAULT]);
+			$curlResult = DI::httpClient()->head($media['url'], [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::DEFAULT]);
 
 			// Workaround for systems that can't handle a HEAD request
 			if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() == 405)) {
-				$curlResult = DI::httpClient()->get($media['url'], [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_DEFAULT]);
+				$curlResult = DI::httpClient()->get($media['url'], [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::DEFAULT]);
 			}
 
 			if ($curlResult->isSuccess()) {

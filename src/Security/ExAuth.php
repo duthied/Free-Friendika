@@ -57,7 +57,7 @@ use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\User;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException;
 use Friendica\Util\PidFile;
@@ -241,7 +241,7 @@ class ExAuth
 
 		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/noscrape/' . $user;
 
-		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_JSON]);
+		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON]);
 
 		if (!$curlResult->isSuccess()) {
 			return false;

@@ -26,7 +26,7 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\Proxy;
 
@@ -97,7 +97,7 @@ class Link
 		return $url . $id;
 	}
 
-	private static function fetchMimeType(string $url, string $accept = HttpClient::ACCEPT_DEFAULT)
+	private static function fetchMimeType(string $url, string $accept = HttpClientAccept::DEFAULT)
 	{
 		$timeout = DI::config()->get('system', 'xrd_timeout');
 

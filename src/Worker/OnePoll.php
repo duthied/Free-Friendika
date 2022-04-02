@@ -30,7 +30,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\User;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -155,7 +155,7 @@ class OnePoll
 		}
 
 		$cookiejar = tempnam(System::getTempPath(), 'cookiejar-onepoll-');
-		$curlResult = DI::httpClient()->get($contact['poll'], [HttpClientOptions::COOKIEJAR => $cookiejar, HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_FEED_XML]);
+		$curlResult = DI::httpClient()->get($contact['poll'], [HttpClientOptions::COOKIEJAR => $cookiejar, HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::FEED_XML]);
 		unlink($cookiejar);
 
 		if ($curlResult->isTimeout()) {

@@ -28,7 +28,7 @@ use Friendica\Core\Renderer;
 use Friendica\Model;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Protocol;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -61,7 +61,7 @@ class Feed extends BaseModule
 
 			$contact = Model\Contact::getByURLForUser($url, local_user(), null);
 
-			$xml = $this->httpClient->fetch($contact['poll'], 0, HttpClient::ACCEPT_FEED_XML);
+			$xml = $this->httpClient->fetch($contact['poll'], 0, HttpClientAccept::FEED_XML);
 
 			$import_result = Protocol\Feed::import($xml);
 

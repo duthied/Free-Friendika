@@ -24,7 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Nodeinfo as ModelNodeInfo;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 
 class NodeInfo
 {
@@ -35,7 +35,7 @@ class NodeInfo
 		// Now trying to register
 		$url = 'http://the-federation.info/register/' . DI::baseUrl()->getHostname();
 		Logger::debug('Check registering url', ['url' => $url]);
-		$ret = DI::httpClient()->fetch($url, 0, HttpClient::ACCEPT_HTML);
+		$ret = DI::httpClient()->fetch($url, 0, HttpClientAccept::HTML);
 		Logger::debug('Check registering answer', ['answer' => $ret]);
 		Logger::info('end');
 	}

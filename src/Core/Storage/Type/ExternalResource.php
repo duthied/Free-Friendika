@@ -25,7 +25,7 @@ use Exception;
 use Friendica\Core\Logger;
 use Friendica\Core\Storage\Exception\ReferenceStorageException;
 use Friendica\Core\Storage\Capability\ICanReadFromStorage;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\HTTPSignature;
 
@@ -55,7 +55,7 @@ class ExternalResource implements ICanReadFromStorage
 		}
 
 		try {
-			$fetchResult = HTTPSignature::fetchRaw($data->url, $data->uid, [HttpClientOptions::ACCEPT_CONTENT => [HttpClient::ACCEPT_IMAGE]]);
+			$fetchResult = HTTPSignature::fetchRaw($data->url, $data->uid, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
 		} catch (Exception $exception) {
 			throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference), $exception->getCode(), $exception);
 		}

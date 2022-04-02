@@ -28,7 +28,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
@@ -72,10 +72,10 @@ class APContact
 
 		$data = ['addr' => $addr];
 		$template = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
-		$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), HttpClient::ACCEPT_JRD_JSON);
+		$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), HttpClientAccept::JRD_JSON);
 		if (empty($webfinger['links'])) {
 			$template = 'http://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
-			$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), HttpClient::ACCEPT_JRD_JSON);
+			$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), HttpClientAccept::JRD_JSON);
 			if (empty($webfinger['links'])) {
 				return [];
 			}
