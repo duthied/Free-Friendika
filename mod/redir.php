@@ -27,7 +27,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Util\Strings;
 
 function redir_init(App $a) {
@@ -143,7 +142,7 @@ function redir_magic($a, $cid, $url)
 	}
 
 	// Test for magic auth on the target system
-	$serverret = DI::httpClient()->head($basepath . '/magic', HttpClientAccept::HTML);
+	$serverret = DI::httpClient()->head($basepath . '/magic');
 	if ($serverret->isSuccess()) {
 		$separator = strpos($target_url, '?') ? '&' : '?';
 		$target_url .= $separator . 'zrl=' . urlencode($visitor) . '&addr=' . urlencode($contact_url);

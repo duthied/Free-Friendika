@@ -63,7 +63,7 @@ class HttpClient implements ICanSendHttpRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function request(string $method, string $url, string $accept_content = HttpClientAccept::DEFAULT, array $opts = []): ICanHandleHttpResponses
+	public function request(string $method, string $url, array $opts = []): ICanHandleHttpResponses
 	{
 		$this->profiler->startRecording('network');
 		$this->logger->debug('Request start.', ['url' => $url, 'method' => $method]);
@@ -141,7 +141,8 @@ class HttpClient implements ICanSendHttpRequests
 		};
 
 		if (empty($conf[HttpClientOptions::HEADERS]['Accept'])) {
-			$conf[HttpClientOptions::HEADERS]['Accept'] = $accept_content;
+			$this->logger->info('Accept header was missing, using default.', ['url' => $url, 'callstack' => System::callstack()]);
+			$conf[HttpClientOptions::HEADERS]['Accept'] = HttpClientAccept::DEFAULT;
 		}
 
 		try {
@@ -167,9 +168,9 @@ class HttpClient implements ICanSendHttpRequests
 
 	/** {@inheritDoc}
 	 */
-	public function head(string $url, string $accept_content = HttpClientAccept::DEFAULT, array $opts = []): ICanHandleHttpResponses
+	public function head(string $url, array $opts = []): ICanHandleHttpResponses
 	{
-		return $this->request('head', $url, $accept_content, $opts);
+		return $this->request('head', $url, $opts);
 	}
 
 	/**
@@ -177,13 +178,16 @@ class HttpClient implements ICanSendHttpRequests
 	 */
 	public function get(string $url, string $accept_content = HttpClientAccept::DEFAULT, array $opts = []): ICanHandleHttpResponses
 	{
-		return $this->request('get', $url, $accept_content, $opts);
+		// In case there is no
+		$opts[HttpClientOptions::ACCEPT_CONTENT] = $opts[HttpClientOptions::ACCEPT_CONTENT] ?? $accept_content;
+
+		return $this->request('get', $url, $opts);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function post(string $url, $params, string $accept_content = HttpClientAccept::DEFAULT, array $headers = [], int $timeout = 0): ICanHandleHttpResponses
+	public function post(string $url, $params, array $headers = [], int $timeout = 0): ICanHandleHttpResponses
 	{
 		$opts = [];
 
@@ -197,7 +201,7 @@ class HttpClient implements ICanSendHttpRequests
 			$opts[HttpClientOptions::TIMEOUT] = $timeout;
 		}
 
-		return $this->request('post', $url, $accept_content, $opts);
+		return $this->request('post', $url, $opts);
 	}
 
 	/**

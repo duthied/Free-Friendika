@@ -157,7 +157,7 @@ class Salmon
 		$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 		// slap them
-		$postResult = DI::httpClient()->post($url, $salmon, HttpClientAccept::DEFAULT, [
+		$postResult = DI::httpClient()->post($url, $salmon, [
 			'Content-type' => 'application/magic-envelope+xml',
 			'Content-length' => strlen($salmon),
 		]);
@@ -182,7 +182,7 @@ class Salmon
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			$postResult = DI::httpClient()->post($url, $salmon, HttpClientAccept::DEFAULT, [
+			$postResult = DI::httpClient()->post($url, $salmon, [
 				'Content-type' => 'application/magic-envelope+xml',
 				'Content-length' => strlen($salmon),
 			]);
@@ -205,7 +205,7 @@ class Salmon
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			$postResult = DI::httpClient()->post($url, $salmon, HttpClientAccept::DEFAULT, [
+			$postResult = DI::httpClient()->post($url, $salmon, [
 				'Content-type' => 'application/magic-envelope+xml',
 				'Content-length' => strlen($salmon)]);
 			$return_code = $postResult->getReturnCode();
