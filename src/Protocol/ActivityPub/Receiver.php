@@ -767,7 +767,7 @@ class Receiver
 	}
 
 	/**
-	 * Stores unhandled or unknown Activitities as a file
+	 * Stores unhandled or unknown Activities as a file
 	 *
 	 * @param boolean $unknown      "true" if the activity is unknown, "false" if it is unhandled
 	 * @param string  $type         Activity type
