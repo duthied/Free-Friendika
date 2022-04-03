@@ -569,6 +569,7 @@ class Network
 	 */
 	public static function isValidHttpUrl(string $url)
 	{
-		return in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https']) && parse_url($url, PHP_URL_HOST);
+		$scheme = parse_url($url, PHP_URL_SCHEME);
+		return !empty($scheme) && in_array($scheme, ['http', 'https']) && parse_url($url, PHP_URL_HOST);
 	}
 }
