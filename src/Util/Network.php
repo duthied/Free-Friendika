@@ -560,4 +560,15 @@ class Network
 	{
 		return (strpos(Strings::normaliseLink($url), Strings::normaliseLink(DI::baseUrl())) !== false);
 	}
+
+	/**
+	 * Check if the given URL is a valid HTTP/HTTPS URL
+	 *
+	 * @param string $url 
+	 * @return bool 
+	 */
+	public static function isValidHttpUrl(string $url)
+	{
+		return in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https']) && parse_url($url, PHP_URL_HOST);
+	}
 }
