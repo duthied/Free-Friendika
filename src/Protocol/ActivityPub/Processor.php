@@ -21,6 +21,7 @@
 
 namespace Friendica\Protocol\ActivityPub;
 
+use Exception;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
@@ -40,6 +41,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Model\Post;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Relay;
@@ -437,6 +439,79 @@ class Processor
 		$item['diaspora_signed_text'] = $activity['diaspora:like'] ?? '';
 
 		self::postItem($activity, $item);
+	}
+
+	/**
+	 * Fetch the Uri-Id of a post for the "featured" collection
+	 *
+	 * @param array $activity 
+	 * @return null|int 
+	 */
+	private static function getUriIdForFeaturedCollection(array $activity)
+	{
+		$actor = APContact::getByURL($activity['actor']);
+		if (empty($actor)) {
+			return null;
+		}
+
+		// Refetch the account when the "featured" collection is missing.
+		// This can be removed in a future version (end of 2022 should be good).
+		if (empty($actor['featured'])) {
+			$actor = APContact::getByURL($activity['actor'], true);
+			if (empty($actor)) {
+				return null;
+			}
+		}
+
+		if ($activity['target_id'] != $actor['featured']) {
+			return null;
+		}
+
+		$id = Contact::getIdForURL($activity['actor']);
+		if (empty($id)) {
+			return null;
+		}
+
+		$parent = Post::selectFirst(['uri-id'], ['uri' => $activity['object_id'], 'author-id' => $id]);
+		if (!empty($parent['uri-id'])) {
+			return $parent['uri-id'];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Add a post to the "Featured" collection
+	 *
+	 * @param array $activity 
+	 */
+	public static function addToFeaturedCollection(array $activity)
+	{
+		$uriid = self::getUriIdForFeaturedCollection($activity);
+		if (empty($uriid)) {
+			return;
+		}
+
+		Logger::debug('Add post to featured collection', ['uri-id' => $uriid]);
+
+		// @todo Add functionality
+	}
+
+	/**
+	 * Remove a post to the "Featured" collection
+	 *
+	 * @param array $activity 
+	 */
+	public static function removeFromFeaturedCollection(array $activity)
+	{
+		$uriid = self::getUriIdForFeaturedCollection($activity);
+		if (empty($uriid)) {
+			return;
+		}
+
+		Logger::debug('Remove post from featured collection', ['uri-id' => $uriid]);
+
+		// @todo Add functionality
 	}
 
 	/**

@@ -578,8 +578,7 @@ class Receiver
 				if ($object_data['object_type'] == 'as:tag') {
 					ActivityPub\Processor::addTag($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					// Seems to be used by Mastodon to announce that a post is pinned
-					self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+					ActivityPub\Processor::addToFeaturedCollection($object_data);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {
@@ -680,8 +679,7 @@ class Receiver
 
 			case 'as:Remove':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					// Seems to be used by Mastodon to remove the pinned status of a post
-					self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+					ActivityPub\Processor::removeFromFeaturedCollection($object_data);					
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {

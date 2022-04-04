@@ -17,6 +17,8 @@ Fields
 | inbox            |                                                                     | varchar(255)   | NO   |     | NULL                |       |
 | outbox           |                                                                     | varchar(255)   | YES  |     | NULL                |       |
 | sharedinbox      |                                                                     | varchar(255)   | YES  |     | NULL                |       |
+| featured         | Address for the collection of featured posts                        | varchar(255)   | YES  |     | NULL                |       |
+| featured-tags    | Address for the collection of featured tags                         | varchar(255)   | YES  |     | NULL                |       |
 | manually-approve |                                                                     | boolean        | YES  |     | NULL                |       |
 | discoverable     | Mastodon extension: true if profile is published in their directory | boolean        | YES  |     | NULL                |       |
 | nick             |                                                                     | varchar(255)   | NO   |     |                     |       |
