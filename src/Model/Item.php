@@ -3191,6 +3191,12 @@ class Item
 	 */
 	public static function getPlink($item)
 	{
+		if (Network::isValidHttpUrl($item['plink'])) {
+			$plink = $item['plink'];
+		} elseif (Network::isValidHttpUrl($item['uri']) && !Network::isLocalLink($item['uri'])) {
+			$plink = $item['uri'];
+		}
+
 		if (local_user()) {
 			$ret = [
 				'href' => "display/" . $item['guid'],
@@ -3199,14 +3205,14 @@ class Item
 				'orig_title' => DI::l10n()->t('View on separate page'),
 			];
 
-			if (!empty($item['plink'])) {
-				$ret['href'] = DI::baseUrl()->remove($item['plink']);
+			if (!empty($plink)) {
+				$ret['href'] = DI::baseUrl()->remove($plink);
 				$ret['title'] = DI::l10n()->t('Link to source');
 			}
-		} elseif (!empty($item['plink']) && ($item['private'] != self::PRIVATE)) {
+		} elseif (!empty($plink) && ($item['private'] != self::PRIVATE)) {
 			$ret = [
-				'href' => $item['plink'],
-				'orig' => $item['plink'],
+				'href' => $plink,
+				'orig' => $plink,
 				'title' => DI::l10n()->t('Link to source'),
 				'orig_title' => DI::l10n()->t('Link to source'),
 			];

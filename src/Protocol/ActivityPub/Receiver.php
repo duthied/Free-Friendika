@@ -37,6 +37,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
+use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -1531,6 +1532,10 @@ class Receiver
 			if (!is_string($object_data['alternate-url'])) {
 				$object_data['alternate-url'] = JsonLD::fetchElement($object['as:url'], 'as:href', '@id');
 			}
+		}
+
+		if (!empty($object_data['alternate-url']) && !Network::isValidHttpUrl($object_data['alternate-url'])) {
+			$object_data['alternate-url'] = null;
 		}
 
 		if (in_array($object_data['object_type'], ['as:Audio', 'as:Video'])) {
