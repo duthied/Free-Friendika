@@ -27,6 +27,8 @@ use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
 use Friendica\Model\Item;
@@ -359,9 +361,9 @@ class Receiver
 			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
 			$object_data['push'] = $push;
-		} elseif (in_array($type, ['as:Create', 'as:Update', 'as:Announce']) || strpos($type, '#emojiReaction')) {
-		// Fetch the content only on activities where this matters
-		// We can receive "#emojiReaction" when fetching content from Hubzilla systems
+		} elseif (in_array($type, ['as:Create', 'as:Update', 'as:Announce', 'as:Invite']) || strpos($type, '#emojiReaction')) {
+			// Fetch the content only on activities where this matters
+			// We can receive "#emojiReaction" when fetching content from Hubzilla systems
 			// Always fetch on "Announce"
 			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $fetch_uid);
 			if (empty($object_data)) {
@@ -392,7 +394,7 @@ class Receiver
 			$object_data['object_id'] = $object_id;
 			$object_data['object_type'] = ''; // Since we don't fetch the object, we don't know the type
 			$object_data['push'] = $push;
-		} elseif (in_array($type, ['as:Add'])) {
+		} elseif (in_array($type, ['as:Add', 'as:Remove'])) {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
 			$object_data['target_id'] = JsonLD::fetchElement($activity, 'as:target', '@id');
@@ -470,10 +472,11 @@ class Receiver
 	 * Processes the activity object
 	 *
 	 * @param array   $activity     Array with activity data
-	 * @param string  $body
+	 * @param string  $body         The unprocessed body
 	 * @param integer $uid          User ID
 	 * @param boolean $trust_source Do we trust the source?
 	 * @param boolean $push         Message had been pushed to our system
+	 * @param array   $signer       The signer of the post
 	 * @throws \Exception
 	 */
 	public static function processActivity($activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
@@ -555,12 +558,32 @@ class Receiver
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					$item = ActivityPub\Processor::createItem($object_data);
 					ActivityPub\Processor::postItem($object_data, $item);
+				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
+					// Unhandled Peertube activity
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+				}
+				break;
+
+			case 'as:Invite':
+				if (in_array($object_data['object_type'], ['as:Event'])) {
+					$item = ActivityPub\Processor::createItem($object_data);
+					ActivityPub\Processor::postItem($object_data, $item);
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
 			case 'as:Add':
 				if ($object_data['object_type'] == 'as:tag') {
 					ActivityPub\Processor::addTag($object_data);
+				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					// Seems to be used by Mastodon to announce that a post is pinned
+					self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+				} elseif ($object_data['object_type'] == '') {
+					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
@@ -589,24 +612,36 @@ class Receiver
 					}
 
 					ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
 			case 'as:Like':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::LIKE);
+				} elseif ($object_data['object_type'] == '') {
+					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
 			case 'as:Dislike':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::DISLIKE);
+				} elseif ($object_data['object_type'] == '') {
+					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
 			case 'as:TentativeAccept':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::ATTENDMAYBE);
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
@@ -615,14 +650,42 @@ class Receiver
 					ActivityPub\Processor::updateItem($object_data);
 				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::updatePerson($object_data);
+				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
+					// Unhandled Peertube activity
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
 			case 'as:Delete':
-				if ($object_data['object_type'] == 'as:Tombstone') {
+				if (in_array($object_data['object_type'], array_merge(['as:Tombstone'], self::CONTENT_TYPES))) {
 					ActivityPub\Processor::deleteItem($object_data);
 				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::deletePerson($object_data);
+				} elseif ($object_data['object_type'] == '') {
+					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+				}
+				break;
+
+			case 'as:Block':
+				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
+					// Used by Mastodon to announce that the sender has blocked the account
+					self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+				}
+				break;
+
+			case 'as:Remove':
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					// Seems to be used by Mastodon to remove the pinned status of a post
+					self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+				} elseif ($object_data['object_type'] == '') {
+					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
@@ -632,6 +695,8 @@ class Receiver
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					$object_data['reply-to-id'] = $object_data['object_id'];
 					ActivityPub\Processor::createActivity($object_data, Activity::FOLLOW);
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
@@ -640,6 +705,8 @@ class Receiver
 					ActivityPub\Processor::acceptFollowUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::ATTEND);
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
@@ -648,6 +715,8 @@ class Receiver
 					ActivityPub\Processor::rejectFollowUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::ATTENDNO);
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
@@ -655,19 +724,72 @@ class Receiver
 				if (($object_data['object_type'] == 'as:Follow') &&
 					in_array($object_data['object_object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::undoFollowUser($object_data);
+				} elseif (($object_data['object_type'] == 'as:Follow') &&
+					in_array($object_data['object_object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::undoActivity($object_data);
 				} elseif (($object_data['object_type'] == 'as:Accept') &&
 					in_array($object_data['object_object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::rejectFollowUser($object_data);
-				} elseif (in_array($object_data['object_type'], self::ACTIVITY_TYPES) &&
-					in_array($object_data['object_object_type'], self::CONTENT_TYPES)) {
+				} elseif (in_array($object_data['object_type'], array_merge(self::ACTIVITY_TYPES, ['as:Announce'])) &&
+					in_array($object_data['object_object_type'], array_merge(['as:Tombstone'], self::CONTENT_TYPES))) {
 					ActivityPub\Processor::undoActivity($object_data);
+				} elseif (in_array($object_data['object_type'], array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Create', ''])) &&
+					empty($object_data['object_object_type'])) {
+					// We cannot detect the target object. So we can ignore it.
+				} elseif (in_array($object_data['object_type'], ['as:Create']) &&
+					in_array($object_data['object_object_type'], ['pt:CacheFile'])) {
+					// Unhandled Peertube activity
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
+			case 'as:View':
+				if (in_array($object_data['object_type'], ['as:Note', 'as:Video'])) {
+					// Unhandled Peertube activity
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+				}
+				break;
+
+			case 'litepub:EmojiReact':
+				if (in_array($object_data['object_type'], array_merge([''], self::CONTENT_TYPES))) {
+					// Unhandled Pleroma activity to react to a post via an emoji
+				} else {
+					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+				}
+				break;
+	
 			default:
 				Logger::info('Unknown activity: ' . $type . ' ' . $object_data['object_type']);
+				self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				break;
 		}
+	}
+
+	/**
+	 * Stores unhandled or unknown Activities as a file
+	 *
+	 * @param boolean $unknown      "true" if the activity is unknown, "false" if it is unhandled
+	 * @param string  $type         Activity type
+	 * @param array   $object_data  Preprocessed array that is generated out of the received activity
+ 	 * @param array   $activity     Array with activity data
+	 * @param string  $body         The unprocessed body
+	 * @param integer $uid          User ID
+	 * @param boolean $trust_source Do we trust the source?
+	 * @param boolean $push         Message had been pushed to our system
+	 * @param array   $signer       The signer of the post
+	 * @return void
+	 */
+	private static function storeUnhandledActivity(bool $unknown, string $type, array $object_data, array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
+	{
+		if (!DI::config()->get('debug', 'ap_log_unknown')) {
+			return;
+		}
+
+		$tempfile = tempnam(System::getTempPath(), ($unknown  ? 'unknown-' : 'unhandled-') . str_replace(':', '-', $type) . '-' . str_replace(':', '-', $object_data['object_type']) . '-' . str_replace(':', '-', $object_data['object_object_type'] ?? '') . '-');
+		file_put_contents($tempfile, json_encode(['activity' => $activity, 'body' => $body, 'uid' => $uid, 'trust_source' => $trust_source, 'push' => $push, 'signer' => $signer, 'object_data' => $object_data], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		Logger::notice('Unknown activity stored', ['type' => $type, 'object_type' => $object_data['object_type'], $object_data['object_object_type'] ?? '', 'file' => $tempfile]);
 	}
 
 	/**

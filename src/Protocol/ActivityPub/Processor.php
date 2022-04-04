@@ -446,7 +446,7 @@ class Processor
 	 */
 	public static function createEvent($activity, $item)
 	{
-		$event['summary']   = HTML::toBBCode($activity['name']);
+		$event['summary']   = HTML::toBBCode($activity['name'] ?: $activity['summary']);
 		$event['desc']      = HTML::toBBCode($activity['content']);
 		$event['start']     = $activity['start-time'];
 		$event['finish']    = $activity['end-time'];
