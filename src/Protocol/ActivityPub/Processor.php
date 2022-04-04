@@ -430,6 +430,10 @@ class Processor
 		unset($item['post-type']);
 		$item['object-type'] = Activity\ObjectType::NOTE;
 
+		if (!empty($activity['content'])) {
+			$item['body'] = HTML::toBBCode($activity['content']);
+		}
+
 		$item['diaspora_signed_text'] = $activity['diaspora:like'] ?? '';
 
 		self::postItem($activity, $item);

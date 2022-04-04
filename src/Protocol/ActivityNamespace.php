@@ -148,4 +148,8 @@ final class ActivityNamespace
 	 * @var string
 	 */
 	const MASTODON        = 'http://mastodon.social/schema/1.0';
+	/**
+	 * @var string
+	 */
+	const LITEPUB         = 'http://litepub.social';
 }
