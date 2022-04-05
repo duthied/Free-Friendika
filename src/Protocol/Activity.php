@@ -177,16 +177,32 @@ final class Activity
 	const O_UNFAVOURITE = ActivityNamespace::OSTATUS . '/unfavorite';
 
 	/**
+	 * React to a post via an emoji 
+	 *
+	 * @var string
+	 */
+	const EMOJIREACT = ActivityNamespace::LITEPUB . '/emojireact';
+
+	/**
+	 * View notification from Peertube
+	 *
+	 * @var string
+	 */
+	const VIEW       = ActivityNamespace::PEERTUBE . '/view';
+
+	/**
 	 * likes (etc.) can apply to other things besides posts. Check if they are post children,
 	 * in which case we handle them specially
 	 *
 	 * Hidden activities, which doesn't need to be shown
 	 */
 	const HIDDEN_ACTIVITIES = [
-		Activity::LIKE, Activity::DISLIKE,
-		Activity::ATTEND, Activity::ATTENDNO, Activity::ATTENDMAYBE,
-		Activity::FOLLOW,
-		Activity::ANNOUNCE,
+		self::LIKE, self::DISLIKE,
+		self::ATTEND, self::ATTENDNO, self::ATTENDMAYBE,
+		self::FOLLOW,
+		self::ANNOUNCE,
+		self::EMOJIREACT,
+		self::VIEW,
 	];
 
 	/**

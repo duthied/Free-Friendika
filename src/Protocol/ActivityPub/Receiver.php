@@ -385,7 +385,7 @@ class Receiver
 			} else {
 				$object_data['directmessage'] = JsonLD::fetchElement($activity, 'litepub:directMessage');
 			}
-		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
+		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow', 'litepub:EmojiReact', 'as:View'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of each individual array element.
 			$object_data = self::processObject($activity);
@@ -578,8 +578,7 @@ class Receiver
 				if ($object_data['object_type'] == 'as:tag') {
 					ActivityPub\Processor::addTag($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					// Seems to be used by Mastodon to announce that a post is pinned
-					self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+					ActivityPub\Processor::addToFeaturedCollection($object_data);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {
@@ -680,8 +679,7 @@ class Receiver
 
 			case 'as:Remove':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					// Seems to be used by Mastodon to remove the pinned status of a post
-					self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+					ActivityPub\Processor::removeFromFeaturedCollection($object_data);					
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {
@@ -745,16 +743,20 @@ class Receiver
 				break;
 
 			case 'as:View':
-				if (in_array($object_data['object_type'], ['as:Note', 'as:Video'])) {
-					// Unhandled Peertube activity
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, Activity::VIEW);
+				} elseif ($object_data['object_type'] == '') {
+					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
 				break;
 
 			case 'litepub:EmojiReact':
-				if (in_array($object_data['object_type'], array_merge([''], self::CONTENT_TYPES))) {
-					// Unhandled Pleroma activity to react to a post via an emoji
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, Activity::EMOJIREACT);
+				} elseif ($object_data['object_type'] == '') {
+					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -787,7 +789,17 @@ class Receiver
 			return;
 		}
 
-		$tempfile = tempnam(System::getTempPath(), ($unknown  ? 'unknown-' : 'unhandled-') . str_replace(':', '-', $type) . '-' . str_replace(':', '-', $object_data['object_type']) . '-' . str_replace(':', '-', $object_data['object_object_type'] ?? '') . '-');
+		$file = ($unknown  ? 'unknown-' : 'unhandled-') . str_replace(':', '-', $type) . '-';
+	
+		if (!empty($object_data['object_type'])) {
+			$file .= str_replace(':', '-', $object_data['object_type']) . '-';
+		}
+
+		if (!empty($object_data['object_object_type'])) {
+			$file .= str_replace(':', '-', $object_data['object_object_type']) . '-';
+		}
+
+		$tempfile = tempnam(System::getTempPath(), $file);
 		file_put_contents($tempfile, json_encode(['activity' => $activity, 'body' => $body, 'uid' => $uid, 'trust_source' => $trust_source, 'push' => $push, 'signer' => $signer, 'object_data' => $object_data], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		Logger::notice('Unknown activity stored', ['type' => $type, 'object_type' => $object_data['object_type'], $object_data['object_object_type'] ?? '', 'file' => $tempfile]);
 	}

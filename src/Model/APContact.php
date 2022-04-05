@@ -232,6 +232,9 @@ class APContact
 			self::unarchiveInbox($apcontact['sharedinbox'], true);
 		}
 
+		$apcontact['featured']      = JsonLD::fetchElement($compacted, 'toot:featured', '@id');
+		$apcontact['featured-tags'] = JsonLD::fetchElement($compacted, 'toot:featuredTags', '@id');
+
 		$apcontact['nick'] = JsonLD::fetchElement($compacted, 'as:preferredUsername', '@value') ?? '';
 		$apcontact['name'] = JsonLD::fetchElement($compacted, 'as:name', '@value');
 
