@@ -21,7 +21,6 @@
 
 namespace Friendica\Protocol\ActivityPub;
 
-use Exception;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
@@ -41,7 +40,6 @@ use Friendica\Model\Mail;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Model\Post;
-use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Relay;
