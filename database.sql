@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1454
+-- DB_UPDATE_VERSION 1455
 -- ------------------------------------------
 
 
@@ -1526,6 +1526,7 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`ignored` boolean COMMENT 'Posts from this contact are ignored',
 	`collapsed` boolean COMMENT 'Posts from this contact are collapsed',
 	`hidden` boolean COMMENT 'This contact is hidden from the others',
+	`is-blocked` boolean COMMENT 'User is blocked by this contact',
 	`pending` boolean COMMENT '',
 	`rel` tinyint unsigned COMMENT 'The kind of the relation between the user and the contact',
 	`info` mediumtext COMMENT '',
