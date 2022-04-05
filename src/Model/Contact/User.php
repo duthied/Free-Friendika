@@ -311,4 +311,48 @@ class User
 
 		return $collapsed;
 	}
+
+	/**
+	 * Set/Release that the user is blocked by the contact
+	 *
+	 * @param int     $cid     Either public contact id or user's contact id
+	 * @param int     $uid     User ID
+	 * @param boolean $blocked Is the user blocked or unblocked by the contact?
+	 * @throws \Exception
+	 */
+	public static function setIsBlocked($cid, $uid, $blocked)
+	{
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
+		if (empty($cdata)) {
+			return;
+		}
+
+		DBA::update('user-contact', ['is-blocked' => $blocked], ['cid' => $cdata['public'], 'uid' => $uid], true);
+	}
+
+	/**
+	 * Returns if the user is blocked by the contact
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 *
+	 * @return boolean Is the user blocked or unblocked by the contact?
+	 * @throws \Exception
+	 */
+	public static function isIsBlocked($cid, $uid)
+	{
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
+		if (empty($cdata)) {
+			return false;
+		}
+
+		if (!empty($cdata['public'])) {
+			$public_contact = DBA::selectFirst('user-contact', ['is-blocked'], ['cid' => $cdata['public'], 'uid' => $uid]);
+			if (DBA::isResult($public_contact)) {
+				return $public_contact['is-blocked'];
+			}
+		}
+
+		return false;
+	}
 }

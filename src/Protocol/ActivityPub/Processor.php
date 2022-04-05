@@ -1207,6 +1207,52 @@ class Processor
 	}
 
 	/**
+	 * Blocks the user by the contact
+	 *
+	 * @param array $activity
+	 * @throws \Exception
+	 */
+	public static function blockAccount($activity)
+	{
+		$cid = Contact::getIdForURL($activity['actor']);
+		if (empty($cid)) {
+			return;
+		}
+
+		$uid = User::getIdForURL($activity['object_id']);
+		if (empty($uid)) {
+			return;			
+		}
+
+		Contact\User::setIsBlocked($cid, $uid, true);
+
+		Logger::info('Contact blocked user', ['contact' => $cid, 'user' => $uid]);
+	}
+
+	/**
+	 * Unblocks the user by the contact
+	 *
+	 * @param array $activity
+	 * @throws \Exception
+	 */
+	public static function unblockAccount($activity)
+	{
+		$cid = Contact::getIdForURL($activity['actor']);
+		if (empty($cid)) {
+			return;
+		}
+
+		$uid = User::getIdForURL($activity['object_object']);
+		if (empty($uid)) {
+			return;			
+		}
+
+		Contact\User::setIsBlocked($cid, $uid, false);
+
+		Logger::info('Contact unblocked user', ['contact' => $cid, 'user' => $uid]);
+	}
+
+	/**
 	 * Accept a follow request
 	 *
 	 * @param array $activity

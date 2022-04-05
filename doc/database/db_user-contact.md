@@ -15,6 +15,7 @@ Fields
 | ignored                   | Posts from this contact are ignored                          | boolean            | YES  |     | NULL    |       |
 | collapsed                 | Posts from this contact are collapsed                        | boolean            | YES  |     | NULL    |       |
 | hidden                    | This contact is hidden from the others                       | boolean            | YES  |     | NULL    |       |
+| is-blocked                | User is blocked by this contact                              | boolean            | YES  |     | NULL    |       |
 | pending                   |                                                              | boolean            | YES  |     | NULL    |       |
 | rel                       | The kind of the relation between the user and the contact    | tinyint unsigned   | YES  |     | NULL    |       |
 | info                      |                                                              | mediumtext         | YES  |     | NULL    |       |

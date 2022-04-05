@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1454);
+	define('DB_UPDATE_VERSION', 1455);
 }
 
 return [
@@ -1544,6 +1544,7 @@ return [
 			"ignored" => ["type" => "boolean", "comment" => "Posts from this contact are ignored"],
 			"collapsed" => ["type" => "boolean", "comment" => "Posts from this contact are collapsed"],
 			"hidden" => ["type" => "boolean", "comment" => "This contact is hidden from the others"],
+			"is-blocked" => ["type" => "boolean", "comment" => "User is blocked by this contact"],
 			"pending" => ["type" => "boolean", "comment" => ""],
 			"rel" => ["type" => "tinyint unsigned", "comment" => "The kind of the relation between the user and the contact"],
 			"info" => ["type" => "mediumtext", "comment" => ""],
