@@ -670,7 +670,7 @@ class Receiver
 
 			case 'as:Block':
 				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
-					ActivityPub\Processor::blockPerson($object_data);
+					ActivityPub\Processor::blockAccount($object_data);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -729,7 +729,7 @@ class Receiver
 					ActivityPub\Processor::rejectFollowUser($object_data);
 				} elseif (($object_data['object_type'] == 'as:Block') &&
 					in_array($object_data['object_object_type'], self::ACCOUNT_TYPES)) {
-					ActivityPub\Processor::unblockPerson($object_data);
+					ActivityPub\Processor::unblockAccount($object_data);
 				} elseif (in_array($object_data['object_type'], array_merge(self::ACTIVITY_TYPES, ['as:Announce'])) &&
 					in_array($object_data['object_object_type'], array_merge(['as:Tombstone'], self::CONTENT_TYPES))) {
 					ActivityPub\Processor::undoActivity($object_data);

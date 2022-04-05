@@ -1212,7 +1212,7 @@ class Processor
 	 * @param array $activity
 	 * @throws \Exception
 	 */
-	public static function blockPerson($activity)
+	public static function blockAccount($activity)
 	{
 		$cid = Contact::getIdForURL($activity['actor']);
 		if (empty($cid)) {
@@ -1235,7 +1235,7 @@ class Processor
 	 * @param array $activity
 	 * @throws \Exception
 	 */
-	public static function unblockPerson($activity)
+	public static function unblockAccount($activity)
 	{
 		$cid = Contact::getIdForURL($activity['actor']);
 		if (empty($cid)) {
