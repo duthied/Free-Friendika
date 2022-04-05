@@ -385,7 +385,7 @@ class Receiver
 			} else {
 				$object_data['directmessage'] = JsonLD::fetchElement($activity, 'litepub:directMessage');
 			}
-		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow', 'litepub:EmojiReact'])) && in_array($object_type, self::CONTENT_TYPES)) {
+		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow', 'litepub:EmojiReact', 'as:View'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of each individual array element.
 			$object_data = self::processObject($activity);
@@ -743,8 +743,10 @@ class Receiver
 				break;
 
 			case 'as:View':
-				if (in_array($object_data['object_type'], ['as:Note', 'as:Video'])) {
-					// Unhandled Peertube activity
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, Activity::VIEW);
+				} elseif ($object_data['object_type'] == '') {
+					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}

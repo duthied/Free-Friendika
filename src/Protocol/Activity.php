@@ -184,6 +184,13 @@ final class Activity
 	const EMOJIREACT = ActivityNamespace::LITEPUB . '/emojireact';
 
 	/**
+	 * View notification from Peertube
+	 *
+	 * @var string
+	 */
+	const VIEW       = ActivityNamespace::PEERTUBE . '/view';
+
+	/**
 	 * likes (etc.) can apply to other things besides posts. Check if they are post children,
 	 * in which case we handle them specially
 	 *
@@ -195,6 +202,7 @@ final class Activity
 		self::FOLLOW,
 		self::ANNOUNCE,
 		self::EMOJIREACT,
+		self::VIEW,
 	];
 
 	/**
