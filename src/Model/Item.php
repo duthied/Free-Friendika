@@ -3191,9 +3191,9 @@ class Item
 	 */
 	public static function getPlink($item)
 	{
-		if (Network::isValidHttpUrl($item['plink'])) {
+		if (!empty($item['plink']) && Network::isValidHttpUrl($item['plink'])) {
 			$plink = $item['plink'];
-		} elseif (Network::isValidHttpUrl($item['uri']) && !Network::isLocalLink($item['uri'])) {
+		} elseif (!empty($item['uri']) && Network::isValidHttpUrl($item['uri']) && !Network::isLocalLink($item['uri'])) {
 			$plink = $item['uri'];
 		}
 
