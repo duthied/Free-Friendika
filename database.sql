@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1455
+-- DB_UPDATE_VERSION 1456
 -- ------------------------------------------
 
 
@@ -1063,6 +1063,17 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
 
 --
+-- TABLE post-collection
+--
+CREATE TABLE IF NOT EXISTS `post-collection` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	 PRIMARY KEY(`uri-id`,`type`),
+	 INDEX `type` (`type`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Collection of posts';
+
+--
 -- TABLE post-content
 --
 CREATE TABLE IF NOT EXISTS `post-content` (
@@ -1617,6 +1628,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-thread-user`.`origin` AS `parent-origin`,
 	`post-thread-user`.`mention` AS `mention`,
 	`post-user`.`global` AS `global`,
+	EXISTS(SELECT `type` FROM `post-collection` WHERE `type` = 0 AND `uri-id` = `post-user`.`uri-id`) AS `featured`,
 	`post-user`.`network` AS `network`,
 	`post-user`.`vid` AS `vid`,
 	`post-user`.`psid` AS `psid`,
@@ -1777,6 +1789,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-thread-user`.`origin` AS `origin`,
 	`post-thread-user`.`mention` AS `mention`,
 	`post-user`.`global` AS `global`,
+	EXISTS(SELECT `type` FROM `post-collection` WHERE `type` = 0 AND `uri-id` = `post-thread-user`.`uri-id`) AS `featured`,
 	`post-thread-user`.`network` AS `network`,
 	`post-user`.`vid` AS `vid`,
 	`post-thread-user`.`psid` AS `psid`,
@@ -1923,6 +1936,7 @@ CREATE VIEW `post-view` AS SELECT
 	`post`.`visible` AS `visible`,
 	`post`.`deleted` AS `deleted`,
 	`post`.`global` AS `global`,
+	EXISTS(SELECT `type` FROM `post-collection` WHERE `type` = 0 AND `uri-id` = `post`.`uri-id`) AS `featured`,
 	`post`.`network` AS `network`,
 	`post`.`vid` AS `vid`,
 	IF (`post`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
@@ -2044,6 +2058,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post`.`visible` AS `visible`,
 	`post`.`deleted` AS `deleted`,
 	`post`.`global` AS `global`,
+	EXISTS(SELECT `type` FROM `post-collection` WHERE `type` = 0 AND `uri-id` = `post-thread`.`uri-id`) AS `featured`,
 	`post-thread`.`network` AS `network`,
 	`post`.`vid` AS `vid`,
 	IF (`post`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,

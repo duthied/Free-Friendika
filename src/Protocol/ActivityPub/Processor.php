@@ -492,7 +492,7 @@ class Processor
 
 		Logger::debug('Add post to featured collection', ['uri-id' => $uriid]);
 
-		// @todo Add functionality
+		Post\Collection::add($uriid, Post\Collection::FEATURED);
 	}
 
 	/**
@@ -509,7 +509,7 @@ class Processor
 
 		Logger::debug('Remove post from featured collection', ['uri-id' => $uriid]);
 
-		// @todo Add functionality
+		Post\Collection::remove($uriid, Post\Collection::FEATURED);
 	}
 
 	/**

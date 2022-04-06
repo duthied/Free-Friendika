@@ -39,7 +39,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\Network;
-use Friendica\Util\Strings;
 
 class APContact
 {
