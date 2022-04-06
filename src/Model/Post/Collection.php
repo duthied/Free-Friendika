@@ -22,7 +22,7 @@
 namespace Friendica\Model\Post;
 
 use Friendica\Database\DBA;
-use \BadMethodCallException;
+use BadMethodCallException;
 use Friendica\Database\Database;
 
 class Collection
