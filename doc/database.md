@@ -47,6 +47,7 @@ Database Tables
 | [photo](help/database/db_photo) | photo storage |
 | [post](help/database/db_post) | Structure for all posts |
 | [post-category](help/database/db_post-category) | post relation to categories |
+| [post-collection](help/database/db_post-collection) | Collection of posts |
 | [post-content](help/database/db_post-content) | Content for all posts |
 | [post-delivery-data](help/database/db_post-delivery-data) | Delivery data for items |
 | [post-link](help/database/db_post-link) | Post related external links |
