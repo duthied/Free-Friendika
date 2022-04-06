@@ -9,7 +9,7 @@ Fields
 | Field  | Description                                               | Type             | Null | Key | Default | Extra |
 | ------ | --------------------------------------------------------- | ---------------- | ---- | --- | ------- | ----- |
 | uri-id | Id of the item-uri table entry that contains the item uri | int unsigned     | NO   | PRI | NULL    |       |
-| type   |                                                           | tinyint unsigned | NO   | PRI | 0       |       |
+| type   | 0 - Featured                                              | tinyint unsigned | NO   | PRI | 0       |       |
 
 Indexes
 ------------
