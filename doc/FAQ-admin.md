@@ -23,7 +23,7 @@ There you will always find the current stable version of friendica.
 
 Addons are listed at [this page](https://github.com/friendica/friendica-addons).
 
-If you are searching for new themes, you can find them at [Friendica-Themes.com](http://friendica-themes.com/)
+If you are searching for new themes, you can find them at [github.com/bkil/friendica-themes](https://github.com/bkil/friendica-themes)
 
 <a name="adminaccount1"></a>
 ### I've changed my email address now the admin panel is gone?
