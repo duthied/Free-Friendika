@@ -204,7 +204,7 @@ msgstr "Nie znaleziono elementu"
 
 #: mod/editpost.php:64
 msgid "Edit post"
-msgstr "Edytuj post"
+msgstr "Edytuj wpis"
 
 #: mod/editpost.php:91 mod/notes.php:56 src/Content/Text/HTML.php:875
 #: src/Module/Admin/Storage.php:142 src/Module/Filer/SaveTag.php:73
@@ -292,7 +292,7 @@ msgstr "DW: adresy e-mail"
 
 #: mod/editpost.php:117 src/Content/Conversation.php:366
 msgid "Public post"
-msgstr "Publiczny post"
+msgstr "Publiczny wpis"
 
 #: mod/editpost.php:120 src/Content/Conversation.php:345
 #: src/Module/Item/Compose.php:166
@@ -569,7 +569,7 @@ msgstr "Pusty wpis został odrzucony."
 
 #: mod/item.php:689
 msgid "Post updated."
-msgstr "Post zaktualizowany."
+msgstr "Wpis zaktualizowany."
 
 #: mod/item.php:699 mod/item.php:704
 msgid "Item wasn't stored."
@@ -1393,7 +1393,7 @@ msgid ""
 " field which collapse their post by default. This enables the automatic "
 "collapsing instead of setting the content warning as the post title. Doesn't"
 " affect any other content filtering you eventually set up."
-msgstr "Użytkownicy w sieciach takich jak Mastodon lub Pleroma mogą ustawić pole ostrzeżenia o treści, które domyślnie zwija ich posty. Umożliwia to automatyczne zwijanie zamiast ustawiania ostrzeżenia o treści jako tytułu posta. Nie wpływa na żadne inne skonfigurowane filtrowanie treści."
+msgstr "Użytkownicy w sieciach takich jak Mastodon lub Pleroma mogą ustawić pole ostrzeżenia o treści, które domyślnie zwija ich posty. Umożliwia to automatyczne zwijanie zamiast ustawiania ostrzeżenia o treści jako tytułu wpisu. Nie wpływa na żadne inne skonfigurowane filtrowanie treści."
 
 #: mod/settings.php:603
 msgid "Enable intelligent shortening"
@@ -1495,11 +1495,11 @@ msgstr "Oznacz jako przeczytane"
 
 #: mod/settings.php:624
 msgid "Move to folder"
-msgstr "Przenieś do folderu"
+msgstr "Przenieś do katalogu"
 
 #: mod/settings.php:625
 msgid "Move to folder:"
-msgstr "Przenieś do folderu:"
+msgstr "Przenieś do katalogu:"
 
 #: mod/settings.php:639
 msgid "Unable to find your profile. Please contact your admin."
@@ -1705,7 +1705,7 @@ msgstr "Wybierz język, ktory bedzie używany do wyświetlania użytkownika frie
 
 #: mod/settings.php:783
 msgid "Default Post Location:"
-msgstr "Domyślna lokalizacja wiadomości:"
+msgstr "Domyślna lokalizacja wpisów:"
 
 #: mod/settings.php:784
 msgid "Use Browser Location:"
@@ -1758,7 +1758,7 @@ msgstr "Anonimowi użytkownicy zobaczą tylko Twoje zdjęcie profilowe, swoją w
 
 #: mod/settings.php:793
 msgid "Make public posts unlisted"
-msgstr "Zamieszczaj posty publiczne niepubliczne"
+msgstr "Ustaw publiczne wpisy jako niepubliczne"
 
 #: mod/settings.php:793
 msgid ""
@@ -1846,7 +1846,7 @@ msgstr "Po aktywacji osobiste notatki na stronie profilu wygasną."
 
 #: mod/settings.php:808
 msgid "Expire starred posts"
-msgstr "Wygasaj posty oznaczone gwiazdką"
+msgstr "Wygasaj wpisy oznaczone gwiazdką"
 
 #: mod/settings.php:808
 msgid ""
@@ -2110,7 +2110,7 @@ msgstr "Przepraszam, Twój przesyłany plik jest większy niż pozwala konfigura
 
 #: mod/wall_attach.php:95
 msgid "Or - did you try to upload an empty file?"
-msgstr "Lub - czy próbowałeś załadować pusty plik?"
+msgstr "Lub - czy próbowałeś przesłać pusty plik?"
 
 #: mod/wall_attach.php:106
 #, php-format
@@ -2530,7 +2530,7 @@ msgstr "Termin tagu:"
 
 #: src/Content/Conversation.php:310 src/Module/Filer/SaveTag.php:72
 msgid "Save to Folder:"
-msgstr "Zapisz w folderze:"
+msgstr "Zapisz w katalogu:"
 
 #: src/Content/Conversation.php:311
 msgid "Where are you right now?"
@@ -3248,7 +3248,7 @@ msgstr "Wszystkie protokoły"
 
 #: src/Content/Widget.php:309
 msgid "Saved Folders"
-msgstr "Zapisane foldery"
+msgstr "Zapisane katalogi"
 
 #: src/Content/Widget.php:311 src/Content/Widget.php:342
 msgid "Everything"
@@ -3597,19 +3597,19 @@ msgid ""
 "The web installer needs to be able to create a file called "
 "\"local.config.php\" in the \"config\" folder of your web server and it is "
 "unable to do so."
-msgstr "Instalator internetowy musi mieć możliwość utworzenia pliku o nazwie \"local.config.php\" w folderze \"config\" serwera WWW i nie może tego zrobić."
+msgstr "Instalator internetowy musi mieć możliwość utworzenia pliku o nazwie \"local.config.php\" w katalogu \"config\" serwera WWW i nie może tego zrobić."
 
 #: src/Core/Installer.php:510
 msgid ""
 "This is most often a permission setting, as the web server may not be able "
 "to write files in your folder - even if you can."
-msgstr "Jest to najczęściej ustawienie uprawnień, ponieważ serwer sieciowy może nie być w stanie zapisywać plików w folderze - nawet jeśli możesz."
+msgstr "Jest to najczęściej ustawienie uprawnień, ponieważ serwer sieciowy może nie być w stanie zapisywać plików w katalogu - nawet jeśli Ty możesz."
 
 #: src/Core/Installer.php:511
 msgid ""
 "At the end of this procedure, we will give you a text to save in a file "
 "named local.config.php in your Friendica \"config\" folder."
-msgstr "Pod koniec tej procedury otrzymasz tekst do zapisania w pliku o nazwie local.config.php w folderze \"config\" Friendica."
+msgstr "Pod koniec tej procedury otrzymasz tekst do zapisania w pliku o nazwie local.config.php w katalogu \"config\" Friendica."
 
 #: src/Core/Installer.php:512
 msgid ""
@@ -3632,13 +3632,13 @@ msgid ""
 "In order to store these compiled templates, the web server needs to have "
 "write access to the directory view/smarty3/ under the Friendica top level "
 "folder."
-msgstr "Aby przechowywać te skompilowane szablony, serwer WWW musi mieć dostęp do zapisu do katalogu view/smarty3/ w folderze najwyższego poziomu Friendica."
+msgstr "Aby przechowywać te skompilowane szablony, serwer WWW musi mieć dostęp do zapisu do katalogu view/smarty3/ w katalogu najwyższego poziomu Friendica."
 
 #: src/Core/Installer.php:537
 msgid ""
 "Please ensure that the user that your web server runs as (e.g. www-data) has"
 " write access to this folder."
-msgstr "Upewnij się, że użytkownik, na którym działa serwer WWW (np. www-data), ma prawo do zapisu do tego folderu."
+msgstr "Upewnij się, że użytkownik, na którym działa serwer WWW (np. www-data), ma prawo do zapisu do tego katalogu."
 
 #: src/Core/Installer.php:538
 msgid ""
@@ -3936,11 +3936,11 @@ msgstr "Ścieżka bazy pamięci masowej"
 msgid ""
 "Folder where uploaded files are saved. For maximum security, This should be "
 "a path outside web server folder tree"
-msgstr "Folder, w którym zapisywane są przesłane pliki. Dla maksymalnego bezpieczeństwa, powinna to być ścieżka poza drzewem folderów serwera WWW"
+msgstr "Katalog, w którym zapisywane są przesłane pliki. Dla maksymalnego bezpieczeństwa, powinna to być ścieżka poza drzewem katalogów serwera WWW."
 
 #: src/Core/Storage/Type/FilesystemConfig.php:93
 msgid "Enter a valid existing folder"
-msgstr "Wprowadź poprawny istniejący folder"
+msgstr "Wprowadź poprawny istniejący katalog"
 
 #: src/Core/Update.php:67
 #, php-format
@@ -4318,7 +4318,7 @@ msgstr "komentarz"
 
 #: src/Model/Item.php:2682
 msgid "post"
-msgstr "post"
+msgstr "wpis"
 
 #: src/Model/Item.php:2819
 #, php-format
@@ -4654,7 +4654,7 @@ msgid ""
 "\t\tIf you ever want to delete your account, you can do so at %1$s/removeme\n"
 "\n"
 "\t\tThank you and welcome to %4$s."
-msgstr ""
+msgstr "\n\t\tDane logowania są następuje:\n\n\t\tPołożenie witryny:\t%1$s\n\t\tNazwa użytkownika\t\t:%2$s\n\t\tHasło:\t\t%3$s\n\n\t\tPo zalogowaniu możesz zmienić hasło do swojego konta na stronie \"Ustawienia\".\n\n\t\tProszę poświęć chwilę, aby przejrzeć inne ustawienia konta na tej stronie.\n\n\t\tMożesz również chcieć dodać podstawowe informacje do swojego domyślnego profilu\n\t\t(na stronie \"Profile\"), aby inne osoby mogły łatwo Cię znaleźć.\n\n\t\tZalecamy ustawienie imienia i nazwiska, dodanie zdjęcia profilowego,\n\t\tdodanie pewnych \"słów kluczowych\" profilu (bardzo przydatne w nawiązywaniu nowych znajomości) \n\t\ti być może miejsca, gdzie mieszkasz; jeśli nie chcesz podawać więcej szczegółów.\n\n\t\tW pełni szanujemy Twoje prawo do prywatności i żadna z tych danych nie jest konieczna.\n\t\tJeśli jesteś nowy i nie znasz tutaj nikogo, mogą one Ci pomóc,\n\t\tw pozyskaniu nowych i interesujących przyjaciół.\n\n\t\tJeśli kiedykolwiek zechcesz usunąć swoje konto, możesz to zrobić na stronie %1$s/removeme\n\n\t\tDziękujemy i zapraszamy do%4$s."
 
 #: src/Model/User.php:1401 src/Model/User.php:1508
 #, php-format
@@ -4796,7 +4796,7 @@ msgstr "Instalacja dodatku %s nie powiodła się."
 
 #: src/Module/Admin/Addons/Index.php:70
 msgid "Reload active addons"
-msgstr "Załaduj ponownie aktywne dodatki"
+msgstr "Wczytaj ponownie aktywne dodatki"
 
 #: src/Module/Admin/Addons/Index.php:75
 #, php-format
@@ -4952,10 +4952,10 @@ msgstr "Do listy zablokowanych dodano wzorzec domeny serwera."
 #, php-format
 msgid "%s server scheduled to be purged."
 msgid_plural "%s servers scheduled to be purged."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%s serwer zaplanowany do usunięcia."
+msgstr[1] "%s serwery zaplanowane do usunięcia."
+msgstr[2] "%s serwerów zaplanowanych do usunięcia."
+msgstr[3] "%s serwerów zaplanowanych do usunięcia."
 
 #: src/Module/Admin/Blocklist/Server/Add.php:88
 msgid "← Return to the list"
@@ -4973,7 +4973,7 @@ msgid ""
 "\t<li><code>*</code>: Any number of characters</li>\n"
 "\t<li><code>?</code>: Any single character</li>\n"
 "</ul>"
-msgstr ""
+msgstr "<p>Składnia wzorca domeny serwera to symbol wieloznaczny powłoki bez rozróżniania wielkości liter, zawierający następujące znaki specjalne:</p>\n<ul>\n\t<li><code>*</code>: Dowolna liczba znaków</li>\n\t<li><code>?</code>: Dowolny pojedynczy znak</li>\n</ul>"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:96
 #: src/Module/Admin/Blocklist/Server/Index.php:88
@@ -5000,10 +5000,10 @@ msgstr "Znane kontakty"
 #, php-format
 msgid "%d known server"
 msgid_plural "%d known servers"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%d znany serwer"
+msgstr[1] "%d znane serwery"
+msgstr[2] "%d znanych serwerów"
+msgstr[3] "%d znanych serwerów"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:102
 msgid "Add pattern to the blocklist"
@@ -5184,37 +5184,37 @@ msgstr "nieznany"
 #: src/Module/Admin/Federation.php:167
 #, php-format
 msgid "%s total systems"
-msgstr ""
+msgstr "%s łącznie systemów"
 
 #: src/Module/Admin/Federation.php:168
 #, php-format
 msgid "%s active users last month"
-msgstr ""
+msgstr "%s aktywnych użytkowników w ostatnim miesiącu"
 
 #: src/Module/Admin/Federation.php:169
 #, php-format
 msgid "%s active users last six months"
-msgstr ""
+msgstr "%s aktywnych użytkowników za ostatnie 6 miesięcy"
 
 #: src/Module/Admin/Federation.php:170
 #, php-format
 msgid "%s registered users"
-msgstr ""
+msgstr "%s zarejestrowanych użytkowników"
 
 #: src/Module/Admin/Federation.php:171
 #, php-format
 msgid "%s locally created posts and comments"
-msgstr ""
+msgstr "%s lokalnie utworzonych wpisów i komentarzy"
 
 #: src/Module/Admin/Federation.php:174
 #, php-format
 msgid "%s posts per user"
-msgstr ""
+msgstr "%s wpisy na użytkownika"
 
 #: src/Module/Admin/Federation.php:179
 #, php-format
 msgid "%s users per system"
-msgstr ""
+msgstr "%s użytkowników na system"
 
 #: src/Module/Admin/Federation.php:189
 msgid ""
@@ -5233,7 +5233,7 @@ msgid ""
 "Currently this node is aware of %s nodes (%s active users last month, %s "
 "active users last six months, %s registered users in total) from the "
 "following platforms:"
-msgstr ""
+msgstr "Obecnie ten węzeł jest świadomy %s węzłów (%s aktywnych użytkowników w zeszłym miesiącu, %s aktywnych użytkowników w ciągu ostatnich sześciu miesięcy, %s łącznie zarejestrowanych użytkowników) z następujących platform:"
 
 #: src/Module/Admin/Item/Delete.php:53
 msgid "Item marked for deletion."
@@ -5376,14 +5376,14 @@ msgstr "Aby tymczasowo włączyć rejestrowanie błędów i ostrzeżeń PHP, mo�
 msgid ""
 "Error trying to open <strong>%1$s</strong> log file.<br/>Check to see if "
 "file %1$s exist and is readable."
-msgstr ""
+msgstr "Błąd podczas próby otwarcia pliku dziennika <strong>%1$s</strong>. Sprawdź, czy plik %1$s istnieje i czy można go odczytać."
 
 #: src/Module/Admin/Logs/View.php:79
 #, php-format
 msgid ""
 "Couldn't open <strong>%1$s</strong> log file.<br/>Check to see if file %1$s "
 "is readable."
-msgstr ""
+msgstr "Nie udało się otworzyć pliku dziennika <strong>%1$s</strong>. Sprawdź, czy plik %1$s jest odczytywalny."
 
 #: src/Module/Admin/Logs/View.php:85 src/Module/BaseAdmin.php:110
 msgid "View Logs"
@@ -5452,13 +5452,13 @@ msgstr "Zamknij"
 
 #: src/Module/Admin/Queue.php:50
 msgid "Inspect Deferred Worker Queue"
-msgstr "Sprawdź kolejkę odroczonych pracowników"
+msgstr "Sprawdź kolejkę odroczonych workerów"
 
 #: src/Module/Admin/Queue.php:51
 msgid ""
 "This page lists the deferred worker jobs. This are jobs that couldn't be "
 "executed at the first time."
-msgstr "Ta strona zawiera listę zadań opóźnionych pracowników. Są to zadania, które nie mogą być wykonywane po raz pierwszy."
+msgstr "Ta strona zawiera listę zadań odroczonych workerów. Są to zadania, które nie mogą być wykonywane po raz pierwszy."
 
 #: src/Module/Admin/Queue.php:54
 msgid "Inspect Worker Queue"
@@ -5468,7 +5468,7 @@ msgstr "Sprawdź kolejkę workerów"
 msgid ""
 "This page lists the currently queued worker jobs. These jobs are handled by "
 "the worker cronjob you've set up during install."
-msgstr "Ta strona zawiera listę aktualnie ustawionych zadań dla pracowników. Te zadania są obsługiwane przez cronjob pracownika, który skonfigurowałeś podczas instalacji."
+msgstr "Ta strona zawiera listę aktualnie ustawionych zadań dla workerów. Te zadania są obsługiwane przez cronjob workera, który skonfigurowałeś podczas instalacji."
 
 #: src/Module/Admin/Queue.php:75
 msgid "ID"
@@ -5609,7 +5609,7 @@ msgstr "Ustawienia"
 
 #: src/Module/Admin/Site.php:509
 msgid "Worker"
-msgstr "Pracownik"
+msgstr "Worker"
 
 #: src/Module/Admin/Site.php:510
 msgid "Message Relay"
@@ -5939,7 +5939,7 @@ msgstr "Zaznaczenie tego pola spowoduje ograniczenie dodatków wymienionych w me
 
 #: src/Module/Admin/Site.php:555
 msgid "Don't embed private images in posts"
-msgstr "Nie umieszczaj prywatnych zdjęć w postach"
+msgstr "Nie umieszczaj prywatnych zdjęć we wpisach"
 
 #: src/Module/Admin/Site.php:555
 msgid ""
@@ -6046,7 +6046,7 @@ msgstr "Włącz obsługę maili"
 #: src/Module/Admin/Site.php:566
 msgid ""
 "Enable built-in mail support to poll IMAP folders and to reply via mail."
-msgstr "Włącz wbudowaną obsługę poczty, aby odpytywać foldery IMAP i odpowiadać pocztą."
+msgstr "Włącz wbudowaną obsługę poczty, aby odpytywać katalogi IMAP i odpowiadać pocztą."
 
 #: src/Module/Admin/Site.php:567
 msgid ""
@@ -6134,7 +6134,7 @@ msgstr "Minimalna pamięć"
 msgid ""
 "Minimal free memory in MB for the worker. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
-msgstr "Minimalna wolna pamięć w MB dla pracownika. Potrzebuje dostępu do /proc/ meminfo - domyślnie 0 (wyłączone)."
+msgstr "Minimalna wolna pamięć w MB dla workera. Potrzebuje dostępu do /proc/ meminfo - domyślnie 0 (wyłączone)."
 
 #: src/Module/Admin/Site.php:578
 msgid "Periodically optimize tables"
@@ -6330,7 +6330,7 @@ msgstr "Zmień bazowy adres URL dla tego serwera. Wysyła wiadomość o przenies
 
 #: src/Module/Admin/Site.php:606
 msgid "Maximum number of parallel workers"
-msgstr "Maksymalna liczba równoległych pracowników"
+msgstr "Maksymalna liczba równoległych workerów"
 
 #: src/Module/Admin/Site.php:606
 #, php-format
@@ -6347,7 +6347,7 @@ msgstr "Włącz Fastlane"
 msgid ""
 "When enabed, the fastlane mechanism starts an additional worker if processes"
 " with higher priority are blocked by processes of lower priority."
-msgstr "Po włączeniu system Fastlane uruchamia dodatkowego pracownika, jeśli procesy o wyższym priorytecie są blokowane przez procesy o niższym priorytecie."
+msgstr "Po włączeniu, system Fastlane uruchamia dodatkowego workera, jeśli procesy o wyższym priorytecie są blokowane przez procesy o niższym priorytecie."
 
 #: src/Module/Admin/Site.php:609
 msgid "Direct relay transfer"
@@ -6415,12 +6415,12 @@ msgstr "Rozpocznij przenoszenie"
 #: src/Module/Admin/Storage.php:46
 #, php-format
 msgid "Storage backend, %s is invalid."
-msgstr ""
+msgstr "Zaplecze pamięci przechowywania, %s jest nieprawidłowe."
 
 #: src/Module/Admin/Storage.php:73
 #, php-format
 msgid "Storage backend %s error: %s"
-msgstr ""
+msgstr "Błąd zaplecza %s pamięci przechowywania: %s"
 
 #: src/Module/Admin/Storage.php:84 src/Module/Admin/Storage.php:87
 msgid "Invalid storage backend setting value."
@@ -6483,7 +6483,7 @@ msgid ""
 "guide that may be helpful converting the table engines. You may also use the"
 " command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica"
 " installation for an automatic conversion.<br />"
-msgstr ""
+msgstr "Twoja baza danych nadal działa z tabelami InnoDB w formacie pliku Antelope. Powinieneś zmienić format pliku na Barracuda. Friendica korzysta z funkcji, których nie zapewnia format Antelope. Zobacz <a href=\"%s\">tutaj</a> przewodnik, który może być pomocny w konwersji silników tabel. Możesz również użyć polecenia <tt>php bin/console.php dbstructure toinnodb</tt> Twojej instalacji Friendica do automatycznej konwersji.<br />"
 
 #: src/Module/Admin/Summary.php:72
 #, php-format
@@ -6491,7 +6491,7 @@ msgid ""
 "Your table_definition_cache is too low (%d). This can lead to the database "
 "error \"Prepared statement needs to be re-prepared\". Please set it at least"
 " to %d. See <a href=\"%s\">here</a> for more information.<br />"
-msgstr ""
+msgstr "Twoja pamięć podręczna w table_definition_cache jest zbyt niska (%d). Może to prowadzić do błędu bazy danych „Przygotowana instrukcja wymaga ponownego przygotowania”. Ustaw przynajmniej na %d. Zobacz <a href=\"%s\">tutaj</a>, aby uzyskać więcej informacji.<br />"
 
 #: src/Module/Admin/Summary.php:82
 #, php-format
@@ -6516,14 +6516,14 @@ msgstr "Ostatnia aktualizacja nie powiodła się. Uruchom polecenie \"php bin/co
 
 #: src/Module/Admin/Summary.php:100
 msgid "The worker was never executed. Please check your database structure!"
-msgstr "Pracownik nigdy nie został stracony. Sprawdź swoją strukturę bazy danych!"
+msgstr "Worker nigdy nie został wykonany. Sprawdź swoją strukturę bazy danych!"
 
 #: src/Module/Admin/Summary.php:102
 #, php-format
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please"
 " check your crontab settings."
-msgstr "Ostatnie wykonanie robota było w %s UTC. To jest starsze niż jedna godzina. Sprawdź ustawienia crontab."
+msgstr "Ostatnie wykonanie workera było w %s UTC. To jest starsze niż jedna godzina. Sprawdź ustawienia crontab."
 
 #: src/Module/Admin/Summary.php:107
 #, php-format
@@ -6554,13 +6554,13 @@ msgstr "<a href=\"%s\">%s</a> nie jest osiągalny w twoim systemie. Jest to powa
 #: src/Module/Admin/Summary.php:135
 #, php-format
 msgid "The logfile '%s' is not usable. No logging possible (error: '%s')"
-msgstr ""
+msgstr "Plik dziennika „%s” nie nadaje się do użytku. Brak możliwości logowania (błąd: '%s')"
 
 #: src/Module/Admin/Summary.php:149
 #, php-format
 msgid ""
 "The debug logfile '%s' is not usable. No logging possible (error: '%s')"
-msgstr ""
+msgstr "Plik dziennika debugowania „%s” nie nadaje się do użytku. Brak możliwości logowania (błąd: '%s')"
 
 #: src/Module/Admin/Summary.php:165
 #, php-format
@@ -6665,7 +6665,7 @@ msgstr "Motywy zostały ponownie wczytane"
 
 #: src/Module/Admin/Themes/Index.php:114
 msgid "Reload active themes"
-msgstr "Przeładuj aktywne motywy"
+msgstr "Wczytaj ponownie aktywne motywy"
 
 #: src/Module/Admin/Themes/Index.php:119
 #, php-format
@@ -6814,10 +6814,10 @@ msgstr "Użytkownik {0} zostanie usunięty!\\n\\n Wszystko co zamieścił na tej
 #, php-format
 msgid "%s user unblocked"
 msgid_plural "%s users unblocked"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%s użytkownik odblokowany"
+msgstr[1] "%s użytkowników odblokowanych"
+msgstr[2] "%s użytkowników odblokowanych"
+msgstr[3] "%s użytkowników odblokowanych"
 
 #: src/Module/Admin/Users/Blocked.php:96 src/Module/Admin/Users/Index.php:109
 #, php-format
@@ -6873,19 +6873,19 @@ msgstr "Użytkownik czekający na trwałe usunięcie"
 #, php-format
 msgid "%s user approved"
 msgid_plural "%s users approved"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%s użytkownik zatwierdzony"
+msgstr[1] "%s użytkowników zatwierdzonych"
+msgstr[2] "%s użytkowników zatwierdzonych"
+msgstr[3] "%s użytkowników zatwierdzonych"
 
 #: src/Module/Admin/Users/Pending.php:55
 #, php-format
 msgid "%s registration revoked"
 msgid_plural "%s registrations revoked"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%s rejestrację cofnięto"
+msgstr[1] "%s rejestracje cofnięto"
+msgstr[2] "%s rejestracji cofnięto"
+msgstr[3] "%s rejestracji cofnięto "
 
 #: src/Module/Admin/Users/Pending.php:81
 msgid "Account approved."
@@ -6918,7 +6918,7 @@ msgstr "Odmów"
 #: src/Module/Api/ApiResponse.php:272
 #, php-format
 msgid "API endpoint %s %s is not implemented"
-msgstr ""
+msgstr "Punkt końcowy API %s %s nie jest zaimplementowany"
 
 #: src/Module/Api/ApiResponse.php:273
 msgid ""
@@ -6945,7 +6945,7 @@ msgstr "Jedynie ogwiazdkowane wpisy mogą być przypięte"
 #: src/Module/Api/Mastodon/Statuses/Reblog.php:53
 #, php-format
 msgid "Posts from %s can't be shared"
-msgstr ""
+msgstr "Wpisy od %s nie mogą być udostępniane"
 
 #: src/Module/Api/Mastodon/Statuses/Unbookmark.php:51
 msgid "Only starting posts can be unbookmarked"
@@ -6958,7 +6958,7 @@ msgstr "Wyłączać wyciszenie można tylko we wpisach początkowych"
 #: src/Module/Api/Mastodon/Statuses/Unreblog.php:53
 #, php-format
 msgid "Posts from %s can't be unshared"
-msgstr ""
+msgstr "Nie można cofnąć udostępniania wpisów %s"
 
 #: src/Module/Api/Twitter/ContactEndpoint.php:66
 msgid "Contact not found"
@@ -7012,11 +7012,11 @@ msgstr "Aktualizacje bazy danych"
 
 #: src/Module/BaseAdmin.php:100
 msgid "Inspect Deferred Workers"
-msgstr "Sprawdź Odroczonych Pracowników"
+msgstr "Sprawdź odroczonych workerów"
 
 #: src/Module/BaseAdmin.php:101
 msgid "Inspect worker Queue"
-msgstr "Sprawdź kolejkę pracowników"
+msgstr "Sprawdź kolejkę workerów"
 
 #: src/Module/BaseAdmin.php:103
 msgid "Tools"
@@ -7040,7 +7040,7 @@ msgstr "Informacje o PHP"
 
 #: src/Module/BaseAdmin.php:114
 msgid "probe address"
-msgstr "adres sondy"
+msgstr "adres probe"
 
 #: src/Module/BaseAdmin.php:115
 msgid "check webfinger"
@@ -7048,7 +7048,7 @@ msgstr "sprawdź webfinger"
 
 #: src/Module/BaseAdmin.php:117
 msgid "Babel"
-msgstr ""
+msgstr "Babel"
 
 #: src/Module/BaseAdmin.php:118 src/Module/Debug/ActivityPubConversion.php:142
 msgid "ActivityPub Conversion"
@@ -7156,7 +7156,7 @@ msgstr "Na tej stronie brakuje parametru url."
 
 #: src/Module/Bookmarklet.php:66
 msgid "The post was created"
-msgstr "Post został utworzony"
+msgstr "Wpis został utworzony"
 
 #: src/Module/Contact.php:88
 #, php-format
@@ -7236,7 +7236,7 @@ msgstr "Rozmowy rozpoczęły się od tego kontaktu"
 
 #: src/Module/Contact.php:441
 msgid "Posts and Comments"
-msgstr "Posty i komentarze"
+msgstr "Wpisy i komentarze"
 
 #: src/Module/Contact.php:452
 msgid "Posts containing media objects"
@@ -7316,28 +7316,28 @@ msgstr "Brak wspólnych kontaktów."
 #, php-format
 msgid "Follower (%s)"
 msgid_plural "Followers (%s)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Obserwujący (%s)"
+msgstr[1] "Obserwujących (%s)"
+msgstr[2] "Obserwujących (%s)"
+msgstr[3] "Obserwujących (%s)"
 
 #: src/Module/Contact/Contacts.php:103 src/Module/Profile/Contacts.php:99
 #, php-format
 msgid "Following (%s)"
 msgid_plural "Following (%s)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Obserwowany (%s)"
+msgstr[1] "Obserwowanych (%s)"
+msgstr[2] "Obserwowanych (%s)"
+msgstr[3] "Obserwowanych (%s)"
 
 #: src/Module/Contact/Contacts.php:107 src/Module/Profile/Contacts.php:102
 #, php-format
 msgid "Mutual friend (%s)"
 msgid_plural "Mutual friends (%s)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Wspólny przyjaciel (%s)"
+msgstr[1] "Wspólnych przyjaciół (%s)"
+msgstr[2] "Wspólnych przyjaciół (%s)"
+msgstr[3] "Wspólnych przyjaciół (%s)"
 
 #: src/Module/Contact/Contacts.php:109 src/Module/Profile/Contacts.php:104
 #, php-format
@@ -7348,10 +7348,10 @@ msgstr "Te kontakty zarówno śledzą, jak i są śledzone przez <strong>%s</str
 #, php-format
 msgid "Common contact (%s)"
 msgid_plural "Common contacts (%s)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Wspólny kontakt (%s)"
+msgstr[1] "Wspólne kontakty (%s)"
+msgstr[2] "Wspólnych kontaktów (%s)"
+msgstr[3] "Wspólnych kontaktów (%s)"
 
 #: src/Module/Contact/Contacts.php:117 src/Module/Profile/Common.php:88
 #, php-format
@@ -7364,10 +7364,10 @@ msgstr "Zarówno <strong>%s</strong>, jak i Ty, nawiązaliście publiczną inter
 #, php-format
 msgid "Contact (%s)"
 msgid_plural "Contacts (%s)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Kontakt (%s)"
+msgstr[1] "Kontakty (%s)"
+msgstr[2] "Kontaktów (%s)"
+msgstr[3] "Kontaktów (%s)"
 
 #: src/Module/Contact/Poke.php:135
 msgid "Error while sending poke, please retry."
@@ -7839,7 +7839,7 @@ msgstr "Źródło wejściowe (format Diaspora)"
 
 #: src/Module/Debug/Babel.php:150
 msgid "Source input (Markdown)"
-msgstr ""
+msgstr "Wejście źródłowe (Markdown)"
 
 #: src/Module/Debug/Babel.php:156
 msgid "Markdown::convert (raw HTML)"
@@ -7863,15 +7863,15 @@ msgstr "Wejście HTML"
 
 #: src/Module/Debug/Babel.php:186
 msgid "HTML Purified (raw)"
-msgstr ""
+msgstr "Oczyszczony HTML (surowy)"
 
 #: src/Module/Debug/Babel.php:191
 msgid "HTML Purified (hex)"
-msgstr ""
+msgstr "Oczyszczony HTML (szesnastkowy)"
 
 #: src/Module/Debug/Babel.php:196
 msgid "HTML Purified"
-msgstr ""
+msgstr "Oczyszczony HTML"
 
 #: src/Module/Debug/Babel.php:202
 msgid "HTML::toBBCode"
@@ -7923,7 +7923,7 @@ msgstr "Dodatek do Twittera jest nieobecny w katalogu addon/."
 
 #: src/Module/Debug/Babel.php:304
 msgid "Babel Diagnostic"
-msgstr ""
+msgstr "Diagnostyka Babel"
 
 #: src/Module/Debug/Babel.php:305
 msgid "Source text"
@@ -7943,7 +7943,7 @@ msgstr "HTML"
 
 #: src/Module/Debug/Babel.php:311
 msgid "Twitter Source / Tweet URL (requires API key)"
-msgstr ""
+msgstr "Źródło Twitter / URL Tweeta (wymaga klucza API)"
 
 #: src/Module/Debug/Feed.php:50 src/Module/Filer/SaveTag.php:46
 #: src/Module/Settings/Profile/Index.php:141
@@ -7989,11 +7989,11 @@ msgstr "Tylko zalogowani użytkownicy mogą wykonywać sondowanie."
 
 #: src/Module/Debug/Probe.php:52
 msgid "Probe Diagnostic"
-msgstr ""
+msgstr "Diagnostyka Probe"
 
 #: src/Module/Debug/Probe.php:53
 msgid "Output"
-msgstr ""
+msgstr "Wyjście"
 
 #: src/Module/Debug/Probe.php:56
 msgid "Lookup address"
@@ -8001,7 +8001,7 @@ msgstr "Wyszukaj adres"
 
 #: src/Module/Debug/WebFinger.php:50
 msgid "Webfinger Diagnostic"
-msgstr ""
+msgstr "Diagnostyka Webfinger"
 
 #: src/Module/Debug/WebFinger.php:52
 msgid "Lookup address:"
@@ -8010,7 +8010,7 @@ msgstr "Wyszukaj adres:"
 #: src/Module/Delegation.php:111
 #, php-format
 msgid "You are now logged in as %s"
-msgstr ""
+msgstr "Jesteś teraz zalogowany jako %s"
 
 #: src/Module/Delegation.php:143
 msgid "Switch between your accounts"
@@ -8361,7 +8361,7 @@ msgstr "<h1>Co dalej</h1>"
 msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the "
 "worker."
-msgstr "WAŻNE: Będziesz musiał [ręcznie] ustawić zaplanowane zadanie dla pracownika."
+msgstr "WAŻNE: Będziesz musiał [ręcznie] ustawić zaplanowane zadanie dla workera."
 
 #: src/Module/Install.php:374
 #, php-format
@@ -8623,7 +8623,7 @@ msgstr "{0} wymagana rejestracja"
 #: src/Module/Notifications/Ping.php:229
 #, php-format
 msgid "{0} and %d others requested registration"
-msgstr ""
+msgstr "{0} i %d innych poprosili o rejestrację"
 
 #: src/Module/OAuth/Acknowledge.php:50
 msgid "Authorize application connection"
@@ -8648,16 +8648,16 @@ msgstr "Niekompletne dane żądania"
 msgid ""
 "Please copy the following authentication code into your application and "
 "close this window: %s"
-msgstr ""
+msgstr "Skopiuj następujący kod uwierzytelniający do swojej aplikacji i zamknij to okno: %s"
 
 #: src/Module/OAuth/Token.php:96
 msgid "Unsupported or missing grant type"
-msgstr ""
+msgstr "Nieobsługiwany lub brakujący typ dotacji"
 
 #: src/Module/PermissionTooltip.php:48
 #, php-format
 msgid "Wrong type \"%s\", expected one of: %s"
-msgstr ""
+msgstr "Nieprawidłowy typ „%s”, oczekiwano jednego z:%s"
 
 #: src/Module/PermissionTooltip.php:65
 msgid "Model not found"
@@ -8678,17 +8678,17 @@ msgstr "Widoczne dla:"
 #: src/Module/PermissionTooltip.php:200
 #, php-format
 msgid "Followers (%s)"
-msgstr ""
+msgstr "Obserwujący (%s)"
 
 #: src/Module/PermissionTooltip.php:216
 #, php-format
 msgid "%d more"
-msgstr ""
+msgstr "%d więcej"
 
 #: src/Module/PermissionTooltip.php:220
 #, php-format
 msgid "<b>To:</b> %s<br>"
-msgstr ""
+msgstr "<b>Do:</b> %s<br>"
 
 #: src/Module/PermissionTooltip.php:223
 #, php-format
@@ -8707,12 +8707,12 @@ msgstr "Zdjęcie jest niedostępne."
 #: src/Module/Photo.php:136
 #, php-format
 msgid "The Photo with id %s is not available."
-msgstr ""
+msgstr "Zdjęcie z identyfikatorem %s nie jest dostępne."
 
 #: src/Module/Photo.php:169
 #, php-format
 msgid "Invalid external resource with url %s."
-msgstr ""
+msgstr "Nieprawidłowy zasób zewnętrzny z adresem URL %s."
 
 #: src/Module/Photo.php:171
 #, php-format
@@ -8732,7 +8732,7 @@ msgstr "Nie znaleziono profilu."
 msgid ""
 "You're currently viewing your profile as <b>%s</b> <a href=\"%s\" "
 "class=\"btn btn-sm pull-right\">Cancel</a>"
-msgstr ""
+msgstr "Obecnie przeglądasz swój profil jako <b>%s</b> <a href=\"%s\" class=\"btn btn-sm pull-right\">Anuluj</a>"
 
 #: src/Module/Profile/Profile.php:149
 msgid "Member since:"
@@ -8802,7 +8802,7 @@ msgstr "Zaplanowane"
 
 #: src/Module/Profile/Schedule.php:85
 msgid "Content"
-msgstr ""
+msgstr "Zawartość"
 
 #: src/Module/Profile/Schedule.php:86
 msgid "Remove post"
@@ -8977,7 +8977,7 @@ msgstr "Wpisz tutaj swój adres Webfinger (user@domain.tld) lub adres URL profil
 msgid ""
 "If you are not yet a member of the free social web, <a href=\"%s\">follow "
 "this link to find a public Friendica node and join us today</a>."
-msgstr ""
+msgstr "Jeśli nie jesteś jeszcze członkiem darmowej sieci społecznościowej, <a href=\"%s\">kliknij ten odnośnik, aby znaleźć publiczny węzeł Friendica i dołącz do nas już dziś</a>."
 
 #: src/Module/RemoteFollow.php:124
 msgid "Your Webfinger address or profile URL:"
@@ -9468,7 +9468,7 @@ msgid ""
 "\t\t\t\t<p>Reorder by dragging the field title.</p>\n"
 "\t\t\t\t<p>Empty the label field to remove a custom field.</p>\n"
 "\t\t\t\t<p>Non-public fields can only be seen by the selected Friendica contacts or the Friendica contacts in the selected groups.</p>"
-msgstr ""
+msgstr "<p>Pola niestandardowe pojawiają się na <a href=\"%s\">stronie Twojego profilu</a>.</p>\n\t\t\t\t<p>Możesz użyć BBCodes w wartościach pól.</p>\n\t\t\t\t<p>Zmieniaj kolejność, przeciągając tytuł pola.</p>\n\t\t\t\t<p>Opróżnij pole etykiety, aby usunąć pole niestandardowe.</p>\n\t\t\t\t<p>Pola niepubliczne mogą być widoczne tylko dla wybranych kontaktów Friendica lub kontaktów Friendica w wybranych grupach.</p>"
 
 #: src/Module/Settings/Profile/Photo/Crop.php:108
 #: src/Module/Settings/Profile/Photo/Crop.php:126
@@ -9606,7 +9606,7 @@ msgstr "Unieważnij wszyskie"
 msgid ""
 "When you generate a new app-specific password, you must use it right away, "
 "it will be shown to you once after you generate it."
-msgstr ""
+msgstr "Gdy generujesz nowe hasło aplikacji, musisz go od razu użyć. Zostanie ono wyświetlone raz po wygenerowaniu."
 
 #: src/Module/Settings/TwoFactor/AppSpecific.php:139
 msgid "Generate new app-specific password"
@@ -9731,7 +9731,7 @@ msgid ""
 "codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your "
 "device and don’t have the recovery codes you will lose access to your "
 "account.</p>"
-msgstr ""
+msgstr "<p>Kody odzyskiwania mogą służyć do uzyskiwania dostępu do konta w przypadku utraty dostępu do urządzenia i braku możliwości otrzymania kodów uwierzytelniania dwuskładnikowego.</p><p><strong> Umieść je w bezpiecznym miejscu!</strong> Jeśli zgubisz urządzenie i nie będziesz mieć kodów odzyskiwania, utracisz dostęp do swojego konta.</p>"
 
 #: src/Module/Settings/TwoFactor/Recovery.php:108
 msgid ""
@@ -9825,7 +9825,7 @@ msgstr "<p>Zeskanuj kod QR za pomocą aplikacji uwierzytelniającej i prześlij 
 msgid ""
 "<p>Or you can open the following URL in your mobile device:</p><p><a "
 "href=\"%s\">%s</a></p>"
-msgstr ""
+msgstr "<p>Możesz też otworzyć następujący adres URL w urządzeniu mobilnym:</p><p><a href=\"%s\">%s</a></p>"
 
 #: src/Module/Settings/TwoFactor/Verify.php:155
 msgid "Verify code and enable two-factor authentication"
@@ -9864,12 +9864,12 @@ msgstr "Wyeksportuj listę kont, które obserwujesz, jako plik CSV. Kompatybilny
 
 #: src/Module/Special/HTTPException.php:51
 msgid "Stack trace:"
-msgstr ""
+msgstr "Ślad stosu:"
 
 #: src/Module/Special/HTTPException.php:55
 #, php-format
 msgid "Exception thrown in %s:%d"
-msgstr ""
+msgstr "Zgłoszono wyjątek %s:%d"
 
 #: src/Module/Tos.php:57 src/Module/Tos.php:91
 msgid ""
@@ -9900,7 +9900,7 @@ msgid ""
 "href=\"%1$s/removeme\">%1$s/removeme</a>. The deletion of the account will "
 "be permanent. Deletion of the data will also be requested from the nodes of "
 "the communication partners."
-msgstr ""
+msgstr "W dowolnym momencie zalogowany użytkownik może wyeksportować dane swojego konta z <a href=\"%1$s/settings/userexport\">ustawień konta</a>. Jeśli użytkownik chce usunąć swoje konto, może to zrobić w <a href=\"%1$s/removeme\">%1$s/removeme</a>. Usunięcie konta będzie trwałe. Usunięcia danych zażądają również węzły partnerów komunikacyjnych."
 
 #: src/Module/Tos.php:62 src/Module/Tos.php:90
 msgid "Privacy Statement"
@@ -10098,7 +10098,7 @@ msgstr "%s nie uczestniczy w wydarzeniu %s"
 #: src/Navigation/Notifications/Factory/FormattedNotify.php:139
 #, php-format
 msgid "%s may attending %s's event"
-msgstr ""
+msgstr "%s może uczestniczyć w wydarzeniu %s"
 
 #: src/Navigation/Notifications/Factory/FormattedNotify.php:169
 #, php-format
@@ -10131,126 +10131,126 @@ msgstr "Nowy obserwujący"
 #: src/Navigation/Notifications/Factory/Notification.php:119
 #, php-format
 msgid "%1$s wants to follow you"
-msgstr ""
+msgstr "%1$s chce Cię obserwować"
 
 #: src/Navigation/Notifications/Factory/Notification.php:121
 #, php-format
 msgid "%1$s has started following you"
-msgstr ""
+msgstr "%1$s zaczął Cię obserwować"
 
 #: src/Navigation/Notifications/Factory/Notification.php:186
 #, php-format
 msgid "%1$s liked your comment on %2$s"
-msgstr ""
+msgstr "%1$s polubił Twój komentarz o %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:189
 #, php-format
 msgid "%1$s liked your post %2$s"
-msgstr ""
+msgstr "%1$s polubił Twój wpis %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:196
 #, php-format
 msgid "%1$s disliked your comment on %2$s"
-msgstr ""
+msgstr "%1$s nie lubi Twojego komentarza o %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:199
 #, php-format
 msgid "%1$s disliked your post %2$s"
-msgstr ""
+msgstr "%1$s nie lubi Twojego wpisu %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:206
 #, php-format
 msgid "%1$s shared your comment %2$s"
-msgstr ""
+msgstr "%1$s udostępnił Twój komentarz %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:209
 #, php-format
 msgid "%1$s shared your post %2$s"
-msgstr ""
+msgstr "%1$s udostępnił Twój wpis %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:213
 #: src/Navigation/Notifications/Factory/Notification.php:282
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
-msgstr ""
+msgstr "%1$s udostępnił wpis %2$s z %3$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:215
 #: src/Navigation/Notifications/Factory/Notification.php:284
 #, php-format
 msgid "%1$s shared a post from %3$s"
-msgstr ""
+msgstr "%1$s udostępnił wpis z %3$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:217
 #: src/Navigation/Notifications/Factory/Notification.php:286
 #, php-format
 msgid "%1$s shared the post %2$s"
-msgstr ""
+msgstr "%1$s udostępnił wpis %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:219
 #: src/Navigation/Notifications/Factory/Notification.php:288
 #, php-format
 msgid "%1$s shared a post"
-msgstr ""
+msgstr "%1$s udostępnił wpis"
 
 #: src/Navigation/Notifications/Factory/Notification.php:227
 #, php-format
 msgid "%1$s wants to attend your event %2$s"
-msgstr ""
+msgstr "%1$s chce uczestniczyć w Twoim wydarzeniu %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:234
 #, php-format
 msgid "%1$s does not want to attend your event %2$s"
-msgstr ""
+msgstr "%1$s nie chce uczestniczyć w Twoim wydarzeniu %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:241
 #, php-format
 msgid "%1$s maybe wants to attend your event %2$s"
-msgstr ""
+msgstr "%1$s może chcieć wziąć udział w Twoim wydarzeniu %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:248
 #, php-format
 msgid "%1$s tagged you on %2$s"
-msgstr ""
+msgstr "%1$s oznaczył Cię na %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:252
 #, php-format
 msgid "%1$s replied to you on %2$s"
-msgstr ""
+msgstr "%1$s odpowiedział Ci na %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:256
 #, php-format
 msgid "%1$s commented in your thread %2$s"
-msgstr ""
+msgstr "%1$s skomentował w Twoim wątku %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:260
 #, php-format
 msgid "%1$s commented on your comment %2$s"
-msgstr ""
+msgstr "%1$s skomentował Twój komentarz %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:266
 #, php-format
 msgid "%1$s commented in their thread %2$s"
-msgstr ""
+msgstr "%1$s skomentował w swoim wątku %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:268
 #, php-format
 msgid "%1$s commented in their thread"
-msgstr ""
+msgstr "%1$s skomentował w swoim wątku"
 
 #: src/Navigation/Notifications/Factory/Notification.php:270
 #, php-format
 msgid "%1$s commented in the thread %2$s from %3$s"
-msgstr ""
+msgstr "%1$s skomentował w wątku %2$s od %3$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:272
 #, php-format
 msgid "%1$s commented in the thread from %3$s"
-msgstr ""
+msgstr "%1$s skomentował w wątku od %3$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:277
 #, php-format
 msgid "%1$s commented on your thread %2$s"
-msgstr ""
+msgstr "%1$s skomentował Twój wątek %2$s"
 
 #: src/Navigation/Notifications/Repository/Notify.php:214
 #: src/Navigation/Notifications/Repository/Notify.php:697
@@ -10289,12 +10289,12 @@ msgstr "%1$s skomentował %2$s's %3$s %4$s"
 #: src/Navigation/Notifications/Repository/Notify.php:319
 #, php-format
 msgid "%1$s commented on your %2$s %3$s"
-msgstr ""
+msgstr "%1$s skomentował Twój %2$s %3$s"
 
 #: src/Navigation/Notifications/Repository/Notify.php:323
 #, php-format
 msgid "%1$s commented on their %2$s %3$s"
-msgstr ""
+msgstr "%1$s skomentował swój %2$s %3$s"
 
 #: src/Navigation/Notifications/Repository/Notify.php:327
 #: src/Navigation/Notifications/Repository/Notify.php:732
@@ -10348,7 +10348,7 @@ msgstr "%1$s[url=%2$s] zaczepił Cię[/url]."
 #: src/Navigation/Notifications/Repository/Notify.php:375
 #, php-format
 msgid "%s Introduction received"
-msgstr ""
+msgstr "%s Otrzymano wprowadzenie"
 
 #: src/Navigation/Notifications/Repository/Notify.php:377
 #, php-format
@@ -10575,7 +10575,7 @@ msgstr "Zablokuj %s"
 
 #: src/Object/Post.php:260
 msgid "Save to folder"
-msgstr "Zapisz w folderze"
+msgstr "Zapisz w katalogu"
 
 #: src/Object/Post.php:294
 msgid "I will attend"
@@ -10660,7 +10660,7 @@ msgstr "Przestań udostępniać"
 #: src/Object/Post.php:421
 #, php-format
 msgid "%s (Received %s)"
-msgstr ""
+msgstr "%s (Otrzymano %s)"
 
 #: src/Object/Post.php:426
 msgid "Comment this item on your system"
