@@ -72,6 +72,10 @@
 								<a href="{{$item.plink.orig}}">
 									<time class="time" title="{{$item.localtime}}" data-toggle="tooltip" datetime="{{$item.utc}}">{{$item.ago}}</time>
 								</a>
+								{{if $item.pinned}}
+									&bull; <i class="fa fa-thumb-tack" aria-hidden="true" title="{{$item.pinned}}"></i>
+									<span class="sr-only">{{$item.pinned}}</span>
+								{{/if}}
 							</small>
 						</div>
 

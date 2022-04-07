@@ -123,31 +123,4 @@ class ThreadUser
 	{
 		DBA::update('post-thread-user', ['ignored' => $ignored], ['uri-id' => $uri_id, 'uid' => $uid], true);
 	}
-
-	/**
-	 * @param int $uri_id 
-	 * @param int $uid 
-	 * @return bool 
-	 * @throws Exception 
-	 */
-	public static function getPinned(int $uri_id, int $uid)
-	{
-		$threaduser = DBA::selectFirst('post-thread-user', ['pinned'], ['uri-id' => $uri_id, 'uid' => $uid]);
-		if (empty($threaduser)) {
-			return false;
-		}
-		return (bool)$threaduser['pinned'];
-	}
-
-	/**
-	 * @param int $uri_id 
-	 * @param int $uid 
-	 * @param int $pinned 
-	 * @return void 
-	 * @throws Exception 
-	 */
-	public static function setPinned(int $uri_id, int $uid, int $pinned)
-	{
-		DBA::update('post-thread-user', ['pinned' => $pinned], ['uri-id' => $uri_id, 'uid' => $uid], true);
-	}
 }

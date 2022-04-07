@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1456);
+	define('DB_UPDATE_VERSION', 1457);
 }
 
 return [
@@ -1308,7 +1308,7 @@ return [
 			"changed" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date that something in the conversation changed, indicating clients should fetch the conversation again"],
 			"commented" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
-			"pinned" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The thread is pinned on the profile page"],
+			"pinned" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "deprecated"],
 			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Ignore updates for this thread"],
 			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
@@ -1335,7 +1335,6 @@ return [
 			"commented" => ["commented"],
 			"uid_received" => ["uid", "received"],
 			"uid_wall_received" => ["uid", "wall", "received"],
-			"uid_pinned" => ["uid", "pinned"],
 			"uid_commented" => ["uid", "commented"],
 			"uid_starred" => ["uid", "starred"],
 			"uid_mention" => ["uid", "mention"],

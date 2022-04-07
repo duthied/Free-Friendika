@@ -78,7 +78,7 @@ class Status extends BaseFactory
 	public function createFromUriId(int $uriId, $uid = 0): \Friendica\Object\Api\Mastodon\Status
 	{
 		$fields = ['uri-id', 'uid', 'author-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning',
-			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity'];
+			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
 			$mail = DBA::selectFirst('mail', ['id'], ['uri-id' => $uriId, 'uid' => $uid]);
@@ -125,7 +125,7 @@ class Status extends BaseFactory
 			]),
 			Post\ThreadUser::getIgnored($uriId, $uid),
 			(bool)($item['starred'] && ($item['gravity'] == GRAVITY_PARENT)),
-			Post\ThreadUser::getPinned($uriId, $uid)
+			$item['featured']
 		);
 
 		$sensitive   = $this->dba->exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw', 'type' => TagModel::HASHTAG]);

@@ -46,11 +46,7 @@ class Unpin extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be pinned'));
-		}
-
-		Post\ThreadUser::setPinned($this->parameters['id'], $uid, false);
+		Post\Collection::remove($this->parameters['id'], Post\Collection::FEATURED);
 
 		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid)->toArray());
 	}

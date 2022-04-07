@@ -231,7 +231,7 @@ class Post
 
 		$origin = $item['origin'] || $item['parent-origin'];
 
-		if ($item['pinned']) {
+		if (!empty($item['featured'])) {
 			$pinned = DI::l10n()->t('Pinned item');
 		}
 
@@ -343,14 +343,14 @@ class Post
 
 				if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
 					if ($origin) {
-						$ispinned = ($item['pinned'] ? 'pinned' : 'unpinned');
+						$ispinned = ($item['featured'] ? 'pinned' : 'unpinned');
 
 						$pin = [
 							'do'        => DI::l10n()->t('Pin'),
 							'undo'      => DI::l10n()->t('Unpin'),
 							'toggle'    => DI::l10n()->t('Toggle pin status'),
-							'classdo'   => $item['pinned'] ? 'hidden' : '',
-							'classundo' => $item['pinned'] ? '' : 'hidden',
+							'classdo'   => $item['featured'] ? 'hidden' : '',
+							'classundo' => $item['featured'] ? '' : 'hidden',
 							'pinned'   => DI::l10n()->t('Pinned'),
 						];
 					}

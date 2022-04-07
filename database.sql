@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1456
+-- DB_UPDATE_VERSION 1457
 -- ------------------------------------------
 
 
@@ -1284,7 +1284,7 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	`changed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date that something in the conversation changed, indicating clients should fetch the conversation again',
 	`commented` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
-	`pinned` boolean NOT NULL DEFAULT '0' COMMENT 'The thread is pinned on the profile page',
+	`pinned` boolean NOT NULL DEFAULT '0' COMMENT 'deprecated',
 	`starred` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`ignored` boolean NOT NULL DEFAULT '0' COMMENT 'Ignore updates for this thread',
 	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
@@ -1309,7 +1309,6 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `commented` (`commented`),
 	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
-	 INDEX `uid_pinned` (`uid`,`pinned`),
 	 INDEX `uid_commented` (`uid`,`commented`),
 	 INDEX `uid_starred` (`uid`,`starred`),
 	 INDEX `uid_mention` (`uid`,`mention`),
@@ -1621,7 +1620,6 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-thread-user`.`pubmail` AS `pubmail`,
 	`post-user`.`visible` AS `visible`,
 	`post-thread-user`.`starred` AS `starred`,
-	`post-thread-user`.`pinned` AS `pinned`,
 	`post-user`.`unseen` AS `unseen`,
 	`post-user`.`deleted` AS `deleted`,
 	`post-user`.`origin` AS `origin`,
@@ -1783,7 +1781,6 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-thread-user`.`ignored` AS `ignored`,
 	`post-user`.`visible` AS `visible`,
 	`post-thread-user`.`starred` AS `starred`,
-	`post-thread-user`.`pinned` AS `pinned`,
 	`post-thread-user`.`unseen` AS `unseen`,
 	`post-user`.`deleted` AS `deleted`,
 	`post-thread-user`.`origin` AS `origin`,
@@ -2168,6 +2165,19 @@ CREATE VIEW `category-view` AS SELECT
 	`tag`.`url` AS `url`
 	FROM `post-category`
 			LEFT JOIN `tag` ON `post-category`.`tid` = `tag`.`id`;
+
+--
+-- VIEW collection-view
+--
+DROP VIEW IF EXISTS `collection-view`;
+CREATE VIEW `collection-view` AS SELECT 
+	`post-collection`.`uri-id` AS `uri-id`,
+	`post-collection`.`type` AS `type`,
+	`post`.`author-id` AS `cid`,
+	`post`.`received` AS `received`,
+	`post`.`created` AS `created`
+	FROM `post-collection`
+			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`;
 
 --
 -- VIEW tag-view

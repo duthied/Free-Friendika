@@ -28,8 +28,7 @@
 		</div>
 		<div class="wall-item-author">
 				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}">{{$item.name}}</span></a>
-				<div class="wall-item-ago"  id="wall-item-ago-{{$item.id}}" title="{{$item.localtime}}">{{$item.ago}}</div>
-				
+				<div class="wall-item-ago" id="wall-item-ago-{{$item.id}}"><time class="dt-published" title="{{$item.localtime}}" datetime="{{$item.utc}}">{{$item.ago}}</time><span class="pinned">{{$item.pinned}}</span></div>				
 		</div>			
 		<div class="wall-item-content" id="wall-item-content-{{$item.id}}">
 			<div class="wall-item-title" id="wall-item-title-{{$item.id}}" dir="auto">{{$item.title}}</div>

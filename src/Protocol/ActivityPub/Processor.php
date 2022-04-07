@@ -978,6 +978,54 @@ class Processor
 	}
 
 	/**
+	 * Fetch featured posts from a contact with the given url
+	 *
+	 * @param string $url 
+	 * @return void 
+	 */
+	public static function fetchFeaturedPosts(string $url)
+	{
+		Logger::info('Fetch featured posts', ['contact' => $url]);
+
+		$apcontact = APContact::getByURL($url);
+		if (empty($apcontact['featured'])) {
+			Logger::info('Contact does not have a featured collection', ['contact' => $url]);
+			return;
+		}
+
+		$featured = ActivityPub::fetchItems($apcontact['featured']);
+		if (empty($featured)) {
+			Logger::info('Contact does not have featured posts', ['contact' => $url]);
+			return;
+		}
+
+		$new = 0;
+		$old = 0;
+
+		foreach ($featured as $post) {
+			if (empty($post['id'])) {
+				continue;
+			}
+			$id = Item::fetchByLink($post['id']);
+			if (!empty($id)) {
+				$item = Post::selectFirst(['uri-id', 'featured'], ['id' => $id]);
+				if (!empty($item['uri-id'])) {
+					if (!$item['featured']) {
+						Post\Collection::add($item['uri-id'], Post\Collection::FEATURED);
+						Logger::debug('Added featured post', ['uri-id' => $item['uri-id'], 'contact' => $url]);
+						$new++;
+					} else {
+						Logger::debug('Post already had been featured', ['uri-id' => $item['uri-id'], 'contact' => $url]);
+						$old++;
+					}
+				}
+			}
+		}
+
+		Logger::info('Fetched featured posts', ['new' => $new, 'old' => $old, 'contact' => $url]);
+	}
+
+	/**
 	 * Fetches missing posts
 	 *
 	 * @param string $url         message URL

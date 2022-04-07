@@ -38,6 +38,7 @@ use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
@@ -1455,11 +1456,26 @@ class Contact
 		}
 
 		if ($thread_mode) {
-			$items = Post::toArray(Post::selectForUser(local_user(), ['uri-id', 'gravity', 'parent-uri-id', 'thr-parent-id', 'author-id'], $condition, $params));
+			$items = Post::toArray(Post::selectForUser(local_user(), ['uri-id'], $condition, $params));
 
-			$o .= DI::conversation()->create($items, 'contacts', $update, false, 'commented', local_user());
+			if ($pager->getStart() == 0) {
+				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
+				$pinned = DBA::selectToArray('collection-view', ['uri-id'], ['cid' => $cdata['public']]);
+				$items = array_merge($items, $pinned);
+			}
+
+			$o .= DI::conversation()->create($items, 'contacts', $update, false, 'pinned_commented', local_user());
 		} else {
-			$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
+			$fields = array_merge(Item::DISPLAY_FIELDLIST, ['featured']);
+			$items = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
+
+			if ($pager->getStart() == 0) {
+				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
+				$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ?)", $cdata['public']];
+				$pinned = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
+				//$items = $pinned;
+				$items = array_merge($pinned, $items);
+			}
 
 			$o .= DI::conversation()->create($items, 'contact-posts', $update);
 		}
@@ -2252,6 +2268,10 @@ class Contact
 		$new_pubkey = $ret['pubkey'] ?? '';
 
 		if ($uid == 0) {
+			if ($ret['network'] == Protocol::ACTIVITYPUB) {
+				ActivityPub\Processor::fetchFeaturedPosts($ret['url']);
+			}
+	
 			$ret['last-item'] = Probe::getLastUpdate($ret);
 			Logger::info('Fetched last item', ['id' => $id, 'probed_url' => $ret['url'], 'last-item' => $ret['last-item'], 'callstack' => System::callstack(20)]);
 		}
