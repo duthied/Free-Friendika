@@ -209,7 +209,7 @@ class Status extends BaseProfile
 
 		if ($pager->getStart() == 0 && !empty($profile['uid'])) {
 			$pcid = Contact::getPublicIdByUserId($profile['uid']);
-			$pinned = DBA::selectToArray('collection-view', [], ['cid' => $pcid]);
+			$pinned = DBA::selectToArray('collection-view', [], ['cid' => $pcid, 'type' => Post\Collection::FEATURED]);
 			$items = array_merge($items, $pinned);
 		}
 

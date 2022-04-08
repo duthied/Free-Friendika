@@ -1460,8 +1460,10 @@ class Contact
 
 			if ($pager->getStart() == 0) {
 				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
-				$pinned = DBA::selectToArray('collection-view', ['uri-id'], ['cid' => $cdata['public']]);
-				$items = array_merge($items, $pinned);
+				if (!empty($cdata['public'])) {
+					$pinned = DBA::selectToArray('collection-view', ['uri-id'], ['cid' => $cdata['public'], 'type' => Post\Collection::FEATURED]);
+					$items = array_merge($items, $pinned);
+				}
 			}
 
 			$o .= DI::conversation()->create($items, 'contacts', $update, false, 'pinned_commented', local_user());
@@ -1471,10 +1473,11 @@ class Contact
 
 			if ($pager->getStart() == 0) {
 				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
-				$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ?)", $cdata['public']];
-				$pinned = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
-				//$items = $pinned;
-				$items = array_merge($pinned, $items);
+				if (!empty($cdata['public'])) {
+					$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ?)", $cdata['public']];
+					$pinned = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
+					$items = array_merge($pinned, $items);
+					}
 			}
 
 			$o .= DI::conversation()->create($items, 'contact-posts', $update);
