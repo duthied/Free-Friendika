@@ -999,7 +999,7 @@ class Processor
 			return;
 		}
 
-		$posts = DBA::selectToArray('collection-view', ['uri-id'], ['cid' => $pcid, 'type' => Post\Collection::FEATURED]);
+		$posts = Post\Collection::selectToArrayForContact($pcid, Post\Collection::FEATURED);
 		if (!empty($posts)) {
 			$old_featured = array_column($posts, 'uri-id');
 		}
