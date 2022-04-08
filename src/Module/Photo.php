@@ -32,7 +32,7 @@ use Friendica\Model\Profile;
 use Friendica\Core\Storage\Type\ExternalResource;
 use Friendica\Core\Storage\Type\SystemResource;
 use Friendica\Model\User;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\NotModifiedException;
 use Friendica\Object\Image;
@@ -309,7 +309,7 @@ class Photo extends BaseModule
 				}
 				$mimetext = '';
 				if (!empty($url)) {
-					$mime = ParseUrl::getContentType($url, HttpClient::ACCEPT_IMAGE);
+					$mime = ParseUrl::getContentType($url, HttpClientAccept::IMAGE);
 					if (!empty($mime)) {
 						$mimetext = $mime[0] . '/' . $mime[1];
 					} else {

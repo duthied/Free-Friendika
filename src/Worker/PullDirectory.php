@@ -24,7 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 
 class PullDirectory
 {
@@ -48,7 +48,7 @@ class PullDirectory
 
 		Logger::info('Synchronization started.', ['now' => $now, 'directory' => $directory]);
 
-		$result = DI::httpClient()->fetch($directory . '/sync/pull/since/' . $now, 0, HttpClient::ACCEPT_JSON);
+		$result = DI::httpClient()->fetch($directory . '/sync/pull/since/' . $now, HttpClientAccept::JSON);
 		if (empty($result)) {
 			Logger::info('Directory server return empty result.', ['directory' => $directory]);
 			return;

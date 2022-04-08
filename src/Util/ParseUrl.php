@@ -29,7 +29,7 @@ use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 
@@ -59,13 +59,13 @@ class ParseUrl
 	 * @param string $accept content-type to accept
 	 * @return array content type
 	 */
-	public static function getContentType(string $url, string $accept = HttpClient::ACCEPT_DEFAULT)
+	public static function getContentType(string $url, string $accept = HttpClientAccept::DEFAULT)
 	{
 		$curlResult = DI::httpClient()->head($url, [HttpClientOptions::ACCEPT_CONTENT => $accept]);
 
 		// Workaround for systems that can't handle a HEAD request
 		if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() == 405)) {
-			$curlResult = DI::httpClient()->get($url, [HttpClientOptions::CONTENT_LENGTH => 1000000, HttpClientOptions::ACCEPT_CONTENT => $accept]);
+			$curlResult = DI::httpClient()->get($url, $accept, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
 		}
 
 		if (!$curlResult->isSuccess()) {
@@ -222,7 +222,7 @@ class ParseUrl
 			return $siteinfo;
 		}
 
-		$curlResult = DI::httpClient()->get($url, [HttpClientOptions::CONTENT_LENGTH => 1000000, HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_HTML]);
+		$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			Logger::info('Empty body or error when fetching', ['url' => $url, 'success' => $curlResult->isSuccess(), 'code' => $curlResult->getReturnCode()]);
 			return $siteinfo;

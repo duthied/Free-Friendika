@@ -43,22 +43,6 @@ use Psr\Log\LoggerInterface;
  */
 class HttpClient implements ICanSendHttpRequests
 {
-	/** @var string Default value for "Accept" header */
-	const ACCEPT_DEFAULT   = '*/*';
-	const ACCEPT_ATOM_XML  = 'application/atom+xml,text/xml;q=0.9,*/*;q=0.8';
-	const ACCEPT_FEED_XML  = 'application/atom+xml,application/rss+xml;q=0.9,application/rdf+xml;q=0.8,text/xml;q=0.7,*/*;q=0.6';
-	const ACCEPT_HTML      = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
-	const ACCEPT_IMAGE     = 'image/png,image/jpeg,image/gif,image/*;q=0.9,*/*;q=0.8';
-	const ACCEPT_JRD_JSON  = 'application/jrd+json,application/json;q=0.9';
-	const ACCEPT_JSON      = 'application/json,*/*;q=0.9';
-	const ACCEPT_JSON_AS   = 'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-	const ACCEPT_MAGIC     = 'application/magic-envelope+xml';
-	const ACCEPT_MAGIC_KEY = 'application/magic-public-key';
-	const ACCEPT_RSS_XML   = 'application/rss+xml,text/xml;q=0.9,*/*;q=0.8';
-	const ACCEPT_TEXT      = 'text/plain,text/*;q=0.9,*/*;q=0.8';
-	const ACCEPT_VIDEO     = 'video/mp4,video/*;q=0.9,*/*;q=0.8';
-	const ACCEPT_XRD_XML   = 'application/xrd+xml,text/xml;q=0.9,*/*;q=0.8';
-
 	/** @var LoggerInterface */
 	private $logger;
 	/** @var Profiler */
@@ -157,7 +141,8 @@ class HttpClient implements ICanSendHttpRequests
 		};
 
 		if (empty($conf[HttpClientOptions::HEADERS]['Accept'])) {
-			$conf[HttpClientOptions::HEADERS]['Accept'] = static::ACCEPT_DEFAULT;
+			$this->logger->info('Accept header was missing, using default.', ['url' => $url, 'callstack' => System::callstack()]);
+			$conf[HttpClientOptions::HEADERS]['Accept'] = HttpClientAccept::DEFAULT;
 		}
 
 		try {
@@ -191,8 +176,11 @@ class HttpClient implements ICanSendHttpRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get(string $url, array $opts = []): ICanHandleHttpResponses
+	public function get(string $url, string $accept_content = HttpClientAccept::DEFAULT, array $opts = []): ICanHandleHttpResponses
 	{
+		// In case there is no
+		$opts[HttpClientOptions::ACCEPT_CONTENT] = $opts[HttpClientOptions::ACCEPT_CONTENT] ?? $accept_content;
+
 		return $this->request('get', $url, $opts);
 	}
 
@@ -253,9 +241,9 @@ class HttpClient implements ICanSendHttpRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): string
+	public function fetch(string $url, string $accept_content = HttpClientAccept::DEFAULT, int $timeout = 0, string $cookiejar = ''): string
 	{
-		$ret = $this->fetchFull($url, $timeout, $accept_content, $cookiejar);
+		$ret = $this->fetchFull($url, $accept_content, $timeout, $cookiejar);
 
 		return $ret->getBody();
 	}
@@ -263,14 +251,14 @@ class HttpClient implements ICanSendHttpRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): ICanHandleHttpResponses
+	public function fetchFull(string $url, string $accept_content = HttpClientAccept::DEFAULT, int $timeout = 0, string $cookiejar = ''): ICanHandleHttpResponses
 	{
 		return $this->get(
 			$url,
+			$accept_content,
 			[
-				HttpClientOptions::TIMEOUT        => $timeout,
-				HttpClientOptions::ACCEPT_CONTENT => $accept_content,
-				HttpClientOptions::COOKIEJAR      => $cookiejar
+				HttpClientOptions::TIMEOUT   => $timeout,
+				HttpClientOptions::COOKIEJAR => $cookiejar
 			]
 		);
 	}

@@ -21,6 +21,7 @@
 
 namespace Friendica\Network\HTTPClient\Capability;
 
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use GuzzleHttp\Exception\TransferException;
 
 /**
@@ -35,13 +36,13 @@ interface ICanSendHttpRequests
 	 * to preserve cookies from one request to the next.
 	 *
 	 * @param string $url             URL to fetch
-	 * @param int    $timeout         Timeout in seconds, default system config value or 60 seconds
 	 * @param string $accept_content  supply Accept: header with 'accept_content' as the value
+	 * @param int    $timeout         Timeout in seconds, default system config value or 60 seconds
 	 * @param string $cookiejar       Path to cookie jar file
 	 *
 	 * @return string The fetched content
 	 */
-	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): string;
+	public function fetch(string $url, string $accept_content = HttpClientAccept::DEFAULT, int $timeout = 0, string $cookiejar = ''): string;
 
 	/**
 	 * Fetches the whole response of an URL.
@@ -50,72 +51,72 @@ interface ICanSendHttpRequests
 	 * all the information collected during the fetch.
 	 *
 	 * @param string $url             URL to fetch
-	 * @param int    $timeout         Timeout in seconds, default system config value or 60 seconds
 	 * @param string $accept_content  supply Accept: header with 'accept_content' as the value
+	 * @param int    $timeout         Timeout in seconds, default system config value or 60 seconds
 	 * @param string $cookiejar       Path to cookie jar file
 	 *
 	 * @return ICanHandleHttpResponses With all relevant information, 'body' contains the actual fetched content.
 	 */
-	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = ''): ICanHandleHttpResponses;
+	public function fetchFull(string $url, string $accept_content = HttpClientAccept::DEFAULT, int $timeout = 0, string $cookiejar = ''): ICanHandleHttpResponses;
+
+	/**
+	 * Send a GET to a URL.
+	 *
+	 * @param string $url            URL to get
+	 * @param string $accept_content supply Accept: header with 'accept_content' as the value
+	 * @param array  $opts           (optional parameters) associative array with:
+	 *                                'accept_content' => (string array) supply Accept: header with 'accept_content' as the value (overrides default parameter)
+	 *                                'timeout' => int Timeout in seconds, default system config value or 60 seconds
+	 *                                'cookiejar' => path to cookie jar file
+	 *                                'header' => header array
+	 *
+	 * @return ICanHandleHttpResponses
+	 */
+	public function get(string $url, string $accept_content = HttpClientAccept::DEFAULT, array $opts = []): ICanHandleHttpResponses;
 
 	/**
 	 * Send a HEAD to a URL.
 	 *
-	 * @param string $url        URL to fetch
-	 * @param array  $opts       (optional parameters) associative array with:
-	 *                           'accept_content' => (string array) supply Accept: header with 'accept_content' as the value
-	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
-	 *                           'cookiejar' => path to cookie jar file
-	 *                           'header' => header array
+	 * @param string $url            URL to fetch
+	 * @param array  $opts           (optional parameters) associative array with:
+	 *                                'accept_content' => (string array) supply Accept: header with 'accept_content' as the value
+	 *                                'timeout' => int Timeout in seconds, default system config value or 60 seconds
+	 *                                'cookiejar' => path to cookie jar file
+	 *                                'header' => header array
 	 *
 	 * @return ICanHandleHttpResponses
 	 */
 	public function head(string $url, array $opts = []): ICanHandleHttpResponses;
 
 	/**
-	 * Send a GET to an URL.
-	 *
-	 * @param string $url        URL to fetch
-	 * @param array  $opts       (optional parameters) associative array with:
-	 *                           'accept_content' => (string array) supply Accept: header with 'accept_content' as the value
-	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
-	 *                           'cookiejar' => path to cookie jar file
-	 *                           'header' => header array
-	 *                           'content_length' => int maximum File content length
-	 *
-	 * @return ICanHandleHttpResponses
-	 */
-	public function get(string $url, array $opts = []): ICanHandleHttpResponses;
-
-	/**
-	 * Sends a HTTP request to a given url
-	 *
-	 * @param string $method A HTTP request
-	 * @param string $url    Url to send to
-	 * @param array  $opts   (optional parameters) associative array with:
-	 *                       	 'body' => (mixed) setting the body for sending data
-	 *                           'accept_content' => (string array) supply Accept: header with 'accept_content' as the value
-	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
-	 *                           'cookiejar' => path to cookie jar file
-	 *                           'header' => header array
-	 *                           'content_length' => int maximum File content length
-	 *                           'auth' => array authentication settings
-	 *
-	 * @return ICanHandleHttpResponses
-	 */
-	public function request(string $method, string $url, array $opts = []): ICanHandleHttpResponses;
-
-	/**
 	 * Send POST request to an URL
 	 *
-	 * @param string $url     URL to post
-	 * @param mixed  $params  array of POST variables
-	 * @param array  $headers HTTP headers
-	 * @param int    $timeout The timeout in seconds, default system config value or 60 seconds
+	 * @param string $url            URL to post
+	 * @param mixed  $params         array of POST variables
+	 * @param array  $headers        HTTP headers
+	 * @param int    $timeout        The timeout in seconds, default system config value or 60 seconds
 	 *
 	 * @return ICanHandleHttpResponses The content
 	 */
 	public function post(string $url, $params, array $headers = [], int $timeout = 0): ICanHandleHttpResponses;
+
+	/**
+	 * Sends an HTTP request to a given url
+	 *
+	 * @param string $method         A HTTP request
+	 * @param string $url            Url to send to
+	 * @param array  $opts           (optional parameters) associative array with:
+	 *                       	      'body' => (mixed) setting the body for sending data
+	 *                                'accept_content' => (string array) supply Accept: header with 'accept_content' as the value
+	 *                                'timeout' => int Timeout in seconds, default system config value or 60 seconds
+	 *                                'cookiejar' => path to cookie jar file
+	 *                                'header' => header array
+	 *                                'content_length' => int maximum File content length
+	 *                                'auth' => array authentication settings
+	 *
+	 * @return ICanHandleHttpResponses
+	 */
+	public function request(string $method, string $url, array $opts = []): ICanHandleHttpResponses;
 
 	/**
 	 * Returns the original URL of the provided URL

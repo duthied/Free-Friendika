@@ -24,7 +24,7 @@ namespace Friendica\Util;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Photo;
-use Friendica\Network\HTTPClient\Client\HttpClient;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 
 /**
  * Image utilities
@@ -220,7 +220,7 @@ class Images
 		}
 
 		if (empty($img_str)) {
-			$img_str = DI::httpClient()->fetch($url, 4, HttpClient::ACCEPT_IMAGE);
+			$img_str = DI::httpClient()->fetch($url, HttpClientAccept::IMAGE, 4);
 		}
 
 		if (!$img_str) {

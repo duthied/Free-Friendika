@@ -32,8 +32,7 @@ use Friendica\DI;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Model\Register;
 use Friendica\Module\BaseAdmin;
-use Friendica\Network\HTTPClient\Client\HttpClient;
-use Friendica\Network\HTTPClient\Client\HttpClientOptions;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Util\DateTimeFormat;
 
@@ -250,7 +249,7 @@ class Summary extends BaseAdmin
 	private static function checkSelfHostMeta()
 	{
 		// Fetch the host-meta to check if this really is a vital server
-		return DI::httpClient()->get(DI::baseUrl()->get() . '/.well-known/host-meta', [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_XRD_XML])->isSuccess();
+		return DI::httpClient()->get(DI::baseUrl()->get() . '/.well-known/host-meta', HttpClientAccept::XRD_XML)->isSuccess();
 	}
 
 }

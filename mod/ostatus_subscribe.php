@@ -24,8 +24,7 @@ use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
-use Friendica\Network\HTTPClient\Client\HttpClient;
-use Friendica\Network\HTTPClient\Client\HttpClientOptions;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Protocol\ActivityPub;
 
 function ostatus_subscribe_content(App $a)
@@ -59,7 +58,7 @@ function ostatus_subscribe_content(App $a)
 			$api = $contact['baseurl'] . '/api/';
 
 			// Fetching friends
-			$curlResult = DI::httpClient()->get($api . 'statuses/friends.json?screen_name=' . $contact['nick'], [HttpClientOptions::ACCEPT_CONTENT => HttpClient::ACCEPT_JSON]);
+			$curlResult = DI::httpClient()->get($api . 'statuses/friends.json?screen_name=' . $contact['nick'], HttpClientAccept::JSON);
 
 			if (!$curlResult->isSuccess()) {
 				DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
