@@ -1097,3 +1097,14 @@ function update_1451()
 
 	return Update::SUCCESS;
 }
+
+function update_1457()
+{
+	$pinned = DBA::select('post-thread-user', ['uri-id'], ['pinned' => true]);
+	while ($post = DBA::fetch($pinned)) {
+		Post\Collection::add($post['uri-id'], Post\Collection::FEATURED);
+	}
+	DBA::close($pinned);
+
+	return Update::SUCCESS;
+}

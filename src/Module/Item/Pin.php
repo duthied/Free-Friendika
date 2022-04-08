@@ -48,7 +48,7 @@ class Pin extends BaseModule
 
 		$itemId = intval($this->parameters['id']);
 
-		$item = Post::selectFirst(['uri-id', 'uid'], ['id' => $itemId]);
+		$item = Post::selectFirst(['uri-id', 'uid', 'featured'], ['id' => $itemId]);
 		if (!DBA::isResult($item)) {
 			throw new HTTPException\NotFoundException();
 		}
@@ -57,9 +57,13 @@ class Pin extends BaseModule
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		$pinned = !Post\ThreadUser::getPinned($item['uri-id'], local_user());
+		$pinned = !$item['featured'];
 
-		Post\ThreadUser::setPinned($item['uri-id'], local_user(), $pinned);
+		if ($pinned) {
+			Post\Collection::add($item['uri-id'], Post\Collection::FEATURED);
+		} else {
+			Post\Collection::remove($item['uri-id'], Post\Collection::FEATURED);
+		}
 
 		// See if we've been passed a return path to redirect to
 		$return_path = $_REQUEST['return'] ?? '';

@@ -489,39 +489,6 @@ class Post
 	}
 
 	/**
-	 * Select pinned rows from the post-thread-user table for a given user
-	 *
-	 * @param integer $uid       User ID
-	 * @param array   $selected  Array of selected fields, empty for all
-	 * @param array   $condition Array of fields for condition
-	 * @param array   $params    Array of several parameters
-	 *
-	 * @return boolean|object
-	 * @throws \Exception
-	 */
-	public static function selectPinned(int $uid, array $selected = [], array $condition = [], $params = [])
-	{
-		$postthreaduser = DBA::select('post-thread-user', ['uri-id'], ['uid' => $uid, 'pinned' => true]);
-		if (!DBA::isResult($postthreaduser)) {
-			return $postthreaduser;
-		}
-
-		$pinned = [];
-		while ($useritem = DBA::fetch($postthreaduser)) {
-			$pinned[] = $useritem['uri-id'];
-		}
-		DBA::close($postthreaduser);
-
-		if (empty($pinned)) {
-			return [];
-		}
-
-		$condition = DBA::mergeConditions(['uri-id' => $pinned, 'uid' => $uid, 'gravity' => GRAVITY_PARENT], $condition);
-
-		return self::selectForUser($uid, $selected, $condition, $params);
-	}
-
-	/**
 	 * Update existing post entries
 	 *
 	 * @param array $fields    The fields that are to be changed

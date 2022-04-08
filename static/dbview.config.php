@@ -86,7 +86,6 @@
 			"pubmail" => ["post-thread-user", "pubmail"],
 			"visible" => ["post-user", "visible"],
 			"starred" => ["post-thread-user", "starred"],
-			"pinned" => ["post-thread-user", "pinned"],
 			"unseen" => ["post-user", "unseen"],
 			"deleted" => ["post-user", "deleted"],
 			"origin" => ["post-user", "origin"],
@@ -246,7 +245,6 @@
 			"ignored" => ["post-thread-user", "ignored"],
 			"visible" => ["post-user", "visible"],
 			"starred" => ["post-thread-user", "starred"],
-			"pinned" => ["post-thread-user", "pinned"],
 			"unseen" => ["post-thread-user", "unseen"],
 			"deleted" => ["post-user", "deleted"],
 			"origin" => ["post-thread-user", "origin"],
@@ -626,6 +624,17 @@
 		],
 		"query" => "FROM `post-category`
 			LEFT JOIN `tag` ON `post-category`.`tid` = `tag`.`id`"
+	],
+	"collection-view" => [
+		"fields" => [
+			"uri-id" => ["post-collection", "uri-id"],
+			"type" => ["post-collection", "type"],
+			"cid" => ["post", "author-id"],
+			"received" => ["post", "received"],
+			"created" => ["post", "created"],
+		],
+		"query" => "FROM `post-collection`
+			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`"
 	],
 	"tag-view" => [
 		"fields" => [

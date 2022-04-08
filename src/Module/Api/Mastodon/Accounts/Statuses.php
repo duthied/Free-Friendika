@@ -96,7 +96,7 @@ class Statuses extends BaseApi
 		}
 
 		if ($request['pinned']) {
-			$condition = DBA::mergeConditions($condition, ['pinned' => true]);
+			$condition = DBA::mergeConditions($condition, ['featured' => true]);
 		}
 
 		if ($request['exclude_replies']) {

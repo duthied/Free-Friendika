@@ -58,4 +58,17 @@ class Collection
 
 		DBA::delete('post-collection', ['uri-id' => $uri_id, 'type' => $type]);
 	}
+
+	/**
+	 * Fetch collections for a given contact
+	 *
+	 * @param integer $cid
+	 * @param [type] $type
+	 * @param array $fields
+	 * @return array
+	 */
+	public static function selectToArrayForContact(int $cid, int $type = self::FEATURED, array $fields = []) 
+	{
+		return DBA::selectToArray('collection-view', $fields, ['cid' => $cid, 'type' => $type]);
+	}
 }

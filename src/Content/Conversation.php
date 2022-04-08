@@ -639,6 +639,12 @@ class Conversation
 						$title = '';
 					}
 
+					if (!empty($item['featured'])) {
+						$pinned = $this->l10n->t('Pinned item');
+					} else {
+						$pinned = '';
+					}
+
 					$tmp_item = [
 						'template'             => $tpl,
 						'id'                   => ($preview ? 'P0' : $item['id']),
@@ -680,6 +686,7 @@ class Conversation
 						'owner_photo'          => $this->baseURL->remove(Contact::getAvatarUrlForUrl($item['owner-link'], $item['uid'], Proxy::SIZE_THUMB)),
 						'plink'                => ItemModel::getPlink($item),
 						'edpost'               => false,
+						'pinned'               => $pinned,
 						'isstarred'            => 'unstarred',
 						'star'                 => false,
 						'drop'                 => $drop,
@@ -931,7 +938,7 @@ class Conversation
 		$condition = DBA::mergeConditions($condition,
 			["`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW)]);
 
-		$thread_items = Post::selectForUser($uid, array_merge(ItemModel::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
+		$thread_items = Post::selectForUser($uid, array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
 		$items = [];
 
@@ -1135,7 +1142,9 @@ class Conversation
 		}
 
 		if (stristr($order, 'pinned_received')) {
-			usort($parents, [$this, 'sortThrPinnedReceived']);
+			usort($parents, [$this, 'sortThrFeaturedReceived']);
+		} elseif (stristr($order, 'pinned_commented')) {
+			usort($parents, [$this, 'sortThrFeaturedCommented']);
 		} elseif (stristr($order, 'received')) {
 			usort($parents, [$this, 'sortThrReceived']);
 		} elseif (stristr($order, 'commented')) {
@@ -1174,21 +1183,39 @@ class Conversation
 	}
 
 	/**
-	 * usort() callback to sort item arrays by pinned and the received key
+	 * usort() callback to sort item arrays by featured and the received key
 	 *
 	 * @param array $a
 	 * @param array $b
 	 * @return int
 	 */
-	private function sortThrPinnedReceived(array $a, array $b)
+	private function sortThrFeaturedReceived(array $a, array $b)
 	{
-		if ($b['pinned'] && !$a['pinned']) {
+		if ($b['featured'] && !$a['featured']) {
 			return 1;
-		} elseif (!$b['pinned'] && $a['pinned']) {
+		} elseif (!$b['featured'] && $a['featured']) {
 			return -1;
 		}
 
 		return strcmp($b['received'], $a['received']);
+	}
+
+	/**
+	 * usort() callback to sort item arrays by featured and the received key
+	 *
+	 * @param array $a
+	 * @param array $b
+	 * @return int
+	 */
+	private function sortThrFeaturedCommented(array $a, array $b)
+	{
+		if ($b['featured'] && !$a['featured']) {
+			return 1;
+		} elseif (!$b['featured'] && $a['featured']) {
+			return -1;
+		}
+
+		return strcmp($b['commented'], $a['commented']);
 	}
 
 	/**

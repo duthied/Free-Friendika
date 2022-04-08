@@ -18,7 +18,7 @@ Fields
 | changed      | Date that something in the conversation changed, indicating clients should fetch the conversation again | datetime           | NO   |     | 0001-01-01 00:00:00 |       |
 | commented    |                                                                                                         | datetime           | NO   |     | 0001-01-01 00:00:00 |       |
 | uid          | Owner id which owns this copy of the item                                                               | mediumint unsigned | NO   | PRI | 0                   |       |
-| pinned       | The thread is pinned on the profile page                                                                | boolean            | NO   |     | 0                   |       |
+| pinned       | deprecated                                                                                              | boolean            | NO   |     | 0                   |       |
 | starred      |                                                                                                         | boolean            | NO   |     | 0                   |       |
 | ignored      | Ignore updates for this thread                                                                          | boolean            | NO   |     | 0                   |       |
 | wall         | This item was posted to the wall of uid                                                                 | boolean            | NO   |     | 0                   |       |
@@ -49,7 +49,6 @@ Indexes
 | commented         | commented           |
 | uid_received      | uid, received       |
 | uid_wall_received | uid, wall, received |
-| uid_pinned        | uid, pinned         |
 | uid_commented     | uid, commented      |
 | uid_starred       | uid, starred        |
 | uid_mention       | uid, mention        |

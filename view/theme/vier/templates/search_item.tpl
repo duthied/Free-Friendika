@@ -28,6 +28,7 @@
 			<span class="wall-item-ago">
 				{{if $item.plink}}<a class="link" title="{{$item.plink.title}}" href="{{$item.plink.href}}" style="color: #999">{{$item.ago}}</a>{{else}} {{$item.ago}} {{/if}}
 				{{if $item.lock}}<span class="fakelink" style="color: #999" onclick="lockview(event, 'item', {{$item.id}});">{{$item.lock}}</span> {{/if}}
+				<span class="pinned">{{$item.pinned}}</span>
 			</span>
 		</div>
 		<div class="wall-item-content">

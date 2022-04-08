@@ -225,8 +225,10 @@ class ExpirePosts
 			$uris = DBA::select('item-uri', ['id'], ["`id` IN
 				(SELECT `uri-id` FROM `post-thread` WHERE `received` < ?
 					AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-thread-user`
-						WHERE (`mention` OR `starred` OR `wall` OR `pinned`) AND `uri-id` = `post-thread`.`uri-id`)
+						WHERE (`mention` OR `starred` OR `wall`) AND `uri-id` = `post-thread`.`uri-id`)
 					AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-category`
+						WHERE `uri-id` = `post-thread`.`uri-id`)
+					AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-collection`
 						WHERE `uri-id` = `post-thread`.`uri-id`)
 					AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-media`
 						WHERE `uri-id` = `post-thread`.`uri-id`)

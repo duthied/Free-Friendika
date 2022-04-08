@@ -29,6 +29,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Post\Category;
@@ -207,20 +208,8 @@ class Status extends BaseProfile
 		$items = Post::toArray($items_stmt);
 
 		if ($pager->getStart() == 0 && !empty($profile['uid'])) {
-			$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
-			$remote_user = Session::getRemoteContactID($profile['uid']);
-			if (!empty($remote_user)) {
-				$permissionSets = DI::permissionSet()->selectByContactId($remote_user, $profile['uid']);
-				if (!empty($permissionSets)) {
-					$condition = ['psid' => array_merge($permissionSets->column('id'),
-							[DI::permissionSet()->selectPublicForUser($profile['uid'])->id])];
-				}
-			} elseif ($profile['uid'] == local_user()) {
-				$condition = [];
-			}
-
-			$pinned_items = Post::selectPinned($profile['uid'], ['uri-id', 'pinned'], $condition);
-			$pinned = Post::toArray($pinned_items);
+			$pcid = Contact::getPublicIdByUserId($profile['uid']);
+			$pinned = Post\Collection::selectToArrayForContact($pcid, Post\Collection::FEATURED);
 			$items = array_merge($items, $pinned);
 		}
 
