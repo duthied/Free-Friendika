@@ -993,9 +993,25 @@ class Processor
 			return;
 		}
 
+		$pcid = Contact::getIdForURL($url, 0, false);
+		if (empty($pcid)) {
+			Logger::info('Contact not found', ['contact' => $url]);
+			return;
+		}
+
+		$posts = DBA::selectToArray('collection-view', ['uri-id'], ['cid' => $pcid, 'type' => Post\Collection::FEATURED]);
+		if (!empty($posts)) {
+			$old_featured = array_column($posts, 'uri-id');
+		}
+
 		$featured = ActivityPub::fetchItems($apcontact['featured']);
 		if (empty($featured)) {
 			Logger::info('Contact does not have featured posts', ['contact' => $url]);
+
+			foreach ($old_featured as $uri_id) {
+				Post\Collection::remove($uri_id, Post\Collection::FEATURED);
+				Logger::debug('Removed no longer featured post', ['uri-id' => $uri_id, 'contact' => $url]);
+			}
 			return;
 		}
 
@@ -1018,8 +1034,18 @@ class Processor
 						Logger::debug('Post already had been featured', ['uri-id' => $item['uri-id'], 'contact' => $url]);
 						$old++;
 					}
+
+					$index = array_search($item['uri-id'], $old_featured);
+					if (!($index === false)) {
+						unset($old_featured[$index]);
+					}
 				}
 			}
+		}
+
+		foreach ($old_featured as $uri_id) {
+			Post\Collection::remove($uri_id, Post\Collection::FEATURED);
+			Logger::debug('Removed no longer featured post', ['uri-id' => $uri_id, 'contact' => $url]);
 		}
 
 		Logger::info('Fetched featured posts', ['new' => $new, 'old' => $old, 'contact' => $url]);
