@@ -289,6 +289,69 @@ class Transmitter
 	}
 
 	/**
+	 * Public posts for the given owner
+	 *
+	 * @param array   $owner Owner array
+	 * @param integer $page  Page number
+	 *
+	 * @return array of posts
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function getFeatured($owner, $page = null)
+	{
+		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
+			Contact::getIdForURL($owner['url'], 0, false), Post\Collection::FEATURED];
+
+		$condition = DBA::mergeConditions($condition,
+			['uid'           => $owner['uid'],
+			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
+			'private'        => [Item::PUBLIC, Item::UNLISTED],
+			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'network'        => Protocol::FEDERATED,
+			'parent-network' => Protocol::FEDERATED,
+			'origin'         => true,
+			'deleted'        => false,
+			'visible'        => true]);
+
+		$count = Post::count($condition);
+
+		$data = ['@context' => ActivityPub::CONTEXT];
+		$data['id'] = DI::baseUrl() . '/featured/' . $owner['nickname'];
+		$data['type'] = 'OrderedCollection';
+		$data['totalItems'] = $count;
+
+		if (empty($page)) {
+			$data['first'] = DI::baseUrl() . '/featured/' . $owner['nickname'] . '?page=1';
+		} else {
+			$data['type'] = 'OrderedCollectionPage';
+			$list = [];
+
+			$items = Post::select(['id'], $condition, ['limit' => [($page - 1) * 20, 20], 'order' => ['created' => true]]);
+			while ($item = Post::fetch($items)) {
+				$activity = self::createActivityFromItem($item['id'], true);
+				$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
+
+				// Only list "Create" activity objects here, no reshares
+				if (!empty($activity['object']) && ($activity['type'] == 'Create')) {
+					$list[] = $activity['object'];
+				}
+			}
+			DBA::close($items);
+
+			if (!empty($list)) {
+				$data['next'] = DI::baseUrl() . '/featured/' . $owner['nickname'] . '?page=' . ($page + 1);
+			}
+
+			$data['partOf'] = DI::baseUrl() . '/featured/' . $owner['nickname'];
+
+			$data['orderedItems'] = $list;
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Return the service array containing information the used software and it's url
 	 *
 	 * @return array with service data
@@ -328,8 +391,9 @@ class Transmitter
 		if ($uid != 0) {
 			$data['following'] = DI::baseUrl() . '/following/' . $owner['nick'];
 			$data['followers'] = DI::baseUrl() . '/followers/' . $owner['nick'];
-			$data['inbox'] = DI::baseUrl() . '/inbox/' . $owner['nick'];
-			$data['outbox'] = DI::baseUrl() . '/outbox/' . $owner['nick'];
+			$data['inbox']     = DI::baseUrl() . '/inbox/' . $owner['nick'];
+			$data['outbox']    = DI::baseUrl() . '/outbox/' . $owner['nick'];
+			$data['featured']  = DI::baseUrl() . '/featured/' . $owner['nick'];
 		} else {
 			$data['inbox'] = DI::baseUrl() . '/friendica/inbox';
 		}

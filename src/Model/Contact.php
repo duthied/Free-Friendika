@@ -1474,7 +1474,8 @@ class Contact
 			if ($pager->getStart() == 0) {
 				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
 				if (!empty($cdata['public'])) {
-					$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ?)", $cdata['public']];
+					$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
+						$cdata['public'], Post\Collection::FEATURED];
 					$pinned = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
 					$items = array_merge($pinned, $items);
 				}
