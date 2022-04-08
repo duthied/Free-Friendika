@@ -1477,7 +1477,7 @@ class Contact
 					$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ?)", $cdata['public']];
 					$pinned = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
 					$items = array_merge($pinned, $items);
-					}
+				}
 			}
 
 			$o .= DI::conversation()->create($items, 'contact-posts', $update);
