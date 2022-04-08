@@ -79,7 +79,7 @@ interface ICanSendHttpRequests
 	 *
 	 * @param string $url            URL to fetch
 	 * @param array  $opts           (optional parameters) associative array with:
-	 *                                'accept_content' => (string array) supply Accept: header with 'accept_content' as the value (overrides default parameter)
+	 *                                'accept_content' => (string array) supply Accept: header with 'accept_content' as the value
 	 *                                'timeout' => int Timeout in seconds, default system config value or 60 seconds
 	 *                                'cookiejar' => path to cookie jar file
 	 *                                'header' => header array
