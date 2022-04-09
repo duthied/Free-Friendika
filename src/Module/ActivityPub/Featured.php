@@ -22,6 +22,7 @@
 namespace Friendica\Module\ActivityPub;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 
@@ -44,8 +45,6 @@ class Featured extends BaseModule
 		$page = $_REQUEST['page'] ?? null;
 
 		$outbox = ActivityPub\Transmitter::getFeatured($owner, $page);
-		header('Content-Type: application/activity+json');
-		echo json_encode($outbox);
-		exit();
+		System::jsonExit($outbox, 'application/activity+json');
 	}
 }
