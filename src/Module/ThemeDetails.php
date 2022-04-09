@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\Core\Theme;
 
 /**
@@ -40,7 +41,7 @@ class ThemeDetails extends BaseModule
 			$version     = $info['version']     ?? '';
 			$credits     = $info['credits']     ?? '';
 
-			echo json_encode([
+			System::jsonExit([
 				'img'     => Theme::getScreenshot($theme),
 				'desc'    => $description,
 				'version' => $version,

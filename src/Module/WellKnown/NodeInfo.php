@@ -22,6 +22,7 @@
 namespace Friendica\Module\WellKnown;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\DI;
 
 /**
@@ -51,8 +52,6 @@ class NodeInfo extends BaseModule
 			]
 		];
 
-		header('Content-type: application/json; charset=utf-8');
-		echo json_encode($nodeinfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		exit;
+		System::jsonExit($nodeinfo);
 	}
 }

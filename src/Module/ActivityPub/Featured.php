@@ -44,7 +44,8 @@ class Featured extends BaseModule
 
 		$page = $request['page'] ?? null;
 
-		$outbox = ActivityPub\Transmitter::getFeatured($owner, $page);
-		System::jsonExit($outbox, 'application/activity+json');
+		$featured = ActivityPub\Transmitter::getFeatured($owner, $page);
+
+		System::jsonExit($featured, 'application/activity+json');
 	}
 }

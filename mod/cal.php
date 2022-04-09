@@ -28,6 +28,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Event;
@@ -216,8 +217,7 @@ function cal_content(App $a)
 		$events = Event::prepareListForTemplate($r);
 
 		if (!empty(DI::args()->getArgv()[2]) && (DI::args()->getArgv()[2] === 'json')) {
-			echo json_encode($events);
-			exit();
+			System::jsonExit($events);
 		}
 
 		// links: array('href', 'text', 'extra css classes', 'title')

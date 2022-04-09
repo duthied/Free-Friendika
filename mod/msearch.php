@@ -20,6 +20,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -37,8 +38,7 @@ function msearch_post(App $a)
 
 	if (!strlen($search)) {
 		$output = ['total' => 0, 'items_page' => $perpage, 'page' => $page, 'results' => $results];
-		echo json_encode($output);
-		exit();
+		System::jsonExit($output);
 	}
 
 	$total = 0;
@@ -60,7 +60,5 @@ function msearch_post(App $a)
 
 	$output = ['total' => $total, 'items_page' => $perpage, 'page' => $page, 'results' => $results];
 
-	echo json_encode($output);
-
-	exit();
+	System::jsonExit($output);
 }

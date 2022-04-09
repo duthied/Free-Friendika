@@ -182,8 +182,6 @@ class Friendica extends BaseModule
 			'no_scrape_url'    => DI::baseUrl()->get() . '/noscrape',
 		];
 
-		header('Content-type: application/json; charset=utf-8');
-		echo json_encode($data);
-		exit();
+		System::jsonExit($data);
 	}
 }

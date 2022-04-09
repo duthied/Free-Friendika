@@ -25,10 +25,10 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 function poco_init(App $a) {
@@ -234,9 +234,7 @@ function poco_init(App $a) {
 		exit();
 	}
 	if ($format === 'json') {
-		header('Content-type: application/json');
-		echo json_encode($ret);
-		exit();
+		System::jsonExit($ret);
 	} else {
 		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}

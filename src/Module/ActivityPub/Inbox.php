@@ -50,7 +50,7 @@ class Inbox extends BaseModule
 				$filename = 'failed-activitypub';
 			}
 			$tempfile = tempnam(System::getTempPath(), $filename);
-			file_put_contents($tempfile, json_encode(['parameters' => $this->parameters, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+			file_put_contents($tempfile, json_encode(['parameters' => $this->parameters, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 			Logger::notice('Incoming message stored', ['file' => $tempfile]);
 		}
 

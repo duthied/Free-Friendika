@@ -339,7 +339,7 @@ class System
 	 * @param integer $options      JSON options
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function jsonExit($x, $content_type = 'application/json', int $options = 0) {
+	public static function jsonExit($x, $content_type = 'application/json', int $options = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) {
 		DI::apiResponse()->setType(Response::TYPE_JSON, $content_type);
 		DI::apiResponse()->addContent(json_encode($x, $options));
 		DI::page()->exit(DI::apiResponse()->generate());

@@ -31,7 +31,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Security\PermissionSet\Repository\PermissionSet;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -130,6 +129,7 @@ class Objects extends BaseModule
 
 		// Relaxed CORS header for public items
 		header('Access-Control-Allow-Origin: *');
+
 		System::jsonExit($data, 'application/activity+json');
 	}
 }

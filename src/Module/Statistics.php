@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
+use Friendica\Core\System;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -78,9 +79,7 @@ class Statistics extends BaseModule
 			'services'              => $services,
 		], $services);
 
-		header("Content-Type: application/json");
-		echo json_encode($statistics, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		$this->logger->debug("statistics.", ['statistics' => $statistics]);
-		exit();
+		System::jsonExit($statistics);
 	}
 }
