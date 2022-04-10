@@ -254,8 +254,7 @@ function cal_content(App $a)
 		]);
 
 		if (!empty($_GET['id'])) {
-			echo $o;
-			exit();
+			System::httpExit($o);
 		}
 
 		return $o;

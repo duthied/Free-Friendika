@@ -24,6 +24,7 @@
 
 use Friendica\App;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Photo;
@@ -153,7 +154,6 @@ function fbrowser_content(App $a)
 	if (!empty($_GET['mode'])) {
 		return $o;
 	} else {
-		echo $o;
-		exit();
+		System::httpExit($o);
 	}
 }

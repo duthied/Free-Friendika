@@ -27,6 +27,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -122,8 +123,7 @@ function events_post(App $a)
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
 		notice(DI::l10n()->t('Event can not end before it has started.'));
 		if (intval($_REQUEST['preview'])) {
-			echo DI::l10n()->t('Event can not end before it has started.');
-			exit();
+			System::httpExit(DI::l10n()->t('Event can not end before it has started.'));
 		}
 		DI::baseUrl()->redirect($onerror_path);
 	}
@@ -131,8 +131,7 @@ function events_post(App $a)
 	if (!$summary || ($start === DBA::NULL_DATETIME)) {
 		notice(DI::l10n()->t('Event title and start time are required.'));
 		if (intval($_REQUEST['preview'])) {
-			echo DI::l10n()->t('Event title and start time are required.');
-			exit();
+			System::httpExit(DI::l10n()->t('Event title and start time are required.'));
 		}
 		DI::baseUrl()->redirect($onerror_path);
 	}
@@ -192,9 +191,7 @@ function events_post(App $a)
 	$datarray['id']        = $event_id;
 
 	if (intval($_REQUEST['preview'])) {
-		$html = Event::getHTML($datarray);
-		echo $html;
-		exit();
+		System::httpExit(Event::getHTML($datarray));
 	}
 
 	$event_id = Event::store($datarray);
@@ -391,8 +388,7 @@ function events_content(App $a)
 		]);
 
 		if (!empty($_GET['id'])) {
-			echo $o;
-			exit();
+			System::httpExit($o);
 		}
 
 		return $o;
