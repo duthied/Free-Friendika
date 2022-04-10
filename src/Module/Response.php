@@ -97,7 +97,7 @@ class Response implements ICanCreateResponses
 
 		switch ($type) {
 			case static::TYPE_HTML:
-				$content_type = $content_type ?? 'text/html';
+				$content_type = $content_type ?? 'text/html; charset=utf-8';
 				break;
 			case static::TYPE_JSON:
 				$content_type = $content_type ?? 'application/json';

@@ -28,6 +28,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Module\Response;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\XML;
 
@@ -229,9 +230,7 @@ function poco_init(App $a) {
 	Logger::info("End of poco");
 
 	if ($format === 'xml') {
-		header('Content-type: text/xml');
-		echo Renderer::replaceMacros(Renderer::getMarkupTemplate('poco_xml.tpl'), XML::arrayEscape(['$response' => $ret]));
-		exit();
+		System::httpExit(Renderer::replaceMacros(Renderer::getMarkupTemplate('poco_xml.tpl'), XML::arrayEscape(['$response' => $ret])), Response::TYPE_XML);
 	}
 	if ($format === 'json') {
 		System::jsonExit($ret);

@@ -35,6 +35,7 @@ use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
@@ -289,10 +290,8 @@ function cal_content(App $a)
 
 		// If nothing went wrong we can echo the export content
 		if ($evexport["success"]) {
-			header('Content-type: text/calendar');
 			header('content-disposition: attachment; filename="' . DI::l10n()->t('calendar') . '-' . $nick . '.' . $evexport["extension"] . '"');
-			echo $evexport["content"];
-			exit();
+			System::httpExit($evexport["content"], Response::TYPE_BLANK, 'text/calendar');
 		}
 
 		return;

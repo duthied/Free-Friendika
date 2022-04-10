@@ -46,9 +46,9 @@ class Xrd extends BaseModule
 
 			$uri = urldecode(trim($_GET['uri']));
 			if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/jrd+json') !== false)  {
-				$mode = 'json';
+				$mode = Response::TYPE_JSON;
 			} else {
-				$mode = 'xml';
+				$mode = Response::TYPE_XML;
 			}
 		} else {
 			if (empty($_GET['resource'])) {
@@ -57,9 +57,9 @@ class Xrd extends BaseModule
 
 			$uri = urldecode(trim($_GET['resource']));
 			if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/xrd+xml') !== false)  {
-				$mode = 'xml';
+				$mode = Response::TYPE_XML;
 			} else {
-				$mode = 'json';
+				$mode = Response::TYPE_JSON;
 			}
 		}
 
@@ -101,7 +101,7 @@ class Xrd extends BaseModule
 			$avatar = ['type' => 'image/jpeg'];
 		}
 
-		if ($mode == 'xml') {
+		if ($mode == Response::TYPE_JSON) {
 			self::printXML($alias, DI::baseUrl()->get(), $user, $owner, $avatar);
 		} else {
 			self::printJSON($alias, DI::baseUrl()->get(), $owner, $avatar);
@@ -238,9 +238,6 @@ class Xrd extends BaseModule
 	{
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
-		header('Access-Control-Allow-Origin: *');
-		header('Content-type: text/xml');
-
 		$tpl = Renderer::getMarkupTemplate('xrd_person.tpl');
 
 		$o = Renderer::replaceMacros($tpl, [
@@ -263,7 +260,8 @@ class Xrd extends BaseModule
 		$arr = ['user' => $user, 'xml' => $o];
 		Hook::callAll('personal_xrd', $arr);
 
-		echo $arr['xml'];
-		exit();
+		header('Access-Control-Allow-Origin: *');
+
+		System::httpExit($arr['xml'], Response::TYPE_XML);
 	}
 }

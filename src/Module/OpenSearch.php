@@ -24,6 +24,7 @@ namespace Friendica\Module;
 use DOMDocument;
 use DOMElement;
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Util\XML;
 
@@ -38,8 +39,6 @@ class OpenSearch extends BaseModule
 	 */
 	protected function rawContent(array $request = [])
 	{
-		header('Content-type: application/opensearchdescription+xml');
-
 		$hostname = DI::baseUrl()->getHostname();
 		$baseUrl  = DI::baseUrl()->get();
 
@@ -85,8 +84,6 @@ class OpenSearch extends BaseModule
 			'template' => "$baseUrl/opensearch",
 		]);
 
-		echo $xml->saveXML();
-
-		exit();
+		System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/opensearchdescription+xml');
 	}
 }

@@ -28,6 +28,7 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\User;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Strings;
@@ -84,9 +85,6 @@ class Fetch extends BaseModule
 		$xml = Diaspora::buildPostXml($status["type"], $status["message"]);
 
 		// Send the envelope
-		header("Content-Type: application/magic-envelope+xml; charset=utf-8");
-		echo Diaspora::buildMagicEnvelope($xml, $user);
-
-		exit();
+		System::httpExit(Diaspora::buildMagicEnvelope($xml, $user), Response::TYPE_XML, 'application/magic-envelope+xml');
 	}
 }

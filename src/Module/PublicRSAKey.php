@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -48,9 +49,7 @@ class PublicRSAKey extends BaseModule
 
 		Crypto::pemToMe($user['spubkey'], $modulus, $exponent);
 
-		header('Content-type: application/magic-public-key');
-		echo 'RSA' . '.' . Strings::base64UrlEncode($modulus, true) . '.' . Strings::base64UrlEncode($exponent, true);
-
-		exit();
+		$content = 'RSA' . '.' . Strings::base64UrlEncode($modulus, true) . '.' . Strings::base64UrlEncode($exponent, true);
+		System::httpExit($content, Response::TYPE_BLANK, 'application/magic-public-key');
 	}
 }

@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Protocol\Feed as ProtocolFeed;
 
@@ -43,10 +44,8 @@ class Feed extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		$a = DI::app();
-
-		$last_update = $_GET['last_update'] ?? '';
-		$nocache     = !empty($_GET['nocache']) && local_user();
+		$last_update = $request['last_update'] ?? '';
+		$nocache     = !empty($request['nocache']) && local_user();
 
 		$type = null;
 		// @TODO: Replace with parameter from router
@@ -67,8 +66,6 @@ class Feed extends BaseModule
 				$type = 'posts';
 		}
 
-		header("Content-type: application/atom+xml; charset=utf-8");
-		echo ProtocolFeed::atom($this->parameters['nickname'], $last_update, 10, $type, $nocache, true);
-		exit();
+		System::httpExit(ProtocolFeed::atom($this->parameters['nickname'], $last_update, 10, $type, $nocache, true), Response::TYPE_ATOM);
 	}
 }

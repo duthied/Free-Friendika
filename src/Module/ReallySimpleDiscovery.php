@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Util\XML;
 
@@ -33,10 +34,8 @@ class ReallySimpleDiscovery extends BaseModule
 {
 	protected function rawContent(array $request = [])
 	{
-		header('Content-Type: text/xml');
-
 		$xml = null;
-		echo XML::fromArray([
+		$content = XML::fromArray([
 			'rsd' => [
 				'@attributes' => [
 					'version' => '1.0',
@@ -69,6 +68,6 @@ class ReallySimpleDiscovery extends BaseModule
 				],
 			],
 		], $xml);
-		exit();
+		System::httpExit($content, Response::TYPE_XML);
 	}
 }
