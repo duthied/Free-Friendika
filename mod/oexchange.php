@@ -32,7 +32,7 @@ function oexchange_init(App $a) {
 		$tpl = Renderer::getMarkupTemplate('oexchange_xrd.tpl');
 
 		$o = Renderer::replaceMacros($tpl, ['$base' => DI::baseUrl()]);
-		System::httpExit($o, Response::TYPE_XML);
+		System::httpExit($o, Response::TYPE_XML, 'application/xrd+xml');
 	}
 }
 

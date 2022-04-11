@@ -262,6 +262,6 @@ class Xrd extends BaseModule
 
 		header('Access-Control-Allow-Origin: *');
 
-		System::httpExit($arr['xml'], Response::TYPE_XML);
+		System::httpExit($arr['xml'], Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

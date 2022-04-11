@@ -54,6 +54,6 @@ class HostMeta extends BaseModule
 			'$bigkey' => Salmon::salmonKey($config->get('system', 'site_pubkey'))
 		]);
 
-		System::httpExit($content, Response::TYPE_XML);
+		System::httpExit($content, Response::TYPE_XML, 'application/xrd+xml');
 	}
 }
