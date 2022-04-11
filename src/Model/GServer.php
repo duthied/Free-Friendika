@@ -493,8 +493,12 @@ class GServer
 
 		// Detect the directory type
 		$serverdata['directory-type'] = self::DT_NONE;
-		$serverdata = self::checkPoCo($url, $serverdata);
+
 		$serverdata = self::checkMastodonDirectory($url, $serverdata);
+
+		if ($serverdata['directory-type'] == self::DT_NONE) {
+			$serverdata = self::checkPoCo($url, $serverdata);
+		}
 
 		// We can't detect the network type. Possibly it is some system that we don't know yet
 		if (empty($serverdata['network'])) {
@@ -1350,7 +1354,7 @@ class GServer
 		$contact = Contact::selectFirst(['id'], ['uid' => 0, 'failed' => false, 'gsid' => $gserver['id']]);
 
 		// Via probing we can be sure that the server is responding
-		if (Contact::updateFromProbe($contact['id'])) {
+		if (!empty($contact['id']) && Contact::updateFromProbe($contact['id'])) {
 			$contact = Contact::selectFirst(['network', 'failed'], ['id' => $contact['id']]);
 			if (!$contact['failed'] && in_array($contact['network'], Protocol::FEDERATED)) {
 				$serverdata['network'] = $contact['network'];

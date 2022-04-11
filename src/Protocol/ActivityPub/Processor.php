@@ -1002,6 +1002,8 @@ class Processor
 		$posts = Post\Collection::selectToArrayForContact($pcid, Post\Collection::FEATURED);
 		if (!empty($posts)) {
 			$old_featured = array_column($posts, 'uri-id');
+		} else {
+			$old_featured = [];
 		}
 
 		$featured = ActivityPub::fetchItems($apcontact['featured']);

@@ -4101,10 +4101,10 @@ class Diaspora
 			'author-id'  => $author,
 			'owner-id'   => $author,
 			'body'       => $post,
-			'allow_cid'  => $owner['allow_cid'],
-			'allow_gid'  => $owner['allow_gid'],
-			'deny_cid'   => $owner['deny_cid'],
-			'deny_gid'   => $owner['deny_gid'],
+			'allow_cid'  => $owner['allow_cid'] ?? '',
+			'allow_gid'  => $owner['allow_gid']?? '',
+			'deny_cid'   => $owner['deny_cid'] ?? '',
+			'deny_gid'   => $owner['deny_gid'] ?? '',
 		];
 
 		if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
