@@ -31,7 +31,9 @@ use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\Core\Theme;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -503,11 +505,7 @@ class Page implements ArrayAccess
 			}
 
 			if ($_GET["mode"] == "raw") {
-				header("Content-type: text/html; charset=utf-8");
-
-				echo substr($target->saveHTML(), 6, -8);
-
-				exit();
+				System::httpExit(substr($target->saveHTML(), 6, -8), Response::TYPE_HTML);
 			}
 		}
 

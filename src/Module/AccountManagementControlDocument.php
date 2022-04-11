@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 
 /**
  * Static definition for the Firefox Account Manager
@@ -78,7 +79,6 @@ class AccountManagementControlDocument extends BaseModule
 			],
 		];
 
-		echo json_encode($output);
-		exit();
+		System::jsonExit($output);
 	}
 }

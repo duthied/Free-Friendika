@@ -28,6 +28,7 @@
 use Friendica\App;
 use Friendica\Core\Logger;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Photo;
@@ -50,8 +51,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			$user = DBA::selectFirst('owner-view', ['id', 'uid', 'nickname', 'page-flags'], ['nickname' => $nick, 'blocked' => false]);
 			if (!DBA::isResult($user)) {
 				if ($r_json) {
-					echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
-					exit();
+					System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 				}
 				return;
 			}
@@ -60,8 +60,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		}
 	} else {
 		if ($r_json) {
-			echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
-			exit();
+			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 		return;
 	}
@@ -87,8 +86,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if (!$can_post) {
 		if ($r_json) {
-			echo json_encode(['error' => DI::l10n()->t('Permission denied.')]);
-			exit();
+			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
 		notice(DI::l10n()->t('Permission denied.'));
 		exit();
@@ -96,7 +94,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if (empty($_FILES['userfile']) && empty($_FILES['media'])) {
 		if ($r_json) {
-			echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
+			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 		exit();
 	}
@@ -147,8 +145,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($src == "") {
 		if ($r_json) {
-			echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
-			exit();
+			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 		notice(DI::l10n()->t('Invalid request.'));
 		exit();
@@ -164,12 +161,12 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if (!$Image->isValid()) {
 		$msg = DI::l10n()->t('Unable to process image.');
+		@unlink($src);
 		if ($r_json) {
-			echo json_encode(['error' => $msg]);
+			System::jsonExit(['error' => $msg]);
 		} else {
 			echo  $msg. EOL;
 		}
-		@unlink($src);
 		exit();
 	}
 
@@ -202,12 +199,12 @@ function wall_upload_post(App $a, $desktopmode = true)
 		if ($filesize > $maximagesize) {
 			Logger::notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
 			$msg = DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize));
+			@unlink($src);
 			if ($r_json) {
-				echo json_encode(['error' => $msg]);
+				System::jsonExit(['error' => $msg]);
 			} else {
 				echo  $msg. EOL;
 			}
-			@unlink($src);
 			exit();
 		}
 	}
@@ -228,7 +225,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	if (!$r) {
 		$msg = DI::l10n()->t('Image upload failed.');
 		if ($r_json) {
-			echo json_encode(['error' => $msg]);
+			System::jsonExit(['error' => $msg]);
 		} else {
 			echo  $msg. EOL;
 		}
@@ -255,8 +252,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		$photo = Photo::selectFirst(['id', 'datasize', 'width', 'height', 'type'], ['resource-id' => $resource_id], ['order' => ['width']]);
 		if (!$photo) {
 			if ($r_json) {
-				echo json_encode(['error' => '']);
-				exit();
+				System::jsonExit(['error' => '']);
 			}
 			return false;
 		}
@@ -272,8 +268,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		$picture["preview"]   = DI::baseUrl() . "/photo/{$resource_id}-{$smallest}." . $Image->getExt();
 
 		if ($r_json) {
-			echo json_encode(['picture' => $picture]);
-			exit();
+			System::jsonExit(['picture' => $picture]);
 		}
 		Logger::info("upload done");
 		return $picture;
@@ -282,8 +277,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	Logger::info("upload done");
 
 	if ($r_json) {
-		echo json_encode(['ok' => true]);
-		exit();
+		System::jsonExit(['ok' => true]);
 	}
 
 	echo  "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id . '][img]' . DI::baseUrl() . "/photo/{$resource_id}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";

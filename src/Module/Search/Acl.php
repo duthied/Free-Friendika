@@ -27,6 +27,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Search;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -61,8 +62,7 @@ class Acl extends BaseModule
 			$o = self::regularContactSearch($type);
 		}
 
-		echo json_encode($o);
-		exit;
+		System::jsonExit($o);
 	}
 
 	private static function globalContactSearch()

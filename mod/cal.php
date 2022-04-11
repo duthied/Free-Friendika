@@ -28,12 +28,14 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
@@ -216,8 +218,7 @@ function cal_content(App $a)
 		$events = Event::prepareListForTemplate($r);
 
 		if (!empty(DI::args()->getArgv()[2]) && (DI::args()->getArgv()[2] === 'json')) {
-			echo json_encode($events);
-			exit();
+			System::jsonExit($events);
 		}
 
 		// links: array('href', 'text', 'extra css classes', 'title')
@@ -253,8 +254,7 @@ function cal_content(App $a)
 		]);
 
 		if (!empty($_GET['id'])) {
-			echo $o;
-			exit();
+			System::httpExit($o);
 		}
 
 		return $o;
@@ -289,10 +289,8 @@ function cal_content(App $a)
 
 		// If nothing went wrong we can echo the export content
 		if ($evexport["success"]) {
-			header('Content-type: text/calendar');
 			header('content-disposition: attachment; filename="' . DI::l10n()->t('calendar') . '-' . $nick . '.' . $evexport["extension"] . '"');
-			echo $evexport["content"];
-			exit();
+			System::httpExit($evexport["content"], Response::TYPE_BLANK, 'text/calendar');
 		}
 
 		return;

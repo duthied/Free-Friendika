@@ -19,39 +19,33 @@
  *
  */
 
-namespace Friendica\Module\WellKnown;
+namespace Friendica\Module\ActivityPub;
 
 use Friendica\BaseModule;
 use Friendica\Core\System;
-use Friendica\DI;
+use Friendica\Model\User;
+use Friendica\Protocol\ActivityPub;
 
 /**
- * Standardized way of exposing metadata about a server running one of the distributed social networks.
- * @see https://github.com/jhass/nodeinfo/blob/master/PROTOCOL.md
+ * ActivityPub featured posts
  */
-class NodeInfo extends BaseModule
+class Featured extends BaseModule
 {
 	protected function rawContent(array $request = [])
 	{
-		self::printWellKnown();
-	}
+		if (empty($this->parameters['nickname'])) {
+			throw new \Friendica\Network\HTTPException\NotFoundException();
+		}
 
-	/**
-	 * Prints the well-known nodeinfo redirect
-	 *
-	 * @throws \Friendica\Network\HTTPException\NotFoundException
-	 */
-	private static function printWellKnown()
-	{
-		$nodeinfo = [
-			'links' => [
-				['rel'  => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
-				'href' => DI::baseUrl()->get() . '/nodeinfo/1.0'],
-				['rel'  => 'http://nodeinfo.diaspora.software/ns/schema/2.0',
-				'href' => DI::baseUrl()->get() . '/nodeinfo/2.0'],
-			]
-		];
+		$owner = User::getOwnerDataByNick($this->parameters['nickname']);
+		if (empty($owner)) {
+			throw new \Friendica\Network\HTTPException\NotFoundException();
+		}
 
-		System::jsonExit($nodeinfo);
+		$page = $request['page'] ?? null;
+
+		$featured = ActivityPub\Transmitter::getFeatured($owner, $page);
+
+		System::jsonExit($featured, 'application/activity+json');
 	}
 }

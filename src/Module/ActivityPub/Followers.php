@@ -22,6 +22,7 @@
 namespace Friendica\Module\ActivityPub;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
@@ -48,8 +49,6 @@ class Followers extends BaseModule
 
 		$followers = ActivityPub\Transmitter::getContacts($owner, [Contact::FOLLOWER, Contact::FRIEND], 'followers', $page, (string)HTTPSignature::getSigner('', $_SERVER));
 
-		header('Content-Type: application/activity+json');
-		echo json_encode($followers);
-		exit();
+		System::jsonExit($followers, 'application/activity+json');
 	}
 }

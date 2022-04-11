@@ -802,7 +802,7 @@ class Receiver
 		}
 
 		$tempfile = tempnam(System::getTempPath(), $file);
-		file_put_contents($tempfile, json_encode(['activity' => $activity, 'body' => $body, 'uid' => $uid, 'trust_source' => $trust_source, 'push' => $push, 'signer' => $signer, 'object_data' => $object_data], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		file_put_contents($tempfile, json_encode(['activity' => $activity, 'body' => $body, 'uid' => $uid, 'trust_source' => $trust_source, 'push' => $push, 'signer' => $signer, 'object_data' => $object_data], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 		Logger::notice('Unknown activity stored', ['type' => $type, 'object_type' => $object_data['object_type'], $object_data['object_object_type'] ?? '', 'file' => $tempfile]);
 	}
 

@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Events;
 
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Event;
@@ -94,9 +95,7 @@ class Json extends \Friendica\BaseModule
 			$events = self::map($events);
 		}
 
-		header('Content-Type: application/json');
-		echo json_encode($events);
-		exit();
+		System::jsonExit($events);
 	}
 
 	private static function map(array $events): array

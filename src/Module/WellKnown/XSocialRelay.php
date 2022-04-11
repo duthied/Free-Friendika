@@ -22,6 +22,7 @@
 namespace Friendica\Module\WellKnown;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Search;
 use Friendica\Protocol\Relay;
@@ -76,8 +77,6 @@ class XSocialRelay extends BaseModule
 			$relay['protocols']['diaspora'] = ['receive' => DI::baseUrl()->get() . '/receive/public'];
 		}
 
-		header('Content-type: application/json; charset=utf-8');
-		echo json_encode($relay, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		exit;
+		System::jsonExit($relay);
 	}
 }

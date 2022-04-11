@@ -22,6 +22,8 @@
 namespace Friendica\Module\DFRN;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
+use Friendica\Module\Response;
 use Friendica\Protocol\OStatus;
 
 /**
@@ -31,9 +33,7 @@ class Poll extends BaseModule
 {
 	protected function rawContent(array $request = [])
 	{
-		header("Content-type: application/atom+xml");
-		$last_update = $_GET['last_update'] ?? '';
-		echo OStatus::feed($this->parameters['nickname'], $last_update, 10);
-		exit();
+		$last_update = $request['last_update'] ?? '';
+		System::httpExit(OStatus::feed($this->parameters['nickname'], $last_update, 10), Response::TYPE_ATOM);
 	}
 }

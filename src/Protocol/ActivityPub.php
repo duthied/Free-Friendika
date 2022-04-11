@@ -65,6 +65,10 @@ class ActivityPub
 		'diaspora' => 'https://diasporafoundation.org/ns/',
 		'litepub' => 'http://litepub.social/ns#',
 		'toot' => 'http://joinmastodon.org/ns#',
+		'featured' => [
+			"@id" => "toot:featured",
+			"@type" => "@id",
+		],
 		'schema' => 'http://schema.org#',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',

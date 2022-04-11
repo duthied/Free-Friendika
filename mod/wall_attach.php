@@ -21,6 +21,7 @@
 
 use Friendica\App;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Attach;
@@ -36,15 +37,13 @@ function wall_attach_post(App $a) {
 		$owner = User::getOwnerDataByNick($nick);
 		if (!DBA::isResult($owner)) {
 			if ($r_json) {
-				echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
-				exit();
+				System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 			}
 			return;
 		}
 	} else {
 		if ($r_json) {
-			echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
-			exit();
+			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 
 		return;
@@ -65,8 +64,7 @@ function wall_attach_post(App $a) {
 
 	if (!$can_post) {
 		if ($r_json) {
-			echo json_encode(['error' => DI::l10n()->t('Permission denied.')]);
-			exit();
+			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
 		notice(DI::l10n()->t('Permission denied.') . EOL );
 		exit();
@@ -74,7 +72,7 @@ function wall_attach_post(App $a) {
 
 	if (empty($_FILES['userfile'])) {
 		if ($r_json) {
-			echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
+			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 		exit();
 	}
@@ -93,23 +91,23 @@ function wall_attach_post(App $a) {
 
 	if ($filesize <= 0) {
 		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . EOL .(DI::l10n()->t('Or - did you try to upload an empty file?'));
+		@unlink($src);
 		if ($r_json) {
-			echo json_encode(['error' => $msg]);
+			System::jsonExit(['error' => $msg]);
 		} else {
 			notice($msg);
 		}
-		@unlink($src);
 		exit();
 	}
 
 	if ($maxfilesize && $filesize > $maxfilesize) {
 		$msg = DI::l10n()->t('File exceeds size limit of %s', Strings::formatBytes($maxfilesize));
+		@unlink($src);
 		if ($r_json) {
-			echo json_encode(['error' => $msg]);
+			System::jsonExit(['error' => $msg]);
 		} else {
 			echo $msg . EOL;
 		}
-		@unlink($src);
 		exit();
 	}
 
@@ -120,7 +118,7 @@ function wall_attach_post(App $a) {
 	if ($newid === false) {
 		$msg =  DI::l10n()->t('File upload failed.');
 		if ($r_json) {
-			echo json_encode(['error' => $msg]);
+			System::jsonExit(['error' => $msg]);
 		} else {
 			echo $msg . EOL;
 		}
@@ -128,8 +126,7 @@ function wall_attach_post(App $a) {
 	}
 
 	if ($r_json) {
-		echo json_encode(['ok' => true, 'id' => $newid]);
-		exit();
+		System::jsonExit(['ok' => true, 'id' => $newid]);
 	}
 
 	$lf = "\n";

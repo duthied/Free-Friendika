@@ -21,7 +21,9 @@
 
 use Friendica\App;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
 
 function oexchange_init(App $a) {
@@ -30,8 +32,7 @@ function oexchange_init(App $a) {
 		$tpl = Renderer::getMarkupTemplate('oexchange_xrd.tpl');
 
 		$o = Renderer::replaceMacros($tpl, ['$base' => DI::baseUrl()]);
-		echo $o;
-		exit();
+		System::httpExit($o, Response::TYPE_XML, 'application/xrd+xml');
 	}
 }
 

@@ -74,7 +74,7 @@ class HTTPException
 			$content = Renderer::replaceMacros($tpl, self::getVars($e));
 		}
 
-		System::httpExit($e->getCode(), $e->getDescription(), $content);
+		System::httpError($e->getCode(), $e->getDescription(), $content);
 	}
 
 	/**

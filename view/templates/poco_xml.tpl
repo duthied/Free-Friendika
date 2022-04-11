@@ -1,4 +1,3 @@
-
 <?xml version="1.0" encoding="utf-8"?>
 <response>
 {{if $response.sorted}}<sorted>{{$response.sorted}}</sorted>{{/if}}

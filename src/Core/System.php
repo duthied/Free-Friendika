@@ -306,25 +306,41 @@ class System
 	 * @param string  $content Response body. Optional.
 	 * @throws \Exception
 	 */
-	public static function httpExit($val, $message = '', $content = '')
+	public static function httpError($httpCode, $message = '', $content = '')
 	{
-		if ($val >= 400) {
-			Logger::debug('Exit with error', ['code' => $val, 'message' => $message, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+		if ($httpCode >= 400) {
+			Logger::debug('Exit with error', ['code' => $httpCode, 'message' => $message, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
-		DI::apiResponse()->setStatus($val, $message);
+		DI::apiResponse()->setStatus($httpCode, $message);
 		DI::apiResponse()->addContent($content);
 		DI::page()->exit(DI::apiResponse()->generate());
 
 		exit();
 	}
 
-	public static function jsonError($httpCode, $data, $content_type = 'application/json')
+	/**
+	 * This function adds the content and a content-teype HTTP header to the output.
+	 * After finishing the process is getting killed.
+	 *
+	 * @param string $content
+	 * @param [type] $responce
+	 * @param string|null $content_type
+	 * @return void
+	 */
+	public static function httpExit(string $content, string $responce = Response::TYPE_HTML, ?string $content_type = null) {
+		DI::apiResponse()->setType($responce, $content_type);
+		DI::apiResponse()->addContent($content);
+		DI::page()->exit(DI::apiResponse()->generate());
+		exit();
+	}
+
+	public static function jsonError($httpCode, $content, $content_type = 'application/json')
 	{
 		if ($httpCode >= 400) {
 			Logger::debug('Exit with error', ['code' => $httpCode, 'content_type' => $content_type, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
 		DI::apiResponse()->setStatus($httpCode);
-		self::jsonExit($data, $content_type);
+		self::jsonExit($content, $content_type);
 	}
 
 	/**
@@ -334,14 +350,14 @@ class System
 	 * and adds an application/json HTTP header to the output.
 	 * After finishing the process is getting killed.
 	 *
-	 * @param mixed   $x            The input content
+	 * @param mixed   $content      The input content
 	 * @param string  $content_type Type of the input (Default: 'application/json')
 	 * @param integer $options      JSON options
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function jsonExit($x, $content_type = 'application/json', int $options = 0) {
+	public static function jsonExit($content, $content_type = 'application/json', int $options = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) {
 		DI::apiResponse()->setType(Response::TYPE_JSON, $content_type);
-		DI::apiResponse()->addContent(json_encode($x, $options));
+		DI::apiResponse()->addContent(json_encode($content, $options));
 		DI::page()->exit(DI::apiResponse()->generate());
 		exit();
 	}

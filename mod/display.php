@@ -25,6 +25,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -32,6 +33,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Module\ActivityPub\Objects;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
@@ -342,7 +344,6 @@ function displayShowFeed(int $uri_id, int $uid, bool $conversation)
 	if ($xml == '') {
 		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('The feed for this item is unavailable.'));
 	}
-	header("Content-type: application/atom+xml");
-	echo $xml;
-	exit();
+
+	System::httpExit($xml, Response::TYPE_ATOM);
 }
