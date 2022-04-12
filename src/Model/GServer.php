@@ -438,7 +438,7 @@ class GServer
 				}
 			}
 
-			if (empty($serverdata['network']) || ($serverdata['network'] == Protocol::ACTIVITYPUB)) {
+			if (empty($nodeinfo['network']) && (empty($serverdata['network']) || ($serverdata['network'] == Protocol::ACTIVITYPUB))) {
 				$serverdata = self::detectMastodonAlikes($url, $serverdata);
 			}
 
@@ -478,7 +478,7 @@ class GServer
 				$serverdata = self::detectNextcloud($url, $serverdata);
 			}
 
-			if (empty($serverdata['network'])) {
+			if (empty($nodeinfo['network']) && empty($serverdata['network'])) {
 				$serverdata = self::detectGNUSocial($url, $serverdata);
 			}
 
@@ -934,6 +934,11 @@ class GServer
 				// Version numbers on Nodeinfo are presented with additional info, e.g.:
 				// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
 				$server['version'] = preg_replace('=(.+)-(.{4,})=ism', '$1', $server['version']);
+
+				// qoto advertises itself as Mastodon
+				if (($server['platform'] == 'mastodon') && substr($nodeinfo['software']['version'], -5) == '-qoto') {
+					$server['platform'] = 'qoto';
+				}
 			}
 		}
 

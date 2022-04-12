@@ -51,6 +51,7 @@ class Federation extends BaseAdmin
 			'mobilizon'    => ['name' => 'Mobilizon', 'color' => '#ffd599'], // Background color of parts of the homepage
 			'nextcloud'    => ['name' => 'Nextcloud', 'color' => '#1cafff'], // Logo color
 			'mistpark'     => ['name' => 'Nomad projects (Mistpark, Osada, Roadhouse, Zap)', 'color' => '#348a4a'], // Green like the Mistpark green
+			'owncast'      => ['name' => 'Owncast', 'color' => '#007bff'], // Font color of the homepage
 			'peertube'     => ['name' => 'Peertube', 'color' => '#ffad5c'], // One of the logo colors
 			'pixelfed'     => ['name' => 'Pixelfed', 'color' => '#11da47'], // One of the logo colors
 			'pleroma'      => ['name' => 'Pleroma', 'color' => '#E46F0F'], // Orange from the text that is used on Pleroma instances
