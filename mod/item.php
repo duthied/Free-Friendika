@@ -36,14 +36,12 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Notification;
@@ -57,7 +55,6 @@ use Friendica\Protocol\Activity;
 use Friendica\Security\Security;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\ParseUrl;
-use Friendica\Worker\Delivery;
 
 function item_post(App $a) {
 	if (!Session::isAuthenticated()) {
@@ -544,11 +541,11 @@ function item_post(App $a) {
 	$datarray['author-link']   = $author['url'];
 	$datarray['author-avatar'] = $author['thumb'];
 	$datarray['author-id']     = Contact::getIdForURL($datarray['author-link']);
-	$datarray['created']       = DateTimeFormat::utcNow();
-	$datarray['edited']        = DateTimeFormat::utcNow();
-	$datarray['commented']     = DateTimeFormat::utcNow();
+	$datarray['created']       = empty($_REQUEST['created_at']) ? DateTimeFormat::utcNow() : $_REQUEST['created_at'];
+	$datarray['edited']        = $datarray['created'];
+	$datarray['commented']     = $datarray['created'];
+	$datarray['changed']       = $datarray['created'];
 	$datarray['received']      = DateTimeFormat::utcNow();
-	$datarray['changed']       = DateTimeFormat::utcNow();
 	$datarray['extid']         = $extid;
 	$datarray['guid']          = $guid;
 	$datarray['uri']           = $uri;

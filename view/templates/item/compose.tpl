@@ -83,6 +83,7 @@
 			</div>
 
 			{{if $scheduled_at}}{{$scheduled_at nofilter}}{{/if}}
+			{{if $created_at}}{{$created_at nofilter}}{{/if}}
 {{else}}
 			<input type="hidden" name="group_allow" value="{{$group_allow}}"/>
 			<input type="hidden" name="contact_allow" value="{{$contact_allow}}"/>

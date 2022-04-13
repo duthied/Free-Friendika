@@ -28,6 +28,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -35,7 +36,6 @@ use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\NotImplementedException;
 use Friendica\Util\Crypto;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
 class Compose extends BaseModule
@@ -135,6 +135,18 @@ class Compose extends BaseModule
 
 		$contact = Contact::getById($a->getContactId());
 
+		if ($this->config->get(local_user(), 'system', 'set_creation_date')) {
+			$created_at = Temporal::getDateTimeField(
+				new \DateTime(DBA::NULL_DATETIME),
+				new \DateTime('now'),
+				null,
+				$this->l10n->t('Created at'),
+				'created_at'
+			);
+		} else {
+			$created_at = '';
+		}
+
 		$tpl = Renderer::getMarkupTemplate('item/compose.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$compose_title'=> $compose_title,
@@ -172,7 +184,7 @@ class Compose extends BaseModule
 				DI::l10n()->t('Scheduled at'),
 				'scheduled_at'
 			),
-
+			'$created_at'   => $created_at,
 			'$title'        => $title,
 			'$category'     => $category,
 			'$body'         => $body,

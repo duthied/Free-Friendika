@@ -505,6 +505,10 @@ return [
 		// Set to false if your non-sendmail agent is incompatible, or to restore old behavior of using the host address.
 		'sendmail_params' => true,
 
+		// set_creation_date (Boolean)
+		// When enabled, the user can enter a creation date when composing a post.
+		'set_creation_date' => false,
+
 		// show_global_community_hint (Boolean)
 		// When the global community page is enabled, use this option to display a hint above the stream, that this is a collection of all public top-level postings that arrive on your node.
 		'show_global_community_hint' => false,

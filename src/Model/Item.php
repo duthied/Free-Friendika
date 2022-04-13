@@ -869,7 +869,7 @@ class Item
 		$item["contact-id"] = self::contactId($item);
 
 		if (!empty($item['direction']) && in_array($item['direction'], [Conversation::PUSH, Conversation::RELAY]) &&
-			self::isTooOld($item)) {
+			empty($item['origin']) &&self::isTooOld($item)) {
 			Logger::info('Item is too old', ['item' => $item]);
 			return 0;
 		}

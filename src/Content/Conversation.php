@@ -316,6 +316,18 @@ class Conversation
 		$jotplugins = '';
 		Hook::callAll('jot_tool', $jotplugins);
 
+		if ($this->config->get('system', 'set_creation_date')) {
+			$created_at = Temporal::getDateTimeField(
+				new \DateTime(DBA::NULL_DATETIME),
+				new \DateTime('now'),
+				null,
+				$this->l10n->t('Created at'),
+				'created_at'
+			);
+		} else {
+			$created_at = '';
+		}
+
 		$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
 		$o .= Renderer::replaceMacros($tpl, [
@@ -352,6 +364,7 @@ class Conversation
 				$this->l10n->t('Scheduled at'),
 				'scheduled_at'
 			),
+			'$created_at'   => $created_at,
 			'$wait'         => $this->l10n->t('Please wait'),
 			'$permset'      => $this->l10n->t('Permission settings'),
 			'$shortpermset' => $this->l10n->t('Permissions'),

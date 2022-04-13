@@ -1229,6 +1229,7 @@ class Transmitter
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = $object ?? self::createNote($item);
+			$data['published'] = DateTimeFormat::utcNow(DateTimeFormat::ATOM);
 		} elseif ($data['type'] == 'Add') {
 			$data = self::createAddTag($item, $data);
 		} elseif ($data['type'] == 'Announce') {
