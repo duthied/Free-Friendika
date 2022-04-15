@@ -135,7 +135,7 @@ class Compose extends BaseModule
 
 		$contact = Contact::getById($a->getContactId());
 
-		if ($this->config->get(local_user(), 'system', 'set_creation_date')) {
+		if (DI::config()->get(local_user(), 'system', 'set_creation_date')) {
 			$created_at = Temporal::getDateTimeField(
 				new \DateTime(DBA::NULL_DATETIME),
 				new \DateTime('now'),
