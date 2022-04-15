@@ -556,6 +556,9 @@ class Receiver
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					if ($object_data['object_type'] == 'as:Question') {
+						self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+					}
 					$item = ActivityPub\Processor::createItem($object_data);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
@@ -1437,6 +1440,59 @@ class Receiver
 	}
 
 	/**
+	 * Convert questions from JSON-LD format into a simplified format
+	 *
+	 * @param array $object
+	 *
+	 * @return array Questions in a simplified format
+	 */
+	private static function processQuestion(array $object)
+	{
+		$question = [];
+
+		if (!empty($object['as:oneOf'])) {
+			$question['multiple'] = false;
+			$options = JsonLD::fetchElementArray($object, 'as:oneOf') ?? [];
+		} elseif (!empty($object['as:anyOf'])) {
+			$question['multiple'] = true;
+			$options = JsonLD::fetchElementArray($object, 'as:anyOf') ?? [];
+		} else {
+			return [];
+		}
+
+		// @todo Check if "closed" is a thing, see here: https://www.w3.org/TR/activitystreams-vocabulary/#dfn-closed
+		$question['voters']  = (int)JsonLD::fetchElement($object, 'toot:votersCount', '@value');
+		$question['options'] = [];
+
+		$voters = 0;
+
+		foreach ($options as $option) {
+			if (JsonLD::fetchElement($option, '@type') != 'as:Note') {
+				continue;
+			}
+
+			$name = JsonLD::fetchElement($option, 'as:name', '@value');
+
+			if (empty($option['as:replies'])) {
+				continue;
+			}
+
+			$replies = JsonLD::fetchElement($option['as:replies'], 'as:totalItems', '@value');
+
+			$question['options'][] = ['name' => $name, 'replies' => $replies];
+
+			$voters += (int)$replies;
+		}
+
+		// For single choice question we can count the number of voters if not provided (like with Misskey)
+		if (empty($question['voters']) && !$question['multiple']) {
+			$question['voters'] = $voters;
+		}
+
+		return $question;
+	}
+
+	/**
 	 * Fetch the original source or content with the "language" Markdown or HTML
 	 *
 	 * @param array $object
@@ -1685,6 +1741,10 @@ class Receiver
 		if (($object_data['object_type'] == 'as:Page') && !empty($object_data['alternate-url']) && !Strings::compareLink($object_data['alternate-url'], $object_data['id'])) {
 			$object_data['attachments'][] = ['url' => $object_data['alternate-url']];
 			$object_data['alternate-url'] = null;
+		}
+
+		if ($object_data['object_type'] == 'as:Question') {
+			$object_data['question'] = self::processQuestion($object);
 		}
 
 		$receiverdata = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
