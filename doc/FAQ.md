@@ -182,6 +182,7 @@ The available features are client specific and may differ.
 * [Fedi](https://play.google.com/store/apps/details?id=com.fediverse.app)
 * [Fedilab](https://fedilab.app) ([F-Droid](https://f-droid.org/app/fr.gouv.etalab.mastodon), [Google Play](https://play.google.com/store/apps/details?id=app.fedilab.android))
 * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) ([F-Droid](https://git.friendi.ca/lubuwest/Friendiqa#install), [Google Play](https://play.google.com/store/apps/details?id=org.qtproject.friendiqa))
+* [Husky](https://git.sr.ht/~captainepoch/husky) ([F-Droid](https://f-droid.org/repository/browse/?fdid=su.xash.husky), [Google Play](https://play.google.com/store/apps/details?id=su.xash.husky))
 * [Mastodon for Android](https://github.com/mastodon/mastodon-android) (F-Droid: Pending, [Google-Play](https://play.google.com/store/apps/details?id=org.joinmastodon.android))
 * [Subway Tooter](https://github.com/tateisu/SubwayTooter)
 * [Tooot](https://tooot.app/)
