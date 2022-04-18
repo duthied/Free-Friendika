@@ -101,7 +101,7 @@ class Xrd extends BaseModule
 			$avatar = ['type' => 'image/jpeg'];
 		}
 
-		if ($mode == Response::TYPE_JSON) {
+		if ($mode == Response::TYPE_XML) {
 			self::printXML($alias, DI::baseUrl()->get(), $user, $owner, $avatar);
 		} else {
 			self::printJSON($alias, DI::baseUrl()->get(), $owner, $avatar);
