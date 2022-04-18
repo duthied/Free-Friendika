@@ -8,7 +8,9 @@ coverage:
   round: down
   range: "70...100"
   status:
-    project: false
-    patch: false
+    project:
+        informational: true
+    patch:
+        informational: true
 
 comment: false
