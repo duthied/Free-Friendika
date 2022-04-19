@@ -1751,7 +1751,7 @@ class Item
 		// which point it will be automatically available through `getAvailableLanguages()` and this should be removed.
 		$availableLanguages['fa'] = 'fa';
 
-		$ld = new Language($availableLanguages);
+		$ld = new Language(array_keys($availableLanguages));
 		$languages = $ld->detect($naked_body)->limit(0, 3)->close();
 		if (is_array($languages)) {
 			return json_encode($languages);
