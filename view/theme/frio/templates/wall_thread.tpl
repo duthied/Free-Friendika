@@ -337,13 +337,8 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{/if}}
 			{{/if}}
 
-            {{if !$item.lock && !$item.connector}}
-				<span role="presentation" class="separator button-browser-share"></span>
-				<button type="button" class="btn-link button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})"><i class="fa fa-share-alt"></i> {{$item.browsershare}}</button>
-			{{/if}}
-
 			{{* Put additional actions in a dropdown menu *}}
-			{{if $item.menu && ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || ($item.drop && $item.drop.dropping))}}
+			{{if $item.menu && ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || ($item.drop && $item.drop.dropping) || $item.browsershare)}}
 				<span role="presentation" class="separator"></span>
 				<span class="more-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
 					<button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i>&nbsp;{{$item.menu}}</button>
@@ -390,6 +385,12 @@ as the value of $top_child_total (this is done at the end of this file)
 						<li role="menuitem">
 							<a id="language-{{$item.id}}" href="javascript:alert('{{$item.language.1}}');" class="btn-link filer-item language-icon" title="{{$item.language.0}}"><i class="fa fa-language" aria-hidden="true"></i>&nbsp;{{$item.language.0}}</a>
 						</li>
+						{{/if}}
+
+						{{if $item.browsershare}}
+							<li role="menuitem" class="button-browser-share">
+								<a id="browser-share-{{$item.id}}" href="javascript:navigator.share({url: '{{$item.plink.orig}}'})" class="btn-link button-browser-share" title="{{$item.browsershare.1}}"><i class="fa fa-share-alt" aria-hidden="true"></i>&nbsp;{{$item.browsershare.0}}</a>
+							</li>
 						{{/if}}
 
 						{{if ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread) && ($item.ignore || ($item.drop && $item.drop.dropping))}}
@@ -493,8 +494,8 @@ as the value of $top_child_total (this is done at the end of this file)
 				</div>
 			{{/if}}
 
-			{{if !$item.lock && !$item.connector}}
-				<button type="button" class="btn btn-sm button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})" title="{{$item.browsershare}}"><i class="fa fa-share-alt"></i></button>
+			{{if $item.browsershare}}
+				<button type="button" class="btn btn-sm button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})" title="{{$item.browsershare.1}}"><i class="fa fa-share-alt"></i></button>
 			{{/if}}
 
 			{{* Put additional actions in a dropdown menu *}}
@@ -552,6 +553,12 @@ as the value of $top_child_total (this is done at the end of this file)
 						{{if $item.follow_thread}}
 							<li role="menuitem">
 							<a id="follow_thread-{{$item.id}}" href="javascript:{{$item.follow_thread.action}}" class="btn-link" title="{{$item.follow_thread.title}}"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{{$item.follow_thread.title}}</a>
+						</li>
+						{{/if}}
+
+						{{if $item.language}}
+						<li role="menuitem">
+							<a id="language-{{$item.id}}" href="javascript:alert('{{$item.language.1}}');" class="btn-link filer-item language-icon" title="{{$item.language.0}}"><i class="fa fa-language" aria-hidden="true"></i>&nbsp;{{$item.language.0}}</a>
 						</li>
 						{{/if}}
 

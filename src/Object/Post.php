@@ -249,7 +249,7 @@ class Post
 			];
 		}
 
-		if (!$item['self']) {
+		if (!$item['self'] && local_user()) {
 			$block = [
 				'blocking' => true,
 				'block'   => DI::l10n()->t('Block %s', $item['author-name']),
@@ -445,6 +445,10 @@ class Post
 			$languages = [DI::l10n()->t('Languages'), Item::getLanguageMessage($item)];
 		}
 
+		if (in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]) && in_array($item['network'], Protocol::FEDERATED)) {
+			$browsershare = [DI::l10n()->t('Share via ...'), DI::l10n()->t('Share via external services')];
+		}
+
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
@@ -496,7 +500,7 @@ class Post
 			'owner_photo'     => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['owner-link'], $item['uid'], Proxy::SIZE_THUMB)),
 			'owner_name'      => $this->getOwnerName(),
 			'plink'           => Item::getPlink($item),
-			'browsershare'    => DI::l10n()->t('Share'),
+			'browsershare'    => $browsershare,
 			'edpost'          => $edpost,
 			'ispinned'        => $ispinned,
 			'pin'             => $pin,
