@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1457
+-- DB_UPDATE_VERSION 1458
 -- ------------------------------------------
 
 
@@ -1162,6 +1162,32 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Attached media';
 
 --
+-- TABLE post-question
+--
+CREATE TABLE IF NOT EXISTS `post-question` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`multiple` boolean NOT NULL DEFAULT '0' COMMENT 'Multiple choice',
+	`voters` int unsigned COMMENT 'Number of voters for this question',
+	`end-time` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Question end time',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Question';
+
+--
+-- TABLE post-question-option
+--
+CREATE TABLE IF NOT EXISTS `post-question-option` (
+	`id` int unsigned NOT NULL COMMENT 'Id of the question',
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`name` varchar(255) COMMENT 'Name of the option',
+	`replies` int unsigned COMMENT 'Number of replies for this question option',
+	 PRIMARY KEY(`uri-id`,`id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Question option';
+
+--
 -- TABLE post-tag
 --
 CREATE TABLE IF NOT EXISTS `post-tag` (
@@ -1720,6 +1746,10 @@ CREATE VIEW `post-user-view` AS SELECT
 	`event`.`type` AS `event-type`,
 	`event`.`nofinish` AS `event-nofinish`,
 	`event`.`ignore` AS `event-ignore`,
+	`post-question`.`id` AS `question-id`,
+	`post-question`.`multiple` AS `question-multiple`,
+	`post-question`.`voters` AS `question-voters`,
+	`post-question`.`end-time` AS `question-end-time`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,
@@ -1745,6 +1775,7 @@ CREATE VIEW `post-user-view` AS SELECT
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id` AND `post-user`.`origin`
+			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
 			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
@@ -1880,6 +1911,10 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`event`.`type` AS `event-type`,
 	`event`.`nofinish` AS `event-nofinish`,
 	`event`.`ignore` AS `event-ignore`,
+	`post-question`.`id` AS `question-id`,
+	`post-question`.`multiple` AS `question-multiple`,
+	`post-question`.`voters` AS `question-voters`,
+	`post-question`.`end-time` AS `question-end-time`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,
@@ -1904,6 +1939,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
+			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
 			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-thread-user`.`uid`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
@@ -2006,6 +2042,10 @@ CREATE VIEW `post-view` AS SELECT
 	`causer`.`blocked` AS `causer-blocked`,
 	`causer`.`hidden` AS `causer-hidden`,
 	`causer`.`contact-type` AS `causer-contact-type`,
+	`post-question`.`id` AS `question-id`,
+	`post-question`.`multiple` AS `question-multiple`,
+	`post-question`.`voters` AS `question-voters`,
+	`post-question`.`end-time` AS `question-end-time`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,
@@ -2027,6 +2067,7 @@ CREATE VIEW `post-view` AS SELECT
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post`.`uri-id`
+			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
 
@@ -2128,6 +2169,10 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`causer`.`blocked` AS `causer-blocked`,
 	`causer`.`hidden` AS `causer-hidden`,
 	`causer`.`contact-type` AS `causer-contact-type`,
+	`post-question`.`id` AS `question-id`,
+	`post-question`.`multiple` AS `question-multiple`,
+	`post-question`.`voters` AS `question-voters`,
+	`post-question`.`end-time` AS `question-end-time`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,
@@ -2149,6 +2194,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread`.`uri-id`
+			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
 

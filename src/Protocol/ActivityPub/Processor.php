@@ -153,6 +153,37 @@ class Processor
 	}
 
 	/**
+	 * Store attachment data
+	 *
+	 * @param array   $activity
+	 * @param array   $item
+	 */
+	private static function storeQuestion($activity, $item)
+	{
+		if (empty($activity['question'])) {
+			return;
+		}
+		$question = ['multiple' => $activity['question']['multiple']];
+
+		if (!empty($activity['question']['voters'])) {
+			$question['voters'] = $activity['question']['voters'];
+		}
+
+		if (!empty($activity['question']['end-time'])) {
+			$question['end-time'] = $activity['question']['end-time'];
+		}
+
+		Post\Question::update($item['uri-id'], $question);
+
+		foreach ($activity['question']['options'] as $key => $option) {
+			$option = ['name' => $option['name'], 'replies' => $option['replies']];
+			Post\QuestionOption::update($item['uri-id'], $key, $option);
+		}
+
+		Logger::debug('Storing incoming question', ['type' => $activity['type'], 'uri-id' => $item['uri-id'], 'question' => $activity['question']]);
+	}
+
+	/**
 	 * Updates a message
 	 *
 	 * @param array $activity Activity array
@@ -178,6 +209,7 @@ class Processor
 		$item = self::processContent($activity, $item);
 
 		self::storeAttachments($activity, $item);
+		self::storeQuestion($activity, $item);
 
 		if (empty($item)) {
 			return;
@@ -347,6 +379,7 @@ class Processor
 		$item['plink'] = $activity['alternate-url'] ?? $item['uri'];
 
 		self::storeAttachments($activity, $item);
+		self::storeQuestion($activity, $item);
 
 		// We received the post via AP, so we set the protocol of the server to AP
 		$contact = Contact::getById($item['author-id'], ['gsid']);

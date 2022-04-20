@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1457);
+	define('DB_UPDATE_VERSION', 1458);
 }
 
 return [
@@ -1200,6 +1200,32 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uri-id-url" => ["UNIQUE", "uri-id", "url"],
+		]
+	],
+	"post-question" => [
+		"comment" => "Question",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"multiple" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Multiple choice"],
+			"voters" => ["type" => "int unsigned", "comment" => "Number of voters for this question"],
+			"end-time" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Question end time"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uri-id" => ["UNIQUE", "uri-id"],
+		]
+	],
+	"post-question-option" => [
+		"comment" => "Question option",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "comment" => "Id of the question"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"name" => ["type" => "varchar(255)", "comment" => "Name of the option"],
+			"replies" => ["type" => "int unsigned", "comment" => "Number of replies for this question option"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "id"],
 		]
 	],
 	"post-tag" => [

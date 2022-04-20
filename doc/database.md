@@ -52,6 +52,8 @@ Database Tables
 | [post-delivery-data](help/database/db_post-delivery-data) | Delivery data for items |
 | [post-link](help/database/db_post-link) | Post related external links |
 | [post-media](help/database/db_post-media) | Attached media |
+| [post-question](help/database/db_post-question) | Question |
+| [post-question-option](help/database/db_post-question-option) | Question option |
 | [post-tag](help/database/db_post-tag) | post relation to tags |
 | [post-thread](help/database/db_post-thread) | Thread related data |
 | [post-thread-user](help/database/db_post-thread-user) | Thread related data per user |

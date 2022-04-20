@@ -553,12 +553,13 @@ class Receiver
 			$object_data['from-relay'] = $activity['from-relay'];
 		}
 
+		if (in_array('as:Question', [$object_data['object_type'] ?? '', $object_data['object_object_type'] ?? ''])) {
+			self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
+		}
+
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					if ($object_data['object_type'] == 'as:Question') {
-						self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
-					}
 					$item = ActivityPub\Processor::createItem($object_data);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
@@ -1460,7 +1461,13 @@ class Receiver
 			return [];
 		}
 
-		// @todo Check if "closed" is a thing, see here: https://www.w3.org/TR/activitystreams-vocabulary/#dfn-closed
+		$closed = JsonLD::fetchElement($object, 'as:closed', '@value');
+		if (!empty($closed)) {
+			$question['end-time'] = $closed;
+		} else {
+			$question['end-time'] = JsonLD::fetchElement($object, 'as:endTime', '@value');
+		}
+
 		$question['voters']  = (int)JsonLD::fetchElement($object, 'toot:votersCount', '@value');
 		$question['options'] = [];
 
