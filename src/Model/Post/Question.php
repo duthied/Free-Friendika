@@ -21,8 +21,7 @@
 
 namespace Friendica\Model\Post;
 
-use \BadMethodCallException;
-use Friendica\Database\Database;
+use BadMethodCallException;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 
