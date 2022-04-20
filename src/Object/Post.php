@@ -447,6 +447,8 @@ class Post
 
 		if (in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]) && in_array($item['network'], Protocol::FEDERATED)) {
 			$browsershare = [DI::l10n()->t('Share via ...'), DI::l10n()->t('Share via external services')];
+		} else {
+			$browsershare = null;
 		}
 
 		$tmp_item = [
