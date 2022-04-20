@@ -1162,6 +1162,8 @@ class Conversation
 			usort($parents, [$this, 'sortThrReceived']);
 		} elseif (stristr($order, 'commented')) {
 			usort($parents, [$this, 'sortThrCommented']);
+		} elseif (stristr($order, 'created')) {
+			usort($parents, [$this, 'sortThrCreated']);
 		}
 
 		/*
@@ -1265,5 +1267,17 @@ class Conversation
 	private function sortThrCommented(array $a, array $b)
 	{
 		return strcmp($b['commented'], $a['commented']);
+	}
+
+	/**
+	 * usort() callback to sort item arrays by the created key
+	 *
+	 * @param array $a
+	 * @param array $b
+	 * @return int
+	 */
+	private function sortThrCreated(array $a, array $b)
+	{
+		return strcmp($b['created'], $a['created']);
 	}
 }
