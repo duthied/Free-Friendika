@@ -68,6 +68,8 @@ class Network extends NetworkModule
 
 			if (self::$order === 'received') {
 				$ordering = '`received`';
+			} elseif (self::$order === 'created') {
+				$ordering = '`created`';
 			} else {
 				$ordering = '`commented`';
 			}

@@ -65,7 +65,8 @@ General
 ../network
 --------
 * e - Sort by Comment Date
-* t - Sort by Post Date
+* t - Sort by Receipt Date
+* q - Sort by Creation Date
 * r - Conversation (Posts that mention or involve you)
 * w - New posts
 * m - Favourite Posts

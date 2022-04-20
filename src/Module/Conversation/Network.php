@@ -193,6 +193,8 @@ class Network extends BaseModule
 
 		if (self::$order === 'received') {
 			$ordering = '`received`';
+		} elseif (self::$order === 'created') {
+			$ordering = '`created`';
 		} else {
 			$ordering = '`commented`';
 		}
@@ -266,6 +268,14 @@ class Network extends BaseModule
 				'accesskey' => 't',
 			],
 			[
+				'label'	=> DI::l10n()->t('Latest Creation'),
+				'url'	=> $cmd . '?' . http_build_query(['order' => 'created']),
+				'sel'	=> $selectedTab == 'created' ? 'active' : '',
+				'title'	=> DI::l10n()->t('Sort by post creation date'),
+				'id'	=> 'creation-order-tab',
+				'accesskey' => 'q',
+			],
+			[
 				'label'	=> DI::l10n()->t('Personal'),
 				'url'	=> $cmd . '?' . http_build_query(['mention' => true]),
 				'sel'	=> $selectedTab == 'mention' ? 'active' : '',
@@ -322,6 +332,8 @@ class Network extends BaseModule
 			self::$mention = false;
 		} elseif (in_array(self::$selectedTab, ['received', 'star', 'mention'])) {
 			self::$order = 'received';
+		} elseif (in_array(self::$selectedTab, ['created'])) {
+			self::$order = 'created';
 		}
 
 		self::$selectedTab = self::$selectedTab ?? self::$order;
