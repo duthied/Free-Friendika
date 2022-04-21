@@ -309,8 +309,6 @@ class Network extends BaseModule
 
 		self::$selectedTab = Session::get('network-tab', DI::pConfig()->get(local_user(), 'network.view', 'selected_tab', ''));
 
-		self::$order = 'commented';
-
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
 			self::$star = true;
@@ -330,10 +328,12 @@ class Network extends BaseModule
 			self::$order = $get['order'];
 			self::$star = false;
 			self::$mention = false;
-		} elseif (in_array(self::$selectedTab, ['received', 'star', 'mention'])) {
+		} elseif (self::$selectedTab == 'received') {
 			self::$order = 'received';
-		} elseif (in_array(self::$selectedTab, ['created'])) {
+		} elseif (self::$selectedTab == 'created') {
 			self::$order = 'created';
+		} else {
+			self::$order = 'commented';
 		}
 
 		self::$selectedTab = self::$selectedTab ?? self::$order;
