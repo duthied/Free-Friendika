@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\App\Router;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -41,6 +42,14 @@ use Friendica\Util\Images;
  */
 class Statuses extends BaseApi
 {
+	public function put(array $request = [])
+	{
+		self::checkAllowedScope(self::SCOPE_WRITE);
+		$uid = self::getCurrentUserID();
+
+		$this->response->unsupported(Router::PUT, $request);
+	}
+
 	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
