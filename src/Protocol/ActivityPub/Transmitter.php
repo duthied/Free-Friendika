@@ -146,16 +146,16 @@ class Transmitter
 	/**
 	 * Collects a list of contacts of the given owner
 	 *
-	 * @param array     $owner     Owner array
-	 * @param int|array $rel       The relevant value(s) contact.rel should match
-	 * @param string    $module    The name of the relevant AP endpoint module (followers|following)
-	 * @param integer   $page      Page number
-	 * @param string    $requester URL of the requester
+	 * @param array   $owner     Owner array
+	 * @param array   $rel       The relevant value(s) contact.rel should match
+	 * @param string  $module    The name of the relevant AP endpoint module (followers|following)
+	 * @param integer $page      Page number
+	 * @param string  $requester URL of the requester
 	 *
 	 * @return array of owners
 	 * @throws \Exception
 	 */
-	public static function getContacts($owner, $rel, $module, $page = null, string $requester = null)
+	public static function getContacts(array $owner, array $rel, string $module, int $page = null, string $requester = null)
 	{
 		$parameters = [
 			'rel' => $rel,
@@ -178,6 +178,10 @@ class Transmitter
 		$data['id'] = DI::baseUrl() . $modulePath . $owner['nickname'];
 		$data['type'] = 'OrderedCollection';
 		$data['totalItems'] = $total;
+
+		if (!empty($page)) {
+			$data['id'] .= '?' . http_build_query(['page' => $page]);
+		}
 
 		// When we hide our friends we will only show the pure number but don't allow more.
 		$show_contacts = empty($owner['hide-friends']);
@@ -203,7 +207,7 @@ class Transmitter
 			}
 			DBA::close($contacts);
 
-			if (!empty($list)) {
+			if (count($list) == 100) {
 				$data['next'] = DI::baseUrl() . $modulePath . $owner['nickname'] . '?page=' . ($page + 1);
 			}
 
@@ -226,7 +230,7 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getOutbox($owner, $page = null, $requester = '')
+	public static function getOutbox(array $owner, int $page = null, string $requester = '')
 	{
 		$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
 
@@ -258,6 +262,10 @@ class Transmitter
 		$data['type'] = 'OrderedCollection';
 		$data['totalItems'] = $count;
 
+		if (!empty($page)) {
+			$data['id'] .= '?' . http_build_query(['page' => $page]);
+		}
+
 		if (empty($page)) {
 			$data['first'] = DI::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=1';
 		} else {
@@ -276,7 +284,7 @@ class Transmitter
 			}
 			DBA::close($items);
 
-			if (!empty($list)) {
+			if (count($list) == 20) {
 				$data['next'] = DI::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=' . ($page + 1);
 			}
 
@@ -298,7 +306,7 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getFeatured($owner, $page = null)
+	public static function getFeatured(array $owner, int $page = null)
 	{
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
 			Contact::getIdForURL($owner['url'], 0, false), Post\Collection::FEATURED];
@@ -321,6 +329,10 @@ class Transmitter
 		$data['type'] = 'OrderedCollection';
 		$data['totalItems'] = $count;
 
+		if (!empty($page)) {
+			$data['id'] .= '?' . http_build_query(['page' => $page]);
+		}
+
 		if (empty($page)) {
 			$data['first'] = DI::baseUrl() . '/featured/' . $owner['nickname'] . '?page=1';
 		} else {
@@ -339,7 +351,7 @@ class Transmitter
 			}
 			DBA::close($items);
 
-			if (!empty($list)) {
+			if (count($list) == 20) {
 				$data['next'] = DI::baseUrl() . '/featured/' . $owner['nickname'] . '?page=' . ($page + 1);
 			}
 

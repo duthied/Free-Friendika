@@ -42,7 +42,7 @@ class Featured extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		$page = $request['page'] ?? null;
+		$page = !empty($request['page']) ? (int)$request['page'] : null;
 
 		$featured = ActivityPub\Transmitter::getFeatured($owner, $page);
 

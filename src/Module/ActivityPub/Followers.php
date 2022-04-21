@@ -45,7 +45,7 @@ class Followers extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		$page = $_REQUEST['page'] ?? null;
+		$page = !empty($request['page']) ? (int)$request['page'] : null;
 
 		$followers = ActivityPub\Transmitter::getContacts($owner, [Contact::FOLLOWER, Contact::FRIEND], 'followers', $page, (string)HTTPSignature::getSigner('', $_SERVER));
 

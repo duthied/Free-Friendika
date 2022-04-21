@@ -43,7 +43,7 @@ class Outbox extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		$page = $_REQUEST['page'] ?? null;
+		$page = !empty($request['page']) ? (int)$request['page'] : null;
 
 		$requester = HTTPSignature::getSigner('', $_SERVER);
 		$outbox = ActivityPub\Transmitter::getOutbox($owner, $page, $requester);
