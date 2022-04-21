@@ -188,14 +188,22 @@ return [
 			'/accounts/{id:\d+}/pin'             => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/accounts/{id:\d+}/unpin'           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/accounts/{id:\d+}/note'            => [Module\Api\Mastodon\Accounts\Note::class,            [        R::POST]],
+			'/accounts/{id:\d+}/remove_from_followers' => [Module\Api\Mastodon\Unimplemented::class,      [        R::POST]], // not supported
+			'/accounts/familiar_followers'       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
+			'/accounts/lookup'                   => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/accounts/relationships'            => [Module\Api\Mastodon\Accounts\Relationships::class,   [R::GET         ]],
 			'/accounts/search'                   => [Module\Api\Mastodon\Accounts\Search::class,          [R::GET         ]],
 			'/accounts/update_credentials'       => [Module\Api\Mastodon\Accounts\UpdateCredentials::class, [R::PATCH     ]],
 			'/accounts/verify_credentials'       => [Module\Api\Mastodon\Accounts\VerifyCredentials::class, [R::GET       ]],
 			'/accounts/{name}'                   => [Module\Api\Mastodon\Accounts::class,                 [R::GET         ]],
-			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/admin/accounts/{id:\d+}'           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/admin/accounts/{id:\d+}/{action}'  => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
+			'/admin/dimensions'                  => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
+			'/admin/measures'                    => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
+			'/admin/retention'                   => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
+			'/admin/trends/links'                => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
+			'/admin/trends/statuses'             => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
+			'/admin/trends/tags'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/admin/reports'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/admin/reports/{id:\d+}'            => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/admin/reports/{id:\d+}/{action}'   => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
@@ -212,6 +220,7 @@ return [
 			'/custom_emojis'                     => [Module\Api\Mastodon\CustomEmojis::class,             [R::GET         ]],
 			'/domain_blocks'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST, R::DELETE]], // not supported
 			'/directory'                         => [Module\Api\Mastodon\Directory::class,                [R::GET         ]],
+			'/emails/confirmations'              => [Module\Api\Mastodon\Unimplemented::class,            [R::POST        ]], // not supported
 			'/endorsements'                      => [Module\Api\Mastodon\Endorsements::class,             [R::GET         ]], // Dummy, not supported
 			'/favourites'                        => [Module\Api\Mastodon\Favourited::class,               [R::GET         ]],
 			'/featured_tags'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST]], // not supported
@@ -243,7 +252,7 @@ return [
 			'/scheduled_statuses'                => [Module\Api\Mastodon\ScheduledStatuses::class,        [R::GET         ]],
 			'/scheduled_statuses/{id:\d+}'       => [Module\Api\Mastodon\ScheduledStatuses::class,        [R::GET, R::PUT, R::DELETE]],
 			'/statuses'                          => [Module\Api\Mastodon\Statuses::class,                 [        R::POST]],
-			'/statuses/{id:\d+}'                 => [Module\Api\Mastodon\Statuses::class,                 [R::GET, R::DELETE]],
+			'/statuses/{id:\d+}'                 => [Module\Api\Mastodon\Statuses::class,                 [R::GET, R::PUT, R::DELETE]],
 			'/statuses/{id:\d+}/card'            => [Module\Api\Mastodon\Statuses\Card::class,            [R::GET         ]],
 			'/statuses/{id:\d+}/context'         => [Module\Api\Mastodon\Statuses\Context::class,         [R::GET         ]],
 			'/statuses/{id:\d+}/reblogged_by'    => [Module\Api\Mastodon\Statuses\RebloggedBy::class,     [R::GET         ]],
@@ -258,8 +267,18 @@ return [
 			'/statuses/{id:\d+}/unmute'          => [Module\Api\Mastodon\Statuses\Unmute::class,          [        R::POST]],
 			'/statuses/{id:\d+}/pin'             => [Module\Api\Mastodon\Statuses\Pin::class,             [        R::POST]],
 			'/statuses/{id:\d+}/unpin'           => [Module\Api\Mastodon\Statuses\Unpin::class,           [        R::POST]],
-			'/streaming'                         => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
-			'/suggestions'                       => [Module\Api\Mastodon\Suggestions::class,              [R::GET         ]],
+			'/statuses/{id:\d+}/history'         => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/statuses/{id:\d+}/source'          => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/direct'                  => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/hashtag'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/hashtag/local'           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/health'                  => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/list'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/public'                  => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/public/local'            => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/public/remote'           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/user'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/streaming/user/notification'       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/suggestions/{id:\d+}'              => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]], // not implemented
 			'/timelines/direct'                  => [Module\Api\Mastodon\Timelines\Direct::class,         [R::GET         ]],
 			'/timelines/home'                    => [Module\Api\Mastodon\Timelines\Home::class,           [R::GET         ]],
@@ -267,10 +286,15 @@ return [
 			'/timelines/public'                  => [Module\Api\Mastodon\Timelines\PublicTimeline::class, [R::GET         ]],
 			'/timelines/tag/{hashtag}'           => [Module\Api\Mastodon\Timelines\Tag::class,            [R::GET         ]],
 			'/trends'                            => [Module\Api\Mastodon\Trends::class,                   [R::GET         ]],
+			'/trends/links'                      => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/trends/statuses'                   => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/trends/tags'                       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 		],
 		'/v{version:\d+}' => [
+			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/media'                             => [Module\Api\Mastodon\Media::class,                    [        R::POST]],
 			'/search'                            => [Module\Api\Mastodon\Search::class,                   [R::GET         ]],
+			'/suggestions'                       => [Module\Api\Mastodon\Suggestions::class,              [R::GET         ]],
 		],
 		'/meta'                                  => [Module\Api\Mastodon\Unimplemented::class, [R::POST        ]], // not supported
 		'/oembed'                                => [Module\Api\Mastodon\Unimplemented::class, [R::GET         ]],
