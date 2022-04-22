@@ -244,7 +244,7 @@ return [
 			'/notifications/{id:\d+}'            => [Module\Api\Mastodon\Notifications::class,            [R::GET         ]],
 			'/notifications/clear'               => [Module\Api\Mastodon\Notifications\Clear::class,      [        R::POST]],
 			'/notifications/{id:\d+}/dismiss'    => [Module\Api\Mastodon\Notifications\Dismiss::class,    [        R::POST]],
-			'/polls/{id:\d+}'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
+			'/polls/{id:\d+}'                    => [Module\Api\Mastodon\Polls::class,                    [R::GET         ]], // not supported
 			'/polls/{id:\d+}/votes'              => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/preferences'                       => [Module\Api\Mastodon\Preferences::class,              [R::GET         ]],
 			'/push/subscription'                 => [Module\Api\Mastodon\PushSubscription::class,         [R::GET, R::POST, R::PUT, R::DELETE]],

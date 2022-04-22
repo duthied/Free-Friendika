@@ -327,6 +327,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Poll
+	 */
+	public static function mstdnPoll()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Poll::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Relationship
 	 */
 	public static function mstdnRelationship()
