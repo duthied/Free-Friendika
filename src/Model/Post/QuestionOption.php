@@ -55,4 +55,18 @@ class QuestionOption
 
 		return DBA::update('post-question-option', $fields, ['uri-id' => $uri_id, 'id' => $id], $insert_if_missing ? true : []);
 	}
+
+	/**
+	 * Retrieves the question options associated with the provided item ID.
+	 *
+	 * @param int $uri_id
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getByURIId(int $uri_id)
+	{
+		$condition = ['uri-id' => $uri_id];
+
+		return DBA::selectToArray('post-question-option', [], $condition, ['order' => ['id']]);
+	}
 }

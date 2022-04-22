@@ -97,7 +97,7 @@ class Status extends BaseDataTransferObject
 	 * @param array   $item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $reblog)
+	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $reblog, array $poll = null)
 	{
 		$this->id         = (string)$item['uri-id'];
 		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::JSON);
@@ -140,7 +140,7 @@ class Status extends BaseDataTransferObject
 		$this->tags = $tags;
 		$this->emojis = [];
 		$this->card = $card->toArray() ?: null;
-		$this->poll = null;
+		$this->poll = $poll;
 	}
 
 	/**

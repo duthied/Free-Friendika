@@ -53,4 +53,14 @@ class Question
 
 		return DBA::update('post-question', $fields, ['uri-id' => $uri_id], $insert_if_missing ? true : []);
 	}
+
+	/**
+	 * @param integer $id     Question ID
+	 * @param array   $fields Array of selected fields, empty for all
+	 * @return array|boolean  Question record if it exists, false otherwise
+	 */
+	public static function getById($id, $fields = [])
+	{
+		return DBA::selectFirst('post-question', $fields, ['id' => $id]);
+	}
 }

@@ -51,11 +51,13 @@ class Status extends BaseFactory
 	private $mstdnAttachementFactory;
 	/** @var Error */
 	private $mstdnErrorFactory;
+	/** @var Poll */
+	private $mstdnPollFactory;
 
 	public function __construct(LoggerInterface $logger, Database $dba,
 		Account $mstdnAccountFactory, Mention $mstdnMentionFactory,
 		Tag $mstdnTagFactory, Card $mstdnCardFactory,
-		Attachment $mstdnAttachementFactory, Error $mstdnErrorFactory)
+		Attachment $mstdnAttachementFactory, Error $mstdnErrorFactory, Poll $mstdnPollFactory)
 	{
 		parent::__construct($logger);
 		$this->dba                     = $dba;
@@ -65,6 +67,7 @@ class Status extends BaseFactory
 		$this->mstdnCardFactory        = $mstdnCardFactory;
 		$this->mstdnAttachementFactory = $mstdnAttachementFactory;
 		$this->mstdnErrorFactory       = $mstdnErrorFactory;
+		$this->mstdnPollFactory        = $mstdnPollFactory;
 	}
 
 	/**
@@ -77,7 +80,7 @@ class Status extends BaseFactory
 	 */
 	public function createFromUriId(int $uriId, $uid = 0): \Friendica\Object\Api\Mastodon\Status
 	{
-		$fields = ['uri-id', 'uid', 'author-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning',
+		$fields = ['uri-id', 'uid', 'author-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
 			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
@@ -136,6 +139,12 @@ class Status extends BaseFactory
 		$card        = $this->mstdnCardFactory->createFromUriId($uriId);
 		$attachments = $this->mstdnAttachementFactory->createFromUriId($uriId);
 
+		if (!empty($item['question-id'])) {
+			$poll = $this->mstdnPollFactory->createFromId($item['question-id'], $uid)->toArray();
+		} else {
+			$poll = null;
+		}
+
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (!empty($shared['guid'])) {
 			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
@@ -161,7 +170,7 @@ class Status extends BaseFactory
 			$reshare = [];
 		}
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare);
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare, $poll);
 	}
 
 	/**
