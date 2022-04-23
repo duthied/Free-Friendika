@@ -200,6 +200,8 @@ class PermissionTooltip extends \Friendica\BaseModule
 					$receivers[$receiver['type']][] = DI::l10n()->t('Followers (%s)', $apcontact['name']);
 				} elseif ($apcontact = APContact::getByURL($receiver['url'], false)) {
 					$receivers[$receiver['type']][] = $apcontact['name'];
+				} elseif ($receiver['tag-type'] == Tag::COLLECTION) {
+					$receivers[$receiver['type']][] = DI::l10n()->t('Collection (%s)', $receiver['name']);
 				} else {
 					$receivers[$receiver['type']][] = $receiver['name'];
 				}

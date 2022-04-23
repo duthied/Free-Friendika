@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-20 20:58+0000\n"
+"POT-Creation-Date: 2022-04-23 08:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8588,22 +8588,27 @@ msgstr ""
 msgid "Followers (%s)"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:216
+#: src/Module/PermissionTooltip.php:204
+#, php-format
+msgid "Collection (%s)"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:218
 #, php-format
 msgid "%d more"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:220
+#: src/Module/PermissionTooltip.php:222
 #, php-format
 msgid "<b>To:</b> %s<br>"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:223
+#: src/Module/PermissionTooltip.php:225
 #, php-format
 msgid "<b>CC:</b> %s<br>"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:226
+#: src/Module/PermissionTooltip.php:228
 #, php-format
 msgid "<b>BCC:</b> %s<br>"
 msgstr ""

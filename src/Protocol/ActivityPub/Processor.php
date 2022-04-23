@@ -941,7 +941,10 @@ class Processor
 					} else {
 						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
 					}
-					Tag::store($uriid, $type, $name, $receiver);
+
+					$target = Tag::getTargetType($receiver);
+					Logger::debug('Got target type', ['type' => $target, 'url' => $receiver]);
+					Tag::store($uriid, $type, $name, $receiver, $target);
 				}
 			}
 		}
