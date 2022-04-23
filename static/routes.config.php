@@ -544,6 +544,7 @@ return [
 	],
 
 	'/settings' => [
+		'[/]'               => [Module\Settings\Account::class,               [R::GET, R::POST]],
 		'/2fa' => [
 			'[/]'           => [Module\Settings\TwoFactor\Index::class,       [R::GET, R::POST]],
 			'/recovery'     => [Module\Settings\TwoFactor\Recovery::class,    [R::GET, R::POST]],
