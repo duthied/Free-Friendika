@@ -106,12 +106,6 @@ Derzeitige Hooks
     $b ist das Item-Array einer Information, die in der Datenbank und im Item gespeichert ist.
         {Bitte beachte: der Seiteninhalt ist bbcode - nicht HTML)
 
-**'settings_form'** - wird aufgerufen, wenn die HTML-Ausgabe für die Einstellungsseite generiert wird.
-    $b ist die HTML-Ausgabe (String) der Einstellungsseite vor dem finalen "</form>"-Tag.
-
-**'settings_post'** - wird aufgerufen, wenn die Einstellungsseiten geladen werden.
-    $b ist der $_POST-Array
-
 **'addon_settings'** - wird aufgerufen, wenn die HTML-Ausgabe der Addon-Einstellungsseite generiert wird.
     $b ist die HTML-Ausgabe (String) der Addon-Einstellungsseite vor dem finalen "</form>"-Tag.
 
@@ -267,11 +261,9 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('addon_settings_post', $_POST);
     Hook::callAll('connector_settings_post', $_POST);
     Hook::callAll('display_settings_post', $_POST);
-    Hook::callAll('settings_post', $_POST);
     Hook::callAll('addon_settings', $settings_addons);
     Hook::callAll('connector_settings', $settings_connectors);
     Hook::callAll('display_settings', $o);
-    Hook::callAll('settings_form', $o);
 
 ### mod/photos.php
 

@@ -232,14 +232,6 @@ Please note: body contents are bbcode - not HTML
 Called when receiving a post from another source. This may also be used to post local activity or system generated messages.
 `$b` is the item array of information to be stored in the database and the item body is bbcode.
 
-### settings_form
-Called when generating the HTML for the user Settings page.
-`$b` is the HTML string of the settings page before the final `</form>` tag.
-
-### settings_post
-Called when the Settings pages are submitted.
-`$b` is the $_POST array.
-
 ### addon_settings
 Called when generating the HTML for the addon settings page.
 `$data` is an array containing:
@@ -750,11 +742,9 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('addon_settings_post', $_POST);
     Hook::callAll('connector_settings_post', $_POST);
     Hook::callAll('display_settings_post', $_POST);
-    Hook::callAll('settings_post', $_POST);
     Hook::callAll('addon_settings', $settings_addons);
     Hook::callAll('connector_settings', $settings_connectors);
     Hook::callAll('display_settings', $o);
-    Hook::callAll('settings_form', $o);
 
 ### mod/photos.php
 

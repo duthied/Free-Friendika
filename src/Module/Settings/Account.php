@@ -22,9 +22,7 @@
 namespace Friendica\Module\Settings;
 
 use Exception;
-use Friendica\BaseModule;
 use Friendica\Core\ACL;
-use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
@@ -96,8 +94,6 @@ class Account extends BaseSettings
 			info(DI::l10n()->t("Relocate message has been send to your contacts"));
 			DI::baseUrl()->redirect('settings');
 		}
-
-		Hook::callAll('settings_post', $_POST);
 
 		if (!empty($_POST['password']) || !empty($_POST['confirm'])) {
 			$newpass = $_POST['password'];
@@ -485,7 +481,7 @@ class Account extends BaseSettings
 			'$submit' 	=> DI::l10n()->t('Save Settings'),
 			'$baseurl' => DI::baseUrl()->get(true),
 			'$uid' => local_user(),
-			'$form_security_token' => BaseModule::getFormSecurityToken("settings"),
+			'$form_security_token' => self::getFormSecurityToken('settings'),
 			'$nickname_block' => $prof_addr,
 
 			'$h_pass' 	=> DI::l10n()->t('Password Settings'),
@@ -573,10 +569,6 @@ class Account extends BaseSettings
 			'$relocate_text' => DI::l10n()->t("If you have moved this profile from another server, and some of your contacts don't receive your updates, try pushing this button."),
 			'$relocate_button' => DI::l10n()->t("Resend relocate message to contacts"),
 		]);
-
-		Hook::callAll('settings_form', $o);
-
-		$o .= '</form>' . "\r\n";
 
 		return $o;
 	}
