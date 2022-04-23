@@ -156,6 +156,12 @@ class Tag
 		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'contact-id' => $cid, 'name' => $name, 'type' => $type, 'callstack' => System::callstack(8)]);
 	}
 
+	/**
+	 * Fetch the target type for the given url
+	 *
+	 * @param string $url 
+	 * @return null|int
+	 */
 	public static function getTargetType(string $url)
 	{
 		if (empty($url)) {
