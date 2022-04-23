@@ -83,15 +83,15 @@ class PermissionTooltip extends \Friendica\BaseModule
 					case Item::PUBLIC:
 						$receivers = DI::l10n()->t('Public');
 						break;
-					
+
 					case Item::UNLISTED:
 						$receivers = DI::l10n()->t('Unlisted');
 						break;
-					
+
 					case Item::PRIVATE:
 						$receivers = DI::l10n()->t('Limited/Private');
 						break;
-				}				
+				}
 			}
 		} else {
 			$receivers = '';
@@ -172,7 +172,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 	 * Fetch a list of receivers
 	 *
 	 * @param int $uriId
-	 * @return string 
+	 * @return string
 	 */
 	private function fetchReceivers(int $uriId):string
 	{
@@ -192,19 +192,24 @@ class PermissionTooltip extends \Friendica\BaseModule
 				continue;
 			}
 
-			if ($receiver['url'] == ActivityPub::PUBLIC_COLLECTION) {
-				$receivers[$receiver['type']][] = DI::l10n()->t('Public');
-			} else {
-				$apcontact = DBA::selectFirst('apcontact', ['name'], ['followers' => $receiver['url']]);
-				if (!empty($apcontact['name'])) {
-					$receivers[$receiver['type']][] = DI::l10n()->t('Followers (%s)', $apcontact['name']);
-				} elseif ($apcontact = APContact::getByURL($receiver['url'], false)) {
-					$receivers[$receiver['type']][] = $apcontact['name'];
-				} elseif ($receiver['tag-type'] == Tag::COLLECTION) {
+			switch (Tag::getTargetType($receiver['url'], false)) {
+				case Tag::PUBLIC_COLLECTION:
+					$receivers[$receiver['type']][] = DI::l10n()->t('Public');
+					break;
+				case Tag::GENERAL_COLLECTION:
 					$receivers[$receiver['type']][] = DI::l10n()->t('Collection (%s)', $receiver['name']);
-				} else {
+					break;
+				case Tag::FOLLOWER_COLLECTION:
+					$apcontact = DBA::selectFirst('apcontact', ['name'], ['followers' => $receiver['url']]);
+					$receivers[$receiver['type']][] = DI::l10n()->t('Followers (%s)', $apcontact['name'] ?? $receiver['name']);
+					break;
+				case Tag::ACCOUNT:
+					$apcontact = APContact::getByURL($receiver['url'], false);
+					$receivers[$receiver['type']][] = $apcontact['name'] ?? $receiver['name'];
+					break;
+				default:
 					$receivers[$receiver['type']][] = $receiver['name'];
-				}
+					break;
 			}
 		}
 

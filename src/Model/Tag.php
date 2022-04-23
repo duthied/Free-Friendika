@@ -58,8 +58,10 @@ class Tag
 	const BTO = 12;
 	const BCC = 13;
 
-	const ACCOUNT    = 1;
-	const COLLECTION = 2;
+	const ACCOUNT             = 1;
+	const GENERAL_COLLECTION  = 2;
+	const FOLLOWER_COLLECTION = 3;
+	const PUBLIC_COLLECTION   = 4;
 
 	const TAG_CHARACTER = [
 		self::HASHTAG           => '#',
@@ -159,37 +161,41 @@ class Tag
 	/**
 	 * Fetch the target type for the given url
 	 *
-	 * @param string $url 
+	 * @param string $url
+	 * @param bool   $fetch Fetch information via network operations
 	 * @return null|int
 	 */
-	public static function getTargetType(string $url)
+	public static function getTargetType(string $url, bool $fetch = true)
 	{
+		$target = null;
+
 		if (empty($url)) {
-			return null;
+			return $target;
 		}
 
 		$tag = DBA::selectFirst('tag', ['url', 'type'], ['url' => $url]);
 		if (!empty($tag['type'])) {
-			Logger::debug('Found existing type', ['type' => $tag['type'], 'url' => $url]);
-			return $tag['type'];
+			$target = $tag['type'];
+			if ($target != self::GENERAL_COLLECTION) {
+				Logger::debug('Found existing type', ['type' => $tag['type'], 'url' => $url]);
+				return $target;
+			}
 		}
 
-		$target = null;
-
 		if ($url == ActivityPub::PUBLIC_COLLECTION) {
-			$target = Tag::COLLECTION;
+			$target = self::PUBLIC_COLLECTION;
 			Logger::debug('Public collection', ['url' => $url]);
 		} else {
 			if (DBA::exists('apcontact', ['followers' => $url])) {
-				$target = Tag::COLLECTION;
+				$target = self::FOLLOWER_COLLECTION;
 				Logger::debug('Found collection via existing apcontact', ['url' => $url]);
-			} elseif (Contact::getIdForURL($url, 0)) {
-				$target = Tag::ACCOUNT;
+			} elseif (Contact::getIdForURL($url, 0, $fetch ? null : false)) {
+				$target = self::ACCOUNT;
 				Logger::debug('URL is an account', ['url' => $url]);
-			} else {
+			} elseif ($fetch && ($target != self::GENERAL_COLLECTION)) {
 				$content = ActivityPub::fetchContent($url);
 				if (!empty($content['type']) && ($content['type'] == 'OrderedCollection')) {
-					$target = Tag::COLLECTION;
+					$target = self::GENERAL_COLLECTION;
 					Logger::debug('URL is an ordered collection', ['url' => $url]);
 				}
 			}
@@ -258,7 +264,7 @@ class Tag
 
 	/**
 	 * Get tags and mentions from the body
-	 * 
+	 *
 	 * @param string  $body    Body of the post
 	 * @param string  $tags    Accepted tags
 	 *
@@ -279,7 +285,7 @@ class Tag
 
 	/**
 	 * Store tags and mentions from the body
-	 * 
+	 *
 	 * @param integer $uriid   URI-Id
 	 * @param string  $body    Body of the post
 	 * @param string  $tags    Accepted tags
@@ -305,7 +311,7 @@ class Tag
 	 * Store raw tags (not encapsulated in links) from the body
 	 * This function is needed in the intermediate phase.
 	 * Later we can call item::setHashtags in advance to have all tags converted.
-	 * 
+	 *
 	 * @param integer $uriid URI-Id
 	 * @param string  $body   Body of the post
 	 */
@@ -590,7 +596,7 @@ class Tag
 	/**
 	 * Fetch the blocked tags as SQL
 	 *
-	 * @return string 
+	 * @return string
 	 */
 	private static function getBlockedSQL()
 	{
