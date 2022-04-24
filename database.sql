@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS `tag` (
 	`id` int unsigned NOT NULL auto_increment COMMENT '',
 	`name` varchar(96) NOT NULL DEFAULT '' COMMENT '',
 	`url` varbinary(255) NOT NULL DEFAULT '' COMMENT '',
-	`type` tinyint unsigned COMMENT 'Type of the tag (Unknown, Collection or Account)',
+	`type` tinyint unsigned COMMENT 'Type of the tag (Unknown, General Collection, Follower Collection or Account)',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `type_name_url` (`name`,`url`),
 	 INDEX `url` (`url`)
