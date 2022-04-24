@@ -112,6 +112,8 @@ class Cron
 
 			Worker::add(PRIORITY_LOW, 'ExpireConversations');
 
+			Worker::add(PRIORITY_LOW, 'RemoveUnusedTags');
+
 			Worker::add(PRIORITY_LOW, 'RemoveUnusedContacts');
 
 			Worker::add(PRIORITY_LOW, 'RemoveUnusedAvatars');
