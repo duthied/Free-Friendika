@@ -29,6 +29,7 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
@@ -57,6 +58,11 @@ class Tag
 	const BTO = 12;
 	const BCC = 13;
 
+	const ACCOUNT             = 1;
+	const GENERAL_COLLECTION  = 2;
+	const FOLLOWER_COLLECTION = 3;
+	const PUBLIC_COLLECTION   = 4;
+
 	const TAG_CHARACTER = [
 		self::HASHTAG           => '#',
 		self::MENTION           => '@',
@@ -71,8 +77,9 @@ class Tag
 	 * @param integer $type
 	 * @param string  $name
 	 * @param string  $url
+	 * @param integer $target
 	 */
-	public static function store(int $uriid, int $type, string $name, string $url = '')
+	public static function store(int $uriid, int $type, string $name, string $url = '', int $target = null)
 	{
 		if ($type == self::HASHTAG) {
 			// Trim Unicode non-word characters
@@ -108,11 +115,14 @@ class Tag
 			Logger::debug('Got id for contact', ['cid' => $cid, 'url' => $url]);
 
 			if (empty($cid)) {
-				// The contact wasn't found in the system (most likely some dead account)
-				// We ensure that we only store a single entry by overwriting the previous name
-				Logger::info('URL is not a known contact, updating tag', ['url' => $url, 'name' => $name]);
-				if (!DBA::exists('tag', ['name' => substr($name, 0, 96), 'url' => $url])) {
-					DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url]);
+				$tag = DBA::selectFirst('tag', ['name', 'type'], ['url' => $url]);
+				if (!empty($tag)) {
+					if ($tag['name'] != substr($name, 0, 96)) {
+						DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url]);
+					}
+					if (!empty($target) && ($tag['type'] != $target)) {
+						DBA::update('tag', ['type' => $target], ['url' => $url]);
+					}
 				}
 			}
 		}
@@ -126,7 +136,7 @@ class Tag
 				}
 			}
 
-			$tagid = self::getID($name, $url);
+			$tagid = self::getID($name, $url, $target);
 			if (empty($tagid)) {
 				return;
 			}
@@ -149,15 +159,74 @@ class Tag
 	}
 
 	/**
+	 * Fetch the target type for the given url
+	 *
+	 * @param string $url
+	 * @param bool   $fetch Fetch information via network operations
+	 * @return null|int
+	 */
+	public static function getTargetType(string $url, bool $fetch = true)
+	{
+		$target = null;
+
+		if (empty($url)) {
+			return $target;
+		}
+
+		$tag = DBA::selectFirst('tag', ['url', 'type'], ['url' => $url]);
+		if (!empty($tag['type'])) {
+			$target = $tag['type'];
+			if ($target != self::GENERAL_COLLECTION) {
+				Logger::debug('Found existing type', ['type' => $tag['type'], 'url' => $url]);
+				return $target;
+			}
+		}
+
+		if ($url == ActivityPub::PUBLIC_COLLECTION) {
+			$target = self::PUBLIC_COLLECTION;
+			Logger::debug('Public collection', ['url' => $url]);
+		} else {
+			if (DBA::exists('apcontact', ['followers' => $url])) {
+				$target = self::FOLLOWER_COLLECTION;
+				Logger::debug('Found collection via existing apcontact', ['url' => $url]);
+			} elseif (Contact::getIdForURL($url, 0, $fetch ? null : false)) {
+				$target = self::ACCOUNT;
+				Logger::debug('URL is an account', ['url' => $url]);
+			} elseif ($fetch && ($target != self::GENERAL_COLLECTION)) {
+				$content = ActivityPub::fetchContent($url);
+				if (!empty($content['type']) && ($content['type'] == 'OrderedCollection')) {
+					$target = self::GENERAL_COLLECTION;
+					Logger::debug('URL is an ordered collection', ['url' => $url]);
+				}
+			}
+		}
+
+		if (!empty($target) && !empty($tag['url']) && empty($tag['type'])) {
+			DBA::update('tag', ['type' => $target], ['url' => $url]);
+		}
+
+		if (empty($target)) {
+			Logger::debug('No type could be detected', ['url' => $url]);
+		}
+
+		return $target;
+	}
+
+	/**
 	 * Get a tag id for a given tag name and url
 	 *
 	 * @param string $name
 	 * @param string $url
+	 * @param int    $type
 	 * @return void
 	 */
-	public static function getID(string $name, string $url = '')
+	public static function getID(string $name, string $url = '', int $type = null)
 	{
 		$fields = ['name' => substr($name, 0, 96), 'url' => $url];
+
+		if (!empty($type)) {
+			$fields['type'] = $type;
+		}
 
 		$tag = DBA::selectFirst('tag', ['id'], $fields);
 		if (DBA::isResult($tag)) {
@@ -195,7 +264,7 @@ class Tag
 
 	/**
 	 * Get tags and mentions from the body
-	 * 
+	 *
 	 * @param string  $body    Body of the post
 	 * @param string  $tags    Accepted tags
 	 *
@@ -216,7 +285,7 @@ class Tag
 
 	/**
 	 * Store tags and mentions from the body
-	 * 
+	 *
 	 * @param integer $uriid   URI-Id
 	 * @param string  $body    Body of the post
 	 * @param string  $tags    Accepted tags
@@ -242,7 +311,7 @@ class Tag
 	 * Store raw tags (not encapsulated in links) from the body
 	 * This function is needed in the intermediate phase.
 	 * Later we can call item::setHashtags in advance to have all tags converted.
-	 * 
+	 *
 	 * @param integer $uriid URI-Id
 	 * @param string  $body   Body of the post
 	 */
@@ -373,7 +442,7 @@ class Tag
 	public static function getByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])
 	{
 		$condition = ['uri-id' => $uri_id, 'type' => $type];
-		return DBA::selectToArray('tag-view', ['type', 'name', 'url'], $condition);
+		return DBA::selectToArray('tag-view', ['type', 'name', 'url', 'tag-type'], $condition);
 	}
 
 	/**
@@ -527,7 +596,7 @@ class Tag
 	/**
 	 * Fetch the blocked tags as SQL
 	 *
-	 * @return string 
+	 * @return string
 	 */
 	private static function getBlockedSQL()
 	{

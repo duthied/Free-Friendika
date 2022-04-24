@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1458
+-- DB_UPDATE_VERSION 1459
 -- ------------------------------------------
 
 
@@ -232,6 +232,7 @@ CREATE TABLE IF NOT EXISTS `tag` (
 	`id` int unsigned NOT NULL auto_increment COMMENT '',
 	`name` varchar(96) NOT NULL DEFAULT '' COMMENT '',
 	`url` varbinary(255) NOT NULL DEFAULT '' COMMENT '',
+	`type` tinyint unsigned COMMENT 'Type of the tag (Unknown, General Collection, Follower Collection or Account)',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `type_name_url` (`name`,`url`),
 	 INDEX `url` (`url`)
@@ -2235,7 +2236,8 @@ CREATE VIEW `tag-view` AS SELECT
 	`post-tag`.`tid` AS `tid`,
 	`post-tag`.`cid` AS `cid`,
 	CASE `cid` WHEN 0 THEN `tag`.`name` ELSE `contact`.`name` END AS `name`,
-	CASE `cid` WHEN 0 THEN `tag`.`url` ELSE `contact`.`url` END AS `url`
+	CASE `cid` WHEN 0 THEN `tag`.`url` ELSE `contact`.`url` END AS `url`,
+	CASE `cid` WHEN 0 THEN `tag`.`type` ELSE 1 END AS `tag-type`
 	FROM `post-tag`
 			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
 			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`;

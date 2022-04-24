@@ -664,6 +664,7 @@
 			"cid" => ["post-tag", "cid"],
 			"name" => "CASE `cid` WHEN 0 THEN `tag`.`name` ELSE `contact`.`name` END",
 			"url" => "CASE `cid` WHEN 0 THEN `tag`.`url` ELSE `contact`.`url` END",
+			"tag-type" => "CASE `cid` WHEN 0 THEN `tag`.`type` ELSE 1 END",
 		],
 		"query" => "FROM `post-tag`
 			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`

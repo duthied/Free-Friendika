@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1458);
+	define('DB_UPDATE_VERSION', 1459);
 }
 
 return [
@@ -289,7 +289,8 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 			"name" => ["type" => "varchar(96)", "not null" => "1", "default" => "", "comment" => ""],
-			"url" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""]
+			"url" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"type" => ["type" => "tinyint unsigned", "comment" => "Type of the tag (Unknown, General Collection, Follower Collection or Account)"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],

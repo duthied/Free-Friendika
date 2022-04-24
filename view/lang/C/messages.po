@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-20 20:58+0000\n"
+"POT-Creation-Date: 2022-04-23 12:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3315,7 +3315,7 @@ msgid "Post to Email"
 msgstr ""
 
 #: src/Core/ACL.php:320 src/Module/PermissionTooltip.php:84
-#: src/Module/PermissionTooltip.php:196
+#: src/Module/PermissionTooltip.php:197
 msgid "Public"
 msgstr ""
 
@@ -8585,25 +8585,30 @@ msgstr ""
 
 #: src/Module/PermissionTooltip.php:200
 #, php-format
+msgid "Collection (%s)"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:204
+#, php-format
 msgid "Followers (%s)"
-msgstr ""
-
-#: src/Module/PermissionTooltip.php:216
-#, php-format
-msgid "%d more"
-msgstr ""
-
-#: src/Module/PermissionTooltip.php:220
-#, php-format
-msgid "<b>To:</b> %s<br>"
 msgstr ""
 
 #: src/Module/PermissionTooltip.php:223
 #, php-format
+msgid "%d more"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:227
+#, php-format
+msgid "<b>To:</b> %s<br>"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:230
+#, php-format
 msgid "<b>CC:</b> %s<br>"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:226
+#: src/Module/PermissionTooltip.php:233
 #, php-format
 msgid "<b>BCC:</b> %s<br>"
 msgstr ""
