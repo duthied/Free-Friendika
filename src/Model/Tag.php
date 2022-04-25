@@ -201,7 +201,7 @@ class Tag
 			}
 		}
 
-		if (!empty($target) && !empty($tag['url']) && empty($tag['type'])) {
+		if (!empty($target) && !empty($tag['url']) && ($tag['type'] != $target)) {
 			DBA::update('tag', ['type' => $target], ['url' => $url]);
 		}
 
