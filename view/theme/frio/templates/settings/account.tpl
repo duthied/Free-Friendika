@@ -1,74 +1,79 @@
 <div class="generic-page-wrapper">
 	<h1>{{$ptitle}}</h1>
 
-	{{$nickname_block nofilter}}
+	<div id="settings-nick-wrapper">
+		<div id="settings-nickname-desc" class="info-message">{{$desc nofilter}}</div>
+	</div>
+	<div id="settings-nick-end"></div>
 
-	<form action="settings" id="settings-form" method="post" autocomplete="off" enctype="multipart/form-data">
-		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
-
+	<div id="settings-form">
 		{{* We organize the settings in collapsable panel-groups *}}
 		<div class="panel-group panel-group-settings" id="settings" role="tablist" aria-multiselectable="true">
 			{{* The password setting section *}}
-			<div class="panel">
+			<form action="settings/account/password" method="post" autocomplete="off" class="panel" >
+				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="password-settings">
 					<h2>
-						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#password-settings-collapse" aria-expanded="false" aria-controls="password-settings-collapse">
+						<button class="btn-link accordion-toggle{{if $open !== 'password'}} collapsed{{/if}}" data-toggle="collapse" data-parent="#settings" href="#password-settings-collapse" aria-expanded="false" aria-controls="password-settings-collapse">
 							{{$h_pass}}
 						</button>
 					</h2>
 				</div>
-				<div id="password-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="password-settings">
+				<div id="password-settings-collapse" class="panel-collapse collapse{{if $open == 'password'}} in{{/if}}" role="tabpanel" aria-labelledby="password-settings">
 					<div class="panel-body">
 						{{include file="field_password.tpl" field=$password1}}
 						{{include file="field_password.tpl" field=$password2}}
 						{{include file="field_password.tpl" field=$password3}}
-
-					{{if $oid_enable}}
-						{{include file="field_input.tpl" field=$openid}}
-						{{include file="field_checkbox.tpl" field=$delete_openid}}
-					{{/if}}
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="password-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
-			</div>
+			</form>
 
 			{{* The basic setting section *}}
-			<div class="panel">
+			<form action="settings/account/basic" method="post" autocomplete="off" class="panel">
+				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="basic-settings">
 					<h2>
-						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#basic-settings-collapse" aria-expanded="false" aria-controls="basic-settings-collapse">
+						<button class="btn-link accordion-toggle{{if $open !== 'basic'}} collapsed{{/if}}" data-toggle="collapse" data-parent="#settings" href="#basic-settings-collapse" aria-expanded="false" aria-controls="basic-settings-collapse">
 							{{$h_basic}}
 						</button>
 					</h2>
 				</div>
-				<div id="basic-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="basic-settings">
+				<div id="basic-settings-collapse" class="panel-collapse collapse{{if $open == 'basic'}} in{{/if}}" role="tabpanel" aria-labelledby="basic-settings">
 					<div class="panel-body">
 						{{include file="field_input.tpl" field=$username}}
 						{{include file="field_input.tpl" field=$email}}
 						{{include file="field_password.tpl" field=$password4}}
+
+						{{if $oid_enable}}
+							{{include file="field_input.tpl" field=$openid}}
+							{{include file="field_checkbox.tpl" field=$delete_openid}}
+						{{/if}}
+
 						{{include file="field_custom.tpl" field=$timezone}}
 						{{include file="field_select.tpl" field=$language}}
-						{{include file="field_input.tpl" field=$defloc}}
-						{{include file="field_checkbox.tpl" field=$allowloc}}
+						{{include file="field_input.tpl" field=$default_location}}
+						{{include file="field_checkbox.tpl" field=$allow_location}}
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="basic-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
-			</div>
+			</form>
 
 			{{* The privacity setting section *}}
-			<div class="panel">
+			<form action="settings/account/privacy" method="post" autocomplete="off" class="panel">
+				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="privacy-settings">
 					<h2>
-						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#privacy-settings-collapse" aria-expanded="false" aria-controls="privacy-settings-collapse">
+						<button class="btn-link accordion-toggle{{if $open !== 'privacy'}} collapsed{{/if}}" data-toggle="collapse" data-parent="#settings" href="#privacy-settings-collapse" aria-expanded="false" aria-controls="privacy-settings-collapse">
 							{{$h_prv}}
 						</button>
 					</h2>
 				</div>
-				<div id="privacy-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="privacy-settings">
+				<div id="privacy-settings-collapse" class="panel-collapse collapse{{if $open == 'privacy'}} in{{/if}}" role="tabpanel" aria-labelledby="privacy-settings">
 					<div class="panel-body">
 						{{include file="field_input.tpl" field=$maxreq}}
 
@@ -95,20 +100,21 @@
 						{{/if}}
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="privacy-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
-			</div>
+			</form>
 
-			<div class="panel">
+			<form action="settings/account/expire" method="post" autocomplete="off" class="panel">
+				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="expire-settings">
 					<h2>
-						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#expire-settings-collapse" aria-expanded="false" aria-controls="expire-settings-collapse">
+						<button class="btn-link accordion-toggle{{if $open !== 'expire'}} collapsed{{/if}}" data-toggle="collapse" data-parent="#settings" href="#expire-settings-collapse" aria-expanded="false" aria-controls="expire-settings-collapse">
 							{{$expire.label}}
 						</button>
 					</h2>
 				</div>
-				<div id="expire-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="expire-settings">
+				<div id="expire-settings-collapse" class="panel-collapse collapse{{if $open == 'expire'}} in{{/if}}" role="tabpanel" aria-labelledby="expire-settings">
 					<div class="panel-body">
 						{{include file="field_input.tpl" field=$expire.days}}
 
@@ -118,21 +124,22 @@
 						{{include file="field_checkbox.tpl" field=$expire.network_only}}
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="expire-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
-			</div>
+			</form>
 
 			{{* The notification setting section *}}
-			<div class="panel">
+			<form action="settings/account/notification" method="post" autocomplete="off" class="panel">
+				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="notification-settings">
 					<h2>
-						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#notification-settings-collapse" aria-expanded="false" aria-controls="notification-settings-collapse">
+						<button class="btn-link accordion-toggle{{if $open !== 'notification'}} collapsed{{/if}}" data-toggle="collapse" data-parent="#settings" href="#notification-settings-collapse" aria-expanded="false" aria-controls="notification-settings-collapse">
 							{{$h_not}}
 						</button>
 					</h2>
 				</div>
-				<div id="notification-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="notification-settings">
+				<div id="notification-settings-collapse" class="panel-collapse collapse{{if $open == 'notification'}} in{{/if}}" role="tabpanel" aria-labelledby="notification-settings">
 					<div id="settings-notifications" class="panel-body">
 
 						<div id="settings-notification-desc">{{$lbl_not}}</div>
@@ -202,42 +209,44 @@
 						</script>
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="notification-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
-			</div>
+			</form>
 
 			{{* The additional account setting section *}}
-			<div class="panel">
-				<div class="section-subtitle-wrapper panel-heading" role="tab" id="additional-account-settings">
+			<form action="settings/account/advanced" method="post" autocomplete="off" class="panel">
+				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="advanced-account-settings">
 					<h2>
-						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#additional-account-settings-collapse" aria-expanded="false" aria-controls="additional-account-settings-collapse">
+						<button class="btn-link accordion-toggle{{if $open !== 'advanced'}} collapsed{{/if}}" data-toggle="collapse" data-parent="#settings" href="#advanced-account-settings-collapse" aria-expanded="false" aria-controls="advanced-account-settings-collapse">
 							{{$h_advn}}
 						</button>
 					</h2>
 				</div>
-				<div id="additional-account-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="additional-account-settings">
+				<div id="advanced-account-settings-collapse" class="panel-collapse collapse{{if $open == 'advanced'}} in{{/if}}" role="tabpanel" aria-labelledby="advanced-account-settings">
 					<div class="panel-body">
 						<div id="settings-pagetype-desc">{{$h_descadvn}}</div>
 
 						{{$pagetype nofilter}}
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="advanced-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
-			</div>
+			</form>
 
 			{{* Import contacts CSV *}}
-			<div class="panel">
+			<form action="settings/account/importcontact" method="post" autocomplete="off" class="panel">
+				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="importcontact-settings">
 					<h2>
-						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#importcontact-settings-collapse" aria-expanded="false" aria-controls="importcontact-settings-collapse">
+						<button class="btn-link accordion-toggle{{if $open !== 'importcontact'}} collapsed{{/if}}" data-toggle="collapse" data-parent="#settings" href="#importcontact-settings-collapse" aria-expanded="false" aria-controls="importcontact-settings-collapse">
 							{{$importcontact}}
 						</button>
 					</h2>
 				</div>
-				<div id="importcontact-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="importcontact-settings">
+				<div id="importcontact-settings-collapse" class="panel-collapse collapse{{if $open == 'importcontact'}} in{{/if}}" role="tabpanel" aria-labelledby="importcontact-settings">
 					<div class="panel-body">
 						<div id="importcontact-relocate-desc">{{$importcontact_text}}</div>
 						<input type="hidden" name="MAX_FILE_SIZE" value="{{$importcontact_maxsize}}" />
@@ -247,26 +256,27 @@
 						<button type="submit" name="importcontact-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
-			</div>
+			</form>
 
 			{{* The relocate setting section *}}
-			<div class="panel">
+			<form action="settings/account/relocate" method="post" autocomplete="off" class="panel">
+				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="relocate-settings">
 					<h2>
-						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#relocate-settings-collapse" aria-expanded="false" aria-controls="relocate-settings-collapse">
+						<button class="btn-link accordion-toggle" data-toggle="collapse" data-parent="#settings" href="#relocate-settings-collapse" aria-expanded="false" aria-controls="relocate-settings-collapse">
 							{{$relocate}}
 						</button>
 					</h2>
 				</div>
-				<div id="relocate-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="relocate-settings">
+				<div id="relocate-settings-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="relocate-settings">
 					<div class="panel-body">
 						<div id="settings-relocate-desc">{{$relocate_text}}</div>
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="resend_relocate" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="relocate-submit" class="btn btn-primary" value="{{$relocate_button}}">{{$relocate_button}}</button>
 					</div>
 				</div>
-			</div>
+			</form>
 		</div>
-	</form>
+	</div>
 </div>

@@ -2,6 +2,8 @@ Version 2022.05 (unreleased)
   Friendica Core
 
   Friendica Addons
+    Breaking: The obsolete hooks settings_form and settings_post have been removed,
+         custom addons developers should use the addon_settings hook instead.
 
   Closed Issues
 
