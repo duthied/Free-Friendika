@@ -365,7 +365,7 @@ class APContact
 		// To-Do
 
 		// Unhandled
-		// tag, attachment, image, nomadicLocations, signature, featured, movedTo, liked
+		// tag, attachment, image, nomadicLocations, signature, movedTo, liked
 
 		// Unhandled from Misskey
 		// sharedInbox, isCat
@@ -429,6 +429,30 @@ class APContact
 			$apcontact['uri-id'] = ItemURI::getIdByURI($apcontact['url']);
 		} else {
 			$apcontact['uri-id'] = ItemURI::insert(['uri' => $apcontact['url'], 'guid' => $apcontact['uuid']]);
+		}
+
+		foreach (APContact\Endpoint::ENDPOINT_NAMES as $type => $name) {
+			$value = JsonLD::fetchElement($compacted, $name, '@id');
+			if (empty($value)) {
+				continue;
+			}
+			APContact\Endpoint::update($apcontact['uri-id'], $type, $value);
+		}
+
+		if (!empty($compacted['as:endpoints'])) {
+			foreach ($compacted['as:endpoints'] as $name => $endpoint) {
+				if (empty($endpoint['@id']) || !is_string($endpoint['@id'])) {
+					continue;
+				}
+
+				if (in_array($name, APContact\Endpoint::ENDPOINT_NAMES)) {
+					$key = array_search($name, APContact\Endpoint::ENDPOINT_NAMES);
+					APContact\Endpoint::update($apcontact['uri-id'], $key, $endpoint['@id']);
+					Logger::debug('Store endpoint', ['key' => $key, 'name' => $name, 'endpoint' => $endpoint['@id']]);
+				} elseif (!in_array($name, ['as:sharedInbox', 'as:uploadMedia', 'as:oauthTokenEndpoint', 'as:oauthAuthorizationEndpoint', 'litepub:oauthRegistrationEndpoint'])) {
+					Logger::debug('Unknown endpoint', ['name' => $name, 'endpoint' => $endpoint['@id']]);
+				}
+			}
 		}
 
 		$apcontact['updated'] = DateTimeFormat::utcNow();

@@ -21,6 +21,7 @@ Database Tables
 | [conversation](help/database/db_conversation) | Raw data and structure information for messages |
 | [delayed-post](help/database/db_delayed-post) | Posts that are about to be distributed at a later time |
 | [diaspora-interaction](help/database/db_diaspora-interaction) | Signed Diaspora Interaction |
+| [endpoint](help/database/db_endpoint) | ActivityPub endpoints - used in the ActivityPub implementation |
 | [event](help/database/db_event) | Events |
 | [fcontact](help/database/db_fcontact) | Diaspora compatible contacts - used in the Diaspora implementation |
 | [fsuggest](help/database/db_fsuggest) | friend suggestion stuff |

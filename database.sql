@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1459
+-- DB_UPDATE_VERSION 1460
 -- ------------------------------------------
 
 
@@ -553,6 +553,18 @@ CREATE TABLE IF NOT EXISTS `diaspora-interaction` (
 	 PRIMARY KEY(`uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Signed Diaspora Interaction';
+
+--
+-- TABLE endpoint
+--
+CREATE TABLE IF NOT EXISTS `endpoint` (
+	`url` varbinary(255) NOT NULL COMMENT 'URL of the contact',
+	`type` varchar(20) NOT NULL COMMENT '',
+	`owner-uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the apcontact url',
+	 PRIMARY KEY(`url`),
+	 UNIQUE INDEX `owner-uri-id_type` (`owner-uri-id`,`type`),
+	FOREIGN KEY (`owner-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='ActivityPub endpoints - used in the ActivityPub implementation';
 
 --
 -- TABLE event
