@@ -27,11 +27,11 @@ class Endpoint
 {
 	// Mobilizon Endpoints
 	const DISCUSSIONS = 10;
-	const EVENTS = 11;
-	const MEMBERS = 12;
-	const POSTS = 13;
-	const RESOURCES = 14;
-	const TODOS = 15;
+	const EVENTS      = 11;
+	const MEMBERS     = 12;
+	const POSTS       = 13;
+	const RESOURCES   = 14;
+	const TODOS       = 15;
 
 	// Peertube Endpoints
 	const PLAYLISTS = 20;
@@ -40,14 +40,14 @@ class Endpoint
 	const DEVICES = 30;
 
 	const ENDPOINT_NAMES = [
-		self::PLAYLISTS => 'pt:playlists',
+		self::PLAYLISTS   => 'pt:playlists',
 		self::DISCUSSIONS => 'mobilizon:discussions',
-		self::EVENTS => 'mobilizon:events',
-		self::MEMBERS => 'mobilizon:members',
-		self::POSTS => 'mobilizon:posts',
-		self::RESOURCES => 'mobilizon:resources',
-		self::TODOS => 'mobilizon:todos',
-		self::DEVICES => 'toot:devices',
+		self::EVENTS      => 'mobilizon:events',
+		self::MEMBERS     => 'mobilizon:members',
+		self::POSTS       => 'mobilizon:posts',
+		self::RESOURCES   => 'mobilizon:resources',
+		self::TODOS       => 'mobilizon:todos',
+		self::DEVICES     => 'toot:devices',
 	];
 
 	/**
