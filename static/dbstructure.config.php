@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1459);
+	define('DB_UPDATE_VERSION', 1460);
 }
 
 return [
@@ -616,6 +616,18 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"]
+		]
+	],
+	"endpoint" => [
+		"comment" => "ActivityPub endpoints - used in the ActivityPub implementation",
+		"fields" => [
+			"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "URL of the contact"],
+			"type" => ["type" => "varchar(20)", "not null" => "1", "comment" => ""],
+			"owner-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the apcontact url"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["url"],
+			"owner-uri-id_type" => ["UNIQUE", "owner-uri-id", "type"],
 		]
 	],
 	"event" => [
