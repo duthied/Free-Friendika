@@ -23,6 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\User;
@@ -143,7 +144,7 @@ class Invite extends BaseModule
 			}
 		}
 
-		$dirLocation = $config->get('system', 'directory');
+		$dirLocation = Search::getGlobalDirectory();
 		if (strlen($dirLocation)) {
 			if ($config->get('config', 'register_policy') === Register::CLOSED) {
 				$linkTxt = DI::l10n()->t('Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks.', $dirLocation . '/servers');

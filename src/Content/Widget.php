@@ -25,12 +25,14 @@ use Friendica\Core\Addon;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
@@ -59,7 +61,7 @@ class Widget
 	 */
 	public static function findPeople()
 	{
-		$global_dir = DI::config()->get('system', 'directory');
+		$global_dir = Search::getGlobalDirectory();
 
 		if (DI::config()->get('system', 'invitation_only')) {
 			$x = intval(DI::pConfig()->get(local_user(), 'system', 'invites_remaining'));
@@ -81,7 +83,7 @@ class Widget
 		$nv['random'] = DI::l10n()->t('Random Profile');
 		$nv['inv'] = DI::l10n()->t('Invite Friends');
 		$nv['directory'] = DI::l10n()->t('Global Directory');
-		$nv['global_dir'] = $global_dir;
+		$nv['global_dir'] = Profile::zrl($global_dir, true);
 		$nv['local_directory'] = DI::l10n()->t('Local Directory');
 
 		$aside = [];

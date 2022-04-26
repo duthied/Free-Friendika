@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\Friendica\Profile;
 
 use Friendica\Profile\ProfileField\Collection\ProfileFields;
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\Search;
 use Friendica\DI;
 use Friendica\Model\Profile;
 use Friendica\Module\BaseApi;
@@ -39,7 +40,7 @@ class Show extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		// retrieve general information about profiles for user
-		$directory = DI::config()->get('system', 'directory');
+		$directory = Search::getGlobalDirectory();
 
 		$profile = Profile::getByUID($uid);
 		

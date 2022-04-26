@@ -25,6 +25,7 @@ use Exception;
 use Friendica\Core\ACL;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -516,8 +517,8 @@ class Account extends BaseSettings
 		}
 
 		$net_pub_desc = '';
-		if (strlen(DI::config()->get('system', 'directory'))) {
-			$net_pub_desc = ' ' . DI::l10n()->t('Your profile will also be published in the global friendica directories (e.g. <a href="%s">%s</a>).', DI::config()->get('system', 'directory'), DI::config()->get('system', 'directory'));
+		if (Search::getGlobalDirectory()) {
+			$net_pub_desc = ' ' . DI::l10n()->t('Your profile will also be published in the global friendica directories (e.g. <a href="%s">%s</a>).', Search::getGlobalDirectory(), Search::getGlobalDirectory());
 		}
 
 		/* Installed langs */

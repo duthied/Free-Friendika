@@ -2781,6 +2781,7 @@ class Contact
 			self::remove($contact['id']);
 		} else {
 			DI::logger()->info('Couldn\'t remove follower because of invalid contact array', ['contact' => $contact, 'callstack' => System::callstack()]);
+			return;
 		}
 
 		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);

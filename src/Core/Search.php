@@ -104,7 +104,7 @@ class Search
 	 */
 	public static function getContactsFromGlobalDirectory($search, $type = self::TYPE_ALL, $page = 1)
 	{
-		$server = DI::config()->get('system', 'directory', self::DEFAULT_DIRECTORY);
+		$server = self::getGlobalDirectory();
 
 		$searchUrl = $server . '/search';
 
