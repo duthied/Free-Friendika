@@ -28,6 +28,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Hook;
 use Friendica\Core\Session;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\Profile;
@@ -61,7 +62,7 @@ class Directory extends BaseModule
 		$search = trim(rawurldecode($_REQUEST['search'] ?? ''));
 
 		$gDirPath = '';
-		$dirURL = $config->get('system', 'directory');
+		$dirURL = Search::getGlobalDirectory();
 		if (strlen($dirURL)) {
 			$gDirPath = Profile::zrl($dirURL, true);
 		}

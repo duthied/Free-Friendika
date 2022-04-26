@@ -22,6 +22,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Search;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
@@ -38,7 +39,7 @@ class PullDirectory
 			return;
 		}
 
-		$directory = DI::config()->get('system', 'directory');
+		$directory = Search::getGlobalDirectory();
 		if (empty($directory)) {
 			Logger::info('No directory configured');
 			return;

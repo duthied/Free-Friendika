@@ -30,6 +30,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Search;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -1287,7 +1288,7 @@ class User
 
 		$profile = DBA::selectFirst('profile', ['net-publish'], ['uid' => $register['uid']]);
 
-		if (DBA::isResult($profile) && $profile['net-publish'] && DI::config()->get('system', 'directory')) {
+		if (DBA::isResult($profile) && $profile['net-publish'] && Search::getGlobalDirectory()) {
 			$url = DI::baseUrl() . '/profile/' . $user['nickname'];
 			Worker::add(PRIORITY_LOW, "Directory", $url);
 		}

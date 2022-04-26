@@ -59,7 +59,7 @@ class Search extends BaseApi
 			if (empty($results)) {
 				if (DI::config()->get('system', 'poco_local_search')) {
 					$results = CoreSearch::getContactsFromLocalDirectory($request['q'], CoreSearch::TYPE_ALL, 0, $request['limit']);
-				} elseif (!empty(DI::config()->get('system', 'directory'))) {
+				} elseif (CoreSearch::getGlobalDirectory()) {
 					$results = CoreSearch::getContactsFromGlobalDirectory($request['q'], CoreSearch::TYPE_ALL, 1);
 				}
 			}

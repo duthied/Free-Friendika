@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Core\Search;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -35,7 +36,7 @@ class Directory
 {
 	public static function execute($url = '')
 	{
-		$dir = DI::config()->get('system', 'directory');
+		$dir = Search::getGlobalDirectory();
 
 		if (!strlen($dir)) {
 			return;

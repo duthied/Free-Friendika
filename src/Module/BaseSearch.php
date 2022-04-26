@@ -91,7 +91,7 @@ class BaseSearch extends BaseModule
 		if ($localSearch && empty($results)) {
 			$pager->setItemsPerPage(80);
 			$results = Search::getContactsFromLocalDirectory($search, $type, $pager->getStart(), $pager->getItemsPerPage());
-		} elseif (strlen($config->get('system', 'directory')) && empty($results)) {
+		} elseif (Search::getGlobalDirectory() && empty($results)) {
 			$results = Search::getContactsFromGlobalDirectory($search, $type, $pager->getPage());
 			$pager->setItemsPerPage($results->getItemsPage());
 		}
