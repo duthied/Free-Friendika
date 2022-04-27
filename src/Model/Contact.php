@@ -1456,12 +1456,13 @@ class Contact
 		}
 
 		if ($thread_mode) {
-			$items = Post::toArray(Post::selectForUser(local_user(), ['uri-id'], $condition, $params));
+			$fields = ['uri-id', 'thr-parent-id', 'gravity', 'author-id', 'commented'];
+			$items = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
 
 			if ($pager->getStart() == 0) {
 				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
 				if (!empty($cdata['public'])) {
-					$pinned = Post\Collection::selectToArrayForContact($cdata['public'], Post\Collection::FEATURED, ['uri-id']);
+					$pinned = Post\Collection::selectToArrayForContact($cdata['public'], Post\Collection::FEATURED, $fields);
 					$items = array_merge($items, $pinned);
 				}
 			}
