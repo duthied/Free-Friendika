@@ -231,7 +231,7 @@ class Page implements ArrayAccess
 
 		$shortcut_icon = $config->get('system', 'shortcut_icon');
 		if ($shortcut_icon == '') {
-			$shortcut_icon = 'images/friendica-32.png';
+			$shortcut_icon = 'images/friendica.svg';
 		}
 
 		$touch_icon = $config->get('system', 'touch_icon');
