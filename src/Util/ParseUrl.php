@@ -69,6 +69,7 @@ class ParseUrl
 		}
 
 		if (!$curlResult->isSuccess()) {
+			Logger::debug('Got HTTP Error', ['http error' => $curlResult->getReturnCode(), 'url' => $url]);
 			return [];
 		}
 
