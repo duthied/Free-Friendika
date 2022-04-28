@@ -31,8 +31,6 @@ class Manifest extends BaseModule
 	{
 		$config = DI::config();
 
-		$touch_icon = $config->get('system', 'touch_icon') ?: 'images/friendica-192.png';
-
 		$theme = DI::config()->get('system', 'theme');
 
 		$manifest = [
@@ -44,18 +42,6 @@ class Manifest extends BaseModule
 			'lang'          => $config->get('system', 'language'),
 			'dir'           => 'auto',
 			'categories'    => ['social network', 'internet'],
-			'icons'         => [
-				[
-					'src'   => DI::baseUrl()->get() . '/' . $touch_icon,
-					'sizes' => '192x192',
-					'type'  => 'image/png',
-				],
-				[
-					'src'   => DI::baseUrl()->get() . '/' . $touch_icon,
-					'sizes' => '512x512',
-					'type'  => 'image/png',
-				],
-			],
 			'shortcuts'     => [
 				[
 					'name'  => 'Latest posts',
@@ -79,6 +65,65 @@ class Manifest extends BaseModule
 				]
 			]
 		];
+
+		/// @TODO If the admin provides their own touch icon, the manifest will regress
+		/// to a smaller set of icons that do not follow the web app manifest spec.
+		/// There should be a mechanism to allow the admin to provide all of the 6
+		/// different images that are required for a fully valid web app manifest.
+		$touch_icon = $config->get('system', 'touch_icon');
+		if($touch_icon){
+			$manifest['icons'] = [
+				[
+					'src'   => DI::baseUrl()->get() . '/' . $touch_icon,
+					'sizes' => '192x192',
+					'type'  => 'image/png',
+				],
+				[
+					'src'   => DI::baseUrl()->get() . '/' . $touch_icon,
+					'sizes' => '512x512',
+					'type'  => 'image/png',
+				],
+			];
+		} else {
+			$manifest['icons'] = [
+				[
+					'src'   => DI::baseUrl()->get() . '/images/friendica.svg',
+					'sizes' => 'any',
+					'type'  => 'image/svg+xml',
+					'purpose' => 'any',
+				],
+				[
+					'src'   => DI::baseUrl()->get() . '/images/friendica-192.png',
+					'sizes' => '192x192',
+					'type'  => 'image/png',
+					'purpose' => 'any',
+				],
+				[
+					'src'   => DI::baseUrl()->get() . '/images/friendica-512.png',
+					'sizes' => '512x512',
+					'type'  => 'image/png',
+					'purpose' => 'any',
+				],
+				[
+					'src'   => DI::baseUrl()->get() . '/images/friendica-maskable.svg',
+					'sizes' => 'any',
+					'type'  => 'image/svg+xml',
+					'purpose' => 'maskable',
+				],
+				[
+					'src'   => DI::baseUrl()->get() . '/images/friendica-maskable-192.png',
+					'sizes' => '192x192',
+					'type'  => 'image/png',
+					'purpose' => 'maskable',
+				],
+				[
+					'src'   => DI::baseUrl()->get() . '/images/friendica-maskable-512.png',
+					'sizes' => '512x512',
+					'type'  => 'image/png',
+					'purpose' => 'maskable',
+				],
+			];
+		}
 
 		if ($background_color = Core\Theme::getBackgroundColor($theme)) {
 			$manifest['background_color'] = $background_color;
