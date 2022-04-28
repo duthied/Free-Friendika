@@ -23,6 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -31,8 +32,10 @@ use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Core\Storage\Type\ExternalResource;
 use Friendica\Core\Storage\Type\SystemResource;
+use Friendica\Core\Worker;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\NotModifiedException;
 use Friendica\Object\Image;
@@ -266,14 +269,15 @@ class Photo extends BaseModule
 
 				return MPhoto::createPhotoForExternalResource($link['url'], (int)local_user(), $link['mimetype']);
 			case "contact":
-				$contact = Contact::getById($id, ['uid', 'url', 'nurl', 'avatar', 'photo', 'xmpp', 'addr']);
+				$fields = ['uid', 'url', 'nurl', 'avatar', 'photo', 'xmpp', 'addr', 'network', 'failed', 'updated'];
+				$contact = Contact::getById($id, $fields);
 				if (empty($contact)) {
 					return false;
 				}
 
 				// For local users directly use the photo record that is marked as the profile
 				if (Network::isLocalLink($contact['url'])) {
-					$contact = Contact::selectFirst(['uid', 'url', 'avatar', 'photo', 'xmpp', 'addr'], ['nurl' => $contact['nurl'], 'self' => true]);
+					$contact = Contact::selectFirst($fields, ['nurl' => $contact['nurl'], 'self' => true]);
 					if (!empty($contact)) {
 						if ($customsize <= Proxy::PIXEL_MICRO) {
 							$scale = 6;
@@ -290,7 +294,7 @@ class Photo extends BaseModule
 				}
 
 				if (!empty($contact['uid']) && empty($contact['photo']) && empty($contact['avatar'])) {
-					$contact = Contact::getByURL($contact['url'], false, ['avatar', 'photo', 'xmpp', 'addr']);
+					$contact = Contact::getByURL($contact['url'], false, $fields);
 				}
 
 				if (!empty($contact['photo']) && !empty($contact['avatar'])) {
@@ -313,7 +317,20 @@ class Photo extends BaseModule
 					if (!empty($mime)) {
 						$mimetext = $mime[0] . '/' . $mime[1];
 					} else {
-						Logger::info('Invalid file', ['url' => $url]);
+						// Only update federated accounts that hadn't failed before and hadn't been updated recently
+						$update = in_array($contact['network'], Protocol::FEDERATED) && !$contact['failed']
+							&& ((time() - strtotime($contact['updated']) > 86400));
+						if ($update) {
+							$curlResult = DI::httpClient()->head($url, [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::IMAGE]);
+							$update = !$curlResult->isSuccess() && ($curlResult->getReturnCode() == 404);
+							Logger::debug('Got return code for avatar', ['return code' => $curlResult->getReturnCode(), 'cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
+						}
+						if ($update) {
+							Logger::info('Invalid file, contact update initiated', ['cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
+							Worker::add(PRIORITY_LOW, "UpdateContact", $id);
+						} else {
+							Logger::info('Invalid file', ['cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
+						}
 					}
 					if (!empty($mimetext) && ($mime[0] != 'image') && ($mimetext != 'application/octet-stream')) {
 						Logger::info('Unexpected Content-Type', ['mime' => $mimetext, 'url' => $url]);

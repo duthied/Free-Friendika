@@ -165,7 +165,7 @@ class Profile extends BaseModule
 				Module\Contact::updateContactFromPoll($contact['id']);
 			}
 
-			if ($cmd === 'updateprofile' && $localRelationship->rel !== Contact::NOTHING) {
+			if ($cmd === 'updateprofile') {
 				self::updateContactFromProbe($contact['id']);
 			}
 
@@ -481,7 +481,7 @@ class Profile extends BaseModule
 	 */
 	private static function updateContactFromProbe(int $contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
+		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => [0, local_user()], 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
