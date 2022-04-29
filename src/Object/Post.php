@@ -29,7 +29,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -898,12 +897,7 @@ class Post
 		}
 
 		$owner = User::getOwnerDataById($a->getLoggedInUserId());
-
-		$item = PostModel::selectFirst(['author-addr', 'uri-id', 'network', 'gravity', 'content-warning'], ['id' => $this->getId()]);
-		if (!DBA::isResult($item) || empty($item['author-addr'])) {
-			// Should not happen
-			return '';
-		}
+		$item = $this->getData();
 
 		if (!empty($item['content-warning']) && Feature::isEnabled(local_user(), 'add_abstract')) {
 			$text = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $item['content-warning'] . "[/abstract]\n";
@@ -967,7 +961,7 @@ class Post
 			$uid = $conv->getProfileOwner();
 			$parent_uid = $this->getDataValue('uid');
 
-			$contact = Contact::getById($a->getContactId());
+			$owner = User::getOwnerDataById($a->getLoggedInUserId());
 
 			$default_text = $this->getDefaultText();
 
@@ -986,9 +980,9 @@ class Post
 				'$qcomment'    => $qcomment,
 				'$default'     => $default_text,
 				'$profile_uid' => $uid,
-				'$mylink'      => DI::baseUrl()->remove($contact['url'] ?? ''),
+				'$mylink'      => DI::baseUrl()->remove($owner['url'] ?? ''),
 				'$mytitle'     => DI::l10n()->t('This is you'),
-				'$myphoto'     => DI::baseUrl()->remove($contact['thumb'] ?? ''),
+				'$myphoto'     => DI::baseUrl()->remove($owner['thumb'] ?? ''),
 				'$comment'     => DI::l10n()->t('Comment'),
 				'$submit'      => DI::l10n()->t('Submit'),
 				'$loading'     => DI::l10n()->t('Loading...'),
