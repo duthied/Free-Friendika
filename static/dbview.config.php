@@ -664,9 +664,14 @@
 			"cid" => ["post", "author-id"],
 			"received" => ["post", "received"],
 			"created" => ["post", "created"],
+			"commented" => ["post-thread", "commented"],
+			"thr-parent-id" => ["post", "thr-parent-id"],
+			"author-id" => ["post", "author-id"],
+			"gravity" => ["post", "gravity"],
 		],
 		"query" => "FROM `post-collection`
-			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`"
+			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`
+			INNER JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`"
 	],
 	"tag-view" => [
 		"fields" => [

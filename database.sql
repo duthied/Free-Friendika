@@ -2246,9 +2246,14 @@ CREATE VIEW `collection-view` AS SELECT
 	`post-collection`.`type` AS `type`,
 	`post`.`author-id` AS `cid`,
 	`post`.`received` AS `received`,
-	`post`.`created` AS `created`
+	`post`.`created` AS `created`,
+	`post-thread`.`commented` AS `commented`,
+	`post`.`thr-parent-id` AS `thr-parent-id`,
+	`post`.`author-id` AS `author-id`,
+	`post`.`gravity` AS `gravity`
 	FROM `post-collection`
-			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`;
+			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`
+			INNER JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`;
 
 --
 -- VIEW tag-view
