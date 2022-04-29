@@ -1799,7 +1799,7 @@ class Contact
 	{
 		// We have to fetch the "updated" variable when it wasn't provided
 		// The parameter can be provided to improve performance
-		if (empty($updated) || empty($guid)) {
+		if (empty($updated)) {
 			$account = DBA::selectFirst('account-user-view', ['updated', 'guid'], ['id' => $cid]);
 			$updated = $account['updated'] ?? '';
 			$guid = $account['guid'] ?? '';

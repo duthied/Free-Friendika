@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1460
+-- DB_UPDATE_VERSION 1461
 -- ------------------------------------------
 
 
@@ -1719,6 +1719,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
+	`author`.`updated` AS `author-updated`,
 	`post-user`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -1728,6 +1729,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`updated` AS `owner-updated`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-user`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
@@ -1884,6 +1886,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
+	`author`.`updated` AS `author-updated`,
 	`post-thread-user`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -1893,6 +1896,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`updated` AS `owner-updated`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-thread-user`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
@@ -2035,6 +2039,7 @@ CREATE VIEW `post-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
+	`author`.`updated` AS `author-updated`,
 	`post`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -2044,6 +2049,7 @@ CREATE VIEW `post-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`updated` AS `owner-updated`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
@@ -2162,6 +2168,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
+	`author`.`updated` AS `author-updated`,
 	`post-thread`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -2171,6 +2178,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`updated` AS `owner-updated`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-thread`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,

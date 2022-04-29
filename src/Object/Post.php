@@ -450,6 +450,16 @@ class Post
 			$browsershare = null;
 		}
 
+		if (in_array($item['network'], [Protocol::FEED, Protocol::MAIL])) {
+			$owner_avatar  = $author_avatar  = $item['contact-id'];
+			$owner_updated = $author_updated = '';
+		} else {
+			$owner_avatar   = $item['owner-id'];
+			$owner_updated  = $item['owner-updated'];
+			$author_avatar  = $item['author-id'];
+			$author_updated = $item['author-updated'];
+		}
+
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
@@ -481,7 +491,7 @@ class Post
 			'profile_url'     => $profile_link,
 			'name'            => $profile_name,
 			'item_photo_menu_html' => DI::contentItem()->photoMenu($item, $formSecurityToken),
-			'thumb'           => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['author-link'], $item['uid'], Proxy::SIZE_THUMB)),
+			'thumb'           => DI::baseUrl()->remove(Contact::getAvatarUrlForId($author_avatar, Proxy::SIZE_THUMB, $author_updated)),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title,
@@ -498,7 +508,7 @@ class Post
 			'shiny'           => $shiny,
 			'owner_self'      => $item['author-link'] == Session::get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
-			'owner_photo'     => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['owner-link'], $item['uid'], Proxy::SIZE_THUMB)),
+			'owner_photo'     => DI::baseUrl()->remove(Contact::getAvatarUrlForId($owner_avatar, Proxy::SIZE_THUMB, $owner_updated)),
 			'owner_name'      => $this->getOwnerName(),
 			'plink'           => Item::getPlink($item),
 			'browsershare'    => $browsershare,
