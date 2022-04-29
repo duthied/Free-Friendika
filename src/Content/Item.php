@@ -352,7 +352,7 @@ class Item
 				$item['body'] = $this->l10n->t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
 			}
 		}
-
+/*
 		$matches = null;
 		if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $mtch) {
@@ -361,7 +361,7 @@ class Item
 				}
 			}
 		}
-
+*/
 		// add sparkle links to appropriate permalinks
 		// Only create a redirection to a magic link when logged in
 		if (!empty($item['plink']) && Session::isAuthenticated() && $item['private'] == ModelItem::PRIVATE) {
