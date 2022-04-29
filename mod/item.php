@@ -621,6 +621,9 @@ function item_post(App $a) {
 		$datarray["id"] = -1;
 		$datarray["uri-id"] = -1;
 		$datarray["author-network"] = Protocol::DFRN;
+		$datarray["author-updated"] = '';
+		$datarray["author-gsid"] = 0;
+		$datarray["owner-updated"] = '';
 
 		$o = DI::conversation()->create([array_merge($contact_record, $datarray)], 'search', false, true);
 
