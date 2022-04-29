@@ -125,7 +125,7 @@ function showForm($error, $content) {
 
 	echo <<<EOF
 	<div class='wrap1'>
-		<h2><img class='logo' src='friendica-32.png' align='middle';/>
+		<h2><img class='logo' width="32" height="32" src='friendica.svg' align='middle';/>
 		Friendica Bookmarklet</h2>
 	</div>
 
