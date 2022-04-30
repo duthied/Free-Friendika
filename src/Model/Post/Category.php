@@ -111,6 +111,11 @@ class Category
 		return array_column($tags, 'name');
 	}
 
+	public static function existsForURIId(int $uri_id, int $uid)
+	{
+		return DBA::exists('post-category', ['uri-id' => $uri_id, 'uid' => $uid]);
+	}
+
 	/**
 	 * Generates an array of files or categories of a given uri-id
 	 *

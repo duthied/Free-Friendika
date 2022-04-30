@@ -93,6 +93,10 @@ class Item
 
 		$uid = $item['uid'] ?: $uid;
 
+		if (!Post\Category::existsForURIId($item['uri-id'], $uid)) {
+			return [$categories, $folders];
+		}
+
 		foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid, Post\Category::CATEGORY) as $savedFolderName) {
 			if (!empty($item['author-link'])) {
 				$url = $item['author-link'] . "?category=" . rawurlencode($savedFolderName);
