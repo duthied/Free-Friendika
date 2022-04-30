@@ -930,8 +930,6 @@ class Conversation
 			$max_comments = $this->config->get('system', 'max_display_comments', 1000);
 		}
 
-		$params = ['order' => ['uri-id' => true, 'uid' => true]];
-
 		$activities      = [];
 		$uriids          = [];
 		$commentcounter  = [];
@@ -965,10 +963,21 @@ class Conversation
 		$condition = DBA::mergeConditions($condition,
 			["`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW)]);
 
+		$params = ['order' => ['uri-id' => false, 'uid' => true]];
+		$thread_parents = Post::select(['uri-id', 'causer-id'], $condition, $params);
+
+		$thr_parent = [];
+
+		while ($row = Post::fetch($thread_parents)) {
+			$thr_parent[$row['uri-id']] = $row;
+		}
+		DBA::close($thread_parents);
+
+		$params = ['order' => ['uri-id' => true, 'uid' => true]];
+
 		$thread_items = Post::selectForUser($uid, array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
 		$items = [];
-		$thr_parent = [];
 
 		while ($row = Post::fetch($thread_items)) {
 			if (!empty($items[$row['uri-id']]) && ($row['uid'] == 0)) {
@@ -984,11 +993,7 @@ class Conversation
 				}
 			}
 
-			if (empty($thr_parent[$row['thr-parent-id']])) {
-				$thr_parent[$row['thr-parent-id']] = Post::selectFirst(['causer-id'], ['uri-id' => $row['thr-parent-id'], 'uid' => $row['uid']]);
-			}
-
-			$items[$row['uri-id']] = $this->addRowInformation($row, $activities[$row['uri-id']] ?? [], $thr_parent[$row['thr-parent-id']]);
+			$items[$row['uri-id']] = $this->addRowInformation($row, $activities[$row['uri-id']] ?? [], $thr_parent[$row['thr-parent-id']] ?? []);
 		}
 
 		DBA::close($thread_items);
