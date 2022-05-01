@@ -661,7 +661,8 @@ class Worker
 			} else {
 				// Kill long running processes
 				// Check if the priority is in a valid range
-				if (!in_array($entry["priority"], [PRIORITY_CRITICAL, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_NEGLIGIBLE])) {
+				if (!in_array($entry["priority"], PRIORITIES)) {
+					Logger::warning('Invalid priority', ['entry' => $entry, 'callstack' => System::callstack(20)]);
 					$entry["priority"] = PRIORITY_MEDIUM;
 				}
 
@@ -1390,6 +1391,11 @@ class Worker
 
 		$id = $queue['id'];
 		$priority = $queue['priority'];
+
+		if (!in_array($priority, PRIORITIES)) {
+			Logger::warning('Invalid priority', ['queue' => $queue, 'callstack' => System::callstack(20)]);
+			$priority = PRIORITY_MEDIUM;
+		}
 
 		$max_level = DI::config()->get('system', 'worker_defer_limit');
 
