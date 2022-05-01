@@ -111,7 +111,7 @@ Then use the following script using the password you just generated:
 
     CREATE DATABASE friendicadb;
     CREATE USER 'friendica'@'localhost' IDENTIFIED BY '<<your mysql password here>>';
-    GRANT ALL ON friendicadb.* TO 'friendica'@'localhost' WITH GRANT OPTION;
+    GRANT ALL ON friendicadb.* TO 'friendica'@'localhost';
     FLUSH PRIVILEGES;
     EXIT;
 
