@@ -54,6 +54,14 @@
 				{{/if}}
 			</div>
 			{{/if}}
+			{{if $subscribe_feed_link}}
+			<div id="subscribe-feed-link-button">
+				<a id="subscribe-feed-link" class="btn btn-labeled btn-primary btn-sm" href="{{$subscribe_feed_link}}">
+					<span class=""><i class="fa fa-rss"></i></span>
+					<span class="">{{$subscribe_feed}}</span>
+				</a>
+			</div>
+			{{/if}}
 			{{if $wallmessage_link}}
 			<div id="wallmessage-link-botton">
 				<button type="button" id="wallmessage-link" class="btn btn-labeled btn-primary btn-sm" onclick="openWallMessage('{{$wallmessage_link}}')">
