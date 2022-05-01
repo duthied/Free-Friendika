@@ -102,7 +102,18 @@ If you encounter a bug, please let us know.
 
 ### Create a database
 
-Create an empty database and note the access details (hostname, username, password, database name).
+Create an empty database and note the access details (hostname, username, password, database name). 
+Generate a strong password, then enter mysql with:
+
+    mysql
+    
+Then use the following script using the password you just generated:
+
+    CREATE DATABASE friendicadb;
+    CREATE USER 'friendica'@'localhost' IDENTIFIED BY '<<your mysql password here>>';
+    GRANT ALL ON friendicadb.* TO 'friendica'@'localhost' WITH GRANT OPTION;
+    FLUSH PRIVILEGES;
+    EXIT;
 
 Friendica needs the permission to create and delete fields and tables in its own database.
 
