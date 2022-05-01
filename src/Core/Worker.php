@@ -22,7 +22,6 @@
 namespace Friendica\Core;
 
 use Friendica\App\Mode;
-use Friendica\Core;
 use Friendica\Core\Worker\Entity\Process;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -105,12 +104,7 @@ class Worker
 			// Don't refetch when a worker fetches tasks for multiple workers
 			$refetched = DI::config()->get('system', 'worker_multiple_fetch');
 			foreach ($r as $entry) {
-				// Assure that the priority is an integer value
-				$entry['priority'] = (int)$entry['priority'];
-				if (!in_array($entry['priority'], PRIORITIES)) {
-					Logger::warning('Invalid priority', ['entry' => $entry, 'callstack' => System::callstack(20)]);
-					$entry['priority'] = PRIORITY_MEDIUM;
-				}
+				$entry = self::checkPriority($entry);
 
 				// The work will be done
 				if (!self::execute($entry)) {
@@ -170,6 +164,24 @@ class Worker
 			self::IPCSetJobState(false);
 		}
 		Logger::info("Couldn't select a workerqueue entry, quitting process", ['pid' => getmypid()]);
+	}
+
+	/**
+	 * Check and fix the priority of a worker task
+	 * @param array $entry 
+	 * @return array 
+	 */
+	private static function checkPriority(array $entry)
+	{
+		$entry['priority'] = (int)$entry['priority'];
+
+		if (!in_array($entry['priority'], PRIORITIES)) {
+			Logger::warning('Invalid priority', ['entry' => $entry, 'callstack' => System::callstack(20)]);
+			DBA::update('workerqueue', ['priority' => PRIORITY_MEDIUM], ['id' => $entry['id']]);			
+			$entry['priority'] = PRIORITY_MEDIUM;
+		}
+
+		return $entry;
 	}
 
 	/**
@@ -484,11 +496,6 @@ class Worker
 		// For this reason the variables have to be initialized.
 		DI::profiler()->reset();
 
-		if (!in_array($queue['priority'], PRIORITIES)) {
-			Logger::warning('Invalid priority', ['queue' => $queue, 'callstack' => System::callstack(20)]);
-			$queue['priority'] = PRIORITY_MEDIUM;
-		}
-
 		$a->setQueue($queue);
 
 		$up_duration = microtime(true) - self::$up_start;
@@ -653,6 +660,8 @@ class Worker
 		self::$db_duration += (microtime(true) - $stamp);
 
 		while ($entry = DBA::fetch($entries)) {
+			$entry = self::checkPriority($entry);
+
 			if (!posix_kill($entry["pid"], 0)) {
 				$stamp = (float)microtime(true);
 				DBA::update(
@@ -664,11 +673,6 @@ class Worker
 				self::$db_duration_write += (microtime(true) - $stamp);
 			} else {
 				// Kill long running processes
-				// Check if the priority is in a valid range
-				if (!in_array($entry['priority'], PRIORITIES)) {
-					Logger::warning('Invalid priority', ['entry' => $entry, 'callstack' => System::callstack(20)]);
-					$entry['priority'] = PRIORITY_MEDIUM;
-				}
 
 				// Define the maximum durations
 				$max_duration_defaults = [PRIORITY_CRITICAL => 720, PRIORITY_HIGH => 10, PRIORITY_MEDIUM => 60, PRIORITY_LOW => 180, PRIORITY_NEGLIGIBLE => 720];
@@ -1393,13 +1397,10 @@ class Worker
 			return false;
 		}
 
+		$queue = self::checkPriority($queue);
+
 		$id = $queue['id'];
 		$priority = $queue['priority'];
-
-		if (!in_array($priority, PRIORITIES)) {
-			Logger::warning('Invalid priority', ['queue' => $queue, 'callstack' => System::callstack(20)]);
-			$priority = PRIORITY_MEDIUM;
-		}
 
 		$max_level = DI::config()->get('system', 'worker_defer_limit');
 
