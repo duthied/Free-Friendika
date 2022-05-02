@@ -107,12 +107,18 @@ class APDelivery
 	private static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id)
 	{
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
-			$item = Post::selectFirst(['id', 'parent'], ['uri-id' => $uri_id, 'uid' => $uid]);
+			$item = Post::selectFirst(['id', 'parent', 'origin'], ['uri-id' => $uri_id, 'uid' => $uid]);
 			$item_id = $item['id'] ?? 0;
 			if (empty($receivers) && !empty($item)) {
 				$parent = Post::selectFirst(Item::DELIVER_FIELDLIST, ['id' => $item['parent']]);
 
-				$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true, $item['id']);
+				if ($item['origin']) {
+					$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
+				} else {
+					// Remote items are transmitted via the personal inboxes.
+					// Doing so ensures that the dedicated receiver will get the message.
+					$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true, $item_id);
+				}
 
 				$receivers = $inboxes[$inbox] ?? [];
 			}
