@@ -1149,6 +1149,32 @@ class Worker
 
 		// Cleaning dead processes
 		self::killStaleWorkers();
+
+		// Remove old entries from the workerqueue
+		self::cleanWorkerQueue();
+	}
+
+	/**
+	 * Remove old entries from the workerqueue
+	 *
+	 * @return void
+	 */
+	private static function cleanWorkerQueue()
+	{
+		DBA::delete('workerqueue', ["`done` AND `executed` < ?", DateTimeFormat::utc('now - 1 hour')]);
+
+		// Optimizing this table only last seconds
+		if (DI::config()->get('system', 'optimize_tables')) {
+			// We are acquiring the two locks from the worker to avoid locking problems
+			if (DI::lock()->acquire(Worker::LOCK_PROCESS, 10)) {
+				if (DI::lock()->acquire(Worker::LOCK_WORKER, 10)) {
+					DBA::e("OPTIMIZE TABLE `workerqueue`");
+					DBA::e("OPTIMIZE TABLE `process`");			
+					DI::lock()->release(Worker::LOCK_WORKER);
+				}
+				DI::lock()->release(Worker::LOCK_PROCESS);
+			}
+		}
 	}
 
 	/**
