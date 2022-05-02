@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
+use Friendica\Model\ItemURI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
@@ -329,7 +330,7 @@ class HTTPSignature
 
 		$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		if (!DBA::isResult($status)) {
-			DBA::insert('inbox-status', ['url' => $url, 'created' => $now, 'shared' => $shared], Database::INSERT_IGNORE);
+			DBA::insert('inbox-status', ['url' => $url, 'uri-id' => ItemURI::getIdByURI($url), 'created' => $now, 'shared' => $shared], Database::INSERT_IGNORE);
 			$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		}
 
@@ -367,6 +368,10 @@ class HTTPSignature
 			}
 		} else {
 			$fields['archive'] = false;
+		}
+
+		if (empty($status['uri-id'])) {
+			$fields['uri-id'] = ItemURI::getIdByURI($url);
 		}
 
 		DBA::update('inbox-status', $fields, ['url' => $url]);
