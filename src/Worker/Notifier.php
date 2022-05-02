@@ -786,10 +786,17 @@ class Notifier
 
 			Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 
-			if (Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
-					'APDelivery', $cmd, 0, $inbox, $uid)) {
-				$delivery_queue_count++;
-				Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd);
+			if (DI::config()->get('system', 'bulk_delivery')) {
+				if (Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
+						'APDelivery', $cmd, 0, $inbox, $uid)) {
+					$delivery_queue_count++;
+					Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd);
+				}
+			} else {
+				if (Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
+						'APDelivery', $cmd, $target_item['id'], $inbox, $uid, $receivers, $target_item['uri-id'])) {
+					$delivery_queue_count++;
+				}
 			}
 		}
 
@@ -797,9 +804,15 @@ class Notifier
 		foreach ($relay_inboxes as $inbox) {
 			Logger::info('Delivery to relay servers via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 
-			if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, 0, $inbox, $uid)) {
-				$delivery_queue_count++;
-				Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd);
+			if (DI::config()->get('system', 'bulk_delivery')) {
+				if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, 0, $inbox, $uid)) {
+					$delivery_queue_count++;
+					Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd);
+				}
+			} else {
+				if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, $target_item['id'], $inbox, $uid, [], $target_item['uri-id'])) {
+					$delivery_queue_count++;
+				}
 			}
 		}
 

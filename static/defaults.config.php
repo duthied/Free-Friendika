@@ -122,6 +122,10 @@ return [
 		// Display "Emoji Only" posts in big.
 		'big_emojis' => false,
 
+		// bulk_delivery (Boolean)
+		// Delivers AP messages in a bulk (experimental)
+		'bulk_delivery' => false,
+
 		// block_local_dir (Boolean)
 		// Deny public access to the local user directory.
 		'block_local_dir' => false,
