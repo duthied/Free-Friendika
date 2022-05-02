@@ -712,13 +712,16 @@ CREATE TABLE IF NOT EXISTS `hook` (
 --
 CREATE TABLE IF NOT EXISTS `inbox-status` (
 	`url` varbinary(255) NOT NULL COMMENT 'URL of the inbox',
+	`uri-id` int unsigned COMMENT 'Item-uri id of inbox url',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date of this entry',
 	`success` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last successful delivery',
 	`failure` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last failed delivery',
 	`previous` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Previous delivery date',
 	`archive` boolean NOT NULL DEFAULT '0' COMMENT 'Is the inbox archived?',
 	`shared` boolean NOT NULL DEFAULT '0' COMMENT 'Is it a shared inbox?',
-	 PRIMARY KEY(`url`)
+	 PRIMARY KEY(`url`),
+	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Status of ActivityPub inboxes';
 
 --
@@ -1113,6 +1116,23 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
+
+--
+-- TABLE post-delivery
+--
+CREATE TABLE IF NOT EXISTS `post-delivery` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`inbox-id` int unsigned NOT NULL COMMENT 'Item-uri id of inbox url',
+	`uid` mediumint unsigned COMMENT 'Delivering user',
+	`created` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`command` varbinary(32) COMMENT '',
+	 PRIMARY KEY(`uri-id`,`inbox-id`),
+	 INDEX `inbox-id_created` (`inbox-id`,`created`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`inbox-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Status of ActivityPub inboxes';
 
 --
 -- TABLE post-delivery-data

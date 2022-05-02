@@ -50,6 +50,7 @@ Database Tables
 | [post-category](help/database/db_post-category) | post relation to categories |
 | [post-collection](help/database/db_post-collection) | Collection of posts |
 | [post-content](help/database/db_post-content) | Content for all posts |
+| [post-delivery](help/database/db_post-delivery) | Status of ActivityPub inboxes |
 | [post-delivery-data](help/database/db_post-delivery-data) | Delivery data for items |
 | [post-link](help/database/db_post-link) | Post related external links |
 | [post-media](help/database/db_post-media) | Attached media |
