@@ -112,15 +112,14 @@ class APDelivery
 			if (empty($receivers) && !empty($item)) {
 				$parent = Post::selectFirst(Item::DELIVER_FIELDLIST, ['id' => $item['parent']]);
 
-				if ($item['origin']) {
-					$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
-				} else {
-					// Remote items are transmitted via the personal inboxes.
-					// Doing so ensures that the dedicated receiver will get the message.
-					$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true, $item_id);
-				}
-
+				$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
 				$receivers = $inboxes[$inbox] ?? [];
+
+				// When we haven't fetched the receiver list, it can be a personal inbox
+				if (empty($receivers)) {
+					$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true);
+					$receivers = $inboxes[$inbox] ?? [];
+				}					
 			}
 		}
 
