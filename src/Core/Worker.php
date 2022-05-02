@@ -168,8 +168,8 @@ class Worker
 
 	/**
 	 * Check and fix the priority of a worker task
-	 * @param array $entry 
-	 * @return array 
+	 * @param array $entry
+	 * @return array
 	 */
 	private static function checkPriority(array $entry)
 	{
@@ -177,7 +177,7 @@ class Worker
 
 		if (!in_array($entry['priority'], PRIORITIES)) {
 			Logger::warning('Invalid priority', ['entry' => $entry, 'callstack' => System::callstack(20)]);
-			DBA::update('workerqueue', ['priority' => PRIORITY_MEDIUM], ['id' => $entry['id']]);			
+			DBA::update('workerqueue', ['priority' => PRIORITY_MEDIUM], ['id' => $entry['id']]);
 			$entry['priority'] = PRIORITY_MEDIUM;
 		}
 
@@ -300,41 +300,41 @@ class Worker
 	/**
 	 * Checks if the given file is valid to be included
 	 *
-	 * @param mixed $file 
-	 * @return bool 
+	 * @param mixed $file
+	 * @return bool
 	 */
 	private static function validateInclude(&$file)
 	{
 		$orig_file = $file;
-	
+
 		$file = realpath($file);
-	
+
 		if (strpos($file, getcwd()) !== 0) {
 			return false;
 		}
-	
+
 		$file = str_replace(getcwd() . "/", "", $file, $count);
 		if ($count != 1) {
 			return false;
 		}
-	
+
 		if ($orig_file !== $file) {
 			return false;
 		}
-	
+
 		$valid = false;
 		if (strpos($file, "include/") === 0) {
 			$valid = true;
 		}
-	
+
 		if (strpos($file, "addon/") === 0) {
 			$valid = true;
 		}
-	
+
 		// Simply return flag
 		return $valid;
 	}
-	
+
 	/**
 	 * Execute a worker entry
 	 *
@@ -1169,7 +1169,7 @@ class Worker
 			if (DI::lock()->acquire(Worker::LOCK_PROCESS, 10)) {
 				if (DI::lock()->acquire(Worker::LOCK_WORKER, 10)) {
 					DBA::e("OPTIMIZE TABLE `workerqueue`");
-					DBA::e("OPTIMIZE TABLE `process`");			
+					DBA::e("OPTIMIZE TABLE `process`");
 					DI::lock()->release(Worker::LOCK_WORKER);
 				}
 				DI::lock()->release(Worker::LOCK_PROCESS);
