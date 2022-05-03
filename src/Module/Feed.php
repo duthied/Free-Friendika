@@ -25,6 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Protocol\Feed as ProtocolFeed;
+use Friendica\Network\HTTPException;
 
 /**
  * Provides public Atom feeds
@@ -42,7 +43,7 @@ use Friendica\Protocol\Feed as ProtocolFeed;
  */
 class Feed extends BaseModule
 {
-	protected function content(array $request = []): string
+	protected function rawContent(array $request = [])
 	{
 		$last_update = $request['last_update'] ?? '';
 		$nocache     = !empty($request['nocache']) && local_user();
@@ -66,6 +67,11 @@ class Feed extends BaseModule
 				$type = 'posts';
 		}
 
-		System::httpExit(ProtocolFeed::atom($this->parameters['nickname'], $last_update, 10, $type, $nocache, true), Response::TYPE_ATOM);
+		$feed = ProtocolFeed::atom($this->parameters['nickname'], $last_update, 10, $type, $nocache, true);
+		if (empty($feed)) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		}
+
+		System::httpExit($feed, Response::TYPE_ATOM);
 	}
 }
