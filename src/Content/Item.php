@@ -35,7 +35,6 @@ use Friendica\Model\Tag;
 use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Profiler;
-use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
@@ -402,7 +401,7 @@ class Item
 		$pcid = $item['author-id'];
 		$network = '';
 		$rel = 0;
-		$condition = ['uid' => local_user(), 'nurl' => Strings::normaliseLink($item['author-link'])];
+		$condition = ['uid' => local_user(), 'uri-id' => $item['author-uri-id']];
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
