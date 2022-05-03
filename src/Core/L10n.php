@@ -40,6 +40,7 @@ class L10n
 		'bg'    => 'Български',
 		'ca'    => 'Català',
 		'cs'    => 'Česky',
+		'da-dk' => 'Dansk (Danmark)',
 		'de'    => 'Deutsch',
 		'en-gb' => 'English (United Kingdom)',
 		'en-us' => 'English (United States)',
