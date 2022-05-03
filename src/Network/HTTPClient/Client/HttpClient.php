@@ -140,7 +140,7 @@ class HttpClient implements ICanSendHttpRequests
 			}
 		};
 
-		if (empty($conf[HttpClientOptions::HEADERS]['Accept'])) {
+		if (empty($conf[HttpClientOptions::HEADERS]['Accept']) && in_array($method, ['get', 'head'])) {
 			$this->logger->info('Accept header was missing, using default.', ['url' => $url, 'callstack' => System::callstack()]);
 			$conf[HttpClientOptions::HEADERS]['Accept'] = HttpClientAccept::DEFAULT;
 		}
