@@ -1200,6 +1200,7 @@ aside .vcard .icon {
 	overflow: auto;
 	margin-bottom: 10px;
 }
+aside .vcard #subscribe-feed-link-button,
 aside .vcard #dfrn-request-link-button,
 aside .vcard #wallmessage-link-botton {
 	width: 50%;
@@ -1207,6 +1208,7 @@ aside .vcard #wallmessage-link-botton {
 	float: left;
 	padding: 0 5px;
 }
+aside .vcard #subscribe-feed-link,
 aside .vcard #dfrn-request-link,
 aside .vcard #wallmessage-link {
 	width: 100%;

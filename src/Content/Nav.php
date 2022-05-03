@@ -304,7 +304,7 @@ class Nav
 		// Provide a banner/logo/whatever
 		$banner = DI::config()->get('system', 'banner');
 		if (is_null($banner)) {
-			$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
+			$banner = '<a href="https://friendi.ca"><img id="logo-img" width="32" height="32" src="images/friendica.svg" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 		}
 
 		$nav_info = [

@@ -60,7 +60,7 @@
 	<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="{{$media}}" />
 {{/foreach}}
 
-<link rel="shortcut icon" href="{{$shortcut_icon}}" />
+<link rel="icon" href="{{$shortcut_icon}}" />
 <link rel="apple-touch-icon" href="{{$touch_icon}}" />
 
 <meta name="apple-mobile-web-app-capable" content="yes" />

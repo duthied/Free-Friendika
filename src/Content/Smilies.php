@@ -142,7 +142,7 @@ class Smilies
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-facepalm.gif" alt=":facepalm" title=":facepalm" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/like.gif" alt=":like" title=":like" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/dislike.gif" alt=":dislike" title=":dislike" />',
-		'<a href="https://friendi.ca">~friendica <img class="smiley" src="' . $baseUrl . '/images/friendica-16.png" alt="~friendica" title="~friendica" /></a>',
+		'<a href="https://friendi.ca">~friendica <img class="smiley" width="16" height="16" src="' . $baseUrl . '/images/friendica.svg" alt="~friendica" title="~friendica" /></a>',
 		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . $baseUrl . '/images/rm-16.png" alt="red#" title="red#" />matrix</a>',
 		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . $baseUrl . '/images/rm-16.png" alt="red#matrix" title="red#matrix" />matrix</a>'
 		];

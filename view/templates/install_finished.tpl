@@ -1,4 +1,4 @@
-<h1><img src="{{$baseurl}}/images/friendica-32.png"> {{$title}}</h1>
+<h1><img width="32" height="32" src="{{$baseurl}}/images/friendica.svg"> {{$title}}</h1>
 <h2>{{$pass}}</h2>
 
 {{foreach $checks as $check}}
