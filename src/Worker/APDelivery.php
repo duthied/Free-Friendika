@@ -68,7 +68,7 @@ class APDelivery
 		}
 
 		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
-			if ($uri_id) {
+			if (!empty($uri_id)) {
 				Post\Delivery::remove($uri_id, $inbox);
 				Post\DeliveryData::incrementQueueFailed($uri_id);
 			} elseif (!empty($uri_ids)) {
@@ -78,7 +78,7 @@ class APDelivery
 				}
 			}
 		} elseif ($success && in_array($cmd, [Delivery::POST])) {
-			if ($uri_id) {
+			if (!empty($uri_id)) {
 				Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
 			} elseif (!empty($uri_ids)) {
 				foreach ($uri_ids as $uri_id) {
