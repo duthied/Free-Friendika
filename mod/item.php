@@ -666,21 +666,16 @@ function item_post(App $a) {
 	$datarray['uri-id'] = ItemURI::getIdByURI($datarray['uri']);
 
 	if ($orig_post)	{
-		// Fill the cache field
-		// This could be done in Item::update as well - but we have to check for the existance of some fields.
-		Item::putInCache($datarray);
-
 		$fields = [
 			'title' => $datarray['title'],
 			'body' => $datarray['body'],
 			'attach' => $datarray['attach'],
 			'file' => $datarray['file'],
-			'rendered-html' => $datarray['rendered-html'],
-			'rendered-hash' => $datarray['rendered-hash'],
 			'edited' => DateTimeFormat::utcNow(),
 			'changed' => DateTimeFormat::utcNow()];
 
 		Item::update($fields, ['id' => $post_id]);
+		Item::updateDisplayCache($datarray['uri-id']);
 
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
