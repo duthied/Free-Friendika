@@ -2709,7 +2709,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo Remove reference, simply return "rendered-html" and "rendered-hash"
 	 */
-	public static function putInCache(&$item)
+	private static function putInCache(&$item)
 	{
 		// Save original body to prevent addons to modify it
 		$body = $item['body'];
@@ -2722,8 +2722,6 @@ class Item
 			|| $rendered_hash != hash('md5', BBCode::VERSION . '::' . $body)
 			|| DI::config()->get('system', 'ignore_cache')
 		) {
-			self::addRedirToImageTags($item);
-
 			$item['rendered-html'] = BBCode::convertForUriId($item['uri-id'], $item['body']);
 			$item['rendered-hash'] = hash('md5', BBCode::VERSION . '::' . $body);
 
@@ -2746,31 +2744,6 @@ class Item
 		}
 
 		$item['body'] = $body;
-	}
-
-	/**
-	 * Find any non-embedded images in private items and add redir links to them
-	 *
-	 * @param array &$item The field array of an item row
-	 */
-	private static function addRedirToImageTags(array &$item)
-	{
-		$app = DI::app();
-
-		$matches = [];
-		$cnt = preg_match_all('|\[img\](http[^\[]*?/photo/[a-fA-F0-9]+?(-[0-9]\.[\w]+?)?)\[\/img\]|', $item['body'], $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				if (strpos($mtch[1], '/redir') !== false) {
-					continue;
-				}
-
-				if ((local_user() == $item['uid']) && ($item['private'] == self::PRIVATE) && ($item['contact-id'] != $app->getContactId()) && ($item['network'] == Protocol::DFRN)) {
-					$img_url = 'redir/' . $item['contact-id'] . '?url=' . urlencode($mtch[1]);
-					$item['body'] = str_replace($mtch[0], '[img]' . $img_url . '[/img]', $item['body']);
-				}
-			}
-		}
 	}
 
 	/**
