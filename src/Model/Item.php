@@ -1215,7 +1215,24 @@ class Item
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, (int)$posted_item['uri-id'], (int)$posted_item['uid']);
 		}
 
+		// Fill the cache with the rendered content.
+		if (in_array($posted_item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) && ($posted_item['uid'] == 0)) {
+			self::updateDisplayCache($posted_item['uri-id']);
+		}
+
 		return $post_user_id;
+	}
+
+	/**
+	 * Update the display cache
+	 *
+	 * @param integer $uri_id
+	 * @return void
+	 */
+	public static function updateDisplayCache(int $uri_id)
+	{
+		$item = Post::selectFirst(self::DISPLAY_FIELDLIST, ['uri-id' => $uri_id]);
+		self::prepareBody($item, false, false, true);
 	}
 
 	/**
@@ -2763,6 +2780,7 @@ class Item
 	 * @param array   $item
 	 * @param boolean $attach
 	 * @param boolean $is_preview
+	 * @param boolean $only_cache
 	 * @return string item body html
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -2771,7 +2789,7 @@ class Item
 	 * @hook  prepare_body ('item'=>item array, 'html'=>body string, 'is_preview'=>boolean, 'filter_reasons'=>string array) after first bbcode to html
 	 * @hook  prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
 	 */
-	public static function prepareBody(array &$item, $attach = false, $is_preview = false)
+	public static function prepareBody(array &$item, $attach = false, $is_preview = false, $only_cache = false)
 	{
 		$a = DI::app();
 		Hook::callAll('prepare_body_init', $item);
@@ -2811,6 +2829,10 @@ class Item
 		self::putInCache($item);
 		$item['body'] = $body;
 		$s = $item["rendered-html"];
+
+		if ($only_cache) {
+			return;
+		}
 
 		// Compile eventual content filter reasons
 		$filter_reasons = [];
