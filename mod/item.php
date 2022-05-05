@@ -672,7 +672,8 @@ function item_post(App $a) {
 			'attach' => $datarray['attach'],
 			'file' => $datarray['file'],
 			'edited' => DateTimeFormat::utcNow(),
-			'changed' => DateTimeFormat::utcNow()];
+			'changed' => DateTimeFormat::utcNow()
+		];
 
 		Item::update($fields, ['id' => $post_id]);
 		Item::updateDisplayCache($datarray['uri-id']);

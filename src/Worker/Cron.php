@@ -92,9 +92,6 @@ class Cron
 				Worker::add(PRIORITY_LOW, 'PullDirectory');
 			}
 
-			// Delete all done workerqueue entries			
-			Worker::add(PRIORITY_LOW, 'CleanWorkerQueue');
-
 			// Clear cache entries
 			Worker::add(PRIORITY_LOW, 'ClearCache');
 

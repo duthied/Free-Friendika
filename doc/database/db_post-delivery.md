@@ -1,7 +1,7 @@
 Table post-delivery
 ===========
 
-Status of ActivityPub inboxes
+Delivery data for posts for the batch processing
 
 Fields
 ------

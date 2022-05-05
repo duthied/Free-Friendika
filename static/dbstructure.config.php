@@ -1158,7 +1158,7 @@ return [
 		]
 	],
 	"post-delivery" => [
-		"comment" => "Status of ActivityPub inboxes",
+		"comment" => "Delivery data for posts for the batch processing",
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"inbox-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of inbox url"],

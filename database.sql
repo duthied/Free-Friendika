@@ -1132,7 +1132,7 @@ CREATE TABLE IF NOT EXISTS `post-delivery` (
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`inbox-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Status of ActivityPub inboxes';
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for posts for the batch processing';
 
 --
 -- TABLE post-delivery-data
