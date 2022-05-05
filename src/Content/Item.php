@@ -355,23 +355,7 @@ class Item
 				$item['body'] = $this->l10n->t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
 			}
 		}
-/*
-		$matches = null;
-		if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $mtch) {
-				if (!strpos($mtch[1], 'zrl=')) {
-					$item['body'] = str_replace($mtch[0], '@[url=' . Contact::magicLink($mtch[1]) . ']', $item['body']);
-				}
-			}
-		}
-*/
-		// add sparkle links to appropriate permalinks
-		// Only create a redirection to a magic link when logged in
-		if (!empty($item['plink']) && Session::isAuthenticated() && $item['private'] == ModelItem::PRIVATE) {
-			$author = ['uid' => 0, 'id' => $item['author-id'],
-				'network' => $item['author-network'], 'url' => $item['author-link']];
-			$item['plink'] = Contact::magicLinkByContact($author, $item['plink']);
-		}
+
 		$this->profiler->stopRecording();
 	}
 

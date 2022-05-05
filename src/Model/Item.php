@@ -3200,6 +3200,12 @@ class Item
 				'orig_title' => DI::l10n()->t('View on separate page'),
 			];
 
+			if (!empty($plink) && ($item['private'] == self::PRIVATE)) {
+				$author = ['uid' => 0, 'id' => $item['author-id'],
+					'network' => $item['author-network'], 'url' => $item['author-link']];
+				$plink = Contact::magicLinkByContact($author, $plink);
+			}
+
 			if (!empty($plink)) {
 				$ret['href'] = DI::baseUrl()->remove($plink);
 				$ret['title'] = DI::l10n()->t('Link to source');
