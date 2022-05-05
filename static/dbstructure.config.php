@@ -1230,6 +1230,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uri-id-url" => ["UNIQUE", "uri-id", "url"],
+			"uri-id-id" => ["uri-id", "id"],
 		]
 	],
 	"post-question" => [

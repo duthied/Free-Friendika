@@ -1191,6 +1191,7 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	`publisher-image` varbinary(255) COMMENT 'Image of the publisher of the media',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`),
+	 INDEX `uri-id-id` (`uri-id`,`id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Attached media';
 
