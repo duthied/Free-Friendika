@@ -1114,8 +1114,8 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id", "uid", "type", "tid"],
-			"uri-id" => ["tid"],
-			"uid" => ["uid"],
+			"tid" => ["tid"],
+			"uid_uri-id" => ["uid", "uri-id"],
 		]
 	],
 	"post-collection" => [

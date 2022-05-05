@@ -1071,8 +1071,8 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`uri-id`,`uid`,`type`,`tid`),
-	 INDEX `uri-id` (`tid`),
-	 INDEX `uid` (`uid`),
+	 INDEX `tid` (`tid`),
+	 INDEX `uid_uri-id` (`uid`,`uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT

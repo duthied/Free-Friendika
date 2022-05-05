@@ -16,11 +16,11 @@ Fields
 Indexes
 ------------
 
-| Name    | Fields                 |
-| ------- | ---------------------- |
-| PRIMARY | uri-id, uid, type, tid |
-| uri-id  | tid                    |
-| uid     | uid                    |
+| Name       | Fields                 |
+| ---------- | ---------------------- |
+| PRIMARY    | uri-id, uid, type, tid |
+| tid        | tid                    |
+| uid_uri-id | uid, uri-id            |
 
 Foreign Keys
 ------------
