@@ -87,8 +87,8 @@ class Item
 		'wall', 'private', 'starred', 'origin', 'parent-origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'mention', 'global',
-		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
-		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network', 'owner-contact-type',
+		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network', 'author-updated', 'author-gsid', 'author-addr', 'author-uri-id',
+		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network', 'owner-contact-type', 'owner-updated',
 		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type', 'causer-network',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
 		'writable', 'self', 'cid', 'alias',
@@ -1215,7 +1215,24 @@ class Item
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, (int)$posted_item['uri-id'], (int)$posted_item['uid']);
 		}
 
+		// Fill the cache with the rendered content.
+		if (in_array($posted_item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) && ($posted_item['uid'] == 0)) {
+			self::updateDisplayCache($posted_item['uri-id']);
+		}
+
 		return $post_user_id;
+	}
+
+	/**
+	 * Update the display cache
+	 *
+	 * @param integer $uri_id
+	 * @return void
+	 */
+	public static function updateDisplayCache(int $uri_id)
+	{
+		$item = Post::selectFirst(self::DISPLAY_FIELDLIST, ['uri-id' => $uri_id]);
+		self::prepareBody($item, false, false, true);
 	}
 
 	/**
@@ -2692,7 +2709,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo Remove reference, simply return "rendered-html" and "rendered-hash"
 	 */
-	public static function putInCache(&$item)
+	private static function putInCache(&$item)
 	{
 		// Save original body to prevent addons to modify it
 		$body = $item['body'];
@@ -2705,8 +2722,6 @@ class Item
 			|| $rendered_hash != hash('md5', BBCode::VERSION . '::' . $body)
 			|| DI::config()->get('system', 'ignore_cache')
 		) {
-			self::addRedirToImageTags($item);
-
 			$item['rendered-html'] = BBCode::convertForUriId($item['uri-id'], $item['body']);
 			$item['rendered-hash'] = hash('md5', BBCode::VERSION . '::' . $body);
 
@@ -2732,37 +2747,13 @@ class Item
 	}
 
 	/**
-	 * Find any non-embedded images in private items and add redir links to them
-	 *
-	 * @param array &$item The field array of an item row
-	 */
-	private static function addRedirToImageTags(array &$item)
-	{
-		$app = DI::app();
-
-		$matches = [];
-		$cnt = preg_match_all('|\[img\](http[^\[]*?/photo/[a-fA-F0-9]+?(-[0-9]\.[\w]+?)?)\[\/img\]|', $item['body'], $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				if (strpos($mtch[1], '/redir') !== false) {
-					continue;
-				}
-
-				if ((local_user() == $item['uid']) && ($item['private'] == self::PRIVATE) && ($item['contact-id'] != $app->getContactId()) && ($item['network'] == Protocol::DFRN)) {
-					$img_url = 'redir/' . $item['contact-id'] . '?url=' . urlencode($mtch[1]);
-					$item['body'] = str_replace($mtch[0], '[img]' . $img_url . '[/img]', $item['body']);
-				}
-			}
-		}
-	}
-
-	/**
 	 * Given an item array, convert the body element from bbcode to html and add smilie icons.
 	 * If attach is true, also add icons for item attachments.
 	 *
 	 * @param array   $item
 	 * @param boolean $attach
 	 * @param boolean $is_preview
+	 * @param boolean $only_cache
 	 * @return string item body html
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -2771,7 +2762,7 @@ class Item
 	 * @hook  prepare_body ('item'=>item array, 'html'=>body string, 'is_preview'=>boolean, 'filter_reasons'=>string array) after first bbcode to html
 	 * @hook  prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
 	 */
-	public static function prepareBody(array &$item, $attach = false, $is_preview = false)
+	public static function prepareBody(array &$item, $attach = false, $is_preview = false, $only_cache = false)
 	{
 		$a = DI::app();
 		Hook::callAll('prepare_body_init', $item);
@@ -2811,6 +2802,10 @@ class Item
 		self::putInCache($item);
 		$item['body'] = $body;
 		$s = $item["rendered-html"];
+
+		if ($only_cache) {
+			return;
+		}
 
 		// Compile eventual content filter reasons
 		$filter_reasons = [];
@@ -3204,6 +3199,12 @@ class Item
 				'title' => DI::l10n()->t('View on separate page'),
 				'orig_title' => DI::l10n()->t('View on separate page'),
 			];
+
+			if (!empty($plink) && ($item['private'] == self::PRIVATE)) {
+				$author = ['uid' => 0, 'id' => $item['author-id'],
+					'network' => $item['author-network'], 'url' => $item['author-link']];
+				$plink = Contact::magicLinkByContact($author, $plink);
+			}
 
 			if (!empty($plink)) {
 				$ret['href'] = DI::baseUrl()->remove($plink);

@@ -938,7 +938,7 @@ class Receiver
 
 				// Fetch the receivers for the public and the followers collection
 				if ((($receiver == $followers) || (($receiver == self::PUBLIC_COLLECTION) && !$is_forum)) && !empty($actor)) {
-					$receivers = self::getReceiverForActor($actor, $tags, $receivers, $follower_target);
+					$receivers = self::getReceiverForActor($actor, $tags, $receivers, $follower_target, $profile);
 					continue;
 				}
 
@@ -1000,33 +1000,46 @@ class Receiver
 	 * @param array   $tags
 	 * @param array   $receivers
 	 * @param integer $target_type
+	 * @param array   $profile
 	 *
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceiverForActor($actor, $tags, $receivers, $target_type)
+	private static function getReceiverForActor($actor, $tags, $receivers, $target_type, $profile)
 	{
 		$basecondition = ['rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
 			'network' => Protocol::FEDERATED, 'archive' => false, 'pending' => false];
 
-		$condition = DBA::mergeConditions($basecondition, ["`nurl` = ? AND `uid` != ?", Strings::normaliseLink($actor), 0]);
-		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
-		while ($contact = DBA::fetch($contacts)) {
-			if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
-				$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
+		if (!empty($profile['uri-id'])) {
+			$condition = DBA::mergeConditions($basecondition, ["`uri-id` = ? AND `uid` != ?", $profile['uri-id'], 0]);
+			$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
+			while ($contact = DBA::fetch($contacts)) {
+				if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
+					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
+				}
 			}
-		}
-		DBA::close($contacts);
+			DBA::close($contacts);
+		} else {
+			// This part will only be called while post update 1426 wasn't finished
+			$condition = DBA::mergeConditions($basecondition, ["`nurl` = ? AND `uid` != ?", Strings::normaliseLink($actor), 0]);
+			$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
+			while ($contact = DBA::fetch($contacts)) {
+				if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
+					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
+				}
+			}
+			DBA::close($contacts);
 
-		// The queries are split because of performance issues
-		$condition = DBA::mergeConditions($basecondition, ["`alias` IN (?, ?) AND `uid` != ?", Strings::normaliseLink($actor), $actor, 0]);
-		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
-		while ($contact = DBA::fetch($contacts)) {
-			if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
-				$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
+			// The queries are split because of performance issues
+			$condition = DBA::mergeConditions($basecondition, ["`alias` IN (?, ?) AND `uid` != ?", Strings::normaliseLink($actor), $actor, 0]);
+			$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
+			while ($contact = DBA::fetch($contacts)) {
+				if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
+					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
+				}
 			}
+			DBA::close($contacts);
 		}
-		DBA::close($contacts);
 		return $receivers;
 	}
 

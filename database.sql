@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1460
+-- DB_UPDATE_VERSION 1461
 -- ------------------------------------------
 
 
@@ -712,13 +712,16 @@ CREATE TABLE IF NOT EXISTS `hook` (
 --
 CREATE TABLE IF NOT EXISTS `inbox-status` (
 	`url` varbinary(255) NOT NULL COMMENT 'URL of the inbox',
+	`uri-id` int unsigned COMMENT 'Item-uri id of inbox url',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date of this entry',
 	`success` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last successful delivery',
 	`failure` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last failed delivery',
 	`previous` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Previous delivery date',
 	`archive` boolean NOT NULL DEFAULT '0' COMMENT 'Is the inbox archived?',
 	`shared` boolean NOT NULL DEFAULT '0' COMMENT 'Is it a shared inbox?',
-	 PRIMARY KEY(`url`)
+	 PRIMARY KEY(`url`),
+	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Status of ActivityPub inboxes';
 
 --
@@ -1068,8 +1071,8 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`uri-id`,`uid`,`type`,`tid`),
-	 INDEX `uri-id` (`tid`),
-	 INDEX `uid` (`uid`),
+	 INDEX `tid` (`tid`),
+	 INDEX `uid_uri-id` (`uid`,`uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
@@ -1113,6 +1116,23 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
+
+--
+-- TABLE post-delivery
+--
+CREATE TABLE IF NOT EXISTS `post-delivery` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`inbox-id` int unsigned NOT NULL COMMENT 'Item-uri id of inbox url',
+	`uid` mediumint unsigned COMMENT 'Delivering user',
+	`created` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`command` varbinary(32) COMMENT '',
+	 PRIMARY KEY(`uri-id`,`inbox-id`),
+	 INDEX `inbox-id_created` (`inbox-id`,`created`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`inbox-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for posts for the batch processing';
 
 --
 -- TABLE post-delivery-data
@@ -1171,6 +1191,7 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	`publisher-image` varbinary(255) COMMENT 'Image of the publisher of the media',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`),
+	 INDEX `uri-id-id` (`uri-id`,`id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Attached media';
 
@@ -1719,6 +1740,9 @@ CREATE VIEW `post-user-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
+	`author`.`updated` AS `author-updated`,
+	`author`.`gsid` AS `author-gsid`,
+	`author`.`uri-id` AS `author-uri-id`,
 	`post-user`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -1728,6 +1752,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`updated` AS `owner-updated`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-user`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
@@ -1884,6 +1909,9 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
+	`author`.`updated` AS `author-updated`,
+	`author`.`gsid` AS `author-gsid`,
+	`author`.`uri-id` AS `author-uri-id`,
 	`post-thread-user`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -1893,6 +1921,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`updated` AS `owner-updated`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-thread-user`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
@@ -2035,6 +2064,9 @@ CREATE VIEW `post-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
+	`author`.`updated` AS `author-updated`,
+	`author`.`gsid` AS `author-gsid`,
+	`author`.`uri-id` AS `author-uri-id`,
 	`post`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -2044,6 +2076,7 @@ CREATE VIEW `post-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`updated` AS `owner-updated`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
@@ -2162,6 +2195,9 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
+	`author`.`updated` AS `author-updated`,
+	`author`.`gsid` AS `author-gsid`,
+	`author`.`uri-id` AS `author-uri-id`,
 	`post-thread`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -2171,6 +2207,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`updated` AS `owner-updated`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-thread`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
@@ -2234,9 +2271,14 @@ CREATE VIEW `collection-view` AS SELECT
 	`post-collection`.`type` AS `type`,
 	`post`.`author-id` AS `cid`,
 	`post`.`received` AS `received`,
-	`post`.`created` AS `created`
+	`post`.`created` AS `created`,
+	`post-thread`.`commented` AS `commented`,
+	`post`.`thr-parent-id` AS `thr-parent-id`,
+	`post`.`author-id` AS `author-id`,
+	`post`.`gravity` AS `gravity`
 	FROM `post-collection`
-			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`;
+			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`
+			INNER JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`;
 
 --
 -- VIEW tag-view

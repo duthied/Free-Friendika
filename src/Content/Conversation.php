@@ -108,6 +108,8 @@ class Conversation
 	 */
 	public function builtinActivityPuller(array $activity, array &$conv_responses)
 	{
+		$thread_parent = $activity['thr-parent-row'] ?? [];
+
 		foreach ($conv_responses as $mode => $v) {
 			$sparkle = '';
 
@@ -152,9 +154,8 @@ class Conversation
 					$activity['thr-parent-id'] = $activity['parent-uri-id'];
 				}
 
-				// Skip when the causer of the parent is the same than the author of the announce
-				if (($verb == Activity::ANNOUNCE) && Post::exists(['uri-id' => $activity['thr-parent-id'],
-					'uid' => $activity['uid'], 'causer-id' => $activity['author-id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]])) {
+				// Skip when the causer of the parent is the same as the author of the announce
+				if (($verb == Activity::ANNOUNCE) && !empty($thread_parent['causer-id'] && ($thread_parent['causer-id'] == $activity['author-id']))) {
 					continue;
 				}
 
@@ -658,6 +659,16 @@ class Conversation
 						$pinned = '';
 					}
 
+					if (in_array($item['network'], [Protocol::FEED, Protocol::MAIL])) {
+						$owner_avatar  = $author_avatar  = $item['contact-id'];
+						$owner_updated = $author_updated = '';
+					} else {
+						$owner_avatar   = $item['owner-id'];
+						$owner_updated  = $item['owner-updated'];
+						$author_avatar  = $item['author-id'];
+						$author_updated = $item['author-updated'];
+					}
+
 					$tmp_item = [
 						'template'             => $tpl,
 						'id'                   => ($preview ? 'P0' : $item['id']),
@@ -667,15 +678,15 @@ class Conversation
 						'created_date'         => $item['created'],
 						'uriid'                => $item['uri-id'],
 						'network'              => $item['network'],
-						'network_name'         => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']),
-						'network_icon'         => ContactSelector::networkToIcon($item['network'], $item['author-link']),
+						'network_name'         => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network'], $item['author-gsid']),
+						'network_icon'         => ContactSelector::networkToIcon($item['network'], $item['author-link'], $item['author-gsid']),
 						'linktitle'            => $this->l10n->t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 						'profile_url'          => $profile_link,
 						'item_photo_menu_html' => $this->item->photoMenu($item, $formSecurityToken),
 						'name'                 => $profile_name,
 						'sparkle'              => $sparkle,
 						'lock'                 => false,
-						'thumb'                => $this->baseURL->remove(Contact::getAvatarUrlForUrl($item['author-link'], $item['uid'], Proxy::SIZE_THUMB)),
+						'thumb'                => $this->baseURL->remove(Contact::getAvatarUrlForId($author_avatar, Proxy::SIZE_THUMB, $author_updated)),
 						'title'                => $title,
 						'body_html'            => $body_html,
 						'tags'                 => $tags['tags'],
@@ -696,7 +707,7 @@ class Conversation
 						'indent'               => '',
 						'owner_name'           => '',
 						'owner_url'            => '',
-						'owner_photo'          => $this->baseURL->remove(Contact::getAvatarUrlForUrl($item['owner-link'], $item['uid'], Proxy::SIZE_THUMB)),
+						'owner_photo'          => $this->baseURL->remove(Contact::getAvatarUrlForId($owner_avatar, Proxy::SIZE_THUMB, $owner_updated)),
 						'plink'                => ItemModel::getPlink($item),
 						'edpost'               => false,
 						'pinned'               => $pinned,
@@ -809,12 +820,13 @@ class Conversation
 	/**
 	 * Adds some information (Causer, post reason, direction) to the fetched post row.
 	 *
-	 * @param array   $row      Post row
-	 * @param array   $activity Contact data of the resharer
+	 * @param array   $row        Post row
+	 * @param array   $activity   Contact data of the resharer
+	 * @param array   $thr_parent Thread parent row
 	 *
 	 * @return array items with parents and comments
 	 */
-	private function addRowInformation(array $row, array $activity)
+	private function addRowInformation(array $row, array $activity, array $thr_parent)
 	{
 		$this->profiler->startRecording('rendering');
 
@@ -889,6 +901,8 @@ class Conversation
 				break;
 		}
 
+		$row['thr-parent-row'] = $thr_parent;
+
 		$this->profiler->stopRecording();
 		return $row;
 	}
@@ -915,8 +929,6 @@ class Conversation
 		} else {
 			$max_comments = $this->config->get('system', 'max_display_comments', 1000);
 		}
-
-		$params = ['order' => ['uri-id' => true, 'uid' => true]];
 
 		$activities      = [];
 		$uriids          = [];
@@ -951,6 +963,17 @@ class Conversation
 		$condition = DBA::mergeConditions($condition,
 			["`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW)]);
 
+		$thread_parents = Post::select(['uri-id', 'causer-id'], $condition, ['order' => ['uri-id' => false, 'uid' => true]]);
+
+		$thr_parent = [];
+
+		while ($row = Post::fetch($thread_parents)) {
+			$thr_parent[$row['uri-id']] = $row;
+		}
+		DBA::close($thread_parents);
+
+		$params = ['order' => ['uri-id' => true, 'uid' => true]];
+
 		$thread_items = Post::selectForUser($uid, array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
 		$items = [];
@@ -968,7 +991,8 @@ class Conversation
 					continue;
 				}
 			}
-			$items[$row['uri-id']] = $this->addRowInformation($row, $activities[$row['uri-id']] ?? []);
+
+			$items[$row['uri-id']] = $this->addRowInformation($row, $activities[$row['uri-id']] ?? [], $thr_parent[$row['thr-parent-id']] ?? []);
 		}
 
 		DBA::close($thread_items);

@@ -9,6 +9,7 @@ Fields
 | Field    | Description                          | Type           | Null | Key | Default             | Extra |
 | -------- | ------------------------------------ | -------------- | ---- | --- | ------------------- | ----- |
 | url      | URL of the inbox                     | varbinary(255) | NO   | PRI | NULL                |       |
+| uri-id   | Item-uri id of inbox url             | int unsigned   | YES  |     | NULL                |       |
 | created  | Creation date of this entry          | datetime       | NO   |     | 0001-01-01 00:00:00 |       |
 | success  | Date of the last successful delivery | datetime       | NO   |     | 0001-01-01 00:00:00 |       |
 | failure  | Date of the last failed delivery     | datetime       | NO   |     | 0001-01-01 00:00:00 |       |
@@ -22,6 +23,13 @@ Indexes
 | Name    | Fields |
 | ------- | ------ |
 | PRIMARY | url    |
+| uri-id  | uri-id |
 
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uri-id | [item-uri](help/database/db_item-uri) | id |
 
 Return to [database documentation](help/database)

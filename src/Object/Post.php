@@ -29,7 +29,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -451,6 +450,16 @@ class Post
 			$browsershare = null;
 		}
 
+		if (in_array($item['network'], [Protocol::FEED, Protocol::MAIL])) {
+			$owner_avatar  = $author_avatar  = $item['contact-id'];
+			$owner_updated = $author_updated = '';
+		} else {
+			$owner_avatar   = $item['owner-id'];
+			$owner_updated  = $item['owner-updated'];
+			$author_avatar  = $item['author-id'];
+			$author_updated = $item['author-updated'];
+		}
+
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
@@ -482,7 +491,7 @@ class Post
 			'profile_url'     => $profile_link,
 			'name'            => $profile_name,
 			'item_photo_menu_html' => DI::contentItem()->photoMenu($item, $formSecurityToken),
-			'thumb'           => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['author-link'], $item['uid'], Proxy::SIZE_THUMB)),
+			'thumb'           => DI::baseUrl()->remove(Contact::getAvatarUrlForId($author_avatar, Proxy::SIZE_THUMB, $author_updated)),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title,
@@ -499,7 +508,7 @@ class Post
 			'shiny'           => $shiny,
 			'owner_self'      => $item['author-link'] == Session::get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
-			'owner_photo'     => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['owner-link'], $item['uid'], Proxy::SIZE_THUMB)),
+			'owner_photo'     => DI::baseUrl()->remove(Contact::getAvatarUrlForId($owner_avatar, Proxy::SIZE_THUMB, $owner_updated)),
 			'owner_name'      => $this->getOwnerName(),
 			'plink'           => Item::getPlink($item),
 			'browsershare'    => $browsershare,
@@ -529,8 +538,8 @@ class Post
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
 			'network'         => $item["network"],
-			'network_name'    => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']),
-			'network_icon'    => ContactSelector::networkToIcon($item['network'], $item['author-link']),
+			'network_name'    => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network'], $item['author-gsid']),
+			'network_icon'    => ContactSelector::networkToIcon($item['network'], $item['author-link'], $item['author-gsid']),
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
@@ -898,12 +907,7 @@ class Post
 		}
 
 		$owner = User::getOwnerDataById($a->getLoggedInUserId());
-
-		$item = PostModel::selectFirst(['author-addr', 'uri-id', 'network', 'gravity', 'content-warning'], ['id' => $this->getId()]);
-		if (!DBA::isResult($item) || empty($item['author-addr'])) {
-			// Should not happen
-			return '';
-		}
+		$item = $this->getData();
 
 		if (!empty($item['content-warning']) && Feature::isEnabled(local_user(), 'add_abstract')) {
 			$text = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $item['content-warning'] . "[/abstract]\n";
@@ -967,7 +971,7 @@ class Post
 			$uid = $conv->getProfileOwner();
 			$parent_uid = $this->getDataValue('uid');
 
-			$contact = Contact::getById($a->getContactId());
+			$owner = User::getOwnerDataById($a->getLoggedInUserId());
 
 			$default_text = $this->getDefaultText();
 
@@ -986,9 +990,9 @@ class Post
 				'$qcomment'    => $qcomment,
 				'$default'     => $default_text,
 				'$profile_uid' => $uid,
-				'$mylink'      => DI::baseUrl()->remove($contact['url'] ?? ''),
+				'$mylink'      => DI::baseUrl()->remove($owner['url'] ?? ''),
 				'$mytitle'     => DI::l10n()->t('This is you'),
-				'$myphoto'     => DI::baseUrl()->remove($contact['thumb'] ?? ''),
+				'$myphoto'     => DI::baseUrl()->remove($owner['thumb'] ?? ''),
 				'$comment'     => DI::l10n()->t('Comment'),
 				'$submit'      => DI::l10n()->t('Submit'),
 				'$loading'     => DI::l10n()->t('Loading...'),

@@ -828,7 +828,9 @@ class Contact
 
 		if (in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
 			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
-			Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
+			if (!empty($cdata['public'])) {
+				Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
+			}
 		}
 
 		self::removeSharer($contact);
@@ -855,7 +857,9 @@ class Contact
 
 		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
 			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
-			Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
+			if (!empty($cdata['public'])) {
+				Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
+			}
 		}
 
 		self::removeFollower($contact);
@@ -880,11 +884,11 @@ class Contact
 
 		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
 
-		if (in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
+		if (in_array($contact['rel'], [self::SHARING, self::FRIEND]) && !empty($cdata['public'])) {
 			Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
 		}
 
-		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
+		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND]) && !empty($cdata['public'])) {
 			Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
 		}
 
@@ -1799,7 +1803,7 @@ class Contact
 	{
 		// We have to fetch the "updated" variable when it wasn't provided
 		// The parameter can be provided to improve performance
-		if (empty($updated) || empty($guid)) {
+		if (empty($updated)) {
 			$account = DBA::selectFirst('account-user-view', ['updated', 'guid'], ['id' => $cid]);
 			$updated = $account['updated'] ?? '';
 			$guid = $account['guid'] ?? '';

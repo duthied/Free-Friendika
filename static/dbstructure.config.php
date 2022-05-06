@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1460);
+	define('DB_UPDATE_VERSION', 1461);
 }
 
 return [
@@ -772,6 +772,7 @@ return [
 		"comment" => "Status of ActivityPub inboxes",
 		"fields" => [
 			"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "URL of the inbox"],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of inbox url"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date of this entry"],
 			"success" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last successful delivery"],
 			"failure" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last failed delivery"],
@@ -780,7 +781,8 @@ return [
 			"shared" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Is it a shared inbox?"]
 		],
 		"indexes" => [
-			"PRIMARY" => ["url"]
+			"PRIMARY" => ["url"],
+			"uri-id" => ["uri-id"],
 		]
 	],
 	"intro" => [
@@ -1112,8 +1114,8 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id", "uid", "type", "tid"],
-			"uri-id" => ["tid"],
-			"uid" => ["uid"],
+			"tid" => ["tid"],
+			"uid_uri-id" => ["uid", "uri-id"],
 		]
 	],
 	"post-collection" => [
@@ -1153,6 +1155,21 @@ return [
 			"plink" => ["plink(191)"],
 			"resource-id" => ["resource-id"],
 			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
+		]
+	],
+	"post-delivery" => [
+		"comment" => "Delivery data for posts for the batch processing",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"inbox-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of inbox url"],
+			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Delivering user"],
+			"created" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"command" => ["type" => "varbinary(32)", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "inbox-id"],
+			"inbox-id_created" => ["inbox-id", "created"],
+			"uid" => ["uid"],
 		]
 	],
 	"post-delivery-data" => [
@@ -1213,6 +1230,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uri-id-url" => ["UNIQUE", "uri-id", "url"],
+			"uri-id-id" => ["uri-id", "id"],
 		]
 	],
 	"post-question" => [

@@ -677,7 +677,7 @@ class Notifier
 		}
 		DBA::close($contacts_stmt);
 
-		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
+		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser($self_user_id);
 		foreach ($inboxes as $inbox => $receivers) {
 			Logger::info('Account removal via ActivityPub', ['uid' => $self_user_id, 'inbox' => $inbox]);
 			Worker::add(['priority' => PRIORITY_NEGLIGIBLE, 'created' => $created, 'dont_fork' => true],
@@ -750,9 +750,7 @@ class Notifier
 			Logger::info('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.');
 			return ['count' => 0, 'contacts' => []];
 		} elseif ($parent['origin']) {
-			// Remote items are transmitted via the personal inboxes.
-			// Doing so ensures that the dedicated receiver will get the message.
-			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true, $target_item['id']);
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, false, $target_item['id']);
 
 			if (in_array($target_item['private'], [Item::PUBLIC])) {
 				$inboxes = ActivityPub\Transmitter::addRelayServerInboxesForItem($parent['id'], $inboxes);
@@ -788,9 +786,15 @@ class Notifier
 
 			Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 
-			if (Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
-					'APDelivery', $cmd, $target_item['id'], $inbox, $uid, $receivers, $target_item['uri-id'])) {
+			if (DI::config()->get('system', 'bulk_delivery')) {
 				$delivery_queue_count++;
+				Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd);
+				Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, 0, $inbox, $uid);
+			} else {
+				if (Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
+						'APDelivery', $cmd, $target_item['id'], $inbox, $uid, $receivers, $target_item['uri-id'])) {
+					$delivery_queue_count++;
+				}
 			}
 		}
 
@@ -798,8 +802,14 @@ class Notifier
 		foreach ($relay_inboxes as $inbox) {
 			Logger::info('Delivery to relay servers via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 
-			if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, $target_item['id'], $inbox, $uid, [], $target_item['uri-id'])) {
+			if (DI::config()->get('system', 'bulk_delivery')) {
 				$delivery_queue_count++;
+				Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd);
+				Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, 0, $inbox, $uid);
+			} else {
+				if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, $target_item['id'], $inbox, $uid, [], $target_item['uri-id'])) {
+					$delivery_queue_count++;
+				}
 			}
 		}
 

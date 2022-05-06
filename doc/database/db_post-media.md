@@ -35,6 +35,7 @@ Indexes
 | ---------- | ------------------- |
 | PRIMARY    | id                  |
 | uri-id-url | UNIQUE, uri-id, url |
+| uri-id-id  | uri-id, id          |
 
 Foreign Keys
 ------------

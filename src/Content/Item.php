@@ -35,7 +35,6 @@ use Friendica\Model\Tag;
 use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Profiler;
-use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
@@ -92,6 +91,10 @@ class Item
 		$first = true;
 
 		$uid = $item['uid'] ?: $uid;
+
+		if (!Post\Category::existsForURIId($item['uri-id'], $uid)) {
+			return [$categories, $folders];
+		}
 
 		foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid, Post\Category::CATEGORY) as $savedFolderName) {
 			if (!empty($item['author-link'])) {
@@ -353,22 +356,6 @@ class Item
 			}
 		}
 
-		$matches = null;
-		if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $mtch) {
-				if (!strpos($mtch[1], 'zrl=')) {
-					$item['body'] = str_replace($mtch[0], '@[url=' . Contact::magicLink($mtch[1]) . ']', $item['body']);
-				}
-			}
-		}
-
-		// add sparkle links to appropriate permalinks
-		// Only create a redirection to a magic link when logged in
-		if (!empty($item['plink']) && Session::isAuthenticated() && $item['private'] == ModelItem::PRIVATE) {
-			$author = ['uid' => 0, 'id' => $item['author-id'],
-				'network' => $item['author-network'], 'url' => $item['author-link']];
-			$item['plink'] = Contact::magicLinkByContact($author, $item['plink']);
-		}
 		$this->profiler->stopRecording();
 	}
 
@@ -398,7 +385,7 @@ class Item
 		$pcid = $item['author-id'];
 		$network = '';
 		$rel = 0;
-		$condition = ['uid' => local_user(), 'nurl' => Strings::normaliseLink($item['author-link'])];
+		$condition = ['uid' => local_user(), 'uri-id' => $item['author-uri-id']];
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];

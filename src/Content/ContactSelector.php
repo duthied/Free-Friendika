@@ -184,7 +184,7 @@ class ContactSelector
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function networkToIcon($network, $profile = "")
+	public static function networkToIcon($network, $profile = "", $gsid = 0)
 	{
 		$nets = [
 			Protocol::DFRN      =>   'friendica',
@@ -218,7 +218,14 @@ class ContactSelector
 		$network_icon = str_replace($search, $replace, $network);
 
 		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
-			$gserver = self::getServerForProfile($profile);
+			if (!empty($gsid) && !empty(self::$serverdata[$gsid])) {
+				$gserver = self::$serverdata[$gsid];
+			} elseif (!empty($gsid)) {
+				$gserver = DBA::selectFirst('gserver', ['platform', 'network'], ['id' => $gsid]);
+				self::$serverdata[$gsid] = $gserver;
+			} else {
+				$gserver = self::getServerForProfile($profile);
+			}
 			if (!empty($gserver['platform'])) {
 				$network_icon = $platform_icons[strtolower($gserver['platform'])] ?? $network_icon;
 			}

@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
@@ -56,6 +57,72 @@ class APDelivery
 
 		Logger::info('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid]);
 
+		if (empty($uri_id)) {
+			$result = self::deliver($inbox);
+			$success = $result['success'];
+			$uri_ids = $result['uri_ids'];
+		}
+
+		if (empty($uri_ids)) {
+			$success = self::deliverToInbox($cmd, $item_id, $inbox, $uid, $receivers, $uri_id);
+		}
+
+		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
+			if (!empty($uri_id)) {
+				Post\Delivery::remove($uri_id, $inbox);
+				Post\DeliveryData::incrementQueueFailed($uri_id);
+			} elseif (!empty($uri_ids)) {
+				foreach ($uri_ids as $uri_id) {
+					Post\Delivery::remove($uri_id, $inbox);
+					Post\DeliveryData::incrementQueueFailed($uri_id);
+				}
+			}
+		} elseif ($success && in_array($cmd, [Delivery::POST])) {
+			if (!empty($uri_id)) {
+				Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
+			} elseif (!empty($uri_ids)) {
+				foreach ($uri_ids as $uri_id) {
+					Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
+				}
+			}
+		}
+	}
+
+	private static function deliver(string $inbox)
+	{
+		$uri_ids = [];
+		$success = true;
+
+		$posts = Post\Delivery::selectForInbox($inbox);
+		foreach ($posts as $post) {
+			$uri_ids[] = $post['uri-id'];
+			if ($success) {
+				$success = self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], [], $post['uri-id']);
+			}
+		}
+
+		return ['success' => $success, 'uri_ids' => $uri_ids];
+	}
+
+	private static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id)
+	{
+		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
+			$item = Post::selectFirst(['id', 'parent', 'origin'], ['uri-id' => $uri_id, 'uid' => $uid]);
+			$item_id = $item['id'] ?? 0;
+			if (empty($receivers) && !empty($item)) {
+				$parent = Post::selectFirst(Item::DELIVER_FIELDLIST, ['id' => $item['parent']]);
+
+				$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
+				$receivers = $inboxes[$inbox] ?? [];
+
+				// When we haven't fetched the receiver list, it can be a personal inbox
+				if (empty($receivers)) {
+					$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true);
+					$receivers = $inboxes[$inbox] ?? [];
+				}					
+			}
+		}
+
 		$success = true;
 
 		if ($cmd == Delivery::MAIL) {
@@ -77,9 +144,21 @@ class APDelivery
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
+				if ($success && $uri_id) {
+					Post\Delivery::remove($uri_id, $inbox);
+				}
 			}
 		}
 
+		self::setSuccess($receivers, $success);
+
+		Logger::info('Delivered', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid, 'success' => $success]);
+
+		return $success;
+	}
+
+	private static function setSuccess(array $receivers, bool $success)
+	{
 		$gsid = null;
 
 		foreach ($receivers as $receiver) {
@@ -99,12 +178,6 @@ class APDelivery
 
 		if (!empty($gsid)) {
 			GServer::setProtocol($gsid, Post\DeliveryData::ACTIVITYPUB);
-		}
-
-		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
-			Post\DeliveryData::incrementQueueFailed($uri_id);
-		} elseif ($success && in_array($cmd, [Delivery::POST])) {
-			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
 		}
 	}
 }
