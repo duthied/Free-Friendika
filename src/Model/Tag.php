@@ -224,13 +224,16 @@ class Tag
 	{
 		$fields = ['name' => substr($name, 0, 96), 'url' => $url];
 
-		if (!empty($type)) {
-			$fields['type'] = $type;
+		$tag = DBA::selectFirst('tag', ['id', 'type'], $fields);
+		if (DBA::isResult($tag)) {
+			if (empty($tag['type']) && !empty($type)) {
+				DBA::update('tag', ['type' => $type], $fields);
+			}
+			return $tag['id'];
 		}
 
-		$tag = DBA::selectFirst('tag', ['id'], $fields);
-		if (DBA::isResult($tag)) {
-			return $tag['id'];
+		if (!empty($type)) {
+			$fields['type'] = $type;
 		}
 
 		DBA::insert('tag', $fields, Database::INSERT_IGNORE);
