@@ -2094,7 +2094,7 @@ class Contact
 		} elseif (self::getAvatarFile($contact['photo']) && self::getAvatarFile($contact['thumb']) && self::getAvatarFile($contact['micro'])) {
 			$fields['photo'] = $contact['photo'];
 			$fields['thumb'] = $contact['thumb'];
-			$fields['thumb'] = $contact['thumb'];
+			$fields['micro'] = $contact['micro'];
 			Logger::debug('Using existing cache files', ['uri-id' => $contact['uri-id'], 'fields' => $fields]);
 			return $fields;
 		}
