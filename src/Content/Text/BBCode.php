@@ -2086,11 +2086,15 @@ class BBCode
 	 * @param string $text The text with BBCode
 	 * @return string The same text - but without "abstract" element
 	 */
-	public static function stripAbstract($text)
+	public static function stripAbstract(string $text): string
 	{
 		DI::profiler()->startRecording('rendering');
-		$text = preg_replace("/[\s|\n]*\[abstract\].*?\[\/abstract\][\s|\n]*/ism", ' ', $text);
-		$text = preg_replace("/[\s|\n]*\[abstract=.*?\].*?\[\/abstract][\s|\n]*/ism", ' ', $text);
+
+		$text = BBCode::performWithEscapedTags($text, ['code', 'noparse', 'nobb', 'pre'], function ($text) {
+			$text = preg_replace("/[\s|\n]*\[abstract\].*?\[\/abstract\][\s|\n]*/ism", ' ', $text);
+			$text = preg_replace("/[\s|\n]*\[abstract=.*?\].*?\[\/abstract][\s|\n]*/ism", ' ', $text);
+			return $text;
+		});
 
 		DI::profiler()->stopRecording();
 		return $text;
@@ -2099,30 +2103,26 @@ class BBCode
 	/**
 	 * Returns the value of the "abstract" element
 	 *
-	 * @param string $text The text that maybe contains the element
+	 * @param string $text  The text that maybe contains the element
 	 * @param string $addon The addon for which the abstract is meant for
 	 * @return string The abstract
 	 */
-	public static function getAbstract($text, $addon = '')
+	public static function getAbstract(string $text, string $addon = ''): string
 	{
 		DI::profiler()->startRecording('rendering');
-		$abstract = '';
-		$abstracts = [];
 		$addon = strtolower($addon);
 
-		if (preg_match_all("/\[abstract=(.*?)\](.*?)\[\/abstract\]/ism", $text, $results, PREG_SET_ORDER)) {
-			foreach ($results as $result) {
-				$abstracts[strtolower($result[1])] = $result[2];
+		$abstract = BBCode::performWithEscapedTags($text, ['code', 'noparse', 'nobb', 'pre'], function ($text) use ($addon) {
+			if ($addon && preg_match('#\[abstract=' . preg_quote($addon, '#') . '](.*?)\[/abstract]#ism', $text, $matches)) {
+				return $matches[1];
 			}
-		}
 
-		if (isset($abstracts[$addon])) {
-			$abstract = $abstracts[$addon];
-		}
+			if (preg_match("#\[abstract](.*?)\[/abstract]#ism", $text, $matches)) {
+				return $matches[1];
+			}
 
-		if ($abstract == '' && preg_match("/\[abstract\](.*?)\[\/abstract\]/ism", $text, $result)) {
-			$abstract = $result[1];
-		}
+			return '';
+		});
 
 		DI::profiler()->stopRecording();
 		return $abstract;
@@ -2337,11 +2337,9 @@ class BBCode
 	 * @param array    $tagList A list of tag names, e.g ['noparse', 'nobb', 'pre']
 	 * @param callable $callback
 	 * @return string
-	 * @throws Exception
-	 *@see Strings::performWithEscapedBlocks
-	 *
+	 * @see Strings::performWithEscapedBlocks
 	 */
-	public static function performWithEscapedTags(string $text, array $tagList, callable $callback)
+	public static function performWithEscapedTags(string $text, array $tagList, callable $callback): string
 	{
 		$tagList = array_map('preg_quote', $tagList);
 

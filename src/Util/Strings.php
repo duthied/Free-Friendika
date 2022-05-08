@@ -485,9 +485,8 @@ class Strings
 	 * @param string   $regex
 	 * @param callable $callback
 	 * @return string
-	 * @throws \Exception
 	 */
-	public static function performWithEscapedBlocks(string $text, string $regex, callable $callback)
+	public static function performWithEscapedBlocks(string $text, string $regex, callable $callback): string
 	{
 		// Enables nested use
 		$executionId = random_int(PHP_INT_MAX / 10, PHP_INT_MAX);
