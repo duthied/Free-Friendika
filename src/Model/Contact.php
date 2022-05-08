@@ -1587,8 +1587,8 @@ class Contact
 				self::updateAvatar($cid, $contact['avatar'], true);
 				return;
 			}
-		} elseif (!empty($contact['photo']) || !empty($contact['thumb']) || !empty($contact['micro'])) {
-			Logger::info('Removing avatar cache', ['id' => $cid, 'contact' => $contact]);
+		} elseif (!self::getAvatarFile($contact['photo']) || !self::getAvatarFile($contact['thumb']) || !self::getAvatarFile($contact['micro'])) {
+			Logger::info('Removing/replacing avatar cache', ['id' => $cid, 'contact' => $contact]);
 			self::updateAvatar($cid, $contact['avatar'], true);
 			return;
 		}
@@ -2090,10 +2090,12 @@ class Contact
 			self::deleteAvatarCache($contact['photo']);
 			self::deleteAvatarCache($contact['thumb']);
 			self::deleteAvatarCache($contact['micro']);
+			Logger::debug('Avatar file name changed', ['new' => $avatar, 'old' => $contact['avatar']]);
 		} elseif (self::getAvatarFile($contact['photo']) && self::getAvatarFile($contact['thumb']) && self::getAvatarFile($contact['micro'])) {
 			$fields['photo'] = $contact['photo'];
 			$fields['thumb'] = $contact['thumb'];
 			$fields['thumb'] = $contact['thumb'];
+			Logger::debug('Using existing cache files', ['uri-id' => $contact['uri-id'], 'fields' => $fields]);
 			return $fields;
 		}
 
@@ -2105,11 +2107,13 @@ class Contact
 		$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
 		$img_str = $fetchResult->getBody();
 		if (empty($img_str)) {
+			Logger::debug('Avatar is invalid', ['avatar' => $avatar]);
 			return $fields;
 		}
 
 		$image = new Image($img_str, Images::getMimeTypeByData($img_str));
 		if (!$image->isValid()) {
+			Logger::debug('Avatar picture is invalid', ['avatar' => $avatar]);
 			return $fields;
 		}
 
@@ -2117,7 +2121,7 @@ class Contact
 		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB);
 		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO);
 
-		Logger::debug('Storing avatar cache', ['uri-id' => $contact['uri-id'], 'fields' => $fields]);
+		Logger::debug('Storing new avatar cache', ['uri-id' => $contact['uri-id'], 'fields' => $fields]);
 
 		return $fields;
 	}
