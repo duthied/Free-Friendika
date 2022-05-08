@@ -1587,7 +1587,7 @@ class Contact
 				self::updateAvatar($cid, $contact['avatar'], true);
 				return;
 			}
-		} elseif (!self::getAvatarFile($contact['photo']) || !self::getAvatarFile($contact['thumb']) || !self::getAvatarFile($contact['micro'])) {
+		} elseif (!self::isAvatarFile($contact['photo']) || !self::isAvatarFile($contact['thumb']) || !self::isAvatarFile($contact['micro'])) {
 			Logger::info('Removing/replacing avatar cache', ['id' => $cid, 'contact' => $contact]);
 			self::updateAvatar($cid, $contact['avatar'], true);
 			return;
@@ -1611,17 +1611,17 @@ class Contact
 		if (DI::config()->get('system', 'avatar_cache')) {
 			switch ($size) {
 				case Proxy::SIZE_MICRO:
-					if (self::getAvatarFile($contact['micro'])) {
+					if (self::isAvatarFile($contact['micro'])) {
 						return $contact['micro'];
 					}
 					break;
 				case Proxy::SIZE_THUMB:
-					if (self::getAvatarFile($contact['thumb'])) {
+					if (self::isAvatarFile($contact['thumb'])) {
 						return $contact['thumb'];
 					}
 					break;
 				case Proxy::SIZE_SMALL:
-					if (self::getAvatarFile($contact['photo'])) {
+					if (self::isAvatarFile($contact['photo'])) {
 						return $contact['photo'];
 					}
 					break;
@@ -2091,7 +2091,7 @@ class Contact
 			self::deleteAvatarCache($contact['thumb']);
 			self::deleteAvatarCache($contact['micro']);
 			Logger::debug('Avatar file name changed', ['new' => $avatar, 'old' => $contact['avatar']]);
-		} elseif (self::getAvatarFile($contact['photo']) && self::getAvatarFile($contact['thumb']) && self::getAvatarFile($contact['micro'])) {
+		} elseif (self::isAvatarFile($contact['photo']) && self::isAvatarFile($contact['thumb']) && self::isAvatarFile($contact['micro'])) {
 			$fields['photo'] = $contact['photo'];
 			$fields['thumb'] = $contact['thumb'];
 			$fields['micro'] = $contact['micro'];
@@ -2179,6 +2179,17 @@ class Contact
 			return '';
 		}
 		return $filename;
+	}
+
+	/**
+	 * Check if the avatar cache file is locally stored
+	 *
+	 * @param string $avatar
+	 * @return boolean
+	 */
+	public static function isAvatarFile(string $avatar): bool
+	{
+		return !empty(self::getAvatarFile($avatar));
 	}
 
 	/**
