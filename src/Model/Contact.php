@@ -1608,7 +1608,7 @@ class Contact
 	{
 		$contact = self::checkAvatarCacheByArray($contact, $no_update);
 
-		if (!DI::config()->get('system', 'avatar_cache')) {
+		if (DI::config()->get('system', 'avatar_cache')) {
 			switch ($size) {
 				case Proxy::SIZE_MICRO:
 					if (self::getAvatarFile($contact['micro'])) {
