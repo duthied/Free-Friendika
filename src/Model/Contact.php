@@ -35,11 +35,15 @@ use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
+use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy;
@@ -797,13 +801,19 @@ class Contact
 	public static function remove($id)
 	{
 		// We want just to make sure that we don't delete our "self" contact
-		$contact = DBA::selectFirst('contact', ['uid'], ['id' => $id, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['uri-id', 'photo', 'thumb', 'micro'], ['id' => $id, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
 
 		// Archive the contact
 		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
+
+		if (!DBA::exists('contact', ['uri-id' => $contact['uri-id'], 'deleted' => false])) {
+			self::deleteAvatarCache($contact['photo']);
+			self::deleteAvatarCache($contact['thumb']);
+			self::deleteAvatarCache($contact['micro']);
+		}
 
 		// Delete it in the background
 		Worker::add(PRIORITY_MEDIUM, 'Contact\Remove', $id);
@@ -827,7 +837,7 @@ class Contact
 		}
 
 		if (in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
-			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+			$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 			if (!empty($cdata['public'])) {
 				Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
 			}
@@ -856,7 +866,7 @@ class Contact
 		}
 
 		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
-			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+			$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 			if (!empty($cdata['public'])) {
 				Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
 			}
@@ -882,7 +892,7 @@ class Contact
 			throw new \InvalidArgumentException('Unexpected public contact record');
 		}
 
-		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+		$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 
 		if (in_array($contact['rel'], [self::SHARING, self::FRIEND]) && !empty($cdata['public'])) {
 			Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
@@ -1464,7 +1474,7 @@ class Contact
 			$items = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
 
 			if ($pager->getStart() == 0) {
-				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
+				$cdata = self::getPublicAndUserContactID($cid, local_user());
 				if (!empty($cdata['public'])) {
 					$pinned = Post\Collection::selectToArrayForContact($cdata['public'], Post\Collection::FEATURED, $fields);
 					$items = array_merge($items, $pinned);
@@ -1477,7 +1487,7 @@ class Contact
 			$items = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
 
 			if ($pager->getStart() == 0) {
-				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
+				$cdata = self::getPublicAndUserContactID($cid, local_user());
 				if (!empty($cdata['public'])) {
 					$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
 						$cdata['public'], Post\Collection::FEATURED];
@@ -1597,6 +1607,27 @@ class Contact
 	private static function getAvatarPath(array $contact, string $size, $no_update = false)
 	{
 		$contact = self::checkAvatarCacheByArray($contact, $no_update);
+
+		if (!DI::config()->get('system', 'avatar_cache')) {
+			switch ($size) {
+				case Proxy::SIZE_MICRO:
+					if (self::getAvatarFile($contact['micro'])) {
+						return $contact['micro'];
+					}
+					break;
+				case Proxy::SIZE_THUMB:
+					if (self::getAvatarFile($contact['thumb'])) {
+						return $contact['thumb'];
+					}
+					break;
+				case Proxy::SIZE_SMALL:
+					if (self::getAvatarFile($contact['photo'])) {
+						return $contact['photo'];
+					}
+					break;
+			}
+		}
+
 		return self::getAvatarUrlForId($contact['id'], $size, $contact['updated'] ?? '');
 	}
 
@@ -1905,7 +1936,7 @@ class Contact
 	 */
 	public static function updateAvatar(int $cid, string $avatar, bool $force = false, bool $create_cache = false)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'xmpp', 'addr', 'nurl', 'url', 'network'],
+		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'xmpp', 'addr', 'nurl', 'url', 'network', 'uri-id'],
 			['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
@@ -1946,6 +1977,10 @@ class Contact
 		}
 
 		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) || $cache_avatar) {
+			self::deleteAvatarCache($contact['photo']);
+			self::deleteAvatarCache($contact['thumb']);
+			self::deleteAvatarCache($contact['micro']);
+
 			if ($default_avatar && Proxy::isLocalImage($avatar)) {
 				$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
 					'photo' => $avatar,
@@ -1997,9 +2032,8 @@ class Contact
 			}
 		} else {
 			Photo::delete(['uid' => $uid, 'contact-id' => $cid, 'photo-type' => Photo::CONTACT_AVATAR]);
-			$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
-				'photo' => '', 'thumb' => '', 'micro' => ''];
-			$update = ($avatar != $contact['avatar'] . $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
+			$fields = self::fetchAvatarContact($contact, $avatar);
+			$update = ($avatar . $fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['avatar'] . $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
 		}
 
 		if (!$update) {
@@ -2028,6 +2062,134 @@ class Contact
 		$uids[] = $uid;
 		Logger::info('Updating cached contact avatars', ['cid' => $cids, 'uid' => $uids, 'fields' => $fields]);
 		self::update($fields, ['id' => $cids]);
+	}
+
+	/**
+	 * Returns a field array with locally cached avatar pictures
+	 *
+	 * @param array $contact
+	 * @param string $avatar
+	 * @return array
+	 */
+	private static function fetchAvatarContact(array $contact, string $avatar): array
+	{
+		$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(), 'photo' => '', 'thumb' => '', 'micro' => ''];
+
+		if (!DI::config()->get('system', 'avatar_cache')) {
+			self::deleteAvatarCache($contact['photo']);
+			self::deleteAvatarCache($contact['thumb']);
+			self::deleteAvatarCache($contact['micro']);
+			return $fields;
+		}
+
+		if (Network::isLocalLink($avatar)) {
+			return $fields;
+		}
+
+		if ($avatar != $contact['avatar']) {
+			self::deleteAvatarCache($contact['photo']);
+			self::deleteAvatarCache($contact['thumb']);
+			self::deleteAvatarCache($contact['micro']);
+		} elseif (self::getAvatarFile($contact['photo']) && self::getAvatarFile($contact['thumb']) && self::getAvatarFile($contact['micro'])) {
+			$fields['photo'] = $contact['photo'];
+			$fields['thumb'] = $contact['thumb'];
+			$fields['thumb'] = $contact['thumb'];
+			return $fields;
+		}
+
+		$guid = Item::guidFromUri($contact['url'], parse_url($contact['url'], PHP_URL_HOST));
+
+		$filename = substr($guid, 0, 2) . '/' . substr($guid, 3, 2) . '/' . substr($guid, 5, 3) . '/' .
+			substr($guid, 9, 2) .'/' . substr($guid, 11, 2) . '/' . substr($guid, 13, 4). '/' . substr($guid, 18) . '-';
+
+		$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE], 'timeout' => 10]);
+		$img_str = $fetchResult->getBody();
+		if (empty($img_str)) {
+			return $fields;
+		}
+
+		$image = new Image($img_str, Images::getMimeTypeByData($img_str));
+		if (!$image->isValid()) {
+			return $fields;
+		}
+
+		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL);
+		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB);
+		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO);
+
+		Logger::debug('Storing avatar cache', ['uri-id' => $contact['uri-id'], 'fields' => $fields]);
+
+		return $fields;
+	}
+
+	private static function storeAvatarCache(Image $image, string $filename, int $size): string
+	{
+		$image->scaleDown($size);
+		if (is_null($image) || !$image->isValid()) {
+			return '';
+		}
+
+		$path = '/avatar/' . $filename . $size . '.' . $image->getExt();
+
+		$filepath = DI::basePath() . $path;
+
+		$dirpath = dirname($filepath);
+
+		DI::profiler()->startRecording('file');
+
+		if (!file_exists($dirpath)) {
+			mkdir($dirpath, 0777, true);
+		}
+
+		file_put_contents($filepath, $image->asString());
+		DI::profiler()->stopRecording();
+
+		return DI::baseUrl() . $path;
+	}
+
+	/**
+	 * Fetch the name of locally cached avatar pictures
+	 *
+	 * @param string $avatar
+	 * @return string
+	 */
+	private static function getAvatarFile(string $avatar): string
+	{
+		if (empty($avatar) || !Network::isLocalLink($avatar)) {
+			return '';
+		}
+
+		$path = Strings::normaliseLink(DI::baseUrl() . '/avatar');
+
+		if (Network::getUrlMatch($path, $avatar) != $path) {
+			return '';
+		}
+
+		$filename = str_replace($path, DI::basePath(). '/avatar/', Strings::normaliseLink($avatar));
+
+		DI::profiler()->startRecording('file');
+		$exists = file_exists($filename);
+		DI::profiler()->stopRecording();
+
+		if (!$exists) {
+			return '';
+		}
+		return $filename;
+	}
+
+	/**
+	 * Delete a locally cached avatar picture
+	 *
+	 * @param string $avatar
+	 * @return void
+	 */
+	public static function deleteAvatarCache(string $avatar)
+	{
+		$localFile = self::getAvatarFile($avatar);
+		if (!empty($localFile)) {
+			unlink($localFile);
+			Logger::debug('Unlink avatar', ['avatar' => $avatar]);
+		}
 	}
 
 	public static function deleteContactByUrl(string $url)
@@ -2789,7 +2951,7 @@ class Contact
 			return;
 		}
 
-		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+		$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 
 		DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
 	}

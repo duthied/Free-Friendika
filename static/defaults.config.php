@@ -118,6 +118,10 @@ return [
 		// chose "Remember me" when logging in is considered logged out.
 		'auth_cookie_lifetime' => 7,
 
+		// avatar_cache (Boolean)
+		// Cache avatar pictures as files (experimental)
+		'avatar_cache' => false,
+
 		// big_emojis (Boolean)
 		// Display "Emoji Only" posts in big.
 		'big_emojis' => false,

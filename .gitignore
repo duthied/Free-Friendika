@@ -86,3 +86,7 @@ venv/
 
 #Ignore cache file
 .php_cs.cache
+
+#ignore avatar picture cache path
+/avatar
+
