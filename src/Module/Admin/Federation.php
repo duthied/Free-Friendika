@@ -43,6 +43,7 @@ class Federation extends BaseAdmin
 			'diaspora'     => ['name' => 'Diaspora', 'color' => '#a1a1a1'], // logo is black and white, makes a gray
 			'funkwhale'    => ['name' => 'Funkwhale', 'color' => '#4082B4'], // From the homepage
 			'gnusocial'    => ['name' => 'GNU Social/Statusnet', 'color' => '#a22430'], // dark red from the logo
+			'gotosocial'   => ['name' => 'GoToSocial', 'color' => '#df8958'], // Some color from their mascot
 			'hometown'     => ['name' => 'Hometown', 'color' => '#1f70c1'], // Color from the Patreon page
 			'hubzilla'     => ['name' => 'Hubzilla/Red Matrix', 'color' => '#43488a'], // blue from the logo
 			'lemmy'        => ['name' => 'Lemmy', 'color' => '#00c853'], // Green from the page
@@ -154,7 +155,7 @@ class Federation extends BaseAdmin
 				$versionCounts = self::reformaDiasporaVersions($versionCounts);
 			} elseif ($platform == 'relay') {
 				$versionCounts = self::reformatRelayVersions($versionCounts);
-			} elseif (in_array($platform, ['funkwhale', 'mastodon', 'mobilizon', 'misskey'])) {
+			} elseif (in_array($platform, ['funkwhale', 'mastodon', 'mobilizon', 'misskey', 'gotosocial'])) {
 				$versionCounts = self::removeVersionSuffixes($versionCounts);
 			}
 
