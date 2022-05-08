@@ -345,4 +345,126 @@ Karl Marx - Die ursprüngliche Akkumulation
 
 		self::assertEquals($expected, $actual);
 	}
+
+	public function dataGetAbstract(): array
+	{
+		return [
+			'no-abstract' => [
+				'expected' => '',
+				'text' => 'Venture the only home we\'ve ever known laws of physics tendrils of gossamer clouds a still more glorious dawn awaits Sea of Tranquility. With pretty stories for which there\'s little good evidence the ash of stellar alchemy corpus callosum preserve and cherish that pale blue dot descended from astronomers preserve and cherish that pale blue dot. A mote of dust suspended in a sunbeam paroxysm of global death two ghostly white figures in coveralls and helmets are softly dancing descended from astronomers star stuff harvesting star light gathered by gravity and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+				'addon' => '',
+			],
+			'no-abstract-addon' => [
+				'expected' => '',
+				'text' => 'Tingling of the spine tendrils of gossamer clouds Flatland trillion rich in heavy atoms of brilliant syntheses. Extraordinary claims require extraordinary evidence a very small stage in a vast cosmic arena made in the interiors of collapsing stars kindling the energy hidden in matter vastness is bearable only through love kindling the energy hidden in matter? Dispassionate extraterrestrial observer preserve and cherish that pale blue dot vastness is bearable only through love emerged into consciousness encyclopaedia galactica a still more glorious dawn awaits and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+				'addon' => 'dfrn',
+			],
+			'abstract' => [
+				'expected' => 'Abstract at the beginning of the text',
+				'text' => '[abstract]Abstract at the beginning of the text[/abstract]A very small stage in a vast cosmic arena the ash of stellar alchemy rich in heavy atoms a still more glorious dawn awaits are creatures of the cosmos Orion\'s sword. Brain is the seed of intelligence dream of the mind\'s eye inconspicuous motes of rock and gas extraordinary claims require extraordinary evidence vastness is bearable only through love quasar? Made in the interiors of collapsing stars the carbon in our apple pies cosmic ocean citizens of distant epochs paroxysm of global death dispassionate extraterrestrial observer and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+				'addon' => '',
+			],
+			'abstract-addon-not-present' => [
+				'expected' => 'Abstract at the beginning of the text',
+				'text' => '[abstract]Abstract at the beginning of the text[/abstract]With pretty stories for which there\'s little good evidence rogue not a sunrise but a galaxyrise tingling of the spine birth cosmic fugue. Cosmos hundreds of thousands Apollonius of Perga network of wormholes rich in mystery globular star cluster. Another world vastness is bearable only through love encyclopaedia galactica something incredible is waiting to be known invent the universe hearts of the stars. Extraordinary claims require extraordinary evidence the sky calls to us the only home we\'ve ever known the sky calls to us the sky calls to us extraordinary claims require extraordinary evidence and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+				'addon' => '',
+			],
+			'abstract-addon-present' => [
+				'expected' => 'Abstract DFRN in the middle of the text',
+				'text' => '[abstract]Abstract at the beginning of the text[/abstract][abstract=dfrn]Abstract DFRN in the middle of the text[/abstract]Kindling the energy hidden in matter hydrogen atoms at the edge of forever vanquish the impossible ship of the imagination take root and flourish. Tingling of the spine white dwarf as a patch of light the sky calls to us Drake Equation citizens of distant epochs. Concept of the number one dispassionate extraterrestrial observer citizens of distant epochs descended from astronomers extraordinary claims require extraordinary evidence something incredible is waiting to be known and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+				'addon' => 'dfrn',
+			],
+			'abstract-multiple-addon-present' => [
+				'expected' => 'Abstract DFRN at the end of the text',
+				'text' => '[abstract]Abstract at the beginning of the text[/abstract][abstract=ap]Abstract AP in the middle of the text[/abstract]Cambrian explosion rich in heavy atoms take root and flourish radio telescope light years cosmic fugue. Dispassionate extraterrestrial observer white dwarf the sky calls to us another world courage of our questions two ghostly white figures in coveralls and helmets are softly dancing. Extraordinary claims require extraordinary evidence concept of the number one not a sunrise but a galaxyrise are creatures of the cosmos two ghostly white figures in coveralls and helmets are softly dancing white dwarf and billions upon billions upon billions upon billions upon billions upon billions upon billions.[abstract=dfrn]Abstract DFRN at the end of the text[/abstract]',
+				'addon' => 'dfrn',
+			],
+			'bug-11445-code-abstract' => [
+				'expected' => '',
+				'text' => '[code][abstract]This should not be converted[/abstract][/code]',
+				'addon' => '',
+			],
+			'bug-11445-noparse-abstract' => [
+				'expected' => '',
+				'text' => '[noparse][abstract]This should not be converted[/abstract][/noparse]',
+				'addon' => '',
+			],
+			'bug-11445-nobb-abstract' => [
+				'expected' => '',
+				'text' => '[nobb][abstract]This should not be converted[/abstract][/nobb]',
+				'addon' => '',
+			],
+			'bug-11445-pre-abstract' => [
+				'expected' => '',
+				'text' => '[pre][abstract]This should not be converted[/abstract][/pre]',
+				'addon' => '',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataGetAbstract
+	 *
+	 * @param string $expected Expected abstract text
+	 * @param string $text     Input text
+	 * @param string $addon    Optional addon we're searching the abstract for
+	 */
+	public function testGetAbstract(string $expected, string $text, string $addon)
+	{
+		$actual = BBCode::getAbstract($text, $addon);
+
+		self::assertEquals($expected, $actual);
+	}
+
+
+	public function dataStripAbstract(): array
+	{
+		return [
+			'no-abstract' => [
+				'expected' => 'Venture the only home we\'ve ever known laws of physics tendrils of gossamer clouds a still more glorious dawn awaits Sea of Tranquility. With pretty stories for which there\'s little good evidence the ash of stellar alchemy corpus callosum preserve and cherish that pale blue dot descended from astronomers preserve and cherish that pale blue dot. A mote of dust suspended in a sunbeam paroxysm of global death two ghostly white figures in coveralls and helmets are softly dancing descended from astronomers star stuff harvesting star light gathered by gravity and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+				'text' => 'Venture the only home we\'ve ever known laws of physics tendrils of gossamer clouds a still more glorious dawn awaits Sea of Tranquility. With pretty stories for which there\'s little good evidence the ash of stellar alchemy corpus callosum preserve and cherish that pale blue dot descended from astronomers preserve and cherish that pale blue dot. A mote of dust suspended in a sunbeam paroxysm of global death two ghostly white figures in coveralls and helmets are softly dancing descended from astronomers star stuff harvesting star light gathered by gravity and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+			],
+			'abstract' => [
+				'expected' => ' A very small stage in a vast cosmic arena the ash of stellar alchemy rich in heavy atoms a still more glorious dawn awaits are creatures of the cosmos Orion\'s sword. Brain is the seed of intelligence dream of the mind\'s eye inconspicuous motes of rock and gas extraordinary claims require extraordinary evidence vastness is bearable only through love quasar? Made in the interiors of collapsing stars the carbon in our apple pies cosmic ocean citizens of distant epochs paroxysm of global death dispassionate extraterrestrial observer and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+				'text' => '[abstract]Abstract at the beginning of the text[/abstract]A very small stage in a vast cosmic arena the ash of stellar alchemy rich in heavy atoms a still more glorious dawn awaits are creatures of the cosmos Orion\'s sword. Brain is the seed of intelligence dream of the mind\'s eye inconspicuous motes of rock and gas extraordinary claims require extraordinary evidence vastness is bearable only through love quasar? Made in the interiors of collapsing stars the carbon in our apple pies cosmic ocean citizens of distant epochs paroxysm of global death dispassionate extraterrestrial observer and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+			],
+			'abstract-addon' => [
+				'expected' => ' Kindling the energy hidden in matter hydrogen atoms at the edge of forever vanquish the impossible ship of the imagination take root and flourish. Tingling of the spine white dwarf as a patch of light the sky calls to us Drake Equation citizens of distant epochs. Concept of the number one dispassionate extraterrestrial observer citizens of distant epochs descended from astronomers extraordinary claims require extraordinary evidence something incredible is waiting to be known and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+				'text' => '[abstract]Abstract at the beginning of the text[/abstract][abstract=dfrn]Abstract DFRN in the middle of the text[/abstract]Kindling the energy hidden in matter hydrogen atoms at the edge of forever vanquish the impossible ship of the imagination take root and flourish. Tingling of the spine white dwarf as a patch of light the sky calls to us Drake Equation citizens of distant epochs. Concept of the number one dispassionate extraterrestrial observer citizens of distant epochs descended from astronomers extraordinary claims require extraordinary evidence something incredible is waiting to be known and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+			],
+			'abstract-multiple-addon-present' => [
+				'expected' => ' Cambrian explosion rich in heavy atoms take root and flourish radio telescope light years cosmic fugue. Dispassionate extraterrestrial observer white dwarf the sky calls to us another world courage of our questions two ghostly white figures in coveralls and helmets are softly dancing. Extraordinary claims require extraordinary evidence concept of the number one not a sunrise but a galaxyrise are creatures of the cosmos two ghostly white figures in coveralls and helmets are softly dancing white dwarf and billions upon billions upon billions upon billions upon billions upon billions upon billions. ',
+				'text' => '[abstract]Abstract at the beginning of the text[/abstract][abstract=ap]Abstract AP in the middle of the text[/abstract]Cambrian explosion rich in heavy atoms take root and flourish radio telescope light years cosmic fugue. Dispassionate extraterrestrial observer white dwarf the sky calls to us another world courage of our questions two ghostly white figures in coveralls and helmets are softly dancing. Extraordinary claims require extraordinary evidence concept of the number one not a sunrise but a galaxyrise are creatures of the cosmos two ghostly white figures in coveralls and helmets are softly dancing white dwarf and billions upon billions upon billions upon billions upon billions upon billions upon billions.[abstract=dfrn]Abstract DFRN at the end of the text[/abstract]',
+			],
+			'bug-11445-code-abstract' => [
+				'expected' => '[code][abstract]This should not be converted[/abstract][/code]',
+				'text' => '[code][abstract]This should not be converted[/abstract][/code]',
+			],
+			'bug-11445-noparse-abstract' => [
+				'expected' => '[noparse][abstract]This should not be converted[/abstract][/noparse]',
+				'text' => '[noparse][abstract]This should not be converted[/abstract][/noparse]',
+			],
+			'bug-11445-nobb-abstract' => [
+				'expected' => '[nobb][abstract]This should not be converted[/abstract][/nobb]',
+				'text' => '[nobb][abstract]This should not be converted[/abstract][/nobb]',
+			],
+			'bug-11445-pre-abstract' => [
+				'expected' => '[pre][abstract]This should not be converted[/abstract][/pre]',
+				'text' => '[pre][abstract]This should not be converted[/abstract][/pre]',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataStripAbstract
+	 *
+	 * @param string $expected Expected text without abstracts
+	 * @param string $text     Input text
+	 */
+	public function testStripAbstract(string $expected, string $text)
+	{
+		$actual = BBCode::stripAbstract($text);
+
+		self::assertEquals($expected, $actual);
+	}
 }
