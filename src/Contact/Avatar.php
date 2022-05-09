@@ -129,7 +129,7 @@ class Avatar
 	 * @param string $avatar
 	 * @return boolean
 	 */
-	public static function isCacheFile(string $avatar): bool
+	private static function isCacheFile(string $avatar): bool
 	{
 		return !empty(self::getCacheFile($avatar));
 	}

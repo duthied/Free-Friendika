@@ -1581,10 +1581,14 @@ class Contact
 				self::updateAvatar($cid, $contact['avatar'], true);
 				return;
 			}
-		} elseif (!Avatar::isCacheFile($contact['photo']) || !Avatar::isCacheFile($contact['thumb']) || !Avatar::isCacheFile($contact['micro'])) {
-			Logger::info('Removing/replacing avatar cache', ['id' => $cid, 'contact' => $contact]);
+		} elseif (Photo::isPhotoURI($contact['photo']) || Photo::isPhotoURI($contact['thumb']) || Photo::isPhotoURI($contact['micro'])) {
+			Logger::info('Replacing legacy avatar cache', ['id' => $cid, 'contact' => $contact]);
 			self::updateAvatar($cid, $contact['avatar'], true);
 			return;
+		} elseif (DI::config()->get('system', 'avatar_cache') && (empty($contact['photo']) || empty($contact['thumb']) || empty($contact['micro']))) {
+			Logger::info('Adding avatar cache file', ['id' => $cid, 'contact' => $contact]);
+			self::updateAvatar($cid, $contact['avatar'], true);
+		return;
 		}
 	}
 
