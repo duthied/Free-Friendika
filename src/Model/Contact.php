@@ -21,7 +21,7 @@
 
 namespace Friendica\Model;
 
-use Friendica\App\BaseURL;
+use Friendica\Contact\Avatar;
 use Friendica\Contact\Introduction\Exception\IntroductionNotFoundException;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
@@ -35,15 +35,11 @@ use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Network\HTTPClient\Client\HttpClientAccept;
-use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
-use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\HTTPSignature;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy;
@@ -810,9 +806,7 @@ class Contact
 		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
 
 		if (!DBA::exists('contact', ['uri-id' => $contact['uri-id'], 'deleted' => false])) {
-			self::deleteAvatarCache($contact['photo']);
-			self::deleteAvatarCache($contact['thumb']);
-			self::deleteAvatarCache($contact['micro']);
+			Avatar::deleteCache($contact);
 		}
 
 		// Delete it in the background
@@ -1587,7 +1581,7 @@ class Contact
 				self::updateAvatar($cid, $contact['avatar'], true);
 				return;
 			}
-		} elseif (!self::isAvatarFile($contact['photo']) || !self::isAvatarFile($contact['thumb']) || !self::isAvatarFile($contact['micro'])) {
+		} elseif (!Avatar::isCacheFile($contact['photo']) || !Avatar::isCacheFile($contact['thumb']) || !Avatar::isCacheFile($contact['micro'])) {
 			Logger::info('Removing/replacing avatar cache', ['id' => $cid, 'contact' => $contact]);
 			self::updateAvatar($cid, $contact['avatar'], true);
 			return;
@@ -1977,9 +1971,7 @@ class Contact
 		}
 
 		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) || $cache_avatar) {
-			self::deleteAvatarCache($contact['photo']);
-			self::deleteAvatarCache($contact['thumb']);
-			self::deleteAvatarCache($contact['micro']);
+			Avatar::deleteCache($contact);
 
 			if ($default_avatar && Proxy::isLocalImage($avatar)) {
 				$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
@@ -2032,7 +2024,7 @@ class Contact
 			}
 		} else {
 			Photo::delete(['uid' => $uid, 'contact-id' => $cid, 'photo-type' => Photo::CONTACT_AVATAR]);
-			$fields = self::fetchAvatarContact($contact, $avatar);
+			$fields = Avatar::fetchAvatarContact($contact, $avatar);
 			$update = ($avatar . $fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['avatar'] . $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
 		}
 
@@ -2062,149 +2054,6 @@ class Contact
 		$uids[] = $uid;
 		Logger::info('Updating cached contact avatars', ['cid' => $cids, 'uid' => $uids, 'fields' => $fields]);
 		self::update($fields, ['id' => $cids]);
-	}
-
-	/**
-	 * Returns a field array with locally cached avatar pictures
-	 *
-	 * @param array $contact
-	 * @param string $avatar
-	 * @return array
-	 */
-	private static function fetchAvatarContact(array $contact, string $avatar): array
-	{
-		$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(), 'photo' => '', 'thumb' => '', 'micro' => ''];
-
-		if (!DI::config()->get('system', 'avatar_cache')) {
-			self::deleteAvatarCache($contact['photo']);
-			self::deleteAvatarCache($contact['thumb']);
-			self::deleteAvatarCache($contact['micro']);
-			return $fields;
-		}
-
-		if (Network::isLocalLink($avatar)) {
-			return $fields;
-		}
-
-		if ($avatar != $contact['avatar']) {
-			self::deleteAvatarCache($contact['photo']);
-			self::deleteAvatarCache($contact['thumb']);
-			self::deleteAvatarCache($contact['micro']);
-			Logger::debug('Avatar file name changed', ['new' => $avatar, 'old' => $contact['avatar']]);
-		} elseif (self::isAvatarFile($contact['photo']) && self::isAvatarFile($contact['thumb']) && self::isAvatarFile($contact['micro'])) {
-			$fields['photo'] = $contact['photo'];
-			$fields['thumb'] = $contact['thumb'];
-			$fields['micro'] = $contact['micro'];
-			Logger::debug('Using existing cache files', ['uri-id' => $contact['uri-id'], 'fields' => $fields]);
-			return $fields;
-		}
-
-		$guid = Item::guidFromUri($contact['url'], parse_url($contact['url'], PHP_URL_HOST));
-
-		$filename = substr($guid, 0, 2) . '/' . substr($guid, 3, 2) . '/' . substr($guid, 5, 3) . '/' .
-			substr($guid, 9, 2) .'/' . substr($guid, 11, 2) . '/' . substr($guid, 13, 4). '/' . substr($guid, 18) . '-';
-
-		$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
-		$img_str = $fetchResult->getBody();
-		if (empty($img_str)) {
-			Logger::debug('Avatar is invalid', ['avatar' => $avatar]);
-			return $fields;
-		}
-
-		$image = new Image($img_str, Images::getMimeTypeByData($img_str));
-		if (!$image->isValid()) {
-			Logger::debug('Avatar picture is invalid', ['avatar' => $avatar]);
-			return $fields;
-		}
-
-		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL);
-		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB);
-		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO);
-
-		Logger::debug('Storing new avatar cache', ['uri-id' => $contact['uri-id'], 'fields' => $fields]);
-
-		return $fields;
-	}
-
-	private static function storeAvatarCache(Image $image, string $filename, int $size): string
-	{
-		$image->scaleDown($size);
-		if (is_null($image) || !$image->isValid()) {
-			return '';
-		}
-
-		$path = '/avatar/' . $filename . $size . '.' . $image->getExt();
-
-		$filepath = DI::basePath() . $path;
-
-		$dirpath = dirname($filepath);
-
-		DI::profiler()->startRecording('file');
-
-		if (!file_exists($dirpath)) {
-			mkdir($dirpath, 0777, true);
-		}
-
-		file_put_contents($filepath, $image->asString());
-		DI::profiler()->stopRecording();
-
-		return DI::baseUrl() . $path;
-	}
-
-	/**
-	 * Fetch the name of locally cached avatar pictures
-	 *
-	 * @param string $avatar
-	 * @return string
-	 */
-	private static function getAvatarFile(string $avatar): string
-	{
-		if (empty($avatar) || !Network::isLocalLink($avatar)) {
-			return '';
-		}
-
-		$path = Strings::normaliseLink(DI::baseUrl() . '/avatar');
-
-		if (Network::getUrlMatch($path, $avatar) != $path) {
-			return '';
-		}
-
-		$filename = str_replace($path, DI::basePath(). '/avatar/', Strings::normaliseLink($avatar));
-
-		DI::profiler()->startRecording('file');
-		$exists = file_exists($filename);
-		DI::profiler()->stopRecording();
-
-		if (!$exists) {
-			return '';
-		}
-		return $filename;
-	}
-
-	/**
-	 * Check if the avatar cache file is locally stored
-	 *
-	 * @param string $avatar
-	 * @return boolean
-	 */
-	private static function isAvatarFile(string $avatar): bool
-	{
-		return !empty(self::getAvatarFile($avatar));
-	}
-
-	/**
-	 * Delete a locally cached avatar picture
-	 *
-	 * @param string $avatar
-	 * @return void
-	 */
-	public static function deleteAvatarCache(string $avatar)
-	{
-		$localFile = self::getAvatarFile($avatar);
-		if (!empty($localFile)) {
-			unlink($localFile);
-			Logger::debug('Unlink avatar', ['avatar' => $avatar]);
-		}
 	}
 
 	public static function deleteContactByUrl(string $url)

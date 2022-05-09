@@ -21,6 +21,7 @@
 
 namespace Friendica\Worker;
 
+use Friendica\Contact\Avatar;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -51,9 +52,7 @@ class RemoveUnusedContacts
 		$contacts = DBA::select('contact', ['id', 'uid', 'photo', 'thumb', 'micro'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
 			Photo::delete(['uid' => $contact['uid'], 'contact-id' => $contact['id']]);
-			Contact::deleteAvatarCache($contact['photo']);
-			Contact::deleteAvatarCache($contact['thumb']);
-			Contact::deleteAvatarCache($contact['micro']);
+			Avatar::deleteCache($contact);
 
 			if (DBStructure::existsTable('thread')) {
 				DBA::delete('thread', ['owner-id' => $contact['id']]);
