@@ -76,6 +76,7 @@ class Avatar
 			substr($guid, 9, 2) .'/' . substr($guid, 11, 2) . '/' . substr($guid, 13, 4). '/' . substr($guid, 18) . '-';
 
 		$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
+
 		$img_str = $fetchResult->getBody();
 		if (empty($img_str)) {
 			Logger::debug('Avatar is invalid', ['avatar' => $avatar]);
