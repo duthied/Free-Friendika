@@ -21,10 +21,12 @@
 
 namespace Friendica\Worker;
 
+use Friendica\Contact\Avatar;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Util\DateTimeFormat;
 
@@ -47,37 +49,38 @@ class RemoveUnusedContacts
 		$total = DBA::count('contact', $condition);
 		Logger::notice('Starting removal', ['total' => $total]);
 		$count = 0;
-		$contacts = DBA::select('contact', ['id', 'uid'], $condition);
+		$contacts = DBA::select('contact', ['id', 'uid', 'photo', 'thumb', 'micro'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			if (Photo::delete(['uid' => $contact['uid'], 'contact-id' => $contact['id']])) {
-				if (DBStructure::existsTable('thread')) {
-					DBA::delete('thread', ['owner-id' => $contact['id']]);
-					DBA::delete('thread', ['author-id' => $contact['id']]);
-				}
-				if (DBStructure::existsTable('item')) {
-					DBA::delete('item', ['owner-id' => $contact['id']]);
-					DBA::delete('item', ['author-id' => $contact['id']]);
-					DBA::delete('item', ['causer-id' => $contact['id']]);
-				}
+			Photo::delete(['uid' => $contact['uid'], 'contact-id' => $contact['id']]);
+			Avatar::deleteCache($contact);
 
-				// There should be none entry for the contact in these tables when none was found in "post-user".
-				// But we want to be sure since the foreign key prohibits deletion otherwise.
-				DBA::delete('post', ['owner-id' => $contact['id']]);
-				DBA::delete('post', ['author-id' => $contact['id']]);
-				DBA::delete('post', ['causer-id' => $contact['id']]);
-				
-				DBA::delete('post-thread', ['owner-id' => $contact['id']]);
-				DBA::delete('post-thread', ['author-id' => $contact['id']]);
-				DBA::delete('post-thread', ['causer-id' => $contact['id']]);
+			if (DBStructure::existsTable('thread')) {
+				DBA::delete('thread', ['owner-id' => $contact['id']]);
+				DBA::delete('thread', ['author-id' => $contact['id']]);
+			}
+			if (DBStructure::existsTable('item')) {
+				DBA::delete('item', ['owner-id' => $contact['id']]);
+				DBA::delete('item', ['author-id' => $contact['id']]);
+				DBA::delete('item', ['causer-id' => $contact['id']]);
+			}
 
-				DBA::delete('post-thread-user', ['owner-id' => $contact['id']]);
-				DBA::delete('post-thread-user', ['author-id' => $contact['id']]);
-				DBA::delete('post-thread-user', ['causer-id' => $contact['id']]);
+			// There should be none entry for the contact in these tables when none was found in "post-user".
+			// But we want to be sure since the foreign key prohibits deletion otherwise.
+			DBA::delete('post', ['owner-id' => $contact['id']]);
+			DBA::delete('post', ['author-id' => $contact['id']]);
+			DBA::delete('post', ['causer-id' => $contact['id']]);
+			
+			DBA::delete('post-thread', ['owner-id' => $contact['id']]);
+			DBA::delete('post-thread', ['author-id' => $contact['id']]);
+			DBA::delete('post-thread', ['causer-id' => $contact['id']]);
 
-				DBA::delete('contact', ['id' => $contact['id']]);
-				if ((++$count % 1000) == 0) {
-					Logger::notice('In removal', ['count' => $count, 'total' => $total]);
-				}
+			DBA::delete('post-thread-user', ['owner-id' => $contact['id']]);
+			DBA::delete('post-thread-user', ['author-id' => $contact['id']]);
+			DBA::delete('post-thread-user', ['causer-id' => $contact['id']]);
+
+			DBA::delete('contact', ['id' => $contact['id']]);
+			if ((++$count % 1000) == 0) {
+				Logger::notice('In removal', ['count' => $count, 'total' => $total]);
 			}
 		}
 		DBA::close($contacts);

@@ -37,6 +37,7 @@ use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item as ItemModel;
+use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
@@ -662,11 +663,22 @@ class Conversation
 					if (in_array($item['network'], [Protocol::FEED, Protocol::MAIL])) {
 						$owner_avatar  = $author_avatar  = $item['contact-id'];
 						$owner_updated = $author_updated = '';
+						$owner_thumb   = $author_thumb   = $item['contact-avatar'];
 					} else {
 						$owner_avatar   = $item['owner-id'];
 						$owner_updated  = $item['owner-updated'];
+						$owner_thumb    = $item['owner-avatar'];
 						$author_avatar  = $item['author-id'];
 						$author_updated = $item['author-updated'];
+						$author_thumb   = $item['author-avatar'];
+					}
+
+					if (empty($owner_thumb) || Photo::isPhotoURI($owner_thumb)) {
+						$owner_thumb = Contact::getAvatarUrlForId($owner_avatar, Proxy::SIZE_THUMB, $owner_updated);
+					}
+			
+					if (empty($author_thumb) || Photo::isPhotoURI($author_thumb)) {
+						$author_thumb = Contact::getAvatarUrlForId($author_avatar, Proxy::SIZE_THUMB, $author_updated);
 					}
 
 					$tmp_item = [
@@ -686,7 +698,7 @@ class Conversation
 						'name'                 => $profile_name,
 						'sparkle'              => $sparkle,
 						'lock'                 => false,
-						'thumb'                => $this->baseURL->remove(Contact::getAvatarUrlForId($author_avatar, Proxy::SIZE_THUMB, $author_updated)),
+						'thumb'                => $this->baseURL->remove($author_thumb),
 						'title'                => $title,
 						'body_html'            => $body_html,
 						'tags'                 => $tags['tags'],
@@ -707,7 +719,7 @@ class Conversation
 						'indent'               => '',
 						'owner_name'           => '',
 						'owner_url'            => '',
-						'owner_photo'          => $this->baseURL->remove(Contact::getAvatarUrlForId($owner_avatar, Proxy::SIZE_THUMB, $owner_updated)),
+						'owner_photo'          => $this->baseURL->remove($owner_thumb),
 						'plink'                => ItemModel::getPlink($item),
 						'edpost'               => false,
 						'pinned'               => $pinned,

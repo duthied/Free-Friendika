@@ -21,7 +21,7 @@
 
 namespace Friendica\Model;
 
-use Friendica\App\BaseURL;
+use Friendica\Contact\Avatar;
 use Friendica\Contact\Introduction\Exception\IntroductionNotFoundException;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
@@ -797,13 +797,17 @@ class Contact
 	public static function remove($id)
 	{
 		// We want just to make sure that we don't delete our "self" contact
-		$contact = DBA::selectFirst('contact', ['uid'], ['id' => $id, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['uri-id', 'photo', 'thumb', 'micro'], ['id' => $id, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
 
 		// Archive the contact
 		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
+
+		if (!DBA::exists('contact', ['uri-id' => $contact['uri-id'], 'deleted' => false])) {
+			Avatar::deleteCache($contact);
+		}
 
 		// Delete it in the background
 		Worker::add(PRIORITY_MEDIUM, 'Contact\Remove', $id);
@@ -827,7 +831,7 @@ class Contact
 		}
 
 		if (in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
-			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+			$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 			if (!empty($cdata['public'])) {
 				Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
 			}
@@ -856,7 +860,7 @@ class Contact
 		}
 
 		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
-			$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+			$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 			if (!empty($cdata['public'])) {
 				Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
 			}
@@ -882,7 +886,7 @@ class Contact
 			throw new \InvalidArgumentException('Unexpected public contact record');
 		}
 
-		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+		$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 
 		if (in_array($contact['rel'], [self::SHARING, self::FRIEND]) && !empty($cdata['public'])) {
 			Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
@@ -1464,7 +1468,7 @@ class Contact
 			$items = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
 
 			if ($pager->getStart() == 0) {
-				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
+				$cdata = self::getPublicAndUserContactID($cid, local_user());
 				if (!empty($cdata['public'])) {
 					$pinned = Post\Collection::selectToArrayForContact($cdata['public'], Post\Collection::FEATURED, $fields);
 					$items = array_merge($items, $pinned);
@@ -1477,7 +1481,7 @@ class Contact
 			$items = Post::toArray(Post::selectForUser(local_user(), $fields, $condition, $params));
 
 			if ($pager->getStart() == 0) {
-				$cdata = Contact::getPublicAndUserContactID($cid, local_user());
+				$cdata = self::getPublicAndUserContactID($cid, local_user());
 				if (!empty($cdata['public'])) {
 					$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
 						$cdata['public'], Post\Collection::FEATURED];
@@ -1577,10 +1581,14 @@ class Contact
 				self::updateAvatar($cid, $contact['avatar'], true);
 				return;
 			}
-		} elseif (!empty($contact['photo']) || !empty($contact['thumb']) || !empty($contact['micro'])) {
-			Logger::info('Removing avatar cache', ['id' => $cid, 'contact' => $contact]);
+		} elseif (Photo::isPhotoURI($contact['photo']) || Photo::isPhotoURI($contact['thumb']) || Photo::isPhotoURI($contact['micro'])) {
+			Logger::info('Replacing legacy avatar cache', ['id' => $cid, 'contact' => $contact]);
 			self::updateAvatar($cid, $contact['avatar'], true);
 			return;
+		} elseif (DI::config()->get('system', 'avatar_cache') && (empty($contact['photo']) || empty($contact['thumb']) || empty($contact['micro']))) {
+			Logger::info('Adding avatar cache file', ['id' => $cid, 'contact' => $contact]);
+			self::updateAvatar($cid, $contact['avatar'], true);
+		return;
 		}
 	}
 
@@ -1597,6 +1605,27 @@ class Contact
 	private static function getAvatarPath(array $contact, string $size, $no_update = false)
 	{
 		$contact = self::checkAvatarCacheByArray($contact, $no_update);
+
+		if (DI::config()->get('system', 'avatar_cache')) {
+			switch ($size) {
+				case Proxy::SIZE_MICRO:
+					if (!empty($contact['micro']) && !Photo::isPhotoURI($contact['micro'])) {
+						return $contact['micro'];
+					}
+					break;
+				case Proxy::SIZE_THUMB:
+					if (!empty($contact['thumb']) && !Photo::isPhotoURI($contact['thumb'])) {
+						return $contact['thumb'];
+					}
+					break;
+				case Proxy::SIZE_SMALL:
+					if (!empty($contact['photo']) && !Photo::isPhotoURI($contact['photo'])) {
+						return $contact['photo'];
+					}
+					break;
+			}
+		}
+
 		return self::getAvatarUrlForId($contact['id'], $size, $contact['updated'] ?? '');
 	}
 
@@ -1905,7 +1934,7 @@ class Contact
 	 */
 	public static function updateAvatar(int $cid, string $avatar, bool $force = false, bool $create_cache = false)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'xmpp', 'addr', 'nurl', 'url', 'network'],
+		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'xmpp', 'addr', 'nurl', 'url', 'network', 'uri-id'],
 			['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
@@ -1946,6 +1975,8 @@ class Contact
 		}
 
 		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) || $cache_avatar) {
+			Avatar::deleteCache($contact);
+
 			if ($default_avatar && Proxy::isLocalImage($avatar)) {
 				$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
 					'photo' => $avatar,
@@ -1997,9 +2028,8 @@ class Contact
 			}
 		} else {
 			Photo::delete(['uid' => $uid, 'contact-id' => $cid, 'photo-type' => Photo::CONTACT_AVATAR]);
-			$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
-				'photo' => '', 'thumb' => '', 'micro' => ''];
-			$update = ($avatar != $contact['avatar'] . $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
+			$fields = Avatar::fetchAvatarContact($contact, $avatar);
+			$update = ($avatar . $fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['avatar'] . $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
 		}
 
 		if (!$update) {
@@ -2789,7 +2819,7 @@ class Contact
 			return;
 		}
 
-		$cdata = Contact::getPublicAndUserContactID($contact['id'], $contact['uid']);
+		$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 
 		DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
 	}
