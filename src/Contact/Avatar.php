@@ -39,6 +39,8 @@ use Friendica\Util\Strings;
  */
 class Avatar
 {
+	const BASE_PATH = '/avatar/';
+
 	/**
 	 * Returns a field array with locally cached avatar pictures
 	 *
@@ -105,11 +107,11 @@ class Avatar
 			return '';
 		}
 
-		$path = '/avatar/' . $filename . $size . '.' . $image->getExt();
+		$path = self::BASE_PATH . $filename . $size . '.' . $image->getExt();
 
 		$filepath = DI::basePath() . $path;
 
-		$dirpath = DI::basePath() . '/avatar/';
+		$dirpath = DI::basePath() . self::BASE_PATH;
 
 		DI::profiler()->startRecording('file');
 
@@ -169,13 +171,13 @@ class Avatar
 			return '';
 		}
 
-		$path = Strings::normaliseLink(DI::baseUrl() . '/avatar');
+		$path = Strings::normaliseLink(DI::baseUrl() . self::BASE_PATH);
 
 		if (Network::getUrlMatch($path, $avatar) != $path) {
 			return '';
 		}
 
-		$filename = str_replace($path, DI::basePath(). '/avatar/', Strings::normaliseLink($avatar));
+		$filename = str_replace($path, DI::basePath(). self::BASE_PATH, Strings::normaliseLink($avatar));
 
 		DI::profiler()->startRecording('file');
 		$exists = file_exists($filename);
