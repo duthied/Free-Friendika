@@ -125,7 +125,7 @@ class Avatar
 		DI::profiler()->stopRecording();
 
 		if (!file_exists($filepath)) {
-			Logger::notice('Avatar cache file could not be stored', ['file' => $filepath]);
+			Logger::warning('Avatar cache file could not be stored', ['file' => $filepath]);
 			return '';
 		}
 
