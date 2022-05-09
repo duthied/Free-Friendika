@@ -109,18 +109,32 @@ class Avatar
 
 		$filepath = DI::basePath() . $path;
 
-		$dirpath = dirname($filepath);
+		$dirpath = DI::basePath() . '/avatar/';
 
 		DI::profiler()->startRecording('file');
 
-		if (!file_exists($dirpath)) {
-			mkdir($dirpath, 0775, true);
-		} else {
-			chmod($dirpath, 0775);
+		// Fetch the permission and group ownership of the "avatar" path and apply to all files
+		$dir_perm  = fileperms($dirpath) & 0777;
+		$file_perm = fileperms($dirpath) & 0666;
+		$group     = filegroup($dirpath);
+
+		// Check directory permissions of all parts of the path
+		foreach (explode('/', dirname($filename)) as $part) {
+			$dirpath .= $part . '/';
+			if (!file_exists($dirpath)) {
+				mkdir($dirpath, $dir_perm);
+			} elseif (fileperms($dirpath) & 0777 != $dir_perm) {
+				chmod($dirpath, $dir_perm);
+			}
+
+			if (filegroup($dirpath) != $group) {
+				chgrp($dirpath, $group);
+			}
 		}
 
 		file_put_contents($filepath, $image->asString());
-		chmod($filepath, 0664);
+		chmod($filepath, $file_perm);
+		chgrp($filepath, $group);
 
 		DI::profiler()->stopRecording();
 
