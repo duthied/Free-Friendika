@@ -120,7 +120,7 @@ class Avatar
 		}
 
 		file_put_contents($filepath, $image->asString());
-		chmod($filepath, 0775);
+		chmod($filepath, 0664);
 
 		DI::profiler()->stopRecording();
 
