@@ -711,6 +711,18 @@ class Photo
 	}
 
 	/**
+	 * Checks if the given URL is a local photo.
+	 * Since it is meant for time critical occasions, the check is done without any database requests.
+	 *
+	 * @param string $url
+	 * @return boolean
+	 */
+	public static function isPhotoURI(string $url): bool
+	{
+		return !empty(self::ridFromURI($url));
+	}
+
+	/**
 	 * Changes photo permissions that had been embedded in a post
 	 *
 	 * @todo This function currently does have some flaws:

@@ -1611,17 +1611,17 @@ class Contact
 		if (DI::config()->get('system', 'avatar_cache')) {
 			switch ($size) {
 				case Proxy::SIZE_MICRO:
-					if (self::isAvatarFile($contact['micro'])) {
+					if (!empty($contact['micro']) && !Photo::isPhotoURI($contact['micro'])) {
 						return $contact['micro'];
 					}
 					break;
 				case Proxy::SIZE_THUMB:
-					if (self::isAvatarFile($contact['thumb'])) {
+					if (!empty($contact['thumb']) && !Photo::isPhotoURI($contact['thumb'])) {
 						return $contact['thumb'];
 					}
 					break;
 				case Proxy::SIZE_SMALL:
-					if (self::isAvatarFile($contact['photo'])) {
+					if (!empty($contact['photo']) && !Photo::isPhotoURI($contact['photo'])) {
 						return $contact['photo'];
 					}
 					break;
@@ -2187,7 +2187,7 @@ class Contact
 	 * @param string $avatar
 	 * @return boolean
 	 */
-	public static function isAvatarFile(string $avatar): bool
+	private static function isAvatarFile(string $avatar): bool
 	{
 		return !empty(self::getAvatarFile($avatar));
 	}

@@ -37,6 +37,7 @@ use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item as ItemModel;
+use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
@@ -672,11 +673,11 @@ class Conversation
 						$author_thumb   = $item['author-avatar'];
 					}
 
-					if (!Contact::isAvatarFile($owner_thumb)) {
+					if (empty($owner_thumb) || Photo::isPhotoURI($owner_thumb)) {
 						$owner_thumb = Contact::getAvatarUrlForId($owner_avatar, Proxy::SIZE_THUMB, $owner_updated);
 					}
-
-					if (!Contact::isAvatarFile($author_thumb)) {
+			
+					if (empty($author_thumb) || Photo::isPhotoURI($author_thumb)) {
 						$author_thumb = Contact::getAvatarUrlForId($author_avatar, Proxy::SIZE_THUMB, $author_updated);
 					}
 
