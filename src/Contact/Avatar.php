@@ -114,10 +114,14 @@ class Avatar
 		DI::profiler()->startRecording('file');
 
 		if (!file_exists($dirpath)) {
-			mkdir($dirpath, 0777, true);
+			mkdir($dirpath, 0775, true);
+		} else {
+			chmod($dirpath, 0775);
 		}
 
 		file_put_contents($filepath, $image->asString());
+		chmod($filepath, 0775);
+
 		DI::profiler()->stopRecording();
 
 		return DI::baseUrl() . $path;
