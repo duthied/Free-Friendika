@@ -124,19 +124,33 @@ class Avatar
 		foreach (explode('/', dirname($filename)) as $part) {
 			$dirpath .= $part . '/';
 			if (!file_exists($dirpath)) {
-				mkdir($dirpath, $dir_perm);
+				if (!mkdir($dirpath, $dir_perm)) {
+					Logger::warning('Directory could not be created', ['directory' => $dirpath]);
+				}
 			} elseif (fileperms($dirpath) & 0777 != $dir_perm) {
-				chmod($dirpath, $dir_perm);
+				if (!chmod($dirpath, $dir_perm)) {
+					Logger::warning('Directory permissions could not be changed', ['directory' => $dirpath]);
+				}
 			}
 
 			if (filegroup($dirpath) != $group) {
-				chgrp($dirpath, $group);
+				if (!chgrp($dirpath, $group)) {
+					Logger::warning('Directory group could not be changed', ['directory' => $dirpath]);
+				}
 			}
 		}
 
-		file_put_contents($filepath, $image->asString());
-		chmod($filepath, $file_perm);
-		chgrp($filepath, $group);
+		if (!file_put_contents($filepath, $image->asString())) {
+			Logger::warning('File could not be created', ['file' => $filepath]);
+		}
+
+		if (!chmod($filepath, $file_perm)) {
+			Logger::warning('File permissions could not be changed', ['file' => $filepath]);
+		}
+
+		if (!chgrp($filepath, $group)) {
+			Logger::warning('File group could not be changed', ['file' => $filepath]);
+		}
 
 		DI::profiler()->stopRecording();
 
