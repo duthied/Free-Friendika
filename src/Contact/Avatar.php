@@ -129,13 +129,13 @@ class Avatar
 				}
 			} elseif (fileperms($dirpath) & 0777 != $dir_perm) {
 				if (!chmod($dirpath, $dir_perm)) {
-					Logger::warning('Directory permissions could not be changed', ['directory' => $dirpath]);
+					Logger::info('Directory permissions could not be changed', ['directory' => $dirpath]);
 				}
 			}
 
 			if (filegroup($dirpath) != $group) {
 				if (!chgrp($dirpath, $group)) {
-					Logger::warning('Directory group could not be changed', ['directory' => $dirpath]);
+					Logger::info('Directory group could not be changed', ['directory' => $dirpath]);
 				}
 			}
 		}
