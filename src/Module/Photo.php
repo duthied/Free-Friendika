@@ -342,7 +342,6 @@ class Photo extends BaseModule
 					}
 				}
 				if (empty($mimetext)) {
-					Logger::info('Blubb');
 					if ($customsize <= Proxy::PIXEL_MICRO) {
 						$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
 					} elseif ($customsize <= Proxy::PIXEL_THUMB) {
