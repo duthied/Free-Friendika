@@ -1442,7 +1442,7 @@ class Item
 			return 0;
 		}
 
-		if ((($item['gravity'] == GRAVITY_COMMENT) || $is_reshare) && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
+		if (($uri_id != $item['thr-parent-id']) && (($item['gravity'] == GRAVITY_COMMENT) || $is_reshare) && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
 			// Fetch the origin user for the post
 			$origin_uid = self::GetOriginUidForUriId($item['thr-parent-id'], $uid);
 			if (is_null($origin_uid)) {
