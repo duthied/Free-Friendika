@@ -304,10 +304,12 @@ class Photo extends BaseModule
 						$photo = MPhoto::selectFirst([], ['resource-id' => $resourceid], ['order' => ['scale']]);
 						if (!empty($photo)) {
 							return $photo;
+						} else {
+							$url = $contact['avatar'];
 						}
+					} else {
+						$url = $contact['photo'];
 					}
-					// We continue with the avatar link when the photo link is invalid
-					$url = $contact['avatar'];
 				} elseif (!empty($contact['avatar'])) {
 					$url = $contact['avatar'];
 				}

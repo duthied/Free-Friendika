@@ -26,15 +26,16 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item as ModelItem;
+use Friendica\Model\Photo;
 use Friendica\Model\Tag;
 use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Profiler;
+use Friendica\Util\Proxy;
 use Friendica\Util\XML;
 
 /**
@@ -563,5 +564,44 @@ class Item
 			}
 		}
 		return $item;
+	}
+
+	public function getAuthorAvatar(array $item): string
+	{
+		if (in_array($item['network'], [Protocol::FEED, Protocol::MAIL])) {
+			$author_avatar  = $item['contact-id'];
+			$author_updated = '';
+			$author_thumb   = $item['contact-avatar'];
+		} else {
+			$author_avatar  = $item['author-id'];
+			$author_updated = $item['author-updated'];
+			$author_thumb   = $item['author-avatar'];
+		}
+
+
+		if (empty($author_thumb) || Photo::isPhotoURI($author_thumb)) {
+			$author_thumb = Contact::getAvatarUrlForId($author_avatar, Proxy::SIZE_THUMB, $author_updated);
+		}
+
+		return $author_thumb;
+	}
+
+	public function getOwnerAvatar(array $item): string
+	{
+		if (in_array($item['network'], [Protocol::FEED, Protocol::MAIL])) {
+			$owner_avatar  = $item['contact-id'];
+			$owner_updated = '';
+			$owner_thumb   = $item['contact-avatar'];
+		} else {
+			$owner_avatar   = $item['owner-id'];
+			$owner_updated  = $item['owner-updated'];
+			$owner_thumb    = $item['owner-avatar'];
+		}
+
+		if (empty($owner_thumb) || Photo::isPhotoURI($owner_thumb)) {
+			$owner_thumb = Contact::getAvatarUrlForId($owner_avatar, Proxy::SIZE_THUMB, $owner_updated);
+		}
+
+		return $owner_thumb;
 	}
 }
