@@ -1700,6 +1700,10 @@ class Contact
 			}
 		}
 
+		if (Network::isLocalLink($contact['url']) && !empty($contact['avatar'])) {
+			return $contact;
+		}
+
 		/// add the default avatars if the fields aren't filled
 		if (isset($contact['photo']) && empty($contact['photo'])) {
 			$contact['photo'] = self::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
