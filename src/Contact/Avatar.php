@@ -123,20 +123,20 @@ class Avatar
 		// Check directory permissions of all parts of the path
 		foreach (explode('/', dirname($filename)) as $part) {
 			$dirpath .= $part . '/';
+
+			$old_perm  = fileperms($dirpath) & 0777;
+			$old_group = filegroup($dirpath);
+
 			if (!file_exists($dirpath)) {
 				if (!mkdir($dirpath, $dir_perm)) {
 					Logger::warning('Directory could not be created', ['directory' => $dirpath]);
 				}
-			} elseif (fileperms($dirpath) & 0777 != $dir_perm) {
-				if (!chmod($dirpath, $dir_perm)) {
-					Logger::info('Directory permissions could not be changed', ['directory' => $dirpath]);
-				}
+			} elseif (($old_perm != $dir_perm) && !chmod($dirpath, $dir_perm)) {
+				Logger::notice('Directory permissions could not be changed', ['directory' => $dirpath, 'old' => $old_perm, 'new' => $dir_perm]);
 			}
 
-			if (filegroup($dirpath) != $group) {
-				if (!chgrp($dirpath, $group)) {
-					Logger::info('Directory group could not be changed', ['directory' => $dirpath]);
-				}
+			if (($old_group != $group) && !chgrp($dirpath, $group)) {
+				Logger::notice('Directory group could not be changed', ['directory' => $dirpath, 'old' => $old_group, 'new' => $group]);
 			}
 		}
 
@@ -144,12 +144,15 @@ class Avatar
 			Logger::warning('File could not be created', ['file' => $filepath]);
 		}
 
-		if (!chmod($filepath, $file_perm)) {
-			Logger::warning('File permissions could not be changed', ['file' => $filepath]);
+		$old_perm  = fileperms($filepath) & 0666;
+		$old_group = filegroup($filepath);
+
+		if (($old_perm != $file_perm) && !chmod($filepath, $file_perm)) {
+			Logger::notice('File permissions could not be changed', ['file' => $filepath, 'old' => $old_perm, 'new' => $file_perm]);
 		}
 
-		if (!chgrp($filepath, $group)) {
-			Logger::warning('File group could not be changed', ['file' => $filepath]);
+		if (($old_group != $group) && !chgrp($filepath, $group)) {
+			Logger::notice('File group could not be changed', ['file' => $filepath, 'old' => $old_group, 'new' => $group]);
 		}
 
 		DI::profiler()->stopRecording();
