@@ -39,6 +39,8 @@ use Friendica\Util\Strings;
  */
 class Avatar
 {
+	const BASE_PATH = '/avatar/';
+
 	/**
 	 * Returns a field array with locally cached avatar pictures
 	 *
@@ -105,22 +107,50 @@ class Avatar
 			return '';
 		}
 
-		$path = '/avatar/' . $filename . $size . '.' . $image->getExt();
+		$path = self::BASE_PATH . $filename . $size . '.' . $image->getExt();
 
 		$filepath = DI::basePath() . $path;
 
-		$dirpath = dirname($filepath);
+		$dirpath = DI::basePath() . self::BASE_PATH;
 
 		DI::profiler()->startRecording('file');
 
-		if (!file_exists($dirpath)) {
-			mkdir($dirpath, 0775, true);
-		} else {
-			chmod($dirpath, 0775);
+		// Fetch the permission and group ownership of the "avatar" path and apply to all files
+		$dir_perm  = fileperms($dirpath) & 0777;
+		$file_perm = fileperms($dirpath) & 0666;
+		$group     = filegroup($dirpath);
+
+		// Check directory permissions of all parts of the path
+		foreach (explode('/', dirname($filename)) as $part) {
+			$dirpath .= $part . '/';
+			if (!file_exists($dirpath)) {
+				if (!mkdir($dirpath, $dir_perm)) {
+					Logger::warning('Directory could not be created', ['directory' => $dirpath]);
+				}
+			} elseif (fileperms($dirpath) & 0777 != $dir_perm) {
+				if (!chmod($dirpath, $dir_perm)) {
+					Logger::info('Directory permissions could not be changed', ['directory' => $dirpath]);
+				}
+			}
+
+			if (filegroup($dirpath) != $group) {
+				if (!chgrp($dirpath, $group)) {
+					Logger::info('Directory group could not be changed', ['directory' => $dirpath]);
+				}
+			}
 		}
 
-		file_put_contents($filepath, $image->asString());
-		chmod($filepath, 0664);
+		if (!file_put_contents($filepath, $image->asString())) {
+			Logger::warning('File could not be created', ['file' => $filepath]);
+		}
+
+		if (!chmod($filepath, $file_perm)) {
+			Logger::warning('File permissions could not be changed', ['file' => $filepath]);
+		}
+
+		if (!chgrp($filepath, $group)) {
+			Logger::warning('File group could not be changed', ['file' => $filepath]);
+		}
 
 		DI::profiler()->stopRecording();
 
@@ -155,13 +185,13 @@ class Avatar
 			return '';
 		}
 
-		$path = Strings::normaliseLink(DI::baseUrl() . '/avatar');
+		$path = Strings::normaliseLink(DI::baseUrl() . self::BASE_PATH);
 
 		if (Network::getUrlMatch($path, $avatar) != $path) {
 			return '';
 		}
 
-		$filename = str_replace($path, DI::basePath(). '/avatar/', Strings::normaliseLink($avatar));
+		$filename = str_replace($path, DI::basePath(). self::BASE_PATH, Strings::normaliseLink($avatar));
 
 		DI::profiler()->startRecording('file');
 		$exists = file_exists($filename);
