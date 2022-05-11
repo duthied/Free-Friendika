@@ -1575,6 +1575,10 @@ class Contact
 			return;
 		}
 
+		if (Network::isLocalLink($contact['url'])) {
+			return;
+		}
+
 		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) || DI::config()->get('system', 'cache_contact_avatar')) {
 			if (!empty($contact['avatar']) && (empty($contact['photo']) || empty($contact['thumb']) || empty($contact['micro']))) {
 				Logger::info('Adding avatar cache', ['id' => $cid, 'contact' => $contact]);
@@ -1690,7 +1694,9 @@ class Contact
 			return $contact;
 		}
 
-		if (!empty($contact['id']) && !empty($contact['avatar'])) {
+		$local = !empty($contact['url']) && Network::isLocalLink($contact['url']);
+
+		if (!$local && !empty($contact['id']) && !empty($contact['avatar'])) {
 			self::updateAvatar($contact['id'], $contact['avatar'], true);
 
 			$new_contact = self::getById($contact['id'], $contact_fields);
@@ -1698,9 +1704,7 @@ class Contact
 				// We only update the cache fields
 				$contact = array_merge($contact, $new_contact);
 			}
-		}
-
-		if (!empty($contact['avatar']) && !empty($contact['url']) && Network::isLocalLink($contact['url'])) {
+		} elseif ($local && !empty($contact['avatar'])) {
 			return $contact;
 		}
 
