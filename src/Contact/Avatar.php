@@ -124,18 +124,15 @@ class Avatar
 		foreach (explode('/', dirname($filename)) as $part) {
 			$dirpath .= $part . '/';
 
-			$old_perm  = fileperms($dirpath) & 0777;
-			$old_group = filegroup($dirpath);
-
 			if (!file_exists($dirpath)) {
 				if (!mkdir($dirpath, $dir_perm)) {
 					Logger::warning('Directory could not be created', ['directory' => $dirpath]);
 				}
-			} elseif (($old_perm != $dir_perm) && !chmod($dirpath, $dir_perm)) {
+			} elseif ((($old_perm = fileperms($dirpath) & 0777) != $dir_perm) && !chmod($dirpath, $dir_perm)) {
 				Logger::notice('Directory permissions could not be changed', ['directory' => $dirpath, 'old' => $old_perm, 'new' => $dir_perm]);
 			}
 
-			if (($old_group != $group) && !chgrp($dirpath, $group)) {
+			if ((($old_group = filegroup($dirpath)) != $group) && !chgrp($dirpath, $group)) {
 				Logger::notice('Directory group could not be changed', ['directory' => $dirpath, 'old' => $old_group, 'new' => $group]);
 			}
 		}
