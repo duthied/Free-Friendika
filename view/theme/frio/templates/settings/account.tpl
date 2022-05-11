@@ -237,7 +237,7 @@
 			</form>
 
 			{{* Import contacts CSV *}}
-			<form action="settings/account/importcontact" method="post" autocomplete="off" class="panel">
+			<form action="settings/account/importcontact" method="post" autocomplete="off" class="panel" enctype="multipart/form-data">
 				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="importcontact-settings">
 					<h2>
