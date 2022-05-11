@@ -26,6 +26,7 @@ use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException\NotModifiedException;
+use GuzzleHttp\Psr7\Uri;
 
 class Network
 {
@@ -436,7 +437,7 @@ class Network
 	 * @param array $parsed URL parts
 	 *
 	 * @return string The glued URL.
-	 * @deprecated since version 2021.12, use a UriInterface object like GuzzleHttp\Psr7\Uri instead
+	 * @deprecated since version 2021.12, use GuzzleHttp\Psr7\Uri::fromParts($parts) instead
 	 */
 	public static function unparseURL(array $parsed)
 	{
@@ -473,7 +474,7 @@ class Network
 		$parts = parse_url($uri);
 		if (!empty($parts['scheme']) && !empty($parts['host'])) {
 			$parts['host'] = idn_to_ascii($parts['host']);
-			$uri = self::unparseURL($parts);
+			$uri = Uri::fromParts($parts);
 		} else {
 			$parts = explode('@', $uri);
 			if (count($parts) == 2) {
