@@ -65,10 +65,10 @@ class Probe
 	 */
 	public static function cleanURI(string $rawUri): string
 	{
-		$rawUri = Network::convertToIdn($rawUri);
-
 		// At first remove leading and trailing junk
 		$rawUri = trim($rawUri, "@#?:/ \t\n\r\0\x0B");
+
+		$rawUri = Network::convertToIdn($rawUri);
 
 		$uri = new Uri($rawUri);
 		if (!$uri->getScheme()) {
