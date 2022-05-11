@@ -1700,7 +1700,7 @@ class Contact
 			}
 		}
 
-		if (Network::isLocalLink($contact['url']) && !empty($contact['avatar'])) {
+		if (!empty($contact['avatar']) && !empty($contact['url']) && Network::isLocalLink($contact['url'])) {
 			return $contact;
 		}
 
