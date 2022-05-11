@@ -474,10 +474,12 @@ class Network
 		if (!empty($parts['scheme']) && !empty($parts['host'])) {
 			$parts['host'] = idn_to_ascii($parts['host']);
 			$uri = self::unparseURL($parts);
-		} elseif (strstr($uri, '@')) {
+		} else {
 			$parts = explode('@', $uri);
 			if (count($parts) == 2) {
 				$uri = $parts[0] . '@' . idn_to_ascii($parts[1]);
+			} else {
+				$uri = idn_to_ascii($uri);
 			}
 		}
 
