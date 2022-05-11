@@ -65,6 +65,8 @@ class Probe
 	 */
 	public static function cleanURI(string $rawUri): string
 	{
+		$rawUri = Network::convertToIdn($rawUri);
+
 		// At first remove leading and trailing junk
 		$rawUri = trim($rawUri, "@#?:/ \t\n\r\0\x0B");
 
@@ -241,49 +243,6 @@ class Probe
 		Logger::info('Probing successful', ['host' => $host]);
 
 		return $lrdd;
-	}
-
-	/**
-	 * Perform Webfinger lookup and return DFRN data
-	 *
-	 * Given an email style address, perform webfinger lookup and
-	 * return the resulting DFRN profile URL, or if no DFRN profile URL
-	 * is located, returns an OStatus subscription template (prefixed
-	 * with the string 'stat:' to identify it as on OStatus template).
-	 * If this isn't an email style address just return $webbie.
-	 * Return an empty string if email-style addresses but webfinger fails,
-	 * or if the resultant personal XRD doesn't contain a supported
-	 * subscription/friend-request attribute.
-	 *
-	 * amended 7/9/2011 to return an hcard which could save potentially loading
-	 * a lengthy content page to scrape dfrn attributes
-	 *
-	 * @param string $webbie    Address that should be probed
-	 * @param string $hcard_url Link to the hcard - is returned by reference
-	 *
-	 * @return string profile link
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	public static function webfingerDfrn(string $webbie, string &$hcard_url)
-	{
-		$profile_link = '';
-
-		$links = self::lrdd($webbie);
-		Logger::debug('Result', ['url' => $webbie, 'links' => $links]);
-		if (!empty($links) && is_array($links)) {
-			foreach ($links as $link) {
-				if ($link['@attributes']['rel'] === ActivityNamespace::DFRN) {
-					$profile_link = $link['@attributes']['href'];
-				}
-				if (($link['@attributes']['rel'] === ActivityNamespace::OSTATUSSUB) && ($profile_link == "")) {
-					$profile_link = 'stat:'.$link['@attributes']['template'];
-				}
-				if ($link['@attributes']['rel'] === 'http://microformats.org/profile/hcard') {
-					$hcard_url = $link['@attributes']['href'];
-				}
-			}
-		}
-		return $profile_link;
 	}
 
 	/**

@@ -38,6 +38,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseSearch;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Network;
 
 class Index extends BaseSearch
 {
@@ -226,7 +227,8 @@ class Index extends BaseSearch
 	 */
 	private static function tryRedirectToProfile(string $search)
 	{
-		$isUrl = !empty(parse_url($search, PHP_URL_SCHEME));
+		$search = Network::convertToIdn($search);
+		$isUrl  = !empty(parse_url($search, PHP_URL_SCHEME));
 		$isAddr = (bool)preg_match('/^@?([a-z0-9.-_]+@[a-z0-9.-_:]+)$/i', trim($search), $matches);
 
 		if (!$isUrl && !$isAddr) {
@@ -273,6 +275,8 @@ class Index extends BaseSearch
 		if (parse_url($search, PHP_URL_SCHEME) == '') {
 			return;
 		}
+
+		$search = Network::convertToIdn($search);
 
 		if (local_user()) {
 			// Post URL search
