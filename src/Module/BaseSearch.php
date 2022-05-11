@@ -30,6 +30,7 @@ use Friendica\Model;
 use Friendica\Network\HTTPException;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
+use Friendica\Util\Network;
 
 /**
  * Base class for search modules
@@ -68,7 +69,7 @@ class BaseSearch extends BaseModule
 			$header  = DI::l10n()->t('People Search - %s', $search);
 
 			if (strrpos($search, '@') > 0) {
-				$results = Search::getContactsFromProbe($search);
+				$results = Search::getContactsFromProbe(Network::convertToIdn($search));
 			}
 		}
 
@@ -77,6 +78,8 @@ class BaseSearch extends BaseModule
 			$type   = Search::TYPE_FORUM;
 			$header = DI::l10n()->t('Forum Search - %s', $search);
 		}
+
+		$search = Network::convertToIdn($search);
 
 		if (DI::mode()->isMobile()) {
 			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',

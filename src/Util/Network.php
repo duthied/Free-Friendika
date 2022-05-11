@@ -462,6 +462,27 @@ class Network
 			(strlen($fragment) ? "#".$fragment : '');
 	}
 
+	/**
+	 * Convert an URI to an IDN compatible URI
+	 *
+	 * @param string $uri
+	 * @return string
+	 */
+	public static function convertToIdn(string $uri): string
+	{
+		$parts = parse_url($uri);
+		if (!empty($parts['scheme']) && !empty($parts['host'])) {
+			$parts['host'] = idn_to_ascii($parts['host']);
+			$uri = self::unparseURL($parts);
+		} elseif (strstr($uri, '@')) {
+			$host = idn_to_ascii(substr($uri, strpos($uri, '@') + 1));
+			$nick = substr($uri, 0, strpos($uri, '@'));
+
+			$uri = $nick . '@' . $host;
+		}
+
+		return $uri;
+	}
 
 	/**
 	 * Switch the scheme of an url between http and https
