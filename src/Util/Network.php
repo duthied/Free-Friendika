@@ -475,10 +475,10 @@ class Network
 			$parts['host'] = idn_to_ascii($parts['host']);
 			$uri = self::unparseURL($parts);
 		} elseif (strstr($uri, '@')) {
-			$host = idn_to_ascii(substr($uri, strpos($uri, '@') + 1));
-			$nick = substr($uri, 0, strpos($uri, '@'));
-
-			$uri = $nick . '@' . $host;
+			$parts = explode('@', $uri);
+			if (count($parts) == 2) {
+				$uri = $parts[0] . '@' . idn_to_ascii($parts[1]);
+			}
 		}
 
 		return $uri;
