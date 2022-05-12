@@ -87,13 +87,14 @@ class APDelivery
 			}
 		}
 
+		Logger::debug('Inbox delivery done', ['inbox' => $inbox, 'posts' => count($posts), 'failed' => count($uri_ids)]);
 		return ['success' => empty($uri_ids), 'uri_ids' => $uri_ids];
 	}
 
 	private static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id)
 	{
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
-			$item = Post::selectFirst(['id', 'parent', 'origin'], ['uri-id' => $uri_id, 'uid' => $uid]);
+			$item = Post::selectFirst(['id', 'parent', 'origin'], ['uri-id' => $uri_id, 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
 			$item_id = $item['id'] ?? 0;
 			if (empty($receivers) && !empty($item)) {
 				$parent = Post::selectFirst(Item::DELIVER_FIELDLIST, ['id' => $item['parent']]);
@@ -106,6 +107,10 @@ class APDelivery
 					$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true);
 					$receivers = $inboxes[$inbox] ?? [];
 				}
+			} elseif (empty($item_id)) {
+				Logger::debug('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
+				Post\Delivery::remove($uri_id, $inbox);
+				return true;
 			}
 		}
 
@@ -142,7 +147,7 @@ class APDelivery
 
 		self::setSuccess($receivers, $success);
 
-		Logger::info('Delivered', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid, 'success' => $success]);
+		Logger::info('Delivered', ['uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox, 'success' => $success]);
 
 		if ($success && in_array($cmd, [Delivery::POST])) {
 			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
