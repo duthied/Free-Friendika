@@ -61,29 +61,15 @@ class APDelivery
 			$result = self::deliver($inbox);
 			$success = $result['success'];
 			$uri_ids = $result['uri_ids'];
-		}
-
-		if (empty($uri_ids)) {
+		} else {
 			$success = self::deliverToInbox($cmd, $item_id, $inbox, $uid, $receivers, $uri_id);
+			$uri_ids = [$uri_id];
 		}
 
 		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
-			if (!empty($uri_id)) {
+			foreach ($uri_ids as $uri_id) {
 				Post\Delivery::remove($uri_id, $inbox);
 				Post\DeliveryData::incrementQueueFailed($uri_id);
-			} elseif (!empty($uri_ids)) {
-				foreach ($uri_ids as $uri_id) {
-					Post\Delivery::remove($uri_id, $inbox);
-					Post\DeliveryData::incrementQueueFailed($uri_id);
-				}
-			}
-		} elseif ($success && in_array($cmd, [Delivery::POST])) {
-			if (!empty($uri_id)) {
-				Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
-			} elseif (!empty($uri_ids)) {
-				foreach ($uri_ids as $uri_id) {
-					Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
-				}
 			}
 		}
 	}
@@ -91,13 +77,14 @@ class APDelivery
 	private static function deliver(string $inbox)
 	{
 		$uri_ids = [];
-		$success = true;
+		$posts   = Post\Delivery::selectForInbox($inbox);
+		$success = empty($posts);
 
-		$posts = Post\Delivery::selectForInbox($inbox);
 		foreach ($posts as $post) {
-			$uri_ids[] = $post['uri-id'];
-			if ($success) {
-				$success = self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], [], $post['uri-id']);
+			if (self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], [], $post['uri-id'])) {
+				$success = true;
+			} else {
+				$uri_ids[] = $post['uri-id'];
 			}
 		}
 
@@ -119,7 +106,7 @@ class APDelivery
 				if (empty($receivers)) {
 					$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true);
 					$receivers = $inboxes[$inbox] ?? [];
-				}					
+				}
 			}
 		}
 
@@ -153,6 +140,10 @@ class APDelivery
 		self::setSuccess($receivers, $success);
 
 		Logger::info('Delivered', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid, 'success' => $success]);
+
+		if ($success && in_array($cmd, [Delivery::POST])) {
+			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
+		}
 
 		return $success;
 	}
