@@ -76,19 +76,18 @@ class APDelivery
 
 	private static function deliver(string $inbox)
 	{
+		Post\Delivery::removeFailed($inbox);
+		
 		$uri_ids = [];
 		$posts   = Post\Delivery::selectForInbox($inbox);
-		$success = empty($posts);
 
 		foreach ($posts as $post) {
-			if (self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], [], $post['uri-id'])) {
-				$success = true;
-			} else {
+			if (!self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], [], $post['uri-id'])) {
 				$uri_ids[] = $post['uri-id'];
 			}
 		}
 
-		return ['success' => $success, 'uri_ids' => $uri_ids];
+		return ['success' => empty($uri_ids), 'uri_ids' => $uri_ids];
 	}
 
 	private static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id)

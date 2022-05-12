@@ -24,6 +24,7 @@ namespace Friendica\Model\Post;
 use Friendica\Database\DBA;
 use BadMethodCallException;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\ItemURI;
 
 class Delivery
@@ -58,6 +59,16 @@ class Delivery
 	}
 
 	/**
+	 * Remove failed posts for an inbox
+	 *
+	 * @param string  $inbox
+	 */
+	public static function removeFailed(string $inbox)
+	{
+		DBA::delete('post-delivery', ["`inbox-id` = ? AND `failed` >= ?", ItemURI::getIdByURI($inbox), DI::config()->get('system', 'worker_defer_limit')]);
+	}
+
+	/**
 	 * Increment "failed" counter for the given inbox and post
 	 *
 	 * @param integer $uri_id
@@ -70,6 +81,6 @@ class Delivery
 
 	public static function selectForInbox(string $inbox)
 	{
-		return DBA::selectToArray('post-delivery', [], ["`inbox-id` = ? AND `failed` < ?", ItemURI::getIdByURI($inbox), 15], ['order' => ['created']]);
+		return DBA::selectToArray('post-delivery', [], ['inbox-id' => ItemURI::getIdByURI($inbox)], ['order' => ['created']]);
 	}
 }
