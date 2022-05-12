@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1461);
+	define('DB_UPDATE_VERSION', 1462);
 }
 
 return [
@@ -1165,6 +1165,7 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Delivering user"],
 			"created" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"command" => ["type" => "varbinary(32)", "comment" => ""],
+			"failed" => ["type" => "tinyint", "default" => 0, "comment" => "Number of times the delivery has failed"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id", "inbox-id"],

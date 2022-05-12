@@ -57,8 +57,19 @@ class Delivery
 		DBA::delete('post-delivery', ['uri-id' => $uri_id, 'inbox-id' => ItemURI::getIdByURI($inbox)]);
 	}
 
+	/**
+	 * Increment "failed" counter for the given inbox and post
+	 *
+	 * @param integer $uri_id
+	 * @param string  $inbox
+	 */
+	public static function incrementFailed(int $uri_id, string $inbox)
+	{
+		return DBA::e('UPDATE `post-delivery` SET `failed` = `failed` + 1 WHERE `uri-id` = ? AND `inbox-id` = ?', $uri_id, ItemURI::getIdByURI($inbox));
+	}
+
 	public static function selectForInbox(string $inbox)
 	{
-		return DBA::selectToArray('post-delivery', [], ['inbox-id' => ItemURI::getIdByURI($inbox)], ['order' => ['created']]);
+		return DBA::selectToArray('post-delivery', [], ["`inbox-id` = ? AND `failed` < ?", ItemURI::getIdByURI($inbox), 15], ['order' => ['created']]);
 	}
 }

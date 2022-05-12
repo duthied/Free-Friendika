@@ -131,8 +131,12 @@ class APDelivery
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
-				if ($success && $uri_id) {
-					Post\Delivery::remove($uri_id, $inbox);
+				if ($uri_id) {
+					if ($success) {
+						Post\Delivery::remove($uri_id, $inbox);
+					} else {
+						Post\Delivery::incrementFailed($uri_id, $inbox);
+					}
 				}
 			}
 		}

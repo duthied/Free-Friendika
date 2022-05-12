@@ -13,6 +13,7 @@ Fields
 | uid      | Delivering user                                           | mediumint unsigned | YES  |     | NULL                |       |
 | created  |                                                           | datetime           | YES  |     | 0001-01-01 00:00:00 |       |
 | command  |                                                           | varbinary(32)      | YES  |     | NULL                |       |
+| failed   | Number of times the delivery has failed                   | tinyint            | YES  |     | 0                   |       |
 
 Indexes
 ------------
