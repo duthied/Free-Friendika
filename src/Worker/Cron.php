@@ -95,6 +95,9 @@ class Cron
 			// Clear cache entries
 			Worker::add(PRIORITY_LOW, 'ClearCache');
 
+			// Requeue posts from the post delivery entries
+			Worker::add(PRIORITY_MEDIUM, 'RequeuePosts');
+
 			DI::config()->set('system', 'last_cron_hourly', time());
 		}
 
