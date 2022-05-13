@@ -47,10 +47,14 @@ class APDelivery
 	public static function execute(string $cmd, int $item_id, string $inbox, int $uid, array $receivers = [], int $uri_id = 0)
 	{
 		if (ActivityPub\Transmitter::archivedInbox($inbox)) {
-			Logger::info('Inbox is archived', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uid' => $uid]);
+			Logger::info('Inbox is archived', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid]);
 			if (in_array($cmd, [Delivery::POST])) {
-				$item = Post::selectFirst(['uri-id'], ['id' => $item_id]);
-				Post\DeliveryData::incrementQueueFailed($item['uri-id'] ?? 0);
+				if (empty($uri_id)) {
+					$item = Post::selectFirst(['uri-id'], ['id' => $item_id]);
+					$uri_id = $item['uri-id'] ?? 0;
+				}
+				Post\Delivery::remove($uri_id, $inbox);
+				Post\DeliveryData::incrementQueueFailed($uri_id);
 			}
 			return;
 		}
