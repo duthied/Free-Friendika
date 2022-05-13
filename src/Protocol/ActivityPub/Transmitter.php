@@ -334,31 +334,33 @@ class Transmitter
 		}
 
 		if (empty($page)) {
-			$data['first'] = DI::baseUrl() . '/featured/' . $owner['nickname'] . '?page=1';
+			$items = Post::select(['id'], $condition, ['limit' => 20, 'order' => ['created' => true]]);
 		} else {
 			$data['type'] = 'OrderedCollectionPage';
-			$list = [];
-
 			$items = Post::select(['id'], $condition, ['limit' => [($page - 1) * 20, 20], 'order' => ['created' => true]]);
-			while ($item = Post::fetch($items)) {
-				$activity = self::createActivityFromItem($item['id'], true);
-				$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
-
-				// Only list "Create" activity objects here, no reshares
-				if (!empty($activity['object']) && ($activity['type'] == 'Create')) {
-					$list[] = $activity['object'];
-				}
-			}
-			DBA::close($items);
-
-			if (count($list) == 20) {
-				$data['next'] = DI::baseUrl() . '/featured/' . $owner['nickname'] . '?page=' . ($page + 1);
-			}
-
-			$data['partOf'] = DI::baseUrl() . '/featured/' . $owner['nickname'];
-
-			$data['orderedItems'] = $list;
 		}
+		$list = [];
+
+		while ($item = Post::fetch($items)) {
+			$activity = self::createActivityFromItem($item['id'], true);
+			$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
+
+			// Only list "Create" activity objects here, no reshares
+			if (!empty($activity['object']) && ($activity['type'] == 'Create')) {
+				$list[] = $activity['object'];
+			}
+		}
+		DBA::close($items);
+
+		if (count($list) == 20) {
+			$data['next'] = DI::baseUrl() . '/featured/' . $owner['nickname'] . '?page=' . ($page + 1);
+		}
+
+		if (!empty($page)) {
+			$data['partOf'] = DI::baseUrl() . '/featured/' . $owner['nickname'];
+		}
+
+		$data['orderedItems'] = $list;
 
 		return $data;
 	}
