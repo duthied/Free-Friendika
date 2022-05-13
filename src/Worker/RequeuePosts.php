@@ -24,6 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Model\Post;
 
 /**
  * Requeue posts that are stuck in the post-delivery table without a matching delivery job.
@@ -35,6 +36,8 @@ class RequeuePosts
 	{
 		$deliveries = DBA::p("SELECT `item-uri`.`uri` AS `inbox` FROM `post-delivery` INNER JOIN `item-uri` ON `item-uri`.`id` = `post-delivery`.`inbox-id` GROUP BY `inbox`");
 		while ($delivery = DBA::fetch($deliveries)) {
+			Post\Delivery::removeFailed($delivery['inbox']);
+		
 			if (Worker::add(PRIORITY_HIGH, 'APDelivery', '', 0, $delivery['inbox'], 0)) {
 				Logger::info('Missing APDelivery worker added for inbox', ['inbox' => $delivery['inbox']]);
 			}

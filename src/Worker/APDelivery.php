@@ -86,8 +86,6 @@ class APDelivery
 
 	private static function deliver(string $inbox)
 	{
-		Post\Delivery::removeFailed($inbox);
-		
 		$uri_ids = [];
 		$posts   = Post\Delivery::selectForInbox($inbox);
 

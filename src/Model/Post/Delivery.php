@@ -83,7 +83,7 @@ class Delivery
 
 	public static function selectForInbox(string $inbox)
 	{
-		$rows = DBA::select('post-delivery', [], ['inbox-id' => ItemURI::getIdByURI($inbox)], ['order' => ['created']]);
+		$rows = DBA::select('post-delivery', [], ["`inbox-id` = ? AND `failed` < ?", ItemURI::getIdByURI($inbox), DI::config()->get('system', 'worker_defer_limit')], ['order' => ['created']]);
 		$deliveries = [];
 		while ($row = DBA::fetch($rows)) {
 			if (!empty($row['receivers'])) {
