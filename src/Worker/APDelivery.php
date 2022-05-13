@@ -49,12 +49,21 @@ class APDelivery
 		if (ActivityPub\Transmitter::archivedInbox($inbox)) {
 			Logger::info('Inbox is archived', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid]);
 			if (in_array($cmd, [Delivery::POST])) {
-				if (empty($uri_id)) {
+				if (empty($uri_id) && !empty($item_id)) {
 					$item = Post::selectFirst(['uri-id'], ['id' => $item_id]);
 					$uri_id = $item['uri-id'] ?? 0;
 				}
-				Post\Delivery::remove($uri_id, $inbox);
-				Post\DeliveryData::incrementQueueFailed($uri_id);
+				if (empty($uri_id)) {
+					$posts   = Post\Delivery::selectForInbox($inbox);
+					$uri_ids = array_column($posts, 'uri-id');
+				} else {
+					$uri_ids = [$uri_id];
+				}
+		
+				foreach ($uri_ids as $uri_id) {
+					Post\Delivery::remove($uri_id, $inbox);
+					Post\DeliveryData::incrementQueueFailed($uri_id);
+				}
 			}
 			return;
 		}
