@@ -1166,6 +1166,7 @@ return [
 			"created" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"command" => ["type" => "varbinary(32)", "comment" => ""],
 			"failed" => ["type" => "tinyint", "default" => 0, "comment" => "Number of times the delivery has failed"],
+			"receivers" => ["type" => "mediumtext", "comment" => "JSON encoded array with the receiving contacts"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id", "inbox-id"],

@@ -1127,6 +1127,7 @@ CREATE TABLE IF NOT EXISTS `post-delivery` (
 	`created` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`command` varbinary(32) COMMENT '',
 	`failed` tinyint DEFAULT 0 COMMENT 'Number of times the delivery has failed',
+	`receivers` mediumtext COMMENT 'JSON encoded array with the receiving contacts',
 	 PRIMARY KEY(`uri-id`,`inbox-id`),
 	 INDEX `inbox-id_created` (`inbox-id`,`created`),
 	 INDEX `uid` (`uid`),

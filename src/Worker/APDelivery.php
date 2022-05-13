@@ -25,7 +25,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
@@ -93,7 +92,7 @@ class APDelivery
 		$posts   = Post\Delivery::selectForInbox($inbox);
 
 		foreach ($posts as $post) {
-			if (!self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], [], $post['uri-id'])) {
+			if (!self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], $post['receivers'], $post['uri-id'])) {
 				$uri_ids[] = $post['uri-id'];
 			}
 		}
@@ -106,22 +105,12 @@ class APDelivery
 	{
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
 			$item = Post::selectFirst(['id', 'parent', 'origin'], ['uri-id' => $uri_id, 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
-			$item_id = $item['id'] ?? 0;
-			if (empty($receivers) && !empty($item)) {
-				$parent = Post::selectFirst(Item::DELIVER_FIELDLIST, ['id' => $item['parent']]);
-
-				$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
-				$receivers = $inboxes[$inbox] ?? [];
-
-				// When we haven't fetched the receiver list, it can be a personal inbox
-				if (empty($receivers)) {
-					$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true);
-					$receivers = $inboxes[$inbox] ?? [];
-				}
-			} elseif (empty($item_id)) {
+			if (empty($item['id'])) {
 				Logger::debug('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
 				Post\Delivery::remove($uri_id, $inbox);
 				return true;
+			} else {
+				$item_id = $item['id'];
 			}
 		}
 

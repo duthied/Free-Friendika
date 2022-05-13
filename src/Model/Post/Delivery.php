@@ -35,14 +35,16 @@ class Delivery
 	 * @param integer $uri_id
 	 * @param string  $inbox
 	 * @param string  $created
+	 * @param array   %receivers
 	 */
-	public static function add(int $uri_id, int $uid, string $inbox, string $created, string $command)
+	public static function add(int $uri_id, int $uid, string $inbox, string $created, string $command, array $receivers)
 	{
 		if (empty($uri_id)) {
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = ['uri-id' => $uri_id, 'uid' => $uid, 'inbox-id' => ItemURI::getIdByURI($inbox), 'created' => $created, 'command' => $command];
+		$fields = ['uri-id' => $uri_id, 'uid' => $uid, 'inbox-id' => ItemURI::getIdByURI($inbox),
+			'created' => $created, 'command' => $command, 'receivers' => json_encode($receivers)];
 
 		DBA::insert('post-delivery', $fields, Database::INSERT_IGNORE);
 	}
@@ -81,6 +83,18 @@ class Delivery
 
 	public static function selectForInbox(string $inbox)
 	{
-		return DBA::selectToArray('post-delivery', [], ['inbox-id' => ItemURI::getIdByURI($inbox)], ['order' => ['created']]);
+		$rows = DBA::select('post-delivery', [], ['inbox-id' => ItemURI::getIdByURI($inbox)], ['order' => ['created']]);
+		$deliveries = [];
+		while ($row = DBA::fetch($rows)) {
+			if (!empty($row['receivers'])) {
+				$row['receivers'] = json_decode($row['receivers'], true);
+			} else {
+				$row['receivers'] = [];
+			}
+			$deliveries[] = $row;
+		}
+		DBA::close($rows);
+
+		return $deliveries;
 	}
 }
