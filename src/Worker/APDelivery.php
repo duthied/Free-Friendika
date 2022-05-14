@@ -146,11 +146,13 @@ class APDelivery
 		} else {
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
+				$timestamp = microtime(true);
 				$response = HTTPSignature::post($data, $inbox, $uid);
+				$runtime  = microtime(true) - $timestamp;
 				$success  = $response->isSuccess();
 				$timeout  = $response->isTimeout();
 				if (!$success) {
-					Logger::debug('Delivery failed', ['retcode' => $response->getReturnCode(), 'timeout' => $timeout, 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
+					Logger::debug('Delivery failed', ['retcode' => $response->getReturnCode(), 'timeout' => $timeout, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
 				}
 				if ($uri_id) {
 					if ($success) {
