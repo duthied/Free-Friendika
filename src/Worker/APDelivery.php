@@ -88,28 +88,28 @@ class APDelivery
 
 	private static function deliver(string $inbox):array
 	{
-		$uri_ids = [];
-		$posts   = Post\Delivery::selectForInbox($inbox);
-		$timeout = false;
+		$uri_ids    = [];
+		$posts      = Post\Delivery::selectForInbox($inbox);
+		$serverfail = false;
 
 		foreach ($posts as $post) {
-			if (!$timeout) {
+			if (!$serverfail) {
 				$result = self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], $post['receivers'], $post['uri-id']);
 
-				if ($result['timeout']) {
+				if ($result['serverfailure']) {
 					// In a timeout situation we assume that every delivery to that inbox will time out.
 					// So we set the flag and try all deliveries at a later time.
-					Logger::info('Inbox delivery has a time out', ['inbox' => $inbox]);
-					$timeout = true;
+					Logger::info('Inbox delivery has a server failure', ['inbox' => $inbox]);
+					$serverfail = true;
 				}
 			}
 
-			if ($timeout || !$result['success']) {
+			if ($serverfail || !$result['success']) {
 				$uri_ids[] = $post['uri-id'];
 			}
 		}
 
-		Logger::debug('Inbox delivery done', ['inbox' => $inbox, 'posts' => count($posts), 'failed' => count($uri_ids)]);
+		Logger::debug('Inbox delivery done', ['inbox' => $inbox, 'posts' => count($posts), 'failed' => count($uri_ids), 'serverfailure' => $serverfail]);
 		return ['success' => empty($uri_ids), 'uri_ids' => $uri_ids];
 	}
 
@@ -126,8 +126,8 @@ class APDelivery
 			}
 		}
 
-		$success = true;
-		$timeout = false;
+		$success    = true;
+		$serverfail = false;
 
 		if ($cmd == Delivery::MAIL) {
 			$data = ActivityPub\Transmitter::createActivityFromMail($item_id);
@@ -147,24 +147,26 @@ class APDelivery
 		} else {
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
-				$timestamp = microtime(true);
-				$response  = HTTPSignature::post($data, $inbox, $uid);
-				$runtime   = microtime(true) - $timestamp;
-				$success   = $response->isSuccess();
-				$timeout   = $response->isTimeout();
+				$timestamp  = microtime(true);
+				$response   = HTTPSignature::post($data, $inbox, $uid);
+				$runtime    = microtime(true) - $timestamp;
+				$success    = $response->isSuccess();
+				$serverfail = $response->isTimeout();
 				if (!$success) {
-					if ($response->getReturnCode() == 500) {
-						$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-						if (!$timeout && $xrd_timeout && ($runtime > $xrd_timeout)) {
-							$timeout = true;
-						}
-						$curl_timeout = DI::config()->get('system', 'curl_timeout');
-						if (!$timeout && $curl_timeout && ($runtime > $curl_timeout)) {
-							$timeout = true;
-						}
+					if (!$serverfail && ($response->getReturnCode() == 500)) {
+						$serverfail = true;
 					}
 
-					Logger::info('Delivery failed', ['retcode' => $response->getReturnCode(), 'timeout' => $timeout, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
+					$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
+					if (!$serverfail && $xrd_timeout && ($runtime > $xrd_timeout)) {
+						$serverfail = true;
+					}
+					$curl_timeout = DI::config()->get('system', 'curl_timeout');
+					if (!$serverfail && $curl_timeout && ($runtime > $curl_timeout)) {
+						$serverfail = true;
+					}
+
+					Logger::info('Delivery failed', ['retcode' => $response->getReturnCode(), 'serverfailure' => $serverfail, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
 				}
 				if ($uri_id) {
 					if ($success) {
@@ -184,7 +186,7 @@ class APDelivery
 			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
 		}
 
-		return ['success' => $success, 'timeout' => $timeout];
+		return ['success' => $success, 'serverfailure' => $serverfail];
 	}
 
 	private static function setSuccess(array $receivers, bool $success)
