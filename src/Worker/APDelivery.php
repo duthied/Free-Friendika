@@ -68,11 +68,12 @@ class APDelivery
 		Logger::info('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid]);
 
 		if (empty($uri_id)) {
-			$result = self::deliver($inbox);
+			$result  = self::deliver($inbox);
 			$success = $result['success'];
 			$uri_ids = $result['uri_ids'];
 		} else {
-			$success = self::deliverToInbox($cmd, $item_id, $inbox, $uid, $receivers, $uri_id);
+			$result  = self::deliverToInbox($cmd, $item_id, $inbox, $uid, $receivers, $uri_id);
+			$success = $result['success'];
 			$uri_ids = [$uri_id];
 		}
 
@@ -84,13 +85,25 @@ class APDelivery
 		}
 	}
 
-	private static function deliver(string $inbox)
+	private static function deliver(string $inbox):array
 	{
 		$uri_ids = [];
 		$posts   = Post\Delivery::selectForInbox($inbox);
+		$timeout = false;
 
 		foreach ($posts as $post) {
-			if (!self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], $post['receivers'], $post['uri-id'])) {
+			if (!$timeout) {
+				$result = self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], $post['receivers'], $post['uri-id']);
+
+				if ($result['timeout']) {
+					// In a timeout situation we assume that every delivery to that inbox will time out.
+					// So we set the flag and try all deliveries at a later time.
+					Logger::debug('Inbox delivery has a time out', ['inbox' => $inbox]);
+					$timeout = true;
+				}
+			}
+
+			if ($timeout || !$result['success']) {
 				$uri_ids[] = $post['uri-id'];
 			}
 		}
@@ -99,7 +112,7 @@ class APDelivery
 		return ['success' => empty($uri_ids), 'uri_ids' => $uri_ids];
 	}
 
-	private static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id)
+	private static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id): array
 	{
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
 			$item = Post::selectFirst(['id', 'parent', 'origin'], ['uri-id' => $uri_id, 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
@@ -113,6 +126,7 @@ class APDelivery
 		}
 
 		$success = true;
+		$timeout = false;
 
 		if ($cmd == Delivery::MAIL) {
 			$data = ActivityPub\Transmitter::createActivityFromMail($item_id);
@@ -132,7 +146,12 @@ class APDelivery
 		} else {
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
-				$success = HTTPSignature::transmit($data, $inbox, $uid);
+				$response = HTTPSignature::post($data, $inbox, $uid);
+				$success  = $response->isSuccess();
+				$timeout  = $response->isTimeout();
+				if (!$success) {
+					Logger::debug('Delivery failed', ['retcode' => $response->getReturnCode(), 'timeout' => $timeout, 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
+				}
 				if ($uri_id) {
 					if ($success) {
 						Post\Delivery::remove($uri_id, $inbox);
@@ -151,7 +170,7 @@ class APDelivery
 			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
 		}
 
-		return $success;
+		return ['success' => $success, 'timeout' => $timeout];
 	}
 
 	private static function setSuccess(array $receivers, bool $success)
