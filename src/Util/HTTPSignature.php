@@ -306,7 +306,7 @@ class HTTPSignature
 
 		$headers['Content-Type'] = 'application/activity+json';
 
-		$postResult = DI::httpClient()->post($target, $content, $headers);
+		$postResult = DI::httpClient()->post($target, $content, $headers, DI::config()->get('system', 'curl_timeout'));
 		$return_code = $postResult->getReturnCode();
 
 		Logger::info('Transmit to ' . $target . ' returned ' . $return_code);
