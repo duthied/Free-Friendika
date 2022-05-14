@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Post;
@@ -152,6 +153,15 @@ class APDelivery
 				$success  = $response->isSuccess();
 				$timeout  = $response->isTimeout();
 				if (!$success) {
+					$xrd_timeout  = DI::config()->get('system', 'xrd_timeout');
+					if (!$timeout && $xrd_timeout && ($runtime > $xrd_timeout)) {
+						$timeout = true;
+					}
+					$curl_timeout = DI::config()->get('system', 'curl_timeout');
+					if (!$timeout && $curl_timeout && ($runtime > $curl_timeout)) {
+						$timeout = true;
+					}
+
 					Logger::debug('Delivery failed', ['retcode' => $response->getReturnCode(), 'timeout' => $timeout, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
 				}
 				if ($uri_id) {
