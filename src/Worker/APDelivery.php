@@ -153,7 +153,7 @@ class APDelivery
 				$success    = $response->isSuccess();
 				$serverfail = $response->isTimeout();
 				if (!$success) {
-					if (!$serverfail && ($response->getReturnCode() == 500)) {
+					if (!$serverfail && ($response->getReturnCode() >= 500) && ($response->getReturnCode() <= 599)) {
 						$serverfail = true;
 					}
 
