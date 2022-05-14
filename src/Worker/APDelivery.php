@@ -66,7 +66,7 @@ class APDelivery
 			return;
 		}
 
-		Logger::info('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid]);
+		Logger::debug('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid]);
 
 		if (empty($uri_id)) {
 			$result  = self::deliver($inbox);
@@ -99,7 +99,7 @@ class APDelivery
 				if ($result['timeout']) {
 					// In a timeout situation we assume that every delivery to that inbox will time out.
 					// So we set the flag and try all deliveries at a later time.
-					Logger::debug('Inbox delivery has a time out', ['inbox' => $inbox]);
+					Logger::info('Inbox delivery has a time out', ['inbox' => $inbox]);
 					$timeout = true;
 				}
 			}
@@ -118,7 +118,7 @@ class APDelivery
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
 			$item = Post::selectFirst(['id', 'parent', 'origin'], ['uri-id' => $uri_id, 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
 			if (empty($item['id'])) {
-				Logger::debug('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
+				Logger::notice('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
 				Post\Delivery::remove($uri_id, $inbox);
 				return true;
 			} else {
@@ -148,21 +148,23 @@ class APDelivery
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
 				$timestamp = microtime(true);
-				$response = HTTPSignature::post($data, $inbox, $uid);
-				$runtime  = microtime(true) - $timestamp;
-				$success  = $response->isSuccess();
-				$timeout  = $response->isTimeout();
+				$response  = HTTPSignature::post($data, $inbox, $uid);
+				$runtime   = microtime(true) - $timestamp;
+				$success   = $response->isSuccess();
+				$timeout   = $response->isTimeout();
 				if (!$success) {
-					$xrd_timeout  = DI::config()->get('system', 'xrd_timeout');
-					if (!$timeout && $xrd_timeout && ($runtime > $xrd_timeout)) {
-						$timeout = true;
-					}
-					$curl_timeout = DI::config()->get('system', 'curl_timeout');
-					if (!$timeout && $curl_timeout && ($runtime > $curl_timeout)) {
-						$timeout = true;
+					if ($response->getReturnCode() == 500) {
+						$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
+						if (!$timeout && $xrd_timeout && ($runtime > $xrd_timeout)) {
+							$timeout = true;
+						}
+						$curl_timeout = DI::config()->get('system', 'curl_timeout');
+						if (!$timeout && $curl_timeout && ($runtime > $curl_timeout)) {
+							$timeout = true;
+						}
 					}
 
-					Logger::debug('Delivery failed', ['retcode' => $response->getReturnCode(), 'timeout' => $timeout, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
+					Logger::info('Delivery failed', ['retcode' => $response->getReturnCode(), 'timeout' => $timeout, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
 				}
 				if ($uri_id) {
 					if ($success) {
@@ -176,7 +178,7 @@ class APDelivery
 
 		self::setSuccess($receivers, $success);
 
-		Logger::info('Delivered', ['uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox, 'success' => $success]);
+		Logger::debug('Delivered', ['uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox, 'success' => $success]);
 
 		if ($success && in_array($cmd, [Delivery::POST])) {
 			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
