@@ -38,14 +38,14 @@ class History
 	public static function add(int $uri_id, array $item)
 	{
 		$allfields = DBStructure::definition('', false);
-		$fields = array_keys($allfields['post-history']['fields']);
+		$fields    = array_keys($allfields['post-history']['fields']);
 
 		$post = Post::selectFirstPost($fields, ['uri-id' => $uri_id]);
 		if (empty($post)) {
 			return;
 		}
 
-		$update = false;
+		$update  = false;
 		$changed = DBStructure::getFieldsForTable('post-history', $item);
 		unset($changed['uri-id']);
 		unset($changed['edited']);
