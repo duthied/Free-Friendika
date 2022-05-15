@@ -2316,7 +2316,10 @@ class Contact
 
 		if ($uid == 0) {
 			if ($ret['network'] == Protocol::ACTIVITYPUB) {
-				ActivityPub\Processor::fetchFeaturedPosts($ret['url']);
+				$apcontact = APContact::getByURL($ret['url'], false);
+				if (!empty($apcontact['featured'])) {
+					Worker::add(PRIORITY_LOW, 'FetchFeaturedPosts', $ret['url']);
+				}
 			}
 	
 			$ret['last-item'] = Probe::getLastUpdate($ret);
