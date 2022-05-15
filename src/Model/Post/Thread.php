@@ -22,11 +22,9 @@
 namespace Friendica\Model\Post;
 
 use \BadMethodCallException;
-use Friendica\Core\Protocol;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
-use Friendica\Model\Post;
 
 class Thread
 {

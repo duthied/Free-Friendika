@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1462);
+	define('DB_UPDATE_VERSION', 1463);
 }
 
 return [
@@ -1191,6 +1191,32 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
+		]
+	],
+	"post-history" => [
+		"comment" => "Post history",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"edited" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "primary" => "1", "comment" => "Date of edit"],
+			"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "item title"],
+			"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"body" => ["type" => "mediumtext", "comment" => "item body content"],
+			"raw-body" => ["type" => "mediumtext", "comment" => "Body without embedded media links"],
+			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
+			"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
+			"language" => ["type" => "text", "comment" => "Language information about this post"],
+			"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "application which generated this item"],
+			"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+			"rendered-html" => ["type" => "mediumtext", "comment" => "item.body converted to html"],
+			"object-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams object type"],
+			"object" => ["type" => "text", "comment" => "JSON encoded object structure unless it is an implied object (normal post)"],
+			"target-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams target type if applicable (URI)"],
+			"target" => ["type" => "text", "comment" => "JSON encoded target structure if used"],
+			"resource-id" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type"],
+			"plink" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "permalink or URL to a displayable copy of the message at its source"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "edited"],
 		]
 	],
 	"post-link" => [
