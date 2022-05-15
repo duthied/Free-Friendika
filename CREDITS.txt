@@ -28,9 +28,11 @@ Andy
 Andy Hee
 Angristan
 Anthronaut
+Anton
 Antron Samurai
 Arian - Cazare Muncitori
 Asher Pen
+atjn
 aweiher
 axelt
 balderino
@@ -55,6 +57,7 @@ Carlos Solís
 Carsten Pfeiffer
 Casper
 Cat Gray
+chinnux
 Chris Case
 Christian González
 Christian Kalkhoff
@@ -90,6 +93,7 @@ effex7
 Elena
 emilia.krawczyk
 Eric Côté
+Erich
 erik
 Erkan Yilmaz
 Eugene Veresk
@@ -113,6 +117,7 @@ Gidi Kroon
 GLComo
 greeneyedred
 Gregory Smith
+gudzpoz
 guzzisti
 Haakon Meland Eriksen
 Hans Meine
@@ -138,6 +143,7 @@ Joe Doe
 joe slam
 Johannes Schwab
 John Brazil
+John Mortensen
 Jonatan Nyberg
 Jonny Tischbein
 Josef Moravek
@@ -216,6 +222,7 @@ Philipp Holzer
 Pierre Bernardeau
 Pierre Rudloff
 Piotr Blonkowski
+Piotr Strębski
 pokerazor
 R C
 Rabuzarus
@@ -284,6 +291,7 @@ Tobias Diekershoff
 Tobias Hößl
 Tom
 Tom Aurlund
+Tom Hu
 tomamplius
 tomtom84
 Tony Baldwin
