@@ -41,6 +41,6 @@ class AddContact
 		}
 
 		$result = Contact::createFromProbeForUser($uid, $url);
-		Logger::info('Added contact', ['uid' => $uid, 'url' => $url, 'result' => $result]);
+		Logger::info('Added contact for user', ['uid' => $uid, 'url' => $url, 'result' => $result]);
 	}
 }
