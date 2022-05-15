@@ -725,7 +725,7 @@ class Item
 		return GRAVITY_UNKNOWN;   // Should not happen
 	}
 
-	public static function insert(array $item, bool $notify = false, bool $post_local = true)
+	public static function insert(array $item, int $notify = 0, bool $post_local = true)
 	{
 		$orig_item = $item;
 
@@ -739,7 +739,7 @@ class Item
 			$item['protocol'] = Conversation::PARCEL_DIRECT;
 			$item['direction'] = Conversation::PUSH;
 
-			if (in_array($notify, PRIORITIES)) {
+			if (is_int($notify) && in_array($notify, PRIORITIES)) {
 				$priority = $notify;
 			}
 		} else {

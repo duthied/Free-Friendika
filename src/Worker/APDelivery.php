@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Post;
@@ -65,14 +66,15 @@ class APDelivery
 			return;
 		}
 
-		Logger::info('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid]);
+		Logger::debug('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid]);
 
 		if (empty($uri_id)) {
-			$result = self::deliver($inbox);
+			$result  = self::deliver($inbox);
 			$success = $result['success'];
 			$uri_ids = $result['uri_ids'];
 		} else {
-			$success = self::deliverToInbox($cmd, $item_id, $inbox, $uid, $receivers, $uri_id);
+			$result  = self::deliverToInbox($cmd, $item_id, $inbox, $uid, $receivers, $uri_id);
+			$success = $result['success'];
 			$uri_ids = [$uri_id];
 		}
 
@@ -84,27 +86,39 @@ class APDelivery
 		}
 	}
 
-	private static function deliver(string $inbox)
+	private static function deliver(string $inbox):array
 	{
-		$uri_ids = [];
-		$posts   = Post\Delivery::selectForInbox($inbox);
+		$uri_ids    = [];
+		$posts      = Post\Delivery::selectForInbox($inbox);
+		$serverfail = false;
 
 		foreach ($posts as $post) {
-			if (!self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], $post['receivers'], $post['uri-id'])) {
+			if (!$serverfail) {
+				$result = self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], $post['receivers'], $post['uri-id']);
+
+				if ($result['serverfailure']) {
+					// In a timeout situation we assume that every delivery to that inbox will time out.
+					// So we set the flag and try all deliveries at a later time.
+					Logger::info('Inbox delivery has a server failure', ['inbox' => $inbox]);
+					$serverfail = true;
+				}
+			}
+
+			if ($serverfail || !$result['success']) {
 				$uri_ids[] = $post['uri-id'];
 			}
 		}
 
-		Logger::debug('Inbox delivery done', ['inbox' => $inbox, 'posts' => count($posts), 'failed' => count($uri_ids)]);
+		Logger::debug('Inbox delivery done', ['inbox' => $inbox, 'posts' => count($posts), 'failed' => count($uri_ids), 'serverfailure' => $serverfail]);
 		return ['success' => empty($uri_ids), 'uri_ids' => $uri_ids];
 	}
 
-	private static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id)
+	private static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id): array
 	{
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
 			$item = Post::selectFirst(['id', 'parent', 'origin'], ['uri-id' => $uri_id, 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
 			if (empty($item['id'])) {
-				Logger::debug('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
+				Logger::notice('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
 				Post\Delivery::remove($uri_id, $inbox);
 				return true;
 			} else {
@@ -112,7 +126,8 @@ class APDelivery
 			}
 		}
 
-		$success = true;
+		$success    = true;
+		$serverfail = false;
 
 		if ($cmd == Delivery::MAIL) {
 			$data = ActivityPub\Transmitter::createActivityFromMail($item_id);
@@ -132,7 +147,27 @@ class APDelivery
 		} else {
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
-				$success = HTTPSignature::transmit($data, $inbox, $uid);
+				$timestamp  = microtime(true);
+				$response   = HTTPSignature::post($data, $inbox, $uid);
+				$runtime    = microtime(true) - $timestamp;
+				$success    = $response->isSuccess();
+				$serverfail = $response->isTimeout();
+				if (!$success) {
+					if (!$serverfail && ($response->getReturnCode() >= 500) && ($response->getReturnCode() <= 599)) {
+						$serverfail = true;
+					}
+
+					$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
+					if (!$serverfail && $xrd_timeout && ($runtime > $xrd_timeout)) {
+						$serverfail = true;
+					}
+					$curl_timeout = DI::config()->get('system', 'curl_timeout');
+					if (!$serverfail && $curl_timeout && ($runtime > $curl_timeout)) {
+						$serverfail = true;
+					}
+
+					Logger::info('Delivery failed', ['retcode' => $response->getReturnCode(), 'serverfailure' => $serverfail, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
+				}
 				if ($uri_id) {
 					if ($success) {
 						Post\Delivery::remove($uri_id, $inbox);
@@ -145,13 +180,13 @@ class APDelivery
 
 		self::setSuccess($receivers, $success);
 
-		Logger::info('Delivered', ['uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox, 'success' => $success]);
+		Logger::debug('Delivered', ['uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox, 'success' => $success]);
 
 		if ($success && in_array($cmd, [Delivery::POST])) {
 			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
 		}
 
-		return $success;
+		return ['success' => $success, 'serverfailure' => $serverfail];
 	}
 
 	private static function setSuccess(array $receivers, bool $success)

@@ -1322,7 +1322,7 @@ class Worker
 		$found = DBA::exists('workerqueue', ['command' => $command, 'parameter' => $parameters, 'done' => false]);
 		$added = 0;
 
-		if (!in_array($priority, PRIORITIES)) {
+		if (!is_int($priority) || !in_array($priority, PRIORITIES)) {
 			Logger::warning('Invalid priority', ['priority' => $priority, 'command' => $command, 'callstack' => System::callstack(20)]);
 			$priority = PRIORITY_MEDIUM;
 		}

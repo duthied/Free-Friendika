@@ -29,6 +29,7 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\ItemURI;
 use Friendica\Model\User;
+use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 
@@ -264,21 +265,21 @@ class HTTPSignature
 	 */
 
 	/**
-	 * Transmit given data to a target for a user
+	 * Post given data to a target for a user, returns the result class
 	 *
 	 * @param array   $data   Data that is about to be send
 	 * @param string  $target The URL of the inbox
 	 * @param integer $uid    User id of the sender
 	 *
-	 * @return boolean Was the transmission successful?
+	 * @return ICanHandleHttpResponses
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function transmit($data, $target, $uid)
+	public static function post(array $data, string $target, int $uid): ICanHandleHttpResponses
 	{
 		$owner = User::getOwnerDataById($uid);
 
 		if (!$owner) {
-			return;
+			return null;
 		}
 
 		$content = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -305,16 +306,32 @@ class HTTPSignature
 
 		$headers['Content-Type'] = 'application/activity+json';
 
-		$postResult = DI::httpClient()->post($target, $content, $headers);
+		$postResult = DI::httpClient()->post($target, $content, $headers, DI::config()->get('system', 'curl_timeout'));
 		$return_code = $postResult->getReturnCode();
 
 		Logger::info('Transmit to ' . $target . ' returned ' . $return_code);
 
-		$success = ($return_code >= 200) && ($return_code <= 299);
+		self::setInboxStatus($target, ($return_code >= 200) && ($return_code <= 299));
 
-		self::setInboxStatus($target, $success);
+		return $postResult;
+	}
 
-		return $success;
+	/**
+	 * Transmit given data to a target for a user
+	 *
+	 * @param array   $data   Data that is about to be send
+	 * @param string  $target The URL of the inbox
+	 * @param integer $uid    User id of the sender
+	 *
+	 * @return boolean Was the transmission successful?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function transmit(array $data, string $target, int $uid): bool
+	{
+		$postResult = self::post($data, $target, $uid);
+		$return_code = $postResult->getReturnCode();
+
+		return ($return_code >= 200) && ($return_code <= 299);
 	}
 
 	/**
