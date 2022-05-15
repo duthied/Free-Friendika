@@ -42,6 +42,12 @@ class History
 
 		$post = Post::selectFirstPost($fields, ['uri-id' => $uri_id]);
 		if (empty($post)) {
+			Logger::warning('Post not found', ['uri-id' => $uri_id]);
+			return;
+		}
+
+		if ($item['edited'] <= $post['edited']) {
+			Logger::info('New edit date is not newer than the old one', ['uri-id' => $uri_id, 'old' => $post['edited'], 'new' => $item['edited']]);
 			return;
 		}
 
