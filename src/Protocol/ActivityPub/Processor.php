@@ -170,7 +170,7 @@ class Processor
 		}
 
 		if (!empty($activity['question']['end-time'])) {
-			$question['end-time'] = $activity['question']['end-time'];
+			$question['end-time'] = DateTimeFormat::utc($activity['question']['end-time']);
 		}
 
 		Post\Question::update($item['uri-id'], $question);
@@ -238,8 +238,12 @@ class Processor
 		$event['edited']   = DateTimeFormat::utc($activity['updated']);
 		$event['summary']  = HTML::toBBCode($activity['name']);
 		$event['desc']     = HTML::toBBCode($activity['content']);
-		$event['start']    = $activity['start-time'];
-		$event['finish']   = $activity['end-time'];
+		if (!empty($activity['start-time'])) {
+			$event['start']  = DateTimeFormat::utc($activity['start-time']);
+		}
+		if (!empty($activity['end-time'])) {
+			$event['finish'] = DateTimeFormat::utc($activity['end-time']);
+		}
 		$event['nofinish'] = empty($event['finish']);
 		$event['location'] = $activity['location'];
 
@@ -558,8 +562,12 @@ class Processor
 	{
 		$event['summary']   = HTML::toBBCode($activity['name'] ?: $activity['summary']);
 		$event['desc']      = HTML::toBBCode($activity['content']);
-		$event['start']     = $activity['start-time'];
-		$event['finish']    = $activity['end-time'];
+		if (!empty($activity['start-time'])) {
+			$event['start']  = DateTimeFormat::utc($activity['start-time']);
+		}
+		if (!empty($activity['end-time'])) {
+			$event['finish'] = DateTimeFormat::utc($activity['end-time']);
+		}
 		$event['nofinish']  = empty($event['finish']);
 		$event['location']  = $activity['location'];
 		$event['cid']       = $item['contact-id'];
