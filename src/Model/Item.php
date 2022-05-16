@@ -3196,7 +3196,7 @@ class Item
 				$percent = $question['voters'] ? ($option['replies'] / $question['voters'] * 100) : 0;
 
 				$options[$key]['percent'] = $percent;
-				$options[$key]['vote']    = DI::l10n()->t('%d%s: %s (%d votes)', round($percent, 1), '%', $option['name'], $option['replies']);
+				$options[$key]['vote']    = DI::l10n()->t('%s (%d%s, %d votes)', $option['name'], round($percent, 1), '%', $option['replies']);
 			}
 
 			$content .= Renderer::replaceMacros(Renderer::getMarkupTemplate('content/question.tpl'), [
