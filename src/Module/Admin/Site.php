@@ -22,6 +22,7 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\App;
+use Friendica\Core\Relocate;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Core\System;
@@ -60,69 +61,18 @@ class Site extends BaseAdmin
 			return;
 		}
 
-		// relocate
-		// @TODO This file could benefit from moving this feature away in a Module\Admin\Relocate class for example
-		if (!empty($_POST['relocate']) && !empty($_POST['relocate_url']) && $_POST['relocate_url'] != "") {
-			$new_url = $_POST['relocate_url'];
-			$new_url = rtrim($new_url, "/");
+		if (!empty($_POST['relocate']) && !empty($_POST['relocate_url'])) {
+			try {
+				$relocate = new Relocate(DI::baseUrl(), DI::dba(), DI::config());
+				$relocate->run($_POST['relocate_url']);
 
-			$parsed = @parse_url($new_url);
-			if (!is_array($parsed) || empty($parsed['host']) || empty($parsed['scheme'])) {
-				notice(DI::l10n()->t("Can not parse base url. Must have at least <scheme>://<domain>"));
-				DI::baseUrl()->redirect('admin/site');
+				info(DI::l10n()->t('Relocation started. Could take a while to complete.'));
+			} catch (\InvalidArgumentException $e) {
+				notice(DI::l10n()->t('Can not parse base url. Must have at least <scheme>://<domain>'));
+			} catch (\Throwable $e) {
+				notice(DI::l10n()->t('Unable to perform the relocation, please retry later or check the application logs.'));
+				notice($e->getMessage());
 			}
-
-			/* steps:
-			 * replace all "baseurl" to "new_url" in config, profile, term, items and contacts
-			 * send relocate for every local user
-			 * */
-
-			$old_url = DI::baseUrl()->get(true);
-
-			// Generate host names for relocation the addresses in the format user@address.tld
-			$new_host = str_replace("http://", "@", Strings::normaliseLink($new_url));
-			$old_host = str_replace("http://", "@", Strings::normaliseLink($old_url));
-
-			function update_table(App $a, $table_name, $fields, $old_url, $new_url)
-			{
-				$dbold = DBA::escape($old_url);
-				$dbnew = DBA::escape($new_url);
-
-				$upd = [];
-				foreach ($fields as $f) {
-					$upd[] = "`$f` = REPLACE(`$f`, '$dbold', '$dbnew')";
-				}
-
-				$upds = implode(", ", $upd);
-
-				$r = DBA::e(sprintf("UPDATE %s SET %s;", $table_name, $upds));
-				if (!DBA::isResult($r)) {
-					notice("Failed updating '$table_name': " . DBA::errorMessage());
-					DI::baseUrl()->redirect('admin/site');
-				}
-			}
-
-			// update tables
-			// update profile links in the format "http://server.tld"
-			update_table($a, "profile", ['photo', 'thumb'], $old_url, $new_url);
-			update_table($a, "contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
-			update_table($a, "post-content", ['body'], $old_url, $new_url);
-
-			// update profile addresses in the format "user@server.tld"
-			update_table($a, "contact", ['addr'], $old_host, $new_host);
-
-			// update config
-			DI::config()->set('system', 'url', $new_url);
-			DI::baseUrl()->saveByURL($new_url);
-
-			// send relocate
-			$usersStmt = DBA::select('user', ['uid'], ['account_removed' => false, 'account_expired' => false]);
-			while ($user = DBA::fetch($usersStmt)) {
-				Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $user['uid']);
-			}
-			DBA::close($usersStmt);
-
-			info(DI::l10n()->t("Relocation started. Could take a while to complete."));
 
 			DI::baseUrl()->redirect('admin/site');
 		}
