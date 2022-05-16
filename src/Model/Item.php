@@ -1079,7 +1079,7 @@ class Item
 		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
 			$content_warning = BBCode::getAbstract($item['body'], Protocol::ACTIVITYPUB);
 			if (!empty($content_warning) && empty($item['content-warning'])) {
-				$item['content-warning'] = $content_warning;
+				$item['content-warning'] = BBCode::toPlaintext($content_warning);
 			}
 		}
 
