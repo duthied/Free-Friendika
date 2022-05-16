@@ -215,6 +215,7 @@ class Processor
 			return;
 		}
 
+		Post\History::add($item['uri-id'], $item);
 		Item::update($item, ['uri' => $activity['id']]);
 
 		if ($activity['object_type'] == 'as:Event') {

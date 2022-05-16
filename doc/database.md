@@ -52,6 +52,7 @@ Database Tables
 | [post-content](help/database/db_post-content) | Content for all posts |
 | [post-delivery](help/database/db_post-delivery) | Delivery data for posts for the batch processing |
 | [post-delivery-data](help/database/db_post-delivery-data) | Delivery data for items |
+| [post-history](help/database/db_post-history) | Post history |
 | [post-link](help/database/db_post-link) | Post related external links |
 | [post-media](help/database/db_post-media) | Attached media |
 | [post-question](help/database/db_post-question) | Question |
