@@ -1153,7 +1153,7 @@ class Database
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	public function transaction()
+	public function transaction(): bool
 	{
 		if (!$this->performCommit()) {
 			return false;
