@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 05:29+0000\n"
+"POT-Creation-Date: 2022-05-16 06:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2534,8 +2534,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1188 src/Model/Item.php:3243
-#: src/Model/Item.php:3249 src/Model/Item.php:3250
+#: src/Content/Text/BBCode.php:1188 src/Model/Item.php:3258
+#: src/Model/Item.php:3264 src/Model/Item.php:3265
 msgid "Link to source"
 msgstr ""
 
@@ -3738,17 +3738,32 @@ msgstr ""
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3199
+#: src/Model/Item.php:3201
 #, php-format
 msgid "%s (%d%s, %d votes)"
 msgstr ""
 
-#: src/Model/Item.php:3205
+#: src/Model/Item.php:3203
+#, php-format
+msgid "%s (%d votes)"
+msgstr ""
+
+#: src/Model/Item.php:3208
 #, php-format
 msgid "%d voters. Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3231 src/Model/Item.php:3232
+#: src/Model/Item.php:3210
+#, php-format
+msgid "%d voters."
+msgstr ""
+
+#: src/Model/Item.php:3212
+#, php-format
+msgid "Poll end: %s"
+msgstr ""
+
+#: src/Model/Item.php:3246 src/Model/Item.php:3247
 msgid "View on separate page"
 msgstr ""
 

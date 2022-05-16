@@ -3196,13 +3196,28 @@ class Item
 				$percent = $question['voters'] ? ($option['replies'] / $question['voters'] * 100) : 0;
 
 				$options[$key]['percent'] = $percent;
-				$options[$key]['vote']    = DI::l10n()->t('%s (%d%s, %d votes)', $option['name'], round($percent, 1), '%', $option['replies']);
+
+				if ($question['voters'] > 0) {
+					$options[$key]['vote'] = DI::l10n()->t('%s (%d%s, %d votes)', $option['name'], round($percent, 1), '%', $option['replies']);
+				} else {
+					$options[$key]['vote'] = DI::l10n()->t('%s (%d votes)', $option['name'], $option['replies']);
+				}
+			}
+
+			if (!empty($question['voters']) && !empty($question['endtime'])) {
+				$summary = DI::l10n()->t('%d voters. Poll end: %s', $question['voters'], Temporal::getRelativeDate($question['endtime']));
+			} elseif (!empty($question['voters'])) {
+				$summary = DI::l10n()->t('%d voters.', $question['voters']);
+			} elseif (!empty($question['endtime'])) {
+				$summary = DI::l10n()->t('Poll end: %s', Temporal::getRelativeDate($question['endtime']));
+		 	} else {
+				$summary = '';
 			}
 
 			$content .= Renderer::replaceMacros(Renderer::getMarkupTemplate('content/question.tpl'), [
 				'$question' => $question,
 				'$options'  => $options,
-				'$summary'  => DI::l10n()->t('%d voters. Poll end: %s', $question['voters'], Temporal::getRelativeDate($question['endtime'])),
+				'$summary'  => $summary,
 			]);
 	}
 		DI::profiler()->stopRecording();
