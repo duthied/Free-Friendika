@@ -97,6 +97,7 @@ class Item
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-ignore', 'event-id',
 		"question-id", "question-multiple", "question-voters", "question-end-time",
+		"has-categories", "has-media",
 		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed'
 	];
 
@@ -2788,7 +2789,7 @@ class Item
 			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
 			$shared_uri_id = $shared_item['uri-id'] ?? 0;
 			$shared_links = [strtolower($shared_item['plink'] ?? '')];
-			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid']);
+			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid'], [], $item['has-media']);
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['visual'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['link'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['additional'], 'url'));
@@ -2797,7 +2798,7 @@ class Item
 			$shared_uri_id = 0;
 			$shared_links = [];
 		}
-		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links);
+		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links, $item['has-media']);
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);

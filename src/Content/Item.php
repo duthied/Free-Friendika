@@ -93,7 +93,7 @@ class Item
 
 		$uid = $item['uid'] ?: $uid;
 
-		if (!Post\Category::existsForURIId($item['uri-id'], $uid)) {
+		if (empty($item['has-categories'])) {
 			return [$categories, $folders];
 		}
 

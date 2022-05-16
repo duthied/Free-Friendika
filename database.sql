@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1463
+-- DB_UPDATE_VERSION 1464
 -- ------------------------------------------
 
 
@@ -1816,6 +1816,8 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-question`.`multiple` AS `question-multiple`,
 	`post-question`.`voters` AS `question-voters`,
 	`post-question`.`end-time` AS `question-end-time`,
+	EXISTS(SELECT `uri-id` FROM `post-category` WHERE `post-category`.`uri-id` = `post-user`.`uri-id` AND `post-category`.`uid` = `post-user`.`uid`) AS `has-categories`,
+	EXISTS(SELECT `id` FROM `post-media` WHERE `post-media`.`uri-id` = `post-user`.`uri-id`) AS `has-media`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,
@@ -1985,6 +1987,8 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-question`.`multiple` AS `question-multiple`,
 	`post-question`.`voters` AS `question-voters`,
 	`post-question`.`end-time` AS `question-end-time`,
+	EXISTS(SELECT `uri-id` FROM `post-category` WHERE `post-category`.`uri-id` = `post-thread-user`.`uri-id` AND `post-category`.`uid` = `post-thread-user`.`uid`) AS `has-categories`,
+	EXISTS(SELECT `id` FROM `post-media` WHERE `post-media`.`uri-id` = `post-thread-user`.`uri-id`) AS `has-media`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,
@@ -2120,6 +2124,8 @@ CREATE VIEW `post-view` AS SELECT
 	`post-question`.`multiple` AS `question-multiple`,
 	`post-question`.`voters` AS `question-voters`,
 	`post-question`.`end-time` AS `question-end-time`,
+	0 AS `has-categories`,
+	EXISTS(SELECT `id` FROM `post-media` WHERE `post-media`.`uri-id` = `post`.`uri-id`) AS `has-media`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,
@@ -2251,6 +2257,8 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post-question`.`multiple` AS `question-multiple`,
 	`post-question`.`voters` AS `question-voters`,
 	`post-question`.`end-time` AS `question-end-time`,
+	0 AS `has-categories`,
+	EXISTS(SELECT `id` FROM `post-media` WHERE `post-media`.`uri-id` = `post-thread`.`uri-id`) AS `has-media`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,

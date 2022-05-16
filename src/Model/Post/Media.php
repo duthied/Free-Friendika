@@ -547,11 +547,16 @@ class Media
 	 * @param int    $uri_id
 	 * @param string $guid
 	 * @param array  $links list of links that shouldn't be added
+	 * @param bool   $has_media
 	 * @return array attachments
 	 */
-	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [])
+	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [], bool $has_media = true)
 	{
 		$attachments = ['visual' => [], 'link' => [], 'additional' => []];
+
+		if (!$has_media) {
+			return $attachments;
+		}
 
 		$media = self::getByURIId($uri_id);
 		if (empty($media)) {
