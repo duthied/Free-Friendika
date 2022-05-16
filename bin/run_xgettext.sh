@@ -58,7 +58,7 @@ case "$MODE" in
 		OUTFILE="$FULLPATH/../view/lang/C/messages.po"
 		FINDSTARTDIR="."
 		# skip addon folder
-		FINDOPTS="( -path ./addon -or -path ./addons -or -path ./addons-extra -or -path ./tests -or -path ./view/lang -or -path ./view/smarty3 -or -path ./vendor ) -prune -or"
+		FINDOPTS="( -path ./addon -or -path ./addons -or -path ./addons-extra -or -path ./tests -or -path ./view/lang -or -path ./view/smarty3 -or -path ./vendor  -or -path ./local  -or -path ./avatar -or -path ./proxy ) -prune -or"
 		
 		F9KVERSION=$(cat ./VERSION);
 		echo "Friendica version $F9KVERSION"

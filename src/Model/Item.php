@@ -42,6 +42,7 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
+use Friendica\Util\Temporal;
 use Friendica\Worker\Delivery;
 use LanguageDetection\Language;
 
@@ -95,6 +96,7 @@ class Item
 		'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-ignore', 'event-id',
+		"question-id", "question-multiple", "question-voters", "question-end-time",
 		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed'
 	];
 
@@ -2852,6 +2854,7 @@ class Item
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
 		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
+		$s = self::addQuestions($item, $s);
 
 		// Map.
 		if (strpos($s, '<div class="map">') !== false && !empty($item['coord'])) {
@@ -3173,6 +3176,35 @@ class Item
 			$content .= '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>';
 		}
 
+		DI::profiler()->stopRecording();
+		return $content;
+	}
+
+	private static function addQuestions(array $item, string $content)
+	{
+		DI::profiler()->startRecording('rendering');
+		if (!empty($item['question-id'])) {
+			$question = [
+				'id'       => $item['question-id'],
+				'multiple' => $item['question-multiple'],
+				'voters'   => $item['question-voters'],
+				'endtime'  => $item['question-end-time']
+			];
+
+			$options = Post\QuestionOption::getByURIId($item['uri-id']);
+			foreach ($options as $key => $option) {
+				$percent = $question['voters'] ? ($option['replies'] / $question['voters'] * 100) : 0;
+
+				$options[$key]['percent'] = $percent;
+				$options[$key]['vote']    = DI::l10n()->t('%s (%d%s, %d votes)', $option['name'], round($percent, 1), '%', $option['replies']);
+			}
+
+			$content .= Renderer::replaceMacros(Renderer::getMarkupTemplate('content/question.tpl'), [
+				'$question' => $question,
+				'$options'  => $options,
+				'$summary'  => DI::l10n()->t('%d voters. Poll end: %s', $question['voters'], Temporal::getRelativeDate($question['endtime'])),
+			]);
+	}
 		DI::profiler()->stopRecording();
 		return $content;
 	}
