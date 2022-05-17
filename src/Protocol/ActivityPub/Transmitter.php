@@ -61,6 +61,7 @@ class Transmitter
 	const CACHEKEY_FEATURED = 'transmitter:getFeatured:';
 	const CACHEKEY_CONTACTS = 'transmitter:getContacts:';
 	const CACHEKEY_OUTBOX   = 'transmitter:getOutbox:';
+	const CACHEKEY_PROFILE  = 'transmitter:getProfile:';
 
 	/**
 	 * Add relay servers to the list of inboxes
@@ -429,12 +430,19 @@ class Transmitter
 	 * Return the ActivityPub profile of the given user
 	 *
 	 * @param int $uid User ID
+	 * @param boolean $nocache   Wether to bypass caching
 	 * @return array with profile data
 	 * @throws HTTPException\NotFoundException
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getProfile(int $uid): array
+	public static function getProfile(int $uid, $nocache = false): array
 	{
+		$cachekey = self::CACHEKEY_PROFILE . $uid;
+		$result = DI::cache()->get($cachekey);
+		if (!$nocache && !is_null($result)) {
+			return $result;
+		}
+
 		$owner = User::getOwnerDataById($uid);
 		if (!isset($owner['id'])) {
 			DI::logger()->error('Unable to find owner data for uid', ['uid' => $uid, 'callstack' => System::callstack(20)]);
@@ -527,6 +535,8 @@ class Transmitter
 		}
 
 		$data['generator'] = self::getService();
+
+		DI::cache()->set($cachekey, $data, Duration::DAY);
 
 		// tags: https://kitty.town/@inmysocks/100656097926961126.json
 		return $data;
