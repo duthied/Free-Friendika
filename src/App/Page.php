@@ -79,9 +79,9 @@ class Page implements ArrayAccess
 	 */
 	private $basePath;
 
-	private $timestamp  = 0;
-	private $moduleName = '';
-	private $method     = '';
+	private $timestamp = 0;
+	private $command   = '';
+	private $method    = '';
 
 	/**
 	 * @param string $basepath The Page basepath
@@ -92,16 +92,16 @@ class Page implements ArrayAccess
 		$this->basePath = $basepath;
 	}
 
-	public function setLogging(string $moduleName, string $method)
+	public function setLogging(string $command, string $method)
 	{
-		$this->moduleName = $moduleName;
-		$this->method     = $method;
+		$this->command = $command;
+		$this->method  = $method;
 	}
 
 	public function logRuntime()
 	{
 		$runtime = number_format(microtime(true) - $this->timestamp, 3);
-		Logger::debug('Runtime', ['method' => $this->method, 'module' => $this->moduleName, 'runtime' => $runtime]);
+		Logger::debug('Runtime', ['method' => $this->method, 'command' => $this->command, 'runtime' => $runtime]);
 	}
 
 	/**
@@ -440,8 +440,8 @@ class Page implements ArrayAccess
 	{
 		$moduleName = $args->getModuleName();
 
-		$this->moduleName = $moduleName;
-		$this->method     = $args->getMethod();
+		$this->command = $moduleName;
+		$this->method  = $args->getMethod();
 
 		/* Create the page content.
 		 * Calls all hooks which are including content operations
