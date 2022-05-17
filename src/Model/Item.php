@@ -2793,7 +2793,7 @@ class Item
 			$shared_item = Post::selectFirst(['uri-id', 'plink', 'has-media'], ['guid' => $shared['guid']]);
 			$shared_uri_id = $shared_item['uri-id'] ?? 0;
 			$shared_links = [strtolower($shared_item['plink'] ?? '')];
-			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid'], [], $shared_item['has-media']);
+			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid'], [], $shared_item['has-media'] ?? false);
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['visual'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['link'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['additional'], 'url'));
