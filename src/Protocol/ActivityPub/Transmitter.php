@@ -151,12 +151,21 @@ class Transmitter
 	 * @param string  $module    The name of the relevant AP endpoint module (followers|following)
 	 * @param integer $page      Page number
 	 * @param string  $requester URL of the requester
+	 * @param boolean $nocache   Wether to bypass caching
 	 *
 	 * @return array of owners
 	 * @throws \Exception
 	 */
-	public static function getContacts(array $owner, array $rel, string $module, int $page = null, string $requester = null)
+	public static function getContacts(array $owner, array $rel, string $module, int $page = null, string $requester = null, $nocache = false)
 	{
+		if (empty($page)) {
+			$cachekey = 'transmitter:getContacts:' . $module . ':'. $owner['uid'];
+			$result = DI::cache()->get($cachekey);
+			if (!$nocache && !is_null($result)) {
+				return $result;
+			}
+		}
+
 		$parameters = [
 			'rel' => $rel,
 			'uid' => $owner['uid'],
@@ -192,6 +201,10 @@ class Transmitter
 		}
 
 		if (!$show_contacts) {
+			if (!empty($cachekey)) {
+				DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+			}
+
 			return $data;
 		}
 
@@ -216,6 +229,10 @@ class Transmitter
 			$data['orderedItems'] = $list;
 		}
 
+		if (!empty($cachekey)) {
+			DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+		}
+
 		return $data;
 	}
 
@@ -225,13 +242,22 @@ class Transmitter
 	 * @param array   $owner     Owner array
 	 * @param integer $page      Page number
 	 * @param string  $requester URL of requesting account
+	 * @param boolean $nocache   Wether to bypass caching
 	 *
 	 * @return array of posts
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getOutbox(array $owner, int $page = null, string $requester = '')
+	public static function getOutbox(array $owner, int $page = null, string $requester = '', $nocache = false)
 	{
+		if (empty($page)) {
+			$cachekey = 'transmitter:getOutbox:' . $owner['uid'];
+			$result = DI::cache()->get($cachekey);
+			if (!$nocache && !is_null($result)) {
+				return $result;
+			}
+		}
+
 		$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
 
 		if (!empty($requester)) {
@@ -293,27 +319,41 @@ class Transmitter
 			$data['orderedItems'] = $list;
 		}
 
+		if (!empty($cachekey)) {
+			DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+		}
+
 		return $data;
 	}
 
 	/**
 	 * Public posts for the given owner
 	 *
-	 * @param array   $owner Owner array
-	 * @param integer $page  Page number
+	 * @param array   $owner   Owner array
+	 * @param integer $page    Page number
+	 * @param boolean $nocache Wether to bypass caching
 	 *
 	 * @return array of posts
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getFeatured(array $owner, int $page = null)
+	public static function getFeatured(array $owner, int $page = null, $nocache = false)
 	{
+		$owner_cid = Contact::getIdForURL($owner['url'], 0, false);
+		if (empty($page)) {
+			$cachekey = 'transmitter:getFeatured:' . $owner_cid;
+			$result = DI::cache()->get($cachekey);
+			if (!$nocache && !is_null($result)) {
+				return $result;
+			}
+		}
+
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
-			Contact::getIdForURL($owner['url'], 0, false), Post\Collection::FEATURED];
+			$owner_cid, Post\Collection::FEATURED];
 
 		$condition = DBA::mergeConditions($condition,
 			['uid'           => $owner['uid'],
-			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
+			'author-id'      => $owner_cid,
 			'private'        => [Item::PUBLIC, Item::UNLISTED],
 			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
 			'network'        => Protocol::FEDERATED,
@@ -361,6 +401,10 @@ class Transmitter
 		}
 
 		$data['orderedItems'] = $list;
+
+		if (!empty($cachekey)) {
+			DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+		}
 
 		return $data;
 	}
