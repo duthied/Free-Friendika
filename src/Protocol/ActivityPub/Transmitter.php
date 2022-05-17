@@ -205,7 +205,7 @@ class Transmitter
 
 		if (!$show_contacts) {
 			if (!empty($cachekey)) {
-				DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+				DI::cache()->set($cachekey, $data, Duration::DAY);
 			}
 
 			return $data;
@@ -233,7 +233,7 @@ class Transmitter
 		}
 
 		if (!empty($cachekey)) {
-			DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+			DI::cache()->set($cachekey, $data, Duration::DAY);
 		}
 
 		return $data;
@@ -323,7 +323,7 @@ class Transmitter
 		}
 
 		if (!empty($cachekey)) {
-			DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+			DI::cache()->set($cachekey, $data, Duration::DAY);
 		}
 
 		return $data;
@@ -407,7 +407,7 @@ class Transmitter
 		$data['orderedItems'] = $list;
 
 		if (!empty($cachekey)) {
-			DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+			DI::cache()->set($cachekey, $data, Duration::DAY);
 		}
 
 		return $data;

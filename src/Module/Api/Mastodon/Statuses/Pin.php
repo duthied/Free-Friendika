@@ -46,7 +46,7 @@ class Pin extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		Post\Collection::add($this->parameters['id'], Post\Collection::FEATURED);
+		Post\Collection::add($this->parameters['id'], Post\Collection::FEATURED, $uid);
 
 		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid)->toArray());
 	}

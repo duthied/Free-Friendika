@@ -24,6 +24,8 @@ namespace Friendica\Model\Post;
 use Friendica\Database\DBA;
 use BadMethodCallException;
 use Friendica\Database\Database;
+use Friendica\DI;
+use Friendica\Protocol\ActivityPub;
 
 class Collection
 {
@@ -34,14 +36,19 @@ class Collection
 	 *
 	 * @param integer $uri_id
 	 * @param integer $type
+	 * @param integer $cache_uid If set to a non zero value, the featured cache is cleared
 	 */
-	public static function add(int $uri_id, int $type)
+	public static function add(int $uri_id, int $type, int $cache_uid = 0)
 	{
 		if (empty($uri_id)) {
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
 		DBA::insert('post-collection', ['uri-id' => $uri_id, 'type' => $type], Database::INSERT_IGNORE);
+
+		if (!empty($cache_uid) && ($type == self::FEATURED)) {
+			DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_FEATURED . $cache_uid);
+		}
 	}
 
 	/**
@@ -49,14 +56,19 @@ class Collection
 	 *
 	 * @param integer $uri_id
 	 * @param integer $type
+	 * @param integer $cache_uid If set to a non zero value, the featured cache is cleared
 	 */
-	public static function remove(int $uri_id, int $type)
+	public static function remove(int $uri_id, int $type, int $cache_uid = 0)
 	{
 		if (empty($uri_id)) {
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
 		DBA::delete('post-collection', ['uri-id' => $uri_id, 'type' => $type]);
+
+		if (!empty($cache_uid) && ($type == self::FEATURED)) {
+			DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_FEATURED . $cache_uid);
+		}
 	}
 
 	/**
