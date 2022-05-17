@@ -48,6 +48,7 @@ class ThemeDetails extends BaseModule
 				'credits' => $credits,
 			]);
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 }

@@ -164,7 +164,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 		} else {
 			echo $o . $receivers;
 		}
-
+		DI::page()->logRuntime();
 		exit();
 	}
 

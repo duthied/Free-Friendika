@@ -72,6 +72,7 @@ class Attach extends BaseModule
 		}
 
 		echo $data;
+		DI::page()->logRuntime();
 		exit();
 		// NOTREACHED
 	}

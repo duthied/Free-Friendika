@@ -38,6 +38,7 @@ function hub_return($valid, $body)
 	} else {
 		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
+	DI::page()->logRuntime();
 	exit();
 }
 

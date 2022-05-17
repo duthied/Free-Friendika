@@ -30,6 +30,7 @@ function share_init(App $a) {
 	$post_id = ((DI::args()->getArgc() > 1) ? intval(DI::args()->getArgv()[1]) : 0);
 
 	if (!$post_id || !local_user()) {
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -38,6 +39,7 @@ function share_init(App $a) {
 	$item = Post::selectFirst($fields, ['id' => $post_id]);
 
 	if (!DBA::isResult($item) || $item['private'] == Item::PRIVATE) {
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -56,5 +58,6 @@ function share_init(App $a) {
 	}
 
 	echo $o;
+	DI::page()->logRuntime();
 	exit();
 }

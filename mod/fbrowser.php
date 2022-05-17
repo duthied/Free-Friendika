@@ -39,10 +39,12 @@ use Friendica\Util\Strings;
 function fbrowser_content(App $a)
 {
 	if (!local_user()) {
+		DI::page()->logRuntime();
 		exit();
 	}
 
 	if (DI::args()->getArgc() == 1) {
+		DI::page()->logRuntime();
 		exit();
 	}
 

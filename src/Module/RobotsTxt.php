@@ -44,6 +44,7 @@ class RobotsTxt extends BaseModule
 		foreach ($allDisalloweds as $disallowed) {
 			echo 'Disallow: ' . $disallowed . PHP_EOL;
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 }

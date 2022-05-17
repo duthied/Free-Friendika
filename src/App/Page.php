@@ -30,6 +30,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
@@ -78,12 +79,29 @@ class Page implements ArrayAccess
 	 */
 	private $basePath;
 
+	private $timestamp  = 0;
+	private $moduleName = '';
+	private $method     = '';
+
 	/**
 	 * @param string $basepath The Page basepath
 	 */
 	public function __construct(string $basepath)
 	{
+		$this->timestamp = microtime(true);
 		$this->basePath = $basepath;
+	}
+
+	public function setLogging(string $moduleName, string $method)
+	{
+		$this->moduleName = $moduleName;
+		$this->method     = $method;
+	}
+
+	public function logRuntime()
+	{
+		$runtime = number_format(microtime(true) - $this->timestamp, 3);
+		Logger::debug('Runtime', ['method' => $this->method, 'module' => $this->moduleName, 'runtime' => $runtime]);
 	}
 
 	/**
@@ -401,6 +419,7 @@ class Page implements ArrayAccess
 		}
 
 		echo $response->getBody();
+		$this->logRuntime();
 	}
 
 	/**
@@ -420,6 +439,9 @@ class Page implements ArrayAccess
 	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ResponseInterface $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
 	{
 		$moduleName = $args->getModuleName();
+
+		$this->moduleName = $moduleName;
+		$this->method     = $args->getMethod();
 
 		/* Create the page content.
 		 * Calls all hooks which are including content operations

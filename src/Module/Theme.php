@@ -45,7 +45,7 @@ class Theme extends BaseModule
 		if (file_exists("view/theme/$theme/style.php")) {
 			require_once "view/theme/$theme/style.php";
 		}
-
+		DI::page()->logRuntime();
 		exit();
 	}
 }

@@ -224,6 +224,7 @@ class Photo extends BaseModule
 				'output' => number_format($output, 3), 'rest' => number_format($rest, 3)]);
 		}
 
+		DI::page()->logRuntime();
 		exit();
 	}
 

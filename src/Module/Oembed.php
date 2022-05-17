@@ -43,6 +43,7 @@ class Oembed extends BaseModule
 		if (DI::args()->getArgv()[1] == 'b2h') {
 			$url = ["", trim(hex2bin($_REQUEST['url']))];
 			echo Content\OEmbed::replaceCallback($url);
+			DI::page()->logRuntime();
 			exit();
 		}
 
@@ -50,6 +51,7 @@ class Oembed extends BaseModule
 		if (DI::args()->getArgv()[1] == 'h2b') {
 			$text = trim(hex2bin($_REQUEST['text']));
 			echo Content\OEmbed::HTML2BBCode($text);
+			DI::page()->logRuntime();
 			exit();
 		}
 
@@ -68,6 +70,7 @@ class Oembed extends BaseModule
 			echo $j->html;
 			echo '</body></html>';
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 }

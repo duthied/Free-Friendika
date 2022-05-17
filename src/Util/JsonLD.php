@@ -69,6 +69,7 @@ class JsonLD
 
 		if ($recursion > 5) {
 			Logger::error('jsonld bomb detected at: ' . $url);
+			DI::page()->logRuntime();
 			exit();
 		}
 

@@ -576,6 +576,7 @@ class App
 		$this->profiler->set(microtime(true), 'classinit');
 
 		$moduleName = $this->args->getModuleName();
+		$page->setLogging($moduleName, $this->args->getMethod());
 
 		try {
 			// Missing DB connection: ERROR
@@ -712,6 +713,7 @@ class App
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
 			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
 				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
+				$page->logRuntime();
 			} else {
 				$page->exit($response);
 			}

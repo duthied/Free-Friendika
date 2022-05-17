@@ -89,6 +89,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
 		notice(DI::l10n()->t('Permission denied.'));
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -96,6 +97,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		if ($r_json) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -148,6 +150,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 		notice(DI::l10n()->t('Invalid request.'));
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -167,6 +170,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		} else {
 			echo  $msg. EOL;
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -205,6 +209,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			} else {
 				echo  $msg. EOL;
 			}
+			DI::page()->logRuntime();
 			exit();
 		}
 	}
@@ -229,6 +234,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		} else {
 			echo  $msg. EOL;
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -281,6 +287,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	}
 
 	echo  "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id . '][img]' . DI::baseUrl() . "/photo/{$resource_id}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
+	DI::page()->logRuntime();
 	exit();
 	// NOTREACHED
 }

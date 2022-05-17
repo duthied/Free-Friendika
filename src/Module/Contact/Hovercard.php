@@ -107,6 +107,7 @@ class Hovercard extends BaseModule
 		]);
 
 		echo $o;
+		DI::page()->logRuntime();
 		exit();
 	}
 }

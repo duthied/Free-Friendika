@@ -448,7 +448,7 @@ class System
 			case 307:
 				throw new TemporaryRedirectException();
 		}
-
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -522,6 +522,7 @@ class System
 		echo str_replace("\t", "       ", $o);
 		echo "</section>";
 		echo "</body></html>\r\n";
+		DI::page()->logRuntime();
 		exit();
 	}
 

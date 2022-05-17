@@ -142,5 +142,6 @@ function pubsubhubbub_init(App $a) {
 
 		throw new \Friendica\Network\HTTPException\AcceptedException();
 	}
+	DI::page()->logRuntime();
 	exit();
 }

@@ -48,6 +48,7 @@ class ItemBody extends BaseModule
 		if (!empty($item)) {
 			if (DI::mode()->isAjax()) {
 				echo str_replace("\n", '<br />', $item['body']);
+				DI::page()->logRuntime();
 				exit();
 			} else {
 				return str_replace("\n", '<br />', $item['body']);

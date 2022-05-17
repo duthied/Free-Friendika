@@ -112,7 +112,7 @@ class UserExport extends BaseSettings
 					self::exportContactsAsCSV(local_user());
 					break;
 			}
-
+			DI::page()->logRuntime();
 			exit();
 		}
 	}

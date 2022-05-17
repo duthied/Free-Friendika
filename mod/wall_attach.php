@@ -67,6 +67,7 @@ function wall_attach_post(App $a) {
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
 		notice(DI::l10n()->t('Permission denied.') . EOL );
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -74,6 +75,7 @@ function wall_attach_post(App $a) {
 		if ($r_json) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -97,6 +99,7 @@ function wall_attach_post(App $a) {
 		} else {
 			notice($msg);
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -108,6 +111,7 @@ function wall_attach_post(App $a) {
 		} else {
 			echo $msg . EOL;
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -122,6 +126,7 @@ function wall_attach_post(App $a) {
 		} else {
 			echo $msg . EOL;
 		}
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -132,7 +137,7 @@ function wall_attach_post(App $a) {
 	$lf = "\n";
 
 	echo  $lf . $lf . '[attachment]' . $newid . '[/attachment]' . $lf;
-
+	DI::page()->logRuntime();
 	exit();
 	// NOTREACHED
 }

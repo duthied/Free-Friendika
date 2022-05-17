@@ -47,6 +47,7 @@ class PageNotFound extends BaseModule
 		$queryString = $this->server['QUERY_STRING'];
 		// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
 		if (!empty($queryString) && preg_match('/{[0-9]}/', $queryString) !== 0) {
+			DI::page()->logRuntime();
 			exit();
 		}
 

@@ -30,6 +30,7 @@ class PhpInfo extends BaseAdmin
 		self::checkAdminAccess();
 
 		phpinfo();
+		DI::page()->logRuntime();
 		exit();
 	}
 }

@@ -31,6 +31,7 @@ class Network extends NetworkModule
 	protected function rawContent(array $request = [])
 	{
 		if (!isset($_GET['p']) || !isset($_GET['item'])) {
+			DI::page()->logRuntime();
 			exit();
 		}
 

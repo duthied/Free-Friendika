@@ -158,6 +158,7 @@ function photos_post(App $a)
 
 	if (!$can_post) {
 		notice(DI::l10n()->t('Permission denied.'));
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -166,6 +167,7 @@ function photos_post(App $a)
 	if (!$owner_record) {
 		notice(DI::l10n()->t('Contact information unavailable'));
 		DI::logger()->info('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
+		DI::page()->logRuntime();
 		exit();
 	}
 
