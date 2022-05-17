@@ -44,7 +44,6 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
-use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
@@ -59,6 +58,10 @@ use Friendica\Util\XML;
  */
 class Transmitter
 {
+	const CACHEKEY_FEATURED = 'transmitter:getFeatured:';
+	const CACHEKEY_CONTACTS = 'transmitter:getContacts:';
+	const CACHEKEY_OUTBOX   = 'transmitter:getOutbox:';
+
 	/**
 	 * Add relay servers to the list of inboxes
 	 *
@@ -159,7 +162,7 @@ class Transmitter
 	public static function getContacts(array $owner, array $rel, string $module, int $page = null, string $requester = null, $nocache = false)
 	{
 		if (empty($page)) {
-			$cachekey = 'transmitter:getContacts:' . $module . ':'. $owner['uid'];
+			$cachekey = self::CACHEKEY_CONTACTS . $module . ':'. $owner['uid'];
 			$result = DI::cache()->get($cachekey);
 			if (!$nocache && !is_null($result)) {
 				return $result;
@@ -202,7 +205,7 @@ class Transmitter
 
 		if (!$show_contacts) {
 			if (!empty($cachekey)) {
-				DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+				DI::cache()->set($cachekey, $data, Duration::DAY);
 			}
 
 			return $data;
@@ -230,7 +233,7 @@ class Transmitter
 		}
 
 		if (!empty($cachekey)) {
-			DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+			DI::cache()->set($cachekey, $data, Duration::DAY);
 		}
 
 		return $data;
@@ -251,7 +254,7 @@ class Transmitter
 	public static function getOutbox(array $owner, int $page = null, string $requester = '', $nocache = false)
 	{
 		if (empty($page)) {
-			$cachekey = 'transmitter:getOutbox:' . $owner['uid'];
+			$cachekey = self::CACHEKEY_OUTBOX . $owner['uid'];
 			$result = DI::cache()->get($cachekey);
 			if (!$nocache && !is_null($result)) {
 				return $result;
@@ -320,7 +323,7 @@ class Transmitter
 		}
 
 		if (!empty($cachekey)) {
-			DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+			DI::cache()->set($cachekey, $data, Duration::DAY);
 		}
 
 		return $data;
@@ -339,14 +342,15 @@ class Transmitter
 	 */
 	public static function getFeatured(array $owner, int $page = null, $nocache = false)
 	{
-		$owner_cid = Contact::getIdForURL($owner['url'], 0, false);
 		if (empty($page)) {
-			$cachekey = 'transmitter:getFeatured:' . $owner_cid;
+			$cachekey = self::CACHEKEY_FEATURED . $owner['uid'];
 			$result = DI::cache()->get($cachekey);
 			if (!$nocache && !is_null($result)) {
 				return $result;
 			}
 		}
+
+		$owner_cid = Contact::getIdForURL($owner['url'], 0, false);
 
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
 			$owner_cid, Post\Collection::FEATURED];
@@ -403,7 +407,7 @@ class Transmitter
 		$data['orderedItems'] = $list;
 
 		if (!empty($cachekey)) {
-			DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
+			DI::cache()->set($cachekey, $data, Duration::DAY);
 		}
 
 		return $data;

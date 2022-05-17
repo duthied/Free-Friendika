@@ -60,9 +60,9 @@ class Pin extends BaseModule
 		$pinned = !$item['featured'];
 
 		if ($pinned) {
-			Post\Collection::add($item['uri-id'], Post\Collection::FEATURED);
+			Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, local_user());
 		} else {
-			Post\Collection::remove($item['uri-id'], Post\Collection::FEATURED);
+			Post\Collection::remove($item['uri-id'], Post\Collection::FEATURED, local_user());
 		}
 
 		// See if we've been passed a return path to redirect to

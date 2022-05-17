@@ -35,6 +35,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Module\NoScrape;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
@@ -797,10 +798,12 @@ class Contact
 	public static function remove($id)
 	{
 		// We want just to make sure that we don't delete our "self" contact
-		$contact = DBA::selectFirst('contact', ['uri-id', 'photo', 'thumb', 'micro'], ['id' => $id, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['uri-id', 'photo', 'thumb', 'micro', 'uid'], ['id' => $id, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
+
+		self::clearFollowerFollowingEndpointCache($contact['uid']);
 
 		// Archive the contact
 		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
@@ -899,6 +902,16 @@ class Contact
 		self::remove($contact['id']);
 	}
 
+	private static function clearFollowerFollowingEndpointCache(int $uid)
+	{
+		if (empty($uid)) {
+			return;
+		}
+
+		DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_CONTACTS . 'followers:' . $uid);
+		DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_CONTACTS . 'following:' . $uid);
+		DI::cache()->delete(NoScrape::CACHEKEY . $uid);
+	}
 
 	/**
 	 * Marks a contact for archival after a communication issue delay
@@ -1764,7 +1777,7 @@ class Contact
 				break;
 			default:
 				/**
-				 * Use a random picture. 
+				 * Use a random picture.
 				 * The service provides random pictures from Unsplash.
 				 * @license https://unsplash.com/license
 				 */
@@ -2321,7 +2334,7 @@ class Contact
 					Worker::add(PRIORITY_LOW, 'FetchFeaturedPosts', $ret['url']);
 				}
 			}
-	
+
 			$ret['last-item'] = Probe::getLastUpdate($ret);
 			Logger::info('Fetched last item', ['id' => $id, 'probed_url' => $ret['url'], 'last-item' => $ret['last-item'], 'callstack' => System::callstack(20)]);
 		}
@@ -2707,6 +2720,8 @@ class Contact
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
 		}
 
+		self::clearFollowerFollowingEndpointCache($importer['uid']);
+
 		if (!empty($contact)) {
 			if (!empty($contact['pending'])) {
 				Logger::info('Pending contact request already exists.', ['url' => $url, 'uid' => $importer['uid']]);
@@ -2830,6 +2845,8 @@ class Contact
 			return;
 		}
 
+		self::clearFollowerFollowingEndpointCache($contact['uid']);
+
 		$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 
 		DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
@@ -2844,6 +2861,8 @@ class Contact
 	 */
 	public static function removeSharer(array $contact)
 	{
+		self::clearFollowerFollowingEndpointCache($contact['uid']);
+
 		if ($contact['rel'] == self::SHARING || in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
 			self::remove($contact['id']);
 		} else {
