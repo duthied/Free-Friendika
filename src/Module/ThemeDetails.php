@@ -24,6 +24,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
+use Friendica\DI;
 
 /**
  * Prints theme specific details as a JSON string

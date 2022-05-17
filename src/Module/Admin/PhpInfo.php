@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Admin;
 
+use Friendica\DI;
 use Friendica\Module\BaseAdmin;
 
 class PhpInfo extends BaseAdmin
