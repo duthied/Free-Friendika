@@ -1225,7 +1225,6 @@ class Item
 
 		if ($posted_item['origin'] && ($posted_item['uid'] != 0) && in_array($posted_item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT])) {
 			DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_OUTBOX . $posted_item['uid']);
-			DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_PROFILE . $posted_item['uid']);
 		}
 
 		return $post_user_id;
