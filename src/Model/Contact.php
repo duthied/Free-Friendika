@@ -35,6 +35,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Module\NoScrape;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
@@ -909,6 +910,7 @@ class Contact
 
 		DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_CONTACTS . 'followers:' . $uid);
 		DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_CONTACTS . 'following:' . $uid);
+		DI::cache()->delete(NoScrape::CACHEKEY . $uid);
 	}
 
 	/**

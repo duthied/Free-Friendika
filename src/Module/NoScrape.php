@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -35,6 +36,8 @@ use Friendica\Model\User;
  */
 class NoScrape extends BaseModule
 {
+	const CACHEKEY = 'noscrape:';
+
 	protected function rawContent(array $request = [])
 	{
 		$a = DI::app();
@@ -53,6 +56,12 @@ class NoScrape extends BaseModule
 
 		if (empty($owner['uid'])) {
 			System::jsonError(404, 'Profile not found');
+		}
+
+		$cachekey = self::CACHEKEY . $owner['uid'];
+		$result = DI::cache()->get($cachekey);
+		if (!is_null($result)) {
+			System::jsonExit($result);
 		}
 
 		$json_info = [
@@ -125,6 +134,8 @@ class NoScrape extends BaseModule
 				$json_info["$field"] = $owner[$field];
 			}
 		}
+
+		DI::cache()->set($cachekey, $json_info, Duration::DAY);
 
 		System::jsonExit($json_info);
 	}
