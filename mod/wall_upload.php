@@ -89,16 +89,14 @@ function wall_upload_post(App $a, $desktopmode = true)
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
 		notice(DI::l10n()->t('Permission denied.'));
-		DI::page()->logRuntime();
-		exit();
+		System::exit();
 	}
 
 	if (empty($_FILES['userfile']) && empty($_FILES['media'])) {
 		if ($r_json) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
-		DI::page()->logRuntime();
-		exit();
+		System::exit();
 	}
 
 	$src = '';
@@ -150,8 +148,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 		notice(DI::l10n()->t('Invalid request.'));
-		DI::page()->logRuntime();
-		exit();
+		System::exit();
 	}
 
 	$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
@@ -170,8 +167,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		} else {
 			echo  $msg. EOL;
 		}
-		DI::page()->logRuntime();
-		exit();
+		System::exit();
 	}
 
 	$Image->orient($src);
@@ -209,8 +205,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			} else {
 				echo  $msg. EOL;
 			}
-			DI::page()->logRuntime();
-			exit();
+			System::exit();
 		}
 	}
 
@@ -234,8 +229,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		} else {
 			echo  $msg. EOL;
 		}
-		DI::page()->logRuntime();
-		exit();
+		System::exit();
 	}
 
 	if ($width > 640 || $height > 640) {
@@ -287,7 +281,6 @@ function wall_upload_post(App $a, $desktopmode = true)
 	}
 
 	echo  "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id . '][img]' . DI::baseUrl() . "/photo/{$resource_id}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
-	DI::page()->logRuntime();
-	exit();
+	System::exit();
 	// NOTREACHED
 }

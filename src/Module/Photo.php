@@ -32,6 +32,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Core\Storage\Type\ExternalResource;
 use Friendica\Core\Storage\Type\SystemResource;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
@@ -224,8 +225,7 @@ class Photo extends BaseModule
 				'output' => number_format($output, 3), 'rest' => number_format($rest, 3)]);
 		}
 
-		DI::page()->logRuntime();
-		exit();
+		System::exit();
 	}
 
 	private static function getPhotoByid(int $id, $type, $customsize)

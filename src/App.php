@@ -713,13 +713,13 @@ class App
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
 			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
 				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
-				$page->logRuntime();
 			} else {
 				$page->exit($response);
 			}
 		} catch (HTTPException $e) {
 			(new ModuleHTTPException())->rawContent($e);
 		}
+		$page->logRuntime();
 	}
 
 	/**

@@ -22,6 +22,7 @@
 namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
@@ -48,8 +49,7 @@ class ItemBody extends BaseModule
 		if (!empty($item)) {
 			if (DI::mode()->isAjax()) {
 				echo str_replace("\n", '<br />', $item['body']);
-				DI::page()->logRuntime();
-				exit();
+				System::exit();
 			} else {
 				return str_replace("\n", '<br />', $item['body']);
 			}

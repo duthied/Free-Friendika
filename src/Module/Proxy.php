@@ -202,7 +202,6 @@ class Proxy extends BaseModule
 		header('Expires: ' . gmdate('D, d M Y H:i:s', time() + (31536000)) . ' GMT');
 		header('Cache-Control: max-age=31536000');
 		echo $img->asString();
-		DI::page()->logRuntime();
-		exit();
+		System::exit();
 	}
 }

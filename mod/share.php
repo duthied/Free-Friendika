@@ -21,6 +21,7 @@
 
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -30,8 +31,7 @@ function share_init(App $a) {
 	$post_id = ((DI::args()->getArgc() > 1) ? intval(DI::args()->getArgv()[1]) : 0);
 
 	if (!$post_id || !local_user()) {
-		DI::page()->logRuntime();
-		exit();
+		System::exit();
 	}
 
 	$fields = ['private', 'body', 'author-name', 'author-link', 'author-avatar',
@@ -39,8 +39,7 @@ function share_init(App $a) {
 	$item = Post::selectFirst($fields, ['id' => $post_id]);
 
 	if (!DBA::isResult($item) || $item['private'] == Item::PRIVATE) {
-		DI::page()->logRuntime();
-		exit();
+		System::exit();
 	}
 
 	if (strpos($item['body'], "[/share]") !== false) {
@@ -58,6 +57,5 @@ function share_init(App $a) {
 	}
 
 	echo $o;
-	DI::page()->logRuntime();
-	exit();
+	System::exit();
 }

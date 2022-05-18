@@ -295,7 +295,7 @@ class System
 		DI::apiResponse()->addContent(XML::fromArray(["result" => $result], $xml));
 		DI::page()->exit(DI::apiResponse()->generate());
 
-		exit();
+		self::exit();
 	}
 
 	/**
@@ -315,7 +315,7 @@ class System
 		DI::apiResponse()->addContent($content);
 		DI::page()->exit(DI::apiResponse()->generate());
 
-		exit();
+		self::exit();
 	}
 
 	/**
@@ -331,7 +331,8 @@ class System
 		DI::apiResponse()->setType($responce, $content_type);
 		DI::apiResponse()->addContent($content);
 		DI::page()->exit(DI::apiResponse()->generate());
-		exit();
+
+		self::exit();
 	}
 
 	public static function jsonError($httpCode, $content, $content_type = 'application/json')
@@ -359,6 +360,16 @@ class System
 		DI::apiResponse()->setType(Response::TYPE_JSON, $content_type);
 		DI::apiResponse()->addContent(json_encode($content, $options));
 		DI::page()->exit(DI::apiResponse()->generate());
+
+		self::exit();
+	}
+
+	/**
+	 * Exit the program execution.
+	 */
+	public static function exit()
+	{
+		DI::page()->logRuntime();
 		exit();
 	}
 
@@ -448,8 +459,7 @@ class System
 			case 307:
 				throw new TemporaryRedirectException();
 		}
-		DI::page()->logRuntime();
-		exit();
+		self::exit();
 	}
 
 	/**
@@ -522,8 +532,7 @@ class System
 		echo str_replace("\t", "       ", $o);
 		echo "</section>";
 		echo "</body></html>\r\n";
-		DI::page()->logRuntime();
-		exit();
+		self::exit();
 	}
 
 	/**

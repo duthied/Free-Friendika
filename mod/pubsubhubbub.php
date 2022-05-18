@@ -21,6 +21,7 @@
 
 use Friendica\App;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\PushSubscriber;
@@ -142,6 +143,5 @@ function pubsubhubbub_init(App $a) {
 
 		throw new \Friendica\Network\HTTPException\AcceptedException();
 	}
-	DI::page()->logRuntime();
-	exit();
+	System::exit();
 }

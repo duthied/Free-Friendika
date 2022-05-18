@@ -22,6 +22,7 @@
 use Friendica\App;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -38,8 +39,7 @@ function hub_return($valid, $body)
 	} else {
 		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
-	DI::page()->logRuntime();
-	exit();
+	System::exit();
 }
 
 // when receiving an XML feed, always return OK

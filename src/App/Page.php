@@ -419,7 +419,6 @@ class Page implements ArrayAccess
 		}
 
 		echo $response->getBody();
-		$this->logRuntime();
 	}
 
 	/**

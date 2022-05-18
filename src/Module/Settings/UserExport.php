@@ -23,6 +23,7 @@ namespace Friendica\Module\Settings;
 
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -112,8 +113,7 @@ class UserExport extends BaseSettings
 					self::exportContactsAsCSV(local_user());
 					break;
 			}
-			DI::page()->logRuntime();
-			exit();
+			System::exit();
 		}
 	}
 
