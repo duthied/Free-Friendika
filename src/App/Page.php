@@ -98,10 +98,16 @@ class Page implements ArrayAccess
 		$this->method  = $method;
 	}
 
-	public function logRuntime()
+	public function logRuntime(IManageConfigValues $config)
 	{
+		if (in_array($this->command, $config->get('system', 'runtime_ignore'))) {
+			return;
+		}
+
 		$runtime = number_format(microtime(true) - $this->timestamp, 3);
-		Logger::debug('Runtime', ['method' => $this->method, 'command' => $this->command, 'runtime' => $runtime]);
+		if ($runtime > $config->get('system', 'runtime_loglimit')) {
+			Logger::debug('Runtime', ['method' => $this->method, 'command' => $this->command, 'runtime' => $runtime]);
+		}
 	}
 
 	/**

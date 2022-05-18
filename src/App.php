@@ -719,7 +719,7 @@ class App
 		} catch (HTTPException $e) {
 			(new ModuleHTTPException())->rawContent($e);
 		}
-		$page->logRuntime();
+		$page->logRuntime($this->config);
 	}
 
 	/**
