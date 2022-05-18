@@ -118,7 +118,6 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 		$cachekey = 'Notification:' . $Notification->id;
 		$result = $this->cache->get($cachekey);
 		if (!is_null($result)) {
-			$this->logger->debug('Blubb-Cache', ['id' => $Notification->id, 'callstack' => System::callstack(20)]);
 			return $result;
 		}
 
@@ -320,7 +319,6 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				'[url=' . $link . ']' . $title . '[/url]',
 				'[url=' . $author['url'] . ']' . $author['name'] . '[/url]');
 			$message['link'] = $link;
-			$this->logger->debug('Blubb-Set', ['id' => $Notification->id, 'callstack' => System::callstack(20)]);
 			$this->cache->set($cachekey, $message, Duration::HOUR);
 		} else {
 			$this->logger->debug('Unhandled notification', ['notification' => $Notification]);
