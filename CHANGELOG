@@ -38,7 +38,7 @@ Version 2022.05 (unreleased)
       Use a random item to validate fields on rule save [MrPetovan]
     twitter
       Fix usage of unfollow / block hooks [MrPetovan]
-    S§ storage backend
+    S3 storage backend
       Added the addon [nupplaphil]
 
   Closed Issues
