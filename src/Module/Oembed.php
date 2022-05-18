@@ -23,6 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Content;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Util\Strings;
 
@@ -43,14 +44,14 @@ class Oembed extends BaseModule
 		if (DI::args()->getArgv()[1] == 'b2h') {
 			$url = ["", trim(hex2bin($_REQUEST['url']))];
 			echo Content\OEmbed::replaceCallback($url);
-			exit();
+			System::exit();
 		}
 
 		// Unused form: /oembed/h2b?text=...
 		if (DI::args()->getArgv()[1] == 'h2b') {
 			$text = trim(hex2bin($_REQUEST['text']));
 			echo Content\OEmbed::HTML2BBCode($text);
-			exit();
+			System::exit();
 		}
 
 		// @TODO: Replace with parameter from router
@@ -68,6 +69,6 @@ class Oembed extends BaseModule
 			echo $j->html;
 			echo '</body></html>';
 		}
-		exit();
+		System::exit();
 	}
 }

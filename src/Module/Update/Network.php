@@ -31,7 +31,7 @@ class Network extends NetworkModule
 	protected function rawContent(array $request = [])
 	{
 		if (!isset($_GET['p']) || !isset($_GET['item'])) {
-			exit();
+			System::exit();
 		}
 
 		$this->parseRequest($_GET);

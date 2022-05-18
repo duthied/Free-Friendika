@@ -576,6 +576,7 @@ class App
 		$this->profiler->set(microtime(true), 'classinit');
 
 		$moduleName = $this->args->getModuleName();
+		$page->setLogging($this->args->getCommand(), $this->args->getMethod());
 
 		try {
 			// Missing DB connection: ERROR
@@ -718,6 +719,7 @@ class App
 		} catch (HTTPException $e) {
 			(new ModuleHTTPException())->rawContent($e);
 		}
+		$page->logRuntime();
 	}
 
 	/**

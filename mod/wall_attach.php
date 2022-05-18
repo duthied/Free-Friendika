@@ -67,14 +67,14 @@ function wall_attach_post(App $a) {
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
 		notice(DI::l10n()->t('Permission denied.') . EOL );
-		exit();
+		System::exit();
 	}
 
 	if (empty($_FILES['userfile'])) {
 		if ($r_json) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
-		exit();
+		System::exit();
 	}
 
 	$src      = $_FILES['userfile']['tmp_name'];
@@ -97,7 +97,7 @@ function wall_attach_post(App $a) {
 		} else {
 			notice($msg);
 		}
-		exit();
+		System::exit();
 	}
 
 	if ($maxfilesize && $filesize > $maxfilesize) {
@@ -108,7 +108,7 @@ function wall_attach_post(App $a) {
 		} else {
 			echo $msg . EOL;
 		}
-		exit();
+		System::exit();
 	}
 
 	$newid = Attach::storeFile($src, $page_owner_uid, $filename, '<' . $page_owner_cid . '>');
@@ -122,7 +122,7 @@ function wall_attach_post(App $a) {
 		} else {
 			echo $msg . EOL;
 		}
-		exit();
+		System::exit();
 	}
 
 	if ($r_json) {
@@ -132,7 +132,6 @@ function wall_attach_post(App $a) {
 	$lf = "\n";
 
 	echo  $lf . $lf . '[attachment]' . $newid . '[/attachment]' . $lf;
-
-	exit();
+	System::exit();
 	// NOTREACHED
 }

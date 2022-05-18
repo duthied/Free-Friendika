@@ -48,6 +48,6 @@ class ThemeDetails extends BaseModule
 				'credits' => $credits,
 			]);
 		}
-		exit();
+		System::exit();
 	}
 }

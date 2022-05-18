@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 
 /**
  * Return the default robots.txt
@@ -44,6 +45,6 @@ class RobotsTxt extends BaseModule
 		foreach ($allDisalloweds as $disallowed) {
 			echo 'Disallow: ' . $disallowed . PHP_EOL;
 		}
-		exit();
+		System::exit();
 	}
 }

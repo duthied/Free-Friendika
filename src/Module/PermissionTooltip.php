@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\Core\Hook;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
@@ -164,8 +165,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 		} else {
 			echo $o . $receivers;
 		}
-
-		exit();
+		System::exit();
 	}
 
 	/**

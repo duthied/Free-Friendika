@@ -22,6 +22,7 @@
 namespace Friendica\Module\HTTPException;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Psr\Http\Message\ResponseInterface;
@@ -47,7 +48,7 @@ class PageNotFound extends BaseModule
 		$queryString = $this->server['QUERY_STRING'];
 		// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
 		if (!empty($queryString) && preg_match('/{[0-9]}/', $queryString) !== 0) {
-			exit();
+			System::exit();
 		}
 
 		if (!empty($queryString) && ($queryString === 'q=internal_error.html') && isset($dreamhost_error_hack)) {

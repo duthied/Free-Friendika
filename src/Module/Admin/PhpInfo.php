@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Admin;
 
+use Friendica\Core\System;
 use Friendica\Module\BaseAdmin;
 
 class PhpInfo extends BaseAdmin
@@ -30,6 +31,6 @@ class PhpInfo extends BaseAdmin
 		self::checkAdminAccess();
 
 		phpinfo();
-		exit();
+		System::exit();
 	}
 }

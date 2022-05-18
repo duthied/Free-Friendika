@@ -24,6 +24,7 @@ namespace Friendica\Util;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
 use Exception;
+use Friendica\Core\System;
 use Friendica\DI;
 
 /**
@@ -69,7 +70,7 @@ class JsonLD
 
 		if ($recursion > 5) {
 			Logger::error('jsonld bomb detected at: ' . $url);
-			exit();
+			System::exit();
 		}
 
 		$result = DI::cache()->get('documentLoader:' . $url);

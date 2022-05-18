@@ -360,7 +360,7 @@ class Group extends BaseModule
 		if ($change) {
 			$tpl = Renderer::getMarkupTemplate('groupeditor.tpl');
 			echo Renderer::replaceMacros($tpl, $context);
-			exit();
+			System::exit();
 		}
 
 		return Renderer::replaceMacros($tpl, $context);

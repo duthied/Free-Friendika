@@ -39,11 +39,11 @@ use Friendica\Util\Strings;
 function fbrowser_content(App $a)
 {
 	if (!local_user()) {
-		exit();
+		System::exit();
 	}
 
 	if (DI::args()->getArgc() == 1) {
-		exit();
+		System::exit();
 	}
 
 	// Needed to match the correct template in a module that uses a different theme than the user/site/default

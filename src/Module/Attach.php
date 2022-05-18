@@ -23,6 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Attach as MAttach;
 
@@ -72,7 +73,7 @@ class Attach extends BaseModule
 		}
 
 		echo $data;
-		exit();
+		System::exit();
 		// NOTREACHED
 	}
 }

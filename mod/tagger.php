@@ -167,6 +167,5 @@ EOT;
 	$post = Post::selectFirst(['uri-id', 'uid'], ['id' => $post_id]);
 
 	Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $post['uri-id'], $post['uid']);
-
-	exit();
+	System::exit();
 }
