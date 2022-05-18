@@ -25,8 +25,13 @@ use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
 use Friendica\Capabilities\ICanCreateFromTableRow;
 use Friendica\Contact\LocalRelationship\Repository\LocalRelationship;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
+use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\L10n;
+use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
@@ -43,6 +48,8 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 	private $l10n;
 	/** @var LocalRelationship */
 	private $localRelationshipRepo;
+	/** @var ICanCache */
+	private $cache;
 
 	public function __construct(\Friendica\App\BaseURL $baseUrl, \Friendica\Core\L10n $l10n, \Friendica\Contact\LocalRelationship\Repository\LocalRelationship $localRelationshipRepo, LoggerInterface $logger)
 	{
@@ -51,6 +58,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 		$this->baseUrl = $baseUrl;
 		$this->l10n = $l10n;
 		$this->localRelationshipRepo = $localRelationshipRepo;
+		$this->cache = DI::cache(); // @todo Add the correct mechanism for class construction here
 	}
 
 	public function createFromTableRow(array $row): Entity\Notification
@@ -107,6 +115,13 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 	{
 		$message = [];
 
+		$cachekey = 'Notification:' . $Notification->id;
+		$result = $this->cache->get($cachekey);
+		if (!is_null($result)) {
+			$this->logger->debug('Blubb-Cache', ['id' => $Notification->id, 'callstack' => System::callstack(20)]);
+			return $result;
+		}
+
 		$causer = $author = Contact::getById($Notification->actorId, ['id', 'name', 'url', 'contact-type', 'pending']);
 		if (empty($causer)) {
 			$this->logger->info('Causer not found', ['contact' => $Notification->actorId]);
@@ -132,7 +147,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				$this->logger->info('Thread is ignored', ['parent-uri-id' => $Notification->parentUriId, 'type' => $Notification->type]);
 				return $message;
 			}
-	
+
 			if (in_array($Notification->type, [Post\UserNotification::TYPE_THREAD_COMMENT, Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_EXPLICIT_TAGGED])) {
 				$item = Post::selectFirst([], ['uri-id' => $Notification->parentUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
 				if (empty($item)) {
@@ -170,11 +185,10 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 
 			$link = $this->baseUrl . '/display/' . urlencode($link_item['guid']);
 
-			$content = Plaintext::getPost($item, 70);
-			if (!empty($content['text'])) {
-				$title = '"' . trim(str_replace("\n", " ", $content['text'])) . '"';
-			} else {
-				$title = '';
+			$body = BBCode::toPlaintext($item['body'], false);
+			$title = Plaintext::shorten($body, 70);
+			if (!empty($title)) {
+				$title = '"' . trim(str_replace("\n", " ", $title)) . '"';
 			}
 
 			$this->logger->debug('Got verb and type', ['verb' => $Notification->verb, 'type' => $Notification->type, 'causer' => $causer['id'], 'author' => $author['id'], 'item' => $item['id'], 'uid' => $Notification->uid]);
@@ -306,6 +320,8 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				'[url=' . $link . ']' . $title . '[/url]',
 				'[url=' . $author['url'] . ']' . $author['name'] . '[/url]');
 			$message['link'] = $link;
+			$this->logger->debug('Blubb-Set', ['id' => $Notification->id, 'callstack' => System::callstack(20)]);
+			$this->cache->set($cachekey, $message, Duration::HOUR);
 		} else {
 			$this->logger->debug('Unhandled notification', ['notification' => $Notification]);
 		}

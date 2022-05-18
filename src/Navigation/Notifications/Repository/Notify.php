@@ -23,6 +23,7 @@ namespace Friendica\Navigation\Notifications\Repository;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseRepository;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
@@ -301,11 +302,10 @@ class Notify extends BaseRepository
 
 				$item_post_type = Model\Item::postType($item, $l10n);
 
-				$content = Plaintext::getPost($item, 70);
-				if (!empty($content['text'])) {
-					$title = '"' . trim(str_replace("\n", " ", $content['text'])) . '"';
-				} else {
-					$title = '';
+				$body = BBCode::toPlaintext($item['body'], false);
+				$title = Plaintext::shorten($body, 70);
+				if (!empty($title)) {
+					$title = '"' . trim(str_replace("\n", " ", $title)) . '"';
 				}
 
 				// First go for the general message
@@ -710,11 +710,10 @@ class Notify extends BaseRepository
 			return false;
 		}
 
-		$content = Plaintext::getPost($item, 70);
-		if (!empty($content['text'])) {
-			$title = '"' . trim(str_replace("\n", " ", $content['text'])) . '"';
-		} else {
-			$title = $item['title'];
+		$body = BBCode::toPlaintext($item['body'], false);
+		$title = Plaintext::shorten($body, 70);
+		if (!empty($title)) {
+			$title = '"' . trim(str_replace("\n", " ", $title)) . '"';
 		}
 
 		// Some mail software relies on subject field for threading.
