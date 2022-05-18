@@ -507,6 +507,14 @@ return [
 		// If enabled, multiple linefeeds in items are stripped to a single one.
 		'remove_multiplicated_lines' => false,
 
+		// runtime_ignore (Array)
+		// List of ignored commands for the runtime logging.
+		'runtime_ignore' => [],
+
+		// runtime_loglimit (Integer)
+		// The runtime is logged, When the program execution time is higher than this value.
+		'runtime_loglimit' => 0,
+	
 		// sendmail_params (Boolean)
 		// Normal sendmail command parameters will be added when the PHP mail() function is called for sending e-mails.
 		// This ensures the Sender Email address setting is applied to the message envelope rather than the host's default address.
