@@ -30,8 +30,6 @@ use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
@@ -51,14 +49,14 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 	/** @var ICanCache */
 	private $cache;
 
-	public function __construct(\Friendica\App\BaseURL $baseUrl, \Friendica\Core\L10n $l10n, \Friendica\Contact\LocalRelationship\Repository\LocalRelationship $localRelationshipRepo, LoggerInterface $logger)
+	public function __construct(\Friendica\App\BaseURL $baseUrl, \Friendica\Core\L10n $l10n, \Friendica\Contact\LocalRelationship\Repository\LocalRelationship $localRelationshipRepo, LoggerInterface $logger, ICanCache $cache)
 	{
 		parent::__construct($logger);
 
 		$this->baseUrl = $baseUrl;
 		$this->l10n = $l10n;
 		$this->localRelationshipRepo = $localRelationshipRepo;
-		$this->cache = DI::cache(); // @todo Add the correct mechanism for class construction here
+		$this->cache = $cache;
 	}
 
 	public function createFromTableRow(array $row): Entity\Notification

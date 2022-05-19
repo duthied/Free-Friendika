@@ -308,7 +308,7 @@ class UserNotification
 			return;
 		}
 
-		$notification = (new Notifications\Factory\Notification(DI::baseUrl(), DI::l10n(), DI::localRelationship(), DI::logger()))->createForUser(
+		$notification = DI::notificationFactory()->createForUser(
 			$uid,
 			$item['vid'],
 			$type,
@@ -336,7 +336,7 @@ class UserNotification
 	 */
 	public static function insertNotification(int $actor, string $verb, int $uid): bool
 	{
-		$notification = (new Notifications\Factory\Notification(DI::baseUrl(), DI::l10n(), DI::localRelationship(), DI::logger()))->createForRelationship(
+		$notification = DI::notificationFactory()->createForRelationship(
 			$uid,
 			$actor,
 			$verb
