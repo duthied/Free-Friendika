@@ -230,7 +230,7 @@ while (true) {
 		}
 
 		$timeout = ($seconds >= $wait_interval);
-	} while (!$timeout && !Worker::IPCJobsExists());
+	} while (!$timeout && !Worker\IPC::JobsExists());
 
 	if ($timeout) {
 		$do_cron = true;
