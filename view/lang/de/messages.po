@@ -49,7 +49,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 05:29+0000\n"
+"POT-Creation-Date: 2022-05-16 06:01+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>, 2016-2022\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
@@ -2577,8 +2577,8 @@ msgstr "Bild/Foto"
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a>%3$s"
 
-#: src/Content/Text/BBCode.php:1188 src/Model/Item.php:3243
-#: src/Model/Item.php:3249 src/Model/Item.php:3250
+#: src/Content/Text/BBCode.php:1188 src/Model/Item.php:3258
+#: src/Model/Item.php:3264 src/Model/Item.php:3265
 msgid "Link to source"
 msgstr "Link zum Originalbeitrag"
 
@@ -3781,17 +3781,32 @@ msgstr "Inhaltswarnung: %s"
 msgid "bytes"
 msgstr "Byte"
 
-#: src/Model/Item.php:3199
+#: src/Model/Item.php:3201
 #, php-format
 msgid "%s (%d%s, %d votes)"
 msgstr "%s (%d%s, %d Stimmen)"
 
-#: src/Model/Item.php:3205
+#: src/Model/Item.php:3203
+#, php-format
+msgid "%s (%d votes)"
+msgstr "%s (%d Stimmen)"
+
+#: src/Model/Item.php:3208
 #, php-format
 msgid "%d voters. Poll end: %s"
 msgstr "%d Wähler, Abstimmung endet: %s"
 
-#: src/Model/Item.php:3231 src/Model/Item.php:3232
+#: src/Model/Item.php:3210
+#, php-format
+msgid "%d voters."
+msgstr "%d Stimmen."
+
+#: src/Model/Item.php:3212
+#, php-format
+msgid "Poll end: %s"
+msgstr "Abstimmung endet: %s"
+
+#: src/Model/Item.php:3246 src/Model/Item.php:3247
 msgid "View on separate page"
 msgstr "Auf separater Seite ansehen"
 
