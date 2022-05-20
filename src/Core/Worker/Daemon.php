@@ -30,7 +30,7 @@ use Friendica\DI;
  */
 class Daemon
 {
-	private static $daemon_mode = null;
+	private static $mode = null;
 
 	/**
 	 * Checks if the worker is running in the daemon mode.
@@ -39,8 +39,8 @@ class Daemon
 	 */
 	public static function isMode()
 	{
-		if (!is_null(self::$daemon_mode)) {
-			return self::$daemon_mode;
+		if (!is_null(self::$mode)) {
+			return self::$mode;
 		}
 
 		if (DI::mode()->getExecutor() == Mode::DAEMON) {
@@ -53,27 +53,27 @@ class Daemon
 		}
 
 		if (!function_exists('pcntl_fork')) {
-			self::$daemon_mode = false;
+			self::$mode = false;
 			return false;
 		}
 
 		$pidfile = DI::config()->get('system', 'pidfile');
 		if (empty($pidfile)) {
 			// No pid file, no daemon
-			self::$daemon_mode = false;
+			self::$mode = false;
 			return false;
 		}
 
 		if (!is_readable($pidfile)) {
 			// No pid file. We assume that the daemon had been intentionally stopped.
-			self::$daemon_mode = false;
+			self::$mode = false;
 			return false;
 		}
 
 		$pid     = intval(file_get_contents($pidfile));
 		$running = posix_kill($pid, 0);
 
-		self::$daemon_mode = $running;
+		self::$mode = $running;
 		return $running;
 	}
 
