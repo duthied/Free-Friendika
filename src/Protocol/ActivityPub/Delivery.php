@@ -32,7 +32,7 @@ use Friendica\Worker\Delivery as WorkerDelivery;
 
 class Delivery
 {
-	public static function deliver(string $inbox):array
+	public static function deliver(string $inbox): array
 	{
 		$uri_ids    = [];
 		$posts      = Post\Delivery::selectForInbox($inbox);

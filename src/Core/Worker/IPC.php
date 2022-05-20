@@ -62,7 +62,6 @@ class IPC
 	 */
 	public static function JobsExists(int $key = 0)
 	{
-		$stamp = (float)microtime(true);
 		$row = DBA::selectFirst('worker-ipc', ['jobs'], ['key' => $key]);
 
 		// When we don't have a row, no job is running

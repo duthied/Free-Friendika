@@ -70,7 +70,7 @@ class Daemon
 			return false;
 		}
 
-		$pid = intval(file_get_contents($pidfile));
+		$pid     = intval(file_get_contents($pidfile));
 		$running = posix_kill($pid, 0);
 
 		self::$daemon_mode = $running;
@@ -129,9 +129,7 @@ class Daemon
 	private static function spawn()
 	{
 		Logger::notice('Starting new daemon process');
-		$command = 'bin/daemon.php';
-		$a = DI::app();
-		DI::system()->run($command, ['start']);
+		DI::system()->run('bin/daemon.php', ['start']);
 		Logger::notice('New daemon process started');
 	}
 }

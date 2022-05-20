@@ -68,7 +68,6 @@ class Cron
 	 */
 	public static function killStaleWorkers()
 	{
-		$stamp = (float)microtime(true);
 		$entries = DBA::select(
 			'workerqueue',
 			['id', 'pid', 'executed', 'priority', 'command', 'parameter'],
@@ -78,7 +77,6 @@ class Cron
 
 		while ($entry = DBA::fetch($entries)) {
 			if (!posix_kill($entry["pid"], 0)) {
-				$stamp = (float)microtime(true);
 				DBA::update(
 					'workerqueue',
 					['executed' => DBA::NULL_DATETIME, 'pid' => 0],
@@ -89,7 +87,7 @@ class Cron
 
 				// Define the maximum durations
 				$max_duration_defaults = [PRIORITY_CRITICAL => 720, PRIORITY_HIGH => 10, PRIORITY_MEDIUM => 60, PRIORITY_LOW => 180, PRIORITY_NEGLIGIBLE => 720];
-				$max_duration = $max_duration_defaults[$entry['priority']];
+				$max_duration          = $max_duration_defaults[$entry['priority']];
 
 				$argv = json_decode($entry['parameter'], true);
 				if (!empty($entry['command'])) {
@@ -119,7 +117,6 @@ class Cron
 					} elseif ($entry['priority'] != PRIORITY_CRITICAL) {
 						$new_priority = PRIORITY_NEGLIGIBLE;
 					}
-					$stamp = (float)microtime(true);
 					DBA::update(
 						'workerqueue',
 						['executed' => DBA::NULL_DATETIME, 'created' => DateTimeFormat::utcNow(), 'priority' => $new_priority, 'pid' => 0],
@@ -154,11 +151,11 @@ class Cron
 				DI::lock()->release(Worker::LOCK_PROCESS);
 			}
 		}
-	}	
+	}
 
 	/**
 	 * Directly deliver AP messages or requeue them.
-	 * 
+	 *
 	 * This function is placed here as a safeguard. Even when the worker queue is completely blocked, messages will be delivered.
 	 */
 	private static function deliverPosts()
