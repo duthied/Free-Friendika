@@ -77,11 +77,7 @@ class Cron
 
 		while ($entry = DBA::fetch($entries)) {
 			if (!posix_kill($entry["pid"], 0)) {
-				DBA::update(
-					'workerqueue',
-					['executed' => DBA::NULL_DATETIME, 'pid' => 0],
-					['id' => $entry["id"]]
-				);
+				DBA::update('workerqueue', ['executed' => DBA::NULL_DATETIME, 'pid' => 0], ['id' => $entry["id"]]);
 			} else {
 				// Kill long running processes
 
@@ -117,10 +113,7 @@ class Cron
 					} elseif ($entry['priority'] != PRIORITY_CRITICAL) {
 						$new_priority = PRIORITY_NEGLIGIBLE;
 					}
-					DBA::update(
-						'workerqueue',
-						['executed' => DBA::NULL_DATETIME, 'created' => DateTimeFormat::utcNow(), 'priority' => $new_priority, 'pid' => 0],
-						['id' => $entry["id"]]
+					DBA::update('workerqueue', ['executed' => DBA::NULL_DATETIME, 'created' => DateTimeFormat::utcNow(), 'priority' => $new_priority, 'pid' => 0], ['id' => $entry["id"]]
 					);
 				} else {
 					Logger::info('Process runtime is okay', ['duration' => number_format($duration, 3), 'max' => $max_duration, 'id' => $entry["id"], 'pid' => $entry["pid"], 'command' => $command]);
@@ -172,7 +165,7 @@ class Cron
 				$priority = PRIORITY_MEDIUM;
 			} elseif ($delivery['failed'] < 8) {
 				$priority = PRIORITY_LOW;
-			} {
+			} else {
 				$priority = PRIORITY_NEGLIGIBLE;
 			}
 
