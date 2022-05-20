@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /**
  * @copyright Copyright (C) 2010-2022, the Friendica project
@@ -22,7 +21,7 @@
 
 /**
  * Run the worker from a daemon.
- *
+ * #!/usr/bin/env php
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
  */
 
