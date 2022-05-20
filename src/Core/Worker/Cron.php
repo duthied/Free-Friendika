@@ -157,7 +157,7 @@ class Cron
 		while ($delivery = DBA::fetch($deliveries)) {
 			if ($delivery['failed'] == 0) {
 				$result = ActivityPub\Delivery::deliver($delivery['inbox']);
-				Logger::info('Drectly deliver inbox', ['inbox' => $delivery['inbox'], 'result' => $result['success']]);
+				Logger::info('Directly deliver inbox', ['inbox' => $delivery['inbox'], 'result' => $result['success']]);
 				continue;
 			} elseif ($delivery['failed'] < 3) {
 				$priority = PRIORITY_HIGH;
