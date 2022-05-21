@@ -754,7 +754,6 @@ class Notifier
 
 			if (in_array($target_item['private'], [Item::PUBLIC])) {
 				$inboxes = ActivityPub\Transmitter::addRelayServerInboxesForItem($parent['id'], $inboxes);
-				$relay_inboxes = ActivityPub\Transmitter::addRelayServerInboxes([]);
 			}
 
 			Logger::info('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.');
