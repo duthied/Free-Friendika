@@ -2930,9 +2930,17 @@ class Item
 
 		foreach ($attachments['visual'] as $attachment) {
 			if (!empty($attachment['preview'])) {
-				$body = str_replace($attachment['preview'], Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE), $body);
+				$proxy   = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
+				$search  = ['[img=' . $attachment['preview'] . ']', ']' . $attachment['preview'] . '[/img]'];
+				$replace = ['[img=' . $proxy . ']', ']' . $proxy . '[/img]'];
+
+				$body = str_replace($search, $replace, $body);
 			} elseif ($attachment['filetype'] == 'image') {
-				$body = str_replace($attachment['url'], Post\Media::getUrlForId($attachment['id']), $body);
+				$proxy   = Post\Media::getUrlForId($attachment['id']);
+				$search  = ['[img=' . $attachment['url'] . ']', ']' . $attachment['url'] . '[/img]'];
+				$replace = ['[img=' . $proxy . ']', ']' . $proxy . '[/img]'];
+
+				$body = str_replace($search, $replace, $body);
 			}
 		}
 		DI::profiler()->stopRecording();
