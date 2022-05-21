@@ -1952,7 +1952,7 @@ class BBCode
 				 * - #[url=<anything>]<term>[/url]
 				 * - [url=<anything>]#<term>[/url]
 				 */
-				self::performWithEscapedTags($text, ['url'], function ($text) use ($simple_html) {
+				self::performWithEscapedTags($text, ['url', 'share'], function ($text) use ($simple_html) {
 					$text = preg_replace_callback("/(?:#\[url\=[^\[\]]*\]|\[url\=[^\[\]]*\]#)(.*?)\[\/url\]/ism", function($matches) use ($simple_html) {
 						if ($simple_html == self::ACTIVITYPUB) {
 							return '<a href="' . DI::baseUrl() . '/search?tag=' . rawurlencode($matches[1])
