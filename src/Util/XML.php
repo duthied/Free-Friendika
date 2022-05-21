@@ -460,7 +460,7 @@ class XML
 
 	public static function getFirstNodeValue(DOMXPath $xpath, $element, $context = null)
 	{
-		$result = $xpath->evaluate($element, $context);
+		$result = @$xpath->evaluate($element, $context);
 		if (!is_object($result)) {
 			return '';
 		}
