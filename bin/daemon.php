@@ -18,11 +18,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
+ */
+
+/**
  * Run the worker from a daemon.
  *
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
  */
-
 if (php_sapi_name() !== 'cli') {
 	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
 	exit();
@@ -230,7 +232,7 @@ while (true) {
 		}
 
 		$timeout = ($seconds >= $wait_interval);
-	} while (!$timeout && !Worker::IPCJobsExists());
+	} while (!$timeout && !Worker\IPC::JobsExists());
 
 	if ($timeout) {
 		$do_cron = true;

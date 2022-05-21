@@ -21,7 +21,6 @@
 
 namespace Friendica\Core;
 
-use Friendica\App\Mode;
 use Friendica\Core\Worker\Entity\Process;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -50,7 +49,6 @@ class Worker
 	private static $lock_duration = 0;
 	private static $last_update;
 	private static $state;
-	private static $daemon_mode = null;
 	/** @var Process */
 	private static $process;
 
@@ -79,7 +77,7 @@ class Worker
 		$last_cleanup = DI::config()->get('system', 'worker_last_cleaned', 0);
 		if (time() > ($last_cleanup + 300)) {
 			DI::config()->set('system', 'worker_last_cleaned', time());
-			self::killStaleWorkers();
+			Worker\Cron::killStaleWorkers();
 		}
 
 		// Check if the system is ready
@@ -89,7 +87,7 @@ class Worker
 
 		// Now we start additional cron processes if we should do so
 		if ($run_cron) {
-			self::runCron();
+			Worker\Cron::run();
 		}
 
 		$last_check = $starttime = time();
@@ -97,15 +95,13 @@ class Worker
 
 		// We fetch the next queue entry that is about to be executed
 		while ($r = self::workerProcess()) {
-			if (self::IPCJobsExists(getmypid())) {
-				self::IPCDeleteJobState(getmypid());
+			if (Worker\IPC::JobsExists(getmypid())) {
+				Worker\IPC::DeleteJobState(getmypid());
 			}
 
 			// Don't refetch when a worker fetches tasks for multiple workers
 			$refetched = DI::config()->get('system', 'worker_multiple_fetch');
 			foreach ($r as $entry) {
-				$entry = self::checkPriority($entry);
-
 				// The work will be done
 				if (!self::execute($entry)) {
 					Logger::notice('Process execution failed, quitting.');
@@ -150,8 +146,8 @@ class Worker
 			if (time() > ($starttime + (DI::config()->get('system', 'cron_interval') * 60))) {
 				Logger::info('Process lifetime reached, respawning.');
 				self::unclaimProcess($process);
-				if (self::isDaemonMode()) {
-					self::IPCSetJobState(true);
+				if (Worker\Daemon::isMode()) {
+					Worker\IPC::SetJobState(true);
 				} else {
 					self::spawnWorker();
 				}
@@ -160,28 +156,10 @@ class Worker
 		}
 
 		// Cleaning up. Possibly not needed, but it doesn't harm anything.
-		if (self::isDaemonMode()) {
-			self::IPCSetJobState(false);
+		if (Worker\Daemon::isMode()) {
+			Worker\IPC::SetJobState(false);
 		}
 		Logger::info("Couldn't select a workerqueue entry, quitting process", ['pid' => getmypid()]);
-	}
-
-	/**
-	 * Check and fix the priority of a worker task
-	 * @param array $entry
-	 * @return array
-	 */
-	private static function checkPriority(array $entry)
-	{
-		$entry['priority'] = (int)$entry['priority'];
-
-		if (!in_array($entry['priority'], PRIORITIES)) {
-			Logger::warning('Invalid priority', ['entry' => $entry, 'callstack' => System::callstack(20)]);
-			DBA::update('workerqueue', ['priority' => PRIORITY_MEDIUM], ['id' => $entry['id']]);
-			$entry['priority'] = PRIORITY_MEDIUM;
-		}
-
-		return $entry;
 	}
 
 	/**
@@ -642,85 +620,6 @@ class Worker
 		return true;
 	}
 
-	/**
-	 * fix the queue entry if the worker process died
-	 *
-	 * @return void
-	 * @throws \Exception
-	 */
-	private static function killStaleWorkers()
-	{
-		$stamp = (float)microtime(true);
-		$entries = DBA::select(
-			'workerqueue',
-			['id', 'pid', 'executed', 'priority', 'command', 'parameter'],
-			['NOT `done` AND `pid` != 0'],
-			['order' => ['priority', 'retrial', 'created']]
-		);
-		self::$db_duration += (microtime(true) - $stamp);
-
-		while ($entry = DBA::fetch($entries)) {
-			$entry = self::checkPriority($entry);
-
-			if (!posix_kill($entry["pid"], 0)) {
-				$stamp = (float)microtime(true);
-				DBA::update(
-					'workerqueue',
-					['executed' => DBA::NULL_DATETIME, 'pid' => 0],
-					['id' => $entry["id"]]
-				);
-				self::$db_duration += (microtime(true) - $stamp);
-				self::$db_duration_write += (microtime(true) - $stamp);
-			} else {
-				// Kill long running processes
-
-				// Define the maximum durations
-				$max_duration_defaults = [PRIORITY_CRITICAL => 720, PRIORITY_HIGH => 10, PRIORITY_MEDIUM => 60, PRIORITY_LOW => 180, PRIORITY_NEGLIGIBLE => 720];
-				$max_duration = $max_duration_defaults[$entry['priority']];
-
-				$argv = json_decode($entry['parameter'], true);
-				if (!empty($entry['command'])) {
-					$command = $entry['command'];
-				} elseif (!empty($argv)) {
-					$command = array_shift($argv);
-				} else {
-					return;
-				}
-
-				$command = basename($command);
-
-				// How long is the process already running?
-				$duration = (time() - strtotime($entry["executed"])) / 60;
-				if ($duration > $max_duration) {
-					Logger::notice('Worker process took too much time - killed', ['duration' => number_format($duration, 3), 'max' => $max_duration, 'id' => $entry["id"], 'pid' => $entry["pid"], 'command' => $command]);
-					posix_kill($entry["pid"], SIGTERM);
-
-					// We killed the stale process.
-					// To avoid a blocking situation we reschedule the process at the beginning of the queue.
-					// Additionally we are lowering the priority. (But not PRIORITY_CRITICAL)
-					$new_priority = $entry['priority'];
-					if ($entry['priority'] == PRIORITY_HIGH) {
-						$new_priority = PRIORITY_MEDIUM;
-					} elseif ($entry['priority'] == PRIORITY_MEDIUM) {
-						$new_priority = PRIORITY_LOW;
-					} elseif ($entry['priority'] != PRIORITY_CRITICAL) {
-						$new_priority = PRIORITY_NEGLIGIBLE;
-					}
-					$stamp = (float)microtime(true);
-					DBA::update(
-						'workerqueue',
-						['executed' => DBA::NULL_DATETIME, 'created' => DateTimeFormat::utcNow(), 'priority' => $new_priority, 'pid' => 0],
-						['id' => $entry["id"]]
-					);
-					self::$db_duration += (microtime(true) - $stamp);
-					self::$db_duration_write += (microtime(true) - $stamp);
-				} else {
-					Logger::info('Process runtime is okay', ['duration' => number_format($duration, 3), 'max' => $max_duration, 'id' => $entry["id"], 'pid' => $entry["pid"], 'command' => $command]);
-				}
-			}
-		}
-		DBA::close($entries);
-	}
 
 	/**
 	 * Checks if the number of active workers exceeds the given limits
@@ -830,8 +729,8 @@ class Worker
 			// Are there fewer workers running as possible? Then fork a new one.
 			if (!DI::config()->get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && self::entriesExists()) {
 				Logger::info("There are fewer workers as possible, fork a new worker.", ['active' => $active, 'queues' => $queues]);
-				if (self::isDaemonMode()) {
-					self::IPCSetJobState(true);
+				if (Worker\Daemon::isMode()) {
+					Worker\IPC::SetJobState(true);
 				} else {
 					self::spawnWorker();
 				}
@@ -839,8 +738,8 @@ class Worker
 		}
 
 		// if there are too much worker, we don't spawn a new one.
-		if (self::isDaemonMode() && ($active > $queues)) {
-			self::IPCSetJobState(false);
+		if (Worker\Daemon::isMode() && ($active > $queues)) {
+			Worker\IPC::SetJobState(false);
 		}
 
 		return $active > $queues;
@@ -1132,52 +1031,6 @@ class Worker
 	}
 
 	/**
-	 * Runs the cron processes
-	 *
-	 * @return void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	private static function runCron()
-	{
-		Logger::info('Add cron entries');
-
-		// Check for spooled items
-		self::add(['priority' => PRIORITY_HIGH, 'force_priority' => true], 'SpoolPost');
-
-		// Run the cron job that calls all other jobs
-		self::add(['priority' => PRIORITY_MEDIUM, 'force_priority' => true], 'Cron');
-
-		// Cleaning dead processes
-		self::killStaleWorkers();
-
-		// Remove old entries from the workerqueue
-		self::cleanWorkerQueue();
-	}
-
-	/**
-	 * Remove old entries from the workerqueue
-	 *
-	 * @return void
-	 */
-	private static function cleanWorkerQueue()
-	{
-		DBA::delete('workerqueue', ["`done` AND `executed` < ?", DateTimeFormat::utc('now - 1 hour')]);
-
-		// Optimizing this table only last seconds
-		if (DI::config()->get('system', 'optimize_tables')) {
-			// We are acquiring the two locks from the worker to avoid locking problems
-			if (DI::lock()->acquire(Worker::LOCK_PROCESS, 10)) {
-				if (DI::lock()->acquire(Worker::LOCK_WORKER, 10)) {
-					DBA::e("OPTIMIZE TABLE `workerqueue`");
-					DBA::e("OPTIMIZE TABLE `process`");
-					DI::lock()->release(Worker::LOCK_WORKER);
-				}
-				DI::lock()->release(Worker::LOCK_PROCESS);
-			}
-		}
-	}
-
-	/**
 	 * Fork a child process
 	 *
 	 * @param boolean $do_cron
@@ -1202,11 +1055,11 @@ class Worker
 			// The parent process continues here
 			DBA::connect();
 
-			self::IPCSetJobState(true, $pid);
+			Worker\IPC::SetJobState(true, $pid);
 			Logger::info('Spawned new worker', ['pid' => $pid]);
 
 			$cycles = 0;
-			while (self::IPCJobsExists($pid) && (++$cycles < 100)) {
+			while (Worker\IPC::JobsExists($pid) && (++$cycles < 100)) {
 				usleep(10000);
 			}
 
@@ -1221,7 +1074,7 @@ class Worker
 		$process = DI::process()->create(getmypid(), basename(__FILE__));
 
 		$cycles = 0;
-		while (!self::IPCJobsExists($process->pid) && (++$cycles < 100)) {
+		while (!Worker\IPC::JobsExists($process->pid) && (++$cycles < 100)) {
 			usleep(10000);
 		}
 
@@ -1231,7 +1084,7 @@ class Worker
 
 		self::unclaimProcess($process);
 
-		self::IPCSetJobState(false, $process->pid);
+		Worker\IPC::SetJobState(false, $process->pid);
 		DI::process()->delete($process);
 		Logger::info('Worker ended', ['pid' => $process->pid]);
 		exit();
@@ -1246,13 +1099,13 @@ class Worker
 	 */
 	public static function spawnWorker($do_cron = false)
 	{
-		if (self::isDaemonMode() && DI::config()->get('system', 'worker_fork')) {
+		if (Worker\Daemon::isMode() && DI::config()->get('system', 'worker_fork')) {
 			self::forkProcess($do_cron);
 		} else {
 			DI::system()->run('bin/worker.php', ['no_cron' => !$do_cron]);
 		}
-		if (self::isDaemonMode()) {
-			self::IPCSetJobState(false);
+		if (Worker\Daemon::isMode()) {
+			Worker\IPC::SetJobState(false);
 		}
 	}
 
@@ -1343,11 +1196,11 @@ class Worker
 		}
 
 		// Set the IPC flag to ensure an immediate process execution via daemon
-		if (self::isDaemonMode()) {
-			self::IPCSetJobState(true);
+		if (Worker\Daemon::isMode()) {
+			Worker\IPC::SetJobState(true);
 		}
 
-		self::checkDaemonState();
+		Worker\Daemon::checkState();
 
 		// Should we quit and wait for the worker to be called as a cronjob?
 		if ($dont_fork) {
@@ -1368,7 +1221,7 @@ class Worker
 		}
 
 		// Quit on daemon mode
-		if (self::isDaemonMode()) {
+		if (Worker\Daemon::isMode()) {
 			return $added;
 		}
 
@@ -1423,8 +1276,6 @@ class Worker
 			return false;
 		}
 
-		$queue = self::checkPriority($queue);
-
 		$id = $queue['id'];
 		$priority = $queue['priority'];
 
@@ -1458,159 +1309,6 @@ class Worker
 		self::$db_duration_write += (microtime(true) - $stamp);
 
 		return true;
-	}
-
-	/**
-	 * Set the flag if some job is waiting
-	 *
-	 * @param boolean $jobs Is there a waiting job?
-	 * @param int $key Key number
-	 * @throws \Exception
-	 */
-	public static function IPCSetJobState(bool $jobs, int $key = 0)
-	{
-		$stamp = (float)microtime(true);
-		DBA::replace('worker-ipc', ['jobs' => $jobs, 'key' => $key]);
-		self::$db_duration += (microtime(true) - $stamp);
-		self::$db_duration_write += (microtime(true) - $stamp);
-	}
-
-	/**
-	 * Delete a key entry
-	 *
-	 * @param int $key Key number
-	 * @throws \Exception
-	 */
-	public static function IPCDeleteJobState(int $key)
-	{
-		$stamp = (float)microtime(true);
-		DBA::delete('worker-ipc', ['key' => $key]);
-		self::$db_duration += (microtime(true) - $stamp);
-		self::$db_duration_write += (microtime(true) - $stamp);
-	}
-
-	/**
-	 * Checks if some worker job waits to be executed
-	 *
-	 * @param int $key Key number
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public static function IPCJobsExists(int $key = 0)
-	{
-		$stamp = (float)microtime(true);
-		$row = DBA::selectFirst('worker-ipc', ['jobs'], ['key' => $key]);
-		self::$db_duration += (microtime(true) - $stamp);
-
-		// When we don't have a row, no job is running
-		if (!DBA::isResult($row)) {
-			return false;
-		}
-
-		return (bool)$row['jobs'];
-	}
-
-	/**
-	 * Checks if the worker is running in the daemon mode.
-	 *
-	 * @return boolean
-	 */
-	public static function isDaemonMode()
-	{
-		if (!is_null(self::$daemon_mode)) {
-			return self::$daemon_mode;
-		}
-
-		if (DI::mode()->getExecutor() == Mode::DAEMON) {
-			return true;
-		}
-
-		$daemon_mode = DI::config()->get('system', 'worker_daemon_mode', false, true);
-		if ($daemon_mode) {
-			return $daemon_mode;
-		}
-
-		if (!function_exists('pcntl_fork')) {
-			self::$daemon_mode = false;
-			return false;
-		}
-
-		$pidfile = DI::config()->get('system', 'pidfile');
-		if (empty($pidfile)) {
-			// No pid file, no daemon
-			self::$daemon_mode = false;
-			return false;
-		}
-
-		if (!is_readable($pidfile)) {
-			// No pid file. We assume that the daemon had been intentionally stopped.
-			self::$daemon_mode = false;
-			return false;
-		}
-
-		$pid = intval(file_get_contents($pidfile));
-		$running = posix_kill($pid, 0);
-
-		self::$daemon_mode = $running;
-		return $running;
-	}
-
-	/**
-	 * Test if the daemon is running. If not, it will be started
-	 *
-	 * @return void
-	 */
-	private static function checkDaemonState()
-	{
-		if (!DI::config()->get('system', 'daemon_watchdog', false)) {
-			return;
-		}
-
-		if (!DI::mode()->isNormal()) {
-			return;
-		}
-
-		// Check every minute if the daemon is running
-		if (DI::config()->get('system', 'last_daemon_check', 0) + 60 > time()) {
-			return;
-		}
-
-		DI::config()->set('system', 'last_daemon_check', time());
-
-		$pidfile = DI::config()->get('system', 'pidfile');
-		if (empty($pidfile)) {
-			// No pid file, no daemon
-			return;
-		}
-
-		if (!is_readable($pidfile)) {
-			// No pid file. We assume that the daemon had been intentionally stopped.
-			return;
-		}
-
-		$pid = intval(file_get_contents($pidfile));
-		if (posix_kill($pid, 0)) {
-			Logger::info('Daemon process is running', ['pid' => $pid]);
-			return;
-		}
-
-		Logger::warning('Daemon process is not running', ['pid' => $pid]);
-
-		self::spawnDaemon();
-	}
-
-	/**
-	 * Spawn a new daemon process
-	 *
-	 * @return void
-	 */
-	private static function spawnDaemon()
-	{
-		Logger::notice('Starting new daemon process');
-		$command = 'bin/daemon.php';
-		$a = DI::app();
-		DI::system()->run($command, ['start']);
-		Logger::notice('New daemon process started');
 	}
 
 	/**
