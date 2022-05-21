@@ -173,7 +173,7 @@ class Image
 		} catch (\Throwable $error) {
 			/** @see https://github.com/php/doc-en/commit/d09a881a8e9059d11e756ee59d75bf404d6941ed */
 			if (strstr($error->getMessage(), "gd-webp cannot allocate temporary buffer")) {
-				DI::logger()->notice('Image is probably a kind of unsupported, animated GID', ['error' => $error]);
+				DI::logger()->notice('Image is probably animated and therefore unsupported', ['error' => $error]);
 			} else {
 				DI::logger()->warning('Unexpected throwable.', ['error' => $error]);
 			}
