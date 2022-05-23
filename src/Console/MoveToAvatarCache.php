@@ -84,9 +84,10 @@ HELP;
 	{
 		$condition = ["`avatar` != ? AND `photo` LIKE ? AND `uid` = ? AND `uri-id` != ? AND NOT `uri-id` IS NULL",
 			'', $this->baseurl->get() . '/photo/%', 0, 0];
-		$total = $this->dba->count('contact', $condition);
+
+		$count    = 0;
+		$total    = $this->dba->count('contact', $condition);
 		$contacts = $this->dba->select('contact', ['id', 'avatar', 'photo', 'uri-id', 'url', 'avatar'], $condition, ['order' => ['id' => true]]);
-		$count = 0;
 		while ($contact = $this->dba->fetch($contacts)) {
 			echo ++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
 			$resourceid = Photo::ridFromURI($contact['photo']);
@@ -100,7 +101,7 @@ HELP;
 				echo $this->l10n->t('no photo') . "\n";
 				continue;
 			}
-					
+
 			echo '2';
 			$imgdata = Photo::getImageDataForPhoto($photo);
 			if (empty($imgdata)) {
@@ -113,7 +114,7 @@ HELP;
 					echo $this->l10n->t('invalid image') . "\n";
 					continue;
 			}
-	
+
 			echo '4';
 			$fields = Avatar::storeAvatarByImage($contact, $image);
 			echo '5';
@@ -122,7 +123,7 @@ HELP;
 			Photo::delete(['resource-id' => $resourceid]);
 			echo ' '.$fields['photo'] . "\n";
 		}
-				
+
 		return 0;
 	}
 }
