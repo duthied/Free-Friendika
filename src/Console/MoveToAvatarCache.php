@@ -66,7 +66,7 @@ Description
 		Move all cached avatars to the file based avatar cache
 
 Options
-    -h|--help|-? Show help information
+	-h|--help|-? Show help information
 HELP;
 		return $help;
 	}
