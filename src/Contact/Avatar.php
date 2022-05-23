@@ -72,11 +72,6 @@ class Avatar
 			return $fields;
 		}
 
-		$guid = Item::guidFromUri($contact['url'], parse_url($contact['url'], PHP_URL_HOST));
-
-		$filename = substr($guid, 0, 2) . '/' . substr($guid, 3, 2) . '/' . substr($guid, 5, 3) . '/' .
-			substr($guid, 9, 2) .'/' . substr($guid, 11, 2) . '/' . substr($guid, 13, 4). '/' . substr($guid, 18) . '-';
-
 		$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
 
 		$img_str = $fetchResult->getBody();
@@ -91,6 +86,8 @@ class Avatar
 			return $fields;
 		}
 
+		$filename = self::getFilename($contact['url']);
+		
 		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL);
 		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB);
 		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO);
@@ -98,6 +95,36 @@ class Avatar
 		Logger::debug('Storing new avatar cache', ['uri-id' => $contact['uri-id'], 'fields' => $fields]);
 
 		return $fields;
+	}
+
+	public static function storeAvatarByImage(array $contact, Image $image): array
+	{
+		$fields = ['photo' => '', 'thumb' => '', 'micro' => ''];
+
+		if (!DI::config()->get('system', 'avatar_cache')) {
+			self::deleteCache($contact);
+			return $fields;
+		}
+
+		if (Network::isLocalLink($contact['avatar'])) {
+			return $fields;
+		}
+
+		$filename = self::getFilename($contact['url']);
+		
+		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL);
+		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB);
+		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO);
+
+		return $fields;
+	}
+
+	private static function getFilename(string $url)
+	{
+		$guid = Item::guidFromUri($url, parse_url($url, PHP_URL_HOST));
+
+		return substr($guid, 0, 2) . '/' . substr($guid, 3, 2) . '/' . substr($guid, 5, 3) . '/' .
+			substr($guid, 9, 2) .'/' . substr($guid, 11, 2) . '/' . substr($guid, 13, 4). '/' . substr($guid, 18) . '-';
 	}
 
 	private static function storeAvatarCache(Image $image, string $filename, int $size): string
