@@ -87,7 +87,7 @@ HELP;
 
 		$count    = 0;
 		$total    = $this->dba->count('contact', $condition);
-		$contacts = $this->dba->select('contact', ['id', 'avatar', 'photo', 'uri-id', 'url', 'avatar'], $condition, ['order' => ['id' => true]]);
+		$contacts = $this->dba->select('contact', ['id', 'avatar', 'photo', 'uri-id', 'url', 'avatar'], $condition, ['order' => ['id']]);
 		while ($contact = $this->dba->fetch($contacts)) {
 			echo ++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
 			$resourceid = Photo::ridFromURI($contact['photo']);
