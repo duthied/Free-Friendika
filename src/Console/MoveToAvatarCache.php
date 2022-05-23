@@ -92,8 +92,8 @@ HELP;
 			echo ++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
 			$resourceid = Photo::ridFromURI($contact['photo']);
 			if (empty($resourceid)) {
-					echo $this->l10n->t('no resource') . "\n";
-					continue;
+				echo $this->l10n->t('no resource') . "\n";
+				continue;
 			}
 			echo '1';
 			$photo = Photo::selectFirst([], ['resource-id' => $resourceid], ['order' => ['scale']]);
@@ -105,14 +105,14 @@ HELP;
 			echo '2';
 			$imgdata = Photo::getImageDataForPhoto($photo);
 			if (empty($imgdata)) {
-					echo $this->l10n->t('no image data') . "\n";
-					continue;
+				echo $this->l10n->t('no image data') . "\n";
+				continue;
 			}
 			echo '3';
 			$image = new Image($imgdata, Images::getMimeTypeByData($imgdata));
 			if (!$image->isValid()) {
-					echo $this->l10n->t('invalid image') . "\n";
-					continue;
+				echo $this->l10n->t('invalid image') . "\n";
+				continue;
 			}
 
 			echo '4';
@@ -121,7 +121,7 @@ HELP;
 			Contact::update($fields, ['uri-id' => $contact['uri-id']]);
 			echo '6';
 			Photo::delete(['resource-id' => $resourceid]);
-			echo ' '.$fields['photo'] . "\n";
+			echo ' ' . $fields['photo'] . "\n";
 		}
 
 		return 0;
