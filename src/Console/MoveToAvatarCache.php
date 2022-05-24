@@ -90,7 +90,7 @@ HELP;
 			echo ++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
 			$resourceid = Photo::ridFromURI($contact['photo']);
 			if (empty($resourceid)) {
-				echo $this->l10n->t('no resource in photo %s', $contact['photo']) . "\n";
+				echo $this->l10n->t('no resource in photo %s', $contact['photo']) . ' ';
 				$valid = false;
 			}
 
@@ -98,7 +98,7 @@ HELP;
 				echo '1';
 				$photo = Photo::selectFirst([], ['resource-id' => $resourceid], ['order' => ['scale']]);
 				if (empty($photo)) {
-					echo ' ' . $this->l10n->t('no photo with id %s', $resourceid) . "\n";
+					echo ' ' . $this->l10n->t('no photo with id %s', $resourceid) . ' ';
 					$valid = false;
 				}
 			}
@@ -107,7 +107,7 @@ HELP;
 				echo '2';
 				$imgdata = Photo::getImageDataForPhoto($photo);
 				if (empty($imgdata)) {
-					echo ' ' . $this->l10n->t('no image data for photo with id %s', $resourceid) . "\n";
+					echo ' ' . $this->l10n->t('no image data for photo with id %s', $resourceid) . ' ';
 					$valid = false;
 				}
 			}
@@ -116,7 +116,7 @@ HELP;
 				echo '3';
 				$image = new Image($imgdata, Images::getMimeTypeByData($imgdata));
 				if (!$image->isValid()) {
-					echo ' ' . $this->l10n->t('invalid image for id %s', $resourceid) . "\n";
+					echo ' ' . $this->l10n->t('invalid image for id %s', $resourceid) . ' ';
 					$valid = false;
 				}
 			}
