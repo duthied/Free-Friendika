@@ -167,9 +167,9 @@ class Delivery
 
 		self::setSuccess($receivers, $success);
 
-		Logger::debug('Delivered', ['uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox, 'success' => $success]);
+		Logger::debug('Delivered', ['uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox, 'success' => $success, 'serverfailure' => $serverfail, 'drop' => $drop]);
 
-		if ($success && in_array($cmd, [WorkerDelivery::POST])) {
+		if (($success || $drop) && in_array($cmd, [WorkerDelivery::POST])) {
 			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
 		}
 
