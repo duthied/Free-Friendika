@@ -704,10 +704,7 @@ class Photo
 		}
 		$image_uri = substr($image_uri, strrpos($image_uri, '/') + 1);
 		$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
-		if (!strlen($image_uri)) {
-			return '';
-		}
-		return $image_uri;
+		return trim($image_uri);
 	}
 
 	/**
