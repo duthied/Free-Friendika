@@ -22,6 +22,7 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Core\Logger;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
@@ -32,6 +33,12 @@ use Friendica\Worker\Delivery as WorkerDelivery;
 
 class Delivery
 {
+	/**
+	 * Deliver posts to the given inbox
+	 *
+	 * @param string $inbox
+	 * @return array with the elements "success" and "uri_ids" of the failed posts
+	 */
 	public static function deliver(string $inbox): array
 	{
 		$uri_ids    = [];
@@ -50,7 +57,7 @@ class Delivery
 				}
 			}
 
-			if ($serverfail || !$result['success']) {
+			if ($serverfail || (!$result['success'] && !$result['drop'])) {
 				$uri_ids[] = $post['uri-id'];
 			}
 		}
@@ -59,6 +66,17 @@ class Delivery
 		return ['success' => empty($uri_ids), 'uri_ids' => $uri_ids];
 	}
 
+	/**
+	 * Deliver the given post to the given inbox
+	 *
+	 * @param string $cmd
+	 * @param integer $item_id
+	 * @param string $inbox
+	 * @param integer $uid
+	 * @param array $receivers
+	 * @param integer $uri_id
+	 * @return array
+	 */
 	public static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id): array
 	{
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
@@ -74,6 +92,7 @@ class Delivery
 
 		$success    = true;
 		$serverfail = false;
+		$drop       = false;
 
 		if ($cmd == WorkerDelivery::MAIL) {
 			$data = ActivityPub\Transmitter::createActivityFromMail($item_id);
@@ -99,7 +118,13 @@ class Delivery
 				$success    = $response->isSuccess();
 				$serverfail = $response->isTimeout();
 				if (!$success) {
+					// 5xx errors are problems on the server. We don't need to continue delivery then.
 					if (!$serverfail && ($response->getReturnCode() >= 500) && ($response->getReturnCode() <= 599)) {
+						$serverfail = true;
+					}
+
+					// A 404 means that the inbox doesn't exist. We can stop the delivery here.
+					if (!$serverfail && ($response->getReturnCode() == 404)) {
 						$serverfail = true;
 					}
 
@@ -107,12 +132,23 @@ class Delivery
 					if (!$serverfail && $xrd_timeout && ($runtime > $xrd_timeout)) {
 						$serverfail = true;
 					}
+
 					$curl_timeout = DI::config()->get('system', 'curl_timeout');
 					if (!$serverfail && $curl_timeout && ($runtime > $curl_timeout)) {
 						$serverfail = true;
 					}
 
-					Logger::info('Delivery failed', ['retcode' => $response->getReturnCode(), 'serverfailure' => $serverfail, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
+					// Resubscribe to relay server upon client error
+					if (!$serverfail && ($response->getReturnCode() >= 400) && ($response->getReturnCode() <= 499)) {
+						$actor = self:: fetchActorForRelayInbox($inbox);
+						if (!empty($actor)) {
+							$drop = !ActivityPub\Transmitter::sendRelayFollow($actor);
+							Logger::notice('Resubscribed to relay', ['url' => $actor, 'success' => !$drop]);
+						}
+
+					}
+
+					Logger::info('Delivery failed', ['retcode' => $response->getReturnCode(), 'serverfailure' => $serverfail, 'drop' => $drop, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
 				}
 				if ($uri_id) {
 					if ($success) {
@@ -132,9 +168,27 @@ class Delivery
 			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
 		}
 
-		return ['success' => $success, 'serverfailure' => $serverfail];
+		return ['success' => $success, 'serverfailure' => $serverfail, 'drop' => $drop];
 	}
 
+	/**
+	 * Fetch the actor of the given inbox of an relay server
+	 *
+	 * @param string $inbox
+	 * @return string
+	 */
+	private static function fetchActorForRelayInbox(string $inbox): string
+	{
+		return DBA::selectFirst('apcontact', ['url'], ['sharedinbox' => $inbox, 'type' => 'Application']) ?: '';
+	}
+
+	/**
+	 * mark or unmark the given receivers for archival upon succoess
+	 *
+	 * @param array $receivers
+	 * @param boolean $success
+	 * @return void
+	 */
 	private static function setSuccess(array $receivers, bool $success)
 	{
 		$gsid = null;
