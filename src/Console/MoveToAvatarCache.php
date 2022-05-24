@@ -86,55 +86,69 @@ HELP;
 		$total    = $this->dba->count('contact', $condition);
 		$contacts = $this->dba->select('contact', ['id', 'avatar', 'photo', 'uri-id', 'url', 'avatar'], $condition, ['order' => ['id']]);
 		while ($contact = $this->dba->fetch($contacts)) {
-			$valid = true;
 			echo ++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
 			$resourceid = Photo::ridFromURI($contact['photo']);
 			if (empty($resourceid)) {
 				echo $this->l10n->t('no resource in photo %s', $contact['photo']) . ' ';
-				$valid = false;
 			}
 
-			if ($valid) {
-				echo '1';
-				$photo = Photo::selectFirst([], ['resource-id' => $resourceid], ['order' => ['scale']]);
-				if (empty($photo)) {
-					echo ' ' . $this->l10n->t('no photo with id %s', $resourceid) . ' ';
-					$valid = false;
-				}
-			}
-
-			if ($valid) {
-				echo '2';
-				$imgdata = Photo::getImageDataForPhoto($photo);
-				if (empty($imgdata)) {
-					echo ' ' . $this->l10n->t('no image data for photo with id %s', $resourceid) . ' ';
-					$valid = false;
-				}
-			}
-
-			if ($valid) {
-				echo '3';
-				$image = new Image($imgdata, Images::getMimeTypeByData($imgdata));
-				if (!$image->isValid()) {
-					echo ' ' . $this->l10n->t('invalid image for id %s', $resourceid) . ' ';
-					$valid = false;
-				}
-			}
-
-			if ($valid) {
-				echo '4';
-				$fields = Avatar::storeAvatarByImage($contact, $image);
-			} else {
-				$fields = ['photo' => '', 'thumb' => '', 'micro' => ''];
-			}
-
-			echo '5';
-			Contact::update($fields, ['uri-id' => $contact['uri-id']]);
-			echo '6';
-			Photo::delete(['resource-id' => $resourceid]);
-			echo ' ' . $fields['photo'] . "\n";
+			$this->storeAvatar($resourceid, $contact);
 		}
 
+		$count  = 0;
+		$photos = $this->dba->p("SELECT `resource-id`, MAX(`contact-id`) AS `contact-id` FROM `photo` WHERE `contact-id` != ? AND `photo-type` = ? GROUP BY `resource-id`;", 0, Photo::CONTACT_AVATAR);
+		while ($photo = $this->dba->fetch($photos)) {
+			$contact = Contact::getById($photo['contact-id'], ['id', 'avatar', 'photo', 'uri-id', 'url', 'avatar']);
+			if (empty($contact)) {
+				continue;
+			}
+			echo ++$count . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
+			$this->storeAvatar($photo['resource-id'], $contact);
+		}
 		return 0;
+	}
+
+	private function storeAvatar(string $resourceid, array $contact)
+	{
+		$valid = !empty($resourceid);
+		if ($valid) {
+			echo '1';
+			$photo = Photo::selectFirst([], ['resource-id' => $resourceid], ['order' => ['scale']]);
+			if (empty($photo)) {
+				echo ' ' . $this->l10n->t('no photo with id %s', $resourceid) . ' ';
+				$valid = false;
+			}
+		}
+
+		if ($valid) {
+			echo '2';
+			$imgdata = Photo::getImageDataForPhoto($photo);
+			if (empty($imgdata)) {
+				echo ' ' . $this->l10n->t('no image data for photo with id %s', $resourceid) . ' ';
+				$valid = false;
+			}
+		}
+
+		if ($valid) {
+			echo '3';
+			$image = new Image($imgdata, Images::getMimeTypeByData($imgdata));
+			if (!$image->isValid()) {
+				echo ' ' . $this->l10n->t('invalid image for id %s', $resourceid) . ' ';
+				$valid = false;
+			}
+		}
+
+		if ($valid) {
+			echo '4';
+			$fields = Avatar::storeAvatarByImage($contact, $image);
+		} else {
+			$fields = ['photo' => '', 'thumb' => '', 'micro' => ''];
+		}
+
+		echo '5';
+		Contact::update($fields, ['uri-id' => $contact['uri-id']]);
+		echo '6';
+		Photo::delete(['resource-id' => $resourceid]);
+		echo ' ' . $fields['photo'] . "\n";
 	}
 }
