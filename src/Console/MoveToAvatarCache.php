@@ -30,10 +30,7 @@ use Friendica\Util\Images;
 use Friendica\Object\Image;
 
 /**
- * tool to control the list of ActivityPub relay servers from the CLI
- *
- * With this script you can access the relay servers of your node from
- * the CLI.
+ * tool to move cached avatars to the avatar file cache.
  */
 class MoveToAvatarCache extends \Asika\SimpleConsole\Console
 {
