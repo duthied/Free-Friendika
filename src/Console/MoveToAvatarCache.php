@@ -96,13 +96,15 @@ HELP;
 		}
 
 		$count  = 0;
+		$totals = $this->dba->p("SELECT COUNT(DISTINCT(`resource-id`)) AS `total` FROM `photo` WHERE `contact-id` != ? AND `photo-type` = ?;", 0, Photo::CONTACT_AVATAR);
+		$total  = $this->dba->fetch($totals)['total'] ?? 0;
 		$photos = $this->dba->p("SELECT `resource-id`, MAX(`contact-id`) AS `contact-id` FROM `photo` WHERE `contact-id` != ? AND `photo-type` = ? GROUP BY `resource-id`;", 0, Photo::CONTACT_AVATAR);
 		while ($photo = $this->dba->fetch($photos)) {
 			$contact = Contact::getById($photo['contact-id'], ['id', 'avatar', 'photo', 'uri-id', 'url', 'avatar']);
 			if (empty($contact)) {
 				continue;
 			}
-			echo ++$count . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
+			echo ++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
 			$this->storeAvatar($photo['resource-id'], $contact, true);
 		}
 		return 0;
