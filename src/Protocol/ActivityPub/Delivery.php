@@ -179,7 +179,8 @@ class Delivery
 	 */
 	private static function fetchActorForRelayInbox(string $inbox): string
 	{
-		$apcontact = DBA::selectFirst('apcontact', ['url'], ['sharedinbox' => $inbox, 'type' => 'Application']);
+		$apcontact = DBA::selectFirst('apcontact', ['url'], ["`sharedinbox` = ? AND `type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)",
+			$inbox, 'Application', 0, Contact::FRIEND]);
 		return $apcontact['url'] ?? '';
 	}
 
