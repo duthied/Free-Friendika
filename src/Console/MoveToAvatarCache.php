@@ -95,20 +95,20 @@ HELP;
 			echo '1';
 			$photo = Photo::selectFirst([], ['resource-id' => $resourceid], ['order' => ['scale']]);
 			if (empty($photo)) {
-				echo $this->l10n->t('no photo with id %1', $resourceid) . "\n";
+				echo ' ' . $this->l10n->t('no photo with id %1', $resourceid) . "\n";
 				continue;
 			}
 
 			echo '2';
 			$imgdata = Photo::getImageDataForPhoto($photo);
 			if (empty($imgdata)) {
-				echo $this->l10n->t('no image data for photo with id %1', $resourceid) . "\n";
+				echo ' ' . $this->l10n->t('no image data for photo with id %1', $resourceid) . "\n";
 				continue;
 			}
 			echo '3';
 			$image = new Image($imgdata, Images::getMimeTypeByData($imgdata));
 			if (!$image->isValid()) {
-				echo $this->l10n->t('invalid image for id %1', $resourceid) . "\n";
+				echo ' ' . $this->l10n->t('invalid image for id %1', $resourceid) . "\n";
 				continue;
 			}
 
