@@ -92,7 +92,7 @@ HELP;
 				echo $this->l10n->t('no resource in photo %s', $contact['photo']) . ' ';
 			}
 
-			$this->storeAvatar($resourceid, $contact);
+			$this->storeAvatar($resourceid, $contact, false);
 		}
 
 		$count  = 0;
@@ -103,12 +103,12 @@ HELP;
 				continue;
 			}
 			echo ++$count . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
-			$this->storeAvatar($photo['resource-id'], $contact);
+			$this->storeAvatar($photo['resource-id'], $contact, true);
 		}
 		return 0;
 	}
 
-	private function storeAvatar(string $resourceid, array $contact)
+	private function storeAvatar(string $resourceid, array $contact, bool $quit_on_invalid)
 	{
 		$valid = !empty($resourceid);
 		if ($valid) {
@@ -143,6 +143,11 @@ HELP;
 			$fields = Avatar::storeAvatarByImage($contact, $image);
 		} else {
 			$fields = ['photo' => '', 'thumb' => '', 'micro' => ''];
+		}
+
+		if ($quit_on_invalid && $fields['photo'] == '') {
+			echo ' ' . $this->l10n->t('Quit') . "\n";
+			return;
 		}
 
 		echo '5';
