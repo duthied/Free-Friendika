@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 19:09+0000\n"
+"POT-Creation-Date: 2022-05-24 20:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1641,24 +1641,29 @@ msgstr ""
 msgid "The contact has been blocked from the node"
 msgstr ""
 
-#: src/Console/MoveToAvatarCache.php:93
+#: src/Console/MoveToAvatarCache.php:92
 #, php-format
 msgid "no resource in photo %s"
 msgstr ""
 
-#: src/Console/MoveToAvatarCache.php:101
+#: src/Console/MoveToAvatarCache.php:118
 #, php-format
 msgid "no photo with id %s"
 msgstr ""
 
-#: src/Console/MoveToAvatarCache.php:110
+#: src/Console/MoveToAvatarCache.php:127
 #, php-format
 msgid "no image data for photo with id %s"
 msgstr ""
 
-#: src/Console/MoveToAvatarCache.php:119
+#: src/Console/MoveToAvatarCache.php:136
 #, php-format
 msgid "invalid image for id %s"
+msgstr ""
+
+#: src/Console/MoveToAvatarCache.php:149
+#, php-format
+msgid "Quit on invalid photo %d"
 msgstr ""
 
 #: src/Console/PostUpdate.php:87

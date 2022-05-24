@@ -146,7 +146,8 @@ HELP;
 		}
 
 		if ($quit_on_invalid && $fields['photo'] == '') {
-			echo ' ' . $this->l10n->t('Quit') . "\n";
+			echo ' ' . $this->l10n->t('Quit on invalid photo %d', $contact['avatar']) . "\n";
+			Photo::delete(['resource-id' => $resourceid]);
 			return;
 		}
 
