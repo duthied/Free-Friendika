@@ -4469,7 +4469,7 @@ msgid ""
 "\t<li><code>*</code>: Any number of characters</li>\n"
 "\t<li><code>?</code>: Any single character</li>\n"
 "</ul>"
-msgstr ""
+msgstr "<p>La syntaxe du modèle de domaine du serveur est du shell insensible à la casse avec wildcards, comprenant les caractères spéciaux suivants :</p>\n<ul>\n\t<li><code>*</code>  N'importe quel nombre de caractères</li>\n\t<li><code>?</code> N'importe quel caractère unique</li>\n</ul>"
 
 #: src/Module/Admin/Blocklist/Server/Add.php:96
 #: src/Module/Admin/Blocklist/Server/Index.php:88
@@ -5599,7 +5599,7 @@ msgstr "URL du proxy"
 msgid ""
 "If you want to use a proxy server that Friendica should use to connect to "
 "the network, put the URL of the proxy here."
-msgstr ""
+msgstr "Si vous souhaitez utiliser un serveur proxy que Friendica devra employer pour se connecter au réseau, indiquez l'adresse du proxy ici."
 
 #: src/Module/Admin/Site.php:575
 msgid "Network timeout"
@@ -5977,7 +5977,7 @@ msgid ""
 "guide that may be helpful converting the table engines. You may also use the"
 " command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica"
 " installation for an automatic conversion.<br />"
-msgstr ""
+msgstr "Votre BDD utilise encore des tables InnoDB au format de fichiers Antelope. Vous devriez le remplacer par le format Barracuda. Friendica utilise des fonctionnalités qui ne sont pas disponibles dans le format Antelope. Voir <a href=\"%s\">ici</a> pour un guide qui peut être utile pour la conversion du moteur des tables. Vous pouvez également utiliser la commande <tt>php bin/console.php dbstructure toinnodb</tt> de votre installation Friendica pour une conversion automatique.<br />"
 
 #: src/Module/Admin/Summary.php:73
 #, php-format
@@ -5985,7 +5985,7 @@ msgid ""
 "Your table_definition_cache is too low (%d). This can lead to the database "
 "error \"Prepared statement needs to be re-prepared\". Please set it at least"
 " to %d. See <a href=\"%s\">here</a> for more information.<br />"
-msgstr ""
+msgstr "Votre table_definition_cache est trop faible (%d). Cela peut conduire à l'erreur de base de données \"Prepared statement needs to be re-prepared\". Merci de le définir au minimum à %d. Voir <a href=\"%s\">ici</a> pour plus d'informations.<br />"
 
 #: src/Module/Admin/Summary.php:83
 #, php-format
@@ -6006,7 +6006,7 @@ msgid ""
 "The last update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear. (Some of the errors are possibly inside the logfile.)"
-msgstr ""
+msgstr "La dernière mise à jour a échoué. Merci d'exécuter \"php bin/console.php dbstructure update\" depuis la ligne de commandes et de surveiller les erreurs qui pourraient survenir (Certaines erreurs pourraient être dans le fichier journal)."
 
 #: src/Module/Admin/Summary.php:101
 msgid "The worker was never executed. Please check your database structure!"
@@ -6061,21 +6061,21 @@ msgstr "Le fichier journal de débogage \"%s\" n'existe pas ou n'est pas accessi
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the"
 " system.basepath from your db to avoid differences."
-msgstr ""
+msgstr "Le system.basepath de Friendica a été mis à jour de '%s' à '%s'. Merci de supprimer le system.basepath de votre base de données pour éviter des différences."
 
 #: src/Module/Admin/Summary.php:174
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is wrong and the config file '%s' "
 "isn't used."
-msgstr ""
+msgstr "Le system.basepath actuel de Friendica, '%s' est erroné et le fichier de configuration '%s' n'est pas utilisé."
 
 #: src/Module/Admin/Summary.php:182
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
-msgstr ""
+msgstr "Le system.basepath '%s' actuel de Friendica n'est pas le même que le fichier de configuration '%s'. Merci de corriger votre configuration."
 
 #: src/Module/Admin/Summary.php:189
 msgid "Normal Account"
@@ -6194,7 +6194,7 @@ msgid ""
 "Show some informations regarding the needed information to operate the node "
 "according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener "
 "noreferrer\">EU-GDPR</a>."
-msgstr ""
+msgstr "Afficher quelques informations à propos des données nécessaires pour opérer un nœud conforme par exemple au <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">RGPD Européen</a>."
 
 #: src/Module/Admin/Tos.php:79
 msgid "Privacy Statement Preview"
@@ -6942,7 +6942,7 @@ msgid ""
 "Fetch information like preview pictures, title and teaser from the feed "
 "item. You can activate this if the feed doesn't contain much text. Keywords "
 "are taken from the meta header in the feed item and are posted as hash tags."
-msgstr ""
+msgstr "Récupérer des informations comme les prévisualisations d'images, les titres et les accroches depuis l'élément du flux de discussion. Vous pouvez activer ceci si le flux ne contient pas beaucoup de texte. Les mots clés sont récupérés de la balise meta de l'élément du flux de discussion et sont postées comme mots dièses."
 
 #: src/Module/Contact/Profile.php:274
 msgid "Fetch information"
@@ -8612,7 +8612,7 @@ msgstr "Soumettre le code de récupération et compléter l'identification"
 msgid ""
 "<p>Open the two-factor authentication app on your device to get an "
 "authentication code and verify your identity.</p>"
-msgstr ""
+msgstr "<p>Ouvrez l'application d'identification à deux facteurs sur votre appareil afin d'avoir un code d'identification et vérifier votre identité.</p>"
 
 #: src/Module/Security/TwoFactor/Verify.php:100
 #: src/Module/Settings/TwoFactor/Verify.php:154
@@ -8621,7 +8621,7 @@ msgstr "Veuillez saisir le code fourni par votre application mobile d'authentifi
 
 #: src/Module/Security/TwoFactor/Verify.php:101
 msgid "This is my two-factor authenticator app device"
-msgstr ""
+msgstr "C'est mon appareil portant l'application d'identification à deux facteurs"
 
 #: src/Module/Security/TwoFactor/Verify.php:102
 msgid "Verify code and complete login"
@@ -9742,14 +9742,14 @@ msgstr "Le navigateur de confiance a bien été supprimé."
 
 #: src/Module/Settings/TwoFactor/Trusted.php:133
 msgid "Two-factor Trusted Browsers"
-msgstr ""
+msgstr "Navigateurs de confiance pour la 2FA"
 
 #: src/Module/Settings/TwoFactor/Trusted.php:134
 msgid ""
 "Trusted browsers are individual browsers you chose to skip two-factor "
 "authentication to access Friendica. Please use this feature sparingly, as it"
 " can negate the benefit of two-factor authentication."
-msgstr ""
+msgstr "Les navigateurs de confiance sont des navigateurs individuels pour lesquels vous avez choisi de ne pas utiliser l'identification à deux facteurs pour accéder à Friendica. Merci d'utiliser cette fonctionnalité avec discernement, au vu du fait qu'elle peut annuler les bénéfices de l'identification à deux facteurs."
 
 #: src/Module/Settings/TwoFactor/Trusted.php:135
 msgid "Device"
@@ -9867,14 +9867,14 @@ msgid ""
 "visibly displayed. The listing of an account in the node's user directory or"
 " the global user directory is optional and can be controlled in the user "
 "settings, it is not necessary for communication."
-msgstr ""
+msgstr "Au moment de l'inscription, et afin de fournir des communications entre le compte de l'utilisateur et ses contacts, l'utilisateur doit fournir un nom d'affichage (nom de plume), un nom d'utilisateur (pseudo) et une adresse de courriel fonctionnelle. Les noms seront accessibles sur la page de profil du compte par tout visiteur de la page, même si les autres informations de profil ne sont pas affichées. L'adresse de courriel ne sera utilisée que pour envoyer des notifications à l'utilisateur à propos de ses interactions, mais ne sera pas affichée de manière visible. Le référencement du compte dans le répertoire des comptes du nœud ou le répertoire global des utilisateurs est optionnel et peut être contrôlé dans les paramètres utilisateur, il n'est pas nécessaire pour la communication.  "
 
 #: src/Module/Tos.php:58 src/Module/Tos.php:92
 msgid ""
 "This data is required for communication and is passed on to the nodes of the"
 " communication partners and is stored there. Users can enter additional "
 "private data that may be transmitted to the communication partners accounts."
-msgstr ""
+msgstr "Ces données sont requises pour la communication et transférées aux nœuds des partenaires de communication, et sont stockées ici. Les utilisateurs peuvent ajouter des données privées additionnelles qui peuvent être transmises aux comptes de leurs partenaires de communication."
 
 #: src/Module/Tos.php:59 src/Module/Tos.php:93
 #, php-format
@@ -9885,7 +9885,7 @@ msgid ""
 "href=\"%1$s/removeme\">%1$s/removeme</a>. The deletion of the account will "
 "be permanent. Deletion of the data will also be requested from the nodes of "
 "the communication partners."
-msgstr ""
+msgstr "A tout moment un utilisateur identifié peut exporter les données de son compte à partir des <a href=\"%1$s/settings/userexport\">paramètres du compte</a>. Si l'utilisateur souhaite supprimer son compte, il peut le faire à <a href=\"%1$s/removeme\">%1$s/removeme</a>. La suppression du compte sera permanente. La suppression des données sera également demandée aux nœuds des partenaires de communication."
 
 #: src/Module/Tos.php:62 src/Module/Tos.php:90
 msgid "Privacy Statement"
@@ -9968,7 +9968,7 @@ msgid ""
 "Set some public keywords for your profile which describe your interests. We "
 "may be able to find other people with similar interests and suggest "
 "friendships."
-msgstr ""
+msgstr "Choisissez quelques mots-clé publics pour votre profil qui décrivent vos intérêts. Nous pourrons peut-être trouver d'autres personnes aux intérêts similaires et suggérer des abonnements."
 
 #: src/Module/Welcome.php:65
 msgid "Connecting"
@@ -10871,43 +10871,43 @@ msgstr "Par défaut"
 
 #: view/theme/duepuntozero/config.php:53
 msgid "greenzero"
-msgstr ""
+msgstr "greenzero"
 
 #: view/theme/duepuntozero/config.php:54
 msgid "purplezero"
-msgstr ""
+msgstr "purplezero"
 
 #: view/theme/duepuntozero/config.php:55
 msgid "easterbunny"
-msgstr ""
+msgstr "easterbunny"
 
 #: view/theme/duepuntozero/config.php:56
 msgid "darkzero"
-msgstr ""
+msgstr "darkzero"
 
 #: view/theme/duepuntozero/config.php:57
 msgid "comix"
-msgstr ""
+msgstr "comix"
 
 #: view/theme/duepuntozero/config.php:58
 msgid "slackr"
-msgstr ""
+msgstr "slackr"
 
 #: view/theme/duepuntozero/config.php:71
 msgid "Variations"
-msgstr ""
+msgstr "Variations"
 
 #: view/theme/frio/config.php:142
 msgid "Light (Accented)"
-msgstr ""
+msgstr "Clair (Accentué)"
 
 #: view/theme/frio/config.php:143
 msgid "Dark (Accented)"
-msgstr ""
+msgstr "Sombre (Accentué)"
 
 #: view/theme/frio/config.php:144
 msgid "Black (Accented)"
-msgstr ""
+msgstr "Noir (Accentué)"
 
 #: view/theme/frio/config.php:156
 msgid "Note"
@@ -10959,7 +10959,7 @@ msgstr "Rose"
 
 #: view/theme/frio/config.php:167
 msgid "Copy or paste schemestring"
-msgstr ""
+msgstr "Copier ou coller le fil conducteur"
 
 #: view/theme/frio/config.php:167
 msgid ""
