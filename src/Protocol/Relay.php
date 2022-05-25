@@ -341,4 +341,15 @@ class Relay
 		// It should never happen that we arrive here
 		return [];
 	}
+
+	/**
+	 * Resubscribe to all relay servers
+	 */
+	public static function reSubscribe()
+	{
+		foreach (self::getList() as $server) {
+			$success = ActivityPub\Transmitter::sendRelayFollow($server['url']);
+			Logger::debug('Resubscribed', ['profile' => $server['url'], 'success' => $success]);
+		}	
+	}
 }

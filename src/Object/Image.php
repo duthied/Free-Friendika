@@ -159,15 +159,24 @@ class Image
 		}
 
 		$this->valid = false;
-		$this->image = @imagecreatefromstring($data);
-		if ($this->image !== false) {
-			$this->width  = imagesx($this->image);
-			$this->height = imagesy($this->image);
-			$this->valid  = true;
-			imagealphablending($this->image, false);
-			imagesavealpha($this->image, true);
+		try {
+			$this->image = @imagecreatefromstring($data);
+			if ($this->image !== false) {
+				$this->width  = imagesx($this->image);
+				$this->height = imagesy($this->image);
+				$this->valid  = true;
+				imagealphablending($this->image, false);
+				imagesavealpha($this->image, true);
 
-			return true;
+				return true;
+			}
+		} catch (\Throwable $error) {
+			/** @see https://github.com/php/doc-en/commit/d09a881a8e9059d11e756ee59d75bf404d6941ed */
+			if (strstr($error->getMessage(), "gd-webp cannot allocate temporary buffer")) {
+				DI::logger()->notice('Image is probably animated and therefore unsupported', ['error' => $error]);
+			} else {
+				DI::logger()->warning('Unexpected throwable.', ['error' => $error]);
+			}
 		}
 
 		return false;

@@ -27,6 +27,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Tag;
+use Friendica\Protocol\Relay;
 
 class Cron
 {
@@ -125,6 +126,9 @@ class Cron
 			}
 	
 			DI::config()->set('system', 'last_cron_daily', time());
+
+			// Resubscribe to relay servers
+			Relay::reSubscribe();
 		}
 
 		Logger::notice('end');
