@@ -2542,6 +2542,9 @@ class Contact
 		} else {
 			$probed = true;
 			$ret = Probe::uri($url, $network, $uid);
+
+			// Ensure that the public contact exists
+			self::getIdForURL($url);
 		}
 
 		if (($network != '') && ($ret['network'] != $network)) {
