@@ -86,10 +86,10 @@ HELP;
 		$total    = $this->dba->count('contact', $condition);
 		$contacts = $this->dba->select('contact', ['id', 'avatar', 'photo', 'uri-id', 'url', 'avatar'], $condition, ['order' => ['id']]);
 		while ($contact = $this->dba->fetch($contacts)) {
-			echo ++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
+			$this->out(++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t", false);
 			$resourceid = Photo::ridFromURI($contact['photo']);
 			if (empty($resourceid)) {
-				echo $this->l10n->t('no resource in photo %s', $contact['photo']) . ' ';
+				$this->out($this->l10n->t('no resource in photo %s', $contact['photo']) . ' ', false);
 			}
 
 			$this->storeAvatar($resourceid, $contact, false);
@@ -104,7 +104,7 @@ HELP;
 			if (empty($contact)) {
 				continue;
 			}
-			echo ++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t";
+			$this->out(++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t", false);
 			$this->storeAvatar($photo['resource-id'], $contact, true);
 		}
 		return 0;
@@ -114,49 +114,49 @@ HELP;
 	{
 		$valid = !empty($resourceid);
 		if ($valid) {
-			echo '1';
+			$this->out('1', false);
 			$photo = Photo::selectFirst([], ['resource-id' => $resourceid], ['order' => ['scale']]);
 			if (empty($photo)) {
-				echo ' ' . $this->l10n->t('no photo with id %s', $resourceid) . ' ';
+				$this->out(' ' . $this->l10n->t('no photo with id %s', $resourceid) . ' ', false);
 				$valid = false;
 			}
 		}
 
 		if ($valid) {
-			echo '2';
+			$this->out('2', false);
 			$imgdata = Photo::getImageDataForPhoto($photo);
 			if (empty($imgdata)) {
-				echo ' ' . $this->l10n->t('no image data for photo with id %s', $resourceid) . ' ';
+				$this->out(' ' . $this->l10n->t('no image data for photo with id %s', $resourceid) . ' ', false);
 				$valid = false;
 			}
 		}
 
 		if ($valid) {
-			echo '3';
+			$this->out('3', false);
 			$image = new Image($imgdata, Images::getMimeTypeByData($imgdata));
 			if (!$image->isValid()) {
-				echo ' ' . $this->l10n->t('invalid image for id %s', $resourceid) . ' ';
+				$this->out(' ' . $this->l10n->t('invalid image for id %s', $resourceid) . ' ', false);
 				$valid = false;
 			}
 		}
 
 		if ($valid) {
-			echo '4';
+			$this->out('4', false);
 			$fields = Avatar::storeAvatarByImage($contact, $image);
 		} else {
 			$fields = ['photo' => '', 'thumb' => '', 'micro' => ''];
 		}
 
 		if ($quit_on_invalid && $fields['photo'] == '') {
-			echo ' ' . $this->l10n->t('Quit on invalid photo %s', $contact['avatar']) . "\n";
+			$this->out(' ' . $this->l10n->t('Quit on invalid photo %s', $contact['avatar']));
 			Photo::delete(['resource-id' => $resourceid]);
 			return;
 		}
 
-		echo '5';
+		$this->out('5', false);
 		Contact::update($fields, ['uri-id' => $contact['uri-id']]);
-		echo '6';
+		$this->out('6', false);
 		Photo::delete(['resource-id' => $resourceid]);
-		echo ' ' . $fields['photo'] . "\n";
+		$this->out(' ' . $fields['photo']);
 	}
 }
