@@ -7,6 +7,7 @@ Version 2022.05 (unreleased)
     Added the display of pinned/featured postings of contacts [annando]
     Added the display of polls and current votes [annando]
     Added node relocation to the console tool [MrPetovan]
+    Added tool to move avatars to the avatar cache [annanado]
     Added storage of edit history of postings [annando]
     Added the possibility to set custom posting dates [annando]
     Enhanced performance (database related, global directory) [annando]
