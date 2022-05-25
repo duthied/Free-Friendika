@@ -66,14 +66,16 @@ class APDelivery
 		if (empty($uri_id)) {
 			$result  = ActivityPub\Delivery::deliver($inbox);
 			$success = $result['success'];
+			$drop    = false;
 			$uri_ids = $result['uri_ids'];
 		} else {
 			$result  = ActivityPub\Delivery::deliverToInbox($cmd, $item_id, $inbox, $uid, $receivers, $uri_id);
 			$success = $result['success'];
+			$drop    = $result['drop'];
 			$uri_ids = [$uri_id];
 		}
 
-		if (!$success && !Worker::defer() && !empty($uri_ids)) {
+		if (!$drop && !$success && !Worker::defer() && !empty($uri_ids)) {
 			foreach ($uri_ids as $uri_id) {
 				Post\Delivery::remove($uri_id, $inbox);
 				Post\DeliveryData::incrementQueueFailed($uri_id);
