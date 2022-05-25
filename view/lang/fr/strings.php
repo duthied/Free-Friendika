@@ -1198,6 +1198,15 @@ $a->strings['%s server scheduled to be purged.'] = [
 ];
 $a->strings['← Return to the list'] = '← Retourner à la liste';
 $a->strings['Block A New Server Domain Pattern'] = 'Bloquer un nouveau modèle de domaine de serveur';
+$a->strings['<p>The server domain pattern syntax is case-insensitive shell wildcard, comprising the following special characters:</p>
+<ul>
+	<li><code>*</code>: Any number of characters</li>
+	<li><code>?</code>: Any single character</li>
+</ul>'] = '<p>La syntaxe du modèle de domaine du serveur est du shell insensible à la casse avec wildcards, comprenant les caractères spéciaux suivants :</p>
+<ul>
+	<li><code>*</code>  N\'importe quel nombre de caractères</li>
+	<li><code>?</code> N\'importe quel caractère unique</li>
+</ul>';
 $a->strings['Check pattern'] = 'Vérifier le modèle';
 $a->strings['Matching known servers'] = 'Serveurs connus correspondants';
 $a->strings['Server Name'] = 'Nom du serveur';
@@ -1446,6 +1455,7 @@ $a->strings['If you wish, you can turn on strict certificate checking. This will
 $a->strings['Proxy user'] = 'Utilisateur du proxy';
 $a->strings['User name for the proxy server.'] = 'Nom d\'utilisateur pour le serveur proxy';
 $a->strings['Proxy URL'] = 'URL du proxy';
+$a->strings['If you want to use a proxy server that Friendica should use to connect to the network, put the URL of the proxy here.'] = 'Si vous souhaitez utiliser un serveur proxy que Friendica devra employer pour se connecter au réseau, indiquez l\'adresse du proxy ici.';
 $a->strings['Network timeout'] = 'Dépassement du délai d\'attente du réseau';
 $a->strings['Value is in seconds. Set to 0 for unlimited (not recommended).'] = 'Valeur en secondes. Mettre à 0 pour \'illimité\' (pas recommandé).';
 $a->strings['Maximum Load Average'] = 'Plafond de la charge moyenne';
@@ -1522,8 +1532,11 @@ $a->strings['This backend doesn\'t have custom settings'] = 'Ce moteur de stocka
 $a->strings['Database (legacy)'] = 'Base de donnée (historique)';
 $a->strings['Template engine (%s) error: %s'] = 'Moteur de template (%s) erreur : %s';
 $a->strings['Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'] = '<br />Votre base de donnée comporte des tables MYISAM. Vous devriez changer pour InnoDB car il est prévu d\'utiliser des fonctionnalités spécifiques à InnoDB à l\'avenir. Veuillez consulter <a href="%s">ce guide de conversion</a> pour mettre à jour votre base de donnée. Vous pouvez également exécuter la commande <tt>php bin/console.php dbstructure toinnodb</tt> à la racine de votre répertoire Friendica pour une conversion automatique.';
+$a->strings['Your DB still runs with InnoDB tables in the Antelope file format. You should change the file format to Barracuda. Friendica is using features that are not provided by the Antelope format. See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'] = 'Votre BDD utilise encore des tables InnoDB au format de fichiers Antelope. Vous devriez le remplacer par le format Barracuda. Friendica utilise des fonctionnalités qui ne sont pas disponibles dans le format Antelope. Voir <a href="%s">ici</a> pour un guide qui peut être utile pour la conversion du moteur des tables. Vous pouvez également utiliser la commande <tt>php bin/console.php dbstructure toinnodb</tt> de votre installation Friendica pour une conversion automatique.<br />';
+$a->strings['Your table_definition_cache is too low (%d). This can lead to the database error "Prepared statement needs to be re-prepared". Please set it at least to %d. See <a href="%s">here</a> for more information.<br />'] = 'Votre table_definition_cache est trop faible (%d). Cela peut conduire à l\'erreur de base de données "Prepared statement needs to be re-prepared". Merci de le définir au minimum à %d. Voir <a href="%s">ici</a> pour plus d\'informations.<br />';
 $a->strings['There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'] = 'Une nouvelle version de Friendica est disponible. Votre version est %1$s, la nouvelle version est %2$s';
 $a->strings['The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.'] = 'La mise à jour automatique de la base de donnée a échoué. Veuillez exécuter la commande <code>php bin/console.php dbstructure update</code> depuis votre répertoire Friendica et noter les erreurs potentielles.';
+$a->strings['The last update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear. (Some of the errors are possibly inside the logfile.)'] = 'La dernière mise à jour a échoué. Merci d\'exécuter "php bin/console.php dbstructure update" depuis la ligne de commandes et de surveiller les erreurs qui pourraient survenir (Certaines erreurs pourraient être dans le fichier journal).';
 $a->strings['The worker was never executed. Please check your database structure!'] = 'Le \'worker\' n\'a pas encore été exécuté. Vérifiez la structure de votre base de données.';
 $a->strings['The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.'] = 'La dernière exécution du \'worker\' s\'est déroulée à %s, c\'est-à-dire il y a plus d\'une heure. Vérifiez les réglages de crontab.';
 $a->strings['Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.'] = 'La configuration de votre site Friendica est maintenant stockée dans le fichier <code>config/local.config.php</code>, veuillez copier le fichier <code>config/local-sample.config.php</code> et transférer votre configuration depuis le fichier <code>.htconfig.php</code>. Veuillez consulter <a href="%s">la page d\'aide de configuration (en anglais)</a> pour vous aider dans la transition.';
@@ -1531,6 +1544,9 @@ $a->strings['Friendica\'s configuration now is stored in config/local.config.php
 $a->strings['<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.'] = '<a href="%s">%s</a> n\'est pas accessible sur votre site. C\'est un problème de configuration sévère qui empêche toute communication avec les serveurs distants. Veuillez consulter <a href="%s">la page d\'aide à l\'installation</a> (en anglais) pour plus d\'information.';
 $a->strings['The logfile \'%s\' is not usable. No logging possible (error: \'%s\')'] = 'Le fichier journal \'%s\' n\'est pas utilisable. Pas de journalisation possible (erreur \'%s\')';
 $a->strings['The debug logfile \'%s\' is not usable. No logging possible (error: \'%s\')'] = 'Le fichier journal de débogage "%s" n\'existe pas ou n\'est pas accessible en écriture. Journalisation désactivée (erreur : "%s")';
+$a->strings['Friendica\'s system.basepath was updated from \'%s\' to \'%s\'. Please remove the system.basepath from your db to avoid differences.'] = 'Le system.basepath de Friendica a été mis à jour de \'%s\' à \'%s\'. Merci de supprimer le system.basepath de votre base de données pour éviter des différences.';
+$a->strings['Friendica\'s current system.basepath \'%s\' is wrong and the config file \'%s\' isn\'t used.'] = 'Le system.basepath actuel de Friendica, \'%s\' est erroné et le fichier de configuration \'%s\' n\'est pas utilisé.';
+$a->strings['Friendica\'s current system.basepath \'%s\' is not equal to the config file \'%s\'. Please fix your configuration.'] = 'Le system.basepath \'%s\' actuel de Friendica n\'est pas le même que le fichier de configuration \'%s\'. Merci de corriger votre configuration.';
 $a->strings['Normal Account'] = 'Compte normal';
 $a->strings['Automatic Follower Account'] = 'Compte d\'abonné automatique';
 $a->strings['Public Forum Account'] = 'Forum public';
@@ -1557,6 +1573,7 @@ $a->strings['[Unsupported]'] = '[Non supporté]';
 $a->strings['Display Terms of Service'] = 'Afficher les Conditions d\'Utilisation';
 $a->strings['Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.'] = 'Active la page de Conditions d\'Utilisation. Un lien vers cette page est ajouté dans le formulaire d\'inscription et la page A Propos.';
 $a->strings['Display Privacy Statement'] = 'Afficher la Politique de Confidentialité';
+$a->strings['Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank" rel="noopener noreferrer">EU-GDPR</a>.'] = 'Afficher quelques informations à propos des données nécessaires pour opérer un nœud conforme par exemple au <a href="%s" target="_blank" rel="noopener noreferrer">RGPD Européen</a>.';
 $a->strings['Privacy Statement Preview'] = 'Aperçu de la Politique de Confidentialité';
 $a->strings['The Terms of Service'] = 'Conditions d\'Utilisation';
 $a->strings['Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.'] = 'Saisissez les Conditions d\'Utilisations de votre site. Les BBCodes sont disponibles, les titres commencent à [h2].';
@@ -1768,6 +1785,7 @@ $a->strings['Suggest friends'] = 'Suggérer des abonnements';
 $a->strings['Network type: %s'] = 'Type de réseau %s';
 $a->strings['Communications lost with this contact!'] = 'Communications perdues avec ce contact !';
 $a->strings['Fetch further information for feeds'] = 'Chercher plus d\'informations pour les flux';
+$a->strings['Fetch information like preview pictures, title and teaser from the feed item. You can activate this if the feed doesn\'t contain much text. Keywords are taken from the meta header in the feed item and are posted as hash tags.'] = 'Récupérer des informations comme les prévisualisations d\'images, les titres et les accroches depuis l\'élément du flux de discussion. Vous pouvez activer ceci si le flux ne contient pas beaucoup de texte. Les mots clés sont récupérés de la balise meta de l\'élément du flux de discussion et sont postées comme mots dièses.';
 $a->strings['Fetch information'] = 'Récupérer informations';
 $a->strings['Fetch keywords'] = 'Récupérer les mots-clés';
 $a->strings['Fetch information and keywords'] = 'Récupérer informations';
@@ -2148,7 +2166,9 @@ $a->strings['<p>You can enter one of your one-time recovery codes in case you lo
 $a->strings['Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>'] = 'Vous n\'avez pas votre téléphone ? <a href="%s">Saisissez un code de récupération à deux facteurs</a>';
 $a->strings['Please enter a recovery code'] = 'Merci de saisir un code de récupération';
 $a->strings['Submit recovery code and complete login'] = 'Soumettre le code de récupération et compléter l\'identification';
+$a->strings['<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'] = '<p>Ouvrez l\'application d\'identification à deux facteurs sur votre appareil afin d\'avoir un code d\'identification et vérifier votre identité.</p>';
 $a->strings['Please enter a code from your authentication app'] = 'Veuillez saisir le code fourni par votre application mobile d\'authentification à deux facteurs';
+$a->strings['This is my two-factor authenticator app device'] = 'C\'est mon appareil portant l\'application d\'identification à deux facteurs';
 $a->strings['Verify code and complete login'] = 'Vérifier le code de récupération et compléter l\'identification';
 $a->strings['Passwords do not match.'] = 'Les mots de passe ne correspondent pas.';
 $a->strings['Password unchanged.'] = 'Mot de passe non changé.';
@@ -2406,6 +2426,8 @@ $a->strings['Generate new recovery codes'] = 'Générer de nouveaux codes de sec
 $a->strings['Next: Verification'] = 'Prochaine étape : Vérification';
 $a->strings['Trusted browsers successfully removed.'] = 'Les navigateurs de confiance ont bien été supprimés.';
 $a->strings['Trusted browser successfully removed.'] = 'Le navigateur de confiance a bien été supprimé.';
+$a->strings['Two-factor Trusted Browsers'] = 'Navigateurs de confiance pour la 2FA';
+$a->strings['Trusted browsers are individual browsers you chose to skip two-factor authentication to access Friendica. Please use this feature sparingly, as it can negate the benefit of two-factor authentication.'] = 'Les navigateurs de confiance sont des navigateurs individuels pour lesquels vous avez choisi de ne pas utiliser l\'identification à deux facteurs pour accéder à Friendica. Merci d\'utiliser cette fonctionnalité avec discernement, au vu du fait qu\'elle peut annuler les bénéfices de l\'identification à deux facteurs.';
 $a->strings['Device'] = 'Périphérique';
 $a->strings['OS'] = 'Système d\'exploitation';
 $a->strings['Trusted'] = 'De confiance';
@@ -2453,6 +2475,9 @@ $a->strings['Export Contacts to CSV'] = 'Exporter vos contacts au format CSV';
 $a->strings['Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.'] = 'Exporter vos abonnements au format CSV. Compatible avec Mastodon.';
 $a->strings['Stack trace:'] = 'Stack trace:';
 $a->strings['Exception thrown in %s:%d'] = 'Exception produite dans %s:%d';
+$a->strings['At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node\'s user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication.'] = 'Au moment de l\'inscription, et afin de fournir des communications entre le compte de l\'utilisateur et ses contacts, l\'utilisateur doit fournir un nom d\'affichage (nom de plume), un nom d\'utilisateur (pseudo) et une adresse de courriel fonctionnelle. Les noms seront accessibles sur la page de profil du compte par tout visiteur de la page, même si les autres informations de profil ne sont pas affichées. L\'adresse de courriel ne sera utilisée que pour envoyer des notifications à l\'utilisateur à propos de ses interactions, mais ne sera pas affichée de manière visible. Le référencement du compte dans le répertoire des comptes du nœud ou le répertoire global des utilisateurs est optionnel et peut être contrôlé dans les paramètres utilisateur, il n\'est pas nécessaire pour la communication.  ';
+$a->strings['This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.'] = 'Ces données sont requises pour la communication et transférées aux nœuds des partenaires de communication, et sont stockées ici. Les utilisateurs peuvent ajouter des données privées additionnelles qui peuvent être transmises aux comptes de leurs partenaires de communication.';
+$a->strings['At any point in time a logged in user can export their account data from the <a href="%1$s/settings/userexport">account settings</a>. If the user wants to delete their account they can do so at <a href="%1$s/removeme">%1$s/removeme</a>. The deletion of the account will be permanent. Deletion of the data will also be requested from the nodes of the communication partners.'] = 'A tout moment un utilisateur identifié peut exporter les données de son compte à partir des <a href="%1$s/settings/userexport">paramètres du compte</a>. Si l\'utilisateur souhaite supprimer son compte, il peut le faire à <a href="%1$s/removeme">%1$s/removeme</a>. La suppression du compte sera permanente. La suppression des données sera également demandée aux nœuds des partenaires de communication.';
 $a->strings['Privacy Statement'] = 'Politique de Confidentialité';
 $a->strings['Welcome to Friendica'] = 'Bienvenue sur Friendica';
 $a->strings['New Member Checklist'] = 'Checklist du nouvel utilisateur';
@@ -2467,6 +2492,7 @@ $a->strings['Upload a profile photo if you have not done so already. Studies hav
 $a->strings['Edit Your Profile'] = 'Éditer votre Profil';
 $a->strings['Edit your <strong>default</strong> profile to your liking. Review the settings for hiding your list of friends and hiding the profile from unknown visitors.'] = 'Éditez votre profil <strong>par défaut</strong> à votre convenance. Vérifiez les réglages concernant la visibilité de votre liste d\'amis par les visiteurs inconnus.';
 $a->strings['Profile Keywords'] = 'Mots-clés du profil';
+$a->strings['Set some public keywords for your profile which describe your interests. We may be able to find other people with similar interests and suggest friendships.'] = 'Choisissez quelques mots-clé publics pour votre profil qui décrivent vos intérêts. Nous pourrons peut-être trouver d\'autres personnes aux intérêts similaires et suggérer des abonnements.';
 $a->strings['Connecting'] = 'Connexions';
 $a->strings['Importing Emails'] = 'Importer courriels';
 $a->strings['Enter your email access information on your Connector Settings page if you wish to import and interact with friends or mailing lists from your email INBOX'] = 'Entrez vos paramètres de courriel dans les Réglages des connecteurs si vous souhaitez importer et interagir avec des amis ou des listes venant de votre Boîte de Réception.';
@@ -2662,6 +2688,16 @@ $a->strings['(no subject)'] = '(aucun sujet)';
 $a->strings['Notification from Friendica'] = 'Notification de Friendica';
 $a->strings['Empty Post'] = 'Publication vide';
 $a->strings['default'] = 'Par défaut';
+$a->strings['greenzero'] = 'greenzero';
+$a->strings['purplezero'] = 'purplezero';
+$a->strings['easterbunny'] = 'easterbunny';
+$a->strings['darkzero'] = 'darkzero';
+$a->strings['comix'] = 'comix';
+$a->strings['slackr'] = 'slackr';
+$a->strings['Variations'] = 'Variations';
+$a->strings['Light (Accented)'] = 'Clair (Accentué)';
+$a->strings['Dark (Accented)'] = 'Sombre (Accentué)';
+$a->strings['Black (Accented)'] = 'Noir (Accentué)';
 $a->strings['Note'] = 'Note';
 $a->strings['Check image permissions if all users are allowed to see the image'] = 'Vérifier les permissions des images si tous les utilisateurs sont autorisés à voir l\'image';
 $a->strings['Custom'] = 'Personnalisé';
@@ -2674,6 +2710,7 @@ $a->strings['Red'] = 'Rouge';
 $a->strings['Purple'] = 'Violet';
 $a->strings['Green'] = 'Vert';
 $a->strings['Pink'] = 'Rose';
+$a->strings['Copy or paste schemestring'] = 'Copier ou coller le fil conducteur';
 $a->strings['You can copy this string to share your theme with others. Pasting here applies the schemestring'] = 'Vous pouvez copier le contenu de ce champ pour partager votre thème. Vous pouvez également y coller une définition de palette différente pour l\'appliquer à votre thème.';
 $a->strings['Navigation bar background color'] = 'Couleur d\'arrière-plan de la barre de navigation';
 $a->strings['Navigation bar icon color '] = 'Couleur des icônes de la barre de navigation';
