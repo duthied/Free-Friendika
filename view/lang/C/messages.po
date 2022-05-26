@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 20:12+0000\n"
+"POT-Creation-Date: 2022-05-26 20:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1641,27 +1641,31 @@ msgstr ""
 msgid "The contact has been blocked from the node"
 msgstr ""
 
-#: src/Console/MoveToAvatarCache.php:92
+#: src/Console/MoveToAvatarCache.php:90
+msgid "The avatar cache needs to be enabled to use this command."
+msgstr ""
+
+#: src/Console/MoveToAvatarCache.php:105
 #, php-format
 msgid "no resource in photo %s"
 msgstr ""
 
-#: src/Console/MoveToAvatarCache.php:118
+#: src/Console/MoveToAvatarCache.php:133
 #, php-format
 msgid "no photo with id %s"
 msgstr ""
 
-#: src/Console/MoveToAvatarCache.php:127
+#: src/Console/MoveToAvatarCache.php:142
 #, php-format
 msgid "no image data for photo with id %s"
 msgstr ""
 
-#: src/Console/MoveToAvatarCache.php:136
+#: src/Console/MoveToAvatarCache.php:151
 #, php-format
 msgid "invalid image for id %s"
 msgstr ""
 
-#: src/Console/MoveToAvatarCache.php:149
+#: src/Console/MoveToAvatarCache.php:164
 #, php-format
 msgid "Quit on invalid photo %s"
 msgstr ""
@@ -3579,45 +3583,45 @@ msgid ""
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2572
+#: src/Model/Contact.php:2577
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2574
+#: src/Model/Contact.php:2579
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2577
+#: src/Model/Contact.php:2582
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2580
+#: src/Model/Contact.php:2585
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2583
+#: src/Model/Contact.php:2588
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2584
+#: src/Model/Contact.php:2589
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2590
+#: src/Model/Contact.php:2595
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2595
+#: src/Model/Contact.php:2600
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2654
+#: src/Model/Contact.php:2659
 msgid "Unable to retrieve contact information."
 msgstr ""
 

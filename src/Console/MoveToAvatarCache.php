@@ -28,6 +28,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Util\Images;
 use Friendica\Object\Image;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 
 /**
  * tool to move cached avatars to the avatar file cache.
@@ -51,6 +52,11 @@ class MoveToAvatarCache extends \Asika\SimpleConsole\Console
 	 */
 	private $l10n;
 
+	/**
+	 * @var IManageConfigValues
+	 */
+	private $config;
+
 	protected function getHelp()
 	{
 		$help = <<<HELP
@@ -68,23 +74,30 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(\Friendica\Database\Database $dba, BaseURL $baseurl, L10n $l10n, array $argv = null)
+	public function __construct(\Friendica\Database\Database $dba, BaseURL $baseurl, L10n $l10n, IManageConfigValues $config, array $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->dba     = $dba;
 		$this->baseurl = $baseurl;
 		$this->l10n    = $l10n;
+		$this->config = $config;
 	}
 
 	protected function doExecute()
 	{
+		if ($this->config->get('system', 'avatar_cache')) {
+			$this->err($this->l10n->t('The avatar cache needs to be enabled to use this command.'));
+			return 2;
+		}
+
+		$fields = ['id', 'avatar', 'photo', 'thumb', 'micro', 'uri-id', 'url', 'avatar'];
 		$condition = ["`avatar` != ? AND `photo` LIKE ? AND `uid` = ? AND `uri-id` != ? AND NOT `uri-id` IS NULL",
 			'', $this->baseurl->get() . '/photo/%', 0, 0];
 
 		$count    = 0;
 		$total    = $this->dba->count('contact', $condition);
-		$contacts = $this->dba->select('contact', ['id', 'avatar', 'photo', 'uri-id', 'url', 'avatar'], $condition, ['order' => ['id']]);
+		$contacts = $this->dba->select('contact', $fields, $condition, ['order' => ['id']]);
 		while ($contact = $this->dba->fetch($contacts)) {
 			$this->out(++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t", false);
 			$resourceid = Photo::ridFromURI($contact['photo']);
@@ -100,7 +113,7 @@ HELP;
 		$total  = $this->dba->fetch($totals)['total'] ?? 0;
 		$photos = $this->dba->p("SELECT `resource-id`, MAX(`contact-id`) AS `contact-id` FROM `photo` WHERE `contact-id` != ? AND `photo-type` = ? GROUP BY `resource-id`;", 0, Photo::CONTACT_AVATAR);
 		while ($photo = $this->dba->fetch($photos)) {
-			$contact = Contact::getById($photo['contact-id'], ['id', 'avatar', 'photo', 'uri-id', 'url', 'avatar']);
+			$contact = Contact::getById($photo['contact-id'], $fields);
 			if (empty($contact)) {
 				continue;
 			}
