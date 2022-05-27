@@ -412,6 +412,7 @@ $a->strings['Could not find any unarchived contact entry for this URL (%s)'] = '
 $a->strings['The contact entries have been archived'] = 'Die Kontakteinträge wurden archiviert.';
 $a->strings['Could not find any contact entry for this URL (%s)'] = 'Für die URL (%s) konnte kein Kontakt gefunden werden';
 $a->strings['The contact has been blocked from the node'] = 'Der Kontakt wurde von diesem Knoten geblockt';
+$a->strings['The avatar cache needs to be enabled to use this command.'] = 'Der Zwischenspeicher für Kontaktprofilbilder muss aktiviert sein, um diesen Befehl nutzen zu können.';
 $a->strings['no resource in photo %s'] = 'keine Ressource im Foto %s';
 $a->strings['no photo with id %s'] = 'es existiert kein Foto mit der ID %s';
 $a->strings['no image data for photo with id %s'] = 'es gibt eine Bilddaten für das Foto mit der ID %s';
