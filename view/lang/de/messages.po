@@ -49,7 +49,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 20:12+0000\n"
+"POT-Creation-Date: 2022-05-26 20:00+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>, 2016-2022\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
@@ -1684,27 +1684,31 @@ msgstr "Für die URL (%s) konnte kein Kontakt gefunden werden"
 msgid "The contact has been blocked from the node"
 msgstr "Der Kontakt wurde von diesem Knoten geblockt"
 
-#: src/Console/MoveToAvatarCache.php:92
+#: src/Console/MoveToAvatarCache.php:90
+msgid "The avatar cache needs to be enabled to use this command."
+msgstr "Der Zwischenspeicher für Kontaktprofilbilder muss aktiviert sein, um diesen Befehl nutzen zu können."
+
+#: src/Console/MoveToAvatarCache.php:105
 #, php-format
 msgid "no resource in photo %s"
 msgstr "keine Ressource im Foto %s"
 
-#: src/Console/MoveToAvatarCache.php:118
+#: src/Console/MoveToAvatarCache.php:133
 #, php-format
 msgid "no photo with id %s"
 msgstr "es existiert kein Foto mit der ID %s"
 
-#: src/Console/MoveToAvatarCache.php:127
+#: src/Console/MoveToAvatarCache.php:142
 #, php-format
 msgid "no image data for photo with id %s"
 msgstr "es gibt eine Bilddaten für das Foto mit der ID %s"
 
-#: src/Console/MoveToAvatarCache.php:136
+#: src/Console/MoveToAvatarCache.php:151
 #, php-format
 msgid "invalid image for id %s"
 msgstr "ungültiges Bild für die ID %s"
 
-#: src/Console/MoveToAvatarCache.php:149
+#: src/Console/MoveToAvatarCache.php:164
 #, php-format
 msgid "Quit on invalid photo %s"
 msgstr "Abbruch bei ungültigem Foto %s"
@@ -3622,45 +3626,45 @@ msgid ""
 "credentials in your Settings -> Social Networks page."
 msgstr "Der Kontakt konnte nicht hinzugefügt werden. Bitte überprüfe die Einstellungen unter Einstellungen -> Soziale Netzwerke"
 
-#: src/Model/Contact.php:2572
+#: src/Model/Contact.php:2577
 msgid "The profile address specified does not provide adequate information."
 msgstr "Die angegebene Profiladresse liefert unzureichende Informationen."
 
-#: src/Model/Contact.php:2574
+#: src/Model/Contact.php:2579
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Es wurden keine kompatiblen Kommunikationsprotokolle oder Feeds gefunden."
 
-#: src/Model/Contact.php:2577
+#: src/Model/Contact.php:2582
 msgid "An author or name was not found."
 msgstr "Es wurde kein Autor oder Name gefunden."
 
-#: src/Model/Contact.php:2580
+#: src/Model/Contact.php:2585
 msgid "No browser URL could be matched to this address."
 msgstr "Zu dieser Adresse konnte keine passende Browser-URL gefunden werden."
 
-#: src/Model/Contact.php:2583
+#: src/Model/Contact.php:2588
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Konnte die @-Adresse mit keinem der bekannten Protokolle oder Email-Kontakte abgleichen."
 
-#: src/Model/Contact.php:2584
+#: src/Model/Contact.php:2589
 msgid "Use mailto: in front of address to force email check."
 msgstr "Verwende mailto: vor der E-Mail-Adresse, um eine Überprüfung der E-Mail-Adresse zu erzwingen."
 
-#: src/Model/Contact.php:2590
+#: src/Model/Contact.php:2595
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "Die Adresse dieses Profils gehört zu einem Netzwerk, mit dem die Kommunikation auf dieser Seite ausgeschaltet wurde."
 
-#: src/Model/Contact.php:2595
+#: src/Model/Contact.php:2600
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Eingeschränktes Profil. Diese Person wird keine direkten/privaten Nachrichten von dir erhalten können."
 
-#: src/Model/Contact.php:2654
+#: src/Model/Contact.php:2659
 msgid "Unable to retrieve contact information."
 msgstr "Konnte die Kontaktinformationen nicht empfangen."
 
