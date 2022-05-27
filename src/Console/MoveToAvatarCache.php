@@ -29,6 +29,7 @@ use Friendica\Model\Photo;
 use Friendica\Util\Images;
 use Friendica\Object\Image;
 use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\Protocol;
 
 /**
  * tool to move cached avatars to the avatar file cache.
@@ -86,14 +87,14 @@ HELP;
 
 	protected function doExecute()
 	{
-		if ($this->config->get('system', 'avatar_cache')) {
+		if (!$this->config->get('system', 'avatar_cache')) {
 			$this->err($this->l10n->t('The avatar cache needs to be enabled to use this command.'));
 			return 2;
 		}
 
-		$fields = ['id', 'avatar', 'photo', 'thumb', 'micro', 'uri-id', 'url', 'avatar'];
-		$condition = ["`avatar` != ? AND `photo` LIKE ? AND `uid` = ? AND `uri-id` != ? AND NOT `uri-id` IS NULL",
-			'', $this->baseurl->get() . '/photo/%', 0, 0];
+		$fields = ['id', 'avatar', 'photo', 'thumb', 'micro', 'uri-id', 'url', 'avatar', 'network'];
+		$condition = ["`avatar` != ? AND `photo` LIKE ? AND `uid` = ? AND `uri-id` != ? AND NOT `uri-id` IS NULL AND NOT `network` IN (?, ?)",
+			'', $this->baseurl->get() . '/photo/%', 0, 0, Protocol::MAIL, Protocol::FEED];
 
 		$count    = 0;
 		$total    = $this->dba->count('contact', $condition);
@@ -114,7 +115,7 @@ HELP;
 		$photos = $this->dba->p("SELECT `resource-id`, MAX(`contact-id`) AS `contact-id` FROM `photo` WHERE `contact-id` != ? AND `photo-type` = ? GROUP BY `resource-id`;", 0, Photo::CONTACT_AVATAR);
 		while ($photo = $this->dba->fetch($photos)) {
 			$contact = Contact::getById($photo['contact-id'], $fields);
-			if (empty($contact)) {
+			if (empty($contact) || in_array($contact['network'], [Protocol::MAIL, Protocol::FEED])) {
 				continue;
 			}
 			$this->out(++$count . '/' . $total . "\t" . $contact['id'] . "\t" . $contact['url'] . "\t", false);
