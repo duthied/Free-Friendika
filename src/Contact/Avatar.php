@@ -44,11 +44,12 @@ class Avatar
 	/**
 	 * Returns a field array with locally cached avatar pictures
 	 *
-	 * @param array $contact
-	 * @param string $avatar
+	 * @param array $contact Contact array
+	 * @param string $avatar Link to avatar picture
+	 * @param bool   $force  force picture update
 	 * @return array
 	 */
-	public static function fetchAvatarContact(array $contact, string $avatar): array
+	public static function fetchAvatarContact(array $contact, string $avatar, bool $force = false): array
 	{
 		$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(), 'photo' => '', 'thumb' => '', 'micro' => ''];
 
@@ -61,7 +62,7 @@ class Avatar
 			return $fields;
 		}
 
-		if ($avatar != $contact['avatar']) {
+		if (($avatar != $contact['avatar']) || $force) {
 			self::deleteCache($contact);
 			Logger::debug('Avatar file name changed', ['new' => $avatar, 'old' => $contact['avatar']]);
 		} elseif (self::isCacheFile($contact['photo']) && self::isCacheFile($contact['thumb']) && self::isCacheFile($contact['micro'])) {
