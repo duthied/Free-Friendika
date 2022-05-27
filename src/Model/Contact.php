@@ -2049,7 +2049,7 @@ class Contact
 			}
 		} else {
 			Photo::delete(['uid' => $uid, 'contact-id' => $cid, 'photo-type' => Photo::CONTACT_AVATAR]);
-			$fields = Avatar::fetchAvatarContact($contact, $avatar);
+			$fields = Avatar::fetchAvatarContact($contact, $avatar, $force);
 			$update = ($avatar . $fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['avatar'] . $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
 		}
 
