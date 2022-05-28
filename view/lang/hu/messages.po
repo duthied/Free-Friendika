@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 06:01+0000\n"
+"POT-Creation-Date: 2022-05-26 20:00+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Balázs Úr, 2020-2022\n"
 "Language-Team: Hungarian (http://www.transifex.com/Friendica/friendica/language/hu/)\n"
@@ -24,7 +24,7 @@ msgstr ""
 
 #: mod/cal.php:46 mod/cal.php:50 mod/follow.php:39 mod/redir.php:36
 #: mod/redir.php:177 src/Module/Conversation/Community.php:181
-#: src/Module/Debug/ItemBody.php:37 src/Module/Diaspora/Receive.php:57
+#: src/Module/Debug/ItemBody.php:38 src/Module/Diaspora/Receive.php:57
 #: src/Module/Item/Follow.php:42 src/Module/Item/Ignore.php:41
 #: src/Module/Item/Pin.php:42 src/Module/Item/Pin.php:57
 #: src/Module/Item/Star.php:43
@@ -123,7 +123,7 @@ msgid "The feed for this item is unavailable."
 msgstr "Ennek az elemnek a hírforrása nem érhető el."
 
 #: mod/editpost.php:38 mod/events.php:217 mod/follow.php:56 mod/follow.php:130
-#: mod/item.php:181 mod/item.php:186 mod/item.php:873 mod/message.php:69
+#: mod/item.php:181 mod/item.php:186 mod/item.php:875 mod/message.php:69
 #: mod/message.php:111 mod/notes.php:44 mod/ostatus_subscribe.php:33
 #: mod/photos.php:160 mod/photos.php:897 mod/repair_ostatus.php:31
 #: mod/settings.php:49 mod/settings.php:59 mod/settings.php:165
@@ -131,7 +131,7 @@ msgstr "Ennek az elemnek a hírforrása nem érhető el."
 #: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:67
 #: mod/wall_attach.php:69 mod/wall_upload.php:89 mod/wall_upload.php:91
 #: mod/wallmessage.php:37 mod/wallmessage.php:56 mod/wallmessage.php:90
-#: mod/wallmessage.php:110 src/Module/Attach.php:55 src/Module/BaseApi.php:93
+#: mod/wallmessage.php:110 src/Module/Attach.php:56 src/Module/BaseApi.php:93
 #: src/Module/BaseNotifications.php:97 src/Module/Contact/Advanced.php:60
 #: src/Module/Delegation.php:119 src/Module/FollowConfirm.php:38
 #: src/Module/FriendSuggest.php:56 src/Module/Group.php:42
@@ -148,7 +148,7 @@ msgstr "Ennek az elemnek a hírforrása nem érhető el."
 #: src/Module/Settings/Display.php:120
 #: src/Module/Settings/Profile/Photo/Crop.php:166
 #: src/Module/Settings/Profile/Photo/Index.php:112
-#: src/Module/Settings/UserExport.php:57 src/Module/Settings/UserExport.php:91
+#: src/Module/Settings/UserExport.php:58 src/Module/Settings/UserExport.php:92
 #: src/Module/Settings/UserExport.php:196
 #: src/Module/Settings/UserExport.php:216
 #: src/Module/Settings/UserExport.php:281
@@ -471,7 +471,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr "Az OStatus támogatása le van tiltva. A partnert nem lehet hozzáadni."
 
 #: mod/follow.php:138 src/Content/Item.php:443 src/Content/Widget.php:78
-#: src/Model/Contact.php:1088 src/Model/Contact.php:1100
+#: src/Model/Contact.php:1101 src/Model/Contact.php:1113
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "Kapcsolódás vagy követés"
@@ -524,21 +524,21 @@ msgstr "Nem lehet megtalálni az eredeti bejegyzést."
 msgid "Empty post discarded."
 msgstr "Az üres bejegyzés elvetve."
 
-#: mod/item.php:685
+#: mod/item.php:687
 msgid "Post updated."
 msgstr "Bejegyzés frissítve."
 
-#: mod/item.php:695 mod/item.php:700
+#: mod/item.php:697 mod/item.php:702
 msgid "Item wasn't stored."
 msgstr "Az elem nem lett eltárolva."
 
-#: mod/item.php:711
+#: mod/item.php:713
 msgid "Item couldn't be fetched."
 msgstr "Az elemet nem sikerült lekérni."
 
-#: mod/item.php:851 src/Module/Admin/Themes/Details.php:39
-#: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:41
-#: src/Module/Debug/ItemBody.php:56
+#: mod/item.php:853 src/Module/Admin/Themes/Details.php:39
+#: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:42
+#: src/Module/Debug/ItemBody.php:57
 msgid "Item not found."
 msgstr "Az elem nem található."
 
@@ -1412,7 +1412,7 @@ msgstr "Nem érhetők el javaslatok. Ha ez egy új oldal, akkor próbálja újra
 msgid "Friend Suggestions"
 msgstr "Ismerős javaslatok"
 
-#: mod/tagger.php:78 src/Content/Item.php:342 src/Model/Item.php:2694
+#: mod/tagger.php:78 src/Content/Item.php:342 src/Model/Item.php:2699
 msgid "photo"
 msgstr "fénykép"
 
@@ -1526,7 +1526,7 @@ msgstr "A fájl meghaladja a beállított %s méretkorlátot"
 msgid "File upload failed."
 msgstr "A fájl feltöltése sikertelen."
 
-#: mod/wall_upload.php:218 src/Model/Photo.php:1064
+#: mod/wall_upload.php:218 src/Model/Photo.php:1061
 msgid "Wall Photos"
 msgstr "Falfényképek"
 
@@ -1554,21 +1554,21 @@ msgstr "Ha azt szeretné, hogy %s válaszoljon, ellenőrizze, hogy az Ön oldal�
 msgid "No system theme config value set."
 msgstr "Nincs rendszertéma beállítási érték megadva."
 
-#: src/App.php:583
+#: src/App.php:584
 msgid "Apologies but the website is unavailable at the moment."
 msgstr "Elnézést, de a weboldal jelenleg nem érhető el."
 
-#: src/App/Page.php:252
+#: src/App/Page.php:276
 msgid "Delete this item?"
 msgstr "Törli ezt az elemet?"
 
-#: src/App/Page.php:253
+#: src/App/Page.php:277
 msgid ""
 "Block this author? They won't be able to follow you nor see your public "
 "posts, and you won't be able to see their posts and their notifications."
 msgstr "Tiltja ezt a szerzőt? Nem lesz képes követni Önt, és a nyilvános bejegyzéseit sem látja, valamint Ön sem lesz képes megtekinteni az ő bejegyzéseit és értesítéseit."
 
-#: src/App/Page.php:323
+#: src/App/Page.php:347
 msgid "toggle mobile"
 msgstr "váltás mobilra"
 
@@ -1577,7 +1577,7 @@ msgstr "váltás mobilra"
 msgid "Method not allowed for this module. Allowed method(s): %s"
 msgstr "A módszer nem engedélyezett ennél a modulnál. Az engedélyezett módszerek: %s"
 
-#: src/App/Router.php:277 src/Module/HTTPException/PageNotFound.php:33
+#: src/App/Router.php:277 src/Module/HTTPException/PageNotFound.php:34
 msgid "Page not found."
 msgstr "Az oldal nem található."
 
@@ -1596,8 +1596,8 @@ msgid "All contacts"
 msgstr "Összes partner"
 
 #: src/BaseModule.php:409 src/Content/Widget.php:233 src/Core/ACL.php:194
-#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:121
-#: src/Module/PermissionTooltip.php:143
+#: src/Module/Contact.php:367 src/Module/PermissionTooltip.php:122
+#: src/Module/PermissionTooltip.php:144
 msgid "Followers"
 msgstr "Követők"
 
@@ -1646,6 +1646,35 @@ msgstr "Nem sikerült találni egyetlen partnerbejegyzést sem erről az URL-rő
 #: src/Module/Admin/Blocklist/Contact.php:66
 msgid "The contact has been blocked from the node"
 msgstr "A partner tiltva lett a csomópontról"
+
+#: src/Console/MoveToAvatarCache.php:90
+msgid "The avatar cache needs to be enabled to use this command."
+msgstr "A profilkép gyorsítótárának engedélyezve kell lennie a parancs használatához."
+
+#: src/Console/MoveToAvatarCache.php:105
+#, php-format
+msgid "no resource in photo %s"
+msgstr "nincs erőforrás a(z) %s fényképen"
+
+#: src/Console/MoveToAvatarCache.php:133
+#, php-format
+msgid "no photo with id %s"
+msgstr "nincs %s azonosítóval rendelkező fénykép"
+
+#: src/Console/MoveToAvatarCache.php:142
+#, php-format
+msgid "no image data for photo with id %s"
+msgstr "nincsenek képadatok a(z) %s azonosítóval rendelkező fényképnél"
+
+#: src/Console/MoveToAvatarCache.php:151
+#, php-format
+msgid "invalid image for id %s"
+msgstr "érvénytelen kép a(z) %s azonosítónál"
+
+#: src/Console/MoveToAvatarCache.php:164
+#, php-format
+msgid "Quit on invalid photo %s"
+msgstr "Kilépés az érvénytelen %s fényképnél"
 
 #: src/Console/PostUpdate.php:87
 #, php-format
@@ -2189,7 +2218,7 @@ msgstr "több megjelenítése"
 msgid "%1$s poked %2$s"
 msgstr "%1$s megbökte őt: %2$s"
 
-#: src/Content/Item.php:334 src/Model/Item.php:2692
+#: src/Content/Item.php:334 src/Model/Item.php:2697
 msgid "event"
 msgstr "esemény"
 
@@ -2197,32 +2226,32 @@ msgstr "esemény"
 msgid "Follow Thread"
 msgstr "Szál követése"
 
-#: src/Content/Item.php:423 src/Model/Contact.php:1093
+#: src/Content/Item.php:423 src/Model/Contact.php:1106
 msgid "View Status"
 msgstr "Állapot megtekintése"
 
 #: src/Content/Item.php:424 src/Content/Item.php:446
-#: src/Model/Contact.php:1027 src/Model/Contact.php:1085
-#: src/Model/Contact.php:1094 src/Module/Directory.php:158
+#: src/Model/Contact.php:1040 src/Model/Contact.php:1098
+#: src/Model/Contact.php:1107 src/Module/Directory.php:158
 #: src/Module/Settings/Profile/Index.php:225
 msgid "View Profile"
 msgstr "Profil megtekintése"
 
-#: src/Content/Item.php:425 src/Model/Contact.php:1095
+#: src/Content/Item.php:425 src/Model/Contact.php:1108
 msgid "View Photos"
 msgstr "Fényképek megtekintése"
 
-#: src/Content/Item.php:426 src/Model/Contact.php:1086
-#: src/Model/Contact.php:1096
+#: src/Content/Item.php:426 src/Model/Contact.php:1099
+#: src/Model/Contact.php:1109
 msgid "Network Posts"
 msgstr "Hálózati bejegyzések"
 
-#: src/Content/Item.php:427 src/Model/Contact.php:1087
-#: src/Model/Contact.php:1097
+#: src/Content/Item.php:427 src/Model/Contact.php:1100
+#: src/Model/Contact.php:1110
 msgid "View Contact"
 msgstr "Partner megtekintése"
 
-#: src/Content/Item.php:428 src/Model/Contact.php:1098
+#: src/Content/Item.php:428 src/Model/Contact.php:1111
 msgid "Send PM"
 msgstr "Személyes üzenet küldése"
 
@@ -2245,7 +2274,7 @@ msgstr "Mellőzés"
 msgid "Languages"
 msgstr "Nyelvek"
 
-#: src/Content/Item.php:438 src/Model/Contact.php:1099
+#: src/Content/Item.php:438 src/Model/Contact.php:1112
 msgid "Poke"
 msgstr "Megbökés"
 
@@ -2540,8 +2569,8 @@ msgstr "Kép vagy fénykép"
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 
-#: src/Content/Text/BBCode.php:1188 src/Model/Item.php:3258
-#: src/Model/Item.php:3264 src/Model/Item.php:3265
+#: src/Content/Text/BBCode.php:1188 src/Model/Item.php:3271
+#: src/Model/Item.php:3277 src/Model/Item.php:3278
 msgid "Link to source"
 msgstr "Hivatkozás a forráshoz"
 
@@ -2557,11 +2586,11 @@ msgstr "$1 írta:"
 msgid "Encrypted content"
 msgstr "Titkosított tartalom"
 
-#: src/Content/Text/BBCode.php:2005
+#: src/Content/Text/BBCode.php:2008
 msgid "Invalid source protocol"
 msgstr "Érvénytelen forrásprotokoll"
 
-#: src/Content/Text/BBCode.php:2020
+#: src/Content/Text/BBCode.php:2023
 msgid "Invalid link protocol"
 msgstr "Érvénytelen hivatkozási protokoll"
 
@@ -2696,7 +2725,7 @@ msgstr "Személyek"
 msgid "Organisations"
 msgstr "Szervezetek"
 
-#: src/Content/Widget.php:521 src/Model/Contact.php:1523
+#: src/Content/Widget.php:521 src/Model/Contact.php:1536
 msgid "News"
 msgstr "Hírek"
 
@@ -2777,8 +2806,8 @@ msgstr "Követés megszüntetése"
 msgid "Yourself"
 msgstr "Önmaga"
 
-#: src/Core/ACL.php:201 src/Module/PermissionTooltip.php:127
-#: src/Module/PermissionTooltip.php:149
+#: src/Core/ACL.php:201 src/Module/PermissionTooltip.php:128
+#: src/Module/PermissionTooltip.php:150
 msgid "Mutuals"
 msgstr "Kölcsönösen ismerősök"
 
@@ -2786,7 +2815,7 @@ msgstr "Kölcsönösen ismerősök"
 msgid "Post to Email"
 msgstr "Beküldés e-mailbe"
 
-#: src/Core/ACL.php:320 src/Module/PermissionTooltip.php:84
+#: src/Core/ACL.php:320 src/Module/PermissionTooltip.php:85
 #: src/Module/PermissionTooltip.php:197
 msgid "Public"
 msgstr "Nyilvános"
@@ -2797,7 +2826,7 @@ msgid ""
 "community pages and by anyone with its link."
 msgstr "Ez a tartalom meg fog jelenni az összes követőjének, és látható lesz a közösségi oldalakon, valamint bárki számára a hivatkozásával."
 
-#: src/Core/ACL.php:322 src/Module/PermissionTooltip.php:92
+#: src/Core/ACL.php:322 src/Module/PermissionTooltip.php:93
 msgid "Limited/Private"
 msgstr "Korlátozott vagy személyes"
 
@@ -3524,81 +3553,81 @@ msgstr "Belső kiszolgálóhiba"
 msgid "Legacy module file not found: %s"
 msgstr "Az örökölt modulfájl nem található: %s"
 
-#: src/Model/Contact.php:1089 src/Model/Contact.php:1101
+#: src/Model/Contact.php:1102 src/Model/Contact.php:1114
 msgid "UnFollow"
 msgstr "Követés megszüntetése"
 
-#: src/Model/Contact.php:1107 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1120 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:130
 #: src/Module/Notifications/Introductions.php:202
 msgid "Approve"
 msgstr "Jóváhagyás"
 
-#: src/Model/Contact.php:1519
+#: src/Model/Contact.php:1532
 msgid "Organisation"
 msgstr "Szervezet"
 
-#: src/Model/Contact.php:1527
+#: src/Model/Contact.php:1540
 msgid "Forum"
 msgstr "Fórum"
 
-#: src/Model/Contact.php:2503
+#: src/Model/Contact.php:2516
 msgid "Disallowed profile URL."
 msgstr "Nem engedélyezett profil URL."
 
-#: src/Model/Contact.php:2508 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2521 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Tiltott tartomány"
 
-#: src/Model/Contact.php:2513
+#: src/Model/Contact.php:2526
 msgid "Connect URL missing."
 msgstr "A kapcsolódási URL hiányzik."
 
-#: src/Model/Contact.php:2522
+#: src/Model/Contact.php:2535
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "A partnert nem sikerült hozzáadni. Ellenőrizze a hozzá tartozó hálózat hitelesítési adatait a Beállítások → Közösségi hálózatok oldalon."
 
-#: src/Model/Contact.php:2559
+#: src/Model/Contact.php:2577
 msgid "The profile address specified does not provide adequate information."
 msgstr "A megadott profilcím nem biztosít elegendő információt."
 
-#: src/Model/Contact.php:2561
+#: src/Model/Contact.php:2579
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Nem lettek megfelelő kommunikációs protokollok vagy hírforrások felfedezve."
 
-#: src/Model/Contact.php:2564
+#: src/Model/Contact.php:2582
 msgid "An author or name was not found."
 msgstr "Egy szerző vagy név nem található."
 
-#: src/Model/Contact.php:2567
+#: src/Model/Contact.php:2585
 msgid "No browser URL could be matched to this address."
 msgstr "Egyetlen böngésző URL-t sem sikerült illeszteni ehhez a címhez."
 
-#: src/Model/Contact.php:2570
+#: src/Model/Contact.php:2588
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Nem lehet illeszteni @-stílusú személyazonosság-címet egy ismert protokollal vagy e-mailes partnerrel."
 
-#: src/Model/Contact.php:2571
+#: src/Model/Contact.php:2589
 msgid "Use mailto: in front of address to force email check."
 msgstr "Használja a mailto: előtagot a cím előtt az e-mail-ellenőrzés kényszerítéséhez."
 
-#: src/Model/Contact.php:2577
+#: src/Model/Contact.php:2595
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "A megadott profilcím egy olyan hálózathoz tartozik, amely le lett tiltva ezen az oldalon."
 
-#: src/Model/Contact.php:2582
+#: src/Model/Contact.php:2600
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Korlátozott profil. Ez a személy nem lesz képes közvetlen vagy személyes értesítéseket fogadni Öntől."
 
-#: src/Model/Contact.php:2641
+#: src/Model/Contact.php:2659
 msgid "Unable to retrieve contact information."
 msgstr "Nem lehet lekérni a partner információit."
 
@@ -3718,58 +3747,58 @@ msgstr "Csoport neve: "
 msgid "Edit groups"
 msgstr "Csoportok szerkesztése"
 
-#: src/Model/Item.php:1790
+#: src/Model/Item.php:1795
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr "A bejegyzésben felismert nyelvek:\\n%s"
 
-#: src/Model/Item.php:2696
+#: src/Model/Item.php:2701
 msgid "activity"
 msgstr "tevékenység"
 
-#: src/Model/Item.php:2698
+#: src/Model/Item.php:2703
 msgid "comment"
 msgstr "hozzászólás"
 
-#: src/Model/Item.php:2701
+#: src/Model/Item.php:2706
 msgid "post"
 msgstr "bejegyzés"
 
-#: src/Model/Item.php:2816
+#: src/Model/Item.php:2821
 #, php-format
 msgid "Content warning: %s"
 msgstr "Tartalom figyelmeztetés: %s"
 
-#: src/Model/Item.php:3167
+#: src/Model/Item.php:3180
 msgid "bytes"
 msgstr "bájt"
 
-#: src/Model/Item.php:3201
+#: src/Model/Item.php:3214
 #, php-format
 msgid "%s (%d%s, %d votes)"
 msgstr "%s (%d%s, %d szavazat)"
 
-#: src/Model/Item.php:3203
+#: src/Model/Item.php:3216
 #, php-format
 msgid "%s (%d votes)"
 msgstr "%s (%d szavazat)"
 
-#: src/Model/Item.php:3208
+#: src/Model/Item.php:3221
 #, php-format
 msgid "%d voters. Poll end: %s"
 msgstr "%d szavazó. Szavazás vége: %s"
 
-#: src/Model/Item.php:3210
+#: src/Model/Item.php:3223
 #, php-format
 msgid "%d voters."
 msgstr "%d szavazó."
 
-#: src/Model/Item.php:3212
+#: src/Model/Item.php:3225
 #, php-format
 msgid "Poll end: %s"
 msgstr "Szavazás vége: %s"
 
-#: src/Model/Item.php:3246 src/Model/Item.php:3247
+#: src/Model/Item.php:3259 src/Model/Item.php:3260
 msgid "View on separate page"
 msgstr "Megtekintés külön oldalon"
 
@@ -6415,7 +6444,7 @@ msgstr "Nincsenek telepített alkalmazások."
 msgid "Applications"
 msgstr "Alkalmazások"
 
-#: src/Module/Attach.php:49 src/Module/Attach.php:61
+#: src/Module/Attach.php:50 src/Module/Attach.php:62
 msgid "Item was not found."
 msgstr "Az elem nem található."
 
@@ -6581,7 +6610,7 @@ msgstr "Fiókok kezelése"
 msgid "Connected apps"
 msgstr "Kapcsolt alkalmazások"
 
-#: src/Module/BaseSettings.php:106 src/Module/Settings/UserExport.php:75
+#: src/Module/BaseSettings.php:106 src/Module/Settings/UserExport.php:76
 msgid "Export personal data"
 msgstr "Személyes adatok exportálása"
 
@@ -8087,24 +8116,24 @@ msgstr "Másolja be a következő hitelesítési kódot az alkalmazásába, és 
 msgid "Unsupported or missing grant type"
 msgstr "Nem támogatott vagy hiányzó felhatalmazástípus"
 
-#: src/Module/PermissionTooltip.php:48
+#: src/Module/PermissionTooltip.php:49
 #, php-format
 msgid "Wrong type \"%s\", expected one of: %s"
 msgstr "Hibás típus: „%s”, a következők egyike várt: %s"
 
-#: src/Module/PermissionTooltip.php:65
+#: src/Module/PermissionTooltip.php:66
 msgid "Model not found"
 msgstr "A modell nem található"
 
-#: src/Module/PermissionTooltip.php:88
+#: src/Module/PermissionTooltip.php:89
 msgid "Unlisted"
 msgstr "Listázatlan"
 
-#: src/Module/PermissionTooltip.php:106
+#: src/Module/PermissionTooltip.php:107
 msgid "Remote privacy information not available."
 msgstr "A távoli adatvédelmi információk nem érhetők el."
 
-#: src/Module/PermissionTooltip.php:115
+#: src/Module/PermissionTooltip.php:116
 msgid "Visible to:"
 msgstr "Látható nekik:"
 
@@ -8138,21 +8167,21 @@ msgstr "<b>Másolat:</b> %s<br>"
 msgid "<b>BCC:</b> %s<br>"
 msgstr "<b>Rejtett másolat:</b> %s<br>"
 
-#: src/Module/Photo.php:127
+#: src/Module/Photo.php:128
 msgid "The Photo is not available."
 msgstr "A fénykép nem érhető el."
 
-#: src/Module/Photo.php:140
+#: src/Module/Photo.php:141
 #, php-format
 msgid "The Photo with id %s is not available."
 msgstr "A(z) %s azonosítóval rendelkező fénykép nem érhető el."
 
-#: src/Module/Photo.php:173
+#: src/Module/Photo.php:174
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr "Érvénytelen külső erőforrás a(z) %s URL-lel."
 
-#: src/Module/Photo.php:175
+#: src/Module/Photo.php:176
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr "Érvénytelen %s azonosítóval rendelkező fénykép."
@@ -9765,32 +9794,32 @@ msgstr "<p>Vagy megnyithatja a következő URL-t a mobil eszközén:</p><p><a hr
 msgid "Verify code and enable two-factor authentication"
 msgstr "Kód ellenőrzése és a kétlépcsős hitelesítés engedélyezése"
 
-#: src/Module/Settings/UserExport.php:67
+#: src/Module/Settings/UserExport.php:68
 msgid "Export account"
 msgstr "Fiók exportálása"
 
-#: src/Module/Settings/UserExport.php:67
+#: src/Module/Settings/UserExport.php:68
 msgid ""
 "Export your account info and contacts. Use this to make a backup of your "
 "account and/or to move it to another server."
 msgstr "Fiókinformációk és partnerek exportálása. A fiókjáról történő biztonsági mentés készítéséhez és/vagy egy másik kiszolgálóra való áthelyezéséhez használja ezt."
 
-#: src/Module/Settings/UserExport.php:68
+#: src/Module/Settings/UserExport.php:69
 msgid "Export all"
 msgstr "Összes exportálása"
 
-#: src/Module/Settings/UserExport.php:68
+#: src/Module/Settings/UserExport.php:69
 msgid ""
 "Export your account info, contacts and all your items as json. Could be a "
 "very big file, and could take a lot of time. Use this to make a full backup "
 "of your account (photos are not exported)"
 msgstr "Fiókinformációk, partnerek és az összes elem exportálása JSON-formátumban. nagyon nagy fájl is lehet, és sokáig eltarthat. A fiókja teljes biztonsági mentésének elkészítéséhez használja ezt (a fényképek nem lesznek exportálva)."
 
-#: src/Module/Settings/UserExport.php:69
+#: src/Module/Settings/UserExport.php:70
 msgid "Export Contacts to CSV"
 msgstr "Partnerek exportálása CSV-fájlba"
 
-#: src/Module/Settings/UserExport.php:69
+#: src/Module/Settings/UserExport.php:70
 msgid ""
 "Export the list of the accounts you are following as CSV file. Compatible to"
 " e.g. Mastodon."
@@ -10062,155 +10091,155 @@ msgstr "Ismerős vagy kapcsolódási kérés"
 msgid "New Follower"
 msgstr "Új követő"
 
-#: src/Navigation/Notifications/Factory/Notification.php:119
+#: src/Navigation/Notifications/Factory/Notification.php:131
 #, php-format
 msgid "%1$s wants to follow you"
 msgstr "%1$s követni szeretné Önt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:121
+#: src/Navigation/Notifications/Factory/Notification.php:133
 #, php-format
 msgid "%1$s has started following you"
 msgstr "%1$s elkezdte követni Önt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:186
+#: src/Navigation/Notifications/Factory/Notification.php:197
 #, php-format
 msgid "%1$s liked your comment on %2$s"
 msgstr "%1$s kedvelte az Ön hozzászólását ehhez: %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:189
+#: src/Navigation/Notifications/Factory/Notification.php:200
 #, php-format
 msgid "%1$s liked your post %2$s"
 msgstr "%1$s kedvelte az Ön %2$s bejegyzését"
 
-#: src/Navigation/Notifications/Factory/Notification.php:196
+#: src/Navigation/Notifications/Factory/Notification.php:207
 #, php-format
 msgid "%1$s disliked your comment on %2$s"
 msgstr "%1$s nem kedvelte az Ön hozzászólását ehhez: %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:199
+#: src/Navigation/Notifications/Factory/Notification.php:210
 #, php-format
 msgid "%1$s disliked your post %2$s"
 msgstr "%1$s nem kedvelte az Ön %2$s bejegyzését"
 
-#: src/Navigation/Notifications/Factory/Notification.php:206
+#: src/Navigation/Notifications/Factory/Notification.php:217
 #, php-format
 msgid "%1$s shared your comment %2$s"
 msgstr "%1$s megosztotta az Ön %2$s hozzászólását"
 
-#: src/Navigation/Notifications/Factory/Notification.php:209
+#: src/Navigation/Notifications/Factory/Notification.php:220
 #, php-format
 msgid "%1$s shared your post %2$s"
 msgstr "%1$s megosztotta az Ön %2$s bejegyzését"
 
-#: src/Navigation/Notifications/Factory/Notification.php:213
-#: src/Navigation/Notifications/Factory/Notification.php:282
+#: src/Navigation/Notifications/Factory/Notification.php:224
+#: src/Navigation/Notifications/Factory/Notification.php:293
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
 msgstr "%1$s megosztott egy %3$s által közzétett %2$s bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:215
-#: src/Navigation/Notifications/Factory/Notification.php:284
+#: src/Navigation/Notifications/Factory/Notification.php:226
+#: src/Navigation/Notifications/Factory/Notification.php:295
 #, php-format
 msgid "%1$s shared a post from %3$s"
 msgstr "%1$s megosztott egy %3$s által közzétett bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:217
-#: src/Navigation/Notifications/Factory/Notification.php:286
+#: src/Navigation/Notifications/Factory/Notification.php:228
+#: src/Navigation/Notifications/Factory/Notification.php:297
 #, php-format
 msgid "%1$s shared the post %2$s"
 msgstr "%1$s megosztotta a(z) %2$s bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:219
-#: src/Navigation/Notifications/Factory/Notification.php:288
+#: src/Navigation/Notifications/Factory/Notification.php:230
+#: src/Navigation/Notifications/Factory/Notification.php:299
 #, php-format
 msgid "%1$s shared a post"
 msgstr "%1$s megosztott egy bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:227
+#: src/Navigation/Notifications/Factory/Notification.php:238
 #, php-format
 msgid "%1$s wants to attend your event %2$s"
 msgstr "%1$s szeretne részt venni az Ön %2$s eseményén"
 
-#: src/Navigation/Notifications/Factory/Notification.php:234
+#: src/Navigation/Notifications/Factory/Notification.php:245
 #, php-format
 msgid "%1$s does not want to attend your event %2$s"
 msgstr "%1$s nem szeretne részt venni az Ön %2$s eseményén"
 
-#: src/Navigation/Notifications/Factory/Notification.php:241
+#: src/Navigation/Notifications/Factory/Notification.php:252
 #, php-format
 msgid "%1$s maybe wants to attend your event %2$s"
 msgstr "%1$s talán szeretne részt venni az Ön %2$s eseményén"
 
-#: src/Navigation/Notifications/Factory/Notification.php:248
+#: src/Navigation/Notifications/Factory/Notification.php:259
 #, php-format
 msgid "%1$s tagged you on %2$s"
 msgstr "%1$s bejelölte Önt ezen: %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:252
+#: src/Navigation/Notifications/Factory/Notification.php:263
 #, php-format
 msgid "%1$s replied to you on %2$s"
 msgstr "%1$s válaszolt Önnek ezen: %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:256
+#: src/Navigation/Notifications/Factory/Notification.php:267
 #, php-format
 msgid "%1$s commented in your thread %2$s"
 msgstr "%1$s hozzászólt az Ön %2$s szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:260
+#: src/Navigation/Notifications/Factory/Notification.php:271
 #, php-format
 msgid "%1$s commented on your comment %2$s"
 msgstr "%1$s hozzászólt az Ön %2$s hozzászólásánál"
 
-#: src/Navigation/Notifications/Factory/Notification.php:266
+#: src/Navigation/Notifications/Factory/Notification.php:277
 #, php-format
 msgid "%1$s commented in their thread %2$s"
 msgstr "%1$s hozzászólt az ő %2$s szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:268
+#: src/Navigation/Notifications/Factory/Notification.php:279
 #, php-format
 msgid "%1$s commented in their thread"
 msgstr "%1$s hozzászólt az ő szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:270
+#: src/Navigation/Notifications/Factory/Notification.php:281
 #, php-format
 msgid "%1$s commented in the thread %2$s from %3$s"
 msgstr "%1$s hozzászólt egy %3$s által közzétett %2$s szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:272
+#: src/Navigation/Notifications/Factory/Notification.php:283
 #, php-format
 msgid "%1$s commented in the thread from %3$s"
 msgstr "%1$s hozzászólt egy %3$s által közzétett szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:277
+#: src/Navigation/Notifications/Factory/Notification.php:288
 #, php-format
 msgid "%1$s commented on your thread %2$s"
 msgstr "%1$s hozzászólt az Ön %2$s szálánál"
 
-#: src/Navigation/Notifications/Repository/Notify.php:214
+#: src/Navigation/Notifications/Repository/Notify.php:215
 #: src/Navigation/Notifications/Repository/Notify.php:697
 msgid "[Friendica:Notify]"
 msgstr "[Friendica: értesítés]"
 
-#: src/Navigation/Notifications/Repository/Notify.php:278
+#: src/Navigation/Notifications/Repository/Notify.php:279
 #, php-format
 msgid "%s New mail received at %s"
 msgstr "%s Új levél érkezett ekkor: %s"
 
-#: src/Navigation/Notifications/Repository/Notify.php:280
+#: src/Navigation/Notifications/Repository/Notify.php:281
 #, php-format
 msgid "%1$s sent you a new private message at %2$s."
 msgstr "%1$s személyes üzenetet küldött ekkor: %2$s."
 
-#: src/Navigation/Notifications/Repository/Notify.php:281
+#: src/Navigation/Notifications/Repository/Notify.php:282
 msgid "a private message"
 msgstr "egy személyes üzenetet"
 
-#: src/Navigation/Notifications/Repository/Notify.php:281
+#: src/Navigation/Notifications/Repository/Notify.php:282
 #, php-format
 msgid "%1$s sent you %2$s."
 msgstr "%1$s küldött Önnek %2$s."
 
-#: src/Navigation/Notifications/Repository/Notify.php:283
+#: src/Navigation/Notifications/Repository/Notify.php:284
 #, php-format
 msgid "Please visit %s to view and/or reply to your private messages."
 msgstr "Látogassa meg a(z) %s oldalt a személyes üzenete megtekintéséhez és/vagy megválaszolásához."
@@ -10231,7 +10260,7 @@ msgid "%1$s commented on their %2$s %3$s"
 msgstr "%1$s hozzászólt egy saját %2$s kapcsán: %3$s"
 
 #: src/Navigation/Notifications/Repository/Notify.php:327
-#: src/Navigation/Notifications/Repository/Notify.php:732
+#: src/Navigation/Notifications/Repository/Notify.php:731
 #, php-format
 msgid "%1$s Comment to conversation #%2$d by %3$s"
 msgstr "%1$s Hozzászólás a #%2$d beszélgetéshez %3$s által"
@@ -10244,7 +10273,7 @@ msgstr "%s hozzászólt egy olyan elemhez vagy beszélgetéshez, amelyet Ön kö
 #: src/Navigation/Notifications/Repository/Notify.php:333
 #: src/Navigation/Notifications/Repository/Notify.php:348
 #: src/Navigation/Notifications/Repository/Notify.php:367
-#: src/Navigation/Notifications/Repository/Notify.php:747
+#: src/Navigation/Notifications/Repository/Notify.php:746
 #, php-format
 msgid "Please visit %s to view and/or reply to the conversation."
 msgstr "Látogassa meg a %s oldalt a beszélgetés megtekintéséhez és/vagy megválaszolásához."
@@ -10433,12 +10462,12 @@ msgstr "Teljes név:\t%s\nOldal címe:\t%s\nBejelentkezési név:\t%s (%s)"
 msgid "Please visit %s to approve or reject the request."
 msgstr "Látogassa meg a(z) %s oldalt a kérés jóváhagyásához vagy visszautasításához."
 
-#: src/Navigation/Notifications/Repository/Notify.php:726
+#: src/Navigation/Notifications/Repository/Notify.php:725
 #, php-format
 msgid "%s %s tagged you"
 msgstr "%s %s bejelölte Önt"
 
-#: src/Navigation/Notifications/Repository/Notify.php:729
+#: src/Navigation/Notifications/Repository/Notify.php:728
 #, php-format
 msgid "%s %s shared a new post"
 msgstr "%s %s megosztott egy új bejegyzést"
