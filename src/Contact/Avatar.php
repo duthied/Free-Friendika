@@ -58,7 +58,8 @@ class Avatar
 			return $fields;
 		}
 
-		if (Network::isLocalLink($avatar)) {
+		if (Network::isLocalLink($avatar) || empty($avatar)) {
+			self::deleteCache($contact);
 			return $fields;
 		}
 
@@ -87,11 +88,12 @@ class Avatar
 			return $fields;
 		}
 
-		$filename = self::getFilename($contact['url']);
-		
-		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL);
-		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB);
-		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO);
+		$filename  = self::getFilename($contact['url']);
+		$timestamp = time();
+
+		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL, $timestamp);
+		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB, $timestamp);
+		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO, $timestamp);
 
 		Logger::debug('Storing new avatar cache', ['uri-id' => $contact['uri-id'], 'fields' => $fields]);
 
@@ -107,15 +109,17 @@ class Avatar
 			return $fields;
 		}
 
-		if (Network::isLocalLink($contact['avatar'])) {
+		if (Network::isLocalLink($contact['avatar']) || empty($contact['avatar'])) {
+			self::deleteCache($contact);
 			return $fields;
 		}
 
-		$filename = self::getFilename($contact['url']);
-		
-		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL);
-		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB);
-		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO);
+		$filename  = self::getFilename($contact['url']);
+		$timestamp = time();
+
+		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL, $timestamp);
+		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB, $timestamp);
+		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO, $timestamp);
 
 		return $fields;
 	}
@@ -128,7 +132,7 @@ class Avatar
 			substr($guid, 9, 2) .'/' . substr($guid, 11, 2) . '/' . substr($guid, 13, 4). '/' . substr($guid, 18) . '-';
 	}
 
-	private static function storeAvatarCache(Image $image, string $filename, int $size): string
+	private static function storeAvatarCache(Image $image, string $filename, int $size, int $timestamp): string
 	{
 		$image->scaleDown($size);
 		if (is_null($image) || !$image->isValid()) {
@@ -187,7 +191,7 @@ class Avatar
 			return '';
 		}
 
-		return DI::baseUrl() . $path;
+		return DI::baseUrl() . $path . '?ts=' . $timestamp;
 	}
 
 	/**
@@ -209,17 +213,17 @@ class Avatar
 	 */
 	private static function getCacheFile(string $avatar): string
 	{
-		if (empty($avatar) || !Network::isLocalLink($avatar)) {
+		$parts = parse_url($avatar);
+		if (empty($parts['host']) || ($parts['host'] != DI::baseUrl()->getHostname())) {
 			return '';
 		}
 
-		$path = Strings::normaliseLink(DI::baseUrl() . self::BASE_PATH);
-
-		if (Network::getUrlMatch($path, $avatar) != $path) {
+		$pos = strpos($parts['path'], DI::baseUrl()->getUrlPath() . self::BASE_PATH);
+		if ($pos !== 0) {
 			return '';
 		}
 
-		$filename = str_replace($path, DI::basePath(). self::BASE_PATH, Strings::normaliseLink($avatar));
+		$filename = DI::basePath() . $parts['path'];
 
 		DI::profiler()->startRecording('file');
 		$exists = file_exists($filename);
