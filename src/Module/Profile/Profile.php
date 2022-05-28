@@ -49,7 +49,7 @@ class Profile extends BaseProfile
 	protected function rawContent(array $request = [])
 	{
 		if (ActivityPub::isRequest()) {
-			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $this->parameters['nickname']]);
+			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $this->parameters['nickname'], 'account_removed' => false]);
 			if (DBA::isResult($user)) {
 				try {
 					$data = ActivityPub\Transmitter::getProfile($user['uid']);
