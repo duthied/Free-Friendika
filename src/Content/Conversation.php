@@ -443,7 +443,7 @@ class Conversation
 		$previewing = (($preview) ? ' preview ' : '');
 
 		if ($mode === 'network') {
-			$items = $this->addChildren($items, false, $order, $uid);
+			$items = $this->addChildren($items, false, $order, $uid, $mode);
 			if (!$update) {
 				/*
 				* The special div is needed for liveUpdate to kick in for this page.
@@ -469,7 +469,7 @@ class Conversation
 					. "'; </script>\r\n";
 			}
 		} elseif ($mode === 'profile') {
-			$items = $this->addChildren($items, false, $order, $uid);
+			$items = $this->addChildren($items, false, $order, $uid, $mode);
 
 			if (!$update) {
 				$tab = !empty($_GET['tab']) ? trim($_GET['tab']) : 'posts';
@@ -486,7 +486,7 @@ class Conversation
 				}
 			}
 		} elseif ($mode === 'notes') {
-			$items = $this->addChildren($items, false, $order, local_user());
+			$items = $this->addChildren($items, false, $order, local_user(), $mode);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-notes"></div>' . "\r\n"
@@ -494,7 +494,7 @@ class Conversation
 					. "; var netargs = '/?f='; </script>\r\n";
 			}
 		} elseif ($mode === 'display') {
-			$items = $this->addChildren($items, false, $order, $uid);
+			$items = $this->addChildren($items, false, $order, $uid, $mode);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-display"></div>' . "\r\n"
@@ -502,7 +502,7 @@ class Conversation
 					. "</script>";
 			}
 		} elseif ($mode === 'community') {
-			$items = $this->addChildren($items, true, $order, $uid);
+			$items = $this->addChildren($items, true, $order, $uid, $mode);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-community"></div>' . "\r\n"
@@ -512,7 +512,7 @@ class Conversation
 					. "'; </script>\r\n";
 			}
 		} elseif ($mode === 'contacts') {
-			$items = $this->addChildren($items, false, $order, $uid);
+			$items = $this->addChildren($items, false, $order, $uid, $mode);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-contact"></div>' . "\r\n"
@@ -904,15 +904,15 @@ class Conversation
 	 * The system will fetch the comments for the local user whenever possible.
 	 * This behaviour is currently needed to allow commenting on Friendica posts.
 	 *
-	 * @param array $parents Parent items
-	 *
-	 * @param       $block_authors
-	 * @param       $order
-	 * @param       $uid
+	 * @param array  $parents       Parent items
+	 * @param bool   $block_authors
+	 * @param bool   $order
+	 * @param int    $uid
+	 * @param string $mode
 	 * @return array items with parents and comments
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function addChildren(array $parents, $block_authors, $order, $uid)
+	private function addChildren(array $parents, bool $block_authors, string $order, int $uid, string $mode)
 	{
 		$this->profiler->startRecording('rendering');
 		if (count($parents) > 1) {
@@ -972,6 +972,10 @@ class Conversation
 		while ($row = Post::fetch($thread_items)) {
 			if (!empty($items[$row['uri-id']]) && ($row['uid'] == 0)) {
 				continue;
+			}
+
+			if (($mode != 'contacts') && !$row['origin']) {
+				$row['featured'] = false;
 			}
 
 			if ($max_comments > 0) {
