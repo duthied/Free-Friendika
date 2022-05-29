@@ -61,23 +61,6 @@ class Site extends BaseAdmin
 			return;
 		}
 
-		if (!empty($_POST['relocate']) && !empty($_POST['relocate_url'])) {
-			try {
-				$relocate = new Relocate(DI::baseUrl(), DI::dba(), DI::config());
-				$relocate->run($_POST['relocate_url']);
-
-				info(DI::l10n()->t('Relocation started. Could take a while to complete.'));
-			} catch (\InvalidArgumentException $e) {
-				notice(DI::l10n()->t('Can not parse base url. Must have at least <scheme>://<domain>'));
-			} catch (\Throwable $e) {
-				notice(DI::l10n()->t('Unable to perform the relocation, please retry later or check the application logs.'));
-				notice($e->getMessage());
-			}
-
-			DI::baseUrl()->redirect('admin/site');
-		}
-		// end relocate
-
 		$sitename         = (!empty($_POST['sitename'])         ? trim($_POST['sitename'])      : '');
 		$sender_email     = (!empty($_POST['sender_email'])     ? trim($_POST['sender_email'])  : '');
 		$banner           = (!empty($_POST['banner'])           ? trim($_POST['banner'])                             : false);
@@ -462,8 +445,9 @@ class Site extends BaseAdmin
 			'$no_relay_list'     => DI::l10n()->t('The system is not subscribed to any relays at the moment.'),
 			'$relay_list_title'  => DI::l10n()->t('The system is currently subscribed to the following relays:'),
 			'$relay_list'        => Relay::getList(['url']),
-			'$relocate'          => DI::l10n()->t('Relocate Instance'),
-			'$relocate_warning'  => DI::l10n()->t('<strong>Warning!</strong> Advanced function. Could make this server unreachable.'),
+			'$relocate'          => DI::l10n()->t('Relocate Node'),
+			'$relocate_msg'      => DI::l10n()->t('Relocating your node enables you to change the DNS domain of this node and keep all the existing users and posts. This process takes a while and can only be started from the relocate console command like this:'),
+			'$relocate_cmd'      => DI::l10n()->t('(Friendica directory)# bin/console relocate https://newdomain.com'),
 			'$baseurl'           => DI::baseUrl()->get(true),
 
 			// name, label, value, help string, extra data...
@@ -550,8 +534,6 @@ class Site extends BaseAdmin
 			'$max_display_comments'   => ['max_display_comments', DI::l10n()->t('Maximum numbers of comments per post on the display page'), DI::config()->get('system', 'max_display_comments'), DI::l10n()->t('How many comments should be shown on the single view for each post? Default value is 1000.')],
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
-
-			'$relocate_url'           => ['relocate_url', DI::l10n()->t('New base url'), DI::baseUrl()->get(), DI::l10n()->t('Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.')],
 
 			'$worker_queues'          => ['worker_queues', DI::l10n()->t('Maximum number of parallel workers'), DI::config()->get('system', 'worker_queues'), DI::l10n()->t('On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.', 5, 20, 10)],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],

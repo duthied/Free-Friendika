@@ -321,14 +321,7 @@
 			</div>
 		</form>
 
-		<!--
-		/*
-		 *    Relocate
-		 */ -->
-		<form id="relocate-form" class="panel" action="{{$baseurl}}/admin/site" method="post">
-			<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
-			<input type="hidden" name="page_site" value="{{$submit}}">
-			<input type="hidden" name="active_panel" value="admin-settings-relocate-collapse">
+		<div class="panel">
 			<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-relocate">
 				<h2>
 					<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-relocate-collapse" aria-expanded="false" aria-controls="admin-settings-relocate-collapse">
@@ -338,15 +331,12 @@
 			</div>
 			<div id="admin-settings-relocate-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-relocate">
 				<div class="panel-body">
-					<div class="alert alert-danger alert-dismissible">
-						{{$relocate_warning nofilter}}
-					</div>
-					{{include file="field_input.tpl" field=$relocate_url}}
-				</div>
-				<div class="panel-footer">
-					<input type="submit" name="relocate" class="btn btn-primary" value="{{$relocate_button}}"/>
+					<p>
+						{{$relocate_msg}}
+					</p>
+					<p><code>{{$relocate_cmd}}</code></p>
 				</div>
 			</div>
-		</form>
+		</div>
 	</div>
 </div>
