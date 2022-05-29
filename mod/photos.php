@@ -1257,14 +1257,12 @@ function photos_content(App $a)
 		$tags = null;
 
 		if (!empty($link_item['id'])) {
-			$tag_text = Tag::getCSVByURIId($link_item['uri-id']);
-			$arr = explode(',', $tag_text);
 			// parse tags and add links
 			$tag_arr = [];
-			foreach ($arr as $tag) {
+			foreach (Tag::getByURIId($link_item['uri-id']) as $tag) {
 				$tag_arr[] = [
-					'name' => BBCode::convert($tag),
-					'removeurl' => '/tagrm/' . $link_item['id'] . '/' . bin2hex($tag)
+					'name' => $tag['name'],
+					'removeurl' => '/tagrm/' . $link_item['id'] . '/' . bin2hex($tag['name'])
 				];
 			}
 			$tags = ['title' => DI::l10n()->t('Tags: '), 'tags' => $tag_arr];
