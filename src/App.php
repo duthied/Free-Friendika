@@ -472,7 +472,7 @@ class App
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
 			$user = $this->database->selectFirst('user', ['theme'], ['uid' => $this->profile_owner]);
-			if ($this->database->isResult($user) && !$this->pConfig->get(local_user(), 'system', 'always_my_theme')) {
+			if ($this->database->isResult($user) && !local_user()) {
 				$page_theme = $user['theme'];
 			}
 		}
@@ -504,7 +504,7 @@ class App
 		if (!empty($this->profile_owner) && ($this->profile_owner != local_user())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
-			if (!$this->pConfig->get(local_user(), 'system', 'always_my_theme')) {
+			if (!local_user()) {
 				$page_mobile_theme = $this->pConfig->get($this->profile_owner, 'system', 'mobile-theme');
 			}
 		}
