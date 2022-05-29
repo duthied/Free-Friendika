@@ -65,6 +65,7 @@ Commands:
 	po2php                 Generate a strings.php file from a messages.po file
 	typo                   Checks for parse errors in Friendica files
 	postupdate             Execute pending post update scripts (can last days)
+	relocate               Update node base URL
 	serverblock            Manage blocked servers
 	storage                Manage storage backend
 	relay                  Manage ActivityPub relay servers
@@ -97,6 +98,7 @@ HELP;
 		'postupdate'             => Friendica\Console\PostUpdate::class,
 		'po2php'                 => Friendica\Console\PoToPhp::class,
 		'relay'                  => Friendica\Console\Relay::class,
+		'relocate'               => Friendica\Console\Relocate::class,
 		'serverblock'            => Friendica\Console\ServerBlock::class,
 		'storage'                => Friendica\Console\Storage::class,
 		'test'                   => Friendica\Console\Test::class,

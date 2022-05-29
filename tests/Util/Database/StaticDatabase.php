@@ -70,7 +70,7 @@ class StaticDatabase extends Database
 	 *
 	 * @return bool
 	 */
-	public function transaction()
+	public function transaction(): bool
 	{
 		if (!$this->in_transaction && !$this->connection->beginTransaction()) {
 			return false;

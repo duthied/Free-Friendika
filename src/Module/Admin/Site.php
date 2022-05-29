@@ -22,6 +22,7 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\App;
+use Friendica\Core\Relocate;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Core\System;
@@ -59,74 +60,6 @@ class Site extends BaseAdmin
 		if (empty($_POST['page_site'])) {
 			return;
 		}
-
-		// relocate
-		// @TODO This file could benefit from moving this feature away in a Module\Admin\Relocate class for example
-		if (!empty($_POST['relocate']) && !empty($_POST['relocate_url']) && $_POST['relocate_url'] != "") {
-			$new_url = $_POST['relocate_url'];
-			$new_url = rtrim($new_url, "/");
-
-			$parsed = @parse_url($new_url);
-			if (!is_array($parsed) || empty($parsed['host']) || empty($parsed['scheme'])) {
-				notice(DI::l10n()->t("Can not parse base url. Must have at least <scheme>://<domain>"));
-				DI::baseUrl()->redirect('admin/site');
-			}
-
-			/* steps:
-			 * replace all "baseurl" to "new_url" in config, profile, term, items and contacts
-			 * send relocate for every local user
-			 * */
-
-			$old_url = DI::baseUrl()->get(true);
-
-			// Generate host names for relocation the addresses in the format user@address.tld
-			$new_host = str_replace("http://", "@", Strings::normaliseLink($new_url));
-			$old_host = str_replace("http://", "@", Strings::normaliseLink($old_url));
-
-			function update_table(App $a, $table_name, $fields, $old_url, $new_url)
-			{
-				$dbold = DBA::escape($old_url);
-				$dbnew = DBA::escape($new_url);
-
-				$upd = [];
-				foreach ($fields as $f) {
-					$upd[] = "`$f` = REPLACE(`$f`, '$dbold', '$dbnew')";
-				}
-
-				$upds = implode(", ", $upd);
-
-				$r = DBA::e(sprintf("UPDATE %s SET %s;", $table_name, $upds));
-				if (!DBA::isResult($r)) {
-					notice("Failed updating '$table_name': " . DBA::errorMessage());
-					DI::baseUrl()->redirect('admin/site');
-				}
-			}
-
-			// update tables
-			// update profile links in the format "http://server.tld"
-			update_table($a, "profile", ['photo', 'thumb'], $old_url, $new_url);
-			update_table($a, "contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
-			update_table($a, "post-content", ['body'], $old_url, $new_url);
-
-			// update profile addresses in the format "user@server.tld"
-			update_table($a, "contact", ['addr'], $old_host, $new_host);
-
-			// update config
-			DI::config()->set('system', 'url', $new_url);
-			DI::baseUrl()->saveByURL($new_url);
-
-			// send relocate
-			$usersStmt = DBA::select('user', ['uid'], ['account_removed' => false, 'account_expired' => false]);
-			while ($user = DBA::fetch($usersStmt)) {
-				Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $user['uid']);
-			}
-			DBA::close($usersStmt);
-
-			info(DI::l10n()->t("Relocation started. Could take a while to complete."));
-
-			DI::baseUrl()->redirect('admin/site');
-		}
-		// end relocate
 
 		$sitename         = (!empty($_POST['sitename'])         ? trim($_POST['sitename'])      : '');
 		$sender_email     = (!empty($_POST['sender_email'])     ? trim($_POST['sender_email'])  : '');
@@ -512,8 +445,9 @@ class Site extends BaseAdmin
 			'$no_relay_list'     => DI::l10n()->t('The system is not subscribed to any relays at the moment.'),
 			'$relay_list_title'  => DI::l10n()->t('The system is currently subscribed to the following relays:'),
 			'$relay_list'        => Relay::getList(['url']),
-			'$relocate'          => DI::l10n()->t('Relocate Instance'),
-			'$relocate_warning'  => DI::l10n()->t('<strong>Warning!</strong> Advanced function. Could make this server unreachable.'),
+			'$relocate'          => DI::l10n()->t('Relocate Node'),
+			'$relocate_msg'      => DI::l10n()->t('Relocating your node enables you to change the DNS domain of this node and keep all the existing users and posts. This process takes a while and can only be started from the relocate console command like this:'),
+			'$relocate_cmd'      => DI::l10n()->t('(Friendica directory)# bin/console relocate https://newdomain.com'),
 			'$baseurl'           => DI::baseUrl()->get(true),
 
 			// name, label, value, help string, extra data...
@@ -600,8 +534,6 @@ class Site extends BaseAdmin
 			'$max_display_comments'   => ['max_display_comments', DI::l10n()->t('Maximum numbers of comments per post on the display page'), DI::config()->get('system', 'max_display_comments'), DI::l10n()->t('How many comments should be shown on the single view for each post? Default value is 1000.')],
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
-
-			'$relocate_url'           => ['relocate_url', DI::l10n()->t('New base url'), DI::baseUrl()->get(), DI::l10n()->t('Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.')],
 
 			'$worker_queues'          => ['worker_queues', DI::l10n()->t('Maximum number of parallel workers'), DI::config()->get('system', 'worker_queues'), DI::l10n()->t('On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.', 5, 20, 10)],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],

@@ -148,14 +148,10 @@
 
 	</form>
 
-	{{* separate form for relocate... *}}
-	<form action="{{$baseurl}}/admin/site" method="post">
-		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+	<div>
 		<h2>{{$relocate}}</h2>
-		<p>{{$relocate_warning nofilter}}</p>
-		{{include file="field_input.tpl" field=$relocate_url}}
-		<input type="hidden" name="page_site" value="{{$submit}}">
-		<div class="submit"><input type="submit" name="relocate" value="{{$relocate_button}}"/></div>
-	</form>
+		<p>{{$relocate_msg}}</p>
+		<p><code>{{$relocate_cmd}}</code></p>
+	</div>
 
 </div>

@@ -1153,7 +1153,7 @@ class Database
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	public function transaction()
+	public function transaction(): bool
 	{
 		if (!$this->performCommit()) {
 			return false;
@@ -1789,5 +1789,33 @@ class Database
 	public function escapeArray(&$arr, $add_quotation = false)
 	{
 		array_walk($arr, [$this, 'escapeArrayCallback'], $add_quotation);
+	}
+
+	/**
+	 * Replaces a string in the provided fields of the provided table
+	 *
+	 * @param string $table_name
+	 * @param array  $fields List of field names in the provided table
+	 * @param string $search
+	 * @param string $replace
+	 * @throws \Exception
+	 */
+	public function replaceInTableFields(string $table_name, array $fields, string $search, string $replace)
+	{
+		$search = $this->escape($search);
+		$replace = $this->escape($replace);
+
+		$upd = [];
+		foreach ($fields as $field) {
+			$field = DBA::quoteIdentifier($field);
+			$upd[] = "$field = REPLACE($field, '$search', '$replace')";
+		}
+
+		$upds = implode(', ', $upd);
+
+		$r = $this->e(sprintf("UPDATE %s SET %s;", $table_name, $upds));
+		if (!$this->isResult($r)) {
+			throw new \RuntimeException("Failed updating `$table_name`: " . $this->errorMessage());
+		}
 	}
 }
