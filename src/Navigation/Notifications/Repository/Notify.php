@@ -26,6 +26,7 @@ use Friendica\BaseRepository;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
@@ -37,6 +38,7 @@ use Friendica\Navigation\Notifications\Entity;
 use Friendica\Navigation\Notifications\Exception;
 use Friendica\Navigation\Notifications\Factory;
 use Friendica\Network\HTTPException;
+use Friendica\Object\Api\Mastodon\Notification;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
@@ -59,6 +61,9 @@ class Notify extends BaseRepository
 	/** @var IManageConfigValues */
 	protected $config;
 
+	/** @var IManagePersonalConfigValues */
+	private $pConfig;
+
 	/** @var Emailer */
 	protected $emailer;
 
@@ -67,11 +72,12 @@ class Notify extends BaseRepository
 
 	protected static $table_name = 'notify';
 
-	public function __construct(Database $database, LoggerInterface $logger, L10n $l10n, BaseURL $baseUrl, IManageConfigValues $config, Emailer $emailer, Factory\Notification $notification, Factory\Notify $factory = null)
+	public function __construct(Database $database, LoggerInterface $logger, L10n $l10n, BaseURL $baseUrl, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, Emailer $emailer, Factory\Notification $notification, Factory\Notify $factory = null)
 	{
 		$this->l10n         = $l10n;
 		$this->baseUrl      = $baseUrl;
 		$this->config       = $config;
+		$this->pConfig      = $pConfig;
 		$this->emailer      = $emailer;
 		$this->notification = $notification;
 
@@ -646,6 +652,27 @@ class Notify extends BaseRepository
 
 			// use the Emailer class to send the message
 			return $this->emailer->send($email);
+		}
+
+		return false;
+	}
+
+	public function NotifyOnDesktop(Entity\Notification $Notification, string $type = null): bool
+	{
+		if (is_null($type)) {
+			$type = \Friendica\Factory\Api\Mastodon\Notification::getType($Notification);
+		}
+
+		if (!in_array($type, [Notification::TYPE_RESHARE, Notification::TYPE_LIKE])) {
+			return true;
+		}
+
+		if ($this->pConfig->get($Notification->uid, 'system', 'notify_like') && ($type == Notification::TYPE_LIKE)) {
+			return true;
+		}
+
+		if ($this->pConfig->get($Notification->uid, 'system', 'notify_announce') && ($type == Notification::TYPE_RESHARE)) {
+			return true;
 		}
 
 		return false;
