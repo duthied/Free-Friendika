@@ -276,7 +276,7 @@ class Tag
 	public static function getFromBody(string $body, string $tags = null)
 	{
 		if (is_null($tags)) {
-			$tags =  self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
+			$tags = self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
 		}
 
 		if (!preg_match_all("/([" . $tags . "])\[url\=([^\[\]]*)\]([^\[\]]*)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
@@ -298,15 +298,28 @@ class Tag
 	{
 		Logger::info('Check for tags', ['uri-id' => $uriid, 'hash' => $tags, 'callstack' => System::callstack()]);
 
-		$result = self::getFromBody($body, $tags);
-		if (empty($result)) {
-			return;
+		if (is_null($tags)) {
+			$tags = self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
 		}
 
-		Logger::info('Found tags', ['uri-id' => $uriid, 'hash' => $tags, 'result' => $result]);
+		// Only remove the shared data from "real" reshares
+		$shared = BBCode::fetchShareAttributes($body);
+		if (!empty($shared['guid'])) {
+			if (preg_match("/\s*\[share .*?\](.*?)\[\/share\]\s*/ism",  $body, $matches)) {
+				$share_body = $matches[1];
+			}
+			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		}
 
-		foreach ($result as $tag) {
+		foreach (self::getFromBody($body, $tags) as $tag) {
 			self::storeByHash($uriid, $tag[1], $tag[3], $tag[2], $probing);
+		}
+
+		// Search for hashtags in the shared body (but only if hashtags are wanted)
+		if (!empty($share_body) && (strpos($tags, self::TAG_CHARACTER[self::HASHTAG]) !== false)) {
+			foreach (self::getFromBody($share_body, self::TAG_CHARACTER[self::HASHTAG]) as $tag) {
+				self::storeByHash($uriid, $tag[1], $tag[3], $tag[2], $probing);
+			}
 		}
 	}
 
