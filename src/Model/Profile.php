@@ -235,7 +235,7 @@ class Profile
 
 		DI::page()['title'] = $profile['name'] . ' @ ' . DI::config()->get('config', 'sitename');
 
-		if (!DI::pConfig()->get(local_user(), 'system', 'always_my_theme')) {
+		if (!local_user()) {
 			$a->setCurrentTheme($profile['theme']);
 			$a->setCurrentMobileTheme(DI::pConfig()->get($a->getProfileOwner(), 'system', 'mobile_theme'));
 		}
@@ -880,23 +880,17 @@ class Profile
 	 *
 	 * Used from within PCSS themes to set theme parameters. If there's a
 	 * profile_uid variable set in App, that is the "page owner" and normally their theme
-	 * settings take precedence; unless a local user sets the "always_my_theme"
-	 * system pconfig, which means they don't want to see anybody else's theme
-	 * settings except their own while on this site.
+	 * settings take precedence; unless a local user is logged in which means they don't
+	 * want to see anybody else's theme settings except their own while on this site.
 	 *
+	 * @param App $a
 	 * @return int user ID
 	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @note Returns local_user instead of user ID if "always_my_theme" is set to true
 	 */
-	public static function getThemeUid(App $a)
+	public static function getThemeUid(App $a): int
 	{
-		$uid = !empty($a->getProfileOwner()) ? intval($a->getProfileOwner()) : 0;
-		if (local_user() && (DI::pConfig()->get(local_user(), 'system', 'always_my_theme') || !$uid)) {
-			return local_user();
-		}
-
-		return $uid;
+		return local_user() ?: $a->getProfileOwner();
 	}
 
 	/**
