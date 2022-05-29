@@ -143,17 +143,7 @@ class Subscription
 	{
 		$type = \Friendica\Factory\Api\Mastodon\Notification::getType($Notification);
 
-		$desktop_notification = !in_array($type, [Notification::TYPE_RESHARE, Notification::TYPE_LIKE]);
-
-		if (DI::pConfig()->get($Notification->uid, 'system', 'notify_like') && ($type == Notification::TYPE_LIKE)) {
-			$desktop_notification = true;
-		}
-
-		if (DI::pConfig()->get($Notification->uid, 'system', 'notify_announce') && ($type == Notification::TYPE_RESHARE)) {
-			$desktop_notification = true;
-		}
-
-		if ($desktop_notification) {
+		if (DI::notify()->NotifyOnDesktop($Notification, $type)) {
 			DI::notify()->createFromNotification($Notification);
 		}
 

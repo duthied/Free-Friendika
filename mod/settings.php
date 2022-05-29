@@ -23,25 +23,16 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
-use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\Notification;
-use Friendica\Model\Profile;
 use Friendica\Model\User;
-use Friendica\Model\Verb;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
-use Friendica\Protocol\Activity;
 use Friendica\Protocol\Email;
-use Friendica\Util\Temporal;
-use Friendica\Worker\Delivery;
 
 function settings_init(App $a)
 {
