@@ -683,7 +683,7 @@ class Contact
 	 */
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
-		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey', 'manually-approve',
+		$fields = ['id', 'uri-id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey', 'manually-approve',
 			'xmpp', 'matrix', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
 			'photo', 'thumb', 'micro', 'header', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
@@ -715,6 +715,7 @@ class Contact
 		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
 		$fields['url'] = DI::baseUrl() . '/profile/' . $user['nickname'];
 		$fields['nurl'] = Strings::normaliseLink($fields['url']);
+		$fields['uri-id'] = ItemURI::getIdByURI($fields['url']);
 		$fields['addr'] = $user['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
 		$fields['request'] = DI::baseUrl() . '/dfrn_request/' . $user['nickname'];
 		$fields['notify'] = DI::baseUrl() . '/dfrn_notify/' . $user['nickname'];
@@ -772,10 +773,10 @@ class Contact
 			$fields['updated'] = DateTimeFormat::utcNow();
 			self::update($fields, ['id' => $self['id']]);
 
-			// Update the public contact as well
-			$fields['prvkey'] = null;
-			$fields['self']   = false;
-			self::update($fields, ['uid' => 0, 'nurl' => $self['nurl']]);
+			// Update the other contacts as well
+			unset($fields['prvkey']);
+			$fields['self'] = false;
+			self::update($fields, ['uri-id' => $self['uri-id'], 'self' => false]);
 
 			// Update the profile
 			$fields = [
