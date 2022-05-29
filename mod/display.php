@@ -110,7 +110,13 @@ function display_init(App $a)
 		$item = $parent ?: $item;
 	}
 
-	DI::page()['aside'] = Widget\VCard::getHTML(display_fetchauthor($item));
+	$author = display_fetchauthor($item);
+
+	if (\Friendica\Util\Network::isLocalLink($author['url'])) {
+		\Friendica\Model\Profile::load(DI::app(), $author['nick'], false);
+	} else {
+		DI::page()['aside'] = Widget\VCard::getHTML($author);
+	}
 }
 
 function display_fetchauthor($item)
