@@ -31,6 +31,7 @@ Version 2022.05 (unreleased)
     Fixed a problem that could cause unintentionally changing the password by password managers [MrPetovan]
     Fixed a problem with the language detection of postings [annando]
     Fixed a problem with the selection of JSON/XML webfinger results [annando]
+    Fixed a problem with re-shared postings that were pinned [annando]
 
   Friendica Addons
     Breaking: The obsolete hooks settings_form and settings_post have been removed,
@@ -44,9 +45,11 @@ Version 2022.05 (unreleased)
       Added the addon [nupplaphil]
 
   Closed Issues
-     4639,  9650, 11212, 11223, 11226, 11309, 11310, 11315, 11319, 11338,
-    11339, 11340, 11343, 11350, 11353, 11371, 11393, 11407, 11425, 11427,
-    11440, 11445, 11450, 11461, 11487, 11491, 11492, 11504, 11508
+     4639,  9650, 11040, 11212, 11223, 11226, 11291, 11299, 11309, 11310,
+    11315, 11319, 11338, 11339, 11340, 11343, 11350, 11353, 11371, 11393,
+    11407, 11425, 11427, 11431, 11440, 11445, 11450, 11461, 11469, 11470,
+    11487, 11488, 11491, 11492, 11504, 11507, 11508, 11510, 11511, 11512,
+    11557, 11560, 11561
 
 Version 2022.03 (2022-03-07)
   Friendica Core
