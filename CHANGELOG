@@ -10,6 +10,7 @@ Version 2022.05 (unreleased)
     Added tool to move avatars to the avatar cache [annanado]
     Added storage of edit history of postings [annando]
     Added the possibility to set custom posting dates [annando]
+    Added the possibility that pending events in a forum are send to new members [annando]
     Enhanced performance (database related, global directory) [annando]
     Enhanced the logging [annando]
     Enhanced the federation statistics page in the admin panel [annando]
@@ -45,11 +46,11 @@ Version 2022.05 (unreleased)
       Added the addon [nupplaphil]
 
   Closed Issues
-     4639,  9650, 11040, 11212, 11223, 11226, 11291, 11299, 11309, 11310,
-    11315, 11319, 11338, 11339, 11340, 11343, 11350, 11353, 11371, 11393,
-    11407, 11425, 11427, 11431, 11440, 11445, 11450, 11461, 11469, 11470,
-    11487, 11488, 11491, 11492, 11504, 11507, 11508, 11510, 11511, 11512,
-    11557, 11560, 11561
+     4639,  9650, 10926, 11040, 11212, 11223, 11226, 11291, 11299, 11309,
+    11310, 11315, 11319, 11338, 11339, 11340, 11343, 11350, 11353, 11371,
+    11393, 11407, 11425, 11427, 11431, 11440, 11445, 11450, 11461, 11469,
+    11470, 11487, 11488, 11491, 11492, 11504, 11507, 11508, 11510, 11511,
+    11512, 11557, 11560, 11561
 
 Version 2022.03 (2022-03-07)
   Friendica Core
