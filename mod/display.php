@@ -106,7 +106,7 @@ function display_init(App $a)
 	}
 
 	if ($item['gravity'] != GRAVITY_PARENT) {
-		$parent = Post::selectFirstForUser($item_user, $fields, ['uid' => $item['uid'], 'uri-id' => $item['parent-uri-id']]);
+		$parent = Post::selectFirstForUser($item_user, $fields, ['uid' => [$item['uid'], local_user()], 'uri-id' => $item['parent-uri-id']], ['order' => ['uid']]);
 		$item = $parent ?: $item;
 	}
 
