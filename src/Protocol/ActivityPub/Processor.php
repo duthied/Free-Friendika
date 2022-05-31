@@ -27,6 +27,7 @@ use Friendica\Content\Text\Markdown;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
@@ -46,6 +47,7 @@ use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\JsonLD;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
 /**
  * ActivityPub Processor Protocol class
@@ -480,8 +482,8 @@ class Processor
 	/**
 	 * Fetch the Uri-Id of a post for the "featured" collection
 	 *
-	 * @param array $activity 
-	 * @return null|int 
+	 * @param array $activity
+	 * @return null|int
 	 */
 	private static function getUriIdForFeaturedCollection(array $activity)
 	{
@@ -519,7 +521,7 @@ class Processor
 	/**
 	 * Add a post to the "Featured" collection
 	 *
-	 * @param array $activity 
+	 * @param array $activity
 	 */
 	public static function addToFeaturedCollection(array $activity)
 	{
@@ -536,7 +538,7 @@ class Processor
 	/**
 	 * Remove a post to the "Featured" collection
 	 *
-	 * @param array $activity 
+	 * @param array $activity
 	 */
 	public static function removeFromFeaturedCollection(array $activity)
 	{
@@ -1025,8 +1027,8 @@ class Processor
 	/**
 	 * Fetch featured posts from a contact with the given url
 	 *
-	 * @param string $url 
-	 * @return void 
+	 * @param string $url
+	 * @return void
 	 */
 	public static function fetchFeaturedPosts(string $url)
 	{
@@ -1277,11 +1279,42 @@ class Processor
 			return;
 		}
 
+		if ($result && DI::config()->get('system', 'transmit_pending_events') && ($owner['contact-type'] == Contact::TYPE_COMMUNITY)) {
+			self::transmitPendingEvents($cid, $owner['uid']);
+		}
+
 		if (empty($contact)) {
 			Contact::update(['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
 
 		Logger::notice('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
+	}
+
+	/**
+	 * Transmit pending events to the new follower
+	 *
+	 * @param integer $cid
+	 * @param integer $uid
+	 * @return void
+	 */
+	private static function transmitPendingEvents(int $cid, int $uid)
+	{
+		$account = DBA::selectFirst('account-user-view', ['ap-inbox', 'ap-sharedinbox'], ['id' => $cid]);
+		$inbox = $account['ap-sharedinbox'] ?: $account['ap-inbox'];
+
+		$events = DBA::select('event', ['id'], ["`uid` = ? AND `start` > ? AND `type` != ?", $uid, DateTimeFormat::utcNow(), 'birthday']);
+		while ($event = DBA::fetch($events)) {
+			$post = Post::selectFirst(['id', 'uri-id', 'created'], ['event-id' => $event['id']]);
+			if (empty($post)) {
+				continue;
+			}
+			if (DI::config()->get('system', 'bulk_delivery')) {
+				Post\Delivery::add($post['uri-id'], $uid, $inbox, $post['created'], Delivery::POST, [$cid]);
+				Worker::add(PRIORITY_HIGH, 'APDelivery', '', 0, $inbox, 0);
+			} else {
+				Worker::add(PRIORITY_HIGH, 'APDelivery', Delivery::POST, $post['id'], $inbox, $uid, [$cid], $post['uri-id']);
+			}
+		}
 	}
 
 	/**
@@ -1342,7 +1375,7 @@ class Processor
 
 		$uid = User::getIdForURL($activity['object_id']);
 		if (empty($uid)) {
-			return;			
+			return;
 		}
 
 		Contact\User::setIsBlocked($cid, $uid, true);
@@ -1365,7 +1398,7 @@ class Processor
 
 		$uid = User::getIdForURL($activity['object_object']);
 		if (empty($uid)) {
-			return;			
+			return;
 		}
 
 		Contact\User::setIsBlocked($cid, $uid, false);

@@ -557,6 +557,10 @@ return [
 		// Maximum number of posts that a user can send per month with the API. 0 to disable monthly throttling.
 		'throttle_limit_month' => 0,
 
+		// transmit_pending_events (Boolean)
+		// Transmit pending events upon accepted contact request for forums
+		'transmit_pending_events' => false,
+
 		// update_active_contacts (Boolean)
 		// When activated, only public contacts will be activated regularly that are used for example in items or tags.
 		'update_active_contacts' => false,
