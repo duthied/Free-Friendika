@@ -127,12 +127,18 @@ class FormattedNavNotification extends BaseFactory
 	public function createFromIntro(\Friendica\Contact\Introduction\Entity\Introduction $intro): ValueObject\FormattedNavNotification
 	{
 		if (!isset(self::$contacts[$intro->cid])) {
-			self::$contacts[$intro->cid] = Contact::getById($intro->cid, ['name', 'url']);
+			self::$contacts[$intro->cid] = Contact::getById($intro->cid, ['name', 'url', 'pending']);
+		}
+
+		if (self::$contacts[$intro->cid]['pending']) {
+			$msg = $this->l10n->t('{0} wants to follow you');
+		} else {
+			$msg = $this->l10n->t('{0} has started following you');
 		}
 
 		return $this->createFromParams(
 			self::$contacts[$intro->cid],
-			$this->l10n->t('{0} wants to follow you'),
+			$msg,
 			$intro->datetime,
 			new Uri($this->baseUrl->get() . '/notifications/intros/' . $intro->id)
 		);

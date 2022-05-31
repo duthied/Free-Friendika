@@ -126,8 +126,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 		}
 
 		if ($Notification->type === Post\UserNotification::TYPE_NONE) {
-			$localRelationship = $this->localRelationshipRepo->getForUserContact($Notification->uid, $Notification->actorId);
-			if ($localRelationship->pending) {
+			if ($causer['pending']) {
 				$msg = $this->l10n->t('%1$s wants to follow you');
 			} else {
 				$msg = $this->l10n->t('%1$s has started following you');
