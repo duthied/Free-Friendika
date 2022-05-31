@@ -1090,7 +1090,7 @@ function photos_content(App $a)
 	// Display one photo
 	if ($datatype === 'image') {
 		// fetch image, item containing image, then comments
-		$ph = Photo::selectToArray([], ["`uid` = ? AND `resource-id` = ? " . $sql_extra, $owner_uid, $datum], ['order' => ['scale' => true]]);
+		$ph = Photo::selectToArray([], ["`uid` = ? AND `resource-id` = ? " . $sql_extra, $owner_uid, $datum], ['order' => ['scale']]);
 
 		if (!DBA::isResult($ph)) {
 			if (DBA::exists('photo', ['resource-id' => $datum, 'uid' => $owner_uid])) {
@@ -1129,12 +1129,14 @@ function photos_content(App $a)
 			$order_field = $_GET['order'] ?? '';
 
 			if ($order_field === 'posted') {
-				$order = 'ASC';
+				$params = ['order' => [$order_field]];
+			} elseif (!empty($order_field)) {
+				$params = ['order' => [$order_field => true]];
 			} else {
-				$order = 'DESC';
+				$params = [];
 			}
 
-			$prvnxt = Photo::selectToArray(['resource-id'], ["`album` = ? AND `uid` = ? AND `scale` = ?" . $sql_extra, $ph[0]['album'], $owner_uid, 0]);
+			$prvnxt = Photo::selectToArray(['resource-id'], ["`album` = ? AND `uid` = ? AND `scale` = ?" . $sql_extra, $ph[0]['album'], $owner_uid, 0], $params);
 
 			if (DBA::isResult($prvnxt)) {
 				$prv = null;
