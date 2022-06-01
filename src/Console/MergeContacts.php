@@ -63,8 +63,8 @@ HELP;
 	{
 		parent::__construct($argv);
 
-		$this->dba     = $dba;
-		$this->l10n    = $l10n;
+		$this->dba  = $dba;
+		$this->l10n = $l10n;
 	}
 
 	protected function doExecute()
@@ -137,7 +137,7 @@ HELP;
 			$this->err($this->l10n->t('Deletion of id %d failed', $from));
 		} else {
 			$this->out($this->l10n->t('Deletion of id %d was successful', $from));
-	}
+		}
 	}
 
 	private function updateTable(string $table, string $field, int $from, int $to, bool $in_unique_key)
