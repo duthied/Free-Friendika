@@ -49,7 +49,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-29 13:18-0400\n"
+"POT-Creation-Date: 2022-05-31 13:27+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>, 2016-2022\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
@@ -508,7 +508,7 @@ msgid "OStatus support is disabled. Contact can't be added."
 msgstr "OStatus-Unterstützung ist nicht aktiviert. Der Kontakt kann nicht zugefügt werden."
 
 #: mod/follow.php:138 src/Content/Item.php:443 src/Content/Widget.php:78
-#: src/Model/Contact.php:1101 src/Model/Contact.php:1113
+#: src/Model/Contact.php:1102 src/Model/Contact.php:1114
 #: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr "Verbinden/Folgen"
@@ -1043,27 +1043,27 @@ msgstr "Möchtest du wirklich dieses Foto löschen?"
 msgid "Delete Photo"
 msgstr "Foto löschen"
 
-#: mod/photos.php:1200
+#: mod/photos.php:1202
 msgid "View photo"
 msgstr "Fotos ansehen"
 
-#: mod/photos.php:1202
+#: mod/photos.php:1204
 msgid "Edit photo"
 msgstr "Foto bearbeiten"
 
-#: mod/photos.php:1203
+#: mod/photos.php:1205
 msgid "Delete photo"
 msgstr "Foto löschen"
 
-#: mod/photos.php:1204
+#: mod/photos.php:1206
 msgid "Use as profile photo"
 msgstr "Als Profilbild verwenden"
 
-#: mod/photos.php:1211
+#: mod/photos.php:1213
 msgid "Private Photo"
 msgstr "Privates Foto"
 
-#: mod/photos.php:1217
+#: mod/photos.php:1219
 msgid "View Full Size"
 msgstr "Betrachte Originalgröße"
 
@@ -2263,32 +2263,32 @@ msgstr "Veranstaltung"
 msgid "Follow Thread"
 msgstr "Folge der Unterhaltung"
 
-#: src/Content/Item.php:423 src/Model/Contact.php:1106
+#: src/Content/Item.php:423 src/Model/Contact.php:1107
 msgid "View Status"
 msgstr "Status anschauen"
 
 #: src/Content/Item.php:424 src/Content/Item.php:446
-#: src/Model/Contact.php:1040 src/Model/Contact.php:1098
-#: src/Model/Contact.php:1107 src/Module/Directory.php:158
+#: src/Model/Contact.php:1041 src/Model/Contact.php:1099
+#: src/Model/Contact.php:1108 src/Module/Directory.php:158
 #: src/Module/Settings/Profile/Index.php:225
 msgid "View Profile"
 msgstr "Profil anschauen"
 
-#: src/Content/Item.php:425 src/Model/Contact.php:1108
+#: src/Content/Item.php:425 src/Model/Contact.php:1109
 msgid "View Photos"
 msgstr "Bilder anschauen"
 
-#: src/Content/Item.php:426 src/Model/Contact.php:1099
-#: src/Model/Contact.php:1109
+#: src/Content/Item.php:426 src/Model/Contact.php:1100
+#: src/Model/Contact.php:1110
 msgid "Network Posts"
 msgstr "Netzwerkbeiträge"
 
-#: src/Content/Item.php:427 src/Model/Contact.php:1100
-#: src/Model/Contact.php:1110
+#: src/Content/Item.php:427 src/Model/Contact.php:1101
+#: src/Model/Contact.php:1111
 msgid "View Contact"
 msgstr "Kontakt anzeigen"
 
-#: src/Content/Item.php:428 src/Model/Contact.php:1111
+#: src/Content/Item.php:428 src/Model/Contact.php:1112
 msgid "Send PM"
 msgstr "Private Nachricht senden"
 
@@ -2311,7 +2311,7 @@ msgstr "Ignorieren"
 msgid "Languages"
 msgstr "Sprachen"
 
-#: src/Content/Item.php:438 src/Model/Contact.php:1112
+#: src/Content/Item.php:438 src/Model/Contact.php:1113
 msgid "Poke"
 msgstr "Anstupsen"
 
@@ -2762,7 +2762,7 @@ msgstr "Personen"
 msgid "Organisations"
 msgstr "Organisationen"
 
-#: src/Content/Widget.php:521 src/Model/Contact.php:1536
+#: src/Content/Widget.php:521 src/Model/Contact.php:1537
 msgid "News"
 msgstr "Nachrichten"
 
@@ -3590,81 +3590,81 @@ msgstr "Interner Serverfehler"
 msgid "Legacy module file not found: %s"
 msgstr "Legacy-Moduldatei nicht gefunden: %s"
 
-#: src/Model/Contact.php:1102 src/Model/Contact.php:1114
+#: src/Model/Contact.php:1103 src/Model/Contact.php:1115
 msgid "UnFollow"
 msgstr "Entfolgen"
 
-#: src/Model/Contact.php:1120 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1121 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:130
 #: src/Module/Notifications/Introductions.php:202
 msgid "Approve"
 msgstr "Genehmigen"
 
-#: src/Model/Contact.php:1532
+#: src/Model/Contact.php:1533
 msgid "Organisation"
 msgstr "Organisation"
 
-#: src/Model/Contact.php:1540
+#: src/Model/Contact.php:1541
 msgid "Forum"
 msgstr "Forum"
 
-#: src/Model/Contact.php:2516
+#: src/Model/Contact.php:2517
 msgid "Disallowed profile URL."
 msgstr "Nicht erlaubte Profil-URL."
 
-#: src/Model/Contact.php:2521 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2522 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Blockierte Domain"
 
-#: src/Model/Contact.php:2526
+#: src/Model/Contact.php:2527
 msgid "Connect URL missing."
 msgstr "Connect-URL fehlt"
 
-#: src/Model/Contact.php:2535
+#: src/Model/Contact.php:2536
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "Der Kontakt konnte nicht hinzugefügt werden. Bitte überprüfe die Einstellungen unter Einstellungen -> Soziale Netzwerke"
 
-#: src/Model/Contact.php:2577
+#: src/Model/Contact.php:2578
 msgid "The profile address specified does not provide adequate information."
 msgstr "Die angegebene Profiladresse liefert unzureichende Informationen."
 
-#: src/Model/Contact.php:2579
+#: src/Model/Contact.php:2580
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Es wurden keine kompatiblen Kommunikationsprotokolle oder Feeds gefunden."
 
-#: src/Model/Contact.php:2582
+#: src/Model/Contact.php:2583
 msgid "An author or name was not found."
 msgstr "Es wurde kein Autor oder Name gefunden."
 
-#: src/Model/Contact.php:2585
+#: src/Model/Contact.php:2586
 msgid "No browser URL could be matched to this address."
 msgstr "Zu dieser Adresse konnte keine passende Browser-URL gefunden werden."
 
-#: src/Model/Contact.php:2588
+#: src/Model/Contact.php:2589
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Konnte die @-Adresse mit keinem der bekannten Protokolle oder Email-Kontakte abgleichen."
 
-#: src/Model/Contact.php:2589
+#: src/Model/Contact.php:2590
 msgid "Use mailto: in front of address to force email check."
 msgstr "Verwende mailto: vor der E-Mail-Adresse, um eine Überprüfung der E-Mail-Adresse zu erzwingen."
 
-#: src/Model/Contact.php:2595
+#: src/Model/Contact.php:2596
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "Die Adresse dieses Profils gehört zu einem Netzwerk, mit dem die Kommunikation auf dieser Seite ausgeschaltet wurde."
 
-#: src/Model/Contact.php:2600
+#: src/Model/Contact.php:2601
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Eingeschränktes Profil. Diese Person wird keine direkten/privaten Nachrichten von dir erhalten können."
 
-#: src/Model/Contact.php:2659
+#: src/Model/Contact.php:2660
 msgid "Unable to retrieve contact information."
 msgstr "Konnte die Kontaktinformationen nicht empfangen."
 
@@ -3903,83 +3903,83 @@ msgstr "Veranstaltungen der nächsten 7 Tage:"
 msgid "OpenWebAuth: %1$s welcomes %2$s"
 msgstr "OpenWebAuth: %1$s heißt %2$s herzlich willkommen"
 
-#: src/Model/Profile.php:986
+#: src/Model/Profile.php:980
 msgid "Hometown:"
 msgstr "Heimatort:"
 
-#: src/Model/Profile.php:987
+#: src/Model/Profile.php:981
 msgid "Marital Status:"
 msgstr "Familienstand:"
 
-#: src/Model/Profile.php:988
+#: src/Model/Profile.php:982
 msgid "With:"
 msgstr "Mit:"
 
-#: src/Model/Profile.php:989
+#: src/Model/Profile.php:983
 msgid "Since:"
 msgstr "Seit:"
 
-#: src/Model/Profile.php:990
+#: src/Model/Profile.php:984
 msgid "Sexual Preference:"
 msgstr "Sexuelle Vorlieben:"
 
-#: src/Model/Profile.php:991
+#: src/Model/Profile.php:985
 msgid "Political Views:"
 msgstr "Politische Ansichten:"
 
-#: src/Model/Profile.php:992
+#: src/Model/Profile.php:986
 msgid "Religious Views:"
 msgstr "Religiöse Ansichten:"
 
-#: src/Model/Profile.php:993
+#: src/Model/Profile.php:987
 msgid "Likes:"
 msgstr "Likes:"
 
-#: src/Model/Profile.php:994
+#: src/Model/Profile.php:988
 msgid "Dislikes:"
 msgstr "Dislikes:"
 
-#: src/Model/Profile.php:995
+#: src/Model/Profile.php:989
 msgid "Title/Description:"
 msgstr "Titel/Beschreibung:"
 
-#: src/Model/Profile.php:996 src/Module/Admin/Summary.php:234
+#: src/Model/Profile.php:990 src/Module/Admin/Summary.php:234
 msgid "Summary"
 msgstr "Zusammenfassung"
 
-#: src/Model/Profile.php:997
+#: src/Model/Profile.php:991
 msgid "Musical interests"
 msgstr "Musikalische Interessen"
 
-#: src/Model/Profile.php:998
+#: src/Model/Profile.php:992
 msgid "Books, literature"
 msgstr "Bücher, Literatur"
 
-#: src/Model/Profile.php:999
+#: src/Model/Profile.php:993
 msgid "Television"
 msgstr "Fernsehen"
 
-#: src/Model/Profile.php:1000
+#: src/Model/Profile.php:994
 msgid "Film/dance/culture/entertainment"
 msgstr "Filme/Tänze/Kultur/Unterhaltung"
 
-#: src/Model/Profile.php:1001
+#: src/Model/Profile.php:995
 msgid "Hobbies/Interests"
 msgstr "Hobbies/Interessen"
 
-#: src/Model/Profile.php:1002
+#: src/Model/Profile.php:996
 msgid "Love/romance"
 msgstr "Liebe/Romantik"
 
-#: src/Model/Profile.php:1003
+#: src/Model/Profile.php:997
 msgid "Work/employment"
 msgstr "Arbeit/Anstellung"
 
-#: src/Model/Profile.php:1004
+#: src/Model/Profile.php:998
 msgid "School/education"
 msgstr "Schule/Ausbildung"
 
-#: src/Model/Profile.php:1005
+#: src/Model/Profile.php:999
 msgid "Contact information and Social Networks"
 msgstr "Kontaktinformationen und Soziale Netzwerke"
 
@@ -10058,9 +10058,13 @@ msgid ""
 " features and resources."
 msgstr "Unsere <strong>Hilfe</strong>-Seiten können herangezogen werden, um weitere Einzelheiten zu anderen Programm-Features zu erhalten."
 
-#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:135
+#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:134
 msgid "{0} wants to follow you"
 msgstr "{0} möchte dir folgen"
+
+#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:136
+msgid "{0} has started following you"
+msgstr "{0} folgt dir jetzt"
 
 #: src/Navigation/Notifications/Factory/FormattedNotify.php:91
 #, php-format
@@ -10115,126 +10119,126 @@ msgstr "Kontakt-/Freundschaftsanfrage"
 msgid "New Follower"
 msgstr "Neuer Bewunderer"
 
-#: src/Navigation/Notifications/Factory/Notification.php:131
+#: src/Navigation/Notifications/Factory/Notification.php:130
 #, php-format
 msgid "%1$s wants to follow you"
 msgstr "%1$s möchte dir folgen"
 
-#: src/Navigation/Notifications/Factory/Notification.php:133
+#: src/Navigation/Notifications/Factory/Notification.php:132
 #, php-format
 msgid "%1$s has started following you"
 msgstr "%1$s hat angefangen dir zu folgen"
 
-#: src/Navigation/Notifications/Factory/Notification.php:197
+#: src/Navigation/Notifications/Factory/Notification.php:196
 #, php-format
 msgid "%1$s liked your comment on %2$s"
 msgstr "%1$s mag deinen Kommentar %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:200
+#: src/Navigation/Notifications/Factory/Notification.php:199
 #, php-format
 msgid "%1$s liked your post %2$s"
 msgstr "%1$s mag deinen Beitrag %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:207
+#: src/Navigation/Notifications/Factory/Notification.php:206
 #, php-format
 msgid "%1$s disliked your comment on %2$s"
 msgstr "%1$s mag deinen Kommentar %2$s  nicht"
 
-#: src/Navigation/Notifications/Factory/Notification.php:210
+#: src/Navigation/Notifications/Factory/Notification.php:209
 #, php-format
 msgid "%1$s disliked your post %2$s"
 msgstr "%1$s mag deinen Beitrag %2$s nicht"
 
-#: src/Navigation/Notifications/Factory/Notification.php:217
+#: src/Navigation/Notifications/Factory/Notification.php:216
 #, php-format
 msgid "%1$s shared your comment %2$s"
 msgstr "%1$s hat deinen Kommentar %2$s geteilt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:220
+#: src/Navigation/Notifications/Factory/Notification.php:219
 #, php-format
 msgid "%1$s shared your post %2$s"
 msgstr "%1$s hat deinen Beitrag %2$s geteilt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:224
-#: src/Navigation/Notifications/Factory/Notification.php:293
+#: src/Navigation/Notifications/Factory/Notification.php:223
+#: src/Navigation/Notifications/Factory/Notification.php:292
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
 msgstr "%1$s hat den Beitrag %2$s von %3$s geteilt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:226
-#: src/Navigation/Notifications/Factory/Notification.php:295
+#: src/Navigation/Notifications/Factory/Notification.php:225
+#: src/Navigation/Notifications/Factory/Notification.php:294
 #, php-format
 msgid "%1$s shared a post from %3$s"
 msgstr "%1$s hat einen Beitrag von %3$s geteilt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:228
-#: src/Navigation/Notifications/Factory/Notification.php:297
+#: src/Navigation/Notifications/Factory/Notification.php:227
+#: src/Navigation/Notifications/Factory/Notification.php:296
 #, php-format
 msgid "%1$s shared the post %2$s"
 msgstr "%1$s hat den Beitrag %2$s geteilt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:230
-#: src/Navigation/Notifications/Factory/Notification.php:299
+#: src/Navigation/Notifications/Factory/Notification.php:229
+#: src/Navigation/Notifications/Factory/Notification.php:298
 #, php-format
 msgid "%1$s shared a post"
 msgstr "%1$s hat einen Beitrag geteilt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:238
+#: src/Navigation/Notifications/Factory/Notification.php:237
 #, php-format
 msgid "%1$s wants to attend your event %2$s"
 msgstr "%1$s möchte an deiner Veranstaltung %2$s teilnehmen"
 
-#: src/Navigation/Notifications/Factory/Notification.php:245
+#: src/Navigation/Notifications/Factory/Notification.php:244
 #, php-format
 msgid "%1$s does not want to attend your event %2$s"
 msgstr "%1$s möchte nicht an deiner Veranstaltung %2$s teilnehmen"
 
-#: src/Navigation/Notifications/Factory/Notification.php:252
+#: src/Navigation/Notifications/Factory/Notification.php:251
 #, php-format
 msgid "%1$s maybe wants to attend your event %2$s"
 msgstr "%1$s nimmt eventuell an deiner Veranstaltung %2$s teil"
 
-#: src/Navigation/Notifications/Factory/Notification.php:259
+#: src/Navigation/Notifications/Factory/Notification.php:258
 #, php-format
 msgid "%1$s tagged you on %2$s"
 msgstr "%1$s erwähnte dich auf %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:263
+#: src/Navigation/Notifications/Factory/Notification.php:262
 #, php-format
 msgid "%1$s replied to you on %2$s"
 msgstr "%1$s hat dir auf %2$s geantwortet"
 
-#: src/Navigation/Notifications/Factory/Notification.php:267
+#: src/Navigation/Notifications/Factory/Notification.php:266
 #, php-format
 msgid "%1$s commented in your thread %2$s"
 msgstr "%1$s hat deine Unterhaltung %2$s kommentiert"
 
-#: src/Navigation/Notifications/Factory/Notification.php:271
+#: src/Navigation/Notifications/Factory/Notification.php:270
 #, php-format
 msgid "%1$s commented on your comment %2$s"
 msgstr "%1$s hat deinen Kommentar %2$s kommentiert"
 
-#: src/Navigation/Notifications/Factory/Notification.php:277
+#: src/Navigation/Notifications/Factory/Notification.php:276
 #, php-format
 msgid "%1$s commented in their thread %2$s"
 msgstr "%1$s hat in der eigenen Unterhaltung %2$s kommentiert"
 
-#: src/Navigation/Notifications/Factory/Notification.php:279
+#: src/Navigation/Notifications/Factory/Notification.php:278
 #, php-format
 msgid "%1$s commented in their thread"
 msgstr "%1$s kommentierte in der eigenen Unterhaltung"
 
-#: src/Navigation/Notifications/Factory/Notification.php:281
+#: src/Navigation/Notifications/Factory/Notification.php:280
 #, php-format
 msgid "%1$s commented in the thread %2$s from %3$s"
 msgstr "%1$s hat in der Unterhaltung %2$s von %3$s kommentiert"
 
-#: src/Navigation/Notifications/Factory/Notification.php:283
+#: src/Navigation/Notifications/Factory/Notification.php:282
 #, php-format
 msgid "%1$s commented in the thread from %3$s"
 msgstr "%1$s hat in der Unterhaltung von %3$s kommentiert"
 
-#: src/Navigation/Notifications/Factory/Notification.php:288
+#: src/Navigation/Notifications/Factory/Notification.php:287
 #, php-format
 msgid "%1$s commented on your thread %2$s"
 msgstr "%1$s hat in deiner Unterhaltung %2$s kommentiert"
