@@ -2481,6 +2481,7 @@ $a->strings['Getting Help'] = 'Hilfe bekommen';
 $a->strings['Go to the Help Section'] = 'Zum Hilfe Abschnitt gehen';
 $a->strings['Our <strong>help</strong> pages may be consulted for detail on other program features and resources.'] = 'Unsere <strong>Hilfe</strong>-Seiten können herangezogen werden, um weitere Einzelheiten zu anderen Programm-Features zu erhalten.';
 $a->strings['{0} wants to follow you'] = '{0} möchte dir folgen';
+$a->strings['{0} has started following you'] = '{0} folgt dir jetzt';
 $a->strings['%s liked %s\'s post'] = '%s mag %ss Beitrag';
 $a->strings['%s disliked %s\'s post'] = '%s mag %ss Beitrag nicht';
 $a->strings['%s is attending %s\'s event'] = '%s nimmt an %s\'s Event teil';
