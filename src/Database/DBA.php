@@ -422,13 +422,14 @@ class DBA
 	 * @param array         $fields     contains the fields that are updated
 	 * @param array         $condition  condition array with the key values
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate, false = don't update identical fields)
+	 * @param array         $params     Parameters: "ignore" If set to "true" then the update is done with the ignore parameter
 	 *
 	 * @return boolean was the update successfull?
 	 * @throws \Exception
 	 */
-	public static function update($table, $fields, $condition, $old_fields = [])
+	public static function update($table, $fields, $condition, $old_fields = [], $params = [])
 	{
-		return DI::dba()->update($table, $fields, $condition, $old_fields);
+		return DI::dba()->update($table, $fields, $condition, $old_fields, $params);
 	}
 
 	/**

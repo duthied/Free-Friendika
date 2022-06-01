@@ -1284,11 +1284,12 @@ class Database
 	 * @param array         $fields     contains the fields that are updated
 	 * @param array         $condition  condition array with the key values
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate, false = don't update identical fields)
+	 * @param array         $params     Parameters: "ignore" If set to "true" then the update is done with the ignore parameter
 	 *
 	 * @return boolean was the update successfull?
 	 * @throws \Exception
 	 */
-	public function update($table, $fields, $condition, $old_fields = [])
+	public function update($table, $fields, $condition, $old_fields = [], $params = [])
 	{
 		if (empty($table) || empty($fields) || empty($condition)) {
 			$this->logger->info('Table, fields and condition have to be set');
@@ -1325,7 +1326,13 @@ class Database
 
 		$condition_string = DBA::buildCondition($condition);
 
-		$sql = "UPDATE " . $table_string . " SET "
+		if (!empty($params['ignore'])) {
+			$ignore = 'IGNORE ';
+		} else {
+			$ignore = '';
+		}
+
+		$sql = "UPDATE " . $ignore . $table_string . " SET "
 			. implode(" = ?, ", array_map([DBA::class, 'quoteIdentifier'], array_keys($fields))) . " = ?"
 			. $condition_string;
 

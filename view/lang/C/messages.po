@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-31 13:27+0000\n"
+"POT-Creation-Date: 2022-06-01 22:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1639,6 +1639,61 @@ msgstr ""
 #: src/Console/GlobalCommunityBlock.php:101
 #: src/Module/Admin/Blocklist/Contact.php:66
 msgid "The contact has been blocked from the node"
+msgstr ""
+
+#: src/Console/MergeContacts.php:74
+#, php-format
+msgid "%d %s, %d duplicates."
+msgstr ""
+
+#: src/Console/MergeContacts.php:86
+#, php-format
+msgid "No valid first countact found for uri-id %d."
+msgstr ""
+
+#: src/Console/MergeContacts.php:97
+#, php-format
+msgid "Wrong duplicate found for uri-id %d in %d (url: %s != %s)."
+msgstr ""
+
+#: src/Console/MergeContacts.php:101
+#, php-format
+msgid "Wrong duplicate found for uri-id %d in %d (nurl: %s != %s)."
+msgstr ""
+
+#: src/Console/MergeContacts.php:137
+#, php-format
+msgid "Deletion of id %d failed"
+msgstr ""
+
+#: src/Console/MergeContacts.php:139
+#, php-format
+msgid "Deletion of id %d was successful"
+msgstr ""
+
+#: src/Console/MergeContacts.php:145
+#, php-format
+msgid "Updating \"%s\" in \"%s\" from %d to %d"
+msgstr ""
+
+#: src/Console/MergeContacts.php:147
+msgid " - found"
+msgstr ""
+
+#: src/Console/MergeContacts.php:154
+msgid " - failed"
+msgstr ""
+
+#: src/Console/MergeContacts.php:156
+msgid " - success"
+msgstr ""
+
+#: src/Console/MergeContacts.php:160
+msgid " - deleted"
+msgstr ""
+
+#: src/Console/MergeContacts.php:163
+msgid " - done"
 msgstr ""
 
 #: src/Console/MoveToAvatarCache.php:91

@@ -60,6 +60,7 @@ Commands:
 	lock                   Edit site locks
 	maintenance            Set maintenance mode for this node
 	movetoavatarcache      Move cached avatars to the file based avatar cache
+	mergecontacts          Merge duplicated contact entries
 	user                   User management
 	php2po                 Generate a messages.po file from a strings.php file
 	po2php                 Generate a strings.php file from a messages.po file
@@ -93,6 +94,7 @@ HELP;
 		'globalcommunitysilence' => Friendica\Console\GlobalCommunitySilence::class,
 		'lock'                   => Friendica\Console\Lock::class,
 		'maintenance'            => Friendica\Console\Maintenance::class,
+		'mergecontacts'          => Friendica\Console\MergeContacts::class,
 		'movetoavatarcache'      => Friendica\Console\MoveToAvatarCache::class,
 		'php2po'                 => Friendica\Console\PhpToPo::class,
 		'postupdate'             => Friendica\Console\PostUpdate::class,
