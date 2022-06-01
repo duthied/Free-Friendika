@@ -2498,6 +2498,7 @@ $a->strings['Getting Help'] = 'Segítség kérése';
 $a->strings['Go to the Help Section'] = 'Ugrás a súgószakaszhoz';
 $a->strings['Our <strong>help</strong> pages may be consulted for detail on other program features and resources.'] = 'A <strong>súgó</strong> oldalaink további részleteket közölhetnek a program egyéb funkcióiról és erőforrásairól.';
 $a->strings['{0} wants to follow you'] = '{0} követni szeretné Önt';
+$a->strings['{0} has started following you'] = '{0} elkezdte követni Önt';
 $a->strings['%s liked %s\'s post'] = '%s kedvelte %s bejegyzését';
 $a->strings['%s disliked %s\'s post'] = '%s nem kedvelte %s bejegyzését';
 $a->strings['%s is attending %s\'s event'] = '%s részt vesz %s eseményén';
