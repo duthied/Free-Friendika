@@ -2513,6 +2513,7 @@ $a->strings['Getting Help'] = 'Obtenir de l\'aide';
 $a->strings['Go to the Help Section'] = 'Aller à la section Aide';
 $a->strings['Our <strong>help</strong> pages may be consulted for detail on other program features and resources.'] = 'Nos pages d\'<strong>aide</strong> peuvent être consultées pour davantage de détails sur les fonctionnalités ou les ressources.';
 $a->strings['{0} wants to follow you'] = '{0} souhaite vous suivre';
+$a->strings['{0} has started following you'] = '{0} a commencé à vous suivre';
 $a->strings['%s liked %s\'s post'] = '%s a aimé la publication de %s';
 $a->strings['%s disliked %s\'s post'] = '%s n\'a pas aimé la publication de %s';
 $a->strings['%s is attending %s\'s event'] = '%s participe à l\'évènement de %s';
