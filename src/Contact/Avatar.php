@@ -147,6 +147,13 @@ class Avatar
 
 		DI::profiler()->startRecording('file');
 
+		if (!file_exists($dirpath)) {
+			if (!mkdir($dirpath, 0775)) {
+				Logger::warning('Base directory could not be created', ['directory' => $dirpath]);
+				return '';
+			}
+		}
+
 		// Fetch the permission and group ownership of the "avatar" path and apply to all files
 		$dir_perm  = fileperms($dirpath) & 0777;
 		$file_perm = fileperms($dirpath) & 0666;
