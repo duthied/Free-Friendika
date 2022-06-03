@@ -52,7 +52,7 @@ Usage
 
 Commands
     drop     Show tables that aren't in use by Friendica anymore and can be dropped
-       -e|--execute    Execute the dropping
+       -e|--execute    Execute the removal
 
     update   Update database schema
        -f|--force      Force the update command (Even if the database structure matches)

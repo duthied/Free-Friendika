@@ -54,7 +54,7 @@ Description
 
 Options
 	-h|--help|-? Show help information
-	-e|--execute Execute the dropping
+	-e|--execute Execute the merge
 HELP;
 		return $help;
 	}
