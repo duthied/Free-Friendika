@@ -819,7 +819,7 @@ class Conversation
 	{
 		$this->profiler->startRecording('rendering');
 
-		if ($row['uid'] == 0) {
+		if (!$row['writable']) {
 			$row['writable'] = in_array($row['network'], Protocol::FEDERATED);
 		}
 

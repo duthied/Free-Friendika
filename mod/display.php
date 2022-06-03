@@ -115,6 +115,7 @@ function display_init(App $a)
 	if (\Friendica\Util\Network::isLocalLink($author['url'])) {
 		\Friendica\Model\Profile::load(DI::app(), $author['nick'], false);
 	} else {
+		$a->setProfileOwner($item['uid']);
 		DI::page()['aside'] = Widget\VCard::getHTML($author);
 	}
 }
