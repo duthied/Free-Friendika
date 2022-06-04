@@ -57,12 +57,14 @@ function removeme_post(App $a)
 			continue;
 		}
 
+		$l10n = DI::l10n()->withLang($admin['language']);
+
 		$email = DI::emailer()
 			->newSystemMail()
 			->withMessage(
-				DI::l10n()->t('[Friendica System Notify]') . ' ' . DI::l10n()->t('User deleted their account'),
-				DI::l10n()->t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
-				DI::l10n()->t('The user id is %d', local_user()))
+				$l10n->t('[Friendica System Notify]') . ' ' . $l10n->t('User deleted their account'),
+				$l10n->t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
+				$l10n->t('The user id is %d', local_user()))
 			->forUser($admin)
 			->withRecipient($admin['email'])
 			->build();
