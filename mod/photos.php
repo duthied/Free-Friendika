@@ -355,12 +355,6 @@ function photos_post(App $a)
 			if ($albname !== $origaname) {
 				Photo::clearAlbumCache($page_owner_uid);
 			}
-			/* Don't make the item visible if the only change was the album name */
-
-			$visibility = 0;
-			if ($photo['desc'] !== $desc || strlen($rawtags)) {
-				$visibility = 1;
-			}
 		}
 
 		if (DBA::isResult($photos) && !$item_id) {
@@ -387,7 +381,7 @@ function photos_post(App $a)
 			$arr['allow_gid']     = $photo['allow_gid'];
 			$arr['deny_cid']      = $photo['deny_cid'];
 			$arr['deny_gid']      = $photo['deny_gid'];
-			$arr['visible']       = $visibility;
+			$arr['visible']       = 0;
 			$arr['origin']        = 1;
 
 			$arr['body']          = '[url=' . DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $photo['resource-id'] . ']'
@@ -549,7 +543,7 @@ function photos_post(App $a)
 					$arr['allow_gid']     = $photo['allow_gid'];
 					$arr['deny_cid']      = $photo['deny_cid'];
 					$arr['deny_gid']      = $photo['deny_gid'];
-					$arr['visible']       = 1;
+					$arr['visible']       = 0;
 					$arr['verb']          = Activity::TAG;
 					$arr['gravity']       = GRAVITY_PARENT;
 					$arr['object-type']   = Activity\ObjectType::PERSON;
@@ -594,26 +588,6 @@ function photos_post(App $a)
 		} else {
 			$album = DateTimeFormat::localNow('Y');
 		}
-	}
-
-	/*
-	 * We create a wall item for every photo, but we don't want to
-	 * overwhelm the data stream with a hundred newly uploaded photos.
-	 * So we will make the first photo uploaded to this album in the last several hours
-	 * visible by default, the rest will become visible over time when and if
-	 * they acquire comments, likes, dislikes, and/or tags
-	 */
-
-	$r = Photo::selectToArray([], ['`album` = ? AND `uid` = ? AND `created` > ?', $album, $page_owner_uid, DateTimeFormat::utc('now - 3 hours')]);
-
-	if (!DBA::isResult($r) || ($album == DI::l10n()->t(Photo::PROFILE_PHOTOS))) {
-		$visible = 1;
-	} else {
-		$visible = 0;
-	}
-
-	if (!empty($_REQUEST['not_visible']) && $_REQUEST['not_visible'] !== 'false') {
-		$visible = 0;
 	}
 
 	$ret = ['src' => '', 'filename' => '', 'filesize' => 0, 'type' => ''];
@@ -766,7 +740,7 @@ function photos_post(App $a)
 	$arr['allow_gid']     = $str_group_allow;
 	$arr['deny_cid']      = $str_contact_deny;
 	$arr['deny_gid']      = $str_group_deny;
-	$arr['visible']       = $visible;
+	$arr['visible']       = 0;
 	$arr['origin']        = 1;
 
 	$arr['body']          = '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $resource_id . ']'
