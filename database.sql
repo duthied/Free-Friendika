@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1464
+-- DB_UPDATE_VERSION 1465
 -- ------------------------------------------
 
 
@@ -2309,6 +2309,9 @@ CREATE VIEW `collection-view` AS SELECT
 	`post`.`received` AS `received`,
 	`post`.`created` AS `created`,
 	`post-thread`.`commented` AS `commented`,
+	`post`.`private` AS `private`,
+	`post`.`visible` AS `visible`,
+	`post`.`deleted` AS `deleted`,
 	`post`.`thr-parent-id` AS `thr-parent-id`,
 	`post`.`author-id` AS `author-id`,
 	`post`.`gravity` AS `gravity`

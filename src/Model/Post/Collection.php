@@ -25,6 +25,7 @@ use Friendica\Database\DBA;
 use BadMethodCallException;
 use Friendica\Database\Database;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Protocol\ActivityPub;
 
 class Collection
@@ -81,6 +82,6 @@ class Collection
 	 */
 	public static function selectToArrayForContact(int $cid, int $type = self::FEATURED, array $fields = []) 
 	{
-		return DBA::selectToArray('collection-view', $fields, ['cid' => $cid, 'type' => $type]);
+		return DBA::selectToArray('collection-view', $fields, ['cid' => $cid, 'private' => [Item::PUBLIC, Item::UNLISTED], 'deleted' => false, 'type' => $type]);
 	}
 }

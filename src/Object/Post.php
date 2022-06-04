@@ -342,7 +342,7 @@ class Post
 				];
 
 				if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
-					if ($origin) {
+					if ($origin && in_array($item['private'], [Item::PUBLIC, Item::UNLISTED])) {
 						$ispinned = ($item['featured'] ? 'pinned' : 'unpinned');
 
 						$pin = [
