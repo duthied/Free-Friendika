@@ -590,6 +590,26 @@ function photos_post(App $a)
 		}
 	}
 
+	/*
+	 * We create a wall item for every photo, but we don't want to
+	 * overwhelm the data stream with a hundred newly uploaded photos.
+	 * So we will make the first photo uploaded to this album in the last several hours
+	 * visible by default, the rest will become visible over time when and if
+	 * they acquire comments, likes, dislikes, and/or tags
+	 */
+
+	$r = Photo::selectToArray([], ['`album` = ? AND `uid` = ? AND `created` > ?', $album, $page_owner_uid, DateTimeFormat::utc('now - 3 hours')]);
+
+	if (!DBA::isResult($r) || ($album == DI::l10n()->t(Photo::PROFILE_PHOTOS))) {
+		$visible = 1;
+	} else {
+		$visible = 0;
+	}
+
+	if (!empty($_REQUEST['not_visible']) && $_REQUEST['not_visible'] !== 'false') {
+		$visible = 0;
+	}
+
 	$ret = ['src' => '', 'filename' => '', 'filesize' => 0, 'type' => ''];
 
 	Hook::callAll('photo_post_file', $ret);
@@ -740,7 +760,7 @@ function photos_post(App $a)
 	$arr['allow_gid']     = $str_group_allow;
 	$arr['deny_cid']      = $str_contact_deny;
 	$arr['deny_gid']      = $str_group_deny;
-	$arr['visible']       = 0;
+	$arr['visible']       = $visible;
 	$arr['origin']        = 1;
 
 	$arr['body']          = '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $resource_id . ']'
