@@ -355,12 +355,6 @@ function photos_post(App $a)
 			if ($albname !== $origaname) {
 				Photo::clearAlbumCache($page_owner_uid);
 			}
-			/* Don't make the item visible if the only change was the album name */
-
-			$visibility = 0;
-			if ($photo['desc'] !== $desc || strlen($rawtags)) {
-				$visibility = 1;
-			}
 		}
 
 		if (DBA::isResult($photos) && !$item_id) {
@@ -387,7 +381,7 @@ function photos_post(App $a)
 			$arr['allow_gid']     = $photo['allow_gid'];
 			$arr['deny_cid']      = $photo['deny_cid'];
 			$arr['deny_gid']      = $photo['deny_gid'];
-			$arr['visible']       = $visibility;
+			$arr['visible']       = 0;
 			$arr['origin']        = 1;
 
 			$arr['body']          = '[url=' . DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $photo['resource-id'] . ']'
@@ -549,7 +543,7 @@ function photos_post(App $a)
 					$arr['allow_gid']     = $photo['allow_gid'];
 					$arr['deny_cid']      = $photo['deny_cid'];
 					$arr['deny_gid']      = $photo['deny_gid'];
-					$arr['visible']       = 1;
+					$arr['visible']       = 0;
 					$arr['verb']          = Activity::TAG;
 					$arr['gravity']       = GRAVITY_PARENT;
 					$arr['object-type']   = Activity\ObjectType::PERSON;
