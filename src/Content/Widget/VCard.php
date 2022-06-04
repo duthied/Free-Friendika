@@ -62,17 +62,23 @@ class VCard
 		$unfollow_link    = '';
 		$wallmessage_link = '';
 
+		$photo   = Contact::getPhoto($contact);
+
 		if (local_user()) {
 			if ($contact['uid']) {
 				$id      = $contact['id'];
 				$rel     = $contact['rel'];
 				$pending = $contact['pending'];
 			} else {
-				$pcontact = Contact::selectFirst(['id', 'rel', 'pending'], ['uid' => local_user(), 'uri-id' => $contact['uri-id']]);
+				$pcontact = Contact::selectFirst([], ['uid' => local_user(), 'uri-id' => $contact['uri-id']]);
 
 				$id      = $pcontact['id'] ?? 0;
 				$rel     = $pcontact['rel'] ?? Contact::NOTHING;
 				$pending = $pcontact['pending'] ?? false;
+
+				if (!empty($pcontact) && in_array($pcontact['network'], [Protocol::MAIL, Protocol::FEED])) {
+					$photo = Contact::getPhoto($pcontact);
+				}
 			}
 
 			if (empty($contact['self']) && Protocol::supportsFollow($contact['network'])) {
@@ -90,7 +96,7 @@ class VCard
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
 			'$contact'          => $contact,
-			'$photo'            => Contact::getPhoto($contact),
+			'$photo'            => $photo,
 			'$url'              => Contact::magicLinkByContact($contact, $contact['url']),
 			'$about'            => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['about'] ?? ''),
 			'$xmpp'             => DI::l10n()->t('XMPP:'),

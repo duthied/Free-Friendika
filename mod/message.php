@@ -308,7 +308,7 @@ function message_content(App $a)
 			$body_e = BBCode::convertForUriId($message['uri-id'], $message['body']);
 			$to_name_e = $message['name'];
 
-			$contact = Contact::getByURL($message['from-url'], false, ['thumb', 'addr', 'id', 'avatar']);
+			$contact = Contact::getByURL($message['from-url'], false, ['thumb', 'addr', 'id', 'avatar', 'url']);
 			$from_photo = Contact::getThumb($contact);
 
 			$mails[] = [
@@ -440,7 +440,7 @@ function render_messages(array $msg, $t)
 			continue;
 		}
 
-		$contact = Contact::getByURL($rr['url'], false, ['thumb', 'addr', 'id', 'avatar']);
+		$contact = Contact::getByURL($rr['url'], false, ['thumb', 'addr', 'id', 'avatar', 'url']);
 		$from_photo = Contact::getThumb($contact);
 
 		$rslt .= Renderer::replaceMacros($tpl, [
