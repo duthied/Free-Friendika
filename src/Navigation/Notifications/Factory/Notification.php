@@ -32,6 +32,7 @@ use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\L10n;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Model\Verb;
 use Friendica\Navigation\Notifications\Entity;
 use Friendica\Network\HTTPException;
@@ -119,6 +120,9 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 			return $result;
 		}
 
+		$user = User::getById($Notification->uid, ['language']);
+		$l10n = $this->l10n->withLang($user['language']);
+	
 		$causer = $author = Contact::getById($Notification->actorId, ['id', 'name', 'url', 'contact-type', 'pending']);
 		if (empty($causer)) {
 			$this->logger->info('Causer not found', ['contact' => $Notification->actorId]);
@@ -127,9 +131,9 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 
 		if ($Notification->type === Post\UserNotification::TYPE_NONE) {
 			if ($causer['pending']) {
-				$msg = $this->l10n->t('%1$s wants to follow you');
+				$msg = $l10n->t('%1$s wants to follow you');
 			} else {
-				$msg = $this->l10n->t('%1$s has started following you');
+				$msg = $l10n->t('%1$s has started following you');
 			}
 
 			$title = $causer['name'];
@@ -193,40 +197,40 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				case Activity::LIKE:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_DIRECT_COMMENT:
-							$msg = $this->l10n->t('%1$s liked your comment on %2$s');
+							$msg = $l10n->t('%1$s liked your comment on %2$s');
 							break;
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
-							$msg = $this->l10n->t('%1$s liked your post %2$s');
+							$msg = $l10n->t('%1$s liked your post %2$s');
 							break;
 					}
 					break;
 				case Activity::DISLIKE:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_DIRECT_COMMENT:
-							$msg = $this->l10n->t('%1$s disliked your comment on %2$s');
+							$msg = $l10n->t('%1$s disliked your comment on %2$s');
 							break;
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
-							$msg = $this->l10n->t('%1$s disliked your post %2$s');
+							$msg = $l10n->t('%1$s disliked your post %2$s');
 							break;
 					}
 					break;
 				case Activity::ANNOUNCE:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_DIRECT_COMMENT:
-							$msg = $this->l10n->t('%1$s shared your comment %2$s');
+							$msg = $l10n->t('%1$s shared your comment %2$s');
 							break;
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
-							$msg = $this->l10n->t('%1$s shared your post %2$s');
+							$msg = $l10n->t('%1$s shared your post %2$s');
 							break;
 						case Post\UserNotification::TYPE_SHARED:
 							if (($causer['id'] != $author['id']) && ($title != '')) {
-								$msg = $this->l10n->t('%1$s shared the post %2$s from %3$s');
+								$msg = $l10n->t('%1$s shared the post %2$s from %3$s');
 							} elseif ($causer['id'] != $author['id']) {
-								$msg = $this->l10n->t('%1$s shared a post from %3$s');
+								$msg = $l10n->t('%1$s shared a post from %3$s');
 							} elseif ($title != '') {
-								$msg = $this->l10n->t('%1$s shared the post %2$s');
+								$msg = $l10n->t('%1$s shared the post %2$s');
 							} else {
-								$msg = $this->l10n->t('%1$s shared a post');
+								$msg = $l10n->t('%1$s shared a post');
 							}
 							break;
 					}
@@ -234,68 +238,68 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				case Activity::ATTEND:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
-							$msg = $this->l10n->t('%1$s wants to attend your event %2$s');
+							$msg = $l10n->t('%1$s wants to attend your event %2$s');
 							break;
 					}
 					break;
 				case Activity::ATTENDNO:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
-							$msg = $this->l10n->t('%1$s does not want to attend your event %2$s');
+							$msg = $l10n->t('%1$s does not want to attend your event %2$s');
 							break;
 					}
 					break;
 				case Activity::ATTENDMAYBE:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
-							$msg = $this->l10n->t('%1$s maybe wants to attend your event %2$s');
+							$msg = $l10n->t('%1$s maybe wants to attend your event %2$s');
 							break;
 					}
 					break;
 				case Activity::POST:
 					switch ($Notification->type) {
 						case Post\UserNotification::TYPE_EXPLICIT_TAGGED:
-							$msg = $this->l10n->t('%1$s tagged you on %2$s');
+							$msg = $l10n->t('%1$s tagged you on %2$s');
 							break;
 
 						case Post\UserNotification::TYPE_IMPLICIT_TAGGED:
-							$msg = $this->l10n->t('%1$s replied to you on %2$s');
+							$msg = $l10n->t('%1$s replied to you on %2$s');
 							break;
 
 						case Post\UserNotification::TYPE_THREAD_COMMENT:
-							$msg = $this->l10n->t('%1$s commented in your thread %2$s');
+							$msg = $l10n->t('%1$s commented in your thread %2$s');
 							break;
 
 						case Post\UserNotification::TYPE_DIRECT_COMMENT:
-							$msg = $this->l10n->t('%1$s commented on your comment %2$s');
+							$msg = $l10n->t('%1$s commented on your comment %2$s');
 							break;
 
 						case Post\UserNotification::TYPE_COMMENT_PARTICIPATION:
 						case Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION:
 							if (($causer['id'] == $author['id']) && ($title != '')) {
-								$msg = $this->l10n->t('%1$s commented in their thread %2$s');
+								$msg = $l10n->t('%1$s commented in their thread %2$s');
 							} elseif ($causer['id'] == $author['id']) {
-								$msg = $this->l10n->t('%1$s commented in their thread');
+								$msg = $l10n->t('%1$s commented in their thread');
 							} elseif ($title != '') {
-								$msg = $this->l10n->t('%1$s commented in the thread %2$s from %3$s');
+								$msg = $l10n->t('%1$s commented in the thread %2$s from %3$s');
 							} else {
-								$msg = $this->l10n->t('%1$s commented in the thread from %3$s');
+								$msg = $l10n->t('%1$s commented in the thread from %3$s');
 							}
 							break;
 
 						case Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT:
-							$msg = $this->l10n->t('%1$s commented on your thread %2$s');
+							$msg = $l10n->t('%1$s commented on your thread %2$s');
 							break;
 
 						case Post\UserNotification::TYPE_SHARED:
 							if (($causer['id'] != $author['id']) && ($title != '')) {
-								$msg = $this->l10n->t('%1$s shared the post %2$s from %3$s');
+								$msg = $l10n->t('%1$s shared the post %2$s from %3$s');
 							} elseif ($causer['id'] != $author['id']) {
-								$msg = $this->l10n->t('%1$s shared a post from %3$s');
+								$msg = $l10n->t('%1$s shared a post from %3$s');
 							} elseif ($title != '') {
-								$msg = $this->l10n->t('%1$s shared the post %2$s');
+								$msg = $l10n->t('%1$s shared the post %2$s');
 							} else {
-								$msg = $this->l10n->t('%1$s shared a post');
+								$msg = $l10n->t('%1$s shared a post');
 							}
 							break;
 					}
