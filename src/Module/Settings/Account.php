@@ -253,20 +253,6 @@ class Account extends BaseSettings
 			$notify_like     = !empty($request['notify_like']);
 			$notify_announce = !empty($request['notify_announce']);
 
-			// Reset like notifications when they are going to be shown again
-			if (!DI::pConfig()->get(local_user(), 'system', 'notify_like') && $notify_like) {
-				DI::notification()->setAllSeenForUser(local_user(), ['vid' => Verb::getID(Activity::LIKE)]);
-			}
-
-			DI::pConfig()->set(local_user(), 'system', 'notify_like', $notify_like);
-
-			// Reset share notifications when they are going to be shown again
-			if (!DI::pConfig()->get(local_user(), 'system', 'notify_announce') && $notify_announce) {
-				DI::notification()->setAllSeenForUser(local_user(), ['vid' => Verb::getID(Activity::ANNOUNCE)]);
-			}
-
-			DI::pConfig()->set(local_user(), 'system', 'notify_announce', $notify_announce);
-
 			$notify_type = 0;
 
 			if (!empty($request['notify_tagged'])) {
@@ -285,6 +271,25 @@ class Account extends BaseSettings
 				$notify_type = $notify_type | 32;
 			}
 			DI::pConfig()->set(local_user(), 'system', 'notify_type', $notify_type);
+
+			if (!($notify_type & 72)) {
+				$notify_like     = false;
+				$notify_announce = false;
+			}
+
+			// Reset like notifications when they are going to be shown again
+			if (!DI::pConfig()->get(local_user(), 'system', 'notify_like') && $notify_like) {
+				DI::notification()->setAllSeenForUser(local_user(), ['vid' => Verb::getID(Activity::LIKE)]);
+			}
+
+			DI::pConfig()->set(local_user(), 'system', 'notify_like', $notify_like);
+
+			// Reset share notifications when they are going to be shown again
+			if (!DI::pConfig()->get(local_user(), 'system', 'notify_announce') && $notify_announce) {
+				DI::notification()->setAllSeenForUser(local_user(), ['vid' => Verb::getID(Activity::ANNOUNCE)]);
+			}
+
+			DI::pConfig()->set(local_user(), 'system', 'notify_announce', $notify_announce);
 
 			DI::pConfig()->set(local_user(), 'system', 'email_textonly', !empty($request['email_textonly']));
 			DI::pConfig()->set(local_user(), 'system', 'detailed_notif', !empty($request['detailed_notif']));
@@ -610,12 +615,11 @@ class Account extends BaseSettings
 			'$notify7' => ['notify7', DI::l10n()->t('You are tagged in a post'), ($notify & Notification\Type::TAG_SELF), Notification\Type::TAG_SELF, ''],
 			'$notify8' => ['notify8', DI::l10n()->t('You are poked/prodded/etc. in a post'), ($notify & Notification\Type::POKE), Notification\Type::POKE, ''],
 
-			'$lbl_notify'      => DI::l10n()->t('Create a desktop notification when:'),
-			'$notify_like'     => ['notify_like', DI::l10n()->t('Someone liked your content'), DI::pConfig()->get(local_user(), 'system', 'notify_like'), ''],
-			'$notify_announce' => ['notify_announce', DI::l10n()->t('Someone shared your content'), DI::pConfig()->get(local_user(), 'system', 'notify_announce'), ''],
-
+			'$lbl_notify'                    => DI::l10n()->t('Create a desktop notification when:'),
 			'$notify_tagged'                 => ['notify_tagged', DI::l10n()->t('Someone tagged you'), $notify_type & 3, ''],
 			'$notify_direct_comment'         => ['notify_direct_comment', DI::l10n()->t('Someone directly commented on your post'), $notify_type & 72, ''],
+			'$notify_like'                   => ['notify_like', DI::l10n()->t('Someone liked your content'), DI::pConfig()->get(local_user(), 'system', 'notify_like'), DI::l10n()->t('Can only be enabled, when the direct comment notification is enabled.')],
+			'$notify_announce'               => ['notify_announce', DI::l10n()->t('Someone shared your content'), DI::pConfig()->get(local_user(), 'system', 'notify_announce'), DI::l10n()->t('Can only be enabled, when the direct comment notification is enabled.')],
 			'$notify_thread_comment'         => ['notify_thread_comment', DI::l10n()->t('Someone commented on your thread'), $notify_type & 4, ''],
 			'$notify_comment_participation'  => ['notify_comment_participation', DI::l10n()->t('Someone commented in a thread where you commented'), $notify_type & 16, ''],
 			'$notify_activity_participation' => ['notify_activity_participation', DI::l10n()->t('Someone commented on a thread where you interacted'), $notify_type & 32, ''],
