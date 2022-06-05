@@ -663,7 +663,7 @@ class Notify extends BaseRepository
 			$type = \Friendica\Factory\Api\Mastodon\Notification::getType($Notification);
 		}
 
-		if (in_array($Notification->type, [Model\Post\UserNotification::TYPE_FOLLOW])) {
+		if (in_array($Notification->type, [Model\Post\UserNotification::TYPE_FOLLOW, Model\Post\UserNotification::TYPE_SHARED])) {
 			return true;
 		}
 

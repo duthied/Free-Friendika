@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1466);
+	define('DB_UPDATE_VERSION', 1467);
 }
 
 return [
@@ -902,7 +902,7 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"vid" => ["type" => "smallint unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
-			"type" => ["type" => "tinyint unsigned", "comment" => ""],
+			"type" => ["type" => "smallint unsigned", "comment" => ""],
 			"actor-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Link to the contact table with uid=0 of the actor that caused the notification"],
 			"target-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the related post"],
 			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],

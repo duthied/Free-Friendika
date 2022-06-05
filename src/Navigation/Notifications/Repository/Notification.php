@@ -117,9 +117,9 @@ class Notification extends BaseRepository
 	 */
 	public function selectDetailedForUser(int $uid): Collection\Notifications
 	{
-		$condition = [];
+		$condition = ["`type` & ? != 0", $this->pconfig->get($uid, 'system', 'notify_type', 3 | 72 | 4 | 16 | 32) | 128 | 256];
 		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
-			$condition = DBA::mergeConditions($condition, ['`vid` != ?', Verb::getID(\Friendica\Protocol\Activity::LIKE)]);
+			$condition = DBA::mergeConditions($condition, ['NOT `vid` IN (?, ?)', Verb::getID(\Friendica\Protocol\Activity::LIKE), Verb::getID(\Friendica\Protocol\Activity::DISLIKE)]);
 		}
 
 		if (!$this->pconfig->get($uid, 'system', 'notify_announce')) {
@@ -138,12 +138,13 @@ class Notification extends BaseRepository
 	 */
 	public function selectDigestForUser(int $uid): Collection\Notifications
 	{
-		$values = [$uid];
+		$values = [$uid, $this->pconfig->get($uid, 'system', 'notify_type', 3 | 72 | 4 | 16 | 32) | 128 | 256];
 
 		$like_condition = '';
 		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
-			$like_condition = 'AND vid != ?';
+			$like_condition = 'AND NOT `vid` IN (?, ?)';
 			$values[] = Verb::getID(\Friendica\Protocol\Activity::LIKE);
+			$values[] = Verb::getID(\Friendica\Protocol\Activity::DISLIKE);
 		}
 
 		$announce_condition = '';
@@ -158,7 +159,7 @@ class Notification extends BaseRepository
 		WHERE `id` IN (
 		    SELECT MAX(`id`)
 		    FROM `notification`
-		    WHERE `uid` = ?
+		    WHERE `uid` = ? AND `type` & ? != 0
 		    $like_condition
 		    $announce_condition
 		    GROUP BY IFNULL(`parent-uri-id`, `actor-id`)

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1466
+-- DB_UPDATE_VERSION 1467
 -- ------------------------------------------
 
 
@@ -848,7 +848,7 @@ CREATE TABLE IF NOT EXISTS `notification` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uid` mediumint unsigned COMMENT 'Owner User id',
 	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
-	`type` tinyint unsigned COMMENT '',
+	`type` smallint unsigned COMMENT '',
 	`actor-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the actor that caused the notification',
 	`target-uri-id` int unsigned COMMENT 'Item-uri id of the related post',
 	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
