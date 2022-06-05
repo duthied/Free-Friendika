@@ -92,7 +92,7 @@ class Ping extends BaseModule
 			} else {
 				$notifications = $this->notificationRepo->selectDigestForUser(local_user());
 			}
-			$this->logger->info('Blubb-1', ['uid' => local_user(), 'count' => count($notifications)]);
+
 			$condition = [
 				"`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
 				local_user(), Verb::getID(Activity::FOLLOW)
@@ -200,7 +200,7 @@ class Ping extends BaseModule
 				}
 			}, $notifications->getArrayCopy());
 			$navNotifications = array_filter($navNotifications);
-			$this->logger->info('Blubb-2', ['uid' => local_user(), 'count' => count($navNotifications)]);
+
 			$sysnotify_count = array_reduce($navNotifications, function (int $carry, ValueObject\FormattedNavNotification $navNotification) {
 				return $carry + ($navNotification->seen ? 0 : 1);
 			}, 0);
