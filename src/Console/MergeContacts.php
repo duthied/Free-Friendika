@@ -73,6 +73,10 @@ HELP;
 		while ($duplicate = $this->dba->fetch($duplicates)) {
 			$this->out($this->l10n->t('%d %s, %d duplicates.', $duplicate['uri-id'], $duplicate['url'], $duplicate['total']));
 			if ($this->getOption(['e', 'execute'], false)) {
+				if (empty($duplicate['uri-id'])) {
+					$this->err($this->l10n->t('uri-id is empty for contact %s.', $duplicate['url']));
+					continue;
+				}
 				$this->mergeContacts($duplicate['uri-id']);
 			}
 		}

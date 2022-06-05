@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.05-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-05 11:15+0000\n"
+"POT-Creation-Date: 2022-06-05 18:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1646,53 +1646,58 @@ msgstr ""
 msgid "%d %s, %d duplicates."
 msgstr ""
 
-#: src/Console/MergeContacts.php:86
+#: src/Console/MergeContacts.php:77
+#, php-format
+msgid "uri-id is empty for contact %s."
+msgstr ""
+
+#: src/Console/MergeContacts.php:90
 #, php-format
 msgid "No valid first countact found for uri-id %d."
 msgstr ""
 
-#: src/Console/MergeContacts.php:97
+#: src/Console/MergeContacts.php:101
 #, php-format
 msgid "Wrong duplicate found for uri-id %d in %d (url: %s != %s)."
 msgstr ""
 
-#: src/Console/MergeContacts.php:101
+#: src/Console/MergeContacts.php:105
 #, php-format
 msgid "Wrong duplicate found for uri-id %d in %d (nurl: %s != %s)."
 msgstr ""
 
-#: src/Console/MergeContacts.php:137
+#: src/Console/MergeContacts.php:141
 #, php-format
 msgid "Deletion of id %d failed"
 msgstr ""
 
-#: src/Console/MergeContacts.php:139
+#: src/Console/MergeContacts.php:143
 #, php-format
 msgid "Deletion of id %d was successful"
 msgstr ""
 
-#: src/Console/MergeContacts.php:145
+#: src/Console/MergeContacts.php:149
 #, php-format
 msgid "Updating \"%s\" in \"%s\" from %d to %d"
 msgstr ""
 
-#: src/Console/MergeContacts.php:147
+#: src/Console/MergeContacts.php:151
 msgid " - found"
 msgstr ""
 
-#: src/Console/MergeContacts.php:154
+#: src/Console/MergeContacts.php:158
 msgid " - failed"
 msgstr ""
 
-#: src/Console/MergeContacts.php:156
+#: src/Console/MergeContacts.php:160
 msgid " - success"
 msgstr ""
 
-#: src/Console/MergeContacts.php:160
+#: src/Console/MergeContacts.php:164
 msgid " - deleted"
 msgstr ""
 
-#: src/Console/MergeContacts.php:163
+#: src/Console/MergeContacts.php:167
 msgid " - done"
 msgstr ""
 
