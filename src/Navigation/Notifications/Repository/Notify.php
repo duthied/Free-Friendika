@@ -675,7 +675,7 @@ class Notify extends BaseRepository
 			return true;
 		}
 
-		$notify_type = $this->pConfig->get(local_user(), 'system', 'notify_type', 3 | 72 | 4 | 16 | 32);
+		$notify_type = $this->pConfig->get($Notification->uid, 'system', 'notify_type', 3 | 72 | 4 | 16 | 32);
 
 		if (($notify_type & 3) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_EXPLICIT_TAGGED, Model\Post\UserNotification::TYPE_IMPLICIT_TAGGED])) {
 			return true;
