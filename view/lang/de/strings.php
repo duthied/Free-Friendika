@@ -412,6 +412,18 @@ $a->strings['Could not find any unarchived contact entry for this URL (%s)'] = '
 $a->strings['The contact entries have been archived'] = 'Die Kontakteinträge wurden archiviert.';
 $a->strings['Could not find any contact entry for this URL (%s)'] = 'Für die URL (%s) konnte kein Kontakt gefunden werden';
 $a->strings['The contact has been blocked from the node'] = 'Der Kontakt wurde von diesem Knoten geblockt';
+$a->strings['%d %s, %d duplicates.'] = '%d %s, Duplikat %d.';
+$a->strings['No valid first countact found for uri-id %d.'] = 'Es wurde kein gültiger erster Kontakt für die URI-ID %d gefunden.';
+$a->strings['Wrong duplicate found for uri-id %d in %d (url: %s != %s).'] = 'Falsches Dublikat for die URI-ID %d in %d gefunden (URI: %s != %s).';
+$a->strings['Wrong duplicate found for uri-id %d in %d (nurl: %s != %s).'] = 'Falsches Dublikat für die URI-ID %d in %d (nurl: %s != %s).';
+$a->strings['Deletion of id %d failed'] = 'Löschung der ID %d fehlgeschlagen';
+$a->strings['Deletion of id %d was successful'] = 'Löschug der ID %d war erfolgreich';
+$a->strings['Updating "%s" in "%s" from %d to %d'] = 'Aktualisieren "%s" nach "%s" von %d nach %d';
+$a->strings[' - found'] = '- gefunden';
+$a->strings[' - failed'] = '- fehlgeschlagen';
+$a->strings[' - success'] = '- Erfolg';
+$a->strings[' - deleted'] = '- gelöscht';
+$a->strings[' - done'] = '- erledigt';
 $a->strings['The avatar cache needs to be enabled to use this command.'] = 'Der Zwischenspeicher für Kontaktprofilbilder muss aktiviert sein, um diesen Befehl nutzen zu können.';
 $a->strings['no resource in photo %s'] = 'keine Ressource im Foto %s';
 $a->strings['no photo with id %s'] = 'es existiert kein Foto mit der ID %s';

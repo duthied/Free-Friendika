@@ -49,7 +49,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-31 13:27+0000\n"
+"POT-Creation-Date: 2022-06-01 22:09+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>, 2016-2022\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
@@ -1683,6 +1683,61 @@ msgstr "Für die URL (%s) konnte kein Kontakt gefunden werden"
 #: src/Module/Admin/Blocklist/Contact.php:66
 msgid "The contact has been blocked from the node"
 msgstr "Der Kontakt wurde von diesem Knoten geblockt"
+
+#: src/Console/MergeContacts.php:74
+#, php-format
+msgid "%d %s, %d duplicates."
+msgstr "%d %s, Duplikat %d."
+
+#: src/Console/MergeContacts.php:86
+#, php-format
+msgid "No valid first countact found for uri-id %d."
+msgstr "Es wurde kein gültiger erster Kontakt für die URI-ID %d gefunden."
+
+#: src/Console/MergeContacts.php:97
+#, php-format
+msgid "Wrong duplicate found for uri-id %d in %d (url: %s != %s)."
+msgstr "Falsches Dublikat for die URI-ID %d in %d gefunden (URI: %s != %s)."
+
+#: src/Console/MergeContacts.php:101
+#, php-format
+msgid "Wrong duplicate found for uri-id %d in %d (nurl: %s != %s)."
+msgstr "Falsches Dublikat für die URI-ID %d in %d (nurl: %s != %s)."
+
+#: src/Console/MergeContacts.php:137
+#, php-format
+msgid "Deletion of id %d failed"
+msgstr "Löschung der ID %d fehlgeschlagen"
+
+#: src/Console/MergeContacts.php:139
+#, php-format
+msgid "Deletion of id %d was successful"
+msgstr "Löschug der ID %d war erfolgreich"
+
+#: src/Console/MergeContacts.php:145
+#, php-format
+msgid "Updating \"%s\" in \"%s\" from %d to %d"
+msgstr "Aktualisieren \"%s\" nach \"%s\" von %d nach %d"
+
+#: src/Console/MergeContacts.php:147
+msgid " - found"
+msgstr "- gefunden"
+
+#: src/Console/MergeContacts.php:154
+msgid " - failed"
+msgstr "- fehlgeschlagen"
+
+#: src/Console/MergeContacts.php:156
+msgid " - success"
+msgstr "- Erfolg"
+
+#: src/Console/MergeContacts.php:160
+msgid " - deleted"
+msgstr "- gelöscht"
+
+#: src/Console/MergeContacts.php:163
+msgid " - done"
+msgstr "- erledigt"
 
 #: src/Console/MoveToAvatarCache.php:91
 msgid "The avatar cache needs to be enabled to use this command."
