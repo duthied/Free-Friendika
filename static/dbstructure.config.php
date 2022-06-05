@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1465);
+	define('DB_UPDATE_VERSION', 1466);
 }
 
 return [
@@ -1430,7 +1430,7 @@ return [
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
-			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"notification-type" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "uri-id"],

@@ -148,7 +148,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				return $message;
 			}
 
-			if (in_array($Notification->type, [Post\UserNotification::TYPE_THREAD_COMMENT, Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_EXPLICIT_TAGGED])) {
+			if (in_array($Notification->type, [Post\UserNotification::TYPE_THREAD_COMMENT, Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_FOLLOW, Post\UserNotification::TYPE_EXPLICIT_TAGGED])) {
 				$item = Post::selectFirst([], ['uri-id' => $Notification->parentUriId, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
 				if (empty($item)) {
 					$this->logger->info('Parent post not found', ['uri-id' => $Notification->parentUriId]);
@@ -175,7 +175,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				}
 			}
 
-			if (in_array($Notification->type, [Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_SHARED])) {
+			if (in_array($Notification->type, [Post\UserNotification::TYPE_COMMENT_PARTICIPATION, Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION, Post\UserNotification::TYPE_FOLLOW, Post\UserNotification::TYPE_SHARED])) {
 				$author = Contact::getById($item['author-id'], ['id', 'name', 'url', 'contact-type']);
 				if (empty($author)) {
 					$this->logger->info('Author not found', ['author' => $item['author-id']]);
@@ -276,6 +276,7 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 
 						case Post\UserNotification::TYPE_COMMENT_PARTICIPATION:
 						case Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION:
+						case Post\UserNotification::TYPE_FOLLOW;
 							if (($causer['id'] == $author['id']) && ($title != '')) {
 								$msg = $l10n->t('%1$s commented in their thread %2$s');
 							} elseif ($causer['id'] == $author['id']) {
