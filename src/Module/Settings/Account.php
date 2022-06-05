@@ -267,6 +267,25 @@ class Account extends BaseSettings
 
 			DI::pConfig()->set(local_user(), 'system', 'notify_announce', $notify_announce);
 
+			$notify_type = 0;
+
+			if (!empty($request['notify_tagged'])) {
+				$notify_type = $notify_type | 3;
+			}
+			if (!empty($request['notify_direct_comment'])) {
+				$notify_type = $notify_type | 72;
+			}
+			if (!empty($request['notify_thread_comment'])) {
+				$notify_type = $notify_type | 4;
+			}
+			if (!empty($request['notify_comment_participation'])) {
+				$notify_type = $notify_type | 16;
+			}
+			if (!empty($request['notify_activity_participation'])) {
+				$notify_type = $notify_type | 32;
+			}
+			DI::pConfig()->set(local_user(), 'system', 'notify_type', $notify_type);
+
 			DI::pConfig()->set(local_user(), 'system', 'email_textonly', !empty($request['email_textonly']));
 			DI::pConfig()->set(local_user(), 'system', 'detailed_notif', !empty($request['detailed_notif']));
 			DI::pConfig()->set(local_user(), 'system', 'notify_ignored', !empty($request['notify_ignored']));
@@ -524,6 +543,8 @@ class Account extends BaseSettings
 		/* Installed langs */
 		$lang_choices = DI::l10n()->getAvailableLanguages();
 
+		$notify_type = DI::pConfig()->get(local_user(), 'system', 'notify_type', 3 | 72 | 4 | 16 | 32);
+
 		$tpl = Renderer::getMarkupTemplate('settings/account.tpl');
 		$o   = Renderer::replaceMacros($tpl, [
 			'$ptitle' => DI::l10n()->t('Account Settings'),
@@ -592,6 +613,12 @@ class Account extends BaseSettings
 			'$lbl_notify'      => DI::l10n()->t('Create a desktop notification when:'),
 			'$notify_like'     => ['notify_like', DI::l10n()->t('Someone liked your content'), DI::pConfig()->get(local_user(), 'system', 'notify_like'), ''],
 			'$notify_announce' => ['notify_announce', DI::l10n()->t('Someone shared your content'), DI::pConfig()->get(local_user(), 'system', 'notify_announce'), ''],
+
+			'$notify_tagged'                 => ['notify_tagged', DI::l10n()->t('Someone tagged you'), $notify_type & 3, ''],
+			'$notify_direct_comment'         => ['notify_direct_comment', DI::l10n()->t('Someone directly commented on your post'), $notify_type & 72, ''],
+			'$notify_thread_comment'         => ['notify_thread_comment', DI::l10n()->t('Someone commented on your thread'), $notify_type & 4, ''],
+			'$notify_comment_participation'  => ['notify_comment_participation', DI::l10n()->t('Someone commented in a thread where you commented'), $notify_type & 16, ''],
+			'$notify_activity_participation' => ['notify_activity_participation', DI::l10n()->t('Someone commented on a thread where you interacted'), $notify_type & 32, ''],
 
 			'$desktop_notifications' => ['desktop_notifications', DI::l10n()->t('Activate desktop notifications'), false, DI::l10n()->t('Show desktop popup on new notifications')],
 

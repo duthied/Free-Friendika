@@ -109,6 +109,11 @@
 			<div class="group">
 				{{include file="field_checkbox.tpl" field=$notify_like}}
 				{{include file="field_checkbox.tpl" field=$notify_announce}}
+				{{include file="field_checkbox.tpl" field=$notify_tagged}}
+				{{include file="field_checkbox.tpl" field=$notify_direct_comment}}
+				{{include file="field_checkbox.tpl" field=$notify_thread_comment}}
+				{{include file="field_checkbox.tpl" field=$notify_comment_participation}}
+				{{include file="field_checkbox.tpl" field=$notify_activity_participation}}
 			</div>
 
 			{{include file="field_checkbox.tpl" field=$email_textonly}}

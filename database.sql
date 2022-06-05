@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1465
+-- DB_UPDATE_VERSION 1466
 -- ------------------------------------------
 
 
@@ -1416,7 +1416,7 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 CREATE TABLE IF NOT EXISTS `post-user-notification` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`uid` mediumint unsigned NOT NULL COMMENT 'Owner id which owns this copy of the item',
-	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`notification-type` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`uid`,`uri-id`),
 	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,

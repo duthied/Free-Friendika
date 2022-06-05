@@ -34,7 +34,6 @@ use Friendica\Model\Post;
 use Friendica\Model\Subscription;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
-use Friendica\Navigation\Notifications;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
@@ -51,6 +50,7 @@ class UserNotification
 	const TYPE_ACTIVITY_PARTICIPATION = 32;
 	const TYPE_DIRECT_THREAD_COMMENT  = 64;
 	const TYPE_SHARED                 = 128;
+	const TYPE_FOLLOW                 = 256;
 
 	/**
 	 * Insert a new user notification entry
@@ -264,6 +264,14 @@ class UserNotification
 			$notification_type = $notification_type | self::TYPE_COMMENT_PARTICIPATION;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_COMMENT_PARTICIPATION, $uid, $item);
+				$notified = true;
+			}
+		}
+
+		if (($item['verb'] != Activity::ANNOUNCE) && self::checkFollowParticipation($item, $contacts)) {
+			$notification_type = $notification_type | self::TYPE_FOLLOW;
+			if (!$notified) {
+				self::insertNotificationByItem(self::TYPE_FOLLOW, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -532,6 +540,20 @@ class UserNotification
 	private static function checkCommentedParticipation(array $item, array $contacts): bool
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
+		return Post::exists($condition);
+	}
+
+	/**
+	 * Check if the user follows this thread
+	 *
+	 * @param array $item
+	 * @param array $contacts Array of contact IDs
+	 * @return bool The user follows the thread
+	 * @throws Exception
+	 */
+	private static function checkFollowParticipation(array $item, array $contacts): bool
+	{
+		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY, 'verb' => Activity::FOLLOW];
 		return Post::exists($condition);
 	}
 

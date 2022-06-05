@@ -663,7 +663,7 @@ class Notify extends BaseRepository
 			$type = \Friendica\Factory\Api\Mastodon\Notification::getType($Notification);
 		}
 
-		if (!in_array($type, [Notification::TYPE_RESHARE, Notification::TYPE_LIKE])) {
+		if (in_array($Notification->type, [Model\Post\UserNotification::TYPE_FOLLOW])) {
 			return true;
 		}
 
@@ -672,6 +672,24 @@ class Notify extends BaseRepository
 		}
 
 		if ($this->pConfig->get($Notification->uid, 'system', 'notify_announce') && ($type == Notification::TYPE_RESHARE)) {
+			return true;
+		}
+
+		$notify_type = $this->pConfig->get(local_user(), 'system', 'notify_type', 3 | 72 | 4 | 16 | 32);
+
+		if (($notify_type & 3) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_EXPLICIT_TAGGED, Model\Post\UserNotification::TYPE_IMPLICIT_TAGGED])) {
+			return true;
+		}
+		if (($notify_type & 72) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_DIRECT_COMMENT, Model\Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT])) {
+			return true;
+		}
+		if (($notify_type & 4) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_THREAD_COMMENT])) {
+			return true;
+		}
+		if (($notify_type & 16) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_COMMENT_PARTICIPATION])) {
+			return true;
+		}
+		if (($notify_type & 32) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION])) {
 			return true;
 		}
 

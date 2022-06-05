@@ -10,7 +10,7 @@ Fields
 | ----------------- | --------------------------------------------------------- | ------------------ | ---- | --- | ------- | ----- |
 | uri-id            | Id of the item-uri table entry that contains the item uri | int unsigned       | NO   | PRI | NULL    |       |
 | uid               | Owner id which owns this copy of the item                 | mediumint unsigned | NO   | PRI | NULL    |       |
-| notification-type |                                                           | tinyint unsigned   | NO   |     | 0       |       |
+| notification-type |                                                           | smallint unsigned  | NO   |     | 0       |       |
 
 Indexes
 ------------
