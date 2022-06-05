@@ -415,6 +415,18 @@ $a->strings['Could not find any unarchived contact entry for this URL (%s)'] = '
 $a->strings['The contact entries have been archived'] = 'A partnerbejegyzések archiválva lettek';
 $a->strings['Could not find any contact entry for this URL (%s)'] = 'Nem sikerült találni egyetlen partnerbejegyzést sem erről az URL-ről (%s)';
 $a->strings['The contact has been blocked from the node'] = 'A partner tiltva lett a csomópontról';
+$a->strings['%d %s, %d duplicates.'] = '%d %s, %d kettőzés.';
+$a->strings['No valid first countact found for uri-id %d.'] = 'Nem található érvényes első partner a(z) %d. URI-azonosítóhoz.';
+$a->strings['Wrong duplicate found for uri-id %d in %d (url: %s != %s).'] = 'Hibás kettőzés található a(z) %d. URI-azonosítónál ebben: %d (URL: %s != %s).';
+$a->strings['Wrong duplicate found for uri-id %d in %d (nurl: %s != %s).'] = 'Hibás kettőzés található a(z) %d. URI-azonosítónál ebben: %d (NURL: %s != %s).';
+$a->strings['Deletion of id %d failed'] = 'A(z) %d. azonosító törlése sikertelen';
+$a->strings['Deletion of id %d was successful'] = 'A(z) %d. azonosító törlése sikeres volt';
+$a->strings['Updating "%s" in "%s" from %d to %d'] = '„%s” frissítése ebben: „%s”, %d. értéktől %d. értékig';
+$a->strings[' - found'] = ' – megtalálva';
+$a->strings[' - failed'] = ' – sikertelen';
+$a->strings[' - success'] = ' – sikeres';
+$a->strings[' - deleted'] = ' – törölve';
+$a->strings[' - done'] = ' – kész';
 $a->strings['The avatar cache needs to be enabled to use this command.'] = 'A profilkép gyorsítótárának engedélyezve kell lennie a parancs használatához.';
 $a->strings['no resource in photo %s'] = 'nincs erőforrás a(z) %s fényképen';
 $a->strings['no photo with id %s'] = 'nincs %s azonosítóval rendelkező fénykép';

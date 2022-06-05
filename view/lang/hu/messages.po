@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-31 13:27+0000\n"
+"POT-Creation-Date: 2022-06-01 22:09+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Balázs Úr, 2020-2022\n"
 "Language-Team: Hungarian (http://www.transifex.com/Friendica/friendica/language/hu/)\n"
@@ -1646,6 +1646,61 @@ msgstr "Nem sikerült találni egyetlen partnerbejegyzést sem erről az URL-rő
 #: src/Module/Admin/Blocklist/Contact.php:66
 msgid "The contact has been blocked from the node"
 msgstr "A partner tiltva lett a csomópontról"
+
+#: src/Console/MergeContacts.php:74
+#, php-format
+msgid "%d %s, %d duplicates."
+msgstr "%d %s, %d kettőzés."
+
+#: src/Console/MergeContacts.php:86
+#, php-format
+msgid "No valid first countact found for uri-id %d."
+msgstr "Nem található érvényes első partner a(z) %d. URI-azonosítóhoz."
+
+#: src/Console/MergeContacts.php:97
+#, php-format
+msgid "Wrong duplicate found for uri-id %d in %d (url: %s != %s)."
+msgstr "Hibás kettőzés található a(z) %d. URI-azonosítónál ebben: %d (URL: %s != %s)."
+
+#: src/Console/MergeContacts.php:101
+#, php-format
+msgid "Wrong duplicate found for uri-id %d in %d (nurl: %s != %s)."
+msgstr "Hibás kettőzés található a(z) %d. URI-azonosítónál ebben: %d (NURL: %s != %s)."
+
+#: src/Console/MergeContacts.php:137
+#, php-format
+msgid "Deletion of id %d failed"
+msgstr "A(z) %d. azonosító törlése sikertelen"
+
+#: src/Console/MergeContacts.php:139
+#, php-format
+msgid "Deletion of id %d was successful"
+msgstr "A(z) %d. azonosító törlése sikeres volt"
+
+#: src/Console/MergeContacts.php:145
+#, php-format
+msgid "Updating \"%s\" in \"%s\" from %d to %d"
+msgstr "„%s” frissítése ebben: „%s”, %d. értéktől %d. értékig"
+
+#: src/Console/MergeContacts.php:147
+msgid " - found"
+msgstr " – megtalálva"
+
+#: src/Console/MergeContacts.php:154
+msgid " - failed"
+msgstr " – sikertelen"
+
+#: src/Console/MergeContacts.php:156
+msgid " - success"
+msgstr " – sikeres"
+
+#: src/Console/MergeContacts.php:160
+msgid " - deleted"
+msgstr " – törölve"
+
+#: src/Console/MergeContacts.php:163
+msgid " - done"
+msgstr " – kész"
 
 #: src/Console/MoveToAvatarCache.php:91
 msgid "The avatar cache needs to be enabled to use this command."
