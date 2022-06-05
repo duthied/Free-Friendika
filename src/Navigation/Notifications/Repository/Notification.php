@@ -119,7 +119,7 @@ class Notification extends BaseRepository
 	{
 		$condition = ["`type` & ? != 0", $this->pconfig->get($uid, 'system', 'notify_type', 3 | 72 | 4 | 16 | 32) | 128 | 256];
 		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
-			$condition = DBA::mergeConditions($condition, ['`vid` != ?', Verb::getID(\Friendica\Protocol\Activity::LIKE)]);
+			$condition = DBA::mergeConditions($condition, ['NOT `vid` IN (?, ?)', Verb::getID(\Friendica\Protocol\Activity::LIKE), Verb::getID(\Friendica\Protocol\Activity::DISLIKE)]);
 		}
 
 		if (!$this->pconfig->get($uid, 'system', 'notify_announce')) {
@@ -142,8 +142,9 @@ class Notification extends BaseRepository
 
 		$like_condition = '';
 		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
-			$like_condition = 'AND vid != ?';
+			$like_condition = 'AND NOT `vid` IN (?, ?)';
 			$values[] = Verb::getID(\Friendica\Protocol\Activity::LIKE);
+			$values[] = Verb::getID(\Friendica\Protocol\Activity::DISLIKE);
 		}
 
 		$announce_condition = '';
