@@ -675,9 +675,14 @@ class Notify extends BaseRepository
 			return true;
 		}
 
-		$notify_type = $this->pConfig->get($Notification->uid, 'system', 'notify_type', 3 | 72 | 4 | 16 | 32);
+		$notify_type = $this->pConfig->get($Notification->uid, 'system', 'notify_type');
 
-		if ($notify_type & $Notification->type) {
+		// Fallback for the case when the notify type isn't set at all
+		if (is_null($notify_type) && !in_array($type, [Notification::TYPE_RESHARE, Notification::TYPE_LIKE])) {
+				return true;
+		}
+
+		if (!is_null($notify_type) && ($notify_type & $Notification->type)) {
 			return true;
 		}
 
