@@ -257,10 +257,10 @@ class Account extends BaseSettings
 			$notify_type = 0;
 
 			if (!empty($request['notify_tagged'])) {
-				$notify_type = $notify_type | (UserNotification::TYPE_EXPLICIT_TAGGED + UserNotification::TYPE_IMPLICIT_TAGGED);
+				$notify_type = $notify_type | UserNotification::TYPE_EXPLICIT_TAGGED;
 			}
 			if (!empty($request['notify_direct_comment'])) {
-				$notify_type = $notify_type | (UserNotification::TYPE_DIRECT_COMMENT + UserNotification::TYPE_DIRECT_THREAD_COMMENT);
+				$notify_type = $notify_type | (UserNotification::TYPE_IMPLICIT_TAGGED + UserNotification::TYPE_DIRECT_COMMENT + UserNotification::TYPE_DIRECT_THREAD_COMMENT);
 			}
 			if (!empty($request['notify_thread_comment'])) {
 				$notify_type = $notify_type | UserNotification::TYPE_THREAD_COMMENT;
@@ -549,7 +549,7 @@ class Account extends BaseSettings
 		/* Installed langs */
 		$lang_choices = DI::l10n()->getAvailableLanguages();
 
-		$notify_type = DI::pConfig()->get(local_user(), 'system', 'notify_type', 3 | 72 | 4 | 16 | 32);
+		$notify_type = DI::pConfig()->get(local_user(), 'system', 'notify_type');
 
 		$tpl = Renderer::getMarkupTemplate('settings/account.tpl');
 		$o   = Renderer::replaceMacros($tpl, [
@@ -617,13 +617,13 @@ class Account extends BaseSettings
 			'$notify8' => ['notify8', DI::l10n()->t('You are poked/prodded/etc. in a post'), ($notify & Notification\Type::POKE), Notification\Type::POKE, ''],
 
 			'$lbl_notify'                    => DI::l10n()->t('Create a desktop notification when:'),
-			'$notify_tagged'                 => ['notify_tagged', DI::l10n()->t('Someone tagged you'), $notify_type & (UserNotification::TYPE_EXPLICIT_TAGGED + UserNotification::TYPE_IMPLICIT_TAGGED), ''],
-			'$notify_direct_comment'         => ['notify_direct_comment', DI::l10n()->t('Someone directly commented on your post'), $notify_type & (UserNotification::TYPE_DIRECT_COMMENT + UserNotification::TYPE_DIRECT_THREAD_COMMENT), ''],
+			'$notify_tagged'                 => ['notify_tagged', DI::l10n()->t('Someone tagged you'), is_null($notify_type) || $notify_type & UserNotification::TYPE_EXPLICIT_TAGGED, ''],
+			'$notify_direct_comment'         => ['notify_direct_comment', DI::l10n()->t('Someone directly commented on your post'), is_null($notify_type) || $notify_type & (UserNotification::TYPE_IMPLICIT_TAGGED + UserNotification::TYPE_DIRECT_COMMENT + UserNotification::TYPE_DIRECT_THREAD_COMMENT), ''],
 			'$notify_like'                   => ['notify_like', DI::l10n()->t('Someone liked your content'), DI::pConfig()->get(local_user(), 'system', 'notify_like'), DI::l10n()->t('Can only be enabled, when the direct comment notification is enabled.')],
 			'$notify_announce'               => ['notify_announce', DI::l10n()->t('Someone shared your content'), DI::pConfig()->get(local_user(), 'system', 'notify_announce'), DI::l10n()->t('Can only be enabled, when the direct comment notification is enabled.')],
-			'$notify_thread_comment'         => ['notify_thread_comment', DI::l10n()->t('Someone commented on your thread'), $notify_type & UserNotification::TYPE_THREAD_COMMENT, ''],
-			'$notify_comment_participation'  => ['notify_comment_participation', DI::l10n()->t('Someone commented in a thread where you commented'), $notify_type & UserNotification::TYPE_COMMENT_PARTICIPATION, ''],
-			'$notify_activity_participation' => ['notify_activity_participation', DI::l10n()->t('Someone commented on a thread where you interacted'), $notify_type & UserNotification::TYPE_ACTIVITY_PARTICIPATION, ''],
+			'$notify_thread_comment'         => ['notify_thread_comment', DI::l10n()->t('Someone commented in your thread'), is_null($notify_type) || $notify_type & UserNotification::TYPE_THREAD_COMMENT, ''],
+			'$notify_comment_participation'  => ['notify_comment_participation', DI::l10n()->t('Someone commented in a thread where you commented'), is_null($notify_type) || $notify_type & UserNotification::TYPE_COMMENT_PARTICIPATION, ''],
+			'$notify_activity_participation' => ['notify_activity_participation', DI::l10n()->t('Someone commented in a thread where you interacted'), is_null($notify_type) || $notify_type & UserNotification::TYPE_ACTIVITY_PARTICIPATION, ''],
 
 			'$desktop_notifications' => ['desktop_notifications', DI::l10n()->t('Activate desktop notifications'), false, DI::l10n()->t('Show desktop popup on new notifications')],
 
