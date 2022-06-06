@@ -21,10 +21,11 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\App\Router;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * @see https://docs.joinmastodon.org/methods/timelines/markers/
@@ -34,8 +35,33 @@ class Markers extends BaseApi
 	protected function post(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_WRITE);
+		$uid         = self::getCurrentUserID();
+		$application = self::getCurrentApplication();
 
-		$this->response->unsupported(Router::POST, $request);
+		$timeline     = '';
+		$last_read_id = '';
+		foreach (['home', 'notifications'] as $name) {
+			if (!empty($request[$name])) {
+				$timeline     = $name;
+				$last_read_id = $request[$name]['last_read_id'] ?? '';
+			}
+		}
+
+		if (empty($timeline) || empty($last_read_id) || empty($application['id'])) {
+			DI::mstdnError()->UnprocessableEntity();
+		}
+
+		$condition = ['application-id' => $application['id'], 'uid' => $uid, 'timeline' => $timeline];
+		$marker = DBA::selectFirst('application-marker', [], $condition);
+		if (!empty($marker['version'])) {
+			$version = $marker['version'] + 1;
+		} else {
+			$version = 1;
+		}
+
+		$fields = ['last_read_id' => $last_read_id, 'version' => $version, 'updated_at' => DateTimeFormat::utcNow()];
+		DBA::update('application-marker', $fields, $condition, true);
+		System::jsonExit($this->fethTimelines($application['id'], $uid));
 	}
 
 	/**
@@ -44,7 +70,23 @@ class Markers extends BaseApi
 	protected function rawContent(array $request = [])
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
+		$uid         = self::getCurrentUserID();
+		$application = self::getCurrentApplication();
 
-		System::jsonExit([]);
+		System::jsonExit($this->fethTimelines($application['id'], $uid));
+	}
+
+	private function fethTimelines(int $application_id, int $uid)
+	{
+		$values = [];
+		$markers = DBA::select('application-marker', [], ['application-id' => $application_id, 'uid' => $uid]);
+		while ($marker = DBA::fetch($markers)) {
+			$values[$marker['timeline']] = [
+				'last_read_id' => $marker['last_read_id'],
+				'version'      => $marker['version'],
+				'updated_at'   => $marker['updated_at']
+			];
+		}
+		return $values;
 	}
 }

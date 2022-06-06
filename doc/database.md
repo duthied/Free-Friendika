@@ -11,6 +11,7 @@ Database Tables
 | [addon](help/database/db_addon) | registered addons |
 | [apcontact](help/database/db_apcontact) | ActivityPub compatible contacts - used in the ActivityPub implementation |
 | [application](help/database/db_application) | OAuth application |
+| [application-marker](help/database/db_application-marker) | Timeline marker |
 | [application-token](help/database/db_application-token) | OAuth user token |
 | [attach](help/database/db_attach) | file attachments |
 | [cache](help/database/db_cache) | Stores temporary data |

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.05-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1467
+-- DB_UPDATE_VERSION 1468
 -- ------------------------------------------
 
 
@@ -385,6 +385,22 @@ CREATE TABLE IF NOT EXISTS `application` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `client_id` (`client_id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth application';
+
+--
+-- TABLE application-marker
+--
+CREATE TABLE IF NOT EXISTS `application-marker` (
+	`application-id` int unsigned NOT NULL COMMENT '',
+	`uid` mediumint unsigned NOT NULL COMMENT 'Owner User id',
+	`timeline` varchar(64) NOT NULL COMMENT 'Marker (home, notifications)',
+	`last_read_id` varchar(255) COMMENT 'Marker id for the timeline',
+	`version` smallint unsigned COMMENT 'Version number',
+	`updated_at` datetime COMMENT 'creation time',
+	 PRIMARY KEY(`application-id`,`uid`,`timeline`),
+	 INDEX `uid_id` (`uid`),
+	FOREIGN KEY (`application-id`) REFERENCES `application` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Timeline marker';
 
 --
 -- TABLE application-token

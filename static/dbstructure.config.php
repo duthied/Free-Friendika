@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1467);
+	define('DB_UPDATE_VERSION', 1468);
 }
 
 return [
@@ -447,6 +447,21 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"client_id" => ["UNIQUE", "client_id"]
+		]
+	],
+	"application-marker" => [
+		"comment" => "Timeline marker",
+		"fields" => [
+			"application-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["application" => "id"], "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
+			"timeline" => ["type" => "varchar(64)", "not null" => "1", "primary" => "1", "comment" => "Marker (home, notifications)"],
+			"last_read_id" => ["type" => "varchar(255)", "comment" => "Marker id for the timeline"],
+			"version" => ["type" => "smallint unsigned", "comment" => "Version number"],
+			"updated_at" => ["type" => "datetime", "comment" => "creation time"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["application-id", "uid", "timeline"],
+			"uid_id" => ["uid"],
 		]
 	],
 	"application-token" => [
