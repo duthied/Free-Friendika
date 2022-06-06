@@ -556,7 +556,7 @@ class Conversation
 			if (in_array($mode, ['community', 'contacts', 'profile'])) {
 				$writable = true;
 			} else {
-				$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);
+				$writable = $items[0]['writable'] || ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);
 			}
 
 			if (!local_user()) {
