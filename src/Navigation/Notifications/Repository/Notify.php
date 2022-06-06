@@ -675,21 +675,14 @@ class Notify extends BaseRepository
 			return true;
 		}
 
-		$notify_type = $this->pConfig->get($Notification->uid, 'system', 'notify_type', 3 | 72 | 4 | 16 | 32);
+		$notify_type = $this->pConfig->get($Notification->uid, 'system', 'notify_type');
 
-		if (($notify_type & 3) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_EXPLICIT_TAGGED, Model\Post\UserNotification::TYPE_IMPLICIT_TAGGED])) {
-			return true;
+		// Fallback for the case when the notify type isn't set at all
+		if (is_null($notify_type) && !in_array($type, [Notification::TYPE_RESHARE, Notification::TYPE_LIKE])) {
+				return true;
 		}
-		if (($notify_type & 72) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_DIRECT_COMMENT, Model\Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT])) {
-			return true;
-		}
-		if (($notify_type & 4) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_THREAD_COMMENT])) {
-			return true;
-		}
-		if (($notify_type & 16) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_COMMENT_PARTICIPATION])) {
-			return true;
-		}
-		if (($notify_type & 32) && in_array($Notification->type, [Model\Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION])) {
+
+		if (!is_null($notify_type) && ($notify_type & $Notification->type)) {
 			return true;
 		}
 

@@ -117,7 +117,13 @@ class Notification extends BaseRepository
 	 */
 	public function selectDetailedForUser(int $uid): Collection\Notifications
 	{
-		$condition = ["`type` & ? != 0", $this->pconfig->get($uid, 'system', 'notify_type', 3 | 72 | 4 | 16 | 32) | 128 | 256];
+		$notify_type = $this->pconfig->get($uid, 'system', 'notify_type');
+		if (!is_null($notify_type)) {
+			$condition = ["`type` & ? != 0", $notify_type | UserNotification::TYPE_SHARED | UserNotification::TYPE_FOLLOW];
+		} else {
+			$condition = [];
+		}
+
 		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
 			$condition = DBA::mergeConditions($condition, ['NOT `vid` IN (?, ?)', Verb::getID(\Friendica\Protocol\Activity::LIKE), Verb::getID(\Friendica\Protocol\Activity::DISLIKE)]);
 		}
@@ -138,7 +144,14 @@ class Notification extends BaseRepository
 	 */
 	public function selectDigestForUser(int $uid): Collection\Notifications
 	{
-		$values = [$uid, $this->pconfig->get($uid, 'system', 'notify_type', 3 | 72 | 4 | 16 | 32) | 128 | 256];
+		$values = [$uid];
+
+		$type_condition = '';
+		$notify_type = $this->pconfig->get($uid, 'system', 'notify_type');
+		if (!is_null($notify_type)) {
+			$type_condition = 'AND `type` & ? != 0';
+			$values[] = $notify_type | UserNotification::TYPE_SHARED | UserNotification::TYPE_FOLLOW;
+		}
 
 		$like_condition = '';
 		if (!$this->pconfig->get($uid, 'system', 'notify_like')) {
@@ -159,7 +172,8 @@ class Notification extends BaseRepository
 		WHERE `id` IN (
 		    SELECT MAX(`id`)
 		    FROM `notification`
-		    WHERE `uid` = ? AND `type` & ? != 0
+		    WHERE `uid` = ?
+			$type_condition
 		    $like_condition
 		    $announce_condition
 		    GROUP BY IFNULL(`parent-uri-id`, `actor-id`)
