@@ -84,6 +84,8 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/lists/:id/accounts`](https://docs.joinmastodon.org/methods/timelines/lists/)
 - [`POST /api/v1/lists/:id/accounts`](https://docs.joinmastodon.org/methods/timelines/lists/)
 - [`DELETE /api/v1/lists/:id/accounts`](https://docs.joinmastodon.org/methods/timelines/lists/)
+- [`POST /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
+- [`GET /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
 - [`POST /api/v1/media`](https://docs.joinmastodon.org/methods/statuses/media/)
 - [`GET /api/v1/media/:id`](https://docs.joinmastodon.org/methods/statuses/media/)
 - [`PUT /api/v1/media/:id`](https://docs.joinmastodon.org/methods/statuses/media/)
@@ -156,7 +158,6 @@ They refer to features that don't exist in Friendica yet.
 - [`GET /api/v1/announcements`](https://docs.joinmastodon.org/methods/announcements/)
 - [`GET /api/v1/endorsements`](https://docs.joinmastodon.org/methods/accounts/endorsements/)
 - [`GET /api/v1/filters`](https://docs.joinmastodon.org/methods/accounts/filters/)
-- [`GET /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
 
 ## Non supportable endpoints
 
