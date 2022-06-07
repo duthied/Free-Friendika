@@ -233,7 +233,7 @@ return [
 			'/instance'                          => [Module\Api\Mastodon\Instance::class,                 [R::GET         ]],
 			'/instance/activity'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
 			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class,           [R::GET         ]],
-			'/instance/rules'                    => [Module\Api\Mastodon\Instance\Rules::class,           [R::GET         ]], // not supported
+			'/instance/rules'                    => [Module\Api\Mastodon\Instance\Rules::class,           [R::GET         ]],
 			'/lists'                             => [Module\Api\Mastodon\Lists::class,                    [R::GET, R::POST]],
 			'/lists/{id:\d+}'                    => [Module\Api\Mastodon\Lists::class,                    [R::GET, R::PUT, R::DELETE]],
 			'/lists/{id:\d+}/accounts'           => [Module\Api\Mastodon\Lists\Accounts::class,           [R::GET, R::POST, R::DELETE]],
@@ -244,7 +244,7 @@ return [
 			'/notifications/{id:\d+}'            => [Module\Api\Mastodon\Notifications::class,            [R::GET         ]],
 			'/notifications/clear'               => [Module\Api\Mastodon\Notifications\Clear::class,      [        R::POST]],
 			'/notifications/{id:\d+}/dismiss'    => [Module\Api\Mastodon\Notifications\Dismiss::class,    [        R::POST]],
-			'/polls/{id:\d+}'                    => [Module\Api\Mastodon\Polls::class,                    [R::GET         ]], // not supported
+			'/polls/{id:\d+}'                    => [Module\Api\Mastodon\Polls::class,                    [R::GET         ]],
 			'/polls/{id:\d+}/votes'              => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/preferences'                       => [Module\Api\Mastodon\Preferences::class,              [R::GET         ]],
 			'/push/subscription'                 => [Module\Api\Mastodon\PushSubscription::class,         [R::GET, R::POST, R::PUT, R::DELETE]],

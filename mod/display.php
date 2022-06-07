@@ -160,15 +160,19 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			}
 			$parent_uri_id = $item['parent-uri-id'];
 		}
-		$browser_update = intval(DI::pConfig()->get($update_uid, 'system', 'update_interval'));
-		if (!empty($browser_update)) {
-			$update_date = date(DateTimeFormat::MYSQL, time() - ($browser_update / 500));
-			if (!Post::exists(["`parent-uri-id` = ? AND `uid` IN (?, ?) AND `received` > ?", $parent_uri_id, 0, $update_uid, $update_date])) {
-				Logger::debug('No updated content', ['uri-id' => $uri_id, 'uid' => $update_uid, 'updated' => $update_date]);
-				return '';
-			} else {
-				Logger::debug('Updated content found', ['uri-id' => $uri_id, 'uid' => $update_uid, 'updated' => $update_date]);
-			}
+		if (empty($_REQUEST['force'])) {
+			$browser_update = intval(DI::pConfig()->get($update_uid, 'system', 'update_interval'));
+			if (!empty($browser_update)) {
+				$update_date = date(DateTimeFormat::MYSQL, time() - ($browser_update / 500));
+				if (!Post::exists(["`parent-uri-id` = ? AND `uid` IN (?, ?) AND `received` > ?", $parent_uri_id, 0, $update_uid, $update_date])) {
+					Logger::debug('No updated content', ['uri-id' => $uri_id, 'uid' => $update_uid, 'updated' => $update_date]);
+					return '';
+				} else {
+					Logger::debug('Updated content found', ['uri-id' => $uri_id, 'uid' => $update_uid, 'updated' => $update_date]);
+				}
+			}	
+		} else {
+			Logger::debug('Forced content update', ['uri-id' => $uri_id, 'uid' => $update_uid]);
 		}
 	} else {
 		$uri_id = ((DI::args()->getArgc() > 2) ? DI::args()->getArgv()[2] : 0);
