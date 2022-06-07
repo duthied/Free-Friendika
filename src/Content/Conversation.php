@@ -507,6 +507,7 @@ class Conversation
 					. "<script> var profile_uid = -1; var netargs = '" . substr($this->args->getCommand(), 10)
 					. '?f='
 					. (!empty($_GET['no_sharer']) ? '&no_sharer=' . rawurlencode($_GET['no_sharer']) : '')
+					. (!empty($_GET['accounttype']) ? '&accounttype=' . rawurlencode($_GET['accounttype']) : '')
 					. "'; </script>\r\n";
 			}
 		} elseif ($mode === 'contacts') {
