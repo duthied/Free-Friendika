@@ -416,6 +416,7 @@ $a->strings['The contact entries have been archived'] = 'A partnerbejegyzések a
 $a->strings['Could not find any contact entry for this URL (%s)'] = 'Nem sikerült találni egyetlen partnerbejegyzést sem erről az URL-ről (%s)';
 $a->strings['The contact has been blocked from the node'] = 'A partner tiltva lett a csomópontról';
 $a->strings['%d %s, %d duplicates.'] = '%d %s, %d kettőzés.';
+$a->strings['uri-id is empty for contact %s.'] = 'Az URI-azonosító üres %s partnernél.';
 $a->strings['No valid first countact found for uri-id %d.'] = 'Nem található érvényes első partner a(z) %d. URI-azonosítóhoz.';
 $a->strings['Wrong duplicate found for uri-id %d in %d (url: %s != %s).'] = 'Hibás kettőzés található a(z) %d. URI-azonosítónál ebben: %d (URL: %s != %s).';
 $a->strings['Wrong duplicate found for uri-id %d in %d (nurl: %s != %s).'] = 'Hibás kettőzés található a(z) %d. URI-azonosítónál ebben: %d (NURL: %s != %s).';
@@ -2256,11 +2257,14 @@ $a->strings['Someone writes on your profile wall'] = 'Valaki ír a profilfalára
 $a->strings['Someone writes a followup comment'] = 'Valaki egy követő hozzászólást ír';
 $a->strings['You receive a private message'] = 'Személyes üzenetet kap';
 $a->strings['You receive a friend suggestion'] = 'Ismerősajánlást kap';
-$a->strings['You are tagged in a post'] = 'Bejelölték egy bejegyzésben';
+$a->strings['You are tagged in a post'] = 'Megjelölték egy bejegyzésben';
 $a->strings['You are poked/prodded/etc. in a post'] = 'Megbökték, megdöfték, stb. egy bejegyzésben';
 $a->strings['Create a desktop notification when:'] = 'Asztali értesítés létrehozása ekkor:';
+$a->strings['Someone tagged you'] = 'Valaki megjelölte Önt';
+$a->strings['Someone directly commented on your post'] = 'Valaki közvetlenül hozzászólt a bejegyzéséhez';
 $a->strings['Someone liked your content'] = 'Valaki kedvelte az Ön tartalmát';
 $a->strings['Someone shared your content'] = 'Valaki megosztotta az Ön tartalmát';
+$a->strings['Someone commented in a thread where you commented'] = 'Valaki hozzászólt egy olyan szálban, ahol Ön hozzászólt';
 $a->strings['Activate desktop notifications'] = 'Asztali értesítések bekapcsolása';
 $a->strings['Show desktop popup on new notifications'] = 'Felugró üzenet megjelenítése az asztalon új értesítések esetén.';
 $a->strings['Text-only notification emails'] = 'Csak szöveges értesítési e-mailek';
@@ -2537,7 +2541,7 @@ $a->strings['%1$s shared a post'] = '%1$s megosztott egy bejegyzést';
 $a->strings['%1$s wants to attend your event %2$s'] = '%1$s szeretne részt venni az Ön %2$s eseményén';
 $a->strings['%1$s does not want to attend your event %2$s'] = '%1$s nem szeretne részt venni az Ön %2$s eseményén';
 $a->strings['%1$s maybe wants to attend your event %2$s'] = '%1$s talán szeretne részt venni az Ön %2$s eseményén';
-$a->strings['%1$s tagged you on %2$s'] = '%1$s bejelölte Önt ezen: %2$s';
+$a->strings['%1$s tagged you on %2$s'] = '%1$s megjelölte Önt ezen: %2$s';
 $a->strings['%1$s replied to you on %2$s'] = '%1$s válaszolt Önnek ezen: %2$s';
 $a->strings['%1$s commented in your thread %2$s'] = '%1$s hozzászólt az Ön %2$s szálában';
 $a->strings['%1$s commented on your comment %2$s'] = '%1$s hozzászólt az Ön %2$s hozzászólásánál';
@@ -2596,7 +2600,7 @@ Login Name:	%s (%s)'] = 'Teljes név:	%s
 Oldal címe:	%s
 Bejelentkezési név:	%s (%s)';
 $a->strings['Please visit %s to approve or reject the request.'] = 'Látogassa meg a(z) %s oldalt a kérés jóváhagyásához vagy visszautasításához.';
-$a->strings['%s %s tagged you'] = '%s %s bejelölte Önt';
+$a->strings['%s %s tagged you'] = '%s %s megjelölte Önt';
 $a->strings['%s %s shared a new post'] = '%s %s megosztott egy új bejegyzést';
 $a->strings['This message was sent to you by %s, a member of the Friendica social network.'] = 'Ezt az üzenetet %s, a Friendica közösségi hálózatának tagja küldte Önnek.';
 $a->strings['You may visit them online at %s'] = 'Meglátogathatja őket az interneten ezen a címen: %s';

@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-01 22:09+0000\n"
+"POT-Creation-Date: 2022-06-06 07:33+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Balázs Úr, 2020-2022\n"
 "Language-Team: Hungarian (http://www.transifex.com/Friendica/friendica/language/hu/)\n"
@@ -32,7 +32,7 @@ msgid "Access denied."
 msgstr "Hozzáférés megtagadva."
 
 #: mod/cal.php:63 mod/cal.php:80 mod/photos.php:69 mod/photos.php:140
-#: mod/photos.php:804 src/Model/Profile.php:231 src/Module/Feed.php:72
+#: mod/photos.php:798 src/Model/Profile.php:231 src/Module/Feed.php:72
 #: src/Module/HCard.php:52 src/Module/Profile/Common.php:41
 #: src/Module/Profile/Common.php:52 src/Module/Profile/Contacts.php:40
 #: src/Module/Profile/Contacts.php:50 src/Module/Profile/Media.php:38
@@ -41,7 +41,7 @@ msgstr "Hozzáférés megtagadva."
 msgid "User not found."
 msgstr "A felhasználó nem található."
 
-#: mod/cal.php:122 mod/display.php:246 src/Module/Profile/Profile.php:94
+#: mod/cal.php:122 mod/display.php:247 src/Module/Profile/Profile.php:94
 #: src/Module/Profile/Profile.php:109 src/Module/Profile/Status.php:110
 #: src/Module/Update/Profile.php:56
 msgid "Access to this profile has been restricted."
@@ -108,24 +108,24 @@ msgstr "Nem található exportálható adat"
 msgid "calendar"
 msgstr "naptár"
 
-#: mod/display.php:141 mod/photos.php:808
+#: mod/display.php:142 mod/photos.php:802
 #: src/Module/Conversation/Community.php:175 src/Module/Directory.php:49
 #: src/Module/Search/Index.php:50
 msgid "Public access denied."
 msgstr "Nyilvános hozzáférés megtagadva."
 
-#: mod/display.php:197 mod/display.php:271
+#: mod/display.php:198 mod/display.php:272
 msgid "The requested item doesn't exist or has been deleted."
 msgstr "A kért elem nem létezik vagy törölték."
 
-#: mod/display.php:351
+#: mod/display.php:352
 msgid "The feed for this item is unavailable."
 msgstr "Ennek az elemnek a hírforrása nem érhető el."
 
 #: mod/editpost.php:38 mod/events.php:217 mod/follow.php:56 mod/follow.php:130
 #: mod/item.php:181 mod/item.php:186 mod/item.php:875 mod/message.php:69
 #: mod/message.php:111 mod/notes.php:44 mod/ostatus_subscribe.php:33
-#: mod/photos.php:160 mod/photos.php:897 mod/repair_ostatus.php:31
+#: mod/photos.php:160 mod/photos.php:891 mod/repair_ostatus.php:31
 #: mod/settings.php:40 mod/settings.php:50 mod/settings.php:156
 #: mod/suggest.php:34 mod/uimport.php:33 mod/unfollow.php:35
 #: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:67
@@ -142,8 +142,8 @@ msgstr "Ennek az elemnek a hírforrása nem érhető el."
 #: src/Module/Profile/Schedule.php:39 src/Module/Profile/Schedule.php:56
 #: src/Module/Register.php:77 src/Module/Register.php:90
 #: src/Module/Register.php:206 src/Module/Register.php:245
-#: src/Module/Search/Directory.php:37 src/Module/Settings/Account.php:48
-#: src/Module/Settings/Account.php:384 src/Module/Settings/Delegation.php:42
+#: src/Module/Search/Directory.php:37 src/Module/Settings/Account.php:49
+#: src/Module/Settings/Account.php:409 src/Module/Settings/Delegation.php:42
 #: src/Module/Settings/Delegation.php:70 src/Module/Settings/Display.php:42
 #: src/Module/Settings/Display.php:120
 #: src/Module/Settings/Profile/Photo/Crop.php:166
@@ -168,7 +168,7 @@ msgstr "Bejegyzés szerkesztése"
 msgid "Save"
 msgstr "Mentés"
 
-#: mod/editpost.php:92 mod/photos.php:1344 src/Content/Conversation.php:338
+#: mod/editpost.php:92 mod/photos.php:1338 src/Content/Conversation.php:338
 #: src/Module/Contact/Poke.php:176 src/Object/Post.php:989
 msgid "Loading..."
 msgstr "Betöltés…"
@@ -233,7 +233,7 @@ msgid "clear location"
 msgstr "hely törlése"
 
 #: mod/editpost.php:107 mod/message.php:200 mod/message.php:358
-#: mod/photos.php:1495 mod/wallmessage.php:142
+#: mod/photos.php:1489 mod/wallmessage.php:142
 #: src/Content/Conversation.php:368 src/Content/Conversation.php:712
 #: src/Module/Item/Compose.php:177 src/Object/Post.php:528
 msgid "Please wait"
@@ -265,14 +265,14 @@ msgstr "Kategóriák (vesszővel elválasztott lista)"
 msgid "Example: bob@example.com, mary@example.com"
 msgstr "Példa: bob@example.com, mary@example.com"
 
-#: mod/editpost.php:128 mod/events.php:513 mod/photos.php:1343
-#: mod/photos.php:1399 mod/photos.php:1473 src/Content/Conversation.php:383
+#: mod/editpost.php:128 mod/events.php:513 mod/photos.php:1337
+#: mod/photos.php:1393 mod/photos.php:1467 src/Content/Conversation.php:383
 #: src/Module/Item/Compose.php:172 src/Object/Post.php:999
 msgid "Preview"
 msgstr "Előnézet"
 
 #: mod/editpost.php:130 mod/fbrowser.php:118 mod/fbrowser.php:145
-#: mod/follow.php:144 mod/photos.php:1010 mod/photos.php:1111 mod/tagrm.php:35
+#: mod/follow.php:144 mod/photos.php:1004 mod/photos.php:1105 mod/tagrm.php:35
 #: mod/tagrm.php:127 mod/unfollow.php:97 src/Content/Conversation.php:386
 #: src/Module/Contact/Revoke.php:108 src/Module/RemoteFollow.php:127
 msgid "Cancel"
@@ -314,7 +314,7 @@ msgid "Link or Media"
 msgstr "Hivatkozás vagy média"
 
 #: mod/editpost.php:143 src/Content/Conversation.php:393
-#: src/Content/Widget/VCard.php:107 src/Model/Profile.php:462
+#: src/Content/Widget/VCard.php:113 src/Model/Profile.php:462
 #: src/Module/Admin/Logs/View.php:93
 msgid "Message"
 msgstr "Üzenet"
@@ -324,8 +324,8 @@ msgstr "Üzenet"
 msgid "Browser"
 msgstr "Böngésző"
 
-#: mod/editpost.php:145 mod/events.php:518 mod/photos.php:945
-#: mod/photos.php:1297 src/Content/Conversation.php:370
+#: mod/editpost.php:145 mod/events.php:518 mod/photos.php:939
+#: mod/photos.php:1291 src/Content/Conversation.php:370
 msgid "Permissions"
 msgstr "Jogosultságok"
 
@@ -389,7 +389,7 @@ msgstr "Esemény befejezése:"
 msgid "Description:"
 msgstr "Leírás:"
 
-#: mod/events.php:504 src/Content/Widget/VCard.php:98 src/Model/Event.php:80
+#: mod/events.php:504 src/Content/Widget/VCard.php:104 src/Model/Event.php:80
 #: src/Model/Event.php:107 src/Model/Event.php:466 src/Model/Event.php:915
 #: src/Model/Profile.php:370 src/Module/Contact/Profile.php:369
 #: src/Module/Directory.php:148 src/Module/Notifications/Introductions.php:185
@@ -406,8 +406,8 @@ msgid "Share this event"
 msgstr "Az esemény megosztása"
 
 #: mod/events.php:515 mod/message.php:201 mod/message.php:357
-#: mod/photos.php:927 mod/photos.php:1031 mod/photos.php:1301
-#: mod/photos.php:1342 mod/photos.php:1398 mod/photos.php:1472
+#: mod/photos.php:921 mod/photos.php:1025 mod/photos.php:1295
+#: mod/photos.php:1336 mod/photos.php:1392 mod/photos.php:1466
 #: src/Module/Admin/Item/Source.php:65 src/Module/Contact/Advanced.php:132
 #: src/Module/Contact/Poke.php:177 src/Module/Contact/Profile.php:327
 #: src/Module/Debug/ActivityPubConversion.php:145
@@ -863,11 +863,11 @@ msgstr "Tartsa nyitva ezt az ablakot, amíg el nem készül."
 msgid "Photo Albums"
 msgstr "Fényképalbumok"
 
-#: mod/photos.php:109 mod/photos.php:1590
+#: mod/photos.php:109 mod/photos.php:1584
 msgid "Recent Photos"
 msgstr "Legutóbbi fényképek"
 
-#: mod/photos.php:111 mod/photos.php:1079 mod/photos.php:1592
+#: mod/photos.php:111 mod/photos.php:1073 mod/photos.php:1586
 msgid "Upload New Photos"
 msgstr "Új fényképek feltöltése"
 
@@ -895,221 +895,221 @@ msgstr "Az album üres volt."
 msgid "Failed to delete the photo."
 msgstr "Nem sikerült törölni a fényképet."
 
-#: mod/photos.php:559
+#: mod/photos.php:553
 msgid "a photo"
 msgstr "egy fényképen"
 
-#: mod/photos.php:559
+#: mod/photos.php:553
 #, php-format
 msgid "%1$s was tagged in %2$s by %3$s"
 msgstr "%1$s meg lett jelölve %2$s %3$s által"
 
-#: mod/photos.php:642 mod/photos.php:645 mod/photos.php:672
+#: mod/photos.php:636 mod/photos.php:639 mod/photos.php:666
 #: mod/wall_upload.php:201 src/Module/Settings/Profile/Photo/Index.php:60
 #, php-format
 msgid "Image exceeds size limit of %s"
 msgstr "A kép meghaladja a beállított %s méretkorlátot"
 
-#: mod/photos.php:648
+#: mod/photos.php:642
 msgid "Image upload didn't complete, please try again"
 msgstr "A kép feltöltése nem fejeződött be, próbálja újra"
 
-#: mod/photos.php:651
+#: mod/photos.php:645
 msgid "Image file is missing"
 msgstr "A képfájl hiányzik"
 
-#: mod/photos.php:656
+#: mod/photos.php:650
 msgid ""
 "Server can't accept new file upload at this time, please contact your "
 "administrator"
 msgstr "A kiszolgáló jelenleg nem tud új fájlfeltöltést fogadni, vegye fel a kapcsolatot a rendszergazdával"
 
-#: mod/photos.php:680
+#: mod/photos.php:674
 msgid "Image file is empty."
 msgstr "A képfájl üres."
 
-#: mod/photos.php:695 mod/wall_upload.php:163
+#: mod/photos.php:689 mod/wall_upload.php:163
 #: src/Module/Settings/Profile/Photo/Index.php:69
 msgid "Unable to process image."
 msgstr "Nem lehet feldolgozni a képet."
 
-#: mod/photos.php:721 mod/wall_upload.php:226
+#: mod/photos.php:715 mod/wall_upload.php:226
 #: src/Module/Settings/Profile/Photo/Index.php:96
 msgid "Image upload failed."
 msgstr "A kép feltöltése sikertelen."
 
-#: mod/photos.php:813
+#: mod/photos.php:807
 msgid "No photos selected"
 msgstr "Nincsenek fényképek kijelölve"
 
-#: mod/photos.php:882
+#: mod/photos.php:876
 msgid "Access to this item is restricted."
 msgstr "Az elemhez való hozzáférés korlátozott."
 
-#: mod/photos.php:937
+#: mod/photos.php:931
 msgid "Upload Photos"
 msgstr "Fényképek feltöltése"
 
-#: mod/photos.php:941 mod/photos.php:1027
+#: mod/photos.php:935 mod/photos.php:1021
 msgid "New album name: "
 msgstr "Új album neve: "
 
-#: mod/photos.php:942
+#: mod/photos.php:936
 msgid "or select existing album:"
 msgstr "vagy meglévő album kiválasztása:"
 
-#: mod/photos.php:943
+#: mod/photos.php:937
 msgid "Do not show a status post for this upload"
 msgstr "Ne jelenítsen meg állapotbejegyzést ehhez a feltöltéshez"
 
-#: mod/photos.php:1008
+#: mod/photos.php:1002
 msgid "Do you really want to delete this photo album and all its photos?"
 msgstr "Valóban törölni szeretné ezt a fényképalbumot és az összes fényképét?"
 
-#: mod/photos.php:1009 mod/photos.php:1032
+#: mod/photos.php:1003 mod/photos.php:1026
 msgid "Delete Album"
 msgstr "Album törlése"
 
-#: mod/photos.php:1036
+#: mod/photos.php:1030
 msgid "Edit Album"
 msgstr "Album szerkesztése"
 
-#: mod/photos.php:1037
+#: mod/photos.php:1031
 msgid "Drop Album"
 msgstr "Album eldobása"
 
-#: mod/photos.php:1041
+#: mod/photos.php:1035
 msgid "Show Newest First"
 msgstr "Legújabb megjelenítése először"
 
-#: mod/photos.php:1043
+#: mod/photos.php:1037
 msgid "Show Oldest First"
 msgstr "Legrégebbi megjelenítése először"
 
-#: mod/photos.php:1064 mod/photos.php:1575
+#: mod/photos.php:1058 mod/photos.php:1569
 msgid "View Photo"
 msgstr "Fénykép megtekintése"
 
-#: mod/photos.php:1097
+#: mod/photos.php:1091
 msgid "Permission denied. Access to this item may be restricted."
 msgstr "Hozzáférés megtagadva. Az elemhez való hozzáférés korlátozva lehet."
 
-#: mod/photos.php:1099
+#: mod/photos.php:1093
 msgid "Photo not available"
 msgstr "A fénykép nem érhető el"
 
-#: mod/photos.php:1109
+#: mod/photos.php:1103
 msgid "Do you really want to delete this photo?"
 msgstr "Valóban törölni szeretné ezt a fényképet?"
 
-#: mod/photos.php:1110 mod/photos.php:1302
+#: mod/photos.php:1104 mod/photos.php:1296
 msgid "Delete Photo"
 msgstr "Fénykép törlése"
 
-#: mod/photos.php:1202
+#: mod/photos.php:1196
 msgid "View photo"
 msgstr "Fénykép megtekintése"
 
-#: mod/photos.php:1204
+#: mod/photos.php:1198
 msgid "Edit photo"
 msgstr "Fénykép szerkesztése"
 
-#: mod/photos.php:1205
+#: mod/photos.php:1199
 msgid "Delete photo"
 msgstr "Fénykép törlése"
 
-#: mod/photos.php:1206
+#: mod/photos.php:1200
 msgid "Use as profile photo"
 msgstr "Használat profilfényképként"
 
-#: mod/photos.php:1213
+#: mod/photos.php:1207
 msgid "Private Photo"
 msgstr "Személyes fénykép"
 
-#: mod/photos.php:1219
+#: mod/photos.php:1213
 msgid "View Full Size"
 msgstr "Teljes méret megtekintése"
 
-#: mod/photos.php:1270
+#: mod/photos.php:1264
 msgid "Tags: "
 msgstr "Címkék: "
 
-#: mod/photos.php:1273
+#: mod/photos.php:1267
 msgid "[Select tags to remove]"
 msgstr "[Eltávolítandó címkék kiválasztása]"
 
-#: mod/photos.php:1288
+#: mod/photos.php:1282
 msgid "New album name"
 msgstr "Új album neve"
 
-#: mod/photos.php:1289
+#: mod/photos.php:1283
 msgid "Caption"
 msgstr "Felirat"
 
-#: mod/photos.php:1290
+#: mod/photos.php:1284
 msgid "Add a Tag"
 msgstr "Címke hozzáadása"
 
-#: mod/photos.php:1290
+#: mod/photos.php:1284
 msgid ""
 "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr "Példa: @bob, @Barbara_Jensen, @jim@example.com, #Budapest, #kemping"
 
-#: mod/photos.php:1291
+#: mod/photos.php:1285
 msgid "Do not rotate"
 msgstr "Ne forgassa el"
 
-#: mod/photos.php:1292
+#: mod/photos.php:1286
 msgid "Rotate CW (right)"
 msgstr "Forgatás jobbra"
 
-#: mod/photos.php:1293
+#: mod/photos.php:1287
 msgid "Rotate CCW (left)"
 msgstr "Forgatás balra"
 
-#: mod/photos.php:1339 mod/photos.php:1395 mod/photos.php:1469
+#: mod/photos.php:1333 mod/photos.php:1389 mod/photos.php:1463
 #: src/Module/Contact.php:544 src/Module/Item/Compose.php:160
 #: src/Object/Post.php:985
 msgid "This is you"
 msgstr "Ez Ön"
 
-#: mod/photos.php:1341 mod/photos.php:1397 mod/photos.php:1471
+#: mod/photos.php:1335 mod/photos.php:1391 mod/photos.php:1465
 #: src/Object/Post.php:522 src/Object/Post.php:987
 msgid "Comment"
 msgstr "Hozzászólás"
 
-#: mod/photos.php:1430 src/Content/Conversation.php:628
+#: mod/photos.php:1424 src/Content/Conversation.php:628
 #: src/Object/Post.php:247
 msgid "Select"
 msgstr "Kiválasztás"
 
-#: mod/photos.php:1431 mod/settings.php:350 src/Content/Conversation.php:629
+#: mod/photos.php:1425 mod/settings.php:350 src/Content/Conversation.php:629
 #: src/Module/Admin/Users/Active.php:139
 #: src/Module/Admin/Users/Blocked.php:140 src/Module/Admin/Users/Index.php:153
 msgid "Delete"
 msgstr "Törlés"
 
-#: mod/photos.php:1492 src/Object/Post.php:369
+#: mod/photos.php:1486 src/Object/Post.php:369
 msgid "Like"
 msgstr "Tetszik"
 
-#: mod/photos.php:1493 src/Object/Post.php:369
+#: mod/photos.php:1487 src/Object/Post.php:369
 msgid "I like this (toggle)"
 msgstr "Ezt kedvelem (átváltás)"
 
-#: mod/photos.php:1494 src/Object/Post.php:370
+#: mod/photos.php:1488 src/Object/Post.php:370
 msgid "Dislike"
 msgstr "Nem tetszik"
 
-#: mod/photos.php:1496 src/Object/Post.php:370
+#: mod/photos.php:1490 src/Object/Post.php:370
 msgid "I don't like this (toggle)"
 msgstr "Ezt nem kedvelem (átváltás)"
 
-#: mod/photos.php:1518
+#: mod/photos.php:1512
 msgid "Map"
 msgstr "Térkép"
 
-#: mod/photos.php:1581
+#: mod/photos.php:1575
 msgid "View Album"
 msgstr "Album megtekintése"
 
@@ -1130,36 +1130,36 @@ msgstr "Hibás kérés."
 msgid "Contact not found."
 msgstr "A partner nem található."
 
-#: mod/removeme.php:63 src/Navigation/Notifications/Repository/Notify.php:482
+#: mod/removeme.php:65 src/Navigation/Notifications/Repository/Notify.php:482
 msgid "[Friendica System Notify]"
 msgstr "[Friendica rendszerértesítés]"
 
-#: mod/removeme.php:63
+#: mod/removeme.php:65
 msgid "User deleted their account"
 msgstr "A felhasználó törölte a fiókját"
 
-#: mod/removeme.php:64
+#: mod/removeme.php:66
 msgid ""
 "On your Friendica node an user deleted their account. Please ensure that "
 "their data is removed from the backups."
 msgstr "Az Ön Friendica csomópontján egy felhasználó törölte a fiókját. Győződjön meg arról, hogy az adatai el lettek-e távolítva a biztonsági mentésekből."
 
-#: mod/removeme.php:65
+#: mod/removeme.php:67
 #, php-format
 msgid "The user id is %d"
 msgstr "A felhasználó-azonosító %d"
 
-#: mod/removeme.php:99 mod/removeme.php:102
+#: mod/removeme.php:101 mod/removeme.php:104
 msgid "Remove My Account"
 msgstr "Saját fiók eltávolítása"
 
-#: mod/removeme.php:100
+#: mod/removeme.php:102
 msgid ""
 "This will completely remove your account. Once this has been done it is not "
 "recoverable."
 msgstr "Ez teljesen el fogja távolítani a fiókját. Miután ez megtörtént, nem lesz visszaállítható."
 
-#: mod/removeme.php:101
+#: mod/removeme.php:103
 msgid "Please enter your password for verification:"
 msgstr "Adja meg a jelszavát az ellenőrzéshez:"
 
@@ -1207,7 +1207,7 @@ msgstr "Felhatalmazás eltávolítása"
 #: mod/settings.php:352 src/Module/Admin/Addons/Index.php:69
 #: src/Module/Admin/Features.php:87 src/Module/Admin/Logs/Settings.php:81
 #: src/Module/Admin/Site.php:434 src/Module/Admin/Themes/Index.php:113
-#: src/Module/Admin/Tos.php:83 src/Module/Settings/Account.php:532
+#: src/Module/Admin/Tos.php:83 src/Module/Settings/Account.php:559
 #: src/Module/Settings/Delegation.php:170 src/Module/Settings/Display.php:193
 msgid "Save Settings"
 msgstr "Beállítások mentése"
@@ -1652,53 +1652,58 @@ msgstr "A partner tiltva lett a csomópontról"
 msgid "%d %s, %d duplicates."
 msgstr "%d %s, %d kettőzés."
 
-#: src/Console/MergeContacts.php:86
+#: src/Console/MergeContacts.php:77
+#, php-format
+msgid "uri-id is empty for contact %s."
+msgstr "Az URI-azonosító üres %s partnernél."
+
+#: src/Console/MergeContacts.php:90
 #, php-format
 msgid "No valid first countact found for uri-id %d."
 msgstr "Nem található érvényes első partner a(z) %d. URI-azonosítóhoz."
 
-#: src/Console/MergeContacts.php:97
+#: src/Console/MergeContacts.php:101
 #, php-format
 msgid "Wrong duplicate found for uri-id %d in %d (url: %s != %s)."
 msgstr "Hibás kettőzés található a(z) %d. URI-azonosítónál ebben: %d (URL: %s != %s)."
 
-#: src/Console/MergeContacts.php:101
+#: src/Console/MergeContacts.php:105
 #, php-format
 msgid "Wrong duplicate found for uri-id %d in %d (nurl: %s != %s)."
 msgstr "Hibás kettőzés található a(z) %d. URI-azonosítónál ebben: %d (NURL: %s != %s)."
 
-#: src/Console/MergeContacts.php:137
+#: src/Console/MergeContacts.php:141
 #, php-format
 msgid "Deletion of id %d failed"
 msgstr "A(z) %d. azonosító törlése sikertelen"
 
-#: src/Console/MergeContacts.php:139
+#: src/Console/MergeContacts.php:143
 #, php-format
 msgid "Deletion of id %d was successful"
 msgstr "A(z) %d. azonosító törlése sikeres volt"
 
-#: src/Console/MergeContacts.php:145
+#: src/Console/MergeContacts.php:149
 #, php-format
 msgid "Updating \"%s\" in \"%s\" from %d to %d"
 msgstr "„%s” frissítése ebben: „%s”, %d. értéktől %d. értékig"
 
-#: src/Console/MergeContacts.php:147
+#: src/Console/MergeContacts.php:151
 msgid " - found"
 msgstr " – megtalálva"
 
-#: src/Console/MergeContacts.php:154
+#: src/Console/MergeContacts.php:158
 msgid " - failed"
 msgstr " – sikertelen"
 
-#: src/Console/MergeContacts.php:156
+#: src/Console/MergeContacts.php:160
 msgid " - success"
 msgstr " – sikeres"
 
-#: src/Console/MergeContacts.php:160
+#: src/Console/MergeContacts.php:164
 msgid " - deleted"
 msgstr " – törölve"
 
-#: src/Console/MergeContacts.php:163
+#: src/Console/MergeContacts.php:167
 msgid " - done"
 msgstr " – kész"
 
@@ -1760,11 +1765,11 @@ msgstr "Felhasználó becenevének megadása: "
 msgid "Enter new password: "
 msgstr "Új jelszó megadása: "
 
-#: src/Console/User.php:210 src/Module/Settings/Account.php:73
+#: src/Console/User.php:210 src/Module/Settings/Account.php:74
 msgid "Password update failed. Please try again."
 msgstr "A jelszó frissítése sikertelen. Próbálja újra."
 
-#: src/Console/User.php:213 src/Module/Settings/Account.php:76
+#: src/Console/User.php:213 src/Module/Settings/Account.php:77
 msgid "Password changed."
 msgstr "A jelszó megváltoztatva."
 
@@ -2657,7 +2662,7 @@ msgstr "További bejegyzések betöltése…"
 msgid "The end"
 msgstr "Vége"
 
-#: src/Content/Text/HTML.php:875 src/Content/Widget/VCard.php:103
+#: src/Content/Text/HTML.php:875 src/Content/Widget/VCard.php:109
 #: src/Model/Profile.php:456
 msgid "Follow"
 msgstr "Követés"
@@ -2784,7 +2789,7 @@ msgstr "Szervezetek"
 msgid "News"
 msgstr "Hírek"
 
-#: src/Content/Widget.php:525 src/Module/Settings/Account.php:430
+#: src/Content/Widget.php:525 src/Module/Settings/Account.php:455
 msgid "Account Types"
 msgstr "Fióktípusok"
 
@@ -2838,22 +2843,22 @@ msgstr[1] "Népszerű címkék (legutóbbi %d óra)"
 msgid "More Trending Tags"
 msgstr "További népszerű címkék"
 
-#: src/Content/Widget/VCard.php:96 src/Model/Profile.php:375
+#: src/Content/Widget/VCard.php:102 src/Model/Profile.php:375
 #: src/Module/Contact/Profile.php:371 src/Module/Profile/Profile.php:176
 msgid "XMPP:"
 msgstr "XMPP:"
 
-#: src/Content/Widget/VCard.php:97 src/Model/Profile.php:376
+#: src/Content/Widget/VCard.php:103 src/Model/Profile.php:376
 #: src/Module/Contact/Profile.php:373 src/Module/Profile/Profile.php:180
 msgid "Matrix:"
 msgstr "Mátrix:"
 
-#: src/Content/Widget/VCard.php:101 src/Model/Profile.php:468
+#: src/Content/Widget/VCard.php:107 src/Model/Profile.php:468
 #: src/Module/Notifications/Introductions.php:199
 msgid "Network:"
 msgstr "Hálózat:"
 
-#: src/Content/Widget/VCard.php:105 src/Model/Profile.php:458
+#: src/Content/Widget/VCard.php:111 src/Model/Profile.php:458
 msgid "Unfollow"
 msgstr "Követés megszüntetése"
 
@@ -4364,19 +4369,19 @@ msgstr "Törölve"
 msgid "List of pending user deletions"
 msgstr "Függőben lévő felhasználó-törlések listája"
 
-#: src/Module/Admin/BaseUsers.php:100 src/Module/Settings/Account.php:468
+#: src/Module/Admin/BaseUsers.php:100 src/Module/Settings/Account.php:493
 msgid "Normal Account Page"
 msgstr "Normál fiókoldal"
 
-#: src/Module/Admin/BaseUsers.php:101 src/Module/Settings/Account.php:475
+#: src/Module/Admin/BaseUsers.php:101 src/Module/Settings/Account.php:500
 msgid "Soapbox Page"
 msgstr "Szappantartó oldal"
 
-#: src/Module/Admin/BaseUsers.php:102 src/Module/Settings/Account.php:482
+#: src/Module/Admin/BaseUsers.php:102 src/Module/Settings/Account.php:507
 msgid "Public Forum"
 msgstr "Nyilvános fórum"
 
-#: src/Module/Admin/BaseUsers.php:103 src/Module/Settings/Account.php:489
+#: src/Module/Admin/BaseUsers.php:103 src/Module/Settings/Account.php:514
 msgid "Automatic Friend Page"
 msgstr "Automatikus ismerős oldal"
 
@@ -4384,19 +4389,19 @@ msgstr "Automatikus ismerős oldal"
 msgid "Private Forum"
 msgstr "Személyes fórum"
 
-#: src/Module/Admin/BaseUsers.php:107 src/Module/Settings/Account.php:440
+#: src/Module/Admin/BaseUsers.php:107 src/Module/Settings/Account.php:465
 msgid "Personal Page"
 msgstr "Személyes oldal"
 
-#: src/Module/Admin/BaseUsers.php:108 src/Module/Settings/Account.php:447
+#: src/Module/Admin/BaseUsers.php:108 src/Module/Settings/Account.php:472
 msgid "Organisation Page"
 msgstr "Szervezeti oldal"
 
-#: src/Module/Admin/BaseUsers.php:109 src/Module/Settings/Account.php:454
+#: src/Module/Admin/BaseUsers.php:109 src/Module/Settings/Account.php:479
 msgid "News Page"
 msgstr "Hírek oldal"
 
-#: src/Module/Admin/BaseUsers.php:110 src/Module/Settings/Account.php:461
+#: src/Module/Admin/BaseUsers.php:110 src/Module/Settings/Account.php:486
 msgid "Community Forum"
 msgstr "Közösségi fórum"
 
@@ -8243,7 +8248,7 @@ msgid ""
 "class=\"btn btn-sm pull-right\">Cancel</a>"
 msgstr "A profilját jelenleg <b>%s</b> nevében nézi <a href=\"%s\" class=\"btn btn-sm pull-right\">Mégse</a>"
 
-#: src/Module/Profile/Profile.php:144 src/Module/Settings/Account.php:548
+#: src/Module/Profile/Profile.php:144 src/Module/Settings/Account.php:575
 msgid "Full Name:"
 msgstr "Teljes név:"
 
@@ -8373,7 +8378,7 @@ msgstr "Az e-mail-címe (a kezdeti információk ide lesznek elküldve, szóval 
 msgid "Please repeat your e-mail address:"
 msgstr "Ismételje meg az e-mail-címét:"
 
-#: src/Module/Register.php:162 src/Module/Settings/Account.php:539
+#: src/Module/Register.php:162 src/Module/Settings/Account.php:566
 msgid "New Password:"
 msgstr "Új jelszó:"
 
@@ -8381,7 +8386,7 @@ msgstr "Új jelszó:"
 msgid "Leave empty for an auto generated password."
 msgstr "Hagyja üresen egy automatikusan előállított jelszóhoz."
 
-#: src/Module/Register.php:163 src/Module/Settings/Account.php:540
+#: src/Module/Register.php:163 src/Module/Settings/Account.php:567
 msgid "Confirm:"
 msgstr "Megerősítés:"
 
@@ -8647,127 +8652,127 @@ msgstr "Ez az én kétlépcsős hitelesítő alkalmazás eszközöm"
 msgid "Verify code and complete login"
 msgstr "Kód ellenőrzése és a bejelentkezés befejezése"
 
-#: src/Module/Settings/Account.php:65
+#: src/Module/Settings/Account.php:66
 msgid "Passwords do not match."
 msgstr "A jelszavak nem egyeznek."
 
-#: src/Module/Settings/Account.php:79
+#: src/Module/Settings/Account.php:80
 msgid "Password unchanged."
 msgstr "A jelszó nincs megváltoztatva."
 
-#: src/Module/Settings/Account.php:94
+#: src/Module/Settings/Account.php:95
 msgid "Please use a shorter name."
 msgstr "Használjon rövidebb nevet."
 
-#: src/Module/Settings/Account.php:97
+#: src/Module/Settings/Account.php:98
 msgid "Name too short."
 msgstr "A név túl rövid."
 
-#: src/Module/Settings/Account.php:106
+#: src/Module/Settings/Account.php:107
 msgid "Wrong Password."
 msgstr "Hibás jelszó."
 
-#: src/Module/Settings/Account.php:111
+#: src/Module/Settings/Account.php:112
 msgid "Invalid email."
 msgstr "Érvénytelen e-mail-cím."
 
-#: src/Module/Settings/Account.php:117
+#: src/Module/Settings/Account.php:118
 msgid "Cannot change to that email."
 msgstr "Nem lehet megváltoztatni arra az e-mail-címre."
 
-#: src/Module/Settings/Account.php:147 src/Module/Settings/Account.php:199
-#: src/Module/Settings/Account.php:219 src/Module/Settings/Account.php:279
-#: src/Module/Settings/Account.php:328
+#: src/Module/Settings/Account.php:148 src/Module/Settings/Account.php:200
+#: src/Module/Settings/Account.php:220 src/Module/Settings/Account.php:304
+#: src/Module/Settings/Account.php:353
 msgid "Settings were not updated."
 msgstr "A beállítások nem lettek frissítve."
 
-#: src/Module/Settings/Account.php:340
+#: src/Module/Settings/Account.php:365
 msgid "Contact CSV file upload error"
 msgstr "Partner CSV-fájl feltöltési hiba"
 
-#: src/Module/Settings/Account.php:359
+#: src/Module/Settings/Account.php:384
 msgid "Importing Contacts done"
 msgstr "A partnerek importálása kész"
 
-#: src/Module/Settings/Account.php:372
+#: src/Module/Settings/Account.php:397
 msgid "Relocate message has been send to your contacts"
 msgstr "Az áthelyezési üzenet el lett küldve a partnereknek"
 
-#: src/Module/Settings/Account.php:389
+#: src/Module/Settings/Account.php:414
 msgid "Unable to find your profile. Please contact your admin."
 msgstr "Nem található a profilja. Vegye fel a kapcsolatot a rendszergazdával."
 
-#: src/Module/Settings/Account.php:431
+#: src/Module/Settings/Account.php:456
 msgid "Personal Page Subtypes"
 msgstr "Személyes oldal altípusai"
 
-#: src/Module/Settings/Account.php:432
+#: src/Module/Settings/Account.php:457
 msgid "Community Forum Subtypes"
 msgstr "Közösségi fórum altípusai"
 
-#: src/Module/Settings/Account.php:442
+#: src/Module/Settings/Account.php:467
 msgid "Account for a personal profile."
 msgstr "Egy személyes profil fiókja."
 
-#: src/Module/Settings/Account.php:449
+#: src/Module/Settings/Account.php:474
 msgid ""
 "Account for an organisation that automatically approves contact requests as "
 "\"Followers\"."
 msgstr "Egy szervezet fiókja, amely automatikusan jóváhagyja a partnerkéréseket, mint például a „követőket”."
 
-#: src/Module/Settings/Account.php:456
+#: src/Module/Settings/Account.php:481
 msgid ""
 "Account for a news reflector that automatically approves contact requests as"
 " \"Followers\"."
 msgstr "Egy hírportál fiókja, amely automatikusan jóváhagyja a partnerkéréseket, mint például a „követőket”."
 
-#: src/Module/Settings/Account.php:463
+#: src/Module/Settings/Account.php:488
 msgid "Account for community discussions."
 msgstr "Közösségi beszélgetések fiókja."
 
-#: src/Module/Settings/Account.php:470
+#: src/Module/Settings/Account.php:495
 msgid ""
 "Account for a regular personal profile that requires manual approval of "
 "\"Friends\" and \"Followers\"."
 msgstr "Egy szokásos személyes profil fiókja, amely az „ismerősök” és a „követők” kézi jóváhagyását igényli."
 
-#: src/Module/Settings/Account.php:477
+#: src/Module/Settings/Account.php:502
 msgid ""
 "Account for a public profile that automatically approves contact requests as"
 " \"Followers\"."
 msgstr "Egy nyilvános profil fiókja, amely automatikusan jóváhagyja a partnerkéréseket, mint például a „követőket”."
 
-#: src/Module/Settings/Account.php:484
+#: src/Module/Settings/Account.php:509
 msgid "Automatically approves all contact requests."
 msgstr "Automatikusan jóváhagyja az összes partnerkérést."
 
-#: src/Module/Settings/Account.php:491
+#: src/Module/Settings/Account.php:516
 msgid ""
 "Account for a popular profile that automatically approves contact requests "
 "as \"Friends\"."
 msgstr "Egy népszerű profil fiókja, amely automatikusan jóváhagyja a partnerkéréseket, mint például az „ismerősöket”."
 
-#: src/Module/Settings/Account.php:496
+#: src/Module/Settings/Account.php:521
 msgid "Private Forum [Experimental]"
 msgstr "Személyes fórum [kísérleti]"
 
-#: src/Module/Settings/Account.php:498
+#: src/Module/Settings/Account.php:523
 msgid "Requires manual approval of contact requests."
 msgstr "A partnerkérések kézi jóváhagyását igényli."
 
-#: src/Module/Settings/Account.php:507
+#: src/Module/Settings/Account.php:532
 msgid "OpenID:"
 msgstr "OpenID:"
 
-#: src/Module/Settings/Account.php:507
+#: src/Module/Settings/Account.php:532
 msgid "(Optional) Allow this OpenID to login to this account."
 msgstr "(Kihagyható) Lehetővé teszi ezen OpenID számára, hogy bejelentkezzen ebbe a fiókba."
 
-#: src/Module/Settings/Account.php:515
+#: src/Module/Settings/Account.php:540
 msgid "Publish your profile in your local site directory?"
 msgstr "Közzéteszi a profilját a helyi oldal könyvtárában?"
 
-#: src/Module/Settings/Account.php:515
+#: src/Module/Settings/Account.php:540
 #, php-format
 msgid ""
 "Your profile will be published in this node's <a href=\"%s\">local "
@@ -8775,103 +8780,103 @@ msgid ""
 " system settings."
 msgstr "A profilja közzé lesz téve ennek a csomópontnak a <a href=\"%s\">helyi könyvtárában</a>. A profilrészletei esetleg nyilvánosan láthatóak lehetnek a rendszerbeállításoktól függően."
 
-#: src/Module/Settings/Account.php:521
+#: src/Module/Settings/Account.php:546
 #, php-format
 msgid ""
 "Your profile will also be published in the global friendica directories "
 "(e.g. <a href=\"%s\">%s</a>)."
 msgstr "A profilja közzé lesz téve a globális Friendica könyvtárakban is (például itt: <a href=\"%s\">%s</a>)."
 
-#: src/Module/Settings/Account.php:529
+#: src/Module/Settings/Account.php:556
 msgid "Account Settings"
 msgstr "Fiókbeállítások"
 
-#: src/Module/Settings/Account.php:530
+#: src/Module/Settings/Account.php:557
 #, php-format
 msgid "Your Identity Address is <strong>'%s'</strong> or '%s'."
 msgstr "Az Ön személyazonosság-címe <strong>„%s”</strong> vagy „%s”."
 
-#: src/Module/Settings/Account.php:538
+#: src/Module/Settings/Account.php:565
 msgid "Password Settings"
 msgstr "Jelszóbeállítások"
 
-#: src/Module/Settings/Account.php:539
+#: src/Module/Settings/Account.php:566
 msgid ""
 "Allowed characters are a-z, A-Z, 0-9 and special characters except white "
 "spaces, accentuated letters and colon (:)."
 msgstr "Az engedélyezett karakterek az a-z, A-Z, 0-9 tartományokban lévők és a különleges karakterek, kivéve az üres karaktereket, ékezetes betűket és a kettőspontot (:)."
 
-#: src/Module/Settings/Account.php:540
+#: src/Module/Settings/Account.php:567
 msgid "Leave password fields blank unless changing"
 msgstr "Hagyja üresen a jelszómezőket, különben megváltozik"
 
-#: src/Module/Settings/Account.php:541
+#: src/Module/Settings/Account.php:568
 msgid "Current Password:"
 msgstr "Jelenlegi jelszó:"
 
-#: src/Module/Settings/Account.php:541
+#: src/Module/Settings/Account.php:568
 msgid "Your current password to confirm the changes"
 msgstr "A jelenlegi jelszava a változtatások megerősítéséhez"
 
-#: src/Module/Settings/Account.php:542
+#: src/Module/Settings/Account.php:569
 msgid "Password:"
 msgstr "Jelszó:"
 
-#: src/Module/Settings/Account.php:542
+#: src/Module/Settings/Account.php:569
 msgid "Your current password to confirm the changes of the email address"
 msgstr "A jelenlegi jelszava az e-mail-címe megváltoztatásának megerősítéséhez"
 
-#: src/Module/Settings/Account.php:545
+#: src/Module/Settings/Account.php:572
 msgid "Delete OpenID URL"
 msgstr "OpenID URL törlése"
 
-#: src/Module/Settings/Account.php:547
+#: src/Module/Settings/Account.php:574
 msgid "Basic Settings"
 msgstr "Alapvető beállítások"
 
-#: src/Module/Settings/Account.php:549
+#: src/Module/Settings/Account.php:576
 msgid "Email Address:"
 msgstr "E-mail-cím:"
 
-#: src/Module/Settings/Account.php:550
+#: src/Module/Settings/Account.php:577
 msgid "Your Timezone:"
 msgstr "Az Ön időzónája:"
 
-#: src/Module/Settings/Account.php:551
+#: src/Module/Settings/Account.php:578
 msgid "Your Language:"
 msgstr "Az Ön nyelve:"
 
-#: src/Module/Settings/Account.php:551
+#: src/Module/Settings/Account.php:578
 msgid ""
 "Set the language we use to show you friendica interface and to send you "
 "emails"
 msgstr "Annak a nyelvnek a beállítása, amelyet a Friendica felületének megjelenítéséhez és a levelek küldéséhez használunk"
 
-#: src/Module/Settings/Account.php:552
+#: src/Module/Settings/Account.php:579
 msgid "Default Post Location:"
 msgstr "Alapértelmezett bejegyzésküldési hely:"
 
-#: src/Module/Settings/Account.php:553
+#: src/Module/Settings/Account.php:580
 msgid "Use Browser Location:"
 msgstr "Böngésző helyének használata:"
 
-#: src/Module/Settings/Account.php:555
+#: src/Module/Settings/Account.php:582
 msgid "Security and Privacy Settings"
 msgstr "Biztonsági és adatvédelmi beállítások"
 
-#: src/Module/Settings/Account.php:557
+#: src/Module/Settings/Account.php:584
 msgid "Maximum Friend Requests/Day:"
 msgstr "Legtöbb ismerőskérés naponta:"
 
-#: src/Module/Settings/Account.php:557 src/Module/Settings/Account.php:567
+#: src/Module/Settings/Account.php:584 src/Module/Settings/Account.php:594
 msgid "(to prevent spam abuse)"
 msgstr "(a levélszeméttel való visszaélés elkerüléséhez)"
 
-#: src/Module/Settings/Account.php:559
+#: src/Module/Settings/Account.php:586
 msgid "Allow your profile to be searchable globally?"
 msgstr "Engedélyezi, hogy a profilja globálisan kereshető legyen?"
 
-#: src/Module/Settings/Account.php:559
+#: src/Module/Settings/Account.php:586
 msgid ""
 "Activate this setting if you want others to easily find and follow you. Your"
 " profile will be searchable on remote systems. This setting also determines "
@@ -8879,43 +8884,43 @@ msgid ""
 "indexed or not."
 msgstr "Akkor kapcsolja be ezt a beállítást, ha azt szeretné, hogy mások egyszerűen megtalálják és kövessék Önt. A profilja kereshető lesz a távoli rendszereken. Ez a beállítás azt is meghatározza, hogy a Friendica tájékoztatja-e a keresőmotorokat arról, hogy a profilját indexelni kell-e vagy sem."
 
-#: src/Module/Settings/Account.php:560
+#: src/Module/Settings/Account.php:587
 msgid "Hide your contact/friend list from viewers of your profile?"
 msgstr "Elrejti a partnerlistáját vagy ismerőslistáját a profilja megtekintői elől?"
 
-#: src/Module/Settings/Account.php:560
+#: src/Module/Settings/Account.php:587
 msgid ""
 "A list of your contacts is displayed on your profile page. Activate this "
 "option to disable the display of your contact list."
 msgstr "A partnereinek listája a profiloldalán van megjelenítve. Kapcsolja be ezt a beállítást, hogy letiltsa a partnerlistája megjelenítését."
 
-#: src/Module/Settings/Account.php:561
+#: src/Module/Settings/Account.php:588
 msgid "Hide your profile details from anonymous viewers?"
 msgstr "Elrejti a profilja részleteit a névtelen megtekintők elől?"
 
-#: src/Module/Settings/Account.php:561
+#: src/Module/Settings/Account.php:588
 msgid ""
 "Anonymous visitors will only see your profile picture, your display name and"
 " the nickname you are using on your profile page. Your public posts and "
 "replies will still be accessible by other means."
 msgstr "A névtelen látogatók csak azt profilfényképét, megjelenített nevét és becenevét láthatják, amelyet a profiloldalán használ. A nyilvános bejegyzései és válaszai továbbra is elérhetők lesznek más eszközökkel."
 
-#: src/Module/Settings/Account.php:562
+#: src/Module/Settings/Account.php:589
 msgid "Make public posts unlisted"
 msgstr "Nyilvános bejegyzések felsorolatlanná tétele"
 
-#: src/Module/Settings/Account.php:562
+#: src/Module/Settings/Account.php:589
 msgid ""
 "Your public posts will not appear on the community pages or in search "
 "results, nor be sent to relay servers. However they can still appear on "
 "public feeds on remote servers."
 msgstr "A nyilvános bejegyzései nem fognak megjelenni a közösségi oldalakon vagy a keresési találatokban, és nem lesznek elküldve az átjátszó kiszolgálóknak. Azonban továbbra is megjelenhetnek a nyilvános hírforrásokban a távoli kiszolgálókon."
 
-#: src/Module/Settings/Account.php:563
+#: src/Module/Settings/Account.php:590
 msgid "Make all posted pictures accessible"
 msgstr "Az összes beküldött fénykép elérhetővé tétele"
 
-#: src/Module/Settings/Account.php:563
+#: src/Module/Settings/Account.php:590
 msgid ""
 "This option makes every posted picture accessible via the direct link. This "
 "is a workaround for the problem that most other networks can't handle "
@@ -8923,213 +8928,237 @@ msgid ""
 "public on your photo albums though."
 msgstr "Ez a beállítás elérhetővé tesz minden egyes beküldött fényképet a közvetlen hivatkozáson keresztül. Ez egy kerülőmegoldás arra a problémára, hogy a legtöbb más hálózat nem tudja kezelni a fényképek jogosultságait. A nem nyilvános fényképek továbbra sem lesznek láthatóak a nyilvánosság számára a fényképalbumán keresztül."
 
-#: src/Module/Settings/Account.php:564
+#: src/Module/Settings/Account.php:591
 msgid "Allow friends to post to your profile page?"
 msgstr "Engedélyezi az ismerősöknek, hogy beküldjenek a profiloldalára?"
 
-#: src/Module/Settings/Account.php:564
+#: src/Module/Settings/Account.php:591
 msgid ""
 "Your contacts may write posts on your profile wall. These posts will be "
 "distributed to your contacts"
 msgstr "A partnerei bejegyzéseket írhatnak az Ön profilfalára. Ezek a bejegyzések továbbítva lesznek a partnereinek."
 
-#: src/Module/Settings/Account.php:565
+#: src/Module/Settings/Account.php:592
 msgid "Allow friends to tag your posts?"
 msgstr "Engedélyezi az ismerőseinek, hogy címkézzék a bejegyzéseit?"
 
-#: src/Module/Settings/Account.php:565
+#: src/Module/Settings/Account.php:592
 msgid "Your contacts can add additional tags to your posts."
 msgstr "A partnerei további címkéket adhatnak a bejegyzéseihez."
 
-#: src/Module/Settings/Account.php:566
+#: src/Module/Settings/Account.php:593
 msgid "Permit unknown people to send you private mail?"
 msgstr "Engedélyt ad ismeretlen embereknek, hogy személyes levelet küldjenek Önnek?"
 
-#: src/Module/Settings/Account.php:566
+#: src/Module/Settings/Account.php:593
 msgid ""
 "Friendica network users may send you private messages even if they are not "
 "in your contact list."
 msgstr "A Friendica hálózat felhasználói akkor is küldhetnek Önnek személyes üzeneteket, ha nincsenek a partnerlistáján."
 
-#: src/Module/Settings/Account.php:567
+#: src/Module/Settings/Account.php:594
 msgid "Maximum private messages per day from unknown people:"
 msgstr "Legtöbb személyes üzenet naponta az ismeretlen emberektől:"
 
-#: src/Module/Settings/Account.php:569
+#: src/Module/Settings/Account.php:596
 msgid "Default Post Permissions"
 msgstr "Alapértelmezett bejegyzés-jogosultságok"
 
-#: src/Module/Settings/Account.php:573
+#: src/Module/Settings/Account.php:600
 msgid "Expiration settings"
 msgstr "Lejárati jogosultságok"
 
-#: src/Module/Settings/Account.php:574
+#: src/Module/Settings/Account.php:601
 msgid "Automatically expire posts after this many days:"
 msgstr "Bejegyzések automatikus lejárata ennyi nap után:"
 
-#: src/Module/Settings/Account.php:574
+#: src/Module/Settings/Account.php:601
 msgid "If empty, posts will not expire. Expired posts will be deleted"
 msgstr "Ha üres, akkor a bejegyzések nem járnak le. A lejárt bejegyzések törölve lesznek."
 
-#: src/Module/Settings/Account.php:575
+#: src/Module/Settings/Account.php:602
 msgid "Expire posts"
 msgstr "Bejegyzések lejárata"
 
-#: src/Module/Settings/Account.php:575
+#: src/Module/Settings/Account.php:602
 msgid "When activated, posts and comments will be expired."
 msgstr "Ha be van kapcsolva, akkor a bejegyzések és a hozzászólások le fognak járni."
 
-#: src/Module/Settings/Account.php:576
+#: src/Module/Settings/Account.php:603
 msgid "Expire personal notes"
 msgstr "Személyes jegyzetek lejárata"
 
-#: src/Module/Settings/Account.php:576
+#: src/Module/Settings/Account.php:603
 msgid ""
 "When activated, the personal notes on your profile page will be expired."
 msgstr "Ha be van kapcsolva, akkor a profiloldalán lévő személyes jegyzetek le fognak járni."
 
-#: src/Module/Settings/Account.php:577
+#: src/Module/Settings/Account.php:604
 msgid "Expire starred posts"
 msgstr "Csillagozott bejegyzések lejárata"
 
-#: src/Module/Settings/Account.php:577
+#: src/Module/Settings/Account.php:604
 msgid ""
 "Starring posts keeps them from being expired. That behaviour is overwritten "
 "by this setting."
 msgstr "A bejegyzések csillagozása megakadályozza azok lejáratát. Ez a viselkedés felülírható ezzel a beállítással."
 
-#: src/Module/Settings/Account.php:578
+#: src/Module/Settings/Account.php:605
 msgid "Only expire posts by others"
 msgstr "Csak a másoktól származó bejegyzések lejárata"
 
-#: src/Module/Settings/Account.php:578
+#: src/Module/Settings/Account.php:605
 msgid ""
 "When activated, your own posts never expire. Then the settings above are "
 "only valid for posts you received."
 msgstr "Ha be van kapcsolva, akkor a saját bejegyzései sosem járnak le. Ekkor a fenti beállítás csak azokra a bejegyzésekre érvényes, amelyeket megkap."
 
-#: src/Module/Settings/Account.php:581
+#: src/Module/Settings/Account.php:608
 msgid "Notification Settings"
 msgstr "Értesítési beállítások"
 
-#: src/Module/Settings/Account.php:582
+#: src/Module/Settings/Account.php:609
 msgid "Send a notification email when:"
 msgstr "Értesítési e-mail küldése a következő esetekben:"
 
-#: src/Module/Settings/Account.php:583
+#: src/Module/Settings/Account.php:610
 msgid "You receive an introduction"
 msgstr "Egy bemutatkozást fogad"
 
-#: src/Module/Settings/Account.php:584
+#: src/Module/Settings/Account.php:611
 msgid "Your introductions are confirmed"
 msgstr "A bemutatkozásait jóváhagyták"
 
-#: src/Module/Settings/Account.php:585
+#: src/Module/Settings/Account.php:612
 msgid "Someone writes on your profile wall"
 msgstr "Valaki ír a profilfalára"
 
-#: src/Module/Settings/Account.php:586
+#: src/Module/Settings/Account.php:613
 msgid "Someone writes a followup comment"
 msgstr "Valaki egy követő hozzászólást ír"
 
-#: src/Module/Settings/Account.php:587
+#: src/Module/Settings/Account.php:614
 msgid "You receive a private message"
 msgstr "Személyes üzenetet kap"
 
-#: src/Module/Settings/Account.php:588
+#: src/Module/Settings/Account.php:615
 msgid "You receive a friend suggestion"
 msgstr "Ismerősajánlást kap"
 
-#: src/Module/Settings/Account.php:589
+#: src/Module/Settings/Account.php:616
 msgid "You are tagged in a post"
-msgstr "Bejelölték egy bejegyzésben"
+msgstr "Megjelölték egy bejegyzésben"
 
-#: src/Module/Settings/Account.php:590
+#: src/Module/Settings/Account.php:617
 msgid "You are poked/prodded/etc. in a post"
 msgstr "Megbökték, megdöfték, stb. egy bejegyzésben"
 
-#: src/Module/Settings/Account.php:592
+#: src/Module/Settings/Account.php:619
 msgid "Create a desktop notification when:"
 msgstr "Asztali értesítés létrehozása ekkor:"
 
-#: src/Module/Settings/Account.php:593
+#: src/Module/Settings/Account.php:620
+msgid "Someone tagged you"
+msgstr "Valaki megjelölte Önt"
+
+#: src/Module/Settings/Account.php:621
+msgid "Someone directly commented on your post"
+msgstr "Valaki közvetlenül hozzászólt a bejegyzéséhez"
+
+#: src/Module/Settings/Account.php:622
 msgid "Someone liked your content"
 msgstr "Valaki kedvelte az Ön tartalmát"
 
-#: src/Module/Settings/Account.php:594
+#: src/Module/Settings/Account.php:622 src/Module/Settings/Account.php:623
+msgid "Can only be enabled, when the direct comment notification is enabled."
+msgstr ""
+
+#: src/Module/Settings/Account.php:623
 msgid "Someone shared your content"
 msgstr "Valaki megosztotta az Ön tartalmát"
 
-#: src/Module/Settings/Account.php:596
+#: src/Module/Settings/Account.php:624
+msgid "Someone commented in your thread"
+msgstr ""
+
+#: src/Module/Settings/Account.php:625
+msgid "Someone commented in a thread where you commented"
+msgstr "Valaki hozzászólt egy olyan szálban, ahol Ön hozzászólt"
+
+#: src/Module/Settings/Account.php:626
+msgid "Someone commented in a thread where you interacted"
+msgstr ""
+
+#: src/Module/Settings/Account.php:628
 msgid "Activate desktop notifications"
 msgstr "Asztali értesítések bekapcsolása"
 
-#: src/Module/Settings/Account.php:596
+#: src/Module/Settings/Account.php:628
 msgid "Show desktop popup on new notifications"
 msgstr "Felugró üzenet megjelenítése az asztalon új értesítések esetén."
 
-#: src/Module/Settings/Account.php:600
+#: src/Module/Settings/Account.php:632
 msgid "Text-only notification emails"
 msgstr "Csak szöveges értesítési e-mailek"
 
-#: src/Module/Settings/Account.php:602
+#: src/Module/Settings/Account.php:634
 msgid "Send text only notification emails, without the html part"
 msgstr "Csak szöveges értesítési e-mailek küldése a HTML rész nélkül."
 
-#: src/Module/Settings/Account.php:606
+#: src/Module/Settings/Account.php:638
 msgid "Show detailled notifications"
 msgstr "Részletes értesítések megjelenítése"
 
-#: src/Module/Settings/Account.php:608
+#: src/Module/Settings/Account.php:640
 msgid ""
 "Per default, notifications are condensed to a single notification per item. "
 "When enabled every notification is displayed."
 msgstr "Alapértelmezetten az értesítések elemenként egyetlen értesítésbe vannak összevonva. Ha engedélyezve van, akkor minden értesítés megjelenik."
 
-#: src/Module/Settings/Account.php:612
+#: src/Module/Settings/Account.php:644
 msgid "Show notifications of ignored contacts"
 msgstr "Figyelmen kívül hagyott partnerek értesítéseinek megjelenítése"
 
-#: src/Module/Settings/Account.php:614
+#: src/Module/Settings/Account.php:646
 msgid ""
 "You don't see posts from ignored contacts. But you still see their comments."
 " This setting controls if you want to still receive regular notifications "
 "that are caused by ignored contacts or not."
 msgstr "Nem látja a figyelmen kívül hagyott partnerektől érkező bejegyzéseket. Viszont továbbra is látja a hozzászólásaikat. Ez a beállítás azt vezérli, hogy továbbra is szeretne-e olyan normál értesítéseket kapni vagy sem, amelyeket figyelmen kívül hagyott partnerek okoznak."
 
-#: src/Module/Settings/Account.php:617
+#: src/Module/Settings/Account.php:649
 msgid "Advanced Account/Page Type Settings"
 msgstr "Speciális fióktípus vagy oldaltípus beállítások"
 
-#: src/Module/Settings/Account.php:618
+#: src/Module/Settings/Account.php:650
 msgid "Change the behaviour of this account for special situations"
 msgstr "A fiók viselkedésének megváltoztatása bizonyos helyzetekre."
 
-#: src/Module/Settings/Account.php:621
+#: src/Module/Settings/Account.php:653
 msgid "Import Contacts"
 msgstr "Partnerek importálása"
 
-#: src/Module/Settings/Account.php:622
+#: src/Module/Settings/Account.php:654
 msgid ""
 "Upload a CSV file that contains the handle of your followed accounts in the "
 "first column you exported from the old account."
 msgstr "Töltsön fel egy olyan CSV-fájlt, amely a követett fiókok kezelőjét tartalmazza az első oszlopban, ahogy a régi fiókból exportálta."
 
-#: src/Module/Settings/Account.php:623
+#: src/Module/Settings/Account.php:655
 msgid "Upload File"
 msgstr "Fájl feltöltése"
 
-#: src/Module/Settings/Account.php:626
+#: src/Module/Settings/Account.php:658
 msgid "Relocate"
 msgstr "Áthelyezés"
 
-#: src/Module/Settings/Account.php:627
+#: src/Module/Settings/Account.php:659
 msgid ""
 "If you have moved this profile from another server, and some of your "
 "contacts don't receive your updates, try pushing this button."
 msgstr "Ha áthelyezte ezt a profilt egy másik kiszolgálóról, és néhány partnere nem kapta meg a frissítéseket, akkor próbálja meg megnyomni ezt a gombot."
 
-#: src/Module/Settings/Account.php:628
+#: src/Module/Settings/Account.php:660
 msgid "Resend relocate message to contacts"
 msgstr "Áthelyezési üzenet küldése a partnereknek"
 
@@ -10137,132 +10166,132 @@ msgstr "Ismerős vagy kapcsolódási kérés"
 msgid "New Follower"
 msgstr "Új követő"
 
-#: src/Navigation/Notifications/Factory/Notification.php:130
+#: src/Navigation/Notifications/Factory/Notification.php:134
 #, php-format
 msgid "%1$s wants to follow you"
 msgstr "%1$s követni szeretné Önt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:132
+#: src/Navigation/Notifications/Factory/Notification.php:136
 #, php-format
 msgid "%1$s has started following you"
 msgstr "%1$s elkezdte követni Önt"
 
-#: src/Navigation/Notifications/Factory/Notification.php:196
+#: src/Navigation/Notifications/Factory/Notification.php:200
 #, php-format
 msgid "%1$s liked your comment on %2$s"
 msgstr "%1$s kedvelte az Ön hozzászólását ehhez: %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:199
+#: src/Navigation/Notifications/Factory/Notification.php:203
 #, php-format
 msgid "%1$s liked your post %2$s"
 msgstr "%1$s kedvelte az Ön %2$s bejegyzését"
 
-#: src/Navigation/Notifications/Factory/Notification.php:206
+#: src/Navigation/Notifications/Factory/Notification.php:210
 #, php-format
 msgid "%1$s disliked your comment on %2$s"
 msgstr "%1$s nem kedvelte az Ön hozzászólását ehhez: %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:209
+#: src/Navigation/Notifications/Factory/Notification.php:213
 #, php-format
 msgid "%1$s disliked your post %2$s"
 msgstr "%1$s nem kedvelte az Ön %2$s bejegyzését"
 
-#: src/Navigation/Notifications/Factory/Notification.php:216
+#: src/Navigation/Notifications/Factory/Notification.php:220
 #, php-format
 msgid "%1$s shared your comment %2$s"
 msgstr "%1$s megosztotta az Ön %2$s hozzászólását"
 
-#: src/Navigation/Notifications/Factory/Notification.php:219
+#: src/Navigation/Notifications/Factory/Notification.php:223
 #, php-format
 msgid "%1$s shared your post %2$s"
 msgstr "%1$s megosztotta az Ön %2$s bejegyzését"
 
-#: src/Navigation/Notifications/Factory/Notification.php:223
-#: src/Navigation/Notifications/Factory/Notification.php:292
+#: src/Navigation/Notifications/Factory/Notification.php:227
+#: src/Navigation/Notifications/Factory/Notification.php:297
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
 msgstr "%1$s megosztott egy %3$s által közzétett %2$s bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:225
-#: src/Navigation/Notifications/Factory/Notification.php:294
+#: src/Navigation/Notifications/Factory/Notification.php:229
+#: src/Navigation/Notifications/Factory/Notification.php:299
 #, php-format
 msgid "%1$s shared a post from %3$s"
 msgstr "%1$s megosztott egy %3$s által közzétett bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:227
-#: src/Navigation/Notifications/Factory/Notification.php:296
+#: src/Navigation/Notifications/Factory/Notification.php:231
+#: src/Navigation/Notifications/Factory/Notification.php:301
 #, php-format
 msgid "%1$s shared the post %2$s"
 msgstr "%1$s megosztotta a(z) %2$s bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:229
-#: src/Navigation/Notifications/Factory/Notification.php:298
+#: src/Navigation/Notifications/Factory/Notification.php:233
+#: src/Navigation/Notifications/Factory/Notification.php:303
 #, php-format
 msgid "%1$s shared a post"
 msgstr "%1$s megosztott egy bejegyzést"
 
-#: src/Navigation/Notifications/Factory/Notification.php:237
+#: src/Navigation/Notifications/Factory/Notification.php:241
 #, php-format
 msgid "%1$s wants to attend your event %2$s"
 msgstr "%1$s szeretne részt venni az Ön %2$s eseményén"
 
-#: src/Navigation/Notifications/Factory/Notification.php:244
+#: src/Navigation/Notifications/Factory/Notification.php:248
 #, php-format
 msgid "%1$s does not want to attend your event %2$s"
 msgstr "%1$s nem szeretne részt venni az Ön %2$s eseményén"
 
-#: src/Navigation/Notifications/Factory/Notification.php:251
+#: src/Navigation/Notifications/Factory/Notification.php:255
 #, php-format
 msgid "%1$s maybe wants to attend your event %2$s"
 msgstr "%1$s talán szeretne részt venni az Ön %2$s eseményén"
 
-#: src/Navigation/Notifications/Factory/Notification.php:258
+#: src/Navigation/Notifications/Factory/Notification.php:262
 #, php-format
 msgid "%1$s tagged you on %2$s"
-msgstr "%1$s bejelölte Önt ezen: %2$s"
+msgstr "%1$s megjelölte Önt ezen: %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:262
+#: src/Navigation/Notifications/Factory/Notification.php:266
 #, php-format
 msgid "%1$s replied to you on %2$s"
 msgstr "%1$s válaszolt Önnek ezen: %2$s"
 
-#: src/Navigation/Notifications/Factory/Notification.php:266
+#: src/Navigation/Notifications/Factory/Notification.php:270
 #, php-format
 msgid "%1$s commented in your thread %2$s"
 msgstr "%1$s hozzászólt az Ön %2$s szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:270
+#: src/Navigation/Notifications/Factory/Notification.php:274
 #, php-format
 msgid "%1$s commented on your comment %2$s"
 msgstr "%1$s hozzászólt az Ön %2$s hozzászólásánál"
 
-#: src/Navigation/Notifications/Factory/Notification.php:276
+#: src/Navigation/Notifications/Factory/Notification.php:281
 #, php-format
 msgid "%1$s commented in their thread %2$s"
 msgstr "%1$s hozzászólt az ő %2$s szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:278
+#: src/Navigation/Notifications/Factory/Notification.php:283
 #, php-format
 msgid "%1$s commented in their thread"
 msgstr "%1$s hozzászólt az ő szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:280
+#: src/Navigation/Notifications/Factory/Notification.php:285
 #, php-format
 msgid "%1$s commented in the thread %2$s from %3$s"
 msgstr "%1$s hozzászólt egy %3$s által közzétett %2$s szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:282
+#: src/Navigation/Notifications/Factory/Notification.php:287
 #, php-format
 msgid "%1$s commented in the thread from %3$s"
 msgstr "%1$s hozzászólt egy %3$s által közzétett szálában"
 
-#: src/Navigation/Notifications/Factory/Notification.php:287
+#: src/Navigation/Notifications/Factory/Notification.php:292
 #, php-format
 msgid "%1$s commented on your thread %2$s"
 msgstr "%1$s hozzászólt az Ön %2$s szálánál"
 
 #: src/Navigation/Notifications/Repository/Notify.php:221
-#: src/Navigation/Notifications/Repository/Notify.php:724
+#: src/Navigation/Notifications/Repository/Notify.php:735
 msgid "[Friendica:Notify]"
 msgstr "[Friendica: értesítés]"
 
@@ -10306,7 +10335,7 @@ msgid "%1$s commented on their %2$s %3$s"
 msgstr "%1$s hozzászólt egy saját %2$s kapcsán: %3$s"
 
 #: src/Navigation/Notifications/Repository/Notify.php:333
-#: src/Navigation/Notifications/Repository/Notify.php:758
+#: src/Navigation/Notifications/Repository/Notify.php:769
 #, php-format
 msgid "%1$s Comment to conversation #%2$d by %3$s"
 msgstr "%1$s Hozzászólás a #%2$d beszélgetéshez %3$s által"
@@ -10319,7 +10348,7 @@ msgstr "%s hozzászólt egy olyan elemhez vagy beszélgetéshez, amelyet Ön kö
 #: src/Navigation/Notifications/Repository/Notify.php:339
 #: src/Navigation/Notifications/Repository/Notify.php:354
 #: src/Navigation/Notifications/Repository/Notify.php:373
-#: src/Navigation/Notifications/Repository/Notify.php:773
+#: src/Navigation/Notifications/Repository/Notify.php:784
 #, php-format
 msgid "Please visit %s to view and/or reply to the conversation."
 msgstr "Látogassa meg a %s oldalt a beszélgetés megtekintéséhez és/vagy megválaszolásához."
@@ -10508,12 +10537,12 @@ msgstr "Teljes név:\t%s\nOldal címe:\t%s\nBejelentkezési név:\t%s (%s)"
 msgid "Please visit %s to approve or reject the request."
 msgstr "Látogassa meg a(z) %s oldalt a kérés jóváhagyásához vagy visszautasításához."
 
-#: src/Navigation/Notifications/Repository/Notify.php:752
+#: src/Navigation/Notifications/Repository/Notify.php:763
 #, php-format
 msgid "%s %s tagged you"
-msgstr "%s %s bejelölte Önt"
+msgstr "%s %s megjelölte Önt"
 
-#: src/Navigation/Notifications/Repository/Notify.php:755
+#: src/Navigation/Notifications/Repository/Notify.php:766
 #, php-format
 msgid "%s %s shared a new post"
 msgstr "%s %s megosztott egy új bejegyzést"
