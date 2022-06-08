@@ -498,6 +498,9 @@ class Item
 		// Search for forum mentions
 		foreach (Tag::getFromBody($item['body'], Tag::TAG_CHARACTER[Tag::MENTION] . Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
 			$contact = Contact::getByURLForUser($tag[2], $item['uid']);
+			if (empty($contact)) {
+				continue;
+			}
 
 			$receivers[] = $contact['id'];
 
