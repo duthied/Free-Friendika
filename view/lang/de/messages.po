@@ -9108,7 +9108,7 @@ msgstr "Einer deiner Beiträge gemocht wurde"
 
 #: src/Module/Settings/Account.php:622 src/Module/Settings/Account.php:623
 msgid "Can only be enabled, when the direct comment notification is enabled."
-msgstr ""
+msgstr "Kann nur aktiviert werden, wenn die \"Jemand einen Beitrag von dir kommentiert hat  \" Option eingeschaltet ist."
 
 #: src/Module/Settings/Account.php:623
 msgid "Someone shared your content"
@@ -9116,7 +9116,7 @@ msgstr "Einer deiner Beiträge geteilt wurde"
 
 #: src/Module/Settings/Account.php:624
 msgid "Someone commented in your thread"
-msgstr ""
+msgstr "Jemand hat in deiner Unterhaltung kommentiert"
 
 #: src/Module/Settings/Account.php:625
 msgid "Someone commented in a thread where you commented"
@@ -9124,7 +9124,7 @@ msgstr "Jemand in einer Unterhaltung kommentiert hat, in der du auch kommentiert
 
 #: src/Module/Settings/Account.php:626
 msgid "Someone commented in a thread where you interacted"
-msgstr ""
+msgstr "Jemand kommentierte in einer Unterhaltung mit der du interagiert hast"
 
 #: src/Module/Settings/Account.php:628
 msgid "Activate desktop notifications"
