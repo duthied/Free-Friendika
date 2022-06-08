@@ -2769,7 +2769,7 @@ class Item
 	 * @hook  prepare_body ('item'=>item array, 'html'=>body string, 'is_preview'=>boolean, 'filter_reasons'=>string array) after first bbcode to html
 	 * @hook  prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
 	 */
-	public static function prepareBody(array &$item, $attach = false, $is_preview = false, $only_cache = false)
+	public static function prepareBody(array &$item, bool $attach = false, bool $is_preview = false, bool $only_cache = false): string
 	{
 		$a = DI::app();
 		Hook::callAll('prepare_body_init', $item);
