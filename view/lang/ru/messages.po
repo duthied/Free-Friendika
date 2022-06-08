@@ -10970,7 +10970,7 @@ msgstr "сек."
 #: src/Util/Temporal.php:349
 #, php-format
 msgid "in %1$d %2$s"
-msgstr "в %1$d %2$s"
+msgstr "через %1$d %2$s"
 
 #: src/Util/Temporal.php:352
 #, php-format
