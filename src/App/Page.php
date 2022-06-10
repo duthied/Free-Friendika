@@ -98,7 +98,7 @@ class Page implements ArrayAccess
 		$this->method  = $method;
 	}
 
-	public function logRuntime(IManageConfigValues $config)
+	public function logRuntime(IManageConfigValues $config, string $origin = '')
 	{
 		if (in_array($this->command, $config->get('system', 'runtime_ignore'))) {
 			return;
@@ -106,7 +106,7 @@ class Page implements ArrayAccess
 
 		$runtime = number_format(microtime(true) - $this->timestamp, 3);
 		if ($runtime > $config->get('system', 'runtime_loglimit')) {
-			Logger::debug('Runtime', ['method' => $this->method, 'command' => $this->command, 'runtime' => $runtime]);
+			Logger::debug('Runtime', ['method' => $this->method, 'command' => $this->command, 'runtime' => $runtime, 'origin' => $origin]);
 		}
 	}
 

@@ -369,7 +369,7 @@ class System
 	 */
 	public static function exit()
 	{
-		DI::page()->logRuntime(DI::config());
+		DI::page()->logRuntime(DI::config(), 'exit');
 		exit();
 	}
 

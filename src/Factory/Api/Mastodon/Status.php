@@ -78,10 +78,10 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $uriId, $uid = 0): \Friendica\Object\Api\Mastodon\Status
+	public function createFromUriId(int $uriId, $uid = 0, $item = []): \Friendica\Object\Api\Mastodon\Status
 	{
-		$fields = ['uri-id', 'uid', 'author-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
-			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured'];
+		$fields = ['uri-id', 'uid', 'author-id', 'author-uri-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
+			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
 			$mail = DBA::selectFirst('mail', ['id'], ['uri-id' => $uriId, 'uid' => $uid]);
@@ -90,42 +90,46 @@ class Status extends BaseFactory
 			}
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
+		$account = $this->mstdnAccountFactory->createFromUriId($item['author-uri-id'], $uid);
 
-		$account = $this->mstdnAccountFactory->createFromContactId($item['author-id']);
+		$count_announce = Post::countPosts([
+			'thr-parent-id' => $uriId,
+			'gravity'       => GRAVITY_ACTIVITY,
+			'vid'           => Verb::getID(Activity::ANNOUNCE),
+			'deleted'       => false
+		], []);
+		$count_like = Post::countPosts([
+			'thr-parent-id' => $uriId,
+			'gravity'       => GRAVITY_ACTIVITY,
+			'vid'           => Verb::getID(Activity::LIKE),
+			'deleted'       => false
+		], []);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
 			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_COMMENT, 'deleted' => false], []),
-			Post::countPosts([
-				'thr-parent-id' => $uriId,
-				'gravity'       => GRAVITY_ACTIVITY,
-				'vid'           => Verb::getID(Activity::ANNOUNCE),
-				'deleted'       => false
-			], []),
-			Post::countPosts([
-				'thr-parent-id' => $uriId,
-				'gravity'       => GRAVITY_ACTIVITY,
-				'vid'           => Verb::getID(Activity::LIKE),
-				'deleted'       => false
-			], [])
+			$count_announce,
+			$count_like
 		);
 
+		$origin_like = ($count_like == 0) ? false : Post::exists([
+			'thr-parent-id' => $uriId,
+			'uid'           => $uid,
+			'origin'        => true,
+			'gravity'       => GRAVITY_ACTIVITY,
+			'vid'           => Verb::getID(Activity::LIKE),
+			'deleted'     => false
+		]);
+		$origin_announce = ($count_announce == 0) ? false : Post::exists([
+			'thr-parent-id' => $uriId,
+			'uid'           => $uid,
+			'origin'        => true,
+			'gravity'       => GRAVITY_ACTIVITY,
+			'vid'           => Verb::getID(Activity::ANNOUNCE),
+			'deleted'       => false
+		]);
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(
-			Post::exists([
-				'thr-parent-id' => $uriId,
-				'uid'           => $uid,
-				'origin'        => true,
-				'gravity'       => GRAVITY_ACTIVITY,
-				'vid'           => Verb::getID(Activity::LIKE)
-				, 'deleted'     => false
-			]),
-			Post::exists([
-				'thr-parent-id' => $uriId,
-				'uid'           => $uid,
-				'origin'        => true,
-				'gravity'       => GRAVITY_ACTIVITY,
-				'vid'           => Verb::getID(Activity::ANNOUNCE),
-				'deleted'       => false
-			]),
+			$origin_like,
+			$origin_announce,
 			Post\ThreadUser::getIgnored($uriId, $uid),
 			(bool)($item['starred'] && ($item['gravity'] == GRAVITY_PARENT)),
 			$item['featured']
@@ -136,8 +140,13 @@ class Status extends BaseFactory
 
 		$mentions    = $this->mstdnMentionFactory->createFromUriId($uriId)->getArrayCopy();
 		$tags        = $this->mstdnTagFactory->createFromUriId($uriId);
-		$card        = $this->mstdnCardFactory->createFromUriId($uriId);
-		$attachments = $this->mstdnAttachementFactory->createFromUriId($uriId);
+		if ($item['has-media']) {
+			$card        = $this->mstdnCardFactory->createFromUriId($uriId);
+			$attachments = $this->mstdnAttachementFactory->createFromUriId($uriId);
+		} else {
+			$card        = new \Friendica\Object\Api\Mastodon\Card([]);
+			$attachments = [];
+		}
 
 		if (!empty($item['question-id'])) {
 			$poll = $this->mstdnPollFactory->createFromId($item['question-id'], $uid)->toArray();
@@ -159,7 +168,6 @@ class Status extends BaseFactory
 				$card = $this->mstdnCardFactory->createFromUriId($shared_uri_id);
 			}
 		}
-
 
 		if ($item['vid'] == Verb::getID(Activity::ANNOUNCE)) {
 			$reshare       = $this->createFromUriId($item['thr-parent-id'], $uid)->toArray();
