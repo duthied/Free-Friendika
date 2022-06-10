@@ -67,15 +67,19 @@ class Statuses extends BaseApi
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
-		if (!$uid) {
+		if ($request['pinned']) {
+			$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]];
+		} elseif (!$uid) {
 			$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED],
 				'uid' => 0, 'network' => Protocol::FEDERATED];
 		} else {
 			$condition = ["`author-id` = ? AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))", $id, $uid];
 		}
 
-		$condition = DBA::mergeConditions($condition, ["(`gravity` IN (?, ?) OR (`gravity` = ? AND `vid` = ?))",
-			GRAVITY_PARENT, GRAVITY_COMMENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
+		if (!$request['pinned']) {
+			$condition = DBA::mergeConditions($condition, ["(`gravity` IN (?, ?) OR (`gravity` = ? AND `vid` = ?))",
+				GRAVITY_PARENT, GRAVITY_COMMENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
+		}
 
 		if ($request['only_media']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
@@ -95,15 +99,15 @@ class Statuses extends BaseApi
 			$params['order'] = ['uri-id'];
 		}
 
-		if ($request['pinned']) {
-			$condition = DBA::mergeConditions($condition, ['featured' => true]);
-		}
-
 		if ($request['exclude_replies']) {
 			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 		}
 
-		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);
+		if ($request['pinned']) {
+			$items = DBA::select('collection-view', ['uri-id'], $condition, $params);
+		} else {
+			$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);
+		}
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
