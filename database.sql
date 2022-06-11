@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 2022.05-rc (Siberian Iris)
+-- Friendica 2022.06 (Giant Rhubarb)
 -- DB_UPDATE_VERSION 1469
 -- ------------------------------------------
 
