@@ -608,7 +608,7 @@ class Processor
 	private static function processContent($activity, $item)
 	{
 		if (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/markdown')) {
-			$item['title'] = Markdown::toBBCode($activity['name']);
+			$item['title'] = strip_tags($activity['name']);
 			$content = Markdown::toBBCode($activity['content']);
 		} elseif (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/bbcode')) {
 			$item['title'] = $activity['name'];
@@ -618,6 +618,8 @@ class Processor
 			$item['title'] = HTML::toBBCode($activity['name']);
 			$content = HTML::toBBCode($activity['content']);
 		}
+
+		$item['title'] = trim(BBCode::toPlaintext($item['title']));
 
 		if (!empty($activity['languages'])) {
 			$item['language'] = self::processLanguages($activity['languages']);
