@@ -68,7 +68,7 @@ class Statuses extends BaseApi
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		if ($request['pinned']) {
-			$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]];
+			$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'type' => Post\Collection::FEATURED];
 		} elseif (!$uid) {
 			$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED],
 				'uid' => 0, 'network' => Protocol::FEDERATED];
