@@ -1817,6 +1817,67 @@ class Contact
 		}
 
 		if (!DI::config()->get('system', 'remote_avatar_lookup')) {
+			$platform = '';
+			$type     = Contact::TYPE_PERSON;
+
+			if (!empty($contact['id'])) {
+				$account = DBA::selectFirst('account-user-view', ['platform', 'contact-type'], ['id' => $contact['id']]);
+				$platform = $account['platform'] ?? '';
+				$type     = $account['contact-type'] ?? Contact::TYPE_PERSON;
+			}
+	
+			if (empty($platform) && !empty($contact['uri-id'])) {
+				$account = DBA::selectFirst('account-user-view', ['platform', 'contact-type'], ['uri-id' => $contact['uri-id']]);
+				$platform = $account['platform'] ?? '';
+				$type     = $account['contact-type'] ?? Contact::TYPE_PERSON;
+			}
+
+			switch ($platform) {
+				case 'mastodon':
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/mastodon/mastodon/tree/main/public/avatars/original/missing.png
+					 */
+					$default = '/images/default/mastodon.png';
+					break;
+	
+				case 'pleroma':
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://git.pleroma.social/pleroma/pleroma/-/blob/develop/priv/static/images/avi.png
+					 */
+					$default = '/images/default/pleroma.png';
+					break;
+
+				case 'diaspora':
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/diaspora/diaspora/
+					 */
+					$default = '/images/default/diaspora.png';
+					break;
+
+				case 'peertube':
+					if ($type == Contact::TYPE_COMMUNITY) {
+						/**
+						 * Picture credits
+						 * @license GNU Affero General Public License v3.0
+						 * @link    https://github.com/Chocobozzz/PeerTube/blob/develop/client/src/assets/images/default-avatar-video-channel.png
+						 */
+						$default = '/images/default/peertube-channel.png';
+					} else {
+						/**
+						 * Picture credits
+						 * @license GNU Affero General Public License v3.0
+						 * @link    https://github.com/Chocobozzz/PeerTube/blob/develop/client/src/assets/images/default-avatar-account.png
+						 */
+						$default = '/images/default/peertube-account.png';
+					}
+					break;
+			}
 			return DI::baseUrl() . $default;
 		}
 
