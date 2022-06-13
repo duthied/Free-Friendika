@@ -1861,15 +1861,19 @@ class Contact
 					break;
 
 				case 'peertube':
-					/**
-					 * Picture credits
-					 * @license GNU Affero General Public License v3.0
-					 */
 					if ($type == Contact::TYPE_COMMUNITY) {
-						// @link https://github.com/Chocobozzz/PeerTube/blob/develop/client/src/assets/images/default-avatar-video-channel.png
+						/**
+						 * Picture credits
+						 * @license GNU Affero General Public License v3.0
+						 * @link    https://github.com/Chocobozzz/PeerTube/blob/develop/client/src/assets/images/default-avatar-video-channel.png
+						 */
 						$default = '/images/default/peertube-channel.png';
 					} else {
-						// @link https://github.com/Chocobozzz/PeerTube/blob/develop/client/src/assets/images/default-avatar-account.png
+						/**
+						 * Picture credits
+						 * @license GNU Affero General Public License v3.0
+						 * @link    https://github.com/Chocobozzz/PeerTube/blob/develop/client/src/assets/images/default-avatar-account.png
+						 */
 						$default = '/images/default/peertube-account.png';
 					}
 					break;
