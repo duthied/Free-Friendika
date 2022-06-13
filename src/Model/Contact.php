@@ -1825,7 +1825,7 @@ class Contact
 				$platform = $account['platform'] ?? '';
 				$type     = $account['contact-type'] ?? Contact::TYPE_PERSON;
 			}
-	
+
 			if (empty($platform) && !empty($contact['uri-id'])) {
 				$account = DBA::selectFirst('account-user-view', ['platform', 'contact-type'], ['uri-id' => $contact['uri-id']]);
 				$platform = $account['platform'] ?? '';
@@ -1833,22 +1833,13 @@ class Contact
 			}
 
 			switch ($platform) {
-				case 'mastodon':
+				case 'corgidon':
 					/**
 					 * Picture credits
 					 * @license GNU Affero General Public License v3.0
-					 * @link    https://github.com/mastodon/mastodon/tree/main/public/avatars/original/missing.png
+					 * @link    https://github.com/msdos621/corgidon/blob/main/public/avatars/original/missing.png
 					 */
-					$default = '/images/default/mastodon.png';
-					break;
-	
-				case 'pleroma':
-					/**
-					 * Picture credits
-					 * @license GNU Affero General Public License v3.0
-					 * @link    https://git.pleroma.social/pleroma/pleroma/-/blob/develop/priv/static/images/avi.png
-					 */
-					$default = '/images/default/pleroma.png';
+					$default = '/images/default/corgidon.png';
 					break;
 
 				case 'diaspora':
@@ -1858,6 +1849,44 @@ class Contact
 					 * @link    https://github.com/diaspora/diaspora/
 					 */
 					$default = '/images/default/diaspora.png';
+					break;
+
+				case 'gotosocial':
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/superseriousbusiness/gotosocial/blob/main/web/assets/default_avatars/GoToSocial_icon1.svg
+					 */
+					$default = '/images/default/gotosocial.svg';
+					break;
+
+				case 'hometown':
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/hometown-fork/hometown/blob/hometown-dev/public/avatars/original/missing.png
+					 */
+					$default = '/images/default/hometown.png';
+					break;
+
+				case 'koyuspace':
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/koyuspace/mastodon/blob/main/public/avatars/original/missing.png
+					 */
+					$default = '/images/default/koyuspace.png';
+					break;
+
+				case 'ecko':
+				case 'qoto':
+				case 'mastodon':
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/mastodon/mastodon/tree/main/public/avatars/original/missing.png
+					 */
+					$default = '/images/default/mastodon.png';
 					break;
 
 				case 'peertube':
@@ -1876,6 +1905,24 @@ class Contact
 						 */
 						$default = '/images/default/peertube-account.png';
 					}
+					break;
+
+				case 'pleroma':
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://git.pleroma.social/pleroma/pleroma/-/blob/develop/priv/static/images/avi.png
+					 */
+					$default = '/images/default/pleroma.png';
+					break;
+
+				case 'plume':
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/Plume-org/Plume/blob/main/assets/images/default-avatar.png
+					 */
+					$default = '/images/default/plume.png';
 					break;
 			}
 			return DI::baseUrl() . $default;
