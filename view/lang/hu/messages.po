@@ -9071,7 +9071,7 @@ msgstr "Valaki kedvelte az Ön tartalmát"
 
 #: src/Module/Settings/Account.php:622 src/Module/Settings/Account.php:623
 msgid "Can only be enabled, when the direct comment notification is enabled."
-msgstr ""
+msgstr "Csak akkor engedélyezhető, ha a közvetlen hozzászólási értesítés engedélyezve van."
 
 #: src/Module/Settings/Account.php:623
 msgid "Someone shared your content"
@@ -9079,7 +9079,7 @@ msgstr "Valaki megosztotta az Ön tartalmát"
 
 #: src/Module/Settings/Account.php:624
 msgid "Someone commented in your thread"
-msgstr ""
+msgstr "Valaki hozzászólt az Ön szálában"
 
 #: src/Module/Settings/Account.php:625
 msgid "Someone commented in a thread where you commented"
@@ -9087,7 +9087,7 @@ msgstr "Valaki hozzászólt egy olyan szálban, ahol Ön hozzászólt"
 
 #: src/Module/Settings/Account.php:626
 msgid "Someone commented in a thread where you interacted"
-msgstr ""
+msgstr "Valaki hozzászólt egy olyan szálban, ahol Ön interakcióba került"
 
 #: src/Module/Settings/Account.php:628
 msgid "Activate desktop notifications"
