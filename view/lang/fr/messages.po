@@ -6604,7 +6604,7 @@ msgstr "Tester une adresse"
 
 #: src/Module/BaseAdmin.php:115
 msgid "check webfinger"
-msgstr "vérification de webfinger"
+msgstr "Vérifier le webfinger"
 
 #: src/Module/BaseAdmin.php:117
 msgid "Babel"
