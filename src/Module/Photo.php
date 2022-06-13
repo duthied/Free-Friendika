@@ -270,7 +270,7 @@ class Photo extends BaseModule
 
 				return MPhoto::createPhotoForExternalResource($link['url'], (int)local_user(), $link['mimetype']);
 			case "contact":
-				$fields = ['uid', 'url', 'nurl', 'avatar', 'photo', 'xmpp', 'addr', 'network', 'failed', 'updated'];
+				$fields = ['uid', 'uri-id', 'url', 'nurl', 'avatar', 'photo', 'xmpp', 'addr', 'network', 'failed', 'updated'];
 				$contact = Contact::getById($id, $fields);
 				if (empty($contact)) {
 					return false;

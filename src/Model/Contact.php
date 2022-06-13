@@ -1817,6 +1817,39 @@ class Contact
 		}
 
 		if (!DI::config()->get('system', 'remote_avatar_lookup')) {
+			$platform = '';
+
+			if (!empty($contact['id'])) {
+				$account = DBA::selectFirst('account-user-view', ['platform'], ['id' => $contact['id']]);
+				$platform = $account['platform'] ?? '';
+			}
+	
+			if (empty($platform) && !empty($contact['uri-id'])) {
+				$account = DBA::selectFirst('account-user-view', ['platform'], ['uri-id' => $contact['uri-id']]);
+				$platform = $account['platform'] ?? '';
+			}
+
+			switch ($platform) {
+				case 'mastodon':
+					// @see https://github.com/mastodon/mastodon/tree/main/public/avatars/original/missing.png
+					$default = '/images/default/mastodon.png';
+					break;
+	
+				case 'pleroma':
+					// @see https://git.pleroma.social/pleroma/pleroma/-/blob/develop/priv/static/images/avi.png
+					$default = '/images/default/pleroma.png';
+					break;
+
+				case 'diaspora':
+					// @see https://github.com/diaspora/diaspora/
+					$default = '/images/default/diaspora.png';
+					break;
+
+				case 'peertube':
+					// @see https://github.com/Chocobozzz/PeerTube/blob/develop/client/src/assets/images/default-avatar-video-channel.png
+					$default = '/images/default/peertube.png';
+					break;
+			}
 			return DI::baseUrl() . $default;
 		}
 
