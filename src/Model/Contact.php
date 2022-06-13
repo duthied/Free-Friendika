@@ -1831,22 +1831,38 @@ class Contact
 
 			switch ($platform) {
 				case 'mastodon':
-					// @see https://github.com/mastodon/mastodon/tree/main/public/avatars/original/missing.png
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/mastodon/mastodon/tree/main/public/avatars/original/missing.png
+					 */
 					$default = '/images/default/mastodon.png';
 					break;
 	
 				case 'pleroma':
-					// @see https://git.pleroma.social/pleroma/pleroma/-/blob/develop/priv/static/images/avi.png
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://git.pleroma.social/pleroma/pleroma/-/blob/develop/priv/static/images/avi.png
+					 */
 					$default = '/images/default/pleroma.png';
 					break;
 
 				case 'diaspora':
-					// @see https://github.com/diaspora/diaspora/
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/diaspora/diaspora/
+					 */
 					$default = '/images/default/diaspora.png';
 					break;
 
 				case 'peertube':
-					// @see https://github.com/Chocobozzz/PeerTube/blob/develop/client/src/assets/images/default-avatar-video-channel.png
+					/**
+					 * Picture credits
+					 * @license GNU Affero General Public License v3.0
+					 * @link    https://github.com/Chocobozzz/PeerTube/blob/develop/client/src/assets/images/default-avatar-video-channel.png
+					 */
 					$default = '/images/default/peertube.png';
 					break;
 			}
