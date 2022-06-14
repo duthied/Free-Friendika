@@ -2891,7 +2891,7 @@ class Item
 	 * @param int    $type
 	 * @return bool
 	 */
-	public static function containsLink(string $body, string $url, int $type = 0)
+	public static function containsLink(string $body, string $url, int $type = 0): bool
 	{
 		// Make sure that for example site parameters aren't used when testing if the link is contained in the body
 		$urlparts = parse_url($url);
@@ -2924,7 +2924,7 @@ class Item
 	 * @param string $body
 	 * @return string modified body
 	 */
-	private static function replaceVisualAttachments(array $attachments, string $body)
+	private static function replaceVisualAttachments(array $attachments, string $body): string
 	{
 		DI::profiler()->startRecording('rendering');
 
@@ -2955,7 +2955,7 @@ class Item
 	 * @param string $content
 	 * @return string modified content
 	 */
-	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared)
+	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$leading = '';
@@ -3047,7 +3047,7 @@ class Item
 	 * @param array  $ignore_links A list of URLs to ignore
 	 * @return string modified content
 	 */
-	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links)
+	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links): string
 	{
 		DI::profiler()->startRecording('rendering');
 		// Don't show a preview when there is a visual attachment (audio or video)
@@ -3161,7 +3161,7 @@ class Item
 	 * @param string $content
 	 * @return string modified content
 	 */
-	private static function addNonVisualAttachments(array $attachments, array $item, string $content)
+	private static function addNonVisualAttachments(array $attachments, array $item, string $content): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$trailing = '';
@@ -3244,7 +3244,7 @@ class Item
 	 * @return boolean|array False if item has not plink, otherwise array('href'=>plink url, 'title'=>translated title)
 	 * @throws \Exception
 	 */
-	public static function getPlink($item)
+	public static function getPlink(array $item)
 	{
 		if (!empty($item['plink']) && Network::isValidHttpUrl($item['plink'])) {
 			$plink = $item['plink'];
@@ -3291,7 +3291,7 @@ class Item
 	 *
 	 * @return boolean "true" when it is a forum post
 	 */
-	public static function isForumPost(int $uri_id)
+	public static function isForumPost(int $uri_id): bool
 	{
 		foreach (Tag::getByURIId($uri_id, [Tag::EXCLUSIVE_MENTION]) as $tag) {
 			if (DBA::exists('contact', ['uid' => 0, 'nurl' => Strings::normaliseLink($tag['url']), 'contact-type' => Contact::TYPE_COMMUNITY])) {
@@ -3309,7 +3309,7 @@ class Item
 	 *
 	 * @return integer item id
 	 */
-	public static function searchByLink($uri, $uid = 0)
+	public static function searchByLink(string $uri, int $uid = 0): int
 	{
 		$ssl_uri = str_replace('http://', 'https://', $uri);
 		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
@@ -3360,7 +3360,7 @@ class Item
 	 *
 	 * @return integer item id
 	 */
-	public static function fetchByLink(string $uri, int $uid = 0)
+	public static function fetchByLink(string $uri, int $uid = 0): int
 	{
 		Logger::info('Trying to fetch link', ['uid' => $uid, 'uri' => $uri]);
 		$item_id = self::searchByLink($uri, $uid);
@@ -3406,7 +3406,7 @@ class Item
 	 *
 	 * @return array with share information
 	 */
-	public static function getShareArray($item)
+	public static function getShareArray(array $item): array
 	{
 		if (!preg_match("/(.*?)\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", $item['body'], $matches)) {
 			return [];
@@ -3429,7 +3429,7 @@ class Item
 	 *
 	 * @return array item array with data from the original item
 	 */
-	public static function addShareDataFromOriginal(array $item)
+	public static function addShareDataFromOriginal(array $item): array
 	{
 		$shared = self::getShareArray($item);
 		if (empty($shared)) {
@@ -3490,7 +3490,7 @@ class Item
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected static function isAllowedByUser(array $item, int $user_id)
+	protected static function isAllowedByUser(array $item, int $user_id): bool
 	{
 		if (!empty($item['author-id']) && Contact\User::isBlocked($item['author-id'], $user_id)) {
 			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
