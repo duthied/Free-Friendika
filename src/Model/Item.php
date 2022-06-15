@@ -709,7 +709,7 @@ class Item
 	 * @param array $item
 	 * @return integer gravity
 	 */
-	private static function getGravity(array $item)
+	private static function getGravity(array $item): int
 	{
 		$activity = DI::activity();
 
@@ -1417,7 +1417,7 @@ class Item
 	 * @param integer $source_uid User id of the source post
 	 * @return integer stored item id
 	 */
-	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [], int $source_uid = 0)
+	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [], int $source_uid = 0): int
 	{
 		if ($uid == $source_uid) {
 			Logger::warning('target UID must not be be equal to the source UID', ['uri-id' => $uri_id, 'uid' => $uid]);
@@ -1525,7 +1525,7 @@ class Item
 	 * @return integer stored item id
 	 * @throws \Exception
 	 */
-	private static function storeForUser(array $item, int $uid)
+	private static function storeForUser(array $item, int $uid): int
 	{
 		if (Post::exists(['uri-id' => $item['uri-id'], 'uid' => $uid])) {
 			if (!empty($item['event-id'])) {
@@ -1740,7 +1740,7 @@ class Item
 	 * @return string detected language
 	 * @throws \Text_LanguageDetect_Exception
 	 */
-	private static function getLanguage(array $item)
+	private static function getLanguage(array $item): string
 	{
 		if (!empty($item['language'])) {
 			return $item['language'];
@@ -1784,7 +1784,7 @@ class Item
 		return '';
 	}
 
-	public static function getLanguageMessage(array $item)
+	public static function getLanguageMessage(array $item): string
 	{
 		$iso639 = new \Matriphe\ISO639\ISO639;
 
@@ -1806,7 +1806,7 @@ class Item
 	 * @param string $host hostname for the GUID prefix
 	 * @return string unique guid
 	 */
-	public static function guidFromUri($uri, $host)
+	public static function guidFromUri(string $uri, string $host): string
 	{
 		// Our regular guid routine is using this kind of prefix as well
 		// We have to avoid that different routines could accidentally create the same value
@@ -1850,7 +1850,7 @@ class Item
 	 * @param array $arr Contains the just posted item record
 	 * @throws \Exception
 	 */
-	private static function updateContact($arr)
+	private static function updateContact(array $arr)
 	{
 		// Unarchive the author
 		$contact = DBA::selectFirst('contact', [], ['id' => $arr["author-id"]]);
@@ -1897,7 +1897,7 @@ class Item
 		}
 	}
 
-	public static function setHashtags($body)
+	public static function setHashtags(string $body): string
 	{
 		$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) {
 			$tags = BBCode::getTags($body);
@@ -1971,7 +1971,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function tagDeliver($uid, $item_id)
+	private static function tagDeliver(int $uid, int $item_id): bool
 	{
 		$mention = false;
 
@@ -2066,7 +2066,7 @@ class Item
 		self::performActivity($item['id'], 'announce', $item['uid']);
 	}
 
-	public static function isRemoteSelf(array $contact, array &$datarray)
+	public static function isRemoteSelf(array $contact, array &$datarray): bool
 	{
 		if (!$contact['remote_self']) {
 			return false;
@@ -2160,7 +2160,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fixPrivatePhotos(string $s, int $uid, array $item = null, int $cid = 0)
+	public static function fixPrivatePhotos(string $s, int $uid, array $item = null, int $cid = 0): string
 	{
 		if (DI::config()->get('system', 'disable_embedded')) {
 			return $s;
@@ -2260,7 +2260,8 @@ class Item
 			!empty($obj['deny_cid']) || !empty($obj['deny_gid']);
 	}
 
-	private static function samePermissions($uid, $obj1, $obj2)
+	// @TODO $uid is unused parameter
+	private static function samePermissions($uid, array $obj1, array $obj2): bool
 	{
 		// first part is easy. Check that these are exactly the same.
 		if (($obj1['allow_cid'] == $obj2['allow_cid'])
@@ -2376,7 +2377,7 @@ class Item
 		Logger::notice('User ' . $uid . ": expired $expired items; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
 	}
 
-	public static function firstPostDate($uid, $wall = false)
+	public static function firstPostDate(int $uid, bool $wall = false)
 	{
 		$user = User::getById($uid, ['register_date']);
 		if (empty($user)) {
@@ -2417,7 +2418,7 @@ class Item
 	 *            array $arr
 	 *            'post_id' => ID of posted item
 	 */
-	public static function performActivity(int $item_id, string $verb, int $uid, string $allow_cid = null, string $allow_gid = null, string $deny_cid = null, string $deny_gid = null)
+	public static function performActivity(int $item_id, string $verb, int $uid, string $allow_cid = null, string $allow_gid = null, string $deny_cid = null, string $deny_gid = null): bool
 	{
 		if (empty($uid)) {
 			return false;
@@ -2611,7 +2612,7 @@ class Item
 	 * @param integer $owner_id User ID for which the permissions should be fetched
 	 * @return array condition
 	 */
-	public static function getPermissionsConditionArrayByUserId(int $owner_id)
+	public static function getPermissionsConditionArrayByUserId(int $owner_id): array
 	{
 		$local_user = local_user();
 		$remote_user = Session::getRemoteContactID($owner_id);
@@ -2643,7 +2644,7 @@ class Item
 	 * @param string $table
 	 * @return string
 	 */
-	public static function getPermissionsSQLByUserId(int $owner_id, string $table = '')
+	public static function getPermissionsSQLByUserId(int $owner_id, string $table = ''): string
 	{
 		$local_user = local_user();
 		$remote_user = Session::getRemoteContactID($owner_id);
@@ -2691,7 +2692,7 @@ class Item
 	 * @param \Friendica\Core\L10n $l10n
 	 * @return string
 	 */
-	public static function postType(array $item, \Friendica\Core\L10n $l10n)
+	public static function postType(array $item, \Friendica\Core\L10n $l10n): string
 	{
 		if (!empty($item['event-id'])) {
 			return $l10n->t('event');
@@ -2757,10 +2758,10 @@ class Item
 	 * Given an item array, convert the body element from bbcode to html and add smilie icons.
 	 * If attach is true, also add icons for item attachments.
 	 *
-	 * @param array   $item
-	 * @param boolean $attach
-	 * @param boolean $is_preview
-	 * @param boolean $only_cache
+	 * @param array   $item Record from item table
+	 * @param boolean $attach If true, add icons for item attachments as well
+	 * @param boolean $is_preview Whether this is a preview
+	 * @param boolean $only_cache Whether only cached HTML should be updated
 	 * @return string item body html
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -2811,7 +2812,7 @@ class Item
 		$s = $item["rendered-html"];
 
 		if ($only_cache) {
-			return;
+			return '';
 		}
 
 		// Compile eventual content filter reasons
