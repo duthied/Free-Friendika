@@ -61,7 +61,7 @@ class HTML
 	 *                                    inner value from an attribute value and disregard the tag children.
 	 * @return bool Whether a replacement was done
 	 */
-	private static function tagToBBCodeSub(DOMDocument $doc, string $tag, array $attributes, string $startbb, string $endbb, bool $ignoreChildren = false)
+	private static function tagToBBCodeSub(DOMDocument $doc, string $tag, array $attributes, string $startbb, string $endbb, bool $ignoreChildren = false): bool
 	{
 		$savestart = str_replace('$', '\x01', $startbb);
 		$replace = false;
@@ -141,7 +141,7 @@ class HTML
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function toBBCode($message, $basepath = '')
+	public static function toBBCode(string $message, string $basepath = ''): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$message = str_replace("\r", "", $message);
@@ -409,7 +409,7 @@ class HTML
 	 *
 	 * @return string The expanded URL
 	 */
-	private static function qualifyURLsSub($matches, $basepath)
+	private static function qualifyURLsSub(array $matches, string $basepath): string
 	{
 		$base = parse_url($basepath);
 		unset($base['query']);
@@ -436,7 +436,7 @@ class HTML
 	 *
 	 * @return string Body with expanded URLs
 	 */
-	private static function qualifyURLs($body, $basepath)
+	private static function qualifyURLs(string $body, string $basepath): string
 	{
 		$URLSearchString = "^\[\]";
 
@@ -462,7 +462,7 @@ class HTML
 		return $body;
 	}
 
-	private static function breakLines($line, $level, $wraplength = 75)
+	private static function breakLines(string $line, int $level, int $wraplength = 75): string
 	{
 		if ($wraplength == 0) {
 			$wraplength = 2000000;
@@ -503,7 +503,7 @@ class HTML
 		return implode("\n", $newlines);
 	}
 
-	private static function quoteLevel($message, $wraplength = 75)
+	private static function quoteLevel(string $message, int $wraplength = 75): string
 	{
 		$lines = explode("\n", $message);
 
@@ -539,7 +539,7 @@ class HTML
 		return implode("\n", $newlines);
 	}
 
-	private static function collectURLs($message)
+	private static function collectURLs(string $message): array
 	{
 		$pattern = '/<a.*?href="(.*?)".*?>(.*?)<\/a>/is';
 		preg_match_all($pattern, $message, $result, PREG_SET_ORDER);
@@ -585,7 +585,7 @@ class HTML
 	 * @param bool   $compact    True: Completely strips image tags; False: Keeps image URLs
 	 * @return string
 	 */
-	public static function toPlaintext(string $html, $wraplength = 75, $compact = false)
+	public static function toPlaintext(string $html, int $wraplength = 75, bool $compact = false): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$message = str_replace("\r", "", $html);
@@ -705,7 +705,7 @@ class HTML
 	 * @param string $html
 	 * @return string
 	 */
-	public static function toMarkdown($html)
+	public static function toMarkdown(string $html): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$converter = new HtmlConverter(['hard_break' => true]);
@@ -721,7 +721,7 @@ class HTML
 	 * @param string $s
 	 * @return string
 	 */
-	public static function toBBCodeVideo($s)
+	public static function toBBCodeVideo(string $s): string
 	{
 		$s = preg_replace(
 			'#<object[^>]+>(.*?)https?://www.youtube.com/((?:v|cp)/[A-Za-z0-9\-_=]+)(.*?)</object>#ism',
@@ -751,7 +751,7 @@ class HTML
 	 * @param string $base base url
 	 * @return string
 	 */
-	public static function relToAbs($text, $base)
+	public static function relToAbs(string $text, string $base): string
 	{
 		if (empty($base)) {
 			return $text;
@@ -790,7 +790,7 @@ class HTML
 	 * @return string html for loader
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function scrollLoader()
+	public static function scrollLoader(): string
 	{
 		$tpl = Renderer::getMarkupTemplate("scroll_loader.tpl");
 		return Renderer::replaceMacros($tpl, [
@@ -819,7 +819,7 @@ class HTML
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function micropro($contact, $redirect = false, $class = '', $textmode = false)
+	public static function micropro(array $contact, bool $redirect = false, string $class = '', bool $textmode = false): string
 	{
 		// Use the contact URL if no address is available
 		if (empty($contact['addr'])) {
@@ -859,13 +859,12 @@ class HTML
 	 *
 	 * @param string $s     Search query.
 	 * @param string $id    HTML id
-	 * @param string $url   Search url.
 	 * @param bool   $aside Display the search widgit aside.
 	 *
 	 * @return string Formatted HTML.
 	 * @throws \Exception
 	 */
-	public static function search($s, $id = 'search-box', $aside = true)
+	public static function search(string $s, string $id = 'search-box', bool $aside = true): string
 	{
 		$mode = 'text';
 
@@ -906,7 +905,7 @@ class HTML
 	 * @param string $s
 	 * @return string
 	 */
-	public static function toLink($s)
+	public static function toLink(string $s): string
 	{
 		$s = preg_replace("/(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\'\%\$\!\+]*)/", ' <a href="$1" target="_blank" rel="noopener noreferrer">$1</a>', $s);
 		$s = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism", '<$1$2=$3&$4>', $s);
@@ -923,7 +922,7 @@ class HTML
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function applyContentFilter($html, array $reasons)
+	public static function applyContentFilter(string $html, array $reasons): string
 	{
 		if (count($reasons)) {
 			$tpl = Renderer::getMarkupTemplate('wall/content_filter.tpl');
@@ -943,7 +942,7 @@ class HTML
 	 * @param string $s
 	 * @return string
 	 */
-	public static function unamp($s)
+	public static function unamp(string $s): string
 	{
 		return str_replace('&amp;', '&', $s);
 	}

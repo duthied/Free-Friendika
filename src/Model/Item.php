@@ -255,7 +255,7 @@ class Item
 	 * @param integer $uid       User who wants to delete this item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function deleteForUser($condition, $uid)
+	public static function deleteForUser(array $condition, int $uid)
 	{
 		if ($uid == 0) {
 			return;
@@ -709,7 +709,7 @@ class Item
 	 * @param array $item
 	 * @return integer gravity
 	 */
-	private static function getGravity(array $item)
+	private static function getGravity(array $item): int
 	{
 		$activity = DI::activity();
 
@@ -1323,7 +1323,7 @@ class Item
 	 * @param string  $signed_text Original text (for Diaspora signatures), JSON encoded.
 	 * @throws \Exception
 	 */
-	public static function distribute($itemid, $signed_text = '')
+	public static function distribute(int $itemid, string $signed_text = '')
 	{
 		$condition = ["`id` IN (SELECT `parent` FROM `post-user-view` WHERE `id` = ?)", $itemid];
 		$parent = Post::selectFirst(['owner-id'], $condition);
@@ -1417,7 +1417,7 @@ class Item
 	 * @param integer $source_uid User id of the source post
 	 * @return integer stored item id
 	 */
-	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [], int $source_uid = 0)
+	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [], int $source_uid = 0): int
 	{
 		if ($uid == $source_uid) {
 			Logger::warning('target UID must not be be equal to the source UID', ['uri-id' => $uri_id, 'uid' => $uid]);
@@ -1525,7 +1525,7 @@ class Item
 	 * @return integer stored item id
 	 * @throws \Exception
 	 */
-	private static function storeForUser(array $item, int $uid)
+	private static function storeForUser(array $item, int $uid): int
 	{
 		if (Post::exists(['uri-id' => $item['uri-id'], 'uid' => $uid])) {
 			if (!empty($item['event-id'])) {
@@ -1613,7 +1613,7 @@ class Item
 	 * @param integer $itemid Item ID that should be added
 	 * @throws \Exception
 	 */
-	private static function addShadow($itemid)
+	private static function addShadow(int $itemid)
 	{
 		$fields = ['uid', 'private', 'visible', 'deleted', 'network', 'uri-id'];
 		$condition = ['id' => $itemid, 'gravity' => GRAVITY_PARENT];
@@ -1676,7 +1676,7 @@ class Item
 	 * @param integer $itemid Item ID that should be added
 	 * @throws \Exception
 	 */
-	private static function addShadowPost($itemid)
+	private static function addShadowPost(int $itemid)
 	{
 		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBA::isResult($item)) {
@@ -1740,7 +1740,7 @@ class Item
 	 * @return string detected language
 	 * @throws \Text_LanguageDetect_Exception
 	 */
-	private static function getLanguage(array $item)
+	private static function getLanguage(array $item): string
 	{
 		if (!empty($item['language'])) {
 			return $item['language'];
@@ -1784,7 +1784,7 @@ class Item
 		return '';
 	}
 
-	public static function getLanguageMessage(array $item)
+	public static function getLanguageMessage(array $item): string
 	{
 		$iso639 = new \Matriphe\ISO639\ISO639;
 
@@ -1806,7 +1806,7 @@ class Item
 	 * @param string $host hostname for the GUID prefix
 	 * @return string unique guid
 	 */
-	public static function guidFromUri($uri, $host)
+	public static function guidFromUri(string $uri, string $host): string
 	{
 		// Our regular guid routine is using this kind of prefix as well
 		// We have to avoid that different routines could accidentally create the same value
@@ -1850,7 +1850,7 @@ class Item
 	 * @param array $arr Contains the just posted item record
 	 * @throws \Exception
 	 */
-	private static function updateContact($arr)
+	private static function updateContact(array $arr)
 	{
 		// Unarchive the author
 		$contact = DBA::selectFirst('contact', [], ['id' => $arr["author-id"]]);
@@ -1897,7 +1897,7 @@ class Item
 		}
 	}
 
-	public static function setHashtags($body)
+	public static function setHashtags(string $body): string
 	{
 		$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) {
 			$tags = BBCode::getTags($body);
@@ -1971,7 +1971,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function tagDeliver($uid, $item_id)
+	private static function tagDeliver(int $uid, int $item_id): bool
 	{
 		$mention = false;
 
@@ -2066,7 +2066,7 @@ class Item
 		self::performActivity($item['id'], 'announce', $item['uid']);
 	}
 
-	public static function isRemoteSelf($contact, &$datarray)
+	public static function isRemoteSelf(array $contact, array &$datarray): bool
 	{
 		if (!$contact['remote_self']) {
 			return false;
@@ -2160,7 +2160,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fixPrivatePhotos($s, $uid, $item = null, $cid = 0)
+	public static function fixPrivatePhotos(string $s, int $uid, array $item = null, int $cid = 0): string
 	{
 		if (DI::config()->get('system', 'disable_embedded')) {
 			return $s;
@@ -2254,13 +2254,14 @@ class Item
 		return $new_body;
 	}
 
-	private static function hasPermissions($obj)
+	private static function hasPermissions(array $obj)
 	{
 		return !empty($obj['allow_cid']) || !empty($obj['allow_gid']) ||
 			!empty($obj['deny_cid']) || !empty($obj['deny_gid']);
 	}
 
-	private static function samePermissions($uid, $obj1, $obj2)
+	// @TODO $uid is unused parameter
+	private static function samePermissions($uid, array $obj1, array $obj2): bool
 	{
 		// first part is easy. Check that these are exactly the same.
 		if (($obj1['allow_cid'] == $obj2['allow_cid'])
@@ -2288,7 +2289,7 @@ class Item
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function enumeratePermissions(array $obj, bool $check_dead = false)
+	public static function enumeratePermissions(array $obj, bool $check_dead = false): array
 	{
 		$aclFormater = DI::aclFormatter();
 
@@ -2376,7 +2377,7 @@ class Item
 		Logger::notice('User ' . $uid . ": expired $expired items; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
 	}
 
-	public static function firstPostDate($uid, $wall = false)
+	public static function firstPostDate(int $uid, bool $wall = false)
 	{
 		$user = User::getById($uid, ['register_date']);
 		if (empty($user)) {
@@ -2417,7 +2418,7 @@ class Item
 	 *            array $arr
 	 *            'post_id' => ID of posted item
 	 */
-	public static function performActivity(int $item_id, string $verb, int $uid, string $allow_cid = null, string $allow_gid = null, string $deny_cid = null, string $deny_gid = null)
+	public static function performActivity(int $item_id, string $verb, int $uid, string $allow_cid = null, string $allow_gid = null, string $deny_cid = null, string $deny_gid = null): bool
 	{
 		if (empty($uid)) {
 			return false;
@@ -2611,7 +2612,7 @@ class Item
 	 * @param integer $owner_id User ID for which the permissions should be fetched
 	 * @return array condition
 	 */
-	public static function getPermissionsConditionArrayByUserId(int $owner_id)
+	public static function getPermissionsConditionArrayByUserId(int $owner_id): array
 	{
 		$local_user = local_user();
 		$remote_user = Session::getRemoteContactID($owner_id);
@@ -2643,7 +2644,7 @@ class Item
 	 * @param string $table
 	 * @return string
 	 */
-	public static function getPermissionsSQLByUserId(int $owner_id, string $table = '')
+	public static function getPermissionsSQLByUserId(int $owner_id, string $table = ''): string
 	{
 		$local_user = local_user();
 		$remote_user = Session::getRemoteContactID($owner_id);
@@ -2691,7 +2692,7 @@ class Item
 	 * @param \Friendica\Core\L10n $l10n
 	 * @return string
 	 */
-	public static function postType(array $item, \Friendica\Core\L10n $l10n)
+	public static function postType(array $item, \Friendica\Core\L10n $l10n): string
 	{
 		if (!empty($item['event-id'])) {
 			return $l10n->t('event');
@@ -2757,10 +2758,10 @@ class Item
 	 * Given an item array, convert the body element from bbcode to html and add smilie icons.
 	 * If attach is true, also add icons for item attachments.
 	 *
-	 * @param array   $item
-	 * @param boolean $attach
-	 * @param boolean $is_preview
-	 * @param boolean $only_cache
+	 * @param array   $item Record from item table
+	 * @param boolean $attach If true, add icons for item attachments as well
+	 * @param boolean $is_preview Whether this is a preview
+	 * @param boolean $only_cache Whether only cached HTML should be updated
 	 * @return string item body html
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -2769,7 +2770,7 @@ class Item
 	 * @hook  prepare_body ('item'=>item array, 'html'=>body string, 'is_preview'=>boolean, 'filter_reasons'=>string array) after first bbcode to html
 	 * @hook  prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
 	 */
-	public static function prepareBody(array &$item, $attach = false, $is_preview = false, $only_cache = false)
+	public static function prepareBody(array &$item, bool $attach = false, bool $is_preview = false, bool $only_cache = false): string
 	{
 		$a = DI::app();
 		Hook::callAll('prepare_body_init', $item);
@@ -2811,7 +2812,7 @@ class Item
 		$s = $item["rendered-html"];
 
 		if ($only_cache) {
-			return;
+			return '';
 		}
 
 		// Compile eventual content filter reasons
@@ -2891,7 +2892,7 @@ class Item
 	 * @param int    $type
 	 * @return bool
 	 */
-	public static function containsLink(string $body, string $url, int $type = 0)
+	public static function containsLink(string $body, string $url, int $type = 0): bool
 	{
 		// Make sure that for example site parameters aren't used when testing if the link is contained in the body
 		$urlparts = parse_url($url);
@@ -2924,7 +2925,7 @@ class Item
 	 * @param string $body
 	 * @return string modified body
 	 */
-	private static function replaceVisualAttachments(array $attachments, string $body)
+	private static function replaceVisualAttachments(array $attachments, string $body): string
 	{
 		DI::profiler()->startRecording('rendering');
 
@@ -2955,7 +2956,7 @@ class Item
 	 * @param string $content
 	 * @return string modified content
 	 */
-	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared)
+	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$leading = '';
@@ -3047,7 +3048,7 @@ class Item
 	 * @param array  $ignore_links A list of URLs to ignore
 	 * @return string modified content
 	 */
-	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links)
+	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links): string
 	{
 		DI::profiler()->startRecording('rendering');
 		// Don't show a preview when there is a visual attachment (audio or video)
@@ -3161,7 +3162,7 @@ class Item
 	 * @param string $content
 	 * @return string modified content
 	 */
-	private static function addNonVisualAttachments(array $attachments, array $item, string $content)
+	private static function addNonVisualAttachments(array $attachments, array $item, string $content): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$trailing = '';
@@ -3193,7 +3194,7 @@ class Item
 		return $content;
 	}
 
-	private static function addQuestions(array $item, string $content)
+	private static function addQuestions(array $item, string $content): string
 	{
 		DI::profiler()->startRecording('rendering');
 		if (!empty($item['question-id'])) {
@@ -3244,7 +3245,7 @@ class Item
 	 * @return boolean|array False if item has not plink, otherwise array('href'=>plink url, 'title'=>translated title)
 	 * @throws \Exception
 	 */
-	public static function getPlink($item)
+	public static function getPlink(array $item)
 	{
 		if (!empty($item['plink']) && Network::isValidHttpUrl($item['plink'])) {
 			$plink = $item['plink'];
@@ -3291,7 +3292,7 @@ class Item
 	 *
 	 * @return boolean "true" when it is a forum post
 	 */
-	public static function isForumPost(int $uri_id)
+	public static function isForumPost(int $uri_id): bool
 	{
 		foreach (Tag::getByURIId($uri_id, [Tag::EXCLUSIVE_MENTION]) as $tag) {
 			if (DBA::exists('contact', ['uid' => 0, 'nurl' => Strings::normaliseLink($tag['url']), 'contact-type' => Contact::TYPE_COMMUNITY])) {
@@ -3309,7 +3310,7 @@ class Item
 	 *
 	 * @return integer item id
 	 */
-	public static function searchByLink($uri, $uid = 0)
+	public static function searchByLink(string $uri, int $uid = 0): int
 	{
 		$ssl_uri = str_replace('http://', 'https://', $uri);
 		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
@@ -3334,7 +3335,7 @@ class Item
 	 *
 	 * @return string URI
 	 */
-	public static function getURIByLink(string $uri)
+	public static function getURIByLink(string $uri): string
 	{
 		$ssl_uri = str_replace('http://', 'https://', $uri);
 		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
@@ -3360,7 +3361,7 @@ class Item
 	 *
 	 * @return integer item id
 	 */
-	public static function fetchByLink(string $uri, int $uid = 0)
+	public static function fetchByLink(string $uri, int $uid = 0): int
 	{
 		Logger::info('Trying to fetch link', ['uid' => $uid, 'uri' => $uri]);
 		$item_id = self::searchByLink($uri, $uid);
@@ -3406,7 +3407,7 @@ class Item
 	 *
 	 * @return array with share information
 	 */
-	public static function getShareArray($item)
+	public static function getShareArray(array $item): array
 	{
 		if (!preg_match("/(.*?)\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", $item['body'], $matches)) {
 			return [];
@@ -3429,7 +3430,7 @@ class Item
 	 *
 	 * @return array item array with data from the original item
 	 */
-	public static function addShareDataFromOriginal(array $item)
+	public static function addShareDataFromOriginal(array $item): array
 	{
 		$shared = self::getShareArray($item);
 		if (empty($shared)) {
@@ -3490,7 +3491,7 @@ class Item
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected static function isAllowedByUser(array $item, int $user_id)
+	protected static function isAllowedByUser(array $item, int $user_id): bool
 	{
 		if (!empty($item['author-id']) && Contact\User::isBlocked($item['author-id'], $user_id)) {
 			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
@@ -3522,7 +3523,7 @@ class Item
 	 * @param array $item
 	 * @return string body
 	 */
-	public static function improveSharedDataInBody(array $item)
+	public static function improveSharedDataInBody(array $item): string
 	{
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (empty($shared['link'])) {
