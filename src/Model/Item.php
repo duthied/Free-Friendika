@@ -255,7 +255,7 @@ class Item
 	 * @param integer $uid       User who wants to delete this item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function deleteForUser($condition, $uid)
+	public static function deleteForUser(array $condition, int $uid)
 	{
 		if ($uid == 0) {
 			return;
@@ -1323,7 +1323,7 @@ class Item
 	 * @param string  $signed_text Original text (for Diaspora signatures), JSON encoded.
 	 * @throws \Exception
 	 */
-	public static function distribute($itemid, $signed_text = '')
+	public static function distribute(int $itemid, string $signed_text = '')
 	{
 		$condition = ["`id` IN (SELECT `parent` FROM `post-user-view` WHERE `id` = ?)", $itemid];
 		$parent = Post::selectFirst(['owner-id'], $condition);
@@ -1613,7 +1613,7 @@ class Item
 	 * @param integer $itemid Item ID that should be added
 	 * @throws \Exception
 	 */
-	private static function addShadow($itemid)
+	private static function addShadow(int $itemid)
 	{
 		$fields = ['uid', 'private', 'visible', 'deleted', 'network', 'uri-id'];
 		$condition = ['id' => $itemid, 'gravity' => GRAVITY_PARENT];
@@ -1676,7 +1676,7 @@ class Item
 	 * @param integer $itemid Item ID that should be added
 	 * @throws \Exception
 	 */
-	private static function addShadowPost($itemid)
+	private static function addShadowPost(int $itemid)
 	{
 		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBA::isResult($item)) {
@@ -2066,7 +2066,7 @@ class Item
 		self::performActivity($item['id'], 'announce', $item['uid']);
 	}
 
-	public static function isRemoteSelf($contact, &$datarray)
+	public static function isRemoteSelf(array $contact, array &$datarray)
 	{
 		if (!$contact['remote_self']) {
 			return false;
@@ -2160,7 +2160,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fixPrivatePhotos($s, $uid, $item = null, $cid = 0)
+	public static function fixPrivatePhotos(string $s, int $uid, array $item = null, int $cid = 0)
 	{
 		if (DI::config()->get('system', 'disable_embedded')) {
 			return $s;
@@ -2254,7 +2254,7 @@ class Item
 		return $new_body;
 	}
 
-	private static function hasPermissions($obj)
+	private static function hasPermissions(array $obj)
 	{
 		return !empty($obj['allow_cid']) || !empty($obj['allow_gid']) ||
 			!empty($obj['deny_cid']) || !empty($obj['deny_gid']);
@@ -2288,7 +2288,7 @@ class Item
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function enumeratePermissions(array $obj, bool $check_dead = false)
+	public static function enumeratePermissions(array $obj, bool $check_dead = false): array
 	{
 		$aclFormater = DI::aclFormatter();
 
@@ -3193,7 +3193,7 @@ class Item
 		return $content;
 	}
 
-	private static function addQuestions(array $item, string $content)
+	private static function addQuestions(array $item, string $content): string
 	{
 		DI::profiler()->startRecording('rendering');
 		if (!empty($item['question-id'])) {
@@ -3334,7 +3334,7 @@ class Item
 	 *
 	 * @return string URI
 	 */
-	public static function getURIByLink(string $uri)
+	public static function getURIByLink(string $uri): string
 	{
 		$ssl_uri = str_replace('http://', 'https://', $uri);
 		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
@@ -3522,7 +3522,7 @@ class Item
 	 * @param array $item
 	 * @return string body
 	 */
-	public static function improveSharedDataInBody(array $item)
+	public static function improveSharedDataInBody(array $item): string
 	{
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (empty($shared['link'])) {
