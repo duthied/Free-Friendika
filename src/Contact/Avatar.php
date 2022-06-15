@@ -32,7 +32,6 @@ use Friendica\Util\HTTPSignature;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy;
-use Friendica\Util\Strings;
 
 /**
  * functions for handling contact avatar caching
@@ -139,20 +138,18 @@ class Avatar
 			return '';
 		}
 
-		$path = self::BASE_PATH . $filename . $size . '.' . $image->getExt();
+		$path = $filename . $size . '.' . $image->getExt();
 
-		$filepath = DI::basePath() . $path;
+		$basepath = self::basePath();
+		if (empty($basepath)) {
+			return '';
+		}
 
-		$dirpath = DI::basePath() . self::BASE_PATH;
+		$filepath = $basepath . $path;
+
+		$dirpath = $basepath;
 
 		DI::profiler()->startRecording('file');
-
-		if (!file_exists($dirpath)) {
-			if (!mkdir($dirpath, 0775)) {
-				Logger::warning('Base directory could not be created', ['directory' => $dirpath]);
-				return '';
-			}
-		}
 
 		// Fetch the permission and group ownership of the "avatar" path and apply to all files
 		$dir_perm  = fileperms($dirpath) & 0777;
@@ -198,7 +195,7 @@ class Avatar
 			return '';
 		}
 
-		return DI::baseUrl() . $path . '?ts=' . $timestamp;
+		return self::baseUrl() . $path . '?ts=' . $timestamp;
 	}
 
 	/**
@@ -221,16 +218,17 @@ class Avatar
 	private static function getCacheFile(string $avatar): string
 	{
 		$parts = parse_url($avatar);
-		if (empty($parts['host']) || ($parts['host'] != DI::baseUrl()->getHostname())) {
+		if (empty($parts['host']) || ($parts['host'] != parse_url(self::baseUrl(), PHP_URL_HOST))) {
 			return '';
 		}
 
-		$pos = strpos($parts['path'], DI::baseUrl()->getUrlPath() . self::BASE_PATH);
+		$avatarpath = parse_url(self::baseUrl(), PHP_URL_PATH);
+		$pos = strpos($parts['path'], $avatarpath);
 		if ($pos !== 0) {
 			return '';
 		}
 
-		$filename = DI::basePath() . $parts['path'];
+		$filename = self::basePath() . substr($parts['path'], strlen($avatarpath));
 
 		DI::profiler()->startRecording('file');
 		$exists = file_exists($filename);
@@ -268,5 +266,48 @@ class Avatar
 			unlink($localFile);
 			Logger::debug('Unlink avatar', ['avatar' => $avatar]);
 		}
+	}
+
+	/**
+	 * Fetch the avatar base path
+	 *
+	 * @return string
+	 */
+	private static function basePath(): string
+	{
+		$basepath = DI::config()->get('system', 'avatar_cache_path');
+		if (empty($basepath)) {
+			$basepath = DI::basePath() . self::BASE_PATH;
+		}
+		$basepath = rtrim($basepath, '/') . '/';
+
+		if (!file_exists($basepath)) {
+			// We only automatically create the folder when it is in the web root
+			if (strpos($basepath, DI::basePath()) !== 0) {
+				Logger::warning('Base directory does not exist', ['directory' => $basepath]);
+				return '';
+			}
+			if (!mkdir($basepath, 0775)) {
+				Logger::warning('Base directory could not be created', ['directory' => $basepath]);
+				return '';
+			}
+		}
+
+		return $basepath;
+	}
+
+	/**
+	 * Fetch the avatar base url
+	 *
+	 * @return string
+	 */
+	private static function baseUrl(): string
+	{
+		$baseurl = DI::config()->get('system', 'avatar_cache_url');
+		if (!empty($baseurl)) {
+			return rtrim($baseurl, '/') . '/';
+		}
+
+		return DI::baseUrl() . self::BASE_PATH;
 	}
 }
