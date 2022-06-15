@@ -122,6 +122,16 @@ return [
 		// Cache avatar pictures as files (experimental)
 		'avatar_cache' => false,
 
+		// avatar_cache_path (String)
+		// File path to the avatar cache. Default is /(your basepath)/avatar/
+		// The value has to be an absolute path and has to end with a "/"
+		'avatar_cache_path' => '',
+
+		// avatar_cache_url (String)
+		// Base URL of the avatar cache. Default is http(s)://(your hostname)/avatar/
+		// The value has to start with the scheme and end with a "/"
+		'avatar_cache_url' => '',
+
 		// big_emojis (Boolean)
 		// Display "Emoji Only" posts in big.
 		'big_emojis' => false,
