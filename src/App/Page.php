@@ -195,7 +195,7 @@ class Page implements ArrayAccess
 	 * @param string $media
 	 * @see Page::initHead()
 	 */
-	public function registerStylesheet($path, string $media = 'screen')
+	public function registerStylesheet(string $path, string $media = 'screen')
 	{
 		$path = Network::appendQueryParam($path, ['v' => FRIENDICA_VERSION]);
 
@@ -288,7 +288,7 @@ class Page implements ArrayAccess
 	 *
 	 * Taken from http://webcheatsheet.com/php/get_current_page_url.php
 	 */
-	private function curPageURL()
+	private function curPageURL(): string
 	{
 		$pageURL = 'http';
 		if (!empty($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on")) {

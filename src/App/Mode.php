@@ -130,7 +130,7 @@ class Mode
 	 *
 	 * @throws \Exception
 	 */
-	public function determine(BasePath $basepath, Database $database, Cache $configCache)
+	public function determine(BasePath $basepath, Database $database, Cache $configCache): Mode
 	{
 		$mode = 0;
 
@@ -178,7 +178,7 @@ class Mode
 	 *
 	 * @return Mode returns the determined mode
 	 */
-	public function determineRunMode(bool $isBackend, array $server, Arguments $args, MobileDetect $mobileDetect)
+	public function determineRunMode(bool $isBackend, array $server, Arguments $args, MobileDetect $mobileDetect): Mode
 	{
 		foreach (self::BACKEND_CONTENT_TYPES as $type) {
 			if (strpos(strtolower($server['HTTP_ACCEPT'] ?? ''), $type) !== false) {
@@ -201,7 +201,7 @@ class Mode
 	 *
 	 * @return bool returns true, if the mode is set
 	 */
-	public function has($mode)
+	public function has(int $mode): bool
 	{
 		return ($this->mode & $mode) > 0;
 	}
@@ -227,7 +227,7 @@ class Mode
 	 *
 	 * @return int Execution Mode
 	 */
-	public function getExecutor()
+	public function getExecutor(): int
 	{
 		return $this->executor;
 	}
@@ -235,9 +235,9 @@ class Mode
 	/**
 	 * Install mode is when the local config file is missing or the DB schema hasn't been installed yet.
 	 *
-	 * @return bool
+	 * @return bool Whether installation mode is active (local/database configuration files present or not)
 	 */
-	public function isInstall()
+	public function isInstall(): bool
 	{
 		return !$this->has(Mode::LOCALCONFIGPRESENT) ||
 		       !$this->has(MODE::DBCONFIGAVAILABLE);
@@ -248,7 +248,7 @@ class Mode
 	 *
 	 * @return bool
 	 */
-	public function isNormal()
+	public function isNormal(): bool
 	{
 		return $this->has(Mode::LOCALCONFIGPRESENT) &&
 		       $this->has(Mode::DBAVAILABLE) &&
@@ -261,7 +261,7 @@ class Mode
 	 *
 	 * @return bool Is it a backend call
 	 */
-	public function isBackend()
+	public function isBackend(): bool
 	{
 		return $this->isBackend;
 	}
@@ -271,7 +271,7 @@ class Mode
 	 *
 	 * @return bool true if it was an AJAX request
 	 */
-	public function isAjax()
+	public function isAjax(): bool
 	{
 		return $this->isAjax;
 	}
@@ -281,7 +281,7 @@ class Mode
 	 *
 	 * @return bool true if it was an mobile request
 	 */
-	public function isMobile()
+	public function isMobile(): bool
 	{
 		return $this->isMobile;
 	}
@@ -291,7 +291,7 @@ class Mode
 	 *
 	 * @return bool true if it was an tablet request
 	 */
-	public function isTablet()
+	public function isTablet(): bool
 	{
 		return $this->isTablet;
 	}
