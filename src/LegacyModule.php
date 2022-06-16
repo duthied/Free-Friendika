@@ -57,7 +57,7 @@ class LegacyModule extends BaseModule
 	 * @param string $file_path
 	 * @throws \Exception
 	 */
-	private function setModuleFile($file_path)
+	private function setModuleFile(string $file_path)
 	{
 		if (!is_readable($file_path)) {
 			throw new \Exception(DI::l10n()->t('Legacy module file not found: %s', $file_path));
@@ -87,7 +87,7 @@ class LegacyModule extends BaseModule
 	 * @return string
 	 * @throws \Exception
 	 */
-	private function runModuleFunction(string $function_suffix)
+	private function runModuleFunction(string $function_suffix): string
 	{
 		$function_name = $this->moduleName . '_' . $function_suffix;
 
