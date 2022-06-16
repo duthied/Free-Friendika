@@ -43,9 +43,9 @@ class ProfileFields extends BaseCollection
 	/**
 	 * @param callable|null $callback
 	 * @param int           $flag
-	 * @return ProfileFields
+	 * @return ProfileFields as an extended version of BaseCollection
 	 */
-	public function filter(callable $callback = null, int $flag = 0): ProfileFields
+	public function filter(callable $callback = null, int $flag = 0): BaseCollection
 	{
 		return parent::filter($callback, $flag);
 	}

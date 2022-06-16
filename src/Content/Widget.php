@@ -45,7 +45,7 @@ class Widget
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function follow($value = "")
+	public static function follow(string $value = ""): string
 	{
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/follow.tpl'), array(
 			'$connect' => DI::l10n()->t('Add New Contact'),
@@ -58,8 +58,10 @@ class Widget
 
 	/**
 	 * Return Find People widget
+	 *
+	 * @return string HTML code respresenting "People Widget"
 	 */
-	public static function findPeople()
+	public static function findPeople(): string
 	{
 		$global_dir = Search::getGlobalDirectory();
 
@@ -97,7 +99,7 @@ class Widget
 	 *
 	 * @return array Unsupported networks
 	 */
-	public static function unavailableNetworks()
+	public static function unavailableNetworks(): array
 	{
 		// Always hide content from these networks
 		$networks = [Protocol::PHANTOM, Protocol::FACEBOOK, Protocol::APPNET, Protocol::ZOT];
@@ -154,7 +156,7 @@ class Widget
 	 * @return string
 	 * @throws \Exception
 	 */
-	private static function filter($type, $title, $desc, $all, $baseUrl, array $options, $selected = null)
+	private static function filter(string $type, string $title, string $desc, string $all, string $baseUrl, array $options, string $selected = null): string
 	{
 		$queryString = parse_url($baseUrl, PHP_URL_QUERY);
 		$queryArray = [];
@@ -191,7 +193,7 @@ class Widget
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function groups($baseurl, $selected = '')
+	public static function groups(string $baseurl, string $selected = ''): string
 	{
 		if (!local_user()) {
 			return '';
