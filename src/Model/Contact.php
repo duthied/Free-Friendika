@@ -1527,7 +1527,7 @@ class Contact
 	 * @param int $type type of contact or account
 	 * @return string
 	 */
-	public static function getAccountType(int $type)
+	public static function getAccountType(int $type): string
 	{
 		switch ($type) {
 			case self::TYPE_ORGANISATION:

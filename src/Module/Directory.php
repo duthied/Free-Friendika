@@ -166,7 +166,7 @@ class Directory extends BaseModule
 			'img_hover'    => $contact['name'],
 			'name'         => $contact['name'],
 			'details'      => $details,
-			'account_type' => Model\Contact::getAccountType($contact['contact-type']),
+			'account_type' => (!empty($contact['contact-type']) ? Model\Contact::getAccountType($contact['contact-type']) : ''),
 			'profile'      => $profile,
 			'location'     => $location_e,
 			'tags'         => $contact['pub_keywords'],
