@@ -787,10 +787,10 @@ class Worker
 	/**
 	 * Returns waiting jobs for the current process id
 	 *
-	 * @return array waiting workerqueue jobs
+	 * @return array|bool waiting workerqueue jobs or FALSE on failture
 	 * @throws \Exception
 	 */
-	private static function getWaitingJobForPID(): array
+	private static function getWaitingJobForPID()
 	{
 		$stamp = (float)microtime(true);
 		$r = DBA::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
@@ -1011,7 +1011,7 @@ class Worker
 
 		DI::lock()->release(self::LOCK_PROCESS);
 
-		return self::getWaitingJobForPID();
+		return (self::getWaitingJobForPID() ?? []);
 	}
 
 	/**
