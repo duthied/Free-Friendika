@@ -2074,6 +2074,9 @@ class DFRN
 			}
 		}
 
+		// Need to initialize variable, otherwise E_NOTICE will happen
+		$is_like = false;
+
 		if (!self::processVerbs($entrytype, $importer, $item, $is_like)) {
 			Logger::info("Exiting because 'processVerbs' told us so");
 			return;
