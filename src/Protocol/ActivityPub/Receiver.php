@@ -1768,7 +1768,7 @@ class Receiver
 			$object_data['question'] = self::processQuestion($object);
 		}
 
-		$receiverdata = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
+		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];
