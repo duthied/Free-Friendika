@@ -143,6 +143,14 @@ class HTML
 	 */
 	public static function toBBCode(string $message, string $basepath = ''): string
 	{
+		/*
+		 * Check if message is empty to prevent a lot code below being executed
+		 * for just an empty message.
+		 */
+		if (empty($message)) {
+			return '';
+		}
+
 		DI::profiler()->startRecording('rendering');
 		$message = str_replace("\r", "", $message);
 
