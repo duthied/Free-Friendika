@@ -616,8 +616,8 @@ class Processor
 			$content = $activity['content'];
 		} else {
 			// By default assume "text/html"
-			$item['title'] = HTML::toBBCode($activity['name'] ??: '');
-			$content = HTML::toBBCode($activity['content'] ?? : '');
+			$item['title'] = HTML::toBBCode($activity['name'] ?? '');
+			$content = HTML::toBBCode($activity['content'] ?? '');
 		}
 
 		$item['title'] = trim(BBCode::toPlaintext($item['title']));
