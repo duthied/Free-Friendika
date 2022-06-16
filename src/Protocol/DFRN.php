@@ -904,12 +904,12 @@ class DFRN
 			XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::COMMENT);
 		}
 
-		$actobj = self::createActivity($doc, "activity:object", $item['object'], $item['uri-id']);
+		$actobj = self::createActivity($doc, "activity:object", $item['object'] ?? '', $item['uri-id']);
 		if ($actobj) {
 			$entry->appendChild($actobj);
 		}
 
-		$actarg = self::createActivity($doc, "activity:target", $item['target'], $item['uri-id']);
+		$actarg = self::createActivity($doc, "activity:target", $item['target'] ?? '', $item['uri-id']);
 		if ($actarg) {
 			$entry->appendChild($actarg);
 		}
