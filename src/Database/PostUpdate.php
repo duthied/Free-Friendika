@@ -133,7 +133,7 @@ class PostUpdate
 		}
 
 		$max_item_delivery_data = DBA::selectFirst('item-delivery-data', ['iid'], ['queue_count > 0 OR queue_done > 0'], ['order' => ['iid']]);
-		$max_iid = (is_array($max_item_delivery_data) && isset($max_item_delivery_data['iid']) ? $max_item_delivery_data['iid'] : 0);
+		$max_iid = $max_item_delivery_data['iid'] ?? 0;
 
 		Logger::info('Start update1297 with max iid: ' . $max_iid);
 
