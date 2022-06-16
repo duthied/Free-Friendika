@@ -112,7 +112,7 @@ class Directory extends BaseModule
 	 *
 	 * @throws \Exception
 	 */
-	public static function formatEntry(array $contact, $photo_size = 'photo')
+	public static function formatEntry(array $contact, string $photo_size = 'photo'): array
 	{
 		$itemurl = (($contact['addr'] != "") ? $contact['addr'] : $contact['url']);
 
