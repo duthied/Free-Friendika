@@ -72,7 +72,7 @@ class DFRN
 	 * @return array importer
 	 * @throws \Exception
 	 */
-	public static function getImporter($cid, $uid = 0)
+	public static function getImporter(int $cid, int $uid = 0): array
 	{
 		$condition = ['id' => $cid, 'blocked' => false, 'pending' => false];
 		$contact = DBA::selectFirst('contact', [], $condition);
@@ -115,7 +115,7 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  Find proper type-hints
 	 */
-	public static function entries($items, $owner)
+	public static function entries(array $items, array $owner): string
 	{
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
@@ -152,7 +152,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function itemFeed(int $uri_id, int $uid, bool $conversation = false)
+	public static function itemFeed(int $uri_id, int $uid, bool $conversation = false): string
 	{
 		if ($conversation) {
 			$condition = ['parent-uri-id' => $uri_id];
@@ -222,7 +222,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	public static function mail(array $mail, array $owner)
+	public static function mail(array $mail, array $owner): string
 	{
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
@@ -259,7 +259,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	public static function fsuggest($item, $owner)
+	public static function fsuggest(array $item, array $owner): string
 	{
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
@@ -289,7 +289,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	public static function relocate($owner, $uid)
+	public static function relocate(array $owner, int $uid): string
 	{
 
 		/* get site pubkey. this could be a new installation with no site keys*/
@@ -346,9 +346,9 @@ class DFRN
 	 *
 	 * @return object XML root object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @todo  Find proper type-hints
+	 * @todo  Find proper type-hint for returned type
 	 */
-	private static function addHeader(DOMDocument $doc, $owner, $authorelement, $alternatelink = "", $public = false)
+	private static function addHeader(DOMDocument $doc, array $owner, string $authorelement, string $alternatelink = "", bool $public = false)
 	{
 
 		if ($alternatelink == "") {
@@ -428,8 +428,12 @@ class DFRN
 	 * viewer's timezone also, but first we are going to convert it from the birthday
 	 * person's timezone to GMT - so the viewer may find the birthday starting at
 	 * 6:00PM the day before, but that will correspond to midnight to the birthday person.
+	 *
+	 * @param int $uid User id
+	 * @param string $tz Time zone string, like UTC
+	 * @return string Formatted birthday string
 	 */
-	private static function determineNextBirthday($uid, $tz)
+	private static function determineNextBirthday(int $uid, string $tz): string
 	{
 		$birthday = '';
 
@@ -467,7 +471,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function addAuthor(DOMDocument $doc, array $owner, $authorelement, $public)
+	private static function addAuthor(DOMDocument $doc, array $owner, string $authorelement, bool $public)
 	{
 		// Should the profile be "unsearchable" in the net? Then add the "hide" element
 		$hide = DBA::exists('profile', ['uid' => $owner['uid'], 'net-publish' => false]);
@@ -592,7 +596,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function addEntryAuthor(DOMDocument $doc, $element, $contact_url, $item)
+	private static function addEntryAuthor(DOMDocument $doc, string $element, string $contact_url, array $item)
 	{
 		$author = $doc->createElement($element);
 
@@ -637,7 +641,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function createActivity(DOMDocument $doc, $element, $activity, $uriid)
+	private static function createActivity(DOMDocument $doc, string $element, string $activity, int $uriid)
 	{
 		if ($activity) {
 			$entry = $doc->createElement($element);
@@ -703,7 +707,7 @@ class DFRN
 	 * @return void XML attachment object
 	 * @todo  Find proper type-hints
 	 */
-	private static function getAttachment($doc, $root, $item)
+	private static function getAttachment($doc, $root, array $item)
 	{
 		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
 			$attributes = ['rel' => 'enclosure',
@@ -737,7 +741,7 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  Find proper type-hints
 	 */
-	private static function entry(DOMDocument $doc, $type, array $item, array $owner, $comment = false, $cid = 0, $single = false)
+	private static function entry(DOMDocument $doc, string $type, array $item, array $owner, bool $comment = false, int $cid = 0, bool $single = false)
 	{
 		$mentioned = [];
 
@@ -961,13 +965,12 @@ class DFRN
 	 * @param array  $owner   Owner record
 	 * @param array  $contact Contact record of the receiver
 	 * @param string $atom    Content that will be transmitted
-	 *
 	 * @param bool   $public_batch
 	 * @return int Deliver status. Negative values mean an error.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function transmit($owner, $contact, $atom, $public_batch = false)
+	public static function transmit(array $owner, array $contact, string $atom, bool $public_batch = false)
 	{
 		if (!$public_batch) {
 			if (empty($contact['addr'])) {
@@ -1060,7 +1063,7 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function fetchauthor(\DOMXPath $xpath, \DOMNode $context, $importer, $element, $onlyfetch, $xml = "")
+	private static function fetchauthor(\DOMXPath $xpath, \DOMNode $context, array $importer, string $element, bool $onlyfetch, string $xml = ""): array
 	{
 		$author = [];
 		$author["name"] = XML::getFirstNodeValue($xpath, $element."/atom:name/text()", $context);
@@ -1280,7 +1283,7 @@ class DFRN
 	 * @return string XML string
 	 * @todo Find good type-hints for all parameter
 	 */
-	private static function transformActivity($xpath, $activity, $element)
+	private static function transformActivity($xpath, $activity, string $element): string
 	{
 		if (!is_object($activity)) {
 			return "";
@@ -1335,7 +1338,7 @@ class DFRN
 	 * @throws \Exception
 	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function processMail($xpath, $mail, $importer)
+	private static function processMail($xpath, $mail, array $importer)
 	{
 		Logger::notice("Processing mails");
 
@@ -1364,7 +1367,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function processSuggestion($xpath, $suggestion, $importer)
+	private static function processSuggestion($xpath, $suggestion, array $importer)
 	{
 		Logger::notice('Processing suggestions');
 
@@ -1383,7 +1386,7 @@ class DFRN
 	 * @param integer $from_cid
 	 * @return bool   Was the adding successful?
 	 */
-	private static function addSuggestion(int $uid, int $cid, int $from_cid, string $note = '')
+	private static function addSuggestion(int $uid, int $cid, int $from_cid, string $note = ''): bool
 	{
 		$owner = User::getOwnerDataById($uid);
 		$contact = Contact::getById($cid);
@@ -1440,7 +1443,7 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function processRelocation($xpath, $relocation, $importer)
+	private static function processRelocation($xpath, $relocation, array $importer): bool
 	{
 		Logger::notice("Processing relocations");
 
@@ -1510,7 +1513,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  set proper type-hints (array?)
 	 */
-	private static function updateContent($current, $item, $importer, $entrytype)
+	private static function updateContent(array $current, array $item, array $importer, int $entrytype)
 	{
 		$changed = false;
 
@@ -1542,7 +1545,7 @@ class DFRN
 	 * @throws \Exception
 	 * @todo  set proper type-hints (array?)
 	 */
-	private static function getEntryType($importer, $item)
+	private static function getEntryType(array $importer, array $item): int
 	{
 		if ($item["thr-parent"] != $item["uri"]) {
 			$community = false;
@@ -1638,7 +1641,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  set proper type-hints (array?)
 	 */
-	private static function processVerbs($entrytype, $importer, &$item, &$is_like)
+	private static function processVerbs(int $entrytype, array $importer, array &$item, bool &$is_like)
 	{
 		Logger::info("Process verb ".$item["verb"]." and object-type ".$item["object-type"]." for entrytype ".$entrytype);
 
@@ -1734,7 +1737,7 @@ class DFRN
 	 * @return void
 	 * @todo set proper type-hints
 	 */
-	private static function parseLinks($links, &$item)
+	private static function parseLinks($links, array &$item)
 	{
 		$rel = "";
 		$href = "";
@@ -1772,7 +1775,7 @@ class DFRN
 	 * @param array $imporer
 	 * @return boolean Is the message wanted?
 	 */
-	private static function isSolicitedMessage(array $item, array $importer)
+	private static function isSolicitedMessage(array $item, array $importer): bool
 	{
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
 			Strings::normaliseLink($item["author-link"]), 0, Contact::FRIEND, Contact::SHARING])) {
@@ -1807,12 +1810,13 @@ class DFRN
 	 * @param object $entry    entry elements
 	 * @param array  $importer Record of the importer user mixed with contact of the content
 	 * @param string $xml      xml
+	 * @param int $protocol Protocol
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  Add type-hints
 	 */
-	private static function processEntry($header, $xpath, $entry, $importer, $xml, $protocol)
+	private static function processEntry(array $header, $xpath, $entry, array $importer, string $xml, int $protocol)
 	{
 		Logger::notice("Processing entries");
 
@@ -2163,7 +2167,7 @@ class DFRN
 	 * @throws \Exception
 	 * @todo  set proper type-hints
 	 */
-	private static function processDeletion($xpath, $deletion, $importer)
+	private static function processDeletion($xpath, $deletion, array $importer)
 	{
 		Logger::notice("Processing deletions");
 		$uri = null;
@@ -2224,9 +2228,8 @@ class DFRN
 	 * @return integer Import status
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
-	 * @todo  set proper type-hints
 	 */
-	public static function import($xml, $importer, $protocol, $direction)
+	public static function import(string $xml, array $importer, int $protocol, int $direction): int
 	{
 		if ($xml == "") {
 			return 400;
@@ -2365,7 +2368,7 @@ class DFRN
 	 *
 	 * @return string activity verb
 	 */
-	private static function constructVerb(array $item)
+	private static function constructVerb(array $item): string
 	{
 		if ($item['verb']) {
 			return $item['verb'];
@@ -2373,7 +2376,8 @@ class DFRN
 		return Activity::POST;
 	}
 
-	private static function tgroupCheck($uid, $item)
+	// @TODO Documentation missing
+	private static function tgroupCheck(int $uid, array $item): bool
 	{
 		$mention = false;
 
@@ -2421,12 +2425,12 @@ class DFRN
 	 * item is assumed to be up-to-date.  If the timestamps are equal it
 	 * assumes the update has been seen before and should be ignored.
 	 *
-	 * @param $existing
-	 * @param $update
+	 * @param array $existing
+	 * @param array $update
 	 * @return bool
 	 * @throws \Exception
 	 */
-	private static function isEditedTimestampNewer($existing, $update)
+	private static function isEditedTimestampNewer(array $existing, array $update): bool
 	{
 		if (empty($existing['edited'])) {
 			return true;
@@ -2449,7 +2453,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl($url)
+	public static function isSupportedByContactUrl(string $url): bool
 	{
 		$probe = Probe::uri($url, Protocol::DFRN);
 		return $probe['network'] == Protocol::DFRN;

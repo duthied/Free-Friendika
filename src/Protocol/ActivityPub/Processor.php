@@ -94,7 +94,7 @@ class Processor
 	 *
 	 * @return string with replaced emojis
 	 */
-	private static function replaceEmojis(int $uri_id, string $body, array $emojis)
+	private static function replaceEmojis(int $uri_id, string $body, array $emojis): string
 	{
 		$body = strtr($body,
 			array_combine(
@@ -690,7 +690,7 @@ class Processor
 	 * @param string $url message URL
 	 * @return string with GUID
 	 */
-	private static function getGUIDByURL(string $url)
+	private static function getGUIDByURL(string $url): string
 	{
 		$parsed = parse_url($url);
 
@@ -711,7 +711,7 @@ class Processor
 	 * @param array $item
 	 * @return boolean Is the message wanted?
 	 */
-	private static function isSolicitedMessage(array $activity, array $item)
+	private static function isSolicitedMessage(array $activity, array $item): bool
 	{
 		// The checks are split to improve the support when searching why a message was accepted.
 		if (count($activity['receiver']) != 1) {
@@ -972,7 +972,7 @@ class Processor
 	 * @return int|bool New mail table row id or false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function postMail($activity, $item)
+	private static function postMail(array $activity, array $item)
 	{
 		if (($item['gravity'] != GRAVITY_PARENT) && !DBA::exists('mail', ['uri' => $item['thr-parent'], 'uid' => $item['uid']])) {
 			Logger::info('Parent not found, mail will be discarded.', ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
@@ -1113,7 +1113,7 @@ class Processor
 	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL)
+	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL): string
 	{
 		if (!empty($child['receiver'])) {
 			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
@@ -1208,7 +1208,7 @@ class Processor
 	 * @param string $id      object ID
 	 * @return boolean true if message is accepted
 	 */
-	private static function acceptIncomingMessage(array $activity, string $id)
+	private static function acceptIncomingMessage(array $activity, string $id): bool
 	{
 		if (empty($activity['as:object'])) {
 			Logger::info('No object field in activity - accepted', ['id' => $id]);
@@ -1248,7 +1248,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function followUser($activity)
+	public static function followUser(array $activity)
 	{
 		$uid = User::getIdForURL($activity['object_id']);
 		if (empty($uid)) {
@@ -1326,7 +1326,7 @@ class Processor
 	 * @param array $activity
 	 * @throws \Exception
 	 */
-	public static function updatePerson($activity)
+	public static function updatePerson(array $activity)
 	{
 		if (empty($activity['object_id'])) {
 			return;
@@ -1342,7 +1342,7 @@ class Processor
 	 * @param array $activity
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function deletePerson($activity)
+	public static function deletePerson(array $activity)
 	{
 		if (empty($activity['object_id']) || empty($activity['actor'])) {
 			Logger::info('Empty object id or actor.');
@@ -1369,7 +1369,7 @@ class Processor
 	 * @param array $activity
 	 * @throws \Exception
 	 */
-	public static function blockAccount($activity)
+	public static function blockAccount(array $activity)
 	{
 		$cid = Contact::getIdForURL($activity['actor']);
 		if (empty($cid)) {
@@ -1392,7 +1392,7 @@ class Processor
 	 * @param array $activity
 	 * @throws \Exception
 	 */
-	public static function unblockAccount($activity)
+	public static function unblockAccount(array $activity)
 	{
 		$cid = Contact::getIdForURL($activity['actor']);
 		if (empty($cid)) {
@@ -1416,7 +1416,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function acceptFollowUser($activity)
+	public static function acceptFollowUser(array $activity)
 	{
 		$uid = User::getIdForURL($activity['object_actor']);
 		if (empty($uid)) {
@@ -1450,7 +1450,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function rejectFollowUser($activity)
+	public static function rejectFollowUser(array $activity)
 	{
 		$uid = User::getIdForURL($activity['object_actor']);
 		if (empty($uid)) {
@@ -1483,7 +1483,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function undoActivity($activity)
+	public static function undoActivity(array $activity)
 	{
 		if (empty($activity['object_id'])) {
 			return;
@@ -1508,7 +1508,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function undoFollowUser($activity)
+	public static function undoFollowUser(array $activity)
 	{
 		$uid = User::getIdForURL($activity['object_object']);
 		if (empty($uid)) {
@@ -1543,7 +1543,7 @@ class Processor
 	 * @param integer $cid Contact ID
 	 * @throws \Exception
 	 */
-	private static function switchContact($cid)
+	private static function switchContact(int $cid)
 	{
 		$contact = DBA::selectFirst('contact', ['network', 'url'], ['id' => $cid]);
 		if (!DBA::isResult($contact) || in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN]) || Contact::isLocal($contact['url'])) {
@@ -1563,7 +1563,7 @@ class Processor
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function getImplicitMentionList(array $parent)
+	private static function getImplicitMentionList(array $parent): array
 	{
 		$parent_terms = Tag::getByURIId($parent['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
@@ -1601,7 +1601,7 @@ class Processor
 	 * @param array $parent
 	 * @return string
 	 */
-	private static function removeImplicitMentionsFromBody(string $body, array $parent)
+	private static function removeImplicitMentionsFromBody(string $body, array $parent): string
 	{
 		if (DI::config()->get('system', 'disable_implicit_mentions')) {
 			return $body;

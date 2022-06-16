@@ -117,7 +117,7 @@ class APContact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getByURL($url, $update = null)
+	public static function getByURL(string $url, $update = null)
 	{
 		if (empty($url) || Network::isUrlBlocked($url)) {
 			Logger::info('Domain is blocked', ['url' => $url]);

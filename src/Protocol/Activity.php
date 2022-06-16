@@ -212,7 +212,7 @@ final class Activity
 	 *
 	 * @return bool True, if the activity is hidden
 	 */
-	public function isHidden(string $activity)
+	public function isHidden(string $activity): bool
 	{
 		foreach (self::HIDDEN_ACTIVITIES as $hiddenActivity) {
 			if ($this->match($activity, $hiddenActivity)) {
@@ -231,7 +231,7 @@ final class Activity
 	 *
 	 * @return boolean
 	 */
-	public function match(string $haystack, string $needle)
+	public function match(string $haystack, string $needle): bool
 	{
 		return (($haystack === $needle) ||
 		        ((basename($needle) === $haystack) &&
