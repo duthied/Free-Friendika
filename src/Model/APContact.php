@@ -242,9 +242,7 @@ class APContact
 		}
 
 		$aboutHtml = JsonLD::fetchElement($compacted, 'as:summary', '@value');
-		if ($aboutHtml != "") {
-			$apcontact['about'] = HTML::toBBCode($aboutHtml);
-		}
+		$apcontact['about'] = (!empty($aboutHtml) ? HTML::toBBCode($aboutHtml) : '');
 
 		$ims = JsonLD::fetchElementArray($compacted, 'vcard:hasInstantMessage');
 
