@@ -71,7 +71,7 @@ class Processor
 	 * @param array $languages
 	 * @return string language JSON
 	 */
-	private static function processLanguages(array $languages)
+	private static function processLanguages(array $languages): string
 	{
 		$codes = array_keys($languages);
 		$lang = [];
@@ -88,12 +88,13 @@ class Processor
 	/**
 	 * Replaces emojis in the body
 	 *
-	 * @param array $emojis
+	 * @param int $uri_id
 	 * @param string $body
+	 * @param array $emojis
 	 *
 	 * @return string with replaced emojis
 	 */
-	private static function replaceEmojis(int $uri_id, $body, array $emojis)
+	private static function replaceEmojis(int $uri_id, string $body, array $emojis)
 	{
 		$body = strtr($body,
 			array_combine(
@@ -143,7 +144,7 @@ class Processor
 	 * @param array   $activity
 	 * @param array   $item
 	 */
-	private static function storeAttachments($activity, $item)
+	private static function storeAttachments(array $activity, array $item)
 	{
 		if (empty($activity['attachments'])) {
 			return;
@@ -160,7 +161,7 @@ class Processor
 	 * @param array   $activity
 	 * @param array   $item
 	 */
-	private static function storeQuestion($activity, $item)
+	private static function storeQuestion(array $activity, array $item)
 	{
 		if (empty($activity['question'])) {
 			return;
@@ -191,7 +192,7 @@ class Processor
 	 * @param array $activity Activity array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function updateItem($activity)
+	public static function updateItem(array $activity)
 	{
 		$item = Post::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity', 'post-type'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
@@ -262,7 +263,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createItem($activity)
+	public static function createItem(array $activity): array
 	{
 		$item = [];
 		$item['verb'] = Activity::POST;
@@ -411,7 +412,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function deleteItem($activity)
+	public static function deleteItem(array $activity)
 	{
 		$owner = Contact::getIdForURL($activity['actor']);
 
@@ -426,7 +427,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function addTag($activity)
+	public static function addTag(array $activity)
 	{
 		if (empty($activity['object_content']) || empty($activity['object_id'])) {
 			return;
@@ -457,7 +458,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createActivity($activity, $verb)
+	public static function createActivity(array $activity, string $verb)
 	{
 		$item = self::createItem($activity);
 		if (empty($item)) {
@@ -561,7 +562,7 @@ class Processor
 	 * @return int event id
 	 * @throws \Exception
 	 */
-	public static function createEvent($activity, $item)
+	public static function createEvent(array $activity, array $item): int
 	{
 		$event['summary']   = HTML::toBBCode($activity['name'] ?: $activity['summary']);
 		$event['desc']      = HTML::toBBCode($activity['content']);
@@ -605,7 +606,7 @@ class Processor
 	 * @return array|bool Returns the item array or false if there was an unexpected occurrence
 	 * @throws \Exception
 	 */
-	private static function processContent($activity, $item)
+	private static function processContent(array $activity, array $item)
 	{
 		if (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/markdown')) {
 			$item['title'] = strip_tags($activity['name']);
@@ -615,8 +616,8 @@ class Processor
 			$content = $activity['content'];
 		} else {
 			// By default assume "text/html"
-			$item['title'] = HTML::toBBCode($activity['name']);
-			$content = HTML::toBBCode($activity['content']);
+			$item['title'] = HTML::toBBCode($activity['name'] ?? '');
+			$content = HTML::toBBCode($activity['content'] ?? '');
 		}
 
 		$item['title'] = trim(BBCode::toPlaintext($item['title']));
@@ -650,7 +651,7 @@ class Processor
 
 				$content = self::removeImplicitMentionsFromBody($content, $parent);
 			}
-			$item['content-warning'] = HTML::toBBCode($activity['summary']);
+			$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');
 			$item['raw-body'] = $item['body'] = $content;
 		}
 
@@ -1224,7 +1225,7 @@ class Processor
 		$attributed_to = JsonLD::fetchElement($activity['as:object'], 'as:attributedTo', '@id');
 		$authorid = Contact::getIdForURL($attributed_to);
 
-		$body = HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value'));
+		$body = HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value') ?? '');
 
 		$messageTags = [];
 		$tags = Receiver::processTags(JsonLD::fetchElementArray($activity['as:object'], 'as:tag') ?? []);

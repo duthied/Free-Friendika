@@ -241,9 +241,10 @@ class APContact
 			$apcontact['name'] = $apcontact['nick'];
 		}
 
-		$apcontact['about'] = HTML::toBBCode(JsonLD::fetchElement($compacted, 'as:summary', '@value'));
+		$apcontact['about'] = HTML::toBBCode(JsonLD::fetchElement($compacted, 'as:summary', '@value') ?? '');
 
 		$ims = JsonLD::fetchElementArray($compacted, 'vcard:hasInstantMessage');
+
 		if (!empty($ims)) {
 			foreach ($ims as $link) {
 				if (substr($link, 0, 5) == 'xmpp:') {
