@@ -60,7 +60,7 @@ class ParsedLogIterator implements \Iterator
 	 * @param string $filename	File to open
 	 * @return $this
 	 */
-	public function open(string $filename)
+	public function open(string $filename): ParsedLogIterator
 	{
 		$this->reader->open($filename);
 		return $this;
@@ -70,7 +70,7 @@ class ParsedLogIterator implements \Iterator
 	 * @param int $limit		Max num of lines to read
 	 * @return $this
 	 */
-	public function withLimit(int $limit)
+	public function withLimit(int $limit): ParsedLogIterator
 	{
 		$this->limit = $limit;
 		return $this;
@@ -80,7 +80,7 @@ class ParsedLogIterator implements \Iterator
 	 * @param array $filters		filters per column
 	 * @return $this
 	 */
-	public function withFilters(array $filters)
+	public function withFilters(array $filters): ParsedLogIterator
 	{
 		$this->filters = $filters;
 		return $this;
@@ -90,7 +90,7 @@ class ParsedLogIterator implements \Iterator
 	 * @param string $search	string to search to filter lines
 	 * @return $this
 	 */
-	public function withSearch(string $search)
+	public function withSearch(string $search): ParsedLogIterator
 	{
 		$this->search = $search;
 		return $this;
@@ -100,10 +100,10 @@ class ParsedLogIterator implements \Iterator
 	 * Check if parsed log line match filters.
 	 * Always match if no filters are set.
 	 *
-	 * @param ParsedLogLine $parsedlogline
-	 * @return bool
+	 * @param ParsedLogLine $parsedlogline ParsedLogLine instance
+	 * @return bool Wether the parse log line matches
 	 */
-	private function filter($parsedlogline)
+	private function filter(ParsedLogLine $parsedlogline): bool
 	{
 		$match = true;
 		foreach ($this->filters as $filter => $filtervalue) {
@@ -126,7 +126,7 @@ class ParsedLogIterator implements \Iterator
 	 * @param ParsedLogLine $parsedlogline
 	 * @return bool
 	 */
-	private function search($parsedlogline)
+	private function search(ParsedLogLine $parsedlogline): bool
 	{
 		if ($this->search != "") {
 			return strstr($parsedlogline->logline, $this->search) !== false;

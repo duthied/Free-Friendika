@@ -189,7 +189,7 @@ class Conversation
 	 * @return string formatted text
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function formatActivity(array $links, $verb, $id)
+	public function formatActivity(array $links, string $verb, int $id): string
 	{
 		$this->profiler->startRecording('rendering');
 		$o        = '';
@@ -275,7 +275,7 @@ class Conversation
 		return $o;
 	}
 
-	public function statusEditor(array $x = [], $notes_cid = 0, $popup = false)
+	public function statusEditor(array $x = [], int $notes_cid = 0, bool $popup = false): string
 	{
 		$user = User::getById($this->app->getLoggedInUserId(), ['uid', 'nickname', 'allow_location', 'default-location']);
 		if (empty($user['uid'])) {
@@ -414,8 +414,8 @@ class Conversation
 	 * figures out how to determine page owner and other contextual items
 	 * that are based on unique features of the calling module.
 	 * @param array  $items
-	 * @param        $mode
-	 * @param        $update
+	 * @param string $mode
+	 * @param        $update @TODO Which type?
 	 * @param bool   $preview
 	 * @param string $order
 	 * @param int    $uid
@@ -423,7 +423,7 @@ class Conversation
 	 * @throws ImagickException
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function create(array $items, $mode, $update, $preview = false, $order = 'commented', $uid = 0)
+	public function create(array $items, string $mode, $update, bool $preview = false, string $order = 'commented', int $uid = 0): string
 	{
 		$this->profiler->startRecording('rendering');
 
@@ -784,7 +784,7 @@ class Conversation
 		return $o;
 	}
 
-	private function getBlocklist()
+	private function getBlocklist(): array
 	{
 		if (!local_user()) {
 			return [];
@@ -816,7 +816,7 @@ class Conversation
 	 *
 	 * @return array items with parents and comments
 	 */
-	private function addRowInformation(array $row, array $activity, array $thr_parent)
+	private function addRowInformation(array $row, array $activity, array $thr_parent): array
 	{
 		$this->profiler->startRecording('rendering');
 
@@ -911,7 +911,7 @@ class Conversation
 	 * @return array items with parents and comments
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function addChildren(array $parents, bool $block_authors, string $order, int $uid, string $mode)
+	private function addChildren(array $parents, bool $block_authors, string $order, int $uid, string $mode): array
 	{
 		$this->profiler->startRecording('rendering');
 		if (count($parents) > 1) {
@@ -1005,7 +1005,7 @@ class Conversation
 	 * @param bool  $recursive
 	 * @return array
 	 */
-	private function getItemChildren(array &$item_list, array $parent, $recursive = true)
+	private function getItemChildren(array &$item_list, array $parent, bool $recursive = true): array
 	{
 		$this->profiler->startRecording('rendering');
 		$children = [];
@@ -1040,7 +1040,7 @@ class Conversation
 	 * @param array $items
 	 * @return array
 	 */
-	private function sortItemChildren(array $items)
+	private function sortItemChildren(array $items): array
 	{
 		$this->profiler->startRecording('rendering');
 		$result = $items;
@@ -1086,7 +1086,7 @@ class Conversation
 	 * @param array $parent A tree-like array of items
 	 * @return array
 	 */
-	private function smartFlattenConversation(array $parent)
+	private function smartFlattenConversation(array $parent): array
 	{
 		$this->profiler->startRecording('rendering');
 		if (!isset($parent['children']) || count($parent['children']) == 0) {
@@ -1142,7 +1142,7 @@ class Conversation
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function convSort(array $item_list, $order)
+	private function convSort(array $item_list, string $order): array
 	{
 		$this->profiler->startRecording('rendering');
 		$parents = [];
@@ -1222,7 +1222,7 @@ class Conversation
 	 * @param array $b
 	 * @return int
 	 */
-	private function sortThrFeaturedReceived(array $a, array $b)
+	private function sortThrFeaturedReceived(array $a, array $b): int
 	{
 		if ($b['featured'] && !$a['featured']) {
 			return 1;
@@ -1240,7 +1240,7 @@ class Conversation
 	 * @param array $b
 	 * @return int
 	 */
-	private function sortThrFeaturedCommented(array $a, array $b)
+	private function sortThrFeaturedCommented(array $a, array $b): int
 	{
 		if ($b['featured'] && !$a['featured']) {
 			return 1;
@@ -1258,7 +1258,7 @@ class Conversation
 	 * @param array $b
 	 * @return int
 	 */
-	private function sortThrReceived(array $a, array $b)
+	private function sortThrReceived(array $a, array $b): int
 	{
 		return strcmp($b['received'], $a['received']);
 	}
@@ -1270,7 +1270,7 @@ class Conversation
 	 * @param array $b
 	 * @return int
 	 */
-	private function sortThrReceivedRev(array $a, array $b)
+	private function sortThrReceivedRev(array $a, array $b): int
 	{
 		return strcmp($a['received'], $b['received']);
 	}
@@ -1282,7 +1282,7 @@ class Conversation
 	 * @param array $b
 	 * @return int
 	 */
-	private function sortThrCommented(array $a, array $b)
+	private function sortThrCommented(array $a, array $b): int
 	{
 		return strcmp($b['commented'], $a['commented']);
 	}
@@ -1294,7 +1294,7 @@ class Conversation
 	 * @param array $b
 	 * @return int
 	 */
-	private function sortThrCreated(array $a, array $b)
+	private function sortThrCreated(array $a, array $b): int
 	{
 		return strcmp($b['created'], $a['created']);
 	}
