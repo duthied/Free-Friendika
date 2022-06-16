@@ -616,8 +616,8 @@ class Processor
 			$content = $activity['content'];
 		} else {
 			// By default assume "text/html"
-			$item['title'] = (!empty($activity['name']) ? HTML::toBBCode($activity['name']) : '');
-			$content = (!empty($activity['content']) ? HTML::toBBCode($activity['content']) : '');
+			$item['title'] = HTML::toBBCode($activity['name'] ??: '');
+			$content = HTML::toBBCode($activity['content'] ?? : '');
 		}
 
 		$item['title'] = trim(BBCode::toPlaintext($item['title']));
@@ -651,7 +651,7 @@ class Processor
 
 				$content = self::removeImplicitMentionsFromBody($content, $parent);
 			}
-			$item['content-warning'] = (!empty($activity['summary']) ? HTML::toBBCode($activity['summary']) : '');
+			$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');
 			$item['raw-body'] = $item['body'] = $content;
 		}
 
