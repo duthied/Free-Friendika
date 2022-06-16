@@ -51,7 +51,7 @@ class User extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function createFromContactId(int $contactId, $uid = 0, $skip_status = true, $include_user_entities = true)
+	public function createFromContactId(int $contactId, int $uid = 0, bool $skip_status = true, bool $include_user_entities = true)
 	{
 		$cdata = Contact::getPublicAndUserContactID($contactId, $uid);
 		if (!empty($cdata)) {
@@ -78,7 +78,7 @@ class User extends BaseFactory
 		return new \Friendica\Object\Api\Twitter\User($publicContact, $apcontact, $userContact, $status, $include_user_entities);
 	}
 
-	public function createFromUserId(int $uid, $skip_status = true, $include_user_entities = true)
+	public function createFromUserId(int $uid, bool $skip_status = true, bool $include_user_entities = true)
 	{
 		return $this->createFromContactId(Contact::getPublicIdByUserId($uid), $uid, $skip_status, $include_user_entities);
 	}

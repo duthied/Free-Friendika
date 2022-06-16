@@ -70,6 +70,7 @@ class Status extends BaseFactory
 	/**
 	 * @param int $uriId Uri-ID of the item
 	 * @param int $uid   Item user
+	 * @param bool $include_entities Whether to include entities
 	 *
 	 * @return \Friendica\Object\Api\Twitter\Status
 	 * @throws HTTPException\InternalServerErrorException
@@ -90,12 +91,13 @@ class Status extends BaseFactory
 	/**
 	 * @param int $uriId Uri-ID of the item
 	 * @param int $uid   Item user
+	 * @param bool $include_entities Whether to include entities
 	 *
 	 * @return \Friendica\Object\Api\Twitter\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $uriId, $uid = 0, $include_entities = false): \Friendica\Object\Api\Twitter\Status
+	public function createFromUriId(int $uriId, int $uid = 0, bool $include_entities = false): \Friendica\Object\Api\Twitter\Status
 	{
 		$fields = ['parent-uri-id', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'causer-id',
 			'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network','post-reason', 'language', 'gravity',
@@ -110,6 +112,7 @@ class Status extends BaseFactory
 	/**
 	 * @param array $item item array
 	 * @param int   $uid  Item user
+	 * @param bool $include_entities Whether to include entities
 	 *
 	 * @return \Friendica\Object\Api\Twitter\Status
 	 * @throws HTTPException\InternalServerErrorException

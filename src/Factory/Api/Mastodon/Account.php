@@ -57,7 +57,7 @@ class Account extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromContactId(int $contactId, $uid = 0): \Friendica\Object\Api\Mastodon\Account
+	public function createFromContactId(int $contactId, int $uid = 0): \Friendica\Object\Api\Mastodon\Account
 	{
 		$contact = Contact::getById($contactId, ['uri-id']);
 		if (empty($contact)) {
@@ -74,7 +74,7 @@ class Account extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $contactUriId, $uid = 0): \Friendica\Object\Api\Mastodon\Account
+	public function createFromUriId(int $contactUriId, int $uid = 0): \Friendica\Object\Api\Mastodon\Account
 	{
 		$account = DBA::selectFirst('account-user-view', [], ['uri-id' => $contactUriId, 'uid' => [0, $uid]], ['order' => ['id' => true]]);
 		if (empty($account)) {
