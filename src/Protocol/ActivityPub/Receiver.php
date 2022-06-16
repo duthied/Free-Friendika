@@ -1054,7 +1054,7 @@ class Receiver
 	 * @return bool with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function isValidReceiverForActor(array $contact, string $tags): bool
+	private static function isValidReceiverForActor(array $contact, array $tags): bool
 	{
 		// Are we following the contact? Then this is a valid receiver
 		if (in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND])) {
