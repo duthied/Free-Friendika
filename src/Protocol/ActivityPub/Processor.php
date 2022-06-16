@@ -1225,8 +1225,7 @@ class Processor
 		$attributed_to = JsonLD::fetchElement($activity['as:object'], 'as:attributedTo', '@id');
 		$authorid = Contact::getIdForURL($attributed_to);
 
-		$value = JsonLD::fetchElement($activity['as:object'], 'as:content', '@value');
-		$body = (!empty($value) ? HTML::toBBCode($value) : '');
+		$body = HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value') ?? '');
 
 		$messageTags = [];
 		$tags = Receiver::processTags(JsonLD::fetchElementArray($activity['as:object'], 'as:tag') ?? []);
