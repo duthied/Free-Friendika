@@ -2054,7 +2054,7 @@ class GServer
 	 * @return int
 	 * @throws Exception
 	 */
-	public static function getProtocol(int $gsid)
+	public static function getProtocol(int $gsid): int
 	{
 		if (empty($gsid)) {
 			return null;

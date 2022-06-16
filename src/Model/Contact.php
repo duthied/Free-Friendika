@@ -128,10 +128,10 @@ class Contact
 	 * @param array $fields    Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
 	 * @param array $params    Array of several parameters
-	 * @return array
+	 * @return array|bool
 	 * @throws \Exception
 	 */
-	public static function selectFirst(array $fields = [], array $condition = [], array $params = []): array
+	public static function selectFirst(array $fields = [], array $condition = [], array $params = [])
 	{
 		$contact = DBA::selectFirst('contact', $fields, $condition, $params);
 

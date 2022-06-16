@@ -110,7 +110,7 @@ class Photo
 	 * @throws \Exception
 	 * @see   \Friendica\Database\DBA::select
 	 */
-	public static function getPhotosForUser($uid, $resourceid, array $conditions = [], array $params = [])
+	public static function getPhotosForUser(int $uid, string $resourceid, array $conditions = [], array $params = [])
 	{
 		$conditions["resource-id"] = $resourceid;
 		$conditions["uid"] = $uid;

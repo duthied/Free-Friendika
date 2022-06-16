@@ -102,7 +102,7 @@ class Attach
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	public static function exists(array $conditions)
+	public static function exists(array $conditions): bool
 	{
 		return DBA::exists('attach', $conditions);
 	}

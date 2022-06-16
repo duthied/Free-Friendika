@@ -1445,7 +1445,7 @@ class Probe
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function ostatus($webfinger, $short = false)
+	private static function ostatus(array $webfinger, bool $short = false)
 	{
 		$data = [];
 

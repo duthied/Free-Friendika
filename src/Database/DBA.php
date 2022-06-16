@@ -427,7 +427,7 @@ class DBA
 	 * @return boolean was the update successfull?
 	 * @throws \Exception
 	 */
-	public static function update($table, $fields, $condition, $old_fields = [], $params = [])
+	public static function update($table, array $fields, array $condition, $old_fields = [], array $params = [])
 	{
 		return DI::dba()->update($table, $fields, $condition, $old_fields, $params);
 	}
@@ -443,7 +443,7 @@ class DBA
 	 * @throws \Exception
 	 * @see   self::select
 	 */
-	public static function selectFirst($table, array $fields = [], array $condition = [], $params = [])
+	public static function selectFirst($table, array $fields = [], array $condition = [], array $params = [])
 	{
 		return DI::dba()->selectFirst($table, $fields, $condition, $params);
 	}
