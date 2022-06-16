@@ -469,7 +469,7 @@ class User
 	 * @return boolean|array
 	 * @throws Exception
 	 */
-	public static function getOwnerDataByNick(int $nick)
+	public static function getOwnerDataByNick(string $nick)
 	{
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nick]);
 
