@@ -541,7 +541,7 @@ class Database
 					if (!$retval = $this->connection->query($this->replaceParameters($sql, $args))) {
 						$errorInfo     = $this->connection->errorInfo();
 						$this->error   = $errorInfo[2];
-						$this->errorno = $errorInfo[1];
+						$this->errorno = (int) $errorInfo[1];
 						$retval        = false;
 						$is_error      = true;
 						break;
@@ -554,7 +554,7 @@ class Database
 				if (!$stmt = $this->connection->prepare($sql)) {
 					$errorInfo     = $this->connection->errorInfo();
 					$this->error   = $errorInfo[2];
-					$this->errorno = $errorInfo[1];
+					$this->errorno = (int) $errorInfo[1];
 					$retval        = false;
 					$is_error      = true;
 					break;
@@ -574,7 +574,7 @@ class Database
 				if (!$stmt->execute()) {
 					$errorInfo     = $stmt->errorInfo();
 					$this->error   = $errorInfo[2];
-					$this->errorno = $errorInfo[1];
+					$this->errorno = (int) $errorInfo[1];
 					$retval        = false;
 					$is_error      = true;
 				} else {
@@ -709,7 +709,7 @@ class Database
 			}
 
 			$this->error   = $error;
-			$this->errorno = $errorno;
+			$this->errorno = (int) $errorno;
 		}
 
 		$this->profiler->stopRecording();
@@ -1541,7 +1541,7 @@ class Database
 	 *
 	 * @return array Data array
 	 */
-	public function toArray($stmt, $do_close = true, int $count = 0)
+	public function toArray($stmt, bool $do_close = true, int $count = 0): array
 	{
 		if (is_bool($stmt)) {
 			return [];
@@ -1632,7 +1632,7 @@ class Database
 	 *
 	 * @return string Error number (0 if no error)
 	 */
-	public function errorNo()
+	public function errorNo(): int
 	{
 		return $this->errorno;
 	}
@@ -1654,7 +1654,7 @@ class Database
 	 *
 	 * @return boolean was the close successful?
 	 */
-	public function close($stmt)
+	public function close($stmt): bool
 	{
 
 		$this->profiler->startRecording('database');
@@ -1696,7 +1696,7 @@ class Database
 	 *      'amount' => Number of concurrent database processes
 	 * @throws \Exception
 	 */
-	public function processlist()
+	public function processlist(): array
 	{
 		$ret  = $this->p("SHOW PROCESSLIST");
 		$data = $this->toArray($ret);
