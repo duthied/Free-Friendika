@@ -3068,7 +3068,7 @@ class Diaspora
 	 *
 	 * @return string The post XML
 	 */
-	public static function buildPostXml(string $type, array $message): array
+	public static function buildPostXml(string $type, array $message): string
 	{
 		$data = [$type => $message];
 
