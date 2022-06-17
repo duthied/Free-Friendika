@@ -48,7 +48,7 @@ class APContact
 	 * @param string $addr Address
 	 * @return array webfinger data
 	 */
-	private static function fetchWebfingerData(string $addr)
+	private static function fetchWebfingerData(string $addr): array
 	{
 		$addr_parts = explode('@', $addr);
 		if (count($addr_parts) != 2) {
@@ -117,7 +117,7 @@ class APContact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getByURL(string $url, $update = null)
+	public static function getByURL(string $url, $update = null): array
 	{
 		if (empty($url) || Network::isUrlBlocked($url)) {
 			Logger::info('Domain is blocked', ['url' => $url]);
@@ -527,7 +527,7 @@ class APContact
 	 * @param string  $url    inbox url
 	 * @param boolean $shared Shared Inbox
 	 */
-	private static function unarchiveInbox($url, $shared)
+	private static function unarchiveInbox(string $url, bool $shared)
 	{
 		if (empty($url)) {
 			return;

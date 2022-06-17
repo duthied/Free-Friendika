@@ -74,7 +74,7 @@ class Diaspora
 	 * @return array of relay servers
 	 * @throws \Exception
 	 */
-	public static function participantsForThread(array $item, array $contacts)
+	public static function participantsForThread(array $item, array $contacts): array
 	{
 		if (!in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]) || in_array($item["verb"], [Activity::FOLLOW, Activity::TAG])) {
 			Logger::info('Item is private or a participation request. It will not be relayed', ['guid' => $item['guid'], 'private' => $item['private'], 'verb' => $item['verb']]);
@@ -114,11 +114,11 @@ class Diaspora
 	 *
 	 * @param string $envelope The magic envelope
 	 *
-	 * @return string verified data
+	 * @return string|bool verified data or false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function verifyMagicEnvelope($envelope)
+	private static function verifyMagicEnvelope(string $envelope)
 	{
 		$basedom = XML::parseString($envelope, true);
 
@@ -183,7 +183,7 @@ class Diaspora
 	 *
 	 * @return string encrypted data
 	 */
-	private static function aesEncrypt($key, $iv, $data)
+	private static function aesEncrypt(string $key, string $iv, string $data): string
 	{
 		return openssl_encrypt($data, 'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
 	}
@@ -197,7 +197,7 @@ class Diaspora
 	 *
 	 * @return string decrypted data
 	 */
-	private static function aesDecrypt($key, $iv, $encrypted)
+	private static function aesDecrypt(string $key, string $iv, string $encrypted): string
 	{
 		return openssl_decrypt($encrypted, 'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
 	}
@@ -216,7 +216,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function decodeRaw(string $raw, string $privKey = '', bool $no_exit = false)
+	public static function decodeRaw(string $raw, string $privKey = '', bool $no_exit = false): array
 	{
 		$data = json_decode($raw);
 
@@ -232,7 +232,7 @@ class Diaspora
 			if (!is_object($j_outer_key_bundle)) {
 				Logger::notice('Outer Salmon did not verify. Discarding.');
 				if ($no_exit) {
-					return false;
+					return [];
 				} else {
 					throw new \Friendica\Network\HTTPException\BadRequestException();
 				}
@@ -251,7 +251,7 @@ class Diaspora
 		if (!is_object($basedom)) {
 			Logger::notice('Received data does not seem to be an XML. Discarding. '.$xml);
 			if ($no_exit) {
-				return false;
+				return [];
 			} else {
 				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
@@ -277,7 +277,7 @@ class Diaspora
 		if ($author_addr == '') {
 			Logger::notice('No author could be decoded. Discarding. Message: ' . $xml);
 			if ($no_exit) {
-				return false;
+				return [];
 			} else {
 				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
@@ -287,7 +287,7 @@ class Diaspora
 		if ($key == '') {
 			Logger::notice("Couldn't get a key for handle " . $author_addr . ". Discarding.");
 			if ($no_exit) {
-				return false;
+				return [];
 			} else {
 				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
@@ -321,14 +321,14 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function decode(string $xml, string $privKey = '')
+	public static function decode(string $xml, string $privKey = ''): array
 	{
 		$public = false;
 		$basedom = XML::parseString($xml);
 
 		if (!is_object($basedom)) {
 			Logger::notice('XML is not parseable.');
-			return false;
+			return [];
 		}
 		$children = $basedom->children('https://joindiaspora.com/protocol');
 
@@ -342,7 +342,7 @@ class Diaspora
 			// This happens with posts from a relais
 			if (empty($privKey)) {
 				Logger::info('This is no private post in the old format');
-				return false;
+				return [];
 			}
 
 			$encrypted_header = json_decode(base64_decode($children->encrypted_header));
@@ -457,11 +457,11 @@ class Diaspora
 	 * @param array $msg       The post that will be dispatched
 	 * @param int   $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
-	 * @return int The message id of the generated message, "true" or "false" if there was an error
+	 * @return int|bool The message id of the generated message, "true" or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function dispatchPublic($msg, int $direction)
+	public static function dispatchPublic(array $msg, int $direction)
 	{
 		$enabled = intval(DI::config()->get("system", "diaspora_enabled"));
 		if (!$enabled) {
@@ -488,11 +488,11 @@ class Diaspora
 	 * @param SimpleXMLElement $fields    SimpleXML object that contains the message
 	 * @param int              $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
-	 * @return int The message id of the generated message, "true" or "false" if there was an error
+	 * @return int|bool The message id of the generated message, "true" or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function dispatch(array $importer, $msg, SimpleXMLElement $fields = null, int $direction = self::PUSHED)
+	public static function dispatch(array $importer, array $msg, SimpleXMLElement $fields = null, int $direction = self::PUSHED)
 	{
 		// The sender is the handle of the contact that sent the message.
 		// This will often be different with relayed messages (for example "like" and "comment")
@@ -598,7 +598,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function validPosting($msg)
+	private static function validPosting(array $msg)
 	{
 		$data = XML::parseString($msg["message"]);
 
@@ -748,15 +748,15 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function key($handle)
+	private static function key(string $handle): string
 	{
 		$handle = strval($handle);
 
 		Logger::notice("Fetching diaspora key for: ".$handle);
 
-		$r = FContact::getByURL($handle);
-		if ($r) {
-			return $r["pubkey"];
+		$fcontact = FContact::getByURL($handle);
+		if ($fcontact) {
+			return $fcontact["pubkey"];
 		}
 
 		return "";
@@ -771,7 +771,7 @@ class Diaspora
 	 * @return string the handle
 	 * @throws \Exception
 	 */
-	private static function handleFromContact($contact_id, $pcontact_id = 0)
+	private static function handleFromContact(int $contact_id, int $pcontact_id = 0): string
 	{
 		$handle = '';
 
@@ -804,7 +804,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function contactByHandle($uid, $handle)
+	private static function contactByHandle(int $uid, string $handle): array
 	{
 		return Contact::getByURL($handle, null, [], $uid);
 	}
@@ -818,7 +818,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl($url, $update = null)
+	public static function isSupportedByContactUrl(string $url, $update = null)
 	{
 		return !empty(FContact::getByURL($url, $update));
 	}
@@ -832,7 +832,7 @@ class Diaspora
 	 *
 	 * @return bool is the contact allowed to post?
 	 */
-	private static function postAllow(array $importer, array $contact, $is_comment = false)
+	private static function postAllow(array $importer, array $contact, bool $is_comment = false): bool
 	{
 		/*
 		 * Perhaps we were already sharing with this person. Now they're sharing with us.
@@ -878,10 +878,10 @@ class Diaspora
 	 * @param string $handle     The checked handle in the format user@domain.tld
 	 * @param bool   $is_comment Is the check for a comment?
 	 *
-	 * @return array The contact data
+	 * @return array|bool The contact data or false on error
 	 * @throws \Exception
 	 */
-	private static function allowedContactByHandle(array $importer, $handle, $is_comment = false)
+	private static function allowedContactByHandle(array $importer, string $handle, bool $is_comment = false)
 	{
 		$contact = self::contactByHandle($importer["uid"], $handle);
 		if (!$contact) {
@@ -912,7 +912,7 @@ class Diaspora
 	 * @return int|bool message id if the message already was stored into the system - or false.
 	 * @throws \Exception
 	 */
-	private static function messageExists($uid, $guid)
+	private static function messageExists(int $uid, string $guid)
 	{
 		$item = Post::selectFirst(['id'], ['uid' => $uid, 'guid' => $guid]);
 		if (DBA::isResult($item)) {
@@ -958,7 +958,7 @@ class Diaspora
 	 *
 	 * @return string the replaced string
 	 */
-	public static function replacePeopleGuid($body, $author_link)
+	public static function replacePeopleGuid(string $body, string $author_link): string
 	{
 		$return = preg_replace_callback(
 			"&\[url=/people/([^\[\]]*)\](.*)\[\/url\]&Usi",
@@ -994,7 +994,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchGuidSub($match, $item)
+	private static function fetchGuidSub(array $match, array $item)
 	{
 		if (!self::storeByGuid($match[1], $item["author-link"], true)) {
 			self::storeByGuid($match[1], $item["owner-link"], true);
@@ -1008,11 +1008,11 @@ class Diaspora
 	 * @param string $server The server address
 	 * @param bool   $force  Forced fetch
 	 *
-	 * @return int the message id of the stored message or false
+	 * @return int|bool the message id of the stored message or false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function storeByGuid($guid, $server, $force)
+	private static function storeByGuid(string $guid, string $server, bool $force)
 	{
 		$serverparts = parse_url($server);
 
@@ -1049,7 +1049,7 @@ class Diaspora
 	 *      'key' => The public key of the author
 	 * @throws \Exception
 	 */
-	public static function message($guid, $server, $level = 0)
+	public static function message(string $guid, string $server, int $level = 0)
 	{
 		if ($level > 5) {
 			return false;
@@ -1119,12 +1119,13 @@ class Diaspora
 	 * Fetches an item with a given URL
 	 *
 	 * @param string $url the message url
+	 * @param int $uid User id
 	 *
-	 * @return int the message id of the stored message or false
+	 * @return int|bool the message id of the stored message or false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchByURL($url, $uid = 0)
+	public static function fetchByURL(string $url, int $uid = 0)
 	{
 		// Check for Diaspora (and Friendica) typical paths
 		if (!preg_match("=(https?://.+)/(?:posts|display|objects)/([a-zA-Z0-9-_@.:%]+[a-zA-Z0-9])=i", $url, $matches)) {
@@ -1162,10 +1163,10 @@ class Diaspora
 	 * @param string $author  The handle of the item
 	 * @param array  $contact The contact of the item owner
 	 *
-	 * @return array the item record
+	 * @return array|bool the item record or false on failure
 	 * @throws \Exception
 	 */
-	private static function parentItem($uid, $guid, $author, array $contact)
+	private static function parentItem(int $uid, string $guid, string $author, array $contact)
 	{
 		$fields = ['id', 'parent', 'body', 'wall', 'uri', 'guid', 'private', 'origin',
 			'author-name', 'author-link', 'author-avatar', 'gravity',
@@ -1210,7 +1211,7 @@ class Diaspora
 	 *      'network' => network type
 	 * @throws \Exception
 	 */
-	private static function authorContactByUrl($def_contact, $person, $uid)
+	private static function authorContactByUrl(array $def_contact, array $person, int $uid): array
 	{
 		$condition = ['nurl' => Strings::normaliseLink($person["url"]), 'uid' => $uid];
 		$contact = DBA::selectFirst('contact', ['id', 'network'], $condition);
@@ -1232,9 +1233,9 @@ class Diaspora
 	 *
 	 * @return bool is it a hubzilla server?
 	 */
-	private static function isHubzilla($url)
+	private static function isHubzilla(string $url): bool
 	{
-		return(strstr($url, '/channel/'));
+		return strstr($url, '/channel/');
 	}
 
 	/**
@@ -1248,7 +1249,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function plink(string $addr, string $guid, string $parent_guid = '')
+	private static function plink(string $addr, string $guid, string $parent_guid = ''): string
 	{
 		$contact = Contact::getByURL($addr);
 		if (empty($contact)) {
@@ -1312,8 +1313,10 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveAccountMigration(array $importer, $data)
+	private static function receiveAccountMigration(array $importer, $data): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$old_handle = XML::unescape($data->author);
 		$new_handle = XML::unescape($data->profile->author);
 		$signature = XML::unescape($data->signature);
@@ -1365,8 +1368,10 @@ class Diaspora
 	 * @return bool Success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function receiveAccountDeletion($data)
+	private static function receiveAccountDeletion($data): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 
 		$contacts = DBA::select('contact', ['id'], ['addr' => $author]);
@@ -1387,11 +1392,11 @@ class Diaspora
 	 * @param string  $guid      Message guid
 	 * @param boolean $onlyfound Only return uri when found in the database
 	 *
-	 * @return string The constructed uri or the one from our database
+	 * @return string The constructed uri or the one from our database or empty string on if $onlyfound is true
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function getUriFromGuid($author, $guid, $onlyfound = false)
+	private static function getUriFromGuid(string $author, string $guid, bool $onlyfound = false): string
 	{
 		$item = Post::selectFirst(['uri'], ['guid' => $guid]);
 		if (DBA::isResult($item)) {
@@ -1456,8 +1461,10 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveComment(array $importer, $sender, $data, $xml, int $direction)
+	private static function receiveComment(array $importer, string $sender, $data, string $xml, int $direction): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$parent_guid = XML::unescape($data->parent_guid);
@@ -1593,8 +1600,10 @@ class Diaspora
 	 * @return bool "true" if it was successful
 	 * @throws \Exception
 	 */
-	private static function receiveConversationMessage(array $importer, array $contact, $data, $msg, $mesg, $conversation)
+	private static function receiveConversationMessage(array $importer, array $contact, $data, array $msg, $mesg, array $conversation): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data).',mesg='.get_class($mesg));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$subject = XML::unescape($data->subject);
@@ -1650,8 +1659,10 @@ class Diaspora
 	 * @return bool Success
 	 * @throws \Exception
 	 */
-	private static function receiveConversation(array $importer, $msg, $data)
+	private static function receiveConversation(array $importer, array $msg, $data)
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$subject = XML::unescape($data->subject);
@@ -1708,12 +1719,14 @@ class Diaspora
 	 * @param object $data      The message object
 	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
-	 * @return int The message id of the generated like or "false" if there was an error
+	 * @return bool Success or failure
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveLike(array $importer, $sender, $data, int $direction)
+	private static function receiveLike(array $importer, string $sender, $data, int $direction): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$parent_guid = XML::unescape($data->parent_guid);
@@ -1832,8 +1845,10 @@ class Diaspora
 	 * @return bool Success?
 	 * @throws \Exception
 	 */
-	private static function receiveMessage(array $importer, $data)
+	private static function receiveMessage(array $importer, $data): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$conversation_guid = XML::unescape($data->conversation_guid);
@@ -1899,8 +1914,10 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveParticipation(array $importer, $data, int $direction)
+	private static function receiveParticipation(array $importer, $data, int $direction): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = strtolower(XML::unescape($data->author));
 		$guid = XML::unescape($data->guid);
 		$parent_guid = XML::unescape($data->parent_guid);
@@ -2044,8 +2061,10 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveProfile(array $importer, $data)
+	private static function receiveProfile(array $importer, $data): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = strtolower(XML::unescape($data->author));
 
 		$contact = self::contactByHandle($importer["uid"], $author);
@@ -2145,8 +2164,10 @@ class Diaspora
 	 * @return bool Success
 	 * @throws \Exception
 	 */
-	private static function receiveContactRequest(array $importer, $data)
+	private static function receiveContactRequest(array $importer, $data): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$recipient = XML::unescape($data->recipient);
 
@@ -2233,7 +2254,7 @@ class Diaspora
 			$contact_record = self::contactByHandle($importer['uid'], $author);
 			if (!$contact_record) {
 				Logger::info('unable to locate newly created contact record.');
-				return;
+				return false;
 			}
 
 			$user = DBA::selectFirst('user', [], ['uid' => $importer['uid']]);
@@ -2253,11 +2274,11 @@ class Diaspora
 	 *
 	 * @param string $guid        message guid
 	 * @param string $orig_author handle of the original post
-	 * @return array The fetched item
+	 * @return array|bool The fetched item or false on failure
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function originalItem($guid, $orig_author)
+	public static function originalItem(string $guid, string $orig_author)
 	{
 		if (empty($guid)) {
 			Logger::notice('Empty guid. Quitting.');
@@ -2333,7 +2354,7 @@ class Diaspora
 	 * @param string  $guid              GUID string of reshare action
 	 * @param string  $author            Author handle
 	 */
-	private static function addReshareActivity($item, $parent_message_id, $guid, $author)
+	private static function addReshareActivity(array $item, int $parent_message_id, string $guid, string $author)
 	{
 		$parent = Post::selectFirst(['uri', 'guid'], ['id' => $parent_message_id]);
 
@@ -2388,12 +2409,14 @@ class Diaspora
 	 * @param string $xml       The original XML of the message
 	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
-	 * @return int the message id
+	 * @return bool Success or failure
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveReshare(array $importer, $data, $xml, int $direction)
+	private static function receiveReshare(array $importer, $data, string $xml, int $direction): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$created_at = DateTimeFormat::utc(XML::unescape($data->created_at));
@@ -2512,8 +2535,10 @@ class Diaspora
 	 * @return bool success
 	 * @throws \Exception
 	 */
-	private static function itemRetraction(array $importer, array $contact, $data)
+	private static function itemRetraction(array $importer, array $contact, $data): bool
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$target_guid = XML::unescape($data->target_guid);
 		$target_type = XML::unescape($data->target_type);
@@ -2578,8 +2603,10 @@ class Diaspora
 	 * @return bool Success
 	 * @throws \Exception
 	 */
-	private static function receiveRetraction(array $importer, $sender, $data)
+	private static function receiveRetraction(array $importer, string $sender, $data)
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('data='.get_class($data));
 		$target_type = XML::unescape($data->target_type);
 
 		$contact = self::contactByHandle($importer["uid"], $sender);
@@ -2624,7 +2651,7 @@ class Diaspora
 	 *
 	 * @return boolean Is the message wanted?
 	 */
-	private static function isSolicitedMessage(array $item, string $author, string $body, int $direction)
+	private static function isSolicitedMessage(array $item, string $author, string $body, int $direction): bool
 	{
 		$contact = Contact::getByURL($author);
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
@@ -2656,6 +2683,8 @@ class Diaspora
 	 */
 	private static function storePhotoAsMedia(int $uriid, $photo)
 	{
+		// @TODO Need to find object type, roland@f.haeder.net
+		Logger::debug('photo='.get_class($photo));
 		$data = [];
 		$data['uri-id'] = $uriid;
 		$data['type'] = Post\Media::IMAGE;
@@ -2675,11 +2704,11 @@ class Diaspora
 	 * @param string           $xml       The original XML of the message
 	 * @param int              $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
-	 * @return int The message id of the newly created item
+	 * @return int|bool The message id of the newly created item or false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveStatusMessage(array $importer, SimpleXMLElement $data, $xml, int $direction)
+	private static function receiveStatusMessage(array $importer, SimpleXMLElement $data, string $xml, int $direction)
 	{
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
@@ -2826,7 +2855,7 @@ class Diaspora
 	 * @return string the handle in the format user@domain.tld
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function myHandle(array $contact)
+	private static function myHandle(array $contact): string
 	{
 		if (!empty($contact["addr"])) {
 			return $contact["addr"];
@@ -2856,7 +2885,7 @@ class Diaspora
 	 * @return string The encrypted data
 	 * @throws \Exception
 	 */
-	public static function encodePrivateData($msg, array $user, array $contact, $prvkey, $pubkey)
+	public static function encodePrivateData(string $msg, array $user, array $contact, string $prvkey, string $pubkey): string
 	{
 		Logger::debug("Message: ".$msg);
 
@@ -2897,7 +2926,7 @@ class Diaspora
 	 * @return string The envelope
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function buildMagicEnvelope($msg, array $user)
+	public static function buildMagicEnvelope(string $msg, array $user): string
 	{
 		$b64url_data = Strings::base64UrlEncode($msg);
 		$data = str_replace(["\n", "\r", " ", "\t"], ["", "", "", ""], $b64url_data);
@@ -2941,7 +2970,7 @@ class Diaspora
 	 * @return string The message that will be transmitted to other servers
 	 * @throws \Exception
 	 */
-	public static function buildMessage($msg, array $user, array $contact, $prvkey, $pubkey, $public = false)
+	public static function buildMessage(string $msg, array $user, array $contact, string $prvkey, string $pubkey, bool $public = false): string
 	{
 		// The message is put into an envelope with the sender's signature
 		$envelope = self::buildMagicEnvelope($msg, $user);
@@ -2962,7 +2991,7 @@ class Diaspora
 	 *
 	 * @return string The signature
 	 */
-	private static function signature($owner, $message)
+	private static function signature(array $owner, array $message): string
 	{
 		$sigmsg = $message;
 		unset($sigmsg["author_signature"]);
@@ -2986,7 +3015,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function transmit(array $owner, array $contact, $envelope, $public_batch, $guid = "")
+	private static function transmit(array $owner, array $contact, string $envelope, bool $public_batch, string $guid = ""): int
 	{
 		$enabled = intval(DI::config()->get("system", "diaspora_enabled"));
 		if (!$enabled) {
@@ -3039,7 +3068,7 @@ class Diaspora
 	 *
 	 * @return string The post XML
 	 */
-	public static function buildPostXml($type, $message)
+	public static function buildPostXml(string $type, array $message): array
 	{
 		$data = [$type => $message];
 
@@ -3060,7 +3089,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "")
+	private static function buildAndTransmit(array $owner, array $contact, string $type, array $message, bool $public_batch = false, string $guid = "")
 	{
 		$msg = self::buildPostXml($type, $message);
 
@@ -3103,18 +3132,18 @@ class Diaspora
 	 * @return int The result of the transmission
 	 * @throws \Exception
 	 */
-	private static function sendParticipation(array $contact, array $item)
+	private static function sendParticipation(array $contact, array $item): int
 	{
 		// Don't send notifications for private postings
 		if ($item['private'] == Item::PRIVATE) {
-			return;
+			return -1;
 		}
 
 		$cachekey = "diaspora:sendParticipation:".$item['guid'];
 
 		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
-			return;
+			return -1;
 		}
 
 		// Fetch some user id to have a valid handle to transmit the participation.
@@ -3156,7 +3185,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendAccountMigration(array $owner, array $contact, $uid)
+	public static function sendAccountMigration(array $owner, array $contact, int $uid): int
 	{
 		$old_handle = DI::pConfig()->get($uid, 'system', 'previous_addr');
 		$profile = self::createProfileData($uid);
@@ -3182,7 +3211,7 @@ class Diaspora
 	 * @return int The result of the transmission
 	 * @throws \Exception
 	 */
-	public static function sendShare(array $owner, array $contact)
+	public static function sendShare(array $owner, array $contact): int
 	{
 		/**
 		 * @todo support the different possible combinations of "following" and "sharing"
@@ -3226,7 +3255,7 @@ class Diaspora
 	 * @return int The result of the transmission
 	 * @throws \Exception
 	 */
-	public static function sendUnshare(array $owner, array $contact)
+	public static function sendUnshare(array $owner, array $contact): int
 	{
 		$message = ["author" => self::myHandle($owner),
 				"recipient" => $contact["addr"],
@@ -3248,7 +3277,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isReshare($body, $complete = true)
+	public static function isReshare(string $body, bool $complete = true)
 	{
 		$body = trim($body);
 
@@ -3304,7 +3333,7 @@ class Diaspora
 	 * @return array with event data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function buildEvent($event_id)
+	private static function buildEvent(string $event_id): array
 	{
 		$event = DBA::selectFirst('event', [], ['id' => $event_id]);
 		if (!DBA::isResult($event)) {
@@ -3484,7 +3513,7 @@ class Diaspora
 		return $msg;
 	}
 
-	private static function prependParentAuthorMention($body, $profile_url)
+	private static function prependParentAuthorMention(string $body, string $profile_url): string
 	{
 		$profile = Contact::getByURL($profile_url, false, ['addr', 'name']);
 		if (!empty($profile['addr'])
@@ -3509,7 +3538,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendStatus(array $item, array $owner, array $contact, $public_batch = false)
+	public static function sendStatus(array $item, array $owner, array $contact, bool $public_batch = false): int
 	{
 		$status = self::buildStatus($item, $owner);
 
@@ -3522,7 +3551,7 @@ class Diaspora
 	 * @param array $item  The item that will be exported
 	 * @param array $owner the array of the item owner
 	 *
-	 * @return array The data for a "like"
+	 * @return array|bool The data for a "like" or false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function constructLike(array $item, array $owner)
@@ -3540,12 +3569,12 @@ class Diaspora
 			$positive = "false";
 		}
 
-		return(["author" => self::myHandle($owner),
+		return ["author" => self::myHandle($owner),
 				"guid" => $item["guid"],
 				"parent_guid" => $parent["guid"],
 				"parent_type" => $target_type,
 				"positive" => $positive,
-				"author_signature" => ""]);
+				"author_signature" => ""];
 	}
 
 	/**
@@ -3554,7 +3583,7 @@ class Diaspora
 	 * @param array $item  The item that will be exported
 	 * @param array $owner the array of the item owner
 	 *
-	 * @return array The data for an "EventParticipation"
+	 * @return array|bool The data for an "EventParticipation" or false on error
 	 * @throws \Exception
 	 */
 	private static function constructAttend(array $item, array $owner)
@@ -3579,11 +3608,11 @@ class Diaspora
 				return false;
 		}
 
-		return(["author" => self::myHandle($owner),
+		return ["author" => self::myHandle($owner),
 				"guid" => $item["guid"],
 				"parent_guid" => $parent["guid"],
 				"status" => $attend_answer,
-				"author_signature" => ""]);
+				"author_signature" => ""];
 	}
 
 	/**
@@ -3651,7 +3680,7 @@ class Diaspora
 
 		DI::cache()->set($cachekey, $comment, Duration::QUARTER_HOUR);
 
-		return($comment);
+		return $comment;
 	}
 
 	/**
@@ -3666,7 +3695,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendFollowup(array $item, array $owner, array $contact, $public_batch = false)
+	public static function sendFollowup(array $item, array $owner, array $contact, bool $public_batch = false): int
 	{
 		if (in_array($item['verb'], [Activity::ATTEND, Activity::ATTENDNO, Activity::ATTENDMAYBE])) {
 			$message = self::constructAttend($item, $owner);
@@ -3680,7 +3709,7 @@ class Diaspora
 		}
 
 		if (empty($message)) {
-			return false;
+			return -1;
 		}
 
 		$message["author_signature"] = self::signature($owner, $message);
@@ -3699,7 +3728,7 @@ class Diaspora
 	 * @return int The result of the transmission
 	 * @throws \Exception
 	 */
-	public static function sendRelay(array $item, array $owner, array $contact, $public_batch = false)
+	public static function sendRelay(array $item, array $owner, array $contact, bool $public_batch = false): int
 	{
 		if ($item["deleted"]) {
 			return self::sendRetraction($item, $owner, $contact, $public_batch, true);
@@ -3750,7 +3779,7 @@ class Diaspora
 	 * @return int The result of the transmission
 	 * @throws \Exception
 	 */
-	public static function sendRetraction(array $item, array $owner, array $contact, $public_batch = false, $relay = false)
+	public static function sendRetraction(array $item, array $owner, array $contact, bool $public_batch = false, bool $relay = false): int
 	{
 		$itemaddr = self::handleFromContact($item["contact-id"], $item["author-id"]);
 
@@ -3784,14 +3813,14 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendMail(array $item, array $owner, array $contact)
+	public static function sendMail(array $item, array $owner, array $contact): int
 	{
 		$myaddr = self::myHandle($owner);
 
 		$cnv = DBA::selectFirst('conv', [], ['id' => $item["convid"], 'uid' => $item["uid"]]);
 		if (!DBA::isResult($cnv)) {
 			Logger::notice("conversation not found.");
-			return;
+			return -1;
 		}
 
 		$body = BBCode::toMarkdown($item["body"]);
@@ -3831,7 +3860,8 @@ class Diaspora
 	 *
 	 * @return array The array with "first" and "last"
 	 */
-	public static function splitName($name) {
+	public static function splitName(string $name): array
+	{
 		$name = trim($name);
 
 		// Is the name longer than 64 characters? Then cut the rest of it.
@@ -3888,7 +3918,7 @@ class Diaspora
 	 * @return array The profile data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function createProfileData($uid)
+	private static function createProfileData(int $uid): array
 	{
 		$profile = DBA::selectFirst('owner-view', ['uid', 'addr', 'name', 'location', 'net-publish', 'dob', 'about', 'pub_keywords'], ['uid' => $uid]);
 		if (!DBA::isResult($profile)) {
@@ -3962,7 +3992,7 @@ class Diaspora
 	 * @return void
 	 * @throws \Exception
 	 */
-	public static function sendProfile($uid, $recips = false)
+	public static function sendProfile(int $uid, bool $recips = false)
 	{
 		if (!$uid) {
 			return;
@@ -3996,10 +4026,10 @@ class Diaspora
 	 * @param integer $uid  The user of that comment
 	 * @param array   $item Item array
 	 *
-	 * @return array Signed content
+	 * @return array|bool Signed content or false on error
 	 * @throws \Exception
 	 */
-	public static function createLikeSignature($uid, array $item)
+	public static function createLikeSignature(int $uid, array $item)
 	{
 		$owner = User::getOwnerDataById($uid);
 		if (empty($owner)) {
@@ -4026,7 +4056,7 @@ class Diaspora
 	 *
 	 * @param array   $item Item array
 	 *
-	 * @return array Signed content
+	 * @return array|bool Signed content or false on error
 	 * @throws \Exception
 	 */
 	public static function createCommentSignature(array $item)
@@ -4069,7 +4099,7 @@ class Diaspora
 		return $message;
 	}
 
-	public static function performReshare(int $UriId, int $uid)
+	public static function performReshare(int $UriId, int $uid): int
 	{
 		$fields = ['uri-id', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 		$item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [Item::PUBLIC, Item::UNLISTED]]);
