@@ -880,7 +880,7 @@ class Receiver
 	 */
 	private static function getReceivers(array $activity, string $actor, array $tags = [], bool $fetch_unlisted = false): array
 	{
-		$reply = $receivers = [];
+		$reply = $receivers = $profile = [];
 
 		// When it is an answer, we inherite the receivers from the parent
 		$replyto = JsonLD::fetchElement($activity, 'as:inReplyTo', '@id');
