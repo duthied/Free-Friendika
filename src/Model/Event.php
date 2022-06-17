@@ -41,7 +41,7 @@ use Friendica\Util\XML;
 class Event
 {
 
-	public static function getHTML(array $event, $simple = false, $uriid = 0)
+	public static function getHTML(array $event, bool $simple = false, int $uriid = 0): string
 	{
 		if (empty($event)) {
 			return '';
@@ -127,7 +127,7 @@ class Event
 	 * @param array $event Array which contains the event data.
 	 * @return string The event as a bbcode formatted string.
 	 */
-	private static function getBBCode(array $event)
+	private static function getBBCode(array $event): string
 	{
 		$o = '';
 
@@ -157,11 +157,10 @@ class Event
 	/**
 	 * Extract bbcode formatted event data from a string.
 	 *
-	 * @params: string $s The string which should be parsed for event data.
-	 * @param $text
+	 * @param string $text The string which should be parsed for event data.
 	 * @return array The array with the event information.
 	 */
-	public static function fromBBCode($text)
+	public static function fromBBCode(string $text): array
 	{
 		$ev = [];
 
@@ -195,13 +194,13 @@ class Event
 		return $ev;
 	}
 
-	public static function sortByDate($event_list)
+	public static function sortByDate(array $event_list): array
 	{
 		usort($event_list, ['self', 'compareDatesCallback']);
 		return $event_list;
 	}
 
-	private static function compareDatesCallback($event_a, $event_b)
+	private static function compareDatesCallback(array $event_a, array $event_b)
 	{
 		$date_a = DateTimeFormat::local($event_a['start']);
 		$date_b = DateTimeFormat::local($event_b['start']);
@@ -223,7 +222,7 @@ class Event
 	 * @return void
 	 * @throws \Exception
 	 */
-	public static function delete($event_id)
+	public static function delete(int $event_id)
 	{
 		if ($event_id == 0) {
 			return;
@@ -242,7 +241,7 @@ class Event
 	 * @return int The new event id.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function store($arr)
+	public static function store(array $arr): int
 	{
 		$event = [];
 		$event['id']        = intval($arr['id']        ?? 0);
@@ -317,7 +316,7 @@ class Event
 		return $event['id'];
 	}
 
-	public static function getItemArrayForId(int $event_id, array $item = []):array
+	public static function getItemArrayForId(int $event_id, array $item = []): array
 	{
 		if (empty($event_id)) {
 			return $item;
@@ -374,7 +373,7 @@ class Event
 		return $item;
 	}
 
-	public static function getItemArrayForImportedId(int $event_id, array $item = []):array
+	public static function getItemArrayForImportedId(int $event_id, array $item = []): array
 	{
 		if (empty($event_id)) {
 			return $item;
@@ -404,7 +403,7 @@ class Event
 	 * @return array Array with translations strings.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getStrings()
+	public static function getStrings(): array
 	{
 		// First day of the week (0 = Sunday).
 		$firstDay = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
@@ -477,7 +476,7 @@ class Event
 	 *
 	 * @todo We should replace this with a separate update function if there is some time left.
 	 */
-	private static function removeDuplicates(array $dates)
+	private static function removeDuplicates(array $dates): array
 	{
 		$dates2 = [];
 
@@ -500,7 +499,7 @@ class Event
 	 * @return array Query result
 	 * @throws \Exception
 	 */
-	public static function getListById($owner_uid, $event_id, $sql_extra = '')
+	public static function getListById(int $owner_uid, int $event_id, string $sql_extra = ''): array
 	{
 		$return = [];
 
@@ -536,7 +535,7 @@ class Event
 	 * @return array Query results.
 	 * @throws \Exception
 	 */
-	public static function getListByDate($owner_uid, $event_params, $sql_extra = '')
+	public static function getListByDate(int $owner_uid, array $event_params, string $sql_extra = ''): array
 	{
 		$return = [];
 
@@ -570,7 +569,7 @@ class Event
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function prepareListForTemplate(array $event_result)
+	public static function prepareListForTemplate(array $event_result): array
 	{
 		$event_list = [];
 
@@ -651,12 +650,12 @@ class Event
 	 * @param array  $events Query result for events.
 	 * @param string $format The output format (ical/csv).
 	 *
-	 * @param        $timezone
+	 * @param string $timezone Timezone (missing parameter!)
 	 * @return string Content according to selected export format.
 	 *
 	 * @todo  Implement timezone support
 	 */
-	private static function formatListForExport(array $events, $format)
+	private static function formatListForExport(array $events, string $format): string
 	{
 		$o = '';
 
@@ -757,7 +756,7 @@ class Event
 	 * @return array Query results.
 	 * @throws \Exception
 	 */
-	private static function getListByUserId($uid = 0)
+	private static function getListByUserId(int $uid = 0): array
 	{
 		$return = [];
 
@@ -797,7 +796,7 @@ class Event
 	 * @throws \Exception
 	 * @todo Respect authenticated users with events_by_uid().
 	 */
-	public static function exportListByUserId($uid, $format = 'ical')
+	public static function exportListByUserId(int $uid, string $format = 'ical'): array
 	{
 		$process = false;
 
@@ -845,7 +844,8 @@ class Event
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getItemHTML(array $item) {
+	public static function getItemHTML(array $item): string
+	{
 		$same_date = false;
 		$finish    = false;
 
@@ -933,10 +933,11 @@ class Event
 	 * @return array The array with the location data.
 	 *  'name' => The name of the location,<br>
 	 * 'address' => The address of the location,<br>
-	 * 'coordinates' => Latitude‎ and longitude‎ (e.g. '48.864716,2.349014').<br>
+	 * 'coordinates' => Latitude and longitude (e.g. '48.864716,2.349014').<br>
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function locationToArray($s = '') {
+	private static function locationToArray(string $s = ''): array
+	{
 		if ($s == '') {
 			return [];
 		}
@@ -981,7 +982,7 @@ class Event
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function createBirthday($contact, $birthday)
+	public static function createBirthday(array $contact, string $birthday): bool
 	{
 		// Check for duplicates
 		$condition = [
@@ -1011,8 +1012,7 @@ class Event
 			'type'    => 'birthday',
 		];
 
-		self::store($values);
-
-		return true;
+		// Check if self::store() was success
+		return (self::store($values) > 0);
 	}
 }
