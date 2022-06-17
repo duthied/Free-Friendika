@@ -220,14 +220,14 @@ class APContact
 		$apcontact['type'] = str_replace('as:', '', JsonLD::fetchElement($compacted, '@type'));
 		$apcontact['following'] = JsonLD::fetchElement($compacted, 'as:following', '@id');
 		$apcontact['followers'] = JsonLD::fetchElement($compacted, 'as:followers', '@id');
-		$apcontact['inbox'] = JsonLD::fetchElement($compacted, 'ldp:inbox', '@id');
+		$apcontact['inbox'] = (JsonLD::fetchElement($compacted, 'ldp:inbox', '@id') ?? '');
 		self::unarchiveInbox($apcontact['inbox'], false);
 
 		$apcontact['outbox'] = JsonLD::fetchElement($compacted, 'as:outbox', '@id');
 
 		$apcontact['sharedinbox'] = '';
 		if (!empty($compacted['as:endpoints'])) {
-			$apcontact['sharedinbox'] = JsonLD::fetchElement($compacted['as:endpoints'], 'as:sharedInbox', '@id');
+			$apcontact['sharedinbox'] = (JsonLD::fetchElement($compacted['as:endpoints'], 'as:sharedInbox', '@id') ?? '');
 			self::unarchiveInbox($apcontact['sharedinbox'], true);
 		}
 
