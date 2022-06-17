@@ -154,7 +154,7 @@ class Conversation
 				}
 
 				// Skip when the causer of the parent is the same as the author of the announce
-				if ($verb == Activity::ANNOUNCE && !empty($thread_parent['causer-id']) && $thread_parent['causer-id'] == $activity['author-id']) {
+				if (($verb == Activity::ANNOUNCE) && !empty($thread_parent['causer-id']) && ($thread_parent['causer-id'] == $activity['author-id'])) {
 					continue;
 				}
 
