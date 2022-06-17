@@ -206,7 +206,7 @@ class APContact
 
 			if ($failed) {
 				self::markForArchival($fetched_contact ?: []);
-				return $fetched_contact;
+				return $fetched_contact ?? [];
 			}
 		}
 
