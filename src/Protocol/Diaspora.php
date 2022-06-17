@@ -203,20 +203,20 @@ class Diaspora
 	}
 
 	/**
-	 * Decodes incoming Diaspora message in the new format
+	 * Decodes incoming Diaspora message in the new format. This method returns false on an error.
 	 *
 	 * @param string  $raw      raw post message
 	 * @param string  $privKey   The private key of the importer
 	 * @param boolean $no_exit  Don't do an http exit on error
 	 *
-	 * @return array
+	 * @return bool|array
 	 * 'message' -> decoded Diaspora XML message
 	 * 'author' -> author diaspora handle
 	 * 'key' -> author public key (converted to pkcs#8)
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function decodeRaw(string $raw, string $privKey = '', bool $no_exit = false): array
+	public static function decodeRaw(string $raw, string $privKey = '', bool $no_exit = false)
 	{
 		$data = json_decode($raw);
 
@@ -232,7 +232,7 @@ class Diaspora
 			if (!is_object($j_outer_key_bundle)) {
 				Logger::notice('Outer Salmon did not verify. Discarding.');
 				if ($no_exit) {
-					return [];
+					return false;
 				} else {
 					throw new \Friendica\Network\HTTPException\BadRequestException();
 				}
@@ -251,7 +251,7 @@ class Diaspora
 		if (!is_object($basedom)) {
 			Logger::notice('Received data does not seem to be an XML. Discarding. '.$xml);
 			if ($no_exit) {
-				return [];
+				return false;
 			} else {
 				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
@@ -277,7 +277,7 @@ class Diaspora
 		if ($author_addr == '') {
 			Logger::notice('No author could be decoded. Discarding. Message: ' . $xml);
 			if ($no_exit) {
-				return [];
+				return false;
 			} else {
 				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
@@ -287,7 +287,7 @@ class Diaspora
 		if ($key == '') {
 			Logger::notice("Couldn't get a key for handle " . $author_addr . ". Discarding.");
 			if ($no_exit) {
-				return [];
+				return false;
 			} else {
 				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}

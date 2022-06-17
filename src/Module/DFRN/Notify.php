@@ -59,12 +59,13 @@ class Notify extends BaseModule
 		}
 	}
 
-	private static function dispatchPublic($postdata)
+	private static function dispatchPublic(array $postdata)
 	{
 		$msg = Diaspora::decodeRaw($postdata, '', true);
-		if (!$msg) {
+		if (!is_array($msg)) {
 			// We have to fail silently to be able to hand it over to the salmon parser
-			return false;
+			Logger::warning('Diaspora::decodeRaw() has failed for some reason.');
+			return;
 		}
 
 		// Fetch the corresponding public contact
@@ -88,10 +89,10 @@ class Notify extends BaseModule
 		System::xmlExit($ret, 'Done');
 	}
 
-	private static function dispatchPrivate($user, $postdata)
+	private static function dispatchPrivate(array $user, array $postdata)
 	{
 		$msg = Diaspora::decodeRaw($postdata, $user['prvkey'] ?? '');
-		if (!$msg) {
+		if (!is_array($msg)) {
 			System::xmlExit(4, 'Unable to parse message');
 		}
 
