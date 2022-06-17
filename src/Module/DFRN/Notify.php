@@ -89,7 +89,7 @@ class Notify extends BaseModule
 		System::xmlExit($ret, 'Done');
 	}
 
-	private static function dispatchPrivate(array $user, array $postdata)
+	private static function dispatchPrivate(array $user, string $postdata)
 	{
 		$msg = Diaspora::decodeRaw($postdata, $user['prvkey'] ?? '');
 		if (!is_array($msg)) {
