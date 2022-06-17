@@ -275,7 +275,7 @@ class APContact
 
 		// Quit if none of the basic values are set
 		if (empty($apcontact['url']) || empty($apcontact['type']) || (($apcontact['type'] != 'Tombstone') && empty($apcontact['inbox']))) {
-			return $fetched_contact;
+			return $fetched_contact ?? [];
 		} elseif ($apcontact['type'] == 'Tombstone') {
 			// The "inbox" field must have a content
 			$apcontact['inbox'] = '';
@@ -283,7 +283,7 @@ class APContact
 
 		// Quit if this doesn't seem to be an account at all
 		if (!in_array($apcontact['type'], ActivityPub::ACCOUNT_TYPES)) {
-			return $fetched_contact;
+			return $fetched_contact ?? [];
 		}
 
 		$parts = parse_url($apcontact['url']);
