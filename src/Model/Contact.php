@@ -1553,11 +1553,11 @@ class Contact
 	/**
 	 * Blocks a contact
 	 *
-	 * @param int $cid
-	 * @return bool
-	 * @throws \Exception
+	 * @param int $cid Contact id to block
+	 * @param string $reason Block reason
+	 * @return bool Whether it was successful
 	 */
-	public static function block($cid, $reason = null)
+	public static function block(int $cid, string $reason = null): bool
 	{
 		$return = self::update(['blocked' => true, 'block_reason' => $reason], ['id' => $cid]);
 
@@ -1567,11 +1567,10 @@ class Contact
 	/**
 	 * Unblocks a contact
 	 *
-	 * @param int $cid
-	 * @return bool
-	 * @throws \Exception
+	 * @param int $cid Contact id to unblock
+	 * @return bool Whether it was successfull
 	 */
-	public static function unblock($cid)
+	public static function unblock(int $cid): bool
 	{
 		$return = self::update(['blocked' => false, 'block_reason' => null], ['id' => $cid]);
 
@@ -1581,7 +1580,7 @@ class Contact
 	/**
 	 * Ensure that cached avatar exist
 	 *
-	 * @param integer $cid
+	 * @param integer $cid Contact id
 	 */
 	public static function checkAvatarCache(int $cid)
 	{
@@ -1621,7 +1620,7 @@ class Contact
 	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	private static function getAvatarPath(array $contact, string $size, $no_update = false)
+	private static function getAvatarPath(array $contact, string $size, bool $no_update = false): string
 	{
 		$contact = self::checkAvatarCacheByArray($contact, $no_update);
 
@@ -1655,7 +1654,7 @@ class Contact
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getPhoto(array $contact, bool $no_update = false)
+	public static function getPhoto(array $contact, bool $no_update = false): string
 	{
 		return self::getAvatarPath($contact, Proxy::SIZE_SMALL, $no_update);
 	}
@@ -1667,7 +1666,7 @@ class Contact
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getThumb(array $contact, bool $no_update = false)
+	public static function getThumb(array $contact, bool $no_update = false): string
 	{
 		return self::getAvatarPath($contact, Proxy::SIZE_THUMB, $no_update);
 	}
@@ -1679,7 +1678,7 @@ class Contact
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getMicro(array $contact, bool $no_update = false)
+	public static function getMicro(array $contact, bool $no_update = false): string
 	{
 		return self::getAvatarPath($contact, Proxy::SIZE_MICRO, $no_update);
 	}
@@ -1691,7 +1690,7 @@ class Contact
 	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
 	 * @return array contact array with avatar cache fields
 	 */
-	private static function checkAvatarCacheByArray(array $contact, bool $no_update = false)
+	private static function checkAvatarCacheByArray(array $contact, bool $no_update = false): array
 	{
 		$update = false;
 		$contact_fields = [];
@@ -1797,7 +1796,7 @@ class Contact
 	 * @param string $size    Size of the avatar picture
 	 * @return string avatar URL
 	 */
-	public static function getDefaultAvatar(array $contact, string $size)
+	public static function getDefaultAvatar(array $contact, string $size): string
 	{
 		switch ($size) {
 			case Proxy::SIZE_MICRO:

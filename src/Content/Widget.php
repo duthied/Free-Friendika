@@ -45,7 +45,7 @@ class Widget
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function follow(string $value = ""): string
+	public static function follow(string $value = ''): string
 	{
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/follow.tpl'), array(
 			'$connect' => DI::l10n()->t('Add New Contact'),

@@ -348,7 +348,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hint for returned type
 	 */
-	private static function addHeader(DOMDocument $doc, array $owner, string $authorelement, string $alternatelink = "", bool $public = false)
+	private static function addHeader(DOMDocument $doc, array $owner, string $authorelement, string $alternatelink = '', bool $public = false)
 	{
 
 		if ($alternatelink == "") {
@@ -1063,7 +1063,7 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function fetchauthor(\DOMXPath $xpath, \DOMNode $context, array $importer, string $element, bool $onlyfetch, string $xml = ""): array
+	private static function fetchauthor(\DOMXPath $xpath, \DOMNode $context, array $importer, string $element, bool $onlyfetch, string $xml = ''): array
 	{
 		$author = [];
 		$author["name"] = XML::getFirstNodeValue($xpath, $element."/atom:name/text()", $context);
