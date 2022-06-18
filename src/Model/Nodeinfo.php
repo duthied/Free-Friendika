@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\Core\Addon;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use stdClass;
@@ -156,7 +157,13 @@ class Nodeinfo
 		return $services;
 	}
 
-	public static function getOrganization(\Friendica\Core\Config\Capability\IManageConfigValues $config)
+	/**
+	 * Gathers organization information and returns it as an array
+	 *
+	 * @param IManageConfigValues $config Configuration instance
+	 * @return array Organization information
+	 */
+	public static function getOrganization(IManageConfigValues $config): array
 	{
 		$organization = [
 			'name' => null,
