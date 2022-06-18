@@ -303,9 +303,11 @@ class Diaspora
 			}
 		}
 
-		return ['message' => (string)Strings::base64UrlDecode($base->data),
-				'author' => XML::unescape($author_addr),
-				'key' => (string)$key];
+		return [
+			'message' => (string)Strings::base64UrlDecode($base->data),
+			'author' => XML::unescape($author_addr),
+			'key' => (string)$key
+		];
 	}
 
 	/**
@@ -445,9 +447,11 @@ class Diaspora
 
 		Logger::notice('Message verified.');
 
-		return ['message' => (string)$inner_decrypted,
-				'author' => XML::unescape($author_link),
-				'key' => (string)$key];
+		return [
+			'message' => (string)$inner_decrypted,
+			'author' => XML::unescape($author_link),
+			'key' => (string)$key
+		];
 	}
 
 
