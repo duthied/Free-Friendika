@@ -39,7 +39,14 @@ class Group
 	const FOLLOWERS = '~';
 	const MUTUALS = '&';
 
-	public static function getByUserId($uid, $includesDeleted = false)
+	/**
+	 * Fetches group record by user id and maybe includes deleted groups as well
+	 *
+	 * @param int  $uid User id to fetch group(s) for
+	 * @param bool $includesDeleted Whether deleted groups should be included
+	 * @return array|bool Array on success, bool on error
+	 */
+	public static function getByUserId(int $uid, bool $includesDeleted = false)
 	{
 		$conditions = ['uid' => $uid, 'cid' => null];
 
@@ -51,15 +58,18 @@ class Group
 	}
 
 	/**
-	 * @param int $group_id
+	 * Checks whether given group id is found in database
+	 *
+	 * @param int $group_id Groupd it
+	 * @param int $uid Optional user id
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function exists($group_id, $uid = null)
+	public static function exists(int $group_id, int $uid = null): bool
 	{
 		$condition = ['id' => $group_id, 'deleted' => false];
 
-		if (isset($uid)) {
+		if (!is_null($uid)) {
 			$condition = [
 				'uid' => $uid
 			];
@@ -73,12 +83,12 @@ class Group
 	 *
 	 * Note: If we found a deleted group with the same name, we restore it
 	 *
-	 * @param int    $uid
-	 * @param string $name
-	 * @return boolean
+	 * @param int    $uid User id to create group for
+	 * @param string $name Name of group
+	 * @return int|boolean Id of newly created group or false on error
 	 * @throws \Exception
 	 */
-	public static function create($uid, $name)
+	public static function create(int $uid, string $name)
 	{
 		$return = false;
 		if (!empty($uid) && !empty($name)) {
@@ -114,7 +124,7 @@ class Group
 	 * @return bool Was the update successful?
 	 * @throws \Exception
 	 */
-	public static function update($id, $name)
+	public static function update(int $id, string $name): bool
 	{
 		return DBA::update('group', ['name' => $name], ['id' => $id]);
 	}
@@ -122,11 +132,11 @@ class Group
 	/**
 	 * Get a list of group ids a contact belongs to
 	 *
-	 * @param int $cid
-	 * @return array
+	 * @param int $cid Contact id
+	 * @return array Group ids
 	 * @throws \Exception
 	 */
-	public static function getIdsByContactId($cid)
+	public static function getIdsByContactId(int $cid): array
 	{
 		$return = [];
 
@@ -185,12 +195,12 @@ class Group
 	 *
 	 * Returns false if no group has been found.
 	 *
-	 * @param int    $uid
-	 * @param string $name
-	 * @return int|boolean
+	 * @param int    $uid User id
+	 * @param string $name Group name
+	 * @return int|boolean Groups' id number or false on error
 	 * @throws \Exception
 	 */
-	public static function getIdByName($uid, $name)
+	public static function getIdByName(int $uid, string $name)
 	{
 		if (!$uid || !strlen($name)) {
 			return false;
@@ -211,7 +221,7 @@ class Group
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	public static function remove($gid)
+	public static function remove(int $gid): bool
 	{
 		if (!$gid) {
 			return false;
@@ -314,13 +324,14 @@ class Group
 	 * Adds contacts to a group
 	 *
 	 * @param int $gid
-	 * @param array $contacts
+	 * @param array $contacts Array with contact ids
+	 * @return void
 	 * @throws \Exception
 	 */
 	public static function addMembers(int $gid, array $contacts)
 	{
 		if (!$gid || !$contacts) {
-			return false;
+			return;
 		}
 
 		// @TODO Backward compatibility with user contacts, remove by version 2022.03
@@ -342,8 +353,9 @@ class Group
 	/**
 	 * Removes contacts from a group
 	 *
-	 * @param int $gid
-	 * @param array $contacts
+	 * @param int $gid Group id
+	 * @param array $contacts Contact ids
+	 * @return bool
 	 * @throws \Exception
 	 */
 	public static function removeMembers(int $gid, array $contacts)
@@ -369,19 +381,20 @@ class Group
 			$contactIds[] = $cdata['user'];
 		}
 
-		DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $contactIds]);
+		// Return status of deletion
+		return DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $contactIds]);
 	}
 
 	/**
 	 * Returns the combined list of contact ids from a group id list
 	 *
-	 * @param int     $uid
-	 * @param array   $group_ids
-	 * @param boolean $check_dead
+	 * @param int     $uid User id
+	 * @param array   $group_ids Groups ids
+	 * @param boolean $check_dead Whether check "dead" records (?)
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function expand($uid, array $group_ids, $check_dead = false)
+	public static function expand(int $uid, array $group_ids, bool $check_dead = false): array
 	{
 		if (!is_array($group_ids) || !count($group_ids)) {
 			return [];
@@ -454,13 +467,13 @@ class Group
 	/**
 	 * Returns a templated group selection list
 	 *
-	 * @param int    $uid
+	 * @param int    $uid User id
 	 * @param int    $gid   An optional pre-selected group
 	 * @param string $label An optional label of the list
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function displayGroupSelection($uid, $gid = 0, $label = '')
+	public static function displayGroupSelection(int $uid, int $gid = 0, string $label = ''): string
 	{
 		$display_groups = [
 			[
@@ -502,12 +515,12 @@ class Group
 	 *    'standard' => include link 'Edit groups'
 	 *    'extended' => include link 'Create new group'
 	 *    'full' => include link 'Create new group' and provide for each group a link to edit this group
-	 * @param string $group_id
-	 * @param int    $cid
-	 * @return string
+	 * @param string|int $group_id Distinct group id or 'everyone'
+	 * @param int    $cid Contact id
+	 * @return string Sidebar widget HTML code
 	 * @throws \Exception
 	 */
-	public static function sidebarWidget($every = 'contact', $each = 'group', $editmode = 'standard', $group_id = '', $cid = 0)
+	public static function sidebarWidget(string $every = 'contact', string $each = 'group', string $editmode = 'standard', $group_id = '', int $cid = 0)
 	{
 		if (!local_user()) {
 			return '';
@@ -589,7 +602,7 @@ class Group
 	 * @param integer $id Contact ID
 	 * @return integer Group IO
 	 */
-	public static function getIdForForum(int $id)
+	public static function getIdForForum(int $id): int
 	{
 		Logger::info('Get id for forum id', ['id' => $id]);
 		$contact = Contact::getById($id, ['uid', 'name', 'contact-type', 'manually-approve']);
@@ -617,6 +630,7 @@ class Group
 	 * Fetch the followers of a given contact id and store them as group members
 	 *
 	 * @param integer $id Contact ID
+	 * @return void
 	 */
 	public static function updateMembersForForum(int $id)
 	{
