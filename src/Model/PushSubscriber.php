@@ -34,9 +34,10 @@ class PushSubscriber
 	 *
 	 * @param integer $uid User ID
 	 * @param int     $default_priority
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function publishFeed($uid, $default_priority = PRIORITY_HIGH)
+	public static function publishFeed(int $uid, int $default_priority = PRIORITY_HIGH)
 	{
 		$condition = ['push' => 0, 'uid' => $uid];
 		DBA::update('push_subscriber', ['push' => 1, 'next_try' => DBA::NULL_DATETIME], $condition);
@@ -48,9 +49,10 @@ class PushSubscriber
 	 * start workers to transmit the feed data
 	 *
 	 * @param int $default_priority
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function requeue($default_priority = PRIORITY_HIGH)
+	public static function requeue(int $default_priority = PRIORITY_HIGH)
 	{
 		// We'll push to each subscriber that has push > 0,
 		// i.e. there has been an update (set in notifier.php).
@@ -80,9 +82,10 @@ class PushSubscriber
 	 * @param string  $hub_callback Callback address
 	 * @param string  $hub_topic    Feed topic
 	 * @param string  $hub_secret   Subscription secret
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function renew($uid, $nick, $subscribe, $hub_callback, $hub_topic, $hub_secret)
+	public static function renew(int $uid, string $nick, int $subscribe, string $hub_callback, string $hub_topic, string $hub_secret)
 	{
 		// fetch the old subscription if it exists
 		$subscriber = DBA::selectFirst('push_subscriber', ['last_update', 'push'], ['callback_url' => $hub_callback]);
@@ -119,9 +122,10 @@ class PushSubscriber
 	 * Delay the push subscriber
 	 *
 	 * @param integer $id Subscriber ID
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function delay($id)
+	public static function delay(int $id)
 	{
 		$subscriber = DBA::selectFirst('push_subscriber', ['push', 'callback_url', 'renewed', 'nickname'], ['id' => $id]);
 		if (!DBA::isResult($subscriber)) {
@@ -158,9 +162,10 @@ class PushSubscriber
 	 *
 	 * @param integer $id          Subscriber ID
 	 * @param string  $last_update Date of last transmitted item
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function reset($id, $last_update)
+	public static function reset(int $id, string $last_update)
 	{
 		$subscriber = DBA::selectFirst('push_subscriber', ['callback_url', 'nickname'], ['id' => $id]);
 		if (!DBA::isResult($subscriber)) {

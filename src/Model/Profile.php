@@ -54,10 +54,10 @@ class Profile
 	 *
 	 * @param integer User ID
 	 *
-	 * @return array Profile data
+	 * @return array|bool Profile data or false on error
 	 * @throws \Exception
 	 */
-	public static function getByUID($uid)
+	public static function getByUID(int $uid)
 	{
 		return DBA::selectFirst('profile', [], ['uid' => $uid]);
 	}
@@ -69,7 +69,7 @@ class Profile
 	 * @param int $id The contact owner ID
 	 * @param array $fields The selected fields
 	 *
-	 * @return array Profile data for the ID
+	 * @return array|bool Profile data for the ID or false on error
 	 * @throws \Exception
 	 */
 	public static function getById(int $uid, int $id, array $fields = [])
@@ -81,7 +81,7 @@ class Profile
 	 * Returns profile data for the contact owner
 	 *
 	 * @param int $uid The User ID
-	 * @param array $fields The fields to retrieve
+	 * @param array|bool $fields The fields to retrieve or false on error
 	 *
 	 * @return array Array of profile data
 	 * @throws \Exception
@@ -94,9 +94,9 @@ class Profile
 	/**
 	 * Update a profile entry and distribute the changes if needed
 	 *
-	 * @param array $fields
-	 * @param integer $uid
-	 * @return boolean
+	 * @param array $fields Profile fields to update
+	 * @param integer $uid User id
+	 * @return boolean Whether update was successful
 	 */
 	public static function update(array $fields, int $uid): bool
 	{
@@ -136,8 +136,10 @@ class Profile
 
 	/**
 	 * Publish a changed profile
-	 * @param int  $uid
+	 *
+	 * @param int  $uid User id
 	 * @param bool $force Force publishing to the directory
+	 * @return void
 	 */
 	public static function publishUpdate(int $uid, bool $force = false)
 	{
@@ -163,7 +165,7 @@ class Profile
 	 *
 	 * @return string Location string
 	 */
-	public static function formatLocation(array $profile)
+	public static function formatLocation(array $profile): string
 	{
 		$location = '';
 
