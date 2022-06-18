@@ -128,7 +128,7 @@ class Photo extends BaseModule
 				throw new HTTPException\NotFoundException(DI::l10n()->t('The Photo is not available.'));
 			}
 
-			$photo = self::getPhotoByid($id, $this->parameters['type'], $customsize ?: Proxy::PIXEL_SMALL);
+			$photo = self::getPhotoById($id, $this->parameters['type'], $customsize ?: Proxy::PIXEL_SMALL);
 		} else {
 			$photoid = pathinfo($this->parameters['name'], PATHINFO_FILENAME);
 			$scale = 0;
@@ -228,10 +228,18 @@ class Photo extends BaseModule
 		System::exit();
 	}
 
-	private static function getPhotoByid(int $id, $type, $customsize)
+	/**
+	 * Fetches photo record by given id number, type and custom size
+	 *
+	 * @param int $id Photo id
+	 * @param string $type Photo type
+	 * @param int $customsize Custom size (?)
+	 * @return array|bool Array on success, false on error
+	 */
+	private static function getPhotoById(int $id, string $type, int $customsize)
 	{
 		switch($type) {
-			case "preview":
+			case 'preview':
 				$media = DBA::selectFirst('post-media', ['preview', 'url', 'mimetype', 'type', 'uri-id'], ['id' => $id]);
 				if (empty($media)) {
 					return false;
@@ -251,7 +259,7 @@ class Photo extends BaseModule
 				}
 
 				return MPhoto::createPhotoForExternalResource($url, (int)local_user(), $media['mimetype']);
-			case "media":
+			case 'media':
 				$media = DBA::selectFirst('post-media', ['url', 'mimetype', 'uri-id'], ['id' => $id, 'type' => Post\Media::IMAGE]);
 				if (empty($media)) {
 					return false;
@@ -262,14 +270,14 @@ class Photo extends BaseModule
 				}
 
 				return MPhoto::createPhotoForExternalResource($media['url'], (int)local_user(), $media['mimetype']);
-			case "link":
+			case 'link':
 				$link = DBA::selectFirst('post-link', ['url', 'mimetype'], ['id' => $id]);
 				if (empty($link)) {
 					return false;
 				}
 
 				return MPhoto::createPhotoForExternalResource($link['url'], (int)local_user(), $link['mimetype']);
-			case "contact":
+			case 'contact':
 				$fields = ['uid', 'uri-id', 'url', 'nurl', 'avatar', 'photo', 'xmpp', 'addr', 'network', 'failed', 'updated'];
 				$contact = Contact::getById($id, $fields);
 				if (empty($contact)) {
@@ -287,7 +295,7 @@ class Photo extends BaseModule
 						} else {
 							$scale = 4;
 						}
-						$photo = MPhoto::selectFirst([], ["scale" => $scale, "uid" => $contact['uid'], "profile" => 1]);
+						$photo = MPhoto::selectFirst([], ['scale' => $scale, 'uid' => $contact['uid'], 'profile' => 1]);
 						if (!empty($photo)) {
 							return $photo;
 						}
@@ -330,7 +338,7 @@ class Photo extends BaseModule
 						}
 						if ($update) {
 							Logger::info('Invalid file, contact update initiated', ['cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
-							Worker::add(PRIORITY_LOW, "UpdateContact", $id);
+							Worker::add(PRIORITY_LOW, 'UpdateContact', $id);
 						} else {
 							Logger::info('Invalid file', ['cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
 						}
@@ -352,7 +360,7 @@ class Photo extends BaseModule
 					}
 				}
 				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext);
-			case "header":
+			case 'header':
 				$fields = ['uid', 'url', 'header', 'network', 'gsid'];
 				$contact = Contact::getById($id, $fields);
 				if (empty($contact)) {
@@ -367,37 +375,37 @@ class Photo extends BaseModule
 					$url = Contact::getDefaultHeader($contact);
 				}
 				return MPhoto::createPhotoForExternalResource($url);
-			case "banner":
-				$photo = MPhoto::selectFirst([], ["scale" => 3, 'uid' => $id, 'photo-type' => MPhoto::USER_BANNER]);
+			case 'banner':
+				$photo = MPhoto::selectFirst([], ['scale' => 3, 'uid' => $id, 'photo-type' => MPhoto::USER_BANNER]);
 				if (!empty($photo)) {
 					return $photo;
 				}
 				return MPhoto::createPhotoForExternalResource(DI::baseUrl() . '/images/friendica-banner.jpg');
-			case "profile":
-			case "custom":
+			case 'profile':
+			case 'custom':
 				$scale = 4;
 				break;
-			case "micro":
+			case 'micro':
 				$scale = 6;
 				break;
-			case "avatar":
+			case 'avatar':
 			default:
 				$scale = 5;
 		}
 
-		$photo = MPhoto::selectFirst([], ["scale" => $scale, "uid" => $id, "profile" => 1]);
+		$photo = MPhoto::selectFirst([], ['scale' => $scale, 'uid' => $id, 'profile' => 1]);
 		if (empty($photo)) {
 			$contact = DBA::selectFirst('contact', [], ['uid' => $id, 'self' => true]) ?: [];
 
 			switch($type) {
-				case "profile":
-				case "custom":
+				case 'profile':
+				case 'custom':
 					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
 					break;
-				case "micro":
+				case 'micro':
 					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
 					break;
-				case "avatar":
+				case 'avatar':
 				default:
 					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
 			}
