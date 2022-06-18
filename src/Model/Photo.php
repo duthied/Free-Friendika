@@ -167,7 +167,7 @@ class Photo
 
 		$sql_acl = Security::getPermissionsSQLByUserId($uid, $accessible);
 
-		$conditions = ['`resource-id` = ? AND `scale` <= ? ' . $sql_acl, $resourceid, $scale];
+		$conditions = ["`resource-id` = ? AND `scale` <= ? " . $sql_acl, $resourceid, $scale];
 		$params = ['order' => ['scale' => true]];
 		$photo = self::selectFirst([], $conditions, $params);
 
@@ -333,7 +333,7 @@ class Photo
 	 */
 	public static function store(Image $image, int $uid, int $cid, string $rid, string $filename, string $album, int $scale, int $type = self::DEFAULT, string $allow_cid = '', string $allow_gid = '', string $deny_cid = '', string $deny_gid = '', string $desc = ''): bool
 	{
-		$photo = self::selectFirst(['guid'], ['`resource-id` = ? AND `guid` != ?', $rid, '']);
+		$photo = self::selectFirst(['guid'], ["`resource-id` = ? AND `guid` != ?", $rid, '']);
 		if (DBA::isResult($photo)) {
 			$guid = $photo['guid'];
 		} else {
@@ -590,7 +590,7 @@ class Photo
 	 * @param string $hemi      hemi
 	 * @return float
 	 */
-	public static function getGps(array $exifCoord, strinf $hemi): float
+	public static function getGps(array $exifCoord, string $hemi): float
 	{
 		$degrees = count($exifCoord) > 0 ? self::gps2Num($exifCoord[0]) : 0;
 		$minutes = count($exifCoord) > 1 ? self::gps2Num($exifCoord[1]) : 0;

@@ -84,7 +84,7 @@ class OpenWebAuthToken
 	 */
 	public static function purge(string $type, string $interval)
 	{
-		$condition = ['`type` = ? AND `created` < ?', $type, DateTimeFormat::utcNow() . ' - INTERVAL ' . $interval];
+		$condition = ["`type` = ? AND `created` < ?", $type, DateTimeFormat::utcNow() . ' - INTERVAL ' . $interval];
 		DBA::delete('openwebauth-token', $condition);
 	}
 
