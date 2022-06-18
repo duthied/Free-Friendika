@@ -101,7 +101,7 @@ class Nodeinfo
 	 *
 	 * @return array with supported services
 	*/
-	public static function getServices()
+	public static function getServices(): array
 	{
 		$services = [
 			'inbound'  => [],
@@ -156,12 +156,16 @@ class Nodeinfo
 		return $services;
 	}
 
-	public static function getOrganization($config)
+	public static function getOrganization()
 	{
-		$organization = ['name' => null, 'contact' => null, 'account' => null];
+		$organization = [
+			'name' => null,
+			'contact' => null,
+			'account' => null
+		];
 
-		if (!empty($config->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
+		if (!empty(DI::config()->get('config', 'admin_email'))) {
+			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 			$organization['contact'] = $adminList[0];
 			$administrator = User::getByEmail($adminList[0], ['username', 'nickname']);
 			if (!empty($administrator)) {
