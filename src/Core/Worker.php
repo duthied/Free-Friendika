@@ -1011,7 +1011,9 @@ class Worker
 
 		DI::lock()->release(self::LOCK_PROCESS);
 
-		return (self::getWaitingJobForPID() ?? []);
+		// Prevents "Return value of Friendica\Core\Worker::workerProcess() must be of the type array, bool returned"
+		$process = self::getWaitingJobForPID();
+		return (is_array($process) ? $process : []);
 	}
 
 	/**
