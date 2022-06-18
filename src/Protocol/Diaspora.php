@@ -1316,16 +1316,14 @@ class Diaspora
 	 * Receives account migration
 	 *
 	 * @param array  $importer Array of the importer user
-	 * @param object $data     The message object
+	 * @param SimpleXMLElement $data The message object
 	 *
 	 * @return bool Success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveAccountMigration(array $importer, $data): bool
+	private static function receiveAccountMigration(array $importer, SimpleXMLElement $data): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data=' . get_class($data));
 		$old_handle = XML::unescape($data->author);
 		$new_handle = XML::unescape($data->profile->author);
 		$signature = XML::unescape($data->signature);
@@ -1378,15 +1376,13 @@ class Diaspora
 	/**
 	 * Processes an account deletion
 	 *
-	 * @param object $data The message object
+	 * @param SimpleXMLElement $data The message object
 	 *
 	 * @return bool Success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function receiveAccountDeletion($data): bool
+	private static function receiveAccountDeletion(SimpleXMLElement $data): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 
 		$contacts = DBA::select('contact', ['id'], ['addr' => $author]);
@@ -1468,7 +1464,7 @@ class Diaspora
 	 *
 	 * @param array  $importer  Array of the importer user
 	 * @param string $sender    The sender of the message
-	 * @param object $data      The message object
+	 * @param SimpleXMLElement $data      The message object
 	 * @param string $xml       The original XML of the message
 	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
@@ -1476,10 +1472,8 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveComment(array $importer, string $sender, $data, string $xml, int $direction): bool
+	private static function receiveComment(array $importer, string $sender, SimpleXMLElement $data, string $xml, int $direction): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$parent_guid = XML::unescape($data->parent_guid);
@@ -1607,18 +1601,17 @@ class Diaspora
 	 *
 	 * @param array  $importer     Array of the importer user
 	 * @param array  $contact      The contact of the message
-	 * @param object $data         The message object
+	 * @param SimpleXMLElement $data         The message object
 	 * @param array  $msg          Array of the processed message, author handle and key
 	 * @param object $mesg         The private message
 	 * @param array  $conversation The conversation record to which this message belongs
 	 *
 	 * @return bool "true" if it was successful
 	 * @throws \Exception
+	 * @todo Find type-hint for $mesg and update documentation
 	 */
-	private static function receiveConversationMessage(array $importer, array $contact, $data, array $msg, $mesg, array $conversation): bool
+	private static function receiveConversationMessage(array $importer, array $contact, SimpleXMLElement $data, array $msg, $mesg, array $conversation): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data).',mesg='.get_class($mesg));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$subject = XML::unescape($data->subject);
@@ -1669,15 +1662,13 @@ class Diaspora
 	 *
 	 * @param array  $importer Array of the importer user
 	 * @param array  $msg      Array of the processed message, author handle and key
-	 * @param object $data     The message object
+	 * @param SimpleXMLElement $data     The message object
 	 *
 	 * @return bool Success
 	 * @throws \Exception
 	 */
-	private static function receiveConversation(array $importer, array $msg, $data)
+	private static function receiveConversation(array $importer, array $msg, SimpleXMLElement $data)
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$subject = XML::unescape($data->subject);
@@ -1731,17 +1722,15 @@ class Diaspora
 	 *
 	 * @param array  $importer  Array of the importer user
 	 * @param string $sender    The sender of the message
-	 * @param object $data      The message object
+	 * @param SimpleXMLElement $data      The message object
 	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return bool Success or failure
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveLike(array $importer, string $sender, $data, int $direction): bool
+	private static function receiveLike(array $importer, string $sender, SimpleXMLElement $data, int $direction): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$parent_guid = XML::unescape($data->parent_guid);
@@ -1855,15 +1844,13 @@ class Diaspora
 	 * Processes private messages
 	 *
 	 * @param array  $importer Array of the importer user
-	 * @param object $data     The message object
+	 * @param SimpleXMLElement $data     The message object
 	 *
 	 * @return bool Success?
 	 * @throws \Exception
 	 */
-	private static function receiveMessage(array $importer, $data): bool
+	private static function receiveMessage(array $importer, SimpleXMLElement $data): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$conversation_guid = XML::unescape($data->conversation_guid);
@@ -1922,17 +1909,15 @@ class Diaspora
 	 * Processes participations - unsupported by now
 	 *
 	 * @param array  $importer  Array of the importer user
-	 * @param object $data      The message object
+	 * @param SimpleXMLElement $data      The message object
 	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
 	 * @return bool success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveParticipation(array $importer, $data, int $direction): bool
+	private static function receiveParticipation(array $importer, SimpleXMLElement $data, int $direction): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = strtolower(XML::unescape($data->author));
 		$guid = XML::unescape($data->guid);
 		$parent_guid = XML::unescape($data->parent_guid);
@@ -2041,7 +2026,7 @@ class Diaspora
 	 * Processes photos - unneeded
 	 *
 	 * @param array  $importer Array of the importer user
-	 * @param object $data     The message object
+	 * @param SimpleXMLElement $data     The message object
 	 *
 	 * @return bool always true
 	 */
@@ -2070,16 +2055,14 @@ class Diaspora
 	 * Processes incoming profile updates
 	 *
 	 * @param array  $importer Array of the importer user
-	 * @param object $data     The message object
+	 * @param SimpleXMLElement $data     The message object
 	 *
 	 * @return bool Success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveProfile(array $importer, $data): bool
+	private static function receiveProfile(array $importer, SimpleXMLElement $data): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = strtolower(XML::unescape($data->author));
 
 		$contact = self::contactByHandle($importer['uid'], $author);
@@ -2175,15 +2158,13 @@ class Diaspora
 	 * Processes incoming sharing notification
 	 *
 	 * @param array  $importer Array of the importer user
-	 * @param object $data     The message object
+	 * @param SimpleXMLElement $data     The message object
 	 *
 	 * @return bool Success
 	 * @throws \Exception
 	 */
-	private static function receiveContactRequest(array $importer, $data): bool
+	private static function receiveContactRequest(array $importer, SimpleXMLElement $data): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$recipient = XML::unescape($data->recipient);
 
@@ -2421,7 +2402,7 @@ class Diaspora
 	 * Processes a reshare message
 	 *
 	 * @param array  $importer  Array of the importer user
-	 * @param object $data      The message object
+	 * @param SimpleXMLElement $data      The message object
 	 * @param string $xml       The original XML of the message
 	 * @param int    $direction Indicates if the message had been fetched or pushed (self::PUSHED, self::FETCHED, self::FORCED_FETCH)
 	 *
@@ -2429,10 +2410,8 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveReshare(array $importer, $data, string $xml, int $direction): bool
+	private static function receiveReshare(array $importer, SimpleXMLElement $data, string $xml, int $direction): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$guid = XML::unescape($data->guid);
 		$created_at = DateTimeFormat::utc(XML::unescape($data->created_at));
@@ -2546,15 +2525,13 @@ class Diaspora
 	 *
 	 * @param array  $importer Array of the importer user
 	 * @param array  $contact  The contact of the item owner
-	 * @param object $data     The message object
+	 * @param SimpleXMLElement $data     The message object
 	 *
 	 * @return bool success
 	 * @throws \Exception
 	 */
-	private static function itemRetraction(array $importer, array $contact, $data): bool
+	private static function itemRetraction(array $importer, array $contact, SimpleXMLElement $data): bool
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$author = XML::unescape($data->author);
 		$target_guid = XML::unescape($data->target_guid);
 		$target_type = XML::unescape($data->target_type);
@@ -2614,15 +2591,13 @@ class Diaspora
 	 *
 	 * @param array  $importer Array of the importer user
 	 * @param string $sender   The sender of the message
-	 * @param object $data     The message object
+	 * @param SimpleXMLElement $data     The message object
 	 *
 	 * @return bool Success
 	 * @throws \Exception
 	 */
-	private static function receiveRetraction(array $importer, string $sender, $data)
+	private static function receiveRetraction(array $importer, string $sender, SimpleXMLElement $data)
 	{
-		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('data='.get_class($data));
 		$target_type = XML::unescape($data->target_type);
 
 		$contact = self::contactByHandle($importer['uid'], $sender);
