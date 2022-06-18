@@ -321,7 +321,7 @@ class Photo
 	 * @param string  $filename  Filename
 	 * @param string  $album     Album name
 	 * @param integer $scale     Scale
-	 * @param integer $type      Photo type
+	 * @param integer $type      Photo type, optional, default: Photo::DEFAULT
 	 * @param string  $allow_cid Permissions, allowed contacts. optional, default = ""
 	 * @param string  $allow_gid Permissions, allowed groups. optional, default = ""
 	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ""

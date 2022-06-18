@@ -65,6 +65,10 @@ class ItemURI
 	 */
 	public static function getIdByURI(string $uri): int
 	{
+		if (empty($uri)) {
+			return 0;
+		}
+
 		// If the URI gets too long we only take the first parts and hope for best
 		$uri = substr($uri, 0, 255);
 
