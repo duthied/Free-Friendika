@@ -96,8 +96,8 @@ class Item
 		'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-ignore', 'event-id',
-		"question-id", "question-multiple", "question-voters", "question-end-time",
-		"has-categories", "has-media",
+		'question-id', 'question-multiple', 'question-voters', 'question-end-time',
+		'has-categories', 'has-media',
 		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed'
 	];
 
@@ -226,7 +226,7 @@ class Item
 
 		foreach ($notify_items as $notify_item) {
 			$post = Post::selectFirst(['uri-id', 'uid'], ['id' => $notify_item]);
-			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
+			Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
 		}
 
 		return $rows;
@@ -237,9 +237,10 @@ class Item
 	 *
 	 * @param array   $condition The condition for finding the item entries
 	 * @param integer $priority  Priority for the notification
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function markForDeletion($condition, $priority = PRIORITY_HIGH)
+	public static function markForDeletion(array $condition, int $priority = PRIORITY_HIGH)
 	{
 		$items = Post::select(['id'], $condition);
 		while ($item = Post::fetch($items)) {
@@ -253,6 +254,7 @@ class Item
 	 *
 	 * @param array   $condition The condition for finding the item entries
 	 * @param integer $uid       User who wants to delete this item
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function deleteForUser(array $condition, int $uid)
@@ -282,11 +284,10 @@ class Item
 	 *
 	 * @param integer $item_id
 	 * @param integer $priority Priority for the notification
-	 *
 	 * @return boolean success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function markForDeletionById($item_id, $priority = PRIORITY_HIGH)
+	public static function markForDeletionById(int $item_id, int $priority = PRIORITY_HIGH): bool
 	{
 		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
@@ -331,7 +332,7 @@ class Item
 		// If item has attachments, drop them
 		$attachments = Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT]);
 		foreach($attachments as $attachment) {
-			if (preg_match("|attach/(\d+)|", $attachment['url'], $matches)) {
+			if (preg_match('|attach/(\d+)|', $attachment['url'], $matches)) {
 				Attach::delete(['id' => $matches[1], 'uid' => $item['uid']]);
 			}
 		}
@@ -342,7 +343,7 @@ class Item
 
 		Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], '');
 
-		if (!Post::exists(["`uri-id` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri-id']])) {
+		if (!Post::exists(['`uri-id` = ? AND `uid` != 0 AND NOT `deleted`', $item['uri-id']])) {
 			self::markForDeletion(['uri-id' => $item['uri-id'], 'uid' => 0, 'deleted' => false], $priority);
 		}
 
@@ -360,7 +361,7 @@ class Item
 
 			// send the notification upstream/downstream
 			if ($priority) {
-				Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, (int)$item['uri-id'], (int)$item['uid']);
+				Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', Delivery::DELETION, (int)$item['uri-id'], (int)$item['uid']);
 			}
 		} elseif ($item['uid'] != 0) {
 			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
@@ -372,7 +373,14 @@ class Item
 		return true;
 	}
 
-	public static function guid($item, $notify)
+	/**
+	 * Get guid from given item record
+	 *
+	 * @param array $item Item record
+	 * @param bool Whether to notify (?)
+	 * @return string Guid
+	 */
+	public static function guid(array $item, bool $notify): string
 	{
 		if (!empty($item['guid'])) {
 			return trim($item['guid']);
@@ -425,7 +433,13 @@ class Item
 		return $guid;
 	}
 
-	private static function contactId($item)
+	/**
+	 * Returns contact id from given item record
+	 *
+	 * @param array $item Item record
+	 * @return int Contact id
+	 */
+	private static function contactId(array $item): int
 	{
 		if (!empty($item['contact-id']) && DBA::exists('contact', ['self' => true, 'id' => $item['contact-id']])) {
 			return $item['contact-id'];
@@ -458,7 +472,7 @@ class Item
 		$file = 'item-' . round(microtime(true) * 10000) . '-' . mt_rand() . '.msg';
 
 		$spoolpath = System::getSpoolPath();
-		if ($spoolpath != "") {
+		if ($spoolpath != '') {
 			$spool = $spoolpath . '/' . $file;
 
 			file_put_contents($spool, json_encode($orig_item));
@@ -469,10 +483,10 @@ class Item
 	/**
 	 * Check if the item array is a duplicate
 	 *
-	 * @param array $item
+	 * @param array $item Item record
 	 * @return boolean is it a duplicate?
 	 */
-	private static function isDuplicate(array $item)
+	private static function isDuplicate(array $item): bool
 	{
 		// Checking if there is already an item with the same guid
 		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
@@ -497,7 +511,7 @@ class Item
 			}
 		} elseif ($item['network'] == Protocol::OSTATUS) {
 			// Check for an existing post with the same content. There seems to be a problem with OStatus.
-			$condition = ["`body` = ? AND `network` = ? AND `created` = ? AND `contact-id` = ? AND `uid` = ?",
+			$condition = ['`body` = ? AND `network` = ? AND `created` = ? AND `contact-id` = ? AND `uid` = ?',
 					$item['body'], $item['network'], $item['created'], $item['contact-id'], $item['uid']];
 			if (Post::exists($condition)) {
 				Logger::notice('duplicated item with the same body found.', $item);
@@ -521,10 +535,10 @@ class Item
 	/**
 	 * Check if the item array is valid
 	 *
-	 * @param array $item
+	 * @param array $item Item record
 	 * @return boolean item is valid
 	 */
-	public static function isValid(array $item)
+	public static function isValid(array $item): bool
 	{
 		// When there is no content then we don't post it
 		if (($item['body'] . $item['title'] == '') && (empty($item['uri-id']) || !Post\Media::existsByURIId($item['uri-id']))) {
@@ -591,10 +605,10 @@ class Item
 	/**
 	 * Check if the item array is too old
 	 *
-	 * @param array $item
+	 * @param array $item Item record
 	 * @return boolean item is too old
 	 */
-	public static function isTooOld(array $item)
+	public static function isTooOld(array $item): bool
 	{
 		// check for create date and expire time
 		$expire_interval = DI::config()->get('system', 'dbclean-expire-days', 0);
@@ -623,15 +637,20 @@ class Item
 	/**
 	 * Return the id of the given item array if it has been stored before
 	 *
-	 * @param array $item
-	 * @return integer item id
+	 * @param array $item Item record
+	 * @return integer Item id or zero on error
 	 */
-	private static function getDuplicateID(array $item)
+	private static function getDuplicateID(array $item): int
 	{
 		if (empty($item['network']) || in_array($item['network'], Protocol::FEDERATED)) {
-			$condition = ["`uri-id` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
-				$item['uri-id'], $item['uid'],
-				Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
+			$condition = ['`uri-id` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)',
+				$item['uri-id'],
+				$item['uid'],
+				Protocol::ACTIVITYPUB,
+				Protocol::DIASPORA,
+				Protocol::DFRN,
+				Protocol::OSTATUS
+			];
 			$existing = Post::selectFirst(['id', 'network'], $condition);
 			if (DBA::isResult($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
@@ -640,12 +659,12 @@ class Item
 						'uri-id' => $item['uri-id'],
 						'uid' => $item['uid'],
 						'network' => $item['network'],
-						'existing_id' => $existing["id"],
-						'existing_network' => $existing["network"]
+						'existing_id' => $existing['id'],
+						'existing_network' => $existing['network']
 					]);
 				}
 
-				return $existing["id"];
+				return $existing['id'];
 			}
 		}
 		return 0;
@@ -658,7 +677,7 @@ class Item
 	 * @return array item array with parent data
 	 * @throws \Exception
 	 */
-	private static function getTopLevelParent(array $item)
+	private static function getTopLevelParent(array $item): array
 	{
 		$fields = ['uid', 'uri', 'parent-uri', 'id', 'deleted',
 			'uri-id', 'parent-uri-id',
@@ -724,11 +743,20 @@ class Item
 		} elseif ($activity->match($item['verb'], Activity::ANNOUNCE)) {
 			return GRAVITY_ACTIVITY;
 		}
+
 		Logger::info('Unknown gravity for verb', ['verb' => $item['verb']]);
 		return GRAVITY_UNKNOWN;   // Should not happen
 	}
 
-	public static function insert(array $item, int $notify = 0, bool $post_local = true)
+	/**
+	 * Inserts item record
+	 *
+	 * @param array $item Item array to be inserted
+	 * @param int   $notify Notification (type?)
+	 * @param bool  $post_local (???)
+	 * @return int Zero means error, otherwise primary key (id) is being returned
+	 */
+	public static function insert(array $item, int $notify = 0, bool $post_local = true): int
 	{
 		$orig_item = $item;
 
@@ -869,7 +897,7 @@ class Item
 		Contact::checkAvatarCache($item['owner-id']);
 
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
-		$item["contact-id"] = self::contactId($item);
+		$item['contact-id'] = self::contactId($item);
 
 		if (!empty($item['direction']) && in_array($item['direction'], [Conversation::PUSH, Conversation::RELAY]) &&
 			empty($item['origin']) &&self::isTooOld($item)) {
@@ -944,8 +972,8 @@ class Item
 		$item['thr-parent-id'] = ItemURI::getIdByURI($item['thr-parent']);
 
 		// Is this item available in the global items (with uid=0)?
-		if ($item["uid"] == 0) {
-			$item["global"] = true;
+		if ($item['uid'] == 0) {
+			$item['global'] = true;
 
 			// Set the global flag on all items if this was a global item entry
 			Post::update(['global' => true], ['uri-id' => $item['uri-id']]);
@@ -954,8 +982,8 @@ class Item
 		}
 
 		// ACL settings
-		if (!empty($item["allow_cid"] . $item["allow_gid"] . $item["deny_cid"] . $item["deny_gid"])) {
-			$item["private"] = self::PRIVATE;
+		if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
+			$item['private'] = self::PRIVATE;
 		}
 
 		if ($notify && $post_local) {
