@@ -465,7 +465,7 @@ class Item
 	 * @param array $item The item fields that are to be inserted
 	 * @throws \Exception
 	 */
-	private static function spool($orig_item)
+	private static function spool(array $item)
 	{
 		// Now we store the data in the spool directory
 		// We use "microtime" to keep the arrival order and "mt_rand" to avoid duplicates
@@ -475,7 +475,7 @@ class Item
 		if ($spoolpath != '') {
 			$spool = $spoolpath . '/' . $file;
 
-			file_put_contents($spool, json_encode($orig_item));
+			file_put_contents($spool, json_encode($item));
 			Logger::warning("Item wasn't stored - Item was spooled into file", ['file' => $file]);
 		}
 	}
