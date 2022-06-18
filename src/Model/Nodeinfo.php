@@ -156,7 +156,7 @@ class Nodeinfo
 		return $services;
 	}
 
-	public static function getOrganization()
+	public static function getOrganization(\Friendica\Core\Config\Capability\IManageConfigValues $config)
 	{
 		$organization = [
 			'name' => null,
@@ -164,8 +164,8 @@ class Nodeinfo
 			'account' => null
 		];
 
-		if (!empty(DI::config()->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
+		if (!empty($config->get('config', 'admin_email'))) {
+			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
 			$organization['contact'] = $adminList[0];
 			$administrator = User::getByEmail($adminList[0], ['username', 'nickname']);
 			if (!empty($administrator)) {

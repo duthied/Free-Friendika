@@ -343,7 +343,7 @@ class Item
 
 		Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], '');
 
-		if (!Post::exists(['`uri-id` = ? AND `uid` != 0 AND NOT `deleted`', $item['uri-id']])) {
+		if (!Post::exists(["`uri-id` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri-id']])) {
 			self::markForDeletion(['uri-id' => $item['uri-id'], 'uid' => 0, 'deleted' => false], $priority);
 		}
 
@@ -511,7 +511,7 @@ class Item
 			}
 		} elseif ($item['network'] == Protocol::OSTATUS) {
 			// Check for an existing post with the same content. There seems to be a problem with OStatus.
-			$condition = ['`body` = ? AND `network` = ? AND `created` = ? AND `contact-id` = ? AND `uid` = ?',
+			$condition = ["`body` = ? AND `network` = ? AND `created` = ? AND `contact-id` = ? AND `uid` = ?",
 					$item['body'], $item['network'], $item['created'], $item['contact-id'], $item['uid']];
 			if (Post::exists($condition)) {
 				Logger::notice('duplicated item with the same body found.', $item);
