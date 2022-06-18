@@ -526,6 +526,7 @@ class APContact
 	 *
 	 * @param string  $url    inbox url
 	 * @param boolean $shared Shared Inbox
+	 * @return void
 	 */
 	private static function unarchiveInbox(string $url, bool $shared)
 	{

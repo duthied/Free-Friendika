@@ -96,7 +96,7 @@ class GServer
 	 *
 	 * @param string $url
 	 * @param boolean $no_check Don't check if the server hadn't been found
-	 * @return int gserver id
+	 * @return int|null gserver id or NULL on empty URL or failed check
 	 */
 	public static function getID(string $url, bool $no_check = false)
 	{
@@ -156,7 +156,7 @@ class GServer
 	 *
 	 * @return boolean 'true' if server seems vital
 	 */
-	public static function reachable(string $profile, string $server = '', string $network = '', bool $force = false)
+	public static function reachable(string $profile, string $server = '', string $network = '', bool $force = false): bool
 	{
 		if ($server == '') {
 			$contact = Contact::getByURL($profile, null, ['baseurl']);
@@ -172,7 +172,7 @@ class GServer
 		return self::check($server, $network, $force);
 	}
 
-	public static function getNextUpdateDate(bool $success, string $created = '', string $last_contact = '')
+	public static function getNextUpdateDate(bool $success, string $created = '', string $last_contact = ''): string
 	{
 		// On successful contact process check again next week
 		if ($success) {
@@ -231,7 +231,7 @@ class GServer
 	 *
 	 * @return boolean 'true' if server seems vital
 	 */
-	public static function check(string $server_url, string $network = '', bool $force = false, bool $only_nodeinfo = false)
+	public static function check(string $server_url, string $network = '', bool $force = false, bool $only_nodeinfo = false): bool
 	{
 		$server_url = self::cleanURL($server_url);
 		if ($server_url == '') {
@@ -286,7 +286,7 @@ class GServer
 	 * @param string $url
 	 * @return string cleaned URL
 	 */
-	public static function cleanURL(string $url)
+	public static function cleanURL(string $url): string
 	{
 		$url = trim($url, '/');
 		$url = str_replace('/index.php', '', $url);
@@ -305,7 +305,7 @@ class GServer
 	 * @param string $url
 	 * @return string base URL
 	 */
-	private static function getBaseURL(string $url)
+	private static function getBaseURL(string $url): string
 	{
 		$urlparts = parse_url(self::cleanURL($url));
 		unset($urlparts['path']);
@@ -322,7 +322,7 @@ class GServer
 	 *
 	 * @return boolean 'true' if server could be detected
 	 */
-	public static function detect(string $url, string $network = '', bool $only_nodeinfo = false)
+	public static function detect(string $url, string $network = '', bool $only_nodeinfo = false): bool
 	{
 		Logger::info('Detect server type', ['server' => $url]);
 		$serverdata = ['detection-method' => self::DETECT_MANUAL];
@@ -586,6 +586,7 @@ class GServer
 	 * Fetch relay data from a given server url
 	 *
 	 * @param string $server_url address of the server
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function discoverRelay(string $server_url)
@@ -685,7 +686,7 @@ class GServer
 	 *
 	 * @return array server data
 	 */
-	private static function fetchStatistics(string $url)
+	private static function fetchStatistics(string $url): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/statistics.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -758,7 +759,7 @@ class GServer
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function fetchNodeinfo(string $url, ICanHandleHttpResponses $httpResult)
+	private static function fetchNodeinfo(string $url, ICanHandleHttpResponses $httpResult): array
 	{
 		if (!$httpResult->isSuccess()) {
 			return [];
@@ -811,7 +812,7 @@ class GServer
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function parseNodeinfo1(string $nodeinfo_url)
+	private static function parseNodeinfo1(string $nodeinfo_url): array
 	{
 		$curlResult = DI::httpClient()->get($nodeinfo_url, HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -904,7 +905,7 @@ class GServer
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function parseNodeinfo2(string $nodeinfo_url)
+	private static function parseNodeinfo2(string $nodeinfo_url): array
 	{
 		$curlResult = DI::httpClient()->get($nodeinfo_url, HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -1001,10 +1002,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function fetchSiteinfo(string $url, array $serverdata)
+	private static function fetchSiteinfo(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/siteinfo.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -1085,10 +1085,9 @@ class GServer
 	 * Checks if the server contains a valid host meta file
 	 *
 	 * @param string $url URL of the given server
-	 *
 	 * @return boolean 'true' if the server seems to be vital
 	 */
-	private static function validHostMeta(string $url)
+	private static function validHostMeta(string $url): bool
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
 		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta', HttpClientAccept::XRD_XML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
@@ -1131,10 +1130,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectNetworkViaContacts(string $url, array $serverdata)
+	private static function detectNetworkViaContacts(string $url, array $serverdata): array
 	{
 		$contacts = [];
 
@@ -1176,10 +1174,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function checkPoCo(string $url, array $serverdata)
+	private static function checkPoCo(string $url, array $serverdata): array
 	{
 		$serverdata['poco'] = '';
 
@@ -1208,10 +1205,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	public static function checkMastodonDirectory(string $url, array $serverdata)
+	public static function checkMastodonDirectory(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/directory?limit=1', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -1238,7 +1234,7 @@ class GServer
 	 *
 	 * @return array server data
 	 */
-	private static function detectPeertube(string $url, array $serverdata)
+	private static function detectPeertube(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/config', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -1282,10 +1278,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectNextcloud(string $url, array $serverdata)
+	private static function detectNextcloud(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/status.php', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -1310,7 +1305,15 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function fetchWeeklyUsage(string $url, array $serverdata) {
+	/**
+	 * Fetches weekly usage data
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 * @return array server data
+	 */
+	private static function fetchWeeklyUsage(string $url, array $serverdata): array
+	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/instance/activity', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
@@ -1346,10 +1349,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectFromContacts(string $url, array $serverdata)
+	private static function detectFromContacts(string $url, array $serverdata): array
 	{
 		$gserver = DBA::selectFirst('gserver', ['id'], ['nurl' => Strings::normaliseLink($url)]);
 		if (empty($gserver)) {
@@ -1374,10 +1376,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectMastodonAlikes(string $url, array $serverdata)
+	private static function detectMastodonAlikes(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/instance', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -1439,10 +1440,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectHubzilla(string $url, array $serverdata)
+	private static function detectHubzilla(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/statusnet/config.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -1517,10 +1517,9 @@ class GServer
 	 * Converts input value to a boolean value
 	 *
 	 * @param string|integer $val
-	 *
 	 * @return boolean
 	 */
-	private static function toBoolean($val)
+	private static function toBoolean($val): bool
 	{
 		if (($val == 'true') || ($val == 1)) {
 			return true;
@@ -1536,10 +1535,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectPumpIO(string $url, array $serverdata)
+	private static function detectPumpIO(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -1549,7 +1547,6 @@ class GServer
 		$data = json_decode($curlResult->getBody(), true);
 		if (empty($data['links'])) {
 			return $serverdata;
-
 		}
 
 		// We are looking for some endpoints that are typical for pump.io
@@ -1586,10 +1583,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectGNUSocial(string $url, array $serverdata)
+	private static function detectGNUSocial(string $url, array $serverdata): array
 	{
 		// Test for GNU Social
 		$curlResult = DI::httpClient()->get($url . '/api/gnusocial/version.json', HttpClientAccept::JSON);
@@ -1641,10 +1637,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectFriendica(string $url, array $serverdata)
+	private static function detectFriendica(string $url, array $serverdata): array
 	{
 		// There is a bug in some versions of Friendica that will return an ActivityStream actor when the content type "application/json" is requested.
 		// Because of this me must not use ACCEPT_JSON here.
@@ -1717,10 +1712,9 @@ class GServer
 	 * @param object $curlResult result of curl execution
 	 * @param array  $serverdata array with server data
 	 * @param string $url        Server URL
-	 *
 	 * @return array server data
 	 */
-	private static function analyseRootBody($curlResult, array $serverdata, string $url)
+	private static function analyseRootBody($curlResult, array $serverdata, string $url): array
 	{
 		if (empty($curlResult->getBody())) {
 			return $serverdata;
@@ -1859,7 +1853,7 @@ class GServer
 	 *
 	 * @return array server data
 	 */
-	private static function analyseRootHeader($curlResult, array $serverdata)
+	private static function analyseRootHeader($curlResult, array $serverdata): array
 	{
 		if ($curlResult->getHeader('server') == 'Mastodon') {
 			$serverdata['platform'] = 'mastodon';

@@ -44,7 +44,7 @@ class Attach
 	 * @return array field list
 	 * @throws \Exception
 	 */
-	private static function getFields()
+	private static function getFields(): array
 	{
 		$allfields = DBStructure::definition(DI::app()->getBasePath(), false);
 		$fields = array_keys($allfields['attach']['fields']);
