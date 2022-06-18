@@ -317,7 +317,7 @@ class Photo
 	 * @param Image   $image     Image object with data
 	 * @param integer $uid       User ID
 	 * @param integer $cid       Contact ID
-	 * @param integer $rid       Resource ID
+	 * @param string  $rid       Resource ID
 	 * @param string  $filename  Filename
 	 * @param string  $album     Album name
 	 * @param integer $scale     Scale
@@ -331,7 +331,7 @@ class Photo
 	 * @return boolean True on success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function store(Image $image, int $uid, int $cid, int $rid, string $filename, string $album, int $scale, int $type = self::DEFAULT, string $allow_cid = '', string $allow_gid = '', string $deny_cid = '', string $deny_gid = '', string $desc = ''): bool
+	public static function store(Image $image, int $uid, int $cid, string $rid, string $filename, string $album, int $scale, int $type = self::DEFAULT, string $allow_cid = '', string $allow_gid = '', string $deny_cid = '', string $deny_gid = '', string $desc = ''): bool
 	{
 		$photo = self::selectFirst(['guid'], ['`resource-id` = ? AND `guid` != ?', $rid, '']);
 		if (DBA::isResult($photo)) {
@@ -476,7 +476,7 @@ class Photo
 	 * @param integer $uid           user id
 	 * @param integer $cid           contact id
 	 * @param boolean $quit_on_error optional, default false
-	 * @return array
+	 * @return array|bool Array on success, false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
