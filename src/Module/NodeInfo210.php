@@ -57,7 +57,7 @@ class NodeInfo210 extends BaseModule
 				'software' => 'friendica',
 				'version'  => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
 			],
-			'organization'      => Nodeinfo::getOrganization(),
+			'organization'      => Nodeinfo::getOrganization($this->config),
 			'protocols'         => ['dfrn', 'activitypub'],
 			'services'          => [],
 			'openRegistrations' => intval($this->config->get('config', 'register_policy')) !== Register::CLOSED,
