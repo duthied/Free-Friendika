@@ -119,7 +119,7 @@ class Contact
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function selectToArray(array $fields = [], array $condition = [], array $params = [])
+	public static function selectToArray(array $fields = [], array $condition = [], array $params = []): array
 	{
 		return DBA::selectToArray('contact', $fields, $condition, $params);
 	}
@@ -128,7 +128,7 @@ class Contact
 	 * @param array $fields    Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
 	 * @param array $params    Array of several parameters
-	 * @return array
+	 * @return array|bool
 	 * @throws \Exception
 	 */
 	public static function selectFirst(array $fields = [], array $condition = [], array $params = [])
@@ -148,7 +148,7 @@ class Contact
 	 * @return int  id of the created contact
 	 * @throws \Exception
 	 */
-	public static function insert(array $fields, int $duplicate_mode = Database::INSERT_DEFAULT)
+	public static function insert(array $fields, int $duplicate_mode = Database::INSERT_DEFAULT): int
 	{
 		if (!empty($fields['baseurl']) && empty($fields['gsid'])) {
 			$fields['gsid'] = GServer::getID($fields['baseurl'], true);
@@ -187,6 +187,7 @@ class Contact
 	 *
 	 * @return boolean was the update successfull?
 	 * @throws \Exception
+	 * @todo Let's get rid of boolean type of $old_fields
 	 */
 	public static function update(array $fields, array $condition, $old_fields = [])
 	{
@@ -204,7 +205,7 @@ class Contact
 	 * @return array|boolean Contact record if it exists, false otherwise
 	 * @throws \Exception
 	 */
-	public static function getById($id, $fields = [])
+	public static function getById(int $id, array $fields = [])
 	{
 		return DBA::selectFirst('contact', $fields, ['id' => $id]);
 	}
@@ -217,7 +218,7 @@ class Contact
 	 * @return array|boolean Contact record if it exists, false otherwise
 	 * @throws \Exception
 	 */
-	public static function getByUriId($uri_id, $fields = [])
+	public static function getByUriId(int $uri_id, array $fields = [])
 	{
 		return DBA::selectFirst('contact', $fields, ['uri-id' => $uri_id], ['order' => ['uid']]);
 	}
@@ -231,7 +232,7 @@ class Contact
 	 * @param integer $uid    User ID of the contact
 	 * @return array contact array
 	 */
-	public static function getByURL(string $url, $update = null, array $fields = [], int $uid = 0)
+	public static function getByURL(string $url, $update = null, array $fields = [], int $uid = 0): array
 	{
 		if ($update || is_null($update)) {
 			$cid = self::getIdForURL($url, $uid, $update);
@@ -302,7 +303,7 @@ class Contact
 	 * @param array   $fields Field list
 	 * @return array contact array
 	 */
-	public static function getByURLForUser(string $url, int $uid = 0, $update = false, array $fields = [])
+	public static function getByURLForUser(string $url, int $uid = 0, $update = false, array $fields = []): array
 	{
 		if ($uid != 0) {
 			$contact = self::getByURL($url, $update, $fields, $uid);
@@ -333,7 +334,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isFollower($cid, $uid)
+	public static function isFollower(int $cid, int $uid): bool
 	{
 		if (Contact\User::isBlocked($cid, $uid)) {
 			return false;
@@ -358,7 +359,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isFollowerByURL($url, $uid)
+	public static function isFollowerByURL(string $url, uid $uid): bool
 	{
 		$cid = self::getIdForURL($url, $uid);
 
@@ -370,16 +371,16 @@ class Contact
 	}
 
 	/**
-	 * Tests if the given user follow the given contact
+	 * Tests if the given user shares with the given contact
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
 	 *
-	 * @return boolean is the contact url being followed?
+	 * @return boolean is the contact sharing with given user?
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSharing($cid, $uid)
+	public static function isSharing(int $cid, int $uid): bool
 	{
 		if (Contact\User::isBlocked($cid, $uid)) {
 			return false;
@@ -404,7 +405,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSharingByURL($url, $uid)
+	public static function isSharingByURL(string $url, int $uid): bool
 	{
 		$cid = self::getIdForURL($url, $uid);
 
@@ -425,7 +426,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getBasepath($url, $dont_update = false)
+	public static function getBasepath(string $url, bool $dont_update = false): string
 	{
 		$contact = DBA::selectFirst('contact', ['id', 'baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
 		if (!DBA::isResult($contact)) {
@@ -459,7 +460,7 @@ class Contact
 	 *
 	 * @return boolean Is it the same server?
 	 */
-	public static function isLocal($url)
+	public static function isLocal(string $url): bool
 	{
 		if (!parse_url($url, PHP_URL_SCHEME)) {
 			$addr_parts = explode('@', $url);
@@ -476,7 +477,7 @@ class Contact
 	 *
 	 * @return boolean Is it the same server?
 	 */
-	public static function isLocalById(int $cid)
+	public static function isLocalById(int $cid): bool
 	{
 		$contact = DBA::selectFirst('contact', ['url', 'baseurl'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
@@ -500,7 +501,7 @@ class Contact
 	 * @return integer|boolean Public contact id for given user id
 	 * @throws \Exception
 	 */
-	public static function getPublicIdByUserId($uid)
+	public static function getPublicIdByUserId(int $uid)
 	{
 		$self = DBA::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
 		if (!DBA::isResult($self)) {
@@ -519,7 +520,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getPublicAndUserContactID($cid, $uid)
+	public static function getPublicAndUserContactID(int $cid, int $uid): array
 	{
 		// We have to use the legacy function as long as the post update hasn't finished
 		if (DI::config()->get('system', 'post_update_version') < 1427) {
@@ -560,7 +561,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function legacyGetPublicAndUserContactID($cid, $uid)
+	private static function legacyGetPublicAndUserContactID(int $cid, int $uid): array
 	{
 		if (empty($uid) || empty($cid)) {
 			return [];
@@ -1526,7 +1527,7 @@ class Contact
 	 * @param int $type type of contact or account
 	 * @return string
 	 */
-	public static function getAccountType(int $type)
+	public static function getAccountType(int $type): string
 	{
 		switch ($type) {
 			case self::TYPE_ORGANISATION:
@@ -1552,11 +1553,11 @@ class Contact
 	/**
 	 * Blocks a contact
 	 *
-	 * @param int $cid
-	 * @return bool
-	 * @throws \Exception
+	 * @param int $cid Contact id to block
+	 * @param string $reason Block reason
+	 * @return bool Whether it was successful
 	 */
-	public static function block($cid, $reason = null)
+	public static function block(int $cid, string $reason = null): bool
 	{
 		$return = self::update(['blocked' => true, 'block_reason' => $reason], ['id' => $cid]);
 
@@ -1566,11 +1567,10 @@ class Contact
 	/**
 	 * Unblocks a contact
 	 *
-	 * @param int $cid
-	 * @return bool
-	 * @throws \Exception
+	 * @param int $cid Contact id to unblock
+	 * @return bool Whether it was successfull
 	 */
-	public static function unblock($cid)
+	public static function unblock(int $cid): bool
 	{
 		$return = self::update(['blocked' => false, 'block_reason' => null], ['id' => $cid]);
 
@@ -1580,7 +1580,7 @@ class Contact
 	/**
 	 * Ensure that cached avatar exist
 	 *
-	 * @param integer $cid
+	 * @param integer $cid Contact id
 	 */
 	public static function checkAvatarCache(int $cid)
 	{
@@ -1620,7 +1620,7 @@ class Contact
 	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	private static function getAvatarPath(array $contact, string $size, $no_update = false)
+	private static function getAvatarPath(array $contact, string $size, bool $no_update = false): string
 	{
 		$contact = self::checkAvatarCacheByArray($contact, $no_update);
 
@@ -1654,7 +1654,7 @@ class Contact
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getPhoto(array $contact, bool $no_update = false)
+	public static function getPhoto(array $contact, bool $no_update = false): string
 	{
 		return self::getAvatarPath($contact, Proxy::SIZE_SMALL, $no_update);
 	}
@@ -1666,7 +1666,7 @@ class Contact
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getThumb(array $contact, bool $no_update = false)
+	public static function getThumb(array $contact, bool $no_update = false): string
 	{
 		return self::getAvatarPath($contact, Proxy::SIZE_THUMB, $no_update);
 	}
@@ -1678,7 +1678,7 @@ class Contact
 	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getMicro(array $contact, bool $no_update = false)
+	public static function getMicro(array $contact, bool $no_update = false): string
 	{
 		return self::getAvatarPath($contact, Proxy::SIZE_MICRO, $no_update);
 	}
@@ -1690,7 +1690,7 @@ class Contact
 	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
 	 * @return array contact array with avatar cache fields
 	 */
-	private static function checkAvatarCacheByArray(array $contact, bool $no_update = false)
+	private static function checkAvatarCacheByArray(array $contact, bool $no_update = false): array
 	{
 		$update = false;
 		$contact_fields = [];
@@ -1796,7 +1796,7 @@ class Contact
 	 * @param string $size    Size of the avatar picture
 	 * @return string avatar URL
 	 */
-	public static function getDefaultAvatar(array $contact, string $size)
+	public static function getDefaultAvatar(array $contact, string $size): string
 	{
 		switch ($size) {
 			case Proxy::SIZE_MICRO:
@@ -2614,7 +2614,7 @@ class Contact
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function createFromProbeForUser(int $uid, $url, $network = '')
+	public static function createFromProbeForUser(int $uid, string $url, string $network = ''): array
 	{
 		$result = ['cid' => -1, 'success' => false, 'message' => ''];
 
@@ -2803,7 +2803,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function addRelationship(array $importer, array $contact, array $datarray, $sharing = false, $note = '')
+	public static function addRelationship(array $importer, array $contact, array $datarray, bool $sharing = false, string $note = '')
 	{
 		// Should always be set
 		if (empty($datarray['author-id'])) {
@@ -3030,7 +3030,7 @@ class Contact
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function pruneUnavailable(array $contact_ids)
+	public static function pruneUnavailable(array $contact_ids): array
 	{
 		if (empty($contact_ids)) {
 			return [];
@@ -3058,7 +3058,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function magicLink($contact_url, $url = '')
+	public static function magicLink(string $contact_url, string $url = ''): string
 	{
 		if (!Session::isAuthenticated()) {
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
@@ -3085,7 +3085,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function magicLinkById($cid, $url = '')
+	public static function magicLinkById(int $cid, string $url = ''): string
 	{
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'url', 'uid'], ['id' => $cid]);
 
@@ -3102,7 +3102,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function magicLinkByContact($contact, $url = '')
+	public static function magicLinkByContact(array $contact, string $url = ''): string
 	{
 		$destination = $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 
@@ -3143,7 +3143,7 @@ class Contact
 	 *
 	 * @return boolean "true" if it is a forum
 	 */
-	public static function isForum($contactid)
+	public static function isForum(int $contactid): bool
 	{
 		$fields = ['contact-type'];
 		$condition = ['id' => $contactid];
@@ -3162,7 +3162,7 @@ class Contact
 	 * @param array $contact
 	 * @return bool
 	 */
-	public static function canReceivePrivateMessages(array $contact)
+	public static function canReceivePrivateMessages(array $contact): bool
 	{
 		$protocol = $contact['network'] ?? $contact['protocol'] ?? Protocol::PHANTOM;
 		$self = $contact['self'] ?? false;
@@ -3180,7 +3180,7 @@ class Contact
 	 * @return array with search results
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function searchByName(string $search, string $mode = '', int $uid = 0)
+	public static function searchByName(string $search, string $mode = '', int $uid = 0): array
 	{
 		if (empty($search)) {
 			return [];
@@ -3223,7 +3223,7 @@ class Contact
 	 * @param array $urls
 	 * @return array result "count", "added" and "updated"
 	 */
-	public static function addByUrls(array $urls)
+	public static function addByUrls(array $urls): array
 	{
 		$added = 0;
 		$updated = 0;
@@ -3256,7 +3256,7 @@ class Contact
 	 * @return array The profile array
 	 * @throws Exception
 	 */
-	public static function getRandomContact()
+	public static function getRandomContact(): array
 	{
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'url', 'uid'], [
 			"`uid` = ? AND `network` = ? AND NOT `failed` AND `last-item` > ?",

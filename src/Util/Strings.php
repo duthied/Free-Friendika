@@ -165,7 +165,7 @@ class Strings
 	 * @return string Formatted network name
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function formatNetworkName($network, $url = '')
+	public static function formatNetworkName(string $network, string $url = ''): string
 	{
 		if ($network != '') {
 			if ($url != '') {
@@ -176,6 +176,8 @@ class Strings
 
 			return $network_name;
 		}
+
+		return '';
 	}
 
 	/**
@@ -187,7 +189,7 @@ class Strings
 	 *
 	 * @return string		Transformed string.
 	 */
-	public static function deindent($text, $chr = "[\t ]", $count = NULL)
+	public static function deindent(string $text, string $chr = "[\t ]", int $count = null)
 	{
 		$lines = explode("\n", $text);
 

@@ -60,7 +60,7 @@ class Worker
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function processQueue($run_cron, Process $process)
+	public static function processQueue(bool $run_cron, Process $process)
 	{
 		self::$up_start = microtime(true);
 
@@ -169,7 +169,7 @@ class Worker
 	 *
 	 * @return boolean
 	 */
-	public static function isReady()
+	public static function isReady(): bool
 	{
 		// Count active workers and compare them with a maximum value that depends on the load
 		if (self::tooMuchWorkers()) {
@@ -204,7 +204,7 @@ class Worker
 	 * @return boolean Returns "true" if tasks are existing
 	 * @throws \Exception
 	 */
-	public static function entriesExists()
+	public static function entriesExists(): bool
 	{
 		$stamp = (float)microtime(true);
 		$exists = DBA::exists('workerqueue', ["NOT `done` AND `pid` = 0 AND `next_try` < ?", DateTimeFormat::utcNow()]);
@@ -218,7 +218,7 @@ class Worker
 	 * @return integer Number of deferred entries in the worker queue
 	 * @throws \Exception
 	 */
-	private static function deferredEntries()
+	private static function deferredEntries(): int
 	{
 		$stamp = (float)microtime(true);
 		$count = DBA::count('workerqueue', ["NOT `done` AND `pid` = 0 AND `retrial` > ?", 0]);
@@ -233,7 +233,7 @@ class Worker
 	 * @return integer Number of non executed entries in the worker queue
 	 * @throws \Exception
 	 */
-	private static function totalEntries()
+	private static function totalEntries(): int
 	{
 		$stamp = (float)microtime(true);
 		$count = DBA::count('workerqueue', ['done' => false, 'pid' => 0]);
@@ -248,7 +248,7 @@ class Worker
 	 * @return integer Number of active worker processes
 	 * @throws \Exception
 	 */
-	private static function highestPriority()
+	private static function highestPriority(): int
 	{
 		$stamp = (float)microtime(true);
 		$condition = ["`pid` = 0 AND NOT `done` AND `next_try` < ?", DateTimeFormat::utcNow()];
@@ -269,7 +269,7 @@ class Worker
 	 * @return integer Is there a process running with that priority?
 	 * @throws \Exception
 	 */
-	private static function processWithPriorityActive($priority)
+	private static function processWithPriorityActive(int $priority): int
 	{
 		$condition = ["`priority` <= ? AND `pid` != 0 AND NOT `done`", $priority];
 		return DBA::exists('workerqueue', $condition);
@@ -281,7 +281,7 @@ class Worker
 	 * @param mixed $file
 	 * @return bool
 	 */
-	private static function validateInclude(&$file)
+	private static function validateInclude(&$file): bool
 	{
 		$orig_file = $file;
 
@@ -321,7 +321,7 @@ class Worker
 	 * @return boolean "true" if further processing should be stopped
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function execute($queue)
+	public static function execute(array $queue): bool
 	{
 		$mypid = getmypid();
 
@@ -454,7 +454,7 @@ class Worker
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function execFunction($queue, $funcname, $argv, $method_call)
+	private static function execFunction(array $queue, string $funcname, array $argv, bool $method_call)
 	{
 		$a = DI::app();
 
@@ -543,7 +543,7 @@ class Worker
 	 * @return bool Are more than 3/4 of the maximum connections used?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function maxConnectionsReached()
+	private static function maxConnectionsReached(): bool
 	{
 		// Fetch the max value from the config. This is needed when the system cannot detect the correct value by itself.
 		$max = DI::config()->get("system", "max_connections");
@@ -627,7 +627,7 @@ class Worker
 	 * @return bool Are there too much workers running?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function tooMuchWorkers()
+	private static function tooMuchWorkers(): bool
 	{
 		$queues = DI::config()->get("system", "worker_queues", 10);
 
@@ -751,7 +751,7 @@ class Worker
 	 * @return integer Number of active worker processes
 	 * @throws \Exception
 	 */
-	private static function activeWorkers()
+	private static function activeWorkers(): int
 	{
 		$stamp = (float)microtime(true);
 		$count = DI::process()->countCommand('Worker.php');
@@ -766,7 +766,7 @@ class Worker
 	 * @return array List of worker process ids
 	 * @throws \Exception
 	 */
-	private static function getWorkerPIDList()
+	private static function getWorkerPIDList(): array
 	{
 		$ids = [];
 		$stamp = (float)microtime(true);
@@ -787,7 +787,7 @@ class Worker
 	/**
 	 * Returns waiting jobs for the current process id
 	 *
-	 * @return array waiting workerqueue jobs
+	 * @return array|bool waiting workerqueue jobs or FALSE on failture
 	 * @throws \Exception
 	 */
 	private static function getWaitingJobForPID()
@@ -809,7 +809,7 @@ class Worker
 	 * @return array array with next jobs
 	 * @throws \Exception
 	 */
-	private static function nextProcess(int $limit)
+	private static function nextProcess(int $limit): array
 	{
 		$priority = self::nextPriority();
 		if (empty($priority)) {
@@ -844,7 +844,7 @@ class Worker
 	/**
 	 * Returns the priority of the next workerqueue job
 	 *
-	 * @return string priority
+	 * @return string|bool priority or FALSE on failure
 	 * @throws \Exception
 	 */
 	private static function nextPriority()
@@ -915,7 +915,7 @@ class Worker
 	/**
 	 * Find and claim the next worker process for us
 	 *
-	 * @return boolean Have we found something?
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function findWorkerProcesses()
@@ -993,7 +993,7 @@ class Worker
 	 * @return array worker processes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function workerProcess()
+	public static function workerProcess(): array
 	{
 		// There can already be jobs for us in the queue.
 		$waiting = self::getWaitingJobForPID();
@@ -1003,7 +1003,7 @@ class Worker
 
 		$stamp = (float)microtime(true);
 		if (!DI::lock()->acquire(self::LOCK_PROCESS)) {
-			return false;
+			return [];
 		}
 		self::$lock_duration += (microtime(true) - $stamp);
 
@@ -1011,7 +1011,9 @@ class Worker
 
 		DI::lock()->release(self::LOCK_PROCESS);
 
-		return self::getWaitingJobForPID();
+		// Prevents "Return value of Friendica\Core\Worker::workerProcess() must be of the type array, bool returned"
+		$process = self::getWaitingJobForPID();
+		return (is_array($process) ? $process : []);
 	}
 
 	/**
@@ -1097,7 +1099,7 @@ class Worker
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function spawnWorker($do_cron = false)
+	public static function spawnWorker(bool $do_cron = false)
 	{
 		if (Worker\Daemon::isMode() && DI::config()->get('system', 'worker_fork')) {
 			self::forkProcess($do_cron);
@@ -1231,7 +1233,7 @@ class Worker
 		return $added;
 	}
 
-	public static function countWorkersByCommand(string $command)
+	public static function countWorkersByCommand(string $command): int
 	{
 		return DBA::count('workerqueue', ['done' => false, 'pid' => 0, 'command' => $command]);
 	}
@@ -1244,7 +1246,7 @@ class Worker
 	 * @param integer $max_level maximum retrial level
 	 * @return integer the next retrial level value
 	 */
-	private static function getNextRetrial($queue, $max_level)
+	private static function getNextRetrial(array $queue, int $max_level): int
 	{
 		$created = strtotime($queue['created']);
 		$retrial_time = time() - $created;
@@ -1314,9 +1316,10 @@ class Worker
 	/**
 	 * Check if the system is inside the defined maintenance window
 	 *
+	 * @param bool $check_last_execution Whether check last execution
 	 * @return boolean
 	 */
-	public static function isInMaintenanceWindow(bool $check_last_execution = false)
+	public static function isInMaintenanceWindow(bool $check_last_execution = false): bool
 	{
 		// Calculate the seconds of the start end end of the maintenance window
 		$start = strtotime(DI::config()->get('system', 'maintenance_start')) % 86400;

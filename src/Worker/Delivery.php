@@ -269,7 +269,7 @@ class Delivery
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup, $server_protocol)
+	private static function deliverDFRN(string $cmd, array $contact, array $owner, array $items, array $target_item, bool $public_message, bool $top_level, bool $followup, int $server_protocol)
 	{
 		// Transmit Diaspora reshares via Diaspora if the Friendica contact support Diaspora
 		if (Diaspora::isReshare($target_item['body'] ?? '') && !empty(FContact::getByURL($contact['addr'], false))) {
@@ -384,7 +384,7 @@ class Delivery
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
+	private static function deliverDiaspora(string $cmd, array $contact, array $owner, array $items, array $target_item, bool $public_message, bool $top_level, bool $followup)
 	{
 		// We don't treat Forum posts as "wall-to-wall" to be able to post them via Diaspora
 		$walltowall = $top_level && ($owner['id'] != $items[0]['contact-id']) & ($owner['account-type'] != Model\User::ACCOUNT_TYPE_COMMUNITY);
@@ -478,7 +478,7 @@ class Delivery
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function deliverMail($cmd, $contact, $owner, $target_item, $thr_parent)
+	private static function deliverMail(string $cmd, array $contact, array $owner, array $target_item, array $thr_parent)
 	{
 		if (DI::config()->get('system','imap_disabled')) {
 			return;

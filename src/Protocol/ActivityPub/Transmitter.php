@@ -68,7 +68,7 @@ class Transmitter
 	 * @param array $inboxes
 	 * @return array inboxes with added relay servers
 	 */
-	public static function addRelayServerInboxes(array $inboxes = [])
+	public static function addRelayServerInboxes(array $inboxes = []): array
 	{
 		foreach (Relay::getList(['inbox']) as $contact) {
 			$inboxes[$contact['inbox']] = $contact['inbox'];
@@ -83,7 +83,7 @@ class Transmitter
 	 * @param array $inboxes
 	 * @return array inboxes with added relay servers
 	 */
-	public static function addRelayServerInboxesForItem(int $item_id, array $inboxes = [])
+	public static function addRelayServerInboxesForItem(int $item_id, array $inboxes = []): array
 	{
 		$item = Post::selectFirst(['uid'], ['id' => $item_id]);
 		if (empty($item)) {

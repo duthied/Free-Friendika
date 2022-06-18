@@ -237,7 +237,7 @@ class Profile
 
 		if (!local_user()) {
 			$a->setCurrentTheme($profile['theme']);
-			$a->setCurrentMobileTheme(DI::pConfig()->get($a->getProfileOwner(), 'system', 'mobile_theme'));
+			$a->setCurrentMobileTheme(DI::pConfig()->get($a->getProfileOwner(), 'system', 'mobile_theme') ?? '');
 		}
 
 		/*

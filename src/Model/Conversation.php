@@ -62,7 +62,7 @@ class Conversation
 	 */
 	const RELAY   = 3;
 
-	public static function getByItemUri($item_uri)
+	public static function getByItemUri(string $item_uri)
 	{
 		return DBA::selectFirst('conversation', [], ['item-uri' => $item_uri]);
 	}
@@ -74,7 +74,7 @@ class Conversation
 	 * @return array Item array with removed conversation data
 	 * @throws \Exception
 	 */
-	public static function insert(array $arr)
+	public static function insert(array $arr): array
 	{
 		if (in_array(($arr['network'] ?? '') ?: Protocol::PHANTOM,
 			[Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::TWITTER]) && !empty($arr['uri'])) {

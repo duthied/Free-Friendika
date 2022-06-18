@@ -134,7 +134,7 @@ class User
 	 *
 	 * @return array system account
 	 */
-	public static function getSystemAccount()
+	public static function getSystemAccount(): array
 	{
 		$system = Contact::selectFirst([], ['self' => true, 'uid' => 0]);
 		if (!DBA::isResult($system)) {
@@ -244,7 +244,7 @@ class User
 	 *
 	 * @return string actor account name
 	 */
-	public static function getActorName()
+	public static function getActorName(): string
 	{
 		$system_actor_name = DI::config()->get('system', 'actor_name');
 		if (!empty($system_actor_name)) {
@@ -278,7 +278,7 @@ class User
 	 * @return boolean
 	 * @throws Exception
 	 */
-	public static function exists($uid)
+	public static function exists(int $uid): bool
 	{
 		return DBA::exists('user', ['uid' => $uid]);
 	}
@@ -289,7 +289,7 @@ class User
 	 * @return array|boolean User record if it exists, false otherwise
 	 * @throws Exception
 	 */
-	public static function getById($uid, array $fields = [])
+	public static function getById(int $uid, array $fields = [])
 	{
 		return !empty($uid) ? DBA::selectFirst('user', $fields, ['uid' => $uid]) : [];
 	}
@@ -321,7 +321,7 @@ class User
 	 * @return array|boolean User record if it exists, false otherwise
 	 * @throws Exception
 	 */
-	public static function getByNickname($nickname, array $fields = [])
+	public static function getByNickname(string $nickname, array $fields = [])
 	{
 		return DBA::selectFirst('user', $fields, ['nickname' => $nickname]);
 	}
@@ -334,7 +334,7 @@ class User
 	 * @return integer user id
 	 * @throws Exception
 	 */
-	public static function getIdForURL(string $url)
+	public static function getIdForURL(string $url): int
 	{
 		// Avoid database queries when the local node hostname isn't even part of the url.
 		if (!Contact::isLocal($url)) {
@@ -380,7 +380,7 @@ class User
 	 * @param array $fields
 	 * @return array user
 	 */
-	public static function getFirstAdmin(array $fields = [])
+	public static function getFirstAdmin(array $fields = []) : array
 	{
 		if (!empty(DI::config()->get('config', 'admin_nickname'))) {
 			return self::getByNickname(DI::config()->get('config', 'admin_nickname'), $fields);
@@ -469,7 +469,7 @@ class User
 	 * @return boolean|array
 	 * @throws Exception
 	 */
-	public static function getOwnerDataByNick($nick)
+	public static function getOwnerDataByNick(string $nick)
 	{
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nick]);
 
@@ -488,7 +488,7 @@ class User
 	 * @return int group id
 	 * @throws Exception
 	 */
-	public static function getDefaultGroup($uid)
+	public static function getDefaultGroup(int $uid): int
 	{
 		$user = DBA::selectFirst('user', ['def_gid'], ['uid' => $uid]);
 		if (DBA::isResult($user)) {
@@ -512,7 +512,7 @@ class User
 	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\NotFoundException
 	 */
-	public static function getIdFromPasswordAuthentication($user_info, $password, $third_party = false)
+	public static function getIdFromPasswordAuthentication($user_info, string $password, bool $third_party = false)
 	{
 		// Addons registered with the "authenticate" hook may create the user on the
 		// fly. `getAuthenticationInfo` will fail if the user doesn't exist yet. If
@@ -580,7 +580,7 @@ class User
 	 * @return int User Id if authentication is successful
 	 * @throws HTTPException\ForbiddenException
 	 */
-	public static function getIdFromAuthenticateHooks($username, $password)
+	public static function getIdFromAuthenticateHooks(string $username, string $password): int
 	{
 		$addon_auth = [
 			'username'      => $username,
@@ -613,7 +613,7 @@ class User
 	 * - User array with at least the uid and the hashed password
 	 *
 	 * @param mixed $user_info
-	 * @return array
+	 * @return array|null Null if not found/determined
 	 * @throws HTTPException\NotFoundException
 	 */
 	public static function getAuthenticationInfo($user_info)
@@ -671,7 +671,7 @@ class User
 	 * @return string
 	 * @throws Exception
 	 */
-	public static function generateNewPassword()
+	public static function generateNewPassword(): string
 	{
 		return ucfirst(Strings::getRandomName(8)) . random_int(1000, 9999);
 	}
@@ -683,7 +683,7 @@ class User
 	 * @return bool
 	 * @throws Exception
 	 */
-	public static function isPasswordExposed($password)
+	public static function isPasswordExposed(string $password): bool
 	{
 		$cache = new CacheItemPool();
 		$cache->changeConfig([
@@ -712,7 +712,7 @@ class User
 	 * @param string $password
 	 * @return string
 	 */
-	private static function hashPasswordLegacy($password)
+	private static function hashPasswordLegacy(string $password): string
 	{
 		return hash('whirlpool', $password);
 	}
@@ -724,7 +724,7 @@ class User
 	 * @return string
 	 * @throws Exception
 	 */
-	public static function hashPassword($password)
+	public static function hashPassword(string $password): string
 	{
 		if (!trim($password)) {
 			throw new Exception(DI::l10n()->t('Password can\'t be empty'));
@@ -741,7 +741,7 @@ class User
 	 * @return bool
 	 * @throws Exception
 	 */
-	public static function updatePassword($uid, $password)
+	public static function updatePassword(int $uid, string $password): bool
 	{
 		$password = trim($password);
 
@@ -771,7 +771,7 @@ class User
 	 * @return bool
 	 * @throws Exception
 	 */
-	private static function updatePasswordHashed($uid, $pasword_hashed)
+	private static function updatePasswordHashed(int $uid, string $pasword_hashed): bool
 	{
 		$fields = [
 			'password' => $pasword_hashed,
@@ -792,7 +792,7 @@ class User
 	 * @param string $nickname The nickname that should be checked
 	 * @return boolean True is the nickname is blocked on the node
 	 */
-	public static function isNicknameBlocked($nickname)
+	public static function isNicknameBlocked(string $nickname): bool
 	{
 		$forbidden_nicknames = DI::config()->get('system', 'forbidden_nicknames', '');
 		if (!empty($forbidden_nicknames)) {
@@ -829,7 +829,7 @@ class User
 	 * @return string avatar link
 	 * @throws Exception
 	 */
-	public static function getAvatarUrl(array $user, string $size = ''):string
+	public static function getAvatarUrl(array $user, string $size = ''): string
 	{
 		if (empty($user['nickname'])) {
 			DI::logger()->warning('Missing user nickname key', ['trace' => System::callstack(20)]);
@@ -871,7 +871,7 @@ class User
 	 * @return string banner link
 	 * @throws Exception
 	 */
-	public static function getBannerUrl(array $user):string
+	public static function getBannerUrl(array $user): string
 	{
 		if (empty($user['nickname'])) {
 			DI::logger()->warning('Missing user nickname key', ['trace' => System::callstack(20)]);
@@ -913,7 +913,7 @@ class User
 	 * @throws ImagickException
 	 * @throws Exception
 	 */
-	public static function create(array $data)
+	public static function create(array $data): array
 	{
 		$return = ['user' => null, 'password' => ''];
 
@@ -1255,7 +1255,7 @@ class User
 
 	 * @throws Exception
 	 */
-	public static function block(int $uid, bool $block = true)
+	public static function block(int $uid, bool $block = true): bool
 	{
 		return DBA::update('user', ['blocked' => $block], ['uid' => $uid]);
 	}
@@ -1270,7 +1270,7 @@ class User
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws Exception
 	 */
-	public static function allow(string $hash)
+	public static function allow(string $hash): bool
 	{
 		$register = Register::getByHash($hash);
 		if (!DBA::isResult($register)) {
@@ -1316,7 +1316,7 @@ class User
 	 * @return bool True, if the deny was successfull
 	 * @throws Exception
 	 */
-	public static function deny(string $hash)
+	public static function deny(string $hash): bool
 	{
 		$register = Register::getByHash($hash);
 		if (!DBA::isResult($register)) {
@@ -1348,7 +1348,7 @@ class User
 	 * @throws ErrorException
 	 * @throws ImagickException
 	 */
-	public static function createMinimal(string $name, string $email, string $nick, string $lang = L10n::DEFAULT)
+	public static function createMinimal(string $name, string $email, string $nick, string $lang = L10n::DEFAULT): bool
 	{
 		if (empty($name) ||
 		    empty($email) ||
@@ -1418,7 +1418,7 @@ class User
 	 * @return NULL|boolean from notification() and email() inherited
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
+	public static function sendRegisterPendingEmail(array $user, string $sitename, string $siteurl, string $password)
 	{
 		$body = Strings::deindent(DI::l10n()->t(
 			'
@@ -1461,7 +1461,7 @@ class User
 	 * @return NULL|boolean from notification() and email() inherited
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function sendRegisterOpenEmail(L10n $l10n, $user, $sitename, $siteurl, $password)
+	public static function sendRegisterOpenEmail(L10n $l10n, array $user, string $sitename, string $siteurl, string $password)
 	{
 		$preamble = Strings::deindent($l10n->t(
 			'
@@ -1520,7 +1520,7 @@ class User
 	 * @return bool
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function remove(int $uid)
+	public static function remove(int $uid): bool
 	{
 		if (empty($uid)) {
 			return false;
@@ -1574,7 +1574,7 @@ class User
 	 *    ]
 	 * @throws Exception
 	 */
-	public static function identities($uid)
+	public static function identities(int $uid): array
 	{
 		if (empty($uid)) {
 			return [];
@@ -1646,7 +1646,7 @@ class User
 	 * @param int $uid
 	 * @return bool
 	 */
-	public static function hasIdentities(int $uid):bool
+	public static function hasIdentities(int $uid): bool
 	{
 		if (empty($uid)) {
 			return false;
@@ -1679,7 +1679,7 @@ class User
 	 *
 	 * @throws Exception
 	 */
-	public static function getStatistics()
+	public static function getStatistics(): array
 	{
 		$statistics = [
 			'total_users'           => 0,
@@ -1732,10 +1732,10 @@ class User
 	 * @param string $order Order of the user list (Default is 'contact.name')
 	 * @param bool   $descending Order direction (Default is ascending)
 	 *
-	 * @return array The list of the users
+	 * @return array|bool The list of the users
 	 * @throws Exception
 	 */
-	public static function getList($start = 0, $count = Pager::ITEMS_PER_PAGE, $type = 'all', $order = 'name', bool $descending = false)
+	public static function getList(int $start = 0, int $count = Pager::ITEMS_PER_PAGE, string $type = 'all', string $order = 'name', bool $descending = false)
 	{
 		$param = ['limit' => [$start, $count], 'order' => [$order => $descending]];
 		$condition = [];

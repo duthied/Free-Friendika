@@ -59,7 +59,7 @@ class Attach
 	 * @param array $conditions Array of fields for conditions
 	 * @param array $params     Array of several parameters
 	 *
-	 * @return array
+	 * @return array|bool
 	 *
 	 * @throws \Exception
 	 * @see   \Friendica\Database\DBA::selectToArray
@@ -102,7 +102,7 @@ class Attach
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	public static function exists(array $conditions)
+	public static function exists(array $conditions): bool
 	{
 		return DBA::exists('attach', $conditions);
 	}
@@ -117,7 +117,7 @@ class Attach
 	 * @throws \Exception
 	 * @see   \Friendica\Database\DBA::select
 	 */
-	public static function getById($id)
+	public static function getById(int $id)
 	{
 		return self::selectFirst([], ['id' => $id]);
 	}
@@ -132,7 +132,7 @@ class Attach
 	 * @throws \Exception
 	 * @see   \Friendica\Database\DBA::select
 	 */
-	public static function getByIdWithPermission($id)
+	public static function getByIdWithPermission(int $id)
 	{
 		$r = self::selectFirst(['uid'], ['id' => $id]);
 		if ($r === false) {
@@ -156,10 +156,10 @@ class Attach
 	 *
 	 * @param array $item Attachment data. Needs at least 'id', 'backend-class', 'backend-ref'
 	 *
-	 * @return string  file data
+	 * @return string|null file data or null on failure
 	 * @throws \Exception
 	 */
-	public static function getData($item)
+	public static function getData(array $item)
 	{
 		if (!empty($item['data'])) {
 			return $item['data'];
@@ -195,10 +195,10 @@ class Attach
 	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ''
 	 * @param string  $deny_gid  Permissions, denied greoup.optional, default = ''
 	 *
-	 * @return boolean/integer Row id on success, False on errors
+	 * @return boolean|integer Row id on success, False on errors
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function store($data, $uid, $filename, $filetype = '' , $filesize = null, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '')
+	public static function store(string $data, int $uid, string $filename, string $filetype = '' , int $filesize = null, string $allow_cid = '', string $allow_gid = '', string $deny_cid = '', string $deny_gid = '')
 	{
 		if ($filetype === '') {
 			$filetype = Mimetype::getContentType($filename);
@@ -241,17 +241,17 @@ class Attach
 	/**
 	 * Store new file metadata in db and binary in default backend from existing file
 	 *
-	 * @param        $src
-	 * @param        $uid
-	 * @param string $filename
+	 * @param string $src Source file name
+	 * @param int    $uid User id
+	 * @param string $filename Optional file name
 	 * @param string $allow_cid
 	 * @param string $allow_gid
 	 * @param string $deny_cid
 	 * @param string $deny_gid
-	 * @return boolean True on success
+	 * @return boolean|int Insert id or false on failure
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function storeFile($src, $uid, $filename = '', $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '')
+	public static function storeFile(string $src, int $uid, string $filename = '', string $allow_cid = '', string $allow_gid = '', string $deny_cid = '', string $deny_gid = '')
 	{
 		if ($filename === '') {
 			$filename = basename($src);
@@ -276,7 +276,7 @@ class Attach
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   \Friendica\Database\DBA::update
 	 */
-	public static function update($fields, $conditions, Image $img = null, array $old_fields = [])
+	public static function update(array $fields, array $conditions, Image $img = null, array $old_fields = []): bool
 	{
 		if (!is_null($img)) {
 			// get items to update
@@ -311,7 +311,7 @@ class Attach
 	 * @throws \Exception
 	 * @see   \Friendica\Database\DBA::delete
 	 */
-	public static function delete(array $conditions, array $options = [])
+	public static function delete(array $conditions, array $options = []): bool
 	{
 		// get items to delete data info
 		$items = self::selectToArray(['backend-class','backend-ref'], $conditions);

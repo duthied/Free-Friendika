@@ -708,7 +708,6 @@ class HTTPSignature
 			}
 		}
 
-		// @TODO really a notice or more a warning?
 		Logger::notice('Key could not be fetched', ['url' => $url, 'actor' => $actor]);
 		return [];
 	}

@@ -104,12 +104,12 @@ class ActivityPub
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchContent(string $url, int $uid = 0)
+	public static function fetchContent(string $url, int $uid = 0): array
 	{
 		return HTTPSignature::fetch($url, $uid);
 	}
 
-	private static function getAccountType($apcontact)
+	private static function getAccountType(array $apcontact): int
 	{
 		$accounttype = -1;
 
@@ -146,7 +146,7 @@ class ActivityPub
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function probeProfile($url, $update = true)
+	public static function probeProfile(string $url, bool $update = true): array
 	{
 		$apcontact = APContact::getByURL($url, $update);
 		if (empty($apcontact)) {
@@ -204,7 +204,7 @@ class ActivityPub
 	 * @param integer $uid User ID
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchOutbox($url, $uid)
+	public static function fetchOutbox(string $url, int $uid)
 	{
 		$data = self::fetchContent($url, $uid);
 		if (empty($data)) {
@@ -235,7 +235,7 @@ class ActivityPub
 	 * @param integer $uid Optional user id
 	 * @return array Endpoint items
 	 */
-	public static function fetchItems(string $url, int $uid = 0)
+	public static function fetchItems(string $url, int $uid = 0): array
 	{
 		$data = self::fetchContent($url, $uid);
 		if (empty($data)) {
@@ -268,7 +268,7 @@ class ActivityPub
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl($url, $update = null)
+	public static function isSupportedByContactUrl(string $url, $update = null)
 	{
 		return !empty(APContact::getByURL($url, $update));
 	}

@@ -145,7 +145,7 @@ class App
 		$this->nickname = $nickname;
 	}
 
-	public function isLoggedIn()
+	public function isLoggedIn(): bool
 	{
 		return local_user() && $this->user_id && ($this->user_id == local_user());
 	}
@@ -155,7 +155,7 @@ class App
 	 *
 	 * @return bool true if user is an admin
 	 */
-	public function isSiteAdmin()
+	public function isSiteAdmin(): bool
 	{
 		$admin_email = $this->config->get('config', 'admin_email');
 
@@ -166,18 +166,18 @@ class App
 
 	/**
 	 * Fetch the user id
-	 * @return int 
+	 * @return int User id
 	 */
-	public function getLoggedInUserId()
+	public function getLoggedInUserId(): int
 	{
 		return $this->user_id;
 	}
 
 	/**
 	 * Fetch the user nick name
-	 * @return string
+	 * @return string User's nickname
 	 */
-	public function getLoggedInUserNickname()
+	public function getLoggedInUserNickname(): string
 	{
 		return $this->nickname;
 	}
@@ -198,7 +198,7 @@ class App
 	 *
 	 * @return int
 	 */
-	public function getProfileOwner():int
+	public function getProfileOwner(): int
 	{
 		return $this->profile_owner;
 	}
@@ -219,7 +219,7 @@ class App
 	 *
 	 * @return int
 	 */
-	public function getContactId():int
+	public function getContactId(): int
 	{
 		return $this->contact_id;
 	}
@@ -241,7 +241,7 @@ class App
 	 *
 	 * @return int
 	 */
-	public function getTimeZone():string
+	public function getTimeZone(): string
 	{
 		return $this->timezone;
 	}
@@ -260,9 +260,9 @@ class App
 	/**
 	 * Fetch workerqueue information
 	 *
-	 * @return array 
+	 * @return array Worker queue
 	 */
-	public function getQueue()
+	public function getQueue(): array
 	{
 		return $this->queue ?? [];
 	}
@@ -270,8 +270,8 @@ class App
 	/**
 	 * Fetch a specific workerqueue field
 	 *
-	 * @param string $index 
-	 * @return mixed 
+	 * @param string $index Work queue record to fetch
+	 * @return mixed Work queue item or NULL if not found
 	 */
 	public function getQueueValue(string $index)
 	{
@@ -306,9 +306,9 @@ class App
 	/**
 	 * The basepath of this app
 	 *
-	 * @return string
+	 * @return string Base path from configuration
 	 */
-	public function getBasePath()
+	public function getBasePath(): string
 	{
 		// Don't use the basepath of the config table for basepath (it should always be the config-file one)
 		return $this->config->getCache()->get('system', 'basepath');
@@ -396,10 +396,10 @@ class App
 	/**
 	 * Returns the current theme name. May be overriden by the mobile theme name.
 	 *
-	 * @return string
+	 * @return string Current theme name or empty string in installation phase
 	 * @throws Exception
 	 */
-	public function getCurrentTheme()
+	public function getCurrentTheme(): string
 	{
 		if ($this->mode->isInstall()) {
 			return '';
@@ -425,10 +425,10 @@ class App
 	/**
 	 * Returns the current mobile theme name.
 	 *
-	 * @return string
+	 * @return string Mobile theme name or empty string if installer
 	 * @throws Exception
 	 */
-	public function getCurrentMobileTheme()
+	public function getCurrentMobileTheme(): string
 	{
 		if ($this->mode->isInstall()) {
 			return '';
@@ -441,12 +441,22 @@ class App
 		return $this->currentMobileTheme;
 	}
 
-	public function setCurrentTheme($theme)
+	/**
+	 * Setter for current theme name
+	 *
+	 * @param string $theme Name of current theme
+	 */
+	public function setCurrentTheme(string $theme)
 	{
 		$this->currentTheme = $theme;
 	}
 
-	public function setCurrentMobileTheme($theme)
+	/**
+	 * Setter for current mobile theme name
+	 *
+	 * @param string $theme Name of current mobile theme
+	 */
+	public function setCurrentMobileTheme(string $theme)
 	{
 		$this->currentMobileTheme = $theme;
 	}
@@ -525,10 +535,10 @@ class App
 	/**
 	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
 	 *
-	 * @return string
+	 * @return string Current theme's stylsheet path
 	 * @throws Exception
 	 */
-	public function getCurrentThemeStylesheetPath()
+	public function getCurrentThemeStylesheetPath(): string
 	{
 		return Core\Theme::getStylesheetPath($this->getCurrentTheme());
 	}
@@ -730,7 +740,7 @@ class App
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function redirect($toUrl)
+	public function redirect(string $toUrl)
 	{
 		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
 			Core\System::externalRedirect($toUrl);

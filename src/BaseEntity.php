@@ -55,14 +55,14 @@ abstract class BaseEntity extends BaseDataTransferObject
 	}
 
 	/**
-	 * @param $name
+	 * @param mixed $name
 	 * @return bool
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function __isset($name)
+	public function __isset($name): bool
 	{
 		if (!property_exists($this, $name)) {
-			throw new HTTPException\InternalServerErrorException('Unknown property ' . $name . ' in Entity ' . static::class);
+			throw new HTTPException\InternalServerErrorException('Unknown property ' . $name . ' of type ' . gettype($name) . ' in Entity ' . static::class);
 		}
 
 		return !empty($this->$name);

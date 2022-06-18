@@ -427,7 +427,7 @@ class DBA
 	 * @return boolean was the update successfull?
 	 * @throws \Exception
 	 */
-	public static function update($table, $fields, $condition, $old_fields = [], $params = [])
+	public static function update($table, array $fields, array $condition, $old_fields = [], array $params = [])
 	{
 		return DI::dba()->update($table, $fields, $condition, $old_fields, $params);
 	}
@@ -443,7 +443,7 @@ class DBA
 	 * @throws \Exception
 	 * @see   self::select
 	 */
-	public static function selectFirst($table, array $fields = [], array $condition = [], $params = [])
+	public static function selectFirst($table, array $fields = [], array $condition = [], array $params = [])
 	{
 		return DI::dba()->selectFirst($table, $fields, $condition, $params);
 	}
@@ -512,7 +512,7 @@ class DBA
 	 * $count = DBA::count($table, $condition);
 	 * @throws \Exception
 	 */
-	public static function count($table, array $condition = [], array $params = [])
+	public static function count($table, array $condition = [], array $params = []): int
 	{
 		return DI::dba()->count($table, $condition, $params);
 	}
@@ -771,7 +771,7 @@ class DBA
 	 *
 	 * @return array Data array
 	 */
-	public static function toArray($stmt, $do_close = true, int $count = 0)
+	public static function toArray($stmt, $do_close = true, int $count = 0): array
 	{
 		return DI::dba()->toArray($stmt, $do_close, $count);
 	}
@@ -783,7 +783,7 @@ class DBA
 	 * @param array  $fields
 	 * @return array casted fields
 	 */
-	public static function castFields(string $table, array $fields)
+	public static function castFields(string $table, array $fields): array
 	{
 		return DI::dba()->castFields($table, $fields);
 	}
@@ -793,7 +793,7 @@ class DBA
 	 *
 	 * @return string Error number (0 if no error)
 	 */
-	public static function errorNo()
+	public static function errorNo(): int
 	{
 		return DI::dba()->errorNo();
 	}
@@ -803,7 +803,7 @@ class DBA
 	 *
 	 * @return string Error message ('' if no error)
 	 */
-	public static function errorMessage()
+	public static function errorMessage(): string
 	{
 		return DI::dba()->errorMessage();
 	}
@@ -814,7 +814,7 @@ class DBA
 	 * @param object $stmt statement object
 	 * @return boolean was the close successful?
 	 */
-	public static function close($stmt)
+	public static function close($stmt): bool
 	{
 		return DI::dba()->close($stmt);
 	}
@@ -827,7 +827,7 @@ class DBA
 	 *      'amount' => Number of concurrent database processes
 	 * @throws \Exception
 	 */
-	public static function processlist()
+	public static function processlist(): array
 	{
 		return DI::dba()->processlist();
 	}

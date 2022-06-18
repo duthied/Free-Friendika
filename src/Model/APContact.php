@@ -48,7 +48,7 @@ class APContact
 	 * @param string $addr Address
 	 * @return array webfinger data
 	 */
-	private static function fetchWebfingerData(string $addr)
+	private static function fetchWebfingerData(string $addr): array
 	{
 		$addr_parts = explode('@', $addr);
 		if (count($addr_parts) != 2) {
@@ -117,14 +117,14 @@ class APContact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getByURL($url, $update = null)
+	public static function getByURL(string $url, $update = null): array
 	{
 		if (empty($url) || Network::isUrlBlocked($url)) {
 			Logger::info('Domain is blocked', ['url' => $url]);
 			return [];
 		}
 
-		$fetched_contact = false;
+		$fetched_contact = [];
 
 		if (empty($update)) {
 			if (is_null($update)) {
@@ -220,14 +220,14 @@ class APContact
 		$apcontact['type'] = str_replace('as:', '', JsonLD::fetchElement($compacted, '@type'));
 		$apcontact['following'] = JsonLD::fetchElement($compacted, 'as:following', '@id');
 		$apcontact['followers'] = JsonLD::fetchElement($compacted, 'as:followers', '@id');
-		$apcontact['inbox'] = JsonLD::fetchElement($compacted, 'ldp:inbox', '@id');
+		$apcontact['inbox'] = (JsonLD::fetchElement($compacted, 'ldp:inbox', '@id') ?? '');
 		self::unarchiveInbox($apcontact['inbox'], false);
 
 		$apcontact['outbox'] = JsonLD::fetchElement($compacted, 'as:outbox', '@id');
 
 		$apcontact['sharedinbox'] = '';
 		if (!empty($compacted['as:endpoints'])) {
-			$apcontact['sharedinbox'] = JsonLD::fetchElement($compacted['as:endpoints'], 'as:sharedInbox', '@id');
+			$apcontact['sharedinbox'] = (JsonLD::fetchElement($compacted['as:endpoints'], 'as:sharedInbox', '@id') ?? '');
 			self::unarchiveInbox($apcontact['sharedinbox'], true);
 		}
 
@@ -527,7 +527,7 @@ class APContact
 	 * @param string  $url    inbox url
 	 * @param boolean $shared Shared Inbox
 	 */
-	private static function unarchiveInbox($url, $shared)
+	private static function unarchiveInbox(string $url, bool $shared)
 	{
 		if (empty($url)) {
 			return;
