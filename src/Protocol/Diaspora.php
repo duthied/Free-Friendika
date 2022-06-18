@@ -323,14 +323,14 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function decode(string $xml, string $privKey = ''): array
+	public static function decode(string $xml, string $privKey = '')
 	{
 		$public = false;
 		$basedom = XML::parseString($xml);
 
 		if (!is_object($basedom)) {
 			Logger::notice('XML is not parseable.');
-			return [];
+			return false;
 		}
 		$children = $basedom->children('https://joindiaspora.com/protocol');
 
@@ -344,7 +344,7 @@ class Diaspora
 			// This happens with posts from a relais
 			if (empty($privKey)) {
 				Logger::info('This is no private post in the old format');
-				return [];
+				return false;
 			}
 
 			$encrypted_header = json_decode(base64_decode($children->encrypted_header));
