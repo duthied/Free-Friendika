@@ -163,7 +163,7 @@ class DBStructure
 	public static function writeStructure()
 	{
 		$tables = [];
-		foreach (self::definition(null) as $name => $definition) {
+		foreach (self::definition('') as $name => $definition) {
 			$indexes  = [[
 				'name'   => 'Name',
 				'fields' => 'Fields',
