@@ -1221,7 +1221,7 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	`mimetype` varchar(60) COMMENT '',
 	`height` smallint unsigned COMMENT 'Height of the media',
 	`width` smallint unsigned COMMENT 'Width of the media',
-	`size` mediumint unsigned COMMENT 'Media size',
+	`size` bigint unsigned COMMENT 'Media size',
 	`preview` varbinary(255) COMMENT 'Preview URL',
 	`preview-height` smallint unsigned COMMENT 'Height of the preview picture',
 	`preview-width` smallint unsigned COMMENT 'Width of the preview picture',

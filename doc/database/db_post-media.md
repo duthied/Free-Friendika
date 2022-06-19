@@ -15,7 +15,7 @@ Fields
 | mimetype        |                                                           | varchar(60)        | YES  |     | NULL    |                |
 | height          | Height of the media                                       | smallint unsigned  | YES  |     | NULL    |                |
 | width           | Width of the media                                        | smallint unsigned  | YES  |     | NULL    |                |
-| size            | Media size                                                | mediumint unsigned | YES  |     | NULL    |                |
+| size            | Media size                                                | bigint unsigned    | YES  |     | NULL    |                |
 | preview         | Preview URL                                               | varbinary(255)     | YES  |     | NULL    |                |
 | preview-height  | Height of the preview picture                             | smallint unsigned  | YES  |     | NULL    |                |
 | preview-width   | Width of the preview picture                              | smallint unsigned  | YES  |     | NULL    |                |

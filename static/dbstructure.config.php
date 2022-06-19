@@ -1257,7 +1257,7 @@ return [
 			"mimetype" => ["type" => "varchar(60)", "comment" => ""],
 			"height" => ["type" => "smallint unsigned", "comment" => "Height of the media"],
 			"width" => ["type" => "smallint unsigned", "comment" => "Width of the media"],
-			"size" => ["type" => "mediumint unsigned", "comment" => "Media size"],
+			"size" => ["type" => "bigint unsigned", "comment" => "Media size"],
 			"preview" => ["type" => "varbinary(255)", "comment" => "Preview URL"],
 			"preview-height" => ["type" => "smallint unsigned", "comment" => "Height of the preview picture"],
 			"preview-width" => ["type" => "smallint unsigned", "comment" => "Width of the preview picture"],
