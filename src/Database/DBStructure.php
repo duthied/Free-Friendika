@@ -292,7 +292,7 @@ class DBStructure
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function definition(string $basePath, bool $with_addons_structure = true): string
+	public static function definition(string $basePath, bool $with_addons_structure = true): array
 	{
 		if (!self::$definition) {
 			if (empty($basePath)) {
