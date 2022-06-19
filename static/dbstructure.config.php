@@ -1272,7 +1272,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"uri-id-url" => ["UNIQUE", "uri-id", "url"],
+			"uri-id-url" => ["UNIQUE", "uri-id", "url(512)"],
 			"uri-id-id" => ["uri-id", "id"],
 		]
 	],

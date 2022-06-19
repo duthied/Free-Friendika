@@ -31,11 +31,11 @@ Fields
 Indexes
 ------------
 
-| Name       | Fields              |
-| ---------- | ------------------- |
-| PRIMARY    | id                  |
-| uri-id-url | UNIQUE, uri-id, url |
-| uri-id-id  | uri-id, id          |
+| Name       | Fields                   |
+| ---------- | ------------------------ |
+| PRIMARY    | id                       |
+| uri-id-url | UNIQUE, uri-id, url(512) |
+| uri-id-id  | uri-id, id               |
 
 Foreign Keys
 ------------
