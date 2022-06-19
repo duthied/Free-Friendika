@@ -51,22 +51,21 @@ interface ICanHandleHttpResponses
 	 *@see MessageInterface::getHeader()
 	 *
 	 */
-	public function getHeader(string $header): array;
+	public function getHeader(string $header);
 
 	/**
 	 * Returns all headers
-	 * @see MessageInterface::getHeaders()
 	 *
+	 * @see MessageInterface::getHeaders()
 	 * @return string[][]
 	 */
-	public function getHeaders(): array;
+	public function getHeaders();
 
 	/**
 	 * Check if a specified header exists
+	 *
 	 * @see MessageInterface::hasHeader()
-	 *
 	 * @param string $field header field
-	 *
 	 * @return boolean "true" if header exists
 	 */
 	public function inHeader(string $field): bool;
@@ -78,7 +77,7 @@ interface ICanHandleHttpResponses
 	 *
 	 * @return string[][] associated header array
 	 */
-	public function getHeaderArray(): array;
+	public function getHeaderArray();
 
 	/**
 	 * @return bool
@@ -96,11 +95,12 @@ interface ICanHandleHttpResponses
 	public function getRedirectUrl(): string;
 
 	/**
-	 * @see MessageInterface::getBody()
+	 * Getter for body
 	 *
+	 * @see MessageInterface::getBody()
 	 * @return string
 	 */
-	public function getBody(): string;
+	public function getBody();
 
 	/**
 	 * @return boolean
