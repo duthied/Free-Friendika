@@ -656,7 +656,7 @@ class Installer
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function checkDB(Database $dba)
+	public function checkDB(Database $dba): bool
 	{
 		$dba->reconnect();
 
