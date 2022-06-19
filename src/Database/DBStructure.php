@@ -492,8 +492,7 @@ class DBStructure
 		}
 
 
-		$sql = sprintf("%s INDEX `%s` (%s)", $method, DBA::escape($indexName), $names);
-		return ($sql);
+		return sprintf("%s INDEX `%s` (%s)", $method, DBA::escape($indexName), $names);
 	}
 
 	/**
@@ -515,7 +514,7 @@ class DBStructure
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	public static function performUpdate(bool $enable_maintenance_mode = true, bool $verbose = false)
+	public static function performUpdate(bool $enable_maintenance_mode = true, bool $verbose = false): string
 	{
 		if ($enable_maintenance_mode) {
 			DI::config()->set('system', 'maintenance', 1);
@@ -539,7 +538,7 @@ class DBStructure
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	public static function install(string $basePath)
+	public static function install(string $basePath): string
 	{
 		return self::update($basePath, false, true, true);
 	}
@@ -556,7 +555,7 @@ class DBStructure
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	private static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
+	private static function update(string $basePath, bool $verbose, bool $action, bool $install = false, array $tables = null, array $definition = null): string
 	{
 		$in_maintenance_mode = DI::config()->get('system', 'maintenance');
 
@@ -841,7 +840,13 @@ class DBStructure
 		return $errors;
 	}
 
-	private static function tableStructure($table)
+	/**
+	 * Returns an array with table structure information
+	 *
+	 * @param string $table Name of table
+	 * @return array Table structure information
+	 */
+	private static function tableStructure(string $table): array
 	{
 		// This query doesn't seem to be executable as a prepared statement
 		$indexes = DBA::toArray(DBA::p("SHOW INDEX FROM " . DBA::quoteIdentifier($table)));
