@@ -82,6 +82,7 @@ General
 ../settings
 ---------
 * o - Account
+* 2 - Two-factor authentication
 * p - Profiles
 * t - Additional features
 * w - Social Networks

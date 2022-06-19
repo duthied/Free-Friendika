@@ -48,7 +48,7 @@ class BaseSettings extends BaseModule
 			'label' => DI::l10n()->t('Two-factor authentication'),
 			'url' => 'settings/2fa',
 			'selected' => ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === '2fa') ? 'active' : ''),
-			'accesskey' => 'o',
+			'accesskey' => '2',
 		];
 
 		$tabs[] = [
