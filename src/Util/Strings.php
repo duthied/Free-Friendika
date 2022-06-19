@@ -32,11 +32,11 @@ class Strings
 	/**
 	 * Generates a pseudo-random string of hexadecimal characters
 	 *
-	 * @param int $size
-	 * @return string
+	 * @param int $size Size of string (default: 64)
+	 * @return string Pseudo-random string
 	 * @throws \Exception
 	 */
-	public static function getRandomHex($size = 64)
+	public static function getRandomHex(int $size = 64): string
 	{
 		$byte_size = ceil($size / 2);
 
@@ -51,10 +51,9 @@ class Strings
 	 * Checks, if the given string is a valid hexadecimal code
 	 *
 	 * @param string $hexCode
-	 *
 	 * @return bool
 	 */
-	public static function isHex($hexCode)
+	public static function isHex(string $hexCode): bool
 	{
 		return !empty($hexCode) ? @preg_match("/^[a-f0-9]{2,}$/i", $hexCode) && !(strlen($hexCode) & 1) : false;
 	}
@@ -75,10 +74,9 @@ class Strings
 	 * Generate a string that's random, but usually pronounceable. Used to generate initial passwords
 	 *
 	 * @param int $len	length
-	 *
 	 * @return string
 	 */
-	public static function getRandomName($len)
+	public static function getRandomName(int $len): string
 	{
 		if ($len <= 0) {
 			return '';
@@ -161,7 +159,6 @@ class Strings
 	 *
 	 * @param string $network Network name of the contact (e.g. dfrn, rss and so on)
 	 * @param string $url	  The contact url
-	 *
 	 * @return string Formatted network name
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -189,7 +186,7 @@ class Strings
 	 *
 	 * @return string		Transformed string.
 	 */
-	public static function deindent(string $text, string $chr = "[\t ]", int $count = null)
+	public static function deindent(string $text, string $chr = "[\t ]", int $count = null): string
 	{
 		$lines = explode("\n", $text);
 
@@ -218,7 +215,7 @@ class Strings
 	 *
 	 * @return string	Size with measured units.
 	 */
-	public static function formatBytes($bytes, $precision = 2)
+	public static function formatBytes(int $bytes, int $precision = 2): string
 	{
 		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 		$bytes = max($bytes, 0);
@@ -233,10 +230,9 @@ class Strings
 	 * Protect percent characters in sprintf calls
 	 *
 	 * @param string $s String to transform.
-	 *
 	 * @return string	Transformed string.
 	 */
-	public static function protectSprintf($s)
+	public static function protectSprintf(string $s): string
 	{
 		return str_replace('%', '%%', $s);
 	}
@@ -246,10 +242,9 @@ class Strings
 	 *
 	 * @param string $s					URL to encode
 	 * @param boolean $strip_padding	Optional. Default false
-	 *
 	 * @return string	Encoded URL
 	 */
-	public static function base64UrlEncode($s, $strip_padding = false)
+	public static function base64UrlEncode(string $s, bool $strip_padding = false): string
 	{
 		$s = strtr(base64_encode($s), '+/', '-_');
 
@@ -262,18 +257,13 @@ class Strings
 
 	/**
 	 * Decode Base64 Encoded URL and translate -_ to +/
-	 * @param string $s URL to decode
 	 *
+	 * @param string $s URL to decode
 	 * @return string	Decoded URL
 	 * @throws \Exception
 	 */
-	public static function base64UrlDecode($s)
+	public static function base64UrlDecode(string $s): string
 	{
-		if (is_array($s)) {
-			Logger::notice('base64url_decode: illegal input: ', ['backtrace' => debug_backtrace()]);
-			return $s;
-		}
-
 		/*
 		*  // Placeholder for new rev of salmon which strips base64 padding.
 		*  // PHP base64_decode handles the un-padded input without requiring this step
@@ -297,10 +287,9 @@ class Strings
 	 * Normalize url
 	 *
 	 * @param string $url	URL to be normalized.
-	 *
 	 * @return string	Normalized URL.
 	 */
-	public static function normaliseLink($url)
+	public static function normaliseLink(string $url): string
 	{
 		$ret = str_replace(['https:', '//www.'], ['http:', '//'], $url);
 		return rtrim($ret, '/');
@@ -310,10 +299,9 @@ class Strings
 	 * Normalize OpenID identity
 	 *
 	 * @param string $s OpenID Identity
-	 *
 	 * @return string	normalized OpenId Identity
 	 */
-	public static function normaliseOpenID($s)
+	public static function normaliseOpenID(string $s): string
 	{
 		return trim(str_replace(['http://', 'https://'], ['', ''], $s), '/');
 	}
@@ -329,7 +317,7 @@ class Strings
 	 * @return boolean True if the URLs match, otherwise False
 	 *
 	 */
-	public static function compareLink($a, $b)
+	public static function compareLink(string $a, string $b): bool
 	{
 		return (strcasecmp(self::normaliseLink($a), self::normaliseLink($b)) === 0);
 	}
@@ -340,7 +328,7 @@ class Strings
 	 * @param string $uri
 	 * @return string
 	 */
-	public static function ensureQueryParameter($uri)
+	public static function ensureQueryParameter(string $uri): string
 	{
 		if (strpos($uri, '?') === false && ($pos = strpos($uri, '&')) !== false) {
 			$uri = substr($uri, 0, $pos) . '?' . substr($uri, $pos + 1);
@@ -356,7 +344,7 @@ class Strings
 	 * @param array	 $chars
 	 * @return bool
 	 */
-	public static function startsWithChars($string, array $chars)
+	public static function startsWithChars(string $string, array $chars): bool
 	{
 		$return = in_array(substr(trim($string), 0, 1), $chars);
 
@@ -371,7 +359,7 @@ class Strings
 	 * @param string $start
 	 * @return bool
 	 */
-	public static function startsWith(string $string, string $start)
+	public static function startsWith(string $string, string $start): bool
 	{
 		$return = substr_compare($string, $start, 0, strlen($start)) === 0;
 
@@ -386,7 +374,7 @@ class Strings
 	 * @param string $end
 	 * @return bool
 	 */
-	public static function endsWith(string $string, string $end)
+	public static function endsWith(string $string, string $end): string
 	{
 		$return = substr_compare($string, $end, -strlen($end)) === 0;
 
@@ -399,7 +387,7 @@ class Strings
 	 * @return string
 	 * @see https://daringfireball.net/2010/07/improved_regex_for_matching_urls
 	 */
-	public static function autoLinkRegEx()
+	public static function autoLinkRegEx(): string
 	{
 		return '@
 (?<![=\'\]"/])			# Not preceded by [, =, \', ], ", /
@@ -429,7 +417,7 @@ class Strings
 	 * @param string $pathItem
 	 * @return string
 	 */
-	public static function sanitizeFilePathItem($pathItem)
+	public static function sanitizeFilePathItem(string $pathItem): string
 	{
 		$pathItem = str_replace('/', '_', $pathItem);
 		$pathItem = str_replace('\\', '_', $pathItem);
@@ -451,7 +439,7 @@ class Strings
 	 * @return string
 	 * @see substr_replace()
 	 */
-	public static function substringReplace(string $string, string $replacement, int $start, int $length = null)
+	public static function substringReplace(string $string, string $replacement, int $start, int $length = null): string
 	{
 		$string_length = mb_strlen($string);
 

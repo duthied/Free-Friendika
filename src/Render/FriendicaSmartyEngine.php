@@ -69,7 +69,7 @@ final class FriendicaSmartyEngine extends TemplateEngine
 	/**
 	 * @inheritDoc
 	 */
-	public function replaceMacros(string $template, array $vars)
+	public function replaceMacros(string $template, array $vars): string
 	{
 		if (!Strings::startsWith($template, self::FILE_PREFIX)) {
 			$template = self::STRING_PREFIX . $template;

@@ -45,6 +45,7 @@ abstract class TemplateEngine
 	 * parameter or displays them directly if it's null.
 	 *
 	 * @param array|null $errors
+	 * @return void
 	 */
 	abstract public function testInstall(array &$errors = null);
 
@@ -53,9 +54,9 @@ abstract class TemplateEngine
 	 *
 	 * @param string $template
 	 * @param array  $vars
-	 * @return string
+	 * @return string Template output with replaced macros
 	 */
-	abstract public function replaceMacros(string $template, array $vars);
+	abstract public function replaceMacros(string $template, array $vars): string;
 
 	/**
 	 * Returns the template string from a file path and an optional sub-directory from the project root
