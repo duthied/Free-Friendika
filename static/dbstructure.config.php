@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1471);
+	define('DB_UPDATE_VERSION', 1472);
 }
 
 return [
@@ -1252,13 +1252,13 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"url" => ["type" => "text", "not null" => "1", "comment" => "Media URL"],
+			"url" => ["type" => "varbinary(1024)", "not null" => "1", "comment" => "Media URL"],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Media type"],
 			"mimetype" => ["type" => "varchar(60)", "comment" => ""],
 			"height" => ["type" => "smallint unsigned", "comment" => "Height of the media"],
 			"width" => ["type" => "smallint unsigned", "comment" => "Width of the media"],
 			"size" => ["type" => "bigint unsigned", "comment" => "Media size"],
-			"preview" => ["type" => "varbinary(255)", "comment" => "Preview URL"],
+			"preview" => ["type" => "varbinary(512)", "comment" => "Preview URL"],
 			"preview-height" => ["type" => "smallint unsigned", "comment" => "Height of the preview picture"],
 			"preview-width" => ["type" => "smallint unsigned", "comment" => "Width of the preview picture"],
 			"description" => ["type" => "text", "comment" => ""],

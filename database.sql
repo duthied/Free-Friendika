@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1471
+-- DB_UPDATE_VERSION 1472
 -- ------------------------------------------
 
 
@@ -1216,13 +1216,13 @@ CREATE TABLE IF NOT EXISTS `post-link` (
 CREATE TABLE IF NOT EXISTS `post-media` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`url` text NOT NULL COMMENT 'Media URL',
+	`url` varbinary(1024) NOT NULL COMMENT 'Media URL',
 	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Media type',
 	`mimetype` varchar(60) COMMENT '',
 	`height` smallint unsigned COMMENT 'Height of the media',
 	`width` smallint unsigned COMMENT 'Width of the media',
 	`size` bigint unsigned COMMENT 'Media size',
-	`preview` varbinary(255) COMMENT 'Preview URL',
+	`preview` varbinary(512) COMMENT 'Preview URL',
 	`preview-height` smallint unsigned COMMENT 'Height of the preview picture',
 	`preview-width` smallint unsigned COMMENT 'Width of the preview picture',
 	`description` text COMMENT '',

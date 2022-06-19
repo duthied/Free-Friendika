@@ -10,13 +10,13 @@ Fields
 | --------------- | --------------------------------------------------------- | ----------------- | ---- | --- | ------- | -------------- |
 | id              | sequential ID                                             | int unsigned      | NO   | PRI | NULL    | auto_increment |
 | uri-id          | Id of the item-uri table entry that contains the item uri | int unsigned      | NO   |     | NULL    |                |
-| url             | Media URL                                                 | text              | NO   |     | NULL    |                |
+| url             | Media URL                                                 | varbinary(1024)   | NO   |     | NULL    |                |
 | type            | Media type                                                | tinyint unsigned  | NO   |     | 0       |                |
 | mimetype        |                                                           | varchar(60)       | YES  |     | NULL    |                |
 | height          | Height of the media                                       | smallint unsigned | YES  |     | NULL    |                |
 | width           | Width of the media                                        | smallint unsigned | YES  |     | NULL    |                |
 | size            | Media size                                                | bigint unsigned   | YES  |     | NULL    |                |
-| preview         | Preview URL                                               | varbinary(255)    | YES  |     | NULL    |                |
+| preview         | Preview URL                                               | varbinary(512)    | YES  |     | NULL    |                |
 | preview-height  | Height of the preview picture                             | smallint unsigned | YES  |     | NULL    |                |
 | preview-width   | Width of the preview picture                              | smallint unsigned | YES  |     | NULL    |                |
 | description     |                                                           | text              | YES  |     | NULL    |                |
