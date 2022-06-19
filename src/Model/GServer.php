@@ -535,7 +535,7 @@ class GServer
 		$serverdata['last_contact'] = DateTimeFormat::utcNow();
 		$serverdata['failed'] = false;
 
-		$gserver = DBA::selectFirst('gserver', ['network'], ['nurl' => Strings::normaliseLink($url)]);
+		$gserver = DBA::selectFirst('gserver', ['network'], ['nurl' => $serverdata['nurl']]);
 		if (!DBA::isResult($gserver)) {
 			$serverdata['created'] = DateTimeFormat::utcNow();
 			$ret = DBA::insert('gserver', $serverdata);
