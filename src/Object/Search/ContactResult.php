@@ -110,7 +110,7 @@ class ContactResult implements IResult
 	/**
 	 * @return string
 	 */
-	public function getUrl()
+	public function getUrl(): string
 	{
 		return $this->url;
 	}

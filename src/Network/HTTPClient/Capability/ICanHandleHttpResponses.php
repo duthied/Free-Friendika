@@ -33,14 +33,14 @@ interface ICanHandleHttpResponses
 	 *
 	 * @return string The Return Code
 	 */
-	public function getReturnCode();
+	public function getReturnCode(): string;
 
 	/**
 	 * Returns the Content Type
 	 *
 	 * @return string the Content Type
 	 */
-	public function getContentType();
+	public function getContentType(): string;
 
 	/**
 	 * Returns the headers
@@ -51,7 +51,7 @@ interface ICanHandleHttpResponses
 	 *@see MessageInterface::getHeader()
 	 *
 	 */
-	public function getHeader(string $header);
+	public function getHeader(string $header): array;
 
 	/**
 	 * Returns all headers
@@ -59,7 +59,7 @@ interface ICanHandleHttpResponses
 	 *
 	 * @return string[][]
 	 */
-	public function getHeaders();
+	public function getHeaders(): array;
 
 	/**
 	 * Check if a specified header exists
@@ -69,7 +69,7 @@ interface ICanHandleHttpResponses
 	 *
 	 * @return boolean "true" if header exists
 	 */
-	public function inHeader(string $field);
+	public function inHeader(string $field): bool;
 
 	/**
 	 * Returns the headers as an associated array
@@ -78,47 +78,47 @@ interface ICanHandleHttpResponses
 	 *
 	 * @return string[][] associated header array
 	 */
-	public function getHeaderArray();
+	public function getHeaderArray(): array;
 
 	/**
 	 * @return bool
 	 */
-	public function isSuccess();
+	public function isSuccess(): bool;
 
 	/**
 	 * @return string
 	 */
-	public function getUrl();
+	public function getUrl(): string;
 
 	/**
 	 * @return string
 	 */
-	public function getRedirectUrl();
+	public function getRedirectUrl(): string;
 
 	/**
 	 * @see MessageInterface::getBody()
 	 *
 	 * @return string
 	 */
-	public function getBody();
+	public function getBody(): string;
 
 	/**
 	 * @return boolean
 	 */
-	public function isRedirectUrl();
+	public function isRedirectUrl(): bool;
 
 	/**
 	 * @return integer
 	 */
-	public function getErrorNumber();
+	public function getErrorNumber(): int;
 
 	/**
 	 * @return string
 	 */
-	public function getError();
+	public function getError(): string;
 
 	/**
 	 * @return boolean
 	 */
-	public function isTimeout();
+	public function isTimeout(): bool;
 }

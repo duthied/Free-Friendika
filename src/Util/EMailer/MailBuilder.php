@@ -164,7 +164,7 @@ abstract class MailBuilder
 	 *
 	 * @return string[][]
 	 */
-	public function getHeaders()
+	public function getHeaders(): array
 	{
 		return $this->headers;
 	}
@@ -182,7 +182,7 @@ abstract class MailBuilder
 	 * @param string[][] $headers
 	 * @return $this
 	 */
-	public function withHeaders(array $headers)
+	public function withHeaders(array $headers): MailBuilder
 	{
 		$this->headers = $headers;
 
