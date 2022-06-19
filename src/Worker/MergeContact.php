@@ -30,9 +30,9 @@ class MergeContact
 	/**
 	 * Replace all occurences of the given contact id and replace it
 	 *
-	 * @param integer $new_cid
-	 * @param integer $old_cid
-	 * @param integer $uid
+	 * @param integer $new_cid New contact id
+	 * @param integer $old_cid Old contact id
+	 * @param integer $uid User id
 	 */
 	public static function execute(int $new_cid, int $old_cid, int $uid)
 	{

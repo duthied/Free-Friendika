@@ -29,7 +29,7 @@ class Mimetype
 	 * @param string $filename filename
 	 * @return mixed array or string
 	 */
-	public static function getContentType($filename)
+	public static function getContentType(string $filename)
 	{
 		$mime_types = [
 	

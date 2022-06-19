@@ -45,7 +45,7 @@ class Mail
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function insert($msg, $notification = true)
+	public static function insert(array $msg, bool $notification = true)
 	{
 		if (!isset($msg['reply'])) {
 			$msg['reply'] = DBA::exists('mail', ['parent-uri' => $msg['parent-uri']]);
@@ -125,7 +125,7 @@ class Mail
 	 * @return int
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function send($recipient = 0, $body = '', $subject = '', $replyto = '')
+	public static function send(int $recipient = 0, string $body = '', string $subject = '', string $replyto = ''): int
 	{
 		$a = DI::app();
 
@@ -255,7 +255,7 @@ class Mail
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendWall(array $recipient = [], $body = '', $subject = '', $replyto = '')
+	public static function sendWall(array $recipient = [], string $body = '', string $subject = '', string $replyto = ''): int
 	{
 		if (!$recipient) {
 			return -1;

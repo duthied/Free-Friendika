@@ -150,10 +150,9 @@ class DBStructure
 	 * Print out database error messages
 	 *
 	 * @param string $message Message to be added to the error message
-	 *
 	 * @return string Error message
 	 */
-	private static function printUpdateError($message)
+	private static function printUpdateError(string $message): string
 	{
 		echo DI::l10n()->t("\nError %d occurred during database update:\n%s\n",
 			DBA::errorNo(), DBA::errorMessage());
@@ -164,7 +163,7 @@ class DBStructure
 	public static function writeStructure()
 	{
 		$tables = [];
-		foreach (self::definition(null) as $name => $definition) {
+		foreach (self::definition('') as $name => $definition) {
 			$indexes  = [[
 				'name'   => 'Name',
 				'fields' => 'Fields',
@@ -225,8 +224,8 @@ class DBStructure
 				$field['default'] = $value['default'] ?? 'NULL';
 				$field['extra']   = $value['extra'] ?? '';
 
-				foreach ($field as $fieldname => $fieldvalue) {
-					$lengths[$fieldname] = max($lengths[$fieldname] ?? 0, strlen($fieldvalue));
+				foreach ($field as $fieldName => $fieldvalue) {
+					$lengths[$fieldName] = max($lengths[$fieldName] ?? 0, strlen($fieldvalue));
 				}
 				$fields[] = $field;
 
@@ -263,7 +262,7 @@ class DBStructure
 		file_put_contents($filename, $content);
 	}
 
-	public static function printStructure($basePath)
+	public static function printStructure(string $basePath)
 	{
 		$database = self::definition($basePath, false);
 
@@ -288,12 +287,12 @@ class DBStructure
 	 * On first pass, defines DB_UPDATE_VERSION constant.
 	 *
 	 * @see static/dbstructure.config.php
-	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
 	 * @param string  $basePath              The base path of this application
+	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function definition($basePath, $with_addons_structure = true)
+	public static function definition(string $basePath, bool $with_addons_structure = true): array
 	{
 		if (!self::$definition) {
 			if (empty($basePath)) {
@@ -303,7 +302,7 @@ class DBStructure
 			$filename = $basePath . '/static/dbstructure.config.php';
 
 			if (!is_readable($filename)) {
-				throw new Exception('Missing database structure config file static/dbstructure.config.php');
+				throw new Exception('Missing database structure config file static/dbstructure.config.php at basePath=' . $basePath);
 			}
 
 			$definition = require $filename;
@@ -327,23 +326,23 @@ class DBStructure
 	/**
 	 * Get field data for the given table
 	 *
-	 * @param string $table
+	 * @param string $table Tavle to load field definitions for
 	 * @param array $data data fields
 	 * @return array fields for the given
 	 */
-	public static function getFieldsForTable(string $table, array $data = [])
+	public static function getFieldsForTable(string $table, array $data = []): array
 	{
 		$definition = DBStructure::definition('', false);
 		if (empty($definition[$table])) {
 			return [];
 		}
 
-		$fieldnames = array_keys($definition[$table]['fields']);
+		$fieldNames = array_keys($definition[$table]['fields']);
 
 		$fields = [];
 
 		// Assign all field that are present in the table
-		foreach ($fieldnames as $field) {
+		foreach ($fieldNames as $field) {
 			if (isset($data[$field])) {
 				// Limit the length of varchar, varbinary, char and binrary fields
 				if (is_string($data[$field]) && preg_match("/char\((\d*)\)/", $definition[$table]['fields'][$field]['type'], $result)) {
@@ -358,45 +357,54 @@ class DBStructure
 		return $fields;
 	}
 
-	private static function createTable($name, $structure, $verbose, $action)
+	/**
+	 * Creates given table with structure
+	 *
+	 * @param string  $name Name of table
+	 * @param array   $structure Structure of table
+	 * @param boolean $verbose Output SQL statements
+	 * @param boolean $action Whether to run the SQL commands
+	 * @return Whether the SQL command ran successful
+	 */
+	private static function createTable(string $name, array $structure, bool $verbose, bool $action): bool
 	{
 		$r = true;
 
-		$engine = "";
-		$comment = "";
+		$engine = '';
+		$comment = '';
 		$sql_rows = [];
 		$primary_keys = [];
 		$foreign_keys = [];
 
-		foreach ($structure["fields"] as $fieldname => $field) {
-			$sql_rows[] = "`" . DBA::escape($fieldname) . "` " . self::FieldCommand($field);
+		foreach ($structure['fields'] as $fieldName => $field) {
+			$sql_rows[] = '`' . DBA::escape($fieldName) . '` ' . self::FieldCommand($field);
 			if (!empty($field['primary'])) {
-				$primary_keys[] = $fieldname;
+				$primary_keys[] = $fieldName;
 			}
 			if (!empty($field['foreign'])) {
-				$foreign_keys[$fieldname] = $field;
+				$foreign_keys[$fieldName] = $field;
 			}
 		}
 
-		if (!empty($structure["indexes"])) {
-			foreach ($structure["indexes"] as $indexname => $fieldnames) {
-				$sql_index = self::createIndex($indexname, $fieldnames, "");
+		if (!empty($structure['indexes'])) {
+			foreach ($structure['indexes'] as $indexName => $fieldNames) {
+				$sql_index = self::createIndex($indexName, $fieldNames, '');
 				if (!is_null($sql_index)) {
 					$sql_rows[] = $sql_index;
 				}
 			}
 		}
 
-		foreach ($foreign_keys as $fieldname => $parameters) {
-			$sql_rows[] = self::foreignCommand($name, $fieldname, $parameters);
+		foreach ($foreign_keys as $fieldName => $parameters) {
+			$sql_rows[] = self::foreignCommand($name, $fieldName, $parameters);
 		}
 
-		if (isset($structure["engine"])) {
-			$engine = " ENGINE=" . $structure["engine"];
+		if (isset($structure['engine'])) {
+			$engine = ' ENGINE=' . $structure['engine'];
 		}
 
-		if (isset($structure["comment"])) {
-			$comment = " COMMENT='" . DBA::escape($structure["comment"]) . "'";
+		if (isset($structure['comment'])) {
+			$comment = " COMMENT='" . DBA::escape($structure['comment']) . "'";
 		}
 
 		$sql = implode(",\n\t", $sql_rows);
@@ -414,71 +422,77 @@ class DBStructure
 		return $r;
 	}
 
-	private static function FieldCommand($parameters, $create = true)
+	/**
+	 * Returns SQL statement for field
+	 *
+	 * @param array   $parameters Parameters for SQL statement
+	 * @param boolean $create Whether to include PRIMARY KEY statement (unused)
+	 * @return string SQL statement part
+	 */
+	private static function FieldCommand(array $parameters, bool $create = true): string
 	{
-		$fieldstruct = $parameters["type"];
+		$fieldstruct = $parameters['type'];
 
-		if (isset($parameters["Collation"])) {
-			$fieldstruct .= " COLLATE " . $parameters["Collation"];
+		if (isset($parameters['Collation'])) {
+			$fieldstruct .= ' COLLATE ' . $parameters['Collation'];
 		}
 
-		if (isset($parameters["not null"])) {
-			$fieldstruct .= " NOT NULL";
+		if (isset($parameters['not null'])) {
+			$fieldstruct .= ' NOT NULL';
 		}
 
-		if (isset($parameters["default"])) {
-			if (strpos(strtolower($parameters["type"]), "int") !== false) {
-				$fieldstruct .= " DEFAULT " . $parameters["default"];
+		if (isset($parameters['default'])) {
+			if (strpos(strtolower($parameters['type']), 'int') !== false) {
+				$fieldstruct .= ' DEFAULT ' . $parameters['default'];
 			} else {
-				$fieldstruct .= " DEFAULT '" . $parameters["default"] . "'";
+				$fieldstruct .= " DEFAULT '" . $parameters['default'] . "'";
 			}
 		}
-		if (isset($parameters["extra"])) {
-			$fieldstruct .= " " . $parameters["extra"];
+		if (isset($parameters['extra'])) {
+			$fieldstruct .= ' ' . $parameters['extra'];
 		}
 
-		if (isset($parameters["comment"])) {
-			$fieldstruct .= " COMMENT '" . DBA::escape($parameters["comment"]) . "'";
+		if (isset($parameters['comment'])) {
+			$fieldstruct .= " COMMENT '" . DBA::escape($parameters['comment']) . "'";
 		}
 
-		/*if (($parameters["primary"] != "") && $create)
-			$fieldstruct .= " PRIMARY KEY";*/
+		/*if (($parameters['primary'] != '') && $create)
+			$fieldstruct .= ' PRIMARY KEY';*/
 
-		return ($fieldstruct);
+		return $fieldstruct;
 	}
 
-	private static function createIndex($indexname, $fieldnames, $method = "ADD")
+	private static function createIndex(string $indexName, array $fieldNames, string $method = 'ADD')
 	{
 		$method = strtoupper(trim($method));
 		if ($method != "" && $method != "ADD") {
 			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
 		}
 
-		if (in_array($fieldnames[0], ["UNIQUE", "FULLTEXT"])) {
-			$index_type = array_shift($fieldnames);
+		if (in_array($fieldNames[0], ["UNIQUE", "FULLTEXT"])) {
+			$index_type = array_shift($fieldNames);
 			$method .= " " . $index_type;
 		}
 
 		$names = "";
-		foreach ($fieldnames as $fieldname) {
+		foreach ($fieldNames as $fieldName) {
 			if ($names != "") {
 				$names .= ",";
 			}
 
-			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
+			if (preg_match('|(.+)\((\d+)\)|', $fieldName, $matches)) {
 				$names .= "`" . DBA::escape($matches[1]) . "`(" . intval($matches[2]) . ")";
 			} else {
-				$names .= "`" . DBA::escape($fieldname) . "`";
+				$names .= "`" . DBA::escape($fieldName) . "`";
 			}
 		}
 
-		if ($indexname == "PRIMARY") {
+		if ($indexName == "PRIMARY") {
 			return sprintf("%s PRIMARY KEY(%s)", $method, $names);
 		}
 
 
-		$sql = sprintf("%s INDEX `%s` (%s)", $method, DBA::escape($indexname), $names);
-		return ($sql);
+		return sprintf("%s INDEX `%s` (%s)", $method, DBA::escape($indexName), $names);
 	}
 
 	/**
@@ -500,7 +514,7 @@ class DBStructure
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	public static function performUpdate(bool $enable_maintenance_mode = true, bool $verbose = false)
+	public static function performUpdate(bool $enable_maintenance_mode = true, bool $verbose = false): string
 	{
 		if ($enable_maintenance_mode) {
 			DI::config()->set('system', 'maintenance', 1);
@@ -524,7 +538,7 @@ class DBStructure
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	public static function install(string $basePath)
+	public static function install(string $basePath): string
 	{
 		return self::update($basePath, false, true, true);
 	}
@@ -541,7 +555,7 @@ class DBStructure
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	private static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
+	private static function update(string $basePath, bool $verbose, bool $action, bool $install = false, array $tables = null, array $definition = null): string
 	{
 		$in_maintenance_mode = DI::config()->get('system', 'maintenance');
 
@@ -606,15 +620,15 @@ class DBStructure
 				 * or the definition differ from current status
 				 * and index name doesn't start with "local_"
 				 */
-				foreach ($database[$name]["indexes"] as $indexname => $fieldnames) {
-					$current_index_definition = implode(",", $fieldnames);
-					if (isset($structure["indexes"][$indexname])) {
-						$new_index_definition = implode(",", $structure["indexes"][$indexname]);
+				foreach ($database[$name]["indexes"] as $indexName => $fieldNames) {
+					$current_index_definition = implode(",", $fieldNames);
+					if (isset($structure["indexes"][$indexName])) {
+						$new_index_definition = implode(",", $structure["indexes"][$indexName]);
 					} else {
 						$new_index_definition = "__NOT_SET__";
 					}
-					if ($current_index_definition != $new_index_definition && substr($indexname, 0, 6) != 'local_') {
-						$sql2 = self::dropIndex($indexname);
+					if ($current_index_definition != $new_index_definition && substr($indexName, 0, 6) != 'local_') {
+						$sql2 = self::dropIndex($indexName);
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
@@ -623,9 +637,9 @@ class DBStructure
 					}
 				}
 				// Compare the field structure field by field
-				foreach ($structure["fields"] as $fieldname => $parameters) {
-					if (!isset($database[$name]["fields"][$fieldname])) {
-						$sql2 = self::addTableField($fieldname, $parameters);
+				foreach ($structure["fields"] as $fieldName => $parameters) {
+					if (!isset($database[$name]["fields"][$fieldName])) {
+						$sql2 = self::addTableField($fieldName, $parameters);
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
@@ -633,7 +647,7 @@ class DBStructure
 						}
 					} else {
 						// Compare the field definition
-						$field_definition = $database[$name]["fields"][$fieldname];
+						$field_definition = $database[$name]["fields"][$fieldName];
 
 						// Remove the relation data that is used for the referential integrity
 						unset($parameters['relation']);
@@ -653,7 +667,7 @@ class DBStructure
 						$current_field_definition = DBA::cleanQuery(implode(",", $field_definition));
 						$new_field_definition = DBA::cleanQuery(implode(",", $parameters));
 						if ($current_field_definition != $new_field_definition) {
-							$sql2 = self::modifyTableField($fieldname, $parameters);
+							$sql2 = self::modifyTableField($fieldName, $parameters);
 							if ($sql3 == "") {
 								$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 							} else {
@@ -670,15 +684,15 @@ class DBStructure
 			 * Don't create keys if table is new
 			 */
 			if (!$is_new_table) {
-				foreach ($structure["indexes"] as $indexname => $fieldnames) {
-					if (isset($database[$name]["indexes"][$indexname])) {
-						$current_index_definition = implode(",", $database[$name]["indexes"][$indexname]);
+				foreach ($structure["indexes"] as $indexName => $fieldNames) {
+					if (isset($database[$name]["indexes"][$indexName])) {
+						$current_index_definition = implode(",", $database[$name]["indexes"][$indexName]);
 					} else {
 						$current_index_definition = "__NOT_SET__";
 					}
-					$new_index_definition = implode(",", $fieldnames);
+					$new_index_definition = implode(",", $fieldNames);
 					if ($current_index_definition != $new_index_definition) {
-						$sql2 = self::createIndex($indexname, $fieldnames);
+						$sql2 = self::createIndex($indexName, $fieldNames);
 
 						if ($sql2 != "") {
 							if ($sql3 == "") {
@@ -694,17 +708,17 @@ class DBStructure
 
 				// Foreign keys
 				// Compare the field structure field by field
-				foreach ($structure["fields"] as $fieldname => $parameters) {
+				foreach ($structure["fields"] as $fieldName => $parameters) {
 					if (empty($parameters['foreign'])) {
 						continue;
 					}
 
-					$constraint = self::getConstraintName($name, $fieldname, $parameters);
+					$constraint = self::getConstraintName($name, $fieldName, $parameters);
 
 					unset($existing_foreign_keys[$constraint]);
 
 					if (empty($database[$name]['foreign_keys'][$constraint])) {
-						$sql2 = self::addForeignKey($name, $fieldname, $parameters);
+						$sql2 = self::addForeignKey($name, $fieldName, $parameters);
 
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
@@ -767,9 +781,9 @@ class DBStructure
 
 				// Now have a look at the field collations
 				// Compare the field structure field by field
-				foreach ($structure["fields"] as $fieldname => $parameters) {
+				foreach ($structure["fields"] as $fieldName => $parameters) {
 					// Compare the field definition
-					$field_definition = ($database[$name]["fields"][$fieldname] ?? '') ?: ['Collation' => ''];
+					$field_definition = ($database[$name]["fields"][$fieldName] ?? '') ?: ['Collation' => ''];
 
 					// Define the default collation if not given
 					if (!isset($parameters['Collation']) && !empty($field_definition['Collation'])) {
@@ -779,7 +793,7 @@ class DBStructure
 					}
 
 					if ($field_definition['Collation'] != $parameters['Collation']) {
-						$sql2 = self::modifyTableField($fieldname, $parameters);
+						$sql2 = self::modifyTableField($fieldName, $parameters);
 						if (($sql3 == "") || (substr($sql3, -2, 2) == "; ")) {
 							$sql3 .= "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
@@ -826,7 +840,13 @@ class DBStructure
 		return $errors;
 	}
 
-	private static function tableStructure($table)
+	/**
+	 * Returns an array with table structure information
+	 *
+	 * @param string $table Name of table
+	 * @return array Table structure information
+	 */
+	private static function tableStructure(string $table): array
 	{
 		// This query doesn't seem to be executable as a prepared statement
 		$indexes = DBA::toArray(DBA::p("SHOW INDEX FROM " . DBA::quoteIdentifier($table)));
@@ -909,41 +929,42 @@ class DBStructure
 			}
 		}
 
-		return ["fields" => $fielddata, "indexes" => $indexdata,
-			"foreign_keys" => $foreigndata, "table_status" => $table_status];
+		return [
+			'fields' => $fielddata,
+			'indexes' => $indexdata,
+			'foreign_keys' => $foreigndata,
+			'table_status' => $table_status
+		];
 	}
 
-	private static function dropIndex($indexname)
+	private static function dropIndex(string $indexName): string
 	{
-		$sql = sprintf("DROP INDEX `%s`", DBA::escape($indexname));
-		return ($sql);
+		return sprintf("DROP INDEX `%s`", DBA::escape($indexName));
 	}
 
-	private static function addTableField($fieldname, $parameters)
+	private static function addTableField(string $fieldName, array $parameters): string
 	{
-		$sql = sprintf("ADD `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters));
-		return ($sql);
+		return sprintf("ADD `%s` %s", DBA::escape($fieldName), self::FieldCommand($parameters));
 	}
 
-	private static function modifyTableField($fieldname, $parameters)
+	private static function modifyTableField(string $fieldName, array $parameters): string
 	{
-		$sql = sprintf("MODIFY `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters, false));
-		return ($sql);
+		return sprintf("MODIFY `%s` %s", DBA::escape($fieldName), self::FieldCommand($parameters, false));
 	}
 
-	private static function getConstraintName(string $tablename, string $fieldname, array $parameters)
+	private static function getConstraintName(string $tableName, string $fieldName, array $parameters): string
 	{
 		$foreign_table = array_keys($parameters['foreign'])[0];
 		$foreign_field = array_values($parameters['foreign'])[0];
 
-		return $tablename . "-" . $fieldname. "-" . $foreign_table. "-" . $foreign_field;
+		return $tableName . '-' . $fieldName. '-' . $foreign_table. '-' . $foreign_field;
 	}
 
-	private static function foreignCommand(string $tablename, string $fieldname, array $parameters) {
+	private static function foreignCommand(string $tableName, string $fieldName, array $parameters) {
 		$foreign_table = array_keys($parameters['foreign'])[0];
 		$foreign_field = array_values($parameters['foreign'])[0];
 
-		$sql = "FOREIGN KEY (`" . $fieldname . "`) REFERENCES `" . $foreign_table . "` (`" . $foreign_field . "`)";
+		$sql = "FOREIGN KEY (`" . $fieldName . "`) REFERENCES `" . $foreign_table . "` (`" . $foreign_field . "`)";
 
 		if (!empty($parameters['foreign']['on update'])) {
 			$sql .= " ON UPDATE " . strtoupper($parameters['foreign']['on update']);
@@ -960,12 +981,12 @@ class DBStructure
 		return $sql;
 	}
 
-	private static function addForeignKey(string $tablename, string $fieldname, array $parameters)
+	private static function addForeignKey(string $tableName, string $fieldName, array $parameters): string
 	{
-		return sprintf("ADD %s", self::foreignCommand($tablename, $fieldname, $parameters));
+		return sprintf("ADD %s", self::foreignCommand($tableName, $fieldName, $parameters));
 	}
 
-	private static function dropForeignKey(string $constraint)
+	private static function dropForeignKey(string $constraint): string
 	{
 		return sprintf("DROP FOREIGN KEY `%s`", $constraint);
 	}
@@ -983,7 +1004,7 @@ class DBStructure
 	 * @return boolean Was the renaming successful?
 	 * @throws Exception
 	 */
-	public static function rename($table, $columns, $type = self::RENAME_COLUMN)
+	public static function rename(string $table, array $columns, int $type = self::RENAME_COLUMN): bool
 	{
 		if (empty($table) || empty($columns)) {
 			return false;
@@ -1019,7 +1040,7 @@ class DBStructure
 				return false;
 		}
 
-		$sql .= ";";
+		$sql .= ';';
 
 		$stmt = DBA::p($sql);
 
@@ -1079,39 +1100,33 @@ class DBStructure
 	/**
 	 * Check if a foreign key exists for the given table field
 	 *
-	 * @param string $table
-	 * @param string $field
-	 * @return boolean
+	 * @param string $table Table name
+	 * @param string $field Field name
+	 * @return boolean Wether a foreign key exists
 	 */
-	public static function existsForeignKeyForField(string $table, string $field)
+	public static function existsForeignKeyForField(string $table, string $field): bool
 	{
 		return DBA::exists(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `COLUMN_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
 			DBA::databaseName(), $table, $field]);
 	}
+
 	/**
-	 *    Check if a table exists
+	 * Check if a table exists
 	 *
-	 * @param string|array $table Table name
-	 *
+	 * @param string $table Single table name (please loop yourself)
 	 * @return boolean Does the table exist?
 	 * @throws Exception
 	 */
-	public static function existsTable($table)
+	public static function existsTable(string $table): bool
 	{
 		if (empty($table)) {
 			return false;
 		}
 
-		if (is_array($table)) {
-			$condition = ['table_schema' => key($table), 'table_name' => current($table)];
-		} else {
-			$condition = ['table_schema' => DBA::databaseName(), 'table_name' => $table];
-		}
+		$condition = ['table_schema' => DBA::databaseName(), 'table_name' => $table];
 
-		$result = DBA::exists(['information_schema' => 'tables'], $condition);
-
-		return $result;
+		return DBA::exists(['information_schema' => 'tables'], $condition);
 	}
 
 	/**
@@ -1122,7 +1137,7 @@ class DBStructure
 	 * @return array An array of the table columns
 	 * @throws Exception
 	 */
-	public static function getColumns($table)
+	public static function getColumns(string $table): array
 	{
 		$stmtColumns = DBA::p("SHOW COLUMNS FROM `" . $table . "`");
 		return DBA::toArray($stmtColumns);
@@ -1130,6 +1145,9 @@ class DBStructure
 
 	/**
 	 * Check if initial database values do exist - or create them
+	 *
+	 * @param bool $verbose Whether to output messages
+	 * @return void
 	 */
 	public static function checkInitialValues(bool $verbose = false)
 	{
@@ -1265,7 +1283,7 @@ class DBStructure
 	 *
 	 * @return boolean
 	 */
-	private static function isUpdating()
+	private static function isUpdating(): bool
 	{
 		$isUpdate = false;
 

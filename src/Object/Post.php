@@ -1008,7 +1008,7 @@ class Post
 	/**
 	 * @return string
 	 */
-	private function getRedirectUrl()
+	private function getRedirectUrl(): string
 	{
 		return $this->redirect_url;
 	}

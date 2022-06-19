@@ -33,14 +33,14 @@ interface ICanHandleHttpResponses
 	 *
 	 * @return string The Return Code
 	 */
-	public function getReturnCode();
+	public function getReturnCode(): string;
 
 	/**
 	 * Returns the Content Type
 	 *
 	 * @return string the Content Type
 	 */
-	public function getContentType();
+	public function getContentType(): string;
 
 	/**
 	 * Returns the headers
@@ -55,21 +55,20 @@ interface ICanHandleHttpResponses
 
 	/**
 	 * Returns all headers
-	 * @see MessageInterface::getHeaders()
 	 *
+	 * @see MessageInterface::getHeaders()
 	 * @return string[][]
 	 */
 	public function getHeaders();
 
 	/**
 	 * Check if a specified header exists
+	 *
 	 * @see MessageInterface::hasHeader()
-	 *
 	 * @param string $field header field
-	 *
 	 * @return boolean "true" if header exists
 	 */
-	public function inHeader(string $field);
+	public function inHeader(string $field): bool;
 
 	/**
 	 * Returns the headers as an associated array
@@ -83,21 +82,22 @@ interface ICanHandleHttpResponses
 	/**
 	 * @return bool
 	 */
-	public function isSuccess();
+	public function isSuccess(): bool;
 
 	/**
 	 * @return string
 	 */
-	public function getUrl();
+	public function getUrl(): string;
 
 	/**
 	 * @return string
 	 */
-	public function getRedirectUrl();
+	public function getRedirectUrl(): string;
 
 	/**
-	 * @see MessageInterface::getBody()
+	 * Getter for body
 	 *
+	 * @see MessageInterface::getBody()
 	 * @return string
 	 */
 	public function getBody();
@@ -105,20 +105,20 @@ interface ICanHandleHttpResponses
 	/**
 	 * @return boolean
 	 */
-	public function isRedirectUrl();
+	public function isRedirectUrl(): bool;
 
 	/**
 	 * @return integer
 	 */
-	public function getErrorNumber();
+	public function getErrorNumber(): int;
 
 	/**
 	 * @return string
 	 */
-	public function getError();
+	public function getError(): string;
 
 	/**
 	 * @return boolean
 	 */
-	public function isTimeout();
+	public function isTimeout(): bool;
 }

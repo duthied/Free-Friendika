@@ -59,7 +59,7 @@ class ParseUrl
 	 * @param string $accept content-type to accept
 	 * @return array content type
 	 */
-	public static function getContentType(string $url, string $accept = HttpClientAccept::DEFAULT)
+	public static function getContentType(string $url, string $accept = HttpClientAccept::DEFAULT): array
 	{
 		$curlResult = DI::httpClient()->head($url, [HttpClientOptions::ACCEPT_CONTENT => $accept]);
 

@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\Core\Addon;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use stdClass;
@@ -101,7 +102,7 @@ class Nodeinfo
 	 *
 	 * @return array with supported services
 	*/
-	public static function getServices()
+	public static function getServices(): array
 	{
 		$services = [
 			'inbound'  => [],
@@ -156,9 +157,19 @@ class Nodeinfo
 		return $services;
 	}
 
-	public static function getOrganization($config)
+	/**
+	 * Gathers organization information and returns it as an array
+	 *
+	 * @param IManageConfigValues $config Configuration instance
+	 * @return array Organization information
+	 */
+	public static function getOrganization(IManageConfigValues $config): array
 	{
-		$organization = ['name' => null, 'contact' => null, 'account' => null];
+		$organization = [
+			'name' => null,
+			'contact' => null,
+			'account' => null
+		];
 
 		if (!empty($config->get('config', 'admin_email'))) {
 			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));

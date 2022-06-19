@@ -1216,7 +1216,7 @@ class Processor
 		}
 
 		$replyto = JsonLD::fetchElement($activity['as:object'], 'as:inReplyTo', '@id');
-		$uriid = ItemURI::getIdByURI($replyto);
+		$uriid = ItemURI::getIdByURI($replyto ?? '');
 		if (Post::exists(['uri-id' => $uriid])) {
 			Logger::info('Post is a reply to an existing post - accepted', ['id' => $id, 'uri-id' => $uriid, 'replyto' => $replyto]);
 			return true;
