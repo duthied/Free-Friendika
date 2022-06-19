@@ -39,12 +39,12 @@ class View
 	 * On first pass, defines DB_UPDATE_VERSION constant.
 	 *
 	 * @see static/dbview.config.php
-	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
 	 * @param string  $basePath              The base path of this application
+	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function definition($basePath = '', $with_addons_structure = true)
+	public static function definition(string $basePath = '', bool $with_addons_structure = true): array
 	{
 		if (!self::$definition) {
 			if (empty($basePath)) {
@@ -75,6 +75,13 @@ class View
 		return $definition;
 	}
 
+	/**
+	 * Creates a view
+	 *
+	 * @param bool $verbose Whether to show SQL statements
+	 * @param bool $action Whether to execute SQL statements
+	 * @return void
+	 */
 	public static function create(bool $verbose, bool $action)
 	{
 		// Delete previously used views that aren't used anymore
@@ -94,11 +101,17 @@ class View
 		$definition = self::definition();
 
 		foreach ($definition as $name => $structure) {
-			self::createview($name, $structure, $verbose, $action);
+			self::createView($name, $structure, $verbose, $action);
 		}
 	}
 
-	public static function printStructure($basePath)
+	/**
+	 * Prints view structure
+	 *
+	 * @param string $basePath Base path
+	 * @return void
+	 */
+	public static function printStructure(string $basePath)
 	{
 		$database = self::definition($basePath, false);
 
@@ -112,12 +125,21 @@ class View
 		}
 	}
 
-	private static function createview($name, $structure, $verbose, $action)
+	/**
+	 * Creates view
+	 *
+	 * @param string $name Name of view
+	 * @param array $structure Structure of view
+	 * @param bool $verbose Whether to show SQL statements
+	 * @param bool $action Whether to execute SQL statements
+	 * @return bool Whether execution went fine
+	 */
+	private static function createView(string $name, array $structure, bool $verbose, bool $action): bool
 	{
 		$r = true;
 
 		$sql_rows = [];
-		foreach ($structure["fields"] as $fieldname => $origin) {
+		foreach ($structure['fields'] as $fieldname => $origin) {
 			if (is_string($origin)) {
 				$sql_rows[] = $origin . " AS `" . DBA::escape($fieldname) . "`";
 			} elseif (is_array($origin) && (sizeof($origin) == 2)) {
@@ -159,7 +181,7 @@ class View
 	 * @param string $view
 	 * @return boolean "true" if it's a view
 	 */
-	private static function isView(string $view)
+	private static function isView(string $view): bool
 	{
 		$status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_TYPE'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_NAME' => $view]);
@@ -177,7 +199,7 @@ class View
 	 * @param string $table
 	 * @return boolean "true" if it's a table
 	 */
-	private static function isTable(string $table)
+	private static function isTable(string $table): bool
 	{
 		$status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_TYPE'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_NAME' => $table]);
