@@ -59,7 +59,7 @@ class Feed
 	 * @return array Returns the header and the first item in dry run mode
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function import($xml, array $importer = [], array $contact = [])
+	public static function import(string $xml, array $importer = [], array $contact = []): array
 	{
 		$dryRun = empty($importer) && empty($contact);
 
@@ -88,11 +88,11 @@ class Feed
 		@$doc->loadXML($xml);
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
-		$xpath->registerNamespace('dc', "http://purl.org/dc/elements/1.1/");
-		$xpath->registerNamespace('content', "http://purl.org/rss/1.0/modules/content/");
-		$xpath->registerNamespace('rdf', "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-		$xpath->registerNamespace('rss', "http://purl.org/rss/1.0/");
-		$xpath->registerNamespace('media', "http://search.yahoo.com/mrss/");
+		$xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
+		$xpath->registerNamespace('content', 'http://purl.org/rss/1.0/modules/content/');
+		$xpath->registerNamespace('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
+		$xpath->registerNamespace('rss', 'http://purl.org/rss/1.0/');
+		$xpath->registerNamespace('media', 'http://search.yahoo.com/mrss/');
 		$xpath->registerNamespace('poco', ActivityNamespace::POCO);
 
 		$author = [];
@@ -100,11 +100,11 @@ class Feed
 
 		// Is it RDF?
 		if ($xpath->query('/rdf:RDF/rss:channel')->length > 0) {
-			$author["author-link"] = XML::getFirstNodeValue($xpath, '/rdf:RDF/rss:channel/rss:link/text()');
-			$author["author-name"] = XML::getFirstNodeValue($xpath, '/rdf:RDF/rss:channel/rss:title/text()');
+			$author['author-link'] = XML::getFirstNodeValue($xpath, '/rdf:RDF/rss:channel/rss:link/text()');
+			$author['author-name'] = XML::getFirstNodeValue($xpath, '/rdf:RDF/rss:channel/rss:title/text()');
 
-			if (empty($author["author-name"])) {
-				$author["author-name"] = XML::getFirstNodeValue($xpath, '/rdf:RDF/rss:channel/rss:description/text()');
+			if (empty($author['author-name'])) {
+				$author['author-name'] = XML::getFirstNodeValue($xpath, '/rdf:RDF/rss:channel/rss:description/text()');
 			}
 			$entries = $xpath->query('/rdf:RDF/rss:item');
 		}
@@ -114,150 +114,150 @@ class Feed
 			$alternate = XML::getFirstAttributes($xpath, "atom:link[@rel='alternate']");
 			if (is_object($alternate)) {
 				foreach ($alternate as $attribute) {
-					if ($attribute->name == "href") {
-						$author["author-link"] = $attribute->textContent;
+					if ($attribute->name == 'href') {
+						$author['author-link'] = $attribute->textContent;
 					}
 				}
 			}
 
-			if (empty($author["author-link"])) {
+			if (empty($author['author-link'])) {
 				$self = XML::getFirstAttributes($xpath, "atom:link[@rel='self']");
 				if (is_object($self)) {
 					foreach ($self as $attribute) {
-						if ($attribute->name == "href") {
-							$author["author-link"] = $attribute->textContent;
+						if ($attribute->name == 'href') {
+							$author['author-link'] = $attribute->textContent;
 						}
 					}
 				}
 			}
 
-			if (empty($author["author-link"])) {
-				$author["author-link"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:id/text()');
+			if (empty($author['author-link'])) {
+				$author['author-link'] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:id/text()');
 			}
-			$author["author-avatar"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:logo/text()');
+			$author['author-avatar'] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:logo/text()');
 
-			$author["author-name"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:title/text()');
+			$author['author-name'] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:title/text()');
 
-			if (empty($author["author-name"])) {
-				$author["author-name"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:subtitle/text()');
+			if (empty($author['author-name'])) {
+				$author['author-name'] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:subtitle/text()');
 			}
 
-			if (empty($author["author-name"])) {
-				$author["author-name"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:name/text()');
+			if (empty($author['author-name'])) {
+				$author['author-name'] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:name/text()');
 			}
 
 			$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:displayName/text()');
-			if ($value != "") {
-				$author["author-name"] = $value;
+			if ($value != '') {
+				$author['author-name'] = $value;
 			}
 
 			if ($dryRun) {
-				$author["author-id"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:id/text()');
+				$author['author-id'] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:id/text()');
 
 				// See https://tools.ietf.org/html/rfc4287#section-3.2.2
 				$value = XML::getFirstNodeValue($xpath, 'atom:author/atom:uri/text()');
-				if ($value != "") {
-					$author["author-link"] = $value;
+				if ($value != '') {
+					$author['author-link'] = $value;
 				}
 
 				$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:preferredUsername/text()');
-				if ($value != "") {
-					$author["author-nick"] = $value;
+				if ($value != '') {
+					$author['author-nick'] = $value;
 				}
 
 				$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:address/poco:formatted/text()');
-				if ($value != "") {
-					$author["author-location"] = $value;
+				if ($value != '') {
+					$author['author-location'] = $value;
 				}
 
 				$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:note/text()');
-				if ($value != "") {
-					$author["author-about"] = $value;
+				if ($value != '') {
+					$author['author-about'] = $value;
 				}
 
 				$avatar = XML::getFirstAttributes($xpath, "atom:author/atom:link[@rel='avatar']");
 				if (is_object($avatar)) {
 					foreach ($avatar as $attribute) {
-						if ($attribute->name == "href") {
-							$author["author-avatar"] = $attribute->textContent;
+						if ($attribute->name == 'href') {
+							$author['author-avatar'] = $attribute->textContent;
 						}
 					}
 				}
 			}
 
-			$author["edited"] = $author["created"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:updated/text()');
+			$author['edited'] = $author['created'] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:updated/text()');
 
-			$author["app"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:generator/text()');
+			$author['app'] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:generator/text()');
 
 			$entries = $xpath->query('/atom:feed/atom:entry');
 		}
 
 		// Is it RSS?
 		if ($xpath->query('/rss/channel')->length > 0) {
-			$author["author-link"] = XML::getFirstNodeValue($xpath, '/rss/channel/link/text()');
+			$author['author-link'] = XML::getFirstNodeValue($xpath, '/rss/channel/link/text()');
 
-			$author["author-name"] = XML::getFirstNodeValue($xpath, '/rss/channel/title/text()');
+			$author['author-name'] = XML::getFirstNodeValue($xpath, '/rss/channel/title/text()');
 
-			if (empty($author["author-name"])) {
-				$author["author-name"] = XML::getFirstNodeValue($xpath, '/rss/channel/copyright/text()');
+			if (empty($author['author-name'])) {
+				$author['author-name'] = XML::getFirstNodeValue($xpath, '/rss/channel/copyright/text()');
 			}
 
-			if (empty($author["author-name"])) {
-				$author["author-name"] = XML::getFirstNodeValue($xpath, '/rss/channel/description/text()');
+			if (empty($author['author-name'])) {
+				$author['author-name'] = XML::getFirstNodeValue($xpath, '/rss/channel/description/text()');
 			}
 
-			$author["author-avatar"] = XML::getFirstNodeValue($xpath, '/rss/channel/image/url/text()');
+			$author['author-avatar'] = XML::getFirstNodeValue($xpath, '/rss/channel/image/url/text()');
 
-			if (empty($author["author-avatar"])) {
-				$avatar = XML::getFirstAttributes($xpath, "/rss/channel/itunes:image");
+			if (empty($author['author-avatar'])) {
+				$avatar = XML::getFirstAttributes($xpath, '/rss/channel/itunes:image');
 				if (is_object($avatar)) {
 					foreach ($avatar as $attribute) {
-						if ($attribute->name == "href") {
-							$author["author-avatar"] = $attribute->textContent;
+						if ($attribute->name == 'href') {
+							$author['author-avatar'] = $attribute->textContent;
 						}
 					}
 				}
 			}
 
-			$author["author-about"] = HTML::toBBCode(XML::getFirstNodeValue($xpath, '/rss/channel/description/text()'), $basepath);
+			$author['author-about'] = HTML::toBBCode(XML::getFirstNodeValue($xpath, '/rss/channel/description/text()'), $basepath);
 
-			if (empty($author["author-about"])) {
-				$author["author-about"] = XML::getFirstNodeValue($xpath, '/rss/channel/itunes:summary/text()');
+			if (empty($author['author-about'])) {
+				$author['author-about'] = XML::getFirstNodeValue($xpath, '/rss/channel/itunes:summary/text()');
 			}
 
-			$author["edited"] = $author["created"] = XML::getFirstNodeValue($xpath, '/rss/channel/pubDate/text()');
+			$author['edited'] = $author['created'] = XML::getFirstNodeValue($xpath, '/rss/channel/pubDate/text()');
 
-			$author["app"] = XML::getFirstNodeValue($xpath, '/rss/channel/generator/text()');
+			$author['app'] = XML::getFirstNodeValue($xpath, '/rss/channel/generator/text()');
 
 			$entries = $xpath->query('/rss/channel/item');
 		}
 
 		if (!$dryRun) {
-			$author["author-link"] = $contact["url"];
+			$author['author-link'] = $contact['url'];
 
-			if (empty($author["author-name"])) {
-				$author["author-name"] = $contact["name"];
+			if (empty($author['author-name'])) {
+				$author['author-name'] = $contact['name'];
 			}
 
-			$author["author-avatar"] = $contact["thumb"];
+			$author['author-avatar'] = $contact['thumb'];
 
-			$author["owner-link"] = $contact["url"];
-			$author["owner-name"] = $contact["name"];
-			$author["owner-avatar"] = $contact["thumb"];
+			$author['owner-link'] = $contact['url'];
+			$author['owner-name'] = $contact['name'];
+			$author['owner-avatar'] = $contact['thumb'];
 		}
 
 		$header = [];
-		$header["uid"] = $importer["uid"] ?? 0;
-		$header["network"] = Protocol::FEED;
-		$header["wall"] = 0;
-		$header["origin"] = 0;
-		$header["gravity"] = GRAVITY_PARENT;
-		$header["private"] = Item::PUBLIC;
-		$header["verb"] = Activity::POST;
-		$header["object-type"] = Activity\ObjectType::NOTE;
-		$header["post-type"] = Item::PT_ARTICLE;
+		$header['uid'] = $importer['uid'] ?? 0;
+		$header['network'] = Protocol::FEED;
+		$header['wall'] = 0;
+		$header['origin'] = 0;
+		$header['gravity'] = GRAVITY_PARENT;
+		$header['private'] = Item::PUBLIC;
+		$header['verb'] = Activity::POST;
+		$header['object-type'] = Activity\ObjectType::NOTE;
+		$header['post-type'] = Item::PT_ARTICLE;
 
-		$header["contact-id"] = $contact["id"] ?? 0;
+		$header['contact-id'] = $contact['id'] ?? 0;
 
 		if (!is_object($entries)) {
 			Logger::info("There are no entries in this feed.");
@@ -284,64 +284,64 @@ class Feed
 
 			$alternate = XML::getFirstAttributes($xpath, "atom:link[@rel='alternate']", $entry);
 			if (!is_object($alternate)) {
-				$alternate = XML::getFirstAttributes($xpath, "atom:link", $entry);
+				$alternate = XML::getFirstAttributes($xpath, 'atom:link', $entry);
 			}
 			if (is_object($alternate)) {
 				foreach ($alternate as $attribute) {
-					if ($attribute->name == "href") {
-						$item["plink"] = $attribute->textContent;
+					if ($attribute->name == 'href') {
+						$item['plink'] = $attribute->textContent;
 					}
 				}
 			}
 
-			if (empty($item["plink"])) {
-				$item["plink"] = XML::getFirstNodeValue($xpath, 'link/text()', $entry);
+			if (empty($item['plink'])) {
+				$item['plink'] = XML::getFirstNodeValue($xpath, 'link/text()', $entry);
 			}
 
-			if (empty($item["plink"])) {
-				$item["plink"] = XML::getFirstNodeValue($xpath, 'rss:link/text()', $entry);
+			if (empty($item['plink'])) {
+				$item['plink'] = XML::getFirstNodeValue($xpath, 'rss:link/text()', $entry);
 			}
 
 			// Add the base path if missing
-			$item["plink"] = Network::addBasePath($item["plink"], $basepath);
+			$item['plink'] = Network::addBasePath($item['plink'], $basepath);
 
-			$item["uri"] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
+			$item['uri'] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
 
 			$guid = XML::getFirstNodeValue($xpath, 'guid/text()', $entry);
 			if (!empty($guid)) {
-				$item["uri"] = $guid;
+				$item['uri'] = $guid;
 
 				// Don't use the GUID value directly but instead use it as a basis for the GUID
-				$item["guid"] = Item::guidFromUri($guid, parse_url($guid, PHP_URL_HOST) ?? parse_url($item["plink"], PHP_URL_HOST));
+				$item['guid'] = Item::guidFromUri($guid, parse_url($guid, PHP_URL_HOST) ?? parse_url($item['plink'], PHP_URL_HOST));
 			}
 
-			if (empty($item["uri"])) {
-				$item["uri"] = $item["plink"];
+			if (empty($item['uri'])) {
+				$item['uri'] = $item['plink'];
 			}
 
-			$orig_plink = $item["plink"];
+			$orig_plink = $item['plink'];
 
 			try {
-				$item["plink"] = DI::httpClient()->finalUrl($item["plink"]);
+				$item['plink'] = DI::httpClient()->finalUrl($item['plink']);
 			} catch (TransferException $exception) {
-				Logger::notice('Item URL couldn\'t get expanded', ['url' => $item["plink"], 'exception' => $exception]);
+				Logger::notice('Item URL couldn\'t get expanded', ['url' => $item['plink'], 'exception' => $exception]);
 			}
 
-			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
+			$item['title'] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 
-			if (empty($item["title"])) {
-				$item["title"] = XML::getFirstNodeValue($xpath, 'title/text()', $entry);
+			if (empty($item['title'])) {
+				$item['title'] = XML::getFirstNodeValue($xpath, 'title/text()', $entry);
 			}
 
-			if (empty($item["title"])) {
-				$item["title"] = XML::getFirstNodeValue($xpath, 'rss:title/text()', $entry);
+			if (empty($item['title'])) {
+				$item['title'] = XML::getFirstNodeValue($xpath, 'rss:title/text()', $entry);
 			}
 
-			if (empty($item["title"])) {
-				$item["title"] = XML::getFirstNodeValue($xpath, 'itunes:title/text()', $entry);
+			if (empty($item['title'])) {
+				$item['title'] = XML::getFirstNodeValue($xpath, 'itunes:title/text()', $entry);
 			}
 
-			$item["title"] = html_entity_decode($item["title"], ENT_QUOTES, 'UTF-8');
+			$item['title'] = html_entity_decode($item['title'], ENT_QUOTES, 'UTF-8');
 
 			$published = XML::getFirstNodeValue($xpath, 'atom:published/text()', $entry);
 
@@ -363,17 +363,17 @@ class Feed
 				$published = $updated;
 			}
 
-			if ($published != "") {
-				$item["created"] = $published;
+			if ($published != '') {
+				$item['created'] = $published;
 			}
 
-			if ($updated != "") {
-				$item["edited"] = $updated;
+			if ($updated != '') {
+				$item['edited'] = $updated;
 			}
 
 			if (!$dryRun) {
 				$condition = ["`uid` = ? AND `uri` = ? AND `network` IN (?, ?)",
-					$importer["uid"], $item["uri"], Protocol::FEED, Protocol::DFRN];
+					$importer['uid'], $item['uri'], Protocol::FEED, Protocol::DFRN];
 				$previous = Post::selectFirst(['id', 'created'], $condition);
 				if (DBA::isResult($previous)) {
 					// Use the creation date when the post had been stored. It can happen this date changes in the feed.
@@ -394,14 +394,14 @@ class Feed
 				$creator = XML::getFirstNodeValue($xpath, 'dc:creator/text()', $entry);
 			}
 
-			if ($creator != "") {
-				$item["author-name"] = $creator;
+			if ($creator != '') {
+				$item['author-name'] = $creator;
 			}
 
 			$creator = XML::getFirstNodeValue($xpath, 'dc:creator/text()', $entry);
 
-			if ($creator != "") {
-				$item["author-name"] = $creator;
+			if ($creator != '') {
+				$item['author-name'] = $creator;
 			}
 
 			/// @TODO ?
@@ -412,16 +412,16 @@ class Feed
 
 			$enclosures = $xpath->query("enclosure|atom:link[@rel='enclosure']", $entry);
 			foreach ($enclosures as $enclosure) {
-				$href = "";
+				$href = '';
 				$length = null;
 				$type = null;
 
 				foreach ($enclosure->attributes as $attribute) {
-					if (in_array($attribute->name, ["url", "href"])) {
+					if (in_array($attribute->name, ['url', 'href'])) {
 						$href = $attribute->textContent;
-					} elseif ($attribute->name == "length") {
+					} elseif ($attribute->name == 'length') {
 						$length = (int)$attribute->textContent;
-					} elseif ($attribute->name == "type") {
+					} elseif ($attribute->name == 'type') {
 						$type = $attribute->textContent;
 					}
 				}
@@ -441,7 +441,7 @@ class Feed
 			}
 
 			$taglist = [];
-			$categories = $xpath->query("category", $entry);
+			$categories = $xpath->query('category', $entry);
 			foreach ($categories as $category) {
 				$taglist[] = $category->nodeValue;
 			}
@@ -469,17 +469,17 @@ class Feed
 
 			// remove the content of the title if it is identically to the body
 			// This helps with auto generated titles e.g. from tumblr
-			if (self::titleIsBody($item["title"], $body)) {
-				$item["title"] = "";
+			if (self::titleIsBody($item['title'], $body)) {
+				$item['title'] = '';
 			}
-			$item["body"] = HTML::toBBCode($body, $basepath);
+			$item['body'] = HTML::toBBCode($body, $basepath);
 
 			// Remove tracking pixels
-			$item["body"] = preg_replace("/\[img=1x1\]([^\[\]]*)\[\/img\]/Usi", '', $item["body"]);
+			$item['body'] = preg_replace("/\[img=1x1\]([^\[\]]*)\[\/img\]/Usi", '', $item['body']);
 
-			if (($item["body"] == '') && ($item["title"] != '')) {
-				$item["body"] = $item["title"];
-				$item["title"] = '';
+			if (($item['body'] == '') && ($item['title'] != '')) {
+				$item['body'] = $item['title'];
+				$item['title'] = '';
 			}
 
 			if ($dryRun) {
@@ -495,36 +495,36 @@ class Feed
 			}
 
 			$preview = '';
-			if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] < 3)) {
+			if (!empty($contact['fetch_further_information']) && ($contact['fetch_further_information'] < 3)) {
 				// Handle enclosures and treat them as preview picture
 				foreach ($attachments as $attachment) {
-					if ($attachment["mimetype"] == "image/jpeg") {
-						$preview = $attachment["url"];
+					if ($attachment['mimetype'] == 'image/jpeg') {
+						$preview = $attachment['url'];
 					}
 				}
 
 				// Remove a possible link to the item itself
-				$item["body"] = str_replace($item["plink"], '', $item["body"]);
-				$item["body"] = trim(preg_replace('/\[url\=\](\w+.*?)\[\/url\]/i', '', $item["body"]));
+				$item['body'] = str_replace($item['plink'], '', $item['body']);
+				$item['body'] = trim(preg_replace('/\[url\=\](\w+.*?)\[\/url\]/i', '', $item['body']));
 
 				// Replace the content when the title is longer than the body
-				$replace = (strlen($item["title"]) > strlen($item["body"]));
+				$replace = (strlen($item['title']) > strlen($item['body']));
 
 				// Replace it, when there is an image in the body
-				if (strstr($item["body"], '[/img]')) {
+				if (strstr($item['body'], '[/img]')) {
 					$replace = true;
 				}
 
 				// Replace it, when there is a link in the body
-				if (strstr($item["body"], '[/url]')) {
+				if (strstr($item['body'], '[/url]')) {
 					$replace = true;
 				}
 
-				$saved_body = $item["body"];
-				$saved_title = $item["title"];
+				$saved_body = $item['body'];
+				$saved_title = $item['title'];
 
 				if ($replace) {
-					$item["body"] = trim($item["title"]);
+					$item['body'] = trim($item['title']);
 				}
 
 				$data = ParseUrl::getSiteinfoCached($item['plink']);
@@ -539,13 +539,13 @@ class Feed
 					}
 				}
 
-				$data = PageInfo::queryUrl($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_denylist"] ?? '');
+				$data = PageInfo::queryUrl($item['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_denylist'] ?? '');
 
 				if (!empty($data)) {
 					// Take the data that was provided by the feed if the query is empty
 					if (($data['type'] == 'link') && empty($data['title']) && empty($data['text'])) {
 						$data['title'] = $saved_title;
-						$item["body"] = $saved_body;
+						$item['body'] = $saved_body;
 					}
 
 					$data_text = strip_tags(trim($data['text'] ?? ''));
@@ -556,10 +556,10 @@ class Feed
 					}
 
 					// We always strip the title since it will be added in the page information
-					$item["title"] = "";
-					$item["body"] = $item["body"] . "\n" . PageInfo::getFooterFromData($data, false);
-					$taglist = $contact["fetch_further_information"] == 2 ? PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"] ?? '') : [];
-					$item["object-type"] = Activity\ObjectType::BOOKMARK;
+					$item['title'] = '';
+					$item['body'] = $item['body'] . "\n" . PageInfo::getFooterFromData($data, false);
+					$taglist = $contact['fetch_further_information'] == 2 ? PageInfo::getTagsFromUrl($item['plink'], $preview, $contact['ffi_keyword_denylist'] ?? '') : [];
+					$item['object-type'] = Activity\ObjectType::BOOKMARK;
 					$attachments = [];
 
 					foreach (['audio', 'video'] as $elementname) {
@@ -587,21 +587,21 @@ class Feed
 				}
 			} else {
 				if (!empty($summary)) {
-					$item["body"] = '[abstract]' . HTML::toBBCode($summary, $basepath) . "[/abstract]\n" . $item["body"];
+					$item['body'] = '[abstract]' . HTML::toBBCode($summary, $basepath) . "[/abstract]\n" . $item['body'];
 				}
 
-				if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] == 3)) {
+				if (!empty($contact['fetch_further_information']) && ($contact['fetch_further_information'] == 3)) {
 					if (empty($taglist)) {
-						$taglist = PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"] ?? '');
+						$taglist = PageInfo::getTagsFromUrl($item['plink'], $preview, $contact['ffi_keyword_denylist'] ?? '');
 					}
-					$item["body"] .= "\n" . self::tagToString($taglist);
+					$item['body'] .= "\n" . self::tagToString($taglist);
 				} else {
 					$taglist = [];
 				}
 
 				// Add the link to the original feed entry if not present in feed
-				if (($item['plink'] != '') && !strstr($item["body"], $item['plink']) && !in_array($item['plink'], array_column($attachments, 'url'))) {
-					$item["body"] .= "[hr][url]" . $item['plink'] . "[/url]";
+				if (($item['plink'] != '') && !strstr($item['body'], $item['plink']) && !in_array($item['plink'], array_column($attachments, 'url'))) {
+					$item['body'] .= '[hr][url]' . $item['plink'] . '[/url]';
 				}
 			}
 
@@ -626,7 +626,7 @@ class Feed
 			}
 
 			$condition = ['uid' => $item['uid'], 'uri' => $item['uri']];
-			if (!Post::exists($condition) && !Post\Delayed::exists($item["uri"], $item['uid'])) {
+			if (!Post::exists($condition) && !Post\Delayed::exists($item['uri'], $item['uid'])) {
 				if (!$notify) {
 					Post\Delayed::publish($item, $notify, $taglist, $attachments);
 				} else {
@@ -634,7 +634,7 @@ class Feed
 						'taglist' => $taglist, 'attachments' => $attachments];
 				}
 			} else {
-				Logger::info('Post already created or exists in the delayed posts queue', ['uid' => $item['uid'], 'uri' => $item["uri"]]);
+				Logger::info('Post already created or exists in the delayed posts queue', ['uid' => $item['uid'], 'uri' => $item['uri']]);
 			}
 		}
 
@@ -677,7 +677,7 @@ class Feed
 			self::adjustPollFrequency($contact, $creation_dates);
 		}
 
-		return ["header" => $author, "items" => $items];
+		return ['header' => $author, 'items' => $items];
 	}
 
 	/**
