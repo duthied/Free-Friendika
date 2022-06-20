@@ -1820,7 +1820,7 @@ class Database
 
 		$upds = implode(', ', $upd);
 
-		$r = $this->e(sprintf("UPDATE %s SET %s;", $table_name, $upds));
+		$r = $this->e(sprintf("UPDATE %s SET %s;", DBA::quoteIdentifier($table_name), $upds));
 		if (!$this->isResult($r)) {
 			throw new \RuntimeException("Failed updating `$table_name`: " . $this->errorMessage());
 		}
