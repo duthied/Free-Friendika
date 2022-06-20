@@ -88,7 +88,12 @@ class Database
 		}
 	}
 
-	public function connect()
+	/**
+	 * Tries to connect to database
+	 *
+	 * @return bool Success
+	 */
+	public function connect(): bool
 	{
 		if (!is_null($this->connection) && $this->connected()) {
 			return $this->connected;
@@ -255,7 +260,7 @@ class Database
 	 *
 	 * @return string with either "pdo" or "mysqli"
 	 */
-	public function getDriver()
+	public function getDriver(): string
 	{
 		return $this->driver;
 	}
@@ -266,9 +271,9 @@ class Database
 	 * This function discriminate between the deprecated mysql API and the current
 	 * object-oriented mysqli API. Example of returned string: 5.5.46-0+deb8u1
 	 *
-	 * @return string
+	 * @return string Database server information
 	 */
-	public function serverInfo()
+	public function serverInfo(): string
 	{
 		if ($this->server_info == '') {
 			switch ($this->driver) {
@@ -286,10 +291,10 @@ class Database
 	/**
 	 * Returns the selected database name
 	 *
-	 * @return string
+	 * @return string Database name
 	 * @throws \Exception
 	 */
-	public function databaseName()
+	public function databaseName(): string
 	{
 		$ret  = $this->p("SELECT DATABASE() AS `db`");
 		$data = $this->toArray($ret);
@@ -300,10 +305,10 @@ class Database
 	 * Analyze a database query and log this if some conditions are met.
 	 *
 	 * @param string $query The database query that will be analyzed
-	 *
+	 * @return void
 	 * @throws \Exception
 	 */
-	private function logIndex($query)
+	private function logIndex(string $query)
 	{
 
 		if (!$this->configCache->get('system', 'db_log_index')) {
@@ -359,11 +364,10 @@ class Database
 	 * Removes every not allowlisted character from the identifier string
 	 *
 	 * @param string $identifier
-	 *
 	 * @return string sanitized identifier
 	 * @throws \Exception
 	 */
-	private function sanitizeIdentifier($identifier)
+	private function sanitizeIdentifier(string $identifier): string
 	{
 		return preg_replace('/[^A-Za-z0-9_\-]+/', '', $identifier);
 	}
@@ -383,11 +387,21 @@ class Database
 		}
 	}
 
-	public function isConnected()
+	/**
+	 * Returns connected flag
+	 *
+	 * @return bool Whether connection to database was success
+	 */
+	public function isConnected(): bool
 	{
 		return $this->connected;
 	}
 
+	/**
+	 * Checks connection status
+	 *
+	 * @return bool Whether connection to database was success
+	 */
 	public function connected()
 	{
 		$connected = false;
@@ -424,7 +438,7 @@ class Database
 	 *
 	 * @return string The input SQL string modified if necessary.
 	 */
-	public function anyValueFallback($sql)
+	public function anyValueFallback(string $sql): string
 	{
 		$server_info = $this->serverInfo();
 		if (version_compare($server_info, '5.7.5', '<') ||
@@ -442,7 +456,7 @@ class Database
 	 *
 	 * @return string The replaced SQL query
 	 */
-	private function replaceParameters($sql, $args)
+	private function replaceParameters(string $sql, array $args): string
 	{
 		$offset = 0;
 		foreach ($args as $param => $value) {
@@ -476,7 +490,7 @@ class Database
 	 * @return bool|object statement object or result object
 	 * @throws \Exception
 	 */
-	public function p($sql)
+	public function p(string $sql)
 	{
 
 		$this->profiler->startRecording('database');
@@ -741,8 +755,9 @@ class Database
 	 * @return boolean Was the query successfull? False is returned only if an error occurred
 	 * @throws \Exception
 	 */
-	public function e($sql)
+	public function e(string $sql): bool
 	{
+		$retval = false;
 
 		$this->profiler->startRecording('database_write');
 
@@ -810,7 +825,7 @@ class Database
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
-	public function exists($table, $condition)
+	public function exists($table, array $condition): bool
 	{
 		if (empty($table)) {
 			return false;
@@ -850,10 +865,10 @@ class Database
 	 *
 	 * @param string $sql SQL statement
 	 *
-	 * @return array first row of query
+	 * @return array|bool first row of query or false on failure
 	 * @throws \Exception
 	 */
-	public function fetchFirst($sql)
+	public function fetchFirst(string $sql)
 	{
 		$params = DBA::getParam(func_get_args());
 
@@ -875,7 +890,7 @@ class Database
 	 *
 	 * @return int Number of rows
 	 */
-	public function affectedRows()
+	public function affectedRows(): int
 	{
 		return $this->affected_rows;
 	}
@@ -887,7 +902,7 @@ class Database
 	 *
 	 * @return int Number of columns
 	 */
-	public function columnCount($stmt)
+	public function columnCount($stmt): int
 	{
 		if (!is_object($stmt)) {
 			return 0;
@@ -908,7 +923,7 @@ class Database
 	 *
 	 * @return int Number of rows
 	 */
-	public function numRows($stmt)
+	public function numRows($stmt): int
 	{
 		if (!is_object($stmt)) {
 			return 0;
@@ -927,7 +942,7 @@ class Database
 	 *
 	 * @param bool|PDOStatement|mysqli_stmt $stmt statement object
 	 *
-	 * @return array|false current row
+	 * @return array|bool Current row or false on failure
 	 */
 	public function fetch($stmt)
 	{
@@ -994,7 +1009,7 @@ class Database
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public function insert($table, array $param, int $duplicate_mode = self::INSERT_DEFAULT)
+	public function insert($table, array $param, int $duplicate_mode = self::INSERT_DEFAULT): bool
 	{
 		if (empty($table) || empty($param)) {
 			$this->logger->info('Table and fields have to be set');
@@ -1044,7 +1059,7 @@ class Database
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public function replace($table, array $param)
+	public function replace($table, array $param): bool
 	{
 		if (empty($table) || empty($param)) {
 			$this->logger->info('Table and fields have to be set');
@@ -1069,7 +1084,7 @@ class Database
 	 *
 	 * @return integer Last inserted id
 	 */
-	public function lastInsertId()
+	public function lastInsertId(): int
 	{
 		switch ($this->driver) {
 			case self::PDO:
@@ -1092,7 +1107,7 @@ class Database
 	 * @return boolean was the lock successful?
 	 * @throws \Exception
 	 */
-	public function lock($table)
+	public function lock($table): bool
 	{
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		if ($this->driver == self::PDO) {
@@ -1126,7 +1141,7 @@ class Database
 	 * @return boolean was the unlock successful?
 	 * @throws \Exception
 	 */
-	public function unlock()
+	public function unlock(): bool
 	{
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		$this->performCommit();
@@ -1177,7 +1192,12 @@ class Database
 		return true;
 	}
 
-	protected function performCommit()
+	/**
+	 * Performs the commit
+	 *
+	 * @return boolean Was the command executed successfully?
+	 */
+	protected function performCommit(): bool
 	{
 		switch ($this->driver) {
 			case self::PDO:
@@ -1199,7 +1219,7 @@ class Database
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	public function commit()
+	public function commit(): bool
 	{
 		if (!$this->performCommit()) {
 			return false;
@@ -1213,7 +1233,7 @@ class Database
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	public function rollback()
+	public function rollback(): bool
 	{
 		$ret = false;
 
@@ -1230,6 +1250,7 @@ class Database
 				$ret = $this->connection->rollback();
 				break;
 		}
+
 		$this->in_transaction = false;
 		return $ret;
 	}
@@ -1243,7 +1264,7 @@ class Database
 	 * @return boolean was the delete successful?
 	 * @throws \Exception
 	 */
-	public function delete($table, array $conditions)
+	public function delete($table, array $conditions): bool
 	{
 		if (empty($table) || empty($conditions)) {
 			$this->logger->info('Table and conditions have to be set');
@@ -1288,8 +1309,9 @@ class Database
 	 *
 	 * @return boolean was the update successfull?
 	 * @throws \Exception
+	 * @todo Implement "bool $update_on_duplicate" to avoid mixed type for $old_fields
 	 */
-	public function update($table, $fields, $condition, $old_fields = [], $params = [])
+	public function update($table, array $fields, array $condition, $old_fields = [], array $params = [])
 	{
 		if (empty($table) || empty($fields) || empty($condition)) {
 			$this->logger->info('Table, fields and condition have to be set');
@@ -1354,7 +1376,7 @@ class Database
 	 * @throws \Exception
 	 * @see   $this->select
 	 */
-	public function selectFirst($table, array $fields = [], array $condition = [], $params = [])
+	public function selectFirst($table, array $fields = [], array $condition = [], array $params = [])
 	{
 		$params['limit'] = 1;
 		$result          = $this->select($table, $fields, $condition, $params);
@@ -1390,9 +1412,9 @@ class Database
 	 *
 	 * @param array $fields 
 	 * @param array $options 
-	 * @return array 
+	 * @return array Escaped fields
 	 */
-	private function escapeFields(array $fields, array $options)
+	private function escapeFields(array $fields, array $options): array
 	{
 		// In the case of a "GROUP BY" we have to add all the ORDER fields to the fieldlist.
 		// This needs to done to apply the "ANY_VALUE(...)" treatment from below to them.
@@ -1504,6 +1526,7 @@ class Database
 	 */
 	public function count($table, array $condition = [], array $params = [])
 	{
+		// @TODO Can we dump this to have ": int" as returned type-hint?
 		if (empty($table)) {
 			return false;
 		}
@@ -1569,7 +1592,8 @@ class Database
 	 * @param array  $fields
 	 * @return array casted fields
 	 */
-	public function castFields(string $table, array $fields) {
+	public function castFields(string $table, array $fields): array
+	{
 		// When there is no data, we don't need to do something
 		if (empty($fields)) {
 			return $fields;
@@ -1642,7 +1666,7 @@ class Database
 	 *
 	 * @return string Error message ('' if no error)
 	 */
-	public function errorMessage()
+	public function errorMessage(): string
 	{
 		return $this->error;
 	}
@@ -1729,7 +1753,7 @@ class Database
 	 * @param string $name
 	 * @return string content
 	 */
-	public function getVariable(string $name)
+	public function getVariable(string $name): string
 	{
 		$result = $this->fetchFirst("SHOW GLOBAL VARIABLES WHERE `Variable_name` = ?", $name);
 		return $result['Value'] ?? null;
@@ -1742,7 +1766,7 @@ class Database
 	 *
 	 * @return boolean Whether $array is a filled array or an object with rows
 	 */
-	public function isResult($array)
+	public function isResult($array): bool
 	{
 		// It could be a return value from an update statement
 		if (is_bool($array)) {
@@ -1762,10 +1786,9 @@ class Database
 	 * @param mixed   $value         Array value
 	 * @param string  $key           Array key
 	 * @param boolean $add_quotation add quotation marks for string values
-	 *
 	 * @return void
 	 */
-	private function escapeArrayCallback(&$value, $key, $add_quotation)
+	private function escapeArrayCallback(&$value, string $key, bool $add_quotation)
 	{
 		if (!$add_quotation) {
 			if (is_bool($value)) {
@@ -1790,10 +1813,9 @@ class Database
 	 *
 	 * @param mixed   $arr           Array with values to be escaped
 	 * @param boolean $add_quotation add quotation marks for string values
-	 *
 	 * @return void
 	 */
-	public function escapeArray(&$arr, $add_quotation = false)
+	public function escapeArray(&$arr, bool $add_quotation = false)
 	{
 		array_walk($arr, [$this, 'escapeArrayCallback'], $add_quotation);
 	}
@@ -1801,10 +1823,11 @@ class Database
 	/**
 	 * Replaces a string in the provided fields of the provided table
 	 *
-	 * @param string $table_name
+	 * @param string $table_name Table name
 	 * @param array  $fields List of field names in the provided table
 	 * @param string $search
 	 * @param string $replace
+	 * @return void
 	 * @throws \Exception
 	 */
 	public function replaceInTableFields(string $table_name, array $fields, string $search, string $replace)
