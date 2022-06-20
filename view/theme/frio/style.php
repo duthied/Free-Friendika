@@ -79,7 +79,7 @@ if (!empty($_REQUEST['scheme'])) {
 	$scheme = $_REQUEST['scheme'];
 }
 
-$scheme = Strings::sanitizeFilePathItem($scheme);
+$scheme = Strings::sanitizeFilePathItem($scheme ?? '');
 
 if (($scheme) && ($scheme != '---')) {
 	if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {

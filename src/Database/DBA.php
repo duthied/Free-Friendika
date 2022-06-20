@@ -223,7 +223,7 @@ class DBA
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
-	public static function exists(string $table, array $condition): bool
+	public static function exists($table, array $condition): bool
 	{
 		return DI::dba()->exists($table, $condition);
 	}
