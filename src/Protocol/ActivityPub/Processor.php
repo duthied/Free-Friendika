@@ -1245,6 +1245,7 @@ class Processor
 	 * perform a "follow" request
 	 *
 	 * @param array $activity
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
