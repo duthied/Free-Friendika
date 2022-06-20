@@ -83,6 +83,7 @@ class Receiver
 	 * @param string  $body Body string
 	 * @param array   $header Header lines
 	 * @param integer $uid User ID
+	 * @return void
 	 * @throws \Exception
 	 */
 	public static function processInbox(string $body, array $header, int $uid)
