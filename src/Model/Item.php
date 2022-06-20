@@ -1841,13 +1841,13 @@ class Item
 		$parsed = parse_url($uri);
 
 		// Remove the scheme to make sure that "https" and "http" doesn't make a difference
-		unset($parsed["scheme"]);
+		unset($parsed['scheme']);
 
 		// Glue it together to be able to make a hash from it
-		$host_id = implode("/", $parsed);
+		$host_id = implode('/', $parsed);
 
 		// Use a mixture of several hashes to provide some GUID like experience
-		return hash("crc32", $host) . '-'. hash('joaat', $host_id) . '-'. hash('fnv164', $host_id);
+		return hash('crc32', $host) . '-'. hash('joaat', $host_id) . '-'. hash('fnv164', $host_id);
 	}
 
 	/**
@@ -1859,9 +1859,9 @@ class Item
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function newURI($uid, $guid = "")
+	public static function newURI(int $uid, string $guid = ''): string
 	{
-		if ($guid == "") {
+		if ($guid == '') {
 			$guid = System::createUUID();
 		}
 
