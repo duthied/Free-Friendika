@@ -218,8 +218,8 @@ class DBA
 	/**
 	 * Check if data exists
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
-	 * @param array        $condition array of fields for condition
+	 * @param string|array $table Table name or array [schema => table]
+	 * @param array               $condition array of fields for condition
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
