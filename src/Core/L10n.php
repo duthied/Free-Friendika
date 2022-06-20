@@ -269,7 +269,7 @@ class L10n
 	 *
 	 * @return string
 	 */
-	public function t(array $s, ...$vars): string
+	public function t(string $s, ...$vars): string
 	{
 		if (empty($s)) {
 			return '';
