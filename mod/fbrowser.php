@@ -47,7 +47,7 @@ function fbrowser_content(App $a)
 	}
 
 	// Needed to match the correct template in a module that uses a different theme than the user/site/default
-	$theme = Strings::sanitizeFilePathItem($_GET['theme'] ?? null);
+	$theme = Strings::sanitizeFilePathItem($_GET['theme'] ?? '');
 	if ($theme && is_file("view/theme/$theme/config.php")) {
 		$a->setCurrentTheme($theme);
 	}

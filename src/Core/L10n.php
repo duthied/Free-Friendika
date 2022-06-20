@@ -128,7 +128,7 @@ class L10n
 	private function setLangFromSession(IHandleSessions $session)
 	{
 		if ($session->get('language') !== $this->lang) {
-			$this->loadTranslationTable($session->get('language'));
+			$this->loadTranslationTable($session->get('language') ?? $this->lang);
 		}
 	}
 
@@ -140,10 +140,10 @@ class L10n
 	 * Uses an App object shim since all the strings files refer to $a->strings
 	 *
 	 * @param string $lang language code to load
-	 *
+	 * @return void
 	 * @throws \Exception
 	 */
-	private function loadTranslationTable($lang)
+	private function loadTranslationTable(string $lang)
 	{
 		$lang = Strings::sanitizeFilePathItem($lang);
 
@@ -183,7 +183,7 @@ class L10n
 	 *
 	 * @return string The two-letter language code
 	 */
-	public static function detectLanguage(array $server, array $get, string $sysLang = self::DEFAULT)
+	public static function detectLanguage(array $server, array $get, string $sysLang = self::DEFAULT): string
 	{
 		$lang_variable = $server['HTTP_ACCEPT_LANGUAGE'] ?? null;
 
@@ -269,7 +269,7 @@ class L10n
 	 *
 	 * @return string
 	 */
-	public function t($s, ...$vars)
+	public function t(array $s, ...$vars): string
 	{
 		if (empty($s)) {
 			return '';
@@ -307,7 +307,7 @@ class L10n
 	 * @return string
 	 * @throws \Exception
 	 */
-	public function tt(string $singular, string $plural, int $count)
+	public function tt(string $singular, string $plural, int $count): string
 	{
 		$s = null;
 
@@ -352,7 +352,7 @@ class L10n
 	 *
 	 * @return bool
 	 */
-	private function stringPluralSelectDefault($n)
+	private function stringPluralSelectDefault(int $n): bool
 	{
 		return $n != 1;
 	}
@@ -369,7 +369,7 @@ class L10n
 	 *
 	 * @return array
 	 */
-	public static function getAvailableLanguages()
+	public static function getAvailableLanguages(): array
 	{
 		$langs              = [];
 		$strings_file_paths = glob('view/lang/*/strings.php');
@@ -391,10 +391,9 @@ class L10n
 	 * Translate days and months names.
 	 *
 	 * @param string $s String with day or month name.
-	 *
 	 * @return string Translated string.
 	 */
-	public function getDay($s)
+	public function getDay(string $s): string
 	{
 		$ret = str_replace(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
 			[$this->t('Monday'), $this->t('Tuesday'), $this->t('Wednesday'), $this->t('Thursday'), $this->t('Friday'), $this->t('Saturday'), $this->t('Sunday')],
@@ -411,10 +410,9 @@ class L10n
 	 * Translate short days and months names.
 	 *
 	 * @param string $s String with short day or month name.
-	 *
 	 * @return string Translated string.
 	 */
-	public function getDayShort($s)
+	public function getDayShort(string $s): string
 	{
 		$ret = str_replace(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
 			[$this->t('Mon'), $this->t('Tue'), $this->t('Wed'), $this->t('Thu'), $this->t('Fri'), $this->t('Sat'), $this->t('Sun')],
@@ -435,7 +433,7 @@ class L10n
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @hook poke_verbs pokes array
 	 */
-	public function getPokeVerbs()
+	public function getPokeVerbs(): array
 	{
 		// index is present tense verb
 		// value is array containing past tense verb, translation of present, translation of past
@@ -461,7 +459,7 @@ class L10n
 	 * @return static A new L10n instance
 	 * @throws \Exception
 	 */
-	public function withLang(string $lang)
+	public function withLang(string $lang): L10n
 	{
 		// Don't create a new instance for same language
 		if ($lang === $this->lang) {

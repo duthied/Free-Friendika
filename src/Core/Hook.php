@@ -49,6 +49,8 @@ class Hook
 
 	/**
 	 * Load hooks
+	 *
+	 * @return void
 	 */
 	public static function loadHooks()
 	{
@@ -69,8 +71,9 @@ class Hook
 	 * @param string $hook
 	 * @param string $file
 	 * @param string $function
+	 * @return void
 	 */
-	public static function add($hook, $file, $function)
+	public static function add(string $hook, string $file, string $function)
 	{
 		if (!array_key_exists($hook, self::$hooks)) {
 			self::$hooks[$hook] = [];
@@ -90,7 +93,7 @@ class Hook
 	 * @return mixed|bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function register($hook, $file, $function, $priority = 0)
+	public static function register(string $hook, string $file, string $function, int $priority = 0)
 	{
 		$file = str_replace(DI::app()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
 
@@ -111,7 +114,7 @@ class Hook
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function unregister($hook, $file, $function)
+	public static function unregister(string $hook, string $file, string $function): bool
 	{
 		$relative_file = str_replace(DI::app()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
 
@@ -120,8 +123,8 @@ class Hook
 		self::delete($condition);
 
 		$condition = ['hook' => $hook, 'file' => $relative_file, 'function' => $function];
-		$result = self::delete($condition);
-		return $result;
+
+		return self::delete($condition);
 	}
 
 	/**
@@ -130,7 +133,7 @@ class Hook
 	 * @param  string $name Name of the hook
 	 * @return array
 	 */
-	public static function getByName($name)
+	public static function getByName(string $name): array
 	{
 		$return = [];
 
@@ -149,9 +152,10 @@ class Hook
 	 * @param integer $priority of the hook
 	 * @param string  $name     of the hook to call
 	 * @param mixed   $data     to transmit to the callback handler
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fork($priority, $name, $data = null)
+	public static function fork(int $priority, string $name, $data = null)
 	{
 		if (array_key_exists($name, self::$hooks)) {
 			foreach (self::$hooks[$name] as $hook) {
@@ -184,9 +188,10 @@ class Hook
 	 *
 	 * @param string        $name of the hook to call
 	 * @param string|array &$data to transmit to the callback handler
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function callAll($name, &$data = null)
+	public static function callAll(string $name, &$data = null)
 	{
 		if (array_key_exists($name, self::$hooks)) {
 			foreach (self::$hooks[$name] as $hook) {
@@ -202,9 +207,10 @@ class Hook
 	 * @param string          $name of the hook to call
 	 * @param array           $hook Hook data
 	 * @param string|array   &$data to transmit to the callback handler
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function callSingle(App $a, $name, $hook, &$data = null)
+	public static function callSingle(App $a, string $name, array $hook, &$data = null)
 	{
 		// Don't run a theme's hook if the user isn't using the theme
 		if (strpos($hook[0], 'view/theme/') !== false && strpos($hook[0], 'view/theme/' . $a->getCurrentTheme()) === false) {
@@ -229,7 +235,7 @@ class Hook
 	 * @param string $name Name of the addon
 	 * @return boolean
 	 */
-	public static function isAddonApp($name)
+	public static function isAddonApp(string $name): bool
 	{
 		$name = Strings::sanitizeFilePathItem($name);
 
@@ -253,7 +259,7 @@ class Hook
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function delete(array $condition)
+	public static function delete(array $condition): bool
 	{
 		$result = DBA::delete('hook', $condition);
 
@@ -273,7 +279,7 @@ class Hook
 	 * @return bool
 	 * @throws \Exception
 	 */
-	private static function insert(array $condition)
+	private static function insert(array $condition): bool
 	{
 		$result = DBA::insert('hook', $condition);
 
