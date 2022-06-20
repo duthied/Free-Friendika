@@ -2201,13 +2201,14 @@ class Transmitter
 	 * Transmits a message that we don't want to follow this contact anymore
 	 *
 	 * @param string  $target Target profile
+	 * @param integer $cid    Contact id
 	 * @param integer $uid    User ID
+	 * @return bool success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @throws \Exception
-	 * @return bool success
 	 */
-	public static function sendContactUndo($target, $cid, $uid)
+	public static function sendContactUndo(string $target, int $cid, int $uid)
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
@@ -2223,15 +2224,20 @@ class Transmitter
 		$id = DI::baseUrl() . '/activity/' . System::createGUID();
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => $id,
 			'type' => 'Undo',
 			'actor' => $owner['url'],
-			'object' => ['id' => $object_id, 'type' => 'Follow',
+			'object' => [
+				'id' => $object_id,
+				'type' => 'Follow',
 				'actor' => $owner['url'],
-				'object' => $profile['url']],
+				'object' => $profile['url']
+			],
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']]
+		];
 
 		Logger::info('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
@@ -2239,7 +2245,15 @@ class Transmitter
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
-	private static function prependMentions($body, int $uriid, string $authorLink)
+	/**
+	 * Prepends mentions (@) to $body variable
+	 *
+	 * @param string $body HTML code
+	 * @param int    $uriid URI id
+	 * @param string $authorLink Author link
+	 * @return string HTML code with prepended mentions
+	 */
+	private static function prependMentions(string $body, int $uriid, string $authorLink): string
 	{
 		$mentions = [];
 

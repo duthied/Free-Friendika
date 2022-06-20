@@ -95,9 +95,9 @@ class Receiver
 
 		$ldactivity = JsonLD::compact($activity);
 
-		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id');
+		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id') ?? '';
+		$apcontact = APContact::getByURL($actor);
 
-		$apcontact = APContact::getByURL($actor ?? '');
 		if (empty($apcontact)) {
 			Logger::notice('Unable to retrieve AP contact for actor - message is discarded', ['actor' => $actor]);
 			return;
