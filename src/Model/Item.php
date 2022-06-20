@@ -2831,7 +2831,8 @@ class Item
 			$shared_uri_id = 0;
 			$shared_links = [];
 		}
-		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links, $item['has-media']);
+
+		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links, $item['has-media'] ?? false);
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
