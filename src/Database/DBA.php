@@ -218,12 +218,12 @@ class DBA
 	/**
 	 * Check if data exists
 	 *
-	 * @param string|array $table Table name or array [schema => table]
-	 * @param array               $condition array of fields for condition
+	 * @param string $table     Table name or array [schema => table]
+	 * @param array  $condition Array of fields for condition
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
-	public static function exists($table, array $condition): bool
+	public static function exists(string $table, array $condition): bool
 	{
 		return DI::dba()->exists($table, $condition);
 	}
