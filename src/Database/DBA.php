@@ -42,7 +42,7 @@ class DBA
 	 */
 	const NULL_DATETIME = '0001-01-01 00:00:00';
 
-	public static function connect()
+	public static function connect(): bool
 	{
 		return DI::dba()->connect();
 	}
@@ -58,7 +58,7 @@ class DBA
 	/**
 	 * Perform a reconnect of an existing database connection
 	 */
-	public static function reconnect()
+	public static function reconnect(): bool
 	{
 		return DI::dba()->reconnect();
 	}
