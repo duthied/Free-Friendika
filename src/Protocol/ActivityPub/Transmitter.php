@@ -2041,13 +2041,15 @@ class Transmitter
 			$id = DI::baseUrl() . '/activity/' . System::createGUID();
 		}
 
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => $id,
 			'type' => $activity,
 			'actor' => $owner['url'],
 			'object' => $profile['url'],
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']],
+		];
 
 		Logger::info('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid);
 
@@ -2094,13 +2096,15 @@ class Transmitter
 
 		$owner = User::getOwnerDataById($uid);
 
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Follow',
 			'actor' => $owner['url'],
 			'object' => $object,
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']],
+		];
 
 		Logger::info('Sending follow ' . $object . ' to ' . $target . ' for user ' . $uid);
 
@@ -2127,7 +2131,8 @@ class Transmitter
 		}
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Accept',
 			'actor' => $owner['url'],
@@ -2138,7 +2143,8 @@ class Transmitter
 				'object' => $owner['url']
 			],
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']],
+		];
 
 		Logger::debug('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
@@ -2165,7 +2171,8 @@ class Transmitter
 		}
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Reject',
 			'actor' => $owner['url'],
@@ -2176,7 +2183,8 @@ class Transmitter
 				'object' => $owner['url']
 			],
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']],
+		];
 
 		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
@@ -2223,7 +2231,7 @@ class Transmitter
 				'object' => $profile['url']
 			],
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]
+			'to' => [$profile['url']],
 		];
 
 		Logger::info('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id);
