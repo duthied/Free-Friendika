@@ -26,6 +26,7 @@ use Friendica\Core\System;
 use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
+use InvalidArgumentException;
 use mysqli;
 use mysqli_result;
 use mysqli_stmt;
@@ -1512,7 +1513,7 @@ class Database
 	 * @param array        $condition Array of fields for condition
 	 * @param array        $params    Array of several parameters
 	 *
-	 * @return int
+	 * @return int Count of rows
 	 *
 	 * Example:
 	 * $table = "post";
@@ -1524,11 +1525,10 @@ class Database
 	 * $count = DBA::count($table, $condition);
 	 * @throws \Exception
 	 */
-	public function count($table, array $condition = [], array $params = [])
+	public function count($table, array $condition = [], array $params = []): int
 	{
-		// @TODO Can we dump this to have ": int" as returned type-hint?
 		if (empty($table)) {
-			return false;
+			throw new InvalidArgumentException('Parameter "table" cannot be empty.');
 		}
 
 		$table_string = DBA::buildTableString($table);
