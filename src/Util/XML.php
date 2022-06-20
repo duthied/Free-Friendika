@@ -56,7 +56,7 @@ class XML
 					$root = new SimpleXMLElement('<' . $key . '/>');
 					self::fromArray($value, $root, $remove_header, $namespaces, false);
 				} else {
-					$root = new SimpleXMLElement('<' . $key . '>'.self::escape($value).'</' . $key . '>');
+					$root = new SimpleXMLElement('<' . $key . '>' . self::escape($value ?? '') . '</' . $key . '>');
 				}
 
 				$dom = dom_import_simplexml($root)->ownerDocument;
@@ -124,7 +124,7 @@ class XML
 			}
 
 			if (!is_array($value)) {
-				$element = $xml->addChild($key, self::escape($value), $namespace);
+				$element = $xml->addChild($key, self::escape($value ?? ''), $namespace);
 			} elseif (is_array($value)) {
 				$element = $xml->addChild($key, null, $namespace);
 				self::fromArray($value, $element, $remove_header, $namespaces, false);
