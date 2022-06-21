@@ -34,7 +34,7 @@ abstract class HTTPException extends Exception
 	protected $httpdesc    = '';
 	protected $explanation = '';
 
-	public function __construct($message = '', Exception $previous = null)
+	public function __construct(string $message = '', Exception $previous = null)
 	{
 		parent::__construct($message, $this->code, $previous);
 	}

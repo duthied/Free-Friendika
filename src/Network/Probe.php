@@ -85,18 +85,17 @@ class Probe
 	 * Rearrange the array so that it always has the same order
 	 *
 	 * @param array $data Unordered data
-	 *
 	 * @return array Ordered data
 	 */
-	private static function rearrangeData($data)
+	private static function rearrangeData(array $data): array
 	{
-		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo", "header",
-				"account-type", "community", "keywords", "location", "about", "xmpp", "matrix",
-				"hide", "batch", "notify", "poll", "request", "confirm", "subscribe", "poco",
-				"following", "followers", "inbox", "outbox", "sharedinbox",
-				"priority", "network", "pubkey", "manually-approve", "baseurl", "gsid"];
+		$fields = ['name', 'nick', 'guid', 'url', 'addr', 'alias', 'photo', 'header',
+				'account-type', 'community', 'keywords', 'location', 'about', 'xmpp', 'matrix',
+				'hide', 'batch', 'notify', 'poll', 'request', 'confirm', 'subscribe', 'poco',
+				'following', 'followers', 'inbox', 'outbox', 'sharedinbox',
+				'priority', 'network', 'pubkey', 'manually-approve', 'baseurl', 'gsid'];
 
-		$numeric_fields = ["gsid", "hide", "account-type", "manually-approve"];
+		$numeric_fields = ['gsid', 'hide', 'account-type', 'manually-approve'];
 
 		$newdata = [];
 		foreach ($fields as $field) {
@@ -107,14 +106,14 @@ class Probe
 					$newdata[$field] = $data[$field];
 				}
 			} elseif (!in_array($field, $numeric_fields)) {
-				$newdata[$field] = "";
+				$newdata[$field] = '';
 			} else {
 				$newdata[$field] = null;
 			}
 		}
 
 		// We don't use the "priority" field anymore and replace it with a dummy.
-		$newdata["priority"] = 0;
+		$newdata['priority'] = 0;
 
 		return $newdata;
 	}
@@ -123,10 +122,9 @@ class Probe
 	 * Check if the hostname belongs to the own server
 	 *
 	 * @param string $host The hostname that is to be checked
-	 *
 	 * @return bool Does the testes hostname belongs to the own server?
 	 */
-	private static function ownHost($host)
+	private static function ownHost(string $host): bool
 	{
 		$own_host = DI::baseUrl()->getHostname();
 
@@ -143,27 +141,26 @@ class Probe
 	}
 
 	/**
-	 * Probes for webfinger path via "host-meta"
+	 * Probes for webfinger path via 'host-meta'
 	 *
 	 * We have to check if the servers in the future still will offer this.
 	 * It seems as if it was dropped from the standard.
 	 *
 	 * @param string $host The host part of an url
-	 *
 	 * @return array with template and type of the webfinger template for JSON or XML
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function hostMeta($host)
+	private static function hostMeta(string $host): array
 	{
 		// Reset the static variable
 		self::$baseurl = '';
 
 		// Handles the case when the hostname contains the scheme
 		if (!parse_url($host, PHP_URL_SCHEME)) {
-			$ssl_url = "https://" . $host . "/.well-known/host-meta";
-			$url = "http://" . $host . "/.well-known/host-meta";
+			$ssl_url = 'https://' . $host . '/.well-known/host-meta';
+			$url = 'http://' . $host . '/.well-known/host-meta';
 		} else {
-			$ssl_url = $host . "/.well-known/host-meta";
+			$ssl_url = $host . '/.well-known/host-meta';
 			$url = '';
 		}
 
@@ -210,26 +207,26 @@ class Probe
 		}
 
 		$links = XML::elementToArray($xrd);
-		if (!isset($links["xrd"]["link"])) {
+		if (!isset($links['xrd']['link'])) {
 			Logger::info('No xrd data found', ['host' => $host]);
 			return [];
 		}
 
 		$lrdd = [];
 
-		foreach ($links["xrd"]["link"] as $value => $link) {
-			if (!empty($link["@attributes"])) {
-				$attributes = $link["@attributes"];
-			} elseif ($value == "@attributes") {
+		foreach ($links['xrd']['link'] as $value => $link) {
+			if (!empty($link['@attributes'])) {
+				$attributes = $link['@attributes'];
+			} elseif ($value == '@attributes') {
 				$attributes = $link;
 			} else {
 				continue;
 			}
 
-			if (!empty($attributes["rel"]) && $attributes["rel"] == "lrdd" && !empty($attributes["template"])) {
-				$type = (empty($attributes["type"]) ? '' : $attributes["type"]);
+			if (!empty($attributes['rel']) && $attributes['rel'] == 'lrdd' && !empty($attributes['template'])) {
+				$type = (empty($attributes['type']) ? '' : $attributes['type']);
 
-				$lrdd[$type] = $attributes["template"];
+				$lrdd[$type] = $attributes['template'];
 			}
 		}
 
@@ -249,11 +246,10 @@ class Probe
 	 * Check an URI for LRDD data
 	 *
 	 * @param string $uri     Address that should be probed
-	 *
 	 * @return array uri data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function lrdd(string $uri)
+	public static function lrdd(string $uri): array
 	{
 		$data = self::getWebfingerArray($uri);
 		if (empty($data)) {
@@ -261,22 +257,25 @@ class Probe
 		}
 		$webfinger = $data['webfinger'];
 
-		if (empty($webfinger["links"])) {
+		if (empty($webfinger['links'])) {
 			Logger::info('No webfinger links found', ['uri' => $uri]);
 			return [];
 		}
 
 		$data = [];
 
-		foreach ($webfinger["links"] as $link) {
-			$data[] = ["@attributes" => $link];
+		foreach ($webfinger['links'] as $link) {
+			$data[] = ['@attributes' => $link];
 		}
 
-		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
-			foreach ($webfinger["aliases"] as $alias) {
-				$data[] = ["@attributes" =>
-							["rel" => "alias",
-								"href" => $alias]];
+		if (!empty($webfinger['aliases']) && is_array($webfinger['aliases'])) {
+			foreach ($webfinger['aliases'] as $alias) {
+				$data[] = [
+					'@attributes' => [
+						'rel' => 'alias',
+						'href' => $alias,
+					]
+				];
 			}
 		}
 
@@ -383,10 +382,9 @@ class Probe
 	 * Fetches the "hide" status from the profile
 	 *
 	 * @param string $url URL of the profile
-	 *
 	 * @return boolean "hide" status
 	 */
-	private static function getHideStatus($url)
+	private static function getHideStatus(string $url): bool
 	{
 		$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
 		if (!$curlResult->isSuccess()) {
@@ -443,11 +441,11 @@ class Probe
 	/**
 	 * Fetch the "subscribe" and add it to the result
 	 *
-	 * @param array $result
-	 * @param array $webfinger
-	 * @return array result
+	 * @param array $result Result array
+	 * @param array $webfinger Webfinger data
+	 * @return array result Altered/unaltered result array
 	 */
-	private static function getSubscribeLink(array $result, array $webfinger)
+	private static function getSubscribeLink(array $result, array $webfinger): array
 	{
 		if (empty($webfinger['links'])) {
 			return $result;
@@ -465,8 +463,8 @@ class Probe
 	/**
 	 * Get webfinger data from a given URI
 	 *
-	 * @param string $uri
-	 * @return array
+	 * @param string $uri URI
+	 * @return array Webfinger data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function getWebfingerArray(string $uri): array
@@ -583,7 +581,7 @@ class Probe
 	 * @param string $addr
 	 * @return array webfinger results
 	 */
-	private static function getWebfinger(string $template, string $type, string $uri, string $addr)
+	private static function getWebfinger(string $template, string $type, string $uri, string $addr): array
 	{
 		if (Network::isUrlBlocked($template)) {
 			Logger::info('Domain is blocked', ['url' => $template]);
@@ -593,7 +591,7 @@ class Probe
 		// First try the address because this is the primary purpose of webfinger
 		if (!empty($addr)) {
 			$detected = $addr;
-			$path = str_replace('{uri}', urlencode("acct:" . $addr), $template);
+			$path = str_replace('{uri}', urlencode('acct:' . $addr), $template);
 			$webfinger = self::webfinger($path, $type);
 			if (self::$istimeout) {
 				return [];
@@ -626,11 +624,10 @@ class Probe
 	 * @param string  $network    Test for this specific network
 	 * @param integer $uid        User ID for the probe (only used for mails)
 	 * @param array   $ap_profile Previously probed AP profile
-	 *
-	 * @return array uri data
+	 * @return array URI data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function detect(string $uri, string $network, int $uid, array $ap_profile)
+	private static function detect(string $uri, string $network, int $uid, array $ap_profile): array
 	{
 		$hookData = [
 			'uri'     => $uri,
@@ -700,7 +697,7 @@ class Probe
 		if (in_array($network, ['', Protocol::ZOT])) {
 			$result = self::zot($webfinger, $result, $baseurl);
 		}
-		if ((!$result && ($network == "")) || ($network == Protocol::PUMPIO)) {
+		if ((!$result && ($network == '')) || ($network == Protocol::PUMPIO)) {
 			$result = self::pumpio($webfinger, $addr);
 		}
 		if (empty($result['network']) && empty($ap_profile['network']) || ($network == Protocol::FEED)) {
@@ -708,30 +705,30 @@ class Probe
 		} else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
 			// Additionally it is overwritten when the nickname doesn't make sense (contains spaces).
-			if ((empty($result["nick"]) || (strstr($result["nick"], " "))) && ($nick != "")) {
-				$result["nick"] = $nick;
+			if ((empty($result['nick']) || (strstr($result['nick'], ' '))) && ($nick != '')) {
+				$result['nick'] = $nick;
 			}
 
-			if (empty($result["addr"]) && ($addr != "")) {
-				$result["addr"] = $addr;
+			if (empty($result['addr']) && ($addr != '')) {
+				$result['addr'] = $addr;
 			}
 		}
 
 		$result = self::getSubscribeLink($result, $webfinger);
 
-		if (empty($result["network"])) {
-			$result["network"] = Protocol::PHANTOM;
+		if (empty($result['network'])) {
+			$result['network'] = Protocol::PHANTOM;
 		}
 
 		if (empty($result['baseurl']) && !empty($baseurl)) {
 			$result['baseurl'] = $baseurl;
 		}
 
-		if (empty($result["url"])) {
-			$result["url"] = $uri;
+		if (empty($result['url'])) {
+			$result['url'] = $uri;
 		}
 
-		Logger::info('Probing done', ['uri' => $uri, 'network' => $result["network"]]);
+		Logger::info('Probing done', ['uri' => $uri, 'network' => $result['network']]);
 
 		return $result;
 	}
@@ -739,24 +736,24 @@ class Probe
 	/**
 	 * Check for Zot contact
 	 *
-	 * @param array $webfinger Webfinger data
-	 * @param array $data      previously probed data
-	 *
+	 * @param array  $webfinger Webfinger data
+	 * @param array  $data      previously probed data
+	 * @param string $baseUrl   Base URL
 	 * @return array Zot data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function zot($webfinger, $data, $baseurl)
+	private static function zot(array $webfinger, array $data, string $baseurl): array
 	{
-		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
-			foreach ($webfinger["aliases"] as $alias) {
+		if (!empty($webfinger['aliases']) && is_array($webfinger['aliases'])) {
+			foreach ($webfinger['aliases'] as $alias) {
 				if (substr($alias, 0, 5) == 'acct:') {
-					$data["addr"] = substr($alias, 5);
+					$data['addr'] = substr($alias, 5);
 				}
 			}
 		}
 
-		if (!empty($webfinger["subject"]) && (substr($webfinger["subject"], 0, 5) == "acct:")) {
-			$data["addr"] = substr($webfinger["subject"], 5);
+		if (!empty($webfinger['subject']) && (substr($webfinger['subject'], 0, 5) == 'acct:')) {
+			$data['addr'] = substr($webfinger['subject'], 5);
 		}
 
 		$zot_url = '';
@@ -882,11 +879,10 @@ class Probe
 	 *
 	 * @param string $url  Address that should be probed
 	 * @param string $type type
-	 *
 	 * @return array webfinger data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function webfinger($url, $type)
+	public static function webfinger(string $url, string $type): array
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
@@ -899,7 +895,7 @@ class Probe
 
 		$webfinger = json_decode($data, true);
 		if (!empty($webfinger)) {
-			if (!isset($webfinger["links"])) {
+			if (!isset($webfinger['links'])) {
 				Logger::info('No json webfinger links', ['url' => $url]);
 				return [];
 			}
@@ -914,33 +910,33 @@ class Probe
 		}
 
 		$xrd_arr = XML::elementToArray($xrd);
-		if (!isset($xrd_arr["xrd"]["link"])) {
+		if (!isset($xrd_arr['xrd']['link'])) {
 			Logger::info('No XML webfinger links', ['url' => $url]);
 			return [];
 		}
 
 		$webfinger = [];
 
-		if (!empty($xrd_arr["xrd"]["subject"])) {
-			$webfinger["subject"] = $xrd_arr["xrd"]["subject"];
+		if (!empty($xrd_arr['xrd']['subject'])) {
+			$webfinger['subject'] = $xrd_arr['xrd']['subject'];
 		}
 
-		if (!empty($xrd_arr["xrd"]["alias"])) {
-			$webfinger["aliases"] = $xrd_arr["xrd"]["alias"];
+		if (!empty($xrd_arr['xrd']['alias'])) {
+			$webfinger['aliases'] = $xrd_arr['xrd']['alias'];
 		}
 
-		$webfinger["links"] = [];
+		$webfinger['links'] = [];
 
-		foreach ($xrd_arr["xrd"]["link"] as $value => $data) {
-			if (!empty($data["@attributes"])) {
-				$attributes = $data["@attributes"];
-			} elseif ($value == "@attributes") {
+		foreach ($xrd_arr['xrd']['link'] as $value => $data) {
+			if (!empty($data['@attributes'])) {
+				$attributes = $data['@attributes'];
+			} elseif ($value == '@attributes') {
 				$attributes = $data;
 			} else {
 				continue;
 			}
 
-			$webfinger["links"][] = $attributes;
+			$webfinger['links'][] = $attributes;
 		}
 		return $webfinger;
 	}
@@ -953,11 +949,10 @@ class Probe
 	 *
 	 * @param string $noscrape_url Link to the noscrape page
 	 * @param array  $data         The already fetched data
-	 *
 	 * @return array noscrape data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function pollNoscrape($noscrape_url, $data)
+	private static function pollNoscrape(string $noscrape_url, array $data): array
 	{
 		$curlResult = DI::httpClient()->get($noscrape_url, HttpClientAccept::JSON);
 		if ($curlResult->isTimeout()) {
@@ -976,78 +971,78 @@ class Probe
 			return $data;
 		}
 
-		if (!empty($json["fn"])) {
-			$data["name"] = $json["fn"];
+		if (!empty($json['fn'])) {
+			$data['name'] = $json['fn'];
 		}
 
-		if (!empty($json["addr"])) {
-			$data["addr"] = $json["addr"];
+		if (!empty($json['addr'])) {
+			$data['addr'] = $json['addr'];
 		}
 
-		if (!empty($json["nick"])) {
-			$data["nick"] = $json["nick"];
+		if (!empty($json['nick'])) {
+			$data['nick'] = $json['nick'];
 		}
 
-		if (!empty($json["guid"])) {
-			$data["guid"] = $json["guid"];
+		if (!empty($json['guid'])) {
+			$data['guid'] = $json['guid'];
 		}
 
-		if (!empty($json["comm"])) {
-			$data["community"] = $json["comm"];
+		if (!empty($json['comm'])) {
+			$data['community'] = $json['comm'];
 		}
 
-		if (!empty($json["tags"])) {
-			$keywords = implode(", ", $json["tags"]);
-			if ($keywords != "") {
-				$data["keywords"] = $keywords;
+		if (!empty($json['tags'])) {
+			$keywords = implode(', ', $json['tags']);
+			if ($keywords != '') {
+				$data['keywords'] = $keywords;
 			}
 		}
 
 		$location = Profile::formatLocation($json);
 		if ($location) {
-			$data["location"] = $location;
+			$data['location'] = $location;
 		}
 
-		if (!empty($json["about"])) {
-			$data["about"] = $json["about"];
+		if (!empty($json['about'])) {
+			$data['about'] = $json['about'];
 		}
 
-		if (!empty($json["xmpp"])) {
-			$data["xmpp"] = $json["xmpp"];
+		if (!empty($json['xmpp'])) {
+			$data['xmpp'] = $json['xmpp'];
 		}
 
-		if (!empty($json["matrix"])) {
-			$data["matrix"] = $json["matrix"];
+		if (!empty($json['matrix'])) {
+			$data['matrix'] = $json['matrix'];
 		}
 
-		if (!empty($json["key"])) {
-			$data["pubkey"] = $json["key"];
+		if (!empty($json['key'])) {
+			$data['pubkey'] = $json['key'];
 		}
 
-		if (!empty($json["photo"])) {
-			$data["photo"] = $json["photo"];
+		if (!empty($json['photo'])) {
+			$data['photo'] = $json['photo'];
 		}
 
-		if (!empty($json["dfrn-request"])) {
-			$data["request"] = $json["dfrn-request"];
+		if (!empty($json['dfrn-request'])) {
+			$data['request'] = $json['dfrn-request'];
 		}
 
-		if (!empty($json["dfrn-confirm"])) {
-			$data["confirm"] = $json["dfrn-confirm"];
+		if (!empty($json['dfrn-confirm'])) {
+			$data['confirm'] = $json['dfrn-confirm'];
 		}
 
-		if (!empty($json["dfrn-notify"])) {
-			$data["notify"] = $json["dfrn-notify"];
+		if (!empty($json['dfrn-notify'])) {
+			$data['notify'] = $json['dfrn-notify'];
 		}
 
-		if (!empty($json["dfrn-poll"])) {
-			$data["poll"] = $json["dfrn-poll"];
+		if (!empty($json['dfrn-poll'])) {
+			$data['poll'] = $json['dfrn-poll'];
 		}
 
-		if (isset($json["hide"])) {
-			$data["hide"] = (bool)$json["hide"];
+		if (isset($json['hide'])) {
+			$data['hide'] = (bool)$json['hide'];
 		} else {
-			$data["hide"] = false;
+			$data['hide'] = false;
 		}
 
 		return $data;
@@ -1085,48 +1080,47 @@ class Probe
 	 * Fetch data from a DFRN profile page and via "noscrape"
 	 *
 	 * @param string $profile_link Link to the profile page
-	 *
 	 * @return array profile data
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function profile($profile_link)
+	public static function profile(string $profile_link): array
 	{
 		$data = [];
 
 		Logger::info('Check profile', ['link' => $profile_link]);
 
 		// Fetch data via noscrape - this is faster
-		$noscrape_url = str_replace(["/hcard/", "/profile/"], "/noscrape/", $profile_link);
+		$noscrape_url = str_replace(['/hcard/', '/profile/'], '/noscrape/', $profile_link);
 		$data = self::pollNoscrape($noscrape_url, $data);
 
-		if (!isset($data["notify"])
-			|| !isset($data["confirm"])
-			|| !isset($data["request"])
-			|| !isset($data["poll"])
-			|| !isset($data["name"])
-			|| !isset($data["photo"])
+		if (!isset($data['notify'])
+			|| !isset($data['confirm'])
+			|| !isset($data['request'])
+			|| !isset($data['poll'])
+			|| !isset($data['name'])
+			|| !isset($data['photo'])
 		) {
 			$data = self::pollHcard($profile_link, $data, true);
 		}
 
 		$prof_data = [];
 
-		if (empty($data["addr"]) || empty($data["nick"])) {
+		if (empty($data['addr']) || empty($data['nick'])) {
 			$probe_data = self::uri($profile_link);
-			$data["addr"] = ($data["addr"] ?? '') ?: $probe_data["addr"];
-			$data["nick"] = ($data["nick"] ?? '') ?: $probe_data["nick"];
+			$data['addr'] = ($data['addr'] ?? '') ?: $probe_data['addr'];
+			$data['nick'] = ($data['nick'] ?? '') ?: $probe_data['nick'];
 		}
 
-		$prof_data["addr"]         = $data["addr"];
-		$prof_data["nick"]         = $data["nick"];
-		$prof_data["dfrn-request"] = $data['request'] ?? null;
-		$prof_data["dfrn-confirm"] = $data['confirm'] ?? null;
-		$prof_data["dfrn-notify"]  = $data['notify']  ?? null;
-		$prof_data["dfrn-poll"]    = $data['poll']    ?? null;
-		$prof_data["photo"]        = $data['photo']   ?? null;
-		$prof_data["fn"]           = $data['name']    ?? null;
-		$prof_data["key"]          = $data['pubkey']  ?? null;
+		$prof_data['addr']         = $data['addr'];
+		$prof_data['nick']         = $data['nick'];
+		$prof_data['dfrn-request'] = $data['request'] ?? null;
+		$prof_data['dfrn-confirm'] = $data['confirm'] ?? null;
+		$prof_data['dfrn-notify']  = $data['notify']  ?? null;
+		$prof_data['dfrn-poll']    = $data['poll']    ?? null;
+		$prof_data['photo']        = $data['photo']   ?? null;
+		$prof_data['fn']           = $data['name']    ?? null;
+		$prof_data['key']          = $data['pubkey']  ?? null;
 
 		Logger::debug('Result', ['link' => $profile_link, 'data' => $prof_data]);
 
@@ -1137,73 +1131,72 @@ class Probe
 	 * Check for DFRN contact
 	 *
 	 * @param array $webfinger Webfinger data
-	 *
 	 * @return array DFRN data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function dfrn($webfinger)
+	private static function dfrn(array $webfinger): array
 	{
-		$hcard_url = "";
+		$hcard_url = '';
 		$data = [];
 		// The array is reversed to take into account the order of preference for same-rel links
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
-		foreach (array_reverse($webfinger["links"]) as $link) {
-			if (($link["rel"] == ActivityNamespace::DFRN) && !empty($link["href"])) {
-				$data["network"] = Protocol::DFRN;
-			} elseif (($link["rel"] == ActivityNamespace::FEED) && !empty($link["href"])) {
-				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && (($link["type"] ?? "") == "text/html") && !empty($link["href"])) {
-				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == "http://microformats.org/profile/hcard") && !empty($link["href"])) {
-				$hcard_url = $link["href"];
-			} elseif (($link["rel"] == ActivityNamespace::POCO) && !empty($link["href"])) {
-				$data["poco"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/avatar") && !empty($link["href"])) {
-				$data["photo"] = $link["href"];
-			} elseif (($link["rel"] == "http://joindiaspora.com/seed_location") && !empty($link["href"])) {
-				$data["baseurl"] = trim($link["href"], '/');
-			} elseif (($link["rel"] == "http://joindiaspora.com/guid") && !empty($link["href"])) {
-				$data["guid"] = $link["href"];
-			} elseif (($link["rel"] == "diaspora-public-key") && !empty($link["href"])) {
-				$data["pubkey"] = base64_decode($link["href"]);
+		foreach (array_reverse($webfinger['links']) as $link) {
+			if (($link['rel'] == ActivityNamespace::DFRN) && !empty($link['href'])) {
+				$data['network'] = Protocol::DFRN;
+			} elseif (($link['rel'] == ActivityNamespace::FEED) && !empty($link['href'])) {
+				$data['poll'] = $link['href'];
+			} elseif (($link['rel'] == 'http://webfinger.net/rel/profile-page') && (($link['type'] ?? '') == 'text/html') && !empty($link['href'])) {
+				$data['url'] = $link['href'];
+			} elseif (($link['rel'] == 'http://microformats.org/profile/hcard') && !empty($link['href'])) {
+				$hcard_url = $link['href'];
+			} elseif (($link['rel'] == ActivityNamespace::POCO) && !empty($link['href'])) {
+				$data['poco'] = $link['href'];
+			} elseif (($link['rel'] == 'http://webfinger.net/rel/avatar') && !empty($link['href'])) {
+				$data['photo'] = $link['href'];
+			} elseif (($link['rel'] == 'http://joindiaspora.com/seed_location') && !empty($link['href'])) {
+				$data['baseurl'] = trim($link['href'], '/');
+			} elseif (($link['rel'] == 'http://joindiaspora.com/guid') && !empty($link['href'])) {
+				$data['guid'] = $link['href'];
+			} elseif (($link['rel'] == 'diaspora-public-key') && !empty($link['href'])) {
+				$data['pubkey'] = base64_decode($link['href']);
 
-				//if (strstr($data["pubkey"], 'RSA ') || ($link["type"] == "RSA"))
-				if (strstr($data["pubkey"], 'RSA ')) {
-					$data["pubkey"] = Crypto::rsaToPem($data["pubkey"]);
+				//if (strstr($data['pubkey'], 'RSA ') || ($link['type'] == 'RSA'))
+				if (strstr($data['pubkey'], 'RSA ')) {
+					$data['pubkey'] = Crypto::rsaToPem($data['pubkey']);
 				}
 			}
 		}
 
-		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
-			foreach ($webfinger["aliases"] as $alias) {
-				if (empty($data["url"]) && !strstr($alias, "@")) {
-					$data["url"] = $alias;
-				} elseif (!strstr($alias, "@") && Strings::normaliseLink($alias) != Strings::normaliseLink($data["url"])) {
-					$data["alias"] = $alias;
+		if (!empty($webfinger['aliases']) && is_array($webfinger['aliases'])) {
+			foreach ($webfinger['aliases'] as $alias) {
+				if (empty($data['url']) && !strstr($alias, '@')) {
+					$data['url'] = $alias;
+				} elseif (!strstr($alias, '@') && Strings::normaliseLink($alias) != Strings::normaliseLink($data['url'])) {
+					$data['alias'] = $alias;
 				} elseif (substr($alias, 0, 5) == 'acct:') {
-					$data["addr"] = substr($alias, 5);
+					$data['addr'] = substr($alias, 5);
 				}
 			}
 		}
 
-		if (!empty($webfinger["subject"]) && (substr($webfinger["subject"], 0, 5) == "acct:")) {
-			$data["addr"] = substr($webfinger["subject"], 5);
+		if (!empty($webfinger['subject']) && (substr($webfinger['subject'], 0, 5) == 'acct:')) {
+			$data['addr'] = substr($webfinger['subject'], 5);
 		}
 
-		if (!isset($data["network"]) || ($hcard_url == "")) {
+		if (!isset($data['network']) || ($hcard_url == '')) {
 			return [];
 		}
 
 		// Fetch data via noscrape - this is faster
-		$noscrape_url = str_replace("/hcard/", "/noscrape/", $hcard_url);
+		$noscrape_url = str_replace('/hcard/', '/noscrape/', $hcard_url);
 		$data = self::pollNoscrape($noscrape_url, $data);
 
-		if (isset($data["notify"])
-			&& isset($data["confirm"])
-			&& isset($data["request"])
-			&& isset($data["poll"])
-			&& isset($data["name"])
-			&& isset($data["photo"])
+		if (isset($data['notify'])
+			&& isset($data['confirm'])
+			&& isset($data['request'])
+			&& isset($data['poll'])
+			&& isset($data['name'])
+			&& isset($data['photo'])
 		) {
 			return $data;
 		}
@@ -1219,11 +1212,10 @@ class Probe
 	 * @param string  $hcard_url Link to the hcard page
 	 * @param array   $data      The already fetched data
 	 * @param boolean $dfrn      Poll DFRN specific data
-	 *
 	 * @return array hcard data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function pollHcard($hcard_url, $data, $dfrn = false)
+	private static function pollHcard(string $hcard_url, array $data, bool $dfrn = false): array
 	{
 		$curlResult = DI::httpClient()->get($hcard_url, HttpClientAccept::HTML);
 		if ($curlResult->isTimeout()) {
@@ -1278,15 +1270,15 @@ class Probe
 
 			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' key ')]", $vcard); // */
 			if ($search->length > 0) {
-				$data["pubkey"] = $search->item(0)->nodeValue;
-				if (strstr($data["pubkey"], 'RSA ')) {
-					$data["pubkey"] = Crypto::rsaToPem($data["pubkey"]);
+				$data['pubkey'] = $search->item(0)->nodeValue;
+				if (strstr($data['pubkey'], 'RSA ')) {
+					$data['pubkey'] = Crypto::rsaToPem($data['pubkey']);
 				}
 			}
 
 			$search = $xpath->query("//*[@id='pod_location']", $vcard); // */
 			if ($search->length > 0) {
-				$data["baseurl"] = trim($search->item(0)->nodeValue, "/");
+				$data['baseurl'] = trim($search->item(0)->nodeValue, '/');
 			}
 		}
 
@@ -1299,21 +1291,21 @@ class Probe
 					$attr[$attribute->name] = trim($attribute->value);
 				}
 
-				if (isset($attr["src"]) && isset($attr["width"])) {
-					$avatar[$attr["width"]] = $attr["src"];
+				if (isset($attr['src']) && isset($attr['width'])) {
+					$avatar[$attr['width']] = $attr['src'];
 				}
 
 				// We don't have a width. So we just take everything that we got.
 				// This is a Hubzilla workaround which doesn't send a width.
-				if ((sizeof($avatar) == 0) && !empty($attr["src"])) {
-					$avatar[] = $attr["src"];
+				if ((sizeof($avatar) == 0) && !empty($attr['src'])) {
+					$avatar[] = $attr['src'];
 				}
 			}
 		}
 
 		if (sizeof($avatar)) {
 			ksort($avatar);
-			$data["photo"] = self::fixAvatar(array_pop($avatar), $data["baseurl"]);
+			$data['photo'] = self::fixAvatar(array_pop($avatar), $data['baseurl']);
 		}
 
 		if ($dfrn) {
@@ -1321,19 +1313,19 @@ class Probe
 			$search = $xpath->query("//link[contains(concat(' ', @rel), ' dfrn-')]");
 			if ($search->length > 0) {
 				foreach ($search as $link) {
-					//$data["request"] = $search->item(0)->nodeValue;
+					//$data['request'] = $search->item(0)->nodeValue;
 					$attr = [];
 					foreach ($link->attributes as $attribute) {
 						$attr[$attribute->name] = trim($attribute->value);
 					}
 
-					$data[substr($attr["rel"], 5)] = $attr["href"];
+					$data[substr($attr['rel'], 5)] = $attr['href'];
 				}
 			}
 
-			// Older Friendica versions had used the "uid" field differently than newer versions
-			if (!empty($data["nick"]) && !empty($data["guid"]) && ($data["nick"] == $data["guid"])) {
-				unset($data["guid"]);
+			// Older Friendica versions had used the 'uid' field differently than newer versions
+			if (!empty($data['nick']) && !empty($data['guid']) && ($data['nick'] == $data['guid'])) {
+				unset($data['guid']);
 			}
 		}
 
@@ -1345,64 +1337,63 @@ class Probe
 	 * Check for Diaspora contact
 	 *
 	 * @param array $webfinger Webfinger data
-	 *
 	 * @return array Diaspora data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function diaspora($webfinger)
+	private static function diaspora(array $webfinger): array
 	{
-		$hcard_url = "";
+		$hcard_url = '';
 		$data = [];
 
 		// The array is reversed to take into account the order of preference for same-rel links
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
-		foreach (array_reverse($webfinger["links"]) as $link) {
-			if (($link["rel"] == "http://microformats.org/profile/hcard") && !empty($link["href"])) {
-				$hcard_url = $link["href"];
-			} elseif (($link["rel"] == "http://joindiaspora.com/seed_location") && !empty($link["href"])) {
-				$data["baseurl"] = trim($link["href"], '/');
-			} elseif (($link["rel"] == "http://joindiaspora.com/guid") && !empty($link["href"])) {
-				$data["guid"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && (($link["type"] ?? "") == "text/html") && !empty($link["href"])) {
-				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && empty($link["type"]) && !empty($link["href"])) {
-				$profile_url = $link["href"];
-			} elseif (($link["rel"] == ActivityNamespace::FEED) && !empty($link["href"])) {
-				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == ActivityNamespace::POCO) && !empty($link["href"])) {
-				$data["poco"] = $link["href"];
-			} elseif (($link["rel"] == "salmon") && !empty($link["href"])) {
-				$data["notify"] = $link["href"];
-			} elseif (($link["rel"] == "diaspora-public-key") && !empty($link["href"])) {
-				$data["pubkey"] = base64_decode($link["href"]);
+		foreach (array_reverse($webfinger['links']) as $link) {
+			if (($link['rel'] == 'http://microformats.org/profile/hcard') && !empty($link['href'])) {
+				$hcard_url = $link['href'];
+			} elseif (($link['rel'] == 'http://joindiaspora.com/seed_location') && !empty($link['href'])) {
+				$data['baseurl'] = trim($link['href'], '/');
+			} elseif (($link['rel'] == 'http://joindiaspora.com/guid') && !empty($link['href'])) {
+				$data['guid'] = $link['href'];
+			} elseif (($link['rel'] == 'http://webfinger.net/rel/profile-page') && (($link['type'] ?? '') == 'text/html') && !empty($link['href'])) {
+				$data['url'] = $link['href'];
+			} elseif (($link['rel'] == 'http://webfinger.net/rel/profile-page') && empty($link['type']) && !empty($link['href'])) {
+				$profile_url = $link['href'];
+			} elseif (($link['rel'] == ActivityNamespace::FEED) && !empty($link['href'])) {
+				$data['poll'] = $link['href'];
+			} elseif (($link['rel'] == ActivityNamespace::POCO) && !empty($link['href'])) {
+				$data['poco'] = $link['href'];
+			} elseif (($link['rel'] == 'salmon') && !empty($link['href'])) {
+				$data['notify'] = $link['href'];
+			} elseif (($link['rel'] == 'diaspora-public-key') && !empty($link['href'])) {
+				$data['pubkey'] = base64_decode($link['href']);
 
-				//if (strstr($data["pubkey"], 'RSA ') || ($link["type"] == "RSA"))
-				if (strstr($data["pubkey"], 'RSA ')) {
-					$data["pubkey"] = Crypto::rsaToPem($data["pubkey"]);
+				//if (strstr($data['pubkey'], 'RSA ') || ($link['type'] == 'RSA'))
+				if (strstr($data['pubkey'], 'RSA ')) {
+					$data['pubkey'] = Crypto::rsaToPem($data['pubkey']);
 				}
 			}
 		}
 
-		if (empty($data["url"]) && !empty($profile_url)) {
-			$data["url"] = $profile_url;
+		if (empty($data['url']) && !empty($profile_url)) {
+			$data['url'] = $profile_url;
 		}
 
-		if (empty($data["url"]) || empty($hcard_url)) {
+		if (empty($data['url']) || empty($hcard_url)) {
 			return [];
 		}
 
-		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
-			foreach ($webfinger["aliases"] as $alias) {
-				if (Strings::normaliseLink($alias) != Strings::normaliseLink($data["url"]) && ! strstr($alias, "@")) {
-					$data["alias"] = $alias;
+		if (!empty($webfinger['aliases']) && is_array($webfinger['aliases'])) {
+			foreach ($webfinger['aliases'] as $alias) {
+				if (Strings::normaliseLink($alias) != Strings::normaliseLink($data['url']) && ! strstr($alias, '@')) {
+					$data['alias'] = $alias;
 				} elseif (substr($alias, 0, 5) == 'acct:') {
-					$data["addr"] = substr($alias, 5);
+					$data['addr'] = substr($alias, 5);
 				}
 			}
 		}
 
-		if (!empty($webfinger["subject"]) && (substr($webfinger["subject"], 0, 5) == 'acct:')) {
-			$data["addr"] = substr($webfinger["subject"], 5);
+		if (!empty($webfinger['subject']) && (substr($webfinger['subject'], 0, 5) == 'acct:')) {
+			$data['addr'] = substr($webfinger['subject'], 5);
 		}
 
 		// Fetch further information from the hcard
@@ -1412,23 +1403,23 @@ class Probe
 			return [];
 		}
 
-		if (!empty($data["url"])
-			&& !empty($data["guid"])
-			&& !empty($data["baseurl"])
-			&& !empty($data["pubkey"])
+		if (!empty($data['url'])
+			&& !empty($data['guid'])
+			&& !empty($data['baseurl'])
+			&& !empty($data['pubkey'])
 			&& !empty($hcard_url)
 		) {
-			$data["network"] = Protocol::DIASPORA;
-			$data["manually-approve"] = false;
+			$data['network'] = Protocol::DIASPORA;
+			$data['manually-approve'] = false;
 
 			// The Diaspora handle must always be lowercase
-			if (!empty($data["addr"])) {
-				$data["addr"] = strtolower($data["addr"]);
+			if (!empty($data['addr'])) {
+				$data['addr'] = strtolower($data['addr']);
 			}
 
-			// We have to overwrite the detected value for "notify" since Hubzilla doesn't send it
-			$data["notify"] = $data["baseurl"] . "/receive/users/" . $data["guid"];
-			$data["batch"]  = $data["baseurl"] . "/receive/public";
+			// We have to overwrite the detected value for 'notify' since Hubzilla doesn't send it
+			$data['notify'] = $data['baseurl'] . '/receive/users/' . $data['guid'];
+			$data['batch']  = $data['baseurl'] . '/receive/public';
 		} else {
 			return [];
 		}
@@ -1441,7 +1432,6 @@ class Probe
 	 *
 	 * @param array $webfinger Webfinger data
 	 * @param bool  $short     Short detection mode
-	 *
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
 	 * @throws HTTPException\InternalServerErrorException
 	 */
@@ -1449,35 +1439,35 @@ class Probe
 	{
 		$data = [];
 
-		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
-			foreach ($webfinger["aliases"] as $alias) {
-				if (strstr($alias, "@") && !strstr(Strings::normaliseLink($alias), "http://")) {
-					$data["addr"] = str_replace('acct:', '', $alias);
+		if (!empty($webfinger['aliases']) && is_array($webfinger['aliases'])) {
+			foreach ($webfinger['aliases'] as $alias) {
+				if (strstr($alias, '@') && !strstr(Strings::normaliseLink($alias), 'http://')) {
+					$data['addr'] = str_replace('acct:', '', $alias);
 				}
 			}
 		}
 
-		if (!empty($webfinger["subject"]) && strstr($webfinger["subject"], "@")
-			&& !strstr(Strings::normaliseLink($webfinger["subject"]), "http://")
+		if (!empty($webfinger['subject']) && strstr($webfinger['subject'], '@')
+			&& !strstr(Strings::normaliseLink($webfinger['subject']), 'http://')
 		) {
-			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
+			$data['addr'] = str_replace('acct:', '', $webfinger['subject']);
 		}
 
-		if (!empty($webfinger["links"])) {
+		if (!empty($webfinger['links'])) {
 			// The array is reversed to take into account the order of preference for same-rel links
 			// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
-			foreach (array_reverse($webfinger["links"]) as $link) {
-				if (($link["rel"] == "http://webfinger.net/rel/profile-page")
-					&& (($link["type"] ?? "") == "text/html")
-					&& ($link["href"] != "")
+			foreach (array_reverse($webfinger['links']) as $link) {
+				if (($link['rel'] == 'http://webfinger.net/rel/profile-page')
+					&& (($link['type'] ?? '') == 'text/html')
+					&& ($link['href'] != '')
 				) {
-					$data["url"] = $data["alias"] = $link["href"];
-				} elseif (($link["rel"] == "salmon") && !empty($link["href"])) {
-					$data["notify"] = $link["href"];
-				} elseif (($link["rel"] == ActivityNamespace::FEED) && !empty($link["href"])) {
-					$data["poll"] = $link["href"];
-				} elseif (($link["rel"] == "magic-public-key") && !empty($link["href"])) {
-					$pubkey = $link["href"];
+					$data['url'] = $data['alias'] = $link['href'];
+				} elseif (($link['rel'] == 'salmon') && !empty($link['href'])) {
+					$data['notify'] = $link['href'];
+				} elseif (($link['rel'] == ActivityNamespace::FEED) && !empty($link['href'])) {
+					$data['poll'] = $link['href'];
+				} elseif (($link['rel'] == 'magic-public-key') && !empty($link['href'])) {
+					$pubkey = $link['href'];
 
 					if (substr($pubkey, 0, 5) === 'data:') {
 						if (strstr($pubkey, ',')) {
@@ -1495,23 +1485,23 @@ class Probe
 						$pubkey = $curlResult->getBody();
 					}
 
-					$key = explode(".", $pubkey);
+					$key = explode('.', $pubkey);
 
 					if (sizeof($key) >= 3) {
 						$m = Strings::base64UrlDecode($key[1]);
 						$e = Strings::base64UrlDecode($key[2]);
-						$data["pubkey"] = Crypto::meToPem($m, $e);
+						$data['pubkey'] = Crypto::meToPem($m, $e);
 					}
 				}
 			}
 		}
 
-		if (isset($data["notify"]) && isset($data["pubkey"])
-			&& isset($data["poll"])
-			&& isset($data["url"])
+		if (isset($data['notify']) && isset($data['pubkey'])
+			&& isset($data['poll'])
+			&& isset($data['url'])
 		) {
-			$data["network"] = Protocol::OSTATUS;
-			$data["manually-approve"] = false;
+			$data['network'] = Protocol::OSTATUS;
+			$data['manually-approve'] = false;
 		} else {
 			return $short ? false : [];
 		}
@@ -1521,7 +1511,7 @@ class Probe
 		}
 
 		// Fetch all additional data from the feed
-		$curlResult = DI::httpClient()->get($data["poll"], HttpClientAccept::FEED_XML);
+		$curlResult = DI::httpClient()->get($data['poll'], HttpClientAccept::FEED_XML);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];
@@ -1532,32 +1522,32 @@ class Probe
 			return [];
 		}
 
-		if (!empty($feed_data["header"]["author-name"])) {
-			$data["name"] = $feed_data["header"]["author-name"];
+		if (!empty($feed_data['header']['author-name'])) {
+			$data['name'] = $feed_data['header']['author-name'];
 		}
-		if (!empty($feed_data["header"]["author-nick"])) {
-			$data["nick"] = $feed_data["header"]["author-nick"];
+		if (!empty($feed_data['header']['author-nick'])) {
+			$data['nick'] = $feed_data['header']['author-nick'];
 		}
-		if (!empty($feed_data["header"]["author-avatar"])) {
-			$data["photo"] = self::fixAvatar($feed_data["header"]["author-avatar"], $data["url"]);
+		if (!empty($feed_data['header']['author-avatar'])) {
+			$data['photo'] = self::fixAvatar($feed_data['header']['author-avatar'], $data['url']);
 		}
-		if (!empty($feed_data["header"]["author-id"])) {
-			$data["alias"] = $feed_data["header"]["author-id"];
+		if (!empty($feed_data['header']['author-id'])) {
+			$data['alias'] = $feed_data['header']['author-id'];
 		}
-		if (!empty($feed_data["header"]["author-location"])) {
-			$data["location"] = $feed_data["header"]["author-location"];
+		if (!empty($feed_data['header']['author-location'])) {
+			$data['location'] = $feed_data['header']['author-location'];
 		}
-		if (!empty($feed_data["header"]["author-about"])) {
-			$data["about"] = $feed_data["header"]["author-about"];
+		if (!empty($feed_data['header']['author-about'])) {
+			$data['about'] = $feed_data['header']['author-about'];
 		}
 		// OStatus has serious issues when the the url doesn't fit (ssl vs. non ssl)
 		// So we take the value that we just fetched, although the other one worked as well
-		if (!empty($feed_data["header"]["author-link"])) {
-			$data["url"] = $feed_data["header"]["author-link"];
+		if (!empty($feed_data['header']['author-link'])) {
+			$data['url'] = $feed_data['header']['author-link'];
 		}
 
-		if ($data["url"] == $data["alias"]) {
-			$data["alias"] = '';
+		if ($data['url'] == $data['alias']) {
+			$data['alias'] = '';
 		}
 
 		/// @todo Fetch location and "about" from the feed as well
@@ -1568,10 +1558,9 @@ class Probe
 	 * Fetch data from a pump.io profile page
 	 *
 	 * @param string $profile_link Link to the profile page
-	 *
-	 * @return array profile data
+	 * @return array Profile data
 	 */
-	private static function pumpioProfileData($profile_link)
+	private static function pumpioProfileData(string $profile_link): array
 	{
 		$curlResult = DI::httpClient()->get($profile_link, HttpClientAccept::HTML);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
@@ -1586,28 +1575,27 @@ class Probe
 		$xpath = new DomXPath($doc);
 
 		$data = [];
+		$data['name'] = $xpath->query("//span[contains(@class, 'p-name')]")->item(0)->nodeValue;
 
-		$data["name"] = $xpath->query("//span[contains(@class, 'p-name')]")->item(0)->nodeValue;
-
-		if ($data["name"] == '') {
+		if ($data['name'] == '') {
 			// This is ugly - but pump.io doesn't seem to know a better way for it
-			$data["name"] = trim($xpath->query("//h1[@class='media-header']")->item(0)->nodeValue);
-			$pos = strpos($data["name"], chr(10));
+			$data['name'] = trim($xpath->query("//h1[@class='media-header']")->item(0)->nodeValue);
+			$pos = strpos($data['name'], chr(10));
 			if ($pos) {
-				$data["name"] = trim(substr($data["name"], 0, $pos));
+				$data['name'] = trim(substr($data['name'], 0, $pos));
 			}
 		}
 
-		$data["location"] = XML::getFirstNodeValue($xpath, "//p[contains(@class, 'p-locality')]");
+		$data['location'] = XML::getFirstNodeValue($xpath, "//p[contains(@class, 'p-locality')]");
 
-		if ($data["location"] == '') {
-			$data["location"] = XML::getFirstNodeValue($xpath, "//p[contains(@class, 'location')]");
+		if ($data['location'] == '') {
+			$data['location'] = XML::getFirstNodeValue($xpath, "//p[contains(@class, 'location')]");
 		}
 
-		$data["about"] = XML::getFirstNodeValue($xpath, "//p[contains(@class, 'p-note')]");
+		$data['about'] = XML::getFirstNodeValue($xpath, "//p[contains(@class, 'p-note')]");
 
-		if ($data["about"] == '') {
-			$data["about"] = XML::getFirstNodeValue($xpath, "//p[contains(@class, 'summary')]");
+		if ($data['about'] == '') {
+			$data['about'] = XML::getFirstNodeValue($xpath, "//p[contains(@class, 'summary')]");
 		}
 
 		$avatar = $xpath->query("//img[contains(@class, 'u-photo')]")->item(0);
@@ -1616,8 +1604,8 @@ class Probe
 		}
 		if ($avatar) {
 			foreach ($avatar->attributes as $attribute) {
-				if ($attribute->name == "src") {
-					$data["photo"] = trim($attribute->value);
+				if ($attribute->name == 'src') {
+					$data['photo'] = trim($attribute->value);
 				}
 			}
 		}
@@ -1632,39 +1620,39 @@ class Probe
 	 * @param string $addr
 	 * @return array pump.io data
 	 */
-	private static function pumpio($webfinger, $addr)
+	private static function pumpio(array $webfinger, string $addr): array
 	{
 		$data = [];
 		// The array is reversed to take into account the order of preference for same-rel links
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
-		foreach (array_reverse($webfinger["links"]) as $link) {
-			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
-				&& (($link["type"] ?? "") == "text/html")
-				&& ($link["href"] != "")
+		foreach (array_reverse($webfinger['links']) as $link) {
+			if (($link['rel'] == 'http://webfinger.net/rel/profile-page')
+				&& (($link['type'] ?? '') == 'text/html')
+				&& ($link['href'] != '')
 			) {
-				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == "activity-inbox") && ($link["href"] != "")) {
-				$data["notify"] = $link["href"];
-			} elseif (($link["rel"] == "activity-outbox") && ($link["href"] != "")) {
-				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == "dialback") && ($link["href"] != "")) {
-				$data["dialback"] = $link["href"];
+				$data['url'] = $link['href'];
+			} elseif (($link['rel'] == 'activity-inbox') && ($link['href'] != '')) {
+				$data['notify'] = $link['href'];
+			} elseif (($link['rel'] == 'activity-outbox') && ($link['href'] != '')) {
+				$data['poll'] = $link['href'];
+			} elseif (($link['rel'] == 'dialback') && ($link['href'] != '')) {
+				$data['dialback'] = $link['href'];
 			}
 		}
-		if (isset($data["poll"]) && isset($data["notify"])
-			&& isset($data["dialback"])
-			&& isset($data["url"])
+		if (isset($data['poll']) && isset($data['notify'])
+			&& isset($data['dialback'])
+			&& isset($data['url'])
 		) {
 			// by now we use these fields only for the network type detection
 			// So we unset all data that isn't used at the moment
-			unset($data["dialback"]);
+			unset($data['dialback']);
 
-			$data["network"] = Protocol::PUMPIO;
+			$data['network'] = Protocol::PUMPIO;
 		} else {
 			return [];
 		}
 
-		$profile_data = self::pumpioProfileData($data["url"]);
+		$profile_data = self::pumpioProfileData($data['url']);
 
 		if (!$profile_data) {
 			return [];
@@ -1719,9 +1707,9 @@ class Probe
 	 * @param string   $href  The potential relative href found in the HTML document
 	 * @param string   $base  The HTML document URL
 	 * @param DOMXPath $xpath The HTML document XPath
-	 * @return string
+	 * @return string Absolute URL
 	 */
-	private static function ensureAbsoluteLinkFromHTMLDoc(string $href, string $base, DOMXPath $xpath)
+	private static function ensureAbsoluteLinkFromHTMLDoc(string $href, string $base, DOMXPath $xpath): string
 	{
 		if (filter_var($href, FILTER_VALIDATE_URL)) {
 			return $href;
@@ -1808,26 +1796,26 @@ class Probe
 			return self::feed($feed_url, false);
 		}
 
-		if (!empty($feed_data["header"]["author-name"])) {
-			$data["name"] = $feed_data["header"]["author-name"];
+		if (!empty($feed_data['header']['author-name'])) {
+			$data['name'] = $feed_data['header']['author-name'];
 		}
 
-		if (!empty($feed_data["header"]["author-nick"])) {
-			$data["nick"] = $feed_data["header"]["author-nick"];
+		if (!empty($feed_data['header']['author-nick'])) {
+			$data['nick'] = $feed_data['header']['author-nick'];
 		}
 
-		if (!empty($feed_data["header"]["author-avatar"])) {
-			$data["photo"] = $feed_data["header"]["author-avatar"];
+		if (!empty($feed_data['header']['author-avatar'])) {
+			$data['photo'] = $feed_data['header']['author-avatar'];
 		}
 
-		if (!empty($feed_data["header"]["author-id"])) {
-			$data["alias"] = $feed_data["header"]["author-id"];
+		if (!empty($feed_data['header']['author-id'])) {
+			$data['alias'] = $feed_data['header']['author-id'];
 		}
 
-		$data["url"] = $url;
-		$data["poll"] = $url;
+		$data['url'] = $url;
+		$data['poll'] = $url;
 
-		$data["network"] = Protocol::FEED;
+		$data['network'] = Protocol::FEED;
 
 		return $data;
 	}
@@ -1837,11 +1825,10 @@ class Probe
 	 *
 	 * @param string  $uri Profile link
 	 * @param integer $uid User ID
-	 *
 	 * @return array mail data
 	 * @throws \Exception
 	 */
-	private static function mail($uri, $uid)
+	private static function mail(string $uri, int $uid): array
 	{
 		if (!Network::isEmailDomainValid($uri)) {
 			return [];
@@ -1879,14 +1866,14 @@ class Probe
 		$phost = substr($uri, strpos($uri, '@') + 1);
 
 		$data = [];
-		$data["addr"]    = $uri;
-		$data["network"] = Protocol::MAIL;
-		$data["name"]    = substr($uri, 0, strpos($uri, '@'));
-		$data["nick"]    = $data["name"];
-		$data["photo"]   = Network::lookupAvatarByEmail($uri);
-		$data["url"]     = 'mailto:'.$uri;
-		$data["notify"]  = 'smtp ' . Strings::getRandomHex();
-		$data["poll"]    = 'email ' . Strings::getRandomHex();
+		$data['addr']    = $uri;
+		$data['network'] = Protocol::MAIL;
+		$data['name']    = substr($uri, 0, strpos($uri, '@'));
+		$data['nick']    = $data['name'];
+		$data['photo']   = Network::lookupAvatarByEmail($uri);
+		$data['url']     = 'mailto:'.$uri;
+		$data['notify']  = 'smtp ' . Strings::getRandomHex();
+		$data['poll']    = 'email ' . Strings::getRandomHex();
 
 		$x = Email::messageMeta($mbox, $msgs[0]);
 		if (stristr($x[0]->from, $uri)) {
@@ -1896,17 +1883,17 @@ class Probe
 		}
 		if (isset($adr)) {
 			foreach ($adr as $feadr) {
-				if ((strcasecmp($feadr->mailbox, $data["name"]) == 0)
+				if ((strcasecmp($feadr->mailbox, $data['name']) == 0)
 					&&(strcasecmp($feadr->host, $phost) == 0)
 					&& (strlen($feadr->personal))
 				) {
 					$personal = imap_mime_header_decode($feadr->personal);
-					$data["name"] = "";
+					$data['name'] = '';
 					foreach ($personal as $perspart) {
-						if ($perspart->charset != "default") {
-							$data["name"] .= iconv($perspart->charset, 'UTF-8//IGNORE', $perspart->text);
+						if ($perspart->charset != 'default') {
+							$data['name'] .= iconv($perspart->charset, 'UTF-8//IGNORE', $perspart->text);
 						} else {
-							$data["name"] .= $perspart->text;
+							$data['name'] .= $perspart->text;
 						}
 					}
 				}
@@ -1923,11 +1910,10 @@ class Probe
 	 *
 	 * @param string $avatar Path to the avatar
 	 * @param string $base   Another path that is hopefully complete
-	 *
 	 * @return string fixed avatar path
 	 * @throws \Exception
 	 */
-	public static function fixAvatar($avatar, $base)
+	public static function fixAvatar(string $avatar, string $base): string
 	{
 		$base_parts = parse_url($base);
 
@@ -1962,7 +1948,7 @@ class Probe
 	 * @param array $data  probing result
 	 * @return string last activity
 	 */
-	public static function getLastUpdate(array $data)
+	public static function getLastUpdate(array $data): string
 	{
 		$uid = User::getIdForURL($data['url']);
 		if (!empty($uid)) {
@@ -1991,9 +1977,7 @@ class Probe
 	 * Fetch the last activity date from the "noscrape" endpoint
 	 *
 	 * @param array $data Probing result
-	 * @return string last activity
-	 *
-	 * @return bool 'true' if update was successful or the server was unreachable
+	 * @return string last activity or bool 'true' if update was successful or the server was unreachable
 	 */
 	private static function updateFromNoScrape(array $data)
 	{
@@ -2028,7 +2012,7 @@ class Probe
 	 * @return string last activity
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function updateFromOutbox(string $feed, array $data)
+	private static function updateFromOutbox(string $feed, array $data): string
 	{
 		$outbox = ActivityPub::fetchContent($feed);
 		if (empty($outbox)) {
@@ -2080,7 +2064,7 @@ class Probe
 	 * @param array $data Probing result
 	 * @return string last activity
 	 */
-	private static function updateFromFeed(array $data)
+	private static function updateFromFeed(array $data): string
 	{
 		// Search for the newest entry in the feed
 		$curlResult = DI::httpClient()->get($data['poll'], HttpClientAccept::ATOM_XML);

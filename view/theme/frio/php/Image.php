@@ -31,10 +31,9 @@ class Image
 	 * Give all available options for the background image
 	 *
 	 * @param array $arr Array with the present user settings
-	 *
 	 * @return array Array with the immage options
 	 */
-	public static function get_options($arr)
+	public static function get_options(array $arr): array
 	{
 		$bg_image_options = [
 			'stretch' => ['frio_bg_image_option', DI::l10n()->t('Top Banner'), 'stretch', DI::l10n()->t('Resize image to the width of the screen and show background color below on long pages.'), ($arr['bg_image_option'] == 'stretch')],

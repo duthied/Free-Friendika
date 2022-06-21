@@ -47,12 +47,13 @@ class Image
 
 	/**
 	 * Constructor
-	 * @param string  $data
-	 * @param boolean $type optional, default null
+	 *
+	 * @param string $data Image data
+	 * @param string $type optional, default null
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function __construct($data, $type = null)
+	public function __construct(string $data, string $type = null)
 	{
 		$this->imagick = class_exists('Imagick');
 		$this->types = Images::supportedTypes();
@@ -62,12 +63,12 @@ class Image
 		$this->type = $type;
 
 		if ($this->isImagick() && $this->loadData($data)) {
-			return true;
+			return;
 		} else {
 			// Failed to load with Imagick, fallback
 			$this->imagick = false;
 		}
-		return $this->loadData($data);
+		$this->loadData($data);
 	}
 
 	/**
@@ -98,12 +99,14 @@ class Image
 	}
 
 	/**
-	 * @param string $data data
-	 * @return boolean
+	 * Loads image data into handler class
+	 *
+	 * @param string $data Image data
+	 * @return boolean Success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private function loadData($data)
+	private function loadData(string $data): bool
 	{
 		if ($this->isImagick()) {
 			$this->image = new Imagick();
@@ -132,7 +135,7 @@ class Image
 			 * setup the compression here, so we'll do it only once
 			 */
 			switch ($this->getType()) {
-				case "image/png":
+				case 'image/png':
 					$quality = DI::config()->get('system', 'png_quality');
 					/*
 					 * From http://www.imagemagick.org/script/command-line-options.php#quality:
@@ -145,7 +148,9 @@ class Image
 					$quality = $quality * 10;
 					$this->image->setCompressionQuality($quality);
 					break;
-				case "image/jpeg":
+
+				case 'image/jpg':
+				case 'image/jpeg':
 					$quality = DI::config()->get('system', 'jpeg_quality');
 					$this->image->setCompressionQuality($quality);
 			}
@@ -185,7 +190,7 @@ class Image
 	/**
 	 * @return boolean
 	 */
-	public function isValid()
+	public function isValid(): bool
 	{
 		if ($this->isImagick()) {
 			return ($this->image !== false);
@@ -269,10 +274,12 @@ class Image
 	}
 
 	/**
+	 * Scales image down
+	 *
 	 * @param integer $max max dimension
 	 * @return mixed
 	 */
-	public function scaleDown($max)
+	public function scaleDown(int $max)
 	{
 		if (!$this->isValid()) {
 			return false;
@@ -327,10 +334,12 @@ class Image
 	}
 
 	/**
+	 * Rotates image
+	 *
 	 * @param integer $degrees degrees to rotate image
 	 * @return mixed
 	 */
-	public function rotate($degrees)
+	public function rotate(int $degrees)
 	{
 		if (!$this->isValid()) {
 			return false;
@@ -351,11 +360,13 @@ class Image
 	}
 
 	/**
+	 * Flips image
+	 *
 	 * @param boolean $horiz optional, default true
 	 * @param boolean $vert  optional, default false
 	 * @return mixed
 	 */
-	public function flip($horiz = true, $vert = false)
+	public function flip(bool $horiz = true, bool $vert = false)
 	{
 		if (!$this->isValid()) {
 			return false;
@@ -391,10 +402,12 @@ class Image
 	}
 
 	/**
-	 * @param string $filename filename
+	 * Fixes orientation and maybe returns EXIF data (?)
+	 *
+	 * @param string $filename Filename
 	 * @return mixed
 	 */
-	public function orient($filename)
+	public function orient(string $filename)
 	{
 		if ($this->isImagick()) {
 			// based off comment on http://php.net/manual/en/imagick.getimageorientation.php
@@ -470,10 +483,12 @@ class Image
 	}
 
 	/**
-	 * @param integer $min minimum dimension
+	 * Rescales image to minimum size
+	 *
+	 * @param integer $min Minimum dimension
 	 * @return mixed
 	 */
-	public function scaleUp($min)
+	public function scaleUp(int $min)
 	{
 		if (!$this->isValid()) {
 			return false;
@@ -513,10 +528,12 @@ class Image
 	}
 
 	/**
-	 * @param integer $dim dimension
+	 * Scales image to square
+	 *
+	 * @param integer $dim Dimension
 	 * @return mixed
 	 */
-	public function scaleToSquare($dim)
+	public function scaleToSquare(int $dim)
 	{
 		if (!$this->isValid()) {
 			return false;
@@ -528,11 +545,11 @@ class Image
 	/**
 	 * Scale image to target dimensions
 	 *
-	 * @param int $dest_width
-	 * @param int $dest_height
-	 * @return boolean
+	 * @param int $dest_width Destination width
+	 * @param int $dest_height Destination height
+	 * @return boolean Success
 	 */
-	private function scale($dest_width, $dest_height)
+	private function scale(int $dest_width, int $dest_height): bool
 	{
 		if (!$this->isValid()) {
 			return false;
@@ -584,6 +601,8 @@ class Image
 
 	/**
 	 * Convert a GIF to a PNG to make it static
+	 *
+	 * @return void
 	 */
 	public function toStatic()
 	{
@@ -598,6 +617,8 @@ class Image
 	}
 
 	/**
+	 * Crops image
+	 *
 	 * @param integer $max maximum
 	 * @param integer $x   x coordinate
 	 * @param integer $y   y coordinate
@@ -605,7 +626,7 @@ class Image
 	 * @param integer $h   height
 	 * @return mixed
 	 */
-	public function crop($max, $x, $y, $w, $h)
+	public function crop(int $max, int $x, int $y, int $w, int $h)
 	{
 		if (!$this->isValid()) {
 			return false;
@@ -638,6 +659,9 @@ class Image
 		$this->image = $dest;
 		$this->width  = imagesx($this->image);
 		$this->height = imagesy($this->image);
+
+		// All successful
+		return true;
 	}
 
 	/**
@@ -650,11 +674,14 @@ class Image
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __toString() {
-		return $this->asString();
+	public function __toString(): string
+	{
+		return (string) $this->asString();
 	}
 
 	/**
+	 * Returns image as string or false on failure
+	 *
 	 * @return mixed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -681,13 +708,16 @@ class Image
 		imageinterlace($this->image, true);
 
 		switch ($this->getType()) {
-			case "image/png":
+			case 'image/png':
 				$quality = DI::config()->get('system', 'png_quality');
 				imagepng($this->image, null, $quality);
 				break;
-			case "image/jpeg":
+
+			case 'image/jpeg':
+			case 'image/jpg':
 				$quality = DI::config()->get('system', 'jpeg_quality');
 				imagejpeg($this->image, null, $quality);
+				break;
 		}
 		$string = ob_get_contents();
 		ob_end_clean();
