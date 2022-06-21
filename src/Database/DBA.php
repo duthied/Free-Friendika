@@ -530,7 +530,11 @@ class DBA
 
 		foreach ($tables as $schema => $table) {
 			if (is_numeric($schema)) {
-				$quotedTables[] = self::quoteIdentifier($table);
+				$str = '';
+				foreach (explode('.', $table) as $part) {
+					$str .= self::quoteIdentifier($part) . '.';
+				}
+				$quotedTables[] = rtrim($str, '.');
 			} else {
 				$quotedTables[] = self::quoteIdentifier($schema) . '.' . self::quoteIdentifier($table);
 			}

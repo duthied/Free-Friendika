@@ -1673,6 +1673,7 @@ CREATE TABLE IF NOT EXISTS `worker-ipc` (
 --
 -- VIEW application-view
 --
+DROP VIEW IF EXISTS `application-view`;
 CREATE VIEW `application-view` AS SELECT 
 	`application`.`id` AS `id`,
 	`application-token`.`uid` AS `uid`,
@@ -1695,6 +1696,7 @@ CREATE VIEW `application-view` AS SELECT
 --
 -- VIEW post-user-view
 --
+DROP VIEW IF EXISTS `post-user-view`;
 CREATE VIEW `post-user-view` AS SELECT 
 	`post-user`.`id` AS `id`,
 	`post-user`.`id` AS `post-user-id`,
@@ -1868,6 +1870,7 @@ CREATE VIEW `post-user-view` AS SELECT
 --
 -- VIEW post-thread-user-view
 --
+DROP VIEW IF EXISTS `post-thread-user-view`;
 CREATE VIEW `post-thread-user-view` AS SELECT 
 	`post-user`.`id` AS `id`,
 	`post-user`.`id` AS `post-user-id`,
@@ -2040,6 +2043,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 --
 -- VIEW post-view
 --
+DROP VIEW IF EXISTS `post-view`;
 CREATE VIEW `post-view` AS SELECT 
 	`item-uri`.`uri` AS `uri`,
 	`post`.`uri-id` AS `uri-id`,
@@ -2175,6 +2179,7 @@ CREATE VIEW `post-view` AS SELECT
 --
 -- VIEW post-thread-view
 --
+DROP VIEW IF EXISTS `post-thread-view`;
 CREATE VIEW `post-thread-view` AS SELECT 
 	`item-uri`.`uri` AS `uri`,
 	`post-thread`.`uri-id` AS `uri-id`,
@@ -2310,6 +2315,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 --
 -- VIEW category-view
 --
+DROP VIEW IF EXISTS `category-view`;
 CREATE VIEW `category-view` AS SELECT 
 	`post-category`.`uri-id` AS `uri-id`,
 	`post-category`.`uid` AS `uid`,
@@ -2323,6 +2329,7 @@ CREATE VIEW `category-view` AS SELECT
 --
 -- VIEW collection-view
 --
+DROP VIEW IF EXISTS `collection-view`;
 CREATE VIEW `collection-view` AS SELECT 
 	`post-collection`.`uri-id` AS `uri-id`,
 	`post-collection`.`type` AS `type`,
@@ -2343,6 +2350,7 @@ CREATE VIEW `collection-view` AS SELECT
 --
 -- VIEW tag-view
 --
+DROP VIEW IF EXISTS `tag-view`;
 CREATE VIEW `tag-view` AS SELECT 
 	`post-tag`.`uri-id` AS `uri-id`,
 	`post-tag`.`type` AS `type`,
@@ -2358,6 +2366,7 @@ CREATE VIEW `tag-view` AS SELECT
 --
 -- VIEW network-item-view
 --
+DROP VIEW IF EXISTS `network-item-view`;
 CREATE VIEW `network-item-view` AS SELECT 
 	`post-user`.`uri-id` AS `uri-id`,
 	`parent-post`.`id` AS `parent`,
@@ -2388,6 +2397,7 @@ CREATE VIEW `network-item-view` AS SELECT
 --
 -- VIEW network-thread-view
 --
+DROP VIEW IF EXISTS `network-thread-view`;
 CREATE VIEW `network-thread-view` AS SELECT 
 	`post-thread-user`.`uri-id` AS `uri-id`,
 	`parent-post`.`id` AS `parent`,
@@ -2416,6 +2426,7 @@ CREATE VIEW `network-thread-view` AS SELECT
 --
 -- VIEW owner-view
 --
+DROP VIEW IF EXISTS `owner-view`;
 CREATE VIEW `owner-view` AS SELECT 
 	`contact`.`id` AS `id`,
 	`contact`.`uid` AS `uid`,
@@ -2543,6 +2554,7 @@ CREATE VIEW `owner-view` AS SELECT
 --
 -- VIEW account-view
 --
+DROP VIEW IF EXISTS `account-view`;
 CREATE VIEW `account-view` AS SELECT 
 	`contact`.`id` AS `id`,
 	`contact`.`url` AS `url`,
@@ -2628,6 +2640,7 @@ CREATE VIEW `account-view` AS SELECT
 --
 -- VIEW account-user-view
 --
+DROP VIEW IF EXISTS `account-user-view`;
 CREATE VIEW `account-user-view` AS SELECT 
 	`ucontact`.`id` AS `id`,
 	`contact`.`id` AS `pid`,
@@ -2731,6 +2744,7 @@ CREATE VIEW `account-user-view` AS SELECT
 --
 -- VIEW pending-view
 --
+DROP VIEW IF EXISTS `pending-view`;
 CREATE VIEW `pending-view` AS SELECT 
 	`register`.`id` AS `id`,
 	`register`.`hash` AS `hash`,
@@ -2752,6 +2766,7 @@ CREATE VIEW `pending-view` AS SELECT
 --
 -- VIEW tag-search-view
 --
+DROP VIEW IF EXISTS `tag-search-view`;
 CREATE VIEW `tag-search-view` AS SELECT 
 	`post-tag`.`uri-id` AS `uri-id`,
 	`post-user`.`uid` AS `uid`,
@@ -2773,6 +2788,7 @@ CREATE VIEW `tag-search-view` AS SELECT
 --
 -- VIEW workerqueue-view
 --
+DROP VIEW IF EXISTS `workerqueue-view`;
 CREATE VIEW `workerqueue-view` AS SELECT 
 	`process`.`pid` AS `pid`,
 	`workerqueue`.`priority` AS `priority`
@@ -2783,6 +2799,7 @@ CREATE VIEW `workerqueue-view` AS SELECT
 --
 -- VIEW profile_field-view
 --
+DROP VIEW IF EXISTS `profile_field-view`;
 CREATE VIEW `profile_field-view` AS SELECT 
 	`profile_field`.`id` AS `id`,
 	`profile_field`.`uid` AS `uid`,
