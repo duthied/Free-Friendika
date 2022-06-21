@@ -1527,7 +1527,6 @@ class Database
 	 */
 	public function count($table, array $condition = [], array $params = []): int
 	{
-		// @TODO Can we dump this to have ": int" as returned type-hint?
 		if (empty($table)) {
 			throw new InvalidArgumentException('Parameter "table" cannot be empty.');
 		}
