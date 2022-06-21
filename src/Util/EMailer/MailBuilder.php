@@ -119,7 +119,7 @@ abstract class MailBuilder
 	{
 		$this->recipientUid = $user['uid'] ?? 0;
 		try {
-			$this->l10n = $user['language'] ? $this->l10n->withLang($user['language']) : $this->l10n;
+			$this->l10n = isset($user['language']) ? $this->l10n->withLang($user['language']) : $this->l10n;
 		} catch (Exception $e) {
 			$this->logger->warning('cannot use language.', ['user' => $user, 'exception' => $e]);
 		}

@@ -183,7 +183,7 @@ class View
 	 */
 	private static function isView(string $view): bool
 	{
-		$status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_TYPE'],
+		$status = DBA::selectFirst('INFORMATION_SCHEMA.TABLES', ['TABLE_TYPE'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_NAME' => $view]);
 
 		if (empty($status['TABLE_TYPE'])) {
@@ -201,7 +201,7 @@ class View
 	 */
 	private static function isTable(string $table): bool
 	{
-		$status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_TYPE'],
+		$status = DBA::selectFirst('INFORMATION_SCHEMA.TABLES', ['TABLE_TYPE'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_NAME' => $table]);
 
 		if (empty($status['TABLE_TYPE'])) {

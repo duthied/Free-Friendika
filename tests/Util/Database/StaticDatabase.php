@@ -45,7 +45,7 @@ class StaticDatabase extends Database
 	/**
 	 * Override the behaviour of connect, due there is just one, static connection at all
 	 *
-	 * @return bool|void
+	 * @return bool Success
 	 */
 	public function connect(): bool
 	{
@@ -179,7 +179,18 @@ class StaticDatabase extends Database
 			self::$staticConnection = @new ExtendedPDO($connect, $user, $pass);
 			self::$staticConnection->setAttribute(PDO::ATTR_AUTOCOMMIT,0);
 		} catch (PDOException $e) {
-			/// @TODO At least log exception, don't ignore it!
+			/*
+			 * @TODO Try to find a way to log this exception as it contains valueable information
+			 * @nupplaphil@github.com comment:
+			 *
+			 * There is no easy possibility to add a logger here, that's why
+			 * there isn't any yet and instead a placeholder.. This execution
+			 * point is a critical state during a testrun, and tbh I'd like to
+			 * leave here no further logic (yet) because I spent hours debugging
+			 * cases, where transactions weren't fully closed and
+			 * strange/unpredictable errors occur (sometimes -mainly during
+			 * debugging other errors :) ...)
+			 */
 		}
 	}
 

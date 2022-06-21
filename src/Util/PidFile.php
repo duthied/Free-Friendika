@@ -97,7 +97,8 @@ class PidFile
 	 *
 	 * @return boolean|string PID or "false" if not created
 	 */
-	static public function create($file) {
+	static public function create(string $file)
+	{
 		$pid = self::pidFromFile($file);
 
 		// We have a process id? then we quit
@@ -119,7 +120,8 @@ class PidFile
 	 *
 	 * @return boolean Is it running?
 	 */
-	static public function delete($file) {
+	static public function delete(string $file): bool
+	{
 		return @unlink($file);
 	}
 }

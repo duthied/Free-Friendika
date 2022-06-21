@@ -77,7 +77,7 @@ class DBA
 	 *
 	 * @return string with either "pdo" or "mysqli"
 	 */
-	public static function getDriver()
+	public static function getDriver(): string
 	{
 		return DI::dba()->getDriver();
 	}
@@ -218,12 +218,12 @@ class DBA
 	/**
 	 * Check if data exists
 	 *
-	 * @param string|array $table Table name or array [schema => table]
-	 * @param array               $condition array of fields for condition
+	 * @param string $table     Table name in format schema.table (while scheme is optiona)
+	 * @param array  $condition Array of fields for condition
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
-	public static function exists($table, array $condition): bool
+	public static function exists(string $table, array $condition): bool
 	{
 		return DI::dba()->exists($table, $condition);
 	}
@@ -289,14 +289,13 @@ class DBA
 	/**
 	 * Insert a row into a table
 	 *
-	 * @param string|array $table          Table name or array [schema => table]
-	 * @param array        $param          parameter array
-	 * @param int          $duplicate_mode What to do on a duplicated entry
-	 *
+	 * @param string $table          Table name in format schema.table (while scheme is optiona)
+	 * @param array  $param          parameter array
+	 * @param int    $duplicate_mode What to do on a duplicated entry
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public static function insert($table, array $param, int $duplicate_mode = Database::INSERT_DEFAULT): bool
+	public static function insert(string $table, array $param, int $duplicate_mode = Database::INSERT_DEFAULT): bool
 	{
 		return DI::dba()->insert($table, $param, $duplicate_mode);
 	}
@@ -305,13 +304,12 @@ class DBA
 	 * Inserts a row with the provided data in the provided table.
 	 * If the data corresponds to an existing row through a UNIQUE or PRIMARY index constraints, it updates the row instead.
 	 *
-	 * @param string|array $table Table name or array [schema => table]
-	 * @param array        $param parameter array
-	 *
+	 * @param string $table Table name in format schema.table (while scheme is optiona)
+	 * @param array  $param parameter array
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public static function replace($table, array $param): bool
+	public static function replace(string $table, array $param): bool
 	{
 		return DI::dba()->replace($table, $param);
 	}
@@ -331,12 +329,11 @@ class DBA
 	 *
 	 * This function can be extended in the future to accept a table array as well.
 	 *
-	 * @param string|array $table Table name or array [schema => table]
-	 *
+	 * @param string $table Table name in format schema.table (while scheme is optiona)
 	 * @return boolean was the lock successful?
 	 * @throws \Exception
 	 */
-	public static function lock($table): bool
+	public static function lock(string $table): bool
 	{
 		return DI::dba()->lock($table);
 	}
@@ -385,13 +382,13 @@ class DBA
 	/**
 	 * Delete a row from a table
 	 *
-	 * @param string|array $table      Table name
-	 * @param array        $conditions Field condition(s)
+	 * @param string $table      Table name
+	 * @param array  $conditions Field condition(s)
 	 *
 	 * @return boolean was the delete successful?
 	 * @throws \Exception
 	 */
-	public static function delete($table, array $conditions, array $options = []): bool
+	public static function delete(string $table, array $conditions, array $options = []): bool
 	{
 		return DI::dba()->delete($table, $conditions, $options);
 	}
@@ -417,7 +414,7 @@ class DBA
 	 * Only set $old_fields to a boolean value when you are sure that you will update a single row.
 	 * When you set $old_fields to "true" then $fields must contain all relevant fields!
 	 *
-	 * @param string|array  $table      Table name or array [schema => table]
+	 * @param string        $table      Table name in format schema.table (while scheme is optiona)
 	 * @param array         $fields     contains the fields that are updated
 	 * @param array         $condition  condition array with the key values
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate, false = don't update identical fields)
@@ -426,7 +423,7 @@ class DBA
 	 * @return boolean was the update successfull?
 	 * @throws \Exception
 	 */
-	public static function update($table, array $fields, array $condition, $old_fields = [], array $params = []): bool
+	public static function update(string $table, array $fields, array $condition, $old_fields = [], array $params = []): bool
 	{
 		return DI::dba()->update($table, $fields, $condition, $old_fields, $params);
 	}
@@ -434,7 +431,7 @@ class DBA
 	/**
 	 * Retrieve a single record from a table and returns it in an associative array
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
+	 * @param string|array $table     Table name in format schema.table (while scheme is optiona)
 	 * @param array        $fields
 	 * @param array        $condition
 	 * @param array        $params
@@ -450,16 +447,16 @@ class DBA
 	/**
 	 * Select rows from a table and fills an array with the data
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
-	 * @param array        $fields    Array of selected fields, empty for all
-	 * @param array        $condition Array of fields for condition
-	 * @param array        $params    Array of several parameters
+	 * @param string $table     Table name in format schema.table (while scheme is optiona)
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
 	 *
 	 * @return array Data array
 	 * @throws \Exception
 	 * @see   self::select
 	 */
-	public static function selectToArray($table, array $fields = [], array $condition = [], array $params = [])
+	public static function selectToArray(string $table, array $fields = [], array $condition = [], array $params = [])
 	{
 		return DI::dba()->selectToArray($table, $fields, $condition, $params);
 	}
@@ -467,10 +464,10 @@ class DBA
 	/**
 	 * Select rows from a table
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
-	 * @param array        $fields    Array of selected fields, empty for all
-	 * @param array        $condition Array of fields for condition
-	 * @param array        $params    Array of several parameters
+	 * @param string $table     Table name in format schema.table (while scheme is optiona)
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
 	 *
 	 * @return boolean|object
 	 *
@@ -487,7 +484,7 @@ class DBA
 	 * $data = DBA::select($table, $fields, $condition, $params);
 	 * @throws \Exception
 	 */
-	public static function select($table, array $fields = [], array $condition = [], array $params = [])
+	public static function select(string $table, array $fields = [], array $condition = [], array $params = [])
 	{
 		return DI::dba()->select($table, $fields, $condition, $params);
 	}
@@ -495,9 +492,9 @@ class DBA
 	/**
 	 * Counts the rows from a table satisfying the provided condition
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
-	 * @param array        $condition array of fields for condition
-	 * @param array        $params    Array of several parameters
+	 * @param string $table     Table name in format schema.table (while scheme is optiona)
+	 * @param array  $condition array of fields for condition
+	 * @param array  $params    Array of several parameters
 	 *
 	 * @return int
 	 *
@@ -511,7 +508,7 @@ class DBA
 	 * $count = DBA::count($table, $condition);
 	 * @throws \Exception
 	 */
-	public static function count($table, array $condition = [], array $params = []): int
+	public static function count(string $table, array $condition = [], array $params = []): int
 	{
 		return DI::dba()->count($table, $condition, $params);
 	}
@@ -524,37 +521,30 @@ class DBA
 	 * - [table1, table2, ...]
 	 * - [schema1 => table1, schema2 => table2, table3, ...]
 	 *
-	 * @param string|array $tables
+	 * @param array $tables Table names
 	 * @return string
 	 */
-	public static function buildTableString($tables): string
+	public static function buildTableString(array $tables): string
 	{
-		if (is_string($tables)) {
-			$tables = [$tables];
-		}
-
-		$quotedTables = [];
-
-		foreach ($tables as $schema => $table) {
-			if (is_numeric($schema)) {
-				$quotedTables[] = self::quoteIdentifier($table);
-			} else {
-				$quotedTables[] = self::quoteIdentifier($schema) . '.' . self::quoteIdentifier($table);
-			}
-		}
-
-		return implode(', ', $quotedTables);
+		// Quote each entry
+		return implode(',', array_map(['self', 'quoteIdentifier'], $tables));
 	}
 
 	/**
-	 * Escape an identifier (table or field name)
+	 * Escape an identifier (table or field name) optional with a schema like (schema.)table
 	 *
-	 * @param $identifier
-	 * @return string
+	 * @param $identifier Table, field name
+	 * @return string Quotes table or field name
 	 */
 	public static function quoteIdentifier(string $identifier): string
 	{
-		return '`' . str_replace('`', '``', $identifier) . '`';
+		return implode(
+			'.',
+			array_map(
+				function (string $identifier) { return '`' . str_replace('`', '``', $identifier) . '`'; },
+				explode('.', $identifier)
+			)
+		);
 	}
 
 	/**

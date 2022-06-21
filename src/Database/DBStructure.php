@@ -84,7 +84,7 @@ class DBStructure
 			'deliverq', 'dsprphotoq', 'ffinder', 'sign', 'spam', 'term', 'user-item', 'thread', 'item', 'challenge',
 			'auth_codes', 'tokens', 'clients', 'profile_check', 'host'];
 
-		$tables = DBA::selectToArray(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_NAME'],
+		$tables = DBA::selectToArray('INFORMATION_SCHEMA.TABLES', ['TABLE_NAME'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_TYPE' => 'BASE TABLE']);
 
 		if (empty($tables)) {
@@ -119,13 +119,13 @@ class DBStructure
 	public static function convertToInnoDB()
 	{
 		$tables = DBA::selectToArray(
-			['information_schema' => 'tables'],
+			'information_schema.tables',
 			['table_name'],
 			['engine' => 'MyISAM', 'table_schema' => DBA::databaseName()]
 		);
 
 		$tables = array_merge($tables, DBA::selectToArray(
-			['information_schema' => 'tables'],
+			'information_schema.tables',
 			['table_name'],
 			['engine' => 'InnoDB', 'ROW_FORMAT' => ['COMPACT', 'REDUNDANT'], 'table_schema' => DBA::databaseName()]
 		));
@@ -465,19 +465,19 @@ class DBStructure
 	private static function createIndex(string $indexName, array $fieldNames, string $method = 'ADD')
 	{
 		$method = strtoupper(trim($method));
-		if ($method != "" && $method != "ADD") {
+		if ($method != '' && $method != 'ADD') {
 			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
 		}
 
-		if (in_array($fieldNames[0], ["UNIQUE", "FULLTEXT"])) {
+		if (in_array($fieldNames[0], ['UNIQUE', 'FULLTEXT'])) {
 			$index_type = array_shift($fieldNames);
 			$method .= " " . $index_type;
 		}
 
 		$names = "";
 		foreach ($fieldNames as $fieldName) {
-			if ($names != "") {
-				$names .= ",";
+			if ($names != '') {
+				$names .= ',';
 			}
 
 			if (preg_match('|(.+)\((\d+)\)|', $fieldName, $matches)) {
@@ -487,7 +487,7 @@ class DBStructure
 			}
 		}
 
-		if ($indexName == "PRIMARY") {
+		if ($indexName == 'PRIMARY') {
 			return sprintf("%s PRIMARY KEY(%s)", $method, $names);
 		}
 
@@ -851,18 +851,18 @@ class DBStructure
 		// This query doesn't seem to be executable as a prepared statement
 		$indexes = DBA::toArray(DBA::p("SHOW INDEX FROM " . DBA::quoteIdentifier($table)));
 
-		$fields = DBA::selectToArray(['INFORMATION_SCHEMA' => 'COLUMNS'],
+		$fields = DBA::selectToArray('INFORMATION_SCHEMA.COLUMNS',
 			['COLUMN_NAME', 'COLUMN_TYPE', 'IS_NULLABLE', 'COLUMN_DEFAULT', 'EXTRA',
 			'COLUMN_KEY', 'COLLATION_NAME', 'COLUMN_COMMENT'],
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?",
 			DBA::databaseName(), $table]);
 
-		$foreign_keys = DBA::selectToArray(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
+		$foreign_keys = DBA::selectToArray('INFORMATION_SCHEMA.KEY_COLUMN_USAGE',
 			['COLUMN_NAME', 'CONSTRAINT_NAME', 'REFERENCED_TABLE_NAME', 'REFERENCED_COLUMN_NAME'],
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
 			DBA::databaseName(), $table]);
 
-		$table_status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'],
+		$table_status = DBA::selectFirst('INFORMATION_SCHEMA.TABLES',
 			['ENGINE', 'TABLE_COLLATION', 'TABLE_COMMENT'],
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?",
 			DBA::databaseName(), $table]);
@@ -1064,7 +1064,7 @@ class DBStructure
 	 * @return boolean Does the table exist?
 	 * @throws Exception
 	 */
-	public static function existsColumn($table, $columns = [])
+	public static function existsColumn(string $table, array $columns = []): bool
 	{
 		if (empty($table)) {
 			return false;
@@ -1106,7 +1106,7 @@ class DBStructure
 	 */
 	public static function existsForeignKeyForField(string $table, string $field): bool
 	{
-		return DBA::exists(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
+		return DBA::exists('INFORMATION_SCHEMA.KEY_COLUMN_USAGE',
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `COLUMN_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
 			DBA::databaseName(), $table, $field]);
 	}
@@ -1126,7 +1126,7 @@ class DBStructure
 
 		$condition = ['table_schema' => DBA::databaseName(), 'table_name' => $table];
 
-		return DBA::exists(['information_schema' => 'tables'], $condition);
+		return DBA::exists('information_schema.tables', $condition);
 	}
 
 	/**
@@ -1181,9 +1181,9 @@ class DBStructure
 
 		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
 			$user = [
-				"verified" => true,
-				"page-flags" => User::PAGE_FLAGS_SOAPBOX,
-				"account-type" => User::ACCOUNT_TYPE_RELAY,
+				'verified' => true,
+				'page-flags' => User::PAGE_FLAGS_SOAPBOX,
+				'account-type' => User::ACCOUNT_TYPE_RELAY,
 			];
 			DBA::insert('user', $user);
 			$lastid = DBA::lastInsertId();
@@ -1287,8 +1287,10 @@ class DBStructure
 	{
 		$isUpdate = false;
 
-		$processes = DBA::select(['information_schema' => 'processlist'], ['info'],
-			['db' => DBA::databaseName(), 'command' => ['Query', 'Execute']]);
+		$processes = DBA::select('information_schema.processlist', ['info'], [
+			'db' => DBA::databaseName(),
+			'command' => ['Query', 'Execute']
+		]);
 
 		while ($process = DBA::fetch($processes)) {
 			$parts = explode(' ', $process['info']);
