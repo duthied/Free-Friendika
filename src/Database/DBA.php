@@ -526,32 +526,25 @@ class DBA
 	 */
 	public static function buildTableString(array $tables): string
 	{
-		$quotedTables = [];
-
-		foreach ($tables as $schema => $table) {
-			if (is_numeric($schema)) {
-				$str = '';
-				foreach (explode('.', $table) as $part) {
-					$str .= self::quoteIdentifier($part) . '.';
-				}
-				$quotedTables[] = rtrim($str, '.');
-			} else {
-				$quotedTables[] = self::quoteIdentifier($schema) . '.' . self::quoteIdentifier($table);
-			}
-		}
-
-		return implode(', ', $quotedTables);
+		// Quote each entry
+		return implode(',', array_map(['self', 'quoteIdentifier'], $tables));
 	}
 
 	/**
-	 * Escape an identifier (table or field name)
+	 * Escape an identifier (table or field name) optional with a schema like (schema.)table
 	 *
-	 * @param $identifier
-	 * @return string
+	 * @param $identifier Table, field name
+	 * @return string Quotes table or field name
 	 */
 	public static function quoteIdentifier(string $identifier): string
 	{
-		return '`' . str_replace('`', '``', $identifier) . '`';
+		return implode(
+			'.',
+			array_map(
+				function (string $identifier) { return '`' . str_replace('`', '``', $identifier) . '`'; },
+				explode('.', $identifier)
+			)
+		);
 	}
 
 	/**
