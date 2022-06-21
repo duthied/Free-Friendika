@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\Util\Database;
 
+use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DatabaseException;
 use PDO;
@@ -179,7 +180,8 @@ class StaticDatabase extends Database
 			self::$staticConnection = @new ExtendedPDO($connect, $user, $pass);
 			self::$staticConnection->setAttribute(PDO::ATTR_AUTOCOMMIT,0);
 		} catch (PDOException $e) {
-			/// @TODO At least log exception, don't ignore it!
+			// Log exception
+			Logger::error('Cannot establish database connection', ['exception' => $e, 'host' => $server, 'dbname' => $db]);
 		}
 	}
 
