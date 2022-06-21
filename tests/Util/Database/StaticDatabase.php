@@ -129,6 +129,9 @@ class StaticDatabase extends Database
 	 */
 	public static function statConnect(array $server)
 	{
+		// Init variables
+		$db_host = $db_user = $db_data = $db_pw = '';
+
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty($server['MYSQL_HOST'])
 		    && (!empty($server['MYSQL_USERNAME']) || !empty($server['MYSQL_USER']))
@@ -158,14 +161,14 @@ class StaticDatabase extends Database
 		$serverdata = explode(':', $serveraddr);
 		$server     = $serverdata[0];
 		if (count($serverdata) > 1) {
-			$port = trim($serverdata[1]);
+			$port = (int) trim($serverdata[1]);
 		}
 		$server  = trim($server);
 		$user    = trim($db_user);
-		$pass    = trim($db_pw ?? '');
+		$pass    = trim($db_pw);
 		$db      = trim($db_data);
 
-		if (!(strlen($server) && strlen($user))) {
+		if (!(strlen($server) && strlen($user) && strlen($db))) {
 			return;
 		}
 
