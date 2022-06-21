@@ -9,7 +9,7 @@ then
 export FRIENDICA_MYSQL_HOST=\"localhost\"
 export FRIENDICA_MYSQL_DATABASE=\"friendica_test\"
 export FRIENDICA_MYSQL_USER=\"friendica_test\"
-export FRIENDICA_MYSQL_PASSWWORD=\"friendica_test\"
+export FRIENDICA_MYSQL_PASSWORD=\"friendica_test\"
 # Optional:
 #export FRIENDICA_MYSQL_PORT=\"\"
 #export FRIENDICA_MYSQL_SOCKET=\"\"
