@@ -179,8 +179,7 @@ class StaticDatabase extends Database
 			self::$staticConnection = @new ExtendedPDO($connect, $user, $pass);
 			self::$staticConnection->setAttribute(PDO::ATTR_AUTOCOMMIT,0);
 		} catch (PDOException $e) {
-			// Log exception
-			$this->logger::error('Cannot establish database connection', ['exception' => $e, 'host' => $server, 'dbname' => $db]);
+			/// @TODO Try to find a way to log this exception as it contains valueable information
 		}
 	}
 
