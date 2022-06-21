@@ -820,13 +820,13 @@ class Database
 	/**
 	 * Check if data exists
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
-	 * @param array        $condition array of fields for condition
+	 * @param string $table     Table name or array [schema => table]
+	 * @param array  $condition Array of fields for condition
 	 *
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
-	public function exists($table, array $condition): bool
+	public function exists(string $table, array $condition): bool
 	{
 		if (empty($table)) {
 			return false;
@@ -1003,14 +1003,14 @@ class Database
 	/**
 	 * Insert a row into a table. Field value objects will be cast as string.
 	 *
-	 * @param string|array $table          Table name or array [schema => table]
-	 * @param array        $param          parameter array
-	 * @param int          $duplicate_mode What to do on a duplicated entry
+	 * @param string $table          Table name or array [schema => table]
+	 * @param array  $param          parameter array
+	 * @param int    $duplicate_mode What to do on a duplicated entry
 	 *
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public function insert($table, array $param, int $duplicate_mode = self::INSERT_DEFAULT): bool
+	public function insert(string $table, array $param, int $duplicate_mode = self::INSERT_DEFAULT): bool
 	{
 		if (empty($table) || empty($param)) {
 			$this->logger->info('Table and fields have to be set');
@@ -1019,7 +1019,7 @@ class Database
 
 		$param = $this->castFields($table, $param);
 
-		$table_string = DBA::buildTableString($table);
+		$table_string = DBA::buildTableString([$table]);
 
 		$fields_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
 
@@ -1054,13 +1054,12 @@ class Database
 	 * Inserts a row with the provided data in the provided table.
 	 * If the data corresponds to an existing row through a UNIQUE or PRIMARY index constraints, it updates the row instead.
 	 *
-	 * @param string|array $table Table name or array [schema => table]
-	 * @param array        $param parameter array
-	 *
+	 * @param string $table Table name or array [schema => table]
+	 * @param array  $param parameter array
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public function replace($table, array $param): bool
+	public function replace(string $table, array $param): bool
 	{
 		if (empty($table) || empty($param)) {
 			$this->logger->info('Table and fields have to be set');
@@ -1069,7 +1068,7 @@ class Database
 
 		$param = $this->castFields($table, $param);
 
-		$table_string = DBA::buildTableString($table);
+		$table_string = DBA::buildTableString([$table]);
 
 		$fields_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
 
@@ -1103,12 +1102,11 @@ class Database
 	 *
 	 * This function can be extended in the future to accept a table array as well.
 	 *
-	 * @param string|array $table Table name or array [schema => table]
-	 *
+	 * @param string $table Table name or array [schema => table]
 	 * @return boolean was the lock successful?
 	 * @throws \Exception
 	 */
-	public function lock($table): bool
+	public function lock(string $table): bool
 	{
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		if ($this->driver == self::PDO) {
@@ -1118,7 +1116,7 @@ class Database
 			$this->connection->autocommit(false);
 		}
 
-		$success = $this->e("LOCK TABLES " . DBA::buildTableString($table) . " WRITE");
+		$success = $this->e("LOCK TABLES " . DBA::buildTableString([$table]) . " WRITE");
 
 		if ($this->driver == self::PDO) {
 			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
@@ -1265,14 +1263,14 @@ class Database
 	 * @return boolean was the delete successful?
 	 * @throws \Exception
 	 */
-	public function delete($table, array $conditions): bool
+	public function delete(string $table, array $conditions): bool
 	{
 		if (empty($table) || empty($conditions)) {
 			$this->logger->info('Table and conditions have to be set');
 			return false;
 		}
 
-		$table_string = DBA::buildTableString($table);
+		$table_string = DBA::buildTableString([$table]);
 
 		$condition_string = DBA::buildCondition($conditions);
 
@@ -1302,7 +1300,7 @@ class Database
 	 * Only set $old_fields to a boolean value when you are sure that you will update a single row.
 	 * When you set $old_fields to "true" then $fields must contain all relevant fields!
 	 *
-	 * @param string|array  $table      Table name or array [schema => table]
+	 * @param string        $table      Table name or array [schema => table]
 	 * @param array         $fields     contains the fields that are updated
 	 * @param array         $condition  condition array with the key values
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate, false = don't update identical fields)
@@ -1312,7 +1310,7 @@ class Database
 	 * @throws \Exception
 	 * @todo Implement "bool $update_on_duplicate" to avoid mixed type for $old_fields
 	 */
-	public function update($table, array $fields, array $condition, $old_fields = [], array $params = [])
+	public function update(string $table, array $fields, array $condition, $old_fields = [], array $params = [])
 	{
 		if (empty($table) || empty($fields) || empty($condition)) {
 			$this->logger->info('Table, fields and condition have to be set');
@@ -1345,7 +1343,7 @@ class Database
 
 		$fields = $this->castFields($table, $fields);
 
-		$table_string = DBA::buildTableString($table);
+		$table_string = DBA::buildTableString([$table]);
 
 		$condition_string = DBA::buildCondition($condition);
 
@@ -1469,14 +1467,14 @@ class Database
 	 *
 	 * $data = DBA::select($table, $fields, $condition, $params);
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
-	 * @param array        $fields    Array of selected fields, empty for all
-	 * @param array        $condition Array of fields for condition
-	 * @param array        $params    Array of several parameters
+	 * @param string $table     Table name or array [schema => table]
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public function select($table, array $fields = [], array $condition = [], array $params = [])
+	public function select(string $table, array $fields = [], array $condition = [], array $params = [])
 	{
 		if (empty($table)) {
 			return false;
@@ -1489,7 +1487,7 @@ class Database
 			$select_string = '*';
 		}
 
-		$table_string = DBA::buildTableString($table);
+		$table_string = DBA::buildTableString([$table]);
 
 		$condition_string = DBA::buildCondition($condition);
 
@@ -1509,9 +1507,9 @@ class Database
 	/**
 	 * Counts the rows from a table satisfying the provided condition
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
-	 * @param array        $condition Array of fields for condition
-	 * @param array        $params    Array of several parameters
+	 * @param string $table     Table name or array [schema => table]
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
 	 *
 	 * @return int Count of rows
 	 *
@@ -1525,13 +1523,13 @@ class Database
 	 * $count = DBA::count($table, $condition);
 	 * @throws \Exception
 	 */
-	public function count($table, array $condition = [], array $params = []): int
+	public function count(string $table, array $condition = [], array $params = []): int
 	{
 		if (empty($table)) {
 			throw new InvalidArgumentException('Parameter "table" cannot be empty.');
 		}
 
-		$table_string = DBA::buildTableString($table);
+		$table_string = DBA::buildTableString([$table]);
 
 		$condition_string = DBA::buildCondition($condition);
 
@@ -1619,7 +1617,7 @@ class Database
 				return $fields;
 			}
 
-			foreach(array_keys($fields) as $field) {
+			foreach (array_keys($fields) as $field) {
 				if (!empty($views[$table]['fields'][$field])) {
 					$viewdef = $views[$table]['fields'][$field];
 					if (!empty($tables[$viewdef[0]]['fields'][$viewdef[1]]['type'])) {
@@ -1823,14 +1821,14 @@ class Database
 	/**
 	 * Replaces a string in the provided fields of the provided table
 	 *
-	 * @param string $table_name Table name
+	 * @param string $table  Table name
 	 * @param array  $fields List of field names in the provided table
-	 * @param string $search
-	 * @param string $replace
+	 * @param string $search String to search for
+	 * @param string $replace String to replace with
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function replaceInTableFields(string $table_name, array $fields, string $search, string $replace)
+	public function replaceInTableFields(string $table, array $fields, string $search, string $replace)
 	{
 		$search = $this->escape($search);
 		$replace = $this->escape($replace);
@@ -1843,9 +1841,9 @@ class Database
 
 		$upds = implode(', ', $upd);
 
-		$r = $this->e(sprintf("UPDATE %s SET %s;", DBA::quoteIdentifier($table_name), $upds));
+		$r = $this->e(sprintf("UPDATE %s SET %s;", DBA::quoteIdentifier($table), $upds));
 		if (!$this->isResult($r)) {
-			throw new \RuntimeException("Failed updating `$table_name`: " . $this->errorMessage());
+			throw new \RuntimeException("Failed updating `$table`: " . $this->errorMessage());
 		}
 	}
 }

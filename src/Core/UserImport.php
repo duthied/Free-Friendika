@@ -86,7 +86,7 @@ class UserImport
 	 * @return array|bool
 	 * @throws \Exception
 	 */
-	private static function dbImportAssoc($table, $arr)
+	private static function dbImportAssoc(string $table, array $arr)
 	{
 		if (isset($arr['id'])) {
 			unset($arr['id']);
@@ -105,10 +105,11 @@ class UserImport
 	 * Import account file exported from mod/uexport
 	 *
 	 * @param array $file array from $_FILES
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function importAccount($file)
+	public static function importAccount(array $file)
 	{
 		Logger::notice("Start user import from " . $file['tmp_name']);
 		/*

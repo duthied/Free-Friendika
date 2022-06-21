@@ -160,7 +160,7 @@ class Pager
 	 * @return string HTML string of the pager
 	 * @throws \Exception
 	 */
-	public function renderMinimal(int $itemCount)
+	public function renderMinimal(int $itemCount): string
 	{
 		$displayedItemCount = max(0, intval($itemCount));
 
@@ -203,7 +203,7 @@ class Pager
 	 * @return string HTML string of the pager
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function renderFull($itemCount)
+	public function renderFull(int $itemCount): string
 	{
 		$totalItemCount = max(0, intval($itemCount));
 

@@ -130,7 +130,7 @@ class BoundariesPager extends Pager
 		return Renderer::replaceMacros($tpl, ['pager' => $data]);
 	}
 
-	public function renderFull($itemCount)
+	public function renderFull(int $itemCount)
 	{
 		throw new \BadMethodCallException();
 	}

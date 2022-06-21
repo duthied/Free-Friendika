@@ -465,19 +465,19 @@ class DBStructure
 	private static function createIndex(string $indexName, array $fieldNames, string $method = 'ADD')
 	{
 		$method = strtoupper(trim($method));
-		if ($method != "" && $method != "ADD") {
+		if ($method != '' && $method != 'ADD') {
 			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
 		}
 
-		if (in_array($fieldNames[0], ["UNIQUE", "FULLTEXT"])) {
+		if (in_array($fieldNames[0], ['UNIQUE', 'FULLTEXT'])) {
 			$index_type = array_shift($fieldNames);
 			$method .= " " . $index_type;
 		}
 
 		$names = "";
 		foreach ($fieldNames as $fieldName) {
-			if ($names != "") {
-				$names .= ",";
+			if ($names != '') {
+				$names .= ',';
 			}
 
 			if (preg_match('|(.+)\((\d+)\)|', $fieldName, $matches)) {
@@ -487,7 +487,7 @@ class DBStructure
 			}
 		}
 
-		if ($indexName == "PRIMARY") {
+		if ($indexName == 'PRIMARY') {
 			return sprintf("%s PRIMARY KEY(%s)", $method, $names);
 		}
 
@@ -1106,7 +1106,7 @@ class DBStructure
 	 */
 	public static function existsForeignKeyForField(string $table, string $field): bool
 	{
-		return DBA::exists(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
+		return DBA::exists('INFORMATION_SCHEMA.KEY_COLUMN_USAGE',
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `COLUMN_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
 			DBA::databaseName(), $table, $field]);
 	}
@@ -1126,7 +1126,7 @@ class DBStructure
 
 		$condition = ['table_schema' => DBA::databaseName(), 'table_name' => $table];
 
-		return DBA::exists(['information_schema' => 'tables'], $condition);
+		return DBA::exists('information_schema.tables', $condition);
 	}
 
 	/**
@@ -1181,9 +1181,9 @@ class DBStructure
 
 		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
 			$user = [
-				"verified" => true,
-				"page-flags" => User::PAGE_FLAGS_SOAPBOX,
-				"account-type" => User::ACCOUNT_TYPE_RELAY,
+				'verified' => true,
+				'page-flags' => User::PAGE_FLAGS_SOAPBOX,
+				'account-type' => User::ACCOUNT_TYPE_RELAY,
 			];
 			DBA::insert('user', $user);
 			$lastid = DBA::lastInsertId();
@@ -1287,8 +1287,10 @@ class DBStructure
 	{
 		$isUpdate = false;
 
-		$processes = DBA::select(['information_schema' => 'processlist'], ['info'],
-			['db' => DBA::databaseName(), 'command' => ['Query', 'Execute']]);
+		$processes = DBA::select('information_schema.processlist', ['info'], [
+			'db' => DBA::databaseName(),
+			'command' => ['Query', 'Execute']
+		]);
 
 		while ($process = DBA::fetch($processes)) {
 			$parts = explode(' ', $process['info']);
