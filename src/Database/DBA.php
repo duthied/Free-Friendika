@@ -77,7 +77,7 @@ class DBA
 	 *
 	 * @return string with either "pdo" or "mysqli"
 	 */
-	public static function getDriver()
+	public static function getDriver(): string
 	{
 		return DI::dba()->getDriver();
 	}

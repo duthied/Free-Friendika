@@ -64,7 +64,7 @@ class Database
 	protected $server_info    = '';
 	/** @var PDO|mysqli */
 	protected $connection;
-	protected $driver;
+	protected $driver = '';
 	protected $pdo_emulate_prepares = false;
 	private $error          = false;
 	private $errorno        = 0;
@@ -181,7 +181,7 @@ class Database
 
 		// No suitable SQL driver was found.
 		if (!$this->connected) {
-			$this->driver     = null;
+			$this->driver     = '';
 			$this->connection = null;
 		}
 
@@ -233,7 +233,7 @@ class Database
 			}
 		}
 
-		$this->driver    = null;
+		$this->driver    = '';
 		$this->connected = false;
 	}
 
