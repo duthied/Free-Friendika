@@ -21,7 +21,6 @@
 
 namespace Friendica\Test\Util\Database;
 
-use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DatabaseException;
 use PDO;
@@ -46,7 +45,7 @@ class StaticDatabase extends Database
 	/**
 	 * Override the behaviour of connect, due there is just one, static connection at all
 	 *
-	 * @return bool|void
+	 * @return bool Success
 	 */
 	public function connect(): bool
 	{
@@ -181,7 +180,7 @@ class StaticDatabase extends Database
 			self::$staticConnection->setAttribute(PDO::ATTR_AUTOCOMMIT,0);
 		} catch (PDOException $e) {
 			// Log exception
-			Logger::error('Cannot establish database connection', ['exception' => $e, 'host' => $server, 'dbname' => $db]);
+			$this->logger::error('Cannot establish database connection', ['exception' => $e, 'host' => $server, 'dbname' => $db]);
 		}
 	}
 
