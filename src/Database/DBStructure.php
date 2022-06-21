@@ -84,7 +84,7 @@ class DBStructure
 			'deliverq', 'dsprphotoq', 'ffinder', 'sign', 'spam', 'term', 'user-item', 'thread', 'item', 'challenge',
 			'auth_codes', 'tokens', 'clients', 'profile_check', 'host'];
 
-		$tables = DBA::selectToArray(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_NAME'],
+		$tables = DBA::selectToArray('INFORMATION_SCHEMA.TABLES', ['TABLE_NAME'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_TYPE' => 'BASE TABLE']);
 
 		if (empty($tables)) {
@@ -119,13 +119,13 @@ class DBStructure
 	public static function convertToInnoDB()
 	{
 		$tables = DBA::selectToArray(
-			['information_schema' => 'tables'],
+			'information_schema.tables',
 			['table_name'],
 			['engine' => 'MyISAM', 'table_schema' => DBA::databaseName()]
 		);
 
 		$tables = array_merge($tables, DBA::selectToArray(
-			['information_schema' => 'tables'],
+			'information_schema.tables',
 			['table_name'],
 			['engine' => 'InnoDB', 'ROW_FORMAT' => ['COMPACT', 'REDUNDANT'], 'table_schema' => DBA::databaseName()]
 		));
@@ -851,18 +851,18 @@ class DBStructure
 		// This query doesn't seem to be executable as a prepared statement
 		$indexes = DBA::toArray(DBA::p("SHOW INDEX FROM " . DBA::quoteIdentifier($table)));
 
-		$fields = DBA::selectToArray(['INFORMATION_SCHEMA' => 'COLUMNS'],
+		$fields = DBA::selectToArray('INFORMATION_SCHEMA.COLUMNS',
 			['COLUMN_NAME', 'COLUMN_TYPE', 'IS_NULLABLE', 'COLUMN_DEFAULT', 'EXTRA',
 			'COLUMN_KEY', 'COLLATION_NAME', 'COLUMN_COMMENT'],
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?",
 			DBA::databaseName(), $table]);
 
-		$foreign_keys = DBA::selectToArray(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
+		$foreign_keys = DBA::selectToArray('INFORMATION_SCHEMA.KEY_COLUMN_USAGE',
 			['COLUMN_NAME', 'CONSTRAINT_NAME', 'REFERENCED_TABLE_NAME', 'REFERENCED_COLUMN_NAME'],
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
 			DBA::databaseName(), $table]);
 
-		$table_status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'],
+		$table_status = DBA::selectFirst('INFORMATION_SCHEMA.TABLES',
 			['ENGINE', 'TABLE_COLLATION', 'TABLE_COMMENT'],
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?",
 			DBA::databaseName(), $table]);
@@ -1064,7 +1064,7 @@ class DBStructure
 	 * @return boolean Does the table exist?
 	 * @throws Exception
 	 */
-	public static function existsColumn($table, $columns = [])
+	public static function existsColumn(string $table, array $columns = []): bool
 	{
 		if (empty($table)) {
 			return false;

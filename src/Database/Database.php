@@ -1366,16 +1366,16 @@ class Database
 	/**
 	 * Retrieve a single record from a table and returns it in an associative array
 	 *
-	 * @param string|array $table
-	 * @param array        $fields
-	 * @param array        $condition
-	 * @param array        $params
+	 * @param string $table     Table name or array [schema => table]
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
 	 *
 	 * @return bool|array
 	 * @throws \Exception
 	 * @see   $this->select
 	 */
-	public function selectFirst($table, array $fields = [], array $condition = [], array $params = [])
+	public function selectFirst(string $table, array $fields = [], array $condition = [], array $params = [])
 	{
 		$params['limit'] = 1;
 		$result          = $this->select($table, $fields, $condition, $params);
@@ -1392,16 +1392,15 @@ class Database
 	/**
 	 * Select rows from a table and fills an array with the data
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
-	 * @param array        $fields    Array of selected fields, empty for all
-	 * @param array        $condition Array of fields for condition
-	 * @param array        $params    Array of several parameters
-	 *
+	 * @param string $table     Table name or array [schema => table]
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
 	 * @return array Data array
 	 * @throws \Exception
 	 * @see   self::select
 	 */
-	public function selectToArray($table, array $fields = [], array $condition = [], array $params = [])
+	public function selectToArray(string $table, array $fields = [], array $condition = [], array $params = [])
 	{
 		return $this->toArray($this->select($table, $fields, $condition, $params));
 	}
