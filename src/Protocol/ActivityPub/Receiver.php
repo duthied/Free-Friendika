@@ -80,13 +80,13 @@ class Receiver
 	/**
 	 * Checks incoming message from the inbox
 	 *
-	 * @param         $body
-	 * @param         $header
+	 * @param string  $body Body string
+	 * @param array   $header Header lines
 	 * @param integer $uid User ID
+	 * @return void
 	 * @throws \Exception
-	 * @todo Find type for $body/$header
 	 */
-	public static function processInbox($body, $header, int $uid)
+	public static function processInbox(string $body, array $header, int $uid)
 	{
 		$activity = json_decode($body, true);
 		if (empty($activity)) {
@@ -96,9 +96,9 @@ class Receiver
 
 		$ldactivity = JsonLD::compact($activity);
 
-		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id');
-
+		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id') ?? '';
 		$apcontact = APContact::getByURL($actor);
+
 		if (empty($apcontact)) {
 			Logger::notice('Unable to retrieve AP contact for actor - message is discarded', ['actor' => $actor]);
 			return;

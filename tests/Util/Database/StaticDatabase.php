@@ -47,7 +47,7 @@ class StaticDatabase extends Database
 	 *
 	 * @return bool|void
 	 */
-	public function connect()
+	public function connect(): bool
 	{
 		if (!is_null($this->connection) && $this->connected()) {
 			return true;
@@ -81,7 +81,7 @@ class StaticDatabase extends Database
 	}
 
 	/** Mock for locking tables */
-	public function lock($table)
+	public function lock($table): bool
 	{
 		if ($this->_locked) {
 			return false;
@@ -94,7 +94,7 @@ class StaticDatabase extends Database
 	}
 
 	/** Mock for unlocking tables */
-	public function unlock()
+	public function unlock(): bool
 	{
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		$this->performCommit();
@@ -110,7 +110,7 @@ class StaticDatabase extends Database
 	 *
 	 * @return bool Was the command executed successfully?
 	 */
-	public function commit()
+	public function commit(): bool
 	{
 		if (!$this->performCommit()) {
 			return false;

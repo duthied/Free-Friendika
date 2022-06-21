@@ -71,7 +71,7 @@ class Renderer
 	 * @return string
 	 * @throws ServiceUnavailableException
 	 */
-	public static function replaceMacros(string $template, array $vars = [])
+	public static function replaceMacros(string $template, array $vars = []): string
 	{
 		DI::profiler()->startRecording('rendering');
 

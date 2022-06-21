@@ -124,7 +124,7 @@ class Addon
 	 * @return void
 	 * @throws \Exception
 	 */
-	public static function uninstall($addon)
+	public static function uninstall(string $addon)
 	{
 		$addon = Strings::sanitizeFilePathItem($addon);
 
@@ -149,7 +149,7 @@ class Addon
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function install($addon)
+	public static function install(string $addon): bool
 	{
 		$addon = Strings::sanitizeFilePathItem($addon);
 
@@ -185,6 +185,8 @@ class Addon
 
 	/**
 	 * reload all updated addons
+	 *
+	 * @return void
 	 */
 	public static function reload()
 	{
@@ -222,7 +224,7 @@ class Addon
 	 * @return array with the addon information
 	 * @throws \Exception
 	 */
-	public static function getInfo($addon)
+	public static function getInfo(string $addon): array
 	{
 		$addon = Strings::sanitizeFilePathItem($addon);
 
@@ -287,7 +289,7 @@ class Addon
 	 * @param string $addon
 	 * @return boolean
 	 */
-	public static function isEnabled($addon)
+	public static function isEnabled(string $addon): bool
 	{
 		return in_array($addon, self::$addons);
 	}
@@ -297,7 +299,7 @@ class Addon
 	 *
 	 * @return array
 	 */
-	public static function getEnabledList()
+	public static function getEnabledList(): array
 	{
 		return self::$addons;
 	}
@@ -308,7 +310,7 @@ class Addon
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getVisibleList()
+	public static function getVisibleList(): array
 	{
 		$visible_addons = [];
 		$stmt = DBA::select('addon', ['name'], ['hidden' => false, 'installed' => true]);

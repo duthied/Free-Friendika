@@ -116,6 +116,7 @@ class APContact
 	 * @return array profile array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
+	 * @todo Rewrite parameter $update to avoid true|false|null (boolean is binary, null adds a third case)
 	 */
 	public static function getByURL(string $url, $update = null): array
 	{

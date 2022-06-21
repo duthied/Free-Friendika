@@ -45,7 +45,6 @@ class DBStructureTest extends DatabaseTest
 	 */
 	public function testExists() {
 		self::assertTrue(DBStructure::existsTable('config'));
-
 		self::assertFalse(DBStructure::existsTable('notatable'));
 
 		self::assertTrue(DBStructure::existsColumn('config', ['k']));

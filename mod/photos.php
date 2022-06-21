@@ -187,7 +187,7 @@ function photos_post(App $a)
 	}
 
 	if (DI::args()->getArgc() > 3 && DI::args()->getArgv()[2] === 'album') {
-		if (!Strings::isHex(DI::args()->getArgv()[3])) {
+		if (!Strings::isHex(DI::args()->getArgv()[3] ?? '')) {
 			DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album');
 		}
 		$album = hex2bin(DI::args()->getArgv()[3]);
@@ -892,7 +892,7 @@ function photos_content(App $a)
 			return;
 		}
 
-		$selname = Strings::isHex($datum) ? hex2bin($datum) : '';
+		$selname = (!is_null($datum) && Strings::isHex($datum)) ? hex2bin($datum) : '';
 
 		$albumselect = '';
 
@@ -954,7 +954,7 @@ function photos_content(App $a)
 	// Display a single photo album
 	if ($datatype === 'album') {
 		// if $datum is not a valid hex, redirect to the default page
-		if (!Strings::isHex($datum)) {
+		if (is_null($datum) || !Strings::isHex($datum)) {
 			DI::baseUrl()->redirect('photos/' . $user['nickname']. '/album');
 		}
 		$album = hex2bin($datum);

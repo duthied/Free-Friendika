@@ -116,8 +116,7 @@ HELP;
 	/**
 	 * Lists plugins
 	 *
-	 * @return int Return code of this command
-	 *
+	 * @return int|bool Return code of this command, false on error (?)
 	 * @throws \Exception
 	 */
 	private function list()
@@ -165,10 +164,9 @@ HELP;
 	 * Enables an addon
 	 *
 	 * @return int Return code of this command
-	 *
 	 * @throws \Exception
 	 */
-	private function enable()
+	private function enable(): int
 	{
 		$addonname = $this->getArgument(1);
 
@@ -190,10 +188,9 @@ HELP;
 	 * Disables an addon
 	 *
 	 * @return int Return code of this command
-	 *
 	 * @throws \Exception
 	 */
-	private function disable()
+	private function disable(): int
 	{
 		$addonname = $this->getArgument(1);
 

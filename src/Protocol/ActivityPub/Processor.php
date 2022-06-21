@@ -1245,6 +1245,7 @@ class Processor
 	 * perform a "follow" request
 	 *
 	 * @param array $activity
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -1296,8 +1297,8 @@ class Processor
 	/**
 	 * Transmit pending events to the new follower
 	 *
-	 * @param integer $cid
-	 * @param integer $uid
+	 * @param integer $cid Contact id
+	 * @param integer $uid User id
 	 * @return void
 	 */
 	private static function transmitPendingEvents(int $cid, int $uid)
@@ -1340,6 +1341,7 @@ class Processor
 	 * Delete the given profile
 	 *
 	 * @param array $activity
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function deletePerson(array $activity)
@@ -1367,6 +1369,7 @@ class Processor
 	 * Blocks the user by the contact
 	 *
 	 * @param array $activity
+	 * @return void
 	 * @throws \Exception
 	 */
 	public static function blockAccount(array $activity)
@@ -1390,6 +1393,7 @@ class Processor
 	 * Unblocks the user by the contact
 	 *
 	 * @param array $activity
+	 * @return void
 	 * @throws \Exception
 	 */
 	public static function unblockAccount(array $activity)

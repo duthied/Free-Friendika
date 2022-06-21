@@ -918,8 +918,11 @@ class GServer
 			return [];
 		}
 
-		$server = ['detection-method' => self::DETECT_NODEINFO_2,
-			'register_policy' => Register::CLOSED];
+		$server = [
+			'detection-method' => self::DETECT_NODEINFO_2,
+			'register_policy' => Register::CLOSED,
+			'platform' => 'unknown',
+		];
 
 		if (!empty($nodeinfo['openRegistrations'])) {
 			$server['register_policy'] = Register::OPEN;

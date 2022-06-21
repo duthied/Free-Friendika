@@ -43,7 +43,7 @@ class Salmon
 	 * @return mixed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getKey($uri, $keyhash)
+	public static function getKey(string $uri, string $keyhash)
 	{
 		$ret = [];
 
@@ -109,18 +109,18 @@ class Salmon
 	 * @return integer
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function slapper($owner, $url, $slap)
+	public static function slapper(array $owner, string $url, string $slap): int
 	{
 		// does contact have a salmon endpoint?
 
 		if (!strlen($url)) {
-			return;
+			return -1;
 		}
 
 		if (!$owner['sprvkey']) {
 			Logger::notice(sprintf("user '%s' (%d) does not have a salmon private key. Send failed.",
 			$owner['name'], $owner['uid']));
-			return;
+			return -1;
 		}
 
 		Logger::info('slapper called for '.$url.'. Data: ' . $slap);
@@ -229,7 +229,7 @@ class Salmon
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function salmonKey($pubkey)
+	public static function salmonKey(string $pubkey): string
 	{
 		Crypto::pemToMe($pubkey, $modulus, $exponent);
 		return 'RSA' . '.' . Strings::base64UrlEncode($modulus, true) . '.' . Strings::base64UrlEncode($exponent, true);

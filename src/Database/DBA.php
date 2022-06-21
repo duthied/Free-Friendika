@@ -42,7 +42,7 @@ class DBA
 	 */
 	const NULL_DATETIME = '0001-01-01 00:00:00';
 
-	public static function connect()
+	public static function connect(): bool
 	{
 		return DI::dba()->connect();
 	}
@@ -58,7 +58,7 @@ class DBA
 	/**
 	 * Perform a reconnect of an existing database connection
 	 */
-	public static function reconnect()
+	public static function reconnect(): bool
 	{
 		return DI::dba()->reconnect();
 	}
@@ -90,7 +90,7 @@ class DBA
 	 *
 	 * @return string
 	 */
-	public static function serverInfo()
+	public static function serverInfo(): string
 	{
 		return DI::dba()->serverInfo();
 	}
@@ -101,7 +101,7 @@ class DBA
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function databaseName()
+	public static function databaseName(): string
 	{
 		return DI::dba()->databaseName();
 	}
@@ -112,7 +112,7 @@ class DBA
 	 * @param string $str
 	 * @return string escaped string
 	 */
-	public static function escape($str)
+	public static function escape(string $str): string
 	{
 		return DI::dba()->escape($str);
 	}
@@ -122,7 +122,7 @@ class DBA
 	 *
 	 * @return boolean is the database connected?
 	 */
-	public static function connected()
+	public static function connected(): bool
 	{
 		return DI::dba()->connected();
 	}
@@ -138,7 +138,7 @@ class DBA
 	 * @param string $sql An SQL string without the values
 	 * @return string The input SQL string modified if necessary.
 	 */
-	public static function anyValueFallback($sql)
+	public static function anyValueFallback(string $sql): string
 	{
 		return DI::dba()->anyValueFallback($sql);
 	}
@@ -152,7 +152,7 @@ class DBA
 	 * @param string $sql An SQL string without the values
 	 * @return string The input SQL string modified if necessary.
 	 */
-	public static function cleanQuery($sql)
+	public static function cleanQuery(string $sql): string
 	{
 		$search = ["\t", "\n", "\r", "  "];
 		$replace = [' ', ' ', ' ', ' '];
@@ -169,7 +169,7 @@ class DBA
 	 * @param array $args Parameter array
 	 * @return array universalized parameter array
 	 */
-	public static function getParam($args)
+	public static function getParam(array $args): array
 	{
 		unset($args[0]);
 
@@ -192,7 +192,7 @@ class DBA
 	 * @return bool|object statement object or result object
 	 * @throws \Exception
 	 */
-	public static function p($sql)
+	public static function p(string $sql)
 	{
 		$params = self::getParam(func_get_args());
 
@@ -208,8 +208,8 @@ class DBA
 	 * @return boolean Was the query successfull? False is returned only if an error occurred
 	 * @throws \Exception
 	 */
-	public static function e($sql) {
-
+	public static function e(string $sql): bool
+	{
 		$params = self::getParam(func_get_args());
 
 		return DI::dba()->e($sql, $params);
@@ -218,13 +218,12 @@ class DBA
 	/**
 	 * Check if data exists
 	 *
-	 * @param string|array $table     Table name or array [schema => table]
-	 * @param array        $condition array of fields for condition
-	 *
+	 * @param string|array $table Table name or array [schema => table]
+	 * @param array               $condition array of fields for condition
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
-	public static function exists($table, $condition)
+	public static function exists($table, array $condition): bool
 	{
 		return DI::dba()->exists($table, $condition);
 	}
@@ -238,7 +237,7 @@ class DBA
 	 * @return array first row of query
 	 * @throws \Exception
 	 */
-	public static function fetchFirst($sql)
+	public static function fetchFirst(string $sql)
 	{
 		$params = self::getParam(func_get_args());
 
@@ -250,7 +249,7 @@ class DBA
 	 *
 	 * @return int Number of rows
 	 */
-	public static function affectedRows()
+	public static function affectedRows(): int
 	{
 		return DI::dba()->affectedRows();
 	}
@@ -261,7 +260,7 @@ class DBA
 	 * @param object Statement object
 	 * @return int Number of columns
 	 */
-	public static function columnCount($stmt)
+	public static function columnCount($stmt): int
 	{
 		return DI::dba()->columnCount($stmt);
 	}
@@ -271,7 +270,7 @@ class DBA
 	 * @param PDOStatement|mysqli_result|mysqli_stmt Statement object
 	 * @return int Number of rows
 	 */
-	public static function numRows($stmt)
+	public static function numRows($stmt): int
 	{
 		return DI::dba()->numRows($stmt);
 	}
@@ -297,7 +296,7 @@ class DBA
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public static function insert($table, array $param, int $duplicate_mode = Database::INSERT_DEFAULT)
+	public static function insert($table, array $param, int $duplicate_mode = Database::INSERT_DEFAULT): bool
 	{
 		return DI::dba()->insert($table, $param, $duplicate_mode);
 	}
@@ -312,7 +311,7 @@ class DBA
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public static function replace($table, $param)
+	public static function replace($table, array $param): bool
 	{
 		return DI::dba()->replace($table, $param);
 	}
@@ -322,7 +321,7 @@ class DBA
 	 *
 	 * @return integer Last inserted id
 	 */
-	public static function lastInsertId()
+	public static function lastInsertId(): int
 	{
 		return DI::dba()->lastInsertId();
 	}
@@ -337,7 +336,7 @@ class DBA
 	 * @return boolean was the lock successful?
 	 * @throws \Exception
 	 */
-	public static function lock($table)
+	public static function lock($table): bool
 	{
 		return DI::dba()->lock($table);
 	}
@@ -348,7 +347,7 @@ class DBA
 	 * @return boolean was the unlock successful?
 	 * @throws \Exception
 	 */
-	public static function unlock()
+	public static function unlock(): bool
 	{
 		return DI::dba()->unlock();
 	}
@@ -358,7 +357,7 @@ class DBA
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	public static function transaction()
+	public static function transaction(): bool
 	{
 		return DI::dba()->transaction();
 	}
@@ -368,7 +367,7 @@ class DBA
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	public static function commit()
+	public static function commit(): bool
 	{
 		return DI::dba()->commit();
 	}
@@ -378,7 +377,7 @@ class DBA
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	public static function rollback()
+	public static function rollback(): bool
 	{
 		return DI::dba()->rollback();
 	}
@@ -392,7 +391,7 @@ class DBA
 	 * @return boolean was the delete successful?
 	 * @throws \Exception
 	 */
-	public static function delete($table, array $conditions, array $options = [])
+	public static function delete($table, array $conditions, array $options = []): bool
 	{
 		return DI::dba()->delete($table, $conditions, $options);
 	}
@@ -427,7 +426,7 @@ class DBA
 	 * @return boolean was the update successfull?
 	 * @throws \Exception
 	 */
-	public static function update($table, array $fields, array $condition, $old_fields = [], array $params = [])
+	public static function update($table, array $fields, array $condition, $old_fields = [], array $params = []): bool
 	{
 		return DI::dba()->update($table, $fields, $condition, $old_fields, $params);
 	}
@@ -528,7 +527,7 @@ class DBA
 	 * @param string|array $tables
 	 * @return string
 	 */
-	public static function buildTableString($tables)
+	public static function buildTableString($tables): string
 	{
 		if (is_string($tables)) {
 			$tables = [$tables];
@@ -553,7 +552,7 @@ class DBA
 	 * @param $identifier
 	 * @return string
 	 */
-	public static function quoteIdentifier($identifier)
+	public static function quoteIdentifier(string $identifier): string
 	{
 		return '`' . str_replace('`', '``', $identifier) . '`';
 	}
@@ -576,7 +575,7 @@ class DBA
 	 * @param array $condition
 	 * @return string
 	 */
-	public static function buildCondition(array &$condition = [])
+	public static function buildCondition(array &$condition = []): string
 	{
 		$condition = self::collapseCondition($condition);
 		
@@ -600,7 +599,7 @@ class DBA
 	 * @param array $condition
 	 * @return array
 	 */
-	public static function collapseCondition(array $condition)
+	public static function collapseCondition(array $condition): array
 	{
 		// Ensures an always true condition is returned
 		if (count($condition) < 1) {
@@ -675,7 +674,7 @@ class DBA
 	 * @return array A collapsed condition
 	 * @see DBA::collapseCondition() for the condition array formats
 	 */
-	public static function mergeConditions(array ...$conditions)
+	public static function mergeConditions(array ...$conditions): array
 	{
 		if (count($conditions) == 1) {
 			return current($conditions);
@@ -724,7 +723,7 @@ class DBA
 	 * @param array $params
 	 * @return string
 	 */
-	public static function buildParameter(array $params = [])
+	public static function buildParameter(array $params = []): string
 	{
 		$groupby_string = '';
 		if (!empty($params['group_by'])) {
@@ -771,7 +770,7 @@ class DBA
 	 *
 	 * @return array Data array
 	 */
-	public static function toArray($stmt, $do_close = true, int $count = 0): array
+	public static function toArray($stmt, bool $do_close = true, int $count = 0): array
 	{
 		return DI::dba()->toArray($stmt, $do_close, $count);
 	}
@@ -847,10 +846,9 @@ class DBA
 	 * Checks if $array is a filled array with at least one entry.
 	 *
 	 * @param mixed $array A filled array with at least one entry
-	 *
 	 * @return boolean Whether $array is a filled array or an object with rows
 	 */
-	public static function isResult($array)
+	public static function isResult($array): bool
 	{
 		return DI::dba()->isResult($array);
 	}
@@ -862,7 +860,7 @@ class DBA
 	 * @param boolean $add_quotation add quotation marks for string values
 	 * @return void
 	 */
-	public static function escapeArray(&$arr, $add_quotation = false)
+	public static function escapeArray(&$arr, bool $add_quotation = false)
 	{
 		DI::dba()->escapeArray($arr, $add_quotation);
 	}
