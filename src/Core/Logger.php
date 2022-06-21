@@ -47,7 +47,7 @@ class Logger
 	/**
 	 * @return LoggerInterface
 	 */
-	private static function getLogger()
+	private static function getInstance()
 	{
 		if (self::$type === self::TYPE_LOGGER) {
 			return DI::logger();
@@ -66,7 +66,7 @@ class Logger
 	public static function enableWorker(string $functionName)
 	{
 		self::$type = self::TYPE_WORKER;
-		self::getLogger()->setFunctionName($functionName);
+		self::getInstance()->setFunctionName($functionName);
 	}
 
 	/**
@@ -89,7 +89,7 @@ class Logger
 	 */
 	public static function emergency(string $message, array $context = [])
 	{
-		self::getLogger()->emergency($message, $context);
+		self::getInstance()->emergency($message, $context);
 	}
 
 	/**
@@ -106,7 +106,7 @@ class Logger
 	 */
 	public static function alert(string $message, array $context = [])
 	{
-		self::getLogger()->alert($message, $context);
+		self::getInstance()->alert($message, $context);
 	}
 
 	/**
@@ -122,7 +122,7 @@ class Logger
 	 */
 	public static function critical(string $message, array $context = [])
 	{
-		self::getLogger()->critical($message, $context);
+		self::getInstance()->critical($message, $context);
 	}
 
 	/**
@@ -137,7 +137,7 @@ class Logger
 	 */
 	public static function error(string $message, array $context = [])
 	{
-		self::getLogger()->error($message, $context);
+		self::getInstance()->error($message, $context);
 	}
 
 	/**
@@ -154,7 +154,7 @@ class Logger
 	 */
 	public static function warning(string $message, array $context = [])
 	{
-		self::getLogger()->warning($message, $context);
+		self::getInstance()->warning($message, $context);
 	}
 
 	/**
@@ -168,7 +168,7 @@ class Logger
 	 */
 	public static function notice(string $message, array $context = [])
 	{
-		self::getLogger()->notice($message, $context);
+		self::getInstance()->notice($message, $context);
 	}
 
 	/**
@@ -185,7 +185,7 @@ class Logger
 	 */
 	public static function info(string $message, array $context = [])
 	{
-		self::getLogger()->info($message, $context);
+		self::getInstance()->info($message, $context);
 	}
 
 	/**
@@ -199,7 +199,7 @@ class Logger
 	 */
 	public static function debug(string $message, array $context = [])
 	{
-		self::getLogger()->debug($message, $context);
+		self::getInstance()->debug($message, $context);
 	}
 
 	/**
