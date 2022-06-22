@@ -1748,9 +1748,10 @@ class Database
 	 * Fetch a database variable
 	 *
 	 * @param string $name
-	 * @return string content
+	 * @return string|null content or null if inexistent
+	 * @throws \Exception
 	 */
-	public function getVariable(string $name): string
+	public function getVariable(string $name)
 	{
 		$result = $this->fetchFirst("SHOW GLOBAL VARIABLES WHERE `Variable_name` = ?", $name);
 		return $result['Value'] ?? null;
