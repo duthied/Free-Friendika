@@ -475,12 +475,13 @@ class Delivery
 	 * @param array  $owner       Owner record of the sender
 	 * @param array  $target_item Item record of the content
 	 * @param array  $thr_parent  Item record of the direct parent in the thread
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	private static function deliverMail(string $cmd, array $contact, array $owner, array $target_item, array $thr_parent)
 	{
-		if (DI::config()->get('system','imap_disabled')) {
+		if (DI::config()->get('system', 'imap_disabled')) {
 			return;
 		}
 
@@ -570,10 +571,16 @@ class Delivery
 			}
 		}
 
-		Email::send($addr, $subject, $headers, $target_item);
+		// Try to send email
+		$success = Email::send($addr, $subject, $headers, $target_item);
 
-		Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::MAIL);
-
-		Logger::info('Delivered via mail', ['guid' => $target_item['guid'], 'to' => $addr, 'subject' => $subject]);
+		if ($success) {
+			// Success
+			Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::MAIL);
+			Logger::info('Delivered via mail', ['guid' => $target_item['guid'], 'to' => $addr, 'subject' => $subject]);
+		} else {
+			// Failed
+			Logger::warning('Delivery of mail has FAILED', ['to' => $addr, 'subject' => $subject, 'guid' => $target_item['guid']]);
+		}
 	}
 }

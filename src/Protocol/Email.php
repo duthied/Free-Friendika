@@ -38,10 +38,10 @@ class Email
 	 * @param string $mailbox  The mailbox name
 	 * @param string $username The username
 	 * @param string $password The password
-	 * @return Connection|resource
+	 * @return Connection|resource|bool
 	 * @throws \Exception
 	 */
-	public static function connect($mailbox, $username, $password)
+	public static function connect(string $mailbox, string $username, string $password)
 	{
 		if (!function_exists('imap_open')) {
 			return false;
@@ -68,7 +68,7 @@ class Email
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function poll($mbox, $email_addr): array
+	public static function poll($mbox, string $email_addr): array
 	{
 		if (!$mbox || !$email_addr) {
 			return [];
@@ -101,10 +101,12 @@ class Email
 	}
 
 	/**
+	 * Returns mailbox name
+	 *
 	 * @param array   $mailacct mail account
 	 * @return string
 	 */
-	public static function constructMailboxName($mailacct)
+	public static function constructMailboxName(array $mailacct): string
 	{
 		$ret = '{' . $mailacct['server'] . ((intval($mailacct['port'])) ? ':' . $mailacct['port'] : '');
 		$ret .= (($mailacct['ssltype']) ?  '/' . $mailacct['ssltype'] . '/novalidate-cert' : '');
@@ -117,7 +119,7 @@ class Email
 	 * @param integer             $uid  user id
 	 * @return mixed
 	 */
-	public static function messageMeta($mbox, $uid)
+	public static function messageMeta($mbox, int $uid)
 	{
 		$ret = (($mbox && $uid) ? @imap_fetch_overview($mbox, $uid, FT_UID) : [[]]); // POSSIBLE CLEANUP --> array(array()) is probably redundant now
 		return (count($ret)) ? $ret : [];
@@ -127,10 +129,11 @@ class Email
 	 * @param Connection|resource $mbox  mailbox
 	 * @param integer             $uid   user id
 	 * @param string              $reply reply
+	 * @param array               $item  Item
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getMessage($mbox, $uid, $reply, $item): array
+	public static function getMessage($mbox, int $uid, string $reply, array $item): array
 	{
 		$ret = $item;
 
@@ -218,7 +221,7 @@ class Email
 	 * @param string              $subtype sub type
 	 * @return string
 	 */
-	private static function messageGetPart($mbox, $uid, $p, $partno, $subtype)
+	private static function messageGetPart($mbox, int $uid, $p, in $partno, string $subtype): string
 	{
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
 		global $htmlmsg,$plainmsg,$charset,$attachments;
@@ -296,11 +299,13 @@ class Email
 	}
 
 	/**
+	 * Returns encoded header
+	 *
 	 * @param string $in_str  in string
 	 * @param string $charset character set
 	 * @return string
 	 */
-	public static function encodeHeader($in_str, $charset)
+	public static function encodeHeader(string $in_str, string $charset): string
 	{
 		$out_str = $in_str;
 		$need_to_convert = false;
@@ -360,21 +365,20 @@ class Email
 	 * @param string $subject subject
 	 * @param string $headers headers
 	 * @param array  $item    item
-	 *
-	 * @return void
+	 * @return bool Status from mail()
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo This could be changed to use the Emailer class
 	 */
-	public static function send($addr, $subject, $headers, $item)
+	public static function send(string $addr, string $subject, string $headers, array$item)
 	{
 		//$headers .= 'MIME-Version: 1.0' . "\n";
 		//$headers .= 'Content-Type: text/html; charset=UTF-8' . "\n";
 		//$headers .= 'Content-Type: text/plain; charset=UTF-8' . "\n";
 		//$headers .= 'Content-Transfer-Encoding: 8bit' . "\n\n";
 
-		$part = uniqid("", true);
+		$part = uniqid('', true);
 
 		$html    = Item::prepareBody($item);
 
@@ -398,52 +402,70 @@ class Email
 		//$message = '<html><body>' . $html . '</body></html>';
 		//$message = html2plain($html);
 		Logger::notice('notifier: email delivery to ' . $addr);
-		mail($addr, $subject, $body, $headers);
+		return mail($addr, $subject, $body, $headers);
 	}
 
 	/**
-	 * @param string $iri string
-	 * @return string
+	 * Convert iri (?) to message id
+	 *
+	 * @param string $iri Iri string
+	 * @return string Message it
 	 */
-	public static function iri2msgid($iri)
+	public static function iri2msgid(string $iri): string
 	{
-		if (!strpos($iri, "@")) {
+		$msgid = $iri;
+
+		if (!strpos($iri, '@')) {
 			$msgid = preg_replace("/urn:(\S+):(\S+)\.(\S+):(\d+):(\S+)/i", "urn!$1!$4!$5@$2.$3", $iri);
-		} else {
-			$msgid = $iri;
 		}
 
 		return $msgid;
 	}
 
 	/**
-	 * @param string $msgid msgid
-	 * @return string
+	 * Converts message id to iri
+	 *
+	 * @param string $msgid Message id
+	 * @return string Iri
 	 */
-	public static function msgid2iri($msgid)
+	public static function msgid2iri(string $msgid): string
 	{
-		if (strpos($msgid, "@")) {
+		$iri = $msgid;
+
+		if (strpos($msgid, '@')) {
 			$iri = preg_replace("/urn!(\S+)!(\d+)!(\S+)@(\S+)\.(\S+)/i", "urn:$1:$4.$5:$2:$3", $msgid);
-		} else {
-			$iri = $msgid;
 		}
 
 		return $iri;
 	}
 
-	private static function saveReplace($pattern, $replace, $text)
+	/**
+	 * Invokes preg_replace() but does return full text from parameter if it
+	 * returned an empty message.
+	 *
+	 * @param string $pattern Pattern to match
+	 * @param string $replace String to replace with
+	 * @param string $text String to check
+	 * @return string Replaced string
+	 */
+	private static function saveReplace(string $pattern, string $replace, string $text): string
 	{
-		$save = $text;
+		$return = preg_replace($pattern, $replace, $text);
 
-		$text = preg_replace($pattern, $replace, $text);
-
-		if ($text == '') {
-			$text = $save;
+		if ($return == '') {
+			$return = $text;
 		}
-		return $text;
+
+		return $return;
 	}
 
-	private static function unifyAttributionLine($message)
+	/**
+	 * Unifies attribution line(s)
+	 *
+	 * @param string $message Unfiltered message
+	 * @return string Message with unified attribution line(s)
+	 */
+	private static function unifyAttributionLine(string $message): string
 	{
 		$quotestr = ['quote', 'spoiler'];
 		foreach ($quotestr as $quote) {
@@ -520,7 +542,13 @@ class Email
 		return $message;
 	}
 
-	private static function removeGPG($message)
+	/**
+	 * Removes GPG part from message
+	 *
+	 * @param string $message Unfiltered message
+	 * @return string Message with GPG part
+	 */
+	private static function removeGPG(string $message): string
 	{
 		$pattern = '/(.*)\s*-----BEGIN PGP SIGNED MESSAGE-----\s*[\r\n].*Hash:.*?[\r\n](.*)'.
 			'[\r\n]\s*-----BEGIN PGP SIGNATURE-----\s*[\r\n].*'.
@@ -537,7 +565,13 @@ class Email
 		return $cleaned;
 	}
 
-	private static function removeSig($message)
+	/**
+	 * Removes signature from message
+	 *
+	 * @param string $message Unfiltered message
+	 * @return string Message with no signature
+	 */
+	private static function removeSig(string $message): string
 	{
 		$sigpos = strrpos($message, "\n-- \n");
 		$quotepos = strrpos($message, "[/quote]");
@@ -569,7 +603,13 @@ class Email
 		return ['body' => $cleaned, 'sig' => $sig];
 	}
 
-	private static function removeLinebreak($message)
+	/**
+	 * Removes lines breaks from message
+	 *
+	 * @param string $message Unfiltered message
+	 * @return string Message with no line breaks
+	 */
+	private static function removeLinebreak(string $message): string
 	{
 		$arrbody = explode("\n", trim($message));
 
@@ -622,7 +662,7 @@ class Email
 		return implode("\n", $lines);
 	}
 
-	private static function convertQuote($body, $reply)
+	private static function convertQuote(strng $body, string $reply): string
 	{
 		// Convert Quotes
 		$arrbody = explode("\n", trim($body));
@@ -682,14 +722,14 @@ class Email
 		return $body;
 	}
 
-	private static function removeToFu($message)
+	private static function removeToFu(string $message): string
 	{
 		$message = trim($message);
 
 		do {
 			$oldmessage = $message;
 			$message = preg_replace('=\[/quote\][\s](.*?)\[quote\]=i', '$1', $message);
-			$message = str_replace("[/quote][quote]", "", $message);
+			$message = str_replace('[/quote][quote]', '', $message);
 		} while ($message != $oldmessage);
 
 		$quotes = [];
@@ -724,8 +764,9 @@ class Email
 			$start = $pos + 7;
 		}
 
-		if (strtolower(substr($message, -8)) != '[/quote]')
+		if (strtolower(substr($message, -8)) != '[/quote]') {
 			return($message);
+		}
 
 		krsort($quotes);
 
@@ -739,7 +780,7 @@ class Email
 		}
 
 		if ($quotestart != 0) {
-			$message = trim(substr($message, 0, $quotestart))."\n[spoiler]".substr($message, $quotestart+7, -8).'[/spoiler]';
+			$message = trim(substr($message, 0, $quotestart))."\n[spoiler]".substr($message, $quotestart+7, -8) . '[/spoiler]';
 		}
 
 		return $message;
