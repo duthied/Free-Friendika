@@ -206,6 +206,7 @@ class Images
 
 	/**
 	 * Gets info from URL uncached
+	 *
 	 * @param string $url URL
 	 * @return array Info array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -246,7 +247,7 @@ class Images
 			$data['size'] = $filesize;
 		}
 
-		return $data;
+		return $data ?? [];
 	}
 
 	/**
