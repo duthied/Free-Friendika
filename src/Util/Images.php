@@ -201,7 +201,7 @@ class Images
 			DI::cache()->set($cacheKey, $data);
 		}
 
-		return $data;
+		return $data ?? [];
 	}
 
 	/**
