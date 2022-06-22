@@ -1377,7 +1377,7 @@ class OStatus
 			case 'photo':
 				if (!empty($siteinfo['image'])) {
 					$imgdata = Images::getInfoFromURLCached($siteinfo['image']);
-					if ($imgdata) {
+					if (!empty($imgdata)) {
 						$attributes = [
 							'rel' => 'enclosure',
 							'href' => $siteinfo['image'],
@@ -1388,6 +1388,7 @@ class OStatus
 					}
 				}
 				break;
+
 			case 'video':
 				$attributes = [
 					'rel' => 'enclosure',
@@ -1398,13 +1399,15 @@ class OStatus
 				];
 				XML::addElement($doc, $root, 'link', '', $attributes);
 				break;
+
 			default:
+				Logger::warning('Unsupported type', ['type' => $siteinfo['type'], 'url' => $siteinfo['url']]);
 				break;
 		}
 
 		if (!DI::config()->get('system', 'ostatus_not_attach_preview') && ($siteinfo['type'] != 'photo') && isset($siteinfo['image'])) {
 			$imgdata = Images::getInfoFromURLCached($siteinfo['image']);
-			if ($imgdata) {
+			if (!empty($imgdata)) {
 				$attributes = [
 					'rel' => 'enclosure',
 					'href' => $siteinfo['image'],
