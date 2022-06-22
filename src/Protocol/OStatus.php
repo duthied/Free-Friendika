@@ -1388,6 +1388,7 @@ class OStatus
 					}
 				}
 				break;
+
 			case 'video':
 				$attributes = [
 					'rel' => 'enclosure',
@@ -1398,7 +1399,9 @@ class OStatus
 				];
 				XML::addElement($doc, $root, 'link', '', $attributes);
 				break;
+
 			default:
+				Logger::warning('Unsupported type', ['type' => $siteinfo['type'], 'url' => $siteinfo['url']]);
 				break;
 		}
 
