@@ -383,7 +383,7 @@ class DFRN
 
 		if ($public) {
 			// DFRN itself doesn't uses this. But maybe someone else wants to subscribe to the public feed.
-			OStatus::hublinks($doc, $root, $owner["nick"]);
+			OStatus::addHubLink($doc, $root, $owner["nick"]);
 
 			$attributes = ["rel" => "salmon", "href" => DI::baseUrl()."/salmon/".$owner["nick"]];
 			XML::addElement($doc, $root, "link", "", $attributes);

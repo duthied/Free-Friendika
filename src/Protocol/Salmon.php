@@ -40,10 +40,10 @@ class Salmon
 	/**
 	 * @param string $uri     Uniform Resource Identifier
 	 * @param string $keyhash encoded key
-	 * @return mixed
+	 * @return string Key or empty string on any errors
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getKey(string $uri, string $keyhash)
+	public static function getKey(string $uri, string $keyhash): string
 	{
 		$ret = [];
 
@@ -83,13 +83,13 @@ class Salmon
 		Logger::notice('Key located', ['ret' => $ret]);
 
 		if (count($ret) == 1) {
-			// We only found one one key so we don't care if the hash matches.
-			// If it's the wrong key we'll find out soon enough because
-			// message verification will fail. This also covers some older
-			// software which don't supply a keyhash. As long as they only
-			// have one key we'll be right.
-
-			return $ret[0];
+			/* We only found one one key so we don't care if the hash matches.
+			 * If it's the wrong key we'll find out soon enough because
+			 * message verification will fail. This also covers some older
+			 * software which don't supply a keyhash. As long as they only
+			 * have one key we'll be right.
+			 */
+			return (string) $ret[0];
 		} else {
 			foreach ($ret as $a) {
 				$hash = Strings::base64UrlEncode(hash('sha256', $a));

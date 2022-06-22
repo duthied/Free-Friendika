@@ -1040,7 +1040,7 @@ class Feed
 		$attributes = ["href" => $owner["url"], "rel" => "alternate", "type" => "text/html"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		OStatus::hublinks($doc, $root, $owner["nick"]);
+		OStatus::addHubLink($doc, $root, $owner["nick"]);
 
 		$attributes = ["href" => DI::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
