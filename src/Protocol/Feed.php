@@ -22,6 +22,7 @@
 namespace Friendica\Protocol;
 
 use DOMDocument;
+use DOMElement;
 use DOMXPath;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
@@ -66,7 +67,7 @@ class Feed
 		if ($dryRun) {
 			Logger::info("Test Atom/RSS feed");
 		} else {
-			Logger::info("Import Atom/RSS feed '" . $contact["name"] . "' (Contact " . $contact["id"] . ") for user " . $importer["uid"]);
+			Logger::info("Import Atom/RSS feed '" . $contact['name'] . "' (Contact " . $contact['id'] . ") for user " . $importer['uid']);
 		}
 
 		$xml = trim($xml);
@@ -378,7 +379,7 @@ class Feed
 				if (DBA::isResult($previous)) {
 					// Use the creation date when the post had been stored. It can happen this date changes in the feed.
 					$creation_dates[] = $previous['created'];
-					Logger::info("Item with uri " . $item["uri"] . " for user " . $importer["uid"] . " already existed under id " . $previous["id"]);
+					Logger::info("Item with uri " . $item['uri'] . " for user " . $importer['uid'] . " already existed under id " . $previous['id']);
 					continue;
 				}
 				$creation_dates[] = DateTimeFormat::utc($item['created']);
@@ -683,7 +684,7 @@ class Feed
 	/**
 	 * Automatically adjust the poll frequency according to the post frequency
 	 *
-	 * @param array $contact
+	 * @param array $contact Contact array
 	 * @param array $creation_dates
 	 * @return void
 	 */
@@ -803,7 +804,7 @@ class Feed
 	 * @param array $contact
 	 * @return int Poll interval in minutes
 	 */
-	public static function getPollInterval(array $contact)
+	public static function getPollInterval(array $contact): int
 	{
 		if (in_array($contact['network'], [Protocol::MAIL, Protocol::FEED])) {
 			$ratings = [0, 3, 7, 8, 9, 10];
@@ -852,39 +853,39 @@ class Feed
 	 * @param array $tags
 	 * @return string tag string
 	 */
-	private static function tagToString(array $tags)
+	private static function tagToString(array $tags): string
 	{
 		$tagstr = '';
 
 		foreach ($tags as $tag) {
-			if ($tagstr != "") {
-				$tagstr .= ", ";
+			if ($tagstr != '') {
+				$tagstr .= ', ';
 			}
 
-			$tagstr .= "#[url=" . DI::baseUrl() . "/search?tag=" . urlencode($tag) . "]" . $tag . "[/url]";
+			$tagstr .= '#[url=' . DI::baseUrl() . '/search?tag=' . urlencode($tag) . ']' . $tag . '[/url]';
 		}
 
 		return $tagstr;
 	}
 
-	private static function titleIsBody($title, $body)
+	private static function titleIsBody(string $title, string $body): bool
 	{
 		$title = strip_tags($title);
 		$title = trim($title);
 		$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
-		$title = str_replace(["\n", "\r", "\t", " "], ["", "", "", ""], $title);
+		$title = str_replace(["\n", "\r", "\t", " "], ['', '', '', ''], $title);
 
 		$body = strip_tags($body);
 		$body = trim($body);
 		$body = html_entity_decode($body, ENT_QUOTES, 'UTF-8');
-		$body = str_replace(["\n", "\r", "\t", " "], ["", "", "", ""], $body);
+		$body = str_replace(["\n", "\r", "\t", " "], ['', '', '', ''], $body);
 
 		if (strlen($title) < strlen($body)) {
 			$body = substr($body, 0, strlen($title));
 		}
 
-		if (($title != $body) && (substr($title, -3) == "...")) {
-			$pos = strrpos($title, "...");
+		if (($title != $body) && (substr($title, -3) == '...')) {
+			$pos = strrpos($title, '...');
 			if ($pos > 0) {
 				$title = substr($title, 0, $pos);
 				$body = substr($body, 0, $pos);
@@ -914,7 +915,7 @@ class Feed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function atom($owner_nick, $last_update, $max_items = 300, $filter = 'activity', $nocache = false)
+	public static function atom(string $owner_nick, string $last_update, int $max_items = 300, string $filter = 'activity', bool $nocache = false)
 	{
 		$stamp = microtime(true);
 
@@ -923,7 +924,7 @@ class Feed
 			return;
 		}
 
-		$cachekey = "feed:feed:" . $owner_nick . ":" . $filter . ":" . $last_update;
+		$cachekey = 'feed:feed:' . $owner_nick . ':' . $filter . ':' . $last_update;
 
 		// Display events in the users's timezone
 		if (strlen($owner['timezone'])) {
@@ -942,11 +943,11 @@ class Feed
 		}
 
 		$check_date = empty($last_update) ? '' : DateTimeFormat::utc($last_update);
-		$authorid = Contact::getIdForURL($owner["url"]);
+		$authorid = Contact::getIdForURL($owner['url']);
 
 		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted` AND `gravity` IN (?, ?)
 			AND `private` != ? AND `visible` AND `wall` AND `parent-network` IN (?, ?, ?, ?)",
-			$owner["uid"], $check_date, GRAVITY_PARENT, GRAVITY_COMMENT,
+			$owner['uid'], $check_date, GRAVITY_PARENT, GRAVITY_COMMENT,
 			Item::PRIVATE, Protocol::ACTIVITYPUB,
 			Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA];
 
@@ -957,7 +958,7 @@ class Feed
 
 		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
 			$condition[0] .= " AND `contact-id` = ? AND `author-id` = ?";
-			$condition[] = $owner["id"];
+			$condition[] = $owner['id'];
 			$condition[] = $authorid;
 		}
 
@@ -1002,16 +1003,16 @@ class Feed
 	 * @param array       $owner     Contact data of the poster
 	 * @param string      $filter    The related feed filter (activity, posts or comments)
 	 *
-	 * @return object header root element
+	 * @return DOMElement Header root element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function addHeader(DOMDocument $doc, array $owner, $filter)
+	private static function addHeader(DOMDocument $doc, array $owner, string $filter): DOMElement
 	{
 		$root = $doc->createElementNS(ActivityNamespace::ATOM1, 'feed');
 		$doc->appendChild($root);
 
 		$title = '';
-		$selfUri = '/feed/' . $owner["nick"] . '/';
+		$selfUri = '/feed/' . $owner['nick'] . '/';
 		switch ($filter) {
 			case 'activity':
 				$title = DI::l10n()->t('%s\'s timeline', $owner['name']);
@@ -1026,24 +1027,24 @@ class Feed
 				break;
 		}
 
-		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION];
-		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
-		XML::addElement($doc, $root, "id", DI::baseUrl() . "/profile/" . $owner["nick"]);
-		XML::addElement($doc, $root, "title", $title);
-		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], DI::config()->get('config', 'sitename')));
-		XML::addElement($doc, $root, "logo", User::getAvatarUrl($owner, Proxy::SIZE_SMALL));
-		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
+		$attributes = ['uri' => 'https://friendi.ca', 'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION];
+		XML::addElement($doc, $root, 'generator', FRIENDICA_PLATFORM, $attributes);
+		XML::addElement($doc, $root, 'id', DI::baseUrl() . '/profile/' . $owner['nick']);
+		XML::addElement($doc, $root, 'title', $title);
+		XML::addElement($doc, $root, 'subtitle', sprintf("Updates from %s on %s", $owner['name'], DI::config()->get('config', 'sitename')));
+		XML::addElement($doc, $root, 'logo', User::getAvatarUrl($owner, Proxy::SIZE_SMALL));
+		XML::addElement($doc, $root, 'updated', DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
 		$author = self::addAuthor($doc, $owner);
 		$root->appendChild($author);
 
-		$attributes = ["href" => $owner["url"], "rel" => "alternate", "type" => "text/html"];
-		XML::addElement($doc, $root, "link", "", $attributes);
+		$attributes = ['href' => $owner['url'], 'rel' => 'alternate', 'type' => 'text/html'];
+		XML::addElement($doc, $root, 'link', '', $attributes);
 
-		OStatus::addHubLink($doc, $root, $owner["nick"]);
+		OStatus::addHubLink($doc, $root, $owner['nick']);
 
-		$attributes = ["href" => DI::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
-		XML::addElement($doc, $root, "link", "", $attributes);
+		$attributes = ['href' => DI::baseUrl() . $selfUri, 'rel' => 'self', 'type' => 'application/atom+xml'];
+		XML::addElement($doc, $root, 'link', '', $attributes);
 
 		return $root;
 	}
@@ -1053,16 +1054,15 @@ class Feed
 	 *
 	 * @param DOMDocument $doc          XML document
 	 * @param array       $owner        Contact data of the poster
-	 *
-	 * @return \DOMElement author element
+	 * @return DOMElement author element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function addAuthor(DOMDocument $doc, array $owner)
+	private static function addAuthor(DOMDocument $doc, array $owner): DOMElement
 	{
-		$author = $doc->createElement("author");
-		XML::addElement($doc, $author, "uri", $owner["url"]);
-		XML::addElement($doc, $author, "name", $owner["nick"]);
-		XML::addElement($doc, $author, "email", $owner["addr"]);
+		$author = $doc->createElement('author');
+		XML::addElement($doc, $author, 'uri', $owner['url']);
+		XML::addElement($doc, $author, 'name', $owner['nick']);
+		XML::addElement($doc, $author, 'email', $owner['addr']);
 
 		return $author;
 	}
@@ -1074,15 +1074,14 @@ class Feed
 	 * @param array       $item      Data of the item that is to be posted
 	 * @param array       $owner     Contact data of the poster
 	 * @param bool        $toplevel  Is it for en entry element (false) or a feed entry (true)?
-	 *
-	 * @return \DOMElement Entry element
+	 * @return DOMElement Entry element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function noteEntry(DOMDocument $doc, array $item, array $owner)
+	private static function noteEntry(DOMDocument $doc, array $item, array $owner): DOMElement
 	{
-		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
-			Logger::info('Feed entry author does not match feed owner', ['owner' => $owner["url"], 'author' => $item["author-link"]]);
+		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
+			Logger::info('Feed entry author does not match feed owner', ['owner' => $owner['url'], 'author' => $item['author-link']]);
 		}
 
 		$entry = OStatus::entryHeader($doc, $owner, $item, false);
@@ -1104,31 +1103,30 @@ class Feed
 	 * @param string      $title     Title for the post
 	 * @param string      $verb      The activity verb
 	 * @param bool        $complete  Add the "status_net" element?
-	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function entryContent(DOMDocument $doc, \DOMElement $entry, array $item, $title, $verb = "", $complete = true)
+	private static function entryContent(DOMDocument $doc, DOMElement $entry, array $item, $title, string $verb = '', bool $complete = true)
 	{
-		if ($verb == "") {
+		if ($verb == '') {
 			$verb = OStatus::constructVerb($item);
 		}
 
-		XML::addElement($doc, $entry, "id", $item["uri"]);
-		XML::addElement($doc, $entry, "title", html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
+		XML::addElement($doc, $entry, 'id', $item['uri']);
+		XML::addElement($doc, $entry, 'title', html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 
 		$body = OStatus::formatPicturePost($item['body'], $item['uri-id']);
 
 		$body = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
 
-		XML::addElement($doc, $entry, "content", $body, ["type" => "html"]);
+		XML::addElement($doc, $entry, 'content', $body, ['type' => 'html']);
 
-		XML::addElement($doc, $entry, "link", "", ["rel" => "alternate", "type" => "text/html",
-								"href" => DI::baseUrl()."/display/".$item["guid"]]
+		XML::addElement($doc, $entry, 'link', '', ['rel' => 'alternate', 'type' => 'text/html',
+								'href' => DI::baseUrl() . '/display/' . $item['guid']]
 		);
 
-		XML::addElement($doc, $entry, "published", DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM));
-		XML::addElement($doc, $entry, "updated", DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM));
+		XML::addElement($doc, $entry, 'published', DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM));
+		XML::addElement($doc, $entry, 'updated', DateTimeFormat::utc($item['edited'] . '+00:00', DateTimeFormat::ATOM));
 	}
 
 	/**
@@ -1197,28 +1195,28 @@ class Feed
 	 * @param array $item
 	 * @return string title
 	 */
-	private static function getTitle(array $item)
+	private static function getTitle(array $item): string
 	{
 		if ($item['title'] != '') {
 			return BBCode::convertForUriId($item['uri-id'], $item['title'], BBCode::ACTIVITYPUB);
 		}
 
 		// Fetch information about the post
-		$siteinfo = BBCode::getAttachedData($item["body"]);
-		if (isset($siteinfo["title"])) {
-			return $siteinfo["title"];
+		$siteinfo = BBCode::getAttachedData($item['body']);
+		if (isset($siteinfo['title'])) {
+			return $siteinfo['title'];
 		}
 
 		// If no bookmark is found then take the first line
 		// Remove the share element before fetching the first line
-		$title = trim(preg_replace("/\[share.*?\](.*?)\[\/share\]/ism","\n$1\n",$item['body']));
+		$title = trim(preg_replace("/\[share.*?\](.*?)\[\/share\]/ism", "\n$1\n", $item['body']));
 
 		$title = BBCode::toPlaintext($title)."\n";
 		$pos = strpos($title, "\n");
-		$trailer = "";
+		$trailer = '';
 		if (($pos == 0) || ($pos > 100)) {
 			$pos = 100;
-			$trailer = "...";
+			$trailer = '...';
 		}
 
 		return substr($title, 0, $pos) . $trailer;
