@@ -168,7 +168,7 @@ class XML
 
 		foreach ($attributes as $key => $value) {
 			$attribute = $doc->createAttribute($key);
-			$attribute->value = self::escape($value);
+			$attribute->value = self::escape($value ?? '');
 			$element->appendChild($attribute);
 		}
 		return $element;
