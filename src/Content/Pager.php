@@ -199,13 +199,13 @@ class Pager
 	 *
 	 * $html = $pager->renderFull();
 	 *
-	 * @param integer $itemCount The total number of items including those note displayed on the page
+	 * @param int $itemCount The total number of items including those note displayed on the page
 	 * @return string HTML string of the pager
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function renderFull(int $itemCount): string
 	{
-		$totalItemCount = max(0, intval($itemCount));
+		$totalItemCount = max(0, $itemCount);
 
 		$data = [];
 
