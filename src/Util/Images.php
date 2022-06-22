@@ -247,7 +247,7 @@ class Images
 			$data['size'] = $filesize;
 		}
 
-		return $data ?? [];
+		return is_array($data) ? $data : [];
 	}
 
 	/**
