@@ -177,7 +177,7 @@ class XML
 	/**
 	 * Create an XML and append it to the parent object
 	 *
-	 * @param DOMDocument $doc        XML root
+	 * @param DOMDocument $doc   XML root
 	 * @param object $parent     parent object
 	 * @param string $element    XML element name
 	 * @param string $value      XML value

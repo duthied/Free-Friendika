@@ -21,7 +21,6 @@
 
 namespace Friendica\Protocol;
 
-use DOMAttr;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
@@ -1253,10 +1252,10 @@ class OStatus
 	 * @param array       $owner     Contact data of the poster
 	 * @param string      $filter    The related feed filter (activity, posts or comments)
 	 *
-	 * @return DOMAttr Header root element
+	 * @return DOMElement Header root element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function addHeader(DOMDocument $doc, array $owner, string $filter): DOMAttr
+	private static function addHeader(DOMDocument $doc, array $owner, string $filter): DOMElement
 	{
 		$root = $doc->createElementNS(ActivityNamespace::ATOM1, 'feed');
 		$doc->appendChild($root);
@@ -1350,12 +1349,12 @@ class OStatus
 	 * Add the link to the push hubs to the XML document
 	 *
 	 * @param DOMDocument $doc  XML document
-	 * @param addHubLink  $root XML root element where the hub links are added
+	 * @param DOMElement  $root XML root element where the hub links are added
 	 * @param string      $nick Nickname
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function addHubLink(DOMDocument $doc, DOMAttr $root, string $nick)
+	public static function addHubLink(DOMDocument $doc, DOMElement $root, string $nick)
 	{
 		$h = DI::baseUrl() . '/pubsubhubbub/' . $nick;
 		XML::addElement($doc, $root, 'link', '', ['href' => $h, 'rel' => 'hub']);
@@ -1365,12 +1364,12 @@ class OStatus
 	 * Adds attachment data to the XML document
 	 *
 	 * @param DOMDocument $doc  XML document
-	 * @param DOMAttr     $root XML root element where the hub links are added
+	 * @param DOMElement  $root XML root element where the hub links are added
 	 * @param array       $item Data of the item that is to be posted
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getAttachment(DOMDocument $doc, DOMAttr $root, array $item)
+	public static function getAttachment(DOMDocument $doc, DOMElement $root, array $item)
 	{
 		$siteinfo = BBCode::getAttachedData($item['body']);
 
