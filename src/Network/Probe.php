@@ -141,7 +141,7 @@ class Probe
 	}
 
 	/**
-	 * Probes for webfinger path via 'host-meta'
+	 * Probes for webfinger path via "host-meta"
 	 *
 	 * We have to check if the servers in the future still will offer this.
 	 * It seems as if it was dropped from the standard.
@@ -1160,7 +1160,6 @@ class Probe
 			} elseif (($link['rel'] == 'diaspora-public-key') && !empty($link['href'])) {
 				$data['pubkey'] = base64_decode($link['href']);
 
-				//if (strstr($data['pubkey'], 'RSA ') || ($link['type'] == 'RSA'))
 				if (strstr($data['pubkey'], 'RSA ')) {
 					$data['pubkey'] = Crypto::rsaToPem($data['pubkey']);
 				}
@@ -1323,7 +1322,7 @@ class Probe
 				}
 			}
 
-			// Older Friendica versions had used the 'uid' field differently than newer versions
+			// Older Friendica versions had used the "uid" field differently than newer versions
 			if (!empty($data['nick']) && !empty($data['guid']) && ($data['nick'] == $data['guid'])) {
 				unset($data['guid']);
 			}
@@ -1367,7 +1366,6 @@ class Probe
 			} elseif (($link['rel'] == 'diaspora-public-key') && !empty($link['href'])) {
 				$data['pubkey'] = base64_decode($link['href']);
 
-				//if (strstr($data['pubkey'], 'RSA ') || ($link['type'] == 'RSA'))
 				if (strstr($data['pubkey'], 'RSA ')) {
 					$data['pubkey'] = Crypto::rsaToPem($data['pubkey']);
 				}
@@ -1417,7 +1415,7 @@ class Probe
 				$data['addr'] = strtolower($data['addr']);
 			}
 
-			// We have to overwrite the detected value for 'notify' since Hubzilla doesn't send it
+			// We have to overwrite the detected value for "notify" since Hubzilla doesn't send it
 			$data['notify'] = $data['baseurl'] . '/receive/users/' . $data['guid'];
 			$data['batch']  = $data['baseurl'] . '/receive/public';
 		} else {
@@ -1977,7 +1975,7 @@ class Probe
 	 * Fetch the last activity date from the "noscrape" endpoint
 	 *
 	 * @param array $data Probing result
-	 * @return string last activity or bool 'true' if update was successful or the server was unreachable
+	 * @return string last activity or true if update was successful or the server was unreachable
 	 */
 	private static function updateFromNoScrape(array $data)
 	{

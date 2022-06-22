@@ -406,37 +406,37 @@ class Email
 	}
 
 	/**
-	 * Convert iri (?) to message id
+	 * Convert item URI to message id
 	 *
-	 * @param string $iri Iri string
-	 * @return string Message it
+	 * @param string $itemUri Item URI
+	 * @return string Message id
 	 */
-	public static function iri2msgid(string $iri): string
+	public static function iri2msgid(string $itemUri): string
 	{
-		$msgid = $iri;
+		$msgid = $itemUri;
 
-		if (!strpos($iri, '@')) {
-			$msgid = preg_replace("/urn:(\S+):(\S+)\.(\S+):(\d+):(\S+)/i", "urn!$1!$4!$5@$2.$3", $iri);
+		if (!strpos($itemUri, '@')) {
+			$msgid = preg_replace("/urn:(\S+):(\S+)\.(\S+):(\d+):(\S+)/i", "urn!$1!$4!$5@$2.$3", $itemUri);
 		}
 
 		return $msgid;
 	}
 
 	/**
-	 * Converts message id to iri
+	 * Converts message id to item URI
 	 *
 	 * @param string $msgid Message id
-	 * @return string Iri
+	 * @return string Item URI
 	 */
 	public static function msgid2iri(string $msgid): string
 	{
-		$iri = $msgid;
+		$itemUri = $msgid;
 
 		if (strpos($msgid, '@')) {
-			$iri = preg_replace("/urn!(\S+)!(\d+)!(\S+)@(\S+)\.(\S+)/i", "urn:$1:$4.$5:$2:$3", $msgid);
+			$itemUri = preg_replace("/urn!(\S+)!(\d+)!(\S+)@(\S+)\.(\S+)/i", "urn:$1:$4.$5:$2:$3", $msgid);
 		}
 
-		return $iri;
+		return $itemUri;
 	}
 
 	/**

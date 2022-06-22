@@ -74,9 +74,9 @@ class Tag
 	 * Store tag/mention elements
 	 *
 	 * @param integer $uriid URI id
-	 * @param integer $type Type
-	 * @param string  $name Name
-	 * @param string  $url URL
+	 * @param integer $type Tag type
+	 * @param string  $name Tag name
+	 * @param string  $url Contact URL (optional)
 	 * @param integer $target Target (default: null)
 	 * @return void
 	 */

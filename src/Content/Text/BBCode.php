@@ -1247,16 +1247,28 @@ class BBCode
 		return $text;
 	}
 
-	private static function expandLinksCallback($match)
+	/**
+	 * Callback: Expands links from given $match array
+	 *
+	 * @param arrat $match Array with link match
+	 * @return string BBCode
+	 */
+	private static function expandLinksCallback(array $match): string
 	{
 		if (($match[3] == '') || ($match[2] == $match[3]) || stristr($match[2], $match[3])) {
-			return ($match[1] . "[url]" . $match[2] . "[/url]");
+			return ($match[1] . '[url]' . $match[2] . '[/url]');
 		} else {
-			return ($match[1] . $match[3] . " [url]" . $match[2] . "[/url]");
+			return ($match[1] . $match[3] . ' [url]' . $match[2] . '[/url]');
 		}
 	}
 
-	private static function cleanPictureLinksCallback($match)
+	/**
+	 * Callback: Cleans picture links
+	 *
+	 * @param arrat $match Array with link match
+	 * @return string BBCode
+	 */
+	private static function cleanPictureLinksCallback(array $match): string
 	{
 		// When the picture link is the own photo path then we can avoid fetching the link
 		$own_photo_url = preg_quote(Strings::normaliseLink(DI::baseUrl()->get()) . '/photos/');
@@ -1325,7 +1337,13 @@ class BBCode
 		return $text;
 	}
 
-	public static function cleanPictureLinks($text)
+	/**
+	 * Cleans picture links
+	 *
+	 * @param string $text HTML/BBCode string
+	 * @return string Cleaned HTML/BBCode
+	 */
+	public static function cleanPictureLinks(string $text): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img=(.*)\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $text);
@@ -1334,7 +1352,13 @@ class BBCode
 		return $return;
 	}
 
-	public static function removeLinks(string $bbcode)
+	/**
+	 * Removes links
+	 *
+	 * @param string $text HTML/BBCode string
+	 * @return string Cleaned HTML/BBCode
+	 */
+	public static function removeLinks(string $bbcode): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$bbcode = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $1 ', $bbcode);
@@ -1350,10 +1374,10 @@ class BBCode
 	/**
 	 * Replace names in mentions with nicknames
 	 *
-	 * @param string $body
+	 * @param string $body HTML/BBCode
 	 * @return string Body with replaced mentions
 	 */
-	public static function setMentionsToNicknames(string $body):string
+	public static function setMentionsToNicknames(string $body): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$regexp = "/([@!])\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
@@ -1366,10 +1390,10 @@ class BBCode
 	 * Callback function to replace a Friendica style mention in a mention with the nickname
 	 *
 	 * @param array $match Matching values for the callback
-	 * @return string Replaced mention
+	 * @return string Replaced mention or empty string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function mentionCallback($match)
+	private static function mentionCallback(array $match): string
 	{
 		if (empty($match[2])) {
 			return '';
@@ -1407,7 +1431,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertForUriId(int $uriid = null, string $text = null, int $simple_html = self::INTERNAL)
+	public static function convertForUriId(int $uriid = null, string $text = null, int $simple_html = self::INTERNAL): string
 	{
 		$try_oembed = ($simple_html == self::INTERNAL);
 
@@ -1437,10 +1461,10 @@ class BBCode
 	 * @param int    $simple_html
 	 * @param bool   $for_plaintext
 	 * @param int    $uriid
-	 * @return string
+	 * @return string Converted code or empty string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convert(string $text = null, $try_oembed = true, $simple_html = self::INTERNAL, $for_plaintext = false, $uriid = 0)
+	public static function convert(string $text = null, bool $try_oembed = true, int $simple_html = self::INTERNAL, bool $for_plaintext = false, int $uriid = 0): string
 	{
 		// Accounting for null default column values
 		if (is_null($text) || $text === '') {
@@ -2142,7 +2166,7 @@ class BBCode
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function bbCodeMention2DiasporaCallback($match)
+	private static function bbCodeMention2DiasporaCallback(array $match): string
 	{
 		$contact = Contact::getByURL($match[3], false, ['addr']);
 		if (empty($contact['addr'])) {
@@ -2164,7 +2188,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function toMarkdown($text, $for_diaspora = true)
+	public static function toMarkdown(string $text, bool $for_diaspora = true): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$original_text = $text;
@@ -2249,7 +2273,7 @@ class BBCode
 	 *
 	 * @return array List of tag and person names
 	 */
-	public static function getTags($string)
+	public static function getTags(string $string): array
 	{
 		DI::profiler()->startRecording('rendering');
 		$ret = [];
@@ -2309,10 +2333,10 @@ class BBCode
 	/**
 	 * Expand tags to URLs, checks the tag is at the start of a line or preceded by a non-word character
 	 *
-	 * @param string $body
+	 * @param string $body HTML/BBCode
 	 * @return string body with expanded tags
 	 */
-	public static function expandTags(string $body)
+	public static function expandTags(string $body): string
 	{
 		return preg_replace_callback("/(?<=\W|^)([!#@])([^\^ \x0D\x0A,;:?'\"]*[^\^ \x0D\x0A,;:?!'\".])/",
 			function ($match) {
@@ -2336,7 +2360,7 @@ class BBCode
 	/**
 	 * Perform a custom function on a text after having escaped blocks enclosed in the provided tag list.
 	 *
-	 * @param string   $text
+	 * @param string   $text HTML/BBCode
 	 * @param array    $tagList A list of tag names, e.g ['noparse', 'nobb', 'pre']
 	 * @param callable $callback
 	 * @return string
@@ -2352,14 +2376,14 @@ class BBCode
 	/**
 	 * Replaces mentions in the provided message body in BBCode links for the provided user and network if any
 	 *
-	 * @param $body
-	 * @param $profile_uid
-	 * @param $network
-	 * @return string
+	 * @param string $body HTML/BBCode
+	 * @param int $profile_uid Profile user id
+	 * @param string $network Network name
+	 * @return string HTML/BBCode with inserted images
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function setMentions($body, $profile_uid = 0, $network = '')
+	public static function setMentions(string $body, $profile_uid = 0, $network = '')
 	{
 		DI::profiler()->startRecording('rendering');
 		$body = self::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network) {
@@ -2406,7 +2430,7 @@ class BBCode
 	 * @return string
 	 * @TODO Rewrite to handle over whole record array
 	 */
-	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null)
+	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author) .

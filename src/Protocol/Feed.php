@@ -67,7 +67,7 @@ class Feed
 		if ($dryRun) {
 			Logger::info("Test Atom/RSS feed");
 		} else {
-			Logger::info("Import Atom/RSS feed '" . $contact['name'] . "' (Contact " . $contact['id'] . ") for user " . $importer['uid']);
+			Logger::info('Import Atom/RSS feed "' . $contact['name'] . '" (Contact ' . $contact['id'] . ') for user ' . $importer['uid']);
 		}
 
 		$xml = trim($xml);
@@ -379,7 +379,7 @@ class Feed
 				if (DBA::isResult($previous)) {
 					// Use the creation date when the post had been stored. It can happen this date changes in the feed.
 					$creation_dates[] = $previous['created'];
-					Logger::info("Item with uri " . $item['uri'] . " for user " . $importer['uid'] . " already existed under id " . $previous['id']);
+					Logger::info('Item with URI ' . $item['uri'] . ' for user ' . $importer['uid'] . ' already existed under id ' . $previous['id']);
 					continue;
 				}
 				$creation_dates[] = DateTimeFormat::utc($item['created']);

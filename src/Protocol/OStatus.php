@@ -224,7 +224,7 @@ class OStatus
 			Contact::update($contact, ['id' => $contact['id']], $current);
 
 			if (!empty($author['author-avatar']) && ($author['author-avatar'] != $current['avatar'])) {
-				Logger::info("Update profile picture for contact ".$contact["id"]);
+				Logger::info('Update profile picture for contact ' . $contact['id']);
 				Contact::updateAvatar($contact['id'], $author['author-avatar']);
 			}
 
@@ -380,7 +380,7 @@ class OStatus
 				foreach ($hub_attributes as $hub_attribute) {
 					if ($hub_attribute->name == 'href') {
 						$hub = $hub_attribute->textContent;
-						Logger::info("Found hub ", ['hub' => $hub]);
+						Logger::info('Found hub ', ['hub' => $hub]);
 					}
 				}
 			}
@@ -458,7 +458,7 @@ class OStatus
 
 			if (in_array($item['verb'], [Activity::O_UNFAVOURITE, Activity::UNFAVORITE])) {
 				// Ignore "Unfavorite" message
-				Logger::info("Ignore unfavorite message ", ['item' => $item]);
+				Logger::info('Ignore unfavorite message ', ['item' => $item]);
 				continue;
 			}
 
@@ -472,13 +472,13 @@ class OStatus
 
 			if ($item['verb'] == Activity::JOIN) {
 				// ignore "Join" messages
-				Logger::info("Ignore join message ", ['item' => $item]);
+				Logger::info('Ignore join message ', ['item' => $item]);
 				continue;
 			}
 
 			if ($item['verb'] == 'http://mastodon.social/schema/1.0/block') {
 				// ignore mastodon "block" messages
-				Logger::info("Ignore block message ", ['item' => $item]);
+				Logger::info('Ignore block message ', ['item' => $item]);
 				continue;
 			}
 
@@ -495,7 +495,7 @@ class OStatus
 
 			if ($item['verb'] == Activity::FAVORITE) {
 				$orig_uri = $xpath->query('activity:object/atom:id', $entry)->item(0)->nodeValue;
-				Logger::notice("Favorite", ['uri' => $orig_uri, 'item' => $item]);
+				Logger::notice('Favorite', ['uri' => $orig_uri, 'item' => $item]);
 
 				$item['verb'] = Activity::LIKE;
 				$item['thr-parent'] = $orig_uri;
@@ -505,7 +505,7 @@ class OStatus
 
 			// http://activitystrea.ms/schema/1.0/rsvp-yes
 			if (!in_array($item['verb'], [Activity::POST, Activity::LIKE, Activity::SHARE])) {
-				Logger::info("Unhandled verb", ['verb' => $item['verb'], 'item' => $item]);
+				Logger::info('Unhandled verb', ['verb' => $item['verb'], 'item' => $item]);
 			}
 
 			self::processPost($xpath, $entry, $item, $importer);
@@ -521,10 +521,10 @@ class OStatus
 						$valid = !$uid || DI::pConfig()->get($uid, 'system', 'accept_only_sharer') != Item::COMPLETION_NONE;
 
 						if ($valid) {
-							Logger::info("Item with uri " . self::$itemlist[0]['uri'] . " will be imported due to the system settings.");
+							Logger::info('Item with URI ' . self::$itemlist[0]['uri'] . ' will be imported due to the system settings.');
 						}
 					} else {
-						Logger::info("Item with uri " . self::$itemlist[0]['uri'] . " belongs to a contact (" . self::$itemlist[0]['contact-id'] . "). It will be imported.");
+						Logger::info('Item with URI ' . self::$itemlist[0]['uri'] . ' belongs to a contact (' . self::$itemlist[0]['contact-id'] . '). It will be imported.');
 					}
 
 					if ($valid && DI::pConfig()->get($uid, 'system', 'accept_only_sharer') != Item::COMPLETION_LIKE) {
@@ -537,7 +537,7 @@ class OStatus
 							}
 						}
 						if ($valid) {
-							Logger::info("Item with URI " . self::$itemlist[0]['uri'] . " will be imported since the thread contains posts or shares.");
+							Logger::info('Item with URI ' . self::$itemlist[0]['uri'] . ' will be imported since the thread contains posts or shares.');
 						}
 					}
 				} else {
@@ -556,12 +556,12 @@ class OStatus
 					foreach (self::$itemlist as $item) {
 						$found = Post::exists(['uid' => $importer['uid'], 'uri' => $item['uri']]);
 						if ($found) {
-							Logger::notice("Item with uri " . $item['uri'] . " for user " . $importer['uid'] . " already exists.");
+							Logger::notice('Item with URI ' . $item['uri'] . ' for user ' . $importer['uid'] . ' already exists.');
 						} elseif ($item['contact-id'] < 0) {
-							Logger::notice("Item with uri " . $item['uri'] . " is from a blocked contact.");
+							Logger::notice('Item with URI ' . $item['uri'] . ' is from a blocked contact.');
 						} else {
 							$ret = Item::insert($item);
-							Logger::info("Item with uri " . $item['uri'] . " for user " . $importer['uid'] . " stored. Return value: " . $ret);
+							Logger::info('Item with URI ' . $item['uri'] . ' for user ' . $importer['uid'] . ' stored. Return value: ' . $ret);
 						}
 					}
 				}
@@ -1019,7 +1019,7 @@ class OStatus
 			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
 			if (DBA::isResult($conversation)) {
 				$stored = true;
-				Logger::info('Got cached XML from conversation for URI '.$related_uri);
+				Logger::info('Got cached XML from conversation for URI ' . $related_uri);
 				$xml = $conversation['source'];
 			}
 		}
@@ -1027,7 +1027,7 @@ class OStatus
 		if ($xml != '') {
 			self::process($xml, $importer, $contact, $hub, $stored, false, Conversation::PULL);
 		} else {
-			Logger::info("XML couldn't be fetched for URI: " . $related_uri . " - href: " . $related);
+			Logger::info('XML could not be fetched for URI: ' . $related_uri . ' - href: ' . $related);
 		}
 		return;
 	}
@@ -1168,7 +1168,7 @@ class OStatus
 						break;
 
 					default:
-						Logger::warning('Unsupported rel=' . $attribute['rel'] . ',href=' . $attribute['href'] . ',object-type=' . $attribute['object-type']);
+						Logger::warning('Unsupported rel=' . $attribute['rel'] . ', href=' . $attribute['href'] . ', object-type=' . $attribute['object-type']);
 				}
 			}
 		}
@@ -1239,7 +1239,7 @@ class OStatus
 				$url = $siteinfo['image'];
 			}
 
-			$body = trim($siteinfo['text']) . " [url]" . $url . "[/url]\n[img]" . $preview . "[/img]";
+			$body = trim($siteinfo['text']) . ' [url]' . $url . "[/url]\n[img]" . $preview . '[/img]';
 		}
 
 		return $body;
@@ -1332,11 +1332,11 @@ class OStatus
 
 		if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
 			$members = DBA::count('contact', [
-				'uid' => $owner['uid'],
-				'self' => false,
+				'uid'     => $owner['uid'],
+				'self'    => false,
 				'pending' => false,
 				'archive' => false,
-				'hidden' => false,
+				'hidden'  => false,
 				'blocked' => false,
 			]);
 			XML::addElement($doc, $root, 'statusnet:group_info', '', ['member_count' => $members]);
@@ -1591,7 +1591,7 @@ class OStatus
 	private static function likeEntry(DOMDocument $doc, array $item, array $owner, bool $toplevel): DOMElement
 	{
 		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
-			Logger::info("OStatus entry is from author " . $owner['url'] . " - not from " . $item['author-link'] . ". Quitting.");
+			Logger::info('OStatus entry is from author ' . $owner['url'] . ' - not from ' . $item['author-link'] . '. Quitting.');
 		}
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
@@ -1741,17 +1741,17 @@ class OStatus
 	private static function noteEntry(DOMDocument $doc, array $item, array $owner, bool $toplevel): DOMElement
 	{
 		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
-			Logger::info("OStatus entry is from author " . $owner['url'] . " - not from " . $item['author-link'] . ". Quitting.");
+			Logger::info('OStatus entry is from author ' . $owner['url'] . ' - not from ' . $item['author-link'] . '. Quitting.');
 		}
 
 		if (!$toplevel) {
 			if (!empty($item['title'])) {
 				$title = BBCode::convertForUriId($item['uri-id'], $item['title'], BBCode::OSTATUS);
 			} else {
-				$title = sprintf("New note by %s", $owner['nick']);
+				$title = sprintf('New note by %s', $owner['nick']);
 			}
 		} else {
-			$title = sprintf("New comment by %s", $owner['nick']);
+			$title = sprintf('New comment by %s', $owner['nick']);
 		}
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
@@ -1832,7 +1832,7 @@ class OStatus
 		$body = self::formatPicturePost($body, $item['uri-id']);
 
 		if (!empty($item['title'])) {
-			$body = "[b]" . $item['title'] . "[/b]\n\n" . $body;
+			$body = '[b]' . $item['title'] . "[/b]\n\n" . $body;
 		}
 
 		$body = BBCode::convertForUriId($item['uri-id'], $body, BBCode::OSTATUS);
@@ -1944,14 +1944,14 @@ class OStatus
 			$contact = Contact::getByURL($mention, false, ['contact-type']);
 			if (!empty($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
 				XML::addElement($doc, $entry, 'link', '', [
-						'rel' => 'mentioned',
-						'ostatus:object-type' => Activity\ObjectType::GROUP,
-						'href' => $mention,
+					'rel' => 'mentioned',
+					'ostatus:object-type' => Activity\ObjectType::GROUP,
+					'href' => $mention,
 				]);
 			} else {
 				XML::addElement($doc, $entry, 'link', '', [
-						'rel' => 'mentioned',
-						'ostatus:object-type' => Activity\ObjectType::PERSON,
+					'rel' => 'mentioned',
+					'ostatus:object-type' => Activity\ObjectType::PERSON,
 						'href' => $mention,
 				]);
 			}

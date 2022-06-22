@@ -284,7 +284,7 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * Fetch a request value and apply default values and check against minimal and maximal values
 	 *
-	 * @param array $input Input viels
+	 * @param array $input Input fields
 	 * @param string $parameter Parameter
 	 * @param mixed $default Default
 	 * @param mixed $minimal_value Minimal value

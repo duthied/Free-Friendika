@@ -198,8 +198,6 @@ class DFRN
 			$root->setAttribute('xmlns:ostatus', ActivityNamespace::OSTATUS);
 			$root->setAttribute('xmlns:statusnet', ActivityNamespace::STATUSNET);
 
-			//$root = self::addHeader($doc, $owner, 'dfrn:owner', '', false);
-
 			foreach ($items as $item) {
 				$entry = self::entry($doc, $type, $item, $owner, true, 0);
 				if (isset($entry)) {
@@ -1662,7 +1660,7 @@ class DFRN
 	 */
 	private static function processVerbs(int $entrytype, array $importer, array &$item, bool &$is_like)
 	{
-		Logger::info("Process verb " . $item['verb'] . " and object-type " . $item['object-type'] . " for entrytype " . $entrytype);
+		Logger::info('Process verb ' . $item['verb'] . ' and object-type ' . $item['object-type'] . ' for entrytype ' . $entrytype);
 
 		if (($entrytype == DFRN::TOP_LEVEL) && !empty($importer['id'])) {
 			// The filling of the the "contact" variable is done for legcy reasons
@@ -2209,18 +2207,18 @@ class DFRN
 		$condition = ['uri' => $uri, 'uid' => $importer['importer_uid']];
 		$item = Post::selectFirst(['id', 'parent', 'contact-id', 'uri-id', 'deleted', 'gravity'], $condition);
 		if (!DBA::isResult($item)) {
-			Logger::info("Item with uri " . $uri . " for user " . $importer['importer_uid'] . " wasn't found.");
+			Logger::info('Item with URI ' . $uri . ' for user ' . $importer['importer_uid'] . ' was not found.');
 			return;
 		}
 
 		if (DBA::exists('post-category', ['uri-id' => $item['uri-id'], 'uid' => $importer['importer_uid'], 'type' => Post\Category::FILE])) {
-			Logger::notice("Item is filed. It won't be deleted.", ['uri' => $uri, 'uri-id' => $item['uri_id'], 'uid' => $importer['importer_uid']]);
+			Logger::notice('Item is filed. It will not be deleted.', ['uri' => $uri, 'uri-id' => $item['uri_id'], 'uid' => $importer['importer_uid']]);
 			return;
 		}
 
 		// When it is a starting post it has to belong to the person that wants to delete it
 		if (($item['gravity'] == GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
-			Logger::info("Item with uri " . $uri . " don't belong to contact " . $importer['id'] . " - ignoring deletion.");
+			Logger::info('Item with URI ' . $uri . ' do not belong to contact ' . $importer['id'] . ' - ignoring deletion.');
 			return;
 		}
 
@@ -2228,7 +2226,7 @@ class DFRN
 		if (($item['gravity'] != GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
 			$condition = ['id' => $item['parent'], 'contact-id' => $importer['id']];
 			if (!Post::exists($condition)) {
-				Logger::info("Item with uri " . $uri . " wasn't found or mustn't be deleted by contact " . $importer['id'] . " - ignoring deletion.");
+				Logger::info('Item with URI ' . $uri . ' was not found or must not be deleted by contact ' . $importer['id'] . ' - ignoring deletion.');
 				return;
 			}
 		}
