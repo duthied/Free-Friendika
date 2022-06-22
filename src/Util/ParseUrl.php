@@ -551,7 +551,7 @@ class ParseUrl
 				if (!empty($image['url'])) {
 					$image['url'] = self::completeUrl($image['url'], $page_url);
 					$photodata = Images::getInfoFromURLCached($image['url']);
-					if (!empty($photodata) && ($photodata[0] > 50) && ($photodata[1] > 50)) {
+					if (($photodata) && ($photodata[0] > 50) && ($photodata[1] > 50)) {
 						$image['src'] = $image['url'];
 						$image['width'] = $photodata[0];
 						$image['height'] = $photodata[1];

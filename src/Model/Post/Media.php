@@ -192,7 +192,7 @@ class Media
 
 		if (($media['type'] == self::IMAGE) || ($filetype == 'image')) {
 			$imagedata = Images::getInfoFromURLCached($media['url']);
-			if (!empty($imagedata)) {
+			if ($imagedata) {
 				$media['mimetype'] = $imagedata['mime'];
 				$media['size'] = $imagedata['size'];
 				$media['width'] = $imagedata[0];
@@ -202,7 +202,7 @@ class Media
 			}
 			if (!empty($media['preview'])) {
 				$imagedata = Images::getInfoFromURLCached($media['preview']);
-				if (!empty($imagedata)) {
+				if ($imagedata) {
 					$media['preview-width'] = $imagedata[0];
 					$media['preview-height'] = $imagedata[1];
 				}

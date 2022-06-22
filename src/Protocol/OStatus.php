@@ -1377,7 +1377,7 @@ class OStatus
 			case 'photo':
 				if (!empty($siteinfo['image'])) {
 					$imgdata = Images::getInfoFromURLCached($siteinfo['image']);
-					if (!empty($imgdata)) {
+					if ($imgdata) {
 						$attributes = [
 							'rel' => 'enclosure',
 							'href' => $siteinfo['image'],
@@ -1407,7 +1407,7 @@ class OStatus
 
 		if (!DI::config()->get('system', 'ostatus_not_attach_preview') && ($siteinfo['type'] != 'photo') && isset($siteinfo['image'])) {
 			$imgdata = Images::getInfoFromURLCached($siteinfo['image']);
-			if (!empty($imgdata)) {
+			if ($imgdata) {
 				$attributes = [
 					'rel' => 'enclosure',
 					'href' => $siteinfo['image'],
