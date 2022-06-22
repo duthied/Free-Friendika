@@ -73,11 +73,12 @@ class Tag
 	/**
 	 * Store tag/mention elements
 	 *
-	 * @param integer $uriid
-	 * @param integer $type
-	 * @param string  $name
-	 * @param string  $url
-	 * @param integer $target
+	 * @param integer $uriid URI id
+	 * @param integer $type Type
+	 * @param string  $name Name
+	 * @param string  $url URL
+	 * @param integer $target Target (default: null)
+	 * @return void
 	 */
 	public static function store(int $uriid, int $type, string $name, string $url = '', int $target = null)
 	{
@@ -249,13 +250,14 @@ class Tag
 	/**
 	 * Store tag/mention elements
 	 *
-	 * @param integer $uriid
-	 * @param string $hash
-	 * @param string $name
-	 * @param string $url
-	 * @param boolean $probing
+	 * @param integer $uriid URI id
+	 * @param string $hash Hash
+	 * @param string $name Name
+	 * @param string $url URL
+	 * @param boolean $probing Whether probing is active
+	 * @return void
 	 */
-	public static function storeByHash(int $uriid, string $hash, string $name, string $url = '', $probing = true)
+	public static function storeByHash(int $uriid, string $hash, string $name, string $url = '', bool $probing = true)
 	{
 		$type = self::getTypeForHash($hash);
 		if ($type == self::UNKNOWN) {
@@ -293,8 +295,9 @@ class Tag
 	 * @param string  $body    Body of the post
 	 * @param string  $tags    Accepted tags
 	 * @param boolean $probing Perform a probing for contacts, adding them if needed
+	 * @return void
 	 */
-	public static function storeFromBody(int $uriid, string $body, string $tags = null, $probing = true)
+	public static function storeFromBody(int $uriid, string $body, string $tags = null, bool $probing = true)
 	{
 		Logger::info('Check for tags', ['uri-id' => $uriid, 'hash' => $tags, 'callstack' => System::callstack()]);
 
@@ -330,6 +333,7 @@ class Tag
 	 *
 	 * @param integer $uriid URI-Id
 	 * @param string  $body   Body of the post
+	 * @return void
 	 */
 	public static function storeRawTagsFromBody(int $uriid, string $body)
 	{
@@ -364,10 +368,11 @@ class Tag
 	/**
 	 * Remove tag/mention
 	 *
-	 * @param integer $uriid
-	 * @param integer $type
-	 * @param string $name
-	 * @param string $url
+	 * @param integer $uriid URI id
+	 * @param integer $type Type
+	 * @param string $name Name
+	 * @param string $url URL
+	 * @return void
 	 */
 	public static function remove(int $uriid, int $type, string $name, string $url = '')
 	{
