@@ -168,7 +168,7 @@ class XML
 
 		foreach ($attributes as $key => $value) {
 			$attribute = $doc->createAttribute($key);
-			$attribute->value = self::escape($value);
+			$attribute->value = self::escape($value ?? '');
 			$element->appendChild($attribute);
 		}
 		return $element;
@@ -177,7 +177,7 @@ class XML
 	/**
 	 * Create an XML and append it to the parent object
 	 *
-	 * @param DOMDocument $doc        XML root
+	 * @param DOMDocument $doc   XML root
 	 * @param object $parent     parent object
 	 * @param string $element    XML element name
 	 * @param string $value      XML value

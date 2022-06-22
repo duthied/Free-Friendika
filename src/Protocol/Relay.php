@@ -55,7 +55,7 @@ class Relay
 	 * @param string $url
 	 * @return boolean "true" is the post is wanted by the system
 	 */
-	public static function isSolicitedPost(array $tags, string $body, int $authorid, string $url, string $network = '')
+	public static function isSolicitedPost(array $tags, string $body, int $authorid, string $url, string $network = ''): bool
 	{
 		$config = DI::config();
 
@@ -139,6 +139,7 @@ class Relay
 	 *
 	 * @param array $gserver Global server record
 	 * @param array $fields  Optional network specific fields
+	 * @return void
 	 * @throws \Exception
 	 */
 	public static function updateContact(array $gserver, array $fields = [])
@@ -198,6 +199,7 @@ class Relay
 	 * The relay contact is a technical contact entry that exists once per server.
 	 *
 	 * @param array $contact of the relay contact
+	 * @return void
 	 */
 	public static function markForArchival(array $contact)
 	{
@@ -229,15 +231,14 @@ class Relay
 	 * @param integer $item_id  id of the item that is sent
 	 * @param array   $contacts Previously fetched contacts
 	 * @param array   $networks Networks of the relay servers
-	 *
 	 * @return array of relay servers
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getDirectRelayList(int $item_id)
+	public static function getDirectRelayList(int $item_id): array
 	{
 		$serverlist = [];
 
-		if (!DI::config()->get("system", "relay_directly", false)) {
+		if (!DI::config()->get('system', 'relay_directly', false)) {
 			return [];
 		}
 
@@ -302,10 +303,10 @@ class Relay
 	 * Return a list of relay servers
 	 *
 	 * @param array $fields Field list
-	 * @return array 
+	 * @return array List of relay servers
 	 * @throws Exception 
 	 */
-	public static function getList($fields = []):array
+	public static function getList(array $fields = []): array
 	{
 		return DBA::selectToArray('apcontact', $fields,
 			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)", 'Application', 0, Contact::FRIEND]);
@@ -316,7 +317,7 @@ class Relay
 	 *
 	 * @param array $gserver Global server record
 	 * @param array $fields  Fieldlist
-	 * @return array with the contact
+	 * @return array|bool Array with the contact or false on error
 	 * @throws \Exception
 	 */
 	private static function getContact(array $gserver, array $fields = ['batch', 'id', 'url', 'name', 'network', 'protocol', 'archive', 'blocked'])
@@ -344,6 +345,8 @@ class Relay
 
 	/**
 	 * Resubscribe to all relay servers
+	 *
+	 * @return void
 	 */
 	public static function reSubscribe()
 	{
