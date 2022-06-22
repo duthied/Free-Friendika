@@ -140,14 +140,14 @@ class Images
 	 */
 	public static function getMimeTypeBySource(string $sourcefile, string $filename = '', string $default = ''): string
 	{
-		if (substr($mime, 0, 6) == 'image/') {
-			Logger::info('Using default mime type', ['filename' => $filename, 'mime' => $mime]);
-			return $mime;
+		if (substr($default, 0, 6) == 'image/') {
+			Logger::info('Using default mime type', ['filename' => $filename, 'mime' => $default]);
+			return $default;
 		}
 
 		$image = @getimagesize($sourcefile);
 		if (!empty($image['mime'])) {
-			Logger::info('Mime type detected via file', ['filename' => $filename, 'default' => $mime, 'image' => $image]);
+			Logger::info('Mime type detected via file', ['filename' => $filename, 'default' => $default, 'image' => $image]);
 			return $image['mime'];
 		}
 
