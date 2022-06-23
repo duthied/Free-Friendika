@@ -21,11 +21,13 @@
 
 namespace Friendica\Module\Search;
 
+use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
@@ -37,11 +39,24 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseSearch;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class Index extends BaseSearch
 {
+	/** @var string  */
+	private $remoteAddress;
+
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Request $request, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->remoteAddress = $request->getRemoteAddress();
+	}
+
 	protected function content(array $request = []): string
 	{
 		$search = (!empty($_GET['q']) ? trim(rawurldecode($_GET['q'])) : '');
@@ -66,7 +81,7 @@ class Index extends BaseSearch
 			if ($crawl_permit_period == 0)
 				$crawl_permit_period = 10;
 
-			$remote = $_SERVER['REMOTE_ADDR'];
+			$remote = $this->remoteAddress;
 			$result = DI::cache()->get('remote_search:' . $remote);
 			if (!is_null($result)) {
 				$resultdata = json_decode($result);

@@ -61,4 +61,8 @@ return [
 	'REDIS_PORT' => ['system', 'redis_port'],
 	'REDIS_PW'   => ['system', 'redis_password'],
 	'REDIS_DB'   => ['system', 'redis_db'],
+
+	// Proxy Config
+	'FRIENDICA_FORWARDED_HEADERS' => ['proxy', 'forwarded_for_headers'],
+	'FRIENDICA_TRUSTED_PROXIES'   => ['proxy', 'trusted_proxies'],
 ];

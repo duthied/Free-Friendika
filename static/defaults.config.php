@@ -632,6 +632,16 @@ return [
 		// Timeout in seconds for fetching the XRD links and other requests with an expected shorter timeout
 		'xrd_timeout' => 20,
 	],
+	'proxy' => [
+		// forwarded_for_headers (String)
+		// A comma separated list of all allowed header values to retrieve the real client IP
+		'forwarded_for_headers' => 'HTTP_X_FORWARDED_FOR',
+
+		// trusted_proxies (String)
+		// A comma separated list of all trusted proxies, which will get skipped during client IP retrieval
+		// IP ranges and CIDR notations are allowed
+		'trusted_proxies' => '',
+	],
 	'experimental' => [
 		// exp_themes (Boolean)
 		// Show experimental themes in user settings.
