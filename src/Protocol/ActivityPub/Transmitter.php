@@ -2116,13 +2116,13 @@ class Transmitter
 	 * Transmit a message that the contact request had been accepted
 	 *
 	 * @param string  $target Target profile
-	 * @param integer $id Object id
+	 * @param string  $id Object id
 	 * @param integer $uid    User ID
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendContactAccept(string $target, int $id, int $uid)
+	public static function sendContactAccept(string $target, string $id, int $uid)
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
@@ -2137,7 +2137,7 @@ class Transmitter
 			'type' => 'Accept',
 			'actor' => $owner['url'],
 			'object' => [
-				'id' => (string)$id,
+				'id' => $id,
 				'type' => 'Follow',
 				'actor' => $profile['url'],
 				'object' => $owner['url']
