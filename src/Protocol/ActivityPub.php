@@ -83,7 +83,7 @@ class ActivityPub
 	 *
 	 * @return bool is it AP?
 	 */
-	public static function isRequest()
+	public static function isRequest(): bool
 	{
 		$isrequest = stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') ||
 			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') ||
@@ -202,6 +202,7 @@ class ActivityPub
 	 *
 	 * @param string  $url
 	 * @param integer $uid User ID
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchOutbox(string $url, int $uid)
@@ -268,7 +269,7 @@ class ActivityPub
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl(string $url, $update = null)
+	public static function isSupportedByContactUrl(string $url, $update = null): bool
 	{
 		return !empty(APContact::getByURL($url, $update));
 	}
