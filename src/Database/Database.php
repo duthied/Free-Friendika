@@ -1761,7 +1761,6 @@ class Database
 	 * Checks if $array is a filled array with at least one entry.
 	 *
 	 * @param mixed $array A filled array with at least one entry
-	 *
 	 * @return boolean Whether $array is a filled array or an object with rows
 	 */
 	public function isResult($array): bool
@@ -1842,6 +1841,7 @@ class Database
 		$upds = implode(', ', $upd);
 
 		$r = $this->e(sprintf("UPDATE %s SET %s;", DBA::quoteIdentifier($table), $upds));
+
 		if (!$this->isResult($r)) {
 			throw new \RuntimeException("Failed updating `$table`: " . $this->errorMessage());
 		}

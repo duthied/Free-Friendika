@@ -243,9 +243,8 @@ class Tag
 			return $tid;
 		}
 
-		// Also log type and tag id
+		// Also log type
 		$fields['type'] = $type;
-		$fields['tid'] = $tid;
 
 		Logger::error('No tag id created', $fields);
 		return 0;
