@@ -42,6 +42,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use InvalidArgumentException;
 
 /**
  * An item
@@ -133,9 +134,11 @@ class Post
 			case Item::PRIVATE:
 				$output = DI::l10n()->t('Private Message');
 				break;
+
 			case Item::PUBLIC:
 				$output = DI::l10n()->t('Public Message');
 				break;
+
 			case Item::UNLISTED:
 				$output = DI::l10n()->t('Unlisted Message');
 				break;
@@ -151,25 +154,27 @@ class Post
 	 * @param string $formSecurityToken A security Token to avoid CSF attacks
 	 * @param integer $thread_level   default = 1
 	 *
-	 * @return mixed The data requested on success
-	 *               false on failure
+	 * @return mixed The data requested on success, false on failure
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function getTemplateData(array $conv_responses, string $formSecurityToken, $thread_level = 1)
+	public function getTemplateData(array $conv_responses, string $formSecurityToken, int $thread_level = 1)
 	{
 		$item = $this->getData();
 		$edited = false;
-		// If the time between "created" and "edited" differs we add
-		// a notice that the post was edited.
-		// Note: In some networks reshared items seem to have (sometimes) a difference
-		// between creation time and edit time of a second. Thats why we add the notice
-		// only if the difference is more than 1 second.
+
+		/*
+		 * If the time between "created" and "edited" differs we add
+		 * a notice that the post was edited.
+		 * Note: In some networks reshared items seem to have (sometimes) a difference
+		 * between creation time and edit time of a second. Thats why we add the notice
+		 * only if the difference is more than 1 second.
+		 */
 		if (strtotime($item['edited']) - strtotime($item['created']) > 1) {
 			$edited = [
 				'label'    => DI::l10n()->t('This entry was edited'),
 				'date'     => DateTimeFormat::local($item['edited'], 'r'),
-				'relative' => Temporal::getRelativeDate($item['edited'])
+				'relative' => Temporal::getRelativeDate($item['edited']),
 			];
 		}
 		$sparkle = '';
@@ -184,8 +189,8 @@ class Post
 		$pin = false;
 		$star = false;
 		$ignore = false;
-		$ispinned = "unpinned";
-		$isstarred = "unstarred";
+		$ispinned = 'unpinned';
+		$isstarred = 'unstarred';
 		$indent = '';
 		$shiny = '';
 		$osparkle = '';
@@ -209,10 +214,10 @@ class Post
 
 		if (local_user()) {
 			if (Strings::compareLink(Session::get('my_url'), $item['author-link'])) {
-				if ($item["event-id"] != 0) {
-					$edpost = ["events/event/" . $item['event-id'], DI::l10n()->t("Edit")];
+				if ($item['event-id'] != 0) {
+					$edpost = ['events/event/' . $item['event-id'], DI::l10n()->t('Edit')];
 				} else {
-					$edpost = ["editpost/" . $item['id'], DI::l10n()->t("Edit")];
+					$edpost = ['editpost/' . $item['id'], DI::l10n()->t('Edit')];
 				}
 			}
 			$dropping = in_array($item['uid'], [0, local_user()]);
@@ -289,6 +294,7 @@ class Post
 			$response_verbs[] = 'attendyes';
 			$response_verbs[] = 'attendno';
 			$response_verbs[] = 'attendmaybe';
+
 			if ($conv->isWritable()) {
 				$isevent = true;
 				$attend = [DI::l10n()->t('I will attend'), DI::l10n()->t('I will not attend'), DI::l10n()->t('I might attend')];
@@ -324,20 +330,20 @@ class Post
 						'do'        => DI::l10n()->t('Ignore thread'),
 						'undo'      => DI::l10n()->t('Unignore thread'),
 						'toggle'    => DI::l10n()->t('Toggle ignore status'),
-						'classdo'   => $ignored ? "hidden" : "",
-						'classundo' => $ignored ? "" : "hidden",
+						'classdo'   => $ignored ? 'hidden' : '',
+						'classundo' => $ignored ? '' : 'hidden',
 						'ignored'   => DI::l10n()->t('Ignored'),
 					];
 				}
 
-				$isstarred = (($item['starred']) ? "starred" : "unstarred");
+				$isstarred = (($item['starred']) ? 'starred' : 'unstarred');
 
 				$star = [
 					'do'        => DI::l10n()->t('Add star'),
 					'undo'      => DI::l10n()->t('Remove star'),
 					'toggle'    => DI::l10n()->t('Toggle star status'),
-					'classdo'   => $item['starred'] ? "hidden" : "",
-					'classundo' => $item['starred'] ? "" : "hidden",
+					'classdo'   => $item['starred'] ? 'hidden' : '',
+					'classundo' => $item['starred'] ? '' : 'hidden',
 					'starred'   => DI::l10n()->t('Starred'),
 				];
 
@@ -357,7 +363,7 @@ class Post
 
 					$tagger = [
 						'add'   => DI::l10n()->t('Add tag'),
-						'class' => "",
+						'class' => '',
 					];
 				}
 			}
@@ -402,17 +408,17 @@ class Post
 		}
 
 		// Disable features that aren't available in several networks
-		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
-			if ($buttons["dislike"]) {
-				$buttons["dislike"] = false;
+		if (!in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
+			if ($buttons['dislike']) {
+				$buttons['dislike'] = false;
 			}
 
 			$isevent = false;
 			$tagger = '';
 		}
 
-		if ($buttons["like"] && in_array($item["network"], [Protocol::FEED, Protocol::MAIL])) {
-			$buttons["like"] = false;
+		if ($buttons['like'] && in_array($item['network'], [Protocol::FEED, Protocol::MAIL])) {
+			$buttons['like'] = false;
 		}
 
 		$tags = Tag::populateFromItem($item);
@@ -453,7 +459,7 @@ class Post
 
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
-			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
+			'type'            => implode('', array_slice(explode('/', $item['verb']), -1)),
 			'comment_firstcollapsed' => false,
 			'comment_lastcollapsed' => false,
 			'suppress_tags'   => DI::config()->get('system', 'suppress_tags'),
@@ -528,7 +534,7 @@ class Post
 			'wait'            => DI::l10n()->t('Please wait'),
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
-			'network'         => $item["network"],
+			'network'         => $item['network'],
 			'network_name'    => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network'], $item['author-gsid']),
 			'network_icon'    => ContactSelector::networkToIcon($item['network'], $item['author-link'], $item['author-gsid']),
 			'received'        => $item['received'],
@@ -595,7 +601,7 @@ class Post
 	/**
 	 * @return integer
 	 */
-	public function getId()
+	public function getId(): int
 	{
 		return $this->getDataValue('id');
 	}
@@ -603,7 +609,7 @@ class Post
 	/**
 	 * @return boolean
 	 */
-	public function isThreaded()
+	public function isThreaded(): bool
 	{
 		return $this->threaded;
 	}
@@ -649,10 +655,9 @@ class Post
 	 * Get a child by its ID
 	 *
 	 * @param integer $id The child id
-	 *
 	 * @return mixed
 	 */
-	public function getChild($id)
+	public function getChild(int $id)
 	{
 		foreach ($this->getChildren() as $child) {
 			if ($child->getId() == $id) {
@@ -668,7 +673,7 @@ class Post
 	 *
 	 * @return Post[]
 	 */
-	public function getChildren()
+	public function getChildren(): array
 	{
 		return $this->children;
 	}
@@ -677,7 +682,6 @@ class Post
 	 * Set our parent
 	 *
 	 * @param Post $item The item to set as parent
-	 *
 	 * @return void
 	 */
 	protected function setParent(Post $item)
@@ -706,11 +710,10 @@ class Post
 	 * Remove a child
 	 *
 	 * @param Post $item The child to be removed
-	 *
 	 * @return boolean Success or failure
 	 * @throws \Exception
 	 */
-	public function removeChild(Post $item)
+	public function removeChild(Post $item): bool
 	{
 		$id = $item->getId();
 		foreach ($this->getChildren() as $key => $child) {
@@ -722,6 +725,7 @@ class Post
 				return true;
 			}
 		}
+
 		Logger::info('[WARN] Item::removeChild : Item is not a child (' . $id . ').');
 		return false;
 	}
@@ -740,7 +744,6 @@ class Post
 	 * Set conversation thread
 	 *
 	 * @param Thread $thread
-	 *
 	 * @return void
 	 */
 	public function setThread(Thread $thread = null)
@@ -758,7 +761,7 @@ class Post
 	 *
 	 * @return Thread
 	 */
-	public function getThread()
+	public function getThread(): Thread
 	{
 		return $this->thread;
 	}
@@ -770,7 +773,7 @@ class Post
 	 *
 	 * @return array
 	 */
-	public function getData()
+	public function getData(): array
 	{
 		return $this->data;
 	}
@@ -779,11 +782,9 @@ class Post
 	 * Get a data value
 	 *
 	 * @param string $name key
-	 *
-	 * @return mixed value on success
-	 *               false on failure
+	 * @return mixed value on success, false on failure
 	 */
-	public function getDataValue($name)
+	public function getDataValue(string $name)
 	{
 		if (!isset($this->data[$name])) {
 			// Logger::info('[ERROR] Item::getDataValue : Item has no value name "'. $name .'".');
@@ -796,15 +797,15 @@ class Post
 	/**
 	 * Set template
 	 *
-	 * @param string $name template name
-	 * @return bool
-	 * @throws \Exception
+	 * @param string $name Template name
+	 * @return bool If template was set
+	 * @throws InvalidArgumentException
 	 */
-	private function setTemplate($name)
+	private function setTemplate(string $name): bool
 	{
 		if (empty($this->available_templates[$name])) {
-			Logger::info('[ERROR] Item::setTemplate : Template not available ("' . $name . '").');
-			return false;
+			// Throw exception
+			throw new InvalidArgumentException('[ERROR] Item::setTemplate : Template not available ("' . $name . '").');
 		}
 
 		$this->template = $this->available_templates[$name];
@@ -827,7 +828,7 @@ class Post
 	 *
 	 * @return boolean
 	 */
-	private function isToplevel()
+	private function isToplevel(): bool
 	{
 		return $this->toplevel;
 	}
@@ -837,7 +838,7 @@ class Post
 	 *
 	 * @return boolean
 	 */
-	private function isWritable()
+	private function isWritable(): bool
 	{
 		$conv = $this->getThread();
 
@@ -860,7 +861,7 @@ class Post
 	 *
 	 * @return integer
 	 */
-	private function countDescendants()
+	private function countDescendants(): int
 	{
 		$children = $this->getChildren();
 		$total = count($children);
@@ -878,7 +879,7 @@ class Post
 	 *
 	 * @return string
 	 */
-	private function getCommentBoxTemplate()
+	private function getCommentBoxTemplate(): string
 	{
 		return $this->comment_box_template;
 	}
@@ -889,7 +890,7 @@ class Post
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function getDefaultText()
+	private function getDefaultText(): string
 	{
 		$a = DI::app();
 
@@ -935,12 +936,11 @@ class Post
 	 * Get the comment box
 	 *
 	 * @param string $indent Indent value
-	 *
-	 * @return mixed The comment box string (empty if no comment box)
-	 *               false on failure
+	 * @return mixed The comment box string (empty if no comment box), false on failure
 	 * @throws \Exception
+	 * @todo return false is nowhere in this method?
 	 */
-	private function getCommentBox($indent)
+	private function getCommentBox(string $indent)
 	{
 		$a = DI::app();
 
@@ -1033,21 +1033,24 @@ class Post
 					$owner_namematch = (($this->getDataValue('owner-name')) && $this->getDataValue('owner-name') == $this->getDataValue('author-name'));
 
 					if (!$owner_linkmatch && !$alias_linkmatch && !$owner_namematch) {
-						// The author url doesn't match the owner (typically the contact)
-						// and also doesn't match the contact alias.
-						// The name match is a hack to catch several weird cases where URLs are
-						// all over the park. It can be tricked, but this prevents you from
-						// seeing "Bob Smith to Bob Smith via Wall-to-wall" and you know darn
-						// well that it's the same Bob Smith.
-						// But it could be somebody else with the same name. It just isn't highly likely.
-
-
+						/*
+						 * The author url doesn't match the owner (typically the contact)
+						 * and also doesn't match the contact alias.
+						 * The name match is a hack to catch several weird cases where URLs are
+						 * all over the park. It can be tricked, but this prevents you from
+						 * seeing "Bob Smith to Bob Smith via Wall-to-wall" and you know darn
+						 * well that it's the same Bob Smith.
+						 * But it could be somebody else with the same name. It just isn't highly likely.
+						 */
 						$this->owner_name = $this->getDataValue('owner-name');
 						$this->wall_to_wall = true;
 
-						$owner = ['uid' => 0, 'id' => $this->getDataValue('owner-id'),
+						$owner = [
+							'uid' => 0,
+							'id' => $this->getDataValue('owner-id'),
 							'network' => $this->getDataValue('owner-network'),
-							'url' => $this->getDataValue('owner-link')];
+							'url' => $this->getDataValue('owner-link'),
+						];
 						$this->owner_url = Contact::magicLinkByContact($owner);
 					}
 				}
@@ -1064,7 +1067,7 @@ class Post
 	/**
 	 * @return boolean
 	 */
-	private function isWallToWall()
+	private function isWallToWall(): bool
 	{
 		return $this->wall_to_wall;
 	}
@@ -1072,7 +1075,7 @@ class Post
 	/**
 	 * @return string
 	 */
-	private function getOwnerUrl()
+	private function getOwnerUrl(): string
 	{
 		return $this->owner_url;
 	}
@@ -1080,7 +1083,7 @@ class Post
 	/**
 	 * @return string
 	 */
-	private function getOwnerName()
+	private function getOwnerName(): string
 	{
 		return $this->owner_name;
 	}
@@ -1088,7 +1091,7 @@ class Post
 	/**
 	 * @return boolean
 	 */
-	private function isVisiting()
+	private function isVisiting(): bool
 	{
 		return $this->visiting;
 	}
