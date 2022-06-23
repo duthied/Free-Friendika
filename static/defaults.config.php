@@ -635,6 +635,7 @@ return [
 	'proxy' => [
 		// forwarded_for_headers (String)
 		// A comma separated list of all allowed header values to retrieve the real client IP
+		// Beware: This list is ordered
 		'forwarded_for_headers' => 'HTTP_X_FORWARDED_FOR',
 
 		// trusted_proxies (String)

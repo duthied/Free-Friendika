@@ -34,7 +34,6 @@ class Request
 {
 	/**
 	 * A comma separated list of default headers that could contain the client IP in a proxy request
-	 * Beware: This list is ordered
 	 *
 	 * @var string
 	 */
