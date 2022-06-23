@@ -32,10 +32,9 @@ class Search
 	 * Returns the list of user defined tags (e.g. #Friendica)
 	 *
 	 * @return array
-	 *
 	 * @throws \Exception
 	 */
-	public static function getUserTags()
+	public static function getUserTags(): array
 	{
 		$termsStmt = DBA::p("SELECT DISTINCT(`term`) FROM `search`");
 

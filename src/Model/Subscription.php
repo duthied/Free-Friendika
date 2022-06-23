@@ -37,8 +37,7 @@ class Subscription
 	 * @param int   $applicationid
 	 * @param int   $uid
 	 * @param array $fields
-	 *
-	 * @return bool Does it exist?
+	 * @return array|bool Array on success, false on failure
 	 */
 	public static function select(int $applicationid, int $uid, array $fields = [])
 	{
@@ -53,7 +52,7 @@ class Subscription
 	 *
 	 * @return bool Does it exist?
 	 */
-	public static function exists(int $applicationid, int $uid)
+	public static function exists(int $applicationid, int $uid): bool
 	{
 		return DBA::exists('subscription', ['application-id' => $applicationid, 'uid' => $uid]);
 	}
@@ -64,10 +63,9 @@ class Subscription
 	 * @param int   $applicationid
 	 * @param int   $uid
 	 * @param array $fields subscription fields
-	 *
 	 * @return bool result of update
 	 */
-	public static function update(int $applicationid, int $uid, array $fields)
+	public static function update(int $applicationid, int $uid, array $fields): bool
 	{
 		return DBA::update('subscription', $fields, ['application-id' => $applicationid, 'uid' => $uid]);
 	}
@@ -76,10 +74,9 @@ class Subscription
 	 * Insert or replace a subscription record
 	 *
 	 * @param array $fields subscription fields
-	 *
 	 * @return bool result of replace
 	 */
-	public static function replace(array $fields)
+	public static function replace(array $fields): bool
 	{
 		return DBA::replace('subscription', $fields);
 	}
@@ -91,7 +88,7 @@ class Subscription
 	 * @param int $uid
 	 * @return bool
 	 */
-	public static function delete(int $applicationid, int $uid)
+	public static function delete(int $applicationid, int $uid): bool
 	{
 		return DBA::delete('subscription', ['application-id' => $applicationid, 'uid' => $uid]);
 	}
@@ -136,25 +133,25 @@ class Subscription
 	/**
 	 * Prepare push notification
 	 *
-	 * @param int $nid
+	 * @param Notification $Notification Notification instance
 	 * @return void
 	 */
-	public static function pushByNotification(Entity\Notification $Notification)
+	public static function pushByNotification(Entity\Notification $notification)
 	{
-		$type = \Friendica\Factory\Api\Mastodon\Notification::getType($Notification);
+		$type = \Friendica\Factory\Api\Mastodon\Notification::getType($notification);
 
-		if (DI::notify()->NotifyOnDesktop($Notification, $type)) {
-			DI::notify()->createFromNotification($Notification);
+		if (DI::notify()->NotifyOnDesktop($notification, $type)) {
+			DI::notify()->createFromNotification($notification);
 		}
 
 		if (empty($type)) {
 			return;
 		}
 
-		$subscriptions = DBA::select('subscription', [], ['uid' => $Notification->uid, $type => true]);
+		$subscriptions = DBA::select('subscription', [], ['uid' => $notification->uid, $type => true]);
 		while ($subscription = DBA::fetch($subscriptions)) {
 			Logger::info('Push notification', ['id' => $subscription['id'], 'uid' => $subscription['uid'], 'type' => $type]);
-			Worker::add(PRIORITY_HIGH, 'PushSubscription', $subscription['id'], $Notification->id);
+			Worker::add(PRIORITY_HIGH, 'PushSubscription', $subscription['id'], $notification->id);
 		}
 		DBA::close($subscriptions);
 	}

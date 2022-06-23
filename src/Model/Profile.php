@@ -162,7 +162,6 @@ class Profile
 	 * Returns a formatted location string from the given profile array
 	 *
 	 * @param array $profile Profile array (Generated from the "profile" table)
-	 *
 	 * @return string Location string
 	 */
 	public static function formatLocation(array $profile): string

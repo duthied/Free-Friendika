@@ -117,16 +117,18 @@ class User
 		switch ($accounttype) {
 			case 'person':
 				return User::ACCOUNT_TYPE_PERSON;
+
 			case 'organisation':
 				return User::ACCOUNT_TYPE_ORGANISATION;
+
 			case 'news':
 				return User::ACCOUNT_TYPE_NEWS;
+
 			case 'community':
 				return User::ACCOUNT_TYPE_COMMUNITY;
-			default:
-				return null;
-			break;
+
 		}
+		return null;
 	}
 
 	/**
@@ -362,14 +364,12 @@ class User
 	/**
 	 * Get a user based on its email
 	 *
-	 * @param string        $email
-	 * @param array          $fields
-	 *
+	 * @param string $email
+	 * @param array  $fields
 	 * @return array|boolean User record if it exists, false otherwise
-	 *
 	 * @throws Exception
 	 */
-	public static function getByEmail($email, array $fields = [])
+	public static function getByEmail(string $email, array $fields = [])
 	{
 		return DBA::selectFirst('user', $fields, ['email' => $email]);
 	}
@@ -512,7 +512,7 @@ class User
 	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\NotFoundException
 	 */
-	public static function getIdFromPasswordAuthentication($user_info, string $password, bool $third_party = false)
+	public static function getIdFromPasswordAuthentication($user_info, string $password, bool $third_party = false): int
 	{
 		// Addons registered with the "authenticate" hook may create the user on the
 		// fly. `getAuthenticationInfo` will fail if the user doesn't exist yet. If
@@ -1164,32 +1164,32 @@ class User
 
 			$type = Images::getMimeTypeByData($img_str, $photo, $type);
 
-			$Image = new Image($img_str, $type);
-			if ($Image->isValid()) {
-				$Image->scaleToSquare(300);
+			$image = new Image($img_str, $type);
+			if ($image->isValid()) {
+				$image->scaleToSquare(300);
 
 				$resource_id = Photo::newResource();
 
 				// Not using Photo::PROFILE_PHOTOS here, so that it is discovered as translateble string
 				$profile_album = DI::l10n()->t('Profile Photos');
 
-				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $profile_album, 4);
+				$r = Photo::store($image, $uid, 0, $resource_id, $filename, $profile_album, 4);
 
 				if ($r === false) {
 					$photo_failure = true;
 				}
 
-				$Image->scaleDown(80);
+				$image->scaleDown(80);
 
-				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $profile_album, 5);
+				$r = Photo::store($image, $uid, 0, $resource_id, $filename, $profile_album, 5);
 
 				if ($r === false) {
 					$photo_failure = true;
 				}
 
-				$Image->scaleDown(48);
+				$image->scaleDown(48);
 
-				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, $profile_album, 6);
+				$r = Photo::store($image, $uid, 0, $resource_id, $filename, $profile_album, 6);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -1342,7 +1342,6 @@ class User
 	 * @param string $email The user's email address
 	 * @param string $nick  The user's nick name
 	 * @param string $lang  The user's language (default is english)
-	 *
 	 * @return bool True, if the user was created successfully
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ErrorException
@@ -1731,7 +1730,6 @@ class User
 	 * @param string $type  The type of users, which should get (all, bocked, removed)
 	 * @param string $order Order of the user list (Default is 'contact.name')
 	 * @param bool   $descending Order direction (Default is ascending)
-	 *
 	 * @return array|bool The list of the users
 	 * @throws Exception
 	 */
@@ -1744,11 +1742,13 @@ class User
 				$condition['account_removed'] = false;
 				$condition['blocked'] = false;
 				break;
+
 			case 'blocked':
 				$condition['account_removed'] = false;
 				$condition['blocked'] = true;
 				$condition['verified'] = true;
 				break;
+
 			case 'removed':
 				$condition['account_removed'] = true;
 				break;
