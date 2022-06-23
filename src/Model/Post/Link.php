@@ -40,36 +40,44 @@ class Link
 	/**
 	 * Check if the link is stored
 	 *
-	 * @param int $uri_id
-	 * @param string $url
-	 * @return bool
+	 * @param int $uriId URI id
+	 * @param string $url URL
+	 * @return bool Whether record has been found
 	 */
-	public static function exists(int $uri_id, string $url)
+	public static function exists(int $uriId, string $url): bool
 	{
-		return DBA::exists('post-link', ['uri-id' => $uri_id, 'url' => $url]);
+		return DBA::exists('post-link', ['uri-id' => $uriId, 'url' => $url]);
 	}
 
-	public static function getByLink(int $uri_id, string $url, $size = '')
+	/**
+	 * Returns URL by URI id and other URL
+	 *
+	 * @param int $uriId URI id
+	 * @param string $url URL
+	 * @param string size Size
+	 * @return string Found link URL + id on success, $url on failture
+	 */
+	public static function getByLink(int $uriId, string $url, string $size = ''): string
 	{
-		if (empty($uri_id) || empty($url) || Proxy::isLocalImage($url)) {
+		if (empty($uriId) || empty($url) || Proxy::isLocalImage($url)) {
 			return $url;
 		}
 
 		if (!in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'])) {
-			Logger::info('Bad URL, quitting', ['uri-id' => $uri_id, 'url' => $url, 'callstack' => System::callstack(20)]);
+			Logger::info('Bad URL, quitting', ['uri-id' => $uriId, 'url' => $url, 'callstack' => System::callstack(20)]);
 			return $url;
 		}
 
-		$link = DBA::selectFirst('post-link', ['id'], ['uri-id' => $uri_id, 'url' => $url]);
+		$link = DBA::selectFirst('post-link', ['id'], ['uri-id' => $uriId, 'url' => $url]);
 		if (!empty($link['id'])) {
 			$id = $link['id'];
-			Logger::info('Found', ['id' => $id, 'uri-id' => $uri_id, 'url' => $url]);
+			Logger::info('Found', ['id' => $id, 'uri-id' => $uriId, 'url' => $url]);
 		} else {
 			$mime = self::fetchMimeType($url);
 
-			DBA::insert('post-link', ['uri-id' => $uri_id, 'url' => $url, 'mimetype' => $mime], Database::INSERT_IGNORE);
+			DBA::insert('post-link', ['uri-id' => $uriId, 'url' => $url, 'mimetype' => $mime], Database::INSERT_IGNORE);
 			$id = DBA::lastInsertId();
-			Logger::info('Inserted', ['id' => $id, 'uri-id' => $uri_id, 'url' => $url]);
+			Logger::info('Inserted', ['id' => $id, 'uri-id' => $uriId, 'url' => $url]);
 		}
 
 		if (empty($id)) {
@@ -81,15 +89,19 @@ class Link
 			case Proxy::SIZE_MICRO:
 				$url .= Proxy::PIXEL_MICRO . '/';
 				break;
+
 			case Proxy::SIZE_THUMB:
 				$url .= Proxy::PIXEL_THUMB . '/';
 				break;
+
 			case Proxy::SIZE_SMALL:
 				$url .= Proxy::PIXEL_SMALL . '/';
 				break;
+
 			case Proxy::SIZE_MEDIUM:
 				$url .= Proxy::PIXEL_MEDIUM . '/';
 				break;
+
 			case Proxy::SIZE_LARGE:
 				$url .= Proxy::PIXEL_LARGE . '/';
 				break;
@@ -97,43 +109,50 @@ class Link
 		return $url . $id;
 	}
 
-	private static function fetchMimeType(string $url, string $accept = HttpClientAccept::DEFAULT)
+	/**
+	 * Fetches MIME type by URL and Accept: header
+	 *
+	 * @param string $url URL to fetch
+	 * @param string $accept Accept: line
+	 * @return string Discovered MIME type or empty string on failure
+	 */
+	private static function fetchMimeType(string $url, string $accept = HttpClientAccept::DEFAULT): string
 	{
 		$timeout = DI::config()->get('system', 'xrd_timeout');
 
 		$curlResult = DI::httpClient()->head($url, [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => $accept]);
-		if ($curlResult->isSuccess()) {
-			if (empty($media['mimetype'])) {
-				return $curlResult->getHeader('Content-Type')[0] ?? '';
-			}
+
+		if ($curlResult->isSuccess() && empty($media['mimetype'])) {
+			return $curlResult->getHeader('Content-Type')[0] ?? '';
 		}
+
 		return '';
 	}
 
 	/**
 	 * Add external links and replace them in the body
 	 *
-	 * @param integer $uriid
-	 * @param string $body
+	 * @param integer $uriId URI id
+	 * @param string $body HTML body
 	 * @return string Body with replaced links
 	 */
-	public static function insertFromBody(int $uriid, string $body)
+	public static function insertFromBody(int $uriId, string $body): string
 	{
 		if (preg_match_all("/\[img\=([0-9]*)x([0-9]*)\](http.*?)\[\/img\]/ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				$body = str_replace($picture[3], self::getByLink($uriid, $picture[3]), $body);
+				$body = str_replace($picture[3], self::getByLink($uriId, $picture[3]), $body);
 			}
 		}
 
 		if (preg_match_all("/\[img=(http[^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				$body = str_replace($picture[1], self::getByLink($uriid, $picture[1]), $body);
+				$body = str_replace($picture[1], self::getByLink($uriId, $picture[1]), $body);
 			}
 		}
 
 		if (preg_match_all("/\[img\](http[^\[\]]*)\[\/img\]/ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				$body = str_replace($picture[1], self::getByLink($uriid, $picture[1]), $body);
+				$body = str_replace($picture[1], self::getByLink($uriId, $picture[1]), $body);
 			}
 		}
 

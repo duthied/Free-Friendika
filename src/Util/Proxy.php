@@ -80,7 +80,7 @@ class Proxy
 	 * @return string The proxyfied URL or relative path
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function proxifyUrl(string $url, $size = '')
+	public static function proxifyUrl(string $url, string $size = '')
 	{
 		if (!DI::config()->get('system', 'proxify_content')) {
 			return $url;
