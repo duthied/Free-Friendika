@@ -82,11 +82,11 @@ class User
 	/**
 	 * Apply changes from contact update data to user-contact table
 	 *
-	 * @param array $fields 
-	 * @param array $condition 
-	 * @return void 
-	 * @throws PDOException 
-	 * @throws Exception 
+	 * @param array $fields Fields
+	 * @param array $condition Conditions
+	 * @return void
+	 * @throws PDOException
+	 * @throws Exception
 	 */
 	public static function updateByContactUpdate(array $fields, array $condition)
 	{
@@ -138,9 +138,10 @@ class User
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
 	 * @param boolean $blocked Is the contact blocked or unblocked?
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setBlocked($cid, $uid, $blocked)
+	public static function setBlocked(int $cid, int $uid, bool $blocked)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -170,7 +171,7 @@ class User
 	 * @return boolean is the contact id blocked for the given user?
 	 * @throws \Exception
 	 */
-	public static function isBlocked($cid, $uid)
+	public static function isBlocked(int $cid, int $uid): bool
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -208,9 +209,10 @@ class User
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
 	 * @param boolean $ignored Is the contact ignored or unignored?
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setIgnored($cid, $uid, $ignored)
+	public static function setIgnored(int $cid, int $uid, bool $ignored)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -229,11 +231,10 @@ class User
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
-	 *
 	 * @return boolean is the contact id ignored for the given user?
 	 * @throws \Exception
 	 */
-	public static function isIgnored($cid, $uid)
+	public static function isIgnored(int $cid, int $uid): bool
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -271,9 +272,10 @@ class User
 	 * @param int     $cid       Either public contact id or user's contact id
 	 * @param int     $uid       User ID
 	 * @param boolean $collapsed are the contact's posts collapsed or uncollapsed?
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setCollapsed($cid, $uid, $collapsed)
+	public static function setCollapsed(int $cid, int $uid, bool $collapsed)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -288,16 +290,15 @@ class User
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
-	 *
 	 * @return boolean is the contact id blocked for the given user?
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isCollapsed($cid, $uid)
+	public static function isCollapsed(int $cid, int $uid): bool
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
-			return;
+			return false;
 		}
 
 		$collapsed = false;
@@ -318,9 +319,10 @@ class User
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
 	 * @param boolean $blocked Is the user blocked or unblocked by the contact?
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setIsBlocked($cid, $uid, $blocked)
+	public static function setIsBlocked(int $cid, int $uid, bool $blocked)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -335,11 +337,10 @@ class User
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
-	 *
 	 * @return boolean Is the user blocked or unblocked by the contact?
 	 * @throws \Exception
 	 */
-	public static function isIsBlocked($cid, $uid)
+	public static function isIsBlocked(int $cid, int $uid): bool
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {

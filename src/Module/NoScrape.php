@@ -131,7 +131,7 @@ class NoScrape extends BaseModule
 		$profile_fields = ['about', 'locality', 'region', 'postal-code', 'country-name', 'xmpp', 'matrix'];
 		foreach ($profile_fields as $field) {
 			if (!empty($owner[$field])) {
-				$json_info["$field"] = $owner[$field];
+				$json_info[$field] = $owner[$field];
 			}
 		}
 

@@ -45,7 +45,7 @@ class ParsedLogIterator implements \Iterator
 	private $filters = [];
 
 	/** @var string search term */
-	private $search = "";
+	private $search = '';
 
 
 	/**
@@ -108,10 +108,11 @@ class ParsedLogIterator implements \Iterator
 		$match = true;
 		foreach ($this->filters as $filter => $filtervalue) {
 			switch ($filter) {
-				case "level":
+				case 'level':
 					$match = $match && ($parsedlogline->level == strtoupper($filtervalue));
 					break;
-				case "context":
+
+				case 'context':
 					$match = $match && ($parsedlogline->context == $filtervalue);
 					break;
 			}
@@ -128,7 +129,7 @@ class ParsedLogIterator implements \Iterator
 	 */
 	private function search(ParsedLogLine $parsedlogline): bool
 	{
-		if ($this->search != "") {
+		if ($this->search != '') {
 			return strstr($parsedlogline->logline, $this->search) !== false;
 		}
 		return true;
@@ -138,7 +139,6 @@ class ParsedLogIterator implements \Iterator
 	 * Read a line from reader and parse.
 	 * Returns null if limit is reached or the reader is invalid.
 	 *
-	 * @param ParsedLogLine $parsedlogline
 	 * @return ?ParsedLogLine
 	 */
 	private function read()
@@ -191,7 +191,7 @@ class ParsedLogIterator implements \Iterator
 	 * @see ReversedFileReader::key()
 	 * @return int
 	 */
-	public function key()
+	public function key(): int
 	{
 		return $this->reader->key();
 	}
@@ -213,8 +213,8 @@ class ParsedLogIterator implements \Iterator
 	 * @see Iterator::valid()
 	 * @return bool
 	 */
-	public function valid()
+	public function valid(): bool
 	{
-		return ! is_null($this->value);
+		return !is_null($this->value);
 	}
 }
