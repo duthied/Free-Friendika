@@ -29,7 +29,13 @@ use Friendica\Protocol\OStatus;
 
 class PubSubPublish
 {
-	public static function execute($pubsubpublish_id = 0)
+	/**
+	 * Publishes subscriber id
+	 *
+	 * @param int $pubsubpublish_id Push subscriber id
+	 * @return void
+	 */
+	public static function execute(int $pubsubpublish_id = 0)
 	{
 		if ($pubsubpublish_id == 0) {
 			return;
@@ -38,7 +44,13 @@ class PubSubPublish
 		self::publish($pubsubpublish_id);
 	}
 
-	private static function publish($id)
+	/**
+	 * Publishes push subscriber
+	 *
+	 * @param int $id Push subscriber id
+	 * @return void
+	 */
+	private static function publish(int $id)
 	{
 		$subscriber = DBA::selectFirst('push_subscriber', [], ['id' => $id]);
 		if (!DBA::isResult($subscriber)) {
@@ -48,7 +60,7 @@ class PubSubPublish
 		/// @todo Check server status with GServer::check()
 		// Before this can be done we need a way to safely detect the server url.
 
-		Logger::info("Generate feed of user " . $subscriber['nickname']. " to " . $subscriber['callback_url']. " - last updated " . $subscriber['last_update']);
+		Logger::info('Generate feed of user ' . $subscriber['nickname'] . ' to ' . $subscriber['callback_url'] . ' - last updated ' . $subscriber['last_update']);
 
 		$last_update = $subscriber['last_update'];
 		$params = OStatus::feed($subscriber['nickname'], $last_update);
@@ -57,11 +69,11 @@ class PubSubPublish
 			return;
 		}
 
-		$hmac_sig = hash_hmac("sha1", $params, $subscriber['secret']);
+		$hmac_sig = hash_hmac('sha1', $params, $subscriber['secret']);
 
 		$headers = [
 			'Content-type' => 'application/atom+xml',
-			'Link' => sprintf("<%s>;rel=hub,<%s>;rel=self",
+			'Link' => sprintf('<%s>;rel=hub,<%s>;rel=self',
 					DI::baseUrl() . '/pubsubhubbub/' . $subscriber['nickname'],
 					$subscriber['topic']),
 			'X-Hub-Signature' => 'sha1=' . $hmac_sig];

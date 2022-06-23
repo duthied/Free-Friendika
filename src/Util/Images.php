@@ -179,7 +179,7 @@ class Images
 	/**
 	 * Gets info array from given URL, cached data has priority
 	 *
-	 * @param string $url URL
+	 * @param string $url
 	 * @return array Info
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -207,7 +207,7 @@ class Images
 	/**
 	 * Gets info from URL uncached
 	 *
-	 * @param string $url URL
+	 * @param string $url
 	 * @return array Info array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */

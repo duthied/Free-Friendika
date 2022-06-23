@@ -60,17 +60,17 @@ class Photo extends BaseModule
 	{
 		$totalstamp = microtime(true);
 
-		if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
-			header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
-			if (!empty($_SERVER["HTTP_IF_NONE_MATCH"])) {
-				header("Etag: " . $_SERVER["HTTP_IF_NONE_MATCH"]);
+		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+			header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
+			if (!empty($_SERVER['HTTP_IF_NONE_MATCH'])) {
+				header('Etag: ' . $_SERVER['HTTP_IF_NONE_MATCH']);
 			}
-			header("Expires: " . gmdate("D, d M Y H:i:s", time() + (31536000)) . " GMT");
-			header("Cache-Control: max-age=31536000");
-			if (function_exists("header_remove")) {
-				header_remove("Last-Modified");
-				header_remove("Expires");
-				header_remove("Cache-Control");
+			header('Expires: ' . gmdate('D, d M Y H:i:s', time() + (31536000)) . ' GMT');
+			header('Cache-Control: max-age=31536000');
+			if (function_exists('header_remove')) {
+				header_remove('Last-Modified');
+				header_remove('Expires');
+				header_remove('Cache-Control');
 			}
 			throw new NotModifiedException();
 		}
@@ -132,7 +132,7 @@ class Photo extends BaseModule
 		} else {
 			$photoid = pathinfo($this->parameters['name'], PATHINFO_FILENAME);
 			$scale = 0;
-			if (substr($photoid, -2, 1) == "-") {
+			if (substr($photoid, -2, 1) == '-') {
 				$scale = intval(substr($photoid, -1, 1));
 				$photoid = substr($photoid, 0, -2);
 			}
@@ -148,7 +148,7 @@ class Photo extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);
+		$cacheable = ($photo['allow_cid'] . $photo['allow_gid'] . $photo['deny_cid'] . $photo['deny_gid'] === '') && (isset($photo['cacheable']) ? $photo['cacheable'] : true);
 
 		$stamp = microtime(true);
 
@@ -179,35 +179,35 @@ class Photo extends BaseModule
 		}
 
 		// if customsize is set and image is not a gif, resize it
-		if ($photo['type'] !== "image/gif" && $customsize > 0 && $customsize <= Proxy::PIXEL_THUMB && $square_resize) {
+		if ($photo['type'] !== 'image/gif' && $customsize > 0 && $customsize <= Proxy::PIXEL_THUMB && $square_resize) {
 			$img = new Image($imgdata, $photo['type']);
 			$img->scaleToSquare($customsize);
 			$imgdata = $img->asString();
-		} elseif ($photo['type'] !== "image/gif" && $customsize > 0) {
+		} elseif ($photo['type'] !== 'image/gif' && $customsize > 0) {
 			$img = new Image($imgdata, $photo['type']);
 			$img->scaleDown($customsize);
 			$imgdata = $img->asString();
 		}
 
-		if (function_exists("header_remove")) {
-			header_remove("Pragma");
-			header_remove("pragma");
+		if (function_exists('header_remove')) {
+			header_remove('Pragma');
+			header_remove('pragma');
 		}
 
-		header("Content-type: " . $photo['type']);
+		header('Content-type: ' . $photo['type']);
 
 		$stamp = microtime(true);
 		if (!$cacheable) {
 			// it is a private photo that they have no permission to view.
 			// tell the browser not to cache it, in case they authenticate
 			// and subsequently have permission to see it
-			header("Cache-Control: no-store, no-cache, must-revalidate");
+			header('Cache-Control: no-store, no-cache, must-revalidate');
 		} else {
 			$md5 = $photo['hash'] ?: md5($imgdata);
-			header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
+			header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
 			header("Etag: \"{$md5}\"");
-			header("Expires: " . gmdate("D, d M Y H:i:s", time() + (31536000)) . " GMT");
-			header("Cache-Control: max-age=31536000");
+			header('Expires: ' . gmdate('D, d M Y H:i:s', time() + (31536000)) . ' GMT');
+			header('Cache-Control: max-age=31536000');
 		}
 		$checksum = microtime(true) - $stamp;
 

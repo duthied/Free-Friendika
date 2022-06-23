@@ -28,9 +28,11 @@ class UpdateContact
 {
 	/**
 	 * Update contact data via probe
+	 *
 	 * @param int    $contact_id Contact ID
+	 * @return void
 	 */
-	public static function execute($contact_id)
+	public static function execute(int $contact_id)
 	{
 		$success = Contact::updateFromProbe($contact_id);
 

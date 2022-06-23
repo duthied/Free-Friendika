@@ -102,7 +102,7 @@ class UpdateContacts
 	 * @param array $ids
 	 * @return array contact ids
 	 */
-	private static function getContactsToUpdate(array $condition, int $limit, array $ids = [])
+	private static function getContactsToUpdate(array $condition, int $limit, array $ids = []): array
 	{
 		$contacts = DBA::select('contact', ['id'], $condition, ['limit' => $limit]);
 		while ($contact = DBA::fetch($contacts)) {

@@ -50,9 +50,12 @@ class OpenSearch extends BaseModule
 				'@attributes' => [
 					'xmlns' => 'http://a9.com/-/spec/opensearch/1.1',
 				],
-				'ShortName'   => "Friendica $hostname",
-				'Description' => "Search in Friendica $hostname",
-				'Contact'     => 'https://github.com/friendica/friendica/issues',
+				'ShortName'      => "Friendica $hostname",
+				'Description'    => "Search in Friendica $hostname",
+				'Contact'        => 'https://github.com/friendica/friendica/issues',
+				'InputEncoding'  => 'UTF-8',
+				'OutputEncoding' => 'UTF-8',
+				'Developer'      => 'Friendica Developer Team',
 			],
 		], $xml);
 

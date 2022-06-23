@@ -32,6 +32,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Factory\Api\Mastodon\Notification as NotificationFactory;
 use Friendica\Model;
 use Friendica\Navigation\Notifications\Collection;
 use Friendica\Navigation\Notifications\Entity;
@@ -660,7 +661,7 @@ class Notify extends BaseRepository
 	public function NotifyOnDesktop(Entity\Notification $Notification, string $type = null): bool
 	{
 		if (is_null($type)) {
-			$type = \Friendica\Factory\Api\Mastodon\Notification::getType($Notification);
+			$type = NotificationFactory::getType($Notification);
 		}
 
 		if (in_array($Notification->type, [Model\Post\UserNotification::TYPE_FOLLOW, Model\Post\UserNotification::TYPE_SHARED])) {

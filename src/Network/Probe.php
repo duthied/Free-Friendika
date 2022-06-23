@@ -685,13 +685,13 @@ class Probe
 
 		$result = [];
 
-		if (in_array($network, ["", Protocol::DFRN])) {
+		if (in_array($network, ['', Protocol::DFRN])) {
 			$result = self::dfrn($webfinger);
 		}
-		if ((!$result && ($network == "")) || ($network == Protocol::DIASPORA)) {
+		if ((!$result && ($network == '')) || ($network == Protocol::DIASPORA)) {
 			$result = self::diaspora($webfinger);
 		}
-		if ((!$result && ($network == "")) || ($network == Protocol::OSTATUS)) {
+		if ((!$result && ($network == '')) || ($network == Protocol::OSTATUS)) {
 			$result = self::ostatus($webfinger);
 		}
 		if (in_array($network, ['', Protocol::ZOT])) {
@@ -788,7 +788,7 @@ class Probe
 		return $data;
 	}
 
-	public static function pollZot($url, $data)
+	public static function pollZot(string $url, array $data): array
 	{
 		$curlResult = DI::httpClient()->get($url, HttpClientAccept::JSON);
 		if ($curlResult->isTimeout()) {
@@ -1238,8 +1238,8 @@ class Probe
 			return [];
 		}
 
-		if (!isset($data["baseurl"])) {
-			$data["baseurl"] = "";
+		if (!isset($data['baseurl'])) {
+			$data['baseurl'] = '';
 		}
 
 		if ($vcards->length > 0) {
@@ -1248,23 +1248,23 @@ class Probe
 			// We have to discard the guid from the hcard in favour of the guid from lrdd
 			// Reason: Hubzilla doesn't use the value "uid" in the hcard like Diaspora does.
 			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' uid ')]", $vcard); // */
-			if (($search->length > 0) && empty($data["guid"])) {
-				$data["guid"] = $search->item(0)->nodeValue;
+			if (($search->length > 0) && empty($data['guid'])) {
+				$data['guid'] = $search->item(0)->nodeValue;
 			}
 
 			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' nickname ')]", $vcard); // */
 			if ($search->length > 0) {
-				$data["nick"] = $search->item(0)->nodeValue;
+				$data['nick'] = $search->item(0)->nodeValue;
 			}
 
 			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' fn ')]", $vcard); // */
 			if ($search->length > 0) {
-				$data["name"] = $search->item(0)->nodeValue;
+				$data['name'] = $search->item(0)->nodeValue;
 			}
 
 			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' searchable ')]", $vcard); // */
 			if ($search->length > 0) {
-				$data["searchable"] = $search->item(0)->nodeValue;
+				$data['searchable'] = $search->item(0)->nodeValue;
 			}
 
 			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' key ')]", $vcard); // */
@@ -1766,11 +1766,10 @@ class Probe
 	 *
 	 * @param string  $url   Profile link
 	 * @param boolean $probe Do a probe if the page contains a feed link
-	 *
 	 * @return array feed data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function feed($url, $probe = true)
+	private static function feed(string $url, bool $probe = true): array
 	{
 		$curlResult = DI::httpClient()->get($url, HttpClientAccept::FEED_XML);
 		if ($curlResult->isTimeout()) {
@@ -1977,7 +1976,7 @@ class Probe
 	 * @param array $data Probing result
 	 * @return string last activity or true if update was successful or the server was unreachable
 	 */
-	private static function updateFromNoScrape(array $data)
+	private static function updateFromNoScrape(array $data): string
 	{
 		if (empty($data['baseurl'])) {
 			return '';

@@ -1211,7 +1211,7 @@ class OStatus
 	 * Cleans the body of a post if it contains picture links
 	 *
 	 * @param string $body The body
-	 * @param integer $uriid URI id
+	 * @param integer $uriId
 	 * @return string The cleaned body
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */

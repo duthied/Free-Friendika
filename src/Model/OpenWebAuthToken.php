@@ -36,7 +36,6 @@ class OpenWebAuthToken
 	 * @param int    $uid  The user ID.
 	 * @param string $token
 	 * @param string $meta
-	 *
 	 * @return boolean
 	 * @throws \Exception
 	 */
@@ -80,6 +79,7 @@ class OpenWebAuthToken
 	 *
 	 * @param string $type     Verify type.
 	 * @param string $interval SQL compatible time interval
+	 * @return void
 	 * @throws \Exception
 	 */
 	public static function purge(string $type, string $interval)

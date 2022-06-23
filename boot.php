@@ -87,8 +87,8 @@ define('PRIORITIES', [PRIORITY_CRITICAL, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORIT
 /* @}*/
 
 // Normally this constant is defined - but not if "pcntl" isn't installed
-if (!defined("SIGTERM")) {
-	define("SIGTERM", 15);
+if (!defined('SIGTERM')) {
+	define('SIGTERM', 15);
 }
 
 /**
@@ -117,6 +117,7 @@ function local_user()
 	if (!empty($_SESSION['authenticated']) && !empty($_SESSION['uid'])) {
 		return intval($_SESSION['uid']);
 	}
+
 	return false;
 }
 
@@ -169,7 +170,7 @@ function remote_user()
  *
  * @param string $s - Text of notice
  */
-function notice($s)
+function notice(string $s)
 {
 	if (empty($_SESSION)) {
 		return;
@@ -189,7 +190,7 @@ function notice($s)
  *
  * @param string $s - Text of notice
  */
-function info($s)
+function info(string $s)
 {
 	if (empty($_SESSION)) {
 		return;
