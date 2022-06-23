@@ -125,10 +125,11 @@ class Post
 	/**
 	 * Fetch the privacy of the post
 	 *
-	 * @param array $item
-	 * @return string
+	 * @param array $item Item record
+	 * @return string Item privacy message
+	 * @throws InvalidArgumentException If $item['private'] is unknown
 	 */
-	private function fetchPrivacy(array $item):string
+	private function fetchPrivacy(array $item): string
 	{
 		switch ($item['private']) {
 			case Item::PRIVATE:
@@ -142,6 +143,9 @@ class Post
 			case Item::UNLISTED:
 				$output = DI::l10n()->t('Unlisted Message');
 				break;
+
+			default:
+				throw new InvalidArgumentException('Item privacy ' . $item['privacy'] . ' is unsupported');
 		}
 
 		return $output;
