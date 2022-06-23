@@ -1401,7 +1401,7 @@ class OStatus
 				break;
 
 			default:
-				Logger::warning('Unsupported type', ['type' => $siteinfo['type'], 'url' => $siteinfo['url']]);
+				Logger::warning('Unsupported type', ['type' => $siteinfo['type'], 'url' => $siteinfo['url'] ?? '']);
 				break;
 		}
 
