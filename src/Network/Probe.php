@@ -788,7 +788,7 @@ class Probe
 		return $data;
 	}
 
-	public static function pollZot($url, $data)
+	public static function pollZot(string $url, array $data): array
 	{
 		$curlResult = DI::httpClient()->get($url, HttpClientAccept::JSON);
 		if ($curlResult->isTimeout()) {

@@ -80,7 +80,7 @@ class Proxy
 	 * @return string The proxyfied URL or relative path
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function proxifyUrl($url, $size = '')
+	public static function proxifyUrl(string $url, $size = '')
 	{
 		if (!DI::config()->get('system', 'proxify_content')) {
 			return $url;
@@ -151,7 +151,7 @@ class Proxy
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isLocalImage($url)
+	public static function isLocalImage(string $url): bool
 	{
 		if (substr($url, 0, 1) == '/') {
 			return true;
@@ -170,7 +170,7 @@ class Proxy
 	 * @param string $url URL to parse
 	 * @return array Associative array of query string parameters
 	 */
-	private static function parseQuery($url)
+	private static function parseQuery(string $url): array
 	{
 		$query = parse_url($url, PHP_URL_QUERY);
 		$query = html_entity_decode($query);
