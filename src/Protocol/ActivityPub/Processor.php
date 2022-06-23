@@ -1267,8 +1267,10 @@ class Processor
 			Contact::update(['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
 
-		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
-			'author-link' => $activity['actor']];
+		$item = [
+			'author-id' => Contact::getIdForURL($activity['actor']),
+			'author-link' => $activity['actor'],
+		];
 
 		// Ensure that the contact has got the right network type
 		self::switchContact($item['author-id']);
