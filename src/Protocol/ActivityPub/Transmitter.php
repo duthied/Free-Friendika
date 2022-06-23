@@ -2244,7 +2244,7 @@ class Transmitter
 	 * Prepends mentions (@) to $body variable
 	 *
 	 * @param string $body HTML code
-	 * @param int    $uriid URI id
+	 * @param int    $uriId
 	 * @param string $authorLink Author link
 	 * @return string HTML code with prepended mentions
 	 */

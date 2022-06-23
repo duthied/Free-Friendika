@@ -26,6 +26,7 @@ use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Factory\Api\Mastodon\Notification as NotificationFactory;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Subscription as ModelSubscription;
@@ -106,7 +107,7 @@ class PushSubscription
 			'access_token'      => $application_token['access_token'],
 			'preferred_locale'  => $user['language'],
 			'notification_id'   => $nid,
-			'notification_type' => \Friendica\Factory\Api\Mastodon\Notification::getType($notification),
+			'notification_type' => NotificationFactory::getType($notification),
 			'icon'              => $actor['thumb'] ?? '',
 			'title'             => $title ?: $l10n->t('Notification from Friendica'),
 			'body'              => $body ?: $l10n->t('Empty Post'),

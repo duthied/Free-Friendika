@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Factory\Api\Mastodon\Notification as NotificationFactory;
 use Friendica\Navigation\Notifications\Entity;
 use Friendica\Object\Api\Mastodon\Notification;
 use Minishlink\WebPush\VAPID;
@@ -133,12 +134,12 @@ class Subscription
 	/**
 	 * Prepare push notification
 	 *
-	 * @param Notification $Notification Notification instance
+	 * @param Notification $Notification
 	 * @return void
 	 */
 	public static function pushByNotification(Entity\Notification $notification)
 	{
-		$type = \Friendica\Factory\Api\Mastodon\Notification::getType($notification);
+		$type = NotificationFactory::getType($notification);
 
 		if (DI::notify()->NotifyOnDesktop($notification, $type)) {
 			DI::notify()->createFromNotification($notification);

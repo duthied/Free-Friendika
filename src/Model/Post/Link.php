@@ -40,7 +40,7 @@ class Link
 	/**
 	 * Check if the link is stored
 	 *
-	 * @param int $uriId URI id
+	 * @param int $uriId
 	 * @param string $url URL
 	 * @return bool Whether record has been found
 	 */
@@ -52,9 +52,9 @@ class Link
 	/**
 	 * Returns URL by URI id and other URL
 	 *
-	 * @param int $uriId URI id
-	 * @param string $url URL
-	 * @param string size Size
+	 * @param int $uriId
+	 * @param string $url
+	 * @param string $size
 	 * @return string Found link URL + id on success, $url on failture
 	 */
 	public static function getByLink(int $uriId, string $url, string $size = ''): string
@@ -113,7 +113,7 @@ class Link
 	 * Fetches MIME type by URL and Accept: header
 	 *
 	 * @param string $url URL to fetch
-	 * @param string $accept Accept: line
+	 * @param string $accept Comma-separated list of expected response MIME type(s)
 	 * @return string Discovered MIME type or empty string on failure
 	 */
 	private static function fetchMimeType(string $url, string $accept = HttpClientAccept::DEFAULT): string
@@ -132,8 +132,8 @@ class Link
 	/**
 	 * Add external links and replace them in the body
 	 *
-	 * @param integer $uriId URI id
-	 * @param string $body HTML body
+	 * @param integer $uriId
+	 * @param string $body Item body formatted with BBCodes
 	 * @return string Body with replaced links
 	 */
 	public static function insertFromBody(int $uriId, string $body): string

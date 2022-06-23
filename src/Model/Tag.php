@@ -73,7 +73,7 @@ class Tag
 	/**
 	 * Store tag/mention elements
 	 *
-	 * @param integer $uriId URI id
+	 * @param integer $uriId
 	 * @param integer $type Tag type
 	 * @param string  $name Tag name
 	 * @param string  $url Contact URL (optional)
@@ -217,7 +217,7 @@ class Tag
 	 * Get a tag id for a given tag name and URL
 	 *
 	 * @param string $name Name of tag
-	 * @param string $url URL
+	 * @param string $url
 	 * @param int    $type Type of tag
 	 * @return int Tag id
 	 */
@@ -254,10 +254,10 @@ class Tag
 	/**
 	 * Store tag/mention elements
 	 *
-	 * @param integer $uriId URI id
-	 * @param string $hash Hash
-	 * @param string $name Name
-	 * @param string $url URL
+	 * @param integer $uriId
+	 * @param string $hash
+	 * @param string $name
+	 * @param string $url
 	 * @param boolean $probing Whether probing is active
 	 * @return void
 	 */
@@ -372,7 +372,7 @@ class Tag
 	/**
 	 * Remove tag/mention
 	 *
-	 * @param integer $uriId URI id
+	 * @param integer $uriId
 	 * @param integer $type Type
 	 * @param string $name Name
 	 * @param string $url URL
@@ -397,10 +397,10 @@ class Tag
 	/**
 	 * Remove tag/mention
 	 *
-	 * @param integer $uriId URI id
-	 * @param string $hash Hash
-	 * @param string $name Name
-	 * @param string $url URL
+	 * @param integer $uriId
+	 * @param string $hash
+	 * @param string $name
+	 * @param string $url
 	 * @return void
 	 */
 	public static function removeByHash(int $uriId, string $hash, string $name, string $url = '')
@@ -416,7 +416,7 @@ class Tag
 	/**
 	 * Get the type for the given hash
 	 *
-	 * @param string $hash Hash
+	 * @param string $hash
 	 * @return integer Tag type
 	 */
 	private static function getTypeForHash(string $hash): int
@@ -437,8 +437,8 @@ class Tag
 	/**
 	 * Create implicit mentions for a given post
 	 *
-	 * @param integer $uriId URI Id
-	 * @param integer $parentUriId Parent URI id
+	 * @param integer $uriId
+	 * @param integer $parentUriId
 	 * @return void
 	 */
 	public static function createImplicitMentions(int $uriId, int $parentUriId)
@@ -461,7 +461,7 @@ class Tag
 	/**
 	 * Retrieves the terms from the provided type(s) associated with the provided item ID.
 	 *
-	 * @param int       $uriId URI id
+	 * @param int   $uriId
 	 * @param array $type Tag type(s)
 	 * @return array|bool Array on success, false on error
 	 * @throws \Exception
@@ -475,7 +475,7 @@ class Tag
 	/**
 	 * Return a string with all tags and mentions
 	 *
-	 * @param integer $uriId URI id
+	 * @param integer $uriId
 	 * @param array   $type Tag type(s)
 	 * @return string tags and mentions
 	 * @throws \Exception
@@ -565,15 +565,8 @@ class Tag
 	{
 		$condition = ["`name` = ? AND (`uid` = ? OR (`uid` = ? AND NOT `global`))
 			AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
-			$search,
-			0,
-			$uid,
-			Protocol::ACTIVITYPUB,
-			Protocol::DFRN,
-			Protocol::DIASPORA,
-			Protocol::OSTATUS,
-			$uid,
-			0,
+			$search, 0, $uid,
+			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0,
 		];
 
 		return DBA::count('tag-search-view', $condition);
@@ -593,15 +586,8 @@ class Tag
 	{
 		$condition = ["`name` = ? AND (`uid` = ? OR (`uid` = ? AND NOT `global`))
 			AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
-			$search,
-			0,
-			$uid,
-			Protocol::ACTIVITYPUB,
-			Protocol::DFRN,
-			Protocol::DIASPORA,
-			Protocol::OSTATUS,
-			$uid,
-			0,
+			$search, 0, $uid,
+			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0,
 		];
 
 		if (!empty($last_uriid)) {
@@ -686,9 +672,7 @@ class Tag
 			FROM `tag-search-view`
 			WHERE `private` = ? AND `uid` = ? AND `uri-id` > ? $block_sql
 			GROUP BY `term` ORDER BY `authors` DESC, `score` DESC LIMIT ?",
-			Item::PUBLIC,
-			0,
-			$post['uri-id'],
+			Item::PUBLIC, 0, $post['uri-id'],
 			$limit
 		);
 
@@ -743,8 +727,7 @@ class Tag
 			FROM `tag-search-view`
 			WHERE `private` = ? AND `wall` AND `origin` AND `uri-id` > ? $block_sql
 			GROUP BY `term` ORDER BY `authors` DESC, `score` DESC LIMIT ?",
-			Item::PUBLIC,
-			$post['uri-id'],
+			Item::PUBLIC, $post['uri-id'],
 			$limit
 		);
 
@@ -797,7 +780,7 @@ class Tag
 	/**
 	 * Fetch user who subscribed to the tags of the given item
 	 *
-	 * @param integer $uriId URI Id
+	 * @param integer $uriId
 	 * @return array User list
 	 */
 	public static function getUIDListByURIId(int $uriId): array

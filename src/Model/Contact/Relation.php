@@ -261,7 +261,7 @@ class Relation
 	}
 
 	/**
-	 * Returns an array of sugguested contacts for given user id
+	 * Returns an array of suggested contacts for given user id
 	 *
 	 * @param int $uid   User id
 	 * @param int $start optional, default 0
@@ -288,13 +288,8 @@ class Relation
 			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
 			$cid,
 			0,
-			$uid,
-			Contact::FRIEND,
-			Contact::SHARING,
-			Protocol::ACTIVITYPUB,
-			Protocol::DFRN,
-			$diaspora,
-			$ostatus,
+			$uid, Contact::FRIEND, Contact::SHARING,
+			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus,
 			], [
 				'order' => ['last-item' => true],
 				'limit' => $totallimit,

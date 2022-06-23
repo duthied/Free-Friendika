@@ -683,7 +683,6 @@ class GServer
 	 * Fetch server data from '/statistics.json' on the given server
 	 *
 	 * @param string $url URL of the given server
-	 *
 	 * @return array server data
 	 */
 	private static function fetchStatistics(string $url): array

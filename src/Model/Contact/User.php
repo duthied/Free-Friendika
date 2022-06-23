@@ -82,8 +82,8 @@ class User
 	/**
 	 * Apply changes from contact update data to user-contact table
 	 *
-	 * @param array $fields Fields
-	 * @param array $condition Conditions
+	 * @param array $fields
+	 * @param array $condition
 	 * @return void
 	 * @throws PDOException
 	 * @throws Exception
@@ -106,7 +106,7 @@ class User
 			DBA::close($contacts);
 		}
 
-		DBA::commit();	
+		DBA::commit();
 	}
 
 	/**
