@@ -30,8 +30,10 @@ class UpdateGServer
 {
 	/**
 	 * Update the given server
+	 *
 	 * @param string  $server_url    Server URL
 	 * @param boolean $only_nodeinfo Only use nodeinfo for server detection
+	 * @return void
 	 */
 	public static function execute(string $server_url, bool $only_nodeinfo = false)
 	{

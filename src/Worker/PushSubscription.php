@@ -37,6 +37,13 @@ use Minishlink\WebPush\Subscription;
 
 class PushSubscription
 {
+	/**
+	 * Creates push subscription by subscription and notification ids
+	 *
+	 * @param int $sid Subscription id
+	 * @param int $nid Notification id
+	 * @return void
+	 */
 	public static function execute(int $sid, int $nid)
 	{
 		Logger::info('Start', ['subscription' => $sid, 'notification' => $nid]);
@@ -48,7 +55,7 @@ class PushSubscription
 		}
 
 		try {
-			$Notification = DI::notification()->selectOneById($nid);
+			$notification = DI::notification()->selectOneById($nid);
 		} catch (NotFoundException $e) {
 			Logger::info('Notification not found', ['notification' => $nid]);
 			return;
@@ -60,7 +67,7 @@ class PushSubscription
 			return;
 		}
 
-		$user = User::getById($Notification->uid);
+		$user = User::getById($notification->uid);
 		if (empty($user)) {
 			Logger::info('User not found', ['application' => $subscription['uid']]);
 			return;
@@ -68,21 +75,21 @@ class PushSubscription
 
 		$l10n = DI::l10n()->withLang($user['language']);
 
-		if ($Notification->actorId) {
-			$actor = Contact::getById($Notification->actorId);
+		if ($notification->actorId) {
+			$actor = Contact::getById($notification->actorId);
 		}
 
 		$body = '';
 
-		if ($Notification->targetUriId) {
-			$post = Post::selectFirst([], ['uri-id' => $Notification->targetUriId, 'uid' => [0, $Notification->uid]]);
+		if ($notification->targetUriId) {
+			$post = Post::selectFirst([], ['uri-id' => $notification->targetUriId, 'uid' => [0, $notification->uid]]);
 			if (!empty($post['body'])) {
 				$body = BBCode::toPlaintext($post['body'], false);
-				$body = Plaintext::shorten($body, 160, $Notification->uid);
+				$body = Plaintext::shorten($body, 160, $notification->uid);
 			}
 		}
 
-		$message = DI::notificationFactory()->getMessageFromNotification($Notification);
+		$message = DI::notificationFactory()->getMessageFromNotification($notification);
 		$title = $message['plain'] ?: '';
 
 		$push = Subscription::create([
@@ -94,11 +101,12 @@ class PushSubscription
 			],
 		]);
 
+		// @todo Only used for logging?
 		$payload = [
 			'access_token'      => $application_token['access_token'],
 			'preferred_locale'  => $user['language'],
 			'notification_id'   => $nid,
-			'notification_type' => \Friendica\Factory\Api\Mastodon\Notification::getType($Notification),
+			'notification_type' => \Friendica\Factory\Api\Mastodon\Notification::getType($notification),
 			'icon'              => $actor['thumb'] ?? '',
 			'title'             => $title ?: $l10n->t('Notification from Friendica'),
 			'body'              => $body ?: $l10n->t('Empty Post'),
