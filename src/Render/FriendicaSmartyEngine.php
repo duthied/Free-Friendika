@@ -48,6 +48,19 @@ final class FriendicaSmartyEngine extends TemplateEngine
 		$this->theme_info = $theme_info;
 		$this->smarty = new FriendicaSmarty($this->theme, $this->theme_info);
 
+		/*
+		 * Enable sub-directory splitting for reducing directory descriptor
+		 * size. The default behavior is to put all compiled/cached files into
+		 * one single directory. Under Linux and EXT4 (and maybe other FS) this
+		 * will increase the descriptor's size (which contains information
+		 * about entries inside the described directory. If the descriptor is
+		 * getting to big, the system will slow down as it has to read the
+		 * whole directory descriptor all over again (unless you have tons of
+		 * RAM available + have enabled caching inode tables (aka.
+		 * "descriptors"). Still it won't hurt you.
+		 */
+		$this->smarty->setUseSubDirs(true);
+
 		if (!is_writable(DI::basePath() . '/view/smarty3')) {
 			$admin_message = DI::l10n()->t('The folder view/smarty3/ must be writable by webserver.');
 			DI::logger()->critical($admin_message);
