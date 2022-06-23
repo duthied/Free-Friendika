@@ -743,7 +743,7 @@ class Post
 	/**
 	 * Set conversation thread
 	 *
-	 * @param Thread $thread
+	 * @param Thread $thread Thread to set or NULL
 	 * @return void
 	 */
 	public function setThread(Thread $thread = null)
@@ -761,7 +761,7 @@ class Post
 	 *
 	 * @return Thread
 	 */
-	public function getThread(): Thread
+	public function getThread()
 	{
 		return $this->thread;
 	}
