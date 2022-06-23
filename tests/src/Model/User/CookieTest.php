@@ -252,7 +252,7 @@ class CookieTest extends MockedTest
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn($serverKey)->once();
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn(Cookie::DEFAULT_EXPIRE)->once();
 		$this->config->shouldReceive('get')->with('proxy', 'trusted_proxies', '')->andReturn('')->once();
-		$this->config->shouldReceive('get')->with('proxy', 'forwarded_for_headers')->andReturn(Request::ORDERED_FORWARD_FOR_HEADER);
+		$this->config->shouldReceive('get')->with('proxy', 'forwarded_for_headers')->andReturn(Request::DEFAULT_FORWARD_FOR_HEADER);
 
 
 		$request = new Request($this->config, $serverArray);
@@ -279,7 +279,7 @@ class CookieTest extends MockedTest
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn($serverKey)->once();
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn(Cookie::DEFAULT_EXPIRE)->once();
 		$this->config->shouldReceive('get')->with('proxy', 'trusted_proxies', '')->andReturn('')->once();
-		$this->config->shouldReceive('get')->with('proxy', 'forwarded_for_headers')->andReturn(Request::ORDERED_FORWARD_FOR_HEADER);
+		$this->config->shouldReceive('get')->with('proxy', 'forwarded_for_headers')->andReturn(Request::DEFAULT_FORWARD_FOR_HEADER);
 
 		$request = new Request($this->config, $serverArray);
 

@@ -32,8 +32,13 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
  */
 class Request
 {
-	/** @var string the default possible headers, which could contain the client IP */
-	const ORDERED_FORWARD_FOR_HEADER = 'HTTP_X_FORWARDED_FOR';
+	/**
+	 * A comma separated list of default headers that could contain the client IP in a proxy request
+	 * Beware: This list is ordered
+	 *
+	 * @var string
+	 */
+	const DEFAULT_FORWARD_FOR_HEADER = 'HTTP_X_FORWARDED_FOR';
 
 	/** @var string The remote IP address of the current request */
 	protected $remoteAddress;
@@ -108,7 +113,7 @@ class Request
 	 * specified in this header will be returned instead.
 	 *
 	 * @param IManageConfigValues $config
-	 * @param array               $server
+	 * @param array               $server The $_SERVER array
 	 *
 	 * @return string
 	 */
@@ -118,7 +123,7 @@ class Request
 		$trustedProxies = preg_split('/(\s*,*\s*)*,+(\s*,*\s*)*/', $config->get('proxy', 'trusted_proxies', ''));
 
 		if (\is_array($trustedProxies) && $this->isTrustedProxy($trustedProxies, $remoteAddress)) {
-			$forwardedForHeaders = preg_split('/(\s*,*\s*)*,+(\s*,*\s*)*/', $config->get('proxy', 'forwarded_for_headers')) ?? static::ORDERED_FORWARD_FOR_HEADER;
+			$forwardedForHeaders = preg_split('/(\s*,*\s*)*,+(\s*,*\s*)*/', $config->get('proxy', 'forwarded_for_headers', static::DEFAULT_FORWARD_FOR_HEADER));
 
 			foreach ($forwardedForHeaders as $header) {
 				if (isset($server[$header])) {

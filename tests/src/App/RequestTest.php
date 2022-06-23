@@ -120,7 +120,7 @@ class RequestTest extends MockedTest
 	{
 		$configClass = \Mockery::mock(IManageConfigValues::class);
 		$configClass->shouldReceive('get')->with('proxy', 'trusted_proxies', '')->andReturn($config['trusted_proxies']);
-		$configClass->shouldReceive('get')->with('proxy', 'forwarded_for_headers')->andReturn($config['forwarded_for_headers']);
+		$configClass->shouldReceive('get')->with('proxy', 'forwarded_for_headers', Request::DEFAULT_FORWARD_FOR_HEADER)->andReturn($config['forwarded_for_headers']);
 
 		$request = new Request($configClass, $server);
 
