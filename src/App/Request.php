@@ -40,6 +40,8 @@ class Request
 
 	/**
 	 * @return string The remote IP address of the current request
+	 *
+	 * Do always use this instead of $_SERVER['REMOTE_ADDR']
 	 */
 	public function getRemoteAddress(): string
 	{
@@ -57,6 +59,10 @@ class Request
 	 * $remoteAddress is an IPv4 address within that IP range.
 	 * Otherwise, $remoteAddress will be compared to $trustedProxy literally and the result
 	 * will be returned.
+	 *
+	 * @param string $trustedProxy  The current, trusted proxy to check
+	 * @param string $remoteAddress The current remote IP address
+	 *
 	 *
 	 * @return boolean true if $remoteAddress matches $trustedProxy, false otherwise
 	 */
@@ -80,6 +86,9 @@ class Request
 	 * Checks if given $remoteAddress matches any entry in the given array $trustedProxies.
 	 * For details regarding what "match" means, refer to `matchesTrustedProxy`.
 	 *
+	 * @param string[] $trustedProxies A list of the trusted proxies
+	 * @param string   $remoteAddress  The current remote IP address
+	 *
 	 * @return boolean true if $remoteAddress matches any entry in $trustedProxies, false otherwise
 	 */
 	protected function isTrustedProxy(array $trustedProxies, string $remoteAddress): bool
@@ -94,6 +103,10 @@ class Request
 	}
 
 	/**
+	 * Determines the remote address, if the connection came from a trusted proxy
+	 * and `forwarded_for_headers` has been configured then the IP address
+	 * specified in this header will be returned instead.
+	 *
 	 * @param IManageConfigValues $config
 	 * @param array               $server
 	 *
