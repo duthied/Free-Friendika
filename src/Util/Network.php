@@ -440,7 +440,7 @@ class Network
 	 * Glue url parts together
 	 *
 	 * @param array $parsed URL parts
-	 * @return string The glued URL.
+	 * @return string|null The glued URL or null on error
 	 * @deprecated since version 2021.12, use GuzzleHttp\Psr7\Uri::fromParts($parts) instead
 	 */
 	public static function unparseURL(array $parsed): string
@@ -456,9 +456,9 @@ class Network
 		$scheme    = $get('scheme');
 		$query     = $get('query');
 		$fragment  = $get('fragment');
-		$authority = ($userinfo !== null ? $userinfo.'@' : '') .
+		$authority = ($userinfo !== null ? $userinfo . '@' : '') . 
 						$get('host') .
-						($port ? ':$port' : '');
+						($port ? ":$port" : '');
 
 		return	(strlen($scheme) ? $scheme . ':' : '') .
 			(strlen($authority) ? '//' . $authority : '') .
