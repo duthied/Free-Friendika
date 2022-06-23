@@ -38,7 +38,7 @@ class XML
 	 * Creates an XML structure out of a given array
 	 *
 	 * @param array  $array         The array of the XML structure that will be generated
-	 * @param object $xml           The createdXML will be returned by reference
+	 * @param object $xml           The created XML will be returned by reference
 	 * @param bool   $remove_header Should the XML header be removed or not?
 	 * @param array  $namespaces    List of namespaces
 	 * @param bool   $root          interally used parameter. Mustn't be used from outside.
@@ -177,22 +177,21 @@ class XML
 	/**
 	 * Create an XML and append it to the parent object
 	 *
-	 * @param DOMDocument $doc   XML root
-	 * @param object $parent     parent object
-	 * @param string $element    XML element name
-	 * @param string $value      XML value
-	 * @param array  $attributes array containing the attributes
+	 * @param DOMDocument $doc        XML root
+	 * @param DOMElement  $parent     parent object
+	 * @param string      $element    XML element name
+	 * @param string      $value      XML value
+	 * @param array       $attributes Array containing the attributes
 	 * @return void
 	 */
-	public static function addElement(DOMDocument $doc, $parent, string $element, string $value = '', array $attributes = [])
+	public static function addElement(DOMDocument $doc, DOMElement &$parent, string $element, string $value = '', array $attributes = [])
 	{
 		$element = self::createElement($doc, $element, $value, $attributes);
 		$parent->appendChild($element);
 	}
 
 	/**
-	 * Convert an XML document to a normalised, case-corrected array
-	 *   used by webfinger
+	 * Convert an XML document to a normalised, case-corrected array used by webfinger
 	 *
 	 * @param object  $xml_element     The XML document
 	 * @param integer $recursion_depth recursion counter for internal use - default 0
@@ -204,7 +203,7 @@ class XML
 	{
 		// If we're getting too deep, bail out
 		if ($recursion_depth > 512) {
-			return(null);
+			return null;
 		}
 
 		$xml_element_copy = '';
