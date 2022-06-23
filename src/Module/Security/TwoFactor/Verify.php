@@ -97,7 +97,7 @@ class Verify extends BaseModule
 			'$errors_label'     => DI::l10n()->tt('Error', 'Errors', count(self::$errors)),
 			'$errors'           => self::$errors,
 			'$recovery_message' => DI::l10n()->t('If you do not have access to your authentication code you can use <a href="%s">a two-factor recovery code</a>.', '2fa/recovery'),
-			'$verify_code'      => ['verify_code', DI::l10n()->t('Please enter a code from your authentication app'), '', '', DI::l10n()->t('Required'), 'autofocus autocomplete="one-time-code" placeholder="000000" inputmode="numeric" pattern="[0-9]*"', 'tel'],
+			'$verify_code'      => ['verify_code', DI::l10n()->t('Please enter a code from your authentication app'), '', '', DI::l10n()->t('Required'), 'autofocus autocomplete="one-time-code" placeholder="000000" inputmode="numeric" pattern="[0-9]*"'],
 			'$trust_browser'    => ['trust_browser', DI::l10n()->t('This is my two-factor authenticator app device'), !empty($_REQUEST['trust_browser'])],
 			'$verify_label'     => DI::l10n()->t('Verify code and complete login'),
 		]);
