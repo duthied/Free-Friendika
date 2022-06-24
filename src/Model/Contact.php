@@ -2557,7 +2557,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function updateFromProbeByURL($url)
+	public static function updateFromProbeByURL(string $url): int
 	{
 		$id = self::getIdForURL($url);
 
@@ -2578,7 +2578,7 @@ class Contact
 	 * @param string $network Network of that contact
 	 * @return string with protocol
 	 */
-	public static function getProtocol($url, $network)
+	public static function getProtocol(string $url, string $network): string
 	{
 		if ($network != Protocol::DFRN) {
 			return $network;
@@ -2945,6 +2945,7 @@ class Contact
 	 * Update the local relationship when a local user loses a follower
 	 *
 	 * @param array $contact User-specific contact (uid != 0) array
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
