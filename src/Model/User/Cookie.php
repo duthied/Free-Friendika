@@ -52,12 +52,12 @@ class Cookie
 	private $data;
 
 	/**
+	 * @param App\Request         $request The current http request
 	 * @param IManageConfigValues $config
 	 * @param App\BaseURL         $baseURL
-	 * @param array               $SERVER The $_SERVER array
 	 * @param array               $COOKIE The $_COOKIE array
 	 */
-	public function __construct(IManageConfigValues $config, App\BaseURL $baseURL, array $SERVER = [], array $COOKIE = [])
+	public function __construct(App\Request $request, IManageConfigValues $config, App\BaseURL $baseURL, array $COOKIE = [])
 	{
 		$this->sslEnabled     = $baseURL->getSSLPolicy() === App\BaseURL::SSL_POLICY_FULL;
 		$this->sitePrivateKey = $config->get('system', 'site_prvkey');
@@ -66,7 +66,7 @@ class Cookie
 			self::DEFAULT_EXPIRE);
 		$this->lifetime = $authCookieDays * 24 * 60 * 60;
 
-		$this->remoteAddr = ($SERVER['REMOTE_ADDR'] ?? null) ?: '0.0.0.0';
+		$this->remoteAddr = $request->getRemoteAddress();
 
 		$this->data = json_decode($COOKIE[self::NAME] ?? '[]', true) ?: [];
 	}

@@ -64,6 +64,8 @@ class Authentication
 	private $session;
 	/** @var IManagePersonalConfigValues */
 	private $pConfig;
+	/** @var string */
+	private $remoteAddress;
 
 	/**
 	 * Sets the X-Account-Management-Status header
@@ -80,27 +82,29 @@ class Authentication
 	/**
 	 * Authentication constructor.
 	 *
-	 * @param IManageConfigValues                                $config
-	 * @param App\Mode                                           $mode
-	 * @param App\BaseURL                                        $baseUrl
-	 * @param L10n                                               $l10n
-	 * @param Database                                           $dba
-	 * @param LoggerInterface                                    $logger
-	 * @param User\Cookie                                        $cookie
-	 * @param IHandleSessions $session
-	 * @param IManagePersonalConfigValues                        $pConfig
+	 * @param IManageConfigValues         $config
+	 * @param App\Mode                    $mode
+	 * @param App\BaseURL                 $baseUrl
+	 * @param L10n                        $l10n
+	 * @param Database                    $dba
+	 * @param LoggerInterface             $logger
+	 * @param User\Cookie                 $cookie
+	 * @param IHandleSessions             $session
+	 * @param IManagePersonalConfigValues $pConfig
+	 * @param App\Request                 $request
 	 */
-	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, IHandleSessions $session, IManagePersonalConfigValues $pConfig)
+	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, IHandleSessions $session, IManagePersonalConfigValues $pConfig, App\Request $request)
 	{
-		$this->config  = $config;
-		$this->mode    = $mode;
-		$this->baseUrl = $baseUrl;
-		$this->l10n    = $l10n;
-		$this->dba     = $dba;
-		$this->logger  = $logger;
-		$this->cookie  = $cookie;
-		$this->session = $session;
-		$this->pConfig = $pConfig;
+		$this->config        = $config;
+		$this->mode          = $mode;
+		$this->baseUrl       = $baseUrl;
+		$this->l10n          = $l10n;
+		$this->dba           = $dba;
+		$this->logger        = $logger;
+		$this->cookie        = $cookie;
+		$this->session       = $session;
+		$this->pConfig       = $pConfig;
+		$this->remoteAddress = $request->getRemoteAddress();
 	}
 
 	/**
@@ -163,10 +167,11 @@ class Authentication
 				// already logged in user returning
 				$check = $this->config->get('system', 'paranoia');
 				// extra paranoia - if the IP changed, log them out
-				if ($check && ($this->session->get('addr') != $_SERVER['REMOTE_ADDR'])) {
+				if ($check && ($this->session->get('addr') != $this->remoteAddress)) {
 					$this->logger->notice('Session address changed. Paranoid setting in effect, blocking session. ', [
-							'addr'        => $this->session->get('addr'),
-							'remote_addr' => $_SERVER['REMOTE_ADDR']]
+						'addr'        => $this->session->get('addr'),
+						'remote_addr' => $this->remoteAddress
+					]
 					);
 					$this->session->clear();
 					$this->baseUrl->redirect();
@@ -258,7 +263,7 @@ class Authentication
 				['uid' => User::getIdFromPasswordAuthentication($username, $password)]
 			);
 		} catch (Exception $e) {
-			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => $username, 'ip' => $_SERVER['REMOTE_ADDR']]);
+			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => $username, 'ip' => $this->remoteAddress]);
 			notice($this->l10n->t('Login failed. Please check your credentials.'));
 			$this->baseUrl->redirect();
 		}
@@ -308,7 +313,7 @@ class Authentication
 			'page_flags'    => $user_record['page-flags'],
 			'my_url'        => $this->baseUrl->get() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($this->baseUrl->get(), strpos($this->baseUrl->get(), '://') + 3),
-			'addr'          => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
+			'addr'          => $this->remoteAddress,
 		]);
 
 		Session::setVisitorsContacts();

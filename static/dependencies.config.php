@@ -208,7 +208,7 @@ return [
 	],
 	Cookie::class => [
 		'constructParams' => [
-			$_SERVER, $_COOKIE
+			$_COOKIE
 		],
 	],
 	ICanWriteToStorage::class => [
@@ -238,4 +238,9 @@ return [
 			$_SERVER
 		],
 	],
+	App\Request::class => [
+		'constructParams' => [
+			$_SERVER
+		],
+	]
 ];
