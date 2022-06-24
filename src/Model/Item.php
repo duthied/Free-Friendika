@@ -1830,11 +1830,11 @@ class Item
 	 * Posts that are created on this system are using System::createUUID.
 	 * Received ActivityPub posts are using Processor::getGUIDByURL.
 	 *
-	 * @param string $uri uri of an item entry
-	 * @param string $host hostname for the GUID prefix
-	 * @return string unique guid
+	 * @param string      $uri uri of an item entry
+	 * @param string|null $host hostname for the GUID prefix
+	 * @return string Unique guid
 	 */
-	public static function guidFromUri(string $uri, string $host): string
+	public static function guidFromUri(string $uri, string $host = null): string
 	{
 		// Our regular guid routine is using this kind of prefix as well
 		// We have to avoid that different routines could accidentally create the same value
