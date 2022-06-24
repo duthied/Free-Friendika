@@ -1547,6 +1547,7 @@ class Processor
 	 * Switches a contact to AP if needed
 	 *
 	 * @param integer $cid Contact ID
+	 * @return void
 	 * @throws \Exception
 	 */
 	private static function switchContact(int $cid)

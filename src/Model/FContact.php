@@ -103,17 +103,27 @@ class FContact
 			$posts       = Post::countPosts(['author-id' => $contact['id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]]);
 		}
 
-		$fields = ['name' => $arr["name"], 'photo' => $arr["photo"],
-			'request' => $arr["request"], 'nick' => $arr["nick"],
-			'addr' => strtolower($arr["addr"]), 'guid' => $arr["guid"],
-			'batch' => $arr["batch"], 'notify' => $arr["notify"],
-			'poll' => $arr["poll"], 'confirm' => $arr["confirm"],
-			'alias' => $arr["alias"], 'pubkey' => $arr["pubkey"],
-			'uri-id' => $uriid, 'interacting_count' => $interacting ?? 0,
-			'interacted_count' => $interacted ?? 0, 'post_count' => $posts ?? 0,
-			'updated' => DateTimeFormat::utcNow()];
+		$fields = [
+			'name' => $arr['name'],
+			'photo' => $arr['photo'],
+			'request' => $arr['request'],
+			'nick' => $arr['nick'],
+			'addr' => strtolower($arr['addr']),
+			'guid' => $arr['guid'],
+			'batch' => $arr['batch'],
+			'notify' => $arr['notify'],
+			'poll' => $arr['poll'],
+			'confirm' => $arr['confirm'],
+			'alias' => $arr['alias'],
+			'pubkey' => $arr['pubkey'],
+			'uri-id' => $uriid,
+			'interacting_count' => $interacting ?? 0,
+			'interacted_count' => $interacted ?? 0,
+			'post_count' => $posts ?? 0,
+			'updated' => DateTimeFormat::utcNow(),
+		];
 
-		$condition = ['url' => $arr["url"], 'network' => $arr["network"]];
+		$condition = ['url' => $arr['url'], 'network' => $arr['network']];
 
 		DBA::update('fcontact', $fields, $condition, true);
 	}
@@ -123,7 +133,6 @@ class FContact
 	 * fcontact guid
 	 *
 	 * @param string $fcontact_guid Hexadecimal string guid
-	 *
 	 * @return string|null the contact url or null
 	 * @throws \Exception
 	 */

@@ -475,7 +475,10 @@ class Profile extends BaseModule
 	}
 
 	/**
+	 * Updates contact from probing
+	 *
 	 * @param int $contact_id Id of the contact with uid != 0
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */

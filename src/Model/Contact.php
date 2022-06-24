@@ -2312,6 +2312,8 @@ class Contact
 	}
 
 	/**
+	 * Updates contact record by provided id and optional network
+	 *
 	 * @param integer $id      contact id
 	 * @param string  $network Optional network we are probing for
 	 * @return boolean
@@ -2335,13 +2337,15 @@ class Contact
 	}
 
 	/**
+	 * Updates contact record by provided id and probed data
+	 *
 	 * @param integer $id      contact id
 	 * @param array   $ret     Probed data
 	 * @return boolean
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function updateFromProbeArray(int $id, array $ret)
+	private static function updateFromProbeArray(int $id, array $ret): bool
 	{
 		/*
 		  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
@@ -2552,6 +2556,8 @@ class Contact
 	}
 
 	/**
+	 * Updates contact record by provided URL
+	 *
 	 * @param integer $url contact url
 	 * @return integer Contact id
 	 * @throws HTTPException\InternalServerErrorException
