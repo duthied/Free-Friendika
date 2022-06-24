@@ -313,7 +313,7 @@ class Feed
 				$item['uri'] = $guid;
 
 				// Don't use the GUID value directly but instead use it as a basis for the GUID
-				$item['guid'] = Item::guidFromUri($guid, parse_url($guid, PHP_URL_HOST) ?? parse_url($item['plink'], PHP_URL_HOST) ?? '');
+				$item['guid'] = Item::guidFromUri($guid, parse_url($guid, PHP_URL_HOST) ?? parse_url($item['plink'], PHP_URL_HOST));
 			}
 
 			if (empty($item['uri'])) {
