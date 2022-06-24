@@ -1719,29 +1719,29 @@ class Database
 	 */
 	public function processlist(): array
 	{
-		$ret  = $this->p("SHOW PROCESSLIST");
+		$ret  = $this->p('SHOW PROCESSLIST');
 		$data = $this->toArray($ret);
 
 		$processes = 0;
 		$states    = [];
 		foreach ($data as $process) {
-			$state = trim($process["State"]);
+			$state = trim($process['State']);
 
 			// Filter out all non blocking processes
-			if (!in_array($state, ["", "init", "statistics", "updating"])) {
+			if (!in_array($state, ['', 'init', 'statistics', 'updating'])) {
 				++$states[$state];
 				++$processes;
 			}
 		}
 
-		$statelist = "";
+		$statelist = '';
 		foreach ($states as $state => $usage) {
-			if ($statelist != "") {
-				$statelist .= ", ";
+			if ($statelist != '') {
+				$statelist .= ', ';
 			}
-			$statelist .= $state . ": " . $usage;
+			$statelist .= $state . ': ' . $usage;
 		}
-		return (["list" => $statelist, "amount" => $processes]);
+		return (['list' => $statelist, 'amount' => $processes]);
 	}
 
 	/**
