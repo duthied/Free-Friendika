@@ -825,6 +825,7 @@ class Database
 	 *
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
+	 * @todo Get rid of the DBStructure::existsTable() invocation
 	 */
 	public function exists(string $table, array $condition): bool
 	{
