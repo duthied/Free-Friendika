@@ -30,6 +30,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Module\Register;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
@@ -243,7 +244,7 @@ class GServer
 			if ($gserver['created'] <= DBA::NULL_DATETIME) {
 				$fields = ['created' => DateTimeFormat::utcNow()];
 				$condition = ['nurl' => Strings::normaliseLink($server_url)];
-				DBA::update('gserver', $fields, $condition);
+				self::update($fields, $condition);
 			}
 
 			if (!$force && (strtotime($gserver['next_contact']) > time())) {
@@ -268,7 +269,7 @@ class GServer
 		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($url)]);
 		if (DBA::isResult($gserver)) {
 			$next_update = self::getNextUpdateDate(false, $gserver['created'], $gserver['last_contact']);
-			DBA::update('gserver', ['failed' => true, 'last_failure' => DateTimeFormat::utcNow(),
+			self::update(['failed' => true, 'last_failure' => DateTimeFormat::utcNow(),
 			'next_contact' => $next_update, 'detection-method' => null],
 			['nurl' => Strings::normaliseLink($url)]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
@@ -338,7 +339,7 @@ class GServer
 		// If the URL missmatches, then we mark the old entry as failure
 		if ($url != $original_url) {
 			/// @todo What to do with "next_contact" here?
-			DBA::update('gserver', ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()],
+			self::update(['failed' => true, 'last_failure' => DateTimeFormat::utcNow()],
 				['nurl' => Strings::normaliseLink($original_url)]);
 		}
 
@@ -541,7 +542,7 @@ class GServer
 			$ret = DBA::insert('gserver', $serverdata);
 			$id = DBA::lastInsertId();
 		} else {
-			$ret = DBA::update('gserver', $serverdata, ['nurl' => $serverdata['nurl']]);
+			$ret = self::update($serverdata, ['nurl' => $serverdata['nurl']]);
 			$gserver = DBA::selectFirst('gserver', ['id'], ['nurl' => $serverdata['nurl']]);
 			if (DBA::isResult($gserver)) {
 				$id = $gserver['id'];
@@ -555,14 +556,14 @@ class GServer
 			$max_users = max($apcontacts, $contacts);
 			if ($max_users > $serverdata['registered-users']) {
 				Logger::info('Update registered users', ['id' => $id, 'url' => $serverdata['nurl'], 'registered-users' => $max_users]);
-				DBA::update('gserver', ['registered-users' => $max_users], ['id' => $id]);
+				self::update(['registered-users' => $max_users], ['id' => $id]);
 			}
 
 			if (empty($serverdata['active-month-users'])) {
 				$contacts = DBA::count('contact', ["`uid` = ? AND `gsid` = ? AND NOT `failed` AND `last-item` > ?", 0, $id, DateTimeFormat::utc('now - 30 days')]);
 				if ($contacts > 0) {
 					Logger::info('Update monthly users', ['id' => $id, 'url' => $serverdata['nurl'], 'monthly-users' => $contacts]);
-					DBA::update('gserver', ['active-month-users' => $contacts], ['id' => $id]);
+					self::update(['active-month-users' => $contacts], ['id' => $id]);
 				}
 			}
 	
@@ -570,7 +571,7 @@ class GServer
 				$contacts = DBA::count('contact', ["`uid` = ? AND `gsid` = ? AND NOT `failed` AND `last-item` > ?", 0, $id, DateTimeFormat::utc('now - 180 days')]);
 				if ($contacts > 0) {
 					Logger::info('Update halfyear users', ['id' => $id, 'url' => $serverdata['nurl'], 'halfyear-users' => $contacts]);
-					DBA::update('gserver', ['active-halfyear-users' => $contacts], ['id' => $id]);
+					self::update(['active-halfyear-users' => $contacts], ['id' => $id]);
 				}
 			}
 		}
@@ -619,7 +620,7 @@ class GServer
 
 		if (($gserver['relay-subscribe'] != $data['subscribe']) || ($gserver['relay-scope'] != $data['scope'])) {
 			$fields = ['relay-subscribe' => $data['subscribe'], 'relay-scope' => $data['scope']];
-			DBA::update('gserver', $fields, ['id' => $gserver['id']]);
+			self::update($fields, ['id' => $gserver['id']]);
 		}
 
 		DBA::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
@@ -1922,7 +1923,7 @@ class GServer
 			Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
 
 			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-			DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
+			self::update($fields, ['nurl' => $gserver['nurl']]);
 
 			if (--$no_of_queries == 0) {
 				break;
@@ -2040,7 +2041,7 @@ class GServer
 		}
 
 		Logger::info('Protocol for server', ['protocol' => $protocol, 'old' => $old, 'id' => $gsid, 'url' => $gserver['url'], 'callstack' => System::callstack(20)]);
-		DBA::update('gserver', ['protocol' => $protocol], ['id' => $gsid]);
+		self::update(['protocol' => $protocol], ['id' => $gsid]);
 	}
 
 	/**
@@ -2062,5 +2063,20 @@ class GServer
 		}
 
 		return null;
+	}
+
+	/**
+	 * Enforces gserver table field maximum sizes to avoid "Data too long" database errors
+	 *
+	 * @param array $fields
+	 * @param array $condition
+	 * @return bool
+	 * @throws Exception
+	 */
+	public static function update(array $fields, array $condition): bool
+	{
+		$fields = DBStructure::getFieldsForTable('gserver', $fields);
+
+		return DBA::update('gserver', $fields, $condition);
 	}
 }
