@@ -977,7 +977,7 @@ function photos_content(App $a)
 
 		/// @TODO I have seen this many times, maybe generalize it script-wide and encapsulate it?
 		$order_field = $_GET['order'] ?? '';
-		if ($order_field === 'posted') {
+		if ($order_field === 'created') {
 			$order = 'ASC';
 		} else {
 			$order = 'DESC';
@@ -1031,10 +1031,10 @@ function photos_content(App $a)
 			$drop = [DI::l10n()->t('Drop Album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/drop'];
 		}
 
-		if ($order_field === 'posted') {
+		if ($order_field === 'created') {
 			$order =  [DI::l10n()->t('Show Newest First'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album), 'oldest'];
 		} else {
-			$order = [DI::l10n()->t('Show Oldest First'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '?order=posted', 'newest'];
+			$order = [DI::l10n()->t('Show Oldest First'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '?order=created', 'newest'];
 		}
 
 		$photos = [];
@@ -1054,7 +1054,7 @@ function photos_content(App $a)
 					'id' => $rr['id'],
 					'twist' => ' ' . ($twist ? 'rotleft' : 'rotright') . rand(2,4),
 					'link' => 'photos/' . $user['nickname'] . '/image/' . $rr['resource-id']
-						. ($order_field === 'posted' ? '?order=posted' : ''),
+						. ($order_field === 'created' ? '?order=created' : ''),
 					'title' => DI::l10n()->t('View Photo'),
 					'src' => 'photo/' . $rr['resource-id'] . '-' . $rr['scale'] . '.' .$ext,
 					'alt' => $imgalt_e,
@@ -1122,7 +1122,7 @@ function photos_content(App $a)
 		if ($cmd === 'view' && !DI::config()->get('system', 'no_count', false)) {
 			$order_field = $_GET['order'] ?? '';
 
-			if ($order_field === 'posted') {
+			if ($order_field === 'created') {
 				$params = ['order' => [$order_field]];
 			} elseif (!empty($order_field)) {
 				$params = ['order' => [$order_field => true]];
@@ -1150,10 +1150,10 @@ function photos_content(App $a)
 				}
 
 				if (!is_null($prv)) {
-					$prevlink = 'photos/' . $user['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . ($order_field === 'posted' ? '?order=posted' : '');
+					$prevlink = 'photos/' . $user['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . ($order_field === 'created' ? '?order=created' : '');
 				}
 				if (!is_null($nxt)) {
-					$nextlink = 'photos/' . $user['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . ($order_field === 'posted' ? '?order=posted' : '');
+					$nextlink = 'photos/' . $user['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . ($order_field === 'created' ? '?order=created' : '');
 				}
 
 				$tpl = Renderer::getMarkupTemplate('photo_edit_head.tpl');
