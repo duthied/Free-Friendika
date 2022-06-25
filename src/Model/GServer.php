@@ -2047,10 +2047,10 @@ class GServer
 	 * Fetch the protocol of the given server
 	 *
 	 * @param int $gsid Server id
-	 * @return int
+	 * @return ?int One of Post\DeliveryData protocol constants or null if unknown or gserver is missing
 	 * @throws Exception
 	 */
-	public static function getProtocol(int $gsid): int
+	public static function getProtocol(int $gsid): ?int
 	{
 		if (empty($gsid)) {
 			return null;

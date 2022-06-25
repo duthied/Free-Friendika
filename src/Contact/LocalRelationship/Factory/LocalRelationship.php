@@ -52,7 +52,7 @@ class LocalRelationship extends BaseFactory implements ICanCreateFromTableRow
 			$row['hub-verify'] ?? '',
 			$row['protocol'] ?? Protocol::PHANTOM,
 			$row['rating'] ?? null,
-			$row['priority'] ?? null
+			$row['priority'] ?? 0
 		);
 	}
 }

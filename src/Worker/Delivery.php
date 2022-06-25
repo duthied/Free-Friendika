@@ -257,19 +257,19 @@ class Delivery
 	/**
 	 * Deliver content via DFRN
 	 *
-	 * @param string  $cmd             Command
-	 * @param array   $contact         Contact record of the receiver
-	 * @param array   $owner           Owner record of the sender
-	 * @param array   $items           Item record of the content and the parent
-	 * @param array   $target_item     Item record of the content
-	 * @param boolean $public_message  Is the content public?
-	 * @param boolean $top_level       Is it a thread starter?
-	 * @param boolean $followup        Is it an answer to a remote post?
-	 * @param int     $server_protocol The protocol of the server
+	 * @param string   $cmd             Command
+	 * @param array    $contact         Contact record of the receiver
+	 * @param array    $owner           Owner record of the sender
+	 * @param array    $items           Item record of the content and the parent
+	 * @param array    $target_item     Item record of the content
+	 * @param boolean  $public_message  Is the content public?
+	 * @param boolean  $top_level       Is it a thread starter?
+	 * @param boolean  $followup        Is it an answer to a remote post?
+	 * @param int|null $server_protocol The protocol of the server
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function deliverDFRN(string $cmd, array $contact, array $owner, array $items, array $target_item, bool $public_message, bool $top_level, bool $followup, int $server_protocol)
+	private static function deliverDFRN(string $cmd, array $contact, array $owner, array $items, array $target_item, bool $public_message, bool $top_level, bool $followup, int $server_protocol = null)
 	{
 		// Transmit Diaspora reshares via Diaspora if the Friendica contact support Diaspora
 		if (Diaspora::isReshare($target_item['body'] ?? '') && !empty(FContact::getByURL($contact['addr'], false))) {
