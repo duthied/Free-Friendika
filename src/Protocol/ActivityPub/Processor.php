@@ -189,15 +189,17 @@ class Processor
 	/**
 	 * Updates a message
 	 *
-	 * @param array $activity Activity array
+	 * @param FetchQueue $fetchQueue
+	 * @param array      $activity   Activity array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function updateItem(array $activity)
+	public static function updateItem(FetchQueue $fetchQueue, array $activity)
 	{
 		$item = Post::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity', 'post-type'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
-			$item = self::createItem($activity);
+			$item = self::createItem($fetchQueue, $activity);
 			if (empty($item)) {
 				return;
 			}
@@ -258,12 +260,13 @@ class Processor
 	/**
 	 * Prepares data for a message
 	 *
-	 * @param array $activity Activity array
+	 * @param FetchQueue $fetchQueue
+	 * @param array      $activity   Activity array
 	 * @return array Internal item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createItem(array $activity): array
+	public static function createItem(FetchQueue $fetchQueue, array $activity): array
 	{
 		$item = [];
 		$item['verb'] = Activity::POST;
@@ -279,7 +282,12 @@ class Processor
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id']]);
-			self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+			/**
+			 * Instead of calling recursively self::fetchMissingActivity which can hit PHP's default function nesting
+			 * limit of 256 recursive calls, we push the parent activity fetch parameters in this queue. The initial
+			 * caller is responsible for processing the remaining queue once the original activity has been processed.
+			 */
+			$fetchQueue->push(new FetchQueueItem($activity['reply-to-id'], $activity));
 		}
 
 		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
@@ -453,14 +461,15 @@ class Processor
 	/**
 	 * Prepare the item array for an activity
 	 *
-	 * @param array  $activity Activity array
-	 * @param string $verb     Activity verb
+	 * @param FetchQueue $fetchQueue
+	 * @param array      $activity   Activity array
+	 * @param string     $verb       Activity verb
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createActivity(array $activity, string $verb)
+	public static function createActivity(FetchQueue $fetchQueue, array $activity, string $verb)
 	{
-		$item = self::createItem($activity);
+		$item = self::createItem($fetchQueue, $activity);
 		if (empty($item)) {
 			return;
 		}
@@ -1106,14 +1115,16 @@ class Processor
 	/**
 	 * Fetches missing posts
 	 *
-	 * @param string $url         message URL
-	 * @param array  $child       activity array with the child of this message
-	 * @param string $relay_actor Relay actor
-	 * @param int    $completion  Completion mode, see Receiver::COMPLETION_*
+	 * @param FetchQueue $fetchQueue
+	 * @param string     $url         message URL
+	 * @param array      $child       activity array with the child of this message
+	 * @param string     $relay_actor Relay actor
+	 * @param int        $completion  Completion mode, see Receiver::COMPLETION_*
 	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL): string
+	public static function fetchMissingActivity(FetchQueue $fetchQueue, string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL): string
 	{
 		if (!empty($child['receiver'])) {
 			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
@@ -1194,7 +1205,7 @@ class Processor
 			return '';
 		}
 
-		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer);
+		ActivityPub\Receiver::processActivity($fetchQueue, $ldactivity, json_encode($activity), $uid, true, false, $signer);
 
 		Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'object' => $activity['id']]);
 

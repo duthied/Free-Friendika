@@ -3411,7 +3411,11 @@ class Item
 			return is_numeric($hookData['item_id']) ? $hookData['item_id'] : 0;
 		}
 
-		if ($fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri)) {
+		$fetchQueue = new ActivityPub\FetchQueue();
+		$fetched_uri = ActivityPub\Processor::fetchMissingActivity($fetchQueue, $uri);
+		$fetchQueue->process();
+
+		if ($fetched_uri) {
 			$item_id = self::searchByLink($fetched_uri, $uid);
 		} else {
 			$item_id = Diaspora::fetchByURL($uri);
