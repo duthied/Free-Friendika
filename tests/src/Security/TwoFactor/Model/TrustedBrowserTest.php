@@ -36,12 +36,14 @@ class TrustedBrowserTest extends MockedTest
 			$hash,
 			42,
 			'PHPUnit',
+			true,
 			DateTimeFormat::utcNow()
 		);
 
 		$this->assertEquals($hash, $trustedBrowser->cookie_hash);
 		$this->assertEquals(42, $trustedBrowser->uid);
 		$this->assertEquals('PHPUnit', $trustedBrowser->user_agent);
+		$this->assertTrue($trustedBrowser->trusted);
 		$this->assertNotEmpty($trustedBrowser->created);
 	}
 
@@ -54,6 +56,7 @@ class TrustedBrowserTest extends MockedTest
 			$hash,
 			42,
 			'PHPUnit',
+			true,
 			$past,
 			$past
 		);

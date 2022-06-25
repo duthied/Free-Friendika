@@ -121,6 +121,7 @@ class Trusted extends BaseSettings
 				'os' => $result->os->family,
 				'device' => $result->device->family,
 				'browser' => $result->ua->family,
+				'trusted_labeled' => $trustedBrowser->trusted ? $this->t('Yes') : $this->t('No'),
 			];
 
 			return $trustedBrowser->toArray() + $dates + $uaData;
@@ -135,7 +136,8 @@ class Trusted extends BaseSettings
 			'$device_label'        => $this->t('Device'),
 			'$os_label'            => $this->t('OS'),
 			'$browser_label'       => $this->t('Browser'),
-			'$created_label'       => $this->t('Trusted'),
+			'$trusted_label'       => $this->t('Trusted'),
+			'$created_label'       => $this->t('Created At'),
 			'$last_used_label'     => $this->t('Last Use'),
 			'$remove_label'        => $this->t('Remove'),
 			'$remove_all_label'    => $this->t('Remove All'),

@@ -21,13 +21,17 @@
 
 namespace Friendica\Module\Security\TwoFactor;
 
+use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
-use Friendica\DI;
-use Friendica\Model\User;
+use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Module\Response;
+use Friendica\Util\Profiler;
 use PragmaRX\Google2FA\Google2FA;
 use Friendica\Security\TwoFactor;
+use Psr\Log\LoggerInterface;
 
 /**
  * Page 1: Authenticator code verification
@@ -36,7 +40,20 @@ use Friendica\Security\TwoFactor;
  */
 class Verify extends BaseModule
 {
-	private static $errors = [];
+	protected $errors = [];
+
+	/** @var IHandleSessions  */
+	protected $session;
+	/** @var IManagePersonalConfigValues  */
+	protected $pConfig;
+
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManagePersonalConfigValues $pConfig, IHandleSessions $session, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->session = $session;
+		$this->pConfig = $pConfig;
+	}
 
 	protected function post(array $request = [])
 	{
@@ -44,36 +61,20 @@ class Verify extends BaseModule
 			return;
 		}
 
-		if (($_POST['action'] ?? '') == 'verify') {
+		if (($request['action'] ?? '') === 'verify') {
 			self::checkFormSecurityTokenRedirectOnError('2fa', 'twofactor_verify');
 
-			$a = DI::app();
+			$code = $request['verify_code'] ?? '';
 
-			$code = $_POST['verify_code'] ?? '';
-
-			$valid = (new Google2FA())->verifyKey(DI::pConfig()->get(local_user(), '2fa', 'secret'), $code);
+			$valid = (new Google2FA())->verifyKey($this->pConfig->get(local_user(), '2fa', 'secret'), $code);
 
 			// The same code can't be used twice even if it's valid
-			if ($valid && Session::get('2fa') !== $code) {
-				Session::set('2fa', $code);
+			if ($valid && $this->session->get('2fa') !== $code) {
+				$this->session->set('2fa', $code);
 
-				// Trust this browser feature
-				if (!empty($_REQUEST['trust_browser'])) {
-					$trustedBrowserFactory = new TwoFactor\Factory\TrustedBrowser(DI::logger());
-					$trustedBrowserRepository = new TwoFactor\Repository\TrustedBrowser(DI::dba(), DI::logger(), $trustedBrowserFactory);
-
-					$trustedBrowser = $trustedBrowserFactory->createForUserWithUserAgent(local_user(), $_SERVER['HTTP_USER_AGENT']);
-
-					$trustedBrowserRepository->save($trustedBrowser);
-
-					// The string is sent to the browser to be sent back with each request
-					DI::cookie()->set('trusted', $trustedBrowser->cookie_hash);
-				}
-
-				// Resume normal login workflow
-				DI::auth()->setForUser($a, User::getById($a->getLoggedInUserId()), true, true);
+				$this->baseUrl->redirect('2fa/trust');
 			} else {
-				self::$errors[] = DI::l10n()->t('Invalid code, please retry.');
+				$this->errors[] = $this->t('Invalid code, please retry.');
 			}
 		}
 	}
@@ -81,25 +82,24 @@ class Verify extends BaseModule
 	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
-			DI::baseUrl()->redirect();
+			$this->baseUrl->redirect();
 		}
 
 		// Already authenticated with 2FA token
-		if (Session::get('2fa')) {
-			DI::baseUrl()->redirect();
+		if ($this->session->get('2fa')) {
+			$this->baseUrl->redirect();
 		}
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('twofactor/verify.tpl'), [
 			'$form_security_token' => self::getFormSecurityToken('twofactor_verify'),
 
-			'$title'            => DI::l10n()->t('Two-factor authentication'),
-			'$message'          => DI::l10n()->t('<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'),
-			'$errors_label'     => DI::l10n()->tt('Error', 'Errors', count(self::$errors)),
-			'$errors'           => self::$errors,
-			'$recovery_message' => DI::l10n()->t('If you do not have access to your authentication code you can use <a href="%s">a two-factor recovery code</a>.', '2fa/recovery'),
-			'$verify_code'      => ['verify_code', DI::l10n()->t('Please enter a code from your authentication app'), '', '', DI::l10n()->t('Required'), 'autofocus autocomplete="one-time-code" placeholder="000000" inputmode="numeric" pattern="[0-9]*"'],
-			'$trust_browser'    => ['trust_browser', DI::l10n()->t('This is my two-factor authenticator app device'), !empty($_REQUEST['trust_browser'])],
-			'$verify_label'     => DI::l10n()->t('Verify code and complete login'),
+			'$title'            => $this->t('Two-factor authentication'),
+			'$message'          => $this->t('<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'),
+			'$errors_label'     => $this->tt('Error', 'Errors', count($this->errors)),
+			'$errors'           => $this->errors,
+			'$recovery_message' => $this->t('If you do not have access to your authentication code you can use a <a href="%s">two-factor recovery code</a>.', '2fa/recovery'),
+			'$verify_code'      => ['verify_code', $this->t('Please enter a code from your authentication app'), '', '', $this->t('Required'), 'autofocus autocomplete="one-time-code" placeholder="000000" inputmode="numeric" pattern="[0-9]*"'],
+			'$verify_label'     => $this->t('Verify code and complete login'),
 		]);
 	}
 }

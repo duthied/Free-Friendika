@@ -24,6 +24,7 @@ namespace Friendica\Module\Settings\TwoFactor;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
+use Friendica\Network\HTTPException\FoundException;
 use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
 use Friendica\Security\TwoFactor\Model\RecoveryCode;
 use Friendica\Model\User;
@@ -90,7 +91,9 @@ class Index extends BaseSettings
 					break;
 			}
 		} catch (\Exception $e) {
-			notice(DI::l10n()->t('Wrong Password'));
+			if (!($e instanceof FoundException)) {
+				notice(DI::l10n()->t($e->getMessage()));
+			}
 		}
 	}
 

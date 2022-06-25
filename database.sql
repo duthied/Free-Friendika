@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1472
+-- DB_UPDATE_VERSION 1473
 -- ------------------------------------------
 
 
@@ -297,6 +297,7 @@ CREATE TABLE IF NOT EXISTS `2fa_trusted_browser` (
 	`cookie_hash` varchar(80) NOT NULL COMMENT 'Trusted cookie hash',
 	`uid` mediumint unsigned NOT NULL COMMENT 'User ID',
 	`user_agent` text COMMENT 'User agent string',
+	`trusted` boolean NOT NULL DEFAULT '1' COMMENT 'Whenever this browser should be trusted or not',
 	`created` datetime NOT NULL COMMENT 'Datetime the trusted browser was recorded',
 	`last_used` datetime COMMENT 'Datetime the trusted browser was last used',
 	 PRIMARY KEY(`cookie_hash`),
