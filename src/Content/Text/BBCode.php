@@ -1103,7 +1103,7 @@ class BBCode
 	 * @param integer $uriid
 	 * @return string
 	 */
-	private static function convertImages(string $text, int $simplehtml, int $uriid = 0):string
+	private static function convertImages(string $text, int $simplehtml, int $uriid = 0): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$return = preg_replace_callback(

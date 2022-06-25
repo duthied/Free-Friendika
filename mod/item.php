@@ -439,8 +439,13 @@ function item_post(App $a) {
 				// Ensure to only modify attachments that you own
 				$srch = '<' . intval($contact_id) . '>';
 
-				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
-						'id' => $attach];
+				$condition = [
+					'allow_cid' => $srch,
+					'allow_gid' => '',
+					'deny_cid' => '',
+					'deny_gid' => '',
+					'id' => $attach,
+				];
 				if (!Attach::exists($condition)) {
 					continue;
 				}

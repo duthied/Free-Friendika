@@ -614,9 +614,9 @@ class App
 			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend() && !local_user()) {
 				// Only continue when the given profile link seems valid
 				// Valid profile links contain a path with "/profile/" and no query parameters
-				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") &&
-					strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
-					if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
+				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == '') &&
+					strstr(parse_url($_GET['zrl'], PHP_URL_PATH), '/profile/')) {
+					if (Core\Session::get('visitor_home') != $_GET['zrl']) {
 						Core\Session::set('my_url', $_GET['zrl']);
 						Core\Session::set('authenticated', 0);
 

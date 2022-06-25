@@ -1087,6 +1087,7 @@ class Receiver
 	 * @param integer $cid Contact ID
 	 * @param integer $uid User ID
 	 * @param string  $url Profile URL
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -1113,6 +1114,7 @@ class Receiver
 	 *
 	 * @param $receivers
 	 * @param $actor
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */

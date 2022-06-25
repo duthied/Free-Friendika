@@ -1958,7 +1958,7 @@ class Contact
 	 * @param string  $updated Contact update date
 	 * @return string avatar link
 	 */
-	public static function getAvatarUrlForId(int $cid, string $size = '', string $updated = '', string $guid = ''):string
+	public static function getAvatarUrlForId(int $cid, string $size = '', string $updated = '', string $guid = ''): string
 	{
 		// We have to fetch the "updated" variable when it wasn't provided
 		// The parameter can be provided to improve performance
@@ -1999,7 +1999,7 @@ class Contact
 	 * @param string  $size One of the Proxy::SIZE_* constants
 	 * @return string avatar link
 	 */
-	public static function getAvatarUrlForUrl(string $url, int $uid, string $size = ''):string
+	public static function getAvatarUrlForUrl(string $url, int $uid, string $size = ''): string
 	{
 		$condition = ["`nurl` = ? AND ((`uid` = ? AND `network` IN (?, ?)) OR `uid` = ?)",
 			Strings::normaliseLink($url), $uid, Protocol::FEED, Protocol::MAIL, 0];
@@ -2015,7 +2015,7 @@ class Contact
 	 * @param string  $updated Contact update date
 	 * @return string header link
 	 */
-	public static function getHeaderUrlForId(int $cid, string $size = '', string $updated = '', string $guid = ''):string
+	public static function getHeaderUrlForId(int $cid, string $size = '', string $updated = '', string $guid = ''): string
 	{
 		// We have to fetch the "updated" variable when it wasn't provided
 		// The parameter can be provided to improve performance
@@ -2312,6 +2312,8 @@ class Contact
 	}
 
 	/**
+	 * Updates contact record by provided id and optional network
+	 *
 	 * @param integer $id      contact id
 	 * @param string  $network Optional network we are probing for
 	 * @return boolean
@@ -2335,13 +2337,15 @@ class Contact
 	}
 
 	/**
+	 * Updates contact record by provided id and probed data
+	 *
 	 * @param integer $id      contact id
 	 * @param array   $ret     Probed data
 	 * @return boolean
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function updateFromProbeArray(int $id, array $ret)
+	private static function updateFromProbeArray(int $id, array $ret): bool
 	{
 		/*
 		  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
@@ -2552,12 +2556,14 @@ class Contact
 	}
 
 	/**
+	 * Updates contact record by provided URL
+	 *
 	 * @param integer $url contact url
 	 * @return integer Contact id
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function updateFromProbeByURL($url)
+	public static function updateFromProbeByURL(string $url): int
 	{
 		$id = self::getIdForURL($url);
 
@@ -2578,7 +2584,7 @@ class Contact
 	 * @param string $network Network of that contact
 	 * @return string with protocol
 	 */
-	public static function getProtocol($url, $network)
+	public static function getProtocol(string $url, string $network): string
 	{
 		if ($network != Protocol::DFRN) {
 			return $network;
@@ -2945,6 +2951,7 @@ class Contact
 	 * Update the local relationship when a local user loses a follower
 	 *
 	 * @param array $contact User-specific contact (uid != 0) array
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */

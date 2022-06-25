@@ -55,7 +55,7 @@ class ReversedFileReader implements \Iterator
 	 * @param string $filename	File to open
 	 * @return $this
 	 */
-	public function open(string $filename)
+	public function open(string $filename): ReversedFileReader
 	{
 		$this->fh = fopen($filename, 'r');
 		if (!$this->fh) {
@@ -73,9 +73,10 @@ class ReversedFileReader implements \Iterator
 	/**
 	 * Read $size bytes behind last position
 	 *
+	 * @param int $size
 	 * @return string
 	 */
-	private function _read($size)
+	private function _read(int $size): string
 	{
 		$this->pos -= $size;
 		fseek($this->fh, $this->pos);
@@ -86,7 +87,7 @@ class ReversedFileReader implements \Iterator
 	 * Read next line from end of file
 	 * Return null if no lines are left to read
 	 *
-	 * @return ?string
+	 * @return string|null Depending on data being buffered
 	 */
 	private function _readline()
 	{
@@ -140,7 +141,7 @@ class ReversedFileReader implements \Iterator
 	 * @see Iterator::key()
 	 * @return int
 	 */
-	public function key()
+	public function key(): int
 	{
 		return $this->key;
 	}
@@ -151,7 +152,7 @@ class ReversedFileReader implements \Iterator
 	 * @see Iterator::current()
 	 * @return string
 	 */
-	public function current()
+	public function current(): string
 	{
 		return $this->value;
 	}
@@ -162,7 +163,7 @@ class ReversedFileReader implements \Iterator
 	 * @see Iterator::valid()
 	 * @return bool
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return ! is_null($this->value);
 	}
