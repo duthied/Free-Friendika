@@ -3438,18 +3438,7 @@ class Item
 	 */
 	public static function getShareArray(array $item): array
 	{
-		if (!preg_match("/(.*?)\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", $item['body'], $matches)) {
-			return [];
-		}
-
-		$attribute_string = $matches[2];
-		$attributes = ['comment' => trim($matches[1]), 'shared' => trim($matches[3])];
-		foreach (['author', 'profile', 'avatar', 'guid', 'posted', 'link'] as $field) {
-			if (preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches)) {
-				$attributes[$field] = trim(html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8'));
-			}
-		}
-		return $attributes;
+		return BBCode::fetchShareAttributes($item['body']);
 	}
 
 	/**

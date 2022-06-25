@@ -995,29 +995,51 @@ class BBCode
 	}
 
 	/**
-	 *
-	 * @param  string   $text     A BBCode string
-	 * @return array share attributes
+	 * @param string $text A BBCode string
+	 * @return array Empty array if no share tag is present or the following array, missing attributes end up empty strings:
+	 *               - comment: Text before the opening share tag
+	 *               - shared : Text inside the share tags
+	 *               - author : (Optional) Display name of the shared author
+	 *               - profile: (Optional) Profile page URL of the shared author
+	 *               - avatar : (Optional) Profile picture URL of the shared author
+	 *               - link   : (Optional) Canonical URL of the shared post
+	 *               - posted : (Optional) Date the shared post was initially posted ("Y-m-d H:i:s" in GMT)
+	 *               - guid   : (Optional) Shared post GUID if any
 	 */
-	public static function fetchShareAttributes($text)
+	public static function fetchShareAttributes(string $text): array
 	{
 		DI::profiler()->startRecording('rendering');
 		// See Issue https://github.com/friendica/friendica/issues/10454
 		// Hashtags in usernames are expanded to links. This here is a quick fix.
-		$text = preg_replace('/([@!#])\[url\=.*?\](.*?)\[\/url\]/ism', '$1$2', $text);
+		$text = preg_replace('~([@!#])\[url=.*?](.*?)\[/url]~ism', '$1$2', $text);
 
-		$attributes = [];
-		if (!preg_match("/(.*?)\[share(.*?)\](.*)\[\/share\]/ism", $text, $matches)) {
+		if (!preg_match('~(.*?)\[share(.*?)](.*)\[/share]~ism', $text, $matches)) {
 			DI::profiler()->stopRecording();
-			return $attributes;
+			return [];
 		}
 
-		$attribute_string = $matches[2];
+		$attributes = self::extractShareAttributes($matches[2]);
+
+		$attributes['comment'] = trim($matches[1]);
+		$attributes['shared'] = trim($matches[3]);
+
+		DI::profiler()->stopRecording();
+		return $attributes;
+	}
+
+	/**
+	 * @see BBCode::fetchShareAttributes()
+	 * @param string $shareString Internal opening share tag string matched by the regular expression
+	 * @return array A fixed attribute array where missing attribute are represented by empty strings
+	 */
+	private static function extractShareAttributes(string $shareString): array
+	{
+		$attributes = [];
 		foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
-			preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
+			preg_match("/$field=(['\"])(.+?)\\1/ism", $shareString, $matches);
 			$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 		}
-		DI::profiler()->stopRecording();
+
 		return $attributes;
 	}
 
@@ -1044,14 +1066,9 @@ class BBCode
 	{
 		DI::profiler()->startRecording('rendering');
 		$return = preg_replace_callback(
-			"/(.*?)\[share(.*?)\](.*)\[\/share\]/ism",
+			'~(.*?)\[share(.*?)](.*)\[/share]~ism',
 			function ($match) use ($callback, $uriid) {
-				$attribute_string = $match[2];
-				$attributes = [];
-				foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
-					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
-					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
-				}
+				$attributes = self::extractShareAttributes($match[2]);
 
 				$author_contact = Contact::getByURL($attributes['profile'], false, ['id', 'url', 'addr', 'name', 'micro']);
 				$author_contact['url'] = ($author_contact['url'] ?? $attributes['profile']);
