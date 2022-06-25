@@ -71,7 +71,7 @@ class TrustedBrowserTest extends MockedTest
 	{
 		$factory = new TrustedBrowser(new NullLogger());
 
-		$uid = 42;
+		$uid       = 42;
 		$userAgent = 'PHPUnit';
 
 		$trustedBrowser = $factory->createForUserWithUserAgent($uid, $userAgent, true);
