@@ -187,26 +187,31 @@ class BBCode
 					case 'publisher_name':
 						$data['provider_name'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						break;
+
 					case 'publisher_url':
 						$data['provider_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						break;
+
 					case 'author_name':
 						$data['author_name'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						if ($data['provider_name'] == $data['author_name']) {
 							$data['author_name'] = '';
 						}
 						break;
+
 					case 'author_url':
 						$data['author_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						if ($data['provider_url'] == $data['author_url']) {
 							$data['author_url'] = '';
 						}
 						break;
+
 					case 'title':
 						$value = self::convert(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), false, true);
 						$value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						$value = str_replace(['[', ']'], ['&#91;', '&#93;'], $value);
 						$data['title'] = $value;
+
 					default:
 						$data[$field] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						break;
