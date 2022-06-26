@@ -152,7 +152,9 @@ class Receiver
 			$trust_source = false;
 		}
 
-		self::processActivity($ldactivity, $body, $uid, $trust_source, true, $signer);
+		$fetchQueue = new FetchQueue();
+		self::processActivity($fetchQueue, $ldactivity, $body, $uid, $trust_source, true, $signer);
+		$fetchQueue->process();
 	}
 
 	/**
@@ -200,11 +202,15 @@ class Receiver
 			return;
 		}
 
-		$id = Processor::fetchMissingActivity($object_id, [], $actor, self::COMPLETION_RELAY);
+		$fetchQueue = new FetchQueue();
+
+		$id = Processor::fetchMissingActivity($fetchQueue, $object_id, [], $actor, self::COMPLETION_RELAY);
 		if (empty($id)) {
 			Logger::notice('Relayed message had not been fetched', ['id' => $object_id]);
 			return;
 		}
+
+		$fetchQueue->process();
 
 		$item_id = Item::searchByLink($object_id);
 		if ($item_id) {
@@ -472,15 +478,17 @@ class Receiver
 	/**
 	 * Processes the activity object
 	 *
-	 * @param array   $activity     Array with activity data
-	 * @param string  $body         The unprocessed body
-	 * @param integer $uid          User ID
-	 * @param boolean $trust_source Do we trust the source?
-	 * @param boolean $push         Message had been pushed to our system
-	 * @param array   $signer       The signer of the post
-	 * @throws \Exception
+	 * @param FetchQueue $fetchQueue
+	 * @param array      $activity     Array with activity data
+	 * @param string     $body         The unprocessed body
+	 * @param int|null   $uid          User ID
+	 * @param boolean    $trust_source Do we trust the source?
+	 * @param boolean    $push         Message had been pushed to our system
+	 * @param array      $signer       The signer of the post
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function processActivity(array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
+	public static function processActivity(FetchQueue $fetchQueue, array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
@@ -561,7 +569,7 @@ class Receiver
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($fetchQueue, $object_data);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
@@ -572,7 +580,7 @@ class Receiver
 
 			case 'as:Invite':
 				if (in_array($object_data['object_type'], ['as:Event'])) {
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($fetchQueue, $object_data);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
@@ -596,7 +604,7 @@ class Receiver
 					$object_data['thread-completion'] = Contact::getIdForURL($actor);
 					$object_data['completion-mode']   = self::COMPLETION_ANNOUCE;
 
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($fetchQueue, $object_data);
 					if (empty($item)) {
 						return;
 					}
@@ -615,7 +623,7 @@ class Receiver
 						$announce_object_data['raw'] = $body;
 					}
 
-					ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
+					ActivityPub\Processor::createActivity($fetchQueue, $announce_object_data, Activity::ANNOUNCE);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -623,7 +631,7 @@ class Receiver
 
 			case 'as:Like':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::LIKE);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::LIKE);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {
@@ -633,7 +641,7 @@ class Receiver
 
 			case 'as:Dislike':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::DISLIKE);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::DISLIKE);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {
@@ -643,7 +651,7 @@ class Receiver
 
 			case 'as:TentativeAccept':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::ATTENDMAYBE);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::ATTENDMAYBE);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -651,7 +659,7 @@ class Receiver
 
 			case 'as:Update':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::updateItem($object_data);
+					ActivityPub\Processor::updateItem($fetchQueue, $object_data);
 				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::updatePerson($object_data);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
@@ -696,7 +704,7 @@ class Receiver
 					ActivityPub\Processor::followUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					$object_data['reply-to-id'] = $object_data['object_id'];
-					ActivityPub\Processor::createActivity($object_data, Activity::FOLLOW);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::FOLLOW);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -706,7 +714,7 @@ class Receiver
 				if ($object_data['object_type'] == 'as:Follow') {
 					ActivityPub\Processor::acceptFollowUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::ATTEND);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::ATTEND);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -716,7 +724,7 @@ class Receiver
 				if ($object_data['object_type'] == 'as:Follow') {
 					ActivityPub\Processor::rejectFollowUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::ATTENDNO);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::ATTENDNO);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -751,7 +759,7 @@ class Receiver
 
 			case 'as:View':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::VIEW);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::VIEW);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
 				} else {
@@ -761,7 +769,7 @@ class Receiver
 
 			case 'litepub:EmojiReact':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::EMOJIREACT);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::EMOJIREACT);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {

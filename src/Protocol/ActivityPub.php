@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\APContact;
 use Friendica\Model\User;
+use Friendica\Protocol\ActivityPub\FetchQueue;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 
@@ -223,10 +224,14 @@ class ActivityPub
 			$items = [];
 		}
 
+		$fetchQueue = new FetchQueue();
+
 		foreach ($items as $activity) {
 			$ldactivity = JsonLD::compact($activity);
-			ActivityPub\Receiver::processActivity($ldactivity, '', $uid, true);
+			ActivityPub\Receiver::processActivity($fetchQueue, $ldactivity, '', $uid, true);
 		}
+
+		$fetchQueue->process();
 	}
 
 	/**
