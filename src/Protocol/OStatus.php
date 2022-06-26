@@ -2017,7 +2017,7 @@ class OStatus
 	 * cache or it is empty
 	 *
 	 * @param string  $owner_nick  Nickname of the feed owner
-	 * @param string  $last_update Date of the last update
+	 * @param string  $last_update Date of the last update (in "Y-m-d H:i:s" format)
 	 * @param integer $max_items   Number of maximum items to fetch
 	 * @param string  $filter      Feed items filter (activity, posts or comments)
 	 * @param boolean $nocache     Wether to bypass caching

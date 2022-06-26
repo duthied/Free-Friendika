@@ -237,4 +237,13 @@ abstract class CacheTest extends MockedTest
 		self::assertNotContains('value1', $list);
 		self::assertNotContains('value2', $list);
 	}
+
+	/**
+	 * @small
+	 */
+	public function testSpaceInKey()
+	{
+		self::assertTrue($this->instance->set('key space', 'value'));
+		self::assertEquals('value', $this->instance->get('key space'));
+	}
 }
