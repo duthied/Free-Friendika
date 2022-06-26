@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1472);
+	define('DB_UPDATE_VERSION', 1473);
 }
 
 return [
@@ -358,6 +358,7 @@ return [
 			"cookie_hash" => ["type" => "varchar(80)", "not null" => "1", "primary" => "1", "comment" => "Trusted cookie hash"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "User ID"],
 			"user_agent" => ["type" => "text", "comment" => "User agent string"],
+			"trusted" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "Whenever this browser should be trusted or not"],
 			"created" => ["type" => "datetime", "not null" => "1", "comment" => "Datetime the trusted browser was recorded"],
 			"last_used" => ["type" => "datetime", "comment" => "Datetime the trusted browser was last used"],
 		],

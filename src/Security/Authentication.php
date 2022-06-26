@@ -144,7 +144,7 @@ class Authentication
 				// Renew the cookie
 				$this->cookie->send();
 
-				// Do the authentification if not done by now
+				// Do the authentication if not done by now
 				if (!$this->session->get('authenticated')) {
 					$this->setForUser($a, $user);
 
@@ -269,7 +269,11 @@ class Authentication
 		}
 
 		if (!$remember) {
+			$trusted = $this->cookie->get('2fa_cookie_hash') ?? null;
 			$this->cookie->clear();
+			if ($trusted) {
+				$this->cookie->set('2fa_cookie_hash', $trusted);
+			}
 		}
 
 		// if we haven't failed up this point, log them in.
@@ -407,11 +411,11 @@ class Authentication
 		}
 
 		// Case 1b: Check for trusted browser
-		if ($this->cookie->get('trusted')) {
+		if ($this->cookie->get('2fa_cookie_hash')) {
 			// Retrieve a trusted_browser model based on cookie hash
 			$trustedBrowserRepository = new TrustedBrowser($this->dba, $this->logger);
 			try {
-				$trustedBrowser = $trustedBrowserRepository->selectOneByHash($this->cookie->get('trusted'));
+				$trustedBrowser = $trustedBrowserRepository->selectOneByHash($this->cookie->get('2fa_cookie_hash'));
 				// Verify record ownership
 				if ($trustedBrowser->uid === $uid) {
 					// Update last_used date
@@ -420,10 +424,13 @@ class Authentication
 					// Save it to the database
 					$trustedBrowserRepository->save($trustedBrowser);
 
-					// Set 2fa session key and return
-					$this->session->set('2fa', true);
+					// Only use this entry, if its really trusted, otherwise just update the record and proceed
+					if ($trustedBrowser->trusted) {
+						// Set 2fa session key and return
+						$this->session->set('2fa', true);
 
-					return;
+						return;
+					}
 				} else {
 					// Invalid trusted cookie value, removing it
 					$this->cookie->unset('trusted');

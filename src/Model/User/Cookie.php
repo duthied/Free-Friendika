@@ -125,13 +125,26 @@ class Cookie
 	}
 
 	/**
+	 * Resets the cookie to a given data set
+	 *
+	 * @param array $data
+	 *
+	 * @return bool
+	 */
+	public function reset(array $data): bool
+	{
+		return $this->clear() &&
+			   $this->setMultiple($data);
+	}
+
+	/**
 	 * Clears the Friendica cookie
 	 */
 	public function clear(): bool
 	{
 		$this->data = [];
 		// make sure cookie is deleted on browser close, as a security measure
-		return $this->setCookie( '', -3600, $this->sslEnabled);
+		return $this->setCookie('', -3600, $this->sslEnabled);
 	}
 
 	/**
@@ -161,7 +174,7 @@ class Cookie
 	 *
 	 */
 	protected function setCookie(string $value = null, int $expire = null,
-	                             bool $secure = null): bool
+								 bool $secure = null): bool
 	{
 		return setcookie(self::NAME, $value, $expire, self::PATH, self::DOMAIN, $secure, self::HTTPONLY);
 	}

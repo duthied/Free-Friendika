@@ -38,6 +38,7 @@ class TrustedBrowserTest extends MockedTest
 			'uid' => 42,
 			'user_agent' => 'PHPUnit',
 			'created' => DateTimeFormat::utcNow(),
+			'trusted' => true,
 			'last_used' => null,
 		];
 
@@ -57,6 +58,7 @@ class TrustedBrowserTest extends MockedTest
 			'uid' => null,
 			'user_agent' => null,
 			'created' => null,
+			'trusted' => true,
 			'last_used' => null,
 		];
 
@@ -69,14 +71,15 @@ class TrustedBrowserTest extends MockedTest
 	{
 		$factory = new TrustedBrowser(new NullLogger());
 
-		$uid = 42;
+		$uid       = 42;
 		$userAgent = 'PHPUnit';
 
-		$trustedBrowser = $factory->createForUserWithUserAgent($uid, $userAgent);
+		$trustedBrowser = $factory->createForUserWithUserAgent($uid, $userAgent, true);
 
 		$this->assertNotEmpty($trustedBrowser->cookie_hash);
 		$this->assertEquals($uid, $trustedBrowser->uid);
 		$this->assertEquals($userAgent, $trustedBrowser->user_agent);
+		$this->assertTrue($trustedBrowser->trusted);
 		$this->assertNotEmpty($trustedBrowser->created);
 	}
 }

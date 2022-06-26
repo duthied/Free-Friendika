@@ -10,6 +10,7 @@
 					<th>{{$device_label}}</th>
 					<th>{{$os_label}}</th>
 					<th>{{$browser_label}}</th>
+					<th>{{$trusted_label}}</th>
 					<th>{{$created_label}}</th>
 					<th>{{$last_used_label}}</th>
 					<th><button type="submit" name="action" class="btn btn-primary btn-small" value="remove_all">{{$remove_all_label}}</button></th>
@@ -26,6 +27,9 @@
 					</td>
 					<td>
 		                {{$trusted_browser.browser}}
+					</td>
+					<td>
+                        {{$trusted_browser.trusted_labeled}}
 					</td>
 					<td>
 						<time class="time" title="{{$trusted_browser.created_local}}" data-toggle="tooltip" datetime="{{$trusted_browser.created_utc}}">{{$trusted_browser.created_ago}}</time>
