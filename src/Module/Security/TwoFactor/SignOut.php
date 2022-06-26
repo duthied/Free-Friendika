@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
  *
  * @package Friendica\Module\TwoFactor
  */
-class Signout extends BaseModule
+class SignOut extends BaseModule
 {
 	protected $errors = [];
 
@@ -47,15 +47,15 @@ class Signout extends BaseModule
 	/** @var Cookie  */
 	protected $cookie;
 	/** @var TwoFactor\Repository\TrustedBrowser  */
-	protected $trustedBrowserRepositoy;
+	protected $trustedBrowserRepository;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger,  IHandleSessions $session, Cookie $cookie, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepositoy, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger,  IHandleSessions $session, Cookie $cookie, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepository, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->session                 = $session;
-		$this->cookie                  = $cookie;
-		$this->trustedBrowserRepositoy = $trustedBrowserRepositoy;
+		$this->session                  = $session;
+		$this->cookie                   = $cookie;
+		$this->trustedBrowserRepository = $trustedBrowserRepository;
 	}
 
 	protected function post(array $request = [])
@@ -79,7 +79,7 @@ class Signout extends BaseModule
 					$this->baseUrl->redirect();
 					break;
 				case 'sign_out':
-					$this->trustedBrowserRepositoy->removeForUser(local_user(), $this->cookie->get('2fa_cookie_hash'));
+					$this->trustedBrowserRepository->removeForUser(local_user(), $this->cookie->get('2fa_cookie_hash'));
 					$this->cookie->clear();
 					$this->session->clear();
 
@@ -99,7 +99,7 @@ class Signout extends BaseModule
 		}
 
 		try {
-			$trustedBrowser = $this->trustedBrowserRepositoy->selectOneByHash($this->cookie->get('2fa_cookie_hash'));
+			$trustedBrowser = $this->trustedBrowserRepository->selectOneByHash($this->cookie->get('2fa_cookie_hash'));
 			if (!$trustedBrowser->trusted) {
 				$trusted = $this->cookie->get('2fa_cookie_hash');
 				$this->cookie->reset(['2fa_cookie_hash' => $trusted]);

@@ -166,7 +166,7 @@ return [
 		'[/]'       => [Module\Security\TwoFactor\Verify::class,   [R::GET, R::POST]],
 		'/recovery' => [Module\Security\TwoFactor\Recovery::class, [R::GET, R::POST]],
 		'/trust'    => [Module\Security\TwoFactor\Trust::class,    [R::GET, R::POST]],
-		'/signout'  => [Module\Security\TwoFactor\Signout::class,  [R::GET, R::POST]],
+		'/signout'  => [Module\Security\TwoFactor\SignOut::class,  [R::GET, R::POST]],
 	],
 
 	'/api' => [
