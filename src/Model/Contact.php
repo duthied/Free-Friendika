@@ -1180,7 +1180,7 @@ class Contact
 		$contact = self::getByURL($url, false, ['id', 'network', 'uri-id'], $uid);
 
 		if (!empty($contact)) {
-			$contact_id = $contact["id"];
+			$contact_id = $contact['id'];
 
 			if (empty($update) && (!empty($contact['uri-id']) || is_bool($update))) {
 				Logger::debug('Contact found', ['url' => $url, 'uid' => $uid, 'update' => $update, 'cid' => $contact_id]);
@@ -1197,10 +1197,10 @@ class Contact
 		$data = [];
 
 		if (empty($default['network']) || $update) {
-			$data = Probe::uri($url, "", $uid);
+			$data = Probe::uri($url, '', $uid);
 
 			// Take the default values when probing failed
-			if (!empty($default) && !in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
+			if (!empty($default) && !in_array($data['network'], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
 				$data = array_merge($data, $default);
 			}
 		} elseif (!empty($default['network'])) {
