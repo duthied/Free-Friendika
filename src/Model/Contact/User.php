@@ -183,7 +183,7 @@ class User
 		if (!empty($cdata['public'])) {
 			$public_contact = DBA::selectFirst('user-contact', ['blocked'], ['cid' => $cdata['public'], 'uid' => $uid]);
 			if (DBA::isResult($public_contact)) {
-				$public_blocked = $public_contact['blocked'];
+				$public_blocked = (bool) $public_contact['blocked'];
 			}
 		}
 
@@ -192,7 +192,7 @@ class User
 		if (!empty($cdata['user'])) {
 			$user_contact = DBA::selectFirst('contact', ['blocked'], ['id' => $cdata['user'], 'pending' => false]);
 			if (DBA::isResult($user_contact)) {
-				$user_blocked = $user_contact['blocked'];
+				$user_blocked = (bool) $user_contact['blocked'];
 			}
 		}
 
@@ -246,7 +246,7 @@ class User
 		if (!empty($cdata['public'])) {
 			$public_contact = DBA::selectFirst('user-contact', ['ignored'], ['cid' => $cdata['public'], 'uid' => $uid]);
 			if (DBA::isResult($public_contact)) {
-				$public_ignored = $public_contact['ignored'];
+				$public_ignored = (bool) $public_contact['ignored'];
 			}
 		}
 
@@ -255,7 +255,7 @@ class User
 		if (!empty($cdata['user'])) {
 			$user_contact = DBA::selectFirst('contact', ['readonly'], ['id' => $cdata['user'], 'pending' => false]);
 			if (DBA::isResult($user_contact)) {
-				$user_ignored = $user_contact['readonly'];
+				$user_ignored = (bool) $user_contact['readonly'];
 			}
 		}
 
@@ -306,7 +306,7 @@ class User
 		if (!empty($cdata['public'])) {
 			$public_contact = DBA::selectFirst('user-contact', ['collapsed'], ['cid' => $cdata['public'], 'uid' => $uid]);
 			if (DBA::isResult($public_contact)) {
-				$collapsed = $public_contact['collapsed'];
+				$collapsed = (bool) $public_contact['collapsed'];
 			}
 		}
 
