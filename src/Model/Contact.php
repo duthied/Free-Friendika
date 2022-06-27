@@ -474,7 +474,6 @@ class Contact
 	 * Check if the given contact ID is on the same server
 	 *
 	 * @param string $url The contact link
-	 *
 	 * @return boolean Is it the same server?
 	 */
 	public static function isLocalById(int $cid): bool
@@ -556,7 +555,6 @@ class Contact
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
-	 *
 	 * @return array with public and user's contact id
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -597,12 +595,11 @@ class Contact
 	 * @param int $cid A contact ID
 	 * @param int $uid The User ID
 	 * @param array $fields The selected fields for the contact
-	 *
 	 * @return array The contact details
 	 *
 	 * @throws \Exception
 	 */
-	public static function getContactForUser($cid, $uid, array $fields = [])
+	public static function getContactForUser(int $cid, int $uid, array $fields = []): array
 	{
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => $uid]);
 
@@ -620,7 +617,7 @@ class Contact
 	 * @return bool Operation success
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function createSelfFromUserId($uid)
+	public static function createSelfFromUserId(int $uid): bool
 	{
 		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'pubkey', 'prvkey'],
 			['uid' => $uid, 'account_expired' => false]);
@@ -677,12 +674,12 @@ class Contact
 	/**
 	 * Updates the self-contact for the provided user id
 	 *
-	 * @param int     $uid
-	 * @param boolean $update_avatar Force the avatar update
-	 * @return bool   "true" if updated
+	 * @param int   $uid
+	 * @param bool  $update_avatar Force the avatar update
+	 * @return bool "true" if updated
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function updateSelfFromUserID($uid, $update_avatar = false)
+	public static function updateSelfFromUserID(int $uid, bool $update_avatar = false): bool
 	{
 		$fields = ['id', 'uri-id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey', 'manually-approve',
 			'xmpp', 'matrix', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
@@ -795,9 +792,10 @@ class Contact
 	 * Marks a contact for removal
 	 *
 	 * @param int $id contact id
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function remove($id)
+	public static function remove(int $id)
 	{
 		// We want just to make sure that we don't delete our "self" contact
 		$contact = DBA::selectFirst('contact', ['uri-id', 'photo', 'thumb', 'micro', 'uid'], ['id' => $id, 'self' => false]);
@@ -822,6 +820,7 @@ class Contact
 	 * Unfollow the remote contact
 	 *
 	 * @param array $contact Target user-specific contact (uid != 0) array
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -851,6 +850,7 @@ class Contact
 	 * The local relationship is updated immediately, the eventual remote server is messaged in the background.
 	 *
 	 * @param array $contact User-specific contact array (uid != 0) to revoke the follow from
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -878,6 +878,7 @@ class Contact
 	 * Completely severs a relationship with a contact
 	 *
 	 * @param array $contact User-specific contact (uid != 0) array
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -925,7 +926,7 @@ class Contact
 	 * up or some other transient event and that there's a possibility we could recover from it.
 	 *
 	 * @param array $contact contact to mark for archival
-	 * @return null
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function markForArchival(array $contact)
@@ -978,7 +979,7 @@ class Contact
 	 * @see   Contact::markForArchival()
 	 *
 	 * @param array $contact contact to be unmarked for archival
-	 * @return null
+	 * @return void
 	 * @throws \Exception
 	 */
 	public static function unmarkForArchival(array $contact)
@@ -1025,7 +1026,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function photoMenu(array $contact, $uid = 0)
+	public static function photoMenu(array $contact, int $uid = 0): array
 	{
 		$pm_url = '';
 		$status_link = '';
@@ -1168,7 +1169,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getIdForURL($url, $uid = 0, $update = null, $default = [])
+	public static function getIdForURL(string $url, int $uid = 0, $update = null, array $default = []): int
 	{
 		$contact_id = 0;
 
@@ -1312,7 +1313,7 @@ class Contact
 	 * @return boolean Is the contact archived?
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function isArchived(int $cid)
+	public static function isArchived(int $cid): bool
 	{
 		if ($cid == 0) {
 			return false;
@@ -1352,11 +1353,10 @@ class Contact
 	 * Checks if the contact is blocked
 	 *
 	 * @param int $cid contact id
-	 *
 	 * @return boolean Is the contact blocked?
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function isBlocked($cid)
+	public static function isBlocked(int $cid): bool
 	{
 		if ($cid == 0) {
 			return false;
@@ -1378,11 +1378,10 @@ class Contact
 	 * Checks if the contact is hidden
 	 *
 	 * @param int $cid contact id
-	 *
 	 * @return boolean Is the contact hidden?
 	 * @throws \Exception
 	 */
-	public static function isHidden($cid)
+	public static function isHidden(int $cid): bool
 	{
 		if ($cid == 0) {
 			return false;
@@ -1406,7 +1405,7 @@ class Contact
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0, $parent = 0, bool $only_media = false)
+	public static function getPostsFromUrl(string $contact_url, bool $thread_mode = false, int $update = 0, int $parent = 0, bool $only_media = false): string
 	{
 		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update, $parent, $only_media);
 	}
@@ -1422,7 +1421,7 @@ class Contact
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromId($cid, $thread_mode = false, $update = 0, $parent = 0, bool $only_media = false)
+	public static function getPostsFromId(int $cid, bool $thread_mode = false, int $update = 0, int $parent = 0, bool $only_media = false): string
 	{
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
