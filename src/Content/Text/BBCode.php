@@ -664,10 +664,10 @@ class BBCode
 			$data['title'] = strip_tags($data['title']);
 			$data['title'] = str_replace(['http://', 'https://'], '', $data['title']);
 		} else {
-			$data['title'] = null;
+			$data['title'] = '';
 		}
 
-		if (((strpos($data['text'], "[img=") !== false) || (strpos($data['text'], "[img]") !== false) || DI::config()->get('system', 'always_show_preview')) && !empty($data['image'])) {
+		if (((strpos($data['text'], '[img=') !== false) || (strpos($data['text'], '[img]') !== false) || DI::config()->get('system', 'always_show_preview')) && !empty($data['image'])) {
 			$data['preview'] = $data['image'];
 			$data['image'] = '';
 		}
@@ -1513,10 +1513,10 @@ class BBCode
 				 * $match[1] = $url
 				 * $match[2] = $title or absent
 				 */
-				$try_oembed_callback = function ($match)
+				$try_oembed_callback = function (array $match)
 				{
 					$url = $match[1];
-					$title = $match[2] ?? null;
+					$title = $match[2] ?? '';
 
 					try {
 						$return = OEmbed::getHTML($url, $title);
