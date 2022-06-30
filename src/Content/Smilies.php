@@ -243,22 +243,24 @@ class Smilies
 	}
 
 	/**
-	 * @param string $m string
+	 * Encodes smiley match array to BASE64 string
 	 *
+	 * @param array $m Match array
 	 * @return string base64 encoded string
 	 */
-	private static function encode(string $m): string
+	private static function encode(array $m): string
 	{
 		return '<' . $m[1] . '>' . Strings::base64UrlEncode($m[2]) . '</' . $m[1] . '>';
 	}
 
 	/**
-	 * @param string $m string
+	 * Decodes a previously BASE64-encoded match array to a string
 	 *
+	 * @param array $m Matches array
 	 * @return string base64 decoded string
 	 * @throws \Exception
 	 */
-	private static function decode(string $m): string
+	private static function decode(array $m): string
 	{
 		return '<' . $m[1] . '>' . Strings::base64UrlDecode($m[2]) . '</' . $m[1] . '>';
 	}
@@ -268,9 +270,7 @@ class Smilies
 	 * expand <3333 to the correct number of hearts
 	 *
 	 * @param string $x string
-	 *
 	 * @return string HTML Output
-	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function pregHeart(string $x): string
