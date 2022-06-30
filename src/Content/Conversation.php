@@ -582,7 +582,7 @@ class Conversation
 
 					$uriids[] = $item['uri-id'];
 
-					if (!$this->item->visibleActivity($item)) {
+					if (!$this->item->isVisibleActivity($item)) {
 						continue;
 					}
 
@@ -745,7 +745,7 @@ class Conversation
 						continue;
 					}
 
-					if (!$this->item->visibleActivity($item)) {
+					if (!$this->item->isVisibleActivity($item)) {
 						continue;
 					}
 

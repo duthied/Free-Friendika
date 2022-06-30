@@ -225,7 +225,7 @@ class Widget
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function contactRels($baseurl, $selected = '')
+	public static function contactRels(string $baseurl, string $selected = ''): string
 	{
 		if (!local_user()) {
 			return '';
@@ -256,7 +256,7 @@ class Widget
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function networks($baseurl, $selected = '')
+	public static function networks(string $baseurl, string $selected = ''): string
 	{
 		if (!local_user()) {
 			return '';
@@ -294,10 +294,10 @@ class Widget
 	 *
 	 * @param string $baseurl  baseurl
 	 * @param string $selected optional, default empty
-	 * @return string|void
+	 * @return string
 	 * @throws \Exception
 	 */
-	public static function fileAs($baseurl, $selected = '')
+	public static function fileAs(string $baseurl, string $selected = ''): string
 	{
 		if (!local_user()) {
 			return '';
@@ -325,10 +325,10 @@ class Widget
 	 * @param int    $uid      Id of the user owning the categories
 	 * @param string $baseurl  Base page URL
 	 * @param string $selected Selected category
-	 * @return string|void
+	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function categories(int $uid, string $baseurl, string $selected = '')
+	public static function categories(int $uid, string $baseurl, string $selected = ''): string
 	{
 		if (!Feature::isEnabled($uid, 'categories')) {
 			return '';
@@ -355,11 +355,11 @@ class Widget
 	 *
 	 * @param int    $uid      Viewed profile user ID
 	 * @param string $nickname Viewed profile user nickname
-	 * @return string|void
+	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function commonFriendsVisitor(int $uid, string $nickname)
+	public static function commonFriendsVisitor(int $uid, string $nickname): string
 	{
 		if (local_user() == $uid) {
 			return '';
@@ -416,7 +416,7 @@ class Widget
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function tagCloud(int $uid, int $limit = 50)
+	public static function tagCloud(int $uid, int $limit = 50): string
 	{
 		if (empty($uid)) {
 			return '';
@@ -441,7 +441,7 @@ class Widget
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function postedByYear(string $url, int $uid, bool $wall)
+	public static function postedByYear(string $url, int $uid, bool $wall): string
 	{
 		$o = '';
 
@@ -515,7 +515,7 @@ class Widget
 	 * @param int    $accounttype Acount type
 	 * @return string
 	 */
-	public static function accounttypes(string $base, $accounttype)
+	public static function accounttypes(string $base, int $accounttype): string
 	{
 		$accounts = [
 			['ref' => 'person', 'name' => DI::l10n()->t('Persons')],
