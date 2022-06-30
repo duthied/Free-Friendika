@@ -258,7 +258,7 @@ class Photo extends BaseModule
 					return MPhoto::getPhoto($matches[1], $matches[2]);
 				}
 
-				return MPhoto::createPhotoForExternalResource($url, (int)local_user(), $media['mimetype']);
+				return MPhoto::createPhotoForExternalResource($url, (int)local_user(), $media['mimetype'] ?? '');
 			case 'media':
 				$media = DBA::selectFirst('post-media', ['url', 'mimetype', 'uri-id'], ['id' => $id, 'type' => Post\Media::IMAGE]);
 				if (empty($media)) {
@@ -276,7 +276,7 @@ class Photo extends BaseModule
 					return false;
 				}
 
-				return MPhoto::createPhotoForExternalResource($link['url'], (int)local_user(), $link['mimetype']);
+				return MPhoto::createPhotoForExternalResource($link['url'], (int)local_user(), $link['mimetype'] ?? '');
 			case 'contact':
 				$fields = ['uid', 'uri-id', 'url', 'nurl', 'avatar', 'photo', 'xmpp', 'addr', 'network', 'failed', 'updated'];
 				$contact = Contact::getById($id, $fields);

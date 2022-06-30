@@ -981,7 +981,7 @@ function update_1429()
 		return Update::FAILED;
 	}
 
-	DI::config()->set("system", "post_update_version", 1423);
+	DI::config()->set('system', 'post_update_version', 1423);
 
 	return Update::SUCCESS;
 }

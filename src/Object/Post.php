@@ -106,7 +106,7 @@ class Post
 				// Only add will be displayed
 				if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
 					continue;
-				} elseif (!DI::contentItem()->visibleActivity($item)) {
+				} elseif (!DI::contentItem()->isVisibleActivity($item)) {
 					continue;
 				}
 

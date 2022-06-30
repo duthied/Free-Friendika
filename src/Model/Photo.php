@@ -586,6 +586,8 @@ class Photo
 	}
 
 	/**
+	 * Returns a float that represents the GPS coordinate from EXIF data
+	 *
 	 * @param array $exifCoord coordinate
 	 * @param string $hemi      hemi
 	 * @return float

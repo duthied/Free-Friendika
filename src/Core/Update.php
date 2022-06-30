@@ -41,7 +41,7 @@ class Update
 	 * @param string   $basePath   The base path of this application
 	 * @param boolean  $via_worker Is the check run via the worker?
 	 * @param App\Mode $mode       The current app mode
-	 *
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function check(string $basePath, bool $via_worker, App\Mode $mode)
@@ -73,7 +73,7 @@ class Update
 		}
 
 		// The postupdate has to completed version 1288 for the new post views to take over
-		$postupdate = DI::config()->get("system", "post_update_version", NEW_TABLE_STRUCTURE_VERSION);
+		$postupdate = DI::config()->get('system', 'post_update_version', NEW_TABLE_STRUCTURE_VERSION);
 		if ($postupdate < NEW_TABLE_STRUCTURE_VERSION) {
 			$error = DI::l10n()->t('Updates from postupdate version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.', $postupdate);
 			if (DI::mode()->getExecutor() == Mode::INDEX) {
@@ -85,9 +85,11 @@ class Update
 
 		if ($build < DB_UPDATE_VERSION) {
 			if ($via_worker) {
-				// Calling the database update directly via the worker enables us to perform database changes to the workerqueue table itself.
-				// This is a fallback, since normally the database update will be performed by a worker job.
-				// This worker job doesn't work for changes to the "workerqueue" table itself.
+				/*
+				 * Calling the database update directly via the worker enables us to perform database changes to the workerqueue table itself.
+				 * This is a fallback, since normally the database update will be performed by a worker job.
+				 * This worker job doesn't work for changes to the "workerqueue" table itself.
+				 */
 				self::run($basePath);
 			} else {
 				Worker::add(PRIORITY_CRITICAL, 'DBUpdate');
@@ -103,11 +105,10 @@ class Update
 	 * @param bool   $override Overrides any running/stuck updates
 	 * @param bool   $verbose  Run the Update-Check verbose
 	 * @param bool   $sendMail Sends a Mail to the administrator in case of success/failure
-	 *
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function run(string $basePath, bool $force = false, bool $override = false, bool $verbose = false, bool $sendMail = true)
+	public static function run(string $basePath, bool $force = false, bool $override = false, bool $verbose = false, bool $sendMail = true): string
 	{
 		// In force mode, we release the dbupdate lock first
 		// Necessary in case of an stuck update
@@ -228,11 +229,10 @@ class Update
 	 * @param int    $version  the DB version number of the function
 	 * @param string $prefix   the prefix of the function (update, pre_update)
 	 * @param bool   $sendMail whether to send emails on success/failure
-
 	 * @return bool true, if the update function worked
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function runUpdateFunction(int $version, string $prefix, bool $sendMail = true)
+	public static function runUpdateFunction(int $version, string $prefix, bool $sendMail = true): bool
 	{
 		$funcname = $prefix . '_' . $version;
 
@@ -284,6 +284,7 @@ class Update
 	 *
 	 * @param int    $update_id     number of failed update
 	 * @param string $error_message error message
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function updateFailed(int $update_id, string $error_message) {

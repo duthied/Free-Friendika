@@ -49,7 +49,13 @@ use Friendica\Util\Strings;
  */
 class OEmbed
 {
-	public static function replaceCallback($matches)
+	/**
+	 * Callback for fetching URL, checking allowance and returning formatted HTML
+	 *
+	 * @param array $matches
+	 * @return string Formatted HTML
+	 */
+	public static function replaceCallback(array $matches): string
 	{
 		$embedurl = $matches[1];
 		$j = self::fetchURL($embedurl, !self::isAllowedURL($embedurl));
@@ -68,7 +74,7 @@ class OEmbed
 	 * @return \Friendica\Object\OEmbed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchURL($embedurl, bool $no_rich_type = false, bool $use_parseurl = true)
+	public static function fetchURL(string $embedurl, bool $no_rich_type = false, bool $use_parseurl = true): \Friendica\Object\OEmbed
 	{
 		$embedurl = trim($embedurl, '\'"');
 
@@ -209,12 +215,18 @@ class OEmbed
 		return $oembed;
 	}
 
-	private static function formatObject(\Friendica\Object\OEmbed $oembed)
+	/**
+	 * Returns a formatted string from OEmbed object
+	 *
+	 * @param \Friendica\Object\OEmbed $oembed
+	 * @return string
+	 */
+	private static function formatObject(\Friendica\Object\OEmbed $oembed): string
 	{
 		$ret = '<div class="oembed ' . $oembed->type . '">';
 
 		switch ($oembed->type) {
-			case "video":
+			case 'video':
 				if ($oembed->thumbnail_url) {
 					$tw = (isset($oembed->thumbnail_width) && intval($oembed->thumbnail_width)) ? $oembed->thumbnail_width : 200;
 					$th = (isset($oembed->thumbnail_height) && intval($oembed->thumbnail_height)) ? $oembed->thumbnail_height : 180;
@@ -236,14 +248,14 @@ class OEmbed
 				}
 				break;
 
-			case "photo":
+			case 'photo':
 				$ret .= '<img width="' . $oembed->width . '" src="' . Proxy::proxifyUrl($oembed->url) . '">';
 				break;
 
-			case "link":
+			case 'link':
 				break;
 
-			case "rich":
+			case 'rich':
 				$ret .= Proxy::proxifyHtml($oembed->html);
 				break;
 		}
@@ -292,9 +304,15 @@ class OEmbed
 		return str_replace("\n", "", $ret);
 	}
 
-	public static function BBCode2HTML($text)
+	/**
+	 * Converts BBCode to HTML code
+	 *
+	 * @param string $text
+	 * @return string
+	 */
+	public static function BBCode2HTML(string $text): string
 	{
-		$stopoembed = DI::config()->get("system", "no_oembed");
+		$stopoembed = DI::config()->get('system', 'no_oembed');
 		if ($stopoembed == true) {
 			return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>" . DI::l10n()->t('Embedding disabled') . " : $1</i><!-- /oembed $1 -->", $text);
 		}
@@ -305,14 +323,13 @@ class OEmbed
 	 * Find <span class='oembed'>..<a href='url' rel='oembed'>..</a></span>
 	 * and replace it with [embed]url[/embed]
 	 *
-	 * @param $text
+	 * @param string $text
 	 * @return string
 	 */
-	public static function HTML2BBCode($text)
+	public static function HTML2BBCode(string $text): string
 	{
 		// start parser only if 'oembed' is in text
-		if (strpos($text, "oembed")) {
-
+		if (strpos($text, 'oembed')) {
 			// convert non ascii chars to html entities
 			$html_text = mb_convert_encoding($text, 'HTML-ENTITIES', mb_detect_encoding($text));
 
@@ -323,17 +340,17 @@ class OEmbed
 			}
 			$xpath = new DOMXPath($dom);
 
-			$xattr = self::buildXPath("class", "oembed");
+			$xattr = self::buildXPath('class', 'oembed');
 			$entries = $xpath->query("//div[$xattr]");
 
 			$xattr = "@rel='oembed'"; //oe_build_xpath("rel","oembed");
 			foreach ($entries as $e) {
 				$href = $xpath->evaluate("a[$xattr]/@href", $e)->item(0)->nodeValue;
 				if (!is_null($href)) {
-					$e->parentNode->replaceChild(new DOMText("[embed]" . $href . "[/embed]"), $e);
+					$e->parentNode->replaceChild(new DOMText('[embed]' . $href . '[/embed]'), $e);
 				}
 			}
-			return self::getInnerHTML($dom->getElementsByTagName("body")->item(0));
+			return self::getInnerHTML($dom->getElementsByTagName('body')->item(0));
 		} else {
 			return $text;
 		}
@@ -346,7 +363,7 @@ class OEmbed
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isAllowedURL($url)
+	public static function isAllowedURL(string $url): bool
 	{
 		if (!DI::config()->get('system', 'no_oembed_rich_content')) {
 			return true;
@@ -367,7 +384,14 @@ class OEmbed
 		return Network::isDomainAllowed($domain, $allowed);
 	}
 
-	public static function getHTML($url, $title = null)
+	/**
+	 * Returns a formmated HTML code from given URL and sets optional title
+	 *
+	 * @param string $url URL to fetch
+	 * @param string $title Optional title (default: what comes from OEmbed object)
+	 * @return string Formatted HTML
+	 */
+	public static function getHTML(string $url, string $title = '')
 	{
 		$o = self::fetchURL($url, !self::isAllowedURL($url));
 
@@ -401,12 +425,12 @@ class OEmbed
 	 * @param string $src Original remote URL to embed
 	 * @param string $width
 	 * @param string $height
-	 * @return string formatted HTML
+	 * @return string Formatted HTML
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   oembed_format_object()
 	 */
-	private static function iframe($src, $width, $height)
+	private static function iframe(string $src, string $width, string $height): string
 	{
 		if (!$height || strstr($height, '%')) {
 			$height = '200';
@@ -427,7 +451,7 @@ class OEmbed
 	 * @param string $value Value to search in a space-separated list
 	 * @return string
 	 */
-	private static function buildXPath($attr, $value)
+	private static function buildXPath(string $attr, $value): string
 	{
 		// https://www.westhoffswelt.de/blog/2009/6/9/select-html-elements-with-more-than-one-css-class-using-xpath
 		return "contains(normalize-space(@$attr), ' $value ') or substring(normalize-space(@$attr), 1, string-length('$value') + 1) = '$value ' or substring(normalize-space(@$attr), string-length(@$attr) - string-length('$value')) = ' $value' or @$attr = '$value'";
@@ -439,7 +463,7 @@ class OEmbed
 	 * @param DOMNode $node
 	 * @return string
 	 */
-	private static function getInnerHTML(DOMNode $node)
+	private static function getInnerHTML(DOMNode $node): string
 	{
 		$innerHTML = '';
 		$children = $node->childNodes;
