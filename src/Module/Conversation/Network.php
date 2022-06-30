@@ -86,7 +86,7 @@ class Network extends BaseModule
 
 		$module = 'network';
 
-		DI::page()['aside'] .= Widget::accounttypes($module, self::$accountTypeString);
+		DI::page()['aside'] .= Widget::accountTypes($module, self::$accountTypeString);
 		DI::page()['aside'] .= Group::sidebarWidget($module, $module . '/group', 'standard', self::$groupId);
 		DI::page()['aside'] .= ForumManager::widget($module . '/forum', local_user(), self::$forumContactId);
 		DI::page()['aside'] .= Widget::postedByYear($module . '/archive', local_user(), false);

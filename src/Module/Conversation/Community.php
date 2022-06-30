@@ -90,7 +90,7 @@ class Community extends BaseModule
 
 			Nav::setSelected('community');
 
-			DI::page()['aside'] .= Widget::accounttypes('community/' . self::$content, self::$accountTypeString);
+			DI::page()['aside'] .= Widget::accountTypes('community/' . self::$content, self::$accountTypeString);
 	
 			if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
 				$path = self::$content;

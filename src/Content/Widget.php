@@ -512,10 +512,10 @@ class Widget
 	 * The account type value is added as a parameter to the url
 	 *
 	 * @param string $base        Basepath
-	 * @param int    $accounttype Acount type
+	 * @param string $accounttype Account type
 	 * @return string
 	 */
-	public static function accounttypes(string $base, int $accounttype): string
+	public static function accountTypes(string $base, string $accounttype): string
 	{
 		$accounts = [
 			['ref' => 'person', 'name' => DI::l10n()->t('Persons')],

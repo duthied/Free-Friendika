@@ -186,7 +186,7 @@ class Contact extends BaseModule
 			$follow_widget = Widget::follow();
 		}
 
-		$account_widget = Widget::accounttypes($_SERVER['REQUEST_URI'], $accounttype);
+		$account_widget = Widget::accountTypes($_SERVER['REQUEST_URI'], $accounttype);
 		$networks_widget = Widget::networks($_SERVER['REQUEST_URI'], $nets);
 		$rel_widget = Widget::contactRels($_SERVER['REQUEST_URI'], $rel);
 		$groups_widget = Widget::groups($_SERVER['REQUEST_URI'], $group);
