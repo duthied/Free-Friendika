@@ -92,7 +92,7 @@ class Network extends BaseModule
 		DI::page()['aside'] .= Widget::postedByYear($module . '/archive', local_user(), false);
 		DI::page()['aside'] .= Widget::networks($module, !self::$forumContactId ? self::$network : '');
 		DI::page()['aside'] .= Widget\SavedSearches::getHTML(DI::args()->getQueryString());
-		DI::page()['aside'] .= Widget::fileAs('filed', null);
+		DI::page()['aside'] .= Widget::fileAs('filed', '');
 
 		$arr = ['query' => DI::args()->getQueryString()];
 		Hook::callAll('network_content_init', $arr);
