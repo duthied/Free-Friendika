@@ -73,12 +73,12 @@ class BoundariesPager extends Pager
 		}
 	}
 
-	public function getStart()
+	public function getStart(): int
 	{
 		throw new \BadMethodCallException();
 	}
 
-	public function getPage()
+	public function getPage(): int
 	{
 		throw new \BadMethodCallException();
 	}
