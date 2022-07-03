@@ -1190,10 +1190,10 @@ class Transmitter
 	 *
 	 * @param integer $item_id Item id
 	 * @param boolean $force Force new cache entry
-	 * @return array with the activity
+	 * @return array|false activity or false on failure
 	 * @throws \Exception
 	 */
-	public static function createCachedActivityFromItem(int $item_id, bool $force = false): array
+	public static function createCachedActivityFromItem(int $item_id, bool $force = false)
 	{
 		$cachekey = 'APDelivery:createActivity:' . $item_id;
 

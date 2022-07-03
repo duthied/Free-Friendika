@@ -233,7 +233,7 @@ class Smilies
 			$smilies = $cleaned;
 		}
 
-		$text = preg_replace_callback('/&lt;(3+)/', 'self::pregHeart', $text);
+		$text = preg_replace_callback('/&lt;(3+)/', 'self::heartReplaceCallback', $text);
 		$text = self::strOrigReplace($smilies['texts'], $smilies['icons'], $text);
 
 		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', 'self::decode', $text);
@@ -269,22 +269,20 @@ class Smilies
 	/**
 	 * expand <3333 to the correct number of hearts
 	 *
-	 * @param string $x string
+	 * @param array $matches
 	 * @return string HTML Output
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function pregHeart(string $x): string
+	private static function heartReplaceCallback(array $matches): string
 	{
-		if (strlen($x[1]) == 1) {
-			return $x[0];
+		if (strlen($matches[1]) == 1) {
+			return $matches[0];
 		}
 
 		$t = '';
-		for ($cnt = 0; $cnt < strlen($x[1]); $cnt ++) {
+		for ($cnt = 0; $cnt < strlen($matches[1]); $cnt ++) {
 			$t .= '❤';
 		}
 
-		$r =  str_replace($x[0], $t, $x[0]);
-		return $r;
+		return str_replace($matches[0], $t, $matches[0]);
 	}
 }
