@@ -302,7 +302,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	// Preparing the meta header
 	$description = trim(BBCode::toPlaintext($item['body']));
-	$title = trim(BBCode::toPlaintext($item['title']));
+	$title = trim(BBCode::toPlaintext($item['title'] ?? ''));
 	$author_name = $item['author-name'];
 
 	$image = DI::baseUrl()->remove($item['author-avatar']);

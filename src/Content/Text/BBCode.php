@@ -424,7 +424,6 @@ class BBCode
 	 *
 	 * @param string  $body
 	 * @param boolean $no_link_desc No link description
-	 *
 	 * @return string with replaced body
 	 */
 	public static function removeAttachment(string $body, bool $no_link_desc = false): string
@@ -449,7 +448,6 @@ class BBCode
 	 *
 	 * @param string $text
 	 * @param bool $keep_urls Whether to keep URLs in the resulting plaintext
-	 *
 	 * @return string
 	 */
 	public static function toPlaintext(string $text, bool $keep_urls = true): string
