@@ -60,9 +60,14 @@ class Account extends BaseFactory
 	public function createFromContactId(int $contactId, int $uid = 0): \Friendica\Object\Api\Mastodon\Account
 	{
 		$contact = Contact::getById($contactId, ['uri-id']);
+
 		if (empty($contact)) {
 			throw new HTTPException\NotFoundException('Contact ' . $contactId . ' not found');
 		}
+		if (empty($contact['uri-id'])) {
+			throw new HTTPException\NotFoundException('Contact ' . $contactId . ' has no uri-id set');
+		}
+
 		return self::createFromUriId($contact['uri-id'], $uid);
 	}
 
