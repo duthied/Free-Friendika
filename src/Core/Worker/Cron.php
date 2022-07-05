@@ -25,9 +25,11 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 /**
  * Contains the class for jobs that are executed in an interval
@@ -177,6 +179,26 @@ class Cron
 			if (Worker::add($priority, 'APDelivery', '', 0, $delivery['inbox'], 0)) {
 				Logger::info('Missing APDelivery worker added for inbox', ['inbox' => $delivery['inbox'], 'failed' => $delivery['failed'], 'priority' => $priority]);
 			}
+		}
+	}
+
+	/**
+	 * Add missing "intro" records.
+	 *
+	 * @return void
+	 */
+	private static function addIntros()
+	{
+		$contacts = DBA::p("SELECT `uid`, `id`, `created` FROM `contact` WHERE `rel` = ? AND `pending` AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id`)", Contact::FOLLOWER);
+		while ($contact = DBA::fetch($contacts)) {
+			$fields = [
+				'uid'        => $contact['uid'],
+				'contact-id' => $contact['id'],
+				'datetime'   => $contact['created'],
+				'hash'       => Strings::getRandomHex()
+			];
+			Logger::notice('Adding missing intro', ['fields' => $fields]);
+			DBA::insert('intro', $fields);
 		}
 	}
 }

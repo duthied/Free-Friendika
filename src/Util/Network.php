@@ -25,6 +25,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException\NotModifiedException;
 use GuzzleHttp\Psr7\Uri;
 
@@ -66,14 +67,58 @@ class Network
 			$url = 'http://' . $url;
 		}
 
-		/// @TODO Really suppress function outcomes? Why not find them + debug them?
-		$h = @parse_url($url);
+		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
+		$host = parse_url($url, PHP_URL_HOST);
 
-		if (!empty($h['host']) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP))) {
-			return $url;
+		if (empty($host) || !(@dns_get_record($host . '.', DNS_A + DNS_AAAA + DNS_CNAME) || filter_var($host, FILTER_VALIDATE_IP))) {
+			return false;
 		}
 
-		return false;
+		// Check if the certificate is valid for this hostname
+		if (parse_url($url, PHP_URL_SCHEME) == 'https') {
+			$port = parse_url($url, PHP_URL_PORT) ?? 443;
+
+			$context = stream_context_create(["ssl" => ['capture_peer_cert' => true]]);
+
+			$resource = @stream_socket_client('ssl://' . $host . ':' . $port, $errno, $errstr, $xrd_timeout, STREAM_CLIENT_CONNECT, $context);
+			if (empty($resource)) {
+				Logger::notice('Invalid certificate', ['host' => $host]);
+				return false;
+			}
+
+			$cert = stream_context_get_params($resource);
+			if (empty($cert)) {
+				Logger::notice('Invalid certificate params', ['host' => $host]);
+				return false;
+			}
+
+			$certinfo = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
+			if (empty($certinfo)) {
+				Logger::notice('Invalid certificate information', ['host' => $host]);
+				return false;
+			}
+
+			$valid_from = date(DATE_RFC2822,$certinfo['validFrom_time_t']);
+			$valid_to   = date(DATE_RFC2822,$certinfo['validTo_time_t']);
+
+			if ($certinfo['validFrom_time_t'] > time()) {
+				Logger::notice('Certificate validity starts after current date', ['host' => $host, 'from' => $valid_from, 'to' => $valid_to]);
+				return false;
+			}
+
+			if ($certinfo['validTo_time_t'] < time()) {
+				Logger::notice('Certificate validity ends before current date', ['host' => $host, 'from' => $valid_from, 'to' => $valid_to]);
+				return false;
+			}
+		}
+		if (in_array(parse_url($url, PHP_URL_SCHEME), ['https', 'http'])) {
+			if (!ParseUrl::getContentType($url, HttpClientAccept::DEFAULT, $xrd_timeout)) {
+				Logger::notice('Url not reachable', ['host' => $host, 'url' => $url]);
+				return false;
+			}
+		}
+
+		return $url;
 	}
 
 	/**
@@ -95,7 +140,7 @@ class Network
 		$h = substr($addr, strpos($addr, '@') + 1);
 
 		// Concerning the @ see here: https://stackoverflow.com/questions/36280957/dns-get-record-a-temporary-server-error-occurred
-		if ($h && (@dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP))) {
+		if ($h && (@dns_get_record($h, DNS_A + DNS_AAAA + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP))) {
 			return true;
 		}
 		if ($h && @dns_get_record($h, DNS_CNAME + DNS_MX)) {
@@ -577,8 +622,8 @@ class Network
 	/**
 	 * Check if the given URL is a local link
 	 *
-	 * @param string $url 
-	 * @return bool 
+	 * @param string $url
+	 * @return bool
 	 */
 	public static function isLocalLink(string $url)
 	{
@@ -588,8 +633,8 @@ class Network
 	/**
 	 * Check if the given URL is a valid HTTP/HTTPS URL
 	 *
-	 * @param string $url 
-	 * @return bool 
+	 * @param string $url
+	 * @return bool
 	 */
 	public static function isValidHttpUrl(string $url)
 	{
