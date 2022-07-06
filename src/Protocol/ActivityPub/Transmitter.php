@@ -2161,14 +2161,14 @@ class Transmitter
 	/**
 	 * Reject a contact request or terminates the contact relation
 	 *
-	 * @param string  $target Target profile
-	 * @param integer $id Object id
-	 * @param integer $uid    User ID
+	 * @param string $target   Target profile
+	 * @param string $objectId Object id
+	 * @param int    $uid      User ID
 	 * @return bool Operation success
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendContactReject(string $target, int $id, int $uid): bool
+	public static function sendContactReject(string $target, string $objectId, int $uid): bool
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
@@ -2181,9 +2181,9 @@ class Transmitter
 			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Reject',
-			'actor' => $owner['url'],
+			'actor'  => $owner['url'],
 			'object' => [
-				'id' => (string)$id,
+				'id' => $objectId,
 				'type' => 'Follow',
 				'actor' => $profile['url'],
 				'object' => $owner['url']
@@ -2192,7 +2192,7 @@ class Transmitter
 			'to' => [$profile['url']],
 		];
 
-		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id);
+		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $objectId);
 
 		$signed = LDSignature::sign($data, $owner);
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -2222,12 +2222,12 @@ class Transmitter
 			return false;
 		}
 
-		$id = DI::baseUrl() . '/activity/' . System::createGUID();
+		$objectId = DI::baseUrl() . '/activity/' . System::createGUID();
 
 		$owner = User::getOwnerDataById($uid);
 		$data = [
 			'@context' => ActivityPub::CONTEXT,
-			'id' => $id,
+			'id' => $objectId,
 			'type' => 'Undo',
 			'actor' => $owner['url'],
 			'object' => [
@@ -2240,7 +2240,7 @@ class Transmitter
 			'to' => [$profile['url']],
 		];
 
-		Logger::info('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id);
+		Logger::info('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $objectId);
 
 		$signed = LDSignature::sign($data, $owner);
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
