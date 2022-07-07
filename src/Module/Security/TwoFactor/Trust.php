@@ -29,6 +29,9 @@ use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Model\User;
 use Friendica\Model\User\Cookie;
 use Friendica\Module\Response;
+use Friendica\Network\HTTPException\FoundException;
+use Friendica\Network\HTTPException\MovedPermanentlyException;
+use Friendica\Network\HTTPException\TemporaryRedirectException;
 use Friendica\Security\Authentication;
 use Friendica\Util\Profiler;
 use Friendica\Security\TwoFactor;
@@ -97,7 +100,10 @@ class Trust extends BaseModule
 
 			try {
 				$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
-			} catch (\Exception $exception) {
+			} catch (FoundException | TemporaryRedirectException | MovedPermanentlyException $e) {
+				// exception wanted!
+				throw $e;
+			} catch (\Exception $e) {
 				$this->logger->warning('Unexpected error during authentication.', ['user' => $this->app->getLoggedInUserId(), 'exception' => $exception]);
 			}
 		}

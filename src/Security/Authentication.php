@@ -304,8 +304,13 @@ class Authentication
 	 * @param bool  $interactive
 	 * @param bool  $login_refresh
 	 *
+	 * @throws HTTPException\FoundException
+	 * @throws HTTPException\MovedPermanentlyException
+	 * @throws HTTPException\TemporaryRedirectException
+	 * @throws HTTPException\ForbiddenException
+
 	 * @throws HTTPException\InternalServerErrorException In case of Friendica specific exceptions
-	 * @throws Exception In case of general Exceptions (like SQL Grammar exceptions)
+	 *
 	 */
 	public function setForUser(App $a, array $user_record, bool $login_initial = false, bool $interactive = false, bool $login_refresh = false)
 	{
