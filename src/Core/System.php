@@ -441,6 +441,12 @@ class System
 	 *
 	 * @param string $url  The new Location to redirect
 	 * @param int    $code The redirection code, which is used (Default is 302)
+	 *
+	 * @throws FoundException
+	 * @throws MovedPermanentlyException
+	 * @throws TemporaryRedirectException
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function externalRedirect($url, $code = 302)
 	{

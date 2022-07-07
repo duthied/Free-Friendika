@@ -27,6 +27,11 @@ use Friendica\Util\Strings;
 
 class TrustedBrowser extends BaseFactory
 {
+	/**
+	 * Creates a new Trusted Browser based on the current user environment
+	 *
+	 * @throws \Exception In case something really unexpected happens
+	 */
 	public function createForUserWithUserAgent(int $uid, string $userAgent, bool $trusted): \Friendica\Security\TwoFactor\Model\TrustedBrowser
 	{
 		$trustedHash = Strings::getRandomHex();
