@@ -29,7 +29,9 @@ use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Model\User;
 use Friendica\Model\User\Cookie;
 use Friendica\Module\Response;
-use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Network\HTTPException\FoundException;
+use Friendica\Network\HTTPException\MovedPermanentlyException;
+use Friendica\Network\HTTPException\TemporaryRedirectException;
 use Friendica\Security\Authentication;
 use Friendica\Util\Profiler;
 use Friendica\Security\TwoFactor;
@@ -53,23 +55,24 @@ class Trust extends BaseModule
 	/** @var TwoFactor\Factory\TrustedBrowser  */
 	protected $trustedBrowserFactory;
 	/** @var TwoFactor\Repository\TrustedBrowser  */
-	protected $trustedBrowserRepositoy;
+	protected $trustedBrowserRepository;
 
 	public function __construct(App $app, Authentication $auth, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IHandleSessions $session, Cookie $cookie, TwoFactor\Factory\TrustedBrowser $trustedBrowserFactory, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepositoy, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->app                     = $app;
-		$this->auth                    = $auth;
-		$this->session                 = $session;
-		$this->cookie                  = $cookie;
-		$this->trustedBrowserFactory   = $trustedBrowserFactory;
-		$this->trustedBrowserRepositoy = $trustedBrowserRepositoy;
+		$this->app                      = $app;
+		$this->auth                     = $auth;
+		$this->session                  = $session;
+		$this->cookie                   = $cookie;
+		$this->trustedBrowserFactory    = $trustedBrowserFactory;
+		$this->trustedBrowserRepository = $trustedBrowserRepositoy;
 	}
 
 	protected function post(array $request = [])
 	{
 		if (!local_user() || !$this->session->get('2fa')) {
+			$this->logger->info('Invalid call', ['request' => $request]);
 			return;
 		}
 
@@ -82,16 +85,27 @@ class Trust extends BaseModule
 				case 'trust':
 				case 'dont_trust':
 					$trustedBrowser = $this->trustedBrowserFactory->createForUserWithUserAgent(local_user(), $this->server['HTTP_USER_AGENT'], $action === 'trust');
-					$this->trustedBrowserRepositoy->save($trustedBrowser);
+					try {
+						$this->trustedBrowserRepository->save($trustedBrowser);
 
-					// The string is sent to the browser to be sent back with each request
-					if (!$this->cookie->set('2fa_cookie_hash', $trustedBrowser->cookie_hash)) {
-						notice($this->t('Couldn\'t save browser to Cookie.'));
-					};
+						// The string is sent to the browser to be sent back with each request
+						if (!$this->cookie->set('2fa_cookie_hash', $trustedBrowser->cookie_hash)) {
+							notice($this->t('Couldn\'t save browser to Cookie.'));
+						};
+					} catch (TwoFactor\Exception\TrustedBrowserPersistenceException $exception) {
+						$this->logger->warning('Unexpected error when saving the trusted browser.', ['trustedBrowser' => $trustedBrowser, 'exception' => $exception]);
+					}
 					break;
 			}
 
-			$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
+			try {
+				$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
+			} catch (FoundException | TemporaryRedirectException | MovedPermanentlyException $e) {
+				// exception wanted!
+				throw $e;
+			} catch (\Exception $e) {
+				$this->logger->warning('Unexpected error during authentication.', ['user' => $this->app->getLoggedInUserId(), 'exception' => $exception]);
+			}
 		}
 	}
 
@@ -103,13 +117,17 @@ class Trust extends BaseModule
 
 		if ($this->cookie->get('2fa_cookie_hash')) {
 			try {
-				$trustedBrowser = $this->trustedBrowserRepositoy->selectOneByHash($this->cookie->get('2fa_cookie_hash'));
+				$trustedBrowser = $this->trustedBrowserRepository->selectOneByHash($this->cookie->get('2fa_cookie_hash'));
 				if (!$trustedBrowser->trusted) {
 					$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
 					$this->baseUrl->redirect();
 				}
-			} catch (NotFoundException $exception) {
+			} catch (TwoFactor\Exception\TrustedBrowserNotFoundException $exception) {
 				$this->logger->notice('Trusted Browser of the cookie not found.', ['cookie_hash' => $this->cookie->get('trusted'), 'uid' => $this->app->getLoggedInUserId(), 'exception' => $exception]);
+			} catch (TwoFactor\Exception\TrustedBrowserPersistenceException $exception) {
+				$this->logger->warning('Unexpected persistence exception.', ['cookie_hash' => $this->cookie->get('trusted'), 'uid' => $this->app->getLoggedInUserId(), 'exception' => $exception]);
+			} catch (\Exception $exception) {
+				$this->logger->warning('Unexpected exception.', ['cookie_hash' => $this->cookie->get('trusted'), 'uid' => $this->app->getLoggedInUserId(), 'exception' => $exception]);
 			}
 		}
 

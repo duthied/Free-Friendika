@@ -67,6 +67,12 @@ class TrustedBrowser extends BaseEntity
 		$this->last_used   = $last_used;
 	}
 
+	/**
+	 * Records if the trusted browser was used
+	 *
+	 * @return void
+	 * @throws \Exception unexpected DateTime exception happened
+	 */
 	public function recordUse()
 	{
 		$this->last_used = DateTimeFormat::utcNow();

@@ -444,6 +444,10 @@ class BaseURL
 	 * @param string $toUrl The destination URL (Default is empty, which is the default page of the Friendica node)
 	 * @param bool   $ssl   if true, base URL will try to get called with https:// (works just for relative paths)
 	 *
+	 * @throws HTTPException\FoundException
+	 * @throws HTTPException\MovedPermanentlyException
+	 * @throws HTTPException\TemporaryRedirectException
+	 *
 	 * @throws HTTPException\InternalServerErrorException In Case the given URL is not relative to the Friendica node
 	 */
 	public function redirect(string $toUrl = '', bool $ssl = false)
