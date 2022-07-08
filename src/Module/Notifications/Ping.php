@@ -113,7 +113,8 @@ class Ping extends BaseModule
 			}
 			DBA::close($items);
 
-			if ($network_count) {
+			$compute_group_counts = DI::config()->get('system','compute_group_counts');
+			if ($network_count && $compute_group_counts) {
 				// Find out how unseen network posts are spread across groups
 				$group_counts = Group::countUnseen();
 				if (DBA::isResult($group_counts)) {

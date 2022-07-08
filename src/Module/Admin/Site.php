@@ -134,6 +134,7 @@ class Site extends BaseAdmin
 		$temppath               = (!empty($_POST['temppath'])               ? trim($_POST['temppath'])   : '');
 		$singleuser             = (!empty($_POST['singleuser'])             ? trim($_POST['singleuser']) : '');
 		$only_tag_search        = !empty($_POST['only_tag_search']);
+		$compute_group_counts   = !empty($_POST['compute_group_counts']);
 		$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? trim($_POST['check_new_version_url']) : 'none');
 
 		$worker_queues    = (!empty($_POST['worker_queues'])                ? intval($_POST['worker_queues'])                 : 10);
@@ -304,6 +305,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'temppath', $temppath);
 
 		DI::config()->set('system', 'only_tag_search'  , $only_tag_search);
+		DI::config()->set('system', 'compute_group_counts', $compute_group_counts);
 
 		DI::config()->set('system', 'worker_queues'    , $worker_queues);
 		DI::config()->set('system', 'worker_fastlane'  , $worker_fastlane);
@@ -534,6 +536,7 @@ class Site extends BaseAdmin
 			'$max_display_comments'   => ['max_display_comments', DI::l10n()->t('Maximum numbers of comments per post on the display page'), DI::config()->get('system', 'max_display_comments'), DI::l10n()->t('How many comments should be shown on the single view for each post? Default value is 1000.')],
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
+			'$compute_group_counts'   => ['compute_group_counts', DI::l10n()->t('Generate counts per contact group when calculating network count'), DI::config()->get('system', 'compute_group_counts'), DI::l10n()->t('On systems with users that heavily use contact groups the query can be very expensive.')],
 
 			'$worker_queues'          => ['worker_queues', DI::l10n()->t('Maximum number of parallel workers'), DI::config()->get('system', 'worker_queues'), DI::l10n()->t('On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.', 5, 20, 10)],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
