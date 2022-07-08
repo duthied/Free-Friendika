@@ -2147,9 +2147,19 @@ $a->strings['<p>You can enter one of your one-time recovery codes in case you lo
 $a->strings['Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>'] = 'Hast du dein Handy nicht? <a href="%s">Gib einen Zwei-Faktor-Wiederherstellungscode ein</a>';
 $a->strings['Please enter a recovery code'] = 'Bitte gib einen Wiederherstellungscode ein';
 $a->strings['Submit recovery code and complete login'] = 'Sende den Wiederherstellungscode und schließe die Anmeldung ab';
+$a->strings['Sign out of this browser?'] = 'Von diesem Browser abmelden?';
+$a->strings['<p>If you trust this browser, you will not be asked for verification code the next time you sign in.</p>'] = '<p>Wenn du diesem Browser vertraust, wirst du bei zukünftigen Anmeldungen nicht nach dem Verifikationscode gefragt.</p>';
+$a->strings['Sign out'] = 'Ab,eödem';
+$a->strings['Trust and sign out'] = 'Vertrauen und Abmelden';
+$a->strings['Couldn\'t save browser to Cookie.'] = 'Konnte keine Cookies speichern.';
+$a->strings['Trust this browser?'] = 'Vertraust du diesen Browser?';
+$a->strings['<p>If you choose to trust this browser, you will not be asked for a verification code the next time you sign in.</p>'] = '<p>Wenn du diesem Browser vertraust, wirst du bei zukünftigen Anmeldungen nicht nach dem Verifikationscode gefragt.</p>';
+$a->strings['Not now'] = 'Nicht jetzt';
+$a->strings['Don\'t trust'] = 'Nicht vertrauen';
+$a->strings['Trust'] = 'Vertrauen';
 $a->strings['<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'] = '<p>Öffne die Zwei-Faktor-Authentifizierungs-App auf deinem Gerät, um einen Authentifizierungscode abzurufen und deine Identität zu überprüfen.</p>';
+$a->strings['If you do not have access to your authentication code you can use a <a href="%s">two-factor recovery code</a>.'] = 'Wenn du keinen Zugriff auf deinen Authentifikationscode hast, kannst du einen <a href="%s">Zwei-Faktor Wiederherstellungsschlüssel</a> verwenden.';
 $a->strings['Please enter a code from your authentication app'] = 'Bitte gebe einen Code aus Ihrer Authentifizierungs-App ein';
-$a->strings['This is my two-factor authenticator app device'] = 'Dies ist das Gerät auf dem meine 2FA Authentifizierungs-App läuft.';
 $a->strings['Verify code and complete login'] = 'Code überprüfen und Anmeldung abschließen';
 $a->strings['Passwords do not match.'] = 'Die Passwörter stimmen nicht überein.';
 $a->strings['Password unchanged.'] = 'Passwort unverändert.';
@@ -2385,7 +2395,6 @@ $a->strings['Generate new app-specific password'] = 'Neues App spezifisches Pass
 $a->strings['Friendiqa on my Fairphone 2...'] = 'Friendiqa auf meinem Fairphone 2';
 $a->strings['Generate'] = 'Erstellen';
 $a->strings['Two-factor authentication successfully disabled.'] = 'Zwei-Faktor Authentifizierung erfolgreich deaktiviert.';
-$a->strings['Wrong Password'] = 'Falsches Passwort';
 $a->strings['<p>Use an application on a mobile device to get two-factor authentication codes when prompted on login.</p>'] = '<p>Benutze eine App auf deinem Smartphone um einen Zwei-Faktor Identifikationscode zu bekommen wenn beim Anmelden das verlangt wird.</p>';
 $a->strings['Authenticator app'] = 'Zwei-Faktor Authentifizierungsapp';
 $a->strings['Configured'] = 'Konfiguriert';
@@ -2419,6 +2428,7 @@ $a->strings['Trusted browsers are individual browsers you chose to skip two-fact
 $a->strings['Device'] = 'Gerät';
 $a->strings['OS'] = 'OS';
 $a->strings['Trusted'] = 'Vertrauenswürdig';
+$a->strings['Created At'] = 'Erstellt am';
 $a->strings['Last Use'] = 'Zuletzt verwendet';
 $a->strings['Remove All'] = 'Alle entfernen';
 $a->strings['Two-factor authentication successfully activated.'] = 'Zwei-Faktor-Authentifizierung erfolgreich aktiviert.';
