@@ -780,7 +780,7 @@ class Item
 		$uid = intval($item['uid']);
 
 		$item['guid'] = self::guid($item, $notify);
-		$item['uri'] = substr(trim($item['uri'] ?? '') ?: self::newURI($item['uid'], $item['guid']), 0, 255);
+		$item['uri'] = substr(trim($item['uri'] ?? '') ?: self::newURI($item['guid']), 0, 255);
 
 		// Store URI data
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
@@ -1853,13 +1853,12 @@ class Item
 	/**
 	 * generate an unique URI
 	 *
-	 * @param integer $uid  User id
-	 * @param string  $guid An existing GUID (Otherwise it will be generated)
+	 * @param string $guid An existing GUID (Otherwise it will be generated)
 	 *
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function newURI(int $uid, string $guid = ''): string
+	public static function newURI(string $guid = ''): string
 	{
 		if ($guid == '') {
 			$guid = System::createUUID();
@@ -2150,7 +2149,7 @@ class Item
 				$old_uri_id = $datarray["uri-id"] ?? 0;
 				$datarray["guid"] = System::createUUID();
 				unset($datarray["plink"]);
-				$datarray["uri"] = self::newURI($contact['uid'], $datarray["guid"]);
+				$datarray["uri"] = self::newURI($datarray["guid"]);
 				$datarray["uri-id"] = ItemURI::getIdByURI($datarray["uri"]);
 				$datarray["extid"] = Protocol::DFRN;
 				$urlpart = parse_url($datarray2['author-link']);
@@ -2591,7 +2590,7 @@ class Item
 
 		$new_item = [
 			'guid'          => System::createUUID(),
-			'uri'           => self::newURI($item['uid']),
+			'uri'           => self::newURI(),
 			'uid'           => $item['uid'],
 			'contact-id'    => $owner['id'],
 			'wall'          => $item['wall'],

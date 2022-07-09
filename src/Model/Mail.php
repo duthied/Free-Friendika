@@ -154,7 +154,7 @@ class Mail
 		Photo::setPermissionFromBody($body, local_user(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
 
 		$guid = System::createUUID();
-		$uri = Item::newURI(local_user(), $guid);
+		$uri = Item::newURI($guid);
 
 		$convid = 0;
 		$reply = false;
@@ -266,7 +266,7 @@ class Mail
 		}
 
 		$guid = System::createUUID();
-		$uri = Item::newURI(local_user(), $guid);
+		$uri = Item::newURI($guid);
 
 		$me = Contact::getByURL($replyto);
 		if (!$me['name']) {
