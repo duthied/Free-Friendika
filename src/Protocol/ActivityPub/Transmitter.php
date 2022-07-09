@@ -1271,7 +1271,7 @@ class Transmitter
 		}
 
 		if ($type == 'Delete') {
-			$data['id'] = Item::newURI($item['uid'], $item['guid']) . '/' . $type;;
+			$data['id'] = Item::newURI($item['guid']) . '/' . $type;;
 		} elseif (($item['gravity'] == GRAVITY_ACTIVITY) && ($type != 'Undo')) {
 			$data['id'] = $item['uri'];
 		} else {

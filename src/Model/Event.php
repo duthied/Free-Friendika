@@ -248,7 +248,7 @@ class Event
 		$event['uid']       = intval($arr['uid']       ?? 0);
 		$event['cid']       = intval($arr['cid']       ?? 0);
 		$event['guid']      =       ($arr['guid']      ?? '') ?: System::createUUID();
-		$event['uri']       =       ($arr['uri']       ?? '') ?: Item::newURI($event['uid'], $event['guid']);
+		$event['uri']       =       ($arr['uri']       ?? '') ?: Item::newURI($event['guid']);
 		$event['uri-id']    = ItemURI::insert(['uri' => $event['uri'], 'guid' => $event['guid']]);
 		$event['type']      =       ($arr['type']      ?? '') ?: 'event';
 		$event['summary']   =        $arr['summary']   ?? '';

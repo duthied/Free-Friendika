@@ -525,7 +525,7 @@ function item_post(App $a) {
 		$origin = $_REQUEST['origin'];
 	}
 
-	$uri = Item::newURI($api_source ? $profile_uid : $uid, $guid);
+	$uri = Item::newURI($guid);
 
 	// Fallback so that we alway have a parent uri
 	if (!$thr_parent_uri || !$toplevel_item_id) {

@@ -360,7 +360,7 @@ function photos_post(App $a)
 		if (DBA::isResult($photos) && !$item_id) {
 			// Create item container
 			$title = '';
-			$uri = Item::newURI($page_owner_uid);
+			$uri = Item::newURI();
 
 			$arr = [];
 			$arr['guid']          = System::createUUID();
@@ -524,7 +524,7 @@ function photos_post(App $a)
 
 			if (count($taginfo)) {
 				foreach ($taginfo as $tagged) {
-					$uri = Item::newURI($page_owner_uid);
+					$uri = Item::newURI();
 
 					$arr = [];
 					$arr['guid']          = System::createUUID();
@@ -728,7 +728,7 @@ function photos_post(App $a)
 		$smallest = 2;
 	}
 
-	$uri = Item::newURI($page_owner_uid);
+	$uri = Item::newURI();
 
 	// Create item container
 	$lat = $lon = null;
