@@ -33,6 +33,8 @@ use Friendica\Network\HTTPException\FoundException;
 use Friendica\Network\HTTPException\MovedPermanentlyException;
 use Friendica\Network\HTTPException\TemporaryRedirectException;
 use Friendica\Security\Authentication;
+use Friendica\Security\TwoFactor\Exception\TrustedBrowserNotFoundException;
+use Friendica\Security\TwoFactor\Exception\TrustedBrowserPersistenceException;
 use Friendica\Util\Profiler;
 use Friendica\Security\TwoFactor;
 use Psr\Log\LoggerInterface;
@@ -92,7 +94,7 @@ class Trust extends BaseModule
 						if (!$this->cookie->set('2fa_cookie_hash', $trustedBrowser->cookie_hash)) {
 							notice($this->t('Couldn\'t save browser to Cookie.'));
 						};
-					} catch (TwoFactor\Exception\TrustedBrowserPersistenceException $exception) {
+					} catch (TrustedBrowserPersistenceException $exception) {
 						$this->logger->warning('Unexpected error when saving the trusted browser.', ['trustedBrowser' => $trustedBrowser, 'exception' => $exception]);
 					}
 					break;
@@ -122,9 +124,9 @@ class Trust extends BaseModule
 					$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
 					$this->baseUrl->redirect();
 				}
-			} catch (TwoFactor\Exception\TrustedBrowserNotFoundException $exception) {
+			} catch (TrustedBrowserNotFoundException $exception) {
 				$this->logger->notice('Trusted Browser of the cookie not found.', ['cookie_hash' => $this->cookie->get('trusted'), 'uid' => $this->app->getLoggedInUserId(), 'exception' => $exception]);
-			} catch (TwoFactor\Exception\TrustedBrowserPersistenceException $exception) {
+			} catch (TrustedBrowserPersistenceException $exception) {
 				$this->logger->warning('Unexpected persistence exception.', ['cookie_hash' => $this->cookie->get('trusted'), 'uid' => $this->app->getLoggedInUserId(), 'exception' => $exception]);
 			} catch (\Exception $exception) {
 				$this->logger->warning('Unexpected exception.', ['cookie_hash' => $this->cookie->get('trusted'), 'uid' => $this->app->getLoggedInUserId(), 'exception' => $exception]);
