@@ -486,7 +486,7 @@ class GServer
 						$serverdata = self::detectGNUSocial($url, $serverdata);
 					}
 				}
-			} elseif (in_array($serverdata['platform'], ['friendica', 'friendika']) && in_array($serverdata['detection-method'], self::DETECT_UNSPECIFIC)) {
+			} elseif (in_array($serverdata['platform'], ['friendica', 'friendika']) && in_array($serverdata['detection-method'], array_merge(self::DETECT_UNSPECIFIC, [self::DETECT_SYSTEM_ACTOR]))) {
 				$serverdata = self::detectFriendica($url, $serverdata);
 			}
 
@@ -1241,7 +1241,8 @@ class GServer
 			$serverdata['site_name'] = JsonLD::fetchElement($actor, 'as:name', '@value');
 			$serverdata['info'] = JsonLD::fetchElement($actor, 'as:summary', '@value');
 			if (!empty($actor['as:generator'])) {
-				$serverdata['platform'] = JsonLD::fetchElement($actor['as:generator'], 'as:name', '@value');
+				$generator = explode(' ', JsonLD::fetchElement($actor['as:generator'], 'as:name', '@value'));
+				$serverdata['platform'] = strtolower(array_shift($generator));
 				$serverdata['detection-method'] = self::DETECT_SYSTEM_ACTOR;
 			} else {
 				$serverdata['detection-method'] = self::DETECT_AP_ACTOR;
