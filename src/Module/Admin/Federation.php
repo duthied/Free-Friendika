@@ -46,10 +46,11 @@ class Federation extends BaseAdmin
 			'gnusocial'    => ['name' => 'GNU Social/Statusnet', 'color' => '#a22430'], // dark red from the logo
 			'gotosocial'   => ['name' => 'GoToSocial', 'color' => '#df8958'], // Some color from their mascot
 			'hometown'     => ['name' => 'Hometown', 'color' => '#1f70c1'], // Color from the Patreon page
+			'honk'         => ['name' => 'Honk', 'color' => '##0d0d0d'], // Background color from the page
 			'hubzilla'     => ['name' => 'Hubzilla/Red Matrix', 'color' => '#43488a'], // blue from the logo
-			'hugo'         => ['name' => 'Hugo', 'color' => '#0a1922'], // Color from the homepage background
 			'lemmy'        => ['name' => 'Lemmy', 'color' => '#00c853'], // Green from the page
 			'mastodon'     => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
+			'microblog'    => ['name' => 'Microblog', 'color' => '#fdb52b'], // Color from the page
 			'misskey'      => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
 			'mobilizon'    => ['name' => 'Mobilizon', 'color' => '#ffd599'], // Background color of parts of the homepage
 			'nextcloud'    => ['name' => 'Nextcloud', 'color' => '#1cafff'], // Logo color
@@ -85,7 +86,8 @@ class Federation extends BaseAdmin
 			SUM(IFNULL(`active-month-users`, `active-week-users`)) AS `month`,
 			SUM(IFNULL(`active-halfyear-users`, `active-week-users`)) AS `halfyear`, `platform`,
 			ANY_VALUE(`network`) AS `network`, MAX(`version`) AS `version`
-			FROM `gserver` WHERE NOT `failed` AND `detection-method` != ? AND NOT `network` IN (?, ?) GROUP BY `platform`", GServer::DETECT_MANUAL, Protocol::PHANTOM, Protocol::FEED);
+			FROM `gserver` WHERE NOT `failed` AND `platform` != ? AND `detection-method` != ? AND NOT `network` IN (?, ?) GROUP BY `platform`",
+				'', GServer::DETECT_MANUAL, Protocol::PHANTOM, Protocol::FEED);
 		while ($gserver = DBA::fetch($gservers)) {
 			$total    += $gserver['total'];
 			$users    += $gserver['users'];
@@ -102,7 +104,7 @@ class Federation extends BaseAdmin
 
 				if (in_array($gserver['platform'], ['Red Matrix', 'redmatrix', 'red'])) {
 					$version['version'] = 'Red ' . $version['version'];
-				} elseif (in_array($gserver['platform'], ['osada', 'mistpark', 'roadhouse', 'zap'])) {
+				} elseif (in_array($gserver['platform'], ['osada', 'mistpark', 'roadhouse', 'zap', 'macgirvin', 'mkultra'])) {
 					$version['version'] = $gserver['platform'] . ' ' . $version['version'];
 				} elseif (in_array($gserver['platform'], ['activityrelay', 'pub-relay', 'selective-relay', 'aoderelay'])) {
 					$version['version'] = $gserver['platform'] . '-' . $version['version'];
@@ -118,7 +120,7 @@ class Federation extends BaseAdmin
 				$platform = 'friendica';
 			} elseif (in_array($platform, ['red matrix', 'redmatrix', 'red'])) {
 				$platform = 'hubzilla';
-			} elseif (in_array($platform, ['mistpark', 'osada', 'roadhouse', 'zap'])) {
+			} elseif (in_array($platform, ['osada', 'mistpark', 'roadhouse', 'zap', 'macgirvin', 'mkultra'])) {
 				$platform = 'mistpark';
 			} elseif(stristr($platform, 'pleroma')) {
 				$platform = 'pleroma';

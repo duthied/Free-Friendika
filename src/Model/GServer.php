@@ -186,11 +186,12 @@ class GServer
 		return self::check($server, $network, $force);
 	}
 
-	public static function getNextUpdateDate(bool $success, string $created = '', string $last_contact = '')
+	public static function getNextUpdateDate(bool $success, string $created = '', string $last_contact = '', bool $undetected = false)
 	{
-		// On successful contact process check again next week
+		// On successful contact process check again next week when it is a detected system.
+		// When we haven't detected the system, it could be a static website or a really old system.
 		if ($success) {
-			return DateTimeFormat::utc('now +7 day');
+			return DateTimeFormat::utc($undetected ? 'now +1 month' : 'now +7 day');
 		}
 
 		$now = strtotime(DateTimeFormat::utcNow());
@@ -331,6 +332,11 @@ class GServer
 
 		// Remove URL content that is not supposed to exist for a server url
 		$url = rtrim(self::cleanURL($url), '/');
+		if (empty($url)) {
+			Logger::notice('Empty URL.');
+			return false;
+		}
+
 		if (!Network::isUrlValid($url)) {
 			self::setFailure($url);
 			return false;
@@ -352,6 +358,11 @@ class GServer
 			return false;
 		}
 
+		if (empty($finalurl)) {
+			Logger::notice('Empty redirected URL.', ['url' => $url]);
+			return false;
+		}
+
 		// We only follow redirects when the path stays the same or the target url has no path.
 		// Some systems have got redirects on their landing page to a single account page. This check handles it.
 		if (((parse_url($url, PHP_URL_HOST) != parse_url($finalurl, PHP_URL_HOST)) && (parse_url($url, PHP_URL_PATH) == parse_url($finalurl, PHP_URL_PATH))) ||
@@ -367,9 +378,9 @@ class GServer
 			(parse_url($url, PHP_URL_SCHEME) != parse_url($finalurl, PHP_URL_SCHEME))) {
 			if (!Network::isUrlValid($finalurl)) {
 				self::setFailure($finalurl);
-				return false;
+			} else {
+				$url = $finalurl;
 			}
-			$url = $finalurl;
 		}
 
 		$in_webroot = empty(parse_url($url, PHP_URL_PATH));
@@ -410,11 +421,11 @@ class GServer
 
 				if ($curlResult->isSuccess()) {
 					$json = json_decode($curlResult->getBody(), true);
-					if (!empty($json)) {
+					if (!empty($json) && is_array($json)) {
 						$data = self::fetchDataFromSystemActor($json, $serverdata);
 						$serverdata = $data['server'];
 						$systemactor = $data['actor'];
-						if (!$html_fetched && ($serverdata['detection-method'] == self::DETECT_AP_ACTOR)) {
+						if (!$html_fetched && !in_array($serverdata['detection-method'], [self::DETECT_SYSTEM_ACTOR, self::DETECT_AP_COLLECTION])) {
 							$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML);
 						}
 					} elseif (!$html_fetched && (strlen($curlResult->getBody()) < 1000)) {
@@ -447,9 +458,8 @@ class GServer
 			}
 
 			if ($validHostMeta) {
-				if ($serverdata['detection-method'] == self::DETECT_MANUAL) {
+				if (in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_HEADER, self::DETECT_BODY])) {
 					$serverdata['detection-method'] = self::DETECT_HOST_META;
-					$serverdata['platform']         = '';
 				}
 
 				if (($serverdata['network'] == Protocol::PHANTOM) || in_array($serverdata['detection-method'], self::DETECT_UNSPECIFIC)) {
@@ -476,6 +486,8 @@ class GServer
 						$serverdata = self::detectGNUSocial($url, $serverdata);
 					}
 				}
+			} elseif (in_array($serverdata['platform'], ['friendica', 'friendika']) && in_array($serverdata['detection-method'], self::DETECT_UNSPECIFIC)) {
+				$serverdata = self::detectFriendica($url, $serverdata);
 			}
 
 			if (($serverdata['network'] == Protocol::PHANTOM) || in_array($serverdata['detection-method'], self::DETECT_UNSPECIFIC)) {
@@ -507,7 +519,8 @@ class GServer
 		// When a server is new, then there is no gserver entry yet.
 		// But in "detectNetworkViaContacts" it could happen that a contact is updated,
 		// and this can call this function here as well.
-		if (in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED]) && self::getID($url, true)) {
+		if (self::getID($url, true) && (in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED]) ||
+			in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_HEADER, self::DETECT_BODY, self::DETECT_HOST_META]))) {
 			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
 		}
 
@@ -535,7 +548,7 @@ class GServer
 			$serverdata['registered-users'] = 0;
 		}
 
-		$serverdata['next_contact'] = self::getNextUpdateDate(true);
+		$serverdata['next_contact'] = self::getNextUpdateDate(true, '', '', in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED]));
 
 		$serverdata['last_contact'] = DateTimeFormat::utcNow();
 		$serverdata['failed'] = false;
@@ -1222,7 +1235,7 @@ class GServer
 			return ['server' => $serverdata, 'actor' => ''];
 		}
 
-		$actor = JsonLD::compact($data);
+		$actor = JsonLD::compact($data, false);
 		if (in_array(JsonLD::fetchElement($actor, '@type'), ActivityPub\Receiver::ACCOUNT_TYPES)) {
 			$serverdata['network'] = Protocol::ACTIVITYPUB;
 			$serverdata['site_name'] = JsonLD::fetchElement($actor, 'as:name', '@value');
@@ -1842,16 +1855,17 @@ class GServer
 		}
 
 		$platforms = array_merge($ap_platforms, $dfrn_platforms, $zap_platforms, $platforms);
-		$valid_platforms = array_values($platforms);
 
 		$doc = new DOMDocument();
 		@$doc->loadHTML($curlResult->getBody());
 		$xpath = new DOMXPath($doc);
+		$assigned = false;
 
 		// We can only detect honk via some HTML element on their page
 		if ($xpath->query('//div[@id="honksonpage"]')->count() == 1) {
 			$serverdata['platform'] = 'honk';
 			$serverdata['network'] = Protocol::ACTIVITYPUB;
+			$assigned = true;
 		}
 
 		$title = trim(XML::getFirstNodeValue($xpath, '//head/title/text()'));
@@ -1884,27 +1898,23 @@ class GServer
 
 			if (in_array($attr['name'], ['application-name', 'al:android:app_name', 'al:ios:app_name',
 				'twitter:app:name:googleplay', 'twitter:app:name:iphone', 'twitter:app:name:ipad', 'generator'])) {
-				$platform = str_replace(array_keys($platforms), array_values($platforms), $attr['content']);
-				$platform = strtolower(str_replace('/', ' ', $platform));
-				$version_part = explode(' ', $platform);
-
-				if (count($version_part) >= 2) {
-					if (in_array($version_part[0], array_values($dfrn_platforms))) {
-						$serverdata['network'] = Protocol::DFRN;
-					} elseif (in_array($version_part[0], array_values($ap_platforms))) {
-						$serverdata['network'] = Protocol::ACTIVITYPUB;
-					} elseif (in_array($version_part[0], array_values($zap_platforms))) {
-						$serverdata['network'] = Protocol::ZOT;
-					}
-					if (in_array(strtolower($version_part[0]), $valid_platforms)) {
-						$platform = strtolower($version_part[0]);
-						$serverdata['version'] = $version_part[1];
-					}
+				$platform = str_ireplace(array_keys($platforms), array_values($platforms), $attr['content']);
+				$platform = str_replace('/', ' ', $platform);
+				$platform_parts = explode(' ', $platform);
+				if ((count($platform_parts) >= 2) && in_array(strtolower($platform_parts[0]), array_values($platforms))) {
+					$platform = $platform_parts[0];
+					$serverdata['version'] = $platform_parts[1];
+				}
+				if (in_array($platform, array_values($dfrn_platforms))) {
+					$serverdata['network'] = Protocol::DFRN;
+				} elseif (in_array($platform, array_values($ap_platforms))) {
+					$serverdata['network'] = Protocol::ACTIVITYPUB;
+				} elseif (in_array($platform, array_values($zap_platforms))) {
+					$serverdata['network'] = Protocol::ZOT;
 				}
 				if (in_array($platform, array_values($platforms))) {
 					$serverdata['platform'] = $platform;
-				} elseif (empty($serverdata['platform'])) {
-					print_r($attr);
+					$assigned = true;
 				}
 			}
 		}
@@ -1939,8 +1949,7 @@ class GServer
 			if (in_array($attr['property'], ['og:platform', 'generator'])) {
 				if (in_array($attr['content'], array_keys($platforms))) {
 					$serverdata['platform'] = $platforms[$attr['content']];
-				} else {
-					print_r($attr);
+					$assigned = true;
 				}
 
 				if (in_array($attr['content'], array_keys($ap_platforms))) {
@@ -1951,7 +1960,33 @@ class GServer
 			}
 		}
 
-		if (in_array($serverdata['platform'], $valid_platforms) && ($serverdata['detection-method'] == self::DETECT_MANUAL)) {
+		$list = $xpath->query('//link[@rel="me"]');
+		foreach ($list as $node) {
+			foreach ($node->attributes as $attribute) {
+				if (parse_url(trim($attribute->value), PHP_URL_HOST) == 'micro.blog') {
+					$serverdata['version'] = trim($serverdata['platform'] . ' ' . $serverdata['version']);
+					$serverdata['platform'] = 'microblog';
+					$serverdata['network'] = Protocol::ACTIVITYPUB;
+					$assigned = true;
+				}
+			}
+		}
+
+		if ($serverdata['platform'] != 'microblog') {
+			$list = $xpath->query('//link[@rel="micropub"]');
+			foreach ($list as $node) {
+				foreach ($node->attributes as $attribute) {
+					if (trim($attribute->value) == 'https://micro.blog/micropub') {
+						$serverdata['version'] = trim($serverdata['platform'] . ' ' . $serverdata['version']);
+						$serverdata['platform'] = 'microblog';
+						$serverdata['network'] = Protocol::ACTIVITYPUB;
+						$assigned = true;
+					}
+				}
+			}
+		}
+
+		if ($assigned && in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_HEADER])) {
 			$serverdata['detection-method'] = self::DETECT_BODY;
 		}
 
