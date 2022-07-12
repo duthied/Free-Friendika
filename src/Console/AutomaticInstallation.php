@@ -225,7 +225,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->installDatabase($basePathConf)) {
+		if (!$installer->installDatabase()) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}

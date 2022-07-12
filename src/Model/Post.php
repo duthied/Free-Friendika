@@ -27,6 +27,7 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 use Friendica\Protocol\Activity;
 
 class Post
@@ -45,7 +46,7 @@ class Post
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DBStructure::getFieldsForTable('post', $data);
+		$fields = DI::dbaDefinition()->getFieldsForTable('post', $data);
 
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
@@ -524,7 +525,7 @@ class Post
 		// To ensure the data integrity we do it in an transaction
 		DBA::transaction();
 
-		$update_fields = DBStructure::getFieldsForTable('post-user', $fields);
+		$update_fields = DI::dbaDefinition()->getFieldsForTable('post-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['post-user-id'], $condition);
@@ -541,7 +542,7 @@ class Post
 			$affected = $affected_count;
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('post-content', $fields);
+		$update_fields = DI::dbaDefinition()->getFieldsForTable('post-content', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
@@ -558,7 +559,7 @@ class Post
 			$affected = max($affected, $affected_count);
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('post', $fields);
+		$update_fields = DI::dbaDefinition()->getFieldsForTable('post', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
@@ -592,7 +593,7 @@ class Post
 			$affected = max($affected, $affected_count);
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('post-thread', $fields);
+		$update_fields = DI::dbaDefinition()->getFieldsForTable('post-thread', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
@@ -609,7 +610,7 @@ class Post
 			$affected = max($affected, $affected_count);
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('post-thread-user', $fields);
+		$update_fields = DI::dbaDefinition()->getFieldsForTable('post-thread-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['post-user-id'], $thread_condition);

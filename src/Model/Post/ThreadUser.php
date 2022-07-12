@@ -25,6 +25,7 @@ use \BadMethodCallException;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 
 class ThreadUser
 {
@@ -43,7 +44,7 @@ class ThreadUser
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DBStructure::getFieldsForTable('post-thread-user', $data);
+		$fields = DI::dbaDefinition()->getFieldsForTable('post-thread-user', $data);
 
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
@@ -68,7 +69,7 @@ class ThreadUser
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DBStructure::getFieldsForTable('post-thread-user', $data);
+		$fields = DI::dbaDefinition()->getFieldsForTable('post-thread-user', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);

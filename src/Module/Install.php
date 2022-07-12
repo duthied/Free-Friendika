@@ -170,7 +170,7 @@ class Install extends BaseModule
 					return;
 				}
 
-				$this->installer->installDatabase($configCache->get('system', 'basepath'));
+				$this->installer->installDatabase();
 			
 				// install allowed themes to register theme hooks
 				// this is same as "Reload active theme" in /admin/themes

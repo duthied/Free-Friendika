@@ -24,6 +24,7 @@ namespace Friendica\Model\Post;
 use BadMethodCallException;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 
 class Question
 {
@@ -42,7 +43,7 @@ class Question
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DBStructure::getFieldsForTable('post-question', $data);
+		$fields = DI::dbaDefinition()->getFieldsForTable('post-question', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);

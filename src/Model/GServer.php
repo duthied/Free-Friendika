@@ -2075,7 +2075,7 @@ class GServer
 	 */
 	public static function update(array $fields, array $condition): bool
 	{
-		$fields = DBStructure::getFieldsForTable('gserver', $fields);
+		$fields = DI::dbaDefinition()->getFieldsForTable('gserver', $fields);
 
 		return DBA::update('gserver', $fields, $condition);
 	}

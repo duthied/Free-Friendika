@@ -28,6 +28,7 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\ItemURI;
 use PDOException;
@@ -129,7 +130,7 @@ class User
 			$fields['rel'] = Contact::SELF;
 		}
 
-		return DBStructure::getFieldsForTable('user-contact', $fields);
+		return DI::dbaDefinition()->getFieldsForTable('user-contact', $fields);
 	}
 
 	/**
