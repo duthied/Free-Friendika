@@ -23,16 +23,16 @@ use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Network\HTTPException\NotModifiedException;
 
-$uid = $_REQUEST['puid'] ?? 0;
+/*
+ * This script can be included when the maintenance mode is on, which requires us to avoid any config call and
+ * use the following hardcoded default
+ */
+$style = 'plus';
 
-$style = DI::pConfig()->get($uid, 'vier', 'style');
+if (DI::mode()->has(\Friendica\App\Mode::MAINTENANCEDISABLED)) {
+	$uid = $_REQUEST['puid'] ?? 0;
 
-if (empty($style)) {
-	$style = DI::config()->get('vier', 'style');
-}
-
-if (empty($style)) {
-	$style = "plus";
+	$style = DI::pConfig()->get($uid, 'vier', 'style', DI::config()->get('vier', 'style', $style));
 }
 
 $stylecss = '';

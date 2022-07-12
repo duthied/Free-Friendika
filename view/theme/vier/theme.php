@@ -19,6 +19,10 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\Strings;
 
+/*
+ * This script can be included even when the app is in maintenance mode which requires us to avoid any config call
+ */
+
 function vier_init(App $a)
 {
 	$a->setThemeInfoValue('events_in_profile', false);
@@ -27,7 +31,12 @@ function vier_init(App $a)
 
 	$args = DI::args();
 
-	if ($args->get(0) === 'profile' && $args->get(1) === ($a->getLoggedInUserNickname() ?? '') || $args->get(0) === 'network' && local_user()
+	if (
+		DI::mode()->has(App\Mode::MAINTENANCEDISABLED)
+		&& (
+			$args->get(0) === 'profile' && $args->get(1) === ($a->getLoggedInUserNickname() ?? '')
+			|| $args->get(0) === 'network' && local_user()
+		)
 	) {
 		vier_community_info();
 

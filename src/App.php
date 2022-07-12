@@ -705,7 +705,8 @@ class App
 			// Initialize module that can set the current theme in the init() method, either directly or via App->setProfileOwner
 			$page['page_title'] = $moduleName;
 
-			if (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED)) {
+			// The "view" module is required to show the theme CSS
+			if (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED) && $moduleName !== 'view') {
 				$module = $router->getModule(Maintenance::class);
 			} else {
 				// determine the module class and save it to the module instance

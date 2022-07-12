@@ -25,13 +25,12 @@ if (file_exists("$THEMEPATH/style.css")) {
 	echo file_get_contents("$THEMEPATH/style.css");
 }
 
-$uid = $_REQUEST['puid'] ?? 0;
-
-$s_colorset = DI::config()->get('duepuntozero', 'colorset');
-$colorset = DI::pConfig()->get($uid, 'duepuntozero', 'colorset');
-
-if (empty($colorset)) {
-	$colorset = $s_colorset;
+/*
+ * This script can be included when the maintenance mode is on, which requires us to avoid any config call
+ */
+if (DI::mode()->has(\Friendica\App\Mode::MAINTENANCEDISABLED)) {
+	$s_colorset = DI::config()->get('duepuntozero', 'colorset');
+	$colorset = DI::pConfig()->get($_REQUEST['puid'] ?? 0, 'duepuntozero', 'colorset', $s_colorset);
 }
 
 $setcss = '';
