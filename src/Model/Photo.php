@@ -250,7 +250,7 @@ class Photo
 	 */
 	private static function getFields(): array
 	{
-		$allfields = DBStructure::definition(DI::app()->getBasePath(), false);
+		$allfields = DI::dbaDefinition()->getAll();
 		$fields = array_keys($allfields['photo']['fields']);
 		array_splice($fields, array_search('data', $fields), 1);
 		return $fields;

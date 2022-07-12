@@ -25,6 +25,7 @@ use Friendica\Database\DBA;
 use \BadMethodCallException;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 
 class User
 {
@@ -47,7 +48,7 @@ class User
 			return false;
 		}
 
-		$fields = DBStructure::getFieldsForTable('post-user', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-user', $data);
 
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
@@ -81,7 +82,7 @@ class User
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DBStructure::getFieldsForTable('post-user', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-user', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);

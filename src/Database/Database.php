@@ -23,6 +23,8 @@ namespace Friendica\Database;
 
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\System;
+use Friendica\Database\Definition\DbaDefinition;
+use Friendica\Database\Definition\ViewDefinition;
 use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -73,20 +75,21 @@ class Database
 	protected $in_retrial     = false;
 	protected $testmode       = false;
 	private $relation       = [];
+	/** @var DbaDefinition */
+	protected $dbaDefinition;
+	/** @var ViewDefinition */
+	protected $viewDefinition;
 
-	public function __construct(Cache $configCache, Profiler $profiler, LoggerInterface $logger)
+	public function __construct(Cache $configCache, Profiler $profiler, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition, LoggerInterface $logger)
 	{
 		// We are storing these values for being able to perform a reconnect
-		$this->configCache   = $configCache;
-		$this->profiler      = $profiler;
-		$this->logger        = $logger;
+		$this->configCache    = $configCache;
+		$this->profiler       = $profiler;
+		$this->logger         = $logger;
+		$this->dbaDefinition  = $dbaDefinition;
+		$this->viewDefinition = $viewDefinition;
 
 		$this->connect();
-
-		if ($this->isConnected()) {
-			// Loads DB_UPDATE_VERSION constant
-			DBStructure::definition($configCache->get('system', 'basepath'), false);
-		}
 	}
 
 	/**
@@ -1609,10 +1612,10 @@ class Database
 
 		$types = [];
 
-		$tables = DBStructure::definition('', false);
+		$tables = $this->dbaDefinition->getAll();
 		if (empty($tables[$table])) {
 			// When a matching table wasn't found we check if it is a view
-			$views = View::definition('', false);
+			$views = $this->viewDefinition->getAll();
 			if (empty($views[$table])) {
 				return $fields;
 			}

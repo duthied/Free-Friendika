@@ -122,7 +122,7 @@ class ExpirePosts
 		$rows = 0;
 		$userposts = DBA::select('post-user', [], ["`uri-id` not in (select `uri-id` from `post`)"]);
 		while ($fields = DBA::fetch($userposts)) {
-			$post_fields = DBStructure::getFieldsForTable('post', $fields);
+			$post_fields = DI::dbaDefinition()->truncateFieldsForTable('post', $fields);
 			DBA::insert('post', $post_fields, Database::INSERT_IGNORE);
 			$rows++;
 		}
@@ -136,7 +136,7 @@ class ExpirePosts
 		$rows = 0;
 		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `uri-id` not in (select `uri-id` from `post-thread`)", GRAVITY_PARENT]);
 		while ($fields = DBA::fetch($userposts)) {
-			$post_fields = DBStructure::getFieldsForTable('post-thread', $fields);
+			$post_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread', $fields);
 			$post_fields['commented'] = $post_fields['changed'] = $post_fields['created'];
 			DBA::insert('post-thread', $post_fields, Database::INSERT_IGNORE);
 			$rows++;
@@ -151,7 +151,7 @@ class ExpirePosts
 		$rows = 0;
 		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `id` not in (select `post-user-id` from `post-thread-user`)", GRAVITY_PARENT]);
 		while ($fields = DBA::fetch($userposts)) {
-			$post_fields = DBStructure::getFieldsForTable('post-thread-user', $fields);
+			$post_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread-user', $fields);
 			$post_fields['commented'] = $post_fields['changed'] = $post_fields['created'];
 			DBA::insert('post-thread-user', $post_fields, Database::INSERT_IGNORE);
 			$rows++;

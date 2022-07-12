@@ -22,13 +22,12 @@
 namespace Friendica\Database;
 
 use Exception;
-use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Writer\DbaDefinitionSqlWriter;
 
 /**
  * This class contains functions that doesn't need to know if pdo, mysqli or whatever is used.
@@ -41,13 +40,6 @@ class DBStructure
 
 	const RENAME_COLUMN      = 0;
 	const RENAME_PRIMARY_KEY = 1;
-
-	/**
-	 * Database structure definition loaded from config/dbstructure.config.php
-	 *
-	 * @var array
-	 */
-	private static $definition = [];
 
 	/**
 	 * Set a database version to trigger update functions
@@ -150,6 +142,7 @@ class DBStructure
 	 * Print out database error messages
 	 *
 	 * @param string $message Message to be added to the error message
+	 *
 	 * @return string Error message
 	 */
 	private static function printUpdateError(string $message): string
@@ -160,349 +153,15 @@ class DBStructure
 		return DI::l10n()->t('Errors encountered performing database changes: ') . $message . EOL;
 	}
 
-	public static function writeStructure()
-	{
-		$tables = [];
-		foreach (self::definition('') as $name => $definition) {
-			$indexes  = [[
-				'name'   => 'Name',
-				'fields' => 'Fields',
-			],
-			[
-				'name'   => '-',
-				'fields' => '-',
-			]];
-
-			$lengths = ['name' => 4, 'fields' => 6];
-			foreach ($definition['indexes'] as $key => $value) {
-				$fieldlist = implode(', ', $value);
-				$indexes[] = ['name' => $key, 'fields' => $fieldlist];
-				$lengths['name']   = max($lengths['name'], strlen($key));
-				$lengths['fields'] = max($lengths['fields'], strlen($fieldlist));
-			}
-
-			array_walk_recursive($indexes, function(&$value, $key) use ($lengths)
-			{
-				$value = str_pad($value, $lengths[$key], $value === '-' ? '-' : ' ');
-			});
-
-			$foreign = [];
-			$fields  = [[
-				'name'    => 'Field',
-				'comment' => 'Description',
-				'type'    => 'Type',
-				'null'    => 'Null',
-				'primary' => 'Key',
-				'default' => 'Default',
-				'extra'   => 'Extra',
-			],
-			[
-				'name'    => '-',
-				'comment' => '-',
-				'type'    => '-',
-				'null'    => '-',
-				'primary' => '-',
-				'default' => '-',
-				'extra'   => '-',
-			]];
-			$lengths = [
-				'name'    => 5,
-				'comment' => 11,
-				'type'    => 4,
-				'null'    => 4,
-				'primary' => 3,
-				'default' => 7,
-				'extra'   => 5,
-			];
-			foreach ($definition['fields'] as $key => $value) {
-				$field = [];
-				$field['name']    = $key;
-				$field['comment'] = $value['comment'] ?? '';
-				$field['type']    = $value['type'];
-				$field['null']    = ($value['not null'] ?? false) ? 'NO' : 'YES';
-				$field['primary'] = ($value['primary'] ?? false) ? 'PRI' : '';
-				$field['default'] = $value['default'] ?? 'NULL';
-				$field['extra']   = $value['extra'] ?? '';
-
-				foreach ($field as $fieldName => $fieldvalue) {
-					$lengths[$fieldName] = max($lengths[$fieldName] ?? 0, strlen($fieldvalue));
-				}
-				$fields[] = $field;
-
-				if (!empty($value['foreign'])) {
-					$foreign[] = [
-						'field'       => $key,
-						'targettable' => array_keys($value['foreign'])[0],
-						'targetfield' => array_values($value['foreign'])[0]
-					];
-				}
-			}
-
-			array_walk_recursive($fields, function(&$value, $key) use ($lengths)
-			{
-				$value = str_pad($value, $lengths[$key], $value === '-' ? '-' : ' ');
-			});
-
-			$tables[] = ['name' => $name, 'comment' => $definition['comment']];
-			$content = Renderer::replaceMacros(Renderer::getMarkupTemplate('structure.tpl'), [
-				'$name'    => $name,
-				'$comment' => $definition['comment'],
-				'$fields'  => $fields,
-				'$indexes' => $indexes,
-				'$foreign' => $foreign,
-			]);
-			$filename = DI::basePath() . '/doc/database/db_' . $name . '.md';
-			file_put_contents($filename, $content);
-		}
-		asort($tables);
-		$content = Renderer::replaceMacros(Renderer::getMarkupTemplate('tables.tpl'), [
-			'$tables'  => $tables,
-		]);
-		$filename = DI::basePath() . '/doc/database.md';
-		file_put_contents($filename, $content);
-	}
-
-	public static function printStructure(string $basePath)
-	{
-		$database = self::definition($basePath, false);
-
-		echo "-- ------------------------------------------\n";
-		echo "-- " . FRIENDICA_PLATFORM . " " . FRIENDICA_VERSION . " (" . FRIENDICA_CODENAME, ")\n";
-		echo "-- DB_UPDATE_VERSION " . DB_UPDATE_VERSION . "\n";
-		echo "-- ------------------------------------------\n\n\n";
-		foreach ($database as $name => $structure) {
-			echo "--\n";
-			echo "-- TABLE $name\n";
-			echo "--\n";
-			self::createTable($name, $structure, true, false);
-
-			echo "\n";
-		}
-
-		View::printStructure($basePath);
-	}
-
-	/**
-	 * Loads the database structure definition from the static/dbstructure.config.php file.
-	 * On first pass, defines DB_UPDATE_VERSION constant.
-	 *
-	 * @see static/dbstructure.config.php
-	 * @param string  $basePath              The base path of this application
-	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
-	 * @return array
-	 * @throws Exception
-	 */
-	public static function definition(string $basePath, bool $with_addons_structure = true): array
-	{
-		if (!self::$definition) {
-			if (empty($basePath)) {
-				$basePath = DI::app()->getBasePath();
-			}
-
-			$filename = $basePath . '/static/dbstructure.config.php';
-
-			if (!is_readable($filename)) {
-				throw new Exception('Missing database structure config file static/dbstructure.config.php at basePath=' . $basePath);
-			}
-
-			$definition = require $filename;
-
-			if (!$definition) {
-				throw new Exception('Corrupted database structure config file static/dbstructure.config.php');
-			}
-
-			self::$definition = $definition;
-		} else {
-			$definition = self::$definition;
-		}
-
-		if ($with_addons_structure) {
-			Hook::callAll('dbstructure_definition', $definition);
-		}
-
-		return $definition;
-	}
-
-	/**
-	 * Get field data for the given table
-	 *
-	 * @param string $table Tavle to load field definitions for
-	 * @param array $data data fields
-	 * @return array fields for the given
-	 */
-	public static function getFieldsForTable(string $table, array $data = []): array
-	{
-		$definition = DBStructure::definition('', false);
-		if (empty($definition[$table])) {
-			return [];
-		}
-
-		$fieldNames = array_keys($definition[$table]['fields']);
-
-		$fields = [];
-
-		// Assign all field that are present in the table
-		foreach ($fieldNames as $field) {
-			if (isset($data[$field])) {
-				// Limit the length of varchar, varbinary, char and binrary fields
-				if (is_string($data[$field]) && preg_match("/char\((\d*)\)/", $definition[$table]['fields'][$field]['type'], $result)) {
-					$data[$field] = mb_substr($data[$field], 0, $result[1]);
-				} elseif (is_string($data[$field]) && preg_match("/binary\((\d*)\)/", $definition[$table]['fields'][$field]['type'], $result)) {
-					$data[$field] = substr($data[$field], 0, $result[1]);
-				}
-				$fields[$field] = $data[$field];
-			}
-		}
-
-		return $fields;
-	}
-
-	/**
-	 * Creates given table with structure
-	 *
-	 * @param string  $name Name of table
-	 * @param array   $structure Structure of table
-	 * @param boolean $verbose Output SQL statements
-	 * @param boolean $action Whether to run the SQL commands
-	 * @return Whether the SQL command ran successful
-	 */
-	private static function createTable(string $name, array $structure, bool $verbose, bool $action): bool
-	{
-		$r = true;
-
-		$engine = '';
-		$comment = '';
-		$sql_rows = [];
-		$primary_keys = [];
-		$foreign_keys = [];
-
-		foreach ($structure['fields'] as $fieldName => $field) {
-			$sql_rows[] = '`' . DBA::escape($fieldName) . '` ' . self::FieldCommand($field);
-			if (!empty($field['primary'])) {
-				$primary_keys[] = $fieldName;
-			}
-			if (!empty($field['foreign'])) {
-				$foreign_keys[$fieldName] = $field;
-			}
-		}
-
-		if (!empty($structure['indexes'])) {
-			foreach ($structure['indexes'] as $indexName => $fieldNames) {
-				$sql_index = self::createIndex($indexName, $fieldNames, '');
-				if (!is_null($sql_index)) {
-					$sql_rows[] = $sql_index;
-				}
-			}
-		}
-
-		foreach ($foreign_keys as $fieldName => $parameters) {
-			$sql_rows[] = self::foreignCommand($name, $fieldName, $parameters);
-		}
-
-		if (isset($structure['engine'])) {
-			$engine = ' ENGINE=' . $structure['engine'];
-		}
-
-		if (isset($structure['comment'])) {
-			$comment = " COMMENT='" . DBA::escape($structure['comment']) . "'";
-		}
-
-		$sql = implode(",\n\t", $sql_rows);
-
-		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", DBA::escape($name)) . $sql .
-			"\n)" . $engine . " DEFAULT COLLATE utf8mb4_general_ci" . $comment;
-		if ($verbose) {
-			echo $sql . ";\n";
-		}
-
-		if ($action) {
-			$r = DBA::e($sql);
-		}
-
-		return $r;
-	}
-
-	/**
-	 * Returns SQL statement for field
-	 *
-	 * @param array   $parameters Parameters for SQL statement
-	 * @param boolean $create Whether to include PRIMARY KEY statement (unused)
-	 * @return string SQL statement part
-	 */
-	private static function FieldCommand(array $parameters, bool $create = true): string
-	{
-		$fieldstruct = $parameters['type'];
-
-		if (isset($parameters['Collation'])) {
-			$fieldstruct .= ' COLLATE ' . $parameters['Collation'];
-		}
-
-		if (isset($parameters['not null'])) {
-			$fieldstruct .= ' NOT NULL';
-		}
-
-		if (isset($parameters['default'])) {
-			if (strpos(strtolower($parameters['type']), 'int') !== false) {
-				$fieldstruct .= ' DEFAULT ' . $parameters['default'];
-			} else {
-				$fieldstruct .= " DEFAULT '" . $parameters['default'] . "'";
-			}
-		}
-		if (isset($parameters['extra'])) {
-			$fieldstruct .= ' ' . $parameters['extra'];
-		}
-
-		if (isset($parameters['comment'])) {
-			$fieldstruct .= " COMMENT '" . DBA::escape($parameters['comment']) . "'";
-		}
-
-		/*if (($parameters['primary'] != '') && $create)
-			$fieldstruct .= ' PRIMARY KEY';*/
-
-		return $fieldstruct;
-	}
-
-	private static function createIndex(string $indexName, array $fieldNames, string $method = 'ADD')
-	{
-		$method = strtoupper(trim($method));
-		if ($method != '' && $method != 'ADD') {
-			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
-		}
-
-		if (in_array($fieldNames[0], ['UNIQUE', 'FULLTEXT'])) {
-			$index_type = array_shift($fieldNames);
-			$method .= " " . $index_type;
-		}
-
-		$names = "";
-		foreach ($fieldNames as $fieldName) {
-			if ($names != '') {
-				$names .= ',';
-			}
-
-			if (preg_match('|(.+)\((\d+)\)|', $fieldName, $matches)) {
-				$names .= "`" . DBA::escape($matches[1]) . "`(" . intval($matches[2]) . ")";
-			} else {
-				$names .= "`" . DBA::escape($fieldName) . "`";
-			}
-		}
-
-		if ($indexName == 'PRIMARY') {
-			return sprintf("%s PRIMARY KEY(%s)", $method, $names);
-		}
-
-
-		return sprintf("%s INDEX `%s` (%s)", $method, DBA::escape($indexName), $names);
-	}
-
 	/**
 	 * Perform a database structure dryrun (means: just simulating)
 	 *
+	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	public static function dryRun()
+	public static function dryRun(): string
 	{
-		self::update(DI::app()->getBasePath(), true, false);
+		return self::update(true, false);
 	}
 
 	/**
@@ -520,7 +179,7 @@ class DBStructure
 			DI::config()->set('system', 'maintenance', 1);
 		}
 
-		$status = self::update(DI::app()->getBasePath(), $verbose, true);
+		$status = self::update($verbose, true);
 
 		if ($enable_maintenance_mode) {
 			DI::config()->set('system', 'maintenance', 0);
@@ -533,20 +192,17 @@ class DBStructure
 	/**
 	 * Updates DB structure from the installation and returns eventual errors messages
 	 *
-	 * @param string $basePath   The base path of this application
-	 *
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	public static function install(string $basePath): string
+	public static function install(): string
 	{
-		return self::update($basePath, false, true, true);
+		return self::update(false, true, true);
 	}
 
 	/**
 	 * Updates DB structure and returns eventual errors messages
 	 *
-	 * @param string $basePath   The base path of this application
 	 * @param bool   $verbose
 	 * @param bool   $action     Whether to actually apply the update
 	 * @param bool   $install    Is this the initial update during the installation?
@@ -555,7 +211,7 @@ class DBStructure
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	private static function update(string $basePath, bool $verbose, bool $action, bool $install = false, array $tables = null, array $definition = null): string
+	private static function update(bool $verbose, bool $action, bool $install = false, array $tables = null, array $definition = null): string
 	{
 		$in_maintenance_mode = DI::config()->get('system', 'maintenance');
 
@@ -593,7 +249,7 @@ class DBStructure
 
 		// Get the definition
 		if (is_null($definition)) {
-			$definition = self::definition($basePath);
+			$definition = DI::dbaDefinition()->getAll();
 		}
 
 		// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
@@ -607,11 +263,17 @@ class DBStructure
 		// Compare it
 		foreach ($definition as $name => $structure) {
 			$is_new_table = false;
-			$sql3 = "";
+			$sql3         = "";
 			if (!isset($database[$name])) {
-				$r = self::createTable($name, $structure, $verbose, $action);
-				if (!DBA::isResult($r)) {
-					$errors .= self::printUpdateError($name);
+				$sql = DbaDefinitionSqlWriter::createTable($name, $structure, $verbose, $action);
+				if ($verbose) {
+					echo $sql;
+				}
+				if ($action) {
+					$r = DBA::e($sql);
+					if (!DBA::isResult($r)) {
+						$errors .= self::printUpdateError($name);
+					}
 				}
 				$is_new_table = true;
 			} else {
@@ -628,7 +290,7 @@ class DBStructure
 						$new_index_definition = "__NOT_SET__";
 					}
 					if ($current_index_definition != $new_index_definition && substr($indexName, 0, 6) != 'local_') {
-						$sql2 = self::dropIndex($indexName);
+						$sql2 = DbaDefinitionSqlWriter::dropIndex($indexName);
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
@@ -639,7 +301,7 @@ class DBStructure
 				// Compare the field structure field by field
 				foreach ($structure["fields"] as $fieldName => $parameters) {
 					if (!isset($database[$name]["fields"][$fieldName])) {
-						$sql2 = self::addTableField($fieldName, $parameters);
+						$sql2 = DbaDefinitionSqlWriter::addTableField($fieldName, $parameters);
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
@@ -665,9 +327,9 @@ class DBStructure
 						}
 
 						$current_field_definition = DBA::cleanQuery(implode(",", $field_definition));
-						$new_field_definition = DBA::cleanQuery(implode(",", $parameters));
+						$new_field_definition     = DBA::cleanQuery(implode(",", $parameters));
 						if ($current_field_definition != $new_field_definition) {
-							$sql2 = self::modifyTableField($fieldName, $parameters);
+							$sql2 = DbaDefinitionSqlWriter::modifyTableField($fieldName, $parameters);
 							if ($sql3 == "") {
 								$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 							} else {
@@ -692,7 +354,7 @@ class DBStructure
 					}
 					$new_index_definition = implode(",", $fieldNames);
 					if ($current_index_definition != $new_index_definition) {
-						$sql2 = self::createIndex($indexName, $fieldNames);
+						$sql2 = DbaDefinitionSqlWriter::createIndex($indexName, $fieldNames);
 
 						if ($sql2 != "") {
 							if ($sql3 == "") {
@@ -718,7 +380,7 @@ class DBStructure
 					unset($existing_foreign_keys[$constraint]);
 
 					if (empty($database[$name]['foreign_keys'][$constraint])) {
-						$sql2 = self::addForeignKey($name, $fieldName, $parameters);
+						$sql2 = DbaDefinitionSqlWriter::addForeignKey($fieldName, $parameters);
 
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
@@ -729,7 +391,7 @@ class DBStructure
 				}
 
 				foreach ($existing_foreign_keys as $param) {
-					$sql2 = self::dropForeignKey($param['CONSTRAINT_NAME']);
+					$sql2 = DbaDefinitionSqlWriter::dropForeignKey($param['CONSTRAINT_NAME']);
 
 					if ($sql3 == "") {
 						$sql3 = "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
@@ -793,7 +455,7 @@ class DBStructure
 					}
 
 					if ($field_definition['Collation'] != $parameters['Collation']) {
-						$sql2 = self::modifyTableField($fieldName, $parameters);
+						$sql2 = DbaDefinitionSqlWriter::modifyTableField($fieldName, $parameters);
 						if (($sql3 == "") || (substr($sql3, -2, 2) == "; ")) {
 							$sql3 .= "ALTER" . $ignore . " TABLE `" . $name . "` " . $sql2;
 						} else {
@@ -937,58 +599,12 @@ class DBStructure
 		];
 	}
 
-	private static function dropIndex(string $indexName): string
-	{
-		return sprintf("DROP INDEX `%s`", DBA::escape($indexName));
-	}
-
-	private static function addTableField(string $fieldName, array $parameters): string
-	{
-		return sprintf("ADD `%s` %s", DBA::escape($fieldName), self::FieldCommand($parameters));
-	}
-
-	private static function modifyTableField(string $fieldName, array $parameters): string
-	{
-		return sprintf("MODIFY `%s` %s", DBA::escape($fieldName), self::FieldCommand($parameters, false));
-	}
-
 	private static function getConstraintName(string $tableName, string $fieldName, array $parameters): string
 	{
 		$foreign_table = array_keys($parameters['foreign'])[0];
 		$foreign_field = array_values($parameters['foreign'])[0];
 
 		return $tableName . '-' . $fieldName. '-' . $foreign_table. '-' . $foreign_field;
-	}
-
-	private static function foreignCommand(string $tableName, string $fieldName, array $parameters) {
-		$foreign_table = array_keys($parameters['foreign'])[0];
-		$foreign_field = array_values($parameters['foreign'])[0];
-
-		$sql = "FOREIGN KEY (`" . $fieldName . "`) REFERENCES `" . $foreign_table . "` (`" . $foreign_field . "`)";
-
-		if (!empty($parameters['foreign']['on update'])) {
-			$sql .= " ON UPDATE " . strtoupper($parameters['foreign']['on update']);
-		} else {
-			$sql .= " ON UPDATE RESTRICT";
-		}
-
-		if (!empty($parameters['foreign']['on delete'])) {
-			$sql .= " ON DELETE " . strtoupper($parameters['foreign']['on delete']);
-		} else {
-			$sql .= " ON DELETE CASCADE";
-		}
-
-		return $sql;
-	}
-
-	private static function addForeignKey(string $tableName, string $fieldName, array $parameters): string
-	{
-		return sprintf("ADD %s", self::foreignCommand($tableName, $fieldName, $parameters));
-	}
-
-	private static function dropForeignKey(string $constraint): string
-	{
-		return sprintf("DROP FOREIGN KEY `%s`", $constraint);
 	}
 
 	/**

@@ -37,6 +37,8 @@ use Friendica\Core\Storage\Repository\StorageManager;
 use Friendica\Core\Storage\Type\Filesystem;
 use Friendica\Core\Storage\Type\SystemResource;
 use Friendica\Database\Database;
+use Friendica\Database\Definition\DbaDefinition;
+use Friendica\Database\Definition\ViewDefinition;
 use Friendica\DI;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Config\Repository;
@@ -82,7 +84,10 @@ class StorageManagerTest extends DatabaseTest
 		$loader        = $configFactory->createConfigFileLoader($this->root->url(), []);
 		$configCache   = $configFactory->createCache($loader);
 
-		$this->dba = new StaticDatabase($configCache, $profiler, $this->logger);
+		$dbaDefinition = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
+		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
+
+		$this->dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition, $this->logger);
 
 		$configModel  = new Repository\Config($this->dba, new Mode(Mode::DBCONFIGAVAILABLE));
 		$this->config = new PreloadConfig($configCache, $configModel);

@@ -25,6 +25,12 @@ use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Update;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
+use Friendica\Database\Definition\DbaDefinition;
+use Friendica\Database\Definition\ViewDefinition;
+use Friendica\Util\BasePath;
+use Friendica\Util\Writer\DbaDefinitionSqlWriter;
+use Friendica\Util\Writer\DocWriter;
+use Friendica\Util\Writer\ViewDefinitionSqlWriter;
 use RuntimeException;
 
 /**
@@ -34,14 +40,20 @@ class DatabaseStructure extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
 
-	/**
-	 * @var Database
-	 */
+	/** @var Database */
 	private $dba;
-	/**
-	 * @var Cache
-	 */
+
+	/** @var Cache */
 	private $configCache;
+
+	/** @var DbaDefinition */
+	private $dbaDefinition;
+
+	/** @var ViewDefinition */
+	private $viewDefinition;
+
+	/** @var string */
+	private $basePath;
 
 	protected function getHelp()
 	{
@@ -71,12 +83,15 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(Database $dba, Cache $configCache, $argv = null)
+	public function __construct(Database $dba, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition, BasePath $basePath, Cache $configCache, $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->dba = $dba;
+		$this->dbaDefinition = $dbaDefinition;
+		$this->viewDefinition = $viewDefinition;
 		$this->configCache = $configCache;
+		$this->basePath = $basePath->getPath();
 	}
 
 	protected function doExecute()
@@ -120,10 +135,9 @@ HELP;
 				$output = ob_get_clean();
 				break;
 			case "dumpsql":
-				DBStructure::writeStructure();
-				ob_start();
-				DBStructure::printStructure($basePath);
-				$output = ob_get_clean();
+				DocWriter::writeDbDefinition($this->dbaDefinition, $this->basePath);
+				$output = DbaDefinitionSqlWriter::create($this->dbaDefinition);
+				$output .= ViewDefinitionSqlWriter::create($this->viewDefinition);
 				break;
 			case "toinnodb":
 				ob_start();

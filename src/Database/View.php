@@ -21,60 +21,11 @@
 
 namespace Friendica\Database;
 
-use Exception;
-use Friendica\Core\Hook;
 use Friendica\DI;
+use Friendica\Util\Writer\ViewDefinitionSqlWriter;
 
 class View
 {
-	/**
-	 * view definition loaded from static/dbview.config.php
-	 *
-	 * @var array
-	 */
-	private static $definition = [];
-
-	/**
-	 * Loads the database structure definition from the static/dbview.config.php file.
-	 * On first pass, defines DB_UPDATE_VERSION constant.
-	 *
-	 * @see static/dbview.config.php
-	 * @param string  $basePath              The base path of this application
-	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
-	 * @return array
-	 * @throws Exception
-	 */
-	public static function definition(string $basePath = '', bool $with_addons_structure = true): array
-	{
-		if (!self::$definition) {
-			if (empty($basePath)) {
-				$basePath = DI::app()->getBasePath();
-			}
-
-			$filename = $basePath . '/static/dbview.config.php';
-
-			if (!is_readable($filename)) {
-				throw new Exception('Missing database view config file static/dbview.config.php');
-			}
-
-			$definition = require $filename;
-
-			if (!$definition) {
-				throw new Exception('Corrupted database view config file static/dbview.config.php');
-			}
-
-			self::$definition = $definition;
-		} else {
-			$definition = self::$definition;
-		}
-
-		if ($with_addons_structure) {
-			Hook::callAll('dbview_definition', $definition);
-		}
-
-		return $definition;
-	}
-
 	/**
 	 * Creates a view
 	 *
@@ -85,94 +36,29 @@ class View
 	public static function create(bool $verbose, bool $action)
 	{
 		// Delete previously used views that aren't used anymore
-		foreach(['post-view', 'post-thread-view'] as $view) {
+		foreach (['post-view', 'post-thread-view'] as $view) {
 			if (self::isView($view)) {
 				$sql = sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($view));
 				if (!empty($sql) && $verbose) {
 					echo $sql . ";\n";
 				}
-		
+
 				if (!empty($sql) && $action) {
 					DBA::e($sql);
 				}
 			}
 		}
 
-		$definition = self::definition();
+		$definition = DI::viewDefinition()->getAll();
 
 		foreach ($definition as $name => $structure) {
-			self::createView($name, $structure, $verbose, $action);
-		}
-	}
-
-	/**
-	 * Prints view structure
-	 *
-	 * @param string $basePath Base path
-	 * @return void
-	 */
-	public static function printStructure(string $basePath)
-	{
-		$database = self::definition($basePath, false);
-
-		foreach ($database as $name => $structure) {
-			echo "--\n";
-			echo "-- VIEW $name\n";
-			echo "--\n";
-			self::createView($name, $structure, true, false);
-
-			echo "\n";
-		}
-	}
-
-	/**
-	 * Creates view
-	 *
-	 * @param string $name Name of view
-	 * @param array $structure Structure of view
-	 * @param bool $verbose Whether to show SQL statements
-	 * @param bool $action Whether to execute SQL statements
-	 * @return bool Whether execution went fine
-	 */
-	private static function createView(string $name, array $structure, bool $verbose, bool $action): bool
-	{
-		$r = true;
-
-		$sql_rows = [];
-		foreach ($structure['fields'] as $fieldname => $origin) {
-			if (is_string($origin)) {
-				$sql_rows[] = $origin . " AS `" . DBA::escape($fieldname) . "`";
-			} elseif (is_array($origin) && (sizeof($origin) == 2)) {
-				$sql_rows[] = "`" . DBA::escape($origin[0]) . "`.`" . DBA::escape($origin[1]) . "` AS `" . DBA::escape($fieldname) . "`";
+			if (self::isView($name)) {
+				DBA::e(sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($name)));
+			} elseif (self::isTable($name)) {
+				DBA::e(sprintf("DROP TABLE IF EXISTS `%s`", DBA::escape($name)));
 			}
+			DBA::e(ViewDefinitionSqlWriter::createView($name, $structure));
 		}
-
-		if (self::isView($name)) {
-			$sql = sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($name));
-		} elseif (self::isTable($name)) {
-			$sql = sprintf("DROP TABLE IF EXISTS `%s`", DBA::escape($name));
-		}
-
-		if (!empty($sql) && $verbose) {
-			echo $sql . ";\n";
-		}
-
-		if (!empty($sql) && $action) {
-			DBA::e($sql);
-		}
-
-		$sql = sprintf("CREATE VIEW `%s` AS SELECT \n\t", DBA::escape($name)) .
-			implode(",\n\t", $sql_rows) . "\n\t" . $structure['query'];
-	
-		if ($verbose) {
-			echo $sql . ";\n";
-		}
-
-		if ($action) {
-			$r = DBA::e($sql);
-		}
-
-		return $r;
 	}
 
 	/**
