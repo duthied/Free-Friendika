@@ -466,7 +466,7 @@ class APContact
 		}
 
 		// Limit the length on incoming fields
-		$apcontact = DI::dbaDefinition()->getFieldsForTable('apcontact', $apcontact);
+		$apcontact = DI::dbaDefinition()->truncateFieldsForTable('apcontact', $apcontact);
 
 		if (DBA::exists('apcontact', ['url' => $apcontact['url']])) {
 			DBA::update('apcontact', $apcontact, ['url' => $apcontact['url']]);

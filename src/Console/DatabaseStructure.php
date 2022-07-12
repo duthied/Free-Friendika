@@ -40,25 +40,19 @@ class DatabaseStructure extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
 
-	/**
-	 * @var Database
-	 */
+	/** @var Database */
 	private $dba;
-	/**
-	 * @var Cache
-	 */
+
+	/** @var Cache */
 	private $configCache;
-	/**
-	 * @var DbaDefinition
-	 */
+
+	/** @var DbaDefinition */
 	private $dbaDefinition;
-	/**
-	 * @var ViewDefinition
-	 */
+
+	/** @var ViewDefinition */
 	private $viewDefinition;
-	/**
-	 * @var string
-	 */
+
+	/** @var string */
 	private $basePath;
 
 	protected function getHelp()

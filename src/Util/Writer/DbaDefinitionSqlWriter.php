@@ -74,7 +74,7 @@ class DbaDefinitionSqlWriter
 		$foreign_keys = [];
 
 		foreach ($tableStructure['fields'] as $fieldName => $field) {
-			$sql_rows[] = '`' . static::escape($fieldName) . '` ' . self::FieldCommand($field);
+			$sql_rows[] = '`' . static::escape($fieldName) . '` ' . self::fieldCommand($field);
 			if (!empty($field['primary'])) {
 				$primary_keys[] = $fieldName;
 			}
@@ -170,7 +170,7 @@ class DbaDefinitionSqlWriter
 	 */
 	public static function addTableField(string $fieldName, array $parameters): string
 	{
-		return sprintf("ADD `%s` %s", static::escape($fieldName), static::FieldCommand($parameters));
+		return sprintf("ADD `%s` %s", static::escape($fieldName), static::fieldCommand($parameters));
 	}
 
 	/**
@@ -183,7 +183,7 @@ class DbaDefinitionSqlWriter
 	 */
 	public static function modifyTableField(string $fieldName, array $parameters): string
 	{
-		return sprintf("MODIFY `%s` %s", static::escape($fieldName), self::FieldCommand($parameters, false));
+		return sprintf("MODIFY `%s` %s", static::escape($fieldName), self::fieldCommand($parameters, false));
 	}
 
 	/**
@@ -193,7 +193,7 @@ class DbaDefinitionSqlWriter
 	 * @param boolean $create Whether to include PRIMARY KEY statement (unused)
 	 * @return string SQL statement part
 	 */
-	public static function FieldCommand(array $parameters, bool $create = true): string
+	public static function fieldCommand(array $parameters, bool $create = true): string
 	{
 		$fieldstruct = $parameters['type'];
 

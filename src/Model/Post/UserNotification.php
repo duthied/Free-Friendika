@@ -67,7 +67,7 @@ class UserNotification
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DI::dbaDefinition()->getFieldsForTable('post-user-notification', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-user-notification', $data);
 
 		$fields['uri-id'] = $uri_id;
 		$fields['uid']    = $uid;
@@ -91,7 +91,7 @@ class UserNotification
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DI::dbaDefinition()->getFieldsForTable('post-user-notification', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-user-notification', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);

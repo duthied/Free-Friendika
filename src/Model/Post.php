@@ -46,7 +46,7 @@ class Post
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DI::dbaDefinition()->getFieldsForTable('post', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post', $data);
 
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
@@ -525,7 +525,7 @@ class Post
 		// To ensure the data integrity we do it in an transaction
 		DBA::transaction();
 
-		$update_fields = DI::dbaDefinition()->getFieldsForTable('post-user', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['post-user-id'], $condition);
@@ -542,7 +542,7 @@ class Post
 			$affected = $affected_count;
 		}
 
-		$update_fields = DI::dbaDefinition()->getFieldsForTable('post-content', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-content', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
@@ -559,7 +559,7 @@ class Post
 			$affected = max($affected, $affected_count);
 		}
 
-		$update_fields = DI::dbaDefinition()->getFieldsForTable('post', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
@@ -593,7 +593,7 @@ class Post
 			$affected = max($affected, $affected_count);
 		}
 
-		$update_fields = DI::dbaDefinition()->getFieldsForTable('post-thread', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
@@ -610,7 +610,7 @@ class Post
 			$affected = max($affected, $affected_count);
 		}
 
-		$update_fields = DI::dbaDefinition()->getFieldsForTable('post-thread-user', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['post-user-id'], $thread_condition);

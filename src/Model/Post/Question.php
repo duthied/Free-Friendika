@@ -43,7 +43,7 @@ class Question
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DI::dbaDefinition()->getFieldsForTable('post-question', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-question', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);

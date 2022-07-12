@@ -192,7 +192,7 @@ class Installer
 	 * @return bool true if the installation was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function installDatabase()
+	public function installDatabase(): bool
 	{
 		$result = DBStructure::install();
 

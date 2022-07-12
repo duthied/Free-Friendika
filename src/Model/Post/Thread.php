@@ -43,7 +43,7 @@ class Thread
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DI::dbaDefinition()->getFieldsForTable('post-thread', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread', $data);
 
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
@@ -66,7 +66,7 @@ class Thread
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DI::dbaDefinition()->getFieldsForTable('post-thread', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);

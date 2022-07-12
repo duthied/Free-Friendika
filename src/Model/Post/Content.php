@@ -45,7 +45,7 @@ class Content
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DI::dbaDefinition()->getFieldsForTable('post-content', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-content', $data);
 
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
@@ -68,7 +68,7 @@ class Content
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DI::dbaDefinition()->getFieldsForTable('post-content', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-content', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);

@@ -61,13 +61,14 @@ class DbaDefinition
 	}
 
 	/**
-	 * Get field data for the given table
+	 * Truncate field data for the given table
 	 *
-	 * @param string $table Tavle to load field definitions for
-	 * @param array $data data fields
+	 * @param string $table Name of the table to load field definitions for
+	 * @param array  $data  data fields
+	 *
 	 * @return array fields for the given
 	 */
-	public function getFieldsForTable(string $table, array $data = []): array
+	public function truncateFieldsForTable(string $table, array $data): array
 	{
 		$definition = $this->definition;
 		if (empty($definition[$table])) {

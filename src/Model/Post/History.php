@@ -52,7 +52,7 @@ class History
 		}
 
 		$update  = false;
-		$changed = DI::dbaDefinition()->getFieldsForTable('post-history', $item);
+		$changed = DI::dbaDefinition()->truncateFieldsForTable('post-history', $item);
 		unset($changed['uri-id']);
 		unset($changed['edited']);
 		foreach ($changed as $field => $content) {

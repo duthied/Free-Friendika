@@ -44,7 +44,7 @@ class QuestionOption
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DI::dbaDefinition()->getFieldsForTable('post-question-option', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-question-option', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);

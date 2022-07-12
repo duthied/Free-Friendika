@@ -130,7 +130,7 @@ class User
 			$fields['rel'] = Contact::SELF;
 		}
 
-		return DI::dbaDefinition()->getFieldsForTable('user-contact', $fields);
+		return DI::dbaDefinition()->truncateFieldsForTable('user-contact', $fields);
 	}
 
 	/**
