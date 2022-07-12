@@ -221,7 +221,7 @@ class Email
 	 * @param string              $subtype sub type
 	 * @return string
 	 */
-	private static function messageGetPart($mbox, int $uid, $p, in $partno, string $subtype): string
+	private static function messageGetPart($mbox, int $uid, $p, int $partno, string $subtype): string
 	{
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
 		global $htmlmsg,$plainmsg,$charset,$attachments;
