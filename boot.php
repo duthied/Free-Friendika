@@ -169,6 +169,8 @@ function remote_user()
  * This function save text in session, to be shown to the user at next page load
  *
  * @param string $s - Text of notice
+ *
+ * @return void
  */
 function notice(string $s)
 {
@@ -189,6 +191,8 @@ function notice(string $s)
  * This function save text in session, to be shown to the user at next page load
  *
  * @param string $s - Text of notice
+ *
+ * @return void
  */
 function info(string $s)
 {
