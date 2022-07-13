@@ -183,6 +183,13 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				}
 			}
 
+			// Final check on $link_item
+			// @see https://github.com/friendica/friendica/issues/11632#issuecomment-1183365937
+			if (empty($link_item)) {
+				$this->logger->info('Link item is still empty. Dumping whole Notification object:', [$Notification]);
+				return $message;
+			}
+
 			$link = $this->baseUrl . '/display/' . urlencode($link_item['guid']);
 
 			$body = BBCode::toPlaintext($item['body'], false);
