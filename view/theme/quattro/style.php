@@ -21,24 +21,27 @@
 
 use Friendica\DI;
 
-$uid = $_REQUEST['puid'] ?? 0;
-
-$color = false;
+/*
+ * This script can be included when the maintenance mode is on, which requires us to avoid any config call and
+ * use the following hardcoded defaults
+ */
+$color = 'dark';
 $quattro_align = false;
-$site_color = DI::config()->get("quattro", "color", "dark");
-$site_quattro_align = DI::config()->get("quattro", "align", false);
+$textarea_font_size = '20';
+$post_font_size = '12';
 
-if ($uid) {
-	$color = DI::pConfig()->get($uid, "quattro", "color", false);
-	$quattro_align = DI::pConfig()->get($uid, 'quattro', 'align', false);
-}
+if (DI::mode()->has(\Friendica\App\Mode::MAINTENANCEDISABLED)) {
+	$site_color = DI::config()->get("quattro", "color", $color);
+	$site_quattro_align = DI::config()->get("quattro", "align", $quattro_align);
+	$site_textarea_font_size = DI::config()->get("quattro", "tfs", $textarea_font_size);
+	$site_post_font_size = DI::config()->get("quattro", "pfs", $post_font_size);
 
-if ($color === false) {
-	$color = $site_color;
-}
+	$uid = $_REQUEST['puid'] ?? 0;
 
-if ($quattro_align === false) {
-	$quattro_align = $site_quattro_align;
+	$color = DI::pConfig()->get($uid, "quattro", "color", $site_color);
+	$quattro_align = DI::pConfig()->get($uid, 'quattro', 'align', $site_quattro_align);
+	$textarea_font_size = DI::pConfig()->get($uid, "quattro", "tfs", $site_textarea_font_size);
+	$post_font_size = DI::pConfig()->get($uid, "quattro", "pfs", $site_post_font_size);
 }
 
 $color = \Friendica\Util\Strings::sanitizeFilePathItem($color);
@@ -58,24 +61,6 @@ if ($quattro_align == "center") {
 	";
 }
 
-
-$textarea_font_size = false;
-$post_font_size = false;
-
-$site_textarea_font_size = DI::config()->get("quattro", "tfs", "20");
-$site_post_font_size = DI::config()->get("quattro", "pfs", "12");
-
-if ($uid) {
-	$textarea_font_size = DI::pConfig()->get($uid, "quattro", "tfs", false);
-	$post_font_size = DI::pConfig()->get($uid, "quattro", "pfs", false);
-}
-
-if ($textarea_font_size === false) {
-	$textarea_font_size = $site_textarea_font_size;
-}
-if ($post_font_size === false) {
-	$post_font_size = $site_post_font_size;
-}
 
 echo "
 	textarea { font-size: ${textarea_font_size}px; }
