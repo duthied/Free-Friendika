@@ -90,7 +90,7 @@ HELP;
 		$this->cache   = $cache;
 	}
 
-	protected function doExecute()
+	protected function doExecute(): int
 	{
 		if ($this->getOption('v')) {
 			$this->out('Executable: ' . $this->executable);

@@ -84,7 +84,7 @@ HELP;
 		$this->lock    = $lock;
 	}
 
-	protected function doExecute()
+	protected function doExecute(): int
 	{
 		if ($this->getOption('v')) {
 			$this->out('Executable: ' . $this->executable);
