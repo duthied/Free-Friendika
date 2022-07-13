@@ -110,7 +110,7 @@ HELP;
 		$this->dba         = $dba;
 	}
 
-	protected function doExecute()
+	protected function doExecute(): int
 	{
 		// Initialise the app
 		$this->out("Initializing setup...");

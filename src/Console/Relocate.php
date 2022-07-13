@@ -74,7 +74,7 @@ HELP;
 		$this->config   = $config;
 	}
 
-	protected function doExecute()
+	protected function doExecute(): int
 	{
 		if (count($this->args) == 0) {
 			$this->out($this->getHelp());

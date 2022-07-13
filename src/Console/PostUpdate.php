@@ -69,7 +69,7 @@ HELP;
 		$this->l10n = $l10n;
 	}
 
-	protected function doExecute()
+	protected function doExecute(): int
 	{
 		$a = \Friendica\DI::app();
 
