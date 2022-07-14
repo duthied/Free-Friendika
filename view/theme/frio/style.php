@@ -123,7 +123,7 @@ if (!$scheme) {
 	}
 }
 
-$contentbg_transp = $contentbg_transp ?? 0 ?: 100;
+$contentbg_transp = $contentbg_transp != '' ? $contentbg_transp : 100;
 
 // Calculate some colors in dependance of existing colors.
 // Some colors are calculated to don't have too many selection
