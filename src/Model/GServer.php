@@ -44,8 +44,8 @@ use Friendica\Util\JsonLD;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
-use GuzzleHttp\Exception\TransferException;
 use Friendica\Network\HTTPException;
+use GuzzleHttp\Psr7\Uri;
 
 /**
  * This class handles GServer related functions
@@ -311,7 +311,7 @@ class GServer
 		unset($urlparts['pass']);
 		unset($urlparts['query']);
 		unset($urlparts['fragment']);
-		return Network::unparseURL($urlparts);
+		return (string)Uri::fromParts($urlparts);
 	}
 
 	/**
@@ -337,50 +337,56 @@ class GServer
 			return false;
 		}
 
-		if (!Network::isUrlValid($url)) {
-			self::setFailure($url);
-			return false;
-		}
-
 		// If the URL missmatches, then we mark the old entry as failure
-		if (Strings::normaliseLink($url) != Strings::normaliseLink($original_url)) {
+		if (!Strings::compareLink($url, $original_url)) {
 			self::setFailure($original_url);
-			self::detect($url, $network, $only_nodeinfo);
-			return false;
-		}
-
-		// On a redirect follow the new host but mark the old one as failure
-		try {
-			$finalurl = rtrim(DI::httpClient()->finalUrl($url), '/');
-		} catch (TransferException $exception) {
-			Logger::notice('Error fetching final URL.', ['url' => $url, 'exception' => $exception]);
-			self::setFailure($url);
-			return false;
-		}
-
-		if (empty($finalurl)) {
-			Logger::notice('Empty redirected URL.', ['url' => $url]);
-			return false;
-		}
-
-		// We only follow redirects when the path stays the same or the target url has no path.
-		// Some systems have got redirects on their landing page to a single account page. This check handles it.
-		if (((parse_url($url, PHP_URL_HOST) != parse_url($finalurl, PHP_URL_HOST)) && (parse_url($url, PHP_URL_PATH) == parse_url($finalurl, PHP_URL_PATH))) ||
-			(((parse_url($url, PHP_URL_HOST) != parse_url($finalurl, PHP_URL_HOST)) || (parse_url($url, PHP_URL_PATH) != parse_url($finalurl, PHP_URL_PATH))) && empty(parse_url($finalurl, PHP_URL_PATH)))) {
-			Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $finalurl]);
-			self::setFailure($url);
-			self::detect($finalurl, $network, $only_nodeinfo);
-			return false;
-		}
-
-		if ((parse_url($url, PHP_URL_HOST) == parse_url($finalurl, PHP_URL_HOST)) &&
-			(parse_url($url, PHP_URL_PATH) == parse_url($finalurl, PHP_URL_PATH)) &&
-			(parse_url($url, PHP_URL_SCHEME) != parse_url($finalurl, PHP_URL_SCHEME))) {
-			if (!Network::isUrlValid($finalurl)) {
-				self::setFailure($finalurl);
-			} else {
-				$url = $finalurl;
+			if (!self::getID($url, true)) {
+				self::detect($url, $network, $only_nodeinfo);
 			}
+			return false;
+		}
+
+		$valid_url = Network::isUrlValid($url);
+		if (!$valid_url) {
+			self::setFailure($url);
+			return false;
+		} else {
+			$valid_url = rtrim($valid_url, '/');
+		}
+
+		if (!Strings::compareLink($url, $valid_url)) {
+			// We only follow redirects when the path stays the same or the target url has no path.
+			// Some systems have got redirects on their landing page to a single account page. This check handles it.
+			if (((parse_url($url, PHP_URL_HOST) != parse_url($valid_url, PHP_URL_HOST)) && (parse_url($url, PHP_URL_PATH) == parse_url($valid_url, PHP_URL_PATH))) ||
+				(((parse_url($url, PHP_URL_HOST) != parse_url($valid_url, PHP_URL_HOST)) || (parse_url($url, PHP_URL_PATH) != parse_url($valid_url, PHP_URL_PATH))) && empty(parse_url($valid_url, PHP_URL_PATH)))) {
+				Logger::debug('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $valid_url]);
+				self::setFailure($url);
+				if (!self::getID($valid_url, true)) {
+					self::detect($valid_url, $network, $only_nodeinfo);
+				}
+				return false;
+			}
+
+			if ((parse_url($url, PHP_URL_HOST) != parse_url($valid_url, PHP_URL_HOST)) && (parse_url($url, PHP_URL_PATH) != parse_url($valid_url, PHP_URL_PATH)) &&
+				(parse_url($url, PHP_URL_PATH) == '')) {
+				Logger::debug('Found redirect. Mark old entry as failure and redirect to the basepath.', ['old' => $url, 'new' => $valid_url]);
+				$parts = parse_url($valid_url);
+				unset($parts['path']);
+				$valid_url = (string)Uri::fromParts($parts);
+
+				self::setFailure($url);
+				if (!self::getID($valid_url, true)) {
+					self::detect($valid_url, $network, $only_nodeinfo);
+				}
+				return false;	
+			}
+			Logger::debug('Found redirect, but ignore it.', ['old' => $url, 'new' => $valid_url]);
+		}
+
+		if ((parse_url($url, PHP_URL_HOST) == parse_url($valid_url, PHP_URL_HOST)) &&
+			(parse_url($url, PHP_URL_PATH) == parse_url($valid_url, PHP_URL_PATH)) &&
+			(parse_url($url, PHP_URL_SCHEME) != parse_url($valid_url, PHP_URL_SCHEME))) {
+			$url = $valid_url;
 		}
 
 		$in_webroot = empty(parse_url($url, PHP_URL_PATH));

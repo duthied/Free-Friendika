@@ -26,6 +26,7 @@ use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException\NotModifiedException;
 use GuzzleHttp\Psr7\Uri;
 
@@ -74,6 +75,22 @@ class Network
 			return false;
 		}
 
+		if (in_array(parse_url($url, PHP_URL_SCHEME), ['https', 'http'])) {
+			$curlResult = DI::httpClient()->head($url, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
+	
+			// Workaround for systems that can't handle a HEAD request. Don't retry on timeouts.
+			if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() >= 400) && !in_array($curlResult->getReturnCode(), [408, 504])) {
+				$curlResult = DI::httpClient()->get($url, HttpClientAccept::DEFAULT, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
+			}
+	
+			if (!$curlResult->isSuccess()) {
+				Logger::notice('Url not reachable', ['host' => $host, 'url' => $url]);
+				return false;
+			} elseif ($curlResult->isRedirectUrl()) {
+				$url = $curlResult->getRedirectUrl();
+			}
+		}
+
 		// Check if the certificate is valid for this hostname
 		if (parse_url($url, PHP_URL_SCHEME) == 'https') {
 			$port = parse_url($url, PHP_URL_PORT) ?? 443;
@@ -108,12 +125,6 @@ class Network
 
 			if ($certinfo['validTo_time_t'] < time()) {
 				Logger::notice('Certificate validity ends before current date', ['host' => $host, 'from' => $valid_from, 'to' => $valid_to]);
-				return false;
-			}
-		}
-		if (in_array(parse_url($url, PHP_URL_SCHEME), ['https', 'http'])) {
-			if (!ParseUrl::getContentType($url, HttpClientAccept::DEFAULT, $xrd_timeout)) {
-				Logger::notice('Url not reachable', ['host' => $host, 'url' => $url]);
 				return false;
 			}
 		}
