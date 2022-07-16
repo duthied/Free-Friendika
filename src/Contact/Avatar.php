@@ -123,7 +123,7 @@ class Avatar
 		return $fields;
 	}
 
-	private static function getFilename(string $url)
+	private static function getFilename(string $url): string
 	{
 		$guid = Item::guidFromUri($url, parse_url($url, PHP_URL_HOST));
 

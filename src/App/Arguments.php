@@ -78,7 +78,7 @@ class Arguments
 	/**
 	 * @return string The whole command of this call
 	 */
-	public function getCommand()
+	public function getCommand(): string
 	{
 		return $this->command;
 	}
@@ -94,7 +94,7 @@ class Arguments
 	/**
 	 * @return array All arguments of this call
 	 */
-	public function getArgv()
+	public function getArgv(): array
 	{
 		return $this->argv;
 	}
@@ -102,7 +102,7 @@ class Arguments
 	/**
 	 * @return string The used HTTP method
 	 */
-	public function getMethod()
+	public function getMethod(): string
 	{
 		return $this->method;
 	}
@@ -110,7 +110,7 @@ class Arguments
 	/**
 	 * @return int The count of arguments of this call
 	 */
-	public function getArgc()
+	public function getArgc(): int
 	{
 		return $this->argc;
 	}
@@ -145,7 +145,7 @@ class Arguments
 	 *
 	 * @return bool if the argument position exists
 	 */
-	public function has(int $position)
+	public function has(int $position): bool
 	{
 		return array_key_exists($position, $this->argv);
 	}
@@ -158,7 +158,7 @@ class Arguments
 	 *
 	 * @return Arguments The determined arguments
 	 */
-	public function determine(array $server, array $get)
+	public function determine(array $server, array $get): Arguments
 	{
 		// removing leading / - maybe a nginx problem
 		$server['QUERY_STRING'] = ltrim($server['QUERY_STRING'] ?? '', '/');

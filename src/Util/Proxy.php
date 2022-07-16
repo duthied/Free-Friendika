@@ -76,11 +76,10 @@ class Proxy
 	 *
 	 * @param string $url       The URL to proxyfy
 	 * @param string $size      One of the Proxy::SIZE_* constants
-	 *
 	 * @return string The proxyfied URL or relative path
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function proxifyUrl($url, $size = '')
+	public static function proxifyUrl(string $url, string $size = ''): string
 	{
 		if (!DI::config()->get('system', 'proxify_content')) {
 			return $url;
@@ -133,11 +132,10 @@ class Proxy
 	 * proxy storage directory.
 	 *
 	 * @param string $html Un-proxified HTML code
-	 *
 	 * @return string Proxified HTML code
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function proxifyHtml($html)
+	public static function proxifyHtml(string $html): string
 	{
 		$html = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/', DI::baseUrl() . '/', $html);
 
@@ -151,7 +149,7 @@ class Proxy
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isLocalImage($url)
+	public static function isLocalImage(string $url): bool
 	{
 		if (substr($url, 0, 1) == '/') {
 			return true;
@@ -170,7 +168,7 @@ class Proxy
 	 * @param string $url URL to parse
 	 * @return array Associative array of query string parameters
 	 */
-	private static function parseQuery($url)
+	private static function parseQuery(string $url): array
 	{
 		$query = parse_url($url, PHP_URL_QUERY);
 		$query = html_entity_decode($query);
@@ -187,7 +185,7 @@ class Proxy
 	 * @return string Proxified HTML image tag
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function replaceUrl(array $matches)
+	private static function replaceUrl(array $matches): string
 	{
 		// if the picture seems to be from another picture cache then take the original source
 		$queryvar = self::parseQuery($matches[2]);

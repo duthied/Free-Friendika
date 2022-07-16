@@ -85,7 +85,7 @@ class Item
 	 *       ]
 	 *  ]
 	 */
-	public function determineCategoriesTerms(array $item, int $uid = 0)
+	public function determineCategoriesTerms(array $item, int $uid = 0): array
 	{
 		$categories = [];
 		$folders = [];
@@ -141,16 +141,16 @@ class Item
 	 * This function removes the tag $tag from the text $body and replaces it with
 	 * the appropriate link.
 	 *
-	 * @param string  $body        the text to replace the tag in
-	 * @param integer $profile_uid the user id to replace the tag for (0 = anyone)
-	 * @param string  $tag         the tag to replace
-	 * @param string  $network     The network of the post
+	 * @param string $body        the text to replace the tag in
+	 * @param int    $profile_uid the user id to replace the tag for (0 = anyone)
+	 * @param string $tag         the tag to replace
+	 * @param string $network     The network of the post
 	 *
-	 * @return array|bool ['replaced' => $replaced, 'contact' => $contact];
+	 * @return array|bool ['replaced' => $replaced, 'contact' => $contact] or "false" on if already replaced
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function replaceTag(&$body, $profile_uid, $tag, $network = '')
+	public static function replaceTag(string &$body, int $profile_uid, string $tag, string $network = '')
 	{
 		$replaced = false;
 
@@ -244,16 +244,17 @@ class Item
 	/**
 	 * Render actions localized
 	 *
-	 * @param $item
+	 * @param array $item
+	 * @return void
 	 * @throws ImagickException
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function localize(&$item)
+	public function localize(array &$item)
 	{
 		$this->profiler->startRecording('rendering');
 		/// @todo The following functionality needs to be cleaned up.
 		if (!empty($item['verb'])) {
-			$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
+			$xmlhead = '<?xml version="1.0" encoding="UTF-8" ?>';
 
 			if (stristr($item['verb'], Activity::POKE)) {
 				$verb = urldecode(substr($item['verb'], strpos($item['verb'],'#') + 1));
@@ -261,7 +262,7 @@ class Item
 					$this->profiler->stopRecording();
 					return;
 				}
-				if ($item['object-type'] == "" || $item['object-type'] !== Activity\ObjectType::PERSON) {
+				if ($item['object-type'] == '' || $item['object-type'] !== Activity\ObjectType::PERSON) {
 					$this->profiler->stopRecording();
 					return;
 				}
@@ -270,18 +271,22 @@ class Item
 
 				$Bname = $obj->title;
 				$Blink = $obj->id;
-				$Bphoto = "";
+				$Bphoto = '';
 
 				foreach ($obj->link as $l) {
 					$atts = $l->attributes();
 					switch ($atts['rel']) {
-						case "alternate": $Blink = $atts['href'];
-						case "photo": $Bphoto = $atts['href'];
+						case 'alternate': $Blink = $atts['href'];
+						case 'photo': $Bphoto = $atts['href'];
 					}
 				}
 
-				$author = ['uid' => 0, 'id' => $item['author-id'],
-					'network' => $item['author-network'], 'url' => $item['author-link']];
+				$author = [
+					'uid' => 0,
+					'id' => $item['author-id'],
+					'network' => $item['author-network'],
+					'url' => $item['author-link'],
+				];
 				$A = '[url=' . Contact::magicLinkByContact($author) . ']' . $item['author-name'] . '[/url]';
 
 				if (!empty($Blink)) {
@@ -290,7 +295,7 @@ class Item
 					$B = '';
 				}
 
-				if ($Bphoto != "" && !empty($Blink)) {
+				if ($Bphoto != '' && !empty($Blink)) {
 					$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
 				}
 
@@ -305,9 +310,7 @@ class Item
 				$txt = str_replace($poked_t, $this->l10n->t($verb), $txt);
 
 				// then do the sprintf on the translation string
-
 				$item['body'] = sprintf($txt, $A, $B) . "\n\n\n" . $Bphoto;
-
 			}
 
 			if ($this->activity->match($item['verb'], Activity::TAG)) {
@@ -319,12 +322,20 @@ class Item
 					return;
 				}
 
-				$author_arr = ['uid' => 0, 'id' => $item['author-id'],
-					'network' => $item['author-network'], 'url' => $item['author-link']];
+				$author_arr = [
+					'uid' => 0,
+					'id' => $item['author-id'],
+					'network' => $item['author-network'],
+					'url' => $item['author-link'],
+				];
 				$author  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $item['author-name'] . '[/url]';
 
-				$author_arr = ['uid' => 0, 'id' => $obj['author-id'],
-					'network' => $obj['author-network'], 'url' => $obj['author-link']];
+				$author_arr = [
+					'uid' => 0,
+					'id' => $obj['author-id'],
+					'network' => $obj['author-network'],
+					'url' => $obj['author-link'],
+				];
 				$objauthor  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $obj['author-name'] . '[/url]';
 
 				switch ($obj['verb']) {
@@ -337,6 +348,7 @@ class Item
 								$post_type = $this->l10n->t('status');
 						}
 						break;
+
 					default:
 						if ($obj['resource-id']) {
 							$post_type = $this->l10n->t('photo');
@@ -360,25 +372,29 @@ class Item
 		$this->profiler->stopRecording();
 	}
 
-	public function photoMenu($item, string $formSecurityToken)
+	/**
+	 * Renders photo menu based on item
+	 *
+	 * @param array $item
+	 * @param string $formSecurityToken
+	 * @return string
+	 */
+	public function photoMenu(array $item, string $formSecurityToken): string
 	{
 		$this->profiler->startRecording('rendering');
-		$sub_link = '';
-		$poke_link = '';
-		$contact_url = '';
-		$pm_url = '';
-		$status_link = '';
-		$photos_link = '';
-		$posts_link = '';
-		$block_link = '';
-		$ignore_link = '';
+		$sub_link = $poke_link = $contact_url = $pm_url = $status_link = '';
+		$photos_link = $posts_link = $block_link = $ignore_link = '';
 
 		if (local_user() && local_user() == $item['uid'] && $item['gravity'] == GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
 			$sub_link = 'javascript:doFollowThread(' . $item['id'] . '); return false;';
 		}
 
-		$author = ['uid' => 0, 'id' => $item['author-id'],
-			'network' => $item['author-network'], 'url' => $item['author-link']];
+		$author = [
+			'uid' => 0,
+			'id' => $item['author-id'],
+			'network' => $item['author-network'],
+			'url' => $item['author-link'],
+		];
 		$profile_link = Contact::magicLinkByContact($author, $item['author-link']);
 		$sparkle = (strpos($profile_link, 'redir/') === 0);
 
@@ -435,7 +451,7 @@ class Item
 			}
 
 			if ($network == Protocol::DFRN) {
-				$menu[$this->l10n->t("Poke")] = $poke_link;
+				$menu[$this->l10n->t('Poke')] = $poke_link;
 			}
 
 			if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
@@ -465,24 +481,28 @@ class Item
 		return $o;
 	}
 
-	public function visibleActivity($item) {
-
+	/**
+	 * Checks if the activity is visible to current user
+	 *
+	 * @param array $item Activity item
+	 * @return bool Whether the item is visible to the user
+	 */
+	public function isVisibleActivity(array $item): bool
+	{
+		// Empty verb or hidden?
 		if (empty($item['verb']) || $this->activity->isHidden($item['verb'])) {
 			return false;
 		}
 
-		// @TODO below if() block can be rewritten to a single line: $isVisible = allConditionsHere;
-		if ($this->activity->match($item['verb'], Activity::FOLLOW) &&
+		// Check conditions
+		return (!($this->activity->match($item['verb'], Activity::FOLLOW) &&
 			$item['object-type'] === Activity\ObjectType::NOTE &&
 			empty($item['self']) &&
-			$item['uid'] == local_user()) {
-			return false;
-		}
-
-		return true;
+			$item['uid'] == local_user())
+		);
 	}
 
-	public function expandTags(array $item, bool $setPermissions = false)
+	public function expandTags(array $item, bool $setPermissions = false): array
 	{
 		// Look for any tags and linkify them
 		$item['inform'] = '';

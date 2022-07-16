@@ -27,7 +27,12 @@ use Friendica\Util\Strings;
 
 class TrustedBrowser extends BaseFactory
 {
-	public function createForUserWithUserAgent($uid, $userAgent): \Friendica\Security\TwoFactor\Model\TrustedBrowser
+	/**
+	 * Creates a new Trusted Browser based on the current user environment
+	 *
+	 * @throws \Exception In case something really unexpected happens
+	 */
+	public function createForUserWithUserAgent(int $uid, string $userAgent, bool $trusted): \Friendica\Security\TwoFactor\Model\TrustedBrowser
 	{
 		$trustedHash = Strings::getRandomHex();
 
@@ -35,6 +40,7 @@ class TrustedBrowser extends BaseFactory
 			$trustedHash,
 			$uid,
 			$userAgent,
+			$trusted,
 			DateTimeFormat::utcNow()
 		);
 	}
@@ -45,6 +51,7 @@ class TrustedBrowser extends BaseFactory
 			$row['cookie_hash'],
 			$row['uid'],
 			$row['user_agent'],
+			$row['trusted'],
 			$row['created'],
 			$row['last_used']
 		);

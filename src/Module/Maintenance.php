@@ -45,7 +45,7 @@ class Maintenance extends BaseModule
 
 		$exception = new HTTPException\ServiceUnavailableException($reason);
 
-		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $exception->getCode() . ' ' . DI::l10n()->t('System down for maintenance'));
+		header($_SERVER['SERVER_PROTOCOL'] . ' ' . $exception->getCode() . ' ' . DI::l10n()->t('System down for maintenance'));
 
 		$tpl = Renderer::getMarkupTemplate('exception.tpl');
 

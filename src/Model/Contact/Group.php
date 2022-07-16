@@ -36,7 +36,7 @@ class Group
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getById(int $gid)
+	public static function getById(int $gid): array
 	{
 		$return = [];
 

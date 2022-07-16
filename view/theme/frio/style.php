@@ -31,44 +31,63 @@ $schemecss = '';
 $schemecssfile = false;
 $scheme_modified = 0;
 
-DI::config()->load('frio');
+/*
+ * This script can be included when the maintenance mode is on, which requires us to avoid any config call and
+ * use the following hardcoded defaults
+ */
+$scheme           = null;
+$scheme_accent    = FRIO_SCHEME_ACCENT_BLUE;
+$nav_bg           = '#708fa0';
+$nav_icon_color   = '#ffffff';
+$link_color       = '#6fdbe8';
+$background_color = '#ededed';
+$contentbg_transp = 100;
+$background_image = 'img/none.png';
+$bg_image_option  = '';
+$login_bg_image   = '';
+$login_bg_color   = '';
+$modified         = time();
 
-// Default to hard-coded values for empty settings
-$scheme           = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
-$scheme_accent    = DI::config()->get('frio', 'scheme_accent')    ?: FRIO_SCHEME_ACCENT_BLUE;
-$nav_bg           = DI::config()->get('frio', 'nav_bg')           ?: '#708fa0';
-$nav_icon_color   = DI::config()->get('frio', 'nav_icon_color')   ?: '#ffffff';
-$link_color       = DI::config()->get('frio', 'link_color')       ?: '#6fdbe8';
-$background_color = DI::config()->get('frio', 'background_color') ?: '#ededed';
-$contentbg_transp = DI::config()->get('frio', 'contentbg_transp') ?? 100;
-$background_image = DI::config()->get('frio', 'background_image') ?: 'img/none.png';
-$bg_image_option  = DI::config()->get('frio', 'bg_image_option')  ?: '';
-$login_bg_image   = DI::config()->get('frio', 'login_bg_image')   ?: '';
-$login_bg_color   = DI::config()->get('frio', 'login_bg_color')   ?: '';
-$modified         = DI::config()->get('frio', 'css_modified')     ?: time();
+if (DI::mode()->has(\Friendica\App\Mode::MAINTENANCEDISABLED)) {
+	DI::config()->load('frio');
+
+	// Default to hard-coded values for empty settings
+	$scheme           = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
+	$scheme_accent    = DI::config()->get('frio', 'scheme_accent')    ?: $scheme_accent;
+	$nav_bg           = DI::config()->get('frio', 'nav_bg')           ?: $nav_bg;
+	$nav_icon_color   = DI::config()->get('frio', 'nav_icon_color')   ?: $nav_icon_color;
+	$link_color       = DI::config()->get('frio', 'link_color')       ?: $link_color;
+	$background_color = DI::config()->get('frio', 'background_color') ?: $background_color;
+	$contentbg_transp = DI::config()->get('frio', 'contentbg_transp') ?? $contentbg_transp;
+	$background_image = DI::config()->get('frio', 'background_image') ?: $background_image;
+	$bg_image_option  = DI::config()->get('frio', 'bg_image_option')  ?: $bg_image_option;
+	$login_bg_image   = DI::config()->get('frio', 'login_bg_image')   ?: $login_bg_image;
+	$login_bg_color   = DI::config()->get('frio', 'login_bg_color')   ?: $login_bg_color;
+	$modified         = DI::config()->get('frio', 'css_modified')     ?: $modified;
+
+	// Get the UID of the profile owner.
+	$uid = $_REQUEST['puid'] ?? 0;
+	if ($uid) {
+		DI::pConfig()->load($uid, 'frio');
+
+		// Only override display settings that have actually been set
+		$scheme           = DI::pConfig()->get($uid, 'frio', 'scheme', DI::pConfig()->get($uid, 'frio', 'schema')) ?: $scheme;
+		$scheme_accent    = DI::pConfig()->get($uid, 'frio', 'scheme_accent')    ?: $scheme_accent;
+		$nav_bg           = DI::pConfig()->get($uid, 'frio', 'nav_bg')           ?: $nav_bg;
+		$nav_icon_color   = DI::pConfig()->get($uid, 'frio', 'nav_icon_color')   ?: $nav_icon_color;
+		$link_color       = DI::pConfig()->get($uid, 'frio', 'link_color')       ?: $link_color;
+		$background_color = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $background_color;
+		$contentbg_transp = DI::pConfig()->get($uid, 'frio', 'contentbg_transp') ?? $contentbg_transp;
+		$background_image = DI::pConfig()->get($uid, 'frio', 'background_image') ?: $background_image;
+		$bg_image_option  = DI::pConfig()->get($uid, 'frio', 'bg_image_option')  ?: $bg_image_option;
+		$modified         = DI::pConfig()->get($uid, 'frio', 'css_modified')     ?: $modified;
+	}
+}
 
 if (!$login_bg_image && !$login_bg_color) {
 	$login_bg_image = 'img/login_bg.jpg';
 }
 $login_bg_color = $login_bg_color ?: '#ededed';
-
-// Get the UID of the profile owner.
-$uid = $_REQUEST['puid'] ?? 0;
-if ($uid) {
-	DI::pConfig()->load($uid, 'frio');
-
-	// Only override display settings that have actually been set
-	$scheme           = DI::pConfig()->get($uid, 'frio', 'scheme', DI::pConfig()->get($uid, 'frio', 'schema')) ?: $scheme;
-	$scheme_accent    = DI::pConfig()->get($uid, 'frio', 'scheme_accent')    ?: $scheme_accent;
-	$nav_bg           = DI::pConfig()->get($uid, 'frio', 'nav_bg')           ?: $nav_bg;
-	$nav_icon_color   = DI::pConfig()->get($uid, 'frio', 'nav_icon_color')   ?: $nav_icon_color;
-	$link_color       = DI::pConfig()->get($uid, 'frio', 'link_color')       ?: $link_color;
-	$background_color = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $background_color;
-	$contentbg_transp = DI::pConfig()->get($uid, 'frio', 'contentbg_transp') ?? $contentbg_transp;
-	$background_image = DI::pConfig()->get($uid, 'frio', 'background_image') ?: $background_image;
-	$bg_image_option  = DI::pConfig()->get($uid, 'frio', 'bg_image_option')  ?: $bg_image_option;
-	$modified         = DI::pConfig()->get($uid, 'frio', 'css_modified')     ?: $modified;
-}
 
 // Now load the scheme.  If a value is changed above, we'll keep the settings
 // If not, we'll keep those defined by the scheme
@@ -79,9 +98,9 @@ if (!empty($_REQUEST['scheme'])) {
 	$scheme = $_REQUEST['scheme'];
 }
 
-$scheme = Strings::sanitizeFilePathItem($scheme);
+$scheme = Strings::sanitizeFilePathItem($scheme ?? '');
 
-if (($scheme) && ($scheme != '---')) {
+if ($scheme && ($scheme != '---')) {
 	if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
 		$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
 		require_once $schemefile;
@@ -104,7 +123,7 @@ if (!$scheme) {
 	}
 }
 
-$contentbg_transp = ((isset($contentbg_transp) && $contentbg_transp != '') ? $contentbg_transp : 100);
+$contentbg_transp = $contentbg_transp != '' ? $contentbg_transp : 100;
 
 // Calculate some colors in dependance of existing colors.
 // Some colors are calculated to don't have too many selection

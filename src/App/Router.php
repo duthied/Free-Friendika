@@ -152,7 +152,7 @@ class Router
 	 *
 	 * @throws HTTPException\InternalServerErrorException In case of invalid configs
 	 */
-	public function loadRoutes(array $routes)
+	public function loadRoutes(array $routes): Router
 	{
 		$routeCollector = ($this->routeCollector ?? new RouteCollector(new Std(), new GroupCountBased()));
 
@@ -166,6 +166,13 @@ class Router
 		return $this;
 	}
 
+	/**
+	 * Adds multiple routes to a route collector
+	 *
+	 * @param RouteCollector $routeCollector Route collector instance
+	 * @param array $routes Multiple routes to be added
+	 * @throws HTTPException\InternalServerErrorException If route was wrong (somehow)
+	 */
 	private function addRoutes(RouteCollector $routeCollector, array $routes)
 	{
 		foreach ($routes as $route => $config) {
@@ -221,7 +228,7 @@ class Router
 	 *
 	 * @return bool
 	 */
-	private function isRoute(array $config)
+	private function isRoute(array $config): bool
 	{
 		return
 			// The config array should at least have one entry
@@ -253,7 +260,7 @@ class Router
 	 * @throws HTTPException\MethodNotAllowedException    If a rule matched but the method didn't
 	 * @throws HTTPException\NotFoundException            If no rule matched
 	 */
-	private function getModuleClass()
+	private function getModuleClass(): string
 	{
 		$cmd = $this->args->getCommand();
 		$cmd = '/' . ltrim($cmd, '/');

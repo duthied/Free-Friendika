@@ -68,7 +68,7 @@ class Transmitter
 	 * @param array $inboxes
 	 * @return array inboxes with added relay servers
 	 */
-	public static function addRelayServerInboxes(array $inboxes = [])
+	public static function addRelayServerInboxes(array $inboxes = []): array
 	{
 		foreach (Relay::getList(['inbox']) as $contact) {
 			$inboxes[$contact['inbox']] = $contact['inbox'];
@@ -83,7 +83,7 @@ class Transmitter
 	 * @param array $inboxes
 	 * @return array inboxes with added relay servers
 	 */
-	public static function addRelayServerInboxesForItem(int $item_id, array $inboxes = [])
+	public static function addRelayServerInboxesForItem(int $item_id, array $inboxes = []): array
 	{
 		$item = Post::selectFirst(['uid'], ['id' => $item_id]);
 		if (empty($item)) {
@@ -103,12 +103,12 @@ class Transmitter
 	}
 
 	/**
-	 * Subscribe to a relay
+	 * Subscribe to a relay and updates contact on success
 	 *
 	 * @param string $url Subscribe actor url
 	 * @return bool success
 	 */
-	public static function sendRelayFollow(string $url)
+	public static function sendRelayFollow(string $url): bool
 	{
 		$contact = Contact::getByURL($url);
 		if (empty($contact)) {
@@ -125,13 +125,13 @@ class Transmitter
 	}
 
 	/**
-	 * Unsubscribe from a relay
+	 * Unsubscribe from a relay and updates contact on success or forced
 	 *
 	 * @param string $url   Subscribe actor url
 	 * @param bool   $force Set the relay status as non follower even if unsubscribe hadn't worked
 	 * @return bool success
 	 */
-	public static function sendRelayUndoFollow(string $url, bool $force = false)
+	public static function sendRelayUndoFollow(string $url, bool $force = false): bool
 	{
 		$contact = Contact::getByURL($url);
 		if (empty($contact)) {
@@ -139,6 +139,7 @@ class Transmitter
 		}
 
 		$success = self::sendContactUndo($url, $contact['id'], 0);
+
 		if ($success || $force) {
 			Contact::update(['rel' => Contact::NOTHING], ['id' => $contact['id']]);
 		}
@@ -155,11 +156,10 @@ class Transmitter
 	 * @param integer $page      Page number
 	 * @param string  $requester URL of the requester
 	 * @param boolean $nocache   Wether to bypass caching
-	 *
 	 * @return array of owners
 	 * @throws \Exception
 	 */
-	public static function getContacts(array $owner, array $rel, string $module, int $page = null, string $requester = null, $nocache = false)
+	public static function getContacts(array $owner, array $rel, string $module, int $page = null, string $requester = null, bool $nocache = false): array
 	{
 		if (empty($page)) {
 			$cachekey = self::CACHEKEY_CONTACTS . $module . ':'. $owner['uid'];
@@ -246,12 +246,11 @@ class Transmitter
 	 * @param integer $page      Page number
 	 * @param string  $requester URL of requesting account
 	 * @param boolean $nocache   Wether to bypass caching
-	 *
 	 * @return array of posts
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getOutbox(array $owner, int $page = null, string $requester = '', $nocache = false)
+	public static function getOutbox(array $owner, int $page = null, string $requester = '', bool $nocache = false): array
 	{
 		if (empty($page)) {
 			$cachekey = self::CACHEKEY_OUTBOX . $owner['uid'];
@@ -274,15 +273,16 @@ class Transmitter
 			}
 		}
 
-		$condition = array_merge($condition,
-			['uid'           => $owner['uid'],
+		$condition = array_merge($condition, [
+			'uid'           => $owner['uid'],
 			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
 			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
 			'network'        => Protocol::FEDERATED,
 			'parent-network' => Protocol::FEDERATED,
 			'origin'         => true,
 			'deleted'        => false,
-			'visible'        => true]);
+			'visible'        => true
+		]);
 
 		$count = Post::count($condition);
 
@@ -340,7 +340,7 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getFeatured(array $owner, int $page = null, $nocache = false)
+	public static function getFeatured(array $owner, int $page = null, bool $nocache = false): array
 	{
 		if (empty($page)) {
 			$cachekey = self::CACHEKEY_FEATURED . $owner['uid'];
@@ -355,8 +355,8 @@ class Transmitter
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
 			$owner_cid, Post\Collection::FEATURED];
 
-		$condition = DBA::mergeConditions($condition,
-			['uid'           => $owner['uid'],
+		$condition = DBA::mergeConditions($condition, [
+			'uid'           => $owner['uid'],
 			'author-id'      => $owner_cid,
 			'private'        => [Item::PUBLIC, Item::UNLISTED],
 			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
@@ -364,7 +364,8 @@ class Transmitter
 			'parent-network' => Protocol::FEDERATED,
 			'origin'         => true,
 			'deleted'        => false,
-			'visible'        => true]);
+			'visible'        => true
+		]);
 
 		$count = Post::count($condition);
 
@@ -418,11 +419,13 @@ class Transmitter
 	 *
 	 * @return array with service data
 	 */
-	private static function getService()
+	private static function getService(): array
 	{
-		return ['type' => 'Service',
+		return [
+			'type' => 'Service',
 			'name' =>  FRIENDICA_PLATFORM . " '" . FRIENDICA_CODENAME . "' " . FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
-			'url' => DI::baseUrl()->get()];
+			'url' => DI::baseUrl()->get()
+		];
 	}
 
 	/**
@@ -537,7 +540,7 @@ class Transmitter
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getDeletedUser($username)
+	public static function getDeletedUser(string $username): array
 	{
 		return [
 			'@context' => ActivityPub::CONTEXT,
@@ -559,7 +562,7 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchPermissionBlockFromThreadParent(array $item, bool $is_forum_thread)
+	private static function fetchPermissionBlockFromThreadParent(array $item, bool $is_forum_thread): array
 	{
 		if (empty($item['thr-parent-id'])) {
 			return [];
@@ -606,7 +609,7 @@ class Transmitter
 	 * @param integer $item_id
 	 * @return boolean "true" if the post is from ActivityPub
 	 */
-	private static function isAPPost(int $item_id)
+	private static function isAPPost(int $item_id): bool
 	{
 		if (empty($item_id)) {
 			return false;
@@ -626,7 +629,7 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0)
+	private static function createPermissionBlockForItem(array $item, bool $blindcopy, int $last_id = 0): array
 	{
 		if ($last_id == 0) {
 			$last_id = $item['id'];
@@ -858,10 +861,9 @@ class Transmitter
 	 * Check if an inbox is archived
 	 *
 	 * @param string $url Inbox url
-	 *
 	 * @return boolean "true" if inbox is archived
 	 */
-	public static function archivedInbox($url)
+	public static function archivedInbox(string $url): bool
 	{
 		return DBA::exists('inbox-status', ['url' => $url, 'archive' => true]);
 	}
@@ -869,12 +871,12 @@ class Transmitter
 	/**
 	 * Check if a given contact should be delivered via AP
 	 *
-	 * @param array $contact
-	 * @param array $networks
-	 * @return bool
+	 * @param array $contact Contact array
+	 * @param array $networks Array with networks
+	 * @return bool Whether the used protocol matches ACTIVITYPUB
 	 * @throws Exception
 	 */
-	private static function isAPContact(array $contact, array $networks)
+	private static function isAPContact(array $contact, array $networks): bool
 	{
 		if (in_array($contact['network'], $networks) || ($contact['protocol'] == Protocol::ACTIVITYPUB)) {
 			return true;
@@ -889,12 +891,11 @@ class Transmitter
 	 * @param integer $uid      User ID
 	 * @param boolean $personal fetch personal inboxes
 	 * @param boolean $all_ap   Retrieve all AP enabled inboxes
-	 *
 	 * @return array of follower inboxes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxesforUser($uid, $personal = false, bool $all_ap = false)
+	public static function fetchTargetInboxesforUser(int $uid, bool $personal = false, bool $all_ap = false): array
 	{
 		$inboxes = [];
 
@@ -915,7 +916,13 @@ class Transmitter
 			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
 		}
 
-		$condition = ['uid' => $uid, 'archive' => false, 'pending' => false, 'blocked' => false, 'network' => Protocol::FEDERATED];
+		$condition = [
+			'uid' => $uid,
+			'archive' => false,
+			'pending' => false,
+			'blocked' => false,
+			'network' => Protocol::FEDERATED,
+		];
 
 		if (!empty($uid)) {
 			$condition['rel'] = [Contact::FOLLOWER, Contact::FRIEND];
@@ -963,7 +970,7 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0)
+	public static function fetchTargetInboxes(array $item, int $uid, bool $personal = false, int $last_id = 0): array
 	{
 		$permissions = self::createPermissionBlockForItem($item, true, $last_id);
 		if (empty($permissions)) {
@@ -1022,12 +1029,11 @@ class Transmitter
 	/**
 	 * Creates an array in the structure of the item table for a given mail id
 	 *
-	 * @param integer $mail_id
-	 *
+	 * @param integer $mail_id Mail id
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function ItemArrayFromMail($mail_id, $use_title = false)
+	public static function getItemArrayFromMail(int $mail_id, bool $use_title = false): array
 	{
 		$mail = DBA::selectFirst('mail', [], ['id' => $mail_id]);
 		if (!DBA::isResult($mail)) {
@@ -1079,9 +1085,9 @@ class Transmitter
 	 * @return array of activity
 	 * @throws \Exception
 	 */
-	public static function createActivityFromMail($mail_id, $object_mode = false)
+	public static function createActivityFromMail(int $mail_id, bool $object_mode = false): array
 	{
-		$mail = self::ItemArrayFromMail($mail_id);
+		$mail = self::getItemArrayFromMail($mail_id);
 		if (empty($mail)) {
 			return [];
 		}
@@ -1133,18 +1139,17 @@ class Transmitter
 	/**
 	 * Returns the activity type of a given item
 	 *
-	 * @param array $item
-	 *
+	 * @param array $item Item array
 	 * @return string with activity type
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function getTypeOfItem($item)
+	private static function getTypeOfItem(array $item): string
 	{
 		$reshared = false;
 
 		// Only check for a reshare, if it is a real reshare and no quoted reshare
-		if (strpos($item['body'], "[share") === 0) {
+		if (strpos($item['body'], '[share') === 0) {
 			$announce = self::getAnnounceArray($item);
 			$reshared = !empty($announce);
 		}
@@ -1183,13 +1188,12 @@ class Transmitter
 	/**
 	 * Creates the activity or fetches it from the cache
 	 *
-	 * @param integer $item_id
+	 * @param integer $item_id Item id
 	 * @param boolean $force Force new cache entry
-	 *
-	 * @return array with the activity
+	 * @return array|false activity or false on failure
 	 * @throws \Exception
 	 */
-	public static function createCachedActivityFromItem($item_id, $force = false)
+	public static function createCachedActivityFromItem(int $item_id, bool $force = false)
 	{
 		$cachekey = 'APDelivery:createActivity:' . $item_id;
 
@@ -1211,7 +1215,6 @@ class Transmitter
 	 *
 	 * @param integer $item_id
 	 * @param boolean $object_mode Is the activity item is used inside another object?
-	 *
 	 * @return false|array
 	 * @throws \Exception
 	 */
@@ -1268,7 +1271,7 @@ class Transmitter
 		}
 
 		if ($type == 'Delete') {
-			$data['id'] = Item::newURI($item['uid'], $item['guid']) . '/' . $type;;
+			$data['id'] = Item::newURI($item['guid']) . '/' . $type;;
 		} elseif (($item['gravity'] == GRAVITY_ACTIVITY) && ($type != 'Undo')) {
 			$data['id'] = $item['uri'];
 		} else {
@@ -1335,11 +1338,10 @@ class Transmitter
 	/**
 	 * Creates a location entry for a given item array
 	 *
-	 * @param array $item
-	 *
+	 * @param array $item Item array
 	 * @return array with location array
 	 */
-	private static function createLocation($item)
+	private static function createLocation(array $item): array
 	{
 		$location = ['type' => 'Place'];
 
@@ -1369,12 +1371,11 @@ class Transmitter
 	/**
 	 * Returns a tag array for a given item array
 	 *
-	 * @param array $item
-	 *
+	 * @param array $item Item array
 	 * @return array of tags
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function createTagList($item)
+	private static function createTagList(array $item): array
 	{
 		$tags = [];
 
@@ -1416,7 +1417,7 @@ class Transmitter
 	 * @return array with attachment data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function createAttachmentList($item, $type)
+	private static function createAttachmentList(array $item, string $type): array
 	{
 		$attachments = [];
 
@@ -1468,7 +1469,7 @@ class Transmitter
 	 * @return string Replaced mention
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function mentionAddrCallback($match)
+	private static function mentionAddrCallback(array $match): string
 	{
 		if (empty($match[1])) {
 			return '';
@@ -1485,11 +1486,10 @@ class Transmitter
 	/**
 	 * Remove image elements since they are added as attachment
 	 *
-	 * @param string $body
-	 *
+	 * @param string $body HTML code
 	 * @return string with removed images
 	 */
-	private static function removePictures($body)
+	private static function removePictures(string $body): string
 	{
 		// Simplify image codes
 		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
@@ -1518,12 +1518,11 @@ class Transmitter
 	/**
 	 * Fetches the "context" value for a givem item array from the "conversation" table
 	 *
-	 * @param array $item
-	 *
+	 * @param array $item Item array
 	 * @return string with context url
 	 * @throws \Exception
 	 */
-	private static function fetchContextURLForItem($item)
+	private static function fetchContextURLForItem(array $item): string
 	{
 		$conversation = DBA::selectFirst('conversation', ['conversation-href', 'conversation-uri'], ['item-uri' => $item['parent-uri']]);
 		if (DBA::isResult($conversation) && !empty($conversation['conversation-href'])) {
@@ -1539,12 +1538,11 @@ class Transmitter
 	/**
 	 * Returns if the post contains sensitive content ("nsfw")
 	 *
-	 * @param integer $uri_id
-	 *
-	 * @return boolean
+	 * @param integer $uri_id URI id
+	 * @return boolean Whether URI id was found
 	 * @throws \Exception
 	 */
-	private static function isSensitive($uri_id)
+	private static function isSensitive(int $uri_id): bool
 	{
 		return DBA::exists('tag-view', ['uri-id' => $uri_id, 'name' => 'nsfw', 'type' => Tag::HASHTAG]);
 	}
@@ -1552,12 +1550,11 @@ class Transmitter
 	/**
 	 * Creates event data
 	 *
-	 * @param array $item
-	 *
+	 * @param array $item Item array
 	 * @return array with the event data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function createEvent($item)
+	private static function createEvent(array $item): array
 	{
 		$event = [];
 		$event['name'] = $item['event-summary'];
@@ -1583,12 +1580,11 @@ class Transmitter
 	 * Creates a note/article object array
 	 *
 	 * @param array $item
-	 *
 	 * @return array with the object data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createNote($item)
+	public static function createNote(array $item): array
 	{
 		if (empty($item)) {
 			return [];
@@ -1739,10 +1735,9 @@ class Transmitter
 	 * Fetches the language from the post, the user or the system.
 	 *
 	 * @param array $item
-	 *
 	 * @return string language string
 	 */
-	private static function getLanguage(array $item)
+	private static function getLanguage(array $item): string
 	{
 		// Try to fetch the language from the post itself
 		if (!empty($item['language'])) {
@@ -1767,74 +1762,71 @@ class Transmitter
 	/**
 	 * Creates an an "add tag" entry
 	 *
-	 * @param array $item
-	 * @param array $data activity data
-	 *
+	 * @param array $item Item array
+	 * @param array $activity activity data
 	 * @return array with activity data for adding tags
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createAddTag($item, $data)
+	private static function createAddTag(array $item, array $activity): array
 	{
 		$object = XML::parseString($item['object']);
-		$target = XML::parseString($item["target"]);
+		$target = XML::parseString($item['target']);
 
-		$data['diaspora:guid'] = $item['guid'];
-		$data['actor'] = $item['author-link'];
-		$data['target'] = (string)$target->id;
-		$data['summary'] = BBCode::toPlaintext($item['body']);
-		$data['object'] = ['id' => (string)$object->id, 'type' => 'tag', 'name' => (string)$object->title, 'content' => (string)$object->content];
+		$activity['diaspora:guid'] = $item['guid'];
+		$activity['actor'] = $item['author-link'];
+		$activity['target'] = (string)$target->id;
+		$activity['summary'] = BBCode::toPlaintext($item['body']);
+		$activity['object'] = ['id' => (string)$object->id, 'type' => 'tag', 'name' => (string)$object->title, 'content' => (string)$object->content];
 
-		return $data;
+		return $activity;
 	}
 
 	/**
 	 * Creates an announce object entry
 	 *
-	 * @param array $item
-	 * @param array $data activity data
-	 *
+	 * @param array $item Item array
+	 * @param array $activity activity data
 	 * @return array with activity data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createAnnounce($item, $data)
+	private static function createAnnounce(array $item, array $activity): array
 	{
 		$orig_body = $item['body'];
 		$announce = self::getAnnounceArray($item);
 		if (empty($announce)) {
-			$data['type'] = 'Create';
-			$data['object'] = self::createNote($item);
-			return $data;
+			$activity['type'] = 'Create';
+			$activity['object'] = self::createNote($item);
+			return $activity;
 		}
 
 		if (empty($announce['comment'])) {
 			// Pure announce, without a quote
-			$data['type'] = 'Announce';
-			$data['object'] = $announce['object']['uri'];
-			return $data;
+			$activity['type'] = 'Announce';
+			$activity['object'] = $announce['object']['uri'];
+			return $activity;
 		}
 
 		// Quote
-		$data['type'] = 'Create';
+		$activity['type'] = 'Create';
 		$item['body'] = $announce['comment'] . "\n" . $announce['object']['plink'];
-		$data['object'] = self::createNote($item);
+		$activity['object'] = self::createNote($item);
 
 		/// @todo Finally descide how to implement this in AP. This is a possible way:
-		$data['object']['attachment'][] = self::createNote($announce['object']);
+		$activity['object']['attachment'][] = self::createNote($announce['object']);
 
-		$data['object']['source']['content'] = $orig_body;
-		return $data;
+		$activity['object']['source']['content'] = $orig_body;
+		return $activity;
 	}
 
 	/**
 	 * Return announce related data if the item is an annunce
 	 *
 	 * @param array $item
-	 *
-	 * @return array
+	 * @return array Announcement array
 	 */
-	public static function getAnnounceArray($item)
+	public static function getAnnounceArray(array $item): array
 	{
 		$reshared = Item::getShareArray($item);
 		if (empty($reshared['guid'])) {
@@ -1861,11 +1853,10 @@ class Transmitter
 	/**
 	 * Checks if the provided item array is an announce
 	 *
-	 * @param array $item
-	 *
-	 * @return boolean
+	 * @param array $item Item array
+	 * @return boolean Whether item is an announcement
 	 */
-	public static function isAnnounce($item)
+	public static function isAnnounce(array $item): bool
 	{
 		if (!empty($item['verb']) && ($item['verb'] == Activity::ANNOUNCE)) {
 			return true;
@@ -1886,7 +1877,7 @@ class Transmitter
 	 *
 	 * @return bool|string activity id
 	 */
-	public static function activityIDFromContact($cid)
+	public static function activityIDFromContact(int $cid)
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'id', 'created'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
@@ -1904,17 +1895,17 @@ class Transmitter
 	 * @param integer $uid           User ID
 	 * @param string  $inbox         Target inbox
 	 * @param integer $suggestion_id Suggestion ID
-	 *
 	 * @return boolean was the transmission successful?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function sendContactSuggestion($uid, $inbox, $suggestion_id)
+	public static function sendContactSuggestion(int $uid, string $inbox, int $suggestion_id): bool
 	{
 		$owner = User::getOwnerDataById($uid);
 
 		$suggestion = DI::fsuggest()->selectOneById($suggestion_id);
 
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Announce',
 			'actor' => $owner['url'],
@@ -1922,7 +1913,8 @@ class Transmitter
 			'content' => $suggestion->note,
 			'instrument' => self::getService(),
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
-			'cc' => []];
+			'cc' => []
+		];
 
 		$signed = LDSignature::sign($data, $owner);
 
@@ -1935,15 +1927,15 @@ class Transmitter
 	 *
 	 * @param integer $uid   User ID
 	 * @param string  $inbox Target inbox
-	 *
 	 * @return boolean was the transmission successful?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function sendProfileRelocation($uid, $inbox)
+	public static function sendProfileRelocation(int $uid, string $inbox): bool
 	{
 		$owner = User::getOwnerDataById($uid);
 
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'dfrn:relocate',
 			'actor' => $owner['url'],
@@ -1951,7 +1943,8 @@ class Transmitter
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			'instrument' => self::getService(),
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
-			'cc' => []];
+			'cc' => []
+		];
 
 		$signed = LDSignature::sign($data, $owner);
 
@@ -1964,11 +1957,10 @@ class Transmitter
 	 *
 	 * @param integer $uid   User ID
 	 * @param string  $inbox Target inbox
-	 *
 	 * @return boolean was the transmission successful?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function sendProfileDeletion($uid, $inbox)
+	public static function sendProfileDeletion(int $uid, string $inbox): bool
 	{
 		$owner = User::getOwnerDataById($uid);
 
@@ -2003,7 +1995,6 @@ class Transmitter
 	 *
 	 * @param integer $uid   User ID
 	 * @param string  $inbox Target inbox
-	 *
 	 * @return boolean was the transmission successful?
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
@@ -2036,17 +2027,18 @@ class Transmitter
 	 * @param string  $activity Type name
 	 * @param string  $target   Target profile
 	 * @param integer $uid      User ID
+	 * @param string  $id Activity-identifier
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @throws \Exception
 	 */
-	public static function sendActivity($activity, $target, $uid, $id = '')
+	public static function sendActivity(string $activity, string $target, int $uid, string $id = ''): bool
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
 			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
-			return;
+			return false;
 		}
 
 		$owner = User::getOwnerDataById($uid);
@@ -2055,13 +2047,15 @@ class Transmitter
 			$id = DI::baseUrl() . '/activity/' . System::createGUID();
 		}
 
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => $id,
 			'type' => $activity,
 			'actor' => $owner['url'],
 			'object' => $profile['url'],
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']],
+		];
 
 		Logger::info('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid);
 
@@ -2081,12 +2075,12 @@ class Transmitter
 	 * @throws \ImagickException
 	 * @throws \Exception
 	 */
-	public static function sendFollowObject($object, $target, $uid = 0)
+	public static function sendFollowObject(string $object, string $target, int $uid = 0): bool
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
 			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
-			return;
+			return false;
 		}
 
 		if (empty($uid)) {
@@ -2108,13 +2102,15 @@ class Transmitter
 
 		$owner = User::getOwnerDataById($uid);
 
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Follow',
 			'actor' => $owner['url'],
 			'object' => $object,
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']],
+		];
 
 		Logger::info('Sending follow ' . $object . ' to ' . $target . ' for user ' . $uid);
 
@@ -2126,12 +2122,13 @@ class Transmitter
 	 * Transmit a message that the contact request had been accepted
 	 *
 	 * @param string  $target Target profile
-	 * @param         $id
+	 * @param string  $id Object id
 	 * @param integer $uid    User ID
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendContactAccept($target, $id, $uid)
+	public static function sendContactAccept(string $target, string $id, int $uid)
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
@@ -2140,18 +2137,20 @@ class Transmitter
 		}
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Accept',
 			'actor' => $owner['url'],
 			'object' => [
-				'id' => (string)$id,
+				'id' => $id,
 				'type' => 'Follow',
 				'actor' => $profile['url'],
 				'object' => $owner['url']
 			],
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']],
+		];
 
 		Logger::debug('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
@@ -2162,14 +2161,14 @@ class Transmitter
 	/**
 	 * Reject a contact request or terminates the contact relation
 	 *
-	 * @param string  $target Target profile
-	 * @param         $id
-	 * @param integer $uid    User ID
+	 * @param string $target   Target profile
+	 * @param string $objectId Object id
+	 * @param int    $uid      User ID
 	 * @return bool Operation success
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendContactReject($target, $id, $uid): bool
+	public static function sendContactReject(string $target, string $objectId, int $uid): bool
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
@@ -2178,20 +2177,22 @@ class Transmitter
 		}
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => ActivityPub::CONTEXT,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Reject',
-			'actor' => $owner['url'],
+			'actor'  => $owner['url'],
 			'object' => [
-				'id' => (string)$id,
+				'id' => $objectId,
 				'type' => 'Follow',
 				'actor' => $profile['url'],
 				'object' => $owner['url']
 			],
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']],
+		];
 
-		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id);
+		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $objectId);
 
 		$signed = LDSignature::sign($data, $owner);
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -2201,13 +2202,14 @@ class Transmitter
 	 * Transmits a message that we don't want to follow this contact anymore
 	 *
 	 * @param string  $target Target profile
+	 * @param integer $cid    Contact id
 	 * @param integer $uid    User ID
+	 * @return bool success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @throws \Exception
-	 * @return bool success
 	 */
-	public static function sendContactUndo($target, $cid, $uid)
+	public static function sendContactUndo(string $target, int $cid, int $uid): bool
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
@@ -2220,26 +2222,39 @@ class Transmitter
 			return false;
 		}
 
-		$id = DI::baseUrl() . '/activity/' . System::createGUID();
+		$objectId = DI::baseUrl() . '/activity/' . System::createGUID();
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => ActivityPub::CONTEXT,
-			'id' => $id,
+		$data = [
+			'@context' => ActivityPub::CONTEXT,
+			'id' => $objectId,
 			'type' => 'Undo',
 			'actor' => $owner['url'],
-			'object' => ['id' => $object_id, 'type' => 'Follow',
+			'object' => [
+				'id' => $object_id,
+				'type' => 'Follow',
 				'actor' => $owner['url'],
-				'object' => $profile['url']],
+				'object' => $profile['url']
+			],
 			'instrument' => self::getService(),
-			'to' => [$profile['url']]];
+			'to' => [$profile['url']],
+		];
 
-		Logger::info('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id);
+		Logger::info('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $objectId);
 
 		$signed = LDSignature::sign($data, $owner);
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
-	private static function prependMentions($body, int $uriid, string $authorLink)
+	/**
+	 * Prepends mentions (@) to $body variable
+	 *
+	 * @param string $body HTML code
+	 * @param int    $uriId
+	 * @param string $authorLink Author link
+	 * @return string HTML code with prepended mentions
+	 */
+	private static function prependMentions(string $body, int $uriid, string $authorLink): string
 	{
 		$mentions = [];
 

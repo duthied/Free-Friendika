@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1469
+-- DB_UPDATE_VERSION 1473
 -- ------------------------------------------
 
 
@@ -297,6 +297,7 @@ CREATE TABLE IF NOT EXISTS `2fa_trusted_browser` (
 	`cookie_hash` varchar(80) NOT NULL COMMENT 'Trusted cookie hash',
 	`uid` mediumint unsigned NOT NULL COMMENT 'User ID',
 	`user_agent` text COMMENT 'User agent string',
+	`trusted` boolean NOT NULL DEFAULT '1' COMMENT 'Whenever this browser should be trusted or not',
 	`created` datetime NOT NULL COMMENT 'Datetime the trusted browser was recorded',
 	`last_used` datetime COMMENT 'Datetime the trusted browser was last used',
 	 PRIMARY KEY(`cookie_hash`),
@@ -1216,13 +1217,13 @@ CREATE TABLE IF NOT EXISTS `post-link` (
 CREATE TABLE IF NOT EXISTS `post-media` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`url` varbinary(511) NOT NULL COMMENT 'Media URL',
+	`url` varbinary(1024) NOT NULL COMMENT 'Media URL',
 	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Media type',
 	`mimetype` varchar(60) COMMENT '',
 	`height` smallint unsigned COMMENT 'Height of the media',
 	`width` smallint unsigned COMMENT 'Width of the media',
-	`size` int unsigned COMMENT 'Media size',
-	`preview` varbinary(255) COMMENT 'Preview URL',
+	`size` bigint unsigned COMMENT 'Media size',
+	`preview` varbinary(512) COMMENT 'Preview URL',
 	`preview-height` smallint unsigned COMMENT 'Height of the preview picture',
 	`preview-width` smallint unsigned COMMENT 'Width of the preview picture',
 	`description` text COMMENT '',
@@ -1234,7 +1235,7 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	`publisher-name` varchar(255) COMMENT 'Name of the publisher of the media',
 	`publisher-image` varbinary(255) COMMENT 'Image of the publisher of the media',
 	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`),
+	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`(512)),
 	 INDEX `uri-id-id` (`uri-id`,`id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Attached media';

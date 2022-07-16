@@ -124,7 +124,7 @@ class UserExport extends BaseSettings
 	 */
 	private static function exportMultiRow(string $query)
 	{
-		$dbStructure = DBStructure::definition(DI::app()->getBasePath(), false);
+		$dbStructure = DI::dbaDefinition()->getAll();
 
 		preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
 		$table = $match[1];
@@ -156,7 +156,7 @@ class UserExport extends BaseSettings
 	 */
 	private static function exportRow(string $query)
 	{
-		$dbStructure = DBStructure::definition(DI::app()->getBasePath(), false);
+		$dbStructure = DI::dbaDefinition()->getAll();
 
 		preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
 		$table = $match[1];

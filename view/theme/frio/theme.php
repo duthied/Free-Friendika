@@ -27,6 +27,10 @@ const FRIO_SCHEME_ACCENT_PURPLE = '#a54bad';
 const FRIO_SCHEME_ACCENT_GREEN  = '#218f39';
 const FRIO_SCHEME_ACCENT_PINK   = '#d900a9';
 
+/*
+ * This script can be included even when the app is in maintenance mode which requires us to avoid any config call
+ */
+
 function frio_init(App $a)
 {
 	global $frio;
@@ -191,50 +195,52 @@ function frio_contact_photo_menu(App $a, &$args)
  */
 function frio_remote_nav(App $a, array &$nav_info)
 {
-	// get the homelink from $_XSESSION
-	$homelink = Model\Profile::getMyURL();
-	if (!$homelink) {
-		$homelink = Session::get('visitor_home', '');
-	}
+	if (DI::mode()->has(App\Mode::MAINTENANCEDISABLED)) {
+		// get the homelink from $_SESSION
+		$homelink = Model\Profile::getMyURL();
+		if (!$homelink) {
+			$homelink = Session::get('visitor_home', '');
+		}
 
-	// since $userinfo isn't available for the hook we write it to the nav array
-	// this isn't optimal because the contact query will be done now twice
-	$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl', 'updated'];
-	if ($a->isLoggedIn()) {
-		$remoteUser = Contact::selectFirst($fields, ['uid' => $a->getLoggedInUserId(), 'self' => true]);
-	} elseif (!local_user() && remote_user()) {
-		$remoteUser = Contact::getById(remote_user(), $fields);
-		$nav_info['nav']['remote'] = DI::l10n()->t('Guest');
-	} elseif (Model\Profile::getMyURL()) {
-		$remoteUser = Contact::getByURL($homelink, null, $fields);
-		$nav_info['nav']['remote'] = DI::l10n()->t('Visitor');
-	} else {
-		$remoteUser = null;
-	}
+		// since $userinfo isn't available for the hook we write it to the nav array
+		// this isn't optimal because the contact query will be done now twice
+		$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl', 'updated'];
+		if ($a->isLoggedIn()) {
+			$remoteUser = Contact::selectFirst($fields, ['uid' => $a->getLoggedInUserId(), 'self' => true]);
+		} elseif (!local_user() && remote_user()) {
+			$remoteUser                = Contact::getById(remote_user(), $fields);
+			$nav_info['nav']['remote'] = DI::l10n()->t('Guest');
+		} elseif (Model\Profile::getMyURL()) {
+			$remoteUser                = Contact::getByURL($homelink, null, $fields);
+			$nav_info['nav']['remote'] = DI::l10n()->t('Visitor');
+		} else {
+			$remoteUser = null;
+		}
 
-	if (DBA::isResult($remoteUser)) {
-		$nav_info['userinfo'] = [
-			'icon' => Contact::getMicro($remoteUser),
-			'name' => $remoteUser['name'],
-		];
-		$server_url = $remoteUser['baseurl'];
-	}
+		if (DBA::isResult($remoteUser)) {
+			$nav_info['userinfo'] = [
+				'icon' => Contact::getMicro($remoteUser),
+				'name' => $remoteUser['name'],
+			];
+			$server_url           = $remoteUser['baseurl'];
+		}
 
-	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
-		// user menu
-		$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
-		$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
-		$nav_info['nav']['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
-		$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/media', DI::l10n()->t('Media'), '', DI::l10n()->t('Your postings with media')];
-		$nav_info['nav']['usermenu'][] = [$server_url . '/events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
+		if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
+			// user menu
+			$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
+			$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+			$nav_info['nav']['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
+			$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/media', DI::l10n()->t('Media'), '', DI::l10n()->t('Your postings with media')];
+			$nav_info['nav']['usermenu'][] = [$server_url . '/events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
 
-		// navbar links
-		$nav_info['nav']['network'] = [$server_url . '/network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
-		$nav_info['nav']['events'] = [$server_url . '/events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
-		$nav_info['nav']['messages'] = [$server_url . '/message', DI::l10n()->t('Messages'), '', DI::l10n()->t('Private mail')];
-		$nav_info['nav']['settings'] = [$server_url . '/settings', DI::l10n()->t('Settings'), '', DI::l10n()->t('Account settings')];
-		$nav_info['nav']['contacts'] = [$server_url . '/contact', DI::l10n()->t('Contacts'), '', DI::l10n()->t('Manage/edit friends and contacts')];
-		$nav_info['nav']['sitename'] = DI::config()->get('config', 'sitename');
+			// navbar links
+			$nav_info['nav']['network']  = [$server_url . '/network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
+			$nav_info['nav']['events']   = [$server_url . '/events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
+			$nav_info['nav']['messages'] = [$server_url . '/message', DI::l10n()->t('Messages'), '', DI::l10n()->t('Private mail')];
+			$nav_info['nav']['settings'] = [$server_url . '/settings', DI::l10n()->t('Settings'), '', DI::l10n()->t('Account settings')];
+			$nav_info['nav']['contacts'] = [$server_url . '/contact', DI::l10n()->t('Contacts'), '', DI::l10n()->t('Manage/edit friends and contacts')];
+			$nav_info['nav']['sitename'] = DI::config()->get('config', 'sitename');
+		}
 	}
 }
 

@@ -24,6 +24,7 @@ namespace Friendica\Module\Settings\TwoFactor;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
+use Friendica\Network\HTTPException\FoundException;
 use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
 use Friendica\Security\TwoFactor\Model\RecoveryCode;
 use Friendica\Model\User;
@@ -44,8 +45,8 @@ class Index extends BaseSettings
 		try {
 			User::getIdFromPasswordAuthentication(local_user(), $_POST['password'] ?? '');
 
-			$has_secret = (bool) DI::pConfig()->get(local_user(), '2fa', 'secret');
-			$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
+			$has_secret = (bool)DI::pConfig()->get(local_user(), '2fa', 'secret');
+			$verified   = DI::pConfig()->get(local_user(), '2fa', 'verified');
 
 			switch ($_POST['action'] ?? '') {
 				case 'enable':
@@ -54,7 +55,8 @@ class Index extends BaseSettings
 
 						DI::pConfig()->set(local_user(), '2fa', 'secret', $Google2FA->generateSecretKey(32));
 
-						DI::baseUrl()->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
+						DI::baseUrl()
+						  ->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}
 					break;
 				case 'disable':
@@ -70,27 +72,33 @@ class Index extends BaseSettings
 					break;
 				case 'recovery':
 					if ($has_secret) {
-						DI::baseUrl()->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
+						DI::baseUrl()
+						  ->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}
 					break;
 				case 'app_specific':
 					if ($has_secret) {
-						DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
+						DI::baseUrl()
+						  ->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}
 					break;
 				case 'trusted':
 					if ($has_secret) {
-						DI::baseUrl()->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
+						DI::baseUrl()
+						  ->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}
 					break;
 				case 'configure':
 					if (!$verified) {
-						DI::baseUrl()->redirect('settings/2fa/verify?t=' . self::getFormSecurityToken('settings_2fa_password'));
+						DI::baseUrl()
+						  ->redirect('settings/2fa/verify?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}
 					break;
 			}
+		} catch (FoundException $exception) {
+			// Nothing to do here
 		} catch (\Exception $e) {
-			notice(DI::l10n()->t('Wrong Password'));
+			notice(DI::l10n()->t($e->getMessage()));
 		}
 	}
 

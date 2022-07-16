@@ -82,7 +82,7 @@ class Poke extends BaseModule
 
 		$actor = Contact::getById($a->getContactId());
 
-		$uri = Model\Item::newURI($uid);
+		$uri = Model\Item::newURI();
 
 		$arr = [];
 

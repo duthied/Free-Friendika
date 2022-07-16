@@ -45,7 +45,7 @@ class Widget
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function follow($value = "")
+	public static function follow(string $value = ''): string
 	{
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/follow.tpl'), array(
 			'$connect' => DI::l10n()->t('Add New Contact'),
@@ -58,8 +58,10 @@ class Widget
 
 	/**
 	 * Return Find People widget
+	 *
+	 * @return string HTML code respresenting "People Widget"
 	 */
-	public static function findPeople()
+	public static function findPeople(): string
 	{
 		$global_dir = Search::getGlobalDirectory();
 
@@ -97,7 +99,7 @@ class Widget
 	 *
 	 * @return array Unsupported networks
 	 */
-	public static function unavailableNetworks()
+	public static function unavailableNetworks(): array
 	{
 		// Always hide content from these networks
 		$networks = [Protocol::PHANTOM, Protocol::FACEBOOK, Protocol::APPNET, Protocol::ZOT];
@@ -154,7 +156,7 @@ class Widget
 	 * @return string
 	 * @throws \Exception
 	 */
-	private static function filter($type, $title, $desc, $all, $baseUrl, array $options, $selected = null)
+	private static function filter(string $type, string $title, string $desc, string $all, string $baseUrl, array $options, string $selected = null): string
 	{
 		$queryString = parse_url($baseUrl, PHP_URL_QUERY);
 		$queryArray = [];
@@ -191,7 +193,7 @@ class Widget
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function groups($baseurl, $selected = '')
+	public static function groups(string $baseurl, string $selected = ''): string
 	{
 		if (!local_user()) {
 			return '';
@@ -223,7 +225,7 @@ class Widget
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function contactRels($baseurl, $selected = '')
+	public static function contactRels(string $baseurl, string $selected = ''): string
 	{
 		if (!local_user()) {
 			return '';
@@ -254,7 +256,7 @@ class Widget
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function networks($baseurl, $selected = '')
+	public static function networks(string $baseurl, string $selected = ''): string
 	{
 		if (!local_user()) {
 			return '';
@@ -292,10 +294,10 @@ class Widget
 	 *
 	 * @param string $baseurl  baseurl
 	 * @param string $selected optional, default empty
-	 * @return string|void
+	 * @return string
 	 * @throws \Exception
 	 */
-	public static function fileAs($baseurl, $selected = '')
+	public static function fileAs(string $baseurl, string $selected = ''): string
 	{
 		if (!local_user()) {
 			return '';
@@ -323,10 +325,10 @@ class Widget
 	 * @param int    $uid      Id of the user owning the categories
 	 * @param string $baseurl  Base page URL
 	 * @param string $selected Selected category
-	 * @return string|void
+	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function categories(int $uid, string $baseurl, string $selected = '')
+	public static function categories(int $uid, string $baseurl, string $selected = ''): string
 	{
 		if (!Feature::isEnabled($uid, 'categories')) {
 			return '';
@@ -353,11 +355,11 @@ class Widget
 	 *
 	 * @param int    $uid      Viewed profile user ID
 	 * @param string $nickname Viewed profile user nickname
-	 * @return string|void
+	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function commonFriendsVisitor(int $uid, string $nickname)
+	public static function commonFriendsVisitor(int $uid, string $nickname): string
 	{
 		if (local_user() == $uid) {
 			return '';
@@ -414,7 +416,7 @@ class Widget
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function tagCloud(int $uid, int $limit = 50)
+	public static function tagCloud(int $uid, int $limit = 50): string
 	{
 		if (empty($uid)) {
 			return '';
@@ -439,7 +441,7 @@ class Widget
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function postedByYear(string $url, int $uid, bool $wall)
+	public static function postedByYear(string $url, int $uid, bool $wall): string
 	{
 		$o = '';
 
@@ -510,10 +512,10 @@ class Widget
 	 * The account type value is added as a parameter to the url
 	 *
 	 * @param string $base        Basepath
-	 * @param int    $accounttype Acount type
+	 * @param string $accounttype Account type
 	 * @return string
 	 */
-	public static function accounttypes(string $base, $accounttype)
+	public static function accountTypes(string $base, string $accounttype): string
 	{
 		$accounts = [
 			['ref' => 'person', 'name' => DI::l10n()->t('Persons')],

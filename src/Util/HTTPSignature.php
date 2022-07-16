@@ -55,7 +55,7 @@ class HTTPSignature
 	 * @return array with verification data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function verifyMagic($key)
+	public static function verifyMagic(string $key): array
 	{
 		$headers   = null;
 		$spoofable = false;
@@ -139,7 +139,7 @@ class HTTPSignature
 	 *
 	 * @return array
 	 */
-	public static function createSig($head, $prvkey, $keyid = 'Key')
+	public static function createSig(array $head, string $prvkey, string $keyid = 'Key'): array
 	{
 		$return_headers = [];
 		if (!empty($head)) {
@@ -166,7 +166,7 @@ class HTTPSignature
 	 *
 	 * @return array
 	 */
-	private static function sign($head, $prvkey, $alg = 'sha256')
+	private static function sign(array $head, string $prvkey, string $alg = 'sha256'): array
 	{
 		$ret = [];
 		$headers = '';
@@ -204,7 +204,7 @@ class HTTPSignature
 	 *   - \e string \b signature
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function parseSigheader($header)
+	public static function parseSigheader(string $header): array
 	{
 		// Remove obsolete folds
 		$header = preg_replace('/\n\s+/', ' ', $header);
@@ -251,7 +251,7 @@ class HTTPSignature
 	 * @return string Decrypted signature string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function decryptSigheader(array $headers, string $prvkey)
+	private static function decryptSigheader(array $headers, string $prvkey): string
 	{
 		if (!empty($headers['iv']) && !empty($headers['key']) && !empty($headers['data'])) {
 			return Crypto::unencapsulate($headers, $prvkey);
@@ -341,7 +341,7 @@ class HTTPSignature
 	 * @param boolean $success Transmission status
 	 * @param boolean $shared  The inbox is a shared inbox
 	 */
-	static public function setInboxStatus($url, $success, $shared = false)
+	static public function setInboxStatus(string $url, bool $success, bool $shared = false)
 	{
 		$now = DateTimeFormat::utcNow();
 
@@ -403,21 +403,21 @@ class HTTPSignature
 	 * @return array JSON array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetch($request, $uid)
+	public static function fetch(string $request, int $uid): array
 	{
 		$curlResult = self::fetchRaw($request, $uid);
 
 		if (empty($curlResult)) {
-			return false;
+			return [];
 		}
 
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-			return false;
+			return [];
 		}
 
 		$content = json_decode($curlResult->getBody(), true);
 		if (empty($content) || !is_array($content)) {
-			return false;
+			return [];
 		}
 
 		return $content;
@@ -438,7 +438,7 @@ class HTTPSignature
 	 * @return \Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchRaw($request, $uid = 0, $opts = [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::JSON_AS]])
+	public static function fetchRaw(string $request, int $uid = 0, array $opts = [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::JSON_AS]])
 	{
 		$header = [];
 
@@ -488,13 +488,13 @@ class HTTPSignature
 	/**
 	 * Gets a signer from a given HTTP request
 	 *
-	 * @param $content
-	 * @param $http_headers
+	 * @param string $content
+	 * @param array $http_headers
 	 *
-	 * @return string Signer
+	 * @return string|null|false Signer
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getSigner($content, $http_headers)
+	public static function getSigner(string $content, array $http_headers)
 	{
 		if (empty($http_headers['HTTP_SIGNATURE'])) {
 			Logger::debug('No HTTP_SIGNATURE header');
@@ -686,13 +686,13 @@ class HTTPSignature
 	/**
 	 * fetches a key for a given id and actor
 	 *
-	 * @param $id
-	 * @param $actor
+	 * @param string $id
+	 * @param string $actor
 	 *
 	 * @return array with actor url and public key
 	 * @throws \Exception
 	 */
-	private static function fetchKey($id, $actor)
+	private static function fetchKey(string $id, string $actor): array
 	{
 		$url = (strpos($id, '#') ? substr($id, 0, strpos($id, '#')) : $id);
 
@@ -709,6 +709,6 @@ class HTTPSignature
 		}
 
 		Logger::notice('Key could not be fetched', ['url' => $url, 'actor' => $actor]);
-		return false;
+		return [];
 	}
 }

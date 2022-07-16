@@ -102,6 +102,7 @@ abstract class BaseModule implements ICanHandleRequests
 	 * e.g. from protocol implementations.
 	 *
 	 * @param string[] $request The $_REQUEST content
+	 * @return void
 	 */
 	protected function rawContent(array $request = [])
 	{
@@ -117,6 +118,7 @@ abstract class BaseModule implements ICanHandleRequests
 	 * XML feed or a JSON output.
 	 *
 	 * @param string[] $request The $_REQUEST content
+	 * @return string
 	 */
 	protected function content(array $request = []): string
 	{
@@ -130,6 +132,7 @@ abstract class BaseModule implements ICanHandleRequests
 	 * Doesn't display any content
 	 *
 	 * @param string[] $request The $_REQUEST content
+	 * @return void
 	 */
 	protected function delete(array $request = [])
 	{
@@ -142,6 +145,7 @@ abstract class BaseModule implements ICanHandleRequests
 	 * Doesn't display any content
 	 *
 	 * @param string[] $request The $_REQUEST content
+	 * @return void
 	 */
 	protected function patch(array $request = [])
 	{
@@ -154,7 +158,7 @@ abstract class BaseModule implements ICanHandleRequests
 	 * Doesn't display any content
 	 *
 	 * @param string[] $request The $_REQUEST content
-	 *
+	 * @return void
 	 */
 	protected function post(array $request = [])
 	{
@@ -168,6 +172,7 @@ abstract class BaseModule implements ICanHandleRequests
 	 * Doesn't display any content
 	 *
 	 * @param string[] $request The $_REQUEST content
+	 * @return void
 	 */
 	protected function put(array $request = [])
 	{
@@ -279,12 +284,12 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * Fetch a request value and apply default values and check against minimal and maximal values
 	 *
-	 * @param array $input 
-	 * @param string $parameter 
-	 * @param mixed $default 
-	 * @param mixed $minimal_value 
-	 * @param mixed $maximum_value 
-	 * @return mixed 
+	 * @param array $input Input fields
+	 * @param string $parameter Parameter
+	 * @param mixed $default Default
+	 * @param mixed $minimal_value Minimal value
+	 * @param mixed $maximum_value Maximum value
+	 * @return mixed null on error anything else on success (?)
 	 */
 	public function getRequestValue(array $input, string $parameter, $default = null, $minimal_value = null, $maximum_value = null)
 	{
@@ -320,7 +325,7 @@ abstract class BaseModule implements ICanHandleRequests
 		return $value;
 	}
 
-	/*
+	/**
 	 * Functions used to protect against Cross-Site Request Forgery
 	 * The security token has to base on at least one value that an attacker can't know - here it's the session ID and the private key.
 	 * In this implementation, a security token is reusable (if the user submits a form, goes back and resubmits the form, maybe with small changes;
@@ -330,8 +335,11 @@ abstract class BaseModule implements ICanHandleRequests
 	 *    If the new page contains by any chance external elements, then the used security token is exposed by the referrer.
 	 *    Actually, important actions should not be triggered by Links / GET-Requests at all, but sometimes they still are,
 	 *    so this mechanism brings in some damage control (the attacker would be able to forge a request to a form of this type, but not to forms of other types).
+	 *
+	 * @param string $typename Type name
+	 * @return string Security hash with timestamp
 	 */
-	public static function getFormSecurityToken($typename = '')
+	public static function getFormSecurityToken(string $typename = ''): string
 	{
 		$user      = User::getById(DI::app()->getLoggedInUserId(), ['guid', 'prvkey']);
 		$timestamp = time();
@@ -340,7 +348,14 @@ abstract class BaseModule implements ICanHandleRequests
 		return $timestamp . '.' . $sec_hash;
 	}
 
-	public static function checkFormSecurityToken($typename = '', $formname = 'form_security_token')
+	/**
+	 * Checks if form's security (CSRF) token is valid.
+	 *
+	 * @param string $typename ???
+	 * @param string $formname Name of form/field (???)
+	 * @return bool Whether it is valid
+	 */
+	public static function checkFormSecurityToken(string $typename = '', string $formname = 'form_security_token'): bool
 	{
 		$hash = null;
 
@@ -372,12 +387,12 @@ abstract class BaseModule implements ICanHandleRequests
 		return ($sec_hash == $x[1]);
 	}
 
-	public static function getFormSecurityStandardErrorMessage()
+	public static function getFormSecurityStandardErrorMessage(): string
 	{
 		return DI::l10n()->t("The form security token was not correct. This probably happened because the form has been opened for too long \x28>3 hours\x29 before submitting it.") . EOL;
 	}
 
-	public static function checkFormSecurityTokenRedirectOnError($err_redirect, $typename = '', $formname = 'form_security_token')
+	public static function checkFormSecurityTokenRedirectOnError(string $err_redirect, string $typename = '', string $formname = 'form_security_token')
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
 			Logger::notice('checkFormSecurityToken failed: user ' . DI::app()->getLoggedInUserNickname() . ' - form element ' . $typename);
@@ -387,7 +402,7 @@ abstract class BaseModule implements ICanHandleRequests
 		}
 	}
 
-	public static function checkFormSecurityTokenForbiddenOnError($typename = '', $formname = 'form_security_token')
+	public static function checkFormSecurityTokenForbiddenOnError(string $typename = '', string $formname = 'form_security_token')
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
 			Logger::notice('checkFormSecurityToken failed: user ' . DI::app()->getLoggedInUserNickname() . ' - form element ' . $typename);
@@ -397,7 +412,7 @@ abstract class BaseModule implements ICanHandleRequests
 		}
 	}
 
-	protected static function getContactFilterTabs(string $baseUrl, string $current, bool $displayCommonTab)
+	protected static function getContactFilterTabs(string $baseUrl, string $current, bool $displayCommonTab): array
 	{
 		$tabs = [
 			[

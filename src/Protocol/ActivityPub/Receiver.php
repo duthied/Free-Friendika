@@ -80,12 +80,13 @@ class Receiver
 	/**
 	 * Checks incoming message from the inbox
 	 *
-	 * @param         $body
-	 * @param         $header
+	 * @param string  $body Body string
+	 * @param array   $header Header lines
 	 * @param integer $uid User ID
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function processInbox($body, $header, $uid)
+	public static function processInbox(string $body, array $header, int $uid)
 	{
 		$activity = json_decode($body, true);
 		if (empty($activity)) {
@@ -95,9 +96,9 @@ class Receiver
 
 		$ldactivity = JsonLD::compact($activity);
 
-		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id');
-
+		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id') ?? '';
 		$apcontact = APContact::getByURL($actor);
+
 		if (empty($apcontact)) {
 			Logger::notice('Unable to retrieve AP contact for actor - message is discarded', ['actor' => $actor]);
 			return;
@@ -151,7 +152,9 @@ class Receiver
 			$trust_source = false;
 		}
 
-		self::processActivity($ldactivity, $body, $uid, $trust_source, true, $signer);
+		$fetchQueue = new FetchQueue();
+		self::processActivity($fetchQueue, $ldactivity, $body, $uid, $trust_source, true, $signer);
+		$fetchQueue->process();
 	}
 
 	/**
@@ -199,11 +202,15 @@ class Receiver
 			return;
 		}
 
-		$id = Processor::fetchMissingActivity($object_id, [], $actor, self::COMPLETION_RELAY);
+		$fetchQueue = new FetchQueue();
+
+		$id = Processor::fetchMissingActivity($fetchQueue, $object_id, [], $actor, self::COMPLETION_RELAY);
 		if (empty($id)) {
 			Logger::notice('Relayed message had not been fetched', ['id' => $object_id]);
 			return;
 		}
+
+		$fetchQueue->process();
 
 		$item_id = Item::searchByLink($object_id);
 		if ($item_id) {
@@ -220,11 +227,11 @@ class Receiver
 	 * @param string  $object_id Object ID of the the provided object
 	 * @param integer $uid       User ID
 	 *
-	 * @return string with object type
+	 * @return string with object type or NULL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchObjectType($activity, $object_id, $uid = 0)
+	private static function fetchObjectType(array $activity, string $object_id, int $uid = 0)
 	{
 		if (!empty($activity['as:object'])) {
 			$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
@@ -268,7 +275,7 @@ class Receiver
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function prepareObjectData($activity, $uid, $push, &$trust_source)
+	public static function prepareObjectData(array $activity, int $uid, bool $push, bool &$trust_source): array
 	{
 		$id = JsonLD::fetchElement($activity, '@id');
 		if (!empty($id) && !$trust_source) {
@@ -458,7 +465,7 @@ class Receiver
 	 * @param array $receivers Array with receivers
 	 * @return integer user id;
 	 */
-	public static function getFirstUserFromReceivers($receivers)
+	public static function getFirstUserFromReceivers(array $receivers): int
 	{
 		foreach ($receivers as $receiver) {
 			if (!empty($receiver)) {
@@ -471,15 +478,17 @@ class Receiver
 	/**
 	 * Processes the activity object
 	 *
-	 * @param array   $activity     Array with activity data
-	 * @param string  $body         The unprocessed body
-	 * @param integer $uid          User ID
-	 * @param boolean $trust_source Do we trust the source?
-	 * @param boolean $push         Message had been pushed to our system
-	 * @param array   $signer       The signer of the post
-	 * @throws \Exception
+	 * @param FetchQueue $fetchQueue
+	 * @param array      $activity     Array with activity data
+	 * @param string     $body         The unprocessed body
+	 * @param int|null   $uid          User ID
+	 * @param boolean    $trust_source Do we trust the source?
+	 * @param boolean    $push         Message had been pushed to our system
+	 * @param array      $signer       The signer of the post
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function processActivity($activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
+	public static function processActivity(FetchQueue $fetchQueue, array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
@@ -560,7 +569,7 @@ class Receiver
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($fetchQueue, $object_data);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
@@ -571,7 +580,7 @@ class Receiver
 
 			case 'as:Invite':
 				if (in_array($object_data['object_type'], ['as:Event'])) {
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($fetchQueue, $object_data);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
@@ -595,7 +604,7 @@ class Receiver
 					$object_data['thread-completion'] = Contact::getIdForURL($actor);
 					$object_data['completion-mode']   = self::COMPLETION_ANNOUCE;
 
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($fetchQueue, $object_data);
 					if (empty($item)) {
 						return;
 					}
@@ -614,7 +623,7 @@ class Receiver
 						$announce_object_data['raw'] = $body;
 					}
 
-					ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
+					ActivityPub\Processor::createActivity($fetchQueue, $announce_object_data, Activity::ANNOUNCE);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -622,7 +631,7 @@ class Receiver
 
 			case 'as:Like':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::LIKE);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::LIKE);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {
@@ -632,7 +641,7 @@ class Receiver
 
 			case 'as:Dislike':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::DISLIKE);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::DISLIKE);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {
@@ -642,7 +651,7 @@ class Receiver
 
 			case 'as:TentativeAccept':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::ATTENDMAYBE);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::ATTENDMAYBE);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -650,7 +659,7 @@ class Receiver
 
 			case 'as:Update':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::updateItem($object_data);
+					ActivityPub\Processor::updateItem($fetchQueue, $object_data);
 				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::updatePerson($object_data);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
@@ -695,7 +704,7 @@ class Receiver
 					ActivityPub\Processor::followUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					$object_data['reply-to-id'] = $object_data['object_id'];
-					ActivityPub\Processor::createActivity($object_data, Activity::FOLLOW);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::FOLLOW);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -705,7 +714,7 @@ class Receiver
 				if ($object_data['object_type'] == 'as:Follow') {
 					ActivityPub\Processor::acceptFollowUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::ATTEND);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::ATTEND);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -715,7 +724,7 @@ class Receiver
 				if ($object_data['object_type'] == 'as:Follow') {
 					ActivityPub\Processor::rejectFollowUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::ATTENDNO);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::ATTENDNO);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -750,7 +759,7 @@ class Receiver
 
 			case 'as:View':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::VIEW);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::VIEW);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
 				} else {
@@ -760,7 +769,7 @@ class Receiver
 
 			case 'litepub:EmojiReact':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, Activity::EMOJIREACT);
+					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::EMOJIREACT);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 				} else {
@@ -818,7 +827,7 @@ class Receiver
 	 *
 	 * @return int   user id
 	 */
-	public static function getBestUserForActivity(array $activity)
+	public static function getBestUserForActivity(array $activity): int
 	{
 		$uid = 0;
 		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
@@ -844,7 +853,8 @@ class Receiver
 		return $uid;
 	}
 
-	public static function getReceiverURL($activity)
+	// @TODO Missing documentation
+	public static function getReceiverURL(array $activity): array
 	{
 		$urls = [];
 
@@ -876,9 +886,9 @@ class Receiver
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceivers($activity, $actor, $tags = [], $fetch_unlisted = false)
+	private static function getReceivers(array $activity, string $actor, array $tags = [], bool $fetch_unlisted = false): array
 	{
-		$reply = $receivers = [];
+		$reply = $receivers = $profile = [];
 
 		// When it is an answer, we inherite the receivers from the parent
 		$replyto = JsonLD::fetchElement($activity, 'as:inReplyTo', '@id');
@@ -1005,7 +1015,7 @@ class Receiver
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceiverForActor($actor, $tags, $receivers, $target_type, $profile)
+	private static function getReceiverForActor(string $actor, array $tags, array $receivers, int $target_type, array $profile): array
 	{
 		$basecondition = ['rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
 			'network' => Protocol::FEDERATED, 'archive' => false, 'pending' => false];
@@ -1047,13 +1057,12 @@ class Receiver
 	 * Tests if the contact is a valid receiver for this actor
 	 *
 	 * @param array  $contact
-	 * @param string $actor
 	 * @param array  $tags
 	 *
 	 * @return bool with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function isValidReceiverForActor($contact, $tags)
+	private static function isValidReceiverForActor(array $contact, array $tags): bool
 	{
 		// Are we following the contact? Then this is a valid receiver
 		if (in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND])) {
@@ -1086,10 +1095,11 @@ class Receiver
 	 * @param integer $cid Contact ID
 	 * @param integer $uid User ID
 	 * @param string  $url Profile URL
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function switchContact($cid, $uid, $url)
+	public static function switchContact(int $cid, int $uid, string $url)
 	{
 		if (DBA::exists('contact', ['id' => $cid, 'network' => Protocol::ACTIVITYPUB])) {
 			Logger::info('Contact is already ActivityPub', ['id' => $cid, 'uid' => $uid, 'url' => $url]);
@@ -1108,10 +1118,11 @@ class Receiver
 	}
 
 	/**
-	 *
+	 * @TODO Fix documentation and type-hints
 	 *
 	 * @param $receivers
 	 * @param $actor
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -1135,14 +1146,14 @@ class Receiver
 	}
 
 	/**
-	 *
+	 * @TODO Fix documentation and type-hints
 	 *
 	 * @param       $object_data
 	 * @param array $activity
 	 *
 	 * @return mixed
 	 */
-	private static function addActivityFields($object_data, $activity)
+	private static function addActivityFields($object_data, array $activity)
 	{
 		if (!empty($activity['published']) && empty($object_data['published'])) {
 			$object_data['published'] = JsonLD::fetchElement($activity, 'as:published', '@value');
@@ -1262,7 +1273,7 @@ class Receiver
 	 * @param array $languages
 	 * @return array Languages
 	 */
-	public static function processLanguages(array $languages)
+	public static function processLanguages(array $languages): array
 	{
 		if (empty($languages)) {
 			return [];
@@ -1285,7 +1296,7 @@ class Receiver
 	 *
 	 * @return array with tags in a simplified format
 	 */
-	public static function processTags(array $tags)
+	public static function processTags(array $tags): array
 	{
 		$taglist = [];
 
@@ -1317,7 +1328,7 @@ class Receiver
 	 * @param array $emojis
 	 * @return array with emojis in a simplified format
 	 */
-	private static function processEmojis(array $emojis)
+	private static function processEmojis(array $emojis): array
 	{
 		$emojilist = [];
 
@@ -1343,7 +1354,7 @@ class Receiver
 	 *
 	 * @return array Attachments in a simplified format
 	 */
-	private static function processAttachments(array $attachments)
+	private static function processAttachments(array $attachments): array
 	{
 		$attachlist = [];
 
@@ -1460,7 +1471,7 @@ class Receiver
 	 *
 	 * @return array Questions in a simplified format
 	 */
-	private static function processQuestion(array $object)
+	private static function processQuestion(array $object): array
 	{
 		$question = [];
 
@@ -1518,10 +1529,10 @@ class Receiver
 	 * @param array $object
 	 * @param array $object_data
 	 *
-	 * @return array
+	 * @return array Object data (?)
 	 * @throws \Exception
 	 */
-	private static function getSource($object, $object_data)
+	private static function getSource(array $object, array $object_data): array
 	{
 		$object_data['source'] = JsonLD::fetchElement($object, 'as:source', 'as:content', 'as:mediaType', 'text/bbcode');
 		$object_data['source'] = JsonLD::fetchElement($object_data, 'source', '@value');
@@ -1650,10 +1661,10 @@ class Receiver
 	 *
 	 * @param array $object
 	 *
-	 * @return array
+	 * @return array|bool Object data or FALSE if $object does not contain @id element
 	 * @throws \Exception
 	 */
-	private static function processObject($object)
+	private static function processObject(array $object)
 	{
 		if (!JsonLD::fetchElement($object, '@id')) {
 			return false;
@@ -1767,7 +1778,7 @@ class Receiver
 			$object_data['question'] = self::processQuestion($object);
 		}
 
-		$receiverdata = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
+		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];

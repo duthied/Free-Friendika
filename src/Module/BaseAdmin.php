@@ -43,7 +43,10 @@ require_once 'boot.php';
 abstract class BaseAdmin extends BaseModule
 {
 	/**
+	 * Checks admin access and throws exceptions if not logged-in administrator
+	 *
 	 * @param bool $interactive
+	 * @return void
 	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\InternalServerErrorException
 	 */

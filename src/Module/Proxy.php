@@ -55,17 +55,17 @@ class Proxy extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
-			header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
-			if (!empty($_SERVER["HTTP_IF_NONE_MATCH"])) {
-				header("Etag: " . $_SERVER["HTTP_IF_NONE_MATCH"]);
+		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+			header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
+			if (!empty($_SERVER['HTTP_IF_NONE_MATCH'])) {
+				header('Etag: ' . $_SERVER['HTTP_IF_NONE_MATCH']);
 			}
-			header("Expires: " . gmdate("D, d M Y H:i:s", time() + (31536000)) . " GMT");
-			header("Cache-Control: max-age=31536000");
-			if (function_exists("header_remove")) {
-				header_remove("Last-Modified");
-				header_remove("Expires");
-				header_remove("Cache-Control");
+			header('Expires: ' . gmdate('D, d M Y H:i:s', time() + (31536000)) . ' GMT');
+			header('Cache-Control: max-age=31536000');
+			if (function_exists('header_remove')) {
+				header_remove('Last-Modified');
+				header_remove('Expires');
+				header_remove('Cache-Control');
 			}
 			throw new NotModifiedException();
 		}
@@ -123,7 +123,7 @@ class Proxy extends BaseModule
 	 *    ]
 	 * @throws \Exception
 	 */
-	private function getRequestInfo()
+	private function getRequestInfo(): array
 	{
 		$size = ProxyUtils::PIXEL_LARGE;
 		$sizetype = '';
@@ -187,6 +187,7 @@ class Proxy extends BaseModule
 	 * Output the image with cache headers
 	 *
 	 * @param Image $img
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function responseImageHttpCache(Image $img)

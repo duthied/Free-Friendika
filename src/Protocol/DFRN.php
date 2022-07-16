@@ -22,6 +22,8 @@
 namespace Friendica\Protocol;
 
 use DOMDocument;
+use DOMElement;
+use DOMNode;
 use DOMXPath;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
@@ -72,7 +74,7 @@ class DFRN
 	 * @return array importer
 	 * @throws \Exception
 	 */
-	public static function getImporter($cid, $uid = 0)
+	public static function getImporter(int $cid, int $uid = 0): array
 	{
 		$condition = ['id' => $cid, 'blocked' => false, 'pending' => false];
 		$contact = DBA::selectFirst('contact', [], $condition);
@@ -115,12 +117,12 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  Find proper type-hints
 	 */
-	public static function entries($items, $owner)
+	public static function entries(array $items, array $owner): string
 	{
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		$root = self::addHeader($doc, $owner, "dfrn:owner", "", false);
+		$root = self::addHeader($doc, $owner, 'dfrn:owner', '', false);
 
 		if (! count($items)) {
 			return trim($doc->saveXML());
@@ -129,10 +131,10 @@ class DFRN
 		foreach ($items as $item) {
 			// These values aren't sent when sending from the queue.
 			/// @todo Check if we can set these values from the queue or if they are needed at all.
-			$item["entry:comment-allow"] = ($item["entry:comment-allow"] ?? '') ?: true;
-			$item["entry:cid"] = $item["entry:cid"] ?? 0;
+			$item['entry:comment-allow'] = ($item['entry:comment-allow'] ?? '') ?: true;
+			$item['entry:cid'] = $item['entry:cid'] ?? 0;
 
-			$entry = self::entry($doc, "text", $item, $owner, $item["entry:comment-allow"], $item["entry:cid"]);
+			$entry = self::entry($doc, 'text', $item, $owner, $item['entry:comment-allow'], $item['entry:cid']);
 			if (isset($entry)) {
 				$root->appendChild($entry);
 			}
@@ -152,7 +154,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function itemFeed(int $uri_id, int $uid, bool $conversation = false)
+	public static function itemFeed(int $uri_id, int $uid, bool $conversation = false): string
 	{
 		if ($conversation) {
 			$condition = ['parent-uri-id' => $uri_id];
@@ -186,17 +188,15 @@ class DFRN
 			$root = $doc->createElementNS(ActivityNamespace::ATOM1, 'feed');
 			$doc->appendChild($root);
 
-			$root->setAttribute("xmlns:thr", ActivityNamespace::THREAD);
-			$root->setAttribute("xmlns:at", ActivityNamespace::TOMB);
-			$root->setAttribute("xmlns:media", ActivityNamespace::MEDIA);
-			$root->setAttribute("xmlns:dfrn", ActivityNamespace::DFRN);
-			$root->setAttribute("xmlns:activity", ActivityNamespace::ACTIVITY);
-			$root->setAttribute("xmlns:georss", ActivityNamespace::GEORSS);
-			$root->setAttribute("xmlns:poco", ActivityNamespace::POCO);
-			$root->setAttribute("xmlns:ostatus", ActivityNamespace::OSTATUS);
-			$root->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
-
-			//$root = self::addHeader($doc, $owner, "dfrn:owner", "", false);
+			$root->setAttribute('xmlns:thr', ActivityNamespace::THREAD);
+			$root->setAttribute('xmlns:at', ActivityNamespace::TOMB);
+			$root->setAttribute('xmlns:media', ActivityNamespace::MEDIA);
+			$root->setAttribute('xmlns:dfrn', ActivityNamespace::DFRN);
+			$root->setAttribute('xmlns:activity', ActivityNamespace::ACTIVITY);
+			$root->setAttribute('xmlns:georss', ActivityNamespace::GEORSS);
+			$root->setAttribute('xmlns:poco', ActivityNamespace::POCO);
+			$root->setAttribute('xmlns:ostatus', ActivityNamespace::OSTATUS);
+			$root->setAttribute('xmlns:statusnet', ActivityNamespace::STATUSNET);
 
 			foreach ($items as $item) {
 				$entry = self::entry($doc, $type, $item, $owner, true, 0);
@@ -222,27 +222,27 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	public static function mail(array $mail, array $owner)
+	public static function mail(array $mail, array $owner): string
 	{
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		$root = self::addHeader($doc, $owner, "dfrn:owner", "", false);
+		$root = self::addHeader($doc, $owner, 'dfrn:owner', '', false);
 
-		$mailElement = $doc->createElement("dfrn:mail");
-		$senderElement = $doc->createElement("dfrn:sender");
+		$mailElement = $doc->createElement('dfrn:mail');
+		$senderElement = $doc->createElement('dfrn:sender');
 
-		XML::addElement($doc, $senderElement, "dfrn:name", $owner['name']);
-		XML::addElement($doc, $senderElement, "dfrn:uri", $owner['url']);
-		XML::addElement($doc, $senderElement, "dfrn:avatar", $owner['thumb']);
+		XML::addElement($doc, $senderElement, 'dfrn:name', $owner['name']);
+		XML::addElement($doc, $senderElement, 'dfrn:uri', $owner['url']);
+		XML::addElement($doc, $senderElement, 'dfrn:avatar', $owner['thumb']);
 
 		$mailElement->appendChild($senderElement);
 
-		XML::addElement($doc, $mailElement, "dfrn:id", $mail['uri']);
-		XML::addElement($doc, $mailElement, "dfrn:in-reply-to", $mail['parent-uri']);
-		XML::addElement($doc, $mailElement, "dfrn:sentdate", DateTimeFormat::utc($mail['created'] . '+00:00', DateTimeFormat::ATOM));
-		XML::addElement($doc, $mailElement, "dfrn:subject", $mail['title']);
-		XML::addElement($doc, $mailElement, "dfrn:content", $mail['body']);
+		XML::addElement($doc, $mailElement, 'dfrn:id', $mail['uri']);
+		XML::addElement($doc, $mailElement, 'dfrn:in-reply-to', $mail['parent-uri']);
+		XML::addElement($doc, $mailElement, 'dfrn:sentdate', DateTimeFormat::utc($mail['created'] . '+00:00', DateTimeFormat::ATOM));
+		XML::addElement($doc, $mailElement, 'dfrn:subject', $mail['title']);
+		XML::addElement($doc, $mailElement, 'dfrn:content', $mail['body']);
 
 		$root->appendChild($mailElement);
 
@@ -259,20 +259,20 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	public static function fsuggest($item, $owner)
+	public static function fsuggest(array $item, array $owner): string
 	{
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		$root = self::addHeader($doc, $owner, "dfrn:owner", "", false);
+		$root = self::addHeader($doc, $owner, 'dfrn:owner', '', false);
 
-		$suggest = $doc->createElement("dfrn:suggest");
+		$suggest = $doc->createElement('dfrn:suggest');
 
-		XML::addElement($doc, $suggest, "dfrn:url", $item['url']);
-		XML::addElement($doc, $suggest, "dfrn:name", $item['name']);
-		XML::addElement($doc, $suggest, "dfrn:photo", $item['photo']);
-		XML::addElement($doc, $suggest, "dfrn:request", $item['request']);
-		XML::addElement($doc, $suggest, "dfrn:note", $item['note']);
+		XML::addElement($doc, $suggest, 'dfrn:url', $item['url']);
+		XML::addElement($doc, $suggest, 'dfrn:name', $item['name']);
+		XML::addElement($doc, $suggest, 'dfrn:photo', $item['photo']);
+		XML::addElement($doc, $suggest, 'dfrn:request', $item['request']);
+		XML::addElement($doc, $suggest, 'dfrn:note', $item['note']);
 
 		$root->appendChild($suggest);
 
@@ -289,7 +289,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	public static function relocate($owner, $uid)
+	public static function relocate(array $owner, int $uid): string
 	{
 
 		/* get site pubkey. this could be a new installation with no site keys*/
@@ -313,22 +313,22 @@ class DFRN
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		$root = self::addHeader($doc, $owner, "dfrn:owner", "", false);
+		$root = self::addHeader($doc, $owner, 'dfrn:owner', '', false);
 
-		$relocate = $doc->createElement("dfrn:relocate");
+		$relocate = $doc->createElement('dfrn:relocate');
 
-		XML::addElement($doc, $relocate, "dfrn:url", $owner['url']);
-		XML::addElement($doc, $relocate, "dfrn:name", $owner['name']);
-		XML::addElement($doc, $relocate, "dfrn:addr", $owner['addr']);
-		XML::addElement($doc, $relocate, "dfrn:avatar", $owner['avatar']);
-		XML::addElement($doc, $relocate, "dfrn:photo", $photos[4]);
-		XML::addElement($doc, $relocate, "dfrn:thumb", $photos[5]);
-		XML::addElement($doc, $relocate, "dfrn:micro", $photos[6]);
-		XML::addElement($doc, $relocate, "dfrn:request", $owner['request']);
-		XML::addElement($doc, $relocate, "dfrn:confirm", $owner['confirm']);
-		XML::addElement($doc, $relocate, "dfrn:notify", $owner['notify']);
-		XML::addElement($doc, $relocate, "dfrn:poll", $owner['poll']);
-		XML::addElement($doc, $relocate, "dfrn:sitepubkey", DI::config()->get('system', 'site_pubkey'));
+		XML::addElement($doc, $relocate, 'dfrn:url', $owner['url']);
+		XML::addElement($doc, $relocate, 'dfrn:name', $owner['name']);
+		XML::addElement($doc, $relocate, 'dfrn:addr', $owner['addr']);
+		XML::addElement($doc, $relocate, 'dfrn:avatar', $owner['avatar']);
+		XML::addElement($doc, $relocate, 'dfrn:photo', $photos[4]);
+		XML::addElement($doc, $relocate, 'dfrn:thumb', $photos[5]);
+		XML::addElement($doc, $relocate, 'dfrn:micro', $photos[6]);
+		XML::addElement($doc, $relocate, 'dfrn:request', $owner['request']);
+		XML::addElement($doc, $relocate, 'dfrn:confirm', $owner['confirm']);
+		XML::addElement($doc, $relocate, 'dfrn:notify', $owner['notify']);
+		XML::addElement($doc, $relocate, 'dfrn:poll', $owner['poll']);
+		XML::addElement($doc, $relocate, 'dfrn:sitepubkey', DI::config()->get('system', 'site_pubkey'));
 
 		$root->appendChild($relocate);
 
@@ -343,69 +343,67 @@ class DFRN
 	 * @param string      $authorelement Element name for the author
 	 * @param string      $alternatelink link to profile or category
 	 * @param bool        $public        Is it a header for public posts?
-	 *
-	 * @return object XML root object
+	 * @return DOMElement XML root element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @todo  Find proper type-hints
+	 * @todo  Find proper type-hint for returned type
 	 */
-	private static function addHeader(DOMDocument $doc, $owner, $authorelement, $alternatelink = "", $public = false)
+	private static function addHeader(DOMDocument $doc, array $owner, string $authorelement, string $alternatelink = '', bool $public = false): DOMElement
 	{
-
-		if ($alternatelink == "") {
+		if ($alternatelink == '') {
 			$alternatelink = $owner['url'];
 		}
 
 		$root = $doc->createElementNS(ActivityNamespace::ATOM1, 'feed');
 		$doc->appendChild($root);
 
-		$root->setAttribute("xmlns:thr", ActivityNamespace::THREAD);
-		$root->setAttribute("xmlns:at", ActivityNamespace::TOMB);
-		$root->setAttribute("xmlns:media", ActivityNamespace::MEDIA);
-		$root->setAttribute("xmlns:dfrn", ActivityNamespace::DFRN);
-		$root->setAttribute("xmlns:activity", ActivityNamespace::ACTIVITY);
-		$root->setAttribute("xmlns:georss", ActivityNamespace::GEORSS);
-		$root->setAttribute("xmlns:poco", ActivityNamespace::POCO);
-		$root->setAttribute("xmlns:ostatus", ActivityNamespace::OSTATUS);
-		$root->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
+		$root->setAttribute('xmlns:thr', ActivityNamespace::THREAD);
+		$root->setAttribute('xmlns:at', ActivityNamespace::TOMB);
+		$root->setAttribute('xmlns:media', ActivityNamespace::MEDIA);
+		$root->setAttribute('xmlns:dfrn', ActivityNamespace::DFRN);
+		$root->setAttribute('xmlns:activity', ActivityNamespace::ACTIVITY);
+		$root->setAttribute('xmlns:georss', ActivityNamespace::GEORSS);
+		$root->setAttribute('xmlns:poco', ActivityNamespace::POCO);
+		$root->setAttribute('xmlns:ostatus', ActivityNamespace::OSTATUS);
+		$root->setAttribute('xmlns:statusnet', ActivityNamespace::STATUSNET);
 
-		XML::addElement($doc, $root, "id", DI::baseUrl()."/profile/".$owner["nick"]);
-		XML::addElement($doc, $root, "title", $owner["name"]);
+		XML::addElement($doc, $root, 'id', DI::baseUrl() . '/profile/' . $owner['nick']);
+		XML::addElement($doc, $root, 'title', $owner['name']);
 
-		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION];
-		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
+		$attributes = ['uri' => 'https://friendi.ca', 'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION];
+		XML::addElement($doc, $root, 'generator', FRIENDICA_PLATFORM, $attributes);
 
-		$attributes = ["rel" => "license", "href" => "http://creativecommons.org/licenses/by/3.0/"];
-		XML::addElement($doc, $root, "link", "", $attributes);
+		$attributes = ['rel' => 'license', 'href' => 'http://creativecommons.org/licenses/by/3.0/'];
+		XML::addElement($doc, $root, 'link', '', $attributes);
 
-		$attributes = ["rel" => "alternate", "type" => "text/html", "href" => $alternatelink];
-		XML::addElement($doc, $root, "link", "", $attributes);
+		$attributes = ['rel' => 'alternate', 'type' => 'text/html', 'href' => $alternatelink];
+		XML::addElement($doc, $root, 'link', '', $attributes);
 
 
 		if ($public) {
 			// DFRN itself doesn't uses this. But maybe someone else wants to subscribe to the public feed.
-			OStatus::hublinks($doc, $root, $owner["nick"]);
+			OStatus::addHubLink($doc, $root, $owner['nick']);
 
-			$attributes = ["rel" => "salmon", "href" => DI::baseUrl()."/salmon/".$owner["nick"]];
-			XML::addElement($doc, $root, "link", "", $attributes);
+			$attributes = ['rel' => 'salmon', 'href' => DI::baseUrl() . '/salmon/' . $owner['nick']];
+			XML::addElement($doc, $root, 'link', '', $attributes);
 
-			$attributes = ["rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => DI::baseUrl()."/salmon/".$owner["nick"]];
-			XML::addElement($doc, $root, "link", "", $attributes);
+			$attributes = ['rel' => 'http://salmon-protocol.org/ns/salmon-replies', 'href' => DI::baseUrl() . '/salmon/' . $owner['nick']];
+			XML::addElement($doc, $root, 'link', '', $attributes);
 
-			$attributes = ["rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => DI::baseUrl()."/salmon/".$owner["nick"]];
-			XML::addElement($doc, $root, "link", "", $attributes);
+			$attributes = ['rel' => 'http://salmon-protocol.org/ns/salmon-mention', 'href' => DI::baseUrl() . '/salmon/' . $owner['nick']];
+			XML::addElement($doc, $root, 'link', '', $attributes);
 		}
 
 		// For backward compatibility we keep this element
 		if ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
-			XML::addElement($doc, $root, "dfrn:community", 1);
+			XML::addElement($doc, $root, 'dfrn:community', 1);
 		}
 
 		// The former element is replaced by this one
-		XML::addElement($doc, $root, "dfrn:account_type", $owner["account-type"]);
+		XML::addElement($doc, $root, 'dfrn:account_type', $owner['account-type']);
 
 		/// @todo We need a way to transmit the different page flags like "User::PAGE_FLAGS_PRVGROUP"
 
-		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
+		XML::addElement($doc, $root, 'updated', DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
 		$author = self::addAuthor($doc, $owner, $authorelement, $public);
 		$root->appendChild($author);
@@ -428,8 +426,12 @@ class DFRN
 	 * viewer's timezone also, but first we are going to convert it from the birthday
 	 * person's timezone to GMT - so the viewer may find the birthday starting at
 	 * 6:00PM the day before, but that will correspond to midnight to the birthday person.
+	 *
+	 * @param int $uid User id
+	 * @param string $tz Time zone string, like UTC
+	 * @return string Formatted birthday string
 	 */
-	private static function determineNextBirthday($uid, $tz)
+	private static function determineNextBirthday(int $uid, string $tz): string
 	{
 		$birthday = '';
 
@@ -462,12 +464,11 @@ class DFRN
 	 * @param array       $owner         Owner record
 	 * @param string      $authorelement Element name for the author
 	 * @param boolean     $public        boolean
-	 *
-	 * @return \DOMElement XML author object
+	 * @return DOMElement XML author object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function addAuthor(DOMDocument $doc, array $owner, $authorelement, $public)
+	private static function addAuthor(DOMDocument $doc, array $owner, string $authorelement, bool $public): DOMElement
 	{
 		// Should the profile be "unsearchable" in the net? Then add the "hide" element
 		$hide = DBA::exists('profile', ['uid' => $owner['uid'], 'net-publish' => false]);
@@ -480,28 +481,32 @@ class DFRN
 		$attributes = [];
 
 		if (!$public || !$hide) {
-			$attributes = ["dfrn:updated" => $namdate];
+			$attributes = ['dfrn:updated' => $namdate];
 		}
 
-		XML::addElement($doc, $author, "name", $owner["name"], $attributes);
-		XML::addElement($doc, $author, "uri", DI::baseUrl().'/profile/'.$owner["nickname"], $attributes);
-		XML::addElement($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
+		XML::addElement($doc, $author, 'name', $owner['name'], $attributes);
+		XML::addElement($doc, $author, 'uri', DI::baseUrl().'/profile/' . $owner['nickname'], $attributes);
+		XML::addElement($doc, $author, 'dfrn:handle', $owner['addr'], $attributes);
 
-		$attributes = ["rel" => "photo", "type" => "image/jpeg",
-					"media:width" => Proxy::PIXEL_SMALL, "media:height" => Proxy::PIXEL_SMALL,
-					"href" => User::getAvatarUrl($owner, Proxy::SIZE_SMALL)];
+		$attributes = [
+			'rel' => 'photo',
+			'type' => 'image/jpeg',
+			'media:width' => Proxy::PIXEL_SMALL,
+			'media:height' => Proxy::PIXEL_SMALL,
+			'href' => User::getAvatarUrl($owner, Proxy::SIZE_SMALL),
+		];
 
 		if (!$public || !$hide) {
-			$attributes["dfrn:updated"] = $picdate;
+			$attributes['dfrn:updated'] = $picdate;
 		}
 
-		XML::addElement($doc, $author, "link", "", $attributes);
+		XML::addElement($doc, $author, 'link', '', $attributes);
 
-		$attributes["rel"] = "avatar";
-		XML::addElement($doc, $author, "link", "", $attributes);
+		$attributes['rel'] = 'avatar';
+		XML::addElement($doc, $author, 'link', '', $attributes);
 
 		if ($hide) {
-			XML::addElement($doc, $author, "dfrn:hide", "true");
+			XML::addElement($doc, $author, 'dfrn:hide', 'true');
 		}
 
 		// The following fields will only be generated if the data isn't meant for a public feed
@@ -512,7 +517,7 @@ class DFRN
 		$birthday = self::determineNextBirthday($owner['uid'], $owner['timezone']);
 
 		if ($birthday) {
-			XML::addElement($doc, $author, "dfrn:birthday", $birthday);
+			XML::addElement($doc, $author, 'dfrn:birthday', $birthday);
 		}
 
 		// Only show contact details when we are allowed to
@@ -520,57 +525,57 @@ class DFRN
 			['about', 'name', 'homepage', 'nickname', 'timezone', 'locality', 'region', 'country-name', 'pub_keywords', 'xmpp', 'dob'],
 			['uid' => $owner['uid'], 'hidewall' => false]);
 		if (DBA::isResult($profile)) {
-			XML::addElement($doc, $author, "poco:displayName", $profile["name"]);
-			XML::addElement($doc, $author, "poco:updated", $namdate);
+			XML::addElement($doc, $author, 'poco:displayName', $profile['name']);
+			XML::addElement($doc, $author, 'poco:updated', $namdate);
 
-			if (trim($profile["dob"]) > DBA::NULL_DATE) {
-				XML::addElement($doc, $author, "poco:birthday", "0000-".date("m-d", strtotime($profile["dob"])));
+			if (trim($profile['dob']) > DBA::NULL_DATE) {
+				XML::addElement($doc, $author, 'poco:birthday', '0000-'.date('m-d', strtotime($profile['dob'])));
 			}
 
-			XML::addElement($doc, $author, "poco:note", $profile["about"]);
-			XML::addElement($doc, $author, "poco:preferredUsername", $profile["nickname"]);
+			XML::addElement($doc, $author, 'poco:note', $profile['about']);
+			XML::addElement($doc, $author, 'poco:preferredUsername', $profile['nickname']);
 
-			XML::addElement($doc, $author, "poco:utcOffset", DateTimeFormat::timezoneNow($profile["timezone"], "P"));
+			XML::addElement($doc, $author, 'poco:utcOffset', DateTimeFormat::timezoneNow($profile['timezone'], 'P'));
 
-			if (trim($profile["homepage"]) != "") {
-				$urls = $doc->createElement("poco:urls");
-				XML::addElement($doc, $urls, "poco:type", "homepage");
-				XML::addElement($doc, $urls, "poco:value", $profile["homepage"]);
-				XML::addElement($doc, $urls, "poco:primary", "true");
+			if (trim($profile['homepage']) != '') {
+				$urls = $doc->createElement('poco:urls');
+				XML::addElement($doc, $urls, 'poco:type', 'homepage');
+				XML::addElement($doc, $urls, 'poco:value', $profile['homepage']);
+				XML::addElement($doc, $urls, 'poco:primary', 'true');
 				$author->appendChild($urls);
 			}
 
-			if (trim($profile["pub_keywords"]) != "") {
-				$keywords = explode(",", $profile["pub_keywords"]);
+			if (trim($profile['pub_keywords']) != '') {
+				$keywords = explode(',', $profile['pub_keywords']);
 
 				foreach ($keywords as $keyword) {
-					XML::addElement($doc, $author, "poco:tags", trim($keyword));
+					XML::addElement($doc, $author, 'poco:tags', trim($keyword));
 				}
 			}
 
-			if (trim($profile["xmpp"]) != "") {
-				$ims = $doc->createElement("poco:ims");
-				XML::addElement($doc, $ims, "poco:type", "xmpp");
-				XML::addElement($doc, $ims, "poco:value", $profile["xmpp"]);
-				XML::addElement($doc, $ims, "poco:primary", "true");
+			if (trim($profile['xmpp']) != '') {
+				$ims = $doc->createElement('poco:ims');
+				XML::addElement($doc, $ims, 'poco:type', 'xmpp');
+				XML::addElement($doc, $ims, 'poco:value', $profile['xmpp']);
+				XML::addElement($doc, $ims, 'poco:primary', 'true');
 				$author->appendChild($ims);
 			}
 
-			if (trim($profile["locality"].$profile["region"].$profile["country-name"]) != "") {
-				$element = $doc->createElement("poco:address");
+			if (trim($profile['locality'] . $profile['region'] . $profile['country-name']) != '') {
+				$element = $doc->createElement('poco:address');
 
-				XML::addElement($doc, $element, "poco:formatted", Profile::formatLocation($profile));
+				XML::addElement($doc, $element, 'poco:formatted', Profile::formatLocation($profile));
 
-				if (trim($profile["locality"]) != "") {
-					XML::addElement($doc, $element, "poco:locality", $profile["locality"]);
+				if (trim($profile['locality']) != '') {
+					XML::addElement($doc, $element, 'poco:locality', $profile['locality']);
 				}
 
-				if (trim($profile["region"]) != "") {
-					XML::addElement($doc, $element, "poco:region", $profile["region"]);
+				if (trim($profile['region']) != '') {
+					XML::addElement($doc, $element, 'poco:region', $profile['region']);
 				}
 
-				if (trim($profile["country-name"]) != "") {
-					XML::addElement($doc, $element, "poco:country", $profile["country-name"]);
+				if (trim($profile['country-name']) != '') {
+					XML::addElement($doc, $element, 'poco:country', $profile['country-name']);
 				}
 
 				$author->appendChild($element);
@@ -584,42 +589,43 @@ class DFRN
 	 * Adds the author elements in the "entry" elements of the DFRN protocol
 	 *
 	 * @param DOMDocument $doc         XML document
-	 * @param string $element     Element name for the author
-	 * @param string $contact_url Link of the contact
-	 * @param array  $item        Item elements
-	 *
-	 * @return \DOMElement XML author object
+	 * @param string      $element     Element name for the author
+	 * @param string      $contact_url Link of the contact
+	 * @param array       $item        Item elements
+	 * @return DOMElement XML author object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function addEntryAuthor(DOMDocument $doc, $element, $contact_url, $item)
+	private static function addEntryAuthor(DOMDocument $doc, string $element, string $contact_url, array $item): DOMElement
 	{
 		$author = $doc->createElement($element);
 
-		$contact = Contact::getByURLForUser($contact_url, $item["uid"], false, ['url', 'name', 'addr', 'photo']);
+		$contact = Contact::getByURLForUser($contact_url, $item['uid'], false, ['url', 'name', 'addr', 'photo']);
 		if (!empty($contact)) {
-			XML::addElement($doc, $author, "name", $contact["name"]);
-			XML::addElement($doc, $author, "uri", $contact["url"]);
-			XML::addElement($doc, $author, "dfrn:handle", $contact["addr"]);
+			XML::addElement($doc, $author, 'name', $contact['name']);
+			XML::addElement($doc, $author, 'uri', $contact['url']);
+			XML::addElement($doc, $author, 'dfrn:handle', $contact['addr']);
 
 			/// @Todo
 			/// - Check real image type and image size
 			/// - Check which of these boths elements we should use
 			$attributes = [
-				"rel" => "photo",
-				"type" => "image/jpeg",
-				"media:width" => 80,
-				"media:height" => 80,
-				"href" => $contact["photo"]];
-			XML::addElement($doc, $author, "link", "", $attributes);
+				'rel' => 'photo',
+				'type' => 'image/jpeg',
+				'media:width' => 80,
+				'media:height' => 80,
+				'href' => $contact['photo'],
+			];
+			XML::addElement($doc, $author, 'link', '', $attributes);
 
 			$attributes = [
-				"rel" => "avatar",
-				"type" => "image/jpeg",
-				"media:width" => 80,
-				"media:height" => 80,
-				"href" => $contact["photo"]];
-			XML::addElement($doc, $author, "link", "", $attributes);
+				'rel' => 'avatar',
+				'type' => 'image/jpeg',
+				'media:width' => 80,
+				'media:height' => 80,
+				'href' => $contact['photo'],
+			];
+			XML::addElement($doc, $author, 'link', '', $attributes);
 		}
 
 		return $author;
@@ -632,12 +638,11 @@ class DFRN
 	 * @param string      $element  Element name for the activity
 	 * @param string      $activity activity value
 	 * @param int         $uriid    Uri-Id of the post
-	 *
-	 * @return \DOMElement XML activity object
+	 * @return DOMElement XML activity object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function createActivity(DOMDocument $doc, $element, $activity, $uriid)
+	private static function createActivity(DOMDocument $doc, string $element, string $activity, int $uriid)
 	{
 		if ($activity) {
 			$entry = $doc->createElement($element);
@@ -703,7 +708,7 @@ class DFRN
 	 * @return void XML attachment object
 	 * @todo  Find proper type-hints
 	 */
-	private static function getAttachment($doc, $root, $item)
+	private static function getAttachment($doc, $root, array $item)
 	{
 		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
 			$attributes = ['rel' => 'enclosure',
@@ -737,7 +742,7 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  Find proper type-hints
 	 */
-	private static function entry(DOMDocument $doc, $type, array $item, array $owner, $comment = false, $cid = 0, $single = false)
+	private static function entry(DOMDocument $doc, string $type, array $item, array $owner, bool $comment = false, int $cid = 0, bool $single = false)
 	{
 		$mentioned = [];
 
@@ -821,91 +826,95 @@ class DFRN
 		}
 
 		$attributes = [
-				"href" => $conversation_href,
-				"ref" => $conversation_uri];
+			'href' => $conversation_href,
+			'ref' => $conversation_uri,
+		];
 
-		XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
+		XML::addElement($doc, $entry, 'ostatus:conversation', $conversation_uri, $attributes);
 
-		XML::addElement($doc, $entry, "id", $item["uri"]);
-		XML::addElement($doc, $entry, "title", $item["title"]);
+		XML::addElement($doc, $entry, 'id', $item['uri']);
+		XML::addElement($doc, $entry, 'title', $item['title']);
 
-		XML::addElement($doc, $entry, "published", DateTimeFormat::utc($item["created"] . "+00:00", DateTimeFormat::ATOM));
-		XML::addElement($doc, $entry, "updated", DateTimeFormat::utc($item["edited"] . "+00:00", DateTimeFormat::ATOM));
+		XML::addElement($doc, $entry, 'published', DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM));
+		XML::addElement($doc, $entry, 'updated', DateTimeFormat::utc($item['edited'] . '+00:00', DateTimeFormat::ATOM));
 
 		// "dfrn:env" is used to read the content
-		XML::addElement($doc, $entry, "dfrn:env", Strings::base64UrlEncode($body, true));
+		XML::addElement($doc, $entry, 'dfrn:env', Strings::base64UrlEncode($body, true));
 
 		// The "content" field is not read by the receiver. We could remove it when the type is "text"
 		// We keep it at the moment, maybe there is some old version that doesn't read "dfrn:env"
-		XML::addElement($doc, $entry, "content", (($type == 'html') ? $htmlbody : $body), ["type" => $type]);
+		XML::addElement($doc, $entry, 'content', (($type == 'html') ? $htmlbody : $body), ['type' => $type]);
 
 		// We save this value in "plink". Maybe we should read it from there as well?
 		XML::addElement(
 			$doc,
 			$entry,
-			"link",
-			"",
-			["rel" => "alternate", "type" => "text/html",
-				 "href" => DI::baseUrl() . "/display/" . $item["guid"]]
+			'link',
+			'',
+			[
+				'rel' => 'alternate',
+				'type' => 'text/html',
+				'href' => DI::baseUrl() . '/display/' . $item['guid']
+			],
 		);
 
 		// "comment-allow" is some old fashioned stuff for old Friendica versions.
 		// It is included in the rewritten code for completeness
 		if ($comment) {
-			XML::addElement($doc, $entry, "dfrn:comment-allow", 1);
+			XML::addElement($doc, $entry, 'dfrn:comment-allow', 1);
 		}
 
 		if ($item['location']) {
-			XML::addElement($doc, $entry, "dfrn:location", $item['location']);
+			XML::addElement($doc, $entry, 'dfrn:location', $item['location']);
 		}
 
 		if ($item['coord']) {
-			XML::addElement($doc, $entry, "georss:point", $item['coord']);
+			XML::addElement($doc, $entry, 'georss:point', $item['coord']);
 		}
 
 		if ($item['private']) {
 			// Friendica versions prior to 2020.3 can't handle "unlisted" properly. So we can only transmit public and private
-			XML::addElement($doc, $entry, "dfrn:private", ($item['private'] == Item::PRIVATE ? Item::PRIVATE : Item::PUBLIC));
-			XML::addElement($doc, $entry, "dfrn:unlisted", $item['private'] == Item::UNLISTED);
+			XML::addElement($doc, $entry, 'dfrn:private', ($item['private'] == Item::PRIVATE ? Item::PRIVATE : Item::PUBLIC));
+			XML::addElement($doc, $entry, 'dfrn:unlisted', $item['private'] == Item::UNLISTED);
 		}
 
 		if ($item['extid']) {
-			XML::addElement($doc, $entry, "dfrn:extid", $item['extid']);
+			XML::addElement($doc, $entry, 'dfrn:extid', $item['extid']);
 		}
 
 		if ($item['post-type'] == Item::PT_PAGE) {
-			XML::addElement($doc, $entry, "dfrn:bookmark", "true");
+			XML::addElement($doc, $entry, 'dfrn:bookmark', 'true');
 		}
 
 		if ($item['app']) {
-			XML::addElement($doc, $entry, "statusnet:notice_info", "", ["local_id" => $item['id'], "source" => $item['app']]);
+			XML::addElement($doc, $entry, 'statusnet:notice_info', '', ['local_id' => $item['id'], 'source' => $item['app']]);
 		}
 
-		XML::addElement($doc, $entry, "dfrn:diaspora_guid", $item["guid"]);
+		XML::addElement($doc, $entry, 'dfrn:diaspora_guid', $item['guid']);
 
 		// The signed text contains the content in Markdown, the sender handle and the signatur for the content
 		// It is needed for relayed comments to Diaspora.
 		if ($item['signed_text']) {
 			$sign = base64_encode(json_encode(['signed_text' => $item['signed_text'],'signature' => '','signer' => '']));
-			XML::addElement($doc, $entry, "dfrn:diaspora_signature", $sign);
+			XML::addElement($doc, $entry, 'dfrn:diaspora_signature', $sign);
 		}
 
-		XML::addElement($doc, $entry, "activity:verb", self::constructVerb($item));
+		XML::addElement($doc, $entry, 'activity:verb', self::constructVerb($item));
 
-		if ($item['object-type'] != "") {
-			XML::addElement($doc, $entry, "activity:object-type", $item['object-type']);
+		if ($item['object-type'] != '') {
+			XML::addElement($doc, $entry, 'activity:object-type', $item['object-type']);
 		} elseif ($item['gravity'] == GRAVITY_PARENT) {
-			XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::NOTE);
+			XML::addElement($doc, $entry, 'activity:object-type', Activity\ObjectType::NOTE);
 		} else {
-			XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::COMMENT);
+			XML::addElement($doc, $entry, 'activity:object-type', Activity\ObjectType::COMMENT);
 		}
 
-		$actobj = self::createActivity($doc, "activity:object", $item['object'], $item['uri-id']);
+		$actobj = self::createActivity($doc, 'activity:object', $item['object'] ?? '', $item['uri-id']);
 		if ($actobj) {
 			$entry->appendChild($actobj);
 		}
 
-		$actarg = self::createActivity($doc, "activity:target", $item['target'], $item['uri-id']);
+		$actarg = self::createActivity($doc, 'activity:target', $item['target'] ?? '', $item['uri-id']);
 		if ($actarg) {
 			$entry->appendChild($actarg);
 		}
@@ -915,7 +924,7 @@ class DFRN
 		if (count($tags)) {
 			foreach ($tags as $tag) {
 				if (($type != 'html') || ($tag['type'] == Tag::HASHTAG)) {
-					XML::addElement($doc, $entry, "category", "", ["scheme" => "X-DFRN:" . Tag::TAG_CHARACTER[$tag['type']] . ":" . $tag['url'], "term" => $tag['name']]);
+					XML::addElement($doc, $entry, 'category', '', ['scheme' => 'X-DFRN:' . Tag::TAG_CHARACTER[$tag['type']] . ':' . $tag['url'], 'term' => $tag['name']]);
 				}
 				if ($tag['type'] != Tag::HASHTAG) {
 					$mentioned[$tag['url']] = $tag['url'];
@@ -924,28 +933,32 @@ class DFRN
 		}
 
 		foreach ($mentioned as $mention) {
-			$condition = ['uid' => $owner["uid"], 'nurl' => Strings::normaliseLink($mention)];
+			$condition = ['uid' => $owner['uid'], 'nurl' => Strings::normaliseLink($mention)];
 			$contact = DBA::selectFirst('contact', ['contact-type'], $condition);
 
 			if (DBA::isResult($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
 				XML::addElement(
 					$doc,
 					$entry,
-					"link",
-					"",
-					["rel" => "mentioned",
-							"ostatus:object-type" => Activity\ObjectType::GROUP,
-							"href" => $mention]
+					'link',
+					'',
+					[
+						'rel' => 'mentioned',
+						'ostatus:object-type' => Activity\ObjectType::GROUP,
+						'href' => $mention,
+					],
 				);
 			} else {
 				XML::addElement(
 					$doc,
 					$entry,
-					"link",
-					"",
-					["rel" => "mentioned",
-							"ostatus:object-type" => Activity\ObjectType::PERSON,
-							"href" => $mention]
+					'link',
+					'',
+					[
+						'rel' => 'mentioned',
+						'ostatus:object-type' => Activity\ObjectType::PERSON,
+						'href' => $mention,
+					],
 				);
 			}
 		}
@@ -961,13 +974,12 @@ class DFRN
 	 * @param array  $owner   Owner record
 	 * @param array  $contact Contact record of the receiver
 	 * @param string $atom    Content that will be transmitted
-	 *
 	 * @param bool   $public_batch
 	 * @return int Deliver status. Negative values mean an error.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function transmit($owner, $contact, $atom, $public_batch = false)
+	public static function transmit(array $owner, array $contact, string $atom, bool $public_batch = false)
 	{
 		if (!$public_batch) {
 			if (empty($contact['addr'])) {
@@ -996,22 +1008,22 @@ class DFRN
 		$envelope = Diaspora::buildMessage($atom, $owner, $contact, $owner['uprvkey'], $pubkey, $public_batch);
 
 		// Create the endpoint for public posts. This is some WIP and should later be added to the probing
-		if ($public_batch && empty($contact["batch"])) {
-			$parts = parse_url($contact["notify"]);
+		if ($public_batch && empty($contact['batch'])) {
+			$parts = parse_url($contact['notify']);
 			$path_parts = explode('/', $parts['path']);
 			array_pop($path_parts);
 			$parts['path'] =  implode('/', $path_parts);
-			$contact["batch"] = Network::unparseURL($parts);
+			$contact['batch'] = Network::unparseURL($parts);
 		}
 
-		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
+		$dest_url = ($public_batch ? $contact['batch'] : $contact['notify']);
 
 		if (empty($dest_url)) {
 			Logger::info('Empty destination', ['public' => $public_batch, 'contact' => $contact]);
 			return -24;
 		}
 
-		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
+		$content_type = ($public_batch ? 'application/magic-envelope+xml' : 'application/json');
 
 		$postResult = DI::httpClient()->post($dest_url, $envelope, ['Content-Type' => $content_type]);
 		$xml = $postResult->getBody();
@@ -1060,7 +1072,7 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function fetchauthor(\DOMXPath $xpath, \DOMNode $context, $importer, $element, $onlyfetch, $xml = "")
+	private static function fetchauthor(\DOMXPath $xpath, \DOMNode $context, array $importer, string $element, bool $onlyfetch, string $xml = ''): array
 	{
 		$author = [];
 		$author["name"] = XML::getFirstNodeValue($xpath, $element."/atom:name/text()", $context);
@@ -1280,7 +1292,7 @@ class DFRN
 	 * @return string XML string
 	 * @todo Find good type-hints for all parameter
 	 */
-	private static function transformActivity($xpath, $activity, $element)
+	private static function transformActivity($xpath, $activity, string $element): string
 	{
 		if (!is_object($activity)) {
 			return "";
@@ -1328,28 +1340,27 @@ class DFRN
 	/**
 	 * Processes the mail elements
 	 *
-	 * @param object $xpath    XPath object
-	 * @param object $mail     mail elements
-	 * @param array  $importer Record of the importer user mixed with contact of the content
+	 * @param DOMXPath $xpath    XPath object
+	 * @param DOMNode  $mail     mail elements
+	 * @param array    $importer Record of the importer user mixed with contact of the content
 	 * @return void
 	 * @throws \Exception
-	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function processMail($xpath, $mail, $importer)
+	private static function processMail(DOMXPath $xpath, DOMNode $mail, array $importer)
 	{
 		Logger::notice("Processing mails");
 
 		$msg = [];
-		$msg["uid"] = $importer["importer_uid"];
-		$msg["from-name"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:name/text()", $mail);
-		$msg["from-url"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:uri/text()", $mail);
-		$msg["from-photo"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:avatar/text()", $mail);
-		$msg["contact-id"] = $importer["id"];
-		$msg["uri"] = XML::getFirstValue($xpath, "dfrn:id/text()", $mail);
-		$msg["parent-uri"] = XML::getFirstValue($xpath, "dfrn:in-reply-to/text()", $mail);
-		$msg["created"] = DateTimeFormat::utc(XML::getFirstValue($xpath, "dfrn:sentdate/text()", $mail));
-		$msg["title"] = XML::getFirstValue($xpath, "dfrn:subject/text()", $mail);
-		$msg["body"] = XML::getFirstValue($xpath, "dfrn:content/text()", $mail);
+		$msg['uid'] = $importer['importer_uid'];
+		$msg['from-name'] = XML::getFirstValue($xpath, 'dfrn:sender/dfrn:name/text()', $mail);
+		$msg['from-url'] = XML::getFirstValue($xpath, 'dfrn:sender/dfrn:uri/text()', $mail);
+		$msg['from-photo'] = XML::getFirstValue($xpath, 'dfrn:sender/dfrn:avatar/text()', $mail);
+		$msg['contact-id'] = $importer['id'];
+		$msg['uri'] = XML::getFirstValue($xpath, 'dfrn:id/text()', $mail);
+		$msg['parent-uri'] = XML::getFirstValue($xpath, 'dfrn:in-reply-to/text()', $mail);
+		$msg['created'] = DateTimeFormat::utc(XML::getFirstValue($xpath, 'dfrn:sentdate/text()', $mail));
+		$msg['title'] = XML::getFirstValue($xpath, 'dfrn:subject/text()', $mail);
+		$msg['body'] = XML::getFirstValue($xpath, 'dfrn:content/text()', $mail);
 
 		Mail::insert($msg);
 	}
@@ -1357,14 +1368,13 @@ class DFRN
 	/**
 	 * Processes the suggestion elements
 	 *
-	 * @param object $xpath      XPath object
-	 * @param object $suggestion suggestion elements
-	 * @param array  $importer   Record of the importer user mixed with contact of the content
+	 * @param DOMXPath $xpath      XPath object
+	 * @param DOMNode  $suggestion suggestion elements
+	 * @param array    $importer   Record of the importer user mixed with contact of the content
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function processSuggestion($xpath, $suggestion, $importer)
+	private static function processSuggestion(DOMXPath $xpath, DOMNode $suggestion, array $importer)
 	{
 		Logger::notice('Processing suggestions');
 
@@ -1383,7 +1393,7 @@ class DFRN
 	 * @param integer $from_cid
 	 * @return bool   Was the adding successful?
 	 */
-	private static function addSuggestion(int $uid, int $cid, int $from_cid, string $note = '')
+	private static function addSuggestion(int $uid, int $cid, int $from_cid, string $note = ''): bool
 	{
 		$owner = User::getOwnerDataById($uid);
 		$contact = Contact::getById($cid);
@@ -1432,45 +1442,45 @@ class DFRN
 	/**
 	 * Processes the relocation elements
 	 *
-	 * @param object $xpath      XPath object
-	 * @param object $relocation relocation elements
-	 * @param array  $importer   Record of the importer user mixed with contact of the content
+	 * @param DOMXPath $xpath      XPath object
+	 * @param DOMNode  $relocation relocation elements
+	 * @param array    $importer   Record of the importer user mixed with contact of the content
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function processRelocation($xpath, $relocation, $importer)
+	private static function processRelocation(DOMXPath $xpath, DOMNode $relocation, array $importer): bool
 	{
 		Logger::notice("Processing relocations");
 
 		/// @TODO Rewrite this to one statement
 		$relocate = [];
-		$relocate["uid"] = $importer["importer_uid"];
-		$relocate["cid"] = $importer["id"];
-		$relocate["url"] = $xpath->query("dfrn:url/text()", $relocation)->item(0)->nodeValue;
-		$relocate["addr"] = $xpath->query("dfrn:addr/text()", $relocation)->item(0)->nodeValue;
-		$relocate["name"] = $xpath->query("dfrn:name/text()", $relocation)->item(0)->nodeValue;
-		$relocate["avatar"] = $xpath->query("dfrn:avatar/text()", $relocation)->item(0)->nodeValue;
-		$relocate["photo"] = $xpath->query("dfrn:photo/text()", $relocation)->item(0)->nodeValue;
-		$relocate["thumb"] = $xpath->query("dfrn:thumb/text()", $relocation)->item(0)->nodeValue;
-		$relocate["micro"] = $xpath->query("dfrn:micro/text()", $relocation)->item(0)->nodeValue;
-		$relocate["request"] = $xpath->query("dfrn:request/text()", $relocation)->item(0)->nodeValue;
-		$relocate["confirm"] = $xpath->query("dfrn:confirm/text()", $relocation)->item(0)->nodeValue;
-		$relocate["notify"] = $xpath->query("dfrn:notify/text()", $relocation)->item(0)->nodeValue;
-		$relocate["poll"] = $xpath->query("dfrn:poll/text()", $relocation)->item(0)->nodeValue;
-		$relocate["sitepubkey"] = $xpath->query("dfrn:sitepubkey/text()", $relocation)->item(0)->nodeValue;
+		$relocate['uid'] = $importer['importer_uid'];
+		$relocate['cid'] = $importer['id'];
+		$relocate['url'] = $xpath->query('dfrn:url/text()', $relocation)->item(0)->nodeValue;
+		$relocate['addr'] = $xpath->query('dfrn:addr/text()', $relocation)->item(0)->nodeValue;
+		$relocate['name'] = $xpath->query('dfrn:name/text()', $relocation)->item(0)->nodeValue;
+		$relocate['avatar'] = $xpath->query('dfrn:avatar/text()', $relocation)->item(0)->nodeValue;
+		$relocate['photo'] = $xpath->query('dfrn:photo/text()', $relocation)->item(0)->nodeValue;
+		$relocate['thumb'] = $xpath->query('dfrn:thumb/text()', $relocation)->item(0)->nodeValue;
+		$relocate['micro'] = $xpath->query('dfrn:micro/text()', $relocation)->item(0)->nodeValue;
+		$relocate['request'] = $xpath->query('dfrn:request/text()', $relocation)->item(0)->nodeValue;
+		$relocate['confirm'] = $xpath->query('dfrn:confirm/text()', $relocation)->item(0)->nodeValue;
+		$relocate['notify'] = $xpath->query('dfrn:notify/text()', $relocation)->item(0)->nodeValue;
+		$relocate['poll'] = $xpath->query('dfrn:poll/text()', $relocation)->item(0)->nodeValue;
+		$relocate['sitepubkey'] = $xpath->query('dfrn:sitepubkey/text()', $relocation)->item(0)->nodeValue;
 
-		if (($relocate["avatar"] == "") && ($relocate["photo"] != "")) {
-			$relocate["avatar"] = $relocate["photo"];
+		if (($relocate['avatar'] == '') && ($relocate['photo'] != '')) {
+			$relocate['avatar'] = $relocate['photo'];
 		}
 
-		if ($relocate["addr"] == "") {
-			$relocate["addr"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$3@$2", $relocate["url"]);
+		if ($relocate['addr'] == '') {
+			$relocate['addr'] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", '$3@$2', $relocate['url']);
 		}
 
 		// update contact
-		$old = Contact::selectFirst(['photo', 'url'], ['id' => $importer["id"], 'uid' => $importer["importer_uid"]]);
+		$old = Contact::selectFirst(['photo', 'url'], ['id' => $importer['id'], 'uid' => $importer['importer_uid']]);
 
 		if (!DBA::isResult($old)) {
 			Logger::notice("Query failed to execute, no result returned in " . __FUNCTION__);
@@ -1478,16 +1488,23 @@ class DFRN
 		}
 
 		// Update the contact table. We try to find every entry.
-		$fields = ['name' => $relocate["name"], 'avatar' => $relocate["avatar"],
-			'url' => $relocate["url"], 'nurl' => Strings::normaliseLink($relocate["url"]),
-			'addr' => $relocate["addr"], 'request' => $relocate["request"],
-			'confirm' => $relocate["confirm"], 'notify' => $relocate["notify"],
-			'poll' => $relocate["poll"], 'site-pubkey' => $relocate["sitepubkey"]];
-		$condition = ["(`id` = ?) OR (`nurl` = ?)", $importer["id"], Strings::normaliseLink($old["url"])];
+		$fields = [
+			'name' => $relocate['name'],
+			'avatar' => $relocate['avatar'],
+			'url' => $relocate['url'],
+			'nurl' => Strings::normaliseLink($relocate['url']),
+			'addr' => $relocate['addr'],
+			'request' => $relocate['request'],
+			'confirm' => $relocate['confirm'],
+			'notify' => $relocate['notify'],
+			'poll' => $relocate['poll'],
+			'site-pubkey' => $relocate['sitepubkey'],
+		];
+		$condition = ["(`id` = ?) OR (`nurl` = ?)", $importer['id'], Strings::normaliseLink($old['url'])];
 
 		Contact::update($fields, $condition);
 
-		Contact::updateAvatar($importer["id"], $relocate["avatar"], true);
+		Contact::updateAvatar($importer['id'], $relocate['avatar'], true);
 
 		Logger::notice('Contacts are updated.');
 
@@ -1510,21 +1527,24 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  set proper type-hints (array?)
 	 */
-	private static function updateContent($current, $item, $importer, $entrytype)
+	private static function updateContent(array $current, array $item, array $importer, int $entrytype)
 	{
 		$changed = false;
 
 		if (self::isEditedTimestampNewer($current, $item)) {
 			// do not accept (ignore) an earlier edit than one we currently have.
-			if (DateTimeFormat::utc($item["edited"]) < $current["edited"]) {
+			if (DateTimeFormat::utc($item['edited']) < $current['edited']) {
 				return false;
 			}
 
-			$fields = ['title' => $item['title'] ?? '', 'body' => $item['body'] ?? '',
-					'changed' => DateTimeFormat::utcNow(),
-					'edited' => DateTimeFormat::utc($item["edited"])];
+			$fields = [
+				'title' => $item['title'] ?? '',
+				'body' => $item['body'] ?? '',
+				'changed' => DateTimeFormat::utcNow(),
+				'edited' => DateTimeFormat::utc($item['edited']),
+			];
 
-			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];
+			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item['uri'], $importer['importer_uid']];
 			Item::update($fields, $condition);
 
 			$changed = true;
@@ -1542,13 +1562,13 @@ class DFRN
 	 * @throws \Exception
 	 * @todo  set proper type-hints (array?)
 	 */
-	private static function getEntryType($importer, $item)
+	private static function getEntryType(array $importer, array $item): int
 	{
-		if ($item["thr-parent"] != $item["uri"]) {
+		if ($item['thr-parent'] != $item['uri']) {
 			$community = false;
 
 			if ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-				$sql_extra = "";
+				$sql_extra = '';
 				$community = true;
 				Logger::notice("possible community action");
 			} else {
@@ -1558,7 +1578,7 @@ class DFRN
 			// was the top-level post for this action written by somebody on this site?
 			// Specifically, the recipient?
 			$parent = Post::selectFirst(['wall'],
-				["`uri` = ? AND `uid` = ?" . $sql_extra, $item["thr-parent"], $importer["importer_uid"]]);
+				["`uri` = ? AND `uid` = ?" . $sql_extra, $item['thr-parent'], $importer['importer_uid']]);
 
 			$is_a_remote_action = DBA::isResult($parent);
 
@@ -1583,43 +1603,44 @@ class DFRN
 	 */
 	private static function doPoke(array $item, array $importer)
 	{
-		$verb = urldecode(substr($item["verb"], strpos($item["verb"], "#")+1));
+		$verb = urldecode(substr($item['verb'], strpos($item['verb'], '#')+1));
 		if (!$verb) {
 			return;
 		}
-		$xo = XML::parseString($item["object"]);
+		$xo = XML::parseString($item['object']);
 
 		if (($xo->type == Activity\ObjectType::PERSON) && ($xo->id)) {
 			// somebody was poked/prodded. Was it me?
 			$Blink = '';
 			foreach ($xo->link as $l) {
 				$atts = $l->attributes();
-				switch ($atts["rel"]) {
-					case "alternate":
-						$Blink = $atts["href"];
+				switch ($atts['rel']) {
+					case 'alternate':
+						$Blink = $atts['href'];
 						break;
+
 					default:
 						break;
 				}
 			}
 
-			if ($Blink && Strings::compareLink($Blink, DI::baseUrl() . "/profile/" . $importer["nickname"])) {
+			if ($Blink && Strings::compareLink($Blink, DI::baseUrl() . '/profile/' . $importer['nickname'])) {
 				$author = DBA::selectFirst('contact', ['id', 'name', 'thumb', 'url'], ['id' => $item['author-id']]);
 
-				$parent = Post::selectFirst(['id'], ['uri' => $item['thr-parent'], 'uid' => $importer["importer_uid"]]);
+				$parent = Post::selectFirst(['id'], ['uri' => $item['thr-parent'], 'uid' => $importer['importer_uid']]);
 				$item['parent'] = $parent['id'];
 
 				// send a notification
 				DI::notify()->createFromArray(
 					[
-					"type"     => Notification\Type::POKE,
-					"otype"    => Notification\ObjectType::PERSON,
-					"activity" => $verb,
-					"verb"     => $item["verb"],
-					"uid"      => $importer["importer_uid"],
-					"cid"      => $author["id"],
-					"item"     => $item,
-					"link"     => DI::baseUrl() . "/display/" . urlencode($item['guid']),
+					'type'     => Notification\Type::POKE,
+					'otype'    => Notification\ObjectType::PERSON,
+					'activity' => $verb,
+					'verb'     => $item['verb'],
+					'uid'      => $importer['importer_uid'],
+					'cid'      => $author['id'],
+					'item'     => $item,
+					'link'     => DI::baseUrl() . '/display/' . urlencode($item['guid']),
 					]
 				);
 			}
@@ -1636,11 +1657,10 @@ class DFRN
 	 *
 	 * @return bool Should the processing of the entries be continued?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @todo  set proper type-hints (array?)
 	 */
-	private static function processVerbs($entrytype, $importer, &$item, &$is_like)
+	private static function processVerbs(int $entrytype, array $importer, array &$item, bool &$is_like)
 	{
-		Logger::info("Process verb ".$item["verb"]." and object-type ".$item["object-type"]." for entrytype ".$entrytype);
+		Logger::info('Process verb ' . $item['verb'] . ' and object-type ' . $item['object-type'] . ' for entrytype ' . $entrytype);
 
 		if (($entrytype == DFRN::TOP_LEVEL) && !empty($importer['id'])) {
 			// The filling of the the "contact" variable is done for legcy reasons
@@ -1651,65 +1671,70 @@ class DFRN
 
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
-			if ($activity->match($item["verb"], Activity::FOLLOW)) {
+			if ($activity->match($item['verb'], Activity::FOLLOW)) {
 				Logger::notice("New follower");
 				Contact::addRelationship($importer, $contact, $item);
 				return false;
 			}
-			if ($activity->match($item["verb"], Activity::UNFOLLOW)) {
+			if ($activity->match($item['verb'], Activity::UNFOLLOW)) {
 				Logger::notice("Lost follower");
 				Contact::removeFollower($contact);
 				return false;
 			}
-			if ($activity->match($item["verb"], Activity::REQ_FRIEND)) {
+			if ($activity->match($item['verb'], Activity::REQ_FRIEND)) {
 				Logger::notice("New friend request");
 				Contact::addRelationship($importer, $contact, $item, true);
 				return false;
 			}
-			if ($activity->match($item["verb"], Activity::UNFRIEND)) {
+			if ($activity->match($item['verb'], Activity::UNFRIEND)) {
 				Logger::notice("Lost sharer");
 				Contact::removeSharer($contact);
 				return false;
 			}
 		} else {
-			if (($item["verb"] == Activity::LIKE)
-				|| ($item["verb"] == Activity::DISLIKE)
-				|| ($item["verb"] == Activity::ATTEND)
-				|| ($item["verb"] == Activity::ATTENDNO)
-				|| ($item["verb"] == Activity::ATTENDMAYBE)
-				|| ($item["verb"] == Activity::ANNOUNCE)
+			if (($item['verb'] == Activity::LIKE)
+				|| ($item['verb'] == Activity::DISLIKE)
+				|| ($item['verb'] == Activity::ATTEND)
+				|| ($item['verb'] == Activity::ATTENDNO)
+				|| ($item['verb'] == Activity::ATTENDMAYBE)
+				|| ($item['verb'] == Activity::ANNOUNCE)
 			) {
 				$is_like = true;
-				$item["gravity"] = GRAVITY_ACTIVITY;
+				$item['gravity'] = GRAVITY_ACTIVITY;
 				// only one like or dislike per person
 				// split into two queries for performance issues
-				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"], 'gravity' => GRAVITY_ACTIVITY,
-					'verb' => $item['verb'], 'parent-uri' => $item['thr-parent']];
+				$condition = [
+					'uid' => $item['uid'],
+					'author-id' => $item['author-id'],
+					'gravity' => GRAVITY_ACTIVITY,
+					'verb' => $item['verb'],
+					'parent-uri' => $item['thr-parent'],
+				];
 				if (Post::exists($condition)) {
 					return false;
 				}
 
-				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"], 'gravity' => GRAVITY_ACTIVITY,
+				$condition = ['uid' => $item['uid'], 'author-id' => $item['author-id'], 'gravity' => GRAVITY_ACTIVITY,
 					'verb' => $item['verb'], 'thr-parent' => $item['thr-parent']];
 				if (Post::exists($condition)) {
 					return false;
 				}
 
 				// The owner of an activity must be the author
-				$item["owner-name"] = $item["author-name"];
-				$item["owner-link"] = $item["author-link"];
-				$item["owner-avatar"] = $item["author-avatar"];
-				$item["owner-id"] = $item["author-id"];
+				$item['owner-name'] = $item['author-name'];
+				$item['owner-link'] = $item['author-link'];
+				$item['owner-avatar'] = $item['author-avatar'];
+				$item['owner-id'] = $item['author-id'];
 			} else {
 				$is_like = false;
 			}
 
-			if (($item["verb"] == Activity::TAG) && ($item["object-type"] == Activity\ObjectType::TAGTERM)) {
-				$xo = XML::parseString($item["object"]);
-				$xt = XML::parseString($item["target"]);
+			if (($item['verb'] == Activity::TAG) && ($item['object-type'] == Activity\ObjectType::TAGTERM)) {
+				$xo = XML::parseString($item['object']);
+				$xt = XML::parseString($item['target']);
 
 				if ($xt->type == Activity\ObjectType::NOTE) {
-					$item_tag = Post::selectFirst(['id', 'uri-id'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
+					$item_tag = Post::selectFirst(['id', 'uri-id'], ['uri' => $xt->id, 'uid' => $importer['importer_uid']]);
 
 					if (!DBA::isResult($item_tag)) {
 						Logger::notice("Query failed to execute, no result returned in " . __FUNCTION__);
@@ -1734,29 +1759,30 @@ class DFRN
 	 * @return void
 	 * @todo set proper type-hints
 	 */
-	private static function parseLinks($links, &$item)
+	private static function parseLinks($links, array &$item)
 	{
-		$rel = "";
-		$href = "";
+		$rel = '';
+		$href = '';
 		$type = null;
 		$length = null;
 		$title = null;
 		foreach ($links as $link) {
 			foreach ($link->attributes as $attributes) {
 				switch ($attributes->name) {
-					case "href"  : $href   = $attributes->textContent; break;
-					case "rel"   : $rel    = $attributes->textContent; break;
-					case "type"  : $type   = $attributes->textContent; break;
-					case "length": $length = $attributes->textContent; break;
-					case "title" : $title  = $attributes->textContent; break;
+					case 'href'  : $href   = $attributes->textContent; break;
+					case 'rel'   : $rel    = $attributes->textContent; break;
+					case 'type'  : $type   = $attributes->textContent; break;
+					case 'length': $length = $attributes->textContent; break;
+					case 'title' : $title  = $attributes->textContent; break;
 				}
 			}
-			if (($rel != "") && ($href != "")) {
+			if (($rel != '') && ($href != '')) {
 				switch ($rel) {
-					case "alternate":
-						$item["plink"] = $href;
+					case 'alternate':
+						$item['plink'] = $href;
 						break;
-					case "enclosure":
+
+					case 'enclosure':
 						Post\Media::insert(['uri-id' => $item['uri-id'], 'type' => Post\Media::DOCUMENT,
 							'url' => $href, 'mimetype' => $type, 'size' => $length, 'description' => $title]);
 						break;
@@ -1772,7 +1798,7 @@ class DFRN
 	 * @param array $imporer
 	 * @return boolean Is the message wanted?
 	 */
-	private static function isSolicitedMessage(array $item, array $importer)
+	private static function isSolicitedMessage(array $item, array $importer): bool
 	{
 		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
 			Strings::normaliseLink($item["author-link"]), 0, Contact::FRIEND, Contact::SHARING])) {
@@ -1802,161 +1828,159 @@ class DFRN
 	/**
 	 * Processes the entry elements which contain the items and comments
 	 *
-	 * @param array  $header   Array of the header elements that always stay the same
-	 * @param object $xpath    XPath object
-	 * @param object $entry    entry elements
-	 * @param array  $importer Record of the importer user mixed with contact of the content
-	 * @param string $xml      xml
+	 * @param array    $header   Array of the header elements that always stay the same
+	 * @param DOMXPath $xpath    XPath object
+	 * @param DOMNode  $entry    entry elements
+	 * @param array    $importer Record of the importer user mixed with contact of the content
+	 * @param string   $xml      XML
+	 * @param int $protocol Protocol
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  Add type-hints
 	 */
-	private static function processEntry($header, $xpath, $entry, $importer, $xml, $protocol)
+	private static function processEntry(array $header, DOMXPath $xpath, DOMNode $entry, array $importer, string $xml, int $protocol)
 	{
 		Logger::notice("Processing entries");
 
 		$item = $header;
 
-		$item["protocol"] = $protocol;
+		$item['protocol'] = $protocol;
 
-		$item["source"] = $xml;
+		$item['source'] = $xml;
 
 		// Get the uri
-		$item["uri"] = XML::getFirstNodeValue($xpath, "atom:id/text()", $entry);
+		$item['uri'] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
 
-		$item["edited"] = XML::getFirstNodeValue($xpath, "atom:updated/text()", $entry);
+		$item['edited'] = XML::getFirstNodeValue($xpath, 'atom:updated/text()', $entry);
 
 		$current = Post::selectFirst(['id', 'uid', 'edited', 'body'],
-			['uri' => $item["uri"], 'uid' => $importer["importer_uid"]]
+			['uri' => $item['uri'], 'uid' => $importer['importer_uid']]
 		);
 		// Is there an existing item?
 		if (DBA::isResult($current) && !self::isEditedTimestampNewer($current, $item)) {
-			Logger::info("Item ".$item["uri"]." (".$item['edited'].") already existed.");
+			Logger::info("Item " . $item['uri'] . " (" . $item['edited'] . ") already existed.");
 			return;
 		}
 
 		// Fetch the owner
-		$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", true, $xml);
+		$owner = self::fetchauthor($xpath, $entry, $importer, 'dfrn:owner', true, $xml);
 
-		$owner_unknown = (isset($owner["contact-unknown"]) && $owner["contact-unknown"]);
+		$owner_unknown = (isset($owner['contact-unknown']) && $owner['contact-unknown']);
 
-		$item["owner-name"] = $owner["name"];
-		$item["owner-link"] = $owner["link"];
-		$item["owner-avatar"] = $owner["avatar"];
-		$item["owner-id"] = Contact::getIdForURL($owner["link"], 0);
+		$item['owner-name'] = $owner['name'];
+		$item['owner-link'] = $owner['link'];
+		$item['owner-avatar'] = $owner['avatar'];
+		$item['owner-id'] = Contact::getIdForURL($owner['link'], 0);
 
 		// fetch the author
-		$author = self::fetchauthor($xpath, $entry, $importer, "atom:author", true, $xml);
+		$author = self::fetchauthor($xpath, $entry, $importer, 'atom:author', true, $xml);
 
-		$item["author-name"] = $author["name"];
-		$item["author-link"] = $author["link"];
-		$item["author-avatar"] = $author["avatar"];
-		$item["author-id"] = Contact::getIdForURL($author["link"], 0);
+		$item['author-name'] = $author['name'];
+		$item['author-link'] = $author['link'];
+		$item['author-avatar'] = $author['avatar'];
+		$item['author-id'] = Contact::getIdForURL($author['link'], 0);
 
-		$item["title"] = XML::getFirstNodeValue($xpath, "atom:title/text()", $entry);
+		$item['title'] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 
-		if (!empty($item["title"])) {
-			$item["post-type"] = Item::PT_ARTICLE;
+		if (!empty($item['title'])) {
+			$item['post-type'] = Item::PT_ARTICLE;
 		} else {
-			$item["post-type"] = Item::PT_NOTE;
+			$item['post-type'] = Item::PT_NOTE;
 		}
 
-		$item["created"] = XML::getFirstNodeValue($xpath, "atom:published/text()", $entry);
+		$item['created'] = XML::getFirstNodeValue($xpath, 'atom:published/text()', $entry);
 
-		$item["body"] = XML::getFirstNodeValue($xpath, "dfrn:env/text()", $entry);
-		$item["body"] = str_replace([' ',"\t","\r","\n"], ['','','',''], $item["body"]);
+		$item['body'] = XML::getFirstNodeValue($xpath, 'dfrn:env/text()', $entry);
+		$item['body'] = str_replace([' ',"\t","\r","\n"], ['','','',''], $item['body']);
 
-		$item["body"] = Strings::base64UrlDecode($item["body"]);
+		$item['body'] = Strings::base64UrlDecode($item['body']);
 
-		$item["body"] = BBCode::limitBodySize($item["body"]);
+		$item['body'] = BBCode::limitBodySize($item['body']);
 
 		/// @todo We should check for a repeated post and if we know the repeated author.
 
 		// We don't need the content element since "dfrn:env" is always present
-		//$item["body"] = $xpath->query("atom:content/text()", $entry)->item(0)->nodeValue;
+		//$item['body'] = $xpath->query('atom:content/text()', $entry)->item(0)->nodeValue;
+		$item['location'] = XML::getFirstNodeValue($xpath, 'dfrn:location/text()', $entry);
+		$item['coord'] = XML::getFirstNodeValue($xpath, 'georss:point', $entry);
+		$item['private'] = XML::getFirstNodeValue($xpath, 'dfrn:private/text()', $entry);
 
-		$item["location"] = XML::getFirstNodeValue($xpath, "dfrn:location/text()", $entry);
-
-		$item["coord"] = XML::getFirstNodeValue($xpath, "georss:point", $entry);
-
-		$item["private"] = XML::getFirstNodeValue($xpath, "dfrn:private/text()", $entry);
-
-		$unlisted = XML::getFirstNodeValue($xpath, "dfrn:unlisted/text()", $entry);
+		$unlisted = XML::getFirstNodeValue($xpath, 'dfrn:unlisted/text()', $entry);
 		if (!empty($unlisted) && ($item['private'] != Item::PRIVATE)) {
 			$item['private'] = Item::UNLISTED;
 		}
 
-		$item["extid"] = XML::getFirstNodeValue($xpath, "dfrn:extid/text()", $entry);
+		$item['extid'] = XML::getFirstNodeValue($xpath, 'dfrn:extid/text()', $entry);
 
-		if (XML::getFirstNodeValue($xpath, "dfrn:bookmark/text()", $entry) == "true") {
-			$item["post-type"] = Item::PT_PAGE;
+		if (XML::getFirstNodeValue($xpath, 'dfrn:bookmark/text()', $entry) == 'true') {
+			$item['post-type'] = Item::PT_PAGE;
 		}
 
-		$notice_info = $xpath->query("statusnet:notice_info", $entry);
+		$notice_info = $xpath->query('statusnet:notice_info', $entry);
 		if ($notice_info && ($notice_info->length > 0)) {
 			foreach ($notice_info->item(0)->attributes as $attributes) {
-				if ($attributes->name == "source") {
-					$item["app"] = strip_tags($attributes->textContent);
+				if ($attributes->name == 'source') {
+					$item['app'] = strip_tags($attributes->textContent);
 				}
 			}
 		}
 
-		$item["guid"] = XML::getFirstNodeValue($xpath, "dfrn:diaspora_guid/text()", $entry);
+		$item['guid'] = XML::getFirstNodeValue($xpath, 'dfrn:diaspora_guid/text()', $entry);
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
-		$item["body"] = Item::improveSharedDataInBody($item);
+		$item['body'] = Item::improveSharedDataInBody($item);
 
-		Tag::storeFromBody($item['uri-id'], $item["body"]);
+		Tag::storeFromBody($item['uri-id'], $item['body']);
 
 		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "Item::insert"
-		$dsprsig = XML::unescape(XML::getFirstNodeValue($xpath, "dfrn:diaspora_signature/text()", $entry));
-		if ($dsprsig != "") {
+		$dsprsig = XML::unescape(XML::getFirstNodeValue($xpath, 'dfrn:diaspora_signature/text()', $entry));
+		if ($dsprsig != '') {
 			$signature = json_decode(base64_decode($dsprsig));
 			// We don't store the old style signatures anymore that also contained the "signature" and "signer"
 			if (!empty($signature->signed_text) && empty($signature->signature) && empty($signature->signer)) {
-				$item["diaspora_signed_text"] = $signature->signed_text;
+				$item['diaspora_signed_text'] = $signature->signed_text;
 			}
 		}
 
-		$item["verb"] = XML::getFirstNodeValue($xpath, "activity:verb/text()", $entry);
+		$item['verb'] = XML::getFirstNodeValue($xpath, 'activity:verb/text()', $entry);
 
-		if (XML::getFirstNodeValue($xpath, "activity:object-type/text()", $entry) != "") {
-			$item["object-type"] = XML::getFirstNodeValue($xpath, "activity:object-type/text()", $entry);
+		if (XML::getFirstNodeValue($xpath, 'activity:object-type/text()', $entry) != '') {
+			$item['object-type'] = XML::getFirstNodeValue($xpath, 'activity:object-type/text()', $entry);
 		}
 
-		$object = $xpath->query("activity:object", $entry)->item(0);
-		$item["object"] = self::transformActivity($xpath, $object, "object");
+		$object = $xpath->query('activity:object', $entry)->item(0);
+		$item['object'] = self::transformActivity($xpath, $object, 'object');
 
-		if (trim($item["object"]) != "") {
-			$r = XML::parseString($item["object"]);
+		if (trim($item['object']) != '') {
+			$r = XML::parseString($item['object']);
 			if (isset($r->type)) {
-				$item["object-type"] = $r->type;
+				$item['object-type'] = $r->type;
 			}
 		}
 
-		$target = $xpath->query("activity:target", $entry)->item(0);
-		$item["target"] = self::transformActivity($xpath, $target, "target");
+		$target = $xpath->query('activity:target', $entry)->item(0);
+		$item['target'] = self::transformActivity($xpath, $target, 'target');
 
-		$categories = $xpath->query("atom:category", $entry);
+		$categories = $xpath->query('atom:category', $entry);
 		if ($categories) {
 			foreach ($categories as $category) {
-				$term = "";
-				$scheme = "";
+				$term = '';
+				$scheme = '';
 				foreach ($category->attributes as $attributes) {
-					if ($attributes->name == "term") {
+					if ($attributes->name == 'term') {
 						$term = $attributes->textContent;
 					}
 
-					if ($attributes->name == "scheme") {
+					if ($attributes->name == 'scheme') {
 						$scheme = $attributes->textContent;
 					}
 				}
 
-				if (($term != "") && ($scheme != "")) {
-					$parts = explode(":", $scheme);
-					if ((count($parts) >= 4) && (array_shift($parts) == "X-DFRN")) {
+				if (($term != '') && ($scheme != '')) {
+					$parts = explode(':', $scheme);
+					if ((count($parts) >= 4) && (array_shift($parts) == 'X-DFRN')) {
 						$termurl = array_pop($parts);
 						$termurl = array_pop($parts) . ':' . $termurl;
 						Tag::store($item['uri-id'], Tag::IMPLICIT_MENTION, $term, $termurl);
@@ -1965,7 +1989,7 @@ class DFRN
 			}
 		}
 
-		$links = $xpath->query("atom:link", $entry);
+		$links = $xpath->query('atom:link', $entry);
 		if ($links) {
 			self::parseLinks($links, $item);
 		}
@@ -1975,10 +1999,10 @@ class DFRN
 		$conv = $xpath->query('ostatus:conversation', $entry);
 		if (is_object($conv->item(0))) {
 			foreach ($conv->item(0)->attributes as $attributes) {
-				if ($attributes->name == "ref") {
+				if ($attributes->name == 'ref') {
 					$item['conversation-uri'] = $attributes->textContent;
 				}
-				if ($attributes->name == "href") {
+				if ($attributes->name == 'href') {
 					$item['conversation-href'] = $attributes->textContent;
 				}
 			}
@@ -1987,10 +2011,10 @@ class DFRN
 		// Is it a reply or a top level posting?
 		$item['thr-parent'] = $item['uri'];
 
-		$inreplyto = $xpath->query("thr:in-reply-to", $entry);
+		$inreplyto = $xpath->query('thr:in-reply-to', $entry);
 		if (is_object($inreplyto->item(0))) {
 			foreach ($inreplyto->item(0)->attributes as $attributes) {
-				if ($attributes->name == "ref") {
+				if ($attributes->name == 'ref') {
 					$item['thr-parent'] = $attributes->textContent;
 				}
 			}
@@ -2007,24 +2031,24 @@ class DFRN
 
 		// Now assign the rest of the values that depend on the type of the message
 		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
-			if (!isset($item["object-type"])) {
-				$item["object-type"] = Activity\ObjectType::COMMENT;
+			if (!isset($item['object-type'])) {
+				$item['object-type'] = Activity\ObjectType::COMMENT;
 			}
 
-			if ($item["contact-id"] != $owner["contact-id"]) {
-				$item["contact-id"] = $owner["contact-id"];
+			if ($item['contact-id'] != $owner['contact-id']) {
+				$item['contact-id'] = $owner['contact-id'];
 			}
 
-			if (($item["network"] != $owner["network"]) && ($owner["network"] != "")) {
-				$item["network"] = $owner["network"];
+			if (($item['network'] != $owner['network']) && ($owner['network'] != '')) {
+				$item['network'] = $owner['network'];
 			}
 
-			if ($item["contact-id"] != $author["contact-id"]) {
-				$item["contact-id"] = $author["contact-id"];
+			if ($item['contact-id'] != $author['contact-id']) {
+				$item['contact-id'] = $author['contact-id'];
 			}
 
-			if (($item["network"] != $author["network"]) && ($author["network"] != "")) {
-				$item["network"] = $author["network"];
+			if (($item['network'] != $author['network']) && ($author['network'] != '')) {
+				$item['network'] = $author['network'];
 			}
 		}
 
@@ -2032,34 +2056,34 @@ class DFRN
 		$item = Item::addShareDataFromOriginal($item);
 
 		if ($entrytype == DFRN::REPLY_RC) {
-			$item["wall"] = 1;
+			$item['wall'] = 1;
 		} elseif ($entrytype == DFRN::TOP_LEVEL) {
-			if (!isset($item["object-type"])) {
-				$item["object-type"] = Activity\ObjectType::NOTE;
+			if (!isset($item['object-type'])) {
+				$item['object-type'] = Activity\ObjectType::NOTE;
 			}
 
 			// Is it an event?
-			if (($item["object-type"] == Activity\ObjectType::EVENT) && !$owner_unknown) {
-				Logger::info("Item ".$item["uri"]." seems to contain an event.");
-				$ev = Event::fromBBCode($item["body"]);
+			if (($item['object-type'] == Activity\ObjectType::EVENT) && !$owner_unknown) {
+				Logger::info("Item " . $item['uri'] . " seems to contain an event.");
+				$ev = Event::fromBBCode($item['body']);
 				if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
-					Logger::info("Event in item ".$item["uri"]." was found.");
-					$ev["cid"]       = $importer["id"];
-					$ev["uid"]       = $importer["importer_uid"];
-					$ev["uri"]       = $item["uri"];
-					$ev["edited"]    = $item["edited"];
-					$ev["private"]   = $item["private"];
-					$ev["guid"]      = $item["guid"];
-					$ev["plink"]     = $item["plink"];
-					$ev["network"]   = $item["network"];
-					$ev["protocol"]  = $item["protocol"];
-					$ev["direction"] = $item["direction"];
-					$ev["source"]    = $item["source"];
+					Logger::info("Event in item " . $item['uri'] . " was found.");
+					$ev['cid']       = $importer['id'];
+					$ev['uid']       = $importer['importer_uid'];
+					$ev['uri']       = $item['uri'];
+					$ev['edited']    = $item['edited'];
+					$ev['private']   = $item['private'];
+					$ev['guid']      = $item['guid'];
+					$ev['plink']     = $item['plink'];
+					$ev['network']   = $item['network'];
+					$ev['protocol']  = $item['protocol'];
+					$ev['direction'] = $item['direction'];
+					$ev['source']    = $item['source'];
 
-					$condition = ['uri' => $item["uri"], 'uid' => $importer["importer_uid"]];
+					$condition = ['uri' => $item['uri'], 'uid' => $importer['importer_uid']];
 					$event = DBA::selectFirst('event', ['id'], $condition);
 					if (DBA::isResult($event)) {
-						$ev["id"] = $event["id"];
+						$ev['id'] = $event['id'];
 					}
 
 					$event_id = Event::store($ev);
@@ -2070,6 +2094,9 @@ class DFRN
 			}
 		}
 
+		// Need to initialize variable, otherwise E_NOTICE will happen
+		$is_like = false;
+
 		if (!self::processVerbs($entrytype, $importer, $item, $is_like)) {
 			Logger::info("Exiting because 'processVerbs' told us so");
 			return;
@@ -2077,7 +2104,7 @@ class DFRN
 
 		// This check is done here to be able to receive connection requests in "processVerbs"
 		if (($entrytype == DFRN::TOP_LEVEL) && $owner_unknown) {
-			Logger::info("Item won't be stored because user " . $importer["importer_uid"] . " doesn't follow " . $item["owner-link"] . ".");
+			Logger::info("Item won't be stored because user " . $importer['importer_uid'] . " doesn't follow " . $item['owner-link'] . ".");
 			return;
 		}
 
@@ -2085,9 +2112,9 @@ class DFRN
 		// Update content if 'updated' changes
 		if (DBA::isResult($current)) {
 			if (self::updateContent($current, $item, $importer, $entrytype)) {
-				Logger::info("Item ".$item["uri"]." was updated.");
+				Logger::info("Item " . $item['uri'] . " was updated.");
 			} else {
-				Logger::info("Item " . $item["uri"] . " already existed.");
+				Logger::info("Item " . $item['uri'] . " already existed.");
 			}
 			return;
 		}
@@ -2100,7 +2127,7 @@ class DFRN
 
 			$posted_id = Item::insert($item);
 			if ($posted_id) {
-				Logger::info("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id);
+				Logger::info("Reply from contact " . $item['contact-id'] . " was stored with id " . $posted_id);
 
 				if ($item['uid'] == 0) {
 					Item::distribute($posted_id);
@@ -2109,11 +2136,11 @@ class DFRN
 				return true;
 			}
 		} else { // $entrytype == DFRN::TOP_LEVEL
-			if (($importer["uid"] == 0) && ($importer["importer_uid"] != 0)) {
-				Logger::info("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.");
+			if (($importer['uid'] == 0) && ($importer['importer_uid'] != 0)) {
+				Logger::info("Contact " . $importer['id'] . " isn't known to user " . $importer['importer_uid'] . ". The post will be ignored.");
 				return;
 			}
-			if (!Strings::compareLink($item["owner-link"], $importer["url"])) {
+			if (!Strings::compareLink($item['owner-link'], $importer['url'])) {
 				/*
 				 * The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
 				 * but otherwise there's a possible data mixup on the sender's system.
@@ -2121,12 +2148,12 @@ class DFRN
 				 * but we're going to unconditionally correct it here so that the post will always be owned by our contact.
 				 */
 				Logger::info('Correcting item owner.');
-				$item["owner-link"] = $importer["url"];
-				$item["owner-id"] = Contact::getIdForURL($importer["url"], 0);
+				$item['owner-link'] = $importer['url'];
+				$item['owner-id'] = Contact::getIdForURL($importer['url'], 0);
 			}
 
-			if (($importer["rel"] == Contact::FOLLOWER) && (!self::tgroupCheck($importer["importer_uid"], $item))) {
-				Logger::info("Contact ".$importer["id"]." is only follower and tgroup check was negative.");
+			if (($importer['rel'] == Contact::FOLLOWER) && (!self::tgroupCheck($importer['importer_uid'], $item))) {
+				Logger::info("Contact " . $importer['id'] . " is only follower and tgroup check was negative.");
 				return;
 			}
 
@@ -2140,13 +2167,13 @@ class DFRN
 				$posted_id = $notify;
 			}
 
-			Logger::info("Item was stored with id ".$posted_id);
+			Logger::info("Item was stored with id " . $posted_id);
 
 			if ($item['uid'] == 0) {
 				Item::distribute($posted_id);
 			}
 
-			if (stristr($item["verb"], Activity::POKE)) {
+			if (stristr($item['verb'], Activity::POKE)) {
 				$item['id'] = $posted_id;
 				self::doPoke($item, $importer);
 			}
@@ -2156,56 +2183,55 @@ class DFRN
 	/**
 	 * Deletes items
 	 *
-	 * @param object $xpath    XPath object
-	 * @param object $deletion deletion elements
-	 * @param array  $importer Record of the importer user mixed with contact of the content
+	 * @param DOMXPath $xpath XPath object
+	 * @param DOMNode  $deletion deletion elements
+	 * @param array   $importer Record of the importer user mixed with contact of the content
 	 * @return void
 	 * @throws \Exception
-	 * @todo  set proper type-hints
 	 */
-	private static function processDeletion($xpath, $deletion, $importer)
+	private static function processDeletion(DOMXPath $xpath, DOMNode $deletion, array $importer)
 	{
 		Logger::notice("Processing deletions");
 		$uri = null;
 
 		foreach ($deletion->attributes as $attributes) {
-			if ($attributes->name == "ref") {
+			if ($attributes->name == 'ref') {
 				$uri = $attributes->textContent;
 			}
 		}
 
-		if (!$uri || !$importer["id"]) {
+		if (!$uri || !$importer['id']) {
 			return false;
 		}
 
-		$condition = ['uri' => $uri, 'uid' => $importer["importer_uid"]];
+		$condition = ['uri' => $uri, 'uid' => $importer['importer_uid']];
 		$item = Post::selectFirst(['id', 'parent', 'contact-id', 'uri-id', 'deleted', 'gravity'], $condition);
 		if (!DBA::isResult($item)) {
-			Logger::info("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " wasn't found.");
+			Logger::info('Item with URI ' . $uri . ' for user ' . $importer['importer_uid'] . ' was not found.');
 			return;
 		}
 
 		if (DBA::exists('post-category', ['uri-id' => $item['uri-id'], 'uid' => $importer['importer_uid'], 'type' => Post\Category::FILE])) {
-			Logger::notice("Item is filed. It won't be deleted.", ['uri' => $uri, 'uri-id' => $item['uri_id'], 'uid' => $importer["importer_uid"]]);
+			Logger::notice('Item is filed. It will not be deleted.', ['uri' => $uri, 'uri-id' => $item['uri_id'], 'uid' => $importer['importer_uid']]);
 			return;
 		}
 
 		// When it is a starting post it has to belong to the person that wants to delete it
-		if (($item['gravity'] == GRAVITY_PARENT) && ($item['contact-id'] != $importer["id"])) {
-			Logger::info("Item with uri " . $uri . " don't belong to contact " . $importer["id"] . " - ignoring deletion.");
+		if (($item['gravity'] == GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
+			Logger::info('Item with URI ' . $uri . ' do not belong to contact ' . $importer['id'] . ' - ignoring deletion.');
 			return;
 		}
 
 		// Comments can be deleted by the thread owner or comment owner
-		if (($item['gravity'] != GRAVITY_PARENT) && ($item['contact-id'] != $importer["id"])) {
-			$condition = ['id' => $item['parent'], 'contact-id' => $importer["id"]];
+		if (($item['gravity'] != GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
+			$condition = ['id' => $item['parent'], 'contact-id' => $importer['id']];
 			if (!Post::exists($condition)) {
-				Logger::info("Item with uri " . $uri . " wasn't found or mustn't be deleted by contact " . $importer["id"] . " - ignoring deletion.");
+				Logger::info('Item with URI ' . $uri . ' was not found or must not be deleted by contact ' . $importer['id'] . ' - ignoring deletion.');
 				return;
 			}
 		}
 
-		if ($item["deleted"]) {
+		if ($item['deleted']) {
 			return;
 		}
 
@@ -2224,11 +2250,10 @@ class DFRN
 	 * @return integer Import status
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
-	 * @todo  set proper type-hints
 	 */
-	public static function import($xml, $importer, $protocol, $direction)
+	public static function import(string $xml, array $importer, int $protocol, int $direction): int
 	{
-		if ($xml == "") {
+		if ($xml == '') {
 			return 400;
 		}
 
@@ -2236,24 +2261,24 @@ class DFRN
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace("atom", ActivityNamespace::ATOM1);
-		$xpath->registerNamespace("thr", ActivityNamespace::THREAD);
-		$xpath->registerNamespace("at", ActivityNamespace::TOMB);
-		$xpath->registerNamespace("media", ActivityNamespace::MEDIA);
-		$xpath->registerNamespace("dfrn", ActivityNamespace::DFRN);
-		$xpath->registerNamespace("activity", ActivityNamespace::ACTIVITY);
-		$xpath->registerNamespace("georss", ActivityNamespace::GEORSS);
-		$xpath->registerNamespace("poco", ActivityNamespace::POCO);
-		$xpath->registerNamespace("ostatus", ActivityNamespace::OSTATUS);
-		$xpath->registerNamespace("statusnet", ActivityNamespace::STATUSNET);
+		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
+		$xpath->registerNamespace('thr', ActivityNamespace::THREAD);
+		$xpath->registerNamespace('at', ActivityNamespace::TOMB);
+		$xpath->registerNamespace('media', ActivityNamespace::MEDIA);
+		$xpath->registerNamespace('dfrn', ActivityNamespace::DFRN);
+		$xpath->registerNamespace('activity', ActivityNamespace::ACTIVITY);
+		$xpath->registerNamespace('georss', ActivityNamespace::GEORSS);
+		$xpath->registerNamespace('poco', ActivityNamespace::POCO);
+		$xpath->registerNamespace('ostatus', ActivityNamespace::OSTATUS);
+		$xpath->registerNamespace('statusnet', ActivityNamespace::STATUSNET);
 
 		$header = [];
-		$header["uid"] = $importer["importer_uid"];
-		$header["network"] = Protocol::DFRN;
-		$header["wall"] = 0;
-		$header["origin"] = 0;
-		$header["contact-id"] = $importer["id"];
-		$header["direction"] = $direction;
+		$header['uid'] = $importer['importer_uid'];
+		$header['network'] = Protocol::DFRN;
+		$header['wall'] = 0;
+		$header['origin'] = 0;
+		$header['contact-id'] = $importer['id'];
+		$header['direction'] = $direction;
 
 		if ($direction === Conversation::RELAY) {
 			$header['post-reason'] = Item::PR_RELAY;
@@ -2262,31 +2287,31 @@ class DFRN
 		// Update the contact table if the data has changed
 
 		// The "atom:author" is only present in feeds
-		if ($xpath->query("/atom:feed/atom:author")->length > 0) {
-			self::fetchauthor($xpath, $doc->firstChild, $importer, "atom:author", false, $xml);
+		if ($xpath->query('/atom:feed/atom:author')->length > 0) {
+			self::fetchauthor($xpath, $doc->firstChild, $importer, 'atom:author', false, $xml);
 		}
 
 		// Only the "dfrn:owner" in the head section contains all data
-		if ($xpath->query("/atom:feed/dfrn:owner")->length > 0) {
-			self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", false, $xml);
+		if ($xpath->query('/atom:feed/dfrn:owner')->length > 0) {
+			self::fetchauthor($xpath, $doc->firstChild, $importer, 'dfrn:owner', false, $xml);
 		}
 
-		Logger::info("Import DFRN message for user " . $importer["importer_uid"] . " from contact " . $importer["id"]);
+		Logger::info("Import DFRN message for user " . $importer['importer_uid'] . " from contact " . $importer['id']);
 
 		if (!empty($importer['gsid']) && ($protocol == Conversation::PARCEL_DIASPORA_DFRN)) {
 			GServer::setProtocol($importer['gsid'], Post\DeliveryData::DFRN);
 		}
 
 		// is it a public forum? Private forums aren't exposed with this method
-		$forum = intval(XML::getFirstNodeValue($xpath, "/atom:feed/dfrn:community/text()"));
+		$forum = intval(XML::getFirstNodeValue($xpath, '/atom:feed/dfrn:community/text()'));
 
 		// The account type is new since 3.5.1
-		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
+		if ($xpath->query('/atom:feed/dfrn:account_type')->length > 0) {
 			// Hint: We are using separate update calls for uid=0 and uid!=0 since a combined call is bad for the database performance
 
-			$accounttype = intval(XML::getFirstNodeValue($xpath, "/atom:feed/dfrn:account_type/text()"));
+			$accounttype = intval(XML::getFirstNodeValue($xpath, '/atom:feed/dfrn:account_type/text()'));
 
-			if ($accounttype != $importer["contact-type"]) {
+			if ($accounttype != $importer['contact-type']) {
 				Contact::update(['contact-type' => $accounttype], ['id' => $importer['id']]);
 
 				// Updating the public contact as well
@@ -2310,8 +2335,8 @@ class DFRN
 				$condition = ['(`forum` OR `prv`) AND `uid` = 0 AND `nurl` = ?', $importer['nurl']];
 				Contact::update(['forum' => false, 'prv' => false], $condition);
 			}
-		} elseif ($forum != $importer["forum"]) { // Deprecated since 3.5.1
-			$condition = ['`forum` != ? AND `id` = ?', $forum, $importer["id"]];
+		} elseif ($forum != $importer['forum']) { // Deprecated since 3.5.1
+			$condition = ['`forum` != ? AND `id` = ?', $forum, $importer['id']];
 			Contact::update(['forum' => $forum], $condition);
 
 			// Updating the public contact as well
@@ -2321,40 +2346,40 @@ class DFRN
 
 
 		// We are processing relocations even if we are ignoring a contact
-		$relocations = $xpath->query("/atom:feed/dfrn:relocate");
+		$relocations = $xpath->query('/atom:feed/dfrn:relocate');
 		foreach ($relocations as $relocation) {
 			self::processRelocation($xpath, $relocation, $importer);
 		}
 
-		if (($importer["uid"] != 0) && !$importer["readonly"]) {
-			$mails = $xpath->query("/atom:feed/dfrn:mail");
+		if (($importer['uid'] != 0) && !$importer['readonly']) {
+			$mails = $xpath->query('/atom:feed/dfrn:mail');
 			foreach ($mails as $mail) {
 				self::processMail($xpath, $mail, $importer);
 			}
 
-			$suggestions = $xpath->query("/atom:feed/dfrn:suggest");
+			$suggestions = $xpath->query('/atom:feed/dfrn:suggest');
 			foreach ($suggestions as $suggestion) {
 				self::processSuggestion($xpath, $suggestion, $importer);
 			}
 		}
 
-		$deletions = $xpath->query("/atom:feed/at:deleted-entry");
+		$deletions = $xpath->query('/atom:feed/at:deleted-entry');
 		if (!empty($deletions)) {
 			foreach ($deletions as $deletion) {
 				self::processDeletion($xpath, $deletion, $importer);
 			}
 			if (count($deletions) > 0) {
-				Logger::notice('Deletions had been processed');
+				Logger::notice(count($deletions) . ' deletions had been processed');
 				return 200;
 			}
 		}
 
-		$entries = $xpath->query("/atom:feed/atom:entry");
+		$entries = $xpath->query('/atom:feed/atom:entry');
 		foreach ($entries as $entry) {
 			self::processEntry($header, $xpath, $entry, $importer, $xml, $protocol);
 		}
 
-		Logger::info("Import done for user " . $importer["importer_uid"] . " from contact " . $importer["id"]);
+		Logger::info("Import done for user " . $importer['importer_uid'] . " from contact " . $importer['id']);
 		return 200;
 	}
 
@@ -2365,7 +2390,7 @@ class DFRN
 	 *
 	 * @return string activity verb
 	 */
-	private static function constructVerb(array $item)
+	private static function constructVerb(array $item): string
 	{
 		if ($item['verb']) {
 			return $item['verb'];
@@ -2373,7 +2398,8 @@ class DFRN
 		return Activity::POST;
 	}
 
-	private static function tgroupCheck($uid, $item)
+	// @TODO Documentation missing
+	private static function tgroupCheck(int $uid, array $item): bool
 	{
 		$mention = false;
 
@@ -2421,12 +2447,12 @@ class DFRN
 	 * item is assumed to be up-to-date.  If the timestamps are equal it
 	 * assumes the update has been seen before and should be ignored.
 	 *
-	 * @param $existing
-	 * @param $update
+	 * @param array $existing
+	 * @param array $update
 	 * @return bool
 	 * @throws \Exception
 	 */
-	private static function isEditedTimestampNewer($existing, $update)
+	private static function isEditedTimestampNewer(array $existing, array $update): bool
 	{
 		if (empty($existing['edited'])) {
 			return true;
@@ -2449,7 +2475,7 @@ class DFRN
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl($url)
+	public static function isSupportedByContactUrl(string $url): bool
 	{
 		$probe = Probe::uri($url, Protocol::DFRN);
 		return $probe['network'] == Protocol::DFRN;

@@ -81,7 +81,7 @@ class BBCode
 	 *                     'description' -> Description of the attachment
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function getOldAttachmentData($body)
+	private static function getOldAttachmentData(string $body): array
 	{
 		$post = [];
 
@@ -152,7 +152,7 @@ class BBCode
 	 *                     'description' -> Description of the attachment
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getAttachmentData($body)
+	public static function getAttachmentData(string $body): array
 	{
 		DI::profiler()->startRecording('rendering');
 		$data = [
@@ -187,26 +187,31 @@ class BBCode
 					case 'publisher_name':
 						$data['provider_name'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						break;
+
 					case 'publisher_url':
 						$data['provider_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						break;
+
 					case 'author_name':
 						$data['author_name'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						if ($data['provider_name'] == $data['author_name']) {
 							$data['author_name'] = '';
 						}
 						break;
+
 					case 'author_url':
 						$data['author_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						if ($data['provider_url'] == $data['author_url']) {
 							$data['author_url'] = '';
 						}
 						break;
+
 					case 'title':
 						$value = self::convert(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), false, true);
 						$value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						$value = str_replace(['[', ']'], ['&#91;', '&#93;'], $value);
 						$data['title'] = $value;
+
 					default:
 						$data[$field] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						break;
@@ -241,7 +246,7 @@ class BBCode
 		return $data;
 	}
 
-	public static function getAttachedData($body, $item = [])
+	public static function getAttachedData(string $body, array $item = []): array
 	{
 		/*
 		- text:
@@ -303,7 +308,7 @@ class BBCode
 					// Workaround:
 					// Sometimes photo posts to the own album are not detected at the start.
 					// So we seem to cannot use the cache for these cases. That's strange.
-					if (($data['type'] != 'photo') && strstr($pictures[0][1], "/photos/")) {
+					if (($data['type'] != 'photo') && strstr($pictures[0][1], '/photos/')) {
 						$data = ParseUrl::getSiteinfo($pictures[0][1]);
 					}
 
@@ -320,7 +325,7 @@ class BBCode
 						$post['text'] = trim(str_replace($pictures[0][0], '', $body));
 					} else {
 						$imgdata = Images::getInfoFromURLCached($pictures[0][1]);
-						if ($imgdata && substr($imgdata['mime'], 0, 6) == 'image/') {
+						if (($imgdata) && substr($imgdata['mime'], 0, 6) == 'image/') {
 							$post['type'] = 'photo';
 							$post['image'] = $pictures[0][1];
 							$post['preview'] = $pictures[0][2];
@@ -390,7 +395,7 @@ class BBCode
 			}
 
 			if (!isset($post['type'])) {
-				$post['type'] = "text";
+				$post['type'] = 'text';
 				$post['text'] = trim($body);
 			}
 
@@ -419,10 +424,9 @@ class BBCode
 	 *
 	 * @param string  $body
 	 * @param boolean $no_link_desc No link description
-	 *
 	 * @return string with replaced body
 	 */
-	public static function removeAttachment($body, $no_link_desc = false)
+	public static function removeAttachment(string $body, bool $no_link_desc = false): string
 	{
 		return preg_replace_callback("/\s*\[attachment (.*?)\](.*?)\[\/attachment\]\s*/ism",
 			function ($match) use ($body, $no_link_desc) {
@@ -442,12 +446,11 @@ class BBCode
 	/**
 	 * Converts a BBCode text into plaintext
 	 *
-	 * @param      $text
+	 * @param string $text
 	 * @param bool $keep_urls Whether to keep URLs in the resulting plaintext
-	 *
 	 * @return string
 	 */
-	public static function toPlaintext($text, $keep_urls = true)
+	public static function toPlaintext(string $text, bool $keep_urls = true): string
 	{
 		DI::profiler()->startRecording('rendering');
 		// Remove pictures in advance to avoid unneeded proxy calls
@@ -463,7 +466,7 @@ class BBCode
 		return $naked_text;
 	}
 
-	private static function proxyUrl($image, $simplehtml = self::INTERNAL, $uriid = 0, $size = '')
+	private static function proxyUrl(string $image, int $simplehtml = self::INTERNAL, int $uriid = 0, string $size = ''): string
 	{
 		// Only send proxied pictures to API and for internal display
 		if (!in_array($simplehtml, [self::INTERNAL, self::API])) {
@@ -483,7 +486,7 @@ class BBCode
 	 * @param string $srctext The body with images
 	 * @return string The body with possibly scaled images
 	 */
-	public static function scaleExternalImages(string $srctext)
+	public static function scaleExternalImages(string $srctext): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$s = $srctext;
@@ -551,7 +554,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function limitBodySize($body)
+	public static function limitBodySize(string $body): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$maxlen = DI::config()->get('config', 'max_import_size', 0);
@@ -646,7 +649,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertAttachment($text, $simplehtml = self::INTERNAL, $tryoembed = true, array $data = [], $uriid = 0)
+	public static function convertAttachment(string $text, int $simplehtml = self::INTERNAL, bool $tryoembed = true, array $data = [], int $uriid = 0): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$data = $data ?: self::getAttachmentData($text);
@@ -659,10 +662,10 @@ class BBCode
 			$data['title'] = strip_tags($data['title']);
 			$data['title'] = str_replace(['http://', 'https://'], '', $data['title']);
 		} else {
-			$data['title'] = null;
+			$data['title'] = '';
 		}
 
-		if (((strpos($data['text'], "[img=") !== false) || (strpos($data['text'], "[img]") !== false) || DI::config()->get('system', 'always_show_preview')) && !empty($data['image'])) {
+		if (((strpos($data['text'], '[img=') !== false) || (strpos($data['text'], '[img]') !== false) || DI::config()->get('system', 'always_show_preview')) && !empty($data['image'])) {
 			$data['preview'] = $data['image'];
 			$data['image'] = '';
 		}
@@ -716,14 +719,14 @@ class BBCode
 		return trim(($data['text'] ?? '') . ' ' . $return . ' ' . ($data['after'] ?? ''));
 	}
 
-	public static function removeShareInformation($Text, $plaintext = false, $nolink = false)
+	public static function removeShareInformation(string $text, bool $plaintext = false, bool $nolink = false): string
 	{
 		DI::profiler()->startRecording('rendering');
-		$data = self::getAttachmentData($Text);
+		$data = self::getAttachmentData($text);
 
 		if (!$data) {
 			DI::profiler()->stopRecording();
-			return $Text;
+			return $text;
 		} elseif ($nolink) {
 			DI::profiler()->stopRecording();
 			return $data['text'] . ($data['after'] ?? '');
@@ -767,7 +770,7 @@ class BBCode
 	 * @param array $match Array with the matching values
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForActivityPubCallback($match)
+	private static function convertUrlForActivityPubCallback(array $match): string
 	{
 		$url = $match[1];
 
@@ -789,10 +792,9 @@ class BBCode
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForActivityPub($url)
+	private static function convertUrlForActivityPub(string $url): string
 	{
-		$html = '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>';
-		return sprintf($html, $url, self::getStyledURL($url));
+		return sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>', $url, self::getStyledURL($url));
 	}
 
 	/**
@@ -801,7 +803,7 @@ class BBCode
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link
 	 */
-	private static function getStyledURL($url)
+	private static function getStyledURL(string $url): string
 	{
 		$parts = parse_url($url);
 		$scheme = $parts['scheme'] . '://';
@@ -818,8 +820,11 @@ class BBCode
 	 * [noparse][i]italic[/i][/noparse] turns into
 	 * [noparse][ i ]italic[ /i ][/noparse],
 	 * to hide them from parser.
+	 *
+	 * @param array $match
+	 * @return string
 	 */
-	private static function escapeNoparseCallback($match)
+	private static function escapeNoparseCallback(array $match): string
 	{
 		$whole_match = $match[0];
 		$captured = $match[1];
@@ -832,8 +837,11 @@ class BBCode
 	 * The previously spacefied [noparse][ i ]italic[ /i ][/noparse],
 	 * now turns back and the [noparse] tags are trimed
 	 * returning [i]italic[/i]
+	 *
+	 * @param array $match
+	 * @return string
 	 */
-	private static function unescapeNoparseCallback($match)
+	private static function unescapeNoparseCallback(array $match): string
 	{
 		$captured = $match[1];
 		$unspacefied = preg_replace("/\[ (.*?)\ ]/", "[$1]", $captured);
@@ -849,7 +857,7 @@ class BBCode
 	 * @param int    $occurrences Number of first occurrences to skip
 	 * @return boolean|array
 	 */
-	public static function getTagPosition($text, $name, $occurrences = 0)
+	public static function getTagPosition(string $text, string $name, int $occurrences = 0)
 	{
 		DI::profiler()->startRecording('rendering');
 		if ($occurrences < 0) {
@@ -913,7 +921,7 @@ class BBCode
 	 * @param string $text    Text to search
 	 * @return string
 	 */
-	public static function pregReplaceInTag($pattern, $replace, $name, $text)
+	public static function pregReplaceInTag(string $pattern, string $replace, string $name, string $text): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$occurrences = 0;
@@ -936,7 +944,7 @@ class BBCode
 		return $text;
 	}
 
-	private static function extractImagesFromItemBody($body)
+	private static function extractImagesFromItemBody(string $body): array
 	{
 		$saved_image = [];
 		$orig_body = $body;
@@ -977,7 +985,7 @@ class BBCode
 		return ['body' => $new_body, 'images' => $saved_image];
 	}
 
-	private static function interpolateSavedImagesIntoItemBody($uriid, $body, array $images)
+	private static function interpolateSavedImagesIntoItemBody(int $uriid, string $body, array $images): string
 	{
 		$newbody = $body;
 
@@ -995,29 +1003,51 @@ class BBCode
 	}
 
 	/**
-	 *
-	 * @param  string   $text     A BBCode string
-	 * @return array share attributes
+	 * @param string $text A BBCode string
+	 * @return array Empty array if no share tag is present or the following array, missing attributes end up empty strings:
+	 *               - comment: Text before the opening share tag
+	 *               - shared : Text inside the share tags
+	 *               - author : (Optional) Display name of the shared author
+	 *               - profile: (Optional) Profile page URL of the shared author
+	 *               - avatar : (Optional) Profile picture URL of the shared author
+	 *               - link   : (Optional) Canonical URL of the shared post
+	 *               - posted : (Optional) Date the shared post was initially posted ("Y-m-d H:i:s" in GMT)
+	 *               - guid   : (Optional) Shared post GUID if any
 	 */
-	public static function fetchShareAttributes($text)
+	public static function fetchShareAttributes(string $text): array
 	{
 		DI::profiler()->startRecording('rendering');
 		// See Issue https://github.com/friendica/friendica/issues/10454
 		// Hashtags in usernames are expanded to links. This here is a quick fix.
-		$text = preg_replace('/([@!#])\[url\=.*?\](.*?)\[\/url\]/ism', '$1$2', $text);
+		$text = preg_replace('~([@!#])\[url=.*?](.*?)\[/url]~ism', '$1$2', $text);
 
-		$attributes = [];
-		if (!preg_match("/(.*?)\[share(.*?)\](.*)\[\/share\]/ism", $text, $matches)) {
+		if (!preg_match('~(.*?)\[share(.*?)](.*)\[/share]~ism', $text, $matches)) {
 			DI::profiler()->stopRecording();
-			return $attributes;
+			return [];
 		}
 
-		$attribute_string = $matches[2];
+		$attributes = self::extractShareAttributes($matches[2]);
+
+		$attributes['comment'] = trim($matches[1]);
+		$attributes['shared'] = trim($matches[3]);
+
+		DI::profiler()->stopRecording();
+		return $attributes;
+	}
+
+	/**
+	 * @see BBCode::fetchShareAttributes()
+	 * @param string $shareString Internal opening share tag string matched by the regular expression
+	 * @return array A fixed attribute array where missing attribute are represented by empty strings
+	 */
+	private static function extractShareAttributes(string $shareString): array
+	{
+		$attributes = [];
 		foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
-			preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
+			preg_match("/$field=(['\"])(.+?)\\1/ism", $shareString, $matches);
 			$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 		}
-		DI::profiler()->stopRecording();
+
 		return $attributes;
 	}
 
@@ -1040,18 +1070,13 @@ class BBCode
 	 * @param  callable $callback
 	 * @return string The BBCode string with all [share] blocks replaced
 	 */
-	public static function convertShare($text, callable $callback, int $uriid = 0)
+	public static function convertShare(string $text, callable $callback, int $uriid = 0): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$return = preg_replace_callback(
-			"/(.*?)\[share(.*?)\](.*)\[\/share\]/ism",
+			'~(.*?)\[share(.*?)](.*)\[/share]~ism',
 			function ($match) use ($callback, $uriid) {
-				$attribute_string = $match[2];
-				$attributes = [];
-				foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
-					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
-					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
-				}
+				$attributes = self::extractShareAttributes($match[2]);
 
 				$author_contact = Contact::getByURL($attributes['profile'], false, ['id', 'url', 'addr', 'name', 'micro']);
 				$author_contact['url'] = ($author_contact['url'] ?? $attributes['profile']);
@@ -1086,7 +1111,7 @@ class BBCode
 	 * @param integer $uriid
 	 * @return string
 	 */
-	private static function convertImages(string $text, int $simplehtml, int $uriid = 0):string
+	private static function convertImages(string $text, int $simplehtml, int $uriid = 0): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$return = preg_replace_callback(
@@ -1129,7 +1154,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function convertShareCallback(array $attributes, array $author_contact, $content, $is_quote_share, $simplehtml)
+	private static function convertShareCallback(array $attributes, array $author_contact, string $content, bool $is_quote_share, int $simplehtml): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$mention = $attributes['author'] . ' (' . ($author_contact['addr'] ?? '') . ')';
@@ -1198,7 +1223,7 @@ class BBCode
 		return $text;
 	}
 
-	private static function removePictureLinksCallback($match)
+	private static function removePictureLinksCallback(array $match): string
 	{
 		$cache_key = 'remove:' . $match[1];
 		$text = DI::cache()->get($cache_key);
@@ -1212,9 +1237,9 @@ class BBCode
 			}
 
 			if (substr($mimetype, 0, 6) == 'image/') {
-				$text = "[url=" . $match[1] . ']' . $match[1] . "[/url]";
+				$text = '[url=' . $match[1] . ']' . $match[1] . '[/url]';
 			} else {
-				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
+				$text = '[url=' . $match[2] . ']' . $match[2] . '[/url]';
 
 				// if its not a picture then look if its a page that contains a picture link
 				$body = DI::httpClient()->fetch($match[1], HttpClientAccept::HTML, 0);
@@ -1226,7 +1251,7 @@ class BBCode
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
 				$xpath = new DOMXPath($doc);
-				$list = $xpath->query("//meta[@name]");
+				$list = $xpath->query('//meta[@name]');
 				foreach ($list as $node) {
 					$attr = [];
 
@@ -1247,16 +1272,28 @@ class BBCode
 		return $text;
 	}
 
-	private static function expandLinksCallback($match)
+	/**
+	 * Callback: Expands links from given $match array
+	 *
+	 * @param arrat $match Array with link match
+	 * @return string BBCode
+	 */
+	private static function expandLinksCallback(array $match): string
 	{
 		if (($match[3] == '') || ($match[2] == $match[3]) || stristr($match[2], $match[3])) {
-			return ($match[1] . "[url]" . $match[2] . "[/url]");
+			return ($match[1] . '[url]' . $match[2] . '[/url]');
 		} else {
-			return ($match[1] . $match[3] . " [url]" . $match[2] . "[/url]");
+			return ($match[1] . $match[3] . ' [url]' . $match[2] . '[/url]');
 		}
 	}
 
-	private static function cleanPictureLinksCallback($match)
+	/**
+	 * Callback: Cleans picture links
+	 *
+	 * @param arrat $match Array with link match
+	 * @return string BBCode
+	 */
+	private static function cleanPictureLinksCallback(array $match): string
 	{
 		// When the picture link is the own photo path then we can avoid fetching the link
 		$own_photo_url = preg_quote(Strings::normaliseLink(DI::baseUrl()->get()) . '/photos/');
@@ -1302,7 +1339,7 @@ class BBCode
 			$doc = new DOMDocument();
 			@$doc->loadHTML($body);
 			$xpath = new DOMXPath($doc);
-			$list = $xpath->query("//meta[@name]");
+			$list = $xpath->query('//meta[@name]');
 			foreach ($list as $node) {
 				$attr = [];
 				if ($node->attributes->length) {
@@ -1325,7 +1362,13 @@ class BBCode
 		return $text;
 	}
 
-	public static function cleanPictureLinks($text)
+	/**
+	 * Cleans picture links
+	 *
+	 * @param string $text HTML/BBCode string
+	 * @return string Cleaned HTML/BBCode
+	 */
+	public static function cleanPictureLinks(string $text): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img=(.*)\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $text);
@@ -1334,7 +1377,13 @@ class BBCode
 		return $return;
 	}
 
-	public static function removeLinks(string $bbcode)
+	/**
+	 * Removes links
+	 *
+	 * @param string $text HTML/BBCode string
+	 * @return string Cleaned HTML/BBCode
+	 */
+	public static function removeLinks(string $bbcode): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$bbcode = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $1 ', $bbcode);
@@ -1350,10 +1399,10 @@ class BBCode
 	/**
 	 * Replace names in mentions with nicknames
 	 *
-	 * @param string $body
+	 * @param string $body HTML/BBCode
 	 * @return string Body with replaced mentions
 	 */
-	public static function setMentionsToNicknames(string $body):string
+	public static function setMentionsToNicknames(string $body): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$regexp = "/([@!])\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
@@ -1366,10 +1415,10 @@ class BBCode
 	 * Callback function to replace a Friendica style mention in a mention with the nickname
 	 *
 	 * @param array $match Matching values for the callback
-	 * @return string Replaced mention
+	 * @return string Replaced mention or empty string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function mentionCallback($match)
+	private static function mentionCallback(array $match): string
 	{
 		if (empty($match[2])) {
 			return '';
@@ -1407,7 +1456,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertForUriId(int $uriid = null, string $text = null, int $simple_html = self::INTERNAL)
+	public static function convertForUriId(int $uriid = null, string $text = null, int $simple_html = self::INTERNAL): string
 	{
 		$try_oembed = ($simple_html == self::INTERNAL);
 
@@ -1437,10 +1486,10 @@ class BBCode
 	 * @param int    $simple_html
 	 * @param bool   $for_plaintext
 	 * @param int    $uriid
-	 * @return string
+	 * @return string Converted code or empty string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convert(string $text = null, $try_oembed = true, $simple_html = self::INTERNAL, $for_plaintext = false, $uriid = 0)
+	public static function convert(string $text = null, bool $try_oembed = true, int $simple_html = self::INTERNAL, bool $for_plaintext = false, int $uriid = 0): string
 	{
 		// Accounting for null default column values
 		if (is_null($text) || $text === '') {
@@ -1462,10 +1511,10 @@ class BBCode
 				 * $match[1] = $url
 				 * $match[2] = $title or absent
 				 */
-				$try_oembed_callback = function ($match)
+				$try_oembed_callback = function (array $match)
 				{
 					$url = $match[1];
-					$title = $match[2] ?? null;
+					$title = $match[2] ?? '';
 
 					try {
 						$return = OEmbed::getHTML($url, $title);
@@ -1788,7 +1837,7 @@ class BBCode
 
 				$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . DI::l10n()->t('Encrypted content') . '" /><br>', $text);
 				$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br>', $text);
-				//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br>', $Text);
+				//$text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br>', $text);
 
 				// Simplify "video" element
 				$text = preg_replace('(\[video[^\]]*?\ssrc\s?=\s?([^\s\]]+)[^\]]*?\].*?\[/video\])ism', '[video]$1[/video]', $text);
@@ -1916,8 +1965,8 @@ class BBCode
 
 				if (in_array($simple_html, [self::OSTATUS, self::TWITTER])) {
 					$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
-					//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
-					$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$text);
+					//$text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $text);
+					$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]', $text);
 				}
 
 				// Perform URL Search
@@ -2142,7 +2191,7 @@ class BBCode
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function bbCodeMention2DiasporaCallback($match)
+	private static function bbCodeMention2DiasporaCallback(array $match): string
 	{
 		$contact = Contact::getByURL($match[3], false, ['addr']);
 		if (empty($contact['addr'])) {
@@ -2164,7 +2213,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function toMarkdown($text, $for_diaspora = true)
+	public static function toMarkdown(string $text, bool $for_diaspora = true): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$original_text = $text;
@@ -2201,7 +2250,7 @@ class BBCode
 						$tagline .= '#' . $tag . ' ';
 					}
 				}
-				$text = $text . " " . $tagline;
+				$text = $text . ' ' . $tagline;
 			}
 		} else {
 			$text = self::convert($text, false, self::CONNECTORS);
@@ -2246,10 +2295,9 @@ class BBCode
 	 * Returns array of tags found, or empty array.
 	 *
 	 * @param string $string Post content
-	 *
 	 * @return array List of tag and person names
 	 */
-	public static function getTags($string)
+	public static function getTags(string $string): array
 	{
 		DI::profiler()->startRecording('rendering');
 		$ret = [];
@@ -2309,13 +2357,13 @@ class BBCode
 	/**
 	 * Expand tags to URLs, checks the tag is at the start of a line or preceded by a non-word character
 	 *
-	 * @param string $body
+	 * @param string $body HTML/BBCode
 	 * @return string body with expanded tags
 	 */
-	public static function expandTags(string $body)
+	public static function expandTags(string $body): string
 	{
 		return preg_replace_callback("/(?<=\W|^)([!#@])([^\^ \x0D\x0A,;:?'\"]*[^\^ \x0D\x0A,;:?!'\".])/",
-			function ($match) {
+			function (array $match) {
 				switch ($match[1]) {
 					case '!':
 					case '@':
@@ -2326,6 +2374,7 @@ class BBCode
 							return $match[1] . $match[2];
 						}
 						break;
+
 					case '#':
 					default:
 						return $match[1] . '[url=' . DI::baseUrl() . '/search?tag=' . $match[2] . ']' . $match[2] . '[/url]';
@@ -2336,7 +2385,7 @@ class BBCode
 	/**
 	 * Perform a custom function on a text after having escaped blocks enclosed in the provided tag list.
 	 *
-	 * @param string   $text
+	 * @param string   $text HTML/BBCode
 	 * @param array    $tagList A list of tag names, e.g ['noparse', 'nobb', 'pre']
 	 * @param callable $callback
 	 * @return string
@@ -2352,14 +2401,14 @@ class BBCode
 	/**
 	 * Replaces mentions in the provided message body in BBCode links for the provided user and network if any
 	 *
-	 * @param $body
-	 * @param $profile_uid
-	 * @param $network
-	 * @return string
+	 * @param string $body HTML/BBCode
+	 * @param int $profile_uid Profile user id
+	 * @param string $network Network name
+	 * @return string HTML/BBCode with inserted images
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function setMentions($body, $profile_uid = 0, $network = '')
+	public static function setMentions(string $body, $profile_uid = 0, $network = '')
 	{
 		DI::profiler()->startRecording('rendering');
 		$body = self::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network) {
@@ -2406,7 +2455,7 @@ class BBCode
 	 * @return string
 	 * @TODO Rewrite to handle over whole record array
 	 */
-	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null)
+	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author) .
@@ -2438,8 +2487,7 @@ class BBCode
 	 * @param string|null $tags
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 *@see ParseUrl::getSiteinfoCached
-	 *
+	 * @see ParseUrl::getSiteinfoCached
 	 */
 	public static function embedURL(string $url, bool $tryAttachment = true, string $title = null, string $description = null, string $tags = null): string
 	{

@@ -30,6 +30,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Module\Register;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
@@ -96,7 +97,7 @@ class GServer
 	 *
 	 * @param string $url
 	 * @param boolean $no_check Don't check if the server hadn't been found
-	 * @return int gserver id
+	 * @return int|null gserver id or NULL on empty URL or failed check
 	 */
 	public static function getID(string $url, bool $no_check = false)
 	{
@@ -156,7 +157,7 @@ class GServer
 	 *
 	 * @return boolean 'true' if server seems vital
 	 */
-	public static function reachable(string $profile, string $server = '', string $network = '', bool $force = false)
+	public static function reachable(string $profile, string $server = '', string $network = '', bool $force = false): bool
 	{
 		if ($server == '') {
 			$contact = Contact::getByURL($profile, null, ['baseurl']);
@@ -172,7 +173,7 @@ class GServer
 		return self::check($server, $network, $force);
 	}
 
-	public static function getNextUpdateDate(bool $success, string $created = '', string $last_contact = '')
+	public static function getNextUpdateDate(bool $success, string $created = '', string $last_contact = ''): string
 	{
 		// On successful contact process check again next week
 		if ($success) {
@@ -231,7 +232,7 @@ class GServer
 	 *
 	 * @return boolean 'true' if server seems vital
 	 */
-	public static function check(string $server_url, string $network = '', bool $force = false, bool $only_nodeinfo = false)
+	public static function check(string $server_url, string $network = '', bool $force = false, bool $only_nodeinfo = false): bool
 	{
 		$server_url = self::cleanURL($server_url);
 		if ($server_url == '') {
@@ -243,7 +244,7 @@ class GServer
 			if ($gserver['created'] <= DBA::NULL_DATETIME) {
 				$fields = ['created' => DateTimeFormat::utcNow()];
 				$condition = ['nurl' => Strings::normaliseLink($server_url)];
-				DBA::update('gserver', $fields, $condition);
+				self::update($fields, $condition);
 			}
 
 			if (!$force && (strtotime($gserver['next_contact']) > time())) {
@@ -268,7 +269,7 @@ class GServer
 		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($url)]);
 		if (DBA::isResult($gserver)) {
 			$next_update = self::getNextUpdateDate(false, $gserver['created'], $gserver['last_contact']);
-			DBA::update('gserver', ['failed' => true, 'last_failure' => DateTimeFormat::utcNow(),
+			self::update(['failed' => true, 'last_failure' => DateTimeFormat::utcNow(),
 			'next_contact' => $next_update, 'detection-method' => null],
 			['nurl' => Strings::normaliseLink($url)]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
@@ -286,7 +287,7 @@ class GServer
 	 * @param string $url
 	 * @return string cleaned URL
 	 */
-	public static function cleanURL(string $url)
+	public static function cleanURL(string $url): string
 	{
 		$url = trim($url, '/');
 		$url = str_replace('/index.php', '', $url);
@@ -305,7 +306,7 @@ class GServer
 	 * @param string $url
 	 * @return string base URL
 	 */
-	private static function getBaseURL(string $url)
+	private static function getBaseURL(string $url): string
 	{
 		$urlparts = parse_url(self::cleanURL($url));
 		unset($urlparts['path']);
@@ -322,7 +323,7 @@ class GServer
 	 *
 	 * @return boolean 'true' if server could be detected
 	 */
-	public static function detect(string $url, string $network = '', bool $only_nodeinfo = false)
+	public static function detect(string $url, string $network = '', bool $only_nodeinfo = false): bool
 	{
 		Logger::info('Detect server type', ['server' => $url]);
 		$serverdata = ['detection-method' => self::DETECT_MANUAL];
@@ -338,7 +339,7 @@ class GServer
 		// If the URL missmatches, then we mark the old entry as failure
 		if ($url != $original_url) {
 			/// @todo What to do with "next_contact" here?
-			DBA::update('gserver', ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()],
+			self::update(['failed' => true, 'last_failure' => DateTimeFormat::utcNow()],
 				['nurl' => Strings::normaliseLink($original_url)]);
 		}
 
@@ -535,13 +536,13 @@ class GServer
 		$serverdata['last_contact'] = DateTimeFormat::utcNow();
 		$serverdata['failed'] = false;
 
-		$gserver = DBA::selectFirst('gserver', ['network'], ['nurl' => Strings::normaliseLink($url)]);
+		$gserver = DBA::selectFirst('gserver', ['network'], ['nurl' => $serverdata['nurl']]);
 		if (!DBA::isResult($gserver)) {
 			$serverdata['created'] = DateTimeFormat::utcNow();
 			$ret = DBA::insert('gserver', $serverdata);
 			$id = DBA::lastInsertId();
 		} else {
-			$ret = DBA::update('gserver', $serverdata, ['nurl' => $serverdata['nurl']]);
+			$ret = self::update($serverdata, ['nurl' => $serverdata['nurl']]);
 			$gserver = DBA::selectFirst('gserver', ['id'], ['nurl' => $serverdata['nurl']]);
 			if (DBA::isResult($gserver)) {
 				$id = $gserver['id'];
@@ -555,14 +556,14 @@ class GServer
 			$max_users = max($apcontacts, $contacts);
 			if ($max_users > $serverdata['registered-users']) {
 				Logger::info('Update registered users', ['id' => $id, 'url' => $serverdata['nurl'], 'registered-users' => $max_users]);
-				DBA::update('gserver', ['registered-users' => $max_users], ['id' => $id]);
+				self::update(['registered-users' => $max_users], ['id' => $id]);
 			}
 
 			if (empty($serverdata['active-month-users'])) {
 				$contacts = DBA::count('contact', ["`uid` = ? AND `gsid` = ? AND NOT `failed` AND `last-item` > ?", 0, $id, DateTimeFormat::utc('now - 30 days')]);
 				if ($contacts > 0) {
 					Logger::info('Update monthly users', ['id' => $id, 'url' => $serverdata['nurl'], 'monthly-users' => $contacts]);
-					DBA::update('gserver', ['active-month-users' => $contacts], ['id' => $id]);
+					self::update(['active-month-users' => $contacts], ['id' => $id]);
 				}
 			}
 	
@@ -570,7 +571,7 @@ class GServer
 				$contacts = DBA::count('contact', ["`uid` = ? AND `gsid` = ? AND NOT `failed` AND `last-item` > ?", 0, $id, DateTimeFormat::utc('now - 180 days')]);
 				if ($contacts > 0) {
 					Logger::info('Update halfyear users', ['id' => $id, 'url' => $serverdata['nurl'], 'halfyear-users' => $contacts]);
-					DBA::update('gserver', ['active-halfyear-users' => $contacts], ['id' => $id]);
+					self::update(['active-halfyear-users' => $contacts], ['id' => $id]);
 				}
 			}
 		}
@@ -586,6 +587,7 @@ class GServer
 	 * Fetch relay data from a given server url
 	 *
 	 * @param string $server_url address of the server
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function discoverRelay(string $server_url)
@@ -618,7 +620,7 @@ class GServer
 
 		if (($gserver['relay-subscribe'] != $data['subscribe']) || ($gserver['relay-scope'] != $data['scope'])) {
 			$fields = ['relay-subscribe' => $data['subscribe'], 'relay-scope' => $data['scope']];
-			DBA::update('gserver', $fields, ['id' => $gserver['id']]);
+			self::update($fields, ['id' => $gserver['id']]);
 		}
 
 		DBA::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
@@ -682,10 +684,9 @@ class GServer
 	 * Fetch server data from '/statistics.json' on the given server
 	 *
 	 * @param string $url URL of the given server
-	 *
 	 * @return array server data
 	 */
-	private static function fetchStatistics(string $url)
+	private static function fetchStatistics(string $url): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/statistics.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -758,7 +759,7 @@ class GServer
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function fetchNodeinfo(string $url, ICanHandleHttpResponses $httpResult)
+	private static function fetchNodeinfo(string $url, ICanHandleHttpResponses $httpResult): array
 	{
 		if (!$httpResult->isSuccess()) {
 			return [];
@@ -811,7 +812,7 @@ class GServer
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function parseNodeinfo1(string $nodeinfo_url)
+	private static function parseNodeinfo1(string $nodeinfo_url): array
 	{
 		$curlResult = DI::httpClient()->get($nodeinfo_url, HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -904,7 +905,7 @@ class GServer
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function parseNodeinfo2(string $nodeinfo_url)
+	private static function parseNodeinfo2(string $nodeinfo_url): array
 	{
 		$curlResult = DI::httpClient()->get($nodeinfo_url, HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -917,8 +918,11 @@ class GServer
 			return [];
 		}
 
-		$server = ['detection-method' => self::DETECT_NODEINFO_2,
-			'register_policy' => Register::CLOSED];
+		$server = [
+			'detection-method' => self::DETECT_NODEINFO_2,
+			'register_policy' => Register::CLOSED,
+			'platform' => 'unknown',
+		];
 
 		if (!empty($nodeinfo['openRegistrations'])) {
 			$server['register_policy'] = Register::OPEN;
@@ -1001,10 +1005,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function fetchSiteinfo(string $url, array $serverdata)
+	private static function fetchSiteinfo(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/siteinfo.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -1085,10 +1088,9 @@ class GServer
 	 * Checks if the server contains a valid host meta file
 	 *
 	 * @param string $url URL of the given server
-	 *
 	 * @return boolean 'true' if the server seems to be vital
 	 */
-	private static function validHostMeta(string $url)
+	private static function validHostMeta(string $url): bool
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
 		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta', HttpClientAccept::XRD_XML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
@@ -1131,10 +1133,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectNetworkViaContacts(string $url, array $serverdata)
+	private static function detectNetworkViaContacts(string $url, array $serverdata): array
 	{
 		$contacts = [];
 
@@ -1176,10 +1177,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function checkPoCo(string $url, array $serverdata)
+	private static function checkPoCo(string $url, array $serverdata): array
 	{
 		$serverdata['poco'] = '';
 
@@ -1208,10 +1208,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	public static function checkMastodonDirectory(string $url, array $serverdata)
+	public static function checkMastodonDirectory(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/directory?limit=1', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -1238,7 +1237,7 @@ class GServer
 	 *
 	 * @return array server data
 	 */
-	private static function detectPeertube(string $url, array $serverdata)
+	private static function detectPeertube(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/config', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -1282,10 +1281,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectNextcloud(string $url, array $serverdata)
+	private static function detectNextcloud(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/status.php', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -1310,7 +1308,15 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function fetchWeeklyUsage(string $url, array $serverdata) {
+	/**
+	 * Fetches weekly usage data
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 * @return array server data
+	 */
+	private static function fetchWeeklyUsage(string $url, array $serverdata): array
+	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/instance/activity', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
@@ -1346,10 +1352,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectFromContacts(string $url, array $serverdata)
+	private static function detectFromContacts(string $url, array $serverdata): array
 	{
 		$gserver = DBA::selectFirst('gserver', ['id'], ['nurl' => Strings::normaliseLink($url)]);
 		if (empty($gserver)) {
@@ -1374,10 +1379,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectMastodonAlikes(string $url, array $serverdata)
+	private static function detectMastodonAlikes(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/instance', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -1439,10 +1443,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectHubzilla(string $url, array $serverdata)
+	private static function detectHubzilla(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/statusnet/config.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -1517,10 +1520,9 @@ class GServer
 	 * Converts input value to a boolean value
 	 *
 	 * @param string|integer $val
-	 *
 	 * @return boolean
 	 */
-	private static function toBoolean($val)
+	private static function toBoolean($val): bool
 	{
 		if (($val == 'true') || ($val == 1)) {
 			return true;
@@ -1536,10 +1538,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectPumpIO(string $url, array $serverdata)
+	private static function detectPumpIO(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -1549,7 +1550,6 @@ class GServer
 		$data = json_decode($curlResult->getBody(), true);
 		if (empty($data['links'])) {
 			return $serverdata;
-
 		}
 
 		// We are looking for some endpoints that are typical for pump.io
@@ -1586,10 +1586,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectGNUSocial(string $url, array $serverdata)
+	private static function detectGNUSocial(string $url, array $serverdata): array
 	{
 		// Test for GNU Social
 		$curlResult = DI::httpClient()->get($url . '/api/gnusocial/version.json', HttpClientAccept::JSON);
@@ -1641,10 +1640,9 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
-	 *
 	 * @return array server data
 	 */
-	private static function detectFriendica(string $url, array $serverdata)
+	private static function detectFriendica(string $url, array $serverdata): array
 	{
 		// There is a bug in some versions of Friendica that will return an ActivityStream actor when the content type "application/json" is requested.
 		// Because of this me must not use ACCEPT_JSON here.
@@ -1717,10 +1715,9 @@ class GServer
 	 * @param object $curlResult result of curl execution
 	 * @param array  $serverdata array with server data
 	 * @param string $url        Server URL
-	 *
 	 * @return array server data
 	 */
-	private static function analyseRootBody($curlResult, array $serverdata, string $url)
+	private static function analyseRootBody($curlResult, array $serverdata, string $url): array
 	{
 		if (empty($curlResult->getBody())) {
 			return $serverdata;
@@ -1859,7 +1856,7 @@ class GServer
 	 *
 	 * @return array server data
 	 */
-	private static function analyseRootHeader($curlResult, array $serverdata)
+	private static function analyseRootHeader($curlResult, array $serverdata): array
 	{
 		if ($curlResult->getHeader('server') == 'Mastodon') {
 			$serverdata['platform'] = 'mastodon';
@@ -1926,7 +1923,7 @@ class GServer
 			Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
 
 			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-			DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
+			self::update($fields, ['nurl' => $gserver['nurl']]);
 
 			if (--$no_of_queries == 0) {
 				break;
@@ -2044,17 +2041,17 @@ class GServer
 		}
 
 		Logger::info('Protocol for server', ['protocol' => $protocol, 'old' => $old, 'id' => $gsid, 'url' => $gserver['url'], 'callstack' => System::callstack(20)]);
-		DBA::update('gserver', ['protocol' => $protocol], ['id' => $gsid]);
+		self::update(['protocol' => $protocol], ['id' => $gsid]);
 	}
 
 	/**
 	 * Fetch the protocol of the given server
 	 *
 	 * @param int $gsid Server id
-	 * @return int
+	 * @return ?int One of Post\DeliveryData protocol constants or null if unknown or gserver is missing
 	 * @throws Exception
 	 */
-	public static function getProtocol(int $gsid)
+	public static function getProtocol(int $gsid): ?int
 	{
 		if (empty($gsid)) {
 			return null;
@@ -2066,5 +2063,20 @@ class GServer
 		}
 
 		return null;
+	}
+
+	/**
+	 * Enforces gserver table field maximum sizes to avoid "Data too long" database errors
+	 *
+	 * @param array $fields
+	 * @param array $condition
+	 * @return bool
+	 * @throws Exception
+	 */
+	public static function update(array $fields, array $condition): bool
+	{
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('gserver', $fields);
+
+		return DBA::update('gserver', $fields, $condition);
 	}
 }

@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\APContact;
 use Friendica\Model\User;
+use Friendica\Protocol\ActivityPub\FetchQueue;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 
@@ -83,7 +84,7 @@ class ActivityPub
 	 *
 	 * @return bool is it AP?
 	 */
-	public static function isRequest()
+	public static function isRequest(): bool
 	{
 		$isrequest = stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') ||
 			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') ||
@@ -104,12 +105,12 @@ class ActivityPub
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchContent(string $url, int $uid = 0)
+	public static function fetchContent(string $url, int $uid = 0): array
 	{
 		return HTTPSignature::fetch($url, $uid);
 	}
 
-	private static function getAccountType($apcontact)
+	private static function getAccountType(array $apcontact): int
 	{
 		$accounttype = -1;
 
@@ -146,7 +147,7 @@ class ActivityPub
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function probeProfile($url, $update = true)
+	public static function probeProfile(string $url, bool $update = true): array
 	{
 		$apcontact = APContact::getByURL($url, $update);
 		if (empty($apcontact)) {
@@ -202,9 +203,10 @@ class ActivityPub
 	 *
 	 * @param string  $url
 	 * @param integer $uid User ID
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchOutbox($url, $uid)
+	public static function fetchOutbox(string $url, int $uid)
 	{
 		$data = self::fetchContent($url, $uid);
 		if (empty($data)) {
@@ -222,10 +224,14 @@ class ActivityPub
 			$items = [];
 		}
 
+		$fetchQueue = new FetchQueue();
+
 		foreach ($items as $activity) {
 			$ldactivity = JsonLD::compact($activity);
-			ActivityPub\Receiver::processActivity($ldactivity, '', $uid, true);
+			ActivityPub\Receiver::processActivity($fetchQueue, $ldactivity, '', $uid, true);
 		}
+
+		$fetchQueue->process();
 	}
 
 	/**
@@ -235,7 +241,7 @@ class ActivityPub
 	 * @param integer $uid Optional user id
 	 * @return array Endpoint items
 	 */
-	public static function fetchItems(string $url, int $uid = 0)
+	public static function fetchItems(string $url, int $uid = 0): array
 	{
 		$data = self::fetchContent($url, $uid);
 		if (empty($data)) {
@@ -268,7 +274,7 @@ class ActivityPub
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl($url, $update = null)
+	public static function isSupportedByContactUrl(string $url, $update = null): bool
 	{
 		return !empty(APContact::getByURL($url, $update));
 	}

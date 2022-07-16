@@ -21,10 +21,10 @@
 
 namespace Friendica\Security\TwoFactor\Repository;
 
-use Friendica\Security\TwoFactor\Model;
-use Friendica\Security\TwoFactor\Collection\TrustedBrowsers;
+use Friendica\Security\TwoFactor;
 use Friendica\Database\Database;
-use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Security\TwoFactor\Exception\TrustedBrowserNotFoundException;
+use Friendica\Security\TwoFactor\Exception\TrustedBrowserPersistenceException;
 use Psr\Log\LoggerInterface;
 
 class TrustedBrowser
@@ -35,83 +35,122 @@ class TrustedBrowser
 	/** @var LoggerInterface  */
 	protected $logger;
 
-	/** @var \Friendica\Security\TwoFactor\Factory\TrustedBrowser  */
+	/** @var TwoFactor\Factory\TrustedBrowser  */
 	protected $factory;
 
 	protected static $table_name = '2fa_trusted_browser';
 
-	public function __construct(Database $database, LoggerInterface $logger, \Friendica\Security\TwoFactor\Factory\TrustedBrowser $factory = null)
+	public function __construct(Database $database, LoggerInterface $logger, TwoFactor\Factory\TrustedBrowser $factory = null)
 	{
-		$this->db = $database;
-		$this->logger = $logger;
-		$this->factory = $factory ?? new \Friendica\Security\TwoFactor\Factory\TrustedBrowser($logger);
+		$this->db      = $database;
+		$this->logger  = $logger;
+		$this->factory = $factory ?? new TwoFactor\Factory\TrustedBrowser($logger);
 	}
 
 	/**
 	 * @param string $cookie_hash
-	 * @return Model\TrustedBrowser|null
-	 * @throws \Exception
+	 *
+	 * @return TwoFactor\Model\TrustedBrowser|null
+	 *
+	 * @throws TrustedBrowserPersistenceException
+	 * @throws TrustedBrowserNotFoundException
 	 */
-	public function selectOneByHash(string $cookie_hash): Model\TrustedBrowser
+	public function selectOneByHash(string $cookie_hash): TwoFactor\Model\TrustedBrowser
 	{
-		$fields = $this->db->selectFirst(self::$table_name, [], ['cookie_hash' => $cookie_hash]);
+		try {
+			$fields = $this->db->selectFirst(self::$table_name, [], ['cookie_hash' => $cookie_hash]);
+		} catch (\Exception $exception) {
+			throw new TrustedBrowserPersistenceException(sprintf('Internal server error when retrieving cookie hash \'%s\'', $cookie_hash));
+		}
 		if (!$this->db->isResult($fields)) {
-			throw new NotFoundException('');
+			throw new TrustedBrowserNotFoundException(sprintf('Cookie hash \'%s\' not found', $cookie_hash));
 		}
 
 		return $this->factory->createFromTableRow($fields);
 	}
 
-	public function selectAllByUid(int $uid): TrustedBrowsers
+	/**
+	 * @param int $uid
+	 *
+	 * @return TwoFactor\Collection\TrustedBrowsers
+	 *
+	 * @throws TrustedBrowserPersistenceException
+	 */
+	public function selectAllByUid(int $uid): TwoFactor\Collection\TrustedBrowsers
 	{
-		$rows = $this->db->selectToArray(self::$table_name, [], ['uid' => $uid]);
+		try {
+			$rows = $this->db->selectToArray(self::$table_name, [], ['uid' => $uid]);
 
-		$trustedBrowsers = [];
-		foreach ($rows as $fields) {
-			$trustedBrowsers[] = $this->factory->createFromTableRow($fields);
+			$trustedBrowsers = [];
+			foreach ($rows as $fields) {
+				$trustedBrowsers[] = $this->factory->createFromTableRow($fields);
+			}
+			return new TwoFactor\Collection\TrustedBrowsers($trustedBrowsers);
+
+		} catch (\Exception $exception) {
+			throw new TrustedBrowserPersistenceException(sprintf('selection for uid \'%s\' wasn\'t successful.', $uid));
 		}
-
-		return new TrustedBrowsers($trustedBrowsers);
 	}
 
 	/**
-	 * @param Model\TrustedBrowser $trustedBrowser
+	 * @param TwoFactor\Model\TrustedBrowser $trustedBrowser
+	 *
 	 * @return bool
-	 * @throws \Exception
+	 *
+	 * @throws TrustedBrowserPersistenceException
 	 */
-	public function save(Model\TrustedBrowser $trustedBrowser): bool
+	public function save(TwoFactor\Model\TrustedBrowser $trustedBrowser): bool
 	{
-		return $this->db->insert(self::$table_name, $trustedBrowser->toArray(), $this->db::INSERT_UPDATE);
+		try {
+			return $this->db->insert(self::$table_name, $trustedBrowser->toArray(), $this->db::INSERT_UPDATE);
+		} catch (\Exception $exception) {
+			throw new TrustedBrowserPersistenceException(sprintf('Couldn\'t save trusted Browser with cookie_hash \'%s\'', $trustedBrowser->cookie_hash));
+		}
 	}
 
 	/**
-	 * @param Model\TrustedBrowser $trustedBrowser
+	 * @param TwoFactor\Model\TrustedBrowser $trustedBrowser
+	 *
 	 * @return bool
-	 * @throws \Exception
+	 *
+	 * @throws TrustedBrowserPersistenceException
 	 */
-	public function remove(Model\TrustedBrowser $trustedBrowser): bool
+	public function remove(TwoFactor\Model\TrustedBrowser $trustedBrowser): bool
 	{
-		return $this->db->delete(self::$table_name, ['cookie_hash' => $trustedBrowser->cookie_hash]);
+		try {
+			return $this->db->delete(self::$table_name, ['cookie_hash' => $trustedBrowser->cookie_hash]);
+		} catch (\Exception $exception) {
+			throw new TrustedBrowserPersistenceException(sprintf('Couldn\'t delete trusted Browser with cookie hash \'%s\'', $trustedBrowser->cookie_hash));
+		}
 	}
 
 	/**
 	 * @param int    $local_user
 	 * @param string $cookie_hash
+	 *
 	 * @return bool
-	 * @throws \Exception
+	 *
+	 * @throws TrustedBrowserPersistenceException
 	 */
 	public function removeForUser(int $local_user, string $cookie_hash): bool
 	{
-		return $this->db->delete(self::$table_name, ['cookie_hash' => $cookie_hash,'uid' => $local_user]);
+		try {
+			return $this->db->delete(self::$table_name, ['cookie_hash' => $cookie_hash, 'uid' => $local_user]);
+		} catch (\Exception $exception) {
+			throw new TrustedBrowserPersistenceException(sprintf('Couldn\'t delete trusted Browser for user \'%s\' and cookie hash \'%s\'', $local_user, $cookie_hash));
+		}
 	}
 
 	/**
 	 * @param int $local_user
 	 * @return bool
-	 * @throws \Exception
 	 */
 	public function removeAllForUser(int $local_user): bool
 	{
-		return $this->db->delete(self::$table_name, ['uid' => $local_user]);
+		try {
+			return $this->db->delete(self::$table_name, ['uid' => $local_user]);
+		} catch (\Exception $exception) {
+			throw new TrustedBrowserPersistenceException(sprintf('Couldn\'t delete trusted Browsers for user \'%s\'', $local_user));
+		}
 	}
 }

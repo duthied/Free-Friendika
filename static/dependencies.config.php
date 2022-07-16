@@ -43,6 +43,8 @@ use Friendica\Core\Lock;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Storage\Repository\StorageManager;
 use Friendica\Database\Database;
+use Friendica\Database\Definition\DbaDefinition;
+use Friendica\Database\Definition\ViewDefinition;
 use Friendica\Factory;
 use Friendica\Core\Storage\Capability\ICanWriteToStorage;
 use Friendica\Model\User\Cookie;
@@ -105,6 +107,22 @@ return [
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		]
+	],
+	DbaDefinition::class => [
+		'constructParams' => [
+			[Dice::INSTANCE => '$basepath'],
+		],
+		'call' => [
+			['load', [false], Dice::CHAIN_CALL],
+		],
+	],
+	ViewDefinition::class => [
+		'constructParams' => [
+			[Dice::INSTANCE => '$basepath'],
+		],
+		'call' => [
+			['load', [false], Dice::CHAIN_CALL],
+		],
 	],
 	Database::class                         => [
 		'constructParams' => [
@@ -208,7 +226,7 @@ return [
 	],
 	Cookie::class => [
 		'constructParams' => [
-			$_SERVER, $_COOKIE
+			$_COOKIE
 		],
 	],
 	ICanWriteToStorage::class => [
@@ -238,4 +256,9 @@ return [
 			$_SERVER
 		],
 	],
+	App\Request::class => [
+		'constructParams' => [
+			$_SERVER
+		],
+	]
 ];

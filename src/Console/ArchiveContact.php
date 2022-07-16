@@ -80,7 +80,7 @@ HELP;
 		$this->l10n = $l10n;
 	}
 
-	protected function doExecute()
+	protected function doExecute(): int
 	{
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);

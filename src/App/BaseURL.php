@@ -107,7 +107,7 @@ class BaseURL
 	 *
 	 * @return string
 	 */
-	public function getHostname()
+	public function getHostname(): string
 	{
 		return $this->hostname;
 	}
@@ -117,7 +117,7 @@ class BaseURL
 	 *
 	 * @return string
 	 */
-	public function getScheme()
+	public function getScheme(): string
 	{
 		return $this->scheme;
 	}
@@ -127,7 +127,7 @@ class BaseURL
 	 *
 	 * @return int
 	 */
-	public function getSSLPolicy()
+	public function getSSLPolicy(): int
 	{
 		return $this->sslPolicy;
 	}
@@ -137,7 +137,7 @@ class BaseURL
 	 *
 	 * @return string
 	 */
-	public function getUrlPath()
+	public function getUrlPath(): string
 	{
 		return $this->urlPath;
 	}
@@ -151,7 +151,7 @@ class BaseURL
 	 *
 	 * @return string
 	 */
-	public function get($ssl = false)
+	public function get(bool $ssl = false): string
 	{
 		if ($this->sslPolicy === self::SSL_POLICY_SELFSIGN && $ssl) {
 			return Network::switchScheme($this->url);
@@ -168,8 +168,9 @@ class BaseURL
 	 * @param string? $urlPath
 	 *
 	 * @return bool true, if successful
+	 * @TODO Find proper types
 	 */
-	public function save($hostname = null, $sslPolicy = null, $urlPath = null)
+	public function save($hostname = null, $sslPolicy = null, $urlPath = null): bool
 	{
 		$currHostname  = $this->hostname;
 		$currSSLPolicy = $this->sslPolicy;
@@ -224,11 +225,11 @@ class BaseURL
 	/**
 	 * Save the current url as base URL
 	 *
-	 * @param $url
+	 * @param string $url
 	 *
 	 * @return bool true, if the save was successful
 	 */
-	public function saveByURL($url)
+	public function saveByURL(string $url): bool
 	{
 		$parsed = @parse_url($url);
 
@@ -421,7 +422,7 @@ class BaseURL
 	 *
 	 * @return string The cleaned url
 	 */
-	public function remove(string $origURL)
+	public function remove(string $origURL): string
 	{
 		// Remove the hostname from the url if it is an internal link
 		$nurl = Strings::normaliseLink($origURL);
@@ -443,9 +444,13 @@ class BaseURL
 	 * @param string $toUrl The destination URL (Default is empty, which is the default page of the Friendica node)
 	 * @param bool   $ssl   if true, base URL will try to get called with https:// (works just for relative paths)
 	 *
+	 * @throws HTTPException\FoundException
+	 * @throws HTTPException\MovedPermanentlyException
+	 * @throws HTTPException\TemporaryRedirectException
+	 *
 	 * @throws HTTPException\InternalServerErrorException In Case the given URL is not relative to the Friendica node
 	 */
-	public function redirect($toUrl = '', $ssl = false)
+	public function redirect(string $toUrl = '', bool $ssl = false)
 	{
 		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
 			throw new HTTPException\InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
@@ -458,8 +463,8 @@ class BaseURL
 	/**
 	 * Returns the base url as string
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
-		return $this->get();
+		return (string) $this->get();
 	}
 }

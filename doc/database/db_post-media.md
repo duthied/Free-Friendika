@@ -10,13 +10,13 @@ Fields
 | --------------- | --------------------------------------------------------- | ----------------- | ---- | --- | ------- | -------------- |
 | id              | sequential ID                                             | int unsigned      | NO   | PRI | NULL    | auto_increment |
 | uri-id          | Id of the item-uri table entry that contains the item uri | int unsigned      | NO   |     | NULL    |                |
-| url             | Media URL                                                 | varbinary(511)    | NO   |     | NULL    |                |
+| url             | Media URL                                                 | varbinary(1024)   | NO   |     | NULL    |                |
 | type            | Media type                                                | tinyint unsigned  | NO   |     | 0       |                |
 | mimetype        |                                                           | varchar(60)       | YES  |     | NULL    |                |
 | height          | Height of the media                                       | smallint unsigned | YES  |     | NULL    |                |
 | width           | Width of the media                                        | smallint unsigned | YES  |     | NULL    |                |
-| size            | Media size                                                | int unsigned      | YES  |     | NULL    |                |
-| preview         | Preview URL                                               | varbinary(255)    | YES  |     | NULL    |                |
+| size            | Media size                                                | bigint unsigned   | YES  |     | NULL    |                |
+| preview         | Preview URL                                               | varbinary(512)    | YES  |     | NULL    |                |
 | preview-height  | Height of the preview picture                             | smallint unsigned | YES  |     | NULL    |                |
 | preview-width   | Width of the preview picture                              | smallint unsigned | YES  |     | NULL    |                |
 | description     |                                                           | text              | YES  |     | NULL    |                |
@@ -31,11 +31,11 @@ Fields
 Indexes
 ------------
 
-| Name       | Fields              |
-| ---------- | ------------------- |
-| PRIMARY    | id                  |
-| uri-id-url | UNIQUE, uri-id, url |
-| uri-id-id  | uri-id, id          |
+| Name       | Fields                   |
+| ---------- | ------------------------ |
+| PRIMARY    | id                       |
+| uri-id-url | UNIQUE, uri-id, url(512) |
+| uri-id-id  | uri-id, id               |
 
 Foreign Keys
 ------------

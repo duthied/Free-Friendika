@@ -112,7 +112,7 @@ class Directory extends BaseModule
 	 *
 	 * @throws \Exception
 	 */
-	public static function formatEntry(array $contact, $photo_size = 'photo')
+	public static function formatEntry(array $contact, string $photo_size = 'photo'): array
 	{
 		$itemurl = (($contact['addr'] != "") ? $contact['addr'] : $contact['url']);
 
@@ -166,7 +166,7 @@ class Directory extends BaseModule
 			'img_hover'    => $contact['name'],
 			'name'         => $contact['name'],
 			'details'      => $details,
-			'account_type' => Model\Contact::getAccountType($contact['contact-type']),
+			'account_type' => Model\Contact::getAccountType($contact['contact-type'] ?? 0),
 			'profile'      => $profile,
 			'location'     => $location_e,
 			'tags'         => $contact['pub_keywords'],

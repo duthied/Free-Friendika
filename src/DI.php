@@ -65,9 +65,25 @@ abstract class DI
 	/**
 	 * @return Database\Database
 	 */
-	public static function dba()
+	public static function dba(): Database\Database
 	{
 		return self::$dice->create(Database\Database::class);
+	}
+
+	/**
+	 * @return \Friendica\Database\Definition\DbaDefinition
+	 */
+	public static function dbaDefinition(): Database\Definition\DbaDefinition
+	{
+		return self::$dice->create(Database\Definition\DbaDefinition::class);
+	}
+
+	/**
+	 * @return \Friendica\Database\Definition\ViewDefinition
+	 */
+	public static function viewDefinition(): Database\Definition\ViewDefinition
+	{
+		return self::$dice->create(Database\Definition\ViewDefinition::class);
 	}
 
 	//

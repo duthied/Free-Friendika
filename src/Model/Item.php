@@ -96,8 +96,8 @@ class Item
 		'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-ignore', 'event-id',
-		"question-id", "question-multiple", "question-voters", "question-end-time",
-		"has-categories", "has-media",
+		'question-id', 'question-multiple', 'question-voters', 'question-end-time',
+		'has-categories', 'has-media',
 		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed'
 	];
 
@@ -226,7 +226,7 @@ class Item
 
 		foreach ($notify_items as $notify_item) {
 			$post = Post::selectFirst(['uri-id', 'uid'], ['id' => $notify_item]);
-			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
+			Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
 		}
 
 		return $rows;
@@ -237,9 +237,10 @@ class Item
 	 *
 	 * @param array   $condition The condition for finding the item entries
 	 * @param integer $priority  Priority for the notification
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function markForDeletion($condition, $priority = PRIORITY_HIGH)
+	public static function markForDeletion(array $condition, int $priority = PRIORITY_HIGH)
 	{
 		$items = Post::select(['id'], $condition);
 		while ($item = Post::fetch($items)) {
@@ -253,9 +254,10 @@ class Item
 	 *
 	 * @param array   $condition The condition for finding the item entries
 	 * @param integer $uid       User who wants to delete this item
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function deleteForUser($condition, $uid)
+	public static function deleteForUser(array $condition, int $uid)
 	{
 		if ($uid == 0) {
 			return;
@@ -282,11 +284,10 @@ class Item
 	 *
 	 * @param integer $item_id
 	 * @param integer $priority Priority for the notification
-	 *
 	 * @return boolean success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function markForDeletionById($item_id, $priority = PRIORITY_HIGH)
+	public static function markForDeletionById(int $item_id, int $priority = PRIORITY_HIGH): bool
 	{
 		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
@@ -331,7 +332,7 @@ class Item
 		// If item has attachments, drop them
 		$attachments = Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT]);
 		foreach($attachments as $attachment) {
-			if (preg_match("|attach/(\d+)|", $attachment['url'], $matches)) {
+			if (preg_match('|attach/(\d+)|', $attachment['url'], $matches)) {
 				Attach::delete(['id' => $matches[1], 'uid' => $item['uid']]);
 			}
 		}
@@ -360,7 +361,7 @@ class Item
 
 			// send the notification upstream/downstream
 			if ($priority) {
-				Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, (int)$item['uri-id'], (int)$item['uid']);
+				Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', Delivery::DELETION, (int)$item['uri-id'], (int)$item['uid']);
 			}
 		} elseif ($item['uid'] != 0) {
 			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
@@ -372,7 +373,14 @@ class Item
 		return true;
 	}
 
-	public static function guid($item, $notify)
+	/**
+	 * Get guid from given item record
+	 *
+	 * @param array $item Item record
+	 * @param bool Whether to notify (?)
+	 * @return string Guid
+	 */
+	public static function guid(array $item, bool $notify): string
 	{
 		if (!empty($item['guid'])) {
 			return trim($item['guid']);
@@ -425,7 +433,13 @@ class Item
 		return $guid;
 	}
 
-	private static function contactId($item)
+	/**
+	 * Returns contact id from given item record
+	 *
+	 * @param array $item Item record
+	 * @return int Contact id
+	 */
+	private static function contactId(array $item): int
 	{
 		if (!empty($item['contact-id']) && DBA::exists('contact', ['self' => true, 'id' => $item['contact-id']])) {
 			return $item['contact-id'];
@@ -451,17 +465,17 @@ class Item
 	 * @param array $item The item fields that are to be inserted
 	 * @throws \Exception
 	 */
-	private static function spool($orig_item)
+	private static function spool(array $item)
 	{
 		// Now we store the data in the spool directory
 		// We use "microtime" to keep the arrival order and "mt_rand" to avoid duplicates
 		$file = 'item-' . round(microtime(true) * 10000) . '-' . mt_rand() . '.msg';
 
 		$spoolpath = System::getSpoolPath();
-		if ($spoolpath != "") {
+		if ($spoolpath != '') {
 			$spool = $spoolpath . '/' . $file;
 
-			file_put_contents($spool, json_encode($orig_item));
+			file_put_contents($spool, json_encode($item));
 			Logger::warning("Item wasn't stored - Item was spooled into file", ['file' => $file]);
 		}
 	}
@@ -469,10 +483,10 @@ class Item
 	/**
 	 * Check if the item array is a duplicate
 	 *
-	 * @param array $item
+	 * @param array $item Item record
 	 * @return boolean is it a duplicate?
 	 */
-	private static function isDuplicate(array $item)
+	private static function isDuplicate(array $item): bool
 	{
 		// Checking if there is already an item with the same guid
 		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
@@ -521,10 +535,10 @@ class Item
 	/**
 	 * Check if the item array is valid
 	 *
-	 * @param array $item
+	 * @param array $item Item record
 	 * @return boolean item is valid
 	 */
-	public static function isValid(array $item)
+	public static function isValid(array $item): bool
 	{
 		// When there is no content then we don't post it
 		if (($item['body'] . $item['title'] == '') && (empty($item['uri-id']) || !Post\Media::existsByURIId($item['uri-id']))) {
@@ -591,10 +605,10 @@ class Item
 	/**
 	 * Check if the item array is too old
 	 *
-	 * @param array $item
+	 * @param array $item Item record
 	 * @return boolean item is too old
 	 */
-	public static function isTooOld(array $item)
+	public static function isTooOld(array $item): bool
 	{
 		// check for create date and expire time
 		$expire_interval = DI::config()->get('system', 'dbclean-expire-days', 0);
@@ -623,15 +637,20 @@ class Item
 	/**
 	 * Return the id of the given item array if it has been stored before
 	 *
-	 * @param array $item
-	 * @return integer item id
+	 * @param array $item Item record
+	 * @return integer Item id or zero on error
 	 */
-	private static function getDuplicateID(array $item)
+	private static function getDuplicateID(array $item): int
 	{
 		if (empty($item['network']) || in_array($item['network'], Protocol::FEDERATED)) {
-			$condition = ["`uri-id` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
-				$item['uri-id'], $item['uid'],
-				Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
+			$condition = ['`uri-id` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)',
+				$item['uri-id'],
+				$item['uid'],
+				Protocol::ACTIVITYPUB,
+				Protocol::DIASPORA,
+				Protocol::DFRN,
+				Protocol::OSTATUS
+			];
 			$existing = Post::selectFirst(['id', 'network'], $condition);
 			if (DBA::isResult($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
@@ -640,12 +659,12 @@ class Item
 						'uri-id' => $item['uri-id'],
 						'uid' => $item['uid'],
 						'network' => $item['network'],
-						'existing_id' => $existing["id"],
-						'existing_network' => $existing["network"]
+						'existing_id' => $existing['id'],
+						'existing_network' => $existing['network']
 					]);
 				}
 
-				return $existing["id"];
+				return $existing['id'];
 			}
 		}
 		return 0;
@@ -658,7 +677,7 @@ class Item
 	 * @return array item array with parent data
 	 * @throws \Exception
 	 */
-	private static function getTopLevelParent(array $item)
+	private static function getTopLevelParent(array $item): array
 	{
 		$fields = ['uid', 'uri', 'parent-uri', 'id', 'deleted',
 			'uri-id', 'parent-uri-id',
@@ -709,7 +728,7 @@ class Item
 	 * @param array $item
 	 * @return integer gravity
 	 */
-	private static function getGravity(array $item)
+	private static function getGravity(array $item): int
 	{
 		$activity = DI::activity();
 
@@ -724,11 +743,20 @@ class Item
 		} elseif ($activity->match($item['verb'], Activity::ANNOUNCE)) {
 			return GRAVITY_ACTIVITY;
 		}
+
 		Logger::info('Unknown gravity for verb', ['verb' => $item['verb']]);
 		return GRAVITY_UNKNOWN;   // Should not happen
 	}
 
-	public static function insert(array $item, int $notify = 0, bool $post_local = true)
+	/**
+	 * Inserts item record
+	 *
+	 * @param array $item Item array to be inserted
+	 * @param int   $notify Notification (type?)
+	 * @param bool  $post_local (???)
+	 * @return int Zero means error, otherwise primary key (id) is being returned
+	 */
+	public static function insert(array $item, int $notify = 0, bool $post_local = true): int
 	{
 		$orig_item = $item;
 
@@ -752,7 +780,7 @@ class Item
 		$uid = intval($item['uid']);
 
 		$item['guid'] = self::guid($item, $notify);
-		$item['uri'] = substr(trim($item['uri'] ?? '') ?: self::newURI($item['uid'], $item['guid']), 0, 255);
+		$item['uri'] = substr(trim($item['uri'] ?? '') ?: self::newURI($item['guid']), 0, 255);
 
 		// Store URI data
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
@@ -869,7 +897,7 @@ class Item
 		Contact::checkAvatarCache($item['owner-id']);
 
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
-		$item["contact-id"] = self::contactId($item);
+		$item['contact-id'] = self::contactId($item);
 
 		if (!empty($item['direction']) && in_array($item['direction'], [Conversation::PUSH, Conversation::RELAY]) &&
 			empty($item['origin']) &&self::isTooOld($item)) {
@@ -944,8 +972,8 @@ class Item
 		$item['thr-parent-id'] = ItemURI::getIdByURI($item['thr-parent']);
 
 		// Is this item available in the global items (with uid=0)?
-		if ($item["uid"] == 0) {
-			$item["global"] = true;
+		if ($item['uid'] == 0) {
+			$item['global'] = true;
 
 			// Set the global flag on all items if this was a global item entry
 			Post::update(['global' => true], ['uri-id' => $item['uri-id']]);
@@ -954,8 +982,8 @@ class Item
 		}
 
 		// ACL settings
-		if (!empty($item["allow_cid"] . $item["allow_gid"] . $item["deny_cid"] . $item["deny_gid"])) {
-			$item["private"] = self::PRIVATE;
+		if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
+			$item['private'] = self::PRIVATE;
 		}
 
 		if ($notify && $post_local) {
@@ -1323,7 +1351,7 @@ class Item
 	 * @param string  $signed_text Original text (for Diaspora signatures), JSON encoded.
 	 * @throws \Exception
 	 */
-	public static function distribute($itemid, $signed_text = '')
+	public static function distribute(int $itemid, string $signed_text = '')
 	{
 		$condition = ["`id` IN (SELECT `parent` FROM `post-user-view` WHERE `id` = ?)", $itemid];
 		$parent = Post::selectFirst(['owner-id'], $condition);
@@ -1417,7 +1445,7 @@ class Item
 	 * @param integer $source_uid User id of the source post
 	 * @return integer stored item id
 	 */
-	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [], int $source_uid = 0)
+	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [], int $source_uid = 0): int
 	{
 		if ($uid == $source_uid) {
 			Logger::warning('target UID must not be be equal to the source UID', ['uri-id' => $uri_id, 'uid' => $uid]);
@@ -1525,7 +1553,7 @@ class Item
 	 * @return integer stored item id
 	 * @throws \Exception
 	 */
-	private static function storeForUser(array $item, int $uid)
+	private static function storeForUser(array $item, int $uid): int
 	{
 		if (Post::exists(['uri-id' => $item['uri-id'], 'uid' => $uid])) {
 			if (!empty($item['event-id'])) {
@@ -1613,7 +1641,7 @@ class Item
 	 * @param integer $itemid Item ID that should be added
 	 * @throws \Exception
 	 */
-	private static function addShadow($itemid)
+	private static function addShadow(int $itemid)
 	{
 		$fields = ['uid', 'private', 'visible', 'deleted', 'network', 'uri-id'];
 		$condition = ['id' => $itemid, 'gravity' => GRAVITY_PARENT];
@@ -1676,7 +1704,7 @@ class Item
 	 * @param integer $itemid Item ID that should be added
 	 * @throws \Exception
 	 */
-	private static function addShadowPost($itemid)
+	private static function addShadowPost(int $itemid)
 	{
 		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBA::isResult($item)) {
@@ -1740,7 +1768,7 @@ class Item
 	 * @return string detected language
 	 * @throws \Text_LanguageDetect_Exception
 	 */
-	private static function getLanguage(array $item)
+	private static function getLanguage(array $item): string
 	{
 		if (!empty($item['language'])) {
 			return $item['language'];
@@ -1784,7 +1812,7 @@ class Item
 		return '';
 	}
 
-	public static function getLanguageMessage(array $item)
+	public static function getLanguageMessage(array $item): string
 	{
 		$iso639 = new \Matriphe\ISO639\ISO639;
 
@@ -1802,38 +1830,37 @@ class Item
 	 * Posts that are created on this system are using System::createUUID.
 	 * Received ActivityPub posts are using Processor::getGUIDByURL.
 	 *
-	 * @param string $uri uri of an item entry
-	 * @param string $host hostname for the GUID prefix
-	 * @return string unique guid
+	 * @param string      $uri uri of an item entry
+	 * @param string|null $host hostname for the GUID prefix
+	 * @return string Unique guid
 	 */
-	public static function guidFromUri($uri, $host)
+	public static function guidFromUri(string $uri, string $host = null): string
 	{
 		// Our regular guid routine is using this kind of prefix as well
 		// We have to avoid that different routines could accidentally create the same value
 		$parsed = parse_url($uri);
 
 		// Remove the scheme to make sure that "https" and "http" doesn't make a difference
-		unset($parsed["scheme"]);
+		unset($parsed['scheme']);
 
 		// Glue it together to be able to make a hash from it
-		$host_id = implode("/", $parsed);
+		$host_id = implode('/', $parsed);
 
 		// Use a mixture of several hashes to provide some GUID like experience
-		return hash("crc32", $host) . '-'. hash('joaat', $host_id) . '-'. hash('fnv164', $host_id);
+		return hash('crc32', $host) . '-'. hash('joaat', $host_id) . '-'. hash('fnv164', $host_id);
 	}
 
 	/**
 	 * generate an unique URI
 	 *
-	 * @param integer $uid  User id
-	 * @param string  $guid An existing GUID (Otherwise it will be generated)
+	 * @param string $guid An existing GUID (Otherwise it will be generated)
 	 *
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function newURI($uid, $guid = "")
+	public static function newURI(string $guid = ''): string
 	{
-		if ($guid == "") {
+		if ($guid == '') {
 			$guid = System::createUUID();
 		}
 
@@ -1850,7 +1877,7 @@ class Item
 	 * @param array $arr Contains the just posted item record
 	 * @throws \Exception
 	 */
-	private static function updateContact($arr)
+	private static function updateContact(array $arr)
 	{
 		// Unarchive the author
 		$contact = DBA::selectFirst('contact', [], ['id' => $arr["author-id"]]);
@@ -1897,7 +1924,7 @@ class Item
 		}
 	}
 
-	public static function setHashtags($body)
+	public static function setHashtags(string $body): string
 	{
 		$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) {
 			$tags = BBCode::getTags($body);
@@ -1971,7 +1998,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function tagDeliver($uid, $item_id)
+	private static function tagDeliver(int $uid, int $item_id): bool
 	{
 		$mention = false;
 
@@ -2066,7 +2093,7 @@ class Item
 		self::performActivity($item['id'], 'announce', $item['uid']);
 	}
 
-	public static function isRemoteSelf($contact, &$datarray)
+	public static function isRemoteSelf(array $contact, array &$datarray): bool
 	{
 		if (!$contact['remote_self']) {
 			return false;
@@ -2122,7 +2149,7 @@ class Item
 				$old_uri_id = $datarray["uri-id"] ?? 0;
 				$datarray["guid"] = System::createUUID();
 				unset($datarray["plink"]);
-				$datarray["uri"] = self::newURI($contact['uid'], $datarray["guid"]);
+				$datarray["uri"] = self::newURI($datarray["guid"]);
 				$datarray["uri-id"] = ItemURI::getIdByURI($datarray["uri"]);
 				$datarray["extid"] = Protocol::DFRN;
 				$urlpart = parse_url($datarray2['author-link']);
@@ -2160,7 +2187,7 @@ class Item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fixPrivatePhotos($s, $uid, $item = null, $cid = 0)
+	public static function fixPrivatePhotos(string $s, int $uid, array $item = null, int $cid = 0): string
 	{
 		if (DI::config()->get('system', 'disable_embedded')) {
 			return $s;
@@ -2254,13 +2281,14 @@ class Item
 		return $new_body;
 	}
 
-	private static function hasPermissions($obj)
+	private static function hasPermissions(array $obj)
 	{
 		return !empty($obj['allow_cid']) || !empty($obj['allow_gid']) ||
 			!empty($obj['deny_cid']) || !empty($obj['deny_gid']);
 	}
 
-	private static function samePermissions($uid, $obj1, $obj2)
+	// @TODO $uid is unused parameter
+	private static function samePermissions($uid, array $obj1, array $obj2): bool
 	{
 		// first part is easy. Check that these are exactly the same.
 		if (($obj1['allow_cid'] == $obj2['allow_cid'])
@@ -2288,7 +2316,7 @@ class Item
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function enumeratePermissions(array $obj, bool $check_dead = false)
+	public static function enumeratePermissions(array $obj, bool $check_dead = false): array
 	{
 		$aclFormater = DI::aclFormatter();
 
@@ -2376,7 +2404,7 @@ class Item
 		Logger::notice('User ' . $uid . ": expired $expired items; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
 	}
 
-	public static function firstPostDate($uid, $wall = false)
+	public static function firstPostDate(int $uid, bool $wall = false)
 	{
 		$user = User::getById($uid, ['register_date']);
 		if (empty($user)) {
@@ -2417,7 +2445,7 @@ class Item
 	 *            array $arr
 	 *            'post_id' => ID of posted item
 	 */
-	public static function performActivity(int $item_id, string $verb, int $uid, string $allow_cid = null, string $allow_gid = null, string $deny_cid = null, string $deny_gid = null)
+	public static function performActivity(int $item_id, string $verb, int $uid, string $allow_cid = null, string $allow_gid = null, string $deny_cid = null, string $deny_gid = null): bool
 	{
 		if (empty($uid)) {
 			return false;
@@ -2562,7 +2590,7 @@ class Item
 
 		$new_item = [
 			'guid'          => System::createUUID(),
-			'uri'           => self::newURI($item['uid']),
+			'uri'           => self::newURI(),
 			'uid'           => $item['uid'],
 			'contact-id'    => $owner['id'],
 			'wall'          => $item['wall'],
@@ -2611,7 +2639,7 @@ class Item
 	 * @param integer $owner_id User ID for which the permissions should be fetched
 	 * @return array condition
 	 */
-	public static function getPermissionsConditionArrayByUserId(int $owner_id)
+	public static function getPermissionsConditionArrayByUserId(int $owner_id): array
 	{
 		$local_user = local_user();
 		$remote_user = Session::getRemoteContactID($owner_id);
@@ -2643,7 +2671,7 @@ class Item
 	 * @param string $table
 	 * @return string
 	 */
-	public static function getPermissionsSQLByUserId(int $owner_id, string $table = '')
+	public static function getPermissionsSQLByUserId(int $owner_id, string $table = ''): string
 	{
 		$local_user = local_user();
 		$remote_user = Session::getRemoteContactID($owner_id);
@@ -2691,7 +2719,7 @@ class Item
 	 * @param \Friendica\Core\L10n $l10n
 	 * @return string
 	 */
-	public static function postType(array $item, \Friendica\Core\L10n $l10n)
+	public static function postType(array $item, \Friendica\Core\L10n $l10n): string
 	{
 		if (!empty($item['event-id'])) {
 			return $l10n->t('event');
@@ -2757,10 +2785,10 @@ class Item
 	 * Given an item array, convert the body element from bbcode to html and add smilie icons.
 	 * If attach is true, also add icons for item attachments.
 	 *
-	 * @param array   $item
-	 * @param boolean $attach
-	 * @param boolean $is_preview
-	 * @param boolean $only_cache
+	 * @param array   $item Record from item table
+	 * @param boolean $attach If true, add icons for item attachments as well
+	 * @param boolean $is_preview Whether this is a preview
+	 * @param boolean $only_cache Whether only cached HTML should be updated
 	 * @return string item body html
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -2769,7 +2797,7 @@ class Item
 	 * @hook  prepare_body ('item'=>item array, 'html'=>body string, 'is_preview'=>boolean, 'filter_reasons'=>string array) after first bbcode to html
 	 * @hook  prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
 	 */
-	public static function prepareBody(array &$item, $attach = false, $is_preview = false, $only_cache = false)
+	public static function prepareBody(array &$item, bool $attach = false, bool $is_preview = false, bool $only_cache = false): string
 	{
 		$a = DI::app();
 		Hook::callAll('prepare_body_init', $item);
@@ -2802,7 +2830,8 @@ class Item
 			$shared_uri_id = 0;
 			$shared_links = [];
 		}
-		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links, $item['has-media']);
+
+		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links, $item['has-media'] ?? false);
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
@@ -2811,7 +2840,7 @@ class Item
 		$s = $item["rendered-html"];
 
 		if ($only_cache) {
-			return;
+			return '';
 		}
 
 		// Compile eventual content filter reasons
@@ -2891,7 +2920,7 @@ class Item
 	 * @param int    $type
 	 * @return bool
 	 */
-	public static function containsLink(string $body, string $url, int $type = 0)
+	public static function containsLink(string $body, string $url, int $type = 0): bool
 	{
 		// Make sure that for example site parameters aren't used when testing if the link is contained in the body
 		$urlparts = parse_url($url);
@@ -2924,7 +2953,7 @@ class Item
 	 * @param string $body
 	 * @return string modified body
 	 */
-	private static function replaceVisualAttachments(array $attachments, string $body)
+	private static function replaceVisualAttachments(array $attachments, string $body): string
 	{
 		DI::profiler()->startRecording('rendering');
 
@@ -2955,7 +2984,7 @@ class Item
 	 * @param string $content
 	 * @return string modified content
 	 */
-	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared)
+	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$leading = '';
@@ -3047,7 +3076,7 @@ class Item
 	 * @param array  $ignore_links A list of URLs to ignore
 	 * @return string modified content
 	 */
-	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links)
+	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links): string
 	{
 		DI::profiler()->startRecording('rendering');
 		// Don't show a preview when there is a visual attachment (audio or video)
@@ -3161,7 +3190,7 @@ class Item
 	 * @param string $content
 	 * @return string modified content
 	 */
-	private static function addNonVisualAttachments(array $attachments, array $item, string $content)
+	private static function addNonVisualAttachments(array $attachments, array $item, string $content): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$trailing = '';
@@ -3193,7 +3222,7 @@ class Item
 		return $content;
 	}
 
-	private static function addQuestions(array $item, string $content)
+	private static function addQuestions(array $item, string $content): string
 	{
 		DI::profiler()->startRecording('rendering');
 		if (!empty($item['question-id'])) {
@@ -3244,7 +3273,7 @@ class Item
 	 * @return boolean|array False if item has not plink, otherwise array('href'=>plink url, 'title'=>translated title)
 	 * @throws \Exception
 	 */
-	public static function getPlink($item)
+	public static function getPlink(array $item)
 	{
 		if (!empty($item['plink']) && Network::isValidHttpUrl($item['plink'])) {
 			$plink = $item['plink'];
@@ -3291,7 +3320,7 @@ class Item
 	 *
 	 * @return boolean "true" when it is a forum post
 	 */
-	public static function isForumPost(int $uri_id)
+	public static function isForumPost(int $uri_id): bool
 	{
 		foreach (Tag::getByURIId($uri_id, [Tag::EXCLUSIVE_MENTION]) as $tag) {
 			if (DBA::exists('contact', ['uid' => 0, 'nurl' => Strings::normaliseLink($tag['url']), 'contact-type' => Contact::TYPE_COMMUNITY])) {
@@ -3309,7 +3338,7 @@ class Item
 	 *
 	 * @return integer item id
 	 */
-	public static function searchByLink($uri, $uid = 0)
+	public static function searchByLink(string $uri, int $uid = 0): int
 	{
 		$ssl_uri = str_replace('http://', 'https://', $uri);
 		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
@@ -3334,7 +3363,7 @@ class Item
 	 *
 	 * @return string URI
 	 */
-	public static function getURIByLink(string $uri)
+	public static function getURIByLink(string $uri): string
 	{
 		$ssl_uri = str_replace('http://', 'https://', $uri);
 		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
@@ -3360,7 +3389,7 @@ class Item
 	 *
 	 * @return integer item id
 	 */
-	public static function fetchByLink(string $uri, int $uid = 0)
+	public static function fetchByLink(string $uri, int $uid = 0): int
 	{
 		Logger::info('Trying to fetch link', ['uid' => $uid, 'uri' => $uri]);
 		$item_id = self::searchByLink($uri, $uid);
@@ -3381,7 +3410,11 @@ class Item
 			return is_numeric($hookData['item_id']) ? $hookData['item_id'] : 0;
 		}
 
-		if ($fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri)) {
+		$fetchQueue = new ActivityPub\FetchQueue();
+		$fetched_uri = ActivityPub\Processor::fetchMissingActivity($fetchQueue, $uri);
+		$fetchQueue->process();
+
+		if ($fetched_uri) {
 			$item_id = self::searchByLink($fetched_uri, $uid);
 		} else {
 			$item_id = Diaspora::fetchByURL($uri);
@@ -3406,20 +3439,9 @@ class Item
 	 *
 	 * @return array with share information
 	 */
-	public static function getShareArray($item)
+	public static function getShareArray(array $item): array
 	{
-		if (!preg_match("/(.*?)\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", $item['body'], $matches)) {
-			return [];
-		}
-
-		$attribute_string = $matches[2];
-		$attributes = ['comment' => trim($matches[1]), 'shared' => trim($matches[3])];
-		foreach (['author', 'profile', 'avatar', 'guid', 'posted', 'link'] as $field) {
-			if (preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches)) {
-				$attributes[$field] = trim(html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8'));
-			}
-		}
-		return $attributes;
+		return BBCode::fetchShareAttributes($item['body']);
 	}
 
 	/**
@@ -3429,7 +3451,7 @@ class Item
 	 *
 	 * @return array item array with data from the original item
 	 */
-	public static function addShareDataFromOriginal(array $item)
+	public static function addShareDataFromOriginal(array $item): array
 	{
 		$shared = self::getShareArray($item);
 		if (empty($shared)) {
@@ -3490,7 +3512,7 @@ class Item
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected static function isAllowedByUser(array $item, int $user_id)
+	protected static function isAllowedByUser(array $item, int $user_id): bool
 	{
 		if (!empty($item['author-id']) && Contact\User::isBlocked($item['author-id'], $user_id)) {
 			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
@@ -3522,7 +3544,7 @@ class Item
 	 * @param array $item
 	 * @return string body
 	 */
-	public static function improveSharedDataInBody(array $item)
+	public static function improveSharedDataInBody(array $item): string
 	{
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (empty($shared['link'])) {

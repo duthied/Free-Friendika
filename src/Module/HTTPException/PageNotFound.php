@@ -21,14 +21,29 @@
 
 namespace Friendica\Module\HTTPException;
 
+use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class PageNotFound extends BaseModule
 {
+	/** @var string */
+	private $remoteAddress;
+
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Request $request, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->remoteAddress = $request->getRemoteAddress();
+	}
+
 	protected function content(array $request = []): string
 	{
 		throw new HTTPException\NotFoundException(DI::l10n()->t('Page not found.'));
@@ -58,7 +73,7 @@ class PageNotFound extends BaseModule
 
 		$this->logger->debug('index.php: page not found.', [
 			'request_uri' => $this->server['REQUEST_URI'],
-			'address'     => $this->server['REMOTE_ADDR'],
+			'address'     => $this->remoteAddress,
 			'query'       => $this->server['QUERY_STRING']
 		]);
 

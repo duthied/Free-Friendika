@@ -71,7 +71,7 @@ class Processor
 	 * @param array $languages
 	 * @return string language JSON
 	 */
-	private static function processLanguages(array $languages)
+	private static function processLanguages(array $languages): string
 	{
 		$codes = array_keys($languages);
 		$lang = [];
@@ -88,12 +88,13 @@ class Processor
 	/**
 	 * Replaces emojis in the body
 	 *
-	 * @param array $emojis
+	 * @param int $uri_id
 	 * @param string $body
+	 * @param array $emojis
 	 *
 	 * @return string with replaced emojis
 	 */
-	private static function replaceEmojis(int $uri_id, $body, array $emojis)
+	private static function replaceEmojis(int $uri_id, string $body, array $emojis): string
 	{
 		$body = strtr($body,
 			array_combine(
@@ -143,7 +144,7 @@ class Processor
 	 * @param array   $activity
 	 * @param array   $item
 	 */
-	private static function storeAttachments($activity, $item)
+	private static function storeAttachments(array $activity, array $item)
 	{
 		if (empty($activity['attachments'])) {
 			return;
@@ -160,7 +161,7 @@ class Processor
 	 * @param array   $activity
 	 * @param array   $item
 	 */
-	private static function storeQuestion($activity, $item)
+	private static function storeQuestion(array $activity, array $item)
 	{
 		if (empty($activity['question'])) {
 			return;
@@ -188,15 +189,17 @@ class Processor
 	/**
 	 * Updates a message
 	 *
-	 * @param array $activity Activity array
+	 * @param FetchQueue $fetchQueue
+	 * @param array      $activity   Activity array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function updateItem($activity)
+	public static function updateItem(FetchQueue $fetchQueue, array $activity)
 	{
 		$item = Post::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity', 'post-type'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
-			$item = self::createItem($activity);
+			$item = self::createItem($fetchQueue, $activity);
 			if (empty($item)) {
 				return;
 			}
@@ -257,12 +260,13 @@ class Processor
 	/**
 	 * Prepares data for a message
 	 *
-	 * @param array $activity Activity array
+	 * @param FetchQueue $fetchQueue
+	 * @param array      $activity   Activity array
 	 * @return array Internal item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createItem($activity)
+	public static function createItem(FetchQueue $fetchQueue, array $activity): array
 	{
 		$item = [];
 		$item['verb'] = Activity::POST;
@@ -278,7 +282,12 @@ class Processor
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id']]);
-			self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+			/**
+			 * Instead of calling recursively self::fetchMissingActivity which can hit PHP's default function nesting
+			 * limit of 256 recursive calls, we push the parent activity fetch parameters in this queue. The initial
+			 * caller is responsible for processing the remaining queue once the original activity has been processed.
+			 */
+			$fetchQueue->push(new FetchQueueItem($activity['reply-to-id'], $activity));
 		}
 
 		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
@@ -411,7 +420,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function deleteItem($activity)
+	public static function deleteItem(array $activity)
 	{
 		$owner = Contact::getIdForURL($activity['actor']);
 
@@ -426,7 +435,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function addTag($activity)
+	public static function addTag(array $activity)
 	{
 		if (empty($activity['object_content']) || empty($activity['object_id'])) {
 			return;
@@ -452,14 +461,15 @@ class Processor
 	/**
 	 * Prepare the item array for an activity
 	 *
-	 * @param array  $activity Activity array
-	 * @param string $verb     Activity verb
+	 * @param FetchQueue $fetchQueue
+	 * @param array      $activity   Activity array
+	 * @param string     $verb       Activity verb
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createActivity($activity, $verb)
+	public static function createActivity(FetchQueue $fetchQueue, array $activity, string $verb)
 	{
-		$item = self::createItem($activity);
+		$item = self::createItem($fetchQueue, $activity);
 		if (empty($item)) {
 			return;
 		}
@@ -561,7 +571,7 @@ class Processor
 	 * @return int event id
 	 * @throws \Exception
 	 */
-	public static function createEvent($activity, $item)
+	public static function createEvent(array $activity, array $item): int
 	{
 		$event['summary']   = HTML::toBBCode($activity['name'] ?: $activity['summary']);
 		$event['desc']      = HTML::toBBCode($activity['content']);
@@ -605,7 +615,7 @@ class Processor
 	 * @return array|bool Returns the item array or false if there was an unexpected occurrence
 	 * @throws \Exception
 	 */
-	private static function processContent($activity, $item)
+	private static function processContent(array $activity, array $item)
 	{
 		if (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/markdown')) {
 			$item['title'] = strip_tags($activity['name']);
@@ -615,8 +625,8 @@ class Processor
 			$content = $activity['content'];
 		} else {
 			// By default assume "text/html"
-			$item['title'] = HTML::toBBCode($activity['name']);
-			$content = HTML::toBBCode($activity['content']);
+			$item['title'] = HTML::toBBCode($activity['name'] ?? '');
+			$content = HTML::toBBCode($activity['content'] ?? '');
 		}
 
 		$item['title'] = trim(BBCode::toPlaintext($item['title']));
@@ -650,7 +660,7 @@ class Processor
 
 				$content = self::removeImplicitMentionsFromBody($content, $parent);
 			}
-			$item['content-warning'] = HTML::toBBCode($activity['summary']);
+			$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');
 			$item['raw-body'] = $item['body'] = $content;
 		}
 
@@ -689,7 +699,7 @@ class Processor
 	 * @param string $url message URL
 	 * @return string with GUID
 	 */
-	private static function getGUIDByURL(string $url)
+	private static function getGUIDByURL(string $url): string
 	{
 		$parsed = parse_url($url);
 
@@ -710,7 +720,7 @@ class Processor
 	 * @param array $item
 	 * @return boolean Is the message wanted?
 	 */
-	private static function isSolicitedMessage(array $activity, array $item)
+	private static function isSolicitedMessage(array $activity, array $item): bool
 	{
 		// The checks are split to improve the support when searching why a message was accepted.
 		if (count($activity['receiver']) != 1) {
@@ -971,7 +981,7 @@ class Processor
 	 * @return int|bool New mail table row id or false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function postMail($activity, $item)
+	private static function postMail(array $activity, array $item)
 	{
 		if (($item['gravity'] != GRAVITY_PARENT) && !DBA::exists('mail', ['uri' => $item['thr-parent'], 'uid' => $item['uid']])) {
 			Logger::info('Parent not found, mail will be discarded.', ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
@@ -1105,14 +1115,16 @@ class Processor
 	/**
 	 * Fetches missing posts
 	 *
-	 * @param string $url         message URL
-	 * @param array  $child       activity array with the child of this message
-	 * @param string $relay_actor Relay actor
-	 * @param int    $completion  Completion mode, see Receiver::COMPLETION_*
+	 * @param FetchQueue $fetchQueue
+	 * @param string     $url         message URL
+	 * @param array      $child       activity array with the child of this message
+	 * @param string     $relay_actor Relay actor
+	 * @param int        $completion  Completion mode, see Receiver::COMPLETION_*
 	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL)
+	public static function fetchMissingActivity(FetchQueue $fetchQueue, string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL): string
 	{
 		if (!empty($child['receiver'])) {
 			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
@@ -1193,7 +1205,7 @@ class Processor
 			return '';
 		}
 
-		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer);
+		ActivityPub\Receiver::processActivity($fetchQueue, $ldactivity, json_encode($activity), $uid, true, false, $signer);
 
 		Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'object' => $activity['id']]);
 
@@ -1207,7 +1219,7 @@ class Processor
 	 * @param string $id      object ID
 	 * @return boolean true if message is accepted
 	 */
-	private static function acceptIncomingMessage(array $activity, string $id)
+	private static function acceptIncomingMessage(array $activity, string $id): bool
 	{
 		if (empty($activity['as:object'])) {
 			Logger::info('No object field in activity - accepted', ['id' => $id]);
@@ -1215,7 +1227,7 @@ class Processor
 		}
 
 		$replyto = JsonLD::fetchElement($activity['as:object'], 'as:inReplyTo', '@id');
-		$uriid = ItemURI::getIdByURI($replyto);
+		$uriid = ItemURI::getIdByURI($replyto ?? '');
 		if (Post::exists(['uri-id' => $uriid])) {
 			Logger::info('Post is a reply to an existing post - accepted', ['id' => $id, 'uri-id' => $uriid, 'replyto' => $replyto]);
 			return true;
@@ -1224,7 +1236,7 @@ class Processor
 		$attributed_to = JsonLD::fetchElement($activity['as:object'], 'as:attributedTo', '@id');
 		$authorid = Contact::getIdForURL($attributed_to);
 
-		$body = HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value'));
+		$body = HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value') ?? '');
 
 		$messageTags = [];
 		$tags = Receiver::processTags(JsonLD::fetchElementArray($activity['as:object'], 'as:tag') ?? []);
@@ -1244,10 +1256,11 @@ class Processor
 	 * perform a "follow" request
 	 *
 	 * @param array $activity
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function followUser($activity)
+	public static function followUser(array $activity)
 	{
 		$uid = User::getIdForURL($activity['object_id']);
 		if (empty($uid)) {
@@ -1265,8 +1278,10 @@ class Processor
 			Contact::update(['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
 
-		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
-			'author-link' => $activity['actor']];
+		$item = [
+			'author-id' => Contact::getIdForURL($activity['actor']),
+			'author-link' => $activity['actor'],
+		];
 
 		// Ensure that the contact has got the right network type
 		self::switchContact($item['author-id']);
@@ -1295,8 +1310,8 @@ class Processor
 	/**
 	 * Transmit pending events to the new follower
 	 *
-	 * @param integer $cid
-	 * @param integer $uid
+	 * @param integer $cid Contact id
+	 * @param integer $uid User id
 	 * @return void
 	 */
 	private static function transmitPendingEvents(int $cid, int $uid)
@@ -1325,7 +1340,7 @@ class Processor
 	 * @param array $activity
 	 * @throws \Exception
 	 */
-	public static function updatePerson($activity)
+	public static function updatePerson(array $activity)
 	{
 		if (empty($activity['object_id'])) {
 			return;
@@ -1339,9 +1354,10 @@ class Processor
 	 * Delete the given profile
 	 *
 	 * @param array $activity
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function deletePerson($activity)
+	public static function deletePerson(array $activity)
 	{
 		if (empty($activity['object_id']) || empty($activity['actor'])) {
 			Logger::info('Empty object id or actor.');
@@ -1366,9 +1382,10 @@ class Processor
 	 * Blocks the user by the contact
 	 *
 	 * @param array $activity
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function blockAccount($activity)
+	public static function blockAccount(array $activity)
 	{
 		$cid = Contact::getIdForURL($activity['actor']);
 		if (empty($cid)) {
@@ -1389,9 +1406,10 @@ class Processor
 	 * Unblocks the user by the contact
 	 *
 	 * @param array $activity
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function unblockAccount($activity)
+	public static function unblockAccount(array $activity)
 	{
 		$cid = Contact::getIdForURL($activity['actor']);
 		if (empty($cid)) {
@@ -1415,7 +1433,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function acceptFollowUser($activity)
+	public static function acceptFollowUser(array $activity)
 	{
 		$uid = User::getIdForURL($activity['object_actor']);
 		if (empty($uid)) {
@@ -1449,7 +1467,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function rejectFollowUser($activity)
+	public static function rejectFollowUser(array $activity)
 	{
 		$uid = User::getIdForURL($activity['object_actor']);
 		if (empty($uid)) {
@@ -1482,7 +1500,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function undoActivity($activity)
+	public static function undoActivity(array $activity)
 	{
 		if (empty($activity['object_id'])) {
 			return;
@@ -1507,7 +1525,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function undoFollowUser($activity)
+	public static function undoFollowUser(array $activity)
 	{
 		$uid = User::getIdForURL($activity['object_object']);
 		if (empty($uid)) {
@@ -1540,9 +1558,10 @@ class Processor
 	 * Switches a contact to AP if needed
 	 *
 	 * @param integer $cid Contact ID
+	 * @return void
 	 * @throws \Exception
 	 */
-	private static function switchContact($cid)
+	private static function switchContact(int $cid)
 	{
 		$contact = DBA::selectFirst('contact', ['network', 'url'], ['id' => $cid]);
 		if (!DBA::isResult($contact) || in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN]) || Contact::isLocal($contact['url'])) {
@@ -1562,7 +1581,7 @@ class Processor
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function getImplicitMentionList(array $parent)
+	private static function getImplicitMentionList(array $parent): array
 	{
 		$parent_terms = Tag::getByURIId($parent['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
@@ -1600,7 +1619,7 @@ class Processor
 	 * @param array $parent
 	 * @return string
 	 */
-	private static function removeImplicitMentionsFromBody(string $body, array $parent)
+	private static function removeImplicitMentionsFromBody(string $body, array $parent): string
 	{
 		if (DI::config()->get('system', 'disable_implicit_mentions')) {
 			return $body;

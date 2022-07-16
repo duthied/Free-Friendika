@@ -119,7 +119,7 @@ class User extends BaseDataTransferObject
 		if (!$include_user_entities) {
 			unset($this->entities);
 		}
-		$this->description             = BBCode::toPlaintext($publicContact['about']);
+		$this->description             = (!empty($publicContact['about']) ? BBCode::toPlaintext($publicContact['about']) : '');
 		$this->profile_image_url_https = Contact::getAvatarUrlForUrl($publicContact['url'], $uid, Proxy::SIZE_MICRO);
 		$this->protected               = false;
 		$this->followers_count         = $apcontact['followers_count'] ?? 0;

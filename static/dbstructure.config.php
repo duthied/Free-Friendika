@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1469);
+	define('DB_UPDATE_VERSION', 1473);
 }
 
 return [
@@ -358,6 +358,7 @@ return [
 			"cookie_hash" => ["type" => "varchar(80)", "not null" => "1", "primary" => "1", "comment" => "Trusted cookie hash"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "User ID"],
 			"user_agent" => ["type" => "text", "comment" => "User agent string"],
+			"trusted" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "Whenever this browser should be trusted or not"],
 			"created" => ["type" => "datetime", "not null" => "1", "comment" => "Datetime the trusted browser was recorded"],
 			"last_used" => ["type" => "datetime", "comment" => "Datetime the trusted browser was last used"],
 		],
@@ -1252,13 +1253,13 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"url" => ["type" => "varbinary(511)", "not null" => "1", "comment" => "Media URL"],
+			"url" => ["type" => "varbinary(1024)", "not null" => "1", "comment" => "Media URL"],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Media type"],
 			"mimetype" => ["type" => "varchar(60)", "comment" => ""],
 			"height" => ["type" => "smallint unsigned", "comment" => "Height of the media"],
 			"width" => ["type" => "smallint unsigned", "comment" => "Width of the media"],
-			"size" => ["type" => "int unsigned", "comment" => "Media size"],
-			"preview" => ["type" => "varbinary(255)", "comment" => "Preview URL"],
+			"size" => ["type" => "bigint unsigned", "comment" => "Media size"],
+			"preview" => ["type" => "varbinary(512)", "comment" => "Preview URL"],
 			"preview-height" => ["type" => "smallint unsigned", "comment" => "Height of the preview picture"],
 			"preview-width" => ["type" => "smallint unsigned", "comment" => "Width of the preview picture"],
 			"description" => ["type" => "text", "comment" => ""],
@@ -1272,7 +1273,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"uri-id-url" => ["UNIQUE", "uri-id", "url"],
+			"uri-id-url" => ["UNIQUE", "uri-id", "url(512)"],
 			"uri-id-id" => ["uri-id", "id"],
 		]
 	],

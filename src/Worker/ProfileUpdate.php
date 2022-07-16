@@ -31,7 +31,14 @@ use Friendica\Protocol\ActivityPub;
  * Send updated profile data to Diaspora and ActivityPub
  */
 class ProfileUpdate {
-	public static function execute($uid = 0) {
+	/**
+	 * Sends updated profile data to Diaspora and ActivityPub
+	 *
+	 * @param int $uid User id (optional, default: 0)
+	 * @return void
+	 */
+	public static function execute(int $uid = 0)
+	{
 		if (empty($uid)) {
 			return;
 		}
@@ -43,7 +50,13 @@ class ProfileUpdate {
 		foreach ($inboxes as $inbox => $receivers) {
 			Logger::info('Profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub');
 			Worker::add(['priority' => $a->getQueueValue('priority'), 'created' => $a->getQueueValue('created'), 'dont_fork' => true],
-				'APDelivery', Delivery::PROFILEUPDATE, 0, $inbox, $uid, $receivers);
+				'APDelivery',
+				Delivery::PROFILEUPDATE,
+				0,
+				$inbox,
+				$uid,
+				$receivers
+			);
 		}
 
 		Diaspora::sendProfile($uid);

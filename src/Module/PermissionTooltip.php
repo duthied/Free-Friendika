@@ -174,7 +174,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 	 * @param int $uriId
 	 * @return string
 	 */
-	private function fetchReceivers(int $uriId):string
+	private function fetchReceivers(int $uriId): string
 	{
 		$own_url = '';
 		$uid = local_user();

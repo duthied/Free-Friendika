@@ -62,7 +62,7 @@ class Nav
 	 *
 	 * @param string $item
 	 */
-	public static function setSelected($item)
+	public static function setSelected(string $item)
 	{
 		self::$selected[$item] = 'selected';
 	}
@@ -74,7 +74,7 @@ class Nav
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function build(App $a)
+	public static function build(App $a): string
 	{
 		// Placeholder div for popup panel
 		$nav = '<div id="panel" style="display: none;"></div>';
@@ -106,7 +106,7 @@ class Nav
 	 *
 	 * @return array
 	 */
-	public static function getAppMenu()
+	public static function getAppMenu(): array
 	{
 		if (is_null(self::$app_menu)) {
 			self::populateAppMenu();
@@ -117,6 +117,8 @@ class Nav
 
 	/**
 	 * Fills the apps static variable with apps that require a menu
+	 *
+	 * @return void
 	 */
 	private static function populateAppMenu()
 	{

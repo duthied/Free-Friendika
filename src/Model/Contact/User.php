@@ -28,6 +28,7 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\ItemURI;
 use PDOException;
@@ -82,11 +83,11 @@ class User
 	/**
 	 * Apply changes from contact update data to user-contact table
 	 *
-	 * @param array $fields 
-	 * @param array $condition 
-	 * @return void 
-	 * @throws PDOException 
-	 * @throws Exception 
+	 * @param array $fields
+	 * @param array $condition
+	 * @return void
+	 * @throws PDOException
+	 * @throws Exception
 	 */
 	public static function updateByContactUpdate(array $fields, array $condition)
 	{
@@ -106,7 +107,7 @@ class User
 			DBA::close($contacts);
 		}
 
-		DBA::commit();	
+		DBA::commit();
 	}
 
 	/**
@@ -129,7 +130,7 @@ class User
 			$fields['rel'] = Contact::SELF;
 		}
 
-		return DBStructure::getFieldsForTable('user-contact', $fields);
+		return DI::dbaDefinition()->truncateFieldsForTable('user-contact', $fields);
 	}
 
 	/**
@@ -138,9 +139,10 @@ class User
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
 	 * @param boolean $blocked Is the contact blocked or unblocked?
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setBlocked($cid, $uid, $blocked)
+	public static function setBlocked(int $cid, int $uid, bool $blocked)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -170,7 +172,7 @@ class User
 	 * @return boolean is the contact id blocked for the given user?
 	 * @throws \Exception
 	 */
-	public static function isBlocked($cid, $uid)
+	public static function isBlocked(int $cid, int $uid): bool
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -182,7 +184,7 @@ class User
 		if (!empty($cdata['public'])) {
 			$public_contact = DBA::selectFirst('user-contact', ['blocked'], ['cid' => $cdata['public'], 'uid' => $uid]);
 			if (DBA::isResult($public_contact)) {
-				$public_blocked = $public_contact['blocked'];
+				$public_blocked = (bool) $public_contact['blocked'];
 			}
 		}
 
@@ -191,7 +193,7 @@ class User
 		if (!empty($cdata['user'])) {
 			$user_contact = DBA::selectFirst('contact', ['blocked'], ['id' => $cdata['user'], 'pending' => false]);
 			if (DBA::isResult($user_contact)) {
-				$user_blocked = $user_contact['blocked'];
+				$user_blocked = (bool) $user_contact['blocked'];
 			}
 		}
 
@@ -208,9 +210,10 @@ class User
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
 	 * @param boolean $ignored Is the contact ignored or unignored?
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setIgnored($cid, $uid, $ignored)
+	public static function setIgnored(int $cid, int $uid, bool $ignored)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -229,11 +232,10 @@ class User
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
-	 *
 	 * @return boolean is the contact id ignored for the given user?
 	 * @throws \Exception
 	 */
-	public static function isIgnored($cid, $uid)
+	public static function isIgnored(int $cid, int $uid): bool
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -245,7 +247,7 @@ class User
 		if (!empty($cdata['public'])) {
 			$public_contact = DBA::selectFirst('user-contact', ['ignored'], ['cid' => $cdata['public'], 'uid' => $uid]);
 			if (DBA::isResult($public_contact)) {
-				$public_ignored = $public_contact['ignored'];
+				$public_ignored = (bool) $public_contact['ignored'];
 			}
 		}
 
@@ -254,7 +256,7 @@ class User
 		if (!empty($cdata['user'])) {
 			$user_contact = DBA::selectFirst('contact', ['readonly'], ['id' => $cdata['user'], 'pending' => false]);
 			if (DBA::isResult($user_contact)) {
-				$user_ignored = $user_contact['readonly'];
+				$user_ignored = (bool) $user_contact['readonly'];
 			}
 		}
 
@@ -271,9 +273,10 @@ class User
 	 * @param int     $cid       Either public contact id or user's contact id
 	 * @param int     $uid       User ID
 	 * @param boolean $collapsed are the contact's posts collapsed or uncollapsed?
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setCollapsed($cid, $uid, $collapsed)
+	public static function setCollapsed(int $cid, int $uid, bool $collapsed)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -288,16 +291,15 @@ class User
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
-	 *
 	 * @return boolean is the contact id blocked for the given user?
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isCollapsed($cid, $uid)
+	public static function isCollapsed(int $cid, int $uid): bool
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
-			return;
+			return false;
 		}
 
 		$collapsed = false;
@@ -305,7 +307,7 @@ class User
 		if (!empty($cdata['public'])) {
 			$public_contact = DBA::selectFirst('user-contact', ['collapsed'], ['cid' => $cdata['public'], 'uid' => $uid]);
 			if (DBA::isResult($public_contact)) {
-				$collapsed = $public_contact['collapsed'];
+				$collapsed = (bool) $public_contact['collapsed'];
 			}
 		}
 
@@ -318,9 +320,10 @@ class User
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
 	 * @param boolean $blocked Is the user blocked or unblocked by the contact?
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setIsBlocked($cid, $uid, $blocked)
+	public static function setIsBlocked(int $cid, int $uid, bool $blocked)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
@@ -335,11 +338,10 @@ class User
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
-	 *
 	 * @return boolean Is the user blocked or unblocked by the contact?
 	 * @throws \Exception
 	 */
-	public static function isIsBlocked($cid, $uid)
+	public static function isIsBlocked(int $cid, int $uid): bool
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {

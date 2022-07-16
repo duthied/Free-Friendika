@@ -49,4 +49,19 @@ class HTTPClientTest extends MockedTest
 
 		self::assertFalse(DI::httpClient()->get('https://friendica.local')->isSuccess());
 	}
+
+	/**
+	 * Test for issue https://github.com/friendica/friendica/issues/11726
+	 */
+	public function testRedirect()
+	{
+		$this->httpRequestHandler->setHandler(new MockHandler([
+			new Response(302, ['Location' => 'https://mastodon.social/about']),
+			new Response(200, ['Location' => 'https://mastodon.social']),
+		]));
+
+		$result = DI::httpClient()->get('https://mastodon.social');
+		self::assertEquals('https://mastodon.social', $result->getUrl());
+		self::assertEquals('https://mastodon.social/about', $result->getRedirectUrl());
+	}
 }

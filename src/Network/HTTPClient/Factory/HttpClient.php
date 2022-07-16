@@ -94,11 +94,11 @@ class HttpClient extends BaseFactory
 
 		$guzzle = new GuzzleHttp\Client([
 			RequestOptions::ALLOW_REDIRECTS => [
-				'max'            => 8,
-				'on_redirect'    => $onRedirect,
-				'track_redirect' => true,
-				'strict'         => true,
-				'referer'        => true,
+				'max'             => 8,
+				'on_redirect'     => $onRedirect,
+				'track_redirects' => true,
+				'strict'          => true,
+				'referer'         => true,
 			],
 			RequestOptions::HTTP_ERRORS => false,
 			// Without this setting it seems as if some webservers send compressed content

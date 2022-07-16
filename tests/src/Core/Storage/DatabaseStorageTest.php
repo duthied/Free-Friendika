@@ -23,6 +23,8 @@ namespace Friendica\Test\src\Core\Storage;
 
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Storage\Type\Database;
+use Friendica\Database\Definition\DbaDefinition;
+use Friendica\Database\Definition\ViewDefinition;
 use Friendica\Test\DatabaseTestTrait;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
@@ -56,7 +58,10 @@ class DatabaseStorageTest extends StorageTest
 		$loader        = (new Config())->createConfigFileLoader($this->root->url(), []);
 		$configCache   = $configFactory->createCache($loader);
 
-		$dba = new StaticDatabase($configCache, $profiler, $logger);
+		$dbaDefinition = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
+		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
+
+		$dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition, $logger);
 
 		return new Database($dba);
 	}

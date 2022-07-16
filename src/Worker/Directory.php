@@ -34,7 +34,7 @@ use Friendica\Network\HTTPClient\Client\HttpClientAccept;
  */
 class Directory
 {
-	public static function execute($url = '')
+	public static function execute(string $url = '')
 	{
 		$dir = Search::getGlobalDirectory();
 

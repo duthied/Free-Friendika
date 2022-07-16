@@ -34,6 +34,6 @@ class Poll extends BaseModule
 	protected function rawContent(array $request = [])
 	{
 		$last_update = $request['last_update'] ?? '';
-		System::httpExit(OStatus::feed($this->parameters['nickname'], $last_update, 10), Response::TYPE_ATOM);
+		System::httpExit(OStatus::feed($this->parameters['nickname'], $last_update, 10) ?? '', Response::TYPE_ATOM);
 	}
 }

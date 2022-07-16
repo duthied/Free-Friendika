@@ -31,7 +31,6 @@ use Friendica\Core\System;
 use Friendica\Model\Profile;
 use Friendica\Model\User\Cookie;
 use Friendica\Module\Response;
-use Friendica\Security\TwoFactor;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -46,17 +45,14 @@ class Logout extends BaseModule
 	protected $cookie;
 	/** @var IHandleSessions */
 	protected $session;
-	/** @var TwoFactor\Repository\TrustedBrowser */
-	protected $trustedBrowserRepo;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, ICanCache $cache, Cookie $cookie, IHandleSessions $session, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, ICanCache $cache, Cookie $cookie, IHandleSessions $session, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->cache              = $cache;
-		$this->cookie             = $cookie;
-		$this->session            = $session;
-		$this->trustedBrowserRepo = $trustedBrowserRepo;
+		$this->cache   = $cache;
+		$this->cookie  = $cookie;
+		$this->session = $session;
 	}
 
 
@@ -73,9 +69,9 @@ class Logout extends BaseModule
 
 		Hook::callAll("logging_out");
 
-		// Remove this trusted browser as it won't be able to be used ever again after the cookie is cleared
-		if ($this->cookie->get('trusted')) {
-			$this->trustedBrowserRepo->removeForUser(local_user(), $this->cookie->get('trusted'));
+		// If this is a trusted browser, redirect to the 2fa signout page
+		if ($this->cookie->get('2fa_cookie_hash')) {
+			$this->baseUrl->redirect('2fa/signout');
 		}
 
 		$this->cookie->clear();

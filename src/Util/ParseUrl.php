@@ -59,7 +59,7 @@ class ParseUrl
 	 * @param string $accept content-type to accept
 	 * @return array content type
 	 */
-	public static function getContentType(string $url, string $accept = HttpClientAccept::DEFAULT)
+	public static function getContentType(string $url, string $accept = HttpClientAccept::DEFAULT): array
 	{
 		$curlResult = DI::httpClient()->head($url, [HttpClientOptions::ACCEPT_CONTENT => $accept]);
 
@@ -101,7 +101,7 @@ class ParseUrl
 	 * @see   ParseUrl::getSiteinfo() for more information about scraping
 	 * embeddable content
 	 */
-	public static function getSiteinfoCached($url, $do_oembed = true): array
+	public static function getSiteinfoCached(string $url, bool $do_oembed = true): array
 	{
 		if (empty($url)) {
 			return [
@@ -180,7 +180,7 @@ class ParseUrl
 	 * </body>
 	 * @endverbatim
 	 */
-	public static function getSiteinfo($url, $do_oembed = true, $count = 1)
+	public static function getSiteinfo(string $url, bool $do_oembed = true, int $count = 1)
 	{
 		if (empty($url)) {
 			return [
@@ -543,12 +543,15 @@ class ParseUrl
 	{
 		if (!empty($siteinfo['images'])) {
 			array_walk($siteinfo['images'], function (&$image) use ($page_url) {
-				// According to the specifications someone could place a picture url into the content field as well.
-				// But this doesn't seem to happen in the wild, so we don't cover it here.
+				/*
+				 * According to the specifications someone could place a picture
+				 * URL into the content field as well. But this doesn't seem to
+				 * happen in the wild, so we don't cover it here.
+				 */
 				if (!empty($image['url'])) {
 					$image['url'] = self::completeUrl($image['url'], $page_url);
 					$photodata = Images::getInfoFromURLCached($image['url']);
-					if (!empty($photodata) && ($photodata[0] > 50) && ($photodata[1] > 50)) {
+					if (($photodata) && ($photodata[0] > 50) && ($photodata[1] > 50)) {
 						$image['src'] = $image['url'];
 						$image['width'] = $photodata[0];
 						$image['height'] = $photodata[1];
@@ -633,15 +636,16 @@ class ParseUrl
 	 * @param string $string Tags
 	 * @return array with formatted Hashtags
 	 */
-	public static function convertTagsToArray($string)
+	public static function convertTagsToArray(string $string): array
 	{
 		$arr_tags = str_getcsv($string);
 		if (count($arr_tags)) {
 			// add the # sign to every tag
-			array_walk($arr_tags, ["self", "arrAddHashes"]);
+			array_walk($arr_tags, ['self', 'arrAddHashes']);
 
 			return $arr_tags;
 		}
+		return [];
 	}
 
 	/**
@@ -653,9 +657,9 @@ class ParseUrl
 	 * @param int    $k   Counter for internal use
 	 * @return void
 	 */
-	private static function arrAddHashes(&$tag, $k)
+	private static function arrAddHashes(string &$tag, int $k)
 	{
-		$tag = "#" . $tag;
+		$tag = '#' . $tag;
 	}
 
 	/**
@@ -672,41 +676,41 @@ class ParseUrl
 	 *
 	 * @return string The url with a scheme
 	 */
-	private static function completeUrl($url, $scheme)
+	private static function completeUrl(string $url, string $scheme): string
 	{
 		$urlarr = parse_url($url);
 
 		// If the url does allready have an scheme
 		// we can stop the process here
-		if (isset($urlarr["scheme"])) {
-			return($url);
+		if (isset($urlarr['scheme'])) {
+			return $url;
 		}
 
 		$schemearr = parse_url($scheme);
 
-		$complete = $schemearr["scheme"]."://".$schemearr["host"];
+		$complete = $schemearr['scheme'] . '://' . $schemearr['host'];
 
-		if (!empty($schemearr["port"])) {
-			$complete .= ":".$schemearr["port"];
+		if (!empty($schemearr['port'])) {
+			$complete .= ':' . $schemearr['port'];
 		}
 
-		if (!empty($urlarr["path"])) {
-			if (strpos($urlarr["path"], "/") !== 0) {
-				$complete .= "/";
+		if (!empty($urlarr['path'])) {
+			if (strpos($urlarr['path'], '/') !== 0) {
+				$complete .= '/';
 			}
 
-			$complete .= $urlarr["path"];
+			$complete .= $urlarr['path'];
 		}
 
-		if (!empty($urlarr["query"])) {
-			$complete .= "?".$urlarr["query"];
+		if (!empty($urlarr['query'])) {
+			$complete .= '?' . $urlarr['query'];
 		}
 
-		if (!empty($urlarr["fragment"])) {
-			$complete .= "#".$urlarr["fragment"];
+		if (!empty($urlarr['fragment'])) {
+			$complete .= '#' . $urlarr['fragment'];
 		}
 
-		return($complete);
+		return $complete;
 	}
 
 	/**
@@ -716,7 +720,7 @@ class ParseUrl
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseParts(array $siteinfo, array $jsonld)
+	private static function parseParts(array $siteinfo, array $jsonld): array
 	{
 		if (!empty($jsonld['@graph']) && is_array($jsonld['@graph'])) {
 			foreach ($jsonld['@graph'] as $part) {
@@ -761,7 +765,7 @@ class ParseUrl
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseJsonLd(array $siteinfo, array $jsonld)
+	private static function parseJsonLd(array $siteinfo, array $jsonld): array
 	{
 		$type = JsonLD::fetchElement($jsonld, '@type');
 		if (empty($type)) {
@@ -854,7 +858,7 @@ class ParseUrl
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseJsonLdAuthor(array $siteinfo, array $jsonld)
+	private static function parseJsonLdAuthor(array $siteinfo, array $jsonld): array
 	{
 		$jsonldinfo = [];
 
@@ -938,7 +942,7 @@ class ParseUrl
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseJsonLdArticle(array $siteinfo, array $jsonld)
+	private static function parseJsonLdArticle(array $siteinfo, array $jsonld): array
 	{
 		$jsonldinfo = [];
 
@@ -1008,7 +1012,7 @@ class ParseUrl
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseJsonLdWebPage(array $siteinfo, array $jsonld)
+	private static function parseJsonLdWebPage(array $siteinfo, array $jsonld): array
 	{
 		$jsonldinfo = [];
 
@@ -1047,7 +1051,7 @@ class ParseUrl
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseJsonLdWebSite(array $siteinfo, array $jsonld)
+	private static function parseJsonLdWebSite(array $siteinfo, array $jsonld): array
 	{
 		$jsonldinfo = [];
 
@@ -1085,7 +1089,7 @@ class ParseUrl
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseJsonLdWebOrganization(array $siteinfo, array $jsonld)
+	private static function parseJsonLdWebOrganization(array $siteinfo, array $jsonld): array
 	{
 		$jsonldinfo = [];
 
@@ -1131,7 +1135,7 @@ class ParseUrl
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseJsonLdWebPerson(array $siteinfo, array $jsonld)
+	private static function parseJsonLdWebPerson(array $siteinfo, array $jsonld): array
 	{
 		$jsonldinfo = [];
 
@@ -1176,7 +1180,7 @@ class ParseUrl
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseJsonLdMediaObject(array $siteinfo, array $jsonld, string $name)
+	private static function parseJsonLdMediaObject(array $siteinfo, array $jsonld, string $name): array
 	{
 		$media = [];
 

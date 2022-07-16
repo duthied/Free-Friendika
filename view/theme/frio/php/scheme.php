@@ -42,7 +42,7 @@ function get_scheme_info($scheme)
 	$theme = DI::app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
 	if (empty($scheme)) {
-		$scheme = DI::pConfig()->get(local_user(), 'frio', 'scheme', DI::pConfig()->get(local_user(), 'frio', 'schema'));
+		$scheme = DI::pConfig()->get(local_user(), 'frio', 'scheme', DI::pConfig()->get(local_user(), 'frio', 'schema', '---'));
 	}
 
 	$scheme = Strings::sanitizeFilePathItem($scheme);
@@ -56,7 +56,9 @@ function get_scheme_info($scheme)
 		'accented' => false,
 	];
 
-	if (!is_file($themepath . 'scheme/' . $scheme . '.php')) return $info;
+	if (!is_file($themepath . 'scheme/' . $scheme . '.php')) {
+		return $info;
+	}
 
 	$f = file_get_contents($themepath . 'scheme/' . $scheme . '.php');
 

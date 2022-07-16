@@ -141,7 +141,7 @@ class Contacts extends BaseModule
 			'$paginate' => $pager->renderFull($total),
 		]);
 
-		DI::page()['aside'] .= Widget::accounttypes($_SERVER['REQUEST_URI'], $accounttype);
+		DI::page()['aside'] .= Widget::accountTypes($_SERVER['REQUEST_URI'], $accounttype);
 
 		return $o;
 	}

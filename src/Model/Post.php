@@ -27,6 +27,7 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 use Friendica\Protocol\Activity;
 
 class Post
@@ -39,13 +40,13 @@ class Post
 	 * @return int    ID of inserted post
 	 * @throws \Exception
 	 */
-	public static function insert(int $uri_id, array $data = [])
+	public static function insert(int $uri_id, array $data = []): int
 	{
 		if (empty($uri_id)) {
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DBStructure::getFieldsForTable('post', $data);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('post', $data);
 
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
@@ -107,8 +108,10 @@ class Post
 	 * @param object $stmt statement object
 	 * @param bool   $do_close
 	 * @return array Data array
+	 * @todo Find proper type-hint for $stmt and maybe avoid boolean
 	 */
-	public static function toArray($stmt, $do_close = true) {
+	public static function toArray($stmt, bool $do_close = true)
+	{
 		if (is_bool($stmt)) {
 			return $stmt;
 		}
@@ -131,7 +134,8 @@ class Post
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
-	public static function exists($condition) {
+	public static function exists(array $condition): bool
+	{
 		return DBA::exists('post-user-view', $condition);
 	}
 
@@ -151,7 +155,7 @@ class Post
 	 * $count = Post::count($condition);
 	 * @throws \Exception
 	 */
-	public static function count(array $condition = [], array $params = [])
+	public static function count(array $condition = [], array $params = []): int
 	{
 		return DBA::count('post-user-view', $condition, $params);
 	}
@@ -172,7 +176,7 @@ class Post
 	 * $count = Post::count($condition);
 	 * @throws \Exception
 	 */
-	public static function countThread(array $condition = [], array $params = [])
+	public static function countThread(array $condition = [], array $params = []): int
 	{
 		return DBA::count('post-thread-user-view', $condition, $params);
 	}
@@ -193,7 +197,7 @@ class Post
 	 * $count = Post::count($condition);
 	 * @throws \Exception
 	 */
-	public static function countPosts(array $condition = [], array $params = [])
+	public static function countPosts(array $condition = [], array $params = []): int
 	{
 		return DBA::count('post-view', $condition, $params);
 	}
@@ -209,7 +213,7 @@ class Post
 	 * @throws \Exception
 	 * @see   DBA::select
 	 */
-	public static function selectFirst(array $fields = [], array $condition = [], $params = [])
+	public static function selectFirst(array $fields = [], array $condition = [], array $params = [])
 	{
 		$params['limit'] = 1;
 
@@ -234,7 +238,7 @@ class Post
 	 * @throws \Exception
 	 * @see   DBA::select
 	 */
-	public static function selectFirstPost(array $fields = [], array $condition = [], $params = [])
+	public static function selectFirstPost(array $fields = [], array $condition = [], array $params = [])
 	{
 		$params['limit'] = 1;
 
@@ -259,7 +263,7 @@ class Post
 	 * @throws \Exception
 	 * @see   DBA::select
 	 */
-	public static function selectFirstThread(array $fields = [], array $condition = [], $params = [])
+	public static function selectFirstThread(array $fields = [], array $condition = [], array $params = [])
 	{
 		$params['limit'] = 1;
 
@@ -284,7 +288,7 @@ class Post
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function selectToArray(array $fields = [], array $condition = [], $params = [])
+	public static function selectToArray(array $fields = [], array $condition = [], array $params = [])
 	{
 		$result = self::select($fields, $condition, $params);
 
@@ -312,7 +316,7 @@ class Post
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	private static function selectView(string $view, array $selected = [], array $condition = [], $params = [])
+	private static function selectView(string $view, array $selected = [], array $condition = [], array $params = [])
 	{
 		if (empty($selected)) {
 			$selected = array_merge(Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST);
@@ -337,7 +341,7 @@ class Post
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function select(array $selected = [], array $condition = [], $params = [])
+	public static function select(array $selected = [], array $condition = [], array $params = [])
 	{
 		return self::selectView('post-user-view', $selected, $condition, $params);
 	}
@@ -352,7 +356,7 @@ class Post
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function selectPosts(array $selected = [], array $condition = [], $params = [])
+	public static function selectPosts(array $selected = [], array $condition = [], array $params = [])
 	{
 		return self::selectView('post-view', $selected, $condition, $params);
 	}
@@ -367,7 +371,7 @@ class Post
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function selectThread(array $selected = [], array $condition = [], $params = [])
+	public static function selectThread(array $selected = [], array $condition = [], array $params = [])
 	{
 		return self::selectView('post-thread-user-view', $selected, $condition, $params);
 	}
@@ -384,7 +388,7 @@ class Post
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	private static function selectViewForUser(string $view, $uid, array $selected = [], array $condition = [], $params = [])
+	private static function selectViewForUser(string $view, int $uid, array $selected = [], array $condition = [], array $params = [])
 	{
 		if (empty($selected)) {
 			$selected = Item::DISPLAY_FIELDLIST;
@@ -425,7 +429,7 @@ class Post
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
+	public static function selectForUser(int $uid, array $selected = [], array $condition = [], array $params = [])
 	{
 		return self::selectViewForUser('post-user-view', $uid, $selected, $condition, $params);
 	}
@@ -441,7 +445,7 @@ class Post
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function selectPostsForUser($uid, array $selected = [], array $condition = [], $params = [])
+	public static function selectPostsForUser(int $uid, array $selected = [], array $condition = [], array $params = [])
 	{
 		return self::selectViewForUser('post-view', $uid, $selected, $condition, $params);
 	}
@@ -457,7 +461,7 @@ class Post
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function selectThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
+	public static function selectThreadForUser(int $uid, array $selected = [], array $condition = [], array $params = [])
 	{
 		return self::selectViewForUser('post-thread-user-view', $uid, $selected, $condition, $params);
 	}
@@ -473,7 +477,7 @@ class Post
 	 * @throws \Exception
 	 * @see   DBA::select
 	 */
-	public static function selectFirstForUser($uid, array $selected = [], array $condition = [], $params = [])
+	public static function selectFirstForUser(int $uid, array $selected = [], array $condition = [], array $params = [])
 	{
 		$params['limit'] = 1;
 
@@ -521,7 +525,7 @@ class Post
 		// To ensure the data integrity we do it in an transaction
 		DBA::transaction();
 
-		$update_fields = DBStructure::getFieldsForTable('post-user', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['post-user-id'], $condition);
@@ -538,7 +542,7 @@ class Post
 			$affected = $affected_count;
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('post-content', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-content', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
@@ -555,7 +559,7 @@ class Post
 			$affected = max($affected, $affected_count);
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('post', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
@@ -589,7 +593,7 @@ class Post
 			$affected = max($affected, $affected_count);
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('post-thread', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
@@ -606,7 +610,7 @@ class Post
 			$affected = max($affected, $affected_count);
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('post-thread-user', $fields);
+		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
 			$posts = DBA::select('post-user-view', ['post-user-id'], $thread_condition);
@@ -640,7 +644,7 @@ class Post
 	 * @return boolean was the delete successful?
 	 * @throws \Exception
 	 */
-	public static function delete(array $conditions, array $options = [])
+	public static function delete(array $conditions, array $options = []): bool
 	{
 		return DBA::delete('post', $conditions, $options);
 	}

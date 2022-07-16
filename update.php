@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Automatic post-databse structure change updates
+ * Automatic post-database structure change updates
  *
  * These functions are responsible for doing critical post update changes to the data (not the structure) in the database.
  *
@@ -40,8 +40,10 @@
  * If you need to run a script before the database update, name the function "pre_update_4712()"
  */
 
+use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Logger;
 use Friendica\Core\Storage\Capability\ICanReadFromStorage;
+use Friendica\Core\Storage\Type\Database as DatabaseStorage;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\Database;
@@ -979,7 +981,7 @@ function update_1429()
 		return Update::FAILED;
 	}
 
-	DI::config()->set("system", "post_update_version", 1423);
+	DI::config()->set('system', 'post_update_version', 1423);
 
 	return Update::SUCCESS;
 }
@@ -988,9 +990,9 @@ function update_1434()
 {
 	$name = DI::config()->get('storage', 'name');
 
-	// in case of an empty config, set "Database" as default storage backend
+	// In case of an empty config, set "Database" as default storage backend
 	if (empty($name)) {
-		DI::config()->set('storage', 'name', \Friendica\Core\Storage\Type\Database::getName());
+		DI::config()->set('storage', 'name', DatabaseStorage::getName());
 	}
 
 	// In case of a Using deprecated storage class value, set the right name for it
@@ -1079,10 +1081,7 @@ function update_1446()
 
 	// In case the distributed cache driver is the default value, but the current cache driver isn't default,
 	// we assume that the distributed cache driver should be the same as the current cache driver
-	if (
-		$distributed_cache_driver_source === \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC
-		&& $cache_driver_source > \Friendica\Core\Config\ValueObject\Cache::SOURCE_STATIC
-	) {
+	if ($distributed_cache_driver_source === Cache::SOURCE_STATIC && $cache_driver_source > Cache::SOURCE_STATIC) {
 		DI::config()->set('system', 'distributed_cache_driver', DI::config()->get('system', 'cache_driver'));
 	}
 
