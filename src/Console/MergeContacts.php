@@ -67,7 +67,7 @@ HELP;
 		$this->l10n = $l10n;
 	}
 
-	protected function doExecute()
+	protected function doExecute(): int
 	{
 		$duplicates = $this->dba->p("SELECT COUNT(*) AS `total`, `uri-id`, MAX(`url`) AS `url` FROM `contact` WHERE `uid` = 0 GROUP BY `uri-id` HAVING total > 1");
 		while ($duplicate = $this->dba->fetch($duplicates)) {

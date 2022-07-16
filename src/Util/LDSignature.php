@@ -31,12 +31,24 @@ use Friendica\Model\APContact;
  */
 class LDSignature
 {
-	public static function isSigned($data)
+	/**
+	 * Checks if element 'signature' is found and not empty
+	 *
+	 * @param array $data
+	 * @return bool
+	 */
+	public static function isSigned(array $data): bool
 	{
 		return !empty($data['signature']);
 	}
 
-	public static function getSigner($data)
+	/**
+	 * Returns actor (signer) from given data
+	 *
+	 * @param array $data
+	 * @return mixed Returns actor or false on error
+	 */
+	public static function getSigner(array $data)
 	{
 		if (!self::isSigned($data)) {
 			return false;
@@ -66,13 +78,20 @@ class LDSignature
 		}
 	}
 
-	public static function sign($data, $owner)
+	/**
+	 * Signs given data by owner's signature
+	 *
+	 * @param array $data Data to sign
+	 * @param array $owner Owner information, like URL
+	 * @return array Merged array of $data and signature
+	 */
+	public static function sign(array $data, array $owner): array
 	{
 		$options = [
 			'type' => 'RsaSignature2017',
 			'nonce' => Strings::getRandomHex(64),
 			'creator' => $owner['url'] . '#main-key',
-			'created' => DateTimeFormat::utcNow(DateTimeFormat::ATOM)
+			'created' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 		];
 
 		$ohash = self::hash(self::signableOptions($options));
@@ -82,13 +101,25 @@ class LDSignature
 		return array_merge($data, ['signature' => $options]);
 	}
 
-	private static function signableData($data)
+	/**
+	 * Removes element 'signature' from array
+	 *
+	 * @param array $data
+	 * @return array With no element 'signature'
+	 */
+	private static function signableData(array $data): array
 	{
 		unset($data['signature']);
 		return $data;
 	}
 
-	private static function signableOptions($options)
+	/**
+	 * Removes some elements and adds '@context' to it
+	 *
+	 * @param array $options
+	 * @return array With some removed elements and added '@context' element
+	 */
+	private static function signableOptions(array $options): array
 	{
 		$newopts = ['@context' => 'https://w3id.org/identity/v1'];
 
@@ -99,7 +130,13 @@ class LDSignature
 		return array_merge($newopts, $options);
 	}
 
-	private static function hash($obj)
+	/**
+	 * Hashes normalized object
+	 *
+	 * @param ??? $obj
+	 * @return string SHA256 hash
+	 */
+	private static function hash($obj): string
 	{
 		return hash('sha256', JsonLD::normalize($obj));
 	}

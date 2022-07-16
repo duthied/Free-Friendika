@@ -170,7 +170,7 @@ class Install extends BaseModule
 					return;
 				}
 
-				$this->installer->installDatabase($configCache->get('system', 'basepath'));
+				$this->installer->installDatabase();
 			
 				// install allowed themes to register theme hooks
 				// this is same as "Reload active theme" in /admin/themes
@@ -363,7 +363,7 @@ class Install extends BaseModule
 	 * @return string The text for the next steps
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function whatNext()
+	private function whatNext(): string
 	{
 		$baseurl = $this->baseUrl->get();
 		return
@@ -383,6 +383,7 @@ class Install extends BaseModule
 	 * @param string                                   $cat         The category of the setting
 	 * @param string                                   $key         The key of the setting
 	 * @param null|string                              $default     The default value
+	 * @return void
 	 */
 	private function checkSetting(Cache $configCache, array $post, string $cat, string $key, ?string $default = null)
 	{

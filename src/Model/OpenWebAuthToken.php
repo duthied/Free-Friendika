@@ -36,20 +36,19 @@ class OpenWebAuthToken
 	 * @param int    $uid  The user ID.
 	 * @param string $token
 	 * @param string $meta
-	 *
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	public static function create($type, $uid, $token, $meta)
+	public static function create(string $type, uid $uid, string $token, string $meta)
 	{
 		$fields = [
-			"type" => $type,
-			"uid" => $uid,
-			"token" => $token,
-			"meta" => $meta,
-			"created" => DateTimeFormat::utcNow()
+			'type' => $type,
+			'uid' => $uid,
+			'token' => $token,
+			'meta' => $meta,
+			'created' => DateTimeFormat::utcNow()
 		];
-		return DBA::insert("openwebauth-token", $fields);
+		return DBA::insert('openwebauth-token', $fields);
 	}
 
 	/**
@@ -62,15 +61,15 @@ class OpenWebAuthToken
 	 * @return string|boolean The meta enry or false if not found.
 	 * @throws \Exception
 	 */
-	public static function getMeta($type, $uid, $token)
+	public static function getMeta(string $type, int $uid, string $token)
 	{
-		$condition = ["type" => $type, "uid" => $uid, "token" => $token];
+		$condition = ['type' => $type, 'uid' => $uid, 'token' => $token];
 
-		$entry = DBA::selectFirst("openwebauth-token", ["id", "meta"], $condition);
+		$entry = DBA::selectFirst('openwebauth-token', ['id', 'meta'], $condition);
 		if (DBA::isResult($entry)) {
-			DBA::delete("openwebauth-token", ["id" => $entry["id"]]);
+			DBA::delete('openwebauth-token', ['id' => $entry['id']]);
 
-			return $entry["meta"];
+			return $entry['meta'];
 		}
 		return false;
 	}
@@ -80,12 +79,13 @@ class OpenWebAuthToken
 	 *
 	 * @param string $type     Verify type.
 	 * @param string $interval SQL compatible time interval
+	 * @return void
 	 * @throws \Exception
 	 */
-	public static function purge($type, $interval)
+	public static function purge(string $type, string $interval)
 	{
-		$condition = ["`type` = ? AND `created` < ?", $type, DateTimeFormat::utcNow() . " - INTERVAL " . $interval];
-		DBA::delete("openwebauth-token", $condition);
+		$condition = ["`type` = ? AND `created` < ?", $type, DateTimeFormat::utcNow() . ' - INTERVAL ' . $interval];
+		DBA::delete('openwebauth-token', $condition);
 	}
 
 }

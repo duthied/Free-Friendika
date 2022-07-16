@@ -26,7 +26,7 @@
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
  */
 if (php_sapi_name() !== 'cli') {
-	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
+	header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
 	exit();
 }
 
@@ -45,13 +45,13 @@ $longopts = ['foreground'];
 $options = getopt($shortopts, $longopts);
 
 // Ensure that daemon.php is executed from the base path of the installation
-if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
-	$directory = dirname($_SERVER["argv"][0]);
+if (!file_exists('boot.php') && (sizeof($_SERVER['argv']) != 0)) {
+	$directory = dirname($_SERVER['argv'][0]);
 
-	if (substr($directory, 0, 1) != "/") {
-		$directory = $_SERVER["PWD"] . "/" . $directory;
+	if (substr($directory, 0, 1) != '/') {
+		$directory = $_SERVER['PWD'] . '/' . $directory;
 	}
-	$directory = realpath($directory . "/..");
+	$directory = realpath($directory . '/..');
 
 	chdir($directory);
 }
@@ -86,16 +86,16 @@ TXT
 
 $pidfile = DI::config()->get('system', 'pidfile');
 
-if (in_array("start", $_SERVER["argv"])) {
-	$mode = "start";
+if (in_array('start', $_SERVER['argv'])) {
+	$mode = 'start';
 }
 
-if (in_array("stop", $_SERVER["argv"])) {
-	$mode = "stop";
+if (in_array('stop', $_SERVER['argv'])) {
+	$mode = 'stop';
 }
 
-if (in_array("status", $_SERVER["argv"])) {
-	$mode = "status";
+if (in_array('status', $_SERVER['argv'])) {
+	$mode = 'status';
 }
 
 $foreground = array_key_exists('f', $options) || array_key_exists('foreground', $options);
@@ -104,7 +104,7 @@ if (!isset($mode)) {
 	die("Please use either 'start', 'stop' or 'status'.\n");
 }
 
-if (empty($_SERVER["argv"][0])) {
+if (empty($_SERVER['argv'][0])) {
 	die("Unexpected script behaviour. This message should never occur.\n");
 }
 
@@ -114,12 +114,12 @@ if (is_readable($pidfile)) {
 	$pid = intval(file_get_contents($pidfile));
 }
 
-if (empty($pid) && in_array($mode, ["stop", "status"])) {
+if (empty($pid) && in_array($mode, ['stop', 'status'])) {
 	DI::config()->set('system', 'worker_daemon_mode', false);
 	die("Pidfile wasn't found. Is the daemon running?\n");
 }
 
-if ($mode == "status") {
+if ($mode == 'status') {
 	if (posix_kill($pid, 0)) {
 		die("Daemon process $pid is running.\n");
 	}
@@ -130,12 +130,12 @@ if ($mode == "status") {
 	die("Daemon process $pid isn't running.\n");
 }
 
-if ($mode == "stop") {
+if ($mode == 'stop') {
 	posix_kill($pid, SIGTERM);
 
 	unlink($pidfile);
 
-	Logger::notice("Worker daemon process was killed", ["pid" => $pid]);
+	Logger::notice('Worker daemon process was killed', ['pid' => $pid]);
 
 	DI::config()->set('system', 'worker_daemon_mode', false);
 	die("Worker daemon process $pid was killed.\n");
@@ -145,7 +145,7 @@ if (!empty($pid) && posix_kill($pid, 0)) {
 	die("Daemon process $pid is already running.\n");
 }
 
-Logger::notice('Starting worker daemon.', ["pid" => $pid]);
+Logger::notice('Starting worker daemon.', ['pid' => $pid]);
 
 if (!$foreground) {
 	echo "Starting worker daemon.\n";
@@ -194,7 +194,7 @@ $last_cron = 0;
 // Now running as a daemon.
 while (true) {
 	if (!$do_cron && ($last_cron + $wait_interval) < time()) {
-		Logger::info('Forcing cron worker call.', ["pid" => $pid]);
+		Logger::info('Forcing cron worker call.', ['pid' => $pid]);
 		$do_cron = true;
 	}
 
@@ -214,7 +214,7 @@ while (true) {
 	}
 
 	$start = time();
-	Logger::info("Sleeping", ["pid" => $pid, 'until' => gmdate(DateTimeFormat::MYSQL, $start + $wait_interval)]);
+	Logger::info('Sleeping', ['pid' => $pid, 'until' => gmdate(DateTimeFormat::MYSQL, $start + $wait_interval)]);
 
 	do {
 		$seconds = (time() - $start);
@@ -236,10 +236,10 @@ while (true) {
 
 	if ($timeout) {
 		$do_cron = true;
-		Logger::info("Woke up after $wait_interval seconds.", ["pid" => $pid, 'sleep' => $wait_interval]);
+		Logger::info('Woke up after $wait_interval seconds.', ['pid' => $pid, 'sleep' => $wait_interval]);
 	} else {
 		$do_cron = false;
-		Logger::info("Worker jobs are calling to be forked.", ["pid" => $pid]);
+		Logger::info('Worker jobs are calling to be forked.', ['pid' => $pid]);
 	}
 }
 

@@ -83,7 +83,7 @@ function editpost_content(App $a)
 
 	Hook::callAll('jot_tool', $jotplugins);
 
-	$tpl = Renderer::getMarkupTemplate("jot.tpl");
+	$tpl = Renderer::getMarkupTemplate('jot.tpl');
 	$o .= Renderer::replaceMacros($tpl, [
 		'$is_edit' => true,
 		'$return_path' => '/display/' . $item['guid'],

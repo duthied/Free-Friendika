@@ -64,7 +64,7 @@ class PageInfo
 	 * @return string
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function appendDataToBody(string $body, array $data, bool $no_photos = false)
+	public static function appendDataToBody(string $body, array $data, bool $no_photos = false): string
 	{
 		// Only one [attachment] tag per body is allowed
 		$existingAttachmentPos = strpos($body, '[attachment');
@@ -90,7 +90,7 @@ class PageInfo
 	 * @return string
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getFooterFromUrl(string $url, bool $no_photos = false, string $photo = '', bool $keywords = false, string $keyword_denylist = '')
+	public static function getFooterFromUrl(string $url, bool $no_photos = false, string $photo = '', bool $keywords = false, string $keyword_denylist = ''): string
 	{
 		$data = self::queryUrl($url, $photo, $keywords, $keyword_denylist);
 
@@ -103,7 +103,7 @@ class PageInfo
 	 * @return string
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getFooterFromData(array $data, bool $no_photos = false)
+	public static function getFooterFromData(array $data, bool $no_photos = false): string
 	{
 		Hook::callAll('page_info_data', $data);
 
@@ -220,7 +220,7 @@ class PageInfo
 	 * @return array
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getTagsFromUrl(string $url, string $photo = '', string $keyword_denylist = '')
+	public static function getTagsFromUrl(string $url, string $photo = '', string $keyword_denylist = ''): array
 	{
 		$data = self::queryUrl($url, $photo, true, $keyword_denylist);
 
@@ -282,7 +282,7 @@ class PageInfo
 	 * @param string $url
 	 * @return string
 	 */
-	protected static function stripTrailingUrlFromBody(string $body, string $url)
+	protected static function stripTrailingUrlFromBody(string $body, string $url): string
 	{
 		$quotedUrl = preg_quote($url, '#');
 		$body = preg_replace_callback("#(?:

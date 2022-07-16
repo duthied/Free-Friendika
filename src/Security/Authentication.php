@@ -64,6 +64,8 @@ class Authentication
 	private $session;
 	/** @var IManagePersonalConfigValues */
 	private $pConfig;
+	/** @var string */
+	private $remoteAddress;
 
 	/**
 	 * Sets the X-Account-Management-Status header
@@ -80,27 +82,29 @@ class Authentication
 	/**
 	 * Authentication constructor.
 	 *
-	 * @param IManageConfigValues                                $config
-	 * @param App\Mode                                           $mode
-	 * @param App\BaseURL                                        $baseUrl
-	 * @param L10n                                               $l10n
-	 * @param Database                                           $dba
-	 * @param LoggerInterface                                    $logger
-	 * @param User\Cookie                                        $cookie
-	 * @param IHandleSessions $session
-	 * @param IManagePersonalConfigValues                        $pConfig
+	 * @param IManageConfigValues         $config
+	 * @param App\Mode                    $mode
+	 * @param App\BaseURL                 $baseUrl
+	 * @param L10n                        $l10n
+	 * @param Database                    $dba
+	 * @param LoggerInterface             $logger
+	 * @param User\Cookie                 $cookie
+	 * @param IHandleSessions             $session
+	 * @param IManagePersonalConfigValues $pConfig
+	 * @param App\Request                 $request
 	 */
-	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, IHandleSessions $session, IManagePersonalConfigValues $pConfig)
+	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, IHandleSessions $session, IManagePersonalConfigValues $pConfig, App\Request $request)
 	{
-		$this->config  = $config;
-		$this->mode    = $mode;
-		$this->baseUrl = $baseUrl;
-		$this->l10n    = $l10n;
-		$this->dba     = $dba;
-		$this->logger  = $logger;
-		$this->cookie  = $cookie;
-		$this->session = $session;
-		$this->pConfig = $pConfig;
+		$this->config        = $config;
+		$this->mode          = $mode;
+		$this->baseUrl       = $baseUrl;
+		$this->l10n          = $l10n;
+		$this->dba           = $dba;
+		$this->logger        = $logger;
+		$this->cookie        = $cookie;
+		$this->session       = $session;
+		$this->pConfig       = $pConfig;
+		$this->remoteAddress = $request->getRemoteAddress();
 	}
 
 	/**
@@ -140,7 +144,7 @@ class Authentication
 				// Renew the cookie
 				$this->cookie->send();
 
-				// Do the authentification if not done by now
+				// Do the authentication if not done by now
 				if (!$this->session->get('authenticated')) {
 					$this->setForUser($a, $user);
 
@@ -163,10 +167,11 @@ class Authentication
 				// already logged in user returning
 				$check = $this->config->get('system', 'paranoia');
 				// extra paranoia - if the IP changed, log them out
-				if ($check && ($this->session->get('addr') != $_SERVER['REMOTE_ADDR'])) {
+				if ($check && ($this->session->get('addr') != $this->remoteAddress)) {
 					$this->logger->notice('Session address changed. Paranoid setting in effect, blocking session. ', [
-							'addr'        => $this->session->get('addr'),
-							'remote_addr' => $_SERVER['REMOTE_ADDR']]
+						'addr'        => $this->session->get('addr'),
+						'remote_addr' => $this->remoteAddress
+					]
 					);
 					$this->session->clear();
 					$this->baseUrl->redirect();
@@ -258,13 +263,17 @@ class Authentication
 				['uid' => User::getIdFromPasswordAuthentication($username, $password)]
 			);
 		} catch (Exception $e) {
-			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => $username, 'ip' => $_SERVER['REMOTE_ADDR']]);
+			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => $username, 'ip' => $this->remoteAddress]);
 			notice($this->l10n->t('Login failed. Please check your credentials.'));
 			$this->baseUrl->redirect();
 		}
 
 		if (!$remember) {
+			$trusted = $this->cookie->get('2fa_cookie_hash') ?? null;
 			$this->cookie->clear();
+			if ($trusted) {
+				$this->cookie->set('2fa_cookie_hash', $trusted);
+			}
 		}
 
 		// if we haven't failed up this point, log them in.
@@ -295,8 +304,13 @@ class Authentication
 	 * @param bool  $interactive
 	 * @param bool  $login_refresh
 	 *
+	 * @throws HTTPException\FoundException
+	 * @throws HTTPException\MovedPermanentlyException
+	 * @throws HTTPException\TemporaryRedirectException
+	 * @throws HTTPException\ForbiddenException
+
 	 * @throws HTTPException\InternalServerErrorException In case of Friendica specific exceptions
-	 * @throws Exception In case of general Exceptions (like SQL Grammar exceptions)
+	 *
 	 */
 	public function setForUser(App $a, array $user_record, bool $login_initial = false, bool $interactive = false, bool $login_refresh = false)
 	{
@@ -308,7 +322,7 @@ class Authentication
 			'page_flags'    => $user_record['page-flags'],
 			'my_url'        => $this->baseUrl->get() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($this->baseUrl->get(), strpos($this->baseUrl->get(), '://') + 3),
-			'addr'          => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
+			'addr'          => $this->remoteAddress,
 		]);
 
 		Session::setVisitorsContacts();
@@ -402,11 +416,11 @@ class Authentication
 		}
 
 		// Case 1b: Check for trusted browser
-		if ($this->cookie->get('trusted')) {
+		if ($this->cookie->get('2fa_cookie_hash')) {
 			// Retrieve a trusted_browser model based on cookie hash
 			$trustedBrowserRepository = new TrustedBrowser($this->dba, $this->logger);
 			try {
-				$trustedBrowser = $trustedBrowserRepository->selectOneByHash($this->cookie->get('trusted'));
+				$trustedBrowser = $trustedBrowserRepository->selectOneByHash($this->cookie->get('2fa_cookie_hash'));
 				// Verify record ownership
 				if ($trustedBrowser->uid === $uid) {
 					// Update last_used date
@@ -415,10 +429,13 @@ class Authentication
 					// Save it to the database
 					$trustedBrowserRepository->save($trustedBrowser);
 
-					// Set 2fa session key and return
-					$this->session->set('2fa', true);
+					// Only use this entry, if its really trusted, otherwise just update the record and proceed
+					if ($trustedBrowser->trusted) {
+						// Set 2fa session key and return
+						$this->session->set('2fa', true);
 
-					return;
+						return;
+					}
 				} else {
 					// Invalid trusted cookie value, removing it
 					$this->cookie->unset('trusted');

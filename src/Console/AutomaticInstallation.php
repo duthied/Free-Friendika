@@ -110,7 +110,7 @@ HELP;
 		$this->dba         = $dba;
 	}
 
-	protected function doExecute()
+	protected function doExecute(): int
 	{
 		// Initialise the app
 		$this->out("Initializing setup...");
@@ -225,7 +225,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->installDatabase($basePathConf)) {
+		if (!$installer->installDatabase()) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}

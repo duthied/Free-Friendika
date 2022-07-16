@@ -21,136 +21,44 @@
 
 namespace Friendica\Database;
 
-use Exception;
-use Friendica\Core\Hook;
 use Friendica\DI;
+use Friendica\Util\Writer\ViewDefinitionSqlWriter;
 
 class View
 {
 	/**
-	 * view definition loaded from static/dbview.config.php
+	 * Creates a view
 	 *
-	 * @var array
+	 * @param bool $verbose Whether to show SQL statements
+	 * @param bool $action Whether to execute SQL statements
+	 * @return void
 	 */
-	private static $definition = [];
-
-	/**
-	 * Loads the database structure definition from the static/dbview.config.php file.
-	 * On first pass, defines DB_UPDATE_VERSION constant.
-	 *
-	 * @see static/dbview.config.php
-	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
-	 * @param string  $basePath              The base path of this application
-	 * @return array
-	 * @throws Exception
-	 */
-	public static function definition($basePath = '', $with_addons_structure = true)
-	{
-		if (!self::$definition) {
-			if (empty($basePath)) {
-				$basePath = DI::app()->getBasePath();
-			}
-
-			$filename = $basePath . '/static/dbview.config.php';
-
-			if (!is_readable($filename)) {
-				throw new Exception('Missing database view config file static/dbview.config.php');
-			}
-
-			$definition = require $filename;
-
-			if (!$definition) {
-				throw new Exception('Corrupted database view config file static/dbview.config.php');
-			}
-
-			self::$definition = $definition;
-		} else {
-			$definition = self::$definition;
-		}
-
-		if ($with_addons_structure) {
-			Hook::callAll('dbview_definition', $definition);
-		}
-
-		return $definition;
-	}
-
 	public static function create(bool $verbose, bool $action)
 	{
 		// Delete previously used views that aren't used anymore
-		foreach(['post-view', 'post-thread-view'] as $view) {
+		foreach (['post-view', 'post-thread-view'] as $view) {
 			if (self::isView($view)) {
 				$sql = sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($view));
 				if (!empty($sql) && $verbose) {
 					echo $sql . ";\n";
 				}
-		
+
 				if (!empty($sql) && $action) {
 					DBA::e($sql);
 				}
 			}
 		}
 
-		$definition = self::definition();
+		$definition = DI::viewDefinition()->getAll();
 
 		foreach ($definition as $name => $structure) {
-			self::createview($name, $structure, $verbose, $action);
-		}
-	}
-
-	public static function printStructure($basePath)
-	{
-		$database = self::definition($basePath, false);
-
-		foreach ($database as $name => $structure) {
-			echo "--\n";
-			echo "-- VIEW $name\n";
-			echo "--\n";
-			self::createView($name, $structure, true, false);
-
-			echo "\n";
-		}
-	}
-
-	private static function createview($name, $structure, $verbose, $action)
-	{
-		$r = true;
-
-		$sql_rows = [];
-		foreach ($structure["fields"] as $fieldname => $origin) {
-			if (is_string($origin)) {
-				$sql_rows[] = $origin . " AS `" . DBA::escape($fieldname) . "`";
-			} elseif (is_array($origin) && (sizeof($origin) == 2)) {
-				$sql_rows[] = "`" . DBA::escape($origin[0]) . "`.`" . DBA::escape($origin[1]) . "` AS `" . DBA::escape($fieldname) . "`";
+			if (self::isView($name)) {
+				DBA::e(sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($name)));
+			} elseif (self::isTable($name)) {
+				DBA::e(sprintf("DROP TABLE IF EXISTS `%s`", DBA::escape($name)));
 			}
+			DBA::e(ViewDefinitionSqlWriter::createView($name, $structure));
 		}
-
-		if (self::isView($name)) {
-			$sql = sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($name));
-		} elseif (self::isTable($name)) {
-			$sql = sprintf("DROP TABLE IF EXISTS `%s`", DBA::escape($name));
-		}
-
-		if (!empty($sql) && $verbose) {
-			echo $sql . ";\n";
-		}
-
-		if (!empty($sql) && $action) {
-			DBA::e($sql);
-		}
-
-		$sql = sprintf("CREATE VIEW `%s` AS SELECT \n\t", DBA::escape($name)) .
-			implode(",\n\t", $sql_rows) . "\n\t" . $structure['query'];
-	
-		if ($verbose) {
-			echo $sql . ";\n";
-		}
-
-		if ($action) {
-			$r = DBA::e($sql);
-		}
-
-		return $r;
 	}
 
 	/**
@@ -159,9 +67,9 @@ class View
 	 * @param string $view
 	 * @return boolean "true" if it's a view
 	 */
-	private static function isView(string $view)
+	private static function isView(string $view): bool
 	{
-		$status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_TYPE'],
+		$status = DBA::selectFirst('INFORMATION_SCHEMA.TABLES', ['TABLE_TYPE'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_NAME' => $view]);
 
 		if (empty($status['TABLE_TYPE'])) {
@@ -177,9 +85,9 @@ class View
 	 * @param string $table
 	 * @return boolean "true" if it's a table
 	 */
-	private static function isTable(string $table)
+	private static function isTable(string $table): bool
 	{
-		$status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_TYPE'],
+		$status = DBA::selectFirst('INFORMATION_SCHEMA.TABLES', ['TABLE_TYPE'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_NAME' => $table]);
 
 		if (empty($status['TABLE_TYPE'])) {

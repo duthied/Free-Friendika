@@ -110,11 +110,11 @@ abstract class BaseModel extends BaseDataTransferObject
 	 * - $model->field (outside of class)
 	 * - $this->field (inside of class)
 	 *
-	 * @param $name
+	 * @param string $name Name of data to fetch
 	 * @return mixed
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function __get($name)
+	public function __get(string $name)
 	{
 		$this->checkValid();
 

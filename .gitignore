@@ -90,3 +90,11 @@ venv/
 #ignore avatar picture cache path
 /avatar
 
+#Ignore autotest results
+autotest-results.xml
+
+#ignore phpunit result cache
+tests/.phpunit.result.cache
+
+#ignore .php_cs (local copy)
+.php_cs

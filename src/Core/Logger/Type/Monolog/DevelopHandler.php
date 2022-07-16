@@ -21,6 +21,7 @@
 
 namespace Friendica\Core\Logger\Type\Monolog;
 
+use Friendica\App\Request;
 use Monolog\Handler;
 use Monolog\Logger;
 
@@ -38,15 +39,22 @@ class DevelopHandler extends Handler\AbstractHandler
 	private $developerIp;
 
 	/**
-	 * @param string $developerIp  The IP of the developer who wants to debug
-	 * @param int    $level        The minimum logging level at which this handler will be triggered
-	 * @param bool   $bubble       Whether the messages that are handled can bubble up the stack or not
+	 * @var string The IP of the current request
 	 */
-	public function __construct($developerIp, $level = Logger::DEBUG, bool $bubble = true)
+	private $remoteAddress;
+
+	/**
+	 * @param Request $request     The current http request
+	 * @param string  $developerIp The IP of the developer who wants to debug
+	 * @param int     $level       The minimum logging level at which this handler will be triggered
+	 * @param bool    $bubble      Whether the messages that are handled can bubble up the stack or not
+	 */
+	public function __construct(Request $request, $developerIp, int $level = Logger::DEBUG, bool $bubble = true)
 	{
 		parent::__construct($level, $bubble);
 
-		$this->developerIp = $developerIp;
+		$this->developerIp   = $developerIp;
+		$this->remoteAddress = $request->getRemoteAddress();
 	}
 
 	/**
@@ -59,7 +67,7 @@ class DevelopHandler extends Handler\AbstractHandler
 		}
 
 		/// Just in case the remote IP is the same as the developer IP log the output
-		if (!is_null($this->developerIp) && $_SERVER['REMOTE_ADDR'] != $this->developerIp) {
+		if (!is_null($this->developerIp) && $this->remoteAddress != $this->developerIp) {
 			return false;
 		}
 

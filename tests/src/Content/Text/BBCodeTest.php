@@ -467,4 +467,130 @@ Karl Marx - Die ursprüngliche Akkumulation
 
 		self::assertEquals($expected, $actual);
 	}
+
+	public function dataFetchShareAttributes(): array
+	{
+		return [
+			'no-tag' => [
+				'expected' => [],
+				'text' => 'Venture the only home we\'ve ever known laws of physics tendrils of gossamer clouds a still more glorious dawn awaits Sea of Tranquility. With pretty stories for which there\'s little good evidence the ash of stellar alchemy corpus callosum preserve and cherish that pale blue dot descended from astronomers preserve and cherish that pale blue dot. A mote of dust suspended in a sunbeam paroxysm of global death two ghostly white figures in coveralls and helmets are softly dancing descended from astronomers star stuff harvesting star light gathered by gravity and billions upon billions upon billions upon billions upon billions upon billions upon billions.',
+			],
+			'just-open' => [
+				'expected' => [],
+				'text' => '[share]',
+			],
+			'empty-tag' => [
+				'expected' => [
+					'author' => '',
+				    'profile' => '',
+				    'avatar' => '',
+				    'link' => '',
+				    'posted' => '',
+				    'guid' => '',
+				    'comment' => '',
+				    'shared' => '',
+				],
+				'text' => '[share][/share]',
+			],
+			'comment-shared' => [
+				'expected' => [
+					'author' => '',
+					'profile' => '',
+					'avatar' => '',
+					'link' => '',
+					'posted' => '',
+					'guid' => '',
+					'comment' => 'comment',
+					'shared' => 'shared',
+				],
+				'text' => ' comment
+				[share]
+				shared
+				[/share]',
+			],
+			'all-attributes' => [
+				'expected' => [
+					'author' => 'Hypolite Petovan',
+					'profile' => 'https://friendica.mrpetovan.com/profile/hypolite',
+					'avatar' => 'https://friendica.mrpetovan.com/photo/20682437145daa4e85f019a278584494-5.png',
+					'link' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
+					'posted' => '2022-06-16 12:34:10',
+					'guid' => '735a2029-1062-ab23-42e4-f9c631220243',
+					'comment' => '',
+					'shared' => 'George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
+Disney: So a morally grey “choose your side” story, right?
+Lucas: For the right price, yes.',
+				],
+				'text' => "[share
+				    author='Hypolite Petovan'
+				    profile='https://friendica.mrpetovan.com/profile/hypolite'
+				    avatar='https://friendica.mrpetovan.com/photo/20682437145daa4e85f019a278584494-5.png'
+				    link='https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243'
+				    posted='2022-06-16 12:34:10'
+				    guid='735a2029-1062-ab23-42e4-f9c631220243'
+			    ]George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
+Disney: So a morally grey “choose your side” story, right?
+Lucas: For the right price, yes.[/share]",
+			],
+			'optional-attributes' => [
+				'expected' => [
+					'author' => 'Hypolite Petovan',
+					'profile' => 'https://friendica.mrpetovan.com/profile/hypolite',
+					'avatar' => 'https://friendica.mrpetovan.com/photo/20682437145daa4e85f019a278584494-5.png',
+					'link' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
+					'posted' => '2022-06-16 12:34:10',
+					'guid' => '',
+					'comment' => '',
+					'shared' => 'George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
+Disney: So a morally grey “choose your side” story, right?
+Lucas: For the right price, yes.',
+				],
+				'text' => "[share
+				    author='Hypolite Petovan'
+				    profile='https://friendica.mrpetovan.com/profile/hypolite'
+				    avatar='https://friendica.mrpetovan.com/photo/20682437145daa4e85f019a278584494-5.png'
+				    link='https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243'
+				    posted='2022-06-16 12:34:10'
+			    ]George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
+Disney: So a morally grey “choose your side” story, right?
+Lucas: For the right price, yes.[/share]",
+			],
+			'double-quotes' => [
+				'expected' => [
+					'author' => 'Hypolite Petovan',
+					'profile' => 'https://friendica.mrpetovan.com/profile/hypolite',
+					'avatar' => 'https://friendica.mrpetovan.com/photo/20682437145daa4e85f019a278584494-5.png',
+					'link' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
+					'posted' => '2022-06-16 12:34:10',
+					'guid' => '',
+					'comment' => '',
+					'shared' => 'George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
+Disney: So a morally grey “choose your side” story, right?
+Lucas: For the right price, yes.',
+				],
+				'text' => '[share
+				    author="Hypolite Petovan"
+				    profile="https://friendica.mrpetovan.com/profile/hypolite"
+				    avatar="https://friendica.mrpetovan.com/photo/20682437145daa4e85f019a278584494-5.png"
+				    link="https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243"
+				    posted="2022-06-16 12:34:10"
+			    ]George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
+Disney: So a morally grey “choose your side” story, right?
+Lucas: For the right price, yes.[/share]',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataFetchShareAttributes
+	 *
+	 * @param array $expected Expected attribute array
+	 * @param string $text    Input text
+	 */
+	public function testFetchShareAttributes(array $expected, string $text)
+	{
+		$actual = BBCode::fetchShareAttributes($text);
+
+		self::assertEquals($expected, $actual);
+	}
 }

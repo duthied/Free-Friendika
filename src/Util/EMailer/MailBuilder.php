@@ -119,7 +119,7 @@ abstract class MailBuilder
 	{
 		$this->recipientUid = $user['uid'] ?? 0;
 		try {
-			$this->l10n = $user['language'] ? $this->l10n->withLang($user['language']) : $this->l10n;
+			$this->l10n = isset($user['language']) ? $this->l10n->withLang($user['language']) : $this->l10n;
 		} catch (Exception $e) {
 			$this->logger->warning('cannot use language.', ['user' => $user, 'exception' => $e]);
 		}
@@ -164,7 +164,7 @@ abstract class MailBuilder
 	 *
 	 * @return string[][]
 	 */
-	public function getHeaders()
+	public function getHeaders(): array
 	{
 		return $this->headers;
 	}
@@ -182,7 +182,7 @@ abstract class MailBuilder
 	 * @param string[][] $headers
 	 * @return $this
 	 */
-	public function withHeaders(array $headers)
+	public function withHeaders(array $headers): MailBuilder
 	{
 		$this->headers = $headers;
 

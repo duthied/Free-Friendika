@@ -40,10 +40,10 @@ class Salmon
 	/**
 	 * @param string $uri     Uniform Resource Identifier
 	 * @param string $keyhash encoded key
-	 * @return mixed
+	 * @return string Key or empty string on any errors
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getKey($uri, $keyhash)
+	public static function getKey(string $uri, string $keyhash): string
 	{
 		$ret = [];
 
@@ -83,13 +83,13 @@ class Salmon
 		Logger::notice('Key located', ['ret' => $ret]);
 
 		if (count($ret) == 1) {
-			// We only found one one key so we don't care if the hash matches.
-			// If it's the wrong key we'll find out soon enough because
-			// message verification will fail. This also covers some older
-			// software which don't supply a keyhash. As long as they only
-			// have one key we'll be right.
-
-			return $ret[0];
+			/* We only found one one key so we don't care if the hash matches.
+			 * If it's the wrong key we'll find out soon enough because
+			 * message verification will fail. This also covers some older
+			 * software which don't supply a keyhash. As long as they only
+			 * have one key we'll be right.
+			 */
+			return (string) $ret[0];
 		} else {
 			foreach ($ret as $a) {
 				$hash = Strings::base64UrlEncode(hash('sha256', $a));
@@ -109,18 +109,18 @@ class Salmon
 	 * @return integer
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function slapper($owner, $url, $slap)
+	public static function slapper(array $owner, string $url, string $slap): int
 	{
 		// does contact have a salmon endpoint?
 
 		if (!strlen($url)) {
-			return;
+			return -1;
 		}
 
 		if (!$owner['sprvkey']) {
 			Logger::notice(sprintf("user '%s' (%d) does not have a salmon private key. Send failed.",
 			$owner['name'], $owner['uid']));
-			return;
+			return -1;
 		}
 
 		Logger::info('slapper called for '.$url.'. Data: ' . $slap);
@@ -229,7 +229,7 @@ class Salmon
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function salmonKey($pubkey)
+	public static function salmonKey(string $pubkey): string
 	{
 		Crypto::pemToMe($pubkey, $modulus, $exponent);
 		return 'RSA' . '.' . Strings::base64UrlEncode($modulus, true) . '.' . Strings::base64UrlEncode($exponent, true);

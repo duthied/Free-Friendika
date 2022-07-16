@@ -85,7 +85,7 @@ HELP;
 		$this->config = $config;
 	}
 
-	protected function doExecute()
+	protected function doExecute(): int
 	{
 		if (!$this->config->get('system', 'avatar_cache')) {
 			$this->err($this->l10n->t('The avatar cache needs to be enabled to use this command.'));

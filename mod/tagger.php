@@ -73,7 +73,7 @@ function tagger_content(App $a) {
 		return;
 	}
 
-	$uri = Item::newURI($owner_uid);
+	$uri = Item::newURI();
 	$xterm = XML::escape($term);
 	$post_type = (($item['resource-id']) ? DI::l10n()->t('photo') : DI::l10n()->t('status'));
 	$targettype = (($item['resource-id']) ? Activity\ObjectType::IMAGE : Activity\ObjectType::NOTE );

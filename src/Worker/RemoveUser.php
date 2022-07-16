@@ -29,7 +29,13 @@ use Friendica\Model\Post;
  * Removes orphaned data from deleted users
  */
 class RemoveUser {
-	public static function execute($uid)
+	/**
+	 * Removes user by id
+	 *
+	 * @param int $uid User id
+	 * @return void
+	 */
+	public static function execute(int $uid)
 	{
 		// Only delete if the user is archived
 		$condition = ['account_removed' => true, 'uid' => $uid];

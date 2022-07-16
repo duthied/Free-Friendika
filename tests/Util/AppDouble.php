@@ -43,7 +43,7 @@ class AppDouble extends App
 		$this->isLoggedIn = $isLoggedIn;
 	}
 
-	public function isLoggedIn()
+	public function isLoggedIn(): bool
 	{
 		return $this->isLoggedIn;
 	}

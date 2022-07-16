@@ -133,7 +133,7 @@ class PostUpdate
 		}
 
 		$max_item_delivery_data = DBA::selectFirst('item-delivery-data', ['iid'], ['queue_count > 0 OR queue_done > 0'], ['order' => ['iid']]);
-		$max_iid = $max_item_delivery_data['iid'];
+		$max_iid = $max_item_delivery_data['iid'] ?? 0;
 
 		Logger::info('Start update1297 with max iid: ' . $max_iid);
 
@@ -538,7 +538,7 @@ class PostUpdate
 	private static function update1347()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1347) {
+		if (DI::config()->get('system', 'post_update_version') >= 1347) {
 			return true;
 		}
 
@@ -547,7 +547,7 @@ class PostUpdate
 			return true;
 		}
 
-		$id = DI::config()->get("system", "post_update_version_1347_id", 0);
+		$id = DI::config()->get('system', 'post_update_version_1347_id', 0);
 
 		Logger::info('Start', ['item' => $id]);
 
@@ -582,12 +582,12 @@ class PostUpdate
 		}
 		DBA::close($items);
 
-		DI::config()->set("system", "post_update_version_1347_id", $id);
+		DI::config()->set('system', 'post_update_version_1347_id', $id);
 
 		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
 
 		if ($start_id == $id) {
-			DI::config()->set("system", "post_update_version", 1347);
+			DI::config()->set('system', 'post_update_version', 1347);
 			Logger::info('Done');
 			return true;
 		}
@@ -605,11 +605,11 @@ class PostUpdate
 	private static function update1348()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1348) {
+		if (DI::config()->get('system', 'post_update_version') >= 1348) {
 			return true;
 		}
 
-		$id = DI::config()->get("system", "post_update_version_1348_id", 0);
+		$id = DI::config()->get('system', 'post_update_version_1348_id', 0);
 
 		Logger::info('Start', ['contact' => $id]);
 
@@ -635,12 +635,12 @@ class PostUpdate
 		}
 		DBA::close($contacts);
 
-		DI::config()->set("system", "post_update_version_1348_id", $id);
+		DI::config()->set('system', 'post_update_version_1348_id', $id);
 
 		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
 
 		if ($start_id == $id) {
-			DI::config()->set("system", "post_update_version", 1348);
+			DI::config()->set('system', 'post_update_version', 1348);
 			Logger::info('Done');
 			return true;
 		}
@@ -658,11 +658,11 @@ class PostUpdate
 	private static function update1349()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1349) {
+		if (DI::config()->get('system', 'post_update_version') >= 1349) {
 			return true;
 		}
 
-		$id = DI::config()->get("system", "post_update_version_1349_id", '');
+		$id = DI::config()->get('system', 'post_update_version_1349_id', '');
 
 		Logger::info('Start', ['apcontact' => $id]);
 
@@ -688,12 +688,12 @@ class PostUpdate
 		}
 		DBA::close($apcontacts);
 
-		DI::config()->set("system", "post_update_version_1349_id", $id);
+		DI::config()->set('system', 'post_update_version_1349_id', $id);
 
 		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
 
 		if ($start_id == $id) {
-			DI::config()->set("system", "post_update_version", 1349);
+			DI::config()->set('system', 'post_update_version', 1349);
 			Logger::info('Done');
 			return true;
 		}
@@ -711,7 +711,7 @@ class PostUpdate
 	private static function update1383()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1383) {
+		if (DI::config()->get('system', 'post_update_version') >= 1383) {
 			return true;
 		}
 
@@ -737,7 +737,7 @@ class PostUpdate
 		}
 		DBA::close($photos);
 
-		DI::config()->set("system", "post_update_version", 1383);
+		DI::config()->set('system', 'post_update_version', 1383);
 		Logger::info('Done', ['deleted' => $deleted]);
 		return true;
 	}
@@ -752,7 +752,7 @@ class PostUpdate
 	private static function update1384()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1384) {
+		if (DI::config()->get('system', 'post_update_version') >= 1384) {
 			return true;
 		}
 
@@ -782,7 +782,7 @@ class PostUpdate
 		Logger::info('Processed', ['rows' => $rows]);
 
 		if ($rows <= 100) {
-			DI::config()->set("system", "post_update_version", 1384);
+			DI::config()->set('system', 'post_update_version', 1384);
 			Logger::info('Done');
 			return true;
 		}
@@ -800,12 +800,12 @@ class PostUpdate
 	private static function update1400()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1400) {
+		if (DI::config()->get('system', 'post_update_version') >= 1400) {
 			return true;
 		}
 
 		if (!DBStructure::existsTable('item')) {
-			DI::config()->set("system", "post_update_version", 1400);
+			DI::config()->set('system', 'post_update_version', 1400);
 			return true;
 		}
 
@@ -829,7 +829,7 @@ class PostUpdate
 		Logger::info('Processed', ['rows' => $rows]);
 
 		if ($rows <= 100) {
-			DI::config()->set("system", "post_update_version", 1400);
+			DI::config()->set('system', 'post_update_version', 1400);
 			Logger::info('Done');
 			return true;
 		}
@@ -847,7 +847,7 @@ class PostUpdate
 	private static function update1424()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1424) {
+		if (DI::config()->get('system', 'post_update_version') >= 1424) {
 			return true;
 		}
 
@@ -871,7 +871,7 @@ class PostUpdate
 		Logger::info('Processed', ['rows' => $rows]);
 
 		if ($rows <= 100) {
-			DI::config()->set("system", "post_update_version", 1424);
+			DI::config()->set('system', 'post_update_version', 1424);
 			Logger::info('Done');
 			return true;
 		}
@@ -889,7 +889,7 @@ class PostUpdate
 	private static function update1425()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1425) {
+		if (DI::config()->get('system', 'post_update_version') >= 1425) {
 			return true;
 		}
 
@@ -918,7 +918,7 @@ class PostUpdate
 		Logger::info('Processed', ['rows' => $rows]);
 
 		if ($rows <= 100) {
-			DI::config()->set("system", "post_update_version", 1425);
+			DI::config()->set('system', 'post_update_version', 1425);
 			Logger::info('Done');
 			return true;
 		}
@@ -936,7 +936,7 @@ class PostUpdate
 	private static function update1426()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1426) {
+		if (DI::config()->get('system', 'post_update_version') >= 1426) {
 			return true;
 		}
 
@@ -965,7 +965,7 @@ class PostUpdate
 		Logger::info('Processed', ['rows' => $rows]);
 
 		if ($rows <= 100) {
-			DI::config()->set("system", "post_update_version", 1426);
+			DI::config()->set('system', 'post_update_version', 1426);
 			Logger::info('Done');
 			return true;
 		}
@@ -983,7 +983,7 @@ class PostUpdate
 	private static function update1427()
 	{
 		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1427) {
+		if (DI::config()->get('system', 'post_update_version') >= 1427) {
 			return true;
 		}
 
@@ -1012,7 +1012,7 @@ class PostUpdate
 		Logger::info('Processed', ['rows' => $rows]);
 
 		if ($rows <= 100) {
-			DI::config()->set("system", "post_update_version", 1427);
+			DI::config()->set('system', 'post_update_version', 1427);
 			Logger::info('Done');
 			return true;
 		}

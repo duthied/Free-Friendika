@@ -190,7 +190,7 @@ class Status extends BaseFactory
 	 */
 	public function createFromMailId(int $id): \Friendica\Object\Api\Mastodon\Status
 	{
-		$item = ActivityPub\Transmitter::ItemArrayFromMail($id, true);
+		$item = ActivityPub\Transmitter::getItemArrayFromMail($id, true);
 		if (empty($item)) {
 			$this->mstdnErrorFactory->RecordNotFound();
 		}

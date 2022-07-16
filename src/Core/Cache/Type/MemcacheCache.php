@@ -69,6 +69,17 @@ class MemcacheCache extends AbstractCache implements ICanCacheInMemory
 	}
 
 	/**
+	 * Memcache doesn't allow spaces in keys
+	 *
+	 * @param string $key
+	 * @return string
+	 */
+	protected function getCacheKey(string $key): string
+	{
+		return str_replace(' ', '_', parent::getCacheKey($key));
+	}
+
+	/**
 	 * (@inheritdoc)
 	 */
 	public function getAllKeys(?string $prefix = null): array

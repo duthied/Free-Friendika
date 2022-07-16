@@ -23,6 +23,8 @@ namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache;
 use Friendica\Core\Config\Factory\Config;
+use Friendica\Database\Definition\DbaDefinition;
+use Friendica\Database\Definition\ViewDefinition;
 use Friendica\Test\DatabaseTestTrait;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
@@ -57,7 +59,10 @@ class DatabaseCacheTest extends CacheTest
 		$loader = (new Config())->createConfigFileLoader($this->root->url(), []);
 		$configCache = $configFactory->createCache($loader);
 
-		$dba = new StaticDatabase($configCache, $profiler, $logger);
+		$dbaDefinition = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
+		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
+
+		$dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition, $logger);
 
 		$this->cache = new Cache\Type\DatabaseCache('database', $dba);
 		return $this->cache;

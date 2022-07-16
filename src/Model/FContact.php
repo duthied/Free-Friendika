@@ -40,7 +40,7 @@ class FContact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getByURL($handle, $update = null)
+	public static function getByURL(string $handle, $update = null): array
 	{
 		$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
 		if (!DBA::isResult($person)) {
@@ -90,7 +90,7 @@ class FContact
 	 * @param array $arr The fcontact data
 	 * @throws \Exception
 	 */
-	public static function updateFromProbeArray($arr)
+	public static function updateFromProbeArray(array $arr)
 	{
 		$uriid = ItemURI::insert(['uri' => $arr['url'], 'guid' => $arr['guid']]);
 
@@ -103,17 +103,27 @@ class FContact
 			$posts       = Post::countPosts(['author-id' => $contact['id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]]);
 		}
 
-		$fields = ['name' => $arr["name"], 'photo' => $arr["photo"],
-			'request' => $arr["request"], 'nick' => $arr["nick"],
-			'addr' => strtolower($arr["addr"]), 'guid' => $arr["guid"],
-			'batch' => $arr["batch"], 'notify' => $arr["notify"],
-			'poll' => $arr["poll"], 'confirm' => $arr["confirm"],
-			'alias' => $arr["alias"], 'pubkey' => $arr["pubkey"],
-			'uri-id' => $uriid, 'interacting_count' => $interacting ?? 0,
-			'interacted_count' => $interacted ?? 0, 'post_count' => $posts ?? 0,
-			'updated' => DateTimeFormat::utcNow()];
+		$fields = [
+			'name' => $arr['name'],
+			'photo' => $arr['photo'],
+			'request' => $arr['request'],
+			'nick' => $arr['nick'],
+			'addr' => strtolower($arr['addr']),
+			'guid' => $arr['guid'],
+			'batch' => $arr['batch'],
+			'notify' => $arr['notify'],
+			'poll' => $arr['poll'],
+			'confirm' => $arr['confirm'],
+			'alias' => $arr['alias'],
+			'pubkey' => $arr['pubkey'],
+			'uri-id' => $uriid,
+			'interacting_count' => $interacting ?? 0,
+			'interacted_count' => $interacted ?? 0,
+			'post_count' => $posts ?? 0,
+			'updated' => DateTimeFormat::utcNow(),
+		];
 
-		$condition = ['url' => $arr["url"], 'network' => $arr["network"]];
+		$condition = ['url' => $arr['url'], 'network' => $arr['network']];
 
 		DBA::update('fcontact', $fields, $condition, true);
 	}
@@ -122,12 +132,11 @@ class FContact
 	 * get a url (scheme://domain.tld/u/user) from a given Diaspora*
 	 * fcontact guid
 	 *
-	 * @param mixed $fcontact_guid Hexadecimal string guid
-	 *
-	 * @return string the contact url or null
+	 * @param string $fcontact_guid Hexadecimal string guid
+	 * @return string|null the contact url or null
 	 * @throws \Exception
 	 */
-	public static function getUrlByGuid($fcontact_guid)
+	public static function getUrlByGuid(string $fcontact_guid)
 	{
 		Logger::info('fcontact', ['guid' => $fcontact_guid]);
 

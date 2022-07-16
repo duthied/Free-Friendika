@@ -70,9 +70,11 @@ class BaseCollection extends \ArrayIterator
 	}
 
 	/**
-	 * @return int
+	 * Getter for total count
+	 *
+	 * @return int Total count
 	 */
-	public function getTotalCount()
+	public function getTotalCount(): int
 	{
 		return $this->totalCount;
 	}
@@ -85,7 +87,7 @@ class BaseCollection extends \ArrayIterator
 	 * @return array
 	 * @see array_column()
 	 */
-	public function column($column, $index_key = null)
+	public function column(string $column, $index_key = null): array
 	{
 		return array_column($this->getArrayCopy(true), $column, $index_key);
 	}
@@ -97,7 +99,7 @@ class BaseCollection extends \ArrayIterator
 	 * @return BaseCollection
 	 * @see array_map()
 	 */
-	public function map(callable $callback)
+	public function map(callable $callback): BaseCollection
 	{
 		return new static(array_map($callback, $this->getArrayCopy()), $this->getTotalCount());
 	}
@@ -110,7 +112,7 @@ class BaseCollection extends \ArrayIterator
 	 * @return BaseCollection
 	 * @see array_filter()
 	 */
-	public function filter(callable $callback = null, int $flag = 0)
+	public function filter(callable $callback = null, int $flag = 0): BaseCollection
 	{
 		return new static(array_filter($this->getArrayCopy(), $callback, $flag));
 	}

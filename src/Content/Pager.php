@@ -48,11 +48,11 @@ class Pager
 	 *
 	 * Guesses the page number from the GET parameter 'page'.
 	 *
-	 * @param L10n    $l10n
-	 * @param string  $queryString  The query string of the current page
-	 * @param integer $itemsPerPage An optional number of items per page to override the default value
+	 * @param L10n   $l10n
+	 * @param string $queryString  The query string of the current page
+	 * @param int    $itemsPerPage An optional number of items per page to override the default value
 	 */
-	public function __construct(L10n $l10n, $queryString, $itemsPerPage = 50)
+	public function __construct(L10n $l10n, string $queryString, int $itemsPerPage = 50)
 	{
 		$this->l10n = $l10n;
 
@@ -64,9 +64,9 @@ class Pager
 	/**
 	 * Returns the start offset for a LIMIT clause. Starts at 0.
 	 *
-	 * @return integer
+	 * @return int
 	 */
-	public function getStart()
+	public function getStart(): int
 	{
 		return max(0, ($this->page * $this->itemsPerPage) - $this->itemsPerPage);
 	}
@@ -74,9 +74,9 @@ class Pager
 	/**
 	 * Returns the number of items per page
 	 *
-	 * @return integer
+	 * @return int
 	 */
-	public function getItemsPerPage()
+	public function getItemsPerPage(): int
 	{
 		return $this->itemsPerPage;
 	}
@@ -86,7 +86,7 @@ class Pager
 	 *
 	 * @return int
 	 */
-	public function getPage()
+	public function getPage(): int
 	{
 		return $this->page;
 	}
@@ -108,9 +108,9 @@ class Pager
 	/**
 	 * Sets the number of items per page, 1 minimum.
 	 *
-	 * @param integer $itemsPerPage
+	 * @param int $itemsPerPage
 	 */
-	public function setItemsPerPage($itemsPerPage)
+	public function setItemsPerPage(int $itemsPerPage)
 	{
 		$this->itemsPerPage = max(1, intval($itemsPerPage));
 	}
@@ -118,11 +118,11 @@ class Pager
 	/**
 	 * Sets the current page number. Starts at 1.
 	 *
-	 * @param integer $page
+	 * @param int $page
 	 */
-	public function setPage($page)
+	public function setPage(int $page)
 	{
-		$this->page = max(1, intval($page));
+		$this->page = max(1, $page);
 	}
 
 	/**
@@ -132,7 +132,7 @@ class Pager
 	 *
 	 * @param string $queryString
 	 */
-	public function setQueryString($queryString)
+	public function setQueryString(string $queryString)
 	{
 		$stripped = preg_replace('/([&?]page=[0-9]*)/', '', $queryString);
 
@@ -160,7 +160,7 @@ class Pager
 	 * @return string HTML string of the pager
 	 * @throws \Exception
 	 */
-	public function renderMinimal(int $itemCount)
+	public function renderMinimal(int $itemCount): string
 	{
 		$displayedItemCount = max(0, intval($itemCount));
 
@@ -199,13 +199,13 @@ class Pager
 	 *
 	 * $html = $pager->renderFull();
 	 *
-	 * @param integer $itemCount The total number of items including those note displayed on the page
+	 * @param int $itemCount The total number of items including those note displayed on the page
 	 * @return string HTML string of the pager
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function renderFull($itemCount)
+	public function renderFull(int $itemCount): string
 	{
-		$totalItemCount = max(0, intval($itemCount));
+		$totalItemCount = max(0, $itemCount);
 
 		$data = [];
 

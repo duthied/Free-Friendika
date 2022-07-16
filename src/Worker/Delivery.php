@@ -257,19 +257,19 @@ class Delivery
 	/**
 	 * Deliver content via DFRN
 	 *
-	 * @param string  $cmd             Command
-	 * @param array   $contact         Contact record of the receiver
-	 * @param array   $owner           Owner record of the sender
-	 * @param array   $items           Item record of the content and the parent
-	 * @param array   $target_item     Item record of the content
-	 * @param boolean $public_message  Is the content public?
-	 * @param boolean $top_level       Is it a thread starter?
-	 * @param boolean $followup        Is it an answer to a remote post?
-	 * @param int     $server_protocol The protocol of the server
+	 * @param string   $cmd             Command
+	 * @param array    $contact         Contact record of the receiver
+	 * @param array    $owner           Owner record of the sender
+	 * @param array    $items           Item record of the content and the parent
+	 * @param array    $target_item     Item record of the content
+	 * @param boolean  $public_message  Is the content public?
+	 * @param boolean  $top_level       Is it a thread starter?
+	 * @param boolean  $followup        Is it an answer to a remote post?
+	 * @param int|null $server_protocol The protocol of the server
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup, $server_protocol)
+	private static function deliverDFRN(string $cmd, array $contact, array $owner, array $items, array $target_item, bool $public_message, bool $top_level, bool $followup, int $server_protocol = null)
 	{
 		// Transmit Diaspora reshares via Diaspora if the Friendica contact support Diaspora
 		if (Diaspora::isReshare($target_item['body'] ?? '') && !empty(FContact::getByURL($contact['addr'], false))) {
@@ -384,7 +384,7 @@ class Delivery
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
+	private static function deliverDiaspora(string $cmd, array $contact, array $owner, array $items, array $target_item, bool $public_message, bool $top_level, bool $followup)
 	{
 		// We don't treat Forum posts as "wall-to-wall" to be able to post them via Diaspora
 		$walltowall = $top_level && ($owner['id'] != $items[0]['contact-id']) & ($owner['account-type'] != Model\User::ACCOUNT_TYPE_COMMUNITY);
@@ -475,12 +475,13 @@ class Delivery
 	 * @param array  $owner       Owner record of the sender
 	 * @param array  $target_item Item record of the content
 	 * @param array  $thr_parent  Item record of the direct parent in the thread
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function deliverMail($cmd, $contact, $owner, $target_item, $thr_parent)
+	private static function deliverMail(string $cmd, array $contact, array $owner, array $target_item, array $thr_parent)
 	{
-		if (DI::config()->get('system','imap_disabled')) {
+		if (DI::config()->get('system', 'imap_disabled')) {
 			return;
 		}
 
@@ -570,10 +571,16 @@ class Delivery
 			}
 		}
 
-		Email::send($addr, $subject, $headers, $target_item);
+		// Try to send email
+		$success = Email::send($addr, $subject, $headers, $target_item);
 
-		Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::MAIL);
-
-		Logger::info('Delivered via mail', ['guid' => $target_item['guid'], 'to' => $addr, 'subject' => $subject]);
+		if ($success) {
+			// Success
+			Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::MAIL);
+			Logger::info('Delivered via mail', ['guid' => $target_item['guid'], 'to' => $addr, 'subject' => $subject]);
+		} else {
+			// Failed
+			Logger::warning('Delivery of mail has FAILED', ['to' => $addr, 'subject' => $subject, 'guid' => $target_item['guid']]);
+		}
 	}
 }

@@ -157,9 +157,9 @@ function wall_upload_post(App $a, $desktopmode = true)
 		" - size: " . $filesize . " - type: " . $filetype);
 
 	$imagedata = @file_get_contents($src);
-	$Image = new Image($imagedata, $filetype);
+	$image = new Image($imagedata, $filetype);
 
-	if (!$Image->isValid()) {
+	if (!$image->isValid()) {
 		$msg = DI::l10n()->t('Unable to process image.');
 		@unlink($src);
 		if ($r_json) {
@@ -170,18 +170,18 @@ function wall_upload_post(App $a, $desktopmode = true)
 		System::exit();
 	}
 
-	$Image->orient($src);
+	$image->orient($src);
 	@unlink($src);
 
 	$max_length = DI::config()->get('system', 'max_image_length');
 	if ($max_length > 0) {
-		$Image->scaleDown($max_length);
-		$filesize = strlen($Image->asString());
+		$image->scaleDown($max_length);
+		$filesize = strlen($image->asString());
 		Logger::info("File upload: Scaling picture to new size " . $max_length);
 	}
 
-	$width = $Image->getWidth();
-	$height = $Image->getHeight();
+	$width = $image->getWidth();
+	$height = $image->getHeight();
 
 	$maximagesize = DI::config()->get('system', 'maximagesize');
 
@@ -190,10 +190,10 @@ function wall_upload_post(App $a, $desktopmode = true)
 		foreach ([5120, 2560, 1280, 640] as $pixels) {
 			if (($filesize > $maximagesize) && (max($width, $height) > $pixels)) {
 				Logger::info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
-				$Image->scaleDown($pixels);
-				$filesize = strlen($Image->asString());
-				$width = $Image->getWidth();
-				$height = $Image->getHeight();
+				$image->scaleDown($pixels);
+				$filesize = strlen($image->asString());
+				$width = $image->getWidth();
+				$height = $image->getHeight();
 			}
 		}
 		if ($filesize > $maximagesize) {
@@ -220,7 +220,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	$defperm = '<' . $default_cid . '>';
 
-	$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0, Photo::DEFAULT, $defperm);
+	$r = Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0, Photo::DEFAULT, $defperm);
 
 	if (!$r) {
 		$msg = DI::l10n()->t('Image upload failed.');
@@ -233,16 +233,16 @@ function wall_upload_post(App $a, $desktopmode = true)
 	}
 
 	if ($width > 640 || $height > 640) {
-		$Image->scaleDown(640);
-		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 1, Photo::DEFAULT, $defperm);
+		$image->scaleDown(640);
+		$r = Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 1, Photo::DEFAULT, $defperm);
 		if ($r) {
 			$smallest = 1;
 		}
 	}
 
 	if ($width > 320 || $height > 320) {
-		$Image->scaleDown(320);
-		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 2, Photo::DEFAULT, $defperm);
+		$image->scaleDown(320);
+		$r = Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 2, Photo::DEFAULT, $defperm);
 		if ($r && ($smallest == 0)) {
 			$smallest = 2;
 		}
@@ -264,8 +264,8 @@ function wall_upload_post(App $a, $desktopmode = true)
 		$picture["height"]    = $photo["height"];
 		$picture["type"]      = $photo["type"];
 		$picture["albumpage"] = DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id;
-		$picture["picture"]   = DI::baseUrl() . "/photo/{$resource_id}-0." . $Image->getExt();
-		$picture["preview"]   = DI::baseUrl() . "/photo/{$resource_id}-{$smallest}." . $Image->getExt();
+		$picture["picture"]   = DI::baseUrl() . "/photo/{$resource_id}-0." . $image->getExt();
+		$picture["preview"]   = DI::baseUrl() . "/photo/{$resource_id}-{$smallest}." . $image->getExt();
 
 		if ($r_json) {
 			System::jsonExit(['picture' => $picture]);
@@ -280,7 +280,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		System::jsonExit(['ok' => true]);
 	}
 
-	echo  "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id . '][img]' . DI::baseUrl() . "/photo/{$resource_id}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
+	echo  "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id . '][img]' . DI::baseUrl() . "/photo/{$resource_id}-{$smallest}." . $image->getExt() . "[/img][/url]\n\n";
 	System::exit();
 	// NOTREACHED
 }

@@ -14,6 +14,10 @@ use Friendica\App;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 
+/*
+ * This script can be included even when the app is in maintenance mode which requires us to avoid any config call
+ */
+
 function smoothly_init(App $a) {
 	Renderer::setActiveTemplateEngine('smarty3');
 

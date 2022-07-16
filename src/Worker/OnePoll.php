@@ -41,11 +41,11 @@ use Friendica\Util\Strings;
 
 class OnePoll
 {
-	public static function execute($contact_id = 0, $command = '')
+	public static function execute(int $contact_id = 0, string $command = '')
 	{
 		Logger::notice('Start polling/probing contact', ['id' => $contact_id]);
 
-		$force = ($command == "force");
+		$force = ($command == 'force');
 
 		if (empty($contact_id)) {
 			Logger::notice('no contact provided');
@@ -118,6 +118,7 @@ class OnePoll
 	 *
 	 * @param array $contact The personal contact entry
 	 * @param array $fields  The fields that are updated
+	 * @return void
 	 * @throws \Exception
 	 */
 	private static function updateContact(array $contact, array $fields)

@@ -44,9 +44,9 @@ class ItemCCEMail extends Email
 		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->getLoggedInUserNickname()) . EOL;
 		$disclaimer .= $l10n->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 		if (!$item['title'] == '') {
-			$subject = EmailProtocol::encodeHeader($item['title'], 'UTF-8');
+			$subject = $item['title'];
 		} else {
-			$subject = EmailProtocol::encodeHeader('[Friendica]' . ' ' . $l10n->t('%s posted an update.', $user['username']), 'UTF-8');
+			$subject = '[Friendica]' . ' ' . $l10n->t('%s posted an update.', $user['username']);
 		}
 		$link    = '<a href="' . $baseUrl . '/profile/' . $a->getLoggedInUserNickname() . '"><img src="' . $authorThumb . '" alt="' . $user['username'] . '" /></a><br /><br />';
 		$html    = Item::prepareBody($item);

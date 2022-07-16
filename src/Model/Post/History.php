@@ -24,7 +24,7 @@ namespace Friendica\Model\Post;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Database\Database;
-use Friendica\Database\DBStructure;
+use Friendica\DI;
 use Friendica\Model\Post;
 
 class History
@@ -37,7 +37,7 @@ class History
 	 */
 	public static function add(int $uri_id, array $item)
 	{
-		$allfields = DBStructure::definition('', false);
+		$allfields = DI::dbaDefinition()->getAll();
 		$fields    = array_keys($allfields['post-history']['fields']);
 
 		$post = Post::selectFirstPost($fields, ['uri-id' => $uri_id]);
@@ -52,7 +52,7 @@ class History
 		}
 
 		$update  = false;
-		$changed = DBStructure::getFieldsForTable('post-history', $item);
+		$changed = DI::dbaDefinition()->truncateFieldsForTable('post-history', $item);
 		unset($changed['uri-id']);
 		unset($changed['edited']);
 		foreach ($changed as $field => $content) {

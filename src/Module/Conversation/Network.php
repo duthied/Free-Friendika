@@ -86,13 +86,13 @@ class Network extends BaseModule
 
 		$module = 'network';
 
-		DI::page()['aside'] .= Widget::accounttypes($module, self::$accountTypeString);
+		DI::page()['aside'] .= Widget::accountTypes($module, self::$accountTypeString);
 		DI::page()['aside'] .= Group::sidebarWidget($module, $module . '/group', 'standard', self::$groupId);
 		DI::page()['aside'] .= ForumManager::widget($module . '/forum', local_user(), self::$forumContactId);
 		DI::page()['aside'] .= Widget::postedByYear($module . '/archive', local_user(), false);
 		DI::page()['aside'] .= Widget::networks($module, !self::$forumContactId ? self::$network : '');
 		DI::page()['aside'] .= Widget\SavedSearches::getHTML(DI::args()->getQueryString());
-		DI::page()['aside'] .= Widget::fileAs('filed', null);
+		DI::page()['aside'] .= Widget::fileAs('filed', '');
 
 		$arr = ['query' => DI::args()->getQueryString()];
 		Hook::callAll('network_content_init', $arr);

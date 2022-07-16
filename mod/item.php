@@ -439,8 +439,13 @@ function item_post(App $a) {
 				// Ensure to only modify attachments that you own
 				$srch = '<' . intval($contact_id) . '>';
 
-				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
-						'id' => $attach];
+				$condition = [
+					'allow_cid' => $srch,
+					'allow_gid' => '',
+					'deny_cid' => '',
+					'deny_gid' => '',
+					'id' => $attach,
+				];
 				if (!Attach::exists($condition)) {
 					continue;
 				}
@@ -520,7 +525,7 @@ function item_post(App $a) {
 		$origin = $_REQUEST['origin'];
 	}
 
-	$uri = Item::newURI($api_source ? $profile_uid : $uid, $guid);
+	$uri = Item::newURI($guid);
 
 	// Fallback so that we alway have a parent uri
 	if (!$thr_parent_uri || !$toplevel_item_id) {

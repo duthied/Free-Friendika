@@ -109,7 +109,7 @@ class Media
 	 * @param array $media
 	 * @return array cleaned media array
 	 */
-	private static function unsetEmptyFields(array $media)
+	private static function unsetEmptyFields(array $media): array
 	{
 		$fields = ['mimetype', 'height', 'width', 'size', 'preview', 'preview-height', 'preview-width', 'description'];
 		foreach ($fields as $field) {
@@ -145,7 +145,7 @@ class Media
 	 * @param string $title
 	 * @return string "[attach]" element
 	 */
-	public static function getAttachElement(string $href, int $length, string $type, string $title = '')
+	public static function getAttachElement(string $href, int $length, string $type, string $title = ''): string
 	{
 		$media = self::fetchAdditionalData(['type' => self::DOCUMENT, 'url' => $href,
 			'size' => $length, 'mimetype' => $type, 'description' => $title]);
@@ -160,7 +160,7 @@ class Media
 	 * @param array $media
 	 * @return array media array with additional data
 	 */
-	public static function fetchAdditionalData(array $media)
+	public static function fetchAdditionalData(array $media): array
 	{
 		if (Network::isLocalLink($media['url'])) {
 			$media = self::fetchLocalData($media);
@@ -192,7 +192,7 @@ class Media
 
 		if (($media['type'] == self::IMAGE) || ($filetype == 'image')) {
 			$imagedata = Images::getInfoFromURLCached($media['url']);
-			if (!empty($imagedata)) {
+			if ($imagedata) {
 				$media['mimetype'] = $imagedata['mime'];
 				$media['size'] = $imagedata['size'];
 				$media['width'] = $imagedata[0];
@@ -202,7 +202,7 @@ class Media
 			}
 			if (!empty($media['preview'])) {
 				$imagedata = Images::getInfoFromURLCached($media['preview']);
-				if (!empty($imagedata)) {
+				if ($imagedata) {
 					$media['preview-width'] = $imagedata[0];
 					$media['preview-height'] = $imagedata[1];
 				}
@@ -235,7 +235,7 @@ class Media
 	 * @param array $media
 	 * @return array media with added data
 	 */
-	private static function fetchLocalData(array $media)
+	private static function fetchLocalData(array $media): array
 	{
 		if (!preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $media['url'] ?? '', $matches)) {
 			return $media;
@@ -266,7 +266,7 @@ class Media
 	 * @param array $data
 	 * @return array data array with the detected type
 	 */
-	public static function addType(array $data)
+	public static function addType(array $data): array
 	{
 		if (empty($data['mimetype'])) {
 			Logger::info('No MimeType provided', ['media' => $data]);
@@ -318,7 +318,7 @@ class Media
 	 * @param string $preview Preview picture
 	 * @return boolean
 	 */
-	private static function isPictureLink(string $page, string $preview)
+	private static function isPictureLink(string $page, string $preview): bool
 	{
 		return preg_match('#/photos/.*/image/#ism', $page) && preg_match('#/photo/.*-1\.#ism', $preview);
 	}
@@ -330,7 +330,7 @@ class Media
 	 * @param string $body
 	 * @return string Body without media links
 	 */
-	public static function insertFromBody(int $uriid, string $body)
+	public static function insertFromBody(int $uriid, string $body): string
 	{
 		// Simplify image codes
 		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
@@ -413,6 +413,7 @@ class Media
 	 *
 	 * @param integer $uriid
 	 * @param string $body
+	 * @return void
 	 */
 	public static function insertFromRelevantUrl(int $uriid, string $body)
 	{
@@ -448,6 +449,7 @@ class Media
 	 *
 	 * @param integer $uriid
 	 * @param string $body
+	 * @return void
 	 */
 	public static function insertFromAttachmentData(int $uriid, string $body)
 	{
@@ -506,9 +508,9 @@ class Media
 	/**
 	 * Retrieves the media attachments associated with the provided item ID.
 	 *
-	 * @param int $uri_id
-	 * @param array $types
-	 * @return array
+	 * @param int $uri_id URI id
+	 * @param array $types Media types
+	 * @return array|bool Array on success, false on error
 	 * @throws \Exception
 	 */
 	public static function getByURIId(int $uri_id, array $types = [])
@@ -525,12 +527,12 @@ class Media
 	/**
 	 * Checks if media attachments are associated with the provided item ID.
 	 *
-	 * @param int $uri_id
-	 * @param array $types
-	 * @return array
+	 * @param int $uri_id URI id
+	 * @param array $types Media types
+	 * @return bool Whether media attachment exists
 	 * @throws \Exception
 	 */
-	public static function existsByURIId(int $uri_id, array $types = [])
+	public static function existsByURIId(int $uri_id, array $types = []): bool
 	{
 		$condition = ['uri-id' => $uri_id];
 
@@ -544,13 +546,13 @@ class Media
 	/**
 	 * Split the attachment media in the three segments "visual", "link" and "additional"
 	 *
-	 * @param int    $uri_id
-	 * @param string $guid
+	 * @param int    $uri_id URI id
+	 * @param string $guid GUID
 	 * @param array  $links list of links that shouldn't be added
 	 * @param bool   $has_media
 	 * @return array attachments
 	 */
-	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [], bool $has_media = true)
+	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [], bool $has_media = true): array
 	{
 		$attachments = ['visual' => [], 'link' => [], 'additional' => []];
 
@@ -648,7 +650,7 @@ class Media
 	 * @param string $body
 	 * @return string body
 	 */
-	public static function addAttachmentsToBody(int $uriid, string $body = '')
+	public static function addAttachmentsToBody(int $uriid, string $body = ''): string
 	{
 		if (empty($body)) {
 			$item = Post::selectFirst(['body'], ['uri-id' => $uriid]);
@@ -701,7 +703,7 @@ class Media
 	 * @param string  $size One of the Proxy::SIZE_* constants
 	 * @return string preview link
 	 */
-	public static function getPreviewUrlForId(int $id, string $size = ''):string
+	public static function getPreviewUrlForId(int $id, string $size = ''): string
 	{
 		$url = DI::baseUrl() . '/photo/preview/';
 		switch ($size) {
@@ -731,7 +733,7 @@ class Media
 	 * @param string  $size One of the Proxy::SIZE_* constants
 	 * @return string media link
 	 */
-	public static function getUrlForId(int $id, string $size = ''):string
+	public static function getUrlForId(int $id, string $size = ''): string
 	{
 		$url = DI::baseUrl() . '/photo/media/';
 		switch ($size) {

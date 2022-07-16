@@ -174,7 +174,7 @@ class Relation
 	 * @param array $rel
 	 * @return array contact list
 	 */
-	private static function getContacts(int $uid, array $rel)
+	private static function getContacts(int $uid, array $rel): array
 	{
 		$list = [];
 		$profile = Profile::getByUID($uid);
@@ -182,8 +182,15 @@ class Relation
 			return $list;
 		}
 
-		$condition = ['rel' => $rel, 'uid' => $uid, 'self' => false, 'deleted' => false,
-			'hidden' => false, 'archive' => false, 'pending' => false];
+		$condition = [
+			'rel' => $rel,
+			'uid' => $uid,
+			'self' => false,
+			'deleted' => false,
+			'hidden' => false,
+			'archive' => false,
+			'pending' => false,
+		];
 		$condition = DBA::mergeConditions($condition, ["`url` IN (SELECT `url` FROM `apcontact`)"]);
 		$contacts = DBA::select('contact', ['url'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
@@ -201,7 +208,7 @@ class Relation
 	 * @param array  $contact Contact array
 	 * @return boolean True if contact is discoverable
 	 */
-	public static function isDiscoverable(string $url, array $contact = [])
+	public static function isDiscoverable(string $url, array $contact = []): bool
 	{
 		$contact_discovery = DI::config()->get('system', 'contact_discovery');
 
@@ -254,12 +261,14 @@ class Relation
 	}
 
 	/**
-	 * @param int $uid   user
+	 * Returns an array of suggested contacts for given user id
+	 *
+	 * @param int $uid   User id
 	 * @param int $start optional, default 0
 	 * @param int $limit optional, default 80
 	 * @return array
 	 */
-	static public function getSuggestions(int $uid, int $start = 0, int $limit = 80)
+	static public function getSuggestions(int $uid, int $start = 0, int $limit = 80): array
 	{
 		$cid = Contact::getPublicIdByUserId($uid);
 		$totallimit = $start + $limit;
@@ -272,20 +281,25 @@ class Relation
 
 		// The query returns contacts where contacts interacted with whom the given user follows.
 		// Contacts who already are in the user's contact table are ignored.
-		$results = DBA::select('contact', [],
-			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
+		$results = DBA::select('contact', [], ["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
 				(SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ?)
 					AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
 						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
 			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
-			$cid, 0, $uid, Contact::FRIEND, Contact::SHARING,
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
-			['order' => ['last-item' => true], 'limit' => $totallimit]
+			$cid,
+			0,
+			$uid, Contact::FRIEND, Contact::SHARING,
+			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus,
+			], [
+				'order' => ['last-item' => true],
+				'limit' => $totallimit,
+			]
 		);
 
 		while ($contact = DBA::fetch($results)) {
 			$contacts[$contact['id']] = $contact;
 		}
+
 		DBA::close($results);
 
 		Logger::info('Contacts of contacts who are followed by the given user', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
@@ -365,12 +379,12 @@ class Relation
 	 * @return int
 	 * @throws Exception
 	 */
-	public static function countFollows(int $cid, array $condition = [])
+	public static function countFollows(int $cid, array $condition = []): int
 	{
-		$condition = DBA::mergeConditions($condition,
-			['`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`)', 
-			$cid]
-		);
+		$condition = DBA::mergeConditions($condition, [
+			'`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`)', 
+			$cid,
+		]);
 
 		return DI::dba()->count('contact', $condition);
 	}
@@ -556,7 +570,7 @@ class Relation
 	 * @param int   $count
 	 * @param int   $offset
 	 * @param bool  $shuffle
-	 * @return array
+	 * @return array|bool Array on success, false on failure
 	 * @throws Exception
 	 */
 	public static function listCommon(int $sourceId, int $targetId, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
@@ -581,7 +595,7 @@ class Relation
 	 * @return int
 	 * @throws Exception
 	 */
-	public static function countCommonFollows(int $sourceId, int $targetId, array $condition = [])
+	public static function countCommonFollows(int $sourceId, int $targetId, array $condition = []): int
 	{
 		$condition = DBA::mergeConditions($condition,
 			['`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
@@ -601,7 +615,7 @@ class Relation
 	 * @param int   $count
 	 * @param int   $offset
 	 * @param bool  $shuffle
-	 * @return array
+	 * @return array|bool Array on success, false on failure
 	 * @throws Exception
 	 */
 	public static function listCommonFollows(int $sourceId, int $targetId, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
@@ -626,7 +640,7 @@ class Relation
 	 * @return int
 	 * @throws Exception
 	 */
-	public static function countCommonFollowers(int $sourceId, int $targetId, array $condition = [])
+	public static function countCommonFollowers(int $sourceId, int $targetId, array $condition = []): int
 	{
 		$condition = DBA::mergeConditions($condition,
 			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`) 
@@ -646,7 +660,7 @@ class Relation
 	 * @param int   $count
 	 * @param int   $offset
 	 * @param bool  $shuffle
-	 * @return array
+	 * @return array|bool Array on success, false on failure
 	 * @throws Exception
 	 */
 	public static function listCommonFollowers(int $sourceId, int $targetId, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)

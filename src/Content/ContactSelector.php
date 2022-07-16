@@ -41,7 +41,7 @@ class ContactSelector
 	 * @param boolean $disabled optional, default false
 	 * @return string
 	 */
-	public static function pollInterval($current, $disabled = false)
+	public static function pollInterval(string $current, bool $disabled = false): string
 	{
 		$dis = (($disabled) ? ' disabled="disabled" ' : '');
 		$o = '';
@@ -84,7 +84,7 @@ class ContactSelector
 	 * @return string Server URL
 	 * @throws \Exception
 	 */
-	private static function getServerURLForProfile($profile)
+	private static function getServerURLForProfile(string $profile): string
 	{
 		if (!empty(self::$server_url[$profile])) {
 			return self::$server_url[$profile];
@@ -111,13 +111,16 @@ class ContactSelector
 	}
 
 	/**
+	 * Determines network name
+	 *
 	 * @param string $network  network of the contact
 	 * @param string $profile  optional, default empty
 	 * @param string $protocol (Optional) Protocol that is used for the transmission
+	 * @param int $gsid Server id
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function networkToName($network, $profile = '', $protocol = '', $gsid = 0)
+	public static function networkToName(string $network, string $profile = '', string $protocol = '', int $gsid = null): string
 	{
 		$nets = [
 			Protocol::DFRN      =>   DI::l10n()->t('DFRN'),
@@ -179,12 +182,15 @@ class ContactSelector
 	}
 
 	/**
+	 * Determines network's icon name
+	 *
 	 * @param string $network network
 	 * @param string $profile optional, default empty
-	 * @return string
+	 * @param int $gsid Server id
+	 * @return string Name for network icon
 	 * @throws \Exception
 	 */
-	public static function networkToIcon($network, $profile = "", $gsid = 0)
+	public static function networkToIcon(string $network, string $profile = "", int $gsid = null): string
 	{
 		$nets = [
 			Protocol::DFRN      =>   'friendica',

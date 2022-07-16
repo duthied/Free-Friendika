@@ -34,7 +34,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-06 07:33+0000\n"
+"POT-Creation-Date: 2022-06-13 05:45+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Nicolas Derive, 2022\n"
 "Language-Team: French (http://www.transifex.com/Friendica/friendica/language/fr/)\n"
@@ -63,7 +63,7 @@ msgstr "Accès refusé."
 msgid "User not found."
 msgstr "Utilisateur introuvable."
 
-#: mod/cal.php:122 mod/display.php:247 src/Module/Profile/Profile.php:94
+#: mod/cal.php:122 mod/display.php:262 src/Module/Profile/Profile.php:94
 #: src/Module/Profile/Profile.php:109 src/Module/Profile/Status.php:110
 #: src/Module/Update/Profile.php:56
 msgid "Access to this profile has been restricted."
@@ -130,17 +130,17 @@ msgstr "Rien à exporter"
 msgid "calendar"
 msgstr "calendrier"
 
-#: mod/display.php:142 mod/photos.php:802
+#: mod/display.php:143 mod/photos.php:802
 #: src/Module/Conversation/Community.php:175 src/Module/Directory.php:49
 #: src/Module/Search/Index.php:50
 msgid "Public access denied."
 msgstr "Accès public refusé."
 
-#: mod/display.php:198 mod/display.php:272
+#: mod/display.php:213 mod/display.php:287
 msgid "The requested item doesn't exist or has been deleted."
 msgstr "L'objet recherché n'existe pas ou a été supprimé."
 
-#: mod/display.php:352
+#: mod/display.php:367
 msgid "The feed for this item is unavailable."
 msgstr "Le flux pour cet objet n'est pas disponible."
 
@@ -256,7 +256,7 @@ msgstr "supp. localisation"
 
 #: mod/editpost.php:107 mod/message.php:200 mod/message.php:358
 #: mod/photos.php:1489 mod/wallmessage.php:142
-#: src/Content/Conversation.php:368 src/Content/Conversation.php:712
+#: src/Content/Conversation.php:368 src/Content/Conversation.php:713
 #: src/Module/Item/Compose.php:177 src/Object/Post.php:528
 msgid "Please wait"
 msgstr "Patientez"
@@ -1101,12 +1101,12 @@ msgstr "C'est vous"
 msgid "Comment"
 msgstr "Commenter"
 
-#: mod/photos.php:1424 src/Content/Conversation.php:628
+#: mod/photos.php:1424 src/Content/Conversation.php:629
 #: src/Object/Post.php:247
 msgid "Select"
 msgstr "Sélectionner"
 
-#: mod/photos.php:1425 mod/settings.php:350 src/Content/Conversation.php:629
+#: mod/photos.php:1425 mod/settings.php:350 src/Content/Conversation.php:630
 #: src/Module/Admin/Users/Active.php:139
 #: src/Module/Admin/Users/Blocked.php:140 src/Module/Admin/Users/Index.php:153
 msgid "Delete"
@@ -1972,7 +1972,7 @@ msgid "%s attends maybe."
 msgstr "%s participe peut-être"
 
 #: src/Content/Conversation.php:222 src/Content/Conversation.php:260
-#: src/Content/Conversation.php:872
+#: src/Content/Conversation.php:873
 #, php-format
 msgid "%s reshared this."
 msgstr "%s a partagé ceci."
@@ -2091,92 +2091,92 @@ msgstr "Vidéo"
 msgid "Scheduled at"
 msgstr "Prévu pour"
 
-#: src/Content/Conversation.php:656 src/Object/Post.php:235
+#: src/Content/Conversation.php:657 src/Object/Post.php:235
 msgid "Pinned item"
 msgstr "Élément épinglé"
 
-#: src/Content/Conversation.php:672 src/Object/Post.php:476
+#: src/Content/Conversation.php:673 src/Object/Post.php:476
 #: src/Object/Post.php:477
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr "Voir le profil de %s @ %s"
 
-#: src/Content/Conversation.php:685 src/Object/Post.php:464
+#: src/Content/Conversation.php:686 src/Object/Post.php:464
 msgid "Categories:"
 msgstr "Catégories :"
 
-#: src/Content/Conversation.php:686 src/Object/Post.php:465
+#: src/Content/Conversation.php:687 src/Object/Post.php:465
 msgid "Filed under:"
 msgstr "Rangé sous :"
 
-#: src/Content/Conversation.php:694 src/Object/Post.php:490
+#: src/Content/Conversation.php:695 src/Object/Post.php:490
 #, php-format
 msgid "%s from %s"
 msgstr "%s de %s"
 
-#: src/Content/Conversation.php:710
+#: src/Content/Conversation.php:711
 msgid "View in context"
 msgstr "Voir dans le contexte"
 
-#: src/Content/Conversation.php:775
+#: src/Content/Conversation.php:776
 msgid "remove"
 msgstr "enlever"
 
-#: src/Content/Conversation.php:779
+#: src/Content/Conversation.php:780
 msgid "Delete Selected Items"
 msgstr "Supprimer les éléments sélectionnés"
 
-#: src/Content/Conversation.php:844 src/Content/Conversation.php:847
-#: src/Content/Conversation.php:850 src/Content/Conversation.php:853
+#: src/Content/Conversation.php:845 src/Content/Conversation.php:848
+#: src/Content/Conversation.php:851 src/Content/Conversation.php:854
 #, php-format
 msgid "You had been addressed (%s)."
 msgstr "Vous avez été mentionné (%s)"
 
-#: src/Content/Conversation.php:856
+#: src/Content/Conversation.php:857
 #, php-format
 msgid "You are following %s."
 msgstr "Vous suivez %s."
 
-#: src/Content/Conversation.php:859
+#: src/Content/Conversation.php:860
 msgid "Tagged"
 msgstr "Mentionné"
 
-#: src/Content/Conversation.php:874
+#: src/Content/Conversation.php:875
 msgid "Reshared"
 msgstr "Partagé"
 
-#: src/Content/Conversation.php:874
+#: src/Content/Conversation.php:875
 #, php-format
 msgid "Reshared by %s <%s>"
 msgstr "Partagé par %s <%s>"
 
-#: src/Content/Conversation.php:877
+#: src/Content/Conversation.php:878
 #, php-format
 msgid "%s is participating in this thread."
 msgstr "%s participe à ce fil de discussion"
 
-#: src/Content/Conversation.php:880
+#: src/Content/Conversation.php:881
 msgid "Stored"
 msgstr "Enregistré"
 
-#: src/Content/Conversation.php:883
+#: src/Content/Conversation.php:884
 msgid "Global"
 msgstr "Global"
 
-#: src/Content/Conversation.php:886
+#: src/Content/Conversation.php:887
 msgid "Relayed"
 msgstr "Relayé"
 
-#: src/Content/Conversation.php:886
+#: src/Content/Conversation.php:887
 #, php-format
 msgid "Relayed by %s <%s>"
 msgstr "Relayé par %s <%s>"
 
-#: src/Content/Conversation.php:889
+#: src/Content/Conversation.php:890
 msgid "Fetched"
 msgstr "Récupéré"
 
-#: src/Content/Conversation.php:889
+#: src/Content/Conversation.php:890
 #, php-format
 msgid "Fetched because of %s <%s>"
 msgstr "Récupéré grâce à %s <%s>"
@@ -3660,63 +3660,63 @@ msgstr "Organisation"
 msgid "Forum"
 msgstr "Forum"
 
-#: src/Model/Contact.php:2517
+#: src/Model/Contact.php:2550
 msgid "Disallowed profile URL."
 msgstr "URL de profil interdite."
 
-#: src/Model/Contact.php:2522 src/Module/Friendica.php:81
+#: src/Model/Contact.php:2555 src/Module/Friendica.php:81
 msgid "Blocked domain"
 msgstr "Domaine bloqué"
 
-#: src/Model/Contact.php:2527
+#: src/Model/Contact.php:2560
 msgid "Connect URL missing."
 msgstr "URL de connexion manquante."
 
-#: src/Model/Contact.php:2536
+#: src/Model/Contact.php:2569
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "Le contact n'a pu être ajouté. Veuillez vérifier les identifiants du réseau concerné dans la page Réglages -> Réseaux Sociaux si pertinent."
 
-#: src/Model/Contact.php:2578
+#: src/Model/Contact.php:2611
 msgid "The profile address specified does not provide adequate information."
 msgstr "L'adresse de profil indiquée ne fournit par les informations adéquates."
 
-#: src/Model/Contact.php:2580
+#: src/Model/Contact.php:2613
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Aucun protocole de communication ni aucun flux n'a pu être découvert."
 
-#: src/Model/Contact.php:2583
+#: src/Model/Contact.php:2616
 msgid "An author or name was not found."
 msgstr "Aucun auteur ou nom d'auteur n'a pu être trouvé."
 
-#: src/Model/Contact.php:2586
+#: src/Model/Contact.php:2619
 msgid "No browser URL could be matched to this address."
 msgstr "Aucune URL de navigation ne correspond à cette adresse."
 
-#: src/Model/Contact.php:2589
+#: src/Model/Contact.php:2622
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Impossible de faire correspondre l'adresse d'identité en \"@\" avec un protocole connu ou un contact courriel."
 
-#: src/Model/Contact.php:2590
+#: src/Model/Contact.php:2623
 msgid "Use mailto: in front of address to force email check."
 msgstr "Utilisez mailto: en face d'une adresse pour l'obliger à être reconnue comme courriel."
 
-#: src/Model/Contact.php:2596
+#: src/Model/Contact.php:2629
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "L'adresse de profil spécifiée correspond à un réseau qui a été désactivé sur ce site."
 
-#: src/Model/Contact.php:2601
+#: src/Model/Contact.php:2634
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Profil limité. Cette personne ne sera pas capable de recevoir des notifications directes/personnelles de votre part."
 
-#: src/Model/Contact.php:2660
+#: src/Model/Contact.php:2693
 msgid "Unable to retrieve contact information."
 msgstr "Impossible de récupérer les informations du contact."
 
@@ -10319,12 +10319,12 @@ msgstr "%1$s a répondu à votre commentaire %2$s"
 #: src/Navigation/Notifications/Factory/Notification.php:281
 #, php-format
 msgid "%1$s commented in their thread %2$s"
-msgstr "%1$s a commenté dans leur conversation %2$s"
+msgstr "%1$s a commenté dans sa conversation %2$s"
 
 #: src/Navigation/Notifications/Factory/Notification.php:283
 #, php-format
 msgid "%1$s commented in their thread"
-msgstr "%1$s a commenté dans leur conversation"
+msgstr "%1$s a commenté dans sa conversation"
 
 #: src/Navigation/Notifications/Factory/Notification.php:285
 #, php-format
