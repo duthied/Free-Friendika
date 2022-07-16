@@ -658,5 +658,13 @@ return [
 		// total_ap_delivery (Boolean)
 		// Deliver via AP to every possible receiver and we suppress the delivery to these contacts with other protocols
 		'total_ap_delivery' => false,
+
+		// ap_log_unknown (Boolean)
+		// Logs every unknown ActivityPub activity
+		'ap_log_unknown' => false,
+
+		// ap_log_failure (Boolean)
+		// Logs every ActivityPub activity that couldn't be compacted
+		'ap_log_failure' => false,
 	]
 ];
