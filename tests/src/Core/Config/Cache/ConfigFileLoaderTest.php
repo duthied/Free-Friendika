@@ -174,7 +174,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->at($this->root)
 			->setContent(file_get_contents($file));
 
-		$configFileLoader = new \Friendica\Core\Config\Util\ConfigFileLoader(
+		$configFileLoader = new ConfigFileLoader(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
@@ -228,7 +228,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->at($this->root->getChild('addon')->getChild('test')->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configFileLoader = new \Friendica\Core\Config\Util\ConfigFileLoader(
+		$configFileLoader = new ConfigFileLoader(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
@@ -265,7 +265,7 @@ class ConfigFileLoaderTest extends MockedTest
 				->at($this->root->getChild('config'))
 		         ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
-		$configFileLoader = new \Friendica\Core\Config\Util\ConfigFileLoader(
+		$configFileLoader = new ConfigFileLoader(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
@@ -299,7 +299,7 @@ class ConfigFileLoaderTest extends MockedTest
 		         ->at($this->root->getChild('config'))
 		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
-		$configFileLoader = new \Friendica\Core\Config\Util\ConfigFileLoader(
+		$configFileLoader = new ConfigFileLoader(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
@@ -333,7 +333,7 @@ class ConfigFileLoaderTest extends MockedTest
 		         ->at($this->root->getChild('config'))
 		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
-		$configFileLoader = new \Friendica\Core\Config\Util\ConfigFileLoader(
+		$configFileLoader = new ConfigFileLoader(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
