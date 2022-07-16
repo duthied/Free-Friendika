@@ -71,16 +71,17 @@ class Network
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
 		$host = parse_url($url, PHP_URL_HOST);
 
-		if (empty($host) || !(@dns_get_record($host . '.', DNS_A + DNS_AAAA + DNS_CNAME) || filter_var($host, FILTER_VALIDATE_IP))) {
+		if (empty($host) || !(filter_var($host, FILTER_VALIDATE_IP) || @dns_get_record($host . '.', DNS_A + DNS_AAAA))) {
 			return false;
 		}
 
 		if (in_array(parse_url($url, PHP_URL_SCHEME), ['https', 'http'])) {
-			$curlResult = DI::httpClient()->head($url, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
+			$options = [HttpClientOptions::VERIFY => true, HttpClientOptions::TIMEOUT => $xrd_timeout];
+			$curlResult = DI::httpClient()->head($url, $options);
 	
 			// Workaround for systems that can't handle a HEAD request. Don't retry on timeouts.
 			if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() >= 400) && !in_array($curlResult->getReturnCode(), [408, 504])) {
-				$curlResult = DI::httpClient()->get($url, HttpClientAccept::DEFAULT, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
+				$curlResult = DI::httpClient()->get($url, HttpClientAccept::DEFAULT, $options);
 			}
 	
 			if (!$curlResult->isSuccess()) {
@@ -88,44 +89,6 @@ class Network
 				return false;
 			} elseif ($curlResult->isRedirectUrl()) {
 				$url = $curlResult->getRedirectUrl();
-			}
-		}
-
-		// Check if the certificate is valid for this hostname
-		if (parse_url($url, PHP_URL_SCHEME) == 'https') {
-			$port = parse_url($url, PHP_URL_PORT) ?? 443;
-
-			$context = stream_context_create(["ssl" => ['capture_peer_cert' => true]]);
-
-			$resource = @stream_socket_client('ssl://' . $host . ':' . $port, $errno, $errstr, $xrd_timeout, STREAM_CLIENT_CONNECT, $context);
-			if (empty($resource)) {
-				Logger::notice('Invalid certificate', ['host' => $host]);
-				return false;
-			}
-
-			$cert = stream_context_get_params($resource);
-			if (empty($cert)) {
-				Logger::notice('Invalid certificate params', ['host' => $host]);
-				return false;
-			}
-
-			$certinfo = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
-			if (empty($certinfo)) {
-				Logger::notice('Invalid certificate information', ['host' => $host]);
-				return false;
-			}
-
-			$valid_from = date(DATE_RFC2822,$certinfo['validFrom_time_t']);
-			$valid_to   = date(DATE_RFC2822,$certinfo['validTo_time_t']);
-
-			if ($certinfo['validFrom_time_t'] > time()) {
-				Logger::notice('Certificate validity starts after current date', ['host' => $host, 'from' => $valid_from, 'to' => $valid_to]);
-				return false;
-			}
-
-			if ($certinfo['validTo_time_t'] < time()) {
-				Logger::notice('Certificate validity ends before current date', ['host' => $host, 'from' => $valid_from, 'to' => $valid_to]);
-				return false;
 			}
 		}
 

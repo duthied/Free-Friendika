@@ -167,6 +167,10 @@ class CurlResult implements ICanHandleHttpResponses
 			$this->isSuccess = false;
 		}
 
+		if (empty($this->returnCode) && empty($this->header) && empty($this->body)) {
+			$this->isSuccess = false;
+		}
+
 		if (!$this->isSuccess) {
 			Logger::debug('debug', ['info' => $this->info]);
 		}

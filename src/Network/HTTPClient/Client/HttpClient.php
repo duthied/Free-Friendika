@@ -68,6 +68,13 @@ class HttpClient implements ICanSendHttpRequests
 		$this->profiler->startRecording('network');
 		$this->logger->debug('Request start.', ['url' => $url, 'method' => $method]);
 
+		$host = parse_url($url, PHP_URL_HOST);
+		if(!filter_var($host, FILTER_VALIDATE_IP) && !@dns_get_record($host . '.', DNS_A + DNS_AAAA)) {
+			$this->logger->debug('URL cannot be resolved.', ['url' => $url, 'callstack' => System::callstack(20)]);
+			$this->profiler->stopRecording();
+			return CurlResult::createErrorCurl($url);
+		}
+
 		if (Network::isLocalLink($url)) {
 			$this->logger->info('Local link', ['url' => $url, 'callstack' => System::callstack(20)]);
 		}
@@ -123,6 +130,10 @@ class HttpClient implements ICanSendHttpRequests
 
 		if (!empty($opts[HttpClientOptions::TIMEOUT])) {
 			$conf[RequestOptions::TIMEOUT] = $opts[HttpClientOptions::TIMEOUT];
+		}
+
+		if (isset($opts[HttpClientOptions::VERIFY])) {
+			$conf[RequestOptions::VERIFY] = $opts[HttpClientOptions::VERIFY];
 		}
 
 		if (!empty($opts[HttpClientOptions::BODY])) {

@@ -52,6 +52,12 @@ class HttpClientOptions
 	 * content_length: (int) maximum File content length
 	 */
 	const CONTENT_LENGTH = 'content_length';
+
+	/**
+	 * verify: (bool|string, default=true) Describes the SSL certificate
+	 */
+	const VERIFY = 'verify';
+
 	/**
 	 * body: (mixed) Setting the body for sending data
 	 */
