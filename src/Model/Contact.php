@@ -359,7 +359,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isFollowerByURL(string $url, uid $uid): bool
+	public static function isFollowerByURL(string $url, int $uid): bool
 	{
 		$cid = self::getIdForURL($url, $uid);
 
