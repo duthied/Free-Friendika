@@ -118,6 +118,9 @@ HELP;
 		foreach ($blocklist as $domain) {
 			fputcsv($fp, $domain);
 		}
+
+		// Success
+		return 0;
 	}
 	/**
 	 * Imports a list of domains and a reason for the block from a CSV
@@ -130,6 +133,7 @@ HELP;
 		$filename = $this->getArgument(1);
 		$currBlockList = $config->get('system', 'blocklist', []);
 		$newBlockList = [];
+
 		if (($fp = fopen($filename, 'r')) !== false) {
 			while (($data = fgetcsv($fp, 1000, ',')) !== false) {
 				$domain = $data[0];
@@ -146,11 +150,13 @@ HELP;
 					$newBlockList[] = $data;
 				}
 			}
+
 			foreach ($currBlockList as $blocked) {
 				if (!in_array($blocked, $newBlockList)) {
 					$newBlockList[] = $blocked;
 				}
 			}
+
 			if ($config->set('system', 'blocklist', $newBlockList)) {
 				$this->out(sprintf("Entries from %s that were not blocked before are now blocked", $filename));
 				return 0;
@@ -158,7 +164,6 @@ HELP;
 				$this->out(sprintf("Couldn't save '%s' as blocked server", $domain));
 				return 1;
 			}
-
 		} else {
 			throw new Exception(sprintf('The file "%s" could not be opened for importing', $filename));
 		}
@@ -178,6 +183,9 @@ HELP;
 			$table->addRow($domain);
 		}
 		$this->out($table->getTable());
+
+		// Success
+		return 0;
 	}
 
 	/**
