@@ -282,7 +282,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['gmp_strval' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(11,
+		self::assertCheckExist(12,
 			'GNU Multiple Precision PHP module',
 			'Error: GNU Multiple Precision PHP module required but not installed.',
 		false,
