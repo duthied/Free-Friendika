@@ -27,7 +27,7 @@ Requirements
 * Apache mit einer aktiverten mod-rewrite-Funktion und dem Eintrag "Options All", so dass du die lokale .htaccess-Datei nutzen kannst
 * PHP  7.3+ (PHP 8 wird noch nicht komplett unterstützt)
   * PHP *Kommandozeilen*-Zugang mit register_argc_argv auf "true" gesetzt in der php.ini-Datei
-  * Curl, GD, PDO, MySQLi, xml, zip und OpenSSL-Erweiterung
+  * Curl, GD, GMP, PDO, MySQLi, xml, zip und OpenSSL-Erweiterung
   * Das POSIX Modul muss aktiviert sein ([CentOS, RHEL](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) haben dies z.B. deaktiviert)
   * Einen E-Mail Server, so dass PHP `mail()` funktioniert.
     Wenn kein eigener E-Mail Server zur Verfügung steht, kann alternativ das [phpmailer](https://github.com/friendica/friendica-addons/tree/develop/phpmailer) Addon mit einem externen SMTP Account verwendet werden.
