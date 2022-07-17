@@ -136,14 +136,14 @@ class XML
 	/**
 	 * Copies an XML object
 	 *
-	 * @param object $source      The XML source
-	 * @param object $target      The XML target
-	 * @param string $elementname Name of the XML element of the target
+	 * @param object|string $source      The XML source
+	 * @param object        $target      The XML target
+	 * @param string        $elementname Name of the XML element of the target
 	 * @return void
 	 */
 	public static function copy(&$source, &$target, string $elementname)
 	{
-		if (is_string($source) && count($source->children()) == 0) {
+		if (is_string($source)) {
 			$target->addChild($elementname, self::escape($source));
 		} else {
 			$child = $target->addChild($elementname);
