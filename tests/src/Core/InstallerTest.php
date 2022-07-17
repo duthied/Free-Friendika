@@ -299,6 +299,7 @@ class InstallerTest extends MockedTest
 			'posix_kill' => true,
 			'json_encode' => true,
 			'finfo_open' => true,
+			'gmp_strval' => true,
 		]);
 		$install = new Installer();
 		self::assertTrue($install->checkFunctions());
