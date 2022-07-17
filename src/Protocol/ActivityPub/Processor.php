@@ -900,7 +900,7 @@ class Processor
 		}
 
 		// Store send a follow request for every reshare - but only when the item had been stored
-		if ($stored && ($item['private'] != Item::PRIVATE) && ($item['gravity'] == GRAVITY_PARENT) && ($item['author-link'] != $item['owner-link'])) {
+		if ($stored && ($item['private'] != Item::PRIVATE) && ($item['gravity'] == GRAVITY_PARENT) && !empty($item['author-link']) && ($item['author-link'] != $item['owner-link'])) {
 			$author = APContact::getByURL($item['owner-link'], false);
 			// We send automatic follow requests for reshared messages. (We don't need though for forum posts)
 			if ($author['type'] != 'Group') {
