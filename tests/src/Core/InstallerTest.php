@@ -104,6 +104,8 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT('Error: JSON PHP module required but not installed.', 1);
 		$this->mockL10nT('File Information PHP module', 1);
 		$this->mockL10nT('Error: File Information PHP module required but not installed.', 1);
+		$this->mockL10nT('GNU Multiple Precision PHP module', 1);
+		$this->mockL10nT('Error: GNU Multiple Precision PHP module required but not installed.', 1);
 		$this->mockL10nT('Program execution functions', 1);
 		$this->mockL10nT('Error: Program execution functions (proc_open) required but not enabled.', 1);
 	}
