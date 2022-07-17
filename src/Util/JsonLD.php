@@ -52,9 +52,23 @@ class JsonLD
 			case 'https://www.w3.org/ns/activitystreams':
 				$url = DI::baseUrl() . '/static/activitystreams.jsonld';
 				break;
-			default:
-				Logger::info('Got url', ['url' =>$url]);
+			case 'https://funkwhale.audio/ns':
+				$url = DI::baseUrl() . '/static/funkwhale.audio.jsonld';
 				break;
+			default:
+				switch (parse_url($url, PHP_URL_PATH)) {
+					case '/schemas/litepub-0.1.jsonld';
+						$url = DI::baseUrl() . '/static/litepub-0.1.jsonld';
+						break;
+					case '/apschema/v1.2':
+					case '/apschema/v1.9':
+					case '/apschema/v1.10':
+							$url = DI::baseUrl() . '/static/apschema.jsonld';
+						break;
+					default:
+						Logger::info('Got url', ['url' =>$url]);
+						break;
+				}
 		}
 
 		$recursion = 0;
@@ -121,11 +135,12 @@ class JsonLD
 	 * Compacts a given JSON array
 	 *
 	 * @param array $json
+	 * @param bool  $logfailed
 	 *
 	 * @return array Compacted JSON array
 	 * @throws Exception
 	 */
-	public static function compact($json)
+	public static function compact($json, bool $logfailed = true)
 	{
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
@@ -144,21 +159,22 @@ class JsonLD
 			'mobilizon' => (object)['@id' => 'https://joinmobilizon.org/ns#', '@type' => '@id'],
 		];
 
+		$orig_json = $json;
+
 		// Preparation for adding possibly missing content to the context
 		if (!empty($json['@context']) && is_string($json['@context'])) {
 			$json['@context'] = [$json['@context']];
 		}
 
-		// Workaround for servers with missing context
-		// See issue https://github.com/nextcloud/social/issues/330
 		if (!empty($json['@context']) && is_array($json['@context'])) {
-			$json['@context'][] = 'https://w3id.org/security/v1';
-		}
+			// Remove empty entries from the context (a problem with WriteFreely)
+			$json['@context'] = array_filter($json['@context']);
 
-		// Trying to avoid memory problems with large content fields
-		if (!empty($json['object']['source']['content'])) {
-			$content = $json['object']['source']['content'];
-			$json['object']['source']['content'] = '';
+			// Workaround for servers with missing context
+			// See issue https://github.com/nextcloud/social/issues/330
+			if (!in_array('https://w3id.org/security/v1', $json['@context'])) {
+				$json['@context'][] = 'https://w3id.org/security/v1';
+			}
 		}
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
@@ -168,14 +184,15 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			Logger::notice('compacting error', ['line' => $e->getLine(), 'exception' => $e]);
+			Logger::notice('compacting error', ['msg' => $e->getMessage(), 'previous' => $e->getPrevious(), 'line' => $e->getLine()]);
+			if ($logfailed && DI::config()->get('debug', 'ap_log_failure')) {
+				$tempfile = tempnam(System::getTempPath(), 'failed-jsonld');
+				file_put_contents($tempfile, json_encode(['json' => $orig_json, 'callstack' => System::callstack(20), 'msg' => $e->getMessage(), 'previous' => $e->getPrevious()], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+				Logger::notice('Failed message stored', ['file' => $tempfile]);
+			}
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
-
-		if (isset($json['as:object']['as:source']['as:content']) && !empty($content)) {
-			$json['as:object']['as:source']['as:content'] = $content;
-		}
 
 		return $json;
 	}
