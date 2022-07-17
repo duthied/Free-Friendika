@@ -78,11 +78,11 @@ function update_1298()
 					$a->strings = [];
 
 					// First we get the the localizations
-					if (file_exists("view/lang/$lang/strings.php")) {
-						include "view/lang/$lang/strings.php";
+					if (file_exists('view/lang/$lang/strings.php')) {
+						include 'view/lang/$lang/strings.php';
 					}
-					if (file_exists("addon/morechoice/lang/$lang/strings.php")) {
-						include "addon/morechoice/lang/$lang/strings.php";
+					if (file_exists('addon/morechoice/lang/$lang/strings.php')) {
+						include 'addon/morechoice/lang/$lang/strings.php';
 					}
 
 					$localizedStrings = $a->strings;
@@ -111,7 +111,7 @@ function update_1298()
 			}
 		}
 
-		Logger::notice($translateKey . " fix completed", ['action' => 'update', 'translateKey' => $translateKey, 'Success' => $success, 'Fail' => $fail ]);
+		Logger::notice($translateKey . ' fix completed', ['action' => 'update', 'translateKey' => $translateKey, 'Success' => $success, 'Fail' => $fail ]);
 	}
 	return Update::SUCCESS;
 }
@@ -148,8 +148,8 @@ function update_1315()
 
 function update_1318()
 {
-	DBA::update('profile', ['marital' => "In a relation"], ['marital' => "Unavailable"]);
-	DBA::update('profile', ['marital' => "Single"], ['marital' => "Available"]);
+	DBA::update('profile', ['marital' => 'In a relation'], ['marital' => 'Unavailable']);
+	DBA::update('profile', ['marital' => 'Single'], ['marital' => 'Available']);
 
 	Worker::add(PRIORITY_LOW, 'ProfileUpdate');
 	return Update::SUCCESS;
