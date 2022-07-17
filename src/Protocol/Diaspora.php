@@ -50,6 +50,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Worker\Delivery;
+use GuzzleHttp\Psr7\Uri;
 use SimpleXMLElement;
 
 /**
@@ -755,14 +756,14 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function key(string $handle): string
+	private static function key(string $handle = null): string
 	{
 		$handle = strval($handle);
 
 		Logger::notice("Fetching diaspora key for: " . $handle);
 
 		$fcontact = FContact::getByURL($handle);
-		if ($fcontact) {
+		if (!empty($fcontact['pubkey'])) {
 			return $fcontact['pubkey'];
 		}
 
@@ -1417,7 +1418,7 @@ class Diaspora
 
 			$parts = parse_url($person['url']);
 			unset($parts['path']);
-			$host_url = Network::unparseURL($parts);
+			$host_url = Uri::fromParts($parts);
 
 			return $host_url . '/objects/' . $guid;
 		}
@@ -4006,12 +4007,12 @@ class Diaspora
 	/**
 	 * Sends profile data
 	 *
-	 * @param int  $uid    The user id
-	 * @param bool $recips optional, default false
+	 * @param int   $uid    The user id
+	 * @param array $recips optional, default empty array
 	 * @return void
 	 * @throws \Exception
 	 */
-	public static function sendProfile(int $uid, bool $recips = false)
+	public static function sendProfile(int $uid, array $recips = [])
 	{
 		if (!$uid) {
 			return;

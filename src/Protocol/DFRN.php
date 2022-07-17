@@ -48,10 +48,10 @@ use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
-use Friendica\Util\Network;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
+use GuzzleHttp\Psr7\Uri;
 
 /**
  * This class contain functions to create and send DFRN XML files
@@ -1013,7 +1013,7 @@ class DFRN
 			$path_parts = explode('/', $parts['path']);
 			array_pop($path_parts);
 			$parts['path'] =  implode('/', $path_parts);
-			$contact['batch'] = Network::unparseURL($parts);
+			$contact['batch'] = Uri::fromParts($parts);
 		}
 
 		$dest_url = ($public_batch ? $contact['batch'] : $contact['notify']);

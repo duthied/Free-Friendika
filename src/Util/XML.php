@@ -42,9 +42,9 @@ class XML
 	 * @param bool   $remove_header Should the XML header be removed or not?
 	 * @param array  $namespaces    List of namespaces
 	 * @param bool   $root          interally used parameter. Mustn't be used from outside.
-	 * @return void
+	 * @return string
 	 */
-	public static function fromArray(array $array, &$xml, bool $remove_header = false, array $namespaces = [], bool $root = true)
+	public static function fromArray(array $array, &$xml, bool $remove_header = false, array $namespaces = [], bool $root = true): string
 	{
 		if ($root) {
 			foreach ($array as $key => $value) {
@@ -130,19 +130,20 @@ class XML
 				self::fromArray($value, $element, $remove_header, $namespaces, false);
 			}
 		}
+		return '';
 	}
 
 	/**
 	 * Copies an XML object
 	 *
-	 * @param object $source      The XML source
-	 * @param object $target      The XML target
-	 * @param string $elementname Name of the XML element of the target
+	 * @param object|string $source      The XML source
+	 * @param object        $target      The XML target
+	 * @param string        $elementname Name of the XML element of the target
 	 * @return void
 	 */
 	public static function copy(&$source, &$target, string $elementname)
 	{
-		if (count($source->children()) == 0) {
+		if (is_string($source)) {
 			$target->addChild($elementname, self::escape($source));
 		} else {
 			$child = $target->addChild($elementname);
@@ -184,9 +185,9 @@ class XML
 	 * @param array       $attributes Array containing the attributes
 	 * @return void
 	 */
-	public static function addElement(DOMDocument $doc, DOMElement &$parent, string $element, string $value = '', array $attributes = [])
+	public static function addElement(DOMDocument $doc, DOMElement &$parent, string $element, string $value = null, array $attributes = [])
 	{
-		$element = self::createElement($doc, $element, $value, $attributes);
+		$element = self::createElement($doc, $element, $value ?? '', $attributes);
 		$parent->appendChild($element);
 	}
 
@@ -273,6 +274,7 @@ class XML
 			return [];
 		}
 
+		$parent = [];
 
 		libxml_use_internal_errors(true);
 		libxml_clear_errors();
