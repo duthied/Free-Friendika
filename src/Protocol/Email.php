@@ -570,7 +570,7 @@ class Email
 	 * Removes signature from message
 	 *
 	 * @param string $message Unfiltered message
-	 * @return string Message with no signature
+	 * @return array Message array with no signature (elements "body" and "sig")
 	 */
 	private static function removeSig(string $message): array
 	{
