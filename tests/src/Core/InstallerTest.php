@@ -277,6 +277,17 @@ class InstallerTest extends MockedTest
 			$install->getChecks());
 
 		$this->mockFunctionL10TCalls();
+		$this->setFunctions(['gmp_strval' => false]);
+		$install = new Installer();
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(11,
+			'GNU Multiple Precision PHP module',
+			'Error: GNU Multiple Precision PHP module required but not installed.',
+		false,
+			true,
+			$install->getChecks());
+
+		$this->mockFunctionL10TCalls();
 		$this->setFunctions([
 			'curl_init' => true,
 			'imagecreatefromjpeg' => true,
