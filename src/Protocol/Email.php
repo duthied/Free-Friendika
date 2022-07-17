@@ -115,13 +115,13 @@ class Email
 	}
 
 	/**
-	 * @param Connection|resource $mbox mailbox
-	 * @param integer             $uid  user id
+	 * @param Connection|resource $mbox     mailbox
+	 * @param string              $sequence
 	 * @return mixed
 	 */
-	public static function messageMeta($mbox, int $uid)
+	public static function messageMeta($mbox, string $sequence)
 	{
-		$ret = (($mbox && $uid) ? @imap_fetch_overview($mbox, $uid, FT_UID) : [[]]); // POSSIBLE CLEANUP --> array(array()) is probably redundant now
+		$ret = (($mbox && $sequence) ? @imap_fetch_overview($mbox, $sequence, FT_UID) : [[]]); // POSSIBLE CLEANUP --> array(array()) is probably redundant now
 		return (count($ret)) ? $ret : [];
 	}
 
@@ -296,6 +296,7 @@ class Email
 			}
 			return $x;
 		}
+		return '';
 	}
 
 	/**
@@ -569,9 +570,9 @@ class Email
 	 * Removes signature from message
 	 *
 	 * @param string $message Unfiltered message
-	 * @return string Message with no signature
+	 * @return array Message array with no signature (elements "body" and "sig")
 	 */
-	private static function removeSig(string $message): string
+	private static function removeSig(string $message): array
 	{
 		$sigpos = strrpos($message, "\n-- \n");
 		$quotepos = strrpos($message, "[/quote]");
@@ -662,7 +663,7 @@ class Email
 		return implode("\n", $lines);
 	}
 
-	private static function convertQuote(strng $body, string $reply): string
+	private static function convertQuote(string $body, string $reply): string
 	{
 		// Convert Quotes
 		$arrbody = explode("\n", trim($body));

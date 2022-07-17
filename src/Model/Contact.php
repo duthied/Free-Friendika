@@ -1169,11 +1169,11 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getIdForURL(string $url, int $uid = 0, $update = null, array $default = []): int
+	public static function getIdForURL(string $url = null, int $uid = 0, $update = null, array $default = []): int
 	{
 		$contact_id = 0;
 
-		if ($url == '') {
+		if (empty($url)) {
 			Logger::notice('Empty url, quitting', ['url' => $url, 'user' => $uid, 'default' => $default]);
 			return 0;
 		}
