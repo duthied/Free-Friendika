@@ -93,6 +93,7 @@ class GServer
 	 *
 	 * @param string $url
 	 * @param boolean $only_nodeinfo
+	 *
 	 * @return void
 	 */
 	public static function add(string $url, bool $only_nodeinfo = false)
@@ -109,9 +110,10 @@ class GServer
 	 *
 	 * @param string $url
 	 * @param boolean $no_check Don't check if the server hadn't been found
+	 *
 	 * @return int|null gserver id or NULL on empty URL or failed check
 	 */
-	public static function getID(string $url, bool $no_check = false)
+	public static function getID(string $url, bool $no_check = false): ?int
 	{
 		if (empty($url)) {
 			return null;
@@ -138,7 +140,9 @@ class GServer
 	 * The pattern is a simple fnmatch() pattern with ? for single wildcard and * for multiple wildcard
 	 *
 	 * @param string $pattern
+	 *
 	 * @return array
+	 *
 	 * @throws Exception
 	 */
 	public static function listByDomainPattern(string $pattern): array
@@ -185,7 +189,19 @@ class GServer
 		return self::check($server, $network, $force);
 	}
 
-	public static function getNextUpdateDate(bool $success, string $created = '', string $last_contact = '', bool $undetected = false)
+	/**
+	 * Calculate the next update day
+	 *
+	 * @param bool $success
+	 * @param string $created
+	 * @param string $last_contact
+	 * @param bool $undetected
+	 *
+	 * @return string
+	 *
+	 * @throws Exception
+	 */
+	public static function getNextUpdateDate(bool $success, string $created = '', string $last_contact = '', bool $undetected = false): string
 	{
 		// On successful contact process check again next week when it is a detected system.
 		// When we haven't detected the system, it could be a static website or a really old system.
@@ -298,6 +314,7 @@ class GServer
 	 * Remove unwanted content from the given URL
 	 *
 	 * @param string $url
+	 *
 	 * @return string cleaned URL
 	 */
 	public static function cleanURL(string $url): string
@@ -377,7 +394,7 @@ class GServer
 				if (!self::getID($valid_url, true)) {
 					self::detect($valid_url, $network, $only_nodeinfo);
 				}
-				return false;	
+				return false;
 			}
 			Logger::debug('Found redirect, but ignore it.', ['old' => $url, 'new' => $valid_url]);
 		}
@@ -614,7 +631,9 @@ class GServer
 	 * Fetch relay data from a given server url
 	 *
 	 * @param string $server_url address of the server
+	 *
 	 * @return void
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function discoverRelay(string $server_url)
@@ -711,9 +730,10 @@ class GServer
 	 * Fetch server data from '/statistics.json' on the given server
 	 *
 	 * @param string $url URL of the given server
+	 *
 	 * @return array server data
 	 */
-	private static function fetchStatistics(string $url, array $serverdata)
+	private static function fetchStatistics(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/statistics.json', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess()) {
@@ -803,6 +823,7 @@ class GServer
 	 * @param ICanHandleHttpResponses $httpResult
 	 *
 	 * @return array Server data
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function fetchNodeinfo(string $url, ICanHandleHttpResponses $httpResult): array
@@ -853,7 +874,9 @@ class GServer
 	 * Parses Nodeinfo 1
 	 *
 	 * @param string $nodeinfo_url address of the nodeinfo path
+	 *
 	 * @return array Server data
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function parseNodeinfo1(string $nodeinfo_url): array
@@ -949,8 +972,11 @@ class GServer
 	 * Parses Nodeinfo 2
 	 *
 	 * @see https://git.feneas.org/jaywink/nodeinfo2
+	 *
 	 * @param string $nodeinfo_url address of the nodeinfo path
+	 *
 	 * @return array Server data
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function parseNodeinfo2(string $nodeinfo_url): array
@@ -1055,11 +1081,14 @@ class GServer
 	 * Parses NodeInfo2 protocol 1.0
 	 *
 	 * @see https://github.com/jaywink/nodeinfo2/blob/master/PROTOCOL.md
+	 *
 	 * @param string $nodeinfo_url address of the nodeinfo path
+	 *
 	 * @return array Server data
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function parseNodeinfo210(ICanHandleHttpResponses $httpResult)
+	private static function parseNodeinfo210(ICanHandleHttpResponses $httpResult): array
 	{
 		if (!$httpResult->isSuccess()) {
 			return [];
@@ -1154,6 +1183,7 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
+	 *
 	 * @return array server data
 	 */
 	private static function fetchSiteinfo(string $url, array $serverdata): array
@@ -1233,7 +1263,17 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function fetchDataFromSystemActor(array $data, array $serverdata)
+	/**
+	 * Fetches server data via an ActivityPub account with url of that server
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 *
+	 * @throws Exception
+	 */
+	private static function fetchDataFromSystemActor(array $data, array $serverdata): array
 	{
 		if (empty($data)) {
 			return ['server' => $serverdata, 'actor' => ''];
@@ -1274,6 +1314,7 @@ class GServer
 	 * Checks if the server contains a valid host meta file
 	 *
 	 * @param string $url URL of the given server
+	 *
 	 * @return boolean 'true' if the server seems to be vital
 	 */
 	private static function validHostMeta(string $url): bool
@@ -1319,6 +1360,7 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
+	 *
 	 * @return array server data
 	 */
 	private static function detectNetworkViaContacts(string $url, array $serverdata): array
@@ -1370,6 +1412,7 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
+	 *
 	 * @return array server data
 	 */
 	private static function checkPoCo(string $url, array $serverdata): array
@@ -1401,6 +1444,7 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
+	 *
 	 * @return array server data
 	 */
 	public static function checkMastodonDirectory(string $url, array $serverdata): array
@@ -1478,7 +1522,7 @@ class GServer
 	 *
 	 * @return array server data
 	 */
-	private static function detectNextcloud(string $url, array $serverdata, bool $validHostMeta)
+	private static function detectNextcloud(string $url, array $serverdata, bool $validHostMeta): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/status.php', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -1511,6 +1555,7 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
+	 *
 	 * @return array server data
 	 */
 	private static function fetchWeeklyUsage(string $url, array $serverdata): array
@@ -1550,6 +1595,7 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
+	 *
 	 * @return array server data
 	 */
 	private static function detectMastodonAlikes(string $url, array $serverdata): array
@@ -1621,6 +1667,7 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
+	 *
 	 * @return array server data
 	 */
 	private static function detectHubzilla(string $url, array $serverdata): array
@@ -1697,6 +1744,7 @@ class GServer
 	 * Converts input value to a boolean value
 	 *
 	 * @param string|integer $val
+	 *
 	 * @return boolean
 	 */
 	private static function toBoolean($val): bool
@@ -1715,6 +1763,7 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
+	 *
 	 * @return array server data
 	 */
 	private static function detectGNUSocial(string $url, array $serverdata): array
@@ -1769,6 +1818,7 @@ class GServer
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
+	 *
 	 * @return array server data
 	 */
 	private static function detectFriendica(string $url, array $serverdata): array
@@ -2124,7 +2174,7 @@ class GServer
 	 *
 	 * @param int $gsid     Server id
 	 * @param int $protocol Protocol id
-	 * @return void
+	 *
 	 * @throws Exception
 	 */
 	public static function setProtocol(int $gsid, int $protocol)
@@ -2184,7 +2234,9 @@ class GServer
 	 * Fetch the protocol of the given server
 	 *
 	 * @param int $gsid Server id
+	 *
 	 * @return ?int One of Post\DeliveryData protocol constants or null if unknown or gserver is missing
+	 *
 	 * @throws Exception
 	 */
 	public static function getProtocol(int $gsid): ?int
@@ -2206,7 +2258,9 @@ class GServer
 	 *
 	 * @param array $fields
 	 * @param array $condition
+	 *
 	 * @return bool
+	 *
 	 * @throws Exception
 	 */
 	public static function update(array $fields, array $condition): bool
