@@ -1896,16 +1896,16 @@ class GServer
 	 *
 	 * @return array server data
 	 */
-	 private static function analyseRootBody($curlResult, array $serverdata): array
+	private static function analyseRootBody($curlResult, array $serverdata): array
 	{
 		if (empty($curlResult->getBody())) {
 			return $serverdata;
 		}
 
-		if (file_exists(__DIR__ . '/../../static/generator.config.php')) {
-			require __DIR__ . '/../../static/generator.config.php';
+		if (file_exists(__DIR__ . '/../../static/platforms.config.php')) {
+			require __DIR__ . '/../../static/platforms.config.php';
 		} else {
-			throw new HTTPException\InternalServerErrorException('Invalid generator file');
+			throw new HTTPException\InternalServerErrorException('Invalid platform file');
 		}
 
 		$platforms = array_merge($ap_platforms, $dfrn_platforms, $zap_platforms, $platforms);
