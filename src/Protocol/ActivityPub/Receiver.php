@@ -28,6 +28,7 @@ use Friendica\Content\Text\Markdown;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
@@ -36,6 +37,7 @@ use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
@@ -96,7 +98,21 @@ class Receiver
 
 		$ldactivity = JsonLD::compact($activity);
 
+		$http_signer = HTTPSignature::getSigner($body, $header);
+		if ($http_signer === false) {
+			Logger::warning('Invalid HTTP signature, message will be discarded.');
+			return;
+		} elseif (empty($http_signer)) {
+			Logger::info('Signer is a tombstone. The message will be discarded, the signer account is deleted.');
+			return;
+		} else {
+			Logger::info('Valid HTTP signature', ['signer' => $http_signer]);
+		}
+
+		self::enqueuePost($ldactivity, $http_signer, $uid);
+
 		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id') ?? '';
+
 		$apcontact = APContact::getByURL($actor);
 
 		if (empty($apcontact)) {
@@ -107,17 +123,6 @@ class Receiver
 			return;
 		} else {
 			APContact::unmarkForArchival($apcontact);
-		}
-
-		$http_signer = HTTPSignature::getSigner($body, $header);
-		if ($http_signer === false) {
-			Logger::warning('Invalid HTTP signature, message will be discarded.');
-			return;
-		} elseif (empty($http_signer)) {
-			Logger::info('Signer is a tombstone. The message will be discarded, the signer account is deleted.');
-			return;
-		} else {
-			Logger::info('Valid HTTP signature', ['signer' => $http_signer]);
 		}
 
 		$signer = [$http_signer];
@@ -155,6 +160,30 @@ class Receiver
 		$fetchQueue = new FetchQueue();
 		self::processActivity($fetchQueue, $ldactivity, $body, $uid, $trust_source, true, $signer);
 		$fetchQueue->process();
+	}
+
+	private static function enqueuePost(array $ldactivity = [], string $signer, int $uid)
+	{
+		if (empty($ldactivity['as:object'])) {
+			return;
+		}
+
+		$url = JsonLD::fetchElement($ldactivity, 'as:object', '@id');
+		$fields = [
+			'url' => $url,
+			'in-reply-to-url' => JsonLD::fetchElement($ldactivity['as:object'], 'as:inReplyTo', '@id'),
+			'signer' => $signer,
+			'type' => JsonLD::fetchElement($ldactivity, '@type'),
+			'object-type' => JsonLD::fetchElement($ldactivity['as:object'], '@type'),
+			'activity' => json_encode($ldactivity, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+			'received' => DateTimeFormat::utcNow(),
+		];
+		DBA::insert('inbox-queue', $fields, Database::INSERT_IGNORE);
+
+		$queue = DBA::selectFirst('inbox-queue', ['id'], ['url' => $url]);
+		if (!empty($queue['id'])) {
+			DBA::insert('inbox-queue-receiver', ['queue-id' => $queue['id'], 'uid' => $uid], Database::INSERT_IGNORE);
+		}
 	}
 
 	/**

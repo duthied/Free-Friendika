@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1473);
+	define('DB_UPDATE_VERSION', 1474);
 }
 
 return [
@@ -782,6 +782,36 @@ return [
 			"PRIMARY" => ["id"],
 			"priority" => ["priority"],
 			"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
+		]
+	],
+	"inbox-queue" => [
+		"comment" => "Incoming activity",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"url" => ["type" => "varbinary(255)", "comment" => "id of the incoming activity"],
+			"in-reply-to-url" => ["type" => "varbinary(255)", "comment" => "related id of the incoming activity"],
+			"signer" => ["type" => "varbinary(255)", "comment" => "Signer of the incoming activity"],
+			"activity" => ["type" => "mediumtext", "comment" => "The JSON activity"],
+			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Receiving date"],
+			"type" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => "Type of the activity"],
+			"object-type" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => "Type of the object activity"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"url" => ["UNIQUE", "url"],
+			"in-reply-to-url" => ["in-reply-to-url"],
+			"received" => ["received"],
+		]
+	],
+	"inbox-queue-receiver" => [
+		"comment" => "Receiver for the incoming activity",
+		"fields" => [
+			"queue-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["inbox-queue" => "id"], "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["queue-id", "uid"],
+			"uid" => ["uid"],
 		]
 	],
 	"inbox-status" => [

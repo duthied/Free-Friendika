@@ -223,6 +223,8 @@ class Processor
 		Post\History::add($item['uri-id'], $item);
 		Item::update($item, ['uri' => $activity['id']]);
 
+		DBA::delete('inbox-queue', ['url' => $item['uri']]);
+
 		if ($activity['object_type'] == 'as:Event') {
 			$posts = Post::select(['event-id', 'uid'], ["`uri` = ? AND `event-id` > ?", $activity['id'], 0]);
 			while ($post = DBA::fetch($posts)) {
@@ -890,6 +892,7 @@ class Processor
 			$item_id = Item::insert($item);
 			if ($item_id) {
 				Logger::info('Item insertion successful', ['user' => $item['uid'], 'item_id' => $item_id]);
+				DBA::delete('inbox-queue', ['url' => $item['uri']]);
 			} else {
 				Logger::notice('Item insertion aborted', ['user' => $item['uid']]);
 			}
