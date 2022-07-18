@@ -104,6 +104,8 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT('Error: JSON PHP module required but not installed.', 1);
 		$this->mockL10nT('File Information PHP module', 1);
 		$this->mockL10nT('Error: File Information PHP module required but not installed.', 1);
+		$this->mockL10nT('GNU Multiple Precision PHP module', 1);
+		$this->mockL10nT('Error: GNU Multiple Precision PHP module required but not installed.', 1);
 		$this->mockL10nT('Program execution functions', 1);
 		$this->mockL10nT('Error: Program execution functions (proc_open) required but not enabled.', 1);
 	}
@@ -277,6 +279,17 @@ class InstallerTest extends MockedTest
 			$install->getChecks());
 
 		$this->mockFunctionL10TCalls();
+		$this->setFunctions(['gmp_strval' => false]);
+		$install = new Installer();
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(12,
+			'GNU Multiple Precision PHP module',
+			'Error: GNU Multiple Precision PHP module required but not installed.',
+		false,
+			true,
+			$install->getChecks());
+
+		$this->mockFunctionL10TCalls();
 		$this->setFunctions([
 			'curl_init' => true,
 			'imagecreatefromjpeg' => true,
@@ -286,6 +299,7 @@ class InstallerTest extends MockedTest
 			'posix_kill' => true,
 			'json_encode' => true,
 			'finfo_open' => true,
+			'gmp_strval' => true,
 		]);
 		$install = new Installer();
 		self::assertTrue($install->checkFunctions());

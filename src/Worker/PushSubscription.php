@@ -102,7 +102,6 @@ class PushSubscription
 			],
 		]);
 
-		// @todo Only used for logging?
 		$payload = [
 			'access_token'      => $application_token['access_token'],
 			'preferred_locale'  => $user['language'],
