@@ -263,7 +263,7 @@ class Avatar
 	{
 		$localFile = self::getCacheFile($avatar);
 		if (!empty($localFile)) {
-			unlink($localFile);
+			@unlink($localFile);
 			Logger::debug('Unlink avatar', ['avatar' => $avatar]);
 		}
 	}

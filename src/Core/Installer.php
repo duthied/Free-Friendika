@@ -486,6 +486,13 @@ class Installer
 		);
 		$returnVal = $returnVal ? $status : false;
 
+		$status = $this->checkFunction('gmp_strval',
+			DI::l10n()->t('GNU Multiple Precision PHP module'),
+			DI::l10n()->t('Error: GNU Multiple Precision PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
 		return $returnVal;
 	}
 
