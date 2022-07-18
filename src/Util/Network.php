@@ -25,6 +25,8 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException\NotModifiedException;
 use GuzzleHttp\Psr7\Uri;
 
@@ -66,14 +68,31 @@ class Network
 			$url = 'http://' . $url;
 		}
 
-		/// @TODO Really suppress function outcomes? Why not find them + debug them?
-		$h = @parse_url($url);
+		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
+		$host = parse_url($url, PHP_URL_HOST);
 
-		if (!empty($h['host']) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP))) {
-			return $url;
+		if (empty($host) || !(filter_var($host, FILTER_VALIDATE_IP) || @dns_get_record($host . '.', DNS_A + DNS_AAAA))) {
+			return false;
 		}
 
-		return false;
+		if (in_array(parse_url($url, PHP_URL_SCHEME), ['https', 'http'])) {
+			$options = [HttpClientOptions::VERIFY => true, HttpClientOptions::TIMEOUT => $xrd_timeout];
+			$curlResult = DI::httpClient()->head($url, $options);
+	
+			// Workaround for systems that can't handle a HEAD request. Don't retry on timeouts.
+			if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() >= 400) && !in_array($curlResult->getReturnCode(), [408, 504])) {
+				$curlResult = DI::httpClient()->get($url, HttpClientAccept::DEFAULT, $options);
+			}
+	
+			if (!$curlResult->isSuccess()) {
+				Logger::notice('Url not reachable', ['host' => $host, 'url' => $url]);
+				return false;
+			} elseif ($curlResult->isRedirectUrl()) {
+				$url = $curlResult->getRedirectUrl();
+			}
+		}
+
+		return $url;
 	}
 
 	/**
@@ -95,7 +114,7 @@ class Network
 		$h = substr($addr, strpos($addr, '@') + 1);
 
 		// Concerning the @ see here: https://stackoverflow.com/questions/36280957/dns-get-record-a-temporary-server-error-occurred
-		if ($h && (@dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP))) {
+		if ($h && (@dns_get_record($h, DNS_A + DNS_AAAA + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP))) {
 			return true;
 		}
 		if ($h && @dns_get_record($h, DNS_CNAME + DNS_MX)) {

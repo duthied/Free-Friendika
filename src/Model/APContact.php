@@ -165,6 +165,8 @@ class APContact
 				return $fetched_contact;
 			}
 			$url = $apcontact['url'];
+		} elseif (empty(parse_url($url, PHP_URL_PATH))) {
+			$apcontact['baseurl'] = $url;
 		}
 
 		// Detect multiple fast repeating request to the same address

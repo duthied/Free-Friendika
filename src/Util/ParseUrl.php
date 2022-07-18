@@ -57,15 +57,22 @@ class ParseUrl
 	 * Fetch the content type of the given url
 	 * @param string $url    URL of the page
 	 * @param string $accept content-type to accept
+	 * @param int    $timeout
 	 * @return array content type
 	 */
-	public static function getContentType(string $url, string $accept = HttpClientAccept::DEFAULT): array
+	public static function getContentType(string $url, string $accept = HttpClientAccept::DEFAULT, int $timeout = 0): array
 	{
-		$curlResult = DI::httpClient()->head($url, [HttpClientOptions::ACCEPT_CONTENT => $accept]);
+		if (!empty($timeout)) {
+			$options = [HttpClientOptions::TIMEOUT => $timeout];
+		} else {
+			$options = [];
+		}
 
-		// Workaround for systems that can't handle a HEAD request
-		if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() == 405)) {
-			$curlResult = DI::httpClient()->get($url, $accept, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
+		$curlResult = DI::httpClient()->head($url, array_merge([HttpClientOptions::ACCEPT_CONTENT => $accept], $options));
+
+		// Workaround for systems that can't handle a HEAD request. Don't retry on timeouts.
+		if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() >= 400) && !in_array($curlResult->getReturnCode(), [408, 504])) {
+			$curlResult = DI::httpClient()->get($url, $accept, array_merge([HttpClientOptions::CONTENT_LENGTH => 1000000], $options));
 		}
 
 		if (!$curlResult->isSuccess()) {
