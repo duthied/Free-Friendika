@@ -98,19 +98,6 @@ class Receiver
 
 		$ldactivity = JsonLD::compact($activity);
 
-		$http_signer = HTTPSignature::getSigner($body, $header);
-		if ($http_signer === false) {
-			Logger::warning('Invalid HTTP signature, message will be discarded.');
-			return;
-		} elseif (empty($http_signer)) {
-			Logger::info('Signer is a tombstone. The message will be discarded, the signer account is deleted.');
-			return;
-		} else {
-			Logger::info('Valid HTTP signature', ['signer' => $http_signer]);
-		}
-
-		self::enqueuePost($ldactivity, $http_signer, $uid);
-
 		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id') ?? '';
 
 		$apcontact = APContact::getByURL($actor);
@@ -123,6 +110,17 @@ class Receiver
 			return;
 		} else {
 			APContact::unmarkForArchival($apcontact);
+		}
+
+		$http_signer = HTTPSignature::getSigner($body, $header);
+		if ($http_signer === false) {
+			Logger::warning('Invalid HTTP signature, message will be discarded.');
+			return;
+		} elseif (empty($http_signer)) {
+			Logger::info('Signer is a tombstone. The message will be discarded, the signer account is deleted.');
+			return;
+		} else {
+			Logger::info('Valid HTTP signature', ['signer' => $http_signer]);
 		}
 
 		$signer = [$http_signer];
@@ -158,32 +156,45 @@ class Receiver
 		}
 
 		$fetchQueue = new FetchQueue();
-		self::processActivity($fetchQueue, $ldactivity, $body, $uid, $trust_source, true, $signer);
+		self::processActivity($fetchQueue, $ldactivity, $body, $uid, $trust_source, true, $signer, $http_signer);
 		$fetchQueue->process();
 	}
 
-	private static function enqueuePost(array $ldactivity = [], string $signer, int $uid)
+	private static function enqueuePost(array $ldactivity = [], string $type, int $uid, string $http_signer): array
 	{
-		if (empty($ldactivity['as:object'])) {
-			return;
-		}
-
-		$url = JsonLD::fetchElement($ldactivity, 'as:object', '@id');
 		$fields = [
-			'url' => $url,
-			'in-reply-to-url' => JsonLD::fetchElement($ldactivity['as:object'], 'as:inReplyTo', '@id'),
-			'signer' => $signer,
-			'type' => JsonLD::fetchElement($ldactivity, '@type'),
-			'object-type' => JsonLD::fetchElement($ldactivity['as:object'], '@type'),
+ 			'activity-id' => $ldactivity['id'],
+			'object-id' => $ldactivity['object_id'],
+			'type' => $type,
+			'object-type' => $ldactivity['object_type'],
 			'activity' => json_encode($ldactivity, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
 			'received' => DateTimeFormat::utcNow(),
 		];
-		DBA::insert('inbox-queue', $fields, Database::INSERT_IGNORE);
 
-		$queue = DBA::selectFirst('inbox-queue', ['id'], ['url' => $url]);
-		if (!empty($queue['id'])) {
-			DBA::insert('inbox-queue-receiver', ['queue-id' => $queue['id'], 'uid' => $uid], Database::INSERT_IGNORE);
+		if (!empty($ldactivity['object_object_type'])) {
+			$fields['object-object-type'] = $ldactivity['object_object_type'];
 		}
+
+		if (!empty($http_signer)) {
+			$fields['signer'] = $http_signer;
+		}
+
+		DBA::insert('inbox-entry', $fields, Database::INSERT_IGNORE);
+
+		$queue = DBA::selectFirst('inbox-entry', ['id'], ['activity-id' => $ldactivity['id']]);
+		if (!empty($queue['id'])) {
+			$ldactivity['entry-id'] = $queue['id'];
+			DBA::insert('inbox-entry-receiver', ['queue-id' => $queue['id'], 'uid' => $uid], Database::INSERT_IGNORE);
+		}
+		return $ldactivity;
+	}
+
+	public static function removeFromQueue(array $activity = [])
+	{
+		if (empty($activity['entry-id'])) {
+			return;
+		}
+		DBA::delete('inbox-entry', ['id' => $activity['entry-id']]);
 	}
 
 	/**
@@ -517,7 +528,7 @@ class Receiver
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function processActivity(FetchQueue $fetchQueue, array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
+	public static function processActivity(FetchQueue $fetchQueue, array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [], string $http_signer = '')
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
@@ -590,6 +601,8 @@ class Receiver
 		if (!empty($activity['from-relay'])) {
 			$object_data['from-relay'] = $activity['from-relay'];
 		}
+
+		$object_data = self::enqueuePost($object_data, $type, $uid, $http_signer);
 
 		if (in_array('as:Question', [$object_data['object_type'] ?? '', $object_data['object_object_type'] ?? ''])) {
 			self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);

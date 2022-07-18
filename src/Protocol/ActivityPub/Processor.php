@@ -223,7 +223,7 @@ class Processor
 		Post\History::add($item['uri-id'], $item);
 		Item::update($item, ['uri' => $activity['id']]);
 
-		DBA::delete('inbox-queue', ['url' => $item['uri']]);
+		Receiver::removeFromQueue($activity);
 
 		if ($activity['object_type'] == 'as:Event') {
 			$posts = Post::select(['event-id', 'uid'], ["`uri` = ? AND `event-id` > ?", $activity['id'], 0]);
@@ -428,6 +428,7 @@ class Processor
 
 		Logger::info('Deleting item', ['object' => $activity['object_id'], 'owner'  => $owner]);
 		Item::markForDeletion(['uri' => $activity['object_id'], 'owner-id' => $owner]);
+		Receiver::removeFromQueue($activity);
 	}
 
 	/**
@@ -892,7 +893,7 @@ class Processor
 			$item_id = Item::insert($item);
 			if ($item_id) {
 				Logger::info('Item insertion successful', ['user' => $item['uid'], 'item_id' => $item_id]);
-				DBA::delete('inbox-queue', ['url' => $item['uri']]);
+				Receiver::removeFromQueue($activity);
 			} else {
 				Logger::notice('Item insertion aborted', ['user' => $item['uid']]);
 			}
@@ -1351,6 +1352,7 @@ class Processor
 
 		Logger::info('Updating profile', ['object' => $activity['object_id']]);
 		Contact::updateFromProbeByURL($activity['object_id']);
+		Receiver::removeFromQueue($activity);
 	}
 
 	/**
@@ -1379,6 +1381,7 @@ class Processor
 		DBA::close($contacts);
 
 		Logger::info('Deleted contact', ['object' => $activity['object_id']]);
+		Receiver::removeFromQueue($activity);
 	}
 
 	/**

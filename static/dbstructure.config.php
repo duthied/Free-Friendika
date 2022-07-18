@@ -784,30 +784,31 @@ return [
 			"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
 		]
 	],
-	"inbox-queue" => [
+	"inbox-entry" => [
 		"comment" => "Incoming activity",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"url" => ["type" => "varbinary(255)", "comment" => "id of the incoming activity"],
-			"in-reply-to-url" => ["type" => "varbinary(255)", "comment" => "related id of the incoming activity"],
-			"signer" => ["type" => "varbinary(255)", "comment" => "Signer of the incoming activity"],
+			"activity-id" => ["type" => "varbinary(255)", "comment" => "id of the incoming activity"],
+			"object-id" => ["type" => "varbinary(255)", "comment" => ""],
+			"type" => ["type" => "varchar(64)", "comment" => "Type of the activity"],
+			"object-type" => ["type" => "varchar(64)", "comment" => "Type of the object activity"],
+			"object-object-type" => ["type" => "varchar(64)", "comment" => "Type of the object's object activity"],			
+			"received" => ["type" => "datetime", "comment" => "Receiving date"],
 			"activity" => ["type" => "mediumtext", "comment" => "The JSON activity"],
-			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Receiving date"],
-			"type" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => "Type of the activity"],
-			"object-type" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => "Type of the object activity"],
+			"signer" => ["type" => "varchar(255)", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"url" => ["UNIQUE", "url"],
-			"in-reply-to-url" => ["in-reply-to-url"],
+			"activity-id" => ["UNIQUE", "activity-id"],
+			"object-id" => ["object-id"],
 			"received" => ["received"],
 		]
 	],
-	"inbox-queue-receiver" => [
+	"inbox-entry-receiver" => [
 		"comment" => "Receiver for the incoming activity",
 		"fields" => [
-			"queue-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["inbox-queue" => "id"], "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
+			"queue-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["inbox-entry" => "id"], "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["queue-id", "uid"],
