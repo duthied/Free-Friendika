@@ -102,7 +102,7 @@ class Search
 	 * @return ResultList
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getContactsFromGlobalDirectory(string $search, int$type = self::TYPE_ALL, int $page = 1): ResultList
+	public static function getContactsFromGlobalDirectory(string $search, int $type = self::TYPE_ALL, int $page = 1): ResultList
 	{
 		$server = self::getGlobalDirectory();
 
