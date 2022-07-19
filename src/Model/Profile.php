@@ -221,7 +221,7 @@ class Profile
 	public static function load(App $a, string $nickname, bool $show_contacts = true)
 	{
 		$profile = User::getOwnerDataByNick($nickname);
-		if (empty($profile) || !isset($profile['account_removed']) || $profile['account_removed']) {
+		if (!isset($profile['account_removed']) || $profile['account_removed']) {
 			Logger::info('profile error: ' . DI::args()->getQueryString());
 			return [];
 		}

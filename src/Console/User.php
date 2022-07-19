@@ -310,7 +310,7 @@ HELP;
 	 * @return bool True, if the delete was successful
 	 * @throws \Exception
 	 */
-	private function deleteUser()
+	private function deleteUser(): bool
 	{
 		$user = $this->getUserByNick(1);
 
