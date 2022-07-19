@@ -54,19 +54,19 @@ class Search
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getContactsFromProbe($user)
+	public static function getContactsFromProbe(string $user): ResultList
 	{
 		$emptyResultList = new ResultList(1, 0, 1);
 
 		if ((filter_var($user, FILTER_VALIDATE_EMAIL) && Network::isEmailDomainValid($user)) ||
-		    (substr(Strings::normaliseLink($user), 0, 7) == "http://")) {
+		    (substr(Strings::normaliseLink($user), 0, 7) == 'http://')) {
 
 			$user_data = Contact::getByURL($user);
 			if (empty($user_data)) {
 				return $emptyResultList;
 			}
 
-			if (!in_array($user_data["network"], Protocol::FEDERATED)) {
+			if (!in_array($user_data['network'], Protocol::FEDERATED)) {
 				return $emptyResultList;
 			}
 
@@ -102,7 +102,7 @@ class Search
 	 * @return ResultList
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getContactsFromGlobalDirectory($search, $type = self::TYPE_ALL, $page = 1)
+	public static function getContactsFromGlobalDirectory(string $search, int$type = self::TYPE_ALL, int $page = 1): ResultList
 	{
 		$server = self::getGlobalDirectory();
 
@@ -167,7 +167,7 @@ class Search
 	 * @return ResultList
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getContactsFromLocalDirectory($search, $type = self::TYPE_ALL, $start = 0, $itemPage = 80)
+	public static function getContactsFromLocalDirectory(string $search, int $type = self::TYPE_ALL, int $start = 0, int $itemPage = 80): ResultList
 	{
 		Logger::info('Searching', ['search' => $search, 'type' => $type, 'start' => $start, 'itempage' => $itemPage]);
 
@@ -177,15 +177,15 @@ class Search
 
 		foreach ($contacts as $contact) {
 			$result = new ContactResult(
-				$contact["name"],
-				$contact["addr"],
-				$contact["addr"],
-				$contact["url"],
-				$contact["photo"],
-				$contact["network"],
-				$contact["cid"] ?? 0,
-				$contact["zid"] ?? 0,
-				$contact["keywords"]
+				$contact['name'],
+				$contact['addr'],
+				$contact['addr'],
+				$contact['url'],
+				$contact['photo'],
+				$contact['network'],
+				$contact['cid'] ?? 0,
+				$contact['zid'] ?? 0,
+				$contact['keywords']
 			);
 
 			$resultList->addResult($result);
@@ -203,10 +203,11 @@ class Search
 	 * @param string $search Name or part of a name or nick
 	 * @param string $mode   Search mode (e.g. "community")
 	 * @param int    $page   Page number (starts at 1)
-	 * @return array with the search results
+	 *
+	 * @return array with the search results or empty if error or nothing found
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function searchContact($search, $mode, int $page = 1)
+	public static function searchContact(string $search, string $mode, int $page = 1): array
 	{
 		Logger::info('Searching', ['search' => $search, 'mode' => $mode, 'page' => $page]);
 
@@ -245,7 +246,7 @@ class Search
 	 *
 	 * @return string
 	 */
-	public static function getGlobalDirectory()
+	public static function getGlobalDirectory(): string
 	{
 		return DI::config()->get('system', 'directory', self::DEFAULT_DIRECTORY);
 	}
@@ -254,9 +255,10 @@ class Search
 	 * Return the search path (either fulltext search or tag search)
 	 *
 	 * @param string $search
+	 *
 	 * @return string search path
 	 */
-	public static function getSearchPath(string $search)
+	public static function getSearchPath(string $search): string
 	{
 		if (substr($search, 0, 1) == '#') {
 			return 'search?tag=' . urlencode(substr($search, 1));

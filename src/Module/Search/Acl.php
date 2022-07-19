@@ -65,7 +65,7 @@ class Acl extends BaseModule
 		System::jsonExit($o);
 	}
 
-	private static function globalContactSearch()
+	private static function globalContactSearch(): array
 	{
 		// autocomplete for global contact search (e.g. navbar search)
 		$search = trim($_REQUEST['search']);
@@ -95,7 +95,7 @@ class Acl extends BaseModule
 		return $o;
 	}
 
-	private static function regularContactSearch(string $type)
+	private static function regularContactSearch(string $type): array
 	{
 		$start   = $_REQUEST['start']        ?? 0;
 		$count   = $_REQUEST['count']        ?? 100;

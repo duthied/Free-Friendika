@@ -47,7 +47,7 @@ class BaseSearch extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function performContactSearch($search, $prefix = '')
+	public static function performContactSearch(string $search, string $prefix = ''): string
 	{
 		$config = DI::config();
 
@@ -113,7 +113,7 @@ class BaseSearch extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	protected static function printResult(ResultList $results, Pager $pager, $header = '')
+	protected static function printResult(ResultList $results, Pager $pager, string $header = ''): string
 	{
 		if ($results->getTotal() == 0) {
 			notice(DI::l10n()->t('No matches'));
