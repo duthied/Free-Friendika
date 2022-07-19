@@ -425,6 +425,8 @@ class ParseUrl
 				case 'news_keywords':
 					$keywords = explode(',', $meta_tag['content']);
 					break;
+				default:
+					Logger::debug('Unsupported meta-tag found', ['meta-tag' => $meta_tag]);
 			}
 		}
 
