@@ -4081,6 +4081,7 @@ class Diaspora
 	 */
 	public static function createCommentSignature(array $item)
 	{
+		$contact = [];
 		if (!empty($item['author-link'])) {
 			$url = $item['author-link'];
 		} else {
@@ -4094,7 +4095,7 @@ class Diaspora
 
 		$uid = User::getIdForURL($url);
 		if (empty($uid)) {
-			Logger::info('No owner post, so not storing signature', ['url' => $contact['url']]);
+			Logger::info('No owner post, so not storing signature', ['url' => $contact['url'] ?? 'No contact loaded']);
 			return false;
 		}
 
