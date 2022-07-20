@@ -22,7 +22,7 @@ function smoothly_init(App $a) {
 	Renderer::setActiveTemplateEngine('smarty3');
 
 	$cssFile = null;
-	$ssl_state = null;
+	$ssl_state = false;
 	$baseurl = DI::baseUrl()->get($ssl_state);
 	DI::page()['htmlhead'] .= <<< EOT
 
@@ -89,7 +89,7 @@ if (! function_exists('_js_in_foot')) {
 	function _js_in_foot() {
 		/** @purpose insert stuff in bottom of page
 		*/
-		$ssl_state = null;
+		$ssl_state = false;
 		$baseurl = DI::baseUrl()->get($ssl_state);
 		$bottom['$baseurl'] = $baseurl;
 		$tpl = Renderer::getMarkupTemplate('bottom.tpl');
