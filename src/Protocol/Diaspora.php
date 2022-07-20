@@ -705,7 +705,7 @@ class Diaspora
 		// This is something that shouldn't happen at all.
 		if (in_array($type, ['status_message', 'reshare', 'profile'])) {
 			if ($msg['author'] != $fields->author) {
-				Logger::notice("Message handle is not the same as envelope sender. Quitting this message.");
+				Logger::notice('Message handle is not the same as envelope sender. Quitting this message.', ['author1' => $msg['author'], 'author2' => $fields->author]);
 				return false;
 			}
 		}
@@ -760,7 +760,7 @@ class Diaspora
 	{
 		$handle = strval($handle);
 
-		Logger::notice("Fetching diaspora key for: " . $handle);
+		Logger::notice('Fetching diaspora key', ['handle' => $handle, 'callstack' => System::callstack(20)]);
 
 		$fcontact = FContact::getByURL($handle);
 		if (!empty($fcontact['pubkey'])) {
