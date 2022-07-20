@@ -141,9 +141,9 @@ class XML
 	 * @param string        $elementname Name of the XML element of the target
 	 * @return void
 	 */
-	public static function copy(&$source, &$target, string $elementname)
+	public static function copy(&$source, &$target, $elementname)
 	{
-		if (is_string($source)) {
+		if (count($source->children()) == 0) {
 			$target->addChild($elementname, self::escape($source));
 		} else {
 			$child = $target->addChild($elementname);
