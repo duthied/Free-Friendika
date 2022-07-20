@@ -105,7 +105,7 @@ class Receiver
 		if (empty($apcontact)) {
 			Logger::notice('Unable to retrieve AP contact for actor - message is discarded', ['actor' => $actor]);
 			return;
-		} elseif ($apcontact['type'] == 'Application' && $apcontact['nick'] == 'relay') {
+		} elseif (APContact::isRelay($apcontact)) {
 			self::processRelayPost($ldactivity, $actor);
 			return;
 		} else {
@@ -208,18 +208,18 @@ class Receiver
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
-			Logger::info('Empty type', ['activity' => $activity]);
+			Logger::info('Empty type', ['activity' => $activity, 'actor' => $actor]);
 			return;
 		}
 
 		if ($type != 'as:Announce') {
-			Logger::info('Not an announcement', ['activity' => $activity]);
+			Logger::info('Not an announcement', ['activity' => $activity, 'actor' => $actor]);
 			return;
 		}
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
-			Logger::info('No object id found', ['activity' => $activity]);
+			Logger::info('No object id found', ['activity' => $activity, 'actor' => $actor]);
 			return;
 		}
 
@@ -234,11 +234,11 @@ class Receiver
 			return;
 		}
 
-		Logger::info('Got relayed message id', ['id' => $object_id]);
+		Logger::info('Got relayed message id', ['id' => $object_id, 'actor' => $actor]);
 
 		$item_id = Item::searchByLink($object_id);
 		if ($item_id) {
-			Logger::info('Relayed message already exists', ['id' => $object_id, 'item' => $item_id]);
+			Logger::info('Relayed message already exists', ['id' => $object_id, 'item' => $item_id, 'actor' => $actor]);
 			return;
 		}
 
@@ -246,7 +246,7 @@ class Receiver
 
 		$id = Processor::fetchMissingActivity($fetchQueue, $object_id, [], $actor, self::COMPLETION_RELAY);
 		if (empty($id)) {
-			Logger::notice('Relayed message had not been fetched', ['id' => $object_id]);
+			Logger::notice('Relayed message had not been fetched', ['id' => $object_id, 'actor' => $actor]);
 			return;
 		}
 
@@ -254,9 +254,9 @@ class Receiver
 
 		$item_id = Item::searchByLink($object_id);
 		if ($item_id) {
-			Logger::info('Relayed message had been fetched and stored', ['id' => $object_id, 'item' => $item_id]);
+			Logger::info('Relayed message had been fetched and stored', ['id' => $object_id, 'item' => $item_id, 'actor' => $actor]);
 		} else {
-			Logger::notice('Relayed message had not been stored', ['id' => $object_id]);
+			Logger::notice('Relayed message had not been stored', ['id' => $object_id, 'actor' => $actor]);
 		}
 	}
 
@@ -615,6 +615,7 @@ class Receiver
 					ActivityPub\Processor::postItem($object_data, $item);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
+					self::removeFromQueue($object_data);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -706,6 +707,7 @@ class Receiver
 					ActivityPub\Processor::updatePerson($object_data);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
+					self::removeFromQueue($object_data);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -791,9 +793,11 @@ class Receiver
 				} elseif (in_array($object_data['object_type'], array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Create', ''])) &&
 					empty($object_data['object_object_type'])) {
 					// We cannot detect the target object. So we can ignore it.
+					self::removeFromQueue($object_data);
 				} elseif (in_array($object_data['object_type'], ['as:Create']) &&
 					in_array($object_data['object_object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
+					self::removeFromQueue($object_data);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -804,6 +808,7 @@ class Receiver
 					ActivityPub\Processor::createActivity($fetchQueue, $object_data, Activity::VIEW);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
+					self::removeFromQueue($object_data);
 				} else {
 					self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 				}
@@ -843,6 +848,7 @@ class Receiver
 	private static function storeUnhandledActivity(bool $unknown, string $type, array $object_data, array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
 	{
 		if (!DI::config()->get('debug', 'ap_log_unknown')) {
+			self::removeFromQueue($activity);
 			return;
 		}
 

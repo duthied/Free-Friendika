@@ -26,7 +26,6 @@ use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
@@ -538,5 +537,22 @@ class APContact
 		}
 
 		HTTPSignature::setInboxStatus($url, true, $shared);
+	}
+
+	public static function isRelay(array $apcontact): bool
+	{
+		if ($apcontact['nick'] != 'relay') {
+			return false;
+		}
+
+		if ($apcontact['type'] == 'Application') {
+			return true;
+		}
+
+		if (in_array($apcontact['type'], ['Group', 'Service']) && ($apcontact['nick'] == 'relay') && is_null($apcontact['outbox'])) {
+			return true;
+		}
+
+		return false;
 	}
 }

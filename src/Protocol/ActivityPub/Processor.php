@@ -546,6 +546,7 @@ class Processor
 		Logger::debug('Add post to featured collection', ['uri-id' => $uriid]);
 
 		Post\Collection::add($uriid, Post\Collection::FEATURED);
+		Receiver::removeFromQueue($activity);
 	}
 
 	/**
@@ -563,6 +564,7 @@ class Processor
 		Logger::debug('Remove post from featured collection', ['uri-id' => $uriid]);
 
 		Post\Collection::remove($uriid, Post\Collection::FEATURED);
+		Receiver::removeFromQueue($activity);
 	}
 
 	/**
@@ -1464,6 +1466,7 @@ class Processor
 		$condition = ['id' => $cid];
 		Contact::update($fields, $condition);
 		Logger::info('Accept contact request', ['contact' => $cid, 'user' => $uid]);
+		Receiver::removeFromQueue($activity);
 	}
 
 	/**
@@ -1497,6 +1500,7 @@ class Processor
 		} else {
 			Logger::info('Rejected contact request', ['contact' => $cid, 'user' => $uid]);
 		}
+		Receiver::removeFromQueue($activity);
 	}
 
 	/**
@@ -1522,6 +1526,7 @@ class Processor
 		}
 
 		Item::markForDeletion(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
+		Receiver::removeFromQueue($activity);
 	}
 
 	/**
@@ -1558,6 +1563,7 @@ class Processor
 
 		Contact::removeFollower($contact);
 		Logger::info('Undo following request', ['contact' => $cid, 'user' => $uid]);
+		Receiver::removeFromQueue($activity);
 	}
 
 	/**
