@@ -4020,12 +4020,12 @@ class Diaspora
 			return;
 		}
 
-		if (!$recipients) {
+		if (empty($recipients)) {
 			Logger::debug('No recipients provided, fetching for user', ['uid' => $uid]);
 			$recipients = DBA::selectToArray('contact', [], ['network' => Protocol::DIASPORA, 'uid' => $uid, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
 		}
 
-		if (!$recipients) {
+		if (empty($recipients)) {
 			Logger::warning('Cannot fetch recipients', ['uid' => $uid]);
 			return;
 		}
@@ -4033,7 +4033,7 @@ class Diaspora
 		$message = self::createProfileData($uid);
 
 		// @todo Split this into single worker jobs
-		foreach ($recipientients as $recipient) {
+		foreach ($recipients as $recipient) {
 			Logger::info('Send updated profile data for user ' . $uid . ' to contact ' . $recipient['id']);
 			self::buildAndTransmit($owner, $recipient, 'profile', $message);
 		}
