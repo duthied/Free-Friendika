@@ -27,6 +27,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Tag;
+use Friendica\Protocol\ActivityPub\Queue;
 use Friendica\Protocol\Relay;
 
 class Cron
@@ -87,6 +88,9 @@ class Cron
 			// Update trending tags cache for the community page
 			Tag::setLocalTrendingHashtags(24, 20);
 			Tag::setGlobalTrendingHashtags(24, 20);
+
+			// Process pending posts in the queue
+			Queue::processAll();
 
 			// Search for new contacts in the directory
 			if (DI::config()->get('system', 'synchronize_directory')) {
