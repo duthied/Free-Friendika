@@ -24,6 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\ActivityPub\Queue;
 use Friendica\Protocol\ActivityPub\Receiver;
 
 class FetchMissingActivity
@@ -38,6 +39,7 @@ class FetchMissingActivity
 		$result = ActivityPub\Processor::fetchMissingActivity($url, $child, $relay_actor, $completion);
 		if ($result) {
 			Logger::info('Successfully fetched missing activity', ['url' => $url]);
+			Queue::processReplyByUri($url);
 		} elseif (!Worker::defer()) {
 			Logger::info('Activity could not be fetched', ['url' => $url]);
 			// Possibly we should recursively remove child activities at this point.
