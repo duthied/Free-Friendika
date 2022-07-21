@@ -288,12 +288,12 @@ class Processor
 				$fetch_by_worker = empty($result);
 			} else {
 				Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
-				$activity['recursion-depth'] = 0;
 				$fetch_by_worker = true;
 			}
 
 			if ($fetch_by_worker) {
 				Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+				$activity['recursion-depth'] = 0;
 				Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 				return [];
 			}
