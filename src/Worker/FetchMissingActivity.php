@@ -42,7 +42,6 @@ class FetchMissingActivity
 			Queue::processReplyByUri($url);
 		} elseif (!Worker::defer()) {
 			Logger::info('Activity could not be fetched', ['url' => $url]);
-			// Possibly we should recursively remove child activities at this point.
 		} else {
 			Logger::info('Fetching deferred', ['url' => $url]);
 		}
