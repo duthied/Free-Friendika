@@ -798,12 +798,13 @@ return [
 			"activity" => ["type" => "mediumtext", "comment" => "The JSON activity"],
 			"signer" => ["type" => "varchar(255)", "comment" => ""],
 			"push" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-		],
+			"wid" => ["type" => "int unsigned", "foreign" => ["workerqueue" => "id"], "comment" => "Workerqueue id"],		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"activity-id" => ["UNIQUE", "activity-id"],
 			"object-id" => ["object-id"],
 			"received" => ["received"],
+			"wid" => ["wid"],
 		]
 	],
 	"inbox-entry-receiver" => [

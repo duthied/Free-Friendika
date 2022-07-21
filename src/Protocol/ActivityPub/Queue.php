@@ -90,6 +90,21 @@ class Queue
 	}
 
 	/**
+	 * Set the worker id for the queue entry
+	 *
+	 * @param array $activity
+	 * @param int   $wid
+	 * @return void
+	 */
+	public static function setWorkerId(array $activity, int $wid)
+	{
+		if (empty($activity['entry-id']) || empty($wid)) {
+			return;
+		}
+		DBA::update('inbox-entry', ['wid' => $wid], ['id' => $activity['entry-id']]);
+	}
+
+	/**
 	 * Process the activity with the given id
 	 *
 	 * @param integer $id
@@ -129,7 +144,7 @@ class Queue
 	}
 
 	/**
-	 * Process all activities
+	 * Clear old activities
 	 *
 	 * @return void
 	 */

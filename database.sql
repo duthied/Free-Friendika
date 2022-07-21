@@ -739,10 +739,13 @@ CREATE TABLE IF NOT EXISTS `inbox-entry` (
 	`activity` mediumtext COMMENT 'The JSON activity',
 	`signer` varchar(255) COMMENT '',
 	`push` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`wid` int unsigned COMMENT 'Workerqueue id',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `activity-id` (`activity-id`),
 	 INDEX `object-id` (`object-id`),
-	 INDEX `received` (`received`)
+	 INDEX `received` (`received`),
+	 INDEX `wid` (`wid`),
+	FOREIGN KEY (`wid`) REFERENCES `workerqueue` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Incoming activity';
 
 --

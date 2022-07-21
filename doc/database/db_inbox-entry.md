@@ -19,6 +19,7 @@ Fields
 | activity           | The JSON activity                    | mediumtext     | YES  |     | NULL    |                |
 | signer             |                                      | varchar(255)   | YES  |     | NULL    |                |
 | push               |                                      | boolean        | NO   |     | 0       |                |
+| wid                | Workerqueue id                       | int unsigned   | YES  |     | NULL    |                |
 
 Indexes
 ------------
@@ -29,6 +30,13 @@ Indexes
 | activity-id | UNIQUE, activity-id |
 | object-id   | object-id           |
 | received    | received            |
+| wid         | wid                 |
 
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| wid | [workerqueue](help/database/db_workerqueue) | id |
 
 Return to [database documentation](help/database)
