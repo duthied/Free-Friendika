@@ -31,6 +31,8 @@ Database Tables
 | [gserver](help/database/db_gserver) | Global servers |
 | [gserver-tag](help/database/db_gserver-tag) | Tags that the server has subscribed |
 | [hook](help/database/db_hook) | addon hook registry |
+| [inbox-entry](help/database/db_inbox-entry) | Incoming activity |
+| [inbox-entry-receiver](help/database/db_inbox-entry-receiver) | Receiver for the incoming activity |
 | [inbox-status](help/database/db_inbox-status) | Status of ActivityPub inboxes |
 | [intro](help/database/db_intro) |  |
 | [item-uri](help/database/db_item-uri) | URI and GUID for items |

@@ -44,7 +44,7 @@ class Queue
 	public static function add(array $activity, string $type, int $uid, string $http_signer, bool $push): array
 	{
 		$fields = [
- 			'activity-id' => $activity['id'],
+			'activity-id' => $activity['id'],
 			'object-id'   => $activity['object_id'],
 			'type'        => $type,
 			'object-type' => $activity['object_type'],
@@ -104,9 +104,9 @@ class Queue
 
 		Logger::debug('Processing queue entry', ['id' => $entry['id'], 'type' => $entry['type'], 'object-type' => $entry['object-type'], 'uri' => $entry['object-id'], 'in-reply-to' => $entry['in-reply-to-id']]);
 
-		$activity   = json_decode($entry['activity'], true);
-		$type       = $entry['type'];
-		$push       = $entry['push'];
+		$activity = json_decode($entry['activity'], true);
+		$type     = $entry['type'];
+		$push     = $entry['push'];
 
 		$activity['entry-id'] = $entry['id'];
 

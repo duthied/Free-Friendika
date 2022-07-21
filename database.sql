@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1473
+-- DB_UPDATE_VERSION 1474
 -- ------------------------------------------
 
 
@@ -723,6 +723,39 @@ CREATE TABLE IF NOT EXISTS `hook` (
 	 INDEX `priority` (`priority`),
 	 UNIQUE INDEX `hook_file_function` (`hook`,`file`,`function`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='addon hook registry';
+
+--
+-- TABLE inbox-entry
+--
+CREATE TABLE IF NOT EXISTS `inbox-entry` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`activity-id` varbinary(255) COMMENT 'id of the incoming activity',
+	`object-id` varbinary(255) COMMENT '',
+	`in-reply-to-id` varbinary(255) COMMENT '',
+	`type` varchar(64) COMMENT 'Type of the activity',
+	`object-type` varchar(64) COMMENT 'Type of the object activity',
+	`object-object-type` varchar(64) COMMENT 'Type of the object\'s object activity',
+	`received` datetime COMMENT 'Receiving date',
+	`activity` mediumtext COMMENT 'The JSON activity',
+	`signer` varchar(255) COMMENT '',
+	`push` boolean NOT NULL DEFAULT '0' COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `activity-id` (`activity-id`),
+	 INDEX `object-id` (`object-id`),
+	 INDEX `received` (`received`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Incoming activity';
+
+--
+-- TABLE inbox-entry-receiver
+--
+CREATE TABLE IF NOT EXISTS `inbox-entry-receiver` (
+	`queue-id` int unsigned NOT NULL COMMENT '',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User id',
+	 PRIMARY KEY(`queue-id`,`uid`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`queue-id`) REFERENCES `inbox-entry` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Receiver for the incoming activity';
 
 --
 -- TABLE inbox-status
