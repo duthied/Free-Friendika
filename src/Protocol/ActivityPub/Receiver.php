@@ -542,7 +542,7 @@ class Receiver
 		if (!empty($activity['thread-completion'])) {
 			$object_data['thread-completion'] = $activity['thread-completion'];
 		}
-		
+
 		if (!empty($activity['completion-mode'])) {
 			$object_data['completion-mode'] = $activity['completion-mode'];
 		}
@@ -572,9 +572,7 @@ class Receiver
 
 		if (!self::routeActivities($object_data, $type, $push)) {
 			self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
-			//if (!DI::config()->get('debug', 'ap_log_unknown')) {
-			//	Queue::remove($object_data);
-			//}
+			Queue::remove($object_data);
 		}
 	}
 
@@ -643,7 +641,7 @@ class Receiver
 							$announce_object_data['raw'] = $object_data['raw'];
 						}
 						ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
-					} else echo "\n***************************\n";
+					}
 				} else {
 					return false;
 				}
@@ -715,7 +713,7 @@ class Receiver
 
 			case 'as:Remove':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::removeFromFeaturedCollection($object_data);					
+					ActivityPub\Processor::removeFromFeaturedCollection($object_data);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 					Queue::remove($object_data);
@@ -805,7 +803,7 @@ class Receiver
 					return false;
 				}
 				break;
-	
+
 			default:
 				Logger::info('Unknown activity: ' . $type . ' ' . $object_data['object_type']);
 				return false;
@@ -829,8 +827,12 @@ class Receiver
 	 */
 	private static function storeUnhandledActivity(bool $unknown, string $type, array $object_data, array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
 	{
+		if (!DI::config()->get('debug', 'ap_log_unknown')) {
+			return;
+		}
+
 		$file = ($unknown  ? 'unknown-' : 'unhandled-') . str_replace(':', '-', $type) . '-';
-	
+
 		if (!empty($object_data['object_type'])) {
 			$file .= str_replace(':', '-', $object_data['object_type']) . '-';
 		}
