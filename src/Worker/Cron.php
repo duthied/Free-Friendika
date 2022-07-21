@@ -89,8 +89,8 @@ class Cron
 			Tag::setLocalTrendingHashtags(24, 20);
 			Tag::setGlobalTrendingHashtags(24, 20);
 
-			// Process pending posts in the queue
-			Queue::processAll();
+			// Remove old pending posts from the queue
+			Queue::clear();
 
 			// Search for new contacts in the directory
 			if (DI::config()->get('system', 'synchronize_directory')) {

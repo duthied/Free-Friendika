@@ -126,8 +126,16 @@ class Queue
 		while ($entry = DBA::fetch($entries)) {
 			self::process($entry['id']);
 		}
+	}
 
-		DBA::delete('inbox-entry', ["`received` < ?", DateTimeFormat::utc('now - 1 days')]);
+	/**
+	 * Process all activities
+	 *
+	 * @return void
+	 */
+	public static function clear()
+	{
+		DBA::delete('inbox-entry', ["`received` < ?", DateTimeFormat::utc('now - 2 days')]);
 	}
 
 	/**
