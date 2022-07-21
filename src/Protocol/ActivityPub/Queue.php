@@ -105,6 +105,20 @@ class Queue
 	}
 
 	/**
+	 * Check if there is an assigned worker task
+	 *
+	 * @param array $activity
+	 * @return bool
+	 */
+	public static function hasWorker(array $activity = []): bool
+	{
+		if (empty($activity['worker-id'])) {
+			return false;
+		}
+		return DBA::exists('workerqueue', ['id' => $activity['worker-id'], 'done' => false]);
+	}
+
+	/**
 	 * Process the activity with the given id
 	 *
 	 * @param integer $id
@@ -123,7 +137,8 @@ class Queue
 		$type     = $entry['type'];
 		$push     = $entry['push'];
 
-		$activity['entry-id'] = $entry['id'];
+		$activity['entry-id']  = $entry['id'];
+		$activity['worker-id'] = $entry['wid'];
 
 		if (!Receiver::routeActivities($activity, $type, $push)) {
 			self::remove($activity);
@@ -150,7 +165,7 @@ class Queue
 	 */
 	public static function clear()
 	{
-		DBA::delete('inbox-entry', ["`received` < ?", DateTimeFormat::utc('now - 2 days')]);
+		DBA::delete('inbox-entry', ["`wid` IS NULL AND `received` < ?", DateTimeFormat::utc('now - 4 hours')]);
 	}
 
 	/**

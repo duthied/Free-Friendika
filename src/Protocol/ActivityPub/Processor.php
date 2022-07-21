@@ -281,6 +281,11 @@ class Processor
 		}
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
+			if (Queue::hasWorker($activity)) {
+				Logger::notice('There is already a worker task to dfetch the post.', ['parent' => $activity['reply-to-id']]);
+				return [];
+			}
+
 			$recursion_depth = $activity['recursion-depth'] ?? 0;
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 			if ($recursion_depth < 10) {
