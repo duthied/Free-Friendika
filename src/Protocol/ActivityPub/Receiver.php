@@ -774,6 +774,7 @@ class Receiver
 				} elseif (in_array($object_data['object_type'], array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Create', ''])) &&
 					empty($object_data['object_object_type'])) {
 					// We cannot detect the target object. So we can ignore it.
+					Queue::remove($object_data);
 				} elseif (in_array($object_data['object_type'], ['as:Create']) &&
 					in_array($object_data['object_object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
