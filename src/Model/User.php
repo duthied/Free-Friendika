@@ -276,7 +276,8 @@ class User
 	/**
 	 * Returns true if a user record exists with the provided id
 	 *
-	 * @param  integer $uid
+	 * @param  int $uid
+	 *
 	 * @return boolean
 	 * @throws Exception
 	 */
@@ -412,7 +413,7 @@ class User
 
 		$owner = DBA::selectFirst('owner-view', [], ['uid' => $uid]);
 		if (!DBA::isResult($owner)) {
-			if (!DBA::exists('user', ['uid' => $uid]) || !$repairMissing) {
+			if (!self::exists($uid) || !$repairMissing) {
 				return false;
 			}
 			if (!DBA::exists('profile', ['uid' => $uid])) {
