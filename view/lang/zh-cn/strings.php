@@ -1,7 +1,7 @@
 <?php
 
-if(! function_exists("string_plural_select_zh_cn")) {
-function string_plural_select_zh_cn($n){
+if(! function_exists("string_plural_select_zh_CN")) {
+function string_plural_select_zh_CN($n){
 	$n = intval($n);
 	return intval(0);
 }}
@@ -89,7 +89,7 @@ $a->strings['The network type couldn\'t be detected. Contact can\'t be added.'] 
 $a->strings['Diaspora support isn\'t enabled. Contact can\'t be added.'] = 'Diaspora 支持没被启用。无法添加联系人。';
 $a->strings['OStatus support is disabled. Contact can\'t be added.'] = 'OStatus 支持没被启用。无法添加联系人。';
 $a->strings['Connect/Follow'] = '连接/关注';
-$a->strings['Please answer the following:'] = '请确认这个关注：';
+$a->strings['Please answer the following:'] = '请回答下述的：';
 $a->strings['Your Identity Address:'] = '你的身份地址：';
 $a->strings['Profile URL'] = '简介 URL';
 $a->strings['Tags:'] = '标签：';
@@ -447,7 +447,7 @@ $a->strings['pump.io'] = 'pump.io';
 $a->strings['Twitter'] = '推特';
 $a->strings['Diaspora Connector'] = 'Diaspora连接器';
 $a->strings['GNU Social Connector'] = 'GNU Social 连接器';
-$a->strings['ActivityPub'] = '活动插件';
+$a->strings['ActivityPub'] = 'ActivityPub';
 $a->strings['%s likes this.'] = '%s 赞了这个。';
 $a->strings['%s doesn\'t like this.'] = '%s 觉得不赞。';
 $a->strings['%s attends.'] = '%s 参加。';
@@ -1062,7 +1062,6 @@ $a->strings['To temporarily enable logging of PHP errors and warnings you can pr
 $a->strings['View Logs'] = '查看日志';
 $a->strings['Show all'] = '显示全部';
 $a->strings['ID'] = 'ID';
-$a->strings['Can not parse base url. Must have at least <scheme>://<domain>'] = '不能分析基础URL。至少要<scheme>://<domain>';
 $a->strings['No special theme for mobile devices'] = '没专门适合手机的主题';
 $a->strings['%s - (Experimental)'] = '%s - (实验性)';
 $a->strings['No community page'] = '没有社会页';
@@ -1083,7 +1082,6 @@ $a->strings['File upload'] = '文件上传';
 $a->strings['Policies'] = '政策';
 $a->strings['Performance'] = '性能';
 $a->strings['Message Relay'] = '讯息中继';
-$a->strings['Relocate Instance'] = '迁移实例';
 $a->strings['Site name'] = '网页名字';
 $a->strings['Sender Email'] = '寄主邮件';
 $a->strings['Banner/Logo'] = '标题/标志';
@@ -1168,8 +1166,6 @@ $a->strings['Temp path'] = '临时文件路线';
 $a->strings['If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.'] = '如果您有受限制的系统，其中Web服务器无法访问系统临时路径，请在此处输入其他路径。';
 $a->strings['Only search in tags'] = '只在标签项内搜索';
 $a->strings['On large systems the text search can slow down the system extremely.'] = '在大型系统中，正文搜索会极大降低系统运行速度。';
-$a->strings['New base url'] = '新基础URL';
-$a->strings['Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.'] = '更改此服务器的URL。向所有用户的所有Friendica和Diaspora*联系人发送迁移消息。';
 $a->strings['Enable fastlane'] = '启用快车道模式';
 $a->strings['Relay scope'] = '中继范围';
 $a->strings['Disabled'] = '已停用';
@@ -1768,7 +1764,6 @@ $a->strings['select a photo from your photo albums'] = '从您的照片册选择
 $a->strings['Revoke'] = '取消';
 $a->strings['Revoke All'] = '全部取消';
 $a->strings['When you generate a new app-specific password, you must use it right away, it will be shown to you once after you generate it.'] = '当您生成特定于应用程序的新密码时，您必须立即使用它，生成密码后会显示给您一次。';
-$a->strings['Wrong Password'] = '密码不正确';
 $a->strings['<p>Use an application on a mobile device to get two-factor authentication codes when prompted on login.</p>'] = '<p>使用移动设备上的应用程序在登录时获取两步认证代码</p>';
 $a->strings['Authenticator app'] = '身份验证应用';
 $a->strings['Configured'] = '配置';
