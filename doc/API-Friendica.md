@@ -24,6 +24,28 @@ Returns a list of [Event](help/API-Entities#Event) entities for the current logg
 - `since_id`: (optional) minimum event id for pagination
 - `count`: maximum number of items returned, default 20
 
+### POST api/friendica/event_create
+
+Create a new event for the current logged in user.
+
+#### Parameters
+
+- `id` : (optional) id of event, event will be amended if supplied
+- `name` : name of the event (required)
+- `startTime` : start of the event (ISO), required
+- `endTime` : (optional) end of the event, event is open end, if not supplied
+- `desc` : (optional) description of the event
+- `place` : (optional) location of the event
+- `publish` : (optional) create message for event
+
+### POST api/friendica/event_delete
+
+Delete event from calendar (not the message)
+
+#### Parameters
+
+- `id` : id of event to be deleted
+
 ### GET api/externalprofile/show
 
 Returns a [Contact](help/API-Entities#Contact) entity for the provided profile URL.
