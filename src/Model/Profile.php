@@ -96,6 +96,7 @@ class Profile
 	 *
 	 * @param array $fields Profile fields to update
 	 * @param integer $uid User id
+	 *
 	 * @return boolean Whether update was successful
 	 */
 	public static function update(array $fields, int $uid): bool
@@ -139,6 +140,7 @@ class Profile
 	 *
 	 * @param int  $uid User id
 	 * @param bool $force Force publishing to the directory
+	 *
 	 * @return void
 	 */
 	public static function publishUpdate(int $uid, bool $force = false)
@@ -162,6 +164,7 @@ class Profile
 	 * Returns a formatted location string from the given profile array
 	 *
 	 * @param array $profile Profile array (Generated from the "profile" table)
+	 *
 	 * @return string Location string
 	 */
 	public static function formatLocation(array $profile): string
@@ -212,13 +215,13 @@ class Profile
 	 * @param App    $a
 	 * @param string $nickname string
 	 * @param bool   $show_contacts
-	 * @return array Profile
 	 *
+	 * @return array Profile
 	 * @throws HTTPException\NotFoundException
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function load(App $a, string $nickname, bool $show_contacts = true)
+	public static function load(App $a, string $nickname, bool $show_contacts = true): array
 	{
 		$profile = User::getOwnerDataByNick($nickname);
 		if (!isset($profile['account_removed']) || $profile['account_removed']) {
@@ -285,7 +288,7 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	public static function getVCardHtml(array $profile, bool $block, bool $show_contacts)
+	public static function getVCardHtml(array $profile, bool $block, bool $show_contacts): string
 	{
 		$o = '';
 		$location = false;
@@ -386,16 +389,16 @@ class Profile
 
 		if (!empty($profile['guid'])) {
 			$diaspora = [
-				'guid' => $profile['guid'],
-				'podloc' => DI::baseUrl(),
+				'guid'       => $profile['guid'],
+				'podloc'     => DI::baseUrl(),
 				'searchable' => ($profile['net-publish'] ? 'true' : 'false'),
-				'nickname' => $profile['nickname'],
-				'fullname' => $profile['name'],
-				'firstname' => $firstname,
-				'lastname' => $lastname,
-				'photo300' => $profile['photo'] ?? '',
-				'photo100' => $profile['thumb'] ?? '',
-				'photo50' => $profile['micro'] ?? '',
+				'nickname'   => $profile['nickname'],
+				'fullname'   => $profile['name'],
+				'firstname'  => $firstname,
+				'lastname'   => $lastname,
+				'photo300'   => $profile['photo'] ?? '',
+				'photo100'   => $profile['thumb'] ?? '',
+				'photo50'    => $profile['micro'] ?? '',
 			];
 		} else {
 			$diaspora = false;
@@ -414,13 +417,13 @@ class Profile
 
 			if (is_array($profile) && !$profile['hide-friends']) {
 				$contact_count = DBA::count('contact', [
-					'uid' => $profile['uid'],
-					'self' => false,
+					'uid'     => $profile['uid'],
+					'self'    => false,
 					'blocked' => false,
 					'pending' => false,
-					'hidden' => false,
+					'hidden'  => false,
 					'archive' => false,
-					'failed' => false,
+					'failed'  => false,
 					'network' => Protocol::FEDERATED,
 				]);
 			}
@@ -429,7 +432,7 @@ class Profile
 		// Expected profile/vcard.tpl profile.* template variables
 		$p = [
 			'address' => null,
-			'edit' => null,
+			'edit'    => null,
 			'upubkey' => null,
 		];
 		foreach ($profile as $k => $v) {
@@ -484,7 +487,6 @@ class Profile
 	 * Returns the upcoming birthdays of contacts of the current user as HTML content
 	 *
 	 * @return string The upcoming birthdays (HTML)
-	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\ServiceUnavailableException
 	 * @throws \ImagickException
@@ -583,7 +585,12 @@ class Profile
 		]);
 	}
 
-	public static function getEventsReminderHTML()
+	/**
+	 * Renders HTML for event reminder (e.g. contact birthdays
+	 *
+	 * @return string Rendered HTML
+	 */
+	public static function getEventsReminderHTML(): string
 	{
 		$a = DI::app();
 		$o = '';
@@ -674,9 +681,9 @@ class Profile
 	 *
 	 * @return string
 	 */
-	public static function getMyURL()
+	public static function getMyURL(): string
 	{
-		return Session::get('my_url');
+		return Session::get('my_url') ?? '';
 	}
 
 	/**
@@ -695,6 +702,8 @@ class Profile
 	 * It would be favourable to harmonize the two implementations.
 	 *
 	 * @param App $a Application instance.
+	 *
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -764,9 +773,10 @@ class Profile
 	 * Set the visitor cookies (see remote_user()) for the given handle
 	 *
 	 * @param string $handle Visitor handle
+	 *
 	 * @return array Visitor contact array
 	 */
-	public static function addVisitorCookieForHandle($handle)
+	public static function addVisitorCookieForHandle(string $handle): array
 	{
 		$a = DI::app();
 
@@ -798,9 +808,10 @@ class Profile
 
 	/**
 	 * Set the visitor cookies (see remote_user()) for signed HTTP requests
+	 (
 	 * @return array Visitor contact array
 	 */
-	public static function addVisitorCookieForHTTPSigner()
+	public static function addVisitorCookieForHTTPSigner(): array
 	{
 		$requester = HTTPSignature::getSigner('', $_SERVER);
 		if (empty($requester)) {
@@ -815,10 +826,12 @@ class Profile
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/zid.php
 	 *
 	 * @param string $token
+	 *
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function openWebAuthInit($token)
+	public static function openWebAuthInit(string $token)
 	{
 		$a = DI::app();
 
@@ -857,23 +870,34 @@ class Profile
 		Logger::info('OpenWebAuth: auth success from ' . $visitor['addr']);
 	}
 
-	public static function zrl($s, $force = false)
+	/**
+	 * Returns URL with URL-encoded zrl parameter
+	 *
+	 * @param string $url   URL to enhance
+	 * @param bool   $force Either to force adding zrl parameter
+	 *
+	 * @return string URL with 'zrl' parameter or original URL in case of no Friendica profile URL
+	 */
+	public static function zrl(string $url, bool $force = false): string
 	{
-		if (!strlen($s)) {
-			return $s;
+		if (!strlen($url)) {
+			return $url;
 		}
-		if (!strpos($s, '/profile/') && !$force) {
-			return $s;
+		if (!strpos($url, '/profile/') && !$force) {
+			return $url;
 		}
-		if ($force && substr($s, -1, 1) !== '/') {
-			$s = $s . '/';
+		if ($force && substr($url, -1, 1) !== '/') {
+			$url = $url . '/';
 		}
-		$achar = strpos($s, '?') ? '&' : '?';
+
+		$achar = strpos($url, '?') ? '&' : '?';
 		$mine = self::getMyURL();
-		if ($mine && !Strings::compareLink($mine, $s)) {
-			return $s . $achar . 'zrl=' . urlencode($mine);
+
+		if ($mine && !Strings::compareLink($mine, $url)) {
+			return $url . $achar . 'zrl=' . urlencode($mine);
 		}
-		return $s;
+
+		return $url;
 	}
 
 	/**
@@ -885,6 +909,7 @@ class Profile
 	 * want to see anybody else's theme settings except their own while on this site.
 	 *
 	 * @param App $a
+	 *
 	 * @return int user ID
 	 *
 	 * @note Returns local_user instead of user ID if "always_my_theme" is set to true
@@ -897,15 +922,15 @@ class Profile
 	/**
 	 * search for Profiles
 	 *
-	 * @param int  $start
-	 * @param int  $count
-	 * @param null $search
+	 * @param int  $start Starting record (see LIMIT start,count)
+	 * @param int  $count Maximum records (see LIMIT start,count)
+	 * @param string $search Optional search word (see LIKE %s?%s)
 	 *
 	 * @return array [ 'total' => 123, 'entries' => [...] ];
 	 *
 	 * @throws \Exception
 	 */
-	public static function searchProfiles($start = 0, $count = 100, $search = null)
+	public static function searchProfiles(int $start = 0, int $count = 100, string $search = null): array
 	{
 		if (!empty($search)) {
 			$publish = (DI::config()->get('system', 'publish_all') ? '' : "AND `publish` ");
@@ -946,6 +971,8 @@ class Profile
 	 * Multi profiles are converted to ACl-protected custom fields and deleted.
 	 *
 	 * @param array $profile One profile array
+	 *
+	 * @return void
 	 * @throws \Exception
 	 */
 	public static function migrate(array $profile)
