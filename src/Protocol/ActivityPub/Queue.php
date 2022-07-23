@@ -59,7 +59,7 @@ class Queue
 
 		if (!empty($activity['context'])) {
 			$fields['conversation'] = $activity['context'];
-		} elseif(!empty($activity['conversation'])) {
+		} elseif (!empty($activity['conversation'])) {
 			$fields['conversation'] = $activity['conversation'];
 		}
 

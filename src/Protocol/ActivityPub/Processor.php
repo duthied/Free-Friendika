@@ -282,7 +282,7 @@ class Processor
 
 		if (!empty($activity['context'])) {
 			$item['conversation'] = $activity['context'];
-		} elseif(!empty($activity['conversation'])) {
+		} elseif (!empty($activity['conversation'])) {
 			$item['conversation'] = $activity['conversation'];
 		}
 
