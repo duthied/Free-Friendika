@@ -878,7 +878,7 @@ class Profile
 	 *
 	 * @return string URL with 'zrl' parameter or original URL in case of no Friendica profile URL
 	 */
-	public static function zrl(string $url, bool $force = false)
+	public static function zrl(string $url, bool $force = false): string
 	{
 		if (!strlen($url)) {
 			return $url;
@@ -909,6 +909,7 @@ class Profile
 	 * want to see anybody else's theme settings except their own while on this site.
 	 *
 	 * @param App $a
+	 *
 	 * @return int user ID
 	 *
 	 * @note Returns local_user instead of user ID if "always_my_theme" is set to true
@@ -929,7 +930,7 @@ class Profile
 	 *
 	 * @throws \Exception
 	 */
-	public static function searchProfiles(int $start = 0, int $count = 100, string $search = null)
+	public static function searchProfiles(int $start = 0, int $count = 100, string $search = null): array
 	{
 		if (!empty($search)) {
 			$publish = (DI::config()->get('system', 'publish_all') ? '' : "AND `publish` ");
