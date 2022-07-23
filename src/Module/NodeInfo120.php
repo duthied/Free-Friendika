@@ -56,8 +56,8 @@ class NodeInfo120 extends BaseModule
 				'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
 			],
 			'protocols'         => ['dfrn', 'activitypub'],
-			'services'          => [],
-			'usage'             => [],
+			'services'          => Nodeinfo::getServices(),
+			'usage'             => Nodeinfo::getUsage(),
 			'openRegistrations' => intval($this->config->get('config', 'register_policy')) !== Register::CLOSED,
 			'metadata'          => [
 				'nodeName' => $this->config->get('config', 'sitename'),
@@ -71,10 +71,6 @@ class NodeInfo120 extends BaseModule
 		if (empty($this->config->get('system', 'ostatus_disabled'))) {
 			$nodeinfo['protocols'][] = 'ostatus';
 		}
-
-		$nodeinfo['usage'] = Nodeinfo::getUsage();
-
-		$nodeinfo['services'] = Nodeinfo::getServices();
 
 		if (Addon::isEnabled('twitter')) {
 			$nodeinfo['services']['inbound'][] = 'twitter';

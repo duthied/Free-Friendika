@@ -63,8 +63,8 @@ class NodeInfo110 extends BaseModule
 					'friendica'
 				],
 			],
-			'services'          => [],
-			'usage'             => [],
+			'services'          => Nodeinfo::getServices(),
+			'usage'             => Nodeinfo::getUsage(),
 			'openRegistrations' => intval($this->config->get('config', 'register_policy')) !== Register::CLOSED,
 			'metadata'          => [
 				'nodeName' => $this->config->get('config', 'sitename'),
@@ -80,10 +80,6 @@ class NodeInfo110 extends BaseModule
 			$nodeinfo['protocols']['inbound'][]  = 'gnusocial';
 			$nodeinfo['protocols']['outbound'][] = 'gnusocial';
 		}
-
-		$nodeinfo['usage'] = Nodeinfo::getUsage();
-
-		$nodeinfo['services'] = Nodeinfo::getServices();
 
 		$nodeinfo['metadata']['protocols']               = $nodeinfo['protocols'];
 		$nodeinfo['metadata']['protocols']['outbound'][] = 'atom1.0';
