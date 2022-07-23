@@ -41,8 +41,8 @@ class FetchMissingActivity
 			Logger::info('Successfully fetched missing activity', ['url' => $url]);
 			Queue::processReplyByUri($url);
 		} elseif (!Worker::defer()) {
+			// @todo perform recursive deletion of all entries
 			Logger::info('Activity could not be fetched', ['url' => $url]);
-			// @todo performe recursive deletion of all entries
 		} else {
 			Logger::info('Fetching deferred', ['url' => $url]);
 		}
