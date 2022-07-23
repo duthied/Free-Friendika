@@ -437,17 +437,18 @@ class Receiver
 		$object_data['receiver'] = array_replace($object_data['receiver'] ?? [], $receivers);
 		$object_data['reception_type'] = array_replace($object_data['reception_type'] ?? [], $reception_types);
 
-		$author = $object_data['author'] ?? $actor;
-		if (!empty($author) && !empty($object_data['id'])) {
-			$author_host = parse_url($author, PHP_URL_HOST);
-			$id_host = parse_url($object_data['id'], PHP_URL_HOST);
-			if ($author_host == $id_host) {
-				Logger::info('Valid hosts', ['type' => $type, 'host' => $id_host]);
-			} else {
-				Logger::notice('Differing hosts on author and id', ['type' => $type, 'author' => $author_host, 'id' => $id_host]);
-				$trust_source = false;
-			}
-		}
+//		This check here interferes with Hubzilla posts where the author host differs from the host the post was created
+//		$author = $object_data['author'] ?? $actor;
+//		if (!empty($author) && !empty($object_data['id'])) {
+//			$author_host = parse_url($author, PHP_URL_HOST);
+//			$id_host = parse_url($object_data['id'], PHP_URL_HOST);
+//			if ($author_host == $id_host) {
+//				Logger::info('Valid hosts', ['type' => $type, 'host' => $id_host]);
+//			} else {
+//				Logger::notice('Differing hosts on author and id', ['type' => $type, 'author' => $author_host, 'id' => $id_host]);
+//				$trust_source = false;
+//			}
+//		}
 
 		Logger::info('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id']);
 
@@ -580,7 +581,16 @@ class Receiver
 		}
 	}
 
-	public static function routeActivities($object_data, $type, $push)
+	/**
+	 * Route activities
+	 *
+	 * @param array   $object_data
+	 * @param string  $type
+	 * @param boolean $push
+	 *
+	 * @return boolean Could the activity be routed?
+	 */
+	public static function routeActivities(array $object_data, string $type, bool $push): bool
 	{
 		$activity = $object_data['object_activity']	?? [];
 
@@ -627,7 +637,7 @@ class Receiver
 
 					$item = ActivityPub\Processor::createItem($object_data);
 					if (empty($item)) {
-						return;
+						return false;
 					}
 
 					$item['post-reason'] = Item::PR_ANNOUNCEMENT;

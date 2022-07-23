@@ -683,19 +683,19 @@ class Item
 			'uri-id', 'parent-uri-id',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'wall', 'private', 'origin', 'author-id'];
-		$condition = ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']];
+		$condition = ['uri-id' => [$item['thr-parent-id'], $item['parent-uri-id']], 'uid' => $item['uid']];
 		$params = ['order' => ['id' => false]];
 		$parent = Post::selectFirst($fields, $condition, $params);
 
-		if (!DBA::isResult($parent) && ($item['thr-parent-id'] != $item['parent-uri-id'])) {
-			$condition = ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']];
-			$parent = Post::selectFirst($fields, $condition, $params);
-		}
-
-		if (!DBA::isResult($parent) && $item['origin']) {
+		if (!DBA::isResult($parent) && Post::exists(['uri-id' => [$item['thr-parent-id'], $item['parent-uri-id']], 'uid' => 0])) {
 			$stored = Item::storeForUserByUriId($item['thr-parent-id'], $item['uid']);
-			Logger::info('Stored thread parent item for user', ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid'], 'stored' => $stored]);
-			$parent = Post::selectFirst($fields, $condition, $params);
+			if (!$stored && ($item['thr-parent-id'] != $item['parent-uri-id'])) {
+				$stored = Item::storeForUserByUriId($item['parent-uri-id'], $item['uid']);
+			}
+			if ($stored) {
+				Logger::info('Stored thread parent item for user', ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid'], 'stored' => $stored]);
+				$parent = Post::selectFirst($fields, $condition, $params);
+			}
 		}
 
 		if (!DBA::isResult($parent)) {
@@ -908,7 +908,7 @@ class Item
 		$item['contact-id'] = self::contactId($item);
 
 		if (!empty($item['direction']) && in_array($item['direction'], [Conversation::PUSH, Conversation::RELAY]) &&
-			empty($item['origin']) &&self::isTooOld($item)) {
+			empty($item['origin']) && self::isTooOld($item)) {
 			Logger::info('Item is too old', ['item' => $item]);
 			return 0;
 		}

@@ -539,6 +539,13 @@ class APContact
 		HTTPSignature::setInboxStatus($url, true, $shared);
 	}
 
+	/**
+	 * Check if the apcontact is a relay account
+	 *
+	 * @param array $apcontact
+	 *
+	 * @return bool 
+	 */
 	public static function isRelay(array $apcontact): bool
 	{
 		if ($apcontact['nick'] != 'relay') {
@@ -549,7 +556,7 @@ class APContact
 			return true;
 		}
 
-		if (in_array($apcontact['type'], ['Group', 'Service']) && ($apcontact['nick'] == 'relay') && is_null($apcontact['outbox'])) {
+		if (in_array($apcontact['type'], ['Group', 'Service']) && is_null($apcontact['outbox'])) {
 			return true;
 		}
 
