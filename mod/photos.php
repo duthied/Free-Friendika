@@ -65,7 +65,7 @@ function photos_init(App $a) {
 
 	if (DI::args()->getArgc() > 1) {
 		$owner = User::getOwnerDataByNick(DI::args()->getArgv()[1]);
-		if (empty($owner) || $owner['account_removed']) {
+		if (!isset($owner['account_removed']) || $owner['account_removed']) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
