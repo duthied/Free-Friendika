@@ -732,6 +732,7 @@ CREATE TABLE IF NOT EXISTS `inbox-entry` (
 	`activity-id` varbinary(255) COMMENT 'id of the incoming activity',
 	`object-id` varbinary(255) COMMENT '',
 	`in-reply-to-id` varbinary(255) COMMENT '',
+	`conversation` varbinary(255) COMMENT '',
 	`type` varchar(64) COMMENT 'Type of the activity',
 	`object-type` varchar(64) COMMENT 'Type of the object activity',
 	`object-object-type` varchar(64) COMMENT 'Type of the object\'s object activity',

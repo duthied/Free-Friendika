@@ -695,7 +695,7 @@ class Processor
 					Logger::warning('Unknown parent item.', ['uri' => $parent_uri]);
 					return false;
 				}
-				if (($parent['private'] == Item::PRIVATE) && ($parent['private'] != Item::PRIVATE)) {
+				if (($item['private'] == Item::PRIVATE) && ($parent['private'] != Item::PRIVATE)) {
 					Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
 					return false;
 				}

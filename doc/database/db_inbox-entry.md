@@ -12,6 +12,7 @@ Fields
 | activity-id        | id of the incoming activity          | varbinary(255) | YES  |     | NULL    |                |
 | object-id          |                                      | varbinary(255) | YES  |     | NULL    |                |
 | in-reply-to-id     |                                      | varbinary(255) | YES  |     | NULL    |                |
+| conversation       |                                      | varbinary(255) | YES  |     | NULL    |                |
 | type               | Type of the activity                 | varchar(64)    | YES  |     | NULL    |                |
 | object-type        | Type of the object activity          | varchar(64)    | YES  |     | NULL    |                |
 | object-object-type | Type of the object's object activity | varchar(64)    | YES  |     | NULL    |                |

@@ -57,6 +57,12 @@ class Queue
 			$fields['in-reply-to-id'] = $activity['reply-to-id'];
 		}
 
+		if (!empty($activity['context'])) {
+			$fields['conversation'] = $activity['context'];
+		} elseif(!empty($activity['conversation'])) {
+			$fields['conversation'] = $activity['conversation'];
+		}
+
 		if (!empty($activity['object_object_type'])) {
 			$fields['object-object-type'] = $activity['object_object_type'];
 		}

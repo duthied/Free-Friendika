@@ -791,6 +791,7 @@ return [
 			"activity-id" => ["type" => "varbinary(255)", "comment" => "id of the incoming activity"],
 			"object-id" => ["type" => "varbinary(255)", "comment" => ""],
 			"in-reply-to-id" => ["type" => "varbinary(255)", "comment" => ""],
+			"conversation" => ["type" => "varbinary(255)", "comment" => ""],
 			"type" => ["type" => "varchar(64)", "comment" => "Type of the activity"],
 			"object-type" => ["type" => "varchar(64)", "comment" => "Type of the object activity"],
 			"object-object-type" => ["type" => "varchar(64)", "comment" => "Type of the object's object activity"],			
