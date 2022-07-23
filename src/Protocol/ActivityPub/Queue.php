@@ -140,6 +140,14 @@ class Queue
 		$activity['entry-id']  = $entry['id'];
 		$activity['worker-id'] = $entry['wid'];
 
+		$receivers = DBA::select('inbox-entry-receiver', ['uid'], ['queue-id' => $entry['id']]);
+		while ($receiver = DBA::fetch($receivers)) {
+			if (!in_array($receiver['uid'], $activity['receiver'])) {
+				$activity['receiver'][] = $receiver['uid'];
+			}
+		}
+		DBA::close($receivers);
+
 		if (!Receiver::routeActivities($activity, $type, $push)) {
 			self::remove($activity);
 		}

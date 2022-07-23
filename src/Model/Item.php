@@ -83,7 +83,7 @@ class Item
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = [
 		'uid', 'id', 'parent', 'guid', 'network', 'gravity',
-		'uri-id', 'uri', 'thr-parent-id', 'thr-parent', 'parent-uri-id', 'parent-uri',
+		'uri-id', 'uri', 'thr-parent-id', 'thr-parent', 'parent-uri-id', 'parent-uri', 'conversation',
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 		'wall', 'private', 'starred', 'origin', 'parent-origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
@@ -103,7 +103,7 @@ class Item
 
 	// Field list that is used to deliver items via the protocols
 	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid',
-			'parent-guid', 'received', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
+			'parent-guid', 'conversation', 'received', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
 			'private', 'title', 'body', 'raw-body', 'location', 'coord', 'app',
 			'inform', 'deleted', 'extid', 'post-type', 'post-reason', 'gravity',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
@@ -116,7 +116,7 @@ class Item
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
-			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid',
+			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'conversation', 'vid',
 			'contact-id', 'wall', 'gravity', 'extid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
@@ -687,6 +687,11 @@ class Item
 		$params = ['order' => ['id' => false]];
 		$parent = Post::selectFirst($fields, $condition, $params);
 
+		if (!DBA::isResult($parent) && ($item['thr-parent-id'] != $item['parent-uri-id'])) {
+			$condition = ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']];
+			$parent = Post::selectFirst($fields, $condition, $params);
+		}
+
 		if (!DBA::isResult($parent) && $item['origin']) {
 			$stored = Item::storeForUserByUriId($item['thr-parent-id'], $item['uid']);
 			Logger::info('Stored thread parent item for user', ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid'], 'stored' => $stored]);
@@ -787,10 +792,13 @@ class Item
 
 		// Backward compatibility: parent-uri used to be the direct parent uri.
 		// If it is provided without a thr-parent, it probably is the old behavior.
-		$item['thr-parent'] = trim($item['thr-parent'] ?? $item['parent-uri'] ?? $item['uri']);
-		$item['parent-uri'] = $item['thr-parent'];
+		if (empty($item['thr-parent']) || empty($item['parent-uri'])) {
+			$item['thr-parent'] = trim($item['thr-parent'] ?? $item['parent-uri'] ?? $item['uri']);
+			$item['parent-uri'] = $item['thr-parent'];
+		}
 
-		$item['thr-parent-id'] = $item['parent-uri-id'] = ItemURI::getIdByURI($item['thr-parent']);
+		$item['thr-parent-id'] = ItemURI::getIdByURI($item['thr-parent']);
+		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
 
 		// Store conversation data
 		$item = Conversation::insert($item);
@@ -966,10 +974,18 @@ class Item
 		} else {
 			$parent_id = 0;
 			$parent_origin = $item['origin'];
+
+			if ($item['wall'] && empty($item['conversation'])) {
+				$item['conversation'] = $item['parent-uri'] . '#context';
+			}
 		}
 
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
 		$item['thr-parent-id'] = ItemURI::getIdByURI($item['thr-parent']);
+
+		if (!empty($item['conversation']) && empty($item['conversation-id'])) {
+			$item['conversation-id'] = ItemURI::getIdByURI($item['conversation']);
+		}
 
 		// Is this item available in the global items (with uid=0)?
 		if ($item['uid'] == 0) {

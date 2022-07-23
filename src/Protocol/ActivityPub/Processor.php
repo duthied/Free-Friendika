@@ -280,15 +280,26 @@ class Processor
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 		}
 
-		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
-			if (Queue::hasWorker($activity)) {
-				Logger::notice('There is already a worker task to dfetch the post.', ['parent' => $activity['reply-to-id']]);
-				return [];
-			}
+		if (!empty($activity['context'])) {
+			$item['conversation'] = $activity['context'];
+		} elseif(!empty($activity['conversation'])) {
+			$item['conversation'] = $activity['conversation'];
+		}
 
+		if (!empty($item['conversation'])) {
+			$conversation = Post::selectFirstThread(['uri'], ['conversation' => $item['conversation']]);
+			if (!empty($conversation)) {
+				Logger::debug('Got conversation', ['conversation' => $item['conversation'], 'parent' => $conversation]);
+				$item['parent-uri'] = $conversation['uri'];
+			}
+		} else {
+			$conversation = [];
+		}
+
+		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			$recursion_depth = $activity['recursion-depth'] ?? 0;
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
-			if ($recursion_depth < 10) {
+			if ($recursion_depth < 10000) {
 				$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 				$fetch_by_worker = empty($result);
 			} else {
@@ -296,19 +307,32 @@ class Processor
 				$fetch_by_worker = true;
 			}
 
+			if ($fetch_by_worker && Queue::hasWorker($activity)) {
+				Logger::notice('There is already a worker task to fetch the post.', ['id' => $activity['id'], 'parent' => $activity['reply-to-id']]);
+				$fetch_by_worker = false;
+				if (!empty($conversation)) {
+					return [];
+				}
+			}
+
 			if ($fetch_by_worker) {
 				Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 				$activity['recursion-depth'] = 0;
 				$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 				Queue::setWorkerId($activity, $wid);
-				return [];
+				if (!empty($conversation)) {
+					return [];
+				}
+			} elseif (!empty($result)) {
+				if (($item['thr-parent'] != $result) && Post::exists(['uri' => $result])) {
+					$item['thr-parent'] = $result;
+				}
 			}
 		}
 
 		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
 
-		/// @todo What to do with $activity['context']?
-		if (empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Post::exists(['uri' => $item['thr-parent']])) {
+		if (empty($conversation) && empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Post::exists(['uri' => $item['thr-parent']])) {
 			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
 			return [];
 		}
@@ -484,6 +508,7 @@ class Processor
 	 */
 	public static function createActivity(array $activity, string $verb)
 	{
+		$activity['reply-to-id'] = $activity['object_id'];
 		$item = self::createItem($activity);
 		if (empty($item)) {
 			return;
@@ -663,10 +688,11 @@ class Processor
 			$item['raw-body'] = $content;
 			$item['body'] = Item::improveSharedDataInBody($item);
 		} else {
-			if (empty($activity['directmessage']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
-				$parent = Post::selectFirst(['id', 'uri-id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
+			$parent_uri = $item['parent-uri'] ?? $item['thr-parent'];
+			if (empty($activity['directmessage']) && ($parent_uri != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+				$parent = Post::selectFirst(['id', 'uri-id', 'private', 'author-link', 'alias'], ['uri' => $parent_uri]);
 				if (!DBA::isResult($parent)) {
-					Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
+					Logger::warning('Unknown parent item.', ['uri' => $parent_uri]);
 					return false;
 				}
 				if (($parent['private'] == Item::PRIVATE) && ($parent['private'] != Item::PRIVATE)) {
@@ -1327,8 +1353,8 @@ class Processor
 		if (empty($contact)) {
 			Contact::update(['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
-
 		Logger::notice('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1426,6 +1452,7 @@ class Processor
 		Contact\User::setIsBlocked($cid, $uid, true);
 
 		Logger::info('Contact blocked user', ['contact' => $cid, 'user' => $uid]);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1450,6 +1477,7 @@ class Processor
 		Contact\User::setIsBlocked($cid, $uid, false);
 
 		Logger::info('Contact unblocked user', ['contact' => $cid, 'user' => $uid]);
+		Queue::remove($activity);
 	}
 
 	/**

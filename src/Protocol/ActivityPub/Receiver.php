@@ -516,6 +516,10 @@ class Receiver
 			}
 		}
 
+		if (($type == 'as:Add') && is_array($activity['as:object']) && (count($activity['as:object']) == 1)) {
+			$trust_source = false;
+		}
+
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
 		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source);
 		if (empty($object_data)) {

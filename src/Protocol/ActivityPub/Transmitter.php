@@ -1516,26 +1516,6 @@ class Transmitter
 	}
 
 	/**
-	 * Fetches the "context" value for a givem item array from the "conversation" table
-	 *
-	 * @param array $item Item array
-	 * @return string with context url
-	 * @throws \Exception
-	 */
-	private static function fetchContextURLForItem(array $item): string
-	{
-		$conversation = DBA::selectFirst('conversation', ['conversation-href', 'conversation-uri'], ['item-uri' => $item['parent-uri']]);
-		if (DBA::isResult($conversation) && !empty($conversation['conversation-href'])) {
-			$context_uri = $conversation['conversation-href'];
-		} elseif (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
-			$context_uri = $conversation['conversation-uri'];
-		} else {
-			$context_uri = $item['parent-uri'] . '#context';
-		}
-		return $context_uri;
-	}
-
-	/**
 	 * Returns if the post contains sensitive content ("nsfw")
 	 *
 	 * @param integer $uri_id URI id
@@ -1646,7 +1626,7 @@ class Transmitter
 		$data['url'] = $link ?? $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
 		$data['sensitive'] = self::isSensitive($item['uri-id']);
-		$data['context'] = self::fetchContextURLForItem($item);
+		$data['conversation'] = $data['context'] = $item['conversation'];
 
 		if (!empty($item['title'])) {
 			$data['name'] = BBCode::toPlaintext($item['title'], false);

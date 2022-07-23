@@ -1355,6 +1355,7 @@ return [
 		"comment" => "Thread related data",
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"conversation-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the conversation uri"],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item owner"],
 			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item author"],
 			"causer-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
@@ -1366,6 +1367,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
+			"conversation-id" => ["conversation-id"],
 			"owner-id" => ["owner-id"],
 			"author-id" => ["author-id"],
 			"causer-id" => ["causer-id"],
@@ -1434,6 +1436,7 @@ return [
 		"comment" => "Thread related data per user",
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"conversation-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the conversation uri"],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item owner"],
 			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item author"],
 			"causer-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
@@ -1460,6 +1463,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["uid", "uri-id"],
 			"uri-id" => ["uri-id"],
+			"conversation-id" => ["conversation-id"],
 			"owner-id" => ["owner-id"],
 			"author-id" => ["author-id"],
 			"causer-id" => ["causer-id"],

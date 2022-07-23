@@ -70,6 +70,8 @@
 			"parent-uri-id" => ["post-user", "parent-uri-id"],
 			"thr-parent" => ["thr-parent-item-uri", "uri"],
 			"thr-parent-id" => ["post-user", "thr-parent-id"],
+			"conversation" => ["conversation-item-uri", "uri"],
+			"conversation-id" => ["post-thread-user", "conversation-id"],
 			"guid" => ["item-uri", "guid"],
 			"wall" => ["post-user", "wall"],
 			"gravity" => ["post-user", "gravity"],
@@ -220,6 +222,7 @@
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
 			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `conversation-item-uri` ON `conversation-item-uri`.`id` = `post-thread-user`.`conversation-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
@@ -243,6 +246,8 @@
 			"parent-uri-id" => ["post-user", "parent-uri-id"],
 			"thr-parent" => ["thr-parent-item-uri", "uri"],
 			"thr-parent-id" => ["post-user", "thr-parent-id"],
+			"conversation" => ["conversation-item-uri", "uri"],
+			"conversation-id" => ["post-thread-user", "conversation-id"],
 			"guid" => ["item-uri", "guid"],
 			"wall" => ["post-thread-user", "wall"],
 			"gravity" => ["post-user", "gravity"],
@@ -392,6 +397,7 @@
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
 			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `conversation-item-uri` ON `conversation-item-uri`.`id` = `post-thread-user`.`conversation-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
@@ -411,6 +417,8 @@
 			"parent-uri-id" => ["post", "parent-uri-id"],
 			"thr-parent" => ["thr-parent-item-uri", "uri"],
 			"thr-parent-id" => ["post", "thr-parent-id"],
+			"conversation" => ["conversation-item-uri", "uri"],
+			"conversation-id" => ["post-thread", "conversation-id"],
 			"guid" => ["item-uri", "guid"],
 			"gravity" => ["post", "gravity"],
 			"extid" => ["external-item-uri", "uri"],
@@ -530,6 +538,7 @@
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post`.`thr-parent-id`
 			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `conversation-item-uri` ON `conversation-item-uri`.`id` = `post-thread`.`conversation-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post`.`external-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post`.`uri-id`
@@ -546,6 +555,8 @@
 			"parent-uri-id" => ["post", "parent-uri-id"],
 			"thr-parent" => ["thr-parent-item-uri", "uri"],
 			"thr-parent-id" => ["post", "thr-parent-id"],
+			"conversation" => ["conversation-item-uri", "uri"],
+			"conversation-id" => ["post-thread", "conversation-id"],
 			"guid" => ["item-uri", "guid"],
 			"gravity" => ["post", "gravity"],
 			"extid" => ["external-item-uri", "uri"],
@@ -665,6 +676,7 @@
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post`.`thr-parent-id`
 			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `conversation-item-uri` ON `conversation-item-uri`.`id` = `post-thread`.`conversation-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post`.`external-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
