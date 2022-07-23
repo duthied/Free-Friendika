@@ -935,7 +935,7 @@ class Processor
 				Logger::info('Item insertion successful', ['user' => $item['uid'], 'item_id' => $item_id]);
 				$success = true;
 			} else {
-				Logger::notice('Item insertion aborted', ['user' => $item['uid']]);
+				Logger::notice('Item insertion aborted', ['uri' => $item['uri'], 'uid' => $item['uid']]);
 			}
 
 			if ($item['uid'] == 0) {

@@ -179,7 +179,9 @@ class Queue
 	 */
 	public static function clear()
 	{
-		DBA::delete('inbox-entry', ["`wid` IS NULL AND `received` < ?", DateTimeFormat::utc('now - 4 hours')]);
+		// We delete all entries that aren't associated with a worker entry after seven days.
+		// The other entries are deleted when the worker deferred for too long.
+		DBA::delete('inbox-entry', ["`wid` IS NULL AND `received` < ?", DateTimeFormat::utc('now - 7 days')]);
 	}
 
 	/**
@@ -190,7 +192,7 @@ class Queue
 	 */
 	public static function processReplyByUri(string $uri)
 	{
-		$entries = DBA::select('inbox-entry', ['id'], ['in-reply-to-id' => $uri], ['order' => ['id' => true]]);
+		$entries = DBA::select('inbox-entry', ['id'], ["`in-reply-to-id` = ? AND `object-id` != ?", $uri, $uri]);
 		while ($entry = DBA::fetch($entries)) {
 			self::process($entry['id']);
 		}
