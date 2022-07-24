@@ -59,9 +59,9 @@ class NodeInfo210 extends BaseModule
 			],
 			'organization'      => Nodeinfo::getOrganization($this->config),
 			'protocols'         => ['dfrn', 'activitypub'],
-			'services'          => [],
+			'services'          => Nodeinfo::getServices(),
 			'openRegistrations' => intval($this->config->get('config', 'register_policy')) !== Register::CLOSED,
-			'usage'             => [],
+			'usage'             => Nodeinfo::getUsage(true),
 		];
 
 		if (!empty($this->config->get('system', 'diaspora_enabled'))) {
@@ -71,10 +71,6 @@ class NodeInfo210 extends BaseModule
 		if (empty($this->config->get('system', 'ostatus_disabled'))) {
 			$nodeinfo['protocols'][] = 'ostatus';
 		}
-
-		$nodeinfo['usage'] = Nodeinfo::getUsage(true);
-
-		$nodeinfo['services'] = Nodeinfo::getServices();
 
 		if (Addon::isEnabled('twitter')) {
 			$nodeinfo['services']['inbound'][] = 'twitter';

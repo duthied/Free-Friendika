@@ -53,8 +53,8 @@ class FContact
 
 			if (is_null($update)) {
 				// update record occasionally so it doesn't get stale
-				$d = strtotime($person["updated"]." +00:00");
-				if ($d < strtotime("now - 14 days")) {
+				$d = strtotime($person['updated'] . ' +00:00');
+				if ($d < strtotime('now - 14 days')) {
 					$update = true;
 				}
 

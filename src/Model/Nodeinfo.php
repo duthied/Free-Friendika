@@ -79,6 +79,7 @@ class Nodeinfo
 		$config = DI::config();
 
 		$usage = new stdClass();
+		$usage->users = [];
 
 		if (!empty($config->get('system', 'nodeinfo'))) {
 			$usage->users = [
