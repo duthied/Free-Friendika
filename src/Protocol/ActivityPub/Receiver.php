@@ -517,10 +517,6 @@ class Receiver
 			}
 		}
 
-		if (($type == 'as:Add') && is_array($activity['as:object']) && (count($activity['as:object']) == 1)) {
-			$trust_source = false;
-		}
-
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
 		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source);
 		if (empty($object_data)) {
@@ -556,10 +552,6 @@ class Receiver
 			$object_data['thread-children-type'] = $activity['thread-children-type'];
 		}
 
-		if (!empty($activity['recursion-depth'])) {
-			$object_data['recursion-depth'] = $activity['recursion-depth'];
-		}
-
 		// Internal flag for posts that arrived via relay
 		if (!empty($activity['from-relay'])) {
 			$object_data['from-relay'] = $activity['from-relay'];
@@ -570,6 +562,10 @@ class Receiver
 		}
 
 		$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push);
+
+		if (!empty($activity['recursion-depth'])) {
+			$object_data['recursion-depth'] = $activity['recursion-depth'];
+		}
 
 		if (in_array('as:Question', [$object_data['object_type'] ?? '', $object_data['object_object_type'] ?? ''])) {
 			self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);

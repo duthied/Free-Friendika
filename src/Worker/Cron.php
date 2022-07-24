@@ -128,11 +128,14 @@ class Cron
 			if (DI::config()->get('system', 'optimize_tables')) {
 				Worker::add(PRIORITY_LOW, 'OptimizeTables');
 			}
-	
-			DI::config()->set('system', 'last_cron_daily', time());
+
+			// Process all unprocessed entries
+			Queue::processAll();
 
 			// Resubscribe to relay servers
 			Relay::reSubscribe();
+
+			DI::config()->set('system', 'last_cron_daily', time());
 		}
 
 		Logger::notice('end');

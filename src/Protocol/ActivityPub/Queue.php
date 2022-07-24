@@ -96,6 +96,42 @@ class Queue
 	}
 
 	/**
+	 * Delete all entries that depend on the given worker id
+	 *
+	 * @param integer $wid
+	 * @return void
+	 */
+	public static function deleteByWorkerId(int $wid)
+	{
+		$entries = DBA::select('inbox-entry', ['id'], ['wid' => $wid]);
+		while ($entry = DBA::fetch($entries)) {
+			self::deleteById($entry['id']);
+		}
+		DBA::close($entries);
+	}
+
+	/**
+	 * Delete recursively an entry and all their children
+	 *
+	 * @param integer $id
+	 * @return void
+	 */
+	private static function deleteById(int $id)
+	{
+		$entry = DBA::selectFirst('inbox-entry', ['id', 'object-id'], ['id' => $id]);
+		if (empty($entry)) {
+			return;
+		}
+
+		$children = DBA::select('inbox-entry', ['id'], ['in-reply-to-id' => $entry['object-id']]);
+		while ($child = DBA::fetch($children)) {
+			self::deleteById($child['id']);
+		}
+		DBA::close($children);
+		DBA::delete('inbox-entry', ['id' => $entry['id']]);
+	}
+
+	/**
 	 * Set the worker id for the queue entry
 	 *
 	 * @param array $activity
@@ -143,8 +179,9 @@ class Queue
 		$type     = $entry['type'];
 		$push     = $entry['push'];
 
-		$activity['entry-id']  = $entry['id'];
-		$activity['worker-id'] = $entry['wid'];
+		$activity['entry-id']        = $entry['id'];
+		$activity['worker-id']       = $entry['wid'];
+		$activity['recursion-depth'] = 0;
 
 		$receivers = DBA::select('inbox-entry-receiver', ['uid'], ['queue-id' => $entry['id']]);
 		while ($receiver = DBA::fetch($receivers)) {
@@ -166,8 +203,13 @@ class Queue
 	 */
 	public static function processAll()
 	{
-		$entries = DBA::select('inbox-entry', ['id', 'type', 'object-type'], [], ['order' => ['id' => true]]);
+		$entries = DBA::select('inbox-entry', ['id', 'type', 'object-type', 'object-id', 'in-reply-to-id'], ["`wid` IS NULL"], ['order' => ['id' => true]]);
 		while ($entry = DBA::fetch($entries)) {
+			// We don't need to process entries that depend on already existing entries.
+			if (!empty($entry['in-reply-to-id']) && DBA::exists('inbox-entry', ['object-id' => $entry['in-reply-to-id']])) {
+				continue;
+			}
+			Logger::debug('Process leftover entry', $entry);
 			self::process($entry['id']);
 		}
 	}

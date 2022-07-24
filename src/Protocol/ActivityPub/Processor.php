@@ -551,16 +551,13 @@ class Processor
 			}
 		}
 
-		if ($activity['target_id'] != $actor['featured']) {
-			return null;
+		$parent = Post::selectFirst(['uri-id'], ['uri' => $activity['object_id']]);
+		if (empty($parent['uri-id'])) {
+			if (self::fetchMissingActivity($activity['object_id'], $activity, '', Receiver::COMPLETION_AUTO)) {
+				$parent = Post::selectFirst(['uri-id'], ['uri' => $activity['object_id']]);
+			}
 		}
 
-		$id = Contact::getIdForURL($activity['actor']);
-		if (empty($id)) {
-			return null;
-		}
-
-		$parent = Post::selectFirst(['uri-id'], ['uri' => $activity['object_id'], 'author-id' => $id]);
 		if (!empty($parent['uri-id'])) {
 			return $parent['uri-id'];
 		}
@@ -1191,20 +1188,27 @@ class Processor
 			return '';
 		}
 
+		$signer = [];
+
+		if (!empty($object['attributedTo'])) {
+			$attributed_to = $object['attributedTo'];
+			if (is_array($attributed_to)) {
+				$compacted = JsonLD::compact($object);
+				$attributed_to = JsonLD::fetchElement($compacted, 'as:attributedTo', '@id');
+			}
+			$signer[] = $attributed_to;	
+		}
+
 		if (!empty($object['actor'])) {
 			$object_actor = $object['actor'];
-		} elseif (!empty($object['attributedTo'])) {
-			$object_actor = $object['attributedTo'];
-			if (is_array($object_actor)) {
-				$compacted = JsonLD::compact($object);
-				$object_actor = JsonLD::fetchElement($compacted, 'as:attributedTo', '@id');
-			}
+		} elseif (!empty($attributed_to)) {
+			$object_actor = $attributed_to;
 		} else {
 			// Shouldn't happen
 			$object_actor = '';
 		}
 
-		$signer = [$object_actor];
+		$signer[] = $object_actor;
 
 		if (!empty($child['author'])) {
 			$actor = $child['author'];

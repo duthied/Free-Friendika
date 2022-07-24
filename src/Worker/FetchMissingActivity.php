@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
+use Friendica\DI;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\ActivityPub\Queue;
 use Friendica\Protocol\ActivityPub\Receiver;
@@ -32,6 +33,8 @@ class FetchMissingActivity
 	/**
 	 * Fetch missing activities
 	 * @param string $url Contact URL
+	 * 
+	 * @return void
 	 */
 	public static function execute(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL)
 	{
@@ -39,10 +42,14 @@ class FetchMissingActivity
 		$result = ActivityPub\Processor::fetchMissingActivity($url, $child, $relay_actor, $completion);
 		if ($result) {
 			Logger::info('Successfully fetched missing activity', ['url' => $url]);
-			Queue::processReplyByUri($url);
 		} elseif (!Worker::defer()) {
-			// @todo perform recursive deletion of all entries
 			Logger::info('Activity could not be fetched', ['url' => $url]);
+
+			// recursively delete all entries that belong to this worker task
+			$queue = DI::app()->getQueue();
+			if (!empty($queue['id'])) {
+				Queue::deleteByWorkerId($queue['id']);
+			}
 		} else {
 			Logger::info('Fetching deferred', ['url' => $url]);
 		}
