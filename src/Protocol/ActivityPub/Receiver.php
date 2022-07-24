@@ -273,6 +273,8 @@ class Receiver
 	public static function prepareObjectData(array $activity, int $uid, bool $push, bool &$trust_source): array
 	{
 		$id = JsonLD::fetchElement($activity, '@id');
+		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
+		
 		if (!empty($id) && !$trust_source) {
 			$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
 
@@ -283,7 +285,13 @@ class Receiver
 				if ($fetched_id == $id) {
 					Logger::info('Activity had been fetched successfully', ['id' => $id]);
 					$trust_source = true;
-					$activity = $object;
+					if ($id != $object_id) {
+						$activity = $object;
+					} else {
+						Logger::info('Fetched data is the object instead of the activity', ['id' => $id]);
+						unset($object['@context']);
+						$activity['as:object'] = $object;
+					}					
 				} else {
 					Logger::info('Activity id is not equal', ['id' => $id, 'fetched' => $fetched_id]);
 				}
@@ -556,7 +564,9 @@ class Receiver
 			$object_data['object_activity']	= $activity;
 		}
 
-		$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
+		if ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted')) {
+			$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
+		}
 
 		if (!$trust_source) {
 			Logger::info('Activity trust could not be achieved.',  ['id' => $object_data['object_id'], 'type' => $type, 'signer' => $signer, 'actor' => $actor, 'attributedTo' => $attributed_to]);
@@ -1829,29 +1839,6 @@ class Receiver
 		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
 		unset($object_data['receiver'][-1]);
 		unset($object_data['reception_type'][-1]);
-
-		// Common object data:
-
-		// Unhandled
-		// @context, type, actor, signature, mediaType, duration, replies, icon
-
-		// Also missing: (Defined in the standard, but currently unused)
-		// audience, preview, endTime, startTime, image
-
-		// Data in Notes:
-
-		// Unhandled
-		// contentMap, announcement_count, announcements, context_id, likes, like_count
-		// inReplyToStatusId, shares, quoteUrl, statusnetConversationId
-
-		// Data in video:
-
-		// To-Do?
-		// category, licence, language, commentsEnabled
-
-		// Unhandled
-		// views, waitTranscoding, state, support, subtitleLanguage
-		// likes, dislikes, shares, comments
 
 		return $object_data;
 	}
