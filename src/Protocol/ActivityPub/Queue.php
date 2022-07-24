@@ -24,6 +24,7 @@ namespace Friendica\Protocol\ActivityPub;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -224,6 +225,13 @@ class Queue
 		// We delete all entries that aren't associated with a worker entry after seven days.
 		// The other entries are deleted when the worker deferred for too long.
 		DBA::delete('inbox-entry', ["`wid` IS NULL AND `received` < ?", DateTimeFormat::utc('now - 7 days')]);
+
+		// Optimizing this table only last seconds
+		if (DI::config()->get('system', 'optimize_tables')) {
+			Logger::info('Optimize start');
+			DBA::e("OPTIMIZE TABLE `inbox-entry`");
+			Logger::info('Optimize end');
+		}
 	}
 
 	/**
