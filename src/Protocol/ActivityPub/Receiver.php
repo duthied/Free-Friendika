@@ -274,7 +274,7 @@ class Receiver
 	{
 		$id = JsonLD::fetchElement($activity, '@id');
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
-		
+
 		if (!empty($id) && !$trust_source) {
 			$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
 
@@ -291,7 +291,7 @@ class Receiver
 						Logger::info('Fetched data is the object instead of the activity', ['id' => $id]);
 						unset($object['@context']);
 						$activity['as:object'] = $object;
-					}					
+					}
 				} else {
 					Logger::info('Activity id is not equal', ['id' => $id, 'fetched' => $fetched_id]);
 				}
@@ -371,6 +371,10 @@ class Receiver
 			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
 			$object_data['push'] = $push;
+			if ($type == 'as:Delete') {
+				$apcontact = APContact::getByURL($object_data['object_id'], true);
+				$trust_source = ($apcontact['type'] == 'Tombstone');
+			}
 		} elseif (in_array($type, ['as:Create', 'as:Update', 'as:Announce', 'as:Invite']) || strpos($type, '#emojiReaction')) {
 			// Fetch the content only on activities where this matters
 			// We can receive "#emojiReaction" when fetching content from Hubzilla systems
@@ -424,6 +428,10 @@ class Receiver
 			// An Undo is done on the object of an object, so we need that type as well
 			if (($type == 'as:Undo') && !empty($object_data['object_object'])) {
 				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object'], $fetch_uid);
+			}
+
+			if (($type == 'as:Delete') && in_array($object_data['object_type'], array_merge(['as:Tombstone'], self::CONTENT_TYPES))) {
+				$trust_source = Processor::isActivityGone($object_data['object_id']);
 			}
 		}
 

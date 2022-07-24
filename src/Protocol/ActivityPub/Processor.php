@@ -466,7 +466,7 @@ class Processor
 	 *
 	 * @return boolean
 	 */
-	private static function isActivityGone(string $url): bool
+	public static function isActivityGone(string $url): bool
 	{
 		$curlResult = HTTPSignature::fetchRaw($url, 0);
 
@@ -1346,6 +1346,7 @@ class Processor
 	{
 		$uid = User::getIdForURL($activity['object_id']);
 		if (empty($uid)) {
+			Queue::remove($activity);
 			return;
 		}
 
