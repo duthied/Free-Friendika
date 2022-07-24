@@ -303,7 +303,7 @@ class Processor
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 			if ($recursion_depth < 10) {
 				$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
-				if (empty($result) && self::ActivityIsGone($activity['reply-to-id'])) {
+				if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
 					// Recursively delete this and all depending entries
 					Queue::deleteById($activity['entry-id']);
 					return [];
@@ -466,7 +466,7 @@ class Processor
 	 *
 	 * @return boolean
 	 */
-	private static function ActivityIsGone(string $url): bool
+	private static function isActivityGone(string $url): bool
 	{
 		$curlResult = HTTPSignature::fetchRaw($url, 0);
 

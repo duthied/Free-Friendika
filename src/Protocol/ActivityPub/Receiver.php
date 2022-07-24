@@ -530,11 +530,6 @@ class Receiver
 			$type = $object_data['type'];
 		}
 
-		if (!$trust_source) {
-			Logger::info('Activity trust could not be achieved.',  ['id' => $object_data['object_id'], 'type' => $type, 'signer' => $signer, 'actor' => $actor, 'attributedTo' => $attributed_to]);
-			return;
-		}
-
 		if (!empty($body) && empty($object_data['raw'])) {
 			$object_data['raw'] = $body;
 		}
@@ -561,7 +556,12 @@ class Receiver
 			$object_data['object_activity']	= $activity;
 		}
 
-		$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push);
+		$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
+
+		if (!$trust_source) {
+			Logger::info('Activity trust could not be achieved.',  ['id' => $object_data['object_id'], 'type' => $type, 'signer' => $signer, 'actor' => $actor, 'attributedTo' => $attributed_to]);
+			return;
+		}
 
 		if (!empty($activity['recursion-depth'])) {
 			$object_data['recursion-depth'] = $activity['recursion-depth'];

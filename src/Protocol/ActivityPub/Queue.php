@@ -42,7 +42,7 @@ class Queue
 	 * @param boolean $push
 	 * @return array
 	 */
-	public static function add(array $activity, string $type, int $uid, string $http_signer, bool $push): array
+	public static function add(array $activity, string $type, int $uid, string $http_signer, bool $push, bool $trust_source): array
 	{
 		$fields = [
 			'activity-id' => $activity['id'],
@@ -52,6 +52,7 @@ class Queue
 			'activity'    => json_encode($activity, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
 			'received'    => DateTimeFormat::utcNow(),
 			'push'        => $push,
+			'trust'       => $trust_source,
 		];
 
 		if (!empty($activity['reply-to-id'])) {
@@ -204,7 +205,7 @@ class Queue
 	 */
 	public static function processAll()
 	{
-		$entries = DBA::select('inbox-entry', ['id', 'type', 'object-type', 'object-id', 'in-reply-to-id'], ["`wid` IS NULL"], ['order' => ['id' => true]]);
+		$entries = DBA::select('inbox-entry', ['id', 'type', 'object-type', 'object-id', 'in-reply-to-id'], ["`trust` AND `wid` IS NULL"], ['order' => ['id' => true]]);
 		while ($entry = DBA::fetch($entries)) {
 			// We don't need to process entries that depend on already existing entries.
 			if (!empty($entry['in-reply-to-id']) && DBA::exists('inbox-entry', ["`id` != ? AND `object-id` = ?", $entry['id'], $entry['in-reply-to-id']])) {

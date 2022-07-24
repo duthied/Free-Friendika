@@ -798,7 +798,8 @@ return [
 			"received" => ["type" => "datetime", "comment" => "Receiving date"],
 			"activity" => ["type" => "mediumtext", "comment" => "The JSON activity"],
 			"signer" => ["type" => "varchar(255)", "comment" => ""],
-			"push" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"push" => ["type" => "boolean", "comment" => "Is the entry pushed or have pulled it?"],
+			"trust" => ["type" => "boolean", "comment" => "Do we trust this entry?"],
 			"wid" => ["type" => "int unsigned", "foreign" => ["workerqueue" => "id"], "comment" => "Workerqueue id"],		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
