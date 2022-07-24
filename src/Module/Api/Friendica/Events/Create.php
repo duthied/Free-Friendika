@@ -45,17 +45,17 @@ class Create extends BaseApi
 
 		// params
 		$request = $this->getRequest([
-			'id'        => 0, //if provided, event will be amended
-			'name'      => '', //summary of the event
-			'desc'      => '', //description in BBCode
-			'startTime' => '', //starttime, required
-			'endTime'   => '', //endtime, required if nofinish false
-			'place'     => '', //location of the event
-			'publish'   => 0,  //publish message
-			'allow_cid' => '', //array of allowed person, if access restricted
-			'allow_gid' => '', //array of allowed groups, if access restricted
-			'deny_cid'  => '', //array of denied person, if access restricted
-			'deny_gid'  => '', //array of denied groups, if access restricted
+			'id'         => 0, //if provided, event will be amended
+			'name'       => '', //summary of the event
+			'desc'       => '', //description in BBCode
+			'start_time' => '', //start_time, required
+			'end_time'   => '', //endtime, required if nofinish false
+			'place'      => '', //location of the event
+			'publish'    => 0,  //publish message
+			'allow_cid'  => '', //array of allowed person, if access restricted
+			'allow_gid'  => '', //array of allowed groups, if access restricted
+			'deny_cid'   => '', //array of denied person, if access restricted
+			'deny_gid'   => '', //array of denied groups, if access restricted
 		], $request);
 
 		// error if no name specified
@@ -64,33 +64,33 @@ class Create extends BaseApi
 		}
 
 		// error startDate is not specified
-		if (empty($request['startTime'])) {
+		if (empty($request['start_time'])) {
 			throw new HTTPException\BadRequestException('startDate not specified');
 		}
 
-		// nofinish if endTime is not specified
-		if (empty($request['endTime'])) {
+		// nofinish if end_time is not specified
+		if (empty($request['end_time'])) {
 			$finish   = DBA::NULL_DATETIME;
 			$nofinish = true;
 		} else {
-			$finish   = DateTimeFormat::convert($request['endTime'], 'UTC', DI::app()->getTimeZone());
+			$finish   = DateTimeFormat::convert($request['end_time'], 'UTC', DI::app()->getTimeZone());
 			$nofinish = false;
 		}
 
-		$start = DateTimeFormat::convert($request['startTime'], 'UTC', DI::app()->getTimeZone());
+		$start = DateTimeFormat::convert($request['start_time'], 'UTC', DI::app()->getTimeZone());
 
 		// create event
 		$event = [];
 
-		$event['id']       = $request['id'];
-		$event['uid']      = $uid;
-		$event['type']     = 'event';
-		$event['summary']  = $request['name'];
-		$event['desc']     = $request['desc'];
-		$event['location'] = $request['place'];
-		$event['start']    = $start;
-		$event['finish']   = $finish;
-		$event['nofinish'] = $nofinish;
+		$event['id']         = $request['id'];
+		$event['uid']        = $uid;
+		$event['type']       = 'event';
+		$event['summary']    = $request['name'];
+		$event['desc']       = $request['desc'];
+		$event['location']   = $request['place'];
+		$event['start_time'] = $start;
+		$event['end_time']   = $finish;
+		$event['nofinish']   = $nofinish;
 
 		$event['allow_cid'] = $request['allow_cid'];
 		$event['allow_gid'] = $request['allow_gid'];

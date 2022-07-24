@@ -49,23 +49,23 @@ class Index extends BaseApi
 		$items = [];
 		foreach ($events as $event) {
 			$items[] = [
-				'id'        => intval($event['id']),
-				'uid'       => intval($event['uid']),
-				'cid'       => $event['cid'],
-				'uri'       => $event['uri'],
-				'name'      => $event['summary'],
-				'desc'      => BBCode::convertForUriId($event['uri-id'], $event['desc']),
-				'startTime' => $event['start'],
-				'endTime'   => $event['finish'],
-				'type'      => $event['type'],
-				'nofinish'  => $event['nofinish'],
-				'place'     => $event['location'],
-				'adjust'    => 1,
-				'ignore'    => $event['ignore'],
-				'allow_cid' => $event['allow_cid'],
-				'allow_gid' => $event['allow_gid'],
-				'deny_cid'  => $event['deny_cid'],
-				'deny_gid'  => $event['deny_gid']
+				'id'         => intval($event['id']),
+				'uid'        => intval($event['uid']),
+				'cid'        => $event['cid'],
+				'uri'        => $event['uri'],
+				'name'       => $event['summary'],
+				'desc'       => BBCode::convertForUriId($event['uri-id'], $event['desc']),
+				'start_time' => $event['start'],
+				'end_time'   => $event['finish'],
+				'type'       => $event['type'],
+				'nofinish'   => $event['nofinish'],
+				'place'      => $event['location'],
+				'adjust'     => 1,
+				'ignore'     => $event['ignore'],
+				'allow_cid'  => $event['allow_cid'],
+				'allow_gid'  => $event['allow_gid'],
+				'deny_cid'   => $event['deny_cid'],
+				'deny_gid'   => $event['deny_gid']
 			];
 		}
 

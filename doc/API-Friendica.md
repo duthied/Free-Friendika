@@ -32,11 +32,15 @@ Create a new event for the current logged in user.
 
 - `id` : (optional) id of event, event will be amended if supplied
 - `name` : name of the event (required)
-- `startTime` : start of the event (ISO), required
-- `endTime` : (optional) end of the event, event is open end, if not supplied
+- `start_time` : start of the event (ISO), required
+- `end_time` : (optional) end of the event, event is open end, if not supplied
 - `desc` : (optional) description of the event
 - `place` : (optional) location of the event
 - `publish` : (optional) create message for event
+- `allow_cid` : (optional) ACL-formatted list of allowed contact ids if private event
+- `allow_gid` : (optional) ACL-formatted list of disallowed contact ids if private event
+- `deny_cid` : (optional) ACL-formatted list of allowed group ids if private event
+- `deny_gid` : (optional) ACL-formatted list of disallowed group ids if private event
 
 ### POST api/friendica/event_delete
 
