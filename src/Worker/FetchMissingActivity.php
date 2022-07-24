@@ -33,7 +33,7 @@ class FetchMissingActivity
 	/**
 	 * Fetch missing activities
 	 * @param string $url Contact URL
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function execute(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL)
