@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1473
+-- DB_UPDATE_VERSION 1474
 -- ------------------------------------------
 
 
@@ -725,6 +725,44 @@ CREATE TABLE IF NOT EXISTS `hook` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='addon hook registry';
 
 --
+-- TABLE inbox-entry
+--
+CREATE TABLE IF NOT EXISTS `inbox-entry` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`activity-id` varbinary(255) COMMENT 'id of the incoming activity',
+	`object-id` varbinary(255) COMMENT '',
+	`in-reply-to-id` varbinary(255) COMMENT '',
+	`conversation` varbinary(255) COMMENT '',
+	`type` varchar(64) COMMENT 'Type of the activity',
+	`object-type` varchar(64) COMMENT 'Type of the object activity',
+	`object-object-type` varchar(64) COMMENT 'Type of the object\'s object activity',
+	`received` datetime COMMENT 'Receiving date',
+	`activity` mediumtext COMMENT 'The JSON activity',
+	`signer` varchar(255) COMMENT '',
+	`push` boolean COMMENT 'Is the entry pushed or have pulled it?',
+	`trust` boolean COMMENT 'Do we trust this entry?',
+	`wid` int unsigned COMMENT 'Workerqueue id',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `activity-id` (`activity-id`),
+	 INDEX `object-id` (`object-id`),
+	 INDEX `received` (`received`),
+	 INDEX `wid` (`wid`),
+	FOREIGN KEY (`wid`) REFERENCES `workerqueue` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Incoming activity';
+
+--
+-- TABLE inbox-entry-receiver
+--
+CREATE TABLE IF NOT EXISTS `inbox-entry-receiver` (
+	`queue-id` int unsigned NOT NULL COMMENT '',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User id',
+	 PRIMARY KEY(`queue-id`,`uid`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`queue-id`) REFERENCES `inbox-entry` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Receiver for the incoming activity';
+
+--
 -- TABLE inbox-status
 --
 CREATE TABLE IF NOT EXISTS `inbox-status` (
@@ -1287,6 +1325,7 @@ CREATE TABLE IF NOT EXISTS `post-tag` (
 --
 CREATE TABLE IF NOT EXISTS `post-thread` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`conversation-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the conversation uri',
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item author',
 	`causer-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
@@ -1296,12 +1335,14 @@ CREATE TABLE IF NOT EXISTS `post-thread` (
 	`changed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date that something in the conversation changed, indicating clients should fetch the conversation again',
 	`commented` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`uri-id`),
+	 INDEX `conversation-id` (`conversation-id`),
 	 INDEX `owner-id` (`owner-id`),
 	 INDEX `author-id` (`author-id`),
 	 INDEX `causer-id` (`causer-id`),
 	 INDEX `received` (`received`),
 	 INDEX `commented` (`commented`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`conversation-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
@@ -1380,6 +1421,7 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 --
 CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`conversation-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the conversation uri',
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item author',
 	`causer-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
@@ -1404,6 +1446,7 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	`post-user-id` int unsigned COMMENT 'Id of the post-user table',
 	 PRIMARY KEY(`uid`,`uri-id`),
 	 INDEX `uri-id` (`uri-id`),
+	 INDEX `conversation-id` (`conversation-id`),
 	 INDEX `owner-id` (`owner-id`),
 	 INDEX `author-id` (`author-id`),
 	 INDEX `causer-id` (`causer-id`),
@@ -1418,6 +1461,7 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `uid_starred` (`uid`,`starred`),
 	 INDEX `uid_mention` (`uid`,`mention`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`conversation-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -1709,6 +1753,8 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-user`.`parent-uri-id` AS `parent-uri-id`,
 	`thr-parent-item-uri`.`uri` AS `thr-parent`,
 	`post-user`.`thr-parent-id` AS `thr-parent-id`,
+	`conversation-item-uri`.`uri` AS `conversation`,
+	`post-thread-user`.`conversation-id` AS `conversation-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post-user`.`wall` AS `wall`,
 	`post-user`.`gravity` AS `gravity`,
@@ -1857,6 +1903,7 @@ CREATE VIEW `post-user-view` AS SELECT
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
 			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `conversation-item-uri` ON `conversation-item-uri`.`id` = `post-thread-user`.`conversation-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
@@ -1883,6 +1930,8 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-user`.`parent-uri-id` AS `parent-uri-id`,
 	`thr-parent-item-uri`.`uri` AS `thr-parent`,
 	`post-user`.`thr-parent-id` AS `thr-parent-id`,
+	`conversation-item-uri`.`uri` AS `conversation`,
+	`post-thread-user`.`conversation-id` AS `conversation-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post-thread-user`.`wall` AS `wall`,
 	`post-user`.`gravity` AS `gravity`,
@@ -2030,6 +2079,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
 			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `conversation-item-uri` ON `conversation-item-uri`.`id` = `post-thread-user`.`conversation-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
@@ -2052,6 +2102,8 @@ CREATE VIEW `post-view` AS SELECT
 	`post`.`parent-uri-id` AS `parent-uri-id`,
 	`thr-parent-item-uri`.`uri` AS `thr-parent`,
 	`post`.`thr-parent-id` AS `thr-parent-id`,
+	`conversation-item-uri`.`uri` AS `conversation`,
+	`post-thread`.`conversation-id` AS `conversation-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post`.`gravity` AS `gravity`,
 	`external-item-uri`.`uri` AS `extid`,
@@ -2169,6 +2221,7 @@ CREATE VIEW `post-view` AS SELECT
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post`.`thr-parent-id`
 			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `conversation-item-uri` ON `conversation-item-uri`.`id` = `post-thread`.`conversation-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post`.`external-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post`.`uri-id`
@@ -2188,6 +2241,8 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post`.`parent-uri-id` AS `parent-uri-id`,
 	`thr-parent-item-uri`.`uri` AS `thr-parent`,
 	`post`.`thr-parent-id` AS `thr-parent-id`,
+	`conversation-item-uri`.`uri` AS `conversation`,
+	`post-thread`.`conversation-id` AS `conversation-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post`.`gravity` AS `gravity`,
 	`external-item-uri`.`uri` AS `extid`,
@@ -2305,6 +2360,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post`.`thr-parent-id`
 			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `conversation-item-uri` ON `conversation-item-uri`.`id` = `post-thread`.`conversation-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post`.`external-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`

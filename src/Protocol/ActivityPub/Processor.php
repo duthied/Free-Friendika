@@ -45,7 +45,9 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
+use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
@@ -189,17 +191,16 @@ class Processor
 	/**
 	 * Updates a message
 	 *
-	 * @param FetchQueue $fetchQueue
 	 * @param array      $activity   Activity array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function updateItem(FetchQueue $fetchQueue, array $activity)
+	public static function updateItem(array $activity)
 	{
 		$item = Post::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity', 'post-type'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
-			$item = self::createItem($fetchQueue, $activity);
+			$item = self::createItem($activity);
 			if (empty($item)) {
 				return;
 			}
@@ -222,6 +223,8 @@ class Processor
 
 		Post\History::add($item['uri-id'], $item);
 		Item::update($item, ['uri' => $activity['id']]);
+
+		Queue::remove($activity);
 
 		if ($activity['object_type'] == 'as:Event') {
 			$posts = Post::select(['event-id', 'uid'], ["`uri` = ? AND `event-id` > ?", $activity['id'], 0]);
@@ -260,13 +263,12 @@ class Processor
 	/**
 	 * Prepares data for a message
 	 *
-	 * @param FetchQueue $fetchQueue
 	 * @param array      $activity   Activity array
 	 * @return array Internal item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createItem(FetchQueue $fetchQueue, array $activity): array
+	public static function createItem(array $activity): array
 	{
 		$item = [];
 		$item['verb'] = Activity::POST;
@@ -280,20 +282,64 @@ class Processor
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 		}
 
+		if (!empty($activity['context'])) {
+			$item['conversation'] = $activity['context'];
+		} elseif (!empty($activity['conversation'])) {
+			$item['conversation'] = $activity['conversation'];
+		}
+
+		if (!empty($item['conversation'])) {
+			$conversation = Post::selectFirstThread(['uri'], ['conversation' => $item['conversation']]);
+			if (!empty($conversation)) {
+				Logger::debug('Got conversation', ['conversation' => $item['conversation'], 'parent' => $conversation]);
+				$item['parent-uri'] = $conversation['uri'];
+			}
+		} else {
+			$conversation = [];
+		}
+
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
-			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id']]);
-			/**
-			 * Instead of calling recursively self::fetchMissingActivity which can hit PHP's default function nesting
-			 * limit of 256 recursive calls, we push the parent activity fetch parameters in this queue. The initial
-			 * caller is responsible for processing the remaining queue once the original activity has been processed.
-			 */
-			$fetchQueue->push(new FetchQueueItem($activity['reply-to-id'], $activity));
+			$recursion_depth = $activity['recursion-depth'] ?? 0;
+			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+			if ($recursion_depth < 10) {
+				$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+				if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
+					// Recursively delete this and all depending entries
+					Queue::deleteById($activity['entry-id']);
+					return [];
+				}
+				$fetch_by_worker = empty($result);
+			} else {
+				Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+				$fetch_by_worker = true;
+			}
+
+			if ($fetch_by_worker && Queue::hasWorker($activity)) {
+				Logger::notice('There is already a worker task to fetch the post.', ['id' => $activity['id'], 'parent' => $activity['reply-to-id']]);
+				$fetch_by_worker = false;
+				if (!empty($conversation)) {
+					return [];
+				}
+			}
+
+			if ($fetch_by_worker) {
+				Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+				$activity['recursion-depth'] = 0;
+				$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+				Queue::setWorkerId($activity, $wid);
+				if (!empty($conversation)) {
+					return [];
+				}
+			} elseif (!empty($result)) {
+				if (($item['thr-parent'] != $result) && Post::exists(['uri' => $result])) {
+					$item['thr-parent'] = $result;
+				}
+			}
 		}
 
 		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
 
-		/// @todo What to do with $activity['context']?
-		if (empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Post::exists(['uri' => $item['thr-parent']])) {
+		if (empty($conversation) && empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Post::exists(['uri' => $item['thr-parent']])) {
 			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
 			return [];
 		}
@@ -414,6 +460,24 @@ class Processor
 	}
 
 	/**
+	 * Check if a given activity is no longer available
+	 *
+	 * @param string $url
+	 *
+	 * @return boolean
+	 */
+	private static function isActivityGone(string $url): bool
+	{
+		$curlResult = HTTPSignature::fetchRaw($url, 0);
+
+		if (Network::isUrlBlocked($url)) {
+			return true;
+		}
+
+		// @todo To ensure that the remote system is working correctly, we can check if the "Content-Type" contains JSON
+		return in_array($curlResult->getReturnCode(), [404]);
+	}
+	/**
 	 * Delete items
 	 *
 	 * @param array $activity
@@ -426,6 +490,7 @@ class Processor
 
 		Logger::info('Deleting item', ['object' => $activity['object_id'], 'owner'  => $owner]);
 		Item::markForDeletion(['uri' => $activity['object_id'], 'owner-id' => $owner]);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -461,15 +526,15 @@ class Processor
 	/**
 	 * Prepare the item array for an activity
 	 *
-	 * @param FetchQueue $fetchQueue
 	 * @param array      $activity   Activity array
 	 * @param string     $verb       Activity verb
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createActivity(FetchQueue $fetchQueue, array $activity, string $verb)
+	public static function createActivity(array $activity, string $verb)
 	{
-		$item = self::createItem($fetchQueue, $activity);
+		$activity['reply-to-id'] = $activity['object_id'];
+		$item = self::createItem($activity);
 		if (empty($item)) {
 			return;
 		}
@@ -511,16 +576,13 @@ class Processor
 			}
 		}
 
-		if ($activity['target_id'] != $actor['featured']) {
-			return null;
+		$parent = Post::selectFirst(['uri-id'], ['uri' => $activity['object_id']]);
+		if (empty($parent['uri-id'])) {
+			if (self::fetchMissingActivity($activity['object_id'], $activity, '', Receiver::COMPLETION_AUTO)) {
+				$parent = Post::selectFirst(['uri-id'], ['uri' => $activity['object_id']]);
+			}
 		}
 
-		$id = Contact::getIdForURL($activity['actor']);
-		if (empty($id)) {
-			return null;
-		}
-
-		$parent = Post::selectFirst(['uri-id'], ['uri' => $activity['object_id'], 'author-id' => $id]);
 		if (!empty($parent['uri-id'])) {
 			return $parent['uri-id'];
 		}
@@ -543,6 +605,7 @@ class Processor
 		Logger::debug('Add post to featured collection', ['uri-id' => $uriid]);
 
 		Post\Collection::add($uriid, Post\Collection::FEATURED);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -560,6 +623,7 @@ class Processor
 		Logger::debug('Remove post from featured collection', ['uri-id' => $uriid]);
 
 		Post\Collection::remove($uriid, Post\Collection::FEATURED);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -646,14 +710,14 @@ class Processor
 			$item['raw-body'] = $content;
 			$item['body'] = Item::improveSharedDataInBody($item);
 		} else {
-			if (empty($activity['directmessage']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
-				$item_private = !in_array(0, $activity['item_receiver']);
-				$parent = Post::selectFirst(['id', 'uri-id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
+			$parent_uri = $item['parent-uri'] ?? $item['thr-parent'];
+			if (empty($activity['directmessage']) && ($parent_uri != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+				$parent = Post::selectFirst(['id', 'uri-id', 'private', 'author-link', 'alias'], ['uri' => $parent_uri]);
 				if (!DBA::isResult($parent)) {
-					Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
+					Logger::warning('Unknown parent item.', ['uri' => $parent_uri]);
 					return false;
 				}
-				if ($item_private && ($parent['private'] != Item::PRIVATE)) {
+				if (($item['private'] == Item::PRIVATE) && ($parent['private'] != Item::PRIVATE)) {
 					Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
 					return false;
 				}
@@ -778,6 +842,7 @@ class Processor
 		}
 
 		$stored = false;
+		$success = false;
 		ksort($activity['receiver']);
 
 		if (!self::isSolicitedMessage($activity, $item)) {
@@ -890,13 +955,22 @@ class Processor
 			$item_id = Item::insert($item);
 			if ($item_id) {
 				Logger::info('Item insertion successful', ['user' => $item['uid'], 'item_id' => $item_id]);
+				$success = true;
 			} else {
-				Logger::notice('Item insertion aborted', ['user' => $item['uid']]);
+				Logger::notice('Item insertion aborted', ['uri' => $item['uri'], 'uid' => $item['uid']]);
+				if (Item::isTooOld($item) || !Item::isValid($item)) {
+					Queue::remove($activity);
+				}
 			}
 
 			if ($item['uid'] == 0) {
 				$stored = $item_id;
 			}
+		}
+
+		if ($success) {
+			Queue::remove($activity);
+			Queue::processReplyByUri($item['uri']);
 		}
 
 		// Store send a follow request for every reshare - but only when the item had been stored
@@ -1115,7 +1189,6 @@ class Processor
 	/**
 	 * Fetches missing posts
 	 *
-	 * @param FetchQueue $fetchQueue
 	 * @param string     $url         message URL
 	 * @param array      $child       activity array with the child of this message
 	 * @param string     $relay_actor Relay actor
@@ -1124,7 +1197,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchMissingActivity(FetchQueue $fetchQueue, string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL): string
+	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL): string
 	{
 		if (!empty($child['receiver'])) {
 			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
@@ -1134,7 +1207,7 @@ class Processor
 
 		$object = ActivityPub::fetchContent($url, $uid);
 		if (empty($object)) {
-			Logger::notice('Activity was not fetchable, aborting.', ['url' => $url]);
+			Logger::notice('Activity was not fetchable, aborting.', ['url' => $url, 'uid' => $uid]);
 			return '';
 		}
 
@@ -1143,20 +1216,27 @@ class Processor
 			return '';
 		}
 
+		$signer = [];
+
+		if (!empty($object['attributedTo'])) {
+			$attributed_to = $object['attributedTo'];
+			if (is_array($attributed_to)) {
+				$compacted = JsonLD::compact($object);
+				$attributed_to = JsonLD::fetchElement($compacted, 'as:attributedTo', '@id');
+			}
+			$signer[] = $attributed_to;	
+		}
+
 		if (!empty($object['actor'])) {
 			$object_actor = $object['actor'];
-		} elseif (!empty($object['attributedTo'])) {
-			$object_actor = $object['attributedTo'];
-			if (is_array($object_actor)) {
-				$compacted = JsonLD::compact($object);
-				$object_actor = JsonLD::fetchElement($compacted, 'as:attributedTo', '@id');
-			}
+		} elseif (!empty($attributed_to)) {
+			$object_actor = $attributed_to;
 		} else {
 			// Shouldn't happen
 			$object_actor = '';
 		}
 
-		$signer = [$object_actor];
+		$signer[] = $object_actor;
 
 		if (!empty($child['author'])) {
 			$actor = $child['author'];
@@ -1186,6 +1266,8 @@ class Processor
 
 		$ldactivity = JsonLD::compact($activity);
 
+		$ldactivity['recursion-depth'] = !empty($child['recursion-depth']) ? $child['recursion-depth'] + 1 : 1;
+
 		if (!empty($relay_actor)) {
 			$ldactivity['thread-completion'] = $ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);
 			$ldactivity['completion-mode']   = Receiver::COMPLETION_RELAY;
@@ -1205,7 +1287,7 @@ class Processor
 			return '';
 		}
 
-		ActivityPub\Receiver::processActivity($fetchQueue, $ldactivity, json_encode($activity), $uid, true, false, $signer);
+		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer);
 
 		Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'object' => $activity['id']]);
 
@@ -1303,8 +1385,8 @@ class Processor
 		if (empty($contact)) {
 			Contact::update(['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
-
 		Logger::notice('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1348,6 +1430,7 @@ class Processor
 
 		Logger::info('Updating profile', ['object' => $activity['object_id']]);
 		Contact::updateFromProbeByURL($activity['object_id']);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1376,6 +1459,7 @@ class Processor
 		DBA::close($contacts);
 
 		Logger::info('Deleted contact', ['object' => $activity['object_id']]);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1400,6 +1484,7 @@ class Processor
 		Contact\User::setIsBlocked($cid, $uid, true);
 
 		Logger::info('Contact blocked user', ['contact' => $cid, 'user' => $uid]);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1424,6 +1509,7 @@ class Processor
 		Contact\User::setIsBlocked($cid, $uid, false);
 
 		Logger::info('Contact unblocked user', ['contact' => $cid, 'user' => $uid]);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1458,6 +1544,7 @@ class Processor
 		$condition = ['id' => $cid];
 		Contact::update($fields, $condition);
 		Logger::info('Accept contact request', ['contact' => $cid, 'user' => $uid]);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1491,6 +1578,7 @@ class Processor
 		} else {
 			Logger::info('Rejected contact request', ['contact' => $cid, 'user' => $uid]);
 		}
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1516,6 +1604,7 @@ class Processor
 		}
 
 		Item::markForDeletion(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
+		Queue::remove($activity);
 	}
 
 	/**
@@ -1552,6 +1641,7 @@ class Processor
 
 		Contact::removeFollower($contact);
 		Logger::info('Undo following request', ['contact' => $cid, 'user' => $uid]);
+		Queue::remove($activity);
 	}
 
 	/**

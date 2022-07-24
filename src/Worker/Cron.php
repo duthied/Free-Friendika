@@ -27,6 +27,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Tag;
+use Friendica\Protocol\ActivityPub\Queue;
 use Friendica\Protocol\Relay;
 
 class Cron
@@ -88,6 +89,12 @@ class Cron
 			Tag::setLocalTrendingHashtags(24, 20);
 			Tag::setGlobalTrendingHashtags(24, 20);
 
+			// Remove old pending posts from the queue
+			Queue::clear();
+
+			// Process all unprocessed entries
+			Queue::processAll();
+
 			// Search for new contacts in the directory
 			if (DI::config()->get('system', 'synchronize_directory')) {
 				Worker::add(PRIORITY_LOW, 'PullDirectory');
@@ -124,11 +131,11 @@ class Cron
 			if (DI::config()->get('system', 'optimize_tables')) {
 				Worker::add(PRIORITY_LOW, 'OptimizeTables');
 			}
-	
-			DI::config()->set('system', 'last_cron_daily', time());
 
 			// Resubscribe to relay servers
 			Relay::reSubscribe();
+
+			DI::config()->set('system', 'last_cron_daily', time());
 		}
 
 		Logger::notice('end');

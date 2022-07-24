@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1473);
+	define('DB_UPDATE_VERSION', 1474);
 }
 
 return [
@@ -784,6 +784,42 @@ return [
 			"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
 		]
 	],
+	"inbox-entry" => [
+		"comment" => "Incoming activity",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"activity-id" => ["type" => "varbinary(255)", "comment" => "id of the incoming activity"],
+			"object-id" => ["type" => "varbinary(255)", "comment" => ""],
+			"in-reply-to-id" => ["type" => "varbinary(255)", "comment" => ""],
+			"conversation" => ["type" => "varbinary(255)", "comment" => ""],
+			"type" => ["type" => "varchar(64)", "comment" => "Type of the activity"],
+			"object-type" => ["type" => "varchar(64)", "comment" => "Type of the object activity"],
+			"object-object-type" => ["type" => "varchar(64)", "comment" => "Type of the object's object activity"],			
+			"received" => ["type" => "datetime", "comment" => "Receiving date"],
+			"activity" => ["type" => "mediumtext", "comment" => "The JSON activity"],
+			"signer" => ["type" => "varchar(255)", "comment" => ""],
+			"push" => ["type" => "boolean", "comment" => "Is the entry pushed or have pulled it?"],
+			"trust" => ["type" => "boolean", "comment" => "Do we trust this entry?"],
+			"wid" => ["type" => "int unsigned", "foreign" => ["workerqueue" => "id"], "comment" => "Workerqueue id"],		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"activity-id" => ["UNIQUE", "activity-id"],
+			"object-id" => ["object-id"],
+			"received" => ["received"],
+			"wid" => ["wid"],
+		]
+	],
+	"inbox-entry-receiver" => [
+		"comment" => "Receiver for the incoming activity",
+		"fields" => [
+			"queue-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["inbox-entry" => "id"], "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["queue-id", "uid"],
+			"uid" => ["uid"],
+		]
+	],
 	"inbox-status" => [
 		"comment" => "Status of ActivityPub inboxes",
 		"fields" => [
@@ -1321,6 +1357,7 @@ return [
 		"comment" => "Thread related data",
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"conversation-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the conversation uri"],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item owner"],
 			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item author"],
 			"causer-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
@@ -1332,6 +1369,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
+			"conversation-id" => ["conversation-id"],
 			"owner-id" => ["owner-id"],
 			"author-id" => ["author-id"],
 			"causer-id" => ["causer-id"],
@@ -1400,6 +1438,7 @@ return [
 		"comment" => "Thread related data per user",
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"conversation-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the conversation uri"],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item owner"],
 			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item author"],
 			"causer-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
@@ -1426,6 +1465,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["uid", "uri-id"],
 			"uri-id" => ["uri-id"],
+			"conversation-id" => ["conversation-id"],
 			"owner-id" => ["owner-id"],
 			"author-id" => ["author-id"],
 			"causer-id" => ["causer-id"],

@@ -177,6 +177,13 @@ class JsonLD
 			}
 		}
 
+		// Bookwyrm transmits "id" fields with "null", which isn't allowed.
+		array_walk_recursive($json, function (&$value, $key) {
+			if ($key == 'id' && is_null($value)) {
+				$value = '';
+			}
+		});
+
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
 		try {

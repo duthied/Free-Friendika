@@ -123,7 +123,7 @@ class ActivityPubConversion extends BaseModule
 					'content' => visible_whitespace(var_export($object_data, true))
 				];
 
-				$item = ActivityPub\Processor::createItem(new ActivityPub\FetchQueue(), $object_data);
+				$item = ActivityPub\Processor::createItem($object_data);
 
 				$results[] = [
 					'title'   => DI::l10n()->t('Result Item'),

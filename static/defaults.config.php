@@ -666,6 +666,10 @@ return [
 		// Logs every call to /inbox as a JSON file in Friendica's temporary directory
 		'ap_inbox_log' => false,
 
+		// ap_inbox_store_untrusted (Boolean)
+		// Store untrusted content in the inbox entries
+		'ap_inbox_store_untrusted' => false,
+
 		// total_ap_delivery (Boolean)
 		// Deliver via AP to every possible receiver and we suppress the delivery to these contacts with other protocols
 		'total_ap_delivery' => false,
