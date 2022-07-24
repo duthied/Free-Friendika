@@ -116,7 +116,7 @@ class Queue
 	 * @param integer $id
 	 * @return void
 	 */
-	private static function deleteById(int $id)
+	public static function deleteById(int $id)
 	{
 		$entry = DBA::selectFirst('inbox-entry', ['id', 'object-id'], ['id' => $id]);
 		if (empty($entry)) {
@@ -206,7 +206,7 @@ class Queue
 		$entries = DBA::select('inbox-entry', ['id', 'type', 'object-type', 'object-id', 'in-reply-to-id'], ["`wid` IS NULL"], ['order' => ['id' => true]]);
 		while ($entry = DBA::fetch($entries)) {
 			// We don't need to process entries that depend on already existing entries.
-			if (!empty($entry['in-reply-to-id']) && DBA::exists('inbox-entry', ['object-id' => $entry['in-reply-to-id']])) {
+			if (!empty($entry['in-reply-to-id']) && DBA::exists('inbox-entry', ["`id` != ? AND `object-id` = ?", $entry['id'], $entry['in-reply-to-id']])) {
 				continue;
 			}
 			Logger::debug('Process leftover entry', $entry);

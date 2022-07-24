@@ -92,6 +92,9 @@ class Cron
 			// Remove old pending posts from the queue
 			Queue::clear();
 
+			// Process all unprocessed entries
+			Queue::processAll();
+
 			// Search for new contacts in the directory
 			if (DI::config()->get('system', 'synchronize_directory')) {
 				Worker::add(PRIORITY_LOW, 'PullDirectory');
@@ -128,9 +131,6 @@ class Cron
 			if (DI::config()->get('system', 'optimize_tables')) {
 				Worker::add(PRIORITY_LOW, 'OptimizeTables');
 			}
-
-			// Process all unprocessed entries
-			Queue::processAll();
 
 			// Resubscribe to relay servers
 			Relay::reSubscribe();

@@ -24,7 +24,6 @@ namespace Friendica\Model\Post;
 use Friendica\Database\DBA;
 use \BadMethodCallException;
 use Friendica\Database\Database;
-use Friendica\Database\DBStructure;
 use Friendica\DI;
 
 class User
@@ -44,10 +43,6 @@ class User
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		if (DBA::exists('post-user', ['uri-id' => $uri_id, 'uid' => $uid])) {
-			return false;
-		}
-
 		$fields = DI::dbaDefinition()->truncateFieldsForTable('post-user', $data);
 
 		// Additionally assign the key fields
@@ -57,6 +52,33 @@ class User
 		// Public posts are always seen
 		if ($uid == 0) {
 			$fields['unseen'] = false;
+		}
+
+		// Does the entry already exist?
+		if (DBA::exists('post-user', ['uri-id' => $uri_id, 'uid' => $uid])) {
+			$postuser = DBA::selectFirst('post-user', [], ['uri-id' => $uri_id, 'uid' => $uid]);
+
+			// We quit here, when there are obvious differences
+			foreach (['created', 'owner-id', 'author-id', 'vid', 'network', 'private', 'wall', 'origin'] as $key) {
+				if ($fields[$key] != $postuser[$key]) {
+					return 0;
+				}
+			}
+			
+			$update = [];
+			foreach (['gravity', 'parent-uri-id', 'thr-parent-id'] as $key) {
+				if ($fields[$key] != $postuser[$key]) {
+					$update[$key] = $fields[$key];
+				}
+			}
+
+			// When the parents changed, we apply these changes to the existing entry
+			if (!empty($update)) {
+				DBA::update('post-user', $update, ['id' => $postuser['id']]);
+				return $postuser['id'];
+			} else {
+				return 0;
+			}
 		}
 
 		if (!DBA::insert('post-user', $fields, Database::INSERT_IGNORE)) {

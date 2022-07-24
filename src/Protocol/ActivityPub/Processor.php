@@ -45,7 +45,9 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
+use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
@@ -301,6 +303,11 @@ class Processor
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 			if ($recursion_depth < 10) {
 				$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+				if (empty($result) && self::ActivityIsGone($activity['reply-to-id'])) {
+					// Recursively delete this and all depending entries
+					Queue::deleteById($activity['entry-id']);
+					return [];
+				}
 				$fetch_by_worker = empty($result);
 			} else {
 				Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
@@ -452,6 +459,24 @@ class Processor
 		return $item;
 	}
 
+	/**
+	 * Check if a given activity is no longer available
+	 *
+	 * @param string $url
+	 *
+	 * @return boolean
+	 */
+	private static function ActivityIsGone(string $url): bool
+	{
+		$curlResult = HTTPSignature::fetchRaw($url, 0);
+
+		if (Network::isUrlBlocked($url)) {
+			return true;
+		}
+
+		// @todo To ensure that the remote system is working correctly, we can check if the "Content-Type" contains JSON
+		return in_array($curlResult->getReturnCode(), [404]);
+	}
 	/**
 	 * Delete items
 	 *
@@ -933,6 +958,9 @@ class Processor
 				$success = true;
 			} else {
 				Logger::notice('Item insertion aborted', ['uri' => $item['uri'], 'uid' => $item['uid']]);
+				if (Item::isTooOld($item) || !Item::isValid($item)) {
+					Queue::remove($activity);
+				}
 			}
 
 			if ($item['uid'] == 0) {
