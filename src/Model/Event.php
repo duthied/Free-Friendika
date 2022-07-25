@@ -243,27 +243,31 @@ class Event
 	 */
 	public static function store(array $arr): int
 	{
-		$event = [];
-		$event['id']        = intval($arr['id']        ?? 0);
-		$event['uid']       = intval($arr['uid']       ?? 0);
-		$event['cid']       = intval($arr['cid']       ?? 0);
-		$event['guid']      =       ($arr['guid']      ?? '') ?: System::createUUID();
-		$event['uri']       =       ($arr['uri']       ?? '') ?: Item::newURI($event['guid']);
-		$event['uri-id']    = ItemURI::insert(['uri' => $event['uri'], 'guid' => $event['guid']]);
-		$event['type']      =       ($arr['type']      ?? '') ?: 'event';
-		$event['summary']   =        $arr['summary']   ?? '';
-		$event['desc']      =        $arr['desc']      ?? '';
-		$event['location']  =        $arr['location']  ?? '';
-		$event['allow_cid'] =        $arr['allow_cid'] ?? '';
-		$event['allow_gid'] =        $arr['allow_gid'] ?? '';
-		$event['deny_cid']  =        $arr['deny_cid']  ?? '';
-		$event['deny_gid']  =        $arr['deny_gid']  ?? '';
-		$event['nofinish']  = intval($arr['nofinish'] ?? (!empty($event['start']) && empty($event['finish'])));
+		$guid = $arr['guid'] ?? '' ?: System::createUUID();
+		$uri  = $arr['uri']  ?? '' ?: Item::newURI($guid);
+		$event = [
+			'id'        => intval($arr['id']        ?? 0),
+			'uid'       => intval($arr['uid']       ?? 0),
+			'cid'       => intval($arr['cid']       ?? 0),
+			'guid'      => $guid,
+			'uri'       => $uri,
+			'uri-id'    => ItemURI::insert(['uri' => $uri, 'guid' => $guid]),
+			'type'      => ($arr['type']      ?? '') ?: 'event',
+			'summary'   =>  $arr['summary']   ?? '',
+			'desc'      =>  $arr['desc']      ?? '',
+			'location'  =>  $arr['location']  ?? '',
+			'allow_cid' =>  $arr['allow_cid'] ?? '',
+			'allow_gid' =>  $arr['allow_gid'] ?? '',
+			'deny_cid'  =>  $arr['deny_cid']  ?? '',
+			'deny_gid'  =>  $arr['deny_gid']  ?? '',
+			'nofinish'  => intval($arr['nofinish'] ?? (!empty($arr['start']) && empty($arr['finish']))),
+			'created'   => DateTimeFormat::utc(($arr['created'] ?? '') ?: 'now'),
+			'edited'    => DateTimeFormat::utc(($arr['edited']  ?? '') ?: 'now'),
+			'start'     => DateTimeFormat::utc(($arr['start']   ?? '') ?: DBA::NULL_DATETIME),
+			'finish'    => DateTimeFormat::utc(($arr['finish']  ?? '') ?: DBA::NULL_DATETIME),
+		];
 
-		$event['created']   = DateTimeFormat::utc(($arr['created'] ?? '') ?: 'now');
-		$event['edited']    = DateTimeFormat::utc(($arr['edited']  ?? '') ?: 'now');
-		$event['start']     = DateTimeFormat::utc(($arr['start']   ?? '') ?: DBA::NULL_DATETIME);
-		$event['finish']    = DateTimeFormat::utc(($arr['finish']  ?? '') ?: DBA::NULL_DATETIME);
+
 		if ($event['finish'] < DBA::NULL_DATETIME) {
 			$event['finish'] = DBA::NULL_DATETIME;
 		}
