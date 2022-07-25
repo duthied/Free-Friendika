@@ -59,13 +59,13 @@ class Notify extends BaseModule
 		}
 	}
 
-	private static function dispatchPublic(array $postdata)
+	private static function dispatchPublic(string $postdata): bool
 	{
 		$msg = Diaspora::decodeRaw($postdata, '', true);
 		if (!is_array($msg)) {
 			// We have to fail silently to be able to hand it over to the salmon parser
 			Logger::warning('Diaspora::decodeRaw() has failed for some reason.');
-			return;
+			return false;
 		}
 
 		// Fetch the corresponding public contact
@@ -87,6 +87,8 @@ class Notify extends BaseModule
 		// Now we should be able to import it
 		$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::RELAY);
 		System::xmlExit($ret, 'Done');
+
+		return true;
 	}
 
 	private static function dispatchPrivate(array $user, string $postdata)
