@@ -243,19 +243,23 @@ class Event
 	 */
 	public static function store(array $arr): int
 	{
+		$guid = $arr['guid'] ?? '' ?: System::createUUID();
+		$uri  = $arr['uri']  ?? '' ?: Item::newURI($guid);
 		$event = [
 			'id'        => intval($arr['id']        ?? 0),
 			'uid'       => intval($arr['uid']       ?? 0),
 			'cid'       => intval($arr['cid']       ?? 0),
-			'guid'      =>       ($arr['guid']      ?? '') ?: System::createUUID(),
-			'type'      =>       ($arr['type']      ?? '') ?: 'event',
-			'summary'   =>        $arr['summary']   ?? '',
-			'desc'      =>        $arr['desc']      ?? '',
-			'location'  =>        $arr['location']  ?? '',
-			'allow_cid' =>        $arr['allow_cid'] ?? '',
-			'allow_gid' =>        $arr['allow_gid'] ?? '',
-			'deny_cid'  =>        $arr['deny_cid']  ?? '',
-			'deny_gid'  =>        $arr['deny_gid']  ?? '',
+			'guid'      => $guid,
+			'uri'       => $uri,
+			'uri-id'    => ItemURI::insert(['uri' => $uri, 'guid' => $guid]),
+			'type'      => ($arr['type']      ?? '') ?: 'event',
+			'summary'   =>  $arr['summary']   ?? '',
+			'desc'      =>  $arr['desc']      ?? '',
+			'location'  =>  $arr['location']  ?? '',
+			'allow_cid' =>  $arr['allow_cid'] ?? '',
+			'allow_gid' =>  $arr['allow_gid'] ?? '',
+			'deny_cid'  =>  $arr['deny_cid']  ?? '',
+			'deny_gid'  =>  $arr['deny_gid']  ?? '',
 			'nofinish'  => intval($arr['nofinish'] ?? (!empty($arr['start']) && empty($arr['finish']))),
 			'created'   => DateTimeFormat::utc(($arr['created'] ?? '') ?: 'now'),
 			'edited'    => DateTimeFormat::utc(($arr['edited']  ?? '') ?: 'now'),
@@ -263,8 +267,6 @@ class Event
 			'finish'    => DateTimeFormat::utc(($arr['finish']  ?? '') ?: DBA::NULL_DATETIME),
 		];
 
-		$event['uri']    = ($arr['uri']       ?? '') ?: Item::newURI($event['guid']);
-		$event['uri-id'] = ItemURI::insert(['uri' => $event['uri'], 'guid' => $event['guid']]);
 
 		if ($event['finish'] < DBA::NULL_DATETIME) {
 			$event['finish'] = DBA::NULL_DATETIME;
