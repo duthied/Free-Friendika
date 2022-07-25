@@ -138,25 +138,29 @@ class Group
 	 */
 	public static function getIdsByContactId(int $cid): array
 	{
-		$return = [];
+		$contact = Contact::getById($cid, ['rel']);
+		if (!$contact) {
+			return [];
+		}
+
+		$groupIds = [];
 
 		$stmt = DBA::select('group_member', ['gid'], ['contact-id' => $cid]);
 		while ($group = DBA::fetch($stmt)) {
-			$return[] = $group['gid'];
+			$groupIds[] = $group['gid'];
 		}
 		DBA::close($stmt);
 
 		// Meta-groups
-		$contact = Contact::getById($cid, ['rel']);
 		if ($contact['rel'] == Contact::FOLLOWER || $contact['rel'] == Contact::FRIEND) {
-			$return[] = self::FOLLOWERS;
+			$groupIds[] = self::FOLLOWERS;
 		}
 
 		if ($contact['rel'] == Contact::FRIEND) {
-			$return[] = self::MUTUALS;
+			$groupIds[] = self::MUTUALS;
 		}
 
-		return $return;
+		return $groupIds;
 	}
 
 	/**
