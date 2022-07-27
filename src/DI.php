@@ -22,6 +22,7 @@
 namespace Friendica;
 
 use Dice\Dice;
+use Friendica\Navigation\SystemMessages;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -232,6 +233,14 @@ abstract class DI
 	public static function system()
 	{
 		return self::$dice->create(Core\System::class);
+	}
+
+	/**
+	 * @return \Friendica\Navigation\SystemMessages
+	 */
+	public static function sysmsg()
+	{
+		return self::$dice->create(SystemMessages::class);
 	}
 
 	//
