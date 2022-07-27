@@ -84,8 +84,10 @@ class Index extends BaseAdmin
 	<li><code>*</code>: Any number of characters</li>
 	<li><code>?</code>: Any single character</li>
 </ul>'),
+				'importtitle'    => DI::l10n()->t('Import server domain pattern blocklist'),
 				'addtitle'       => DI::l10n()->t('Add new entry to the blocklist'),
-				'submit'         => DI::l10n()->t('Check pattern'),
+				'importsubmit'   => DI::l10n()->t('Upload file'),
+				'addsubmit'      => DI::l10n()->t('Check pattern'),
 				'savechanges'    => DI::l10n()->t('Save changes to the blocklist'),
 				'currenttitle'   => DI::l10n()->t('Current Entries in the Blocklist'),
 				'thurl'          => DI::l10n()->t('Blocked server domain pattern'),
@@ -93,10 +95,12 @@ class Index extends BaseAdmin
 				'delentry'       => DI::l10n()->t('Delete entry from the blocklist'),
 				'confirm_delete' => DI::l10n()->t('Delete entry from the blocklist?'),
 			],
+			'$listfile'            => ['listfile', DI::l10n()->t('Server domain pattern blocklist CSV file'), '', '', DI::l10n()->t('Required'), '', 'file'],
 			'$newdomain'           => ['pattern', DI::l10n()->t('Server Domain Pattern'), '', DI::l10n()->t('The domain pattern of the new server to add to the blocklist. Do not include the protocol.'), DI::l10n()->t('Required'), '', ''],
 			'$entries'             => $blocklistform,
 			'$baseurl'             => DI::baseUrl()->get(true),
-			'$form_security_token' => self::getFormSecurityToken('admin_blocklist')
+			'$form_security_token' => self::getFormSecurityToken('admin_blocklist'),
+			'$form_security_token_import' => self::getFormSecurityToken('admin_blocklist_import'),
 		]);
 	}
 }

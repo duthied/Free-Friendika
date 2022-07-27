@@ -648,10 +648,6 @@ class App
 				header('X-Account-Management-Status: none');
 			}
 
-			$_SESSION['sysmsg']       = Core\Session::get('sysmsg', []);
-			$_SESSION['sysmsg_info']  = Core\Session::get('sysmsg_info', []);
-			$_SESSION['last_updated'] = Core\Session::get('last_updated', []);
-
 			/*
 			 * check_config() is responsible for running update scripts. These automatically
 			 * update the DB schema whenever we push a new one out. It also checks to see if

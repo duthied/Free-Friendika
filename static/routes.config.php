@@ -310,9 +310,10 @@ return [
 		'/addons/{addon}' => [Module\Admin\Addons\Details::class, [R::GET, R::POST]],
 
 
-		'/blocklist/contact'    => [Module\Admin\Blocklist\Contact::class,      [R::GET, R::POST]],
-		'/blocklist/server'     => [Module\Admin\Blocklist\Server\Index::class, [R::GET, R::POST]],
-		'/blocklist/server/add' => [Module\Admin\Blocklist\Server\Add::class,   [R::GET, R::POST]],
+		'/blocklist/contact'       => [Module\Admin\Blocklist\Contact::class,       [R::GET, R::POST]],
+		'/blocklist/server'        => [Module\Admin\Blocklist\Server\Index::class,  [R::GET, R::POST]],
+		'/blocklist/server/add'    => [Module\Admin\Blocklist\Server\Add::class,    [R::GET, R::POST]],
+		'/blocklist/server/import' => [Module\Admin\Blocklist\Server\Import::class, [R::GET, R::POST]],
 
 		'/dbsync[/{action}[/{update:\d+}]]' => [Module\Admin\DBSync::class, [R::GET]],
 
@@ -353,6 +354,9 @@ return [
 	'/attach/{item:\d+}'   => [Module\Attach::class,       [R::GET]],
 	'/babel'               => [Module\Debug\Babel::class,  [R::GET, R::POST]],
 	'/debug/ap'            => [Module\Debug\ActivityPubConversion::class,  [R::GET, R::POST]],
+
+	'/blocklist/domain/download' => [Module\Blocklist\Domain\Download::class, [R::GET]],
+
 	'/bookmarklet'         => [Module\Bookmarklet::class,  [R::GET]],
 
 	'/community[/{content}]' => [Module\Conversation\Community::class, [R::GET]],

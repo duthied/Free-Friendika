@@ -171,18 +171,11 @@ function remote_user()
  * @param string $s - Text of notice
  *
  * @return void
+ * @deprecated since version 2022.09, use \Friendica\Navigation\SystemMessages instead
  */
 function notice(string $s)
 {
-	if (empty($_SESSION)) {
-		return;
-	}
-
-	if (empty($_SESSION['sysmsg'])) {
-		$_SESSION['sysmsg'] = [];
-	}
-
-	$_SESSION['sysmsg'][] = $s;
+	\Friendica\DI::sysmsg()->addNotice($s);
 }
 
 /**
@@ -193,16 +186,9 @@ function notice(string $s)
  * @param string $s - Text of notice
  *
  * @return void
+ * @deprecated since version 2022.09, use \Friendica\Navigation\SystemMessages instead
  */
 function info(string $s)
 {
-	if (empty($_SESSION)) {
-		return;
-	}
-
-	if (empty($_SESSION['sysmsg_info'])) {
-		$_SESSION['sysmsg_info'] = [];
-	}
-
-	$_SESSION['sysmsg_info'][] = $s;
+	\Friendica\DI::sysmsg()->addInfo($s);
 }

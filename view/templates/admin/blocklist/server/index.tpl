@@ -7,13 +7,24 @@
 	<h1>{{$l10n.title}} - {{$l10n.page}}</h1>
 	<p>{{$l10n.intro}}</p>
 	<p>{{$l10n.public nofilter}}</p>
-	{{$l10n.syntax nofilter}}
+
+	<h2>{{$l10n.importtitle}}</h2>
+    {{$l10n.download nofilter}}
+
+	<form action="{{$baseurl}}/admin/blocklist/server/import" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="form_security_token" value="{{$form_security_token_import}}">
+        {{include file="field_input.tpl" field=$listfile}}
+		<div class="submit">
+			<button type="submit" class="btn btn-primary" name="page_blocklist_upload">{{$l10n.importsubmit}}</button>
+		</div>
+	</form>
 
 	<h2>{{$l10n.addtitle}}</h2>
+    {{$l10n.syntax nofilter}}
 	<form action="{{$baseurl}}/admin/blocklist/server/add" method="get">
 		{{include file="field_input.tpl" field=$newdomain}}
 		<div class="submit">
-			<button type="submit" class="btn btn-primary">{{$l10n.submit}}</button>
+			<button type="submit" class="btn btn-primary">{{$l10n.addsubmit}}</button>
 		</div>
 	</form>
 

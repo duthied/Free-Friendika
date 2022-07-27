@@ -42,6 +42,7 @@ use Friendica\Navigation\Notifications\Exception\NoMessageException;
 use Friendica\Navigation\Notifications\Factory;
 use Friendica\Navigation\Notifications\Repository;
 use Friendica\Navigation\Notifications\ValueObject;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -50,6 +51,8 @@ use Psr\Log\LoggerInterface;
 
 class Ping extends BaseModule
 {
+	/** @var SystemMessages */
+	private $systemMessages;
 	/** @var Repository\Notification */
 	private $notificationRepo;
 	/** @var Introduction */
@@ -57,10 +60,11 @@ class Ping extends BaseModule
 	/** @var Factory\FormattedNavNotification */
 	private $formattedNavNotification;
 
-	public function __construct(Repository\Notification $notificationRepo, Introduction $introductionRepo, Factory\FormattedNavNotification $formattedNavNotification, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(SystemMessages $systemMessages, Repository\Notification $notificationRepo, Introduction $introductionRepo, Factory\FormattedNavNotification $formattedNavNotification, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
+		$this->systemMessages           = $systemMessages;
 		$this->notificationRepo         = $notificationRepo;
 		$this->introductionRepo         = $introductionRepo;
 		$this->formattedNavNotification = $formattedNavNotification;
@@ -256,19 +260,6 @@ class Ping extends BaseModule
 			usort($navNotifications, $sort_function);
 		}
 
-		$sysmsgs      = [];
-		$sysmsgs_info = [];
-
-		if (!empty($_SESSION['sysmsg'])) {
-			$sysmsgs = $_SESSION['sysmsg'];
-			unset($_SESSION['sysmsg']);
-		}
-
-		if (!empty($_SESSION['sysmsg_info'])) {
-			$sysmsgs_info = $_SESSION['sysmsg_info'];
-			unset($_SESSION['sysmsg_info']);
-		}
-
 		$notification_count = $sysnotify_count + $intro_count + $register_count;
 
 		$data             = [];
@@ -289,8 +280,8 @@ class Ping extends BaseModule
 		$data['notifications'] = $navNotifications;
 
 		$data['sysmsgs'] = [
-			'notice' => $sysmsgs,
-			'info'   => $sysmsgs_info
+			'notice' => $this->systemMessages->flushNotices(),
+			'info'   => $this->systemMessages->flushInfos(),
 		];
 
 		if (isset($_GET['callback'])) {
