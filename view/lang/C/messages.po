@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-27 11:50-0400\n"
+"POT-Creation-Date: 2022-07-27 18:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -119,7 +119,7 @@ msgid "The feed for this item is unavailable."
 msgstr ""
 
 #: mod/editpost.php:38 mod/events.php:217 mod/follow.php:56 mod/follow.php:130
-#: mod/item.php:181 mod/item.php:186 mod/item.php:880 mod/message.php:69
+#: mod/item.php:181 mod/item.php:186 mod/item.php:870 mod/message.php:69
 #: mod/message.php:111 mod/notes.php:44 mod/ostatus_subscribe.php:33
 #: mod/photos.php:160 mod/photos.php:891 mod/repair_ostatus.php:31
 #: mod/settings.php:40 mod/settings.php:50 mod/settings.php:156
@@ -407,7 +407,7 @@ msgstr ""
 #: mod/events.php:515 mod/message.php:201 mod/message.php:357
 #: mod/photos.php:921 mod/photos.php:1025 mod/photos.php:1295
 #: mod/photos.php:1336 mod/photos.php:1392 mod/photos.php:1466
-#: src/Module/Admin/Item/Source.php:65 src/Module/Contact/Advanced.php:132
+#: src/Module/Admin/Item/Source.php:60 src/Module/Contact/Advanced.php:132
 #: src/Module/Contact/Poke.php:177 src/Module/Contact/Profile.php:327
 #: src/Module/Debug/ActivityPubConversion.php:145
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
@@ -523,19 +523,19 @@ msgstr ""
 msgid "Empty post discarded."
 msgstr ""
 
-#: mod/item.php:692
+#: mod/item.php:682
 msgid "Post updated."
 msgstr ""
 
-#: mod/item.php:702 mod/item.php:707
+#: mod/item.php:692 mod/item.php:697
 msgid "Item wasn't stored."
 msgstr ""
 
-#: mod/item.php:718
+#: mod/item.php:708
 msgid "Item couldn't be fetched."
 msgstr ""
 
-#: mod/item.php:858 src/Module/Admin/Themes/Details.php:39
+#: mod/item.php:848 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:42
 #: src/Module/Debug/ItemBody.php:57
 msgid "Item not found."
@@ -1411,7 +1411,7 @@ msgstr ""
 msgid "Friend Suggestions"
 msgstr ""
 
-#: mod/tagger.php:78 src/Content/Item.php:354 src/Model/Item.php:2743
+#: mod/tagger.php:78 src/Content/Item.php:354 src/Model/Item.php:2749
 msgid "photo"
 msgstr ""
 
@@ -2275,7 +2275,7 @@ msgstr ""
 msgid "%1$s poked %2$s"
 msgstr ""
 
-#: src/Content/Item.php:345 src/Model/Item.php:2741
+#: src/Content/Item.php:345 src/Model/Item.php:2747
 msgid "event"
 msgstr ""
 
@@ -2626,8 +2626,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1213 src/Model/Item.php:3316
-#: src/Model/Item.php:3322 src/Model/Item.php:3323
+#: src/Content/Text/BBCode.php:1213 src/Model/Item.php:3322
+#: src/Model/Item.php:3328 src/Model/Item.php:3329
 msgid "Link to source"
 msgstr ""
 
@@ -3812,58 +3812,58 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1839
+#: src/Model/Item.php:1845
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2745
+#: src/Model/Item.php:2751
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2747
+#: src/Model/Item.php:2753
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2750
+#: src/Model/Item.php:2756
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:2866
+#: src/Model/Item.php:2872
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3225
+#: src/Model/Item.php:3231
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3259
+#: src/Model/Item.php:3265
 #, php-format
 msgid "%s (%d%s, %d votes)"
 msgstr ""
 
-#: src/Model/Item.php:3261
+#: src/Model/Item.php:3267
 #, php-format
 msgid "%s (%d votes)"
 msgstr ""
 
-#: src/Model/Item.php:3266
+#: src/Model/Item.php:3272
 #, php-format
 msgid "%d voters. Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3268
+#: src/Model/Item.php:3274
 #, php-format
 msgid "%d voters."
 msgstr ""
 
-#: src/Model/Item.php:3270
+#: src/Model/Item.php:3276
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3304 src/Model/Item.php:3305
+#: src/Model/Item.php:3310 src/Model/Item.php:3311
 msgid "View on separate page"
 msgstr ""
 
@@ -4918,54 +4918,49 @@ msgstr ""
 msgid "The GUID of the item you want to delete."
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:57 src/Module/BaseAdmin.php:119
+#: src/Module/Admin/Item/Source.php:53 src/Module/BaseAdmin.php:119
 msgid "Item Source"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:58
+#: src/Module/Admin/Item/Source.php:54
 msgid "Item Guid"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:63
+#: src/Module/Admin/Item/Source.php:58
 msgid "Item Id"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:64
+#: src/Module/Admin/Item/Source.php:59
 msgid "Item URI"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:66
+#: src/Module/Admin/Item/Source.php:61
 msgid "Terms"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:67
+#: src/Module/Admin/Item/Source.php:62
 msgid "Tag"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:68 src/Module/Admin/Users/Active.php:129
+#: src/Module/Admin/Item/Source.php:63 src/Module/Admin/Users/Active.php:129
 #: src/Module/Admin/Users/Blocked.php:130 src/Module/Admin/Users/Index.php:142
 msgid "Type"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:69
+#: src/Module/Admin/Item/Source.php:64
 msgid "Term"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:70
+#: src/Module/Admin/Item/Source.php:65
 msgid "URL"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:71
+#: src/Module/Admin/Item/Source.php:66
 msgid "Mention"
 msgstr ""
 
-#: src/Module/Admin/Item/Source.php:72
+#: src/Module/Admin/Item/Source.php:67
 msgid "Implicit Mention"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:73 src/Module/Admin/Logs/View.php:99
-#: src/Module/Debug/ActivityPubConversion.php:62
-msgid "Source"
 msgstr ""
 
 #: src/Module/Admin/Logs/Settings.php:47
@@ -5074,6 +5069,11 @@ msgstr ""
 
 #: src/Module/Admin/Logs/View.php:98
 msgid "Data"
+msgstr ""
+
+#: src/Module/Admin/Logs/View.php:99
+#: src/Module/Debug/ActivityPubConversion.php:62
+msgid "Source"
 msgstr ""
 
 #: src/Module/Admin/Logs/View.php:100
@@ -8408,19 +8408,19 @@ msgstr ""
 
 #: src/Module/Profile/Profile.php:326 src/Module/Profile/Profile.php:329
 #: src/Module/Profile/Status.php:66 src/Module/Profile/Status.php:69
-#: src/Protocol/Feed.php:1018 src/Protocol/OStatus.php:1276
+#: src/Protocol/Feed.php:1018 src/Protocol/OStatus.php:1045
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:327 src/Module/Profile/Status.php:67
-#: src/Protocol/Feed.php:1022 src/Protocol/OStatus.php:1281
+#: src/Protocol/Feed.php:1022 src/Protocol/OStatus.php:1050
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:328 src/Module/Profile/Status.php:68
-#: src/Protocol/Feed.php:1025 src/Protocol/OStatus.php:1285
+#: src/Protocol/Feed.php:1025 src/Protocol/OStatus.php:1054
 #, php-format
 msgid "%s's comments"
 msgstr ""
@@ -10336,116 +10336,116 @@ msgstr ""
 msgid "%1$s has started following you"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:207
+#: src/Navigation/Notifications/Factory/Notification.php:208
 #, php-format
 msgid "%1$s liked your comment on %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:210
+#: src/Navigation/Notifications/Factory/Notification.php:211
 #, php-format
 msgid "%1$s liked your post %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:217
+#: src/Navigation/Notifications/Factory/Notification.php:218
 #, php-format
 msgid "%1$s disliked your comment on %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:220
+#: src/Navigation/Notifications/Factory/Notification.php:221
 #, php-format
 msgid "%1$s disliked your post %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:227
+#: src/Navigation/Notifications/Factory/Notification.php:228
 #, php-format
 msgid "%1$s shared your comment %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:230
+#: src/Navigation/Notifications/Factory/Notification.php:231
 #, php-format
 msgid "%1$s shared your post %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:234
-#: src/Navigation/Notifications/Factory/Notification.php:304
+#: src/Navigation/Notifications/Factory/Notification.php:235
+#: src/Navigation/Notifications/Factory/Notification.php:305
 #, php-format
 msgid "%1$s shared the post %2$s from %3$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:236
-#: src/Navigation/Notifications/Factory/Notification.php:306
+#: src/Navigation/Notifications/Factory/Notification.php:237
+#: src/Navigation/Notifications/Factory/Notification.php:307
 #, php-format
 msgid "%1$s shared a post from %3$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:238
-#: src/Navigation/Notifications/Factory/Notification.php:308
+#: src/Navigation/Notifications/Factory/Notification.php:239
+#: src/Navigation/Notifications/Factory/Notification.php:309
 #, php-format
 msgid "%1$s shared the post %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:240
-#: src/Navigation/Notifications/Factory/Notification.php:310
+#: src/Navigation/Notifications/Factory/Notification.php:241
+#: src/Navigation/Notifications/Factory/Notification.php:311
 #, php-format
 msgid "%1$s shared a post"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:248
+#: src/Navigation/Notifications/Factory/Notification.php:249
 #, php-format
 msgid "%1$s wants to attend your event %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:255
+#: src/Navigation/Notifications/Factory/Notification.php:256
 #, php-format
 msgid "%1$s does not want to attend your event %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:262
+#: src/Navigation/Notifications/Factory/Notification.php:263
 #, php-format
 msgid "%1$s maybe wants to attend your event %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:269
+#: src/Navigation/Notifications/Factory/Notification.php:270
 #, php-format
 msgid "%1$s tagged you on %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:273
+#: src/Navigation/Notifications/Factory/Notification.php:274
 #, php-format
 msgid "%1$s replied to you on %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:277
+#: src/Navigation/Notifications/Factory/Notification.php:278
 #, php-format
 msgid "%1$s commented in your thread %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:281
+#: src/Navigation/Notifications/Factory/Notification.php:282
 #, php-format
 msgid "%1$s commented on your comment %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:288
+#: src/Navigation/Notifications/Factory/Notification.php:289
 #, php-format
 msgid "%1$s commented in their thread %2$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:290
+#: src/Navigation/Notifications/Factory/Notification.php:291
 #, php-format
 msgid "%1$s commented in their thread"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:292
+#: src/Navigation/Notifications/Factory/Notification.php:293
 #, php-format
 msgid "%1$s commented in the thread %2$s from %3$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:294
+#: src/Navigation/Notifications/Factory/Notification.php:295
 #, php-format
 msgid "%1$s commented in the thread from %3$s"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Notification.php:299
+#: src/Navigation/Notifications/Factory/Notification.php:300
 #, php-format
 msgid "%1$s commented on your thread %2$s"
 msgstr ""
@@ -10930,21 +10930,21 @@ msgstr ""
 msgid "Show fewer"
 msgstr ""
 
-#: src/Protocol/OStatus.php:1705
+#: src/Protocol/OStatus.php:1474
 #, php-format
 msgid "%s is now following %s."
 msgstr ""
 
-#: src/Protocol/OStatus.php:1706
+#: src/Protocol/OStatus.php:1475
 msgid "following"
 msgstr ""
 
-#: src/Protocol/OStatus.php:1709
+#: src/Protocol/OStatus.php:1478
 #, php-format
 msgid "%s stopped following %s."
 msgstr ""
 
-#: src/Protocol/OStatus.php:1710
+#: src/Protocol/OStatus.php:1479
 msgid "stopped following"
 msgstr ""
 
