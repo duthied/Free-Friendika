@@ -982,7 +982,6 @@ class Processor
 			Queue::remove($activity);
 
 			if (Queue::hasChildren($item['uri'])) {
-				//Queue::processReplyByUri($item['uri']);
 				Worker::add(PRIORITY_HIGH, 'ProcessReplyByUri', $item['uri']);
 			}
 		}

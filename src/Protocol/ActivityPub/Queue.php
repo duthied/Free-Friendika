@@ -167,13 +167,14 @@ class Queue
 	 * Process the activity with the given id
 	 *
 	 * @param integer $id
-	 * @return void
+	 *
+	 * @return bool
 	 */
-	public static function process(int $id)
+	public static function process(int $id): bool
 	{
 		$entry = DBA::selectFirst('inbox-entry', [], ['id' => $id]);
 		if (empty($entry)) {
-			return;
+			return false;
 		}
 
 		Logger::debug('Processing queue entry', ['id' => $entry['id'], 'type' => $entry['type'], 'object-type' => $entry['object-type'], 'uri' => $entry['object-id'], 'in-reply-to' => $entry['in-reply-to-id']]);
@@ -197,6 +198,8 @@ class Queue
 		if (!Receiver::routeActivities($activity, $type, $push)) {
 			self::remove($activity);
 		}
+
+		return true;
 	}
 
 	/**
