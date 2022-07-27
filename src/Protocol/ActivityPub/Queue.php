@@ -25,7 +25,6 @@ use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\JsonLD;
 
@@ -242,15 +241,30 @@ class Queue
 	 * Process all activities that are children of a given post url
 	 *
 	 * @param string $uri
-	 * @return void
+	 * @return int
 	 */
-	public static function processReplyByUri(string $uri)
+	public static function processReplyByUri(string $uri): int
 	{
+		$count = 0;
 		$entries = DBA::select('inbox-entry', ['id'], ["`in-reply-to-id` = ? AND `object-id` != ?", $uri, $uri]);
 		while ($entry = DBA::fetch($entries)) {
+			$count += 1;
 			self::process($entry['id']);
 		}
 		DBA::close($entries);
+		return $count;
+	}
+
+	/**
+	 * Checks if there are children of the given uri
+	 *
+	 * @param string $uri
+	 *
+	 * @return bool
+	 */
+	public static function hasChildren(string $uri): bool
+	{
+		return DBA::exists('inbox-entry', ["`in-reply-to-id` = ? AND `object-id` != ?", $uri, $uri]);
 	}
 
 	/**

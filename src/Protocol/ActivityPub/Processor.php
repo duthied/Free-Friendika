@@ -980,7 +980,11 @@ class Processor
 
 		if ($success) {
 			Queue::remove($activity);
-			Queue::processReplyByUri($item['uri']);
+
+			if (Queue::hasChildren($item['uri'])) {
+				//Queue::processReplyByUri($item['uri']);
+				Worker::add(PRIORITY_HIGH, 'ProcessReplyByUri', $item['uri']);
+			}
 		}
 
 		// Store send a follow request for every reshare - but only when the item had been stored
