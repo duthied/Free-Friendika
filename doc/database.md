@@ -19,7 +19,6 @@ Database Tables
 | [contact](help/database/db_contact) | contact table |
 | [contact-relation](help/database/db_contact-relation) | Contact relations |
 | [conv](help/database/db_conv) | private messages |
-| [conversation](help/database/db_conversation) | Raw data and structure information for messages |
 | [delayed-post](help/database/db_delayed-post) | Posts that are about to be distributed at a later time |
 | [diaspora-interaction](help/database/db_diaspora-interaction) | Signed Diaspora Interaction |
 | [endpoint](help/database/db_endpoint) | ActivityPub endpoints - used in the ActivityPub implementation |
@@ -50,6 +49,7 @@ Database Tables
 | [permissionset](help/database/db_permissionset) |  |
 | [photo](help/database/db_photo) | photo storage |
 | [post](help/database/db_post) | Structure for all posts |
+| [post-activity](help/database/db_post-activity) | Original remote activity |
 | [post-category](help/database/db_post-category) | post relation to categories |
 | [post-collection](help/database/db_post-collection) | Collection of posts |
 | [post-content](help/database/db_post-content) | Content for all posts |

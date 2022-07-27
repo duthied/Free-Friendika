@@ -28,6 +28,7 @@ use Friendica\Content\Text\Markdown;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
@@ -36,6 +37,7 @@ use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
@@ -272,26 +274,39 @@ class Receiver
 	 */
 	public static function prepareObjectData(array $activity, int $uid, bool $push, bool &$trust_source): array
 	{
-		$id = JsonLD::fetchElement($activity, '@id');
+		$id        = JsonLD::fetchElement($activity, '@id');
+		$type      = JsonLD::fetchElement($activity, '@type');
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
-		
+
+		if (!empty($object_id) && in_array($type, ['as:Create', 'as:Update'])) {
+			$fetch_id = $object_id;
+		} else {
+			$fetch_id = $id;
+		}
+
+		if (!empty($activity['as:object'])) {
+			$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
+		}
+
 		if (!empty($id) && !$trust_source) {
 			$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
 
-			$fetched_activity = ActivityPub::fetchContent($id, $fetch_uid);
+			$fetched_activity = ActivityPub::fetchContent($fetch_id, $fetch_uid);
 			if (!empty($fetched_activity)) {
 				$object = JsonLD::compact($fetched_activity);
-				$fetched_id = JsonLD::fetchElement($object, '@id');
-				if ($fetched_id == $id) {
+
+				$fetched_id   = JsonLD::fetchElement($object, '@id');
+				$fetched_type = JsonLD::fetchElement($object, '@type');
+
+				if (($fetched_id == $id) && !empty($fetched_type) && ($fetched_type == $type)) {
 					Logger::info('Activity had been fetched successfully', ['id' => $id]);
 					$trust_source = true;
-					if ($id != $object_id) {
-						$activity = $object;
-					} else {
-						Logger::info('Fetched data is the object instead of the activity', ['id' => $id]);
-						unset($object['@context']);
-						$activity['as:object'] = $object;
-					}					
+					$activity = $object;
+				} elseif (($fetched_id == $object_id) && !empty($fetched_type) && ($fetched_type == $object_type)) {
+					Logger::info('Fetched data is the object instead of the activity', ['id' => $id]);
+					$trust_source = true;
+					unset($object['@context']);
+					$activity['as:object'] = $object;
 				} else {
 					Logger::info('Activity id is not equal', ['id' => $id, 'fetched' => $fetched_id]);
 				}
@@ -371,6 +386,10 @@ class Receiver
 			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
 			$object_data['push'] = $push;
+			if (!$trust_source && ($type == 'as:Delete')) {
+				$apcontact = APContact::getByURL($object_data['object_id'], true);
+				$trust_source = empty($apcontact) || ($apcontact['type'] == 'Tombstone') || $apcontact['suspended'];
+			}
 		} elseif (in_array($type, ['as:Create', 'as:Update', 'as:Announce', 'as:Invite']) || strpos($type, '#emojiReaction')) {
 			// Fetch the content only on activities where this matters
 			// We can receive "#emojiReaction" when fetching content from Hubzilla systems
@@ -424,6 +443,13 @@ class Receiver
 			// An Undo is done on the object of an object, so we need that type as well
 			if (($type == 'as:Undo') && !empty($object_data['object_object'])) {
 				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object'], $fetch_uid);
+			}
+
+			if (!$trust_source && ($type == 'as:Delete') && in_array($object_data['object_type'], array_merge(['as:Tombstone', ''], self::CONTENT_TYPES))) {
+				$trust_source = Processor::isActivityGone($object_data['object_id']);
+				if (!$trust_source) {
+					$trust_source = !empty(APContact::getByURL($object_data['object_id'], false));
+				}
 			}
 		}
 
@@ -573,6 +599,13 @@ class Receiver
 			return;
 		}
 
+		if ($push) {
+			// We delay by 5 seconds to allow to accumulate all receivers
+			$delayed = date(DateTimeFormat::MYSQL, time() + 5);
+			Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'ProcessQueue', $object_data['entry-id']);
+			return;
+		}
+
 		if (!empty($activity['recursion-depth'])) {
 			$object_data['recursion-depth'] = $activity['recursion-depth'];
 		}
@@ -659,6 +692,9 @@ class Receiver
 
 						if (!empty($object_data['raw'])) {
 							$announce_object_data['raw'] = $object_data['raw'];
+						}
+						if (!empty($object_data['raw-object'])) {
+							$announce_object_data['raw-object'] = $object_data['raw-object'];
 						}
 						ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
 					}
@@ -1297,7 +1333,7 @@ class Receiver
 			$object_data = self::processObject($object);
 
 			if (!empty($data)) {
-				$object_data['raw'] = json_encode($data);
+				$object_data['raw-object'] = json_encode($data);
 			}
 			return $object_data;
 		}

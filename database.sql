@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1474
+-- DB_UPDATE_VERSION 1475
 -- ------------------------------------------
 
 
@@ -338,6 +338,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`featured-tags` varchar(255) COMMENT 'Address for the collection of featured tags',
 	`manually-approve` boolean COMMENT '',
 	`discoverable` boolean COMMENT 'Mastodon extension: true if profile is published in their directory',
+	`suspended` boolean COMMENT 'Mastodon extension: true if profile is suspended',
 	`nick` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`name` varchar(255) COMMENT '',
 	`about` text COMMENT '',
@@ -502,23 +503,6 @@ CREATE TABLE IF NOT EXISTS `conv` (
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='private messages';
-
---
--- TABLE conversation
---
-CREATE TABLE IF NOT EXISTS `conversation` (
-	`item-uri` varbinary(255) NOT NULL COMMENT 'Original URI of the item - unrelated to the table with the same name',
-	`reply-to-uri` varbinary(255) NOT NULL DEFAULT '' COMMENT 'URI to which this item is a reply',
-	`conversation-uri` varbinary(255) NOT NULL DEFAULT '' COMMENT 'GNU Social conversation URI',
-	`conversation-href` varbinary(255) NOT NULL DEFAULT '' COMMENT 'GNU Social conversation link',
-	`protocol` tinyint unsigned NOT NULL DEFAULT 255 COMMENT 'The protocol of the item',
-	`direction` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'How the message arrived here: 1=push, 2=pull',
-	`source` mediumtext COMMENT 'Original source',
-	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Receiving date',
-	 PRIMARY KEY(`item-uri`),
-	 INDEX `conversation-uri` (`conversation-uri`),
-	 INDEX `received` (`received`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Raw data and structure information for messages';
 
 --
 -- TABLE workerqueue
@@ -1116,6 +1100,17 @@ CREATE TABLE IF NOT EXISTS `post` (
 	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
+
+--
+-- TABLE post-activity
+--
+CREATE TABLE IF NOT EXISTS `post-activity` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`activity` mediumtext COMMENT 'Original activity',
+	`received` datetime COMMENT '',
+	 PRIMARY KEY(`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Original remote activity';
 
 --
 -- TABLE post-category

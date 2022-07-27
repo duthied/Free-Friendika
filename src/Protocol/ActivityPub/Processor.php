@@ -361,8 +361,6 @@ class Processor
 		if (!empty($activity['raw'])) {
 			$item['source'] = $activity['raw'];
 			$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
-			$item['conversation-href'] = $activity['context'] ?? '';
-			$item['conversation-uri'] = $activity['conversation'] ?? '';
 
 			if (isset($activity['push'])) {
 				$item['direction'] = $activity['push'] ? Conversation::PUSH : Conversation::PULL;
@@ -466,7 +464,7 @@ class Processor
 	 *
 	 * @return boolean
 	 */
-	private static function isActivityGone(string $url): bool
+	public static function isActivityGone(string $url): bool
 	{
 		$curlResult = HTTPSignature::fetchRaw($url, 0);
 
@@ -475,7 +473,19 @@ class Processor
 		}
 
 		// @todo To ensure that the remote system is working correctly, we can check if the "Content-Type" contains JSON
-		return in_array($curlResult->getReturnCode(), [404]);
+		if (in_array($curlResult->getReturnCode(), [404])) {
+			return true;
+		}
+
+		$object = json_decode($curlResult->getBody(), true);
+		if (!empty($object)) {
+			$activity = JsonLD::compact($object);
+			if (JsonLD::fetchElement($activity, '@type') == 'as:Tombstone') {
+				return true;
+			}			
+		}
+
+		return false;
 	}
 	/**
 	 * Delete items
@@ -970,7 +980,10 @@ class Processor
 
 		if ($success) {
 			Queue::remove($activity);
-			Queue::processReplyByUri($item['uri']);
+
+			if (Queue::hasChildren($item['uri'])) {
+				Worker::add(PRIORITY_HIGH, 'ProcessReplyByUri', $item['uri']);
+			}
 		}
 
 		// Store send a follow request for every reshare - but only when the item had been stored
@@ -1346,6 +1359,7 @@ class Processor
 	{
 		$uid = User::getIdForURL($activity['object_id']);
 		if (empty($uid)) {
+			Queue::remove($activity);
 			return;
 		}
 

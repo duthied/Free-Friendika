@@ -545,7 +545,7 @@ class Tag
 					break;
 
 				default:
-					Logger:warning('Unknown tag type found', $tag);
+					Logger::warning('Unknown tag type found', $tag);
 			}
 		}
 		DBA::close($taglist);

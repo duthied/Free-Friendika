@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1474);
+	define('DB_UPDATE_VERSION', 1475);
 }
 
 return [
@@ -400,6 +400,7 @@ return [
 			"featured-tags" => ["type" => "varchar(255)", "comment" => "Address for the collection of featured tags"],
 			"manually-approve" => ["type" => "boolean", "comment" => ""],
 			"discoverable" => ["type" => "boolean", "comment" => "Mastodon extension: true if profile is published in their directory"],
+			"suspended" => ["type" => "boolean", "comment" => "Mastodon extension: true if profile is suspended"],
 			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"name" => ["type" => "varchar(255)", "comment" => ""],
 			"about" => ["type" => "text", "comment" => ""],
@@ -563,24 +564,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid" => ["uid"],
-		]
-	],
-	"conversation" => [
-		"comment" => "Raw data and structure information for messages",
-		"fields" => [
-			"item-uri" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "Original URI of the item - unrelated to the table with the same name"],
-			"reply-to-uri" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => "URI to which this item is a reply"],
-			"conversation-uri" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => "GNU Social conversation URI"],
-			"conversation-href" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => "GNU Social conversation link"],
-			"protocol" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "255", "comment" => "The protocol of the item"],
-			"direction" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "How the message arrived here: 1=push, 2=pull"],
-			"source" => ["type" => "mediumtext", "comment" => "Original source"],
-			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Receiving date"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["item-uri"],
-			"conversation-uri" => ["conversation-uri"],
-			"received" => ["received"],
 		]
 	],
 	"workerqueue" => [
@@ -1154,6 +1137,17 @@ return [
 			"author-id" => ["author-id"],
 			"causer-id" => ["causer-id"],
 			"vid" => ["vid"],
+		]
+	],
+	"post-activity" => [
+		"comment" => "Original remote activity",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"activity" => ["type" => "mediumtext", "comment" => "Original activity"],
+			"received" => ["type" => "datetime", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
 		]
 	],
 	"post-category" => [

@@ -35,7 +35,6 @@ class Source extends BaseAdmin
 
 		$guid = basename($_REQUEST['guid'] ?? $this->parameters['guid'] ?? '');
 
-		$source = '';
 		$item_uri = '';
 		$item_id = '';
 		$terms = [];
@@ -43,11 +42,8 @@ class Source extends BaseAdmin
 			$item = Model\Post::selectFirst(['id', 'uri-id', 'guid', 'uri'], ['guid' => $guid]);
 
 			if ($item) {
-				$conversation = Model\Conversation::getByItemUri($item['uri']);
-
 				$item_id = $item['id'];
 				$item_uri = $item['uri'];
-				$source = $conversation['source'];
 				$terms = Model\Tag::getByURIId($item['uri-id'], [Model\Tag::HASHTAG, Model\Tag::MENTION, Model\Tag::IMPLICIT_MENTION]);
 			}
 		}
@@ -56,7 +52,6 @@ class Source extends BaseAdmin
 		$o = Renderer::replaceMacros($tpl, [
 			'$title'       => DI::l10n()->t('Item Source'),
 			'$guid'        => ['guid', DI::l10n()->t('Item Guid'), $guid, ''],
-			'$source'      => $source,
 			'$item_uri'    => $item_uri,
 			'$item_id'     => $item_id,
 			'$terms'       => $terms,
@@ -70,7 +65,6 @@ class Source extends BaseAdmin
 			'$urllbl'      => DI::l10n()->t('URL'),
 			'$mentionlbl'  => DI::l10n()->t('Mention'),
 			'$implicitlbl' => DI::l10n()->t('Implicit Mention'),
-			'$sourcelbl'   => DI::l10n()->t('Source'),
 		]);
 
 		return $o;

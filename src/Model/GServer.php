@@ -563,8 +563,13 @@ class GServer
 
 		$serverdata['registered-users'] = $serverdata['registered-users'] ?? 0;
 
+		// Numbers above a reasonable value (10 millions) are ignored
+		if ($serverdata['registered-users'] > 10000000) {
+			$serverdata['registered-users'] = 0;
+		}
+
 		// On an active server there has to be at least a single user
-		if (!in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED]) && ($serverdata['registered-users'] == 0)) {
+		if (!in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED]) && ($serverdata['registered-users'] <= 0)) {
 			$serverdata['registered-users'] = 1;
 		} elseif (in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED])) {
 			$serverdata['registered-users'] = 0;

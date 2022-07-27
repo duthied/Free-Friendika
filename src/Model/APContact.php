@@ -38,6 +38,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\Network;
+use GuzzleHttp\Psr7\Uri;
 
 class APContact
 {
@@ -310,6 +311,8 @@ class APContact
 
 		$apcontact['manually-approve'] = (int)JsonLD::fetchElement($compacted, 'as:manuallyApprovesFollowers');
 
+		$apcontact['suspended'] = (int)JsonLD::fetchElement($compacted, 'toot:suspended');
+
 		if (!empty($compacted['as:generator'])) {
 			$apcontact['baseurl'] = JsonLD::fetchElement($compacted['as:generator'], 'as:url', '@id');
 			$apcontact['generator'] = JsonLD::fetchElement($compacted['as:generator'], 'as:name', '@value');
@@ -380,11 +383,11 @@ class APContact
 		if (strlen($apcontact['photo']) > 255) {
 			$parts = parse_url($apcontact['photo']);
 			unset($parts['fragment']);
-			$apcontact['photo'] = Network::unparseURL($parts);
+			$apcontact['photo'] = Uri::fromParts($parts);
 
 			if (strlen($apcontact['photo']) > 255) {
 				unset($parts['query']);
-				$apcontact['photo'] = Network::unparseURL($parts);
+				$apcontact['photo'] = Uri::fromParts($parts);
 			}
 
 			if (strlen($apcontact['photo']) > 255) {

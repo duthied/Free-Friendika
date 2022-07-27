@@ -746,7 +746,7 @@ class Notifier
 			}
 
 			Logger::info('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.');
-		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
+		} elseif (!Post\Activity::exists($target_item['uri-id'])) {
 			Logger::info('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.');
 			return ['count' => 0, 'contacts' => []];
 		} elseif ($parent['origin']) {

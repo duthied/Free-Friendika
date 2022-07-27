@@ -21,22 +21,22 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Database\DBA;
-use Friendica\DI;
-use Friendica\Util\DateTimeFormat;
+use Friendica\Core\Logger;
+use Friendica\Protocol\ActivityPub\Queue;
 
-class ExpireConversations
+class ProcessReplyByUri
 {
 	/**
-	 * Delete old conversation entries
+	 * Process queued replies
+	 *
+	 * @param string $uri post url
+	 *
+	 * @return void
 	 */
-	public static function execute()
+	public static function execute(string $uri)
 	{
-		$days = intval(DI::config()->get('system', 'dbclean_expire_conversation', 90));
-		if (empty($days)) {
-			return;
-		}
-
-		DBA::delete('conversation', ["`received` < ?", DateTimeFormat::utc('now - ' . $days . ' days')]);
+		Logger::info('Start processing queued replies', ['url' => $uri]);
+		$count = Queue::processReplyByUri($uri);
+		Logger::info('Successfully processed queued replies', ['count' => $count, 'url' => $uri]);
 	}
 }

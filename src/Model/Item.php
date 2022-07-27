@@ -801,7 +801,10 @@ class Item
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
 
 		// Store conversation data
-		$item = Conversation::insert($item);
+		$source = $item['source'] ?? '';
+		unset($item['conversation-uri']);
+		unset($item['conversation-href']);
+		unset($item['source']);
 
 		/*
 		 * Do we already have this item?
@@ -1259,6 +1262,9 @@ class Item
 		}
 
 		if ($transmit) {
+			if (!empty($source)) {
+				Post\Activity::insert($item['uri-id'], $source);
+			}
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, (int)$posted_item['uri-id'], (int)$posted_item['uid']);
 		}
 

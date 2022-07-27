@@ -26,6 +26,7 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\JsonLD;
 
 /**
  * This class handles the processing of incoming posts
@@ -166,13 +167,14 @@ class Queue
 	 * Process the activity with the given id
 	 *
 	 * @param integer $id
-	 * @return void
+	 *
+	 * @return bool
 	 */
-	public static function process(int $id)
+	public static function process(int $id): bool
 	{
 		$entry = DBA::selectFirst('inbox-entry', [], ['id' => $id]);
 		if (empty($entry)) {
-			return;
+			return false;
 		}
 
 		Logger::debug('Processing queue entry', ['id' => $entry['id'], 'type' => $entry['type'], 'object-type' => $entry['object-type'], 'uri' => $entry['object-id'], 'in-reply-to' => $entry['in-reply-to-id']]);
@@ -196,6 +198,8 @@ class Queue
 		if (!Receiver::routeActivities($activity, $type, $push)) {
 			self::remove($activity);
 		}
+
+		return true;
 	}
 
 	/**
@@ -214,6 +218,7 @@ class Queue
 			Logger::debug('Process leftover entry', $entry);
 			self::process($entry['id']);
 		}
+		DBA::close($entries);
 	}
 
 	/**
@@ -239,13 +244,81 @@ class Queue
 	 * Process all activities that are children of a given post url
 	 *
 	 * @param string $uri
-	 * @return void
+	 * @return int
 	 */
-	public static function processReplyByUri(string $uri)
+	public static function processReplyByUri(string $uri): int
 	{
+		$count = 0;
 		$entries = DBA::select('inbox-entry', ['id'], ["`in-reply-to-id` = ? AND `object-id` != ?", $uri, $uri]);
 		while ($entry = DBA::fetch($entries)) {
+			$count += 1;
 			self::process($entry['id']);
 		}
+		DBA::close($entries);
+		return $count;
+	}
+
+	/**
+	 * Checks if there are children of the given uri
+	 *
+	 * @param string $uri
+	 *
+	 * @return bool
+	 */
+	public static function hasChildren(string $uri): bool
+	{
+		return DBA::exists('inbox-entry', ["`in-reply-to-id` = ? AND `object-id` != ?", $uri, $uri]);
+	}
+
+	/**
+	 * Prepare the queue entry.
+	 * This is a test function that is used solely for development.
+	 *
+	 * @param integer $id
+	 * @return array
+	 */
+	public static function reprepareActivityById(int $id): array
+	{
+		$entry = DBA::selectFirst('inbox-entry', [], ['id' => $id]);
+		if (empty($entry)) {
+			return [];
+		}
+
+		$receiver = DBA::selectFirst('inbox-entry-receiver', ['uid'], ['queue-id' => $id]);
+		if (!empty($receiver)) {
+			$uid = $receiver['uid'];
+		} else {
+			$uid = 0;
+		}
+
+		$trust_source = $entry['trust'];
+
+		$data     = json_decode($entry['activity'], true);
+		$activity = json_decode($data['raw'], true);
+
+		$ldactivity = JsonLD::compact($activity);
+		return [
+			'data'  => Receiver::prepareObjectData($ldactivity, $uid, $entry['push'], $trust_source),
+			'trust' => $trust_source
+		];
+	}
+
+	/**
+	 * Set the trust for all untrusted entries.
+	 * This is a test function that is used solely for development.
+	 *
+	 * @return void
+	 */
+	public static function reprepareAll()
+	{
+		$entries = DBA::select('inbox-entry', ['id'], ["NOT `trust` AND `wid` IS NULL"], ['order' => ['id' => true]]);
+		while ($entry = DBA::fetch($entries)) {
+			$data = self::reprepareActivityById($entry['id'], false);
+			if ($data['trust']) {
+				DBA::update('inbox-entry', ['trust' => true], ['id' => $entry['id']]);
+			}
+		}
+		DBA::close($entries);
+
 	}
 }

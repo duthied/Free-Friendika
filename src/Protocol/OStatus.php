@@ -616,16 +616,16 @@ class OStatus
 
 		$item['created'] = XML::getFirstNodeValue($xpath, 'atom:published/text()', $entry);
 		$item['edited'] = XML::getFirstNodeValue($xpath, 'atom:updated/text()', $entry);
-		$item['conversation-uri'] = XML::getFirstNodeValue($xpath, 'ostatus:conversation/text()', $entry);
+		$item['conversation'] = XML::getFirstNodeValue($xpath, 'ostatus:conversation/text()', $entry);
 
 		$conv = $xpath->query('ostatus:conversation', $entry);
 		if (is_object($conv->item(0))) {
 			foreach ($conv->item(0)->attributes as $attributes) {
 				if ($attributes->name == 'ref') {
-					$item['conversation-uri'] = $attributes->textContent;
+					$item['conversation'] = $attributes->textContent;
 				}
 				if ($attributes->name == 'href') {
-					$item['conversation-href'] = $attributes->textContent;
+					$item['conversation'] = $attributes->textContent;
 				}
 			}
 		}
@@ -704,14 +704,6 @@ class OStatus
 			}
 		}
 
-		if (($self != '') && empty($item['protocol'])) {
-			self::fetchSelf($self, $item);
-		}
-
-		if (!empty($item['conversation-href'])) {
-			self::fetchConversation($item['conversation-href'], $item['conversation-uri']);
-		}
-
 		if (isset($item['thr-parent'])) {
 			if (!Post::exists(['uid' => $importer['uid'], 'uri' => $item['thr-parent']])) {
 				if ($related != '') {
@@ -725,192 +717,7 @@ class OStatus
 			$item['gravity'] = GRAVITY_PARENT;
 		}
 
-		if (($item['author-link'] != '') && !empty($item['protocol'])) {
-			$item = Conversation::insert($item);
-		}
-
 		self::$itemlist[] = $item;
-	}
-
-	/**
-	 * Fetch the conversation for posts
-	 *
-	 * @param string $conversation     The link to the conversation
-	 * @param string $conversation_uri The conversation in "uri" format
-	 * @return void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	private static function fetchConversation(string $conversation, string $conversation_uri)
-	{
-		// Ensure that we only store a conversation once in a process
-		if (isset(self::$conv_list[$conversation])) {
-			return;
-		}
-
-		self::$conv_list[$conversation] = true;
-
-		$curlResult = DI::httpClient()->get($conversation, HttpClientAccept::ATOM_XML);
-
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-			return;
-		}
-
-		$xml = '';
-
-		if ($curlResult->inHeader('Content-Type') &&
-			in_array('application/atom+xml', $curlResult->getHeader('Content-Type'))) {
-			$xml = $curlResult->getBody();
-		}
-
-		if ($xml == '') {
-			$doc = new DOMDocument();
-			if (!@$doc->loadHTML($curlResult->getBody())) {
-				return;
-			}
-			$xpath = new DOMXPath($doc);
-
-			$links = $xpath->query('//link');
-			if ($links) {
-				$file = '';
-				foreach ($links as $link) {
-					$attribute = self::readAttributes($link);
-					if (($attribute['rel'] == 'alternate') && ($attribute['type'] == 'application/atom+xml')) {
-						$file = $attribute['href'];
-					}
-				}
-				if ($file != '') {
-					$conversation_atom = DI::httpClient()->get($attribute['href'], HttpClientAccept::ATOM_XML);
-
-					if ($conversation_atom->isSuccess()) {
-						$xml = $conversation_atom->getBody();
-					}
-				}
-			}
-		}
-
-		if ($xml == '') {
-			return;
-		}
-
-		self::storeConversation($xml, $conversation, $conversation_uri);
-	}
-
-	/**
-	 * Store a feed in several conversation entries
-	 *
-	 * @param string $xml              The feed
-	 * @param string $conversation     conversation
-	 * @param string $conversation_uri conversation uri
-	 * @return void
-	 * @throws \Exception
-	 */
-	private static function storeConversation(string $xml, string $conversation = '', string $conversation_uri = '')
-	{
-		$doc = new DOMDocument();
-		@$doc->loadXML($xml);
-
-		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
-		$xpath->registerNamespace('thr', ActivityNamespace::THREAD);
-		$xpath->registerNamespace('ostatus', ActivityNamespace::OSTATUS);
-
-		$entries = $xpath->query('/atom:feed/atom:entry');
-
-		// Now store the entries
-		foreach ($entries as $entry) {
-			$doc2 = new DOMDocument();
-			$doc2->preserveWhiteSpace = false;
-			$doc2->formatOutput = true;
-
-			$conv_data = [];
-
-			$conv_data['protocol'] = Conversation::PARCEL_SPLIT_CONVERSATION;
-			$conv_data['direction'] = Conversation::PULL;
-			$conv_data['network'] = Protocol::OSTATUS;
-			$conv_data['uri'] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
-
-			$inreplyto = $xpath->query('thr:in-reply-to', $entry);
-			if (is_object($inreplyto->item(0))) {
-				foreach ($inreplyto->item(0)->attributes as $attributes) {
-					if ($attributes->name == 'ref') {
-						$conv_data['reply-to-uri'] = $attributes->textContent;
-					}
-				}
-			}
-
-			$conv_data['conversation-uri'] = XML::getFirstNodeValue($xpath, 'ostatus:conversation/text()', $entry);
-
-			$conv = $xpath->query('ostatus:conversation', $entry);
-			if (is_object($conv->item(0))) {
-				foreach ($conv->item(0)->attributes as $attributes) {
-					if ($attributes->name == 'ref') {
-						$conv_data['conversation-uri'] = $attributes->textContent;
-					}
-					if ($attributes->name == 'href') {
-						$conv_data['conversation-href'] = $attributes->textContent;
-					}
-				}
-			}
-
-			if ($conversation != '') {
-				$conv_data['conversation-uri'] = $conversation;
-			}
-
-			if ($conversation_uri != '') {
-				$conv_data['conversation-uri'] = $conversation_uri;
-			}
-
-			$entry = $doc2->importNode($entry, true);
-
-			$doc2->appendChild($entry);
-
-			$conv_data['source'] = $doc2->saveXML();
-
-			Logger::info('Store conversation data for uri '.$conv_data['uri']);
-			Conversation::insert($conv_data);
-		}
-	}
-
-	/**
-	 * Fetch the own post so that it can be stored later
-	 *
-	 * We want to store the original data for later processing.
-	 * This function is meant for cases where we process a feed with multiple entries.
-	 * In that case we need to fetch the single posts here.
-	 *
-	 * @param string $self The link to the self item
-	 * @param array  $item The item array
-	 * @return void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	private static function fetchSelf(string $self, array &$item)
-	{
-		$condition = ['item-uri' => $self, 'protocol' => [Conversation::PARCEL_DFRN,
-			Conversation::PARCEL_DIASPORA_DFRN, Conversation::PARCEL_LOCAL_DFRN,
-			Conversation::PARCEL_DIRECT, Conversation::PARCEL_SALMON]];
-		if (DBA::exists('conversation', $condition)) {
-			Logger::info('Conversation '.$item['uri'].' is already stored.');
-			return;
-		}
-
-		$curlResult = DI::httpClient()->get($self, HttpClientAccept::ATOM_XML);
-
-		if (!$curlResult->isSuccess()) {
-			return;
-		}
-
-		// We reformat the XML to make it better readable
-		$doc = new DOMDocument();
-		$doc->loadXML($curlResult->getBody());
-		$doc->preserveWhiteSpace = false;
-		$doc->formatOutput = true;
-		$xml = $doc->saveXML();
-
-		$item['protocol'] = Conversation::PARCEL_SALMON;
-		$item['source'] = $xml;
-		$item['direction'] = Conversation::PULL;
-
-		Logger::info('Conversation '.$item['uri'].' is now fetched.');
 	}
 
 	/**
@@ -925,30 +732,6 @@ class OStatus
 	 */
 	private static function fetchRelated(string $related, string $related_uri, array $importer)
 	{
-		$condition = [
-			'item-uri' => $related_uri,
-			'protocol' => [
-				Conversation::PARCEL_DFRN,
-				Conversation::PARCEL_DIASPORA_DFRN,
-				Conversation::PARCEL_LOCAL_DFRN,
-				Conversation::PARCEL_DIRECT,
-				Conversation::PARCEL_SALMON,
-			],
-		];
-		$conversation = DBA::selectFirst('conversation', ['source', 'protocol'], $condition);
-		if (DBA::isResult($conversation)) {
-			$stored = true;
-			$xml = $conversation['source'];
-			if (self::process($xml, $importer, $contact, $hub, $stored, false, Conversation::PULL)) {
-				Logger::info('Got valid cached XML for URI '.$related_uri);
-				return;
-			}
-			if ($conversation['protocol'] == Conversation::PARCEL_SALMON) {
-				Logger::info('Delete invalid cached XML for URI '.$related_uri);
-				DBA::delete('conversation', ['item-uri' => $related_uri]);
-			}
-		}
-
 		$stored = false;
 		$curlResult = DI::httpClient()->get($related, HttpClientAccept::ATOM_XML);
 
@@ -1010,17 +793,6 @@ class OStatus
 			if ($curlResult->isSuccess()) {
 				Logger::info('GNU Social workaround 2 to fetch XML for URI ' . $related_uri);
 				$xml = $curlResult->getBody();
-			}
-		}
-
-		// Finally we take the data that we fetched from "ostatus:conversation"
-		if ($xml == '') {
-			$condition = ['item-uri' => $related_uri, 'protocol' => Conversation::PARCEL_SPLIT_CONVERSATION];
-			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
-			if (DBA::isResult($conversation)) {
-				$stored = true;
-				Logger::info('Got cached XML from conversation for URI ' . $related_uri);
-				$xml = $conversation['source'];
 			}
 		}
 
@@ -1130,10 +902,7 @@ class OStatus
 
 					case 'ostatus:conversation':
 						$link_data['conversation'] = $attribute['href'];
-						$item['conversation-href'] = $link_data['conversation'];
-						if (!isset($item['conversation-uri'])) {
-							$item['conversation-uri'] = $item['conversation-href'];
-						}
+						$item['conversation'] = $link_data['conversation'];
 						break;
 
 					case 'enclosure':
@@ -1904,19 +1673,7 @@ class OStatus
 		}
 
 		if (intval($item['parent']) > 0) {
-			$conversation_href = $conversation_uri = str_replace('/objects/', '/context/', $item['thr-parent']);
-
-			if (isset($parent_item)) {
-				$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $parent_item]);
-				if (DBA::isResult($conversation)) {
-					if ($conversation['conversation-uri'] != '') {
-						$conversation_uri = $conversation['conversation-uri'];
-					}
-					if ($conversation['conversation-href'] != '') {
-						$conversation_href = $conversation['conversation-href'];
-					}
-				}
-			}
+			$conversation_href = $conversation_uri = $item['conversation'];
 
 			XML::addElement($doc, $entry, 'link', '', ['rel' => 'ostatus:conversation', 'href' => $conversation_href]);
 
