@@ -22,9 +22,9 @@
 namespace Friendica\Module\Admin\Blocklist\Server;
 
 use Friendica\App;
-use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Moderation\DomainPatternBlocklist;
 use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
 use Friendica\Util\Profiler;
@@ -32,8 +32,8 @@ use Psr\Log\LoggerInterface;
 
 class Import extends \Friendica\Module\BaseAdmin
 {
-	/** @var IManageConfigValues */
-	private $config;
+	/** @var DomainPatternBlocklist */
+	private $localBlocklist;
 
 	/** @var SystemMessages */
 	private $sysmsg;
@@ -41,11 +41,11 @@ class Import extends \Friendica\Module\BaseAdmin
 	/** @var array of blocked server domain patterns */
 	private $blocklist = [];
 
-	public function __construct(IManageConfigValues $config, SystemMessages $sysmsg, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(DomainPatternBlocklist $localBlocklist, SystemMessages $sysmsg, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->config = $config;
+		$this->localBlocklist = $localBlocklist;
 		$this->sysmsg = $sysmsg;
 	}
 
@@ -62,63 +62,36 @@ class Import extends \Friendica\Module\BaseAdmin
 	{
 		self::checkAdminAccess();
 
-		if (!isset($_POST['page_blocklist_upload']) && !isset($_POST['page_blocklist_import'])) {
+		if (!isset($request['page_blocklist_upload']) && !isset($request['page_blocklist_import'])) {
 			return;
 		}
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/blocklist/server/import', 'admin_blocklist_import');
 
-		if (isset($_POST['page_blocklist_upload'])) {
-			if (($fp = fopen($_FILES['listfile']['tmp_name'], 'r')) !== false) {
-				$blocklist = [];
-				while (($data = fgetcsv($fp, 1000, ',')) !== false) {
-					$domain = $data[0];
-					if (count($data) == 0) {
-						$reason = 'blocked';
-					} else {
-						$reason = $data[1];
-					}
-
-					$blocklist[] = [
-						'domain' => $domain,
-						'reason' => $reason
-					];
-				}
-			} else {
+		if (isset($request['page_blocklist_upload'])) {
+			try {
+				$this->blocklist = $this->localBlocklist::extractFromCSVFile($_FILES['listfile']['tmp_name']);
+			} catch (\Throwable $e) {
 				$this->sysmsg->addNotice($this->l10n->t('Error importing pattern file'));
-				return;
 			}
-
-			$this->blocklist = $blocklist;
 
 			return;
 		}
 
-		if (isset($_POST['page_blocklist_import'])) {
-			$blocklist = json_decode($_POST['blocklist'], true);
+		if (isset($request['page_blocklist_import'])) {
+			$blocklist = json_decode($request['blocklist'], true);
 			if ($blocklist === null) {
 				$this->sysmsg->addNotice($this->l10n->t('Error importing pattern file'));
 				return;
 			}
 
-			if (($_POST['mode'] ?? 'append') == 'replace') {
-				$this->config->set('system', 'blocklist', $blocklist);
+			if (($request['mode'] ?? 'append') == 'replace') {
+				$this->localBlocklist->set($blocklist);
 				$this->sysmsg->addNotice($this->l10n->t('Local blocklist replaced with the provided file.'));
 			} else {
-				$localBlocklist = $this->config->get('system', 'blocklist', []);
-				$localPatterns  = array_column($localBlocklist, 'domain');
-
-				$importedPatterns = array_column($blocklist, 'domain');
-
-				$patternsToAppend = array_diff($importedPatterns, $localPatterns);
-
-				if (count($patternsToAppend)) {
-					foreach (array_keys($patternsToAppend) as $key) {
-						$localBlocklist[] = $blocklist[$key];
-					}
-
-					$this->config->set('system', 'blocklist', $localBlocklist);
-					$this->sysmsg->addNotice($this->l10n->tt('%d pattern was added to the local blocklist.', '%d patterns were added to the local blocklist.', count($patternsToAppend)));
+				$count = $this->localBlocklist->append($blocklist);
+				if ($count) {
+					$this->sysmsg->addNotice($this->l10n->tt('%d pattern was added to the local blocklist.', '%d patterns were added to the local blocklist.', $count));
 				} else {
 					$this->sysmsg->addNotice($this->l10n->t('No pattern was added to the local blocklist.'));
 				}
