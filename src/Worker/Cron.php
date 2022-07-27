@@ -115,7 +115,7 @@ class Cron
 
 			Worker::add(PRIORITY_LOW, 'ExpirePosts');
 
-			Worker::add(PRIORITY_LOW, 'ExpireConversations');
+			Worker::add(PRIORITY_LOW, 'ExpireActivities');
 
 			Worker::add(PRIORITY_LOW, 'RemoveUnusedTags');
 

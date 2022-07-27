@@ -21,11 +21,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\Core\Protocol;
-use Friendica\Database\Database;
-use Friendica\Database\DBA;
-use Friendica\Util\DateTimeFormat;
-
 class Conversation
 {
 	/*
@@ -62,61 +57,4 @@ class Conversation
 	 */
 	const RELAY   = 3;
 
-	public static function getByItemUri(string $item_uri)
-	{
-		return DBA::selectFirst('conversation', [], ['item-uri' => $item_uri]);
-	}
-
-	/**
-	 * Store the conversation data
-	 *
-	 * @param array $arr Item array with conversation data
-	 * @return array Item array with removed conversation data
-	 * @throws \Exception
-	 */
-	public static function insert(array $arr): array
-	{
-		if (in_array(($arr['network'] ?? '') ?: Protocol::PHANTOM,
-			[Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::TWITTER]) && !empty($arr['uri'])) {
-			$conversation = ['item-uri' => $arr['uri'], 'received' => DateTimeFormat::utcNow()];
-
-			if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {
-				$conversation['reply-to-uri'] = $arr['parent-uri'];
-			}
-
-			if (isset($arr['thr-parent']) && ($arr['thr-parent'] != $arr['uri'])) {
-				$conversation['reply-to-uri'] = $arr['thr-parent'];
-			}
-
-			if (isset($arr['conversation-uri'])) {
-				$conversation['conversation-uri'] = $arr['conversation-uri'];
-			}
-
-			if (isset($arr['conversation-href'])) {
-				$conversation['conversation-href'] = $arr['conversation-href'];
-			}
-
-			if (isset($arr['protocol'])) {
-				$conversation['protocol'] = $arr['protocol'];
-			}
-
-			if (isset($arr['direction'])) {
-				$conversation['direction'] = $arr['direction'];
-			}
-
-			if (isset($arr['source'])) {
-				$conversation['source'] = $arr['source'];
-			}
-
-			if (!DBA::exists('conversation', ['item-uri' => $conversation['item-uri']])) {
-				DBA::insert('conversation', $conversation, Database::INSERT_IGNORE);
-			}
-		}
-
-		unset($arr['conversation-uri']);
-		unset($arr['conversation-href']);
-		unset($arr['source']);
-
-		return $arr;
-	}
 }

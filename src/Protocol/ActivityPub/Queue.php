@@ -25,7 +25,9 @@ use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\JsonLD;
 
 /**
  * This class handles the processing of incoming posts
@@ -214,6 +216,7 @@ class Queue
 			Logger::debug('Process leftover entry', $entry);
 			self::process($entry['id']);
 		}
+		DBA::close($entries);
 	}
 
 	/**
@@ -247,5 +250,58 @@ class Queue
 		while ($entry = DBA::fetch($entries)) {
 			self::process($entry['id']);
 		}
+		DBA::close($entries);
+	}
+
+	/**
+	 * Prepare the queue entry.
+	 * This is a test function that is used solely for development.
+	 *
+	 * @param integer $id
+	 * @return array
+	 */
+	public static function reprepareActivityById(int $id): array
+	{
+		$entry = DBA::selectFirst('inbox-entry', [], ['id' => $id]);
+		if (empty($entry)) {
+			return [];
+		}
+
+		$receiver = DBA::selectFirst('inbox-entry-receiver', ['uid'], ['queue-id' => $id]);
+		if (!empty($receiver)) {
+			$uid = $receiver['uid'];
+		} else {
+			$uid = 0;
+		}
+
+		$trust_source = $entry['trust'];
+
+		$data     = json_decode($entry['activity'], true);
+		$activity = json_decode($data['raw'], true);
+
+		$ldactivity = JsonLD::compact($activity);
+		return [
+			'data'  => Receiver::prepareObjectData($ldactivity, $uid, $entry['push'], $trust_source),
+			'trust' => $trust_source
+		];
+	}
+
+	/**
+	 * Set the trust for all untrusted entries.
+	 * This is a test function that is used solely for development.
+	 *
+	 * @return void
+	 */
+	public static function reprepareAll()
+	{
+		$entries = DBA::select('inbox-entry', ['id'], ["NOT `trust` AND `wid` IS NULL"], ['order' => ['id' => true]]);
+		while ($entry = DBA::fetch($entries)) {
+			$data = self::reprepareActivityById($entry['id'], false);
+			if ($data['trust']) {
+				DBA::update('inbox-entry', ['trust' => true], ['id' => $entry['id']]);
+			}
+		}
+		DBA::close($entries);
+
 	}
 }

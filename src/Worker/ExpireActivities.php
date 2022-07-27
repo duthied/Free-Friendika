@@ -22,21 +22,15 @@
 namespace Friendica\Worker;
 
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
-class ExpireConversations
+class ExpireActivities
 {
 	/**
-	 * Delete old conversation entries
+	 * Delete old post-activity entries
 	 */
 	public static function execute()
 	{
-		$days = intval(DI::config()->get('system', 'dbclean_expire_conversation', 90));
-		if (empty($days)) {
-			return;
-		}
-
-		DBA::delete('conversation', ["`received` < ?", DateTimeFormat::utc('now - ' . $days . ' days')]);
+		DBA::delete('post-activity', ["`received` < ?", DateTimeFormat::utc('now - 7 days')]);
 	}
 }

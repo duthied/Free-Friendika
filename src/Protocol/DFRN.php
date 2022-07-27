@@ -810,27 +810,12 @@ class DFRN
 		}
 
 		// Add conversation data. This is used for OStatus
-		$conversation_href = DI::baseUrl()."/display/".$item["parent-guid"];
-		$conversation_uri = $conversation_href;
-
-		if (isset($parent_item)) {
-			$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $item['thr-parent']]);
-			if (DBA::isResult($conversation)) {
-				if ($conversation['conversation-uri'] != '') {
-					$conversation_uri = $conversation['conversation-uri'];
-				}
-				if ($conversation['conversation-href'] != '') {
-					$conversation_href = $conversation['conversation-href'];
-				}
-			}
-		}
-
 		$attributes = [
-			'href' => $conversation_href,
-			'ref' => $conversation_uri,
+			'href' => $item['conversation'],
+			'ref' => $item['conversation'],
 		];
 
-		XML::addElement($doc, $entry, 'ostatus:conversation', $conversation_uri, $attributes);
+		XML::addElement($doc, $entry, 'ostatus:conversation', $item['conversation'], $attributes);
 
 		XML::addElement($doc, $entry, 'id', $item['uri']);
 		XML::addElement($doc, $entry, 'title', $item['title']);
@@ -1994,16 +1979,16 @@ class DFRN
 			self::parseLinks($links, $item);
 		}
 
-		$item['conversation-uri'] = XML::getFirstNodeValue($xpath, 'ostatus:conversation/text()', $entry);
+		$item['conversation'] = XML::getFirstNodeValue($xpath, 'ostatus:conversation/text()', $entry);
 
 		$conv = $xpath->query('ostatus:conversation', $entry);
 		if (is_object($conv->item(0))) {
 			foreach ($conv->item(0)->attributes as $attributes) {
 				if ($attributes->name == 'ref') {
-					$item['conversation-uri'] = $attributes->textContent;
+					$item['conversation'] = $attributes->textContent;
 				}
 				if ($attributes->name == 'href') {
-					$item['conversation-href'] = $attributes->textContent;
+					$item['conversation'] = $attributes->textContent;
 				}
 			}
 		}

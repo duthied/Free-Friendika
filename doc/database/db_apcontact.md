@@ -21,6 +21,7 @@ Fields
 | featured-tags    | Address for the collection of featured tags                         | varchar(255)   | YES  |     | NULL                |       |
 | manually-approve |                                                                     | boolean        | YES  |     | NULL                |       |
 | discoverable     | Mastodon extension: true if profile is published in their directory | boolean        | YES  |     | NULL                |       |
+| suspended        | Mastodon extension: true if profile is suspended                    | boolean        | YES  |     | NULL                |       |
 | nick             |                                                                     | varchar(255)   | NO   |     |                     |       |
 | name             |                                                                     | varchar(255)   | YES  |     | NULL                |       |
 | about            |                                                                     | text           | YES  |     | NULL                |       |

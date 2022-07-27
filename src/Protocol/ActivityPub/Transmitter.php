@@ -1232,10 +1232,8 @@ class Transmitter
 		}
 
 		if (!$item['deleted']) {
-			$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
-			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
-			if (!$item['origin'] && DBA::isResult($conversation)) {
-				$data = json_decode($conversation['source'], true);
+			$data = Post\Activity::getByURIId($item['uri-id']);
+			if (!$item['origin'] && !empty($data)) {
 				if (!empty($data['type'])) {
 					if (in_array($data['type'], ['Create', 'Update'])) {
 						if ($object_mode) {

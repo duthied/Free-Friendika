@@ -361,8 +361,6 @@ class Processor
 		if (!empty($activity['raw'])) {
 			$item['source'] = $activity['raw'];
 			$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
-			$item['conversation-href'] = $activity['context'] ?? '';
-			$item['conversation-uri'] = $activity['conversation'] ?? '';
 
 			if (isset($activity['push'])) {
 				$item['direction'] = $activity['push'] ? Conversation::PUSH : Conversation::PULL;
@@ -475,7 +473,19 @@ class Processor
 		}
 
 		// @todo To ensure that the remote system is working correctly, we can check if the "Content-Type" contains JSON
-		return in_array($curlResult->getReturnCode(), [404]);
+		if (in_array($curlResult->getReturnCode(), [404])) {
+			return true;
+		}
+
+		$object = json_decode($curlResult->getBody(), true);
+		if (!empty($object)) {
+			$activity = JsonLD::compact($object);
+			if (JsonLD::fetchElement($activity, '@type') == 'as:Tombstone') {
+				return true;
+			}			
+		}
+
+		return false;
 	}
 	/**
 	 * Delete items

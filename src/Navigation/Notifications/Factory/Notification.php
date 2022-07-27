@@ -163,9 +163,10 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 				}
 
 				if (($Notification->verb == Activity::POST) || ($Notification->type === Post\UserNotification::TYPE_SHARED)) {
-					$item = Post::selectFirst([], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
+					$thrparentid = $item['thr-parent-id'];
+					$item = Post::selectFirst([], ['uri-id' => $thrparentid, 'uid' => [0, $Notification->uid]], ['order' => ['uid' => true]]);
 					if (empty($item)) {
-						$this->logger->info('Thread parent post not found', ['uri-id' => $item['thr-parent-id']]);
+						$this->logger->info('Thread parent post not found', ['uri-id' => $thrparentid]);
 						return $message;
 					}
 				}

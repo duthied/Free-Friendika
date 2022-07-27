@@ -595,16 +595,6 @@ function item_post(App $a) {
 	$datarray['protocol'] = Conversation::PARCEL_DIRECT;
 	$datarray['direction'] = Conversation::PUSH;
 
-	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['thr-parent']]);
-	if (DBA::isResult($conversation)) {
-		if ($conversation['conversation-uri'] != '') {
-			$datarray['conversation-uri'] = $conversation['conversation-uri'];
-		}
-		if ($conversation['conversation-href'] != '') {
-			$datarray['conversation-href'] = $conversation['conversation-href'];
-		}
-	}
-
 	if ($orig_post) {
 		$datarray['edit'] = true;
 	} else {

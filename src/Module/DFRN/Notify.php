@@ -59,7 +59,7 @@ class Notify extends BaseModule
 		}
 	}
 
-	private static function dispatchPublic(array $postdata)
+	private static function dispatchPublic(string $postdata)
 	{
 		$msg = Diaspora::decodeRaw($postdata, '', true);
 		if (!is_array($msg)) {
