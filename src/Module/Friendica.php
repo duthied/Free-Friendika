@@ -76,12 +76,13 @@ class Friendica extends BaseModule
 
 		if (!empty($blockList)) {
 			$blocked = [
-				'title'  => DI::l10n()->t('On this server the following remote servers are blocked.'),
-				'header' => [
+				'title'    => DI::l10n()->t('On this server the following remote servers are blocked.'),
+				'header'   => [
 					DI::l10n()->t('Blocked domain'),
 					DI::l10n()->t('Reason for the block'),
 				],
-				'list'   => $blockList,
+				'download' => DI::l10n()->t('Download this list in CSV format'),
+				'list'     => $blockList,
 			];
 		} else {
 			$blocked = null;

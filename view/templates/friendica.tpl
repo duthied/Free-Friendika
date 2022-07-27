@@ -1,28 +1,22 @@
-<div id="friendica" class="generic-page-wrapper">
+<div id="friendica">
 	<h1>Friendica</h1>
-	<br>
 	<p>{{$about nofilter}}</p>
-	<br>
 	<p>{{$friendica nofilter}}</p>
-	<br>
 	<p>{{$bugs nofilter}}</p>
-	<br>
 	<p>{{$info nofilter}}</p>
-	<br>
 
 	<p>{{$visible_addons.title nofilter}}</p>
-	{{if $visible_addons.list}}
+{{if $visible_addons.list}}
 	<div style="margin-left: 25px; margin-right: 25px; margin-bottom: 25px;">{{$visible_addons.list}}</div>
-	{{/if}}
+{{/if}}
 
-	{{if $tos}}
+{{if $tos}}
 	<p>{{$tos nofilter}}</p>
-	{{/if}}
+{{/if}}
 
-	{{if $block_list}}
+{{if $block_list}}
 	<div id="about_blocklist">
 		<p>{{$block_list.title}}</p>
-		<br>
 		<table class="table">
 			<thead>
 				<tr>
@@ -39,9 +33,9 @@
 			{{/foreach}}
 			</tbody>
 		</table>
+		<p><a href="/blocklist/domain/download"><i class="fa fa-download"></i> {{$block_list.download}}</a></p>
 	</div>
+{{/if}}
 
-	{{/if}}
-
-{{$hooked nofilter}}
+	{{$hooked nofilter}}
 </div>

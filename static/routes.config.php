@@ -353,6 +353,9 @@ return [
 	'/attach/{item:\d+}'   => [Module\Attach::class,       [R::GET]],
 	'/babel'               => [Module\Debug\Babel::class,  [R::GET, R::POST]],
 	'/debug/ap'            => [Module\Debug\ActivityPubConversion::class,  [R::GET, R::POST]],
+
+	'/blocklist/domain/download' => [Module\Blocklist\Domain\Download::class, [R::GET]],
+
 	'/bookmarklet'         => [Module\Bookmarklet::class,  [R::GET]],
 
 	'/community[/{content}]' => [Module\Conversation\Community::class, [R::GET]],
