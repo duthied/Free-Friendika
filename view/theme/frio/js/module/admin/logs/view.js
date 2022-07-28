@@ -64,10 +64,16 @@ $(function(){
 		});
 
 		var elm = $modal.find(".event-data")[0];
+		const event_data_header = $modal.find(".event-data-header")[0];
+
+		// Cleanup event data
+		event_data_header.hidden = true;
 		elm.innerHTML = "";
+
+		// Fill out event data
 		var data = element.dataset.data;
 		if (data !== "") {
-			elm.innerHTML = "<h3>Data</h3>";
+			event_data_header.hidden = false;
 			data = JSON.parse(data);
 			elm.innerHTML += recursive_details("", data);
 		}
