@@ -31,8 +31,6 @@ use Friendica\Util\Emailer;
 
 class DomainPatternBlocklist
 {
-	const DEFAULT_REASON = 'blocked';
-
 	/** @var IManageConfigValues */
 	private $config;
 
@@ -73,11 +71,11 @@ class DomainPatternBlocklist
 	}
 
 	/**
-	 * @param string      $pattern
-	 * @param string|null $reason
+	 * @param string $pattern
+	 * @param string $reason
 	 * @return int 0 if the block list couldn't be saved, 1 if the pattern was added, 2 if it was updated in place
 	 */
-	public function addPattern(string $pattern, string $reason = null): int
+	public function addPattern(string $pattern, string $reason): int
 	{
 		$update = false;
 
@@ -86,7 +84,7 @@ class DomainPatternBlocklist
 			if ($blocked['domain'] === $pattern) {
 				$blocklist[] = [
 					'domain' => $pattern,
-					'reason' => $reason ?? self::DEFAULT_REASON,
+					'reason' => $reason,
 				];
 
 				$update = true;
@@ -98,7 +96,7 @@ class DomainPatternBlocklist
 		if (!$update) {
 			$blocklist[] = [
 				'domain' => $pattern,
-				'reason' => $reason ?? self::DEFAULT_REASON,
+				'reason' => $reason,
 			];
 		}
 
@@ -179,18 +177,11 @@ class DomainPatternBlocklist
 
 		$blocklist = [];
 		while (($data = fgetcsv($fp, 1000)) !== false) {
-			$domain = $data[0];
-			if (count($data) == 0) {
-				$reason = self::DEFAULT_REASON;
-			} else {
-				$reason = $data[1];
-			}
-
-			$data = [
-				'domain' => $domain,
-				'reason' => $reason
+			$item = [
+				'domain' => $data[0],
+				'reason' => $data[1] ?? '',
 			];
-			if (!in_array($data, $blocklist)) {
+			if (!in_array($item, $blocklist)) {
 				$blocklist[] = $data;
 			}
 		}

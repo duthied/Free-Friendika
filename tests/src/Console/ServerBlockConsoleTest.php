@@ -94,25 +94,6 @@ CONS;
 	}
 
 	/**
-	 * Test blockedservers add command with the default reason
-	 */
-	public function testAddBlockedServerWithDefaultReason()
-	{
-		$this->blocklistMock
-			->shouldReceive('addPattern')
-			->with('testme.now', DomainPatternBlocklist::DEFAULT_REASON)
-			->andReturn(1)
-			->once();
-
-		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
-		$console->setArgument(0, 'add');
-		$console->setArgument(1, 'testme.now');
-		$txt = $this->dumpExecute($console);
-
-		self::assertEquals('The domain pattern \'testme.now\' is now blocked. (Reason: \'' . DomainPatternBlocklist::DEFAULT_REASON . '\')' . "\n", $txt);
-	}
-
-	/**
 	 * Test blockedservers add command on existed domain
 	 */
 	public function testUpdateBlockedServer()
@@ -170,16 +151,16 @@ CONS;
 	{
 		$this->blocklistMock
 			->shouldReceive('removePattern')
-			->with('not.exiting')
+			->with('not.existing')
 			->andReturn(1)
 			->once();
 
 		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'remove');
-		$console->setArgument(1, 'not.exiting');
+		$console->setArgument(1, 'not.existing');
 		$txt = $this->dumpExecute($console);
 
-		self::assertEquals('The domain pattern \'not.exiting\' wasn\'t blocked.' . "\n", $txt);
+		self::assertEquals('The domain pattern \'not.existing\' wasn\'t blocked.' . "\n", $txt);
 	}
 
 	/**
@@ -191,7 +172,14 @@ CONS;
 		$console->setArgument(0, 'add');
 		$txt = $this->dumpExecute($console);
 
-		self::assertStringStartsWith('[Warning] Add needs a domain pattern and optionally a reason.', $txt);
+		self::assertStringStartsWith('[Warning] Add needs a domain pattern and a reason.', $txt);
+
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
+		$console->setArgument(0, 'add');
+		$console->setArgument(1, 'testme.now');
+		$txt = $this->dumpExecute($console);
+
+		self::assertStringStartsWith('[Warning] Add needs a domain pattern and a reason.', $txt);
 	}
 
 	/**
@@ -201,13 +189,14 @@ CONS;
 	{
 		$this->blocklistMock
 			->shouldReceive('addPattern')
-			->with('testme.now', DomainPatternBlocklist::DEFAULT_REASON)
+			->with('testme.now', 'I like it!')
 			->andReturn(0)
 			->once();
 
 		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'testme.now');
+		$console->setArgument(2, 'I like it!');
 		$txt = $this->dumpExecute($console);
 
 		self::assertEquals('Couldn\'t save \'testme.now\' as blocked domain pattern' . "\n", $txt);

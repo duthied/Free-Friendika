@@ -155,12 +155,12 @@ HELP;
 	 */
 	private function addBlockedServer(): int
 	{
-		if (count($this->args) < 2 || count($this->args) > 3) {
-			throw new CommandArgsException('Add needs a domain pattern and optionally a reason.');
+		if (count($this->args) != 3) {
+			throw new CommandArgsException('Add needs a domain pattern and a reason.');
 		}
 
 		$pattern = $this->getArgument(1);
-		$reason  = (count($this->args) === 3) ? $this->getArgument(2) : DomainPatternBlocklist::DEFAULT_REASON;
+		$reason  = $this->getArgument(2);
 
 		$result = $this->blocklist->addPattern($pattern, $reason);
 		if ($result) {
