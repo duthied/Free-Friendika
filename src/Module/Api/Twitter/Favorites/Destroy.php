@@ -37,7 +37,7 @@ class Destroy extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$id = $request['id'] ?? 0;
+		$id = $this->getRequestValue($request, 'id', 0);
 
 		if (empty($id)) {
 			throw new BadRequestException('Item id not specified');

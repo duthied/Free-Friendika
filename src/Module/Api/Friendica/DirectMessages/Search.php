@@ -77,7 +77,7 @@ class Search extends BaseApi
 		} else {
 			$ret = [];
 			foreach ($mails as $mail) {
-				$ret[] = $this->directMessage->createFromMailId($mail['id'], $uid, $request['getText'] ?? '');
+				$ret[] = $this->directMessage->createFromMailId($mail['id'], $uid, $this->getRequestValue($request, 'getText', ''));
 			}
 			$success = ['success' => true, 'search_results' => $ret];
 		}

@@ -50,7 +50,7 @@ class Conversation extends BaseApi
 		$start = max(0, ($page - 1) * $count);
 
 		if ($id == 0) {
-			$id = $request['id'] ?? 0;
+			$id = $this->getRequestValue($request, 'id', 0);
 		}
 
 		Logger::info(BaseApi::LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);

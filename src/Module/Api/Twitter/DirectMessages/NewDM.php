@@ -63,7 +63,7 @@ class NewDM extends BaseApi
 			return;
 		}
 
-		$cid = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, 0);
+		$cid = BaseApi::getContactIDForSearchterm($this->getRequestValue($request, 'screen_name', ''), $this->getRequestValue($request, 'profileurl', ''), $this->getRequestValue($request, 'user_id', 0), 0);
 		if (empty($cid)) {
 			throw new NotFoundException('Recipient not found');
 		}
@@ -86,7 +86,7 @@ class NewDM extends BaseApi
 		$id = Mail::send($cdata['user'], $request['text'], $sub, $replyto);
 
 		if ($id > -1) {
-			$ret = $this->directMessage->createFromMailId($id, $uid, $request['getText'] ?? '');
+			$ret = $this->directMessage->createFromMailId($id, $uid, $this->getRequestValue($request, 'getText', ''));
 		} else {
 			$ret = ['error' => $id];
 		}

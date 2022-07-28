@@ -34,6 +34,6 @@ class Conversation extends DirectMessagesEndpoint
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		$this->getMessages($request, $uid, ["`parent-uri` = ?", $request['uri'] ?? '']);
+		$this->getMessages($request, $uid, ["`parent-uri` = ?", $this->getRequestValue($request, 'uri', '')]);
 	}
 }

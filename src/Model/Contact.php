@@ -2969,7 +2969,7 @@ class Contact
 
 		$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 
-		DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
+		DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $contact['public']]);
 	}
 
 	/**

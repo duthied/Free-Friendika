@@ -45,7 +45,7 @@ class Feed extends BaseModule
 {
 	protected function rawContent(array $request = [])
 	{
-		$last_update = $request['last_update'] ?? '';
+		$last_update = $this->getRequestValue($request, 'last_update', '');
 		$nocache     = !empty($request['nocache']) && local_user();
 
 		$type = null;

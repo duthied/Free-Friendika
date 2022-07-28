@@ -42,7 +42,7 @@ class UserTimeline extends BaseApi
 
 		Logger::info('api_statuses_user_timeline', ['api_user' => $uid, '_REQUEST' => $request]);
 
-		$cid              = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, $uid);
+		$cid              = BaseApi::getContactIDForSearchterm($this->getRequestValue($request, 'screen_name', ''), $this->getRequestValue($request, 'profileurl', ''), $this->getRequestValue($request, 'user_id', 0), $uid);
 		$count            = $this->getRequestValue($request, 'count', 20, 1, 100);
 		$page             = $this->getRequestValue($request, 'page', 1, 1);
 		$since_id         = $this->getRequestValue($request, 'since_id', 0, 0);

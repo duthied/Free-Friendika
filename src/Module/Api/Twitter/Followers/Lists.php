@@ -37,7 +37,7 @@ class Lists extends ContactEndpoint
 		$uid = BaseApi::getCurrentUserID();
 
 		// Expected value for user_id parameter: public/user contact id
-		$cid                   = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, $uid);
+		$cid                   = BaseApi::getContactIDForSearchterm($this->getRequestValue($request, 'screen_name', ''), $this->getRequestValue($request, 'profileurl', ''), $this->getRequestValue($request, 'user_id', 0), $uid);
 		$cursor                = $this->getRequestValue($request, 'cursor', -1);
 		$skip_status           = $this->getRequestValue($request, 'skip_status', false);
 		$include_user_entities = $this->getRequestValue($request, 'include_user_entities', false);
