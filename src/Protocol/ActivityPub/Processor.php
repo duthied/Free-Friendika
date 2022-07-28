@@ -303,7 +303,7 @@ class Processor
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			$recursion_depth = $activity['recursion-depth'] ?? 0;
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
-			if ($recursion_depth < 10) {
+			if ($recursion_depth < DI::config()->get('system', 'max_recursion_depth')) {
 				$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 				if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
 					// Recursively delete this and all depending entries

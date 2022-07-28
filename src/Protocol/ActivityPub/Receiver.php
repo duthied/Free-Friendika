@@ -592,7 +592,7 @@ class Receiver
 			return;
 		}
 
-		if (!empty($object_data['entry-id']) && ($push || ($activity['completion-mode'] == self::COMPLETION_RELAY))) {
+		if (!empty($object_data['entry-id']) && DI::config()->get('system', 'decoupled_receiver') && ($push || ($activity['completion-mode'] == self::COMPLETION_RELAY))) {
 			// We delay by 5 seconds to allow to accumulate all receivers
 			$delayed = date(DateTimeFormat::MYSQL, time() + 5);
 			Logger::debug('Initiate processing', ['id' => $object_data['entry-id'], 'uri' => $object_data['object_id']]);

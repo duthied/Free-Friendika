@@ -352,11 +352,11 @@ class Photo extends BaseModule
 				}
 				if (empty($mimetext)) {
 					if ($customsize <= Proxy::PIXEL_MICRO) {
-						$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
+						$url = Contact::getDefaultAvatar($contact ?: [], Proxy::SIZE_MICRO);
 					} elseif ($customsize <= Proxy::PIXEL_THUMB) {
-						$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
+						$url = Contact::getDefaultAvatar($contact ?: [], Proxy::SIZE_THUMB);
 					} else {
-						$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
+						$url = Contact::getDefaultAvatar($contact ?: [], Proxy::SIZE_SMALL);
 					}
 				}
 				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext);

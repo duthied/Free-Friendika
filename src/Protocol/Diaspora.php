@@ -3114,7 +3114,7 @@ class Diaspora
 			Logger::notice('Empty addr', ['contact' => $contact ?? [], 'callstack' => System::callstack(20)]);
 		}
 
-		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $pubkey, $public_batch);
+		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $pubkey ?? '', $public_batch);
 
 		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, $guid);
 
