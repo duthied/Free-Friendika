@@ -1357,15 +1357,15 @@ class Diaspora
 		}
 
 		$fields = [
-			'url' => $data['url'],
-			'nurl' => Strings::normaliseLink($data['url']),
-			'name' => $data['name'],
-			'nick' => $data['nick'],
-			'addr' => $data['addr'],
-			'batch' => $data['batch'],
-			'notify' => $data['notify'],
-			'poll' => $data['poll'],
-			'network' => $data['network']
+			'url'     => $data['url'],
+			'nurl'    => Strings::normaliseLink($data['url']),
+			'name'    => $data['name'],
+			'nick'    => $data['nick'],
+			'addr'    => $data['addr'],
+			'batch'   => $data['batch'],
+			'notify'  => $data['notify'],
+			'poll'    => $data['poll'],
+			'network' => $data['network'],
 		];
 
 		Contact::update($fields, ['addr' => $old_handle]);
