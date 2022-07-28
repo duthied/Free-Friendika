@@ -39,13 +39,13 @@ class OpenWebAuthToken
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	public static function create(string $type, uid $uid, string $token, string $meta)
+	public static function create(string $type, int $uid, string $token, string $meta)
 	{
 		$fields = [
-			'type' => $type,
-			'uid' => $uid,
-			'token' => $token,
-			'meta' => $meta,
+			'type'    => $type,
+			'uid'     => $uid,
+			'token'   => $token,
+			'meta'    => $meta,
 			'created' => DateTimeFormat::utcNow()
 		];
 		return DBA::insert('openwebauth-token', $fields);

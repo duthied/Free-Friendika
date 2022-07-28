@@ -67,6 +67,7 @@ class Receive extends BaseModule
 	/**
 	 * Receive a public Diaspora posting
 	 *
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -84,6 +85,7 @@ class Receive extends BaseModule
 	/**
 	 * Receive a Diaspora posting for a user
 	 *
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -127,7 +129,7 @@ class Receive extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private function decodePost(bool $public = true, string $privKey = '')
+	private function decodePost(bool $public = true, string $privKey = ''): array
 	{
 		if (empty($_POST['xml'])) {
 
