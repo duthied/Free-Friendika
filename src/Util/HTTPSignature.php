@@ -508,7 +508,7 @@ class HTTPSignature
 				return false;
 			}
 
-			$actor = JsonLD::fetchElement($object, 'actor', 'id');
+			$actor = JsonLD::fetchElement($object, 'actor', 'id') ?? '';
 		} else {
 			$actor = '';
 		}

@@ -797,6 +797,7 @@ class OStatus
 		}
 
 		if ($xml != '') {
+			$hub = '';
 			self::process($xml, $importer, $contact, $hub, $stored, false, Conversation::PULL);
 		} else {
 			Logger::info('XML could not be fetched for URI: ' . $related_uri . ' - href: ' . $related);
