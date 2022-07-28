@@ -208,13 +208,6 @@ class Receiver
 			Logger::notice('Relayed message had not been fetched', ['id' => $object_id, 'actor' => $actor]);
 			return;
 		}
-
-		$item_id = Item::searchByLink($object_id);
-		if ($item_id) {
-			Logger::info('Relayed message had been fetched and stored', ['id' => $object_id, 'item' => $item_id, 'actor' => $actor]);
-		} else {
-			Logger::notice('Relayed message had not been stored', ['id' => $object_id, 'actor' => $actor]);
-		}
 	}
 
 	/**
@@ -599,9 +592,10 @@ class Receiver
 			return;
 		}
 
-		if ($push) {
+		if (!empty($object_data['entry-id']) && ($push || ($activity['completion-mode'] == self::COMPLETION_RELAY))) {
 			// We delay by 5 seconds to allow to accumulate all receivers
 			$delayed = date(DateTimeFormat::MYSQL, time() + 5);
+			Logger::debug('Initiate processing', ['id' => $object_data['entry-id'], 'uri' => $object_data['object_id']]);
 			Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'ProcessQueue', $object_data['entry-id']);
 			return;
 		}

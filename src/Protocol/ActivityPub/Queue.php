@@ -126,14 +126,6 @@ class Queue
 			return;
 		}
 
-		$children = DBA::select('inbox-entry', ['id'], ['in-reply-to-id' => $entry['object-id']]);
-		while ($child = DBA::fetch($children)) {
-			if ($id == $child['id']) {
-				continue;
-			}
-			self::deleteById($child['id']);
-		}
-		DBA::close($children);
 		DBA::delete('inbox-entry', ['id' => $entry['id']]);
 	}
 

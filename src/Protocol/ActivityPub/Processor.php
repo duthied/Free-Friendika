@@ -24,6 +24,7 @@ namespace Friendica\Protocol\ActivityPub;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
+use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -56,6 +57,7 @@ use Friendica\Worker\Delivery;
  */
 class Processor
 {
+	const CACHEKEY_FETCH_ACTIVITY = 'processor:fetchMissingActivity:';
 	/**
 	 * Extracts the tag character (#, @, !) from mention links
 	 *
@@ -1218,15 +1220,23 @@ class Processor
 			$uid = 0;
 		}
 
-		$object = ActivityPub::fetchContent($url, $uid);
-		if (empty($object)) {
-			Logger::notice('Activity was not fetchable, aborting.', ['url' => $url, 'uid' => $uid]);
-			return '';
-		}
+		$cachekey = self::CACHEKEY_FETCH_ACTIVITY . $url;
+		$object = DI::cache()->get($cachekey);
 
-		if (empty($object['id'])) {
-			Logger::notice('Activity has got not id, aborting. ', ['url' => $url, 'object' => $object]);
-			return '';
+		if (is_null($object)) {
+			$object = ActivityPub::fetchContent($url, $uid);
+			if (empty($object)) {
+				Logger::notice('Activity was not fetchable, aborting.', ['url' => $url, 'uid' => $uid]);
+				return '';
+			}
+
+			if (empty($object['id'])) {
+				Logger::notice('Activity has got not id, aborting. ', ['url' => $url, 'object' => $object]);
+				return '';
+			}
+			DI::cache()->set($cachekey, $object, Duration::FIVE_MINUTES);
+		} else {
+			Logger::debug('Fetch from cache', ['url' => $url]);
 		}
 
 		$signer = [];
