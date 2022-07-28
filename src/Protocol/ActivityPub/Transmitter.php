@@ -31,7 +31,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
-use Friendica\Model\Conversation;
 use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
