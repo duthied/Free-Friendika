@@ -164,6 +164,10 @@ return [
 		// Whether to use Memcache, Memcached, Redis or APCu to store temporary cache.
 		'cache_driver' => 'database',
 
+		// decoupled_receiver (Boolean)
+		// Decouple incoming AP posts by doing the processing in the background.
+		'decoupled_receiver' => true,
+
 		// distributed_cache_driver (database|memcache|memcached|redis)
 		// Whether to use database, Memcache, Memcached or Redis as a distributed cache.
 		'distributed_cache_driver' => 'database',
@@ -415,6 +419,10 @@ return [
 		// max_processes_frontend (Integer)
 		// Maximum number of concurrent database processes for foreground tasks.
 		'max_processes_frontend' => 20,
+
+		// max_recursion_depth (Integer)
+		// Maximum recursion depth when fetching posts until the job is delegated to a worker task.
+		'max_recursion_depth' => 10,
 
 		// maximagesize (Integer)
 		// Maximum size in bytes of an uploaded photo.
