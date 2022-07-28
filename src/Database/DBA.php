@@ -531,9 +531,9 @@ class DBA
 	}
 
 	/**
-	 * Escape an identifier (table or field name) optional with a schema like (schema.)table
+	 * Escape an identifier (table or field name) optional with a schema like ((schema.)table.)field
 	 *
-	 * @param $identifier Table, field name
+	 * @param string $identifier Table, field name
 	 * @return string Quotes table or field name
 	 */
 	public static function quoteIdentifier(string $identifier): string

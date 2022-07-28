@@ -21,58 +21,90 @@
 
 namespace Friendica\Module\Admin\Blocklist\Server;
 
+use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
+use Friendica\Moderation\DomainPatternBlocklist;
 use Friendica\Module\BaseAdmin;
+use Friendica\Module\Response;
+use Friendica\Navigation\SystemMessages;
+use Friendica\Util\Profiler;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Log\LoggerInterface;
 
 class Add extends BaseAdmin
 {
+	/** @var SystemMessages */
+	private $sysmsg;
+
+	/** @var DomainPatternBlocklist */
+	private $blocklist;
+
+	public function __construct(SystemMessages $sysmsg, DomainPatternBlocklist $blocklist, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->sysmsg    = $sysmsg;
+		$this->blocklist = $blocklist;
+	}
+
+	/**
+	 * @param array $request
+	 * @return void
+	 * @throws \Friendica\Network\HTTPException\ForbiddenException
+	 * @throws \Friendica\Network\HTTPException\FoundException
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Friendica\Network\HTTPException\MovedPermanentlyException
+	 * @throws \Friendica\Network\HTTPException\TemporaryRedirectException
+	 * @throws \Exception
+	 */
 	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
 
-		if (empty($_POST['page_blocklist_add'])) {
+		if (empty($request['page_blocklist_add'])) {
 			return;
 		}
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/blocklist/server/add', 'admin_blocklist_add');
 
+		$pattern = trim($request['pattern']);
+
 		//  Add new item to blocklist
-		$domain = trim($_POST['pattern']);
+		$this->blocklist->addPattern($pattern, trim($request['reason']));
 
-		$blocklist   = DI::config()->get('system', 'blocklist');
-		$blocklist[] = [
-			'domain' => $domain,
-			'reason' => trim($_POST['reason']),
-		];
-		DI::config()->set('system', 'blocklist', $blocklist);
+		$this->sysmsg->addInfo($this->l10n->t('Server domain pattern added to the blocklist.'));
 
-		info(DI::l10n()->t('Server domain pattern added to the blocklist.'));
-
-		if (!empty($_POST['purge'])) {
-			$gservers = GServer::listByDomainPattern($domain);
+		if (!empty($request['purge'])) {
+			$gservers = GServer::listByDomainPattern($pattern);
 			foreach (Contact::selectToArray(['id'], ['gsid' => array_column($gservers, 'id')]) as $contact) {
 				Worker::add(PRIORITY_LOW, 'Contact\RemoveContent', $contact['id']);
 			}
 
-			info(DI::l10n()->tt('%s server scheduled to be purged.', '%s servers scheduled to be purged.', count($gservers)));
+			$this->sysmsg->addInfo($this->l10n->tt('%s server scheduled to be purged.', '%s servers scheduled to be purged.', count($gservers)));
 		}
 
-		DI::baseUrl()->redirect('admin/blocklist/server');
+		$this->baseUrl->redirect('admin/blocklist/server');
 	}
 
+	/**
+	 * @param array $request
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 * @throws \Exception
+	 */
 	protected function content(array $request = []): string
 	{
 		parent::content();
 
 		$gservers = [];
 
-		if ($pattern = trim($_REQUEST['pattern'] ?? '')) {
+		if ($pattern = trim($request['pattern'] ?? '')) {
 			$gservers = GServer::listByDomainPattern($pattern);
 		}
 
@@ -85,28 +117,28 @@ class Add extends BaseAdmin
 		$t = Renderer::getMarkupTemplate('admin/blocklist/server/add.tpl');
 		return Renderer::replaceMacros($t, [
 			'$l10n' => [
-				'return_list' => DI::l10n()->t('← Return to the list'),
-				'title'       => DI::l10n()->t('Administration'),
-				'page'        => DI::l10n()->t('Block A New Server Domain Pattern'),
-				'syntax'      => DI::l10n()->t('<p>The server domain pattern syntax is case-insensitive shell wildcard, comprising the following special characters:</p>
+				'return_list' => $this->l10n->t('← Return to the list'),
+				'title'       => $this->l10n->t('Administration'),
+				'page'        => $this->l10n->t('Block A New Server Domain Pattern'),
+				'syntax'      => $this->l10n->t('<p>The server domain pattern syntax is case-insensitive shell wildcard, comprising the following special characters:</p>
 <ul>
 	<li><code>*</code>: Any number of characters</li>
 	<li><code>?</code>: Any single character</li>
 </ul>'),
-				'submit'           => DI::l10n()->t('Check pattern'),
-				'matching_servers' => DI::l10n()->t('Matching known servers'),
-				'server_name'      => DI::l10n()->t('Server Name'),
-				'server_domain'    => DI::l10n()->t('Server Domain'),
-				'known_contacts'   => DI::l10n()->t('Known Contacts'),
-				'server_count'     => DI::l10n()->tt('%d known server', '%d known servers', count($gservers)),
-				'add_pattern'      => DI::l10n()->t('Add pattern to the blocklist'),
+				'submit'           => $this->l10n->t('Check pattern'),
+				'matching_servers' => $this->l10n->t('Matching known servers'),
+				'server_name'      => $this->l10n->t('Server Name'),
+				'server_domain'    => $this->l10n->t('Server Domain'),
+				'known_contacts'   => $this->l10n->t('Known Contacts'),
+				'server_count'     => $this->l10n->tt('%d known server', '%d known servers', count($gservers)),
+				'add_pattern'      => $this->l10n->t('Add pattern to the blocklist'),
 			],
-			'$newdomain'           => ['pattern', DI::l10n()->t('Server Domain Pattern'), $pattern, DI::l10n()->t('The domain pattern of the new server to add to the blocklist. Do not include the protocol.'), DI::l10n()->t('Required'), '', ''],
-			'$newpurge'            => ['purge', DI::l10n()->t('Purge server'), $_REQUEST['purge'] ?? false, DI::l10n()->tt('Also purges all the locally stored content authored by the known contacts registered on that server. Keeps the contacts and the server records. This action cannot be undone.', 'Also purges all the locally stored content authored by the known contacts registered on these servers. Keeps the contacts and the servers records. This action cannot be undone.', count($gservers))],
-			'$newreason'           => ['reason', DI::l10n()->t('Block reason'), $_REQUEST['reason'] ?? '', DI::l10n()->t('The reason why you blocked this server domain pattern. This reason will be shown publicly in the server information page.'), DI::l10n()->t('Required'), '', ''],
+			'$newdomain'           => ['pattern', $this->l10n->t('Server Domain Pattern'), $pattern, $this->l10n->t('The domain pattern of the new server to add to the blocklist. Do not include the protocol.'), $this->l10n->t('Required'), '', ''],
+			'$newpurge'            => ['purge', $this->l10n->t('Purge server'), $request['purge'] ?? false, $this->l10n->tt('Also purges all the locally stored content authored by the known contacts registered on that server. Keeps the contacts and the server records. This action cannot be undone.', 'Also purges all the locally stored content authored by the known contacts registered on these servers. Keeps the contacts and the servers records. This action cannot be undone.', count($gservers))],
+			'$newreason'           => ['reason', $this->l10n->t('Block reason'), $request['reason'] ?? '', $this->l10n->t('The reason why you blocked this server domain pattern. This reason will be shown publicly in the server information page.'), $this->l10n->t('Required'), '', ''],
 			'$pattern'             => $pattern,
 			'$gservers'            => $gservers,
-			'$baseurl'             => DI::baseUrl()->get(true),
+			'$baseurl'             => $this->baseUrl->get(true),
 			'$form_security_token' => self::getFormSecurityToken('admin_blocklist_add')
 		]);
 	}

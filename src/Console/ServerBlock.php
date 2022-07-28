@@ -24,7 +24,7 @@ namespace Friendica\Console;
 use Asika\SimpleConsole\CommandArgsException;
 use Asika\SimpleConsole\Console;
 use Console_Table;
-use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Moderation\DomainPatternBlocklist;
 
 /**
  * Manage blocked servers
@@ -34,18 +34,14 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
  */
 class ServerBlock extends Console
 {
-	const DEFAULT_REASON = 'blocked';
-
 	protected $helpOptions = ['h', 'help', '?'];
 
-	/**
-	 * @var IManageConfigValues
-	 */
-	private $config;
+	/** @var DomainPatternBlocklist */
+	private $blocklist;
 
-	protected function getHelp()
+	protected function getHelp(): string
 	{
-		$help = <<<HELP
+		return <<<HELP
 console serverblock - Manage blocked server domain patterns
 Usage
     bin/console serverblock [-h|--help|-?] [-v]
@@ -69,214 +65,141 @@ Options
     -h|--help|-? Show help information
     -v           Show more debug information.
 HELP;
-		return $help;
 	}
 
-	public function __construct(IManageConfigValues $config, $argv = null)
+	public function __construct(DomainPatternBlocklist $blocklist, $argv = null)
 	{
 		parent::__construct($argv);
 
-		$this->config = $config;
+		$this->blocklist = $blocklist;
 	}
 
 	protected function doExecute(): int
 	{
 		if (count($this->args) == 0) {
-			$this->printBlockedServers($this->config);
+			$this->printBlockedServers();
 			return 0;
 		}
 
 		switch ($this->getArgument(0)) {
 			case 'add':
-				return $this->addBlockedServer($this->config);
+				return $this->addBlockedServer();
 			case 'remove':
-				return $this->removeBlockedServer($this->config);
+				return $this->removeBlockedServer();
 			case 'export':
-				return $this->exportBlockedServers($this->config);
+				return $this->exportBlockedServers();
 			case 'import':
-				return $this->importBlockedServers($this->config);
+				return $this->importBlockedServers();
 			default:
 				throw new CommandArgsException('Unknown command.');
-				break;
 		}
 	}
 
 	/**
-	 * Exports the list of blocked domains including the reason for the
+	 * Exports the list of blocked domain patterns including the reason for the
 	 * block to a CSV file.
 	 *
-	 * @param IManageConfigValues $config
+	 * @return int
+	 * @throws \Exception
 	 */
-	private function exportBlockedServers(IManageConfigValues $config)
+	private function exportBlockedServers(): int
 	{
 		$filename = $this->getArgument(1);
-		$blocklist = $config->get('system', 'blocklist', []);
-		$fp = fopen($filename, 'w');
-		if (!$fp) {
-			throw new Exception(sprintf('The file "%s" could not be created.', $filename));
-		}
-		foreach ($blocklist as $domain) {
-			fputcsv($fp, $domain);
-		}
+
+		$this->blocklist->exportToFile($filename);
 
 		// Success
 		return 0;
 	}
+
 	/**
-	 * Imports a list of domains and a reason for the block from a CSV
+	 * Imports a list of domain patterns and a reason for the block from a CSV
 	 * file, e.g. created with the export function.
 	 *
-	 * @param IManageConfigValues $config
+	 * @return int
+	 * @throws \Exception
 	 */
-	private function importBlockedServers(IManageConfigValues $config)
+	private function importBlockedServers(): int
 	{
 		$filename = $this->getArgument(1);
-		$currBlockList = $config->get('system', 'blocklist', []);
-		$newBlockList = [];
 
-		if (($fp = fopen($filename, 'r')) !== false) {
-			while (($data = fgetcsv($fp, 1000, ',')) !== false) {
-				$domain = $data[0];
-				if (count($data) == 0) {
-					$reason = self::DEFAULT_REASON;
-				} else {
-					$reason = $data[1];
-				}
-				$data = [
-					'domain' => $domain,
-					'reason' => $reason
-				];
-				if (!in_array($data, $newBlockList)) {
-					$newBlockList[] = $data;
-				}
-			}
+		$newBlockList = $this->blocklist::extractFromCSVFile($filename);
 
-			foreach ($currBlockList as $blocked) {
-				if (!in_array($blocked, $newBlockList)) {
-					$newBlockList[] = $blocked;
-				}
-			}
-
-			if ($config->set('system', 'blocklist', $newBlockList)) {
-				$this->out(sprintf("Entries from %s that were not blocked before are now blocked", $filename));
-				return 0;
-			} else {
-				$this->out(sprintf("Couldn't save '%s' as blocked server", $domain));
-				return 1;
-			}
-		} else {
-			throw new Exception(sprintf('The file "%s" could not be opened for importing', $filename));
-		}
-	}
-
-	/**
-	 * Prints the whole list of blocked domains including the reason
-	 *
-	 * @param IManageConfigValues $config
-	 */
-	private function printBlockedServers(IManageConfigValues $config)
-	{
-		$table = new Console_Table();
-		$table->setHeaders(['Domain', 'Reason']);
-		$blocklist = $config->get('system', 'blocklist', []);
-		foreach ($blocklist as $domain) {
-			$table->addRow($domain);
-		}
-		$this->out($table->getTable());
-
-		// Success
-		return 0;
-	}
-
-	/**
-	 * Adds a server to the blocked list
-	 *
-	 * @param IManageConfigValues $config
-	 *
-	 * @return int The return code (0 = success, 1 = failed)
-	 */
-	private function addBlockedServer(IManageConfigValues $config)
-	{
-		if (count($this->args) < 2 || count($this->args) > 3) {
-			throw new CommandArgsException('Add needs a domain and optional a reason.');
-		}
-
-		$domain = $this->getArgument(1);
-		$reason = (count($this->args) === 3) ? $this->getArgument(2) : self::DEFAULT_REASON;
-
-		$update = false;
-
-		$currBlockList = $config->get('system', 'blocklist', []);
-		$newBlockList = [];
-		foreach ($currBlockList  as $blocked) {
-			if ($blocked['domain'] === $domain) {
-				$update = true;
-				$newBlockList[] = [
-					'domain' => $domain,
-					'reason' => $reason,
-				];
-			} else {
-				$newBlockList[] = $blocked;
-			}
-		}
-
-		if (!$update) {
-			$newBlockList[] = [
-				'domain' => $domain,
-				'reason' => $reason,
-			];
-		}
-
-		if ($config->set('system', 'blocklist', $newBlockList)) {
-			if ($update) {
-				$this->out(sprintf("The domain '%s' is now updated. (Reason: '%s')", $domain, $reason));
-			} else {
-				$this->out(sprintf("The domain '%s' is now blocked. (Reason: '%s')", $domain, $reason));
-			}
+		if ($this->blocklist->append($newBlockList)) {
+			$this->out(sprintf("Entries from %s that were not blocked before are now blocked", $filename));
 			return 0;
 		} else {
-			$this->out(sprintf("Couldn't save '%s' as blocked server", $domain));
+			$this->out("Couldn't save the block list");
 			return 1;
 		}
 	}
 
 	/**
-	 * Removes a server from the blocked list
-	 *
-	 * @param IManageConfigValues $config
+	 * Prints the whole list of blocked domain patterns including the reason
+	 */
+	private function printBlockedServers(): void
+	{
+		$table = new Console_Table();
+		$table->setHeaders(['Pattern', 'Reason']);
+		foreach ($this->blocklist->get() as $pattern) {
+			$table->addRow($pattern);
+		}
+
+		$this->out($table->getTable());
+	}
+
+	/**
+	 * Adds a domain pattern to the block list
 	 *
 	 * @return int The return code (0 = success, 1 = failed)
 	 */
-	private function removeBlockedServer(IManageConfigValues $config)
+	private function addBlockedServer(): int
+	{
+		if (count($this->args) != 3) {
+			throw new CommandArgsException('Add needs a domain pattern and a reason.');
+		}
+
+		$pattern = $this->getArgument(1);
+		$reason  = $this->getArgument(2);
+
+		$result = $this->blocklist->addPattern($pattern, $reason);
+		if ($result) {
+			if ($result == 2) {
+				$this->out(sprintf("The domain pattern '%s' is now updated. (Reason: '%s')", $pattern, $reason));
+			} else {
+				$this->out(sprintf("The domain pattern '%s' is now blocked. (Reason: '%s')", $pattern, $reason));
+			}
+			return 0;
+		} else {
+			$this->out(sprintf("Couldn't save '%s' as blocked domain pattern", $pattern));
+			return 1;
+		}
+	}
+
+	/**
+	 * Removes a domain pattern from the block list
+	 *
+	 * @return int The return code (0 = success, 1 = failed)
+	 */
+	private function removeBlockedServer(): int
 	{
 		if (count($this->args) !== 2) {
 			throw new CommandArgsException('Remove needs a second parameter.');
 		}
 
-		$domain = $this->getArgument(1);
+		$pattern = $this->getArgument(1);
 
-		$found = false;
-
-		$currBlockList = $config->get('system', 'blocklist', []);
-		$newBlockList = [];
-		foreach ($currBlockList as $blocked) {
-			if ($blocked['domain'] === $domain) {
-				$found = true;
+		$result = $this->blocklist->removePattern($pattern);
+		if ($result) {
+			if ($result == 2) {
+				$this->out(sprintf("The domain pattern '%s' isn't blocked anymore", $pattern));
+				return 0;
 			} else {
-				$newBlockList[] = $blocked;
+				$this->out(sprintf("The domain pattern '%s' wasn't blocked.", $pattern));
+				return 1;
 			}
-		}
-
-		if (!$found) {
-			$this->out(sprintf("The domain '%s' is not blocked.", $domain));
-			return 1;
-		}
-
-		if ($config->set('system', 'blocklist', $newBlockList)) {
-			$this->out(sprintf("The domain '%s' is not more blocked", $domain));
-			return 0;
 		} else {
-			$this->out(sprintf("Couldn't remove '%s' from blocked servers", $domain));
+			$this->out(sprintf("Couldn't remove '%s' from blocked domain patterns", $pattern));
 			return 1;
 		}
 	}

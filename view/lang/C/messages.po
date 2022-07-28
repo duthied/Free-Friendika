@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-27 18:59+0000\n"
+"POT-Creation-Date: 2022-07-27 22:28-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -355,13 +355,13 @@ msgid "Event Starts:"
 msgstr ""
 
 #: mod/events.php:476 mod/events.php:506
-#: src/Module/Admin/Blocklist/Server/Add.php:104
-#: src/Module/Admin/Blocklist/Server/Add.php:106
-#: src/Module/Admin/Blocklist/Server/Import.php:155
-#: src/Module/Admin/Blocklist/Server/Index.php:68
-#: src/Module/Admin/Blocklist/Server/Index.php:69
-#: src/Module/Admin/Blocklist/Server/Index.php:98
-#: src/Module/Admin/Blocklist/Server/Index.php:99
+#: src/Module/Admin/Blocklist/Server/Add.php:136
+#: src/Module/Admin/Blocklist/Server/Add.php:138
+#: src/Module/Admin/Blocklist/Server/Import.php:128
+#: src/Module/Admin/Blocklist/Server/Index.php:84
+#: src/Module/Admin/Blocklist/Server/Index.php:85
+#: src/Module/Admin/Blocklist/Server/Index.php:113
+#: src/Module/Admin/Blocklist/Server/Index.php:114
 #: src/Module/Admin/Item/Delete.php:69 src/Module/Debug/Probe.php:59
 #: src/Module/Install.php:207 src/Module/Install.php:240
 #: src/Module/Install.php:245 src/Module/Install.php:264
@@ -4265,6 +4265,22 @@ msgid ""
 "\t\t\tThank you and welcome to %2$s."
 msgstr ""
 
+#: src/Moderation/DomainPatternBlocklist.php:144
+#, php-format
+msgid "[%s] Notice of remote server domain pattern block list update"
+msgstr ""
+
+#: src/Moderation/DomainPatternBlocklist.php:146
+#, php-format
+msgid ""
+"Dear %s,\n"
+"\n"
+"You are receiving this email because the Friendica node at %s where you are "
+"registered as a user updated their remote server domain pattern block list.\n"
+"\n"
+"Please review the updated list at %s at your earliest convenience."
+msgstr ""
+
 #: src/Module/Admin/Addons/Details.php:65
 msgid "Addon not found."
 msgstr ""
@@ -4291,9 +4307,9 @@ msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:111 src/Module/Admin/Addons/Index.php:67
 #: src/Module/Admin/Blocklist/Contact.php:94
-#: src/Module/Admin/Blocklist/Server/Add.php:89
-#: src/Module/Admin/Blocklist/Server/Import.php:144
-#: src/Module/Admin/Blocklist/Server/Index.php:78
+#: src/Module/Admin/Blocklist/Server/Add.php:121
+#: src/Module/Admin/Blocklist/Server/Import.php:117
+#: src/Module/Admin/Blocklist/Server/Index.php:93
 #: src/Module/Admin/Federation.php:200 src/Module/Admin/Item/Delete.php:64
 #: src/Module/Admin/Logs/Settings.php:79 src/Module/Admin/Logs/View.php:84
 #: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:433
@@ -4509,32 +4525,32 @@ msgid ""
 msgstr ""
 
 #: src/Module/Admin/Blocklist/Contact.php:118
-#: src/Module/Admin/Blocklist/Server/Import.php:150
+#: src/Module/Admin/Blocklist/Server/Import.php:123
 msgid "Block Reason"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:55
+#: src/Module/Admin/Blocklist/Server/Add.php:80
 msgid "Server domain pattern added to the blocklist."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:63
+#: src/Module/Admin/Blocklist/Server/Add.php:88
 #, php-format
 msgid "%s server scheduled to be purged."
 msgid_plural "%s servers scheduled to be purged."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:88
-#: src/Module/Admin/Blocklist/Server/Import.php:143
+#: src/Module/Admin/Blocklist/Server/Add.php:120
+#: src/Module/Admin/Blocklist/Server/Import.php:116
 msgid "← Return to the list"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:90
+#: src/Module/Admin/Blocklist/Server/Add.php:122
 msgid "Block A New Server Domain Pattern"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:91
-#: src/Module/Admin/Blocklist/Server/Index.php:82
+#: src/Module/Admin/Blocklist/Server/Add.php:123
+#: src/Module/Admin/Blocklist/Server/Index.php:97
 msgid ""
 "<p>The server domain pattern syntax is case-insensitive shell wildcard, "
 "comprising the following special characters:</p>\n"
@@ -4544,55 +4560,55 @@ msgid ""
 "</ul>"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:96
-#: src/Module/Admin/Blocklist/Server/Index.php:90
+#: src/Module/Admin/Blocklist/Server/Add.php:128
+#: src/Module/Admin/Blocklist/Server/Index.php:105
 msgid "Check pattern"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:97
+#: src/Module/Admin/Blocklist/Server/Add.php:129
 msgid "Matching known servers"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:98
+#: src/Module/Admin/Blocklist/Server/Add.php:130
 msgid "Server Name"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:99
+#: src/Module/Admin/Blocklist/Server/Add.php:131
 msgid "Server Domain"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:100
+#: src/Module/Admin/Blocklist/Server/Add.php:132
 msgid "Known Contacts"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:101
+#: src/Module/Admin/Blocklist/Server/Add.php:133
 #, php-format
 msgid "%d known server"
 msgid_plural "%d known servers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:102
+#: src/Module/Admin/Blocklist/Server/Add.php:134
 msgid "Add pattern to the blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:104
-#: src/Module/Admin/Blocklist/Server/Index.php:99
+#: src/Module/Admin/Blocklist/Server/Add.php:136
+#: src/Module/Admin/Blocklist/Server/Index.php:114
 msgid "Server Domain Pattern"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:104
-#: src/Module/Admin/Blocklist/Server/Index.php:99
+#: src/Module/Admin/Blocklist/Server/Add.php:136
+#: src/Module/Admin/Blocklist/Server/Index.php:114
 msgid ""
 "The domain pattern of the new server to add to the blocklist. Do not include "
 "the protocol."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:105
+#: src/Module/Admin/Blocklist/Server/Add.php:137
 msgid "Purge server"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:105
+#: src/Module/Admin/Blocklist/Server/Add.php:137
 msgid ""
 "Also purges all the locally stored content authored by the known contacts "
 "registered on that server. Keeps the contacts and the server records. This "
@@ -4604,154 +4620,154 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:106
+#: src/Module/Admin/Blocklist/Server/Add.php:138
 msgid "Block reason"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Add.php:106
+#: src/Module/Admin/Blocklist/Server/Add.php:138
 msgid ""
 "The reason why you blocked this server domain pattern. This reason will be "
 "shown publicly in the server information page."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:88
-#: src/Module/Admin/Blocklist/Server/Import.php:100
+#: src/Module/Admin/Blocklist/Server/Import.php:75
+#: src/Module/Admin/Blocklist/Server/Import.php:84
 msgid "Error importing pattern file"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:106
+#: src/Module/Admin/Blocklist/Server/Import.php:90
 msgid "Local blocklist replaced with the provided file."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:121
+#: src/Module/Admin/Blocklist/Server/Import.php:94
 #, php-format
 msgid "%d pattern was added to the local blocklist."
 msgid_plural "%d patterns were added to the local blocklist."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:123
+#: src/Module/Admin/Blocklist/Server/Import.php:96
 msgid "No pattern was added to the local blocklist."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:145
+#: src/Module/Admin/Blocklist/Server/Import.php:118
 msgid "Import a Server Domain Pattern Blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:146
+#: src/Module/Admin/Blocklist/Server/Import.php:119
 msgid ""
 "<p>This file can be downloaded from the <code>/friendica</code> path of any "
 "Friendica server.</p>"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:147
-#: src/Module/Admin/Blocklist/Server/Index.php:89
+#: src/Module/Admin/Blocklist/Server/Import.php:120
+#: src/Module/Admin/Blocklist/Server/Index.php:104
 msgid "Upload file"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:148
+#: src/Module/Admin/Blocklist/Server/Import.php:121
 msgid "Patterns to import"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:149
+#: src/Module/Admin/Blocklist/Server/Import.php:122
 msgid "Domain Pattern"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:151
+#: src/Module/Admin/Blocklist/Server/Import.php:124
 msgid "Import Mode"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:152
+#: src/Module/Admin/Blocklist/Server/Import.php:125
 msgid "Import Patterns"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:153
+#: src/Module/Admin/Blocklist/Server/Import.php:126
 #, php-format
 msgid "%d total pattern"
 msgid_plural "%d total patterns"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:155
-#: src/Module/Admin/Blocklist/Server/Index.php:98
+#: src/Module/Admin/Blocklist/Server/Import.php:128
+#: src/Module/Admin/Blocklist/Server/Index.php:113
 msgid "Server domain pattern blocklist CSV file"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:156
+#: src/Module/Admin/Blocklist/Server/Import.php:129
 msgid "Append"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:156
+#: src/Module/Admin/Blocklist/Server/Import.php:129
 msgid ""
 "Imports patterns from the file that weren't already existing in the current "
 "blocklist."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:157
+#: src/Module/Admin/Blocklist/Server/Import.php:130
 msgid "Replace"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Import.php:157
+#: src/Module/Admin/Blocklist/Server/Import.php:130
 msgid "Replaces the current blocklist by the imported patterns."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:68
-#: src/Module/Admin/Blocklist/Server/Index.php:93
+#: src/Module/Admin/Blocklist/Server/Index.php:84
+#: src/Module/Admin/Blocklist/Server/Index.php:108
 msgid "Blocked server domain pattern"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:69
-#: src/Module/Admin/Blocklist/Server/Index.php:94 src/Module/Friendica.php:82
+#: src/Module/Admin/Blocklist/Server/Index.php:85
+#: src/Module/Admin/Blocklist/Server/Index.php:109 src/Module/Friendica.php:82
 msgid "Reason for the block"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:70
+#: src/Module/Admin/Blocklist/Server/Index.php:86
 msgid "Delete server domain pattern"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:70
+#: src/Module/Admin/Blocklist/Server/Index.php:86
 msgid "Check to delete this entry from the blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:79
+#: src/Module/Admin/Blocklist/Server/Index.php:94
 msgid "Server Domain Pattern Blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:80
+#: src/Module/Admin/Blocklist/Server/Index.php:95
 msgid ""
 "This page can be used to define a blocklist of server domain patterns from "
 "the federated network that are not allowed to interact with your node. For "
 "each domain pattern you should also provide the reason why you block it."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:81
+#: src/Module/Admin/Blocklist/Server/Index.php:96
 msgid ""
 "The list of blocked server domain patterns will be made publically available "
 "on the <a href=\"/friendica\">/friendica</a> page so that your users and "
 "people investigating communication problems can find the reason easily."
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:87
+#: src/Module/Admin/Blocklist/Server/Index.php:102
 msgid "Import server domain pattern blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:88
+#: src/Module/Admin/Blocklist/Server/Index.php:103
 msgid "Add new entry to the blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:91
+#: src/Module/Admin/Blocklist/Server/Index.php:106
 msgid "Save changes to the blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:92
+#: src/Module/Admin/Blocklist/Server/Index.php:107
 msgid "Current Entries in the Blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:95
+#: src/Module/Admin/Blocklist/Server/Index.php:110
 msgid "Delete entry from the blocklist"
 msgstr ""
 
-#: src/Module/Admin/Blocklist/Server/Index.php:96
+#: src/Module/Admin/Blocklist/Server/Index.php:111
 msgid "Delete entry from the blocklist?"
 msgstr ""
 

@@ -1438,7 +1438,7 @@ class Database
 		array_walk($fields, function(&$value, $key) use ($options)
 		{
 			$field = $value;
-			$value = '`' . str_replace('`', '``', $value) . '`';
+			$value = DBA::quoteIdentifier($field);
 
 			if (!empty($options['group_by']) && !in_array($field, $options['group_by'])) {
 				$value = 'ANY_VALUE(' . $value . ') AS ' . $value;

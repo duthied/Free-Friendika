@@ -23,6 +23,7 @@ namespace Friendica\Test\src\Console;
 
 use Friendica\Console\ServerBlock;
 use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Moderation\DomainPatternBlocklist;
 use Mockery;
 
 class ServerBlockConsoleTest extends ConsoleTest
@@ -38,15 +39,15 @@ class ServerBlockConsoleTest extends ConsoleTest
 		]
 	];
 	/**
-	 * @var IManageConfigValues|Mockery\LegacyMockInterface|Mockery\MockInterface
+	 * @var DomainPatternBlocklist|Mockery\LegacyMockInterface|Mockery\MockInterface
 	 */
-	private $configMock;
+	private $blocklistMock;
 
 	protected function setUp() : void
 	{
 		parent::setUp();
 
-		$this->configMock = Mockery::mock(IManageConfigValues::class);
+		$this->blocklistMock = Mockery::mock(DomainPatternBlocklist::class);
 	}
 
 	/**
@@ -54,23 +55,18 @@ class ServerBlockConsoleTest extends ConsoleTest
 	 */
 	public function testBlockedServersList()
 	{
-		$this->configMock
+		$this->blocklistMock
 			->shouldReceive('get')
-			->with('system', 'blocklist', [])
 			->andReturn($this->defaultBlockList)
 			->once();
 
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$txt = $this->dumpExecute($console);
 
-		$output = <<<CONS
-+----------------------------+-----------------+
-| Domain                     | Reason          |
-+----------------------------+-----------------+
-| social.nobodyhasthe.biz    | Illegal content |
-| pod.ordoevangelistarum.com | Illegal content |
-+----------------------------+-----------------+
+		$php_eol = PHP_EOL;
 
+		$output = <<<CONS
++----------------------------+-----------------+$php_eol| Pattern                    | Reason          |$php_eol+----------------------------+-----------------+$php_eol| social.nobodyhasthe.biz    | Illegal content |$php_eol| pod.ordoevangelistarum.com | Illegal content |$php_eol+----------------------------+-----------------+$php_eol
 
 CONS;
 
@@ -82,62 +78,19 @@ CONS;
 	 */
 	public function testAddBlockedServer()
 	{
-		$this->configMock
-			->shouldReceive('get')
-			->with('system', 'blocklist', [])
-			->andReturn($this->defaultBlockList)
+		$this->blocklistMock
+			->shouldReceive('addPattern')
+			->with('testme.now', 'I like it!')
+			->andReturn(1)
 			->once();
 
-		$newBlockList = $this->defaultBlockList;
-		$newBlockList[] = [
-			'domain' => 'testme.now',
-			'reason' => 'I like it!',
-		];
-
-		$this->configMock
-			->shouldReceive('set')
-			->with('system', 'blocklist', $newBlockList)
-			->andReturn(true)
-			->once();
-
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'testme.now');
 		$console->setArgument(2, 'I like it!');
 		$txt = $this->dumpExecute($console);
 
-		self::assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'I like it!\')' . PHP_EOL, $txt);
-	}
-
-	/**
-	 * Test blockedservers add command with the default reason
-	 */
-	public function testAddBlockedServerWithDefaultReason()
-	{
-		$this->configMock
-			->shouldReceive('get')
-			->with('system', 'blocklist', [])
-			->andReturn($this->defaultBlockList)
-			->once();
-
-		$newBlockList = $this->defaultBlockList;
-		$newBlockList[] = [
-			'domain' => 'testme.now',
-			'reason' => ServerBlock::DEFAULT_REASON,
-		];
-
-		$this->configMock
-			->shouldReceive('set')
-			->with('system', 'blocklist', $newBlockList)
-			->andReturn(true)
-			->once();
-
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
-		$console->setArgument(0, 'add');
-		$console->setArgument(1, 'testme.now');
-		$txt = $this->dumpExecute($console);
-
-		self::assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'' . ServerBlock::DEFAULT_REASON . '\')' . PHP_EOL, $txt);
+		self::assertEquals('The domain pattern \'testme.now\' is now blocked. (Reason: \'I like it!\')' . "\n", $txt);
 	}
 
 	/**
@@ -145,36 +98,19 @@ CONS;
 	 */
 	public function testUpdateBlockedServer()
 	{
-		$this->configMock
-			->shouldReceive('get')
-			->with('system', 'blocklist', [])
-			->andReturn($this->defaultBlockList)
+		$this->blocklistMock
+			->shouldReceive('addPattern')
+			->with('pod.ordoevangelistarum.com', 'Other reason')
+			->andReturn(2)
 			->once();
 
-		$newBlockList = [
-			[
-				'domain' => 'social.nobodyhasthe.biz',
-				'reason' => 'Illegal content',
-			],
-			[
-				'domain' => 'pod.ordoevangelistarum.com',
-				'reason' => 'Other reason',
-			]
-		];
-
-		$this->configMock
-			->shouldReceive('set')
-			->with('system', 'blocklist', $newBlockList)
-			->andReturn(true)
-			->once();
-
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$console->setArgument(2, 'Other reason');
 		$txt = $this->dumpExecute($console);
 
-		self::assertEquals('The domain \'pod.ordoevangelistarum.com\' is now updated. (Reason: \'Other reason\')' . PHP_EOL, $txt);
+		self::assertEquals('The domain pattern \'pod.ordoevangelistarum.com\' is now updated. (Reason: \'Other reason\')' . "\n", $txt);
 	}
 
 	/**
@@ -182,31 +118,18 @@ CONS;
 	 */
 	public function testRemoveBlockedServer()
 	{
-		$this->configMock
-			->shouldReceive('get')
-			->with('system', 'blocklist', [])
-			->andReturn($this->defaultBlockList)
+		$this->blocklistMock
+			->shouldReceive('removePattern')
+			->with('pod.ordoevangelistarum.com')
+			->andReturn(2)
 			->once();
 
-		$newBlockList = [
-			[
-				'domain' => 'social.nobodyhasthe.biz',
-				'reason' => 'Illegal content',
-			],
-		];
-
-		$this->configMock
-			->shouldReceive('set')
-			->with('system', 'blocklist', $newBlockList)
-			->andReturn(true)
-			->once();
-
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
 
-		self::assertEquals('The domain \'pod.ordoevangelistarum.com\' is not more blocked' . PHP_EOL, $txt);
+		self::assertEquals('The domain pattern \'pod.ordoevangelistarum.com\' isn\'t blocked anymore' . "\n", $txt);
 	}
 
 	/**
@@ -214,7 +137,7 @@ CONS;
 	 */
 	public function testBlockedServersWrongCommand()
 	{
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'wrongcommand');
 		$txt = $this->dumpExecute($console);
 
@@ -226,18 +149,18 @@ CONS;
 	 */
 	public function testRemoveBlockedServerNotExist()
 	{
-		$this->configMock
-			->shouldReceive('get')
-			->with('system', 'blocklist', [])
-			->andReturn($this->defaultBlockList)
+		$this->blocklistMock
+			->shouldReceive('removePattern')
+			->with('not.existing')
+			->andReturn(1)
 			->once();
 
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'remove');
-		$console->setArgument(1, 'not.exiting');
+		$console->setArgument(1, 'not.existing');
 		$txt = $this->dumpExecute($console);
 
-		self::assertEquals('The domain \'not.exiting\' is not blocked.' . PHP_EOL, $txt);
+		self::assertEquals('The domain pattern \'not.existing\' wasn\'t blocked.' . "\n", $txt);
 	}
 
 	/**
@@ -245,11 +168,18 @@ CONS;
 	 */
 	public function testAddBlockedServerMissingArgument()
 	{
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$txt = $this->dumpExecute($console);
 
-		self::assertStringStartsWith('[Warning] Add needs a domain and optional a reason.', $txt);
+		self::assertStringStartsWith('[Warning] Add needs a domain pattern and a reason.', $txt);
+
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
+		$console->setArgument(0, 'add');
+		$console->setArgument(1, 'testme.now');
+		$txt = $this->dumpExecute($console);
+
+		self::assertStringStartsWith('[Warning] Add needs a domain pattern and a reason.', $txt);
 	}
 
 	/**
@@ -257,30 +187,19 @@ CONS;
 	 */
 	public function testAddBlockedServerNoSave()
 	{
-		$this->configMock
-			->shouldReceive('get')
-			->with('system', 'blocklist', [])
-			->andReturn($this->defaultBlockList)
+		$this->blocklistMock
+			->shouldReceive('addPattern')
+			->with('testme.now', 'I like it!')
+			->andReturn(0)
 			->once();
 
-		$newBlockList = $this->defaultBlockList;
-		$newBlockList[] = [
-			'domain' => 'testme.now',
-			'reason' => ServerBlock::DEFAULT_REASON,
-		];
-
-		$this->configMock
-			->shouldReceive('set')
-			->with('system', 'blocklist', $newBlockList)
-			->andReturn(false)
-			->once();
-
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'testme.now');
+		$console->setArgument(2, 'I like it!');
 		$txt = $this->dumpExecute($console);
 
-		self::assertEquals('Couldn\'t save \'testme.now\' as blocked server' . PHP_EOL, $txt);
+		self::assertEquals('Couldn\'t save \'testme.now\' as blocked domain pattern' . "\n", $txt);
 	}
 
 	/**
@@ -288,31 +207,18 @@ CONS;
 	 */
 	public function testRemoveBlockedServerNoSave()
 	{
-		$this->configMock
-			->shouldReceive('get')
-			->with('system', 'blocklist', [])
-			->andReturn($this->defaultBlockList)
+		$this->blocklistMock
+			->shouldReceive('removePattern')
+			->with('pod.ordoevangelistarum.com')
+			->andReturn(0)
 			->once();
 
-		$newBlockList = [
-			[
-				'domain' => 'social.nobodyhasthe.biz',
-				'reason' => 'Illegal content',
-			],
-		];
-
-		$this->configMock
-			->shouldReceive('set')
-			->with('system', 'blocklist', $newBlockList)
-			->andReturn(false)
-			->once();
-
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
 
-		self::assertEquals('Couldn\'t remove \'pod.ordoevangelistarum.com\' from blocked servers' . PHP_EOL, $txt);
+		self::assertEquals('Couldn\'t remove \'pod.ordoevangelistarum.com\' from blocked domain patterns' . "\n", $txt);
 	}
 
 	/**
@@ -320,7 +226,7 @@ CONS;
 	 */
 	public function testRemoveBlockedServerMissingArgument()
 	{
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$txt = $this->dumpExecute($console);
 
@@ -332,7 +238,7 @@ CONS;
 	 */
 	public function testBlockedServersHelp()
 	{
-		$console = new ServerBlock($this->configMock, $this->consoleArgv);
+		$console = new ServerBlock($this->blocklistMock, $this->consoleArgv);
 		$console->setOption('help', true);
 		$txt = $this->dumpExecute($console);
 
