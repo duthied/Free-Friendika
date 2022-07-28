@@ -1201,6 +1201,33 @@ class Processor
 		Logger::info('Fetched featured posts', ['new' => $new, 'old' => $old, 'contact' => $url]);
 	}
 
+	public static function fetchCachedActivity(string $url, int $uid): array
+	{
+		$cachekey = self::CACHEKEY_FETCH_ACTIVITY . $uid . ':' . $url;
+		$object = DI::cache()->get($cachekey);
+
+		if (!is_null($object)) {
+			Logger::debug('Fetch from cache', ['url' => $url, 'uid' => $uid]);
+			return $object;
+		}
+
+		$object = ActivityPub::fetchContent($url, $uid);
+		if (empty($object)) {
+			Logger::notice('Activity was not fetchable, aborting.', ['url' => $url, 'uid' => $uid]);
+			return [];
+		}
+
+		if (empty($object['id'])) {
+			Logger::notice('Activity has got not id, aborting. ', ['url' => $url, 'object' => $object]);
+			return [];
+		}
+		DI::cache()->set($cachekey, $object, Duration::FIVE_MINUTES);
+
+		Logger::debug('Activity was fetched successfully', ['url' => $url, 'uid' => $uid]);
+
+		return $object;
+	}
+
 	/**
 	 * Fetches missing posts
 	 *
@@ -1220,23 +1247,9 @@ class Processor
 			$uid = 0;
 		}
 
-		$cachekey = self::CACHEKEY_FETCH_ACTIVITY . $url;
-		$object = DI::cache()->get($cachekey);
-
-		if (is_null($object)) {
-			$object = ActivityPub::fetchContent($url, $uid);
-			if (empty($object)) {
-				Logger::notice('Activity was not fetchable, aborting.', ['url' => $url, 'uid' => $uid]);
-				return '';
-			}
-
-			if (empty($object['id'])) {
-				Logger::notice('Activity has got not id, aborting. ', ['url' => $url, 'object' => $object]);
-				return '';
-			}
-			DI::cache()->set($cachekey, $object, Duration::FIVE_MINUTES);
-		} else {
-			Logger::debug('Fetch from cache', ['url' => $url]);
+		$object = self::fetchCachedActivity($url, $uid);
+		if (empty($object)) {
+			return '';
 		}
 
 		$signer = [];

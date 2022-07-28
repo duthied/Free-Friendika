@@ -241,7 +241,7 @@ class Receiver
 			return 'as:' . $profile['type'];
 		}
 
-		$data = ActivityPub::fetchContent($object_id, $uid);
+		$data = Processor::fetchCachedActivity($object_id, $uid);
 		if (!empty($data)) {
 			$object = JsonLD::compact($data);
 			$type = JsonLD::fetchElement($object, '@type');
@@ -284,7 +284,7 @@ class Receiver
 		if (!empty($id) && !$trust_source) {
 			$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
 
-			$fetched_activity = ActivityPub::fetchContent($fetch_id, $fetch_uid);
+			$fetched_activity = Processor::fetchCachedActivity($fetch_id, $fetch_uid);
 			if (!empty($fetched_activity)) {
 				$object = JsonLD::compact($fetched_activity);
 
@@ -358,7 +358,7 @@ class Receiver
 
 		// Fetch the activity on Lemmy "Announce" messages (announces of activities)
 		if (($type == 'as:Announce') && in_array($object_type, array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
-			$data = ActivityPub::fetchContent($object_id, $fetch_uid);
+			$data = Processor::fetchCachedActivity($object_id, $fetch_uid);
 			if (!empty($data)) {
 				$type = $object_type;
 				$activity = JsonLD::compact($data);
@@ -1273,7 +1273,7 @@ class Receiver
 		$type = JsonLD::fetchElement($object, '@type');
 
 		if (!$trust_source || empty($type)) {
-			$data = ActivityPub::fetchContent($object_id, $uid);
+			$data = Processor::fetchCachedActivity($object_id, $uid);
 			if (!empty($data)) {
 				$object = JsonLD::compact($data);
 				Logger::info('Fetched content for ' . $object_id);
