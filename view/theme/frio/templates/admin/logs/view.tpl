@@ -121,7 +121,7 @@
 					</tbody>
 				</table>
 
-
+				<h3 class="header-event-data">{{$l10n.Data}}</h3>
 				<div class="event-source">
 				</div>
 				<div class="event-data">
