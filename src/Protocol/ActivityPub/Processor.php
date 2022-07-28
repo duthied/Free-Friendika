@@ -1207,13 +1207,19 @@ class Processor
 		$object = DI::cache()->get($cachekey);
 
 		if (!is_null($object)) {
-			Logger::debug('Fetch from cache', ['url' => $url, 'uid' => $uid]);
+			if (!empty($object)) {
+				Logger::debug('Fetch from cache', ['url' => $url, 'uid' => $uid]);
+			} else {
+				Logger::debug('Fetch from negative cache', ['url' => $url, 'uid' => $uid]);
+			}
 			return $object;
 		}
 
 		$object = ActivityPub::fetchContent($url, $uid);
 		if (empty($object)) {
 			Logger::notice('Activity was not fetchable, aborting.', ['url' => $url, 'uid' => $uid]);
+			// We perform negative caching.
+			DI::cache()->set($cachekey, [], Duration::FIVE_MINUTES);
 			return [];
 		}
 
