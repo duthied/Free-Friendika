@@ -182,7 +182,7 @@ class Queue
 		$activity['worker-id']       = $entry['wid'];
 		$activity['recursion-depth'] = 0;
 
-		$receivers = DBA::select('inbox-entry-receiver', ['uid'], ['queue-id' => $entry['id']]);
+		$receivers = DBA::select('inbox-entry-receiver', ['uid'], ["`queue-id` = ? AND `uid` != ?", $entry['id'], 0]);
 		while ($receiver = DBA::fetch($receivers)) {
 			if (!in_array($receiver['uid'], $activity['receiver'])) {
 				$activity['receiver'][] = $receiver['uid'];
