@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-29 14:53+0000\n"
+"POT-Creation-Date: 2022-07-29 21:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1411,7 +1411,7 @@ msgstr ""
 msgid "Friend Suggestions"
 msgstr ""
 
-#: mod/tagger.php:78 src/Content/Item.php:354 src/Model/Item.php:2748
+#: mod/tagger.php:78 src/Content/Item.php:354 src/Model/Item.php:2754
 msgid "photo"
 msgstr ""
 
@@ -2137,12 +2137,12 @@ msgid "Global post"
 msgstr ""
 
 #: src/Content/Conversation.php:887
-msgid "Send via an relay server"
+msgid "Sent via an relay server"
 msgstr ""
 
 #: src/Content/Conversation.php:887
 #, php-format
-msgid "Send via the relay server %s <%s>"
+msgid "Sent via the relay server %s <%s>"
 msgstr ""
 
 #: src/Content/Conversation.php:890
@@ -2168,6 +2168,10 @@ msgstr ""
 
 #: src/Content/Conversation.php:902
 msgid "Distributed"
+msgstr ""
+
+#: src/Content/Conversation.php:905
+msgid "Pushed to us"
 msgstr ""
 
 #: src/Content/Feature.php:96
@@ -2291,7 +2295,7 @@ msgstr ""
 msgid "%1$s poked %2$s"
 msgstr ""
 
-#: src/Content/Item.php:345 src/Model/Item.php:2746
+#: src/Content/Item.php:345 src/Model/Item.php:2752
 msgid "event"
 msgstr ""
 
@@ -2642,8 +2646,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1213 src/Model/Item.php:3321
-#: src/Model/Item.php:3327 src/Model/Item.php:3328
+#: src/Content/Text/BBCode.php:1213 src/Model/Item.php:3331
+#: src/Model/Item.php:3337 src/Model/Item.php:3338
 msgid "Link to source"
 msgstr ""
 
@@ -3828,58 +3832,58 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1844
+#: src/Model/Item.php:1850
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2750
+#: src/Model/Item.php:2756
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2752
+#: src/Model/Item.php:2758
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2755
+#: src/Model/Item.php:2761
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:2871
+#: src/Model/Item.php:2877
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3230
+#: src/Model/Item.php:3240
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3264
+#: src/Model/Item.php:3274
 #, php-format
 msgid "%s (%d%s, %d votes)"
 msgstr ""
 
-#: src/Model/Item.php:3266
+#: src/Model/Item.php:3276
 #, php-format
 msgid "%s (%d votes)"
 msgstr ""
 
-#: src/Model/Item.php:3271
+#: src/Model/Item.php:3281
 #, php-format
 msgid "%d voters. Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3273
+#: src/Model/Item.php:3283
 #, php-format
 msgid "%d voters."
 msgstr ""
 
-#: src/Model/Item.php:3275
+#: src/Model/Item.php:3285
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3309 src/Model/Item.php:3310
+#: src/Model/Item.php:3319 src/Model/Item.php:3320
 msgid "View on separate page"
 msgstr ""
 
