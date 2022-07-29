@@ -497,7 +497,7 @@ class Network
 		$parts = parse_url($uri);
 		if (!empty($parts['scheme']) && !empty($parts['host'])) {
 			$parts['host'] = idn_to_ascii($parts['host']);
-			$uri = Uri::fromParts($parts);
+			$uri = (string)Uri::fromParts($parts);
 		} else {
 			$parts = explode('@', $uri);
 			if (count($parts) == 2) {

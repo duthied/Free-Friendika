@@ -998,7 +998,7 @@ class DFRN
 			$path_parts = explode('/', $parts['path']);
 			array_pop($path_parts);
 			$parts['path'] =  implode('/', $path_parts);
-			$contact['batch'] = Uri::fromParts($parts);
+			$contact['batch'] = (string)Uri::fromParts($parts);
 		}
 
 		$dest_url = ($public_batch ? $contact['batch'] : $contact['notify']);

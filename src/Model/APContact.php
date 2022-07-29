@@ -383,11 +383,11 @@ class APContact
 		if (strlen($apcontact['photo']) > 255) {
 			$parts = parse_url($apcontact['photo']);
 			unset($parts['fragment']);
-			$apcontact['photo'] = Uri::fromParts($parts);
+			$apcontact['photo'] = (string)Uri::fromParts($parts);
 
 			if (strlen($apcontact['photo']) > 255) {
 				unset($parts['query']);
-				$apcontact['photo'] = Uri::fromParts($parts);
+				$apcontact['photo'] = (string)Uri::fromParts($parts);
 			}
 
 			if (strlen($apcontact['photo']) > 255) {

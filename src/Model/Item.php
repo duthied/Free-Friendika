@@ -2948,7 +2948,7 @@ class Item
 		if (!empty($urlparts)) {
 			unset($urlparts['query']);
 			unset($urlparts['fragment']);
-			$url = Uri::fromParts($urlparts);
+			$url = (string)Uri::fromParts($urlparts);
 		} else {
 			return false;
 		}
