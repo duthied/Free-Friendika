@@ -1233,24 +1233,18 @@ class Transmitter
 		if (!$item['deleted']) {
 			$data = Post\Activity::getByURIId($item['uri-id']);
 			if (!$item['origin'] && !empty($data)) {
-				if (!empty($data['type'])) {
-					if (in_array($data['type'], ['Create', 'Update'])) {
-						if ($object_mode) {
-							unset($data['@context']);
-							unset($data['signature']);
-						}
-						Logger::info('Return stored conversation', ['item' => $item_id]);
-						return $data;
-					} elseif (in_array('as:' . $data['type'], Receiver::CONTENT_TYPES)) {
-						if (!empty($data['@context'])) {
-							$context = $data['@context'];
-							unset($data['@context']);
-						}
-						unset($data['actor']);
-						$object = $data;
-					}
+				if ($object_mode) {
+					unset($data['@context']);
+					unset($data['signature']);
 				}
+				Logger::info('Return stored conversation', ['item' => $item_id]);
+				return $data;
 			}
+		}
+
+		if (!$item['origin'] && empty($object)) {
+			Logger::debug('Post is not ours and is not stored', ['id' => $item_id, 'uri-id' => $item['uri-id']]);
+			return false;
 		}
 
 		$type = self::getTypeOfItem($item);

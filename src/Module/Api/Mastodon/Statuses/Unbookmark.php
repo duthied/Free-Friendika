@@ -52,7 +52,7 @@ class Unbookmark extends BaseApi
 		}
 
 		if ($item['uid'] == 0) {
-			$stored = Item::storeForUserByUriId($this->parameters['id'], $uid);
+			$stored = Item::storeForUserByUriId($this->parameters['id'], $uid, ['post-reason' => Item::PR_ACTIVITY]);
 			if (!empty($stored)) {
 				$item = Post::selectFirst(['id', 'gravity'], ['id' => $stored]);
 				if (!DBA::isResult($item)) {

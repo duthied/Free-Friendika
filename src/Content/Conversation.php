@@ -857,7 +857,7 @@ class Conversation
 				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('You are following %s.', $row['author-name'])];
 				break;
 			case ItemModel::PR_TAG:
-				$row['direction'] = ['direction' => 4, 'title' => $this->l10n->t('Tagged')];
+				$row['direction'] = ['direction' => 4, 'title' => $this->l10n->t('You subscribed to one or more tags in this post.')];
 				break;
 			case ItemModel::PR_ANNOUNCEMENT:
 				if (!empty($row['causer-id']) && $this->pConfig->get(local_user(), 'system', 'display_resharer')) {
@@ -878,17 +878,30 @@ class Conversation
 				$row['direction'] = ['direction' => 5, 'title' => $this->l10n->t('%s is participating in this thread.', $row['author-name'])];
 				break;
 			case ItemModel::PR_STORED:
-				$row['direction'] = ['direction' => 8, 'title' => $this->l10n->t('Stored')];
+				$row['direction'] = ['direction' => 8, 'title' => $this->l10n->t('Stored for general reasons')];
 				break;
 			case ItemModel::PR_GLOBAL:
-				$row['direction'] = ['direction' => 9, 'title' => $this->l10n->t('Global')];
+				$row['direction'] = ['direction' => 9, 'title' => $this->l10n->t('Global post')];
 				break;
 			case ItemModel::PR_RELAY:
-				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Relayed') : $this->l10n->t('Relayed by %s <%s>', $row['causer-name'], $row['causer-link']))];
+				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Send via an relay server') : $this->l10n->t('Send via the relay server %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
 			case ItemModel::PR_FETCHED:
 				$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Fetched') : $this->l10n->t('Fetched because of %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
+			case ItemModel::PR_COMPLETION:
+				$row['direction'] = ['direction' => 2, 'title' => $this->l10n->t('Stored because of a child post to complete this thread.')];
+				break;
+			case ItemModel::PR_DIRECT:
+				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('Local delivery')];
+				break;
+			case ItemModel::PR_ACTIVITY:
+				$row['direction'] = ['direction' => 2, 'title' => $this->l10n->t('Stored because of your activity (like, comment, star, ...)')];
+				break;
+			case ItemModel::PR_DISTRIBUTE:
+				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('Distributed')];
+				break;
+
 		}
 
 		$row['thr-parent-row'] = $thr_parent;

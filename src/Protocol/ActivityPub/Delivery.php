@@ -110,10 +110,7 @@ class Delivery
 		} elseif ($cmd == WorkerDelivery::PROFILEUPDATE) {
 			$success = ActivityPub\Transmitter::sendProfileUpdate($uid, $inbox);
 		} else {
-			$data = Post\Activity::getByURIId($uri_id);
-			if (empty($data)) {
-				$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
-			}
+			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
 				$timestamp  = microtime(true);
 				$response   = HTTPSignature::post($data, $inbox, $uid);

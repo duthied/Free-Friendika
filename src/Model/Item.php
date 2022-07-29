@@ -44,6 +44,7 @@ use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use Friendica\Worker\Delivery;
+use GuzzleHttp\Psr7\Uri;
 use LanguageDetection\Language;
 
 class Item
@@ -74,6 +75,10 @@ class Item
 	const PR_GLOBAL = 73;
 	const PR_RELAY = 74;
 	const PR_FETCHED = 75;
+	const PR_COMPLETION = 76;
+	const PR_DIRECT = 77;
+	const PR_ACTIVITY = 78;
+	const PR_DISTRIBUTE = 79;
 
 	// system.accept_only_sharer setting values
 	const COMPLETION_NONE    = 1;
@@ -688,9 +693,9 @@ class Item
 		$parent = Post::selectFirst($fields, $condition, $params);
 
 		if (!DBA::isResult($parent) && Post::exists(['uri-id' => [$item['thr-parent-id'], $item['parent-uri-id']], 'uid' => 0])) {
-			$stored = Item::storeForUserByUriId($item['thr-parent-id'], $item['uid']);
+			$stored = Item::storeForUserByUriId($item['thr-parent-id'], $item['uid'], ['post-reason' => Item::PR_COMPLETION]);
 			if (!$stored && ($item['thr-parent-id'] != $item['parent-uri-id'])) {
-				$stored = Item::storeForUserByUriId($item['parent-uri-id'], $item['uid']);
+				$stored = Item::storeForUserByUriId($item['parent-uri-id'], $item['uid'], ['post-reason' => Item::PR_COMPLETION]);
 			}
 			if ($stored) {
 				Logger::info('Stored thread parent item for user', ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid'], 'stored' => $stored]);
@@ -714,7 +719,7 @@ class Item
 		$toplevel_parent = Post::selectFirst($fields, $condition, $params);
 
 		if (!DBA::isResult($toplevel_parent) && $item['origin']) {
-			$stored = Item::storeForUserByUriId($item['parent-uri-id'], $item['uid']);
+			$stored = Item::storeForUserByUriId($item['parent-uri-id'], $item['uid'], ['post-reason' => Item::PR_COMPLETION]);
 			Logger::info('Stored parent item for user', ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid'], 'stored' => $stored]);
 			$toplevel_parent = Post::selectFirst($fields, $condition, $params);
 		}
@@ -1355,14 +1360,8 @@ class Item
 
 		$uids = Tag::getUIDListByURIId($item['uri-id']);
 		foreach ($uids as $uid) {
-			if (Contact::isSharing($item['author-id'], $uid)) {
-				$fields = [];
-			} else {
-				$fields = ['post-reason' => self::PR_TAG];
-			}
-
-			$stored = self::storeForUserByUriId($item['uri-id'], $uid, $fields);
-			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'fields' => $fields, 'stored' => $stored]);
+			$stored = self::storeForUserByUriId($item['uri-id'], $uid, ['post-reason' => self::PR_TAG]);
+			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
 		}
 	}
 
@@ -1454,6 +1453,7 @@ class Item
 			if ($origin_uid == $uid) {
 				$item['diaspora_signed_text'] = $signed_text;
 			}
+			$item['post-reason'] = self::PR_DISTRIBUTE;
 			self::storeForUser($item, $uid);
 		}
 	}
@@ -1605,7 +1605,6 @@ class Item
 		unset($item['event-id']);
 		unset($item['hidden']);
 		unset($item['notification-type']);
-		unset($item['post-reason']);
 
 		// Data from the "post-delivery-data" table
 		unset($item['postopts']);
@@ -2488,7 +2487,7 @@ class Item
 		}
 
 		if (!Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
-			$stored = self::storeForUserByUriId($item['parent-uri-id'], $uid);
+			$stored = self::storeForUserByUriId($item['parent-uri-id'], $uid, ['post-reason' => Item::PR_ACTIVITY]);
 			if (($item['parent-uri-id'] == $item['uri-id']) && !empty($stored)) {
 				$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $stored]);
 				if (!DBA::isResult($item)) {
@@ -2948,7 +2947,7 @@ class Item
 		$urlparts = parse_url($url);
 		unset($urlparts['query']);
 		unset($urlparts['fragment']);
-		$url = Network::unparseURL($urlparts);
+		$url = Uri::fromParts($urlparts);
 
 		// Remove media links to only search in embedded content
 		// @todo Check images for image link, audio for audio links, ...
