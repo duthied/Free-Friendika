@@ -884,7 +884,7 @@ class Conversation
 				$row['direction'] = ['direction' => 9, 'title' => $this->l10n->t('Global post')];
 				break;
 			case ItemModel::PR_RELAY:
-				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Send via an relay server') : $this->l10n->t('Send via the relay server %s <%s>', $row['causer-name'], $row['causer-link']))];
+				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Sent via an relay server') : $this->l10n->t('Sent via the relay server %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
 			case ItemModel::PR_FETCHED:
 				$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Fetched') : $this->l10n->t('Fetched because of %s <%s>', $row['causer-name'], $row['causer-link']))];
