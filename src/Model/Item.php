@@ -2945,9 +2945,13 @@ class Item
 	{
 		// Make sure that for example site parameters aren't used when testing if the link is contained in the body
 		$urlparts = parse_url($url);
-		unset($urlparts['query']);
-		unset($urlparts['fragment']);
-		$url = Uri::fromParts($urlparts);
+		if (!empty($urlparts)) {
+			unset($urlparts['query']);
+			unset($urlparts['fragment']);
+			$url = Uri::fromParts($urlparts);
+		} else {
+			return false;
+		}
 
 		// Remove media links to only search in embedded content
 		// @todo Check images for image link, audio for audio links, ...
