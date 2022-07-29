@@ -38,7 +38,7 @@ class Show extends BaseApi
 		$uid = BaseApi::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$cid = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, $uid);
+			$cid = BaseApi::getContactIDForSearchterm($this->getRequestValue($request, 'screen_name', ''), $this->getRequestValue($request, 'profileurl', ''), $this->getRequestValue($request, 'user_id', 0), $uid);
 		} else {
 			$cid = (int)$this->parameters['id'];
 		}

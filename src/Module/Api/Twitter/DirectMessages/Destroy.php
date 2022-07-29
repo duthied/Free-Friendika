@@ -55,9 +55,8 @@ class Destroy extends BaseApi
 		$id = $this->getRequestValue($request, 'id', 0);
 		$id = $this->getRequestValue($this->parameters, 'id', $id);
 
-		$verbose = $this->getRequestValue($request, 'friendica_verbose', false);
-
-		$parenturi = $request['friendica_parenturi'] ?? '';
+		$verbose   = $this->getRequestValue($request, 'friendica_verbose', false);
+		$parenturi = $this->getRequestValue($request, 'friendica_parenturi', '');
 
 		// error if no id or parenturi specified (for clients posting parent-uri as well)
 		if ($verbose && $id == 0 && $parenturi == "") {

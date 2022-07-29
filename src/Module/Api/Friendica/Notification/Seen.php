@@ -47,7 +47,7 @@ class Seen extends BaseApi
 			throw new BadRequestException('Invalid argument count');
 		}
 
-		$id = intval($request['id'] ?? 0);
+		$id = intval($this->getRequestValue($request, 'id', 0));
 
 		$include_entities = $this->getRequestValue($request, 'include_entities', false);
 

@@ -44,7 +44,7 @@ class Delete extends BaseApi
 		// params
 
 		// error if no gid specified
-		if ($request['gid'] == 0 || $request['name'] == "") {
+		if ($request['gid'] == 0 || $request['name'] == '') {
 			throw new BadRequestException('gid or name not specified');
 		}
 

@@ -38,9 +38,8 @@ class Show extends ContactEndpoint
 		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
-		$source_cid = BaseApi::getContactIDForSearchterm($request['source_screen_name'] ?? '', '', $request['source_id'] ?? 0, $uid);
-
-		$target_cid = BaseApi::getContactIDForSearchterm($request['target_screen_name'] ?? '', '', $request['target_id'] ?? 0, $uid);
+		$source_cid = BaseApi::getContactIDForSearchterm($this->getRequestValue($request, 'source_screen_name', ''), '', $this->getRequestValue($request, 'source_id', 0), $uid);
+		$target_cid = BaseApi::getContactIDForSearchterm($this->getRequestValue($request, 'target_screen_name', ''), '', $this->getRequestValue($request, 'target_id', 0), $uid);
 
 		$source = Contact::getById($source_cid);
 		if (empty($source)) {

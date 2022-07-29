@@ -63,7 +63,7 @@ class Destroy extends ContactEndpoint
 			throw new HTTPException\NotFoundException('Error Processing Request');
 		}
 
-		$contact_id = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, 0);
+		$contact_id = BaseApi::getContactIDForSearchterm($this->getRequestValue($request, 'screen_name', ''), $this->getRequestValue($request, 'profileurl', ''), $this->getRequestValue($request, 'user_id', 0), 0);
 
 		if (empty($contact_id)) {
 			Logger::notice(BaseApi::LOG_PREFIX . 'No user_id specified', ['module' => 'api', 'action' => 'friendships_destroy']);

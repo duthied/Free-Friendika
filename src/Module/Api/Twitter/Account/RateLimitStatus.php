@@ -34,13 +34,13 @@ class RateLimitStatus extends BaseApi
 		if (($this->parameters['extension'] ?? '') == 'xml') {
 			$hash = [
 				'remaining-hits'        => '150',
-				'@attributes'           => ["type" => "integer"],
+				'@attributes'           => ['type' => 'integer'],
 				'hourly-limit'          => '150',
-				'@attributes2'          => ["type" => "integer"],
+				'@attributes2'          => ['type' => 'integer'],
 				'reset-time'            => DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM),
-				'@attributes3'          => ["type" => "datetime"],
+				'@attributes3'          => ['type' => 'datetime'],
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
-				'@attributes4'          => ["type" => "integer"],
+				'@attributes4'          => ['type' => 'integer'],
 			];
 		} else {
 			$hash = [

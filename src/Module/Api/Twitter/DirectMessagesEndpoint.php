@@ -84,7 +84,7 @@ abstract class DirectMessagesEndpoint extends BaseApi
 			$params['order'] = ['id'];
 		}
 
-		$cid = BaseApi::getContactIDForSearchterm($request['screen_name'] ?? '', $request['profileurl'] ?? '', $request['user_id'] ?? 0, 0);
+		$cid = BaseApi::getContactIDForSearchterm($this->getRequestValue($request, 'screen_name', ''), $this->getRequestValue($request, 'profileurl', ''), $this->getRequestValue($request, 'user_id', 0), 0);
 		if (!empty($cid)) {
 			$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 			if (!empty($cdata['user'])) {
@@ -109,7 +109,7 @@ abstract class DirectMessagesEndpoint extends BaseApi
 
 		$ret = [];
 		foreach ($ids as $id) {
-			$ret[] = $this->directMessage->createFromMailId($id, $uid, $request['getText'] ?? '');
+			$ret[] = $this->directMessage->createFromMailId($id, $uid, $this->getRequestValue($request, 'getText', ''));
 		}
 
 		self::setLinkHeader();
