@@ -986,7 +986,7 @@ class Receiver
 		}
 
 		if (!empty($reply)) {
-			$parents = Post::select(['uid'], ['uri' => $reply]);
+			$parents = Post::select(['uid'], DBA::mergeConditions(['uri' => $reply], ["`uid` != ?", 0]));
 			while ($parent = Post::fetch($parents)) {
 				$receivers[$parent['uid']] = ['uid' => $parent['uid'], 'type' => self::TARGET_ANSWER];
 			}

@@ -56,7 +56,7 @@ class Star extends BaseModule
 		}
 
 		if ($item['uid'] == 0) {
-			$stored = Item::storeForUserByUriId($item['uri-id'], local_user());
+			$stored = Item::storeForUserByUriId($item['uri-id'], local_user(), ['post-reason' => Item::PR_ACTIVITY]);
 			if (!empty($stored)) {
 				$item = Post::selectFirst(['starred'], ['id' => $stored]);
 				if (!DBA::isResult($item)) {

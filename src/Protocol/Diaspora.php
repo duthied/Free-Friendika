@@ -1419,7 +1419,7 @@ class Diaspora
 
 			$parts = parse_url($person['url']);
 			unset($parts['path']);
-			$host_url = Uri::fromParts($parts);
+			$host_url = (string)Uri::fromParts($parts);
 
 			return $host_url . '/objects/' . $guid;
 		}

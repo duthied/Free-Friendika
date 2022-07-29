@@ -363,10 +363,10 @@ class Processor
 		if (!empty($activity['raw'])) {
 			$item['source'] = $activity['raw'];
 			$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
+		}
 
-			if (isset($activity['push'])) {
-				$item['direction'] = $activity['push'] ? Conversation::PUSH : Conversation::PULL;
-			}
+		if (isset($activity['push'])) {
+			$item['direction'] = $activity['push'] ? Conversation::PUSH : Conversation::PULL;
 		}
 
 		if (!empty($activity['from-relay'])) {
@@ -900,6 +900,8 @@ class Processor
 				$item['post-reason'] = Item::PR_RELAY;
 			} elseif (!empty($activity['thread-completion'])) {
 				$item['post-reason'] = Item::PR_FETCHED;
+			} elseif (in_array($item['post-reason'], [Item::PR_GLOBAL, Item::PR_NONE]) && !empty($activity['push'])) {
+				$item['post-reason'] = Item::PR_PUSHED;
 			}
 
 			if ($item['isForum'] ?? false) {
