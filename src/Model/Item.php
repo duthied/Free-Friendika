@@ -79,6 +79,8 @@ class Item
 	const PR_DIRECT = 77;
 	const PR_ACTIVITY = 78;
 	const PR_DISTRIBUTE = 79;
+	const PR_PUSHED = 80;
+	const PR_LOCAL = 81;
 
 	// system.accept_only_sharer setting values
 	const COMPLETION_NONE    = 1;
@@ -906,6 +908,10 @@ class Item
 		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
 		if (!$item['origin'] && ($item['uid'] != 0) && Contact::isSharing($actor, $item['uid'])) {
 			$item['post-reason'] = self::PR_FOLLOWER;
+		}
+
+		if ($item['origin'] && empty($item['post-reason'])) {
+			$item['post-reason'] = self::PR_LOCAL;
 		}
 
 		// Ensure that there is an avatar cache

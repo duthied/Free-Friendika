@@ -901,7 +901,9 @@ class Conversation
 			case ItemModel::PR_DISTRIBUTE:
 				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('Distributed')];
 				break;
-
+			case ItemModel::PR_PUSHED:
+				$row['direction'] = ['direction' => 1, 'title' => $this->l10n->t('Pushed to us')];
+				break;
 		}
 
 		$row['thr-parent-row'] = $thr_parent;
