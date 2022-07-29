@@ -985,7 +985,7 @@ class DFRN
 				Logger::notice('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
 				return -22;
 			}
-			$pubkey = $fcontact['pubkey'];
+			$pubkey = $fcontact['pubkey'] ?? '';
 		} else {
 			$pubkey = '';
 		}
