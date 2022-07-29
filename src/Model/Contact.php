@@ -703,23 +703,33 @@ class Contact
 		}
 
 		$file_suffix = 'jpg';
+		$url = DI::baseUrl() . '/profile/' . $user['nickname'];
 
-		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
-			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
-			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
-			'contact-type' => $user['account-type'], 'prvkey' => $user['prvkey'],
-			'pubkey' => $user['pubkey'], 'xmpp' => $profile['xmpp'], 'matrix' => $profile['matrix'], 'network' => Protocol::DFRN];
+		$fields = [
+			'name'         => $profile['name'],
+			'nick'         => $user['nickname'],
+			'avatar-date'  => $self['avatar-date'],
+			'location'     => Profile::formatLocation($profile),
+			'about'        => $profile['about'],
+			'keywords'     => $profile['pub_keywords'],
+			'contact-type' => $user['account-type'],
+			'prvkey'       => $user['prvkey'],
+			'pubkey'       => $user['pubkey'],
+			'xmpp'         => $profile['xmpp'],
+			'matrix'       => $profile['matrix'],
+			'network'      => Protocol::DFRN,
+			'url'          => $url,
+			// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
+			'nurl'         => Strings::normaliseLink($url),
+			'uri-id'       => ItemURI::getIdByURI($url),
+			'addr'         => $user['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3),
+			'request'      => DI::baseUrl() . '/dfrn_request/' . $user['nickname'],
+			'notify'       => DI::baseUrl() . '/dfrn_notify/' . $user['nickname'],
+			'poll'         => DI::baseUrl() . '/dfrn_poll/'. $user['nickname'],
+			'confirm'      => DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
+			'poco'         => DI::baseUrl() . '/poco/' . $user['nickname'],
+		];
 
-		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
-		$fields['url'] = DI::baseUrl() . '/profile/' . $user['nickname'];
-		$fields['nurl'] = Strings::normaliseLink($fields['url']);
-		$fields['uri-id'] = ItemURI::getIdByURI($fields['url']);
-		$fields['addr'] = $user['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
-		$fields['request'] = DI::baseUrl() . '/dfrn_request/' . $user['nickname'];
-		$fields['notify'] = DI::baseUrl() . '/dfrn_notify/' . $user['nickname'];
-		$fields['poll'] = DI::baseUrl() . '/dfrn_poll/'. $user['nickname'];
-		$fields['confirm'] = DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'];
-		$fields['poco'] = DI::baseUrl() . '/poco/' . $user['nickname'];
 
 		$avatar = Photo::selectFirst(['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
 		if (DBA::isResult($avatar)) {

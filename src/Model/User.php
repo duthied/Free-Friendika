@@ -212,32 +212,33 @@ class User
 			throw new Exception(DI::l10n()->t('SERIOUS ERROR: Generation of security keys failed.'));
 		}
 
-		$system = [];
-		$system['uid'] = 0;
-		$system['created'] = DateTimeFormat::utcNow();
-		$system['self'] = true;
-		$system['network'] = Protocol::ACTIVITYPUB;
-		$system['name'] = 'System Account';
-		$system['addr'] = $system_actor_name . '@' . DI::baseUrl()->getHostname();
-		$system['nick'] = $system_actor_name;
-		$system['url'] = DI::baseUrl() . '/friendica';
+		$system = [
+			'uid'          => 0,
+			'created'      => DateTimeFormat::utcNow(),
+			'self'         => true,
+			'network'      => Protocol::ACTIVITYPUB,
+			'name'         => 'System Account',
+			'addr'         => $system_actor_name . '@' . DI::baseUrl()->getHostname(),
+			'nick'         => $system_actor_name,
+			'url'          => DI::baseUrl() . '/friendica',
+			'pubkey'       => $keys['pubkey'],
+			'prvkey'       => $keys['prvkey'],
+			'blocked'      => 0,
+			'pending'      => 0,
+			'contact-type' => Contact::TYPE_RELAY, // In AP this is translated to 'Application'
+			'name-date'    => DateTimeFormat::utcNow(),
+			'uri-date'     => DateTimeFormat::utcNow(),
+			'avatar-date'  => DateTimeFormat::utcNow(),
+			'closeness'    => 0,
+			'baseurl'      => DI::baseUrl(),
+		];
 
 		$system['avatar'] = $system['photo'] = Contact::getDefaultAvatar($system, Proxy::SIZE_SMALL);
-		$system['thumb'] = Contact::getDefaultAvatar($system, Proxy::SIZE_THUMB);
-		$system['micro'] = Contact::getDefaultAvatar($system, Proxy::SIZE_MICRO);
+		$system['thumb']  = Contact::getDefaultAvatar($system, Proxy::SIZE_THUMB);
+		$system['micro']  = Contact::getDefaultAvatar($system, Proxy::SIZE_MICRO);
+		$system['nurl']   = Strings::normaliseLink($system['url']);
+		$system['gsid']   = GServer::getID($system['baseurl']);
 
-		$system['nurl'] = Strings::normaliseLink($system['url']);
-		$system['pubkey'] = $keys['pubkey'];
-		$system['prvkey'] = $keys['prvkey'];
-		$system['blocked'] = 0;
-		$system['pending'] = 0;
-		$system['contact-type'] = Contact::TYPE_RELAY; // In AP this is translated to 'Application'
-		$system['name-date'] = DateTimeFormat::utcNow();
-		$system['uri-date'] = DateTimeFormat::utcNow();
-		$system['avatar-date'] = DateTimeFormat::utcNow();
-		$system['closeness'] = 0;
-		$system['baseurl'] = DI::baseUrl();
-		$system['gsid'] = GServer::getID($system['baseurl']);
 		Contact::insert($system);
 	}
 
