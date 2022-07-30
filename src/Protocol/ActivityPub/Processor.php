@@ -215,13 +215,12 @@ class Processor
 		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 
 		$item = self::processContent($activity, $item);
-
-		self::storeAttachments($activity, $item);
-		self::storeQuestion($activity, $item);
-
 		if (empty($item)) {
 			return;
 		}
+
+		self::storeAttachments($activity, $item);
+		self::storeQuestion($activity, $item);
 
 		Post\History::add($item['uri-id'], $item);
 		Item::update($item, ['uri' => $activity['id']]);
@@ -919,7 +918,7 @@ class Processor
 				continue;
 			}
 
-			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !Contact::isSharingByURL($activity['author'], $receiver)) {
+			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !Contact::isSharingByURL($activity['author'] ?? '', $receiver)) {
 				if ($item['post-reason'] == Item::PR_BCC) {
 					Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
 					continue;
@@ -972,9 +971,6 @@ class Processor
 				$success = true;
 			} else {
 				Logger::notice('Item insertion aborted', ['uri' => $item['uri'], 'uid' => $item['uid']]);
-				if (Item::isTooOld($item) || !Item::isValid($item)) {
-					Queue::remove($activity);
-				}
 			}
 
 			if ($item['uid'] == 0) {
@@ -982,12 +978,10 @@ class Processor
 			}
 		}
 
-		if ($success) {
-			Queue::remove($activity);
+		Queue::remove($activity);
 
-			if (Queue::hasChildren($item['uri'])) {
-				Worker::add(PRIORITY_HIGH, 'ProcessReplyByUri', $item['uri']);
-			}
+		if ($success && Queue::hasChildren($item['uri'])) {
+			Worker::add(PRIORITY_HIGH, 'ProcessReplyByUri', $item['uri']);
 		}
 
 		// Store send a follow request for every reshare - but only when the item had been stored
