@@ -215,13 +215,12 @@ class Processor
 		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 
 		$item = self::processContent($activity, $item);
-
-		self::storeAttachments($activity, $item);
-		self::storeQuestion($activity, $item);
-
 		if (empty($item)) {
 			return;
 		}
+
+		self::storeAttachments($activity, $item);
+		self::storeQuestion($activity, $item);
 
 		Post\History::add($item['uri-id'], $item);
 		Item::update($item, ['uri' => $activity['id']]);
@@ -298,6 +297,11 @@ class Processor
 			}
 		} else {
 			$conversation = [];
+		}
+
+		if (empty($activity['author']) && empty($activity['actor'])) {
+			Logger::notice('Missing author and actor. We quit here.', ['activity' => $activity]);
+			return [];
 		}
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
@@ -972,9 +976,6 @@ class Processor
 				$success = true;
 			} else {
 				Logger::notice('Item insertion aborted', ['uri' => $item['uri'], 'uid' => $item['uid']]);
-				if (Item::isTooOld($item) || !Item::isValid($item)) {
-					Queue::remove($activity);
-				}
 			}
 
 			if ($item['uid'] == 0) {
@@ -982,12 +983,10 @@ class Processor
 			}
 		}
 
-		if ($success) {
-			Queue::remove($activity);
+		Queue::remove($activity);
 
-			if (Queue::hasChildren($item['uri'])) {
-				Worker::add(PRIORITY_HIGH, 'ProcessReplyByUri', $item['uri']);
-			}
+		if ($success && Queue::hasChildren($item['uri'])) {
+			Worker::add(PRIORITY_HIGH, 'ProcessReplyByUri', $item['uri']);
 		}
 
 		// Store send a follow request for every reshare - but only when the item had been stored
