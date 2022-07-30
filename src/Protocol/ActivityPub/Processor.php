@@ -299,6 +299,11 @@ class Processor
 			$conversation = [];
 		}
 
+		if (empty($activity['author']) && empty($activity['actor'])) {
+			Logger::notice('Missing author and actor. We quit here.', ['activity' => $activity]);
+			return [];
+		}
+
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			$recursion_depth = $activity['recursion-depth'] ?? 0;
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
@@ -918,7 +923,7 @@ class Processor
 				continue;
 			}
 
-			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !Contact::isSharingByURL($activity['author'] ?? '', $receiver)) {
+			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !Contact::isSharingByURL($activity['author'], $receiver)) {
 				if ($item['post-reason'] == Item::PR_BCC) {
 					Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
 					continue;
