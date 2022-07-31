@@ -124,7 +124,7 @@ class Item
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'conversation', 'vid',
-			'contact-id', 'wall', 'gravity', 'extid', 'psid', 
+			'contact-id', 'wall', 'gravity', 'extid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type', 'post-reason',
