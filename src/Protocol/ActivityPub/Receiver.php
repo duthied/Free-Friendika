@@ -583,7 +583,7 @@ class Receiver
 			$object_data['object_activity']	= $activity;
 		}
 
-		if ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted')) {
+		if (DI::config()->get('system', 'decoupled_receiver') && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
 			$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
 		}
 
