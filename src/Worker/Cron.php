@@ -93,7 +93,9 @@ class Cron
 			Queue::clear();
 
 			// Process all unprocessed entries
-			Queue::processAll();
+			if (DI::config()->get('system', 'decoupled_receiver')) {
+				Queue::processAll();
+			}
 
 			// Search for new contacts in the directory
 			if (DI::config()->get('system', 'synchronize_directory')) {

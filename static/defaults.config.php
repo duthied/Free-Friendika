@@ -166,7 +166,7 @@ return [
 
 		// decoupled_receiver (Boolean)
 		// Decouple incoming AP posts by doing the processing in the background.
-		'decoupled_receiver' => true,
+		'decoupled_receiver' => false,
 
 		// distributed_cache_driver (database|memcache|memcached|redis)
 		// Whether to use database, Memcache, Memcached or Redis as a distributed cache.

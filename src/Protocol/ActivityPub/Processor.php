@@ -311,7 +311,9 @@ class Processor
 				$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 				if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
 					// Recursively delete this and all depending entries
-					Queue::deleteById($activity['entry-id']);
+					if (!empty($activity['entry-id'])) {
+						Queue::deleteById($activity['entry-id']);
+					}
 					return [];
 				}
 				$fetch_by_worker = empty($result);
@@ -366,8 +368,9 @@ class Processor
 
 		if (!empty($activity['raw'])) {
 			$item['source'] = $activity['raw'];
-			$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
 		}
+
+		$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
 
 		if (isset($activity['push'])) {
 			$item['direction'] = $activity['push'] ? Conversation::PUSH : Conversation::PULL;
