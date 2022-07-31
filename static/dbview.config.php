@@ -96,6 +96,7 @@
 			"global" => ["post-user", "global"],
 			"featured" => "EXISTS(SELECT `type` FROM `post-collection` WHERE `type` = 0 AND `uri-id` = `post-user`.`uri-id`)",
 			"network" => ["post-user", "network"],
+			"protocol" => ["post-user", "protocol"],
 			"vid" => ["post-user", "vid"],
 			"psid" => ["post-user", "psid"],
 			"verb" => "IF (`post-user`.`vid` IS NULL, '', `verb`.`name`)",

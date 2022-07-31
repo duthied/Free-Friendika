@@ -43,7 +43,9 @@ class PushSubscription extends BaseApi
 			'subscription' => [],
 			'data'         => [],
 		], $request);
-
+/*
+2022-07-31T08:08:11Z index [ERROR]: DB Error {"code":1366,"error":"Incorrect integer value: 'true' for column `piratica`.`subscription`.`follow` at row 1","callstack":"DBA::replace, Subscription::replace, PushSubscription::post, BaseModule::run, BaseApi::run, App::runFrontend","params":"REPLACE `subscription` (`application-id`, `uid`, `endpoint`, `pubkey`, `secret`, `follow`, `favourite`, `reblog`, `mention`, `poll`, `follow_request`, `status`) VALUES (213, 130, 'https://ntfy.sh/upNpejYKlqt5du?up=1', 'BEiGDNV6jsPwdtP186ZLbpqewcWBJHzM0qboxp8fVGoVxVUy6xiir_2RO4gM2FnE9sVg58sQdNuyDrr1jOmMj9Y', 'En7GzwQO8xuvXka5bIF3Sg', 'true', 'true', 'true', 'true', 'true', 0, 0)"} - {"file":"Database.php","line":801,"function":"e","uid":"c35eee","process_id":1404415}
+*/
 		$subscription = [
 			'application-id'                => $application['id'],
 			'uid'                           => $uid,

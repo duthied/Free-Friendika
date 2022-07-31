@@ -32,11 +32,15 @@ class Conversation
 	const PARCEL_DIASPORA           = 2;
 	const PARCEL_SALMON             = 3;
 	const PARCEL_FEED               = 4; // Deprecated
-	const PARCEL_SPLIT_CONVERSATION = 6;
+	const PARCEL_SPLIT_CONVERSATION = 6; // @deprecated since version 2022.09
 	const PARCEL_LEGACY_DFRN        = 7; // @deprecated since version 2021.09
 	const PARCEL_DIASPORA_DFRN      = 8;
 	const PARCEL_LOCAL_DFRN         = 9;
 	const PARCEL_DIRECT             = 10;
+	const PARCEL_IMAP               = 11;
+	const PARCEL_RDF                = 12;
+	const PARCEL_RSS                = 13;
+	const PARCEL_ATOM               = 14;
 	const PARCEL_TWITTER            = 67;
 	const PARCEL_UNKNOWN            = 255;
 

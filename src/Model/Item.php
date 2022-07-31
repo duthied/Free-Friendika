@@ -124,7 +124,7 @@ class Item
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'conversation', 'vid',
-			'contact-id', 'wall', 'gravity', 'extid', 'psid',
+			'contact-id', 'wall', 'gravity', 'extid', 'psid', 
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type', 'post-reason',
@@ -813,6 +813,10 @@ class Item
 		unset($item['conversation-href']);
 		unset($item['source']);
 
+		if (in_array($item['network'], Protocol::FEDERATED) && (!isset($item['protocol']) || is_null($item['protocol']))) {
+			Logger::notice('Blubb', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'uri' => $item['uri'], 'callstack' => System::callstack(20)]);
+		}
+
 		/*
 		 * Do we already have this item?
 		 * We have to check several networks since Friendica posts could be repeated
@@ -1391,7 +1395,7 @@ class Item
 		$condition = ['id' => $itemid, 'uid' => 0,
 			'network' => array_merge(Protocol::FEDERATED ,['']),
 			'visible' => true, 'deleted' => false, 'private' => [self::PUBLIC, self::UNLISTED]];
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, $condition);
+		$item = Post::selectFirst(array_merge(self::ITEM_FIELDLIST, ['protocol']), $condition);
 		if (!DBA::isResult($item)) {
 			Logger::warning('Item not found', ['condition' => $condition]);
 			return;
@@ -1480,7 +1484,7 @@ class Item
 			return 0;
 		}
 
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $uri_id, 'uid' => $source_uid]);
+		$item = Post::selectFirst(array_merge(self::ITEM_FIELDLIST, ['protocol']), ['uri-id' => $uri_id, 'uid' => $source_uid]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('Item could not be fetched', ['uri-id' => $uri_id, 'uid' => $source_uid]);
 			return 0;
@@ -1697,7 +1701,7 @@ class Item
 			return;
 		}
 
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
+		$item = Post::selectFirst(array_merge(self::ITEM_FIELDLIST, ['protocol']), ['id' => $itemid]);
 
 		if (DBA::isResult($item)) {
 			// Preparing public shadow (removing user specific data)
@@ -1733,7 +1737,7 @@ class Item
 	 */
 	private static function addShadowPost(int $itemid)
 	{
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
+		$item = Post::selectFirst(array_merge(self::ITEM_FIELDLIST, ['protocol']), ['id' => $itemid]);
 		if (!DBA::isResult($item)) {
 			return;
 		}
