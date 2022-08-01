@@ -340,7 +340,7 @@ class Processor
 				}
 			}
 
-			if ($fetch_by_worker) {
+			if ($fetch_by_worker && DI::config()->get('system', 'fetch_by_worker')) {
 				Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 				$activity['recursion-depth'] = 0;
 				if (!Fetch::hasWorker($activity['reply-to-id'])) {
