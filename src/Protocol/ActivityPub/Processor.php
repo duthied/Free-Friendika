@@ -58,6 +58,7 @@ use Friendica\Worker\Delivery;
 class Processor
 {
 	const CACHEKEY_FETCH_ACTIVITY = 'processor:fetchMissingActivity:';
+	const CACHEKEY_JUST_FETCHED   = 'processor:isJustFetched:';
 	/**
 	 * Extracts the tag character (#, @, !) from mention links
 	 *
@@ -305,37 +306,52 @@ class Processor
 		}
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
-			$recursion_depth = $activity['recursion-depth'] ?? 0;
-			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
-			if ($recursion_depth < DI::config()->get('system', 'max_recursion_depth')) {
-				$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
-				if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
-					// Recursively delete this and all depending entries
-					if (!empty($activity['entry-id'])) {
-						Queue::deleteById($activity['entry-id']);
-					}
+			if (self::hasJustBeenFetched($activity['reply-to-id'])) {
+				Logger::notice('We just have tried to fetch this activity. We don\'t try it again.', ['parent' => $activity['reply-to-id']]);
+				$fetch_by_worker = false;
+				if (empty($conversation)) {
 					return [];
 				}
-				$fetch_by_worker = empty($result);
 			} else {
-				Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
-				$fetch_by_worker = true;
+				$recursion_depth = $activity['recursion-depth'] ?? 0;
+				Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+				if ($recursion_depth < DI::config()->get('system', 'max_recursion_depth')) {
+					$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+					$fetch_by_worker = empty($result);
+					if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
+						if (!empty($activity['entry-id'])) {
+							Queue::deleteById($activity['entry-id']);
+						}
+						if (empty($conversation)) {
+							return [];
+						}
+					}
+				} else {
+					Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+					$fetch_by_worker = true;
+				}
 			}
 
 			if ($fetch_by_worker && Queue::hasWorker($activity)) {
 				Logger::notice('There is already a worker task to fetch the post.', ['id' => $activity['id'], 'parent' => $activity['reply-to-id']]);
 				$fetch_by_worker = false;
-				if (!empty($conversation)) {
+				if (empty($conversation)) {
 					return [];
 				}
 			}
 
-			if ($fetch_by_worker) {
+			if ($fetch_by_worker && DI::config()->get('system', 'fetch_by_worker')) {
 				Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 				$activity['recursion-depth'] = 0;
-				$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
-				Queue::setWorkerId($activity, $wid);
-				if (!empty($conversation)) {
+				if (!Fetch::hasWorker($activity['reply-to-id'])) {
+					Fetch::add($activity['reply-to-id']);
+					$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+					Fetch::setWorkerId($activity['reply-to-id'], $wid);
+					Queue::setWorkerId($activity, $wid);
+				} else {
+					Logger::debug('Activity will already be fetched via a worker.', ['url' => $activity['reply-to-id']]);
+				}
+				if (empty($conversation)) {
 					return [];
 				}
 			} elseif (!empty($result)) {
@@ -464,6 +480,23 @@ class Processor
 		}
 
 		return $item;
+	}
+
+	/**
+	 * Check if a given activity has recently been fetched
+	 *
+	 * @param string $url
+	 * @return boolean
+	 */
+	private static function hasJustBeenFetched(string $url): bool
+	{
+		$cachekey = self::CACHEKEY_JUST_FETCHED . $url;
+		$time = DI::cache()->get($cachekey);
+		if (is_null($time)) {
+			DI::cache()->set($cachekey, time(), Duration::FIVE_MINUTES);
+			return false;
+		}
+		return ($time + 300) > time();
 	}
 
 	/**

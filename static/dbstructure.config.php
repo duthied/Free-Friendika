@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1476);
+	define('DB_UPDATE_VERSION', 1477);
 }
 
 return [
@@ -690,6 +690,20 @@ return [
 			"addr" => ["addr(32)"],
 			"url" => ["UNIQUE", "url(190)"],
 			"uri-id" => ["UNIQUE", "uri-id"],
+		]
+	],
+	"fetch-entry" => [
+		"comment" => "",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"url" => ["type" => "varbinary(255)", "comment" => "url that awaiting to be fetched"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date of the fetch request"],
+			"wid" => ["type" => "int unsigned", "foreign" => ["workerqueue" => "id"], "comment" => "Workerqueue id"],		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"url" => ["UNIQUE", "url"],
+			"created" => ["created"],
+			"wid" => ["wid"],
 		]
 	],
 	"fsuggest" => [

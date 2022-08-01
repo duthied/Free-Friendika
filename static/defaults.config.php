@@ -282,6 +282,10 @@ return [
 		// Priority for the expirary notification 
 		'expire-notify-priority' => PRIORITY_LOW,
 
+		// fetch_by_worker (Boolean)
+		// Fetch missing posts via a background process
+		'fetch_by_worker' => false,
+
 		// free_crawls (Integer)
 		// Number of "free" searches when system => permit_crawling is enabled.
 		'free_crawls' => 10,
@@ -421,8 +425,8 @@ return [
 		'max_processes_frontend' => 20,
 
 		// max_recursion_depth (Integer)
-		// Maximum recursion depth when fetching posts until the job is delegated to a worker task.
-		'max_recursion_depth' => 10,
+		// Maximum recursion depth when fetching posts until the job is delegated to a worker task or finished.
+		'max_recursion_depth' => 50,
 
 		// maximagesize (Integer)
 		// Maximum size in bytes of an uploaded photo.
