@@ -73,6 +73,8 @@ class Recovery extends BaseModule
 				info($this->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
 				$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
+
+				$this->baseUrl->redirect($this->session->pop('return_path', ''));
 			} else {
 				notice($this->t('Invalid code, please retry.'));
 			}

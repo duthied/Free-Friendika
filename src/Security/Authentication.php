@@ -244,15 +244,19 @@ class Authentication
 	/**
 	 * Attempts to authenticate using login/password
 	 *
-	 * @param App    $a        The Friendica Application context
-	 * @param string $username User name
-	 * @param string $password Clear password
-	 * @param bool   $remember Whether to set the session remember flag
+	 * @param App    $a           The Friendica Application context
+	 * @param string $username
+	 * @param string $password    Clear password
+	 * @param bool   $remember    Whether to set the session remember flag
+	 * @param string $return_path The relative path to redirect the user to after authentication
 	 *
-	 * @throws HttpException\InternalServerErrorException In case of Friendica internal exceptions
-	 * @throws Exception A general Exception (like SQL Grammar exceptions)
+	 * @throws HTTPException\ForbiddenException
+	 * @throws HTTPException\FoundException
+	 * @throws HTTPException\InternalServerErrorException In case of Friendica internal exceptions
+	 * @throws HTTPException\MovedPermanentlyException
+	 * @throws HTTPException\TemporaryRedirectException
 	 */
-	public function withPassword(App $a, string $username, string $password, bool $remember)
+	public function withPassword(App $a, string $username, string $password, bool $remember, string $return_path = '')
 	{
 		$record = null;
 
@@ -289,8 +293,6 @@ class Authentication
 
 		$this->setForUser($a, $record, true, true);
 
-		$return_path = $this->session->get('return_path', '');
-		$this->session->remove('return_path');
 
 		$this->baseUrl->redirect($return_path);
 	}
@@ -382,10 +384,6 @@ class Authentication
 
 		if ($login_initial) {
 			Hook::callAll('logged_in', $user_record);
-
-			if (DI::args()->getModuleName() !== 'home' && $this->session->exists('return_path')) {
-				$this->baseUrl->redirect($this->session->get('return_path'));
-			}
 		}
 	}
 
