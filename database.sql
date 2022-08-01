@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1476
+-- DB_UPDATE_VERSION 1477
 -- ------------------------------------------
 
 
@@ -631,6 +631,21 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	 UNIQUE INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Diaspora compatible contacts - used in the Diaspora implementation';
+
+--
+-- TABLE fetch-entry
+--
+CREATE TABLE IF NOT EXISTS `fetch-entry` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`url` varbinary(255) COMMENT 'url that awaiting to be fetched',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date of the fetch request',
+	`wid` int unsigned COMMENT 'Workerqueue id',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `url` (`url`),
+	 INDEX `created` (`created`),
+	 INDEX `wid` (`wid`),
+	FOREIGN KEY (`wid`) REFERENCES `workerqueue` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
 -- TABLE fsuggest

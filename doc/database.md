@@ -24,6 +24,7 @@ Database Tables
 | [endpoint](help/database/db_endpoint) | ActivityPub endpoints - used in the ActivityPub implementation |
 | [event](help/database/db_event) | Events |
 | [fcontact](help/database/db_fcontact) | Diaspora compatible contacts - used in the Diaspora implementation |
+| [fetch-entry](help/database/db_fetch-entry) |  |
 | [fsuggest](help/database/db_fsuggest) | friend suggestion stuff |
 | [group](help/database/db_group) | privacy groups, group info |
 | [group_member](help/database/db_group_member) | privacy groups, member info |

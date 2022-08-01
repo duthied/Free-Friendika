@@ -80,5 +80,4 @@ class Fetch
 
 		return DBA::exists('workerqueue', ['id' => $fetch['wid'], 'done' => false]);
 	}
-
 }
