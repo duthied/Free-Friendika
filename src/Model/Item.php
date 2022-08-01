@@ -813,10 +813,6 @@ class Item
 		unset($item['conversation-href']);
 		unset($item['source']);
 
-		if (in_array($item['network'], Protocol::FEDERATED) && (!isset($item['protocol']) || is_null($item['protocol']))) {
-			Logger::notice('Blubb', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'uri' => $item['uri'], 'callstack' => System::callstack(20)]);
-		}
-
 		/*
 		 * Do we already have this item?
 		 * We have to check several networks since Friendica posts could be repeated
