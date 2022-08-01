@@ -291,8 +291,14 @@ class Authentication
 			$this->dba->update('user', ['openid' => $openid_identity, 'openidserver' => $openid_server], ['uid' => $record['uid']]);
 		}
 
-		$this->setForUser($a, $record, true, true);
+		/**
+		 * @see User::getPasswordRegExp()
+		 */
+		if (PASSWORD_DEFAULT === PASSWORD_BCRYPT && strlen($password) > 72) {
+			$return_path = '/security/password_too_long?' . http_build_query(['return_path' => $return_path]);
+		}
 
+		$this->setForUser($a, $record, true, true);
 
 		$this->baseUrl->redirect($return_path);
 	}
