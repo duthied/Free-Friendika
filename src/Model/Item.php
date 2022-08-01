@@ -1391,7 +1391,7 @@ class Item
 		$condition = ['id' => $itemid, 'uid' => 0,
 			'network' => array_merge(Protocol::FEDERATED ,['']),
 			'visible' => true, 'deleted' => false, 'private' => [self::PUBLIC, self::UNLISTED]];
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, $condition);
+		$item = Post::selectFirst(array_merge(self::ITEM_FIELDLIST, ['protocol']), $condition);
 		if (!DBA::isResult($item)) {
 			Logger::warning('Item not found', ['condition' => $condition]);
 			return;
@@ -1480,7 +1480,7 @@ class Item
 			return 0;
 		}
 
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $uri_id, 'uid' => $source_uid]);
+		$item = Post::selectFirst(array_merge(self::ITEM_FIELDLIST, ['protocol']), ['uri-id' => $uri_id, 'uid' => $source_uid]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('Item could not be fetched', ['uri-id' => $uri_id, 'uid' => $source_uid]);
 			return 0;
@@ -1697,7 +1697,7 @@ class Item
 			return;
 		}
 
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
+		$item = Post::selectFirst(array_merge(self::ITEM_FIELDLIST, ['protocol']), ['id' => $itemid]);
 
 		if (DBA::isResult($item)) {
 			// Preparing public shadow (removing user specific data)
@@ -1733,7 +1733,7 @@ class Item
 	 */
 	private static function addShadowPost(int $itemid)
 	{
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
+		$item = Post::selectFirst(array_merge(self::ITEM_FIELDLIST, ['protocol']), ['id' => $itemid]);
 		if (!DBA::isResult($item)) {
 			return;
 		}

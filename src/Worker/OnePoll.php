@@ -27,6 +27,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\User;
@@ -247,6 +248,9 @@ class OnePoll
 					$datarray['verb'] = Activity::POST;
 					$datarray['object-type'] = Activity\ObjectType::NOTE;
 					$datarray['network'] = Protocol::MAIL;
+					$datarray['protocol'] = Conversation::PARCEL_IMAP;
+					$datarray['direction'] = Conversation::PULL;
+				
 					// $meta = Email::messageMeta($mbox, $msg_uid);
 
 					$datarray['thr-parent'] = $datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));

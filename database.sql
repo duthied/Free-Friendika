@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1475
+-- DB_UPDATE_VERSION 1476
 -- ------------------------------------------
 
 
@@ -1774,6 +1774,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-user`.`global` AS `global`,
 	EXISTS(SELECT `type` FROM `post-collection` WHERE `type` = 0 AND `uri-id` = `post-user`.`uri-id`) AS `featured`,
 	`post-user`.`network` AS `network`,
+	`post-user`.`protocol` AS `protocol`,
 	`post-user`.`vid` AS `vid`,
 	`post-user`.`psid` AS `psid`,
 	IF (`post-user`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,

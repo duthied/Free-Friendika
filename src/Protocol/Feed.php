@@ -33,6 +33,7 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
@@ -98,9 +99,11 @@ class Feed
 
 		$author = [];
 		$entries = null;
+		$protocol = Conversation::PARCEL_UNKNOWN;
 
 		// Is it RDF?
 		if ($xpath->query('/rdf:RDF/rss:channel')->length > 0) {
+			$protocol = Conversation::PARCEL_RDF;
 			$author['author-link'] = XML::getFirstNodeValue($xpath, '/rdf:RDF/rss:channel/rss:link/text()');
 			$author['author-name'] = XML::getFirstNodeValue($xpath, '/rdf:RDF/rss:channel/rss:title/text()');
 
@@ -112,6 +115,7 @@ class Feed
 
 		// Is it Atom?
 		if ($xpath->query('/atom:feed')->length > 0) {
+			$protocol = Conversation::PARCEL_ATOM;
 			$alternate = XML::getFirstAttributes($xpath, "atom:link[@rel='alternate']");
 			if (is_object($alternate)) {
 				foreach ($alternate as $attribute) {
@@ -195,6 +199,7 @@ class Feed
 
 		// Is it RSS?
 		if ($xpath->query('/rss/channel')->length > 0) {
+			$protocol = Conversation::PARCEL_RSS;
 			$author['author-link'] = XML::getFirstNodeValue($xpath, '/rss/channel/link/text()');
 
 			$author['author-name'] = XML::getFirstNodeValue($xpath, '/rss/channel/title/text()');
@@ -250,6 +255,8 @@ class Feed
 		$header = [];
 		$header['uid'] = $importer['uid'] ?? 0;
 		$header['network'] = Protocol::FEED;
+		$datarray['protocol'] = $protocol;
+		$datarray['direction'] = Conversation::PULL;
 		$header['wall'] = 0;
 		$header['origin'] = 0;
 		$header['gravity'] = GRAVITY_PARENT;

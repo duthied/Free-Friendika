@@ -1830,8 +1830,6 @@ class DFRN
 
 		$item = $header;
 
-		$item['protocol'] = $protocol;
-
 		$item['source'] = $xml;
 
 		// Get the uri
@@ -2260,10 +2258,12 @@ class DFRN
 		$header = [];
 		$header['uid'] = $importer['importer_uid'];
 		$header['network'] = Protocol::DFRN;
+		$header['protocol'] = $protocol;
 		$header['wall'] = 0;
 		$header['origin'] = 0;
 		$header['contact-id'] = $importer['id'];
-		$header['direction'] = $direction;
+
+		$header = Diaspora::setDirection($header, $direction);
 
 		if ($direction === Conversation::RELAY) {
 			$header['post-reason'] = Item::PR_RELAY;

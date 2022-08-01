@@ -1535,13 +1535,7 @@ class Diaspora
 		$datarray['owner-id'] = Contact::getIdForURL($contact['url'], 0);
 
 		// Will be overwritten for sharing accounts in Item::insert
-		if (in_array($direction, [self::FETCHED, self::FORCED_FETCH])) {
-			$datarray['post-reason'] = Item::PR_FETCHED;
-		} elseif ($datarray['uid'] == 0) {
-			$datarray['post-reason'] = Item::PR_GLOBAL;
-		} else {
-			$datarray['post-reason'] = Item::PR_COMMENT;
-		}
+		$datarray = self::setDirection($datarray, $direction);
 
 		$datarray['guid'] = $guid;
 		$datarray['uri'] = self::getUriFromGuid($author, $guid);
@@ -1557,7 +1551,8 @@ class Diaspora
 
 		$datarray['protocol'] = Conversation::PARCEL_DIASPORA;
 		$datarray['source'] = $xml;
-		$datarray['direction'] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
+
+		$datarray = self::setDirection($datarray, $direction);
 
 		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = $created_at;
 
@@ -1786,11 +1781,12 @@ class Diaspora
 		$datarray = [];
 
 		$datarray['protocol'] = Conversation::PARCEL_DIASPORA;
-		$datarray['direction'] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
 
 		$datarray['uid'] = $importer['uid'];
 		$datarray['contact-id'] = $author_contact['cid'];
 		$datarray['network']  = $author_contact['network'];
+
+		$datarray = self::setDirection($datarray, $direction);
 
 		$datarray['owner-link'] = $datarray['author-link'] = $person['url'];
 		$datarray['owner-id'] = $datarray['author-id'] = Contact::getIdForURL($person['url'], 0);
@@ -1965,11 +1961,12 @@ class Diaspora
 		$datarray = [];
 
 		$datarray['protocol'] = Conversation::PARCEL_DIASPORA;
-		$datarray['direction'] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
 
 		$datarray['uid'] = $importer['uid'];
 		$datarray['contact-id'] = $author_contact['cid'];
 		$datarray['network']  = $author_contact['network'];
+
+		$datarray = self::setDirection($datarray, $direction);
 
 		$datarray['owner-link'] = $datarray['author-link'] = $person['url'];
 		$datarray['owner-id'] = $datarray['author-id'] = Contact::getIdForURL($person['url'], 0);
@@ -2382,6 +2379,7 @@ class Diaspora
 		$datarray['protocol'] = $item['protocol'];
 		$datarray['source'] = $item['source'];
 		$datarray['direction'] = $item['direction'];
+		$datarray['post-reason'] = $item['post-reason'];
 
 		$datarray['plink'] = self::plink($author, $datarray['guid']);
 		$datarray['private'] = $item['private'];
@@ -2468,7 +2466,8 @@ class Diaspora
 
 		$datarray['protocol'] = Conversation::PARCEL_DIASPORA;
 		$datarray['source'] = $xml;
-		$datarray['direction'] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
+
+		$datarray = self::setDirection($datarray, $direction);
 
 		/// @todo Copy tag data from original post
 
@@ -2691,6 +2690,29 @@ class Diaspora
 	}
 
 	/**
+	 * Set direction and post reason
+	 *
+	 * @param array $datarray
+	 * @param integer $direction
+	 *
+	 * @return array
+	 */
+	public static function setDirection(array $datarray, int $direction): array
+	{
+		$datarray['direction'] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
+
+		if (in_array($direction, [self::FETCHED, self::FORCED_FETCH])) {
+			$datarray['post-reason'] = Item::PR_FETCHED;
+		} elseif ($datarray['uid'] == 0) {
+			$datarray['post-reason'] = Item::PR_GLOBAL;
+		} else {
+			$datarray['post-reason'] = Item::PR_PUSHED;
+		}
+
+		return $datarray;
+	}
+
+	/**
 	 * Receives status messages
 	 *
 	 * @param array            $importer  Array of the importer user
@@ -2780,13 +2802,8 @@ class Diaspora
 
 		$datarray['protocol'] = Conversation::PARCEL_DIASPORA;
 		$datarray['source'] = $xml;
-		$datarray['direction'] = in_array($direction, [self::FETCHED, self::FORCED_FETCH]) ? Conversation::PULL : Conversation::PUSH;
 
-		if (in_array($direction, [self::FETCHED, self::FORCED_FETCH])) {
-			$datarray['post-reason'] = Item::PR_FETCHED;
-		} elseif ($datarray['uid'] == 0) {
-			$datarray['post-reason'] = Item::PR_GLOBAL;
-		}
+		$datarray = self::setDirection($datarray, $direction);
 
 		$datarray['body'] = self::replacePeopleGuid($body, $contact['url']);
 		$datarray['raw-body'] = self::replacePeopleGuid($raw_body, $contact['url']);
