@@ -343,8 +343,14 @@ class Processor
 			if ($fetch_by_worker) {
 				Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 				$activity['recursion-depth'] = 0;
-				$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
-				Queue::setWorkerId($activity, $wid);
+				if (!Fetch::hasWorker($activity['reply-to-id'])) {
+					Fetch::add($activity['reply-to-id']);
+					$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+					Fetch::setWorkerId($activity['reply-to-id'], $wid);
+					Queue::setWorkerId($activity, $wid);
+				} else {
+					Logger::debug('Activity is already in the fetching process', ['url' => $activity['reply-to-id']]);
+				}
 				if (empty($conversation)) {
 					return [];
 				}
