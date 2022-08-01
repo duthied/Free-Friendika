@@ -349,7 +349,7 @@ class Processor
 					Fetch::setWorkerId($activity['reply-to-id'], $wid);
 					Queue::setWorkerId($activity, $wid);
 				} else {
-					Logger::debug('Activity is already in the fetching process', ['url' => $activity['reply-to-id']]);
+					Logger::debug('Activity will already be fetched via a worker.', ['url' => $activity['reply-to-id']]);
 				}
 				if (empty($conversation)) {
 					return [];
